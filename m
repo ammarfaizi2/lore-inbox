@@ -1,61 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266164AbRF2TmS>; Fri, 29 Jun 2001 15:42:18 -0400
+	id <S266161AbRF2T12>; Fri, 29 Jun 2001 15:27:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266166AbRF2TmI>; Fri, 29 Jun 2001 15:42:08 -0400
-Received: from [216.44.69.131] ([216.44.69.131]:55291 "EHLO jetcar.qnz.org")
-	by vger.kernel.org with ESMTP id <S266164AbRF2TmF>;
-	Fri, 29 Jun 2001 15:42:05 -0400
-To: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk, davem@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] bad TCP checksums in tcp_retrans_try_collapse 2.4.5pre5 (at least)
-From: Todd Sabin <tas@webspan.net>
-Date: 29 Jun 2001 15:40:32 -0400
-Message-ID: <m3pubnoz0v.fsf@jetcar.qnz.org>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
+	id <S266162AbRF2T1S>; Fri, 29 Jun 2001 15:27:18 -0400
+Received: from mnh-1-20.mv.com ([207.22.10.52]:50952 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S266161AbRF2T1H>;
+	Fri, 29 Jun 2001 15:27:07 -0400
+Message-Id: <200106292040.PAA03583@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: linux-kernel@vger.kernel.org
+cc: mistral@stev.org, linux-mm@kvack.org, rcastro@ime.usp.br, abali@us.ibm.com,
+        riel@conectiva.com.br, phillips@bonn-fries.net, viro@math.psu.edu
+Subject: Re: all processes waiting in TASK_UNINTERRUPTIBLE state 
+In-Reply-To: Your message of "Mon, 25 Jun 2001 20:33:17 GMT."
+             <Pine.LNX.4.30.0106252031240.25982-100000@cyrix.stev.org> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Fri, 29 Jun 2001 15:40:16 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+To recap the story so far, a number of people have reported seeing processes 
+hang indefinitely in TASK_UNINTERRUPTIBLE in __wait_on_buffer or __lock_page, 
+both on physical boxes and under UML.  It was found to be reproducable under 
+UML, but not on a native kernel as far as I know.
 
-Hi,
+I've fixed this problem in UML.
 
-We've been pulling our hair out lately trying to figure out why
-certain connections of ours have been just stalling and dying.  It
-turns out that the problem occurs when tcp segments are lost and then
-coalesced into a single segment for retransmission.  When that
-happens, a bad checksum is computed, and then the connection dies
-while one end continually retransmits the same packet with a bad
-checksum.
+The short story :
 
-Here's a patch against 2.4.5pre5 which should fix it:
+The bug was UML-specific and specific in such a way that I don't think it's 
+possible to find the bug in the native kernel by making analogies from the UML 
+bug.
 
---- tcp_output.c~	Thu Apr 12 15:11:39 2001
-+++ tcp_output.c	Fri Jun 29 13:58:31 2001
-@@ -722,7 +722,7 @@
- 
- 		if (skb->ip_summed != CHECKSUM_HW) {
- 			memcpy(skb_put(skb, next_skb_size), next_skb->data, next_skb_size);
--			skb->csum = csum_block_add(skb->csum, next_skb->csum, skb->len);
-+			skb->csum = csum_block_add(skb->csum, next_skb->csum, skb_size);
- 		}
- 
- 		/* Update sequence range on original skb. */
+The long story :
+
+First, two pieces of background information
+	- UML's ubd block driver performs asynchronous I/O by using a separate thread 
+to perform the I/O.  The driver's request routine writes the request to the 
+I/O thread over a file descriptor.  The thread performs the request by calling 
+either read() or write() on the host.  When that call returns, it writes the 
+results back to UML, causing a SIGIO.  That goes through the normal IRQ system 
+and ends up in the ubd interrupt handler, which finishes the request, and, if 
+the device request queue isn't empty, starts the next request.
+	- A couple of weeks ago, I made a change to reduce the number of clock ticks 
+that UML loses under load.  The clock is implemented with SIGALRM and 
+SIGVTALRM.  The change involved leaving those signals enabled all the time, 
+and having the handler decide whether it was safe to invoke the timer irq.  If 
+not, it bumped a missing_ticks counter and returned.  The missing ticks are 
+fully accounted for the next time the handler finds that it can call into the 
+irq system.
+
+The ubd request routine runs with interrupts off, but now, the alarms could at 
+least fire, even if they didn't do anything but increment a counter.  This 
+occasionally caused the write of the I/O request from the request routine to 
+the I/O thread to return -EINTR.  The return value wasn't checked, so the I/O 
+thread didn't get the request and the request routine had no idea that 
+anything was wrong.  This caused disk I/O to permanently shut down, so pending 
+requests stayed pending, and processes waiting on them waited forever.
+
+The key piece of this bug was a signal causing a crucial communication between 
+two UML threads to be lost.  I don't see any analogies between this and 
+anything that happens on a physical system, so it looks to me like the problem 
+that people are seeing there is completely different.
+
+Thanks to James Stevenson for figuring out how to reproduce the bug under UML, 
+and to Daniel Phillips and Al Viro for help in tracking this problem from the 
+fs and mm systems into the block and driver layers.
+
+				Jeff
 
 
-Hopefully the problem is obvious in retrospect.  skb_put(skb,...)
-modifies skb->len, and the new value was being used in csum_block_add
-instead of the original len.  We're testing the patch now, but it
-seems fairly obvious and apparently other people have been reporting
-similar problems so I wanted to get this out there...
-
-
-Todd
-
-p.s.  If there's followup, please Cc me directly, as I'm not
-subscribed to lkml.
-
--- 
-Todd Sabin                                               <tas@webspan.net>
-BindView RAZOR Team                            <tsabin@razor.bindview.com>

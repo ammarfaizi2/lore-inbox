@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267755AbUG1UQ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263147AbUG1UVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267755AbUG1UQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 16:16:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267750AbUG1UQ4
+	id S263147AbUG1UVV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 16:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263204AbUG1UVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 16:16:56 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:13247 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267627AbUG1UQj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 16:16:39 -0400
-Date: Wed, 28 Jul 2004 13:15:52 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Mike Kravetz <kravetz@us.ibm.com>, Andy Whitcroft <apw@shadowen.org>,
-       Joel Schopp <jschopp@austin.ibm.com>, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Use of __pa() with CONFIG_NONLINEAR
-Message-ID: <49810000.1091045752@flay>
-In-Reply-To: <1091045615.2871.364.camel@nighthawk>
-References: <1090965630.15847.575.camel@nighthawk> <20040728181645.GA13758@w-mikek2.beaverton.ibm.com> <35960000.1091044039@flay> <1091045615.2871.364.camel@nighthawk>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 28 Jul 2004 16:21:21 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:65297 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S263147AbUG1UVT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 16:21:19 -0400
+Date: Wed, 28 Jul 2004 13:21:07 -0700
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: karim@opersys.com, Scott Wood <scott@timesys.com>,
+       Ingo Molnar <mingo@elte.hu>,
+       "La Monte H.P. Yarroll" <piggy@timesys.com>,
+       Manas Saksena <manas.saksena@timesys.com>,
+       Philippe Gerum <rpm@xenomai.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] IRQ threads
+Message-ID: <20040728202107.GA6952@nietzsche.lynx.com>
+References: <20040727225040.GA4370@yoda.timesys> <4107CA18.4060204@opersys.com> <1091039327.747.26.camel@mindpipe> <4107FA93.3030801@opersys.com> <1091043218.766.10.camel@mindpipe>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <1091043218.766.10.camel@mindpipe>
+User-Agent: Mutt/1.5.6+20040722i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 2004-07-28 at 12:47, Martin J. Bligh wrote:
->> Can someone explain the necessity to create the new address space? We don't
->> need it with the current holes between nodes, and from my discssions with
->> Andy, I'm now unconvinced it's necessary.
+On Wed, Jul 28, 2004 at 03:33:38PM -0400, Lee Revell wrote:
+> I am familiar with Adeos, as well as other hard-RT solutions for Linux. 
+> I did my homework before deciding that I do not in fact need hard-RT, so
+> I really am not interested in your flamewars, keep them on your RT
+> mailing lists.
 > 
-> Actually, the new address space is quite separated from what I'm
-> proposing here.  I'd prefer to discuss that part when we have an
-> implementation surrounding it.  I can explain it now if you'd like, but
-> it's going to be a bit harder with no code.  
-> 
-> The reason we need boot-time __{p,v}a() macros is really quite separate
-> from the new (logical) address space.  These new macros are just so we
-> can assume flat addressing during boot or compile-time, before any
-> nonlinear structures are set up.
+> The part that was obvious commercially motivated FUD (and which you
+> omitted) t in which you badmouth TimeSys and its services, then  Your
+> .sig states that you are a consultant specializing in realtime and
+> embedded Linux.
 
-Ah, OK ... makes more sense - thanks.
+With that said, there's really two camps that are emerging in the real
+time Linux field, dual and single kernel. The single kernel work that's
+current being done could very well get Linux to being hard RT, assuming
+that you solve all of the technical problems with things like RCU,
+etc... in 2.6.
 
-However ... what happens to functions calling __pa that are called from 
-boot time and run time code?
+The dual kernels folks would be in less of position to VAR their own
+stuff and sell proprietary products if Linux were to get native hard RT
+performance if you accept that economic criteria. Who knows what the
+actual results will be.
 
-M.
+It could be that all of this work with Linux could bury prioprietary
+OS product (such as LynxOS here) or it could open doors to other things
+unknown things that were never possible previous to Linux getting some
+kind of hard RT capability. It's certainly a scary notion to think about
+with many variables to consider. Linux getting hard RT is inevitable.
+It's just a question of how it'll be handled by proprietary OS vendors,
+witness IBM for a positive example. A negative one would be Sun.
+
+Now that Windriver System (the idiot folks that never understood Linux
+before laying off tons of folks and disbanned the rather famous BSD/OS
+group which I was apart of, etc...) and Red Hat is in the picture, it's
+all starting to cook up.
+
+All things to think about.
+
+bill
 

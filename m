@@ -1,103 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264161AbTCXLos>; Mon, 24 Mar 2003 06:44:48 -0500
+	id <S264162AbTCXLvI>; Mon, 24 Mar 2003 06:51:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264162AbTCXLos>; Mon, 24 Mar 2003 06:44:48 -0500
-Received: from dp.samba.org ([66.70.73.150]:41380 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S264161AbTCXLon>;
-	Mon, 24 Mar 2003 06:44:43 -0500
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15998.61467.868276.672346@nanango.paulus.ozlabs.org>
-Date: Mon, 24 Mar 2003 22:46:35 +1100 (EST)
-To: James Simmons <jsimmons@infradead.org>
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] update platinum video driver
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+	id <S264163AbTCXLvI>; Mon, 24 Mar 2003 06:51:08 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:4529 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S264162AbTCXLvH>;
+	Mon, 24 Mar 2003 06:51:07 -0500
+Date: Mon, 24 Mar 2003 13:02:17 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: current BK boot failure, d_alloc()
+Message-ID: <20030324120217.GB2371@suse.de>
+References: <20030324115048.GA2371@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030324115048.GA2371@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch gets the "platinum" driver to compile, and fixes it so that
-the pseudo_palette is always accessed as 32-bit quantities.  It takes
-out the video=platinumfb:font:blah option since fonts aren't handled
-at this level any more AFAICT (and besides, it caused compile errors).
+On Mon, Mar 24 2003, Jens Axboe wrote:
+> Hi,
+> 
+> SBF: Simple Boot Flag extension found and enabled.
+> SBF: Setting boot flags 0x80
+> Starting balanced_irq
+> Enabling SEP on CPU 1
+> Enabling SEP on CPU 0
+> 
+> Program received signal SIGSEGV, Segmentation fault.
+> 0xc016da64 in d_alloc (parent=0x0, name=0xdff8fea8) at
+> include/asm/string.h:196
+> 196     __asm__ __volatile__(
+> (gdb) bt
+> #0  0xc016da64 in d_alloc (parent=0x0, name=0xdff8fea8)
+>     at include/asm/string.h:196
+> #1  0xc016dd16 in d_alloc_root (root_inode=0xc176ddc4) at
+> fs/dcache.c:787
+> #2  0xc014f46b in shmem_fill_super (sb=0xc176ddc4, data=0x1, silent=0)
+>     at mm/shmem.c:1738
+> #3  0xc015cabf in get_sb_nodev (fs_type=0x1, flags=-1049174588,
+> data=0x1, 
+>     fill_super=0xc014f330 <shmem_fill_super>) at fs/super.c:586
+> #4  0xc015cc16 in do_kern_mount (fstype=0x1 <Address 0x1 out of bounds>, 
+>     flags=1, name=0xc02c3547 "tmpfs", data=0x1) at fs/super.c:639
+> #5  0xc015ccb7 in kern_mount (type=0x1) at fs/super.c:665
+> #6  0xc0346620 in init_tmpfs () at mm/shmem.c:1887
+> #7  0xc0338992 in do_initcalls () at init/main.c:486
+> #8  0xc01050f5 in init (unused=0x0) at init/main.c:551
+> (gdb) print *(struct qstr *) name
+> $1 = {name = 0x0, len = 1, hash = 0, name_str = 0xdff8feb4 "\230µÿß\200µÿß"}
+> 
+> craps out in memcpy() due to name->name == NULL
 
-Paul.
+smells like a compiler problem, with the following patch:
 
-diff -urN linux-2.5/drivers/video/platinumfb.c linuxppc-2.5/drivers/video/platinumfb.c
---- linux-2.5/drivers/video/platinumfb.c	2003-03-23 16:29:31.000000000 +1100
-+++ linuxppc-2.5/drivers/video/platinumfb.c	2003-03-23 21:42:33.000000000 +1100
-@@ -36,8 +36,8 @@
- #include <asm/prom.h>
- #include <asm/pgtable.h>
+===== fs/dcache.c 1.43 vs edited =====
+--- 1.43/fs/dcache.c	Sat Mar 22 05:05:21 2003
++++ edited/fs/dcache.c	Mon Mar 24 12:58:19 2003
+@@ -784,7 +784,8 @@
+ 	struct dentry *res = NULL;
  
--#include "platinumfb.h"
- #include "macmodes.h"
-+#include "platinumfb.h"
- 
- static int default_vmode = VMODE_NVRAM;
- static int default_cmode = CMODE_NVRAM;
-@@ -219,15 +219,14 @@
- 
- 	if (regno < 16) {
- 		int i;
-+		u32 *pal = info->pseudo_palette;
- 		switch (p->par.cmode) {
- 		case CMODE_16:
--			((u16 *) (info->pseudo_palette))[regno] =
--			    (regno << 10) | (regno << 5) | regno;
-+			pal[regno] = (regno << 10) | (regno << 5) | regno;
- 			break;
- 		case CMODE_32:
- 			i = (regno << 8) | regno;
--			((u32 *) (info->pseudo_palette))[regno] =
--			    (i << 16) | i;
-+			pal[regno] = (i << 16) | i;
- 			break;
- 		}
- 	}
-@@ -401,7 +400,7 @@
- 	/* Apply default var */
- 	p->info.var = var;
- 	var.activate = FB_ACTIVATE_NOW;
--	rc = gen_set_var(&var, -1, &p->info);
-+	rc = fb_set_var(&var, &p->info);
- 	if (rc && (default_vmode != VMODE_640_480_60 || default_cmode != CMODE_8))
- 		goto try_again;
- 
-@@ -410,7 +409,7 @@
- 		return 0;
- 
- 	printk(KERN_INFO "fb%d: platinum frame buffer device\n",
--	       GET_FB_IDX(p->info.node));
-+	       minor(p->info.node));
- 
- 	return 1;
- }
-@@ -607,21 +606,10 @@
- 		return 0;
- 
- 	while ((this_opt = strsep(&options, ",")) != NULL) {
--		if (!strncmp(this_opt, "font:", 5)) {
--			char *p;
--			int i;
--
--			p = this_opt + 5;
--			for (i = 0; i < sizeof(fontname) - 1; i++)
--				if (!*p || *p == ' ' || *p == ',')
--					break;
--			memcpy(fontname, this_opt + 5, i);
--			fontname[i] = 0;
--		}
- 		if (!strncmp(this_opt, "vmode:", 6)) {
- 	    		int vmode = simple_strtoul(this_opt+6, NULL, 0);
--	    	if (vmode > 0 && vmode <= VMODE_MAX)
--			default_vmode = vmode;
-+			if (vmode > 0 && vmode <= VMODE_MAX)
-+				default_vmode = vmode;
- 		} else if (!strncmp(this_opt, "cmode:", 6)) {
- 			int depth = simple_strtoul(this_opt+6, NULL, 0);
- 			switch (depth) {
+ 	if (root_inode) {
+-		res = d_alloc(NULL, &(const struct qstr) { "/", 1, 0 });
++		struct qstr name = { .name = "/", .len = 1, .hash = 0 };
++		res = d_alloc(NULL, &name);
+ 		if (res) {
+ 			res->d_sb = root_inode->i_sb;
+ 			res->d_parent = res;
+
+-- 
+Jens Axboe
+

@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbULYN3D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbULYN3T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbULYN3D (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 08:29:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbULYN3D
+	id S261427AbULYN3T (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 08:29:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbULYN3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 08:29:03 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:49815 "EHLO
+	Sat, 25 Dec 2004 08:29:19 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:50071 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261426AbULYN3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 08:29:01 -0500
-Subject: Re: lease.openlogging.org is unreachable
+	id S261427AbULYN3P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Dec 2004 08:29:15 -0500
+Subject: Re: A general question on SMP-safe driver code.
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Larry McVoy <lm@bitmover.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <200412250121_MC3-1-91AF-7FBB@compuserve.com>
-References: <200412250121_MC3-1-91AF-7FBB@compuserve.com>
+To: Jim Nelson <james4765@verizon.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41CC9F2A.9080905@verizon.net>
+References: <41CC9F2A.9080905@verizon.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1103977484.22653.11.camel@localhost.localdomain>
+Message-Id: <1103977401.22646.9.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 25 Dec 2004 12:24:48 +0000
+Date: Sat, 25 Dec 2004 12:23:24 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2004-12-25 at 06:20, Chuck Ebbert wrote:
-> lease.openlogging.org is unreachable today.
-> 
-> So I guess I need to set up a cron job to renew my lease every
-> minute/hour/day/whatever so I can actually download new kernel
-> releases when they come out?  I can't even examine the code I
-> downloaded yesterday without that lease...  Now that's what I call
-> having my source code held hostage!
+On Gwe, 2004-12-24 at 22:58, Jim Nelson wrote:
+> Looking at a few older drivers, I'm trying to figure out the best ways to handle 
+> some locking.  Using drivers/char/esp.c as an example (since it's the one I'm 
+> trying to grok right now), here is one example:
 
-The tar ball edition works perfectly 8)
+> ;
+> 	serial_out(info, UART_ESI_CMD1, ESI_GET_TX_AVAIL);
+> 	spin_unlock_irq(&info->esp_lock);
+> 
+> 	while ((serial_in(info, UART_ESI_STAT1) != 0x03) ||
+> 		(serial_in(info, UART_ESI_STAT2) != 0xff)) {
+
+You need to guard these as well in the locks. It might actually look a
+lot cleaner to have functions esp_send_command(info, a, b) and the like
+which do the locking internally ?
 

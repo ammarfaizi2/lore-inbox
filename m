@@ -1,75 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVCQQV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbVCQQXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261941AbVCQQV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 11:21:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVCQQV6
+	id S261942AbVCQQXr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 11:23:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbVCQQXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 11:21:58 -0500
-Received: from hellhawk.shadowen.org ([80.68.90.175]:26899 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S261941AbVCQQVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 11:21:55 -0500
-Message-ID: <4239AE80.1070403@shadowen.org>
-Date: Thu, 17 Mar 2005 16:21:20 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
+	Thu, 17 Mar 2005 11:23:46 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:48341 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261942AbVCQQXY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 11:23:24 -0500
+Date: Thu, 17 Mar 2005 11:23:01 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+Reply-To: rostedt@goodmis.org
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Andrew Morton <akpm@osdl.org>, mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/3] j_state_lock, j_list_lock, remove-bitlocks
+In-Reply-To: <1111074082.23171.8.camel@mindpipe>
+Message-ID: <Pine.LNX.4.58.0503171108510.17696@localhost.localdomain>
+References: <Pine.LNX.4.58.0503141024530.697@localhost.localdomain> 
+ <Pine.LNX.4.58.0503150641030.6456@localhost.localdomain>  <20050315120053.GA4686@elte.hu>
+  <Pine.LNX.4.58.0503150746110.6456@localhost.localdomain> 
+ <20050315133540.GB4686@elte.hu>  <Pine.LNX.4.58.0503151150170.6456@localhost.localdomain>
+  <20050316085029.GA11414@elte.hu> <20050316011510.2a3bdfdb.akpm@osdl.org> 
+ <20050316095155.GA15080@elte.hu> <20050316020408.434cc620.akpm@osdl.org> 
+ <20050316101906.GA17328@elte.hu> <20050316024022.6d5c4706.akpm@osdl.org> 
+ <Pine.LNX.4.58.0503160600200.11824@localhost.localdomain> 
+ <20050316031909.08e6cab7.akpm@osdl.org>  <Pine.LNX.4.58.0503160853360.11824@localhost.localdomain>
+  <Pine.LNX.4.58.0503161141001.14087@localhost.localdomain> 
+ <Pine.LNX.4.58.0503161234350.14460@localhost.localdomain> 
+ <1111000818.21369.8.camel@mindpipe>  <Pine.LNX.4.58.0503170210530.17019@localhost.localdomain>
+ <1111074082.23171.8.camel@mindpipe>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Dave Hansen <haveblue@us.ibm.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: [PATCH 0/4] sparsemem intro patches
-References: <1110834883.19340.47.camel@localhost> <20050314183042.7e7087a2.akpm@osdl.org>
-In-Reply-To: <20050314183042.7e7087a2.akpm@osdl.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Dave Hansen <haveblue@us.ibm.com> wrote:
-> 
->> The following four patches provide the last needed changes before the
->> introduction of sparsemem.  For a more complete description of what this
->> will do, please see this patch:
->>
->> http://www.sr71.net/patches/2.6.11/2.6.11-bk7-mhp1/broken-out/B-sparse-150-sparsemem.patch
 
-> I don't know what to think about this.  Can you describe sparsemem a little
-> further, differentiate it from discontigmem and tell us why we want one? 
-> Is it for memory hotplug?  If so, how does it support hotplug?
 
-SPARSEMEM was born out of discussions which followed the OLS last year 
-over the NONLINEAR memory model which was being proposed for hotplug. 
-We got interested as it appeared that a simple form of NONLINEAR memory 
-could help us handle some problematics cases with DISCONTIG memory. 
-Particularly the case where we have large intra-node memory holes.
+On Thu, 17 Mar 2005, Lee Revell wrote:
 
-The DISCONTIGMEM memory model appears to have been designed to handle 
-discontiguous UMA configuration.  It was subsequently put into service 
-to provide node support under NUMA configurations.  This dual use seems 
-to have led to confusing code and compromises on functionality.  In its 
-current form we can only express inter-node memory spaces, making it 
-majorly inefficient for NUMA systems with sparse physical inter-node 
-memory maps, effectivly not supporting some configurations.  Also, 
-although DISCONTIGMEM is a common model between a number of 
-architectures there is almost no code overlap.
+>
+> Sorry, it's hard to follow this thread.  Just to make sure we're all on
+> the same page, what exactly is the symptom of this ext3 issue you are
+> working on?  Is it a performance regression, or a latency issue, or a
+> lockup - ?
+>
+> Whatever your problem is, I am not seeing it.
+>
 
-SPARSEMEM essentially is a replacement for DISCONTIGMEM providing 
-support for non-contigious memory but with the advantage of handling 
-both inter- and intra-node memory holes.  The goal of the implementation 
-was to design a clean memory memory model covering the needs of both UMA 
-and NUMA discontigouos memory layouts whilst providing a basis for 
-hotplug.  This should allow us to consolidate the implementation of 
-various "discontiguous" memory model whilst trying to fix its short comings.
+The root is a lockup.  I think you can get this lockup whether or not it
+is PREEMPT_RT or PREEPMT_DESKTOP.  All you need is CONFIG_PREEMPT turned
+on. Then this is what you want to do on a UP Machine.
 
-Hotplug at its most complex puts two requirements on the memory model. 
-Firstly, It requires the arbirary replacement of physical memory with 
-memory which may be at a different address (the breaking of V=P+c) to 
-cope with the case of memory replacement under unmovable kernel objects. 
-  Secondly, it requires we cope with memory "all over" the physical map. 
-  SPARSEMEM is geared towards providing the required infrastructure for 
-NONLINEAR memory needed in hotplug.  The idea being that NONLINEAR would 
-be layered on top of it and share its implementation.
+Set kjournald to FIFO (any realtime priority).  And then from a non-RT
+task, just do a "make clean; make" on the kernel. It may take a few
+minutes but your system will lock up.  That's because kjournal will wait
+on the bit_spin_lock, but will never be preempted by the one holding the
+lock, because it is FIFO and the one holding the lock (the kernel compile)
+is not RT. Even if it was, and the same priority as kjournal, it would
+still lock, since kjournal is FIFO and will only yield to higher
+priority threads.
 
--apw.
+Now this lockup has uncovered other problems with ext3.  Mainly that it
+uses bit spinlocks, which in of itself is bad.  You don't want a busy wait
+unless you really need it.  A normal spinlock is such a thing in vanilla
+SMP systems, since a schedule would take longer than the one holding the
+lock. Ingo's RT kernel, removes most of these, and makes them into
+mutexes.  This may slow down the overall performance but it shortens
+latencies for RT tasks, which is what RT tries to do.
+
+Now the latest problem is also bad, since you should never just call
+schedule as a "yield" to let someone else release a lock.  Since the
+ranking order of the locks prevents just grabbing the lock and then
+risking a deadlock, ext3 tries to get the lock, and if it fails, it
+releases the other lock it has, calls schedule, then tries again.  This is
+usually bad, since it would most likely be rescheduled, so basically it is
+worst than a spinlock, since it actually goes through the schedule logic
+again and spins!  With Ingo's RT patch, this also becomes a deadlock
+the same way as bit_spin_locks can.
+
+Hope this helps,
+
+-- Steve
+

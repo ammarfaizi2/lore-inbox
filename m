@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265431AbTIDSMw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 14:12:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265433AbTIDSMw
+	id S265386AbTIDSGb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 14:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265397AbTIDSGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 14:12:52 -0400
-Received: from mail.kroah.org ([65.200.24.183]:16608 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265432AbTIDSMp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 14:12:45 -0400
-Date: Thu, 4 Sep 2003 10:55:23 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test 4 and USB
-Message-ID: <20030904175523.GA10637@kroah.com>
-References: <Pine.LNX.3.96.1030903154731.9300A-100000@gatekeeper.tmr.com> <3F564EAE.20805@nanovoid.com> <6usmndqv48.fsf@zork.zork.net>
+	Thu, 4 Sep 2003 14:06:31 -0400
+Received: from oasis.frogfoot.net ([168.210.54.51]:17081 "HELO
+	oasis.frogfoot.net") by vger.kernel.org with SMTP id S265386AbTIDSGO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 14:06:14 -0400
+Date: Thu, 4 Sep 2003 20:05:54 +0200
+From: Abraham van der Merwe <abz@frogfoot.net>
+To: Linux Kernel Discussions <linux-kernel@vger.kernel.org>
+Subject: BUG: 2.4.23-pre3 + ifconfig
+Message-ID: <20030904180554.GA21536@oasis.frogfoot.net>
+Mail-Followup-To: Linux Kernel Discussions <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <6usmndqv48.fsf@zork.zork.net>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.3.28i
+Organization: Frogfoot Networks CC
+X-Operating-System: Debian GNU/Linux oasis 2.4.21 (i686)
+X-GPG-Public-Key: http://oasis.frogfoot.net/keys/
+X-Uptime: 20:01:11 up 16 days, 1:16, 4 users, load average: 0.04, 0.04, 0.00
+X-Edited-With-Muttmode: muttmail.sl - 2001-09-27
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 04, 2003 at 01:01:59AM +0100, Sean Neakums wrote:
-> "Blake B." <shadoi@nanovoid.com> writes:
-> 
-> > Hmm... once I mounted the usbfs, and had the proper modules loaded
-> > (uhci-usb, etc...) /proc/bus/usb was populated.
-> 
-> "usbdevfs", which is provided by the usbcore module (maybe usb-core)
+Hi!
 
-"usbfs" == "usbdevfs"
+I just installed 2.4.23-pre3 on one of our servers. If I up/down the
+loopback device multiple times ifconfig hangs on the second down (as in
+unkillable) and afterwards ifconfig stops functioning and I can't reboot the
+machine, etc.
 
-The "usbdevfs" name will be going away in 2.7 so I encourage you to use
-"usbfs" starting now (it also works in 2.4.)
+No oopses, kernel panics, messages or anything. The system is still alive,
+it is just as if some system call is hung.
 
-thanks,
+If anyone is interested, I can send my .config or any other relevant details.
 
-greg k-h
+-- 
+
+Regards
+ Abraham
+
+"Consequences, Schmonsequences, as long as I'm rich."
+		-- "Ali Baba Bunny" [1957, Chuck Jones]
+
+___________________________________________________
+ Abraham vd Merwe - Frogfoot Networks CC
+ 9 Kinnaird Court, 33 Main Street, Newlands, 7700
+ Phone: +27 21 686 1665 Cell: +27 82 565 4451
+ Http: http://www.frogfoot.net/ Email: abz@frogfoot.net
+

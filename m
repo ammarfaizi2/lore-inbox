@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286729AbRLVIjh>; Sat, 22 Dec 2001 03:39:37 -0500
+	id <S286727AbRLVIoi>; Sat, 22 Dec 2001 03:44:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286728AbRLVIjR>; Sat, 22 Dec 2001 03:39:17 -0500
-Received: from alumni.engin.umich.edu ([141.213.74.27]:41726 "EHLO
-	alumni.engin.umich.edu") by vger.kernel.org with ESMTP
-	id <S286727AbRLVIjN>; Sat, 22 Dec 2001 03:39:13 -0500
-Date: Sat, 22 Dec 2001 03:39:09 -0500 (EST)
-From: matthew david reuther <mreuther@engin.umich.edu>
-Message-Id: <200112220839.DAA15715@alumni.engin.umich.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help
+	id <S286732AbRLVIo2>; Sat, 22 Dec 2001 03:44:28 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45320 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286727AbRLVIoW>; Sat, 22 Dec 2001 03:44:22 -0500
+Subject: Re: Configure.help editorial policy
+To: landley@trommello.org (Rob Landley)
+Date: Sat, 22 Dec 2001 08:53:52 +0000 (GMT)
+Cc: jaggy@purplet.demon.co.uk (Mike Jagdis), esr@thyrsus.com,
+        linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <20011222082444.EXOZ22539.femail25.sdc1.sfba.home.com@there> from "Rob Landley" at Dec 21, 2001 07:23:13 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Hhui-0003RA-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is drifting off topic, but...
+> Linus seems to have a prediliction for dropping documentation-only patches, 
 
-0 degrees Fahrenheit is the freezing point of salt-water, though I don't
-recall offhand what solution
+Send them to the maintainers not to Linus generally helps. Or to Marcelo 
+because he seems to understand its important.
 
-100 degrees Fahrenheit is the rectal temperature of a cow
+> The Open Source Writer's Group wants `to put together a comprehensive "card 
+> catalogue" of Open Source and Open Source-related documentation'. 
 
-I guess the reason these feel more "natural" to some people, is because
-they relate to our bodies, just like the inch, foot, hand, and cubit. It
-still doesn't explain things like pounds, but that's probably related to
-agriculture somehow.
+[Thats out of date btw - OSWG is gone]
 
-At any rate, the US allows people to continue to work in thing like pounds
-and ounces (wet and dry) because it is the standard for their trade. They
-put the metric equivalent on the package in paentheses, but it's "soft"
-metric, not "hard" metric (which would be nice round numbers).
+> errors.  Questions get ignored more often than errors go unflamed.  Perfect 
+> documentation, like perfect code, isn't something you wait until you have 
+> before proceeding.
 
-Anyway, I think the switch is a good idea, but some education is in order.
+Ah so aio would be perfect code - thats the problem 8)
+

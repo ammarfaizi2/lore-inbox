@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278427AbRJMW1r>; Sat, 13 Oct 2001 18:27:47 -0400
+	id <S277161AbRJMWh6>; Sat, 13 Oct 2001 18:37:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278429AbRJMW1i>; Sat, 13 Oct 2001 18:27:38 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61967 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S278427AbRJMW13>; Sat, 13 Oct 2001 18:27:29 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Security question: "Text file busy" overwriting executables but
- not shared libraries?
-Date: Sat, 13 Oct 2001 22:27:30 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9qaf4i$8qa$1@penguin.transmeta.com>
-In-Reply-To: <20011013205445.A24854@kushida.jlokier.co.uk> <Pine.LNX.4.33.0110131219520.8900-100000@penguin.transmeta.com>
-X-Trace: palladium.transmeta.com 1003012058 26376 127.0.0.1 (13 Oct 2001 22:27:38 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 13 Oct 2001 22:27:38 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S278430AbRJMWht>; Sat, 13 Oct 2001 18:37:49 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51011 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S277161AbRJMWha>; Sat, 13 Oct 2001 18:37:30 -0400
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
+In-Reply-To: <20011013205445.A24854@kushida.jlokier.co.uk>
+	<Pine.LNX.4.33.0110131219520.8900-100000@penguin.transmeta.com>
+	<20011013214603.A1144@kushida.jlokier.co.uk>
+	<20011013144337.D9856@vitelus.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 13 Oct 2001 16:27:48 -0600
+In-Reply-To: <20011013144337.D9856@vitelus.com>
+Message-ID: <m1r8s7qior.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33.0110131219520.8900-100000@penguin.transmeta.com>,
-Linus Torvalds  <torvalds@transmeta.com> wrote:
->
->The explicit flag is probably a good idea also because of usage patterns
->(PAGE_COPY is a slowdown _if_ the file is actually written to or even
->mapped shared).
+Aaron Lehmann <aaronl@vitelus.com> writes:
 
-Actually, I missed the obvious case: quite often when you do a "read()",
-the reader itself will end up writing to the area read into.  In which
-case doing the PAGE_COPY would also slow down measurably, due to the
-extra overhead of the copy-on-write fault (which not just does the copy
-that we tried to avoid, but will take a fault and more VM locks). 
+> On Sat, Oct 13, 2001 at 09:46:03PM +0200, Jamie Lokier wrote:
+> > There are applications (GCC comes to mind) which are using mmap() to
+> > read files now because it is measurably faster than read(), for
+> > sufficiently large source files.
+> 
+> But it does have the advantage of allowing the sharing of memory, does
+> it not?
 
-So if we want to do this optimization, we _definitely_ want it to be
-explicitly controlled by a flag, like O_DIRECT is.  There are just too
-many cases where it's a pessimization, and while the user can often tell
-before-hand, the kernel simply cannot. 
+Only if you are going to write to the data.
 
-		Linus
+Eric

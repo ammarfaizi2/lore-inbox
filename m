@@ -1,32 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292367AbSBUNSe>; Thu, 21 Feb 2002 08:18:34 -0500
+	id <S292365AbSBUNSY>; Thu, 21 Feb 2002 08:18:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292363AbSBUNSP>; Thu, 21 Feb 2002 08:18:15 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23044 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292292AbSBUNRy>; Thu, 21 Feb 2002 08:17:54 -0500
-Subject: Re: SMP problems
-To: fernando@quatro.com.br
-Date: Thu, 21 Feb 2002 13:32:19 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (LKML)
-In-Reply-To: <004a01c1bad5$dd4a02a0$c50016ac@spps.com.br> from "Fernando Korndorfer" at Feb 21, 2002 09:47:02 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S292367AbSBUNSO>; Thu, 21 Feb 2002 08:18:14 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:24078 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S292363AbSBUNRz>; Thu, 21 Feb 2002 08:17:55 -0500
+Date: Thu, 21 Feb 2002 08:16:32 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: John Alvord <jalvo@mbay.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Connecting through parallel port
+In-Reply-To: <str77ukfcime75ot3akiqb4f60d6t0urc6@4ax.com>
+Message-ID: <Pine.LNX.3.96.1020221080853.28609A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16dtKd-0006ur-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->         I'm having some problems copiling the latest kernel with SMP (and
-> w/o too). If I boot a SMP-enabled kernel, the system hangs after detecting
-> the second CPU. and I can't compile the kernel w/o SMP support (it causes a
-> lot of 'redefinitions'...). Can anyone help me?
+On Wed, 20 Feb 2002, John Alvord wrote:
 
-make distclean when switching between SMP and non SMP builds. If the box
-is hanging on detecting both processors then
+> On Wed, 20 Feb 2002 10:39:36 -0500 (EST), Bill Davidsen
+> <davidsen@tmr.com> wrote:
 
--	If its a dual Athlon switch to MP 1.1 tables in the BIOS
--	Otherwise try specifying "noapic"
+> >There was a protocol called PLIP which did just what you want. I've used
+> >it many times for laptop install (Patrick even fixed it in Slackware at my
+> >request).
+> >
+> >Unfortunately, while the feature is still in recent 2.[45] kernels, it
+> >appears to be broken. The last laptop I installed needed a network card to
+> >get working.
+
+> This was interesting when NIC (network interface cards) cost $100.
+> Nowadays, they are a lot less costly and interest in the PLIP solution
+> has evaporated.
+
+Unless cards now come with their own slot, this is still very useful. A
+system without parallel is very unusual, while one without network is far
+more common, and one without a place to even add a network is not that
+hard to find. While a home user with only a few systems which he can
+configure at will has no trouble adding a NIC, business use in many places
+doesn't work that way, and honestly I have a hard time telling someone to
+buy NICs, cables, a hub, etc, when a $7 cable will work between systems
+with a functional PL/IP kernel.
+
+Considering the low use things supported in the kernel, I see no reason to
+think PL/IP is less so. Not a lot of TokenRing out there these days, even
+in an IBM shop;-)
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

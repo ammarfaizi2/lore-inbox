@@ -1,49 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbVBVS7T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbVBVS7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261281AbVBVS7T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 13:59:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVBVS7S
+	id S261325AbVBVS7a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 13:59:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVBVS7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 13:59:18 -0500
-Received: from galileo.bork.org ([134.117.69.57]:17604 "HELO galileo.bork.org")
-	by vger.kernel.org with SMTP id S261281AbVBVS7P (ORCPT
+	Tue, 22 Feb 2005 13:59:30 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:36693 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261325AbVBVS7Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 13:59:15 -0500
-Date: Tue, 22 Feb 2005 13:59:15 -0500
-From: Martin Hicks <mort@wildopensource.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paul Jackson <pj@sgi.com>, mingo@elte.hu, raybry@sgi.com,
-       linux-kernel@vger.kernel.org, hilgeman@sgi.com
-Subject: Re: [PATCH/RFC] A method for clearing out page cache
-Message-ID: <20050222185915.GP26705@localhost>
-References: <20050214154431.GS26705@localhost> <20050214193704.00d47c9f.pj@sgi.com> <20050221192721.GB26705@localhost> <20050221134220.2f5911c9.akpm@osdl.org> <421A607B.4050606@sgi.com> <20050221144108.40eba4d9.akpm@osdl.org> <20050222075304.GA778@elte.hu> <20050222032633.5cb38abb.pj@sgi.com> <20050222104535.0b3a3c65.akpm@osdl.org>
+	Tue, 22 Feb 2005 13:59:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=XPi9xPg+uI2YHK+FWOzU6wIfL1MMLQs2Qd7G40pD8NSnmS1coJfMZswZcf3UA6tU3OX5vhbEncb+KvM7MLif1rmcaSq0lvm7EvwIDEm9E2w9uSZBEqmxjvOi6kJvb3q2c6Itd0ZEHhgqWoV+JIXicKXEnFMFu/37QY7x6f2VfeE=
+Message-ID: <a728f9f90502221059686284a7@mail.gmail.com>
+Date: Tue, 22 Feb 2005 13:59:22 -0500
+From: Alex Deucher <alexdeucher@gmail.com>
+Reply-To: Alex Deucher <alexdeucher@gmail.com>
+To: James Simmons <jsimmons@www.infradead.org>
+Subject: Re: [Linux-fbdev-devel] Resource management.
+Cc: Jon Smirl <jonsmirl@gmail.com>, Dave Airlie <airlied@gmail.com>,
+       James Simmons <jsimmons@pentafluge.infradead.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       adaplas@pol.net, dri-devel@lists.sourceforge.net,
+       xorg@lists.freedesktop.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.56.0502221719440.30102@pentafluge.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050222104535.0b3a3c65.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.56.0502211908520.14500@pentafluge.infradead.org>
+	 <200502220653.01286.adaplas@hotpop.com>
+	 <Pine.LNX.4.56.0502212313160.18148@pentafluge.infradead.org>
+	 <9e473391050221170111610521@mail.gmail.com>
+	 <Pine.LNX.4.56.0502220319330.20949@pentafluge.infradead.org>
+	 <21d7e99705022120462cb9494c@mail.gmail.com>
+	 <9e47339105022121234d0f7f73@mail.gmail.com>
+	 <Pine.LNX.4.56.0502221719440.30102@pentafluge.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, Feb 22, 2005 at 10:45:35AM -0800, Andrew Morton wrote:
-> Paul Jackson <pj@sgi.com> wrote:
-> >
-> >  As Martin wrote, when he submitted this patch:
-> >  > The motivation for this patch is for setting up High Performance
-> >  > Computing jobs, where initial memory placement is very important to
-> >  > overall performance.
-> > 
-> >  Any left over cache is wrong, for this situation.
+On Tue, 22 Feb 2005 17:23:03 +0000 (GMT), James Simmons
+<jsimmons@www.infradead.org> wrote:
 > 
-> So...  Cannot the applicaiton remove all its pagecache with posix_fadvise()
-> prior to exitting?
+> > As far as I know none of the significant contributors on either fbdev
+> > or DRM are being paid to work on the project.
+> 
+> So I have noticed. There is much to do but no real man power. We are
+> talking about this merging but at our rate it will take 5 years to happen.
+> We don't have the man power to do this. So I'm not going to bother
+> merging. Its all pipe dreams here.
+> 
+> 
 
-I think Paul's referring to pagecache (as well as other caches) that are
-on the node from other uses, not necessarily another HPC job that has
-recently terminated.
+with that attitude it's never gonna happen.  I work almost exclusively
+on X, but once we get at least one sample driver done (probably
+radeon, I would be more than happy to devote my limited development
+resources to the new drm/fb super driver.  Right now the kernel FB
+drivers have no benefit for me so I don't use/develop them.  The drm
+just works and I'm more interested in the crtc/modes/outputs handling
+than the command processor control stuff.  I think a lot of X
+developers (and porobably IHVs) will get on board when this happens. 
+X is undermanned as well, but we've managed to do a pretty good job of
+supported a lot of features on a fair number of cards.
 
-mh
-
--- 
-Martin Hicks   ||   Silicon Graphics Inc.   ||   mort@sgi.com
+Alex

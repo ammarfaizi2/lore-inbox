@@ -1,190 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265977AbUGOAJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265973AbUGOAJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265977AbUGOAJe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 20:09:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266022AbUGOAJd
+	id S265973AbUGOAJx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 20:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266022AbUGOAJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 20:09:33 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:16229 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S265977AbUGOAIz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 20:08:55 -0400
-Date: Wed, 14 Jul 2004 17:08:19 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: john stultz <johnstul@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>, ia64 <linux-ia64@vger.kernel.org>
-Subject: Re: gettimeofday nanoseconds patch (makes it possible for the
- posix-timer functions to return higher accuracy)
-In-Reply-To: <1089839740.1388.230.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.58.0407141703360.17055@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0407140940260.14704@schroedinger.engr.sgi.com> 
- <1089835776.1388.216.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.58.0407141323530.15874@schroedinger.engr.sgi.com>
- <1089839740.1388.230.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 14 Jul 2004 20:09:52 -0400
+Received: from mail.kroah.org ([69.55.234.183]:50923 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265973AbUGOAI6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 20:08:58 -0400
+Subject: Re: [PATCH] I2C update for 2.6.8-rc1
+In-Reply-To: <1089850035501@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 14 Jul 2004 17:07:15 -0700
+Message-Id: <10898500353542@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Jul 2004, john stultz wrote:
+ChangeSet 1.1784.13.14, 2004/07/14 11:51:29-07:00, khali@linux-fr.org
 
-> On Wed, 2004-07-14 at 13:28, Christoph Lameter wrote:
-> > > None the less, I do understand the desire for the change (and am working
-> > > to address it in 2.7), so could you at least use a better name then
-> > > gettimeofday()? Maybe get_ns_time() or something? Its just too similar
-> > > to do_gettimeofday and the syscall gettimeofday().
-> >
-> > Right. I had it named getnstimeofday before but the feeling was that the
-> > patch should not introduce a new name. Any approach that would allow
-> > progress on the issue would be fine with me.
->
-> Fair enough. getnstimeofday() sounds good enough for me.
+[PATCH] I2C: Refine detection of LM75 chips
 
-Ok. A modified patch is following.
+The LM75 detection method was a bit loose so far and would accept
+non-LM75-compatible chips from times to times. It should be better now.
+Additionally, the help for the lm75 driver was reworked because we now
+know that the LM75 and the LM77 are not compatible.
 
->
-> > > Really, I feel the cleaner method is to fix do_gettimeofday() so it
-> > > returns a timespec and then convert it to a timeval in
-> > > sys_gettimeofday(). However this would add overhead to the syscall, so I
-> > > doubt folks would go for it.
-> >
-> > do_gettimeofday is used all over the linux kernel for a variety of
-> > purposes and lots of code depends on the presence of a timeval struct.
->
-> Indeed, it would be a decent amount of work to clean that up as well.
 
-The cleanup can be done gradually after this patch is in. I volunteer
-to work on this (hoping that my employer may support that  ;-) ).
+Signed-off-by: Jean Delvare <khali at linux-fr dot org>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.7/kernel/timer.c
-===================================================================
---- linux-2.6.7.orig/kernel/timer.c
-+++ linux-2.6.7/kernel/timer.c
-@@ -1241,8 +1241,7 @@
- 		 * too.
- 		 */
+ drivers/i2c/chips/Kconfig |    8 ++++++--
+ drivers/i2c/chips/lm75.c  |   37 +++++++++++++++++++++++++++++++------
+ 2 files changed, 37 insertions(+), 8 deletions(-)
 
--		do_gettimeofday((struct timeval *)&tp);
--		tp.tv_nsec *= NSEC_PER_USEC;
-+		getnstimeofday(&tp);
- 		tp.tv_sec += wall_to_monotonic.tv_sec;
- 		tp.tv_nsec += wall_to_monotonic.tv_nsec;
- 		if (tp.tv_nsec - NSEC_PER_SEC >= 0) {
-Index: linux-2.6.7/kernel/posix-timers.c
-===================================================================
---- linux-2.6.7.orig/kernel/posix-timers.c
-+++ linux-2.6.7/kernel/posix-timers.c
-@@ -1168,15 +1168,10 @@
-  */
- static int do_posix_gettime(struct k_clock *clock, struct timespec *tp)
+
+diff -Nru a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
+--- a/drivers/i2c/chips/Kconfig	2004-07-14 16:59:00 -07:00
++++ b/drivers/i2c/chips/Kconfig	2004-07-14 16:59:00 -07:00
+@@ -103,8 +103,12 @@
+ 	select I2C_SENSOR
+ 	help
+ 	  If you say yes here you get support for National Semiconductor LM75
+-	  sensor chips and clones: Dallas Semi DS75 and DS1775, TelCon
+-	  TCN75, and National Semiconductor LM77.
++	  sensor chips and clones: Dallas Semiconductor DS75 and DS1775 (in
++	  9-bit precision mode), and TelCom (now Microchip) TCN75.
++
++	  The DS75 and DS1775 in 10- to 12-bit precision modes will require
++	  a force module parameter. The driver will not handle the extra
++	  precision anyhow.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called lm75.
+diff -Nru a/drivers/i2c/chips/lm75.c b/drivers/i2c/chips/lm75.c
+--- a/drivers/i2c/chips/lm75.c	2004-07-14 16:59:00 -07:00
++++ b/drivers/i2c/chips/lm75.c	2004-07-14 16:59:00 -07:00
+@@ -113,7 +113,7 @@
+ /* This function is called by i2c_detect */
+ static int lm75_detect(struct i2c_adapter *adapter, int address, int kind)
  {
--	struct timeval tv;
--
- 	if (clock->clock_get)
- 		return clock->clock_get(tp);
-
--	do_gettimeofday(&tv);
--	tp->tv_sec = tv.tv_sec;
--	tp->tv_nsec = tv.tv_usec * NSEC_PER_USEC;
--
-+	getnstimeofday(tp);
- 	return 0;
- }
-
-@@ -1192,24 +1187,16 @@
- 	struct timespec *tp, struct timespec *mo)
- {
- 	u64 jiff;
--	struct timeval tpv;
- 	unsigned int seq;
-
- 	do {
- 		seq = read_seqbegin(&xtime_lock);
--		do_gettimeofday(&tpv);
-+		getnstimeofday(tp);
- 		*mo = wall_to_monotonic;
- 		jiff = jiffies_64;
-
- 	} while(read_seqretry(&xtime_lock, seq));
-
--	/*
--	 * Love to get this before it is converted to usec.
--	 * It would save a div AND a mpy.
--	 */
--	tp->tv_sec = tpv.tv_sec;
--	tp->tv_nsec = tpv.tv_usec * NSEC_PER_USEC;
--
- 	return jiff;
- }
-
-Index: linux-2.6.7/include/linux/time.h
-===================================================================
---- linux-2.6.7.orig/include/linux/time.h
-+++ linux-2.6.7/include/linux/time.h
-@@ -348,6 +348,7 @@
- struct itimerval;
- extern int do_setitimer(int which, struct itimerval *value, struct itimerval *ovalue);
- extern int do_getitimer(int which, struct itimerval *value);
-+extern void getnstimeofday (struct timespec *tv);
-
- static inline void
- set_normalized_timespec (struct timespec *ts, time_t sec, long nsec)
-Index: linux-2.6.7/kernel/time.c
-===================================================================
---- linux-2.6.7.orig/kernel/time.c
-+++ linux-2.6.7/kernel/time.c
-@@ -22,6 +22,9 @@
-  *	"A Kernel Model for Precision Timekeeping" by Dave Mills
-  *	Allow time_constant larger than MAXTC(6) for NTP v4 (MAXTC == 10)
-  *	(Even though the technical memorandum forbids it)
-+ * 2004-07-14	 Christoph Lameter
-+ *	Added getnstimeofday to allow the posix timer functions to return
-+ *	with nanosecond accuracy
-  */
-
- #include <linux/module.h>
-@@ -421,6 +424,41 @@
-
- EXPORT_SYMBOL(current_kernel_time);
-
-+#ifdef CONFIG_TIME_INTERPOLATION
-+void getnstimeofday (struct timespec *tv)
-+{
-+	unsigned long seq,sec,nsec;
+-	int i, cur, conf, hyst, os;
++	int i;
+ 	struct i2c_client *new_client;
+ 	struct lm75_data *data;
+ 	int err = 0;
+@@ -149,16 +149,41 @@
+ 	new_client->driver = &lm75_driver;
+ 	new_client->flags = 0;
+ 
+-	/* Now, we do the remaining detection. It is lousy. */
++	/* Now, we do the remaining detection. There is no identification-
++	   dedicated register so we have to rely on several tricks:
++	   unused bits, registers cycling over 8-address boundaries,
++	   addresses 0x04-0x07 returning the last read value.
++	   The cycling+unused addresses combination is not tested,
++	   since it would significantly slow the detection down and would
++	   hardly add any value. */
+ 	if (kind < 0) {
++		int cur, conf, hyst, os;
 +
-+	do {
-+		seq = read_seqbegin(&xtime_lock);
-+		sec = xtime.tv_sec;
-+		nsec = xtime.tv_nsec+time_interpolator_get_offset();
-+	} while (unlikely(read_seqretry(&xtime_lock, seq)));
++		/* Unused addresses */
+ 		cur = i2c_smbus_read_word_data(new_client, 0);
+ 		conf = i2c_smbus_read_byte_data(new_client, 1);
+ 		hyst = i2c_smbus_read_word_data(new_client, 2);
++		if (i2c_smbus_read_word_data(new_client, 4) != hyst
++		 || i2c_smbus_read_word_data(new_client, 5) != hyst
++		 || i2c_smbus_read_word_data(new_client, 6) != hyst
++		 || i2c_smbus_read_word_data(new_client, 7) != hyst)
++		 	goto exit_free;
+ 		os = i2c_smbus_read_word_data(new_client, 3);
+-		for (i = 0; i <= 0x1f; i++)
+-			if ((i2c_smbus_read_byte_data(new_client, i * 8 + 1) != conf) ||
+-			    (i2c_smbus_read_word_data(new_client, i * 8 + 2) != hyst) ||
+-			    (i2c_smbus_read_word_data(new_client, i * 8 + 3) != os))
++		if (i2c_smbus_read_word_data(new_client, 4) != os
++		 || i2c_smbus_read_word_data(new_client, 5) != os
++		 || i2c_smbus_read_word_data(new_client, 6) != os
++		 || i2c_smbus_read_word_data(new_client, 7) != os)
++		 	goto exit_free;
 +
-+	while (unlikely(nsec >= NSEC_PER_SEC)) {
-+		nsec -= NSEC_PER_SEC;
-+		++sec;
-+	}
-+	tv->tv_sec = sec;
-+	tv->tv_nsec = nsec;
-+}
-+#else
-+/*
-+ * Simulate gettimeofday using do_gettimeofday which only allows a timeval
-+ * and therefore only yields usec accuracy
-+ */
-+void getnstimeofday(struct timespec *tv)
-+{
-+	struct timeval x;
++		/* Unused bits */
++		if (conf & 0xe0)
++		 	goto exit_free;
 +
-+	do_gettimeofday(&x);
-+	tv->tv_sec = x.tv_sec;
-+	tv->tv_nsec = x.tv_usec * NSEC_PER_USEC;
-+}
-+#endif
-+
-+EXPORT_SYMBOL(getnstimeofday);
-+
- #if (BITS_PER_LONG < 64)
- u64 get_jiffies_64(void)
- {
++		/* Addresses cycling */
++		for (i = 8; i < 0xff; i += 8)
++			if (i2c_smbus_read_byte_data(new_client, i + 1) != conf
++			 || i2c_smbus_read_word_data(new_client, i + 2) != hyst
++			 || i2c_smbus_read_word_data(new_client, i + 3) != os)
+ 				goto exit_free;
+ 	}
+ 
+

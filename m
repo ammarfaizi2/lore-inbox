@@ -1,73 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129308AbQKSXPx>; Sun, 19 Nov 2000 18:15:53 -0500
+	id <S129492AbQKSXl4>; Sun, 19 Nov 2000 18:41:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129145AbQKSXPn>; Sun, 19 Nov 2000 18:15:43 -0500
-Received: from [213.8.184.104] ([213.8.184.104]:11524 "EHLO callisto.yi.org")
-	by vger.kernel.org with ESMTP id <S129308AbQKSXPd>;
-	Sun, 19 Nov 2000 18:15:33 -0500
-Date: Mon, 20 Nov 2000 00:41:51 +0200 (IST)
-From: Dan Aloni <karrde@callisto.yi.org>
-To: Taisuke Yamada <tai@imasy.or.jp>
-cc: andre@linux-ide.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Large "clipped" IDE disk support for 2.4 when using
- oldBIOS
-In-Reply-To: <200011192213.eAJMDPO02395@research.imasy.or.jp>
-Message-ID: <Pine.LNX.4.21.0011200036030.775-100000@callisto.yi.org>
+	id <S129279AbQKSXlp>; Sun, 19 Nov 2000 18:41:45 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:12805 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S129145AbQKSXlb>; Sun, 19 Nov 2000 18:41:31 -0500
+Date: Sun, 19 Nov 2000 23:11:20 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Remove tq_scheduler
+In-Reply-To: <3A15FD94.F19DA5F0@uow.edu.au>
+Message-ID: <Pine.LNX.4.30.0011192248200.31586-100000@imladris.demon.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Nov 2000, Taisuke Yamada wrote:
+On Sat, 18 Nov 2000, Andrew Morton wrote:
 
-> > This patch is not good. It compiles, but when I boot the kernel, it
-> > decides to ignore the hdc=5606,255,63 parameter that I pass to the kernel,
-> > and limits the number of sectors to fill 8.4GB.
-> 
-> Please retest with hdc=... parameter removed. If hd[a-z]=...
-> parameter is specified, my patch will be disabled, trusting
-> whatever user has specified.
-> 
+>
+> This patch removes tq_scheduler from the kernel.  All uses of
+> tq_scheduler are migrated over to use schedule_task().
+>
+> Notes:
+> - If anyone sleeps in a callback, then all other users of
+>   schedule_task() also sleep.  But there's nothing new here.  Kinda
+>   makes one wonder why schedule_task exists.  But what-hey, it's neat.
 
-Ok, I've booted without the parameter, and without the jumper on clipping
-mode (I'll do it tommorow, it's 1AM now) got something similiar to what
-you've written, and everything looks ok.
+Because you're only supposed to use it if the task that is scheduled:
+	A) Doesn't care about a reasonable delay
+	B) Doesn't sleep for an unreasonable amount of time.
 
-BTW, I have created the paratition table and all paratitions when the
-drive reported 90069840 sectors. Now it reports 90069839 - one sector
-less. Any damage risk to my filesystems?
+As long as there's some value of 'reasonable' to match the set of tasks
+which you are using schedule_task() for at any given moment, you should be
+fine.
 
-dmesg:
+If it's really necessary in 2.5, we can consider using multiple queues to
+get round this problem - either a task per subsystem or a pool of worker
+threads. Hopefully it won't be necessary though. We'll see.
 
-hdc: host protected area => 1
-hdc: checking for max native LBA...
-hdc: max native LBA is 90069839
-hdc: (un)clipping max LBA...
-hdc: max LBA (un)clipped to 90069839
-hdc: lba = 1, cap = 90069839
-hdc: 90069839 sectors (46116 MB) w/1916KiB Cache, CHS=89354/16/63, UDMA(33)
-Partition check:
- hdc: [PTBL] [5606/255/63] hdc1 hdc2 hdc3 hdc4 < hdc5 >
+> - Note the careful massaging of module reference counts.
+>
+>   Yes my friends, much usage of task queues in modules is racy wrt
+>   module removal.  This patch fixes some of them.
 
->   hda: host protected area => 1
->   hda: checking for max native LBA...
->   hda: max native LBA is 90045647
->   hda: (un)clipping max LBA...
->   hda: max LBA (un)clipped to 90045647
->   hda: lba = 1, cap = 90045647
->   hda: 90045647 sectors (46103 MB) w/2048KiB Cache, CHS=89330/16/63, UDMA(33)
->   hdc: host protected area => 1
->   hdc: checking for max native LBA...
->   hdc: max native LBA is 90045647
->   hdc: (un)clipping max LBA...
->   hdc: max LBA (un)clipped to 90045647
->   hdc: lba = 1, cap = 90045647
->   hdc: 90045647 sectors (46103 MB) w/2048KiB Cache, CHS=89330/16/63, UDMA(33)
+Cool. I was going to look into that. I had figured we should fix it
+completely or not at all, though, which is why I didn't do the trick with
+use counts. I probably should have done, though.
+
+While you're in maintenance mode, do you feel like fixing up stuff to use
+up_and_exit() for killing kernel threads? I started on net/sunrpc/sched.c
+but it made my head hurt so I gave up and started hacking PCMCIA
+instead :)
+
+Also, drivers/usb/hub.c can probably use schedule_task() now instead of
+its own kernel thread.
 
 -- 
-Dan Aloni 
-dax@karrde.org
+dwmw2
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

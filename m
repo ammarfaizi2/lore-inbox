@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270040AbUJHPqR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270022AbUJHPqQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270040AbUJHPqR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 11:46:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270039AbUJHPnx
+	id S270022AbUJHPqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 11:46:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270040AbUJHPoC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 11:43:53 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:63166 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S270040AbUJHPkp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 11:40:45 -0400
-Message-ID: <4166B48E.3020006@rtr.ca>
-Date: Fri, 08 Oct 2004 11:38:54 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Mark Lord <lsml@rtr.ca>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3
-References: <4161A06D.8010601@rtr.ca>	<416547B6.5080505@rtr.ca>	<20041007150709.B12688@infradead.org>	<4165624C.5060405@rtr.ca>	<416565DB.4050006@pobox.com>	<4165A45D.2090200@rtr.ca>	<4165A766.1040104@pobox.com>	<4165A85D.7080704@rtr.ca>	<4165AB1B.8000204@pobox.com>	<4165ACF8.8060208@rtr.ca> 	<20041007221537.A17712@infradead.org>	<1097241583.2412.15.camel@mulgrave>  <4166AF2F.6070904@rtr.ca> <1097249266.1678.40.camel@mulgrave>
-In-Reply-To: <1097249266.1678.40.camel@mulgrave>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Oct 2004 11:44:02 -0400
+Received: from colin2.muc.de ([193.149.48.15]:13833 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S270022AbUJHPm2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 11:42:28 -0400
+Date: 8 Oct 2004 17:42:27 +0200
+Date: Fri, 8 Oct 2004 17:42:27 +0200
+From: Andi Kleen <ak@muc.de>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make gcc -align options .config-settable
+Message-ID: <20041008154227.GA91816@muc.de>
+References: <2KBq9-2S1-15@gated-at.bofh.it> <m3pt3t9zaj.fsf@averell.firstfloor.org> <200410081710.58766.vda@port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410081710.58766.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> On Fri, 2004-10-08 at 10:15, Mark Lord wrote:
+On Fri, Oct 08, 2004 at 05:10:58PM +0000, Denis Vlasenko wrote:
+> On Friday 08 October 2004 12:20, Andi Kleen wrote:
+> > Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> writes:
+> > > Resend.
+> > >
+> > > With all alignment options set to 1 (minimum alignment),
+> > > I've got 5% smaller vmlinux compared to one built with
+> > > default code alignment.
+> > >
+> > > Rediffed against 2.6.9-rc3.
+> > > Please apply.
+> >
+> > I agree with the basic idea (the big alignments also always annoy
+> > me when I look at disassembly), but I think your CONFIG options
+> > are far too complicated. I don't think anybody will go as far as
+> > to tune loops vs function calls.
+> >
+> > I would just do a single CONFIG_NO_ALIGNMENTS that sets everything to
+> > 1, that should be enough.
 > 
->>>Actually, the driver has no need for a thread at all.  Since you're
->>>simply using it to fire hotplug events, use schedule_work instead.
->>
->>That worries me some, because the mid-layer will perform blocking I/O
->>and the like, and I'm not sure how much that stuff may depend on its
->>own usage (any?) of workqueues.  If you believe it to be safe,
->>then I'll nuke the kthread entirely.
+> For me, yes, but there are people which are slightly less obsessed
+> with code size than me.
 > 
-> 
-> We use this already for other entities that require user context like
-> domain validation.  It seems to work as advertised.
+> They might want to say "try to align to 16 bytes if
+> it costs less than 5 bytes" etc.
 
-Can deadlock occur here, since qstor.c is already using schedule_work()
-as part of it's internal bottom-half handling for abnormal conditions?
+If they want to go down to that low level they can as well edit
+the Makefiles. But we already have far too many configs and
+adding new ones for obscure compiler options is not a good idea.
 
-Eg.  hotplug event -> schedule_work -> mid-layer -> queuecommand
-       --> sleep  :: interrupt -> schedule_work -> deadlock?
+Also we don't normally add stuff "just in case", but only when
+people actually use it.
 
-Just checking.. we all want this to function well.
--- 
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
+-Andi
+

@@ -1,41 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265955AbUFIUdf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265953AbUFIUkd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265955AbUFIUdf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 16:33:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265945AbUFIUdf
+	id S265953AbUFIUkd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 16:40:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265959AbUFIUkd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 16:33:35 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:35500 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265953AbUFIUdc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 16:33:32 -0400
-Date: Wed, 9 Jun 2004 13:29:37 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Alex Williamson <alex.williamson@hp.com>
-Cc: clameter@sgi.com, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Unaligned accesses in net/ipv4/netfilter/arp_tables.c:184
-Message-Id: <20040609132937.68866dfc.davem@redhat.com>
-In-Reply-To: <1086812976.4288.50.camel@tdi>
-References: <Pine.LNX.4.58.0406091106210.21291@schroedinger.engr.sgi.com>
-	<1086805676.4288.16.camel@tdi>
-	<20040609130001.37a88da1.davem@redhat.com>
-	<1086812976.4288.50.camel@tdi>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Wed, 9 Jun 2004 16:40:33 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:8578 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265953AbUFIUka (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 16:40:30 -0400
+Message-Id: <200406092040.i59KeMaC028141@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: arjanv@redhat.com
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Chris Wright <chrisw@osdl.org>,
+       linux-kernel@vger.kernel.org, tiwai@suse.de
+Subject: Re: [PATCH] ALSA: Remove subsystem-specific malloc (1/8) 
+In-Reply-To: Your message of "Wed, 09 Jun 2004 22:21:26 +0200."
+             <1086812486.2810.21.camel@laptop.fenrus.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200406082124.i58LOuOL016163@melkki.cs.helsinki.fi> <20040609113455.U22989@build.pdx.osdl.net> <1086812001.13026.63.camel@cherry>
+            <1086812486.2810.21.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_893967310P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 09 Jun 2004 16:40:22 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 09 Jun 2004 14:29:36 -0600
-Alex Williamson <alex.williamson@hp.com> wrote:
+--==_Exmh_893967310P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <28127.1086813620.1@turing-police.cc.vt.edu>
 
->    Which is probably why the patch never went anywhere.  There's
-> certainly an alignment issue in the usage of the struct arpt_arp in the
-> code snippet Christoph pointed out.  Sounds like it'd be better to fix
-> the usage than the structure alignment.
+On Wed, 09 Jun 2004 22:21:26 +0200, Arjan van de Ven said:
 
-Right.  I distinctly remember a similar fix being needed to
-ip_tables.c many months ago, a search though the change history
-for that file might prove profitable :-)
+> > + */
+> > +void *kcalloc(size_t n, size_t size, int flags)
+> > +{
+> > +	void *ret = kmalloc(n * size, flags);
+> 
+> how about making sure n*size doesn't overflow an int in this function?
+> We had a few security holes due to that happening a while ago; might as
+> well prevent it from happening entirely
+
+Do we want 'int', or is some other value (size_t? u32?) a better bet? (I see on
+some of the 64-bit boxes a compat_size_t for 32-bits as well, which hints at
+the problems here....
+
+I'm worried that 'int' will Do The Wrong Thing when it runs into stuff like
+this from asm-i386/types.h:
+
+/* DMA addresses come in generic and 64-bit flavours.  */
+
+#ifdef CONFIG_HIGHMEM64G
+typedef u64 dma_addr_t;
+#else
+typedef u32 dma_addr_t;
+#endif
+typedef u64 dma64_addr_t;
+
+Are there any platforms where 'int' and 'max reasonable kmalloc size' have the
+same number of bits?
+
+--==_Exmh_893967310P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAx3W2cC3lWbTT17ARAvJzAJ4vxk24VZaTsyUt7b6gwDKmtYEUHgCeOvDM
+mGtuXTazQi1jRCI15Td+4Kk=
+=U8Ch
+-----END PGP SIGNATURE-----
+
+--==_Exmh_893967310P--

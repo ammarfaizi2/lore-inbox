@@ -1,108 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262304AbUCVTaK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 14:30:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbUCVTaJ
+	id S262322AbUCVTdM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 14:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262325AbUCVTdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 14:30:09 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27530 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262304AbUCVTaB
+	Mon, 22 Mar 2004 14:33:12 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:17540 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S262322AbUCVTdG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 14:30:01 -0500
-Message-ID: <405F3EA8.6060606@pobox.com>
-Date: Mon, 22 Mar 2004 14:29:44 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+	Mon, 22 Mar 2004 14:33:06 -0500
+Message-ID: <405F3F71.9090604@namesys.com>
+Date: Mon, 22 Mar 2004 22:33:05 +0300
+From: Hans Reiser <reiser@namesys.com>
+Reply-To: reiser@namesys.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-CC: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Device mapper devel list <dm-devel@redhat.com>,
-       Thomas Horsten <thomas@horsten.com>, medley@lists.infowares.com
-Subject: Re: ATARAID/FakeRAID/HPTRAID/PDCRAID as dm targets?
-References: <405C8B39.8080609@gmx.net> <405CAEC7.9080104@pobox.com> <405CFC85.70004@backtobasicsmgmt.com> <20040321074711.GA13232@devserv.devel.redhat.com> <405D9CDA.6070107@gmx.at> <405F3B1C.3030500@gmx.net>
-In-Reply-To: <405F3B1C.3030500@gmx.net>
+To: Matthias Andree <matthias.andree@gmx.de>
+CC: Jens Axboe <axboe@suse.de>, Heikki Tuuri <Heikki.Tuuri@innodb.com>,
+       linux-kernel@vger.kernel.org, Alexander Zarochentcev <zam@namesys.com>
+Subject: Re: True  fsync() in Linux (on IDE)
+References: <023001c4100e$c550cd10$155110ac@hebis> <20040322132307.GP1481@suse.de> <20040322151712.GB32519@merlin.emma.line.org>
+In-Reply-To: <20040322151712.GB32519@merlin.emma.line.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carl-Daniel Hailfinger wrote:
-> Wilfried Weissmann wrote:
-> 
->>Arjan van de Ven wrote:
+Matthias Andree wrote:
+
+>Jens Axboe schrieb am 2004-03-22:
+>
+>  
+>
+>>There's no such thing as atomic writes bigger than a sector really, we
+>>just pretend there is. Timing usually makes this true.
+>>    
 >>
+Can you explain about the timing?
+
+>
+>If there is no such atomicity (except maybe in ext3fs data=journal or
+>the upcoming reiserfs4 - isn't there?), then nobody should claim so.
+>
+Well, nobody is going to use anything except reiser4 are they?;-).....
+
+I think that we are able to guarantee that the write is fully atomic 
+regardless of what the block layer does, so long as the block layer 
+respects our ordering and does not cache it where it should not.
+
+zam, you are watching this thread about flushing the ide cache I hope....
+
+> If
+>the kernel cannot 100.00000000% guarantee the write is atomic, claiming
+>otherwise is plain fraud and nothing else.
+>
+>Some people bet their whole business/company and hence a fair deal of
+>their belongings on a single data base, and making them believe facts
+>that simply aren't reality is dangerous. These people will have very
+>little understanding for sloppiness here. Linux has no obligation to be
+>fast or reliable, but it MUST PROPERLY AND TRUTHFULLY state what it can
+>guarantee and what it cannot guarantee.
+>
+>  
+>
+>>For bigger atomic writes, 2.4 SUSE kernel had some nasty hack (called
+>>blk-atomic) to prevent reordering by the io scheduler to avoid partial
+>>blocks from databases.
+>>    
 >>
->>>On Sat, Mar 20, 2004 at 07:23:01PM -0700, Kevin P. Fleming wrote:
->>>
->>>
->>>>Jeff Garzik wrote:
->>>>
->>>>
->>>>
->>>>>So go ahead, and I'll lend you as much help as I can.  I have the
->>>>>full Promise RAID docs, and it seems like another guy on the lists
->>>>>has full Silicon Image "medley" RAID docs...
-> 
-> 
-> Jeff: May I request your docs?
-
-Unfortunately not, but I can get you in touch with somebody at Promise 
-who can.  They're definitely interested in working with the open source 
-community.  Not public...
-
-
-> Well, I had something in mind which closely resembles the ataraid-detect
-> tool Thomas Horsten (Medley RAID) suggested.
-> 
-> http://lists.infowares.com/archive/medley/2004-February/000001.html
-> 
-> OK, I was even aiming for less: Write an ataraid-detect tool which outputs
-> the correct mapping for dmsetup. If I manage to write it generically
-> enough, it can be integrated into evms or used as a standalone program,
-> whatever you like.
-
-That's pretty nice.  Very Unix-ish:  provide a small, pluggable piece 
-that does one thing, and does it well.
+>
+>That does not make a write atomic if the scheduled blocks are still
+>written one at a time (and I believe tagged command queueing won't help
+>to unroll partial writes either).
+>
+>If the hardware support is missing, it is prudent to say just that and
+>not make any bogus promises about platter inertia and "it usually
+>works". (who says that the filter curves adjust to the decreasing
+>platter speed and the electronics are sustained for long enough? how
+>about write verify and remapping broken blocks?)
+>
+>So we only write one hardware block size atomically, usually 512 bytes
+>on ATA and SCSI disk drives (MO might do 2048 at a time, but why
+>introduce complexity).  That's a data point in this whole fsync()
+>discussion.
+>
+>  
+>
 
 
->>1. its all within evms
->>There is no need for additional tools required to setup the volume
->>(thinking about installers and initrd...).
-> 
-> 
-> The EVMS sample initrd is HUGE. (2.1 MB) I'm aiming for a initrd size of
-> less than 1/10 of that.
-
-Cool :)
-
-
->>4. nice clickety-click user interface
->>Especially useful for lazy people like me. ;)
-> 
-> 
-> I prefer the "no user interface" approach. But then again, I'm biased.
-
-Agreed -- a minimal implementation is needed first anyway.  The BIOS of 
-these proprietary RAID thingies typically provides the user interface.
-
-
->>What do you think?
-> 
-> 
-> I'll use your work as a foundation. First step is integrating detection
-> for non-HPT arrays. If the code looks too messy after that, I still can
-> refactor it.
-> 
-> As soon as I have some code to get at least PDCRAID working, I'll post again.
-
-Feel free to ask me questions, too.
-
-	Jeff
-
-
+-- 
+Hans
 

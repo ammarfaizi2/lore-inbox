@@ -1,47 +1,147 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281793AbRKUNLl>; Wed, 21 Nov 2001 08:11:41 -0500
+	id <S281763AbRKUNLv>; Wed, 21 Nov 2001 08:11:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281762AbRKUNLW>; Wed, 21 Nov 2001 08:11:22 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:32264 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S281760AbRKUNLB>; Wed, 21 Nov 2001 08:11:01 -0500
-Date: Wed, 21 Nov 2001 14:10:54 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: <roman@serv>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] devfs v196 available
-In-Reply-To: <200111201819.fAKIJpp10565@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.33.0111211332070.7061-100000@serv>
+	id <S281762AbRKUNLm>; Wed, 21 Nov 2001 08:11:42 -0500
+Received: from pier.botik.ru ([193.232.174.1]:35461 "EHLO pier.botik.ru")
+	by vger.kernel.org with ESMTP id <S281760AbRKUNLX>;
+	Wed, 21 Nov 2001 08:11:23 -0500
+Message-ID: <3BFBA2E3.4B1305DE@yura.polnet.botik.ru>
+Date: Wed, 21 Nov 2001 15:49:39 +0300
+From: "Yury Yu. Rupasov" <yura@yura.polnet.botik.ru>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.15-pre7 i686)
+X-Accept-Language: ru, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Hans Reiser <reiser@namesys.com>
+CC: Frank de Lange <lkml-frank@unternet.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
+        Chris Mason <mason@suse.com>
+Subject: Re: Abysmal interactive performance on 2.4.linus
+In-Reply-To: <20011112205551.A14132@unternet.org> <3BF02BA4.D7E2D70E@mandrakesoft.com> <20011112235642.A17544@unternet.org> <3BFB6B09.1060103@namesys.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hans Reiser wrote:
 
-On Tue, 20 Nov 2001, Richard Gooch wrote:
+> Frank de Lange wrote:
+>
+> >On Mon, Nov 12, 2001 at 03:05:56PM -0500, Jeff Garzik wrote:
+> >
+> >>Can you try 2.4.13ac6 (not 7/8), and 2.2.20, and post a comparison?
+> >>
+> >
+> >Here's the results from some tests I did:
+> >
+> >2.2.20
+> >======
+> >without filesystem activity
+> >no slowdowns observed
+> >time ls -al /usr/|sort -k 5 -n
+> >real   0m0.121s
+> >user   0m0.000s
+> >sys    0m0.090s
+> >
+> >with filesystem activity on ext2
+> >no slowdowns observed
+> >time ls -al /opt/|sort -k 5 -n
+> >real   0m0.079s
+> >user   0m0.010s
+> >sys    0m0.100s
+> >
+> >2.4.13-ac5
+> >==========
+> >no slowdowns observed
+> >without filesystem activity
+> >time ls -al /usr/|sort -k 5 -n
+> >real   0m0.142s
+> >user   0m0.000s
+> >sys    0m0.000s
+> >
+> >with filesystem activity on ext2
+> >no slowdowns observed
+> >time ls -al /opt/|sort -k 5 -n
+> >real   0m0.022s
+> >user   0m0.020s
+> >sys    0m0.010s
+> >
+> >with filesystem activity on reiserfs
+> > - it took 31 seconds to just open this small ( < 1 kb) text file (which
+> >   resides in my home directory, on an ext2 filesystem) in vi...
+> >time ls -al /usr/|sort -k 5 -n
+> >real    0m6.136s
+> >user    0m0.020s
+> >sys     0m0.020s
+> >
+> >
+> >2.4.15-pre4
+> >===========
+> >without filesystem activity
+> >no slowdowns observed
+> >time ls -al /usr/|sort -k 5 -n
+> >real   0m0.081s
+> >user   0m0.010s
+> >sys    0m0.010s
+> >
+> >with filesystem activity on ext2
+> >no slowdowns observed
+> >time ls -al /usr/|sort -k 5 -n
+> >real    0m0.146s
+> >user    0m0.000s
+> >sys     0m0.020s
+> >
+> >with filesystem activity on reiserfs
+> >system behaviour erratic, some slowdowns
+> >time ls -al /opt|sort -k5 -n
+> >real    0m13.232s
+> >user    0m0.020s
+> >sys     0m0.010s
+> >
+> >Seems that reiserfs is the common factor here, at least on my box. This is a 35
+> >GB reiserfs filesystem, app 80% used, both large and small files.
+> >
+> >As said in my previous message, the numbers themselves don't mean squat. It is
+> >the large delays (the fact that user+sys <<< real) which are the problem here.
+> >
+> >Any other magic anyone wants me to perform? Hans, you reading this?
+> >
+> >Cheers//Frank
+> >
+> Yura, see if you can reproduce this and analyze the cause.  If I
+> understand correctly, he is saying the problem is not throughput but
+> latency.  Is that correct Frank?  Once Yura reproduces it, I will
+> speculate as to the cause.
+>
+> Hans
 
-> Delayed events are harmless, since devfs ensures correct ordering.
+Hello,
 
-It's not about ordering, timing is currently unpredictable, anything
-timing sensitive has to be very careful to touch anything in devfs.
+Yes, the latency problem exist. I was using "dd" and "cp" commands
+to create and copy 1 GB file as "filesystem activity".
 
-> After consideration, I've decided to dynamically grow the event buffer
-> as required, and free up space as it's not needed.
+In both cases the set of :
+"time ls -al /opt|sort -k5 -n"  show the same delay.
 
-You should use a slab cache and acknowledge events as soon as they are
-finished. Right now all processes are waiting until the devfsd is
-completely finished and restarted at the same time. This is currently
-limited by dropping events, with a dynamic event queue this can become a
-problem.
+One way to improve the situation is to use the patch below,
+suggested by Chris Mason :
 
-> Since devfsd has to
-> wait for a module load to complete, it's not a good idea to block
-> waiting for free space in the event buffer (potential deadlock).
+--- linux/fs/buffer.c Fri, 16 Nov 2001 10:58:28 -0500
++++ linux/fs/buffer.c Sun, 18 Nov 2001 12:44:40 -0500
+@@ -1020,9 +1020,10 @@
+                struct buffer_head * bh;
 
-What do you mean?
+                bh = get_hash_table(dev, block, size);
+-               if (bh)
++               if (bh) {
++                       touch_buffer(bh) ;
+                        return bh;
+-
++               }
+                if (!grow_buffers(dev, block, size))
+                        free_more_memory();
+        }
 
-bye, Roman
+Thanks,
+Yura.
 

@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265283AbUALUvT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 15:51:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265600AbUALUvT
+	id S266242AbUALU7n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 15:59:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266240AbUALU7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 15:51:19 -0500
-Received: from MailBox.iNES.RO ([80.86.96.21]:62651 "EHLO MailBox.iNES.RO")
-	by vger.kernel.org with ESMTP id S265283AbUALUvR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 15:51:17 -0500
-Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
-From: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
-To: Bart Samwel <bart@samwel.tk>
-Cc: Kai Krueger <kai.a.krueger@web.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <4002F627.8000508@samwel.tk>
-References: <200401121707.i0CH7iQ11796@mailgate5.cinetic.de>
-	 <4002F627.8000508@samwel.tk>
-Content-Type: text/plain
-Organization: iNES Group
-Message-Id: <1073940669.30991.7.camel@LNX.iNES.RO>
+	Mon, 12 Jan 2004 15:59:30 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:24982 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S266242AbUALU7L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 15:59:11 -0500
+Date: Thu, 8 Jan 2004 22:42:41 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 NFS-server low to 0 performance
+Message-ID: <20040108214240.GD467@openzaurus.ucw.cz>
+References: <20040107174939.GK1882@matchmail.com> <Pine.LNX.4.44.0401071908320.1840-100000@poirot.grange>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Mon, 12 Jan 2004 22:51:09 +0200
-Content-Transfer-Encoding: 7bit
-X-RAVMilter-Version: 8.4.1(snapshot 20020919) (Mailbox)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0401071908320.1840-100000@poirot.grange>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-01-12 at 21:31, Bart Samwel wrote:
-> Kai Krueger wrote:
-> > I'm currently trying kernel 2.6.1-mm1 with laptop-mode on a reiserfs partition.
-> > If I kill all daemons running on the system and do nothing with it, I can achieve the 10 minutes spin down time I had expected from laptop-mode. However as soon as I start up X with KDE I get regular spin ups every 30 seconds. Looking at the output of "echo 1 > /proc/sys/vm/block_dump", I see an entry every 30 seconds of "kdeinit(15145): WRITE block 65680 on hda1" followed by a whole load of "reiserfs/0(12): dirtied page" and "reisers/0(12): WRITE block XXXXX on hda1".
-> > 
-> > Due to the regular 30 second interval writes of kdeinit: kded to block 65680, laptop-mode is not particularly usable on this system.
-> > Is this a problem with reiserfs or with kde and is there any fix available?
+Hi!
+
+> > > It is not just a problem of 2.6 with those specific network configurations
+> > > - ftp / http / tftp transfers work fine. E.g. wget of the same file on the
+> > > PXA with 2.6.0 from the PC1 with 2.4.21 over http takes about 2s. So, it
+> > > is 2.6 + NFS.
+> > >
+> > > Is it fixed somewhere (2.6.1-rcx?), or what should I try / what further
+> > > information is required?
+> >
+> > You will probably need to look at some tcpdump output to debug the problem...
 > 
-> Can you take a look at the message that Dumitru Ciobarcianu just sent to 
-> the list (about syslog), and check if it's that?
+> Yep, just have done that - well, they differ... First obvious thing that I
+> noticed is that 2.6 is trying to read bigger blocks (32K instead of 8K),
+> but then - so far I cannot interpret what happens after the start of the
 
-Won't help him if kdeinit is doing fsync() on every friggind write.
-syslog has an option to disable that, that's all.
+I've seen slow machine (386sx with ne1000) that could not receive 7 full-sized packets
+back-to-back. You are sending 22 full packets back-to-back.
+I'd expect some of them to be (almost deterministicaly) lost,
+and no progress ever made.
 
-That's what evolution was doing until some friends helped me build an
-fsync "NOP" wrapper .
-
-This e-mail is written using "LD_PRELOAD=no-fsync.so evolution", and the
-disc does not spin up every time I switch to another folder or just
-another e-mail.
-
-(Yeah, I know it's not an good ideea if I care about my e-mail, but I
-keep backups... :)
-
-Now I wonder what will happen if I do this system-wide...
-
-hmmm... candy...
-
--- 
-Cioby - "kids, don't try this at home"
-
+In same scenario, TCP detects "congestion" and works mostly okay.
+On ne1000 machine, TCP was still able to do 200KB/sec on
+10Mbps network. Check if your slow machines are seeing all the packets you
+send.
+				Pavel
 

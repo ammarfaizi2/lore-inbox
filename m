@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131472AbRDWHpb>; Mon, 23 Apr 2001 03:45:31 -0400
+	id <S131479AbRDWHxv>; Mon, 23 Apr 2001 03:53:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131479AbRDWHpW>; Mon, 23 Apr 2001 03:45:22 -0400
-Received: from ash.lnxi.com ([207.88.130.242]:37620 "EHLO DLT.linuxnetworx.com")
-	by vger.kernel.org with ESMTP id <S131472AbRDWHpK>;
-	Mon, 23 Apr 2001 03:45:10 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Longstanding elf fix (2.4.3 fix)
-In-Reply-To: <m31yqk8oas.fsf@DLT.linuxnetworx.com> <15075.40500.408470.152332@pizda.ninka.net>
-From: ebiederman@lnxi.com (Eric W. Biederman)
-Date: 23 Apr 2001 01:44:57 -0600
-In-Reply-To: "David S. Miller"'s message of "Sun, 22 Apr 2001 20:15:00 -0700 (PDT)"
-Message-ID: <m3snj0giva.fsf@DLT.linuxnetworx.com>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
-MIME-Version: 1.0
+	id <S131480AbRDWHxm>; Mon, 23 Apr 2001 03:53:42 -0400
+Received: from hermes.sistina.com ([208.210.145.141]:4358 "HELO sistina.com")
+	by vger.kernel.org with SMTP id <S131479AbRDWHxa>;
+	Mon, 23 Apr 2001 03:53:30 -0400
+Date: Mon, 23 Apr 2001 09:50:45 +0000
+From: "Heinz J. Mauelshagen" <Mauelshagen@sistina.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Mauelshagen@sistina.com, linux-lvm@sistina.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [repost] Announce: Linux-OpenLVM mailing list
+Message-ID: <20010423095045.A27367@sistina.com>
+Reply-To: Mauelshagen@sistina.com
+In-Reply-To: <20010420192413.A17717@sistina.com> <E14qfGa-0001pJ-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E14qfGa-0001pJ-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Apr 20, 2001 at 07:04:21PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
-
-> Eric W. Biederman writes:
->  > In building a patch for 2.4.3 I also discovered that we are not taking 
->  > the mmap_sem around do_brk in the exec paths.
+On Fri, Apr 20, 2001 at 07:04:21PM +0100, Alan Cox wrote:
+> > We will announce when they are available ASAP and would appreciate if
+> > people like Alan Cox, Andrea Arcangeli and Andreas Dilger
+> > could check them *before* we start submitting them to Linus.
 > 
-> Does that really matter?  
+> I'll be glad to help look over them.
 
-In the library loader I can certainly see it making a difference.
+Thanks Alan :-)
 
-> Who else can get at the address space?
->  We are a singly referenced address space at that point... perhaps ptrace?
+-- 
 
-In practice I don't see it being a big deal.  But reliable code is
-made by closing all of the little loop holes.  
+Regards,
+Heinz    -- The LVM Guy --
 
-It also improves consistency as all of the calls to do_mmap are
-already protected in the exec paths. 
+*** Software bugs are stupid.
+    Nevertheless it needs not so stupid people to solve them ***
 
-And of course since much of the code in the kernel is built on the
-copy a good example neglecting the locking without a big comment,
-invites trouble elsewhere like in elf_load_library.  Where we could
-have multiple threads running.  
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-Eric
+Heinz Mauelshagen                                 Sistina Software Inc.
+Senior Consultant/Developer                       Am Sonnenhang 11
+                                                  56242 Marienrachdorf
+                                                  Germany
+Mauelshagen@Sistina.com                           +49 2626 141200
+                                                       FAX 924446
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

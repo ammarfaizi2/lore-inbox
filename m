@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266143AbUJWJ4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266116AbUJWJ5S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266143AbUJWJ4p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 05:56:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266189AbUJWJ4p
+	id S266116AbUJWJ5S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 05:57:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266189AbUJWJ5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 05:56:45 -0400
-Received: from phoenix.infradead.org ([81.187.226.98]:34315 "EHLO
+	Sat, 23 Oct 2004 05:57:18 -0400
+Received: from phoenix.infradead.org ([81.187.226.98]:34827 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S266143AbUJWJ4o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 05:56:44 -0400
-Date: Sat, 23 Oct 2004 10:56:44 +0100
+	id S266116AbUJWJ5P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 05:57:15 -0400
+Date: Sat, 23 Oct 2004 10:57:14 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH} Trivial - fix drm_agp symbol export
-Message-ID: <20041023095644.GC30137@infradead.org>
+To: "C.Y.M" <syphir@syphir.sytes.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Unknown symbol kill_proc_info in 2.6.10-rc1
+Message-ID: <20041023095714.GD30137@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jon Smirl <jonsmirl@gmail.com>, lkml <linux-kernel@vger.kernel.org>
-References: <9e473391041022214570eab48a@mail.gmail.com>
+	"C.Y.M" <syphir@syphir.sytes.net>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <417A2292.9090008@syphir.sytes.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9e473391041022214570eab48a@mail.gmail.com>
+In-Reply-To: <417A2292.9090008@syphir.sytes.net>
 User-Agent: Mutt/1.4.1i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 23, 2004 at 12:45:42AM -0400, Jon Smirl wrote:
-> Exports the symbol for drm agp entry points. This allows the new drm
-> linux-core module to get the symbol with symbol_get() instead of
-> inter_module_get(). After the new drm code arrives inter_module_xx
-> code in AGP can be deleted.
+On Sat, Oct 23, 2004 at 02:21:22AM -0700, C.Y.M wrote:
+> After building 2.6.10-rc1, i was unable to load my "lufs" module due to 
+> an unknown symbol error (kill_proc_info).  When I examined the 
+> 2.6.10-rc1 patch, I noticed that "EXPORT_SYMBOL(kill_proc_info);" was 
+> removed from signal.c.  With the following patch, I was able to resolve 
+> my problem, but I am not sure if this is the correct method.  Is there a 
+> reason why the kill_proc_info symbol is no longer exported?
 
-Sorry, wrong API.  At least export the individual functions and use them
-directly (and without the symbol_get abnomination that's not any better
-than inter_module_*).
+Because it's not an API you should be using.
 

@@ -1,78 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbTKIX5v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 18:57:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbTKIX5v
+	id S262575AbTKJAA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 19:00:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbTKJAA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 18:57:51 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:43669
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S261226AbTKIX5t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 18:57:49 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: John Bradford <john@grabjohn.com>, Krzysztof Halasa <khc@pm.waw.pl>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Some thoughts about stable kernel development
-Date: Sun, 9 Nov 2003 17:54:21 -0600
-User-Agent: KMail/1.5
-References: <m3u15de669.fsf@defiant.pm.waw.pl> <200311091950.hA9Jo01d002041@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200311091950.hA9Jo01d002041@81-2-122-30.bradfords.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Sun, 9 Nov 2003 19:00:29 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:48142 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S262575AbTKJAA2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 19:00:28 -0500
+Date: Mon, 10 Nov 2003 01:00:26 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: linux-kernel@vger.kernel.org, konsti@ludenkalle.de
+Subject: Re: Weird partititon recocnising problem in 2.6.0-testX
+Message-ID: <20031110000026.GA15712@win.tue.nl>
+References: <20031109011205.GA21914%konsti@ludenkalle.de> <20031109023625.GA15392@win.tue.nl> <20031109034940.GA8532@zappa.doom> <20031109115857.GA15484@win.tue.nl> <3FAE2EC1.6080307@stesmi.com> <20031109221546.GA11520%konsti@ludenkalle.de> <20031109230940.GA14063%konsti@ludenkalle.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311091754.21619.rob@landley.net>
+In-Reply-To: <20031109230940.GA14063%konsti@ludenkalle.de>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 November 2003 13:50, John Bradford wrote:
-> Hi Linus,
->
-> [Off-list]
->
-> Quote from Krzysztof Halasa <khc@pm.waw.pl>:
-> > Such a scenario is real and that way we might
-> > end up with official kernel being unusable for any Internet-connected
-> > tasks for weeks.
->
-> This does highlight a real issue - I am concerned by the number of
-> posts on sites like lwn.net saying things like, "Oh, I'm using 2.6 as
-> my standard kernel now", when it is clear that a lot of those users
-> simply do not understand the issues.
+On Mon, Nov 10, 2003 at 12:09:40AM +0100, Konstantin Kletschke wrote:
 
-At the same time, you _want_ as many testers as you can get finding the 
-strange bugs where burning cd's on an ACPI-powered laptop interacts strangely 
-with 3D acceleration.  And now that we're in the -test series, we want _more_ 
-of them.
+> The suggested printk code is added no but I see no difference:
 
-We know it's not safe.  There's a very real risk of a data-eating bug that 
-could take out our filesystem (especially if we're using things like software 
-suspend).  Of course those of us dragging laptops around have a very real 
-risk of getting the suckers rained on, dropped, stolen, etc.  Very few 
-non-laptop computers get run over by one's own car.  There's a larger than 
-average chance of unintentional beverage interaction too, since the vital 
-components are right under the keyboard in the beverage equivalent of ground 
-zero.  (And don't tell me the hard drive enjoys being right under the 
-keyboard, either.  Thump, thump, thump...)
+  hda: 9766MB, CHS=1245/255/63
+  hdb: 130551MB, CHS=16643/255/63
+  devfs_mk_dir: invalid argument.
+   hda: hda1 hda2
+  devfs_mk_dir: invalid argument.
+  devfs_mk_bdev: could not append to parent for /disc
+   hdb: hdb1
+  devfs_mk_bdev: could not append to parent for /part1
+  
+Aha, this "hda: 9766MB, CHS=1245/255/63" looks ancient.
+You are using the old hd.c instead of the new ide stuff.
 
-So we have to back up a lot anyway. :)
+Nobody else does so, so there might easily be something wrong.
+So, try to set CONFIG_BLK_DEV_IDEDISK=y but unset CONFIG_BLK_DEV_HD_IDE.
 
-99% of computer users don't understand the "issues" of connecting Windows XP 
-to the internet, yet they do it anyway.  (Well, about 20% of them do.  More 
-than that use W2k, and more than _that_ still use 98!)  I'd say there are a 
-lot more issues with XP than 2.6.  (For one thing, 2.6 doesn't dial home to 
-Linus and tell him what software packages you've installed. :)
+Andries
 
-I don't see what point is served by warning people away from a beta, pre-.0 
-release.  I think we know.  Security considerations are just one more element 
-of the party mix, and most of these are local (they've got to have broken 
-into the box ANYWAY, it just potentially lets 'em crack root once they're 
-in).
-
-I'm still a lot more worried about what the kernel's doing to my filesystem 
-than what some malicious twit on the internet is likely to do.  That's the 
-main reason it's still -test...
-
-Rob

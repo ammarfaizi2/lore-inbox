@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264411AbUEDOvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264406AbUEDOtH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264411AbUEDOvE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 10:51:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264409AbUEDOu1
+	id S264406AbUEDOtH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 10:49:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264409AbUEDOsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 10:50:27 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:21892 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S264405AbUEDOsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 10:48:13 -0400
-Date: Tue, 4 May 2004 07:48:02 -0700
+	Tue, 4 May 2004 10:48:22 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:36743 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S264407AbUEDOqp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 10:46:45 -0400
+Date: Tue, 4 May 2004 07:46:32 -0700
 From: Ashok Raj <ashok.raj@intel.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, davidm@hpl.hp.com, pj@sgi.com, linux-ia64@vger.kernel.org,
        rusty@rustycorp.com.au
-Subject: take3: Updated CPU Hotplug patches for IA64 (pj blessed) Patch [6/7]
-Message-ID: <20040504074802.F1909@unix-os.sc.intel.com>
+Subject: take3: Updated CPU Hotplug patches for IA64 (pj blessed) Patch [5/7]
+Message-ID: <20040504074632.E1909@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,221 +25,218 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Name: cpu_present_map.patch
+Name: ia64_palinfo.patch
 Author: Ashok Raj (Intel Corporation)
-D: This patch adds cpu_present_map, cpu_present() and for_each_cpu_present()
-D: to distinguish between possible cpu's in a system and cpu's physically
-D: present in a system. Before cpu hotplug was introduced cpu_possible()
-D: represented cpu's physically present in the system. With hotplug capable
-D: Kernel, there is a requirement to distinguish a cpu as possible verses a 
-D: CPU physically present in the system. This is required so that when
-D: smp_init() attempts to start all cpu's it should now only attempt
-D: to start cpu's present in the system. When a hotplug cpu is
-D: physically inserted cpu_present_map will have bits updated
-D: dynamically.
+Status: Tested with Hotplug CPU Code
+
+D: Changes proc entries for cpu hotplug to be created via the cpu 
+D: hotplug notifier callbacks. Also fixed a bug in the removal code
+D: that did not remove proc entries as expected.
 
 
 ---
 
- linux-2.6.5-lhcs-root/arch/ia64/kernel/smpboot.c |   24 ++++++++++++-----------
- linux-2.6.5-lhcs-root/fs/proc/proc_misc.c        |    4 +--
- linux-2.6.5-lhcs-root/include/linux/cpumask.h    |   11 ++++++++++
- linux-2.6.5-lhcs-root/init/main.c                |    4 +--
- linux-2.6.5-lhcs-root/kernel/cpu.c               |   10 ++++++++-
- linux-2.6.5-lhcs-root/kernel/sched.c             |   11 ++++++++++
- 6 files changed, 48 insertions(+), 16 deletions(-)
+ linux-2.6.5-lhcs-root/arch/ia64/kernel/palinfo.c |  134 +++++++++++++++++------
+ 1 files changed, 104 insertions(+), 30 deletions(-)
 
-diff -puN arch/ia64/kernel/smpboot.c~cpu_present arch/ia64/kernel/smpboot.c
---- linux-2.6.5-lhcs/arch/ia64/kernel/smpboot.c~cpu_present	2004-05-03 16:31:35.000000000 -0700
-+++ linux-2.6.5-lhcs-root/arch/ia64/kernel/smpboot.c	2004-05-04 07:08:23.255654034 -0700
-@@ -75,11 +75,11 @@ extern unsigned long ia64_iobase;
+diff -puN arch/ia64/kernel/palinfo.c~ia64_palinfo arch/ia64/kernel/palinfo.c
+--- linux-2.6.5-lhcs/arch/ia64/kernel/palinfo.c~ia64_palinfo	2004-05-03 16:30:57.418048224 -0700
++++ linux-2.6.5-lhcs-root/arch/ia64/kernel/palinfo.c	2004-05-03 16:30:57.420001350 -0700
+@@ -8,11 +8,14 @@
+  *
+  * Copyright (C) 2000-2001, 2003 Hewlett-Packard Co
+  *	Stephane Eranian <eranian@hpl.hp.com>
++ * Copyright (C) 2004 Intel Corporation
++ *  Ashok Raj <ashok.raj@intel.com>
+  *
+  * 05/26/2000	S.Eranian	initial release
+  * 08/21/2000	S.Eranian	updated to July 2000 PAL specs
+  * 02/05/2001   S.Eranian	fixed module support
+  * 10/23/2001	S.Eranian	updated pal_perf_mon_info bug fixes
++ * 03/24/2004	Ashok Raj	updated to work with CPU Hotplug
+  */
+ #include <linux/config.h>
+ #include <linux/types.h>
+@@ -22,6 +25,9 @@
+ #include <linux/mm.h>
+ #include <linux/module.h>
+ #include <linux/efi.h>
++#include <linux/notifier.h>
++#include <linux/cpu.h>
++#include <linux/cpumask.h>
  
- task_t *task_for_booting_cpu;
+ #include <asm/pal.h>
+ #include <asm/sal.h>
+@@ -768,13 +774,12 @@ static palinfo_entry_t palinfo_entries[]
+  * does not do recursion of deletion
+  *
+  * Notes:
+- *	- first +1 accounts for the cpuN entry
+- *	- second +1 account for toplevel palinfo
+- *
++ *	- +1 accounts for the cpuN directory entry in /proc/pal
+  */
+-#define NR_PALINFO_PROC_ENTRIES	(NR_CPUS*(NR_PALINFO_ENTRIES+1)+1)
++#define NR_PALINFO_PROC_ENTRIES	(NR_CPUS*(NR_PALINFO_ENTRIES+1))
  
--/* Bitmask of currently online CPUs */
-+/* Bitmasks of currently online, and possible CPUs */
- cpumask_t cpu_online_map;
- EXPORT_SYMBOL(cpu_online_map);
--cpumask_t phys_cpu_present_map;
--EXPORT_SYMBOL(phys_cpu_present_map);
-+cpumask_t cpu_possible_map;
-+EXPORT_SYMBOL(cpu_possible_map);
+ static struct proc_dir_entry *palinfo_proc_entries[NR_PALINFO_PROC_ENTRIES];
++static struct proc_dir_entry *palinfo_dir;
  
- /* which logical CPU number maps to which CPU (physical APIC ID) */
- volatile int ia64_cpu_to_sapicid[NR_CPUS];
-@@ -99,6 +99,7 @@ static int __init
- nointroute (char *str)
+ /*
+  * This data structure is used to pass which cpu,function is being requested
+@@ -888,47 +893,107 @@ palinfo_read_entry(char *page, char **st
+ 	return len;
+ }
+ 
+-static int __init
+-palinfo_init(void)
++static void
++create_palinfo_proc_entries(unsigned int cpu)
  {
- 	no_int_routing = 1;
-+	printk ("no_int_routing on\n");
- 	return 1;
- }
+ #	define CPUSTR	"cpu%d"
  
-@@ -437,18 +438,17 @@ smp_build_cpu_map (void)
- 	int sapicid, cpu, i;
- 	int boot_cpu_id = hard_smp_processor_id();
+ 	pal_func_cpu_u_t f;
+-	struct proc_dir_entry **pdir = palinfo_proc_entries;
+-	struct proc_dir_entry *palinfo_dir, *cpu_dir;
+-	int i, j;
++	struct proc_dir_entry **pdir;
++	struct proc_dir_entry *cpu_dir;
++	int j;
+ 	char cpustr[sizeof(CPUSTR)];
  
--	for (cpu = 0; cpu < NR_CPUS; cpu++)
--		ia64_cpu_to_sapicid[cpu] = -1;
+-	printk(KERN_INFO "PAL Information Facility v%s\n", PALINFO_VERSION);
 -
- 	ia64_cpu_to_sapicid[0] = boot_cpu_id;
--	cpus_clear(phys_cpu_present_map);
--	cpu_set(0, phys_cpu_present_map);
+-	palinfo_dir = proc_mkdir("pal", NULL);
  
-+	cpus_clear(cpu_present_map);
-+	cpu_set(0, cpu_present_map);
-+	cpu_set(0, cpu_possible_map);
- 	for (cpu = 1, i = 0; i < smp_boot_data.cpu_count; i++) {
- 		sapicid = smp_boot_data.cpu_phys_id[i];
- 		if (sapicid == boot_cpu_id)
- 			continue;
--		cpu_set(cpu, phys_cpu_present_map);
-+		cpu_set(cpu, cpu_present_map);
-+		cpu_set(cpu, cpu_possible_map);
- 		ia64_cpu_to_sapicid[cpu] = sapicid;
- 		cpu++;
- 	}
-@@ -529,9 +529,11 @@ smp_prepare_cpus (unsigned int max_cpus)
- 	if (!max_cpus) {
- 		printk(KERN_INFO "SMP mode deactivated.\n");
- 		cpus_clear(cpu_online_map);
--		cpus_clear(phys_cpu_present_map);
-+		cpus_clear(cpu_present_map);
-+		cpus_clear(cpu_possible_map);
- 		cpu_set(0, cpu_online_map);
--		cpu_set(0, phys_cpu_present_map);
-+		cpu_set(0, cpu_present_map);
-+		cpu_set(0, cpu_possible_map);
- 		return;
- 	}
- }
-diff -puN include/linux/cpumask.h~cpu_present include/linux/cpumask.h
---- linux-2.6.5-lhcs/include/linux/cpumask.h~cpu_present	2004-05-03 16:31:35.000000000 -0700
-+++ linux-2.6.5-lhcs-root/include/linux/cpumask.h	2004-05-03 16:31:35.000000000 -0700
-@@ -10,11 +10,15 @@
+ 	/*
+ 	 * we keep track of created entries in a depth-first order for
+ 	 * cleanup purposes. Each entry is stored into palinfo_proc_entries
+ 	 */
+-	for (i=0; i < NR_CPUS; i++) {
++	sprintf(cpustr,CPUSTR, cpu);
  
- extern cpumask_t cpu_online_map;
- extern cpumask_t cpu_possible_map;
-+extern cpumask_t cpu_present_map;
+-		if (!cpu_online(i)) continue;
++	cpu_dir = proc_mkdir(cpustr, palinfo_dir);
  
- #define num_online_cpus()		cpus_weight(cpu_online_map)
- #define num_possible_cpus()		cpus_weight(cpu_possible_map)
-+#define num_present_cpus()		cpus_weight(cpu_present_map)
-+
- #define cpu_online(cpu)			cpu_isset(cpu, cpu_online_map)
- #define cpu_possible(cpu)		cpu_isset(cpu, cpu_possible_map)
-+#define cpu_present(cpu)		cpu_isset(cpu, cpu_present_map)
+-		sprintf(cpustr,CPUSTR, i);
++	f.req_cpu = cpu;
  
- #define for_each_cpu_mask(cpu, mask)					\
- 	for (cpu = first_cpu_const(mk_cpumask_const(mask));		\
-@@ -23,16 +27,23 @@ extern cpumask_t cpu_possible_map;
- 
- #define for_each_cpu(cpu) for_each_cpu_mask(cpu, cpu_possible_map)
- #define for_each_online_cpu(cpu) for_each_cpu_mask(cpu, cpu_online_map)
-+#define for_each_present_cpu(cpu) for_each_cpu_mask(cpu, cpu_present_map)
- #else
- #define	cpu_online_map			cpumask_of_cpu(0)
- #define	cpu_possible_map		cpumask_of_cpu(0)
-+#define	cpu_present_map			cpumask_of_cpu(0)
-+
- #define num_online_cpus()		1
- #define num_possible_cpus()		1
-+#define num_present_cpus()		1
-+
- #define cpu_online(cpu)			({ BUG_ON((cpu) != 0); 1; })
- #define cpu_possible(cpu)		({ BUG_ON((cpu) != 0); 1; })
-+#define cpu_present(cpu)		({ BUG_ON((cpu) != 0); 1; })
- 
- #define for_each_cpu(cpu) for (cpu = 0; cpu < 1; cpu++)
- #define for_each_online_cpu(cpu) for (cpu = 0; cpu < 1; cpu++)
-+#define for_each_present_cpu(cpu) for (cpu = 0; cpu < 1; cpu++)
- #endif
- 
- #define cpumask_scnprintf(buf, buflen, map)				\
-diff -puN init/main.c~cpu_present init/main.c
---- linux-2.6.5-lhcs/init/main.c~cpu_present	2004-05-03 16:31:35.000000000 -0700
-+++ linux-2.6.5-lhcs-root/init/main.c	2004-05-03 16:31:35.000000000 -0700
-@@ -357,10 +357,10 @@ static void __init smp_init(void)
- 	unsigned j = 1;
- 
- 	/* FIXME: This should be done in userspace --RR */
--	for (i = 0; i < NR_CPUS; i++) {
-+	for_each_present_cpu(i) {
- 		if (num_online_cpus() >= max_cpus)
- 			break;
--		if (cpu_possible(i) && !cpu_online(i)) {
-+		if (!cpu_online(i)) {
- 			cpu_up(i);
- 			j++;
- 		}
-diff -puN kernel/cpu.c~cpu_present kernel/cpu.c
---- linux-2.6.5-lhcs/kernel/cpu.c~cpu_present	2004-05-03 16:31:35.000000000 -0700
-+++ linux-2.6.5-lhcs-root/kernel/cpu.c	2004-05-03 16:31:35.000000000 -0700
-@@ -20,6 +20,14 @@
- DECLARE_MUTEX(cpucontrol);
- 
- static struct notifier_block *cpu_chain;
-+/*
-+ * Represents all cpu's present in the system
-+ * In systems capable of hotplug, this map could dynamically grow
-+ * as new cpu's are detected in the system via any platform specific
-+ * method, such as ACPI for e.g.
-+ */
-+cpumask_t	cpu_present_map;
-+EXPORT_SYMBOL(cpu_present_map);
- 
- /* Need to know about CPUs going up/down? */
- int register_cpu_notifier(struct notifier_block *nb)
-@@ -169,7 +177,7 @@ int __devinit cpu_up(unsigned int cpu)
- 	if ((ret = down_interruptible(&cpucontrol)) != 0)
- 		return ret;
- 
--	if (cpu_online(cpu)) {
-+	if (cpu_online(cpu) || !cpu_present(cpu)) {
- 		ret = -EINVAL;
- 		goto out;
- 	}
-diff -puN fs/proc/proc_misc.c~cpu_present fs/proc/proc_misc.c
---- linux-2.6.5-lhcs/fs/proc/proc_misc.c~cpu_present	2004-05-03 16:31:35.000000000 -0700
-+++ linux-2.6.5-lhcs-root/fs/proc/proc_misc.c	2004-05-03 16:31:35.000000000 -0700
-@@ -368,7 +368,7 @@ int show_stat(struct seq_file *p, void *
- 	if (wall_to_monotonic.tv_nsec)
- 		--jif;
- 
--	for_each_cpu(i) {
-+	for_each_online_cpu(i) {
- 		int j;
- 
- 		user += kstat_cpu(i).cpustat.user;
-@@ -390,7 +390,7 @@ int show_stat(struct seq_file *p, void *
- 		(unsigned long long)jiffies_64_to_clock_t(iowait),
- 		(unsigned long long)jiffies_64_to_clock_t(irq),
- 		(unsigned long long)jiffies_64_to_clock_t(softirq));
--	for_each_cpu(i) {
-+	for_each_online_cpu(i) {
- 
- 		/* Copy values here to work around gcc-2.95.3, gcc-2.96 */
- 		user = kstat_cpu(i).cpustat.user;
-diff -puN kernel/sched.c~cpu_present kernel/sched.c
---- linux-2.6.5-lhcs/kernel/sched.c~cpu_present	2004-05-03 16:31:35.000000000 -0700
-+++ linux-2.6.5-lhcs-root/kernel/sched.c	2004-05-03 17:51:57.000000000 -0700
-@@ -2934,6 +2934,17 @@ void __init sched_init(void)
- 	runqueue_t *rq;
- 	int i, j, k;
- 
+-		cpu_dir = proc_mkdir(cpustr, palinfo_dir);
 +	/*
-+	 * If arch is not hotplug ready and did not populate
-+	 * cpu_present_map, just make cpu_present_map same as cpu_possible_map
-+	 * for other cpu bringup code to function as normal. e.g smp_init() etc.
++	 * Compute the location to store per cpu entries
++	 * We dont store the top level entry in this list, but
++	 * remove it finally after removing all cpu entries.
 +	 */
-+	if (cpus_empty(cpu_present_map)) {
-+		for_each_cpu(i) {
-+			cpu_set(i, cpu_present_map);
-+		}
++	pdir = &palinfo_proc_entries[cpu*(NR_PALINFO_ENTRIES+1)];
++	*pdir++ = cpu_dir;
++	for (j=0; j < NR_PALINFO_ENTRIES; j++) {
++		f.func_id = j;
++		*pdir = create_proc_read_entry(
++				palinfo_entries[j].name, 0, cpu_dir,
++				palinfo_read_entry, (void *)f.value);
++		if (*pdir)
++			(*pdir)->owner = THIS_MODULE;
++		pdir++;
++	}
++}
+ 
+-		f.req_cpu = i;
++static void
++remove_palinfo_proc_entries(unsigned int hcpu)
++{
++	int j;
++	struct proc_dir_entry *cpu_dir, **pdir;
+ 
+-		for (j=0; j < NR_PALINFO_ENTRIES; j++) {
+-			f.func_id = j;
+-			*pdir = create_proc_read_entry(
+-					palinfo_entries[j].name, 0, cpu_dir,
+-					palinfo_read_entry, (void *)f.value);
+-			if (*pdir)
+-				(*pdir)->owner = THIS_MODULE;
+-			pdir++;
++	pdir = &palinfo_proc_entries[hcpu*(NR_PALINFO_ENTRIES+1)];
++	cpu_dir = *pdir;
++	*pdir++=NULL;
++	for (j=0; j < (NR_PALINFO_ENTRIES); j++) {
++		if ((*pdir)) {
++			remove_proc_entry ((*pdir)->name, cpu_dir);
++			*pdir ++= NULL;
+ 		}
+-		*pdir++ = cpu_dir;
+ 	}
+-	*pdir = palinfo_dir;
++
++	if (cpu_dir) {
++		remove_proc_entry(cpu_dir->name, palinfo_dir);
++	}
++}
++
++static int __devinit palinfo_cpu_callback(struct notifier_block *nfb,
++								unsigned long action,
++								void *hcpu)
++{
++	unsigned int hotcpu = (unsigned long)hcpu;
++
++	switch (action) {
++	case CPU_ONLINE:
++		create_palinfo_proc_entries(hotcpu);
++		break;
++#ifdef CONFIG_HOTPLUG_CPU
++	case CPU_DEAD:
++		remove_palinfo_proc_entries(hotcpu);
++		break;
++#endif
++	}
++	return NOTIFY_OK;
++}
++
++static struct notifier_block palinfo_cpu_notifier =
++{
++	.notifier_call = palinfo_cpu_callback,
++	.priority = 0,
++};
++
++static int __init
++palinfo_init(void)
++{
++	int i = 0;
++
++	printk(KERN_INFO "PAL Information Facility v%s\n", PALINFO_VERSION);
++	palinfo_dir = proc_mkdir("pal", NULL);
++
++	/* Create palinfo dirs in /proc for all online cpus */
++	for_each_online_cpu(i) {
++		create_palinfo_proc_entries(i);
 +	}
 +
- 	for (i = 0; i < NR_CPUS; i++) {
- 		prio_array_t *array;
++	/* Register for future delivery via notify registration */
++	register_cpu_notifier(&palinfo_cpu_notifier);
  
+ 	return 0;
+ }
+@@ -939,10 +1004,19 @@ palinfo_exit(void)
+ 	int i = 0;
+ 
+ 	/* remove all nodes: depth first pass. Could optimize this  */
+-	for (i=0; i< NR_PALINFO_PROC_ENTRIES ; i++) {
+-		if (palinfo_proc_entries[i])
+-			remove_proc_entry (palinfo_proc_entries[i]->name, NULL);
++	for_each_online_cpu(i) {
++		remove_palinfo_proc_entries(i);
+ 	}
++
++	/*
++	 * Remove the top level entry finally
++	 */
++	remove_proc_entry(palinfo_dir->name, NULL);
++
++	/*
++	 * Unregister from cpu notifier callbacks
++	 */
++	unregister_cpu_notifier(&palinfo_cpu_notifier);
+ }
+ 
+ module_init(palinfo_init);
 
 _

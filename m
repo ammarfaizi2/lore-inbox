@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbVDETR1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261975AbVDETU6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261951AbVDETR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 15:17:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbVDETPC
+	id S261975AbVDETU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 15:20:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVDETRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 15:15:02 -0400
-Received: from hammer.engin.umich.edu ([141.213.40.79]:64223 "EHLO
-	hammer.engin.umich.edu") by vger.kernel.org with ESMTP
-	id S261951AbVDETKR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 15:10:17 -0400
-Date: Tue, 5 Apr 2005 15:10:07 -0400 (EDT)
-From: Christopher Allen Wing <wingc@engin.umich.edu>
-To: Andi Kleen <ak@muc.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: clock runs at double speed on x86_64 system w/ATI RS200 chipset
-In-Reply-To: <20050405183141.GA27195@muc.de>
-Message-ID: <Pine.LNX.4.58.0504051508520.13242@hammer.engin.umich.edu>
-References: <200504031231.j33CVtHp021214@harpo.it.uu.se>
- <Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu> <m18y3x16rj.fsf@muc.de>
- <Pine.LNX.4.58.0504051351200.13242@hammer.engin.umich.edu>
- <20050405183141.GA27195@muc.de>
+	Tue, 5 Apr 2005 15:17:54 -0400
+Received: from smtp.blackdown.de ([213.239.206.42]:29593 "EHLO
+	smtp.blackdown.de") by vger.kernel.org with ESMTP id S261898AbVDETPf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 15:15:35 -0400
+From: Juergen Kreileder <jk@blackdown.de>
+To: Esben Stien <b0ef@esben-stien.name>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Logitech MX1000 Horizontal Scrolling
+References: <873bxfoq7g.fsf@quasar.esben-stien.name>
+	<87zmylaenr.fsf@quasar.esben-stien.name>
+	<20050204195410.GA5279@ucw.cz>
+	<873bvyfsvs.fsf@quasar.esben-stien.name>
+	<87zmxil0g8.fsf@quasar.esben-stien.name>
+	<1110056942.16541.4.camel@localhost>
+	<87sm37vfre.fsf@quasar.esben-stien.name>
+	<87wtsjtii6.fsf@quasar.esben-stien.name>
+	<20050308205210.GA3986@ucw.cz> <1112083646.12986.3.camel@localhost>
+	<87psxcsq06.fsf@quasar.esben-stien.name> <87u0mn3l4e.fsf@blackdown.de>
+	<87acodvrw5.fsf@quasar.esben-stien.name>
+	<Pine.LNX.4.62.0504042347510.29842@angst.gnu-designs.com>
+	<877jjhtgmb.fsf@quasar.esben-stien.name>
+X-PGP-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0x730A28A5
+X-PGP-Fingerprint: 7C19 D069 9ED5 DC2E 1B10  9859 C027 8D5B 730A 28A5
+Mail-Followup-To: Esben Stien <b0ef@esben-stien.name>,
+	linux-kernel@vger.kernel.org
+Date: Tue, 05 Apr 2005 20:52:56 +0200
+In-Reply-To: <877jjhtgmb.fsf@quasar.esben-stien.name> (Esben Stien's message
+	of "Tue, 05 Apr 2005 16:58:36 +0200")
+Message-ID: <87ll7x8393.fsf@blackdown.de>
+Organization: Blackdown Java-Linux Team
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-here's the patch for x86_64
-The kernel is compiling... I'll try it when it finishes.
+Esben Stien <b0ef@esben-stien.name> writes:
 
--Chris
-
-
-
---- linux-2.6.11.6/arch/x86_64/kernel/setup.c.orig	2005-03-25 22:28:14.000000000 -0500
-+++ linux-2.6.11.6/arch/x86_64/kernel/setup.c	2005-04-05 15:05:47.656886736 -0400
-@@ -333,6 +333,12 @@
- 		else if (!memcmp(from, "acpi=strict", 11)) {
- 			acpi_strict = 1;
- 		}
-+
-+#ifdef CONFIG_X86_IO_APIC
-+		else if (!memcmp(from, "acpi_skip_timer_override", 24))
-+			acpi_skip_timer_override = 1;
-+#endif
-+
- #endif
-
- 		if (!memcmp(from, "nolapic", 7) ||
-
-
-
-
-On Tue, 5 Apr 2005, Andi Kleen wrote:
-
-> Try booting with acpi_skip_timer_override
+> "David A. Desrosiers" <desrod@gnu-designs.com> writes:
 >
-> -Andi
+>> Using these same instructions [..] doesn't work at all
+>
+> This is too little information to work with. Please be more specific
+> as to what you've done.
+
+I've looked at his configuration a bit, it's maybe an X bug.  I've
+only tried using the MX1000 standalone, there might be some issues
+when using multiple pointer devices with different button counts at
+the same time (e.g. normal 3 button mouse + 12 button MX1000).
+
+
+        Juergen
+
+-- 
+Juergen Kreileder, Blackdown Java-Linux Team
+http://blog.blackdown.de/

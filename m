@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316232AbSEQOUA>; Fri, 17 May 2002 10:20:00 -0400
+	id <S316233AbSEQOXl>; Fri, 17 May 2002 10:23:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316233AbSEQOT7>; Fri, 17 May 2002 10:19:59 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:1805 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S316232AbSEQOT6>; Fri, 17 May 2002 10:19:58 -0400
-Date: Fri, 17 May 2002 16:19:28 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Halil Demirezen <halild@bilmuh.ege.edu.tr>, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: Just an offer
-Message-ID: <20020517141928.GC6613@louise.pinerecords.com>
-In-Reply-To: <20020517122946.18213.qmail@bilmuh.ege.edu.tr> <Pine.LNX.3.95.1020517085300.4551A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: Linux/sparc 2.2.21-rc4-ext3-0.0.7a SMP (up 1 day, 5:42)
+	id <S316234AbSEQOXk>; Fri, 17 May 2002 10:23:40 -0400
+Received: from mikonos.cyclades.com.br ([200.230.227.67]:8452 "EHLO
+	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
+	id <S316233AbSEQOXj>; Fri, 17 May 2002 10:23:39 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Henrique Gobbi <henrique@cyclades.com>
+Reply-To: henrique@cyclades.com
+Organization: Cyclades Corporation
+To: linux-kernel@vger.kernel.org
+Subject: Inserting a new route from the kernel-space
+Date: Fri, 17 May 2002 11:25:53 -0300
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <02051711255300.27655@henrique.cyclades.com.br>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The remaining problem is how one trips a reboot if the remote machine
-> doesn't come up correctly. That problem can be handled by temporarily
-> changing panic() to a hard reset.
+Hello
 
-Trouble is, this couldn't "detect" problems like unresolved symbols in
-ethernet drivers or a troublesome fix that makes init/mount malfunction
-and many more common issues that make you have to get in the car and
-drive off to reset the damn beast.
+Can anyone tell me what is the way to insert a new route to the route table 
+if I already have the IP address and the device and I want all packets to 
+that IP address to be sent through that specific device.
 
--- 
-"when you do things right, people won't be sure you've done anything at all."
-- god to bender
+Any help is welcome
+Thanks in advance
+Henrique

@@ -1,94 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269888AbUICWp3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269963AbUICW6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269888AbUICWp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 18:45:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269916AbUICWp2
+	id S269963AbUICW6S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 18:58:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269971AbUICW6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 18:45:28 -0400
-Received: from holomorphy.com ([207.189.100.168]:10632 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269888AbUICWpM (ORCPT
+	Fri, 3 Sep 2004 18:58:17 -0400
+Received: from fw.osdl.org ([65.172.181.6]:36750 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269963AbUICW6P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 18:45:12 -0400
-Date: Fri, 3 Sep 2004 15:45:07 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Jesse Barnes <jbarnes@engr.sgi.com>, Linus Torvalds <torvalds@osdl.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-Subject: [sched] fix sched_domains hotplug bootstrap ordering vs. cpu_online_map issue
-Message-ID: <20040903224507.GX3106@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	Jesse Barnes <jbarnes@engr.sgi.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-References: <1094246465.1712.12.camel@mulgrave> <20040903145925.1e7aedd3.akpm@osdl.org> <20040903222212.GV3106@holomorphy.com> <20040903153434.15719192.akpm@osdl.org>
+	Fri, 3 Sep 2004 18:58:15 -0400
+Subject: Re:  [Bug 3317] New: Kernel oops in aio_complete while running AIO
+	application
+From: Daniel McNeil <daniel@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Suparna Bhattacharya <suparna@in.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>
+In-Reply-To: <1094226765.3628.112.camel@dyn318077bld.beaverton.ibm.com>
+References: <20040831081835.08942f70.akpm@osdl.org>
+	 <1094226765.3628.112.camel@dyn318077bld.beaverton.ibm.com>
+Content-Type: text/plain
+Message-Id: <1094252275.2299.11.camel@ibm-c.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040903153434.15719192.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 03 Sep 2004 15:57:55 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->> This is the whole thing; the "other half" referred to a new hunk added to
->> the patch (identical to this one) posted in its entirety.
+On Fri, 2004-09-03 at 08:52, Badari Pulavarty wrote:
+> On Tue, 2004-08-31 at 08:18, Andrew Morton wrote:
+> > Begin forwarded message:
+> > 
+> > Date: Tue, 31 Aug 2004 06:15:18 -0700
+> > From: bugme-daemon@osdl.org
+> > To: bugme-new@lists.osdl.org
+> > Subject: [Bugme-new] [Bug 3317] New: Kernel oops in aio_complete while running AIO application
+> > 
+> > 
+> > http://bugme.osdl.org/show_bug.cgi?id=3317
+> > 
+> 
+> Hi Andrew,
+> 
+> I debugged this some more. Here is whats happening:
+> 
+> The test program used program text address as buffer to do the READ to.
+> DIO get_user_pages() returned EFAULT. We called finished_one_bio()
+> as part of dropping the ref. to dio. It called aio_complete().
+> do_direct_IO() returned EFAULT to the caller. aio_run_iocb() expects
+> to see EIOCBQUEUED/RETRY, otherwise it calls aio_complete() with the
+> "ret" value. This is where the second aio_complete() is coming from.
+> So we cleanup "req" and on the next de-ref we get OOPS.
+> 
+> The problem here is, finished_one_bio() shouldn't call aio_complete()
+> since no work has been done. I have a fix for this - can you verify this
+> ? I am not really comfortable with this "tweaking". (I am not really
+> sure about IO errors like EIO etc. - if they can lead to calling
+> aio_complete() twice)
+> 
+> 
+> Fix is to call aio_complete() ONLY if there is something to report.
+> Note the we don't update dio->result with any error codes from
+> get_user_pages(), they just passed as "ret" value from do_direct_IO().
+> 
+> Thanks,
+> Badari
 
-On Fri, Sep 03, 2004 at 03:34:34PM -0700, Andrew Morton wrote:
-> ho-hum. changelog, please?
+Badari,
 
-cpu_online_map is not set up at the time of sched domain initialization
-when hotplug cpu paths are used for SMP booting. At this phase of
-bootstrapping, cpu_possible_map can be used by the various
-architectures using cpu hotplugging for SMP bootstrap, but the
-manipulations of cpu_online_map done on behalf of NUMA architectures,
-done indirectly via node_to_cpumask(), can't, because cpu_online_map
-starts depopulated and hasn't yet been populated. On true NUMA
-architectures this is a distinct cpumask_t from cpu_online_map and so
-the unpatched code works on NUMA; on non-NUMA architectures the
-definition of node_to_cpumask() this way breaks and would require an
-invasive sweeping of users of node_to_cpumask() to change it to e.g.
-cpu_possible_map, as cpu_possible_map is not suitable for use at
-runtime as a substitute for cpu_online_map.
+This does fix the problem when running on my system (ext3).
 
-Signed-off-by: William Irwin <wli@holomorphy.com>
+One question, finished_one_bio() is called in 3 places,
+are you sure the other places won't be harmed by this
+change?
 
+I'm also looking over the code and will let you know if
+I see any problems.
 
-Index: wait-2.6.9-rc1-mm1/kernel/sched.c
-===================================================================
---- wait-2.6.9-rc1-mm1.orig/kernel/sched.c	2004-08-28 11:41:47.000000000 -0700
-+++ wait-2.6.9-rc1-mm1/kernel/sched.c	2004-08-29 10:46:52.543081208 -0700
-@@ -4224,7 +4224,11 @@
- 		sd = &per_cpu(phys_domains, i);
- 		group = cpu_to_phys_group(i);
- 		*sd = SD_CPU_INIT;
-+#ifdef CONFIG_NUMA
- 		sd->span = nodemask;
-+#else
-+		sd->span = cpu_possible_map;
-+#endif
- 		sd->parent = p;
- 		sd->groups = &sched_group_phys[group];
- 
-@@ -4262,6 +4266,7 @@
- 						&cpu_to_isolated_group);
- 	}
- 
-+#ifdef CONFIG_NUMA
- 	/* Set up physical groups */
- 	for (i = 0; i < MAX_NUMNODES; i++) {
- 		cpumask_t nodemask = node_to_cpumask(i);
-@@ -4273,6 +4278,10 @@
- 		init_sched_build_groups(sched_group_phys, nodemask,
- 						&cpu_to_phys_group);
- 	}
-+#else
-+	init_sched_build_groups(sched_group_phys, cpu_possible_map,
-+							&cpu_to_phys_group);
-+#endif
- 
- #ifdef CONFIG_NUMA
- 	/* Set up node groups */
+Daniel
+

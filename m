@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268883AbRG0RYj>; Fri, 27 Jul 2001 13:24:39 -0400
+	id <S268901AbRG0RaT>; Fri, 27 Jul 2001 13:30:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268894AbRG0RY3>; Fri, 27 Jul 2001 13:24:29 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:8714 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268883AbRG0RYL>; Fri, 27 Jul 2001 13:24:11 -0400
-Subject: Re: [PATCH] Inbound Connection Control mechanism: Prioritized Accept
-To: samudrala@us.ibm.com (Sridhar Samudrala)
-Date: Fri, 27 Jul 2001 18:25:29 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-        lartc@mailman.ds9a.nl, diffserv-general@lists.sourceforge.net,
-        kuznet@ms2.inr.ac.ru, rusty@rustcorp.com.au, samudrala@us.ibm.com
-In-Reply-To: <Pine.LNX.4.21.0107270946420.14246-100000@w-sridhar2.des.sequent.com> from "Sridhar Samudrala" at Jul 27, 2001 10:10:22 AM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+	id <S268904AbRG0RaL>; Fri, 27 Jul 2001 13:30:11 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:47086 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S268901AbRG0R34>; Fri, 27 Jul 2001 13:29:56 -0400
+Date: Fri, 27 Jul 2001 20:29:50 +0300
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: Kip Macy <kmacy@netapp.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+Message-ID: <20010727202950.I1503@niksula.cs.hut.fi>
+In-Reply-To: <3B61893D.A532BD6F@namesys.com> <Pine.GSO.4.10.10107270919430.8579-100000@orbit-fe.eng.netapp.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15QBMf-00066p-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.10.10107270919430.8579-100000@orbit-fe.eng.netapp.com>; from kmacy@netapp.com on Fri, Jul 27, 2001 at 09:25:23AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> The documentation on HOWTO use this patch and the test results which show an
-> improvement in connection rate for higher priority classes can be found at our
-> project website.
->         http://oss.software.ibm.com/qos
-> 
-> We would appreciate any comments or suggestions.
+On Fri, Jul 27, 2001 at 09:25:23AM -0700, you [Kip Macy] claimed:
+>  
+> sys_write was failing with ENOMEM (on a machine with 1GB of RAM that was 
+> not doing anything else).
 
-Simple question.
+I second that.
 
-How is this different from having a single userspace thread in your
-application which accepts connections as they come in and then hands them
-out in an order it chooses, if need be erorring and closing some ?
+256M memory, no swap at the time.
 
-Alan
+After fresh boot to the default RH71 kernel (2.4.2-2 or whatever it is) on
+console (no X running):
+
+> diff -Naur /usr/src/linux.rh-default /usr/src/linux-2.4.4 > diff
+zsh: killed diff
+
+> dmesg | tail
+kernel: out of memory, killed process n (xfs)
+kernel: out of memory, killed process n (diff)
+
+Phew.
+
+
+-- v --
+
+v@iki.fi

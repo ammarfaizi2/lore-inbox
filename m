@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285073AbSATVJW>; Sun, 20 Jan 2002 16:09:22 -0500
+	id <S286893AbSATVTl>; Sun, 20 Jan 2002 16:19:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286756AbSATVJC>; Sun, 20 Jan 2002 16:09:02 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:58095 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S285073AbSATVIx>; Sun, 20 Jan 2002 16:08:53 -0500
-Date: Sun, 20 Jan 2002 23:08:41 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Re: rm-ing files with open file descriptors
-Message-ID: <20020120210841.GU51774@niksula.cs.hut.fi>
-In-Reply-To: <87lmevjrep.fsf@localhost.localdomain> <Pine.LNX.3.95.1020118163838.3008B-100000@chaos.analogic.com> <a2afsg$73g$2@ncc1701.cistron.net> <20020120152359.B326@localhost> <20020120200255.GG135220@niksula.cs.hut.fi> <20020120214430.A4000@devcon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020120214430.A4000@devcon.net>
-User-Agent: Mutt/1.3.25i
+	id <S286756AbSATVTb>; Sun, 20 Jan 2002 16:19:31 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:21770 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S286893AbSATVTW>; Sun, 20 Jan 2002 16:19:22 -0500
+Message-ID: <3C4B3370.7020303@namesys.com>
+Date: Mon, 21 Jan 2002 00:15:28 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Shawn <spstarr@sh0n.net>, linux-kernel@vger.kernel.org,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>
+Subject: Re: Possible Idea with filesystem buffering.
+In-Reply-To: <Pine.LNX.4.33L.0201201229100.32617-100000@imladris.surriel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 20, 2002 at 09:44:31PM +0100, you [Andreas Ferber] claimed:
-> On Sun, Jan 20, 2002 at 10:02:55PM +0200, Ville Herva wrote:
-> > 
-> > Just out of interest (I'm not actually suggesting this would be useful, or
-> > feasible): what about ilink(dev, inode_nr, "path") or iopen(dev, inode_nr)?
-> > 
-> > Or /proc/inodes/dev/<nr> ?
-> 
-> ...which would successfully defeat any access control scheme based on
-> directory permissions...
+Rik van Riel wrote:
 
-Yeah - it could be root-only.
+>On Sun, 20 Jan 2002, Hans Reiser wrote:
+>
+>>Write clustering is one thing it achieves.
+>>
+>>Flushing everything involved in a transaction ... is another thing.
+>>
+>
+>Agreed on these points, but you really HAVE TO work towards
+>flushing the page ->writepage() gets called for.
+>
+>Think about your typical PC, with memory in ZONE_DMA,
+>ZONE_NORMAL and ZONE_HIGHMEM. If we are short on DMA pages
+>we will end up calling ->writepage() on a DMA page.
+>
+>If the filesystem ends up writing completely unrelated pages
+>and marking the DMA page in question referenced the VM will
+>go in a loop until the filesystem finally gets around to
+>making a page in the (small) DMA zone freeable ...
+>
 
-But it's propably not useful anyway.
+This is a bug in VM design, yes?  It should signal that it needs the 
+particular page written, which probnably means that it should use 
+writepage only when it needs that particular page written, and should 
+otherwise check to see if the filesystem supports something like 
+pressure_fs_cache(), yes?
+
+>
+>
+>regards,
+>
+>Rik
+>
 
 
--- v --
 
-v@iki.fi

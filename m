@@ -1,87 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbTFBKkf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 06:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbTFBKkf
+	id S262164AbTFBK5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 06:57:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbTFBK5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 06:40:35 -0400
-Received: from cm19173.red.mundo-r.com ([213.60.19.173]:48428 "EHLO
-	mail.trasno.org") by vger.kernel.org with ESMTP id S262161AbTFBKkd
+	Mon, 2 Jun 2003 06:57:16 -0400
+Received: from pusa.informat.uv.es ([147.156.10.98]:63655 "EHLO
+	pusa.informat.uv.es") by vger.kernel.org with ESMTP id S262164AbTFBK5P
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 06:40:33 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Russell King <rmk@arm.linux.org.uk>, Steven Cole <elenstev@mesatop.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5 Documentation/CodingStyle ANSI C function declarations.
-References: <Pine.LNX.4.44.0305301414210.2671-100000@home.transmeta.com>
-X-Url: http://people.mandrakesoft.com/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-In-Reply-To: <Pine.LNX.4.44.0305301414210.2671-100000@home.transmeta.com>
-Date: 02 Jun 2003 12:53:30 +0200
-Message-ID: <m2smqs7nth.fsf@neno.mitica>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2.93
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 2 Jun 2003 06:57:15 -0400
+Date: Mon, 2 Jun 2003 13:10:37 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: SCO's claims seem empty
+Message-ID: <20030602111037.GA32253@pusa.informat.uv.es>
+References: <1054512915.1620.2.camel@localhost> <200306020119.h521Jbdv003050@eeyore.valparaiso.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200306020119.h521Jbdv003050@eeyore.valparaiso.cl>
+User-Agent: Mutt/1.3.28i
+From: uaca@alumni.uv.es
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "linus" == Linus Torvalds <torvalds@transmeta.com> writes:
-
-linus> On Fri, 30 May 2003, Russell King wrote:
->> 
->> On Fri, May 30, 2003 at 01:57:13PM -0600, Steven Cole wrote:
->> > +int foo(
->> > +	long bar,
->> > +	long day,
->> > +	struct magic *xyzzy
->> > +)
->> 
->> Is this really part of the kernel coding style?
-
-linus> No, but it's better than what it used to be.
-
-linus> Also, while I don't think we should try to maintain 1:1 behaviour with 
-linus> the _worst_ offenses of zlib, I do think we should maintain comments etc, 
-linus> and a lot of the zlib function declarations used to look like
-
-linus> int foo(bar, baz)
-linus> long bar;		/* number of frobnicators */
-linus> long baz;		/* self-larting on or off */
-linus> {
-linus> ....
-
-linus> and the ANSI-fication changes this to
-
-linus> int foo(
-linus> long bar,	/* number of frobnicators */
-linus> long baz	/* self-larting on or off */
-linus> )
-linus> {
-linus> ...
-
-linus> which while not according to the coding-standard is at least a reasonable 
-linus> compromize between having proper C function definitions and keeping the 
-linus> code _looking_ more like the original.
-
-Once there:
+Hello everybody
 
 
-/**
- * foo - <put something there>
- * @bar: number of frobnicators
- * @baz: self-larting on or off
- * @userdata: pointer to arbitrary userdata to be registered
- *
- * Description: Please, fix me
- */
-int foo(long bar, long baz)
-{
-...
+let me speculate what we will see when SCO shows their "assumed proofs"
 
-Looks like a better alternative to me.
+they will show code of the kernel and they will claim that was previously on
+SCO's operating system (and was made by them without a GPL license), 
 
-YMMV, Juan.
+how to refute that?
 
--- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy
+	Ulisses
+
+                Debian GNU/Linux: a dream come true
+-----------------------------------------------------------------------------
+"Computers are useless. They can only give answers."            Pablo Picasso
+
+--->	Visita http://www.valux.org/ para saber acerca de la	<---
+--->	Asociación Valenciana de Usuarios de Linux		<---
+ 

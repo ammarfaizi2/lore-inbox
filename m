@@ -1,61 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266153AbUAQVWb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 16:22:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266161AbUAQVWb
+	id S266181AbUAQVeY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 16:34:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266184AbUAQVeY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 16:22:31 -0500
-Received: from [217.73.129.129] ([217.73.129.129]:45278 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S266153AbUAQVWa (ORCPT
+	Sat, 17 Jan 2004 16:34:24 -0500
+Received: from mail.kroah.org ([65.200.24.183]:29370 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266181AbUAQVeU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 16:22:30 -0500
-Date: Sat, 17 Jan 2004 23:22:17 +0200
-Message-Id: <200401172122.i0HLMHCn024145@car.linuxhacker.ru>
-From: Oleg Drokin <green@linuxhacker.ru>
-Subject: Re: 2.4.24 may be bug in prints.c:341
-To: condor@vereya.net, linux-kernel@vger.kernel.org
-References: <00e201c3dd32$25bde0d0$8648493e@ixip.net>
+	Sat, 17 Jan 2004 16:34:20 -0500
+Date: Sat, 17 Jan 2004 13:34:16 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: Does sysfs really provides persistent hardware path to devices?
+Message-ID: <20040117213415.GB22238@kroah.com>
+References: <E19odOM-000NwL-00.arvidjaar-mail-ru@f22.mail.ru> <200308311453.00122.arvidjaar@mail.ru> <20030924211823.GA11234@kroah.com> <200401172334.13561.arvidjaar@mail.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401172334.13561.arvidjaar@mail.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sat, Jan 17, 2004 at 11:34:13PM +0300, Andrey Borzenkov wrote:
+> On Thursday 25 September 2003 01:18, Greg KH wrote:
 
-"Condor" <condor@vereya.net> wrote:
+Heh, nothing like a long time between responses :)
 
-C> Jan 15 19:59:20 heaven kernel: sd(8,1):Using r5 hash to sort names
-C> Jan 15 21:34:03 heaven kernel: 3w-xxxx: scsi0: Command failed: status =
-C> 0xc7, flags = 0x1b, unit #2.
-C> Jan 15 21:34:03 heaven last message repeated 27 times
-C> Jan 15 21:34:07 heaven kernel: 3w-xxxx: scsi0: Command failed: status =
-C> 0xc7, flags = 0xd0, unit #2.
-C> Jan 15 21:34:31 heaven kernel: 3w-xxxx: scsi0: Reset succeeded.
-C> Jan 16 01:53:39 heaven kernel: Device busy for revalidation (usage=2)
+> > On Sun, Aug 31, 2003 at 02:54:06PM +0400, Andrey Borzenkov wrote:
+> > > On Tuesday 19 August 2003 00:42, Greg KH wrote:
+> > > > On Mon, Aug 18, 2003 at 10:21:22AM +0400, "Andrey Borzenkov"  wrote:
+> > > > > just to show what I expected from sysfs - here is entry from Solaris
+> > > > > /devices:
+> > > > >
+> > > > > brw-r-----   1 root     sys       32,240 Jan 24  2002
+> > > > > /devices/pci@16,4000/scsi@5,1/sd@0,0:a
+> > > > >
+> > > > > this entry identifies disk partition 0 on drive with SCSI ID 0, LUN 0
+> > > > > connected to bus 1 of controller in slot 5 of PCI bus identified
+> > > > > by 16. Now you can use whatever policy you like to give human
+> > > > > meaningful name to this entry. And if you have USB it will continue
+> > > > > further giving you exact topology starting from the root of your
+> > > > > device tree.
+> > > > >
+> > > > > and this path does not contain single logical id so it is not subject
+> > > > > to change if I add the same controller somewhere else.
+> > > > >
+> > > > > hopefully it clarifies what I mean ...
+> > > >
+> > > > Hm, a bit.  First, have you looked at what sysfs provides?  Here's one
+> > > > of my machines and tell me if it has all the info you are looking for:
+> > > >
+> > > > $ tree /sys/bus/scsi/
+> > > > /sys/bus/scsi/
+> > > >
+> > > > |-- devices
+> > > > |   `-- 0:0:0:0 ->
+> > > > | ../../../devices/pci0000:00/0000:00:1e.0/0000:02:05.0/host0/0:0:0:0
+> > >
+> > >                                                               ^ ^unstable
+> >
+> > Heh, so are the pci ids in that link too :)
+> >
+> 
+> I am not sure if you are just making fun here. No, in _this_ link pci ids are 
+> not unstable because I do not have hotpug PCI.
 
-These indicate problems with your hard drive or disk controller.
+Your PCI ids could change over reboots for a number of different
+reasons (bios changes, adding or removing cards, phase of the moon,
+etc.)  My point is, PCI ids can not be guananteed to be stable for
+everyone.
 
-C> Jan 16 01:55:17 heaven kernel: is_tree_node: node level 0 does not match to
-C> the expected one -1
-C> Jan 16 01:55:17 heaven kernel: sd(8,1):vs-5150: search_by_key: invalid
-C> format found in block 0. Fsck?
-C> Jan 16 01:55:17 heaven kernel: sd(8,1):vs-13050: reiserfs_update_sd: i/o
-C> failure occurred trying to update [403 8975 0x0 SD] stat data
-C> Jan 16 01:55:18 heaven kernel: is_tree_node: node level 0 does not match to
-C> the expected one -1
-C> Jan 16 01:55:18 heaven kernel: sd(8,1):vs-5150: search_by_key: invalid
-C> format found in block 0. Fsck?
-C> Jan 16 01:55:18 heaven kernel: sd(8,1):vs-13050: reiserfs_update_sd: i/o
-C> failure occurred trying to update [403 8975 0x0 SD] stat data
+> But SCSI hosts are unstable:
 
-Some garbage was returned for READ requests and reiserfs was not able
-to find metadata it expected to find.
+Exactly.
 
-C> Jan 16 01:55:19 heaven kernel: journal-003: journal_end: j_start (4757) is
-C> too high
+> given current sysfs implementation - using wildcards remains the only 
+> solution. I for now am using this trivial script:
 
-Now somehow superblock data that is pinned in memory also got corrupted
-and reiserfs panicked because of that.
+You know that udev now supports wildcards in its pattern matching,
+right?
 
-So you have a hardware problem.
+> pts/0}% cat /etc/udev/scripts/removables
+> #!/usr/bin/perl
+> 
+> my $devpath, $base;
+> 
+> $base = $1 if ($ARGV[0] =~ /(.*\D)\d*$/);
+> $devpath = readlink "/sys/block/$base/device";
+> 
+> if ($devpath =~ 
+> m|/devices/pci0000:00/0000:00:1f.4/usb2/2-2/2-2.4/2-2.4:1.0/host\d+/\d+:0:0:0|) 
+> {
+>         print "flash0";
 
-Bye,
-    Oleg
+ick, isn't there a unique sysfs id in this location for this device that
+you can query off of?  model?  vendor?  scsi uuid?
+
+> } elsif ($devpath =~ 
+> m|/devices/pci0000:00/0000:00:1f.4/usb2/2-2/2-2.1/2-2.1:1.0/host\d+/\d+:0:0:0|) 
+> {
+>         print "flash1";
+> } elsif ($devpath =~ m|/devices/legacy/host\d+/\d+:0:4:0|) {
+>         print "jaz";
+> } else {
+>         exit(1);
+> }
+> 
+> 1;
+> 
+> with config
+> 
+> KERNEL="sd*" PROGRAM="/etc/udev/scripts/removables %k" SYMLINK="%c/%D"
+
+I just removed %D from udev too :)
+
+> > And patches for udev are always welcome :)
+> >
+> 
+> as example shows it probably can be done without serious patches. The only 
+> problem is to make devpath available; at this point udev already computed it. 
+> If you think it makes sense, patch will follow.
+
+I could see making devpath available as a % modifier.
+
+thanks,
+
+greg k-h

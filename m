@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267189AbSKMMHo>; Wed, 13 Nov 2002 07:07:44 -0500
+	id <S267169AbSKMMTL>; Wed, 13 Nov 2002 07:19:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267191AbSKMMHn>; Wed, 13 Nov 2002 07:07:43 -0500
-Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:8370 "EHLO
-	mail.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
-	id <S267189AbSKMMHm>; Wed, 13 Nov 2002 07:07:42 -0500
-Date: Wed, 13 Nov 2002 12:14:30 +0000 (GMT)
-From: Matt Bernstein <matt@theBachChoir.org.uk>
-X-X-Sender: mb@jester.mews
-To: Pawel Bernadowski <pbern@wilnet.info>
-cc: Margit Schubert-While <margit@margit.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.47-ac2
-In-Reply-To: <Pine.LNX.4.44L.0211131116510.26709-100000@farma.wilnet.info>
-Message-ID: <Pine.LNX.4.44.0211131213470.1118-100000@jester.mews>
-X-URL: http://www.theBachChoir.org.uk/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Auth-User: mb
-X-uvscan-result: clean (18BwPf-0006rD-00)
+	id <S267174AbSKMMTL>; Wed, 13 Nov 2002 07:19:11 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:16658 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S267169AbSKMMTK>;
+	Wed, 13 Nov 2002 07:19:10 -0500
+Date: Wed, 13 Nov 2002 13:25:58 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: alan@lxorguk.ukuu.org.uk
+Subject: tulip driver compiled in, how to set options? (BUG in 2.4.20-rc1?)
+Message-Id: <20021113132558.1ea894b3.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:17 +0100 Pawel Bernadowski wrote:
+Dear all,
 
->i have too... this error.
+can some kind soul please explain me how to set some of the options (e.g. media
+type) with a compiled-in tulip driver?
+I know this should work with "ether=0,0,media,.." because (as most drivers) the
+media type is set via dev->mem_start. Only it does not work. I tried to find
+out where the mem_start value is set in the kernel-source, starting from
+alloc_etherdev up to its usage in the driver, but cannot see it. Effectively I
+printk'ed it, and it is always zero.
+Can someone please have a quick look if this does work at all, anywhere, anyhow
+...
+This is kernel 2.4.20-rc1, the whole issue is around lines 1650 in
+drivers/net/tulip/tulip_core.c
 
-It builds (and runs nicely :) without local APIC support for me.
-
->  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall 
->-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
->-pipe -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic 
->-Iarch/i386/mach-defaults -fomit-frame-pointer -nostdinc -iwithprefix 
->include    -DKBUILD_BASENAME=version   -c -o init/version.o init/version.c
->   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o 
->init/do_mounts.o init/initramfs.o
->        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s 
->arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o 
->--start-group  usr/built-in.o  arch/i386/kernel/built-in.o  
->arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o  
->kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  
->security/built-in.o  crypto/built-in.o  drivers/built-in.o  
->sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o  lib/lib.a  
->arch/i386/lib/lib.a --end-group  -o .tmp_vmlinux1
->arch/i386/kernel/built-in.o: In function `gdt_48':
->arch/i386/kernel/built-in.o(.data+0x12b1): undefined reference to 
->`boot_gdt_table'
-
-
+-- 
+Regards,
+Stephan

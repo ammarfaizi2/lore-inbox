@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbUAANue (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 08:50:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbUAANue
+	id S261613AbUAANxu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 08:53:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUAANxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 08:50:34 -0500
-Received: from netline-mail1.netline.ch ([195.141.226.27]:53006 "EHLO
-	netline-mail1.netline.ch") by vger.kernel.org with ESMTP
-	id S261575AbUAANud (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 08:50:33 -0500
-Subject: Re: [Dri-devel] 2.6 kernel change in nopage
-From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Jon Smirl <jonsmirl@yahoo.com>,
-       dri-devel <dri-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040101133301.GB3242@holomorphy.com>
-References: <20031231182148.26486.qmail@web14918.mail.yahoo.com>
-	 <1072958618.1603.236.camel@thor.asgaard.local>
-	 <20040101133301.GB3242@holomorphy.com>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1072965029.1603.261.camel@thor.asgaard.local>
+	Thu, 1 Jan 2004 08:53:49 -0500
+Received: from cm6.gamma186.maxonline.com.sg ([202.156.186.6]:13462 "EHLO
+	alphaworks.anomalistic.org") by vger.kernel.org with ESMTP
+	id S261613AbUAANxs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 08:53:48 -0500
+Date: Thu, 1 Jan 2004 21:53:46 +0800
+From: Eugene Teo <eugene.teo@eugeneteo.net>
+To: Andrew Morton <akpm@osdl.org>, levon@movementarian.org
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-rc1-mm1
+Message-ID: <20040101135346.GA17781@eugeneteo.net>
+Reply-To: Eugene Teo <eugene.teo@eugeneteo.net>
+References: <20031231004725.535a89e4.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 01 Jan 2004 14:50:30 +0100
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031231004725.535a89e4.akpm@osdl.org>
+X-Operating-System: Linux 2.6.1-rc1-mm1
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-01-01 at 14:33, William Lee Irwin III wrote:
-> On Thu, Jan 01, 2004 at 01:03:38PM +0100, Michel D?nzer wrote:
-> > No, this is Linux specific.
-> > How does this patch look?
-> 
-> Okay, you did something weird with nopage args, but I thought I did
-> the equivalent of this in the original patch?
+<quote sender="Andrew Morton">
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-rc1/2.6.0-rc1-mm1/
 
-This is about the canonical DRM code in the DRI tree.
+[snip]
 
+> +make-for_each_cpu-iterator-more-friendly.patch
+
+Trivial patch.
+
+http://www.anomalistic.org/patches/oprofile-cpu_possible-fix-2.6.1-rc1-mm1.patch
+
+diff -Naur -X /home/amnesia/w/dontdiff 2.6.1-rc1-mm1/drivers/oprofile/oprofile_stats.c 2.6.1-rc1-mm1-fix/drivers/oprofile/oprofile_stats.c
+--- 2.6.1-rc1-mm1/drivers/oprofile/oprofile_stats.c	2004-01-01 20:29:19.000000000 +0800
++++ 2.6.1-rc1-mm1-fix/drivers/oprofile/oprofile_stats.c	2004-01-01 21:34:48.000000000 +0800
+@@ -8,7 +8,7 @@
+  */
+ 
+ #include <linux/oprofile.h>
+-#include <linux/smp.h>
++#include <linux/cpumask.h>
+ #include <linux/threads.h>
+  
+ #include "oprofile_stats.h"
 
 -- 
-Earthling Michel Dänzer      |     Debian (powerpc), X and DRI developer
-Software libre enthusiast    |   http://svcs.affero.net/rm.php?r=daenzer
+Eugene TEO   <eugeneteo@eugeneteo.net>   <http://www.anomalistic.org/>
+1024D/14A0DDE5 print D851 4574 E357 469C D308  A01E 7321 A38A 14A0 DDE5
+main(i) { putchar(182623909 >> (i-1) * 5&31|!!(i<7)<<6) && main(++i); }
 

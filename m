@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbULXEm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbULXEp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbULXEm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 23:42:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbULXEm3
+	id S261373AbULXEp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 23:45:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbULXEp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 23:42:29 -0500
-Received: from rproxy.gmail.com ([64.233.170.193]:7315 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261369AbULXEm0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 23:42:26 -0500
+	Thu, 23 Dec 2004 23:45:58 -0500
+Received: from web60607.mail.yahoo.com ([216.109.118.245]:2444 "HELO
+	web60607.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261373AbULXEpy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 23:45:54 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=rnQsAGUxRvWT5oLeRXv6BdzKa4tHU/v1o7Mh0AELx2r7DdngZxwjcEgAXezbd9x1d9ZwwJDnMbmOb5px0fvb5kPikdOTfNj0nGSG0x3vSJsF0XqJTIqFSq+XEn0vVEmoe4JJBvzhb+sEyRkWWOtOecGVgEjVPtk2Lxai/4bslSM=
-Message-ID: <8783be660412232042dd372c@mail.gmail.com>
-Date: Thu, 23 Dec 2004 23:42:26 -0500
-From: Ross Biro <ross.biro@gmail.com>
-Reply-To: Ross Biro <ross.biro@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: DMA problems with 3+ Promise IDE controllers
-Cc: Jaco van der Schyff <jvds@netgroup.co.za>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1103845162.15233.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <41CB1BE3.465BD490@netgroup.co.za>
-	 <1103845162.15233.9.camel@localhost.localdomain>
+  s=s1024; d=yahoo.com;
+  b=DHEaSD+IxIJ5mIaM8af7VSC4jxONbobc6pUpiox1QDQbvKDTd8AxPQMTEknktrD859fEq0aWi9WFNclXL5ENSL0bSsIe+rV/HVh65C4VB287Mcs5RN17NJNn+u0kbjUOd0l2iCUtQ85zapt8ChJDVDLsJljjBAw52oFotZddAZY=  ;
+Message-ID: <20041224044553.84241.qmail@web60607.mail.yahoo.com>
+Date: Thu, 23 Dec 2004 20:45:53 -0800 (PST)
+From: selvakumar nagendran <kernelselva@yahoo.com>
+Subject: Intercepting system calls in Linux kernel 2.6.x
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Dec 2004 23:39:24 +0000, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Iau, 2004-12-23 at 19:26, Jaco van der Schyff wrote:
-> > Any idea how I could get all three cards to work in UDMA100 mode?
-> 
-> You either need multiple independant PCI busses or to write an
-> arbitrator for the IDE DMA layer to ensure that no more than two of the
-> three are doing DMA transfers at a time and the other waits.
-> 
+  
+ In linux kernel 2.6.x, what should we do to intercept
+system calls? When I used sys_call_table from a
+module, it returned the following error 'undefined
+variable sys_call_table'. What is the way to export
+system call table in kernel 2.6.x?
+
+Thanks,
+selva
 
 
-Could you explain why they can't coexist on the same PCI bus.  The
-only problem I see with having all three cards DMA at the same time is
-increased latency.  But he's getting CRC errors on the transfer
-between the card and the drive, and that doesn't seem like a latency
-issue.
-
-I know Promise does funky stuff with their DMA, but I'm curious why no
-more than two cards can co-exist on the same PCI bus.
-
-    Ross
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - Helps protect you from nasty viruses. 
+http://promotions.yahoo.com/new_mail

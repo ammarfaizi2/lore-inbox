@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317642AbSHHQNH>; Thu, 8 Aug 2002 12:13:07 -0400
+	id <S317643AbSHHQN1>; Thu, 8 Aug 2002 12:13:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317643AbSHHQNH>; Thu, 8 Aug 2002 12:13:07 -0400
-Received: from mnh-1-06.mv.com ([207.22.10.38]:48132 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S317642AbSHHQNF>;
-	Thu, 8 Aug 2002 12:13:05 -0400
-Message-Id: <200208081719.MAA02461@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode 
-In-Reply-To: Your message of "Thu, 08 Aug 2002 11:03:59 +0200."
-             <20020808110359.1aa8f4a1.us15@os.inf.tu-dresden.de> 
+	id <S317648AbSHHQN1>; Thu, 8 Aug 2002 12:13:27 -0400
+Received: from firewall.citel.com ([62.190.107.60]:64946 "EHLO cad.citel.com")
+	by vger.kernel.org with ESMTP id <S317643AbSHHQNM>;
+	Thu, 8 Aug 2002 12:13:12 -0400
+Date: Thu, 8 Aug 2002 17:15:24 +0100
+From: Michael Procter <lkml@procter-collective.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Unix-domain sockets - abstract addresses
+Message-ID: <20020808171524.A2469@cad.citel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 08 Aug 2002 12:19:59 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-us15@os.inf.tu-dresden.de said:
-> The task is uncooperative and doesn't dequeue signals itself. When it
-> gets a signal it stops. The kernel then sees the signal and accepts it
-> using sigwaitinfo, at which point it is no longer pending in the task
-> either. The siginfo structure then provides the necessary info, i.e.
-> which fd caused the i/o.
+I have been trying to use unix domain datagram sockets in an application,
+but have found what appears to be an inconsistency between the kernel and
+the manpage unix(7).
 
-I think this is more or less what I had in mind.  The thing that is missing
-is for sigwaitinfo to be able to dequeue another process' signals, which is
-where the shared signal queue would come in.
+I have a server, which creates a socket, binds it to an address and then
+does a recvfrom().  When it gets a packet, it tries to respond with
+sendto(), supplying the address information from the recvfrom() call.
 
-> If you have a magic aio descriptor, how does the task process read
-> signals from it and stop? 
+All this works fine when the client binds it's socket to an address in the
+filesystem before issuing the connect().  But I don't want another
+filesystem entity, so I am trying to use an address in the abstract
+namespace.
 
-I was looking at this as a way of dequeueing signals from the other process.
-The task process would have the signal queued and wake up the kernel process
-as happens now.  The kernel process would have /proc/<task-pid>/sigqueue
-or something opened and would read siginfos from it.  Those would then be 
-dequeued from the task process.
+Abstract addresses work fine when the client calls bind() with an address
+length of 2, and also if it sets the socket option SO_PASSCRED before
+connect().  But if the client does neither and simply calls connect(),
+the server gets an invalid 'from' address (address family usually zero,
+but I have seen 0x0BA5, 0x7FA8, 0x1FA8 and others).
 
-This almost suffices for getting page fault information, except that, for
-some reason, siginfo doesn't say whether the faulting access was a read or
-a write.
+According to the man page 'unix(7)':
+When a socket is connected and it doesn't already have a local address a
+unique address in the abstract namespace will be generated automatically.
 
-And now that I'm thinking about it, aio doesn't really come into it.  This
-would be strictly synchronous.
+So, the question is:  which is right?  The man page, or af_unix.c?
 
-				Jeff
+I have been doing my tests on 2.4.9-34 (RedHat 7.2), but looking at 2.4.19
+from kernel.org, the results should be the same.
 
+Regards,
+
+Michael Procter

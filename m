@@ -1,58 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288227AbSACHIm>; Thu, 3 Jan 2002 02:08:42 -0500
+	id <S288230AbSACHRc>; Thu, 3 Jan 2002 02:17:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288228AbSACHIX>; Thu, 3 Jan 2002 02:08:23 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:21764 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S288227AbSACHIF>; Thu, 3 Jan 2002 02:08:05 -0500
-Message-ID: <3C34024A.EDA31D24@zip.com.au>
-Date: Wed, 02 Jan 2002 23:03:38 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: Ivan Passos <ivan@cyclades.com>, linux-kernel@vger.kernel.org
-Subject: Re: Serial Driver Name Question (kernels 2.4.x)
-In-Reply-To: <3C33E0D3.B6E932D6@zip.com.au>,
-		<3C33BCF3.20BE9E92@cyclades.com>
-		<3C33E0D3.B6E932D6@zip.com.au> <200201030637.g036bxe03425@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S288231AbSACHRW>; Thu, 3 Jan 2002 02:17:22 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:20228 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S288230AbSACHRC>; Thu, 3 Jan 2002 02:17:02 -0500
+Date: Thu, 3 Jan 2002 10:16:56 +0300
+From: Oleg Drokin <green@namesys.com>
+To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+        reiserfs-dev@namesys.com
+Subject: [PATCH] tail data corruption on mempressure
+Message-ID: <20020103101656.A2592@namesys.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="bp/iNruPH9dso1Pn"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
-> 
-> > Instead, it appears that someone broke tty_name().  Here's the
-> > 2.2 kernel's version:
-> 
-> That "someone" was me, and I changed it from broken to fixed.
-> 
 
-Look at serial.c:
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-#if (LINUX_VERSION_CODE > 0x2032D && defined(CONFIG_DEVFS_FS))
-        serial_driver.name = "tts/%d";
-#else
-        serial_driver.name = "ttyS";
-#endif
+Hello!
 
-tty_name will just print "ttyS".   So the transition for this case
-was fixed->broken.
+    This patch fixes a bug when mmap-write to a file tail and subsequent read cause written data to be lost
+    due to page-cache interacting mistake in low number of free buffers situation.
+    Please apply.
 
-> 
-> No, originally tty_name() did it, and then I shifted it to the
-> drivers. I don't recall the reason, but it was necessary. So I don't
-> want this changed.
+Bye,
+     Oleg
 
-Oh dear.  Why cannot devfs expand the minor part itself?
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="tail_data_corruption_on_mempressure-1.diff"
 
-It looks like all the drivers need to be given a %d, as Ivan suggests.  And we
-need to audit all uses to make sure nobody is doing printk(driver.name);
+--- linux/fs/reiserfs/inode.c.orig	Thu Dec 20 11:07:05 2001
++++ linux/fs/reiserfs/inode.c	Thu Dec 20 19:03:51 2001
+@@ -325,6 +325,16 @@
+     */
+     if (buffer_uptodate(bh_result)) {
+         goto finished ;
++    } else 
++	/*
++	** grab_tail_page can trigger calls to reiserfs_get_block on up to date
++	** pages without any buffers.  If the page is up to date, we don't want
++	** read old data off disk.  Set the up to date bit on the buffer instead
++	** and jump to the end
++	*/
++	    if (Page_Uptodate(bh_result->b_page)) {
++		mark_buffer_uptodate(bh_result, 1);
++		goto finished ;
+     }
+ 
+     // read file tail into part of page
+@@ -833,7 +843,7 @@
+ 	}
+ 	if (retval == POSITION_FOUND) {
+ 	    reiserfs_warning ("vs-825: reiserfs_get_block: "
+-			      "%k should not be found\n", &key);
++			      "%K should not be found\n", &key);
+ 	    retval = -EEXIST;
+ 	    if (allocated_block_nr)
+ 	        reiserfs_free_block (&th, allocated_block_nr);
 
-I think it would be better to drop the printf control construct from the
-names altogether.
-
--
+--bp/iNruPH9dso1Pn--

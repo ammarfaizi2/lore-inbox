@@ -1,76 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270221AbRHMOTt>; Mon, 13 Aug 2001 10:19:49 -0400
+	id <S270220AbRHMOUJ>; Mon, 13 Aug 2001 10:20:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270225AbRHMOTj>; Mon, 13 Aug 2001 10:19:39 -0400
-Received: from sniip-netline.inet.ntl.ru ([213.247.145.170]:62468 "EHLO
-	gw.sniip.ru") by vger.kernel.org with ESMTP id <S270222AbRHMOTb> convert rfc822-to-8bit;
-	Mon, 13 Aug 2001 10:19:31 -0400
-Content-Type: text/plain;
-  charset="koi8-r"
-From: Info <arling@sniip.ru>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: In addition to: Tulip on 2.4.7 stay unworkable both on 21041 and 21142 in 10M net + OOPS
-Date: Mon, 13 Aug 2001 18:21:53 +0400
+	id <S270223AbRHMOTu>; Mon, 13 Aug 2001 10:19:50 -0400
+Received: from femail42.sdc1.sfba.home.com ([24.254.60.36]:57761 "EHLO
+	femail42.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S270220AbRHMOTs>; Mon, 13 Aug 2001 10:19:48 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: linux-kernel@vger.kernel.org
+Subject: via82cxxx_audio driver bug?
+Date: Mon, 13 Aug 2001 07:19:42 -0700
 X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <01081318215300.01213@sh.lc>
+Message-Id: <01081307194201.00276@c779218-a>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+(my apologies if this gets seen as a little offtopic, I felt this was the 
+best place to get results from people who knew what was going on with 
+drivers)
+My writeup on the bug when I belived it was definitely an XMMS bug is 
+avalible here:
+http://bugs.xmms.org/show_bug.cgi?id=115
+you'll need to scroll down to see details on what I isolated it to
 
-I forgot to place in my previous letter compiler's message about Tulip;
-it appeared while I compiled kernel without "new bus" configuration.
-This message is (seperated by *********):
-___________________________________________________
+I just sent email to the maintainer of the via82cxxx_audio driver 
+regarding this bug, hopefully I'll hear back from him soon, but I'd also 
+like to hear from anyone else who has used and/or hacked at this driver, 
+and if they've seen XMMS or other audio applications with access to 
+/dev/mixer have strange, temporarily lockups when not in root/realtime 
+priority. I've yet to be able to test this with other audio applications 
+besides XMMS.
 
-make[4]: Вход в каталог `/usr/src/linux/drivers/net/tulip'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing 
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o 
-eeprom.o eeprom.c
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing 
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o 
-interrupt.o interrupt.c
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing 
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o 
-media.o media.c
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing 
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o 
-timer.o timer.c
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing 
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o 
-tulip_core.o tulip_core.c
-****************************************
-tulip_core.c: In function `tulip_init_one':
-tulip_core.c:1768: warning: label `err_out_free_res' defined but not 
-used
-******************************************
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing 
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o 
-21142.o 21142.c
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing 
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o 
-pnic.o pnic.c
-rm -f tulip.o
-ld -m elf_i386  -r -o tulip.o eeprom.o interrupt.o media.o timer.o 
-tulip_core.o 21142.o pnic.o
-make[4]: Выход из каталог `/usr/src/linux/drivers/net/tulip'
-___________________________________________________
-
-I don't know if this (or such) message appeares when compiling kernel 
-with "new bus" configuration: I didn't notice it on compiling, and. 
-sorry., have no oppotunity to repead compiling.
-
-Best regards,
-
-George Afanassew
+Thanks.

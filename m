@@ -1,73 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293035AbSDKWWb>; Thu, 11 Apr 2002 18:22:31 -0400
+	id <S312889AbSDKW3T>; Thu, 11 Apr 2002 18:29:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293135AbSDKWWa>; Thu, 11 Apr 2002 18:22:30 -0400
-Received: from mail.cs.utexas.edu ([128.83.139.10]:34959 "EHLO
-	mail.cs.utexas.edu") by vger.kernel.org with ESMTP
-	id <S293035AbSDKWW3>; Thu, 11 Apr 2002 18:22:29 -0400
-Date: Thu, 11 Apr 2002 17:22:23 -0500 (CDT)
-From: Chin-Tser Huang <chuang@cs.utexas.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: question about compiling 2.4.9 using ARCH=um
-Message-ID: <Pine.GSO.4.33.0204111714530.16722-100000@fugue.cs.utexas.edu>
+	id <S312986AbSDKW3T>; Thu, 11 Apr 2002 18:29:19 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:55568 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S312889AbSDKW3S>; Thu, 11 Apr 2002 18:29:18 -0400
+Message-ID: <3CB5FFB5.693E7755@zip.com.au>
+Date: Thu, 11 Apr 2002 14:27:17 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alexander Viro <viro@math.psu.edu>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [prepatch] address_space-based writeback
+In-Reply-To: <a94r5k$m23$1@penguin.transmeta.com> <Pine.GSO.4.21.0204111629370.21089-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alexander Viro wrote:
+> 
+> ...
+> FWIW, correct solution might be to put dirty address_spaces on a list -
+> per-superblock or global.
 
-I am a kernel newbie and I am trying to compile the 2.4.9 kernel
-to user mode. The files I use are linux-2.4.9.tar and uml-patch-2.4.9.bz2.
-However, when I executed "make linux ARCH=um", I got the following
-error messages:
---
-...
-nm vmlinux | grep -v '\(compiled\)\|\(\.o$\)\|\( [aUw]
-\)\|\(\.\.ng$\)\|\(LASH[RL]DI\)' | sort > System.map
-mv vmlinux vmlinux.o
-gcc -Wl,-T,/usr/src/uml/linux/arch/um/link.ld  -o linux -static \
-        /usr/src/uml/linux/arch/um/main.o vmlinux.o -L/usr/lib
-vmlinux.o: In function `rwsem_wake':
-/usr/src/uml/linux/lib/rwsem.c:203: undefined reference to `_etext'
-vmlinux.o: In function `linux_main':
-/usr/src/uml/linux/arch/um/kernel/um_arch.c:201: undefined reference to
-`_etext'
-/usr/src/uml/linux/arch/um/kernel/um_arch.c:202: undefined reference to
-`_edata'
-/usr/src/uml/linux/arch/um/kernel/um_arch.c:202: undefined reference to
-`_sdata'
-/usr/src/uml/linux/arch/um/kernel/um_arch.c:204: undefined reference to
-`__bss_start'
-vmlinux.o: In function `unlock_pid':
-/usr/src/uml/linux/arch/um/kernel/um_arch.c:326: undefined reference to
-`switcheroo'
-vmlinux.o: In function `do_exitcalls':
-/usr/src/uml/linux/arch/um/kernel/process_kern.c:785: undefined reference
-to `__exitcall_end'
-/usr/src/uml/linux/arch/um/kernel/process_kern.c:785: undefined reference
-to `__exitcall_begin'
-/usr/src/uml/linux/arch/um/kernel/process_kern.c:786: undefined reference
-to `__exitcall_begin'
-vmlinux.o: In function `show_trace':
-/usr/src/uml/linux/arch/um/kernel/process_kern.c:827: undefined reference
-to `_etext'
-vmlinux.o: In function `parse_options':
-/usr/src/uml/linux/include/asm/arch/string.h:165: undefined reference to
-`__start___ksymtab'
-vmlinux.o: In function `process_timeout':
-/usr/src/uml/linux/kernel/sched.c:359: undefined reference to
-`__start___ex_table'
-/usr/src/uml/linux/kernel/sched.c:359: undefined reference to
-`__stop___ex_table'
-/usr/bin/ld: final link failed: Bad value
-collect2: ld returned 1 exit status
-make: *** [linux] Error 1
---
+Another approach may be to implement address_space.private,
+which appears to be what NTFS wants.  My initial reaction
+to that is fear, because it just makes the graph even more
+tangly.
 
-Can anybody help me solve the problem and compile it? Thanks
-a lot!!
+I agree that listing the dirty address_spaces against the
+superblock makes sense - really it's what I'm trying to do,
+and the intermediate inode is the only means of getting there.
 
-Chin-Tser
+Also, this splitup would clearly separate the concepts
+of a dirty-inode and dirty-inode-pages.  These seem to be
+coupled in a non-obvious way at present.
 
+AFAIK, the current superblock->inode->mapping approach won't
+break any existing filesystems, so I'm inclined to follow 
+that for the while, get all the known problems collected
+together and then take another pass at it. Maybe do something
+to make inode_lock a bit more conventional as well.
+
+
+This whole trend toward a flowering of tiny address_spaces
+worries me a little from the performance POV, because
+writeback likes big gobs of linear data to chew on.  With the
+global buffer LRU, even though large-scale sorting 
+opportunities were never implemented, we at least threw
+a decent amount of data at the request queue.
+
+With my current approach, all dirty conventional metadata
+(the output from mark_buffer_dirty) is written back via
+the blockdev's mapping.  It becomes a bit of a dumping
+ground for the output of legacy filesystems, but it does
+offer the opportunity to implement a high-level sort before
+sending it to disk.  If that's needed.
+
+I guess that as long as the periodic- and memory-pressure
+based writeback continues to send a lot of pages down the
+pipe we'll still get adequate merging, but it is something
+to be borne in mind.  At the end of the day we have to deal
+with these funny spinning things.
+
+
+One thing I'm not clear on with the private metadata address_space
+concept: how will it handle blocksize less than PAGE_CACHE_SIZE? 
+The only means we have at present of representing sub-page
+segments is the buffer_head.  Do we want to generalise the buffer
+layer so that it can be applied against private address_spaces?
+That wouldn't be a big leap.
+
+Or would the metadata address_spaces send their I/O through the
+backing blockdev mapping in some manner?
+
+-

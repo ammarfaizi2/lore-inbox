@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315430AbSEQFzY>; Fri, 17 May 2002 01:55:24 -0400
+	id <S315192AbSEQGKG>; Fri, 17 May 2002 02:10:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315431AbSEQFzX>; Fri, 17 May 2002 01:55:23 -0400
-Received: from violet.setuza.cz ([194.149.118.97]:31502 "EHLO violet.setuza.cz")
-	by vger.kernel.org with ESMTP id <S315430AbSEQFzW>;
-	Fri, 17 May 2002 01:55:22 -0400
-Subject: Re: counters
-From: Frank Schaefer <frank.schafer@setuza.cz>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3CE3BECB.FF1AE6A@ail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 17 May 2002 07:55:23 +0200
-Message-Id: <1021614923.253.0.camel@ADMIN>
+	id <S315432AbSEQGKF>; Fri, 17 May 2002 02:10:05 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:62338 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S315192AbSEQGKE>;
+	Fri, 17 May 2002 02:10:04 -0400
+Date: Fri, 17 May 2002 08:09:55 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Sanket Rathi <sanket.rathi@cdac.ernet.in>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bounce Buffer Patch
+Message-ID: <20020517060955.GS11948@suse.de>
+In-Reply-To: <Pine.GSO.4.10.10205171118320.17118-100000@mailhub.cdac.ernet.in>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-05-16 at 16:14, Manik Raina wrote:
-> anyone knows if there are counters in the linux kernel
-> which can be read via /proc like mechanism for the
-> following :
-> 
-> 1. total number of bytes read by process by syscalls
-> like read()
-> 
-> 2. total number of bytes written by each process by
-> syscalls like write()
+On Fri, May 17 2002, Sanket Rathi wrote:
+> I have read about bounce buffer and understand.
+> but from where i can get the code of that patch and how it internally
+> works.
 
-Hi,
+You mean the patch to avoid bounce buffering? Andrea has an uptodate
+version here:
 
-as far as I know there's not a ready to use counter in the procfs.
+http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre8aa3/00_block-highmem-all-18b-11.gz
 
-BTW: What do you want to count? Do You mean timers?
+In short, it does its magic by not relying on the virtual mapping of a
+given page. If you want more info than that, you'll have to ask more
+qualified questions.
 
-It shouldn't be a problem, to write a little driver, which could make
-this available.
-
-Regards
-Frank
+-- 
+Jens Axboe
 

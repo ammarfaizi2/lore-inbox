@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262885AbTDIHG4 (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 03:06:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262884AbTDIHG4 (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 03:06:56 -0400
-Received: from [195.60.21.2] ([195.60.21.2]:52136 "EHLO pluto.fastfreenet.com")
-	by vger.kernel.org with ESMTP id S262883AbTDIHGy (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 03:06:54 -0400
-Message-ID: <007601c2fecd$12209070$230110ac@kaws>
-From: "Keith Ansell" <keitha@edp.fastfreenet.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: bdflush flushing memory mapped pages. 
-Date: Wed, 9 Apr 2003 20:20:18 +0100
+	id S262882AbTDIHN5 (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 03:13:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262883AbTDIHN4 (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 03:13:56 -0400
+Received: from sccrmhc03.attbi.com ([204.127.202.63]:15747 "EHLO
+	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP id S262882AbTDIHNz (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 03:13:55 -0400
+Message-ID: <3E93CAC8.8070407@namesys.com>
+Date: Wed, 09 Apr 2003 11:24:56 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Oleg Drokin <green@namesys.com>
+CC: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.67 - reiserfs go boom.
+References: <20030409011802.GD25834@suse.de> <20030409105339.A26788@namesys.com>
+In-Reply-To: <20030409105339.A26788@namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-help
+Oleg Drokin wrote:
 
-My application uses SHARED memory mapping files for file I/O, and we have
-observed
-that Linux does not flush dirty pages to disk until munmap or msync are
-called.
+>Hello!
+>
+>On Wed, Apr 09, 2003 at 02:18:02AM +0100, Dave Jones wrote:
+>
+>  
+>
+>>Whilst running fsx.. (Though fsx didn't trigger any error,
+>>and is still running)..
+>>buffer layer error at fs/buffer.c:127
+>>Call Trace:
+>> [<c016d260>] __wait_on_buffer+0xd0/0xe0
+>> [<c0121760>] autoremove_wake_function+0x0/0x50
+>> [<c0121760>] autoremove_wake_function+0x0/0x50
+>> [<c02886c8>] reiserfs_unmap_buffer+0x68/0xa0
+>>    
+>>
+>
+>Andrew Morton said "That's not a bug.  It is errant debugging code." because the page is locked by us,
+>so buffers are safe.
+>So I am not looking into this and hoping that somebody will fix the debugging code instead ;)
+>
+>Bye,
+>    Oleg
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
+Oleg, if someone doesn't do it for you in 7 days, you must do it....
 
-I would like to know are there any development plans which would address
-this issue or
-if there is a version of bdflush which flushes write required pages (dirty
-pages) to disk?
+errant debugging code is a bug....  when users (reasonably) think our fs 
+has bugs, that needs to be fixed;-)
 
-Regards
-        Keith Ansell.
+-- 
+Hans
 
 

@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282205AbRKWS4n>; Fri, 23 Nov 2001 13:56:43 -0500
+	id <S282206AbRKWTDX>; Fri, 23 Nov 2001 14:03:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282206AbRKWS4d>; Fri, 23 Nov 2001 13:56:33 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:36604 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S282205AbRKWS4Q>; Fri, 23 Nov 2001 13:56:16 -0500
-Message-Id: <5.1.0.14.2.20011123185333.00afd920@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 23 Nov 2001 18:56:07 +0000
-To: Daniel Phillips <phillips@bonn-fries.net>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Which gcc version?
-Cc: war <war@starband.net>, Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E167L5w-0002Oi-00@starship.berlin>
-In-Reply-To: <5.1.0.14.2.20011123135801.00aad970@pop.cus.cam.ac.uk>
- <20011123125137Z282133-17408+17815@vger.kernel.org>
- <5.1.0.14.2.20011123135801.00aad970@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S282207AbRKWTDN>; Fri, 23 Nov 2001 14:03:13 -0500
+Received: from [213.97.199.90] ([213.97.199.90]:2176 "HELO fargo")
+	by vger.kernel.org with SMTP id <S282206AbRKWTDI> convert rfc822-to-8bit;
+	Fri, 23 Nov 2001 14:03:08 -0500
+From: "David =?ISO-8859-1?Q?G=F3mez" ?= <davidge@jazzfree.com>
+Date: Fri, 23 Nov 2001 20:02:28 -0500 (EST)
+X-X-Sender: <huma@fargo>
+To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	 Coronado <dervishd@jazzfree.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Moving ext3 journal file
+In-Reply-To: <E167Fuw-00001K-00@DervishD>
+Message-ID: <Pine.LNX.4.33.0111231944430.2891-100000@fargo>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 18:30 23/11/01, Daniel Phillips wrote:
->On November 23, 2001 02:59 pm, Anton Altaparmakov wrote:
-> > At 13:51 23/11/01, war wrote:
-> > >You should use gcc-2.95.3.
-> >
-> > That's not true. gcc-2.96 as provided with RedHat 7.2 is perfectly fine.
-> >
-> > gcc-3x OTOH is not a good idea at the moment.
+
+Hi ;),
+
+>     Is there any problem on moving the /.journal file (even renaming
+> it) so it doesn't lives on the root? I mean, maintaining its inode
+> number, of course ;))
 >
->Do you have any particular reason for saying that?
+>     Anyway, ext3 shouldn't (just an idea) show the journal as a
+> normal file. It may add some load on the kernel, because the inode
+> number should be compared with that of the journal every time a file
+> is accessed, but it's just a suggestion ;))
 
-I haven't done any measurements myself but from what I have read, gcc-3.x 
-produces significantly slower code than gcc-2.96. I know I should try 
-myself some time... but if that is indeed true that is a very good reason 
-to stick with gcc-2.96.
+AFAIK the .journal it's visible only when you convert an ext2 to an ext3
+filesystem on a mounted partition, it was a problem with 2.4.10 kernel
+version, but i'm not sure if posterior releases also show this behavior.
+Anyway you can solve it recreating a new journal (remount it to ext2
+before doing this):
 
-Anton
+'chattr -i /.journal;rm /.journal;tune2fs -j /dev/whatever'
 
 
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+
+David Gómez
+
+"The question of whether computers can think is just like the question of
+ whether submarines can swim." -- Edsger W. Dijkstra
+
 

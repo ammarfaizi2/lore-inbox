@@ -1,1037 +1,1203 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261399AbSJQLyJ>; Thu, 17 Oct 2002 07:54:09 -0400
+	id <S261364AbSJQMGI>; Thu, 17 Oct 2002 08:06:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261452AbSJQLxV>; Thu, 17 Oct 2002 07:53:21 -0400
-Received: from precia.cinet.co.jp ([210.166.75.133]:9088 "EHLO
-	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S261399AbSJQLfC>; Thu, 17 Oct 2002 07:35:02 -0400
-Date: Thu, 17 Oct 2002 20:40:12 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH][RFC] add support for PC-9800 architecture (19/26) SCSI
-Message-ID: <20021017204012.A1259@precia.cinet.co.jp>
+	id <S261531AbSJQMF2>; Thu, 17 Oct 2002 08:05:28 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:22461 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261520AbSJQMCw>; Thu, 17 Oct 2002 08:02:52 -0400
+Date: Thu, 17 Oct 2002 01:12:09 -0700
+From: Mike Anderson <andmike@us.ibm.com>
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] scsi host cleanup 1/3 (base) (corrected)
+Message-ID: <20021017081209.GA5933@beaverton.ibm.com>
+Mail-Followup-To: linux-scsi@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20021017065112.GA1977@beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021017065112.GA1977@beaverton.ibm.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is part 19/26 of patchset for add support NEC PC-9800 architecture,
-against 2.5.43.
+I had diffed against a tree missing a compile fix this is the correct base
+patch.
 
-Summary:
- SCSI driver related modules.
-  - replace bios_param function.
-  - add new driver. (pc980155)
-  - export sd_get_sdisk to get disk goemetry.
-    we need disk geometry to read partition table.
+This is a resend of my previous patch clean ups to the scsi_host lists.
 
-diffstat:
- drivers/scsi/Config.in                    |    3 
- drivers/scsi/Makefile                     |    1 
- drivers/scsi/advansys.c                   |    9 +
- drivers/scsi/aic7xxx/aic7xxx_linux_host.h |    3 
- drivers/scsi/aic7xxx_old/aic7xxx.h        |    9 -
- drivers/scsi/pc980155.c                   |  262 ++++++++++++++++++++++++++++++
- drivers/scsi/pc980155.h                   |   47 +++++
- drivers/scsi/pc980155regs.h               |   89 ++++++++++
- drivers/scsi/scsi_scan.c                  |    1 
- drivers/scsi/scsi_syms.c                  |    6 
- drivers/scsi/scsicam.c                    |   93 ++++++++++
- drivers/scsi/sd.c                         |    8 
- drivers/scsi/wd33c93.c                    |  112 ++++++++++--
- drivers/scsi/wd33c93.h                    |    5 
- include/scsi/scsicam.h                    |    5 
- 15 files changed, 635 insertions(+), 18 deletions(-)
+	* Made function naming consistent with rest of SCSI
+	* Corrected a problem with driverfs registration to early. Also
+	  changed from put_device to device_unregister.
+        * Fixed a regression in my previous patch that the scsi_host
+          list was not sorted by host number. When we get some device
+          naming this hack can be removed.
+        * Switch scsi host template, name, host lists to struct
+          list_head's.
+        * Moved all scsi_host related register / unregister functions
+          into hosts.c
+        * Added list accessor interface and created a function similar
+          to driverfs bus_for_each_dev.
 
-patch:
-diff -urN linux/drivers/scsi/Config.in linux98/drivers/scsi/Config.in
---- linux/drivers/scsi/Config.in	Sat Oct 12 13:22:05 2002
-+++ linux98/drivers/scsi/Config.in	Sun Oct 13 18:26:42 2002
-@@ -258,6 +258,9 @@
- #      bool 'GVP Turbo 040/060 SCSI support (EXPERIMENTAL)' CONFIG_GVP_TURBO_SCSI
-    fi
- fi
-+if [ "$CONFIG_PC9800" = "y" ]; then
-+   dep_tristate 'NEC PC-9801-55 SCSI support' CONFIG_SCSI_PC980155 $CONFIG_SCSI
-+fi
- 
- endmenu
- 
-diff -urN linux/drivers/scsi/Makefile linux98/drivers/scsi/Makefile
---- linux/drivers/scsi/Makefile	Sat Oct 12 13:21:35 2002
-+++ linux98/drivers/scsi/Makefile	Sun Oct 13 18:28:50 2002
-@@ -31,6 +31,7 @@
- obj-$(CONFIG_A3000_SCSI)	+= a3000.o	wd33c93.o
- obj-$(CONFIG_A2091_SCSI)	+= a2091.o	wd33c93.o
- obj-$(CONFIG_GVP11_SCSI)	+= gvp11.o	wd33c93.o
-+obj-$(CONFIG_SCSI_PC980155)	+= pc980155.o	wd33c93.o
- obj-$(CONFIG_MVME147_SCSI)	+= mvme147.o	wd33c93.o
- obj-$(CONFIG_SGIWD93_SCSI)	+= sgiwd93.o	wd33c93.o
- obj-$(CONFIG_CYBERSTORM_SCSI)	+= NCR53C9x.o	cyberstorm.o
-diff -urN linux/drivers/scsi/advansys.c linux98/drivers/scsi/advansys.c
---- linux/drivers/scsi/advansys.c	Wed Oct 16 13:20:38 2002
-+++ linux98/drivers/scsi/advansys.c	Wed Oct 16 15:26:55 2002
-@@ -815,6 +815,9 @@
- #ifdef CONFIG_PCI
- #include <linux/pci.h>
- #endif /* CONFIG_PCI */
-+#ifdef CONFIG_PC9800
-+#include <scsi/scsicam.h>
-+#endif
- 
- 
- /*
-@@ -6117,10 +6120,13 @@
- int
- advansys_biosparam(Disk *dp, struct block_device *dep, int ip[])
- {
-+#ifndef CONFIG_PC9800
-     asc_board_t     *boardp;
-+#endif
- 
-     ASC_DBG(1, "advansys_biosparam: begin\n");
-     ASC_STATS(dp->device->host, biosparam);
-+#ifndef CONFIG_PC9800
-     boardp = ASC_BOARDP(dp->device->host);
-     if (ASC_NARROW_BOARD(boardp)) {
-         if ((boardp->dvc_var.asc_dvc_var.dvc_cntl &
-@@ -6142,6 +6148,9 @@
-         }
-     }
-     ip[2] = (unsigned long)dp->capacity / (ip[0] * ip[1]);
-+#else /* CONFIG_PC9800 */
-+    pc9800_scsi_bios_param(dp, dep, ip);
-+#endif /* !CONFIG_PC9800 */
-     ASC_DBG(1, "advansys_biosparam: end\n");
-     return 0;
- }
-diff -urN linux/drivers/scsi/aic7xxx/aic7xxx_linux_host.h linux98/drivers/scsi/aic7xxx/aic7xxx_linux_host.h
---- linux/drivers/scsi/aic7xxx/aic7xxx_linux_host.h	Fri Apr 12 13:57:53 2002
-+++ linux98/drivers/scsi/aic7xxx/aic7xxx_linux_host.h	Fri Apr 12 15:45:26 2002
-@@ -52,7 +52,8 @@
- int		 ahc_linux_dev_reset(Scsi_Cmnd *);
- int		 ahc_linux_abort(Scsi_Cmnd *);
- 
--#if defined(__i386__)
-+#include <linux/config.h>
-+#if defined(__i386__) && !defined(CONFIG_PC9800)
- #  define AIC7XXX_BIOSPARAM ahc_linux_biosparam
- #else
- #  define AIC7XXX_BIOSPARAM NULL
-diff -urN linux/drivers/scsi/aic7xxx_old/aic7xxx.h linux98/drivers/scsi/aic7xxx_old/aic7xxx.h
---- linux/drivers/scsi/aic7xxx_old/aic7xxx.h	Sat Oct 12 13:21:03 2002
-+++ linux98/drivers/scsi/aic7xxx_old/aic7xxx.h	Sat Oct 12 19:08:22 2002
-@@ -23,6 +23,13 @@
- #ifndef _aic7xxx_h
- #define _aic7xxx_h
- 
-+#include <linux/config.h>
-+
-+#ifndef CONFIG_PC9800
-+#  define AIC7XXX_BIOSPARAM aic7xxx_biosparam
-+#else
-+#  define AIC7XXX_BIOSPARAM NULL
-+#endif
- #define AIC7XXX_H_VERSION  "5.2.0"
- 
- /*
-@@ -48,7 +55,7 @@
- 	reset: aic7xxx_reset,					\
- 	slave_attach: aic7xxx_slave_attach,			\
- 	slave_detach: aic7xxx_slave_detach,			\
--	bios_param: aic7xxx_biosparam,				\
-+	bios_param: AIC7XXX_BIOSPARAM,				\
- 	can_queue: 255,		/* max simultaneous cmds      */\
- 	this_id: -1,		/* scsi id of host adapter    */\
- 	sg_tablesize: 0,	/* max scatter-gather cmds    */\
-diff -urN linux/drivers/scsi/pc980155.c linux98/drivers/scsi/pc980155.c
---- linux/drivers/scsi/pc980155.c	Thu Jan  1 09:00:00 1970
-+++ linux98/drivers/scsi/pc980155.c	Sun Feb  3 12:08:14 2002
-@@ -0,0 +1,262 @@
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/mm.h>
-+#include <linux/blk.h>
-+#include <linux/sched.h>
-+#include <linux/version.h>
-+#include <linux/init.h>
-+#include <linux/ioport.h>
-+
-+#include <asm/page.h>
-+#include <asm/pgtable.h>
-+#include <asm/irq.h>
-+#include <asm/dma.h>
-+#include <linux/module.h>
-+
-+#include "scsi.h"
-+#include "hosts.h"
-+#include "wd33c93.h"
-+#include "pc980155.h"
-+#include "pc980155regs.h"
-+
-+#define DEBUG
-+
-+#include<linux/stat.h>
-+
-+static inline void __print_debug_info(unsigned int);
-+static inline void __print_debug_info(unsigned int a){}
-+#define print_debug_info() __print_debug_info(base_io);
-+
-+#define NR_BASE_IOS 4
-+static int nr_base_ios = NR_BASE_IOS;
-+static unsigned int base_ios[NR_BASE_IOS] = {0xcc0, 0xcd0, 0xce0, 0xcf0};
-+static unsigned int  SASR;
-+static unsigned int  SCMD;
-+static wd33c93_regs regs = {&SASR, &SCMD};
-+
-+static struct Scsi_Host *pc980155_host = NULL;
-+
-+static void pc980155_intr_handle(int irq, void *dev_id, struct pt_regs *regp);
-+
-+inline void pc980155_dma_enable(unsigned int base_io){
-+  outb(0x01, REG_CWRITE);
-+  WAIT();
-+}
-+inline void pc980155_dma_disable(unsigned int base_io){
-+  outb(0x02, REG_CWRITE);
-+  WAIT();
-+}
-+
-+
-+static void pc980155_intr_handle(int irq, void *dev_id, struct pt_regs *regp)
-+{
-+  wd33c93_intr(pc980155_host);
-+}
-+
-+static int dma_setup(Scsi_Cmnd *sc, int dir_in){
-+  /*
-+   * sc->SCp.this_residual : transfer count
-+   * sc->SCp.ptr : distination address (virtual address)
-+   * dir_in : data direction (DATA_OUT_DIR:0 or DATA_IN_DIR:1)
-+   *
-+   * if success return 0
-+   */
-+
-+   /*
-+    * DMA WRITE MODE
-+    * bit 7,6 01b single mode (this mode only)
-+    * bit 5   inc/dec (default:0 = inc)
-+    * bit 4   auto initialize (normaly:0 = off)
-+    * bit 3,2 01b memory -> io
-+    *         10b io -> memory
-+    *         00b verify
-+    * bit 1,0 channel
-+    */
-+  disable_dma(sc->host->dma_channel);
-+  set_dma_mode(sc->host->dma_channel, 0x40 | (dir_in ? 0x04 : 0x08));
-+  clear_dma_ff(sc->host->dma_channel);
-+  set_dma_addr(sc->host->dma_channel, virt_to_phys(sc->SCp.ptr));
-+  set_dma_count(sc->host->dma_channel, sc->SCp.this_residual);
-+#if 0
-+#ifdef DEBUG
-+  printk("D%d(%x)D", sc->SCp.this_residual);
-+#endif
-+#endif
-+  enable_dma(sc->host->dma_channel);
-+
-+  pc980155_dma_enable(sc->host->io_port);
-+
-+  return 0;
-+}
-+
-+static void dma_stop(struct Scsi_Host *instance, Scsi_Cmnd *sc, int status){
-+  /*
-+   * instance: Hostadapter's instance
-+   * sc: scsi command
-+   * status: True if success
-+   */
-+
-+  pc980155_dma_disable(sc->host->io_port);
-+
-+  disable_dma(sc->host->dma_channel);
-+}  
-+
-+/* return non-zero on detection */
-+static inline int pc980155_test_port(wd33c93_regs regs)
-+{
-+	/* Quick and dirty test for presence of the card. */
-+	if (READ_AUX_STAT() == 0xff)
-+		return 0;
-+	return 1;
-+}
-+
-+static inline int
-+pc980155_getconfig(unsigned int base_io, wd33c93_regs regs,
-+		    unsigned char* irq, unsigned char* dma,
-+		    unsigned char* scsi_id)
-+{
-+	static unsigned char irqs[] = { 3, 5, 6, 9, 12, 13 };
-+	unsigned char result;
-+  
-+	printk(KERN_DEBUG "PC-9801-55: base_io=%x SASR=%x SCMD=%x\n",
-+		base_io, *regs.SASR, *regs.SCMD);
-+	result = read_wd33c93(regs, WD_RESETINT);
-+	printk(KERN_DEBUG "PC-9801-55: getting config (%x)\n", result);
-+	*scsi_id = result & 0x07;
-+	*irq = (result >> 3) & 0x07;
-+	if (*irq > 5) {
-+		printk(KERN_ERR "PC-9801-55 (base %#x): impossible IRQ (%d)"
-+			" - other device here?\n", base_io, *irq);
-+		return 0;
-+	}
-+
-+	*irq = irqs[*irq];
-+	result = inb(REG_STATRD);
-+	WAIT();
-+	*dma = result & 0x03;
-+	if (*dma == 1) {
-+		printk(KERN_ERR
-+			"PC-9801-55 (base %#x): impossible DMA channl (%d)"
-+			" - other device here?\n", base_io, *dma);
-+		return 0;
-+	}
-+#ifdef DEBUG
-+	printk("PC-9801-55: end of getconfig\n");
-+#endif
-+	return 1;
-+}
-+
-+/* return non-zero on detection */
-+int scsi_pc980155_detect(Scsi_Host_Template* tpnt)
-+{
-+	unsigned int base_io;
-+	unsigned char irq, dma, scsi_id;
-+	int i;
-+#ifdef DEBUG
-+	unsigned char debug;
-+#endif
-+  
-+	for (i = 0; i < nr_base_ios; i++) {
-+		base_io = base_ios[i];
-+		SASR = REG_ADDRST;
-+		SCMD = REG_CONTRL;
-+
-+    /*    printk("PC-9801-55: SASR(%x = %x)\n", SASR, REG_ADDRST); */
-+		if (check_region(base_io, 6))
-+			continue;
-+		if (! pc980155_test_port(regs))
-+			continue;
-+
-+		if (!pc980155_getconfig(base_io, regs, &irq, &dma, &scsi_id))
-+			continue;
-+#ifdef DEBUG
-+		printk("PC-9801-55: config: base io = %x, irq = %d, dma channel = %d, scsi id = %d\n",
-+			base_io, irq, dma, scsi_id);
-+#endif
-+		if (request_irq(irq, pc980155_intr_handle, 0, "PC-9801-55",
-+				 NULL)) {
-+			printk(KERN_ERR
-+				"PC-9801-55: unable to allocate IRQ %d\n",
-+				irq);
-+			continue;
-+		}
-+		if (request_dma(dma, "PC-9801-55")) {
-+			printk(KERN_ERR "PC-9801-55: "
-+				"unable to allocate DMA channel %d\n", dma);
-+			free_irq(irq, NULL);
-+			continue;
-+		}
-+
-+		request_region(base_io, 6, "PC-9801-55");
-+		pc980155_host = scsi_register(tpnt, sizeof(struct WD33C93_hostdata));
-+		pc980155_host->this_id = scsi_id;
-+		pc980155_host->io_port = base_io;
-+		pc980155_host->n_io_port = 6;
-+		pc980155_host->irq = irq;
-+		pc980155_host->dma_channel = dma;
-+
-+#ifdef DEBUG
-+		printk("PC-9801-55: scsi host found at %x irq = %d, use dma channel %d.\n", base_io, irq, dma);
-+		debug = read_aux_stat(regs);
-+		printk("PC-9801-55: aux: %x ", debug);
-+		debug = read_wd33c93(regs, 0x17);
-+		printk("status: %x\n", debug);
-+#endif
-+
-+		pc980155_int_enable(regs);
-+  
-+		wd33c93_init(pc980155_host, regs, dma_setup, dma_stop,
-+			      WD33C93_FS_12_15);
-+    
-+		return 1;
-+	}
-+
-+	printk("PC-9801-55: not found\n");
-+	return 0;
-+}
-+
-+int pc980155_proc_info(char *buf, char **start, off_t off, int len,
-+			int hostno, int in)
-+{
-+	/* NOT SUPPORTED YET! */
-+
-+	if (in) {
-+		return -EPERM;
-+	}
-+	*start = buf;
-+	return sprintf(buf, "Sorry, not supported yet.\n");
-+}
-+
-+int pc980155_setup(char *str)
-+{
-+next:
-+  if (!strncmp(str, "io:", 3)){
-+    base_ios[0] = simple_strtoul(str+3,NULL,0);
-+    nr_base_ios = 1;
-+    while (*str > ' ' && *str != ',')
-+      str++;
-+    if (*str == ','){
-+      str++;
-+      goto next;
-+    }
-+  }
-+  return 0;
-+}
-+
-+int scsi_pc980155_release(struct Scsi_Host *pc980155_host)
-+{
-+#ifdef MODULE
-+        pc980155_int_disable(regs);
-+        release_region(pc980155_host->io_port, pc980155_host->n_io_port);
-+        free_irq(pc980155_host->irq, NULL);
-+        free_dma(pc980155_host->dma_channel);
-+        wd33c93_release();
-+#endif
-+    return 1;
-+}
-+
-+__setup("pc980155=", pc980155_setup);
-+
-+Scsi_Host_Template driver_template = SCSI_PC980155;
-+
-+#include "scsi_module.c"
-diff -urN linux/drivers/scsi/pc980155.h linux98/drivers/scsi/pc980155.h
---- linux/drivers/scsi/pc980155.h	Thu Jan  1 09:00:00 1970
-+++ linux98/drivers/scsi/pc980155.h	Sun Feb  3 12:08:14 2002
-@@ -0,0 +1,47 @@
-+/*
-+ *  PC-9801-55 SCSI host adapter driver
+The full patch is available at:
+http://www-124.ibm.com/storageio/patches/2.5/scsi-host
+
+-andmike
+--
+Michael Anderson
+andmike@us.ibm.com
+
+ hosts.c |  890 +++++++++++++++++++++++++++++++++++++++++++++++++---------------
+ hosts.h |   97 +++---
+ 2 files changed, 734 insertions(+), 253 deletions(-)
+------
+
+diff -Nru a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
+--- a/drivers/scsi/hosts.c	Thu Oct 17 00:53:47 2002
++++ b/drivers/scsi/hosts.c	Thu Oct 17 00:53:47 2002
+@@ -15,12 +15,15 @@
+  *  Updated to reflect the new initialization scheme for the higher 
+  *  level of scsi drivers (sd/sr/st)
+  *  September 17, 2000 Torben Mathiasen <tmm@image.dk>
 + *
-+ *  Copyright (C) 1997-2000  Kyoto University Microcomputer Club
-+ *			     (Linux/98 project)
-+ */
-+
-+#ifndef _SCSI_PC9801_55_H
-+#define _SCSI_PC9801_55_H
-+
-+#include <linux/types.h>
-+#include <linux/kdev_t.h>
-+#include <scsi/scsicam.h>
-+
-+int wd33c93_queuecommand(Scsi_Cmnd *, void (*done)(Scsi_Cmnd *));
-+int wd33c93_abort(Scsi_Cmnd *);
-+int wd33c93_reset(Scsi_Cmnd *, unsigned int);
-+int scsi_pc980155_detect(Scsi_Host_Template *);
-+int scsi_pc980155_release(struct Scsi_Host *);
-+int pc980155_proc_info(char *, char **, off_t, int, int, int);
-+
-+#ifndef CMD_PER_LUN
-+#define CMD_PER_LUN 2
-+#endif
-+
-+#ifndef CAN_QUEUE
-+#define CAN_QUEUE 16
-+#endif
-+
-+#define SCSI_PC980155 {	proc_name:		"PC-9801-55",		\
-+  			name:			"SCSI PC-9801-55",	\
-+			proc_info:		pc980155_proc_info,	\
-+			detect:			scsi_pc980155_detect,	\
-+			release:		scsi_pc980155_release,	\
-+			/* command: use queue command */		\
-+			queuecommand:		wd33c93_queuecommand,	\
-+			abort:			wd33c93_abort,		\
-+			reset:			wd33c93_reset,		\
-+			bios_param:		pc9800_scsi_bios_param,	\
-+			can_queue:		CAN_QUEUE,		\
-+			this_id:		7,			\
-+			sg_tablesize:		SG_ALL,			 \
-+			cmd_per_lun:		CMD_PER_LUN, /* dont use link command */ \
-+			unchecked_isa_dma:	1, /* use dma **XXXX***/ \
-+			use_clustering:		ENABLE_CLUSTERING }
-+
-+#endif /* _SCSI_PC9801_55_H */
-diff -urN linux/drivers/scsi/pc980155regs.h linux98/drivers/scsi/pc980155regs.h
---- linux/drivers/scsi/pc980155regs.h	Thu Jan  1 09:00:00 1970
-+++ linux98/drivers/scsi/pc980155regs.h	Mon Dec  3 18:44:10 2001
-@@ -0,0 +1,89 @@
-+#ifndef __PC980155REGS_H
-+#define __PC980155REGS_H
-+
-+#include "wd33c93.h"
-+
-+#define REG_ADDRST (base_io+0)
-+#define REG_CONTRL (base_io+2)
-+#define REG_CWRITE (base_io+4)
-+#define REG_STATRD (base_io+4)
-+
-+#define WD_MEMORYBANK 0x30
-+#define WD_RESETINT   0x33
-+
-+#if 0
-+#define WAIT() outb(0x00,0x5f)
-+#else
-+#define WAIT() do{}while(0)
-+#endif
-+
-+static inline uchar read_wd33c93(const wd33c93_regs regs, uchar reg_num)
-+{
-+  uchar data;
-+  outb(reg_num, *regs.SASR);
-+  WAIT();
-+  data = inb(*regs.SCMD);
-+  WAIT();
-+  return data;
-+}
-+
-+static inline uchar read_aux_stat(const wd33c93_regs regs)
-+{
-+  uchar result;
-+  result = inb(*regs.SASR);
-+  WAIT();
-+  /*  printk("PC-9801-55: regp->SASR(%x) = %x\n", regp->SASR, result); */
-+  return result;
-+}
-+#define READ_AUX_STAT() read_aux_stat(regs)
-+
-+static inline void write_wd33c93(const wd33c93_regs regs, uchar reg_num,
-+				 uchar value)
-+{
-+  outb(reg_num, *regs.SASR);
-+  WAIT();
-+  outb(value, *regs.SCMD);
-+  WAIT();
-+}
-+
-+
-+#define write_wd33c93_cmd(regs,cmd) write_wd33c93(regs,WD_COMMAND,cmd)
-+
-+static inline void write_wd33c93_count(const wd33c93_regs regs,
-+					unsigned long value)
-+{
-+   outb(WD_TRANSFER_COUNT_MSB, *regs.SASR);
-+   WAIT();
-+   outb((value >> 16) & 0xff, *regs.SCMD);
-+   WAIT();
-+   outb((value >> 8)  & 0xff, *regs.SCMD);
-+   WAIT();
-+   outb( value        & 0xff, *regs.SCMD);
-+   WAIT();
-+}
-+
-+
-+static inline unsigned long read_wd33c93_count(const wd33c93_regs regs)
-+{
-+unsigned long value;
-+
-+   outb(WD_TRANSFER_COUNT_MSB, *regs.SASR);
-+   value = inb(*regs.SCMD) << 16;
-+   value |= inb(*regs.SCMD) << 8;
-+   value |= inb(*regs.SCMD);
-+   return value;
-+}
-+
-+static inline void write_wd33c93_cdb(const wd33c93_regs regs, unsigned int len,
-+					unsigned char cmnd[])
-+{
-+  int i;
-+  outb(WD_CDB_1, *regs.SASR);
-+  for (i=0; i<len; i++)
-+    outb(cmnd[i], *regs.SCMD);
-+}
-+
-+#define pc980155_int_enable(regs)  write_wd33c93(regs, WD_MEMORYBANK, read_wd33c93(regs, WD_MEMORYBANK) | 0x04)
-+#define pc980155_int_disable(regs) write_wd33c93(regs, WD_MEMORYBANK, read_wd33c93(regs, WD_MEMORYBANK) & ~0x04)
-+
-+#endif
-diff -urN linux/drivers/scsi/scsi_scan.c linux98/drivers/scsi/scsi_scan.c
---- linux/drivers/scsi/scsi_scan.c	Wed Aug 28 09:52:26 2002
-+++ linux98/drivers/scsi/scsi_scan.c	Wed Aug 28 13:09:39 2002
-@@ -131,6 +131,7 @@
- 	{"MITSUMI", "CD-R CR-2201CS", "6119", BLIST_NOLUN},	/* locks up */
- 	{"RELISYS", "Scorpio", NULL, BLIST_NOLUN},	/* responds to all lun */
- 	{"MICROTEK", "ScanMaker II", "5.61", BLIST_NOLUN},	/* responds to all lun */
-+	{"NEC", "D3856", "0009", BLIST_NOLUN},
- 
- 	/*
- 	 * Other types of devices that have special flags.
-diff -urN linux/drivers/scsi/scsi_syms.c linux98/drivers/scsi/scsi_syms.c
---- linux/drivers/scsi/scsi_syms.c	Wed Oct 16 13:20:40 2002
-+++ linux98/drivers/scsi/scsi_syms.c	Wed Oct 16 15:26:55 2002
-@@ -96,6 +96,12 @@
- EXPORT_SYMBOL(scsi_devicelist);
- EXPORT_SYMBOL(scsi_device_types);
- 
-+#ifdef CONFIG_PC9800
-+EXPORT_SYMBOL(pc9800_scsi_bios_param);
-+extern Scsi_Disk * sd_get_sdisk(int);
-+EXPORT_SYMBOL(sd_get_sdisk);
-+#endif
-+
- /*
-  * Externalize timers so that HBAs can safely start/restart commands.
++ *  Restructured scsi_host lists and associated functions.
++ *  September 04, 2002 Mike Anderson (andmike@us.ibm.com)
   */
-diff -urN linux/drivers/scsi/scsicam.c linux98/drivers/scsi/scsicam.c
---- linux/drivers/scsi/scsicam.c	Thu Jul 25 06:03:18 2002
-+++ linux98/drivers/scsi/scsicam.c	Fri Jul 26 11:31:23 2002
-@@ -12,6 +12,8 @@
  
- #include <linux/module.h>
  
-+#include <linux/config.h>
-+
- #include <linux/fs.h>
- #include <linux/genhd.h>
- #include <linux/kernel.h>
-@@ -61,7 +63,18 @@
- 	int ret_code;
- 	int size = disk->capacity;
- 	unsigned long temp_cyl;
-+#ifndef CONFIG_PC9800
- 	unsigned char *p = scsi_bios_ptable(bdev);
-+#else
-+	unsigned char *p;
-+#endif
-+
-+#ifdef CONFIG_PC9800
-+	if (!pc9800_scsi_bios_param(disk, bdev, ip))
-+		return 0;
-+
-+	p = scsi_bios_ptable(bdev);
-+#endif
+ /*
+  *  This file contains the medium level SCSI
+- *  host interface initialization, as well as the scsi_hosts array of SCSI
++ *  host interface initialization, as well as the scsi_hosts list of SCSI
+  *  hosts currently present in the system.
+  */
  
- 	if (!p)
- 		return -1;
-@@ -238,3 +251,83 @@
- 	*hds = (unsigned int) heads;
- 	return (rv);
- }
-+
-+#ifdef CONFIG_PC9800
-+
-+#include <asm/pc9800.h>
-+
-+/* XXX - For now, we assume the first (i.e. having the least host_no)
-+   real (i.e. non-emulated) host adapter shall be BIOS-controlled one.
-+   We *SHOULD* invent another way.  */
-+
-+static inline struct Scsi_Host *first_real_host(void)
-+{
-+	struct Scsi_Host *first, *h;
-+
-+	for (first = NULL, h = scsi_hostlist; h; h = h->next)
-+		if (!h->hostt->emulated
-+		    && (!first || h->host_no < first->host_no))
-+			first = h;
-+	return first;
-+}
-+
-+/* There is no standard device-to-name translation function. Sigh.  */
-+static inline void sd_devname(char *buf, kdev_t dev)
-+{
-+	int diskno = (major(dev) & SD_MAJOR_MASK) * 16 + (minor(dev) >> 4);
-+
-+	buf[0] = 'a' + diskno;
-+	buf[1] = '\0';
-+	if (diskno >= 26) {
-+		buf[0] = 'a' + (diskno / 26 - 1);
-+		buf[1] = 'a' + (diskno % 26);
-+		buf[2] = '\0';
-+	}
-+}
-+
-+int pc9800_scsi_bios_param(Disk *disk, struct block_device *bdev, int *ip)
-+{
-+	char namebuf[4];
-+
-+	sd_devname(namebuf, to_kdev_t(bdev->bd_dev));
-+
-+	if (first_real_host () == disk->device->host
-+	    && disk->device->id < 7
-+	    && __PC9800SCA_TEST_BIT(PC9800SCA_DISK_EQUIPS, disk->device->id))
-+	{
-+		const u8 *p = (&__PC9800SCA(u8, PC9800SCA_SCSI_PARAMS)
-+			       + disk->device->id * 4);
-+
-+		ip[0] = p[1];	/* # of heads */
-+		ip[1] = p[0];	/* # of sectors/track */
-+		ip[2] = *(u16 *)&p[2] & 0x0FFF;	/* # of cylinders */
-+		if (p[3] & (1 << 6)) { /* #-of-cylinders is 16-bit */
-+			ip[2] |= (ip[0] & 0xF0) << 8;
-+			ip[0] &= 0x0F;
-+		}
-+		printk(KERN_INFO "sd%s: "
-+			"BIOS parameters CHS:%d/%d/%d, %u bytes %s sector\n",
-+			namebuf, ip[2], ip[0], ip[1], 256 << ((p[3] >> 4) & 3),
-+			p[3] & 0x80 ? "hard" : "soft");
-+		return 0;
-+	}
-+
-+	/* Assume PC-9801-92 compatible parameters for HAs without BIOS.  */
-+	ip[0] = 8;
-+	ip[1] = 32;
-+	ip[2] = disk->capacity / (8 * 32);
-+	if (ip[2] > 65535) {	/* if capacity >= 8GB */
-+		/* Recent on-board adapters seem to use this parameter.  */
-+		ip[1] = 128;
-+		ip[2] = disk->capacity / (8 * 128);
-+		if (ip[2] > 65535) { /* if capacity >= 32GB  */
-+			/* Clip the number of cylinders.  Currently this
-+			   is the limit that we deal with.  */
-+			ip[2] = 65535;
-+		}
-+	}
-+	printk(KERN_INFO "sd%s: BIOS parameters CHS:%d/%d/%d (assumed)\n",
-+		namebuf, ip[2], ip[0], ip[1]);
-+	return 0;
-+}
-+#endif /* CONFIG_PC9800 */
-diff -urN linux/drivers/scsi/sd.c linux98/drivers/scsi/sd.c
---- linux/drivers/scsi/sd.c	Wed Oct 16 13:20:40 2002
-+++ linux98/drivers/scsi/sd.c	Wed Oct 16 15:26:55 2002
-@@ -125,7 +125,11 @@
- 
- static void sd_rw_intr(Scsi_Cmnd * SCpnt);
- 
-+#ifndef CONFIG_PC9800
- static Scsi_Disk * sd_get_sdisk(int index);
-+#else
-+Scsi_Disk * sd_get_sdisk(int index);
-+#endif
- 
- #if defined(CONFIG_PPC32)
- /**
-@@ -1638,7 +1642,11 @@
- 	return (the_result == 0);
- }
- 
-+#ifndef CONFIG_PC9800
- static Scsi_Disk * sd_get_sdisk(int index)
-+#else
-+Scsi_Disk * sd_get_sdisk(int index)
-+#endif
- {
- 	Scsi_Disk * sdkp = NULL;
- 	unsigned long iflags;
-diff -urN linux/drivers/scsi/wd33c93.c linux98/drivers/scsi/wd33c93.c
---- linux/drivers/scsi/wd33c93.c	Fri Aug  2 06:16:08 2002
-+++ linux98/drivers/scsi/wd33c93.c	Wed Aug  7 13:07:51 2002
-@@ -84,12 +84,17 @@
+@@ -31,232 +34,711 @@
+ #include <linux/mm.h>
+ #include <linux/proc_fs.h>
  #include <linux/init.h>
- #include <asm/irq.h>
- #include <linux/blk.h>
-+#include <linux/spinlock.h>
++#include <linux/list.h>
++#include <linux/smp_lock.h>
+ 
+ #define __KERNEL_SYSCALLS__
+ 
+ #include <linux/unistd.h>
++#include <asm/dma.h>
  
  #include "scsi.h"
  #include "hosts.h"
  
+-/*
+-static const char RCSid[] = "$Header: /vger/u4/cvs/linux/drivers/scsi/hosts.c,v 1.20 1996/12/12 19:18:32 davem Exp $";
+-*/
++LIST_HEAD(scsi_host_tmpl_list);
++LIST_HEAD(scsi_host_hn_list);
  
-+#if defined(CONFIG_SCSI_PC980155) || defined(CONFIG_SCSI_PC980155_MODULE)
-+#define WD33C93_VERSION    "1.25-pc98"
-+#else
- #define WD33C93_VERSION    "1.25"
+-/*
+- *  The scsi host entries should be in the order you wish the
+- *  cards to be detected.  A driver may appear more than once IFF
+- *  it can deal with being detected (and therefore initialized)
+- *  with more than one simultaneous host number, can handle being
+- *  reentrant, etc.
++LIST_HEAD(scsi_host_list);
++spinlock_t scsi_host_list_lock = SPIN_LOCK_UNLOCKED;
++
++struct Scsi_Device_Template * scsi_devicelist;
++
++static int scsi_host_next_hn;		/* host_no for next new host */
++static int scsi_hosts_registered;	/* cnt of registered scsi hosts */
++
++/**
++ * scsi_tp_for_each_host - call function for each scsi host off a template
++ * @shost_tp:	a pointer to a scsi host template
++ * @callback:	a pointer to callback function
+  *
+- *  They may appear in any order, as each SCSI host is told which host 
+- *  number it is during detection.
+- */
++ * Return value:
++ * 	0 on Success / 1 on Failure
++ **/
++int scsi_tp_for_each_host(Scsi_Host_Template *shost_tp, int
++			    (*callback)(struct Scsi_Host *shost))
++{
++	struct list_head *lh, *lh_sf;
++	struct Scsi_Host *shost;
+ 
+-/*
+- *  When figure is run, we don't want to link to any object code.  Since
+- *  the macro for each host will contain function pointers, we cannot
+- *  use it and instead must use a "blank" that does no such
+- *  idiocy.
+- */
++	spin_lock(&scsi_host_list_lock);
+ 
+-Scsi_Host_Template * scsi_hosts;
++	list_for_each_safe(lh, lh_sf, &scsi_host_list) {
++		shost = list_entry(lh, struct Scsi_Host, sh_list);
++		if (shost->hostt == shost_tp) {
++			spin_unlock(&scsi_host_list_lock);
++			callback(shost);
++			spin_lock(&scsi_host_list_lock);
++		}
++	}
+ 
++	spin_unlock(&scsi_host_list_lock);
+ 
+-/*
+- *  Our semaphores and timeout counters, where size depends on 
+- *      MAX_SCSI_HOSTS here.
+- */
++	return 0;
++}
+ 
+-Scsi_Host_Name * scsi_host_no_list;
+-struct Scsi_Host * scsi_hostlist;
+-struct Scsi_Device_Template * scsi_devicelist;
++/**
++ * scsi_host_generic_release - default release function for hosts
++ * @shost: 
++ * 
++ * Description:
++ * 	This is the default case for the release function.  It should do
++ * 	the right thing for most correctly written host adapters.
++ **/
++static void scsi_host_generic_release(struct Scsi_Host *shost)
++{
++	if (shost->irq)
++		free_irq(shost->irq, NULL);
++	if (shost->dma_channel != 0xff)
++		free_dma(shost->dma_channel);
++	if (shost->io_port && shost->n_io_port)
++		release_region(shost->io_port, shost->n_io_port);
++}
+ 
+-int max_scsi_hosts;
+-int next_scsi_host;
++/**
++ * scsi_host_chk_and_release - check a scsi host for release and release
++ * @shost:	a pointer to a scsi host to release
++ *
++ * Return value:
++ * 	0 on Success / 1 on Failure
++ **/
++int scsi_host_chk_and_release(struct Scsi_Host *shost)
++{
++	int pcount;
++	Scsi_Device *sdev;
++	struct Scsi_Device_Template *sdev_tp;
++	Scsi_Cmnd *scmd;
++
++	/*
++	 * Current policy is all shosts go away on unregister.
++	 */
++	if (shost->hostt->module && GET_USE_COUNT(shost->hostt->module))
++		return 1;
++
++	/*
++	 * FIXME Do ref counting.  We force all of the devices offline to
++	 * help prevent race conditions where other hosts/processors could
++	 * try and get in and queue a command.
++	 */
++	for (sdev = shost->host_queue; sdev; sdev = sdev->next) 
++		sdev->online = FALSE;
++
++	for (sdev = shost->host_queue; sdev; sdev = sdev->next) {
++		/*
++		 * Loop over all of the commands associated with the
++		 * device.  If any of them are busy, then set the state
++		 * back to inactive and bail.
++		 */
++		for (scmd = sdev->device_queue; scmd; scmd = scmd->next) {
++			if (scmd->request && scmd->request->rq_status !=
++			    RQ_INACTIVE) {
++				printk(KERN_ERR "SCSI device not inactive"
++				       "- rq_status=%d, target=%d, pid=%ld,"
++				       "state=%d, owner=%d.\n",
++				       scmd->request->rq_status,
++				       scmd->target, scmd->pid,
++				       scmd->state, scmd->owner);
++				for (sdev = shost->host_queue; sdev;
++				     sdev = sdev->next) {
++					for (scmd = sdev->device_queue; scmd;
++					     scmd = scmd->next)
++						if (scmd->request->rq_status ==
++						    RQ_SCSI_DISCONNECTING)
++							scmd->request->rq_status = RQ_INACTIVE;
++				}
++				printk(KERN_ERR "Device busy???\n");
++				return 1;
++			}
++			/*
++			 * No, this device is really free.  Mark it as such, and
++			 * continue on.
++			 */
++			scmd->state = SCSI_STATE_DISCONNECTING;
++			if (scmd->request)
++				scmd->request->rq_status =
++					RQ_SCSI_DISCONNECTING;	/* Mark as
++								   busy */
++		}
++	}
+ 
+-void
+-scsi_unregister(struct Scsi_Host * sh){
+-    struct Scsi_Host * shpnt;
+-    Scsi_Host_Name *shn;
+-        
+-    if(scsi_hostlist == sh)
+-	scsi_hostlist = sh->next;
+-    else {
+-	shpnt = scsi_hostlist;
+-	while(shpnt->next != sh) shpnt = shpnt->next;
+-	shpnt->next = shpnt->next->next;
+-    }
+-
+-    /*
+-     * We have to unregister the host from the scsi_host_no_list as well.
+-     * Decide by the host_no not by the name because most host drivers are
+-     * able to handle more than one adapters from the same kind (or family).
+-     */
+-    for ( shn=scsi_host_no_list; shn && (sh->host_no != shn->host_no);
+-	  shn=shn->next);
+-    if (shn) shn->host_registered = 0;
+-    /* else {} : This should not happen, we should panic here... */
+-    
+-    /* If we are removing the last host registered, it is safe to reuse
+-     * its host number (this avoids "holes" at boot time) (DB) 
+-     * It is also safe to reuse those of numbers directly below which have
+-     * been released earlier (to avoid some holes in numbering).
+-     */
+-    if(sh->host_no == max_scsi_hosts - 1) {
+-	while(--max_scsi_hosts >= next_scsi_host) {
+-	    shpnt = scsi_hostlist;
+-	    while(shpnt && shpnt->host_no != max_scsi_hosts - 1)
+-		shpnt = shpnt->next;
+-	    if(shpnt)
+-		break;
+-	}
+-    }
+-    next_scsi_host--;
+-    kfree((char *) sh);
+-}
+-
+-/* We call this when we come across a new host adapter. We only do this
+- * once we are 100% sure that we want to use this host adapter -  it is a
+- * pain to reverse this, so we try to avoid it 
+- */
++	/*
++	 * Next we detach the high level drivers from the Scsi_Device
++	 * structures
++	 */
++	for (sdev = shost->host_queue; sdev; sdev = sdev->next) {
++		for (sdev_tp = scsi_devicelist; sdev_tp;
++		     sdev_tp = sdev_tp->next)
++			if (sdev_tp->detach)
++				(*sdev_tp->detach) (sdev);
++
++		/* If something still attached, punt */
++		if (sdev->attached) {
++			printk(KERN_ERR "Attached usage count = %d\n",
++			       sdev->attached);
++			return 1;
++		}
++
++		if (shost->hostt->slave_detach)
++			(*shost->hostt->slave_detach) (sdev);
++
++		devfs_unregister(sdev->de);
++		device_unregister(&sdev->sdev_driverfs_dev);
++	}
++
++	/* Next we free up the Scsi_Cmnd structures for this host */
++
++	for (sdev = shost->host_queue; sdev;
++	     sdev = shost->host_queue) {
++		scsi_release_commandblocks(sdev);
++		blk_cleanup_queue(&sdev->request_queue);
++		/* Next free up the Scsi_Device structures for this host */
++		shost->host_queue = sdev->next;
++		if (sdev->inquiry)
++			kfree(sdev->inquiry);
++		kfree(sdev);
++	}
++
++	/* Remove the instance of the individual hosts */
++	pcount = scsi_hosts_registered;
++	if (shost->hostt->release)
++		(*shost->hostt->release) (shost);
++	else {
++		scsi_host_generic_release(shost);
++	}
++
++	if (pcount == scsi_hosts_registered)
++		scsi_unregister(shost);
++
++	return 0;
++}
++
++/**
++ * scsi_unregister - unregister a scsi host
++ * @shost:	scsi host to be unregistered
++ **/
++void scsi_unregister(struct Scsi_Host *shost)
++{
++	struct list_head *lh;
++	Scsi_Host_Name *shost_name;
++
++	/* Remove shost from scsi_host_list */
++	spin_lock(&scsi_host_list_lock);
++	list_del(&shost->sh_list);
++	spin_unlock(&scsi_host_list_lock);
++
++	/* Unregister from scsi_host_hn_list */
++	list_for_each(lh, &scsi_host_hn_list) {
++		shost_name = list_entry(lh, Scsi_Host_Name, shn_list);
++		if (shost->host_no == shost_name->host_no)
++			shost_name->host_registered = 0;
++	}
++
++	/*
++	 * Next, kill the kernel error recovery thread for this host.
++	 */
++	if (shost->ehandler) {
++		DECLARE_MUTEX_LOCKED(sem);
++		shost->eh_notify = &sem;
++		send_sig(SIGHUP, shost->ehandler, 1);
++		down(&sem);
++		shost->eh_notify = NULL;
++	}
++
++	scsi_hosts_registered--;
++	shost->hostt->present--;
++
++	/* Cleanup proc and driverfs */
++#ifdef CONFIG_PROC_FS
++	scsi_proc_host_rm(shost);
++	if (!shost->hostt->present)
++		remove_proc_entry(shost->hostt->proc_name, proc_scsi);
 +#endif
- #define WD33C93_DATE       "09/Jul/1997"
- /* NOTE: 1.25 for m68k is related to in2000-1.31 for x86 */
++	device_unregister(&shost->host_driverfs_dev);
++
++	kfree(shost);
++}
++
++/**
++ * scsi_host_hn_add - allocate and add new Scsi_Host_Name
++ * @name:	String to store in name field
++ *
++ * Return value:
++ * 	Pointer to a new Scsi_Host_Name
++ **/
++Scsi_Host_Name *scsi_host_hn_add(char *name)
++{
++	Scsi_Host_Name *shost_name;
++	int len;
++
++	len = strlen(name);
++	shost_name =  kmalloc(sizeof(*shost_name), GFP_KERNEL);
++	if (!shost_name) {
++		printk(KERN_ERR "%s: out of memory at line %d.\n",
++		       __FUNCTION__, __LINE__);
++		return NULL;
++	}
++	shost_name->name = kmalloc(len + 1, GFP_KERNEL);
++	if (!shost_name->name) {
++		kfree(shost_name);
++		printk(KERN_ERR "%s: out of memory at line %d.\n",
++		       __FUNCTION__, __LINE__);
++		return NULL;
++	}
++
++	if (len)
++		strncpy(shost_name->name, name, len);
++	shost_name->name[len] = 0;
++	shost_name->host_no = scsi_host_next_hn++;
++	shost_name->host_registered = 0;
++	list_add_tail(&shost_name->shn_list, &scsi_host_hn_list);
++
++	return shost_name;
++}
++
++/**
++ * scsi_register - register a scsi host adapter instance.
++ * @shost_tp:	pointer to scsi host template
++ * @xtr_bytes:	extra bytes to allocate for driver
++ *
++ * Note:
++ * 	We call this when we come across a new host adapter. We only do
++ * 	this once we are 100% sure that we want to use this host adapter -
++ * 	it is a pain to reverse this, so we try to avoid it 
++ *
++ * Return value:
++ * 	Pointer to a new Scsi_Host
++ **/
+ extern int blk_nohighio;
+-struct Scsi_Host * scsi_register(Scsi_Host_Template * tpnt, int j)
++struct Scsi_Host * scsi_register(Scsi_Host_Template *shost_tp, int xtr_bytes)
+ {
+-    struct Scsi_Host * retval, *shpnt, *o_shp;
+-    Scsi_Host_Name *shn, *shn2;
+-    int flag_new = 1;
+-    const char * hname;
+-    size_t hname_len;
+-    retval = (struct Scsi_Host *)kmalloc(sizeof(struct Scsi_Host) + j,
+-					 (tpnt->unchecked_isa_dma && j ? 
+-					  GFP_DMA : 0) | GFP_ATOMIC);
+-    if(retval == NULL)
+-    {
+-        printk("scsi: out of memory in scsi_register.\n");
+-    	return NULL;
+-    }
+-    	
+-    memset(retval, 0, sizeof(struct Scsi_Host) + j);
+-
+-    /* trying to find a reserved entry (host_no) */
+-    hname = (tpnt->proc_name) ?  tpnt->proc_name : "";
+-    hname_len = strlen(hname);
+-    for (shn = scsi_host_no_list;shn;shn = shn->next) {
+-	if (!(shn->host_registered) && 
+-	    (hname_len > 0) && (0 == strncmp(hname, shn->name, hname_len))) {
+-	    flag_new = 0;
+-	    retval->host_no = shn->host_no;
+-	    shn->host_registered = 1;
+-	    break;
+-	}
+-    }
+-    spin_lock_init(&retval->default_lock);
+-    scsi_assign_lock(retval, &retval->default_lock);
+-    atomic_set(&retval->host_active,0);
+-    retval->host_busy = 0;
+-    retval->host_failed = 0;
+-    if (flag_new) {
+-	shn = (Scsi_Host_Name *) kmalloc(sizeof(Scsi_Host_Name), GFP_ATOMIC);
+-        if (!shn) {
+-                kfree(retval);
+-                printk(KERN_ERR "scsi: out of memory(2) in scsi_register.\n");
+-                return NULL;
+-        }
+-	shn->name = kmalloc(hname_len + 1, GFP_ATOMIC);
+-	if (hname_len > 0)
+-	    strncpy(shn->name, hname, hname_len);
+-	shn->name[hname_len] = 0;
+-	shn->host_no = max_scsi_hosts++;
+-	shn->host_registered = 1;
+-	shn->next = NULL;
+-	if (scsi_host_no_list) {
+-	    for (shn2 = scsi_host_no_list;shn2->next;shn2 = shn2->next)
+-		;
+-	    shn2->next = shn;
+-	}
+-	else
+-	    scsi_host_no_list = shn;
+-	retval->host_no = shn->host_no;
+-    }
+-    next_scsi_host++;
+-    retval->host_queue = NULL;
+-    init_waitqueue_head(&retval->host_wait);
+-    retval->resetting = 0;
+-    retval->last_reset = 0;
+-    retval->irq = 0;
+-    retval->dma_channel = 0xff;
+-
+-    /* These three are default values which can be overridden */
+-    retval->max_channel = 0; 
+-    retval->max_id = 8;      
+-    retval->max_lun = 8;
+-
+-    /*
+-     * All drivers right now should be able to handle 12 byte commands.
+-     * Every so often there are requests for 16 byte commands, but individual
+-     * low-level drivers need to certify that they actually do something
+-     * sensible with such commands.
+-     */
+-    retval->max_cmd_len = 12;
+-
+-    retval->unique_id = 0;
+-    retval->io_port = 0;
+-    retval->hostt = tpnt;
+-    retval->next = NULL;
+-    retval->in_recovery = 0;
+-    retval->ehandler = NULL;    /* Initial value until the thing starts up. */
+-    retval->eh_notify   = NULL;    /* Who we notify when we exit. */
++	struct Scsi_Host *shost, *shost_scr;
++	Scsi_Host_Name *shost_name = NULL;
++	Scsi_Host_Name *shn = NULL;
++	char *hname;
++	size_t hname_len;
++	struct list_head *lh;
++	int gfp_mask;
++	DECLARE_MUTEX_LOCKED(sem);
++
++	gfp_mask = GFP_KERNEL;
++	if (shost_tp->unchecked_isa_dma && xtr_bytes)
++		gfp_mask |= __GFP_DMA;
++
++	shost = kmalloc(sizeof(struct Scsi_Host) + xtr_bytes, gfp_mask);
++	if (!shost) {
++		printk(KERN_ERR "%s: out of memory.\n", __FUNCTION__);
++		return NULL;
++	}
  
-@@ -173,7 +178,13 @@
- MODULE_PARM(setup_strings, "s");
+-    retval->max_host_blocked = tpnt->max_host_blocked ? tpnt->max_host_blocked : SCSI_DEFAULT_HOST_BLOCKED;
++	memset(shost, 0, sizeof(struct Scsi_Host) + xtr_bytes);
+ 
+-    retval->host_blocked = 0;
+-    retval->host_self_blocked = FALSE;
++	/*
++	 * Determine host number. Check reserved first before allocating
++	 * new one
++	 */
++	hname = (shost_tp->proc_name) ?  shost_tp->proc_name : "";
++	hname_len = strlen(hname);
++
++	if (hname_len)
++		list_for_each(lh, &scsi_host_hn_list) {
++			shn = list_entry(lh, Scsi_Host_Name, shn_list);
++			if (!(shn->host_registered) &&
++			    !strncmp(hname, shn->name, hname_len)) {
++				shost_name = shn;
++				break;
++			}
++		}
++
++	if (!shost_name) {
++		shost_name = scsi_host_hn_add(hname);
++		if (!shost_name) {
++			kfree(shost);
++			return NULL;
++		}
++	}
++
++	shost->host_no = shost_name->host_no;
++	shost_name->host_registered = 1;
++	scsi_hosts_registered++;
++
++	spin_lock_init(&shost->default_lock);
++	scsi_assign_lock(shost, &shost->default_lock);
++	atomic_set(&shost->host_active,0);
++
++	init_waitqueue_head(&shost->host_wait);
++	shost->dma_channel = 0xff;
++
++	/* These three are default values which can be overridden */
++	shost->max_channel = 0;
++	shost->max_id = 8;
++	shost->max_lun = 8;
++
++	/*
++	 * All drivers right now should be able to handle 12 byte
++	 * commands.  Every so often there are requests for 16 byte
++	 * commands, but individual low-level drivers need to certify that
++	 * they actually do something sensible with such commands.
++	 */
++	shost->max_cmd_len = 12;
++	shost->hostt = shost_tp;
++	shost->host_blocked = FALSE;
++	shost->host_self_blocked = FALSE;
+ 
+ #ifdef DEBUG
+-    printk("Register %x %x: %d\n", (int)retval, (int)retval->hostt, j);
++	printk("%s: %x %x: %d\n", __FUNCTION_ (int)shost,
++	       (int)shost->hostt, xtr_bytes);
  #endif
  
-+static spinlock_t wd_lock = SPIN_LOCK_UNLOCKED;
+-    /* The next six are the default values which can be overridden
+-     * if need be */
+-    retval->this_id = tpnt->this_id;
+-    retval->can_queue = tpnt->can_queue;
+-    retval->sg_tablesize = tpnt->sg_tablesize;
+-    retval->cmd_per_lun = tpnt->cmd_per_lun;
+-    retval->unchecked_isa_dma = tpnt->unchecked_isa_dma;
+-    retval->use_clustering = tpnt->use_clustering;   
+-    if (!blk_nohighio)
+-	retval->highmem_io = tpnt->highmem_io;
+-
+-    retval->max_sectors = tpnt->max_sectors;
+-    retval->use_blk_tcq = tpnt->use_blk_tcq;
+-
+-    if(!scsi_hostlist)
+-	scsi_hostlist = retval;
+-    else {
+-	shpnt = scsi_hostlist;
+-	if (retval->host_no < shpnt->host_no) {
+-	    retval->next = shpnt;
+-	    wmb(); /* want all to see these writes in this order */
+-	    scsi_hostlist = retval;
++	/*
++	 * The next six are the default values which can be overridden if
++	 * need be
++	 */
++	shost->this_id = shost_tp->this_id;
++	shost->can_queue = shost_tp->can_queue;
++	shost->sg_tablesize = shost_tp->sg_tablesize;
++	shost->cmd_per_lun = shost_tp->cmd_per_lun;
++	shost->unchecked_isa_dma = shost_tp->unchecked_isa_dma;
++	shost->use_clustering = shost_tp->use_clustering;
++	if (!blk_nohighio)
++	shost->highmem_io = shost_tp->highmem_io;
 +
-+#if defined(CONFIG_SCSI_PC980155) || defined(CONFIG_SCSI_PC980155_MODULE)
++	shost->max_sectors = shost_tp->max_sectors;
++	shost->use_blk_tcq = shost_tp->use_blk_tcq;
 +
-+#include "pc980155regs.h"
- 
-+#else /* !CONFIG_SCSI_PC980155 */
- 
- static inline uchar read_wd33c93(const wd33c93_regs regs, uchar reg_num)
- {
-@@ -203,6 +214,7 @@
-    *regs.SCMD = cmd;
-    mb();
- }
-+#endif /* CONFIG_SCSI_PC980155 */
- 
- 
- static inline uchar read_1_byte(const wd33c93_regs regs)
-@@ -220,6 +232,11 @@
-    return x;
- }
- 
-+#if defined(CONFIG_SCSI_PC980155) || defined(CONFIG_SCSI_PC980155_MODULE)
++	spin_lock(&scsi_host_list_lock);
++	/*
++	 * FIXME When device naming is complete remove this step that
++	 * orders the scsi_host_list by host number and just do a
++	 * list_add_tail.
++	 */
++	list_for_each(lh, &scsi_host_list) {
++		shost_scr = list_entry(lh, struct Scsi_Host, sh_list);
++		if (shost->host_no < shost_scr->host_no) {
++			__list_add(&shost->sh_list, shost_scr->sh_list.prev,
++				   &shost_scr->sh_list);
++			goto found;
++		}
++	}
++	list_add_tail(&shost->sh_list, &scsi_host_list);
++found:
++	spin_unlock(&scsi_host_list_lock);
 +
-+#include "pc980155regs.h"
-+
-+#else /* !CONFIG_SCSI_PC980155 */
- 
- static void write_wd33c93_count(const wd33c93_regs regs, unsigned long value)
- {
-@@ -244,6 +261,7 @@
-    mb();
-    return value;
- }
-+#endif /* CONFIG_SCSI_PC980155 */
- 
- 
- /* The 33c93 needs to be told which direction a command transfers its
-@@ -385,8 +403,9 @@
-     * sense data is not lost before REQUEST_SENSE executes.
-     */
- 
--   save_flags(flags);
--   cli();
-+   //save_flags(flags);
-+   //cli();
-+   spin_lock_irqsave(&wd_lock, flags);
- 
-    if (!(hostdata->input_Q) || (cmd->cmnd[0] == REQUEST_SENSE)) {
-       cmd->host_scribble = (uchar *)hostdata->input_Q;
-@@ -407,7 +426,8 @@
- 
- DB(DB_QUEUE_COMMAND,printk(")Q-%ld ",cmd->pid))
- 
--   restore_flags(flags);
-+   //restore_flags(flags);
-+   spin_unlock_irqrestore(&wd_lock, flags);
-    return 0;
- }
- 
-@@ -428,7 +448,9 @@
- struct WD33C93_hostdata *hostdata = (struct WD33C93_hostdata *)instance->hostdata;
- const wd33c93_regs regs = hostdata->regs;
- Scsi_Cmnd *cmd, *prev;
-+#ifdef DEBUG
- int i;
++#ifdef CONFIG_PROC_FS
++	/* Add the new driver to /proc/scsi if not already there */
++	if (!shost_tp->proc_dir)
++		scsi_proc_host_mkdir(shost_tp);
++	scsi_proc_host_add(shost);
 +#endif
- 
- DB(DB_EXECUTE,printk("EX("))
- 
-@@ -462,6 +484,16 @@
-       return;
-       }
- 
-+#if defined(CONFIG_SCSI_PC980155) || defined(CONFIG_SCSI_PC980155_MODULE)
-+#ifdef DEBUG
-+printk("exec: command = [");
-+for (i=0; i<12; i++){
-+  printk(" %02x", cmd->cmnd[i]);
++
++	strncpy(shost->host_driverfs_dev.name, shost_tp->proc_name,
++		DEVICE_NAME_SIZE-1);
++	sprintf(shost->host_driverfs_dev.bus_id, "scsi%d",
++		shost->host_no);
++
++	shost->eh_notify = &sem;
++	kernel_thread((int (*)(void *)) scsi_error_handler, (void *) shost, 0);
++	/*
++	 * Now wait for the kernel error thread to initialize itself
++	 * as it might be needed when we scan the bus.
++	 */
++	down(&sem);
++	shost->eh_notify = NULL;
++
++	shost->hostt->present++;
++
++	return shost;
 +}
-+printk("]\nexec: target = %d\n", cmd->target);
-+#endif
-+#endif
 +
-    /*  remove command from queue */
-    
-    if (prev)
-@@ -591,9 +623,13 @@
-     * (take advantage of auto-incrementing)
-     */
- 
-+#if defined(CONFIG_SCSI_PC980155) || defined(CONFIG_SCSI_PC980155_MODULE)
-+      write_wd33c93_cdb(regs, cmd->cmd_len, cmd->cmnd);
-+#else /* !CONFIG_SCSI_PC980155 */
-       *regs.SASR = WD_CDB_1;
-       for (i=0; i<cmd->cmd_len; i++)
-          *regs.SCMD = cmd->cmnd[i];
-+#endif /* CONFIG_SCSI_PC980155 */
- 
-    /* The wd33c93 only knows about Group 0, 1, and 5 commands when
-     * it's doing a 'select-and-transfer'. To be safe, we write the
-@@ -765,7 +801,7 @@
-    if (!(asr & ASR_INT) || (asr & ASR_BSY))
-       return;
- 
--   save_flags(flags);
-+   local_save_flags(flags);
- 
- #ifdef PROC_STATISTICS
-    hostdata->int_cnt++;
-@@ -777,6 +813,46 @@
- 
- DB(DB_INTR,printk("{%02x:%02x-",asr,sr))
- 
-+#if defined(CONFIG_SCSI_PC980155) || defined(CONFIG_SCSI_PC980155_MODULE)
-+#ifdef DEBUG
-+   {
-+     int i;
-+     static uchar old_phs=0;
-+     printk("**interrupt ");
-+     if (cmd){
-+       printk("cmd[");
-+       for (i=0; i<cmd->cmd_len-1; i++){
-+	 printk("%02x ",cmd->cmnd[i]);
-+       }
-+       printk("%02x] ",cmd->cmnd[i]);
-+     } else {
-+       printk("NoConnectedCmd ");
-+     }
-+     printk("asr=%02x sr=%02x phs=%02x\n",asr,sr,phs);
 +
-+     if (sr==0x49){
-+       if (phs==old_phs){
-+	 for (i = 0; i < cmd->SCp.this_residual; i++){
-+	   printk("%02x", cmd->SCp.buffer);
-+	   switch (i % 32){
-+	   case 7: case 15: case 23:
-+	     printk(" ");
-+	     break;
-+	   case 31:
-+	     printk("\n");
-+	     break;
-+	   default:
-+	     break;
-+	   }
-+	 }
-+	 panic("");
-+       } else
-+	 old_phs = phs;
-+     }
-+   }
-+#endif
-+#endif       
++/**
++ * scsi_register_host - register a low level host driver
++ * @shost_tp:	pointer to a scsi host driver template
++ *
++ * Return value:
++ * 	0 on Success / 1 on Failure.
++ **/
++int scsi_register_host(Scsi_Host_Template *shost_tp)
++{
++	int cur_cnt;
++	Scsi_Device *sdev;
++	struct Scsi_Device_Template *sdev_tp;
++	struct list_head *lh;
++	struct Scsi_Host *shost;
 +
- /* After starting a DMA transfer, the next interrupt
-  * is guaranteed to be in response to completion of
-  * the transfer. Since the Amiga DMA hardware runs in
-@@ -831,7 +907,7 @@
-      * is here...
-      */
- 
--    restore_flags(flags);
-+    local_irq_restore(flags);
- 
- /* We are not connected to a target - check to see if there
-  * are commands waiting to be executed.
-@@ -1085,7 +1161,7 @@
-                write_wd33c93_cmd(regs, WD_CMD_NEGATE_ACK);
-                hostdata->state = S_CONNECTED;
-             }
--         restore_flags(flags);
-+         local_irq_restore(flags);
-          break;
- 
- 
-@@ -1117,7 +1193,7 @@
- /* We are no longer  connected to a target - check to see if
-  * there are commands waiting to be executed.
-  */
--       restore_flags(flags);
-+            local_irq_restore(flags);
-             wd33c93_execute(instance);
-             }
-          else {
-@@ -1200,7 +1276,7 @@
-  * there are commands waiting to be executed.
-  */
-     /* look above for comments on scsi_done() */
--    restore_flags(flags);
-+         local_irq_restore(flags);
-          wd33c93_execute(instance);
-          break;
- 
-@@ -1228,7 +1304,7 @@
-                else
-                   cmd->result = cmd->SCp.Status | (cmd->SCp.Message << 8);
-                cmd->scsi_done(cmd);
--          restore_flags(flags);
-+               local_irq_restore(flags);
-                break;
-             case S_PRE_TMP_DISC:
-             case S_RUNNING_LEVEL2:
-@@ -1693,7 +1769,7 @@
-    return 1;
++	/*
++	 * Check no detect routine.
++	 */
++	if (!shost_tp->detect)
++		return 1;
++
++	/* If max_sectors isn't set, default to max */
++	if (!shost_tp->max_sectors)
++		shost_tp->max_sectors = 1024;
++
++	cur_cnt = scsi_hosts_registered;
++
++	MOD_INC_USE_COUNT;
++
++	/*
++	 * The detect routine must carefully spinunlock/spinlock if it
++	 * enables interrupts, since all interrupt handlers do spinlock as
++	 * well.
++	 */
++
++	/*
++	 * detect should do its own locking
++	 * FIXME present is now set is scsi_register which breaks manual
++	 * registration code below.
++	 */
++	shost_tp->detect(shost_tp);
++
++	if (shost_tp->present) {
++			/*
++			 * FIXME Who needs manual registration and why???
++			 */
++		if (cur_cnt == scsi_hosts_registered) {
++			if (shost_tp->present > 1) {
++				printk(KERN_ERR "scsi: Failure to register"
++				       "low-level scsi driver");
++				scsi_unregister_host(shost_tp);
++				return 1;
++			}
++			/*
++			 * The low-level driver failed to register a driver.
++			 * We can do this now.
++			 */
++			if(scsi_register(shost_tp, 0)==NULL) {
++				printk(KERN_ERR "scsi: register failed.\n");
++				scsi_unregister_host(shost_tp);
++				return 1;
++			}
++		}
++
++		list_add_tail(&shost_tp->shtp_list, &scsi_host_tmpl_list);
++
++		/* The next step is to call scan_scsis here.  This generates the
++		 * Scsi_Devices entries
++		 */
++		list_for_each(lh, &scsi_host_list) {
++			shost = list_entry(lh, struct Scsi_Host, sh_list);
++			if (shost->hostt == shost_tp) {
++				const char *dm_name;
++				if (shost_tp->info) {
++					dm_name = shost_tp->info(shost);
++				} else {
++					dm_name = shost_tp->name;
++				}
++				printk(KERN_INFO "scsi%d : %s\n",
++				       shost->host_no, dm_name);
++
++				/* first register parent with driverfs */
++				device_register(&shost->host_driverfs_dev);
++				scan_scsis(shost, 0, 0, 0, 0);
++			}
++		}
++
++		for (sdev_tp = scsi_devicelist; sdev_tp;
++		     sdev_tp = sdev_tp->next) {
++			if (sdev_tp->init && sdev_tp->dev_noticed)
++				(*sdev_tp->init) ();
++		}
++
++		/*
++		 * Next we create the Scsi_Cmnd structures for this host 
++		 */
++		list_for_each(lh, &scsi_host_list) {
++			shost = list_entry(lh, struct Scsi_Host, sh_list);
++			for (sdev = shost->host_queue; sdev; sdev = sdev->next)
++				if (sdev->host->hostt == shost_tp) {
++					for (sdev_tp = scsi_devicelist;
++					     sdev_tp;
++					     sdev_tp = sdev_tp->next)
++						if (sdev_tp->attach)
++							(*sdev_tp->attach) (sdev);
++					if (sdev->attached) {
++						scsi_build_commandblocks(sdev);
++						if (sdev->current_queue_depth == 0)
++							goto out_of_space;
++					}
++				}
++		}
++
++		/* This does any final handling that is required. */
++		for (sdev_tp = scsi_devicelist; sdev_tp;
++		     sdev_tp = sdev_tp->next) {
++			if (sdev_tp->finish && sdev_tp->nr_dev) {
++				(*sdev_tp->finish) ();
++			}
++		}
++	}
++
++	return 0;
++
++out_of_space:
++	scsi_unregister_host(shost_tp); /* easiest way to clean up?? */
++	return 1;
++}
++
++/**
++ * scsi_unregister_host - unregister a low level host adapter driver
++ * @shost_tp:	scsi host template to unregister.
++ *
++ * Description:
++ * 	Similarly, this entry point should be called by a loadable module
++ * 	if it is trying to remove a low level scsi driver from the system.
++ *
++ * Return value:
++ * 	0 on Success / 1 on Failure
++ *
++ * Notes:
++ * 	rmmod does not care what we return here the module will be
++ * 	removed.
++ **/
++int scsi_unregister_host(Scsi_Host_Template *shost_tp)
++{
++	int pcount;
++
++	/* get the big kernel lock, so we don't race with open() */
++	lock_kernel();
++
++	pcount = scsi_hosts_registered;
++
++	scsi_tp_for_each_host(shost_tp, scsi_host_chk_and_release);
++
++	if (pcount != scsi_hosts_registered)
++		printk(KERN_INFO "scsi : %d host%s left.\n", scsi_hosts_registered,
++		       (scsi_hosts_registered == 1) ? "" : "s");
++
++	/*
++	 * Remove it from the list if all
++	 * hosts were successfully removed (ie preset == 0)
++	 */
++	if (!shost_tp->present) {
++		list_del(&shost_tp->shtp_list);
++	}
++
++	MOD_DEC_USE_COUNT;
++
++	unlock_kernel();
++	return 0;
++
++}
++
++/**
++ * *scsi_host_get_next - get scsi host and inc ref count
++ * @shost:	pointer to a Scsi_Host or NULL to start.
++ *
++ * Return value:
++ * 	A pointer to next Scsi_Host in list or NULL.
++ **/
++struct Scsi_Host *scsi_host_get_next(struct Scsi_Host *shost)
++{
++	struct list_head *lh = NULL;
++
++	spin_lock(&scsi_host_list_lock);
++	if (shost) {
++		/* XXX Dec ref on cur shost */
++		lh = shost->sh_list.next;
++	} else {
++		lh = scsi_host_list.next;
++	}
++
++	if (lh == &scsi_host_list) {
++		shost = (struct Scsi_Host *)NULL;
++		goto done;
++	}
++
++	shost = list_entry(lh, struct Scsi_Host, sh_list);
++	/* XXX Inc ref count */
++
++done:
++	spin_unlock(&scsi_host_list_lock);
++	return shost;
++}
++
++/**
++ * scsi_host_hn_get - get a Scsi_Host by host no and inc ref count
++ * @host_no:	host number to locate
++ *
++ * Return value:
++ * 	A pointer to located Scsi_Host or NULL.
++ **/
++struct Scsi_Host *scsi_host_hn_get(unsigned short host_no)
++{
++	struct list_head *lh;
++	struct Scsi_Host *shost;
++
++	spin_lock(&scsi_host_list_lock);
++	list_for_each(lh, &scsi_host_list) {
++		shost = list_entry(lh, struct Scsi_Host, sh_list);
++		if (shost->host_no == host_no) {
++			/* XXX Inc ref count */
++			goto done;
++		}
++	}
++
++	shost = (struct Scsi_Host *)NULL;
++done:
++	spin_unlock(&scsi_host_list_lock);
++	return shost;
++}
++
++/**
++ * *scsi_host_put - dec a Scsi_Host ref count
++ * @shost:	Pointer to Scsi_Host to dec.
++ **/
++void scsi_host_put(struct Scsi_Host *shost)
++{
++
++	/* XXX Get list lock */
++	/* XXX dec ref count */
++	/* XXX Release list lock */
++	return;
++}
++
++/**
++ * scsi_host_hn_init - init scsi host number list from string
++ * @shost_hn:	string of scsi host driver names.
++ **/
++void __init scsi_host_hn_init(char *shost_hn)
++{
++	char *temp = shost_hn;
++
++	while (temp) {
++		while (*temp && (*temp != ':') && (*temp != ','))
++			temp++;
++		if (!*temp)
++			temp = NULL;
++		else
++			*temp++ = 0;
++		(void)scsi_host_hn_add(shost_hn);
++		shost_hn = temp;
++	}
++}
++
++/**
++ * scsi_host_no_release - free all entries in scsi host number list
++ **/
++void __exit scsi_host_hn_release()
++{
++	struct list_head *lh, *next;
++	Scsi_Host_Name *shn;
++
++	list_for_each_safe(lh, next, &scsi_host_hn_list) {
++		shn = list_entry(lh, Scsi_Host_Name, shn_list);
++		if (shn->name)
++			kfree(shn->name);
++		kfree(shn);
+ 	}
+-	else {
+-	    for (o_shp = shpnt, shpnt = shpnt->next; shpnt; 
+-		 o_shp = shpnt, shpnt = shpnt->next) {
+-		if (retval->host_no < shpnt->host_no) {
+-		    retval->next = shpnt;
+-		    wmb();
+-		    o_shp->next = retval;
+-		    break;
+-		}
+-	    }
+-	    if (! shpnt)
+-		o_shp->next = retval;
+-        }
+-    }
+-    
+-    return retval;
  }
  
--__setup("wd33c93", wd33c93_setup);
-+__setup("wd33c93=", wd33c93_setup);
+ void scsi_host_busy_inc(struct Scsi_Host *shost, Scsi_Device *sdev)
+@@ -279,8 +761,7 @@
+ 	if (shost->in_recovery && (shost->host_busy == shost->host_failed)) {
+ 		up(shost->eh_wait);
+ 		SCSI_LOG_ERROR_RECOVERY(5, printk("Waking error handler"
+-					  "thread (%d)\n",
+-					  atomic_read(&shost->eh_wait->count)));
++					  " thread\n"));
+ 	}
+ 	spin_unlock_irqrestore(shost->host_lock, flags);
+ }
+@@ -295,8 +776,7 @@
+ 	if (shost->host_busy == shost->host_failed) {
+ 		up(shost->eh_wait);
+ 		SCSI_LOG_ERROR_RECOVERY(5, printk("Waking error handler"
+-					  "thread (%d)\n",
+-					  atomic_read(&shost->eh_wait->count)));
++					  " thread\n"));
+ 	}
+ 	spin_unlock_irqrestore(shost->host_lock, flags);
+ }
+diff -Nru a/drivers/scsi/hosts.h b/drivers/scsi/hosts.h
+--- a/drivers/scsi/hosts.h	Thu Oct 17 00:53:47 2002
++++ b/drivers/scsi/hosts.h	Thu Oct 17 00:53:47 2002
+@@ -16,15 +16,14 @@
+  *  of the same type.
+  *
+  *  Jiffies wrap fixes (host->resetting), 3 Dec 1998 Andrea Arcangeli
++ *
++ *  Restructured scsi_host lists and associated functions.
++ *  September 04, 2002 Mike Anderson (andmike@us.ibm.com)
+  */
+ 
+ #ifndef _HOSTS_H
+ #define _HOSTS_H
+ 
+-/*
+-    $Header: /vger/u4/cvs/linux/drivers/scsi/hosts.h,v 1.6 1997/01/19 23:07:13 davem Exp $
+-*/
+-
+ #include <linux/config.h>
+ #include <linux/proc_fs.h>
+ #include <linux/pci.h>
+@@ -58,8 +57,7 @@
+ typedef struct	SHT
+ {
+ 
+-    /* Used with loadable modules so we can construct a linked list. */
+-    struct SHT * next;
++    struct list_head	shtp_list;
+ 
+     /* Used with loadable modules so that we know when it is safe to unload */
+     struct module * module;
+@@ -374,7 +372,7 @@
+      * This information is private to the scsi mid-layer.  Wrapping it in a
+      * struct private is a way of marking it in a sort of C++ type of way.
+      */
+-    struct Scsi_Host      * next;
++    struct list_head      sh_list;
+     Scsi_Device           * host_queue;
+     struct list_head	  all_scsi_hosts;
+     struct list_head	  my_devices;
+@@ -510,28 +508,26 @@
+  * thing.  This physical pseudo-device isn't real and won't be available
+  * from any high-level drivers.
+  */
+-extern void scsi_free_host_dev(Scsi_Device * SDpnt);
+-extern Scsi_Device * scsi_get_host_dev(struct Scsi_Host * SHpnt);
++extern void scsi_free_host_dev(Scsi_Device *);
++extern Scsi_Device * scsi_get_host_dev(struct Scsi_Host *);
+ 
+-extern void scsi_unblock_requests(struct Scsi_Host * SHpnt);
+-extern void scsi_block_requests(struct Scsi_Host * SHpnt);
+-extern void scsi_report_bus_reset(struct Scsi_Host * SHpnt, int channel);
++extern void scsi_unblock_requests(struct Scsi_Host *);
++extern void scsi_block_requests(struct Scsi_Host *);
++extern void scsi_report_bus_reset(struct Scsi_Host *, int);
+ 
+ typedef struct SHN
+-    {
+-    struct SHN * next;
+-    char * name;
+-    unsigned short host_no;
+-    unsigned short host_registered;
+-    } Scsi_Host_Name;
++{
++	struct list_head shn_list;
++	char *name;
++	unsigned short host_no;
++	unsigned short host_registered;
++} Scsi_Host_Name;
+ 	
+-extern Scsi_Host_Name * scsi_host_no_list;
+-extern struct Scsi_Host * scsi_hostlist;
+ extern struct Scsi_Device_Template * scsi_devicelist;
+ 
+-extern Scsi_Host_Template * scsi_hosts;
+-
+-extern void build_proc_dir_entries(Scsi_Host_Template  *);
++extern void scsi_proc_host_mkdir(Scsi_Host_Template *);
++extern void scsi_proc_host_add(struct Scsi_Host *);
++extern void scsi_proc_host_rm(struct Scsi_Host *);
+ 
+ /*
+  *  scsi_init initializes the scsi hosts.
+@@ -540,34 +536,33 @@
+ extern int next_scsi_host;
+ 
+ unsigned int scsi_init(void);
+-extern struct Scsi_Host * scsi_register(Scsi_Host_Template *, int j);
+-extern void scsi_unregister(struct Scsi_Host * i);
+-extern void scsi_register_blocked_host(struct Scsi_Host * SHpnt);
+-extern void scsi_deregister_blocked_host(struct Scsi_Host * SHpnt);
++extern struct Scsi_Host * scsi_register(Scsi_Host_Template *, int);
++extern void scsi_unregister(struct Scsi_Host *);
++extern void scsi_register_blocked_host(struct Scsi_Host *);
++extern void scsi_deregister_blocked_host(struct Scsi_Host *);
+ 
+-static inline void scsi_assign_lock(struct Scsi_Host *host, spinlock_t *lock)
++static inline void scsi_assign_lock(struct Scsi_Host *shost, spinlock_t *lock)
+ {
+-	host->host_lock = lock;
++	shost->host_lock = lock;
+ }
+ 
+-static inline void scsi_set_pci_device(struct Scsi_Host *SHpnt,
++static inline void scsi_set_pci_device(struct Scsi_Host *shost,
+                                        struct pci_dev *pdev)
+ {
+-	SHpnt->pci_dev = pdev;
+-	SHpnt->host_driverfs_dev.parent=&pdev->dev;
++	shost->pci_dev = pdev;
++	shost->host_driverfs_dev.parent=&pdev->dev;
++
++	/* register parent with driverfs */
++	device_register(&shost->host_driverfs_dev);
+ }
  
  
- /* check_setup_args() returns index if key found, 0 if not
-@@ -1831,10 +1907,12 @@
+ /*
+  * Prototypes for functions/data in scsi_scan.c
+  */
+-extern void scan_scsis(struct Scsi_Host *shpnt,
+-		       uint hardcoded,
+-		       uint hchannel,
+-		       uint hid,
+-                       uint hlun);
++extern void scan_scsis(struct Scsi_Host *, uint, uint, uint, uint);
+ 
+-extern void scsi_mark_host_reset(struct Scsi_Host *Host);
++extern void scsi_mark_host_reset(struct Scsi_Host *);
+ 
+ #define BLANK_HOST {"", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+ 
+@@ -596,7 +591,7 @@
+     struct device_driver scsi_driverfs_driver;
+ };
+ 
+-void  scsi_initialize_queue(Scsi_Device * SDpnt, struct Scsi_Host * SHpnt);
++void  scsi_initialize_queue(Scsi_Device *, struct Scsi_Host *);
  
  
-    { unsigned long flags;
--     save_flags(flags);
--     cli();
-+     //save_flags(flags);
-+     //cli();
-+     spin_lock_irqsave(&wd_lock, flags);
-      reset_wd33c93(instance);
--     restore_flags(flags);
-+     //restore_flags(flags);
-+     spin_unlock_irqrestore(&wd_lock, flags);
-    }
+ /*
+@@ -607,6 +602,12 @@
+ extern int scsi_register_host(Scsi_Host_Template *);
+ extern int scsi_unregister_host(Scsi_Host_Template *);
  
-    printk("wd33c93-%d: chip=%s/%d no_sync=0x%x no_dma=%d",instance->host_no,
-@@ -1932,8 +2010,9 @@
-       return len;
-       }
++extern struct Scsi_Host *scsi_host_get_next(struct Scsi_Host *);
++extern struct Scsi_Host *scsi_host_hn_get(unsigned short);
++extern void scsi_host_put(struct Scsi_Host *);
++extern void scsi_host_hn_init(char *);
++extern void scsi_host_hn_release(void);
++
+ /*
+  * host_busy inc/dec/test functions
+  */
+@@ -614,7 +615,6 @@
+ extern void scsi_host_busy_dec_and_test(struct Scsi_Host *, Scsi_Device *);
+ extern void scsi_host_failed_inc_and_test(struct Scsi_Host *);
  
--   save_flags(flags);
--   cli();
-+   //save_flags(flags);
-+   //cli();
-+   spin_lock_irqsave(&wd_lock, flags);
-    bp = buf;
-    *bp = '\0';
-    if (hd->proc & PR_VERSION) {
-@@ -2008,7 +2087,8 @@
-          }
-       }
-    strcat(bp,"\n");
--   restore_flags(flags);
-+   //restore_flags(flags);
-+   spin_unlock_irqrestore(&wd_lock, flags);
-    *start = buf;
-    if (stop) {
-       stop = 0;
-diff -urN linux/drivers/scsi/wd33c93.h linux98/drivers/scsi/wd33c93.h
---- linux/drivers/scsi/wd33c93.h	Sat Oct 12 13:21:35 2002
-+++ linux98/drivers/scsi/wd33c93.h	Sat Oct 12 14:18:53 2002
-@@ -186,8 +186,13 @@
+-
+ /*
+  * This is an ugly hack.  If we expect to be able to load devices at run time,
+  * we need to leave extra room in some of the data structures.	Doing a
+@@ -643,21 +643,22 @@
  
-    /* This is what the 3393 chip looks like to us */
- typedef struct {
-+#if defined(CONFIG_SCSI_PC980155) || defined(CONFIG_SCSI_PC980155_MODULE)
-+   volatile unsigned int   *SASR;
-+   volatile unsigned int   *SCMD;
-+#else
-    volatile unsigned char  *SASR;
-    volatile unsigned char  *SCMD;
-+#endif
- } wd33c93_regs;
+ /**
+  * scsi_find_device - find a device given the host
++ * @shost:	SCSI host pointer
+  * @channel:	SCSI channel (zero if only one channel)
+  * @pun:	SCSI target number (physical unit number)
+  * @lun:	SCSI Logical Unit Number
+  **/
+-static inline Scsi_Device *scsi_find_device(struct Scsi_Host *host,
++static inline Scsi_Device *scsi_find_device(struct Scsi_Host *shost,
+                                             int channel, int pun, int lun) {
+-        Scsi_Device *SDpnt;
++        Scsi_Device *sdev;
  
- 
-diff -urN linux/include/scsi/scsicam.h linux98/include/scsi/scsicam.h
---- linux/include/scsi/scsicam.h	Thu Jul 25 06:03:26 2002
-+++ linux98/include/scsi/scsicam.h	Fri Jul 26 11:32:39 2002
-@@ -12,8 +12,13 @@
- 
- #ifndef SCSICAM_H
- #define SCSICAM_H
-+#include <linux/config.h>
- extern int scsicam_bios_param (Disk *disk, struct block_device *bdev, int *ip);
- extern int scsi_partsize(unsigned char *buf, unsigned long capacity,
-            unsigned int  *cyls, unsigned int *hds, unsigned int *secs);
- extern unsigned char *scsi_bios_ptable(struct block_device *bdev);
-+#ifdef CONFIG_PC9800
-+extern int pc9800_scsi_bios_param(Disk *disk, struct block_device *bdev,
-+					int *ip);
-+#endif
- #endif /* def SCSICAM_H */
+-        for(SDpnt = host->host_queue;
+-            SDpnt != NULL;
+-            SDpnt = SDpnt->next)
+-                if(SDpnt->channel == channel && SDpnt->id == pun
+-                   && SDpnt->lun ==lun)
++        for (sdev = shost->host_queue;
++            sdev != NULL;
++            sdev = sdev->next)
++                if (sdev->channel == channel && sdev->id == pun
++                   && sdev->lun ==lun)
+                         break;
+-        return SDpnt;
++        return sdev;
+ }
+     
+ #endif
+

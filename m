@@ -1,106 +1,213 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268000AbRG0Olh>; Fri, 27 Jul 2001 10:41:37 -0400
+	id <S268611AbRG0Oti>; Fri, 27 Jul 2001 10:49:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268735AbRG0Ol2>; Fri, 27 Jul 2001 10:41:28 -0400
-Received: from c526559-a.rchdsn1.tx.home.com ([24.0.107.130]:41095 "EHLO
-	ledzep.dyndns.org") by vger.kernel.org with ESMTP
-	id <S268000AbRG0OlR>; Fri, 27 Jul 2001 10:41:17 -0400
-Message-ID: <3B617CED.58F4DC06@home.com>
-Date: Fri, 27 Jul 2001 09:38:37 -0500
-From: Jordan <ledzep37@home.com>
-Organization: University of Texas at Dallas - Student
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-ac1 i686)
-X-Accept-Language: en
+	id <S268776AbRG0Ot3>; Fri, 27 Jul 2001 10:49:29 -0400
+Received: from web13609.mail.yahoo.com ([216.136.174.9]:51716 "HELO
+	web13609.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S268611AbRG0OtP>; Fri, 27 Jul 2001 10:49:15 -0400
+Message-ID: <20010727144921.607.qmail@web13609.mail.yahoo.com>
+Date: Fri, 27 Jul 2001 07:49:21 -0700 (PDT)
+From: Balbir Singh <balbir_soni@yahoo.com>
+Subject: Re: Addendum to Daniel Phillips [RFC] use-once patch
+To: Daniel Phillips <phillips@bonn-fries.net>,
+        Balbir Singh <balbir.singh@wipro.com>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: balbirs@indiatimes.com, balbir_soni@yahoo.com
+In-Reply-To: <0107271638180F.00285@starship>
 MIME-Version: 1.0
-To: "Philip R. Auld" <pauld@egenera.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-In-Reply-To: <E15Q7eW-0005cP-00@the-village.bc.nu> <3B6177DB.26C6D378@egenera.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-"Philip R. Auld" wrote:
-> 
-> Alan Cox wrote:
-> >
-> > Its certainly a good idea. But it sounds to me like he is describing the
-> > normal effect of metadata only logging.
-> >
-> 
-> Which brings up something I have been struggling with lately:
-> 
-> Linux (using both ext2 and reiserfs) can show garbage data blocks at the end of
-> files after a crash. With reiserfs this is clearly due to metadata only logging
-> and happens say 3 out of 5 times. With ext2 the frequency is about 1 in 5 times,
-> and more often that not it is simply zeroed data. Sometimes it is old data
-> though.
-> 
-> This is something that is not present in other unix filesystems as far as I can
-> tell. If linux wants to be used in enterprise sites we can't allow
-> old data blocks to be read. And ideally shouldn't allow zero blocks to be seen
-> either, but this is somewhat less serious.
-> 
-> I cannot reproduce this in ufs on either freebsd or solaris8.
-> 
-> I have not tested it with xfs and jfs for linux yet (and don't have any native
-> systems at hand.)
-> 
-> I believe vxfs to have a mechanism to prevent this despite metadata only
-> logging.
-> 
-> reiserfs with full data logging enabled of course does not show this behavior
-> (and works really well if you are willing to take the performance hit).
-> 
-> The basic test I use is to run this perl script for a while (to make sure at
-> least somehting has had a chance to get written out) and then power-cycle the
-> machine. When it comes back a simple tail logfile will show the problem. I also
-> run bonnie before hand to fill the disk with a known pattern so its easier to
-> spot.
-> 
-> linux is 2.2.16 and 2.4.2 from redhat 7.1. reiserfs is 3.5.33 and was tested
-> only on 2.2.16.
-> 
-> #!/usr/bin/perl
-> use Fcntl;
-> $count = 0;
-> while (1) {
-> #sysopen(FH, "/scratch/logfile", O_RDWR|O_APPEND|O_CREAT|O_SYNC)
-> sysopen(FH, "/scratch/logfile", O_RDWR|O_APPEND|O_CREAT)
->         or die "Couldn't open file $path : $!\n";
-> print FH "Log file line ", $count , " yadda  yadda  yadda  yadda  yadda  yadda
-> yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda
-> yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda
-> yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda
-> yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda
-> yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda
-> yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda
-> yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda
-> yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda
-> yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda \n" ;
-> close (FH);
-> #print $count , "\n";
-> $count++;
-> }
-> 
-> ------------------------------------------------------
-> Philip R. Auld, Ph.D.                  Technical Staff
-> Egenera Corp.                        pauld@egenera.com
-> 165 Forest St, Marlboro, MA 01752        (508)786-9444
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
-I didn't know that there was a way to enable full data journaling using
-reiserfs.  I was under the impression that with the latest round of the
-unlink patch to go with 2.4.7 that reiserfs was basically in ordered
-journaling mode instead of writeback (I believe that is the name), if I
-am wrong or if there really is a way to enable full data journaling
-please let me know.  Thanks.
+--- Daniel Phillips <phillips@bonn-fries.net> wrote:
+> On Friday 27 July 2001 11:57, Balbir Singh wrote:
+> > Addendum to Daniel Phillips [RFC] use-once patch
+> > ------------------------------------------------
+> >
+> > A while ago, Daniel Phillips, posted his use use
+> once patch. I used
+> > it and found it useful. I have been thinking of
+> something similar.
+> > Let me describe what I have been thinking, this is
+> in-line with
+> > page-aging and the working set model.
+> >
+> > As per the working set model, we use locality of
+> reference, to keep
+> > constantly used pages in memory. It is for sure
+> that after a period
+> > of time, these pages that were being used
+> constantly, would no longer
+> > be required (since we would be done with that
+> piece of code or data).
+> > We would like to evict these pages since soon.
+> >
+> > To illustrate :-
+> >
+> > I have used a PAGE_MAX_USE principle (my own from
+> what I know), which
+> > states that most of the pages (**except shared
+> pages**), would be
+> > used for a maximum of PAGE_MAX_USE (some constant
+> > 0). We look at
+> > pages that are very frequently used and then after
+> some number of
+> > times (PAGE_MAX_USE) they have been used, we
+> "victimize" them. This
+> > may be wrong, since the page may be required for
+> more than the number
+> > of times (PAGE_MAX_USE), we think it is required.
+> In that case, it
+> > will be paged back in (when required) and reused
+> again for
+> > PAGE_MAX_USE times before being victimized again.
+> >
+> > Below is a small patch for proof of concept
+> > -------------------------------------------
+> >
+> >
+> > --- vmscan.c.org        Fri Jul 27 14:27:06 2001
+> > +++ vmscan.c    Fri Jul 27 14:32:38 2001
+> > @@ -43,10 +43,20 @@
+> >
+> >         /* Don't look at this pte if it's been
+> accessed recently. */
+> >         if (ptep_test_and_clear_young(page_table))
+> {
+> > -               page->age += PAGE_AGE_ADV;
+> > -               if (page->age > PAGE_AGE_MAX)
+> > -                       page->age = PAGE_AGE_MAX;
+> > -               return;
+> > +
+> > +               /*
+> > +                * If the page has been at
+> PAGE_AGE_MAX for a while,
+> > may be
+> > +                * it is the best candidate for
+> swapping.
+> > +                */
+> > +               if ((page->age > PAGE_AGE_MAX) &&
+> (page_count(page)
+> > <= 1)) {
+> > +                       page->age =
+> PAGE_AGE_START;
+> > +               } else {
+> > +                       page->age += PAGE_AGE_ADV;
+> > +                       if (page->age >
+> PAGE_AGE_MAX) {
+> > +                               page->age =
+> PAGE_AGE_MAX;
+> > +                       }
+> > +                       return;
+> > +               }
+> >         }
+> 
+> I noticed your good benchmark results below, but I'm
+> having some 
+> trouble understanding how this works.  How can
+> page->age ever become 
+> greater than PAGE_AGE_MAX?  Also, I don't see any
+> reference to 
+> PAGE_MAX_USE.  Comments?
 
-Jordan
+PAGE_MAX_USE is just a constant which I will introduce
+if I keep track of the number of times the page has
+been used (this is just conceptual for now). You are
+right page->age can never be greater than PAGE_AGE_MAX
+(its a typo, the code should check for page->age ==
+PAGE_AGE_MAX).
+
+
+
+
+> 
+> > System Configuration
+> > =====================
+> >
+> > Single processor celeron system with 128 MB of
+> RAM, running
+> > Linux-2.4.7pre6 with Daniel's patch applied
+> (running X windows at the
+> > time of compilation, with GNOME).
+> >
+> > time for creating clean bzImage *before* patch
+> > ==============================================
+> >
+> > real    28m40.492s
+> > user    22m43.450s
+> > sys     2m44.490s
+> >
+> >
+> > time for creating clean bzImage *after* patch
+> > =============================================
+> >
+> > real    26m37.011s
+> > user    21m56.350s
+> > sys     2m28.060s
+> 
+> Bash seems to have a built-in "time" command that
+> isn't nearly as 
+> useful as the GNU version, which you'd find in
+> /usr/bin/time.  The GNU 
+> version tells us, among other things, how many swaps
+> occured.  Also, 
+> check the list for Marcelo's mm statistics patch. 
+> I'm not sure what 
+> the integration status is on that.
+> 
+
+I will use this and get back to you, thanks for
+letting me know this. I can probably ask you more
+details offline.
+
+
+> > The system, seemed to respond faster (or I might
+> be feeling so).
+> >
+> > I am also planning to run some standard benchmark
+> (I need to figure
+> > out, which one, or you could guide me). If you
+> like the idea, I will
+> > post the benchmark results also to you (soon!).
+> This patch is a
+> > simple implementation of the idea, I could come
+> out with a more
+> > comprehensive solution if required.
+> 
+> I imagine your system is swapping during your kernel
+> build due to 
+> memory pressure created by gnome and X.  If you show
+> the swapping 
+> statistics from GNU time maybe we can suggest a more
+> predictable way of 
+> creating a similar load.  I always run my benchmark
+> tests in text mode, 
+> by the way, just to try to eliminate some variables
+> and get more 
+> consistent timing results.
+> 
+> Did you repeat your timing measurements several
+> times, and did you 
+> start each test with a clean reboot?
+> 
+
+Yes I repeated the tests, but I guess and know there
+is more to do.
+
+Thanks for all the advice, will follow this up and
+respond with more details
+
+    Balbir
+
+
+> --
+> Daniel
+
+
+__________________________________________________
+Do You Yahoo!?
+Make international calls for as low as $.04/minute with Yahoo! Messenger
+http://phonecard.yahoo.com/

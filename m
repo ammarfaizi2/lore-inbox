@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129163AbQKNK7s>; Tue, 14 Nov 2000 05:59:48 -0500
+	id <S129566AbQKNLDS>; Tue, 14 Nov 2000 06:03:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129461AbQKNK7j>; Tue, 14 Nov 2000 05:59:39 -0500
-Received: from mailhost.tue.nl ([131.155.2.5]:56681 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S129163AbQKNK72>;
-	Tue, 14 Nov 2000 05:59:28 -0500
-Message-ID: <20001114112926.A1498@win.tue.nl>
-Date: Tue, 14 Nov 2000 11:29:26 +0100
-From: Guest section DW <dwguest@win.tue.nl>
-To: Olaf Kirch <okir@caldera.de>, Michal Zalewski <lcamtuf@dione.ids.pl>
-Cc: BUGTRAQ@securityfocus.com, linux-kernel@vger.kernel.org
-Subject: Re: More modutils: It's probably worse.
-In-Reply-To: <Pine.LNX.4.21.0011132040160.1699-100000@ferret.lmh.ox.ac.uk> <Pine.LNX.4.21.0011132352550.31869-100000@dione.ids.pl> <20001114095921.E30730@monad.caldera.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20001114095921.E30730@monad.caldera.de>; from Olaf Kirch on Tue, Nov 14, 2000 at 09:59:22AM +0100
+	id <S129565AbQKNLDI>; Tue, 14 Nov 2000 06:03:08 -0500
+Received: from PTP283.UNI-MUENSTER.DE ([128.176.197.201]:42624 "EHLO
+	pt2037.uni-muenster.de") by vger.kernel.org with ESMTP
+	id <S129461AbQKNLCv>; Tue, 14 Nov 2000 06:02:51 -0500
+From: Bernd Nottelmann <nottelm@uni-muenster.de>
+Organization: Universitaet Muenster
+Date: Tue, 14 Nov 2000 11:32:50 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: Jens Axboe <axboe@suse.de>
+In-Reply-To: <00111022341900.16665@pt2037> <20001111051829.A484@suse.de>
+In-Reply-To: <20001111051829.A484@suse.de>
+Subject: Re: Oops with 2.4.0-test10 during ripping an audio cd with cdda2wav
+Cc: linux-kernel@vger.kernel.org.nottelm@uni-muenster.d
+MIME-Version: 1.0
+Message-Id: <00111411325000.02019@pt2037>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 14, 2000 at 09:59:22AM +0100, Olaf Kirch wrote:
+On Saturday 11 November 2000 05:18, you wrote:
 
-> PS: The load_nls code tries to check for buffer overflows, but
->     gets it wrong:
-> 
-> 	struct nls_table *nls;
-> 	char	buf[40];
-> 
-> 	if (strlen(charset) > sizeof(buf) - sizeof("nls_"))
-> 		fail;
-> 	sprintf(buf, "nls_%s", charset);
-> 
->     This will accept charset names of up to 35 characters,
->     because sizeof("nls_") is 5. This gives you a single NUL byte
->     overflow. Whether it's dangerous or not depends on whether your
->     compiler reserves stack space for the *nls pointer or not...
+Hi Jens,
 
-Where is the overflow? If charset has 35 characters then
-	sprintf(buf, "nls_%s", charset);
-writes 40 bytes into buf, and that fits.
+(Sorry for the delay)
+> This looks like cdrom.c:mmc_ioctl, CDROMREADAUDIO, kmalloc'ing too
+> much memory, which triggers the BUG() in slab.c. I'm not quite sure
+> how this is happening though, unless cdda2wav sets a negative ra.nframes
+> (a quick browse on a version I have here shows it does not, maybe you
+> have a different version).
+>
+> Is it reproducable? If so, could you try with this patch?
+Yes, it is. But unfortunately I cannot apply your patch. A --dry-run
+gave no errors, but when I really patched 2.4.0-test10, it came to
+some weird error message (patch tells me, that some files are
+already patched???). [Why not 2.4.0-test11p2? I use this machine
+for some numerical calculations which take long time runs and
+they are at the moment not restartable after a break. For this reasons
+I do not prefer pre-kernels (but I use the 2.4.0-beta series because
+it is more stable for my hardware than the 2.2-series).]
+
+  Bernd
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

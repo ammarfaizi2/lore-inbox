@@ -1,61 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282684AbRLPTXj>; Sun, 16 Dec 2001 14:23:39 -0500
+	id <S284778AbRLPTm4>; Sun, 16 Dec 2001 14:42:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284761AbRLPTXT>; Sun, 16 Dec 2001 14:23:19 -0500
-Received: from sphere.open-net.org ([64.53.98.77]:54916 "HELO open-net.org")
-	by vger.kernel.org with SMTP id <S282684AbRLPTXQ>;
-	Sun, 16 Dec 2001 14:23:16 -0500
-Date: Sun, 16 Dec 2001 14:17:38 -0500
-From: Robert Jameson <rj@open-net.org>
+	id <S284779AbRLPTmq>; Sun, 16 Dec 2001 14:42:46 -0500
+Received: from mx2.port.ru ([194.67.57.12]:59140 "EHLO smtp2.port.ru")
+	by vger.kernel.org with ESMTP id <S284778AbRLPTmf>;
+	Sun, 16 Dec 2001 14:42:35 -0500
+Date: Sun, 16 Dec 2001 22:39:09 +0300
+From: Dmitry Volkoff <vdb@mail.ru>
 To: linux-kernel@vger.kernel.org
-Message-Id: <20011216141738.6bbc372c.rj@open-net.org>
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: Unfreeable buffer/cache problem in 2.4.17-rc1 still there
+Message-ID: <20011216223909.A230@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.7U9+cJFF3'(.Nq"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.7U9+cJFF3'(.Nq
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Hello!
 
-Does anyone have any ideas about this error while compiling 2.5.1-pre11
+Below is simple test case which I think is related to "memory disappear"
+problem.
 
-output from make modules:
+My real program is doing something like this:
 
-make[1]: Entering directory `/usr/src/linux-2.5.1-pre11/kernel'
-make[1]: Nothing to be done for `modules'.
-make[1]: Leaving directory `/usr/src/linux-2.5.1-pre11/kernel'
-make -C  drivers CFLAGS="-D__KERNEL__ -I/usr/src/linux-2.5.1-pre11/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include /usr/src/linux-2.5.1-pre11/include/linux/modversions.h" MAKING_MODULES=1 modules
-make[1]: Entering directory `/usr/src/linux-2.5.1-pre11/drivers'
-make -C block modules
-make[2]: Entering directory `/usr/src/linux-2.5.1-pre11/drivers/block'
-gcc -D__KERNEL__ -I/usr/src/linux-2.5.1-pre11/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include /usr/src/linux-2.5.1-pre11/include/linux/modversions.h   -c -o xd.o xd.c
-xd.c: In function `xd_init':
-xd.c:173: too few arguments to function `blk_init_queue_Rb01d9c7f'
-make[2]: *** [xd.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.5.1-pre11/drivers/block'
-make[1]: *** [_modsubdir_block] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.1-pre11/drivers'
-make: *** [_mod_drivers] Error 2
+// test.c
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <unistd.h>
+
+int main(void) 
+{
+  int fd;
+  int r;
+  char data[10] = "0123456789";
+  int i;
+  int end = 30;
+  for (i=0;i<end;i++) {
+    fd = open("testfile", O_WRONLY | O_NDELAY | O_TRUNC | O_CREAT, 0644);
+    if (fd == -1) {
+      printf("unable to open\n");
+      return;
+    }
+    r = write(fd,data,sizeof data);
+    if (r == -1) {
+      printf("unable to write\n");
+      close(fd);
+      return;
+    }
+    close(fd);
+    sleep(1);
+  }
+}
+// end test.c
+
+Each time I run `free; ./test; free` I see evergrowing memory usage. 
+I mean used memory + buffers. At some point system just starts swapping 
+even if no other processes are running. Tested on 2.4.13 and 
+2.4.17-pre4aa1. I think something is wrong here because the very same 
+test program does not show such behaviour on 2.2.19. It does not lose 
+any single byte of memory. I've even tested this on freebsd-4.4 with 
+the same result as on 2.2.19. 
+
+Example output on 2.4.17-pre4aa1:
+
+bash-2.03$ free; ./test; free
+total       used       free     shared    buffers     cached
+Mem:        514528     212508     302020          0       7952     150664
+-/+ buffers/cache:      53892     460636
+Swap:      1028120          0    1028120
+total       used       free     shared    buffers     cached
+Mem:        514528     212616     301912          0       8000     150664
+-/+ buffers/cache:      53952     460576
+Swap:      1028120          0    1028120
+
+bash-2.03$ free; ./test; free
+total       used       free     shared    buffers     cached
+Mem:        514528     212616     301912          0       8008     150664
+-/+ buffers/cache:      53944     460584
+Swap:      1028120          0    1028120
+total       used       free     shared    buffers     cached
+Mem:        514528     212700     301828          0       8056     150664
+-/+ buffers/cache:      53980     460548
+Swap:      1028120          0    1028120
+
+The results are very consistent. I lose 30-40 byte per run.
 
 -- 
 
-I'm praying for rain and I'm praying for tidal waves I wanna see the ground give way. 
-I wanna watch it all go down - tool.
-
---=.7U9+cJFF3'(.Nq
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE8HPNYyWZRCCLwK/cRAlrkAKCQ4BH7JpKuwo5RiyrSRar35fVrigCfYNfC
-MVg0XkCgwY28MYQzsVxdS1g=
-=UUmP
------END PGP SIGNATURE-----
-
---=.7U9+cJFF3'(.Nq--
-
+    DV

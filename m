@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUEFQ3u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbUEFQaN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbUEFQ3u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 12:29:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUEFQ3u
+	id S261206AbUEFQaN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 12:30:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUEFQaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 12:29:50 -0400
-Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:29703
-	"EHLO cynthia.pants.nu") by vger.kernel.org with ESMTP
-	id S261169AbUEFQ3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 12:29:45 -0400
-Date: Thu, 6 May 2004 09:29:43 -0700
-From: Brad Boyer <flar@allandria.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux/m68k on Mac <linux-mac68k@mac.linux-m68k.org>,
-       Zhenmin Li <zli4@cs.uiuc.edu>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [OPERA] Potential bugs detected by static analysis tool in 2.6.4
-Message-ID: <20040506162943.GA1205@pants.nu>
-References: <002701c4331c$092a3b40$76f6ae80@Turandot> <Pine.GSO.4.58.0405061141290.12096@waterleaf.sonytel.be>
+	Thu, 6 May 2004 12:30:13 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:60548 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261206AbUEFQ3v (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 12:29:51 -0400
+Message-Id: <200405061629.i46GTm2x018759@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: arjanv@redhat.com
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK) 
+In-Reply-To: Your message of "Thu, 06 May 2004 17:40:33 +0200."
+             <1083858033.3844.6.camel@laptop.fenrus.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040505013135.7689e38d.akpm@osdl.org> <200405051312.30626.dominik.karall@gmx.net> <200405051822.i45IM2uT018573@turing-police.cc.vt.edu> <20040505215136.GA8070@wohnheim.fh-wedel.de> <200405061518.i46FIAY2016476@turing-police.cc.vt.edu>
+            <1083858033.3844.6.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.58.0405061141290.12096@waterleaf.sonytel.be>
-User-Agent: Mutt/1.3.28i
+Content-Type: multipart/signed; boundary="==_Exmh_1015874428P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 06 May 2004 12:29:48 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 06, 2004 at 11:43:45AM +0200, Geert Uytterhoeven wrote:
-> On Wed, 5 May 2004, Zhenmin Li wrote:
-> > 8. /arch/m68k/mac/iop.c, Line 164:
-> 
-> Should be line 264?
+--==_Exmh_1015874428P
+Content-Type: text/plain; charset=us-ascii
 
-Perhaps they cut out the comments before counting lines? There are
-around 100 lines of comments at the top explaining the whole mess.
+On Thu, 06 May 2004 17:40:33 +0200, Arjan van de Ven said:
+> Ok I don't want to start a flamewar but... Do we want to hold linux back
+> until all binary only module vendors have caught up ??
 
-In any case, line 264 sounds right. It's shortly after
+No.. I merely suggested that coordinating with as few as possibly one vendor to
+clean their module up might minimize the pain considerably.  NVidia is aware of
+the issue, and rumor has it that the 6xxx series of Linux drivers are targeted
+for the end of May and will have a fix for the 4K stack (which is an issue for
+the Fedora Core 2 release already) since they need to push out a revision to
+support the 6800 series cards anyhow....
 
-if(macintosh_config->adb_type == MAC_ADB_IOP) {
 
-> > iop_base[IOP_NUM_SCC]->status_ctrl = 0;
-> >
-> > Maybe change to:
-> > iop_base[IOP_NUM_ISM]->status_ctrl = 0;
-> 
-> Mac guys, is this correct?
 
-Actually, I think it is. It looks like this is a bug that crept in
-during the last IOP rewrite (back in 2.2). It's not the same line
-number in 2.2 and 2.4, but there is a similar situation. I'll see
-if I can find some time to get my Mac IIfx running again and try
-out a fix. I did get a 2.6 kernel running on it once before.
 
-And as a note to the person who reported this, please include at
-least a line or two of context around the change. If you use
-diff -u, that's even better.
+--==_Exmh_1015874428P
+Content-Type: application/pgp-signature
 
-	Brad Boyer
-	flar@allandria.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFAmmf8cC3lWbTT17ARAi6HAKDbJDv1ge1iwQyDnW/3I5MOkw0a6ACg2WWf
+J+e5M8mlz+i5qOuq3egCW+k=
+=HT+F
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1015874428P--

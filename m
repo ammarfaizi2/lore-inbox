@@ -1,88 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290211AbSAXABy>; Wed, 23 Jan 2002 19:01:54 -0500
+	id <S290224AbSAXATI>; Wed, 23 Jan 2002 19:19:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290220AbSAXABr>; Wed, 23 Jan 2002 19:01:47 -0500
-Received: from sombre.2ka.mipt.ru ([194.85.82.77]:60571 "EHLO
-	sombre.2ka.mipt.ru") by vger.kernel.org with ESMTP
-	id <S290211AbSAXABh>; Wed, 23 Jan 2002 19:01:37 -0500
-Date: Thu, 24 Jan 2002 03:01:06 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18-pre7: compile error
-Message-Id: <20020124030106.2ac290dd.johnpol@2ka.mipt.ru>
-In-Reply-To: <200201232346.AAA12999@webserver.ithnet.com>
-In-Reply-To: <Pine.LNX.4.21.0201231953410.4134-100000@freak.distro.conectiva>
-	<200201232346.AAA12999@webserver.ithnet.com>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S290225AbSAXAS6>; Wed, 23 Jan 2002 19:18:58 -0500
+Received: from duteinh.et.tudelft.nl ([130.161.42.1]:60933 "EHLO
+	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S290224AbSAXASt>; Wed, 23 Jan 2002 19:18:49 -0500
+Date: Thu, 24 Jan 2002 01:18:33 +0100
+From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+To: Marko Rauhamaa <marko@pacujo.nu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IRQ routing conflict
+Message-ID: <20020124001831.GO29388@arthur.ubicom.tudelft.nl>
+In-Reply-To: <m3hepd1ggp.fsf@lumo.pacujo.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3hepd1ggp.fsf@lumo.pacujo.nu>
+User-Agent: Mutt/1.3.25i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Jan 2002 00:46:45 +0100
-Stephan von Krawczynski <skraw@ithnet.com> wrote:
+On Wed, Jan 23, 2002 at 02:58:46AM -0800, Marko Rauhamaa wrote:
+> A google search revealed
+> (http://www.cs.helsinki.fi/linux/linux-kernel/2001-44/1775.html)
+> that you have recently had similar trouble as I have with PCI
+> interrupts. Have you found a resolution to the trouble?
+> 
+> My new laptop is mostly working, but I can't get my sound card to
+> produce a sound. I'm suspecting that the sound driver is not receiving
+> interrupts. I can hear the clicking when the driver is loaded -- and I
+> have used aumix to set the volume. Both ALSA and OSS (commercial) fail
+> the same way.
 
-> "I am sorry, Dave. I'm afraid I can't do that":                       
-
-> ipfwadm_core.o ipfwadm_core.c                                         
-> ipfwadm_core.c: In function `free_fw_chain':                          
-> ipfwadm_core.c:691: called object is not a function                   
-> ipfwadm_core.c: In function `insert_in_chain':                        
-> ipfwadm_core.c:735: called object is not a function                   
-> ipfwadm_core.c: In function `append_to_chain':                        
-> ipfwadm_core.c:786: called object is not a function                   
-> ipfwadm_core.c: In function `del_from_chain':                         
-> ipfwadm_core.c:861: called object is not a function                   
-
-I hope this patch will help you:
-
---- ./net/ipv4/netfilter/ipfwadm_core.c  Thu Jan 24 02:57:54 2002
-+++ ./net/ipv4/netfilter/ipfwadm_core.c~ Thu Jan 24 02:58:01 2002
-@@ -688,7 +688,7 @@
-                ftmp = *chainptr;
-                *chainptr = ftmp->fw_next;
-                kfree(ftmp);
--               MOD_DEC_USE_COUNT();
-+               MOD_DEC_USE_COUNT;
-        }
-        restore_flags(flags);
- }
-@@ -732,7 +732,7 @@
-        ftmp->fw_next = *chainptr;
-                *chainptr=ftmp;
-        restore_flags(flags);
--       MOD_INC_USE_COUNT();
-+       MOD_INC_USE_COUNT;
-        return(0);
- }
- 
-@@ -783,7 +783,7 @@
-        else
-                *chainptr=ftmp;
-        restore_flags(flags);
--       MOD_INC_USE_COUNT();
-+       MOD_INC_USE_COUNT;
-        return(0);
- }
- 
-@@ -858,7 +858,7 @@
-        }
-        restore_flags(flags);
-        if (was_found) {
--               MOD_DEC_USE_COUNT();
-+               MOD_DEC_USE_COUNT;
-                return 0;
-        } else
-                return(EINVAL);
+When using ALSA, be sure to *unmute* the channels with alsamixer (aumix
+won't do).
 
 
+Erik
 
-> Regards,                                                              
-> Stephan                                                               
-
-	Evgeniy Polyakov ( s0mbre ).
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
+of Information Technology and Systems, Delft University of Technology,
+PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
+Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277509AbRKVLr3>; Thu, 22 Nov 2001 06:47:29 -0500
+	id <S277514AbRKVLrk>; Thu, 22 Nov 2001 06:47:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277532AbRKVLrT>; Thu, 22 Nov 2001 06:47:19 -0500
-Received: from ns0.dhm-systems.de ([195.126.154.163]:18696 "EHLO
-	ns0.dhm-systems.de") by vger.kernel.org with ESMTP
-	id <S277509AbRKVLrP>; Thu, 22 Nov 2001 06:47:15 -0500
-Message-ID: <3BFCE5BB.AD59B011@web-systems.net>
-Date: Thu, 22 Nov 2001 12:47:07 +0100
-From: Heinz-Ado Arnolds <Ado.Arnolds@dhm-systems.de>
-Reply-To: Ado.Arnolds@dhm-systems.de
-Organization: DHM GmbH & Co. KG
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: de, en, fr, ru
-MIME-Version: 1.0
-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: fs/exec.c and binfmt-xxx in 2.4.14
-In-Reply-To: <3BFBDD32.434AB47B@web-systems.net> <20011121211433.B1424@devcon.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S277532AbRKVLr3>; Thu, 22 Nov 2001 06:47:29 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:43280 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S277514AbRKVLrR>; Thu, 22 Nov 2001 06:47:17 -0500
+Message-Id: <200111221146.fAMBk8XF006908@pincoya.inf.utfsm.cl>
+To: Stevie O <stevie@qrpff.net>
+cc: Vincent Sweeney <v.sweeney@dexterus.com>,
+        vda <vda@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Bad #define, nonportable C, missing {} 
+In-Reply-To: Message from Stevie O <stevie@qrpff.net> 
+   of "Wed, 21 Nov 2001 23:24:02 CDT." <5.1.0.14.2.20011121232051.01dab468@whisper.qrpff.net> 
+Date: Thu, 22 Nov 2001 08:46:08 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Ferber wrote:
-> 
-> On Wed, Nov 21, 2001 at 05:58:26PM +0100, Heinz-Ado Arnolds wrote:
+Stevie O <stevie@qrpff.net> said:
+> At 12:35 PM 11/21/2001 +0000, Vincent Sweeney wrote:
+> > > Bad code style. Bad name (sounds like 'module inc').
+> > > I can't even tell from this define what the hell it is trying to do:
+> > > x++ will return unchanged x, then we obtain (x mod y),
+> > > then we store it into x... and why x++ then??!
+> > > Alan, seems like you can help here...
 > >
-> > When i now try to start an older binary in a.out format, which has a
-> > magic number of 0x010b0064, it is translated with the 'new' code to a
-> > request for "binfmt-0064" instead of "binfmt-267" as expected and
-> > properly handled by modprobe.
+> >Go read up on C operator precedence. Unary ++ comes before %, so if we
+> >rewrite the #define to make it more "readable" it would be #define
+> >MODINC(x,y) (x = (x+1) % y)
 > 
-> Then add
-> 
-> alias binfmt-0064 binfmt_aout
-> 
-> to /etc/modules.conf. Simple, isn't it?
+> But x++ is postincrement though. That means the value of 'x' is inserted, 
+> and after the expression is evaluated, x is incremented. Right?
 
-That's a nice idea but I wouldn't rely on the fact that the third
-and the fourth byte of a file are sufficient to identify the type.
-If you look at the magic numbers in /etc/magic, you'll find:
+Nope. x++ increments x sometime (not defined when) after taking the value. 
 
-  0x00640107      Linux/i386 impure executable (OMAGIC)
-  0x00640108      Linux/i386 pure executable (NMAGIC)
-  0x0064010b      Linux/i386 demand-paged executable (ZMAGIC)
-  0x006400cc      Linux/i386 demand-paged executable (QMAGIC)
-  =0514           80386 COFF executable
+   x = x++ % y
 
-It's standard to count on the first (and eventually following) bytes.
+is wrong: There is just one sequence point at the end of the expression,
+and x is modified twice in between (++ and =). If this gives the same as:
 
-And if you look further on in /etc/magic, you'll see that there are
-other file types having 0x0064 as 3rd and 4th byte.
+   x = (x + 1) % y
 
-I think it would not be a great deal to revert the changes in fs/exec.c
-
-Thanks for your attention
-
-Ado
-
+gcc is smoking potent stuff... but it could legally do anything at all.
 -- 
-------------------------------------------------------------------------
-  Heinz-Ado Arnolds                        Ado.Arnolds@web-systems.net
-  Websystems GmbH                              +49 2234 1840-0 (voice)
-  Max-Planck-Strasse 2, 50858 Koeln, Germany   +49 2234 1840-40  (fax)
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

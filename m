@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268575AbUHLVqo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268839AbUHLWDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268575AbUHLVqo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 17:46:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268576AbUHLVmm
+	id S268839AbUHLWDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 18:03:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268840AbUHLWCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 17:42:42 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:982 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268804AbUHLVjl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 17:39:41 -0400
-Subject: Re: Any news on a higher performance sata_sil SIL_QUIRK_MOD15WRITE
-	workaround?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Clem Taylor <clemtaylor@comcast.net>,
+	Thu, 12 Aug 2004 18:02:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8932 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268835AbUHLWB7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 18:01:59 -0400
+Date: Thu, 12 Aug 2004 23:01:55 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Greg KH <greg@kroah.com>
+Cc: Miles Bader <miles@gnu.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040812210345.GA9558@havoc.gtf.org>
-References: <411AFD2C.5060701@comcast.net> <411B118B.4040802@pobox.com>
-	 <1092312030.21994.25.camel@localhost.localdomain>
-	 <411B89EA.3040400@pobox.com>
-	 <1092340739.22362.16.camel@localhost.localdomain>
-	 <20040812210345.GA9558@havoc.gtf.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092343024.22513.69.camel@localhost.localdomain>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+Message-ID: <20040812220155.GG12936@parcelfarce.linux.theplanet.co.uk>
+References: <20040806211413.77833.qmail@web14926.mail.yahoo.com> <200408111004.02995.jbarnes@engr.sgi.com> <20040811172800.GB14979@kroah.com> <200408111102.10689.jbarnes@engr.sgi.com> <20040811181236.GD14979@kroah.com> <buo1xidw0rs.fsf@mctpc71.ucom.lsi.nec.co.jp> <20040812043818.GB5622@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 12 Aug 2004 21:37:04 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040812043818.GB5622@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-08-12 at 22:03, Jeff Garzik wrote:
-> '15 or less' limit works, but 'sectors % 15 == 1' still produces odd
-> Data FIS sizes that confuse Seagate drives.
-> 
-> I thought you were saying that 'sectors % 15 == 1' was OK.
+On Wed, Aug 11, 2004 at 09:38:18PM -0700, Greg KH wrote:
+> That's what the copyright lawyers at a certian three letter company
+> said is needed, and for some reason I tend to believe what they say :)
 
-Only the subset of use I tried in siimage. Thats the 15 or less limit on
-the specific list of seagate drives affected. 
+On the other hand, you could believe what the US government tells you ...
+http://www.copyright.gov/circs/circ1.html#noc
+
+In particular, the (c) has no relevance; the important bit is the word
+"Copyright":
+
+   1. The symbol © (the letter C in a circle), or the word "Copyright,"
+   or the abbreviation "Copr."; and
+
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

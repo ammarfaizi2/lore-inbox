@@ -1,59 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130356AbRBQBfl>; Fri, 16 Feb 2001 20:35:41 -0500
+	id <S131473AbRBQBlL>; Fri, 16 Feb 2001 20:41:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131473AbRBQBfb>; Fri, 16 Feb 2001 20:35:31 -0500
-Received: from ferret.lmh.ox.ac.uk ([163.1.18.131]:19979 "HELO
-	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
-	id <S130356AbRBQBfS>; Fri, 16 Feb 2001 20:35:18 -0500
-Date: Sat, 17 Feb 2001 01:35:15 +0000 (GMT)
-From: Chris Evans <chris@scary.beasts.org>
-To: <linux-kernel@vger.kernel.org>
-cc: <kuznet@ms2.inr.ac.ru>, <davem@redhat.com>
-Subject: SO_SNDTIMEO: 2.4 kernel bugs
-Message-ID: <Pine.LNX.4.30.0102170126130.21158-100000@ferret.lmh.ox.ac.uk>
+	id <S131498AbRBQBlB>; Fri, 16 Feb 2001 20:41:01 -0500
+Received: from mail2.rdc2.bc.home.com ([24.2.10.85]:24977 "EHLO
+	mail2.rdc2.bc.home.com") by vger.kernel.org with ESMTP
+	id <S131473AbRBQBkt>; Fri, 16 Feb 2001 20:40:49 -0500
+Date: Fri, 16 Feb 2001 17:40:04 -0800
+From: Jack Bowling <jbinpg@home.com>
+To: linux-kernel@vger.kernel.org
+Subject: too long mac address for --mac-source netfilter option
+Reply-To: jbwan@home.com
+X-Mailer: Spruce 0.7.5 for X11 w/smtpio 0.9.0
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010217014042.CDAY585.mail2.rdc2.bc.home.com@nonesuch.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am trying to use the --mac-source option in the netfilter code to better refine access to my linux box. However, I have run up against something. The router through which my private subnet work box passes sends a 14-group "invalid" mac address, presumably as an attempt to conceal the real hextile mac address. However, the code for the --mac-source netfilter option is looking for a valid hextile mac address and complains loudly as such (numerals converted to x's): 
 
-Hi,
+iptables v1.1.1: Bad mac address `xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx'
 
-I was glad to see Linux gain SO_SNDTIMEO in kernel 2.4. It is a very use
-feature which can avoid complexity and pain in userspace programs.
+to the respective iptable line:
 
-Unfortunately, it seems to be very buggy. Here are two buggy scenarios.
+$IPT -A INPUT -p tcp -s xxx.xxx.xxx.xxx -d $NET -m mac --mac-source xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx:xx --dport 5900:5901 -j ACCEPT 
 
-1)
-Create a socketpair(), PF_UNIX, SOCK_STREAM.
-Set a 5 second SO_SNDTIMEO on the socket.
-write() 100k down the socket in one write(), i.e. enough to cause the
-write to have to block.
---> BUG!!! The call blocks indefinitely instead of returning after 5
-seconds
+The idea here is to allow VNC access to my home box with the access filtered by both IP and mac address.
 
-(Note that the same test but with SO_RCVTIMEO and a read() works as
-expected - I get EAGAIN after 5 seconds).
+Is there a resolution to this other than a rewrite and recompile of the relevant sections of the iptable code? Or am I stuck? I know this option is tagged by Rusty as experimental still so I would assume that the code is open for feedback ;) The question could be rephrased as: is there any chance of allowing "invalid" mac addresses to be recognized by the --mac-source option of the netfilter code? Running Redhat v7/kernel 2.4.1-ac15.
+
+Jack Bowling
+mailto: jbinpg@home.com
 
 
-2)
-Create a localhost listening socket - AF_INET, SOCK_STREAM.
-Connect to the listening port
-Set a 5 second SO_SNDTIMEO on the socket.
-write() 1Mb down the socket in one write(), i.e. enough to cause it to
-have to block
--> The write() will return after 5 seconds with a partial write count.
-GOOD!
-Repeat the write() - send another 1Mb.
---> BUG!! The call blocks indefinitely instead of returning with EAGAIN
-after 5s.
 
 
-I hope this is detailled enough. I'm trying to gain access to a FreeBSD
-box to compare results..
-
-Cheers
-Chris
 
 

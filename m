@@ -1,92 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271982AbRIMTbp>; Thu, 13 Sep 2001 15:31:45 -0400
+	id <S271981AbRIMTjR>; Thu, 13 Sep 2001 15:39:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271989AbRIMTbf>; Thu, 13 Sep 2001 15:31:35 -0400
-Received: from [216.219.239.237] ([216.219.239.237]:17160 "EHLO
-	www.sensoria.com") by vger.kernel.org with ESMTP id <S271982AbRIMTb3>;
-	Thu, 13 Sep 2001 15:31:29 -0400
-From: "Bao C. Ha" <baoha@sensoria.com>
-To: <twoller@crystal.cirrus.com>
-Cc: <audio@crystal.cirrus.com>, <linux-kernel@vger.kernel.org>
-Subject: Problems with Crystal cs4281 driver in 2.4.8
-Date: Thu, 13 Sep 2001 12:29:28 -0700
-Message-ID: <002401c13c8a$68864d30$456c020a@SENSORIA>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+	id <S271998AbRIMTjG>; Thu, 13 Sep 2001 15:39:06 -0400
+Received: from mail.cb.monarch.net ([24.244.11.6]:53777 "EHLO
+	baca.cb.monarch.net") by vger.kernel.org with ESMTP
+	id <S271981AbRIMTiv>; Thu, 13 Sep 2001 15:38:51 -0400
+Date: Thu, 13 Sep 2001 13:37:26 -0600
+From: "Peter J. Braam" <braam@clusterfilesystem.com>
+To: intermezzo-announce@lists.sourceforge.net, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [ANNOUNCEMENT] InterMezzo 1.0.5.2
+Message-ID: <20010913133726.J1501@lustre.dyn.ca.clusterfilesystem.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have just released InterMezzo 1.0.5.2. This is a further test
+version ramping up for a stable Linux 2.4 release in 1.0.6.  We now
+believe we have fixed most problems in InterMezzo related to Linux
+2.4.  This code is released under the GPL.
 
-We are running kernel 2.4.8 on the sh4 platform.
-We are encoutering a problem with the cs4281
-driver as described in the following:
+WHAT IS INTERMEZZO?
 
-The device file is opened normally.  Everything
-is working fine.  Then, when it is closed, the
-application hangs.  A ctrl-C is required to get
-out of it.  Upon further examining, we find that
-the close() call is not returning.  It is stuck
-at the drain_adc().
+InterMezzo is a high availability file system which replicates
+directory trees among systems.  It provides disconnected operation,
+journal recovery and kernel level write back caching.  It can use the
+rsync algorithm for synchronization.  It uses protocols somewhat
+similar to Coda's. 
 
-In the cs4281_release(),
-...
-        if (file->f_mode & FMODE_READ) {
------->         drain_adc(s, file->f_flags & O_NONBLOCK);
-                down(&s->open_sem_adc);
-                stop_adc(s);
-...
+This release includes a kernel rpm (2.4.9-ac5). The 2.4 -ac series
+includes intermezzo and this kernel includes a minor extra intermezzo
+patch to pure -ac. 
 
-And in the drain_adc(),
-...
-        for (;;) {
-                set_current_state(TASK_INTERRUPTIBLE);
-                spin_lock_irqsave(&s->lock, flags);
------>          count = s->dma_adc.count;
-                CS_DBGOUT(CS_FUNCTION, 2,
-                          printk(KERN_INFO "cs4281: drain_adc() %d\n",
-count));
-                spin_unlock_irqrestore(&s->lock, flags);
-...
+WHAT'S NEW IN THIS RELEASE? 
 
-It seems that since s->dma_adc.count=8192, we
-are going into an infinite loop there, in
-drain_adc(),
+- it works with ordered data, provided you use the latest ext3
+  (Stephen Tweedie)
+- replicates ACL's and other extended attributes (requires kernel with
+  EA, not packaged) (Shirish Phatak)
+- better handling of InterMezzo specific metadata (Phil Schwan and me) 
 
-The work-around that we are currently looking
-at is setting the flag to O_NONBLOCKING just
-prior to closing the device to take advantages
-of this.
-...
-                if (nonblock) {
-                        remove_wait_queue(&s->dma_adc.wait, &wait);
-                        current->state = TASK_RUNNING;
-                        return -EBUSY;
-                }
-...
+WHAT'S NEXT? 
 
-Unfortunately, it causes problems later
-since it is in non-blocking mode.  Do a
-fcntl(fd, F_SETFL, 0);
-did not reset to the normal/blocking mode.
+- data on demand
+- better handling of NFS servers
+- DAFS style network packets
+- better handling of (false) conflicts for laptop users
 
-What would be the proper way to handle this
-situation?  Since I am not familiar with the
-driver, I don't know if removing the
-drain_adc() from cs4281_release() would cause
-problems later or not.  I am also not sure
-this behavior is specific to the sh4-linux
-port or not.
+DISCLAIMER:
 
-Appreciate any suggestions/comments.
+Read the file COPYING in the distribution to see the conditions under
+which this software is made available.  Please use this version at
+your own risk and exercise care (back up your systems etc).  [With the
+2.2.19 kernels fewer problems are known, but a 2.2.19 kernel RPM is
+not included.]
 
-Regards.
-Bao
+WHERE TO GET IT:
 
+You can get sources and rpms from 
+
+ftp://ftp.inter-mezzo.org/pub/intermezzo/current
+
+Documentation is included and available at:
+http://www.inter-mezzo.org/
+
+Or get code from the intermezzo project on sourceforge.  Check out the
+CVS tag r1_0_5_2.
+
+KNOWN BUGS:
+
+HELP NEEDED:
+
+We could use some help: frequent packaging (there are good packaging
+instructions now).  Using, bug reporting and/or fixing is most welcome
+too.
+
+Thanks for your interest in InterMezzo, let us know about problems.
+
+
+- Peter J. Braam -

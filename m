@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266933AbSIROHa>; Wed, 18 Sep 2002 10:07:30 -0400
+	id <S266776AbSIROEy>; Wed, 18 Sep 2002 10:04:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266952AbSIROHa>; Wed, 18 Sep 2002 10:07:30 -0400
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:33417 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
-	id <S266933AbSIROH3>; Wed, 18 Sep 2002 10:07:29 -0400
-Subject: Re: [PATCH] BUG(): sched.c: Line 944
-From: Steven Cole <elenstev@mesatop.com>
-To: Robert Love <rml@tech9.net>
-Cc: Ingo Molnar <mingo@elte.hu>, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1032324294.4588.758.camel@phantasy>
-References: <Pine.LNX.4.44.0209172055550.13829-100000@localhost.localdomain> 
-	<1032290611.4592.206.camel@phantasy> 
-	<1032292468.11907.44.camel@spc9.esa.lanl.gov> 
-	<1032293199.4588.235.camel@phantasy> 
-	<1032296284.12257.66.camel@spc9.esa.lanl.gov> 
-	<1032324294.4588.758.camel@phantasy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 18 Sep 2002 08:08:42 -0600
-Message-Id: <1032358122.11913.94.camel@spc9.esa.lanl.gov>
+	id <S266778AbSIROEy>; Wed, 18 Sep 2002 10:04:54 -0400
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:56569 "EHLO
+	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S266776AbSIROEy>; Wed, 18 Sep 2002 10:04:54 -0400
+Date: Wed, 18 Sep 2002 10:13:24 -0400
+To: linux-kernel@vger.kernel.org
+Cc: akpm@digeo.com
+Subject: Hint benchmark reaches memory size limit on 4gb box
+Message-ID: <20020918141324.GA25534@rushmore>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-17 at 22:44, Robert Love wrote:
-> On Tue, 2002-09-17 at 16:58, Steven Cole wrote:
-> 
-> > Sorry, it hung so badly that it didn't respond to that.
-> 
-> I fixed the hang.  If you notice the problem, please do not laugh.
-> 
-> The attached patch, against 2.5.36, should work fine...
-> 
-> 	Robert Love
+3.75 gb ram
+4 gb swap on 2 disks
+quad xeon
 
-Thanks.  That works fine here.  Now that I can run with PREEMPT again,
-I'll leave it enabled.  It does seem to improve interactive feel under
-heavy load, but without an easily identifiable metric for that you know
-what Rik would say.
+Running the FLOAT benchmark from
+ftp://ftp.scl.ameslab.gov/pub/HINT/hint.src.tar.gz
+2.5.34-mm1 gave:
 
-Steven
+This run was memory limited at 31438643 subintervals -> -1894198156 bytes
+
+The last I noticed, the process was around 2.6 GB.
+The process grows over time as it needs memory.
+It may have hit 3GB.
+
+The version of hint is from the tarball's
+source/serial/unix directory.
+
+The goal is to combine several benchmarks for
+a more rounded workload.  
+
+I could run 2 copies of Hint if this is a 3gb
+userspace limit issue.
+
+parts of the combined/concurrent benchmark:
+1) hint (possibly FLOAT & LONGLONG together)
+2) netperf -t TCP_RR	# request/response
+3) chat	# 2 rooms with semi-long lived clients
+4) postmark	# 2 directories + lots of files
+5) configure && make && make check GNU ed
+
+Any suggestions?
+
+-- 
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
 

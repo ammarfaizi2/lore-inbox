@@ -1,93 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283001AbSAASzp>; Tue, 1 Jan 2002 13:55:45 -0500
+	id <S283012AbSAAS4P>; Tue, 1 Jan 2002 13:56:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283016AbSAASz1>; Tue, 1 Jan 2002 13:55:27 -0500
-Received: from paloma13.e0k.nbg-hannover.de ([62.181.130.13]:8395 "HELO
-	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S283012AbSAASzU>; Tue, 1 Jan 2002 13:55:20 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: george anzinger <george@mvista.com>
-Subject: Re: [RFC] Scheduler issue 1, RT tasks ...
-Date: Tue, 1 Jan 2002 19:55:14 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrew Morton <akpm@zip.com.au>, Andrea Arcangeli <andrea@suse.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Robert Love <rml@tech9.net>, Oleg Drokin <green@namesys.com>,
-        ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <200112291907.LAA25639@messenger.mvista.com> <20011230195500Z284765-18284+9610@vger.kernel.org> <3C306E9F.24BED14F@mvista.com>
-In-Reply-To: <3C306E9F.24BED14F@mvista.com>
+	id <S283016AbSAASz4>; Tue, 1 Jan 2002 13:55:56 -0500
+Received: from smtp-out-1.wanadoo.fr ([193.252.19.188]:38598 "EHLO
+	mel-rto1.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S283012AbSAASzp>; Tue, 1 Jan 2002 13:55:45 -0500
+Message-ID: <3C3205AF.1080409@wanadoo.fr>
+Date: Tue, 01 Jan 2002 19:53:35 +0100
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20020101185523Z283012-18284+10404@vger.kernel.org>
+To: Wakko Warner <wakko@animx.eu.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.16 with es1370 pci
+In-Reply-To: <20011231065544.A28966@animx.eu.org> <3C3065CE.1070608@wanadoo.fr> <20011231122440.B29342@animx.eu.org> <3C316C47.4080406@wanadoo.fr> <20020101104611.A30843@animx.eu.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 31. December 2001 14:56, george anzinger wrote:
-> Dieter Nützel wrote:
-> > On Sunday, 29. December 2001 21:00, you wrote:
-> > >Dieter Nützel wrote:
-> > > > I ask because my MP3/Ogg-Vorbis hiccup during dbench isn't solved
-> > > > anyway. Running 2.4.17 + preempt + lock-break + 10_vm-21 (AA).
-> > > > Some wisdom?
-> > >
-> > > Please test this elevator patch.  I'll be putting it out more formally
-> > > in a day or two.  Much more testing is needed yet, but for me, the
-> > > time to read a 16 megabyte file whilst running dbench 160 falls from
-> > > three minutes thirty seconds to seven seconds.  (This is a VM thing,
-> > > not an elevator thing).
-> >
-> > Andrew or anybody else,
-> >
-> > can you please send me a copy directly?
-> > The version I've extracted from the list is some what broken.
-> > I am not on LKML 'cause it is to much traffic for such a poor little boy
-> > like me...;-)
->
-> Andrew,
->
-> I think the problem is that the mailer(s) insert new lines.  Is this
-> right Dieter?  It is certainly a problem for me.
+Wakko Warner wrote:
 
-Yes.
+> Nope, they don't work well IMO and since this card has 2 DSPs
 
-> Best to mail as an attachment.
 
-Yes.
+I assume one dsp is for es1370 and one is for the sb-16
 
-But I applied it by hand and got the best results I ever had!
-GREAT work, Andrew!
-This should be go in, soon.
+> I know,  I only pasted the what was for the sound card, it is working
+> properly.  mpg123 -a /dev/dsp2 works w/o any problem what so ever.
 
-2.4.17
-preempt-kernel-rml-2.4.17-1.patch
-lock-break-rml-2.4.17-2.patch
-00_nanosleep-5
-10_vm-21					(Andrea)
-bootmem-2.4.17-pre6
-elevator-fix					(Andrew)
-O-inode-attrs.patch				(ReiserFS)
-linux-2.4.17rc2-KLMN+exp_trunc+3fixes.patch	(ReiserFS)
 
-Happy New Year and best wishes!
+Yes, you can use one sound card or the other. You may hear a difference.
 
--Dieter
+> here's mpg123 -4:
 
-BTW Below are my first results. More to come (analysis of latency).
+<snip>
+> open("/sound/mp3/Aerosmith/Ain\'t_That_A_Bitch.mp3", O_RDONLY) = 3
+<snip>
+> open("/dev/dsp", O_WRONLY)              = 4
+> ioctl(4, SNDCTL_DSP_GETBLKSIZE, 0x806ae1c) = 0
+> ioctl(4, SNDCTL_DSP_RESET, 0)           = 0
+> ioctl(4, SOUND_PCM_READ_BITS, 0xbffff8a0) = 0
+> ioctl(4, SNDCTL_DSP_STEREO, 0xbffff89c) = 0
+> ioctl(4, SOUND_PCM_READ_RATE, 0xbffff898) = 0
+> write(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 16384) = 16384
+> write(4, "\374\377\3\0\373\377\4\0\367\377\1\0\373\377\7\0\377\377"..., 16384) = 16384
+> write(4, "\344\377\333\377\5\0\316\377\362\377\234\377\f\0\212\377"..., 16384) = 16384
+> write(4, "P\0\202\0\367\377\263\0\353\377\274\0\274\377\353\0\235"..., 16384) = 16384
+> write(4, "\23\377S\0I\377U\0\200\377\215\0Z\377\222\377\330\377\16"..., 16384) = 16384
+> write(4, "@\377\376\375\344\376\355\377\263\3769\0%\377Y\376\255"..., 16384) = 16384
+> write(4, "\0\0\274\1:\377\365\1\17\0\301\1\0\0\332\0\360\377%\377"..., 16384) = 16384
+> write(4, "\r\375_\372{\377\356\373W\374\230\370\'\1\220\0\26\371"..., 16384) = 16384
+> write(4, "k\5j\5\337\1E\370<\10\346\5{\377;\3776\4\374\4F\376\24"..., 16384
+>  <unfinished ...>
 
-2.4.17-preempt + 10_vm-21 + elevator
-dbench/dbench> time ./dbench 32
-32 clients started
-................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................+.................................................................+...................+.......+....................+.........................................................................................................+.........+....................+................+..................+.....+...................................................................................................................................................................................................................................................................+..............++...........+.+.+..++++.+++.+.+++.++++********************************
-Throughput 49.7707 MB/sec (NB=62.2133 MB/sec  497.707 MBit/sec)
-13.800u 51.810s 1:25.89 76.3%   0+0k 0+0io 939pf+0w
 
-2.4.17-preempt + 10_vm-21 + elevator + MP3 playback
-dbench/dbench> time ./dbench 32
-32 clients started
-..............................................................................................................................................................................................................................................................................................................................................+.................................++....+.+.+.......+.............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................+......................++.....+..+++.++..++.++++.+....++++.+++++********************************
-Throughput 48.6323 MB/sec (NB=60.7904 MB/sec  486.323 MBit/sec)
-14.690u 52.920s 1:27.87 76.9%   0+0k 0+0io 939pf+0w
+The same as the previous one: write to dsp but never read even the 
+smallest sample of the sound file possibly by lack of interrupt.
+
+
+>            CPU0       CPU1       
+>   0:   68416693   68502478    IO-APIC-edge  timer
+>   1:     400959     396781    IO-APIC-edge  keyboard
+>   2:          0          0          XT-PIC  cascade
+>   3:  184224466  184748725    IO-APIC-edge  serial
+>   4:     803073     799856    IO-APIC-edge  serial
+>   5:     666537     667971   IO-APIC-level  aic7xxx
+>   7:        126        106    IO-APIC-edge  soundblaster
+>  10:   10271518   10263624   IO-APIC-level  eth0
+>  11:     236351     237359   IO-APIC-level  aic7xxx
+>  15:    4438445    4431067   IO-APIC-level  es1370
+> NMI:          0          0 
+> LOC:  136921268  136921264 
+> ERR:          0
+> MIS:          2
+> 
+> After attempting to play an mp3
+> 
+>            CPU0       CPU1       
+>   0:   68420347   68505506    IO-APIC-edge  timer
+>   1:     401392     397000    IO-APIC-edge  keyboard
+>   2:          0          0          XT-PIC  cascade
+>   3:  184242407  184763513    IO-APIC-edge  serial
+>   4:     803633     800393    IO-APIC-edge  serial
+>   5:     666566     668012   IO-APIC-level  aic7xxx
+>   7:        126        106    IO-APIC-edge  soundblaster
+>  10:   10271726   10263824   IO-APIC-level  eth0
+>  11:     236351     237359   IO-APIC-level  aic7xxx
+>  15:    4438445    4431067   IO-APIC-level  es1370
+> NMI:          0          0 
+> LOC:  136927950  136927946 
+> ERR:          0
+> MIS:          2
+
+My es1370 is happy with IRQ 9 which is shared with usb-uhci. IRQ 15 is 
+for ide1 here.
+
+-- 
+------------------------------------------------
+  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------
+

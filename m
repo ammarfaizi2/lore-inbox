@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132901AbRDQWBj>; Tue, 17 Apr 2001 18:01:39 -0400
+	id <S132909AbRDQWFt>; Tue, 17 Apr 2001 18:05:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132904AbRDQWBb>; Tue, 17 Apr 2001 18:01:31 -0400
-Received: from central.caverock.net.nz ([210.55.207.1]:45839 "EHLO
-	central.caverock.net.nz") by vger.kernel.org with ESMTP
-	id <S132901AbRDQWAz>; Tue, 17 Apr 2001 18:00:55 -0400
-Message-ID: <3ADCBBA3.760C71CE@flying-brick.caverock.net.nz>
-Date: Wed, 18 Apr 2001 09:54:46 +1200
-From: viking <viking@flying-brick.caverock.net.nz>
-Organization: The Flying Brick Computer
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
+	id <S132908AbRDQWF3>; Tue, 17 Apr 2001 18:05:29 -0400
+Received: from [212.95.166.64] ([212.95.166.64]:22532 "EHLO u.domain.uli")
+	by vger.kernel.org with ESMTP id <S132907AbRDQWFW>;
+	Tue, 17 Apr 2001 18:05:22 -0400
+Date: Wed, 18 Apr 2001 01:05:21 +0000 (GMT)
+From: Julian Anastasov <ja@ssi.bg>
+To: Sampsa Ranta <sampsa@netsonic.fi>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ARP responses broken!
+Message-ID: <Pine.LNX.4.30.0104180023130.7698-100000@u.domain.uli>
 MIME-Version: 1.0
-To: James Simmons <jsimmons@linux-fbdev.org>
-CC: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
-Subject: Won't Power down (Was: More about 2.4.3 timer problems)
-In-Reply-To: <Pine.LNX.4.10.10104170922070.2330-100000@www.transvirtual.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons wrote:
 
-> >Thanks, that solved my problem.  Have added it to the patch...
-> >THe patch & 2.4.3 kernel seem to be working well, except that I can't get
-> >PowerOff to kick in - it stops dead there, where it used to power down.
+	Hello,
+
+Sampsa Ranta wrote:
+
+> 23:38:25.278848 > arp who-has 194.29.192.38 tell 194.29.192.10 (0:50:da:82:ae:9f)
+> 23:38:25.278988 < arp reply 194.29.192.38 is-at 0:1:2:dc:d2:64 (0:50:da:82:ae:9f)
+> 23:38:25.279009 < arp reply 194.29.192.38 is-at 0:1:2:dc:d2:6c (0:50:da:82:ae:9f)
 >
-> Is this the case when the patch is removed as well. When does this occur
-> exactly? After you load the module? Do you get any oops messages or does
-> it just hang.
+> The second one is the valid one, but both interfaces seem to answer to the
+> broadcasted packet with their own ARP addresses.
 
-<comedy>
-Module? What module?  I don't need no steenking module to power down.
-I jest pull de plug outta de wall!
-</comedy>
+	arp_filter is not broken, it is simply not for your setup.
+It depends what you want to achieve by defining two IP addresses in
+different interfaces. Considering the fact you have two addresses
+in one subnet you need the incoming traffic to come from the two
+interfaces. In this case you need "hidden". For the outgoing traffic:
+it is controlled only from the routing.
 
-It has happened with both straight kernel, and patched.
-Incidentally, Andrew, thanks for that patch. And thanks to
-James Simmons too, for that Makefile fix.
-I get (on a Mandrake 7.2+bits of 8 system) roughly:
+	While in your setup arp_filter and rp_filter will ARP answer
+from one card only, for the both addresses, hidden will answer from the
+both cards, "correctly" in your eyes. Use arp_filter for different
+nets only, i.e. when the ARP probes come from different nets in your
+routing universe. hidden does not depend on nets/subnets. But may
+be there are exceptions I'm missing and the other guys can correct me.
 
-Starting killall script [OK}
-Setting hardware clock to system time  [OK]
-Unmounting filesystems [OK]
-The system is halted.   <===== issued by rc  script
-Power Down.         <========= issued by printk
-
-... and it stops there... instead of turning the power off like it did under
-2.2.18 and earlier.
-No kernel oops message.  Also, SysRq-O doesn't work - it just puts SysRq: up
-on the screen.
-The other SysRq functions  I've tried work - (Kill), (Sync), (reBoot).
-Thanks for your continued monitoring.
+Regards
 
 --
- /|   _,.:*^*:.,   |\           Cheers from the Viking family,
-| |_/'  viking@ `\_| |            including Pippin, our cat
-|    flying-brick    | $FunnyMail  Bilbo   : Now far ahead the Road has gone,
- \_.caverock.net.nz_/     5.39    in LOTR  : Let others follow it who can!
-
-
+Julian Anastasov <ja@ssi.bg>
 

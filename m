@@ -1,57 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130599AbQK0RaL>; Mon, 27 Nov 2000 12:30:11 -0500
+        id <S132212AbQK0Rcl>; Mon, 27 Nov 2000 12:32:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132212AbQK0RaB>; Mon, 27 Nov 2000 12:30:01 -0500
-Received: from host156.207-175-42.redhat.com ([207.175.42.156]:36623 "EHLO
-        devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-        id <S130599AbQK0R3z>; Mon, 27 Nov 2000 12:29:55 -0500
-Date: Mon, 27 Nov 2000 11:59:42 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Jes Sorensen <jes@linuxcare.com>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] modutils 2.3.20 and beyond
-Message-ID: <20001127115942.B1514@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-In-Reply-To: <1604.975280988@kao2.melbourne.sgi.com> <d3ofz11hur.fsf@lxplus015.cern.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <d3ofz11hur.fsf@lxplus015.cern.ch>; from jes@linuxcare.com on Mon, Nov 27, 2000 at 05:48:28PM +0100
+        id <S132331AbQK0RcV>; Mon, 27 Nov 2000 12:32:21 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:1408 "EHLO
+        chaos.analogic.com") by vger.kernel.org with ESMTP
+        id <S132329AbQK0RcO>; Mon, 27 Nov 2000 12:32:14 -0500
+Date: Mon, 27 Nov 2000 12:01:35 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Andrew E. Mileski" <andrewm@netwinder.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Universal debug macros.
+In-Reply-To: <3A228DDE.61BEAFD8@netwinder.org>
+Message-ID: <Pine.LNX.3.95.1001127115313.153A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2000 at 05:48:28PM +0100, Jes Sorensen wrote:
-> >>>>> "Keith" == Keith Owens <kaos@ocs.com.au> writes:
-> 
-> Keith> On Sun, 26 Nov 2000 16:36:55 -0700, "Jeff V. Merkey"
-> Keith> <jmerkey@vger.timpanogas.org> wrote:
-> >> Keith,
-> >> 
-> >> Please consider the attached patch for inclusion in all future
-> >> versions of the modutils depmod program for compatiblity with
-> >> RedHat and RedHat derived Linux distributions.
-> 
-> Keith> I have a big problem with Redhat.  They make incompatible
-> Keith> changes to utilities, do not feed patches back to maintainers
-> Keith> then expect the rest of the world to follow their lead.  The -i
-> Keith> and -m flags to modutils are not the only example, I recently
-> Keith> found IA64 and Sparc patches they had added to modutils code
-> Keith> and not bothered to tell me.  Other distributors are much
-> Keith> better about sending me patches, Debian and SuSe in particular
-> Keith> do the right thing.
-> 
-> I don't remember where the ia64 modutils patches come from, there were
-> some floating around between the ia64 developers for a while. The
-> sparc patches I don't have a clue about where come from.
+On Mon, 27 Nov 2000, Andrew E. Mileski wrote:
 
-The sparc patches were not sent just because of lack of time on my part,
-Jeff Johnson wrote it so that modules compiled with sparc64 gcc 2.96
-(basically anything which generates OLO10 relocations) can be inserted and I
-wanted to review/test it first myself (and did not get to it early enough).
+> Elmer Joandi wrote:
+> > 
+> > Now if there would be simple _unified_ system for switching debug code
+> > on/off, it would be a real win. That  recompilation-capable enduser would
+> > not need much knowledge to go "General Setup" or newly created
+> > "Optimization" section and switch debugging off/on for _all_ network
+> > drivers or ide drivers for example.
+> 
+> Reminds me ... <linux/kernel.h> has a "#if DEBUG" statement that blows
+> up if the debug code does something like "#define DEBUG(X...) printk(X...)".
+> I came across this recently (think I was debugging PCI code ... not sure).
+> Changing it to "#ifdef DEBUG" avoids problems.
+> 
+> --
+> Andrew E. Mileski - Software Engineer
+> Rebel.com  http://www.rebel.com/
 
-	Jakub
+I find that the following works fine:
+
+#ifdef DEBUG
+#define DEB(f) f
+#else
+#define DEB(f)
+#endif
+
+code.....
+
+DEB(printk("Lots of stuff, %s, %d, %d, %d\n", string, int0, int1, int2));
+
+In this case, if DEBUG is defined, printk() with its variable-length
+parameter list is compiled.
+
+If not, nothing is compiled, everything inside DEB() is simply ignored.
+
+This means that the macros do not, themselves, have to handle variable-
+length parameter lists. The preprocessor only handles text as it was
+designed to do.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

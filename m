@@ -1,90 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265141AbTGCLSL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 07:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbTGCLSK
+	id S265063AbTGCLae (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 07:30:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbTGCLae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 07:18:10 -0400
-Received: from MailBox.iNES.RO ([80.86.96.21]:10423 "EHLO MailBox.iNES.RO")
-	by vger.kernel.org with ESMTP id S265141AbTGCLSF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 07:18:05 -0400
-Subject: Re: 2.5.74-mm1 (p4-clockmod does not compile) PATCH
-From: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-In-Reply-To: <20030703112026.GO26348@holomorphy.com>
-References: <20030703023714.55d13934.akpm@osdl.org>
-	 <1057229141.1479.16.camel@LNX.iNES.RO>
-	 <20030703110713.GN26348@holomorphy.com>
-	 <1057231068.1479.18.camel@LNX.iNES.RO>
-	 <20030703112026.GO26348@holomorphy.com>
-Content-Type: multipart/mixed; boundary="=-NHzOfSpeL42lAaTbX4aL"
-Organization: iNES Group SRL
-Message-Id: <1057231947.1479.23.camel@LNX.iNES.RO>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-3) 
-Date: 03 Jul 2003 14:32:27 +0300
-X-RAVMilter-Version: 8.4.1(snapshot 20020919) (MailBox.iNES.RO)
+	Thu, 3 Jul 2003 07:30:34 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:32135 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S265063AbTGCLad (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 07:30:33 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] O1int 0307021808 for interactivity
+Date: Thu, 3 Jul 2003 13:46:04 +0200
+User-Agent: KMail/1.5.2
+References: <200307021823.56904.kernel@kolivas.org>
+In-Reply-To: <200307021823.56904.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Cc: Andrew Morton <akpm@digeo.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200307031346.04354.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 02 July 2003 10:23, Con Kolivas wrote:
+> This latest patch I'm formally announcing has the base O1int changes so far
+> but includes new semantics for freshly started applications so they can
+> become interactive very rapidly even during heavy load. This addresses the
+> "slow to start new apps" evident in O1int so far.
+>
+> Please test this one and note given just how rapidly things can become
+> interactive it may have regressions in other settings.
 
---=-NHzOfSpeL42lAaTbX4aL
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Without this patch, audio skips horribly when I drag a large window.  With it, 
+audio is skipless during window dragging, so I like this patch, whatever it 
+does (maybe you'd like to do a victory lap and re-explain the theory?).  It's 
+not perfect: in Mozilla, scrolling through a long page with the mouse still 
+causes skipping.
 
-On Thu, 2003-07-03 at 14:20, William Lee Irwin III wrote:
-> Great! Could you send back the diff? (or alternatively, the file
-> contents if you didn't preserve the old contents) so I can send the
-> proper diff upstream?
+I'm testing this on a AMD K7 1666 (actual) MHz, 512 MB, VIA VTxxx chipset, 
+Software is 2.5.73+Gnome+Metacity+ALSA+Zinf.  Video hardware is S3 ProSavage 
+K4M266, running in unaccelerated VGA mode, 1280x1024x16.  Yes, I know audio 
+skips less if video is accelerated, IDE runs in dma, etc, but that's not a 
+real solution to this soft realtime scheduling problem.
 
-I have attached the patch since evolution seems to really want to break
-the patch if I do an "Insert text file" :(
+Regards,
 
--- 
-Cioby
-
---=-NHzOfSpeL42lAaTbX4aL
-Content-Disposition: attachment; filename=p4-clockmod.patch
-Content-Type: text/plain; name=p4-clockmod.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
---- /usr/src/linux-2.5.74/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c.original	2003-07-03 14:12:35.000000000 +0300
-+++ /usr/src/linux-2.5.74/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2003-07-03 14:28:10.000000000 +0300
-@@ -53,10 +53,9 @@
- static int cpufreq_p4_setdc(unsigned int cpu, unsigned int newstate)
- {
- 	u32 l, h;
--	unsigned long cpus_allowed;
-+	cpumask_t cpus_allowed, affected_cpu_map;
- 	struct cpufreq_freqs freqs;
- 	int hyperthreading = 0;
--	int affected_cpu_map = 0;
- 	int sibling = 0;
- 
- 	if (!cpu_online(cpu) || (newstate > DC_DISABLE) || 
-@@ -67,16 +66,16 @@
- 	cpus_allowed = current->cpus_allowed;
- 
- 	/* only run on CPU to be set, or on its sibling */
--	affected_cpu_map = 1 << cpu;
-+       affected_cpu_map = cpumask_of_cpu(cpu);
- #ifdef CONFIG_X86_HT
- 	hyperthreading = ((cpu_has_ht) && (smp_num_siblings == 2));
- 	if (hyperthreading) {
- 		sibling = cpu_sibling_map[cpu];
--		affected_cpu_map |= (1 << sibling);
-+                cpu_set(sibling, affected_cpu_map);
- 	}
- #endif
- 	set_cpus_allowed(current, affected_cpu_map);
--	BUG_ON(!(affected_cpu_map & (1 << smp_processor_id())));
-+        BUG_ON(!cpu_isset(smp_processor_id(), affected_cpu_map));
- 
- 	/* get current state */
- 	rdmsr(MSR_IA32_THERM_CONTROL, l, h);
-
---=-NHzOfSpeL42lAaTbX4aL--
+Daniel
 

@@ -1,31 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317153AbSEXOvw>; Fri, 24 May 2002 10:51:52 -0400
+	id <S317159AbSEXOxx>; Fri, 24 May 2002 10:53:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317154AbSEXOvv>; Fri, 24 May 2002 10:51:51 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11276 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317153AbSEXOvt>; Fri, 24 May 2002 10:51:49 -0400
-Subject: Re: [BUG] 2.4 VM sucks. Again
-To: roy@karlsbakk.net (Roy Sigurd Karlsbakk)
-Date: Fri, 24 May 2002 16:11:35 +0100 (BST)
-Cc: Martin.Bligh@us.ibm.com (Martin J. Bligh), linux-kernel@vger.kernel.org
-In-Reply-To: <200205231629.g4NGTWE22956@mail.pronto.tv> from "Roy Sigurd Karlsbakk" at May 23, 2002 06:29:31 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S317158AbSEXOxw>; Fri, 24 May 2002 10:53:52 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:34558 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S317149AbSEXOxu>; Fri, 24 May 2002 10:53:50 -0400
+Date: Fri, 24 May 2002 10:53:48 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+        Alexander Viro <viro@math.psu.edu>
+Subject: Re: negative dentries wasting ram
+Message-ID: <20020524105348.T13411@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+In-Reply-To: <20020524071657.GI21164@dualathlon.random> <Pine.LNX.4.44.0205240737400.26171-100000@home.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17BGj9-0006VQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > How much RAM do you have, and what does /proc/meminfo
-> > and /proc/slabinfo say just before the explosion point?
+On Fri, May 24, 2002 at 07:43:32AM -0700, Linus Torvalds wrote:
 > 
-> I have 1 gig - highmem (not enabled) - 900 megs.
-> for what I can see, kernel can't reclaim buffers fast enough.
-> ut looks better on -aa.
 > 
+> On Fri, 24 May 2002, Andrea Arcangeli wrote:
+> >
+> > Negative dentries should be only temporary entities, for example between
+> > the allocation of the dentry and the create of the inode, they shouldn't
+> > be left around waiting the vm to collect them.
+> 
+> Wrong. Negative dentries are very useful for caching negative lookups:
+> look at the average startup sequence of any program linked with glibc, and
+> depending on your setup you will notice how it tries to open a _lot_ of a
+> files that do not exist (the "depending on your setup" comes from the fact
+> that it depends on things like how quickly it finds your "locale" setup
+> from its locale path - you may have one of the setups that puts it in the
+> first location glibc searches etc).
 
-What sort of setup. I can't duplicate the problem here ?
+In glibc 2.3 this will be open("/usr/lib/locale/locale-archive", ), so
+negative dentries won't be useful for glibc locale handling (that
+doesn't mean negative dentries won't be useful for other things, including
+exec?p or searching libraries if $LD_LIBRARY_PATH is used).
+
+	Jakub

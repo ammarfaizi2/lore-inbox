@@ -1,59 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261448AbTBEOyh>; Wed, 5 Feb 2003 09:54:37 -0500
+	id <S261451AbTBEPAW>; Wed, 5 Feb 2003 10:00:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261451AbTBEOyh>; Wed, 5 Feb 2003 09:54:37 -0500
-Received: from adsl-67-123-8-233.dsl.pltn13.pacbell.net ([67.123.8.233]:2272
-	"EHLO influx.triplehelix.org") by vger.kernel.org with ESMTP
-	id <S261448AbTBEOyg>; Wed, 5 Feb 2003 09:54:36 -0500
-Date: Wed, 5 Feb 2003 07:03:31 -0800
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: acpi + keyboard/mouse problems [was Re: acpi + synaptics trackpad in 2.5]
-Message-ID: <20030205150331.GA8582@triplehelix.org>
-References: <20030203210258.GA17499@triplehelix.org> <20030204233301.GF128@elf.ucw.cz>
+	id <S261456AbTBEPAW>; Wed, 5 Feb 2003 10:00:22 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:8859
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261451AbTBEPAV>; Wed, 5 Feb 2003 10:00:21 -0500
+Subject: Re: Help with promise sx6000 card
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linux Lists <user_linux@citma.cu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <5E3AE650.2010208@citma.cu>
+References: <20030203221923.M79151@webmail.citma.cu>
+	 <1044360902.23312.16.camel@irongate.swansea.linux.org.uk>
+	 <5E3AE650.2010208@citma.cu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1044461220.32062.11.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
-Content-Disposition: inline
-In-Reply-To: <20030204233301.GF128@elf.ucw.cz>
-User-Agent: Mutt/1.5.3i
-From: Joshua Kwan <joshk@triplehelix.org>
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 05 Feb 2003 16:07:01 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2020-02-05 at 15:59, Linux Lists wrote:
+> OK, but what i have to do to load the modules in that order
+> 
 
---k+w/mQv8wyuph6w0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Either build a kernel with them built in or run mkinitrd with the option
 
-On Wed, Feb 05, 2003 at 12:33:02AM +0100, Pavel Machek wrote:
-> Hi!
->=20
-> > Whenever I run a ACPI battery monitor in X, my mouse goes completely=20
-> > insane - goes around everywhere, and clicks randomly. the second i clos=
-e=20
-> > it, everything returns to normal.
->=20
-> What machine?
+--preload=i2o_core --preload=i2o_pci --preload=i2o_block.
 
-This is a Dell SmartStep 200N. I have no other working laptops using=20
-ACPI so I can't know for sure how big a problem this is :)
+The Red Hat installer builds a wrongly ordered initrd for i2o stuff in
+8.0. Thats fixed in the beta but doesn't help you.
 
-Regards
-Josh
 
---k+w/mQv8wyuph6w0
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+QSfD6TRUxq22Mx4RAiXuAKC2//bt/m6s/lTyyh7BwxnelcLJxACcC2VK
-uLB7K4u4IICAM0XXG7CxeO8=
-=Wtry
------END PGP SIGNATURE-----
-
---k+w/mQv8wyuph6w0--

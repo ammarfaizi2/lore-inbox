@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263930AbTHJMFX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 08:05:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263952AbTHJMFX
+	id S263875AbTHJMAg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 08:00:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263894AbTHJMAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 08:05:23 -0400
-Received: from 4demon.com ([217.160.186.4]:17577 "EHLO pro-linux.de")
-	by vger.kernel.org with ESMTP id S263930AbTHJMFQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 08:05:16 -0400
-Date: Sun, 10 Aug 2003 14:05:12 +0200
-From: Hans-Joachim Baader <hjb@pro-linux.de>
+	Sun, 10 Aug 2003 08:00:36 -0400
+Received: from ms-smtp-02.rdc-kc.rr.com ([24.94.166.122]:23445 "EHLO
+	ms-smtp-02.rdc-kc.rr.com") by vger.kernel.org with ESMTP
+	id S263875AbTHJMAf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 08:00:35 -0400
+Date: Sun, 10 Aug 2003 07:00:32 -0500
+From: Greg Norris <haphazard@kc.rr.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test3: drivers/ide/setup-pci.c
-Message-ID: <20030810120511.GA883@kiwi.hjbaader.home>
+Subject: Re: [2.6.0-test3] Hyperthreading gone
+Message-ID: <20030810120032.GA14437@glitch.localdomain>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <87llu2bvxg.fsf@deneb.enyo.de> <20030809221706.GA2106@glitch.localdomain> <87oeyyc7u9.fsf@deneb.enyo.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vtzGhvizbBRQ85DL"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <87oeyyc7u9.fsf@deneb.enyo.de>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 10, 2003 at 09:03:42AM +0200, Florian Weimer wrote:
+> I didn't.  Previous experience (with some 2.5.x versions) indicates
+> that Linux does not support full ACPI on this machine.  The
+> documentation suggests that the command line option enables full ACPI,
+> so I hesitate to do this.
 
---vtzGhvizbBRQ85DL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+According to the 2.6.0-test3 menuconfig help text, the parameter is
+required when CPU Enumeration Only is selected, and enables only
+limited ACPI support.  For whatever it's worth, that matches my
+experience.
 
-Hi!
 
-drivers/ide/setup-pci.c ca. line 710:
+   CONFIG_ACPI_HT_ONLY:
 
-if (noisy)
-	printk(KERN_INFO "%s: not 100%% native mode: "
-		"will probe irqs later\n", d->name);
+   This option enables limited ACPI support -- just enough to
+   enumerate processors from the ACPI Multiple APIC Description
+   Table (MADT).  Note that ACPI supports both logical (e.g. Hyper-
+   Threading) and physical processors, where the MultiProcessor
+   Specification (MPS) table only supports physical processors. 
 
-The two %% will be printed as such at least on my system (i386, VGA console,
-no framebuffer):
+   Full ACPI support (CONFIG_ACPI) is preferred.  Use this option
+   only if you wish to limit ACPI's role to processor enumeration. 
 
-AMD7411: not 100%% native mode:
-
-Regards,
-hjb
---=20
-Pro-Linux - Germany's largest volunteer Linux support site
-http://www.pro-linux.de/          Public Key ID 0x3DDBDDEA
-
---vtzGhvizbBRQ85DL
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/NjT3LbySPj3b3eoRAvtAAJ0fHn2JMYsQj/iEgZVScX48Y3g1HQCfYheY
-Ri5gwn0jpsOM294Xbb2tP3w=
-=PjAq
------END PGP SIGNATURE-----
-
---vtzGhvizbBRQ85DL--
+   In this configuration, ACPI defaults to off. It must be enabled
+   on the command-line with the "acpismp=force" option. 
+ 

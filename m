@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272442AbRIKNA1>; Tue, 11 Sep 2001 09:00:27 -0400
+	id <S272449AbRIKNBs>; Tue, 11 Sep 2001 09:01:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272448AbRIKNAQ>; Tue, 11 Sep 2001 09:00:16 -0400
-Received: from [24.254.60.23] ([24.254.60.23]:34535 "EHLO
-	femail33.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S272442AbRIKNAJ>; Tue, 11 Sep 2001 09:00:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: Jonathan Morton <chromi@cyberspace.org>,
-        Roberto Jung Drebes <drebes@inf.ufrgs.br>
-Subject: Re: [GOLDMINE!!!] Athlon optimisation bug (was Re: Duron kernel crash)
-Date: Tue, 11 Sep 2001 05:59:41 -0700
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <a05100303b7c3a4283667@[192.168.239.101]>
-In-Reply-To: <a05100303b7c3a4283667@[192.168.239.101]>
-MIME-Version: 1.0
-Message-Id: <01091105594100.00173@c779218-a>
-Content-Transfer-Encoding: 7BIT
+	id <S272448AbRIKNBa>; Tue, 11 Sep 2001 09:01:30 -0400
+Received: from mnh-1-19.mv.com ([207.22.10.51]:57860 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S272449AbRIKNBK>;
+	Tue, 11 Sep 2001 09:01:10 -0400
+Message-Id: <200109111418.JAA01522@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: "J.Brown (Ender/Amigo)" <ender@enderboi.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9ac10 compile failure (hz_to_std) 
+In-Reply-To: Your message of "Tue, 11 Sep 2001 15:39:30 +0800."
+             <Pine.LNX.4.31.0109111538280.5196-100000@shaker.worfie.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 11 Sep 2001 09:18:41 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 September 2001 04:21 am, Jonathan Morton wrote:
-> >Today I updated the BIOS of my motherboard, a ABIT KT7A (VIA Apollo
-> > KT133A chipset). The kernel I had (2.4.9) started crashing on boot
-> > with an invalid page fault, usually right after starting init. I
-> > tryed a i686 kernel and noticed it works OK, so I recompiled my
-> > crashy kernel only switching the processor type and it also worked.
-> > changed it back to Athlon/K7/Duron and it starts crashing.
-> >
-> >Anyone else experiencing this?
->
-> BINGO!
->
-> This problem is known about, but this is the first report we've had
-> of it on a Duron (as opposed to Athlon), and you've successfully
-> tracked it down to the updated BIOS.
->
+Below is the patch which fixes it which I haven't sent to Alan yet.
 
-Actually we've had a couple reports on Durons on KT133A chipsets failing.
-We've only had a couple reports of BIOS versions making a difference 
-though, and it was never really clear which version did what.
+				Jeff
 
-> We need the versions of your old and new BIOSes, as accurately as you
-> can make it.
+diff -Naur linux/include/asm-um/param.h uml/include/asm-um/param.h
+--- linux/include/asm-um/param.h	Thu Sep  6 17:51:01 2001
++++ uml/include/asm-um/param.h	Thu Sep  6 19:19:12 2001
+@@ -5,6 +5,8 @@
+ #define HZ 20
+ #endif
+ 
++#define hz_to_std(a) (((a)*HZ)/100)
++
+ #define EXEC_PAGESIZE   4096
+ 
+ #ifndef NGROUPS
 
-Can someone compare the INTERNAL BIOS versions (as opposed to the 
-external reported by the motherboard manufacturer)?

@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265315AbUFRPWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265266AbUFRPZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265315AbUFRPWq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 11:22:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265238AbUFRPTm
+	id S265266AbUFRPZK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 11:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265276AbUFRPXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 11:19:42 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:45503 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265226AbUFRPSS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 11:18:18 -0400
-Date: Fri, 18 Jun 2004 16:17:53 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Andrew Morton <akpm@osdl.org>,
-       Linus <torvalds@osdl.org>, linuxppc64-dev@lists.linuxppc.org,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PPC64 iSeries viodasd proc file
-Message-ID: <20040618151753.GA21596@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Stephen Rothwell <sfr@canb.auug.org.au>,
-	Andrew Morton <akpm@osdl.org>, Linus <torvalds@osdl.org>,
-	linuxppc64-dev@lists.linuxppc.org,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20040618165436.193d5d35.sfr@canb.auug.org.au> <40D305B4.4030009@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Jun 2004 11:23:21 -0400
+Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:29312 "EHLO
+	cenedra.walrond.org") by vger.kernel.org with ESMTP id S265266AbUFRPWI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 11:22:08 -0400
+From: Andrew Walrond <andrew@walrond.org>
+To: netfilter@lists.netfilter.org
+Subject: Iptables-1.2.9/10 compile failure with linux 2.6.7 headers
+Date: Fri, 18 Jun 2004 16:11:37 +0100
+User-Agent: KMail/1.6
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <40D305B4.4030009@pobox.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406181611.37890.andrew@walrond.org>
+X-Spam-Score: 0.0 (/)
+X-Spam-Report: Spam detection software, running on the system "cenedra.walrond.org", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or block
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  The addition of a __user attribute to a line in
+	linux-2.6.7/include/linux/netfilter_ipv4/ip_tables.h causes iptables
+	build to fail unless I export CC="gcc -D__user= " Presumably
+	ip_tables.h should include a header defining __user, or iptables should
+	include the relevant header before ip_tables.h ? [...] 
+	Content analysis details:   (0.0 points, 7.5 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 18, 2004 at 11:09:40AM -0400, Jeff Garzik wrote:
-> Stephen Rothwell wrote:
-> >Hi Andrew,
-> >
-> >This patch adds a proc file for viodasd so to make it
-> >easier to enumerate the available disks.  It is in a
-> >(somewhat) strange format to try for a simple level of
-> >compatability with the old viodasd code (that was in a
-> >couple of vendor's kernels).
-> 
-> Exporting redundant information from procfs is a step backwards, since 
-> we have sysfs.
-> 
-> I would prefer not to apply this.  Upstream is for 'getting it right', 
-> not for dragging every little vendor kernel hack along.
+The addition of a
+	__user
+attribute to a line in
+	linux-2.6.7/include/linux/netfilter_ipv4/ip_tables.h
+causes iptables build to fail unless I export
+	CC="gcc -D__user= "
 
-Agreed.  And the old viodasd reason was rejected exactly because it was
-such a f***ing mess.
+Presumably ip_tables.h should include a header defining __user, or iptables 
+should include the relevant header before ip_tables.h ?
+
+Sorry if this has already been reported; Archive search found nothing on 
+either ML.
+
+Andrew Walrond

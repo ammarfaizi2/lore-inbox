@@ -1,109 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267795AbTBVEW4>; Fri, 21 Feb 2003 23:22:56 -0500
+	id <S267808AbTBVEZe>; Fri, 21 Feb 2003 23:25:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267808AbTBVEW4>; Fri, 21 Feb 2003 23:22:56 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:10637 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267795AbTBVEWz>; Fri, 21 Feb 2003 23:22:55 -0500
-Date: Fri, 21 Feb 2003 20:32:30 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sf.et,
-       linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <14450000.1045888349@[10.10.2.4]>
-In-Reply-To: <20030222024721.GA1489@work.bitmover.com>
-References: <96700000.1045871294@w-hlinder> <20030222001618.GA19700@work.bitmover.com> <306820000.1045874653@flay> <20030222024721.GA1489@work.bitmover.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S267811AbTBVEZd>; Fri, 21 Feb 2003 23:25:33 -0500
+Received: from landfill.ihatent.com ([217.13.24.22]:47271 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S267808AbTBVEZc>;
+	Fri, 21 Feb 2003 23:25:32 -0500
+To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.62
+References: <Pine.LNX.4.44.0302171515110.1150-100000@penguin.transmeta.com>
+	<3E536237.8010502@blue-labs.org> <20030219185017.GA6091@gemtek.lt>
+	<87k7fucmjb.fsf@lapper.ihatent.com>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 22 Feb 2003 06:34:13 +0100
+In-Reply-To: <87k7fucmjb.fsf@lapper.ihatent.com>
+Message-ID: <878yw8anfu.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> In your humble opinion.
+Alexander Hoogerhuis <alexh@ihatent.com> writes:
+
+> Zilvinas Valinskas <zilvinas@gemtek.lt> writes:
 > 
-> My opinion has nothing to do with it, go benchmark them and see for
-> yourself. 
-
-Nope, I was referring to this:
-
->> > Ben is right.  I think IBM and the other big iron companies would be
->> > far better served looking at what they have done with running multiple
->> > instances of Linux on one big machine, like the 390 work.  Figure out
->> > how to use that model to scale up. There is simply not a big enough
->> > market to justify shoveling lots of scaling stuff in for huge machines
->> > that only a handful of people can afford.  
-
-Which I totally disagree with. 
-
->> >That's the same path which
->> > has sunk all the workstation companies, they all have bloated OS's and
->> > Linux runs circles around them.
-
-Not the fact that Linux is capable of stellar things, which I totally
-agree with.
-
-> I'm in a pretty good position to back up my statements with
-> data, we support BitKeeper on AIX, Solaris, IRIX, HP-UX, Tru64, as well
-> as a pile of others, so we have both the hardware and the software to
-> do the comparisons.  I stand by statement above and so does anyone else
-> who has done the measurements.  
-
-Oh, I don't doubt it -  But I'd be amused to see the measurements, 
-if you have them to hand.
-
-> It is much much more pleasant to have Linux versus any other Unix 
-> implementation on the same platform.  Let's keep it that way.
-
-Absolutely.
- 
->> Unfortunately, as I've pointed out to you before, this doesn't work in
->> practice. Workloads may not be easily divisible amongst machines, and
->> you're just pushing all the complex problems out for every userspace
->> app to solve itself, instead of fixing it once in the kernel.
+> > On Wed, Feb 19, 2003 at 05:53:43AM -0500, David Ford wrote:
+> > > 2.5.60+ is rather unstable for me on an Athlon CPU w/ gcc 3.2.2.  If I'm 
+> > > careful and do very little in X, it seems to stay up for a few days.  If 
+> > > I do any sort of fast graphics or sound, etc, it'll die very quickly.  
+> > > 'tis an instant death with no OOPS, nothing at all on screen, nothing on 
+> > > serial console.
+> > > 
+> > > Just an FYI, I'm trying to narrow it down.
+> > 
+> > it might triple fault ? Who knows. One thing I am sure of, if I don't
+> > load agpgart + intel-agp, laptop in questions, works flawlessly.
+> > Otherwise first time I log of KDE trying to login as different user I
+> > get instant reboot.
+> > 
 > 
-> "fixing it", huh?  Your "fixes" may be great for your tiny segment of 
-> the market but they are not going to be welcome if they turn Linux into
-> BloatOS 9.8.
-
-They won't - the maintainers would never allow us to do that.
- 
->> The fact that you were never able to do this before doesn't mean it's
->> impossible, it just means that you failed.
+> I'm seeing the same on my Evo800c, I think it's very much
+> ACPI-related, as logging out of gnome and back in worked before i got
+> a newer ACPI-patch on 2.4. Currently on 2.4.20 with ACPI patch from
+> early January.
 > 
-> Thanks for the vote of confidence.  I think the thing to focus on, 
-> however, is that *noone* has ever succeeded at what you are trying 
-> to do.  And there have been many, many attempts.  Your opinion, it
-> would appear, is that you are smarter than all of the people in all
-> of those past failed attempts, but you'll forgive me if I'm not 
-> impressed with your optimism.
+> Planning on testing out the latest ACPI-patch dates February 18th
+> along with 2.4.21-pre4 now; and tinker a bit with the DSDT to make it
+> usefull; I'll let you know how it works out.
+>
 
-Who said that I was going to single-handedly change the world? What's
-different with Linux is the development model. That's why *we* will 
-succeed where others have failed before. There's some incredible intellect 
-all  around Linux, but that's not all it takes, as you've pointed out.
+Made a new kernel, 2.4.21-pre4 with ACPI form 0218 patched it, and
+recompiled. Running with the builtin its fine, and my own supplied DSDT the
+machine will instantly reboot when hitting the logout-button in Gnome
+2.2.
 
->> > In terms of the money and in terms of installed seats, the small Linux
->> > machines out number the 4 or more CPU SMP machines easily 10,000:1.
->> > And with the embedded market being one of the few real money makers
->> > for Linux, there will be huge pushback from those companies against
->> > changes which increase memory footprint.
->> 
->> And the profit margin on the big machines will outpace the smaller 
->> machines by a similar ratio, inverted. 
-> 
-> Really?  How about some figures?  You'd need HUGE profit margins to 
-> justify your position, how about some actual hard cold numbers?
+How do I get a way of telling exactly what went pear shaped whe the
+machine just reboots like that?
 
-I don't have them to hand, but if you think anyone's making money on
-PCs nowadays, you're delusional (with respect to hardware). With respect
-to Linux, what makes you think distros are going to make large amounts
-of money from a freely replicatable OS, for tiny embedded systems?
-Support for servers, on the other hand, is a different game ...
-
-M.
-
-
+mvh,
+A
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

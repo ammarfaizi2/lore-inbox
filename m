@@ -1,43 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269946AbRHQIgr>; Fri, 17 Aug 2001 04:36:47 -0400
+	id <S269905AbRHQIf5>; Fri, 17 Aug 2001 04:35:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269944AbRHQIgm>; Fri, 17 Aug 2001 04:36:42 -0400
-Received: from odyssey.netrox.net ([204.253.4.3]:38652 "EHLO t-rex.netrox.net")
-	by vger.kernel.org with ESMTP id <S269918AbRHQIg1>;
-	Fri, 17 Aug 2001 04:36:27 -0400
-Subject: Re: [PATCH] processes with shared vm
-From: Robert Love <rml@tech9.net>
-To: Andi Kleen <ak@suse.de>
-Cc: Terje Eggestad <terje.eggestad@scali.no>, linux-kernel@vger.kernel.org
-In-Reply-To: <oupelqbw0z4.fsf@pigdrop.muc.suse.de>
-In-Reply-To: <997973469.7632.10.camel@pc-16.suse.lists.linux.kernel> 
-	<oupelqbw0z4.fsf@pigdrop.muc.suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 17 Aug 2001 04:31:06 -0400
-Message-Id: <998037089.1013.20.camel@phantasy>
-Mime-Version: 1.0
+	id <S269918AbRHQIfs>; Fri, 17 Aug 2001 04:35:48 -0400
+Received: from draco.cus.cam.ac.uk ([131.111.8.18]:35295 "EHLO
+	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S269905AbRHQIfa>; Fri, 17 Aug 2001 04:35:30 -0400
+Date: Fri, 17 Aug 2001 09:35:40 +0100 (BST)
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+To: "David S. Miller" <davem@redhat.com>
+cc: zippel@linux-m68k.org, aia21@cam.ac.uk, tpepper@vato.org,
+        f5ibh@db0bm.ampr.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9 does not compile [PATCH]
+In-Reply-To: <20010816.203732.107941169.davem@redhat.com>
+Message-ID: <Pine.SOL.3.96.1010817085835.17700C-100000@draco.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Aug 2001 10:21:35 +0200, Andi Kleen wrote:
-> The basic idea is a good one (I have written a similar thing in the past ;)
-> Your implementation is O(n^2) however in ps, which is not acceptable.
-> <snip>
+On Thu, 16 Aug 2001, David S. Miller wrote:
+>    From: Roman Zippel <zippel@linux-m68k.org>
+>    Date: Fri, 17 Aug 2001 05:23:01 +0200
+> 
+>    Please show me a place in the kernel where such code is used and is
+>    not dumb.
+> 
+> Why don't you point out an example yourself?  You seem pretty
+> confident that a comparsion between a signed and unsigned value cannot
+> possible be legitimate.
 
-Is there any reason your patch was not accepted?  Perhaps for 2.5?
+If you compare int x with unsigned int y you can get the wrong result in
+the case that the unsigned value has the sign bit set and the signed
+value is negative.
 
-This is something (along with userspace changes to take advtantage of
-it) that I think is really needed -- no more bogus ps/top reports.
+Example:
 
-I liked Terje's idea, but obviously the scalability needs to be improved
-(I didn't even notice it, sadly).  I would really want to see this at
-some point.
+$ cat t.c
+#include <stdio.h>
 
+int main(void)
+{
+        int x = -2;
+        unsigned int y = 0x80000000;
+
+        printf("x = %i, y = %u\n", x, y);
+        if (x < y)
+                puts("x < y");
+        else if (x > y)
+                puts("x > y");
+        else
+                puts("x == y");
+        return 0;
+}
+$ gcc -Wall t.c
+$ ./a.out
+x = -2, y = 2147483648
+x > y
+
+This is clearly wrong as -2 is less than 2147483648 and I doubt very much
+that bug would be caught by introducing type casts into the min
+function... It will just put people at ease that everything is now fine
+when in fact it won't be (unless they make the type cast to long long
+which I doubt people would do).
+
+A bug simillar to this was present in NTFS a while ago as a matter of
+fact and was causing massive corruption of run lists... And gcc doesn't
+even emit a warning hence it took quite a lot of work to spot that this
+was the bug. In the end I found it by looking at the generated corrupt
+structures and realizing that there must be a sign bug somewhere and then
+I looked at the function and I saw the light and fixed this properly by
+using the same type of variables rather than playing silly games with
+mixing signed and unsigned values.
+
+If gcc had emitted a warning this bug would never have been possible to
+occur so I am all for generating warnings, not suppressing them
+artificially, at least in this case.
+
+Best regards,
+
+	Anton
 -- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,30 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272966AbRIULJo>; Fri, 21 Sep 2001 07:09:44 -0400
+	id <S273379AbRIULjv>; Fri, 21 Sep 2001 07:39:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273302AbRIULJf>; Fri, 21 Sep 2001 07:09:35 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:6930 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S272966AbRIULJX>;
-	Fri, 21 Sep 2001 07:09:23 -0400
-Date: Fri, 21 Sep 2001 13:09:45 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.10-pre13 still problems with tty_register_ldisc export
-Message-Id: <20010921130945.2eed67d6.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S273446AbRIULjl>; Fri, 21 Sep 2001 07:39:41 -0400
+Received: from mx7.port.ru ([194.67.57.17]:9172 "EHLO mx7.port.ru")
+	by vger.kernel.org with ESMTP id <S273379AbRIULjb>;
+	Fri, 21 Sep 2001 07:39:31 -0400
+From: Samium Gromoff <_deepfire@mail.ru>
+Message-Id: <200109211544.f8LFiw101231@vegae.deep.net>
+Subject: Re: 2.4.9-ac12 weird mc hang
+To: rml@tech9.net
+Date: Fri, 21 Sep 2001 15:44:58 +0000 (Local time zone must be set--see zic manual page)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.10-pre13/kernel/drivers/net/ppp_async.o
-depmod:         tty_register_ldisc
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.10-pre13/kernel/drivers/net/ppp_synctty.o
-depmod:         tty_register_ldisc
+        Hm, i too use reiserfs, and when i use smth other as root fs,
+   mc starts just fine. But this is another fs tree and it can be unrelated...
+   Though i can try to use similar trees on diff fses, just tell and i`ll
+  elaborate...
 
-Regards,
-Stephan
+cheers, Samium Gromoff

@@ -1,84 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261860AbTCQTA0>; Mon, 17 Mar 2003 14:00:26 -0500
+	id <S261837AbTCQS7I>; Mon, 17 Mar 2003 13:59:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261862AbTCQTAZ>; Mon, 17 Mar 2003 14:00:25 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:1003 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261860AbTCQTAY>;
-	Mon, 17 Mar 2003 14:00:24 -0500
-Message-ID: <3E761DCA.9080005@colorfullife.com>
-Date: Mon, 17 Mar 2003 20:11:06 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jakub Jelinek <jakub@redhat.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why is get_current() not const function?
-Content-Type: multipart/mixed;
- boundary="------------010105050108000803040706"
+	id <S261840AbTCQS7H>; Mon, 17 Mar 2003 13:59:07 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:18406 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261837AbTCQS7H>;
+	Mon, 17 Mar 2003 13:59:07 -0500
+Date: Mon, 17 Mar 2003 11:06:58 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "dave" <davekern@ihug.co.nz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: error using unsigned long long not working in 2.4.x
+Message-Id: <20030317110658.5aff6ebc.rddunlap@osdl.org>
+In-Reply-To: <002d01c2ed11$6ba7a110$0b721cac@stacy>
+References: <002d01c2ed11$6ba7a110$0b721cac@stacy>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010105050108000803040706
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 17 Mar 2003 21:44:16 -0800 "dave" <davekern@ihug.co.nz> wrote:
 
-Is it possible to use __attribute__((const) with inline functions?
-I tried that, but it seems that gcc ignores __attribute__((const) and 
-looks at the contents of the function instead.
+| hi i am writing a kernel 2.4.x driver and need to do maths on 64 bit ints
+| (unsigned long long)
+| bcause you can not use the FPU
+| but when i insmod i get the error unresolved symbol __udivdi3 i need!! 64
+| bit ints
 
-I've tried the attached test app: With gcc-3.2.1 (gcc -O3), and 
-"inlconst" was called 10 times, constfnc only once.
+Other alternatives are search the lkml archive for a patch from
+George Anzinger on 2003-mar-05,
+subject: [PATCH] Functions to do easy scaled math.
+
+or if all you need is 64-bit mul and div, and only during setup
+(when speed isn't a huge factor), you could use the divrem64()
+function in this sample /procfs module:
+  http://www.xenotime.net/linux/procfs_ex/procdiv64.c
 
 --
-    Manfred
-
---------------010105050108000803040706
-Content-Type: text/plain;
- name="consttest.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="consttest.c"
-
-#include <stdio.h>
-#include <stdlib.h>
-
-static int constfnc(int x) __attribute__((const));
-
-static inline int inlconst(int x) __attribute__((const));
-
-static void dummy(int i);
-
-static inline int inlconst(int x)
-{
-	printf("in inlconst.\n");
-	return 2;
-}
-
-int main(void)
-{
-	int i;
-	for(i=0;i<10;i++) {
-		dummy(constfnc(0));
-	}
-	for (i=0;i<10;i++) {
-		dummy(inlconst(0));
-	}
-}
-
-int constfnc(int x)
-{
-	printf("in const.\n");
-	return 1;
-}
-
-
-void dummy(int i)
-{
-}
-
-
---------------010105050108000803040706--
-
+~Randy

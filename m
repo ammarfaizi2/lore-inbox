@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289479AbSAOKF7>; Tue, 15 Jan 2002 05:05:59 -0500
+	id <S289481AbSAOKHT>; Tue, 15 Jan 2002 05:07:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289476AbSAOKFp>; Tue, 15 Jan 2002 05:05:45 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:61857 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S289473AbSAOKF3>; Tue, 15 Jan 2002 05:05:29 -0500
-Message-Id: <200201151005.g0FA5LgB002726@tigger.cs.uni-dortmund.de>
-To: "Eric S. Raymond" <esr@thyrsus.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution) 
-In-Reply-To: Message from "Eric S. Raymond" <esr@thyrsus.com> 
-   of "Mon, 14 Jan 2002 12:52:28 EST." <20020114125228.B14747@thyrsus.com> 
-Date: Tue, 15 Jan 2002 11:05:21 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S289476AbSAOKHE>; Tue, 15 Jan 2002 05:07:04 -0500
+Received: from smtp2.orcon.net.nz ([210.55.12.15]:61714 "EHLO
+	smtp2.orcon.net.nz") by vger.kernel.org with ESMTP
+	id <S289473AbSAOKGy>; Tue, 15 Jan 2002 05:06:54 -0500
+Message-ID: <002001c19dac$6a34de70$0100000a@orcon.net>
+From: "Craig Whitmore" <lennon@orcon.net.nz>
+To: "A Guy Called Tyketto" <tyketto@wizard.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020115094953.GA24170@wizard.com>
+Subject: Re: atyfb in 2.5.2
+Date: Tue, 15 Jan 2002 23:06:52 +1300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" <esr@thyrsus.com> said:
-> Eli Carter <eli.carter@inet.com>:
-> > Could you maybe describe the problem you are trying to solve a bit more
-> > clearly than "the hardware-discovery problem for ISA devices"?  If you
-> > are trying to discover the ISA devices, but rely upon them having
-> > already been discovered, what are you accomplishing?
+----- Original Message -----
+From: "A Guy Called Tyketto" <tyketto@wizard.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Tuesday, January 15, 2002 10:49 PM
+Subject: atyfb in 2.5.2
 
-> Sure.  Let's say Aunt Tillie needs a kernel update.
 
-So Aunt Tillie goes and clicks on "Update distribution", which gets her Red
-Hat's up2date or Debian's apt-get or whatever. A reboot later she is happy.
+>
+>         No go for compiling in 2.5.2:
+>
+> make[2]: Entering directory `/usr/src/linux/drivers/video'
+> make -C aty
+> make[3]: Entering directory `/usr/src/linux/drivers/video/aty'
+> make all_targets
+> make[4]: Entering directory `/usr/src/linux/drivers/video/aty'
+> gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -
+pipe
+> -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
+> -DEXPORT_SYMTAB -c atyfb_base.c
+> atyfb_base.c: In function `aty_init':
+> atyfb_base.c:1989: incompatible types in assignment
 
-All the nonsense about "faster kernel for K6" and "Nephew Melvin" is just
-nonsense. Please do remember the horrors of some of the "latest stable"
-kernels, and think thrice before you inflict same on poor Aunt Tillie.
+I get the same for the rivafb as well (looks like all the fb stuff actually)
 
-If she wants a kernel for her machine "latest revision", give her a
-.configure that builds a fully modular kernel distribution style.
+   info->node = -1;
 
-Sure, it would be _way_ cool to have your autodetection stuff. Just:
+commenting out that line made it so it compiled and worked (well looked like
+it did when using it , but may not be 100% right )
 
-- ISA is impossible to do right. And on the way out, so irrelevant.
-- PCI is rather easy.
-- PCMCIA, USB, ... are on the rise. How is your autoconfigurator to detect
-  the USB Zip drive Nephew Melvin carries around and uses to backup Aunties
-  account from time to time? Or the PCMCIA network card Aunt Tillie is
-  keeping in the top drawer for a rainy day? Or the CD burner she plans to
-  buy tomorrow?
+I dunno if it the right thing to do for the aty FB as well
 
-What would she gain? A smaller kernel (mostly irrelevant, Aunt Tillie sure
-hasn't got an 8MB RAM machine), less modules on disk (what, you are
-worrying about a few MB on a multi-GB disk?)
+Can anyone got a proper fix for this?
 
-As I said before, you are trying to solve a non-problem.
 
-In any case, it's your time. Good luck!
--- 
-Horst von Brand			     http://counter.li.org # 22616
+Thanks
+Craig Whitmore
+http://www.orcon.net.nz
+
+
+

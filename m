@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262240AbUBXMkU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 07:40:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbUBXMkU
+	id S262241AbUBXMoM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 07:44:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262242AbUBXMoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 07:40:20 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32014 "EHLO
+	Tue, 24 Feb 2004 07:44:12 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35854 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262240AbUBXMkQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 07:40:16 -0500
-Date: Tue, 24 Feb 2004 12:40:11 +0000
+	id S262241AbUBXMoL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 07:44:11 -0500
+Date: Tue, 24 Feb 2004 12:44:07 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: daniel.ritz@gmx.ch
-Cc: Pavel Roskin <proski@gnu.org>, Andrew Morton <akpm@osdl.org>,
+To: Pavel Roskin <proski@gnu.org>
+Cc: Daniel Ritz <daniel.ritz@gmx.ch>, Andrew Morton <akpm@osdl.org>,
        linux-pcmcia <linux-pcmcia@lists.infradead.org>,
        linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] yenta: irq-routing for TI bridges
-Message-ID: <20040224124011.A30975@flint.arm.linux.org.uk>
-Mail-Followup-To: daniel.ritz@gmx.ch, Pavel Roskin <proski@gnu.org>,
-	Andrew Morton <akpm@osdl.org>,
+Message-ID: <20040224124407.B30975@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Roskin <proski@gnu.org>,
+	Daniel Ritz <daniel.ritz@gmx.ch>, Andrew Morton <akpm@osdl.org>,
 	linux-pcmcia <linux-pcmcia@lists.infradead.org>,
 	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200402240033.31042.daniel.ritz@gmx.ch> <200402240132.31659.daniel.ritz@gmx.ch> <Pine.LNX.4.58.0402231947520.30747@marabou.research.att.com> <200402241259.50046.daniel.ritz@alcatel.ch>
+References: <200402240033.31042.daniel.ritz@gmx.ch> <20040224000051.C25358@flint.arm.linux.org.uk> <Pine.LNX.4.58.0402231920110.30605@marabou.research.att.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200402241259.50046.daniel.ritz@alcatel.ch>; from daniel.ritz@alcatel.ch on Tue, Feb 24, 2004 at 12:59:50PM +0100
+In-Reply-To: <Pine.LNX.4.58.0402231920110.30605@marabou.research.att.com>; from proski@gnu.org on Mon, Feb 23, 2004 at 07:46:35PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 12:59:50PM +0100, Daniel Ritz wrote:
-> there's another bug btw. one that is probably never hit and harmless too:
-> rmk's notbook has parellel isa interrupts, INTA is _not_ routed.
+On Mon, Feb 23, 2004 at 07:46:35PM -0500, Pavel Roskin wrote:
+> On Tue, 24 Feb 2004, Russell King wrote:
+> > On Tue, Feb 24, 2004 at 12:33:31AM +0100, Daniel Ritz wrote:
+> > > this patch should fix up wrongly initialized TI bridges. in a safe way
+> > > (hopefully).
+> >
+> > Unfortunately not.
+> 
+> I admire your ability to see problems so fast.
 
-Not true.  It has parallel ISA interrupts _and_ parallel PCI interrupts.
-It's a TI 1250.  Unfortunately, the 1250 data sheet isn't available,
-however there seems to be some consistency in the device codes to
-features offered.
+Only because I've hit this problem before.  With the original IRQMUX
+patches, they managed to probe the available IRQs (finding IRQ3 and IRQ4
+available) and then changed IRQMUX preventing these signals working.
 
-The 1450 and 1251A (both of which seem similar to 1250) has separate pins
-for PCI parallel interrupts which are outside the control of the "IRQMUX"
-register.  When these pins are not used for parallel PCI interrupts,
-they function as "GPIO3" and "IRQSER" (for PCI serial interrupts)
-respectively.  The function of these pins is controlled by the device
-control register.
-
-Please note that "IRQMUX" is a misleading definition of the register in
-question.  The register programs various multifunction pins on the device
-which _may_ be IRQ outputs, LED outputs, ZV switching outputs, audio, or
-even GPIO.
+The net result was that an inserted card was allocated IRQ3 or IRQ4
+and no surprises that it was unable to signal its interrupt.
 
 -- 
 Russell King

@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264389AbUADVH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 16:07:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbUADVH4
+	id S264376AbUADVFl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 16:05:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264387AbUADVFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 16:07:56 -0500
-Received: from fw.osdl.org ([65.172.181.6]:996 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264389AbUADVHz (ORCPT
+	Sun, 4 Jan 2004 16:05:41 -0500
+Received: from fw.osdl.org ([65.172.181.6]:57827 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264376AbUADVFf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 16:07:55 -0500
-Date: Sun, 4 Jan 2004 13:07:52 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Thomas Molina <tmolina@cablespeed.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: make modules_install problem in 2.6.0-rc1-mm1
-Message-Id: <20040104130752.17be7460.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0401040749180.11783@localhost.localdomain>
-References: <Pine.LNX.4.58.0401040749180.11783@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Jan 2004 16:05:35 -0500
+Date: Sun, 4 Jan 2004 13:05:20 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Rob Love <rml@ximian.com>, rob@landley.net,
+       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+In-Reply-To: <20040104142111.A11279@pclin040.win.tue.nl>
+Message-ID: <Pine.LNX.4.58.0401041302080.2162@home.osdl.org>
+References: <1072972440.3975.29.camel@fur> <Pine.LNX.4.58.0401021238510.5282@home.osdl.org>
+ <20040103040013.A3100@pclin040.win.tue.nl> <Pine.LNX.4.58.0401022033010.10561@home.osdl.org>
+ <20040103141029.B3393@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031423180.2162@home.osdl.org>
+ <20040104000840.A3625@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031802420.2162@home.osdl.org>
+ <20040104034934.A3669@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031856130.2162@home.osdl.org>
+ <20040104142111.A11279@pclin040.win.tue.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Molina <tmolina@cablespeed.com> wrote:
+
+
+On Sun, 4 Jan 2004, Andries Brouwer wrote:
 >
-> I get the following message when compiling profile suport into 
->  2.6.0-rc1-mm1:
+> On Sat, Jan 03, 2004 at 07:04:17PM -0800, Linus Torvalds wrote:
+> > 
+> > I agree that for a stable kernel we should then go back to "best effort" 
+> > mode, where for simple politeness reasons we should try to keep device 
+> > numbers as stable as we can.
 > 
->  WARNING: /lib/modules/2.6.1-rc1-mm1/kernel/arch/i386/oprofile/oprofile.ko needs unknown symbol cpu_possible
+> Good - you understand now.
 
-This should fix it.
+Oh, _I_ always understood. You were the one that was arguing for stable
+numbers as somehow important. I'm just telling you that they aren't
+stable, and that a user application that depends on their stability or
+their uniqieness is BROKEN.
 
---- 25/drivers/oprofile/oprofile_stats.c~for_each_cpu-oprofile-fix	2004-01-01 11:52:30.000000000 -0800
-+++ 25-akpm/drivers/oprofile/oprofile_stats.c	2004-01-01 11:52:30.000000000 -0800
-@@ -8,7 +8,7 @@
-  */
- 
- #include <linux/oprofile.h>
--#include <linux/smp.h>
-+#include <linux/cpumask.h>
- #include <linux/threads.h>
-  
- #include "oprofile_stats.h"
+> So, the right setup - you call it politeness, I call it quality
+> of implementation - is to have both stable names and stable numbers,
+> in as many cases as possible.
 
-_
+And I still disagree. You seem to think that this is an "absolute 
+goodness", and call it a quality issue.
 
+While I personally strongly believe that it is a bug in user space to
+care, and that it is not a quality issue at all, but rather a "allow buggy
+and/or nonconverted user space to work".
+
+In other words, it's not about "quality", as much as about compatibility 
+with applications that are old and/or braindead. Big difference.
+
+		Linus

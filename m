@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265320AbSLVUoT>; Sun, 22 Dec 2002 15:44:19 -0500
+	id <S265361AbSLVUsU>; Sun, 22 Dec 2002 15:48:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265339AbSLVUoT>; Sun, 22 Dec 2002 15:44:19 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:2973 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S265320AbSLVUoS>; Sun, 22 Dec 2002 15:44:18 -0500
-Date: Sun, 22 Dec 2002 12:52:12 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-cc: Christoph Hellwig <hch@infradead.org>,
-       James Cleverdon <jamesclv@us.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       John Stultz <johnstul@us.ibm.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Van Maren, Kevin" <kevin.vanmaren@UNISYS.com>, Andi Kleen <ak@suse.de>,
-       Hubert Mantel <mantel@suse.de>,
-       "Kamble, Nitin A" <nitin.a.kamble@intel.com>
-Subject: RE: [PATCH][2.4]  generic cluster APIC support for systems with m	
- ore than 8 CPUs
-Message-ID: <5540000.1040590331@titus>
-In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C1AEC75@usslc-exch-4.slc.unisys.com>
-References: <3FAD1088D4556046AEC48D80B47B478C1AEC75@usslc-exch-4.slc.unisys.
- com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S265373AbSLVUsU>; Sun, 22 Dec 2002 15:48:20 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:19683
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S265361AbSLVUsT>; Sun, 22 Dec 2002 15:48:19 -0500
+Message-ID: <3E062712.80906@redhat.com>
+Date: Sun, 22 Dec 2002 12:56:50 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20021221
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "James H. Cloos Jr." <cloos@jhcloos.com>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Intel P6 vs P7 system call performance
+References: <Pine.LNX.4.44.0212221132370.2692-100000@home.transmeta.com>	<3E0617A9.90405@redhat.com> <m3adixvkvb.fsf@lugabout.jhcloos.org>
+In-Reply-To: <m3adixvkvb.fsf@lugabout.jhcloos.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Some platforms (like certain ES7000s) won't tolerate any bit masks
-> programmed into the RTE because their balancing is done entirely in
-> hardware, similar to XTPR mechanism for Fosters. For those I suggest to
-> have an escape door, in the form of boot parameter such as
-> "irq_balance=no". It was suggested to us by SuSE and worked great - I
-> could turn it off in our platform code unconditionally. It could also
-> help those who can use irq balancing as is but might want to implement
-> their own balancing schema.
+James H. Cloos Jr. wrote:
 
-Having a boot-time parameter is useful, but I'd like it to default to off
-without a paramater for the platforms where it's just broken. At the
-moment there's an "if (clustered_apic_mode) return;" stuck at the top
-of balance_irq, the latest series of patches changes that to
-"if (no_balance_irq) return;", which is set by NUMA-Q. If we can set
-up no_balance_irq to default correctly, but be possibly overridden by
-the boot-time parameter, I think we'd have the best of both worlds.
+> I'd tend to prefer an LD_PRELOAD-able dso that just set up %gs and had
+> entries for each of the foo(2) over a full glibc rpm.
 
-M.
+This is not possible.  The infrastructure is set up in the dynamic
+linker.  Read the mail with the references to the NPTL mailing list.
+The second referenced mail contains a recipe for building glibc and then
+using it in-place.  This is not possible with binary RPMs in the way we
+build them.
+
+-- 
+--------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
 

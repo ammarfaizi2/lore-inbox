@@ -1,66 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbUKPVgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbUKPVmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261828AbUKPVgv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 16:36:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbUKPVeq
+	id S261840AbUKPVmg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 16:42:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbUKPVjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 16:34:46 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:35267 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261828AbUKPVdU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 16:33:20 -0500
-Date: Tue, 16 Nov 2004 22:33:18 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: A M <alim1993@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Accessing program counter registers from within C or Aseembler.
-In-Reply-To: <20041116212015.32217.qmail@web51901.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.53.0411162228440.20331@yvahk01.tjqt.qr>
-References: <20041116212015.32217.qmail@web51901.mail.yahoo.com>
+	Tue, 16 Nov 2004 16:39:44 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:4832 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261835AbUKPViD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 16:38:03 -0500
+Message-ID: <419A732F.7060700@nortelnetworks.com>
+Date: Tue, 16 Nov 2004 15:37:51 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+To: A M <alim1993@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Accessing program counter registers from within C or Aseembler.
+References: <20041116212015.32217.qmail@web51901.mail.yahoo.com>
+In-Reply-To: <20041116212015.32217.qmail@web51901.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hello,
->
->Does anybody know how to access the address of the
->current executing instruction in C while the program
->is executing?
+A M wrote:
 
-With the aid of a second program, yes.
-For one program: not directly. It's because the EIP changes while you are
-calclating it.
-You could f.e.:
+> Does anybody know how to access the address of the
+> current executing instruction in C while the program
+> is executing? 
 
-int main(void) {
+You are offtopic.  This is not a kernel question.
 
-    printf("owned\n");
-mark:
-    printf("pwned\n");
-    printf("%p\n", &&mark);
-}
-
-GCC specific.
-Or you could also poke around with __builtin_return_address, or even peek at
-the stack yourself.
-
->Also, is there a method to load a program image from
->memory not a file (an exec that works with a memory
->address)? Mainly I am looking for a method that brings
->a program image into memory modify parts of it and
->start the in-memory modified version.
-
-No, because that opens a wide door for trojans and stack smashers.
-
->Can anybody think of a method to replace a thread
->image without replacing the whole process image?
-
-It would not be a thread then.
-
-
-Jan Engelhardt
--- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+Chris

@@ -1,98 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbULLEM2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbULLEg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbULLEM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 23:12:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbULLEM2
+	id S261541AbULLEg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 23:36:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbULLEg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 23:12:28 -0500
-Received: from picard.ine.co.th ([203.152.41.3]:8396 "EHLO picard.ine.co.th")
-	by vger.kernel.org with ESMTP id S261183AbULLEMU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 23:12:20 -0500
-Subject: Re: kernel (64bit) 4GB memory support
-From: Rudolf Usselmann <rudi@asics.ws>
-Reply-To: rudi@asics.ws
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <41BB32A4.2090301@pobox.com>
-References: <1102752990.17081.160.camel@cpu0>  <41BAC68D.6050303@pobox.com>
-	 <1102760002.10824.170.camel@cpu0>  <41BB32A4.2090301@pobox.com>
+	Sat, 11 Dec 2004 23:36:58 -0500
+Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:23740 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261541AbULLEgy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 23:36:54 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
+From: Steven Rostedt <rostedt@goodmis.org>
+To: john cooper <john.cooper@timesys.com>
+Cc: Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>, Ingo Molnar <mingo@elte.hu>,
+       Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, LKML <linux-kernel@vger.kernel.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+In-Reply-To: <41BB2785.7020006@timesys.com>
+References: <OF737A0ECF.4ECB9A35-ON86256F65.006249D6@raytheon.com>
+	 <1102722147.3300.7.camel@localhost.localdomain>
+	 <41BB2785.7020006@timesys.com>
 Content-Type: text/plain
-Organization: ASICS.ws - Solutions for your ASICS & FPGA needs -
-Message-Id: <1102824735.17081.187.camel@cpu0>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 12 Dec 2004 11:12:15 +0700
 Content-Transfer-Encoding: 7bit
+Organization: Kihon Technologies
+Date: Sat, 11 Dec 2004 23:36:31 -0500
+Message-Id: <1102826191.3691.44.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-12-12 at 00:47, Jeff Garzik wrote:
-...
-> All 2.6 kernels work with 64bit and >4GB memory, on my configurations 
-> (x86-64, ia64, and alpha).
+On Sat, 2004-12-11 at 11:59 -0500, john cooper wrote:
+> Steven Rostedt wrote:
 > 
-> It is a mistake to assume that all 64bit and/or >4GB is broken.
+> > [RFC]  Has there been previously any thought of adding priority
+> > inheriting wait queues. With the IRQs that run as threads, have hooks in
+> > the code that allows a driver or socket layer to attach a thread to a
+> > wait queue, and when a RT priority task waits on the queue, a function
+> > is call to increase (if needed) the priority of the attached thread. I
+> > know that this would take some work, and would make the normal kernel
+> > and RT diverge more, but it would really help to solve the problem of a
+> > high priority process waiting for an interrupt that can be starved by
+> > other high priority processes.
 > 
-> > (Tiger K8W, dual Opteron)
+> I think there are two issues here.  One being as above which
+> addresses allowing the server thread to compete for CPU time
+> at a priority equal to its highest waiting client.  Essentially
+> the server needs no inherent priority of its own, rather its
+> priority is automatically inherited.  The semantics seem
+> straightforward even in the general case of servers themselves
+> becoming clients of other servers.
 > 
-> Ok, we finally get a bit of useful information.
-> 
-> Are you CERTAIN that you are booting a 64bit kernel?
-> Is your memory PC1600, PC2100, or PC2700?
-> Is your memory installed in matched pairs?
-> Is all your memory ECC registered?
-> Is your BIOS at the latest version?
 
-Hi Jeff,
+I agree with you on this.
 
-"yes" to all of the above. I am 100% certain this is not a
-hardware problem. I have paired simms and with a 32 bit kernel
-can use the entire 4GB. I also have run memtest86 ...
+> Another issue is the fact the server thread is effectively
+> non-preemptive.  Otherwise a newly arrived waiter of priority
+> higher than a client currently being serviced would receive
+> immediate attention.  One problem to be solved here is how to
+> save/restore client context when a "context switch" is required.
 
-> Once we get through the hardware issues, now it is time to do a binary 
-> search of 2.6 kernels, to see which one works for you.  If no 2.6 
-> kernels work for you, then give 2.4 kernels a try.
-> 
-> 	Jeff
+I don't quite understand your point here. 
 
-I have previously reported this bug to the list (about a week
-ago). I am greatfull for every response and am willing to
-investigate everything.
+Say you have process A at prio 20 that waits on a queue with server S. S
+becomes prio 20 and starts to run. Then it is preempted by process B at
+prio 30 which then comes to wait on the server's queue. Server S becomes
+prio 30 and finishes process A's work, then checks the queue again and
+finds process B and starts working on process B's work still at prio 30.
+The time of process B is still bounded (predictable).
 
-Previously I was running Fedora Core 2 32BIT with the 2.6.9
-kernel and never had problems with 4GB. After finally upgrading
-to 64 bit I can't use 4GB memory anymore.
+So it's similar to a mutex and priority inheritance. We can look at
+process A taking lock L and then when process B blocks on lock L,
+process A inherits process B's priority (B being greater prio than A).
+The difference is that the work is being done within a mutex as suppose
+to a server. The work to keep track of what priorities are being
+inherited is even easier than mutexs, since you have a process (the
+server) to just point to which process it has inherited, and a wait
+queue to store which process needs to be inherited next when the server
+wakes up the currently inherited process.
 
-
-# ver_linux
-
-Linux cpu10 2.6.9RU1.1 #11 SMP Sun Dec 5 11:42:18 ICT 2004 x86_64 x86_64 x86_64 GNU/Linux
-
-Gnu C                  3.4.2
-Gnu make               3.80
-binutils               2.15.92.0.2
-util-linux             2.12a
-mount                  2.12a
-module-init-tools      3.1-pre5
-e2fsprogs              1.35
-reiserfsprogs          line
-reiser4progs           line
-pcmcia-cs              3.2.7
-quota-tools            3.12.
-PPP                    2.4.2
-nfs-utils              1.0.6
-Linux C Library        2.3.3
-Dynamic linker (ldd)   2.3.3
-Procps                 3.2.3
-Net-tools              1.60
-Kbd                    1.12
-Sh-utils               5.2.1
-Modules Loaded         autofs4 nfs lockd sunrpc binfmt_misc dm_mod button battery ac nvidia ipv6 ohci_hcd uhci_hcd ehci_hcd hw_random snd_intel8x0 snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd_page_alloc gameport snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore floppy
-
-
-The attached boot log shows the kernel panic ....
-
-Kind Regards,
-rudi
+-- Steve
 

@@ -1,66 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263484AbUC3B5v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 20:57:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263502AbUC3B5v
+	id S263490AbUC3CGy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 21:06:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263502AbUC3CGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 20:57:51 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:58540 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263484AbUC3B5o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 20:57:44 -0500
-Subject: Re: [PATCH] mask ADT: new mask.h file [2/22]
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
+	Mon, 29 Mar 2004 21:06:54 -0500
+Received: from holomorphy.com ([207.189.100.168]:7583 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263490AbUC3CGu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 21:06:50 -0500
+Date: Mon, 29 Mar 2004 18:06:37 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Paul Jackson <pj@sgi.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Dave Hansen <haveblue@us.ibm.com>
-In-Reply-To: <20040329162740.0ca8f6d5.pj@sgi.com>
-References: <20040329041253.5cd281a5.pj@sgi.com>
-	 <1080606618.6742.89.camel@arrakis>  <20040329162740.0ca8f6d5.pj@sgi.com>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1080611797.6742.153.camel@arrakis>
+Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
+       akpm@osdl.org, haveblue@us.ibm.com
+Subject: Re: [PATCH] mask ADT: bitmap and bitop tweaks [1/22]
+Message-ID: <20040330020637.GA791@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Paul Jackson <pj@sgi.com>, colpatch@us.ibm.com,
+	linux-kernel@vger.kernel.org, mbligh@aracnet.com, akpm@osdl.org,
+	haveblue@us.ibm.com
+References: <20040329041249.65d365a1.pj@sgi.com> <1080601576.6742.43.camel@arrakis> <20040329235233.GV791@holomorphy.com> <20040329154330.445e10e2.pj@sgi.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 29 Mar 2004 17:56:38 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040329154330.445e10e2.pj@sgi.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-03-29 at 16:27, Paul Jackson wrote:
-> Matthew wrote (of my recommendation to not use the mask type directly):
-> > Is this necessary, or just convenient?
-> 
-> Technically as you suspect, just convenient, except in the case of the
-> mask_of_bit() macro, as you observe.
-> 
-> I was adhering to the K.I.S.S. school here - just tell the user one
-> recommended way of using things, suppressing my engineering urge to
-> explain alternatives that had no real advantages.
+On Mon, Mar 29, 2004 at 03:43:30PM -0800, Paul Jackson wrote:
+> My thinking on when to worry about the unused bits, and when not to, is
+> thus.
+> For the lib/bitmap.c code, it seems that the existing standard, followed
+> by everything except bitmap_complement(), is to not set any unused bits
+> (at least when called with correct arguments in range), but to always
+> filter them out when testing for some Boolean condition or scalar result
+> (weight).
 
-That's what I figured.  Just looking for a clarification.
+No, the existing standard is to treat the unused bits as "don't cares".
+The difference codewise between the two choices is rather small anyway,
+but if you want to _change_ the invariant to be something else, e.g.
+insist that they always be zeroes, announce this up-front and make the
+change independently of API. The "bugs" you're speaking of are nowhere
+near the vicinity of bitmap_complement(). They exist only in the
+arithmetic implementation and are fixed in a minimal impact way in the
+following patch, which maintains current invariants.
+
+The impact of changing this invariant is likely more relevant to
+sensitivity to garbage leaking in through initializations of dynamically
+allocated cpumasks than the implementations of the runtime operations.
+
+In any event, best to fix the bug in the current code now and let the
+cleanups go in after. akpm, this is needed for mainline.
 
 
-> > I think that it wouldn't be terribly ugly to split out the 1 unsigned
-> > long special cases (bitmap_and, bitmap_or, etc) with #ifdefs.
-> 
-> Do you have in mind an ifdef per function, or putting
-> several functions inside an ifdef?  If you think it
-> looks better - show us the code ;).
-
-I was thinking of having a large ifdef'd section for the one word case. 
-I'll run that up and see if it does in fact look any cleaner.
+-- wli
 
 
-> Here's my cumulative patch of changes that I have gained so far
-> from your excellent feedback, and a couple I've noticed:
-
-<diff snipped>
-
-Looks good.  I'll keep chugging along through the patches! :)
-
--Matt
-
+Index: mm5-2.6.5-rc2/include/asm-generic/cpumask_arith.h
+===================================================================
+--- mm5-2.6.5-rc2.orig/include/asm-generic/cpumask_arith.h	2004-03-19 16:11:33.000000000 -0800
++++ mm5-2.6.5-rc2/include/asm-generic/cpumask_arith.h	2004-03-29 17:58:25.000000000 -0800
+@@ -6,6 +6,12 @@
+  * to contain the whole cpu bitmap.
+  */
+ 
++#if NR_CPUS % BITS_PER_LONG
++#define __CPU_VALID_MASK__		(~((1UL<< (NR_CPUS%BITS_PER_LONG) - 1))
++#else
++#define __CPU_VALID_MASK__		(~0UL)
++#endif
++
+ #define cpu_set(cpu, map)		set_bit(cpu, &(map))
+ #define cpu_clear(cpu, map)		clear_bit(cpu, &(map))
+ #define cpu_isset(cpu, map)		test_bit(cpu, &(map))
+@@ -15,14 +21,14 @@
+ #define cpus_or(dst,src1,src2)		do { dst = (src1) | (src2); } while (0)
+ #define cpus_clear(map)			do { map = 0; } while (0)
+ #define cpus_complement(map)		do { map = ~(map); } while (0)
+-#define cpus_equal(map1, map2)		((map1) == (map2))
+-#define cpus_empty(map)			((map) == 0)
++#define cpus_equal(x, y)		(!(((x) ^ (y)) & __CPU_VALID_MASK__))
++#define cpus_empty(map)			(!((map) & __CPU_VALID_MASK__))
+ #define cpus_addr(map)			(&(map))
+ 
+ #if BITS_PER_LONG == 32
+-#define cpus_weight(map)		hweight32(map)
++#define cpus_weight(map)		hweight32((map) & __CPU_VALID_MASK__)
+ #elif BITS_PER_LONG == 64
+-#define cpus_weight(map)		hweight64(map)
++#define cpus_weight(map)		hweight64((map) & __CPU_VALID_MASK__)
+ #endif
+ 
+ #define cpus_shift_right(dst, src, n)	do { dst = (src) >> (n); } while (0)
+@@ -39,7 +45,7 @@
+ #define CPU_MASK_NONE	((cpumask_t)0)
+ 
+ /* only ever use this for things that are _never_ used on large boxen */
+-#define cpus_coerce(map)		((unsigned long)(map))
++#define cpus_coerce(map)		((map) & __CPU_VALID_MASK__)
+ #define cpus_promote(map)		({ map; })
+ #define cpumask_of_cpu(cpu)		({ ((cpumask_t)1) << (cpu); })
+ 

@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316574AbSFMExo>; Thu, 13 Jun 2002 00:53:44 -0400
+	id <S314483AbSFMExL>; Thu, 13 Jun 2002 00:53:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316644AbSFMExn>; Thu, 13 Jun 2002 00:53:43 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:2805 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S316574AbSFMExm>;
-	Thu, 13 Jun 2002 00:53:42 -0400
-Date: Thu, 13 Jun 2002 14:52:47 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, Linus <torvalds@transmeta.com>
-Cc: Trivial Kernel Patches <trivial@rustcorp.com.au>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] utimes permission check
-Message-Id: <20020613145247.52b10c61.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.7.7 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S316574AbSFMExK>; Thu, 13 Jun 2002 00:53:10 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1803 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314483AbSFMExJ>;
+	Thu, 13 Jun 2002 00:53:09 -0400
+Message-ID: <3D08246E.6030307@mandrakesoft.com>
+Date: Thu, 13 Jun 2002 00:49:50 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/00200205
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: kuebelr@email.uc.edu
+CC: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [TRIVIAL] 3c509.c - 2/2
+In-Reply-To: <20020613042736.GB12340@cartman>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo, Linus,
+kuebelr@email.uc.edu wrote:
+>  static u16 el3_isapnp_phys_addr[8][3];
+>  #endif /* CONFIG_ISAPNP || CONFIG_ISAPNP_MODULE */
+>  static int nopnp;
+> @@ -1265,6 +1261,8 @@
+>  MODULE_PARM_DESC(nopnp, "disable ISA PnP support (0-1)");
+>  #endif /* CONFIG_ISAPNP */
+>  MODULE_DESCRIPTION("3Com Etherlink III (3c509, 3c509B) ISA/PnP ethernet driver");
+> +MODULE_DEVICE_TABLE(isapnp, el3_isapnp_adapters);
 
-The utime and utimes should do exactly the smae permission check
-according to SUSv3.
-	"The effective user ID of the process shall match the owner of the file,
-or has write access to the file or appropriate privileges to use this call
-in this manner."
+it doesn't make much sense to have the isapnp device table outside the 
+isapnp ifdef.
 
-utimes when passed a NULL second argument would fail on a read only
-file even if the file is owned by the caller.
+	Jeff
 
-As a side note, it appears that glibc in i386 turns calls to utimes into
-calls to utime (so this bug is not apparent), but on ia64, glibc turns
-calls to utime into calls to utimes (so this bug affects utime as well).
-In the kernel we have both syscalls except on Alpha and IA64 where we
-don't have utime ... I have no idea what it does on other architectures.
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
 
-diff -ruN 2.4.19-pre10/fs/open.c 2.4.19-pre10-utimes.1/fs/open.c
---- 2.4.19-pre10/fs/open.c	Tue Jun  4 13:56:22 2002
-+++ 2.4.19-pre10-utimes.1/fs/open.c	Thu Jun 13 14:38:35 2002
-@@ -325,7 +325,8 @@
- 		newattrs.ia_mtime = times[1].tv_sec;
- 		newattrs.ia_valid |= ATTR_ATIME_SET | ATTR_MTIME_SET;
- 	} else {
--		if ((error = permission(inode,MAY_WRITE)) != 0)
-+		if (current->fsuid != inode->i_uid &&
-+		    (error = permission(inode,MAY_WRITE)) != 0)
- 			goto dput_and_out;
- 	}
- 	error = notify_change(nd.dentry, &newattrs);
+
+

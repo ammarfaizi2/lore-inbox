@@ -1,139 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264841AbSJaKxC>; Thu, 31 Oct 2002 05:53:02 -0500
+	id <S264853AbSJaLDR>; Thu, 31 Oct 2002 06:03:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264845AbSJaKxC>; Thu, 31 Oct 2002 05:53:02 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:3616 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S264841AbSJaKw7>; Thu, 31 Oct 2002 05:52:59 -0500
-Subject: The ACL debate (was: Re: What's left over.)
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1036061965.2425.20.camel@aurora.localdomain>
+	id <S264856AbSJaLDQ>; Thu, 31 Oct 2002 06:03:16 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:17630 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264853AbSJaLCm>;
+	Thu, 31 Oct 2002 06:02:42 -0500
+Date: Thu, 31 Oct 2002 16:40:35 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: John Gardiner Myers <jgmyers@netscape.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-aio@kvack.org, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: and nicer too - Re: [PATCH] epoll more scalable than poll
+Message-ID: <20021031164035.A3178@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <3DC0904B.1070009@netscape.com> <Pine.LNX.4.44.0210301834540.1452-100000@blue1.dev.mcafeelabs.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.2.99 (Preview Release)
-Date: 31 Oct 2002 05:59:25 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0210301834540.1452-100000@blue1.dev.mcafeelabs.com>; from davidel@xmailserver.org on Wed, Oct 30, 2002 at 07:21:24PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 2002-10-30 at 21:31, Linus Torvalds wrote:
-> > > ext2/ext3 ACLs and Extended Attributes
-> > 
-> > I don't know why people still want ACL's. There were noises about them for 
-> > samba, but I'v not heard anything since. Are vendors using this?
-> > 
+On Wed, Oct 30, 2002 at 07:21:24PM -0800, Davide Libenzi wrote:
+> On Wed, 30 Oct 2002, John Gardiner Myers wrote:
 > 
-> I am sure I don't count (not being a vendor), but Intermezzo offers
-> support for this (they are waiting on feature freeze to redo it to 2.5
-> according to an email I have).  I want this stuff.  Yes, u+g+w is nice,
-> but good ACLs are even better.  Please, if this is technically correct
-> in implementation, do put it in.
+> > Epoll creates a new callback mechanism and plugs into this new callback
+> > mechansim.  It adds a new set of notification hooks which feed into this
+> > new callback mechansim.  The end result is that there is one set of
+> > notification hooks for classic poll and another set for epoll.  When
+> > epoll is not being used, the poll and socket code makes an additional
+> > set of checks to see that nobody has registered interest through the new
+> > callback mechanism.
 > 
-> Thank you,
-> Trever
+> Where epoll hooks has nothing to do with ->f_po->poll()
 > 
 
-I know, bad form and all following up to myself.  Everyone keeps
-mentioning how bad ACLs are and how they need user-space regulation. 
-Let me explain what I see, what I believe Windows NT/XP does, and
-hopefully we can reach some consensus among those who really know.
+I think what John means, and what Jamie has also brought up in a 
+separate note is that now when an event happens on an fd, in some cases
+there are tests for 3 kinds of callbacks that get triggered -- the wait
+queue for poll type registrations, the fasync list for sigio, and the
+new epoll file send notify type callbacks. There is a little overhead
+(not sure if significant) for each kind of test ...  
 
-Problems with normal Unix permissions:
-1) You only have three categories (user/owner, group, world/other).
+> 
+> 
+> > > It fits _exactly_
+> > >the rt-signal hooks. One of the design goals for me was to add almost
+> > >nothing on the main path. You can lookup here for a quick compare between
+> > >aio poll and epoll for a test where events delivery efficency does matter
+> > >( pipetest ) :
+> > >
+> > This is a comparison of the cost of using epoll to the cost of using aio
+> > in one particular situation.  It is irrelevant to the point I was making.
+> 
+> See, I believe numbers talks. And it does make a pretty clear point
+> indeed.
+> 
+> 
+> 
+> > My understanding of the efficiency of the epoll event notification
+> > subsystem is:
+> >
+> > 1) Unlike the current aio poll, it amortizes the cost of interest
+> > registration/deregistration across multiple events for a given connection.
+> 
+> Yep
+> 
 
-2) Owner can't offer (transfer) ownership to someone else (NT does this
-right by making it belong to the owner until the potential new owner
-accepts).
+Adding persistent iocb support to aio doesn't appear too hard, and 
+to be fair to aio, it does seem to help it come much closer to epoll, 
+in fact very much closer at least for pipetest with a quickly hacked 
+version that I tried. There still appears to be a gap remaining to 
+be covered i.e epoll continuing to lead :) albeit by a smaller margin.
 
-3) Limited number of groups.
+A little more magic is going on than just interest registration 
+amortization (and I suspect its not just the threading argument), 
+worth analysing if not for any other reason but to gain a better 
+understanding of these 2 event delivery mechanisms the core for both
+of which are now in the mainline kernel.
 
-4) Only root can add groups
+Regards
+Suparna
 
-5) Only root can change group ownership of a file
-
-What I see NT doing:
-1) Owner can allow read, write, delete, execute to anyone or any group
-(this is great, though delete and write might as well be the same thing
-I think)
-
-2) NT Kernel + fs dictates rights, not the user-land
-
-3) Non-owner user cannot give rights to anyone else (though, I believe
-they can remove rights from themselves, though it has been a LONG time
-and I am not sure)
-
-4) Owner can offer transfer of ownership (though this may be dumb in
-Linux)
-
-5) No need for groups for small numbers of additional users with rwx
-abilities
-
-6) On copy the ACL is reset to the owner only.
-
-7) On move, it copies the ACL (see problems with ACLs below)
-
-Where does user-land fit in:
-Right now it fits in with chown.  I believe everything else is done in
-kernel for permissions now.  Why are we blaming everything on user-land
-now with more powerful ACLs/permissions?  You need a tool that can
-request that the kernel do xyz update on the ACL for file abc.  The
-kernel then says done, you are the owner of the file, or heck no, go
-away you aren't the owner even if you have rwx privileges.
-
-Why ACLs are needed:
-I know many people who would love to move to Linux for all sorts of
-things, but they need ACLs.  Sysadmins can't always be running around
-chowning things for different groups, adding users to groups, removing
-users to groups, removing dead groups, etc.  ACLs allows the owner of
-the file to do things as they really should be done.  ACLs do need at
-least a concept of additional users (not owners) of a file.  It would be
-nice if it would work with groups too, even if root intervention was
-still required for creating groups.
-
-Why are ACLs bad:
-1) It takes some brains so that you totally don't screw yourself over
-with your data... however this still can happen with the current Unix
-permissions.  It just becomes more complex.
-
-2) More complex kernel code... well every feature does.  I believe this
-one is worth it.
-
-3) Different file systems have different ACL sets... OK, so what. 
-User-space just needs to be able to know what they are on each fs, as
-does the kernel.  I don't really think there needs to be a huge issue,
-other than on a move.  Copy would reset the ACL to the owner's default
-(the new owner, not the original file owner).  Move needs to be able to
-copy the ACLs with the file.  Within the same fs type (even if different
-volumes), this should be easy.  Between fs types, this may be a problem.
-
-4) New/update user space tools required.  All new features do.  Heck,
-networking needs new versions all the time.
-
-5) Disk/kernel bloat.  Make it a compile time option I guess.  Those who
-need/want can have, those who don't, good too.
-
-Does POSIX ACLs do all this:
-I have no clue.  I don't know if they are sane or not.  I see a proper
-ACL definition just extending and working with standard permissions
-including the rules of inheritance and priority.
-
-Am I crazy:
-I may very well be.  I may have no clue what I am talking about. 
-However, I wrote this because I really don't see all the arguments about
-how horrible it is because of user-land.
-
-Can most of the positives be emulated via setuid apps:
-Maybe.  However, you still are limited to three fields of authorization,
-verses the many more of the other.  Also, it would require more
-user-land updates to do this than to do it with ACLs IMHO.
-
-Thank you for your time and corrections where I am wrong.  Please,
-direct flames to your /dev/null mine is full :)
-
-Trever Adams
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Labs, India
 

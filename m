@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263313AbSLPAJs>; Sun, 15 Dec 2002 19:09:48 -0500
+	id <S263491AbSLPAZd>; Sun, 15 Dec 2002 19:25:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263362AbSLPAJs>; Sun, 15 Dec 2002 19:09:48 -0500
-Received: from elin.scali.no ([62.70.89.10]:59920 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S263313AbSLPAJr>;
-	Sun, 15 Dec 2002 19:09:47 -0500
-Date: Mon, 16 Dec 2002 01:17:30 +0100 (CET)
-From: Steffen Persvold <sp@scali.com>
-X-X-Sender: sp@sp-laptop.isdn.scali.no
-To: Keith Owens <kaos@ocs.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: How to do -nostdinc?
-In-Reply-To: <1357.1039954001@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.4.44.0212160110040.1030-100000@sp-laptop.isdn.scali.no>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263544AbSLPAZd>; Sun, 15 Dec 2002 19:25:33 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64529 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263491AbSLPAZc>;
+	Sun, 15 Dec 2002 19:25:32 -0500
+Date: Mon, 16 Dec 2002 00:33:27 +0000
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: linux-kernel@vger.kernel.org
+Cc: rth@twiddle.net
+Subject: 2 (minor) Alpha probs in 2.5.51
+Message-ID: <20021216003327.GC709@gallifrey>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.4.18 (i686)
+X-Uptime: 00:25:20 up  7:52,  2 users,  load average: 0.00, 0.01, 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Dec 2002, Keith Owens wrote:
+(This is with rth's exception patch to fix the mount problem).
 
-> There are two ways of setting the -nostdinc flag in the kernel Makefile :-
-> 
-> (1) -nostdinc $(shell $(CC) -print-search-dirs | sed -ne 's/install: \(.*\)/-I \1include/gp')
-> (2) -nostdinc -iwithprefix include
-> 
-> The first format breaks with non-English locales, however the fix is trivial.
-> 
-> (1a) -nostdinc $(shell LANG=C $(CC) -print-search-dirs | sed -ne 's/install: \(.*\)/-I \1include/gp')
-> 
-> The second format is simpler but there have been reports that it does
-> not work with some versions of gcc.  I have been unable to find a
-> definitive statement about which versions of gcc fail and whether the
-> problem has been fixed.  Anybody care to provide a definitive
-> statement?
-> 
-> If kernel build cannot rely on gcc working with -nostdinc -iwithprefix include
-> then we need to convert to (1a).
+1) If compiled for the LX164 platform it is missing a number of symbols
+at link time (fine if built generic):
 
-Well, it works fine with gcc-2.91.66 (egcs-1.1.2 release), gcc-2.96 (RH 
-7.{1,2,3} versions), and gcc-3.2 (RH 8.0 version)
+arch/alpha/kernel/built-in.o(.data+0x3030): undefined reference to
+`cia_bwx_inb'
+arch/alpha/kernel/built-in.o(.data+0x3038): undefined reference to
+`cia_bwx_inw'
+.
+.
+.
+(and a handful more)
 
-Of course there are other versions out there but 2.91 is rather old...
+2) This is a kind of subtle one.  Straight after boot up if I run 'w'
+or 'top' I get the warning:
 
-Regards,
--- 
-  Steffen Persvold   |       Scali AS      
- mailto:sp@scali.com |  http://www.scali.com
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
+Unknown HZ value! (831) Assume 1024.
 
+This value creeps up:
+
+Unknown HZ value! (958) Assume 1024.
+
+over a period of a few minutes till the warning goes away.
+
+Dave
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279674AbRJYGOf>; Thu, 25 Oct 2001 02:14:35 -0400
+	id <S279688AbRJYGQ1>; Thu, 25 Oct 2001 02:16:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279680AbRJYGOZ>; Thu, 25 Oct 2001 02:14:25 -0400
-Received: from epithumia.math.uh.edu ([129.7.128.2]:4587 "EHLO
-	epithumia.math.uh.edu") by vger.kernel.org with ESMTP
-	id <S279674AbRJYGOP>; Thu, 25 Oct 2001 02:14:15 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: 3ware 3dmd & 2.4.12-ac: Error: No Controllers Found
-In-Reply-To: <2142.1003855818@nova.botz.org>
-From: Jason L Tibbitts III <tibbs@math.uh.edu>
-Date: 25 Oct 2001 01:14:50 -0500
-In-Reply-To: Jurgen Botz's message of "Tue, 23 Oct 2001 09:50:18 -0700"
-Message-ID: <ufaelnsmejp.fsf@epithumia.math.uh.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+	id <S279685AbRJYGQI>; Thu, 25 Oct 2001 02:16:08 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:28680 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S279680AbRJYGQH>;
+	Thu, 25 Oct 2001 02:16:07 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200110250615.f9P6Fx0143825@saturn.cs.uml.edu>
+Subject: Re: RFC - tree quotas for Linux (2.4.12, ext2)
+To: pollard@tomcat.admin.navo.hpc.mil (Jesse Pollard)
+Date: Thu, 25 Oct 2001 02:15:59 -0400 (EDT)
+Cc: jas88@cam.ac.uk, riel@conectiva.com.br (Rik van Riel),
+        jack@suse.cz (Jan Kara), neilb@cse.unsw.edu.au (Neil Brown),
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200110241844.NAA32059@tomcat.admin.navo.hpc.mil> from "Jesse Pollard" at Oct 24, 2001 01:44:27 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "JB" == Jurgen Botz <jurgen@botz.org> writes:
+Jesse Pollard writes:
 
-JB> Anyone else run into this?  Any ideas on how to fix?
+> There still remains the problem of hard links... They could be counted
+> in two or more trees as long as two or more trees exist on one filesystem.
 
-I just checked and found I'm having the same problem.  I'm at
-2.4.12-ac5 plus LVM 1.0.1_rc4.  I have no idea what could be going on;
-I've been lost a couple of times in the 3ware driver without
-understanding much of what's going on in there.
+Obvious fix: prohibit hard links across tree quota boundries,
+including any that might be created by a rename.
 
- - J<
+It is an admin error to enable tree quotas on trees that
+have existing hard links.
+
+While doing that, a sysctl or mount option to enable/disable hard
+linking to other people's files would be nice. Default to stopping
+the "feature" IMHO.
+

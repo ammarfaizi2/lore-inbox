@@ -1,76 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVB0AnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVB0Arh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261315AbVB0AnW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 19:43:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbVB0AnW
+	id S261316AbVB0Arh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 19:47:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVB0Arh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 19:43:22 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:60933 "HELO
+	Sat, 26 Feb 2005 19:47:37 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63237 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261315AbVB0AnQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 19:43:16 -0500
-Date: Sun, 27 Feb 2005 01:43:13 +0100
+	id S261316AbVB0Ar0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Feb 2005 19:47:26 -0500
+Date: Sun, 27 Feb 2005 01:47:23 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] deprecate EXPORT_SYMBOL(do_settimeofday)
-Message-ID: <20050227004313.GQ3311@stusta.de>
-References: <20050224233742.GR8651@stusta.de> <20050224212448.367af4be.akpm@osdl.org> <20050226133337.GK3311@stusta.de> <20050226144635.B7151@flint.arm.linux.org.uk> <20050226162341.GN3311@stusta.de> <20050226164613.E7151@flint.arm.linux.org.uk> <20050226171325.GO3311@stusta.de> <20050226172922.B15124@flint.arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/pcmcia/: possible cleanups
+Message-ID: <20050227004723.GR3311@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050226172922.B15124@flint.arm.linux.org.uk>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 26, 2005 at 05:29:22PM +0000, Russell King wrote:
-> On Sat, Feb 26, 2005 at 06:13:25PM +0100, Adrian Bunk wrote:
-> > You call it "breakage" because you have a relatively dogmatic view 
-> > regarding the selection of user visible symbols.
-> > Other people care more about the usability of the kernel config system, 
-> > and therefore a select of one of the I2C* options is quite common from 
-> > both outside and inside the i2c subsystem.
-> 
-> I think you have to realise that we're different in the ARM world.
-> We tend to rely on the default configuration files to come out with
-> something that works, rather than hard coding the "what works" into
-> the kernel configuration subsystem.
-> 
-> If you want to see an example of this kind of "usability" approach,
-> take a look at arch/arm/Kconfig LEDS options - lines of 250 or so
-> characters of dependencies.  Not what I'd call particularly
-> maintainable.
-> 
-> That is what your approach has in store for the other Kconfig files
-> when it comes down to getting dependencies Correct(tm).
+This patch contains the following possible cleanups:
+- make needlessly global code static
+- remove the following unneeded EXPORT_SYMBOL's:
+  - ds.c: pcmcia_report_error
+  - ds.c: pcmcia_bus_type
 
-LEDS=n and LEDS_TIMER=y is a legal configuration if ARCH_EBSA110?
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-The LEDS_TIMER dependencies seem to be incorrect at least regarding 
-ARCH_CDB89712.
+---
 
-Yes, it is ugly annd error-prone.
+ drivers/pcmcia/ds.c             |   10 +++++-----
+ drivers/pcmcia/rsrc_nonstatic.c |    4 ++--
+ include/pcmcia/cs.h             |    1 -
+ include/pcmcia/ds.h             |    2 --
+ 4 files changed, 7 insertions(+), 10 deletions(-)
 
-> (I do have a simplified LEDS configuration set, but it still keeps
-> one huge LEDS dependency.)
-
-The current LEDS configuration is ugly, but that's not an ARM specific 
-problem. Compare e.g. the big #if in include/linux/parport.h 30 lines 
-before the end of the file in Linus' tree and see how this is resolved 
-in -mm in non-pc-parport-config-change.patch .
-
-One solution for LEDS would be to add a helper option HAS_LEDS that gets 
-selected by the ARCH_* options if the platform supports LEDS, and LEDS 
-simply depends on HAS_LEDS.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--- linux-2.6.11-rc4-mm1-full/include/pcmcia/cs.h.old	2005-02-26 15:49:49.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/include/pcmcia/cs.h	2005-02-26 15:50:07.000000000 +0100
+@@ -417,7 +417,6 @@
+ int pcmcia_resume_card(struct pcmcia_socket *skt);
+ int pcmcia_eject_card(struct pcmcia_socket *skt);
+ int pcmcia_insert_card(struct pcmcia_socket *skt);
+-int pcmcia_report_error(client_handle_t handle, error_info_t *err);
+ 
+ struct pcmcia_socket * pcmcia_get_socket(struct pcmcia_socket *skt);
+ void pcmcia_put_socket(struct pcmcia_socket *skt);
+--- linux-2.6.11-rc4-mm1-full/include/pcmcia/ds.h.old	2005-02-26 15:45:28.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/include/pcmcia/ds.h	2005-02-26 15:45:32.000000000 +0100
+@@ -129,8 +129,6 @@
+ 
+ struct pcmcia_socket;
+ 
+-extern struct bus_type pcmcia_bus_type;
+-
+ struct pcmcia_driver {
+ 	dev_link_t		*(*attach)(void);
+ 	void			(*detach)(dev_link_t *);
+--- linux-2.6.11-rc4-mm1-full/drivers/pcmcia/ds.c.old	2005-02-26 15:44:48.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/pcmcia/ds.c	2005-02-26 15:49:33.000000000 +0100
+@@ -58,7 +58,7 @@
+ MODULE_LICENSE("GPL");
+ 
+ #ifdef DEBUG
+-int ds_pc_debug;
++static int ds_pc_debug;
+ 
+ module_param_named(pc_debug, ds_pc_debug, int, 0644);
+ 
+@@ -214,7 +214,7 @@
+ };
+ 
+ 
+-int pcmcia_report_error(client_handle_t handle, error_info_t *err)
++static int pcmcia_report_error(client_handle_t handle, error_info_t *err)
+ {
+ 	int i;
+ 	char *serv;
+@@ -244,7 +244,6 @@
+ 
+ 	return CS_SUCCESS;
+ } /* report_error */
+-EXPORT_SYMBOL(pcmcia_report_error);
+ 
+ /* end of code which was in cs.c before */
+ 
+@@ -262,6 +261,8 @@
+ static struct pcmcia_driver * get_pcmcia_driver (dev_info_t *dev_info);
+ static struct pcmcia_bus_socket * get_socket_info_by_nr(unsigned int nr);
+ 
++static struct bus_type pcmcia_bus_type;
++
+ static void pcmcia_release_bus_socket(struct kref *refcount)
+ {
+ 	struct pcmcia_bus_socket *s = container_of(refcount, struct pcmcia_bus_socket, refcount);
+@@ -1610,12 +1611,11 @@
+ };
+ 
+ 
+-struct bus_type pcmcia_bus_type = {
++static struct bus_type pcmcia_bus_type = {
+ 	.name = "pcmcia",
+ 	.match = pcmcia_bus_match,
+ 	.dev_attrs = pcmcia_dev_attrs,
+ };
+-EXPORT_SYMBOL(pcmcia_bus_type);
+ 
+ 
+ static int __init init_pcmcia_bus(void)
+--- linux-2.6.11-rc4-mm1-full/drivers/pcmcia/rsrc_nonstatic.c.old	2005-02-26 18:41:19.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/pcmcia/rsrc_nonstatic.c	2005-02-26 18:41:34.000000000 +0100
+@@ -606,7 +606,7 @@
+ 
+ ======================================================================*/
+ 
+-struct resource *nonstatic_find_io_region(unsigned long base, int num,
++static struct resource *nonstatic_find_io_region(unsigned long base, int num,
+ 		   unsigned long align, struct pcmcia_socket *s)
+ {
+ 	struct resource *res = make_resource(0, num, IORESOURCE_IO, s->dev.class_id);
+@@ -640,7 +640,7 @@
+ 	return res;
+ }
+ 
+-struct resource * nonstatic_find_mem_region(u_long base, u_long num, u_long align,
++static struct resource * nonstatic_find_mem_region(u_long base, u_long num, u_long align,
+ 				 int low, struct pcmcia_socket *s)
+ {
+ 	struct resource *res = make_resource(0, num, IORESOURCE_MEM, s->dev.class_id);
 

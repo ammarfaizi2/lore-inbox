@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265354AbUGMPcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265315AbUGMPjl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265354AbUGMPcR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 11:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265356AbUGMPcR
+	id S265315AbUGMPjl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 11:39:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265359AbUGMPjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 11:32:17 -0400
-Received: from tristate.vision.ee ([194.204.30.144]:30632 "HELO mail.city.ee")
-	by vger.kernel.org with SMTP id S265354AbUGMPcP (ORCPT
+	Tue, 13 Jul 2004 11:39:41 -0400
+Received: from rzfoobar.is-asp.com ([217.11.194.155]:1196 "EHLO mail.isg.de")
+	by vger.kernel.org with ESMTP id S265315AbUGMPjh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 11:32:15 -0400
-Message-ID: <40F40080.8010801@vision.ee>
-Date: Tue, 13 Jul 2004 18:32:16 +0300
-From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
-Organization: Vision
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040705)
-X-Accept-Language: en-us, en
+	Tue, 13 Jul 2004 11:39:37 -0400
+Message-ID: <40F40238.3080103@isg.de>
+Date: Tue, 13 Jul 2004 17:39:36 +0200
+From: Lutz Vieweg <lkv@isg.de>
+Organization: Innovative Software AG
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040322 wamcom.org
+X-Accept-Language: de, German, en
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: preempt-timing-2.6.8-rc1
-References: <20040713122805.GZ21066@holomorphy.com> <40F3F0A0.9080100@vision.ee> <20040713143947.GG21066@holomorphy.com>
-In-Reply-To: <20040713143947.GG21066@holomorphy.com>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Michael Clark <michael@metaparadigm.com>
+Cc: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: How to find out which pages were copied-on-write?
+References: <40EACC0C.6060606@isg.de> <20040709113125.GA8897@lnx-holt.americas.sgi.com> <40EF0346.4040407@isg.de> <40EFA4C8.1050409@metaparadigm.com> <40F2C882.7070406@isg.de> <40F36216.1080603@metaparadigm.com> <40F3DDC4.7060104@isg.de> <40F3F993.6040602@metaparadigm.com>
+In-Reply-To: <40F3F993.6040602@metaparadigm.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
+Michael Clark wrote:
+> On 07/13/04 21:04, Lutz Vieweg wrote:
+> 
+>>> You don't use mmap for speed but rather for convenience.
+>>
+>> But isn't an advantage with mmap() that there's no need for the kernel
+>> to copy what is to be written to a dedicated buffer? The kernel
+>> could initiate DMA writes directly from the working memory...
+> 
+> Yes, but page faults are expensive too. Each time a page is written
+> out it needs to be marked read only again and will cause a page fault
+> for the next write access from userspace. For certain workloads this
+> can easily add up to more than copy_(to|from)_user in read/write.
 
->Wild guess is that you took an IRQ in dec_preempt_count() and that threw
->your results off. Let me know if the patch below helps at all. My guess
->is it'll cause more apparent problems than it solves.
->
-Machine in question is XP2500+@1.84GHz (it was overlocked@2.25GHz during 
-last test, now running at
-official speed). Is this really slow for 1ms?
+But I would need exactly the same number of pagefaults if I implemented
+the "mark-dirty-on-write" logic in userspace using SIGSEGV and signal
+handlers, as it is done by the LPSM software...
 
-Applied your patch. Booted.
+> read/write also gives you more explicit control on IO batching and
+> scheduling (when to read or write). Less need for the kernel to employ
+> tricks to effectively coaslesce IOs on dirtied pages or sense
+> streaming access patterns.
 
-With preempt_thresh=1 I still got tons of those violations at schedule().
+But if the kernel would turn a private copy of a c-o-w page into a
+"dirty"-page that is marked for writing out to disk, another process
+could mmap() the very same page even before it has been written to disk,
+while if I write out dirty pages using write() in userspace, other
+processes probably won't notice before all the data has reached the disk,
+which could take quite some time.
 
-With preempt_thresh=2 I do not get those anymore. Apart from sys_ioctl() 
-violation, getting now these:
+And unlike the user space application, the kernel knows which writes
+go to which physical disk so it can e.g. make better use of striping.
 
-16ms non-preemptible critical section violated 2 ms preempt threshold 
-starting at exit_notify+0x1d/0x7b0 and ending at schedule+0x291/0x480
-7ms non-preemptible critical section violated 2 ms preempt threshold 
-starting at kmap_atomic+0x13/0x70 and ending at kunmap_atomic+0x5/0x20
-6ms non-preemptible critical section violated 2 ms preempt threshold 
-starting at fget+0x28/0x70 and ending at fget+0x41/0x70
+Regards,
 
-No apparent side-effects noticed.
+Lutz Vieweg
 
-As before, when running mplayer I'm getting many sys_ioctl() things 
-coupled with messages:
-rtc: lost some interrupts at 1024Hz.
-It happens when madly seeking around in video.
 
-Lenar
 

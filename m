@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbUE0HGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbUE0HSR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261661AbUE0HGj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 03:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbUE0HGj
+	id S261648AbUE0HSR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 03:18:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbUE0HSR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 03:06:39 -0400
-Received: from grisu.bik-gmbh.de ([217.110.154.194]:18697 "EHLO
-	grisu.bik-gmbh.de") by vger.kernel.org with ESMTP id S261661AbUE0HGc
+	Thu, 27 May 2004 03:18:17 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:29871 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261648AbUE0HSQ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 03:06:32 -0400
-Message-ID: <40B59367.9010609@bik-gmbh.de>
-Date: Thu, 27 May 2004 09:06:15 +0200
-From: Florian Hars <hars@bik-gmbh.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7b) Gecko/20040316
-X-Accept-Language: de, de-de, en-us, en
+	Thu, 27 May 2004 03:18:16 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Tom Felker <tcfelker@mtco.com>
+Subject: Re: why swap at all?
+Date: Thu, 27 May 2004 09:16:47 +0200
+User-Agent: KMail/1.6.2
+Cc: Matthias Schniedermeyer <ms@citd.de>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+References: <S265353AbUEZI1M/20040526082712Z+1294@vger.kernel.org> <20040526123740.GA14584@citd.de> <200405270014.10096.tcfelker@mtco.com>
+In-Reply-To: <200405270014.10096.tcfelker@mtco.com>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel BUG at usb:848
-References: <40B4AF96.5090608@bik-gmbh.de> <20040526183113.GB25978@kroah.com>
-In-Reply-To: <20040526183113.GB25978@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200405270916.47868.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Wed, May 26, 2004 at 04:54:14PM +0200, Florian Hars wrote:
->>Do you need anything else, besides the attached gunziped config.gz?
-> What kernel version is this?
-> 
-> Can you enable CONFIG_USB_STORAGE_DEBUG and send the resulting log to
-> the linux-usb-devel mailing list?
+Am Donnerstag, 27. Mai 2004 07:14 schrieb Tom Felker:
+> Most drastic would be to change the way to choose pages to throw out.  
+> Different processes or pages could have different priorities, so you could 
+> mark interactive processes as keepers even if you haven't used them in days.
 
-It is 2.6.6, and is the same piece of hardware as in
-http://sourceforge.net/mailarchive/forum.php?thread_id=4794135&forum_id=5398
-Which contains some logs from a related problem.
+Do you really want that? Wouldn't you rather want pages of such tasks
+swapped in very aggresively once the first page fault happens? Or even
+preemptively?
 
-I'll try to reproduce this error later.
-
-Yours, Florian
+	Regards
+		Oliver

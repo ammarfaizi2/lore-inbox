@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261258AbSKGPUO>; Thu, 7 Nov 2002 10:20:14 -0500
+	id <S261238AbSKGPSR>; Thu, 7 Nov 2002 10:18:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261264AbSKGPUN>; Thu, 7 Nov 2002 10:20:13 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:58511 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261258AbSKGPUM>; Thu, 7 Nov 2002 10:20:12 -0500
-Date: Thu, 07 Nov 2002 07:23:54 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
-cc: Andrew Morton <akpm@digeo.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       me Rusty Russell <rusty@rustcorp.com.au>, dipankar@in.ibm.com
-Subject: Re: Strange panic as soon as timer interrupts are enabled (recent  2.5)
-Message-ID: <4045881620.1036653833@[10.10.2.3]>
-In-Reply-To: <200211071518.gA7FIWv02566@localhost.localdomain>
-References: <200211071518.gA7FIWv02566@localhost.localdomain>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
+	id <S261258AbSKGPSQ>; Thu, 7 Nov 2002 10:18:16 -0500
+Received: from pasky.ji.cz ([62.44.12.54]:58107 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id <S261238AbSKGPSQ>;
+	Thu, 7 Nov 2002 10:18:16 -0500
+Date: Thu, 7 Nov 2002 16:24:54 +0100
+From: Petr Baudis <pasky@ucw.cz>
+To: Peter Samuelson <peter@cadcamlab.org>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [kbuild] Possibility to sanely link against off-directory .so
+Message-ID: <20021107152454.GH5219@pasky.ji.cz>
+Mail-Followup-To: Peter Samuelson <peter@cadcamlab.org>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	kbuild-devel <kbuild-devel@lists.sourceforge.net>,
+	linux-kernel@vger.kernel.org
+References: <20021106185230.GD5219@pasky.ji.cz> <20021106212952.GB1035@mars.ravnborg.org> <20021106220347.GE5219@pasky.ji.cz> <20021107100021.GL4182@cadcamlab.org> <Pine.LNX.4.44.0211071149200.13258-100000@serv> <20021107114747.GM4182@cadcamlab.org> <Pine.LNX.4.44.0211071258550.13258-100000@serv> <20021107123753.GN4182@cadcamlab.org> <Pine.LNX.4.44.0211071352270.13258-100000@serv> <20021107132245.GO4182@cadcamlab.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20021107132245.GO4182@cadcamlab.org>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The question really is whether the secondaries need to receive any interrupts 
-> at all (except for the one that booted them) before the smp_commence mask is 
-> cleared.  I don't believe this to be the case.  calibrate_delay only requires 
-> that jiffies be ticking, which will happen as long as the boot cpu is 
-> receiving timer interrupts.  Perhaps the correct fix is not to enable the 
-> interrupts early in the start_secondary sequence, and not to lower the APIC 
-> (or VIC in my case) interrupt masks at all until after smp_commence.  Thus the 
-> boot CPU will handle all the interrupts up until that point.
+Dear diary, on Thu, Nov 07, 2002 at 02:22:45PM CET, I got a letter,
+where Peter Samuelson <peter@cadcamlab.org> told me, that...
+> Remember, the whole point of HOSTCC is to support a build environment
+> different from the compile target - arbitrarily different, even.
 
-Someone suggested that the other arches do all this in a different 
-order. Would someone who knows about them care to explain what they
-do differently and why, or at least point me to an arch to look at
-that does this well?
+I'm a bit lost here - the kernel uses tons of gcc extensions - how is another
+compiler supposed to understand them? And if it is specifically extended to
+understand them, isn't it likely that it'll understand the -shared switch in
+gcc-like way as well?
 
-M.
+Or better, what other compiler is known to build a kernel than gcc? At least
+anything that doesn't define __GNUC__ should IMHO fail inside of init/main.c.
+And how likely is situation when someone want to configure a kernel with
+non-gcc compiler and actually build it with gcc?
 
+I thought that the point of HOSTCC is to allow to use a non-standart version
+of gcc for kernel build.
+
+-- 
+ 
+				Petr "Pasky" Baudis
+.
+This host is a black hole at HTTP wavelengths. GETs go in, and nothing
+comes out, not even Hawking radiation.
+                -- Graaagh the Mighty on rec.games.roguelike.angband
+.
+Public PGP key && geekcode && homepage: http://pasky.ji.cz/~pasky/

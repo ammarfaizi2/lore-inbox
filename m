@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVCYB66@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbVCYB67@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261410AbVCYB66 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 20:58:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVCYAtQ
+	id S261301AbVCYB67 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 20:58:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVCYAsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 19:49:16 -0500
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:35778 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261309AbVCYASM convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 19:18:12 -0500
-Date: Fri, 25 Mar 2005 01:23:17 +0100 (CET)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Andi Kleen <ak@muc.de>
-Cc: Bodo Eggert <7eggert@gmx.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.11.5] atkbd: suppress debug output (was: printk with
- anti-cluttering-feature)
-In-Reply-To: <m1is3l3v25.fsf@muc.de>
-Message-ID: <Pine.LNX.4.58.0503250111240.4258@be1.lrz>
-References: <Pine.LNX.4.58.0503200528520.2804@be1.lrz> <m1is3l3v25.fsf@muc.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 24 Mar 2005 19:48:55 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:55056 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261304AbVCYAPq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 19:15:46 -0500
+Date: Fri, 25 Mar 2005 01:15:45 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/net/wireless/airo.c: correct a wrong check
+Message-ID: <20050325001545.GG3966@stusta.de>
+References: <20050322220540.GS1948@stusta.de> <42409971.5010704@pobox.com> <20050322223056.GV1948@stusta.de> <20050322223403.GA19026@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050322223403.GA19026@havoc.gtf.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Mar 2005, Andi Kleen wrote:
-> Bodo Eggert <7eggert@gmx.de> writes:
-
-> > atkbd.c: Keyboard on isa0060/serio0 reports too many keys pressed.
-> >  (I'm using a keyboard switch and a IBM PS/2 keyboard)
+On Tue, Mar 22, 2005 at 05:34:03PM -0500, Jeff Garzik wrote:
+> On Tue, Mar 22, 2005 at 11:30:56PM +0100, Adrian Bunk wrote:
+>...
+> > Is this "if" simply superfluous?
+> > Or should the && be an || ?
 > 
-> This one should be just taken out. It is as far as I can figure out
-> completely useless and happens on most machines.
+> Yes, it looks like it should be "||".
 
-Signed-off-by: Bodo Eggert <7eggert@gmx.de>
+Patch below.
 
---- linux-2.6.11/drivers/input/keyboard/atkbd.c	2005-03-20 21:50:52.000000000 +0100
-+++ linux-2.6.11.new/drivers/input/keyboard/atkbd.c	2005-03-25 01:06:50.000000000 +0100
-@@ -320,7 +320,9 @@ static irqreturn_t atkbd_interrupt(struc
- 			atkbd_report_key(&atkbd->dev, regs, KEY_HANJA, 3);
- 			goto out;
- 		case ATKBD_RET_ERR:
-+#ifdef ATKBD_DEBUG
- 			printk(KERN_DEBUG "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
-+#endif
- 			goto out;
- 	}
+> 	Jeff
+
+cu
+Adrian
+
+
+<--  snip  -->
+
+
+The Coverity checker correctly noted that this condition can't ever be 
+fulfilled.
+
+This patch changes it to what it should have been.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.12-rc1-mm1-full/drivers/net/wireless/airo.c.old	2005-03-22 21:41:37.000000000 +0100
++++ linux-2.6.12-rc1-mm1-full/drivers/net/wireless/airo.c	2005-03-22 22:50:03.000000000 +0100
+@@ -3440,7 +3440,7 @@
+ 	/* Make sure we got something */
+ 	if (rxd.rdy && rxd.valid == 0) {
+ 		len = rxd.len + 12;
+-		if (len < 12 && len > 2048)
++		if (len < 12 || len > 2048)
+ 			goto badrx;
  
--- 
-If you can't remember, then the claymore IS pointed at you. 
-
-Friﬂ, Spammer: billing@mclchnfa.info nkFWbu@volksgemeinschaft.org
- sparing@fuoje43.com w@7eggert.dyndns.org service@xsalez.org
+ 		skb = dev_alloc_skb(len);

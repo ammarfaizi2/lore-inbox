@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267796AbUI1NKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267806AbUI1NOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267796AbUI1NKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 09:10:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267798AbUI1NKS
+	id S267806AbUI1NOi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 09:14:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267808AbUI1NOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 09:10:18 -0400
-Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:17754 "HELO
-	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267796AbUI1NIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 09:08:20 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [BUG: 2.6.9-rc2-bk11] input completely dead in X
-Date: Tue, 28 Sep 2004 08:08:16 -0500
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, Micha Feigin <michf@post.tau.ac.il>,
-       Peter Osterlund <petero2@telia.com>
-References: <20040926210450.GA2960@luna.mooo.com> <200409280219.16976.dtor_core@ameritech.net> <20040928110655.GA2079@ucw.cz>
-In-Reply-To: <20040928110655.GA2079@ucw.cz>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 28 Sep 2004 09:14:38 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:13572 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S267807AbUI1NME (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 09:12:04 -0400
+In-Reply-To: <1096374908.21271.38.camel@linux.local>
+References: <20040928075545.GA3298@cenedra.walrond.org> <200409281524.25187.vda@port.imtp.ilyichevsk.odessa.ua> <1096374908.21271.38.camel@linux.local>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <F7151E9B-114F-11D9-A7ED-000D9352858E@linuxmail.org>
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409280808.17182.dtor_core@ameritech.net>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       linux-kernel@vger.kernel.org
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [OT] Microsoft claim 267% better peak performance than linux?
+Date: Tue, 28 Sep 2004 15:11:52 +0200
+To: Norbert van Nobelen <Norbert@edusupport.nl>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 28 September 2004 06:06 am, Vojtech Pavlik wrote:
-> On Tue, Sep 28, 2004 at 02:19:16AM -0500, Dmitry Torokhov wrote:
-> 
-> > Ok, for now I am killing PS2TPP which is not really useful and will allow
-> > THINKPS take it's spot moving SYNAPTICS and ALPS to their former numbers. 
->  
-> Where's the patch? ;)
-> 
+On Sep 28, 2004, at 14:35, Norbert van Nobelen wrote:
 
-Right here in my queue ;) I should have the next set of patches ready either
-tonight or tomorrow night.
- 
--- 
-Dmitry
+> The document shows some interesting points though:
+> - They describe what they did to make redhat/apache perform better
+> - ISAPI is pretty fast compared to CGI (Didn't apache recently release 
+> a
+> programming interface which is cross platform and does something like
+> this too?)
+
+Of course ISAPI is faster than CGI. The same happens with NSAPI. 
+However, both are proprietary, have a steep learning curve, and 
+usually, xSAPI extensions run on the same address space as the Web 
+server, improving performance but decreasing stability. However, CGI 
+runs as a separate process which adds a lot of overhead. There are 
+solutions like FastCGI with less overhead and that allow persistence 
+(the executable CGI is not destroyed, but stays in memory waiting for 
+future requests).
+
+MS commissioned studies are totally useless: they only probe what MS 
+wants. If MS wants us to believe earth is flat, a MS commissioned study 
+will reveal so.
+

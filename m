@@ -1,43 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266880AbUHCVsB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266893AbUHCVtS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266880AbUHCVsB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 17:48:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266892AbUHCVsB
+	id S266893AbUHCVtS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 17:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266890AbUHCVtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 17:48:01 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14471 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266887AbUHCVp3 (ORCPT
+	Tue, 3 Aug 2004 17:49:17 -0400
+Received: from mail.kroah.org ([69.55.234.183]:19351 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266894AbUHCVtA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 17:45:29 -0400
-Date: Tue, 3 Aug 2004 14:45:18 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Rik van Riel <riel@redhat.com>
-Cc: Chris Wright <chrisw@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, andrea@suse.de
-Subject: Re: [patch] mlock-as-nonroot revisted
-Message-ID: <20040803144518.P1924@build.pdx.osdl.net>
-References: <20040729185215.Q1973@build.pdx.osdl.net> <Pine.LNX.4.44.0408031653350.5948-100000@dhcp83-102.boston.redhat.com>
+	Tue, 3 Aug 2004 17:49:00 -0400
+Date: Tue, 3 Aug 2004 06:57:30 -0700
+From: Greg KH <greg@kroah.com>
+To: Luis Miguel Garc?a Mancebo <ktech@wanadoo.es>
+Cc: LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: USB troubles in rc2
+Message-ID: <20040803135730.GB13390@kroah.com>
+References: <200408022100.54850.ktech@wanadoo.es> <20040803002634.GB26323@kroah.com> <200408031046.57137.ktech@wanadoo.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0408031653350.5948-100000@dhcp83-102.boston.redhat.com>; from riel@redhat.com on Tue, Aug 03, 2004 at 04:54:26PM -0400
+In-Reply-To: <200408031046.57137.ktech@wanadoo.es>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Rik van Riel (riel@redhat.com) wrote:
-> On Thu, 29 Jul 2004, Chris Wright wrote:
-> 
-> > 2) mlock_user isn't ever set, so SHM_LOCK accounting looks broken
-> > (trivial to fix).
-> 
-> Should be fixed by the patch below.  Does this look
-> acceptable ?
+On Tue, Aug 03, 2004 at 10:46:57AM +0200, Luis Miguel Garc?a Mancebo wrote:
+> With 2.6.7-mm7 don't work either, but I can revert the bk-usb.patch in the 
+> andrew tree and all works ok. Even the camera:
 
-Yeah, sure does.  Could also pass the cached user struct instead of
-current->user to shmem_lock, might fit in 80 cols. ;-)
+So 2.6.7 (with no patches) worked for you?  Did 2.6.8-rc1 break?  Or was
+it 2.6.8-rc2 that broke your box?
 
 thanks,
--chris
---
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+
+greg k-h

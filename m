@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313328AbSDOWqR>; Mon, 15 Apr 2002 18:46:17 -0400
+	id <S313336AbSDOWzo>; Mon, 15 Apr 2002 18:55:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313336AbSDOWqQ>; Mon, 15 Apr 2002 18:46:16 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:12304 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S313328AbSDOWqP>; Mon, 15 Apr 2002 18:46:15 -0400
-Message-ID: <3CBB582D.75BEA8F6@zip.com.au>
-Date: Mon, 15 Apr 2002 15:46:05 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S313338AbSDOWzn>; Mon, 15 Apr 2002 18:55:43 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:29957
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S313336AbSDOWzm>; Mon, 15 Apr 2002 18:55:42 -0400
+Date: Mon, 15 Apr 2002 15:55:01 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Maxwell Spangler <maxwax@mindspring.com>
+cc: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org
+Subject: Re:  [COMMENTS IDE 2.5] - "idebus=66" in 2.5.8 results in "ide_setup:
+ idebus=66 -- BAD OPTION"
+In-Reply-To: <Pine.LNX.4.44.0204151804100.1145-100000@tyan.doghouse.com>
+Message-ID: <Pine.LNX.4.10.10204151553280.6776-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] writeback daemons
-In-Reply-To: <3CB3DE1E.5F811D77@zip.com.au> <20020408203839.C540@toy.ucw.cz> <3CBB3A41.8E94C8A@zip.com.au> <20020415223230.GC3406@atrey.karlin.mff.cuni.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> 
-> Hi!
-> 
-> > > > The number of threads is dynamically managed by a simple
-> > > > demand-driven algorithm.
-> > >
-> > > So... when we are low on free memory, we try to create more threads... Possible
-> > > deadlock?
-> >
-> > Nope.  The number of threads is never allowed to fall below two,
-> > for this very reason.
-> 
-> I thought this was the case. BTW do you need *two* threads for
-> reliable operation, or is one enough?
 
-I chose two because we used to have two - kupdate and bdflush.
-But yes, surely one is sufficient.  Added to the todo file.
+Do not know what is left of the kernel base in 2.5 as I am out of the
+development tree.  Somewhat offically kicked out of Linux.  After 2.4 pass
+on so will I.
 
--
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Mon, 15 Apr 2002, Maxwell Spangler wrote:
+
+> On Mon, 15 Apr 2002, Meelis Roos wrote:
+> 
+> > MH> Kernel command line: BOOT_IMAGE=2.5.8-without-TCQ ro root=303 video=matrox:vesa:0x118 idebus=66 profile=2
+> > MH> ide_setup: idebus=66
+> > MH> ide: system bus speed 66MHz
+> > 
+> > MH> works like a charm :)
+> > 
+> > Do you really have an IDE controller that does 66 MHz PCI? What kind on IDE
+> > controller is this?
+> 
+> I have a Promise Ultra133TX2 card on my shelf that is 32-bit PCI with 66Mhz 
+> operation.
+> 
+> I don't know to what extent it is supported yet.. Andre?
+> -- ----------------------------------------------------------------------------
+> Maxwell Spangler                                                 Save Futurama!
+> Program Writer                                               Sign the petition!
+> Greenbelt, Maryland, U.S.A.                         http://www.gotfuturama.com/
+> Washington D.C. Metropolitan Area 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

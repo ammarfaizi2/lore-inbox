@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272792AbTG3HOa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 03:14:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272793AbTG3HOa
+	id S272164AbTG3HWJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 03:22:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272220AbTG3HWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 03:14:30 -0400
-Received: from us01smtp1.synopsys.com ([198.182.44.79]:44214 "EHLO
-	boden.synopsys.com") by vger.kernel.org with ESMTP id S272792AbTG3HO2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 03:14:28 -0400
-Date: Wed, 30 Jul 2003 09:14:17 +0200
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Turning off automatic screen clanking
-Message-ID: <20030730071417.GM13611@Synopsys.COM>
-Reply-To: alexander.riesen@synopsys.COM
-Mail-Followup-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Linux kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0307291750170.5874-100000@phoenix.infradead.org> <Pine.LNX.4.53.0307291338260.6166@chaos> <Pine.LNX.4.53.0307292015580.11053@montezuma.mastecende.com> <20030730012533.GA18663@mail.jlokier.co.uk> <Pine.LNX.4.53.0307292136050.11053@montezuma.mastecende.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0307292136050.11053@montezuma.mastecende.com>
-Organization: Synopsys, Inc.
-User-Agent: Mutt/1.5.4i
+	Wed, 30 Jul 2003 03:22:09 -0400
+Received: from p68.rivermarket.wintek.com ([208.13.56.68]:640 "EHLO dust")
+	by vger.kernel.org with ESMTP id S272164AbTG3HWH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 03:22:07 -0400
+Date: Wed, 30 Jul 2003 02:25:53 -0500 (EST)
+From: Alex Goddard <agoddard@purdue.edu>
+To: Studying MTD <studying_mtd@yahoo.com>
+Cc: Joshua Kwan <joshk@triplehelix.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.6.0-test1 : modules not working
+In-Reply-To: <20030730065007.93696.qmail@web20501.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.56.0307300223300.4665@dust>
+References: <20030730065007.93696.qmail@web20501.mail.yahoo.com>
+X-GPG-PUBLIC_KEY: N/a
+X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo, Wed, Jul 30, 2003 03:37:26 +0200:
-> On Wed, 30 Jul 2003, Jamie Lokier wrote:
-> 
-> > One of Richard's points is that there is presently no way to fix the
-> > box in userspace.  If the kernel crashes during boot, it will blank
-> > the screen and there is no way to unblank it in that state.
-> 
-> Well something like this should work without complicating things during 
-> panic.
-> 
+On Tue, 29 Jul 2003, Studying MTD wrote:
 
-Does it unblank screen if panic happened while the screen was blanked?
+> I tried hello world example from
+> http://lwn.net/Articles/21817/
+> 
+> but i am still getting :-
+> 
+> #insmod hello_module.o
+> No module found in object
+> Error inserting 'hello_module.o': -1 Invalid module
+> format
 
+[Snip]
+
+'kay.  So modules are enabled and everything.  More specifically, I was 
+after information such as the gcc options and stuff you used to compile 
+hello_module.o
+
+Check the second article at that URL, and try building your hello_module
+with the basic Makefile it gives.  That uses the best way for building
+external modules.  After building your kernel that way, try inserting the
+hello_module.ko.
+
+-- 
+Alex Goddard
+agoddard@purdue.edu

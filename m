@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282027AbRKVDEm>; Wed, 21 Nov 2001 22:04:42 -0500
+	id <S282028AbRKVDEN>; Wed, 21 Nov 2001 22:04:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282026AbRKVDEd>; Wed, 21 Nov 2001 22:04:33 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:59144 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S282027AbRKVDEX>;
-	Wed, 21 Nov 2001 22:04:23 -0500
-Date: Thu, 22 Nov 2001 01:03:32 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Erik Jansson <erja9907@student.uu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Compile problem in vmalloc.h
-Message-ID: <20011122010332.G2216@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Erik Jansson <erja9907@student.uu.se>, linux-kernel@vger.kernel.org
-In-Reply-To: <3BFA9F2D.98FB7F72@student.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BFA9F2D.98FB7F72@student.uu.se>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+	id <S282027AbRKVDEC>; Wed, 21 Nov 2001 22:04:02 -0500
+Received: from mx3.sac.fedex.com ([199.81.208.11]:12041 "EHLO
+	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S282026AbRKVDDs>; Wed, 21 Nov 2001 22:03:48 -0500
+Date: Thu, 22 Nov 2001 11:03:27 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Dominik Kubla <kubla@sciobyte.de>, "Marcel J.E. Mol" <marcel@mesa.nl>,
+        Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: New ac patch???
+In-Reply-To: <E166VIr-0004ik-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.40.0111221100460.10224-100000@boston.corp.fedex.com>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 11/22/2001
+ 11:03:42 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 11/22/2001
+ 11:03:46 AM,
+	Serialize complete at 11/22/2001 11:03:46 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Tue, Nov 20, 2001 at 07:21:33PM +0100, Erik Jansson escreveu:
-> Hi all!
-> 
-> I've looked and asked around for a while about this, but I can't seem to
-> find the answer. Maybe you know what's up.
-> 
-> I'm compiling a driver that's not part of the kernel tree (but it's GPL
-> anyway). It compiles nicely against the 2.4.8 kernel tree, but fails
-> with both 2.4.10 and 2.4.14. Those are the only ones that I've tried
-> though.
-> 
-> I'm using clean sources (nothing patched, make mrproper; make clean;
-> make config; make bzImage etc).
-> 
-> I'm using gcc version 2.95.4 20010902 (Debian prerelease).
-> 
-> The error I get looks like this:
-> 
-> gcc -c -o ./src/proc.o ./src/proc.c -D__KERNEL__ -DMODULE -O2 -Wall
-> -Wstrict-pro
-> totypes -Wpointer-arith -I /usr/src/linux/include  -DCAN_DEBUG
-> In file included from /usr/src/linux/include/asm/io.h:46,
->                  from src/../include/main.h:11,
->                  from ./src/proc.c:25:
-> /usr/src/linux/include/linux/vmalloc.h: In function `vmalloc':
-> /usr/src/linux/include/linux/vmalloc.h:35: `boot_cpu_data_Rsmp_0657d037'
+On Wed, 21 Nov 2001, Alan Cox wrote:
 
-Try adding this:
+> > > Not exaclty. It is a 48Gig drive in a dell inspiron 8000. I think it is
+> > > IBM but the logs do not show a brandname. I can try open up the case tonight
+> > > if you want to know for sure?
+> >
+> > It's an IBM IC25T048ATDA05-0 to be precise.
+>
+> Thanks. It seems IBM laptop drives are the ones that specifically need this
+> fix. That ties in with the windows 98 reports/microsoft fixes.
 
-#include <linux/module.h>
+I'm using IBM 240Z with IBM-DJSA-220 (20GB, 9.5mm thickness) with
+2.4.15-pre7 and it does not need any fixes. Disk clean after shutdown.
 
-to your driver, of course before the '#include <linux/vmalloc.h>' line 8)
+Jeff.
 
-- Arnaldo
+
+

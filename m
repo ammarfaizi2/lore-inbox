@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265853AbTIJVxW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 17:53:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265808AbTIJVxW
+	id S265818AbTIJVwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 17:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265854AbTIJVwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 17:53:22 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:14737 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S265854AbTIJVw5
+	Wed, 10 Sep 2003 17:52:25 -0400
+Received: from mail1-106.ewetel.de ([212.6.122.106]:29654 "EHLO
+	mail1.ewetel.de") by vger.kernel.org with ESMTP id S265818AbTIJVwW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 17:52:57 -0400
-Date: Wed, 10 Sep 2003 22:52:26 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       Dave Jones <davej@redhat.com>, Mitchell Blank Jr <mitch@sfgoth.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] oops_in_progress is unlikely()
-Message-ID: <20030910215226.GC24258@mail.jlokier.co.uk>
-References: <20030907221323.GC28927@redhat.com> <20030910142031.GB2589@elf.ucw.cz> <20030910142308.GL932@redhat.com> <20030910152902.GA2764@elf.ucw.cz> <Pine.LNX.4.53.0309101147040.14762@chaos> <20030910183138.GA23783@mail.jlokier.co.uk> <Pine.LNX.4.53.0309101439390.18459@chaos> <20030910201240.GB24424@mail.jlokier.co.uk> <Pine.LNX.4.53.0309101619020.18924@chaos> <20030910212757.GA257@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030910212757.GA257@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+	Wed, 10 Sep 2003 17:52:22 -0400
+To: "David Schwartz" <davids@webmaster.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: People, not GPL  [was: Re: Driver Model]
+In-Reply-To: <ujV3.1uP.13@gated-at.bofh.it>
+References: <uess.1w0.9@gated-at.bofh.it> <ujV3.1uP.13@gated-at.bofh.it>
+Date: Wed, 10 Sep 2003 23:52:12 +0200
+Message-Id: <E19xCsm-0000cc-00@neptune.local>
+From: Pascal Schmidt <der.eremit@email.de>
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> He's right. Even without subsections you can move code somewhere
-> outside the function. And gcc should be smart enough to do that.
+On Wed, 10 Sep 2003 22:40:14 +0200, you wrote in linux.kernel:
 
-It is:
+> 	However, Richard Stallman does not agree with this view. It's his
+> view that if the authors chose to give you the code, you can use it any
+> way you want to, regardless of how the authors feel about that type of
+> usage. This is why he created the GPL.
 
-	extern int a, b;
-	int test()
-	{
-	  if (__builtin_expect(a > 1, 1))
-	    foo();
-	  else
-	    bar();
-	  return b;
-	}
+Use in any way you want to is the BSD license, not the GPL. The GPL
+does restrict what you're allowed to do in order to keep the source
+free...
 
-Compiles to (with gcc -Os -fomit-frame-pointer):
-
-	test:	cmpl	$1, a
-		jle	.L2
-		call	foo
-	.L3:	movl	b, %eax
-		ret
-	.L2:	call	bar
-		jmp	.L3
-
-Enjoy,
--- Jamie
+-- 
+Ciao,
+Pascal

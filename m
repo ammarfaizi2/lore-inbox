@@ -1,55 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271195AbTHHKc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 06:32:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271196AbTHHKc0
+	id S271103AbTHHK1e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 06:27:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271116AbTHHK1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 06:32:26 -0400
-Received: from mail.hometree.net ([212.34.181.120]:57227 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP id S271195AbTHHKcY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 06:32:24 -0400
+	Fri, 8 Aug 2003 06:27:34 -0400
+Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:54124 "HELO
+	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S271103AbTHHK1d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 06:27:33 -0400
+Message-ID: <3F337B14.2000307@sbcglobal.net>
+Date: Fri, 08 Aug 2003 05:27:32 -0500
+From: Wes Janzen <superchkn@sbcglobal.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: NPTL v userland v LT (RH9+custom kernel problem)
-Date: Fri, 8 Aug 2003 10:32:23 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <bgvu7n$2lj$1@tangens.hometree.net>
-References: <20030807224545.A29285@google.com> <Pine.LNX.4.44.0308080850280.1466-100000@cheetah.psv.nu>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1060338743 2739 212.34.181.4 (8 Aug 2003 10:32:23 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Fri, 8 Aug 2003 10:32:23 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+Subject: Re: IDE DMA problem with 2.6.0-test1
+References: <Pine.SOL.4.30.0308072019250.3600-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <Pine.SOL.4.30.0308072019250.3600-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Svensson <petersv@psv.nu> writes:
+I don't know, I've had a few SMART capable Maxtor drives go bad to the 
+point I knew it without a warning.  Eventually, when things got really 
+bad though, they would report SMART errors.  The errors were at first 
+intermittent, and then got to the point the warning wouldn't go away.  
+In their defense, two of them (I've had 5) had smart errors and I never 
+encountered any noticeable defects (still, I replaced them when they 
+were doing the upgrade program so I could get a new 3 year warranty). 
 
->I have had rpm lock up on me a few times. I think it was waiting on a 
->sempahore or some other synchronization event. After killing the process 
->(after several hours) no rpm transactions could be completed, they all 
->hanged at the same point. The only way to get rpm to work again was to 
->reboot the system. 
+All of those are several generations old though, the newer ones I have 
+now don't seem to want to die ;-)
 
-rm -f /var/lib/rpm/__db*
+--Wes--
 
-This is a FAQ. And a Bug in RH9.
+Bartlomiej Zolnierkiewicz wrote:
 
-	Regards
-		Henning
+>Can be buggy drive's firmware or bug in smartmontools (unlikely)...
+>
+>--bartlomiej
+>
+>On Thu, 7 Aug 2003, Mike Castle wrote:
+>
+>  
+>
+>>In article <Pine.SOL.4.30.0308061750260.22000-100000@mion.elka.pw.edu.pl>,
+>>Bartlomiej Zolnierkiewicz  <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
+>>    
+>>
+>>>You can also install smartmontools (http://smartmontools.sf.net/)
+>>>and check your drives (if they support SMART of course).
+>>>      
+>>>
+>>Point of interest:  I just had a Maxtor drive go bad on me recently.  Their
+>>diag tools caught it, as did my ear (made a nice clunking noise :-).  But
+>>SMART didn't report a thing, and I looked hard too.  :-/
+>>
+>>mrc
+>>    
+>>
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
-
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire
-
-"You are being far too rational for this discussion."  
-       --- Scott Robert Ladd in <3F1874B0.6030507@coyotegulch.com>

@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266792AbUHIRlU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266789AbUHIRnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266792AbUHIRlU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 13:41:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266793AbUHIRlU
+	id S266789AbUHIRnU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 13:43:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266797AbUHIRnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 13:41:20 -0400
-Received: from expredir2.cites.uiuc.edu ([128.174.5.185]:48297 "EHLO
-	expredir2.cites.uiuc.edu") by vger.kernel.org with ESMTP
-	id S266792AbUHIRlS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 13:41:18 -0400
-From: Paul Miller <paul-kernel@pinheiro.dyndns.org>
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: sysfs / udev programming faq/howto?
-Date: Mon, 9 Aug 2004 12:41:13 -0500
-User-Agent: KMail/1.6.2
+	Mon, 9 Aug 2004 13:43:20 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:30423 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S266789AbUHIRnM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 13:43:12 -0400
+Message-ID: <4117B849.8090705@sgi.com>
+Date: Mon, 09 Aug 2004 12:45:45 -0500
+From: Josh Aas <josha@sgi.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, steiner@sgi.com
+Subject: Re: [PATCH] Reduce bkl usage in do_coredump
+References: <41178C49.3080305@sgi.com> <1092072631.6496.14553.camel@nighthawk>
+In-Reply-To: <1092072631.6496.14553.camel@nighthawk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408091241.13882.paul-kernel@pinheiro.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Might be nicer to just put the locking inside of format_corename() if it
+> is the function itself that really needs the locking.  If another use of
+> it popped up, that user would get the locking for free and couldn't
+> possibly forget it.  Also, it's nicer to put the lock closer to the code
+> that actually needs it.  Untested patch to do that attached.
 
-Hello,  I'm somewhat new to Linux kernel programming.  I've made a few 
-drivers for custom/embedded hardware, etc with kernel 2.4 and kernel 2.6 
-w/ devfs, but I'm a little lost working with sysfs and udev.
+Probably a good idea.
 
-All I want to do is have udev register my character device for a custom 
-PCI board.  Is there a FAQ that explains this?   Does udev need to be 
-configured to look for my device?  Currently, I have it registering with 
-sysfs as a pci driver and it shows up under /sys/bus/pci/drivers.
+> BTW, were you actually seeing a BKL contention problem, or was this just
+> for cleanliness?
 
-Thanks,
--Paul
+We have actually seen contention in do_coredump.
+
+-- 
+Josh Aas
+Silicon Graphics, Inc. (SGI)
+Linux System Software
+651-683-3068

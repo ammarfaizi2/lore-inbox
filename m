@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293234AbSCFFqV>; Wed, 6 Mar 2002 00:46:21 -0500
+	id <S293242AbSCFGT1>; Wed, 6 Mar 2002 01:19:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293242AbSCFFqL>; Wed, 6 Mar 2002 00:46:11 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:38819 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S293234AbSCFFqD>; Wed, 6 Mar 2002 00:46:03 -0500
-Date: Tue, 5 Mar 2002 22:45:58 -0700
-Message-Id: <200203060545.g265jwL02756@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Greg KH <greg@kroah.com>
-Cc: Sandino Araico =?iso-8859-1?Q?S=E1nchez?= <sandino@sandino.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17,2.4.18 ide-scsi+usb-storage+devfs Oops
-In-Reply-To: <20020306053355.GA13072@kroah.com>
-In-Reply-To: <3C7EA7CB.C36D0211@sandino.net>
-	<20020302075847.GE20536@kroah.com>
-	<3C84294C.AE1E8CE9@sandino.net>
-	<200203060528.g265Sh502430@vindaloo.ras.ucalgary.ca>
-	<20020306053355.GA13072@kroah.com>
+	id <S293244AbSCFGTS>; Wed, 6 Mar 2002 01:19:18 -0500
+Received: from mail.mesatop.com ([208.164.122.9]:1811 "EHLO thor.mesatop.com")
+	by vger.kernel.org with ESMTP id <S293242AbSCFGTE>;
+	Wed, 6 Mar 2002 01:19:04 -0500
+Message-Id: <200203060618.g266Inb29051@thor.mesatop.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: Dave Jones <davej@suse.de>
+Subject: [PATCH] 2.5.5-dj3, fix dep_tristate in sound/oss/Config.in
+Date: Tue, 5 Mar 2002 23:08:42 -0700
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH writes:
-> On Tue, Mar 05, 2002 at 10:28:43PM -0700, Richard Gooch wrote:
-> > 
-> > I suspect the USB-UHCI driver is doing a double-unregister on a devfs
-> > entry. Please set CONFIG_DEVFS_DEBUG=y, recompile and boot the new
-> > kernel. Send the new Oops (passed through ksymoops, of course).
-> 
-> None of the USB host controller drivers (like usb-uhci.c) call any
-> devfs functions.
+I got this error with make xconfig and 2.5.5-dj3:
 
-Well, usb-uhci was in the call trace. Perhaps ksymoops was being given
-bogus input?
+./tkparse < ../arch/i386/config.in >> kconfig.tk
+sound/oss/Config.in: 38: can't handle dep_bool/dep_mbool/dep_tristate condition
+make[1]: *** [kconfig.tk] Error 1
+make[1]: Leaving directory `/home/steven/kernels/linux-2.5.5-dj3/scripts'
+make: *** [xconfig] Error 2
 
-				Regards,
+If an additional guard is needed, then this tristate will have to be reverted
+to a dep_tristate.  In the meantime, here is a small patch to get dj3 to configure.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Steven
+
+--- linux-2.5.5-dj3/sound/oss/Config.in.orig	Tue Mar  5 22:37:54 2002
++++ linux-2.5.5-dj3/sound/oss/Config.in	Tue Mar  5 22:49:07 2002
+@@ -35,7 +35,7 @@
+ dep_tristate '  Crystal SoundFusion (CS4280/461x)' CONFIG_SOUND_FUSION $CONFIG_SOUND
+ dep_tristate '  Crystal Sound CS4281' CONFIG_SOUND_CS4281 $CONFIG_SOUND
+ if [ "$CONFIG_SIBYTE_SB1250" = "y" -a "$CONFIG_REMOTE_DEBUG" != "y" ]; then
+-    dep_tristate '  Crystal Sound CS4297a (for Swarm)' CONFIG_SOUND_BCM_CS4297A 
++    tristate '  Crystal Sound CS4297a (for Swarm)' CONFIG_SOUND_BCM_CS4297A
+ fi
+ dep_tristate '  Ensoniq AudioPCI (ES1370)' CONFIG_SOUND_ES1370 $CONFIG_SOUND $CONFIG_PCI $CONFIG_SOUND_GAMEPORT
+ dep_tristate '  Creative Ensoniq AudioPCI 97 (ES1371)' CONFIG_SOUND_ES1371 $CONFIG_SOUND $CONFIG_PCI $CONFIG_SOUND_GAMEPORT

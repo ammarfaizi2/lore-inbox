@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129476AbQKUXnH>; Tue, 21 Nov 2000 18:43:07 -0500
+	id <S129325AbQKUXsI>; Tue, 21 Nov 2000 18:48:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130115AbQKUXm5>; Tue, 21 Nov 2000 18:42:57 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:47886 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129476AbQKUXmq>;
-	Tue, 21 Nov 2000 18:42:46 -0500
-Date: Wed, 22 Nov 2000 00:10:54 +0100 (CET)
-From: egger@suse.de
-Reply-To: egger@suse.de
-Subject: Re: USB: Wacom Graphire mouse wheel does not work anymore
-To: karl.gustav@gmx.net
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <8129.974798229@www10.gmx.net>
+	id <S130115AbQKUXr6>; Tue, 21 Nov 2000 18:47:58 -0500
+Received: from [209.143.110.29] ([209.143.110.29]:30473 "HELO
+	mail.the-rileys.net") by vger.kernel.org with SMTP
+	id <S129325AbQKUXri>; Tue, 21 Nov 2000 18:47:38 -0500
+Message-ID: <3A1B028B.94F3A221@the-rileys.net>
+Date: Tue, 21 Nov 2000 18:17:48 -0500
+From: David Riley <oscar@the-rileys.net>
+X-Mailer: Mozilla 4.74 (Macintosh; U; PPC)
+X-Accept-Language: en,pdf
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Message-Id: <20001122012134.25A7B5962@Nicole.muc.suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Defective Red Hat Distribution poorly represents Linux
+In-Reply-To: <Pine.LNX.4.30.0011212330130.3193-100000@toor.thn.htu.se>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 Nov, karl.gustav@gmx.net wrote:
+Richard Torkar wrote:
+> 
+> Well David, there is such a "manual".
+> 
+> http://ftp.sunet.se/LDP/FAQ/faqs/GCC-SIG11-FAQ
 
-> Hm, there is no stable xinput driver available for XFree 4.0 and
-> xinput does not support the wheel, too :-(
-
- Actually XInput supports that sort of information but probably the
- XInput driver doesn't. Unfortunately I don't have a Graphire, just
- a Intuos right now and no airbrush available to test that.
-
--- 
-
-Servus,
-       Daniel
-
+Yes.  And if you ask the average new Linux user if they've read it, I
+doubt you'll get a "yes".  My question boils down to this, and this I
+suppose is a personal/informational request for comments, so don't
+clutter the list with responses directed at me:  What (in your opinion)
+is the most commonly read Linux user-land document?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

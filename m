@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266137AbUHWQC5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265808AbUHWQHr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266137AbUHWQC5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 12:02:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266004AbUHWP7G
+	id S265808AbUHWQHr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 12:07:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266141AbUHWQDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 11:59:06 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:28817 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S265808AbUHWPzk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 11:55:40 -0400
-Subject: Re: Problems compiling kernel modules
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lei Yang <leiyang@nec-labs.com>
-Cc: root@chaos.analogic.com, Lee Revell <rlrevell@joe-job.com>,
-       Sam Ravnborg <sam@ravnborg.org>,
-       Kernel Newbies Mailing List <kernelnewbies@nl.linux.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <412A01AC.5020108@nec-labs.com>
-References: <4127A15C.1010905@nec-labs.com>
-	 <20040821214402.GA7266@mars.ravnborg.org> <4127A662.2090708@nec-labs.com>
-	 <20040821215055.GB7266@mars.ravnborg.org>  <4127B49A.6080305@nec-labs.com>
-	 <1093121824.854.167.camel@krustophenia.net> <4129FAC8.3040502@nec-labs.com>
-	 <Pine.LNX.4.53.0408231018001.7732@chaos>  <412A01AC.5020108@nec-labs.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1093272770.29758.15.camel@localhost.localdomain>
+	Mon, 23 Aug 2004 12:03:18 -0400
+Received: from rproxy.gmail.com ([64.233.170.204]:3085 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S266006AbUHWQBY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 12:01:24 -0400
+Message-ID: <2a4f155d04082309015b81c9e9@mail.gmail.com>
+Date: Mon, 23 Aug 2004 19:01:24 +0300
+From: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
+Reply-To: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.8.1-mm4 Gdb hard freezes computer
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 23 Aug 2004 15:52:52 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-08-23 at 15:39, Lei Yang wrote:
-> Thanks! I did less /var/log/messages, and got the unknown symbols
-> Unknown symbol __divsf3
-> Unknown symbol __fixsfsi
-> Unknown symbol __subsf3
-> Unknown symbol __floatsisf
-> Unknown symbol __mulsf3
-> Unknown symbol __gesf2
-> Unknown symbol __addsf3
-> 
-> However, I don't know what those symbols are :( I am a bit worried that 
-> maybe I've done something that is not supported by the kernel, like 
-> left-shift 16 bits of an int, or floating operations.
+Hi all,
 
-You are correct - the kernel doesn't support floating point operations
-used in kernel space unless you do some fairly tricky stuff.
+when I run gdb it hard freezes whole computer. I got this in syslog :
 
+Aug 23 18:51:11 southpark kernel: bad: scheduling while atomic!
+Aug 23 18:51:11 southpark kernel:  [<c028831a>] schedule+0x4da/0x4e0
+Aug 23 18:51:11 southpark kernel:  [<c011f295>] __dequeue_signal+0xd5/0x170
+Aug 23 18:51:11 southpark kernel:  [<c0120edc>] ptrace_notify_info+0x7c/0xd0
+Aug 23 18:51:11 southpark kernel:  [<c0120ba1>] get_signal_to_deliver+0xa1/0x360
+Aug 23 18:51:11 southpark kernel:  [<c0103e13>] do_signal+0x93/0x120
+Aug 23 18:51:11 southpark kernel:  [<c02880b5>] schedule+0x275/0x4e0
+Aug 23 18:51:11 southpark kernel:  [<c01196ba>] do_wait+0x1da/0x3a0
+Aug 23 18:51:11 southpark kernel:  [<c0113010>] default_wake_function+0x0/0x10
+Aug 23 18:51:11 southpark kernel:  [<c0113010>] default_wake_function+0x0/0x10
+Aug 23 18:51:11 southpark kernel:  [<c0103ed7>] do_notify_resume+0x37/0x3c
+Aug 23 18:51:11 southpark kernel:  [<c01040b6>] work_notifysig+0x13/0x15
+
+
+Any ideas?
+
+P.S: Gdb version is 6.2
+
+Cheers,
+ismail
+-- 
+Time is what you make of it

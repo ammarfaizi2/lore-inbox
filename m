@@ -1,339 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270065AbTGXTtS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 15:49:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270066AbTGXTtS
+	id S270066AbTGXTzr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 15:55:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270081AbTGXTzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 15:49:18 -0400
-Received: from p4-7036.uk2net.com ([213.232.95.37]:18587 "EHLO
-	uptime.churchillrandoms.co.uk") by vger.kernel.org with ESMTP
-	id S270065AbTGXTtL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 15:49:11 -0400
-Subject: [2.6.0-test1][PCMCIA] Hard lockup when card inserted
-From: Stefan Jones <cretin@gentoo.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Gentoo Linux
-Message-Id: <1059076839.3382.3.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 24 Jul 2003 21:04:08 +0100
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Jul 2003 15:55:47 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:33043
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S270066AbTGXTzo convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 15:55:44 -0400
+Date: Thu, 24 Jul 2003 13:02:48 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: =?iso-8859-1?q?Leandro_Guimar=E3es_Faria_Corsetti_Dutra?= 
+	<lgcdutra@terra.com.br>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Switching to the OSL License, in a dual way.
+In-Reply-To: <pan.2003.07.24.18.06.06.546220@terra.com.br>
+Message-ID: <Pine.LNX.4.10.10307241256360.16098-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-My Acer Aspire 1300, with 2.6.0-test1, crashes hard when a pcmcia card
-is inserted. ( screen blanks / stripes appear and fan spins-up ) ( no
-serial port built in so no debugging there! )
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105855801706434&w=2
 
-It works fine with the pcmcia drivers included in the 2.4.21 kernel, but
-not with the standalone 3.2.4 drivers (same problem).
+[prev in list] [next in list] [prev in thread] [next in thread]
 
-Thanks for looking at it, I am willing to carryout tasks etc. 
+List:     linux-kernel
+Subject:  Bitkeeper
+From:     Richard Stallman <rms () gnu ! org>
+Date:     2003-07-18 19:51:36
+[Download message RAW]
 
-( shall I binary search the 2.5 series or were the pcmcia drivers merged
-in one go ? )
+    > If you are trying to copy BK, give it up.  We'll simply follow in the
+    > footsteps of every other company faced with this sort of thing and change
+    > the protocol every 6 months.  Since you would be chasing us you can never
+    > catch up.  If you managed to stay close then we'd put digital signatures
+    > into the protocol to prevent your clone from interoperating with BK.
 
-lsmod:
-Module                  Size  Used by
-ds                     11136  2
-yenta_socket           10752  0
-pcmcia_core            62592  2 ds,yenta_socket
-binfmt_misc             8328  1
-sg                     29772  0
-sr_mod                 13664  0
-sd_mod                 11744  0
-scsi_mod               64276  3 sg,sr_mod,sd_mod
+I think it would be appropriate at this point to write a free client
+that talks with Bitkeeper, and for Linux developers to start switching
+to that from Bitkeeper.  At that point, McVoy will face a hard choice:
+if he carries out these threats, he risks alienating the community
+that he hopes will market Bitkeeper for him.
+-
 
-cardmgr (re)starting: 
-# /etc/init.d/pcmcia restart
- * Stopping pcmcia...                                          [ ok ] 
-* Starting pcmcia...
-cardmgr[2174]: watching 1 sockets                              [ ok ]
+For those who can not (will not) read, clearly the suggestion for somebody
+to take up the cause to develop a "Bitkeeper" clone.  Know the details of
+the license it was issued to the community to use.
 
-( which is the correct # of sockets )
+All know the response and the history of not threats but action by the FSF
+to defend their license and works.
 
-kernel info:
-Linux Kernel Card Services 3.1.22
-  options:  [pci] [cardbus] [pm]
-Yenta IRQ list 0038, PCI irq11
-Socket status: 30000007
-cs: IO port probe 0x0c00-0x0cff: clean.
-cs: IO port probe 0x0800-0x08ff: clean.
-cs: IO port probe 0x0100-0x04ff: excluding 0x2c8-0x2cf 0x378-0x37f 0x3c0-0x3df 0x4d0-0x4d7
-cs: IO port probe 0x0a00-0x0aff: clean.
+I am tired of this game.
 
-# cat /proc/ioports
-0000-001f : dma1
-0020-0021 : pic1
-0040-005f : timer
-0060-006f : keyboard
-0070-0077 : rtc
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-0376-0376 : ide1
-03c0-03df : vga+
-03f6-03f6 : ide0
-0cf8-0cff : PCI conf1
-1000-10ff : PCI CardBus #02
-1100-110f : VIA Technologies, In VT82C586/B/686A/B PI
-  1100-1107 : ide0
-  1108-110f : ide1
-1200-121f : VIA Technologies, In USB
-  1200-121f : uhci-hcd
-1400-14ff : PCI CardBus #02
-c000-dfff : PCI Bus #01
-e000-e0ff : VIA Technologies, In VT82C686 AC97 Audio
-  e000-e0ff : VIA686A
-e100-e103 : VIA Technologies, In VT82C686 AC97 Audio
-e104-e107 : VIA Technologies, In VT82C686 AC97 Audio
-  e104-e105 : VIA82xx MPU401
-e200-e2ff : VIA Technologies, In AC97 Modem Controlle
-e800-e8ff : VIA Technologies, In VT6102 [Rhine-II]
-  e800-e8ff : via-rhine
+Later
 
-# lspci
-00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 80)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
-00:0a.0 CardBus bridge: O2 Micro, Inc. OZ6912 Cardbus Controller
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8231 [PCI-to-ISA Bridge] (rev 10)
-00:11.1 IDE interface: VIA Technologies, Inc. VT82C586B PIPC Bus Master IDE (rev 06)
-00:11.2 USB Controller: VIA Technologies, Inc. USB (rev 1e)
-00:11.4 Bridge: VIA Technologies, Inc. VT8235 ACPI (rev 10)
-00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686 AC97 Audio Controller (rev 40)
-00:11.6 Communication controller: VIA Technologies, Inc. AC97 Modem Controller (rev 20)
-00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 51)
-01:00.0 VGA compatible controller: S3 Inc. VT8636A [ProSavage KN133] AGP4X VGA Controller (TwisterK) (rev 01)
+Andre Hedrick
+The Linux X-IDE guy, second.
 
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_KALLSYMS=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MK7=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_PREEMPT=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BATTERY=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_CPU_FREQ=y
-CONFIG_CPU_FREQ_GOV_USERSPACE=y
-CONFIG_CPU_FREQ_TABLE=y
-CONFIG_X86_ACPI_CPUFREQ=y
-CONFIG_X86_POWERNOW_K7=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_HOTPLUG=y
-CONFIG_PCMCIA=m
-CONFIG_YENTA=m
-CONFIG_CARDBUS=y
-CONFIG_PCMCIA_PROBE=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_AOUT=m
-CONFIG_BINFMT_MISC=m
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_CML1=m
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_1284=y
-CONFIG_PNP=y
-CONFIG_PNP_NAMES=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_RAM=m
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=m
-CONFIG_BLK_DEV_SD=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_CHR_DEV_SG=m
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_PCMCIA_AHA152X=m
-CONFIG_PCMCIA_FDOMAIN=m
-CONFIG_PCMCIA_NINJA_SCSI=m
-CONFIG_PCMCIA_QLOGIC=m
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_VIA_RHINE=y
-CONFIG_VIA_RHINE_MMIO=y
-CONFIG_PPP=m
-CONFIG_PPP_ASYNC=m
-CONFIG_PPP_SYNC_TTY=m
-CONFIG_PPP_DEFLATE=m
-CONFIG_PPP_BSDCOMP=m
-CONFIG_NET_RADIO=y
-CONFIG_HERMES=m
-CONFIG_PCMCIA_HERMES=m
-CONFIG_AIRO_CS=m
-CONFIG_PCMCIA_ATMEL=m
-CONFIG_NET_WIRELESS=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=m
-CONFIG_RTC=y
-CONFIG_AGP=m
-CONFIG_AGP_VIA=m
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_REISERFS_FS=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_UDF_FS=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-CONFIG_DEVPTS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_TCP=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=y
-CONFIG_SUNRPC=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_ISO8859_15=m
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_VIA82XX=y
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_BANDWIDTH=y
-CONFIG_USB_UHCI_HCD=y
-CONFIG_USB_STORAGE=m
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_SERIAL=m
-CONFIG_USB_SERIAL_PL2303=m
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_DEBUG_SPINLOCK_SLEEP=y
-CONFIG_FRAME_POINTER=y
-CONFIG_X86_EXTRA_IRQS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_ZLIB_INFLATE=m
-CONFIG_ZLIB_DEFLATE=m
-CONFIG_X86_BIOS_REBOOT=y
+On Thu, 24 Jul 2003, Leandro Guimarães Faria Corsetti Dutra wrote:
+
+> On Thu, 24 Jul 2003 02:46:39 -0700, Andre Hedrick wrote:
+> 
+> > Has anyone ever asked why it is okay for RMS to suggest it is okay to
+> > invalidate another person/company license (BitKeeper is the example) yet
+> > become offended when their own license is to desired to be invalidated?
+> 
+> 	Hmm... are you trolling?
+> 
+> 	I case you are not, AFAIK RMS accepts any free software
+> license but prefers, in that order, the GNU GPL, the GNU LGPL, any GNU
+> GPL-compatible copyleft, any GNU GPL compatile license, any copyleft,
+> any free software.  I don't quite understand what do you mean by
+> invalidate, but BitKeeper is not even free software, and no one is
+> arguing it is.
+> 
+> 	BTW, RMS never gave that list of preferred licenses' ordering,
+> I am just extrapolating from his writings.  Anyone who knows better,
+> please tell so.
+> 
+> 
+> > Why is it that nothing but gpl can exist with gpl?
+> 
+> 	Not true.  Anything that doesn't *add* restrictions to those
+> of the GNU GPL can coexist.
+> 
+> 
+> > Why is that a superior option to license under which follows the
+> > original spirit of GPL but goes further to promote the ideas of open
+> > source is frowned upon?
+> 
+> 	Does it go further?  Exactly how?
+> 
+> 	BTW, I for myself frown upon the license proliferation.
+> Hopefully the OSL will serve to reduce the number of different
+> licenses by consolidating all the GNU-hating camp.
+> 
+> 
+> -- 
+>  _   Leandro GuimarÃ£es Faria Corsetti Dutra     +41 (21) 648 11 34
+> / \  http://br.geocities.com./lgcdutra/         +41 (78) 778 11 34
+> \ /  Answer to the list, not to me directly!    +55 (11) 5686 2219
+> / \  Rate this if helpful: http://svcs.affero.net/rm.php?r=leandro
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 
 

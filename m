@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266157AbSKVGrn>; Fri, 22 Nov 2002 01:47:43 -0500
+	id <S266826AbSKVGzn>; Fri, 22 Nov 2002 01:55:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265998AbSKVGrm>; Fri, 22 Nov 2002 01:47:42 -0500
-Received: from angband.namesys.com ([212.16.7.85]:28852 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S266157AbSKVGrm>; Fri, 22 Nov 2002 01:47:42 -0500
-Date: Fri, 22 Nov 2002 09:54:50 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Tupshin Harper <tupshin@tupshin.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: paging oops with 2.4.20-rc2
-Message-ID: <20021122095450.A8056@namesys.com>
-References: <3DDD8339.2040409@tupshin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	id <S266955AbSKVGzn>; Fri, 22 Nov 2002 01:55:43 -0500
+Received: from 205-158-62-68.outblaze.com ([205.158.62.68]:11014 "HELO
+	spf0.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S266826AbSKVGzm>; Fri, 22 Nov 2002 01:55:42 -0500
+Message-ID: <20021122070209.3599.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <3DDD8339.2040409@tupshin.com>
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "sanket rathi" <sanket@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 22 Nov 2002 15:02:09 +0800
+Subject: making a page read-only
+X-Originating-Ip: 202.54.40.36
+X-Originating-Server: ws5-2.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi, 
+Can somebody tell me how to make a page read only.
+I have allocated memory in kernel and locking that memory in driver by setting the Page flags bit can i also make that flag read only if yes then how. or is there some other mechanism to making a flag read only.
 
-On Thu, Nov 21, 2002 at 05:07:05PM -0800, Tupshin Harper wrote:
-> I'm experiencing frequent oops when doing much of anything 
-> cpu/memory/disk intensive. I've yet to get through a kernel compilation 
-> on this machine.
+Thanks in advance
 
-Is the oops always the same and looks like the one you've posted here?
-Or is it different from time to time?
-If it always the same, can you please try to compile your kernel with
-CONFIG_REISERFS_CHECK (reiserfs debug) option enabled and see what happens?
 
-Thank you.
 
-Bye,
-    Oleg
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with POP3/IMAP access for only US$19.95/yr
+
+Powered by Outblaze

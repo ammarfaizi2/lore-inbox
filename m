@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315227AbSEQAeT>; Thu, 16 May 2002 20:34:19 -0400
+	id <S315236AbSEQAku>; Thu, 16 May 2002 20:40:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315235AbSEQAeS>; Thu, 16 May 2002 20:34:18 -0400
-Received: from email.careercast.com ([216.39.101.233]:33928 "HELO
-	email.careercast.com") by vger.kernel.org with SMTP
-	id <S315227AbSEQAeR> convert rfc822-to-8bit; Thu, 16 May 2002 20:34:17 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Matt Simonsen <matt_lists@careercast.com>
-To: linux-kernel@vger.kernel.org
-Subject: Hhighpoint Rocket 133
-Date: Thu, 16 May 2002 17:32:54 -0700
-X-Mailer: KMail [version 1.4]
+	id <S315237AbSEQAkt>; Thu, 16 May 2002 20:40:49 -0400
+Received: from stout.engsoc.carleton.ca ([134.117.69.22]:59266 "EHLO
+	stout.engsoc.carleton.ca") by vger.kernel.org with ESMTP
+	id <S315236AbSEQAkt>; Thu, 16 May 2002 20:40:49 -0400
+Date: Thu, 16 May 2002 20:40:44 -0400 (EDT)
+From: Paul Faure <paul@engsoc.org>
+X-X-Sender: <paul@lager.engsoc.carleton.ca>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: Process priority in 2.4.18 (RedHat 7.3)
+In-Reply-To: <20020516215744.GI1025@dualathlon.random>
+Message-ID: <Pine.LNX.4.33.0205162037500.21864-100000@lager.engsoc.carleton.ca>
+X-Home-Page: http://www.engsoc.org/
+X-URL: http://www.engsoc.org/
+Organisation: Engsoc Project (www.engsoc.org)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200205161732.54809.matt_lists@careercast.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to use the Highpoint ATA 133 card with a 160 gig IDE drive. I 
-don't see it on the "supported" list at linux-ata.com but I'm hoping there is 
-something more current I can do. 
+It would seem that it only occurs when running the application (that takes
+100% of the CPU) as root.
 
-Any suggestions on what to do, where to look, or (if no other solution exists) 
-alternative cards to use for ATA 133 would be appreciated. 
+As for testing it with other cards, I only have this one card.
 
-I haven't tried the vendor provided driver yet since I don't trust it and also 
-becuase it doesn't support SMP meaning I'd need to get a new board (or take a 
-processor out?) to use it.
+Thanks for your time... its not a big issue now since I can run my
+application as a non privileged user.
 
-Thanks
-Matt
+On Thu, 16 May 2002, Andrea Arcangeli wrote:
+
+> On Thu, May 16, 2002 at 02:06:10PM -0700, Andrew Morton wrote:
+> > of transmit attempts and is relying on ksoftirqd to transmit.
+> 
+> ksoftirqd or not the softirq are guaranteed to keep running even if
+> there's a task in loop with SCHED_FIFO, ksoftirqd only enhance/polish
+> the case of a recursive softirq, or a very big flood of softirq events,
+> it is not required to run softirqs.
+> 
+> Andrea
+> 
+
+-- 
+Paul N. Faure					613.266.3286
+EngSoc Administrator            		paul-at-engsoc-dot-org
+Chief Technical Officer, CertainKey Inc.	paul-at-certainkey-dot-com
+Carleton University Systems Eng. 4th Year	paul-at-faure-dot-ca
+

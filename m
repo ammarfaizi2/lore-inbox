@@ -1,55 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292982AbSCIXs7>; Sat, 9 Mar 2002 18:48:59 -0500
+	id <S292981AbSCIXsK>; Sat, 9 Mar 2002 18:48:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292983AbSCIXsk>; Sat, 9 Mar 2002 18:48:40 -0500
-Received: from pl100.nas921.ichikawa.nttpc.ne.jp ([210.165.234.100]:25627 "EHLO
-	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S292982AbSCIXsa>;
-	Sat, 9 Mar 2002 18:48:30 -0500
-Date: Sun, 10 Mar 2002 08:48:25 +0900
-From: Bruce Harada <bruce@ask.ne.jp>
+	id <S292982AbSCIXsB>; Sat, 9 Mar 2002 18:48:01 -0500
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:9569 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S292981AbSCIXrz>; Sat, 9 Mar 2002 18:47:55 -0500
+Message-ID: <3C8A9ECF.F8BB8575@ngforever.de>
+Date: Sat, 09 Mar 2002 16:46:23 -0700
+From: Thunder from the hill <thunder@ngforever.de>
+Organization: The LuckyNet Administration
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.8-26mdk i586)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Seiichi Nakashima <nakasima@kumin.ne.jp>
-Cc: linux-kernel@vger.kernel.org
+CC: linux-kernel@vger.kernel.org, nakasei@fa.mdis.co.jp
 Subject: Re: 2.2.21-pre4 hung up
-Message-Id: <20020310084825.031ee4b0.bruce@ask.ne.jp>
 In-Reply-To: <200203092312.AA00022@prism.kumin.ne.jp>
-In-Reply-To: <200203092312.AA00022@prism.kumin.ne.jp>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.6; i686-pc-linux-gnu)
-X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Mar 2002 08:12:28 +0900
-Seiichi Nakashima <nakasima@kumin.ne.jp> wrote:
-
+Seiichi Nakashima wrote:
+> 
 > Hi.
 > 
 > I update to linux-2.2.20 + patch-2.2.21-pre4.
 > before I used linux-2.2.20 + patch-2.2.21-pre3, and worked fine.
-> linux-2.2.21-pre4 is normal end to patch, compile and install, but bootup
-> failuer.
+> linux-2.2.21-pre4 is normal end to patch, compile and install, but bootup failuer.
+> 
+> these messages displayed on console, and hung up.
+> 
+> ===== messaged start =====
+> Uncompressing Linux... Ok, booting the kernel.
+> Linux version 2.2.21pre4 (root@homesv) (gcc version 2.95.3 20010315 (release)) #
+> 1 Sun Mar 10 07:31:33 JST 2002
+> USER-provided physical RAM map:
+>  USER: 000a0000 @ 00000000 (usable)
+>  USER: 05efd000 @ 00100000 (usable)
+> Detected 400916 kHz processor.
+> Console: colour VGA+ 80x25
+> Calibrating delay loop... 799.53 BogoMIPS
+> Memory: 95824k/98292k abailable (816k kernel code, 412k reserved, 1180k data, 60k init)
+> Dentry hash table entries: 16384 (order 5, 128k)
+> Buffer cache hash table entries: 131072 (order 7, 512k)
+> Page cache hash table entries: 32768 (order 5, 128k)
+> CPU: L1 I cache: 16K, L1 D cache: 16K
+> Intel machine check architecture supported.
+> ===== messages end =====
 
-[SNIP]
-
-According to other reports, it would appear that this change:
-
-diff -ruN linux-2.2.21-pre3/arch/i386/kernel/bluesmoke.c linux-2.2.21-pre4/arch/i386/kernel/bluesmoke.c
---- linux-2.2.21-pre3/arch/i386/kernel/bluesmoke.c	Sun Mar  3 23:20:11 2002
-+++ linux-2.2.21-pre4/arch/i386/kernel/bluesmoke.c	Sat Mar  9 03:58:57 2002
-@@ -165,7 +164,7 @@
- 	if(l&(1<<8))
- 		wrmsr(0x17b, 0xffffffff, 0xffffffff);
- 	banks = l&0xff;
--	for(i=1;i<banks;i++)
-+	for(i=0;i<banks;i++)
- 	{
- 		wrmsr(0x400+4*i, 0xffffffff, 0xffffffff); 
- 	}
-
-is the problem. Reversing it (i.e. changing the i=0 to i=1) should allow
-you to boot again.
-
-
+I remember this was the one-and-zero stuff from last evening or
+whenever. Can someone remember? It was just some 0 which had to be 1.
+-- 
+begin-base64 755 -
+IyEgL3Vzci9iaW4vcGVybApteSAgICAgJHNheWluZyA9CSMgVGhlIHNjcmlw
+dCBvbiB0aGUgbGVmdCBpcyB0aGUgcHJvb2YKIk5lbmEgaXN0IGVpbiIgLgkj
+IHRoYXQgaXQgaXNuJ3QgYWxsIHRoZSB3YXkgaXQgc2VlbXMKIiB2ZXJhbHRl
+dGVyICIgLgkjIHRvIGJlIChlc3BlY2lhbGx5IG5vdCB3aXRoIG1lKQoiTkRX
+LVN0YXIuXG4iICA7CiRzYXlpbmcgPX4Kcy9ORFctU3Rhci9rYW5uXAogdW5z
+IHJldHRlbi9nICA7CiRzYXlpbmcgICAgICAgPX4Kcy92ZXJhbHRldGVyL2Rp
+XAplIExpZWJlL2c7CiRzYXlpbmcgPX5zL2Vpbi8KbnVyL2c7JHNheWluZyA9
+fgpzL2lzdC9zYWd0LC9nICA7CiRzYXlpbmc9fnMvXG4vL2cKO3ByaW50Zigk
+c2F5aW5nKQo7cHJpbnRmKCJcbiIpOwo=
+====
+Extract this and see what will happen if you execute my
+signature. Just save it to file and do a
+> uudecode $file | perl

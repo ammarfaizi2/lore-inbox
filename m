@@ -1,98 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbTIOOtn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 10:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbTIOOtn
+	id S261438AbTIOOrd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 10:47:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbTIOOrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 10:49:43 -0400
-Received: from fed1mtao02.cox.net ([68.6.19.243]:54974 "EHLO
-	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S261445AbTIOOtk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 10:49:40 -0400
-Date: Mon, 15 Sep 2003 07:49:39 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Norman Diamond <ndiamond@wta.att.ne.jp>
-Cc: linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [patch] 2.6.0-test5: serio config broken?
-Message-ID: <20030915144939.GA29517@ip68-0-152-218.tc.ph.cox.net>
-References: <1aba01c379d0$4d061ab0$2dee4ca5@DIAMONDLX60>
-Mime-Version: 1.0
+	Mon, 15 Sep 2003 10:47:33 -0400
+Received: from citrine.spiritone.com ([216.99.193.133]:13705 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S261438AbTIOOra (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 10:47:30 -0400
+Date: Mon, 15 Sep 2003 07:46:55 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 1227] New: Oops with SynCE and Compaq iPAQ 3600
+Message-ID: <1504610000.1063637215@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1aba01c379d0$4d061ab0$2dee4ca5@DIAMONDLX60>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 13, 2003 at 05:22:16PM +0900, Norman Diamond wrote:
+http://bugme.osdl.org/show_bug.cgi?id=1227
 
-> Although I can't keep up with the mailing list, I saw this from Adrian Bunk:
-> > On Thu, Sep 11, 2003 at 04:04:48PM -0700, Tom Rini wrote:
-> > >
-> > > Okay.  The following Kconfig illustrates what I claim to be a bug.
-> > > config A
-> > > bool "This is A"
-> > > select B
-> > > config B
-> > > bool "This is B"
-> > > # Or, depends C=y
-> > > depends C
-> > > config C
-> > > bool "This is C"
-> > >
-> > > Running oldconfig will give:
-> > > This is A (A) [N/y] (NEW) y
-> > > This is C (C) [N/y] (NEW) n
-> > > And in .config:
-> > > CONFIG_A=y
-> > > CONFIG_B=y
-> > > # CONFIG_C is not set
-> 
-> This is a problem.  Proposed solution follows later.
-> 
-> > > I claim that this should in fact be:
-> > > CONFIG_A=y
-> > > CONFIG_B=y
-> > > CONFIG_C=y
-> 
-> Even for this simple case, there are other possibilities.  When we add human
-> logic to the specified sequence of events then we can say that your
-> interpretation is most likely what the user wanted, but in ordinary logic
-> there are other possibilities such as n, n, n.  Proposed solution follows.
-> 
-> > The problem is that select ignores dependencies.
-> > Unfortunately, your proposal wouldn't work easily, consider e.g.
-> > config A
-> > bool "This is A"
-> > select B
-> > config B
-> > bool
-> > depends C || D
-> > config C
-> > bool "This is C"
-> > depends D=n
-> > config D
-> > bool "This is D"
-> > Do you want C or D to be selected?
-> 
-> If neither is selected, then the problem is essentially the same as the one
-> which Mr. Rini pointed out.  And again there are other possible
-> possibilities such as n, n, n, n.
-> 
-> Solution:  Surely plain "make" could start by checking dependencies.  Or
-> maybe "make dep" could be reincarnated.  If there is any inconsistency, then
-> the Makefile could issue an error and refuse to start compiling.
-> 
-> This has the added benefit that if the human has some reason to edit the
-> .config file by hand instead of using a make [...]config command, plain
-> "make" will have a chance of catching editing errors.
-> 
-> This doesn't automate a solution as thoroughly as either of you were hoping
-> for; it honestly admits that it can't read the human's mind  :-)
+           Summary: Oops with SynCE and Compaq iPAQ 3600
+    Kernel Version: 2.6.0-test5-bk3
+            Status: NEW
+          Severity: normal
+             Owner: greg@kroah.com
+         Submitter: felipe_alfaro@linuxmail.org
 
-Yes, even that would work quite nicely, perhaps while saying what the
-specific problem is as well.  Roman, how hard would this be to do?
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Distribution: 
+SuSE Linux 8.2 
+ 
+Hardware Environment: 
+Pentium V 2.0Ghz 
+Intel 845 motherboard (uhci-hcd) 
+Compaq iPAQ 3660 with USB craddle 
+ 
+Software Environment: 
+SynCE 0.8.3 
+ 
+Problem Description: 
+Performing the following steps causes the kernel to oops and freeze. The 
+kernel oops is attached to this bug report. I have also attached the .config 
+file used to compile the kernel. 
+ 
+Steps to reproduce: 
+1. boot 2.6.0-test5-bk3 
+2. modprobe ipaq 
+3. synce-serial-config ttyUSB0 
+4. dccm 
+5. synce-serial-start
+
+Unable to handle kernel NULL pointer dereference at virtual address 0000010c
+ printing eip:
+e08794d4
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT
+CPU:    0
+EIP:    0060:[<e08794d4>]     Not tainted VLI
+EFLAGS: 00010297
+EIP is at ipaq_read_bulk_callback+0xca/0x282 [ipaq]
+eax: 00000006   ebx: 00000000   ecx: de7cd600   edx: 00000006
+esi: de9fc200   edi: df4f9600   ebp: 00000000   esp: c038dee0
+ds: 007b   es: 007b   ss:0068
+Process swapper (pid: 0, threadinfo=c038c000 task=c03169c0)
+Stack: 00000046 00000086 de9fc200 de9fc200 00000006 dd273000 de7cd600 de9fc200
+       c038dfa4 de9fc200 df765c00 e08421ea de9fc200 c038dfa4 c038c000 00000286
+       e082ed9a df765c00 de9fc200 c038dfa4 df765df8 c038dfa4 df765c00 00000001
+Call Trace:
+ [<e08421ea>] usb_hcd_giveback_urb+0x25/0x39 [usbcore]
+ [<e082ed9a>] uhci_finish_completion+0x6a/0xac [uhci_hcd]
+ [<e0842234>] usb_hcd_irq+0x36/0x5f [usbcore]
+ [<c010c633>] handle_IRQ_event+0x3a/0x64
+ [<c010c999>] do_IRQ+0x94/0x135
+ [<c0107000>] _stext+0x0/0x5d
+ [<c02d404c>] common_interrupt+0x18/0x20
+ [<c0107000>] _stext+0x0/0x5d
+ [<c012007b>] __wake_up_common+0x31/0x50
+ [<c0109041>] default_idle+0x23/0x26
+ [<c010909f>] cpu_idle+0x2c/0x35
+ [<c038e6cc>] start_kernel+0x17d/0x1ab
+ [<c038e426>] unknown_bootoption+0x0/0xfd
+
+Code: e8 8c a7 8a df eb 9f 8b 56 30 85 c0 89 54 24 10 89 d5 0f 85 ed 00 00 00 8b
+ 44 24 10 8b 5f 08 85 c0 74 6a 31 ed 3b 6c 24 10 7d 51 <8b> 83 0c 01 00 00 3d ff
+ 01 00 00 0f 8f b6 00 00 00 8b 4c 24 14
+ <0>Kernel panic: Fata; exception in interruppt
+In interrupt handler - not syncing
+
+

@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310354AbSCGOnR>; Thu, 7 Mar 2002 09:43:17 -0500
+	id <S310360AbSCGOr5>; Thu, 7 Mar 2002 09:47:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310170AbSCGOnI>; Thu, 7 Mar 2002 09:43:08 -0500
-Received: from ns1.yggdrasil.com ([209.249.10.20]:21897 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S310354AbSCGOm7>; Thu, 7 Mar 2002 09:42:59 -0500
-Date: Thu, 7 Mar 2002 06:42:55 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: linux-kernel@vger.kernel.org, fischer@norbit.de
-Subject: Patch?: linux-2.5.6-pre3/drivers/scsi patches for aha152x and aha1740
-Message-ID: <20020307064255.A1655@baldur.yggdrasil.com>
+	id <S310356AbSCGOrr>; Thu, 7 Mar 2002 09:47:47 -0500
+Received: from tolkor.sgi.com ([192.48.180.13]:26509 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S310170AbSCGOrd>;
+	Thu, 7 Mar 2002 09:47:33 -0500
+Subject: Re: [patch] delayed disk block allocation
+From: Steve Lord <lord@sgi.com>
+To: Etienne Lorrain <etienne_lorrain@yahoo.fr>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020307120609.85742.qmail@web11804.mail.yahoo.com>
+In-Reply-To: <20020307120609.85742.qmail@web11804.mail.yahoo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 07 Mar 2002 08:47:24 -0600
+Message-Id: <1015512444.1293.14.camel@jen.americas.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I have not tested these drivers in any way (in fact, I cannot
-get linux-2.5.6-pre3 to boot right now), but I thought I would post
-this preliminary patch in case anyone is interested.  This patch
-gets the aha152x and aha1740 scsi drivers in linux-2.5.6-pre3 to
-compile.  It requires the changes to scsi.[ch] and hosts.h that
-I posted a few hours ago with the pci2220i, advansys and BusLogic
-patches.  Anyhow, I thought I would post these patches, in case anyone
-wants to comment on them or try them.
+On Thu, 2002-03-07 at 06:06, Etienne Lorrain wrote:
+> > With "allocate on flush", (aka delayed allocation), file data is
+> > assigned a disk mapping when the data is being written out, rather than
+> > at write(2) time.  This has the following advantages:
+> 
+>   I do agree that this is a better solution than current one,
+>  but (even if I did not had time to test the patch), I have
+>  a question: How about bootloaders?
+> 
+>  IHMO all current bootloaders need to write to disk a "chain" of sector
+>  to load for their own initialisation, i.e. loading the remainning
+>  part of code stored on a file in one filesystem from the 512 bytes
+>  bootcode. This "chain" of sector can only be known once the file
+>  has been allocated to disk - and it has to be written on the same file,
+>  at its allocated space.
+> 
+>   So can you upgrade LILO or GRUB with your patch installed?
+>   It is not a so big problem (the solution being to install the
+>  bootloader on an unmounted filesystem with tools like e2fsprogs),
+>  but it seems incompatible with the current executables.
 
--- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+The interface used by lilo to read the kernel location needs to flush
+data out to disk before returning results. It's not too hard to do.
+
+Steve
+
+

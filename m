@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S272207AbUKARhO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S282418AbUKARja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272207AbUKARhO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 12:37:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271896AbUKARhO
+	id S282418AbUKARja (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 12:39:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S282413AbUKARj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 12:37:14 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:20195 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S265766AbUKARgX (ORCPT
+	Mon, 1 Nov 2004 12:39:28 -0500
+Received: from holomorphy.com ([207.189.100.168]:2184 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S282372AbUKARjN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 12:36:23 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] document mmiowb and readX_relaxed a bit more in deviceiobook.tmpl
-Date: Mon, 1 Nov 2004 09:36:10 -0800
-User-Agent: KMail/1.7
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <200410291747.24035.jbarnes@engr.sgi.com> <1099103756.29689.194.camel@gaston>
-In-Reply-To: <1099103756.29689.194.camel@gaston>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Nov 2004 12:39:13 -0500
+Date: Mon, 1 Nov 2004 09:39:05 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: subj: [PATHC] user-defined profiling
+Message-ID: <20041101173905.GM2583@holomorphy.com>
+References: <200411020133.53562.amgta@yacht.ocn.ne.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411010936.10127.jbarnes@engr.sgi.com>
+In-Reply-To: <200411020133.53562.amgta@yacht.ocn.ne.jp>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, October 29, 2004 7:35 pm, Benjamin Herrenschmidt wrote:
-> On Fri, 2004-10-29 at 17:47 -0700, Jesse Barnes wrote:
-> > This is a small patch to deviceiobook.tmpl to describe the new mmiowb
-> > routine a bit more completely.  I've also updated it to provide pointers
-> > to drivers that do write flushing, use mmiowb, and use the readX_relaxed
-> > routines.
->
-> It's all good, but your semantics and description are very tailored to
-> your specific arch problem vs. unlock.
->
-> What about my suggestion of defining a broader semantic of mmiowb() as
-> beeing a barrier ordering MMIOs vs. the rest of the world ? The later
-> includes stores to memory _and_ spinlock/unlock.
+On Tue, Nov 02, 2004 at 01:33:53AM +0900, Akinobu Mita wrote:
+> This patch provides support for user-defined profiling. It is
+> inspired by scheduler profiling.
+> If you put the following code into interesting function
+> 	profile_hit(USR_PROFILNG, __buildin_return_address(0));
+> and boot with profile=user then the readprofile shows which functions
+> called it, and how many times.
+> Furthermore I much prefer to insert the user-defined profile point
+> with Kprobe. This is why the profile_hits() was exported.
+> Please apply.
+> Signed-off-by Akinobu Mita <amgta@yacht.ocn.ne.jp>
 
-Yeah, that's ok with me, just be sure to update the documentation when you add 
-the PPC stuff.  Seems like a worthwhile optimization.
+It makes sense, though I wouldn't mind getting a look at who calls this.
+Looking at the callee in isolation leaves me vaguely puzzled.
 
-thanks,
-Jesse
+
+-- wli

@@ -1,86 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264479AbUESRpS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264484AbUESSM2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264479AbUESRpS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 13:45:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbUESRpS
+	id S264484AbUESSM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 14:12:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUESSM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 13:45:18 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:26053 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S264479AbUESRpK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 13:45:10 -0400
-Message-ID: <40AB9D69.1010302@free.fr>
-Date: Wed, 19 May 2004 19:46:17 +0200
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] bug in cpuid & msr on nosmp machine
-References: <40AB8CDF.8060408@free.fr>
-In-Reply-To: <40AB8CDF.8060408@free.fr>
-X-Enigmail-Version: 0.83.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------070407020607020808010309"
+	Wed, 19 May 2004 14:12:28 -0400
+Received: from vogsphere.datenknoten.de ([212.12.48.49]:58285 "EHLO
+	vogsphere.datenknoten.de") by vger.kernel.org with ESMTP
+	id S264484AbUESSM1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 14:12:27 -0400
+Subject: Re: Strange DMA-errors and system hang with Promise 20268
+From: Sebastian <sebastian@expires0604.datenknoten.de>
+To: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040519172845.GA26122@darkside.22.kls.lan>
+References: <1078602426.16591.8.camel@vega> <c2dsha$psd$1@sea.gmane.org>
+	 <1084987258.4662.4.camel@coruscant.datenknoten.de>
+	 <20040519172845.GA26122@darkside.22.kls.lan>
+Content-Type: text/plain
+Message-Id: <1084990345.4371.5.camel@coruscant.datenknoten.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 19 May 2004 20:12:25 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070407020607020808010309
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Am Mi, den 19.05.2004 schrieb Mario 'BitKoenig' Holbe um 19:28:
+> WDC drives involved by accident (i.e. do you have any
+> WDC drive connected to your promise controller(s))?
 
-matthieu castet wrote:
-> hi,
+Actually, it is not a promise controller.
+
+Setup:
+00:1f.1 IDE interface: Intel Corp. 82820 820 (Camino 2) Chipset IDE U100
+(rev 02)
+
+Device Model:     IC35L040AVER07-0
+
+Symptoms are the same, though.
+
+> > suggested, but too recently to be sure that it was the cause. It could
+> > just be related to additional load caused by cron jobs?
 > 
-> on monocpu machine (and maybe even on smp machine), when you try to 
-> acces to a cpu that don't exist (/dev/cpu/1/cpuid), cpuid (msr) call 
-> cpu_online, but on nosmp machine if the cpu!=0 this procude a BUG();
-> So I add a check that verify if the cpu can exist before calling 
-> cpu_online.
+> Yes.
 > 
-> Matthieu CASTET
-oups i send the wrong patch
+> > Any confirmed solutions yet?
+> 
+> Depends :) Not really.
+> Currently, I suspect it to be some Promise<->WDC issue,
+> thus it depends on your answer to my question :)
 
+Hhmm. I have not changed anything major on that machine except the
+Kernel for years. Only after upgrading from 2.4.23 to 2.4.25, I got
+these problems. 
+If there is no problem with the kernel, I have to assume a hardware
+failure of some kind. Badblocks/smartlog reveal no errors.
 
+Sebastian
 
---------------070407020607020808010309
-Content-Type: text/x-patch;
- name="cpuid.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cpuid.patch"
-
---- linux-2.6.5/arch/i386/kernel/cpuid.c	2004-04-04 05:36:12.000000000 +0200
-+++ linux/arch/i386/kernel/cpuid.c	2004-05-18 20:47:05.000000000 +0200
-@@ -135,7 +135,7 @@
-   int cpu = iminor(file->f_dentry->d_inode);
-   struct cpuinfo_x86 *c = &(cpu_data)[cpu];
- 
--  if (!cpu_online(cpu))
-+  if (cpu >= num_possible_cpus() || !cpu_online(cpu))
-     return -ENXIO;		/* No such CPU */
-   if ( c->cpuid_level < 0 )
-     return -EIO;		/* CPUID not supported */
-
---------------070407020607020808010309
-Content-Type: text/x-patch;
- name="msr.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="msr.patch"
-
---- linux-2.6.5/arch/i386/kernel/msr.c	2004-04-04 05:36:57.000000000 +0200
-+++ linux/arch/i386/kernel/msr.c	2004-05-19 18:25:09.000000000 +0200
-@@ -241,7 +241,7 @@
-   int cpu = iminor(file->f_dentry->d_inode);
-   struct cpuinfo_x86 *c = &(cpu_data)[cpu];
-   
--  if (!cpu_online(cpu))
-+  if (cpu >= num_possible_cpus() || !cpu_online(cpu))
-     return -ENXIO;		/* No such CPU */
-   if ( !cpu_has(c, X86_FEATURE_MSR) )
-     return -EIO;		/* MSR not supported */
-
---------------070407020607020808010309--

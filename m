@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290864AbSARXDR>; Fri, 18 Jan 2002 18:03:17 -0500
+	id <S290867AbSARXGi>; Fri, 18 Jan 2002 18:06:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290863AbSARXDI>; Fri, 18 Jan 2002 18:03:08 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:34250 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S290864AbSARXC7>; Fri, 18 Jan 2002 18:02:59 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: Re: [PATCH] IBM Lanstreamer bugfixes
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF0DC8C676.D07D3CD8-ON85256B45.007E1B7C@raleigh.ibm.com>
-From: "Kent E Yoder" <yoder1@us.ibm.com>
-Date: Fri, 18 Jan 2002 17:02:57 -0600
-X-MIMETrack: Serialize by Router on D04NM109/04/M/IBM(Release 5.0.9 |November 16, 2001) at
- 01/18/2002 06:02:58 PM,
-	Serialize complete at 01/18/2002 06:02:58 PM
-Content-Type: text/plain; charset="us-ascii"
+	id <S290868AbSARXG2>; Fri, 18 Jan 2002 18:06:28 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:5643 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S290867AbSARXGN>;
+	Fri, 18 Jan 2002 18:06:13 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Bruce Harada <bruce@ask.ne.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] wavelan_cs update (Pcmcia backport) 
+In-Reply-To: Your message of "Sat, 19 Jan 2002 00:10:29 +0900."
+             <20020119001029.42599989.bruce@ask.ne.jp> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 19 Jan 2002 10:06:01 +1100
+Message-ID: <14102.1011395161@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 19 Jan 2002 00:10:29 +0900, 
+Bruce Harada <bruce@ask.ne.jp> wrote:
+>On Fri, 18 Jan 2002 00:07:56 -0500
+>Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+>> -       * (does it work for everybody XXX - especially old cards...) */
+>> +       * (does it work for everybody ??? - especially old cards...) */
+>> you are reverting a change - "???" causes a trigraph-related warning in
+>> newer gcc
 >
->>   For #6, the udelay(1) had more to do with the following write() than 
->> with spin_lock().  When that delay was not there, the write failed 
->> randomly. The same with the udelay(10) at the end of the interrupt 
->> function...
->
->That smells of covering up a race rather than fixing something. Another
->thing you may be doing perhaps is hiding PCI posting effects ?
+>Just asking, but isn't it just a bit bogus for gcc to raise warnings about
+>things in comments?
 
-  Ok, I thought of one thing that might make things clearer here: when I 
-say "the write failed", I mean that we saw the write go out on the PCI bus 
-and then the box locked up.  We were looking at it on a PCI bus analyzer. 
-That, and it wasn't just this write, or just writes in general, it really 
-seemed random.
-
-  BTW, I don't know what PCI posting effects are...
-
-Kent
-
+Trigraph conversion is done before lexical analysis, gcc does not know
+if ??? is inside a comment at that stage.
 

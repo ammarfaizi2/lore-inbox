@@ -1,49 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261712AbUDSTII (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 15:08:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbUDSTIH
+	id S261718AbUDSTJR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 15:09:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbUDSTJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 15:08:07 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:25732 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261712AbUDSTIF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 15:08:05 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: "Randy.Dunlap" <rddunlap@osdl.org>, Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] floppy98.c: use kernel min/max
-Date: Mon, 19 Apr 2004 21:06:23 +0200
-User-Agent: KMail/1.5.3
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, zwane@linuxpower.ca
-References: <20040418194357.4cd02a06.rddunlap@osdl.org> <20040419180522.A14468@infradead.org> <20040419110553.47a588d1.rddunlap@osdl.org>
-In-Reply-To: <20040419110553.47a588d1.rddunlap@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Apr 2004 15:09:17 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51597 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261718AbUDSTJN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 15:09:13 -0400
+Date: Mon, 19 Apr 2004 12:09:08 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Ken Ashcraft <ken@coverity.com>
+Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu,
+       linux-aacraid-devel@dell.com
+Subject: Re: [CHECKER] Probable security holes in 2.6.5
+Message-ID: <20040419120908.I22989@build.pdx.osdl.net>
+References: <1082134916.19301.7.camel@dns.coverity.int>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200404192106.23306.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1082134916.19301.7.camel@dns.coverity.int>; from ken@coverity.com on Fri, Apr 16, 2004 at 10:01:57AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 19 of April 2004 20:05, Randy.Dunlap wrote:
-> On Mon, 19 Apr 2004 18:05:22 +0100 Christoph Hellwig wrote:
-> | On Mon, Apr 19, 2004 at 06:59:29PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> | > BTW at least PC9800 IDE support needs reworking - it is one BIG hack
-> |
-> | Please just kill it then.  PC9800 wasn't completly merged ever and there
-> | haven't been atempts for ages.  No need to stall development because of
-> | it.
->
-> Is some development stalled because of it?
+> [BUG]
+> /home/kash/linux/linux-2.6.5/drivers/scsi/aacraid/commctrl.c:419:aac_send_raw_srb: ERROR:TAINT: 413:419:Passing unbounded user value "fibsize" as arg 2 to function "copy_from_user", which uses it unsafely in model [SOURCE_MODEL=(lib,copy_from_user,user,taintscalar)] [SINK_MODEL=(lib,copy_from_user,user,trustingsink)]  [MINOR] [CAPABILTY] [PATH=] 
+> 	}
+> 	fib_init(srbfib);
+> 
+> 	srbcmd = (struct aac_srb*) fib_data(srbfib);
+> 
+> Start --->
+> 	if(copy_from_user((void*)&fibsize,
+> (void*)&user_srb->count,sizeof(u32))){
+> 		printk(KERN_DEBUG"aacraid: Could not copy data size from user\n"); 
+> 		rcode = -EFAULT;
+> 		goto cleanup;
+> 	}
+> 
+> Error --->
+> 	if(copy_from_user(srbcmd, user_srb,fibsize)){
+> 		printk(KERN_DEBUG"aacraid: Could not copy srb from user\n"); 
+> 		rcode = -EFAULT;
+> 		goto cleanup;
+> ---------------------------------------------------------
 
-Well, for IDE there are bigger problems than PC9800... ;-)
+Yup, it's protected by capable(), but...  Simple check eliminate possible
+overflow.
 
-> The current (status quo) isn't good.
-> It either needs to be fixed or removed.
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
 
-Yep, there is no doubt that it slow downs development,
-i.e. recent i386 standard resources fixups/cleanups.
-
-Bartlomiej
-
+===== drivers/scsi/aacraid/commctrl.c 1.4 vs edited =====
+--- 1.4/drivers/scsi/aacraid/commctrl.c	Wed Nov 19 10:38:25 2003
++++ edited/drivers/scsi/aacraid/commctrl.c	Mon Apr 19 12:02:12 2004
+@@ -416,6 +416,11 @@
+ 		goto cleanup;
+ 	}
+ 
++	if (fibsize > FIB_DATA_SIZE_IN_BYTES) {
++		rcode = -EINVAL;
++		goto cleanup;
++	}
++
+ 	if(copy_from_user(srbcmd, user_srb,fibsize)){
+ 		printk(KERN_DEBUG"aacraid: Could not copy srb from user\n"); 
+ 		rcode = -EFAULT;

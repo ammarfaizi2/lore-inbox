@@ -1,71 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131346AbRBNVf0>; Wed, 14 Feb 2001 16:35:26 -0500
+	id <S131662AbRBNVh4>; Wed, 14 Feb 2001 16:37:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130501AbRBNVfR>; Wed, 14 Feb 2001 16:35:17 -0500
-Received: from janus.cypress.com ([157.95.1.1]:20682 "EHLO janus.cypress.com")
-	by vger.kernel.org with ESMTP id <S131346AbRBNVe6>;
-	Wed, 14 Feb 2001 16:34:58 -0500
-Message-ID: <3A8AF9F9.38D467EB@cypress.com>
-Date: Wed, 14 Feb 2001 15:34:49 -0600
-From: Thomas Dodd <ted@cypress.com>
-Organization: Cypress Semiconductor Southeast Design Center
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, de-CH, de, zh-TW, zh-CN, zh
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Jasmeet Sidhu <jsidhu@arraycomm.com>
+	id <S131668AbRBNVhq>; Wed, 14 Feb 2001 16:37:46 -0500
+Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:3844 "EHLO
+	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with ESMTP
+	id <S131662AbRBNVhe>; Wed, 14 Feb 2001 16:37:34 -0500
+From: "Barry K. Nathan" <barryn@cx518206-b.irvn1.occa.home.com>
+Message-Id: <200102142137.NAA01678@cx518206-b.irvn1.occa.home.com>
 Subject: Re: IDE DMA Problems...system hangs
-In-Reply-To: <5.0.2.1.2.20010214115941.02471bb8@pop.arraycomm.com>
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Wed, 14 Feb 2001 13:37:26 -0800 (PST)
+Cc: jsidhu@arraycomm.com (Jasmeet Sidhu), linux-kernel@vger.kernel.org
+Reply-To: barryn@pobox.com
+In-Reply-To: <E14T8XO-0005wN-00@the-village.bc.nu> from "Alan Cox" at Feb 14, 2001 08:28:27 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jasmeet Sidhu wrote:
+Alan Cox wrote: 
+>> Feb 13 05:23:27 bertha kernel: hdo: dma_intr: status=0x51 { DriveReady 
+>> SeekComplete Error }
+>> Feb 13 05:23:27 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
+>> BadCRC }
 > 
-> Hey guys,
-> 
-> I am attaching my previous email for additional info.  Now I am using
-> kernel 2.4.1-ac12 and these problems have not gone away.
-> 
-> Anybody else having these problems with a ide raid 5?
-> 
-> The Raid 5 performance should also be questioned..here are some number
-> returned by hdparam
-> 
-> /dev/hda -    IBM DLTA 20GB (ext2)
-> /dev/md0 - 8 IBM DLTA 45GB (Reiserfs)
-> 
-> [root@bertha hdparm-3.9]# ./hdparm -t /dev/hda
-> /dev/hda:
-> Timing buffered disk reads:  64 MB in  2.36 seconds = 27.12 MB/sec
-> 
-> [root@bertha hdparm-3.9]# ./hdparm -t /dev/md0
-> /dev/md0:
-> Timing buffered disk reads:  64 MB in 22.16 seconds =  2.89 MB/sec
-> 
-> Is this to be expected?  This much performance loss?  Anybody else using
-> IDE raid, I would really appreciate your input on this setup.
+>You have inadequate cabling. CRC errors are indications of that. Make sure you
+>are using sufficiently short cables for ATA33 and proper 80pin ATA66 cables.
 
-md2 = RAID0 ext2
+I've had cases (on VIA chipsets) where, even or ATA33, a 40-pin cable
+caused CRC errors for ATA33 and an 80-pin cable fixed things. (The same
+40-pin cable does ATA33 without problems on an AMD 750 or an Intel BX,
+though.)
 
-hda = hdb = IBM DTTA-351010 (10GB, 5400RPM, UDMA33)
+IIRC, Andre Hedrick has said in the past that a marginal PSU or
+motherboard can also cause CRC errors.
 
-# hdparm -tT /dev/hda /dev/md2
-/dev/hda:
-Timing buffered disk reads:  64 MB in  5.27 seconds = 12.14 MB/sec
-Timing buffer-cache reads:   128 MB in  0.82 seconds =156.10 MB/sec
-
-/dev/md2:
-Timing buffered disk reads:  64 MB in  3.34 seconds = 19.16 MB/sec
-Timing buffer-cache reads:   128 MB in  0.80 seconds =160.00 MB/sec
-
-On AMD K7 w/ 7409 (Viper) chipset, DMA66 mode w/ 80-pin cable.
-kernel = 2.4.1-ac8, no errors in kernel log.
-So I get a 58% increase. You should almost max out the bus.
-
-You probably have a bad cable. Try hdparam on each disk and see if
-any of them have errors/ cause the lockup.
-
-	-Thomas
+-Barry K. Nathan <barryn@pobox.com>

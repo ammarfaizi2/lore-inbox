@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271051AbTHCHFx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 03:05:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271055AbTHCHFx
+	id S271037AbTHCHPt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 03:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271038AbTHCHPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 03:05:53 -0400
-Received: from lorien.emufarm.org ([66.93.131.57]:41426 "EHLO
-	lorien.emufarm.org") by vger.kernel.org with ESMTP id S271051AbTHCHFw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 03:05:52 -0400
-Date: Sun, 3 Aug 2003 00:05:42 -0700
-From: Danek Duvall <duvall@emufarm.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test2-mm3
-Message-ID: <20030803070542.GF10284@lorien.emufarm.org>
-Mail-Followup-To: Danek Duvall <duvall@emufarm.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030802152202.7d5a6ad1.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030802152202.7d5a6ad1.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
+	Sun, 3 Aug 2003 03:15:49 -0400
+Received: from baloney.puettmann.net ([194.97.54.34]:46802 "EHLO
+	baloney.puettmann.net") by vger.kernel.org with ESMTP
+	id S271037AbTHCHPs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 03:15:48 -0400
+To: linux-kernel <linux-kernel@vger.kernel.org>
+From: Ruben Puettmann <ruben@puettmann.net>
+Subject: Re: ACPI Error with 2.4.20-pre10 on ibm thinkpad
+In-Reply-To: <ggDE.76d.13@gated-at.bofh.it>
+References: <geVe.5Di.3@gated-at.bofh.it> <ggDE.76d.13@gated-at.bofh.it>
+Reply-To: ruben@puettmann.net
+Date: Sun, 3 Aug 2003 09:15:04 +0200
+Message-Id: <E19jD56-0004Qy-00@baloney.puettmann.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 02, 2003 at 03:22:02PM -0700, Andrew Morton wrote:
+you wrote on linux.kernel:
+> Ruben Puettmann on Sun  3/08 02:24 +0200:
+>> I try to use acpi on my new IBM thinkpad r40 but it won't work:
+> 
+> upgrade your thinkpad BIOS.
 
-> . I don't think anyone has reported on whether 2.6.0-test2-mm2 fixed any
->   PS/2 or synaptics problems.  You are all very bad.
+The latest aviable Bios ( 1.10 ) and the latest emb. controller bios is
+installed.
 
-I tried it on my Fujitsu P2120, hoping that the PS/2 resume patch would
-help it wake up from S3 properly, but no such luck.  The radeon
-framebuffer doesn't restore, and the keyboard doesn't work.  The mouse
-might, but there's no way for me to tell.
+            Ruben
 
-If I remember correctly, the network functioned properly on resume in
-test1-mm2, but doesn't in test2-mm3, so I had to do a reset.
 
-Danek
+
+-- 
+Ruben Puettmann
+ruben@puettmann.net
+http://www.puettmann.net

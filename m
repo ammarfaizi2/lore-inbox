@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271399AbRICIQD>; Mon, 3 Sep 2001 04:16:03 -0400
+	id <S271505AbRICIbR>; Mon, 3 Sep 2001 04:31:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271505AbRICIPx>; Mon, 3 Sep 2001 04:15:53 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:37258 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S271399AbRICIPi>;
-	Mon, 3 Sep 2001 04:15:38 -0400
-Date: Mon, 03 Sep 2001 01:15:30 -0700 (PDT)
-Message-Id: <20010903.011530.62340995.davem@redhat.com>
-To: ak@suse.de
-Cc: alan@lxorguk.ukuu.org.uk, willy@debian.org, thunder7@xs4all.nl,
-        parisc-linux@lists.parisc-linux.org, linux-kernel@vger.kernel.org
-Subject: Re: [parisc-linux] documented Oops running big-endian reiserfs on
- parisc architecture
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <oup66b0zq9j.fsf@pigdrop.muc.suse.de>
-In-Reply-To: <20010903002514.X5126@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel>
-	<E15dghq-0000bZ-00@the-village.bc.nu.suse.lists.linux.kernel>
-	<oup66b0zq9j.fsf@pigdrop.muc.suse.de>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S271514AbRICIbH>; Mon, 3 Sep 2001 04:31:07 -0400
+Received: from mx6.port.ru ([194.67.57.16]:2570 "EHLO smtp6.port.ru")
+	by vger.kernel.org with ESMTP id <S271505AbRICIa6>;
+	Mon, 3 Sep 2001 04:30:58 -0400
+From: Samium Gromoff <_deepfire@mail.ru>
+Message-Id: <200109031253.f83CrlK26536@vegae.deep.net>
+Subject: first fruits
+To: linux-kernel@vger.kernel.org
+Date: Mon, 3 Sep 2001 12:53:46 +0000 (UTC)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andi Kleen <ak@suse.de>
-   Date: 03 Sep 2001 09:29:12 +0200
-   
-   And also everybody connected to the internet needs them, because you can 
-   create arbitarily unaligned TCP/UDP/ICMP headers using IP option byte sized 
-   NOPs. 
+          Hello folks, here are first fruits.
+    One problem with it: i`m not that sure that Keith`s .config generator
+  wasnt wrong here - "unknown architecture" sounds verly much like it...
 
-IP header length is measured in octets, so how is this possible?
-:-)
+*note - thet was after 15 minutes after compile start (p166)
 
-Later,
-David S. Miller
-davem@redhat.com
+epson1355fb.c:73: #error unknown architecture
+epson1355fb.c: In function `disable_hw_cursor':
+epson1355fb.c:96: warning: implicit declaration of function `e1355_read_reg'
+epson1355fb.c:98: warning: implicit declaration of function `e1355_write_reg'
+epson1355fb.c: In function `e1355_set_bpp':
+epson1355fb.c:185: warning: implicit declaration of function `e1355_write_reg16'epson1355fb.c: In function `dump_panel_data':
+epson1355fb.c:241: warning: implicit declaration of function `e1355_read_reg16'
+epson1355fb.c: In function `e1355_set_disp':
+epson1355fb.c:435: `E1355_FB_BASE' undeclared (first use in this function)
+epson1355fb.c:435: (Each undeclared identifier is reported only once
+epson1355fb.c:435: for each function it appears in.)
+epson1355fb.c:433: warning: `d' might be used uninitialized in this function
+epson1355fb.c: At top level:
+epson1355fb.c:80: warning: `current_par_valid' defined but not used
+epson1355fb.c:229: warning: `dump_panel_data' defined but not used
+make[3]: *** [epson1355fb.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/video'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux/drivers/video'
+make[1]: *** [_subdir_video] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_dir_drivers] Error 2
+
+cheers,
+ Sam

@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbULGAfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261722AbULGArN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261718AbULGAfh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 19:35:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbULGAfd
+	id S261722AbULGArN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 19:47:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbULGArN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 19:35:33 -0500
-Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:34176
-	"HELO home.linuxace.com") by vger.kernel.org with SMTP
-	id S261716AbULGAf0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 19:35:26 -0500
-Date: Mon, 6 Dec 2004 16:35:25 -0800
-From: Phil Oester <kernel@linuxace.com>
-To: shemminger@osdl.org, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Recent select() handling change breaks Poptop
-Message-ID: <20041207003525.GA22933@linuxace.com>
+	Mon, 6 Dec 2004 19:47:13 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:6794 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261722AbULGArK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 19:47:10 -0500
+Date: Tue, 7 Dec 2004 01:44:00 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Johan <johan@ccs.neu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: status of via velocity in 2.6.9
+Message-ID: <20041207004400.GC12838@electric-eye.fr.zoreil.com>
+References: <41B4F447.2060808@ccs.neu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <41B4F447.2060808@ccs.neu.edu>
 User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The recent changeset [1] dealing with blocking usage of select() seems
-to break the Poptop PPTP server.
+Johan <johan@ccs.neu.edu> :
+> How 'working' are the via velocity drivers in 2.6.9 ?
 
-After upgrading from -rc2 to -rc3, I could no longer connect to a server
-running PopTop.  Ended up reverting various -bk snapshots, and the breakage
-was between -bk13 and -bk14.  Reverting this change to af_inet:
+Apart the fact that the driver does not play nice with the in-kernel
+vlan API, I'd say that this is the first PR since the last fixes.
 
--       .poll =         datagram_poll,
-+       .poll =         udp_poll,
+[network stops from time to time]
+> Is this known behavior ?
 
-makes the Poptop server work again.
+Afaik, not on 2.6.9.
 
-Any ideas?
+Can you describe the bug and the traffic ?
+Any NETDEV watchdog messages or such ?
 
-Phil
-
-
-[1] http://linux.bkbits.net:8080/linux-2.5/cset@41ad55f4lM2IigkTUmtz82At8P3duA?nav=index.html|ChangeSet@-2w
+--
+Ueimor

@@ -1,70 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265170AbUAYS5J (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 13:57:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265172AbUAYS5J
+	id S265141AbUAYTDG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 14:03:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbUAYTDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 13:57:09 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:12508 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S265170AbUAYS5C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 13:57:02 -0500
-Date: Sun, 25 Jan 2004 19:56:58 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Is there a way to keep the 2.6 kjournald from writing to idle disks? (to allow spin-downs)
-Message-ID: <20040125185658.GA27397@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <40140B0A.90707@isg.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40140B0A.90707@isg.de>
-User-Agent: Mutt/1.5.5.1i
+	Sun, 25 Jan 2004 14:03:06 -0500
+Received: from fw.osdl.org ([65.172.181.6]:9156 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265141AbUAYTDD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 14:03:03 -0500
+Date: Sun, 25 Jan 2004 11:02:58 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+cc: Greg KH <greg@kroah.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: PATCH: (as177)  Add class_device_unregister_wait() and
+ platform_device_unregister_wait() to the driver model core
+In-Reply-To: <Pine.LNX.4.44L0.0401251224530.947-100000@ida.rowland.org>
+Message-ID: <Pine.LNX.4.58.0401251054340.18932@home.osdl.org>
+References: <Pine.LNX.4.44L0.0401251224530.947-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Jan 2004, Lutz Vieweg wrote:
 
-> I run a server that usually doesn't have to do anything on the local
-> filesystems, it just needs to answer some requests and perform some
-> computations in RAM.
+
+On Sun, 25 Jan 2004, Alan Stern wrote:
 > 
-> So I use the "hdparm -S 123" parameter setting to keep the (IDE)
-> system disk from spinning unneccessarily.
-> 
-> Alas, since an upgrade to kernel 2.6 and ext3 filesystem, I cannot
-> find a way to let the harddisk spin down - I found out that
-> "kjournald" writes a few blocks every few seconds.
-> 
-> As I wouldn't like to downgrade to ext2: Is there any way to keep the
-> 2.6 kjournald from writing to idle disks?
-> 
-> I cannot see a good reason why kjournald would write when there are no
-> dirty buffers - but still it does.
+> Is there some reason why modules don't work like this?
 
-I can spin down my "extra" hard drives just fine with 2.6; I have a
-"hde" drive (IBM DTLA, a wonder it's still alive, it's just a cache disk
-however, no valuable data on it) attached to a Promise PDC 20265R which
-has one large ext3fs partition, /dev/hde1, across the whole disk, which
-will sit idle for ages, without spinning up. I have another IDE harddisk
-with just reiserfs and vfat, it stays in standby as well. The third IDE
-harddisk is so quiet I can't tell, without asking hdparm -C, whether it
-is up, and I do not really care, but it seems it stays in standby as
-well.
+There's a few:
 
-So the question is, do you run stuff that marks blocks dirty regularly?
-atime updates? Does mounting ALL the partition (including root) with
-option "noatime" help, policy and applications permitting?
+ - pain. pain. pain.
 
-Another thing I find very annoying however: whenever a disk writes the
-last dirty block and is in a known-good shape, it should mark its state
-as "clean" so it doesn't need to be spun up just to change the
-superblock from "not clean" to "clean" when the computer is shut down
-and the FS is umounted. The first action when touching the disk would
-then mark the fs "not clean" until after the last fs was marked "clean".
+ - doing proper refcounting of modules is _really_ really hard. The reason 
+   is that proper refcounting is a "local" issue: you reference count a
+   single data structure. It's basically impossible to make a "global" 
+   reference count without jumping through hoops.
 
--- 
-Matthias Andree
+ - lack of testing. Unloading a module happens once in a blue moon, if 
+   even then.
 
-Encrypt your mail: my GnuPG key ID is 0x052E7D95
+The proper thing to do (and what we _have_ done) is to say "unloading of 
+modules is not supported". It's a debugging feature, and you literally 
+shouldn't do it unless you are actively developing that module.
+
+Sadly, some modules are broken. Old 16-bit PCMCIA in particular _depends_
+on unloading modules, since the old PCMCIA layer doesn't do hotplug: it
+literally thinks of module load/unload as the "plug/unplug" event.
+
+But it basically boils down to: don't think of module unload as a "normal
+event". It isn't. Getting it truly right is (a) too painful and (b) would
+be too slow, so we're not even going to try.
+
+(As an example of "too painful, too slow", think of something like a 
+packet filter module. You'd literally have to increment the count in every 
+part that gets a packet, and decrement the count at every point where it 
+lets the packet go.  And since it would have to be SMP-safe, it would have 
+to be a locked cycle, or we'd have to have per-CPU counters - at which 
+point you now also have to worry about things like preemption and 
+sleeping, which just means that it would be a _lot_ of very fragile code).
+
+			Linus

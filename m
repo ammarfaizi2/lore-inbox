@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129783AbQJ0QcD>; Fri, 27 Oct 2000 12:32:03 -0400
+	id <S129821AbQJ0QhA>; Fri, 27 Oct 2000 12:37:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129821AbQJ0Qbx>; Fri, 27 Oct 2000 12:31:53 -0400
-Received: from brutus.conectiva.com.br ([200.250.58.146]:53500 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129783AbQJ0Qbn>; Fri, 27 Oct 2000 12:31:43 -0400
-Date: Fri, 27 Oct 2000 14:31:28 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Rui Sousa <rsousa@grad.physics.sunysb.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Blocked processes <=> Elevator starvation?
-In-Reply-To: <Pine.LNX.4.21.0010271658500.1295-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0010271430330.25174-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129874AbQJ0Qgt>; Fri, 27 Oct 2000 12:36:49 -0400
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:19184 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S129821AbQJ0Qgm>; Fri, 27 Oct 2000 12:36:42 -0400
+Date: Fri, 27 Oct 2000 09:21:41 -0700
+From: Dan Kegel <dank@alumni.caltech.edu>
+Subject: Re: kqueue microbenchmark results
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jonathan Lemon <jlemon@flugsvamp.com>, Gideon Glass <gid@cisco.com>,
+        Simon Kirby <sim@stormix.com>, chat@freebsd.org,
+        linux-kernel@vger.kernel.org
+Reply-to: dank@alumni.caltech.edu
+Message-id: <39F9AB95.735E26A7@alumni.caltech.edu>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.14-5.0 i686)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
+In-Reply-To: <E13oyOE-00044z-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Oct 2000, Rui Sousa wrote:
-
-> I finally had time to give this a better look. It now seems the
-> problem is in the VM system.
-
-*sigh*
-
-> schedule()
-> ___wait_on_page()
-> do_generic_file_read()
-> generic_file_read()
-> sys_read()
-> system_call()
+Alan Cox wrote:
+> > > kqueue currently does this; a close() on an fd will remove any pending
+> > > events from the queues that they are on which correspond to that fd.
+> > 
+> > the application of a close event.  What can I say, "the fd formerly known
+> > as X" is now gone?  It would be incorrect to say that "fd X was closed",
+> > since X no longer refers to anything, and the application may have reused
+> > that fd for another file.
 > 
-> So it seems the process is either in a loop in ___wait_on_page()
-> racing for the PageLock or it never wakes-up... (I guess I could
-> add a printk to check which)
+> Which is precisely why you need to know where in the chain of events this
+> happened. Otherwise if I see
+> 
+>         'read on fd 5'
+>         'read on fd 5'
+> 
+> How do I know which read is for which fd in the multithreaded case
 
-It is spinning in ___wait_on_page() because the page never
-becomes available, because the IO doesn't get scheduled to
-disk in time.
+That can't happen, can it?  Let's say the following happens:
+   close(5)
+   accept() = 5
+   call kevent() and rebind fd 5
+The 'close(5)' would remove the old fd 5 events.  Therefore,
+any fd 5 events you see returned from kevent are for the new fd 5.
 
-This appears to be an elevator problem, not a VM problem.
+(I suspect it helps that kevent() is both the only way to
+bind events and the only way to pick them up; makes it harder
+for one thread to sneak a new fd into the event list without
+the thread calling kevent() noticing.)
 
-regards,
-
-Rik
---
-"What you're running that piece of shit Gnome?!?!"
-       -- Miguel de Icaza, UKUUG 2000
-
-http://www.conectiva.com/		http://www.surriel.com/
-
+- Dan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

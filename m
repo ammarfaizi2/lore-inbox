@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbUKWB2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262483AbUKWBa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbUKWB2l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 20:28:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbUKWB0S
+	id S262483AbUKWBa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 20:30:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbUKWB3B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 20:26:18 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:36023 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261202AbUKWBZN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 20:25:13 -0500
-Date: Mon, 22 Nov 2004 20:23:33 -0500
-From: Dave Jones <davej@redhat.com>
-To: Len Brown <len.brown@intel.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Chris Wright <chrisw@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: why use ACPI (Re: 2.6.10-rc2 doesn't boot (if no floppy device))
-Message-ID: <20041123012333.GK17249@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Len Brown <len.brown@intel.com>, Adrian Bunk <bunk@stusta.de>,
-	Chris Wright <chrisw@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-	Bjorn Helgaas <bjorn.helgaas@hp.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <20041115152721.U14339@build.pdx.osdl.net> <1100819685.987.120.camel@d845pe> <20041118230948.W2357@build.pdx.osdl.net> <1100941324.987.238.camel@d845pe> <20041120124001.GA2829@stusta.de> <1101148138.20008.6.camel@d845pe> <20041123004619.GQ19419@stusta.de> <1101172056.20006.153.camel@d845pe>
+	Mon, 22 Nov 2004 20:29:01 -0500
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:59286 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S261212AbUKWBZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 20:25:43 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+Message-Id: <5.1.0.14.2.20041123122411.03ccbe98@171.71.163.14>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 23 Nov 2004 12:25:04 +1100
+To: "Jeff V. Merkey" <jmerkey@devicelogics.com>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: Re: Linux 2.6.9 pktgen module causes INIT process respawning  
+  and sickness
+Cc: "Jeff V. Merkey" <jmerkey@devicelogics.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <41A28D07.3080109@devicelogics.com>
+References: <41A2862A.2000602@devicelogics.com>
+ <5.1.0.14.2.20041122144144.04e3d9f0@171.71.163.14>
+ <419E6B44.8050505@devicelogics.com>
+ <419E6B44.8050505@devicelogics.com>
+ <5.1.0.14.2.20041122144144.04e3d9f0@171.71.163.14>
+ <5.1.0.14.2.20041123094109.04003720@171.71.163.14>
+ <41A2862A.2000602@devicelogics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101172056.20006.153.camel@d845pe>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 22, 2004 at 08:07:36PM -0500, Len Brown wrote:
+At 12:06 PM 23/11/2004, Jeff V. Merkey wrote:
+>>Bryan Sparks says no to open sourcing this code in Linux. Sorry -- I 
+>>asked. I am allowed to open source any modifications
+>>to public kernel sources like dev.c since we have an obligation to do so. 
+>>I will provide source code enhancements for the kernel
+>>for anyone who purchases our Linux based appliances and asks for the 
+>>source code (so says Bryan Sparks). You can issue a purchase
+>>request to Bryan Sparks (bryan@devicelogics.com) if you want any source 
+>>code changes for the Linux kernel.
+>
+>Needless to say, we are not open sourcing any of our proprietary 
+>technology with the appliances, just the changes to the core
+>Linux kernel files as required by the GPL, just to clarify. It comes as a 
+>patch to linux-2.6.9 and does not include the appliance
+>core systems.
 
- > Laptops have had soft poweroff with APM for a while, but desktops and
- > servers never adopted APM, so soft-power-off is generally a new feature
- > with ACPI for them.
+got it - much clearer.
 
-Nonsense.
+fair enough.
 
-My 4-way compaq server disagrees with you. No ACPI on that
-at all, and it has fully working APM, even in SMP.  Likewise,
-I don't think I've ever seen a desktop without APM.
-(modulo broken biosen).
 
-IIRC, APM supported this since the arrival of ATX power supplies,
-which was a _long_ time ago. 1996/1997 ?
+cheers,
 
-		Dave
+lincoln.
 

@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314643AbSESQ6n>; Sun, 19 May 2002 12:58:43 -0400
+	id <S314670AbSESROi>; Sun, 19 May 2002 13:14:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314670AbSESQ6m>; Sun, 19 May 2002 12:58:42 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:2873 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S314643AbSESQ6m>; Sun, 19 May 2002 12:58:42 -0400
-Date: Sun, 19 May 2002 18:01:31 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Rui Sousa <rui.sousa@laposte.net>, Rusty Russell <rusty@rustcorp.com.au>,
-        linux-kernel@vger.kernel.org,
-        kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: AUDIT of 2.5.15 copy_to/from_user
-In-Reply-To: <E179Qxm-0003nQ-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0205191755200.9972-100000@localhost.localdomain>
+	id <S314680AbSESROh>; Sun, 19 May 2002 13:14:37 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26894 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314670AbSESROg>; Sun, 19 May 2002 13:14:36 -0400
+Subject: Re: nVidia NIC/IDE/something support?
+To: davej@suse.de (Dave Jones)
+Date: Sun, 19 May 2002 18:34:15 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        roy@karlsbakk.net (Roy Sigurd Karlsbakk), linux-kernel@vger.kernel.org
+In-Reply-To: <20020519184720.J15417@suse.de> from "Dave Jones" at May 19, 2002 06:47:20 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E179UZT-00046i-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 May 2002, Alan Cox wrote:
-> > 
-> > On the emu10k1 driver we use access_ok(VERIFY_READ) once at the beginning
-> > of the write() routine to check we can access the user buffer. After that 
-> > we always use __copy_from_user() and we trust it not to fail. Is this 
-> > correct, or not?
+>  > Depends if Nvidia want to be helpful. The audio is now supported (someone
+>  > was able to deduce that it was a clone of the intel one). For the ethernet
+>  > you might want to try random things that expect that much mmio and I/O 
+>  > space until you find what they licensed if its not their own
 > 
-> This is correct
+> In 2.5 the amd74xx.c ide driver has an entry to support the nforce IDE
+> too, so it looks like quite a bit of the chipset could be variants of
+> existing components.
 
-Am I right to read that as "This is a correct description of what is
-currently done in the emu10k1 driver, but what it is doing is incorrect"?
+Even more interesting is that the AMD audio is also a clone of the i810.
+So that makes the AMD audio and AMD ide apparently match the Nvidia audio
+and Nvidia ide (minus the Nvidia extra 'media controller')
 
-> Static once off checks are done in access_ok
-> Dynamic checks are doing in __copy_from_*
-> 
-> Which are which depends on the platform. On x86 for example access_ok
-> is basically a check for 0->0xBFFFFFFF range and no more
+Unfortunately the AMD PCnetXX ethernet doesn't match up with the amount
+of I/O space their ethernet has.
 
-Hugh
-
+Alan

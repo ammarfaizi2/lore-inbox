@@ -1,75 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265986AbUFIV2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265987AbUFIV2G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265986AbUFIV2A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 17:28:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265988AbUFIV2A
+	id S265987AbUFIV2G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 17:28:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265988AbUFIV2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 17:28:00 -0400
-Received: from baloney.puettmann.net ([194.97.54.34]:58560 "EHLO
-	baloney.puettmann.net") by vger.kernel.org with ESMTP
-	id S265986AbUFIV16 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 17:27:58 -0400
-Date: Wed, 9 Jun 2004 23:24:30 +0200
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-Subject: Re: 2.6.X File locking on NFS stil broken
-Message-ID: <20040609212430.GG29969@puettmann.net>
-References: <20040609191758.GA29969@puettmann.net> <1086813672.4078.24.camel@lade.trondhjem.org> <20040609204235.GC29969@puettmann.net> <1086814428.4078.35.camel@lade.trondhjem.org> <20040609210313.GE29969@puettmann.net> <1086815623.4078.43.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JVTRtevMO87SusWP"
+	Wed, 9 Jun 2004 17:28:06 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:58795 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S265987AbUFIV17 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 17:27:59 -0400
+From: Mark Gross <mgross@linux.jf.intel.com>
+Organization: Intel
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Mark Gross <mgross@linux.jf.intel.com>
+Subject: Re: swsusp "not enough swap space" 2.6.5-mm6.
+Date: Wed, 9 Jun 2004 14:28:26 -0700
+User-Agent: KMail/1.5.4
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+References: <200406080829.35120.mgross@linux.intel.com> <200406090927.51206.mgross@linux.intel.com> <1086810480.1982.1.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1086810480.1982.1.camel@teapot.felipe-alfaro.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1086815623.4078.43.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Ruben Puettmann <ruben@puettmann.net>
-X-Scanner: exiscan *1BYAYg-0004IZ-00*3U/3Rbp2yVo* (Puettmann.NeT, Germany)
+Message-Id: <200406091428.26446.mgross@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 09 June 2004 12:48, Felipe Alfaro Solana wrote:
+> On Wed, 2004-06-09 at 09:27 -0700, Mark Gross wrote:
+> > On Wednesday 09 June 2004 08:32, Mark Gross wrote:
+> > > On Tuesday 08 June 2004 16:04, Pavel Machek wrote:
+> > > > Hi!
+> > > >
+> > > > > I'm sorry for not having more information, but the failing computer
+> > > > > is my home laptop (I'll get more details after work or I'll bring
+> > > > > it in tomorrow for more details).
+> > > > >
+> > > > > Anyway, this thing does software suspend using the 2.6.2-mm1
+> > > > > kernel, and last night I was updating it to 2.6.5-mm6, and I
+> > > > > started getting these not enough disk space errors.
+> > > > >
+> > > > > I found your bug fix patch,
+> > > > > http://marc.theaimsgroup.com/?l=linux-kernel&m=107806008626357&w=2
+> > > > >  and checked that it is included in the 2.6.5-mm6 kernel I'm using.
+> > > > >
+> > > > > Without more information does this problem ring any bells?
+> > > > >
+> > > > > Can you recommend a "good" kernel version that does reliable
+> > > > > swsusp?
+> > > >
+> > > > Get 2.6.6, and set swappiness to 100.
+> > > >
+> > > > 								Pavel
+> > >
+> > > 2.6.6 still fails, just like the failure reported by the thread
+> > > independent of swappiness:
+> > >
+> > > http://marc.theaimsgroup.com/?t=107806010900002&r=1&w=2
+> > >
+> > > However; as hinted in the thread turning off premption does seem to fix
+> > > the problem.
+> >
+> > Spoke too soon.  My build tree that had the success was 2.6.6-mm6, so I
+> > re-built a clean 2.6.6 from tarball using the .config from the successful
+> > run, CONFIG_PREEMPT=n.  It fails.  2.6.6-mm5 works, but only if
+> > CONFIG_PREEMPT=n.
+> >
+> > I have to get to my day job now, but whats up with the flakieness of the
+> > swsusp?  Shouldn't it be mostly working by now?
+>
+> It's working flawlessly for me with 2.6.7-rc3-mm1. I also applied the
+> following patches (who knows)...
 
---JVTRtevMO87SusWP
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+They seem to work for me too, but I can't build with CONFIG_PERFCTR :)
 
-On Wed, Jun 09, 2004 at 05:13:43PM -0400, Trond Myklebust wrote:
-> P=E5 on , 09/06/2004 klokka 17:03, skreiv Ruben Puettmann:
->=20
-> > attached the strace and one tcpdump from the testprogramm.
->=20
-> According to that tcpdump, the server is denying you the lock because it
-> is still in its grace period.=20
->=20
-> During that period only clients that held locks before the server
-> rebooted are allowed to reclaim those locks. Your client will need to
-> wait until that grace period is over (usually ~ 1 minute or so).
->=20
+thanks,
 
-I have done a reboot on teh server ( It was up for over 315 day's ;-( )
-now all runs fine seems to be an race condition. I will take a look on
-it if this happend again.=20
+--mgross
 
-Thanks for your help !!
-
-
-                Ruben
-
---=20
-Ruben Puettmann
-ruben@puettmann.net
-http://www.puettmann.net
-
---JVTRtevMO87SusWP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAx4AOgHHssbUmOEIRAtzqAKCua3s9zl7RF1UpnvDWZfWxOk7KXACg8NVf
-P0ncWJ7k0oppDM97aMWqIbA=
-=S8wH
------END PGP SIGNATURE-----
-
---JVTRtevMO87SusWP--

@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264254AbUACWQH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 17:16:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264272AbUACWQG
+	id S264288AbUACW2A (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 17:28:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbUACW2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 17:16:06 -0500
-Received: from mail.kroah.org ([65.200.24.183]:65166 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264254AbUACWQE (ORCPT
+	Sat, 3 Jan 2004 17:28:00 -0500
+Received: from fw.osdl.org ([65.172.181.6]:27300 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264288AbUACW16 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 17:16:04 -0500
-Date: Sat, 3 Jan 2004 14:11:22 -0800
-From: Greg KH <greg@kroah.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+	Sat, 3 Jan 2004 17:27:58 -0500
+Date: Sat, 3 Jan 2004 14:27:47 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Rob Love <rml@ximian.com>, rob@landley.net,
+       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
 Subject: Re: udev and devfs - The final word
-Message-ID: <20040103221121.GI11061@kroah.com>
-References: <20031231002942.GB2875@kroah.com> <20040101011855.GA13628@hh.idb.hist.no> <20040103055938.GD5306@kroah.com> <20040103152241.GA5531@hh.idb.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040103152241.GA5531@hh.idb.hist.no>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040103141029.B3393@pclin040.win.tue.nl>
+Message-ID: <Pine.LNX.4.58.0401031423180.2162@home.osdl.org>
+References: <18Cz7-7Ep-7@gated-at.bofh.it> <20040101001549.GA17401@win.tue.nl>
+ <1072917113.11003.34.camel@fur> <200401010634.28559.rob@landley.net>
+ <1072970573.3975.3.camel@fur> <20040101164831.A2431@pclin040.win.tue.nl>
+ <1072972440.3975.29.camel@fur> <Pine.LNX.4.58.0401021238510.5282@home.osdl.org>
+ <20040103040013.A3100@pclin040.win.tue.nl> <Pine.LNX.4.58.0401022033010.10561@home.osdl.org>
+ <20040103141029.B3393@pclin040.win.tue.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 03, 2004 at 04:22:41PM +0100, Helge Hafting wrote:
-> > Hopefully I can work on fixing this up in 2.7.
+
+
+On Sat, 3 Jan 2004, Andries Brouwer wrote:
 > 
-> Interesting - how do you plan to do this?  
+> Sure. It is not "need". It is "quality of implementation".
+> Consider NFS.
 
-Probably something like the current interface for USB minor numbers when
-CONFIG_USB_DYNAMIC_MINORS is enabled.  The drivers will request a
-certian major/minor, but the kernel will just give it whatever it feels
-like.
+The problems occur when there are things we _cannot_ guarantee, and that
+user space starts unnecessarily to depend on. And that ends up resulting
+in bugs waiting to happen. Bugs that many "normal" developers may never 
+hit, simply because the quality of implementation ends up being so good 
+that it hides the problem cases in regular usage.
 
-That's my first guess, actual implementation will probably differ wildly
-:)
+And then a high-quality implementation actually ends up being 
+_detrimental_. It's hiding problems that can still happen, they just 
+happen rarely enough that the bugs don't get found and fixed.
 
-thanks,
+And then the painful thing of forcing "stupid", aka "bad QoI" behaviour, 
+actually ends up being the better thing in the long run.
 
-greg k-h
+			Linus

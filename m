@@ -1,156 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbUCAKRa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 05:17:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbUCAKRa
+	id S261172AbUCAKSy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 05:18:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbUCAKSy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 05:17:30 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:27612 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S261165AbUCAKRZ
+	Mon, 1 Mar 2004 05:18:54 -0500
+Received: from smtp-out1.xs4all.nl ([194.109.24.11]:27667 "EHLO
+	smtp-out1.xs4all.nl") by vger.kernel.org with ESMTP id S261172AbUCAKSc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 05:17:25 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: George Anzinger <george@mvista.com>, Tom Rini <trini@kernel.crashing.org>
-Subject: Re: [Kgdb-bugreport] [PATCH][3/3] Update CVS KGDB's wrt connect / detach
-Date: Mon, 1 Mar 2004 15:47:11 +0530
-User-Agent: KMail/1.5
-Cc: kernel list <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>,
-       kgdb-bugreport@lists.sourceforge.net
-References: <20040225213626.GF1052@smtp.west.cox.net> <20040227154920.GX1052@smtp.west.cox.net> <403FC0AA.6040205@mvista.com>
-In-Reply-To: <403FC0AA.6040205@mvista.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 1 Mar 2004 05:18:32 -0500
+Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
+From: Paul Wagland <paul@wagland.net>
+To: Joachim B Haga <c.j.b.haga@fys.uio.no>
+Cc: Peter Williams <peterw@aurema.com>, Timothy Miller <miller@techsource.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <yydjvflp9b8g.fsf@galizur.uio.no>
+References: <fa.ftul5bl.nlk3pr@ifi.uio.no> <fa.cvc8vnj.ahebjd@ifi.uio.no>
+	 <yydjvflp9b8g.fsf@galizur.uio.no>
+Content-Type: text/plain
+Message-Id: <1078136291.16756.5.camel@paulw-desktop.allshare.nl>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 01 Mar 2004 11:18:12 +0100
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403011547.11116.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 28 Feb 2004 3:41 am, George Anzinger wrote:
-> Tom Rini wrote:
-> > On Thu, Feb 26, 2004 at 05:57:27PM -0800, George Anzinger wrote:
-> >>Tom Rini wrote:
-> >>>On Thu, Feb 26, 2004 at 03:30:08PM -0800, George Anzinger wrote:
-> >>>>Amit S. Kale wrote:
-> >>>>>On Thursday 26 Feb 2004 3:23 am, Tom Rini wrote:
-> >>>>>>The following patch fixes a number of little issues here and there,
-> >>>>>> and ends up making things more robust.
-> >>>>>>- We don't need kgdb_might_be_resumed or kgdb_killed_or_detached.
-> >>>>>>GDB attaching is GDB attaching, we haven't preserved any of the
-> >>>>>>previous context anyhow.
-> >>>>>
-> >>>>>If gdb is restarted, kgdb has to remove all breakpoints. Present kgdb
-> >>>>>does that in the code this patch removes:
-> >>>>>
-> >>>>>-		if (remcom_in_buffer[0] == 'H' && remcom_in_buffer[1] ==
-> >>>>>'c') {
-> >>>>>-			remove_all_break();
-> >>>>>-			atomic_set(&kgdb_killed_or_detached, 0);
-> >>>>>-			ok_packet(remcom_out_buffer);
-> >>>>>
-> >>>>>If we don't remove breakpoints, they stay in kgdb without gdb not
-> >>>>>knowing it and causes consistency problems.
-> >>>>
-> >>>>I wonder if this is worth the trouble.  Does kgdb need to know about
-> >>>>breakpoints at all?  Is there some other reason it needs to track them?
-> >>>
-> >>>I don't know if it's strictly needed, but it's not the hard part of this
-> >>>particular issue (as I suggested in another thread, remove_all_break()
-> >>>on a ? packet works).
-> >>>
-> >>>>>>- Don't try and look for a connection in put_packet, after we've
-> >>>>>> tried to put a packet.  Instead, when we receive a packet, GDB has
-> >>>>>> connected.
-> >>>>>
-> >>>>>We have to check for gdb connection in putpacket or else following
-> >>>>>problem occurs.
-> >>>>>
-> >>>>>1. kgdb console messages are to be put.
-> >>>>>2. gdb dies
-> >>>>>3. putpacket writes the packet and waits for a '+'
-> >>>>
-> >>>>Oops!  Tom, this '+' will be sent under interrupt and while kgdb is not
-> >>>>connected.  Looks like it needs to be passed through without causing a
-> >>>>breakpoint.  Possible salvation if we disable interrupts while waiting
-> >>>>for the '+' but I don't think that is a good idea.
-> >>>
-> >>>I don't think this is that hard of a problem anymore.  I haven't enabled
-> >>>console messages, but I've got the following being happy now:
-> >>
-> >>console pass through is the hard one as it is done outside of kgdb under
-> >>interrupt control.  Thus the '+' will come to the interrupt handler.
-> >>
-> >>There is a bit of a problem here WRT hiting a breakpoint while waiting
-> >> for this '+'.  Should only happen on SMP systems, but still....
-> >
-> > Here's why I don't think it's a problem (I'll post the new patch
-> > shortly, getting from quilt to a patch against previous is still a
-> > pain).  What happens is:
-> > 1. kgdb console tried to send a packet.
-> > 2. before ACK'ing the above, gdb dies.
->
-> What I am describing does not have anything to do with gdb going away.  It
-> is that in "normal" operation the console output is done with the
-> interrupts on (i.e. we are not in kgdb as a result of a breakpoint, but
-> only to do console output).  This means that the interrupt that is
-> generated by the '+' from gdb may well happen and the kgdb interrupt
-> handler will see the '+' and, with the interrupt handler changes, generate
-> a breakpoint.  All we really want to do is to pass the '+' through to
-> putpacket.  In a UP machine, I think the wait for the '+' is done with the
-> interrupt system off, however, in an SMP machine, other cpus may see it and
-> interrupt...  At the very least, the interrupt code needs to be able to
-> determine that no character came in and ignore the interrupt.
+On Mon, 2004-03-01 at 10:18, Joachim B Haga wrote:
+> Peter Williams <peterw@aurema.com> writes:
+> 
+> >> It seems to me that much of this could be solved if the user *were*
+> >> allowed to lower nice values (down to 0).
+> [snip]
+> >> to 10 (normal) to 20. Negative values could still be root-only.  So
+> >> why shouldn't this be possible? Because a greedy user in a
+>  
+> > More importantly it would allow ordinary users to override root's
+> > settings e.g. if (for whatever reason) the sysadmin decided to
 
-Yes.
-We need some locking on smp for this purpose.
+> And it's not a *security* concern, as long as the lower values are
+> still reserved.
+> 
+> I would say the benefit is very small (I mean: who has ever relied on
+> it?) compared to the difficulties created for users.
 
--Amit
+Under Linux, I can't say, but certainly on my old school machine (~10
+years ago) all student accounts would run at +5, all staff accounts
+would run at +0. This was handled by the login process, so re-logging in
+would not help you at all....
 
->
-> -g
->
-> > 3. kgdb loops on sending a packet and reading in a char.
-> > 4. gdb tries to reconnect and sends $somePacket#cs
-> > 5. put_packet sends out the console message again, and reads in a char.
-> > 6. put_packet sees a $ (or in the case of your .gdbinit, ^C$, which is
-> > still fine).
-> > 7. put_packet sees a packet coming in, which preempts sending this
-> > packet, and will call kgdb_schedule_breakpoint() and then return, giving
-> > up on the console message.
-> > 8. do_IRQ() calls kgdb_process_breakpoint(), which calls breakpoint()
-> > and gdb gets back in the game.
-> >
-> >>>- Connect to a waiting kernel, continue/^C/disconnect/reconnect.
-> >>>- Connect to a running kernel, continue/^C/disconnect/reconnect.
-> >>>- Once connected and running, ^C/hit breakpoint and
-> >>> disconnect/reconnect.
-> >>>- Once connected, set a breakpoint, kill gdb and hit the breakpoint and
-> >>> reconnect.
-> >>>- Once connected and running, kill gdb and reconnect.
-> >>>
-> >>>The last two aren't as "fast" as I might like, but they're the "gdb went
-> >>>away in an ungraceful manner" situations, so I think it's OK.  In the
-> >>>first (breakpoint hit, no gdb) I end up having to issue a few continues
-> >>>to get moving again, but it's a one-time event.
-> >>
-> >>What are you referring to as "continues".  How is this different from
-> >>connect to a waiting kernel?
-> >
-> > The 'continue' command in gdb.
-> >
-> >>Usually this would be the end of the
-> >>session.  If you are going to continue from here something needs to be
-> >> done with the breakpoint that gdb does not know about.  If kgdb can
-> >> remove them, well fine, except your stopped on one.  If you remove it,
-> >> there could be some confusion as to why you are in the debugger.
-> >
-> > Hmm.  I think I need to test things a bit more, before I comment on
-> > this.
+Cheers,
+Paul
 

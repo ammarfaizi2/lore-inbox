@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316573AbSGAWsh>; Mon, 1 Jul 2002 18:48:37 -0400
+	id <S316574AbSGAWuU>; Mon, 1 Jul 2002 18:50:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316574AbSGAWsg>; Mon, 1 Jul 2002 18:48:36 -0400
-Received: from AMontpellier-205-1-4-20.abo.wanadoo.fr ([217.128.205.20]:47084
-	"EHLO awak") by vger.kernel.org with ESMTP id <S316573AbSGAWsf> convert rfc822-to-8bit;
-	Mon, 1 Jul 2002 18:48:35 -0400
-Subject: Re: HPT370 + ACPI -> freeze (doesn't boot)
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Arnvid Karstad <arnvid@karstad.org>
-Cc: Pozsar Balazs <pozsy@uhulinux.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020701221651.10653.qmail@nextgeneration.speedroad.net>
-References: <Pine.GSO.4.30.0207012214430.15254-200000@balu> 
-	<20020701221651.10653.qmail@nextgeneration.speedroad.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 02 Jul 2002 00:50:53 +0200
-Message-Id: <1025563853.27901.56.camel@bip>
+	id <S316576AbSGAWuT>; Mon, 1 Jul 2002 18:50:19 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:44770 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S316574AbSGAWuS>;
+	Mon, 1 Jul 2002 18:50:18 -0400
+Date: Tue, 2 Jul 2002 08:51:36 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix kdev_val typo
+Message-ID: <20020701225136.GB469@frodo>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mar 02/07/2002 à 00:16, Arnvid Karstad a écrit :
-> Hiya, 
-> 
-> Pozsar Balazs writes:
-> > I have an abit VP6 mobo with the integrated HPT370 ide-controller.
-> > If I enable ACPI support, and I connect any harddisk to the hpt host, my
-> > system locks up hard during boot while initializing the drive(s) on the
-> > hpt controller (ie. before printing the 'hde:...' line). The hard drive's
-> > led remains lit.
-> 
-> I have a similar system to yours, but I have drives only on the hpt370 
-> controller. My system boots, but crashes after 5 to 15 minuttes regardless 
-> of usage. (I've posted this to this list on a previous occation.) 
+hi Marcelo,
 
-Mine (ABit VP6, some drives on both controllers) either stops at
-"hde:..." at boot or freezes a bit later when ACPI is on with stable
-kernels (or -ac ones). Without ACPI it runs pretty well, unless I use
-USBnet.
+There's a missing brace in the kdev_val() 2.5 compatibility macro
+which someone has added into 2.4.19-rc1, making the macro useless.
+Here's the trivial fix, in case noone else has sent it along yet.
 
-	Xav
+cheers.
+
+-- 
+Nathan
 
 
+diff -Naur 2.4.19-rc1-pristine/include/linux/kdev_t.h 2.4.19-rc1-kdevt/include/linux/kdev_t.h
+--- 2.4.19-rc1-pristine/include/linux/kdev_t.h	Tue Jun 25 10:12:04 2002
++++ 2.4.19-rc1-kdevt/include/linux/kdev_t.h	Tue Jul  2 08:40:28 2002
+@@ -81,7 +81,7 @@
+ #define minor(d)	MINOR(d)
+ #define kdev_same(a,b)	((a) == (b))
+ #define kdev_none(d)	(!(d))
+-#define kdev_val(d)	((unsigned int)(d)
++#define kdev_val(d)	((unsigned int)(d))
+ #define val_to_kdev(d)	((kdev_t(d))
+ 
+ /*

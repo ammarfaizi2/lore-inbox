@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317026AbSGHSVA>; Mon, 8 Jul 2002 14:21:00 -0400
+	id <S317034AbSGHSZ1>; Mon, 8 Jul 2002 14:25:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317034AbSGHSU7>; Mon, 8 Jul 2002 14:20:59 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15368 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317026AbSGHSUz>; Mon, 8 Jul 2002 14:20:55 -0400
-Subject: Re: ISAPNP SB16 card with IDE interface
-To: mouschi@wi.rr.com (Ted Kaminski)
-Date: Mon, 8 Jul 2002 19:47:08 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <000d01c226ac$436ad360$8a981d41@wi.rr.com> from "Ted Kaminski" at Jul 08, 2002 01:21:22 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17RdXQ-0002tr-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S317054AbSGHSZ0>; Mon, 8 Jul 2002 14:25:26 -0400
+Received: from jstevenson.plus.com ([212.159.71.212]:4924 "EHLO devil.stev.org")
+	by vger.kernel.org with ESMTP id <S317034AbSGHSZ0>;
+	Mon, 8 Jul 2002 14:25:26 -0400
+Message-ID: <000901c226ac$dec99b20$0501a8c0@Stev.org>
+From: "James Stevenson" <mistral@stev.org>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: ATAPI + cdwriter problem
+Date: Mon, 8 Jul 2002 19:25:42 +0100
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> (a 4x one, model CR-581J, creative labs) connected to a ISAPNP Sound Blaster
-> 16 card with an IDE interface on it. (99% sure actual IDE interface, not one
-> of those old non-everything ones, SB is model CT2950)
-> 
-> ide3 at 0x168-1x16f,0x36e on irq 10
-> ...(displays CHS stuff for HD)...
-> hdg: irq timeout: status=0x51 { DriveReady SeekComplete Error }
-> hdg: irq timeout: error=0x60
-> hdg: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-> hdg: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-> hdg: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-> hdg: ATAPI reset complete
-> 
-> and it repeats from the irq timeout again before it end_request's
+Hi
 
-Is IRQ10 assigned to the ISA bus in your BIOS ?
+i have  bunch of messages like these and a hung cd writer
+
+scsi : aborting command due to timeout : pid 28231, scsi0, channel 0, id 2,
+lun 0 Test Unit Ready 00 00 00 00 00
+SCSI host 0 abort (pid 28231) timed out - resetting
+SCSI bus is being reset for host 0 channel 0.
+hdg: ATAPI reset timed-out, status=0xd0
+PDC202XX: Secondary channel reset.
+ide3: reset: success
+hdg: irq timeout: status=0xc0 { Busy }
+hdg: status timeout: status=0xd0 { Busy }
+hdg: drive not ready for command
+
+
+anyone be able to suggest any action to help prevent it in the future ?
+
+thanks
+    James
+
+--------------------------
+Mobile: +44 07779080838
+http://www.stev.org
+  7:10pm  up 57 min,  3 users,  load average: 2.05, 1.84, 1.10
+
+
+

@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291273AbSBMAhL>; Tue, 12 Feb 2002 19:37:11 -0500
+	id <S291279AbSBMApr>; Tue, 12 Feb 2002 19:45:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291277AbSBMAg6>; Tue, 12 Feb 2002 19:36:58 -0500
-Received: from femail17.sdc1.sfba.home.com ([24.0.95.144]:43706 "EHLO
-	femail17.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S291273AbSBMAgw>; Tue, 12 Feb 2002 19:36:52 -0500
-Date: Tue, 12 Feb 2002 19:36:49 -0500
-From: Tom Vier <tmv5@home.com>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: linux-kernel@vger.kernel.org
+	id <S291278AbSBMApi>; Tue, 12 Feb 2002 19:45:38 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27398 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291272AbSBMApV>;
+	Tue, 12 Feb 2002 19:45:21 -0500
+Message-ID: <3C69B71F.E0A940DC@mandrakesoft.com>
+Date: Tue, 12 Feb 2002 19:45:19 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tom Vier <tmv5@home.com>
+CC: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
 Subject: Re: secure erasure of files?
-Message-ID: <20020213003649.GA13722@zero>
-In-Reply-To: <Pine.LNX.4.30.0202121409150.18597-100000@mustard.heime.net>
-Mime-Version: 1.0
+In-Reply-To: <Pine.LNX.4.30.0202121409150.18597-100000@mustard.heime.net> <20020213003649.GA13722@zero>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0202121409150.18597-100000@mustard.heime.net>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 12, 2002 at 02:12:49PM +0100, Roy Sigurd Karlsbakk wrote:
-> Does anyone know if it'll be hard to enable a <em>secure</em> deletion of
-<snip>
-> Is this hard/possible/doable?
+Tom Vier wrote:
+> On Tue, Feb 12, 2002 at 02:12:49PM +0100, Roy Sigurd Karlsbakk wrote:
+> > Does anyone know if it'll be hard to enable a <em>secure</em> deletion of
+> <snip>
+> > Is this hard/possible/doable?
+> 
+> read:
+> 
+> http://wipe.sf.net/
 
-read:
+The program /usr/bin/shred has existing in GNU fileutils, and thus most
+Linux systems, for years and years...
 
-http://wipe.sf.net/
+	Jeff
 
-it's the site of my file wiper. note the list of situations in which it
-definetly will not work. if you really don't want plaintext laying around,
-then using an encrypted fs is the only way.
 
-a new version will be out soon, with a couple minor bug fixes. wipe is
-mostly useful for wiping a drive you're selling of personal stuff. 
-
-also, don't forget about swap. if, for example, a proc reads the contents of
-a file from an encrypted fs into a buffer, the buffer can be written to swap
-in plaintext.
 
 -- 
-Tom Vier <tmv5@home.com>
-DSA Key id 0x27371A2C
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

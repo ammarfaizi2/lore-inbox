@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263788AbTDUIZp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 04:25:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263789AbTDUIZp
+	id S261287AbTDUI52 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 04:57:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263789AbTDUI52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 04:25:45 -0400
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:53253 "EHLO
+	Mon, 21 Apr 2003 04:57:28 -0400
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:7942 "EHLO
 	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id S263788AbTDUIZo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 04:25:44 -0400
-Message-Id: <200304210829.h3L8Spu07199@Port.imtp.ilyichevsk.odessa.ua>
+	id S261287AbTDUI51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 04:57:27 -0400
+Message-Id: <200304210900.h3L90vu07375@Port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain; charset=US-ASCII
 From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
 Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-       linux-kernel@vger.kernel.org
+To: John Bradford <john@grabjohn.com>,
+       skraw@ithnet.com (Stephan von Krawczynski)
 Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-Date: Mon, 21 Apr 2003 11:37:00 +0300
+Date: Mon, 21 Apr 2003 12:09:07 +0300
 X-Mailer: KMail [version 1.3.2]
-References: <20030419180421.0f59e75b.skraw@ithnet.com> <20030419200712.3c48a791.skraw@ithnet.com> <20030419184120.GH669@gallifrey>
-In-Reply-To: <20030419184120.GH669@gallifrey>
+Cc: john@grabjohn.com (John Bradford), linux-kernel@vger.kernel.org
+References: <200304201421.h3KELqIU000303@81-2-122-30.bradfords.org.uk>
+In-Reply-To: <200304201421.h3KELqIU000303@81-2-122-30.bradfords.org.uk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 April 2003 21:41, Dr. David Alan Gilbert wrote:
-> Hi,
->   Besides the problem that most drive manufacturers now seem to use
-> cheese as the data storage surface, I think there are some other
-> problems:
+On 20 April 2003 17:21, John Bradford wrote:
+> > What is so bad about the simple way: the one who wants to write
+> > (e.g. fs) and knows _where_ to write simply uses another newly
+> > allocated block and dumps the old one on a blacklist. The blacklist
+> > only for being able to count them (or get the sector-numbers) in
+> > case you are interested. If you weren't you might as well mark them
+> > allocated and that's it (which I would presume a _bad_ idea). If
+> > there are no free blocks left, well, then the medium is full. And
+> > that is just about the only cause for a write error then (if the
+> > medium is writeable at all).
 >
->  1) I don't trust drive firmware.
->        2) I don't think all drives are set to remap sectors by default.
->        3) I don't believe that all drivers recover neatly from a drive error.
->        4) It is OK saying return the drive and get a new one - but many of
->           us can't do this in a commercial environment where the contents of
->                 the drive are confidential - leading to stacks of dead drives
->                 (often many inside their now short warranty periods).
+> Modern disks generally do this kind of thing themselves.  By the time
+               ^^^^^^^^^^^^
+How many times does Stephan need to say it? 'Generally do'
+is not enough, because it means 'sometimes they dont'.
 
-And sadly,
+Most filesystems *are* designed with badblock lists and such,
+it is possible to teach fs drivers to tolerate write errors
+by adding affected blocks to the list and continuing (as opposed
+to 'remounted ro, BOOM!'). As usual, this can only happen if someone
+will step forward and code it.
 
-   2) I don't trust Linux (driver + fs)
-      will react adequately to disk errors.
-
-Drive failures aren't that frequent, and relevant code paths
-doomed to stay rarely tested (unless we put 0.00001% 'faked'
-failures there ;)
+Do you think it would be a Wrong Thing to do?
 --
 vda

@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280954AbRK3SvV>; Fri, 30 Nov 2001 13:51:21 -0500
+	id <S280970AbRK3SuY>; Fri, 30 Nov 2001 13:50:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280952AbRK3Su0>; Fri, 30 Nov 2001 13:50:26 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:40090 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S280960AbRK3StS>;
-	Fri, 30 Nov 2001 13:49:18 -0500
-Date: Sat, 1 Dec 2001 00:24:11 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: SLAB_HWCACHE_ALIGN question
-Message-ID: <20011201002411.A12832@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
+	id <S280952AbRK3SsR>; Fri, 30 Nov 2001 13:48:17 -0500
+Received: from [212.18.232.186] ([212.18.232.186]:51205 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S280954AbRK3Srt>; Fri, 30 Nov 2001 13:47:49 -0500
+Date: Fri, 30 Nov 2001 18:46:18 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: dalecki@evision.ag, linux-kernel@vger.kernel.org
+Subject: Re: Coding style - a non-issue
+Message-ID: <20011130184618.E19193@flint.arm.linux.org.uk>
+In-Reply-To: <3C07C82D.A70BA43@evision-ventures.com> <Pine.GSO.3.96.1011130193741.23286D-100000@delta.ds2.pg.gda.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.3.96.1011130193741.23286D-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Fri, Nov 30, 2001 at 07:40:29PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings.
+On Fri, Nov 30, 2001 at 07:40:29PM +0100, Maciej W. Rozycki wrote:
+> The same applies to the console keyboard, which is hooked to a standard
+> UART on certain systems as well. 
 
-Why does SLAB_HWCACHE_ALIGN forces alignment on L1_CACHE_BYTES
-and not SMP_CACHE_BYTES ? Does this have anything to do with
-fitting cache objects in a single L1 cache line even when it
-is uniprocessor and SMP_CACHE_BYTES is no equal to L1_CACHE_BYTES ?
+This particular point is up for discussion between myself and James Simmons
+(and other interested parties).  We're getting there...
 
-Thanks
-Dipankar
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

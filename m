@@ -1,81 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281723AbRKQLrD>; Sat, 17 Nov 2001 06:47:03 -0500
+	id <S281724AbRKQLwD>; Sat, 17 Nov 2001 06:52:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281722AbRKQLqy>; Sat, 17 Nov 2001 06:46:54 -0500
-Received: from medelec.uia.ac.be ([143.169.17.1]:49415 "EHLO medelec.uia.ac.be")
-	by vger.kernel.org with ESMTP id <S281723AbRKQLqp>;
-	Sat, 17 Nov 2001 06:46:45 -0500
-Date: Sat, 17 Nov 2001 12:46:35 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] linux-2.4.15-pre5 - i8xx series chipsets patches (patch1)
-Message-ID: <20011117124635.A18560@medelec.uia.ac.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S281725AbRKQLvo>; Sat, 17 Nov 2001 06:51:44 -0500
+Received: from smtp.jadedirect.com ([143.96.9.53]:6405 "EHLO
+	cnwchcm6.cnw.co.nz") by vger.kernel.org with ESMTP
+	id <S281724AbRKQLvk>; Sat, 17 Nov 2001 06:51:40 -0500
+Message-ID: <00e801c16f5e$3319eab0$9681608f@cnw.co.nz>
+From: "Matthew Gregan" <mgregan@jade.co.nz>
+To: <linux-kernel@vger.kernel.org>
+Subject: Alpha XLT 366 fails to boot kernel >= 2.4.14
+Date: Sun, 18 Nov 2001 00:51:31 +1300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+My Alpha XLT 366 fails to boot kernels 2.4.14 and higher - the problem
+appears to be related to the cpu_hz struct added in (I think)
+2.4.14-pre8 or detection of the CPU (EV5, EV56, etc.)
 
-in attach a patch against linux-2.4.15-pre5 . The patch cleans up the include/linux/pci_ids.h file for intel device ID's. (It deletes the double 82801CA entries and it gets the list back sorted on the device id itself).
+Linux 2.4.12 boots fine - one thing I have noticed is that the bogomips
+have doubled since 2.2.19, not that it should matter...
 
-Greetings,
-Wim.
+Booting 2.4.15-pre5 (generic, I have some other problems with an alcor
+specific kernel) the machine freezes during bogomips calculation -
+before that is an error about HWRPB being bogus and failing to guess a
+usable value.
 
+The 2.2.19 (alcor) kernel detects the machine as:
+Booting on Alcor using machine vector Alcor from MILO
 
-diff -u --recursive --new-file linux-2.4.15-pre5/include/linux/pci_ids.h linux-2.4.15-pre5-patch1/include/linux/pci_ids.h
---- linux-2.4.15-pre5/include/linux/pci_ids.h	Fri Nov 16 23:23:21 2001
-+++ linux-2.4.15-pre5-patch1/include/linux/pci_ids.h	Sat Nov 17 12:02:43 2001
-@@ -1582,15 +1582,6 @@
- #define PCI_DEVICE_ID_INTEL_82380FB	0x124b
- #define PCI_DEVICE_ID_INTEL_82439	0x1250
- #define PCI_DEVICE_ID_INTEL_80960_RP	0x1960
--#define PCI_DEVICE_ID_INTEL_82371SB_0	0x7000
--#define PCI_DEVICE_ID_INTEL_82371SB_1	0x7010
--#define PCI_DEVICE_ID_INTEL_82371SB_2	0x7020
--#define PCI_DEVICE_ID_INTEL_82437VX	0x7030
--#define PCI_DEVICE_ID_INTEL_82439TX	0x7100
--#define PCI_DEVICE_ID_INTEL_82371AB_0	0x7110
--#define PCI_DEVICE_ID_INTEL_82371AB	0x7111
--#define PCI_DEVICE_ID_INTEL_82371AB_2	0x7112
--#define PCI_DEVICE_ID_INTEL_82371AB_3	0x7113
- #define PCI_DEVICE_ID_INTEL_82801AA_0	0x2410
- #define PCI_DEVICE_ID_INTEL_82801AA_1	0x2411
- #define PCI_DEVICE_ID_INTEL_82801AA_2	0x2412
-@@ -1610,16 +1601,6 @@
- #define PCI_DEVICE_ID_INTEL_82801BA_2	0x2443
- #define PCI_DEVICE_ID_INTEL_82801BA_3	0x2444
- #define PCI_DEVICE_ID_INTEL_82801BA_4	0x2445
--#define PCI_DEVICE_ID_INTEL_82801CA_0	0x2480
--#define PCI_DEVICE_ID_INTEL_82801CA_2	0x2482
--#define PCI_DEVICE_ID_INTEL_82801CA_3	0x2483
--#define PCI_DEVICE_ID_INTEL_82801CA_4	0x2484
--#define PCI_DEVICE_ID_INTEL_82801CA_5	0x2485
--#define PCI_DEVICE_ID_INTEL_82801CA_6	0x2486
--#define PCI_DEVICE_ID_INTEL_82801CA_7	0x2487
--#define PCI_DEVICE_ID_INTEL_82801CA_10	0x248a
--#define PCI_DEVICE_ID_INTEL_82801CA_11	0x248b
--#define PCI_DEVICE_ID_INTEL_82801CA_12	0x248c
- #define PCI_DEVICE_ID_INTEL_82801BA_5	0x2446
- #define PCI_DEVICE_ID_INTEL_82801BA_6	0x2448
- #define PCI_DEVICE_ID_INTEL_82801BA_7	0x2449
-@@ -1638,6 +1619,15 @@
- #define PCI_DEVICE_ID_INTEL_82801CA_11	0x248b
- #define PCI_DEVICE_ID_INTEL_82801CA_12	0x248c
- #define PCI_DEVICE_ID_INTEL_80310	0x530d
-+#define PCI_DEVICE_ID_INTEL_82371SB_0	0x7000
-+#define PCI_DEVICE_ID_INTEL_82371SB_1	0x7010
-+#define PCI_DEVICE_ID_INTEL_82371SB_2	0x7020
-+#define PCI_DEVICE_ID_INTEL_82437VX	0x7030
-+#define PCI_DEVICE_ID_INTEL_82439TX	0x7100
-+#define PCI_DEVICE_ID_INTEL_82371AB_0	0x7110
-+#define PCI_DEVICE_ID_INTEL_82371AB	0x7111
-+#define PCI_DEVICE_ID_INTEL_82371AB_2	0x7112
-+#define PCI_DEVICE_ID_INTEL_82371AB_3	0x7113
- #define PCI_DEVICE_ID_INTEL_82810_MC1	0x7120
- #define PCI_DEVICE_ID_INTEL_82810_IG1	0x7121
- #define PCI_DEVICE_ID_INTEL_82810_MC3	0x7122
+cat /proc/cpuinfo under 2.2.19 gives:
+cpu                     : Alpha
+cpu model               : EV5
+cpu variation           : 0
+cpu revision            : 0
+cpu serial number       : Linux_is_Great!
+system type             : Alcor
+system variation        : 0
+system revision         : 0
+system serial number    : MILO-0000
+cycle frequency [Hz]    : 0
+timer frequency [Hz]    : 1024.00
+page size [bytes]       : 8192
+phys. address bits      : 40
+max. addr. space #      : 127
+BogoMIPS                : 362.80
+kernel unaligned acc    : 0 (pc=0,va=0)
+user unaligned acc      : 0 (pc=0,va=0)
+platform string         : N/A
+cpus detected           : 0
+
+The cpu_hz struct in arch/alpha/kernel/time.c lists the EV5 as being
+between 266 and 333 MHz. The CPU in this box is 366 MHz.
+
+So... either this machine is being misdetected as an EV5 when it's an
+EV56, or there really _are_ 366MHz EV5s, and cpu_hz needs fixing.
+
+I have attached a patch to fix cpu_hz, which gets the machine booting
+with 2.4.15-pre5.
+
+I also have some other problems with an alcor specific kernel, in the
+form of lots of machine checks on boot, but I have not investigated that
+yet.
+
+diff -ru linux-2.4.15-pre5.orig/arch/alpha/kernel/time.c
+linux-2.4.15-pre5/arch/alpha/kernel/time.c
+--- linux-2.4.15-pre5.orig/arch/alpha/kernel/time.c     Sun Nov 18
+00:17:55 2001
++++ linux-2.4.15-pre5/arch/alpha/kernel/time.c  Sun Nov 18 00:16:32 2001
+@@ -186,7 +186,7 @@
+                [EV4_CPU]    = {  150000000,  300000000 },
+                [LCA4_CPU]   = {  150000000,  300000000 },      /* guess
+*/
+                [EV45_CPU]   = {  200000000,  300000000 },
+-               [EV5_CPU]    = {  266000000,  333333333 },
++               [EV5_CPU]    = {  266000000,  366000000 },
+                [EV56_CPU]   = {  366000000,  667000000 },
+                [PCA56_CPU]  = {  400000000,  600000000 },      /* guess
+*/
+                [PCA57_CPU]  = {  500000000,  600000000 },      /* guess
+*/
+
+--
+Matthew Gregan                                     Operations Consultant
+JADE Direct Central Systems                            NZ: 0 800 65 2266
+Aoraki Corporation Limited                             AU: 1 800 12 0181
+PO Box 20-152, Christchurch 8005                     Cell: +64 2977 8839
+New Zealand                                           Fax: +64 3358 7156
+

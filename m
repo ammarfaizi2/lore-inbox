@@ -1,88 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318392AbSHPOj7>; Fri, 16 Aug 2002 10:39:59 -0400
+	id <S318432AbSHPOoT>; Fri, 16 Aug 2002 10:44:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318407AbSHPOj7>; Fri, 16 Aug 2002 10:39:59 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:26632 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318392AbSHPOj6>;
-	Fri, 16 Aug 2002 10:39:58 -0400
-Date: Fri, 16 Aug 2002 07:39:25 -0700
-From: Greg KH <greg@kroah.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Subject: Re: [PATCH] add buddyinfo /proc entry
-Message-ID: <20020816143925.GA3957@kroah.com>
-References: <3D5C6410.1020706@us.ibm.com> <20020816043140.GA2478@kroah.com> <3D5CBCFC.2090006@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D5CBCFC.2090006@us.ibm.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Fri, 19 Jul 2002 13:23:24 -0700
+	id <S318435AbSHPOoT>; Fri, 16 Aug 2002 10:44:19 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:23183 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S318432AbSHPOoS>;
+	Fri, 16 Aug 2002 10:44:18 -0400
+Date: Fri, 16 Aug 2002 16:48:46 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: CLONE_DETACHED and exit notification (was user-vm-unlock-2.5.31-A2)
+In-Reply-To: <20020816151911.A590@kushida.apsleyroad.org>
+Message-ID: <Pine.LNX.4.44.0208161639150.29243-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 16, 2002 at 01:51:08AM -0700, Dave Hansen wrote:
-> Greg KH wrote:
-> > On Thu, Aug 15, 2002 at 07:31:44PM -0700, Dave Hansen wrote:
-> >
-> >> Not _another_ proc entry!
-> >
-> > Yes, not another one.  Why not move these to driverfs, where they
-> > belong.
-> 
-> Could you show us how this particular situation might be laid out in a 
-> driverfs/kfs/gregfs tree?
 
-root/vm/buddyinfo   ?
+On Fri, 16 Aug 2002, Jamie Lokier wrote:
 
-Ah, a gregfs, making up the components that describe me...that's going
-to be a pretty ugly looking fs...
+> You've said that pthread_exit() _always_ notifies a sibling thread using
+> a futex.
 
-> It's great that you keep suggesting this, but we have another 
-> chicken-and-egg problem.
-> 
-> <SOAPBOX>
-> The problem with driverfs today is that it isn't worth it for _me_ to
-> use it to just get this one, single thing.  If I used driverfs right 
-> now, the only thing that I would get out of it would be ... buddyinfo! 
-> How is it worth my while to use it on a shared machine where most 
-> people probably won't be mounting driverfs, or _want_ it mounted as 
-> the default?
-> </SOAPBOX>
+yes.
 
-All it takes is one line added to /etc/fstab mounting driverfs at /sys.
-As the code is not a .config option, you are using it if you mount it or
-not :)  The fact that no one else will look at that mount point,
-shouldn't matter to you.
+> Well, can we please move the futex wakeup into the kernel?  That is all
+> I ask.  It will make pthread_exit() _faster_, and me happy because all
+> exits are notified.
 
-And yes, for just one thing (hey, why don't you move _all_ the vm stats
-over to it), it is worth adding that one line.  And you'll eventually
-have to do it anyway, as these things _will_ be moving there.
+(well, now you have reduced your point to the question of pure a
+performance optimisation, dropping allegations of "pthreadizm" or
+"inability to support different threading libraries because there's no
+polite exit", thus so far we are in agreement.)
 
-Hell, tell me which machine you are using, and I'll go add it.
+there are some practical problems with making the notification a futex,
+not a simple flag. Eg. futexes right now do not force any lock-counter
+format upon userspace. Futexes can be used as mutexes, conditional
+variables, read-write locks, all of which have different atomic counter
+formats and uses. By doing the TID-release notification via a futex the
+actual format of the lock is forced, which is a cleanliness problem. Just
+writing $0 to the TID pointer is a robust thing on the other hand.
 
-> > (ignore the driverfs name, it should be called kfs, or some such
-> > thing, as stuff more than driver info should go there, just like
-> > these entries.)
-> 
-> If even its most ardent supporters don't like its name...
+	Ingo
 
-I don't have to like the name to like what it does, and is used for,
-right?
+ps. (you have not replied to 90% of the email i wrote. Does this mean
+agreement or disagreement?)
 
-thanks,
-
-greg k-h
-
-> 
-> -- 
-> Dave Hansen
-> haveblue@us.ibm.com
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,50 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267754AbRGURPo>; Sat, 21 Jul 2001 13:15:44 -0400
+	id <S267748AbRGURJl>; Sat, 21 Jul 2001 13:09:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267756AbRGURPe>; Sat, 21 Jul 2001 13:15:34 -0400
-Received: from ns.suse.de ([213.95.15.193]:18701 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S267754AbRGURPW>;
-	Sat, 21 Jul 2001 13:15:22 -0400
-Date: Sat, 21 Jul 2001 19:15:26 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: "peter k." <spam-goes-to-dev-null@gmx.net>
-Cc: David Schwartz <davids@webmaster.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.7: wtf is "ksoftirqd_CPU0"
-In-Reply-To: <002f01c11202$60f22100$c20e9c3e@host1>
-Message-ID: <Pine.LNX.4.30.0107211913550.10044-100000@Appserv.suse.de>
+	id <S267751AbRGURJb>; Sat, 21 Jul 2001 13:09:31 -0400
+Received: from jdi.jdimedia.nl ([212.204.192.51]:19410 "EHLO jdi.jdimedia.nl")
+	by vger.kernel.org with ESMTP id <S267750AbRGURJZ>;
+	Sat, 21 Jul 2001 13:09:25 -0400
+Date: Sat, 21 Jul 2001 19:09:03 +0200 (CEST)
+From: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
+X-X-Sender: <igmar@jdi.jdimedia.nl>
+To: Greg KH <greg@kroah.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.6] USB thinks I've got 2 keyboards
+In-Reply-To: <20010721094511.A4830@kroah.com>
+Message-ID: <Pine.LNX.4.33.0107211906470.28410-100000@jdi.jdimedia.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sat, 21 Jul 2001, peter k. wrote:
 
-> why wasnt it run in previous kernels?
+> > A HP pavilion with a USB keyboard and mouse :
+> >
+> > Kernel : 2.4.6
+>
+> Can you send the result of /proc/bus/usb/devices when this device is
+> plugged in?
 
-Because it was only added to mainline in 2.4.7
+/proc/bus/usb/ is empty here.
 
-> im just wondering why it suddenly
-> appeared without anyone saying a word about it ;)
+/proc/driver/uhci/hc0 lists :
 
->From the changelog...
+HC status
+  usbcmd    =     00c1   Maxp64 CF RS
+  usbstat   =     0000
+  usbint    =     000f
+  usbfrnum  =   (0)3bc
+  flbaseadd = 0125c3bc
+  sof       =       40
+  stat1     =     0095   PortEnabled PortConnected
+  stat2     =     0095   PortEnabled PortConnected
+Frame List
+Skeleton TD's
+- skel_term_td
+    [c12611b0] link (012611b0) e0 Length=0 MaxLen=7ff DT0 EndPt=0 Dev=7f,
+PID=69(IN) (buf=00000000)
+- skel_int128_td
+    [c12611e0] link (01261210) e0 IOC Active NAK Length=7ff MaxLen=0 DT0
+EndPt=1 Dev=2, PID=69(IN) (buf=07f9d528)
+    [c1261210] link (01261270) e0 IOC Active NAK Length=7ff MaxLen=0 DT1
+EndPt=1 Dev=3, PID=69(IN) (buf=07f9d5a8)
+    [c1261270] link (01261120) e0 IOC Active NAK Length=7ff MaxLen=3 DT1
+EndPt=2 Dev=5, PID=69(IN) (buf=07ce0c90)
+- skel_int8_td
+    [c1261240] link (012612a0) e0 IOC Active NAK Length=7ff MaxLen=7 DT1
+EndPt=1 Dev=5, PID=69(IN) (buf=07d36c90)
+    [c12612a0] link (01261060) e0 LS IOC Active NAK Length=7ff MaxLen=7
+DT0 EndPt=1 Dev=4, PID=69(IN) (buf=07d38c90)
+Skeleton QH's
 
--pre8:
-- Paul Mackerras: PPC updates (softirq)
+A recompile is not a problem here, so if you need other info..
 
--pre5:
-- Andrea Arkangeli: softirq cleanups and fixes, and everybody is happy
-  again (ie I changed some details to make me happy ;)
+> greg k-h
 
-There were also several discussions about Andreas ksoftirq patches
-a few weeks back.
 
-regards,
-
-Dave.
+	Igmar
 
 -- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
+
+Igmar Palsenberg
+JDI Media Solutions
+
+Boulevard Heuvelink 102
+6828 KT Arnhem
+The Netherlands
+
+mailto: i.palsenberg@jdimedia.nl
+PGP/GPG key : http://www.jdimedia.nl/formulier/pgp/igmar
 

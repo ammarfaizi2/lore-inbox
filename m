@@ -1,57 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136621AbREAPBh>; Tue, 1 May 2001 11:01:37 -0400
+	id <S136628AbREAPGR>; Tue, 1 May 2001 11:06:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136622AbREAPB1>; Tue, 1 May 2001 11:01:27 -0400
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:58736 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S136621AbREAPBQ>; Tue, 1 May 2001 11:01:16 -0400
-Date: Tue, 1 May 2001 14:00:03 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "J . A . Magallon" <jamagallon@able.es>,
-        Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-        Wakko Warner <wakko@animx.eu.org>,
-        Xavier Bestel <xavier.bestel@free.fr>,
-        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
-        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
-        linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: 2.4 and 2GB swap partition limit
-Message-ID: <20010501140003.A28747@redhat.com>
-In-Reply-To: <20010428162803.C1062@werewolf.able.es> <E14uI9f-0008Kt-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S136629AbREAPGI>; Tue, 1 May 2001 11:06:08 -0400
+Received: from nic-25-c96-156.mn.mediaone.net ([24.25.96.156]:39179 "EHLO
+	lupo.thebarn.com") by vger.kernel.org with ESMTP id <S136620AbREAPGC>;
+	Tue, 1 May 2001 11:06:02 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E14uI9f-0008Kt-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Apr 30, 2001 at 07:12:12PM +0100
+Content-Transfer-Encoding: 7bit
+Message-ID: <15086.53450.320884.346281@lupo.thebarn.com>
+Date: Tue, 1 May 2001 10:05:46 -0500 (CDT)
+From: xfs-masters@oss.sgi.com
+Subject: Announce: XFS Release 1.0 for Linux
+X-Mailer: VM 6.72 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Tuesday May 1 2001:
+SGI is pleased to announce the 1.0 release of XFS, high-performance
+journaled file system for Linux. 
 
-On Mon, Apr 30, 2001 at 07:12:12PM +0100, Alan Cox wrote:
-> > paging in just released 2.4.4, but in previuos kernel, a page that was
-> > paged-out, reserves its place in swap even if it is paged-in again, so
-> > once you have paged-out all your ram at least once, you can't get any
-> > more memory, even if swap is 'empty'.
-> 
-> This is a bug in the 2.4 VM, nothing more or less. It and the horrible bounce
-> buffer bugs are forcing large machines to remain on 2.2. So it has to get 
-> fixed
+http://oss.sgi.com/projects/xfs/
 
-Umm, 2.2 can behave in the same way.  The only difference in the 2.4
-behaviour is that 2.4 can maintain the swap cache effect for dirty
-pages as well as clean ones.  An application which creates a large
-in-core data set and then does not modify it will show exactly the
-same behaviour on 2.2.
+XFS is widely recognized as the industry-leading high-performance file system,
+providing rapid recovery from system crashes and the ability to support
+extremely large disk farms. XFS is the first journaled file system for Linux
+available today that has a proven track record in production environments
+since December 1994. 
 
-To call it a "bug" is to imply that "fixing it" is the right thing to
-do.  It might be in some cases, but discarding the swap entry has a
-cost --- you fragment swap, and if the page in memory is clean, you
-end up increasing the amount of swap IO.  
+XFS Linux 1.0 is released for the Linux 2.4 kernel and offers the following
+advanced features:
 
-The right fix is to reclaim such pages only when we need to.  To
-disable swap caching when we still have enough swap free would hurt
-users who have the spare swap to cope with it.
+        * Fast recovery after a system crash or power failure, NO fsck!
+        * Journaling for guaranteed file system integrity 
+        * Direct I/O 
+        * Space preallocation 
+        * Transactionally recorded quotas 
+        * Access control lists and Extended attributes 
+        * Infrastructure for XDSM support (DMAPI) 
+        * Excellent overall performance 
+        * Excellent scalability (64 bit file system) 
+        * On-disk compatibility with IRIX XFS file systems
 
---Stephen
+A complete toolset including: 
+
+        * dump/restore support including all XFS file system features such as ACLs and quotas 
+        * Repair utility, file system editor, and growing the file system 
+        * ACL editing utility 
+        * Extended attribute editing utility
+
+Excellent integration with other Linux subsystems: 
+        * NFS version 2 and 3 server support 
+        * Root file system and lilo support 
+        * Software raid integration with md and lvm packages 
+        * Mount by label and mount by uuid 
+
+
+The SGI XFS team is also providing a modified Red Hat Linux anaconda based installer.
+The installer handles all the details of setting up a Red Hat Linux 7.1 system running
+entirely on XFS, or a combination of XFS and ext2 file systems.
+
+
+Sincerely 
+The SGI XFS Team.
+
+
+
+
+
+
+
+
+
+

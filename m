@@ -1,47 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311252AbSCLPo6>; Tue, 12 Mar 2002 10:44:58 -0500
+	id <S311251AbSCLPns>; Tue, 12 Mar 2002 10:43:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311253AbSCLPol>; Tue, 12 Mar 2002 10:44:41 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:27546 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S311252AbSCLPoW>;
-	Tue, 12 Mar 2002 10:44:22 -0500
-Date: Tue, 12 Mar 2002 16:43:39 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre3
-In-Reply-To: <Pine.LNX.4.21.0203111805480.2492-100000@freak.distro.conectiva>
-Message-ID: <Pine.GSO.4.21.0203121639340.23527-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311253AbSCLPnj>; Tue, 12 Mar 2002 10:43:39 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:59656 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S311248AbSCLPnY>; Tue, 12 Mar 2002 10:43:24 -0500
+Message-Id: <200203121545.g2CFjLI27269@aslan.scsiguy.com>
+To: Matthew Kirkwood <matthew@hairy.beasts.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx: Slow negotiation? 
+In-Reply-To: Your message of "Tue, 12 Mar 2002 15:20:24 GMT."
+             <Pine.LNX.4.33.0203121519250.18363-100000@sphinx.mythic-beasts.com> 
+Date: Tue, 12 Mar 2002 08:45:21 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Mar 2002, Marcelo Tosatti wrote:
-> Here goes -pre3, with the new IDE code. It has been stable enough time in
-> the -ac tree, in my and Alan's opinion.
-> 
-> The inclusion of the new IDE code makes me want to have a longer 2.4.19
-> release cycle, for stress-testing reasons.
+>> Some MB manufacturers using the aic7895 screwed up the initialation of
+>> the serial eeprom while they were assembling their boards.  The old
+>> driver tries to work around this, but the work-around means converting
+>> one of the lower sync rates into meaning "full speed". I decided that
+>> just wasn't safe to put in the new driver.
+>
+>Is a warning printk() possible?
 
-It looks like {IN,OUT}_{BYTE,WORD}() are now the arch-specific routines to
-access the IDE registers, controlled by HAVE_ARCH_{IN,OUT}_BYTE?
-
-If yes,
-  - Why not call them ide_{in,out}[bw]()?
-  - What about {in,out}s[wl]{,_swapw}()? Don't we need abstractions for those
-    as well?
-  - The old (ISA/PCI I/O only) {in,out}[bwl]() are still used in many places.
-
-Gr{oetje,eeting}s,
-
-						Geert
+The printk would fire every time you chose to use this particular
+negotiation rate.
 
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Justin

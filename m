@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbUFNIgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUFNIkt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbUFNIgA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 04:36:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbUFNIec
+	id S262062AbUFNIkt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 04:40:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbUFNIks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 04:34:32 -0400
-Received: from holomorphy.com ([207.189.100.168]:2719 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262256AbUFNIeS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 04:34:18 -0400
-Date: Mon, 14 Jun 2004 01:34:12 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [12/12] fix thread_info.h ignoring __HAVE_THREAD_FUNCTIONS
-Message-ID: <20040614083412.GJ1444@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-References: <20040614003708.GS1444@holomorphy.com> <20040614003835.GT1444@holomorphy.com> <20040614003929.GU1444@holomorphy.com> <20040614004034.GV1444@holomorphy.com> <20040614004147.GW1444@holomorphy.com> <20040614004354.GX1444@holomorphy.com> <20040614004516.GY1444@holomorphy.com> <20040614004701.GZ1444@holomorphy.com> <20040614004855.GA1444@holomorphy.com> <20040614081639.GI7162@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040614081639.GI7162@infradead.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Mon, 14 Jun 2004 04:40:48 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:48101 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S262062AbUFNIkr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 04:40:47 -0400
+In-Reply-To: <20040611151918.00f47792.akpm@osdl.org>
+Subject: Re: [PATCH] s390: speedup strn{cpy,len}_from_user.
+To: Andrew Morton <akpm@osdl.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Build V651_12042003 December 04, 2003
+Message-ID: <OFEA85E0DD.9DE87B05-ON42256EB3.002D6DAC-42256EB3.002FB01D@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Mon, 14 Jun 2004 10:40:52 +0200
+X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.0.2CF2HF259 | March 11, 2004) at
+ 14/06/2004 10:40:32
+MIME-Version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 13, 2004 at 05:48:55PM -0700, William Lee Irwin III wrote:
->>  * Check __HAVE_THREAD_FUNCTIONS in include/linux/thread_info.h (m68k)
->> This fixes the build on m68k; its thread_info functions need to be used.
-
-On Mon, Jun 14, 2004 at 09:16:39AM +0100, Christoph Hellwig wrote:
-> I don't like this one a lot and prefer to discuss it with the m68k folks
-> first.  Given they didn't sent it to Linus themselves I guess they're not
-> completely proud of it ;-)
-
-Including this in the series was a mistake, though it one I thought about
-and made a wrong decision on. I'll defer to the m68k arch people for this
-entirely.
 
 
--- wli
+
+
+> There were a few conflicts with Arnd's sparse annotation, which I fixed
+up.
+> Please check that next the -mm has it all right.
+
+Sorry. Arnd and I need to come up with a way to avoid conflicts in the future.
+
+blue skies,
+   Martin
+
+Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
+Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
+E-Mail: schwidefsky@de.ibm.com
+
+

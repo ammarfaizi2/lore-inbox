@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267121AbSLaCL7>; Mon, 30 Dec 2002 21:11:59 -0500
+	id <S267141AbSLaCQk>; Mon, 30 Dec 2002 21:16:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267122AbSLaCL7>; Mon, 30 Dec 2002 21:11:59 -0500
-Received: from pandora.cantech.net.au ([203.26.6.29]:3079 "EHLO
-	pandora.cantech.net.au") by vger.kernel.org with ESMTP
-	id <S267121AbSLaCL7>; Mon, 30 Dec 2002 21:11:59 -0500
-Date: Tue, 31 Dec 2002 10:20:13 +0800 (WST)
-From: "Anthony J. Breeds-Taurima" <tony@cantech.net.au>
-To: Herman Oosthuysen <Herman@WirelessNetworksInc.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Indention - why spaces?
-In-Reply-To: <3E109EF1.5040901@WirelessNetworksInc.com>
-Message-ID: <Pine.LNX.4.44.0212311004160.1039-100000@thor.cantech.net.au>
+	id <S267142AbSLaCQk>; Mon, 30 Dec 2002 21:16:40 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:49156 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267141AbSLaCQj>; Mon, 30 Dec 2002 21:16:39 -0500
+Date: Mon, 30 Dec 2002 21:22:54 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: John Bradford <john@grabjohn.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: OT: Which Gigabit ethernet card?
+In-Reply-To: <fa.io6mq9v.11gou0n@ifi.uio.no>
+Message-ID: <Pine.LNX.3.96.1021230212131.8353A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Dec 2002, Herman Oosthuysen wrote:
+On Fri, 27 Dec 2002, John Bradford wrote:
 
-> This problem is as old as the typewriter itself.  The trouble is that a 
-> Tab character doesn't have a fixed size - some set it to 3 characters 
-> wide, some to 4 some to 8, or whatever.
+> > Well, if all else fails, you could always pick up a cable
+> > tester. They can tell you lots of nifty stuff, like data transfer
+> > quality as well as pinout. Good for the less obvious cable problems,
+> > like a broken strand.
 > 
-> The 'indent' program was written a couple of decades ago, to pretty 
-> print C code.  It has a 'GNU' standard, but I'm not aware of a 'Linux' 
-> standard.  Anyhoo, the only way to prevent indentation wars is to use 
-> spaces, not tabs and to set 'diff' to ignore white space when comparing 
-> files...
+> If you have a spare double RJ-45 wallplate, you could make a
+> wallmounted cable tester, with some LEDs and a 9v battery.
 
-indent itself dosen't have a 'Linux standard' BUT .../linux/scripts/Lindent
-is there to get things right (in terms of CodingStyle)
+I would hope a decent cable tester would test for effects at useful
+frequency. The frequency of a battery is too low to reveal some problems.
 
-I don't know if is usinging it or even if it is still current but it's a
-starting point.
-
-Yours Tony
-
-   Jan 22-25 2003           Linux.Conf.AU            http://linux.conf.au/
-		  The Australian Linux Technical Conference!
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

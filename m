@@ -1,78 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136898AbREJTKZ>; Thu, 10 May 2001 15:10:25 -0400
+	id <S136903AbREJTNz>; Thu, 10 May 2001 15:13:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136899AbREJTKP>; Thu, 10 May 2001 15:10:15 -0400
-Received: from hood.tvd.be ([195.162.196.21]:4546 "EHLO hood.tvd.be")
-	by vger.kernel.org with ESMTP id <S136898AbREJTKG>;
-	Thu, 10 May 2001 15:10:06 -0400
-Date: Thu, 10 May 2001 21:06:53 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-        Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: [PATCH] fbdev logo (fwd)
-Message-ID: <Pine.LNX.4.05.10105102106100.21744-100000@callisto.of.borg>
+	id <S136902AbREJTNp>; Thu, 10 May 2001 15:13:45 -0400
+Received: from Xenon.Stanford.EDU ([171.64.66.201]:49819 "EHLO
+	Xenon.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S136901AbREJTN3>; Thu, 10 May 2001 15:13:29 -0400
+Date: Thu, 10 May 2001 12:13:26 -0700 (PDT)
+From: William Ie <wie@CS.Stanford.EDU>
+To: linux-kernel@vger.kernel.org
+cc: mc@CS.Stanford.EDU
+Subject: another potential security bug
+Message-ID: <Pine.GSO.4.21.0105101204230.15916-100000@Xenon.Stanford.EDU>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, my name is William Ie and I am currently working under Dawson Engler's
+mc project here in the Stanford CS dept. We are currently trying to
+develop security related bug-checkers, particularly regarding the
+capability checks done in the linux kernel. While going through the
+results of our prototype checker, we run into the following anomaly and
+thus was wondering if this is merely a false positive. Thank you very much
+for your input.
 
-FYI...
+ linux/2.4.3/drivers/net/pcmcia/netwave_cs.c
+   case SIOCGIWENCODE:
+ 	/* Get scramble key */
+ ERROR<-	if(wrq->u.encoding.pointer != (caddr_t) 0)
+ 	  {
+ 	    char	key[2];
+ 	    key[1] = scramble_key & 0xff;
+ 	    key[0] = (scramble_key>>8) & 0xff;
+ 	    wrq->u.encoding.flags = IW_ENCODE_ENABLED;
+ 	    wrq->u.encoding.length = 2;
+ 	    if(copy_to_user(wrq->u.encoding.pointer, key, 2))
+ 	      ret = -EFAULT;
+ 	  }
+ 	break;
 
----------- Forwarded message ----------
-Date: Thu, 10 May 2001 21:01:41 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] fbdev logo
+ handling the same command with CAP_NET_ADMIN capability checks  are done
+in:
+ drivers/net/wavelan.c
+ drivers/net/pcmcia/orinoco_cs.c
+ drivers/net/pcmcia/wavelan_cs.c
 
-	Hi Linus,
-
-This patch fixes a few bugs in the penguin logo code of the fbdev (frame buffer
-device) subsystem:
-
-  - Technical fixes:
-      o The colors of the 16-color penguin logo are wrong. The logo looks like
-        a psychedelic penguin holding a glass of beer (or LSD?). This is caused
-	by a bug fix in the console subsystem that no longer allows us to use
-	an old color palette hack. This problem is ca. 9 months old!
-	Solution: replace the logo by a new one that uses colors from the
-	standard console palette only.
-      o Remove an obsolete #include.
-      o Remove an obsolete logo file in drivers/char/sgi/ (it was removed from
-        the Linux/MIPS CVS tree some months ago).
-      o Use __HAVE_ARCH_LINUX_LOGO* defines to determine logo inclusion in the
-        include files.
-  
-  - Political fixes:
-      o There were still some penguins left carrying a glass of beer or wine.
-        This problem is about 2 years old!
-
-  - Aesthetical fixes:
-      o Upgrade the logos to an anti-aliased variant with pleasant halo-effect.
-
-Some of these fixes are already in Alan's tree. I'll make sure he gets a copy
-of the patch relative to his tree, and will post this message to linux-kernel
-(with a link to the patch).
-
-You can find a table showing the old and new logos at my web page:
-
-    http://home.tvd.be/cr26864/Linux/fbdev/logo.html
-
-Thanks for applying this patch!
-
-    [ patch removed, look at the web page ]
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
 

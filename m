@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264829AbUEPVyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264833AbUEPWL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264829AbUEPVyw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 17:54:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264833AbUEPVyw
+	id S264833AbUEPWL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 18:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264836AbUEPWL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 17:54:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11496 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264829AbUEPVyu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 17:54:50 -0400
-Message-ID: <40A7E31B.5020705@pobox.com>
-Date: Sun, 16 May 2004 17:54:35 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Sun, 16 May 2004 18:11:57 -0400
+Received: from taco.zianet.com ([216.234.192.159]:41231 "HELO taco.zianet.com")
+	by vger.kernel.org with SMTP id S264833AbUEPWLs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 18:11:48 -0400
+From: Steven Cole <elenstev@mesatop.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s && s->tree' failed: The saga continues.)
+Date: Sun, 16 May 2004 16:11:16 -0600
+User-Agent: KMail/1.6.1
+Cc: andrea@suse.de, torvalds@osdl.org, adi@bitmover.com, scole@lanl.gov,
+       support@bitmover.com, linux-kernel@vger.kernel.org
+References: <200405132232.01484.elenstev@mesatop.com> <200405161519.03834.elenstev@mesatop.com> <20040516142916.7d07c9f3.akpm@osdl.org>
+In-Reply-To: <20040516142916.7d07c9f3.akpm@osdl.org>
 MIME-Version: 1.0
-To: Krzysztof Halasa <khc@pm.waw.pl>
-CC: Christoph Hellwig <hch@lst.de>, netdev@oss.sgi.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Pete Popov <ppopov@mvista.com>
-Subject: Re: [PATCH] remove comx drivers from tree
-References: <20040507111725.GA11575@lst.de> <40A50292.3070601@pobox.com> <m3sme1cqqg.fsf@defiant.pm.waw.pl>
-In-Reply-To: <m3sme1cqqg.fsf@defiant.pm.waw.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405161611.17688.elenstev@mesatop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa wrote:
-> While obviously I don't object (we should list removed things along
-> with kernel version somewhere, though)... I could possibly port
-> the drivers to my generic HDLC code, if someone sends me the hardware
-> in question. Sure, I will never send it back, and it has to have V.35
-> or V.24 interface, so I can connect it to something.
+On Sunday 16 May 2004 03:29 pm, Andrew Morton wrote:
+> Steven Cole <elenstev@mesatop.com> wrote:
+> >
+> > Anyway, although the regression for my particular machine for this
+> >  particular load may be interesting, the good news is that I've seen
+> >  none of the failures which started this whole thread, which are relatively
+> >  easily reproduceable with PREEMPT set.  
+> 
+> So...  would it be correct to say that with CONFIG_PREEMPT, ppp or its
+> underlying driver stack
+> 
+> a) screws up the connection and hangs and
+> 
+> b) scribbles on pagecache?
+> 
+> Because if so, the same will probably happen on SMP.
+> 
+Perhaps someone has the hardware to test this.
 
-Then, *bang*, it's gone :)
+To summarize my experience with the past 24 hours of testing:
+Without PREEMPT , everything is rock solid. 
 
-We can resurrect if someone appears with hardware, and cares enough to 
-bring the driver back to life...  Older kernels are archived on the 
-Internet forever, after all :)
+I may have a window of time later this evening to continue testing,
+and I (cringes at the thought) may repeat some bk pulls with
+PREEMPT set.
 
-	Jeff
-
-
-
+Later,
+Steven

@@ -1,178 +1,566 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265717AbTFXGRg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 02:17:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265719AbTFXGRf
+	id S265716AbTFXGOa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 02:14:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265717AbTFXGOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 02:17:35 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:26634 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S265717AbTFXGRb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 02:17:31 -0400
-Date: Tue, 24 Jun 2003 08:31:38 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Testing IDE-TCQ and Taskfile - doesn't work nicely:)
-Message-ID: <20030624063137.GA6353@lug-owl.de>
-Mail-Followup-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	axboe@suse.de, linux-kernel@vger.kernel.org
-References: <20030623235013.GZ6353@lug-owl.de> <Pine.SOL.4.30.0306240249410.5865-100000@mion.elka.pw.edu.pl>
+	Tue, 24 Jun 2003 02:14:30 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:64216 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S265716AbTFXGOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 02:14:18 -0400
+Date: Mon, 23 Jun 2003 23:29:08 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: 2.5.73-mm1
+Message-Id: <20030623232908.036a1bd2.akpm@digeo.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3TjJaq4Yth4AkTaU"
-Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0306240249410.5865-100000@mion.elka.pw.edu.pl>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Jun 2003 06:28:26.0072 (UTC) FILETIME=[D18C1D80:01C33A19]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---3TjJaq4Yth4AkTaU
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, 2003-06-24 02:53:29 +0200, Bartlomiej Zolnierkiewicz <B.Zolnierkiew=
-icz@elka.pw.edu.pl>
-wrote in message <Pine.SOL.4.30.0306240249410.5865-100000@mion.elka.pw.edu.=
-pl>:
-> On Tue, 24 Jun 2003, Jan-Benedict Glaw wrote:
-> > > TCQ shouldn't be enabled on hdc, you have two drives on second ide
-> > > channel and current TCQ driver design allows only one drive per chann=
-el,
-> > > so proper fix is to not enable TCQ :-).
-> >
-> > Your patch works for me - TCQ gets no longer stitched on while I've
-> > configured to default ON, queue depth 32:
-> >
-> > Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-> > ide: Assuming 33MHz system bus speed for PIO modes; override with idebu=
-s=3Dxx
-> > PIIX4: IDE controller at PCI slot 00:07.1
-> > PIIX4: chipset revision 1
-> > PIIX4: not 100% native mode: will probe irqs later
-> >     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
-> >     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
-> > hda: WDC AC2850F, ATA DISK drive
-> > hdb: IC35L040AVER07-0, ATA DISK drive
-> > ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> > hdc: IC35L120AVV207-0, ATA DISK drive
-> > hdd: Maxtor 4W100H6, ATA DISK drive
-> > ide1 at 0x170-0x177,0x376 on irq 15
-> > hda: max request size: 128KiB
-> > hda: task_no_data_intr: status=3D0x51 { DriveReady SeekComplete Error }
-> > hda: task_no_data_intr: error=3D0x04 { DriveStatusError }
-> > hda: 1667232 sectors (854 MB) w/64KiB Cache, CHS=3D1654/16/63, DMA
-> >  hda: hda1 hda2 hda3
-> > hdb: max request size: 128KiB
-> > hdb: host protected area =3D> 1
-> > hdb: 80418240 sectors (41174 MB) w/1916KiB Cache, CHS=3D79780/16/63, UD=
-MA(33)
-> >  hdb: hdb1 hdb2 hdb3 hdb4
-> > hdc: max request size: 1024KiB
-> > hdc: host protected area =3D> 1
-> > hdc: 241254720 sectors (123522 MB) w/1821KiB Cache, CHS=3D15017/255/63,=
- UDMA(33)
-> >  hdc: hdc1 < hdc5 hdc6 hdc7 hdc8 hdc9 hdc10 hdc11 hdc12 hdc13 hdc14 hdc=
-15 hdc16 hdc17 >
-> > hdd: max request size: 128KiB
-> > hdd: host protected area =3D> 1
-> > hdd: 195711264 sectors (100204 MB) w/2048KiB Cache, CHS=3D194158/16/63,=
- UDMA(33)
-> >  hdd: hdd1 < hdd5 hdd6 hdd7 hdd8 hdd9 hdd10 hdd11 hdd12 hdd13 hdd14 >
->=20
-> There is no info about IDE trying (then failing) to enable TCQ ?
-
-No, there isn't. The box is now up'n'running for nearly 7 hours - that
-should have been enough:) That's with your patch applied and the IDE
-config as attached below.
-
-Up to now, there's not a single IDE failure of any kind *knock on wood*.
-
-MfG, JBG
-
-#
-# Please see Documentation/ide.txt for help/info on IDE drives
-#
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=3Dy
-CONFIG_IDEDISK_MULTI_MODE=3Dy
-# CONFIG_IDEDISK_STROKE is not set
-CONFIG_BLK_DEV_IDECD=3Dm
-CONFIG_BLK_DEV_IDEFLOPPY=3Dm
-CONFIG_BLK_DEV_IDESCSI=3Dm
-# CONFIG_IDE_TASK_IOCTL is not set
-# CONFIG_IDE_TASKFILE_IO is not set
-
-#
-# IDE chipset support/bugfixes
-#
-# CONFIG_BLK_DEV_CMD640 is not set
-# CONFIG_BLK_DEV_IDEPNP is not set
-CONFIG_BLK_DEV_IDEPCI=3Dy
-CONFIG_BLK_DEV_GENERIC=3Dy
-CONFIG_IDEPCI_SHARE_IRQ=3Dy
-CONFIG_BLK_DEV_IDEDMA_PCI=3Dy
-CONFIG_BLK_DEV_IDE_TCQ=3Dy
-CONFIG_BLK_DEV_IDE_TCQ_DEFAULT=3Dy
-CONFIG_BLK_DEV_IDE_TCQ_DEPTH=3D32
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=3Dy
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_BLK_DEV_IDEDMA=3Dy
-# CONFIG_IDEDMA_PCI_WIP is not set
-CONFIG_BLK_DEV_ADMA=3Dy
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD74XX is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_TRIFLEX is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5520 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_SC1200 is not set
-CONFIG_BLK_DEV_PIIX=3Dy
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_PDC202XX_OLD is not set
-# CONFIG_BLK_DEV_PDC202XX_NEW is not set
-# CONFIG_BLK_DEV_RZ1000 is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-# CONFIG_BLK_DEV_SIIMAGE is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_VIA82CXXX is not set
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_IDEDMA_AUTO=3Dy
-# CONFIG_IDEDMA_IVB is not set
-CONFIG_BLK_DEV_IDE_MODES=3Dy
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.73/2.5.73-mm1/
 
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
+. PCI and PCMCIA updates
 
---3TjJaq4Yth4AkTaU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+. Make sysrq-T print the right thing.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+. Hopefully fix most of the time-goes-too-slowly problems.
 
-iD8DBQE+9/BJHb1edYOZ4bsRArXAAJ9Oz7MdC8AfSJQZK35rJ/NpUqwbngCgkR9F
-1ebs71I7EpBG+tRuyLpTIVU=
-=2MP1
------END PGP SIGNATURE-----
+. Various other fixes.
 
---3TjJaq4Yth4AkTaU--
+
+
+
+Changes since 2.5.72-mm3:
+
+
+ linus.patch
+
+ Latest from Linus
+
+-psmouse-build-fix.patch
+-ehci_hcd-linkage-fix.patch
+
+ Merged
+
++show_stack-fix.patch
+
+ Fix sysrq-T output.
+
++handle-no-readpage-2.patch
+
+ Fix crash with prefaulting on tmpfs
+
++pci-1.patch
++pci-2.patch
++pci-3.patch
++pci-4.patch
++pci-5.patch
+
+ PCI updates
+
++alsa-pnp-fix.patch
+
+ PNP fix
+
++reiserfs-unmapped-buffer-fix.patch
+
+ Fix reiserfs-related BUG()
+
++aio-mm-refcounting-fix.patch
+
+ Should really fix the crashes related to AIO and /proc races accessing
+ mm_structs.
+
++n_tty-column-counting-fix.patch
+
+ tty fix
+
++security-vm_enough_memory.patch
+
+ Security stuff (this is to be updated)
+
++nbd-cleanups.patch
++nbd-enhanced-diagnostics.patch
+
+ NBD work
+
++numa-normalised-node-load.patch
+
+ CPU scheduler fix for NUMA.
+
++pcmcia-event-20030623-1.patch
++pcmcia-event-20030623-2.patch
++pcmcia-event-20030623-3.patch
++pcmcia-event-20030623-4.patch
++pcmcia-event-20030623-5.patch
++pcmcia-event-20030623-6.patch
+
+ PCMCIA update
+
++nr_running-speedup.patch
+
+ Simpifly and speed up (we think) the nr_running accounting.
+
++enable-local-apic-on-p4.patch
+
+ Remove a broken BIOS workaround
+
++sym2-bus_addr-fix.patch
+
+ SCSI driver fix
+
++lost-tick-speedstep-fix.patch
+
+ Fix speedstep versus the lost tick detector.
+
++sym2-remove-broken-bios-check.patch
+
+ Remove a broken BIOS workaround
+
++knfsd-umount-fix.patch
+
+ Fix the "I can't unmount the fs after the nfs server has been there" bug.
+
++rename-timer.patch
+
+ Cleanups and sanity in the ia32 timer code.
+
++getrlimit-ifdef-fix.patch
+
+ Play with ifdefs for ia64
+
++amd64-monotonic-clock.patch
+
+ Implement monotonic_clock on x86_64
+
+
+
+
+
+
+All 141 patches:
+
+
+linus.patch
+  cset-1.1348.1.28-to-1.1408.txt.gz
+
+mm.patch
+  add -mmN to EXTRAVERSION
+
+kgdb-ga.patch
+  kgdb stub for ia32 (George Anzinger's one)
+
+kgdb-use-ggdb.patch
+
+HZ-100.patch
+
+show_stack-fix.patch
+  show_stack fix
+
+handle-no-readpage-2.patch
+  check for presence of readpage() in the readahead code
+
+pci-1.patch
+  PCI fixes for 2.5.73
+
+pci-2.patch
+  PCI fixes for 2.5.73
+
+pci-3.patch
+  PCI fixes for 2.5.73
+
+pci-4.patch
+  PCI fixes for 2.5.73
+
+pci-5.patch
+  PCI fixes for 2.5.73
+
+alsa-pnp-fix.patch
+  Fix ALSA ISA pnp_init_resource_table compile errors
+
+config_spinline.patch
+  uninline spinlocks for profiling accuracy.
+
+ppc64-fixes-2.patch
+  Maek ppc64 compile
+
+ppc64-bat-initialisation-fix.patch
+  ppc64: BAT initialisation fix
+
+ppc64-pci-update.patch
+
+ppc64-reloc_hide.patch
+
+ppc64-semaphore-reimplementation.patch
+  ppc64: use the ia32 semaphore implementation
+
+sym-do-160.patch
+  make the SYM driver do 160 MB/sec
+
+x86_64-fixes.patch
+  x86_64 fixes
+
+irqreturn-snd-via-fix.patch
+  via sound irqreturn fix
+
+config-PAGE_OFFSET.patch
+  Configurable kenrel/user memory split
+
+lru_cache_add-check.patch
+  lru_cache_add debug check
+
+delay-ksoftirqd-fallback.patch
+  Try harded in IRQ context before falling back to ksoftirqd
+
+fb-image-depth-fix.patch
+  fbdev image depth fix
+
+ds-09-vicam-usercopy-fix.patch
+  vicam usercopy fix
+
+buffer-debug.patch
+  buffer.c debugging
+
+reiserfs-unmapped-buffer-fix.patch
+  Fix reiserfs BUG
+
+e100-use-after-free-fix.patch
+
+3-unmap-page-debugging.patch
+  page unmappng debug patch
+
+VM_RESERVED-check.patch
+  VM_RESERVED check
+
+rcu-stats.patch
+  RCU statistics reporting
+
+mtrr-hang-fix.patch
+  Fix mtrr-related hang
+
+setscheduler-fix.patch
+  setscheduler needs to force a reschedule
+
+ide_setting_sem-fix.patch
+
+reslabify-pgds-and-pmds.patch
+  re-slabify i386 pgd's and pmd's
+
+misc6.patch
+  misc fixes
+
+linux-isp.patch
+
+isp-update-1.patch
+
+isp-remove-pci_detect.patch
+
+list_del-debug.patch
+  list_del debug check
+
+airo-schedule-fix.patch
+  airo.c: don't sleep in atomic regions
+
+resurrect-batch_requests.patch
+  bring back the batch_requests function
+
+kblockd.patch
+  Create `kblockd' workqueue
+
+cfq-infrastructure.patch
+
+elevator-completion-api.patch
+  elevator completion API
+
+as-iosched.patch
+  anticipatory I/O scheduler
+  AS: pgbench improvement
+  AS: discrete read fifo batches
+  AS sync/async batches
+  AS: hash removal fix
+  AS jumbo patch (for SCSI and TCQ)
+  AS: fix stupid thinko
+  AS: no batch-antic-limit
+  AS: autotune write batches
+  AS: divide by zero fix
+  AS: more HZ != 1000 fixes
+  AS: update_write_batch tuning
+  AS locking
+  AS HZ fixes
+
+as-double-free-and-debug.patch
+  AS: fix a leak + more debugging
+
+as-fix-seek-estimation.patch
+  AS: maybe repair performance drop of random read O_DIRECT
+
+as-fix-seeky-loads.patch
+  AS: fix IBM's seek load
+
+unplug-use-kblockd.patch
+  Use kblockd for running request queues
+
+cfq-2.patch
+  CFQ scheduler, #2
+  CFQ: update to rq-dyn API
+  CFQ: hash removal fix
+  CFQ: empty the queuelist
+
+per-queue-nr_requests.patch
+  per queue nr_requests
+
+blk-invert-watermarks.patch
+  blk_congestion_wait threshold cleanup
+
+blk-as-hint.patch
+  blk-as-hint
+
+get_request_wait-oom-fix.patch
+  handle OOM in get_request_wait().
+
+blk-fair-batches.patch
+  blk-fair-batches
+
+blk-fair-batches-2.patch
+  blk fair batches #2
+
+generic-io-contexts.patch
+  generic io contexts
+
+blk-request-batching.patch
+  block request batching
+
+get_io_context-fix.patch
+  get_io_context fixes
+
+blk-allocation-commentary.patch
+  block allocation comments
+
+blk-batching-throttle-fix.patch
+  blk batch requests fix
+
+print-build-options-on-oops.patch
+  print a few config options on oops
+
+mmap-prefault.patch
+  prefault of executable mmaps
+
+bio-debug-trap.patch
+  BIO debugging patch
+
+sound-irq-hack.patch
+
+show_task-free-stack-fix.patch
+  show_task() fix and cleanup
+
+put_task_struct-debug.patch
+
+ia32-mknod64.patch
+  mknod64 for ia32
+
+ext2-64-bit-special-inodes.patch
+  ext2: support for 64-bit device nodes
+
+ext3-64-bit-special-inodes.patch
+  ext3: support for 64-bit device nodes
+
+64-bit-dev_t-kdev_t.patch
+  64-bit dev_t and kdev_t
+
+oops-dump-preceding-code.patch
+  i386 oops output: dump preceding code
+
+lockmeter.patch
+
+invalidate_mmap_range.patch
+  Interface to invalidate regions of mmaps
+
+aio-mm-refcounting-fix.patch
+  fix /proc mm_struct refcounting bug
+
+aio-01-retry.patch
+  AIO: Core retry infrastructure
+
+io_submit_one-EINVAL-fix.patch
+  Fix aio process hang on EINVAL
+
+aio-02-lockpage_wq.patch
+  AIO: Async page wait
+
+aio-03-fs_read.patch
+  AIO: Filesystem aio read
+
+aio-04-buffer_wq.patch
+  AIO: Async buffer wait
+
+aio-05-fs_write.patch
+  AIO: Filesystem aio write
+
+aio-05-fs_write-fix.patch
+
+aio-06-bread_wq.patch
+  AIO: Async block read
+
+aio-06-bread_wq-fix.patch
+
+aio-07-ext2getblk_wq.patch
+  AIO: Async get block for ext2
+
+O_SYNC-speedup-2.patch
+  speed up O_SYNC writes
+
+aio-09-o_sync.patch
+  aio O_SYNC
+
+aio-10-BUG-fix.patch
+  AIO: fix a BUG
+
+aio-11-workqueue-flush.patch
+  AIO: flush workqueues before destroying ioctx'es
+
+aio-12-readahead.patch
+  AIO: readahead fixes
+
+lock_buffer_wq-fix.patch
+  lock_buffer_wq fix
+
+unuse_mm-locked.patch
+  AIO: hold the context lock across unuse_mm
+
+aio-take-task_lock.patch
+  From: Suparna Bhattacharya <suparna@in.ibm.com>
+  Subject: Re: 2.5.72-mm1 - Under heavy testing with AIO,.. vmstat seems to blow the kernel
+
+vfsmount_lock.patch
+  From: Maneesh Soni <maneesh@in.ibm.com>
+  Subject: [patch 1/2] vfsmount_lock
+
+sched-hot-balancing-fix.patch
+  fix for CPU scheduler load distribution
+
+truncate-pagefault-race-fix.patch
+  Fix vmtruncate race and distributed filesystem race
+
+sleepometer.patch
+  sleep instrumentation
+
+time-goes-backwards.patch
+  demonstrate do_gettimeofday() going backwards
+
+skip-apic-ids-on-boot.patch
+  skip apicids on boot
+
+AT_SECURE-auxv-entry.patch
+  AT_SECURE auxv entry
+
+printk-oops-mangle-fix.patch
+  disentangle printk's whilst oopsing on SMP
+
+20-odirect_enable.patch
+
+21-odirect_cruft.patch
+
+22-read_proc.patch
+
+23-write_proc.patch
+
+24-commit_proc.patch
+
+25-odirect.patch
+
+nfs-O_DIRECT-always-enabled.patch
+  Force CONFIG_NFS_DIRECTIO
+
+common-kernel-DSO-name.patch
+  common name for the kernel DSO
+
+get_unmapped_area-speedup.patch
+  get_unmapped_area() speedup
+
+d_invalidate-fix.patch
+  dentry->d_count fixes: d_invalidate
+
+nfs_unlink-d_count-fix.patch
+  dentry->d_count fixes: nfs_unlink
+
+hpfs-d_count-fix.patch
+  dentry->d_count fixes: hpfs
+
+seqcount-locking.patch
+  i_size atomic access: infrastructure
+
+i_size-atomic-access.patch
+  i_size atomic access
+
+smbfs-oops-workaround.patch
+  Ugly workaround for smb_proc_getattr oops
+
+aha152x-oops-fix.patch
+  aha152X oops fixes
+
+enable-cardbus-bursting.patch
+  Enable Cardbus bursting
+
+n_tty-column-counting-fix.patch
+  Column counting fix in n_tty.c
+
+security-vm_enough_memory.patch
+  Security hook for vm_enough_memory
+
+nbd-cleanups.patch
+  NBD: cosmetic cleanups
+
+numa-normalised-node-load.patch
+  normalise node load for NUMA
+
+pcmcia-event-20030623-1.patch
+
+pcmcia-event-20030623-2.patch
+
+pcmcia-event-20030623-3.patch
+
+pcmcia-event-20030623-4.patch
+
+pcmcia-event-20030623-5.patch
+
+pcmcia-event-20030623-6.patch
+
+nr_running-speedup.patch
+  make nr_running o(1) for non NUMA
+
+enable-local-apic-on-p4.patch
+  enable local APIC on P4
+
+nbd-enhanced-diagnostics.patch
+  nbd: enhanced diagnostics support
+
+sym2-bus_addr-fix.patch
+  sym53c8xx_2 bus_addr fix
+
+lost-tick-speedstep-fix.patch
+  Fix lost tick detection for speedstep
+
+sym2-remove-broken-bios-check.patch
+  remove a bogus check in sym2 driver
+
+knfsd-umount-fix.patch
+  Can't unmount volume which was once exported via NFS
+
+rename-timer.patch
+  timer cleanups
+
+getrlimit-ifdef-fix.patch
+  compat_sys_old_getrlimit() depends on sys_old_getrlimit()
+
+amd64-monotonic-clock.patch
+  monotonic_clock for amd64
+
+
+

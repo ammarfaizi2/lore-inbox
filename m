@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVCOPyy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVCOP7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbVCOPyy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 10:54:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVCOPyp
+	id S261353AbVCOP7l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 10:59:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVCOP7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 10:54:45 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:7875 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261344AbVCOPyc (ORCPT
+	Tue, 15 Mar 2005 10:59:41 -0500
+Received: from fire.osdl.org ([65.172.181.4]:27010 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261353AbVCOP73 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 10:54:32 -0500
-Message-ID: <4237051E.6080107@ca.ibm.com>
-Date: Tue, 15 Mar 2005 09:54:06 -0600
-From: Omkhar Arasaratnam <iamroot@ca.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
+	Tue, 15 Mar 2005 10:59:29 -0500
+Date: Tue, 15 Mar 2005 08:00:52 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Mahoney <jeffm@suse.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: [PATCH] blockdev: fix for racing mount/umount
+In-Reply-To: <20050315141449.GA13653@locomotive.unixthugs.org>
+Message-ID: <Pine.LNX.4.58.0503150746320.6119@ppc970.osdl.org>
+References: <20050315141449.GA13653@locomotive.unixthugs.org>
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: James Bottomley <James.Bottomley@SteelEye.com>,
-       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, tgall@us.ibm.com,
-       antonb@au1.ibm.com
-Subject: Re: [BUG] 2.6.11- sym53c8xx Broken on pp64
-References: <422FA817.4060400@ca.ibm.com>	 <1110420620.32525.145.camel@gaston> <422FBACF.90108@ca.ibm.com>	 <422FC042.40303@ca.ibm.com>	 <Pine.LNX.4.58.0503091944030.2530@ppc970.osdl.org>	 <1110434383.32525.184.camel@gaston>	 <20050310121701.GD21986@parcelfarce.linux.theplanet.co.uk>	 <1110467868.5379.15.camel@mulgrave>  <42307E4D.6080505@ca.ibm.com> <1110492159.32524.261.camel@gaston>
-In-Reply-To: <1110492159.32524.261.camel@gaston>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
-
->On Thu, 2005-03-10 at 11:05 -0600, Omkhar Arasaratnam wrote:
->
->  
->
->>2.6.10 seems to have a different kernel panic which I'm investigating 
->>(could be a problem with my ramdisk as it happens in my linuxrc). So 
->>long story short the 2.6.10 sym driver looks ok.
->>    
->>
->
->Can you try 2.6.11 with the 2.6.10 sym driver ?
->
->Ben.
->
->
->
->  
->
-The 2.6.11.3 kernel with the 2.6.10 driver seems to fail with the same 
-sym2 driver error - so I suppose it goes deeper than the driver itself.
 
 
-O.
+On Tue, 15 Mar 2005, Jeff Mahoney wrote:
+>
+> This patch is another take at fixing the race between mount and umount
+> resetting the blocksize and causing buffer errors, infinite loops in
+> __getblk_slow, and possibly other undiscovered effects.
 
+Ok. I had to go back and look up the original problem, and having looked 
+at this a bit more, I wonder whether the real problem is not that we do 
+that silly "set blocksize back to the original one" at umount time in the 
+first place.
+
+(It happens very indirectly, though the "->kill_sb()" fn pointer, which 
+ends up doing kill_block_super on a regular block device).
+
+Maybe we should just get rid of it entirely? There's really no point to 
+it.
+
+Instead, to make things repeatable, we'd always just set the blocksize to
+its default value at the first open. We already do that anyway, don't we?
+
+Wouldn't that approach also just fix things? And then the fix would 
+literally be to just remove the set_blocksize() call in kill_block_super. 
+At that point, we know that the only people who set the block size are 
+either
+ - a first opener
+ - somebody who got exclusive access (ie a filesystem that sets it at 
+   mount-time)
+
+(Yeah, it's a bit more complex than that one-liner, since somebody would 
+need to back me up on not being totally tripping on some 'shrooms. But Al 
+can probably do that trivially)
+
+Or maybe I misunderstood the problem. Jeff?
+
+		Linus

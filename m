@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261640AbTAVPvb>; Wed, 22 Jan 2003 10:51:31 -0500
+	id <S261660AbTAVQDw>; Wed, 22 Jan 2003 11:03:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261645AbTAVPvb>; Wed, 22 Jan 2003 10:51:31 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:1032 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S261640AbTAVPva>;
-	Wed, 22 Jan 2003 10:51:30 -0500
-Date: Wed, 22 Jan 2003 16:59:55 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: test suite?
-Message-ID: <20030122155955.GA1219@mars.ravnborg.org>
-Mail-Followup-To: "Robert P. J. Day" <rpjday@mindspring.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0301220840530.2622-100000@dell>
+	id <S261686AbTAVQDw>; Wed, 22 Jan 2003 11:03:52 -0500
+Received: from netrealtor.ca ([216.209.85.42]:59915 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S261660AbTAVQDv>;
+	Wed, 22 Jan 2003 11:03:51 -0500
+Date: Wed, 22 Jan 2003 11:21:07 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Richard Stallman <rms@gnu.org>
+Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>, steve@tuxsoft.com,
+       linux-kernel@vger.kernel.org, brand@eeyore.valparaiso.cl
+Subject: Re: [OFFTOPIC] RMS and reactions to him
+Message-ID: <20030122162107.GA26725@mark.mielke.cc>
+References: <200301201338.h0KDcLjd001178@eeyore.valparaiso.cl> <E18bHfV-0002QE-00@fencepost.gnu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301220840530.2622-100000@dell>
+In-Reply-To: <E18bHfV-0002QE-00@fencepost.gnu.org>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 22, 2003 at 08:44:05AM -0500, Robert P. J. Day wrote:
-> 
->   i've noticed references to "test suites" for kernels, but
-> is there any one-step convenient way to select every possible
-> option for test-compiling a new kernel, just to see if it builds?
-> perhaps an "everything" option?
+On Wed, Jan 22, 2003 at 04:59:37AM -0500, Richard Stallman wrote:
+>     What is discussed here is the operating system (narrow sense, i.e.,
+>     kernel only) called Linux, on which you have no claim whatsoever.
+> We all agree that the proper name for the kernel is "Linux."
+> The disagreement is about the name for the complete system
+> that people use on desktops and servers.
 
-Try "make help" some day..
+Good. So go fight with RedHat, Debian, and all the other distros to ensure
+that they give you whatever credit you want.
 
-make allyesconfig
-make allmodconfig
-make allnoconfig <- Opposite of what you ask for.
+mark
 
-	Sam
+P.S. Please honour my request for you to include the names of the people
+     you are quoting in emails. It is a disrespectful act to purposefully
+     remove credit for quotes. For somebody arguing about credit, it seems
+     a little contradictory...
+
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
+

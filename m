@@ -1,68 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262422AbTFJLoH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 07:44:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbTFJLoH
+	id S262456AbTFJLyr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 07:54:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbTFJLyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 07:44:07 -0400
-Received: from sea2-f56.sea2.hotmail.com ([207.68.165.56]:48389 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S262422AbTFJLoB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 07:44:01 -0400
-X-Originating-IP: [203.51.24.94]
-X-Originating-Email: [redph0enix@hotmail.com]
-From: "Red Phoenix" <redph0enix@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: SNARE and C2 auditing under 2.5.x
-Date: Tue, 10 Jun 2003 23:57:39 +1200
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Sea2-F56iZAtGYkNUTv0001fda1@hotmail.com>
-X-OriginalArrivalTime: 10 Jun 2003 11:57:40.0839 (UTC) FILETIME=[7E85D770:01C32F47]
+	Tue, 10 Jun 2003 07:54:47 -0400
+Received: from ausadmmsrr502.aus.amer.dell.com ([143.166.83.89]:59409 "HELO
+	AUSADMMSRR502.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id S262456AbTFJLyo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 07:54:44 -0400
+X-Server-Uuid: 586817ae-3c88-41be-85af-53e6e1fe1fc5
+Message-ID: <0D2092D75155D511881100B0D0D00F3902D32E66@uppxmbl101.se.dell.com>
+From: Martin_List-Petersen@Dell.com
+To: Robert.L.Harris@rdlg.net
+cc: m.watts@mrw.demon.co.uk, linux-kernel@vger.kernel.org
+Subject: RE: PERC4-DI?
+Date: Tue, 10 Jun 2003 07:06:52 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 12FB15B32336584-01-01
+Content-Type: text/plain; 
+ charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for the late reply - I've only just spotted the May 21 thread.
 
->I may be repeating this question, but is there an effort to brigning
->snare code to 2.5.x?
+Here is a list:
+Perc 2, Perc 3/Si, Perc 3/Di - Adaptec
+Perc 2/SC, Perc 3/SC, Perc 3/DC, Perc 3/QC, Perc 4/Di - AMI / LSI
 
-If people are interested, then definitely!
+The only server out there with a Perc 4/Di currently is the Dell PowerEdge
+2600. The PE2650 has a PERC 3/Di instead (Adaptec).
 
-I'm about 80% of the way through a kernel-patch version of snare, and have 
-it working nicely on a 2.4.18 based system. I'm just about to try and 
-re-apply the changes to 2.4.20 tonight.
+Have fun.
 
-For those that don't know, Snare is a C2-style auditing capability, roughly 
-analagous to Solaris BSM, or the Windows EventLog subsystem. Until recently, 
-Snare existed as a kernel module that used sys_call_table to overlay 
-auditing functionality on a bunch of system calls (yes, I know - it should 
-be the 8th deadly sin ;). It's now being retooled as a kernel patch.
+/Martin
 
-I've heard through the grapevine that Snare is a required part of the US DoD 
-Common Operating Environment for Linux installations, has been evaluated by 
-mitre.org, was one of the apps in the 'use of open source tools in the DoD' 
-report that came out a while back, is in use inside the Aussie intelligence 
-community (no jokes about contradictions please ;), was recently featured at 
-SANS, and is also part of RH Adv Server... so it's probably becoming too 
-popular to run as a 'two occasional developers' project - at least for the 
-kernel components.
-
-Although I've been working with audit logs on a bunch of systems for 
-many-a-year, my kernel experience is limited, so although the RH kernel team 
-has helped out in the past, and AC has offered to cast an eye or two over 
-the code, it's probably time that we consider including more capable hands 
-in the development process - any assistance, or suggestions on the way 
-forward, would definitely be welcome!
-
-Regards,
-
-Leigh. (please cc me in replies - Leigh [dot] Purdie at intersectalliance 
-DOT com)
-
-.. sorry in advance for any hotmail crud below - front-line spam defence..
-
-_________________________________________________________________
-MSN 8 helps eliminate e-mail viruses. Get 2 months FREE*. 
-http://join.msn.com/?page=features/virus
+> -----Original Message-----
+> From: Mark Watts [mailto:m.watts@mrw.demon.co.uk]
+> Sent: den 7 juni 2003 13:05
+> To: Linux-Kernel
+> Subject: Re: PERC4-DI?
+> 
+> 
+> On Friday 06 Jun 2003 5:37 pm, Robert L. Harris wrote:
+> > My company is looking at buying some machines with 
+> "PERC4-DI" SCSI RAID
+> > controllers.  Poking around the .config file I'm not 
+> finding anything
+> > related to this.  Anyone know off the top of their heads what driver
+> > would be used for this controller, any known catastrophic bugs, etc?
+> 
+> If its anything like the PERC 3 cards, it could be anything 
+> from an LSI 
+> through to an Adaptec card. (PERC = PowerEdge Raid Controler).
+> 
+> I haven't found any major issues with any of them yet, but we 
+> don't tend to 
+> push them as hard as others here - we mainly use them in webservers.
+> 
+> Mark.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269837AbRHDIPj>; Sat, 4 Aug 2001 04:15:39 -0400
+	id <S269840AbRHDISa>; Sat, 4 Aug 2001 04:18:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269838AbRHDIP3>; Sat, 4 Aug 2001 04:15:29 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:51209 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S269831AbRHDIPV>; Sat, 4 Aug 2001 04:15:21 -0400
-Date: Sat, 4 Aug 2001 06:04:23 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Chris Wedgwood <cw@f00f.org>, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Chris Mason <mason@suse.com>
-Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic change patch)
-Message-ID: <20010804060423.I16516@emma1.emma.line.org>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	Chris Wedgwood <cw@f00f.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Chris Mason <mason@suse.com>
-In-Reply-To: <01080315090600.01827@starship> <Pine.GSO.4.21.0108031400590.3272-100000@weyl.math.psu.edu> <9keqr6$egl$1@penguin.transmeta.com>, <9keqr6$egl$1@penguin.transmeta.com> <20010804100143.A17774@weta.f00f.org> <3B6B4B21.B68F4F87@zip.com.au>, <3B6B4B21.B68F4F87@zip.com.au> <20010804131904.E18108@weta.f00f.org> <3B6B53A9.A9923E21@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <3B6B53A9.A9923E21@zip.com.au>
-User-Agent: Mutt/1.3.19i
+	id <S269839AbRHDISQ>; Sat, 4 Aug 2001 04:18:16 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:35398 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S269836AbRHDIQ6>; Sat, 4 Aug 2001 04:16:58 -0400
+To: Ralf Baechle <ralf@uni-koblenz.de>
+Cc: "chen, xiangping" <chen_xiangping@emc.com>, linux-kernel@vger.kernel.org
+Subject: Re: PCI bus speed
+In-Reply-To: <276737EB1EC5D311AB950090273BEFDD043BC536@elway.lss.emc.com>
+	<20010803153231.A28624@bacchus.dhis.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 04 Aug 2001 02:10:28 -0600
+In-Reply-To: <20010803153231.A28624@bacchus.dhis.org>
+Message-ID: <m1lml0w8i3.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 03 Aug 2001, Andrew Morton wrote:
+Ralf Baechle <ralf@uni-koblenz.de> writes:
 
-> > really, there is _some_ merit in the argument that
-> > 
-> >         open
-> >         fsync
-> >         close
-> > <crash>
-> > 
-> > shouldn't loose the file...
+> On Thu, Aug 02, 2001 at 06:47:49PM -0400, chen, xiangping wrote:
+> 
+> > Is there any easy way to probe the PCI bus speed of an Intel box?
+> 
+> You can find about PCI33 or PCI66 standards but there is no way to find
+> the exact clock rate the PCI bus is actually clocked at.  
 
-...
+There is no portable way to find out the bus speed.  If you really
+have to you can go in and stick an analyizer on the bus and measure it
+but that is no help from  the software point of view.
 
-> mmm... Holding i_sem across multiple revs of the disk will hurt.  It
-> doesn't *need* to be held while we're waiting on IO, but fixing that
-> would be a big change, and there has been little motivation to change
-> things because it is for specialised apps.
+Additionally there is not requirement that a PCI33 bus even run at
+33Mhz  It can legaly run at 15Mhz to save powe if someone wants to,
+and as of PCI 2.1 I believe it is perfectly legal to clock even a
+PCI66 capable bus with all PCI66 capable cards down to 1Mhz.
 
-I have no clues of the inode, dentry whatever kernel structure names of
-Linux. However, aren't we already at the point that ext3 fsync() flushes
-the corresponding dirents? How difficult would it be to have the inode
-track changes to its dirents such as rename or link? Without breaking it
-if someone renames a parent or grandparent? I mean, FFS + softupdates
-can do it. The MTA doesn't really care for the implementation, it cares
-that it never loses its files over a crash -- where finding it renamed
-to /mount/point/lost+found is considered a loss. For people that want
-the data synced and want to sync the meta data later, there is
-fdatasync() as they go and either fsync()ing the files or fsync()ing
-their directory as they finish.
+As most systems use integrated solutions you can usually do something
+like ask the northbridge of the chipset what frequency it is running
+the PCI bus at.  This is code that needs to be written for every PCI
+host bridge, and probably every PCI<->PCI bridge as well.
 
-unlink and particularly symlink will need separate consideration, but
-that's left for later.
+With linuxBIOS I might be able to help out a little bit by reporting
+motherboard hardcodes but that is likely the most a BIOS can do.
+Having a driver that understands how your northbridge chip clocks the
+PCI bus goes much farther, to solving this problem.
 
--- 
-Matthias Andree
+> Which is a
+> problem with certain non-compliant cards; the IOC3 card and a few others
+> derive internal clocks from the PCI bus clock rate so will not properly
+> work if operated on a bus with different clock rate.
+
+Hmm.  So it looks like we need some kind of interface in linux to
+propogate this information from the northbridge chip :(
+
+Eric

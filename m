@@ -1,44 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131474AbQKVKT3>; Wed, 22 Nov 2000 05:19:29 -0500
+	id <S129873AbQKVK2W>; Wed, 22 Nov 2000 05:28:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131490AbQKVKTT>; Wed, 22 Nov 2000 05:19:19 -0500
-Received: from 213-123-77-95.btconnect.com ([213.123.77.95]:38148 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S131474AbQKVKTM>;
-	Wed, 22 Nov 2000 05:19:12 -0500
-Date: Wed, 22 Nov 2000 09:51:02 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Joe Harrington <jharring@micron.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: filesystems
-In-Reply-To: <Pine.LNX.4.21.0011220923100.1197-100000@penguin.homenet>
-Message-ID: <Pine.LNX.4.21.0011220948110.1197-100000@penguin.homenet>
+	id <S130153AbQKVK2M>; Wed, 22 Nov 2000 05:28:12 -0500
+Received: from 13dyn94.delft.casema.net ([212.64.76.94]:34834 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S129873AbQKVK2I>; Wed, 22 Nov 2000 05:28:08 -0500
+Message-Id: <200011220957.KAA26634@cave.bitwizard.nl>
+Subject: Re: linux-2.2.18-pre19 asm/delay.h problem?
+In-Reply-To: <E13yNHb-0005O4-00@the-village.bc.nu> from Alan Cox at "Nov 21,
+ 2000 11:57:02 pm"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Wed, 22 Nov 2000 10:57:53 +0100 (MET)
+CC: jpranevich@lycos-inc.com, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Nov 2000, Tigran Aivazian wrote:
-> you do not mount a VFS filesystem. VFS is not a filesystem. VFS is a
-> Virtual Filesystem Switch, i.e. a set of concepts, philosophy, data
-> structures and functions which together make writing new filesystems easy.
-> The name is derived from the SVR4 data structure vfssw (sic?) whence all
-> the good concepts of VFS came (yea, yea, I know, AV (and history books)
-> will tell me that Sun had a vnode/vfs layer and that even FreeBSD has a
-> sort of VFS/vnode layer but we all know that the really good form of VFS
-> came from SVR4, like it or not, the others, except Linux of course, are
-> impostors)
+Alan Cox wrote:
+> > module that is pulling the definition of udelay() from asm/delay.h, it's
+> > referencing __bad_udelay(). However, I can't seem to find the __bad_udelay()
+> > function actually defined anyplace. (Although it could be somewhere in the
+> > kernel source that my grep missed.)
+> 
+> Its intentionally missing
 
-perhaps I invented a new English word "achronal impostor", i.e. impostor
-even if he was there before others ;)
+Alan, Linus, 
 
-And, to emphasize my respect to Al Viro, I would like to explain that I
-sometimes spell "my personal humble opinion" as "we all know", just read
-between the lines and you will be Ok.
+Would it be an idea to define __bad_udelay() somewhere? (No don't stop
+reading!) ....
 
-Regards,
-Tigran
+.... Inside a #if 0. This question keeps on popping up, and people
+seem to be able to grep for definitions of stuff well enough. Then
+near the definition you can explain this. It's a form of documenting
+this "trick"...
 
+#if 0
+/* Note: This definition is not for real. The idea about __bad_udelay is
+that you get a compile-time error if you call udelay with a number of 
+microseconds that is too large for udelay. There is mdelay if you need 
+delays on the order of miliseconds. Please update the places where
+udelay is called with this large constant!
+
+If you change the #if 0 to #if 1, the stuff you're trying to compile will
+compile, but you'll crash your system when it's used.
+*/
+
+#define __bad_udelay() panic("Udelay called with too large a constant")
+#endif
+
+
+			Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

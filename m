@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131738AbQKYVCH>; Sat, 25 Nov 2000 16:02:07 -0500
+        id <S129557AbQKYVdH>; Sat, 25 Nov 2000 16:33:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131753AbQKYVB6>; Sat, 25 Nov 2000 16:01:58 -0500
-Received: from jump-isi.interactivesi.com ([207.8.4.2]:5628 "HELO
-        dinero.interactivesi.com") by vger.kernel.org with SMTP
-        id <S131738AbQKYVBr>; Sat, 25 Nov 2000 16:01:47 -0500
-Date: Sat, 25 Nov 2000 14:31:46 -0600
-From: Timur Tabi <ttabi@interactivesi.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3A1D3DF9.9199C744@earthlink.net>
-Subject: Re: "Hyper-Mount" option possible???
-X-Mailer: The Polarbar Mailer; version=1.18; build=55
-Message-Id: <20001125210154Z131738-8303+774@vger.kernel.org>
+        id <S129673AbQKYVc6>; Sat, 25 Nov 2000 16:32:58 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:43763 "EHLO hera.cwi.nl")
+        by vger.kernel.org with ESMTP id <S129557AbQKYVcw>;
+        Sat, 25 Nov 2000 16:32:52 -0500
+Date: Sat, 25 Nov 2000 22:02:43 +0100
+From: Andries Brouwer <aeb@veritas.com>
+To: Arjan Filius <iafilius@xs4all.nl>
+Cc: Eugene Crosser <crosser@average.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test11: "_isofs_bmap: block < 0"
+Message-ID: <20001125220243.A6919@veritas.com>
+In-Reply-To: <8vd0cb$5a0$1@pccross.average.org> <Pine.LNX.4.21.0011251818550.9351-100000@sjoerd.sjoerdnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.21.0011251818550.9351-100000@sjoerd.sjoerdnet>; from iafilius@xs4all.nl on Sat, Nov 25, 2000 at 06:20:56PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-** Reply to message from Robert L Martin <robertlmarti@earthlink.net> on Thu,
-23 Nov 2000 10:55:38 -0500
+On Sat, Nov 25, 2000 at 06:20:56PM +0100, Arjan Filius wrote:
 
+> Nov 25 18:16:05 sjoerd kernel: _isofs_bmap: block < 0
 
-> Soo  Given that Super-Mount is already taken, How about (in
-> 2.5??)  hashing out a Hypermount option.
+Understood and solved. For the whole story read linux-kernel.
+To fix just this, remove the two lines
 
-How about calling it "multi-mount"?  I think it's more accurate.
+	if (filp->f_pos >= inode->i_size)
+		return 0;
 
+from linux/fs/isofs/dir.c around line 119.
 
--- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
-
-When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

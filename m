@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262126AbUCLOD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 09:03:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbUCLOD4
+	id S262119AbUCLOD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 09:03:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbUCLOD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 09:03:56 -0500
-Received: from colin2.muc.de ([193.149.48.15]:20491 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262126AbUCLODy (ORCPT
+	Fri, 12 Mar 2004 09:03:29 -0500
+Received: from [202.125.86.130] ([202.125.86.130]:27808 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S262119AbUCLOD1 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 09:03:54 -0500
-Date: 12 Mar 2004 15:03:52 +0100
-Date: Fri, 12 Mar 2004 15:03:52 +0100
-From: Andi Kleen <ak@muc.de>
-To: Joe Thornber <thornber@redhat.com>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1
-Message-ID: <20040312140352.GA80958@colin2.muc.de>
-References: <1yyqt-83X-23@gated-at.bofh.it> <1yyqs-83X-17@gated-at.bofh.it> <1yyJK-8mD-41@gated-at.bofh.it> <1yzPs-1bI-21@gated-at.bofh.it> <1yGe9-7Rk-23@gated-at.bofh.it> <1yI6f-1Bj-3@gated-at.bofh.it> <1yQdz-1Uf-7@gated-at.bofh.it> <1yRCI-3lE-19@gated-at.bofh.it> <m3k71htm2l.fsf@averell.firstfloor.org> <20040312134943.GY18345@reti>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040312134943.GY18345@reti>
-User-Agent: Mutt/1.4.1i
+	Fri, 12 Mar 2004 09:03:27 -0500
+Subject: compiling for SMP!
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Fri, 12 Mar 2004 19:29:23 +0530
+Message-ID: <1118873EE1755348B4812EA29C55A972176549@esnmail.esntechnologies.co.in>
+Content-class: urn:content-classes:message
+X-MS-Has-Attach: 
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+X-MS-TNEF-Correlator: 
+Thread-Topic: compiling for SMP!
+Thread-Index: AcQIOEo3oMKRqGrSR2KbB8h65Gh9XAAAUw4Q
+From: "Jinu M." <jinum@esntechnologies.co.in>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Chandrashekhar Reddy.N" <chandrashekharn@esntechnologies.co.in>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 12, 2004 at 01:49:43PM +0000, Joe Thornber wrote:
-> On Fri, Mar 19, 2004 at 06:58:26AM +0100, Andi Kleen wrote:
-> > That's bad because it will break binary compatibility for existing
-> > x86-64 systems.  Don't add that please. Either emulate it properly
-> > or I will just declare the 32bit DM emulation broken and users will
-> > have to live with that.
-> 
-> So you want me to put in a seperate set of ioctl codes for
-> compatibility.
+Hi all,
 
-Breaking the 64bit ABI is not acceptable at least. There are distributions
-shipping that use it.
+I have a device driver that compiles fine on the uni-processor
+environment. 
+INCDIR=/usr/src/linux-2.4/include.
 
-For 32bit emulation you can use what you think is easiest or just
-ignore it if it's too hard (64bit is more important than 32bit)
+I was trying to compile the same module in SMP machine with -D__SMP__
+-DCONFIG_SMP flags extra for CFLAGS
+in the Makefile, but I end up with compilation error! Following is the
+error..
 
--Andi
+In file Included from /usr/src/linux-2.4/include/asm/hw_irq.h In
+function x86_do_profile:
+         Current undeclared.
+
+I included linux/interrupt.h in my source file.
+
+What could be the problem? Are there some other flags I should use for
+compilation in SMP machine?
+
+Any pointers on this would be of great help!
+
+Thanks in advance
+Chandu!
+
+ 

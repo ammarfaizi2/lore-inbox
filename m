@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132594AbRDCF5q>; Tue, 3 Apr 2001 01:57:46 -0400
+	id <S132614AbRDCGgl>; Tue, 3 Apr 2001 02:36:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132599AbRDCF5h>; Tue, 3 Apr 2001 01:57:37 -0400
-Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:22795 "EHLO
-	mail.harddata.com") by vger.kernel.org with ESMTP
-	id <S132594AbRDCF5Z>; Tue, 3 Apr 2001 01:57:25 -0400
-Date: Mon, 2 Apr 2001 23:56:41 -0600
-From: Michal Jaegermann <michal@harddata.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: /proc/config idea
-Message-ID: <20010402235641.A813@mail.harddata.com>
-In-Reply-To: <3AC91800.22D66B24@mandrakesoft.com> <Pine.LNX.4.33.0104021734400.30128-100000@dlang.diginsite.com>
-Mime-Version: 1.0
+	id <S132624AbRDCGgc>; Tue, 3 Apr 2001 02:36:32 -0400
+Received: from ANice-101-2-1-104.abo.wanadoo.fr ([193.251.10.104]:2052 "HELO
+	leda.udcast.com") by vger.kernel.org with SMTP id <S132619AbRDCGgZ>;
+	Tue, 3 Apr 2001 02:36:25 -0400
+X-Mailer: XFMail 1.4.7p2 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0104021734400.30128-100000@dlang.diginsite.com>; from dlang@diginsite.com on Mon, Apr 02, 2001 at 05:39:19PM -0700
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <200103310537.f2V5bDO06729@pcug.org.au>
+Date: Tue, 03 Apr 2001 08:35:41 +0200 (CEST)
+In-Reply-To: <200103310537.f2V5bDO06729@pcug.org.au>
+Message-ID: <yp94rw7tp3o.fsf@leda.udcast.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+Xref: leda.udcast.com sent_mail:28
+From: "Alain E." <aln03@UDcast.com>
+To: Stephen Rothwell <already_sent_by_error@UDcast.com>
+Subject: Re: Recent problems with APM and XFree86-4.0.1
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 02, 2001 at 05:39:19PM -0700, David Lang wrote:
+
+Hello Stephen,
+
+I've just switched from 2.2.18 to 2.4.3 (on a Dell Inpiron 8000, r128 M4
+adapter) and I am experimenting some problems with Xfree 4.02 (debian woody)
+and (probably) APM. When I resume after a suspend, the X server
+hangs. Connecting through ethernet, using strace -p `pid-of-Xfree` wake up
+the Xserver. Everything is OK if I use kernel 2.2.18.  I've tryed the NoPM
+option, but it is ignored by the Xserver:
+(WW) R128(0): Option "NoPM" is not used
+
+Any Idea ?
+
+
+Stephen Rothwell <sfr@canb.auug.org.au> writes:
+
+> Hi Jamie,
 > 
-> if the distro/sysadmin _always_ installs the kernel the 'right way' then
-> the difference isn't nessasarily that large, but if you want reliability
-> on any system it may be worth loosing a page or so of memory (hasn't
-> someone said that the data can be compressed to <1K?)
+> Jamie Lokier <lk@tantalophile.demon.co.uk> writes:
+> > 
+> > On that theme of power management with X problems, I have been having
+> > trouble with my laptop crashing when the lid is closed, instead of
+> > suspending as it used to.  The laptop is a Toshiba Satellite 4070CDT.
+> 
+> Can you please try adding
+>       Option  "NoPM"
+> to the device section of XF86Config or (XF86Config) and then try suspending
+> and resuming.
+> 
+> This made suspend/resume much more reliable on the Thinkpad 600E with
+> XFree86 4.  Also you could try XFree86 4.0.2, as I know that it actually
+> does interact with APM (4.0.1 may have as well - I am not sure).
+> 
+> Cheers,
+> Stephen Rothwell              sfr@canb.auug.org.au
 
-After throwing away in a Makefile rule all "is not set" lines, as they
-are trivially recoverable with 'make oldconfig', what is left for an
-avarege kernel compresses to something like 500 bytes.  Quite a bit
-of space left on this one page if you need more extensive .config.
-'zcat /proc/config.gz' works just fine.
-
-As most kernels around are NOT installed "the right way" I found that in
-practice separating configuration information from a kernel image is not
-even close to be semi-reliable on a longer run.  Those who say
-"installation script", and similar things, assume that people compile
-kernels for themselves.  This is undoubtely true for folks on this list;
-this does not start to approximate the situation in general and, it
-seems, that we really want it that way. :-)
-
-BTW - /sbin/installkernel, as seen in practice, is not even correct for
-a general case with x86; not to mention other architectures.  Writing
-something like /var/log/config from "init data" during a bootup could be
-another solution which does not take any kernel memory and still keeps
-all this information attached to a kernel image itself.  OTOH we have
-all these tons of strings which show in /proc/pci output and somehow
-these do not cause such huge opposition.  Yes, I know that 'lspci' was
-supposed to replace that; but it did not.
-
-  Michal
+-- 
+Alain

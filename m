@@ -1,57 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266749AbUHIRMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266753AbUHIRP0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266749AbUHIRMh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 13:12:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266753AbUHIRMh
+	id S266753AbUHIRP0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 13:15:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266756AbUHIRP0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 13:12:37 -0400
-Received: from mail.zmailer.org ([62.78.96.67]:34188 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S266749AbUHIRMf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 13:12:35 -0400
-Date: Mon, 9 Aug 2004 20:12:31 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Bob Deblier <bob.deblier@telenet.be>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: AES assembler optimizations
-Message-ID: <20040809171231.GG2716@mea-ext.zmailer.org>
-References: <2riR3-7U5-3@gated-at.bofh.it> <m3d620v11e.fsf@averell.firstfloor.org> <1092067328.4332.40.camel@orion>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 Aug 2004 13:15:26 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:62105 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S266753AbUHIRPL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 13:15:11 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: Eric Lammerts <eric@lammerts.org>
+Subject: Re: dynamic /dev security hole?
+Date: Mon, 9 Aug 2004 19:14:16 +0200
+User-Agent: KMail/1.6.2
+References: <20040808162115.GA7597@kroah.com> <200408091854.27019.mbuesch@freenet.de> <Pine.LNX.4.58.0408091302010.9426@vivaldi.madbase.net>
+In-Reply-To: <Pine.LNX.4.58.0408091302010.9426@vivaldi.madbase.net>
+Cc: Albert Cahalan <albert@users.sf.net>, Greg KH <greg@kroah.com>,
+       Marc Ballarin <Ballarin.Marc@gmx.de>, albert@users.sourceforge.net,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1092067328.4332.40.camel@orion>
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200408091914.19412.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 09, 2004 at 06:02:08PM +0200, Bob Deblier wrote:
-...
-> BeeCrypt contains benchmarks in the 'tests' subdirectory. Running of
-> 'make bench' will execute them. Benchmarks results below for repeatedly
-> looping over the same 16K block, produced by 'benchbc', without any
-> tweaks (YMMV):
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Usage of MMX inside the Linux kernel is like the usage of FP inside
-the Linux kernel:  Can be done after jumping complex hoops, BUT NOT
-RECOMMENDED... (MMX in intertwined with FP hardware, after all.)
+Quoting Eric Lammerts <eric@lammerts.org>:
+> Better not do it for symlinks.
 
-You have to do lots of the MMXes in order to win after amortizing those
-necessary hoops...  RAID-5 code does XOR via MMX code, under some 
-conditions.  ... where that happens to become a win.
+Yes, you're right.
 
-> P4 2400, with MMX:
-> ECB encrypted 738304 KB in 10.00 seconds = 73823.02 KB/s
-> CBC encrypted 659456 KB in 10.00 seconds = 65925.82 KB/s
-> ECB decrypted 765952 KB in 10.00 seconds = 76564.57 KB/s
-> CBC decrypted 616448 KB in 10.02 seconds = 61546.33 KB/s
-> 
-> P4 2400, plain i386:
-> ECB encrypted 584704 KB in 10.01 seconds = 58435.34 KB/s
-> CBC encrypted 570368 KB in 10.01 seconds = 56979.82 KB/s
-> ECB decrypted 444416 KB in 10.02 seconds = 44357.32 KB/s
-> CBC decrypted 423936 KB in 10.02 seconds = 42304.76 KB/s
-...
-> Sincerely,
-> 
-> Bob Deblier
+===== udev-remove.c 1.31 vs edited =====
+- --- 1.31/udev-remove.c	2004-04-01 04:12:56 +02:00
++++ edited/udev-remove.c	2004-08-09 19:12:55 +02:00
+@@ -65,6 +65,41 @@
+ 	return 0;
+ }
+ 
++/** Remove all permissions on the device node, before
++  * unlinking it. This fixes a security issue.
++  * If the user created a hard-link to the device node,
++  * he can't use it any longer, because he lost permission
++  * to do so.
++  */
++static int secure_unlink(const char *filename)
++{
++	int retval;
++
++	retval = chown(filename, 0, 0);
++	if (retval) {
++		dbg("chown(%s, 0, 0) failed with error '%s'",
++		    filename, strerror(errno));
++		/* We continue nevertheless.
++		 * I think it's very unlikely for chown
++		 * to fail here, if the file exists.
++		 */
++	}
++	retval = chmod(filename, 0000);
++	if (retval) {
++		dbg("chmod(%s, 0000) failed with error '%s'",
++		    filename, strerror(errno));
++		/* We continue nevertheless. */
++	}
++	retval = unlink(filename);
++	if (errno == ENOENT)
++		retval = 0;
++	if (retval) {
++		dbg("unlink(%s) failed with error '%s'",
++			filename, strerror(errno));
++	}
++	return retval;
++}
++
+ static int delete_node(struct udevice *dev)
+ {
+ 	char filename[NAME_SIZE];
+@@ -79,14 +114,9 @@
+ 	strfieldcat(filename, dev->name);
+ 
+ 	info("removing device node '%s'", filename);
+- -	retval = unlink(filename);
+- -	if (errno == ENOENT)
+- -		retval = 0;
+- -	if (retval) {
+- -		dbg("unlink(%s) failed with error '%s'",
+- -			filename, strerror(errno));
++	retval = secure_unlink(filename);
++	if (retval)
+ 		return retval;
+- -	}
+ 
+ 	/* remove partition nodes */
+ 	if (dev->partitions > 0) {
+@@ -94,7 +124,7 @@
+ 		for (i = 1; i <= dev->partitions; i++) {
+ 			strfieldcpy(partitionname, filename);
+ 			strintcat(partitionname, i);
+- -			unlink(partitionname);
++			secure_unlink(partitionname);
+ 		}
+ 	}
+ 
 
-/Matti Aarnio
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBF7DoFGK1OIvVOP4RAklbAJ0QXZkfiDOExHqTXpue+mKJCeIBHwCgwzAa
+3V4LF0jNgiDyXbm6rw4wxqI=
+=wXmk
+-----END PGP SIGNATURE-----

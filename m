@@ -1,95 +1,81 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315785AbSEJD0X>; Thu, 9 May 2002 23:26:23 -0400
+	id <S315783AbSEJDgM>; Thu, 9 May 2002 23:36:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315786AbSEJD0W>; Thu, 9 May 2002 23:26:22 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:17340 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S315785AbSEJD0W>;
-	Thu, 9 May 2002 23:26:22 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.15 broken code
-Mime-Version: 1.0
+	id <S315784AbSEJDgL>; Thu, 9 May 2002 23:36:11 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:64750 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S315783AbSEJDgK>; Thu, 9 May 2002 23:36:10 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 10 May 2002 13:26:09 +1000
-Message-ID: <26013.1021001169@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15579.16423.930012.986750@wombat.chubb.wattle.id.au>
+Date: Fri, 10 May 2002 13:36:07 +1000
+To: linux-kernel@vger.kernel.org
+CC: akpm@zip.com.au, martin@dalecki.de, neilb@cse.unsw.edu.au
+Subject: [PATCH] remove 2TB block device limit
+X-Mailer: VM 7.03 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following config options are broken in 2.5.15 i386.
 
-# Broken code, will not compile
-CONFIG_BLK_CPQ_DA=n
-CONFIG_BLK_DEV_ATARAID_HPT=n
-CONFIG_BLK_DEV_ATARAID=n
-CONFIG_BLK_DEV_ATARAID_PDC=n
-CONFIG_BLK_DEV_DAC960=n
-CONFIG_BLK_DEV_HD_IDE=n
-CONFIG_BLK_DEV_LVM=n
-CONFIG_CYCLADES=n
-CONFIG_DEFXX=n
-CONFIG_FARSYNC=n
-CONFIG_FTL=n
-CONFIG_I2O_BLOCK=n
-CONFIG_I2O_LAN=n
-CONFIG_I2O=n
-CONFIG_I2O_PCI=n
-CONFIG_I2O_SCSI=n
-CONFIG_IEEE1394_PCILYNX=n
-ONFIG_INTERMEZZO_FS=n
-CONFIG_IPHASE5526=n
-CONFIG_MD_RAID5=n
-CONFIG_NET_DIVERT=n
-CONFIG_NFTL=n
-CONFIG_PHONE_IXJ=n
-CONFIG_RCPCI=n
-CONFIG_ROADRUNNER=n
-CONFIG_SCSI_ACARD=n
-CONFIG_SCSI_AHA1740=n
-CONFIG_SCSI_AM53C974=n
-CONFIG_SCSI_BUSLOGIC=n
-CONFIG_SCSI_DC390T=n
-CONFIG_SCSI_DMX3191D=n
-CONFIG_SCSI_DPT_I2O=n
-CONFIG_SCSI_DTC3280=n
-CONFIG_SCSI_EATA_DMA=n
-CONFIG_SCSI_EATA_PIO=n
-CONFIG_SCSI_FD_MCS=n
-CONFIG_SCSI_FUTURE_DOMAIN=n
-CONFIG_SCSI_GDTH=n
-CONFIG_SCSI_GENERIC_NCR5380=n
-CONFIG_SCSI_IBMMCA=n
-CONFIG_SCSI_IN2000=n
-CONFIG_SCSI_INIA100=n
-CONFIG_SCSI_INITIO=n
-CONFIG_SCSI_NCR53C406A=n
-CONFIG_SCSI_NCR53C7xx=n
-CONFIG_SCSI_PAS16=n
-CONFIG_SCSI_PCI2000=n
-CONFIG_SCSI_PCI2220I=n
-CONFIG_SCSI_SEAGATE=n
-CONFIG_SCSI_SYM53C416=n
-CONFIG_SCSI_T128=n
-CONFIG_SOUND_MSNDCLAS=n
-CONFIG_SOUND_MSNDPIN=n
-CONFIG_TLAN=n
-CONFIG_USB_STORAGE_DATAFAB=n
-CONFIG_USB_STORAGE_JUMPSHOT=n
-CONFIG_VIDEO_STRADIS=n
-CONFIG_VIDEO_ZORAN=n
-CONFIG_VIDEO_ZR36120=n
-CONFIG_WANPIPE_FR=n
+Hi,
+	At present, linux is limited to 2TB filesystems even on 64-bit
+systems, because there are various places where the block offset on
+disc are assigned to unsigned or int 32-bit variables.
 
-# All for sbpcd.c
-CONFIG_SBPCD=n
-CONFIG_SBPCD2=n
-CONFIG_SBPCD3=n
-CONFIG_SBPCD4=n
+There's a type, sector_t, that's meant to hold offsets in sectors and
+blocks.  It's not used consistently (yet).
 
-# Duplicate symbol dev_list in drivers/bluetooth/bluecard_cs.o and dtl1_cs.o
-CONFIG_BLUEZ_HCIBLUECARD=n
+The patch at
+    http://www.gelato.unsw.edu.au/patches/2.5.14-largefile-patch
 
-# net/socket.c refers to bluez_init but that function is static.
-CONFIG_BLUEZ=n
+(also available from bk://gelato.unsw.edu.au:2023/ for those using
+bitkeeper)
+has the following changes to address the problem:
 
+	bmap() changes from int bmap(struct address_space *, long)
+	to		    sector_t bmap(struct address_space *,
+				     sector_t)
+
+	The partitioning code takes sector_t everywhere that makes
+	sense (to allow efi, for example, to create partitions on enormous
+	discs).
+
+	The block_sizes[] array is sector_t not int.
+
+	get_nr_sectors() and get_start_sect() etc., now return a
+	sector_t
+
+	__bread() takes a sector_t as its second argument, and struct
+	buffer_head contains a sector_t blocknumber field.
+
+	struct scsi_disk and struct gendisk have a sector_t field for
+	capacity.
+
+	The scsi disc code now uses 16-byte commands if they're
+	needed.
+
+	ioctl(..GETBLKSZ..) now fails with EFBIG if the size won't fit
+	in a long. (at least for devices using the generic version).
+
+Plus a smattering of casts to avoid compilation warnings (mostly so
+that printk() works whether sector_t is 64 or 32 bits) and a new
+CONFIG_LFS option to turn on 64-bit sector_t on 32-bit platforms.
+
+On an old pentium I now have a 15Tb file mounted as JFS on the loop
+device -- and it seems to work for almost everything.  There are a few
+user-mode programs that'll have to be fixed (notably parted, mkfs.???
+etc) to cope with the new GETBLKSIZE failure (they should use
+alternate mechanisms, e.g., GETBLKSIZE64, or just seek to the end of
+the partition and look at the offset).
+
+As this touches lots of places -- the generic block layer (Andrew?)
+the IDE code (Martin?) and RAID (Neil?) and minor changes to the scsi
+I've CCd a few people directly.
+
+--
+Peter Chubb
+Gelato@UNSW http://www.gelato.unsw.edu.au/

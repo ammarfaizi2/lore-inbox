@@ -1,29 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310613AbSCPUky>; Sat, 16 Mar 2002 15:40:54 -0500
+	id <S310632AbSCPUpb>; Sat, 16 Mar 2002 15:45:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310622AbSCPUks>; Sat, 16 Mar 2002 15:40:48 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31242 "EHLO
+	id <S310625AbSCPUpW>; Sat, 16 Mar 2002 15:45:22 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36362 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310602AbSCPUk3>; Sat, 16 Mar 2002 15:40:29 -0500
-Subject: Re: debugging eth driver
-To: pmanolov@lnxw.com (Petko Manolov)
-Date: Sat, 16 Mar 2002 20:56:16 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davem@redhat.com (David S. Miller),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3C93945A.8040305@lnxw.com> from "Petko Manolov" at Mar 16, 2002 10:52:10 AM
+	id <S310622AbSCPUpM>; Sat, 16 Mar 2002 15:45:12 -0500
+Subject: Re: 2.4.19-pre2 Cyrix III SEGFAULT (Cyrix II redux?)
+To: davej@suse.de (Dave Jones)
+Date: Sat, 16 Mar 2002 21:01:06 +0000 (GMT)
+Cc: egberts@yahoo.com (S W), linux-kernel@vger.kernel.org
+In-Reply-To: <20020316204228.B15296@suse.de> from "Dave Jones" at Mar 16, 2002 08:42:28 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16mLDs-00078o-00@the-village.bc.nu>
+Message-Id: <E16mLIY-00079l-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Keep an eye on /proc/net/snmp
-> 
-> It isn't very readable format..  Any other way or i have to
-> read the code and see what the messages mean?
+>  > But I recalled Linux 2.2 having a bug fix for broken
+>  > L2 cache in Cyrix II.
+>  
+>  The cache itself isn't broken. Reporting of the size of it is.
 
-Read the SNMP specification - its dumped by standard SNMP MIB entry
+He's talking about a different bug. Some early 6x86 processors had weird
+problems with cache behaviour that would sometimes break stuff.

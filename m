@@ -1,54 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272162AbTHRSZc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 14:25:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272223AbTHRSZc
+	id S272234AbTHRSpw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 14:45:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272236AbTHRSpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 14:25:32 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:30476 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S272162AbTHRSZb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 14:25:31 -0400
-Message-ID: <3F411DD7.10606@techsource.com>
-Date: Mon, 18 Aug 2003 14:41:27 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Peter Kjellerstedt <peter.kjellerstedt@axis.com>
-CC: "'Daniel Forrest'" <forrest@lmcg.wisc.edu>,
-       "'Willy Tarreau'" <willy@w.ods.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: generic strncpy - off-by-one error
-References: <D069C7355C6E314B85CF36761C40F9A42E20BE@mailse02.se.axis.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Aug 2003 14:45:51 -0400
+Received: from verein.lst.de ([212.34.189.10]:44718 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S272234AbTHRSpr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 14:45:47 -0400
+Date: Mon, 18 Aug 2003 20:40:41 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] mark devfs obsolete
+Message-ID: <20030818184041.GA7165@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -3 () PATCH_UNIFIED_DIFF,USER_AGENT_MUTT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The person listed as maintainer hasn't touched it for alomost a year
+and after that only some odd fixes and my interface fixes went it.
+
+With udev we also have a proper replacement.
+
+This time with various spelling fixes pointed out by all the nice
+people on lkml.
 
 
-Peter Kjellerstedt wrote:
-
-> For unaligned source or destination the "Multi copy & fill" 
-> would degenerate into "Multi byte fill". However, for
-> architectures like ix86 and CRIS that can do unaligned long
-> access, it would be a win to remove the UNALIGNED() check,
-> and use long word copying all the time.
-
-In fact, it's possible to do the copy even if the source and dest are 
-not aligned.  It requires holding pieces of source in a register and 
-doing shifts.  If the CPU is much faster than the memory, this can be a 
-huge win.
-
-
-> Then whether using memset() or your filling is a win depends
-> on the architecture and how many bytes needs to be filled.
-> For a slow processor with little function call overhead (like
-> CRIS), using memset seems to be a win almost immediately.
-> However, for a fast processor like my P4, the call to memset
-> is not a win until some 1500 bytes need to be filled.
-
-What is in memset that isn't in the fill code I suggested?
-
-
+--- 1.166/MAINTAINERS	Thu Aug 14 21:17:45 2003
++++ edited/MAINTAINERS	Sun Aug 17 21:36:11 2003
+@@ -558,10 +558,7 @@
+ S:	Maintained
+ 
+ DEVICE FILESYSTEM
+-P:	Richard Gooch
+-M:	rgooch@atnf.csiro.au
+-L:	linux-kernel@vger.kernel.org
+-S:	Maintained
++S:	Obsolete
+ 
+ DIGI INTL. EPCA DRIVER
+ P:	Digi International, Inc
+--- 1.28/fs/Kconfig	Thu Aug 14 02:20:32 2003
++++ edited/fs/Kconfig	Sun Aug 17 21:36:11 2003
+@@ -762,7 +762,7 @@
+ 	  programs depend on this, so everyone should say Y here.
+ 
+ config DEVFS_FS
+-	bool "/dev file system support (EXPERIMENTAL)"
++	bool "/dev file system support (OBSOLETE)"
+ 	depends on EXPERIMENTAL
+ 	help
+ 	  This is support for devfs, a virtual file system (like /proc) which
+@@ -780,6 +780,13 @@
+ 	  Note that devfs no longer manages /dev/pts!  If you are using UNIX98
+ 	  ptys, you will also need to enable (and mount) the /dev/pts
+ 	  filesystem (CONFIG_DEVPTS_FS).
++
++	  Note that devfs has been obsoleted by udev,
++	  <http://www.kernel.org/pub/linux/utils/kernel/hotplug/>.
++	  It has been stripped down to a bare minimum and is only provided for
++	  legacy installations that use its naming scheme which is
++	  unfortunately different from the names normal Linux installations
++	  use.
+ 
+ 	  If unsure, say N.
+ 

@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbTE1WVz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 18:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbTE1WVz
+	id S261279AbTE1WbH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 18:31:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbTE1WbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 18:21:55 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:25812
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261265AbTE1WVx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 18:21:53 -0400
-Subject: RE: [BUGS] 2.5.69 syncppp
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1054157063.2279.2.camel@diemos>
-References: <OPENKONOOJPFMJFAJLHAKEPCCBAA.paulkf@microgate.com>
-	 <1053970962.16694.17.camel@dhcp22.swansea.linux.org.uk>
-	 <1054157063.2279.2.camel@diemos>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054157825.20725.42.camel@dhcp22.swansea.linux.org.uk>
+	Wed, 28 May 2003 18:31:07 -0400
+Received: from server0011.freedom2surf.net ([194.106.56.14]:23959 "EHLO
+	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S261279AbTE1WbG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 18:31:06 -0400
+Date: Wed, 28 May 2003 23:44:22 +0100
+From: Ian Molton <spyro@f2s.com>
+To: linux-kernel@vger.kernel.org
+Subject: CRASH 2.5.70
+Message-Id: <20030528234422.6173b72e.spyro@f2s.com>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 28 May 2003 22:37:06 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-05-28 at 22:24, Paul Fulghum wrote:
-> The spinlock in cp_timeout() does not synchronize
-> with input from sppp_input(), but *does* synchronize
-> with sppp_keepalive() which is run off another timer.
+Hi.
 
-In which case you can also use the del_timer return to do
-a del_timer_sync/add_timer based protection in some 
-situations
+Im getting a (pretty repeatable) hard lockup when I delete a LOT of
+files in rox-filer.
 
+sometimes random processes die just prior to the lockup. (xmms died just
+prior to the last one)
+
+there is no debug output at all.
+
+other filesystem ops (eg. chmod/chown) dont seem to cause the lockups,
+just delete.
+
+I dont overclock this box, and it ran 2.4.<n> stably for months.
+
+AthlonXP1800 on an Asus A7M266 with 256MB DDR memory.
+
+-- 
+Spyros lair: http://www.mnementh.co.uk/
+Do not meddle in the affairs of Dragons, for you are tasty and good with
+ketchup.
+
+Systems programmers keep it up longer.

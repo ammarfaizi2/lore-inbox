@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129116AbRCBNPX>; Fri, 2 Mar 2001 08:15:23 -0500
+	id <S129136AbRCBNWN>; Fri, 2 Mar 2001 08:22:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129126AbRCBNPM>; Fri, 2 Mar 2001 08:15:12 -0500
-Received: from smtp8.xs4all.nl ([194.109.127.134]:51176 "EHLO smtp8.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S129116AbRCBNPC>;
-	Fri, 2 Mar 2001 08:15:02 -0500
-Date: Fri, 2 Mar 2001 13:14:45 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: apic patches (with MIS counter)
-Message-ID: <20010302131445.A2159@grobbebol.xs4all.nl>
-In-Reply-To: <20010226111328.A24978@grobbebol.xs4all.nl> <Pine.GSO.3.96.1010226122619.9420C-100000@delta.ds2.pg.gda.pl>
-Mime-Version: 1.0
+	id <S129137AbRCBNWE>; Fri, 2 Mar 2001 08:22:04 -0500
+Received: from colorfullife.com ([216.156.138.34]:28421 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129136AbRCBNVs>;
+	Fri, 2 Mar 2001 08:21:48 -0500
+Message-ID: <3A9F9E7E.37661415@colorfullife.com>
+Date: Fri, 02 Mar 2001 14:22:06 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-14 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mark Hemment <markhe@veritas.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Q: explicit alignment control for the slab allocator
+In-Reply-To: <Pine.LNX.4.21.0103021218080.11260-100000@alloc>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.GSO.3.96.1010226122619.9420C-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Mon, Feb 26, 2001 at 01:14:11PM +0100
-X-OS: Linux grobbebol 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 26, 2001 at 01:14:11PM +0100, Maciej W. Rozycki wrote:
-> On Mon, 26 Feb 2001, Roeland Th. Jansen wrote:
-> > if you like, I can start banging the machine on it's head now.
+Mark Hemment wrote:
 > 
->  Please do.  I believe the code is safe to be included in 2.4.3, but if
-> any problem is going to pop up, it'd better do it before than after
-> applying to the mainstream. 
+> > >   Hmm, no that note, seen the L1 line size defined for a Pentium IIII?
+> > > 128 bytes!! (CONFIG_X86_L1_CACHE_SHIFT of 7).  That is probably going to
+> > > waste a lot of space for small objects.
+> > >
+> > No, it doesn't:
+> > HWCACHE_ALIGN means "do not cross a cache line boundary".
+> 
+>   Ah, I broke my code!!!!! :(
+> 
+>   In my original slab, the code to do "packing" of objects into a single
+> cache line was #if-def'ed out for SMP to avoid the possibility of
+> false-sharing between objects.  Not a large possibility, but it exists.
+>
+But then you need SMP_CACHE_BYTES, not L1_CACHE_BYTES.
+And 128 byte aligning the 32-byte kmalloc cache wastes too much memory
+;-)
 
+If the caller of kmem_cache_create really wants do avoid false sharing
+he could set align to SMP_CACHE_BYTES. (e.g. for some per-cpu data
+structures)
 
-banged the box quite a bit. so far no weird things like lockups. 
-still 2.4.1. with the MIS counter (etc) patch.
+> > Even if the hot zone is larger than the default offset, is there any advantage
+> > of increasing the colour offset beyond the alignment?
+> >
+> > I don't see an advantage.
+> 
+>   I do, but like you, I don't have any data to prove my point.
+>   Time to get profiling?
+>
 
--- 
-Grobbebol's Home                   |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
-Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
+How? You've already noticed that noone in the linux kernel uses offset.
+
+--	
+	Manfred

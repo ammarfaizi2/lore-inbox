@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261836AbSKTWBK>; Wed, 20 Nov 2002 17:01:10 -0500
+	id <S261963AbSKTWJd>; Wed, 20 Nov 2002 17:09:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261855AbSKTWBH>; Wed, 20 Nov 2002 17:01:07 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:30852 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261836AbSKTWA2>; Wed, 20 Nov 2002 17:00:28 -0500
-Subject: Re: Linux 2.4.20 ACPI
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-       "'Ducrot Bruno'" <poup@poupinou.org>,
-       Felix Seeger <seeger@sitewaerts.de>,
+	id <S262813AbSKTWJd>; Wed, 20 Nov 2002 17:09:33 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:10246
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S262808AbSKTWJZ>; Wed, 20 Nov 2002 17:09:25 -0500
+Date: Wed, 20 Nov 2002 14:15:31 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Cort Dougan <cort@fsmlabs.com>, Xavier Bestel <xavier.bestel@free.fr>,
+       Mark Mielke <mark@mark.mielke.cc>,
+       David McIlwraith <quack@bigpond.net.au>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <25766.1037829570@passion.cambridge.redhat.com>
-References: <1037831055.3241.97.camel@irongate.swansea.linux.org.uk> 
-	<EDC461A30AC4D511ADE10002A5072CAD04C7A52A@orsmsx119.jf.intel.com>
-	<25526.1037828842@passion.cambridge.redhat.com>  
-	<25766.1037829570@passion.cambridge.redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 20 Nov 2002 22:34:56 +0000
-Message-Id: <1037831696.3702.102.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Subject: Re: spinlocks, the GPL, and binary-only modules
+In-Reply-To: <Pine.LNX.4.44L.0211202008420.4103-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.10.10211201412050.3892-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-20 at 21:59, David Woodhouse wrote:
-> 
-> alan@lxorguk.ukuu.org.uk said:
-> >  I guess sonypi could take the ACPI global lock ?
-> 
-> I assume that's not a serious suggestion. Perhaps it could release the 
-> region while it's not _actually_ using it, and the ACPI code could be fixed 
-> to not touch regions which it doesn't own.
+On Wed, 20 Nov 2002, Rik van Riel wrote:
 
-It isnt about regions. The microcontroller talks a message protocol,
-much the same actually as most power microcontroller seem to do. Its
-just Sony also added other stuff to the protocol.
+> On Wed, 20 Nov 2002, Andre Hedrick wrote:
+> 
+> > So it is business as usual, all sabre noise but none drawn.
+> > So it is a draw ?
+> 
+> Basically.
 
-Taking the acpi lock looks like its a generic way to deal with this
-situation. Its made more important because a few sony laptops actually
-require ACPI to do pci/irq setup
+Well, I hope not to see in litigation and will try to do the correct
+thing.  Who knows I may even decide to empower Linux with some new
+technology to level the playing field of storage.  You heard it, I still
+am willing to opensource a version to help set the standard for it to be
+done the correct and proper way.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
 

@@ -1,66 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVCHFI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVCHFSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbVCHFI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 00:08:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbVCHFI5
+	id S261374AbVCHFSU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 00:18:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbVCHFSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 00:08:57 -0500
-Received: from smtpout.mac.com ([17.250.248.44]:62152 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261835AbVCHFIx (ORCPT
+	Tue, 8 Mar 2005 00:18:20 -0500
+Received: from mail.joq.us ([67.65.12.105]:49320 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261374AbVCHFSO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 00:08:53 -0500
-In-Reply-To: <11102278521318@2ka.mipt.ru>
-References: <11102278521318@2ka.mipt.ru>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <1FA9E37C-8F90-11D9-A2CF-000393ACC76E@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: James Morris <jmorris@redhat.com>, linux-kernel@vger.kernel.org,
-       cryptoapi@lists.logix.cz, David Miller <davem@davemloft.net>,
-       Herbert Xu <herbert@gondor.apana.org.au>, Andrew Morton <akpm@osdl.org>,
-       Fruhwirth Clemens <clemens@endorphin.org>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [0/many] Acrypto - asynchronous crypto layer for linux kernel 2.6
-Date: Tue, 8 Mar 2005 00:08:35 -0500
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-X-Mailer: Apple Mail (2.619)
+	Tue, 8 Mar 2005 00:18:14 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       paul@linuxaudiosystems.com, mpm@selenic.com,
+       cfriesen@nortelnetworks.com, chrisw@osdl.org, rlrevell@joe-job.com,
+       arjanv@redhat.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+References: <20050112185258.GG2940@waste.org>
+	<200501122116.j0CLGK3K022477@localhost.localdomain>
+	<20050307195020.510a1ceb.akpm@osdl.org>
+	<20050308035503.GA31704@infradead.org>
+	<20050307201646.512a2471.akpm@osdl.org>
+	<20050308042242.GA15356@elte.hu>
+From: "Jack O'Quin" <joq@io.com>
+Date: Mon, 07 Mar 2005 23:19:55 -0600
+In-Reply-To: <20050308042242.GA15356@elte.hu> (Ingo Molnar's message of
+ "Tue, 8 Mar 2005 05:22:42 +0100")
+Message-ID: <87r7iqsohw.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 07, 2005, at 15:37, Evgeniy Polyakov wrote:
-> I'm pleased to announce asynchronous crypto layer for Linux kernel 2.6.
-> It supports following features:
-> - multiple asynchronous crypto device queues
-> - crypto session routing
-> - crypto session binding
-> - modular load balancing
-> - crypto session batching genetically implemented by design
-> - crypto session priority
-> - different kinds of crypto operation(RNG, asymmetrical crypto, HMAC 
-> and
-> any other)
 
-Did you include support for the new key/keyring infrastructure 
-introduced
-a couple versions ago by David Howells?  It allows userspace to create 
-and
-manage various sorts of "keys" in kernelspace.  If you create and 
-register
-a few keytypes for various symmetric and asymmetric ciphers, you could 
-then
-take advantage of its support for securely passing keys around in and 
-out
-of userspace.
+> * Andrew Morton <akpm@osdl.org> wrote:
+>
+>> Still.  It seems to be what we deserve if all that fancy stuff we have
+>> cannot address this very simple and very real-world problem.
 
-Cheers,
-Kyle Moffett
+Ingo Molnar <mingo@elte.hu> writes:
+> please describe this "very simple and very real-world problem" in simple
+> terms. Lets make sure "problem" and "solution" didnt become detached.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+Linux audio users need to run large, complex low-latency desktop audio
+applications without granting them full root privileges.  These
+applications require reliable SCHED_FIFO (or equivalent) scheduling,
+and the ability to lock process images into memory.  We need to be
+able to drop and reacquire these privileges from time to time.  We
+strongly prefer using the POSIX realtime interfaces.
 
+For desktop musicians this needs to be simple to administer, yet still
+reasonably secure.  Denial of service attacks are not a serious threat
+in our environment, but we really don't want people turning our
+systems into open spam relays or creating hidden setuid root shells.
 
+Ours is *not* a timesharing multiuser environment.  Multiple users may
+access these systems, but only one at a time.  Many musicians have a
+Mac or Windows background, systems which grant realtime privileges to
+all tasks indiscriminantly.  The realtime LSM allows us to grant
+similar privileges while maintaining better control over who gets
+them, a significant improvement over our competition.
+
+AFAICT, video and probably some other desktop multimedia applications
+have similar needs, but others should speak for them.  I do know that
+audio is highly sensitive to realtime performance glitches.
+
+We believe that this LSM meets our needs, because hundreds of us have
+used it successfully for over a year.  This is the last missing piece
+that allows us to reap the benefits of the excellent kernel latency
+improvements Ingo, Andrew and others have made over the last several
+years.
+-- 
+  joq

@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265851AbTFSRMp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 13:12:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265850AbTFSRMp
+	id S265846AbTFSRJk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 13:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265848AbTFSRJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 13:12:45 -0400
-Received: from pop.gmx.net ([213.165.64.20]:2507 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265851AbTFSRMo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 13:12:44 -0400
-Message-Id: <5.2.0.9.2.20030619184906.00cea3c0@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Thu, 19 Jun 2003 19:31:07 +0200
-To: Con Kolivas <kernel@kolivas.org>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] sleep_decay for interactivity 2.5.72 - testers 
-  needed
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andreas Boman <aboman@midgaard.us>
-In-Reply-To: <200306200202.37745.kernel@kolivas.org>
-References: <5.2.0.9.2.20030619171843.02299e00@pop.gmx.net>
- <5.2.0.9.2.20030619171843.02299e00@pop.gmx.net>
+	Thu, 19 Jun 2003 13:09:40 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:23285 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S265846AbTFSRJj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 13:09:39 -0400
+Subject: Re: O(1) scheduler seems to lock up on sched_FIFO and sched_RR ta
+	sks
+From: Robert Love <rml@mvista.com>
+To: Joe Korty <joe.korty@ccur.com>
+Cc: george anzinger <george@mvista.com>,
+       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       "'Andrew Morton'" <akpm@digeo.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'mingo@elte.hu'" <mingo@elte.hu>, "Li, Adam" <adam.li@intel.com>
+In-Reply-To: <20030619171950.GA936@rudolph.ccur.com>
+References: <A46BBDB345A7D5118EC90002A5072C780DD16DB0@orsmsx116.jf.intel.com>
+	 <3EF1DE35.20402@mvista.com>  <20030619171950.GA936@rudolph.ccur.com>
+Content-Type: text/plain
+Message-Id: <1056043409.8770.25.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 19 Jun 2003 10:23:30 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:02 AM 6/20/2003 +1000, Con Kolivas wrote:
->On Fri, 20 Jun 2003 01:47, Mike Galbraith wrote:
-> > At 12:05 AM 6/20/2003 +1000, Con Kolivas wrote:
-> > >Testers required. A version for -ck will be created soon.
-> >
-> > That idea definitely needs some refinement.
->
->Actually no it needs a bugfix even more than a refinement!
->
->The best_sleep_decay should be 60, NOT 60*Hz
+On Thu, 2003-06-19 at 10:19, 'joe.korty@ccur.com' wrote:
 
-Ok.  Now it acts as you described.
+> I posted a fix for this a month ago that was ignored.  Which is a
+> good thing, since now that I look at it again, I don't care for the
+> approach I took nor does it appear to be complete.
 
-thud is also now THUD though, and a parallel kernel build goes insane 
-pretty much instantly.  On the bright side, process_load seems to have lost 
-it's ability to crawl up (under X) and starve new processes forever.
+Ah, sorry for missing it. Other than that tertiary statement inside an
+if ;) my patch is about the same.
 
-         -Mike 
+Why do you think it is incomplete? It looks correct to me.
+
+	Robert Love
 

@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135909AbREFXQJ>; Sun, 6 May 2001 19:16:09 -0400
+	id <S135918AbREFXRk>; Sun, 6 May 2001 19:17:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135910AbREFXP7>; Sun, 6 May 2001 19:15:59 -0400
-Received: from mail2.bonn-fries.net ([62.140.6.78]:33299 "HELO
-	mail2.bonn-fries.net") by vger.kernel.org with SMTP
-	id <S135909AbREFXPw>; Sun, 6 May 2001 19:15:52 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-Subject: Re: [PATCH][CFT] (updated) ext2 directories in pagecache
-Date: Mon, 7 May 2001 01:16:27 +0200
-X-Mailer: KMail [version 1.2]
+	id <S135917AbREFXRb>; Sun, 6 May 2001 19:17:31 -0400
+Received: from smtp.mountain.net ([198.77.1.35]:12812 "EHLO riker.mountain.net")
+	by vger.kernel.org with ESMTP id <S135915AbREFXRY>;
+	Sun, 6 May 2001 19:17:24 -0400
+Message-ID: <3AF5DB4E.B5FC78E5@mountain.net>
+Date: Sun, 06 May 2001 19:16:30 -0400
+From: Tom Leete <tleete@mountain.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.3 i486)
+X-Accept-Language: English/United, States, en-US, English/United, Kingdom, en-GB, English, en, French, fr, Spanish, es, Italian, it, German, de, , ru
 MIME-Version: 1.0
-Message-Id: <01050701135600.07657@starship>
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
-Cc: Albert Cranford <ac9410@bellsouth.net>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] Inconsistent constraint in asm-i386/rwsem.h
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates ext2_getblk and ext2_bread to use the ERR_PTR style 
-of error return.  As Al Viro pointed out, this is a better way of doing 
-things for a function returning a pointer.  This approach would have 
-prevented the bug I fixed with the previous patch.  20 20 hindsight, 
-and I can only plead that I was following the interface of the old 
-ext2_getblk.  But since these functions are only used only by the ext2 
-directory code - which in turn is the only part of ext2 that is 
-interested in file data - there was no problem changing the interface.
+Hi,
 
-The patch is at:
+In include/asm-i386/rwsem.h:__up_read(), the auto variable 'tmp' is
+asserted to be in edx. This patch adjusts the constraint to match
+the variable.
 
-    http://nl.linux.org/~phillips/htree/dx.pcache-2.4.4-4
+It could be argued that tmp should be declared register instead. I
+didn't because the function is inlined. The compiler will know how
+much register pressure there is in each instance.
 
-This is lightly tested and apparently stable.  I wish I could say the 
-same for kernel 2.4.4 - cache performance sucks horribly.  
-(Nontechnical evaluation.)  So it is probably not a good idea to take 
-benchmarks too seriously this month.  The previous stable kernels, 
-2.4.2 and 2.4.3, had their problems too, fixable via patching.  Maybe 
-next month...
+Cheers,
+Tom
 
-This patch requires Al Viro's directory-in-page-cache patch to be 
-applied first, available from:
+$ diff -u linux-2.4.5-pre1/include/asm-i386/rwsem.h~
+linux-2.4.5-pre1/include/asm-i386/rwsem.h
+--- linux-2.4.5-pre1/include/asm-i386/rwsem.h~	Sun May  6 05:48:08 2001
++++ linux-2.4.5-pre1/include/asm-i386/rwsem.h	Sun May  6 07:17:36 2001
+@@ -164,7 +164,7 @@
+ 		"  jmp       1b\n"
+ 		".previous\n"
+ 		"# ending __up_read\n"
+-		: "+m"(sem->count), "+d"(tmp)
++		: "+m"(sem->count), "+m"(tmp)
+ 		: "a"(sem)
+ 		: "memory", "cc");
+ }
 
-   ftp://ftp.math.psu.edu/pub/viro/ext2-dir-patch-S4.gz
 
-The other flavor of indexing patch, dx.testme..., also does 
-directory-in-page-cache, using the good old ext2 directory code.  This 
-works fine and is stable, but IMHO Al's patches constitute a pretty 
-major cleanup.
-
-To apply:
-
-    cd source/tree
-    zcat ext2-dir-patch-S4.gz | patch -p1
-    cat dx.pcache-2.4.4-4 | patch -p0
-
-To create an indexed directory:
-
-    mount /dev/hdxxx /test -o index
-    mkdir /test/foo
-
---
-Daniel
+-- 
+The Daemons lurk and are dumb. -- Emerson

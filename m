@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267971AbTAMWkV>; Mon, 13 Jan 2003 17:40:21 -0500
+	id <S268394AbTAMWvk>; Mon, 13 Jan 2003 17:51:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268392AbTAMWkU>; Mon, 13 Jan 2003 17:40:20 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:31576
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S267971AbTAMWji>; Mon, 13 Jan 2003 17:39:38 -0500
-Date: Mon, 13 Jan 2003 17:49:12 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Jens Axboe <axboe@suse.de>
-cc: Terje Eggestad <terje.eggestad@scali.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: any chance of 2.6.0-test*?
-In-Reply-To: <20030113184831.GC14017@suse.de>
-Message-ID: <Pine.LNX.4.44.0301131748010.2102-100000@montezuma.mastecende.com>
+	id <S268396AbTAMWvk>; Mon, 13 Jan 2003 17:51:40 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36363 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268394AbTAMWvi>; Mon, 13 Jan 2003 17:51:38 -0500
+Date: Mon, 13 Jan 2003 14:58:40 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Adam Belay <ambx1@neo.rr.com>
+cc: Jaroslav Kysela <perex@suse.cz>, Greg KH <greg@kroah.com>,
+       Zwane Mwaikambo <zwane@holomorphy.com>, Shawn Starr <spstarr@sh0n.net>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PnP update - drivers
+In-Reply-To: <20030113173906.GA605@neo.rr.com>
+Message-ID: <Pine.LNX.4.44.0301131454310.15429-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Jan 2003, Jens Axboe wrote:
 
-> > It uses NMI's to break into the debugger, so it would also work with 
-> > interrupts disabled and spinning on a lock, the same is also true for 
-> > kgdb.
-> 
-> But still requiring up-apic, or smp with apic, right?
+On Mon, 13 Jan 2003, Adam Belay wrote:
+>
+> PnP IDE Conversion from Zwane Mwaikambo
 
-Well UP with Local APIC will suffice. So that works on a lot of i686 
-machines.
+This, btw, is _worse_ than the current conversion, as far as I can tell. 
+In particular:
 
-	Zwane
--- 
-function.linuxpower.ca
+> -/* Generic initialisation function for ISA PnP IDE interface */
+> +/* Barf bags at the ready! Enough to satisfy IDE core */
+> +static void pnp_to_pci(struct pnp_dev *pnp_dev, struct pci_dev *pci_dev)
+> +{
+> +	pci_dev->dev = pnp_dev->dev;
+> +	pci_set_drvdata(pci_dev, pnp_get_drvdata(pnp_dev));
+> +	pci_dev->irq = DEV_IRQ(pnp_dev, 0);
+> +	pci_set_dma_mask(pci_dev, 0x00ffffff);
+> +}
+
+That "pci_dev->dev = pnp_dev->dev" looks totally bletcherous, and does a
+structure copy that potentially copies pointers that simply ARE NOT VALID
+after the copy.
+
+Not good.
+
+		Linus
 

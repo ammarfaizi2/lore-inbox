@@ -1,55 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318022AbSIESZd>; Thu, 5 Sep 2002 14:25:33 -0400
+	id <S318017AbSIESYJ>; Thu, 5 Sep 2002 14:24:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318027AbSIESZd>; Thu, 5 Sep 2002 14:25:33 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:49413 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S318022AbSIESZc>; Thu, 5 Sep 2002 14:25:32 -0400
-Message-ID: <3D77A22A.DC3F4D1@zip.com.au>
-Date: Thu, 05 Sep 2002 11:27:54 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Chuck Lever <cel@citi.umich.edu>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: invalidate_inode_pages in 2.5.32/3
-References: <Pine.LNX.4.44.0209051023490.5579-100000@dexter.citi.umich.edu>
+	id <S318020AbSIESYJ>; Thu, 5 Sep 2002 14:24:09 -0400
+Received: from home.linuxhacker.ru ([194.67.236.68]:29093 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id <S318017AbSIESYI>;
+	Thu, 5 Sep 2002 14:24:08 -0400
+Date: Thu, 5 Sep 2002 22:27:27 +0400
+From: Oleg Drokin <green@linuxhacker.ru>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [2.5] unsigned int type for i_nlink field of struct inode
+Message-ID: <20020905182727.GA26277@linuxhacker.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Lever wrote:
-> 
-> hi all-
-> 
-> it appears that changes in or around invalidate_inode_pages that went into
-> 2.5.32/3 have broken certain cache behaviors that the NFS client depends
-> on.  when the NFS client calls invalidate_inode_pages to purge directory
-> data from the page cache, sometimes it works as before, and sometimes it
-> doesn't, leaving stale pages in the page cache.
-> 
-> i don't know much about the MM, but i can reliably reproduce the problem.
-> what more information can i provide?  please copy me, as i'm not a member
-> of the linux-kernel mailing list.
+Hello!
 
-The locking became finer-grained.
+   Per your suggestion I just changed i_nlink type in include/linux/fs.h to
+   unsigned int. Also just so that userspace people won't see negative st_nlink
+   numbers, I implemented simple conversion in fs/stat.c::generic_fillattr()
+   and define that calculates maximum number that fits into nlink_t in
+   include/linux/stat.h.
 
-Up to 2.5.31 or thereabouts, invalidate_inode_pages was grabbing
-the global pagemap_lru_lock and walking all the inodes pages inside
-that lock.  This basically shuts down the entire VM for the whole
-operation.
+   Filesystems that both allow i_nlink to be bigger that 15 bit and have their
+   own fillattr implementation should do somethink like I did in
+   generic_fillattr.
 
-In 2.5.33, that lock is per-zone, and invalidate takes it on a 
-much more fine-grained basis.
+   Please apply.
 
-That all assumes SMP/preempt.  If you're seeing these problems on
-uniproc/non-preempt then something fishy may be happening.
+Bye,
+    Oleg
 
-But be aware that invalidate_inode_pages has always been best-effort.
-If someone is reading, or writing one of those pages then it
-certainly will not be removed.  If you need assurances that the
-pagecache has been taken down then we'll need something stronger
-in there.
+===== fs/stat.c 1.13 vs edited =====
+--- 1.13/fs/stat.c	Mon Jul 22 14:12:48 2002
++++ edited/fs/stat.c	Thu Sep  5 21:54:54 2002
+@@ -21,7 +21,7 @@
+ 	stat->dev = inode->i_dev;
+ 	stat->ino = inode->i_ino;
+ 	stat->mode = inode->i_mode;
+-	stat->nlink = inode->i_nlink;
++	stat->nlink = min_t(unsigned int, inode->i_nlink, MAX_NLINK_T);
+ 	stat->uid = inode->i_uid;
+ 	stat->gid = inode->i_gid;
+ 	stat->rdev = kdev_t_to_nr(inode->i_rdev);
+===== include/linux/fs.h 1.159 vs edited =====
+--- 1.159/include/linux/fs.h	Wed Sep  4 09:03:32 2002
++++ edited/include/linux/fs.h	Thu Sep  5 21:51:42 2002
+@@ -368,7 +368,7 @@
+ 	atomic_t		i_count;
+ 	dev_t			i_dev;
+ 	umode_t			i_mode;
+-	nlink_t			i_nlink;
++	unsigned int		i_nlink;
+ 	uid_t			i_uid;
+ 	gid_t			i_gid;
+ 	kdev_t			i_rdev;
+===== include/linux/stat.h 1.2 vs edited =====
+--- 1.2/include/linux/stat.h	Wed Feb  6 21:46:29 2002
++++ edited/include/linux/stat.h	Thu Sep  5 22:05:00 2002
+@@ -55,6 +55,9 @@
+ 
+ #include <linux/types.h>
+ 
++/* May be different for different architectures */
++#define MAX_NLINK_T (nlink_t)((((nlink_t) -1) > 0)?~0:((1u<<(sizeof(nlink_t)*8-1))-1))
++
+ struct kstat {
+ 	unsigned long	ino;
+ 	dev_t		dev;

@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267326AbUHIW3B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267324AbUHIWbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267326AbUHIW3B (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 18:29:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267318AbUHIWZx
+	id S267324AbUHIWbq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 18:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267323AbUHIWbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 18:25:53 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:42955 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267319AbUHIWYW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 18:24:22 -0400
-Subject: Re: [PATCH] x86 bitops.h commentary on instruction reordering
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Vladislav Bolkhovitin <vst@vlnb.net>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4117DAA0.1020601@vlnb.net>
-References: <20040805200622.GA17324@logos.cnet> <411392E0.6080507@vlnb.net>
-	 <20040806143359.GC20911@logos.cnet> <4113A579.5060702@vlnb.net>
-	 <20040806155328.GA21546@logos.cnet> <4113B752.7050808@vlnb.net>
-	 <20040806170931.GA21683@logos.cnet> <411794E8.6000806@vlnb.net>
-	 <20040809155009.GB6361@logos.cnet> <4117B5DB.7060602@vlnb.net>
-	 <20040809183437.GD6361@logos.cnet>  <4117DAA0.1020601@vlnb.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092086514.14770.7.camel@localhost.localdomain>
+	Mon, 9 Aug 2004 18:31:46 -0400
+Received: from pao-nav01.pao.digeo.com ([12.47.58.24]:35601 "HELO
+	pao-nav01.pao.digeo.com") by vger.kernel.org with SMTP
+	id S267324AbUHIW3n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 18:29:43 -0400
+Date: Mon, 9 Aug 2004 15:24:47 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Oskar Berggren <beo@sgs.o.se>
+Cc: hugh@veritas.com, vda@port.imtp.ilyichevsk.odessa.ua,
+       linux-kernel@vger.kernel.org
+Subject: Re: Bug in 2.6.8-rc3 at mm/page_alloc.c:792 and mm/rmap.c:407
+Message-Id: <20040809152447.50cd9cda.akpm@digeo.com>
+In-Reply-To: <1092087230.14372.36.camel@pitr.ekb.sgsnet.se>
+References: <Pine.LNX.4.44.0408092007000.5981-100000@localhost.localdomain>
+	<1092087230.14372.36.camel@pitr.ekb.sgsnet.se>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 09 Aug 2004 22:21:56 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Aug 2004 22:21:17.0960 (UTC) FILETIME=[30D6E880:01C47E5F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-08-09 at 21:12, Vladislav Bolkhovitin wrote:
-> Well, Marcelo, sorry if I'm getting too annoying, but we had a race with 
-> cache coherency during SCST (SCSI target mid-level) development. We 
-> discovered that on P4 Xeon after atomic_set() there is very small 
-> window, when atomic_read() on another CPUs returns the old value. We had 
-> to rewrite the code without using atomic_set(). Isn't it cache coherency 
-> issue?
+Oskar Berggren <beo@sgs.o.se> wrote:
+>
+> I think I've managed to catch one of the missing lines that you
+> mention in todays messages file, and then even more in the
+> /var/log/syslog file:
+> 
+> Aug  9 13:07:59 otukt kernel:  <0>Bad page state at free_hot_cold_page
+> (in process 'events/0', page c1090200)
+> Aug  9 13:07:59 otukt kernel: flags:0x20000080 mapping:00000000
+> mapcount:0 count:0
+> Aug  9 13:07:59 otukt kernel: Backtrace:
+> Aug  9 13:07:59 otukt kernel:  [bad_page+109/153] bad_page+0x6d/0x99
+> Aug  9 13:07:59 otukt kernel:  [free_hot_cold_page+81/270]
+> free_hot_cold_page+0x51/0x10e
+> Aug  9 13:07:59 otukt kernel:  [sk_free+191/258] sk_free+0xbf/0x102
+> Aug  9 13:07:59 otukt kernel:  [sk_common_release+87/203]
+> sk_common_release+0x57/0xcb
+> Aug  9 13:07:59 otukt kernel:  [inet_release+82/96]
+> inet_release+0x52/0x60
+> Aug  9 13:07:59 otukt kernel:  [sock_release+149/225]
+> sock_release+0x95/0xe1
+> Aug  9 13:07:59 otukt kernel:  [__crc_bio_get_nr_vecs+4158660/6507043]
+> xprt_socket_autoclose+0x26/0x63 [sunrpc]
+> Aug  9 13:07:59 otukt kernel:  [worker_thread+464/655]
+> worker_thread+0x1d0/0x28f
+> Aug  9 13:07:59 otukt kernel:  [__crc_bio_get_nr_vecs+4158622/6507043]
+> xprt_socket_autoclose+0x0/0x63 [sunrpc]
 
-atomic_set/atomic_read are _atomic_ operations. Nothing is said about
-ordering. You get old or new but not half and half. Two atomic_inc's
-will both occur and so on.
-
-If you want ordering you need locks otherwise there is nothing defining
-the time order of both processors.
-
-How can you even measure such a window without locking to know what the
-state of the processors is ?
-
-> And, BTW, returning to the original topic, would it be better to make 
-> set_bit() and friends guarantee not to be reordered on all 
-> architectures, instead of just add the comment. Otherwise, what is the 
-
-x86 and some other platforms have certain ordering guarantees. set_bit
-doesn't guarantee them but it happens to unavoidably work for most
-(ab)uses.
-
-> right thing? In some places in SCST we heavy rely on non-ordering 
-> guarantees.
-
-Then you will get burned on most hardware.
+hm.  There was a page double-freeing bug in the nfs/networking code
+which Dave Miller fixed just a few days ago.  I'd suggest that you retest
+using the latest tree from ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/

@@ -1,66 +1,200 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbUDXUWc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262134AbUDXU3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262322AbUDXUWc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Apr 2004 16:22:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbUDXUWc
+	id S262134AbUDXU3y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Apr 2004 16:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbUDXU3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Apr 2004 16:22:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:47318 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262322AbUDXUWa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Apr 2004 16:22:30 -0400
-Date: Sat, 24 Apr 2004 13:21:59 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Bastian Blank <bastian@waldi.eu.org>
-Cc: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: page allocation failures with 2.6.5 on s390
-Message-Id: <20040424132159.7cae4f54.akpm@osdl.org>
-In-Reply-To: <20040424183711.GC28032@wavehammer.waldi.eu.org>
-References: <20040424183711.GC28032@wavehammer.waldi.eu.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 24 Apr 2004 16:29:54 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:2477 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262134AbUDXU3s
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Apr 2004 16:29:48 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: PROBLEM: Oops when using both channels of the PDC20262
+Date: Sat, 24 Apr 2004 22:30:20 +0200
+User-Agent: KMail/1.5.3
+References: <40898ADA.8020708@hasw.net> <200404242242.36154.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200404242242.36154.vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Sebastian Witt <se.witt@gmx.net>, linux-kernel@vger.kernel.org,
+       andre@linux-ide.org, frankt@promise.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404242230.20985.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bastian Blank <bastian@waldi.eu.org> wrote:
+On Saturday 24 of April 2004 21:42, Denis Vlasenko wrote:
+> On Saturday 24 April 2004 00:30, Sebastian Witt wrote:
+> > Hello,
+> >
+> > I'm getting some Oopses with kernel 2.6.5 when there is high load on
+> > both channels of a Promise PDC20262 (Ultra66) card on a SMP machine
+> > (Tyan S1834, Via Apollo Pro chipset).
 >
-> Today I see the following error message in the logs of two machines
-> with 2.6.5 on s390, both 31 and 64 bit.
-> 
-> | swapper: page allocation failure. order:2, mode:0x20
-> | 0072d8f0 00028b18 00405490 80028bbc 80028dac 0072d868 00392f00 0039068a
-> |        00000002 00000001 0039a400 0000001a
-> | Call Trace:
-> |  [<0000000000049d30>] __alloc_pages+0x318/0x35c
-> |  [<0000000000049dbe>] __get_free_pages+0x4a/0x78
-> |  [<000000000004d838>] cache_grow+0xe0/0x39c
-> |  [<000000000004dcc0>] cache_alloc_refill+0x1cc/0x2d8
-> |  [<000000000004e1f2>] __kmalloc+0xaa/0xb8
-> |  [<000000000023e810>] alloc_skb+0x5c/0xe4
-> |  [<00000000002080ca>] qeth_read_in_buffer+0xd16/0xda0
-> |  [<0000000000212e22>] qeth_qdio_input_handler+0x42a/0x57c
-> |  [<00000000001de17c>] qdio_handler+0xad4/0x10f4
-> |  [<00000000001d46da>] ccw_device_call_handler+0x8a/0x94
-> |  [<00000000001d3922>] ccw_device_irq+0x7a/0xb4
-> |  [<00000000001d42de>] io_subchannel_irq+0x7e/0xc4
-> |  [<00000000001cfcd2>] do_IRQ+0x18a/0x1b0
-> |  [<0000000000020072>] io_return+0x0/0x10
+> I recall similar report. Reporter found that there is a #define
+> in the source which can be enabled to make driver serialize access
+> to channels. That 'fixed' (most probably worked around, though)
+> the problem.
 
-This is pretty much unavoidable - the kernel is looking for four
-physically-contiguous free pages at interrupt time, and there aren't any.
+Denis, you are talking about hpt366.c not pdc202xx_old.c. ;-)
 
-You can reduce its frequency by increasing /proc/sys/vm/min_free_kbytes.
+> I can't say whether it was a hardware or driver problem,
+> I didn't look into it.
+>
+> > There are no problems when I use 2.6.1, but I have this problem
+> > since 2.6.2.
+> > It only occurs when I use the PDC20262, not when using the onboard
+> > IDE-controller.
 
-The best fix would be to alter the driver to use order-0 pages if that's
-possible.
+There were some change in pdc202xx_old.c driver in 2.6.2.
+Please revert this patch and report if it helps.
 
-> It causes a lot of state-D processes on one machine.
+diff -Nru a/drivers/ide/pci/pdc202xx_old.c b/drivers/ide/pci/pdc202xx_old.c
+--- a/drivers/ide/pci/pdc202xx_old.c	Tue Feb  3 19:45:42 2004
++++ b/drivers/ide/pci/pdc202xx_old.c	Tue Feb  3 19:45:42 2004
+@@ -361,16 +361,38 @@
+ 	return ((u8)(CIS & mask));
+ }
+ 
++/*
++ * Set the control register to use the 66MHz system
++ * clock for UDMA 3/4/5 mode operation when necessary.
++ *
++ * It may also be possible to leave the 66MHz clock on
++ * and readjust the timing parameters.
++ */
++static void pdc_old_enable_66MHz_clock(ide_hwif_t *hwif)
++{
++	unsigned long clock_reg = hwif->dma_master + 0x11;
++	u8 clock = hwif->INB(clock_reg);
++
++	hwif->OUTB(clock | (hwif->channel ? 0x08 : 0x02), clock_reg);
++}
++
++static void pdc_old_disable_66MHz_clock(ide_hwif_t *hwif)
++{
++	unsigned long clock_reg = hwif->dma_master + 0x11;
++	u8 clock = hwif->INB(clock_reg);
++
++	hwif->OUTB(clock & ~(hwif->channel ? 0x08 : 0x02), clock_reg);
++}
++
+ static int config_chipset_for_dma (ide_drive_t *drive)
+ {
+ 	struct hd_driveid *id	= drive->id;
+ 	ide_hwif_t *hwif	= HWIF(drive);
+ 	struct pci_dev *dev	= hwif->pci_dev;
+ 	u32 drive_conf		= 0;
+-	u8 mask			= hwif->channel ? 0x08 : 0x02;
+ 	u8 drive_pci		= 0x60 + (drive->dn << 2);
+ 	u8 test1 = 0, test2 = 0, speed = -1;
+-	u8 AP = 0, CLKSPD = 0, cable = 0;
++	u8 AP = 0, cable = 0;
+ 
+ 	u8 ultra_66		= ((id->dma_ultra & 0x0010) ||
+ 				   (id->dma_ultra & 0x0008)) ? 1 : 0;
+@@ -394,21 +416,6 @@
+ 			BUG();
+ 	}
+ 
+-	CLKSPD = hwif->INB(hwif->dma_master + 0x11);
+-
+-	/*
+-	 * Set the control register to use the 66Mhz system
+-	 * clock for UDMA 3/4 mode operation. If one drive on
+-	 * a channel is U66 capable but the other isn't we
+-	 * fall back to U33 mode. The BIOS INT 13 hooks turn
+-	 * the clock on then off for each read/write issued. I don't
+-	 * do that here because it would require modifying the
+-	 * kernel, separating the fop routines from the kernel or
+-	 * somehow hooking the fops calls. It may also be possible to
+-	 * leave the 66Mhz clock on and readjust the timing
+-	 * parameters.
+-	 */
+-
+ 	if ((ultra_66) && (cable)) {
+ #ifdef DEBUG
+ 		printk(KERN_DEBUG "ULTRA 66/100/133: %s channel of Ultra 66/100/133 "
+@@ -416,29 +423,12 @@
+ 			hwif->channel ? "Secondary" : "Primary");
+ 		printk(KERN_DEBUG "         Switching to Ultra33 mode.\n");
+ #endif /* DEBUG */
+-		/* Primary   : zero out second bit */
+-		/* Secondary : zero out fourth bit */
+-		hwif->OUTB(CLKSPD & ~mask, (hwif->dma_master + 0x11));
+ 		printk(KERN_WARNING "Warning: %s channel requires an 80-pin cable for operation.\n", hwif->channel ? "Secondary":"Primary");
+ 		printk(KERN_WARNING "%s reduced to Ultra33 mode.\n", drive->name);
+-	} else {
+-		if (ultra_66) {
+-			/*
+-			 * check to make sure drive on same channel
+-			 * is u66 capable
+-			 */
+-			if (hwif->drives[!(drive->dn%2)].id) {
+-				if (hwif->drives[!(drive->dn%2)].id->dma_ultra & 0x0078) {
+-					hwif->OUTB(CLKSPD | mask, (hwif->dma_master + 0x11));
+-				} else {
+-					hwif->OUTB(CLKSPD & ~mask, (hwif->dma_master + 0x11));
+-				}
+-			} else { /* udma4 drive by itself */
+-				hwif->OUTB(CLKSPD | mask, (hwif->dma_master + 0x11));
+-			}
+-		}
+ 	}
+ 
++	pdc_old_disable_66MHz_clock(drive->hwif);
++
+ 	drive_pci = 0x60 + (drive->dn << 2);
+ 	pci_read_config_dword(dev, drive_pci, &drive_conf);
+ 	if ((drive_conf != 0x004ff304) && (drive_conf != 0x004ff3c4))
+@@ -536,6 +526,8 @@
+ 
+ static int pdc202xx_old_ide_dma_begin(ide_drive_t *drive)
+ {
++	if (drive->current_speed > XFER_UDMA_2)
++		pdc_old_enable_66MHz_clock(drive->hwif);
+ 	if (drive->addressing == 1) {
+ 		struct request *rq	= HWGROUP(drive)->rq;
+ 		ide_hwif_t *hwif	= HWIF(drive);
+@@ -569,6 +561,8 @@
+ 		clock = hwif->INB(high_16 + 0x11);
+ 		hwif->OUTB(clock & ~(hwif->channel ? 0x08:0x02), high_16+0x11);
+ 	}
++	if (drive->current_speed > XFER_UDMA_2)
++		pdc_old_disable_66MHz_clock(drive->hwif);
+ 	return __ide_dma_end(drive);
+ }
+ 
+@@ -757,10 +751,7 @@
+ 
+ 	hwif->speedproc = &pdc202xx_tune_chipset;
+ 
+-	if (!hwif->dma_base) {
+-		hwif->drives[0].autotune = hwif->drives[1].autotune = 1;
+-		return;
+-	}
++	hwif->drives[0].autotune = hwif->drives[1].autotune = 1;
+ 
+ 	hwif->ultra_mask = 0x3f;
+ 	hwif->mwdma_mask = 0x07;
 
-This should not happen.  If it happens again, try to capture an all-task
-backtrace into the logs with
 
-	echo t > /proc/sysrq-trigger
+> > It is reproduceable after a few seconds when I use 'dd if=/dev/hde
+> > of=/dev/hdh bs=512'.
+> > Using of=/dev/null also works, but it takes longer.
+> >
+> > Mostly it reports smp_apic_timer_interrupt+1c/140, but the last time
+> > I tried it, it also reports <__mask_IO_APIC_irq+40/e0>.
+> >
+> > I've attached the logs and the ksymoops trace.
 
+Strange, it looks like IO-APIC problem.
+Have you tried booting with "noapic" kernel parameter?
+
+Regards,
+Bartlomiej
 

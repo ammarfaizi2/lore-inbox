@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261342AbSJCW0H>; Thu, 3 Oct 2002 18:26:07 -0400
+	id <S261351AbSJCWRB>; Thu, 3 Oct 2002 18:17:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261368AbSJCW0H>; Thu, 3 Oct 2002 18:26:07 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:57351
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261342AbSJCW0G>; Thu, 3 Oct 2002 18:26:06 -0400
-Subject: Re: export of sys_call_table
-From: Robert Love <rml@tech9.net>
+	id <S261358AbSJCWRA>; Thu, 3 Oct 2002 18:17:00 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:58263 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S261351AbSJCWQ6>;
+	Thu, 3 Oct 2002 18:16:58 -0400
+Date: Thu, 3 Oct 2002 15:24:38 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
 To: bidulock@openss7.org
-Cc: kernel <linux-kernel@vger.kernel.org>
+cc: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: export of sys_call_table
 In-Reply-To: <1033683270.909.32.camel@phantasy>
-References: <20021003153943.E22418@openss7.org> 
-	<1033683270.909.32.camel@phantasy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Oct 2002 18:23:20 -0400
-Message-Id: <1033683800.909.41.camel@phantasy>
-Mime-Version: 1.0
+Message-ID: <Pine.LNX.4.44.0210031523070.1871-100000@cherise.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-03 at 18:14, Robert Love wrote:
 
-> I do not think it matters what our opinion is.
+> > What is the kernel.org take on this?
 
-And if it does, it looks like as-of cset 1.692 2.5 no longer exports the
-table either.
+I'm not sure if kernel.org has an opinion. ;) 
 
-	Robert Love
+But, Linus appears to be open to the notion, since it's now in his BK 
+tree:
+
+http://linus.bkbits.net:8080/linux-2.5/cset@1.692?nav=index.html|ChangeSet@-1d
+
+
+	-pat
 

@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267919AbRGRUKG>; Wed, 18 Jul 2001 16:10:06 -0400
+	id <S267920AbRGRUP4>; Wed, 18 Jul 2001 16:15:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267922AbRGRUJ5>; Wed, 18 Jul 2001 16:09:57 -0400
-Received: from isis.telemach.net ([213.143.65.10]:9743 "HELO isis.telemach.net")
-	by vger.kernel.org with SMTP id <S267919AbRGRUJt>;
-	Wed, 18 Jul 2001 16:09:49 -0400
-Date: Wed, 18 Jul 2001 22:10:02 +0200
-From: Jure Pecar <pegasus@telemach.net>
-To: Florin Andrei <florin@sgi.com>
-Cc: linux-xfs@oss.sgi.com, seawolf-list@redhat.com, dledford@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: noapic strikes back
-Message-Id: <20010718221002.76e7cca6.pegasus@telemach.net>
-In-Reply-To: <995484908.1279.0.camel@stantz.corp.sgi.com>
-In-Reply-To: <995484908.1279.0.camel@stantz.corp.sgi.com>
-Organization: Select Technology 
-X-Mailer: Sylpheed version 0.5.0 (GTK+ 1.2.8; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S267922AbRGRUPr>; Wed, 18 Jul 2001 16:15:47 -0400
+Received: from smarty.smart.net ([207.176.80.102]:26386 "EHLO smarty.smart.net")
+	by vger.kernel.org with ESMTP id <S267920AbRGRUPh>;
+	Wed, 18 Jul 2001 16:15:37 -0400
+From: Rick Hohensee <humbubba@smarty.smart.net>
+Message-Id: <200107182030.QAA23313@smarty.smart.net>
+Subject: Re: cpuid_eax damages registers (2.4.7pre7)
+To: linux-kernel@vger.kernel.org
+Date: Wed, 18 Jul 2001 16:30:55 -0400 (EDT)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Jul 2001 12:35:08 -0700
-Florin Andrei <florin@sgi.com> wrote:
+>We should try to find a work-around.
 
-> I have a SGI 1200 (L440GX+ motherboard, dual PIII) and i'm trying to
-> install at least one version of Red Hat 7.1 on it.
+>> >  - do a "make arch/i386/kernel/setup.s" both ways, and show what
 
-This is a known issue. Check RedHat's Bugzilla to find out more.
+Is there a way to do a "make bla/zay/woof.c "  and save the woof.s ?
 
---
 
-Jure Pecar
+Rick Hohensee
+						www.clienux.com

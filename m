@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130461AbRCWKNA>; Fri, 23 Mar 2001 05:13:00 -0500
+	id <S130520AbRCWKVk>; Fri, 23 Mar 2001 05:21:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129112AbRCWKMu>; Fri, 23 Mar 2001 05:12:50 -0500
-Received: from [166.70.28.69] ([166.70.28.69]:41016 "EHLO flinx.biederman.org")
-	by vger.kernel.org with ESMTP id <S130466AbRCWKMi>;
-	Fri, 23 Mar 2001 05:12:38 -0500
-To: nbecker@fred.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: regression testing
-In-Reply-To: <x88zoeeeyh8.fsf@adglinux1.hns.com>
+	id <S130517AbRCWKVa>; Fri, 23 Mar 2001 05:21:30 -0500
+Received: from [166.70.28.69] ([166.70.28.69]:42808 "EHLO flinx.biederman.org")
+	by vger.kernel.org with ESMTP id <S129112AbRCWKVR>;
+	Fri, 23 Mar 2001 05:21:17 -0500
+To: Kurt Garloff <garloff@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: SMP on assym. x86
+In-Reply-To: <Pine.LNX.4.10.10103211122500.10337-100000@coffee.psychology.mcmaster.ca> <E14fsET-0001Mg-00@the-village.bc.nu> <20010322130029.A4212@garloff.casa-etp.nl>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 23 Mar 2001 03:11:02 -0700
-In-Reply-To: nbecker@fred.net's message of "22 Mar 2001 08:15:31 -0500"
-Message-ID: <m1wv9g23t5.fsf@frodo.biederman.org>
+Date: 23 Mar 2001 03:19:28 -0700
+In-Reply-To: Kurt Garloff's message of "Thu, 22 Mar 2001 13:00:29 +0100"
+Message-ID: <m1snk423f3.fsf@frodo.biederman.org>
 User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nbecker@fred.net writes:
+Kurt Garloff <garloff@suse.de> writes:
 
-> Hi.  I was wondering if there has been any discussion of kernel
-> regression testing.  Wouldn't it be great if we didn't have to depend
-> on human testers to verify every change didn't break something?
+> On Wed, Mar 21, 2001 at 11:41:33PM +0000, Alan Cox wrote:
+> > > > handle the situation with 2 different CPUs (AMP = Assymmetric
+> > > > multiprocessing ;-) correctly.
+> > > 
+> > > "correctly".  Intel doesn't support this (mis)configuration:
+> > > especially with different steppings, not to mention models.
+> 
+> I wouldn't call it misconfiguration, just because it's a bit more difficult
+> to handle.
+> On the iontel side: You should watch out for matching APICs, voltages and
+> cache coherency (MESI) protocol. Actually, Deschutes and Coppermine just
+> work fine in spite of slightly different voltage.
 
-There is a some truth to this.  However for kernel development there
-is one thing to keep in mind: most bugs are in the drivers (buggy
-hardware with a software workaround counts as a driver bug).  Having
-an army of human testers with weird machines with all kinds of
-drivers is the only economical way of doing driver regression testing.
+The spooky thing is if there is that it may work just fine most of the
+time but the differences between the CPU's might cause very strange
+behavior every once in a great while.  Which is a hardware argument, for
+why you shouldn't trust such a configuration.
 
-> OK, I'll admit I haven't given this a lot of thought.  What I'm
-> wondering is whether the user-mode linux could help here (allow a way
-> to simulate controlled activity).
+However it is still worth some thought.  The hardware argument gets much
+weaker when you have something like dual AMD's.  The reason is that
+with a point to point bus you may actually be able to sanely support
+multiple cpu revs and speeds without even any theoretical hardware consequences.
 
-The most devastating bugs are in the core kernel code, and a
-regression test for that code is more likely.  Yes user-mode linux
-could help here (you could stress test the core kernel without worry
-that when it crashes your machine will crash as well).  
+And NUMA machines make this argument even stronger.
 
-Additionally a good test suite that give the kernel a good going over
-in a manner that exercises standard kinds of hardware could also help.  
+However I would suggest that we build some good kernel->kernel apis
+for dealing with kernels with a wicked fast interconnect.  And then
+for NUMA and for the other cases where it really matters we can run multiple
+kernels, and the mismatch problems just drop away.
 
-Unless you are using profiling to verify you have covered all paths
-in the code there will always be question such as does that code path
-work in practice.
-
-The other thing that can help a lot looks like the augmented static
-analysis of the kernel.  Once that is generally available we should
-be able to verify at compile time that a lot of little rules are
-always obeyed.  It will never get the really hard things but the
-compiler pointing out that there is an sti on all paths after a cli
-could improve things significantly (especially with the drivers).
 
 Eric

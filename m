@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265102AbTBCVWx>; Mon, 3 Feb 2003 16:22:53 -0500
+	id <S264877AbTBCVWA>; Mon, 3 Feb 2003 16:22:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265243AbTBCVWx>; Mon, 3 Feb 2003 16:22:53 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:41228 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265102AbTBCVWv>; Mon, 3 Feb 2003 16:22:51 -0500
-Date: Mon, 3 Feb 2003 16:29:23 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jos Hulzink <josh@stack.nl>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.59 morse code panics
-In-Reply-To: <200302032014.57518.josh@stack.nl>
-Message-ID: <Pine.LNX.3.96.1030203161125.28323C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265102AbTBCVWA>; Mon, 3 Feb 2003 16:22:00 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:52498 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S264877AbTBCVWA>;
+	Mon, 3 Feb 2003 16:22:00 -0500
+Date: Mon, 3 Feb 2003 22:31:08 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Konrad Eisele <eiselekd@web.de>
+Cc: kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org
+Subject: Re: Customflags for cmd_objcopy
+Message-ID: <20030203213108.GB910@mars.ravnborg.org>
+Mail-Followup-To: Konrad Eisele <eiselekd@web.de>,
+	kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org
+References: <200302031605.h13G5nO30068@mailgate5.cinetic.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200302031605.h13G5nO30068@mailgate5.cinetic.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Feb 2003, Jos Hulzink wrote:
+On Mon, Feb 03, 2003 at 05:05:49PM +0100, Konrad Eisele wrote:
+> like with cmd_ld in scripts/Makefile.lib having possibility to add 
+> customflags with cmk_objcopy would be nice. When building a ROMKernel
+> I'd like to use:
+> OBJCOPYFLAGS_rompiggydata := --remove-section=.text
+> OBJCOPYFLAGS_$(MODEL)piggytext := --only-section=.text
 
-> On Sunday 02 February 2003 16:42, Bill Davidsen wrote:
-> > On Fri, 31 Jan 2003, John Bradford wrote:
-> > > Well, there are typically *three* keyboard LEDs...  Why not use one
-> > > the middle one for morse, and outside two for plain blinking?
-> >
-> > Sure, alternating on/off between the outside LEDs at a rate of about
-> > 1/sec, like the warning lights on a railroad crossing (in the USA).
-> 
-> <nonsense>
-> As long as this doesn't mean a 50.000 kilo locomotive will ride over my 
-> keyboard, it is fine with me.
-> 
-> Oh, and I don't want to destroy the American dream, but blinking lights on 
-> railroad crossings even exist in the poorest countries in Africa... Or do the 
-> Americans even have a patent on the blinking speed ? :-P
+Looks good to me.
 
-In the USA thry are two, horizontal, in England I saw some up near Thursk
-which were vertical. Avoiding US-centerism I clarified where I saw them,
-rather than assuming that they would be the same everywhere...
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+	Sam

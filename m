@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284245AbRLLAUh>; Tue, 11 Dec 2001 19:20:37 -0500
+	id <S284244AbRLLAZr>; Tue, 11 Dec 2001 19:25:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284251AbRLLAU1>; Tue, 11 Dec 2001 19:20:27 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:38534 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S284245AbRLLAUV>;
-	Tue, 11 Dec 2001 19:20:21 -0500
-Date: Tue, 11 Dec 2001 16:20:11 -0800 (PST)
-Message-Id: <20011211.162011.21927662.davem@redhat.com>
-To: sopwith@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: knfsd and FS_REQUIRES_DEV
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0112111810160.541-100000@devserv.devel.redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0112111810160.541-100000@devserv.devel.redhat.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S284243AbRLLAZh>; Tue, 11 Dec 2001 19:25:37 -0500
+Received: from waste.org ([209.173.204.2]:35518 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S284237AbRLLAZa>;
+	Tue, 11 Dec 2001 19:25:30 -0500
+Date: Tue, 11 Dec 2001 18:25:17 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Brian Horton <go_gators@mail.com>
+cc: george anzinger <george@mvista.com>,
+        linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: how to debug a deadlock'ed kernel?
+In-Reply-To: <3C169991.454A7E49@mail.com>
+Message-ID: <Pine.LNX.4.40.0112111822060.13893-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Elliot Lee <sopwith@redhat.com>
-   Date: Tue, 11 Dec 2001 19:13:48 -0500 (EST)
+On Tue, 11 Dec 2001, Brian Horton wrote:
 
-   I'm looking for information on knfsd's requirement that a filesystem be
-   FS_REQUIRES_DEV in order to export it. Would someone point me in the right
-   direction?
-   
-   Needing to implement some not-quite-kosher exports,
+> Thanks, I'll try the nmi_watchdog option out. It appears to not be in
+> the 2.2.14 kernel, but is in a 2.2.19 kernel that I have from RedHat.
 
-NFSD puts dev/ino into the filehandles it gives to the
-client, it uses this to lookup the inode in question.
+It's there by default in SMP, you just have to enable it with
+nmiwatchdog=1 at boot (or something). I didn't mention it because it
+probably won't help your problem: as you can use the magic sysrq keys to
+reboot, you are not deadlocked with interrupts off, therefore the timer
+interrupt will keep the NMI watchdog from ever firing. NMI watchdog is
+mostly of use when you can't even get the capslock light to toggle..
+
+> > > Anyone got any good tips on how to debug a SMP system that is locked up
+> > > in a deadlock situation in the kernel? I'm working on a kernel module,
+> > > and after some number of hours of stress testing, the box locks up. None
+> > > of the sysrq options show anything on the display, though the reBoot
+> > > option does reboot the system. RedHat 6.2 and its 2.2.14 kernel. Doesn't
+> > > hang for me on 2.4, so I need to debug it here...
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

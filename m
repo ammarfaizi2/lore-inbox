@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263347AbUCTKsv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 05:48:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbUCTKsv
+	id S263352AbUCTKte (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 05:49:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263351AbUCTKtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 05:48:51 -0500
-Received: from gizmo02ps.bigpond.com ([144.140.71.12]:19410 "HELO
-	gizmo02ps.bigpond.com") by vger.kernel.org with SMTP
-	id S263347AbUCTKsp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 05:48:45 -0500
-From: Ross Dickson <ross@datscreative.com.au>
-Reply-To: ross@datscreative.com.au
-Organization: Dat's Creative Pty Ltd
-To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-Subject: Re: idle Athlon with IOAPIC is 10C warmer since 2.6.3-bk1
-Date: Sat, 20 Mar 2004 20:50:46 +1000
-User-Agent: KMail/1.5.1
-Cc: Len Brown <len.brown@intel.com>,
-       Thomas Schlichter <thomas.schlichter@web.de>,
-       linux-kernel@vger.kernel.org
-References: <200403181019.02636.ross@datscreative.com.au> <200403202019.44612.ross@datscreative.com.au> <405C1C0D.9050108@gmx.de>
-In-Reply-To: <405C1C0D.9050108@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Mar 2004 05:49:23 -0500
+Received: from mail.shareable.org ([81.29.64.88]:9871 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S263363AbUCTKtF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 05:49:05 -0500
+Date: Sat, 20 Mar 2004 10:48:18 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Robert Love <rml@ximian.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
+       mjy@geizhals.at, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_PREEMPT and server workloads
+Message-ID: <20040320104818.GC10398@mail.shareable.org>
+References: <40591EC1.1060204@geizhals.at> <20040318060358.GC29530@dualathlon.random> <20040318015004.227fddfb.akpm@osdl.org> <20040318145129.GA2246@dualathlon.random> <1079632130.6043.6.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403202050.46298.ross@datscreative.com.au>
+In-Reply-To: <1079632130.6043.6.camel@localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 March 2004 20:25, Prakash K. Cheemplavam wrote:
-> Ross Dickson wrote:
-> >>[snip]
-> >>
-> >>>
-> >>>Actually I think it is that we don't _count_ C1 usage.
-> >>
-> >>Hmm, OK, then I am really puzzled what specifically about mm sources 
-> >>make my idle temps hotter, as I still couldn't properly resolve it what 
-> >>is causing it. I thought ACPI, but no, using APM only does the same (apm 
-> >>only with vanilla is low temp though.)
-> > 
-> > 
-> > Have you seen this thread, it may be relevant?
-> > Re: [2.6.4-rc2] bogus semicolon behind if()
-> > http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-03/4170.html
-> 
-> Hi Ross, I don't think so, as I currently don't use APIC and thus fix in 
-> above post wouldn't help me. Or should I read further?
+Robert Love wrote:
+> This is because of work Dave Miller and Ingo did - irq count, softirq
+> count, and lock count (when PREEMPT=y) are unified into preempt_count. 
 
-Hmm Valid point.
-bye
-Ross.
+(x86 only) Have you considerd unifying the "interrupts disabled" bit
+into it as well, for spin_lock_irqsave/spin_unlock_irqrestore?
 
-> 
-> cya,
-> 
-> Prakash
-> 
-> 
-> 
-> 
+The principle is to use a memory bit or counter instead of "cli" and
+"sti", because it is cheaper or even free when it's unified in
+preempt_count.
 
+The very first instructions of the interrupt handlers check
+preempt_count, and if interrupts are logically disabled they modify
+preempt_count to indicate that an irq is pending, save the interrupt
+vector number, and return keeping interrupts disabled at the CPU level
+(i.e. not using "iret").  Only one vector can be pending in this way,
+because we keep CPU interrupts disabled after the first one.
+
+In spin_unlock_irqrestore, it checks preempt_count (as it already
+does), and in the slow path if there's an irq pending, calls the
+handler for that irq as if it were invoked by the CPU.
+
+That should effectively eliminate the "cli" and "sti" isnructions
+from spin_lock_irqsave and spin_unlock_irqrestore, saving a few cycles.
+
+-- Jamie

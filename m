@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283672AbRLSTB4>; Wed, 19 Dec 2001 14:01:56 -0500
+	id <S282497AbRLSTC4>; Wed, 19 Dec 2001 14:02:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282495AbRLSTBq>; Wed, 19 Dec 2001 14:01:46 -0500
-Received: from femail18.sdc1.sfba.home.com ([24.0.95.145]:58308 "EHLO
-	femail18.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S282499AbRLSTBg>; Wed, 19 Dec 2001 14:01:36 -0500
-Date: Wed, 19 Dec 2001 14:01:34 -0500
+	id <S282495AbRLSTCh>; Wed, 19 Dec 2001 14:02:37 -0500
+Received: from pintail.mail.pas.earthlink.net ([207.217.120.122]:47855 "EHLO
+	pintail.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S282497AbRLSTCd>; Wed, 19 Dec 2001 14:02:33 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Eli <eli@pflash.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: On K7, -march=k6 is good (Was Re: Why no -march=athlon?)
-Message-ID: <20011219190134.GA15197@cy599856-a.home.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <x88r8ptki37.fsf@rpppc1.hns.com> <20011217174020.GA24772@0xd6.org> <lnitb3drx6.fsf_-_@walhalla.agaha> <20011219175616.GD19236@0xd6.org> <x88itb3njfr.fsf@rpppc1.hns.com> <20011219184745.GF19236@0xd6.org> <3C20E1F8.9C8D2825@lexus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C20E1F8.9C8D2825@lexus.com>
-User-Agent: Mutt/1.3.24i
-X-Editor: GNU Emacs 21.1
-X-Operating-System: Debian GNU/Linux 2.4.17-rc2 i586 K6-3+
-X-Uptime: 13:57:54 up 12:16,  3 users,  load average: 0.00, 0.01, 0.00
-From: Josh McKinney <forming@home.com>
+Subject: Re: 2.4.x WinBookXL mouse & keyboard freeze
+Date: Wed, 19 Dec 2001 12:54:43 -0600
+X-Mailer: KMail [version 1.3.1]
+Cc: eli@pflash.com, arjanv@redhat.com
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Glz1-0005mt-00@pintail.mail.pas.earthlink.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On approximately Wed, Dec 19, 2001 at 10:52:40AM -0800, J Sloan wrote:
-> "M. R. Brown" wrote:
-> 
-> > * nbecker@fred.net <nbecker@fred.net> on Wed, Dec 19, 2001:
-> >
-> > > Is it safe to use gcc-3.0.2 to compile the kernel?
+On Wednesday 19 December 2001 12:33 pm, Eli wrote:
+> When running any 2.4.x kernel, if gpm is running, touching the mouse ends
+> all keyboard input.  Starting X without touching the mouse does the same
+> thing. The mouse in this case is the built-in trackpad thing common in
+> notebooks. 2.2.x works just fine.
+>
+> I don't know quite where to start on this... I've tried changing gpm
+> configuration, but that doesn't seem to help.
+> (I'm running RedHat 7.2.)
+>
+> Any ideas on where I should start looking?
 
- Just another side note, gcc-3.0.3 prerelease is out, and it compiles kernels fine here so far.
+Ok, I found discussion of this bug here:
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=37812
 
-Josh
--- 
-Linux, the choice                | Ever feel like life was a game and you had 
-of a GNU generation       -o)    | the wrong instruction book? 
-Kernel 2.4.17-rc2          /\    | 
-on a i586                 _\_v   | 
-                                 | 
+I'll start playing with some of the ideas listed, but I don't see a good 
+conclusion on it.  What kind of a fix would be accepted into the mainline?
+
+TIA,
+
+Eli
+---------------.
+Eli Carter      \
+eli(a)pflash.com `-------------------------------------------------------

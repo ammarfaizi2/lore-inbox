@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263088AbUAWMEy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 07:04:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266547AbUAWMEy
+	id S266555AbUAWMGv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 07:06:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266557AbUAWMGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 07:04:54 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:28802 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263088AbUAWMEx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 07:04:53 -0500
-Date: Fri, 23 Jan 2004 13:04:59 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Tomas Kouba <tomas@jikos.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Siemens MC45 PCMCIA gprs modem
-Message-ID: <20040123120459.GA3323@ucw.cz>
-References: <Pine.LNX.4.58.0401230922110.20053@twin.jikos.cz> <20040123112329.A12867@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040123112329.A12867@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Fri, 23 Jan 2004 07:06:51 -0500
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:1503 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S266555AbUAWMGt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 07:06:49 -0500
+Date: Fri, 23 Jan 2004 13:06:47 +0100 (CET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Mikael Pettersson <mikpe@user.it.uu.se>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6] local APIC LVTT init bug
+In-Reply-To: <16400.9569.745184.16182@alkaid.it.uu.se>
+Message-ID: <Pine.LNX.4.55.0401231250310.3223@jurand.ds.pg.gda.pl>
+References: <16400.9569.745184.16182@alkaid.it.uu.se>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 23, 2004 at 11:23:29AM +0000, Russell King wrote:
+On Thu, 22 Jan 2004, Mikael Pettersson wrote:
 
-> On Fri, Jan 23, 2004 at 09:32:41AM +0100, Tomas Kouba wrote:
-> > /var/log/messages when I insert the card:
-> > Jan 23 09:20:25 dhcp23 kernel: PCMCIA: socket c62dc82c: unable to apply 
-> > power.
-> 
-> This is first thing to wonder about - this indicates that the PCMCIA
-> bridge did not report that it had turned on the power to the socket
-> after the time allowed.
-> 
-> Could you give some info on the PCMCIA hardware in this machine please?
-> 
-> > Jan 23 09:20:26 dhcp23 cardmgr[782]: + insmod /lib/modules/2.6.1/kernel/drivers/serial/serial_cs.ko
-> > Jan 23 09:20:26 dhcp23 kernel: ttyS0 at I/O 0x3f8 (irq = 3) is a 8250
-> > Jan 23 09:20:26 dhcp23 kernel: ttyS4 at I/O 0x400 (irq = 3) is a 16C950/954
-> > Jan 23 09:20:26 dhcp23 cardmgr[782]: executing: './serial start ttyS0'
-> > Jan 23 09:20:26 dhcp23 kernel: serial8250: too much work for irq3
-> > Jan 23 09:20:27 dhcp23 last message repeated 5 times
-> > Jan 23 09:20:27 dhcp23 cardmgr[782]: executing: './serial start ttyS4'
-> 
-> Hmm, it seems that we found two ports on this card, one at 0x3f8 and one
-> at 0x400.  It also seems that there's something odd going on with IRQ3
-> here, which could be the cause of your problem.
+> __setup_APIC_LVTT() incorrectly sets i82489DX-only bits
+> which are reserved in integrated local APICs, causing
+> problems in some machines. Fixed in this patch by making
+> this setting conditional.
 
-The same is happening for me with an Option GlobeTrotter GPRS card. For
-some reason the PCMCIA utils read the CIS from the card and get
-confused, registering two ports instead of one. dump_cis, editing the
-CIS to remove the entry that confuses cardmgr, and then compiling the
-CIS again helps.
+ Sigh -- why can't designers keep such a trivial backwards
+compatibility???  The integrated APIC was said to be backwards compatible
+when introduced and so far all implementations used to.  What you write
+means that has been broken -- could please say which vendor to blame?
+
+> It's possible these bits don't need to be set on i82489DXs,
+> but not having this HW for testing I elected to maintain
+> our current behaviour on these old machines.
+
+ They were originally unset, leading to broken behavior.  I introduced the
+current settings based on i82489DX specification once the problem was
+discovered.  The code was checked at the run time on a few systems with 
+i82489DX APICs.
+
+ The timer source has to be correctly selected -- we cannot rely on the
+firmware to set it the way we want it as the firmware is free to use the
+timer whatever way it wants.  Even the power-on/reset setting is
+unsuitable as it's the CLK input, straight, and we want it predivided like
+with the integrated APIC.  The third alternative, the TMBASE input, cannot
+be used reliably at all -- it may be simply NC on a given system.
+
+ Your proposal is therefore the only correct one.
+
+  Maciej
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

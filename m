@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269694AbUJAE6b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269695AbUJAFBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269694AbUJAE6b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 00:58:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269695AbUJAE6b
+	id S269695AbUJAFBA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 01:01:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269698AbUJAFBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 00:58:31 -0400
-Received: from havoc.gtf.org ([69.28.190.101]:59836 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S269496AbUJAE6X (ORCPT
+	Fri, 1 Oct 2004 01:01:00 -0400
+Received: from havoc.gtf.org ([69.28.190.101]:6077 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S269695AbUJAFA3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 00:58:23 -0400
-Date: Fri, 1 Oct 2004 00:58:22 -0400
+	Fri, 1 Oct 2004 01:00:29 -0400
+Date: Fri, 1 Oct 2004 00:59:18 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
-To: linux-ide@vger.kernel.org
+To: netdev@oss.sgi.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [sata] status report, libata-dev queue updated
-Message-ID: <20041001045822.GA25784@havoc.gtf.org>
-Reply-To: linux-ide@vger.kernel.org
+Subject: netdev-2.6 queue updated
+Message-ID: <20041001045918.GA25891@havoc.gtf.org>
+Reply-To: netdev@oss.sgi.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
@@ -25,74 +25,256 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Notable updates:
-* new driver for ULi SATA (formerly ALi)
-* SMART support via ATA passthru CDB
-* support for Promise PATA ports
-
-
-IMPORTANT NOTE:  All changes in the "libata-dev-2.6" patch queue should
-be considered experimental, for testing only.  Do not use in production.
-
-
-Status report(s):
-	http://linux.yyz.us/sata/
-
-
-BK repo:
-	bk pull bk://gkernel.bkbits.net/libata-dev-2.6
-
+BK users:
+bk pull bk://gkernel.bkbits.net/netdev-2.6
 
 Patch:
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.9-rc3-libata-dev1.patch.bz2
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.9-rc3-netdev1.patch.bz2
 
 This will update the following files:
 
- drivers/pci/quirks.c        |    4 
- drivers/scsi/Kconfig        |   16 
- drivers/scsi/Makefile       |    2 
- drivers/scsi/ahci.c         | 1023 ++++++++++++++++++++++++++++++++++++++++++++
- drivers/scsi/libata-core.c  |   38 +
- drivers/scsi/libata-scsi.c  |  269 +++++++++++
- drivers/scsi/libata.h       |    2 
- drivers/scsi/sata_nv.c      |   38 -
- drivers/scsi/sata_promise.c |   56 ++
- drivers/scsi/sata_uli.c     |  282 ++++++++++++
- drivers/scsi/sata_vsc.c     |    8 
- include/linux/ata.h         |    1 
- include/linux/libata.h      |    2 
- include/scsi/scsi.h         |    3 
- 14 files changed, 1712 insertions(+), 32 deletions(-)
+ arch/cris/arch-v10/drivers/ethernet.c     |  140 ++----
+ drivers/ieee1394/eth1394.c                |   95 +---
+ drivers/media/dvb/dvb-core/dvb_net.c      |    9 
+ drivers/net/3c509.c                       |  151 ++-----
+ drivers/net/8139cp.c                      |  100 +++-
+ drivers/net/8139too.c                     |   14 
+ drivers/net/Kconfig                       |   45 +-
+ drivers/net/acenic.c                      |  163 +++----
+ drivers/net/acenic.h                      |   23 -
+ drivers/net/amd8111e.c                    |  248 +++++------
+ drivers/net/atp.c                         |    2 
+ drivers/net/b44.c                         |  102 ++--
+ drivers/net/b44.h                         |  113 -----
+ drivers/net/defxx.c                       |  144 +++---
+ drivers/net/defxx.h                       |    2 
+ drivers/net/dl2k.c                        |  267 +++++-------
+ drivers/net/e100.c                        |   38 +
+ drivers/net/e1000/e1000.h                 |    2 
+ drivers/net/e1000/e1000_ethtool.c         |    6 
+ drivers/net/e1000/e1000_hw.c              |  115 +++++
+ drivers/net/e1000/e1000_main.c            |   41 -
+ drivers/net/e1000/e1000_osdep.h           |    6 
+ drivers/net/e1000/e1000_param.c           |  167 ++++---
+ drivers/net/eepro100.c                    |  425 +++++++++-----------
+ drivers/net/ewrk3.c                       |  326 +++++++--------
+ drivers/net/forcedeth.c                   |  142 +++---
+ drivers/net/hamachi.c                     |  157 +++----
+ drivers/net/hamradio/hdlcdrv.c            |    2 
+ drivers/net/ibmlana.c                     |    9 
+ drivers/net/iseries_veth.c                |   81 +--
+ drivers/net/ixgb/ixgb_ethtool.c           |  494 +++++++----------------
+ drivers/net/ixgb/ixgb_main.c              |   34 -
+ drivers/net/mac8390.c                     |    4 
+ drivers/net/meth.c                        |   26 -
+ drivers/net/natsemi.c                     |  273 +++++--------
+ drivers/net/ne2k-pci.c                    |   31 +
+ drivers/net/ns83820.c                     |   61 --
+ drivers/net/pcmcia/smc91c92_cs.c          |  181 ++++----
+ drivers/net/r8169.c                       |  592 +++++++++++++++++++++-------
+ drivers/net/sis900.c                      |  258 ++++++------
+ drivers/net/sk_mca.c                      |    9 
+ drivers/net/smc91x.h                      |   43 ++
+ drivers/net/starfire.c                    |  191 ++++-----
+ drivers/net/sundance.c                    |  187 ++++----
+ drivers/net/tulip/de2104x.c               |    3 
+ drivers/net/tulip/de4x5.c                 |    2 
+ drivers/net/tulip/tulip_core.c            |   34 -
+ drivers/net/tulip/winbond-840.c           |    2 
+ drivers/net/tulip/xircom_tulip_cb.c       |  194 ++++-----
+ drivers/net/typhoon.c                     |  232 ++++-------
+ drivers/net/wan/lmc/lmc_main.c            |    9 
+ drivers/net/wireless/airo.c               |   45 +-
+ drivers/net/wireless/netwave_cs.c         |   12 
+ drivers/net/wireless/prism54/isl_38xx.c   |   15 
+ drivers/net/wireless/prism54/isl_38xx.h   |    4 
+ drivers/net/wireless/prism54/isl_ioctl.c  |  629 ++++++++++++++++++++++++++----
+ drivers/net/wireless/prism54/isl_ioctl.h  |    2 
+ drivers/net/wireless/prism54/isl_oid.h    |    9 
+ drivers/net/wireless/prism54/islpci_dev.c |   35 -
+ drivers/net/wireless/prism54/islpci_dev.h |    4 
+ drivers/net/wireless/prism54/islpci_eth.c |    5 
+ drivers/net/wireless/prism54/oid_mgt.c    |  121 +++++
+ drivers/net/wireless/prism54/oid_mgt.h    |    3 
+ drivers/net/wireless/wavelan.c            |   19 
+ drivers/net/wireless/wavelan.p.h          |    3 
+ drivers/net/wireless/wavelan_cs.c         |  181 +++-----
+ drivers/net/wireless/wavelan_cs.p.h       |    3 
+ drivers/net/wireless/wl3501_cs.c          |   53 --
+ drivers/net/yellowfin.c                   |   62 +-
+ drivers/usb/gadget/ether.c                |   73 +--
+ drivers/usb/net/catc.c                    |  122 +----
+ drivers/usb/net/kaweth.c                  |   34 -
+ drivers/usb/net/pegasus.c                 |  297 +++++---------
+ drivers/usb/net/rtl8150.c                 |  186 +++-----
+ include/linux/netdevice.h                 |    4 
+ include/linux/wireless.h                  |   64 ++-
+ include/net/iw_handler.h                  |   60 ++
+ net/core/dev.c                            |    2 
+ net/core/wireless.c                       |  210 ++++++----
+ net/irda/irlan/irlan_client.c             |    2 
+ 80 files changed, 4237 insertions(+), 4017 deletions(-)
 
 through these ChangeSets:
 
-<andyw:pobox.com>:
-  o T10/04-262 ATA pass thru - patch
+<davem:davemloft.net>:
+  o eepro100.c iomap conversion
 
-<erikbenada:yahoo.ca>:
-  o [libata sata_promise] support PATA ports on SATA controllers
+<jolt:tuxbox.org>:
+  o [netdrvr b44] clean up SiliconBackplane definitions/functions
+  o [netdrvr b44] ignore carrier lost errors
 
-Brad Campbell:
-  o libata basic detection and errata for PATA->SATA bridges
+Alexander Viro:
+  o (27/27) catc ethtool conversion
+  o (26/27) kaweth ethtool conversion
+  o (25/27) pegasus ethtool conversion
+  o (24/27) rtl8150 ethtool conversion
+  o (23/27) gadget ethtool conversion
+  o (22/27) amd8111e ethtool conversion
+  o (21/27) dl2k ethtool conversion
+  o (20/27) eepro100 ethtool conversion
+  o (19/27) ewrk3 ethtool conversion
+  o (18/27) forcedeth ethtool conversion
+  o (17/27) hamachi ethtool conversion
+  o (16/27) veth ethtool conversion
+  o (15/27) natsemi ethtool conversion
+  o (14/27) ns83820 ethtool conversion
+  o (13/27) starfire ethtool conversion
+  o (12/27) sundance ethtool conversion
+  o (11/27) typhoon ethtool conversion
+  o (10/27) yellowfin ethtool conversion
+  o (9/27) wl3501_cs ethtool conversion
+  o (8/27) wavelan ethtool conversion
+  o (7/27) xircom ethtool conversion
+  o (6/27) tulip ethtool conversion
+  o (5/27) smc91c92_cs ethtool conversion
+  o (4/27) 3c509 ethtool conversion
+  o (3/27) ixgb ethtool conversion
+  o (2/27) cris ethtool conversion
+  o (1/27) eth1394 ethtool conversion
+  o [netdrvr starfire] use netdev_priv
+  o [netdrvr starfire] fix unregister_netdev call site
+  o [netdrvr] use netdev_priv in dl2k, hamachi
+  o [netdrvr] netdev_priv for sundance, typhoon, yellowfin
+  o [netdrvr] netdev_priv for ewrk3, xircom_tulip_cb, wavelan_cs
+  o [netdrvr usb] use netdev_priv
+  o [netdrvr eth1394] use netdev_priv
+
+Andrew Morton:
+  o e1000 sparc64 dma_mapping build fix
+  o igxb speedup
+  o pegasus.c fixes
+  o de4x5 warning fix
+
+Daniele Venzano:
+  o [netdrvr sis900] whitespace and codingstyle updates
+
+David Dillow:
+  o PCI cleanups and convert to ethtool_ops
+
+Felipe Damasio:
+  o 8139cp net driver: add MODULE_VERSION
 
 François Romieu:
-  o sata_nv: housekeeping for goto labels
-  o sata_nv: wrong failure path and leak
-  o sata_nv: enable hotplug event on successfull init only
+  o via-velocity: wrong module name in Kconfig documentation
+  o r8169: default on disabling PCIDAC
+  o r8169: Mac identifier extracted from Realtek's driver v2.2
+  o r8169: TSO support
+  o r8169: hint for Tx flow control
+  o r8169: miscalculation of available Tx descriptors
+  o 8139cp: SG support fixes
+  o r8169: vlan support
+  o r8169: Rx checksum support
+  o r8169: advertise DMA to high memory
+  o r8169: Tx checksum offload
+  o r8169: comment a gcc 2.95.x bug
+  o r8169: sync the names of a few bits with the 8139cp driver
+  o r8169: bump version number
+  o r8169: enable MWI
+  o r8169: code cleanup
+  o r8169: per device receive buffer size
+  o r8169: add ethtool_ops.{get_regs_len/get_regs}
+
+Ganesh Venkatesan:
+  o e1000 update -- fix MODULE_PARM, module_param, module_param_array
+  o e1000 - Ethtool -- 82545 do not support WoL
+  o e1000 - Polarity reversal workaround for 10F/10H links
+  o e1000 - Fix VLAN filter setup errors (while running on PPC)
+  o e1000 Check value returned by from pci_enable_device
+  o e1000 - Removed support for advanced TCO features
+  o e1000 - use pci_device_name for syslog messages till registering netdevice.
+  o e100 driver version number update
+  o e100 - use NET_IP_ALIGN to set rx data buffer alignment
+  o e100 - Use pci_device_name for syslog messages till registering netdevice
+
+Jean Tourrilhes:
+  o WE-17 typo fix
+  o wireless-drivers-update-for-we-17.patch
+  o wireless-extension-v17-for-linus.patch
 
 Jeff Garzik:
-  o [libata] fix printk warning
-  o [libata sata_uli] add dev_select hook
-  o [libata] add sata_uli driver for ULi (formerly ALi) SATA
-  o [libata ahci] more updates
-  o [libata ahci] fix several bugs
-  o [libata] fix typo from hand-merge
-  o [libata] add AHCI driver
-  o [ata piix] enable ICH5/6 combined mode quirk based on BLK_DEV_IDE_SATA
+  o Hand-merge typhoon conflicts
+  o [netdrvr eepro100] fix pci_iomap() args and info msg that follows
+  o [netdrvr b44] update MODULE_AUTHORS
+  o [netdrvr 8139cp] TSO support
+  o [netdev] Remove no-op in-driver implementations of ->set_config()
 
-Jeremy Higdon:
-  o per-port LED control for sata_vsc
+Jesse Brandeburg:
+  o e100: whitespace and DPRINTKS
+  o e100: fix NAPI race with watchdog
+  o ixgb: fix endianness issue for tx cleanup
 
-John W. Linville:
-  o libata: SMART support via ATA pass-thru
+Kenji Kaneshige:
+  o add missing pci_disable_device for e1000
+
+Maciej W. Rozycki:
+  o defxx device name fixes
+  o defxx trivial updates
+
+Manfred Spraul:
+  o rx checksum support for gige nForce ethernet
+
+Marc Singer:
+  o adding smc91x ethernet to lpd7a40x
+
+Margit Schubert-While:
+  o prism54 fix wpa_supplicant frequency parsing
+  o prism54 initial WPA support
+  o prism54 add WE17 support
+  o prism54 remove module params
+  o prism54 Code cleanup
+
+Mika Kukkonen:
+  o sparse: fix warnings in net/irda/*
+
+Nishanth Aravamudan:
+  o net/de2104x: replace schedule_timeout() with msleep()
+
+Olaf Hering:
+  o remove old version check from mac8390
+
+Pavel Machek:
+  o swsuspend for ne2k-pci cards
+
+Pekka Pietikäinen:
+  o b44: use bounce buffers to workaround chip DMA bug/limitations
+
+Ralf Bächle:
+  o Stop queue on close in hdlcdrv
+
+Rene Herman:
+  o 8139too Interframe Gap Time
+
+Roger Luethi:
+  o mc_filter on big-endian arch
+
+Steffen Klassert:
+  o 8139cp - add netpoll support
+
+Stephen Hemminger:
+  o 8139cp - module_param
+  o (4/4) acenic - don't spin forever in hard_start_xmit
+  o (3/4) acenic - __iomem warnings cleanup
+  o (2/4) acenic - eliminate MAX_SKB_FRAGS #if
+  o (1/4) acenic - use netdev_priv
 

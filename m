@@ -1,62 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268235AbUJMCKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268236AbUJMC0D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268235AbUJMCKO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 22:10:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268236AbUJMCKN
+	id S268236AbUJMC0D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 22:26:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268239AbUJMC0D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 22:10:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:48769 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268235AbUJMCJ4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 22:09:56 -0400
-Date: Tue, 12 Oct 2004 19:09:51 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: John Byrne <john.l.byrne@hp.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Still a mm bug in the fork error path
-In-Reply-To: <416C6915.9080201@hp.com>
-Message-ID: <Pine.LNX.4.58.0410121902100.3897@ppc970.osdl.org>
-References: <416C6915.9080201@hp.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 12 Oct 2004 22:26:03 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:52996 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S268236AbUJMC0B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 22:26:01 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: akropel1@rochester.rr.com (Adam Kropelin)
+Subject: Re: [linux-usb-devel] Re: [HID] Fix hiddev devfs oops
+Cc: herbert@gondor.apana.org.au, zaitcev@redhat.com,
+       marcelo.tosatti@cyclades.com, vojtech@suse.cz,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <004a01c4b0be$c33a28e0$03c8a8c0@kroptech.com>
+X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.usb.devel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1CHYko-0006rt-00@gondolin.me.apana.org.au>
+Date: Wed, 13 Oct 2004 12:20:38 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 12 Oct 2004, John Byrne wrote:
+Adam Kropelin <akropel1@rochester.rr.com> wrote:
 > 
-> @@ -1104,9 +1146,7 @@
->   bad_fork_cleanup_namespace:
->   	exit_namespace(p);
->   bad_fork_cleanup_mm:
-> -	exit_mm(p);
-> -	if (p->active_mm)
-> -		mmdrop(p->active_mm);
-> +	mmput(p->mm);
->   bad_fork_cleanup_signal:
->   	exit_signal(p);
->   bad_fork_cleanup_sighand:
-> 
-> However, the new code will panic if the thread being forked is a process 
-> with a NULL mm. It looks very unlikely to be hit in the real world, but 
-> it is possible.
+> Another scenario to keep in mind is unplugging a USB device while a process 
+> still has its corresponding hiddev node open. I fixed that issue in 2.6 a 
+> while ago. I'm not sure if 2.4 is susceptible. It may or may not be 
+> orthogonal to the problem your patch addresses.
 
-Hmm.. How does it happen? As far as I can tell, we only get here if
- - copy_thread or copy_namespaces had an error
-and "mm" can be NULL only for kernel threads.
-
-Now, I don't think any kernel threads will ask for new namespaces, so 
-copy_namespaces can't return an error. Similarly, I don't see how 
-copy_thread() could either (at least on x86 it can only return an error if 
-an IO bitmap allocation fails, I think - again something that shouldn't 
-happen for kernel threads. And most other architectures will never fail 
-at all, I do believe).
-
-> (My modified kernel makes it much more likely which is how I found it.)
-> The attached patch is against 2.6.9-rc4. This time for sure!
-
-I don't mind the patch per se, but I'd rather put it in after 2.6.9 unless
-you can tell me how this can actually happen with an unmodified kernel.
-
-			Linus
+It is unrelated to my issue but yet that fix is needed in 2.4 as well.
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

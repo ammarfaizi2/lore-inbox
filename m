@@ -1,57 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129593AbQLPTiV>; Sat, 16 Dec 2000 14:38:21 -0500
+	id <S131628AbQLPTkB>; Sat, 16 Dec 2000 14:40:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130449AbQLPTiA>; Sat, 16 Dec 2000 14:38:00 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:23305 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129455AbQLPThp>; Sat, 16 Dec 2000 14:37:45 -0500
-Date: Sat, 16 Dec 2000 11:07:00 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Chris Mason <mason@suse.com>
-cc: Jeff Chua <jeffchua@silk.corp.fedex.com>, linux-kernel@vger.kernel.org
-Subject: Re: Test12 ll_rw_block error.
-In-Reply-To: <Pine.LNX.4.10.10012160851270.30931-100000@home.suse.com>
-Message-ID: <Pine.LNX.4.10.10012161102470.21362-100000@penguin.transmeta.com>
+	id <S131632AbQLPTjv>; Sat, 16 Dec 2000 14:39:51 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18701 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131628AbQLPTjm>; Sat, 16 Dec 2000 14:39:42 -0500
+Subject: Linux 2.2.19pre2
+To: linux-kernel@vger.kernel.org
+Date: Sat, 16 Dec 2000 19:11:47 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E147MkJ-00036t-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Merge the Andrea VM changes. Nothing else in this pre-patch so we can be
+sure we know if it broke something. The other stuff is still on my in queue
+so don't resend it.
 
-On Sat, 16 Dec 2000, Chris Mason wrote:
-> 
-> In other words, after calling reiserfs_get_block, the buffer might be
-> mapped and uptodate, with no i/o required in block_read_full_page
-> 
-> The following patch to block_read_full_page fixes things for me, and seems
-> like a good idea in general.  It might be better to apply something
-> similar to submit_bh instead...comments?
+2.2.19pre2
+o	Drop the page aging for a moment to merge the
+	Andrea VM
+o	Merge Andrea's VM-global patch			(Andrea Arcangeli)
 
-Making the change to submit_bh() would make it look more like the old
-ll_rw_block() in this regard, but at the same time I really don't like the
-old ll_rw_block() interface that knew about semantics..
+2.2.19pre1
+o	Basic page aging				(Neil Schemenauer)
+	| This is a beginning to trying to get the VM right
+	| Next stage is to go through Andrea's stuff and sort 
+	| it out the way I want it.
+o	E820 memory detect backport from 2.4		(Michael Chen)
+o	Fix cs46xx refusing to run on emachines400	(me)
+o	Fix parport docs				(Tim Waugh)
+o	Fix USB serial name reporting			(me)
+o	Fix else warning in initio scsi			(John Fort)
+o	Fix incorrect timeout (that couldnt occur
+	fortunately) in sched.c				(Andrew Archibald)
+o	Fix A20 fix credits				(Christian Lademann)
+o	Support for OnStream SC-x0 tape drives		(Willem Riede, 
+							 Kurt Garloff)
+o	Intel 815 added to the AGPGART code		(Robert M Love)
+o	3Ware scsi fixes			(Arnaldo Carvalho de Melo)
+o	Clean up scsi_init_malloc no mem case	(Arnaldo Carvalho de Melo)
+o	Fix dead module parameter in ip_masq_user.c	(Keith Owens)
+o	Switch max_files and friends to a struct to	(Tigran Aivazian)
+	be sure they stay together
+o	Update microcode driver				(Tigran Aivazian)
+o	Fix free memory dereference in lance driver	(Eli Carter)
+o	ISOfs fixes 					(Andries Brouwer)
+o	Watchdog driver for Advantech boards		(Marek Michalkiewicz)
+o	ISDN updates					(Karsten Keil)
+o	Docs fix 					(Pavel Rabel)
+o	wake_one semantics for accept()			(Andrew Morton)
+o	Masquerade updates				(Juanjo Ciarlante)
+o	Add support for long serialnums on the Metricom	(Alex Belits)
+o	Onboard ethernet driver for the Intel 'Panther'	(Ard van Breemen,
+	boards						 Andries Brouwer)
+o	VIA686a timer reset to 18Hz background		(Vojtech Pavlik)
+o	3c527 driver rewrite				(Richard Procter)
+	| This supercedes my driver because
+	| - it works for more people
+	| - he has time to use his MCA box to debug it
+o	Minix subpartition support			(Anand Krishnamurthy 
+							 Rajeev Pillai)
+o	Remove unused() crap from DRM. You will need
+	to hand load agp as well if needed		(me)
 
-Your patch looks fine, although I'd personally prefer this one even more:
 
-	fs/buffer.c patch cut-and-paste:
-	+++ fs/buffer.c Sat Dec 16 11:02:44 2000
-	@@ -1700,6 +1693,9 @@
-	                                set_bit(BH_Uptodate, &bh->b_state);
-	                                continue;
-	                        }
-	+                       /* get_block() might have updated the buffer synchronously */
-	+                       if (buffer_uptodate(bh))
-	+                               continue;
-	                }
-	 
-	                arr[nr] = bh;
-
-which makes it explicit about how we could have suddenly gotten an
-up-to-date buffer. Does that work for you?
-
-		Linus
+--
+Alan Cox <alan@lxorguk.ukuu.org.uk>
+Red Hat Kernel Hacker
+& Linux 2.2 Maintainer                        Brainbench MVP for TCP/IP
+http://www.linux.org.uk/diary                 http://www.brainbench.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

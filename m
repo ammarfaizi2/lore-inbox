@@ -1,51 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262831AbVAQSPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262840AbVAQSTZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262831AbVAQSPO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 13:15:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262829AbVAQSOx
+	id S262840AbVAQSTZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 13:19:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262829AbVAQSP5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 13:14:53 -0500
-Received: from terminus.zytor.com ([209.128.68.124]:34260 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S262832AbVAQSNa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 13:13:30 -0500
-Message-ID: <41EBFF87.6080105@zytor.com>
-Date: Mon, 17 Jan 2005 10:10:15 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+	Mon, 17 Jan 2005 13:15:57 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:8084 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262826AbVAQSMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 13:12:48 -0500
+Message-ID: <41EC0024.9010708@comcast.net>
+Date: Mon, 17 Jan 2005 13:12:52 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Tigran Aivazian <tigran@veritas.com>
-CC: Arjan van de Ven <arjan@infradead.org>, Jan Hubicka <jh@suse.cz>,
-       Jack F Vogel <jfv@bluesong.net>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [discuss] booting a kernel compiled with -mregparm=0
-References: <Pine.LNX.4.61.0501141623530.3526@ezer.homenet>  <20050114205651.GE17263@kam.mff.cuni.cz>  <Pine.LNX.4.61.0501141613500.6747@chaos.analogic.com>  <cs9v6f$3tj$1@terminus.zytor.com>  <Pine.LNX.4.61.0501170909040.4593@ezer.homenet> <1105955608.6304.60.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0501171002190.4644@ezer.homenet>
-In-Reply-To: <Pine.LNX.4.61.0501171002190.4644@ezer.homenet>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux Kernel Audit Project?
+References: <41EB6691.10905@comcast.net>  <41EB6BD6.5070702@comcast.net> <1105962233.12709.68.camel@localhost.localdomain>
+In-Reply-To: <1105962233.12709.68.camel@localhost.localdomain>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tigran Aivazian wrote:
-> On Mon, 17 Jan 2005, Arjan van de Ven wrote:
-> 
->>> Actually, having cc'd Linus made me think very _carefully_ about what I
->>> say and I went and checked how the userspace does it, as I couldn't
->>> believe that such fine piece of software as gdb would be broken as well.
->>> And to my surprize I discovered that gdb (when a program is compiled 
->>> with
->>> -g) works fine! I.e. it shows the function arguments correctly. And
->>
->> so why don't you use kgdb instead of kdb ?
-> 
-> If kdb was some dead unmaintained piece of software then, yes, I would 
-> follow your advice and switch to kgdb. But kdb is a very nice and 
-> actively maintained piece of work, so it should be fixed to show the 
-> parameter values correctly in the backtrace.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-That's a kdb maintainer issue.  The x86-64 folks have nicely provided a 
-set of libraries to do backtraces, etc.  Your previous rant is just so 
-far off base it's not even funny.
 
-	-hpa
+
+Alan Cox wrote:
+> On Llu, 2005-01-17 at 07:40, John Richard Moser wrote:
+> 
+>>On the same line, I've been graphing Ubuntu Linux Security Notices for a
+>>while.  I've noticed that in the last 5, the number of kernel-related
+>>vulnerabilities has doubled (3 more).  This disturbs me.
+> 
+> 
+> I've been monitoring the kernel security stuff for a long time too.
+> There are several obvious trends and I think most are positive
+> 
+> - Tools like coverity and sparse are significantly increasing the number
+> of flaws found. In particular they are turning up long time flaws in
+> code, but they also mean new flaws of that type are being found. People
+> aren't really turning these tools onto user space - yet -
+> 
+
+These are great, but I don't think such tools could cover all issues,
+especially in the kernel (where hardware is a factor).  Perhaps by
+hammering a function with every input possible, but eh.
+
+Humans create the tools, humans create the flaws.  Thus, humans create
+flaws in the tools.  Humans of course aren't staticly flawed (as the
+tools will be), so they or other humans can notice bugs they missed before.
+
+> - We get bursts of holes of a given type. If you plot things like
+> "buffer overflow" "structure passed to user space not cleaned" "maths
+> overflow check error" against time you'll see they show definite
+> patterns with spikes decaying at different rates towards zero.
+> 
+
+\o/
+
+> There are also people other than Linus who read every single changeset.
+> I do for one.
+> 
+
+"Read" and "Audit" are two different things.  I can read a changeset and
+see that a[10] got a 20 character string into it; I will NOT see that a
+particular execution path 17 function calls long under one obscure but
+possible and deliberately activatable condition causes memory corruption.
+
+I thought the purpose of an audit was to sit down and give the code
+several long, hard looks from different perspectives; though I've never
+done one (I hope to in the future), so I wouldn't know would I?
+
+Maybe I should stop talking before I make myself look stupider...
+
+> Alan
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB7AAjhDd4aOud5P8RAlQqAJ9eVwAClqkqMLETCyIFC6UeyKX0ogCfUUwN
+2EWlPWnym7IHz4a/bVBQHmU=
+=VpA2
+-----END PGP SIGNATURE-----

@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264274AbUD0SgQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264269AbUD0SvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264274AbUD0SgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 14:36:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbUD0SgQ
+	id S264269AbUD0SvF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 14:51:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264273AbUD0SvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 14:36:16 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:57240 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264274AbUD0SgN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 14:36:13 -0400
-Date: Tue, 27 Apr 2004 20:36:07 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Kenneth Johansson <ken@kenjo.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] DVD writing in 2.6.6-rc2
-Message-ID: <20040427183607.GA3011@suse.de>
-References: <1083088772.2679.11.camel@tiger>
+	Tue, 27 Apr 2004 14:51:05 -0400
+Received: from dsl-hkigw3hb0.dial.inet.fi ([80.222.39.176]:42525 "EHLO
+	mail.sonarnerd.net") by vger.kernel.org with ESMTP id S264269AbUD0SvD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 14:51:03 -0400
+Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
+	for idle=C1halt, 2.6.5
+From: Jussi Laako <jussi@sonarnerd.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1083088854.2322.38.camel@dhcppc4>
+References: <Pine.GHP.4.44.0404271807470.6154-100000@elektron.its.tudelft.nl>
+	 <1083088854.2322.38.camel@dhcppc4>
+Content-Type: text/plain
+Message-Id: <1083091888.18016.11.camel@vaarlahti.uworld>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1083088772.2679.11.camel@tiger>
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 27 Apr 2004 21:51:28 +0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 27 2004, Kenneth Johansson wrote:
-> I have a problem when using growisofs version 5.19.
-> 
-> The problem is that in the very end when gowisofs tries to flush the
-> cache. When stracing the process I can see it sits in a call to poll
-> that never returns. 
-> 
-> I noticed that if I start growisofs and later attach to it with "strace
-> -p" I can make it continue with killing the strace process. just to see
-> it hang in the next poll. But re attaching then killing the strace again
-> a few times and growisofs finally dose a normal exit.
-> 
-> This happens every time. 
+On Tue, 2004-04-27 at 21:00, Len Brown wrote:
 
-I noted the same thing yesterday with cdrdao, so yours is not an
-isolated incident. I'll debug it tomorrow.
+> I run "optimized defaults", I don't overclock anything.
+> Processor is an AMD XP 2200+
+> Does anybody else see the hang with this processor model?
+> I wonder if the hang is processor model or speed dependent?
+
+Have people run memtest86 over weekend without errors?
+
+I found nForce2 (newer ones, rev2? A7N8X rev 2 and K7N2 Delta) to be
+veery picky to DDR400 RAMs. I was able to find 2 properly working memory
+modules out of 6. Also tested with several different brands. However
+A7N8X rev 1 runs fine without need for carefully picking memory modules.
+
+Memory test may need to be run over 48 hours to detect errors. But the
+time required may be lower when running Linux kernel.
+
 
 -- 
-Jens Axboe
+Jussi Laako <jussi@sonarnerd.net>
 

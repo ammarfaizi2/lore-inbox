@@ -1,69 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265936AbTBTQhM>; Thu, 20 Feb 2003 11:37:12 -0500
+	id <S265998AbTBTQjQ>; Thu, 20 Feb 2003 11:39:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265939AbTBTQhL>; Thu, 20 Feb 2003 11:37:11 -0500
-Received: from uucp.cistron.nl ([62.216.30.38]:22547 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S265936AbTBTQhK>;
-	Thu, 20 Feb 2003 11:37:10 -0500
-From: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: [patch] procfs/procps threading performance speedup, 2.5.62
-Date: Thu, 20 Feb 2003 16:47:15 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <b330qj$sri$1@news.cistron.nl>
-References: <Pine.LNX.4.44.0302201656030.30000-100000@localhost.localdomain>
+	id <S266010AbTBTQjQ>; Thu, 20 Feb 2003 11:39:16 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:32712 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S265998AbTBTQjO>;
+	Thu, 20 Feb 2003 11:39:14 -0500
+Date: Thu, 20 Feb 2003 17:49:01 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Paul E. Erkkila" <pee@erkkila.org>
+Cc: linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: vcdxrip , CDROM_SEND_PACKET, and 2.5.42->2.5.43 ide-cd changes
+Message-ID: <20030220164901.GZ31031@suse.de>
+References: <3E5500BF.2000706@erkkila.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1045759635 29554 62.216.29.200 (20 Feb 2003 16:47:15 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E5500BF.2000706@erkkila.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.44.0302201656030.30000-100000@localhost.localdomain>,
-Ingo Molnar  <mingo@elte.hu> wrote:
->the fix for this is two-fold. First, it must be possible for procps to
->separate 'threads' from 'processes' without having to go into 16 thousand
->directories. I solved this by prefixing 'threads' (ie. non-group-leader
->threads) with a dot ('.') character in the /proc listing:
+On Thu, Feb 20 2003, Paul E. Erkkila wrote:
+> 
+> 
+> Hi,
+> 
+>  I often use vcdxrip to pull mpeg data off of
+> old vcd's/svcds to archive to tape/dvd. This
+> worked fine in the 2.5 kernel series up to
+> 2.5.42 where it worked after running the app
+> more then once ( i assumed it was an initialization
+> error someplace). After kernel 2.5.43 it no longer
+> works. I've sent mail to the authors and they
+> suggested switching it from using ioctl(CDROM_SEND_PACKET)
+> to ioctl(CDROMREADMODE2) , which does work only
+> a little slower.
+> 
+> I've traced it down to cdrom_queue_packet_command() in ide-cd.c
+> returning a 0 error status from ide_do_drive_cmd(), and
+> req.data_len is 0, and there doesn't appear to be any sense
+> available.
 
-Why not put threads belonging to a thread group into /proc/17072/threads ?
+Hmm interesting, nothing comes to mind right now. I'll try vcdxrip
+myself, please tell me how you typically invoke it to produce the bug.
 
-> $ ls -a /proc
+The best approach for 2.5.x and later is to use the SG_IO ioctl. It's
+similar in spirit to CDROM_SEND_PACKET, but much faster. CDROMREADMODE2
+should work too, of course.
 
-I'm seeing 17072 as a group-leader and the 'threads' as .17073 etc.
-When you put all 'threads' into /proc/17072/threads, you'd get
-/proc/17072/threads/17072, /proc/17072/threads/17073, etc.
-/proc/17072 would show stats for the whole threads group, while
-/proc/17072/threads/17072 would show stats for just that thread.
-
->the .17073 ... .17082 entries belong to the thread-group 17072.
-
-Yuck ;(
-
->The key here is for procps to be able to parse threads without having to
->call into the kernel 16K times. The dot-approach also has the added
->benefit of 'hiding' threads in the default 'ls /proc' listing.
-
-What is against /proc/<pid>/threads ?
-
->the other change needed was the ability to read comulative CPU usage
->statistics from the thread group leader. I've introduced 4 new fields in
->/proc/PID/stat for that purpose, the kernel keeps those uptodate across
->fork/exit and in the timer interrupt - it's very low-overhead.
-
-That would also be solved with /proc/<pid> and /proc/<pid>/threads/<thread>
-
->another advantage of this approach is that old procps is fully compatible
->with the new kernel, and new procps is fully compatible with old kernels.  
-
-That would also be the case with /proc/<pid>/threads
-
-Mike.
 -- 
-Anyone who is capable of getting themselves made President should
-on no account be allowed to do the job -- Douglas Adams.
+Jens Axboe
 

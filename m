@@ -1,361 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289088AbSANWLy>; Mon, 14 Jan 2002 17:11:54 -0500
+	id <S289092AbSANWOy>; Mon, 14 Jan 2002 17:14:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289089AbSANWLq>; Mon, 14 Jan 2002 17:11:46 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:24506 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S289088AbSANWLi>; Mon, 14 Jan 2002 17:11:38 -0500
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200201142211.g0EMBPa09047@eng2.beaverton.ibm.com>
-Subject: [PATCH] Mostly PAGE_SIZE IO for RAW (FINAL VERSION)
-To: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Date: Mon, 14 Jan 2002 14:11:25 -0800 (PST)
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S289096AbSANWOp>; Mon, 14 Jan 2002 17:14:45 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:4231
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S289092AbSANWO2>; Mon, 14 Jan 2002 17:14:28 -0500
+Date: Mon, 14 Jan 2002 16:59:09 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: linux-kernel@vger.kernel.org
+Subject: Penelope builds a kernel
+Message-ID: <20020114165909.A20808@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Scenario #3: Penelope goes where the geeks are surfing.
 
-Here is the final version of the patch for doing mostly 4K size IO
-for RAW. (2.4.17). In this version, I incorporate all the code 
-review comments from Andrea. Thanks to Andrea.
+The girl geek Melvin noticed over at the computer lab is named
+Penelope.  She's studying proteomics, and runs Linux on the laptop she
+just bought because Linux supports the best software she can afford
+for modeling protein folding.
 
-Marcelo, would you please consider this patch for 2.4.18-pre4 ?
-Please let me know, if you want me to make the patch for 2.4.18-pre3. 
+Penelope is what the trade rags call a "power user".  She's pretty
+bright, and likes computers, but she's got more important things to
+think about than the details of how to configure a kernel.  Like
+getting a better handle on the effect of van der Waals forces on alpha
+sheets, or the latest paper on ribosomal electron transport, or why
+she can't seem to meet men who don't bore the crap out of her even in
+a fair-sized college town.
 
-Thanks,
-Badari
+She's just heard about a PCMCIA card that has a MEMS array of chemical
+sensors on it.  The thing could replace the bulky, balky
+gel-chromatography setup she's using now, and make it unnecessary for
+her to fight other students for bench time.  There's even a Linux
+driver for the card (and user-space utilities to talk to it) on one of
+the bio sites she uses -- way too specialized an item for her distro
+to carry, and anyway she doesn't want to wait for the next release.
 
+Penelope needs to build a kernel to support her exotic driver, but she
+hasn't got more than the vaguest idea how to go about it.  The
+instructions with the driver source patch tell her to apply it at the
+top level of a current Linux source tree and then just say "build the
+kernel" before getting off into technicalia about the user-space
+tools.
 
-diff -Nur -X dontdiff linux/drivers/block/ll_rw_blk.c linux-2417newvary/drivers/block/ll_rw_blk.c
---- linux/drivers/block/ll_rw_blk.c	Mon Oct 29 12:11:17 2001
-+++ linux-2417newvary/drivers/block/ll_rw_blk.c	Mon Jan 14 20:30:01 2002
-@@ -118,6 +118,13 @@
- int * max_sectors[MAX_BLKDEV];
- 
- /*
-+ * blkdev_varyio indicates if variable size IO can be done on a device.
-+ *
-+ * Currently used for doing variable size IO on RAW devices.
-+ */
-+char * blkdev_varyio[MAX_BLKDEV];
-+
-+/*
-  * How many reqeusts do we allocate per queue,
-  * and how many do we "batch" on freeing them?
-  */
-@@ -902,6 +909,38 @@
- 	 */
- 	bh->b_rdev = bh->b_dev;
- 	bh->b_rsector = bh->b_blocknr * count;
-+
-+	generic_make_request(rw, bh);
-+
-+	switch (rw) {
-+		case WRITE:
-+			kstat.pgpgout += count;
-+			break;
-+		default:
-+			kstat.pgpgin += count;
-+			break;
-+	}
-+}
-+
-+/*
-+ * submit_bh_blknr() - same as submit_bh() except that b_rsector is
-+ * set to b_blocknr. Used for RAW VARY.
-+ */
-+void submit_bh_blknr(int rw, struct buffer_head * bh)
-+{
-+	int count = bh->b_size >> 9;
-+
-+	if (!test_bit(BH_Lock, &bh->b_state))
-+		BUG();
-+
-+	set_bit(BH_Req, &bh->b_state);
-+
-+	/*
-+	 * First step, 'identity mapping' - RAID or LVM might
-+	 * further remap this.
-+	 */
-+	bh->b_rdev = bh->b_dev;
-+	bh->b_rsector = bh->b_blocknr;
- 
- 	generic_make_request(rw, bh);
- 
-diff -Nur -X dontdiff linux/drivers/char/raw.c linux-2417newvary/drivers/char/raw.c
---- linux/drivers/char/raw.c	Sat Sep 22 20:35:43 2001
-+++ linux-2417newvary/drivers/char/raw.c	Mon Jan 14 17:58:42 2002
-@@ -23,6 +23,7 @@
- 	struct block_device *binding;
- 	int inuse, sector_size, sector_bits;
- 	struct semaphore mutex;
-+	int can_do_vary;
- } raw_device_data_t;
- 
- static raw_device_data_t raw_devices[256];
-@@ -137,6 +138,7 @@
- 	for (sector_bits = 0; !(sector_size & 1); )
- 		sector_size>>=1, sector_bits++;
- 	raw_devices[minor].sector_bits = sector_bits;
-+	filp->f_iobuf->dovary = raw_devices[minor].can_do_vary;
- 
-  out:
- 	up(&raw_devices[minor].mutex);
-@@ -225,6 +227,8 @@
- 				bdput(raw_devices[minor].binding);
- 			raw_devices[minor].binding = 
- 				bdget(kdev_t_to_nr(MKDEV(rq.block_major, rq.block_minor)));
-+			raw_devices[minor].can_do_vary = 
-+				get_blkdev_varyio(rq.block_major, rq.block_minor);
- 			up(&raw_devices[minor].mutex);
- 		} else {
- 			struct block_device *bdev;
-@@ -301,6 +305,7 @@
- 		if (err)
- 			goto out;
- 		new_iobuf = 1;
-+		iobuf->dovary = raw_devices[minor].can_do_vary;
- 	}
- 
- 	dev = to_kdev_t(raw_devices[minor].binding->bd_dev);
-diff -Nur -X dontdiff linux/drivers/scsi/aic7xxx/aic7xxx_linux_host.h linux-2417newvary/drivers/scsi/aic7xxx/aic7xxx_linux_host.h
---- linux/drivers/scsi/aic7xxx/aic7xxx_linux_host.h	Thu Oct 25 13:53:49 2001
-+++ linux-2417newvary/drivers/scsi/aic7xxx/aic7xxx_linux_host.h	Fri Jan 11 21:39:18 2002
-@@ -89,7 +89,8 @@
- 	present: 0,		/* number of 7xxx's present   */\
- 	unchecked_isa_dma: 0,	/* no memory DMA restrictions */\
- 	use_clustering: ENABLE_CLUSTERING,			\
--	use_new_eh_code: 1					\
-+	use_new_eh_code: 1,					\
-+	can_do_varyio: 1					\
- }
- 
- #endif /* _AIC7XXX_LINUX_HOST_H_ */
-diff -Nur -X dontdiff linux/drivers/scsi/hosts.h linux-2417newvary/drivers/scsi/hosts.h
---- linux/drivers/scsi/hosts.h	Thu Nov 22 11:49:15 2001
-+++ linux-2417newvary/drivers/scsi/hosts.h	Mon Jan 14 20:27:43 2002
-@@ -292,6 +292,11 @@
-     unsigned emulated:1;
- 
-     /*
-+     * True for drivers which can handle variable length IO
-+     */
-+    unsigned can_do_varyio:1;
-+
-+    /*
-      * Name of proc directory
-      */
-     char *proc_name;
-diff -Nur -X dontdiff linux/drivers/scsi/qlogicisp.h linux-2417newvary/drivers/scsi/qlogicisp.h
---- linux/drivers/scsi/qlogicisp.h	Fri Nov 12 04:40:46 1999
-+++ linux-2417newvary/drivers/scsi/qlogicisp.h	Thu Jan 10 22:51:55 2002
-@@ -84,7 +84,8 @@
- 	cmd_per_lun:		1,					   \
- 	present:		0,					   \
- 	unchecked_isa_dma:	0,					   \
--	use_clustering:		DISABLE_CLUSTERING			   \
-+	use_clustering:		DISABLE_CLUSTERING,			   \
-+	can_do_varyio:		1					   \
- }
- 
- #endif /* _QLOGICISP_H */
-diff -Nur -X dontdiff linux/drivers/scsi/sd.c linux-2417newvary/drivers/scsi/sd.c
---- linux/drivers/scsi/sd.c	Fri Nov  9 14:05:06 2001
-+++ linux-2417newvary/drivers/scsi/sd.c	Mon Jan 14 20:26:30 2002
-@@ -91,6 +91,7 @@
- static int *sd_blocksizes;
- static int *sd_hardsizes;	/* Hardware sector size */
- static int *sd_max_sectors;
-+static char *sd_varyio;
- 
- static int check_scsidisk_media_change(kdev_t);
- static int fop_revalidate_scsidisk(kdev_t);
-@@ -1110,6 +1111,12 @@
- 	if (!sd_max_sectors)
- 		goto cleanup_max_sectors;
- 
-+	sd_varyio = kmalloc((sd_template.dev_max << 4), GFP_ATOMIC);
-+	if (!sd_varyio)
-+		goto cleanup_varyio;
-+
-+	memset(sd_varyio, 0, (sd_template.dev_max << 4)); 
-+
- 	for (i = 0; i < sd_template.dev_max << 4; i++) {
- 		sd_blocksizes[i] = 1024;
- 		sd_hardsizes[i] = 512;
-@@ -1179,6 +1186,8 @@
- cleanup_sd_gendisks:
- 	kfree(sd);
- cleanup_sd:
-+	kfree(sd_varyio);
-+cleanup_varyio:
- 	kfree(sd_max_sectors);
- cleanup_max_sectors:
- 	kfree(sd_hardsizes);
-@@ -1241,6 +1250,8 @@
- 	return 1;
- }
- 
-+#define SD_DISK_MAJOR(i)	SD_MAJOR((i) >> 4)
-+
- static int sd_attach(Scsi_Device * SDp)
- {
-         unsigned int devnum;
-@@ -1274,6 +1285,14 @@
- 	printk("Attached scsi %sdisk %s at scsi%d, channel %d, id %d, lun %d\n",
- 	       SDp->removable ? "removable " : "",
- 	       nbuff, SDp->host->host_no, SDp->channel, SDp->id, SDp->lun);
-+
-+	if (SDp->host->hostt->can_do_varyio) {
-+		if (blkdev_varyio[SD_DISK_MAJOR(i)] == NULL) {
-+			blkdev_varyio[SD_DISK_MAJOR(i)] = 
-+				sd_varyio + ((i / SCSI_DISKS_PER_MAJOR) >> 8);
-+		}
-+		memset(blkdev_varyio[SD_DISK_MAJOR(i)] + (devnum << 4), 1, 16);
-+	}
- 	return 0;
- }
- 
-@@ -1399,6 +1418,7 @@
- 		kfree(sd_sizes);
- 		kfree(sd_blocksizes);
- 		kfree(sd_hardsizes);
-+		kfree(sd_varyio);
- 		kfree((char *) sd);
- 	}
- 	for (i = 0; i < N_USED_SD_MAJORS; i++) {
-diff -Nur -X dontdiff linux/fs/buffer.c linux-2417newvary/fs/buffer.c
---- linux/fs/buffer.c	Fri Jan 11 18:11:37 2002
-+++ linux-2417newvary/fs/buffer.c	Mon Jan 14 20:23:20 2002
-@@ -2071,11 +2071,11 @@
- 	err = 0;
- 
- 	for (i = nr; --i >= 0; ) {
--		iosize += size;
- 		tmp = bh[i];
- 		if (buffer_locked(tmp)) {
- 			wait_on_buffer(tmp);
- 		}
-+		iosize += tmp->b_size;
- 		
- 		if (!buffer_uptodate(tmp)) {
- 			/* We are traversing bh'es in reverse order so
-@@ -2118,6 +2118,7 @@
- 	struct kiobuf *	iobuf = NULL;
- 	struct page *	map;
- 	struct buffer_head *tmp, **bhs = NULL;
-+	int		iosize = size;
- 
- 	if (!nr)
- 		return 0;
-@@ -2154,7 +2155,7 @@
- 			}
- 			
- 			while (length > 0) {
--				blocknr = b[bufind++];
-+				blocknr = b[bufind];
- 				if (blocknr == -1UL) {
- 					if (rw == READ) {
- 						/* there was an hole in the filesystem */
-@@ -2167,9 +2168,15 @@
- 					} else
- 						BUG();
- 				}
-+				if (iobuf->dovary) {
-+					iosize = RAWIO_BLOCKSIZE - offset;
-+					if (iosize > length)
-+						iosize = length;
-+				}
-+				bufind += (iosize/size);
- 				tmp = bhs[bhind++];
- 
--				tmp->b_size = size;
-+				tmp->b_size = iosize;
- 				set_bh_page(tmp, map, offset);
- 				tmp->b_this_page = tmp;
- 
-@@ -2185,7 +2192,10 @@
- 					set_bit(BH_Uptodate, &tmp->b_state);
- 
- 				atomic_inc(&iobuf->io_count);
--				submit_bh(rw, tmp);
-+				if (iobuf->dovary) 
-+					submit_bh_blknr(rw, tmp);
-+				else 
-+					submit_bh(rw, tmp);
- 				/* 
- 				 * Wait for IO if we have got too much 
- 				 */
-@@ -2200,8 +2210,8 @@
- 				}
- 
- 			skip_block:
--				length -= size;
--				offset += size;
-+				length -= iosize;
-+				offset += iosize;
- 
- 				if (offset >= PAGE_SIZE) {
- 					offset = 0;
-diff -Nur -X dontdiff linux/include/linux/blkdev.h linux-2417newvary/include/linux/blkdev.h
---- linux/include/linux/blkdev.h	Mon Nov 26 05:29:17 2001
-+++ linux-2417newvary/include/linux/blkdev.h	Mon Jan 14 20:26:02 2002
-@@ -175,6 +175,8 @@
- 
- extern int * max_segments[MAX_BLKDEV];
- 
-+extern char * blkdev_varyio[MAX_BLKDEV];
-+
- #define MAX_SEGMENTS 128
- #define MAX_SECTORS 255
- 
-@@ -228,4 +230,12 @@
- 	return retval;
- }
- 
-+static inline int get_blkdev_varyio(int major, int minor)
-+{
-+	int retval = 0;
-+	if (blkdev_varyio[major]) {
-+		retval = blkdev_varyio[major][minor];	
-+	}
-+	return retval;
-+}
- #endif
-diff -Nur -X dontdiff linux/include/linux/fs.h linux-2417newvary/include/linux/fs.h
---- linux/include/linux/fs.h	Fri Jan 11 18:11:38 2002
-+++ linux-2417newvary/include/linux/fs.h	Mon Jan 14 20:24:00 2002
-@@ -1350,6 +1350,7 @@
- extern struct buffer_head * getblk(kdev_t, int, int);
- extern void ll_rw_block(int, int, struct buffer_head * bh[]);
- extern void submit_bh(int, struct buffer_head *);
-+extern void submit_bh_blknr(int, struct buffer_head *);
- extern int is_read_only(kdev_t);
- extern void __brelse(struct buffer_head *);
- static inline void brelse(struct buffer_head *buf)
-diff -Nur -X dontdiff linux/include/linux/iobuf.h linux-2417newvary/include/linux/iobuf.h
---- linux/include/linux/iobuf.h	Thu Nov 22 11:46:26 2001
-+++ linux-2417newvary/include/linux/iobuf.h	Mon Jan 14 20:26:02 2002
-@@ -28,6 +28,8 @@
- #define KIO_STATIC_PAGES	(KIO_MAX_ATOMIC_IO / (PAGE_SIZE >> 10) + 1)
- #define KIO_MAX_SECTORS		(KIO_MAX_ATOMIC_IO * 2)
- 
-+#define RAWIO_BLOCKSIZE		4096
-+
- /* The main kiobuf struct used for all our IO! */
- 
- struct kiobuf 
-@@ -44,7 +46,8 @@
- 
- 	struct page **	maplist;
- 
--	unsigned int	locked : 1;	/* If set, pages has been locked */
-+	unsigned int	locked : 1,	/* If set, pages has been locked */
-+			dovary : 1;	/* If set, do variable size IO */
- 	
- 	/* Always embed enough struct pages for atomic IO */
- 	struct page *	map_array[KIO_STATIC_PAGES];
+She could ask that guy who's been eyeing her over at the computer lab
+for help; Penelope knows what a penguin T-shirt means, and he's not
+too bad-looking, if a bit on the skinny side.  On the other hand, she
+knows that guys like that tend to take over the whole process when
+they're trying to be helpful; they can't help displaying their prowess
+and doing more than you asked for, it's biologically wired in.  And
+she's learned that letting someone else take over maintaining your
+equipment properly in a way you don't understand is a good way to have
+it flake out on you just short of a deadline.
+
+On the third hand, she really *doesn't* want to spend her think time
+absorbing a bunch of irrelevant hardware details just to get the one
+driver she needs up and running.  What she needs is some fast,
+hassle-free technological empowerment, not Yet Another Learning
+Experience. (And a boyfriend would be nice too, while she's wishing.)
+
+If Penelope learns from the README file that all *she* has to do is
+type "configure; make" to build a kernel that supports her hardware,
+she can apply that MEMS card patch and build with confidence that the
+effort is unlikely to turn into an infinite time sink.
+
+Autoconfigure saves the day again.  That guy in the penguin T-shirt
+might even be impressed...
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+"Guard with jealous attention the public liberty.  Suspect every one
+who approaches that jewel.  Unfortunately, nothing will preserve it
+but downright force.  Whenever you give up that force, you are
+inevitably ruined."	-- Patrick Henry, speech of June 5 1788

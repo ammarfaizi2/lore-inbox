@@ -1,66 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266964AbTBQKWN>; Mon, 17 Feb 2003 05:22:13 -0500
+	id <S266967AbTBQKZ6>; Mon, 17 Feb 2003 05:25:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266967AbTBQKWN>; Mon, 17 Feb 2003 05:22:13 -0500
-Received: from [213.69.232.58] ([213.69.232.58]:60169 "HELO schottelius.net")
-	by vger.kernel.org with SMTP id <S266964AbTBQKWM>;
-	Mon, 17 Feb 2003 05:22:12 -0500
-Date: Sat, 15 Feb 2003 16:31:55 +0100
-From: Nico Schottelius <schottelius@wdt.de>
-To: Torrey Hoffman <thoffman@arnor.net>
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-fbdev-devel] Re: New logo code [CONFIG OPTIONS]
-Message-ID: <20030215153154.GB469@schottelius.org>
-References: <Pine.GSO.4.21.0302051336170.16681-100000@vervain.sonytel.be> <1044472678.1321.388.camel@rohan.arnor.net>
+	id <S266970AbTBQKZ5>; Mon, 17 Feb 2003 05:25:57 -0500
+Received: from mail.zmailer.org ([62.240.94.4]:6555 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S266967AbTBQKZ5>;
+	Mon, 17 Feb 2003 05:25:57 -0500
+Date: Mon, 17 Feb 2003 12:35:53 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Mark J Roberts <mjr@znex.org>, linux-kernel@vger.kernel.org
+Subject: Re: Annoying /proc/net/dev rollovers.
+Message-ID: <20030217103553.GH1073@mea-ext.zmailer.org>
+References: <20030216221616.GA246@znex> <20030217014111.GA2244@f00f.org> <20030217024605.GB246@znex> <20030217042156.GA2759@f00f.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tsOsTdHNUZQcU9Ye"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1044472678.1321.388.camel@rohan.arnor.net>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux flapp 2.5.60
+In-Reply-To: <20030217042156.GA2759@f00f.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Feb 16, 2003 at 08:21:56PM -0800, Chris Wedgwood wrote:
+> On Sun, Feb 16, 2003 at 08:46:05PM -0600, Mark J Roberts wrote:
+> > When the windows box behind my NAT is using all of my 640kbit/sec
+> > downstream to download movies, it takes a little over 14 hours to
+> > download four gigabytes and roll over the byte counter.
+> 
+> Therefore userspace needs to check the counters more often... say ever
+> 30s or so and detect rollover.  Most of this could be simply
+> encapsulated in a library and made transparent to the upper layers.
 
---tsOsTdHNUZQcU9Ye
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+  Some of my colleques complained once, that at full tilt
+  the fiber-channel fabric overflowed its SNMP bitcounters
+  every 2 seconds.
 
-[snipped out patch discussion]
+  "we need to do polling more rapidly, than the poller can do"
 
-I think if the patch and the features talked about are included in the
-kernel we'll have (names are not correct)
+  The SNMP pollers do handle gracefully 32-bit unsigned overlow,
+  they just need to get snapshots in increments a bit under 2G...
+  (Hmm.. perhaps I remember that wrong, a bit under 4G should be ok.)
 
-CONFIG_LOGO=3Dy/n
-CONFIG_LOGO_XRES=3D128
-CONFIG_LOGO_YRES=3D64
-CONFIG_LOGO_BPP=3D8
-CONFIG_LOGO_PATH=3D"" # (/usr/src/linux/.../logo/tux.pnm)
-CONFIG_LOGO_POS_X=3D"left|center|right"  # or absolute ?
-CONFIG_LOGO_POS_Y=3D"top|center|bottom"  # like X windows +110,+200 ?
-CONFIG_LOGO_BGCOL=3D#ef0000              # depends on bpp of framebuffer...=
-=20
+>   --cw
 
-I think this would be enough for all and possible implementable for the
-developers..or am I wrong ?
-
-Greetings,
-
-Nico
-
---tsOsTdHNUZQcU9Ye
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE+Tl1qtnlUggLJsX0RAoU0AJ94PeWZpsfFrToOYGOCyv2O+IzZYQCfQzps
-v856NDyLp8A4vKMZjhEqrLg=
-=zOUg
------END PGP SIGNATURE-----
-
---tsOsTdHNUZQcU9Ye--
+/Matti Aarnio

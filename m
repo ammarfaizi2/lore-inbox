@@ -1,73 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317107AbSIEGcN>; Thu, 5 Sep 2002 02:32:13 -0400
+	id <S317066AbSIEGcL>; Thu, 5 Sep 2002 02:32:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317112AbSIEGcN>; Thu, 5 Sep 2002 02:32:13 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15888 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317107AbSIEGcK>;
+	id <S317112AbSIEGcL>; Thu, 5 Sep 2002 02:32:11 -0400
+Received: from bof.de ([195.4.223.10]:35220 "HELO oknodo.bof.de")
+	by vger.kernel.org with SMTP id <S317066AbSIEGcK>;
 	Thu, 5 Sep 2002 02:32:10 -0400
-Message-ID: <3D76FE71.E6633D03@zip.com.au>
-Date: Wed, 04 Sep 2002 23:49:21 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@surriel.com
-Subject: Re: statm_pgd_range() sucks!
-References: <20020830015814.GN18114@holomorphy.com> <3D6EDDC0.F9ADC015@zip.com.au> <20020905032035.GY888@holomorphy.com> <3D76E207.1FA08024@zip.com.au> <20020905060534.GZ888@holomorphy.com>
+Date: Thu, 5 Sep 2002 08:33:40 +0200
+From: Patrick Schaaf <bof@bof.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: bof@bof.de, rusty@rustcorp.com.au, ak@suse.de, laforge@gnumonks.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: ip_conntrack_hash() problem
+Message-ID: <20020905083340.E19551@oknodo.bof.de>
+References: <20020904152626.A11438@wotan.suse.de> <20020905044436.0772A2C0DF@lists.samba.org> <20020905082128.D19551@oknodo.bof.de> <20020904.232425.10994370.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020904.232425.10994370.davem@redhat.com>; from davem@redhat.com on Wed, Sep 04, 2002 at 11:24:25PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
+On Wed, Sep 04, 2002 at 11:24:25PM -0700, David S. Miller wrote:
 > 
-> William Lee Irwin III wrote:
-> >> I lost track of what the TODO's were but this is of relatively minor
-> >> import, and I lagged long enough this is against 2.5.33-mm2:
+>    B) I despise the (1 << ...htable_bits) construct, used in several places.
+>       It's nothing but obfuscation. Please reinstate ...htable_size, and
+>       use that, the code will be more readable.
 > 
-> On Wed, Sep 04, 2002 at 09:48:07PM -0700, Andrew Morton wrote:
-> > Well the TODO was to worry about the (very) incorrect reporting of
-> > mapping occupancy.  mmap(1G file), touch one byte of it (or none)
-> > and the thing will report 1G?
-> 
-> I don't know of anything actually meant to report mapping occupancy
-> (except full RSS) before or after this patch. Or have I blundered?
+> You despise, but the processor doesn't.  Less data loads
+> means the code goes faster.
 
-statm_pgd_range(pgd, vma->vm_start, vma->vm_end, &pages, &shared, &dirty, &total);
-                                                  ^^^^^
+Please explain. I don't think that matters here:
 
-`pages' there is the number of actually resident pages, yes?
-And it gets fed into trs, drs and lrs.
+Both _bits and _size are unsigned int, same amount of stuff to load. 
 
-But converting it to this:
+The one single per-packet-path use is in hash_conntrack(), where
+the _bits thing can be used without touching the _size thing.
 
-+               int pages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
-...
-+               if (vma->vm_flags & VM_SHARED)
-+                       shared += pages;
+All other places where the patch now uses _bits, really need _size,
+and do the ugly computation by shifting. And all those other places
+are called very rarely.
 
-Will mean that `shared' can be vastly overestimated.   I think??
+So, I don't see how your (abstractly true) observation is relevant, here.
 
-> On Wed, Sep 04, 2002 at 09:48:07PM -0700, Andrew Morton wrote:
-> > We figured that per-vma rss accounting would be easy and would fix
-> > it, then we remembered that vma's can be split into two, which
-> > screwed that plan most royally.
-> > Maybe when a VMA is split, we set the new VMA to have an rss of zero,
-> > and keep on doing the accounting.  That way, the sum-of-vmas is
-> > still correct even though the individual ones are wildly wrong??
-> 
-> Hmm, that could get hairy depending on how we want them grouped. It
-> might be better just to maintain RSS counters for the kinds of mappings
-> we're interested in. Doing pagetable walks to make splitvma() do that
-> right could perform poorly. Otherwise we'd have to find another
-> instance of the same kind of thing to "donate" our RSS to on unmap.
-
-A walk in split_vma would be unpopular..  Could we separate mm->rss
-up into text, stack and library or something?
-
-Or do we just not care?  I guess it's conceivably useful to know
-the residency of each mapping, but there doesn't seem to be an
-existing proc interface for that anyway.  And having them all
-rolled up into an mm-wide number is a lot of information loss.
+best regards
+  Patrick

@@ -1,45 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbUKPO3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbUKPOcj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261991AbUKPO3y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 09:29:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbUKPO1z
+	id S261989AbUKPOcj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 09:32:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261992AbUKPOaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 09:27:55 -0500
-Received: from holomorphy.com ([207.189.100.168]:19133 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261974AbUKPOY6 (ORCPT
+	Tue, 16 Nov 2004 09:30:13 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:12384 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261974AbUKPO2n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 09:24:58 -0500
-Date: Tue, 16 Nov 2004 06:24:46 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ravikiran G Thirumalai <kiran@in.ibm.com>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 4/4] Cleanup file_count usage: Avoid file_count usage for hugetlb nattach reporting
-Message-ID: <20041116142446.GM3217@holomorphy.com>
-References: <20041116135200.GA23257@impedimenta.in.ibm.com> <20041116141125.GE23257@impedimenta.in.ibm.com>
+	Tue, 16 Nov 2004 09:28:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
+        b=E3fsta41L5vGvQT37l3Sdw9x8uoDCOCPsXw8KfOZrO7C9w17p0KffSeW/4ofBrsGDE7NYby7pAGWZGniwHf/i3c6flh6Cg7ew+AHhWfLBdtF4iKLPo0JCEnG3u0M5yG8Ar74t7pqD7cfeEjV7YbYPdX+iM5AdrpUGqfKtPDV6z4=
+Message-ID: <aec7e5c304111606282acf7f6c@mail.gmail.com>
+Date: Tue, 16 Nov 2004 15:28:42 +0100
+From: Magnus Damm <magnus.damm@gmail.com>
+Reply-To: Magnus Damm <magnus.damm@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] documentation - ide params
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041116141125.GE23257@impedimenta.in.ibm.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_278_3948993.1100615322419"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 16, 2004 at 07:41:25PM +0530, Ravikiran G Thirumalai wrote:
-> The file_count macro usage to get the number of attaches to a hugetlb
-> sysv style shared memory segment, seems to work although it looks bogus
-> on the first look.  But we want to get rid of file_count macros and 
-> reads to struct file.f_count.  This patch cleans up the file_count usage
-> for shm hugetlb attaches.  The nattch counter is maintained on the same 
-> lines as in regular sysv shared memory segments. The file_operations for the 
-> struct file of the shared memory hugetlb segment now is different from the
-> hugetlbfs specific f_ops. 
-> Patch has been tested with some userspace testcases
-> Signed-off-by: Ravikiran Thirumalai <kiran@in.ibm.com>
+------=_Part_278_3948993.1100615322419
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I'm generally in favor of getting rid of the ->f_count twiddling from
-hugetlb, though I've not reviewed this closely.
+Hello again,
 
+This patch removes ide parameters marked as obsolete in the source and
+adds documentation for "ide=". I think I got it right, the important
+part for me is "ide=nodma".
 
--- wli
+/ magnus
+
+------=_Part_278_3948993.1100615322419
+Content-Type: text/x-patch; name="linux-2.6.10-rc2-ide_params.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; filename="linux-2.6.10-rc2-ide_params.patch"
+
+--- linux-2.6.10-rc2/Documentation/kernel-parameters.txt=092004-11-14 18:35=
+:07.000000000 +0100
++++ linux-2.6.10-rc2-ide_params/Documentation/kernel-parameters.txt=092004-=
+11-16 15:21:59.014002616 +0100
+@@ -504,10 +504,12 @@
+ =09icn=3D=09=09[HW,ISDN]
+ =09=09=09Format: <io>[,<membase>[,<icn_id>[,<icn_id2>]]]
+=20
++=09ide=3D=09=09[HW] (E)IDE subsystem
++=09=09=09Format: ide=3Dnodma or ide=3Ddoubler or ide=3Dreverse
++=09=09=09See Documentation/ide.txt.
++
+ =09ide?=3D=09=09[HW] (E)IDE subsystem
+-=09=09=09Config (iomem/irq), tuning or debugging
+-=09=09=09(serialize,reset,no{dma,tune,probe}) or chipset
+-=09=09=09specific parameters.
++=09=09=09Format: ide?=3Dnoprobe or chipset specific parameters.
+ =09=09=09See Documentation/ide.txt.
+ =09
+ =09idebus=3D=09=09[HW] (E)IDE subsystem - VLB/PCI bus speed
+
+------=_Part_278_3948993.1100615322419--

@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314149AbSH0TXZ>; Tue, 27 Aug 2002 15:23:25 -0400
+	id <S317096AbSH0Tcq>; Tue, 27 Aug 2002 15:32:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317072AbSH0TXZ>; Tue, 27 Aug 2002 15:23:25 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:38922 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id <S314149AbSH0TXY>;
-	Tue, 27 Aug 2002 15:23:24 -0400
-Date: Tue, 27 Aug 2002 21:27:38 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Steffen Persvold <sp@scali.com>
+	id <S317101AbSH0Tcp>; Tue, 27 Aug 2002 15:32:45 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:45067 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317096AbSH0Tcp>;
+	Tue, 27 Aug 2002 15:32:45 -0400
+Date: Tue, 27 Aug 2002 12:36:32 -0700
+From: Greg KH <greg@kroah.com>
+To: Felix Seeger <felix.seeger@gmx.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: your mail
-Message-ID: <20020827192738.GB28513@alpha.home.local>
-References: <Pine.LNX.4.44.0208271934180.18659-100000@sp-laptop.isdn.scali.no>
+Subject: Re: USB mouse problem, kernel panic on startup in 2.4.19
+Message-ID: <20020827193632.GD23865@kroah.com>
+References: <200208272011.51691.felix.seeger@gmx.de> <200208272023.52351.felix.seeger@gmx.de> <20020827183119.GB23700@kroah.com> <200208272130.14728.felix.seeger@gmx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208271934180.18659-100000@sp-laptop.isdn.scali.no>
+In-Reply-To: <200208272130.14728.felix.seeger@gmx.de>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 27, 2002 at 08:22:03PM +0200, Steffen Persvold wrote:
- 
-> I have an idea that this happens because the packets are comming out of 
-> order into the receiving node (i.e the bonding device is alternating 
-> between each interface when sending, and when the receiving node gets the 
-> packets it is possible that the first interface get packets number 0, 2, 
-> 4 and 6 in one interrupt and queues it to the network stack before packet 
-> 1, 3, 5 is handled on the other interface).
+On Tue, Aug 27, 2002 at 09:30:11PM +0200, Felix Seeger wrote:
+> No, sorry. Doesn't help.
+> Is that a patch for 2.4.20-pre4 ? I am using 2.4.19.
 
-You pointed your finger on this exact common problem.
-You can use the XOR bonding mode (modprobe bonding mode=2), which uses a
-hash of mac addresses to select the outgoing interface. This is interesting
-if you have lots of L2 hosts on the same network switch.
+Yes it is, but it might apply to 2.4.19.  I am guessing you tried it,
+and it applied cleanly?  Any build errors?
 
-Or if you have a few hosts on the same switch, you'd better use the "nexthop"
-parameter of "ip route". IIRC, it should be something like :
-  ip route add <destination> nexthop dev eth0 nexthop dev eth1
-but read the help, I'm not certain.
+> Oh, the shift and the numlock leds are blinking.
 
-Cheers,
-Willy
+That means the kernel paniced :)
 
+thanks,
+
+greg k-h

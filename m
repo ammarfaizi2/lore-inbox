@@ -1,76 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315459AbSFOSsV>; Sat, 15 Jun 2002 14:48:21 -0400
+	id <S315461AbSFOSvc>; Sat, 15 Jun 2002 14:51:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315461AbSFOSsU>; Sat, 15 Jun 2002 14:48:20 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37640 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315459AbSFOSsT>; Sat, 15 Jun 2002 14:48:19 -0400
-Date: Sat, 15 Jun 2002 11:48:17 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-        Vojtech Pavlik <vojtech@suse.cz>, Peter Osterlund <petero2@telia.com>,
-        Patrick Mochel <mochel@osdl.org>, Tobias Diedrich <ranma@gmx.at>,
-        Alessandro Suardi <alessandro.suardi@oracle.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.20 - Xircom PCI Cardbus doesn't work
-In-Reply-To: <3D0A45F2.1030202@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.44.0206151140400.3479-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315463AbSFOSvb>; Sat, 15 Jun 2002 14:51:31 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:985 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S315461AbSFOSva>;
+	Sat, 15 Jun 2002 14:51:30 -0400
+Date: Sat, 15 Jun 2002 20:51:28 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Anssi Saari <as@sci.fi>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux 2.4.19-preX IDE bugs
+Message-ID: <20020615205128.A17996@ucw.cz>
+In-Reply-To: <20020615171246.GB22017@sci.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jun 15, 2002 at 08:12:47PM +0300, Anssi Saari wrote:
+> On Fri, 14 Jun 2002, Andre Hedrick wrote: 
+> 
+> > http://www.tecchannel.de/hardware/817/index.html
+> > 
+> > Read about the JUNK hardware base you are working with.
+> > This is one of the reasons people avoid VIA. 
+> 
+> Do you have recommendations for chipsets for AMD CPUs, especially from
+> Linux IDE driver guy's point of view and especially regarding Linux
+> support for them? ALi, AMD, nVidia or SiS?
+> 
+> It seems hard to find any comparisons between current VIA and non-VIA
+> motherboards on the net. 
 
+ALi: don't know.
+AMD: Works fine. UDMA100 max. I like these best.
+nVidia: Only in 2.5 kernels.
+SiS: don't know.
+VIA: Works fine. If you're unlucky and get a bad board, then, well,
+	you're unlucky. Currently the fastest Athlon solution.
 
-On Fri, 14 Jun 2002, Jeff Garzik wrote:
->
-> Can someone clarify for me the need of pci_request_irq??
->
-> pci_enable_device() assigns the IRQ in routing, but it is not enabled
-> until you call request_irq.  I don't see any simplification that can be
-> done in the PCI API.
-
-The irq _is_ enabled ona hardware level.
-
-Which can be a total disaster if there are shared PCI irq's, and the
-interrupt is "screaming" (ie an active level-sensitive thing).
-
-We've had this on cardbus, for example, where we need to do an
-"pci_emable_device()" in order to get access to the PCI IO mappings, which
-are needed to shut the device up.
-
-Right now the solution to a screaming device can be something as nasty as
-
-	cli();
-	pci_enable_device();
-	disable_irq(dev->irq);
-	sti();
-
-	/* IRQ handling needs this ioremapped */
-	membase = ioremap(dev->resource[]);
-	request_irq(dev->irq);
-
-	/* Now we can enable the irq, because we have a valid handler */
-	enable_irq(dev->irq);
-
-which is horribly stupid. We really want to do
-
-	pci_enable_mem(dev);
-	membase = ioremap(dev->resource[]);
-
-	pci_request_irq(dev, irq_handler);
-
-where "pci_request_irq()" enables the interrupt and adds an interrupt
-handler atomically.
-
-> The only thing I've wanted is a cross-platform way to detect if
-> pdev->irq returned by pci_enable_device is valid.
-
-It's required to be valid, because if it isn't, then the platform is
-broken. There are no cross-platform issues: complain to the platform
-vendor and/or the linux code for that architecture.
-
-		Linus
-
+-- 
+Vojtech Pavlik
+SuSE Labs

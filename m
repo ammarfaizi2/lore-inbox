@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261434AbTH2QUh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 12:20:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbTH2QUh
+	id S261409AbTH2QQS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 12:16:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbTH2QQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 12:20:37 -0400
-Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:1552 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S261434AbTH2QUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 12:20:32 -0400
-Date: Fri, 29 Aug 2003 18:21:32 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
-       sensors@Stimpy.netroedge.com, vsu@altlinux.ru
-Subject: Re: [PATCH 2.4] i2c-dev user/kernel bug and mem leak
-Message-Id: <20030829182132.29c3ac55.khali@linux-fr.org>
-In-Reply-To: <1062033440.16799.22.camel@dooby.cs.berkeley.edu>
-References: <20030803192312.68762d3c.khali@linux-fr.org>
-	<20030804193212.11786d06.vsu@altlinux.ru>
-	<20030805103240.02221bed.khali@linux-fr.org>
-	<20030805210704.GA5452@kroah.com>
-	<20030806100702.78298ffe.khali@linux-fr.org>
-	<1060886657.1006.7121.camel@dooby.cs.berkeley.edu>
-	<20030814190954.GA2492@kroah.com>
-	<1060912895.1006.7160.camel@dooby.cs.berkeley.edu>
-	<20030815211329.GB4920@kroah.com>
-	<1062033440.16799.22.camel@dooby.cs.berkeley.edu>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Aug 2003 12:16:18 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:63404 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261409AbTH2QPS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 12:15:18 -0400
+Date: Fri, 29 Aug 2003 18:15:08 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IDE wierdness
+In-Reply-To: <1061394048.550.18.camel@dhcp23.swansea.linux.org.uk>
+Message-ID: <Pine.GSO.4.21.0308291810150.3919-100000@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 20 Aug 2003, Alan Cox wrote:
+> On Mer, 2003-08-20 at 16:09, Larry McVoy wrote:
+> > It's clear to me that I don't want to use this drive but I'm wondering if
+> > there is any interest in debugging the lock up.  I've only done it on
+> > 2.4.18 as shipped by redhat but I could try 2.6 or whatever you like.
+> > 
+> > If the concensus is that it is OK that bad hardware locks you up then I'll
+> > toss the drive and move on.
+> 
+> Some PIO transfers are regulated by the drive and the drive can lock the
+> bus forever. Newer chipsets like the SI680/3112 support watchdog
+> deadlock breakers for this but we don't really support them right now.
+> 
+> Getting different data off a failing drive is unusual because the blocks
+> are ECC'd extensively (well more than ECC'd) and have checks, could be
+> the RAM/CPU going I guess.
 
-> Here's the patch against 2.6.0-test4.  Just to remind everyone, this
-> patch doesn't fix any bugs (they're already fixed in 2.6.0-test3), it
-> just makes the code pass our static analysis tool, cqual, without
-> generating a warning.  Since finding and fixing these bugs is so
-> tricky, it seems worthwhile to have code which can be automatically
-> verified to be bug-free (at least w.r.t. user/kernel pointers). 
-> That's what this patch is about.  Let me know if you have any
-> questions or comments. Thanks for everyone's help.
+Although it can happen. I used to see corrupted data in /etc/motd (which is
+rewritten on each boot up) and random SEGVs on an embedded box. A few weeks
+later the drive started to report real errors. After mapping out the bad blocks
+using e2fsck -c, and replacing the files that were affected, the problem
+disappeared.
 
-If I read the patch correctly, this is basically a kind of reversal to
-your original patch, before Sergey and I changed it?
+Looks like ECC is not always ECC...
 
--- 
-Jean Delvare
-http://www.ensicaen.ismra.fr/~delvare/
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

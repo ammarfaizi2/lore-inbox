@@ -1,62 +1,170 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264027AbTDOBaF (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 21:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264028AbTDOBaF (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 21:30:05 -0400
-Received: from relay.pair.com ([209.68.1.20]:25616 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S264027AbTDOBaE (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 21:30:04 -0400
-X-pair-Authenticated: 68.40.145.213
-Subject: Re: 2.4.20-ck5
-From: Daniel Gryniewicz <dang@fprintf.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: kernel@kolivas.org
-In-Reply-To: <3E96D711.70404@comcast.net>
-References: <3E96D711.70404@comcast.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1050370913.1933.6.camel@athena.fprintf.net>
+	id S264031AbTDOBbs (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 21:31:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264038AbTDOBbs (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 21:31:48 -0400
+Received: from teranet244-12-200.monarch.net ([24.244.12.200]:15626 "EHLO
+	teranet244-12-200.monarch.net") by vger.kernel.org with ESMTP
+	id S264031AbTDOBbn (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 21:31:43 -0400
+Date: Tue, 15 Apr 2003 09:38:49 -0600
+From: Peter Braam <braam@clusterfs.com>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       chyang@clusterfs.com
+Cc: Dave Jones <davej@codemonkey.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       InterMezzo Development List 
+	<intermezzo-devel@lists.sourceforge.net>
+Subject: Re: top stack (l)users for 2.5.67
+Message-ID: <20030415153849.GA1658@localhost.localdomain>
+References: <20030414173047.GJ10347@wohnheim.fh-wedel.de> <1050338275.25353.93.camel@dhcp22.swansea.linux.org.uk> <20030414174645.GK10347@wohnheim.fh-wedel.de> <20030414182544.GA6866@suse.de> <20030414190514.GB12740@wohnheim.fh-wedel.de> <20030414131852.I26054@schatzie.adilger.int> <20030414194024.GE12740@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 14 Apr 2003 21:41:53 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030414194024.GE12740@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I also have had a problem with ck5.  I've been using the ckX kernel for
-a while now, and they're great kernels.  ck4 was absolutely solid.  I've
-been following the interactiveness changes in 2.5, although I don't use
-it, with some interest, so I was really happy when you announced them in
-ck5.  However, it broke my Evolution.  In large folders (such as LKML),
-the current message jumps around randomly umong the unread messages when
-I try and select the next unread message.  This does not happen with ck4
-on an otherwise unchanged system (I use gentoo 1.4).  I remember
-information about 2.5 breaking Evolution, but that was a long time
-before these interactive fixes.  Here are my versions.  If there's
-anything else you want, let me know.
+Yes please update the email/contact to intermezzo-devel@lists.sf.net.
+Chen Yang is maintaining the code and he can give nods of approval
+when required.
 
-Linux athena.fprintf.net 2.4.20-ck4 #2 Fri Feb 28 17:57:59 EST 2003 i686
-AMD Athlon(tm) Processor AuthenticAMD GNU/Linux
- 
-Gnu C                  3.2.2
-Gnu make               3.80
-util-linux             2.11y
-mount                  2.11y
-modutils               2.4.25
-e2fsprogs              1.32
-reiserfsprogs          3.6.4
-pcmcia-cs              3.2.1
-Linux C Library        2.3.1
-Dynamic linker (ldd)   2.3.1
-Procps                 2.0.10
-Net-tools              1.60
-Kbd                    1.06
-Sh-utils               2.0.15
-Modules Loaded         sr_mod ide-scsi ide-cd cdrom scsi_mod orinoco_cs
-orinoco hermes snd-via82xx snd-ac97-codec snd-pcm snd-timer
-snd-mpu401-uart snd-rawmidi snd-seq-device snd soundcore usbcore vfat
-fat ds i82365 pcmcia_core rtc
+- Peter -
 
--- 
-Daniel Gryniewicz <dang@fprintf.net>
 
+
+On Mon, Apr 14, 2003 at 09:40:24PM +0200, Jörn Engel wrote:
+> On Mon, 14 April 2003 13:18:52 -0600, Andreas Dilger wrote:
+> > 
+> > I've CC'd the InterMezzo mailing list (which is where the maintainers of
+> > this code live).  Could someone please post a copy of the original patch
+> > to the intermezzo-devel@lists.sourceforge.net mailing list?
+> 
+> Attached. (Yes, this is a duplicate for lkml, but it's not that big)
+> 
+> > Actually, my recollection is that there was previously a patch posted
+> > for fixing this large stack usage the last time this came up.
+> 
+> Yup, I already tried this once before and got some feedback. Just none
+> from braam@clusterfs.com, who is the contact according to MAINTAINERS.
+> Should I update that file to intermezzo-devel@lists.sourceforge.net?
+> 
+> Jörn
+> 
+> -- 
+> With a PC, I always felt limited by the software available. On Unix, 
+> I am limited only by my knowledge.
+> -- Peter J. Schoenster
+> 
+> --- linux-2.5.64/fs/intermezzo/journal.c	Mon Feb 24 20:05:05 2003
+> +++ linux-2.5.64-i2o/fs/intermezzo/journal.c	Fri Mar 14 17:37:18 2003
+> @@ -1239,12 +1239,15 @@
+>          return izo_rcvd_write(fset, &rec);
+>  }
+>  
+> +/* FIXME: should the below go into some header file? */
+> +#define PRESTO_COPY_KML_TAIL_BUFSIZE 4096
+>  struct file * presto_copy_kml_tail(struct presto_file_set *fset,
+>                                     unsigned long int start)
+>  {
+>          struct file *f;
+>          int len;
+>          loff_t read_off, write_off, bytes;
+> +        char *buf;
+>  
+>          ENTRY;
+>  
+> @@ -1255,15 +1258,18 @@
+>                  return f;
+>          }
+>  
+> +        buf = kmalloc(PRESTO_COPY_KML_TAIL_BUFSIZE, GFP_KERNEL);
+> +        if (!buf)
+> +                return ERR_PTR(-ENOMEM);
+> +
+>          write_off = 0;
+>          read_off = start;
+>          bytes = fset->fset_kml.fd_offset - start;
+>          while (bytes > 0) {
+> -                char buf[4096];
+>                  int toread;
+>  
+> -                if (bytes > sizeof(buf))
+> -                        toread = sizeof(buf);
+> +                if (bytes > PRESTO_COPY_KML_TAIL_BUFSIZE)
+> +                        toread = PRESTO_COPY_KML_TAIL_BUFSIZE;
+>                  else
+>                          toread = bytes;
+>  
+> @@ -1274,6 +1280,7 @@
+>  
+>                  if (presto_fwrite(f, buf, len, &write_off) != len) {
+>                          filp_close(f, NULL);
+> +                        kfree(buf);
+>                          EXIT;
+>                          return ERR_PTR(-EIO);
+>                  }
+> @@ -1281,6 +1288,7 @@
+>                  bytes -= len;
+>          }
+>  
+> +        kfree(buf);
+>          EXIT;
+>          return f;
+>  }
+> @@ -1584,12 +1592,14 @@
+>          return error;
+>  }
+>  
+> +/* FIXME: should the below go into some header file? */
+> +#define PRESTO_GET_FILEID_BUFSIZE 4096
+>  int presto_get_fileid(int minor, struct presto_file_set *fset,
+>                        struct dentry *dentry)
+>  {
+>          int opcode = KML_OPCODE_GET_FILEID;
+>          struct rec_info rec;
+> -        char *buffer, *path, *logrecord, record[4096]; /*include path*/
+> +        char *buffer, *path, *logrecord, *record; /*include path*/
+>          struct dentry *root;
+>          __u32 uid, gid, pathlen;
+>          int error, size;
+> @@ -1597,6 +1607,10 @@
+>  
+>          ENTRY;
+>  
+> +        record = kmalloc(PRESTO_GET_FILEID_BUFSIZE, GFP_KERNEL);
+> +        if (!record)
+> +                return -ENOMEM;
+> +
+>          root = fset->fset_dentry;
+>  
+>          uid = cpu_to_le32(dentry->d_inode->i_uid);
+> @@ -1610,7 +1624,7 @@
+>                  sizeof(struct kml_suffix);
+>  
+>          CDEBUG(D_FILE, "kml size: %d\n", size);
+> -        if ( size > sizeof(record) )
+> +        if ( size > PRESTO_GET_FILEID_BUFSIZE )
+>                  CERROR("InterMezzo: BUFFER OVERFLOW in %s!\n", __FUNCTION__);
+>  
+>          memset(&rec, 0, sizeof(rec));
+> @@ -1633,6 +1647,7 @@
+>                                     fset->fset_name);
+>  
+>          BUFF_FREE(buffer);
+> +        kfree(record);
+>          EXIT;
+>          return error;
+>  }
+> 
+> 
+> -------------------------------------------------------
+> This sf.net email is sponsored by:ThinkGeek
+> Welcome to geek heaven.
+> http://thinkgeek.com/sf
+> _______________________________________________
+> intermezzo-devel mailing list
+> intermezzo-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/intermezzo-devel
+- Peter -

@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbVBXDNI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVBXDOp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261712AbVBXDNI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 22:13:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbVBXDNE
+	id S261761AbVBXDOp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 22:14:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVBXDNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 22:13:04 -0500
-Received: from fire.osdl.org ([65.172.181.4]:50857 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261712AbVBXDMe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 22:12:34 -0500
-Date: Wed, 23 Feb 2005 19:12:22 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Roland McGrath <roland@redhat.com>
-Cc: Chris Wright <chrisw@osdl.org>, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] override RLIMIT_SIGPENDING for non-RT signals
-Message-ID: <20050224031222.GH15867@shell0.pdx.osdl.net>
-References: <20050224023245.GA28536@shell0.pdx.osdl.net> <200502240243.j1O2h8Bk010811@magilla.sf.frob.com>
+	Wed, 23 Feb 2005 22:13:23 -0500
+Received: from pagoda.mtholyoke.edu ([138.110.30.68]:13190 "EHLO
+	pagoda.mtholyoke.edu") by vger.kernel.org with ESMTP
+	id S261761AbVBXDLU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 22:11:20 -0500
+From: Ron Peterson <rpeterso@mtholyoke.edu>
+Date: Wed, 23 Feb 2005 22:11:07 -0500
+To: linux-kernel@vger.kernel.org
+Subject: ext2/3 files per directory limits
+Message-ID: <20050224031107.GA8656@mtholyoke.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200502240243.j1O2h8Bk010811@magilla.sf.frob.com>
-User-Agent: Mutt/1.5.6i
+Organization: Mount Holyoke College
+X-Operating-System: Debian GNU/Linux
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Roland McGrath (roland@redhat.com) wrote:
-> > * Roland McGrath (roland@redhat.com) wrote:
-> > > Indeed, I think your patch does not go far enough.  I can read POSIX to say
-> > > that the siginfo_t data must be available when `kill' was used, as well.
-> > 
-> > How?  I only see reference to filling in SI_USER for rt signals?
-> > Just curious...(I've only got SuSv3 and some crusty old POSIX rt docs).
-> 
-> There is stuff about a SA_SIGINFO signal handler's siginfo_t argument
-> "shall contain" the various specified information like si_pid/si_uid values
-> for a kill caller.
+I would like to better understand ext2/3's performance characteristics.
 
-OK, guess it's odd corner case, since they aren't queued anyway.
+I'm specifically interested in how ext2/3 will handle a /var/spool/mail
+directory w/ ~6000 mbox format inboxes, handling approx 1GB delivered as
+75,000 messages daily.  Virtually all access is via imap, w/ approx
+~1000 imapd processes running during peak load.  Local delivery is via
+procmail, which by default uses both kernel-supported locking calls and
+.lock files.
 
-> > Good point.  Although it's RLIMIT_SIGPENDING + (31 * user_nprocs).  So
-> > that could be 31 * 8k, for example.
-> 
-> And a "good point" back to you, sir!  I think the right way to think about
-> this in terms of resource consumption is that sizeof(struct sigqueue)*31 is
-> part of the potential per-process overhead that make up the consumption
-> units one should have in mind when choosing how to set the RLIMIT_NPROC limit.
+I understand that various tuning parameters will have an impact,
+e.g. putting the journal on a separate device, setting the noatime mount
+option, etc.  I also understand that there are other mailbox formats and
+other strategies for locating mail spools (e.g. in user's home
+directories).
 
-As in dynamic, and work with the patch that you sent to redo default
-sigpending as per nproc?
+I'm interested in people's thoughts on these issues, but I'm mostly
+interested in whether or not the scenario I described falls within
+ext2/3's designed capabilities.
 
-thanks,
--chris
+Best.
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Ron Peterson
+Network & Systems Manager
+Mount Holyoke College
+http://www.mtholyoke.edu/~rpeterso

@@ -1,59 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129035AbRBHWNf>; Thu, 8 Feb 2001 17:13:35 -0500
+	id <S129036AbRBHWQf>; Thu, 8 Feb 2001 17:16:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129036AbRBHWN0>; Thu, 8 Feb 2001 17:13:26 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:7164 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129035AbRBHWNL>; Thu, 8 Feb 2001 17:13:11 -0500
-Date: Thu, 8 Feb 2001 20:12:39 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.1-ac7
-In-Reply-To: <E14QwU4-0004QE-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0102082005400.2378-100000@duckman.distro.conectiva>
+	id <S129108AbRBHWQZ>; Thu, 8 Feb 2001 17:16:25 -0500
+Received: from cs.columbia.edu ([128.59.16.20]:63676 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S129036AbRBHWQV>;
+	Thu, 8 Feb 2001 17:16:21 -0500
+Date: Thu, 8 Feb 2001 14:16:17 -0800 (PST)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Donald Becker <becker@scyld.com>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Alan Cox <alan@redhat.com>,
+        <linux-kernel@vger.kernel.org>, <jes@linuxcare.com>
+Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
+In-Reply-To: <Pine.LNX.4.10.10102081555500.7141-100000@vaio.greennet>
+Message-ID: <Pine.LNX.4.30.0102081406020.31024-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Feb 2001, Alan Cox wrote:
+On Thu, 8 Feb 2001, Donald Becker wrote:
 
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
+> > > The align-copy should *never* be required because the alignment differs
+> > > between DIX and E-II encapsulated packets.  The machine shouldn't crash
+> > > because someone sends you a different encapsulation type!
 > 
-> 2.4.1-ac7
-> o	Rebalance the 2.4.1 VM				(Rik van Riel)
-> 	| This should make things feel a lot faster especially
-> 	| on small boxes .. feedback to Rik
+> This is true for a number of drivers -- triggering the copy-align code
+> might eliminate the misaligned traps on your local network, but it's not
+> a solution.
 
-I'd really like feedback from people when it comes to this
-change. The change /should/ fix most paging performance bugs
-because it makes kswapd do the right amount of work in order
-to solve the free memory shortage every time it is run.
+Ok, so what *is* a good solution then? I'm not arguing that unaligned 
+memory access traps should be avoided because they are deadly (they 
+shouldn't be), but because they are costly.
 
-This, in turn, should make it far less likely that user processes
-will *ever* need to call try_to_free_pages() themselves, unless
-the system really goes into overload mode.
+Or we can just tell people, "hey, don't use this 64-bit PCI card on a real 
+64-bit system, it's broken by design"? I don't think that's a good 
+solution either.
 
-It would be good to know if this change really fixes the bug or
-if it only helps for certain workloads and not for others. I'd
-really like to close the following bug but need confirmation
-that it works first ;)
+The lack of a 64-bit frame descriptor isn't going to help either, if and 
+when zerocopy makes into the official tree. Using buffer descriptors with 
+fragmented sk_buffs is *not* fun (and yet that's what I do in 32-bit for 
+my BSDI driver, but for unrelated reasons).
 
-http://distro.conectiva.com/bugzilla/show_bug.cgi?id=1178
+> I saw the Adaptec people last week at LinuxWorld.  The 2.4.0 starfire
+> has a number of actual bugs that should be fixed RSN:
+>    The consistency check in the Rx code was broken.  Did anyone ever try
+>    the driver after the changes?  The test triggers with every received
+>    packet.  The easiest patch is to just get rid the consistency checks
+>    inside "#ifndef final_version".
 
-regards,
+Done.
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+>    The region resource was not released, requiring a reboot between each
+>    driver test.  Trivial fix.
 
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+Done.
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+>    The MII read code is no longer reliable.  I spent twenty minutes at
+>    the show, but couldn't figure out the problem.  I haven't been able
+>    reproduce the problem locally with my 2.2 code and someone older
+>    hardware.
+
+Yes, I've noticed this too, the PHY doesn't seem to get detected in all 
+cases, and it's pretty random at that. Other times the same PHY gets 
+detected multiple times at different addresses.
+
+The good news is that the same code behaves the same on 2.4 and 2.2, so 
+I think it's not a core kernel issue. I'll try to track it down; 
+fortunately it doesn't affect card functionality as long as the user 
+sticks with autonegotiation.
+
+Thanks,
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

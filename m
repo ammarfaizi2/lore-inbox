@@ -1,59 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266055AbUFJFgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266130AbUFJFtz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266055AbUFJFgN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 01:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266115AbUFJFgN
+	id S266130AbUFJFtz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 01:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266115AbUFJFtz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 01:36:13 -0400
-Received: from gizmo04ps.bigpond.com ([144.140.71.14]:5826 "HELO
-	gizmo04ps.bigpond.com") by vger.kernel.org with SMTP
-	id S266055AbUFJFgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 01:36:11 -0400
-Message-ID: <40C7F347.9090107@bigpond.net.au>
-Date: Thu, 10 Jun 2004 15:36:07 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Michal Kaczmarski <fallow@op.pl>
-Subject: [PATCH][2.6.7-rc3] Single Priority Array CPU Scheduler
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Jun 2004 01:49:55 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:6881 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S263204AbUFJFtv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 01:49:51 -0400
+Date: Thu, 10 Jun 2004 07:46:24 +0200
+From: Harald Welte <laforge@netfilter.org>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: "David S. Miller" <davem@redhat.com>,
+       Alex Williamson <alex.williamson@hp.com>, clameter@sgi.com,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Unaligned accesses in net/ipv4/netfilter/arp_tables.c:184
+Message-ID: <20040610054624.GL11490@sunbeam.de.gnumonks.org>
+References: <Pine.LNX.4.58.0406091106210.21291@schroedinger.engr.sgi.com> <1086805676.4288.16.camel@tdi> <20040609130001.37a88da1.davem@redhat.com> <20040610014519.GA3158@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BOmey7/79ja+7F5w"
+Content-Disposition: inline
+In-Reply-To: <20040610014519.GA3158@taniwha.stupidest.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Spam-Score: -4.9 (----)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
- > The single priority array scheduler (SPA) is a patch that simplifies
- > the O(1) scheduler while maintaining its good scalability and
- > interactive response characteristics. The patch comes as four sub
- > patches to simplify perusal of the changes:
 
-An updated version of this scheduler is now available for 2.6.7-rc3 at:
+--BOmey7/79ja+7F5w
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-<http://users.bigpond.net.au/Peter-Williams/patch-2_6_7_rc3-SPA-v0.1>
-<http://users.bigpond.net.au/Peter-Williams/patch-2_6_7_rc3-SPA_IAB-v0.1>
-<http://users.bigpond.net.au/Peter-Williams/patch-2_6_7_rc3-SPA_TPB-v0.1>
-<http://users.bigpond.net.au/Peter-Williams/patch-2_6_7_rc3-SPA_TSTATS-v0.1>
+On Wed, Jun 09, 2004 at 06:45:19PM -0700, Chris Wedgwood wrote:
+> On Wed, Jun 09, 2004 at 01:00:01PM -0700, David S. Miller wrote:
+>=20
+> > How can you legitimately change this structure?  It's an exported
+> > userland interface, if you change it all the applications will stop
+> > working.
+>=20
+> Why not split the structure for user-space and kernel-space version
+> and cp/frob at/near the syscall boundary?
 
-These patches should be applied in the order that they are listed.
+because it would look like an ugly hack in the setsockopt call, plus
+adding another costly/time consuming parse of the table BLOB. =20
 
-Also, as promised, the first of these patches has been unified with the 
-staircase scheduler and a patch that implements the staircase scheduler 
-on top of the first of the above patches is available at:
+Also note that the kernel currently has no code that supports the
+generation/modification of rulesets. All it can do is iterate over them.
 
-<http://users.bigpond.net.au/Peter-Williams/patch-2_6_7_rc3-SPA_STAIRCASE-v0.1>
+>   --cw
 
-This scheduler is functionally equivalent to Con Kolivas's v6.4 
-scheduler except that a promotion feature (that will trigger very 
-infrequently probably never :-)) has been added.  This was added 
-because, although it is extremely unlikely, starvation is possible with 
-the staircase scheduler and this feature removes that possibility.
+--=20
+- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+--BOmey7/79ja+7F5w
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQFAx/WwXaXGVTD0i/8RAjesAKCZvTwXcJ1JV9yuVzPfa0sTEFy7OgCeJWpM
+2PJ7uaS2rCOHIT1SEuk5EjU=
+=osOF
+-----END PGP SIGNATURE-----
+
+--BOmey7/79ja+7F5w--

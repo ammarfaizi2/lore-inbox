@@ -1,67 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbTKCEtu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 23:49:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbTKCEtu
+	id S261898AbTKCEsI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 23:48:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbTKCEsI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 23:49:50 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:57288 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id S261916AbTKCEtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 23:49:47 -0500
-Date: Mon, 3 Nov 2003 05:49:42 +0100
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Linus Torvalds <torvalds@osdl.org>
+	Sun, 2 Nov 2003 23:48:08 -0500
+Received: from fw.osdl.org ([65.172.181.6]:11495 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261898AbTKCEsD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 23:48:03 -0500
+Date: Sun, 2 Nov 2003 20:45:56 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Bradley Chapman <kakadu_croc@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] Linux-2.6.0-test9
-Message-Id: <20031103054942.4d6c985e.us15@os.inf.tu-dresden.de>
-In-Reply-To: <Pine.LNX.4.44.0311022042390.18647-100000@home.osdl.org>
-References: <20031103045637.7d2acb90.us15@os.inf.tu-dresden.de>
-	<Pine.LNX.4.44.0311022042390.18647-100000@home.osdl.org>
-Organization: Fiasco Core Team
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-X-Mailer: X-Mailer 5.0 Gold
+Subject: Re: What do frame pointers do?
+Message-Id: <20031102204556.0c5b377a.rddunlap@osdl.org>
+In-Reply-To: <20031102170029.59013.qmail@web40908.mail.yahoo.com>
+References: <20031102170029.59013.qmail@web40908.mail.yahoo.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Mon__3_Nov_2003_05_49_42_+0100_PRX8seGL5glvcPAW"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Mon__3_Nov_2003_05_49_42_+0100_PRX8seGL5glvcPAW
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Sun, 2 Nov 2003 09:00:29 -0800 (PST) Bradley Chapman <kakadu_croc@yahoo.com> wrote:
 
-On Sun, 2 Nov 2003 20:45:55 -0800 (PST) Linus Torvalds (LT) wrote:
+| What exactly is the purpose of a frame pointer? As far back as I can remember, 2.4
+| and 2.6 kernels have supported something called a frame pointer, which slows down
+| the kernel slightly but supposedly outputs 'very useful debugging information.'
+| Unfortunately, it doesn't really explain what they are, and for the past few months,
+| I haven't seen any hacker gods asking for CONFIG_FRAME_POINTER=y, except for Russell
+| King, who wants them compiled for ARM processors for some reason (I grepped the
+| kernel source looking for answers and found a comment which implied this).
+| 
+| Does anyone know where I can find a good explanation of what they are and what they
+| do?
 
-LT> Btw, what compiler version do you have? The UP+preempt bug is a real bug,
-LT> but as far as I've been able to find out it's almost impossible to get gcc
-LT> to actually generate code that might trigger it. So while it's entirely
-LT> possible that the bug you're seeing is due to the (now fixed) UP+preempt 
-LT> bug, it's also quite possible that there's something else going on too.
+Frame pointers enable more deterministic back tracing of the stack,
+which can be helpful for tracking down bugs.  I build with
+CONFIG_FRAME_POINTER enabled all of the time.
 
-I'm using gcc 3.3.2.
+Note, however, that current 2.6.x Makefile does not allow frame pointers
+to be used with gcc 2.96 since it has some known problems with code generation
+when using frame pointers.
 
-Reading specs from /usr/lib/gcc-lib/i486-slackware-linux/3.3.2/specs
-Configured with: ../gcc-3.3.2/configure --prefix=/usr --enable-shared
---enable-threads=posix --enable-__cxa_atexit --disable-checking --with-gnu-ld
---verbose --target=i486-slackware-linux --host=i486-slackware-linux
-Thread model: posix
-gcc version 3.3.2
+There is a little discussion of frame pointers in the Intel
+IA-32 Intel® Architecture Software Developer;s Manual Volume 1:
+Basic Architecture
+and
+IA-32 Intel® Architecture Software Developer's Manual Volume 2:
+Instruction Set Reference,
+which are downloadable as .pdf files from developer.intel.com.
 
--Udo.
-
---Signature=_Mon__3_Nov_2003_05_49_42_+0100_PRX8seGL5glvcPAW
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/pd5mnhRzXSM7nSkRAmL8AJ96JhGGfAG/MD3aX6t4jgOz19+X4wCfbYzL
-qwujQoOdF6zJk2Fw+IsG8l0=
-=75eK
------END PGP SIGNATURE-----
-
---Signature=_Mon__3_Nov_2003_05_49_42_+0100_PRX8seGL5glvcPAW--
+--
+~Randy

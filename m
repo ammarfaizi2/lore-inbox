@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318111AbSHBEL3>; Fri, 2 Aug 2002 00:11:29 -0400
+	id <S318117AbSHBEWZ>; Fri, 2 Aug 2002 00:22:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318117AbSHBEL3>; Fri, 2 Aug 2002 00:11:29 -0400
-Received: from mail3.atl.registeredsite.com ([64.224.219.77]:15569 "EHLO
-	mail3.atl.registeredsite.com") by vger.kernel.org with ESMTP
-	id <S318111AbSHBEL2>; Fri, 2 Aug 2002 00:11:28 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: "Stonie R. Cooper" <stonie.cooper@planetarydata.com>
-Organization: Planetary Data, Incorporated
-To: linux-kernel@vger.kernel.org
-Subject: large ramdisk based filesystem corruption in 2.4.18?
-Date: Fri, 2 Aug 2002 04:14:49 +0000
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <02080204144907.16136@helium.fieldlab.planetarydata.com>
-Content-Transfer-Encoding: 7BIT
+	id <S318118AbSHBEWZ>; Fri, 2 Aug 2002 00:22:25 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:58016 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318117AbSHBEWZ>;
+	Fri, 2 Aug 2002 00:22:25 -0400
+Date: Thu, 01 Aug 2002 21:13:57 -0700 (PDT)
+Message-Id: <20020801.211357.93822733.davem@redhat.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: large page patch
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <aid0he$1h4$1@penguin.transmeta.com>
+References: <3D49D45A.D68CCFB4@zip.com.au>
+	<737220000.1028250590@flay>
+	<aid0he$1h4$1@penguin.transmeta.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an SMP, 2.4.18, system, with 1GB of RAM.
+   From: torvalds@transmeta.com (Linus Torvalds)
+   Date: Fri, 2 Aug 2002 04:07:10 +0000 (UTC)
+   
+   Of course, if you can actually measure it, that would be
+   interesting.  Naive math gives you a guess for the order of
+   magnitude effect, but nothing beats real numbers ;)
 
-I initially started by trying to have a 750MB ramdisk for a virtual 
-filesystem; I defined the size in the boot parm line via grub.
+The SYSV folks actually did have a buddy allocator a long time ago and
+they did implement lazy coalescing because is supposedly improved
+performance.
 
-The dmesg output indicated each ramdisk would be 750MB, and when I do a 
-mke2fs on /dev/ramdisk, it indicates it formats a 750MB ext2 file system, but 
-when I try to mount, it says the partition has a bad block descriptor, or a 
-non-supported filesystem.
-
-I then made the ramdisk definition 512MB and reboot.  Again, mke2fs is 
-successful, and formats a 512MB filesystem, but this time I am successful in 
-mounting.  However, after creating a few files, I get write errors such as 
-described by another developer:
-
-"Somehow I have filled the /ramdisk partition.  The thing that confuses me is 
-that a df -k shows:
-/dev/ramdisk            507748    481538         0 100% /ramdisk
-but a du -sk shows:
-119666  ."
-
-I worked with her, and we found no hidden files, and the manual count of 
-adding up all the files on the file system was 120MB - even though the df 
-reported 481MB.  We unmounted, did a new mke2fs on /dev/ramdisk, but this 
-time, it wouldn't mount with the same errors as when I tried a 750MB ramdisk.
-
-Rebooted, and redid the same 512MB ramdisk, but this time it mounted, and ran 
-for almost a day before it gave the same conflicting information that it was 
-full, even though the du -ks showed differently.  Ideas?
--- 
-Stonie R. Cooper
-Planetary Data, Incorporated
-ph. (402) 782-6611
+See chapter 12 section 7 in "Unix Internals" by Uresh Vahalia.

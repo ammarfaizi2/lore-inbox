@@ -1,76 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269823AbTGKIUA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 04:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269828AbTGKIT7
+	id S269826AbTGKIUP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 04:20:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269828AbTGKIUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 04:19:59 -0400
-Received: from c180224.adsl.hansenet.de ([213.39.180.224]:49846 "EHLO
-	sfhq.hn.org") by vger.kernel.org with ESMTP id S269823AbTGKISv
+	Fri, 11 Jul 2003 04:20:14 -0400
+Received: from h234n2fls24o900.bredband.comhem.se ([217.208.132.234]:52188
+	"EHLO oden.fish.net") by vger.kernel.org with ESMTP id S269826AbTGKITs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 04:18:51 -0400
-Message-ID: <3F0E7659.8000503@portrix.net>
-Date: Fri, 11 Jul 2003 10:33:29 +0200
-From: Jan Dittmer <j.dittmer@portrix.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030524 Debian/1.3.1-1.he-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Convert w83781d i2c chip driver to milli Celsius
-Content-Type: multipart/mixed;
- boundary="------------040701000803000401020403"
+	Fri, 11 Jul 2003 04:19:48 -0400
+Date: Fri, 11 Jul 2003 10:35:05 +0200
+From: Voluspa <lista1@telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.75 does not boot - TCQ oops
+Message-Id: <20030711103505.47e90027.lista1@telia.com>
+Organization: The Foggy One
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040701000803000401020403
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Convert w83781d i2c chip driver to milli Celsius.
-Tested on MSI nForce2 Mainboard.
+On 2003-07-11 2:51:42 Ivan Gyurdiev wrote:
 
-Jan
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0307.0/0515.html
 
--- 
-Linux rubicon 2.5.74-mm3-jd2 #1 SMP Wed Jul 9 09:38:20 CEST 2003 i686
+Reading the handcrafted log, yes, that's 'exactly' what I get ;-)
+If prodded, I can do a transcription as well.
 
---------------040701000803000401020403
-Content-Type: text/plain;
- name="i2c.w83781d.temp"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="i2c.w83781d.temp"
+> where the bug is described for 2.5.74.
+> I got no replies, and the bug persists in 2.5.75 (+bk patches).
 
---- linux-mm/drivers/i2c/chips/w83781d.c	2003-07-03 15:17:37.000000000 +0200
-+++ 2.5.73-mm3/drivers/i2c/chips/w83781d.c	2003-07-10 13:43:49.000000000 +0200
-@@ -496,13 +496,13 @@
- 	if (nr >= 2) {	/* TEMP2 and TEMP3 */ \
- 		if (data->type == as99127f) { \
- 			return sprintf(buf,"%ld\n", \
--				(long)AS99127_TEMP_ADD_FROM_REG(data->reg##_add[nr-2])); \
-+				(long)AS99127_TEMP_ADD_FROM_REG(data->reg##_add[nr-2])*10); \
- 		} else { \
- 			return sprintf(buf,"%ld\n", \
--				(long)TEMP_ADD_FROM_REG(data->reg##_add[nr-2])); \
-+				(long)TEMP_ADD_FROM_REG(data->reg##_add[nr-2])*10); \
- 		} \
- 	} else {	/* TEMP1 */ \
--		return sprintf(buf,"%ld\n", (long)TEMP_FROM_REG(data->reg)); \
-+		return sprintf(buf,"%ld\n", (long)TEMP_FROM_REG(data->reg)*10); \
- 	} \
- }
- show_temp_reg(temp);
-@@ -516,7 +516,7 @@
- 	struct w83781d_data *data = i2c_get_clientdata(client); \
- 	u32 val; \
- 	 \
--	val = simple_strtoul(buf, NULL, 10); \
-+	val = simple_strtoul(buf, NULL, 10)/10; \
- 	 \
- 	if (nr >= 2) {	/* TEMP2 and TEMP3 */ \
- 		if (data->type == as99127f) \
+Haven't tried the 2.5.74, but plain 2.5.75 is where I crash.
 
---------------040701000803000401020403--
+> Note:
+> The machine boots with TASKFILE on, TCQ is causing the problem.
 
+Yes, writing this on a machine with CONFIG_IDE_TASK_IOCTL is not set,
+CONFIG_IDE_TASKFILE_IO=y and CONFIG_BLK_DEV_IDE_TCQ is not set.
+
+Speaking of TASKFILE... I had some hope that it would fix at least a bit
+of the regression in disk speed since 2.4.19-ac1+preempt (my yardstick,
+excellent kernel). Doing a hdparm -tT /dev/hda on that kernel I get ca
+123 MB/sec and 27 MB/sec. On this 2.5.75 I see 119 MB/sec and 22 MB/sec.
+
+Here's hoping it can be cranked up before 2.6!
+
+Mvh
+Mats Johannesson

@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbUB1RMw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 12:12:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbUB1RMv
+	id S261879AbUB1RPc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 12:15:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbUB1RPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 12:12:51 -0500
-Received: from maigret.aip.de ([141.33.160.2]:56412 "HELO mail0.aip.de")
-	by vger.kernel.org with SMTP id S261879AbUB1RMm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 12:12:42 -0500
-Date: Sat, 28 Feb 2004 18:12:39 +0100 (CET)
-From: Michael Weber <mweber@aip.de>
-X-X-Sender: weber@marsala.aip.de
-To: linux-kernel@vger.kernel.org
-Subject: Watchdog driver for Rocky 3782 SBC 
-Message-ID: <Pine.LNX.4.58.0402281730350.21346@marsala.aip.de>
+	Sat, 28 Feb 2004 12:15:32 -0500
+Received: from pyxis.i-cable.com ([203.83.111.76]:13991 "HELO
+	pyxis.i-cable.com") by vger.kernel.org with SMTP id S261879AbUB1RP1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 12:15:27 -0500
+Message-ID: <02dd01c3fe1f$095df660$353ffea9@kyle>
+From: "Kyle" <kyle@southa.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Is "ACARD" AEC-6885S 4-CH ATA133 supported?
+Date: Sun, 29 Feb 2004 01:19:06 +0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="big5"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-I have created a simple driver for the watchdog on the Rocky 3782 SBC
-boards by digging through the DOS/BIOS routine and comparing that with the
-IT8712F data sheet. I have it compiled on 2.4.18--25 kernels.
+Is this product work with kernel 2.6.x?
+http://www.acard.com/eng/product/adapter/pc/ide/aec-6885s.html
 
-Anyone interested? Its not tested, because I have no idea how to test it
-(I did test if it reboots after x seconds when I don't update the
-/proc/watchdog file).
+It mentioned that it's compatible with Linux RedHat 7.3 & 8.0 & 9.0, but I
+seached through the whole mail list with keyword "ATP-867" and "AEC6885"
+with no luck. Anyone tried this?
 
-lg,
-mweber
+Kyle
+
+

@@ -1,118 +1,289 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271402AbTGXB2G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 21:28:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271403AbTGXB2G
+	id S270346AbTGXCJU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 22:09:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTGXCJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 21:28:06 -0400
-Received: from mta11.srv.hcvlny.cv.net ([167.206.5.46]:9141 "EHLO
-	mta11.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S271402AbTGXB2B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 21:28:01 -0400
-Date: Wed, 23 Jul 2003 21:41:45 -0400
-From: Josef Jeff Sipek <jeffpc@optonline.net>
-Subject: [PATCH][2.6] (needs testing) Fix
- "sleeping function called from illegal context" from Bugzilla bug # 641
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <200307232141.45221.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.5.2
+	Wed, 23 Jul 2003 22:09:20 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:45466 "EHLO
+	pasta.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S270346AbTGXCJN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 22:09:13 -0400
+Message-Id: <200307240228.h6O2SdCJ006290@pasta.boston.redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] signal handling race condition causing reboot hangs
+Date: Wed, 23 Jul 2003 22:28:39 -0400
+From: Ernie Petrides <petrides@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I sent this in a while ago, but nobody said anything...Here it is again:
+There is a long-standing locking hole in the kernel's handling of the
+signals related to stopping and resuming processes.  When a process
+handles SIGSTOP, SIGTSTP, SIGTTIN, or SIGTTOU, the "sighand" lock is
+held while the signal is dequeued and appropriate masks are updated.
+But the "sighand" lock is dropped in several cases before the task's
+state is changed to TASK_STOPPED (or before a group-stop is initiated).
 
-Debug: sleeping function called from illegal context at include/asm/semaphore.h:
-119
-Call Trace:
- [<c011dadf>] __might_sleep+0x5f/0x80
- [<e325c3f6>] +0x40a/0x574 [snd_emux_synth]
- [<e3258b4a>] lock_preset+0x1ca/0x290 [snd_emux_synth]
- [<e325c3f6>] +0x40a/0x574 [snd_emux_synth]
- [<e325aaaf>] snd_soundfont_search_zone+0x2f/0xf0 [snd_emux_synth]
- [<e0911f10>] snd_timer_s_function+0x0/0x20 [snd_timer]
- [<e3256830>] get_zone+0x70/0x90 [snd_emux_synth]
- [<e3254632>] snd_emux_note_on+0xf2/0x4a0 [snd_emux_synth]
- [<c010c263>] do_IRQ+0x233/0x370
- [<e325eec0>] emux_ops+0x0/0x20 [snd_emux_synth]
- [<e09090f6>] +0xf6/0x3c0 [snd_seq_midi_emul]
- [<c014b0eb>] check_poison_obj+0x3b/0x190
- [<c02aefb4>] kfree_skbmem+0x64/0x70
- [<e3257293>] snd_emux_event_input+0x63/0xa0 [snd_emux_synth]
- [<e325eec0>] emux_ops+0x0/0x20 [snd_emux_synth]
- [<e3241657>] snd_seq_deliver_single_event+0x147/0x1b0 [snd_seq]
- [<e3241965>] snd_seq_deliver_event+0x45/0xb0 [snd_seq]
- [<e3241a9a>] snd_seq_dispatch_event+0xca/0x1b0 [snd_seq]
- [<c011165a>] do_gettimeofday+0x1a/0x90
- [<e3247335>] snd_seq_check_queue+0x245/0x500 [snd_seq]
- [<c016b19b>] do_sync_read+0x8b/0xc0
- [<e09113fd>] snd_timer_interrupt+0x48d/0x610 [snd_timer]
- [<c02ab029>] sock_poll+0x29/0x40
+If a process running on another cpu posts a SIGCONT or SIGKILL just after
+the "victim" process releases the lock but before its state is set to
+TASK_STOPPED, the corresponding wakeup will be lost and the victim will
+remain stopped despite the successive SIGCONT or SIGKILL.  In this case,
+a repeated posting of SIGCONT or SIGKILL will have no effect, since the
+original one is already pending (and so causes a repeated posting to be
+discarded).  The occurrence of a SIGSTOP/SIGKILL race where the victim
+has blocked all other signals will result in an unkillable process.
 
-Patch against 2.6.0-test1:
+Although a fabricated test program can reproduce a SIGSTOP/SIGCONT race
+hang in less than a minute (on a 2-cpu Dell Precision 450), the scenario
+that has been most frequently encountered is a hang during reboot or
+shutdown.  This occurs because /sbin/killall5 brackets the scanning of
+/proc/* and associated signal posting to (most) of the processes still
+running with kill(-1, SIGSTOP) and kill(-1, SIGCONT) calls to temporarily
+freeze every process except for "init".  Occasionally, its parent (running
+the /etc/rc6.d/S01reboot shell script) gets stuck in TASK_STOPPED state
+with pending SIGCONT and SIGCLD signals, but with no other process left
+to wake it up.
 
-diff -Naur -x dontdiff linux-2.6.0-test1-vanilla/sound/synth/emux/soundfont.c linux-2.6.0-test1-eva/sound/synth/emux/soundfont.c
---- linux-2.6.0-test1-vanilla/sound/synth/emux/soundfont.c	2003-07-13 23:36:41.000000000 -0400
-+++ linux-2.6.0-test1-eva/sound/synth/emux/soundfont.c	2003-07-18 04:31:36.000000000 -0400
-@@ -66,15 +66,11 @@
- static int
- lock_preset(snd_sf_list_t *sflist, int nonblock)
+In order to fix the race condition, the locking in do_signal_stop()
+and get_signal_to_deliver() needed reworking to close the hole.  Due
+to lock ordering issues between the "sighand" lock and tasklist_lock,
+there are two cases where the former lock needs to be released and
+then reacquired, thus allowing a tiny hole for a SIGCONT/SIGKILL to
+be posted.  These two cases are resolved by rechecking for a pending
+SIGCONT/SIGKILL after the locks are (re)acquired in the proper order.
+
+Anyone wanting a copy of the test program may e-mail me off-list.
+
+Cheers.  -ernie
+
+
+
+--- linux-2.6.0-test1/kernel/signal.c.orig
++++ linux-2.6.0-test1/kernel/signal.c
+@@ -155,6 +155,11 @@ int max_queued_signals = 1024;
+ 	(!T(signr, SIG_KERNEL_IGNORE_MASK|SIG_KERNEL_STOP_MASK) && \
+ 	 (t)->sighand->action[(signr)-1].sa.sa_handler == SIG_DFL)
+ 
++#define sig_avoid_stop_race() \
++	(sigtestsetmask(&current->pending.signal, M(SIGCONT) | M(SIGKILL)) || \
++	 sigtestsetmask(&current->signal->shared_pending.signal, \
++						  M(SIGCONT) | M(SIGKILL)))
++
+ static inline int sig_ignored(struct task_struct *t, int sig)
  {
--	unsigned long flags;
--	spin_lock_irqsave(&sflist->lock, flags);
--	if (sflist->sf_locked && nonblock) {
--		spin_unlock_irqrestore(&sflist->lock, flags);
--		return -EBUSY;
--	}
--	spin_unlock_irqrestore(&sflist->lock, flags);
--	down(&sflist->presets_mutex);
--	sflist->sf_locked = 1;
-+	if (nonblock) {
-+		if (down_trylock(&sflist->presets_mutex))
-+			return -EBUSY;
-+	} else 
-+		down(&sflist->presets_mutex);
- 	return 0;
+ 	void * handler;
+@@ -1541,17 +1546,13 @@ do_signal_stop(int signr)
+ 	struct sighand_struct *sighand = current->sighand;
+ 	int stop_count = -1;
+ 
++	/* spin_lock_irq(&sighand->siglock) is now done in caller */
++
+ 	if (sig->group_stop_count > 0) {
+ 		/*
+ 		 * There is a group stop in progress.  We don't need to
+ 		 * start another one.
+ 		 */
+-		spin_lock_irq(&sighand->siglock);
+-		if (unlikely(sig->group_stop_count == 0)) {
+-			BUG_ON(!sig->group_exit);
+-			spin_unlock_irq(&sighand->siglock);
+-			return;
+-		}
+ 		signr = sig->group_exit_code;
+ 		stop_count = --sig->group_stop_count;
+ 		current->exit_code = signr;
+@@ -1560,17 +1561,27 @@ do_signal_stop(int signr)
+ 	}
+ 	else if (thread_group_empty(current)) {
+ 		/*
+-		 * No locks needed in this case.
++		 * Lock must be held through transition to stopped state.
+ 		 */
+ 		current->exit_code = signr;
+ 		set_current_state(TASK_STOPPED);
++		spin_unlock_irq(&sighand->siglock);
+ 	}
+ 	else {
+ 		/*
+ 		 * There is no group stop already in progress.
+-		 * We must initiate one now.
++		 * We must initiate one now, but that requires
++		 * dropping siglock to get both the tasklist lock
++		 * and siglock again in the proper order.  Note that
++		 * this allows an intervening SIGCONT to be posted.
++		 * We need to check for that and bail out if necessary.
+ 		 */
+ 		struct task_struct *t;
++
++		spin_unlock_irq(&sighand->siglock);
++
++		/* signals can be posted during this window */
++
+ 		read_lock(&tasklist_lock);
+ 		spin_lock_irq(&sighand->siglock);
+ 
+@@ -1585,6 +1596,16 @@ do_signal_stop(int signr)
+ 			return;
+ 		}
+ 
++		if (unlikely(sig_avoid_stop_race())) {
++			/*
++			 * Either a SIGCONT or a SIGKILL signal was
++			 * posted in the siglock-not-held window.
++			 */
++			spin_unlock_irq(&sighand->siglock);
++			read_unlock(&tasklist_lock);
++			return;
++		}
++
+ 		if (sig->group_stop_count == 0) {
+ 			sig->group_exit_code = signr;
+ 			stop_count = 0;
+@@ -1659,20 +1680,21 @@ static inline int handle_group_stop(void
+ int get_signal_to_deliver(siginfo_t *info, struct pt_regs *regs, void *cookie)
+ {
+ 	sigset_t *mask = &current->blocked;
++	int signr = 0;
+ 
++relock:
++	spin_lock_irq(&current->sighand->siglock);
+ 	for (;;) {
+-		unsigned long signr = 0;
+ 		struct k_sigaction *ka;
+ 
+-		spin_lock_irq(&current->sighand->siglock);
+ 		if (unlikely(current->signal->group_stop_count > 0) &&
+ 		    handle_group_stop())
+-			continue;
++			goto relock;
++
+ 		signr = dequeue_signal(current, mask, info);
+-		spin_unlock_irq(&current->sighand->siglock);
+ 
+ 		if (!signr)
+-			break;
++			break; /* will return 0 */
+ 
+ 		if ((current->ptrace & PT_PTRACED) && signr != SIGKILL) {
+ 			ptrace_signal_deliver(regs, cookie);
+@@ -1681,25 +1703,25 @@ int get_signal_to_deliver(siginfo_t *inf
+ 			 * If there is a group stop in progress,
+ 			 * we must participate in the bookkeeping.
+ 			 */
+-			if (current->signal->group_stop_count > 0) {
+-				spin_lock_irq(&current->sighand->siglock);
++			if (current->signal->group_stop_count > 0)
+ 				--current->signal->group_stop_count;
+-				spin_unlock_irq(&current->sighand->siglock);
+-			}
+ 
+ 			/* Let the debugger run.  */
+ 			current->exit_code = signr;
+ 			current->last_siginfo = info;
+ 			set_current_state(TASK_STOPPED);
++			spin_unlock_irq(&current->sighand->siglock);
+ 			notify_parent(current, SIGCHLD);
+ 			schedule();
+ 
+ 			current->last_siginfo = NULL;
+ 
+ 			/* We're back.  Did the debugger cancel the sig?  */
++			spin_lock_irq(&current->sighand->siglock);
+ 			signr = current->exit_code;
+ 			if (signr == 0)
+ 				continue;
++
+ 			current->exit_code = 0;
+ 
+ 			/* Update the siginfo structure if the signal has
+@@ -1716,9 +1738,7 @@ int get_signal_to_deliver(siginfo_t *inf
+ 
+ 			/* If the (new) signal is now blocked, requeue it.  */
+ 			if (sigismember(&current->blocked, signr)) {
+-				spin_lock_irq(&current->sighand->siglock);
+ 				specific_send_sig_info(signr, info, current);
+-				spin_unlock_irq(&current->sighand->siglock);
+ 				continue;
+ 			}
+ 		}
+@@ -1727,7 +1747,7 @@ int get_signal_to_deliver(siginfo_t *inf
+ 		if (ka->sa.sa_handler == SIG_IGN) /* Do nothing.  */
+ 			continue;
+ 		if (ka->sa.sa_handler != SIG_DFL) /* Run the handler.  */
+-			return signr;
++			break; /* will return non-zero "signr" value */
+ 
+ 		/*
+ 		 * Now we are doing the default action for this signal.
+@@ -1744,20 +1764,44 @@ int get_signal_to_deliver(siginfo_t *inf
+ 			 * The default action is to stop all threads in
+ 			 * the thread group.  The job control signals
+ 			 * do nothing in an orphaned pgrp, but SIGSTOP
+-			 * always works.
++			 * always works.  Note that siglock needs to be
++			 * dropped during the call to is_orphaned_pgrp()
++			 * because of lock ordering with tasklist_lock.
++			 * This allows an intervening SIGCONT to be posted.
++			 * We need to check for that and bail out if necessary.
+ 			 */
+-			if (signr == SIGSTOP ||
+-			    !is_orphaned_pgrp(current->pgrp))
+-				do_signal_stop(signr);
+-			continue;
++			if (signr == SIGSTOP) {
++				do_signal_stop(signr); /* releases siglock */
++				goto relock;
++			}
++			spin_unlock_irq(&current->sighand->siglock);
++
++			/* signals can be posted during this window */
++
++			if (is_orphaned_pgrp(current->pgrp))
++				goto relock;
++
++			spin_lock_irq(&current->sighand->siglock);
++			if (unlikely(sig_avoid_stop_race())) {
++				/*
++				 * Either a SIGCONT or a SIGKILL signal was
++				 * posted in the siglock-not-held window.
++				 */
++				continue;
++			}
++
++			do_signal_stop(signr); /* releases siglock */
++			goto relock;
+ 		}
+ 
++		spin_unlock_irq(&current->sighand->siglock);
++
+ 		/*
+ 		 * Anything else is fatal, maybe with a core dump.
+ 		 */
+ 		current->flags |= PF_SIGNALED;
+ 		if (sig_kernel_coredump(signr) &&
+-		    do_coredump(signr, signr, regs)) {
++		    do_coredump((long)signr, signr, regs)) {
+ 			/*
+ 			 * That killed all other threads in the group and
+ 			 * synchronized with their demise, so there can't
+@@ -1771,8 +1815,8 @@ int get_signal_to_deliver(siginfo_t *inf
+ 			BUG_ON(!current->signal->group_exit);
+ 			BUG_ON(current->signal->group_exit_code != code);
+ 			do_exit(code);
+-				/* NOTREACHED */
+-			}
++			/* NOTREACHED */
++		}
+ 
+ 		/*
+ 		 * Death signals, no core dump.
+@@ -1780,7 +1824,8 @@ int get_signal_to_deliver(siginfo_t *inf
+ 		do_group_exit(signr);
+ 		/* NOTREACHED */
+ 	}
+-	return 0;
++	spin_unlock_irq(&current->sighand->siglock);
++	return signr;
  }
  
-@@ -86,7 +82,6 @@
- unlock_preset(snd_sf_list_t *sflist)
- {
- 	up(&sflist->presets_mutex);
--	sflist->sf_locked = 0;
- }
- 
- 
-@@ -1356,7 +1351,6 @@
- 
- 	init_MUTEX(&sflist->presets_mutex);
- 	spin_lock_init(&sflist->lock);
--	sflist->sf_locked = 0;
- 	sflist->memhdr = hdr;
- 
- 	if (callback)
-diff -Naur -x dontdiff linux-2.6.0-test1-vanilla/include/sound/soundfont.h linux-2.6.0-test1-eva/include/sound/soundfont.h
---- linux-2.6.0-test1-vanilla/include/sound/soundfont.h	2003-07-13 23:39:23.000000000 -0400
-+++ linux-2.6.0-test1-eva/include/sound/soundfont.h	2003-07-18 04:35:12.000000000 -0400
-@@ -95,7 +95,6 @@
- 	int zone_locked;	/* locked time for zone */
- 	int sample_locked;	/* locked time for sample */
- 	snd_sf_callback_t callback;	/* callback functions */
--	char sf_locked;		/* font lock flag */
- 	struct semaphore presets_mutex;
- 	spinlock_t lock;
- 	snd_util_memhdr_t *memhdr;
-
-
-Bug: http://bugme.osdl.org/show_bug.cgi?id=641
-
-Josef "Jeff" Sipek
-
--- 
-Defenestration n. (formal or joc.):
-  The act of removing Windows from your computer in disgust, usually followed
-  by the installation of Linux or some other Unix-like operating system.
-
+ #endif

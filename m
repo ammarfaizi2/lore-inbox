@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271573AbRHZXRG>; Sun, 26 Aug 2001 19:17:06 -0400
+	id <S271619AbRHZXY5>; Sun, 26 Aug 2001 19:24:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271617AbRHZXQ5>; Sun, 26 Aug 2001 19:16:57 -0400
-Received: from granger.mail.mindspring.net ([207.69.200.148]:65037 "EHLO
-	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S271573AbRHZXQx>; Sun, 26 Aug 2001 19:16:53 -0400
-Subject: Re: patch: let net devices feed entropy for 2.2.19
-From: Robert Love <rml@tech9.net>
-To: Shane Wegner <shane@cm.nu>
+	id <S271623AbRHZXYi>; Sun, 26 Aug 2001 19:24:38 -0400
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:10935 "EHLO
+	mailout.plan9.de") by vger.kernel.org with ESMTP id <S271619AbRHZXYZ>;
+	Sun, 26 Aug 2001 19:24:25 -0400
+Date: Mon, 27 Aug 2001 01:24:39 +0200
+From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
+To: Daniel Phillips <phillips@bonn-fries.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010826160837.A24902@cm.nu>
-In-Reply-To: <998196020.653.22.camel@phantasy>
-	<998196489.653.27.camel@phantasy>  <20010826160837.A24902@cm.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
-Date: 26 Aug 2001 19:17:29 -0400
-Message-Id: <998867850.1134.14.camel@phantasy>
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+Message-ID: <20010827012439.D6755@cerebro.laendle>
+Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0108251752010.5646-100000@imladris.rielhome.conectiva> <20010826172310Z16216-32383+1477@humbolt.nl.linux.org> <20010826211847.B2994@cerebro.laendle> <20010826210026Z16294-32383+1508@humbolt.nl.linux.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20010826210026Z16294-32383+1508@humbolt.nl.linux.org>
+X-Operating-System: Linux version 2.4.8-ac8 (root@cerebro) (gcc version 3.0.1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2001-08-26 at 19:08, Shane Wegner wrote:
-> Hi,
+On Sun, Aug 26, 2001 at 11:07:07PM +0200, Daniel Phillips <phillips@bonn-fries.net> wrote:
+> To recap, you made these changes:
 > 
-> In case anyone is interested, I have backported Robert
-> Love's netdev_random patch to the 2.2 kernel.  A patch
-> against 2.2.19 can be found at:
-> ftp://ftp.cm.nu/pub/people/shane/linux-2.2.19-netdev_random.patch.gz
+>   - Changed to -ac
+>   - Set max-readahead through proc
+> 
+> Anything else?  Did you change MAX_SECTORS?
 
-Hey, very good.  I will take a look.
+no, I tinkered a lot with my server (freeing up memory), which obviously
+helped somewhat and increased socket buffers to 256k max., makeing i/o
+more chunky and thus more efficient. i also use more than one reader
+thread: under linus' kernels more than one thread made the situation
+worse, on the ac kernels they seem to slightly improve throughout, up to a
+point.
 
-If you don't mind, I will put a link to it from my kernel patches list
-at http://tech9.net/rml/linux
+> > no longer thrashing. And linux does the job nicely ;)
+> Good, but should we rest on our laurels now?
+
+well, linux-2.4 has a lot of dark corners that need improving, but the
+machine does no longer totally misbehave (4 or 5 mb/s is debatable, but
+2mb/s with more memory and higher load is not ;). it's now acceptable to
+me ;)
+
 
 -- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
-
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

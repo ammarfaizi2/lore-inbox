@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261455AbUBUAak (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 19:30:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbUBUAak
+	id S261452AbUBUAct (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 19:32:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbUBUAcs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 19:30:40 -0500
-Received: from gate.crashing.org ([63.228.1.57]:65451 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261452AbUBUAab (ORCPT
+	Fri, 20 Feb 2004 19:32:48 -0500
+Received: from mail.gmx.net ([213.165.64.20]:32490 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261452AbUBUAcj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 19:30:31 -0500
-Subject: Re: Fix silly thinko in sungem network driver.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20040220162318.097006ee.davem@redhat.com>
-References: <200402202307.i1KN7GBR003938@hera.kernel.org>
-	 <1077321849.9719.32.camel@gaston> <1077322322.9623.34.camel@gaston>
-	 <20040220162318.097006ee.davem@redhat.com>
-Content-Type: text/plain
-Message-Id: <1077323090.10877.9.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 21 Feb 2004 11:24:50 +1100
+	Fri, 20 Feb 2004 19:32:39 -0500
+X-Authenticated: #21910825
+Message-ID: <4036A6F2.60907@gmx.net>
+Date: Sat, 21 Feb 2004 01:31:46 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030821
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Jari Ruusu <jariruusu@users.sourceforge.net>
+CC: James Morris <jmorris@redhat.com>, Jean-Luc Cooke <jlcooke@certainkey.com>,
+       Christophe Saout <christophe@saout.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: dm-crypt, new IV and standards
+References: <Xine.LNX.4.44.0402201624030.7335-100000@thoron.boston.redhat.com>
+In-Reply-To: <Xine.LNX.4.44.0402201624030.7335-100000@thoron.boston.redhat.com>
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-02-21 at 11:23, David S. Miller wrote:
+Jari,
 
-> I thought the idea was that if IBURST doesn't stick, then the Apple specific
-> bits aren't implemented?
+since mainline cryptoloop/dm-crypt implementation is being changed right
+now and you were complaining about it in the past, can you participate in
+the discussions (there's also a parallel thread titled "[PATCH/proposal]
+dm-crypt: add digest-based iv generation mode") so you don't have to
+complain afterwards?
+
+James Morris wrote:
+> On Fri, 20 Feb 2004, Jean-Luc Cooke wrote:
 > 
-> That's what the comment says.
+> 
+>>If others on the list care to do this, I'll give recommendation on how to 
+>>implement the security (hmac, salt, iteration counts, etc).  But I think
+>>this may break backward compatibility.  Can anyone speak to this?
+> 
+> 
+> Please focus your recommendations on security, not backward compatibility
+> with something that is new to the kernel tree, broken and maintainerless.
 
-I though the IBURST that doesn't stick was specific to latest Apple versions ?
-Those latest Apple versions are _also_ the ones implementing the magic bug
-fix bits (those appeared with the G5).
 
-Or did I get it backward ? Hrm, maybe I did... Here's Apple code:
-
-	fConfiguration	= kConfiguration_TX_DMA_Limit		// default Configuration value
-					| kConfiguration_RX_DMA_Limit
-					| kConfiguration_Infinite_Burst
-					| kConfiguration_RonPaulBit
-					| kConfiguration_EnableBug2Fix;
-	WRITE_REGISTER( Configuration, fConfiguration );	// try the default
-
-	ui32 = READ_REGISTER( Configuration );				// read it back
-    if ( (ui32 & kConfiguration_Infinite_Burst) == 0 )	
-    {													// not infinite-burst capable:
-        ELG( 0, 0, 'Lims', "UniNEnet::initChip: set TX_DMA_Limit and RX_DMA_Limit." );
-		fConfiguration	= (0x02 << 1) | (0x08 << 6);	// change TX_DMA_Limit, RX_DMA_Limit
-		WRITE_REGISTER( Configuration, fConfiguration );
-    }
-
-What does your doco says ?
-
-Ben.
-
+Thanks,
+Carl-Daniel
 

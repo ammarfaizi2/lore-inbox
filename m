@@ -1,217 +1,346 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbTKGBl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 20:41:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbTKGBl3
+	id S263862AbTKGFeV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 00:34:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263871AbTKGFeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 20:41:29 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:23774 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261299AbTKGBlY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 20:41:24 -0500
-Subject: Re: [PATCH] SMP signal latency fix up.
-From: Mark Gross <mgross@linux.co.intel.com>
-Reply-To: mgross@linux.co.intel.com
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Mark Gross <mgross@linux.co.intel.com>, Ingo Molnar <mingo@elte.hu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0311061510440.1842-100000@home.osdl.org>
-References: <Pine.LNX.4.44.0311061510440.1842-100000@home.osdl.org>
-Content-Type: text/plain
-Organization: TSP
-Message-Id: <1068169185.1831.9.camel@localhost.localdomain>
+	Fri, 7 Nov 2003 00:34:21 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:19982 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id S263862AbTKGFeH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 00:34:07 -0500
+Date: Thu, 6 Nov 2003 14:43:14 +0100
+From: Jurriaan <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: cdrecord dev=/dev/hdd in 2.9.0-test9-mm2: lots (LOTS) of error messages
+Message-ID: <20031106134314.GA3282@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 06 Nov 2003 17:39:46 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-11-06 at 15:20, Linus Torvalds wrote:
-> On 6 Nov 2003, Mark Gross wrote:
-> >
-> > Running on SMP and the 2.6.0-test9 kernel, it takes about 10000 * 1/HZ seconds.  Running this 
-> > command with maxcpus=1 the command finishes in fraction of a second.  Under SMP the 
-> > signal delivery isn't kicking the task if its in the run state on the other CPU.
-> 
-> It looks like the "wake_up_process_kick()" interface is just broken. As it 
-> stands now, it's literally _designed_ to kick the process only when it 
-> wakes it up, which is silly and wrong. It makes no sense to kick a process 
-> that we just woke up, because it _will_ react immediately anyway.
-> 
-> We literally want to kick only processes that didn't need waking up, and 
-> the current interface is totally unsuitable for that.
-> 
-> > The following patch has been tested and seems to fix the problem.  
-> > I'm confident about the change to sched.c actualy fixes a cut and paste bug.
-> 
-> Naah, it's a thinko, the code shouldn't be like that at all.
-> 
-> There's only one user of the "wake_up_process_kick()" thing, and that one 
-> user really wants to kick the process totally independently of waking it 
-> up. Which just implies that we should just have a _regular_ 
-> "wake_up_process()" there, and a _separate_ "kick_process()" thing.
-> 
-> So I've got a feeling that 
->  - we should remove the "kick" argument from "try_to_wake_up()"
->  - the signal wakeup case should instead do a _regular_ wakeup.
->  - we should kick the process if the wakeup _fails_.
-> 
-> Ie signal wakeup should most likely look something like
-> 
-> 
-> 	inline void signal_wake_up(struct task_struct *t, int resume)
-> 	{
-> 		int woken;
-> 		unsigned int mask;
-> 
-> 		set_tsk_thread_flag(t,TIF_SIGPENDING);
-> 		mask = TASK_INTERRUPTIBLE;
-> 		if (resume)
-> 			mask |= TASK_STOPPED;
-> 		woken = 0;
-> 		if (t->state & mask)
-> 			woken = wake_up_state(p, mask);
-> 		if (!woken)
-> 			kick_process(p);
-> 	}
-> 
-> where the "kick_process()" thing does the "is the task running on some 
-> other CPU and if so send it a reschedule event to make it react" thing.
-> 
-> Ingo?
-> 
-> 		Linus
+I tried to burn a CD using this command-line in 2.6.0-test9-mm2:
+
+sudo cdrecord -v dev="/dev/hdd" -dao -useinfo *.wav
+
+Result:
+
+[this about 5 times per second]
+Nov  6 14:37:17 middle kernel: arq->state 4
+Nov  6 14:37:17 middle kernel: Badness in as_put_request at drivers/block/as-iosched.c:1783
+Nov  6 14:37:17 middle kernel: Call Trace:
+Nov  6 14:37:17 middle kernel:  [scsi_host_dev_release+0/144] as_put_request+0x60/0xc0
+Nov  6 14:37:17 middle kernel:  [cdrom_buffer_sectors+62/192] elv_put_request+0x1e/0x20
+Nov  6 14:37:17 middle kernel:  [ide_cdrom_audio_ioctl+197/416] __blk_put_request+0x65/0xb0
+Nov  6 14:37:17 middle kernel:  [ide_cdrom_audio_ioctl+319/416] blk_put_request+0x2f/0x50
+Nov  6 14:37:17 middle kernel:  [ide_release_iomio_dma+40/144] sg_io+0x2f8/0x450
+Nov  6 14:37:17 middle kernel:  [ide_setup_dma+746/880] scsi_cmd_ioctl+0x25a/0x4f0
+Nov  6 14:37:17 middle kernel:  [cfq_init+330/368] opost_block+0x11a/0x1e0
+Nov  6 14:37:17 middle kernel:  [copy_process+2666/2864] default_wake_function+0x2a/0x30
+Nov  6 14:37:17 middle kernel:  [make_request+288/624] cdrom_ioctl+0x30/0xe90
+Nov  6 14:37:17 middle kernel:  [sys_rt_sigtimedwait+61/880] do_timer+0xdd/0xf0
+Nov  6 14:37:17 middle kernel:  [default_pins3+79/80] idecd_ioctl+0x5f/0x70
+Nov  6 14:37:17 middle kernel:  [ide_hwif_configure+364/448] blkdev_ioctl+0x8c/0x3c0
+Nov  6 14:37:17 middle kernel:  [kernel_fpu_begin+26/64] do_gettimeofday+0x2a/0xc0
+Nov  6 14:37:17 middle kernel:  [__d_lookup+84/336] sys_ioctl+0xf4/0x270
+Nov  6 14:37:17 middle kernel:  [__func__.4+169072/376069] syscall_call+0x7/0xb
+
+kernel commandline:
+
+kernel /boot/vmlinuz-260test9mm2 root=/dev/md3 video=matroxfb:xres:1600,yres:1360,depth:16,pixclock:4116,left:304,right:64,upper:46,lower:1,hslen:192,vslen:3,fv:90 atkbd_softrepeat=1
 
 
-Are you thinking about something like this?
+Oct 28 20:15:32 middle kernel: Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+Oct 28 20:15:32 middle kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+Oct 28 20:15:32 middle kernel: VP_IDE: IDE controller at PCI slot 0000:00:11.1
+Oct 28 20:15:32 middle kernel: VP_IDE: chipset revision 6
+Oct 28 20:15:32 middle kernel: VP_IDE: not 100%% native mode: will probe irqs later
+Oct 28 20:15:32 middle kernel: VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci0000:00:11.1
+Oct 28 20:15:32 middle kernel:     ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:pio
+Oct 28 20:15:32 middle kernel:     ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:DMA
+Oct 28 20:15:32 middle kernel: hda: IC35L120AVV207-1, ATA DISK drive
+Oct 28 20:15:32 middle kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Oct 28 20:15:32 middle kernel: hdc: IC35L120AVV207-1, ATA DISK drive
+Oct 28 20:15:32 middle kernel: hdd: LITE-ON LTR-40125W, ATAPI CD/DVD-ROM drive
+Oct 28 20:15:32 middle kernel: hda: max request size: 1024KiB
+Oct 28 20:15:32 middle kernel: hda: 241254720 sectors (123522 MB) w/7965KiB Cache, CHS=16383/255/63, UDMA(100)
+Oct 28 20:15:32 middle kernel:  hda: hda1 hda2 hda3 hda4 < hda5 hda6 hda7 hda8 >
+Oct 28 20:15:32 middle kernel: hdc: max request size: 1024KiB
+Oct 28 20:15:32 middle kernel: hdc: 241254720 sectors (123522 MB) w/7965KiB Cache, CHS=16383/255/63, UDMA(100)
+Oct 28 20:15:32 middle kernel:  hdc: hdc1 hdc2 hdc3 hdc4 < hdc5 hdc6 hdc7 hdc8 >
+Oct 28 20:15:32 middle kernel: hdd: ATAPI 48X CD-ROM CD-R/RW drive, 1984kB Cache, UDMA(33)
+Oct 28 20:15:32 middle kernel: Uniform CD-ROM driver Revision: 3.12
 
-It seems to work. I dropped the "task_running" test from
-smp_process_kick intentionaly.  As well as the movement of the success
-flag.  I hope its not too wrong.
+.config:
 
-It seems to work on a HT P4 desktop and a dual PIII box.
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_BROKEN=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=16
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_MK7=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_HPET_TIMER=y
+CONFIG_HPET_EMULATE_RTC=y
+CONFIG_PREEMPT=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
+CONFIG_HIGHPTE=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PM=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SLEEP_PROC_FS=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_DEBUG=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_ACPI_RELAXED_AML=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+CONFIG_PARPORT_1284=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDESCSI=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_AMD74XX=y
+CONFIG_BLK_DEV_HPT366=y
+CONFIG_BLK_DEV_PDC202XX_OLD=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_MAX_SD_DISKS=2
+CONFIG_CHR_DEV_ST=y
+CONFIG_BLK_DEV_SR=y
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_REPORT_LUNS=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_SYM53C8XX_2=y
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_LINEAR=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_MD_RAID5=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IPV6_SCTP__=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=y
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_TULIP=y
+CONFIG_TULIP=y
+CONFIG_TULIP_MWI=y
+CONFIG_TULIP_MMIO=y
+CONFIG_NET_PCI=y
+CONFIG_E100=y
+CONFIG_8139CP=y
+CONFIG_8139TOO=y
+CONFIG_VIA_RHINE=y
+CONFIG_VIA_RHINE_MMIO=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=y
+CONFIG_I2C=m
+CONFIG_I2C_CHARDEV=m
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_ISA=m
+CONFIG_I2C_VIAPRO=m
+CONFIG_I2C_SENSOR=m
+CONFIG_SENSORS_EEPROM=m
+CONFIG_SENSORS_VIA686A=m
+CONFIG_SENSORS_W83781D=m
+CONFIG_WATCHDOG=y
+CONFIG_SOFT_WATCHDOG=y
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_VIA=y
+CONFIG_DRM=y
+CONFIG_DRM_MGA=y
+CONFIG_RAW_DRIVER=y
+CONFIG_MAX_RAW_DEVS=256
+CONFIG_FB=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_MATROX=y
+CONFIG_FB_MATROX_G450=y
+CONFIG_FB_MATROX_G100=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONTS=y
+CONFIG_FONT_SUN12x22=y
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_MONO=y
+CONFIG_LOGO_LINUX_VGA16=y
+CONFIG_LOGO_LINUX_CLUT224=y
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=y
+CONFIG_SND_EMU10K1=y
+CONFIG_SND_CMIPCI=y
+CONFIG_SND_INTEL8X0=y
+CONFIG_SND_VIA82XX=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_EHCI_HCD=y
+CONFIG_USB_UHCI_HCD=y
+CONFIG_USB_PRINTER=y
+CONFIG_USB_HID=y
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_SCANNER=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISERFS_FS=y
+CONFIG_XFS_FS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_UDF_FS=y
+CONFIG_FAT_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_NTFS_FS=y
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_DEVPTS_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_SUNRPC=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_FRAME_POINTER=y
+CONFIG_X86_EXTRA_IRQS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_CRC32=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_PC=y
 
---mgross
-
-diff -urN -X dontdiff linux-2.6.0-test9/include/linux/sched.h
-/opt/linux-2.6.0-test9/include/linux/sched.h
---- linux-2.6.0-test9/include/linux/sched.h	2003-10-25
-11:42:56.000000000 -0700
-+++ /opt/linux-2.6.0-test9/include/linux/sched.h	2003-11-06
-14:44:22.000000000 -0800
-@@ -573,7 +573,7 @@
- 
- extern int FASTCALL(wake_up_state(struct task_struct * tsk, unsigned
-int state));
- extern int FASTCALL(wake_up_process(struct task_struct * tsk));
--extern int FASTCALL(wake_up_process_kick(struct task_struct * tsk));
-+extern void FASTCALL(smp_process_kick(struct task_struct * tsk));
- extern void FASTCALL(wake_up_forked_process(struct task_struct * tsk));
- extern void FASTCALL(sched_exit(task_t * p));
- 
-diff -urN -X dontdiff linux-2.6.0-test9/kernel/sched.c
-/opt/linux-2.6.0-test9/kernel/sched.c
---- linux-2.6.0-test9/kernel/sched.c	2003-10-25 11:44:29.000000000 -0700
-+++ /opt/linux-2.6.0-test9/kernel/sched.c	2003-11-06 14:58:29.000000000
--0800
-@@ -585,7 +585,7 @@
-  *
-  * returns failure only if the task is already active.
-  */
--static int try_to_wake_up(task_t * p, unsigned int state, int sync, int
-kick)
-+static int try_to_wake_up(task_t * p, unsigned int state, int sync)
- {
- 	unsigned long flags;
- 	int success = 0;
-@@ -624,13 +624,8 @@
- 				if (TASK_PREEMPTS_CURR(p, rq))
- 					resched_task(rq->curr);
- 			}
--			success = 1;
- 		}
--#ifdef CONFIG_SMP
--	       	else
--			if (unlikely(kick) && task_running(rq, p) && (task_cpu(p) !=
-smp_processor_id()))
--				smp_send_reschedule(task_cpu(p));
--#endif
-+		success = 1;
- 		p->state = TASK_RUNNING;
- 	}
- 	task_rq_unlock(rq, &flags);
-@@ -640,19 +635,22 @@
- 
- int wake_up_process(task_t * p)
- {
--	return try_to_wake_up(p, TASK_STOPPED | TASK_INTERRUPTIBLE |
-TASK_UNINTERRUPTIBLE, 0, 0);
-+	return try_to_wake_up(p, TASK_STOPPED | TASK_INTERRUPTIBLE |
-TASK_UNINTERRUPTIBLE, 0);
- }
- 
- EXPORT_SYMBOL(wake_up_process);
- 
--int wake_up_process_kick(task_t * p)
-+void smp_process_kick(task_t * p)
- {
--	return try_to_wake_up(p, TASK_STOPPED | TASK_INTERRUPTIBLE |
-TASK_UNINTERRUPTIBLE, 0, 1);
-+#ifdef CONFIG_SMP
-+	if (task_cpu(p) != smp_processor_id())
-+			smp_send_reschedule(task_cpu(p));
-+#endif
- }
- 
- int wake_up_state(task_t *p, unsigned int state)
- {
--	return try_to_wake_up(p, state, 0, 0);
-+	return try_to_wake_up(p, state, 0);
- }
- 
- /*
-@@ -1624,7 +1622,7 @@
- int default_wake_function(wait_queue_t *curr, unsigned mode, int sync)
- {
- 	task_t *p = curr->task;
--	return try_to_wake_up(p, mode, sync, 0);
-+	return try_to_wake_up(p, mode, sync);
- }
- 
- EXPORT_SYMBOL(default_wake_function);
-diff -urN -X dontdiff linux-2.6.0-test9/kernel/signal.c
-/opt/linux-2.6.0-test9/kernel/signal.c
---- linux-2.6.0-test9/kernel/signal.c	2003-10-25 11:43:27.000000000
--0700
-+++ /opt/linux-2.6.0-test9/kernel/signal.c	2003-11-06 15:05:41.945237624
--0800
-@@ -538,6 +538,7 @@
- inline void signal_wake_up(struct task_struct *t, int resume)
- {
- 	unsigned int mask;
-+	int woken;
- 
- 	set_tsk_thread_flag(t,TIF_SIGPENDING);
- 
-@@ -551,10 +552,14 @@
- 	mask = TASK_INTERRUPTIBLE;
- 	if (resume)
- 		mask |= TASK_STOPPED;
-+	woken = 0;
- 	if (t->state & mask) {
--		wake_up_process_kick(t);
--		return;
-+		woken = wake_up_process(t);
- 	}
-+#ifdef CONFIG_SMP
-+	if (!woken) 
-+		smp_process_kick(t);
-+#endif	
- }
- 
- /*
-
-
-
-
+Good luck,
+Jurriaan
+-- 
+Whatever women do they must do twice as well as men
+to be thought of as half as good. Luckily, this is not difficult.
+        Charlotte Whitton
+Debian (Unstable) GNU/Linux 2.6.0-test9-mm2 4276 bogomips 0.60 0.43

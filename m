@@ -1,56 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293297AbSCEPFQ>; Tue, 5 Mar 2002 10:05:16 -0500
+	id <S293291AbSCEPKq>; Tue, 5 Mar 2002 10:10:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293288AbSCEPFG>; Tue, 5 Mar 2002 10:05:06 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:5985 "EHLO
+	id <S293301AbSCEPKl>; Tue, 5 Mar 2002 10:10:41 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:46434 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S293243AbSCEPE7>; Tue, 5 Mar 2002 10:04:59 -0500
-Date: Tue, 5 Mar 2002 16:01:38 +0100
+	id <S293291AbSCEPKZ>; Tue, 5 Mar 2002 10:10:25 -0500
+Date: Tue, 5 Mar 2002 16:10:32 +0100
 From: Andrea Arcangeli <andrea@suse.de>
 To: Rik van Riel <riel@conectiva.com.br>
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
-        linux-kernel@vger.kernel.org
+Cc: arjan@fenrus.demon.nl, linux-kernel@vger.kernel.org
 Subject: Re: 2.4.19pre1aa1
-Message-ID: <20020305160138.E20606@dualathlon.random>
-In-Reply-To: <20020305024046.Y20606@dualathlon.random> <Pine.LNX.4.44L.0203050921510.1413-100000@duckman.distro.conectiva>
+Message-ID: <20020305161032.F20606@dualathlon.random>
+In-Reply-To: <200203050835.g258ZpW25134@fenrus.demon.nl> <Pine.LNX.4.44L.0203050934340.1413-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0203050921510.1413-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.44L.0203050934340.1413-100000@duckman.distro.conectiva>
 User-Agent: Mutt/1.3.22.1i
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 05, 2002 at 09:22:25AM -0300, Rik van Riel wrote:
-> On Tue, 5 Mar 2002, Andrea Arcangeli wrote:
-> > On Mon, Mar 04, 2002 at 10:26:30PM -0300, Rik van Riel wrote:
-> > > On Tue, 5 Mar 2002, Andrea Arcangeli wrote:
-> > > > On Mon, Mar 04, 2002 at 09:01:31PM -0300, Rik van Riel wrote:
-> > > > > This could be expressed as:
-> > > > >
-> > > > > "node A"  HIGHMEM A -> HIGHMEM B -> NORMAL -> DMA
-> > > > > "node B"  HIGHMEM B -> HIGHMEM A -> NORMAL -> DMA
-> 
-> > the example you made doesn't have highmem at all.
+On Tue, Mar 05, 2002 at 09:41:56AM -0300, Rik van Riel wrote:
+> On Tue, 5 Mar 2002 arjan@fenrus.demon.nl wrote:
+> > In article <20020305005215.U20606@dualathlon.random> you wrote:
 > >
-> > > has 1 ZONE_NORMAL and 1 ZONE_DMA while it has multiple
-> > > HIGHMEM zones...
+> > > I don't see how per-zone lru lists are related to the kswapd deadlock.
+> > > as soon as the ZONE_DMA will be filled with filedescriptors or with
+> > > pagetables (or whatever non pageable/shrinkable kernel datastructure you
+> > > prefer) kswapd will go mad without classzone, period.
 > >
-> > it has multiple zone normal and only one zone dma. I'm not forgetting
-> > that.
+> > So does it with class zone on a scsi system....
 > 
-> Your reality doesn't seem to correspond well with NUMA-Q
-> reality.
+> Furthermore, there is another problem which is present in
+> both 2.4 vanilla, -aa and -rmap.
 
-Not sure to understand your point, current code should be fine for all
-the classic numas, and for the case you were making too. Anyways
-whatever is wrong for NUMA-Q it's not a problem introduced with the
-classzone design because that's completly orthogonal to whatever numa
-heuristics in the allocator and memory balancing.
+Please check the code. scsi_resize_dma_pool is called when you insmod a
+module. It doesn't really matter if kswapd runs for 2 seconds during
+insmod. And anyways if there would be some buggy code allocating dma in
+a flood by mistake on a high end machine, then I can fix it completly by
+tracking down when somebody freed dma pages over some watermark, but
+that would add additional accounting that I don't feel needed, simply
+because if you don't need DMA zone you shouldn't use GFP_DMA, I feel
+fixing scsi is the right thing if something (but again, I don't see any
+flood allocation during production with scsi).
+
+> Suppose that (1) we are low on memory in ZONE_NORMAL and
+> (2) we have enough free memory in ZONE_HIGHMEM and (3) the
+> memory in ZONE_NORMAL is for a large part taken by buffer
+> heads belonging to pages in ZONE_HIGHMEM.
+> 
+> In that case, none of the VMs will bother freeing the buffer
+> heads associated with the highmem pages and kswapd will have
+
+wrong, classzone will do that, both for NORMAL and HIGHMEM allocations.
+You won't free the buffer headers only if you do DMA allocations and
+by luck there will be no buffer headers in the DMA zone, otherwise it
+will free the bh during DMA allocations too. remeber highmem classzone
+means all the ram in the machine, not just highmem zone.
+
+> to work hard trying to free something else in ZONE_NORMAL.
+> 
+> Now before you say this is a strange theoretical situation,
+> I've seen it here when using highmem emulation. Low memory
+> was limited to 30 MB (16 MB ZONE_DMA, 14 MB ZONE_NORMAL)
+> and the rest of the machine was HIGHMEM.  Buffer heads were
+> taking up 8 MB of low memory, dcache and inode cache were a
+> good second with 2 MB and 5 MB respectively.
+> 
+> 
+> How to efficiently fix this case ?   I wouldn't know right now...
+
+I don't see anything to fix, that should be just handled flawlessy.
+
+> However, I guess we might want to come up with a fix because it's
+> a quite embarassing scenario ;)
+> 
+> regards,
+> 
+> Rik
+> -- 
+> Will hack the VM for food.
+> 
+> http://www.surriel.com/		http://distro.conectiva.com/
+
 
 Andrea

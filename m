@@ -1,60 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266003AbUGAQXs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266009AbUGAQ0G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266003AbUGAQXs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 12:23:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266009AbUGAQXs
+	id S266009AbUGAQ0G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 12:26:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266042AbUGAQ0G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 12:23:48 -0400
-Received: from mail-relay-4.tiscali.it ([212.123.84.94]:24466 "EHLO
-	sparkfist.tiscali.it") by vger.kernel.org with ESMTP
-	id S266003AbUGAQXr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 12:23:47 -0400
-Date: Thu, 1 Jul 2004 18:23:28 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Roland McGrath <roland@redhat.com>, Andreas Schwab <schwab@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: zombie with CLONE_THREAD
-Message-ID: <20040701162328.GK15086@dualathlon.random>
-References: <200407010706.i6176pTa019793@magilla.sf.frob.com> <Pine.LNX.4.58.0407010843450.11212@ppc970.osdl.org>
-Mime-Version: 1.0
+	Thu, 1 Jul 2004 12:26:06 -0400
+Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:10245 "EHLO
+	mail.tv-sign.ru") by vger.kernel.org with ESMTP id S266009AbUGAQ0A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 12:26:00 -0400
+Message-ID: <40E43BDE.85C5D670@tv-sign.ru>
+Date: Thu, 01 Jul 2004 20:29:18 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       David Gibson <david@gibson.dropbear.id.au>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: [BUG] hugetlb MAP_PRIVATE mapping vs /dev/zero
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0407010843450.11212@ppc970.osdl.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 01, 2004 at 08:49:10AM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Thu, 1 Jul 2004, Roland McGrath wrote:
-> > 
-> > > .. since this information should be available anyway (we'll have woken up 
-> > > the tracer, and the tracer will see that the child is gone by simply 
-> > > seeing the ESRCH errorcode from ptrace).
-> > 
-> > When did you wake up the tracer?  I don't see how that happened.
-> 
-> exit_notify() will inform the tracer:
-> 
->         if (tsk->exit_signal != -1 && thread_group_empty(tsk)) {
->                 int signal = tsk->parent == tsk->real_parent ? tsk->exit_signal : SIGCHLD;
->                 do_notify_parent(tsk, signal);
->         } else if (tsk->ptrace) {
-> ***             do_notify_parent(tsk, SIGCHLD);   *****
->         }
-> 
-> so this should catch it. It even gets the pid of the child in the siginfo 
-> structure if it really wants to see that..
+Hello.
 
-it will get the wakeup, but that doesn't mean wait4 will return if
-it's waiting for all childs. Now I don't know but with strace it may
-even be ok by luck, but it certainly changes the semantics of
-wait4/ptrace at least a little and I could remotely imagine if somebody
-wants a wait4 to return when a ptraced child exited, if there are other
-"regular" children. That's why I admitted it can be considered a feature
-and not a completely worthless effort to leave self-reaping tasks as
-zombies if they're ptraced.
+Hugetlbfs mmap with MAP_PRIVATE becomes MAP_SHARED
+silently, but vma->vm_flags have no VM_SHARED bit.
+I think it make sense to forbid MAP_PRIVATE in
+hugetlbfs_file_mmap() because it may confuse user
+space applications. But the real bug is that reading
+from /dev/zero into hugetlb will do:
+
+read_zero()
+	read_zero_pagealigned()
+		if (vma->vm_flags & VM_SHARED)
+			break;	// OK if MAP_PRIVATE
+		zap_page_range();
+		zeromap_page_range();
+
+We can fix hugetlbfs_file_mmap() or read_zero_pagealigned()
+or both.
+
+Oleg.
+
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+diff -urp 2.6.7-clean/drivers/char/mem.c 2.6.7-mmap/drivers/char/mem.c
+--- 2.6.7-clean/drivers/char/mem.c	2004-05-30 13:25:49.000000000 +0400
++++ 2.6.7-mmap/drivers/char/mem.c	2004-07-01 19:51:52.000000000 +0400
+@@ -417,7 +417,7 @@ static inline size_t read_zero_pagealign
+ 
+ 		if (vma->vm_start > addr || (vma->vm_flags & VM_WRITE) == 0)
+ 			goto out_up;
+-		if (vma->vm_flags & VM_SHARED)
++		if (vma->vm_flags & (VM_SHARED | VM_HUGETLB))
+ 			break;
+ 		count = vma->vm_end - addr;
+ 		if (count > size)
+diff -urp 2.6.7-clean/fs/hugetlbfs/inode.c 2.6.7-mmap/fs/hugetlbfs/inode.c
+--- 2.6.7-clean/fs/hugetlbfs/inode.c	2004-05-24 14:16:11.000000000 +0400
++++ 2.6.7-mmap/fs/hugetlbfs/inode.c	2004-07-01 19:54:16.000000000 +0400
+@@ -28,6 +28,7 @@
+ #include <linux/security.h>
+ 
+ #include <asm/uaccess.h>
++#include <asm/mman.h>
+ 
+ /* some random number */
+ #define HUGETLBFS_MAGIC	0x958458f6
+@@ -52,6 +53,9 @@ static int hugetlbfs_file_mmap(struct fi
+ 	loff_t len, vma_len;
+ 	int ret;
+ 
++	if (!(vma->vm_flags & VM_MAYSHARE))
++		return -EINVAL;
++
+ 	if (vma->vm_start & ~HPAGE_MASK)
+ 		return -EINVAL;

@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267809AbUHFN7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265971AbUHFOEk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267809AbUHFN7V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 09:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268006AbUHFN7V
+	id S265971AbUHFOEk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 10:04:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265973AbUHFOEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 09:59:21 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:7105 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267809AbUHFN7R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 09:59:17 -0400
-Subject: Re: Linux kernel file offset pointer races
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pavel Kankovsky <peak@argo.troja.mff.cuni.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040804214056.6369.0@argo.troja.mff.cuni.cz>
-References: <20040804214056.6369.0@argo.troja.mff.cuni.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1091796995.16306.20.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 06 Aug 2004 13:56:36 +0100
+	Fri, 6 Aug 2004 10:04:40 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:32917 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S265971AbUHFOEg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 10:04:36 -0400
+Date: Fri, 6 Aug 2004 15:04:26 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Mark Lord <lkml@rtr.ca>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: libata: dma, io error messages
+In-Reply-To: <41138C67.7040306@rtr.ca>
+Message-ID: <Pine.LNX.4.60.0408061453410.2622@fogarty.jakma.org>
+References: <Pine.LNX.4.60.0408061113210.2622@fogarty.jakma.org>
+ <1091795565.16307.14.camel@localhost.localdomain> <41138C67.7040306@rtr.ca>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-08-04 at 21:36, Pavel Kankovsky wrote:
-> IMHO, the proper fix is to serialize all operations modifying a shared
-> file pointer (file->f_pos): read(), readv(), write(), writev(),
-> lseek()/llseek(). As far as I can tell, this is required by POSIX:
+On Fri, 6 Aug 2004, Mark Lord wrote:
 
-Not if you want to get any useful work done. No Unix does this. The
-situation with multiple parallel lseek/read/writes is somewhat undefined
-anyway since you don't know if the seek or the write occurred first in
-user space.
+>>> Also, the drive is extremely slow now, about 1MB/s drive transfer rate 
+>>> as reported by hdparm -T.
 
-O_APPEND is a bit different, as are pread/pwrite but those are dealt
-with using locking for files.
+> That should read "hdparm -t", not "-T", right?
 
+erk, sorry, yes.
 
+> And the slowness is most likely due to the error recovery (retries) 
+> in the drive and/or driver, which cause the overall throughput to 
+> plummet for the measurement interval.
+
+ah. There are no reported errors though. So presumably drive retries 
+that end up being successful.
+
+If that is so then this suggests the drive has a far more serious 
+problem than just a single bad block, right?
+
+> Cheers
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+Nothing is ever a total loss; it can always serve as a bad example.

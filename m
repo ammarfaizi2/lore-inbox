@@ -1,35 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270851AbUJVEdd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270783AbUJUSVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270851AbUJVEdd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 00:33:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270913AbUJUTp6
+	id S270783AbUJUSVH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 14:21:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268439AbUJUSQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 15:45:58 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:32171
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S270904AbUJUTkC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 15:40:02 -0400
-Date: Thu, 21 Oct 2004 12:34:04 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.9-ac2
-Message-Id: <20041021123404.1d947ee0.davem@davemloft.net>
-In-Reply-To: <1098379853.17095.160.camel@localhost.localdomain>
-References: <1098379853.17095.160.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Thu, 21 Oct 2004 14:16:48 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:22558 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S270692AbUJUSOk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 14:14:40 -0400
+Date: Thu, 21 Oct 2004 22:15:45 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Module compilation
+Message-ID: <20041021201545.GA16474@mars.ravnborg.org>
+Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
+	Linux kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0410201034590.12062@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0410201034590.12062@chaos.analogic.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Oct 2004 18:30:54 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On Wed, Oct 20, 2004 at 10:36:00AM -0400, Richard B. Johnson wrote> 
+> ...but it's not CFLAGS that needs to be modified, it's
+> a named variable that doesn't exist yet, perhaps "USERDEF",
+> or "DEFINES".
 
-> o	Set VM_IO on areas that are temporarily		(Alan Cox)
-> 	marked PageReserved (Serious bug)
+Reading the above I cannot what amkes you say that EXTRA_CFLAGS
+or CFLAGS_module.o cannot be used?
+Is it the name you do not like or is it some fnctionality
+you are missing?
 
-2.4.x will need this one as well, at least the AF_PACKET
-case.  Would you mind if I pushed that to Marcelo?
+>I see that the normal "defines" is a constant 
+> called "CHECKFLAGS", so this isn't appropriate for user
+> modification.
+CHECKFLAGS is only used when you use "make C=1" - to pass options
+to sparse.
+
+	Sam

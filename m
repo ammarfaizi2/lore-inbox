@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262945AbSJBDSs>; Tue, 1 Oct 2002 23:18:48 -0400
+	id <S262952AbSJBDdG>; Tue, 1 Oct 2002 23:33:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262948AbSJBDSr>; Tue, 1 Oct 2002 23:18:47 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:52744 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262945AbSJBDSo>;
-	Tue, 1 Oct 2002 23:18:44 -0400
-Date: Tue, 1 Oct 2002 20:21:43 -0700
-From: Greg KH <greg@kroah.com>
-To: Krishnakumar B <kitty@cse.wustl.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: usb-uhci renamed under Linux-2.5.40
-Message-ID: <20021002032142.GA11871@kroah.com>
-References: <15770.25006.908775.563421@samba.doc.wustl.edu>
+	id <S262953AbSJBDdG>; Tue, 1 Oct 2002 23:33:06 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:3011 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262952AbSJBDdF>;
+	Tue, 1 Oct 2002 23:33:05 -0400
+Date: Tue, 01 Oct 2002 20:31:31 -0700 (PDT)
+Message-Id: <20021001.203131.48516382.davem@redhat.com>
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: Re: 2.5.39 + evms 1.2.0 burn test
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021002032548.GB11871@kroah.com>
+References: <20021002030422.GA2127@merlin.emma.line.org>
+	<20021002032548.GB11871@kroah.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15770.25006.908775.563421@samba.doc.wustl.edu>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01, 2002 at 10:02:06PM -0500, Krishnakumar B wrote:
-> Hi,
-> 
-> When building Linux-2.5.40, I noted that usb-uhci is renamed to (or maybe a
-> complete reimplementation) uhci-hcd. How can I set up /etc/modules.conf so
-> that depending on the kernel that I am running either usb-uhci (2.4.x) or
-> uhci-hcd (2.5.x) is chosen for the usb-controller ? Is there some simple
-> alias trick that I am missing ? Is it possible for usb-uhci to be built
-> with linux-2.5.x ? I didn't see any option when doing a build from scratch
-> (make mrproper menuconfig).
+   From: Greg KH <greg@kroah.com>
+   Date: Tue, 1 Oct 2002 20:25:49 -0700
 
-The uhci change happened a long time ago :)
-And yes, it's a new implementation.
+   On Wed, Oct 02, 2002 at 05:04:22AM +0200, Matthias Andree wrote:
+   > 
+   > 5. usb: usbkbd (module) cannot be loaded, missing symbol:
+   >    usb_kbd_free_buffers.
+   
+   Vojtech, I've seen this for a while, but forgot to mention it.  Any fix?
+   
+sed 's/usb_kbd_free_buffers/usb_kbd_free_mem/' <usbkbd.c >usbkbd_fixed.c
+mv usbkbd_fixed.c usbkbd.c
+make
 
-Here's what's in my modules.conf that allows me to run properly for both
-2.4 and 2.5:
-	alias usb-controller usb-uhci
-	alias usb-controller1 usb-ohci
-	alias usb-controller2 uhci-hcd
-	alias usb-controller3 ohci-hcd
-
-Hope this helps,
-
-greg k-h
+You can tell that most of us use full HID support. :-)

@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263847AbTFJVgm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 17:36:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbTFJVfM
+	id S263949AbTFJV5J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 17:57:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264025AbTFJV5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 17:35:12 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:44188 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263847AbTFJShJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 14:37:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10552709691520@kroah.com>
-Subject: Re: [PATCH] Yet more PCI fixes for 2.5.70
-In-Reply-To: <1055270969401@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 10 Jun 2003 11:49:29 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Tue, 10 Jun 2003 17:57:08 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:63368
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S263949AbTFJV46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 17:56:58 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: root@chaos.analogic.com, Matti Aarnio <matti.aarnio@zmailer.org>
+Subject: Re: Large files
+Date: Tue, 10 Jun 2003 18:12:50 -0400
+User-Agent: KMail/1.5
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.53.0306100952560.4080@chaos> <20030610141759.GU28900@mea-ext.zmailer.org> <Pine.LNX.4.53.0306101057020.4326@chaos>
+In-Reply-To: <Pine.LNX.4.53.0306101057020.4326@chaos>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306101812.50632.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1375, 2003/06/09 16:19:20-07:00, greg@kroah.com
+On Tuesday 10 June 2003 11:12, Richard B. Johnson wrote:
+> On Tue, 10 Jun 2003, Matti Aarnio wrote:
+> > On Tue, Jun 10, 2003 at 09:57:57AM -0400, Richard B. Johnson wrote:
+> > > With 32 bit return values, ix86 Linux has a file-size limitation
+> > > which is currently about 0x7fffffff. Unfortunately, instead of
+> > > returning from a write() with a -1 and errno being set, so that
+> > > a program can do something about it, write() executes a signal(25)
+> > > which kills the task even if trapped. Is this one of those <expletive
+> > > deleted> POSIX requirements or is somebody going to fix it?
+> >
+> >   http://www.sas.com/standards/large.file/
 
-PCI: remove pci_present() from sound/oss/es1371.c
+Is anybody indexing these suckers?  I've got a directory full of downloaded 
+PDFs of things like the el-torito spec and bits of posix and sus, and I was 
+just wondering if there's some kind of master list of all these things that 
+Linux actually implements.
 
+I suspect the answer is "probably not", but i thought I'd ask...
 
- sound/oss/es1371.c |    2 --
- 1 files changed, 2 deletions(-)
+Rob
 
-
-diff -Nru a/sound/oss/es1371.c b/sound/oss/es1371.c
---- a/sound/oss/es1371.c	Tue Jun 10 11:17:42 2003
-+++ b/sound/oss/es1371.c	Tue Jun 10 11:17:42 2003
-@@ -3043,8 +3043,6 @@
- 
- static int __init init_es1371(void)
- {
--	if (!pci_present())   /* No PCI bus in this machine! */
--		return -ENODEV;
- 	printk(KERN_INFO PFX "version v0.32 time " __TIME__ " " __DATE__ "\n");
- 	return pci_module_init(&es1371_driver);
- }
-
+Rob

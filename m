@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263402AbTJKWRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 18:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263406AbTJKWRP
+	id S263396AbTJKWl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 18:41:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263401AbTJKWl1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 18:17:15 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:22403 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263402AbTJKWRM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 18:17:12 -0400
-Date: Sat, 11 Oct 2003 15:11:00 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: "jdow" <jdow@earthlink.net>
-Cc: list@fluent2.pyramid.net, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: Re: Job Announcements (was Linux TCP/IP Stack Developer)
-Message-Id: <20031011151100.6241b3c7.davem@redhat.com>
-In-Reply-To: <028b01c39044$bb2c89e0$2eedfea9@kittycat>
-References: <1065826508.1612.27.camel@localhost.localdomain>
-	<1065826508.1612.27.camel@localhost.localdomain>
-	<5.2.1.1.0.20031011130522.011e97b0@fluent2.pyramid.net>
-	<20031011133541.0498ffa6.davem@redhat.com>
-	<028b01c39044$bb2c89e0$2eedfea9@kittycat>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 11 Oct 2003 18:41:27 -0400
+Received: from dirac.phys.uwm.edu ([129.89.57.19]:49320 "EHLO
+	dirac.phys.uwm.edu") by vger.kernel.org with ESMTP id S263396AbTJKWl0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 18:41:26 -0400
+Date: Sat, 11 Oct 2003 17:41:25 -0500 (CDT)
+From: Bruce Allen <ballen@gravity.phys.uwm.edu>
+To: Nohez <nohez@cmie.com>
+cc: linux-kernel@vger.kernel.org, smartmontools-support@lists.sourceforge.net
+Subject: Re: [smartmontools-support]Reproducable time problem with SMARTD &
+ XNTPD
+In-Reply-To: <Pine.LNX.4.33.0310111545530.1047-100000@venus.cmie.ernet.in>
+Message-ID: <Pine.GSO.4.21.0310111740320.288-100000@dirac.phys.uwm.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Oct 2003 15:12:15 -0700
-"jdow" <jdow@earthlink.net> wrote:
+> Last week we installed SMARTD on this box. SMARTD was configured to
+> monitor the 6 HDDs. The time on the server started to go out of sync
+> with the remote time server. And the difference increases over time.
 
-> From: "David S. Miller" <davem@redhat.com>
->
-> Might it be possible to
-> generate a specific "kernel jobs list" on vger and police it for
-> extrania as thoroughly as this list gets policed? Given the job
-> climate of late that might be a nice service to the community.
+This is the first report we've had of this type.
 
-I don't want to run such a list, it's really asking for trouble.
+> SMARTD      : smartmontools-5.1.4-20
 
-Only technical lists here, thanks.
+Could you please try this with the current 5.20 release of smartmontools?
 
-And let's end this thread now please, thanks.
+Bruce
+

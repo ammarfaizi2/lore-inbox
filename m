@@ -1,88 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263590AbTGTIfY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 04:35:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263597AbTGTIfY
+	id S263428AbTGTIfI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 04:35:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbTGTIfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 04:35:24 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:50191
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S263590AbTGTIfO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 04:35:14 -0400
-Date: Sun, 20 Jul 2003 01:43:01 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-cc: Stef van der Made <svdmade@planet.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Onstream DI-30 not responding 2.6
-In-Reply-To: <Pine.SOL.4.30.0307171938370.20577-100000@mion.elka.pw.edu.pl>
-Message-ID: <Pine.LNX.4.10.10307200142170.21266-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 20 Jul 2003 04:35:08 -0400
+Received: from main.gmane.org ([80.91.224.249]:9649 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263428AbTGTIfC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 04:35:02 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?Leandro_Guimar=E3es_Faria_Corsetti_Dutra?= 
+	<lgcdutra@terra.com.br>
+Subject: Re: [OFFTOPIC] RMS and reactions to him
+Date: Sun, 20 Jul 2003 10:49:28 +0200
+Organization: =?ISO-8859-1?Q?=20Fam=C3=ADlia?= Dutra
+Message-ID: <pan.2003.07.20.08.49.28.615976@terra.com.br>
+References: <200301201338.h0KDcLjd001178@eeyore.valparaiso.cl> <E18bHfV-0002QE-00@fencepost.gnu.org> <20030122162107.GA26725@mark.mielke.cc> <pan.2003.07.20.02.27.22.526885@terra.com.br> <871xwl7h6j.fsf@deneb.enyo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 20 Jul 2003 10:09:40 +0200, Florian Weimer wrote:
 
-Would help but my DI-30 is deadlocked and will not function regardless :-(
-It is nothing but a paperweight now.
+> Leandro Guimarães Faria Corsetti Dutra <lgcdutra@terra.com.br> writes:
+> 
+>> 	Debian actually calls it GNU/Linux.
+> 
+> OTOH, Debian is the only distribution that might remove FSF credits
+> and calls for funding
 
-Andre Hedrick
-LAD Storage Consulting Group
+	References?
 
-On Thu, 17 Jul 2003, Bartlomiej Zolnierkiewicz wrote:
 
-> 
-> Hi,
-> 
-> ide-tape driver is broken right now in 2.6.
-> Config option for it is commented out because
-> it even doesn't compile (easy to fix).
-> 
-> I can help a bit if somebody wants to fix this driver.
-> --
-> Bartlomiej
-> 
-> On Thu, 17 Jul 2003, Stef van der Made wrote:
-> >
-> > Hi
-> >
-> > I'm trying to use my Onstream DI-30 (IDE) tape device with Kernel
-> > 2.6.0-test1. When trying to access the drive using the old 2.2 kernels
-> > and 2.4 these commands worked fine
-> >
-> > bash-2.05# mt -f /dev/nht0 status
-> > /dev/nht0: No such device
-> > bash-2.05# mt -f /dev/ht0 status
-> > /dev/ht0: No such device
-> > bash-2.05# mt -f /dev/hdd status
-> > /dev/hdd: No such device or address
-> > bash-2.05# mt -f /dev/hdc status
-> > /dev/hdc: No such device or address
-> >
-> > While they now are showing ugly errors.
-> >
-> > This is a part of the boot log
-> >
-> > VP_IDE: IDE controller at PCI slot 0000:00:07.1
-> > VP_IDE: chipset revision 16
-> > VP_IDE: not 100% native mode: will probe irqs later
-> > ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> > VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 controller on pci0000:00:07.1
-> >     ide0: BM-DMA at 0xc000-0xc007, BIOS settings: hda:DMA, hdb:DMA
-> >     ide1: BM-DMA at 0xc008-0xc00f, BIOS settings: hdc:pio, hdd:DMA
-> > hda: WDC WD205BA, ATA DISK drive
-> > anticipatory scheduling elevator
-> > ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> > hdd: OnStream DI-30, ATAPI TAPE drive
-> >
-> >
-> > Thanks in advance for any tips on a solution for this problem.
-> >
-> > Stef
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> and the GNU Manifesto from the distribution.  I
+
+	I'd be surprised.  They carry the Anarchist Manifesto and the
+KJV Bible.
+
+
+> don't know of any other distribution which is considering such
+> far-reaching plans.
+
+	It won't be the first disagreement.  Debian actually was
+poised to become *the* GNU distribution until they insisted on
+carrying non-free software, when that was even more essential.  Every
+so often this issue is raised again; presumably they will shed
+non-free completely once a recent free version of Java 2, SWF player
+and assorted stuff becomes available.
+
+	What they *are* doing is removing the GNU FDL stuff.  I have
+read the discussions, and it seems to me something they could get over
+if RMS and some small group of Debian people -- *not* all of
+debian-legal -- had a good talk over a good beer.
+
+	OTOH all this never prevented Debian from being preferred by
+the FSF, actually used by RMS, and from calling itself Debian
+GNU/Linux, as well as being the Hurd distro.
+
+
+
+-- 
+ _   Leandro Guimarães Faria Corsetti Dutra     +41 (21) 648 11 34
+/ \  http://br.geocities.com./lgcdutra/         +41 (78) 778 11 34
+\ /  Answer to the list, not to me directly!    +55 (11) 5686 2219
+/ \  Rate this if helpful: http://svcs.affero.net/rm.php?r=leandro
+
 

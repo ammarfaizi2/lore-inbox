@@ -1,65 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130914AbRBPTX7>; Fri, 16 Feb 2001 14:23:59 -0500
+	id <S131078AbRBPTbl>; Fri, 16 Feb 2001 14:31:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130152AbRBPTXt>; Fri, 16 Feb 2001 14:23:49 -0500
-Received: from [64.160.188.242] ([64.160.188.242]:9990 "HELO
-	mail.hislinuxbox.com") by vger.kernel.org with SMTP
-	id <S130914AbRBPTXl>; Fri, 16 Feb 2001 14:23:41 -0500
-Date: Fri, 16 Feb 2001 11:23:36 -0800 (PST)
-From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-To: James Sutherland <jas88@cam.ac.uk>
-Cc: Rik van Riel <riel@conectiva.com.br>, Alan Olsen <alan@clueserver.org>,
-        Mark Haney <mhaney@info4cars.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Linux stifles innovation...
-In-Reply-To: <Pine.SOL.4.21.0102161510010.23382-100000@red.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.30.0102161123040.7658-100000@ns-01.hislinuxbox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131080AbRBPTba>; Fri, 16 Feb 2001 14:31:30 -0500
+Received: from et-gw.etinc.com ([207.252.1.2]:62730 "EHLO etinc.com")
+	by vger.kernel.org with ESMTP id <S131078AbRBPTbN>;
+	Fri, 16 Feb 2001 14:31:13 -0500
+Message-Id: <5.0.0.25.0.20010216144200.0240eeb0@mail.etinc.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0
+Date: Fri, 16 Feb 2001 14:43:24 -0500
+To: linux-kernel@vger.kernel.org
+From: Dennis <dennis@etinc.com>
+Subject: Can 2.2 Linux boot from an IDE ZIP?
+In-Reply-To: <3A8D4D0F.5EB9BDB1@dm.ultramaster.com>
+In-Reply-To: <200101241505.QAA01045@iq.rulez.org>
+ <20010216151737.D14430@inspiron.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Would someone tell me where you get all this lovely information on
-patents held by M$? I can't find anything.
+Can 2.2.x linux made to boot from an ide zip drive? If so, what is required?
 
-
-On Fri, 16 Feb 2001, James Sutherland wrote:
-
-> On Fri, 16 Feb 2001, Rik van Riel wrote:
->
-> > On Thu, 15 Feb 2001, Alan Olsen wrote:
-> >
-> > > I expect the next thing that will happen is that they will get
-> > > patents on key portions of their protocols and then start
-> > > enforcing them.
-> >
-> > If Microsoft would start pissing off IBM and other major
-> > companies which have big business interests in Linux by
-> > invoking their patents, I can just imagine IBM coming down
-> > on Microsoft with their own patents ...
-> >
-> > "Hey you!  Stop flipping those bits!  Hold it right there!
-> >  ... Don't you flip any more bits, read this patent first..."
-> >
-> > (and I'm sure they must have patents on _setting_ bits as
-> > well ;))
->
-> Apparently they DO have a patent on the tab key - you thought Amazon's
-> "one click shopping" patent was bad?!
->
->
-> James.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
--- 
-David D.W. Downey - RHCE
-Consulting Engineer
-Ensim Corporation - Sunnyvale, CA
+DB
 

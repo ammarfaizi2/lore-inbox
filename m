@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268056AbUGWVFg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268064AbUGWVIv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268056AbUGWVFg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 17:05:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268059AbUGWVFg
+	id S268064AbUGWVIv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 17:08:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268065AbUGWVIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 17:05:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:49092 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268056AbUGWVF3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 17:05:29 -0400
-Date: Fri, 23 Jul 2004 14:05:27 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Andrew Morton <akpm@digeo.com>
+	Fri, 23 Jul 2004 17:08:51 -0400
+Received: from herkules.viasys.com ([194.100.28.129]:28883 "HELO
+	mail.viasys.com") by vger.kernel.org with SMTP id S268064AbUGWVIt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 17:08:49 -0400
+Date: Sat, 24 Jul 2004 00:08:43 +0300
+From: Ville Herva <vherva@viasys.com>
+To: Valdis.Kletnieks@vt.edu
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] hlist_for_each_safe cleanup
-Message-Id: <20040723140527.7e3c119a@dell_ss3.pdx.osdl.net>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Subject: Re: New dev model (was [PATCH] delete devfs)
+Message-ID: <20040723210843.GT19019@viasys.com>
+Reply-To: vherva@viasys.com
+References: <40FEEEBC.7080104@quark.didntduck.org> <20040721231123.13423.qmail@lwn.net> <20040721235228.GZ14733@fs.tum.de> <20040722025539.5d35c4cb.akpm@osdl.org> <20040722193337.GE19329@fs.tum.de> <20040722152839.019a0ca0.pj@sgi.com> <20040722232540.GH19329@fs.tum.de> <1090549329.6113.21.camel@kryten.internal.splhi.com> <20040723063131.GJ16073@viasys.com> <200407232104.i6NL4Zwf003593@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200407232104.i6NL4Zwf003593@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make code for hlist_for_each_safe use better code (same as hlist_for_each_entry_safe).
-Get rid of comment about prefetch, because that was fixed a while ago.
-Only current use of this is in the bridge code, that I maintain.
+On Fri, Jul 23, 2004 at 05:04:35PM -0400, you [Valdis.Kletnieks@vt.edu] wrote:
+> On Fri, 23 Jul 2004 09:31:31 +0300, Ville Herva said:
+> 
+> > Anyway, as (one kind of) end user, I do welcome the new development model.
+> > I'll get the newest features in manageable manner, and if I don't fancy that
+> > I can resort to vendor (Fedora) kernels.
+> 
+> You *do* realize that the kernel in the Fedora development tree is
+> actually *ahead* of the released kernel.org tree, right?
+> 
+> The current kernel-2.6.7-1.494.src.rpm is based on 2.6.8-rc1-bk5, with a
+> bunch of RedHat/Fedora patches on top of that.
+> 
+> And the 2.6.5-1.358 kernel that shipped in Fedora Core 2 is actually a
+> 2.6.6-rc3-bk3 with patches on top of that.
+> 
+> I think you meant the RHEL series of kernels - current there is
+> 2.4.21-15.0.3.EL, with backports of security/bug fixes.
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
-
---- linux-2.6/include/linux/list.h	2004-07-23 09:36:18.000000000 -0700
-+++ tcp-2.6/include/linux/list.h	2004-07-23 11:43:25.000000000 -0700
-@@ -620,13 +620,12 @@
- 
- #define hlist_entry(ptr, type, member) container_of(ptr,type,member)
- 
--/* Cannot easily do prefetch unfortunately */
- #define hlist_for_each(pos, head) \
- 	for (pos = (head)->first; pos && ({ prefetch(pos->next); 1; }); \
- 	     pos = pos->next)
- 
- #define hlist_for_each_safe(pos, n, head) \
--	for (pos = (head)->first; n = pos ? pos->next : NULL, pos; \
-+	for (pos = (head)->first; pos && ({ n = pos->next; 1; }); \
- 	     pos = n)
- 
- /**
+You are absolutely right, Fedora was a bad example. RHEL is better.

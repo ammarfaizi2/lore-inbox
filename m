@@ -1,71 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314077AbSFEJNu>; Wed, 5 Jun 2002 05:13:50 -0400
+	id <S314277AbSFEJY4>; Wed, 5 Jun 2002 05:24:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314078AbSFEJNt>; Wed, 5 Jun 2002 05:13:49 -0400
-Received: from gw.chygwyn.com ([62.172.158.50]:57350 "EHLO gw.chygwyn.com")
-	by vger.kernel.org with ESMTP id <S314077AbSFEJNs>;
-	Wed, 5 Jun 2002 05:13:48 -0400
-From: Steven Whitehouse <steve@gw.chygwyn.com>
-Message-Id: <200206050848.JAA16896@gw.chygwyn.com>
-Subject: Re: Kernel deadlock using nbd over acenic driver
-To: ptb@it.uc3m.es
-Date: Wed, 5 Jun 2002 09:48:05 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (linux kernel)
-In-Reply-To: <200206012113.g51LDur14462@oboe.it.uc3m.es> from "Peter T. Breuer" at Jun 01, 2002 11:13:56 PM
-Organization: ChyGywn Limited
-X-RegisteredOffice: 7, New Yatt Road, Witney, Oxfordshire. OX28 1NU England
-X-RegisteredNumber: 03887683
-Reply-To: Steve Whitehouse <Steve@ChyGwyn.com>
-X-Mailer: ELM [version 2.5 PL1]
+	id <S314389AbSFEJYz>; Wed, 5 Jun 2002 05:24:55 -0400
+Received: from [62.245.135.174] ([62.245.135.174]:5045 "EHLO mail.teraport.de")
+	by vger.kernel.org with ESMTP id <S314277AbSFEJYy> convert rfc822-to-8bit;
+	Wed, 5 Jun 2002 05:24:54 -0400
+From: "Martin.Knoblauch" <Martin.Knoblauch@teraport.de>
+Reply-To: Martin.Knoblauch@teraport.de
+Organization: TeraPort GmbH
+To: phillips@bonn-fries.net
+Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
+Date: Wed, 5 Jun 2002 11:24:49 +0200
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <200206051124.49303.Martin.Knoblauch@teraport.de>
+X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
+ 06/05/2002 11:24:49 AM,
+	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
+ 06/05/2002 11:24:56 AM,
+	Serialize complete at 06/05/2002 11:24:56 AM
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>If I recall correctly, XFS makes an attempt to provide such realtime
+>guarantees, or at least the Solaris version does. However, the operating 
+>system must be able to provide true realtime guarantees in order for the 
+>filesystem to provide them, and I doubt that the combination of XFS and 
+>Solaris can do that. 
 
-> 
-> "Steven Whitehouse wrote:"
-> 
-> (somethiung about kernel nbd)
-> 
-> BTW, are you maintaining kernel nbd? If so, I'd like to propose
-> some unifications that would make it possible to run either
-> enbd or nbd daemons on the same driver, at least in a "compatibility
-> mode".
-> 
-No. My interest is just to help ensure that its working by sending
-the occasional bug fix. Pavel Machek is officially in charge, so you'll
-need to convince him of any changes.
+ Make that IRIX please :-) Not sure whether XFS even exists on Slowlaris. 
+AFAIK the "Guaranteed Rate" needs an additional license even on IRIX.
 
-> The starting point would be
-> 
-> 1) make the over-the-wire data formats the same, which means
->    enlarging kernel nbd's nbd_request and nbd_reply structs
->    to match enbd's, or some compromise.
-> 
-> 2) less important .. make the driver structs the same. enbd has more
->    fields there too, for accounting purposes. That's the nbd_device struct.
-> 
-> Later on one can add some cross-ioctls.
-> 
-> Peter
-> 
-I'm not so convinced that this is a good idea. I've always looked upon nbd
-as the "as simple as possible" style of driver and its over the wire format
-is good enough to cope with most things I think. Does enbd have a negotiation
-sequence at start up like nbd ? Perhaps it would be possible to add some
-code so a server could tell which type of client it was talking to ? I
-think that would be simpler code changes and I'd be happier to see that kind
-of change rather than any change to the over the wire format.
-
-It would be nice to add a bit more accounting. We need also to dynamically
-allocate the nbd driver structures because as they get larger its less
-efficient to allocate them statically as we currently do. The question is
-then when to free them. I think that probably the disconnect ioctl() could
-provide a suitable hook for that,
-
-Steve.
+Martin 
+-- 
+------------------------------------------------------------------
+Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
+TeraPort GmbH            |    Phone:  +49-89-510857-309
+C+ITS                    |    Fax:    +49-89-510857-111
+http://www.teraport.de   |    Mobile: +49-170-4904759
 

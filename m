@@ -1,78 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280956AbRLDRxL>; Tue, 4 Dec 2001 12:53:11 -0500
+	id <S281489AbRLDRxK>; Tue, 4 Dec 2001 12:53:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281042AbRLDRvy>; Tue, 4 Dec 2001 12:51:54 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:52488 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S281061AbRLDRvO>;
-	Tue, 4 Dec 2001 12:51:14 -0500
-Date: Tue, 4 Dec 2001 09:47:01 -0800 (PST)
-From: <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Michael Zhu <apiggyjj@yahoo.ca>
-cc: Tyler BIRD <BIRDTY@uvsc.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: Insmod problems
-In-Reply-To: <20011204170642.78487.qmail@web20209.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.33L2.0112040946130.18921-100000@dragon.pdx.osdl.net>
+	id <S280956AbRLDRvw>; Tue, 4 Dec 2001 12:51:52 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18693 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S281042AbRLDRus>; Tue, 4 Dec 2001 12:50:48 -0500
+Subject: Re: [Linux-ia64] patch to no longer use ia64's software mmu
+To: davidm@hpl.hp.com
+Date: Tue, 4 Dec 2001 17:59:28 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), tony.luck@intel.com,
+        arjanv@redhat.com (Arjan van de Ven), linux-kernel@vger.kernel.org,
+        linux-ia64@linuxia64.org, marcelo@conectiva.com.br, davem@redhat.com
+In-Reply-To: <15373.2854.619707.822462@napali.hpl.hp.com> from "David Mosberger" at Dec 04, 2001 09:43:02 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16BJqq-0002qu-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Dec 2001, Michael Zhu wrote:
+>   Alan> ISA DMA. While there is no ISA DMA on ia64 (thankfully) many
+>   Alan> PCI cards have 26-31 bit limits.
+> 
+> We could do this if we there was a GFP_4GB zone.  Now that 2.5 is open
+> for business, it won't be long, right?
 
-| I've define these two when I compile the module. The
-| command line is:
-|
-| gcc -D_KERNEL_ -DMODULE -c hello.c
+I don't see the need: GFP_DMA is the ISA DMA zone. pci_* API is used by
+everyone else [for 2.5]. You want a 32bit zone purely so you can fulfill
+allocations in 32bit PCI space, and an ISA DMA zone for back compat and to
+cover broken PCI cards (of which there are lots)
 
-Check the spelling of "__KERNEL__".
-
-~Randy
-
-| --- Tyler BIRD <BIRDTY@uvsc.edu> wrote:
-| > You need to define the __KERNEL__ and MODULE symbols
-| >
-| > #define __KERNEL__
-| > #define MODULE
-| >
-| >
-| > >>> Nav Mundi <nmundi@karthika.com> 12/04/01 09:33AM
-| > >>>
-| > What are we doing wrong? - Nav & Michael
-| > **************************************************
-| >
-| > hello.c Source:
-| >
-| > #include "/home/mzhu/linux/include/linux/config.h"
-| > /*retrieve the CONFIG_* macros */
-| > #if defined(CONFIG_MODVERSIONS) &&
-| > !defined(MODVERSIONS)
-| > #define MODVERSIONS  /* force it on */
-| > #endif
-| >
-| > #ifdef MODVERSIONS
-| > #include
-| > "/home/mzhu/linux/include/linux/modversions.h"
-| > #endif
-| >
-| > #include "/home/mzhu/linux/include/linux/module.h"
-| >
-| > int init_module(void)  { printk("<1>Hello,
-| > world\n");  return 0; }
-| > void cleanup_module(void) { printk("<1>Goodbye cruel
-| > world\n"); }
-| >
-| > Output:
-| >
-| > #>gcc -D_KERNEL_ -DMODULE -c hello.c
-| >
-| > [This builds the hello.o file. ]
-| >
-| > #>insmod hello.o
-| >
-| > hello.o : unresolved symbol printk
-| > hello.o : Note: modules without a GPL compatible
-| > license cannot use
-| > GPONLY_symbols
-
+Alan

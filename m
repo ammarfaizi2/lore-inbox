@@ -1,69 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265589AbSKKG0R>; Mon, 11 Nov 2002 01:26:17 -0500
+	id <S265568AbSKKGXE>; Mon, 11 Nov 2002 01:23:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265585AbSKKG0R>; Mon, 11 Nov 2002 01:26:17 -0500
-Received: from [62.150.18.100] ([62.150.18.100]:3339 "HELO pop.com.br")
-	by vger.kernel.org with SMTP id <S264842AbSKKG0N>;
-	Mon, 11 Nov 2002 01:26:13 -0500
-From: "REVISTAS =?ISO-8859-1?Q?ER=D3TICAS...=22?= <revistasemcd@globo.com>"@vax.home.local
-To: revistasemcd@globo.com
-Subject: =?ISO-8859-1?Q?LAN=C7AMENTO?= !!!
-Content-Transfer-Encoding: Quoted-Printable
+	id <S265581AbSKKGXE>; Mon, 11 Nov 2002 01:23:04 -0500
+Received: from packet.digeo.com ([12.110.80.53]:21708 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265568AbSKKGXD>;
+	Mon, 11 Nov 2002 01:23:03 -0500
+Message-ID: <3DCF4E57.AA92B134@digeo.com>
+Date: Sun, 10 Nov 2002 22:29:43 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <20021111062613Z264842-32598+4975@vger.kernel.org>
-Date: Mon, 11 Nov 2002 01:26:13 -0500
+To: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: 2.5.47-mm1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Nov 2002 06:29:43.0938 (UTC) FILETIME=[B903C620:01C2894B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-REVISTAS ERÓTICAS !!!
 
-A MAIOR COLEÇÃO DE REVISTAS EM  CD JÁ PRODUZIDAS NO BRASIL.
-ADQUIRA A SUA REVISTA  POR APENAS R$ 10,00 (POSTAGEM INCLUÍDA).
+http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.47/2.5.47-mm1/
 
-     TÍTULOS EXCLUSIVOS:
+Nothing much new here, except for the rbtree-based IO scheduler.
+This needs a lot of benching please.
 
-* Casais & Cia 			
-* Gatas E Gatas 		
-* Fetishes 			
-* Strip Girls 			
-* Cat Boys			
-* Sex Diitroya 			
-* Encontros Intimos 		
-* Transex			
-* Celebrities Sex Nude  	
-* Humor Sex			
-* ABC do Sexo 			
-* Sexo Curioso 			
-* Sexo & Arte 			
-
-
-COMPRE JÁ !!!
-www.diitroya.com.br/publicacoes
-
-
-PROIBIDO PARA MENORES DE 18 ANOS
-
-Erotic magazines. 
-
-THE LARGEST COLLECTION OF MAGAZINES IN CD ALREADY PRODUCED IN BRAZIL. 
-ACQUIRE YOURS REVIEWED FOR JUST R$ 10,00 (more postage). 
-Exclusive titles. 
-ALREADY BUY.
-www.diitroya.com.br/publicacoes
-Forbidden for smaller of 18 years.
-
-Esta mensagem é enviada com a complacência da nova legislação sobre
-correio eletrônico, Seção 301, Parágrafo (a) (2) (c) Decreto S.1618,
-Título Terceiro aprovado pelo "105 Congresso Base das Normativas
-Internacionais sobre o SPAM". Este E-mail não poderá ser considerado
-SPAM quando inclua uma forma de ser removido. Para remover
-futuros correios, simplesmente responda este colocando a palavra 
-remover no assunto.
-removerdiitroya@pop.com.br
+And reiserfs doesn't immediately oops this time.
 
 
 
+Since 2.5.46-mm2:
 
+-genksyms-hurts.patch
 
+ Wrong, dropped.
 
+-misc.patch
+-writev-bad-seg-fix.patch
+-wli-01-iowait.patch
+-wli-02-zap_hugetlb_resources.patch
+-wli-03-remove-unlink_vma.patch
+-wli-04-internalize-hugetlb-init.patch
+-wli-05-sysctl-cleanup.patch
+-wli-06-cleanup-proc.patch
+-wli-07-hugetlb-static.patch
+-msec-fix.patch
+-touch_buffer-fix.patch
+-pgalloc-accounting-fix.patch
+-nuke-disk-stats.patch
+
+ Merged
+
++genksyms-fix.patch
+
+ Really fix the exporting of per-cpu data to modules with modversioning.
+
++buffer-debug.patch
+
+ Add some printk's to catch what appears to be a blockdev pagecache invalidation
+ problem.
+
++mbcache-cleanup.patch
+
+ Some fs/mbcache work from Andreas, in for some testing.
+
++ip6-mcast-timer.patch
+
+ Init a timer in ipv6
+
++reiserfs-readpages-fix.patch
+
+ Fix reiserfs3
+
++swapcache-throttle.patch
+
+ Random change to VM throttling which doesn't do much.

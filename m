@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263494AbTJLRuE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 13:50:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263496AbTJLRuE
+	id S263496AbTJLR5a (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 13:57:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263497AbTJLR5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 13:50:04 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40599 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263494AbTJLRuB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 13:50:01 -0400
-Date: Sun, 12 Oct 2003 18:50:00 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: retu <retu834@yahoo.com>
-Cc: Valdis.Kletnieks@vt.edu, Jamie Lokier <jamie@shareable.org>,
-       Kenn Humborg <kenn@linux.ie>, linux-kernel@vger.kernel.org
-Subject: Re: 2.7 thoughts: common well-architected object model
-Message-ID: <20031012174959.GM7665@parcelfarce.linux.theplanet.co.uk>
-References: <200310121644.h9CGiUeb011798@turing-police.cc.vt.edu> <20031012165119.17264.qmail@web13004.mail.yahoo.com>
+	Sun, 12 Oct 2003 13:57:30 -0400
+Received: from ulysses.news.tiscali.de ([195.185.185.36]:54020 "EHLO
+	ulysses.news.tiscali.de") by vger.kernel.org with ESMTP
+	id S263496AbTJLR53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 13:57:29 -0400
+To: linux-kernel@vger.kernel.org
+Path: 127.0.0.1!nobody
+From: Peter Matthias <espi@epost.de>
+Newsgroups: linux.kernel
+Subject: Re: ACM USB modem on Kernel 2.6.0-test
+Date: Sun, 12 Oct 2003 19:52:39 +0200
+Organization: Tiscali Germany
+Message-ID: <7d4cmb.j9.ln@127.0.0.1>
+References: <FwYB.Z9.25@gated-at.bofh.it>
+NNTP-Posting-Host: 62.246.102.237
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031012165119.17264.qmail@web13004.mail.yahoo.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7Bit
+X-Trace: ulysses.news.tiscali.de 1065981332 73129 62.246.102.237 (12 Oct 2003 17:55:32 GMT)
+X-Complaints-To: abuse@tiscali.de
+NNTP-Posting-Date: Sun, 12 Oct 2003 17:55:32 +0000 (UTC)
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 12, 2003 at 09:51:19AM -0700, retu wrote:
-> 
-> nobody says that it belongs into the kernel rather
-> designed by core=kernel folks core-up, that is e.g.
-> not being a derivative of a set of all-encompassing
-> classes developed for an application. 
-> 
-> I think the issue is serious and brushing it aside as
-> being non-kernel at first will come back biting.
-> What's going on could be described as being cornered. 
+David Brownell schrieb:
 
-With all due respect, whether you are cornered or not is none of our
-problems.  Neither is whatever passes for your thought process.  So far
-you have failed to produce anything except handwaving and some remarkably
-ugly function prototypes.  Not interesting...
+>> usb 3-3: configuration #1 chosen from 2 choices
+>> drivers/usb/class/cdc-acm.c: need inactive config #2
+>> drivers/usb/class/cdc-acm.c: need inactive config #2
+> 
+> Until we get more intelligence somewhere, do this:
+> 
+>     # cd /sys/bus/usb/devices/3-3
+>     # echo '2' > bConfigurationValue
+>     #
+Thanks, it now works when I load the cdc-acm module after that.
+
+Peter

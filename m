@@ -1,66 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266196AbUGOCUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265545AbUGOCdU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266196AbUGOCUP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 22:20:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUGOCUP
+	id S265545AbUGOCdU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 22:33:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265812AbUGOCdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 22:20:15 -0400
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:24453 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266196AbUGOCTX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 22:19:23 -0400
-Message-ID: <40F5E9A0.3050402@yahoo.com.au>
-Date: Thu, 15 Jul 2004 12:19:12 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Andrew Morton <akpm@osdl.org>, lmb@suse.de, arjanv@redhat.com,
-       phillips@istop.com, sdake@mvista.com, teigland@redhat.com,
+	Wed, 14 Jul 2004 22:33:20 -0400
+Received: from holomorphy.com ([207.189.100.168]:37537 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265545AbUGOCdH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 22:33:07 -0400
+Date: Wed, 14 Jul 2004 19:33:00 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Peter Zaitsev <peter@mysql.com>
+Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de,
        linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
-References: <1089615523.2806.5.camel@laptop.fenrus.com> <20040712100547.GF3933@marowsky-bree.de> <20040712101107.GA31013@devserv.devel.redhat.com> <20040712102124.GH3933@marowsky-bree.de> <20040712102818.GB31013@devserv.devel.redhat.com> <20040712115003.GV3933@marowsky-bree.de> <20040712120127.GB16604@devserv.devel.redhat.com> <20040712131312.GY3933@marowsky-bree.de> <40F294D2.3010203@yahoo.com.au> <20040712135432.57d0133c.akpm@osdl.org> <20040714121920.GA2350@elf.ucw.cz>
-In-Reply-To: <20040714121920.GA2350@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: VM Problems in 2.6.7 (Too active OOM Killer)
+Message-ID: <20040715023300.GJ3411@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Peter Zaitsev <peter@mysql.com>, Andrew Morton <akpm@osdl.org>,
+	andrea@suse.de, linux-kernel@vger.kernel.org
+References: <1089771823.15336.2461.camel@abyss.home> <20040714031701.GT974@dualathlon.random> <1089776640.15336.2557.camel@abyss.home> <20040713211721.05781fb7.akpm@osdl.org> <1089848823.15336.3895.camel@abyss.home> <20040714154427.14234822.akpm@osdl.org> <1089851451.15336.3962.camel@abyss.home> <20040715015431.GF3411@holomorphy.com> <1089857602.15336.4120.camel@abyss.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1089857602.15336.4120.camel@abyss.home>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
-> 
->>>I don't see why it would be a problem to implement a "this task
->>>facilitates page reclaim" flag for userspace tasks that would take
->>>care of this as well as the kernel does.
->>
->>Yes, that has been done before, and it works - userspace "block drivers"
->>which permanently mark themselves as PF_MEMALLOC to avoid the obvious
->>deadlocks.
-> 
-> 
->>Note that you can achieve a similar thing in current 2.6 by acquiring
->>realtime scheduling policy, but that's an artifact of some brainwave which
->>a VM hacker happened to have and isn't a thing which should be relied upon.
->>
->>A privileged syscall which allows a task to mark itself as one which
->>cleans memory would make sense.
-> 
-> 
-> Does it work?
-> 
-> I mean, in kernel, we have some memory cleaners (say 5), and they
-> need, say, 1MB total reserved memory.
-> 
-> Now, if you add another task with PF_MEMALLOC. But now you'd need
-> 1.2MB reserved memory, and you only have 1MB. Things are obviously
-> going to break at some point.
-> 								Pavel
+On Wed, 2004-07-14 at 18:54, William Lee Irwin III wrote:
+>> The only method the kernel now has to relocate userspace memory is IO.
+>> When mlocked, or if anonymous when there's no swap, it's pinned.
 
-Well you'd have to be more careful than that. In particular
-you wouldn't just be starting these things up, let alone
-have them allocate 1MB in to free some memory.
+On Wed, Jul 14, 2004 at 07:13:23PM -0700, Peter Zaitsev wrote:
+> OK. So it is practically technical difficulty rather than fundamental
+> reason ?   Why "move to other zone" way is not implemented ? It normally
+> should be cheaper than IO ?
 
-This situation would still blow up whether you did it in
-kernel or not.
+There is no technical difficulty, however, do notice there are other forms
+of placement-restricted pagecache, i.e. blockdev pagecache, ramdisks, etc.
+
+
+On Wed, 2004-07-14 at 18:54, William Lee Irwin III wrote:
+>> Userspace allocations can also trigger OOM, it's merely that in this
+>> case only allocations restricted to ZONE_NORMAL or below, e.g. kernel
+>> allocations, are affected. Your memory pressure is restricted to one zone.
+
+On Wed, Jul 14, 2004 at 07:13:23PM -0700, Peter Zaitsev wrote:
+> Right. After being explained what without swap you have all pages pinned
+> it makes sense.  On other hand  why user Allocation will trigger OOM if
+> there are pages in other zone which still can be used ? Or are there any
+> restriction on this ?
+
+Allocations can be requested to come from restricted physical areas.
+In this kind of situation, the OOM comes from exhaustion of a physical
+area smaller than all of RAM, i.e. ZONE_NORMAL or ZONE_DMA.
+
+The OOM decision-making is noteworthy:
+        do_retry = 0;
+        if (!(gfp_mask & __GFP_NORETRY)) {
+                if ((order <= 3) || (gfp_mask & __GFP_REPEAT))
+                        do_retry = 1;
+                if (gfp_mask & __GFP_NOFAIL)
+                        do_retry = 1;
+        }
+        if (do_retry) {
+                blk_congestion_wait(WRITE, HZ/50);
+                goto rebalance;
+        }
+
+At the rebalance label, failure will only be delivered when the
+check if (current->flags & (PF_MEMALLOC|PF_MEMDIE)), otherwise,
+__alloc_pages() retries indefinitely and ignores signals.
+
+Furthermore, notice the OOM killer will trip if out_of_memory() is
+called more than 10 times in one second, which is plausible for a
+single process to do, as it only sleeps for HZ/50 jiffies. More
+interestingly, out_of_memory() is never called unless __GFP_FS is set.
+
+
+On Wed, 2004-07-14 at 18:54, William Lee Irwin III wrote:
+>> In order to relocate a userspace page, the kernel performs IO to write
+>> the page to some backing store, then lazily faults it back in later. When
+>> the userspace page lacks a backing store, e.g. anonymous pages on
+>> swapless systems, Linux does not now understand how to relocate them.
+
+On Wed, Jul 14, 2004 at 07:13:23PM -0700, Peter Zaitsev wrote:
+> Can't it just be just (theoretically) moved to other zone with
+> appropriate system tables modifications ? 
+> Well anyway it is good to hear "pinned anonymous" is only issue on
+> swapless systems.   Together with the fact what 2.6 VM does not seems to
+> swap without a good reason as 2.4 one did, I perhaps can just have swap
+> file enabled. 
+
+There is no technical (or even practical) obstacle to implementing
+in-core page relocation, only a social one: kernel politics. I would not
+be surprised if hotplug memory patches already had code usable for this.
+
+
+-- wli

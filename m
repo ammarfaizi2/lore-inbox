@@ -1,64 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264718AbUEEQZJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264714AbUEEQXm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264718AbUEEQZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 12:25:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264719AbUEEQZJ
+	id S264714AbUEEQXm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 12:23:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264718AbUEEQXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 12:25:09 -0400
-Received: from dsl092-109-241.nyc2.dsl.speakeasy.net ([66.92.109.241]:5617
-	"EHLO gandalf.taltos.org") by vger.kernel.org with ESMTP
-	id S264718AbUEEQZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 12:25:02 -0400
-Date: Wed, 05 May 2004 12:25:00 -0400
-From: Carson Gaspar <carson@taltos.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Marco Fais <marco.fais@abbeynet.it>, linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at page_alloc.c:98 -- compiling with distcc
-Message-ID: <765880000.1083774300@taltos.ny.ficc.gs.com>
-In-Reply-To: <20040504010714.GA8028@logos.cnet>
-References: <406D3E8F.20902@abbeynet.it> <20040504010714.GA8028@logos.cnet>
-X-Mailer: Mulberry/3.1.2 (Linux/x86)
+	Wed, 5 May 2004 12:23:41 -0400
+Received: from mk-smarthost-1.mail.uk.tiscali.com ([212.74.114.37]:54286 "EHLO
+	mk-smarthost-1.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
+	id S264714AbUEEQXj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 12:23:39 -0400
+Date: Wed, 5 May 2004 17:23:17 +0100
+Message-ID: <4076DBCE00056704@mk-cpfrontend-3.mail.uk.tiscali.com>
+From: shadak_foundation12@tiscali.co.uk
+Subject: May God bless you
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Monday, May 03, 2004 22:07:14 -0300 Marcelo Tosatti 
-<marcelo.tosatti@cyclades.com> wrote:
 
-> On Fri, Apr 02, 2004 at 12:21:03PM +0200, Marco Fais wrote:
->> Hi!
->>
->>
->> [1.] Kernel panic while using distcc
->>
->> [2.] I have 5-6 development linux systems that we use without problem
->> under a normal development workload. Trying distcc for speeding up
->> compilation, we have a fully reproducible kernel panic in a very short
->> time (seconds after compilation start). The kernel panic happens *only*
->> when the systems are "remotely controlled" (the distcc daemon is
->> receiving source files from remote systems, compile and send back
->> compiled objects). When compiling with distcc the local system doesn't
->> show any kernel panic, while the same system used as a "remote compiler
->> system" dies very quickly.
->>
->> [3.] Keywords: distcc BUG page_alloc.c
->
-> Marco, Carson,
->
-> Can you please try to reproduce this distcc generated oops using
-> 2.4.27-pre2?
+Goodday Friend,
 
-I'd love to. However 2.4.27-pre2 broke the tg3 driver. tg3.c contains 
-WARN_ON(1). Sadly, WARN_ON doesn't exist in 2.4.x, so depmod correctly 
-complains about an unresolved symbol.
+I'm SHADAK SHARI,an Indian citizen,
 
-I'm beginning to wonder if anyone actually builds these pre releases... I 
-mean, I know the tg3 driver is really obscure, and only used by 2 people, 
-but...
+And the sole owner of (Osvaldo Foundation!!)but made fame in
+Iraq.I've been into helping the ophans for the past 10 years.I
+became a great man when i had a licence to be an
+international crude oil maketer 6 years Ago.
 
--- 
-Carson
+I've help so many orphange homes,needy homes and the
+less priviledge accross the African continents,with
+the wealth God gave to me.The last comflicts that
+happened in Iraq made me to loose all i've worked
+for.I lost entire all i've worked for.Now i can't hear
+again ,and my left leg has been amputated.
+
+
+The doctor said i've a little more time to stay in
+this planet.My good friend,i want you to do me a
+favour.i will want you to assist me with the distribution of funds to ophans
+that you know in your country!!
+
+I kept some amount af money with a security
+company in Europe and Asia Amounting to about $2.6M
+and $2.2M respectively. I
+
+i want you to take the place of my next of Kin.I'm doing
+this base on the short time i've on Earth.I'm an old
+man.Please this should be confidencial between you and
+me.
+
+If this transaction is sucessful,which i believe
+it i will want you to take 20% /10% will be for all the expenses
+and 70% should be distributed amongst the orphange
+homes in Africa/And your country .My lawyer is already aware of this.Pls
+get back to me Urgently.as i am sending you this mail via my foundations
+email
+
+i will want you to email me back via the foundations email(shadak_foundation1@tiscali.it)
+
+
+
+May God bless you
+
+Regards
+
+Mr shadak sheri
+
+
+
+__________________________________________________
+Broadband from an unbeatable £15.99!
+
+http://www.tiscali.co.uk/products/broadband/home.html?code=SM-NL-11AM
+
+
 

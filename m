@@ -1,128 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263573AbTFKRtn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 13:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbTFKRtn
+	id S262568AbTFKR6x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 13:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbTFKR6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 13:49:43 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:45465 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S263573AbTFKRti (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 13:49:38 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: "jds" <jds@soltis.cc>, linux-kernel@vger.kernel.org
-Subject: Re: problem when compile 2.5.70-mm8
-Date: Wed, 11 Jun 2003 20:02:48 +0200
-User-Agent: KMail/1.5.9
-References: <20030611171334.M36451@soltis.cc>
-In-Reply-To: <20030611171334.M36451@soltis.cc>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-03=_I725+fmLDJkIesw";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200306112002.48728.schlicht@uni-mannheim.de>
+	Wed, 11 Jun 2003 13:58:53 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:60623
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262568AbTFKR6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 13:58:52 -0400
+Date: Wed, 11 Jun 2003 20:12:17 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Chris Mason <mason@suse.com>
+Cc: Nick Piggin <piggin@cyberone.com.au>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Georg Nikodym <georgn@somanetworks.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
+Subject: Re: [PATCH] io stalls (was: -rc7   Re: Linux 2.4.21-rc6)
+Message-ID: <20030611181217.GX26270@dualathlon.random>
+References: <200306041246.21636.m.c.p@wolk-project.de> <20030604104825.GR3412@x30.school.suse.de> <3EDDDEBB.4080209@cyberone.com.au> <1055194762.23130.370.camel@tiny.suse.com> <20030611003356.GN26270@dualathlon.random> <1055292839.24111.180.camel@tiny.suse.com> <20030611010628.GO26270@dualathlon.random> <1055296630.23697.195.camel@tiny.suse.com> <20030611021030.GQ26270@dualathlon.random> <1055353360.23697.235.camel@tiny.suse.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1055353360.23697.235.camel@tiny.suse.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 11, 2003 at 01:42:41PM -0400, Chris Mason wrote:
+> +		if (q->rq[rw].count >= q->batch_requests) {
+> +			smp_mb();
+> +			if (waitqueue_active(&q->wait_for_requests[rw]))
+> +				wake_up(&q->wait_for_requests[rw]);
 
---Boundary-03=_I725+fmLDJkIesw
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_I725+cyxyXI+/ci"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+in my tree I also changed this to:
 
---Boundary-01=_I725+cyxyXI+/ci
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+				wake_up_nr(&q->wait_for_requests[rw], q->rq[rw].count);
 
-jds wrote:
-> Hi:
->
->    I try the compile kernel 2.5.70-mm8 and recive this messages:
-  ~~ snip ~~
->   CC      arch/i386/kernel/setup.o
-> arch/i386/kernel/setup.c: In function `setup_early_printk':
-> arch/i386/kernel/setup.c:919: invalid lvalue in unary `&'
-> make[1]: *** [arch/i386/kernel/setup.o] Error 1
-> make: *** [arch/i386/kernel] Error 2
->
->   Help me please;
->
->   Regards.
+otherwise only one waiter will eat the requests, while multiple waiters
+can eat requests in parallel instead because we freed not just 1 request
+but many of them.
 
-As posted before the attached patch helps.
+I wonder if my above change is really the right way to implement the
+removal of the _exclusive line that went in rc6. However with your patch
+the wake_up_nr (or ~equivalent removal of _exclusive wakeup of rc6)
+should mostly improve cpu parallelism in smp and while waiting for I/O,
+the amount of stuff in the I/O queue and the overall fariness shouldn't
+change very significantly with this new completely fair FIFO request
+allocator.
 
-If you do not want to use the EARLY_PRINTK feature at all but are too lazy =
-to=20
-turn it off in the Kernel debug menu explicitly (as I am, too ;-) you may=20
-also use the second attached patch wich corrects dependencies in Kconf.
-
-Best regards
-   Thomas Schlichter
-
---Boundary-01=_I725+cyxyXI+/ci
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="early_printk_fix.diff"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline; filename="early_printk_fix.diff"
-
-=2D-- linux-2.5.70-mm8/arch/i386/kernel/setup.c.orig	Wed Jun 11 11:10:35 20=
-03
-+++ linux-2.5.70-mm8/arch/i386/kernel/setup.c	Wed Jun 11 11:11:36 2003
-@@ -910,6 +910,7 @@
- extern int __init serial8250_console_init(void);
- void setup_early_printk(void)
- {
-+#ifdef CONFIG_SMP
- 	/*=20
- 	 * printk currently checks cpu_online_map to make sure that
- 	 * we don't try to printk from a CPU which hasn't had resources
-@@ -917,6 +918,7 @@
- 	 * enable here don't require per-cpu resources.
- 	 */
- 	set_bit(smp_processor_id(), &cpu_online_map);
-+#endif
- #ifdef CONFIG_DEBUG_EP_SERIAL
- 	console_setup(CONFIG_DEBUG_SERIAL_OPTIONS);
- 	serial8250_console_init();
-
---Boundary-01=_I725+cyxyXI+/ci
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="early_printk_Kconf.diff"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline; filename="early_printk_Kconf.diff"
-
-=2D-- linux-2.5.70-mm8/arch/i386/Kconfig.orig	Wed Jun 11 11:23:17 2003
-+++ linux-2.5.70-mm8/arch/i386/Kconfig	Wed Jun 11 11:25:25 2003
-@@ -1795,7 +1795,7 @@
-=20
- config DEBUG_EARLY_PRINTK
- 	bool
-=2D	depends on !DEBUG_EARLY_PRINTK_OFF
-+	depends on DEBUG_EP_SERIAL || DEBUG_EP_VGA
- 	default y
-=20
- config DEBUG_SERIAL_OPTIONS
-
---Boundary-01=_I725+cyxyXI+/ci--
-
---Boundary-03=_I725+fmLDJkIesw
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+527IYAiN+WRIZzQRArjBAJ9UNRVIB2tmE30Xhqqmt8mm4t+hCACfdtH5
-FavNL/jabkQOTn1Y2PVUFYM=
-=9B2s
------END PGP SIGNATURE-----
-
---Boundary-03=_I725+fmLDJkIesw--
+Andrea

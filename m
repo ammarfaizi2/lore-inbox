@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271778AbTGRPGp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 11:06:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271841AbTGRPGL
+	id S271867AbTGRPld (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 11:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271858AbTGRPjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 11:06:11 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:16847 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S271775AbTGRO62 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 10:58:28 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Fri, 18 Jul 2003 17:13:22 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: mason@suse.com, andrea@suse.de, riel@redhat.com,
-       linux-kernel@vger.kernel.org, maillist@jg555.com
-Subject: Re: Bug Report: 2.4.22-pre5: BUG in page_alloc (fwd)
-Message-Id: <20030718171322.1b7e752c.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.55L.0307181109220.7889@freak.distro.conectiva>
-References: <Pine.LNX.4.55L.0307150859130.5146@freak.distro.conectiva>
-	<1058297936.4016.86.camel@tiny.suse.com>
-	<Pine.LNX.4.55L.0307160836270.30825@freak.distro.conectiva>
-	<20030718112758.1da7ab03.skraw@ithnet.com>
-	<Pine.LNX.4.55L.0307180921120.6642@freak.distro.conectiva>
-	<20030718145033.5ff05880.skraw@ithnet.com>
-	<Pine.LNX.4.55L.0307181109220.7889@freak.distro.conectiva>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 18 Jul 2003 11:39:42 -0400
+Received: from hauptpostamt.charite.de ([193.175.66.220]:145 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id S271851AbTGRPiy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 11:38:54 -0400
+Date: Fri, 18 Jul 2003 17:53:45 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: More 2.6.0-test1-ac2 issues / RTC?
+Message-ID: <20030718155345.GB27176@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jul 2003 11:14:15 -0300 (BRT)
-Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+I get this:
+Jul 18 17:40:06 hummus2 ntpd[925]: ntpd exiting on signal 15
+Jul 18 17:40:06 hummus2 modprobe: FATAL: Module /dev/rtc not found.
+Jul 18 17:40:06 hummus2 modprobe: FATAL: Module /dev/misc/rtc not found.
 
-> 
-> I have just started stress testing a 8way OSDL box to see if I can
-> reproduce the problem. I'm using pre6+axboes BH_Sync patch.
-> 
-> I'm running 50 dbench clients on aic7xxx (ext2) and 50 dbench clients on
-> DAC960 (ext3). Lets see what happens.
-> 
-> After lunch I'll keep looking at the oopses. During the morning I only had
-> time to setup the OSDL box and start the tests.
+But the kernel has RTC support:
 
-On my box it takes about 48 hours before the problem shows. But that may
-heavily depend on the box I guess.
+# grep -i RTC .config
+CONFIG_APM_RTC_IS_GMT=y
+CONFIG_RTC=m
+CONFIG_GEN_RTC=m
+CONFIG_GEN_RTC_X=y
+CONFIG_SND_RTCTIMER=m
 
-Regards,
-Stephan
+Is /dev/rtc not /dev/rtc when using devfs?
 
+-- 
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
+Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
+AIM: ralfpostfix

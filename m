@@ -1,64 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281998AbRKUXab>; Wed, 21 Nov 2001 18:30:31 -0500
+	id <S281999AbRKUXdv>; Wed, 21 Nov 2001 18:33:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281999AbRKUXaW>; Wed, 21 Nov 2001 18:30:22 -0500
-Received: from mail1.amc.com.au ([203.15.175.2]:59653 "HELO mail1.amc.com.au")
-	by vger.kernel.org with SMTP id <S281997AbRKUXaJ> convert rfc822-to-8bit;
-	Wed, 21 Nov 2001 18:30:09 -0500
-Message-Id: <5.1.0.14.0.20011122102342.009f7d00@mail.amc.localnet>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 22 Nov 2001 10:30:05 +1100
-To: ReiserFS List <reiserfs-list@namesys.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-From: Stuart Young <sgy@amc.com.au>
-Subject: Re: [reiserfs-list] Re: [REISERFS TESTING] new patches on
-  ftp.namesys.com: 2.4.15-pre7
-Cc: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        Nikita Danilov <Nikita@namesys.com>,
-        Andreas Dilger <adilger@turbolabs.com>
-In-Reply-To: <20011121102517Z281563-17408+16912@vger.kernel.org>
-In-Reply-To: <15355.31671.983925.611542@beta.reiserfs.com>
- <200111210110.fAL1Atc11275@beta.namesys.com>
- <20011121011655.M1308@lynx.no>
- <15355.31671.983925.611542@beta.reiserfs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S281997AbRKUXdl>; Wed, 21 Nov 2001 18:33:41 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:31727 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S282001AbRKUXdd>;
+	Wed, 21 Nov 2001 18:33:33 -0500
+Message-ID: <3BFC399A.3040101@us.ibm.com>
+Date: Wed, 21 Nov 2001 15:32:42 -0800
+From: "David C. Hansen" <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011110
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Rick Lindsley <ricklind@us.ibm.com>
+Subject: [PATCH] Remove needless BKL from release functions
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:24 AM 21/11/01 +0100, Dieter Nützel wrote:
->Am Mittwoch, 21. November 2001 11:02 schrieb Nikita Danilov:
->
-> > Yes, it's right, but currently we have what we have currently. I am
-> > going to extend inode-attrs.patch and add new mount option
-> > "noattrs". With it ioctls to set and get attributes will continue to
-> > work, but attributes themselves will not have any effect. Then, one can
-> > boot with "rootflags=noattrs" and read-write root, clear all attributes
-> > by chattr -R and remount root.
->
->After I've 'booted  into single user mode with "linux rootflags=noattrs" I
->could change my archives but _NOT_ /dev/console the right way. After the
->second reboot I got the warning and kernel hang, again. Something wrong 
->with your patch or my installation?
+  The following is a patch which removes the BKL from quite a few 
+drivers' release functions.  The release functions are already 
+serialized in the VFS code by an atomic_t which guarantees that each 
+function will be called only once, after all file descriptors have been 
+closed.  In addition, in these drivers, the BKL was _only_ held in the 
+release function and nowhere else in the driver where it might be needed.
 
-Erm, while disabling set and get as a nice idea, you only need to disable 
-get. Disabling set will mean you 'cannot' reset the file that is causing 
-the problem, because chattr won't actually be able to do what you want.
+Many of these patches simply remove the BKL from the file.  This causes 
+no harm because the BKL was not really protecting anything, anyway.  
+Other patches try to actually fix the locking.  Some do this by making 
+use of atomic operations with the atomic_* functions, or the 
+(test|set)_bit functions.  Most of these patches replace uses of normal 
+integers which were used to keep open counts in the drivers.  In other 
+some cases, a spinlock was added when the atomic operations could not 
+guarantee proper serialization by themselves.  And, in very few cases, 
+the existing locking was extended to protect more things.  These cases 
+are very uncommon because locking is very uncommon in most of these drivers.
 
-I haven't looked at the code that chattr uses either, but you may want to 
-check at HOW it sets/resets values.
+Special care has been taken not to introduce more locking issues into 
+the drivers (do no harm). They're available as one big patch which is 
+against 2.4.14.  The big patch is about 50k, so, instead of attaching 
+it, here is a link: http://lse.sourceforge.net/lockhier/patches/bkl.rollup
+Here is documentation describing some of the patches and other locking 
+issues in the drivers: http://lse.sourceforge.net/lockhier/
+The patch applies against 2.4.14.
 
-eg: Does it read in the value, change the bit and write it out again, or 
-does it just change that bit? If it reads and get is disabled, well then 
-you would want to make sure you set the 'full value' that needs to be 
-there. Not a bug so much as something that just needs to be documented.
+--
+David C. Hansen
+haveblue@us.ibm.com
 
-
-AMC Enterprises P/L    - Stuart Young
-First Floor            - Network and Systems Admin
-3 Chesterville Rd      - sgy@amc.com.au
-Cheltenham Vic 3192    - Ph:  (03) 9584-2700
-http://www.amc.com.au/ - Fax: (03) 9584-2755
 

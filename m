@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262273AbUCOF5U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 00:57:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbUCOF5U
+	id S261461AbUCOGIg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 01:08:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbUCOGIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 00:57:20 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:9989 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262273AbUCOF5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 00:57:17 -0500
-Date: Mon, 15 Mar 2004 05:57:13 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] export fb_find_mode
-In-Reply-To: <1079305357.3093.60.camel@lade.trondhjem.org>
-Message-ID: <Pine.LNX.4.44.0403150556200.15125-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 Mar 2004 01:08:36 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:29018 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261461AbUCOGIe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 01:08:34 -0500
+Date: Mon, 15 Mar 2004 07:08:56 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Joshua Kwan <joshk@triplehelix.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm2
+Message-ID: <20040315060856.GA2058@mars.ravnborg.org>
+Mail-Followup-To: Joshua Kwan <joshk@triplehelix.org>,
+	linux-kernel@vger.kernel.org
+References: <20040314172809.31bd72f7.akpm@osdl.org> <pan.2004.03.15.01.57.18.661707@triplehelix.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <pan.2004.03.15.01.57.18.661707@triplehelix.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-A patch already exist which also removes __fb_try_mode. We don't need to 
-export that anymore.
-
-
-
-On Sun, 14 Mar 2004, Trond Myklebust wrote:
-
-> The latest BK tree is missing an export in order to satisfy radeonfb
-> etc. module dependencies.
+On Sun, Mar 14, 2004 at 05:57:21PM -0800, Joshua Kwan wrote:
+> On Sun, 14 Mar 2004 17:28:09 -0800, Andrew Morton wrote:
+> > +kbuild-fix-early-dependencies.patch
+> > +kbuild-fix-early-dependencies-fix.patch
+> > 
+> >  Parallel build fix
 > 
-> Cheers,
->   Trond
+> This set of patches requires the following fix to successfully link the
+> kernel:
 > 
-> --- linux-2.6.4/drivers/video/modedb.c.orig	2004-03-14 17:21:03.000000000 -0500
-> +++ linux-2.6.4/drivers/video/modedb.c	2004-03-14 17:59:33.000000000 -0500
-> @@ -554,5 +554,6 @@
->      return 0;
->  }
->  
-> +EXPORT_SYMBOL(fb_find_mode);
->  EXPORT_SYMBOL(__fb_try_mode);
->  EXPORT_SYMBOL(vesa_modes);
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> --- linux/Makefile~   2004-03-14 17:52:54.000000000 -0800
+> +++ linux/Makefile    2004-03-14 17:52:21.000000000 -0800
+> @@ -988,7 +988,7 @@
+>         @set -e; \
+>         $(if $($(quiet)cmd_$(1)),echo '  $(subst ','\'',$($(quiet)cmd_$(1)))';) \
+>         $(cmd_$(1)); \
+> -       scripts/fixdep $(depfile) $@ '$(subst $$,$$$$,$(subst ','\'',$(cmd_$(1))))' > $(@D)/.$(@F).tmp; \
+> +       scripts/basic/fixdep $(depfile) $@ '$(subst $$,$$$$,$(subst ','\'',$(cmd_$(1))))' > $(@D)/.$(@F).tmp; \
+>         rm -f $(depfile); \
+>         mv -f $(@D)/.$(@F).tmp $(@D)/.$(@F).cmd)
 
+Thanks, my bad.
+Also I broke docbook. Next time I better delete the binaries in scripts
+before testing :-(
+Updated patch will follow tonight.
+
+	Sam

@@ -1,34 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262451AbUE1MiO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbUE1MkQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbUE1MiO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 08:38:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbUE1MiM
+	id S262453AbUE1MkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 08:40:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUE1MkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 08:38:12 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:19636 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S262451AbUE1Mh7 (ORCPT
+	Fri, 28 May 2004 08:40:13 -0400
+Received: from [69.57.158.73] ([69.57.158.73]:968 "EHLO vnmedia.net")
+	by vger.kernel.org with ESMTP id S262453AbUE1Mj5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 08:37:59 -0400
-Date: Fri, 28 May 2004 14:37:58 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
+	Fri, 28 May 2004 08:39:57 -0400
+Message-ID: <1085752015.40b742cfc3dc6@webmail.4vn.org>
+Date: Fri, 28 May 2004 07:46:55 -0600
+From: mikado@4vn.org
 To: Thomas Steudten <alpha@steudten.com>
 Cc: linux-admin@vger.kernel.org, linux-kernel@vger.kernel.org,
        linux-alpha@vger.kernel.org
 Subject: Re: Kernel crash/ oops >= 2.6.5 with gcc 3.4.0 on alpha
-Message-ID: <20040528123758.GE19544@MAIL.13thfloor.at>
-Mail-Followup-To: Thomas Steudten <alpha@steudten.com>,
-	linux-admin@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-alpha@vger.kernel.org
 References: <40B726C0.5030400@steudten.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <40B726C0.5030400@steudten.com>
-User-Agent: Mutt/1.4.1i
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Originating-IP: 210.245.27.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 28, 2004 at 01:47:12PM +0200, Thomas Steudten wrote:
+I also have this problem. compiling kernel process failed with gcc-3.4.0. i'm
+using gcc-3.3.3. Any idea???
+
+Quoting Thomas Steudten <alpha@steudten.com>:
+
 > Hi
 > 
 > Sorry, maybe I miss some message before.
@@ -43,26 +45,20 @@ On Fri, May 28, 2004 at 01:47:12PM +0200, Thomas Steudten wrote:
 > 
 > No other application seems to fail with gcc-3.4.0 so I think
 > this problem is in context to the relocation, modules and gcc-3.4.0.
-
-hmm, did you update the binutils too?
-(if not, I'd try that)
-
-best,
-Herbert
-
+> 
 > make modules
 > make[1]: `arch/alpha/kernel/asm-offsets.s' is up to date.
->   CC [M]  fs/binfmt_em86.o
+>    CC [M]  fs/binfmt_em86.o
 > {standard input}: Assembler messages:
 > {standard input}:7: Warning: setting incorrect section attributes for .got
->   CC [M]  fs/quota_v2.o
+>    CC [M]  fs/quota_v2.o
 > {standard input}: Assembler messages:
 > {standard input}:7: Warning: setting incorrect section attributes for .got
->   CC [M]  fs/autofs/dirhash.o
->   CC [M]  fs/autofs/init.o
+>    CC [M]  fs/autofs/dirhash.o
+>    CC [M]  fs/autofs/init.o
 > {standard input}: Assembler messages:
 > {standard input}:7: Warning: setting incorrect section attributes for .got
->   CC [M]  fs/autofs/inode.o
+>    CC [M]  fs/autofs/inode.o
 > 
 > 
 > On x86 everything works without problems.
@@ -78,7 +74,11 @@ Herbert
 > 
 > 
 > -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> To unsubscribe from this list: send the line "unsubscribe linux-admin" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
+
+

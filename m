@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262874AbVA2IEx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262875AbVA2IF6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262874AbVA2IEx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 03:04:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262876AbVA2IEx
+	id S262875AbVA2IF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 03:05:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262876AbVA2IF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 03:04:53 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:59406 "EHLO
+	Sat, 29 Jan 2005 03:05:58 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:61710 "EHLO
 	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262874AbVA2IEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 03:04:51 -0500
+	id S262875AbVA2IFv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 03:05:51 -0500
 Subject: Re: [PATCH] OpenBSD Networking-related randomization port
 From: Arjan van de Ven <arjan@infradead.org>
 To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
@@ -26,8 +26,8 @@ References: <1106932637.3778.92.camel@localhost.localdomain>
 	 <1106945266.7776.41.camel@laptopd505.fenrus.org>
 	 <1106950369.3864.45.camel@localhost.localdomain>
 Content-Type: text/plain; charset=UTF-8
-Date: Sat, 29 Jan 2005 09:04:42 +0100
-Message-Id: <1106985882.4174.58.camel@laptopd505.fenrus.org>
+Date: Sat, 29 Jan 2005 09:05:44 +0100
+Message-Id: <1106985945.4174.60.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 8bit
@@ -56,13 +56,10 @@ wrote:
 > > use the existing random.c infrastructure instead of making a copy...
 > 
 > As seen at
-> http://www.kernel.org/pub/linux/kernel/people/arjan/execshield/00-randomize-A0 you can suppose that there's 
+>  the functions at obsd_rand.c so we wouldn't need to add more maintenance overhead, I hope you can understand why I want it like that
 
-
-I actually meant
-http://www.kernel.org/pub/linux/kernel/people/arjan/randomize/02-
-randomize-infrastructure
-which I posted for inclusion in the main kernel 2 or 3 days ago.
-That's nice and stand alone to get a random value; we should be able to
-share that.
+I actually DON'T understand that. 
+What you say kinda sorta makes sense if you're an external patch. But if
+you are inside the kernel (that was the goal of this patch, right?) then
+the argument is actually entirely the wrong way around...
 

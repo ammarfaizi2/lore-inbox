@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267551AbUHMT6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267168AbUHMT62@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267551AbUHMT6V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 15:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267421AbUHMTxw
+	id S267168AbUHMT62 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 15:58:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267425AbUHMTz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 15:53:52 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:17490 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S267375AbUHMTr5
+	Fri, 13 Aug 2004 15:55:58 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:59180 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S267168AbUHMTsl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 15:47:57 -0400
-Date: Fri, 13 Aug 2004 21:50:14 +0200
+	Fri, 13 Aug 2004 15:48:41 -0400
+Date: Fri, 13 Aug 2004 21:51:00 +0200
 From: Sam Ravnborg <sam@ravnborg.org>
 To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
        Linus Torvalds <torvalds@osdl.org>
-Subject: [8/12] kbuild: Introduce hostprogs-y, deprecate host-progs
-Message-ID: <20040813195014.GH10556@mars.ravnborg.org>
+Subject: [9/12] kbuild: Replace host-progs with hostprogs-y
+Message-ID: <20040813195100.GI10556@mars.ravnborg.org>
 Mail-Followup-To: linux-kernel@vger.kernel.org,
 	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
 References: <20040813192804.GA10486@mars.ravnborg.org>
@@ -29,260 +29,370 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 # This is a BitKeeper generated diff -Nru style patch.
 #
 # ChangeSet
-#   2004/08/10 21:38:42+02:00 sam@mars.ravnborg.org 
-#   kbuild: Introduce hostprogs-y, deprecate host-progs
-#   
-#   Introducing hostprogs-y allows a user to use the typical Kbuild
-#   pattern in a Kbuild file:
-#   hostprogs-$(CONFIG_KALLSYMS) += ...
-#   
-#   And then during cleaning the referenced file are still deleted.
-#   Deprecate the old host-progs assignment but kept the functionlity.
-#   
-#   External modules will continue to use host-progs for a while - drawback is
-#   that they now see a warning.
-#   Workaround - just assign both variables:
-#   hostprogs-y := foo
-#   host-progs  := $(hostprogs-y)
-#   
-#   All in-kernel users will be converted in next patch.
+#   2004/08/10 21:42:56+02:00 sam@mars.ravnborg.org 
+#   kbuild: Replace host-progs with hostprogs-y
 #   
 #   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 # 
-# scripts/Makefile.host
-#   2004/08/10 21:38:27+02:00 sam@mars.ravnborg.org +14 -12
-#   Replace host-progs with hostprogs-y (and hostprogs-m)
+# usr/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +1 -1
+#   Replace host-progs with hostprogs-y
 # 
-# scripts/Makefile.clean
-#   2004/08/10 21:38:27+02:00 sam@mars.ravnborg.org +4 -2
-#   Introduced the new hostprogs variant, and kept the old one
+# sound/oss/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +1 -1
+#   Replace host-progs with hostprogs-y
 # 
-# scripts/Makefile.build
-#   2004/08/10 21:38:27+02:00 sam@mars.ravnborg.org +6 -1
-#   Deprecate host-progs, replace it with hostprogs-y.
+# scripts/mod/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +2 -2
+#   Replace host-progs with hostprogs-y
 # 
-# Documentation/kbuild/makefiles.txt
-#   2004/08/10 21:38:27+02:00 sam@mars.ravnborg.org +26 -11
-#   Replcae host-progs with hostprogs-y
+# scripts/lxdialog/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +2 -2
+#   Replace host-progs with hostprogs-y
 # 
-diff -Nru a/Documentation/kbuild/makefiles.txt b/Documentation/kbuild/makefiles.txt
---- a/Documentation/kbuild/makefiles.txt	2004-08-13 21:08:12 +02:00
-+++ b/Documentation/kbuild/makefiles.txt	2004-08-13 21:08:12 +02:00
-@@ -25,6 +25,7 @@
- 	   --- 4.4 Using C++ for host programs
- 	   --- 4.5 Controlling compiler options for host programs
- 	   --- 4.6 When host programs are actually built
-+	   --- 4.7 Using hostprogs-$(CONFIG_FOO)
+# scripts/kconfig/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +1 -1
+#   Replace host-progs with hostprogs-y
+# 
+# scripts/genksyms/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +2 -2
+#   Replace host-progs with hostprogs-y
+# 
+# scripts/basic/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +2 -2
+#   Replace host-progs with hostprogs-y
+# 
+# scripts/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +1 -2
+#   Replace host-progs with hostprogs-y
+# 
+# lib/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +1 -1
+#   Replace host-progs with hostprogs-y
+# 
+# drivers/zorro/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +1 -1
+#   Replace host-progs with hostprogs-y
+# 
+# drivers/pci/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +1 -1
+#   Replace host-progs with hostprogs-y
+# 
+# drivers/media/dvb/ttpci/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +1 -1
+#   Replace host-progs with hostprogs-y
+# 
+# drivers/md/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +1 -1
+#   Replace host-progs with hostprogs-y
+# 
+# drivers/atm/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +1 -1
+#   Replace host-progs with hostprogs-y
+# 
+# arch/x86_64/boot/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +1 -1
+#   Replace host-progs with hostprogs-y
+# 
+# arch/um/sys-i386/util/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +2 -2
+#   Replace host-progs with hostprogs-y
+# 
+# arch/sparc64/boot/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +1 -1
+#   Replace host-progs with hostprogs-y
+# 
+# arch/sparc/boot/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +1 -1
+#   Replace host-progs with hostprogs-y
+# 
+# arch/ppc64/boot/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +1 -1
+#   Replace host-progs with hostprogs-y
+# 
+# arch/ppc/boot/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +2 -2
+#   Replace host-progs with hostprogs-y
+# 
+# arch/i386/boot/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +1 -1
+#   Replace host-progs with hostprogs-y
+# 
+# arch/alpha/boot/Makefile
+#   2004/08/10 21:42:40+02:00 sam@mars.ravnborg.org +1 -1
+#   Replace host-progs with hostprogs-y
+# 
+diff -Nru a/arch/alpha/boot/Makefile b/arch/alpha/boot/Makefile
+--- a/arch/alpha/boot/Makefile	2004-08-13 21:08:01 +02:00
++++ b/arch/alpha/boot/Makefile	2004-08-13 21:08:01 +02:00
+@@ -8,7 +8,7 @@
+ # Copyright (C) 1994 by Linus Torvalds
+ #
  
- 	=== 5 Kbuild clean infrastructure
+-host-progs	:= tools/mkbb tools/objstrip
++hostprogs-y	:= tools/mkbb tools/objstrip
+ targets		:= vmlinux.gz vmlinux \
+ 		   vmlinux.nh tools/lxboot tools/bootlx tools/bootph \
+ 		   tools/bootpzh bootloader bootpheader bootpzheader 
+diff -Nru a/arch/i386/boot/Makefile b/arch/i386/boot/Makefile
+--- a/arch/i386/boot/Makefile	2004-08-13 21:08:01 +02:00
++++ b/arch/i386/boot/Makefile	2004-08-13 21:08:01 +02:00
+@@ -29,7 +29,7 @@
+ 		   zImage bzImage
+ subdir- 	:= compressed
  
-@@ -387,7 +388,7 @@
- Two steps are required in order to use a host executable.
+-host-progs	:= tools/build
++hostprogs-y	:= tools/build
  
- The first step is to tell kbuild that a host program exists. This is
--done utilising the variable host-prog.
-+done utilising the variable hostprogs-y.
+ HOSTCFLAGS_build.o := $(LINUXINCLUDE)
  
- The second step is to add an explicit dependency to the executable.
- This can be done in two ways. Either add the dependency in a rule, 
-@@ -402,7 +403,7 @@
- 	built on the build host.
+diff -Nru a/arch/ppc/boot/Makefile b/arch/ppc/boot/Makefile
+--- a/arch/ppc/boot/Makefile	2004-08-13 21:08:01 +02:00
++++ b/arch/ppc/boot/Makefile	2004-08-13 21:08:01 +02:00
+@@ -23,12 +23,12 @@
+ # for cleaning
+ subdir-				+= simple openfirmware
  
- 	Example:
--		host-progs := bin2hex
-+		hostprogs-y := bin2hex
+-host-progs := $(addprefix utils/, addnote mknote hack-coff mkprep mkbugboot mktree)
++hostprogs-y := $(addprefix utils/, addnote mknote hack-coff mkprep mkbugboot mktree)
  
- 	Kbuild assumes in the above example that bin2hex is made from a single
- 	c-source file named bin2hex.c located in the same directory as
-@@ -418,7 +419,7 @@
+ .PHONY: $(BOOT_TARGETS) $(bootdir-y)
  
- 	Example:
- 		#scripts/lxdialog/Makefile
--		host-progs    := lxdialog  
-+		hostprogs-y   := lxdialog  
- 		lxdialog-objs := checklist.o lxdialog.o
+ $(BOOT_TARGETS): $(bootdir-y)
  
- 	Objects with extension .o are compiled from the corresponding .c
-@@ -438,7 +439,7 @@
+ $(bootdir-y): $(addprefix $(obj)/,$(subdir-y)) \
+-		$(addprefix $(obj)/,$(host-progs))
++		$(addprefix $(obj)/,$(hostprogs-y))
+ 	$(Q)$(MAKE) $(build)=$(obj)/$@ $(MAKECMDGOALS)
+diff -Nru a/arch/ppc64/boot/Makefile b/arch/ppc64/boot/Makefile
+--- a/arch/ppc64/boot/Makefile	2004-08-13 21:08:01 +02:00
++++ b/arch/ppc64/boot/Makefile	2004-08-13 21:08:01 +02:00
+@@ -58,7 +58,7 @@
+ src-sec = $(foreach section, $(1), $(patsubst %,$(obj)/kernel-%.c, $(section)))
+ gz-sec  = $(foreach section, $(1), $(patsubst %,$(obj)/kernel-%.gz, $(section)))
  
- 	Example:
- 		#scripts/kconfig/Makefile
--		host-progs      := conf
-+		hostprogs-y     := conf
- 		conf-objs       := conf.o libkconfig.so
- 		libkconfig-objs := expr.o type.o
-   
-@@ -457,7 +458,7 @@
+-host-progs		:= piggy addnote addSystemMap addRamDisk
++hostprogs-y		:= piggy addnote addSystemMap addRamDisk
+ targets 		+= zImage zImage.initrd imagesize.c \
+ 			   $(patsubst $(obj)/%,%, $(call obj-sec, $(required) $(initrd))) \
+ 			   $(patsubst $(obj)/%,%, $(call src-sec, $(required) $(initrd))) \
+diff -Nru a/arch/sparc/boot/Makefile b/arch/sparc/boot/Makefile
+--- a/arch/sparc/boot/Makefile	2004-08-13 21:08:01 +02:00
++++ b/arch/sparc/boot/Makefile	2004-08-13 21:08:01 +02:00
+@@ -7,7 +7,7 @@
+ ROOT_IMG	:= /usr/src/root.img
+ ELFTOAOUT	:= elftoaout
  
- 	Example:
- 		#scripts/kconfig/Makefile
--		host-progs    := qconf
-+		hostprogs-y   := qconf
- 		qconf-cxxobjs := qconf.o
+-host-progs	:= piggyback btfixupprep
++hostprogs-y	:= piggyback btfixupprep
+ targets		:= tftpboot.img btfix.o btfix.S image
  
- 	In the example above the executable is composed of the C++ file
-@@ -468,7 +469,7 @@
+ quiet_cmd_elftoaout	= ELFTOAOUT $@
+diff -Nru a/arch/sparc64/boot/Makefile b/arch/sparc64/boot/Makefile
+--- a/arch/sparc64/boot/Makefile	2004-08-13 21:08:01 +02:00
++++ b/arch/sparc64/boot/Makefile	2004-08-13 21:08:01 +02:00
+@@ -7,7 +7,7 @@
+ ROOT_IMG	:= /usr/src/root.img
+ ELFTOAOUT	:= elftoaout
  
- 	Example:
- 		#scripts/kconfig/Makefile
--		host-progs    := qconf
-+		hostprogs-y   := qconf
- 		qconf-cxxobjs := qconf.o
- 		qconf-objs    := check.o
- 	
-@@ -509,7 +510,7 @@
+-host-progs	:= piggyback
++hostprogs-y	:= piggyback
+ targets		:= image tftpboot.img vmlinux.aout
  
- 	Example:
- 		#drivers/pci/Makefile
--		host-progs := gen-devlist
-+		hostprogs-y := gen-devlist
- 		$(obj)/devlist.h: $(src)/pci.ids $(obj)/gen-devlist
- 			( cd $(obj); ./gen-devlist ) < $<
+ quiet_cmd_elftoaout = ELF2AOUT $@
+diff -Nru a/arch/um/sys-i386/util/Makefile b/arch/um/sys-i386/util/Makefile
+--- a/arch/um/sys-i386/util/Makefile	2004-08-13 21:08:01 +02:00
++++ b/arch/um/sys-i386/util/Makefile	2004-08-13 21:08:01 +02:00
+@@ -1,6 +1,6 @@
  
-@@ -524,18 +525,32 @@
+-host-progs	:= mk_sc
+-always		:= $(host-progs) mk_thread
++hostprogs-y	:= mk_sc
++always		:= $(hostprogs-y) mk_thread
+ targets		:= mk_thread_kern.o mk_thread_user.o
  
- 	Example:
- 		#scripts/lxdialog/Makefile
--		host-progs    := lxdialog
--		always        := $(host-progs)
-+		hostprogs-y   := lxdialog
-+		always        := $(hostprogs-y)
+ mk_sc-objs	:= mk_sc.o
+diff -Nru a/arch/x86_64/boot/Makefile b/arch/x86_64/boot/Makefile
+--- a/arch/x86_64/boot/Makefile	2004-08-13 21:08:01 +02:00
++++ b/arch/x86_64/boot/Makefile	2004-08-13 21:08:01 +02:00
+@@ -30,7 +30,7 @@
  
- 	This will tell kbuild to build lxdialog even if not referenced in
- 	any rule.
+ EXTRA_CFLAGS := -m32
  
-+--- 4.7 Using hostprogs-$(CONFIG_FOO)
-+
-+	A typcal pattern in a Kbuild file lok like this:
-+
-+	Example:
-+		#scripts/Makefile
-+		hostprogs-$(CONFIG_KALLSYMS) += kallsyms
-+
-+	Kbuild knows about both 'y' for built-in and 'm' for module.
-+	So if a config symbol evaluate to 'm', kbuild will still build
-+	the binary. In other words Kbuild handle hostprogs-m exactly
-+	like hostprogs-y. But only hostprogs-y is recommend used
-+	when no CONFIG symbol are involved.
-+
- === 5 Kbuild clean infrastructure
+-host-progs	:= tools/build
++hostprogs-y	:= tools/build
+ subdir-		:= compressed/	#Let make clean descend in compressed/
+ # ---------------------------------------------------------------------------
  
- "make clean" deletes most generated files in the src tree where the kernel
- is compiled. This includes generated files such as host programs.
--Kbuild knows targets listed in $(host-progs), $(always), $(extra-y) and
--$(targets). They are all deleted during "make clean".
-+Kbuild knows targets listed in $(hostprogs-y), $(hostprogs-m), $(always),
-+$(extra-y) and $(targets). They are all deleted during "make clean".
- Files matching the patterns "*.[oas]", "*.ko", plus some additional files
- generated by kbuild are deleted all over the kernel src tree when
- "make clean" is executed.
-diff -Nru a/scripts/Makefile.build b/scripts/Makefile.build
---- a/scripts/Makefile.build	2004-08-13 21:08:12 +02:00
-+++ b/scripts/Makefile.build	2004-08-13 21:08:12 +02:00
-@@ -14,8 +14,13 @@
+diff -Nru a/drivers/atm/Makefile b/drivers/atm/Makefile
+--- a/drivers/atm/Makefile	2004-08-13 21:08:01 +02:00
++++ b/drivers/atm/Makefile	2004-08-13 21:08:01 +02:00
+@@ -3,7 +3,7 @@
+ #
  
- include scripts/Makefile.lib
+ fore_200e-objs	:= fore200e.o
+-host-progs	:= fore200e_mkfirm
++hostprogs-y	:= fore200e_mkfirm
  
--# Do not include host-progs rules unles needed
- ifdef host-progs
-+$(warning kbuild: $(obj)/Makefile - Usage of host-progs is deprecated. Please replace with hostprogs-y!)
-+hostprogs-y += $(host-progs)
-+endif
-+
-+# Do not include host rules unles needed
-+ifneq ($(hostprogs-y)$(hostprogs-m),)
- include scripts/Makefile.host
+ # Files generated that shall be removed upon make clean
+ clean-files := atmsar11.bin atmsar11.bin1 atmsar11.bin2 pca200e.bin \
+diff -Nru a/drivers/md/Makefile b/drivers/md/Makefile
+--- a/drivers/md/Makefile	2004-08-13 21:08:01 +02:00
++++ b/drivers/md/Makefile	2004-08-13 21:08:01 +02:00
+@@ -10,7 +10,7 @@
+ 		   raid6int1.o raid6int2.o raid6int4.o \
+ 		   raid6int8.o raid6int16.o raid6int32.o \
+ 		   raid6mmx.o raid6sse1.o raid6sse2.o
+-host-progs	:= mktables
++hostprogs-y	:= mktables
+ 
+ # Note: link order is important.  All raid personalities
+ # and xor.o must come before md.o, as they each initialise 
+diff -Nru a/drivers/media/dvb/ttpci/Makefile b/drivers/media/dvb/ttpci/Makefile
+--- a/drivers/media/dvb/ttpci/Makefile	2004-08-13 21:08:01 +02:00
++++ b/drivers/media/dvb/ttpci/Makefile	2004-08-13 21:08:01 +02:00
+@@ -13,7 +13,7 @@
+ 
+ EXTRA_CFLAGS = -Idrivers/media/dvb/dvb-core/
+ 
+-host-progs	:= fdump
++hostprogs-y	:= fdump
+ 
+ ifdef CONFIG_DVB_AV7110_FIRMWARE
+ $(obj)/av7110.o: $(obj)/fdump $(obj)/av7110_firm.h 
+diff -Nru a/drivers/pci/Makefile b/drivers/pci/Makefile
+--- a/drivers/pci/Makefile	2004-08-13 21:08:01 +02:00
++++ b/drivers/pci/Makefile	2004-08-13 21:08:01 +02:00
+@@ -35,7 +35,7 @@
+ obj-y += syscall.o
  endif
  
-diff -Nru a/scripts/Makefile.clean b/scripts/Makefile.clean
---- a/scripts/Makefile.clean	2004-08-13 21:08:12 +02:00
-+++ b/scripts/Makefile.clean	2004-08-13 21:08:12 +02:00
-@@ -29,8 +29,10 @@
- # Add subdir path
+-host-progs := gen-devlist
++hostprogs-y := gen-devlist
  
- subdir-ymn	:= $(addprefix $(obj)/,$(subdir-ymn))
--__clean-files	:= $(extra-y) $(EXTRA_TARGETS) $(always) $(host-progs) \
--		   $(targets) $(clean-files)
-+__clean-files	:= $(extra-y) $(EXTRA_TARGETS) $(always) \
-+		   $(targets) $(clean-files)             \
-+		   $(host-progs)                         \
-+		   $(hostprogs-y) $(hostprogs-m) $(hostprogs-)
- __clean-files   := $(wildcard                                               \
-                    $(addprefix $(obj)/, $(filter-out /%, $(__clean-files))) \
- 		   $(filter /%, $(__clean-files)))
-diff -Nru a/scripts/Makefile.host b/scripts/Makefile.host
---- a/scripts/Makefile.host	2004-08-13 21:08:12 +02:00
-+++ b/scripts/Makefile.host	2004-08-13 21:08:12 +02:00
-@@ -6,21 +6,21 @@
- # Both C and C++ is supported, but preferred language is C for such utilities.
- #
- # Samle syntax (see Documentation/kbuild/makefile.txt for reference)
--# host-progs := bin2hex
-+# hostprogs-y := bin2hex
- # Will compile bin2hex.c and create an executable named bin2hex
- #
--# host-progs    := lxdialog
-+# hostprogs-y    := lxdialog
- # lxdialog-objs := checklist.o lxdialog.o
- # Will compile lxdialog.c and checklist.c, and then link the executable
- # lxdialog, based on checklist.o and lxdialog.o
- #
--# host-progs      := qconf
-+# hostprogs-y      := qconf
- # qconf-cxxobjs   := qconf.o
- # qconf-objs      := menu.o
- # Will compile qconf as a C++ program, and menu as a C program.
- # They are linked as C++ code to the executable qconf
+ # Dependencies on generated files need to be listed explicitly
+ $(obj)/names.o: $(obj)/devlist.h $(obj)/classlist.h
+diff -Nru a/drivers/zorro/Makefile b/drivers/zorro/Makefile
+--- a/drivers/zorro/Makefile	2004-08-13 21:08:01 +02:00
++++ b/drivers/zorro/Makefile	2004-08-13 21:08:01 +02:00
+@@ -5,7 +5,7 @@
+ obj-$(CONFIG_ZORRO)	+= zorro.o zorro-driver.o zorro-sysfs.o names.o
+ obj-$(CONFIG_PROC_FS)	+= proc.o
  
--# host-progs := conf
-+# hostprogs-y := conf
- # conf-objs  := conf.o libkconfig.so
- # libkconfig-objs := expr.o type.o
- # Will create a shared library named libkconfig.so that consist of
-@@ -28,28 +28,30 @@
- # are made as position independent code).
- # conf.c is compiled as a c program, and conf.o is linked together with
- # libkconfig.so as the executable conf.
--# Note: Shared libraries consisting of C++ files are not supported  
-+# Note: Shared libraries consisting of C++ files are not supported
+-host-progs 		:= gen-devlist
++hostprogs-y 		:= gen-devlist
  
--# host-progs := tools/build may have been specified. Retreive directory
--obj-dirs += $(foreach f,$(host-progs), $(if $(dir $(f)),$(dir $(f))))
-+__hostprogs := $(hostprogs-y)$(hostprogs-m)
-+
-+# hostprogs-y := tools/build may have been specified. Retreive directory
-+obj-dirs += $(foreach f,$(__hostprogs), $(if $(dir $(f)),$(dir $(f))))
- obj-dirs := $(strip $(sort $(filter-out ./,$(obj-dirs))))
+ # Files generated that shall be removed upon make clean
+ clean-files := devlist.h
+diff -Nru a/lib/Makefile b/lib/Makefile
+--- a/lib/Makefile	2004-08-13 21:08:01 +02:00
++++ b/lib/Makefile	2004-08-13 21:08:01 +02:00
+@@ -25,7 +25,7 @@
+ obj-$(CONFIG_ZLIB_INFLATE) += zlib_inflate/
+ obj-$(CONFIG_ZLIB_DEFLATE) += zlib_deflate/
  
+-host-progs	:= gen_crc32table
++hostprogs-y	:= gen_crc32table
+ clean-files	:= crc32table.h
  
- # C code
- # Executables compiled from a single .c file
--host-csingle	:= $(foreach m,$(host-progs),$(if $($(m)-objs),,$(m)))
-+host-csingle	:= $(foreach m,$(__hostprogs),$(if $($(m)-objs),,$(m)))
+ $(obj)/crc32.o: $(obj)/crc32table.h
+diff -Nru a/scripts/Makefile b/scripts/Makefile
+--- a/scripts/Makefile	2004-08-13 21:08:01 +02:00
++++ b/scripts/Makefile	2004-08-13 21:08:01 +02:00
+@@ -13,8 +13,7 @@
+ hostprogs-$(CONFIG_PROM_CONSOLE) += conmakehash
+ hostprogs-$(CONFIG_IKCONFIG)     += bin2c
  
- # C executables linked based on several .o files
--host-cmulti	:= $(foreach m,$(host-progs),\
-+host-cmulti	:= $(foreach m,$(__hostprogs),\
- 		   $(if $($(m)-cxxobjs),,$(if $($(m)-objs),$(m))))
+-host-progs	:= $(sort $(hostprogs-y))
+-always		:= $(host-progs)
++always		:= $(hostprogs-y)
  
- # Object (.o) files compiled from .c files
--host-cobjs	:= $(sort $(foreach m,$(host-progs),$($(m)-objs)))
-+host-cobjs	:= $(sort $(foreach m,$(__hostprogs),$($(m)-objs)))
+ subdir-$(CONFIG_MODVERSIONS) += genksyms
+ subdir-$(CONFIG_MODULES)     += mod
+diff -Nru a/scripts/basic/Makefile b/scripts/basic/Makefile
+--- a/scripts/basic/Makefile	2004-08-13 21:08:01 +02:00
++++ b/scripts/basic/Makefile	2004-08-13 21:08:01 +02:00
+@@ -11,8 +11,8 @@
+ #                include/config/...
+ # docproc:	 Used in Documentation/docbook
  
- # C++ code
- # C++ executables compiled from at least on .cc file
- # and zero or more .c files
--host-cxxmulti	:= $(foreach m,$(host-progs),$(if $($(m)-cxxobjs),$(m)))
-+host-cxxmulti	:= $(foreach m,$(__hostprogs),$(if $($(m)-cxxobjs),$(m)))
+-host-progs	:= fixdep split-include docproc
+-always		:= $(host-progs)
++hostprogs-y	:= fixdep split-include docproc
++always		:= $(hostprogs-y)
  
- # C++ Object (.o) files compiled from .cc files
- host-cxxobjs	:= $(sort $(foreach m,$(host-cxxmulti),$($(m)-cxxobjs)))
-@@ -63,7 +65,7 @@
- #Object (.o) files used by the shared libaries
- host-cshobjs	:= $(sort $(foreach m,$(host-cshlib),$($(m:.so=-objs))))
+ # fixdep is needed to compile other host programs
+ $(addprefix $(obj)/,$(filter-out fixdep,$(always))): $(obj)/fixdep
+diff -Nru a/scripts/genksyms/Makefile b/scripts/genksyms/Makefile
+--- a/scripts/genksyms/Makefile	2004-08-13 21:08:01 +02:00
++++ b/scripts/genksyms/Makefile	2004-08-13 21:08:01 +02:00
+@@ -1,6 +1,6 @@
  
--host-progs      := $(addprefix $(obj)/,$(host-progs))
-+__hostprogs     := $(addprefix $(obj)/,$(__hostprogs))
- host-csingle	:= $(addprefix $(obj)/,$(host-csingle))
- host-cmulti	:= $(addprefix $(obj)/,$(host-cmulti))
- host-cobjs	:= $(addprefix $(obj)/,$(host-cobjs))
+-host-progs	:= genksyms
+-always		:= $(host-progs)
++hostprogs-y	:= genksyms
++always		:= $(hostprogs-y)
+ 
+ genksyms-objs	:= genksyms.o parse.o lex.o
+ 
+diff -Nru a/scripts/kconfig/Makefile b/scripts/kconfig/Makefile
+--- a/scripts/kconfig/Makefile	2004-08-13 21:08:01 +02:00
++++ b/scripts/kconfig/Makefile	2004-08-13 21:08:01 +02:00
+@@ -67,7 +67,7 @@
+ 
+ libkconfig-objs := zconf.tab.o
+ 
+-host-progs	:= conf mconf qconf gconf
++hostprogs-y	:= conf mconf qconf gconf
+ conf-objs	:= conf.o  libkconfig.so
+ mconf-objs	:= mconf.o libkconfig.so
+ 
+diff -Nru a/scripts/lxdialog/Makefile b/scripts/lxdialog/Makefile
+--- a/scripts/lxdialog/Makefile	2004-08-13 21:08:01 +02:00
++++ b/scripts/lxdialog/Makefile	2004-08-13 21:08:01 +02:00
+@@ -15,8 +15,8 @@
+ endif
+ endif
+ 
+-host-progs	:= lxdialog
+-always		:= ncurses $(host-progs)
++hostprogs-y	:= lxdialog
++always		:= ncurses $(hostprogs-y)
+ 
+ lxdialog-objs := checklist.o menubox.o textbox.o yesno.o inputbox.o \
+ 		 util.o lxdialog.o msgbox.o
+diff -Nru a/scripts/mod/Makefile b/scripts/mod/Makefile
+--- a/scripts/mod/Makefile	2004-08-13 21:08:01 +02:00
++++ b/scripts/mod/Makefile	2004-08-13 21:08:01 +02:00
+@@ -1,5 +1,5 @@
+-host-progs	:= modpost mk_elfconfig
+-always		:= $(host-progs) empty.o
++hostprogs-y	:= modpost mk_elfconfig
++always		:= $(hostprogs-y) empty.o
+ 
+ modpost-objs	:= modpost.o file2alias.o sumversion.o
+ 
+diff -Nru a/sound/oss/Makefile b/sound/oss/Makefile
+--- a/sound/oss/Makefile	2004-08-13 21:08:01 +02:00
++++ b/sound/oss/Makefile	2004-08-13 21:08:01 +02:00
+@@ -103,7 +103,7 @@
+ vidc_mod-objs	:= vidc.o vidc_fill.o
+ wavefront-objs  := wavfront.o wf_midi.o yss225.o
+ 
+-host-progs	:= bin2hex hex2hex
++hostprogs-y	:= bin2hex hex2hex
+ 
+ # Files generated that shall be removed upon make clean
+ clean-files := maui_boot.h msndperm.c msndinit.c pndsperm.c pndspini.c \
+diff -Nru a/usr/Makefile b/usr/Makefile
+--- a/usr/Makefile	2004-08-13 21:08:01 +02:00
++++ b/usr/Makefile	2004-08-13 21:08:01 +02:00
+@@ -1,7 +1,7 @@
+ 
+ obj-y := initramfs_data.o
+ 
+-host-progs  := gen_init_cpio
++hostprogs-y  := gen_init_cpio
+ 
+ clean-files := initramfs_data.cpio.gz
+ 

@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129348AbRADXXJ>; Thu, 4 Jan 2001 18:23:09 -0500
+	id <S129324AbRADXZJ>; Thu, 4 Jan 2001 18:25:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129581AbRADXW7>; Thu, 4 Jan 2001 18:22:59 -0500
-Received: from [62.81.160.68] ([62.81.160.68]:19652 "EHLO smtp2.alehop.com")
-	by vger.kernel.org with ESMTP id <S129348AbRADXWr>;
-	Thu, 4 Jan 2001 18:22:47 -0500
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S129518AbRADXY7>; Thu, 4 Jan 2001 18:24:59 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:12558 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129324AbRADXYr>;
+	Thu, 4 Jan 2001 18:24:47 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Michael Elizabeth Chastain <mec@shout.net>
+cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Make errors in 2.4 drivers/acpi, recursive CFLAGS 
+In-Reply-To: Your message of "Thu, 04 Jan 2001 17:19:51 MDT."
+             <200101042319.RAA19907@duracef.shout.net> 
 Mime-Version: 1.0
-From: "Ignacio Monge" <ignaciomonge@navegalia.com>
-To: linux-kernel@vger.kernel.org
-Subject: linux-2.4.0-prerelease-ac6 compile errors
-X-Mailer: Pronto v2.2.2 On linux
-Date: 05 Jan 2001 00:17:57 CET
-Reply-To: "Ignacio Monge" <ignaciomonge@navegalia.com>
-Message-Id: <20010104232253Z129348-400+400@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 05 Jan 2001 10:24:40 +1100
+Message-ID: <11427.978650680@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 4 Jan 2001 17:19:51 -0600, 
+Michael Elizabeth Chastain <mec@shout.net> wrote:
+>I wonder if Gnu Make 3.78.1 has the same problem?
+>I know of one bug in 3.78.1 where ...
 
+It did.
 
-Problem: compile error in linux-2.4.0-prerelease-ac6
+  GNU Make version 3.78.1, by Richard Stallman and Roland McGrath.
+  Built for alpha-redhat-linux-gnu
 
-System:
-	Intel Pentium II 233 Mhz 96 Mb RAM
-	Red Hat Linux System 7.0
-	Glibc-2.2-5
-	Gcc-2.95.2-12
-
-Output error:
-[...]
-
-ld -m elf_i386	-r -o drm.o tdfx.o drmlib.a
-make[4]: Saliendo directorio `/usr/src/linux/drivers/char/drm'
-make[3]: Saliendo directorio `/usr/src/linux/drivers/char/drm'
-make all_targets
-make[3]: Cambiando a directorio `/usr/src/linux/drivers/char'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
--fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2
--march=i686    -DEXPORT_SYMTAB -c serial.c
-serial.c: In function `probe_serial_pnp':
-serial.c:5187: structure has no member named `device'
-serial.c:5192: structure has no member named `device'
-make[3]: *** [serial.o] Error 1
-make[3]: Saliendo directorio `/usr/src/linux/drivers/char'
-make[2]: *** [first_rule] Error 2
-make[2]: Saliendo directorio `/usr/src/linux/drivers/char'
-make[1]: *** [_subdir_char] Error 2
-make[1]: Saliendo directorio `/usr/src/linux/drivers'
-make: *** [_dir_drivers] Error 2
+Definitely deprecate make 3.78.1.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

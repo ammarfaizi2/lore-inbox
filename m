@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVAAP4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVAAQF5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbVAAP4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 10:56:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVAAP4Y
+	id S261154AbVAAQF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 11:05:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbVAAQF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 10:56:24 -0500
-Received: from a26.t1.student.liu.se ([130.236.221.26]:49350 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261152AbVAAP4V
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 10:56:21 -0500
-Message-ID: <41D6C81F.1090106@drzeus.cx>
-Date: Sat, 01 Jan 2005 16:56:15 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
+	Sat, 1 Jan 2005 11:05:57 -0500
+Received: from mxsf06.cluster1.charter.net ([209.225.28.206]:64983 "EHLO
+	mxsf06.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S261154AbVAAQFw convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jan 2005 11:05:52 -0500
+Message-Id: <3k77vr$fs05t3@mxip08a.cluster1.charter.net>
+X-Ironport-AV: i="3.88,96,1102309200"; 
+   d="scan'208"; a="532682659:sNHT12888836"
+From: "Joseph D. Wagner" <technojoecoolusa@charter.net>
+To: <jwendel10@comcast.net>, <mikeserv@bmts.com>, <zaitcev@redhat.com>
+Cc: "Fedora Development List" <fedora-devel-list@redhat.com>,
+       "Fedora List" <fedora-list@redhat.com>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Linux Newbie" <linux-newbie@vger.kernel.org>
+Subject: RE: Kernel 2.6.10 Can't Open Initial Console on FC3
+Date: Sat, 1 Jan 2005 10:05:57 -0600
 MIME-Version: 1.0
-To: Tim Hockin <thockin@hockin.org>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: APIC, changing level/edge interrupt
-References: <41D1977D.2000600@drzeus.cx> <20050101054925.GA13925@hockin.org>
-In-Reply-To: <20050101054925.GA13925@hockin.org>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+thread-index: AcTwG8eVWTdgvowuR6OBuM+5B4JroQ==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Hockin wrote:
+RESOLVED.
 
->On Tue, Dec 28, 2004 at 06:27:25PM +0100, Pierre Ossman wrote:
->  
->
->>How do you tell the APIC that a device uses level triggered interrupts, 
->>not edge triggered? I have a flash reader on the LPC bus which uses 
->>level triggered interrupts and /proc/interrupts show edge triggered. 
->>Some interrupts are missed by the APIC so I figured this might be why.
->>    
->>
->
->BIOS should set this up.  Maybe ACPI has a way to do this?
->  
->
-Should doesn't always mean that it actually does ;)
-But since BIOS can configure the APIC then the kernel should be able to 
-also. A quick and dirty hack will suffice ATM since I just want to 
-pinpoint where the problem is.
-What is the default mode and what does the XT-PIC expect? (it works fine 
-with the apic disabled).
+I enabled support for hotplug devices and installed an initrd; then it works.
 
-ACPI might have some functions to configure the APIC correctly but right 
-now the connection between ACPI and drivers is rather weak (non-existant 
-for this driver) so that's not really a viable solution when testing. 
-Might be a good long term solution though.
+They tell me there's a way to make it work without initrd, but it's ugly, messy, and not recommended:
 
-Rgds
-Pierre
+http://fedora.redhat.com/docs/udev/
+
+I haven't yet tested to see if it works with initrd and without support for hotplug devices, but from the documentation I've read my money is on no.
+
+Joseph D. Wagner
 

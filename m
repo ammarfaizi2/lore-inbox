@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262694AbTDOSY6 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 14:24:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbTDOSY6 
+	id S262906AbTDOSZ5 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 14:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262992AbTDOSZy 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 14:24:58 -0400
-Received: from siaag2af.compuserve.com ([149.174.40.136]:54716 "EHLO
-	siaag2af.compuserve.com") by vger.kernel.org with ESMTP
-	id S262694AbTDOSY5 (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 14:24:57 -0400
-Date: Tue, 15 Apr 2003 14:33:52 -0400
+	Tue, 15 Apr 2003 14:25:54 -0400
+Received: from siaag1ad.compuserve.com ([149.174.40.6]:21679 "EHLO
+	siaag1ad.compuserve.com") by vger.kernel.org with ESMTP
+	id S262906AbTDOSZL (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 14:25:11 -0400
+Date: Tue, 15 Apr 2003 14:33:53 -0400
 From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: BUGed to death
-To: Jens Axboe <axboe@suse.de>
+Subject: Re: [RFC][PATCH] Extended Attributes for Security Modules
+To: Stephen Smalley <sds@epoch.ncsc.mil>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200304151436_MC3-1-3487-2163@compuserve.com>
+Message-ID: <200304151436_MC3-1-3487-2164@compuserve.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
@@ -21,18 +21,20 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> If you do that, you must audit every single BUG_ON to make sure the
-> expression doesn't have any side effects.
->
->	BUG_ON(do_the_good_stuff());
+Stephen Smalley wrote:
 
 
-  Sounds like a candidate for machine audit.  You can declare
-pure functions in GCC 2.96+ but I see no way to assert that an
-expression is pure...
+> In practice, I would
+> expect that any "stacking" of multiple security modules that use
+> security fields and xattr will actually involve creation of a new module
+> that integrates the logic of the individual modules.  This is preferable
+> anyway to ensure that the interactions among the security modules are
+> well understood, that the logic is combined in a sensible manner, and
+> that the individual logics can not subvert one another.
 
 
+  On FreeBSD 5 you 'stack' the mac_biba and mac_mls modules to get both
+integrity and confidentiality, right?  Or is that something different?
 
 --
  Chuck

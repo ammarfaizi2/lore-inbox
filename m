@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267995AbSISNSj>; Thu, 19 Sep 2002 09:18:39 -0400
+	id <S268110AbSISNWW>; Thu, 19 Sep 2002 09:22:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268100AbSISNSj>; Thu, 19 Sep 2002 09:18:39 -0400
-Received: from sv1.valinux.co.jp ([202.221.173.100]:36358 "HELO
-	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S267995AbSISNSi>;
-	Thu, 19 Sep 2002 09:18:38 -0400
-Date: Thu, 19 Sep 2002 22:15:13 +0900 (JST)
-Message-Id: <20020919.221513.28808421.taka@valinux.co.jp>
-To: akpm@digeo.com
-Cc: alan@lxorguk.ukuu.org.uk, davem@redhat.com, neilb@cse.unsw.edu.au,
-       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-Subject: Re: [NFS] Re: [PATCH] zerocopy NFS for 2.5.36
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <3D89176B.40FFD09B@digeo.com>
-References: <20020918.160057.17194839.davem@redhat.com>
-	<1032393277.24895.8.camel@irongate.swansea.linux.org.uk>
-	<3D89176B.40FFD09B@digeo.com>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S268152AbSISNWV>; Thu, 19 Sep 2002 09:22:21 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:46324
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268110AbSISNWU>; Thu, 19 Sep 2002 09:22:20 -0400
+Subject: Re: do_gettimeofday vs. rdtsc in the scheduler
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Andi Kleen <ak@suse.de>, "David S. Miller" <davem@redhat.com>,
+       johnstul@us.ibm.com, James Cleverdon <jamesclv@us.ibm.com>,
+       linux-kernel@vger.kernel.org, anton.wilson@camotion.com
+In-Reply-To: <15753.45833.702405.2357@kim.it.uu.se>
+References: <1032305535.7481.204.camel@cog>
+	<20020917.163246.113965700.davem@redhat.com>
+	<20020918015209.B31263@wotan.suse.de>
+	<20020917.164649.110499262.davem@redhat.com>
+	<20020918015838.A6684@wotan.suse.de>  <15753.45833.702405.2357@kim.it.uu.se>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 19 Sep 2002 14:27:19 +0100
+Message-Id: <1032442039.26712.32.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-> > > details, but I do know that using copy_from_user() is not a real
-> > > improvement at least on x86 architecture.
-> > 
-> > The same as bit is easy to explain. Its totally memory bandwidth limited
-> > on current x86-32 processors. (Although I'd welcome demonstrations to
-> > the contrary on newer toys)
+On Thu, 2002-09-19 at 12:20, Mikael Pettersson wrote:
+>  > The local APIC timer is specified in the Intel Manual volume 3 for example.
+>  > It's an optional feature (CPUID), but pretty much everyone has it.
 > 
-> Nope.  There are distinct alignment problems with movsl-based
-> memcpy on PII and (at least) "Pentium III (Coppermine)", which is
-> tested here:
-...
-> I have various scriptlets which generate the entire matrix.
+> Except that like everything else related to the local APIC, you're at
+> the mercy of the competence (or lack thereof) of the BIOS implementors.
+> - There are plenty of laptops whose CPUs have local APICs but whose
+>   BIOSen go berserk if you enable it. There are also plenty of laptops
+
+Frequently because we don't disable it again before any APM calls I
+suspect. When a CPU goes into sleep mode you must disable PMC and local
+apic timer interrupts.
+
+>   that don't have one, since Intel removed it from many Mobile P6 CPUs.
+> - There are even some desktop boards with BIOS problems, including Intel's
+>   AL440LX on which Linux must stay away from the local APIC timer.
 > 
-> I think I ended up deciding that we should use movsl _only_
-> when both src and dsc are 8-byte-aligned.  And that when you
-> multiply the gain from that by the frequency*size with which
-> funny alignments are used by TCP the net gain was 2% or something.
+> To assume the local APIC works on 686-class UP boxes is not realistic, alas.
 
-Amazing! I beleived 4-byte-aligned was enough.
-read/write systemcalls may also reduce their penalties.
-
-> It needs redoing.  These differences are really big, and this
-> is the kernel's most expensive function.
-> 
-> A little project for someone.
-
-OK, if there is nobody who wants to do it I'll do it by myself.
-
-> The tools are at http://www.zip.com.au/~/linux/cptimer.tar.gz
+Yep
 

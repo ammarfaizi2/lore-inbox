@@ -1,137 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277875AbRJORF2>; Mon, 15 Oct 2001 13:05:28 -0400
+	id <S277923AbRJORG2>; Mon, 15 Oct 2001 13:06:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277859AbRJORFT>; Mon, 15 Oct 2001 13:05:19 -0400
-Received: from aprilia.amazon.com ([209.191.164.156]:31384 "HELO
-	aprilia.amazon.com") by vger.kernel.org with SMTP
-	id <S277823AbRJORFC>; Mon, 15 Oct 2001 13:05:02 -0400
-From: "Monty Vanderbilt" <mvb@amazon.com>
-To: "Gian-Yan Xu" <kids@linux.ee.tku.edu.tw>, <linux-kernel@vger.kernel.org>
-Subject: RE: ptrace bug
-Date: Mon, 15 Oct 2001 10:04:07 -0700
-Message-ID: <ALEMKFGKCDJNAGAJHLLLOEEFCEAA.mvb@amazon.com>
+	id <S277823AbRJORGT>; Mon, 15 Oct 2001 13:06:19 -0400
+Received: from host.sargentlundy.com ([151.154.52.12]:61199 "EHLO
+	mail01.sargentlundy.com") by vger.kernel.org with ESMTP
+	id <S277859AbRJORGP> convert rfc822-to-8bit; Mon, 15 Oct 2001 13:06:15 -0400
+Subject: Bootp Timeout Problem
+To: larsi@gnus.org
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF6348277C.08D3A202-ON86256AE6.005B78B3@sargentlundy.com>
+From: CARL.P.HIRSCH@sargentlundy.com
+Date: Mon, 15 Oct 2001 12:05:30 -0500
+X-MIMETrack: Serialize by Router on mail01/Sargentlundy(Release 5.0.7 |March 21, 2001) at
+ 10/15/2001 12:05:39 PM
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.21.0110160805440.12289-100000@linux.ee.tku.edu.tw>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't think the problem is what you identified.
-arch/i386/kernel/ptrace.c:getreg() takes the extra FS,GS offsets into
-account and performs special handling for them. I suspect this is because
-they are not stable per-thread registers and not saved into the register
-structure on an interrupt or system call.
+Lars - I came across the message below while searching to a solution for a
+DHCP timeout issue. I'm fairly certain that this fix is relevant to the
+problem I'm investigating. We're working with a floppy linux distro that
+Novell created for imaging Novell workstations and I hope to apply this
+patch to the floppy distro to see if it is the fix we're looking for (we
+suspect Spantree Portfast on Cisco Catalyst3524XLs is tripping up DHCP
+acquisition)..
 
-ptrace.c:getreg() ...
-	switch (regno >> 2) {
-		case FS:
-			retval = child->thread.fs;
-			break;
-		case GS:
-			retval = child->thread.gs;
-			break;
-		case DS:
-		case ES:
-		case SS:
-		case CS:
-			retval = 0xffff;
-			/* fall through */
-		default:
-			if (regno > GS*4)				// *** Adusts for missing FS,GS fields *** //
-				regno -= 2*4;
-			regno = regno - sizeof(struct pt_regs);
-			retval &= get_stack_long(child, regno);
-	}
+I'm a bit of a linux newbie - does this involve editing the ifconfig.c file
+only, or is a recompile or any components (or even the kernel?)  required
+to cause the change to take effect? If so, I expect the various FAQs can
+walk me through the actual procedure.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Gian-Yan Xu
-Sent: Monday, October 15, 2001 5:12 PM
-To: linux-kernel@vger.kernel.org
-Subject: ptrace bug
+LKML - apologies if this is off-topic, please reply off-list or CC me.
+
+thanks much,
+-carl hirsch
+network analyst
+
+From: Lars Magne Ingebrigtsen (larsi@gnus.org)
+Date: Sat Jul 29 2000 - 06:16:33 EST
+     Next message: Adam Sampson: "Re: sysconf (was Re: RLIM_INFINITY
+     inconsistency between archs)"
+     Previous message: Amit D Chaudhary: "Re: NFSv4 ACLs (was: ...ACL's and
+     reiser...)"
+     Next in thread: Fred Reimer: "Re: 2.2.16 bootp timeout problem
+     (patch)"
+     Reply: Fred Reimer: "Re: 2.2.16 bootp timeout problem (patch)"
+     Messages sorted by: [ date ] [ thread ] [ subject ] [ author ]
 
 
 
-Today I try to get register's value via ptrace(PTRACE_GETREGS, ...),
-but only EBX, ECX, EDX, ESI, EDI, EBP, EAX registers are correct.
-I notice that file /usr/src/linux/include/asm/ptrace.h:
-
-#define FS 9
-#define GS 10
-
-but in the declare of struct pt_regs:
-
-struct pt_regs {
-        long ebx;
-        long ecx;
-        long edx;
-        long esi;
-        long edi;
-        long ebp;
-        long eax;
-        int  xds;
-        int  xes;
-        long orig_eax;
-        long eip;
-        int  xcs;
-        long eflags;
-        long esp;
-        int  xss;
-};
-
-There is no xfs/xgs member in that struct, and the #define FRAME_SIZE 17
-is not match the number of member in the pt_regs struct.
+The Cisco Catalyst 3500 switch has what seems like a training period
+of about ten seconds. Therefore, the default 3*2 second waiting
+period between card resets is too small to allow a Linux bootp client
+to boot through one of these switches.
 
 
-In addition, in the ptrace.c:
+The following micro-patch just increases the CONF_SEND_RETRIES (which
+says how many bootp packets to send out between reopening the device(s))
+from 3 to 10, which fixes the problem.
 
-   case PTRACE_GETREGS: { /* Get all gp regs from the child. */
-   if (!access_ok(VERIFY_WRITE, (unsigned *)data,
-FRAME_SIZE*sizeo(long))) {
-                        ret = -EIO;
-                        break;
-   }
-   for ( i = 0; i < FRAME_SIZE*sizeof(long); i += sizeof(long) ) {
-              __put_user(getreg(child, i),(unsigned long *) data);
-             data += sizeof(long);
-   }
-   ret = 0;
 
-FRAME_SIZE*sizeof(long) is larger than sizeof(struct pt_regs),
-the ptrace() will overwrite the data of parent process!
+--- ipconfig.c~ Wed Jun 7 23:26:44 2000
++++ ipconfig.c Sat Jul 29 12:53:18 2000
+@@ -75,7 +75,7 @@
 
-To fix the bug, try this patch:
 
---- ptrace.h.orig       Mon Oct 15 21:00:48 2001
-+++ ptrace.h    Mon Oct 15 21:05:56 2001
-@@ -33,6 +33,8 @@
-        long eax;
-        int  xds;
-        int  xes;
-+       int  xfs;
-+       int  xgs;
-        long orig_eax;
-        long eip;
-        int  xcs;
-
+ /* Define the timeout for waiting for a DHCP/BOOTP/RARP reply */
+ #define CONF_OPEN_RETRIES 3 /* (Re)open devices three times */
+-#define CONF_SEND_RETRIES 3 /* Send requests three times */
++#define CONF_SEND_RETRIES 10 /* Send requests ten times */
+ #define CONF_BASE_TIMEOUT (HZ*2) /* Initial timeout: 2 seconds */
+ #define CONF_TIMEOUT_RANDOM (HZ) /* Maximum amount of randomization */
+ #define CONF_TIMEOUT_MULT *7/4 /* Rate of timeout growth */
 
 
 --
-Best regards,
-Gian-Yain Xu. (kids@linux.ee.tku.edu.tw)
+(domestic pets only, the antidote for overdose, milk.)
+   larsi@gnus.org * Lars Magne Ingebrigtsen
+
 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+the body of a message to majordomo@vger.rutgers.edu
+Please read the FAQ at http://www.tux.org/lkml/
+
 

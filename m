@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266277AbUFPNtY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266283AbUFPN4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266277AbUFPNtY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 09:49:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266281AbUFPNtY
+	id S266283AbUFPN4l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 09:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266285AbUFPN4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 09:49:24 -0400
-Received: from everest.2mbit.com ([24.123.221.2]:12983 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S266277AbUFPNtW (ORCPT
+	Wed, 16 Jun 2004 09:56:41 -0400
+Received: from gate.crashing.org ([63.228.1.57]:57311 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S266283AbUFPN4k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 09:49:22 -0400
-Message-ID: <40D04FC9.6080204@greatcn.org>
-Date: Wed, 16 Jun 2004 21:48:57 +0800
-From: Coywolf Qi Hunt <coywolf@greatcn.org>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: akpm@osdl.org, kai@germaschewski.name, sam@ravnborg.org
-X-Scan-Signature: fad39d3eb0bc82a8daaaab38959dee5c
-X-SA-Exim-Connect-IP: 218.24.173.192
-X-SA-Exim-Mail-From: coywolf@greatcn.org
-Subject: [PATCH] [BUG FIX] kbuild distclean srctree fix
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 16 Jun 2004 09:56:40 -0400
+Subject: Re: Linux 2.6.7 (stty rows 50 columns 140 reports : No such device
+	or address)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Zilvinas Valinskas <zilvinas@gemtek.lt>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <40D0432A.1080006@pobox.com>
+References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
+	 <20040616095805.GC14936@gemtek.lt>  <40D0432A.1080006@pobox.com>
+Content-Type: text/plain
+Message-Id: <1087394174.8697.229.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 16 Jun 2004 08:56:14 -0500
 Content-Transfer-Encoding: 7bit
-X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
-	*  3.0 RCVD_IN_AHBL_CNKR RBL: AHBL: sender is listed in the AHBL China/Korea blocks
-	*      [218.24.173.192 listed in cnkrbl.ahbl.org]
-X-SA-Exim-Version: 4.0 (built Wed, 05 May 2004 12:02:20 -0500)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Wed, 2004-06-16 at 07:55, Jeff Garzik wrote:
+> Zilvinas Valinskas wrote:
+> > On Compaq N800 EVO notebook with a radeonfb enabled - stty failes to
+> > adjust terminal size. strace log attached. Under 2.6.5/2.6.6 it used to
+> > work. 
+> > 
 
-I just find a bug that ``make distclean'' cannot remove the editor 
-backup files and the like when using build directory.
-That is because the find command is improperly searching the build 
-directory instead of the $(srctree) it should.
-.
-This simple patch fixes the problem.
- 
-    -- coywolf
+The whole crap of tweaking the video modes when terminal size is
+changed with stty is not working properly imho. I don't like it, I
+don't like the way it's implemented and the drivers are not ready
+for it anyway since they lack a correct mode matching mecanism.
 
-===============================================================
+But that's one of James pet features so ...
 
---- linux-2.6.7/Makefile	Wed Jun  9 01:07:00 2004
-+++ linux-2.6.7-cy/Makefile	Wed Jun 16 21:33:57 2004
-@@ -841,7 +841,7 @@ mrproper: clean archmrproper $(mrproper-
- .PHONY: distclean
- 
- distclean: mrproper
--	@find . $(RCS_FIND_IGNORE) \
-+	@find $(srctree) $(RCS_FIND_IGNORE) \
- 	 	\( -name '*.orig' -o -name '*.rej' -o -name '*~' \
- 		-o -name '*.bak' -o -name '#*#' -o -name '.*.orig' \
- 	 	-o -name '.*.rej' -o -size 0 \
+Ben.
 
-
--- 
-Coywolf Qi Hunt
-Admin of http://GreatCN.org and http://LoveCN.org
 

@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263765AbUDFLZo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 07:25:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263768AbUDFLZo
+	id S263768AbUDFL2P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 07:28:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUDFL2P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 07:25:44 -0400
-Received: from p8077-ipadfx21hodogaya.kanagawa.ocn.ne.jp ([219.160.161.77]:5506
-	"HELO achurch.org") by vger.kernel.org with SMTP id S263765AbUDFLZj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 07:25:39 -0400
-From: achurch@achurch.org (Andrew Church)
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] ext2fs sb= mount option fix (kernel 2.4.25)
-Date: Tue, 06 Apr 2004 20:21:08 JST
-X-Mailer: MMail v5.17
-Message-ID: <407293b0.24174@achurch.org>
+	Tue, 6 Apr 2004 07:28:15 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:54913 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S263768AbUDFL2E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 07:28:04 -0400
+Date: Tue, 6 Apr 2004 13:27:59 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] jiffies must be unsigned long
+Message-ID: <Pine.GSO.4.58.0404061327210.4158@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-     The following patch fixes a bug in the processing of the sb=
-(alternate superblock) mount option for ext2: for devices with 1024-byte
-blocks, the value from the option is never actually used.  This patch is
-for kernel 2.4.25.  2.6.5 also has an issue with sb=, and I'll send a patch
-for that separately.
 
-  --Andrew Church
-    achurch@achurch.org
-    http://achurch.org/
+jiffies must be unsigned long
 
----------------------------------------------------------------------------
+--- linux-2.6.5/drivers/char/isicom.c.orig	2004-03-04 11:30:38.000000000 +0100
++++ linux-2.6.5/drivers/char/isicom.c	2004-04-02 10:59:33.000000000 +0200
+@@ -129,6 +129,7 @@
+ 		         unsigned int cmd, unsigned long arg)
+ {
+ 	unsigned int card, i, j, signature, status, portcount = 0;
++	unsigned long t;
+ 	unsigned short word_count, base;
+ 	bin_frame frame;
+ 	/* exec_record exec_rec; */
+@@ -152,12 +153,12 @@
 
---- linux-2.4.25-orig/fs/ext2/super.c	Wed Feb 18 22:36:31 2004
-+++ fs/ext2/super.c	Mon Apr  5 09:23:19 2004
-@@ -427,7 +427,7 @@
- 	unsigned short resuid = EXT2_DEF_RESUID;
- 	unsigned short resgid = EXT2_DEF_RESGID;
- 	unsigned long block;
--	unsigned long logic_sb_block = 1;
-+	unsigned long logic_sb_block;
- 	unsigned long offset = 0;
- 	kdev_t dev = sb->s_dev;
- 	int blocksize = BLOCK_SIZE;
-@@ -465,6 +465,8 @@
- 	if (blocksize != BLOCK_SIZE) {
- 		logic_sb_block = (sb_block*BLOCK_SIZE) / blocksize;
- 		offset = (sb_block*BLOCK_SIZE) % blocksize;
-+	} else {
-+		logic_sb_block = sb_block;
- 	}
- 
- 	if (!(bh = sb_bread(sb, logic_sb_block))) {
+ 			inw(base+0x8);
+
+-			for(i=jiffies+HZ/100;time_before(jiffies, i););
++			for(t=jiffies+HZ/100;time_before(jiffies, t););
+
+ 			outw(0,base+0x8); /* Reset */
+
+ 			for(j=1;j<=3;j++) {
+-				for(i=jiffies+HZ;time_before(jiffies, i););
++				for(t=jiffies+HZ;time_before(jiffies, t););
+ 				printk(".");
+ 			}
+ 			signature=(inw(base+0x4)) & 0xff;
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

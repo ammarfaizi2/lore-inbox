@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268095AbUHFFnT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268097AbUHFFlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268095AbUHFFnT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 01:43:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268003AbUHFFnT
+	id S268097AbUHFFlm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 01:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268098AbUHFFll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 01:43:19 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:39561 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S268095AbUHFFnK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 01:43:10 -0400
-Date: Fri, 6 Aug 2004 07:42:48 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bill Davidsen <davidsen@tmr.com>, Zinx Verituse <zinx@epicsol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ide-cd problems
-Message-ID: <20040806054245.GA10274@suse.de>
-References: <20040803055337.GA23504@suse.de> <41128070.5050109@tmr.com> <20040805193520.GA7571@suse.de> <1091739746.8419.35.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 6 Aug 2004 01:41:41 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:5069 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S268097AbUHFFlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 01:41:40 -0400
+From: Christian Borntraeger <linux-kernel@borntraeger.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [irda-users] [PATCH] Add PCI-dependency for donauboe irda driver
+Date: Fri, 6 Aug 2004 07:41:37 +0200
+User-Agent: KMail/1.6.2
+References: <200408041631.44396.linux-kernel@borntraeger.net> <20040805170107.82BC8506CA4@seneca.muc.de>
+In-Reply-To: <20040805170107.82BC8506CA4@seneca.muc.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1091739746.8419.35.camel@localhost.localdomain>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408060741.37958.linux-kernel@borntraeger.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05 2004, Alan Cox wrote:
-> On Iau, 2004-08-05 at 20:35, Jens Axboe wrote:
-> > > exotic commands, and given the choice of having users able to send 
-> > > arbitrary commands to the device and not access it at all, I would say 
-> > > "not at all" would be good.
-> > 
-> > Then don't make your cdrom device accesable.
-> 
-> Lets get rid of root, I mean you don't need root, you could just turn
-> your computer off.
-> 
-> What planet are you living on Jens ?
+hm@seneca.muc.de wrote:
+> I am sorry to say my mail filter bounced your mail because it was routed
+> through a Schlund.de domain at some point (kundenserver.de or similar).
+> Since most mail from these domains is spam, and since schlund.de did not
 
-I'm living on the planet where filtering is not possible, unless you
-want to have oodles of unmaintanable tables for different devices. And
-that means that if you don't trust a user with your cdrom currently,
-don't give him/her access to it.
+Well you are blocking germanys biggest domain hoster.  
+By the way Schlund now supports asmtp for their customers. You should 
+consider to block only non asmtp mail from schlund. If you still get spam 
+mail, consider to file an abuse. 
 
-> End users have lots of reasons for being able to access /dev/cdrom
-> directly and also often for groups of users to access a disk directly
-> (for example Oracle databases).
+cheers
 
-Yes I know.
-
-> That means any security model that isn't based around things beyond
-> basic device access is flawed.
-
-Then we should require raw io capability, as I've stated I'm fine with
-that. I'm not fine with filtering.
-
-> > Affects all devices that accept SG_IO.
-> 
-> Then if you refuse to fix SG_IO perhaps all device drivers should remove
-> support for it ?
-
-Well they can't, it's a block layer property. The only thing the device
-sees is a regular struct request.
-
--- 
-Jens Axboe
-
+Christian

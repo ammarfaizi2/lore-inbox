@@ -1,95 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbULABAj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbULABEn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261214AbULABAj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 20:00:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbULAA7h
+	id S261239AbULABEn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 20:04:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbULABBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 19:59:37 -0500
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:24439 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261230AbULAAsl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 19:48:41 -0500
-From: Blaisorblade <blaisorblade_spam@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: VFS interactions with UML and other big UML changes (was: Re: [patch 1/2] Uml - first part rework of run_helper() and users.)
-Date: Wed, 1 Dec 2004 01:51:35 +0100
-User-Agent: KMail/1.7.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       jdike@addtoit.com, bstroesser@fujitsu-siemens.com, kraxel@bytesex.org
-References: <20041130200845.2C5058BAFE@zion.localdomain> <200412010120.39579.blaisorblade_spam@yahoo.it> <20041130163352.62840d12.akpm@osdl.org>
-In-Reply-To: <20041130163352.62840d12.akpm@osdl.org>
+	Tue, 30 Nov 2004 20:01:19 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:26965 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261197AbULABAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 20:00:45 -0500
+Date: Wed, 1 Dec 2004 01:00:13 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Chris Wright <chrisw@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>, Michael Kerrisk <michael.kerrisk@gmx.net>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Rik van Riel <riel@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] shmtcl SHM_LOCK perms
+In-Reply-To: <20041130125045.E2357@build.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.44.0412010049520.3344-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412010151.36181.blaisorblade_spam@yahoo.it>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 December 2004 01:33, Andrew Morton wrote:
-> Blaisorblade <blaisorblade_spam@yahoo.it> wrote:
-> > static struct address_space_operations hostfs_aops = {
-> >         .writepage      = hostfs_writepage,
-> >         .readpage       = hostfs_readpage,
-> > /*      .set_page_dirty = __set_page_dirty_nobuffers, */
-> >         .prepare_write  = hostfs_prepare_write,
-> >         .commit_write   = hostfs_commit_write
-> > };
-> >
-> > Actually, hostfs is a nodev filesystem, but I simply don't know if that
-> > implies that it uses no buffers. So, should
-> >
-> >  .set_page_dirty = __set_page_dirty_nobuffers
-> >
-> > be uncommented? Or should it be deleted (leaving it there is not a good
-> > option).
->
-> See the operation of set_page_dirty().
+On Tue, 30 Nov 2004, Chris Wright wrote:
+> * Hugh Dickins (hugh@veritas.com) wrote:
+> > Michael Kerrisk has observed that at present any process can SHM_LOCK
+> > any shm segment of size within process RLIMIT_MEMLOCK, despite having no
+> > permissions on the segment: surprising, though not obviously evil.  And
+> > any process can SHM_UNLOCK any shm segment, despite no permissions on it:
+> > that is surely wrong.
+> 
+> You may be neither the owner, nor the creator of a segment but have read
+> access to it.  In which case you could simply copy the contents of the
+> segment anywhere you like, which has similar effect to SHM_UNLOCK from
+> the point of view of paging out sensitive data.
 
-> If you have NULL ->set_page_dirty a_op then set_page_dirty() will fall
-> through to __set_page_dirty_buffers().
-Yes, I already understood this, the easy part.
-> If your fs never sets PG_private then __set_page_dirty_buffers() will just
-> do what __set_page_dirty_nobuffers() does.
-Ok, I didn't imagine this (looks reasonable though).
+True, and if securing sensitive data against pageout were the only reason
+for SHM_LOCK, then I guess it might be an argument for letting anyone with
+read permission do SHM_UNLOCK.
 
-Apart the fact that the "race with truncate" check is a bit different: this is 
-is in __set_page_dirty_nobuffers(mm/page-writeback.c) and probably wants 
-being added to the _buffers version, since it does cannot do anything else 
-than triggering a BUG (which you don't see currently, I guess):
+But that's not the only reason for SHM_LOCK, and all you're telling us
+there is that the owner of sensitive data should be careful who they
+give read permission to - indeed!  So I still tend to agree with
+Michael, that the most natural restriction is to owner or creator -
+relax that if some app actually has a good case for relaxing it.
 
-[...]
-                        mapping2 = page_mapping(page);
-                        if (mapping2) { /* Race with truncate? */
-                                BUG_ON(mapping2 != mapping);
-[...]
+Hugh
 
-> Without having looked at it, I'm sure that hostfs does not use
-> buffer_heads.
-
-It can compile without 
-
-#include <linux/buffer_head.h>
-
-(even if the include is there), and it never seem to set any page as buffer 
-(by setting the PG_private bit, which can have other meanings too I guess in 
-other contexts).
-
-So I guessed this right the first time - I was not sure if it was so 
-straightforward.
-
-> So setting your ->set_page_dirty a_op to point at 
-> __set_page_dirty_nobuffers() is a reasonable thing to do - it'll provide a
-> slight speedup.
-
-If it is a speedup only, then I'm happier - I was especially worried if it was 
-going to create possible bugs, even because there are someone has reported 
-problems in listing large folders... never reproduced it here and most users 
-don't see it, so not yet any clues.
-
-Thanks a lot for the help!
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-http://www.user-mode-linux.org/~blaisorblade

@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263402AbTC2Kvy>; Sat, 29 Mar 2003 05:51:54 -0500
+	id <S263405AbTC2Lkh>; Sat, 29 Mar 2003 06:40:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263403AbTC2Kvy>; Sat, 29 Mar 2003 05:51:54 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:37299 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S263402AbTC2Kvx>; Sat, 29 Mar 2003 05:51:53 -0500
-Date: Sat, 29 Mar 2003 11:02:51 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: xircom init_etherdev conversion.
-Message-ID: <20030329110244.GA30863@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-References: <200303241642.h2OGg335008252@deviant.impure.org.uk> <3E852901.7000903@pobox.com>
+	id <S263407AbTC2Lkh>; Sat, 29 Mar 2003 06:40:37 -0500
+Received: from codeblau.walledcity.de ([212.84.209.34]:16145 "EHLO codeblau.de")
+	by vger.kernel.org with ESMTP id <S263405AbTC2Lkg>;
+	Sat, 29 Mar 2003 06:40:36 -0500
+Date: Sat, 29 Mar 2003 12:51:54 +0100
+From: Felix von Leitner <felix-kernel@fefe.de>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel >2.5.63 broken (scheduler and VIA IDE)
+Message-ID: <20030329115154.GA27368@codeblau.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E852901.7000903@pobox.com>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 29, 2003 at 12:02:57AM -0500, Jeff Garzik wrote:
- > davej@codemonkey.org.uk wrote:
- > >- Also cleans up some exit paths.
- > 
- > ...and now xircom_remove is kfree'ing memory that was never kmalloc'd
+Hi!
 
-Which one ? I don't see it..
+Kernels after 2.5.63 don't work well for me.
+I get these IDE messages:
 
-		Dave
+hda: dma_timer_expiry: dma status == 0x24
+hda: lost interrupt
+hda: dma_intr: bad DMA status (dma_stat=30)
+hda: dma_intr: status=0x50 { DriveReady SeekComplete }
+
+regularly (didn't happen with previous kernels) and the scheduler
+appears to be unfair now.  As soon as I start one big CPU task (like
+mencoder, oggenc or lame), the other tasks rarely if ever get to run at
+all.
+
+Felix

@@ -1,71 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbUDAPpd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 10:45:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbUDAPpd
+	id S262927AbUDAPzF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 10:55:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbUDAPzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 10:45:33 -0500
-Received: from bay2-f59.bay2.hotmail.com ([65.54.247.59]:57094 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261779AbUDAPp0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 10:45:26 -0500
-X-Originating-IP: [209.172.74.2]
-X-Originating-Email: [idht4n@hotmail.com]
-From: "David L" <idht4n@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: serial port canonical mode weirdness?
-Date: Thu, 01 Apr 2004 07:45:19 -0800
+	Thu, 1 Apr 2004 10:55:05 -0500
+Received: from mail.shareable.org ([81.29.64.88]:9877 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S262927AbUDAPzC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 10:55:02 -0500
+Date: Thu, 1 Apr 2004 16:54:20 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Peter Williams <peterw@aurema.com>,
+       arjanv@redhat.com, ak@muc.de, Richard.Curnow@superh.com, aeb@cwi.nl,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: finding out the value of HZ from userspace
+Message-ID: <20040401155420.GB25502@mail.shareable.org>
+References: <1079453698.2255.661.camel@cube> <20040320095627.GC2803@devserv.devel.redhat.com> <1079794457.2255.745.camel@cube> <405CDA9C.6090109@aurema.com> <20040331134009.76ca3b6d.rddunlap@osdl.org> <1080776817.2233.2326.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY2-F59A7JVwzf8pTL0003f16c@hotmail.com>
-X-OriginalArrivalTime: 01 Apr 2004 15:45:20.0123 (UTC) FILETIME=[565D2CB0:01C41800]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1080776817.2233.2326.camel@cube>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > When I configure a serial port for canonical mode (newtio.c_lflag = 
->ICANON),
-> > I get behavior that isn't what I'd expect.
->
->Can you supply the test program you're using on the receive end?
->
->--
-#include <termios.h>
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include <unistd.h>
+Albert Cahalan wrote:
+> If you rely on sysconf(_SC_CLK_TCK) to work, then
+> your software will support:
+> 
+> * all systems with a 2.6.xx kernel
+> * all systems with a 2.4.xx kernel and recent glibc
+> * all i386 systems running with the default HZ
+> 
+> That's quite a bit I suppose. Maybe you have no
+> interest in supporting a 1200 HZ Alpha with an old
+> kernel or glibc. Maybe you don't care about somebody
+> running a 2.2.xx kernel with modified HZ.
 
-#define BAUDRATE B38400
-#define SERIALDEVICE "/dev/ttyS0"
+I'm still unclear.  Does sysconf(_SC_CLK_TCK), when it is reliable,
+return HZ or USER_HZ?
 
-int main()
-{
-  int fd, res;
-  struct termios newtio;
-  unsigned char buf[10000];
-
-  fd = open(SERIALDEVICE, O_RDWR);
-  if (fd <0) {perror(SERIALDEVICE); return -1; }
-
-  bzero(&newtio, sizeof(newtio));
-
-  newtio.c_cflag = BAUDRATE | CS8 | CLOCAL | CREAD;
-  newtio.c_iflag = IGNPAR;
-  newtio.c_lflag = ICANON;
-
-  newtio.c_cc[VEOL]     = 0x0D;
-
-  tcsetattr(fd,TCSANOW,&newtio);
-
-  while (1) {
-    res = read(fd,buf,9000);
-    printf("%d bytes read (%d)\n", res, errno);
-    printf("%02X %02X %02X %02X %02X %02X\n", 
-buf[0],buf[1],buf[2],buf[3],buf[4],buf[5]);
-  }
-}
-
-_________________________________________________________________
-FREE pop-up blocking with the new MSN Toolbar – get it now! 
-http://toolbar.msn.com/go/onm00200415ave/direct/01/
-
+-- Jamie

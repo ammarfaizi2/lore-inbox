@@ -1,98 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266996AbUBEW50 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 17:57:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267046AbUBEW50
+	id S267037AbUBEWuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 17:50:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267036AbUBEWuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 17:57:26 -0500
-Received: from mail3.iserv.net ([204.177.184.153]:12754 "EHLO mail3.iserv.net")
-	by vger.kernel.org with ESMTP id S266996AbUBEW5W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 17:57:22 -0500
-Message-ID: <4022CA25.8070507@didntduck.org>
-Date: Thu, 05 Feb 2004 17:56:37 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
+	Thu, 5 Feb 2004 17:50:23 -0500
+Received: from perkunas4.omnitel.net ([194.176.32.101]:4279 "EHLO
+	perkunas4.omnitel.net") by vger.kernel.org with ESMTP
+	id S267037AbUBEWtP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 17:49:15 -0500
+Message-ID: <4022C869.10805@e-net.lt>
+Date: Fri, 06 Feb 2004 00:49:13 +0200
+From: Simonas Leleiva <Simonas.Leleiva@e-net.lt>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Tillier, Fabian" <ftillier@infiniconsys.com>
-CC: Greg KH <greg@kroah.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       sean.hefty@intel.com, linux-kernel@vger.kernel.org, hozer@hozed.org,
-       woody@co.intel.com, bill.magro@intel.com, woody@jf.intel.com,
-       infiniband-general@lists.sourceforge.net
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in theLinux
- kernel
-References: <08628CA53C6CBA4ABAFB9E808A5214CB01DB96FA@mercury.infiniconsys.com>
-In-Reply-To: <08628CA53C6CBA4ABAFB9E808A5214CB01DB96FA@mercury.infiniconsys.com>
+To: linux-kernel@vger.kernel.org
+Subject: benchmarking bandwidth Northbridge<->RAM
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tillier, Fabian wrote:
-> Greg,
-> 
-> I'm not arguing about the spinlocks here, and never have.  I'm arguing
-> about the atomic abstraction for the x86 platforms.  My last question
-> was not a yes/no question so I'm not sure what you're answering with
-> your "No" - your reply makes no sense.  To clarify, the answer to a
-> "chose one of two things" question is not "No".  Basic XOR logic is all
-> that's needed here.  I'm not sure what you're asking about with the
-> whole quotations thing.
-> 
-> Having atomic operations return a value allows one to do something like
-> test for zero when decrementing an atomic variable such as a reference
-> count, to determine whether final cleanup should proceed.  This removes
-> the need for an actual spinlock protecting the reference count.  As you
-> know, reading the value post-decrement does not guarantee that said
-> value reflects the result of only that decrement operation.  It would be
-> catastrophic if two threads checked the value of a reference count
-> without proper synchronization - they could both end up running the
-> cleanup code with undesired (and perhaps catastrophic) results.
-> 
-> I'll try a simple example for you assuming atomic_dec returns the
-> decremented value:
-> 
-> if( atomic_dec( x ) == 0 )
-> {
->     cleanup();
-> }
 
-I guess you missed this then:
-/**
-  * atomic_dec_and_test - decrement and test
-  * @v: pointer of type atomic_t
-  *
-  * Atomically decrements @v by 1 and
-  * returns true if the result is 0, or false for all other
-  * cases.  Note that the guaranteed
-  * useful range of an atomic_t is only 24 bits.
-  */
+Hello all,
 
-There is also atomic_dec_and_lock():
-/*
-  * This is an architecture-neutral, but slow,
-  * implementation of the notion of "decrement
-  * a reference count, and return locked if it
-  * decremented to zero".
-  *
-  * NOTE NOTE NOTE! This is _not_ equivalent to
-  *
-  *      if (atomic_dec_and_test(&atomic)) {
-  *              spin_lock(&lock);
-  *              return 1;
-  *      }
-  *      return 0;
-  *
-  * because the spin-lock and the decrement must be
-  * "atomic".
-  *
-  * This slow version gets the spinlock unconditionally,
-  * and releases it if it isn't needed. Architectures
-  * are encouraged to come up with better approaches,
-  * this is trivially done efficiently using a load-locked
-  * store-conditional approach, for example.
-  */
+I'm writing a benchmarking program under Linux.
+
+Here's what I do (and what I sadly find inefficient):
+
+1. I use the PCI_MEMORY_BAR0 address from the PCI device 00:00.0 (as
+given in 'lspci' it's the Host (or North) bridge) and then I mmap the
+opened /dev/mem with this address into user space, as it would be done
+with any PCI device, which memory I want to access.
+
+2. I manipulate on the returned pointer and the malloc'ed pointer (to
+represent RAM) with memset command, keeping in mind that: A time for
+data to flow between NB and RAM is equal to the time a RAM<->RAM
+operation is completed minus the one with NB<->RAM (as I asume the
+data goes RAM->NB->CPU->NB->RAM and NB->CPU->NB->RAM).
+
+Now my doubts on each step mentioned above are:
+
+1. Is such approach corrent? I doubt, because I've come across with
+such Host bridges, which do NOT have an addresable memory region (on
+my AMD Athlon NB starts @ 0xd0000000 and is of 128MB length; elsewhere
+I've found it starting @ 0xe8000000-32MB, but recently my programme
+crashed because the were NO addressable PCI region to the Host
+bridge).
+   After all, is this the way to directly accessing NB?
+
+2. But what about L1/L2 caching ruining the benchmark, about which I judge
+from very big results (~5GB/s is truly not the correct benchmark with my
+2x166MHz RAM and 64bit bus - in the best case it should not overflow
+2.5GB/s)? I've searched the web for cache disablings, but what I've only
+found was the memtest's source-code, which works only under plain non-Linux
+(non PM) environment (memtest makes a bootable floppy and then launches 'bare
+naked'). So I find memtest's inline assembly useless under linux..
+   The present workaround is to launch my benchmark with different set of
+mem-chunks, and observing a speed-decrease at the specific size (when the
+chunk doesn't fit in cache. In my case - decrease from 5GB/s to 2.9GB/s -
+still too big..) and then treat that sized-chunks to be the actual benchmark
+results.. However, part of the chunk may lay in cache anyway..
+
+Where am I thinking wrong? Hope to get a tip from you out-there :)
+
+Hear ya (hopefully soon) !
 
 --
-				Brian Gerst
+Simon
+
+
+

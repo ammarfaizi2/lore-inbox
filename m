@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262288AbVCPHue@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262289AbVCPHur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262288AbVCPHue (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 02:50:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbVCPHue
+	id S262289AbVCPHur (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 02:50:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262290AbVCPHur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 02:50:34 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:42217 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262288AbVCPHu2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 02:50:28 -0500
-Date: Wed, 16 Mar 2005 02:50:17 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-Reply-To: rostedt@goodmis.org
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
-In-Reply-To: <1110913778.17931.2.camel@mindpipe>
-Message-ID: <Pine.LNX.4.58.0503160237410.11824@localhost.localdomain>
-References: <Pine.LNX.4.58.0503111440190.22043@localhost.localdomain> 
- <1110574019.19093.23.camel@mindpipe> <1110578809.19661.2.camel@mindpipe> 
- <Pine.LNX.4.58.0503140214360.697@localhost.localdomain> 
- <Pine.LNX.4.58.0503140427560.697@localhost.localdomain> 
- <Pine.LNX.4.58.0503140509170.697@localhost.localdomain> 
- <Pine.LNX.4.58.0503141024530.697@localhost.localdomain> 
- <Pine.LNX.4.58.0503150641030.6456@localhost.localdomain>  <20050315120053.GA4686@elte.hu>
-  <Pine.LNX.4.58.0503150746110.6456@localhost.localdomain> 
- <20050315133540.GB4686@elte.hu>  <Pine.LNX.4.58.0503151150170.6456@localhost.localdomain>
- <1110913778.17931.2.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Mar 2005 02:50:47 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:24964 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S262289AbVCPHuj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 02:50:39 -0500
+Subject: softdog.c kernel 2.4.29
+From: Jacques Basson <jacques_basson@myrealbox.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 16 Mar 2005 09:50:27 +0200
+Message-Id: <1110959428.10190.5.camel@lancelot.advanced-imaging-technologies>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
+There is a bug in the softdog.c (v 0.05) in the 2.4 kernel series
+(certainly in 2.4.29 and there are no references to it in the latest
+Changelog) that won't reboot the machine if /dev/watchdog is closed
+unexpectedly and nowayout is not set. The softdog.c (v 0.07) in 2.6.11
+is not affected, but I have been informed by the vendor of analog output
+cards that we use (ICP DAS) that they currently have no plans to port
+their driver to the 2.6 series.
 
-On Tue, 15 Mar 2005, Lee Revell wrote:
+Anyway, here is a simple patch that does the job. I hope that it is of
+use to someone:
 
-> On Tue, 2005-03-15 at 13:05 -0500, Steven Rostedt wrote:
-> > Damn! The answer was right there in front of my eyes! Here's the cleanest
-> > solution. I forgot about wait_on_bit_lock.  I've converted all the locks
-> > to use this instead.  We probably need to get priority inheritence working
-> > on this too someday, but for now it's better than wasting memory or
-> > getting into deadlocks.
-> >
->
-> I am still not clear on why this did not hit with earlier kernels +
-> PREEMPT_DESKTOP.  Were the bitlocks introduced recently?  Or was another
-> lock-break patch dropped?
->
+diff -Naur softdog.c.orig softdog.c
+--- softdog.c.orig      2003-11-28 20:26:20.000000000 +0200
++++ softdog.c   2005-03-16 09:12:34.000000000 +0200
+@@ -124,7 +124,7 @@
+         *      Shut off the timer.
+         *      Lock it in if it's a module and we set nowayout
+         */
+-       if (expect_close || nowayout == 0) {
++       if (expect_close && nowayout == 0) {
+                del_timer(&watchdog_ticktock);
+        } else {
+                printk(KERN_CRIT "SOFTDOG: WDT device closed
+unexpectedly.  WDT will not stop!\n");
 
-When did you start seeing this? This code has been there as far back as
-2.6.7 (the earliest 2.6 kernel I still have laying around) and as far
-back as Ingo's realtime-preempt-2.6.9-mm1-U10. Maybe the tracing didn't
-start picking this up till later, or that you were just lucky that no
-contention was happening on that lock.
-
--- Steve
+Jacques
 

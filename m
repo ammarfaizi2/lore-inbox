@@ -1,39 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262358AbSJ0LCT>; Sun, 27 Oct 2002 06:02:19 -0500
+	id <S262357AbSJ0LCG>; Sun, 27 Oct 2002 06:02:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262360AbSJ0LCT>; Sun, 27 Oct 2002 06:02:19 -0500
-Received: from rth.ninka.net ([216.101.162.244]:43434 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S262358AbSJ0LCR>;
-	Sun, 27 Oct 2002 06:02:17 -0500
-Subject: Re: SCSI host changes, multi-path crap
-From: "David S. Miller" <davem@redhat.com>
-To: John W Fort <johnf@whitsunday.net.au>
-Cc: patmans@us.ibm.com, andmike@us.ibm.com, linux-kernel@vger.kernel.org
-In-Reply-To: <jqumrucl0cu7i9vtr186d05difvcipdk0l@4ax.com>
-References: <jqumrucl0cu7i9vtr186d05difvcipdk0l@4ax.com>
-Content-Type: text/plain
+	id <S262358AbSJ0LCG>; Sun, 27 Oct 2002 06:02:06 -0500
+Received: from bohnice.netroute.lam.cz ([212.71.169.62]:11773 "EHLO
+	shunka.yo.cz") by vger.kernel.org with ESMTP id <S262357AbSJ0LCF>;
+	Sun, 27 Oct 2002 06:02:05 -0500
+Message-ID: <002501c27da9$2524d0f0$4500a8c0@cybernet.cz>
+From: "=?iso-8859-2?B?VmxhZGlt7XIgVPhlYmlja/0=?=" <guru@cimice.yo.cz>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: Swap doesn't work
+Date: Sun, 27 Oct 2002 12:07:44 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 27 Oct 2002 03:21:37 -0800
-Message-Id: <1035717697.26897.2.camel@rth.ninka.net>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-10-26 at 22:39, John W Fort wrote:
-> HEY! andmike and patmans of @us.ibm.com YOU FUCKED UP.
+> You change hostname inbetween or this is just a typo?
 
-I think you own these two gentlemen a great big apology.
-Their changes were cleanups and relevant to everyone.
+yes, I did ;-)
 
-How come you didn't flame Doug Ledford or Jens Axboe
-when they broke the build of a few scsi drivers due to
-their changes, or anyone else for that matter?
+> Wow. Any of the errors above prevents swap partition from being used.
+> How did you manage to see anything in /proc/swaps?
+> I suggest you do:
+>  swapoff /dev/hda6
+>  badblocks /dev/hda6
 
-Furthermore, even a 2 second glance by a competent C programmer
-can get these driver builds fixed, in fact what you end up needing
-to do is deleting the lines the compiler is complaining about.
+Badblocks finds each time ONE bad block at the end of the partition no
+matter where I create it or how large the partition is. Syslog shows this
+message:
+Oct 27 10:57:45 shunka kernel: attempt to access beyond end of device
+Oct 27 10:57:45 shunka kernel: 03:06: rw=0, want=594376, limit=594373
+Oct 27 10:57:45 shunka kernel: attempt to access beyond end of device
+Oct 27 10:57:45 shunka kernel: 03:06: rw=0, want=594376, limit=594373
 
-Again, you owe these people an apology for your childish outburst.
+> Alternatively, you can try
+>
+> dd if=/dev/zero of=/dev/hda6; mkswap /dev/hda6
+>
+
+the same occurs when I try to
+dd if=/dev/zero of=/dev/hda6 bs=1024 count=594373
+dd: writing `/dev/hda6': Input/output error
+594373+0 records in
+594372+0 records out
+---
+Oct 27 11:40:40 shunka kernel: attempt to access beyond end of device
+Oct 27 11:40:40 shunka kernel: 03:06: rw=0, want=594376, limit=594373
+
+I've tried many times to repartition the whole disk...
+
+> Look for "SWAP-SPACE" (old swap) or "SWAPSPACE2" (the new one).
+> Just to make sure you've initialized the partition properly.
+> Than turn it on: swapon /dev/hda6; tail /var/log/syslog
+
+where should I try to find it? ("SWAP-SPACE" | "SWAPSPACE2")
+
+> Oops, you've sent, is pretty useless without decoding. Read
+> Documentation/oops-tracing.txt from the kernel source tree.
+
+I have some problem with ksymoops - some unresolved symbols. I read about it
+and problems with binutils and their libraries. I hope, I'll solve this
+quick.
+
+What means the problems I (only) once noticed about the signature?
+
+Thanks,
+
+Vladimir Trebicky
+
+--
+Vladimir Trebicky
+guru@cimice.yo.cz
 

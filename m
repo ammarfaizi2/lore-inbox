@@ -1,57 +1,153 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263376AbTLXCch (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 21:32:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263378AbTLXCch
+	id S263460AbTLXC3b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 21:29:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTLXC3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 21:32:37 -0500
-Received: from amber.ccs.neu.edu ([129.10.116.51]:51918 "EHLO
-	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S263376AbTLXCcf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 21:32:35 -0500
-Subject: Re: DevFS vs. udev
-From: Stan Bubrouski <stan@ccs.neu.edu>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1072232566.3826.8.camel@fur>
-References: <Pine.LNX.4.33.0312241012460.890-100000@wombat.indigo.net.au>
-	 <1072232566.3826.8.camel@fur>
-Content-Type: text/plain
-Message-Id: <1072233153.2947.171.camel@duergar>
+	Tue, 23 Dec 2003 21:29:31 -0500
+Received: from zero.voxel.net ([209.123.232.253]:57567 "EHLO zero.voxel.net")
+	by vger.kernel.org with ESMTP id S263460AbTLXC3Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 21:29:25 -0500
+Subject: [PATCH 7/7] more CardServices() removals (drivers/net/wireless)
+From: Andres Salomon <dilinger@voxel.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org,
+       corey@world.std.com
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-RO6oepfZnRYba+I9z4l1"
+Message-Id: <1072229927.5300.74.camel@spiral.internal>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 23 Dec 2003 21:32:35 -0500
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 23 Dec 2003 21:20:21 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-12-23 at 21:22, Rob Love wrote:
-> On Tue, 2003-12-23 at 21:21, Ian Kent wrote:
-> 
-> > I understand your view but my point here (at this stage) is not
-> > necessarily to revive devfs development but to provide some maintenance
-> > only support for those that need it during the (what appears to be
-> > inevitable) transition. In particular, keeping it around while people
-> > still need it.
-> > 
-> > My mother always said I was deaf.
-> 
-> Well, good luck to you :)
-> 
-> Do not say no one warned you!
-> 
 
-Do you think Linus would even accept patches for this?  I'm just
-curious, are bugfixes still going into it at all?
+--=-RO6oepfZnRYba+I9z4l1
+Content-Type: multipart/mixed; boundary="=-r7KXu/xyMsMyEEPGocGA"
 
--sb
 
-> 	Rob Love
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+--=-r7KXu/xyMsMyEEPGocGA
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Part 7 of 7.
+
+--=-r7KXu/xyMsMyEEPGocGA
+Content-Disposition: attachment; filename=107-cs_remove.patch
+Content-Type: text/x-patch; name=107-cs_remove.patch; charset=us-ascii
+Content-Transfer-Encoding: base64
+
+UmV2aXNpb246IGxpbnV4LS1tYWlubGluZS0tMi42LS1wYXRjaC0zNg0KQXJjaGl2ZTogZGlsaW5n
+ZXJAdm94ZWwubmV0LS0yMDAzLXNwaXJhbA0KQ3JlYXRvcjogQW5kcmVzIFNhbG9tb24gPGRpbGlu
+Z2VyQHZveGVsLm5ldD4NCkRhdGU6IFR1ZSBEZWMgMjMgMTk6MTc6NDYgRVNUIDIwMDMNClN0YW5k
+YXJkLWRhdGU6IDIwMDMtMTItMjQgMDA6MTc6NDYgR01UDQpNb2RpZmllZC1maWxlczogZHJpdmVy
+cy9uZXQvd2lyZWxlc3MvcmF5X2NzLmMNCk5ldy1wYXRjaGVzOiBkaWxpbmdlckB2b3hlbC5uZXQt
+LTIwMDMtc3BpcmFsL2xpbnV4LS1tYWlubGluZS0tMi42LS1wYXRjaC0zNg0KU3VtbWFyeTogQ2Fy
+ZFNlcnZpY2VzKCkgcmVtb3ZhbCwgYWN0IDIsIHB0LiA3Lg0KS2V5d29yZHM6IA0KDQpPaywgdGhp
+cyBpc24ndCByZWFsbHkgYSBDYXJkU2VydmljZXMoKSByZW1vdmFsIHBhdGNoOyBpdCBsb29rcyBs
+aWtlDQpzb21lb25lIGFscmVhZHkgdG9vayBjYXJlIG9mIHRoaXMgZmlsZS4gIEhvd2V2ZXIsIHRo
+ZSBtb2RpZmllZCBDU19DSEVDSygpDQptYWNybyBkb2Vzbid0IGZpbGwgaW4gJ2xhc3RfZm4nLiAg
+VGhpcyBwYXRjaCBmaXhlcyB0aGF0Lg0KDQoqIGFkZGVkIGZpbGVzDQoNCiAgICB7YXJjaH0vbGlu
+dXgvbGludXgtLW1haW5saW5lL2xpbnV4LS1tYWlubGluZS0tMi42L2RpbGluZ2VyQHZveGVsLm5l
+dC0tMjAwMy1zcGlyYWwvcGF0Y2gtbG9nL3BhdGNoLTM2DQoNCiogbW9kaWZpZWQgZmlsZXMNCg0K
+LS0tIG9yaWcvZHJpdmVycy9uZXQvd2lyZWxlc3MvcmF5X2NzLmMNCisrKyBtb2QvZHJpdmVycy9u
+ZXQvd2lyZWxlc3MvcmF5X2NzLmMNCkBAIC00MjAsNyArNDIwLDcgQEANCiAgICAgY2xpZW50X3Jl
+Zy5WZXJzaW9uID0gMHgwMjEwOw0KICAgICBjbGllbnRfcmVnLmV2ZW50X2NhbGxiYWNrX2FyZ3Mu
+Y2xpZW50X2RhdGEgPSBsaW5rOw0KIA0KLSAgICBERUJVRygyLCJyYXlfY3MgcmF5X2F0dGFjaCBj
+YWxsaW5nIENhcmRTZXJ2aWNlcyhSZWdpc3RlckNsaWVudC4uLilcbiIpOw0KKyAgICBERUJVRygy
+LCJyYXlfY3MgcmF5X2F0dGFjaCBjYWxsaW5nIHBjbWNpYV9yZWdpc3Rlcl9jbGllbnQoLi4uKVxu
+Iik7DQogDQogICAgIGluaXRfdGltZXIoJmxvY2FsLT50aW1lcik7DQogDQpAQCAtNDkwLDggKzQ5
+MCw4IEBADQogICAgIGlzIHJlY2VpdmVkLCB0byBjb25maWd1cmUgdGhlIFBDTUNJQSBzb2NrZXQs
+IGFuZCB0byBtYWtlIHRoZQ0KICAgICBldGhlcm5ldCBkZXZpY2UgYXZhaWxhYmxlIHRvIHRoZSBz
+eXN0ZW0uDQogPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0qLw0KLSNkZWZpbmUgQ1NfQ0hFQ0soZm4sIGFy
+Z3MuLi4pIFwNCi13aGlsZSAoKGxhc3RfcmV0PWZuKGFyZ3MpKSE9MCkgZ290byBjc19mYWlsZWQN
+CisjZGVmaW5lIENTX0NIRUNLKGZuLCByZXQpIFwNCitkbyB7IGxhc3RfZm4gPSAoZm4pOyBpZiAo
+KGxhc3RfcmV0ID0gKHJldCkpICE9IDApIGdvdG8gY3NfZmFpbGVkOyB9IHdoaWxlICgwKQ0KICNk
+ZWZpbmUgTUFYX1RVUExFX1NJWkUgMTI4DQogc3RhdGljIHZvaWQgcmF5X2NvbmZpZyhkZXZfbGlu
+a190ICpsaW5rKQ0KIHsNCkBAIC01MTAsMjMgKzUxMCwyMyBAQA0KIA0KICAgICAvKiBUaGlzIHJl
+YWRzIHRoZSBjYXJkJ3MgQ09ORklHIHR1cGxlIHRvIGZpbmQgaXRzIGNvbmZpZ3VyYXRpb24gcmVn
+cyAqLw0KICAgICB0dXBsZS5EZXNpcmVkVHVwbGUgPSBDSVNUUExfQ09ORklHOw0KLSAgICBDU19D
+SEVDSyhwY21jaWFfZ2V0X2ZpcnN0X3R1cGxlLCBoYW5kbGUsICZ0dXBsZSk7DQorICAgIENTX0NI
+RUNLKEdldEZpcnN0VHVwbGUsIHBjbWNpYV9nZXRfZmlyc3RfdHVwbGUoaGFuZGxlLCAmdHVwbGUp
+KTsNCiAgICAgdHVwbGUuVHVwbGVEYXRhID0gYnVmOw0KICAgICB0dXBsZS5UdXBsZURhdGFNYXgg
+PSBNQVhfVFVQTEVfU0laRTsNCiAgICAgdHVwbGUuVHVwbGVPZmZzZXQgPSAwOw0KLSAgICBDU19D
+SEVDSyhwY21jaWFfZ2V0X3R1cGxlX2RhdGEsIGhhbmRsZSwgJnR1cGxlKTsNCi0gICAgQ1NfQ0hF
+Q0socGNtY2lhX3BhcnNlX3R1cGxlLCBoYW5kbGUsICZ0dXBsZSwgJnBhcnNlKTsNCisgICAgQ1Nf
+Q0hFQ0soR2V0VHVwbGVEYXRhLCBwY21jaWFfZ2V0X3R1cGxlX2RhdGEoaGFuZGxlLCAmdHVwbGUp
+KTsNCisgICAgQ1NfQ0hFQ0soUGFyc2VUdXBsZSwgcGNtY2lhX3BhcnNlX3R1cGxlKGhhbmRsZSwg
+JnR1cGxlLCAmcGFyc2UpKTsNCiAgICAgbGluay0+Y29uZi5Db25maWdCYXNlID0gcGFyc2UuY29u
+ZmlnLmJhc2U7DQogICAgIGxpbmstPmNvbmYuUHJlc2VudCA9IHBhcnNlLmNvbmZpZy5ybWFza1sw
+XTsNCiANCiAgICAgLyogRGV0ZXJtaW5lIGNhcmQgdHlwZSBhbmQgZmlybXdhcmUgdmVyc2lvbiAq
+Lw0KICAgICBidWZbMF0gPSBidWZbTUFYX1RVUExFX1NJWkUgLSAxXSA9IDA7DQogICAgIHR1cGxl
+LkRlc2lyZWRUdXBsZSA9IENJU1RQTF9WRVJTXzE7DQotICAgIENTX0NIRUNLKHBjbWNpYV9nZXRf
+Zmlyc3RfdHVwbGUsIGhhbmRsZSwgJnR1cGxlKTsNCisgICAgQ1NfQ0hFQ0soR2V0Rmlyc3RUdXBs
+ZSwgcGNtY2lhX2dldF9maXJzdF90dXBsZShoYW5kbGUsICZ0dXBsZSkpOw0KICAgICB0dXBsZS5U
+dXBsZURhdGEgPSBidWY7DQogICAgIHR1cGxlLlR1cGxlRGF0YU1heCA9IE1BWF9UVVBMRV9TSVpF
+Ow0KICAgICB0dXBsZS5UdXBsZU9mZnNldCA9IDI7DQotICAgIENTX0NIRUNLKHBjbWNpYV9nZXRf
+dHVwbGVfZGF0YSwgaGFuZGxlLCAmdHVwbGUpOw0KKyAgICBDU19DSEVDSyhHZXRUdXBsZURhdGEs
+IHBjbWNpYV9nZXRfdHVwbGVfZGF0YShoYW5kbGUsICZ0dXBsZSkpOw0KIA0KICAgICBmb3IgKGk9
+MDsgaTx0dXBsZS5UdXBsZURhdGFMZW4gLSA0OyBpKyspIA0KICAgICAgICAgaWYgKGJ1ZltpXSA9
+PSAwKSBidWZbaV0gPSAnICc7DQpAQCAtNTM4LDIyICs1MzgsMjIgQEANCiAgICAgLyogTm93IGFs
+bG9jYXRlIGFuIGludGVycnVwdCBsaW5lLiAgTm90ZSB0aGF0IHRoaXMgZG9lcyBub3QNCiAgICAg
+ICAgYWN0dWFsbHkgYXNzaWduIGEgaGFuZGxlciB0byB0aGUgaW50ZXJydXB0Lg0KICAgICAqLw0K
+LSAgICBDU19DSEVDSyhwY21jaWFfcmVxdWVzdF9pcnEsIGxpbmstPmhhbmRsZSwgJmxpbmstPmly
+cSk7DQorICAgIENTX0NIRUNLKFJlcXVlc3RJUlEsIHBjbWNpYV9yZXF1ZXN0X2lycShsaW5rLT5o
+YW5kbGUsICZsaW5rLT5pcnEpKTsNCiAgICAgZGV2LT5pcnEgPSBsaW5rLT5pcnEuQXNzaWduZWRJ
+UlE7DQogICAgIA0KICAgICAvKiBUaGlzIGFjdHVhbGx5IGNvbmZpZ3VyZXMgdGhlIFBDTUNJQSBz
+b2NrZXQgLS0gc2V0dGluZyB1cA0KICAgICAgICB0aGUgSS9PIHdpbmRvd3MgYW5kIHRoZSBpbnRl
+cnJ1cHQgbWFwcGluZy4NCiAgICAgKi8NCi0gICAgQ1NfQ0hFQ0socGNtY2lhX3JlcXVlc3RfY29u
+ZmlndXJhdGlvbiwgbGluay0+aGFuZGxlLCAmbGluay0+Y29uZik7DQorICAgIENTX0NIRUNLKFJl
+cXVlc3RDb25maWd1cmF0aW9uLCBwY21jaWFfcmVxdWVzdF9jb25maWd1cmF0aW9uKGxpbmstPmhh
+bmRsZSwgJmxpbmstPmNvbmYpKTsNCiANCiAvKioqIFNldCB1cCAzMmsgd2luZG93IGZvciBzaGFy
+ZWQgbWVtb3J5ICh0cmFuc21pdCBhbmQgY29udHJvbCkgKioqKioqKioqKioqLw0KICAgICByZXEu
+QXR0cmlidXRlcyA9IFdJTl9EQVRBX1dJRFRIXzggfCBXSU5fTUVNT1JZX1RZUEVfQ00gfCBXSU5f
+RU5BQkxFIHwgV0lOX1VTRV9XQUlUOw0KICAgICByZXEuQmFzZSA9IDA7DQogICAgIHJlcS5TaXpl
+ID0gMHg4MDAwOw0KICAgICByZXEuQWNjZXNzU3BlZWQgPSByYXlfbWVtX3NwZWVkOw0KLSAgICBD
+U19DSEVDSyhwY21jaWFfcmVxdWVzdF93aW5kb3csICZsaW5rLT5oYW5kbGUsICZyZXEsICZsaW5r
+LT53aW4pOw0KKyAgICBDU19DSEVDSyhSZXF1ZXN0V2luZG93LCBwY21jaWFfcmVxdWVzdF93aW5k
+b3coJmxpbmstPmhhbmRsZSwgJnJlcSwgJmxpbmstPndpbikpOw0KICAgICBtZW0uQ2FyZE9mZnNl
+dCA9IDB4MDAwMDsgbWVtLlBhZ2UgPSAwOw0KLSAgICBDU19DSEVDSyhwY21jaWFfbWFwX21lbV9w
+YWdlLCBsaW5rLT53aW4sICZtZW0pOw0KKyAgICBDU19DSEVDSyhNYXBNZW1QYWdlLCBwY21jaWFf
+bWFwX21lbV9wYWdlKGxpbmstPndpbiwgJm1lbSkpOw0KICAgICBsb2NhbC0+c3JhbSA9IChVQ0hB
+UiAqKShpb3JlbWFwKHJlcS5CYXNlLHJlcS5TaXplKSk7DQogDQogLyoqKiBTZXQgdXAgMTZrIHdp
+bmRvdyBmb3Igc2hhcmVkIG1lbW9yeSAocmVjZWl2ZSBidWZmZXIpICoqKioqKioqKioqKioqKi8N
+CkBAIC01NjEsOSArNTYxLDkgQEANCiAgICAgcmVxLkJhc2UgPSAwOw0KICAgICByZXEuU2l6ZSA9
+IDB4NDAwMDsNCiAgICAgcmVxLkFjY2Vzc1NwZWVkID0gcmF5X21lbV9zcGVlZDsNCi0gICAgQ1Nf
+Q0hFQ0socGNtY2lhX3JlcXVlc3Rfd2luZG93LCAmbGluay0+aGFuZGxlLCAmcmVxLCAmbG9jYWwt
+PnJtZW1faGFuZGxlKTsNCisgICAgQ1NfQ0hFQ0soUmVxdWVzdFdpbmRvdywgcGNtY2lhX3JlcXVl
+c3Rfd2luZG93KCZsaW5rLT5oYW5kbGUsICZyZXEsICZsb2NhbC0+cm1lbV9oYW5kbGUpKTsNCiAg
+ICAgbWVtLkNhcmRPZmZzZXQgPSAweDgwMDA7IG1lbS5QYWdlID0gMDsNCi0gICAgQ1NfQ0hFQ0so
+cGNtY2lhX21hcF9tZW1fcGFnZSwgbG9jYWwtPnJtZW1faGFuZGxlLCAmbWVtKTsNCisgICAgQ1Nf
+Q0hFQ0soTWFwTWVtUGFnZSwgcGNtY2lhX21hcF9tZW1fcGFnZShsb2NhbC0+cm1lbV9oYW5kbGUs
+ICZtZW0pKTsNCiAgICAgbG9jYWwtPnJtZW0gPSAoVUNIQVIgKikoaW9yZW1hcChyZXEuQmFzZSxy
+ZXEuU2l6ZSkpOw0KIA0KIC8qKiogU2V0IHVwIHdpbmRvdyBmb3IgYXR0cmlidXRlIG1lbW9yeSAq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKi8NCkBAIC01NzEsOSArNTcxLDkgQEAN
+CiAgICAgcmVxLkJhc2UgPSAwOw0KICAgICByZXEuU2l6ZSA9IDB4MTAwMDsNCiAgICAgcmVxLkFj
+Y2Vzc1NwZWVkID0gcmF5X21lbV9zcGVlZDsNCi0gICAgQ1NfQ0hFQ0socGNtY2lhX3JlcXVlc3Rf
+d2luZG93LCAmbGluay0+aGFuZGxlLCAmcmVxLCAmbG9jYWwtPmFtZW1faGFuZGxlKTsNCisgICAg
+Q1NfQ0hFQ0soUmVxdWVzdFdpbmRvdywgcGNtY2lhX3JlcXVlc3Rfd2luZG93KCZsaW5rLT5oYW5k
+bGUsICZyZXEsICZsb2NhbC0+YW1lbV9oYW5kbGUpKTsNCiAgICAgbWVtLkNhcmRPZmZzZXQgPSAw
+eDAwMDA7IG1lbS5QYWdlID0gMDsNCi0gICAgQ1NfQ0hFQ0socGNtY2lhX21hcF9tZW1fcGFnZSwg
+bG9jYWwtPmFtZW1faGFuZGxlLCAmbWVtKTsNCisgICAgQ1NfQ0hFQ0soTWFwTWVtUGFnZSwgcGNt
+Y2lhX21hcF9tZW1fcGFnZShsb2NhbC0+YW1lbV9oYW5kbGUsICZtZW0pKTsNCiAgICAgbG9jYWwt
+PmFtZW0gPSAoVUNIQVIgKikoaW9yZW1hcChyZXEuQmFzZSxyZXEuU2l6ZSkpOw0KIA0KICAgICBE
+RUJVRygzLCJyYXlfY29uZmlnIHNyYW09JXBcbiIsbG9jYWwtPnNyYW0pOw0KDQoNCg0K
+
+--=-r7KXu/xyMsMyEEPGocGA--
+
+--=-RO6oepfZnRYba+I9z4l1
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/6O4n78o9R9NraMQRArTAAKCHIQYxey3JwzoZTIRDvuJgMkmYOQCePPqW
+yoPFjGNOxrgRJjSbxmXm/8c=
+=TnwI
+-----END PGP SIGNATURE-----
+
+--=-RO6oepfZnRYba+I9z4l1--
 

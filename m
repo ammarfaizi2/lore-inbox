@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316884AbSE1T0M>; Tue, 28 May 2002 15:26:12 -0400
+	id <S316894AbSE1Tyv>; Tue, 28 May 2002 15:54:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316885AbSE1T0L>; Tue, 28 May 2002 15:26:11 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:510 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S316884AbSE1T0K>;
-	Tue, 28 May 2002 15:26:10 -0400
-Message-ID: <3CF3D9A4.29493860@mvista.com>
-Date: Tue, 28 May 2002 12:25:24 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Vojtech Pavlik <vojtech@suse.cz>, Manik Raina <manik@cisco.com>,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Add i8253 spinlocks where needed.
-In-Reply-To: <20020526142142.A17042@ucw.cz> <3CF1E296.41228517@cisco.com>
-		<20020527113757.A26574@ucw.cz> <3CF20548.3ED40699@cisco.com> 
-		<20020527121001.B26811@ucw.cz> <1022500580.11859.252.camel@irongate.swansea.linux.org.uk>
+	id <S316895AbSE1Tyu>; Tue, 28 May 2002 15:54:50 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:3211 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316894AbSE1Tyt>;
+	Tue, 28 May 2002 15:54:49 -0400
+Date: Wed, 29 May 2002 01:27:26 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: Dave Miller <davem@redhat.com>, Paul McKenney <paul.mckenney@us.ibm.com>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Andi Kleen <ak@suse.de>
+Subject: Re: 8-CPU (SMP) #s for lockfree rtcache
+Message-ID: <20020529012726.A23469@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> On Mon, 2002-05-27 at 11:10, Vojtech Pavlik wrote:
-> > Well, probably yes, but still hd.c is a glacial relict, a driver nobody
-> > (almost - it's for non-IDE "two ribbon" AT harddrives) uses. So this
-> > driver is probably not enough justification for a global (as in all
-> > archs) spinlock being added.
-> 
-> It only uses the timer in the case that HD_DELAY > 0. This code is
-> ultimately used for timing functions. A better approach would be to
-> remove the use of the timer chip from the file entirely and use the
-> perfectly adequate udelay() function instead.
-> 
-> That would also conveniently make it do cpu_relax properly improving the
-> performance of your ancient IDE controller when plugged into
-> hyperthreading pentium IV 8)
-> 
-It would also allow the high-res-timers to "mess" with the
-timer (as it does) to generate sub-jiffie interrupts. 
-Actually, I would prefer moving the timer out of the general
-code and making what ever uses it has come thru an
-abstraction that hides exactly how it is done or even if it
-access the timer chip or uses some other time source.  This
-could also be done accross archs.  It is also possible that
-code such as udelay() and friends already do all that is
-needed.  In short, I think the clock code should "own" the
-timer and others should have to use what ever the clock code
-exports.
 
+Hi Alan,
 
+In article <1022609447.4123.126.camel@irongate.swansea.linux.org.uk> Alan Cox wrote:
+> On Tue, 2002-05-28 at 17:34, Andi Kleen wrote:
+>> And gain tons of new atomic_incs and decs everywhere in the process?  
+>> I would prefer RCU. 
+
+> Lots of people write drivers, many of them not SMP kernel locking gurus
+> who have time to understand RCU and when they can or cannot sleep, and
+> what happens if their unload is pre-empted and RCU is in use. The kernel
+> core has to provide a clean easy interface. The network code is a superb
+> example of this. All the hard thinking is done outside of the driver, at
+> least unless you choose to join in that thinking to get the last scraps
+> of performance.
+
+FWIW, recent RCU implementations support preemption. synchronize_kernel()
+in rcu_poll_preempt patches use call_rcu_preempt() where callbacks
+wait until all CPUs have done a voluntary context switch.
+See http://prdownloads.sourceforge.net/lse/rcu_poll_preempt-2.5.14-2.patch
+
+Thanks
 -- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

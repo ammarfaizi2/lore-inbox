@@ -1,77 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265101AbRGEM7k>; Thu, 5 Jul 2001 08:59:40 -0400
+	id <S265111AbRGEM7l>; Thu, 5 Jul 2001 08:59:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265111AbRGEM7a>; Thu, 5 Jul 2001 08:59:30 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:10254 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S265100AbRGEM7Q>; Thu, 5 Jul 2001 08:59:16 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Dan Maas" <dmaas@dcine.com>
-Subject: Re: VM Requirement Document - v0.0
-Date: Thu, 5 Jul 2001 15:02:51 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <fa.jprli0v.qlofoc@ifi.uio.no> <fa.e66agbv.hn0u1v@ifi.uio.no> <002501c104f4$c40619b0$0701a8c0@morph>
-In-Reply-To: <002501c104f4$c40619b0$0701a8c0@morph>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Cc: <linux-kernel@vger.kernel.org>, Tom spaziani <digiphaze@deming-os.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Rik van Riel <riel@conectiva.com.br>
-Message-Id: <0107051502510F.03760@starship>
+	id <S265100AbRGEM7a>; Thu, 5 Jul 2001 08:59:30 -0400
+Received: from linux.kappa.ro ([194.102.255.131]:5014 "EHLO linux.kappa.ro")
+	by vger.kernel.org with ESMTP id <S265101AbRGEM7W>;
+	Thu, 5 Jul 2001 08:59:22 -0400
+X-RAV-AntiVirus: This e-mail has been scanned for viruses on host: linux.kappa.ro
+Date: Thu, 5 Jul 2001 16:00:27 +0300
+From: Mircea Damian <dmircea@kappa.ro>
+To: Thibaut Laurent <thibaut@celestix.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: [2.4.6] kernel BUG at softirq.c:206!
+Message-ID: <20010705160027.A14170@linux.kappa.ro>
+In-Reply-To: <20010704232816.B590@marvin.mahowi.de> <20010705104650.A2820@linux.kappa.ro> <20010705185243.2e3a942e.thibaut@celestix.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010705185243.2e3a942e.thibaut@celestix.com>; from thibaut@celestix.com on Thu, Jul 05, 2001 at 06:52:43PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 July 2001 03:49, you wrote:
-> > Getting the user's "interactive" programs loaded back
-> > in afterwards is a separate, much more difficult problem
-> > IMHO, but no doubt still has a reasonable solution.
->
-> Possibly stupid suggestion... Maybe the interactive/GUI programs should
-> wake up once in a while and touch a couple of their pages? Go too far with
-> this and you'll just get in the way of performance, but I don't think it
-> would hurt to have processes waking up every couple of minutes and touching
-> glibc, libqt, libgtk, etc so they stay hot in memory... A very slow
-> incremental "caress" of the address space could eliminate the
-> "I-just-logged-in-this-morning-and-dammit-everything-has-been-paged-out"
-> problem.
+On Thu, Jul 05, 2001 at 06:52:43PM +0800, Thibaut Laurent wrote:
+> Hi,
+> 
+> I posted a message 2 weeks ago regarding this bug, though I can't trigger the
+> kernel panic every time (see original post). My CPU is a MediaGX, and
+> Manfred's one is a 6x86MX. What about yours ?
+> After my first unsuccessful attempt with a 2.4.6-pre3, I tried several other
+> 2.4.6-preX and 2.4.5-acX kernels. All 2.4.6 (since pre1) seem to be
+> affected, and so do the latest ac's. I don't have tested 2.4.7-pre[12] yet,
+> but looking at the changelog, I doubt the fix is in.
 
-Personally, I'm in idea collection mode for that one.  First things first, 
-from my point of view, our basic replacement policy seems to be broken.  The 
-algorithms seem to be burning too much cpu and not doing enough useful work.  
-Worse, they seem to have a nasty tendency to livelock themselves, i.e., get 
-into situations where the mm is doing little other than scanning and 
-transfering pages from list to list.  IMHO, if these things were fixed much 
-of the 'interactive problem' would go away because reloading the working set 
-for the mouse, for example, would just take a few milliseconds.  If not then 
-we should take a good hard look at why the desktops have such poor working 
-set granularity.
+My CPU is:
 
-Furthermore, approaches that rely on applications touching what they believe 
-to be their own working sets aren't going to work very well if the mm 
-incorrectly processes the page reference information, or incorectly balances 
-it against other things that might be going on, so lets be sure the basics 
-are working properly.  Marcello has the right idea with his attention to 
-better memory management statistical monitoring.  How nice it would be if he 
-got together with the guy working on the tracing module...
+root@cyrix:~# cat /proc/cpuinfo 
+processor       : 0
+vendor_id       : CyrixInstead
+cpu family      : 6
+model           : 2
+model name      : 6x86MX 2.5x Core/Bus Clock
+stepping        : 7
+cpu MHz         : 166.452
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : yes
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu de tsc msr cx8 pge cmov mmx cyrix_arr
+bogomips        : 331.77
 
-That said, yes, it's good to think about hinting ideas, and maybe bless the 
-idea of applications 'touching themselves' (yes, the allusion was 
-intentional).
 
-Here's an idea I just came up with while I was composing this... along the 
-lines of using unused bandwidth for something that at least has a chance of 
-being useful.  Suppose we come to the end of a period of activity, the 
-general 'temperature' starts to drop and disks fall idle.  At this point we 
-could consult a history of which currently running processes have been 
-historically active and grow their working sets by reading in from disk.  
-Otherwise, the memory and the disk bandwidth is just wasted, right?  This we 
-can do inside the kernel and not require coders to mess up their apps with 
-hints.  Of course, they should still take the time to reengineer them to 
-reduce the cache footprint.
 
-/me decides to stop spouting and write some code
-
---
-Daniel
+-- 
+Mircea Damian
+E-mails: dmircea@kappa.ro, dmircea@roedu.net
+WebPage: http://taz.mania.k.ro/~dmircea/

@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278684AbRJXR4f>; Wed, 24 Oct 2001 13:56:35 -0400
+	id <S278685AbRJXSAz>; Wed, 24 Oct 2001 14:00:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278685AbRJXR40>; Wed, 24 Oct 2001 13:56:26 -0400
-Received: from fmfdns01.fm.intel.com ([132.233.247.10]:61690 "EHLO
-	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S278684AbRJXR4S>; Wed, 24 Oct 2001 13:56:18 -0400
-Message-ID: <59885C5E3098D511AD690002A5072D3C42D6A1@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Benjamin Herrenschmidt'" <benh@kernel.crashing.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        Patrick Mochel <mochel@osdl.org>,
-        Jonathan Lundell <jlundell@pobox.com>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: RE: [RFC] New Driver Model for 2.5
-Date: Wed, 24 Oct 2001 10:56:48 -0700
+	id <S278686AbRJXSAf>; Wed, 24 Oct 2001 14:00:35 -0400
+Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:23561 "EHLO
+	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S278685AbRJXSAd>; Wed, 24 Oct 2001 14:00:33 -0400
+Posted-Date: Wed, 24 Oct 2001 17:45:02 GMT
+Date: Wed, 24 Oct 2001 18:45:02 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.cx>
+Reply-To: Riley Williams <rhw@MemAlpha.cx>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Bert Hubert <ahu@ds9a.nl>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.2.20pre10
+In-Reply-To: <E15vdfl-0001hB-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0110241837270.11505-100000@Consulate.UFP.CX>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Benjamin Herrenschmidt [mailto:benh@kernel.crashing.org]
-> I have all of this more or less working on pmac laptops. I don't have
-> the new device model, so I handle dependencies manually with 
-> a priority
-> mecanism, but it's already good enough to let me resume 
-> userland before
-> ADB and sound, and possibly stuffs. (Which is nice since my 
-> sound chips
-> usually need one or 2 second to recalibrate and ADB need a 
-> few seconds to
-> probe the bus, all this happens asynchronously).
+Hi Alan, Bert.
 
-Awesome.
+>> Are you saying that we can't divulge security problems in our own
+>> software anymore for fear of being sued by affected parties?
 
-So non i386 archs do not have the problem with the video bios having to run
-on resume, or did you have to handle this somehow?
+> Not even affected parties - the government can do it too without
+> anyone else and indeed even if their are contractual agreements
+> between parties permitting the data to be released..
 
-Regards -- Andy
+Even if there are contractual agreements REQUIRING the data to be
+released between the parties (as currently exists between Lockheed
+and the USAF that require the mutual release of certain sensitive
+information), the government would have the right to prosecute both
+the USAF for releasing the information and Lockheed for accessing
+it once it had been released - even if nobody at Lockheed ever read
+the information in question.
+
+That is how ludicrous it is.
+
+If the said bill ever becomes law, then the US will of necessity become
+a third world nation. However, until the idiots sponsoring it get their
+faces muddied, the rest of us have to act in just such an insane way!!!
+
+> I hope to have the security stuff up on a non US citizen accessible
+> site in time for 2.2.20 final
+
+That's an impossibility!!! However, if you remove the word "citizen"
+from that statement, then it becomes possible.
+
+Best wishes from Riley (a US citizen living in England).
+

@@ -1,54 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267288AbTAAQdp>; Wed, 1 Jan 2003 11:33:45 -0500
+	id <S267276AbTAAQhz>; Wed, 1 Jan 2003 11:37:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267291AbTAAQdp>; Wed, 1 Jan 2003 11:33:45 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:34751 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S267288AbTAAQdo>; Wed, 1 Jan 2003 11:33:44 -0500
-Date: Wed, 1 Jan 2003 17:42:08 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: John Bradford <john@grabjohn.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] top-level config menu dependencies
-Message-ID: <20030101164207.GG15200@louise.pinerecords.com>
-References: <20030101162519.GF15200@louise.pinerecords.com> <200301011632.h01GWOdn001749@darkstar.example.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200301011632.h01GWOdn001749@darkstar.example.net>
+	id <S267278AbTAAQhz>; Wed, 1 Jan 2003 11:37:55 -0500
+Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:45535 "EHLO
+	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S267276AbTAAQhy>; Wed, 1 Jan 2003 11:37:54 -0500
+Date: Wed, 1 Jan 2003 14:45:44 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Hell.Surfers@cwctv.net
+cc: linux-kernel@vger.kernel.org, "" <rms@gnu.org>
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+In-Reply-To: <085e72754031fc2DTVMAIL12@smtp.cwctv.net>
+Message-ID: <Pine.LNX.4.50L.0301011439540.2429-100000@imladris.surriel.com>
+References: <085e72754031fc2DTVMAIL12@smtp.cwctv.net>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [john@grabjohn.com]
-> 
-> > It has been a long-time tradition that no "real tunable options" are
-> > present in the top level of the kernel config menu.  I reckon this has
-> > to do with an inherent limitation of the original config subsystem.
-> > 
-> > While converting the way submenus appear in menuconfig depending on
-> > their main, parent config option, I stumbled upon certain subsystems
-> > (such as MTD or IrDA) that should clearly have an on/off switch directly
-> > in the main menu so that one doesn't have to enter the corresponding
-> > submenus to even see if they're enabled or disabled.
-> > 
-> > Since the new kernel configurator would have no problems with such
-> > a setup, I'm posting this RFC to get the general opinion on whether
-> > this should be carried on with.  I'm willing to create and send in
-> > the patches.
-> 
-> Why not?  The config system is changing so much between 2.4 and 2.5
-> anyway, so any re-organisation like that might as well be done in one
-> go now, rather than during the 2.7 development cycle.
+On Tue, 31 Dec 2002 Hell.Surfers@cwctv.net wrote:
 
-Well, you see, when I wrote "long-time tradition" above, I actually
-meant "I've never seen it work differently and it's been *some* years,"
-so I don't want to just go ahead, as I can imagine there might be
-people with very valid reasons for why this should not be done.
+> Why does the community continue to make pacts with a company that steals
+> from its rivals, makes pacts with M$, and refuses to clearly GPL and
 
-One convenient aspect of this idea is that "make oldconfig" would still
-work because most of the subsystems already have their main on/off switch
-the config keyword of which wouldn't change -- it would merely be moved.
+Ohhhh, a conspiracy theory.  I like conspiracy theories.
+Do tell, what exactly is the conspiracy here and who are
+the parties involved ?
 
+> open source its work on drivers, there is a clear difference between
+> their use of GPL files, and what the GPL says they can do. You cannot
+> expect embedded kernel developers to GPL, if you excuse Nvidia, its a
+> vain hope to grab M$ users, but in the long run it destroys the
+> community.
+
+Copyright law is pretty explicit about the situations the GPL
+applies to.  If something can be reasonably considered to be
+a "derivative work" of a GPL work, the GPL applies and the
+new work needs to be GPL.
+
+However, if the new work is NOT a derivative of a GPL work,
+the author of that new work gets to choose the license freely.
+
+The border gets determined by inclusion of a copyrightable
+piece of GPL code.  Really small fragments of code and simple
+defines aren't copyrightable, just like you can't copyright a
+single musical note, but only a song.  If nvidia's driver only
+uses some simple declarations from include files and no large
+(>7 lines? >10lines? what's large?) inline functions AND the
+nvidia driver uses only the standard interfaces to hook into the
+Linux kernel, then it's not a derivative work and nvidia gets
+to choose the license.
+
+Feel free to get upset or eat your boots at any time you want,
+it's not going to change copyright law.
+
+cheers,
+
+Rik
 -- 
-Tomas Szepe <szepe@pinerecords.com>
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

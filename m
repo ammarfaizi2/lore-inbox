@@ -1,28 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262582AbVCVJVI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262581AbVCVJXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262582AbVCVJVI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 04:21:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262583AbVCVJVI
+	id S262581AbVCVJXp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 04:23:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262583AbVCVJXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 04:21:08 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:58787 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262582AbVCVJVC (ORCPT
+	Tue, 22 Mar 2005 04:23:45 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:23204 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262581AbVCVJXk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 04:21:02 -0500
-Date: Tue, 22 Mar 2005 10:20:32 +0100
+	Tue, 22 Mar 2005 04:23:40 -0500
+Date: Tue, 22 Mar 2005 10:23:31 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, dipankar@in.ibm.com,
-       shemminger@osdl.org, akpm@osdl.org, torvalds@osdl.org,
-       rusty@au1.ibm.com, tgall@us.ibm.com, jim.houston@comcast.net,
-       manfred@colorfullife.com, gh@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption and RCU
-Message-ID: <20050322092032.GA20240@elte.hu>
-References: <20050322055327.GB1295@us.ibm.com> <Pine.OSF.4.05.10503220929500.5287-100000@da410.phys.au.dk>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-01
+Message-ID: <20050322092331.GA21465@elte.hu>
+References: <20050319191658.GA5921@elte.hu> <20050320174508.GA3902@us.ibm.com> <20050321085332.GA7163@elte.hu> <20050321090122.GA8066@elte.hu> <20050321090622.GA8430@elte.hu> <20050322054345.GB1296@us.ibm.com> <20050322072413.GA6149@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.05.10503220929500.5287-100000@da410.phys.au.dk>
+In-Reply-To: <20050322072413.GA6149@elte.hu>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -35,25 +32,22 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Esben Nielsen <simlo@phys.au.dk> wrote:
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-> On the other hand with a rw-lock being unlimited - and thus do not
-> keep track of it readers - the readers can't be boosted by the writer.
-> Then you are back to square 1: The grace period can take a very long
-> time.
+> > Does the following help with the SMP problem?  This fix and the
+> > earlier one make my old patch survive a few rounds of kernbench on a
+> > 4-CPU x86 box. [...]
+> 
+> does not seem to fix my testbox (see the crash log below). [...]
 
-btw., is the 'very long grace period' a real issue? We could avoid all
-the RCU read-side locking latencies by making it truly unlocked and just
-living with the long grace periods. Perhaps it's enough to add an
-emergency mechanism to the OOM handler, which frees up all the 'blocked
-by preemption' RCU callbacks via some scheduler magic. (e.g. such an
-emergency mechanism could be _conditional_ locking on the read side -
-i.e. new RCU read-side users would be blocked until the OOM situation
-goes away, or something like that.)
+seems to be a true SMP race: when i boot with 1 CPU it doesnt trigger,
+the same kernel image and 2 CPUs triggers it on CPU#1. (CPU#0 is the
+boot CPU) Note that the timing of the crash is not deterministic
+(sometimes i get it during net startup, sometimes during ACPI startup),
+but it always crashes within rcu_advance_callbacks().
 
-your patch is implementing just that, correct? Would you mind redoing it
-against a recent -RT base? (-40-04 or so)
-
-also, what would be the worst-case workload causing long grace periods?
+one difference between your tests and mine is that your kernel is doing
+_synchronize_kernel() from preempt-off sections (correct?), while my
+kernel with PREEMPT_RT does it on preemptable sections.
 
 	Ingo

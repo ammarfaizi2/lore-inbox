@@ -1,70 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279035AbRKMU7F>; Tue, 13 Nov 2001 15:59:05 -0500
+	id <S279005AbRKMVCf>; Tue, 13 Nov 2001 16:02:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279005AbRKMU64>; Tue, 13 Nov 2001 15:58:56 -0500
-Received: from modem-2716.lemur.dialup.pol.co.uk ([217.135.138.156]:41231 "EHLO
-	Mail.MemAlpha.cx") by vger.kernel.org with ESMTP id <S278968AbRKMU6p>;
-	Tue, 13 Nov 2001 15:58:45 -0500
-Posted-Date: Tue, 13 Nov 2001 20:51:01 GMT
-Date: Tue, 13 Nov 2001 20:50:59 +0000 (GMT)
-From: Riley Williams <rhw@MemAlpha.cx>
-Reply-To: Riley Williams <rhw@MemAlpha.cx>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Changed message for GPLONLY symbols
-In-Reply-To: <10444.1005619809@kao2.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.21.0111132037440.3058-100000@Consulate.UFP.CX>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278986AbRKMVCZ>; Tue, 13 Nov 2001 16:02:25 -0500
+Received: from pD903C65A.dip.t-dialin.net ([217.3.198.90]:10370 "EHLO
+	no-maam.dyndns.org") by vger.kernel.org with ESMTP
+	id <S278968AbRKMVCO>; Tue, 13 Nov 2001 16:02:14 -0500
+Date: Tue, 13 Nov 2001 22:01:39 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: linux readahead setting?
+Message-ID: <20011113220139.B30354@no-maam.dyndns.org>
+In-Reply-To: <Pine.LNX.4.30.0111131619230.1290-100000@mustard.heime.net> <Pine.LNX.4.33L.0111131355030.20809-100000@duckman.distro.conectiva> <20011113181650.A30354@no-maam.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011113181650.A30354@no-maam.dyndns.org>
+User-Agent: Mutt/1.3.23i
+From: erik.tews@gmx.net (Erik Tews)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Keith.
+Thanks, for all the answers via pm, but I would like to explain a litte
+bit more what I am looking for. I got this filesystem on lvm, and I want
+my harddisk if there a several processes accessing the disk-image to go
+to the position of process one, read 256k of data, go to the position of
+process two, read 256k of data, go again to the position of the nex
+process, read 256k of data and so one to minimize movement of the
+harddisk-readhead.
 
-> When insmod detects a non-GPL module with unresolved symbols it
-> currently says:
+And of course my problem is, that I want that only on this filesystem
+(it is a reiserfs-filesystem) or logical volum. Not on the other
+filesystems on this harddisk which contain normal data or swapspace
+(this behaviour could cause a really ugly performance for swapspace)
 
->> Note: modules without a GPL compatible license cannot use GPLONLY_
->>       symbols
-
-> I thought that hint was self-explanatory, obviously it was not
-> clear. Never underestimate the ability of lusers to misread a
-> message.  insmod 2.4.12 will say
-
-> Hint: You are trying to load a module without a GPL compatible
->	license and it has unresolved symbols.  The module may be
-						^^^
-
-Gramattically, "This" is better there.
-
->	trying to access GPLONLY symbols but the problem is more
->	likely to be a coding or user error. Contact the module
->	supplier for assistance.
-
-> Does anyone think that this message can be misunderstood by anybody
-> with the "intelligence" of the normal Windoze user?
-
-Can I suggest the following wording instead:
-
- Q> HINT: You are trying to load a module with unresolved symbols
- Q>	  that does not have a GPL compatible licence. This module
- Q>	  may be trying to access GPLONLY symbols in the kernel,
- Q>	  but it is more likely to be one of the following:
- Q>
- Q>	   a. The module was compiled against a kernel other than
- Q>	      the current (`uname -r`) kernel.
- Q>
- Q>	   b. The author of the module has made a coding error.
- Q>
- Q>	  Please contact the module supplier for assistance.
-
-Drop the output from `uname -r` in the place indicated, and there should
-be little for the luser to complain about.
-
-Also, if there is any means for modutils to determine whether the
-current kernel has any CPLONLY symbols in it, and remove the bit about
-GPLONLY symbols if there aren't any.
-
-Best wishes from Riley.
-
+The system is currently able to fully satisfy a 100 mbit
+ethernetconnection, but I would like how I can get some extra
+performance in such situations.

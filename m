@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131194AbQK1W25>; Tue, 28 Nov 2000 17:28:57 -0500
+        id <S130656AbQK1WoC>; Tue, 28 Nov 2000 17:44:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131273AbQK1W2i>; Tue, 28 Nov 2000 17:28:38 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19002 "EHLO
-        the-village.bc.nu") by vger.kernel.org with ESMTP
-        id <S131194AbQK1W20>; Tue, 28 Nov 2000 17:28:26 -0500
+        id <S131320AbQK1Wnx>; Tue, 28 Nov 2000 17:43:53 -0500
+Received: from e166066.upc-e.chello.nl ([213.93.166.66]:25348 "EHLO Ion.var.cx")
+        by vger.kernel.org with ESMTP id <S131273AbQK1Wnq>;
+        Tue, 28 Nov 2000 17:43:46 -0500
+Date: Tue, 28 Nov 2000 23:13:34 +0100
+From: Frank v Waveren <fvw@var.cx>
+To: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] no RLIMIT_NPROC for root, please
-To: baggins@sith.mimuw.edu.pl (Jan Rekorajski)
-Date: Tue, 28 Nov 2000 21:58:14 +0000 (GMT)
-Cc: schwab@suse.de (Andreas Schwab), linux-kernel@vger.kernel.org
-In-Reply-To: <20001128222040.H2680@sith.mimuw.edu.pl> from "Jan Rekorajski" at Nov 28, 2000 10:20:40 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+Message-ID: <20001128231334.A438@var.cx>
+In-Reply-To: <20001128222040.H2680@sith.mimuw.edu.pl> <E140slT-000565-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E140slT-000565-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E140slT-000565-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Nov 28, 2000 at 09:58:14PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > AFAICS, _all_ resource limits are equally applied to root processes. =
->  Why
-> > should NPROC be different?
-> 
-> Because you want to be able to `kill <pid>`?
-> And if you are over-limits you can't?
+On Tue, Nov 28, 2000 at 09:58:14PM +0000, Alan Cox wrote:
+> > Because you want to be able to `kill <pid>`?
+> > And if you are over-limits you can't?
+> Wrong. limit is a shell built in
 
-Wrong. limit is a shell built in
+I assume you mean kill is a shell builtin. Depending on your shell. :-).
+It's still a real pain when you want to get the pid of the offending
+proces(ses). You could of course do something like
+for a in /proc/*; do echo -en "$a "; cat $a/cmdline; echo; done (it'll
+barf a lot, but give a reasonable picture)...
 
+Anyways, this is all not relevant, imho the whole point is moot.
+"I don't like root having rlimits."
+"So don't setrlimit root."
+
+No reason to ditch functionality.
+
+-- 
+
+                        Frank v Waveren
+                        fvw@[var.cx|stack.nl|chello.nl|dse.nl]
+                        ICQ# 10074100
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

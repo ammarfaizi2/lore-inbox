@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312894AbSDKUQ4>; Thu, 11 Apr 2002 16:16:56 -0400
+	id <S312896AbSDKUVO>; Thu, 11 Apr 2002 16:21:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312896AbSDKUQz>; Thu, 11 Apr 2002 16:16:55 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:1531
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S312894AbSDKUQy>; Thu, 11 Apr 2002 16:16:54 -0400
-Date: Thu, 11 Apr 2002 13:18:59 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Luigi Genoni <kernel@Expansa.sns.it>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org,
-        Keith Owens <kaos@ocs.com.au>
-Subject: Re: RAID superblock confusion
-Message-ID: <20020411201859.GM23513@matchmail.com>
-Mail-Followup-To: Luigi Genoni <kernel@Expansa.sns.it>,
-	Neil Brown <neilb@cse.unsw.edu.au>,
-	Richard Gooch <rgooch@ras.ucalgary.ca>,
-	Andreas Dilger <adilger@clusterfs.com>,
-	linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>
-In-Reply-To: <15541.137.92102.72095@notabene.cse.unsw.edu.au> <Pine.LNX.4.44.0204111216300.17814-100000@Expansa.sns.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S312901AbSDKUVN>; Thu, 11 Apr 2002 16:21:13 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22544 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S312896AbSDKUVN>; Thu, 11 Apr 2002 16:21:13 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [prepatch] address_space-based writeback
+Date: Thu, 11 Apr 2002 20:20:04 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <a94r5k$m23$1@penguin.transmeta.com>
+In-Reply-To: <3CB4203D.C3BE7298@zip.com.au> <3CB48F8A.DF534834@zip.com.au> <20020410221211.GA6076@ravel.coda.cs.cmu.edu> <5.1.0.14.2.20020410235415.03d41d00@pop.cus.cam.ac.uk>
+X-Trace: palladium.transmeta.com 1018556454 19227 127.0.0.1 (11 Apr 2002 20:20:54 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 11 Apr 2002 20:20:54 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 11, 2002 at 12:19:35PM +0200, Luigi Genoni wrote:
-> > On Wednesday April 10, mfedyk@matchmail.com wrote:
-> > > On Thu, Apr 11, 2002 at 11:38:19AM +1000, Neil Brown wrote:
-> > > > autodetect is the other alternative.  However, as has been mentioned,
-> > > > it does not and cannot work with md as a module.  This is because
-> > > > devices can only be register for autodetection after md.o is loaded,
-> > > > and autodetection is done at the time that md is loaded.  So
-> > > > autodetection can only work if the device driver and md are loaded at
-> > > > simultaneously.  i.e. they are compiled into the kernel.
-> > >
-> > > Ahh, but if you use initrd you can even have the ide and scsi drivers as
-> > > modules.
-> > >
-> > > What is needed is to make the disk modules depend on the raid modules (only
-> > > if the raid code is enabled of course) so that modprobe can load the raid
-> > > modules first.
-> you are supposing that I load md modules and raid module together, mostly
+In article <5.1.0.14.2.20020410235415.03d41d00@pop.cus.cam.ac.uk>,
+Anton Altaparmakov  <aia21@cam.ac.uk> wrote:
+>
+>Um, NTFS uses address spaces for things where ->host is not an inode at all 
+>so doing host->i_sb will give you god knows what but certainly not a super 
+>block!
 
-md and raid is the same and not split yet as Niel proposed.
+Then that should be fixed in NTFS.
 
-> during boot with initrd. In the reality I have some servers with more that
-> 200 days of uptime, and I have to change external disks sometime. I do
-> usually have two external boxes, and something like 8/20 disks (two scsi
-> controllers),  and different raid on different disks. You see, it is not
-> that easy.
+The original meaning of "->host" was that it could be anything (and it
+was a "void *", but the fact is that all the generic VM code etc needed
+to know about host things like size, locking etc, so for over a year now
+"host" has been a "struct inode", and if you need to have something
+else, then that something else has to embed a proper inode.
 
-Currently, if you have raid compiled as modules the autodetection does not
-work, and is disabled.  The issue here is enabling autodetection from the
-modules, wheather that be at boot time or not.  If you use raid modules you
-won't get the autodetection and the features that come with that.
+>As long as your patches don't break that is possible to have I am happy... 
+>But from what you are saying above I have a bad feeling you are somehow 
+>assuming that a mapping's host is an inode...
 
-When adding a new disk, you would have to add it to an array manually with
-the raidtools2 anyway, so this is unchanged.
+It's not Andrew who is assuming anything: it _is_. Look at <linux/fs.h>,
+and notice the
 
-Mike
+	struct inode            *host;
+
+part.
+
+		Linus

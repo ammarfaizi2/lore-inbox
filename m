@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129392AbQK1AGa>; Mon, 27 Nov 2000 19:06:30 -0500
+        id <S129429AbQK1AHU>; Mon, 27 Nov 2000 19:07:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129429AbQK1AGV>; Mon, 27 Nov 2000 19:06:21 -0500
-Received: from cliff.i-plus.net ([209.100.20.42]:17423 "HELO cliff.i-plus.net")
-        by vger.kernel.org with SMTP id <S129392AbQK1AGG>;
-        Mon, 27 Nov 2000 19:06:06 -0500
-From: Lee Brown <leejr@i-plus.net>
-To: linux-kernel@vger.kernel.org
-Subject: 9750 vs. blade3D gives freaky ttyS3 problem)
-Date: Mon, 27 Nov 2000 18:19:09 -0500
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
+        id <S129639AbQK1AHK>; Mon, 27 Nov 2000 19:07:10 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:44548 "EHLO
+        vger.timpanogas.org") by vger.kernel.org with ESMTP
+        id <S129429AbQK1AG6>; Mon, 27 Nov 2000 19:06:58 -0500
+Message-ID: <3A22EF12.4A5D0121@timpanogas.org>
+Date: Mon, 27 Nov 2000 16:32:34 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <00112718343300.00131@darkstar>
-Content-Transfer-Encoding: 7BIT
+To: Sven Koch <haegar@cut.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18-23 w/Frame Buffer (LEVEL IV)
+In-Reply-To: <Pine.LNX.4.30.0011280012530.22068-100000@space.comunit.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear smart people on the kernel mailing list:
 
-I have celeron 300 MHz box (overcl'ked to 450)
-I am running 2.4 test11.
-ISA PnP enabled.
-I am using the fbconsole(VESA VGA).
-I have a tried and true serial modem.
 
-When I put in a Trident 975AGP the /dev/ttyS3 (modem)  works fine. I can tell
-this because the response to minicom is snappy and KPPP works(after I startx).
+Sven Koch wrote:
+> 
+> On Mon, 27 Nov 2000, Jeff V. Merkey wrote:
+> 
+> > A level IV issue in 2.2.18-23.  With frame buffer enabled, upon boot,
+> > the OS is displaying four penguin images instead of one penguin in the
+> > upper left corner of the screen.  Looks rather tacky.  Also puts the VGA
+> > text mode default into mode 274.   Is this what's supposed to happen?
+> 
+> Let me guess: it's a 4 cpu smp system?
 
-When I remove the 975 and install my new Trident Blade3D (9880) I have
-different results.  When I run minicom
-1)  The initialization box appears.
-2) The box then disappears (as it supposed to)
-3) I wait several seconds
-4)  The initial string _crawls_ across the screen and finally gives me OK
+Correct.  I take it them this is supposed to happen.
 
-Why am I getting sluggish (to the point where I can't use the modem) response
-with this second setup?  the 975 and the Blade3D are very similar I imagine.
-And what is the connection between a video card and the serial port?
+Jeff
 
-If you need any more system info I'll be glad to give it.
-
-(Please CC me as I am not on the List)
-Thank You Ahead.
--- 
-Lee Brown Jr.
-leejr@i-plus.net
-
+> 
+> c'ya
+> sven
+> 
+> --
+> 
+> The Internet treats censorship as a routing problem, and routes around it.
+> (John Gilmore on http://www.cygnus.com/~gnu/)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

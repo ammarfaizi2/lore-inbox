@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290589AbSBKXDx>; Mon, 11 Feb 2002 18:03:53 -0500
+	id <S290588AbSBKW7w>; Mon, 11 Feb 2002 17:59:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290590AbSBKXDn>; Mon, 11 Feb 2002 18:03:43 -0500
-Received: from relay-1v.club-internet.fr ([194.158.96.112]:42492 "HELO
-	relay-1v.club-internet.fr") by vger.kernel.org with SMTP
-	id <S290589AbSBKXDj>; Mon, 11 Feb 2002 18:03:39 -0500
-Message-ID: <3C684EF2.2040609@freesurf.fr>
-Date: Tue, 12 Feb 2002 00:08:34 +0100
-From: Kilobug <kilobug@freesurf.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020208
-X-Accept-Language: fr-fr, fr, en
-MIME-Version: 1.0
-To: SA products <super.aorta@ntlworld.com>
+	id <S290586AbSBKW7m>; Mon, 11 Feb 2002 17:59:42 -0500
+Received: from 212.muaa.snjs.sfjca01r1.dsl.att.net ([12.98.126.212]:44570 "HELO
+	homa.asicdesigners.com") by vger.kernel.org with SMTP
+	id <S290588AbSBKW7a>; Mon, 11 Feb 2002 17:59:30 -0500
+Date: Mon, 11 Feb 2002 14:58:33 -0800
+From: Mike Mackovitch <macko@chelsio.com>
+To: John Hesterberg <jh@sgi.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: faking time
-In-Reply-To: <3C67AFD3.722C5471@ntlworld.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: driver location for platform-specific drivers
+Message-ID: <20020211145833.A3635@wacko.asicdesigners.com>
+In-Reply-To: <20020211131744.A16032@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20020211131744.A16032@sgi.com>; from jh@sgi.com on Mon, Feb 11, 2002 at 01:17:44PM -0600
+X-OriginalArrivalTime: 11 Feb 2002 23:01:00.0578 (UTC) FILETIME=[F9151020:01C1B34F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SA products wrote:
-> Dear Kernel list,
+On Mon, Feb 11, 2002 at 01:17:44PM -0600, John Hesterberg wrote:
 > 
-> I want to fake the time returned by the time() system call so that for a
-> limited number
-> of user space programs the time can be set to the future or the past
-> without affecting
-> other applications and without affecting system time-- Ideally I would
-> like to install a
-> loadable module to accomplish this- Any hints ? Any starting points?
+> For SGI's upcoming Linux platform (nicknamed Scalable Node, or SN),
+> we have some platform specific device drivers.  Where should these go?
+> I see several precedents in the current kernels.
+> 
+> [...]
+> 
+>     2) Company (sgi) directory.
+>        There is already an sgi directory, strangely enough.
+>        I *think* this was meant to be a platform directory for the
+>        discontinued SGI 320/540 Visual Workstations.  However, maybe
 
-Maybe could you use a shared library loaded with LD_PRELOAD that
-overrides the libc's time() function ?
-IMHO this is simpler (and safer) than writing a kernel module, but
-it will only work with dynamically linked programs, not with static
-nor suid-ed programs.
+You are mistaken.  The cruft in drivers/sgi mostly dates back to the
+attempts on the SGI Indy platform to get SGI's IRIX X server *binary*
+running under Linux (note that this work was NOT done by SGI).
 
--- 
-** Gael Le Mignot "Kilobug", Ing3 EPITA - http://kilobug.free.fr **
-Home Mail   : kilobug@freesurf.fr          Work Mail : le-mig_g@epita.fr
-GSM         : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
-Fingerprint : 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
+The SGI Visual Workstation work was mostly done within the i386 arch
+code; the framebuffer driver (sgivwfb.[ch]) was put in drivers/video;
+and some other drivers had some modifications that were guarded
+by CONFIG_VISWS or CONFIG_VISWS_HACKS.  (There was also a project that
+enabled multi-process accelerated/direct-rendered graphics on that
+platform, but that code was never released due to the fact that the
+project was killed the week it was demonstrated at SIGGRAPH'99.)
 
-"Software is like sex it's better when it's free.", Linus Torvalds
-
+--macko

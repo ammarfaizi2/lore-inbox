@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282203AbRKWSUp>; Fri, 23 Nov 2001 13:20:45 -0500
+	id <S282198AbRKWSQZ>; Fri, 23 Nov 2001 13:16:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282202AbRKWSUf>; Fri, 23 Nov 2001 13:20:35 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:1524 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S282201AbRKWSUT>;
-	Fri, 23 Nov 2001 13:20:19 -0500
-Date: Fri, 23 Nov 2001 11:20:09 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: =?iso-8859-1?Q?Ra=FAlN=FA=F1ez_de_Arenas_Coronado?= 
-	<dervishd@jazzfree.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Moving ext3 journal file
-Message-ID: <20011123112009.V1308@lynx.no>
-Mail-Followup-To: =?iso-8859-1?Q?Ra=FAlN=FA=F1ez_de_Arenas_Coronado?= <dervishd@jazzfree.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E167Fuw-00001K-00@DervishD>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <E167Fuw-00001K-00@DervishD>; from dervishd@jazzfree.com on Fri, Nov 23, 2001 at 01:58:54PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S282199AbRKWSQQ>; Fri, 23 Nov 2001 13:16:16 -0500
+Received: from xdsl-213-168-106-33.netcologne.de ([213.168.106.33]:19807 "EHLO
+	ecce.homeip.net") by vger.kernel.org with ESMTP id <S282198AbRKWSQF>;
+	Fri, 23 Nov 2001 13:16:05 -0500
+Date: Fri, 23 Nov 2001 18:15:38 +0001 (UTC)
+From: Thorsten Glaser <mirabilos@users.sourceforge.net>
+To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Which gcc version?
+In-Reply-To: <Pine.LNX.4.33.0111230953170.18098-100000@shell1.aracnet.com>
+Message-ID: <Pine.BSO.4.42.0111231814190.16292-100000@ecce.homeip.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 23, 2001  13:58 +0100, RaúlNúñez de Arenas Coronado wrote:
->     Is there any problem on moving the /.journal file (even renaming
-> it) so it doesn't lives on the root? I mean, maintaining its inode
-> number, of course ;))
+Dixitur de M. Edward (Ed) Borasky respondebo ad:
 
-The name is irrelevant.  The kernel only accesses the journal by inode
-number, and only once at boot time.  Rather than "renaming" it and
-causing problems, you should just unmount the filesystem, and run
-"e2fsck -f /dev/hdX" (with e2fsck 1.25) and it will hide it for you.
+> On Fri, 23 Nov 2001, [ISO-8859-1] Ra?l[ISO-8859-1] N??ez de Arenas  Coronado wrote:
+>
+> >     Sooner or later the kernel will need to be ported to gcc 3.x
+> > series, so, the sooner it gets tested with this compiler, the better.
+>
+> One of the regression tests for gcc is to compile *a* Linux kernel, although
+> I have no clue which kernel they use, or if they just haul down the latest one
+> from the Internet.
 
->     Anyway, ext3 shouldn't (just an idea) show the journal as a
-> normal file. It may add some load on the kernel, because the inode
-> number should be compared with that of the journal every time a file
-> is accessed, but it's just a suggestion ;))
+It's one of the 2.2 series IIRC. Go http://gcc.gnu.org/
 
-???? This doesn't make sense.  Having the .journal file places no load
-on the system.  OK, when you do "ls -a /" it has to list an extra file,
-but that is so little work as to be unnoticable.  Even with a hidden
-journal, it is still in an inode with an inode number, it's just not
-in a directory anywhere.
+> >     Anyway, if you have gcc 2.95.x installed onto your distro, use
+> > that for the kernel for maximum stability.
 
-As to "comparing the inode number to that of the journal every time a
-file is accessed" it appears you just don't understand how file access
-works in the kernel.
+I've run 2.4.3-ac7 plus andrea's rwsem, compiled on a gcc-3 beta
+of April 2001, since then (not in 24/7 though) with _no_ problems.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+-mirabilos
+-- 
+| This message body is covered by Germanic and International | OpenBSD30
+| Copyright law. Modification of any kind and redistribution | centericq
+| via AOL or the Microsoft network are strictly prohibited!! | UIN seems
+| Scientific-style quotation permitted if due credits given. | 132315236
 

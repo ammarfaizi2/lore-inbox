@@ -1,66 +1,336 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263836AbUAHOjS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 09:39:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263868AbUAHOjS
+	id S263996AbUAHOxW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 09:53:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbUAHOxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 09:39:18 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:24035 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263836AbUAHOjQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 09:39:16 -0500
-Date: Thu, 8 Jan 2004 15:39:08 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Valdis.Kletnieks@vt.edu
-Cc: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
-Subject: Re: blockfile access patterns logging
-Message-ID: <20040108143908.GA8688@suse.de>
-References: <20040108120008.GA7415@outpost.ds9a.nl> <200401081430.i08EUVfx005021@turing-police.cc.vt.edu>
+	Thu, 8 Jan 2004 09:53:21 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:26887 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id S263996AbUAHOxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 09:53:13 -0500
+Date: Thu, 8 Jan 2004 15:53:01 +0100
+From: Jurriaan on adsl-gate <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-rc2-mm1: function called from invalid context at mm/page_alloc.c:550
+Message-ID: <20040108145301.GA1829@gates.of.nowhere>
+Reply-To: thunder7@xs4all.nl
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200401081430.i08EUVfx005021@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 08 2004, Valdis.Kletnieks@vt.edu wrote:
-> On Thu, 08 Jan 2004 13:00:08 +0100, bert hubert said:
-> 
-> > For some time I've wanted to log exactly what linux is reading and writing
-> > from my harddisk - for a variety of reasons. The current reason is that my
-> > very idle laptop writes to disk every once in a while (or reads, I don't
-> > know).
-> > 
-> > Now, conceptually this should not be very hard, but I'd like to ask your
-> > thoughts on where I might insert some crude logging? There are lots of
-> > places that might be better or worse for some reason.
-> > 
-> > I'd love to be as close to the physical block device as possible, short of
-> > rewriting actual IDE drivers.
-> 
-> You probably want to do logging at a higher level.  It's totally
-> useless to find out that LBA 2234324567 got re-written.  Mapping it to
-> a partition on the disk so you know it was something on /dev/hda7 is a
-> bit better.  And being able to tell that somebody updated the atime on
-> /var/log/messages is most informative of all.
+jurriaan@adsl-gate:~$ sudo apt-get install icewm
+<3>Debug: sleeping function called from invalid context at mm/page_alloc.c:550
+in_atomic():1, irqs_disabled():0
+Call Trace:
+ [<c012222b>] __might_sleep+0xab/0xd0
+ [<c01450ca>] __alloc_pages+0x37a/0x380
+ [<c011ca30>] pte_alloc_one+0x20/0x60
+ [<c014edcd>] pte_alloc_map+0x4d/0x110
+ [<c0141996>] filemap_populate_nonblock+0x2b6/0x2f0
+ [<c01512f6>] do_no_page+0x3e6/0x400
+ [<c0151548>] handle_mm_fault+0x108/0x1c0
+ [<c011d2f0>] do_page_fault+0x370/0x5a4
+ [<c016b5e5>] sys_stat64+0x35/0x40
+ [<c011cf80>] do_page_fault+0x0/0x5a4
+ [<c03b5837>] error_code+0x2f/0x38
+jurriaan@adsl-gate:~$
 
-For laptops, it's often most interesting to find out _what_ process
-dirtied what data (which in turn caused bdflush to sync it), or what
-process keeps doing small reads. And block_dump does exactly that (it
-was invented for exactly that purpose :)
+Kind regards,
+Jurriaan
 
-
-> The other problem is that unless your laptop is *VERY* idle, you will
-> have a scrolling problem and buffering issues - so you end up writing
-> to disk to log the buffers and... ;)
-
-I don't think you understand what Bert is looking for. He explicitly
-mentions that the machine is very idle, so he's probably looking for
-culprits that spin up the drive occasionally.
-
-It doesn't provide tcpdump like logs of course, that's far more
-invasive.
-
--- 
-Jens Axboe
-
+2.6.1-rc2-mm1 .config:
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_BROKEN=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=15
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_MODULES=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_SMP=y
+CONFIG_NR_CPUS=2
+CONFIG_PREEMPT=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PM=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SLEEP_PROC_FS=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_ACPI_RELAXED_AML=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_LEGACY_PROC=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_HOTPLUG=y
+CONFIG_PCMCIA_PROBE=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+CONFIG_PARPORT_1284=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_LBD=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_IDE_TASKFILE_IO=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_HPT366=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_PDC202XX_NEW=y
+CONFIG_PDC202XX_FORCE=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_LINEAR=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_MD_RAID5=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_SYN_COOKIES=y
+CONFIG_NETFILTER=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_FTP=y
+CONFIG_IP_NF_QUEUE=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_LIMIT=y
+CONFIG_IP_NF_MATCH_IPRANGE=y
+CONFIG_IP_NF_MATCH_MAC=y
+CONFIG_IP_NF_MATCH_PKTTYPE=y
+CONFIG_IP_NF_MATCH_MARK=y
+CONFIG_IP_NF_MATCH_MULTIPORT=y
+CONFIG_IP_NF_MATCH_TOS=y
+CONFIG_IP_NF_MATCH_RECENT=y
+CONFIG_IP_NF_MATCH_ECN=y
+CONFIG_IP_NF_MATCH_DSCP=y
+CONFIG_IP_NF_MATCH_AH_ESP=y
+CONFIG_IP_NF_MATCH_LENGTH=y
+CONFIG_IP_NF_MATCH_TTL=y
+CONFIG_IP_NF_MATCH_TCPMSS=y
+CONFIG_IP_NF_MATCH_HELPER=y
+CONFIG_IP_NF_MATCH_STATE=y
+CONFIG_IP_NF_MATCH_CONNTRACK=y
+CONFIG_IP_NF_MATCH_OWNER=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_TARGET_NETMAP=y
+CONFIG_IP_NF_TARGET_SAME=y
+CONFIG_IP_NF_NAT_FTP=y
+CONFIG_IP_NF_MANGLE=y
+CONFIG_IP_NF_TARGET_TOS=y
+CONFIG_IP_NF_TARGET_ECN=y
+CONFIG_IP_NF_TARGET_DSCP=y
+CONFIG_IP_NF_TARGET_MARK=y
+CONFIG_IP_NF_TARGET_CLASSIFY=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IP_NF_TARGET_ULOG=y
+CONFIG_IP_NF_TARGET_TCPMSS=y
+CONFIG_IP_NF_ARPTABLES=y
+CONFIG_IP_NF_ARPFILTER=y
+CONFIG_IP_NF_ARP_MANGLE=y
+CONFIG_IPV6_SCTP__=y
+CONFIG_NET_SCHED=y
+CONFIG_NET_SCH_CBQ=m
+CONFIG_NET_SCH_HTB=m
+CONFIG_NET_SCH_CSZ=m
+CONFIG_NET_SCH_PRIO=m
+CONFIG_NET_SCH_RED=m
+CONFIG_NET_SCH_SFQ=m
+CONFIG_NET_SCH_TEQL=m
+CONFIG_NET_SCH_TBF=m
+CONFIG_NET_SCH_GRED=m
+CONFIG_NET_SCH_DSMARK=m
+CONFIG_NET_SCH_INGRESS=m
+CONFIG_NET_QOS=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_TCINDEX=m
+CONFIG_NET_CLS_ROUTE4=m
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=m
+CONFIG_NET_CLS_U32=m
+CONFIG_NET_CLS_RSVP=m
+CONFIG_NET_CLS_RSVP6=m
+CONFIG_NET_CLS_POLICE=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_TULIP=y
+CONFIG_TULIP=y
+CONFIG_TULIP_MWI=y
+CONFIG_TULIP_MMIO=y
+CONFIG_PPP=y
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=y
+CONFIG_PPP_SYNC_TTY=y
+CONFIG_PPP_DEFLATE=y
+CONFIG_PPP_BSDCOMP=y
+CONFIG_PPPOE=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1600
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1200
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=y
+CONFIG_I2C=m
+CONFIG_I2C_CHARDEV=m
+CONFIG_I2C_PIIX4=m
+CONFIG_I2C_SENSOR=m
+CONFIG_SENSORS_ADM1021=m
+CONFIG_SENSORS_EEPROM=m
+CONFIG_SENSORS_IT87=m
+CONFIG_SENSORS_LM75=m
+CONFIG_SENSORS_LM78=m
+CONFIG_SENSORS_LM85=m
+CONFIG_SENSORS_VIA686A=m
+CONFIG_SENSORS_W83781D=m
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_DRM=y
+CONFIG_DRM_RADEON=y
+CONFIG_FB=y
+CONFIG_FB_RADEON=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONTS=y
+CONFIG_FONT_SUN12x22=y
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_MONO=y
+CONFIG_LOGO_LINUX_VGA16=y
+CONFIG_LOGO_LINUX_CLUT224=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISERFS_FS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_UDF_FS=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_SUNRPC=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_DEBUG_SPINLOCK_SLEEP=y
+CONFIG_FRAME_POINTER=y
+CONFIG_X86_EXTRA_IRQS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_CRC32=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_X86_TRAMPOLINE=y
+CONFIG_PC=y

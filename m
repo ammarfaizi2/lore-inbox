@@ -1,93 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264891AbUFLSOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264894AbUFLSW5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264891AbUFLSOU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 14:14:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUFLSOU
+	id S264894AbUFLSW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 14:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264896AbUFLSW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 14:14:20 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:28885 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S264891AbUFLSOR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 14:14:17 -0400
-Message-ID: <40CB47F6.1060600@blue-labs.org>
-Date: Sat, 12 Jun 2004 14:14:14 -0400
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a2) Gecko/20040611
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: akpm@osdl.org, B.Zolnierkiewicz@elka.pw.edu.pl,
-       linux-kernel@vger.kernel.org
-Subject: Re: [culprit found] Re: [boot hang] 2.6.7-rc2, VIA VT8237
-References: <23tuk-7Os-7@gated-at.bofh.it> <23tDX-7UV-17@gated-at.bofh.it>	<23tNH-834-27@gated-at.bofh.it> <23wix-1FP-19@gated-at.bofh.it>	<2652y-760-19@gated-at.bofh.it> <m34qpgzxmu.fsf@averell.firstfloor.org>
-In-Reply-To: <m34qpgzxmu.fsf@averell.firstfloor.org>
-Content-Type: multipart/mixed;
- boundary="------------060503010107050607030401"
+	Sat, 12 Jun 2004 14:22:57 -0400
+Received: from quechua.inka.de ([193.197.184.2]:30876 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S264894AbUFLSW4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 14:22:56 -0400
+Date: Sat, 12 Jun 2004 20:22:54 +0200
+From: Bernd Eckenfels <be-mail2004@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] O_NOATIME support
+Message-ID: <20040612182254.GB31162@lina.inka.de>
+References: <20040612011129.GD1967@flower.home.cesarb.net> <E1BZBbt-0007jL-00@calista.eckenfels.6bone.ka-ip.net> <20040612180918.GA21857@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040612180918.GA21857@taniwha.stupidest.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060503010107050607030401
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sat, Jun 12, 2004 at 11:09:18AM -0700, Chris Wedgwood wrote:
+> They are ABI specific and will never change.
 
-Yep, that patch makes this thing bootable now :)
+Yes, Thats even more an argument for introducing a value which is  the  same on
+all architectures, since it can never be changed again.
 
-Thank you,
-David
-
-Andi Kleen wrote:
-
->David Ford <david+challenge-response@blue-labs.org> writes:
->
->  
->
->>Culprit found.  If CONFIG_IOMMU_DEBUG is enabled, the machine will
->>hang on boot at the partition check when using the VIA driver.
->>    
->>
->
->The real culprit is buggy VIA silicon. Use this patch.
->
->-Andi
->
->---------------------------------------------------------------
->Enable VIA softmmu workaround for iommu=force/IOMMU_DEBUG too
->
->diff -u linux-2.6.7rc3-bk3/arch/x86_64/kernel/io_apic.c-o linux-2.6.7rc3-bk3/arch/x86_64/kernel/io_apic.c
->--- linux-2.6.7rc3-bk3/arch/x86_64/kernel/io_apic.c-o	2004-06-11 03:02:42.000000000 +0200
->+++ linux-2.6.7rc3-bk3/arch/x86_64/kernel/io_apic.c	2004-06-12 15:46:35.000000000 +0200
->@@ -252,7 +252,8 @@
-> 				switch (vendor) { 
-> 				case PCI_VENDOR_ID_VIA:
-> #ifdef CONFIG_GART_IOMMU
->-					if (end_pfn >= (0xffffffff>>PAGE_SHIFT) &&
->+					if ((end_pfn >= (0xffffffff>>PAGE_SHIFT) ||
->+					     force_iommu) &&
-> 					    !iommu_aperture_allowed) {
-> 						printk(KERN_INFO
->     "Looks like a VIA chipset. Disabling IOMMU. Overwrite with \"iommu=allowed\"\n");
->
->  
->
-
---------------060503010107050607030401
-Content-Type: text/x-vcard; charset=utf-8;
- name="david+challenge-response.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="david+challenge-response.vcf"
-
-begin:vcard
-fn:David Ford
-n:Ford;David
-email;internet:david@blue-labs.org
-title:Industrial Geek
-tel;home:Ask please
-tel;cell:(203) 650-3611
-x-mozilla-html:TRUE
-version:2.1
-end:vcard
-
-
---------------060503010107050607030401--
+Greetings
+Bernd
+-- 
+  (OO)      -- Bernd_Eckenfels@Mörscher_Strasse_8.76185Karlsruhe.de --
+ ( .. )      ecki@{inka.de,linux.de,debian.org}  http://www.eckes.org/
+  o--o     1024D/E383CD7E  eckes@IRCNet  v:+497211603874  f:+497211606754
+(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!

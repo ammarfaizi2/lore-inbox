@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268236AbUG2P5P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268267AbUG2QAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268236AbUG2P5P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 11:57:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268237AbUG2P40
+	id S268267AbUG2QAk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 12:00:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268292AbUG2P5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 11:56:26 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:22715 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S267454AbUG2PxJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 11:53:09 -0400
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com, fastboot@osdl.org,
-       jbarnes@engr.sgi.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
-References: <16734.1090513167@ocs3.ocs.com.au>
-	<20040725235705.57b804cc.akpm@osdl.org>
-	<m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com>
-	<200407280903.37860.jbarnes@engr.sgi.com> <25870000.1091042619@flay>
-	<m14qnr7u7b.fsf@ebiederm.dsl.xmission.com>
-	<20040728133337.06eb0fca.akpm@osdl.org>
-	<1091044742.31698.3.camel@localhost.localdomain>
-	<m1llh367s4.fsf@ebiederm.dsl.xmission.com>
-	<20040728164457.732c2f1d.akpm@osdl.org>
-	<133880000.1091110104@[10.10.2.4]>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 29 Jul 2004 09:52:17 -0600
-In-Reply-To: <133880000.1091110104@[10.10.2.4]>
-Message-ID: <m1vfg6kdzi.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	Thu, 29 Jul 2004 11:57:24 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:1083 "EHLO
+	falcon10.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S268277AbUG2P47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 11:56:59 -0400
+Message-Id: <200407291556.i6TFuc7U015149@falcon10.austin.ibm.com>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.1
+In-reply-to: <1091071364.13625.37.camel@gaston> 
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Alan Cox <alan@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Fix ide probe double detection 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Thu, 29 Jul 2004 10:56:38 -0500
+From: Doug Maxey <dwm@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> writes:
 
-> > We really want to get into the new kernel ASAP and clean stuff up from
-> > in there.
-> 
-> As long as the "init" routines are run on every startup (not just kexec ones),
-> they should get plenty of testing (though not from bad card state).
+On Thu, 29 Jul 2004 13:22:44 +1000, Benjamin Herrenschmidt wrote:
+>On Wed, 2004-07-28 at 08:46, Alan Cox wrote:
+>> Some devices don't decode master/slave - notably PCMCIA adapters. 
+>> Unfortunately for us some also do, which makes it hard to guess if we
+>> should probe the slave.
+>> 
+>> This patch fixes the problem by probing the slave and then using the model
+>> and serial information to spot undecoded pairs. An additional check is done
+>> to catch pairs of pre ATA devices just in case.
+>
+>What about checking if drive->select sticks ? And if that doesn't work,
+>something like
+>
+>- select 0
+>- write a value to reg X
+>- select 1
+>- write a different value to reg X
+>- select 0
+>- check value
+>
+>reg X could be nsect or such ...
+>
+>I don't like relying on drive->id and serial_no, but that may just be
+>paranoia...
+>
+>Ben.
 
-And I know for a fact that many init routines won't initialize a
-card in a bad state currently.  That is my most frequent failure in
-the normal kexec case, when things are not in a 
- 
-> I still think we could share code by running the shutdown routines from 
-> the *new* kernel  before trying to init the card if they're written in a 
-> robust way so as to allow it ... is that insane?
+One strategy would be to reverse the order of probes, doing drive 1 first,
+then drive 0.  When I was working IDE in AIX, we had some ATAPI devices that
+were recalcitrant until the strategy was switched to 1,0 order
 
-As a rough feel yes that is sane.  Redundant but sane.  I would
-like to hear what greg thinks of it though.
-
-Eric
+++doug

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129768AbRBAItz>; Thu, 1 Feb 2001 03:49:55 -0500
+	id <S129113AbRBAI4g>; Thu, 1 Feb 2001 03:56:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129414AbRBAItg>; Thu, 1 Feb 2001 03:49:36 -0500
-Received: from 13dyn174.delft.casema.net ([212.64.76.174]:9232 "EHLO
+	id <S129389AbRBAI41>; Thu, 1 Feb 2001 03:56:27 -0500
+Received: from 13dyn174.delft.casema.net ([212.64.76.174]:31504 "EHLO
 	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S129768AbRBAItY>; Thu, 1 Feb 2001 03:49:24 -0500
-Message-Id: <200102010848.JAA05529@cave.bitwizard.nl>
-Subject: Re: mount dos-partition bug
-In-Reply-To: <20010201003912.A25518@cwi.nl> from Andries Brouwer at "Feb 1, 2001
- 00:39:12 am"
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-Date: Thu, 1 Feb 2001 09:48:45 +0100 (MET)
-CC: Andreas Huppert <Huppert@philosys.de>, linux-kernel@vger.kernel.org
+	id <S129113AbRBAI4U>; Thu, 1 Feb 2001 03:56:20 -0500
+Message-Id: <200102010856.JAA05537@cave.bitwizard.nl>
+Subject: Re: drive/block device write scheduling, buffer flushing?
+In-Reply-To: <20010131185120.B3287@home.ds9a.nl> from bert hubert at "Jan 31,
+ 2001 06:51:21 pm"
+To: bert hubert <ahu@ds9a.nl>
+Date: Thu, 1 Feb 2001 09:56:12 +0100 (MET)
+CC: Nathan Black <NBlack@md.aacisd.com>, linux-kernel@vger.kernel.org
 From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
 X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
@@ -21,37 +21,29 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer wrote:
-> Andreas Huppert wrote:
+bert hubert wrote:
+> On Wed, Jan 31, 2001 at 11:52:25AM -0500, Nathan Black wrote:
+> > I was wondering if there is a way to make the kernel write to disk faster. 
+> > I need to maintain a 10 MB /sec write rate to a 10K scsi disk in a computer,
+> > but it caches and doesn't start writing to disk until I hit about 700 MB. At
+> > that point, it pauses(presumably while the kernel is flushing some of the
+> > buffers) and I will have missed data that I am trying to capture.
 > 
-> > > I have been trying to mount the dos-partition /dev/hdb1 on /dos/d for
-> > > three years and it fails:
-> 
-> Yes. It has 805998 data sectors, which require 50374 clusters,
-> but the fat16 has room only to describe 39168 clusters.
-> The kernel mount code considers this an error.
-> 
-> You can remove the check in linux/fs/fat/inode.c
-> and write something like
-> 
->                 error = !sbi->fats || (sbi->dir_entries & (MSDOS_DPS-1))
-> #if 0
->                         || sbi->clusters+2 > fat_clusters+ MSDOS_MAX_EXTRA
-> #endif
->                         || (logical_sector_size & (SECTOR_SIZE-1))
->                         || !b->secs_track || !b->heads;
-> 
-> (the current layout is somewhat uglier).
-> I would expect that afterwards things work.
-> 
-> If you use this under Windows, do you get over 400 MB on this disk?
-> Or was part of this partition effectively lost?
+> try opening with O_SYNC, or call fsync() every once in a while. Otherwise,
+> this sounds like an application for a raw device, whereby you can write
+> directly to the disk, with no caching in between.
 
-I'd expect that IF you try to use more than 39k clusters, your
-filesystem will be toast. Even if Windows doesn't have the "sanity
-check" that Linux has.
+But you'll probably need to use "buffer" too. 
 
-				Roger. 
+   capture | buffer -m 128m > outputfile
+
+Otherwise the "fsync" can block you for say 1/10th of a second,
+causing loss of a few frames. (10MB per seconds sure sounds like
+video).
+
+
+Roger. 
+
 
 -- 
 ** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **

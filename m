@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262624AbUKQXtB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbUKQXuP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262624AbUKQXtB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 18:49:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbUKQWEO
+	id S262551AbUKQXuP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 18:50:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262567AbUKQWDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 17:04:14 -0500
-Received: from smtp3.akamai.com ([63.116.109.25]:49824 "EHLO smtp3.akamai.com")
-	by vger.kernel.org with ESMTP id S262564AbUKQVMo (ORCPT
+	Wed, 17 Nov 2004 17:03:45 -0500
+Received: from cantor.suse.de ([195.135.220.2]:4231 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262621AbUKQVSq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 16:12:44 -0500
-Message-ID: <419BCD29.1DE51942@akamai.com>
-Date: Wed, 17 Nov 2004 14:14:02 -0800
-From: Prasanna Meda <pmeda@akamai.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	Wed, 17 Nov 2004 16:18:46 -0500
+Subject: [CFT] reject merging program
+From: Chris Mason <mason@suse.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: One more get_task_comm()
-References: <419BC8CF.424232E6@akamai.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Date: Wed, 17 Nov 2004 13:21:25 -0500
+Message-Id: <1100715685.18452.17.camel@watt.suse.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Removing assumption of  command length as 16 completely
+Hello everyone,
 
---- arch/mips/kernel/sysirix.c.saved    Wed Nov 17 13:18:50 2004
-+++ arch/mips/kernel/sysirix.c  Wed Nov 17 14:09:12 2004
-@@ -282,9 +282,9 @@
-                int pid = (int) regs->regs[base + 5];
-                char *buf = (char *) regs->regs[base + 6];
-                struct task_struct *p;
--               char comm[16];
-+               char tcomm[sizeof(current->comm)];
+I've been using Neil Brown's wiggle program for a while to merge
+rejects, but it doesn't do quite what I need.  I've written a
+(hopefully) less complex program with a shorter feature list.
 
--               retval = verify_area(VERIFY_WRITE, buf, 16);
-+               retval = verify_area(VERIFY_WRITE, buf, sizeof(tcomm));
-                if (retval)
-                        break;
-                read_lock(&tasklist_lock);
-@@ -294,11 +294,11 @@
-                        retval = -ESRCH;
-                        break;
-                }
--               memcpy(comm, p->comm, 16);
-+               get_task_comm(tcomm, p);
-                read_unlock(&tasklist_lock);
+rej just tries to find the right place in the file for the reject hunks,
+and then pops up a merge tool (vimdiff, kdiff3, tkdiff etc) so you can
+review the differences and pick the correct lines in the file.
 
-                /* XXX Need to check sizes. */
--               copy_to_user(buf, p->comm, 16);
-+               copy_to_user(buf, tcomm, sizeof(tcomm));
-                retval = 0;
-                break;
-        }
+It does try to do line based merging, and frequently gets it right.  Of
+course, this doesn't relieve you from checking the results against the
+reject, but should make merging easier.
+
+The (very beta) first release is here:
+
+ftp://ftp.suse.com/pub/people/mason/rej/rej-0.4.tar.gz
+
+-chris
+
 
 
 

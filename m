@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317633AbSHCSBv>; Sat, 3 Aug 2002 14:01:51 -0400
+	id <S317642AbSHCSQl>; Sat, 3 Aug 2002 14:16:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317636AbSHCSBu>; Sat, 3 Aug 2002 14:01:50 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:32242 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317633AbSHCSBu>; Sat, 3 Aug 2002 14:01:50 -0400
-Subject: Re: Linux 2.4.19-rc5-ac1 and Intel SCB2 (OSB5) trouble
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: hps@intermeta.de
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <aih3v2$11l$1@forge.intermeta.de>
-References: <aih3v2$11l$1@forge.intermeta.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 03 Aug 2002 20:23:13 +0100
-Message-Id: <1028402593.1760.16.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S317649AbSHCSQY>; Sat, 3 Aug 2002 14:16:24 -0400
+Received: from [200.181.158.64] ([200.181.158.64]:14084 "EHLO
+	firewall.PolesApart.dhs.org") by vger.kernel.org with ESMTP
+	id <S317642AbSHCSOg>; Sat, 3 Aug 2002 14:14:36 -0400
+Date: Sat, 3 Aug 2002 15:18:01 -0300 (BRT)
+From: Alexandre Pereira Nunes <alex@PolesApart.dhs.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: some questions using rdtsc in user space
+In-Reply-To: <006901c23a81$08f52170$0100a8c0@brianwinxp>
+Message-ID: <Pine.LNX.4.44.0208031507370.991-100000@PolesApart.dhs.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-08-03 at 18:30, Henning P. Schmiedehausen wrote:
-> I fetched 2.4.19-rc5-ac1 and did all my tests with this kernel.
-> 
-> The problem is: The board does contain the Promise RAID Driver
-> BIOS. The customer wants to set up RAID1 with the BIOS and run the box
-> under Linux.
+On Fri, 2 Aug 2002, Brian Evans wrote:
 
-Include the ataraid driver for striping on the Promise Fasttrak 100. If
-you want to use their own driver boot with ide[n]=off
+> In a similar case here we just added a PIC controller to buffer
+> the commands and results. They are cheap and easy to program
+> and if your using devices that are very 'dumb' can take a lot
+> of headaches out of making sure timing is correct. Another
+> advantage is you get easier use in all operating systems.
+>
+> Brian
+>
 
-> 2.4.19 is also not able to set up the OSB5 chipset IDE controller in
-> DMA mode. (Yes, I run latest BIOS from Intel)
+My friend had this idea, and we are considering switching to using the
+serial port in this case. We're just trying to see what we can do in
+software, if we got nothing but bad results, that (using a pic) will
+eventualy become our main choice. The reason to nothing doing so is that
+the device is somewhat tolerant, so if we got good average results, maybe
+we keep it as is. But if we decide to use the serial port, we'd better
+using the pic solution anyway, killing both problems (the parallel port
+uses to be used by a printer, while almost everyone has a spare serial
+port). In future we might consider using USB, It seems that there's a PIC
+series with usb interfacing, but for now that's future.
 
-> PCI: Device 00:0f.1 not available because of resource collisions
-> SvrWks CSB5: (ide_setup_pci_device:) Could not enable device.
+Thanks for your help,
 
-Linux found the OSB5 but found the BIOS had left colliding PCI
-resources. At that point it let that deivce fall back to the generic PIO
-legacy IDE driver instead. 2.4.19-ac1 handles this BIOS problem on the
-i845 chipset boards, it ought to handle it on the non i845 ones
-
-
-> 00:0f.1 IDE interface: ServerWorks CSB5 IDE Controller (rev 92) (prog-if 8a [Master SecP PriP])
-> 	Subsystem: Intel Corp.: Unknown device 3410
-> 	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-> 	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Latency: 64, cache line size 08
-> 	Region 0: I/O ports at <unassigned> [size=8]
-> 	Region 1: I/O ports at <unassigned> [size=4]
-> 	Region 2: I/O ports at <unassigned> [size=8]
-> 	Region 3: I/O ports at <unassigned> [size=4]
-> 	Region 4: I/O ports at 03a0 [size=16]
-> 	Region 5: I/O ports at 0410 [size=4]
-
-I/O ports unassigned. Spank your vendor.
-
-I am curious why the -ac PCI fixups didn't resolve this problem. Out of
-interest edit pci-i386.c and remove the IDE test in
-pcibios_assign_resources.
+Alexandre
 

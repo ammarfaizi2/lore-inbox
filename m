@@ -1,132 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264331AbTICXeC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 19:34:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264314AbTICXeC
+	id S263938AbTICXwf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 19:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbTICXwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 19:34:02 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:55257 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S264331AbTICXdr
+	Wed, 3 Sep 2003 19:52:35 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:23806 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263938AbTICXwS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 19:33:47 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Pascal Schmidt" <der.eremit@email.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Driver Model
-Date: Wed, 3 Sep 2003 16:33:44 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAENCGDAA.davids@webmaster.com>
+	Wed, 3 Sep 2003 19:52:18 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: admin@brien.com
+Subject: Re: SATA probe delay on boot
+Date: Thu, 4 Sep 2003 01:53:07 +0200
+User-Agent: KMail/1.5
+References: <20030903161848.2109.h004.c000.wm@mail.brien.com.criticalpath.net>
+In-Reply-To: <20030903161848.2109.h004.c000.wm@mail.brien.com.criticalpath.net>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.44.0309040049490.5139-100000@neptune.local>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Disposition: inline
+Message-Id: <200309040153.07931.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> On Wed, 3 Sep 2003, David Schwartz wrote:
+On Thursday 04 of September 2003 01:18, admin@brien.com wrote:
+> Hi,
 
-> > If the GPL_ONLY stuff is a license enforcement scheme, the DMCA
-> > prohibits you from removing it.
+Hi,
 
-> -ENOTUSCITIZEN
+> I have a Sil3112A SATA controller, which linux works OK
+> with. It supports RAID (up to 4 devices), but I'm using
+> BASE option -- only 1 hard drive.
+>
+> My question is regarding a 15-20 second delay which
+> normally occurs every time I boot, unless I pass the
 
-	In that case, there is more than likely nothing that prevents you from
-doing whatever you want.
+Please try attached patch and send dmesg output (with patch applied).
+Patch is against current 2.6-bk tree, but should apply to any recent
+2.4.x or 2.6.x kernels.
 
-> > If the GPL_ONLY stuff is not a license enforcement scheme, nothing
-> > prohibits you from stamping your module GPL when it's not.
+diff -puN drivers/ide/ide-probe.c~ide-siimage-wait drivers/ide/ide-probe.c
+--- linux-2.6.0-test4-bk5/drivers/ide/ide-probe.c~ide-siimage-wait	2003-09-04 01:34:02.285489272 +0200
++++ linux-2.6.0-test4-bk5-root/drivers/ide/ide-probe.c	2003-09-04 01:47:58.145419248 +0200
+@@ -56,6 +56,8 @@
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
+ 
++#define DEBUG
++
+ /**
+  *	generic_id		-	add a generic drive id
+  *	@drive:	drive to make an ID block for
+@@ -345,7 +347,16 @@ static int actual_try_to_identify (ide_d
+ 		}
+ 		/* give drive a breather */
+ 		ide_delay_50ms();
+-	} while ((hwif->INB(hd_status)) & BUSY_STAT);
++		s = hwif->INB(hd_status);
++		if (s == 0xff) {
++#ifdef DEBUG
++			printk("%s: status == 0xff\n", drive->name);
++#endif
++			return 1;
++		}
++		if ((s & BUSY_STAT) == 0)
++			break;
++	} while (1);
+ 
+ 	/* wait for IRQ and DRQ_STAT */
+ 	ide_delay_50ms();
 
-> I'd say its up to the lawyers and judges to find out whether having
-> MODULE_LICENSE("GPL") in a module means anything legally. It might
-> mean "I promise this module is made from GPL source", but it might
-> also mean nothing.
+_
 
-	Probably so.
+> options ide3=0 - ide9=0 to fill up the device table. I
+> think I have to do this because if I do only ide3=0
+> (where the device would be), it uses ide4, and so on. I
+> have GRUB set up to do this automatically, but it's not
+> exactly adequate (,is it?). So I was wondering if
+> there're any other ways to get the same affect. Is or
+> could there be an option to simply disable the probing
+> of the one specific device/channel every time?
 
-> > However, the GPL (section 2b) prohibits you from imposing any
-> > restrictions other than those in the GPL itself.
+"ide3=noprobe" doesnt work?
 
-> Section 2b) in the file COPYING in the root dir of the kernel source
-> does not talk about restrictions. Are we talking about the same version
-> of the GPL?
-
-    b) You must cause any work that you distribute or publish, that in
-    whole or in part contains or is derived from the Program or any
-    part thereof, to be licensed as a whole at no charge to all third
-    parties under the terms of this License.
-
-	In other words, if you want to distribute the Linux kernel, you must
-license it under the terms of the GPL. You may not impose additional
-restrictions because if you do, you're not causing it to be distribute under
-the terms of "this License".
-
-	So if I download the Linux kernel from somewhere, someone distributed it to
-me. Hence, if they complied with the GPL, I am under only the obligations
-imposed by the GPL.
-
-> > The GPL contains no restrictions that
-> > apply to mere use and the GPL_ONLY stuff affects use, so it can't be a
-> > license restriction, hence there is no restriction to enforce.
-
-> The GPL doesn't even cover use of the "product". It covers modification
-> and redistribution.
-
-	It does cover use. Specifically, it permits unrestriced use. If you
-received GPL'd code, you have the unrestricted right to use it. That's what
-section 2b says.
-
-> Well, it is still an open question whether kernel modules are derived
-> works or not, especially since we don't have a stable kernel ABI and
-> therefore modules have to use part of the kernel source (headers) and
-> module writers have to study kernel code to write their modules (since
-> there is no official complete documentation about functions in the
-> kernel).
-
-	Non-issue. I'm talking about your rights to *use* the kernel.
-
-> If modules are derived works, then legally, following the GPL, they
-> must be GPL too and GPL_ONLY is no problem but pointless.
-
-	You must not be reading the same GPL I am. Can you please cite to me the
-section that requires derived works to be placed under the GPL. I can't find
-it.
-
-> Seems to me you could say GPL_ONLY is a way of the developer saying
-> "I consider your stuff to be a derived work if you use this symbol".
-> Ask a lawyer whether that's their decision to make. ;)
-
-	But that's not what it does. It prevents you from using the kernel in
-certain ways. The GPL does not permit such usage restrictions. It also
-restricts your ability to create and use derived works. The GPL similarly
-does not permit such restrictions. The only restrictions the GPL allows a
-distributed derived work to contain are those specifically imposed by the
-GPL, and those restrictions only kick in at distribution.
-
-	If there were distribution restrictions, you'd have an argument. But we are
-talking about use restrictions.
-
-> Apart from that, I fail to see how it is an addition restriction
-> when you still have the right to remove all the GPL_ONLY stuff.
-
-	You only have that right (in the United States) if the GPL_ONLY stuff is
-*not* a copyright enforcement scheme.
-
-> After
-> all, the kernel is GPLed work, so you have the right to remove
-> things and distribute the result. How is it a real restriction when
-> the license allows you to remove it?
-
-	Fine, so long as we all agree that the GPL_ONLY stuff is not a copyright or
-license enforcement scheme and that evading or modifying it is not evading a
-copyright/license enforcement scheme. In this case, you cannot argue that
-the DMCA prohibits claiming a GPL license for purposes of compatability.
-
-	DS
-
+--bartlomiej
 

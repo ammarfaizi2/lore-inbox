@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262395AbSLFMWK>; Fri, 6 Dec 2002 07:22:10 -0500
+	id <S262414AbSLFM1b>; Fri, 6 Dec 2002 07:27:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262416AbSLFMWK>; Fri, 6 Dec 2002 07:22:10 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:20674 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S262395AbSLFMWK>; Fri, 6 Dec 2002 07:22:10 -0500
-Date: Fri, 6 Dec 2002 07:29:32 -0500
-From: Arjan van de Ven <arjanv@redhat.com>
-To: =?iso-8859-1?Q?Hanno_B=F6ck?= <hanno@gmx.de>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>, pavel@ucw.cz,
-       arjanv@redhat.com, marcelo@conectiva.com.br,
-       linux-kernel@vger.kernel.org, acpi-devel@sourceforge.net
-Subject: Re: [ACPI] RE: [BK PATCH] ACPI updates
-Message-ID: <20021206072932.B16173@devserv.devel.redhat.com>
-References: <EDC461A30AC4D511ADE10002A5072CAD04C7A576@orsmsx119.jf.intel.com> <20021206125943.2199892e.hanno@gmx.de>
+	id <S262416AbSLFM1b>; Fri, 6 Dec 2002 07:27:31 -0500
+Received: from willow.compass.com.ph ([202.70.96.38]:32267 "EHLO
+	willow.compass.com.ph") by vger.kernel.org with ESMTP
+	id <S262414AbSLFM1a>; Fri, 6 Dec 2002 07:27:30 -0500
+Subject: Re: [Linux-fbdev-devel] [PATCH 1/3: FBDEV: VGA State Save/Restore
+	module
+From: Antonino Daplas <adaplas@pol.net>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0212060051080.31967-100000@phoenix.infradead.org>
+References: <Pine.LNX.4.44.0212060051080.31967-100000@phoenix.infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Dec 2002 20:27:16 +0500
+Message-Id: <1039188475.1405.0.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021206125943.2199892e.hanno@gmx.de>; from hanno@gmx.de on Fri, Dec 06, 2002 at 12:59:43PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 06, 2002 at 12:59:43PM +0100, Hanno Böck wrote:
-> > Well after communicating with Marcelo it sounds like he'd like to hold off
-> > taking it in 2.4.21 because IDE changes take priority, and two big changes
-> > at once is too many for a stable kernel revision.
+On Fri, 2002-12-06 at 05:53, James Simmons wrote:
+> > 
+> > Only the structure definition of fb_vgastate is in fb.h.  For drivers
+> > without a vga core, they'll just won't link to it and it won't be
+> > compiled.  Plus, vga.h is not a common header (not located in
+> > include/asm or include/linux) and it contains a lot of declarations and
+> > definitions which are irrelevant to most drivers or are already
+> > duplicated.  This will be messier, I think.  
 > 
+> I like to move vga.h to include/video. And yes I like to clean it up. The 
+> reason is I like to implement the function in vga.h and some in vgastate 
+> into vgacon.c. It would be nice if vgacon could support different hardware 
+> states per VC instead of changing every virtual console for everything. 
+> The other dream is I like to see vgacon become firmware independent. 
+> 
+OK.
 
-> I think this is a very bad news. In my opinion, the ACPI-patch
-> is the most-needed kernel-patch at the moment. For many laptop-users
-> that don't know about this patch, Linux is nearly
-> unuseable. 
+Tony
 
-the 2.4 patch doesnt' actually offer suspend/resume capabilities; what
-else did you have in mind as required ?

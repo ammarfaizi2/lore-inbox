@@ -1,57 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291170AbSAaRYf>; Thu, 31 Jan 2002 12:24:35 -0500
+	id <S291168AbSAaR0f>; Thu, 31 Jan 2002 12:26:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291169AbSAaRYc>; Thu, 31 Jan 2002 12:24:32 -0500
-Received: from [203.167.246.143] ([203.167.246.143]:63456 "EHLO
-	mediasolutions.net.nz") by vger.kernel.org with ESMTP
-	id <S291168AbSAaRXW>; Thu, 31 Jan 2002 12:23:22 -0500
-From: "Carl Bowden" <carl@e2-media.co.nz>
-Subject: dl2k HostError
-To: linux-kernel@vger.kernel.org
-X-Mailer: CommuniGate Pro Web Mailer v.3.4.7
-Date: Fri, 01 Feb 2002 06:02:15 +1300
-Message-ID: <web-1721666@mediasolutions.net.nz>
+	id <S291169AbSAaR01>; Thu, 31 Jan 2002 12:26:27 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:14597 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S291168AbSAaR0R>;
+	Thu, 31 Jan 2002 12:26:17 -0500
+Date: Thu, 31 Jan 2002 18:26:18 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Patrick Mochel <mochel@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.3 does not compile on sparc64
+In-Reply-To: <Pine.LNX.4.33.0201310845320.800-100000@segfault.osdlab.org>
+Message-ID: <Pine.LNX.4.44.0201311823570.21203-100000@Expansa.sns.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Yes, but the error do persist also with this patch,
+probably my english was unclear.
+I changes the include, because otherway I was getting
+a no such file message, after the change I got this error
+message.
+I should add that gcc for sparc64 to compile a 64 bit kernel is just egcs
+1.1.2, because gcc 2.95 and following have problems to compile at 64 bit
+of sparc.
 
-we have 2 nearly identical servers each with the D-Link
-DGE-550T Adapter, one has no problems, the other constantly
-reports the error below:
+Luigi
 
-D-Link DL2000-based linux driver v1.08 2002/01/17
-eth2: D-Link DGE-550T Gigabit Ethernet Adapter,
-00:05:5d:f9:2b:8a, IRQ 9
-Auto 1000 Mbps, Full duplex
-Enable Tx Flow Control
-Enable Rx Flow Control
-eth2: HostError! IntStatus 0002.
+On Thu, 31 Jan 2002, Patrick Mochel wrote:
 
-
-we have tried  the driver at 100Mbps half & full duplex,
-with & without Flow controls
-and we have also tried the 1.04 (2.4.17) and the RH 7.2
-stock kernel (its "PCI Error! IntStatus 0002" with the older
-drivers)
-
-we have several other card in the machine, such as an
-Adaptec 2100A raid 5 card and a 3c980 Nic, these are fine
-
-to be honest Im not sure if this is a pci bus problem or a
-driver one.
-
-is there any other information that would help?
-
-any commentsor pointers  would be a great help
-
-TIA
-
-Cheers carl
-
-carl@e2-media.co.nz
+>
+> Hi there.
+>
+> > Of course I had to correct dome
+> > #include <malloc.h>
+> > in
+> > #include <slab.h> (this is the case).
+>
+> That's right. I've sent a patch to Linus, but here it is for everyone else
+> while waiting for 2.5.4-pre1.
+>
+> 	-pat
+>
+> --- linux-2.5.3/drivers/base/core.c.1	Wed Jan 30 14:20:25 2002
+> +++ linux-2.5.3/drivers/base/core.c	Wed Jan 30 14:20:33 2002
+> @@ -7,7 +7,7 @@
+>
+>  #include <linux/device.h>
+>  #include <linux/module.h>
+> -#include <linux/malloc.h>
+> +#include <linux/slab.h>
+>
+>  #undef DEBUG
+>
+> --- linux-2.5.3/drivers/base/fs.c.0	Wed Jan 30 14:20:44 2002
+> +++ linux-2.5.3/drivers/base/fs.c	Wed Jan 30 14:20:52 2002
+> @@ -8,7 +8,7 @@
+>  #include <linux/device.h>
+>  #include <linux/module.h>
+>  #include <linux/string.h>
+> -#include <linux/malloc.h>
+> +#include <linux/slab.h>
+>
+>  extern struct driver_file_entry * device_default_files[];
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

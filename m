@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266848AbSLUJTu>; Sat, 21 Dec 2002 04:19:50 -0500
+	id <S266852AbSLUJld>; Sat, 21 Dec 2002 04:41:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266851AbSLUJTu>; Sat, 21 Dec 2002 04:19:50 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23300 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266848AbSLUJTt>; Sat, 21 Dec 2002 04:19:49 -0500
-Date: Sat, 21 Dec 2002 09:27:44 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Antonino Daplas <adaplas@pol.net>
-Cc: James Simmons <jsimmons@infradead.org>, Paul Mackerras <paulus@samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] [PATCH] fix endian problem in color_imageblit
-Message-ID: <20021221092744.A23531@flint.arm.linux.org.uk>
-Mail-Followup-To: Antonino Daplas <adaplas@pol.net>,
-	James Simmons <jsimmons@infradead.org>,
-	Paul Mackerras <paulus@samba.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44.0212201932150.6471-100000@phoenix.infradead.org> <1040442194.1294.9.camel@localhost.localdomain>
+	id <S266865AbSLUJld>; Sat, 21 Dec 2002 04:41:33 -0500
+Received: from holomorphy.com ([66.224.33.161]:49353 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S266852AbSLUJlc>;
+	Sat, 21 Dec 2002 04:41:32 -0500
+Date: Sat, 21 Dec 2002 01:48:56 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.40 64GB highmem BUG()
+Message-ID: <20021221094856.GH9704@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Adam J. Richter" <adam@yggdrasil.com>,
+	linux-kernel@vger.kernel.org
+References: <200212210943.BAA08993@adam.yggdrasil.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1040442194.1294.9.camel@localhost.localdomain>; from adaplas@pol.net on Sat, Dec 21, 2002 at 11:45:44AM +0800
+In-Reply-To: <200212210943.BAA08993@adam.yggdrasil.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 21, 2002 at 11:45:44AM +0800, Antonino Daplas wrote:
-> The pseudopalette will only matter for truecolor and directcolor as the
-> rest of the visuals bypasses the pseudopalette.  Typecasting to
-> "unsigned long" rather than "u32" is also safer (even for bpp16) since
-> in 64-bit machines, the drawing functions use fb_writeq instead of
-> fb_writel.
+At some point in the past, I wrote:
+>> This is not reproducible here with 2.5.52-mm2. Is the initrd required
+>> to trigger this?
 
-Erm, what does the size of the drawing functions have to do with the
-size of the pseudo palette.  The pseudo palette is only there to encode
-the pixel values for the 16 console colours.
+On Sat, Dec 21, 2002 at 01:43:20AM -0800, Adam J. Richter wrote:
+> 	Yes, the initrd seems to be required.  It happens when
+> the initrd attempts to mount /proc (it runs a shell script that
+> starts by setting PATH, mounting /dev, and mounting /proc).
+> 	I've verified that under 2.5.52 the problem occurs with
+> CONFIG_HIGHME64G and not with CONFIG_HIGHMEM4G.  Actually, now the
+> problem is a BUG() at slab.c:1451, which is also memory corruption,
+> and I suspect just an evolution of the same problem from 2.5.40.
+> 	Anyhow, in case it helps you, I've put the vmlinux and initrd
+> that produce this problem in
+> ftp://ftp.yggdrasil.com/private/adam/for-wli/.  Note that the ramdisk
+> has kernel modules that don't match the kernel but that's not the
+> issue, as I configured that kernel to have a different version name.
+>        Thanks for your attention to this problem.
 
-This means that a 64-bit pseudo palette would only be useful if you have
-a graphics card that supports > 32bpp, otherwise a 32-bit pseudo palette
-is perfectly adequate, even if you are using fb_writeq.
+I'll take it for a spin sometime in the next 6-12 hours.
 
-(note that fbcon doesn't support > 32bpp, so we will only ever look at
-the first 32 bits, and having it be 64-bit would just be a needless
-waste of space imho.)
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Bill

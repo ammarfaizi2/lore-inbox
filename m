@@ -1,33 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266323AbSK1RK6>; Thu, 28 Nov 2002 12:10:58 -0500
+	id <S266330AbSK1RLx>; Thu, 28 Nov 2002 12:11:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266359AbSK1RK5>; Thu, 28 Nov 2002 12:10:57 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:56532 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S266323AbSK1RK4>;
-	Thu, 28 Nov 2002 12:10:56 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 28 Nov 2002 18:18:15 +0100 (MET)
-Message-Id: <UTC200211281718.gASHIFE04317.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, James.Bottomley@steeleye.com
-Subject: Re: [PATCH] scsi/hosts.c device_register fix
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       torvalds@transmeta.com
+	id <S266487AbSK1RLx>; Thu, 28 Nov 2002 12:11:53 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:16397 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S266330AbSK1RLv>; Thu, 28 Nov 2002 12:11:51 -0500
+Date: Thu, 28 Nov 2002 12:17:58 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
+cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Benchmark] AIM results
+In-Reply-To: <r1_20021125114124.13129.qmail@linuxmail.org>
+Message-ID: <Pine.LNX.3.96.1021128121311.12997C-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	From James.Bottomley@steeleye.com  Thu Nov 28 17:57:52 2002
+On Mon, 25 Nov 2002, Paolo Ciarrocchi wrote:
 
-	Actually, the patch is wrong.
-	The device_register has to be done in scsi_add_host,
-	The correct fix is to move the corresponding device_unregister
-	into scsi_remove_host so that they match.
+> I can run it for every 2.5.* linus will release. 
+> Do you think it is a good idea or just a waste of time ?
 
-Very good. That was what I had done first, but a google search
-turned up your patch and I thought that it was also OK.
+As someone who worries about IPC latency (more than speed) I think these
+are useful numbers, if only to give some suggestions to kernel developers
+who want to get the last bit out and will take them as a challenge. 
 
-	I'll also commit it to the scsi-misc-2.5 BK tree.
+The VM stuff in 2.5 is slightly slower, not much to be done there,
+hopefully in the real world balanced by more stable performance under
+heavy load. 
 
-Hope to see it in 2.5.51.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-Andries

@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263926AbTIIDpF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 23:45:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263933AbTIIDpF
+	id S263916AbTIIDla (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 23:41:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263919AbTIIDla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 23:45:05 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40323 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263926AbTIIDpB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 23:45:01 -0400
-Message-ID: <3F5D4CB1.3060001@pobox.com>
-Date: Mon, 08 Sep 2003 23:44:49 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Mon, 8 Sep 2003 23:41:30 -0400
+Received: from tank.questzones.com ([207.253.48.35]:4612 "EHLO
+	tank2.questzones.com") by vger.kernel.org with ESMTP
+	id S263916AbTIIDl2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 23:41:28 -0400
+Message-ID: <003a01c37684$121088e0$8000a8c0@elbasta>
+From: "Frederic Trudeau" <ftrudeau@zesolution.com>
+To: "Feldman, Scott" <scott.feldman@intel.com>, <linux-kernel@vger.kernel.org>
+References: <C6F5CF431189FA4CBAEC9E7DD5441E01022294A8@orsmsx402.jf.intel.com>
+Subject: Re: kernel oops with kernel-smp-2.4.20-20.9 (Unable to handle kernel NULL pointer dereference at virtual address 00000000)
+Date: Mon, 8 Sep 2003 23:40:05 -0400
 MIME-Version: 1.0
-To: John Cherry <cherry@osdl.org>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.0-test5 (compile stats)
-References: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org> <1063065853.10623.449.camel@cherrypit.pdx.osdl.net>
-In-Reply-To: <1063065853.10623.449.camel@cherrypit.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Cherry wrote:
-> Compile statistics: 2.6.0-test5
-> Compiler: gcc 3.2.2
-> Script: http://developer.osdl.org/~cherry/compile/compregress.sh
-> 
-> Note: the numbers look drastically better, but this is skewed
->       by the fact that CONFIG_CLEAN_COMPILE is now the default
->       for defconfig and allmodconfig.
-> 
->                bzImage       bzImage        modules
->              (defconfig)  (allmodconfig) (allmodconfig)
+
+Thanks Scoot. Im no kernel hacker, so please tell me again what I must do.
+Grab the latest e1000 drivers ? From where ?
+
+Thanks
+
+----- Original Message ----- 
+From: "Feldman, Scott" <scott.feldman@intel.com>
+To: "Frederic Trudeau" <ftrudeau@zesolution.com>;
+<linux-kernel@vger.kernel.org>
+Sent: Monday, September 08, 2003 8:51 PM
+Subject: RE: kernel oops with kernel-smp-2.4.20-20.9 (Unable to handle
+kernel NULL pointer dereference at virtual address 00000000)
 
 
-Any chance you can add "bzImage (allyesconfig)"?
+> >>EIP; f8b05260 <[e1000]e1000_clean_rx_ring+30/140>   <=====
+>
+> >>ecx; 00031988 Before first symbol
+> >>edx; f770b980 <_end+3728d080/3838e760>
+> >>esp; f54a1e98 <_end+35023598/3838e760>
+>
+> Trace; f8b051dd <[e1000]e1000_free_rx_resources+1d/70>
+> Trace; f8b04a26 <[e1000]e1000_open+46/60>
 
-Cool stats, thanks.
+Fix in newer e1000 drivers.  Your failing request_irq().  Need to remove
+some code in e1000_up so we don't try to free resources twice:
 
-	Jeff
+        if(request_irq(netdev->irq, &e1000_intr, SA_SHIRQ |
+SA_SAMPLE_RANDOM,
+                       netdev->name, netdev)) {
+-               e1000_reset_hw(&adapter->hw);
+-               e1000_free_tx_resources(adapter);
+-               e1000_free_rx_resources(adapter);
+                return -1;
+        }
 
+-scott
 
 

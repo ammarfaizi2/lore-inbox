@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316450AbSEUAGm>; Mon, 20 May 2002 20:06:42 -0400
+	id <S316449AbSEUAG1>; Mon, 20 May 2002 20:06:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316453AbSEUAGl>; Mon, 20 May 2002 20:06:41 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:63475 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S316450AbSEUAGj>; Mon, 20 May 2002 20:06:39 -0400
-Subject: [PATCH] updated O(1) scheduler for 2.4
-From: Robert Love <rml@mvista.com>
+	id <S316450AbSEUAG0>; Mon, 20 May 2002 20:06:26 -0400
+Received: from 64-166-72-142.ayrnetworks.com ([64.166.72.142]:59013 "EHLO 
+	ayrnetworks.com") by vger.kernel.org with ESMTP id <S316449AbSEUAG0>;
+	Mon, 20 May 2002 20:06:26 -0400
+Date: Mon, 20 May 2002 17:05:23 -0700
+From: William Jhun <wjhun@ayrnetworks.com>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 20 May 2002 17:06:39 -0700
-Message-Id: <1021939600.967.5.camel@sinai>
+Subject: [PATCH] arch/i386/kernel/irq.c: do_IRQ()
+Message-ID: <20020520170523.I20837@ayrnetworks.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Updated versions of the O(1) scheduler for 2.4 are available at:
+Though a comment in arch/i386/kernel/irq.c: do_IRQ() clearly states:
 
-http://www.kernel.org/pub/linux/kernel/people/rml/sched/ingo-O1/sched-O1-rml-2.4.18-4.patch
-http://www.kernel.org/pub/linux/kernel/people/rml/sched/ingo-O1/sched-O1-rml-2.4.19-pre8-1.patch
+         * 0 return value means that this irq is already being
+         * handled by some other CPU. (or is disabled)
 
-for 2.4.18 and 2.4.19-pre8.  Please use a mirror.
+it seems that the function can only ever return (1). We wrote some low-level
+interrupt handling code that depends on the correct value of this function.
+Is the following patch what was initially desired? (patched against 2.4.18
+tarball from kernel.org...)
 
-These patches include all included and pending bits from 2.4-ac and 2.5
-as well as my user-configurable maximum RT priority patch.  This is more
-up-to-date than any other tree, in fact. ;-)
+Thanks,
+William Jhun
 
-In general, I recommend using 2.4-ac or waiting for 2.6 if you want the
-O(1) scheduler - this is not suggested for inclusion in 2.4 - but for
-those who care, here it is.
-
-Enjoy,
-
-	Robert Love
+---
+*** irq.c.orig	Mon May 20 16:55:42 2002
+--- irq.c	Mon May 20 16:57:00 2002
+***************
+*** 639,645 ****
+  
+  	if (softirq_pending(cpu))
+  		do_softirq();
+! 	return 1;
+  }
+  
+  /**
+--- 639,645 ----
+  
+  	if (softirq_pending(cpu))
+  		do_softirq();
+! 	return (action != NULL);
+  }
+  
+  /**
 

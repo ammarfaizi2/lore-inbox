@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261902AbVANETO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261901AbVANEYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261902AbVANETO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 23:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbVANETN
+	id S261901AbVANEYI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 23:24:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbVANEYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 23:19:13 -0500
-Received: from gaz.sfgoth.com ([69.36.241.230]:56789 "EHLO gaz.sfgoth.com")
-	by vger.kernel.org with ESMTP id S261903AbVANES6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 23:18:58 -0500
-Date: Thu, 13 Jan 2005 20:25:42 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Han Boetes <han@mijncomputer.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: propolice support for linux
-Message-ID: <20050114042542.GB64314@gaz.sfgoth.com>
-References: <20050113134620.GA14127@boetes.org> <20050113140446.GA22381@infradead.org> <20050113163733.GB14127@boetes.org>
+	Thu, 13 Jan 2005 23:24:08 -0500
+Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:34658 "HELO
+	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261901AbVANEYD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 23:24:03 -0500
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Andrew Morton <akpm@osdl.org>, Paul Davis <paul@linuxaudiosystems.com>,
+       lkml@s2y4n2c.de, rlrevell@joe-job.com, arjanv@redhat.com, joq@io.com,
+       chrisw@osdl.org, mpm@selenic.com, hch@infradead.org, mingo@elte.hu,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <41E7468B.3050702@kolivas.org>
+References: <1105669451.5402.38.camel@npiggin-nld.site>
+	 <200501140240.j0E2esKG026962@localhost.localdomain>
+	 <20050113191237.25b3962a.akpm@osdl.org>  <41E739F4.1030902@kolivas.org>
+	 <1105673482.5402.58.camel@npiggin-nld.site>  <41E7468B.3050702@kolivas.org>
+Content-Type: text/plain
+Date: Fri, 14 Jan 2005 15:23:58 +1100
+Message-Id: <1105676638.5402.89.camel@npiggin-nld.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050113163733.GB14127@boetes.org>
-User-Agent: Mutt/1.4.2.1i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Thu, 13 Jan 2005 20:25:42 -0800 (PST)
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Han Boetes wrote:
-> And I got two warnings about `int __guard = '\0\0\n\777';'
+On Fri, 2005-01-14 at 15:11 +1100, Con Kolivas wrote:
+> Nick Piggin wrote:
+> > It sounds to me like both your proposals may be too complex and not
+> > sufficiently deterministic (I don't know for sure, maybe that's
+> > exactly what the RT people want).
 > 
-> lib/propolice.c:15:15: warning: octal escape sequence out of range
+> This is the solution already employed in the real world by OSX. It works
+> well, and the audio people have told me they are happy with it.
+> 
 
-Yeah, I have no idea what '\777' is supposed to be - that's 9 bits wide.
+Alternatively, could you grant the required capabilities to use real
+RT scheduling and not foul up the scheduler?
 
-> lib/propolice.c:15:15: warning: multi-character character constant
+Or do a similar sort of thing with a userspace daemon that manages
+priorities and watches CPU usage?
 
-Since the __guard symbol isn't used directly by C code it doesn't matter
-what type it is, right?  You should be able to just say something like:
+Basically I'd prefer not to put hacks in the (mainline) scheduler to
+handle this pretty specific special case.
 
-unsigned char __guard[sizeof(int)] = { '\0', '\0', '\n', (unsighed char) -1 };
+> > I could be completely off the rails though. I haven't really been
+> > following this thread so please shoot me in my foot if I have put it
+> > in my mouth.
+> 
+> If your foot is in your mouth and you ask me to shoot you in the foot it
+> would blow your head off... Hmm it's tempting...
+> 
 
-Or maybe you want those in the opposite order for endianness.. not sure.
-Having the '\0' first in memory makes the most sense to me but I haven't
-thought about it much.
+Meeeow!
 
-> +static const char message[] = "propolice detects %x at function %s.\n";
-> +
-> +void __stack_smash_handler(int damaged, char func[])
 
-1. "damaged" should be "unsigned int"; it's used with a "%x" format specifier
-2. "func" should probably be "const char *func"
-3. Why is message[] defined instead of just using it directly in the call
-   to panic like panic("blah blah...", ...)  Maybe I'm missing something
-   subtle there.
 
--Mitch

@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267527AbUJLSvS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267538AbUJLSya@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267527AbUJLSvS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 14:51:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267518AbUJLSvS
+	id S267538AbUJLSya (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 14:54:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267518AbUJLSxs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 14:51:18 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:25842 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S267561AbUJLSvF
+	Tue, 12 Oct 2004 14:53:48 -0400
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:7653 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S267591AbUJLSwb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 14:51:05 -0400
-Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, sdietrich@mvista.com,
-       linux-kernel@vger.kernel.org, abatyrshin@ru.mvista.com,
-       amakarov@ru.mvista.com, emints@ru.mvista.com, ext-rt-dev@mvista.com,
-       hzhang@ch.mvista.com, yyang@ch.mvista.com
-In-Reply-To: <20041011204959.GB16366@elte.hu>
-References: <41677E4D.1030403@mvista.com> <20041010084633.GA13391@elte.hu>
-	 <1097437314.17309.136.camel@dhcp153.mvista.com>
-	 <20041010142000.667ec673.akpm@osdl.org> <20041010215906.GA19497@elte.hu>
-	 <1097517191.28173.1.camel@dhcp153.mvista.com>
-	 <20041011204959.GB16366@elte.hu>
-Content-Type: text/plain
-Organization: MontaVista
-Message-Id: <1097607049.9548.108.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 12 Oct 2004 11:50:49 -0700
+	Tue, 12 Oct 2004 14:52:31 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Totally broken PCI PM calls
+Date: Tue, 12 Oct 2004 11:52:53 -0700
+User-Agent: KMail/1.6.2
+Cc: ncunningham@linuxmail.org, Paul Mackerras <paulus@samba.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <1097455528.25489.9.camel@gaston> <200410111437.17898.david-b@pacbell.net> <20041012085349.GA2292@elf.ucw.cz>
+In-Reply-To: <20041012085349.GA2292@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410121152.53140.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-11 at 13:49, Ingo Molnar wrote:
-> * Daniel Walker <dwalker@mvista.com> wrote:
+On Tuesday 12 October 2004 1:53 am, Pavel Machek wrote:
 > 
-> what do you think about the PREEMPT_REALTIME stuff in -T4? Ideally, if
-> you agree with the generic approach, the next step would be to add your
-> priority inheritance handling code to Linux semaphores and
-> rw-semaphores. The sched.c bits for that looked pretty straightforward.
-> The list walking is a bit ugly but probably unavoidable - the only other
-> option would be 100 priority queues per semaphore -> yuck.
+> If you are entering S4 or S5 at the end of swsusp basically should not
+> matter to anyone. What we tell the drivers is same in both cases.
 
+The problem cases are on resume, where drivers
+can see different controller state.  Both S4 and S5
+resume can leave it in reset; fine.  But from S4
+the other option is the controller being in the state
+set up previously by the driver ... yet from S5 the
+other option is boot firmware (BIOS etc) mucking
+with it, leaving it in any of several states that are
+not otherwise documented for resume() paths.
 
-I think patch size is an issue, but I also think that , eventually, we
-should change all spin_lock calls that actually lock a mutex to be more
-distinct so it's obvious what is going on. Sven and I both agree that
-this should be addressed. Is this a non-issue for you? What does the
-community want? I don't find your code or ours acceptable in it's
-current form , due to this issue.
+Drivers that don't reset the controller in resume()
+will need special handling for those BIOS cases.
+That means USB HCDs, and maybe not a lot else
+yet in Linux.
 
-With the addition of PREEMPT_REALTIME it looks like you more than
-doubled the size of voluntary preempt. I really feel that it should
-remain as two distinct patches. They are dependent , but the scope of
-the changes are too vast to lump it all together. 
-
-Daniel Walker
-
+- Dave

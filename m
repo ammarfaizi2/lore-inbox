@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130231AbRCCCp7>; Fri, 2 Mar 2001 21:45:59 -0500
+	id <S130238AbRCCCxb>; Fri, 2 Mar 2001 21:53:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130236AbRCCCpt>; Fri, 2 Mar 2001 21:45:49 -0500
-Received: from Huntington-Beach.Blue-Labs.org ([208.179.59.198]:12091 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S130231AbRCCCpi>; Fri, 2 Mar 2001 21:45:38 -0500
-Message-ID: <3AA05A7C.5020109@blue-labs.org>
-Date: Fri, 02 Mar 2001 18:44:12 -0800
-From: David <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-ac3 i686; en-US; 0.9) Gecko/20010302
-X-Accept-Language: en
+	id <S130239AbRCCCxW>; Fri, 2 Mar 2001 21:53:22 -0500
+Received: from adsl-63-200-86-10.dsl.scrm01.pacbell.net ([63.200.86.10]:61321
+	"EHLO frx774.dhs.org") by vger.kernel.org with ESMTP
+	id <S130238AbRCCCxE>; Fri, 2 Mar 2001 21:53:04 -0500
+From: Jesse Wyant <jrwyant@frx774.dhs.org>
+Message-Id: <200103030252.f232qeF15551@frx774.dhs.org>
+Subject: [PATCH] Add Epson Perfection 1640SU scanner to scanner.c
+To: linux-kernel@vger.kernel.org
+Date: Fri, 2 Mar 2001 18:52:40 -0800 (PST)
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: Jim Woodward <jim@jim.southcom.com.au>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.2 TCP window shrinking
-In-Reply-To: <Pine.LNX.4.33.0103030426210.12977-100000@jim.southcom.com.au> <15008.6084.410042.53699@pizda.ninka.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
 
-> We need desperately to know exactly what OS the xxx.xxx.1.14 machine
-> is running.  Because you've commented out the first two octets, I
-> cannot check this myself using nmap.
+Just purchased an Epson Perfection 1640SU (SCSI/USB) scanner (1600 dpi optical),
+and found in some tips (forgot where now) on getting it recognized by the USB code:
+(I made the change in a vanilla 2.4.2 kernel.)
+
+diff -urNb linux-2.4.2/drivers/usb/scanner.c linux-2.4.2.modified/drivers/usb/scanner.c
+--- linux-2.4.2/drivers/usb/scanner.c   Thu Jan  4 13:15:32 2001
++++ linux-2.4.2.modified/drivers/usb/scanner.c  Sat Feb 24 22:49:21 2001
+@@ -303,6 +303,7 @@
+    { USB_DEVICE(0x04b8, 0x0104) }, /* Perfection 1200U and 1200Photo*/
+    { USB_DEVICE(0x04b8, 0x0106) }, /* Stylus Scan 2500 */ 
+    { USB_DEVICE(0x04b8, 0x0107) }, /* Expression 1600 */ 
++   { USB_DEVICE(0x04b8, 0x010a) }, /* Perfection 1640SU and 1640SUPhoto */
+    /* Umax */ 
+    { USB_DEVICE(0x1606, 0x0010) }, /* Astra 1220U */
+    { USB_DEVICE(0x1606, 0x0030) }, /* Astra 2000U */
 
 
-I see them all the time on my sites.  I have active mirrors so they 
-abound.  Here are a few, I've also attached nmap's guesses.
+FYI, it works well with the latest SANE packages; some of my friends of the Windows
+persuasion find it easier to use (XSane) than other scanner packages they're used to.
+And more stable.  :)
 
-TCP: peer 148.75.156.238:1025/7000 shrinks window 
-3317772066:0:3317772330. Bad, what else can I say?
-TCP: peer 195.226.233.21:1774/6660 shrinks window 
-2502834461:2920:2502837525. Bad, what else can I say?
-TCP: peer 195.39.136.145:1702/7000 shrinks window 
-2750401402:2920:2750405782. Bad, what else can I say?
-TCP: peer 213.189.87.228:1190/6660 shrinks window 
-2933193691:1072:2933194827. Bad, what else can I say?
+-jesse
 
-#1, unknown
-#2, running proxy squid/2.3.stable4, can't tell what OS is on it.
-#3, unknown
-#4, unknown
 
-#2 and #4 both have the following in http headers:
-
-Via: 1.1 netcache (NetCache 4.1R6)
-
--d
+Jesse Wyant - jrwyant@frx774.dhs.org
+------------------------------------------------------------
+If there was any justice in the world, "trust" would be a four-letter word.
 

@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268321AbUHKXNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268344AbUHKXUQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268321AbUHKXNq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 19:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268308AbUHKXNq
+	id S268344AbUHKXUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 19:20:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268308AbUHKXRi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 19:13:46 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:58088 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S268321AbUHKXL2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 19:11:28 -0400
-Date: Thu, 12 Aug 2004 01:11:24 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: David Woodhouse <postmaster@infradead.org>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2100 wireless driver
-Message-ID: <20040811231124.GC14073@louise.pinerecords.com>
-References: <20040811163333.GE10100@louise.pinerecords.com> <20040811175105.A30188@infradead.org> <20040811170208.GG10100@louise.pinerecords.com> <20040811181142.A30309@infradead.org> <20040811172222.GI10100@louise.pinerecords.com> <20040811184148.A30660@infradead.org> <20040811175109.GJ10100@louise.pinerecords.com> <1092264200.1438.4347.camel@imladris.demon.co.uk> <20040811225612.GB14073@louise.pinerecords.com> <1092265608.1438.4364.camel@imladris.demon.co.uk>
+	Wed, 11 Aug 2004 19:17:38 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:53715 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268314AbUHKXPt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 19:15:49 -0400
+Date: Thu, 12 Aug 2004 01:15:46 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Len Brown <len.brown@intel.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc4-mm1 doesn't boot
+Message-ID: <20040811231546.GT26174@fs.tum.de>
+References: <566B962EB122634D86E6EE29E83DD808182C2B33@hdsmsx403.hd.intel.com> <1092259920.5021.117.camel@dhcppc4> <20040811215105.GK26174@fs.tum.de> <1092262929.7765.132.camel@dhcppc4>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1092265608.1438.4364.camel@imladris.demon.co.uk>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <1092262929.7765.132.camel@dhcppc4>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug-12 2004, Thu, 00:06 +0100
-David Woodhouse <postmaster@infradead.org> wrote:
+On Wed, Aug 11, 2004 at 06:22:09PM -0400, Len Brown wrote:
 
-> On Thu, 2004-08-12 at 00:56 +0200, Tomas Szepe wrote:
-> > Ok, thanks for the warning.  Is there any reason why you should
-> > be trying to look up postmaster@ from the sender domain upon
-> > RCPT TO?
+> Does the system have any BIOS settings to enable/disable the floppy?
+
+Yes, the settings for both floppies are set to "Not Installed".
+
+> Is the floppy physically present on the system?
+
+No.
+
+> ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 *6 7 10 11 12 14 15)
+>         ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 6
 > 
-> Part of standard verification of sender addresses. You're being offered
-> an email.... if you can't send a bounce to the address it claims to come
-> from, or if you can't send a mail to postmaster at the same domain, then
-> the chances that the mail you're being offered is a fake are high enough
-> to warrant rejecting it.
+> I assert it is a BIOS bug for the BIOS to set LNKD to
+> IRQ6 if there is a floppy present and enabled; but fair
+> game if there is no floppy.  Though perhaps floppy.c
+> doesn't understand that.
+> 
+> -Len
 
-Ok, I see, but wouldn't an "and" where you write "or" make more sense? :)
-
-Anyway, I screwed up in the aliases vs. virtusertable department again.
+cu
+Adrian
 
 -- 
-Tomas Szepe <szepe@pinerecords.com>
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,51 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262571AbTJAVUr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 17:20:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262570AbTJAVUr
+	id S262573AbTJAVXV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 17:23:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262582AbTJAVXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 17:20:47 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:24962
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S262555AbTJAVUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 17:20:45 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Andries Brouwer <aebr@win.tue.nl>
-Subject: Re: Keyboard dead on bootup on -test6.
-Date: Wed, 1 Oct 2003 16:17:39 -0500
-User-Agent: KMail/1.5
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-References: <200309301632.01498.rob@landley.net> <200309302021.56614.rob@landley.net> <20031001183648.GB1686@win.tue.nl>
-In-Reply-To: <20031001183648.GB1686@win.tue.nl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Oct 2003 17:23:21 -0400
+Received: from hockin.org ([66.35.79.110]:29193 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S262573AbTJAVXP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 17:23:15 -0400
+Date: Wed, 1 Oct 2003 14:12:08 -0700
+From: Tim Hockin <thockin@hockin.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Many groups patch.
+Message-ID: <20031001211208.GB30014@hockin.org>
+References: <20031001202910.GA30014@hockin.org> <Pine.LNX.4.44.0310011344070.838-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310011617.39953.rob@landley.net>
+In-Reply-To: <Pine.LNX.4.44.0310011344070.838-100000@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 October 2003 13:36, Andries Brouwer wrote:
-> On Tue, Sep 30, 2003 at 08:21:56PM -0500, Rob Landley wrote:
-> > > > Sep 30 16:17:31 localhost kernel: atkbd.c: Unknown key pressed (raw
-> > > > set 0, code 0xfc, data 0xfc, on isa0060/serio1).
-> > >
-> > > I suppose this is the kernel trying to set LEDs on the mouse,
-> > > and the mouse complains.
-> >
-> > There are no LED's anywhere near it.  So I'm not surprised it complains.
-> > But why does that kill my keyboard?
->
-> I can conjecture, but reading the facts is easier if you have a debug log
-> (#define DEBUG in i8042.c).
->
-> [In case you already sent one, point at the URL - I've seen so many
-> recently I lost track who reported what.]
+On Wed, Oct 01, 2003 at 01:46:55PM -0700, Linus Torvalds wrote:
+> How about just putting it in "gid16.c" and then adding a CONFIG_GID16
+> config variable. Then architectures that want it (pretty much all, no?)  
+> can then obviously just do the
+> 
+> 	config GID16
+> 		bool
+> 		default y
 
-I'll #define that net recompile and let you know.
+uid16 has this same code in it, which could be moved to gid16.  The problem
+is that architectures that currently use CONFIG_UID16 expect to use
+old_gid_t and get all the highuid.h magic.  The 64-bit architectures want to
+use stuff from uid16 (and by extension gid16) but they don't want it ALL the
+time, just in their compat code.  Therefore, they don't have old_gid_t as 16
+bits.
 
-Will this make /var/log/messages bigger, or does it do something else?
+You end up with tons of duplicated code in the 64-bit architectures (most
+copies straight from uid16.c  s/old_gid_t/short/).
 
-Rob
+You end up with places that include highuid.h and then undef functions and
+redefine them exactly the same  s/old_gid_t/short/.
+
+The gid16 way would work, but doesn't solve the real problem, which is all
+the duplicated code and differing types.  Some use old_gid_t, some use
+short, some use u16.
+
+What if I broke CONFIG_UID16 into CONFIG_UID16_SYSCALLS and CONFIG_OLDUID?
+UID16_SYSCALLS would make the build compile uid16.c.  CONFIG_OLDUID would
+activate high2lowuid() and friends.  It would involve copying some of
+highuid.h into uid16.c to make uid16.c always do high2lowuid().  But what
+types?
+
+Your call - I'll make gid16.c if that's good enough for you.  Or if you
+prefer, I'll do a separate patch in which we find a way to REALLY solve it.
+
+Here's the prior fixups but not the gid16 duplicated code cleanups.  If the
+rest of this patch meets approval, I'll be happy to go ahead on whatever you
+prefer for gid16 stuff.
+o
+-- 
+Notice that as computers are becoming easier and easier to use,
+suddenly there's a big market for "Dummies" books.  Cause and effect,
+or merely an ironic juxtaposition of unrelated facts?
+

@@ -1,86 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263197AbTJURmA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 13:42:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263207AbTJURmA
+	id S263238AbTJURz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 13:55:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263241AbTJURz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 13:42:00 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:54407 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S263197AbTJURl5 convert rfc822-to-8bit (ORCPT
+	Tue, 21 Oct 2003 13:55:58 -0400
+Received: from poup.poupinou.org ([195.101.94.96]:1580 "EHLO poup.poupinou.org")
+	by vger.kernel.org with ESMTP id S263238AbTJURz4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 13:41:57 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [PATCH] 3/3 Dynamic cpufreq governor and updates to ACPIP-state driver
-Date: Tue, 21 Oct 2003 10:41:30 -0700
-Message-ID: <88056F38E9E48644A0F562A38C64FB6007791B@scsmsx403.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] 3/3 Dynamic cpufreq governor and updates to ACPIP-state driver
-Thread-Index: AcOXrsiFyT62vLzZS4OIa/kIUEWklQASSUlg
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: <arjanv@redhat.com>
-Cc: <cpufreq@www.linux.org.uk>, <linux-kernel@vger.kernel.org>,
-       "linux-acpi" <linux-acpi@intel.com>,
+	Tue, 21 Oct 2003 13:55:56 -0400
+Date: Tue, 21 Oct 2003 19:55:45 +0200
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org,
+       linux-acpi <linux-acpi@intel.com>,
        "Mallick, Asit K" <asit.k.mallick@intel.com>,
        "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Dominik Brodowski" <linux@brodo.de>
-X-OriginalArrivalTime: 21 Oct 2003 17:41:31.0993 (UTC) FILETIME=[9096DC90:01C397FA]
+       Dominik Brodowski <linux@brodo.de>
+Subject: Re: [PATCH] 1/3 Dynamic cpufreq governor and updates to ACPI P-state driver
+Message-ID: <20031021175545.GK13989@poupinou.org>
+References: <88056F38E9E48644A0F562A38C64FB6007791A@scsmsx403.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB6007791A@scsmsx403.sc.intel.com>
+User-Agent: Mutt/1.5.4i
+From: Ducrot Bruno <ducrot@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 21, 2003 at 10:15:31AM -0700, Pallipadi, Venkatesh wrote:
+> 
+> > -----Original Message-----
+> > From: Ducrot Bruno [mailto:ducrot@poupinou.org] 
 
 
-We can have a userspace governor and take decisions using
-top, /proc/interrupts etc. But issue is mostly the rate
-at which we want to monitor. In kernel governor can afford
-to do more frequent checks and use the low latency P-state 
-change feature quite effectively.
+...
 
-The patch does take care of all kinds of loads, process or irq
-as we look at the cpu idle time in kstat. However it waits until
-scheduled work (schedule_work()) gets to run. As you say, 
-another advantage of having this in kernel is, kernel has 
-all the information to take such decisions quickly. At present,
-The patch tries to keep this governor simple and cover the 
-common cases. However, once we have the infrastructure in place,
-further optimizations with more advanced things can be done 
-based on actual performance data.
+> > Your do not handle correctly 
+> > other processors
+> > than Intel.  
+> 
+> I am sorry. I do not understand this comment. 
+> - Major part of Patch 1 is adding SMP awareness, which has
+> nothing specific to Intel at all.
+> - A part of patch 1 adds MSR based transition capability. 
+> This is based on ACPI spec.
 
-Thanks,
--Venkatesh
+Could you tell me where you find in ACPI spec. that FfixedHW means 
+always MSR?  That not true for C-states definitions via _CST for
+example (the first entry being always an FFixedHW, because it
+is C1 and will be the single asm instruction: 'hlt').
+Look 2.0b page 228.
 
-> -----Original Message-----
-> From: Arjan van de Ven [mailto:arjanv@redhat.com] 
-> Sent: Tuesday, October 21, 2003 1:39 AM
-> To: Pallipadi, Venkatesh
-> Cc: cpufreq@www.linux.org.uk; linux-kernel@vger.kernel.org; 
-> linux-acpi; Mallick, Asit K; Nakajima, Jun; Dominik Brodowski
-> Subject: Re: [PATCH] 3/3 Dynamic cpufreq governor and updates 
-> to ACPIP-state driver
+> It will work any processor 
+> that is ACPI compatible and again there are no specific 
+> checks for Intel here.
 > 
-> 
-> On Tue, 2003-10-21 at 04:56, Pallipadi, Venkatesh wrote:
-> > Patch 3/3: New dynamic cpufreq driver (called 
-> > DemandBasedSwitch driver), which periodically monitors CPU 
-> > usage and changes the CPU frequency based on the demand.
-> 
-> 
-> it's all nice code and such, but I still wonder why this can't be done
-> by a userland policy daemon. The 2.6 kernel has the infrastructure to
-> give very detailed information to userspace (eg top etc) about idle
-> percentages...... I didn't see anything in this driver that 
-> couldn't be
-> done from userspace.
-> 
-> Note that I'm not totally against doing some of this in the kernel; I
-> can well see the point of say, detecting an IRQ overload and based on
-> that, go to max speed in the kernel because it's a situation where
-> userspace doesn't even run; but the patch as is doesn't do any such
-> advanced things...
-> 
+
+On a K7 with powernow for example, perf_ctrl and perf_data will be MSR 0
+with your patch, that do not make sence.
+Even if you know the correct MSRs, the values for 'control' and 'status'
+in _PSS packages will be only bit-fields, and they can *not* be
+written nor read directly to the (correct) MSRs (again for K7 powernow).
+
+This is because the FfixedHW is only an indication that a CPU specific
+'feature' (even though already somehow defined in ACPI like P-state,
+C-state, etc.) have to be handled by the OS in a non-acpi driver, as
+per ACPI spec, and that will be dependant of the CPU.
+
+
+-- 
+Ducrot Bruno
+
+--  Which is worse:  ignorance or apathy?
+--  Don't know.  Don't care.

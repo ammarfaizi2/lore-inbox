@@ -1,87 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268082AbUIPOLw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268089AbUIPOM7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268082AbUIPOLw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 10:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268088AbUIPOLw
+	id S268089AbUIPOM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 10:12:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268086AbUIPOMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 10:11:52 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:52959 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S268082AbUIPOKJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 10:10:09 -0400
-Date: Thu, 16 Sep 2004 16:10:08 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Greg KH <greg@kroah.com>
-Cc: Robert Love <rml@novell.com>, Tim Hockin <thockin@hockin.org>,
-       Kay Sievers <kay.sievers@vrfy.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel sysfs events layer
-Message-ID: <20040916141008.GA28893@MAIL.13thfloor.at>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Robert Love <rml@novell.com>, Tim Hockin <thockin@hockin.org>,
-	Kay Sievers <kay.sievers@vrfy.org>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <1095280414.23385.108.camel@betsy.boston.ximian.com> <20040915204754.GA19625@hockin.org> <1095281358.23385.109.camel@betsy.boston.ximian.com> <20040915205643.GA19875@hockin.org> <20040915212322.GB25840@kroah.com> <1095283589.23385.117.camel@betsy.boston.ximian.com> <20040915213419.GA21899@hockin.org> <1095284320.23385.123.camel@betsy.boston.ximian.com> <20040916012104.GA21832@MAIL.13thfloor.at> <20040916040820.GA5395@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040916040820.GA5395@kroah.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 16 Sep 2004 10:12:20 -0400
+Received: from merkurneu.hrz.uni-giessen.de ([134.176.2.3]:33730 "EHLO
+	merkurneu.hrz.uni-giessen.de") by vger.kernel.org with ESMTP
+	id S268083AbUIPOJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 10:09:57 -0400
+Date: Fri, 17 Sep 2004 00:09:51 +1000 (EST)
+From: Sergei Haller <Sergei.Haller@math.uni-giessen.de>
+X-X-Sender: gc1007@fb07-calculator.math.uni-giessen.de
+To: Andrew Walrond <andrew@walrond.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lost memory on a 4GB amd64
+In-Reply-To: <200409161448.39033.andrew@walrond.org>
+Message-Id: <Pine.LNX.4.58.0409162358570.26494@fb07-calculator.math.uni-giessen.de>
+References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au>
+ <200409161448.39033.andrew@walrond.org>
+Organization: University of Giessen * Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-HRZ-JLUG-MailScanner-Information: Passed JLUG virus check
+X-HRZ-JLUG-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 09:08:21PM -0700, Greg KH wrote:
-> On Thu, Sep 16, 2004 at 03:21:04AM +0200, Herbert Poetzl wrote:
-> > On Wed, Sep 15, 2004 at 05:38:39PM -0400, Robert Love wrote:
-> > > On Wed, 2004-09-15 at 14:34 -0700, Tim Hockin wrote:
-> > > 
-> > > > It's a can of worms, is what it is.  And I'm not sure what a good fix
-> > > > would be.  Would it just be enough to send a generic "mount-table changed"
-> > > > event, and let userspace figure out the rest?
-> > > 
-> > > "Can of worms" is a tough description for something that there is no
-> > > practical security issue for, just a lot of hand waving.  No one even
-> > > uses name spaces.
-> > 
-> > ah, sorry, that is wrong, we (linux-vserver)
-> > _do_ use namespaces extensively, and probably 
-> > other 'jail' solutions will use it too ...
-> 
-> Great.  
-> So, how do you handle the /sbin/hotplug call today?  
+On Thu, 16 Sep 2004, Andrew Walrond (AW) wrote:
 
-most of the time, not at all, but if, then in the
-'initial' namespace where other userspace helpers
-are handled too (means on the host)
+AW> On Thursday 16 Sep 2004 05:48, Sergei Haller wrote:
+AW> > Hello,
+AW> >
+AW> > A friend of mine has a new Opteron based machine (Tyan Tiger K8W with two
+AW> > Opteron 24?) and 4GB main memory.
+AW> 
+AW> Typo? Tyan Thunder?
 
-> How would you want to handle this kevent notifier?
+no, it's a tiger: http://www.tyan.com/products/html/tigerk8w.html
 
-if there was a notifier telling about mounts - real
-and virtual - then they would make sense _inside_
-the respective namespace they happen .. e.g.
+AW> > the problem is that about 512 MB of that memory is lost (AGP aperture and
+AW> > stuff). Although everything is perfect otherwise.
+AW> > As far as I understand, all the PCI/AGP hardware uses the top end of the
+AW> > 4GB address range to access their memory and there is just an
+AW> > "overlapping" of the addresses. thus only the remaining 3.5 GB are
+AW> > available.
+AW> >
+AW> >
+AW> > Now there is an option in the BIOS called "Adjust Memory" which puts a
+AW> > certain amount of memory (several choices between 64MB and 2GB) above the
+AW> > 4GB address range. I tried the 2GB setting which results in 2GB main
+AW> > memory at addresses 0-2GB and 2GB memory at addresses 4GB-6GB.
+AW> >
+AW> 
+AW> Ok;
+AW> 
+AW> Assuming bios version 2.02.
 
-usb-device attached: 
-  helper is called on host, and does some stuff
-  result is a mount of some device, which happens
-  on the host/initial namespace, notifier happens
-  there ...
+yes
 
-process in namespace does --bind mount:
-  this might be interesting for the host too, but
-  probably it is more useful for the namespace
-  where it happened ... 
+AW> The option you mention should be set to 'Auto'
+AW> 
+AW> Chipset->Northbridge->Memory Configuration->Adjust Memory = Auto
+AW> 
+AW> but set
+AW> 
+AW> Advanced->Cpu Configuration->MTRR Mapping = Continuous
 
-but keep in mind, that might not be true for the
-usual, we put our sendmail in a separate namespace
+I had "MTRR Mapping = Continuous" set all the time and tried "Adjust 
+Memory" in all three modes (Auto/manual/disabled) and manual with 1 and 
+2gb size.
 
-best,
-Herbert
+today I had discovered the MTRR option and changed it to "discrete".
+tried "Adjust Memory" manually at 2gb. 
 
-> thanks,
-> 
-> greg k-h
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+the only working (but with loss of memory) combination seems to be "Adjust
+Memory = disabled" and independant of "MTRR Mapping".
+
+The only combination I didn't try is "MTRR Mapping=Discrete"+"Adjust
+Memory= Auto". Will try tomorrow morning.
+
+
+AW> That fixed it for me if I remember correctly :)
+
+do you have a thunder or a tiger? And could you check in your BIOS setup 
+whih options you used?
+
+
+
+thanks,
+        Sergei
+-- 
+--------------------------------------------------------------------  -?)
+         eMail:       Sergei.Haller@math.uni-giessen.de               /\\
+-------------------------------------------------------------------- _\_V
+Be careful of reading health books, you might die of a misprint.
+                -- Mark Twain

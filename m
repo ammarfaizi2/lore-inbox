@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315406AbSHRQyh>; Sun, 18 Aug 2002 12:54:37 -0400
+	id <S315415AbSHRQ77>; Sun, 18 Aug 2002 12:59:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315413AbSHRQyg>; Sun, 18 Aug 2002 12:54:36 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:34317
+	id <S315427AbSHRQ77>; Sun, 18 Aug 2002 12:59:59 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:45069
 	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S315406AbSHRQyg>; Sun, 18 Aug 2002 12:54:36 -0400
+	with ESMTP id <S315415AbSHRQ77>; Sun, 18 Aug 2002 12:59:59 -0400
 Subject: Re: [PATCH] (0/4) Entropy accounting fixes
 From: Robert Love <rml@tech9.net>
-To: Bernd Eckenfels <ecki-news2002-08@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E17gKXF-0008Ax-00@sites.inka.de>
-References: <E17gKXF-0008Ax-00@sites.inka.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Oliver Xymoron <oxymoron@waste.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0208180916560.10546-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0208180916560.10546-100000@home.transmeta.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Aug 2002 12:58:39 -0400
-Message-Id: <1029689919.903.24.camel@phantasy>
+Date: 18 Aug 2002 13:03:58 -0400
+Message-Id: <1029690238.1837.28.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-08-18 at 03:31, Bernd Eckenfels wrote:
+On Sun, 2002-08-18 at 12:59, Linus Torvalds wrote:
 
-> A question: what is the denger of the network entropy? is it, that one is a
-> fraid that snooping could gather knowledge about random source, or is it
-> more along the line that one fears that specially deviced packages can feed
-> manufactured, and therefore not randmom bits?
+> Is there anything that actually uses /dev/random at all (except for 
+> clueless programs that really don't need to)?
 
-The later.  Some believe someone on your local network, who understands
-the timing of the physical layers and devices, can influence the entropy
-pool.  Further, then, we assume SHA is cracked.  Then they know enough
-state and can presumably determine the output of [u]random.
+Some OpenSSH installs must use /dev/random (either an earlier version
+than what Oliver quoted or the distribution changed it) because I have
+seen headless/diskless machines where they block on ssh session key
+generation indefinitely.  I wrote my netdev-random to solve this...
 
-Of course, this is all theoretical but I would not gamble in certain
-situations either.  In some, like my workstation on my network, I feel
-safe and enjoy having sshd not block waiting for entropy.  So I wrote
-the netdev-random stuff...
+We have seen similar stuff on embedded devices at MontaVista.
 
-Note the patches work in the converse manner, too: _today_ there are
-network drivers that contribute entropy.  With netdev-random you can
-stop that if you wish.
+> Now this I absolutely agree with. The xor'ing of the buffer data is 
+> clearly a good idea. I agree 100% with this part. You'll see no arguments 
+> against this part at all.
 
-> In the first case, how big would be the hardware proccessing variance for an
-> interrupt be? Is it realy predictable from sniffing the network how that
-> will result in interrupts?
-
-Possibly.
-
-> How can softinterrupts help here?
-
-Under load the execution of softinterrupts is virtually
-non-deterministic, so they do help but we do the timing off the
-interrupt handler itself.
+Yes this is _very_ smart.
 
 	Robert Love
 

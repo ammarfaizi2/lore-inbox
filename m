@@ -1,49 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129054AbQJaJfS>; Tue, 31 Oct 2000 04:35:18 -0500
+	id <S129207AbQJaKAg>; Tue, 31 Oct 2000 05:00:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129856AbQJaJfI>; Tue, 31 Oct 2000 04:35:08 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:9747 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S129054AbQJaJer>;
-	Tue, 31 Oct 2000 04:34:47 -0500
-Message-ID: <39FE9E9F.4375C8D1@evision-ventures.com>
-Date: Tue, 31 Oct 2000 11:27:43 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16-1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: Peter Samuelson <peter@cadcamlab.org>,
-        Linux Kernel Developer <linux_developer@hotmail.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Recommended compiler? - Re: [patch] kernel/module.c (plus gratuitous 
- rant)
-In-Reply-To: <200010302050.e9UKo7312002@pincoya.inf.utfsm.cl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129121AbQJaKAR>; Tue, 31 Oct 2000 05:00:17 -0500
+Received: from adsl-gte-la-216-86-199-2.mminternet.com ([216.86.199.2]:52492
+	"EHLO alpha.zimage.com") by vger.kernel.org with ESMTP
+	id <S129207AbQJaKAL>; Tue, 31 Oct 2000 05:00:11 -0500
+Date: Tue, 31 Oct 2000 02:00:09 -0800
+From: method@zimage.com
+Message-Id: <200010311000.CAA14943@alpha.zimage.com>
+Reply-To: "Jeff Gustafson" <jeffgus@zimage.com>
+Subject: Adaptec F940
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
-> 
-> Martin Dalecki <dalecki@evision-ventures.com> said:
-> > Peter Samuelson wrote:
-> 
-> [...]
-> 
-> > > * Red Hat "2.96" or CVS 2.97 will probably break any known kernel.
-> 
-> > Works fine for me and 2.4.0-test10-pre5... however there are tons of
-> > preprocessor warnings in some drivers.
-> 
-> CVS (from 20001028 or so) gave a 2.4.0.10.6/i686 that crashed on boot, no
-> time to dig deeper yet.
+	I looked around for a driver for the Apaptec F940 fibre channel
+card... found nothing so far.  It looks like the card works with I2O.  I2O
+requires a I2O motherboard, yes?  If there is a web/ftp site that I
+missed... please point me in the correct direction.
 
-I was just using the compiler shipped by RedHat with all the fixes
-contained
-therein.... self compiled under glibc-2.1.95 on a system which some long
-time
-ago was RedHat-5.1 ;-). And it worked.
+				...Jeff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

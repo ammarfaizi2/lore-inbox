@@ -1,99 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263188AbTIATEz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 15:04:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263196AbTIATEz
+	id S263185AbTIATFy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 15:05:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263196AbTIATFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 15:04:55 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:8617
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263188AbTIATEu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 15:04:50 -0400
-Date: Mon, 1 Sep 2003 21:05:26 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Mike Fedyk <mfedyk@matchmail.com>, Antonio Vargas <wind@cocodriloo.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>
-Subject: Re: Andrea VM changes
-Message-ID: <20030901190526.GP11503@dualathlon.random>
-References: <20030830154137.GK24409@dualathlon.random> <Pine.LNX.4.44.0309011553210.6008-100000@logos.cnet>
+	Mon, 1 Sep 2003 15:05:54 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:22201 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S263185AbTIATFq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 15:05:46 -0400
+Date: Mon, 1 Sep 2003 21:05:44 +0200
+From: Jan Kara <jack@suse.cz>
+To: linux-kernel@vger.kernel.org
+Cc: Herbert Poetzl <herbert@13thfloor.at>
+Subject: Re: [BUG] mtime&ctime updated when it should not
+Message-ID: <20030901190544.GA24685@atrey.karlin.mff.cuni.cz>
+References: <20030901181113.GA15672@atrey.karlin.mff.cuni.cz> <20030901183527.GB21251@DUK2.13thfloor.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309011553210.6008-100000@logos.cnet>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <20030901183527.GB21251@DUK2.13thfloor.at>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 01, 2003 at 04:00:49PM -0300, Marcelo Tosatti wrote:
-> 
-> 
-> On Sat, 30 Aug 2003, Andrea Arcangeli wrote:
-> 
-> > On Sat, Aug 30, 2003 at 12:13:57PM -0300, Marcelo Tosatti wrote:
-> > > 
-> > > > You need to integrate with -aa on the VM.  It has been hard enough for
-> > > > Andrea to get his stuff in, I doubt you will fair any better.
-> > > 
-> > > Thats because I never received separate patches which make sense one by
-> > > one.  Most of Andreas changes are all grouped into few big patches that
-> > > only he knows the mess. That is not the way to merge things.
-> > > 
-> > > I want to work out with him after I merge other stuff to address that.
+> On Mon, Sep 01, 2003 at 08:11:13PM +0200, Jan Kara wrote:
+> >   Hello,
 > > 
-> > that's true for only one patch, the others are pretty orthogonal after
-> > Andrew helped splitting them:
-> > 
-> > 
-> > 05_vm_03_vm_tunables-4
-> > 05_vm_05_zone_accounting-2
-> > 05_vm_06_swap_out-3
-> > 05_vm_07_local_pages-4
-> > 05_vm_08_try_to_free_pages_nozone-4
-> > 05_vm_09_misc_junk-3
-> > 05_vm_10_read_write_tweaks-3
-> > 05_vm_13_activate_page_cleanup-1
-> > 05_vm_15_active_page_swapout-1
-> > 05_vm_16_active_free_zone_bhs-1
-> > 05_vm_17_rest-10
+> >   one user pointed my attention to the fact that when the write fails
+> > (for example when the user quota is exceeded) the modification time is
+> > still updated (the problem appears both in 2.4 and 2.6). According to
+> > SUSv3 that should not happen because the specification says that mtime
+> > and ctime should be marked for update upon a successful completition
+> > of a write (not that it would forbid updating the times in other cases
+> > but I find it at least a bit nonintuitive).
+> >   The easiest fix would be probably to "backup" the times at the
+> > beginning of the write and restore the original values when the write
+> > fails (simply not updating the times would require more surgery because
+> > for example vmtruncate() is called when the write fails and it also
+> > updates the times).
+> >   So should I write the patch or is the current behaviour considered
+> > correct?
 > 
-> Can you please split the watermark changes from 05_vm_rest-10 and send me
-> that ? (no waitqueue changes, no page wakeup logic changes)
-
-yes sure. (I have it already splitted here but I'm unsure if it's
-uptodate or/and if still applies:
-
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.15pre6/zone-watermarks-1
-
-so don't use it, I'll send a new one).
-
-> As I said previously, lets start with the page reclaiming logic changes 
-> first, which include:
+> hmm, what if the request only partially succeeds?
 > 
-> 05_vm_03_vm_tunables-4
-> 05_vm_05_zone_accounting-2
-> 05_vm_06_swap_out-3 
-> 
-> And the necessary (ONLY watermark stuff AFAICS) from 05_vm_rest-10. 
-> 
-> Right?
+> for example echo "five" >/tmp/x will create /tmp/x
+> if inode limit permits it, but will leave it empty
+> if the space limit does not ...
+  In thi case actually open(2) succeeds (so times will be set correctly)
+but following write(2) fails so it won't change times...
 
-Looks fine to me. Many thanks!
+> personally I wouldn't care about the modification
+> time on such a quota fault ...
+  In my opinion correct behaviour is to change times if at least one
+byte is written...
 
-Andrea
+								Honza
 
-/*
- * If you also refuse to depend on closed software for a critical
- * part of your business, these links may be useful:
- *
- * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.5/
- * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.4/
- * http://www.cobite.com/cvsps/
- *
- * svn://svn.kernel.org/linux-2.6/trunk
- * svn://svn.kernel.org/linux-2.4/trunk
- */
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

@@ -1,86 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269395AbRHaU4o>; Fri, 31 Aug 2001 16:56:44 -0400
+	id <S269387AbRHaV2i>; Fri, 31 Aug 2001 17:28:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269390AbRHaU4f>; Fri, 31 Aug 2001 16:56:35 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:60331 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S269356AbRHaU4Q>;
-	Fri, 31 Aug 2001 16:56:16 -0400
-Date: Fri, 31 Aug 2001 16:56:23 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: linux-kernel@vger.kernel.org
-cc: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>, linux-fsdevel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: [RFD] readonly/read-write semantics
-In-Reply-To: <Pine.LNX.4.31.0108311620540.3977-100000@sisley.ri.silicomp.fr>
-Message-ID: <Pine.GSO.4.21.0108311558430.15931-100000@weyl.math.psu.edu>
+	id <S269390AbRHaV23>; Fri, 31 Aug 2001 17:28:29 -0400
+Received: from e22.nc.us.ibm.com ([32.97.136.228]:19876 "EHLO
+	e22.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S269387AbRHaV2N>; Fri, 31 Aug 2001 17:28:13 -0400
+Subject: Announcing Journaled File System (JFS)  release 1.0.4 available
+To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF1FB25572.4B2FACA2-ON85256AB9.007597A0@raleigh.ibm.com>
+From: "Steve Best" <sbest@us.ibm.com>
+Date: Fri, 31 Aug 2001 16:27:14 -0500
+X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 08/31/2001 05:27:14 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Release 1.0.4 of JFS was made available today.
 
-Folks, stuff below is, IMNSHO, worth a discussion.  Please, give it
-a thought.  Short summary: we need well-defined semantics for
-read-only/read-write. Currently we don't have any.
+Drop 42 on August 31, 2001 (jfs-2.2-1.0.4-patch.tar.gz
+or jfs-2.4-1.0.4-patch.tar.gz) includes fixes to the
+file system and utilities.
 
-On Fri, 31 Aug 2001, Jean-Marc Saffroy wrote:
+Function and Fixes in release 1.0.4
 
-(first the trivial part)
+- Fixed typecast problem causing intermittent fsck failures on
+  64 bit hardware (jitterbug 159)
+- Fixed pointer calculation problem causing intermittent fsck
+  failures on 64 bit hardware
+- Fixed compiler warnings on s/390 and IA64
+- Fixed structure size mismatch between file system and utilities
+  causing fsck problems when large numbers of inodes are used
+- Fixed seg fault in fsck when logging path lengths greater than
+  512 characters
+- Fixed fsck printf format errors
+- Fixed compiler warnings in the FS when building on 64 bits systems
+- Fixed deadlock where jfsCommit hung in hold_metapage
+- Fixed problems with remount
+- Reserve metapages for jfsCommit thread
+- Get rid of buggy invalidate_metapage & use discard_metapage
+- Don't hand metapages to jfsIOthread (too many context switches)
+  (jitterbug 125, bugzilla 238)
+- Fix error message in jfs_strtoUCS
 
-> Hello,
-> 
-> 
-> In 2.4.9, I have encountered a strange condition while playing with file
-> structs chained on a superblock list (sb->s_files) : some of them can have
-> a NULL f_dentry pointer. The only case I found which can cause this is
-> when fput is called and f_count drops to zero. Is that the only case ?
 
-Yes, it is, and yes, it's legitimate - code that scans that list should
-(and in-tree one does) deal with such case.
- 
-> While exploring the corresponding code for an explanation, I found what
-> looks like a possible race condition : do_remount_sb calls
-> fs_may_remount_ro, and only then uses lock_super to do the actual remount.
-> 
-> Isn't it possible for a program to open a file for writing just after
-> fs_may_remount_ro ? The whole thing seems to be protected by the BKL and
-> mount_sem, but I guess it won't stop an open.
+For more details about JFS, please see the README or changelog.jfs.
 
-... and here comes the serious stuff.
-
-mount_sem, BKL and lock_super() have nothing to checks done in the open().
-
-fs_may_remount_ro() is, indeed, racy and had been since very long.
-However, the main problem is not in opening something after the
-check - the check itself is not exact enough.
-
-Think what happens if the object we hold for writing doesn't currently
-have struct file.  At all.  E.g. it is a directory in the middle of
-subdirectory creation.
-
-Or, for that matter, combine that with "what happens if we do ...
-after we've done the checks" - e.g. consider mkdir() called after
-the check.  Or unlink() on opened file driving ->i_nlink to 0.
-
-What we need is a "I want rw access to fs"/"I give up rw access"/"make
-it ro" set of primitives.  Unfortunately, it's even more compilcated -
-e.g. fs may stomp its foot and set MS_RDONLY in ->s_flags (e.g. upon
-finding an error if it has such policy).  That DOESN'T look for files
-opened for write (reasonable) and DOESN'T revoke write access to them.
-
-So you end up with fs that is claimed to be r/o, but people still have
-files opened for write.
-
-We need clear semantics for readonly/read-write state of filesystems.
-Until then all we have is "well, if you go single-user before remount
-or otherwise prevent users from access to mountpoit - you should be OK".
-
-Which, BTW, is not _too_ unreasonable, since otherwise you are gambling
-on the fact that users won't make the sucker busy in the wrong moment.
-More clean solution would be "revoke everyone's write access and remount
-r/o", but that will take quite an effort.  Which might be worth doing.
-
-Again, the main issue here is what do we want, not how to implement it.
-Flame away.
+Steve
+JFS for Linux http://oss.software.ibm.com/jfs
 

@@ -1,69 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbULFSEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbULFSDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261599AbULFSEW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 13:04:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbULFSEW
+	id S261595AbULFSDj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 13:03:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbULFSDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 13:04:22 -0500
-Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:34957 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261599AbULFSDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 13:03:53 -0500
-Subject: Re: [RFC] dynamic syscalls revisited
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Adrian Bunk <bunk@stusta.de>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0412061026490.5219@montezuma.fsmlabs.com>
-References: <1101741118.25841.40.camel@localhost.localdomain>
-	 <20041129151741.GA5514@infradead.org>
-	 <Pine.LNX.4.53.0411291740390.30846@yvahk01.tjqt.qr>
-	 <1101748258.25841.53.camel@localhost.localdomain>
-	 <20041205234605.GF2953@stusta.de>
-	 <1102349255.25841.189.camel@localhost.localdomain>
-	 <1102353388.25841.198.camel@localhost.localdomain>
-	 <Pine.LNX.4.61.0412061026490.5219@montezuma.fsmlabs.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Kihon Technologies
-Date: Mon, 06 Dec 2004 13:03:16 -0500
-Message-Id: <1102356196.25841.204.camel@localhost.localdomain>
+	Mon, 6 Dec 2004 13:03:38 -0500
+Received: from the.earth.li ([193.201.200.66]:52198 "EHLO the.earth.li")
+	by vger.kernel.org with ESMTP id S261595AbULFSCm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 13:02:42 -0500
+Date: Mon, 6 Dec 2004 18:02:42 +0000
+From: Jonathan McDowell <noodles@earth.li>
+To: linux-parport@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] parport_pc MODULE_PARM fix
+Message-ID: <20041206180242.GJ10285@earth.li>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-12-06 at 10:32 -0700, Zwane Mwaikambo wrote:
+[I hope sending this to just the linux-parport list is the right thing
+to do; I'm assuming the maintainers read it and don't want individual
+CCs as well.]
 
-> 
-> I didn't know we were on a crusade to end all binary modules at all costs. 
-> Why not just make _all_ symbols in the kernel EXPORT_SYMBOL_GPL then? I 
-> really believe this is taking things to new levels of silliness, we should 
-> also possibly consider adding code in glibc to stop proprietary 
-> libraries/applications from running. What do you think?
+In the 2.6.10-rc releases parport_pc doesn't seem to want to take any
+module parameters:
 
-Personally? I don't really care. But what goes in the main linux kernel
-is decided by Linus, and he doesn't want dynamic system calls because...
+parport_pc: Ignoring new-style parameters in presence of obsolete ones
+parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE]
+parport0: irq 7 detected
 
-Back in 2000 Linus wrote:
+I need to pass parameters to the module to make it detect my port fully
+(the printer doesn't seem to want to print more than a page or so
+without an irq in use). With the patch below, against 2.6.10-rc3 I can
+do so and get:
 
-The problem is that dynamic system calls are not going to happen.
+parport0: PC-style at 0x378 (0x778), irq 7, dma 3 [PCSPP,TRISTATE,COMPAT,ECP,DMA]
 
-Why?
+------
+--- drivers/parport/parport_pc.c.orig	2004-12-06 17:44:08.000000000 +0000
++++ drivers/parport/parport_pc.c	2004-12-06 17:49:59.000000000 +0000
+@@ -3157,7 +3157,7 @@
+ #ifdef CONFIG_PCI
+ static int __init parport_init_mode_setup(char *str)
+ {
+-	printk(KERN_DEBUG "parport_pc.c: Specified parameter parport_init_mode=%s\n", str);
++	DPRINTK(KERN_DEBUG "parport_pc.c: Specified parameter parport_init_mode=%s\n", str);
+ 
+ 	if (!strcmp (str, "spp"))
+ 		parport_init_mode=1;
+@@ -3176,7 +3176,7 @@
+ #ifdef MODULE
+ static const char *irq[PARPORT_PC_MAX_PORTS];
+ static const char *dma[PARPORT_PC_MAX_PORTS];
+-static char *init_mode;
++static char init_mode[7];
+ 
+ MODULE_PARM_DESC(io, "Base I/O address (SPP regs)");
+ module_param_array(io, int, NULL, 0);
+@@ -3193,7 +3193,7 @@
+ #endif
+ #ifdef CONFIG_PCI
+ MODULE_PARM_DESC(init_mode, "Initialise mode for VIA VT8231 port (spp, ps2, epp, ecp or ecpepp)");
+-MODULE_PARM(init_mode, "s");
++module_param_string(init_mode, init_mode, 7, 0);
+ #endif
+ 
+ static int __init parse_parport_params(void)
+------
 
-License issues. I will not allow system calls to be added from modules.
-Because I do not think that adding a system call is a valid thing for a
-module to do. It's that easy.
+J.
 
-It's the old thing about "hooks". You must not sidestep the GPL by just
-putting a hook in place. And dynamic system calls are the ultimate hook.
-
-                Linus
-
-
-And I was just trying to solve the one reason that I can understand why
-Linus doesn't want dynamic system calls. If Linus had not stated this, I
-would not be changing my original patch (which is still available and
-doesn't do any of this nastiness).
-
--- Steve
+-- 
+                                            jid: noodles@jabber.earth.li
+Where are we going?  And WHY ARE WE IN
+                                            THIS HANDBASKET?!!

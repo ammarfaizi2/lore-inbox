@@ -1,74 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbTKLPgA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 10:36:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbTKLPf7
+	id S262111AbTKLQBS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 11:01:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbTKLQBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 10:35:59 -0500
-Received: from web40905.mail.yahoo.com ([66.218.78.202]:54946 "HELO
-	web40905.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262116AbTKLPf6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 10:35:58 -0500
-Message-ID: <20031112153556.96591.qmail@web40905.mail.yahoo.com>
-Date: Wed, 12 Nov 2003 07:35:56 -0800 (PST)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: Fwd: Re: Badness in atomic_dec_and_test in 2.6.0-test9-mm2
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Wed, 12 Nov 2003 11:01:18 -0500
+Received: from mail.kroah.org ([65.200.24.183]:37833 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262111AbTKLQBR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 11:01:17 -0500
+Date: Wed, 12 Nov 2003 08:00:15 -0800
+From: Greg KH <greg@kroah.com>
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Patrick Mochel <mochel@osdl.org>,
+       Christian Borntraeger <CBORNTRA@de.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>
+Subject: Re: [RFC 0/5] Backing Store for sysfs (Overhauled)
+Message-ID: <20031112160015.GA28684@kroah.com>
+References: <20031112122344.GD14580@in.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031112122344.GD14580@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Morton,
+On Wed, Nov 12, 2003 at 05:53:44PM +0530, Maneesh Soni wrote:
+> 
+> The concept is still the same that in this prototype also we create dentry and 
+> inode on the fly when they are first looked up. This is done for both leaf or 
+> non-leaf dentries. The generic nature of sysfs_dirent makes it easy to do for 
+> both leaf or non-leaf dentries. 
 
---- Mike Anderson <andmike@us.ibm.com> wrote:
-> 
-> Greg posted a response the other day to a query from Alan Stern. Here is
-> the link 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=106835250124362&w=2
-> 
-> This should be the same problem that you are hitting.
-> 
-> A patch was checked into Linus's tree on 2003-11-07 by Greg that made a
-> couple line change to class.c.
-> 
-> Here is the patch in case you need to stay on mm2.
-> 
-> -andmike
-> --
-> Michael Anderson
-> andmike@us.ibm.com
-> 
-> --- 1.41/drivers/base/class.c	Fri Aug 29 14:18:26 2003
-> +++ 1.42/drivers/base/class.c	Fri Nov  7 06:48:28 2003
-> @@ -255,6 +255,7 @@
->  
->  void class_device_initialize(struct class_device *class_dev)
->  {
-> +	kobj_set_kset_s(class_dev, class_obj_subsys);
->  	kobject_init(&class_dev->kobj);
->  	INIT_LIST_HEAD(&class_dev->node);
->  }
-> @@ -277,7 +278,6 @@
->  
->  	/* first, register with generic layer. */
->  	kobject_set_name(&class_dev->kobj, class_dev->class_id);
-> -	kobj_set_kset_s(class_dev, class_obj_subsys);
->  	if (parent)
->  		class_dev->kobj.parent = &parent->subsys.kset.kobj;
-> 
+What happens once a dentry and inode is created?  Is there any way for
+them to be forced out, or do they stay around in memory forever?
 
-This patch fixes the badness-on-unplug error that I reported to linux-kernel.
+thanks,
 
-Brad
-
-=====
-Brad Chapman
-
-Permanent e-mail: kakadu_croc@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-Protect your identity with Yahoo! Mail AddressGuard
-http://antispam.yahoo.com/whatsnewfree
+greg k-h

@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbTILFHw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 01:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbTILFHw
+	id S261669AbTILFEA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 01:04:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbTILFEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 01:07:52 -0400
-Received: from dp.samba.org ([66.70.73.150]:35790 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261693AbTILFH3 (ORCPT
+	Fri, 12 Sep 2003 01:04:00 -0400
+Received: from [63.205.85.133] ([63.205.85.133]:51441 "EHLO gaz.sfgoth.com")
+	by vger.kernel.org with ESMTP id S261669AbTILFD6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 01:07:29 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       Andries Brouwer <aebr@win.tue.nl>, Jakub Jelinek <jakub@redhat.com>,
-       Dan Aloni <da-x@gmx.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       torvalds@transmeta.com
-Subject: Re: [BK PATCH] One strdup() to rule them all 
-In-reply-to: Your message of "Thu, 11 Sep 2003 23:12:45 -0400."
-             <3F6139AD.6070603@pobox.com> 
-Date: Fri, 12 Sep 2003 14:16:48 +1000
-Message-Id: <20030912050729.331442C11B@lists.samba.org>
+	Fri, 12 Sep 2003 01:03:58 -0400
+Date: Thu, 11 Sep 2003 22:12:12 -0700
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] oops_in_progress is unlikely()
+Message-ID: <20030912051212.GH41254@gaz.sfgoth.com>
+References: <20030907064204.GA31968@sfgoth.com> <20030907221323.GC28927@redhat.com> <20030910142031.GB2589@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030910142031.GB2589@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3F6139AD.6070603@pobox.com> you write:
-> Of course, if we DO waste time on it, your implementation Rusty kicks 
-> ass and takes steroids :)
+I feel sorry that my trivial little patch has spawned such a large thread.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.0-test5-bk2/MAINTAINERS working-2.6.0-test5-bk2-modules_txt_kconfig1/MAINTAINERS
---- linux-2.6.0-test5-bk2/MAINTAINERS	2003-09-09 10:34:22.000000000 +1000
-+++ working-2.6.0-test5-bk2-modules_txt_kconfig1/MAINTAINERS	2003-09-12 14:15:42.000000000 +1000
-@@ -1102,6 +1102,13 @@ W:	http://nfs.sourceforge.net/
- W:	http://www.cse.unsw.edu.au/~neilb/patches/linux-devel/
- S:	Maintained
- 
-+KSTRDUP
-+P:	Kstrdup Core Team
-+M:	kstrdup-core@ozlabs.org
-+L:	kstrdup@linux.kernel.org
-+W:	http://kstrdup.sourceforge.net/
-+S:	Supported
-+
- LANMEDIA WAN CARD DRIVER
- P:	Andrew Stanley-Jones
- M:	asj@lanmedia.com
+Pavel Machek wrote:
+> > There comes a point where readability is lost, for no measurable gain.
+> 
+> Perhaps we should have macros ifu() and ifl(), that would be used as a
+> plain if, just with likelyness-indication?
 
-Kill me now,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+No, I think that would be a move in the wrong direction.
+
+I've already described my personal opinion about unlikely() in a couple
+private emails, but for the record:
+
+When I see code like...
+
+	if (unlikely(condition)) {
+	}
+
+...it reads to me like...
+
+	if (condition) {	/* Unlikely error case */
+	}
+
+In other words it documents the code making it MORE readable than before
+(obviously this can be done to excess).  If the compiler can also do
+something useful with the information, so much the better.
+
+Perhaps I'm the only one that feels that way, though.
+
+Your ifu/ifl suggestion I think is pretty ugly.  First off, it would break
+syntax-highlighting editors which would hurt readability a lot.  Also its
+not obvious at all what "ifu (x == 0)" means - you can pretty much guess what
+"if (unlikely(x == 0))" does the first time you see it.
+
+-Mitch

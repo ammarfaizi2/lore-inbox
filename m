@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264254AbTLYJtq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 04:49:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264261AbTLYJtq
+	id S264286AbTLYJ44 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 04:56:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbTLYJ4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 04:49:46 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51982 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264254AbTLYJtn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 04:49:43 -0500
-Date: Thu, 25 Dec 2003 09:49:37 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "Zhu, Yi" <yi.zhu@intel.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix make kernel rpm bug
-Message-ID: <20031225094937.A11396@flint.arm.linux.org.uk>
-Mail-Followup-To: "Zhu, Yi" <yi.zhu@intel.com>,
-	Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-References: <3ACA40606221794F80A5670F0AF15F840254C76E@PDSMSX403.ccr.corp.intel.com> <Pine.LNX.4.44.0312251254240.16528-100000@mazda.sh.intel.com>
+	Thu, 25 Dec 2003 04:56:55 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:31243 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S264286AbTLYJ4s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 04:56:48 -0500
+Date: Thu, 25 Dec 2003 08:06:48 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Bart Samwel <bart@samwel.tk>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] laptop-mode for 2.6, version 3
+Message-ID: <20031225100648.GB13382@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Bart Samwel <bart@samwel.tk>, Jens Axboe <axboe@suse.de>,
+	linux-kernel@vger.kernel.org
+References: <3FE92517.1000306@samwel.tk> <20031224111640.GL1601@suse.de> <3FE9AFFC.2080302@samwel.tk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0312251254240.16528-100000@mazda.sh.intel.com>; from yi.zhu@intel.com on Thu, Dec 25, 2003 at 02:58:14PM +0800
+In-Reply-To: <3FE9AFFC.2080302@samwel.tk>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 25, 2003 at 02:58:14PM +0800, Zhu, Yi wrote:
-> On Thu, 25 Dec 2003, Jeff Garzik wrote:
-> > hmmm, I don't think $(ARCH) makes the rpm --target strings in all
-> > cases..
-> 
-> From rpm man page --target PLATFORM will interpret PLATFORM as
-> arch-vendor-os and set %_target, %_target_cpu, %_target_os accordingly.
-> In this case only arch is set, so vendor and os will remain as default.
-> 
-> If you still think it is too implicit, how about change as below? In case
-> you want set RPM_VENDOR_OS to something like "-unknown-linux".
+Minor nitpicks below
 
-What Jeff means is that $(ARCH) may not be what rpm calls the
-architecture.  For instance, the kernel has "arm" but RPM has
-"armv3l" "armv4l" etc, but doesn't know what "arm" is.
+Em Wed, Dec 24, 2003 at 04:25:48PM +0100, Bart Samwel escreveu:
+> diff -baur --speed-large-files linux-2.6.0/mm/page-writeback.c linux-2.6.0-withlaptopmode/mm/page-writeback.c
+> --- linux-2.6.0/mm/page-writeback.c	2003-12-24 05:19:46.000000000 +0100
+> +++ linux-2.6.0-withlaptopmode/mm/page-writeback.c	2003-12-24 15:49:55.000000000 +0100
+> @@ -28,6 +28,7 @@
+>  #include <linux/smp.h>
+>  #include <linux/sysctl.h>
+>  #include <linux/cpu.h>
+> +#include <linux/quotaops.h>
+>  
+>  /*
+>   * The maximum number of pages to writeout in a single bdflush/kupdate
+> @@ -81,6 +82,16 @@
+>   */
+>  int dirty_expire_centisecs = 30 * 100;
+>  
+> +/*
+> + * Flag that makes the machine dump writes/reads and block dirtyings.
+> + */
+> +int block_dump = 0;
+> +
+> +/*
+> + * Flag that puts the machine in "laptop mode".
+> + */
+> +int laptop_mode = 0;
+> +
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+No need to set a global variable to 0, if you don't set it'll go to the
+.bss section and the kernel will zero it out for us, and we reclaim 
+2 * sizeof(int) from the kernel image. This is common style in most parts
+of the kernel.
+
+- Arnaldo

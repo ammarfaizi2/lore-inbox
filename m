@@ -1,58 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267038AbTA0KTr>; Mon, 27 Jan 2003 05:19:47 -0500
+	id <S267042AbTA0KYw>; Mon, 27 Jan 2003 05:24:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267042AbTA0KTr>; Mon, 27 Jan 2003 05:19:47 -0500
-Received: from host213-121-111-56.in-addr.btopenworld.com ([213.121.111.56]:57293
-	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
-	id <S267038AbTA0KTq>; Mon, 27 Jan 2003 05:19:46 -0500
-Subject: Re: memory->disk
-From: Gianni Tedesco <gianni@ecsc.co.uk>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: Electroniks New <elektr_new@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030125191747.A646@nightmaster.csn.tu-chemnitz.de>
-References: <20030125190835.44069.qmail@web14711.mail.yahoo.com> 
-	<20030125191747.A646@nightmaster.csn.tu-chemnitz.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-kFn6HpeqVI2HzJCbZgSx"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 27 Jan 2003 10:29:13 +0000
-Message-Id: <1043663353.6978.21.camel@lemsip>
-Mime-Version: 1.0
+	id <S267083AbTA0KYw>; Mon, 27 Jan 2003 05:24:52 -0500
+Received: from mpsb-nat02.plala.or.jp ([202.212.114.145]:10584 "EHLO
+	mps4.plala.or.jp") by vger.kernel.org with ESMTP id <S267042AbTA0KYw>;
+	Mon, 27 Jan 2003 05:24:52 -0500
+Date: Mon, 27 Jan 2003 19:34:10 +0900
+From: <yokotak@rmail.plala.or.jp>
+X-Mailer: EdMax Ver2.85.2F
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] gamecon (added support for Sega Saturn controller), kernel 2.4.20
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+In-Reply-To: <20030126113957.A21550@ucw.cz>
+References: <20030126113957.A21550@ucw.cz>
+Message-Id: <20030127103408.GALG26766.mps4.plala.or.jp@rmail.mail.plala.or.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thank you very much for your reply.
 
---=-kFn6HpeqVI2HzJCbZgSx
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Vojtech Pavlik <vojtech@suse.cz> wrote:
+> Why are you adding it into gamecon.c and not fixing it in db9.c instead?
 
-On Sat, 2003-01-25 at 18:17, Ingo Oeser wrote:
-> On Sat, Jan 25, 2003 at 11:08:35AM -0800, Electroniks New wrote:
-> >   How to save a process from memory onto the disk.
->=20
-> Software Suspend is what you are looking for.
+Db9.c supports ONE gamepad per port. Gamecon.c supports FIVE gamepads
+per port.
+Gamecon.c seems appropriate to support more than one sega saturn pad
+on DPP compatible interface and multitap.
 
-Or possibly process check-pointing, ala CRAK.
-
-http://www.ncl.cs.columbia.edu/research/migrate/crak.html
-
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
-
---=-kFn6HpeqVI2HzJCbZgSx
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA+NQn4kbV2aYZGvn0RAmTXAJ0efjL5n6exSiZaCxv4kdp4EbBR4wCdGrxn
-BzKILL4OWrdNcRvUAUmSV2Q=
-=RYcq
------END PGP SIGNATURE-----
-
---=-kFn6HpeqVI2HzJCbZgSx--
+yokota
 

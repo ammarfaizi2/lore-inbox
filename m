@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264761AbUE0P0N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264804AbUE0Pek@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264761AbUE0P0N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 11:26:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264790AbUE0P0N
+	id S264804AbUE0Pek (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 11:34:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264809AbUE0Pek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 11:26:13 -0400
-Received: from zero.aec.at ([193.170.194.10]:13062 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S264761AbUE0P0I (ORCPT
+	Thu, 27 May 2004 11:34:40 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:46815 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264804AbUE0Pei (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 11:26:08 -0400
-To: Arthur Perry <kernel@linuxfarms.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: GART error 11 (fwd)
-References: <20uGg-17i-23@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 27 May 2004 17:26:05 +0200
-In-Reply-To: <20uGg-17i-23@gated-at.bofh.it> (Arthur Perry's message of
- "Thu, 27 May 2004 17:10:12 +0200")
-Message-ID: <m3d64pvqlu.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 27 May 2004 11:34:38 -0400
+Subject: Re: 4k stacks in 2.6
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040527152156.GI23194@wohnheim.fh-wedel.de>
+References: <20040527145935.GE23194@wohnheim.fh-wedel.de>
+	 <4382.1085670482@ocs3.ocs.com.au>
+	 <20040527152156.GI23194@wohnheim.fh-wedel.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LKEr0nNXSZjouhIa17dy"
+Organization: Red Hat UK
+Message-Id: <1085672066.7179.3.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 27 May 2004 17:34:26 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arthur Perry <kernel@linuxfarms.com> writes:
 
-> Here is a posting that I dropped off in RedHat's amd64-list.
-> It is a kernel related issue, so if anybody has any insight or opinion of
-> proper implementation here, please jump in!
+--=-LKEr0nNXSZjouhIa17dy
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Machine Check Exceptions are in front of all hardware issues, not kernel 
-issues. It is your CPU trying to tell you that something is wrong in the
-hardware.
+On Thu, 2004-05-27 at 17:21, J=C3=B6rn Engel wrote:
+> On Fri, 28 May 2004 01:08:02 +1000, Keith Owens wrote:
+> > On Thu, 27 May 2004 16:59:35 +0200,=20
+> > =3D?iso-8859-1?Q?J=3DF6rn?=3D Engel <joern@wohnheim.fh-wedel.de> wrote:
+> > >
+> > >Plus the script is wrong sometimes.  I have had trouble with sizes
+> > >around 4G or 2G, and never found the time to really figure out what's
+> > >going on.  Might be an alloca thing that got misparsed somehow.
+> >=20
+> > Some code results in negative adjustments to the stack size on exit,
+> > which look like 4G sizes.  My script checks for those and ignores them.
+> > /^[89a-f].......$/d;
+>=20
+> Ok, looks as if only my script is wrong.  Do you know what exactly
+> causes such a negative adjustment?
 
-The 2.4 MCE code tends to label unrelated MCEs as "GART error" because
-of bugs in the MCE decoding functions. There is a full fix for that 
-in the works.
+you can write "add 100,%esp" as "sub -100, %esp" :)
+compilers seem to do that at times, probably some cpu model inside the
+compiler decides the later is better code in some cases  :)
 
-In some early 2.4 kernels it also managed to trigger a CPU bug
-by writing directly nb registers.  This should be fixed in later
-2.4 kernels and also in SuSE SLES8-SP3.
 
-Best alternative is to use 2.6 which has much improved MCE handling.
+--=-LKEr0nNXSZjouhIa17dy
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
--Andi
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAtgqCxULwo51rQBIRAihgAJ0Qr2JmJ15/m/cYmolMgZxpEClUlQCaAt8k
+FNNdKG833v5ZMmJKbva8MkU=
+=KDdm
+-----END PGP SIGNATURE-----
+
+--=-LKEr0nNXSZjouhIa17dy--
 

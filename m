@@ -1,117 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266238AbUFUN5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266236AbUFUOHp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266238AbUFUN5L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 09:57:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266235AbUFUN4m
+	id S266236AbUFUOHp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 10:07:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266237AbUFUOHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 09:56:42 -0400
-Received: from zulo.virutass.net ([62.151.20.186]:1427 "EHLO mx.larebelion.net")
-	by vger.kernel.org with ESMTP id S266236AbUFUN4b convert rfc822-to-8bit
+	Mon, 21 Jun 2004 10:07:45 -0400
+Received: from s150.mancelona.gtlakes.com ([64.68.227.150]:51658 "EHLO
+	linux1.bmarsh.com") by vger.kernel.org with ESMTP id S266236AbUFUOHn convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 09:56:31 -0400
-From: Manuel Arostegui Ramirez <manuel@todo-linux.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>,
-       kernel@nn7.de (Soeren Sonnenburg)
-Subject: Re: sungem - ifconfig eth0 mtu 1300 -> oops
-Date: Mon, 21 Jun 2004 15:56:20 +0200
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com, benh@kernel.crashing.org,
-       netdev@oss.sgi.com, jgarzik@pobox.com
-References: <E1BcNzi-0000eh-00@gondolin.me.apana.org.au>
-In-Reply-To: <E1BcNzi-0000eh-00@gondolin.me.apana.org.au>
+	Mon, 21 Jun 2004 10:07:43 -0400
+From: Bruce Marshall <bmarsh@bmarsh.com>
+Reply-To: bmarsh@bmarsh.com
+To: Ragnar Hojland Espinosa <ragnar.hojland@linalco.com>
+Subject: Re: Use of Moxa serial card with SMP kernels
+Date: Mon, 21 Jun 2004 10:07:40 -0400
+User-Agent: KMail/1.6.1
+Cc: linux-kernel@vger.kernel.org, "Randy.Dunlap" <rddunlap@osdl.org>
+References: <200406171112.39485.bmarsh@bmarsh.com> <20040617084132.510d0bcb.rddunlap@osdl.org> <20040618120355.GA22970@linalco.com>
+In-Reply-To: <20040618120355.GA22970@linalco.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200406211556.20020.manuel@todo-linux.com>
-X-Virus: by Larebelion
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200406211007.40186.bmarsh@bmarsh.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Lunes 21 Junio 2004 14:33, Herbert Xu escribió:
-> Soeren Sonnenburg <kernel@nn7.de> wrote:
-> > When I have some ethernet connection and then do:
+On Friday 18 June 2004 08:09 am, Ragnar Hojland Espinosa wrote:
+> On Thu, Jun 17, 2004 at 08:41:32AM -0700, Randy.Dunlap wrote:
+> > Both Moxa serial drivers (moxa & mxser) are BROKEN_ON_SMP because
+> > they use cli() to disable interrupts for critical sections.
+> > See Documentation/cli-sti-removal.txt for details.
+> > They will need some acceptable modern form of protection there,
 > >
-> > ifconfig eth0 mtu 1300
-> >
-> > I get an immediate kernel panic (kernel 2.6.6) on a powerbook g4 15"
-> > 1ghz.
-> >
-> > xmon trace (jpeg) is here: http://www.nn7.de/kernel/mtu1300.jpg  (use a
-> > webbrowser to view it as it is a redirect)
-> >
-> > this is 100% reproducable here so I hope it is more easy to fix.
+> > Is anyone working on this?  not that I've heard of.
+> > Have you tried this email address:
+> > Copyright (C) 1999-2000  Moxa Technologies (support@moxa.com.tw).
 >
-> Does this patch fix your problems?
->
-> Cheers,
-> >
-> >===== drivers/net/sungem.c 1.56 vs edited =====
-> >--- 1.56/drivers/net/sungem.c   2004-06-19 17:16:13 +10:00
-> >+++ edited/drivers/net/sungem.c 2004-06-21 22:28:40 +10:00
-> >@@ -33,6 +33,7 @@
-> > #include <linux/crc32.h>
-> > #include <linux/random.h>
-> > #include <linux/workqueue.h>
-> >+#include <linux/if_vlan.h>
-> > 
-> > #include <asm/system.h>
-> > #include <asm/bitops.h>
-> >@@ -742,7 +743,7 @@
-> >                                       PCI_DMA_FROMDEVICE);
-> >                        gp->rx_skbs[entry] = new_skb;
- > >                       new_skb->dev = gp->dev;
-> >-                       skb_put(new_skb, (ETH_FRAME_LEN + RX_OFFSET));
-> >+                       skb_put(new_skb, (VLAN_ETH_FRAME_LEN + RX_OFFSET));
-> >                        rxd->buffer = cpu_to_le64(pci_map_page(gp->pdev,
-> >                                                               > 
->virt_to_page(new_skb->data),
-> >                                                               > 
->offset_in_page(new_skb->data),
-> >@@ -1482,6 +1483,9 @@
-> > 
-> >        gem_clean_rings(gp);
-> > 
-> >+       gp->rx_buf_sz = min(dev->mtu + ETH_HLEN + VLAN_HLEN,
-> >+                           (unsigned)VLAN_ETH_FRAME_LEN);
-> >+
-> >        for (i = 0; i < RX_RING_SIZE; i++) {
-> >                struct sk_buff *skb;
-> >                struct gem_rxd *rxd = &gb->rxd[i];
-> >@@ -1495,7 +1499,7 @@
-> > 
- > >               gp->rx_skbs[i] = skb;
- > >               skb->dev = dev;
-> >-               skb_put(skb, (ETH_FRAME_LEN + RX_OFFSET));
-> >+               skb_put(skb, (VLAN_ETH_FRAME_LEN + RX_OFFSET));
-> >                dma_addr = pci_map_page(gp->pdev,
-> >                                        virt_to_page(skb->data),
-> >                                        offset_in_page(skb->data),
-> >===== drivers/net/sungem.h 1.14 vs edited =====
-> >--- 1.14/drivers/net/sungem.h   2004-01-26 18:03:59 +11:00
-> >+++ edited/drivers/net/sungem.h 2004-06-21 22:24:46 +10:00
-> >@@ -911,7 +911,7 @@
-> >          (GP)->tx_old - (GP)->tx_new - 1)
+> I'd try writing and asking about it;  they were very helpful when we
+> had problems.
+
+Yes, they are responsive.   Here is the current reply:
+
+Dear Bruce,   
  
-> > #define RX_OFFSET          2
-> >-#define RX_BUF_ALLOC_SIZE(gp)  ((gp)->dev->mtu + 46 + RX_OFFSET + 64)
-> >+#define RX_BUF_ALLOC_SIZE(gp)  ((gp)->rx_buf_sz + 32 + RX_OFFSET + 64)
-> > 
-> > #define RX_COPY_THRESHOLD  256
-> > 
-> >@@ -979,6 +979,7 @@
-> >        int                     rx_fifo_sz;
-> >        int                     rx_pause_off;
-> >        int                     rx_pause_on;
-> >+       int                     rx_buf_sz;
- > >       int                     mii_phy_addr;
- > >
-> >        u32                     mac_rx_cfg;
+I've got updated news from the R&D Div., they are testing the latest beta 
+version of the driver for all the Moxa cards, only they can not provide me 
+with a precise schedule. Your case will be remaining open until it is 
+resolved, I will also keep you update with the information. 
+ 
+Best Regards, 
+ 
+Stephen Lin / Technical Support Engineer 
+ Moxa Technologies Co., Ltd.
 
-I've had the same problem, like Soeren, but if i put MTU=1200 there is not 
-kernel panic.
-I'm going to patch my 2.6.6 with this patch, thanks Herbert.
 
-Best regards
 
+-- 
++----------------------------------------------------------------------------+
++ Bruce S. Marshall  bmarsh@bmarsh.com  Bellaire, MI         06/21/04 10:06  +
++----------------------------------------------------------------------------+
+"A billion here, a billion there, sooner or later it adds up to real
+     money."       -Senator Everett Dirksen

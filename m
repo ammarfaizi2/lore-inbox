@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbUDPByU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 21:54:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbUDPByU
+	id S261380AbUDPB5O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 21:57:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbUDPB5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 21:54:20 -0400
-Received: from fw.osdl.org ([65.172.181.6]:5780 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261425AbUDPByR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 21:54:17 -0400
-Date: Thu, 15 Apr 2004 18:53:55 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: shannon@widomaker.com, linux-kernel@vger.kernel.org
-Subject: Re: NFS and kernel 2.6.x
-Message-Id: <20040415185355.1674115b.akpm@osdl.org>
-In-Reply-To: <1082079061.7141.85.camel@lade.trondhjem.org>
-References: <20040416011401.GD18329@widomaker.com>
-	<1082079061.7141.85.camel@lade.trondhjem.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 15 Apr 2004 21:57:13 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:14711 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261380AbUDPB5H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 21:57:07 -0400
+Message-ID: <407F3D70.4090704@yahoo.com.au>
+Date: Fri, 16 Apr 2004 11:57:04 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: markw@osdl.org
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: 2.6.5-mm5
+References: <200404151530.i3FFUI226872@mail.osdl.org>
+In-Reply-To: <200404151530.i3FFUI226872@mail.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
->
-> På to , 15/04/2004 klokka 18:14, skreiv Charles Shannon Hendrix:
-> > 
+markw@osdl.org wrote:
+> I have more results with DBT-2 on my 4-way Xeon system:
+> 	http://developer.osdl.org/markw/fs/dbt2_project_results.html
 > 
-> > NFS server:
-> > 
-> >     Sun SS5
-> >     10baseT ethernet (100baseT card available, not used)
-> >     NetBSD 1.6.1
-> >     pretty much a plain vanilla server setup
-> > 
-> > Network:
-> > 
-> >     simple LAN with three machines, connected via a full duplex
-> >     multi-speed switch
-> > 
-> > NFS client:
-> > 
-> >     vanilla PC
-> >     Intel Pro/100 ethernet
-> >     Slackware 9.1
-> >     Linux kernel 2.6.5, plain with no mods or patches, only enough
-> > 	drivers and features enabled to run my workstation
-> > 	configuration as close as I could get to my Linux 2.4
-> > 	kernel
+> It doesn't look like the latest cpu scheduler work is helping this
+> workload.  I've also made sure that the database was set to use fsync
+> instead of fdatasync so you can see if those fsync speedup patches are
+> offering anything with this workload too.
 > 
-> This is pretty much covered in the NFS FAQ entry B10.
+>            ext2  ext3
+> 2.6.5-mm5  2165  1933
+> 2.6.5-mm4  2180
+> 2.6.5-mm3  2165  1930
+> 2.6.5      2385
 > 
-> You are experiencing the classical effects of using unreliable transport
-> (i.e. UDP) on a mixed speed network. Writes to the server are getting
-> lost, because it is on a slow segment that cannot keep up with the
-> faster 100Mbit clients.
+> Mark
+> 
 
-But Charles was seeing good performance with 2.4-based clients.  When he
-went to 2.6 everything fell apart.
+Hmm, well the sched-less-idle patch is in mm5, which brought
+2.6.5-rc3-mm4 to 2320 on ext2.
 
-Do we know why this regression occurred?
+The only other significant scheduler changes since that kernel
+are in -mm5.
++sched_less_idle
++sched_balance_context
+
+So either sched_balance_context is causing a regression that
+counters sched_less_idle, or maybe it isn't a scheduler problem?

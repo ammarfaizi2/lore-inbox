@@ -1,58 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261400AbSJUPXC>; Mon, 21 Oct 2002 11:23:02 -0400
+	id <S261395AbSJUPXZ>; Mon, 21 Oct 2002 11:23:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261397AbSJUPXC>; Mon, 21 Oct 2002 11:23:02 -0400
-Received: from smtp1.home.se ([195.66.35.200]:18267 "EHLO smtp1.home.se")
-	by vger.kernel.org with ESMTP id <S261400AbSJUPW6>;
-	Mon, 21 Oct 2002 11:22:58 -0400
-Message-ID: <008101c27916$92ec5b40$0219450a@sandos>
-From: =?iso-8859-1?Q?John_B=E4ckstrand?= <sandos@home.se>
-To: <linux-kernel@vger.kernel.org>
-Subject: Problem with thinkpad 760xl, (Trident FB) TGUI 96xx
-Date: Mon, 21 Oct 2002 17:28:57 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S261397AbSJUPXY>; Mon, 21 Oct 2002 11:23:24 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:39604 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261395AbSJUPXX>; Mon, 21 Oct 2002 11:23:23 -0400
+Subject: Re: What kernels 2.4.x 2.5.x compile gcc3.2???
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: clemens@dwf.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200210151849.g9FInbur002088@orion.dwf.com>
+References: <200210151849.g9FInbur002088@orion.dwf.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Oct 2002 16:45:08 +0100
+Message-Id: <1035215108.27259.165.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a IBM Thinkpad 760XL, with a trident in it,
-giving this from lspci -v -v:
+On Tue, 2002-10-15 at 19:49, clemens@dwf.com wrote:
+> The subject just about says it.
+> What versions of 2.4.x and 2.5.x compile cleanly with
+> the new gcc 3.2 that is included in most recent releases
+> (in particular RH8.0)
 
-00:03.0 VGA compatible controller: Trident Microsystems
-TGUI 9660/968x/968x (rev d3) (prog-if 00 [VGA])
-        Control: I/O+ Mem+ BusMaster- SpecCycle-
-MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr-
-DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin A routed to IRQ 11
-        Region 0: Memory at 08000000 (32-bit,
-non-prefetchable) [size=4M]
-        Region 1: Memory at 08400000 (32-bit,
-non-prefetchable) [size=64K]
-        Region 2: Memory at 08800000 (32-bit,
-non-prefetchable) [size=4M]
-        Expansion ROM at 000c0000 [disabled] [size=64K]
+2.4.18/19/20.. are fine. 2.2 isnt really tested.
 
-The tridentfb driver isnt working very good, the output
-on screen is in some way interlaced in some odd way. I
-have a .png here:
-I have also not been able to get Xfree 4.2.1 working,
-but that seems to be another problem, seems the
-modeline isnt right. The tridentfb driver seems to be
-more on course, since the screen is atleast stable, not
-unsycnched "noise" as in X, only weirdly interleaved.
-Any ideas? Is this 760XL in some way different from
-others of the same brand, since others seem to have
-better luck?
+> The 2.4.18-14 kernel sources from RH have LOTS of patches,
+> and they (well the modules) still dont compile with their
+> own config file (sigh).
 
----
-John Bäckstrand
-
+Works for everyone else 8)
 

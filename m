@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbVCTEQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262004AbVCTERn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262017AbVCTEQd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 23:16:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbVCTEQc
+	id S262004AbVCTERn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 23:17:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbVCTERn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 23:16:32 -0500
-Received: from mailout06.infosat.net ([66.18.69.6]:13211 "EHLO
-	mail02.infosat.net") by vger.kernel.org with ESMTP id S261520AbVCTEQR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 23:16:17 -0500
+	Sat, 19 Mar 2005 23:17:43 -0500
+Received: from mailout06.infosat.net ([66.18.69.6]:31646 "EHLO
+	mail02.infosat.net") by vger.kernel.org with ESMTP id S261520AbVCTERb
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 23:17:31 -0500
 From: "julliets fish" <jullietfish@tsamail.co.za>
 Subject: proposal
 X-Mailer: CommuniGate Pro WebUser Interface v.4.1.8
-Date: Sun, 20 Mar 2005 06:16:12 +0200
-Message-ID: <web-681782323@mail01.infosat.net>
+Date: Sun, 20 Mar 2005 06:17:29 +0200
+Message-ID: <web-681783239@mail01.infosat.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT

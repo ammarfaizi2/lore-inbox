@@ -1,63 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262420AbVCJIRw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbVCJIVt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262420AbVCJIRw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 03:17:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbVCJIRv
+	id S262441AbVCJIVt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 03:21:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262428AbVCJITF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 03:17:51 -0500
-Received: from cantor.suse.de ([195.135.220.2]:51903 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262420AbVCJIQ6 (ORCPT
+	Thu, 10 Mar 2005 03:19:05 -0500
+Received: from relay.rost.ru ([80.254.111.11]:1668 "EHLO relay.rost.ru")
+	by vger.kernel.org with ESMTP id S262393AbVCJIQR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 03:16:58 -0500
-Subject: Re: [patch 11/16] Solaris nfsacl workaround
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Neil Brown <neilb@cse.unsw.edu.au>, Olaf Kirch <okir@suse.de>,
-       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1110412619.10804.51.camel@lade.trondhjem.org>
-References: <20050227152243.083308000@blunzn.suse.de>
-	 <20050227152353.510432000@blunzn.suse.de>
-	 <1110412619.10804.51.camel@lade.trondhjem.org>
-Content-Type: text/plain
-Organization: SUSE Labs
-Message-Id: <1110442616.25570.2.camel@winden.suse.de>
+	Thu, 10 Mar 2005 03:16:17 -0500
+Date: Thu, 10 Mar 2005 11:16:10 +0300
+From: Andrey Panin <pazke@donpac.ru>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch to enable the USB handoff on Dell 650
+Message-ID: <20050310081610.GC9262@pazke>
+Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>,
+	linux-kernel@vger.kernel.org
+References: <20050201100241.07c6c504@localhost.localdomain> <20050202071847.GA786@pazke> <20050304121740.07a3af47@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 10 Mar 2005 09:16:57 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050304121740.07a3af47@localhost.localdomain>
+X-Uname: Linux 2.6.11-pazke i686
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-10 at 00:56, Trond Myklebust wrote:
-> su den 27.02.2005 Klokka 16:22 (+0100) skreiv Andreas Gruenbacher:
-> > vanlig tekstdokument vedlegg (nfsacl-solaris-nfsacl-workaround.patch)
-> > If the nfs_acl program is available, Solaris clients expect both version
-> > 2 and version 3 to be available; RPC_PROG_MISMATCH leads to a mount
-> > failure.  Fake RPC_PROG_UNAVAIL when asked for nfs_acl version 2.
-> > 
-> > Trond has rejected this patch. I'm not sure how to deal with it in a
-> > truly clean way, so probably I won't care and still use this as a vendor
-> > patch.
+On 063, 03 04, 2005 at 12:17:40 -0800, Pete Zaitcev wrote:
+> On Wed, 2 Feb 2005 10:18:47 +0300 Andrey Panin <pazke@donpac.ru> wrote:
 > 
-> So I've talked to the Solaris implementors about this issue. They said
-> that the above behaviour on their clients was a bug that they've
-> corrected in Solaris 10.
+> > > +++ linux-2.6.11-rc2-lem/arch/i386/kernel/dmi_scan.c	2005-01-31 20:42:16.163592792 -0800
+> 
+> > > +static __init int enable_usb_handoff(struct dmi_blacklist *d)
+> > > +{
+> 
+> > Please don't add new quirks into dmi_scan.c. Use dmi_check_system()
+> > where possible.
+> 
+> Do you have a suggestion for a good place where to add a suitable
+> call for dmi_check_system for the USB handoff? Please observe that
+> it does not belong with the USB code, in fact we have this code
+> there already. It has to happen before any device drivers are
+> initiated.
+ 
+What about this patch ?
 
-Thanks for gathering this piece of information.
+diff -urdpNX /usr/share/dontdiff linux-2.6.11.vanilla/drivers/pci/quirks.c linux-2.6.11/drivers/pci/quirks.c
+--- linux-2.6.11.vanilla/drivers/pci/quirks.c	2005-03-02 10:37:31.000000000 +0300
++++ linux-2.6.11/drivers/pci/quirks.c	2005-03-10 10:45:19.000000000 +0300
+@@ -18,6 +18,7 @@
+ #include <linux/pci.h>
+ #include <linux/init.h>
+ #include <linux/delay.h>
++#include <linux/dmi.h>
+ 
+ #undef DEBUG
+ 
+@@ -886,6 +887,40 @@ static int __init usb_handoff_early(char
+ }
+ __setup("usb-handoff", usb_handoff_early);
+ 
++static int __init enable_usb_handoff(struct dmi_system_id *d)
++{
++	/*
++	 * A printk is probably unnecessary. There's no way this causes
++	 * any harm (famous last words). But seriously, we only add systems
++	 * to the list if we know that they need handoff for sure.
++	 */
++	usb_early_handoff = 1;
++	return 0;
++}
++
++static __initdata struct dmi_system_id usb_handoff_dmi_table[] = {
++	/*
++	 *	Boxes which need USB taken over from BIOS explicitly.
++	 */
++	{
++		.callback = enable_usb_handoff,
++		.ident = "Dell PW650",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Precision WorkStation 650"),
++		},
++	}
++};
++
++static int __init usb_handoff_dmi_init(void)
++{
++	dmi_check_system(usb_handoff_dmi_table);
++	return 0;
++}
++
++core_initcall(usb_handoff_dmi_init);
++
++
+ static void __devinit quirk_usb_handoff_uhci(struct pci_dev *pdev)
+ {
+ 	unsigned long base = 0;
 
-> Given that very few people are going to be using Solaris clients with
-> NFSv2 against a Linux server, and given that there is always the option
-> of compiling the server without NFSACL support for those few who need to
-> do this, I suggest we just drop this patch.
-
-It's NFSv3 clients that exhibit the strange behavior; else I never would
-have run into this bug. For me it's okay to leave out this patch; we'll
-still carry it around in our vendor tree for a while though.
-
-Cheers,
 -- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX GMBH
-
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net

@@ -1,32 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271086AbRHTNWN>; Mon, 20 Aug 2001 09:22:13 -0400
+	id <S269891AbRHTNSN>; Mon, 20 Aug 2001 09:18:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270930AbRHTNWD>; Mon, 20 Aug 2001 09:22:03 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:4106 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S271068AbRHTNV5>; Mon, 20 Aug 2001 09:21:57 -0400
-To: Peter Fales <psfales@lucent.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: UMSDOS problems in 2.4.9?
-In-Reply-To: <20010818212401.A1814@lucent.com>
-	<874rr3rgyv.fsf@devron.myhome.or.jp> <20010819220940.A1464@lucent.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: 20 Aug 2001 22:21:50 +0900
-In-Reply-To: <20010819220940.A1464@lucent.com>
-Message-ID: <878zgeg93l.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.104
+	id <S270593AbRHTNSD>; Mon, 20 Aug 2001 09:18:03 -0400
+Received: from elma.elma.fi ([192.89.233.77]:25044 "EHLO elma.elma.fi")
+	by vger.kernel.org with ESMTP id <S269891AbRHTNRr>;
+	Mon, 20 Aug 2001 09:17:47 -0400
+Date: Mon, 20 Aug 2001 16:18:00 +0300 (EETDST)
+From: Heikki Pernu <hpernu@Elma.Net>
+To: linux-ntfs@tiger.informatik.hu-berlin.de, linux-kernel@vger.kernel.org
+cc: heikki.pernu@Elma.FI
+Subject: Linux NTFS driver won't compile on 2.4.9
+Message-ID: <Pine.A32.3.96.1010820161035.408866B-100000@tokka.elma.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Fales <psfales@lucent.com> writes:
 
-> Yes.  It works!  Thanks!  Will that change go into the official kernel??
+	On official 2.4.9 kernel the included NTFS driver doesn't compile.
+	The problem was that unistr.c was using min macro without
+	it being defined. 
 
-I will send that patch to Linus. However, I don't know whether that is
-applied.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+	The quick fix is to include linux/kernel.h which
+	defines this macro.
+
+	Please, apply this to stock kernel ASAP! 
+	The official kernel is now broken.
+
+	Here is the patch:
+Index: linux/fs/ntfs/unistr.c
+===================================================================
+RCS file: /usr/local/CVSroot/linux-2.4/fs/ntfs/unistr.c,v
+retrieving revision 2.4
+diff -c -r2.4 unistr.c
+*** linux/fs/ntfs/unistr.c	2001/08/19 17:08:19	2.4
+--- linux/fs/ntfs/unistr.c	2001/08/20 13:02:46
+***************
+*** 23,28 ****
+--- 23,29 ----
+  
+  #include <linux/string.h>
+  #include <asm/byteorder.h>
++ #include <linux/kernel.h>
+  
+  #include "unistr.h"
+  #include "macros.h"
+
+
 

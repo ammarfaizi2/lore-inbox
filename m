@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264790AbSLFQmc>; Fri, 6 Dec 2002 11:42:32 -0500
+	id <S264771AbSLFQkx>; Fri, 6 Dec 2002 11:40:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264788AbSLFQmO>; Fri, 6 Dec 2002 11:42:14 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:2835 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S264786AbSLFQlm>;
-	Fri, 6 Dec 2002 11:41:42 -0500
-Date: Fri, 6 Dec 2002 08:48:54 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PNP driver changes for 2.5.50
-Message-ID: <20021206164854.GC10376@kroah.com>
-References: <20021206164522.GA10376@kroah.com> <20021206164802.GB10376@kroah.com>
+	id <S264785AbSLFQkw>; Fri, 6 Dec 2002 11:40:52 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:18444 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S264771AbSLFQkv>; Fri, 6 Dec 2002 11:40:51 -0500
+Message-Id: <200212061648.gB6GmNX01862@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: "David S. Miller" <davem@redhat.com>
+cc: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] generic device DMA implementation
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021206164802.GB10376@kroah.com>
-User-Agent: Mutt/1.4i
+Date: Fri, 06 Dec 2002 10:48:23 -0600
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.837.4.2, 2002/12/05 23:31:41-06:00, ambx1@neo.rr.com
+> These systems simply do not exist.
 
-[PATCH] PnP bugfix
+Yes, they do.  The parisc pcxs and pcxt processors are the prime example that 
+has annoyed me for a while.  This has no ability to control the cache at the 
+page level  (it doesn't even seem to allow fully disabling the processor 
+cache---not that you'd want to do that).  The result is that it cannot ever 
+return consistent memory, so pci_alloc_consistent always fails (see 
+arch/parisc/kernel/pci-dma.c:fail_alloc_consistent).  I have one of these 
+machines (A HP9000/715) and I maintain the driver for the SCSI chip, which 
+also needs to work efficiently on the intel platform, which is what got me 
+first thinking about the problem.
 
-I forgot the errno.h.  Without this patch, things may not compile when
-pnp support or pnp card support is disabled.
+Let me say again:  I don't envisage any driver writer worrying about this edge 
+case, unless they're already implementing work arounds for it now.
 
-Hope you had a good trip.  I noticed a small mistake in pnp 0.93 and I have
-a fix for it.
+I plan to maintain the current pci_ DMA API exactly as it is, with no 
+deviations.  Thus the dma_ API too can be operated in full compatibility mode 
+with the pci_ API.  That's the design intent.  However, I want the dma_ API to 
+simplify this driver edge case for me (and for others who have to maintain 
+similar drivers), which is why it allows a deviation from the pci_ API *if the 
+driver writer asks for it*.
+
+James
 
 
-diff -Nru a/include/linux/pnp.h b/include/linux/pnp.h
---- a/include/linux/pnp.h	Fri Dec  6 10:38:37 2002
-+++ b/include/linux/pnp.h	Fri Dec  6 10:38:37 2002
-@@ -11,6 +11,7 @@
- 
- #include <linux/device.h>
- #include <linux/list.h>
-+#include <linux/errno.h>
- 
- 
- /*
+
+

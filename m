@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263177AbTCWUQl>; Sun, 23 Mar 2003 15:16:41 -0500
+	id <S263179AbTCWUWi>; Sun, 23 Mar 2003 15:22:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263178AbTCWUQl>; Sun, 23 Mar 2003 15:16:41 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:47630 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S263177AbTCWUQk>; Sun, 23 Mar 2003 15:16:40 -0500
-Date: Sun, 23 Mar 2003 20:27:43 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Jan Dittmer <j.dittmer@portrix.net>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: i2c-via686a driver
-Message-ID: <20030323202743.A11150@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jan Dittmer <j.dittmer@portrix.net>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org
-References: <3E7E0B37.5060505@portrix.net>
-Mime-Version: 1.0
+	id <S263181AbTCWUWi>; Sun, 23 Mar 2003 15:22:38 -0500
+Received: from cygnus-ext.enyo.de ([212.9.189.162]:34057 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id <S263179AbTCWUWi>;
+	Sun, 23 Mar 2003 15:22:38 -0500
+To: Martin Mares <mj@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Ptrace hole / Linux 2.2.25
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: Martin Mares <mj@ucw.cz>, linux-kernel@vger.kernel.org
+Date: Sun, 23 Mar 2003 21:33:31 +0100
+In-Reply-To: <20030323202005$2a74@gated-at.bofh.it> (Russell King's message
+ of "Sun, 23 Mar 2003 21:20:05 +0100")
+Message-ID: <87znnlakmc.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.090017 (Oort Gnus v0.17) Emacs/21.2 (gnu/linux)
+References: <20030323194012$6886@gated-at.bofh.it>
+	<20030323194014$66c3@gated-at.bofh.it>
+	<20030323195010$5026@gated-at.bofh.it>
+	<20030323195012$6f30@gated-at.bofh.it>
+	<20030323200029$737b@gated-at.bofh.it>
+	<20030323202005$2a74@gated-at.bofh.it>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3E7E0B37.5060505@portrix.net>; from j.dittmer@portrix.net on Sun, Mar 23, 2003 at 08:29:59PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-// The following register sets temp interrupt mode (bits 1-0 for temp1, 
-// 3-2 for temp2, 5-4 for temp3).  Modes are:
-//    00 interrupt stays as long as value is out-of-range
-//    01 interrupt is cleared once register is read (default)
-//    10 comparator mode- like 00, but ignores hysteresis
-//    11 same as 00
+Russell King <rmk@arm.linux.org.uk> writes:
 
-	Please don't use C++-style comments in kernel code.
+> To give an instance, because I don't work for a distribution, I don't
+> have access to the security lists.  Yet, I'm the guy who produces the
+> ARM patches which the ARM community at large use.
 
-static inline u8 TEMP_TO_REG(long val)
-{
-	return (u8)
-	    SENSORS_LIMIT(viaLUT[((val <= -500) ? 0 : (val >= 1100) ? 160 : 
-				  ((val + 5) / 10 + 50))], 0, 255);
-}
-
-	Dead code?
-
-static int via686a_id = 0;
-
-	This doesn't need to be initialized.
-
-      ERROR4:
-
-	All-uppercase is ugly..
-      
+Well, this is a problem which will be fixed over time.  Amorphous
+distributions such as Debian will no longer be notified first, and
+non-US distributions will follow if things proceed in the current
+direction.  (Look at the handling of the recent IIS vulnerability to
+get a glimpse of the future.)

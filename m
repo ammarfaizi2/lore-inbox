@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263339AbTKKEOp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 23:14:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263334AbTKKEOo
+	id S263334AbTKKEWM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 23:22:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263340AbTKKEWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 23:14:44 -0500
-Received: from h80ad251e.async.vt.edu ([128.173.37.30]:36738 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263339AbTKKEOn (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 23:14:43 -0500
-Message-Id: <200311110414.hAB4EZA8007309@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Daniel Gryniewicz <dang@fprintf.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: OT: why no file copy() libc/syscall ?? 
-In-Reply-To: Your message of "Mon, 10 Nov 2003 23:03:26 EST."
-             <1068523406.4156.7.camel@localhost> 
-From: Valdis.Kletnieks@vt.edu
-References: <1068512710.722.161.camel@cube> <20031110205011.R10197@schatzie.adilger.int>
-            <1068523406.4156.7.camel@localhost>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_569435137P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 10 Nov 2003 23:14:35 -0500
+	Mon, 10 Nov 2003 23:22:11 -0500
+Received: from cafe.hardrock.org ([142.179.182.80]:21131 "EHLO
+	cafe.hardrock.org") by vger.kernel.org with ESMTP id S263334AbTKKEWI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 23:22:08 -0500
+Date: Mon, 10 Nov 2003 21:22:03 -0700 (MST)
+From: James Bourne <jbourne@hardrock.org>
+To: Joseph Shamash <info@avistor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Fibre channel HBA support
+In-Reply-To: <HBEHKOEIIJKNLNAMLGAOAEDDDKAA.info@avistor.com>
+Message-ID: <Pine.LNX.4.44.0311102114010.11583-100000@cafe.hardrock.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_569435137P
-Content-Type: text/plain; charset=us-ascii
+On Mon, 10 Nov 2003, Joseph Shamash wrote:
 
-On Mon, 10 Nov 2003 23:03:26 EST, Daniel Gryniewicz said:
+> Hello,
+> 
+> I have been searching for information on fibre channel HBA support for the
+> 2.6.0 kernel. I was hoping to use the LSIFC919, but my search seems to
+> indicate this driver is not yet supported in the 2.6.0 kernel.
+> 
+> I did find the HP Fibre Channel HBA is supported. Can anyone please advise
+> me about any other Fibre Channel HBA support in the 2.6.0 kernel?
 
-> Plus a sys_copy() syscall could be used as a generic way for filesystems
-> to set up Copy-on-Write.  Right now, you'd need to have userspace call
-> sys-reiser4 or something like that.
+The qlogic HBAs are supported as well and we do use several qla2340
+adapters for connecting to our emc SAN.
 
-This is fast turning into a creeping horror of aggregation.  I defy anybody
-to create an API to cover all the options mentioned so far and *not* have it
-look like the process_clone horror we so roundly derided a few weeks ago.
+The driver is not yet included in 2.4.22 at least, but you can find it on
+the qlogic site at http://www.qlogic.com/support/product_resources.asp?id=253
 
---==_Exmh_569435137P
-Content-Type: application/pgp-signature
+We are currently at 6.04-fo (fail over code works very well).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Regards
+James Bourne
+> 
+> Thanks,
+> _____________________________________
+> Joseph Shamash
+> ____________________________________________
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-iD8DBQE/sGIrcC3lWbTT17ARArjAAJ44dydC4R/Gk1TaaP9L+dePDTrpqgCgtMUv
-oTqKspV+otldK1US8yVuTv0=
-=HlpW
------END PGP SIGNATURE-----
+-- 
+James Bourne                  | Email:            jbourne@hardrock.org          
+Unix Systems Administrator    | WWW:           http://www.hardrock.org
+Custom Unix Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  
 
---==_Exmh_569435137P--

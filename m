@@ -1,134 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbUL3CJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbUL3CLL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261507AbUL3CJb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 21:09:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbUL3CJb
+	id S261509AbUL3CLL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 21:11:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbUL3CLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 21:09:31 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:63704 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261507AbUL3CJU convert rfc822-to-8bit (ORCPT
+	Wed, 29 Dec 2004 21:11:10 -0500
+Received: from fw.osdl.org ([65.172.181.6]:19118 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261509AbUL3CKy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 21:09:20 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 29 Dec 2004 21:10:54 -0500
+Date: Wed, 29 Dec 2004 18:10:25 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Thomas Sailer <sailer@scs.ch>
+cc: Jesse Allen <the3dfxdude@gmail.com>, Mike Hearn <mh@codeweavers.com>,
+       Eric Pouech <pouech-eric@wanadoo.fr>,
+       Daniel Jacobowitz <dan@debian.org>, Roland McGrath <roland@redhat.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       wine-devel <wine-devel@winehq.com>
+Subject: Re: ptrace single-stepping change breaks Wine
+In-Reply-To: <1104371395.5128.2.camel@gamecube.scs.ch>
+Message-ID: <Pine.LNX.4.58.0412291807440.2353@ppc970.osdl.org>
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com> 
+ <20041119212327.GA8121@nevyn.them.org>  <Pine.LNX.4.58.0411191330210.2222@ppc970.osdl.org>
+  <20041120214915.GA6100@tesore.ph.cox.net> <41A251A6.2030205@wanadoo.fr> 
+ <Pine.LNX.4.58.0411221300460.20993@ppc970.osdl.org>  <1101161953.13273.7.camel@littlegreen>
+  <1104286459.7640.54.camel@gamecube.scs.ch>  <1104332559.3393.16.camel@littlegreen>
+  <1104348944.5645.2.camel@kronenbourg.scs.ch>  <5304685704122912132e3f7f76@mail.gmail.com>
+ <1104371395.5128.2.camel@gamecube.scs.ch>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [PATCH] SATA support for Intel ICH7 - 2.6.10 - Updated
-Date: Wed, 29 Dec 2004 18:07:41 -0800
-Message-ID: <26CEE2C804D7BE47BC4686CDE863D0F502AE9FAB@orsmsx410>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] SATA support for Intel ICH7 - 2.6.10 - Updated
-Thread-Index: AcTuBGsyqmX8Kc99RLmMQYGQtLZACwAD18Yg
-From: "Gaston, Jason D" <jason.d.gaston@intel.com>
-To: "Jeff Garzik" <jgarzik@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 30 Dec 2004 02:08:54.0920 (UTC) FILETIME=[83AE2080:01C4EE14]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff,
-
-Updated to fix || typo, replaced with &&.
-
-This patch adds the Intel ICH7 DID's to the ata_piix SATA driver, ahci
-SATA AHCI driver and quirks.c for ICH7 SATA support.  If acceptable,
-please apply.
-
-Thanks,
-
-Jason Gaston
 
 
---- linux-2.6.10/drivers/pci/quirks.c.orig	2004-12-24
-13:33:49.000000000 -0800
-+++ linux-2.6.10/drivers/pci/quirks.c	2004-12-28 07:07:38.000000000
--0800
-@@ -1162,6 +1162,10 @@
- 	case 0x2653:
- 		ich = 6;
- 		break;
-+	case 0x27c0:
-+	case 0x27c4:
-+		ich = 7;
-+		break;
- 	default:
- 		/* we do not handle this PCI device */
- 		return;
-@@ -1181,7 +1185,7 @@
- 		else
- 			return;			/* not in combined mode
-*/
- 	} else {
--		WARN_ON(ich != 6);
-+		WARN_ON((ich != 6) && (ich != 7));
- 		tmp &= 0x3;  /* interesting bits 1:0 */
- 		if (tmp & (1 << 0))
- 			comb = (1 << 2);	/* PATA port 0, SATA
-port 1 */
---- linux-2.6.10/drivers/scsi/ata_piix.c.orig	2004-12-24
-13:35:50.000000000 -0800
-+++ linux-2.6.10/drivers/scsi/ata_piix.c	2004-12-28
-07:07:38.000000000 -0800
-@@ -60,6 +60,7 @@
- 	piix4_pata		= 2,
- 	ich6_sata		= 3,
- 	ich6_sata_rm		= 4,
-+	ich7_sata		= 5,
- };
- 
- static int piix_init_one (struct pci_dev *pdev,
-@@ -90,6 +91,8 @@
- 	{ 0x8086, 0x2651, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata },
- 	{ 0x8086, 0x2652, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_rm },
- 	{ 0x8086, 0x2653, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_rm },
-+	{ 0x8086, 0x27c0, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich7_sata },
-+	{ 0x8086, 0x27c4, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich7_sata },
- 
- 	{ }	/* terminate list */
- };
-@@ -236,6 +239,18 @@
- 		.udma_mask	= 0x7f,	/* udma0-6 */
- 		.port_ops	= &piix_sata_ops,
- 	},
-+
-+	/* ich7_sata */
-+	{
-+		.sht		= &piix_sht,
-+		.host_flags	= ATA_FLAG_SATA | ATA_FLAG_SRST |
-+				  PIIX_FLAG_COMBINED |
-PIIX_FLAG_CHECKINTR |
-+				  ATA_FLAG_SLAVE_POSS | PIIX_FLAG_AHCI,
-+		.pio_mask	= 0x1f,	/* pio0-4 */
-+		.mwdma_mask	= 0x07, /* mwdma0-2 */
-+		.udma_mask	= 0x7f,	/* udma0-6 */
-+		.port_ops	= &piix_sata_ops,
-+	},
- };
- 
- static struct pci_bits piix_enable_bits[] = {
---- linux-2.6.10/drivers/scsi/ahci.c.orig	2004-12-24
-13:34:26.000000000 -0800
-+++ linux-2.6.10/drivers/scsi/ahci.c	2004-12-28 07:07:38.000000000
--0800
-@@ -239,9 +239,13 @@
- 
- static struct pci_device_id ahci_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_INTEL, 0x2652, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci },
-+	  board_ahci }, /* ICH6 */
- 	{ PCI_VENDOR_ID_INTEL, 0x2653, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci },
-+	  board_ahci }, /* ICH6M */
-+	{ PCI_VENDOR_ID_INTEL, 0x27c1, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_ahci }, /* ICH7 */
-+	{ PCI_VENDOR_ID_INTEL, 0x27c5, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_ahci }, /* ICH7M */
- 	{ }	/* terminate list */
- };
- 
+On Thu, 30 Dec 2004, Thomas Sailer wrote:
+>
+> No joy with
+> linux-2.6.10
+> patch-2.6.10-ac1
+> 01-ptrace-reverse.diff
+> sigtrap-reverse.diff
+> 
+> Below is the seh trace output. In the working case (2.6.8) there is no
+> trace:seh: output at this point.
 
+I have no idea what "seh" is in wine-speak, but it appears that your 
+problem is something totally different, especially as none of the eflags- 
+changes seem to matter for you. Also, in your "seh" exception register 
+dump, you don't actually seem to have TF set in %eflags (TF is 0x0100).
 
+Some wine person would need to inform us about what the seh exception 
+thing means.. "code c0000005"? 
+
+			Linus

@@ -1,77 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316185AbSHDR2w>; Sun, 4 Aug 2002 13:28:52 -0400
+	id <S318177AbSHDRfJ>; Sun, 4 Aug 2002 13:35:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316753AbSHDR2w>; Sun, 4 Aug 2002 13:28:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:517 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316185AbSHDR2v>;
-	Sun, 4 Aug 2002 13:28:51 -0400
-Message-ID: <3D4D6527.8080405@mandrakesoft.com>
-Date: Sun, 04 Aug 2002 13:32:23 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020510
-X-Accept-Language: en-us, en
+	id <S318184AbSHDRfJ>; Sun, 4 Aug 2002 13:35:09 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:63946 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318177AbSHDRfH>;
+	Sun, 4 Aug 2002 13:35:07 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: "David S. Miller" <davem@redhat.com>, torvalds@transmeta.com
+Subject: Re: large page patch (fwd) (fwd)
+Date: Sun, 4 Aug 2002 13:31:24 -0400
+User-Agent: KMail/1.4.1
+Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, gh@us.ibm.com,
+       Martin.Bligh@us.ibm.com, wli@holomorpy.com,
+       linux-kernel@vger.kernel.org
+References: <20020802.222024.21061449.davem@redhat.com> <Pine.LNX.4.44.0208031027330.3981-100000@home.transmeta.com> <20020803.172836.60864598.davem@redhat.com>
+In-Reply-To: <20020803.172836.60864598.davem@redhat.com>
 MIME-Version: 1.0
-To: Matthew Wilcox <willy@debian.org>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] compile fix for dl2k
-References: <20020804170747.M24631@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208041331.24895.frankeh@watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
-> synchronise_irq now takes an argument.
-> it was using set_bit / test_bit inappropriately.
-> 
-> diff -urpNX dontdiff linux-2.5.30/drivers/net/dl2k.c linux-2.5.30-willy/drivers/net/dl2k.c
-> --- linux-2.5.30/drivers/net/dl2k.c	2002-06-20 16:53:51.000000000 -0600
-> +++ linux-2.5.30-willy/drivers/net/dl2k.c	2002-08-04 08:23:47.000000000 -0600
-> @@ -1108,7 +1108,6 @@ set_multicast (struct net_device *dev)
->  	u16 rx_mode = 0;
->  	int i;
->  	int bit;
-> -	int index, crc;
->  	struct dev_mc_list *mclist;
->  	struct netdev_private *np = dev->priv;
->  	
-> @@ -1130,13 +1129,14 @@ set_multicast (struct net_device *dev)
->  		for (i=0, mclist = dev->mc_list; mclist && i < dev->mc_count; 
->  			i++, mclist=mclist->next) {
->  
-> -			crc = ether_crc_le (ETH_ALEN, mclist->dmi_addr);
-> +			int index = 0;
-> +			int crc = ether_crc_le (ETH_ALEN, mclist->dmi_addr);
->  
->  			/* The inverted high significant 6 bits of CRC are
->  			   used as an index to hashtable */
-> -			for (index = 0, bit = 0; bit < 6; bit++)
-> -				if (test_bit(31 - bit, &crc))
-> -					set_bit(bit, &index);
-> +			for (bit = 0; bit < 6; bit++)
-> +				if (crc & (1 << (31 - bit)))
-> +					index |= (1 << bit);
->  
->  			hash_table[index / 32] |= (1 << (index % 32));
->  		}
+On Saturday 03 August 2002 08:28 pm, David S. Miller wrote:
+>    From: Linus Torvalds <torvalds@transmeta.com>
+>    Date: Sat, 3 Aug 2002 10:35:00 -0700 (PDT)
+>
+>    David, you did page coloring once.
+>
+>    I bet your patches worked reasonably well to color into 4 or 8 colors.
+>
+>    How well do you think something like your old patches would work if
+>
+>     - you _require_ 1024 colors in order to get the TLB speedup on some
+>       hypothetical machine (the same hypothetical machine that might
+>       hypothetically run on 95% of all hardware ;)
+>
+>     - the machine is under heavy load, and heavy load is exactly when you
+>       want this optimization to trigger.
+>
+>    Can you explain this difficulty to people?
+>
+> Actually, we need some clarification here.  I tried coloring several
+> times, the problem with my diffs is that I tried to do the coloring
+> all the time no matter what.
+>
+> I wanted strict coloring on the 2-color level for broken L1 caches
+> that have aliasing problems.  If I could make this work, all of the
+> dumb cache flushing I have to do on Sparcs could be deleted.  Because
+> of this, I couldn't legitimately change the cache flushing rules
+> unless I had absolutely strict coloring done on all pages where it
+> mattered (basically anything that could end up in the user's address
+> space).
+>
+> So I kept track of color existence precisely in the page lists.  The
+> implementation was fast, but things got really bad fragmentation wise.
+>
+> No matter how I tweaked things, just running a kernel build 40 or 50
+> times would fragment the free page lists to shreds such that 2-order
+> and up pages simply did not exist.
+>
+> Another person did an implementation of coloring which basically
+> worked by allocating a big-order chunk and slicing that up.  It's not
+> strictly done and that is why his version works better.  In fact I
+> like that patch a lot and it worked quite well for L2 coloring on
+> sparc64.  Any time there is page pressure, he tosses away all of the
+> color carving big-order pages.
+>
+>    I think we can at some point do the small cases completely
+> transparently, with no need for a new system call, and not even any new
+> hint flags. We'll just silently do 4/8-page superpages and be done with it.
+> Programs don't need to know about it to take advantage of better TLB usage.
+>
+> Ok.  I think even 64-page ones are viable to attempt but we'll see.
+> Most TLB's that do superpages seem to have a range from the base
+> page size to the largest supported superpage with 2-powers of two
+> being incrememnted between each supported size.
+>
+> For example on Sparc64 this is:
+>
+> 8K	PAGE_SIZE
+> 64K	PAGE_SIZE * 8
+> 512K	PAGE_SIZE * 64
+> 4M	PAGE_SIZE * 512
+>
+> One of the transparent large page implementations just defined a
+> small array that the core code used to try and see "hey how big
+> a superpage can we try" and if the largest for the area failed
+> (because page orders that large weren't available) it would simply
+> fall back to the next smallest superpage size.
 
-patch applied
 
+Well, that's exactly what we do !!!!
 
-> @@ -1635,7 +1635,7 @@ rio_close (struct net_device *dev)
->  
->  	/* Stop Tx and Rx logics */
->  	writel (TxDisable | RxDisable | StatsDisable, ioaddr + MACCtrl);
-> -	synchronize_irq ();
-> +	synchronize_irq (dev->irq);
->  	free_irq (dev->irq, dev);
->  	del_timer_sync (&np->timer);
+We also ensure that if one process opens with basic page size and 
+the next one opens with super page size that we appropriately map
+the second one to smaller pages to avoid conflict in case of shared
+memory or memory mapped files.
 
+As of the page coloring !
+Can we tweak the buddy allocator to give us this additional functionality?
+Seems like we can have a free-list per color and if that's empty we go back to
+the buddy sys. There we should be able to do some magic based on the bit maps
+to figure out where which page is to be used that fits the right color?
 
-patch already applied, dropping hunk
+Fragmentation is an issue.
 
-	Jeff
+-- 
+-- Hubertus Franke  (frankeh@watson.ibm.com)
 
 

@@ -1,79 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbUBZXV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 18:21:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbUBZXUC
+	id S261297AbUBZX0S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 18:26:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbUBZXXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 18:20:02 -0500
-Received: from fw.osdl.org ([65.172.181.6]:32977 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261234AbUBZXSF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 18:18:05 -0500
-Date: Thu, 26 Feb 2004 15:19:17 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Kingsley Cheung <kingsley@aurema.com>
-Cc: davidm@hpl.hp.com, peter@chubb.wattle.id.au, linux-kernel@vger.kernel.org,
-       dan@debian.org
-Subject: Re: /proc visibility patch breaks GDB, etc.
-Message-Id: <20040226151917.404af252.akpm@osdl.org>
-In-Reply-To: <20040227085941.A21764@aurema.com>
-References: <16445.37304.155370.819929@wombat.chubb.wattle.id.au>
-	<20040225224410.3eb21312.akpm@osdl.org>
-	<16446.19305.637880.99704@napali.hpl.hp.com>
-	<20040226120959.35b284ff.akpm@osdl.org>
-	<20040227085941.A21764@aurema.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Feb 2004 18:23:41 -0500
+Received: from colo.khms.westfalen.de ([213.239.196.208]:43683 "EHLO
+	colo.khms.westfalen.de") by vger.kernel.org with ESMTP
+	id S261234AbUBZXXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 18:23:08 -0500
+Date: 26 Feb 2004 23:39:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <93cTCGAXw-B@khms.westfalen.de>
+In-Reply-To: <20040224212823.GA23551@redhat.com>
+Subject: Re: Intel vs AMD x86-64
+X-Mailer: CrossPoint v3.12d.kh13 R/C435
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+References: <8D4D7D09D4DA5F41BF3905582CF84ACB5D7068@tbanausc3a.dynextechnologies.com> <403BC2A9.4040107@techsource.com> <Pine.LNX.4.58.0402241330250.1095@ppc970.osdl.org> <Pine.LNX.4.58.0402241330250.1095@ppc970.osdl.org> <20040224212823.GA23551@redhat
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kingsley Cheung <kingsley@aurema.com> wrote:
+davej@redhat.com (Dave Jones)  wrote on 24.02.04 in <20040224212823.GA23551@redhat.com>:
+
+> On Tue, Feb 24, 2004 at 01:31:26PM -0800, Linus Torvalds wrote:
 >
-> Am I correct to assume though that the corresponding change in
-> proc_task_lookup() should stay?  The existing behaviour there was that
-> one could do say,
-> 
-> cat /proc/<pid>/task/<tid>/stat, where tid could be any thread and not
-> a part of the thread group pid.  
+>  > > Fortunately, Linus is very antithetical to many other cult figures in
+>  > > that he is very much NOT a psychopath.  :)
+>  >
+>  > I'm happy you put it that way, because otherwise I'd have had to take out
+>  > my chain saw and run around naked trying to kill you.
+>
+> If you listen carefully, you'll hear the sound of thousands of Linux hackers
+> trying to scratch out their minds-eyes at that image.  8-)
 
-That sounds especially broken - let's hope that nobody has started using it
-(but how did you even discover this?  Code audit?)
+Why? That's the Linus we know and love. (Preferrably with a good sauce.)
 
-How's this?
-
-diff -puN fs/proc/base.c~proc-thread-visibility-revert fs/proc/base.c
---- 25/fs/proc/base.c~proc-thread-visibility-revert	Thu Feb 26 15:17:48 2004
-+++ 25-akpm/fs/proc/base.c	Thu Feb 26 15:17:48 2004
-@@ -1582,13 +1582,14 @@ struct dentry *proc_pid_lookup(struct in
- 	read_unlock(&tasklist_lock);
- 	if (!task)
- 		goto out;
--	if (!thread_group_leader(task))
--		goto out_drop_task;
- 
- 	inode = proc_pid_make_inode(dir->i_sb, task, PROC_TGID_INO);
- 
--	if (!inode)
--		goto out_drop_task;
-+
-+	if (!inode) {
-+		put_task_struct(task);
-+		goto out;
-+	}
- 	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
- 	inode->i_op = &proc_tgid_base_inode_operations;
- 	inode->i_fop = &proc_tgid_base_operations;
-@@ -1613,8 +1614,6 @@ struct dentry *proc_pid_lookup(struct in
- 		goto out;
- 	}
- 	return NULL;
--out_drop_task:
--	put_task_struct(task);
- out:
- 	return ERR_PTR(-ENOENT);
- }
-
-_
-
+MfG Kai

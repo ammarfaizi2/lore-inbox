@@ -1,59 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbVAXUpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbVAXUth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261644AbVAXUpH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 15:45:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVAXUnZ
+	id S261648AbVAXUth (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 15:49:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVAXUsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 15:43:25 -0500
-Received: from mail.inter-page.com ([207.42.84.180]:53516 "EHLO
-	mail.inter-page.com") by vger.kernel.org with ESMTP id S261644AbVAXUnB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 15:43:01 -0500
-From: "Robert White" <rwhite@casabyte.com>
-To: "'Ulrich Drepper'" <drepper@gmail.com>,
-       "'Brent Casavant'" <bcasavan@sgi.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Pollable Semaphores
-Date: Mon, 24 Jan 2005 12:42:39 -0800
-Organization: Casabyte, Inc.
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAANFFChaf6nUyxc8R7DAo09gEAAAAA@casabyte.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <a36005b5050121194377026f39@mail.gmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Importance: Normal
+	Mon, 24 Jan 2005 15:48:47 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:30349 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261648AbVAXUpH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 15:45:07 -0500
+Date: Mon, 24 Jan 2005 15:44:58 -0500
+From: Dave Jones <davej@redhat.com>
+To: Brice.Goglin@ens-lyon.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1
+Message-ID: <20050124204458.GD27570@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Brice.Goglin@ens-lyon.org,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050124021516.5d1ee686.akpm@osdl.org> <41F4E28A.3090305@ens-lyon.fr> <20050124185258.GB27570@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050124185258.GB27570@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The other obvious problem is that if there are contenders on the semaphore, the
-semaphore may well not remain acquirable between the return from select and the call
-to actually acquire the semaphore.
+On Mon, Jan 24, 2005 at 01:52:58PM -0500, Dave Jones wrote:
+ > On Mon, Jan 24, 2005 at 12:56:58PM +0100, Brice Goglin wrote:
+ >  > X does not work anymore when using DRI on my Compaq Evo N600c (Radeon 
+ >  > Mobility M6 LY).
+ >  > My XFree 4.3 (from Debian testing) with DRI uses drm and radeon kernel 
+ >  > modules.
+ >  
+ > My fault. I'm looking into it.
+ > Drop the agpgart-bk update for now.
 
-What I'd think you need is a "device" that you open, then attach a semaphore to (with
-an ioctl()?), then you would write increment/decrement actions to the device file
-descriptor and it would reply with the results.
+Here's the most obvious bug fixed. There still seems to be
+something wrong however. It only successfully boots 50% of the
+time for me, (it reboots when starting X otherwise), and when
+it does boot, I get a flood of ...
+Warning: kfree_skb on hard IRQ cf7b5800
+Warning: kfree_skb on hard IRQ cf7b5800
+Warning: kfree_skb on hard IRQ cf7b5800
 
-By making the write and read actions be "normal" and "atomic" you end up with normal
-produce/consume file operations and so normal interaction with poll/select.
+I think there may be some stupid memory corruptor bug in there still.
 
-I would imagine [off the top of my head] that each device node would have to have
-some kind of tasklet-like (but blockable) context that could wait for the semaphore
-in a non-blocking way.  (Actually I'd imagine a reverse hook in the semaphore itself
-that would contain a linked-list of inactive tasklet references which would each be
-activated on a suitable semaphore operation (increment).
+		Dave
 
-The short version is that the "available" state must be atomic with the actual
-decrement operation or you will probably end up blocking in the decrement after the
-select() anyway.  Once you factor that in, all sorts of more-classic models suggest
-themselves.
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/01/24 15:37:57-05:00 davej@redhat.com 
+#   [AGPGART] Fix stupid thinko in device discovery.
+#   
+#   Should fix the 'cant find AGP VGA controller' warnings.
+#   
+#   Signed-off-by: Dave Jones <davej@redhat.com>
 
-Rob White,
-Casabyte, Inc.
-
-
-
+diff -Nru a/drivers/char/agp/generic.c b/drivers/char/agp/generic.c
+--- a/drivers/char/agp/generic.c	2005-01-24 15:38:26 -05:00
++++ b/drivers/char/agp/generic.c	2005-01-24 15:38:26 -05:00
+@@ -626,7 +626,7 @@
+ 	u32 vga_agpstat;
+ 
+ 	while (!cap_ptr) {
+-		device = pci_get_class(PCI_CLASS_DISPLAY_VGA, device);
++		device = pci_get_class(PCI_CLASS_DISPLAY_VGA << 8, device);
+ 		if (!device) {
+ 			printk (KERN_INFO PFX "Couldn't find an AGP VGA controller.\n");
+ 			return 0;

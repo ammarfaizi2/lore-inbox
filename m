@@ -1,81 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261295AbSLaKAz>; Tue, 31 Dec 2002 05:00:55 -0500
+	id <S261375AbSLaK0Q>; Tue, 31 Dec 2002 05:26:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261317AbSLaKAy>; Tue, 31 Dec 2002 05:00:54 -0500
-Received: from [212.143.73.102] ([212.143.73.102]:18279 "EHLO
-	hawk.exanet-il.co.il") by vger.kernel.org with ESMTP
-	id <S261295AbSLaKAx> convert rfc822-to-8bit; Tue, 31 Dec 2002 05:00:53 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
+	id <S261376AbSLaK0P>; Tue, 31 Dec 2002 05:26:15 -0500
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:56256 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S261375AbSLaK0P> convert rfc822-to-8bit; Tue, 31 Dec 2002 05:26:15 -0500
+x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
 content-class: urn:content-classes:message
-Subject: A loopback route is spontaneously added with hidden arp patch?
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Date: Tue, 31 Dec 2002 12:08:27 +0200
-Message-ID: <4913AB320D31DC4798D6FEF5F557351F1597DA@hawk.exanet-il.co.il>
+Subject: 5.53 mm2 oops during LMbench.
+Date: Tue, 31 Dec 2002 16:04:24 +0530
+Message-ID: <94F20261551DC141B6B559DC491086720445DD@blr-m3-msg.wipro.com>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-Thread-Topic: A loopback route is spontaneously added with hidden arp patch?
-Thread-Index: AcKwtI++YDHmWM/0QdiN2yS675aNLQ==
-From: "Nir Soffer" <nirs@exanet.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Yuval Yeret" <yuval@exanet.com>
+Thread-Topic: 5.53 mm2 oops during LMbench.
+Thread-Index: AcKwuC9isuQkX45yS4C23SDtdRp5/g==
+From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
+To: "Andrew Morton" <akpm@digeo.com>
+Cc: <linux-kernel@vger.kernel.org>, "Larry McVoy" <lm@bitmover.com>
+X-OriginalArrivalTime: 31 Dec 2002 10:34:25.0084 (UTC) FILETIME=[30505FC0:01C2B0B8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Oops came when Lmbench was calculating memory load latency. 
 
-Hi!
+Couldn't capture the entire call trace. Here is the last screen.
 
-I'm running 2.4.18-14 in a heavy network environment. The machine itself
-is a dual CPU P3 (though I've seen the same thing on  other platforms
-with different kernels). The kernel itself is patched with the hidden
-arp patches and is running a proprietary IP load balancing module (from
-www.ipmetrics.com ).
-
-I've seen several times where the routing table has become corrupted in
-such a way so all connections to 10.0.0.0 go to the loopback.
-
-The output of ip route ls table all is:
-local 10.0.18.230 dev lo  table local  proto kernel  scope host  src
-10.0.18.230 
-broadcast 127.255.255.255 dev lo  table local  proto kernel  scope link
-src 127.0.0.1 
-local 10.48.0.3 dev eth1  table local  proto kernel  scope host  src
-10.48.0.3 
-local 10.0.18.210 dev lo  table local  proto kernel  scope host  src
-10.0.18.210 
-local 10.16.0.3 dev eth0  table local  proto kernel  scope host  src
-10.16.0.3 
-local 10.0.18.220 dev lo  table local  proto kernel  scope host  src
-10.0.18.220 
-local 10.0.18.12 dev eth3  table local  proto kernel  scope host  src
-10.0.18.12 
-broadcast 127.0.0.0 dev lo  table local  proto kernel  scope link  src
-127.0.0.1 
-local 127.0.0.1 dev lo  table local  proto kernel  scope host  src
-127.0.0.1 
-local 10.0.0.0/8 dev lo  table local  proto kernel  scope host  src
-10.0.18.210 
-^^^^^^^^^^^
-local 127.0.0.0/8 dev lo  table local  proto kernel  scope host  src
-127.0.0.1 
-
-As you can see, the second to last line is a route table entry that
-routes everything to 10.0.0.0/8 to the loopback addr.
-
-10.0.18.210 is an IP alias configured on the loopback interface, for use
-with the hidden arp patch.
-
-Has anyone ever encountered such a situtation, or does anyone have any
-hints how we can solve this?
-
-Thanks!
-Nir.
-
-
---
-Nir Soffer -=- Software Engineer, Exanet Inc. -=-
-"The poor little kittens; They lost their mittens;
- And now you all must die. Mew, Mew, Mew, Mew, 
- And now you all must die." www.sluggy.com, 24/10/02
+3ef4c>] shrink_list+0x3c/0x660
+ [<c0109cea>] apic_timer_interrupt+0x1a/0x20
+ [<c013dfca>] __pagevec_release+0x1a/0x30
+ [<c013f7a8>] shrink_cache+0x238/0x460
+ [<c01401b3>] shrink_zone+0x83/0xb0
+ [<c0140250>] shrink_caches+0x70/0xa0
+ [<c0140309>] try_to_free_pages+0x89/0xc0
+ [<c01382a7>] __alloc_pages+0x1f7/0x2c0
+ [<c013839a>] __get_free_pages+0x2a/0x70
+ [<c013b6e1>] cache_grow+0x141/0x380
+ [<c013ba51>] __cache_alloc_refill+0x131/0x440
+ [<c013bda4>] cache_alloc_refill+0x44/0x60
+ [<c013c316>] kmem_cache_alloc+0x56/0x100
+ [<c01485b5>] pgtable_add_rmap+0x55/0x80
+ [<c01416a1>] pte_alloc_map+0xe1/0x180
+ [<c0148f61>] pte_chain_alloc+0x41/0x60
+ [<c0141ca6>] copy_page_range+0x466/0x6c0
+ [<c011ce4d>] mm_init+0xdd/0x120
+ [<c011d37b>] copy_mm+0x3ab/0x4b0
+ [<c011df55>] copy_process+0x5c5/0xbd0
+ [<c011e5e7>] do_fork+0x87/0x140
+ [<c01076c9>] sys_fork+0x19/0x30
+ [<c0109323>] syscall_call+0x7/0xb

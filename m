@@ -1,67 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281021AbRKGWWh>; Wed, 7 Nov 2001 17:22:37 -0500
+	id <S281028AbRKGWZR>; Wed, 7 Nov 2001 17:25:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281022AbRKGWW1>; Wed, 7 Nov 2001 17:22:27 -0500
-Received: from gw.lowendale.com.au ([203.26.242.120]:4168 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S281021AbRKGWWR>; Wed, 7 Nov 2001 17:22:17 -0500
-Date: Thu, 8 Nov 2001 09:32:30 +1100 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Jonas Diemer <diemer@gmx.de>,
-        Linux Kermel ML <linux-kernel@vger.kernel.org>
-Subject: Re: VIA 686 timer bugfix incomplete
-In-Reply-To: <20011107211445.A2286@suse.cz>
-Message-ID: <Pine.LNX.4.05.10111080917140.19515-100000@marina.lowendale.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281026AbRKGWZH>; Wed, 7 Nov 2001 17:25:07 -0500
+Received: from stingr.net ([212.193.33.37]:6405 "EHLO stingr.net")
+	by vger.kernel.org with ESMTP id <S281022AbRKGWYy>;
+	Wed, 7 Nov 2001 17:24:54 -0500
+Date: Thu, 8 Nov 2001 01:24:52 +0300
+From: Paul P Komkoff Jr <i@stingr.net>
+To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
+Message-ID: <20011108012452.A14971@stingr.net>
+Mail-Followup-To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0111062157050.25683-100000@mustard.heime.net> <Pine.GSO.4.33.0111061611080.17287-100000@sweetums.bluetronic.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.33.0111061611080.17287-100000@sweetums.bluetronic.net>
+User-Agent: Agent Orange
+X-Mailer: mIRC32 v5.91 K.Mardam-Bey
+X-RealName: Stingray Greatest Jr
+Organization: Stingray Software
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Nov 2001, Vojtech Pavlik wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: RIPEMD160
 
-[...]
-> On Wed, Nov 07, 2001 at 08:48:00PM +0100, Jonas Diemer wrote:
-[...]
-> > well, just use the option described above. that way, ppl that need the fix can
-> > choose to use it (at a cost of performance), others simply don't need checking.
-> > 
-> > -jonas
-> > 
-> > PS: CC me in your answers plz, I am not subscribed to the list.
-> 
-> The VIA bug isn't a problem: The fix doesn't cause performance problems
-> to people unaffected by the bug, it just prints an annoying message to
-> people who see it triggered by bug #2 (Neptune).
-[snip]
+Replying to Ricky Beam:
+> And those who *will* complain that binary structures are hard to work with,
+> (you're idiots too :-)) a struct is far easier to deal with than text
+> processing, esp. for anyone who knows what they are doing.  Yes, changes
 
-Maybe not performance problems, but my tired-but-otherwise-reliable
-AcerNote-950C (which definitely does not have a VIA686a - it's a Pentium)
-doesn't seem to like this VIA686a fix (but only sometimes {:-( ).
+Just read the whole thread, and got my head explode. Let me reply to random
+picked msg.
 
-Prior to 2.2.19, on going to sleep due to low battery, I could reliably
-wake it up.  with 2.2.19 (being where this fix entered 2.2) this isn't the
-case - sometimes I just get the "probable bug" message, sometimes also a
-diag re hda (sorry, can't quote right now) and on one occasion serious
-file system corruption (OK, maybe it was a co-incidence, or maybe not).
+First, to these who know about kernel-user interaction in, for example,
+windows. Win32 API has functions, which fill structs, defined in SDK headers.
 
-Yes, I probably have a bug in the timer department, but I strongly suspect
-that the fix for the 686a is not appropriate for my chipset.
+Linux kernel is much more light-w ... or maybe for any other reason it does
+not have that functions. pity. they can achieve performance you need. and no
+need for parsing, yeah. (we also do have X, which implementation is much
+more slow than winNT gui).
 
-If the current VIA686a "probable bug" fix is going to remain as default,
-then I for one would like to see a knob to disable it.
+but.
 
-For 2.2, I'm happy to have a go at making and alpha-testing a patch for a
-kernel command-line switch to disable this - but I'd very much like to
-hear from the custodians of consistency in such matters as to an
-appropriate/best attribute=value to use for this.  Some sugestions:
+How much time you will parse a single integer ? Without any text around
+needs to be thrown away, optionally with 0x and considered it __int64 ?
 
-	chips=novia686a
-	via_hacks=no686a
-	via_hacks=none
-	timer=no686a
+This is much better than current /proc, yeah ? Anyway, Linus will keep proc
+ASCII, and we don't have another Linus.
 
-Regards,
-Neale.
+So proposed standard for /proc - is a good idea. Let's get rid of
+progressbars, percent-o-meters with pseudographics. Maybe we should switch
+from single file, for ex, cpuinfo, to dir with many INDIVIDUAL files
+containing single number or feature-set in it. Splitting away parts that
+need to be formatted in-kernel and then parsed in-user maybe a good decision
+'coz ... maybe they are rarely used ?
 
+Another point. Including formatting code in EVERY kernel part that resides in
+/proc maybe (as for me) a bad idea - so one can do simple interface,
+formatting functions, and switch modules to use them
+
+Another point is writable /proc files - but no one in this thread said
+something clever about it and ... maybe discuss it later ?
+
+- -- 
+Paul P 'Stingray' Komkoff 'Greatest' Jr // (icq)23200764 // (irc)Spacebar
+  PPKJ1-RIPE // (smtp)i@stingr.net // (http)stingr.net // (pgp)0xA4B4ECA4
+-----BEGIN PGP SIGNATURE-----
+
+iEYEAREDAAYFAjvptKwACgkQyMW8naS07KSA2QCgm0z0ICxmJxqjImrPMk7Denzx
+CjIAnRCQ6WYMXa0lOMFFyYoHJpZ0jRuy
+=8+oN
+-----END PGP SIGNATURE-----

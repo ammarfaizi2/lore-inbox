@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262535AbUJ0UPk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262546AbUJ0UUF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262535AbUJ0UPk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 16:15:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbUJ0UOH
+	id S262546AbUJ0UUF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 16:20:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbUJ0URQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 16:14:07 -0400
-Received: from siaag2ag.compuserve.com ([149.174.40.140]:8581 "EHLO
-	siaag2ag.compuserve.com") by vger.kernel.org with ESMTP
-	id S262632AbUJ0TzH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 15:55:07 -0400
-Date: Wed, 27 Oct 2004 15:50:29 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Let's make a small change to the process
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dave Jones <davej@redhat.com>, William Lee Irwin III <wli@holomorphy.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Randy Dunlap <rddunlap@osdl.org>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Message-ID: <200410271553_MC3-1-8D4F-38E8@compuserve.com>
-MIME-Version: 1.0
+	Wed, 27 Oct 2004 16:17:16 -0400
+Received: from mail.tmr.com ([216.238.38.203]:58384 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S262546AbUJ0UOA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 16:14:00 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: Setting 32bit IO on SATA drives
+Date: Wed, 27 Oct 2004 16:16:34 -0400
+Organization: TMR Associates, Inc
+Message-ID: <41800222.3020606@tmr.com>
+References: <1098827414l.6518l.0l@werewolf.able.es><1098827414l.6518l.0l@werewolf.able.es> <417F0597.6030103@rtr.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+X-Trace: gatekeeper.tmr.com 1098907543 22109 192.168.12.100 (27 Oct 2004 20:05:43 GMT)
+X-Complaints-To: abuse@tmr.com
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+To: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+In-Reply-To: <417F0597.6030103@rtr.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Oct 2004 at 16:05 +0100 Alan Cos wrote:
+Mark Lord wrote:
+>  > HDIO_GET_MULTCOUNT failed: Operation not supported
+> 
+> Fyi, I have removed that bogus error message from my
+> working copy of hdparm.
 
-> Each 2.6.10rc change I merged is on the basis of reward >> risk.
+I thought it wasn't supported. I presume you mean you detected that the 
+operation should not be attempted rather than causing an error to fail 
+silently.
 
-  I'm inclined to even accept very small patches that aren't really
-bugfixes, like initmem poisoning and the signal delivery patch
-that removes unconditional writes to dr7.
-
-  But some of the larger ones scare me, especially when they need
-modification to apply cleanly.  Even if the mods are clear, there
-can be new logic elsewhere that breaks a backported patch.
-
-
---Chuck Ebbert  27-Oct-04  15:49:15
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

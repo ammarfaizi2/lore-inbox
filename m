@@ -1,656 +1,202 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274815AbRJFBjO>; Fri, 5 Oct 2001 21:39:14 -0400
+	id <S274863AbRJFBpE>; Fri, 5 Oct 2001 21:45:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274832AbRJFBjH>; Fri, 5 Oct 2001 21:39:07 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47628 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274815AbRJFBis>; Fri, 5 Oct 2001 21:38:48 -0400
-Date: Sat, 6 Oct 2001 02:44:36 +0100
-From: Alan Cox <laughing@shared-source.org>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.10-ac7
-Message-ID: <20011006024436.A32124@lightning.swansea.linux.org.uk>
-Mail-Followup-To: Alan Cox <laughing@shared-source.org>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
+	id <S274850AbRJFBoz>; Fri, 5 Oct 2001 21:44:55 -0400
+Received: from rj.sgi.com ([204.94.215.100]:55459 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S274842AbRJFBoi>;
+	Fri, 5 Oct 2001 21:44:38 -0400
+Date: Fri, 5 Oct 2001 18:44:02 -0700
+From: Jesse Barnes <jbarnes@sgi.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: NUMA & classzones (was Whining about 2.5)
+In-Reply-To: <01100419552504.02393@localhost.localdomain>
+Message-ID: <Pine.SGI.4.21.0110051807510.999395-100000@spamtin.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+These are some long messages... I'll do my best to reply w/respect to SGI
+boxes.  Maybe it's time I got it together and put one of our NUMA machines
+on the 'net.  A little background first though, for those that aren't
+familiar with our NUMA arch.  All this info should be available at
+http://techpubs.sgi.com I think, but I'll briefly go over it here.
 
+Our newest systems are made of 'bricks'.  There are a few different types
+of brick: c, r, i, p, d, etc.  C-bricks are simply a collection of 0-4
+cpus and some amount of memory.  R-bricks are simply a collection of
+NUMAlink ports.  I-bricks have a few PCI busses and a couple of disks.  
+P-bricks have a bunch of PCI busses, and D-bricks have a bunch of disks.  
+Each brick has at least one IO port, C-bricks also have a NUMAlink port
+that can be connected to other C-bricks or R-bricks.  So remote memory
+accesses have to go out a NUMAlink to an R-brick and in through another
+NUMAlink on another C-brick on all but the smallest systems.  P, and I
+bricks are connected directly to C-bricks, while D-bricks are connected
+via fibrechannel to SCSI cards on either P or I bricks.
 
-	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.4/
+On Thu, 4 Oct 2001, Rob Landley wrote:
+> Somebody made a NUMA machine with an ISA bus?  Wow.  That's peverse.  I'm 
+> impressed.  (It was more a "when do we care" question...)
 
-		 Intermediate diffs are available from
-			http://www.bzimage.org
-
-
-*	Next chunk of patches
-*
-*	Email warning: It's possible my static ip range will evaporate
-*	about monday. If so that may cause some disruption to the
-*	ukuu.org.uk, bc.nu, cabal.tm domains and to my email while I shuffle
-*	stuff around.
-
-2.4.10-ac7
-o	Miscellaneous arm fixes				(Russell King)
-o	Arm include updates				(Russell King)
-o	SA1100 updates					(Russell King)
-o	EBSA110 and integrator updates			(Russell King)
-o	ARM arch updates				(Russell King)
-o	Zero length packets for UHCI			(Johannes Erdfelt)
-o	Update the uml block driver, make it 64bit clean(Greg Lonnon)
-o	Change UML adress mappings			(Jeff Dike)
-o	Update UML signal handling			(Jeff Dike)
-o	Miscellaneous UML fixes				(Jeff Dike)
-o	Update the UML example iomem driver		(Greg Lonnon)
-o	Next batch of fs/namespace cleanups		(Al Viro)
-o	Fix PPP over ATM configuration			(me)
-
-2.4.10-ac6
-o	Fix nfs symlink breakage			(Trond Myklebust)
-o	Fix SCpnt->pid value				(Dario Ballabio)
-o	LDM partition merge fix				(Al Viro)
-o	Namespace fixes from 2.4.11pre*			(Al Viro)
-o	pipe.c cleanup					(Al Viro)
-o	Fix the iobuf oops				(Anwar Payyoorayil)
-o	Fix bootp image loader on Alpha			(Jay Estabrook)
-o	scsi tape module locking fixes			(Kai Mäkisara)
-o	opl3sa2 dual DMA fix				(Jerome Auge)
-o	Quota fixes for -ac using S_NOQUOTA flags	(Jan Kara)
-o	Fix pci64 broken irq mask hack and an SRM fix	(Jay Estabrook)
-o	Fix DRM procfs oops				(Abraham vd Merwe)
-o	Toshiba SMM driver check laptop is a Toshiba	(Jonathan Buzzard)
-o	Clean up rep_nop stuff in init/main.c for 	(Paul Mackerras)
-	portability
-o	Update EV6/EV67 cpu selection			(Jay Estabrook)
-o	Small alpha fixups				(Jay Estabrook)
-o	Remove ASSEMBLY bits 				(Keith Owens)
-o	Change PPC64 contact person			(Dave Engebretsen)
-o	Update cyberpro frame buffer driver		(Bradley LaRonde,
-							 Russell King)
-o	Add sysrq-M memory zone free info		(Marcelo Tosatti)
-o	Fix mtd export oddments				(David Woodhouse)
-o	Export handling cleanup/doc update		(Keith Owens)
-o	Irda cleanups					(Jean Tourrilhes)
-o	Irda discovery in passive mode fixes		(Jean Tourrilhes)
-o	Irda usb updates				(Jean Tourrilhes)
-o	VLSI irda updates				(Martin Diehl)
-o	PPP over ATM support				(Mitchell Blank,
-							 Jens Axboe)
-2.4.10-ac5
-o	Initial fix for the ELF loader bug		(Linus Torvalds)
-o	Revert 2.4.10 sys_personality ABI change bug	(Paul Larson)
-o	Add support for 16 byte commands to scsi	(Khalid)
-	(only some controllers handle this)
-o	Small updates to the ide raid drivers		(Arjan van de Ven)
-o	Update the hermes drivers			(David Gibson)
-o	Airo driver update				(Javier Achirica)
-o	NCR 53c700 update				(James Bottomley)
-o	Next set of pnpbios work			(Thomas Hood)
-o	Update ARM includes				(Russell King)
-o	Update nwflash driver				(Russell King)
-o	ARM alignment fix				(Russell King)
-o	More pci.ids					(Russell King)
-o	Add another SB variant				(Jerome Cornet)
-o	SMBfs updates					(Urban Widmark)
-o	Further mtd driver updates			(David Woodhouse)
-o	Update ibmcam idents				(Dmitri)
-
-2.4.10-ac4
-o	Switch to Linus behaviour for kmap 		(Trond Myklebust)
-	in generic_file_write - should fix NFS oopses
-	| I dont have any highmem boxes so you get to test 8)
-o	ext3 deadlock versus truncate fix		(Tachino Nobuhiro)
-o	Small reiserfs transaction fix			(Nikita Danilov)
-o	Fix a fencepost error in the vm decision making	(Rik van Riel)
-o	Shmem accounting fix				(Christoph Rohland)
-o	BH async flag changes from 2.4.10		(Andrea Arcangeli)
-o	Remove wbinvd macro the acpi people re-added	(Dave Jones)
-o	Make the kiobuf init code only clean needed	(Andrew Bond)
-	fields (noticably speeds up Oracle)
-o	Move DMI scanning earlier in the kernel boot	(Stelian Pop)
-	| This is needed to detect the vaio early enough
-o	Try and fix 21041 problems with tulip, better	(Herbert Xu)
-o	Tulip rx dropped calculation
-o	Add further PCI idents				(Jeff Garzik)
-o	Add another ident to the clgen fb		(Jeff Garzik)
-o	Add intel i830 to the agp code idents		(Christof Efkemann)
-o	pl2303 usb serial fixes				(Greg Kroah-Hartmann)
-o	ipconfig typo fix				(Ralf Baechle)
-o	Fix user mode linux build with new ptrace	(Jeff Dike)
-o	JFFS tags update				(David Woodhouse)
-o	Kill of remaining old style video4linux inits	(Ladis Michl)
-o	Update i2c to rev 2.6.1				(Christoph Hellwig)
-
-2.4.10-ac3
-o	Fix page_kills_ppro call			(Peter Blomgren)
-o	mtd jffs and jffs2 updates			(David Woodhouse)
-o	Partition handling updates			(Al Viro)
-o	S/390 documentation updates			(Martin Schwidefsky)
-o	S/390 code updates				(Martin Schwidefsky)
-o	Add clean config for bust_spinlock generics	(Martin Schwidefsky)
-o	Correct EXPORT_MODULE_GPL 			(Keith Owens)
-o	NFSv3 mkdir fix					(Glen Serre)
-o	Clean up NFS yielding				(Trond Myklebust)
-
-2.4.10-ac2
-o	Merge Configure.help changes from 2.4.10
-o	Fix the spin_unlock oostore to maybe work	(me)
-o	Fix for pentium pro errata #50			(me)
-o	initio driver type cleanups			(Arjan van de Ven)
-o	rpc_queue_lock needs to be non static		(Frank Davies)
-o	Fix a potential crash in ldm partition code	(Al Viro)
-o	Acenic updates					(Jes Sorensen)
-o	Fix scsi tur direction info			(James Bottomley)
-o	Further natsemi updates				(Manfred Spraul)
-o	Add license tags to jffs/jffs2			(Frank Davies)
-o	Console driver optimisations			(Geert Uytterhoeven)
-o	Add belkin F5U120 serial to belkin_sa		(Amy Fong)
-o	Big endian fixes for console drivers		(Geert Uytterhoeven)
-o	Add module tags to the mwave driver		(Thomas Hood)
-o	i2o header file cleanups			(Russell King)
-o	Fix C2 power state in ACPI			(Martin Röder)
-o	Deadlock and error handling fixes for 8139too	(Manfred Spraul)
-o	Update NR_DEAD in keyboard driver		(Arnaldo Carvalho
-								de Melo)
-o	Fix race in processor init sequence		(Martin Bligh)
-o	Check procfs returns in acpi			(Pavel Machek)
-o	Add DMI handles for problem K7V-RM and		(Pavel Machek)
-	Tosh 4030cdt
-o	Fix analog joystick breakage from 2.4.10	(Vojtech Pavlik)
-o	Work around vaio weird pnpbios happenings	(Thomas Hood)
-o	Update ninja scsi driver			(YOKOTA Hiroshi)
-o	Adbmouse typo fix				(Paul Mackerras)
-
-2.4.10-ac1
-o	Merge with Linux 2.4.10 tree
-	- Drop VM changes
-	- Drop raw/block I/O changes
-	- Drop out O_DIRECT
-	- Basically remove the seriously unsafe stuff and
-	  keep the -ac VM
-	- I've not applied the obvious fixes so ACPI and joysticks
-	  are still icky - that is for ac2
-o	Fix the noncompile of SMP OOSTORE kernels	(me)
-
-2.4.9-ac18
-o	Fix aic7xxx and ncr53c8xxx compiles		(Erik Andersen)
-o	Next PPC merge					(Paul Mackerras)
-o	Updated patch-kernel				(Dave Gilbert)
-o	Fix pgtable_cache_init escape on S/390		(Russell King)
-o	Fix alpha build					(Dave Gilbert)
-o	Further scsi ifdef fixes			(Arjan van de Ven)
-o	Revert softirq changes
-
-2.4.9-ac17
-o	Fix vfree error on swap off			(Hugh Dickins)
-o	Further USB serial fixups			(Greg Kroah-Hartmann)
-o	ISDN cleanups - flags, includes, license texts	(Kai Germaschewski)
-o	Fix bitfields in struct documentation		(Tim Jansen)
-o	Next batch of MODULE_LICENSE tags		(Arjan van de Ven)
-o	Fix the gendisk bugs				(me)
-o	Endian fixes for cisco hdlc over isdn		(Bjoern Zeeb,
-							 Kai Germaschewski)
-o	PPPoE memory corruption fixes			(Chris Mason)
-o	RSS accounting fix				(Hugh Dickins)
-o	ide-tape fixes for HP colorado			(Pete Zaitcev)
-o	Fix APM disable handling			(Randy Dunlap)
-o	Fix mousedev behaviour with new gpm		(Vojtech Pavlik)
-o	Add support for the ib700 watchdog		(Charles Howes)
-o	Fix sysreq build fail				(me, Junio)
-o	S/390 tree warning fixes			(Martin Schwidefsky)
-o	Update the IBM serveraid driver			(Keith Mitchell)
-o	Apply usb list_del fix				(Georg Acher)
-o	Further midibuf fixes				(Adrian Cox)
-o	Fix toshoboe pci initialisation			(Adam J Richter)
-o	pci registration fixes for tlan			(Adam J Richter)
-o	NFS lock reclaiming fixes			(Trond Myklebust)
-o	Add Belkin F5D5050 USB ethernet idents		(Dane Johnson)
-
-2.4.9-ac16
-o	Fix VM breakage from my merge error		(Rik van Riel)
-o	Shmem race fixs					(Hugh Dickins)
-o	Improve scan_swap_map optimisiations		(Hugh Dickins)
-o	Fix swapoff race				(Hugh Dickins)
-o	Fix add to swap cache race			(Hugh Dickins)
-o	Remove the PG_swap_cache bit			(Hugh Dickins)
-o	Remove unused functions				(Hugh Dickins)
-o	Remove unused argument from get_swap_page	(Hugh Dickins)
-o	Make use of exclusive_swap_page when we can	(Hugh Dickins)
-o	Make swap almost ready to lose BKL		(Hugh Dickins)
-o	Add initial pieces for EXPORT_SYMBOL_GPL	(me)
-	| kernel symbols for GPL only use
-o	smc-ircc module inits				(Keith Owens)
-o	Update the hp100 driver				(Jaroslav Kysela)
-o	Update kernel-doc for struct and enum		(Tim Jansen)
-o	Fix mac89x0 skb->len poking			(David Weinehall)
-o	Big chunk of MODULE_LICENSE updates		(Arjan van de Ven)
-o	Add the tainting proc hook			(Keith Owens)
-o	Nand flash driver build fixes			(David Woodhouse)
-o	Fix self-parenting problems in clone properly	(Dave McCracken)
-o	CPIA camera fix					(Michael Marxmeier)
-o	USB serial fixes				(Greg Kroah-Hartmann)
-o	Fix cisco hdlc protocol	for isdn		(Bjoern Zeeb)
-o	Further tunnel driver fixes			(Taral)
-o	ISDN isar driver small fix			(Karsten Keil)
-o	Further sscanf fixes				(Paul)
-o	Fix iph5526 clash with ptrace namespace		(Dave Jones)
-o	First block of block device updates from Al	(Al Viro)
-o	Fix atm ioctl bug				(Mitchel Blank)
-o	ISAPnP updates					(Jaroslav Kysela)
-o	Merge IBM MWave support				(Paul Schroeder)
-o	ISDN return value fixes				(Andrew Morton)
-o	Add Acerscan 1240ut to the USB scanners		(Morgan Collins)
-o	Fix init includes for aironet4500		(Keith Packard)
-o	Fix GART docs to reference DRI not utah		(Robet Love)
-o	Reiserfs speed ups				(Chris Mason)
-o	Maestro init fixups				(Adam J Richter)
-o	Lock function cleanup				(Trond Myklebust)
-o	Make the DRM options clearer			(Keith Owens)
-o	Add compiler.h from 2.4.10
-o	Update ns83820 driver				(Ben LaHaise)
-
-2.4.9-ac15
-o	Rik's next VM handling update			(Rik van Riel)
-o	Update mousedrivers documentation		(me)
-o	Update 53c700 drivers				(James Bottomley)
-o	USB serial pl2303 fixes				(Greg Kroah-Hartmann)
-o	USB serial modcount fixes			(Greg Kroah-Hartmann)
-o	USB devfs fix for skeleton driver		(Greg Kroah-Hartmann)
-o	Fix possible double read_unlock in personality	(Christoph Hellwig)
-	handling
-o	Switch to maintainers sysrq fix			(Crutcher Dunavant)
-o	Further pnpbios fixes				(Thomas Hood)
-o	Delete the right ipip tunnel			(Taral)
-o	Coda fixes					(Jan Harkes)
-o	Fix sscanf					(Paul)
-o	Clean up the semaphore fix			(Leonid Igolnik)
-o	Merge minimal hooks for speakup			(Kirk Reiser)
-	| Speakup itself needs more cleaning up yet 
-
-2.4.9-ac14
-o	Fix atm alignment on IA64			(Chas Williams)
-o	Soundblaster unload oops fix			(Matthias Hanisch)
-o	NFS over tcp fixes				(Trond Myklebust)
-o	Add usb zero packet flag support to OHCI	(Roman Weissgaerber)
-o	Clean up reiserfs flags usage			(Nikita Danilov)
-o	Fix reiserfs disk leak on crash case		(Nikita Danilov)
-o	Fix reiserfs mount option handling		(Nikita Danilov)
-o	Cosmetic reiserfs changes			(Nikita Danilov)
-o	Small fusion driver update			(Steve Ralston)
-o	Add RAID1 support promise ide raid		(Arjan van de Ven)
-o	Remove duplicate DEC fb config			(Geert Uytterhoeven)
-o	PCI type 2 access type cast fixes		(Brian Gerst)
-o	Add AMD761 AGP					(Robert Love)
-o	Fix /proc/pid/maps				(Manfred Spraul)
-o	Fix 8139too pio problem				(Celso Gonzalez)
-o	Fix SEM_UNDO wrap bug				(me, Leonid Igolnik)
-o	Add xircom/entrega single port USB		(Greg Kroah-Hartmann,
-							 Brian Warner,
-							 Cristian Craciunescu)
-o	ISOfs transparent compression, unify zlib	(H Peter Anvin)
-	somewhat (lots more to do there!)
-o	Correct usbvideo reported procfs name		(Jonas Munsin)
-o	SMP safe Z85230 driver				(me)
-o	Merge saner parts of S/390 code drop
-
-2.4.9-ac13
-o	Fix mangled sun3fb bits				(me)
-o	Fix make rpm version bug			(Russell King)
-o	Work around eepro100 bug with some chip		(Arjan van de Ven)
-	versions on 10Mbit half duplex
-o	Bring UML inlines in sync with rest of kernel	(Jeff Dike)
-o	UML memory protection code - main piece		(Jeff Dike)
-o	Clean up UML rules				(Lennert Buytenhek)
-o	Fix UML hang on xterm open fail			(Jeff Dike)
-o	Fix UML signal handling bug			(Jeff Dike)
-o	Fix UML out of pty's on host error reporting	(Jeff Dike)
-o	Add tun/tap support to UML + clean up net code	(Jeff Dike)
-o	Make UBD block driver handl errors properly	(Will Dyson)
-o	Make backfile file paths in COW headers absolute(Greg London)
-o	Fix missing UML tlb flush			(Jeff Dike)
-o	PPC fixes for UML				(Chris Emerson)
-o	Declare sys_personality so UML compiles		(Andrea Arcangeli)
-o	Wrap host library mallocs into UML kernel 	(Jeff Dike)
-	allocs. Also fix gprof support
-o	Use -1 as "no dma" on PnPBIOS			(Thomas Hood)
-o	Fix sysctl log level change breakage		(Randy Dunlap)
-o	Document bread()				(Pavel Machek)
-
-2.4.9-ac12
-o	Yamaha audio wakeup race fix			(Pete Zaitcev)
-o	3c507 ring buffer handling fix			(Mark Mackenzie)
-	| It looks like the same may apply to eexpress and a few
-	| others. People may want to check
-o	4.4BSD alias syle ioctl bits			(Matthias Andree)
-o	Fix jffs_min compile failure			(Frank Davis)
-o	Fix hid initialisation order			(Vojtech Pavlik)
-o	Add sysrq to mconsole				(James Stevenson)
-o	Remove dead 3c515 stuff				(Andres Salomon)
-o	Fix UML disk space leak				(James Stevenson)
-o	uml hz_to_std()					(Jeff Dike)
-o	uml makefile cleanup				(Jeff Dike)
-o	hostfs cleanup - use pread/pwrite		(Jorgen Cederlof)
-o	Fix oops in scsi generic			(Jens Axboe)
-o	Fix missing break in riva fbdev.c		(Steve DuChene)
-o	Push spin_trylock_bh into the headers	(Arnaldo Carvalho de Melo)
-o	PWC driver update				("nemosoft")
-o	Fix hz_to_std macro problem			(Matt)
-o	Fix radeon + AMD761 lockup/corruption problem	(Stephen Tweedie)
-o	Intermezzo update				(Peter Braam)
-o	USB serial startup fix				(Greg Kroah-Hartmann)
-o	Makefile cleanups				(Christoph Hellwig)
-o	Code cleanup for eepro100			(Ben LaHaise)
-o	Fix pid handling bug in msg queues		(Mingming Cao)
-o	Raid multipathing				(Ingo Molnar)
-o	Correct sys_setid return in md 			(Vojtech Pavlik)
-o	Clean up isdn sc debug code			(Vojtech Pavlik)
-o	x86_64 random patch				(Vojtech Pavlik)
-o	Add x86_64 ifdefs to various places		(Vojtech Pavlik)
-o	Limit granch asm code to x86 fix setup code	(Vojtech Pavlik)
-o	Use unsigned long for flags where needed	(Vojtech Pavlik)
-o	Fix reiserfs writepage v truncate/mmap race	(Edward Shushkin)
-o	Eliminate various bits of reiserfs code and	(Edward Shushkin)
-	references to old ext2/minix stuff
-o	Support multiple block sizes in reiserfs	(Edward Shushkin)
-o	Fix gcc warning building reiserfs		(Edward Shushkin)
-o	Fix reiserfs 32bit uid on old format		(Edward Shushkin)
-o	Fix yam hamradio driver				(Edward Shushkin)
-o	Es1888 audio divider change			(Craig Mahaney)
-o	Add a highmem debugging option			(Christoph Hellwig)
-o	Remove crud from lvm.h				(Joe Thornber)
-o	Replace some LVM macros with inlines		(Joe Thornber)
-o	Open/Close LVM PV's when using them		(Joe Thornber)
-o	Remove lvm_short_version			(Joe Thornber)
-o	Use devfs_register_blkdev etc in LVM
-o	Rename fields and consider only active LVM	(Heinz Mauelshagen)
-	snapshots [and congratulations on the awar Heinz]
-o	Change LVM locking to use rw_semaphores		(Joe Thornber)
-o	Assorted LVM cleanups			(Joe Thornber and others)
-o	IA64 processor prefetch				(??)
-o	Return the right thing for strnlen_user when	(Andreas Schwab)
-	limit = 0
-o	More debug info on sysrq			(Andrea Arcangeli)
-o	Keyboard compile fix on Alpha			(Andrea Arcangeli)
-o	Shrink dcache before invalidating the inodes	(Andrea Arcangeli)
-	on a umount
-o	Fix apm disable handling			(Thomas Krennwallner)
-o	CPIA locking fixes				(David Hansen)
-o	zap_inode_mapping function to invalidate all the(Christoph Hellwig)
-	maps of an inode
-o	Remove accidental leak of console_lock back	(Andrew Morton)
-	into -ac
-o	Fix implicit declaration warning		(Dave Jones)
-o	Add another promise ide ident			(Arjan van de Ven)
-o	Ignore PRQ bit in apic flags when looking for	(Randy Dunlap)
-	unknown configs
-o	Matrox driver update				(Petr Vandrovec,
-							 David Hansen)
-o	NULL checks in lock code			(Francis Galiegue)
-o	Remove duplicate bits on fbmem.c		(Paul Mundt)
-o	ia64 arch_init_modules fix			(Arjan van de Ven)
-o	Support tabstops >160				(Petr Vandrovec)
-o	"noac" NFS updates				(Trond Myklebust)
-o	Default P5 MCE to off				(me)
-o	Bluesmoke updates				(Dave Jones)
-o	Handle cpu info that goes over a page long	(James Cleverdon)
-	| only tested on ia32/ia64 so far
-
-2.4.9-ac11
-o	Fix sign check error in death signal		(Martin Macok,
-							 Kamil Toman)
-o	Merge up to Linus 2.4.10pre9
-	
-2.4.9-ac10
-o	Multiple swapoff fixes				(Hugh Dickins);
-o	Clean up the mips parts of the mem.c ifdefs	(Ralf Baechle)
-o	Update NCR53c700 driver, make it generic	(James Bottomley,
-				Richard Hirst, Rasmus Andersen, Keith Owens)
-o	Recognize Radeon VE in radeonfb			(Nick Kurshev)
-o	MCE address reporting fix			(Dave Jones)
-o	APIC check fixes				(Randy Dunlap)
-o	Wrong SIGBUS data in siginfo fix		(Daniel Kobras)
-o	acpi Makefile fix				(Keith Owens)
-o	NTFS update					(Anton Altaparmakov)
-o	Parse mainboard resources inline to pnp not	(Gerd Knorr)
-	as pci_device objects
-o	Propogate register_netdev errors out from 	(Dave Miller)
-	init_netdev
-o	Take sound lock static				(David Hansen)
-o	ns83820 updates/fixes				(Ben LaHaise)
-o	Small arch_init_modules fix for ia64		(Maciej Rozycki)
-o	pci bridge setup fixes, 64bit sign propogation	(Todd Inglett)
-	etc
-o	Add another batch of MODULE_LICENSE tags	(me)
-
-2.4.9-ac9
-o	ICP vortex documentation update			(Boji Kannanthanam)
-o	Fix farsync ioctl checks			(Bob Dunlop)
-o	Kiovec optimisations				(Rohit Seth)
-o	Fix irda-usb match flags			(Adam J Richter)
-o	USB serial MODULE_LICENSE tags			(Greg Kroah-Hartmann)
-o	Tidy up Changes notes to recommend gcc2.95+	("Colonel")
-o	Kill dup in usb unusual_devs table		(Harald Schreiber)
-o	Ethtool ioctl handling fix			(Dave Miller)
-o	Add S/PDIF, 4 and 6 channel audio to ICH driver	(Bob Paauwe)
-o	Fix compare types in ncpfs			(Petr Vandrovec)
-o	Add limit to bluetooth ioctl			(me)
-o	Fix missing channel range check in dpt_i2o	(me)
-o	Fix lvm checks					(me)
-o	Add missing wireless ioctl length check		(me)
-o	Fix checks in sbpcd				(me)
-o	Fix checks in generic ppp			(me)
-o	Fix check in zr36067				(me)
-o	Fix checks in moxa				(me)
-o	Fix checks in zr36120				(me)
-o	Fix Matrox DRM to mention G450			(Pavel Roskin)
-o	DGRS multi-nic mode fix				(Rick Richardson)
-o	Reformat aztcd (no other changes)		(me)
-o	Clean up the mcd driver				(me)
-o	Remove gendisk export. Gendisk is now private	(Christoph Hellwig)
-	to the sane API and has proper locking
-o	Highmem overflow fix				(Ben LaHaise)
-o	Megaraid oops fix				(Arjan van de Ven)
-o	Update kernel-doc-nano-HOWTO			(Ken Moffat)
-o	Fix sis900 kerneldoc				(Ken Moffat)
-o	Fix via audio kernel doc			(Ken Moffat)
-
-2.4.9-ac8
-o	Merge from 2.4.10-pre4 except
-		USB uhci controller update
-		MM/buffer cache changes
-o	Intermezzo update				(Peter Braam)
-o	Clean up gendisk common code			(Christoph Hellwig)
-
-2.4.9-ac7
-o	Add another 1885 ident				(Leon)
-o	Mention G450 in the 200/400 DRI			(Pavel Roskin)
-o	Fix non PCI aic7xxx oops			(me)
-o	Correct centaur chip detection			(Keith Owens)
-o	Correct Dell cable detection			(me)
-o	Fix usb storage warning				(Christoph Hellwig)
-o	Fix symbol clash between core and pwc		(Christoph Hellwig)
-o	Comment out the visws				(Christoph Hellwig)
-o	Small alpha build fix				(Ricky Beam)
-o	NFS client update				(Trond Myklebust)
-o	SE401 update					(Jeroen Vreeken)
-o	Check proc/modules before querying it in	(André Dahlqvist)
-	ver_linux
-o	Add hppa to unaligned list for reiserfs		(Jurriaan)
-o	i2c Config.in fix				(Christoph Hellwig)
-o	LVM 32/64bit sort out				(Patrick Caulfield)
-o	Softirq update/fixups				(Andrea Arcangeli)
-o	Add arch_init_modules hook			(Maciej Rozycki)
-o	Update slab cache to do LIFO handling and clean	(Andrea Arcangeli)
-	up code somewhat
-o	Ethtool and alias fix				(Arjan van de Ven)
-o	Self adjusting syscall table filler		(Andrea Arcangeli)
-o	Configure.help typo fix				(David Weinehall)
-
-2.4.9-ac6
-o	Update compiler requirements doc		(me)
-o	Fix module count leak (I hope) in cs46xx	(me)
-o	Fix sx.c warnings				(Christoph Hellwig)
-o	Fix seagate.c prototypes			(Christoph Hellwig)
-o	Remove non-modular stuff from mod builds	(Christoph Hellwig)
-	and fix warnings
-o	Fix missing return value on xirc2ps		(Christoph Hellwig)
-o	Fix atmtcp MODULE_LICENSE			(Christoph Hellwig)
-o	Remove various unused code			(Christoph Hellwig)
-o	Switch drivers/fc4 to use module_init		(Christoph Hellwig)
-o	Config file fixes				(Christoph Hellwig)
-o	Fix AX.25 digipeat crash			(Thomas Osterried)
-o	DECNET update					(Steven Whitehouse)
-o	Fix UNUSUAL_DEV entry for eUSB SmartMedia	(Andries Brouwer)
-o	Remove spare maxinefb setup			(Paul Mundt)
-o	Add USB MODULE_LICENSE tags			(Greg Kroah-Hartmann)
-o	Update the irq fix for the i810 audio based	(me)
-	on further analysis by Doug Ledford
-o	make rpm target bug-fixes			(Eli Carter)
-o	Fix missing export-objs in acpi			(Keith Owens)
-o	VIA ide update (support 82c576, other small	(Vojtech Pavlik)
-	fixes)
-o	Fix tulip bug when using MWI experimental bits	(Jeff Garzik)
-o	Add MODULE_LICENSE tags to telephony		(Robert Love)
-o	Add MODULE_LICENSE tags to drivers/video	(Robert Love)
-o	Fix z2ram tag					(Robert Love)
-o	Ask for 255 bytes of header on scsi pages	(Matt Dharm)
-	| Lots of USB crap can't even get truncating right
-o	Fix ver_linux for e2fsprogs 1.23		(Albert Cranford)
-o	Add MODULE_LICENSE tags to zorro		(Robert Love)
-o	Make __module_license static			(Keith Owens)
-o	Merge some of the PPC64 submission	(Peter Bergner, Anton Blanchard, Mike Corrigan, Dave Engebretsen,
-					Tom Gall, Todd Inglett, Paul Mackerras,
-					Pat McCarthy, Steve Munroe, Don Reed, 
-					and Al Trautman)
-	| I dropped some config bits to keep stuff simpler
-	| and a few files that definitely didnt follow CodingStyle
-o	Merge updated gdth scsi raid driver		(Achim Leubner)
-o	Remove escaped debug code from ni5010		(Frank Davies)
-
-2.4.9-ac5
-o	Make pae i386 compile again			(Russell King)
-o	Add MODULE_LICENSE tagging			(me)
-o	Clean up aztcd (phase 1)			(me)
-o	Fix aztcd subchannel error reporting bug	(me)
-o	Reformat cdu31a pending cleanups		(me)
-o	Reformat cm206 pending cleanups			(me)
-o	Reformat gscd pending cleanups			(me)
-o	Reformat isp16 pending cleanups			(me)
-o	Reformat sjcd pending cleanups			(me)
-o	Reformat tpqic02 pending cleanups		(me)
-o	Add tags in drivers upto and including drivers/char/*
-	| lots more to add yet...
-o	pl2303 oops fix					(Greg Kroah-Hartmann)
-o	Sony clie updates for clie OS 4.0		(Greg Kroah-Hartmann)
-o	Fix elf loader for prelink binaries		(Jakub Jelinek)
-o	Make xconfig fix				(Robert Love)
-o	Add reparent_to_init, fix pnp and 8139 zombies	(Andrew Morton)
-o	Update Configure.help				(Steven Cole)
-
-2.4.9-ac4
-o	ns83820 driver fixes and updates		(Ben LaHaise)
-o	Configure.help updates				(Steven Cole)
-o	Add generic pgtable_cache_init()		(Russell King)
-	| and remove pae ifdefs from init/main.c
-o	Fix X.75 with new hisax drivers and an isdn	(Kai Germaschewski)
-	disconnect race
-o	Remove now defunct directory offset cast	(me)
-o	Make several vm behaviours tunable for now	(Rik van Riel)
-	| This is so we can study behaviour patterns not for
-	| the long term
-o	Merge an additional ide-floppy fix		(Sam Varshavchik)
-	| Fixed the ide floppy I/O error funny on some drives
-o	Pull dac/adc rate setting into ac97_codec.c	(me)
-o	Update mips64 makefiles 			(Ralf Baechle)
-o	Complete the missing bits of the proc 		(Ralf Baechle)
-	infrastructure using constant HZ to userspace
-	| This has been partial for a long time, with the mips tree
-	| it actually needs to be completed...
-o	Avoid oops in rivafb when using 15bit depth	(Steve DuChene)
-	on riva128
-o	Indent seagate scsi into linux format		(me)
-	| Changes pending so do this in two steps..
-o	pl2303 updates					(Greg Kroah-Hartmann)
-o	Orinoco update					(David Gibson)
-o	IRQ stack value fix				(John Byrne)
-o	Enable DMA on 20268R				(Zygo Blaxell)
-o	Add missing -EFAULT return to se401		(Pavel Machek)
-o	Voodoo 1/2 frame buffer console			(Ghozlane Toumi)
-o	Update cache size reporting errata		(Dave Jones)
-o	Fix nasty oops and deadlock in i810_audio	(me)
-
-2.4.9-ac3
-o	Fix config glitch in drivers/video/Config.in	(Steven Cole)
-o	Kaweth endian fixes				(Brad Hards)
-o	Update the MPT fusion drivers			(Steve Ralston)
-o	Possible floppy probe fix			(Paul Gortmaker)
-o	Add the KT266 agp to the table			(Kris Kersey)
-o	Start convering ia32 and x86_64 mtrr code	(Dave Jones)
-o	Account ramdisk in out of memory code		(Russell King)
-o	Possible fix for cardbus allocation failures	(Andreas Bombe)
-o	Clean up other cases of const initdata		(Dave Jones)
-o	Update the keyboard rate code to be more	(Dave Miller)
-	flexible (needed for sparc)
-o	Configure.help fixes				(Steven Cole)
-o	Pegasus USB driver fixes			(Petko Manolov)
-o	Fix i810 audio pops on speed changes		(Scott Herod)
-o	GPIO driver for the ITE board			(Hai-Pao Fan)
-o	Philips Nino port update		(Steven Hill, Pavel Machek)
-
-2.4.9-ac2
-o	Last small bits of the PPC merge		(Paul Mackerras)
-o	Fix compile bugs in airport driver		(David Gibson)
-o	ITE8172 ide updates				(Steve L)
-o	Add i2c drivers for the ITE board		(Hai-Pao Fan)
-o	AC97 register naming fix			(Ralf Baechle)
-o	TI 3912 serial driver			(Harald Koerfgen, Jim Pick,
-							 Steven Hill)
-o	ITE general updates				(P Popov)
-o	Remove double init of SGI streamable device	(Ralf Baechle)
-o	Update SGI indy drivers				(Ralf Baechle)
-o	Qtronix keyboard driver updates			(P Popov)
-o	Add tx3192 frame buffer support			(Steven Hill)
-o	MIPS frame buffer updates			(Ralf Baechle)
-o	Move vino.h into driver directory		(Ralf Baechle)
-o	Ocelot updates			(Jun Sun, G Lonnon, S Kranz, Steve J)
-o	DDB5 updates					(Jun Sun)
-o	MIPS jazz update				(Ralf Baechle)
-o	SGI wd33c93 update				(Ralf Baechle)
-o	Baget updates					(Ralf Baechle)
-o	SNI updates					(Ralf Baechle)
-o	Alchemy Au1000 support				(P Popov)
-o	MIPS eval board updates		(Ralf Baechle, Carsten Langgaard)
-o	Update Decstation serial support		(Maciej W. Rozycki)
-o	NEC Vrc5477 audio driver			(Steve L)
-o	General MIPS32 updates		(Jun Sun, Ralf Baechle, Matt Porter,
-					 Kevin Kissell, Carsten Langgaard,
-					 Jan-Benedict Glaw)
-o	MIPS scsi updates				(Ralf Baechle)
-o	Notifier signal oops fix		(Benjamin Herrenschmidt)
-
-2.4.9-ac1
-o	Merge the fat and iso changes from 2.4.9
-o	Merge the sunrpc changes from 2.4.9
-o	Merge (hopefully correctly) the nfs changes
-o	Switch to the 2.4.9 emu10k1 driver
-o	Merge vfs directory type changes
-o	Merge other oddments
-	- This leaves min/max and the vm/buffer changes
-	  both of which are pretty dubious anyway
-o	lock_kiovec page unwind fix			(Velizar B)
-o	do_swap_page recheck pte before failing		(Linus, Jeremy Linton)
-o	do_swap_page doesn't mkwrite when deleting	(Linus)
-	| From 2.4.9 with extra comments etc		(Hugh Dickins)
-
+I certainly hope not!!  It's bad enough that people have Pentium NUMA
+machines; I don't envy the people that had to bring those up.
  
----
-Alan Cox <alan@lxorguk.ukuu.org.uk>
-Red Hat Kernel Hacker
-& Linux 2.2 Maintainer                        Brainbench MVP for TCP/IP
-http://www.linux.org.uk/diary                 http://www.brainbench.com
+> Two points:
+> 
+> 1) If you can DMA from anywhere to anywhere, it's one big zone, isn't it?  
+> Where does the NUMA come in?  (I guess it's more expensive to DMA between 
+> certain devices/memory pages?  Or are we talking sheer processor access 
+> latency here, nothing to do with devices at all...?)
+
+On SGI, yes.  We've got both MIPS and IPF (formerly known as IA64) NUMA
+machines.  Since both are 64 bit, things are much easier than with say, a
+Pentium.  PCI cards that are 64 bit DMA capable can read/write any memory
+location on the machine.  32 bit cards can as well, with the help of our
+PCI bridge.  Ideally though, you'd like to DMA to/from devices that are
+directly connected to the memory on their associated C-brick, otherwise
+you've got to hop over other nodes to get to your memory (=higher latency,
+possible bandwidth contention).  I hope this answers your question.
+ 
+> 2) A processor-centric view of memory zones is not the whole story.  Look at 
+> the zones we have now.  The difference between the ISA zone, the PCI zone, 
+> and high memory has nothing to do with the processor*.  It's a question of 
+> which devices (which bus/bridge really) can talk to which pages.  In current 
+> UP/SMP systems, the processor can talk to all of them pretty much equally.
+
+You can think of all the NUMA systems I know of that way as well, but you
+get higher performance if you're careful about which pages you talk to.
+ 
+> So we need zones defined relative not just to processors (or groups of 
+> processors that have identical access profiles), but also defined relative to 
+> i/o devices and busses.  Meaning zones may become a driver issue.
+> 
+> This gets us back to the concept of "nodes".  Groups of processors and 
+> devices that collectively have a similar view of the world, memory-wise.  Is 
+> this a view of the problem that current NUMA thinking is using, or not?
+
+Yup.  We have pg_data_t for just that purpose, although it currently only
+has information about memory, not total system topology (i.e. I/O devices,
+CPUs, etc.).
+ 
+> > But it probably doesn't make sense to define A,B, and C for each node. For
+> > a  start, we don't use ISA DMA (and probably no other NUMA box does
+> > either). If HIGHMEM is the stuff above 900Mb or so (and assuming for a
+> > moment that we have 1Gb per node), then we probably don't need
+> > NORMAL+HIGHMEM for each node either.
+> >
+> > 0-900Mb = NORMAL (1A)
+> > 900-1Gb = HIGHMEM_NODE1 (1B)
+> > 1G-2Gb = HIGHMEM_NODE2 (2)
+> > 2G-3Gb = HIGHMEM_NODE3 (3)
+> > 3Gb-4Gb = HIGHMEM_NODE4 (4)
+> 
+> By highmem you mean memory our I/O devices can't DMA out of?
+
+On the NUMA-Q platform, probably (but I'm not sure since I've never
+worked on one).
+ 
+> Will all the I/O devices in the system share a single pool of buffer memory, 
+> or will devices be attached to nodes?
+
+Both.  At least for us.
+ 
+> Not just per processor.  Think about a rackmount shared memory beowulf 
+> system, page faulting through the network.  With quad-processor boards in 
+> each 1U, and BLAZINGLY FAST interconnects in the cluster.  Now teach that to 
+> act like NUMA.
+
+Sounds familiar.  It's much easier when your memory controllers are aware
+of this fact though...
+ 
+> It's not just 32/64 bit DMA.  You're assuming every I/O device in the system 
+> is talking to exactly the same pool of memory.  The core assumption of NUMA 
+> is that the processors aren't doing that, so I don't know why the I/O devices 
+> necessarily should.  (Maybe they do, what do I know.  It would be nice to 
+> hear from somebody with actual information...)
+
+I think the core assumption is exactly the opposite, but you're correct if
+you're talking about simple clusters.
+ 
+> And if they ARE all talking to one pool of memory, than the whole NUMA 
+> question becomes a bit easier, actually...  The flood of zones we were so 
+> worried about (Node 18's processor sending packets through a network card 
+> living on node 13) can't really happen, can it?
+
+I guess it depends on the machine.  On our machine, you could do that, but
+it looks like the IBM machine would need bounce buffers for such
+things.  You might also need bounce buffers for 32 bit PCI cards for some
+machines, since they might only be able to DMA to/from the first 4 GB of
+memory.
+ 
+> I THOUGHT numa had a gradient, of "local, not as local, not very local at 
+> all, darn expensive" pages that differed from node to node, which would be a
+
+That's pretty much right.  But for most things it's not *too* bad to
+optimize for, until you get into *huge* machines (e.g. 1024p, lots of
+memory).
+
+> major pain to optimize for yes.  (I was thinking motherboard trace length and 
+> relaying stuff several hops down a bus...)  But I haven't seen it yet.  And 
+> even so, "not local=remote" seems to cover the majority of the cases without 
+> exponential complexity...
+
+Yeah, luckily, you can assume local==remote and things will work, albeit
+slowly (ask Ralf about forgetting to turn on CONFIG_NUMA on one of our
+MIPS machines).
+ 
+> That's what I've heard the most about.  I'm also under the impression that 
+> SGI was working on NUMA stuff up around the origin line, and that sun had 
+> some monsters in the works as well...
+
+AFAIK, Sun just has SMP machines, but they might have a NUMA one in the
+pipe.  And yes, we've had NUMA stuff for awhile, and recently got a 1024p
+system running.  There were some weird bottlenecks exposed by that one.
+ 
+> People wanting to run straightforward multithreaded programs using shared 
+> memory and semaphores on big clusters strikes me as an understandable goal, 
+> and the drive for fast (low latency) interconnects to make that feasible is 
+> something I can see a good bang for the buck coming out of.  Here's the 
+> hardware that's widely/easily/cheaply available, here's what programmers want 
+> to do with it.  I can see that.
+> 
+> The drive to support monster mainframes which are not only 1% of the market 
+> but which get totally redesigned every three or four years to stay ahead of 
+> moore's law...  I'm not quite sure what's up there.  How much of the market 
+> can throw that kind of money to constantly offset massive depreciation?
+> 
+> Is the commodity hardware world going to inherit NUMA (via department level 
+> shared memory beowulf clusters, or just plain the hardware to do it getting 
+> cheap enough), or will it remain a niche application?
+
+Maybe?
+
+> > Incidentally, swapping on NUMA will need per-zone swapping even more,
+> > so I don't see how we could do anything sensible for this without a
+> > physical to virtual mem map. But maybe someone knows how.
+
+I know Kanoj was talking about this awhile back; don't know if he ever
+came up with any code though...
+ 
+> The question is latency, not throughput.  (Rambus did this too, more 
+
+Bingo!  Latency is absolutely key to NUMA.  If you have really bad
+latency, you've basically got a cluster.  The programming model is greatly
+simplified though, as you mentioned above (i.e. shared mem multithreading
+vs. MPI).
+
+> Is the speed difference along a noticeably long gradient, or more "this group 
+> is fast, the rest is not so fast"?
+
+Depends on the machine.  I think IBM's machines have something like a 10:1
+ratio of remote vs. local memory access latency, while SGI's latest have
+something like 1.5:1.  That's per-hop though, so big machines can be
+pretty non-uniform.
+ 
+I hope I've at least refrained from muddying the NUMA waters further with
+my ramblings.  I'll keep an eye on subjects with 'NUMA' or 'zone' though,
+just so I can be more informed about these things.
+
+Jesse
+

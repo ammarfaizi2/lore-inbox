@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264526AbUGRV2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264530AbUGRV3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264526AbUGRV2r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 17:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264530AbUGRV2q
+	id S264530AbUGRV3y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 17:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbUGRV3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 17:28:46 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:35479 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S264526AbUGRV2m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 17:28:42 -0400
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
-To: Andi Kleen <ak@muc.de>
-Subject: Re: 2.6.8-rc1: Possible SCSI-related problem on dual Opteron w/ NUMA
-Date: Sun, 18 Jul 2004 23:38:05 +0200
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200407171826.03709.rjwysocki@sisk.pl> <200407172109.38088.rjwysocki@sisk.pl> <200407181448.14614.rjwysocki@sisk.pl>
-In-Reply-To: <200407181448.14614.rjwysocki@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Sun, 18 Jul 2004 17:29:54 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:30981 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S264530AbUGRV2v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 17:28:51 -0400
+Date: Sun, 18 Jul 2004 23:27:21 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Solar Designer <solar@openwall.com>
+Cc: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>, Alan Cox <alan@redhat.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: question about /proc/<PID>/mem in 2.4 (fwd)
+Message-ID: <20040718212721.GC1545@alpha.home.local>
+References: <20040707234852.GA8297@openwall.com> <Pine.LNX.4.44.0407181336040.2374-100000@einstein.homenet> <20040718125925.GA20133@openwall.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200407182338.05282.rjwysocki@sisk.pl>
+In-Reply-To: <20040718125925.GA20133@openwall.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 18 of July 2004 14:48, R. J. Wysocki wrote:
-> Andi,
->
-> On Saturday 17 of July 2004 21:09, R. J. Wysocki wrote:
-> > On Saturday 17 of July 2004 20:12, Andi Kleen wrote:
-> > > On Sat, Jul 17, 2004 at 06:26:03PM +0200, R. J. Wysocki wrote:
-> > > > I got this on a dual Opteron system on 2.6.8-rc1 with the latest
-> > > > x86-64 patchset from Andi:
-> > >
-> > > Does it happen with x86_64-2.6.8-1 too ?
-> >
-> > It did not happen when I was running that kernel, but I had only run it
-> > for a couple of times.  It generally does not happen with this one
-> > either. It's happened only once and I reported it immediately.  But ...
->
-> [snip]
->
-> I had this problem again this morning.  I was unpacking the kernel tarball
-> to /dev/sda8 and it went south (the tarball had been partially unpacked
-> before the partition was remounted r-o).  Then, I got back to 2.6.7 and ran
-> fsck - now it found some errors (obviously) and fixed them.  Next (on
-> 2.6.7), I unpacked the kernel to /dev/sda8 (again) and compiled the
-> 2.6.8-rc2.  I ran it, unpacked the kernel to /dev/sda8 (again) and compiled
-> it - everything worked.  Then, I applied your patch on top of the newly
-> created 2.6.8-rc2 tree and compiled the kernel.  After installing and
-> running it I tried to unpack the kernel to /dev/sda8 (again) and it went
-> south, so I got back to the "plain" 2.6.8-rc2, ran fsck and fixed the
-> partition, unpacked the kernel to /dev/sda8 - and it all worked.
->
-> So, it seems, there's something in your patch that causes this misbehavior.
+Hi !
 
-To clarify: in the above "your patch" means "x86_64-2.6.8rc1-1".  I should 
-have called it by name.  Sorry for the confusion,
+On Sun, Jul 18, 2004 at 04:59:25PM +0400, Solar Designer wrote:
+> On Sun, Jul 18, 2004 at 01:41:34PM +0100, Tigran Aivazian wrote:
+[...]
+> > # setuidapp < /proc/self/mem
+> > 
+> > and this program reading stdin.
+> 
+> The problem is the program does not know its stdin corresponds to a
+> process' address space and it does not know it is making use of a
+> privilege to read it.  A correctly written SUID root program may
+> reasonably assume that the data it obtains from stdin is whatever the
+> unprivileged user has provided, -- and, for example, display such data
+> back to the user (as a part of an error message or so).  If we permit
+> reads from /proc/<pid>/mem based on credentials of the read(2)-calling
+> process only, this assumption would be violated resulting in security
+> holes.
 
-rjw
+unless I'm mistaken, it will be the shell which will open /proc/self/mem,
+so if it doesn't have correct rights, even the setuidapp will not have
+access to it because the shell will not be able to open the file.
 
--- 
-Rafael J. Wysocki
-----------------------------
-For a successful technology, reality must take precedence over public 
-relations, for nature cannot be fooled.
-					-- Richard P. Feynman
+> Oh, by the way, I've just noticed that the above example is not
+> entirely correct.  In order to read setuidapp's own address space
+> (after the kernel has been patched according to your proposal), it
+> should have been:
+> 
+> $ exec setuidapp < /proc/self/mem
+
+Hmm, this is an interesting case. What exactly is passed then ? You agree
+that the shell opens its own memory map on fd 0 then execs setuidapp
+which will have it on stdin. But will the fd contents be automatically
+replaced with the new process' memory map or will it still be the shell's
+until this last reference is dropped ?
+
+Cheers,
+Willy
+

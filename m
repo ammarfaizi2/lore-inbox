@@ -1,69 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261653AbUCPNrR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 08:47:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbUCPNrR
+	id S261669AbUCPNop (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 08:44:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbUCPNop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 08:47:17 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:41742
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261653AbUCPNrP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 08:47:15 -0500
-Date: Tue, 16 Mar 2004 14:47:56 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Andrew Morton <akpm@osdl.org>, j-nomura@ce.jp.nec.com,
-       linux-kernel@vger.kernel.org, riel@redhat.com, torvalds@osdl.org
-Subject: Re: [2.4] heavy-load under swap space shortage
-Message-ID: <20040316134756.GW30940@dualathlon.random>
-References: <20040314152253.05c58ecc.akpm@osdl.org> <Pine.LNX.4.44.0403160326360.1667-100000@dmt.cyclades>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403160326360.1667-100000@dmt.cyclades>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Tue, 16 Mar 2004 08:44:45 -0500
+Received: from kempelen.iit.bme.hu ([152.66.241.120]:35475 "EHLO
+	kempelen.iit.bme.hu") by vger.kernel.org with ESMTP id S261669AbUCPNon
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 08:44:43 -0500
+Date: Tue, 16 Mar 2004 14:43:54 +0100 (MET)
+Message-Id: <200403161343.i2GDhsV12878@kempelen.iit.bme.hu>
+From: Miklos Szeredi <mszeredi@inf.bme.hu>
+To: serue@us.ibm.com
+CC: linux-kernel@vger.kernel.org
+In-reply-to: <20040315214207.GA26615@escher.cs.wm.edu> (serue@us.ibm.com)
+Subject: Re: unionfs
+References: <200403080952.i289qsU12658@kempelen.iit.bme.hu> <20040311151343.GA943@escher.cs.wm.edu> <200403111544.i2BFi7O06675@kempelen.iit.bme.hu> <20040315214207.GA26615@escher.cs.wm.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 16, 2004 at 03:31:33AM -0300, Marcelo Tosatti wrote:
+
+> I was just re-reading the linux-fsdevel archives from june of 2000.
+> I'm guessing the reason you're not getting a response from Al is that
+> he never did unionfs.  He did union mounts, and made clear that they
+> are not related.  Union mounts would only work at the top level, the
+> union would not recurse down the (union-)mounted trees.
+
+(Reading that thread...)
+
+OK, now I understand better.  Although I can't find any code/patch for
+union mount either.
+
+> Performance-wise this could become very, very slow very quickly, but
+> if we replace the vfsmount which is found by using
+> mount_hashtable + hash(vfsmnt, dentry) to find what is mounted on top
+> of a particular dentry with a vfsmount_stackable struct, which contains,
+> say,
 > 
+> struct vfsmount_stackable {
+> 	  struct vfsmount *vfsmnt;
+> 	  int mount_flags;  /* 1 = read, 2 = write, 3 = hide */
+> 	  struct vfsmount_stackable *next;
+> };
 > 
-> On Sun, 14 Mar 2004, Andrew Morton wrote:
+> then perhaps it might be reasonably simple to have __follow_down and
+> follow_mount make use of this structure.  We make sure to keep the
+> vfsmount_stackable list in order mounted priority, so that when we
+> come to one of these lists, we can just do something like
 > 
-> > Andrea Arcangeli <andrea@suse.de> wrote:
-> > >
-> > > > 
-> > > > Having a magic knob is a weak solution: the majority of people who are
-> > > > affected by this problem won't know to turn it on.
-> > > 
-> > > that's why I turned it _on_ by default in my tree ;)
-> > 
-> > So maybe Marcelo should apply this patch, and also turn it on by default.
+> while (vfsmount_stacked) {
+> 	  ret = stacked_lookup(vfsmount_stacked->vfsmnt, vfsmnt_stacked->dentry,
+> 			  remaining_pathname);
+> 	  if (ret)
+> 		  return ret;
+> 	  vfsmnt_stacked = vfsmnt_stacked->next;
+> }
 > 
-> Hhhmm, not so easy I guess. What about the added overhead of 
-> lru_cache_add() for every anonymous page created? 
+> return NULL;
 > 
-> I bet this will cause problems for users which are happy with the current 
-> behaviour. Wont it?
+> Thoughts?
 
-the lru_cache_add is happening in 2.4 mainline, the only point of the
-patch is to _avoid_ calling lru_cache_add (tunable with a sysctl so you
-can get to the old behaviour of calling lru_cache_add for every anon
-page).
+Yes, this sounds like a good way to implement a unionfs-like
+functionality.  Something a bit more general would be to have a
+path_walk(const char *remaining_path, struct nameidata *nd) operation
+of vfsmount, which if non-null would be used to perform the rest of
+the lookup.  This could then perform the looped lookup trials you
+describe, but could be used for other special lookup methods.
 
-> Andrea, do you have any numbers (or at least estimates) for the added
-> overhead of instantly addition of anon pages to the LRU? That would be
-> cool to know.
+Thanks for your comments,
+Miklos
 
-I've the numbers for the removed overhead, that's significant in some
-workload, but only in the >=16-ways.
-
-> Obviously we dont have, and dont want to, such things in 2.4.
-
-agreed ;)
-
-> Anyway, it seems this discussion is being productive. Glad!
-
-yep!

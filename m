@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285031AbRLKOqt>; Tue, 11 Dec 2001 09:46:49 -0500
+	id <S285036AbRLKO6q>; Tue, 11 Dec 2001 09:58:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285032AbRLKOqi>; Tue, 11 Dec 2001 09:46:38 -0500
-Received: from [213.97.184.209] ([213.97.184.209]:21701 "HELO piraos.com")
-	by vger.kernel.org with SMTP id <S285031AbRLKOqZ>;
-	Tue, 11 Dec 2001 09:46:25 -0500
-Date: Tue, 11 Dec 2001 15:41:55 +0100
-From: German Gomez Garcia <german@piraos.com>
-To: Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Tian Tiger MP (AMD760MP chipset) and UDMA ATA 66/100
-Message-ID: <20011211154155.A4264@hal9000.piraos.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.2.1
+	id <S285032AbRLKO6f>; Tue, 11 Dec 2001 09:58:35 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:14296 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S285036AbRLKO62>; Tue, 11 Dec 2001 09:58:28 -0500
+Date: Tue, 11 Dec 2001 17:00:55 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: <thockin@sun.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] eepro100 - need testers 
+Message-ID: <Pine.LNX.4.33.0112111654100.10584-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello,
+The problem i was experiencing (albeit with 2.4.10-ac11) was losing
+connectivity for 2-10s at a time, no messages in the logs, and the machine
+would resume activity as normal afterwards. The machine is connected to
+the network via two NICs (3c59x and eepro100) and i only get these freezes
+when connecting to the IP address on the eepro100. Unfortunately, due to
+the lack of error messages, this report doesn't help much. But i was
+wondering wether this was what some people were experiencing.
 
-	I have a Tian Tiger MP (http://www.tyan.com/products/html/tigermp.html)
-that is supposed to support ATA100 harddrives, I currently have 3 UWSCSI
-9Gb hard drives in raid0 with the main system, and I'm thinking of buying two or
-three big (60+Gb) ATA100 drives for video capturing and editing, I would like
-to know what is the current status (in the 2.4.x series) of the UDMA driver for
-the AMD760MP chipset. Any experience with this configuration? I currently have
-old 40Gb 5400rpm hard drives on old cables, so no way to test it before buying.
+connected via switch with moderately high network load (general purpose
+server)
 
-	Regards,
+Cheers,
+	Zwane Mwaikambo
 
-	- german
+PS i have 2.4.17-pre5 and so far haven't noticed it, but haven't done much
+testing either.
 
-PS: Please CC to me as I'm not subscribed to the LIST :-).
--------------------------------------------------------------------------
-German Gomez Garcia          | Send email with "SEND GPG KEY" as subject 
-<german@piraos.com>          | to receive my GnuPG public key.
+

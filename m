@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268515AbUJTP6s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268028AbUJTPyb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268515AbUJTP6s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 11:58:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268511AbUJTP6h
+	id S268028AbUJTPyb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 11:54:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268467AbUJTPxf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 11:58:37 -0400
-Received: from mxsf10.cluster1.charter.net ([209.225.28.210]:44722 "EHLO
-	mxsf10.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S268404AbUJTPzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 11:55:05 -0400
-X-Ironport-AV: i="3.85,155,1094443200"; 
-   d="scan'208"; a="359964271:sNHT13319820"
-Subject: Re: [PATCH] Make kbtab play nice with wacom_drv in Xorg/XFree86
-From: Dave Ahlswede <mightyquinn@charter.net>
-Reply-To: mightyquinn@letterboxes.org
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041020130447.GA8086@ucw.cz>
-References: <1098271641.26932.12.camel@sayuki>
-	 <20041020130447.GA8086@ucw.cz>
-Content-Type: text/plain
-Date: Wed, 20 Oct 2004 11:55:02 -0400
-Message-Id: <1098287702.28045.9.camel@sayuki>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Wed, 20 Oct 2004 11:53:35 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:50703 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S268028AbUJTPfJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 11:35:09 -0400
+Message-ID: <41768858.8070709@techsource.com>
+Date: Wed, 20 Oct 2004 11:46:32 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Arjan van de Ven <arjanv@redhat.com>
+CC: Andrea Arcangeli <andrea@novell.com>, Hugh Dickins <hugh@veritas.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
+References: <593560000.1094826651@[10.10.2.4]> <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain> <20040910151538.GA24434@devserv.devel.redhat.com> <20040910152852.GC15643@x30.random> <20040910153421.GD24434@devserv.devel.redhat.com>
+In-Reply-To: <20040910153421.GD24434@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-20 at 15:04 +0200, Vojtech Pavlik wrote:
-> On Wed, Oct 20, 2004 at 07:27:21AM -0400, Dave Ahlswede wrote:
+
+
+Arjan van de Ven wrote:
+> On Fri, Sep 10, 2004 at 05:28:52PM +0200, Andrea Arcangeli wrote:
 > 
-> > In its current state, the kbtab driver can be made to work with the
-> > XF86/Xorg Wacom driver, but only once per modprobe. If X is restarted,
-> > the driver won't report any input events. This is because the driver
-> > always reports the pen tool as being in use, and the information doesn't
-> > seem to be passed after the first time the device is opened.
-> > 
-> > This patch fixes the issue by causing the driver to briefly report the
-> > pen not in use each time the device is opened. 
+>>On Fri, Sep 10, 2004 at 05:15:38PM +0200, Arjan van de Ven wrote:
+>>
+>>>because it gives people a reason to do sloppy coding.
+>>
+>>it's not about bad drivers, it's about the number of nested interrupts
+>>not being limited by software right now.
+>>
+>>
+>>>What we should consider regardless is disable the nesting of irqs for
+>>>performance reasons but that's an independent matter
+>>
+>>disabling nesting completely sounds a bit too aggressive, but limiting
+>>the nesting is probably a good idea.
 > 
-> It's a bug in the X Wacom driver that it doesn't check the initial state
-> of the tool. It should use EVIOCGKEY() to do that.
+> 
+> disabling is actually not a bad idea; hard irq handlers run for a very short
+> time, but when they nest you effectively have like a semi context switch in
+> the middle of the work so performance suffers...
+> 
 
-I'll talk to the developer about that, thanks.
 
-> A good way to get this working in the driver would be report the PEN
-> tool as not in use when the position is invalid (the pen is not within
-> reach), if that is possible with the hardware. It's what the bit should
-> signify.
+The rules about how long a hard irq would be allowed to run would have 
+to be draconian.
 
-Unfortunately, when the pen is out of bounds, the hardware simply stops
-sending packets. I experimented with a change that would report no tool
-in use when pressure was zero, but that made the tablet unusable. (It
-would only track movement when the pen was being pressed to the tablet)
-
+... not that that would be a problem.
 
 

@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265095AbTBBBW5>; Sat, 1 Feb 2003 20:22:57 -0500
+	id <S265096AbTBBBaX>; Sat, 1 Feb 2003 20:30:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265096AbTBBBW5>; Sat, 1 Feb 2003 20:22:57 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:15631 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id <S265095AbTBBBW4>;
-	Sat, 1 Feb 2003 20:22:56 -0500
-Date: Sun, 2 Feb 2003 02:28:20 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: linux-kernel@vger.kernel.org
-Cc: Simon Kirby <sim@netnation.com>
-Subject: [Nearly Solved]: APIC routing broken on ASUS P2B-DS
-Message-ID: <20030202012820.GB19346@alpha.home.local>
-References: <20030128004906.GA3439@netnation.com> <20030128060629.GA19346@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030128060629.GA19346@alpha.home.local>
-User-Agent: Mutt/1.4i
+	id <S265097AbTBBBaX>; Sat, 1 Feb 2003 20:30:23 -0500
+Received: from maila.telia.com ([194.22.194.231]:40689 "EHLO maila.telia.com")
+	by vger.kernel.org with ESMTP id <S265096AbTBBBaW>;
+	Sat, 1 Feb 2003 20:30:22 -0500
+X-Original-Recipient: linux-kernel@vger.kernel.org
+Message-ID: <001501c2ca5b$f4b45990$020120b0@jockeXP>
+From: "Joakim Tjernlund" <Joakim.Tjernlund@lumentis.se>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <004701c2ca03$cb467460$020120b0@jockeXP> <3E3C0684.4010806@pobox.com>
+Subject: Re: NETIF_F_SG question
+Date: Sun, 2 Feb 2003 02:39:41 +0100
+Organization: Lumentis AB
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 28, 2003 at 07:06:29AM +0100, Willy Tarreau wrote:
-> On Mon, Jan 27, 2003 at 04:49:06PM -0800, Simon Kirby wrote:
-> > Something broke between 2.4.20 and 2.4.21-pre3 which is causing
-> > interrupts to not be routed the second CPU.  I saw the problem on one box
-> > and copied the kernel to another which then had the same problem (both
-> > ASUS P2B-DS boards, one with PIII CPUs, one with PII CPUs).  
+> Joakim Tjernlund wrote:
+> > I am thinking of implementing harware scatter/gatter support( NETIF_F_SG) in my 
+> > ethernet driver. The network device cannot do HW checksuming.
+> > 
+> > Will the IP stack make use of the SG support and will there be any significant performance
+> > improvement?
+> 
+> 
+> No; you need HW checksumming for NETIF_F_SG to be useful.
+> 
+> If HW checksumming is not available, scatter-gather is useless, because 
+> the net stack must always make a pass over the data to checksum it. 
+> Since it must do that, it can linearize the skb at the same time, 
+> eliminating the need for SG.
+> 
+> Jeff
 
-Hi !
+I think HW checksumming and SG are independent. Either one of them should
+not require the other one in any context.
 
-I noticed that 2.4.21-pre4 had the same problem whereas -ac1 and -aa1 worked
-fine. But unfortunately, this was unrelated since both use irq_balance which
-seems to work around or fix the problem. So I searched back the earlier
-versions, and finally narrowed this problem down to the introduction of
-CONFIG_X86_NUMA and associated code in 2.4.21pre1.
+Zero copy sendfile() does not require HW checksum to do zero copy, right?
+If HW checksum is present, then you get some extra performance as a bonus.
 
-If I compile my kernel for an SMP K7, only CPU0 gets the interrupts. But if
-I enable CONFIG_X86_CLUSTERED_APIC by enabling either CONFIG_X86_NUMAQ or
-CONFIG_X86_SUMMIT (CONFIG_X86_NUMA alone isn't enough), then I get my interrupts
-distributed across both CPUs. This is on an Asus A7M266D with 2 Athlon XP 1800+.
-I don't know if this option can affect performance or stability.
-BTW, the system runs in Flat APIC mode, as reported at boot time. I can provide
-dmesg on request, but didn't want to pollute the list.
+(hmm, one could make SG mandatory and the devices that don't support it can 
+ implement it in their driver. Just an idea)
 
-I looked through the code but since I don't know much about APIC, I didn't
-understand the changes nor how they would affect what I observed.
-
-Anyone has any clue ?
-
-Cheers,
-Willy
-
+   Jocke

@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314572AbSDTGzH>; Sat, 20 Apr 2002 02:55:07 -0400
+	id <S314571AbSDTG5X>; Sat, 20 Apr 2002 02:57:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314573AbSDTGzG>; Sat, 20 Apr 2002 02:55:06 -0400
-Received: from mpdr0.chicago.il.ameritech.net ([67.38.100.19]:10194 "EHLO
-	mailhost.chi.ameritech.net") by vger.kernel.org with ESMTP
-	id <S314572AbSDTGzG>; Sat, 20 Apr 2002 02:55:06 -0400
-Message-ID: <3CC1119B.50509@ameritech.net>
-Date: Sat, 20 Apr 2002 01:58:35 -0500
-From: watermodem <aquamodem@ameritech.net>
-Reply-To: aquamodem@ameritech.net
-Organization: not at all
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S314573AbSDTG5W>; Sat, 20 Apr 2002 02:57:22 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:64265
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S314571AbSDTG5V>; Sat, 20 Apr 2002 02:57:21 -0400
+Date: Fri, 19 Apr 2002 23:56:04 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Chris Abbey <linux@cabbey.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PDC20268 TX2 support?
+In-Reply-To: <Pine.LNX.4.33.0204200101190.24652-100000@tweedle.cabbey.net>
+Message-ID: <Pine.LNX.4.10.10204192335180.19117-100000@master.linux-ide.org>
 MIME-Version: 1.0
-CC: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19pre7-ac1 same bug in vanilla 2..4.19pre7
-In-Reply-To: <200204190916.g3J9G0b01318@devserv.devel.redhat.com> <3CC0790F.2070400@ameritech.net> <3CC08373.4090708@ameritech.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-watermodem wrote:
-> 
-> Trying again with menuconfig the compile fails..
-> 
-> 
->         net/network.o \
->         /usr/src/linux-2.4.19-pre7-ac1/arch/i386/lib/lib.a 
-> /usr/src/linux-2.4.1
-> 1/lib/lib.a /usr/src/linux-2.4.19-pre7-ac1/arch/i386/lib/lib.a \
->         --end-group \
->         -o vmlinux
-> init/main.o: In function `smp_init':
-> init/main.o(.text.init+0x5f1): undefined reference to `skip_ioapic_setup'
-> arch/i386/kernel/kernel.o: In function `broken_pirq':
-> arch/i386/kernel/kernel.o(.text.init+0x350b): undefined reference to 
-> `skip_ioap
-> make: *** [vmlinux] Error 1
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+On Sat, 20 Apr 2002, Chris Abbey wrote:
+> -- 
+> Never make a technical decision based upon the politics of the situation.
+> Never make a political decision based upon technical issues.
+> The only place these realms meet is in the mind of the unenlightened.
+> 			-- Geoffrey James, The Zen of Programming
 
+Obviously a book I should have read :-/
+Otherwise these drivers would have been included some time back.
 
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
 

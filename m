@@ -1,68 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262263AbSJKAt6>; Thu, 10 Oct 2002 20:49:58 -0400
+	id <S262249AbSJKAsC>; Thu, 10 Oct 2002 20:48:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262265AbSJKAt5>; Thu, 10 Oct 2002 20:49:57 -0400
-Received: from pacific.moreton.com.au ([203.143.238.4]:23263 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S262263AbSJKAt4>; Thu, 10 Oct 2002 20:49:56 -0400
-Message-ID: <3DA621DA.4050504@snapgear.com>
-Date: Fri, 11 Oct 2002 10:56:58 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]: linux-2.5.41uc1 (MMU-less support)
-References: <3DA5A42F.6030001@snapgear.com> <20021010171816.A21468@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262250AbSJKAsC>; Thu, 10 Oct 2002 20:48:02 -0400
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:33776 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S262249AbSJKAsB>;
+	Thu, 10 Oct 2002 20:48:01 -0400
+Date: Thu, 10 Oct 2002 20:53:38 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Looking for testers with these NICs
+Message-ID: <20021011005338.GA1067@www.kroptech.com>
+References: <200210091637.g99Gbmp30784@Port.imtp.ilyichevsk.odessa.ua> <20021009171452.GA9682@www.kroptech.com> <200210091744.g99HiKp31184@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210091744.g99HiKp31184@Port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph,
-
-Christoph Hellwig wrote:
-> On Fri, Oct 11, 2002 at 02:00:47AM +1000, Greg Ungerer wrote:
->>An updated uClinux patch is available at:
->>
->>http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc1.patch.gz
->>
->>This one has the long awaited merge of the mmnommu and mm directories.
->>Went pretty smoothly really. The patches are not too bad, but there is
->>still some cleaning to do. A couple of files are still heavily #ifdef'ed
->>(like mm/mmap.c, mm/swap_state.c and mm/swapfile.c) but I think these
->>can ironed out a bit.
+On Wed, Oct 09, 2002 at 08:37:48PM -0200, Denis Vlasenko wrote:
+> On 9 October 2002 15:14, Adam Kropelin wrote:
+> > On Wed, Oct 09, 2002 at 07:31:17PM -0200, Denis Vlasenko wrote:
+> > > ewrk3.c
+> >
+> > I've got a few of these laying around. Send whatever patches you want
+> > tested and I'll give it a shot.
 > 
+> Please do your best in trying to break it, especially since you say you have
+> more than one. Can you plug them all in one box?
 > 
-> Could you please merge the patches Ib sent you instead of this horrible
-> ifdef mess?
+> I'd suggest SMP/preempt heavy IO. Is there stress test software for NICs?
 
-Hey, slow down :-)
-This contains 6 of the 8 patches you sent. And I am working
-through the other 2 now. They mess with a lot of files, many
-not in mm.
+I've finished beating the heck out of this driver. Over 12 hours of pounding
+simultaneously on three NICs in a 2x SMP box running with preempt enabled and
+not a single oops, BUG(), or deadlock. I'd say the driver is pretty solid at
+this point; vda's locking patches seem to be safe. 
 
+As a sidenote, the max throughput I was able to achieve across three cards was
+about 1.4 MBytes/sec. A single card could do about 800 KBytes sec; 2 together
+got to 1.2 MBytes/sec. Heavy CPU utilization the whole way, of course, since
+these cards do not use DMA. 
 
->  and yes, page_io.o, swapfile.o and swap_state.o shouldn't
-> be compiled at all for !CONFIG_SWAP dito for highmem.o, madvise.o, 
-> memory.o, mincore.o, mmap.o, mprotect.o, mremap.o, msync.o, rmap.o,
-> shmem.o, vmalloc.o for !CONFIG_MMU
-
-This is trivial to clean up in the Makefile, like I said still some
-cleaning still to do. I'll have new patches probably each day as I
-work through the issues.
-
-Regards
-Greg
-
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+--Adam
 

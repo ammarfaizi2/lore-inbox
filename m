@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262375AbUKKWDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262395AbUKKWA0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262375AbUKKWDW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 17:03:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbUKKWAq
+	id S262395AbUKKWA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 17:00:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUKKV6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 17:00:46 -0500
-Received: from fw.osdl.org ([65.172.181.6]:20434 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262376AbUKKV77 (ORCPT
+	Thu, 11 Nov 2004 16:58:49 -0500
+Received: from quechua.inka.de ([193.197.184.2]:40325 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S262376AbUKKV5Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 16:59:59 -0500
-Date: Thu, 11 Nov 2004 13:59:37 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
-Subject: Re: Reiser{3,4}: problem with the copyright statement
-In-Reply-To: <20041111214554.GB2310@stusta.de>
-Message-ID: <Pine.LNX.4.58.0411111355020.2301@ppc970.osdl.org>
-References: <20041111012333.1b529478.akpm@osdl.org> <20041111214554.GB2310@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 11 Nov 2004 16:57:16 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Why my computer freeze completely with xawtv ?
+References: <20041107224621.GB5360@magma.epfl.ch> <418EB58A.7080309@kolivas.org> <20041108000229.GC5360@magma.epfl.ch> <418EB8EB.30405@kolivas.org> <20041108003323.GE5360@magma.epfl.ch> <418EBFE5.5080903@kolivas.org> <Pine.LNX.4.60.0411080919220.32677@alpha.polcom.net> <E1CRGZd-0002ss-00@bigred.inka.de> <87is8frjkv.fsf@bytesex.org> <E1CRcJy-0001fF-00@bigred.inka.de> <200411092040.iA9KeqEi001410@turing-police.cc.vt.edu>
+Organization: private Linux site, southern Germany
+Date: Thu, 11 Nov 2004 22:56:45 +0100
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E1CSMvt-0004SZ-00@bigred.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > The symptom is different (the picture has vertical stripes, as if
+> > pixels get re-ordered in each horizontal line).
+>
+> Hmm.. somebody got confused for a 24-bit color (8/8/8) about whether
+> it takes 24 bits or 32 to store it?
 
+No, correct colors but the order of pixels is rearranged, like this:
+if the correct numbering of pixels were abcdefghijkl
+the display looks like fdbeacihlkjg
+The actual pattern is different each time.
 
-On Thu, 11 Nov 2004, Adrian Bunk wrote:
-> 
-> I have no problem with dual-licensed code, but I do strongly dislike 
-> having this "unlike you explicitley state otherwise, you transfer all 
-> rights to Hans Reiser" in the kernel.
+I suspect that some control data for the display hardware gets
+corrupted, rather than the video data itself.
 
-I don't see any reasonable alternatives. The alternative is for Hans 
-Reiser to not be able to merge with the kernel, which is kind of against 
-the _point_ of having a dual license.
+Olaf
 
-If the wording grates or assignment is an issue (and yes, in the US you 
-technically really need to have an express _signed_ assignment, implied 
-assignments just don't work), asking people to make their changes PD 
-instead might work (they'd obviously immediately be subsumed under the GPL 
-as far as the kernel is concerned, but would allow the dual-licensing to 
-continue to work).
-
-That said, I don't think at least _this_ particular area has been 
-problematic, because quite frankly, very few people end up working on 
-other peoples filesystems, so as far as I can tell, almost all reiserfs 
-fixes have really been mainlt due to interface changes, nothing else. So 
-assignment of copyright etc doesn't really ever become an issue, if only 
-because copyrights require a bit of actual artistic value ;)
-
-		Linus

@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVCaLjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbVCaLkf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261364AbVCaLjE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 06:39:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVCaLjE
+	id S261368AbVCaLkf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 06:40:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVCaLke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 06:39:04 -0500
-Received: from simmts8.bellnexxia.net ([206.47.199.166]:46842 "EHLO
-	simmts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S261364AbVCaLi4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 06:38:56 -0500
-Message-ID: <3343.10.10.10.24.1112268948.squirrel@linux1.attic.local>
-In-Reply-To: <Pine.LNX.4.61.0503301455570.28630@chaos.analogic.com>
-References: <200503280154.j2S1s9e6009981@laptop11.inf.utfsm.cl>
-    <1112011441.27381.31.camel@localhost.localdomain>
-    <1112016850.6003.13.camel@laptopd505.fenrus.org>
-    <1112018265.27381.63.camel@localhost.localdomain>
-    <20050328154338.753f27e3.pj@engr.sgi.com>
-    <1112055671.3691.8.camel@localhost.localdomain>
-    <c4ce304162b3d2a3ad78dc9e0bc455f5@mac.com>
-    <1112059642.3691.15.camel@localhost.localdomain>
-    <Pine.LNX.4.61.0503290659360.10929@chaos.analogic.com>
-    <Pine.LNX.4.61.0503301446430.30163@chimarrao.boston.redhat.com>
-    <Pine.LNX.4.61.0503301455570.28630@chaos.analogic.com>
-Date: Thu, 31 Mar 2005 06:35:48 -0500 (EST)
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-From: "Sean" <seanlkml@sympatico.ca>
-To: linux-os@analogic.com
-Cc: "Rik van Riel" <riel@redhat.com>, "Steven Rostedt" <rostedt@goodmis.org>,
-       "Kyle Moffett" <mrmacman_g4@mac.com>, floam@sh.nu,
-       "LKML" <linux-kernel@vger.kernel.org>, arjan@infradead.org,
-       "Paul Jackson" <pj@engr.sgi.com>, gilbertd@treblig.org,
-       vonbrand@inf.utfsm.cl, bunk@stusta.de
-User-Agent: SquirrelMail/1.4.4-2
+	Thu, 31 Mar 2005 06:40:34 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:42426 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261368AbVCaLkU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 06:40:20 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16971.57746.578503.931803@alkaid.it.uu.se>
+Date: Thu, 31 Mar 2005 13:40:02 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Paul Jackson <pj@engr.sgi.com>
+Cc: Robert Hancock <hancockr@shaw.ca>, linux-kernel@vger.kernel.org
+Subject: Re: AMD64 Machine hardlocks when using memset
+In-Reply-To: <20050330234133.59fdafdf.pj@engr.sgi.com>
+References: <3NTHD-8ih-1@gated-at.bofh.it>
+	<424B7ECD.6040905@shaw.ca>
+	<20050330234133.59fdafdf.pj@engr.sgi.com>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, March 30, 2005 2:57 pm, linux-os said:
+Paul Jackson writes:
+ > Yup - kills my x86_64 too.  I can't stay up for half a minute.
+...
+ > My mainboard is an MSI K8N Neo2 Platinum.
 
-> Yes. And this would show that whomever did that already violated the
-> intent of the GPL by adding restrictions to use. NotGood(tm).
+I've tested both versions of the test program on two Athlon64 boxes,
+and neither has had any problems with them.
 
-Dick,
+My two machines are both VIA K8T800-based (a desktop and a laptop),
+but it seems those of you who had problems have nForce-based machines.
+So presumably it's either the nForce chipset or your memory timings are
+out of spec.
 
-You are so full of shit.  There are no additonal restrictions, just the
-restrictions of the GPL; period.   Adding _GPL to the symbol does not
-place any additional restriction on the people who are already bound by
-the GPL.  You were much easier to endure when you were just pretending to
-have invented RLE.
-
-Sean
-
-
+/Mikael

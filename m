@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277519AbRJJXDp>; Wed, 10 Oct 2001 19:03:45 -0400
+	id <S277514AbRJJXCZ>; Wed, 10 Oct 2001 19:02:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277526AbRJJXD1>; Wed, 10 Oct 2001 19:03:27 -0400
-Received: from cx48762-b.cv1.sdca.home.com ([24.251.153.196]:45606 "EHLO
-	train.sweet-haven.com") by vger.kernel.org with ESMTP
-	id <S277519AbRJJXDW>; Wed, 10 Oct 2001 19:03:22 -0400
-Date: Wed, 10 Oct 2001 16:03:48 -0700 (PDT)
-From: Lew Wolfgang <wolfgang@sweet-haven.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Dump corrupts ext2?
-Message-ID: <Pine.LNX.4.33.0110101558210.7049-100000@train.sweet-haven.com>
+	id <S277519AbRJJXCP>; Wed, 10 Oct 2001 19:02:15 -0400
+Received: from [213.98.126.44] ([213.98.126.44]:34564 "HELO anano.mitica")
+	by vger.kernel.org with SMTP id <S277514AbRJJXB7>;
+	Wed, 10 Oct 2001 19:01:59 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: tkhoadfdsaf@hotmail.com (Concerned Programmer),
+        dwmw2@infradead.org (David Woodhouse),
+        viro@math.psu.edu (Alexander Viro), kaos@ocs.com.au (Keith Owens),
+        sirmorcant@morcant.org (Morgan Collins [Ax0n]),
+        linux-kernel@vger.kernel.org
+Subject: Re: Tainted Modules Help Notices
+In-Reply-To: <E15rQjC-0000m2-00@the-village.bc.nu>
+X-Url: http://www.lfcia.org/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <E15rQjC-0000m2-00@the-village.bc.nu>
+Date: 11 Oct 2001 01:02:06 +0200
+Message-ID: <m2itdnf6a9.fsf@anano.mitica>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Folks,
+>>>>> "alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-I was looking for some scripts to backup ext2 partitions
-to multiple CDR's when I stumbled onto "cdbackup" at
-http://www.cableone.net/ccondit/cdbackup/.
+hi
 
-Alas, there is a warning saying:
+alan> Well under the DMCA thats probably a criminal offence with five years in
+alan> jail. The truth however is that if you want to lie about licensing or run a
+alan> modutils that doesn't do it nobody stops you. Its there primarily to deal
+alan> with bug filtering from people who don't know better. Folks who know enough
+alan> to subvert the mechanism generally also know better than to post Nvdriver
+alan> bugs to l/k.
 
-"WARNING! When using this program under Linux, be sure not to use
- dump with kernels in the 2.4.x series. Using dump on an ext2
- filesystem has a very high potential for causing filesystem
- corruption.  As of kernel version 2.4.5, this has not been
- resolved, and it may not be for some time."
+Never understimate the ability of users to subert that kind of
+barriers.
 
-I don't recall any problems like this, does anyone have
-additional comments?
+Later, Juan.
 
-Regards,
-Lew Wolfgang
-
-
+-- 
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

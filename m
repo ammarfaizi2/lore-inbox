@@ -1,61 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261656AbSJAOsW>; Tue, 1 Oct 2002 10:48:22 -0400
+	id <S261688AbSJAOxr>; Tue, 1 Oct 2002 10:53:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261657AbSJAOsW>; Tue, 1 Oct 2002 10:48:22 -0400
-Received: from cibs9.sns.it ([192.167.206.29]:261 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S261656AbSJAOsU>;
-	Tue, 1 Oct 2002 10:48:20 -0400
-Date: Tue, 1 Oct 2002 16:52:44 +0200 (CEST)
-From: venom@sns.it
-To: Alexander Viro <viro@math.psu.edu>
-cc: Joe Thornber <joe@fib011235813.fsnet.co.uk>,
-       <linux-kernel@vger.kernel.org>, Dave Jones <davej@suse.de>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
-In-Reply-To: <Pine.GSO.4.21.0210011010380.4135-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.43.0210011650490.12465-100000@cibs9.sns.it>
+	id <S261690AbSJAOxr>; Tue, 1 Oct 2002 10:53:47 -0400
+Received: from inje.iskon.hr ([213.191.128.16]:47862 "EHLO inje.iskon.hr")
+	by vger.kernel.org with ESMTP id <S261688AbSJAOxq>;
+	Tue, 1 Oct 2002 10:53:46 -0400
+To: Alessandro Suardi <alessandro.suardi@oracle.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: Shared memory shmat/dt not working well in 2.5.x
+References: <Pine.LNX.4.44.0210011401360.991-100000@localhost.localdomain>
+	<3D99A2F2.70102@oracle.com> <dnelbaclvo.fsf@magla.zg.iskon.hr>
+	<3D99B672.2090805@oracle.com>
+Reply-To: zlatko.calusic@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Date: Tue, 01 Oct 2002 16:59:08 +0200
+In-Reply-To: <3D99B672.2090805@oracle.com> (Alessandro Suardi's message of
+ "Tue, 01 Oct 2002 16:51:30 +0200")
+Message-ID: <dnsmzqb3yb.fsf@magla.zg.iskon.hr>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A Logical Volume Manager is needed on Unix servers, and so it is needed
-also on Linux.
-If this LVM is obsoleted, then when will LVM2 be merged?
-really we cannot have a 2.6 or 3.0 tree without a Volume Manager, it would
-be a big fault.
+Alessandro Suardi <alessandro.suardi@oracle.com> writes:
 
-Luigi
+> Zlatko Calusic wrote:
+>
+>>>I'm glad to report that Oracle 9.2 is now able to start once again
+>>>  on 2.5.x series :)
+>>>
+>>>Thanks, cool work as always !
+>> Was it a known problem for some time?
+>> I haven't been testing 2.5.x series for some time, and also haven't
+>> read linux-kernel list last few months, so I don't know exact history
+>> of the bug. If you can enlighten me, I'm just curious... :)
+>> I rememeber other more complicated bugs from the older 2.5.x kernels,
+>> and now I'll test if they're solved in newer ones. I might need some
+>> help if they still exist (could you lend me a hand if that's the
+>> case?) as I was getting Oracle internal error - coredump - with only
+>> one meaningful sentence (at least to me :)). Google was silent on the
+>> case. :(
+>
+> I reported the issue on l-k the other day:
+>
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0209.3/1691.html
 
-On Tue, 1 Oct 2002, Alexander Viro wrote:
+I see. Same day I decided to dig deeper. :)
 
-> Date: Tue, 1 Oct 2002 10:15:26 -0400 (EDT)
-> From: Alexander Viro <viro@math.psu.edu>
-> To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
-> Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>,
->      Linus Torvalds <torvalds@transmeta.com>
-> Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
 >
->
->
-> On Tue, 1 Oct 2002, Joe Thornber wrote:
->
-> > bk://device-mapper.bkbits.net/2.5-remove-lvm
-> >
-> > This large patch completely removes LVM from the 2.5 tree.  Please
-> > apply.  Yes it really has spread as far as linux/list.h and
-> > linux/kdev_t.h !
->
-> Seconded - LVM in the tree is thoroughly dead.
->
-> Speaking of which, would Intermezzo maintainers care to port the thing
-> to 2.5?  If it's abandoned - at least say so ;-/
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> The more complicated bug you're talking about is the exec_mmap
+>   change introduced in 2.5.19 and fixed a handful of versions
+>   later, possibly .28, where PMON wouldn't start after 120"...
+>   I guess :)
 
+Great. Thanks for the useful info.
+
+It looks that there's a chance I will do only the interesting
+benchmarking part. :) I'm quite curious how Andrew's work in 2.5.x
+will affect performance of Oracle database.
+
+Thanks for everything.
+-- 
+Zlatko

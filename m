@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbVAaKpq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVAaKt2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261782AbVAaKpq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 05:45:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbVAaKpp
+	id S261849AbVAaKt2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 05:49:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbVAaKt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 05:45:45 -0500
-Received: from ext-ch1gw-1.online-age.net ([216.34.191.35]:49290 "EHLO
-	ext-ch1gw-1.online-age.net") by vger.kernel.org with ESMTP
-	id S261782AbVAaKpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 05:45:41 -0500
-From: "Kiniger, Karl (GE Healthcare)" <karl.kiniger@med.ge.com>
-To: linux-kernel@vger.kernel.org
-Date: Mon, 31 Jan 2005 11:45:32 +0100
-Subject: How peek at tcp socket data w/o reading it
-Message-ID: <20050131104532.GA3208@wszip-kinigka.euro.med.ge.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 31 Jan 2005 05:49:28 -0500
+Received: from relay1.tiscali.de ([62.26.116.129]:27091 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261849AbVAaKtZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 05:49:25 -0500
+Message-ID: <41FE1B4B.2060305@tiscali.de>
+Date: Mon, 31 Jan 2005 12:49:31 +0100
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: My System doesn't use swap!
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
+I have mysterious Problem:
+90 % of my Ram are used (340 MB), but 0 Byte of my Swap (2GB) is used 
+and about about 150 MB are swappable.
 
-hack wanted:
+[matthias-christian@iceowl ~]$ free
+             total       used       free     shared    buffers     cached
+Mem:        383868     362176      21692          0         12     208956
+-/+ buffers/cache:     153208     230660
+Swap:      2097136          0    2097136
 
-is it possible to peek a few bytes from a tcp socket which is
-ready to read without actually reading the data? (or some
-means to push already read data back similar to ungetc)
+[matthias-christian@iceowl ~]$ cat /kernel-2.6.10-rc2-ott/config
+[..]
+CONFIG_SWAP=y
+[..]
+CONFIG_X86_BSWAP=y
+[..]
 
-Any creative ideas welcome.
+[matthias-christian@iceowl ~]$ dmesg
+[..]
+Adding 2097136k swap on /dev/discs/disc0/part2.  Priority:-1 extents:1
+[..]
 
-Karl
--- 
-Karl Kiniger   mailto:karl.kiniger@med.ge.com
-GE Medical Systems Kretztechnik GmbH & Co OHG
-Tiefenbach 15       Tel: (++43) 7682-3800-710
-A-4871 Zipf Austria Fax: (++43) 7682-3800-47
+Matthias-Christian Ott
+
+

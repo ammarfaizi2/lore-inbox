@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272372AbTGaAIu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 20:08:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272371AbTGaAIu
+	id S272359AbTGaANl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 20:13:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272362AbTGaANl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 20:08:50 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:21740 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272372AbTGaAIp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 20:08:45 -0400
-Message-Id: <200307310008.h6V08f609196@zeus.kernel.org>
-From: "ERC - Equipe =?ISO-8859-1?Q?=20Reda=E7=E3o?= Comercial" 
-	<redacaodecartas@bol.com.br>
-To: <linux-kernel@vger.kernel.org>
-Subject: 540 Modelos de Cartas Comerciais
+	Wed, 30 Jul 2003 20:13:41 -0400
+Received: from cm61.gamma179.maxonline.com.sg ([202.156.179.61]:2176 "EHLO
+	amaryllis.anomalistic.org") by vger.kernel.org with ESMTP
+	id S272359AbTGaANj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 20:13:39 -0400
+Date: Thu, 31 Jul 2003 08:13:36 +0800
+From: Eugene Teo <eugene.teo@eugeneteo.net>
+To: Rahul Karnik <rahul@genebrew.com>, kernel@kolivas.org
+Cc: Stefano Rivoir <s.rivoir@gts.it>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0t2 Hangs randomly
+Message-ID: <20030731001336.GA725@eugeneteo.net>
+Reply-To: Eugene Teo <eugene.teo@eugeneteo.net>
+References: <3F27817A.8000703@gts.it> <3F2861D3.4030703@genebrew.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Date: Wed, 30 Jul 2003 19:58:07 -0300
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F2861D3.4030703@genebrew.com>
+X-Operating-System: Linux 2.6.0-test2-mm1-kj1+O11.2int
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A ERC (Equipe de Redação Comercial) lança a 2ª Edição do "CD MODELOS DE
-CARTAS COMERCIAIS".
+<quote sender="Rahul Karnik">
+> Stefano Rivoir wrote:
+> >I'm experiencing hard rand lockups using kernel 2.6.0: they are not
+> >predictable, nor I can find a way to reproduce them. They can occur
+> >while working with an app, while browsing the fs (I use KDE) or
+> >while resuming after the screensaver, or anything else. They can
+> >occur after one hour or 15 minutes, and there's not any strange
+> >"jerkiness" activity before, nor an intense disk work.
+> >
+> >After the hang, the disk starts working for a while, then I have
+> >to reset w/button, and nothing is left on the various system logs.
+> >
+> >These hangs did not occur in 2.5 up to .75, but they come also
+> >with 2.6.0-mm1 (and plain 2.6.0-t1). I had a doubt about the
+> >soundcard, I've applied latest 0.9.6 alsa patch: the hangs are less 
+> >frequent but still there.
+> 
+> Can you reproduce these hangs without the AGP and DRI modules loaded?
 
-Comprando o "CD MODELOS DE CARTAS COMERCIAIS", você terá um produto que sana
-suas dúvidas na elaboração de: agradecimentos, atestados e declarações,
-avisos,  cartas de cobrança, cartas em inglês, comunicados,  convites, 
-contratos, propostas, empregos, solicitações e pedidos, telegramas, cartas
-por e-mail, etc.
+I am encountering the same with 2.6.0-test2 but the
+problem is, I patched it with a number of patches that
+I am unable to determine which patches/changes causes
+the random lockups. Actually I am suspecting it's O11.2int
+because I wasn't having any problems with it prior to
+this patch. will keep you guys updated.
 
-Composto de um CD com 540 modelos de documentos diversos e inúmeras técnicas
-de REDAÇÃO COMERCIAL.
+Eugene
 
-Indicado para: secretárias em geral, gerências, Rh, executivos, estudantes e
-empresas de toda ordem.
-
-Este kit possui um preço ínfimo em relação ao que poderá gerar no
-aperfeiçoamento da comunicação de sua empresa.
-
-As cartas comerciais, têm grande importância na administração de qualquer
-empreendimento, pois parte significativa das transações mundiais se realiza
-por esse meio.
-
-A carta é o instrumento que faz a conexão entre as empresas.
-
-Confira!
-
-Acesse nossa Home Page para mais detalhes e pedido:
-
-http://www.cartascom2003.kit.net
-
-
-
-Ps: Caso não queira receber novas mensagens e novidades sobre esse assunto,
-acesse:
-
-http://www.cartascom2003.kit.net/remova.htm
+> 
+> Thanks,
+> Rahul
+> -- 
+> Rahul Karnik
+> rahul@genebrew.com
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

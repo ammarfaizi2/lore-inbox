@@ -1,60 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129147AbQKNJ6m>; Tue, 14 Nov 2000 04:58:42 -0500
+	id <S129132AbQKNKhw>; Tue, 14 Nov 2000 05:37:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129212AbQKNJ6c>; Tue, 14 Nov 2000 04:58:32 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:65292 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S129147AbQKNJ6X>; Tue, 14 Nov 2000 04:58:23 -0500
-Message-ID: <3A1105B4.187F3270@idb.hist.no>
-Date: Tue, 14 Nov 2000 10:28:20 +0100
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: no, da, en
-MIME-Version: 1.0
-To: Michael Peddemors <michael@linuxmagic.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: reliability of linux-vm subsystem
-In-Reply-To: <Pine.LNX.4.30.0011132116420.20626-100000@fs129-190.f-secure.com> <20001114004547.D12931@arthur.ubicom.tudelft.nl> <0011131653231G.24220@mistress>
+	id <S129163AbQKNKhc>; Tue, 14 Nov 2000 05:37:32 -0500
+Received: from stm.lbl.gov ([131.243.16.51]:9992 "EHLO stm.lbl.gov")
+	by vger.kernel.org with ESMTP id <S129132AbQKNKhZ>;
+	Tue, 14 Nov 2000 05:37:25 -0500
+Date: Tue, 14 Nov 2000 02:04:50 -0800
+To: Olaf Kirch <okir@caldera.de>
+Cc: Michal Zalewski <lcamtuf@DIONE.IDS.PL>, BUGTRAQ@SECURITYFOCUS.COM,
+        linux-kernel@vger.kernel.org
+Subject: Re: More modutils: It's probably worse.
+Message-ID: <20001114020450.A834@stm.lbl.gov>
+Reply-To: David Schleef <ds@schleef.org>
+In-Reply-To: <Pine.LNX.4.21.0011132040160.1699-100000@ferret.lmh.ox.ac.uk> <Pine.LNX.4.21.0011132352550.31869-100000@dione.ids.pl> <20001114095921.E30730@monad.caldera.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001114095921.E30730@monad.caldera.de>; from okir@caldera.de on Tue, Nov 14, 2000 at 09:59:22AM +0100
+From: David Schleef <ds@stm.lbl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Peddemors wrote:
+On Tue, Nov 14, 2000 at 09:59:22AM +0100, Olaf Kirch wrote:
+> On Tue, Nov 14, 2000 at 12:06:32AM +0100, Michal Zalewski wrote:
+> > Maybe I am missing something, but at least for me, modprobe
+> > vulnerabilities are exploitable via privledged networking services,
+> > nothing more.
 > 
-> > up to the sysadmin to enforce the policy. For the home user it means
-> > that the distribution providers have to set decent limits,
+> Maybe not. ncpfs for instance has an ioctl that seems to allow
+> unprivileged users to specify a character set (codepage in m$speak)
+> that's requested via load_nls(), which in turn does a
 > 
-> What is decent today may not be with tommorows' newest softwares....
->
-Which is why you upgrade your distribution now and then.  Or have 
-a script setting a dynamic limit depending on available
-memory & swap.
- 
-> >  for enterprises it means that they have to hire a sysadmin.
+> 	sprintf(buf, "nls_%s", codepage);
+> 	request_module(buf);
 > 
-> That is one of the reasons that small businesses are afraid to go to Linux
-> now, because of the difficulty in finding skilled Linux sysadmins..
-> 
-The small business should use the distribution provided limit.
+> Yummy.
 
-> "At least with the 'XX' Os, all they need to do is hire someone that can
-> click buttons, either on the computer, or to the tech support line" is the
-> perception, and with Linux they are already worried enough that they have to
-> find a 'genius' to work on their systems fulltime..
+Then it looks like the driver is broken, not modutils.
+
+
+> Everyone is fixing modutils right now. Fine, but what about next
+> year's modutils rewrite?
 > 
-There are tech support lines for linux too, if you _pay_ for a
-distribution.  You pay if you need it.
+> This is why I keep repeating over and over again that we should make
+> sure request_module _does_not_ accept funky module names. Why allow
+> people to shoot themselves (and, by extension, all other Linux users
+> out there) in the foot?
 
-> It would be nice if 'advanced administration' can be kept to the minimum, so
-> we can service MORE than one enterprise each :>
+Although I agree that having request_module() do a sanity check
+is the best place to do a sanity check, I think it should be
+up to the driver to not be stupid.  The drivers are trusted with
+copy_to/from_user(), so why can't they be trusted to not pass
+bad strings.
 
-Sure.  My impression is that most of the advanced stuff is in the
-installation and initial configuration.  There is very little
-regular maintenance with linux.  Less than your typical GUI os anyway.
-Easy installation looses its charm when you have to do it twice or more.
+An inline function module_name_sanity_check() would be convenient
+for those cases where "it is just necessary."
 
-Helge Hafting
+Rogue request_module() calls are bad in general, not only because
+they might have dangerous invalid strings, but also because they
+might have dangerous _valid_ strings.  I can imagine a
+not-too-unlikely scenario where repeatedly loading a module
+causes a DoS.
+
+
+
+
+dave...
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

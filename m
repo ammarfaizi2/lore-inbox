@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262259AbTJOGHt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 02:07:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbTJOGHs
+	id S262375AbTJOGjs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 02:39:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbTJOGjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 02:07:48 -0400
-Received: from mail.storm.ca ([209.87.239.66]:31657 "EHLO mail.storm.ca")
-	by vger.kernel.org with ESMTP id S262259AbTJOGHr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 02:07:47 -0400
-Message-ID: <3F8CE3EB.8040907@storm.ca>
-Date: Wed, 15 Oct 2003 14:06:35 +0800
-From: Sandy Harris <sandy@storm.ca>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
+	Wed, 15 Oct 2003 02:39:48 -0400
+Received: from chello062178006202.3.11.tuwien.teleweb.at ([62.178.6.202]:2432
+	"EHLO flatline.ath.cx") by vger.kernel.org with ESMTP
+	id S262375AbTJOGjr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 02:39:47 -0400
+Date: Wed, 15 Oct 2003 16:37:35 +0200
+From: Andreas Happe <andreashappe@gmx.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Unbloating the kernel, was: :mem=16MB laptop testing
-References: <HMQWM7$61FA432C2B793029C11F4F77EEAABD1F@libero.it> <Pine.LNX.4.44.0310140917540.3754-100000@chimarrao.boston.redhat.com> <20031014143047.GA6332@ncsu.edu>
-In-Reply-To: <20031014143047.GA6332@ncsu.edu>
+Subject: 2.6.0-test7: unstable on laptop
+Message-ID: <20031015143735.GA2331@flatline.chello.at>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-Request-PGP: subkeys.pgp.net
+X-Hangover: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jlnance@unity.ncsu.edu wrote:
+Since 2.6.0-test6 Linux just hangs from time to time. Hardware in
+question is a omnibook (laptop (hp omnibook 6100, P3m, i830m chipset).
+Frequency is about twice a day.
 
-> Let me concur with the sentiments on this thread.
+The system hangs regardless of the current workload, sysrg is still
+working, but the computer is not ping-able. This problem could be
+verified with 2.6.0-test7-bk[3-5], disabling power managment in 
+2.6.0-test7-bk5 didn't kills it of.
 
-Me too.
+There are no log messages concerning the bug.
 
-> ...  There are many people who will never be able to afford
-> to buy a computer but could find someone to give them one of these
-> "hopelessy outdated" machines for nothing.
+I'm now trying 2.6.0-test7-bk6 without power-management.
 
-Some people may be able to get more than one. A year or two
-back a peniless friend of mine built quite a nice environment
-for himself with two 486 boxes and a pile of SPARC IIs.
+Any suggestions?
 
-Also, there are server applications that don't need much. For
-example, a firewall and NAT box for an ADSL line, or a print
-spooler or ...
-
-You could even build a Beowulf out of such machines
-http://stonesoup.esd.ornl.gov/
-
-> If we can ensure that
-> Linux keeps working on these machines, it will be a good thing.
-
-Indeed.
-
-
-
+	--Andreas

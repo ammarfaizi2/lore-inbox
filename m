@@ -1,57 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262172AbUCIU5j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 15:57:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbUCIU5j
+	id S262191AbUCIU7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 15:59:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbUCIU7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 15:57:39 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:15500 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262172AbUCIU5a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 15:57:30 -0500
-Subject: Re: [Announce] Intel PRO/Wireless 2100 802.11b driver
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: James Ketrenos <jketreno@linux.co.intel.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <404E27E6.40200@linux.co.intel.com>
-References: <404E27E6.40200@linux.co.intel.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-P9cyGgGlLMCrIPYJIkZq"
-Organization: Red Hat, Inc.
-Message-Id: <1078865831.4452.16.camel@laptop.fenrus.com>
+	Tue, 9 Mar 2004 15:59:24 -0500
+Received: from FW-30-241.go.retevision.es ([62.174.241.30]:22349 "EHLO
+	nebula.ghetto") by vger.kernel.org with ESMTP id S262191AbUCIU6X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 15:58:23 -0500
+Date: Tue, 9 Mar 2004 21:57:20 +0100
+To: linux-kernel@vger.kernel.org
+Cc: Ludootje <ludootje@linux.be>
+Subject: Re: performance better in 2.6.1 than in 2.6.3
+Message-ID: <20040309205720.GA10182@larroy.com>
+Reply-To: piotr@larroy.com
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Ludootje <ludootje@linux.be>
+References: <1078867762.4908.20.camel@gax.mynet>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 09 Mar 2004 21:57:12 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1078867762.4908.20.camel@gax.mynet>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: piotr@larroy.com (Pedro Larroy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 09, 2004 at 09:29:22PM +0000, Ludootje wrote:
+> Hi,
+> 
+> I'm currently using Linux 2.6.1 (vanilla, no patches applied). I've never used
+> 2.6.2, but I did compile 2.6.3 (vanilla too) a few weeks ago, and I used that
+> for a while.
+> 
+> When I use KDE and start some 'heavy' applications with 2.6.3, I have
+> performance problems. Example: amaroK is playing music in KDE, I start
+> up Firebird or Evolution, and the music 'skips' a bit. It doesn't stop playing,
+> it just skips some bits. When the app is loaded, all is fine again.
+> I don't have this behaviour in 2.6.1, so I'm using that again ATM.
+> 
+> I used the same configuration each time (attached is my /proc/config.gz).
+> I'm using an AMD Athlon XP 2400+.
+> 
+> I don't know how I can 'show' the problem, as I don't think the load average
+> is useful for this problem, so I'm not including it. I really have no idea what
+> can be useful, so please tell me what stuff I should add (if any).
+> 
+> I'm sorry if this a known problem, but I don't remember seeing something like
+> this on the list.
+> 
+> Thanks,
+> Ludootje
 
---=-P9cyGgGlLMCrIPYJIkZq
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2004-03-09 at 21:24, James Ketrenos wrote:
-> I am pleased to announce the launch of an open source development project=
- for
-> the Intel PRO/Wireless 2100 miniPCI network adapter. The project has been
-> created and is hosted at http://ipw2100.sf.net.
+Maybe you want to try a little IO latency measurement program to see if the
+skips are beeing caused by disk/ioscheduling delays, it's in:
 
-thank you for doing this!
-The driver looks quite good on first inspection too!
-(minor nitpick: please look into request_firmware for the firmware
-loader)
+http://pedro.larroy.com/devel/iolat/
 
---=-P9cyGgGlLMCrIPYJIkZq
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Here: http://pedro.larroy.com/devel/iolat/analisys/
+are some measures from an ide disk in a AMD-768 chipset and a scsi
+cheetah 10K on an AIC-7892A U160/m.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+I'm still working to find why those delays in the ide disk.
 
-iD8DBQBATi+nxULwo51rQBIRAhsFAJ0YMmVqGshiePrtqC88CN8RIcVXOACgmNOU
-Zobvgh+iWUAFlgeUBNgoJmc=
-=3j46
------END PGP SIGNATURE-----
+Regards.
 
---=-P9cyGgGlLMCrIPYJIkZq--
+--
+Pedro Larroy Tovar | Linux & Network consultant |  piotr%member.fsf.org
+Software patents are a threat to innovation in Europe please check:
+        http://www.eurolinux.org/
 

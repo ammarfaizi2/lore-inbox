@@ -1,40 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbVC0PJ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVC0PNH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbVC0PJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 10:09:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVC0PJ5
+	id S261776AbVC0PNH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 10:13:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbVC0PNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 10:09:57 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:45979 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S261763AbVC0PJy (ORCPT
+	Sun, 27 Mar 2005 10:13:07 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:41961 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261776AbVC0PNA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 10:09:54 -0500
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Wichert Akkerman <wichert@wiggy.net>
-Cc: Sean <seanlkml@sympatico.ca>, Mark Fortescue <mark@mtfhpc.demon.co.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050327135338.GB14696@wiggy.net>
-References: <Pine.LNX.4.10.10503261710320.13484-100000@mtfhpc.demon.co.uk>
-	 <1824.10.10.10.24.1111927362.squirrel@linux1>
-	 <20050327135338.GB14696@wiggy.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1111935996.8664.322.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 27 Mar 2005 16:06:37 +0100
+	Sun, 27 Mar 2005 10:13:00 -0500
+Date: Sun, 27 Mar 2005 17:12:58 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] no need to check for NULL before calling kfree() -fs/ext2/
+In-Reply-To: <20050327065655.6474d5d6.pj@engr.sgi.com>
+Message-ID: <Pine.LNX.4.61.0503271708350.20909@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>
+ <Pine.LNX.4.61.0503251726010.6354@chaos.analogic.com>
+ <1111825958.6293.28.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com>
+ <Pine.LNX.4.62.0503270044350.3719@dragon.hyggekrogen.localhost>
+ <1111881955.957.11.camel@mindpipe> <Pine.LNX.4.62.0503271246420.2443@dragon.hyggekrogen.localhost>
+ <20050327065655.6474d5d6.pj@engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2005-03-27 at 14:53, Wichert Akkerman wrote:
-> Are you sure? It is perfectly legal to relicense things if you own the
-> copyright. As long as he never distributes his GPL version I don't see
-> why he should have a problem.
+>Just looking at the third run, it seems to me that "if (likely(p))
+>kfree(p);" beats a naked "kfree(p);" everytime, whether p is half
+>NULL's, or very few NULL's, or almost all NULL's.
 
-The GPL is a distribution license, it doesn't really matter what you do
-*internally* with GPL code. It might be a DMCA violation in the USSA but
-thats because the law is broken.
+Well, kfree inlined was already mentioned but forgotten again.
+What if this was used:
 
-Alan
+inline static void kfree_WRAP(void *addr) {
+    if(likely(addr != NULL)) {
+        kfree_real(addr);
+    }
+    return;
+}
 
+And remove the NULL-test in kfree_real()? Then we would have:
+
+  test eax, eax
+  jz afterwards;
+  <some more stuff for call>
+  call kfree_real;
+.afterwards:
+  <continue execution>
+
+The two cases then:
+ptr==NULL: test-jmp
+ptr!=NULL: test-call(freeit-return)
+
+Looks like the least expensive way to me.
+
+
+Jan Engelhardt
+-- 
+No TOFU for me, please.

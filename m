@@ -1,92 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267483AbUHSWch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267482AbUHSWlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267483AbUHSWch (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 18:32:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267482AbUHSWcg
+	id S267482AbUHSWlM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 18:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267484AbUHSWlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 18:32:36 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:46000 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S267484AbUHSWcL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 18:32:11 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Fri, 20 Aug 2004 00:31:12 +0200
-To: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: GNU make alleged of "bug" (was: PATCH: cdrecord: avoiding scsi 
- device numbering for ide devices)
-Message-ID: <41252A30.nail8D551I5Z2@burner>
-References: <200408191600.i7JG0Sq25765@tag.witbe.net>
- <200408191341.07380.gene.heskett@verizon.net>
- <20040819194724.GA10515@merlin.emma.line.org>
- <20040819220553.GC7440@mars.ravnborg.org>
- <20040819205301.GA12251@merlin.emma.line.org>
-In-Reply-To: <20040819205301.GA12251@merlin.emma.line.org>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 19 Aug 2004 18:41:12 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:12031 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S267482AbUHSWkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 18:40:55 -0400
+From: jmerkey@comcast.net
+To: Julien Oster <usenet-20040502@usenet.frodoid.org>,
+       "David S. Miller" <davem@redhat.com>
+Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org, jmerkey@drdos.com
+Subject: Re: kallsyms 2.6.8 address ordering
+Date: Thu, 19 Aug 2004 22:40:54 +0000
+Message-Id: <081920042240.12816.41252C76000205FA000032102200763704970A059D0A0306@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Jul 16 2004)
+X-Authenticated-Sender: am1lcmtleUBjb21jYXN0Lm5ldA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree <matthias.andree@gmx.de> wrote:
+This seems to be the case.  It's just happening silently.  lkml needs to return a message to 
+help folks detemrine the problem if possible.
 
-> > Using:
-> > -include hello.d
-> > will result in a silent make.
->
-> Indeed it will. However, Solaris' /usr/ccs/bin/make doesn't understand
-> the "-include" form:
->
-> make: Fatal error in reader: Makefile, line 5: Unexpected end of line seen
->
-> include without leading "-" is fine. BSD make doesn't understand either
-> form.
->
-> J?rg, how about Sam's suggestion? It seems compatible with smake.
-
--include does not work with Sun's make and it does not cure the bug in GNU make
-but hides it only.
-
-GNU make just violates the unwritten "golden rule" for all make programs:
-
-	If you like to "use" anything, first check whether you have a rule
-	that could make the file in question.
-
-For makefiles on the Command Line, GNU make follows this rule. If you are in an 
-empty directory and call "gmake", GNU make will first try if "Makefile" or 
-"makefile" could be retrieved using e.g. "sccs get Makefile" before GNU make 
-tries to read the file.
-
-For makefiles that appear as argument to an include statement, GNU make ingnores
-this rule. GNU make instead, later (too late) executes the rule set and creates 
-the missing files using known rules. In order to be able to do anything useful, 
-GNU make then executes "exec gmake <old arg list>" after it is done with 
-executing the rules. This is complete nonsense.
-
-Smake works this way:
-
--	if it is going to "include" a file, it checks whether there is a rule 
-	to make the file that is going to be included.
-
--	If the file has been "made", smake includes the file.
-
--	After including the file, smake clears the "has been made already" 
-	cache flags for the included file.
-
--	After all make files and all recursive include rules have been made and 
-	included, smake checks all rules again. This may result in rare cases 
-	that the rule for one of the the include file is executed again.
-
-As you noe see that GNU make behaves inconsistent, I hope you believe me that 
-there is a bug in GNU make that should be fixed.
+Jeff
 
 
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+> "David S. Miller" <davem@redhat.com> writes:
+> 
+> Hello David,
+> 
+> >> jmerkey@drdos.com is blocked from posting to this list.  I have
+> >> verified it though smtp, so I use my comcast.net account instead.
+> >> David Miller **WONT** respond to emails or the other list
+> >> maintainers.
+> 
+> > Well, you're not in the by-hand SPAM filter, so it must be something else.
+> 
+> > ? egrep drdos /opt/mail/db/smtp-policy.spam.manual
+> > ? egrep jmerkey /opt/mail/db/smtp-policy.spam.manual
+> 
+> > What message do you get back from direct smtp tests?
+> 
+> My messages also won't get through if I send them directly using
+> postfix from my workstation (with dynamic IP). I switched to using a
+> smarthost and now everything seems ok.
+> 
+> I thought it might be spam prevention. However, the SMTP server lkml
+> is attached to accepted the messages perfectly and just dropped it
+> silentily. It really should give an error when it's preventing spam,
+> otherwise you might not even notice that your message got dropped.
+> 
+> At least one message really didn't get anywhere while the SMTP server
+> said that everything is fine. Or maybe it's a bug somewhere that drops
+> messages unintendedly? Drop me a line if you need the log entry.
+> 
+> However, I never suspected that I was dropped on purpose, and I still
+> don't think so right now.
+> 
+> Regards,
+> Julien

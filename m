@@ -1,65 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317323AbSFCJHB>; Mon, 3 Jun 2002 05:07:01 -0400
+	id <S317325AbSFCJLC>; Mon, 3 Jun 2002 05:11:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317325AbSFCJHA>; Mon, 3 Jun 2002 05:07:00 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:42473 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S317323AbSFCJHA>; Mon, 3 Jun 2002 05:07:00 -0400
-Subject: agppart SiS 745 Patch
-From: Carsten Rietzschel <cr@daRav.de>
-To: davej@suse.de
-Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-CWj9Kerl7jIaWgvLXP+6"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 03 Jun 2002 11:06:20 +0200
-Message-Id: <1023095181.1519.15.camel@rav-pc-linux>
-Mime-Version: 1.0
+	id <S317326AbSFCJLB>; Mon, 3 Jun 2002 05:11:01 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:57350 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S317325AbSFCJLA>; Mon, 3 Jun 2002 05:11:00 -0400
+Message-ID: <3CFB3383.44A6CC96@zip.com.au>
+Date: Mon, 03 Jun 2002 02:14:43 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 1/16] unplugging fix
+In-Reply-To: <3CF88852.BCFBF774@zip.com.au> <3CF9CB92.A6BF921B@zip.com.au> <20020602081204.GD820@suse.de> <20020603083937.GA23527@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens Axboe wrote:
+> 
+> ...
+> Does this work? I can't poke holes in it, but then again...
 
---=-CWj9Kerl7jIaWgvLXP+6
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+It survives a 30-minute test.  It would not have done that
+before...
 
-Hi,
+Are you sure blk_stop_queue() and blk_run_queues() can't
+race against each other?  Seems there's a window where
+they could both do a list_del().
 
-only added support SiS 745-IDs to PCI-Device list.
-
-So agp-try-unsupported kernel option will not be nessecary
-for let this chipset work.
-
-This patch is against 2.5.20 
-(but the same changes will also work for 2.4-kernel series).
-
-
-Carsten Rietzschel
-
-
-
-
---=-CWj9Kerl7jIaWgvLXP+6
-Content-Description: 
-Content-Disposition: inline; filename=agppart-sis735-patch
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=ISO-8859-15
-
---- linux-2.5.20/drivers/char/agp/agpgart_be.c	Mon Jun  3 10:43:45 2002
-+++ linux-2.5.20/drivers/char/agp/agpgart_be.c.org	Mon Jun  3 03:44:42 2002
-@@ -4562,12 +4562,6 @@
- 		"SiS",
- 		"735",
- 		sis_generic_setup },
--	{ PCI_DEVICE_ID_SI_745,
--		PCI_VENDOR_ID_SI,
--		SIS_GENERIC,
--		"SiS",
--		"745",
--		sis_generic_setup },
- 	{ PCI_DEVICE_ID_SI_730,
- 		PCI_VENDOR_ID_SI,
- 		SIS_GENERIC,
-
---=-CWj9Kerl7jIaWgvLXP+6--
-
+-

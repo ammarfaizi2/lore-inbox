@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262108AbUK3PKe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUK3POJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262108AbUK3PKe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 10:10:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbUK3PKd
+	id S262114AbUK3POJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 10:14:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbUK3POJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 10:10:33 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:14590 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S262108AbUK3PI7
+	Tue, 30 Nov 2004 10:14:09 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:19347 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S262114AbUK3PJ0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 10:08:59 -0500
-Date: Tue, 30 Nov 2004 16:08:53 +0100
+	Tue, 30 Nov 2004 10:09:26 -0500
+Date: Tue, 30 Nov 2004 16:09:24 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [patch 1/6] s390: core changes.
-Message-ID: <20041130150853.GB4758@mschwid3.boeblingen.de.ibm.com>
+Subject: [patch 3/6] s390: dcss segments.
+Message-ID: <20041130150924.GD4758@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,387 +21,478 @@ User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 1/6] s390: core changes.
+[patch 3/6] s390: dcss segments.
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-From: Ulrich Weigand <uweigand@de.ibm.com>
+From: Carsten Otte <cotte@de.ibm.com>
 
-s390 core changes:
- - Remove defines for kernel_stack_size and async_stack_size.
- - Reserve system call number for kexec.
- - Add cc-option check for new gcc option packed-stack.
- - Fix race on no_hz_cpu_mask in stop_hz_timer.
- - Fix ptrace to make it send a SIGTRAP before the first instruction
-   of a single stepped signal handler is executed.
- - Use force_sig_info with a full siginfo structure for illegal operation.
- - Remove verbatim copy of si_codes from asm-s390/siginfo.h. Use the
-   generic definitions.
- - Regenerate default configuration.
+dcss segment interface changes:
+ - Add check when loading segments to avoid out of range mappings.
+ - Add code to check for segment_load returning -ERANGE.
+ - Rename segment_info to segment_type.
+ - Restore previous segment state if reload fails.
+ - Add segment_modify_shared() to change shared attributes of a dcss
+   segment and use it in the dcss block device driver.
+ - Add support for contiguous EW/EN multipart segments.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
 diffstat:
- arch/s390/Makefile          |   12 +++++++
- arch/s390/defconfig         |    6 +--
- arch/s390/kernel/entry.S    |    2 +
- arch/s390/kernel/entry64.S  |    2 +
- arch/s390/kernel/ptrace.c   |    5 ++-
- arch/s390/kernel/syscalls.S |    3 +
- arch/s390/kernel/time.c     |    7 +++-
- arch/s390/kernel/traps.c    |   68 ++++++++++++++++++++++++++----------------
- include/asm-s390/siginfo.h  |   71 --------------------------------------------
- include/asm-s390/unistd.h   |    3 +
- 10 files changed, 75 insertions(+), 104 deletions(-)
+ arch/s390/mm/extmem.c         |  159 +++++++++++++++++++++++++++++++++++++-----
+ drivers/s390/block/dcssblk.c  |   69 ++++++++----------
+ drivers/s390/char/monreader.c |    8 +-
+ include/asm-s390/extmem.h     |    4 -
+ 4 files changed, 183 insertions(+), 57 deletions(-)
 
-diff -urN linux-2.6/arch/s390/defconfig linux-2.6-patched/arch/s390/defconfig
---- linux-2.6/arch/s390/defconfig	2004-11-30 14:03:01.000000000 +0100
-+++ linux-2.6-patched/arch/s390/defconfig	2004-11-30 14:03:18.000000000 +0100
-@@ -1,7 +1,7 @@
- #
- # Automatically generated make config: don't edit
--# Linux kernel version: 2.6.10-rc1
--# Thu Nov 11 12:54:21 2004
-+# Linux kernel version: 2.6.10-rc2
-+# Tue Nov 30 14:00:30 2004
- #
- CONFIG_MMU=y
- CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-@@ -147,7 +147,6 @@
- # SCSI low-level drivers
- #
- # CONFIG_SCSI_SATA is not set
--# CONFIG_SCSI_QLOGIC_1280_1040 is not set
- # CONFIG_SCSI_DEBUG is not set
- CONFIG_ZFCP=y
- CONFIG_CCW=y
-@@ -197,6 +196,7 @@
- CONFIG_MD_RAID5=m
- # CONFIG_MD_RAID6 is not set
- CONFIG_MD_MULTIPATH=m
-+# CONFIG_MD_FAULTY is not set
- # CONFIG_BLK_DEV_DM is not set
- 
- #
-diff -urN linux-2.6/arch/s390/kernel/entry64.S linux-2.6-patched/arch/s390/kernel/entry64.S
---- linux-2.6/arch/s390/kernel/entry64.S	2004-11-30 14:03:01.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/entry64.S	2004-11-30 14:03:18.000000000 +0100
-@@ -231,6 +231,8 @@
- 	brasl	%r14,do_signal    # call do_signal
- 	tm	__TI_flags+7(%r9),_TIF_RESTART_SVC
- 	jo	sysc_restart
-+	tm	__TI_flags+7(%r9),_TIF_SINGLE_STEP
-+	jo	sysc_singlestep
- 	j	sysc_leave        # out of here, do NOT recheck
- 
- #
-diff -urN linux-2.6/arch/s390/kernel/entry.S linux-2.6-patched/arch/s390/kernel/entry.S
---- linux-2.6/arch/s390/kernel/entry.S	2004-11-30 14:03:01.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/entry.S	2004-11-30 14:03:18.000000000 +0100
-@@ -229,6 +229,8 @@
- 	basr	%r14,%r1               # call do_signal
- 	tm	__TI_flags+3(%r9),_TIF_RESTART_SVC
- 	bo	BASED(sysc_restart)
-+	tm	__TI_flags+3(%r9),_TIF_SINGLE_STEP
-+	bo	BASED(sysc_singlestep)
- 	b	BASED(sysc_leave)      # out of here, do NOT recheck
- 
- #
-diff -urN linux-2.6/arch/s390/kernel/ptrace.c linux-2.6-patched/arch/s390/kernel/ptrace.c
---- linux-2.6/arch/s390/kernel/ptrace.c	2004-11-30 14:03:01.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/ptrace.c	2004-11-30 14:03:18.000000000 +0100
-@@ -640,7 +640,10 @@
- 			return -EIO;
- 		clear_tsk_thread_flag(child, TIF_SYSCALL_TRACE);
- 		child->exit_code = data;
--		set_single_step(child);
-+		if (data)
-+			set_tsk_thread_flag(child, TIF_SINGLE_STEP);
-+		else
-+			set_single_step(child);
- 		/* give it a chance to run. */
- 		wake_up_process(child);
- 		return 0;
-diff -urN linux-2.6/arch/s390/kernel/syscalls.S linux-2.6-patched/arch/s390/kernel/syscalls.S
---- linux-2.6/arch/s390/kernel/syscalls.S	2004-10-18 23:53:13.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/syscalls.S	2004-11-30 14:03:18.000000000 +0100
-@@ -283,5 +283,6 @@
- SYSCALL(sys_mq_unlink,sys_mq_unlink,sys32_mq_unlink_wrapper)
- SYSCALL(sys_mq_timedsend,sys_mq_timedsend,compat_sys_mq_timedsend_wrapper)
- SYSCALL(sys_mq_timedreceive,sys_mq_timedreceive,compat_sys_mq_timedreceive_wrapper)
--SYSCALL(sys_mq_notify,sys_mq_notify,compat_sys_mq_notify_wrapper)
-+SYSCALL(sys_mq_notify,sys_mq_notify,compat_sys_mq_notify_wrapper) /* 275 */
- SYSCALL(sys_mq_getsetattr,sys_mq_getsetattr,compat_sys_mq_getsetattr_wrapper)
-+NI_SYSCALL							/* reserved for kexec */
-diff -urN linux-2.6/arch/s390/kernel/time.c linux-2.6-patched/arch/s390/kernel/time.c
---- linux-2.6/arch/s390/kernel/time.c	2004-11-30 14:03:01.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/time.c	2004-11-30 14:03:18.000000000 +0100
-@@ -260,18 +260,21 @@
- 	if (sysctl_hz_timer != 0)
- 		return;
- 
-+	cpu_set(smp_processor_id(), nohz_cpu_mask);
+diff -urN linux-2.6/arch/s390/mm/extmem.c linux-2.6-patched/arch/s390/mm/extmem.c
+--- linux-2.6/arch/s390/mm/extmem.c	2004-11-30 14:03:01.000000000 +0100
++++ linux-2.6-patched/arch/s390/mm/extmem.c	2004-11-30 14:03:19.000000000 +0100
+@@ -40,14 +40,19 @@
+ #define DCSS_FINDSEG    0x0c
+ #define DCSS_LOADNOLY   0x10
+ #define DCSS_SEGEXT     0x18
+-#define DCSS_QACTV      0x0c
++#define DCSS_FINDSEGA   0x0c
 +
- 	/*
- 	 * Leave the clock comparator set up for the next timer
- 	 * tick if either rcu or a softirq is pending.
- 	 */
--	if (rcu_pending(smp_processor_id()) || local_softirq_pending())
-+	if (rcu_pending(smp_processor_id()) || local_softirq_pending()) {
-+		cpu_clear(smp_processor_id(), nohz_cpu_mask);
- 		return;
-+	}
++struct qrange {
++	unsigned int  start; // 3byte start address, 1 byte type
++	unsigned int  end;   // 3byte end address, 1 byte reserved
++};
  
- 	/*
- 	 * This cpu is going really idle. Set up the clock comparator
- 	 * for the next event.
- 	 */
--	cpu_set(smp_processor_id(), nohz_cpu_mask);
- 	timer = (__u64) (next_timer_interrupt() - jiffies) + jiffies_64;
- 	timer = jiffies_timer_cc + timer * CLK_TICKS_PER_JIFFY;
- 	asm volatile ("SCKC %0" : : "m" (timer));
-diff -urN linux-2.6/arch/s390/kernel/traps.c linux-2.6-patched/arch/s390/kernel/traps.c
---- linux-2.6/arch/s390/kernel/traps.c	2004-11-30 14:03:01.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/traps.c	2004-11-30 14:03:18.000000000 +0100
-@@ -294,6 +294,20 @@
-         do_exit(SIGSEGV);
+ struct qout64 {
+ 	int segstart;
+ 	int segend;
+ 	int segcnt;
+ 	int segrcnt;
+-	char segout[8][6];
++	struct qrange range[6];
+ };
+ 
+ struct qin64 {
+@@ -67,12 +72,15 @@
+ 	unsigned long end;
+ 	atomic_t ref_count;
+ 	int do_nonshared;
+-	int vm_segtype;
++	unsigned int vm_segtype;
++	struct qrange range[6];
++	int segcnt;
+ };
+ 
+ static spinlock_t dcss_lock = SPIN_LOCK_UNLOCKED;
+ static struct list_head dcss_list = LIST_HEAD_INIT(dcss_list);
+-static char *segtype_string[7] = { "SW", "EW", "SR", "ER", "SN", "EN", "SC" };
++static char *segtype_string[] = { "SW", "EW", "SR", "ER", "SN", "EN", "SC",
++					"EW/EN-MIXED" };
+ 
+ extern struct {
+ 	unsigned long addr, size, type;
+@@ -162,12 +170,12 @@
+  * fills start_address, end and vm_segtype fields
+  */
+ static int
+-query_segment_info (struct dcss_segment *seg)
++query_segment_type (struct dcss_segment *seg)
+ {
+ 	struct qin64  *qin = kmalloc (sizeof(struct qin64), GFP_DMA);
+ 	struct qout64 *qout = kmalloc (sizeof(struct qout64), GFP_DMA);
+ 
+-	int diag_cc, rc;
++	int diag_cc, rc, i;
+ 	unsigned long dummy, vmrc;
+ 
+ 	if ((qin == NULL) || (qout == NULL)) {
+@@ -176,7 +184,7 @@
+ 	}
+ 
+ 	/* initialize diag input parameters */
+-	qin->qopcode = DCSS_QACTV;
++	qin->qopcode = DCSS_FINDSEGA;
+ 	qin->qoutptr = (unsigned long) qout;
+ 	qin->qoutlen = sizeof(struct qout64);
+ 	memcpy (qin->qname, seg->dcss_name, 8);
+@@ -188,16 +196,40 @@
+ 		goto out_free;
+ 	}
+ 
+-	if (qout->segcnt > 1) {
++	if (qout->segcnt > 6) {
+ 		rc = -ENOTSUPP;
+ 		goto out_free;
+ 	}
+ 
++	if (qout->segcnt == 1) {
++		seg->vm_segtype = qout->range[0].start & 0xff;
++	} else {
++		/* multi-part segment. only one type supported here:
++		    - all parts are contiguous
++		    - all parts are either EW or EN type
++		    - maximum 6 parts allowed */
++		unsigned long start = qout->segstart >> PAGE_SHIFT;
++		for (i=0; i<qout->segcnt; i++) {
++			if (((qout->range[i].start & 0xff) != SEG_TYPE_EW) &&
++			    ((qout->range[i].start & 0xff) != SEG_TYPE_EN)) {
++				rc = -ENOTSUPP;
++				goto out_free;
++			}
++			if (start != qout->range[i].start >> PAGE_SHIFT) {
++				rc = -ENOTSUPP;
++				goto out_free;
++			}
++			start = (qout->range[i].end >> PAGE_SHIFT) + 1;
++		}
++		seg->vm_segtype = SEG_TYPE_EWEN;
++	}
++
+ 	/* analyze diag output and update seg */
+ 	seg->start_addr = qout->segstart;
+ 	seg->end = qout->segend;
+ 
+-	seg->vm_segtype = qout->segout[0][3];
++	memcpy (seg->range, qout->range, 6*sizeof(struct qrange));
++	seg->segcnt = qout->segcnt;
+ 
+ 	rc = 0;
+ 
+@@ -254,6 +286,19 @@
  }
  
-+static void inline
-+report_user_fault(long interruption_code, struct pt_regs *regs)
+ /*
++ * check if segment exceeds the kernel mapping range (detected or set via mem=)
++ * returns 1 if this is the case, 0 if segment fits into the range
++ */
++static inline int
++segment_exceeds_range (struct dcss_segment *seg)
 +{
-+#if defined(CONFIG_SYSCTL)
-+	if (!sysctl_userprocess_debug)
-+		return;
-+#endif
-+#if defined(CONFIG_SYSCTL) || defined(CONFIG_PROCESS_DEBUG)
-+	printk("User process fault: interruption code 0x%lX\n",
-+	       interruption_code);
-+	show_regs(regs);
-+#endif
++	int seg_last_pfn = (seg->end) >> PAGE_SHIFT;
++	if (seg_last_pfn > max_pfn)
++		return 1;
++	return 0;
 +}
 +
- static void inline do_trap(long interruption_code, int signr, char *str,
-                            struct pt_regs *regs, siginfo_t *info)
++/*
+  * get info about a segment
+  * possible return values:
+  * -ENOSYS  : we are not running on VM
+@@ -265,7 +310,7 @@
+  * 0 .. 6   : type of segment as defined in include/asm-s390/extmem.h
+  */
+ int
+-segment_info (char* name)
++segment_type (char* name)
  {
-@@ -308,23 +322,8 @@
-                 struct task_struct *tsk = current;
+ 	int rc;
+ 	struct dcss_segment seg;
+@@ -274,7 +319,7 @@
+ 		return -ENOSYS;
  
-                 tsk->thread.trap_no = interruption_code & 0xffff;
--		if (info)
--			force_sig_info(signr, info, tsk);
--		else
--                	force_sig(signr, tsk);
--#ifndef CONFIG_SYSCTL
--#ifdef CONFIG_PROCESS_DEBUG
--                printk("User process fault: interruption code 0x%lX\n",
--                       interruption_code);
--                show_regs(regs);
--#endif
--#else
--		if (sysctl_userprocess_debug) {
--			printk("User process fault: interruption code 0x%lX\n",
--			       interruption_code);
--			show_regs(regs);
--		}
--#endif
-+		force_sig_info(signr, info, tsk);
-+		report_user_fault(interruption_code, regs);
-         } else {
-                 const struct exception_table_entry *fixup;
-                 fixup = search_exception_tables(regs->psw.addr & PSW_ADDR_INSN);
-@@ -346,10 +345,15 @@
- 		force_sig(SIGTRAP, current);
- }
- 
--#define DO_ERROR(signr, str, name) \
--asmlinkage void name(struct pt_regs * regs, long interruption_code) \
--{ \
--	do_trap(interruption_code, signr, str, regs, NULL); \
-+asmlinkage void
-+default_trap_handler(struct pt_regs * regs, long interruption_code)
-+{
-+        if (regs->psw.mask & PSW_MASK_PSTATE) {
-+		local_irq_enable();
-+		do_exit(SIGSEGV);
-+		report_user_fault(interruption_code, regs);
-+	} else
-+		die("Unknown program exception", regs, interruption_code);
- }
- 
- #define DO_ERROR_INFO(signr, str, name, sicode, siaddr) \
-@@ -363,8 +367,6 @@
-         do_trap(interruption_code, signr, str, regs, &info); \
- }
- 
--DO_ERROR(SIGSEGV, "Unknown program exception", default_trap_handler)
--
- DO_ERROR_INFO(SIGILL, "addressing exception", addressing_exception,
- 	      ILL_ILLADR, get_check_address(regs))
- DO_ERROR_INFO(SIGILL,  "execute exception", execute_exception,
-@@ -423,6 +425,7 @@
- 
- asmlinkage void illegal_op(struct pt_regs * regs, long interruption_code)
- {
-+	siginfo_t info;
-         __u8 opcode[6];
- 	__u16 *location;
- 	int signal = 0;
-@@ -466,12 +469,27 @@
- 	} else
- 		signal = SIGILL;
- 
-+#ifdef CONFIG_MATHEMU
-         if (signal == SIGFPE)
- 		do_fp_trap(regs, location,
-                            current->thread.fp_regs.fpc, interruption_code);
--        else if (signal)
-+        else if (signal == SIGSEGV) {
-+		info.si_signo = signal;
-+		info.si_errno = 0;
-+		info.si_code = SEGV_MAPERR;
-+		info.si_addr = (void *) location;
- 		do_trap(interruption_code, signal,
--			"illegal operation", regs, NULL);
-+			"user address fault", regs, &info);
-+	} else
-+#endif
-+        if (signal) {
-+		info.si_signo = signal;
-+		info.si_errno = 0;
-+		info.si_code = ILL_ILLOPC;
-+		info.si_addr = (void *) location;
-+		do_trap(interruption_code, signal,
-+			"illegal operation", regs, &info);
+ 	dcss_mkname(name, seg.dcss_name);
+-	rc = query_segment_info (&seg);
++	rc = query_segment_type (&seg);
+ 	if (rc < 0)
+ 		return rc;
+ 	return seg.vm_segtype;
+@@ -295,9 +340,15 @@
+ 		goto out;
+ 	}
+ 	dcss_mkname (name, seg->dcss_name);
+-	rc = query_segment_info (seg);
++	rc = query_segment_type (seg);
+ 	if (rc < 0)
+ 		goto out_free;
++	if (segment_exceeds_range(seg)) {
++		PRINT_WARN ("segment_load: not loading segment %s - exceeds"
++				" kernel mapping range\n",name);
++		rc = -ERANGE;
++		goto out_free;
 +	}
+ 	if (segment_overlaps_storage(seg)) {
+ 		PRINT_WARN ("segment_load: not loading segment %s - overlaps"
+ 				" storage\n",name);
+@@ -362,6 +413,7 @@
+  * -ENOTSUPP: multi-part segment cannot be used with linux
+  * -ENOSPC  : segment cannot be used (overlaps with storage)
+  * -EBUSY   : segment can temporarily not be used (overlaps with dcss)
++ * -ERANGE  : segment cannot be used (exceeds kernel mapping range)
+  * -EPERM   : segment is currently loaded with incompatible permissions
+  * -ENOMEM  : out of memory
+  * 0 .. 6   : type of segment as defined in include/asm-s390/extmem.h
+@@ -396,6 +448,70 @@
  }
  
- 
-diff -urN linux-2.6/arch/s390/Makefile linux-2.6-patched/arch/s390/Makefile
---- linux-2.6/arch/s390/Makefile	2004-10-18 23:53:41.000000000 +0200
-+++ linux-2.6-patched/arch/s390/Makefile	2004-11-30 14:03:18.000000000 +0100
-@@ -34,6 +34,7 @@
- cflags-$(CONFIG_MARCH_Z900) += $(call cc-option,-march=z900)
- cflags-$(CONFIG_MARCH_Z990) += $(call cc-option,-march=z990)
- 
-+# old style option for packed stacks
- ifeq ($(call cc-option-yn,-mkernel-backchain),y)
- cflags-$(CONFIG_PACK_STACK)  += -mkernel-backchain -D__PACK_STACK
- aflags-$(CONFIG_PACK_STACK)  += -D__PACK_STACK
-@@ -44,6 +45,17 @@
- endif
- endif
- 
-+# new style option for packed stacks
-+ifeq ($(call cc-option-yn,-mpacked-stack),y)
-+cflags-$(CONFIG_PACK_STACK)  += -mpacked-stack -D__PACK_STACK
-+aflags-$(CONFIG_PACK_STACK)  += -D__PACK_STACK
-+cflags-$(CONFIG_SMALL_STACK) += -D__SMALL_STACK
-+aflags-$(CONFIG_SMALL_STACK) += -D__SMALL_STACK
-+ifdef CONFIG_SMALL_STACK
-+STACK_SIZE := $(shell echo $$(($(STACK_SIZE)/2)) )
-+endif
-+endif
+ /*
++ * this function modifies the shared state of a DCSS segment. note that
++ * name         : name of the DCSS
++ * do_nonshared : 0 indicates that the dcss should be shared with other linux images
++ *                1 indicates that the dcss should be exclusive for this linux image
++ * return values:
++ * -EIO     : could not perform load diagnose (segment gone!)
++ * -ENOENT  : no such segment (segment gone!)
++ * -EAGAIN  : segment is in use by other exploiters, try later
++ * -EINVAL  : no segment with the given name is currently loaded - name invalid
++ * 0	    : operation succeeded
++ */
++int
++segment_modify_shared (char *name, int do_nonshared)
++{
++	struct dcss_segment *seg;
++	unsigned long dummy;
++	int dcss_command, rc, diag_cc;
 +
- ifeq ($(call cc-option-yn,-mstack-size=8192 -mstack-guard=128),y)
- cflags-$(CONFIG_CHECK_STACK) += -mstack-size=$(STACK_SIZE)
- cflags-$(CONFIG_CHECK_STACK) += -mstack-guard=$(CONFIG_STACK_GUARD)
-diff -urN linux-2.6/include/asm-s390/siginfo.h linux-2.6-patched/include/asm-s390/siginfo.h
---- linux-2.6/include/asm-s390/siginfo.h	2004-10-18 23:55:06.000000000 +0200
-+++ linux-2.6-patched/include/asm-s390/siginfo.h	2004-11-30 14:03:18.000000000 +0100
-@@ -9,7 +9,6 @@
- #ifndef _S390_SIGINFO_H
- #define _S390_SIGINFO_H
++	spin_lock (&dcss_lock);
++	seg = segment_by_name (name);
++	if (seg == NULL) {
++		rc = -EINVAL;
++		goto out_unlock;
++	}
++	if (do_nonshared == seg->do_nonshared) {
++		PRINT_INFO ("segment_modify_shared: not reloading segment %s"
++				" - already in requested mode\n",name);
++		rc = 0;
++		goto out_unlock;
++	}
++	if (atomic_read (&seg->ref_count) != 1) {
++		PRINT_WARN ("segment_modify_shared: not reloading segment %s - "
++				"segment is in use by other driver(s)\n",name);
++		rc = -EAGAIN;
++		goto out_unlock;
++	}
++	dcss_diag(DCSS_PURGESEG, seg->dcss_name,
++		  &dummy, &dummy);
++	if (do_nonshared)
++		dcss_command = DCSS_LOADNSR;
++	else
++	dcss_command = DCSS_LOADNOLY;
++	diag_cc = dcss_diag(dcss_command, seg->dcss_name,
++			&seg->start_addr, &seg->end);
++	if (diag_cc > 1) {
++		PRINT_WARN ("segment_modify_shared: could not reload segment %s"
++				" - diag returned error (%ld)\n",name,seg->end);
++		rc = dcss_diag_translate_rc (seg->end);
++		goto out_del;
++	}
++	seg->do_nonshared = do_nonshared;
++	rc = 0;
++	goto out_unlock;
++ out_del:
++	list_del(&seg->list);
++	dcss_diag(DCSS_PURGESEG, seg->dcss_name,
++		  &dummy, &dummy);
++	kfree (seg);
++ out_unlock:
++	spin_unlock(&dcss_lock);
++	return rc;
++}
++
++/*
+  * Decrease the use count of a DCSS segment and remove
+  * it from the address space if nobody is using it
+  * any longer.
+@@ -434,8 +550,9 @@
+ 	struct dcss_segment *seg;
+ 	int startpfn = 0;
+ 	int endpfn = 0;
+-	char cmd1[80];
++	char cmd1[160];
+ 	char cmd2[80];
++	int i;
  
--#define HAVE_ARCH_SI_CODES
- #ifdef __s390x__
- #define __ARCH_SI_PREAMBLE_SIZE (4 * sizeof(int))
+ 	if (!MACHINE_IS_VM)
+ 		return;
+@@ -448,10 +565,15 @@
+ 		return;
+ 	}
+ 
+-	startpfn = seg->start_addr >> 12;
+-	endpfn = (seg->end) >> 12;
+-	sprintf(cmd1, "DEFSEG %s %X-%X %s", name, startpfn, endpfn,
+-			segtype_string[seg->vm_segtype]);
++	startpfn = seg->start_addr >> PAGE_SHIFT;
++	endpfn = (seg->end) >> PAGE_SHIFT;
++	sprintf(cmd1, "DEFSEG %s", name);
++	for (i=0; i<seg->segcnt; i++) {
++		sprintf(cmd1+strlen(cmd1), " %X-%X %s",
++			seg->range[i].start >> PAGE_SHIFT,
++			seg->range[i].end >> PAGE_SHIFT,
++			segtype_string[seg->range[i].start & 0xff]);
++	}
+ 	sprintf(cmd2, "SAVESEG %s", name);
+ 	cpcmd(cmd1, NULL, 80);
+ 	cpcmd(cmd2, NULL, 80);
+@@ -461,4 +583,5 @@
+ EXPORT_SYMBOL(segment_load);
+ EXPORT_SYMBOL(segment_unload);
+ EXPORT_SYMBOL(segment_save);
+-EXPORT_SYMBOL(segment_info);
++EXPORT_SYMBOL(segment_type);
++EXPORT_SYMBOL(segment_modify_shared);
+diff -urN linux-2.6/drivers/s390/block/dcssblk.c linux-2.6-patched/drivers/s390/block/dcssblk.c
+--- linux-2.6/drivers/s390/block/dcssblk.c	2004-11-30 14:03:04.000000000 +0100
++++ linux-2.6-patched/drivers/s390/block/dcssblk.c	2004-11-30 14:03:19.000000000 +0100
+@@ -140,7 +140,7 @@
+ }
+ 
+ /*
+- * print appropriate error message for segment_load()/segment_info()
++ * print appropriate error message for segment_load()/segment_type()
+  * return code
+  */
+ static void
+@@ -179,6 +179,10 @@
+ 		PRINT_WARN("cannot load/query segment %s, out of memory\n",
+ 			   seg_name);
+ 		break;
++	case -ERANGE:
++		PRINT_WARN("cannot load/query segment %s, exceeds kernel "
++			   "mapping range\n", seg_name);
++		break;
+ 	default:
+ 		PRINT_WARN("cannot load/query segment %s, return value %i\n",
+ 			   seg_name, rc);
+@@ -214,57 +218,50 @@
+ 	if (atomic_read(&dev_info->use_count)) {
+ 		PRINT_ERR("share: segment %s is busy!\n",
+ 			  dev_info->segment_name);
+-		up_write(&dcssblk_devices_sem);
+-		return -EBUSY;
+-	}
+-	if ((inbuf[0] == '1') && (dev_info->is_shared == 1)) {
+-		PRINT_WARN("Segment %s already loaded in shared mode!\n",
+-			   dev_info->segment_name);
+-		up_write(&dcssblk_devices_sem);
+-		return count;
+-	}
+-	if ((inbuf[0] == '0') && (dev_info->is_shared == 0)) {
+-		PRINT_WARN("Segment %s already loaded in exclusive mode!\n",
+-			   dev_info->segment_name);
+-		up_write(&dcssblk_devices_sem);
+-		return count;
++		rc = -EBUSY;
++		goto out;
+ 	}
+ 	if (inbuf[0] == '1') {
+ 		// reload segment in shared mode
+-		segment_unload(dev_info->segment_name);
+-		rc = segment_load(dev_info->segment_name, SEGMENT_SHARED,
+-					&dev_info->start, &dev_info->end);
++		rc = segment_modify_shared(dev_info->segment_name,
++					   SEGMENT_SHARED);
+ 		if (rc < 0) {
+-			dcssblk_segment_warn(rc, dev_info->segment_name);
+-			goto removeseg;
++			BUG_ON(rc == -EINVAL);
++			if (rc == -EIO || rc == -ENOENT)
++				goto removeseg;
++		} else {
++			dev_info->is_shared = 1;
++			switch (dev_info->segment_type) {
++				case SEG_TYPE_SR:
++				case SEG_TYPE_ER:
++				case SEG_TYPE_SC:
++					set_disk_ro(dev_info->gd,1);
++			}
+ 		}
+-		dev_info->is_shared = 1;
+-		if (rc == SEG_TYPE_SR || rc == SEG_TYPE_ER || rc == SEG_TYPE_SC)
+-			set_disk_ro(dev_info->gd, 1);
+ 	} else if (inbuf[0] == '0') {
+ 		// reload segment in exclusive mode
+ 		if (dev_info->segment_type == SEG_TYPE_SC) {
+ 			PRINT_ERR("Segment type SC (%s) cannot be loaded in "
+ 				  "non-shared mode\n", dev_info->segment_name);
+-			up_write(&dcssblk_devices_sem);
+-			return -EINVAL;
++			rc = -EINVAL;
++			goto out;
+ 		}
+-		segment_unload(dev_info->segment_name);
+-		rc = segment_load(dev_info->segment_name, SEGMENT_EXCLUSIVE,
+-					&dev_info->start, &dev_info->end);
++		rc = segment_modify_shared(dev_info->segment_name,
++					   SEGMENT_EXCLUSIVE);
+ 		if (rc < 0) {
+-			dcssblk_segment_warn(rc, dev_info->segment_name);
+-			goto removeseg;
++			BUG_ON(rc == -EINVAL);
++			if (rc == -EIO || rc == -ENOENT)
++				goto removeseg;
++		} else {
++			dev_info->is_shared = 0;
++			set_disk_ro(dev_info->gd, 0);
+ 		}
+-		dev_info->is_shared = 0;
+-		set_disk_ro(dev_info->gd, 0);
+ 	} else {
+-		up_write(&dcssblk_devices_sem);
+ 		PRINT_WARN("Invalid value, must be 0 or 1\n");
+-		return -EINVAL;
++		rc = -EINVAL;
++		goto out;
+ 	}
+ 	rc = count;
+-	up_write(&dcssblk_devices_sem);
+ 	goto out;
+ 
+ removeseg:
+@@ -278,8 +275,8 @@
+ 	put_disk(dev_info->gd);
+ 	device_unregister(dev);
+ 	put_device(dev);
+-	up_write(&dcssblk_devices_sem);
+ out:
++	up_write(&dcssblk_devices_sem);
+ 	return rc;
+ }
+ 
+diff -urN linux-2.6/drivers/s390/char/monreader.c linux-2.6-patched/drivers/s390/char/monreader.c
+--- linux-2.6/drivers/s390/char/monreader.c	2004-11-30 14:03:04.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/monreader.c	2004-11-30 14:03:19.000000000 +0100
+@@ -116,7 +116,7 @@
+ }
+ 
+ /*
+- * print appropriate error message for segment_load()/segment_info()
++ * print appropriate error message for segment_load()/segment_type()
+  * return code
+  */
+ static void
+@@ -155,6 +155,10 @@
+ 		P_WARNING("cannot load/query segment %s, out of memory\n",
+ 			  seg_name);
+ 		break;
++	case -ERANGE:
++		P_WARNING("cannot load/query segment %s, exceeds kernel "
++			  "mapping range\n", seg_name);
++		break;
+ 	default:
+ 		P_WARNING("cannot load/query segment %s, return value %i\n",
+ 			  seg_name, rc);
+@@ -581,7 +585,7 @@
+ 		return -ENODEV;
+ 	}
+ 
+-	rc = segment_info(mon_dcss_name);
++	rc = segment_type(mon_dcss_name);
+ 	if (rc < 0) {
+ 		mon_segment_warn(rc, mon_dcss_name);
+ 		return rc;
+diff -urN linux-2.6/include/asm-s390/extmem.h linux-2.6-patched/include/asm-s390/extmem.h
+--- linux-2.6/include/asm-s390/extmem.h	2004-11-30 14:03:08.000000000 +0100
++++ linux-2.6-patched/include/asm-s390/extmem.h	2004-11-30 14:03:19.000000000 +0100
+@@ -17,6 +17,7 @@
+ #define SEG_TYPE_SN 4
+ #define SEG_TYPE_EN 5
+ #define SEG_TYPE_SC 6
++#define SEG_TYPE_EWEN 7
+ 
+ #define SEGMENT_SHARED 0
+ #define SEGMENT_EXCLUSIVE 1
+@@ -24,7 +25,8 @@
+ extern int segment_load (char *name,int segtype,unsigned long *addr,unsigned long *length);
+ extern void segment_unload(char *name);
+ extern void segment_save(char *name);
+-extern int segment_info (char* name);
++extern int segment_type (char* name);
++extern int segment_modify_shared (char *name, int do_nonshared);
+ 
  #endif
-@@ -22,74 +21,4 @@
- 
- #include <asm-generic/siginfo.h>
- 
--/*
-- * SIGILL si_codes
-- */
--#define ILL_ILLOPC	(__SI_FAULT|1)	/* illegal opcode */
--#define ILL_ILLOPN	(__SI_FAULT|2)	/* illegal operand */
--#define ILL_ILLADR	(__SI_FAULT|3)	/* illegal addressing mode */
--#define ILL_ILLTRP	(__SI_FAULT|4)	/* illegal trap */
--#define ILL_PRVOPC	(__SI_FAULT|5)	/* privileged opcode */
--#define ILL_PRVREG	(__SI_FAULT|6)	/* privileged register */
--#define ILL_COPROC	(__SI_FAULT|7)	/* coprocessor error */
--#define ILL_BADSTK	(__SI_FAULT|8)	/* internal stack error */
--#define NSIGILL		8
--
--/*
-- * SIGFPE si_codes
-- */
--#define FPE_INTDIV	(__SI_FAULT|1)	/* integer divide by zero */
--#define FPE_INTOVF	(__SI_FAULT|2)	/* integer overflow */
--#define FPE_FLTDIV	(__SI_FAULT|3)	/* floating point divide by zero */
--#define FPE_FLTOVF	(__SI_FAULT|4)	/* floating point overflow */
--#define FPE_FLTUND	(__SI_FAULT|5)	/* floating point underflow */
--#define FPE_FLTRES	(__SI_FAULT|6)	/* floating point inexact result */
--#define FPE_FLTINV	(__SI_FAULT|7)	/* floating point invalid operation */
--#define FPE_FLTSUB	(__SI_FAULT|8)	/* subscript out of range */
--#define NSIGFPE		8
--
--/*
-- * SIGSEGV si_codes
-- */
--#define SEGV_MAPERR	(__SI_FAULT|1)	/* address not mapped to object */
--#define SEGV_ACCERR	(__SI_FAULT|2)	/* invalid permissions for mapped object */
--#define NSIGSEGV	2
--
--/*
-- * SIGBUS si_codes
-- */
--#define BUS_ADRALN	(__SI_FAULT|1)	/* invalid address alignment */
--#define BUS_ADRERR	(__SI_FAULT|2)	/* non-existant physical address */
--#define BUS_OBJERR	(__SI_FAULT|3)	/* object specific hardware error */
--#define NSIGBUS		3
--
--/*
-- * SIGTRAP si_codes
-- */
--#define TRAP_BRKPT	(__SI_FAULT|1)	/* process breakpoint */
--#define TRAP_TRACE	(__SI_FAULT|2)	/* process trace trap */
--#define NSIGTRAP	2
--
--/*
-- * SIGCHLD si_codes
-- */
--#define CLD_EXITED	(__SI_CHLD|1)	/* child has exited */
--#define CLD_KILLED	(__SI_CHLD|2)	/* child was killed */
--#define CLD_DUMPED	(__SI_CHLD|3)	/* child terminated abnormally */
--#define CLD_TRAPPED	(__SI_CHLD|4)	/* traced child has trapped */
--#define CLD_STOPPED	(__SI_CHLD|5)	/* child has stopped */
--#define CLD_CONTINUED	(__SI_CHLD|6)	/* stopped child has continued */
--#define NSIGCHLD	6
--
--/*
-- * SIGPOLL si_codes
-- */
--#define POLL_IN		(__SI_POLL|1)	/* data input available */
--#define POLL_OUT	(__SI_POLL|2)	/* output buffers available */
--#define POLL_MSG	(__SI_POLL|3)	/* input message available */
--#define POLL_ERR	(__SI_POLL|4)	/* i/o error */
--#define POLL_PRI	(__SI_POLL|5)	/* high priority input available */
--#define POLL_HUP	(__SI_POLL|6)	/* device disconnected */
--#define NSIGPOLL	6
--
  #endif
-diff -urN linux-2.6/include/asm-s390/unistd.h linux-2.6-patched/include/asm-s390/unistd.h
---- linux-2.6/include/asm-s390/unistd.h	2004-10-18 23:55:43.000000000 +0200
-+++ linux-2.6-patched/include/asm-s390/unistd.h	2004-11-30 14:03:18.000000000 +0100
-@@ -269,8 +269,9 @@
- #define __NR_mq_timedreceive	274
- #define __NR_mq_notify		275
- #define __NR_mq_getsetattr	276
-+/* Number 277 is reserved for new sys_kexec_load */
- 
--#define NR_syscalls 277
-+#define NR_syscalls 278
- 
- /* 
-  * There are some system calls that are not present on 64 bit, some

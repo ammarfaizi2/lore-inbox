@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261940AbVDCWwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVDCWwY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbVDCWwK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 18:52:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbVDCWwK
+	id S261941AbVDCWwY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 18:52:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVDCWwX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 18:52:10 -0400
-Received: from omc1-s29.bay6.hotmail.com ([65.54.248.231]:38766 "EHLO
-	OMC1-S29.phx.gbl") by vger.kernel.org with ESMTP id S261940AbVDCWwC
+	Sun, 3 Apr 2005 18:52:23 -0400
+Received: from omc2-s17.bay6.hotmail.com ([65.54.249.27]:61828 "EHLO
+	OMC2-S17.phx.gbl") by vger.kernel.org with ESMTP id S261941AbVDCWwO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 18:52:02 -0400
-Message-ID: <BAY10-F21A89B2521BD98E6C239C2D93A0@phx.gbl>
+	Sun, 3 Apr 2005 18:52:14 -0400
+Message-ID: <BAY10-F33A32038B1B733A67892F7D93A0@phx.gbl>
 X-Originating-IP: [68.62.238.188]
 X-Originating-Email: [getarunsri@hotmail.com]
 In-Reply-To: <1112542263.27149.113.camel@localhost.localdomain>
@@ -17,26 +17,14 @@ From: "Arun Srinivas" <getarunsri@hotmail.com>
 To: rostedt@goodmis.org, juhl-lkml@dif.dk
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: sched /HT processor
-Date: Mon, 04 Apr 2005 04:22:01 +0530
+Date: Mon, 04 Apr 2005 04:22:13 +0530
 Mime-Version: 1.0
 Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 03 Apr 2005 22:52:01.0910 (UTC) FILETIME=[BFD21960:01C5389F]
+X-OriginalArrivalTime: 03 Apr 2005 22:52:13.0598 (UTC) FILETIME=[C6C98BE0:01C5389F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks. yes, a reschedule may not take place after a ms, if the currently 
-running task cannot be preempted by another task.
 
-(1) But, can a reschedule happen within a millisec (or once a process is 
-scheduled can schedule() be called before the next millisec.) ?
-
-2) Also in case argument (1) is not true, and I want rescheduling to be done 
-(i.e., schedule() called) in less than 1 ms , can I directly change the HZ 
-value in <asm-i386/param.h> and recompile my kernel so that my timer 
-interrupt will occur frequently?
-
-Thanks
-Arun
 
 >From: Steven Rostedt <rostedt@goodmis.org>
 >To: Jesper Juhl <juhl-lkml@dif.dk>
@@ -81,7 +69,6 @@ Arun
 >
 
 _________________________________________________________________
-The MSN Survey! 
-http://www.cross-tab.com/surveys/run/test.asp?sid=2026&respid=1 Help us help 
-you better!
+News, views and gossip. http://www.msn.co.in/Cinema/ Get it all at MSN 
+Cinema!
 

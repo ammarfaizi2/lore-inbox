@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262439AbTD3VGl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 17:06:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbTD3VGl
+	id S262431AbTD3VMP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 17:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbTD3VMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 17:06:41 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30470 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262439AbTD3VGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 17:06:40 -0400
-Message-ID: <3EB03DB0.1080804@zytor.com>
-Date: Wed, 30 Apr 2003 14:18:40 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: John Bradford <john@grabjohn.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Bootable CD idea
-References: <200304301921.h3UJLgCZ001523@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200304301921.h3UJLgCZ001523@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain; charset=us-ascii
+	Wed, 30 Apr 2003 17:12:15 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:56982
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262431AbTD3VMO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 17:12:14 -0400
+Subject: Re: [RFC][PATCH] Faster generic_fls
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>,
+       dphillips@sistina.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0304300911420.16712-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0304300911420.16712-100000@home.transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1051734350.20270.28.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 30 Apr 2003 21:25:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
-> 
-> Ah, it makes more sense now :-).  So, could I bodge 2.4 in to working
-> by modifying bootsect.S with something like this?
-> 
-> 
->         movw    $disksizes+1, %si         # Force 18 sectors/track
-> probe_loop:
->         lodsb
->         cbtw                            # extend to word
->         xchgw   %cx, %ax                # %cx = track and sector
->         xorw    %dx, %dx                # drive 0, head 0
->         movw    $0x0200, %bx            # address = 512, in INITSEG (%es = %cs)
->         movw    $0x0201, %ax            # service 2, 1 sector
->         int     $0x13
->         movb    $0x03, %ah              # read cursor pos
->         xorb    %bh, %bh
-> 
-> John.
+On Mer, 2003-04-30 at 17:16, Linus Torvalds wrote:
+> Clearly you're not going to make _one_ load to get fls, since having a 
+> 4GB lookup array for a 32-bit fls would be "somewhat" wasteful.
 
-Perhaps you could, but why the fsck do you want to beat a dead horse
-over and over again?  Use a real bootloader instead.
+It ought to be basically the same as ffs because if I remember rightly 
 
-	-hpa
+ffs(x^(x-1)) == fls(x)
+
+Been a long time so I may have it wrong
 

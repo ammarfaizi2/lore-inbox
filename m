@@ -1,87 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262105AbVCUWfj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262066AbVCUWfm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262105AbVCUWfj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 17:35:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVCUWd6
+	id S262066AbVCUWfm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 17:35:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbVCUWcv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 17:33:58 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:54760
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262016AbVCUW2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 17:28:15 -0500
-Date: Mon, 21 Mar 2005 14:26:50 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: akpm@osdl.org, nickpiggin@yahoo.com.au, tony.luck@intel.com,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
-Message-Id: <20050321142650.7364fac1.davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Mar 2005 17:32:51 -0500
+Received: from az33egw02.freescale.net ([192.88.158.103]:19122 "EHLO
+	az33egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S262073AbVCUWav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 17:30:51 -0500
+Date: Mon, 21 Mar 2005 16:30:30 -0600 (CST)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@blarg.somerset.sps.mot.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] ppc32: Report chipset version in common /proc/cpuinfo handling
+Message-ID: <Pine.LNX.4.61.0503211629050.28312@blarg.somerset.sps.mot.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Mar 2005 20:52:44 +0000 (GMT)
-Hugh Dickins <hugh@veritas.com> wrote:
+Andrew,
 
-Hugh, I'm getting some problems on sparc64 here:
+Moved reporting of chipset revision from board specific to common handing 
+of /proc/cpuinfo.  In light of numerous PPC system-on-chip devices, we 
+report both the cpu version (reflects the core version) and the chipset 
+version (reflects the system-on-chip or bridge version).
 
-> +static inline void free_pgd_range(struct mmu_gather *tlb,
-> +			unsigned long addr, unsigned long end,
-> +			unsigned long floor, unsigned long ceiling)
->  {
->  	pgd_t *pgd;
->  	unsigned long next;
-> +	unsigned long start;
->  
-> +	addr &= PMD_MASK;
-> +	if (addr < floor) {
-> +		addr += PMD_SIZE;
-> +		if (!addr)
-> +			return;
-> +	}
-> +	ceiling &= PMD_MASK;
-> +	if (addr > ceiling - 1)
-> +		return;
-> +
-> +	start = addr;
->  	pgd = pgd_offset(tlb->mm, addr);
->  	do {
->  		next = pgd_addr_end(addr, end);
->  		if (pgd_none_or_clear_bad(pgd))
->  			continue;
-> -		clear_pud_range(tlb, pgd, addr, next);
-> +		free_pud_range(tlb, pgd, addr, next, floor, ceiling);
->  	} while (pgd++, addr = next, addr != end);
-> +
-> +	if (!tlb_is_full_mm(tlb))
-> +		flush_tlb_pgtables(tlb->mm, start, end);
-> +}
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
-flush_tlb_pgtables() on sparc64 has a BUG() check which
-is basically:
 
-	BUG((long)start > (long)end);
+---
 
-This catches two cases of bogus arguments:
+diff -Nru a/arch/ppc/kernel/setup.c b/arch/ppc/kernel/setup.c
+--- a/arch/ppc/kernel/setup.c	2005-03-21 16:20:24 -06:00
++++ b/arch/ppc/kernel/setup.c	2005-03-21 16:20:24 -06:00
+@@ -40,6 +40,7 @@
+ #include <asm/nvram.h>
+ #include <asm/xmon.h>
+ #include <asm/ocp.h>
++#include <asm/ppc_sys.h>
+ 
+ #if defined CONFIG_KGDB
+ #include <asm/kgdb.h>
+@@ -245,6 +246,12 @@
+ 
+ 	seq_printf(m, "bogomips\t: %lu.%02lu\n",
+ 		   lpj / (500000/HZ), (lpj / (5000/HZ)) % 100);
++
++#if defined (CONFIG_85xx) || defined (CONFIG_83xx)
++	if (cur_ppc_sys_spec->ppc_sys_name)
++		seq_printf(m, "chipset\t\t: %s\n",
++			cur_ppc_sys_spec->ppc_sys_name);
++#endif
+ 
+ #ifdef CONFIG_SMP
+ 	seq_printf(m, "\n");
+diff -Nru a/arch/ppc/platforms/83xx/mpc834x_sys.c b/arch/ppc/platforms/83xx/mpc834x_sys.c
+--- a/arch/ppc/platforms/83xx/mpc834x_sys.c	2005-03-21 16:20:24 -06:00
++++ b/arch/ppc/platforms/83xx/mpc834x_sys.c	2005-03-21 16:20:24 -06:00
+@@ -143,7 +143,6 @@
+ 	pvid = mfspr(SPRN_PVR);
+ 	svid = mfspr(SPRN_SVR);
+ 
+-	seq_printf(m, "chip\t\t: MPC%s\n", cur_ppc_sys_spec->ppc_sys_name);
+ 	seq_printf(m, "Vendor\t\t: Freescale Inc.\n");
+ 	seq_printf(m, "Machine\t\t: mpc%s sys\n", cur_ppc_sys_spec->ppc_sys_name);
+ 	seq_printf(m, "core clock\t: %d MHz\n"
+diff -Nru a/arch/ppc/platforms/85xx/mpc85xx_ads_common.c b/arch/ppc/platforms/85xx/mpc85xx_ads_common.c
+--- a/arch/ppc/platforms/85xx/mpc85xx_ads_common.c	2005-03-21 16:20:24 -06:00
++++ b/arch/ppc/platforms/85xx/mpc85xx_ads_common.c	2005-03-21 16:20:24 -06:00
+@@ -129,7 +129,6 @@
+ 	pvid = mfspr(SPRN_PVR);
+ 	svid = mfspr(SPRN_SVR);
+ 
+-	seq_printf(m, "chip\t\t: MPC%s\n", cur_ppc_sys_spec->ppc_sys_name);
+ 	seq_printf(m, "Vendor\t\t: Freescale Semiconductor\n");
+ 	seq_printf(m, "Machine\t\t: mpc%sads\n", cur_ppc_sys_spec->ppc_sys_name);
+ 	seq_printf(m, "clock\t\t: %dMHz\n", freq / 1000000);
+diff -Nru a/arch/ppc/platforms/85xx/mpc85xx_cds_common.c b/arch/ppc/platforms/85xx/mpc85xx_cds_common.c
+--- a/arch/ppc/platforms/85xx/mpc85xx_cds_common.c	2005-03-21 16:20:24 -06:00
++++ b/arch/ppc/platforms/85xx/mpc85xx_cds_common.c	2005-03-21 16:20:24 -06:00
+@@ -146,7 +146,6 @@
+ 	pvid = mfspr(SPRN_PVR);
+ 	svid = mfspr(SPRN_SVR);
+ 
+-	seq_printf(m, "chip\t\t: MPC%s\n", cur_ppc_sys_spec->ppc_sys_name);
+ 	seq_printf(m, "Vendor\t\t: Freescale Semiconductor\n");
+ 	seq_printf(m, "Machine\t\t: CDS - MPC%s (%x)\n", cur_ppc_sys_spec->ppc_sys_name, cadmus[CM_VER]);
+ 	seq_printf(m, "clock\t\t: %dMHz\n", freq / 1000000);
+diff -Nru a/arch/ppc/platforms/85xx/sbc85xx.c b/arch/ppc/platforms/85xx/sbc85xx.c
+--- a/arch/ppc/platforms/85xx/sbc85xx.c	2005-03-21 16:20:24 -06:00
++++ b/arch/ppc/platforms/85xx/sbc85xx.c	2005-03-21 16:20:24 -06:00
+@@ -129,7 +129,6 @@
+ 	pvid = mfspr(SPRN_PVR);
+ 	svid = mfspr(SPRN_SVR);
+ 
+-	seq_printf(m, "chip\t\t: MPC%s\n", cur_ppc_sys_spec->ppc_sys_name);
+ 	seq_printf(m, "Vendor\t\t: Wind River\n");
+ 	seq_printf(m, "Machine\t\t: SBC%s\n", cur_ppc_sys_spec->ppc_sys_name);
+ 	seq_printf(m, "clock\t\t: %dMHz\n", freq / 1000000);
+diff -Nru a/arch/ppc/platforms/85xx/stx_gp3.c b/arch/ppc/platforms/85xx/stx_gp3.c
+--- a/arch/ppc/platforms/85xx/stx_gp3.c	2005-03-21 16:20:24 -06:00
++++ b/arch/ppc/platforms/85xx/stx_gp3.c	2005-03-21 16:20:24 -06:00
+@@ -268,7 +268,6 @@
+ 
+ 	memsize = total_memory;
+ 
+-	seq_printf(m, "chip\t\t: MPC%s\n", cur_ppc_sys_spec->ppc_sys_name);
+ 	seq_printf(m, "Vendor\t\t: RPC Electronics STx \n");
+ 	seq_printf(m, "Machine\t\t: GP3 - MPC%s\n", cur_ppc_sys_spec->ppc_sys_name);
+ 	seq_printf(m, "bus freq\t: %u.%.6u MHz\n", freq / 1000000,
 
-1) start --> end straddles sparc64 address space hole
-2) start > end
-
-With your changes, this triggers on even the first user
-process execution.  Specifically I get the first
-trap with start=0x70800000 and end=0x70188000.  (these
-addresses are in the region where generally 32-bit tasks
-get their non-fixed mmap() requests satisfied, so these
-are probably shared library chunks).
-
-I think the VMA gathering optimization one level up in
-free_pgtables() has some logic error in it.   Maybe...
-
-I'll try to figure out what exactly is going on, but
-perhaps you can spot it before me. :-)

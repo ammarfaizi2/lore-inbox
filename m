@@ -1,45 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbUL2G7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbUL2HS1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbUL2G7j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 01:59:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbUL2G7j
+	id S261339AbUL2HS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 02:18:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbUL2HS1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 01:59:39 -0500
-Received: from em.njupt.edu.cn ([202.119.230.11]:12209 "HELO njupt.edu.cn")
-	by vger.kernel.org with SMTP id S261165AbUL2G7h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 01:59:37 -0500
-Message-ID: <304306892.28448@njupt.edu.cn>
-X-WebMAIL-MUA: [10.10.136.115]
-From: "Zhenyu Wu" <y030729@njupt.edu.cn>
+	Wed, 29 Dec 2004 02:18:27 -0500
+Received: from c9069dee.virtua.com.br ([201.6.157.238]:52240 "HELO
+	c9069dee.virtua.com.br") by vger.kernel.org with SMTP
+	id S261339AbUL2HSQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 02:18:16 -0500
+Date: Thu, 30 Dec 2004 13:31:26 -0100
+From: Napster Equivalent <submitra@rocketmail.com>
+Subject: Downl0ad Holiday movies and songs
 To: linux-kernel@vger.kernel.org
-Date: Wed, 29 Dec 2004 15:54:52 +0800
-Reply-To: "Zhenyu Wu" <y030729@njupt.edu.cn>
-X-Priority: 3
-Subject: VQs in Gred!
-Content-Type: text/plain
+Cc: majordomo@vger.kernel.org
+Message-ID: <3B6C9DCB.73693@midsouth.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7Bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6) Gecko/20040113
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello,
 
-We know, VQs are used in Gred to offer different schedulers, in order to make
-clear what the 
-VQs are, I have read the sch_gred.c in net/sched/. In the function gred_enqueue(),
-at first it will 
-find the VQ(q) according to the lower four bits of the skb->tc_index, then some
-parameters of the
-q is modified, such as q->packetsin and q->bytesin. At last the packet was put
-into the  physical
-Queue using __skb_queue_tail(). When dequeue the packet, only the function
-__skb_dequeue()
-is called, and the VQ parameters are modified. Then the packets from all VQS will
-enter and 
-store in the physical queue (sch->q), and be dequeued from there. HOW does the
-Gred schedule
-packets of differnet priorities?
+Un limited
+Music and MP 3 songs
+Movies
+Games
+Software
+TV Shows
+Song Lyrics
+Audio Books
 
-Thanks,
+Download anything you could possibly want 
+in three simple, fast, and easy steps
+START DOWNLOADING NOW
+This service is Safe, Secure and Legal
+
+http://www.annualnewsletters.com/xmas.html
+
+If you are a beginner, no need to worry,
+we will show you how to do it from start to finish
+We have made it so easy, you will be downloading anything 
+you could possibly want  
+This Service Comes with
+
+More  Bonuses
+
+DVD Copying Software
+MP3 Burning Software
+Anti-Virus Software
+Game Copying Software
+Pop-Up, Spyware, Adware Killer Software
+
+http://www.annualnewsletters.com/xmas.html
+
+Even More Benefits : 
+
+Latest FileSharing Software
+In-Depth Visual Tutorials
+Internet History Cleaner
+Privacy Protection Software
+Access to 90000000 Songs
+Unlimited Technical Support
+Stay Legal  Do not Get Sued
+
+Check out to Join Now and Start Downloading in Minutes
+
+http://www.annualnewsletters.com/xmas.html
 
 
-
+regards
+Lisa Glover
+Promotional Manager
+Internet Download Center

@@ -1,51 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270659AbTHEUgu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 16:36:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270673AbTHEUgu
+	id S270684AbTHEUpr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 16:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270686AbTHEUpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 16:36:50 -0400
-Received: from codepoet.org ([166.70.99.138]:64657 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id S270659AbTHEUgt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 16:36:49 -0400
-Date: Tue, 5 Aug 2003 14:36:49 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Mitch@0Bits.COM
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.22-pre10-ac1 DRI doesn't work with
-Message-ID: <20030805203649.GA9982@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Mitch@0Bits.COM, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.53.0308052032220.31114@mx.homelinux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0308052032220.31114@mx.homelinux.com>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	Tue, 5 Aug 2003 16:45:47 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:938 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S270684AbTHEUpo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 16:45:44 -0400
+Date: Tue, 5 Aug 2003 22:45:12 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: <Andries.Brouwer@cwi.nl>
+cc: <B.Zolnierkiewicz@elka.pw.edu.pl>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix error return get/set_native_max functions
+In-Reply-To: <UTC200308052008.h75K8aD22137.aeb@smtp.cwi.nl>
+Message-ID: <Pine.SOL.4.30.0308052231080.4251-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue Aug 05, 2003 at 08:37:38PM +0100, Mitch@0Bits.COM wrote:
-> 
-> Works fine with XFree86 4.3.x, 2.4.22-pre10 and the radeon.o
-> drm module. If you look backwards in your strace file, what is the
-> device that file descriptor 5 belongs to ?
 
-I have XFree86 4.2.1 (i.e. xfree86-common, xserver-xfree86,
-xlibmesa3-gl, etc) version 4.2.1-9 from Debian unstable installed.
+On Tue, 5 Aug 2003 Andries.Brouwer@cwi.nl wrote:
 
-I think you mean file descriptor 4:
-    open("/dev/dri/card0", O_RDWR)          = 4
+> > This change is okay, thanks.
+> > However changing coding style is not...
+>
+> An interesting remark.
+>
+> I belong to the people who look at kernel source on a screen
+> with 80 columns. Code that is wider and wraps is unreadable.
 
-$ ls -la /dev/dri/card0
-crw-rw-rw-    1 root     root     226,   0 Jul 12 04:21 /dev/dri/card0
+/me too
 
- -Erik
+> Now of course you might react "buy a better monitor", but in fact
+> this restriction leads to cleaner code. There is something wrong
+> when code is indented too deeply, and almost always a cleanup is
+> possible that splits some inner stuff out as a separate function.
+>
+> As a side effect of that you'll see in patches from me changes
+> that bring the code within the 80-column limit.
 
+I think that mixing such changes with real changes is a bad thing.
+
+> > -static unsigned long idedisk_set_max_address(ide_drive_t *drive, unsigned long addr_req)
+> > +static unsigned long
+> > +idedisk_set_max_address(ide_drive_t *drive, unsigned long addr_req)
+>
+> It is a matter of taste precisely which transformation is best
+> in order to bring the source within the 80-column limit,
+> but having the type on the preceding line is very common
+> in the kernel source (and elsewhere), so among the possible
+> ways of splitting this line this is a very natural one.
+
+It is not so common in drivers/ide/...
+
+static unsigned long idedisk_set_max_address(ide_drive_t *drive,
+					     unsigned long addr_req)
+
+This format also clearly shows that actual function name suck and should
+be shortened :-).
+
+> I am not interested in a discussion about style, but will defend
+> the 80-column limit.
+
+Sure, 80-column is a must ;-).
 --
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+Bartlomiej
+
+

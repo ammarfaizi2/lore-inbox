@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267711AbUGWNdu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267720AbUGWNno@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267711AbUGWNdu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 09:33:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267712AbUGWNdu
+	id S267720AbUGWNno (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 09:43:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267721AbUGWNno
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 09:33:50 -0400
-Received: from sputnik.senvnet.fi ([80.83.5.69]:56077 "EHLO sputnik.senvnet.fi")
-	by vger.kernel.org with ESMTP id S267711AbUGWNdt (ORCPT
+	Fri, 23 Jul 2004 09:43:44 -0400
+Received: from mail5.iserv.net ([204.177.184.155]:21930 "EHLO mail5.iserv.net")
+	by vger.kernel.org with ESMTP id S267720AbUGWNnn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 09:33:49 -0400
-Date: Fri, 23 Jul 2004 16:33:48 +0300 (EEST)
-From: Jussi Hamalainen <count@theblah.fi>
-X-X-Sender: count@mir.senvnet.fi
-To: Peter Santoro <psantoro@att.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: re: kernel BUG at journal.c:1849! (2.4.26)
-In-Reply-To: <410109BF.2070705@att.net>
-Message-ID: <Pine.LNX.4.58.0407231630180.22470@mir.senvnet.fi>
-References: <410109BF.2070705@att.net>
+	Fri, 23 Jul 2004 09:43:43 -0400
+Message-ID: <4101161F.3060905@didntduck.org>
+Date: Fri, 23 Jul 2004 09:43:59 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7) Gecko/20040608
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Move modpost files to a new subdir [1/2]
+References: <40FFB68D.1000106@quark.didntduck.org> <20040723151630.GA6914@mars.ravnborg.org>
+In-Reply-To: <20040723151630.GA6914@mars.ravnborg.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jul 2004, Peter Santoro wrote:
+Sam Ravnborg wrote:
+> On Thu, Jul 22, 2004 at 08:43:57AM -0400, Brian Gerst wrote:
+> 
+>>This patch simply moves modpost-related files to a seperate subdirectory.
+> 
+> 
+> I did this in my local tree but decided for a different directory name.
+> Usage of modpost would conflict with the modpost binary and I suspected
+> that some systems would not allow this clash.
+> I do not expect people to run make mrproper before applying a patch..
+> 
+> The new directory name is: scripts/mod - also signalling that this can be
+> used for other module related utilities in the future.
+> 
+> 	Sam
+> 
 
-> I've spent a lot time trying to track down similar 2.4.26 crashes.
->
-> Are you running with highmem enabled?
+scripts/modules would be more descriptive.
 
-No. Actually I think the crash was caused by faulty hardware in my
-case. The box began spontaineously generating more assertion failures
-and other really strange problems. I bought a new mobo+cpu+memory
-combo and it's been running just fine now with the same kernel
-binary.
-
--- 
--=[ Count Zero / TBH - Jussi Hämäläinen - email count@theblah.fi ]=-
+--
+				Brian Gerst

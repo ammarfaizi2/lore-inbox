@@ -1,42 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266293AbUHHVCr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266304AbUHHVE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266293AbUHHVCr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 17:02:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266304AbUHHVCr
+	id S266304AbUHHVE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 17:04:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266305AbUHHVE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 17:02:47 -0400
-Received: from ppp-62-245-160-174.mnet-online.de ([62.245.160.174]:701 "EHLO
-	killer.ninja.frodoid.org") by vger.kernel.org with ESMTP
-	id S266293AbUHHVCk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 17:02:40 -0400
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: no input with kernel 2.6.8-rc3-mm1 and X
-References: <20040808112901.GA2958@luna.mooo.com>
-From: Julien Oster <lkml-7994@mc.frodoid.org>
-Organization: FRODOID.ORG
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-Date: Sun, 08 Aug 2004 23:06:49 +0200
-In-Reply-To: <20040808112901.GA2958@luna.mooo.com> (Micha Feigin's message
- of "Sun, 8 Aug 2004 14:29:02 +0300")
-Message-ID: <87llgpjq52.fsf@killer.ninja.frodoid.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 8 Aug 2004 17:04:27 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:56292 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S266304AbUHHVEN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 17:04:13 -0400
+Message-ID: <e796392204080814043dc6ea49@mail.gmail.com>
+Date: Sun, 8 Aug 2004 23:04:10 +0200
+From: Stefan Schweizer <sschweizer@gmail.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Re: [PATCH] omnibook / CONFIG_ACPI is not set / missing -Exxxx defs.
+In-Reply-To: <20040808132922.2c924bca.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <200408071828.18174.pluto@pld-linux.org> <20040808132922.2c924bca.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Micha Feigin <michf@post.tau.ac.il> writes:
+Andrew, 
+I think he refers to the omnibook driver, that can be found at
+http://sourceforge.net/projects/omke/
 
-Hello,
+And it is needed for brightness/fan/temperature/buttons of omnibooks
+or acer aspire laptops like mine.
 
-> With kernel 2.6.8-rc3-mm1 I lose input completely the moment I start
-> X. Keyboard is completely non-functional (include sysrq and num/ctrl
-> lock) and the touchpad also doesn't seem to produce anything.
+Why do you not have it in the kernel and what can i do to get it in
+the kernel, so that i do not need to patch or compile external for
+everytime when I switch to a new kernel?
 
-Before looking elsewhere, go into your BIOS setup and see if USB
-mouse/keyboard legacy support is enabled. If it is, disable it.
-
-That was often the cure for such problems for me.
-
-Regards,
-Julien
+Stefan

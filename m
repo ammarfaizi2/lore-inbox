@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261802AbTJSQzG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 12:55:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbTJSQzG
+	id S261872AbTJSQ5L (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 12:57:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbTJSQ5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 12:55:06 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:33514 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S261802AbTJSQzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 12:55:03 -0400
-Message-ID: <3F92C1E5.7030609@softhome.net>
-Date: Sun, 19 Oct 2003 18:55:01 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
+	Sun, 19 Oct 2003 12:57:11 -0400
+Received: from gaia.cela.pl ([213.134.162.11]:62738 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S261872AbTJSQ5J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 12:57:09 -0400
+Date: Sun, 19 Oct 2003 18:57:05 +0200 (CEST)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Valdis.Kletnieks@vt.edu
+cc: Wichert Akkerman <wichert@wiggy.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] add a config option for -Os compilation 
+In-Reply-To: <200310191631.h9JGVEN5030083@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.44.0310191853220.19283-100000@gaia.cela.pl>
 MIME-Version: 1.0
-To: Wichert Akkerman <wichert@wiggy.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] add a config option for -Os compilation
-References: <Ioi6.7kG.15@gated-at.bofh.it> <Ioi6.7kG.17@gated-at.bofh.it> <Ioi6.7kG.19@gated-at.bofh.it> <Ioi6.7kG.21@gated-at.bofh.it> <Ioi6.7kG.23@gated-at.bofh.it> <Ioi6.7kG.25@gated-at.bofh.it> <Ioi6.7kG.27@gated-at.bofh.it> <Ioi6.7kG.29@gated-at.bofh.it> <Ioi6.7kG.31@gated-at.bofh.it> <Ioi6.7kG.11@gated-at.bofh.it> <IorM.7wQ.11@gated-at.bofh.it>
-In-Reply-To: <IorM.7wQ.11@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wichert Akkerman wrote:
-> Previously Ihar 'Philips' Filipau wrote:
-> 
->>  The goal of kernel is to provide framework for applications to the 
->>job well.
-> 
-> I doubt anyone using linux for routing would agree with you.
-> 
+> OK, so the applications are limited to /sbin/iptables, /sbin/route, /bin/
+> netstat, and maybe dhcpd and/or zebra. They're still applications, even if they
+> end up invoking a lot of kernel resources on their behalf.
 
-   This is different matter.
-   This is IO bound task - and I'm not sure how -Os will perform there.
-   But still this depends on routing protocols and their requirements.
+/sbin/iptables and /sbin/route are merely configuration interfaces to the 
+kernel proper, not really familiar with netstat - but as far as I know all 
+it does is dumps kernel runtime configuration and statistics.  That's 3 
+utilities which are no way apps - just interfaces.  Now dhcpd is an app 
+and zebra is an app - but they are still mainly kernel oriented.  The 
+first 3 depend only on kernel speed and the next 2 depend mostly on kernel 
+speed.  I'd say you just proved how important kernel optimilization is for 
+routers.
 
-   In any way in this case bottleneck is PCI bus (DMA over PCI from NIC 
-to main memory and back). I bet software will show up in timing tests as 
-taking <10% of whole time.
+Cheers,
+MaZe.
 
--- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---
-   "... and for $64000 question, could you get yourself vaguely
-      familiar with the notion of on-topic posting?"
-				-- Al Viro @ LKML
 

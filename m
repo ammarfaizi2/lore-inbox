@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266095AbSL1WZG>; Sat, 28 Dec 2002 17:25:06 -0500
+	id <S266100AbSL1Wa3>; Sat, 28 Dec 2002 17:30:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266100AbSL1WZG>; Sat, 28 Dec 2002 17:25:06 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:50445 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S266095AbSL1WZF>; Sat, 28 Dec 2002 17:25:05 -0500
-Date: Sat, 28 Dec 2002 15:31:34 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: James Bottomley <James.Bottomley@steeleye.com>,
-       Andrew Morton <akpm@digeo.com>
-cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] aic7xxx bouncing over 4G 
-Message-ID: <837658112.1041114694@aslan.scsiguy.com>
-In-Reply-To: <200212282224.gBSMO5h03843@localhost.localdomain>
-References: <200212282224.gBSMO5h03843@localhost.localdomain>
-X-Mailer: Mulberry/3.0.0b9 (Linux/x86)
+	id <S266310AbSL1Wa3>; Sat, 28 Dec 2002 17:30:29 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:57065 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S266100AbSL1Wa3>;
+	Sat, 28 Dec 2002 17:30:29 -0500
+Date: Sat, 28 Dec 2002 23:37:03 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Tom Rini <trini@kernel.crashing.org>
+cc: Randolph Chung <randolph@tausq.org>, parisc-linux@parisc-linux.org,
+       Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [parisc-linux] Generic RTC driver in 2.4.x?
+In-Reply-To: <20021226175529.GB6867@opus.bloom.county>
+Message-ID: <Pine.GSO.4.21.0212282336010.17067-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> gibbs@scsiguy.com said:
->> Hmm.  The only previous bug report I had in this area was related to a
->> missing cast.  That was fixed, but I guess it wasn't enough to solve
->> the problem. 
+On Thu, 26 Dec 2002, Tom Rini wrote:
+> On Tue, Dec 24, 2002 at 03:51:47PM -0800, Randolph Chung wrote:
+> > > AFAIK the generic RTC driver is used on PA-RISC, PPC, and m68k.
+> > > 
+> > > Are you interested in a backport to 2.4.x?
+> > 
+> > On parisc we already have a version of the generic RTC driver in our
+> > 2.4 tree. If there's something more "official" or common we can adopt
+> > that version. 
 > 
-> It looks like possibly a config option that doesn't exist
+> Similarly, PPC has had it's own 'generic' RTC driver in the kernel for
+> ages, so there's no pressing need, but if the 2.5 version makes its way
+> back into 2.4 (as the 2.5 version has some minor changes needed for
+> everyone which weren't in the 2.4 m68k version), we can easily switch to
+> that version.
 
-Yes.  It seems to only exist in 2.4.X.  I'll have to use a different
-method for toggling the highmem_io option in the host structure.
+I already merged some of your 2.5.x changes with the driver in the m68k 2.4.x
+tree.
+
+I'll do some more merges, and get back to you...
+
+Gr{oetje,eeting}s,
+
+						Geert
 
 --
-Justin
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

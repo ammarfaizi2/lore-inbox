@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293245AbSBWWmn>; Sat, 23 Feb 2002 17:42:43 -0500
+	id <S293244AbSBWWmx>; Sat, 23 Feb 2002 17:42:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293243AbSBWWme>; Sat, 23 Feb 2002 17:42:34 -0500
-Received: from varenorn.icemark.net ([212.40.16.200]:4003 "EHLO
-	varenorn.internal.icemark.net") by vger.kernel.org with ESMTP
-	id <S293236AbSBWWmY>; Sat, 23 Feb 2002 17:42:24 -0500
-Date: Sat, 23 Feb 2002 23:39:38 +0100 (CET)
-From: Benedikt Heinen <beh@icemark.net>
-X-X-Sender: beh@berenium.icemark.ch
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Thomas Hood <jdthood@mail.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.17: oops in kapm-idled?   (on IBM Thinkpad A30P [2653-66U])
-In-Reply-To: <E16eQAU-0003de-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.44.0202232337300.1435-100000@berenium.icemark.ch>
+	id <S293243AbSBWWmn>; Sat, 23 Feb 2002 17:42:43 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19204 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293244AbSBWWm1>;
+	Sat, 23 Feb 2002 17:42:27 -0500
+Message-ID: <3C781A7A.24B59934@zip.com.au>
+Date: Sat, 23 Feb 2002 14:40:58 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: yodaiken@fsmlabs.com
+CC: Roman Zippel <zippel@linux-m68k.org>, Robert Love <rml@tech9.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] only irq-safe atomic ops
+In-Reply-To: <3C773C02.93C7753E@zip.com.au>, <1014444810.1003.53.camel@phantasy> <3C773C02.93C7753E@zip.com.au> <1014449389.1003.149.camel@phantasy> <3C774AC8.5E0848A2@zip.com.au> <20020223043815.B29874@hq.fsmlabs.com> <1014488408.846.806.camel@phantasy> <20020223120648.A1295@hq.fsmlabs.com> <3C781037.EA4ADEF5@linux-m68k.org> <3C781351.DCB40AD3@zip.com.au>,
+		<3C781351.DCB40AD3@zip.com.au>; from akpm@zip.com.au on Sat, Feb 23, 2002 at 02:10:25PM -0800 <20020223152337.A3577@hq.fsmlabs.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I can't switch off all individual devices in the notebook, but if I
-> > use the prism2 driver from linux-wlan.com, I can't get the full
-> > performance out of it - but just something like ~20kb/s throughput
-> > in ftp  (Win2K gets more than 500kb/s)...
-> What happens if you use the in kernel pcmcia, and the in kernel prism
-> chipset drivers ?
+yodaiken@fsmlabs.com wrote:
+> 
+> Is this part of some scheme to make the GPL support model actually
+> pay?
 
-The in-kernel prism driver doesn't seem to work with the built-in
-wireless lan. But - from what I understand from the Configure.help,
-this is what I'd expect - to me it looks like, linux will support
-prism2 in either PCMCIA or PLX.
->From the linux-wlan-ng driver, I need to compile "Prism2.5 native
-PCI" to get a driver that will recognize the card...
+No, no, no.  It's all the uncommented code which brings in the dollars.
+ 
+>         c = smp_get_cpuid(); // disables preemption
+> 
+>         ...
+>         f(); // oops, me forgotee, this function also references cpuid
+>         ..
+>         x = ++local_cache[c]; // live dangerously
+>         smp_put_cpuid(); // G_d knows what that does now.
+> 
 
+preempt_disable() nests.   It's not a problem.
 
-    Benedikt
-
-  BEAUTY, n.  The power by which a woman charms a lover and terrifies a
-    husband.
-			(Ambrose Bierce, The Devil's Dictionary)
-
+-

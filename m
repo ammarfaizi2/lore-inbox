@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266069AbSLITjV>; Mon, 9 Dec 2002 14:39:21 -0500
+	id <S266112AbSLITmm>; Mon, 9 Dec 2002 14:42:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266078AbSLITjV>; Mon, 9 Dec 2002 14:39:21 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:20998 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266069AbSLITjU>; Mon, 9 Dec 2002 14:39:20 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Intel P6 vs P7 system call performance
-Date: 9 Dec 2002 11:46:47 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <at2rv7$fkr$1@cesium.transmeta.com>
-References: <200212090830.gB98USW05593@flux.loup.net> <at2l1t$g5n$1@penguin.transmeta.com> <20021209193649.GC10316@suse.de>
-MIME-Version: 1.0
+	id <S266135AbSLITmm>; Mon, 9 Dec 2002 14:42:42 -0500
+Received: from atlrel8.hp.com ([156.153.255.206]:23784 "HELO atlrel8.hp.com")
+	by vger.kernel.org with SMTP id <S266112AbSLITml>;
+	Mon, 9 Dec 2002 14:42:41 -0500
 Content-Type: text/plain; charset=US-ASCII
+From: Bjorn Helgaas <bjorn_helgaas@hp.com>
+To: Arjan van de Ven <arjanv@redhat.com>, Matthew Wilcox <willy@debian.org>
+Subject: Re: [ACPI] RE: [BK PATCH] ACPI updates
+Date: Mon, 9 Dec 2002 12:45:07 -0700
+User-Agent: KMail/1.4.3
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       Hanno =?iso-8859-1?q?B=F6ck?= <hanno@gmx.de>,
+       "Grover, Andrew" <andrew.grover@intel.com>, pavel@ucw.cz,
+       linux-kernel@vger.kernel.org, acpi-devel@sourceforge.net
+References: <EDC461A30AC4D511ADE10002A5072CAD04C7A576@orsmsx119.jf.intel.com> <20021209191252.N20336@parcelfarce.linux.theplanet.co.uk> <20021209141720.A11277@devserv.devel.redhat.com>
+In-Reply-To: <20021209141720.A11277@devserv.devel.redhat.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Message-Id: <200212091245.07770.bjorn_helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20021209193649.GC10316@suse.de>
-By author:    Dave Jones <davej@codemonkey.org.uk>
-In newsgroup: linux.dev.kernel
->
-> On Mon, Dec 09, 2002 at 05:48:45PM +0000, Linus Torvalds wrote:
+On Monday 09 December 2002 12:17 pm, Arjan van de Ven wrote:
+> On Mon, Dec 09, 2002 at 07:12:52PM +0000, Matthew Wilcox wrote:
+> > On Mon, Dec 09, 2002 at 02:09:04PM -0200, Marcelo Tosatti wrote:
+> > > Which machines do not work without the new ACPI code?
+> > 
+> > hp's zx1-based ia64 machines (my personal interest..) 
 > 
->  > P4's really suck at system calls.  A 2.8GHz P4 does a simple system call
->  > a lot _slower_ than a 500MHz PIII. 
->  > 
->  > The P4 has problems with some other things too, but the "int + iret"
->  > instruction combination is absolutely the worst I've seen.  A 1.2GHz
->  > Athlon will be 5-10 times faster than the fastest P4 on system call
->  > overhead. 
-> 
-> Time to look into an alternative like SYSCALL perhaps ?
-> 
+> That one doesn't boot without other major patches anyway...
 
-SYSCALL is AMD.  SYSENTER is Intel, and is likely to be significantly
-faster.  Unfortunately SYSENTER is also extremely braindamaged, in
-that it destroys *both* the EIP and the ESP beyond recovery, and
-because it's allowed in V86 and 16-bit modes (where it will cause
-permanent data loss) which means that it needs to be able to be turned
-off for things like DOSEMU and WINE to work correctly.
+Apart from ACPI, the non-ia64 patches required to boot a zx1
+should be relatively small: some IRQ changes, support in
+memmap_init for discontiguous memory, etc.
 
-	-hpa
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Having a newer ACPI in 2.4.x (it currently has 20011018!)
+would make things much easier for ia64.

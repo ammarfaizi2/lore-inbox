@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292355AbSBYWPQ>; Mon, 25 Feb 2002 17:15:16 -0500
+	id <S292332AbSBYWQ4>; Mon, 25 Feb 2002 17:16:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292328AbSBYWPG>; Mon, 25 Feb 2002 17:15:06 -0500
-Received: from [208.151.48.2] ([208.151.48.2]:44750 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S292323AbSBYWOv>; Mon, 25 Feb 2002 17:14:51 -0500
-Subject: Re: If you were to write a book about operating systems...
-From: "Samuel M. Stringham" <sams@e-sa.com>
+	id <S292323AbSBYWQn>; Mon, 25 Feb 2002 17:16:43 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:56072 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S292356AbSBYWPy>;
+	Mon, 25 Feb 2002 17:15:54 -0500
+Date: Mon, 25 Feb 2002 19:15:40 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
 To: Eric Krout <ekrout@bucknell.edu>
-Cc: linux-kernel@vger.kernel.org
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: If you were to write a book about operating systems...
 In-Reply-To: <1014670118.2232.23.camel@ekrout.resnet.bucknell.edu>
-In-Reply-To: <1014670118.2232.23.camel@ekrout.resnet.bucknell.edu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-vWNIS9B9aX1GEHujtxIT"
-X-Mailer: Evolution/1.0.2 (1.0.2-1) 
-Date: 25 Feb 2002 17:12:46 -0500
-Message-Id: <1014675167.3127.30.camel@linux-admin.esa-hq.e-sa.com>
-Mime-Version: 1.0
+Message-ID: <Pine.LNX.4.33L.0202251913420.7820-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 25 Feb 2002, Eric Krout wrote:
 
---=-vWNIS9B9aX1GEHujtxIT
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, 2002-02-25 at 15:48, Eric Krout wrote:
 > would you use Java as your means of illustrating particular concepts?
->=20
-> The reason I ask is that I find fault with the course I'm currently
-> taking because the text that our curriculum is based on does just this.=20
-> Now, granted, we have written some C code during labs, but that doesn't
-> cut it for me.
->=20
 
-Well, the book you are talking about is the dinosaur book is it not?=20
-The reason they use this is for more cross platform opportunities and to
-stress that operating system procedures are not a bunch of MicroSoft API
-calls (as was the main downfall of the old way the class was taught with
-the first edition of the dinosaur book).  Though the book is light on
-implimentation it is rather useful for ideas and concepts.  This book
-and their authors actually came highly recommended from this list
-earlier.
+No.  Java doesn't have pointers or explicit memory management.
 
-Hope this helps
+This means it cannot do some of the things that real OSes tend
+to do all the time, in all pieces of real OS source code.
 
-Samuel Stringham
+While a course using Java might be able to tell you about the
+principles of OSes, it won't help you understand the worst
+magic going on in the source code of real OSes...
 
+regards,
 
---=-vWNIS9B9aX1GEHujtxIT
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+http://www.surriel.com/		http://distro.conectiva.com/
 
-iD8DBQA8erbeAHsuhBrdlT0RAiRDAJ9yjC63ljSb4pWEf5c2sSMsk9FALwCgk3w0
-GQg5DcAOBU78tkphCd53MJo=
-=HOeh
------END PGP SIGNATURE-----
-
---=-vWNIS9B9aX1GEHujtxIT--

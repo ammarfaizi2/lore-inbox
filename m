@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263697AbUBRHo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 02:44:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263793AbUBRHo2
+	id S263805AbUBRHpL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 02:45:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263793AbUBRHpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 02:44:28 -0500
-Received: from s4.uklinux.net ([80.84.72.14]:61130 "EHLO mail2.uklinux.net")
-	by vger.kernel.org with ESMTP id S263697AbUBRHoX (ORCPT
+	Wed, 18 Feb 2004 02:45:11 -0500
+Received: from gate.crashing.org ([63.228.1.57]:60068 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263805AbUBRHpE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 02:44:23 -0500
-Date: Wed, 18 Feb 2004 07:44:14 +0000
-To: linux-kernel@vger.kernel.org
-Subject: pnp missing proc entries?
-Message-ID: <20040218074414.GA11598@titan.home.hindley.uklinux.net>
+	Wed, 18 Feb 2004 02:45:04 -0500
+Subject: Re: ppc suspend rewrite using inline.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Hugang <hugang@soulinfo.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <20040218153548.2690e905@localhost>
+References: <20040218153548.2690e905@localhost>
+Content-Type: text/plain
+Message-Id: <1077090098.10665.121.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Mark Hindley <mark@hindley.uklinux.net>
-X-MailScanner-Titan: Found to be clean
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 18 Feb 2004 18:41:39 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2004-02-18 at 18:35, Hugang wrote:
+> Hi Ben:
+> 
+> I has finished rewriten the suspend code by inline, The swsusp2 works
+> fine without any problem, But pmdisk can't works, The problem that's,
+> when resume the current is not same as suspend.
 
-I have just switched to 2.6 and am trying to resolve and irq conflict
-between a sound card and internal modem.
+I don't understand why you write. Looking at your code, I don't see
+the point. By mixing C and assembly the way you do, and using those
+horrible inline asm constructs, you are basically making the code
+worse, less readable, and prone for bugs. I don't think you should
+even try going into that direction, it makes no sense.
 
-Looking in Documentation/pnp.txt there should be files in
-proc/bus/isapnp/<node>/{id,resources,options}.
+> I think the code can reuse by sleep.
 
-However all I have is plain node at /proc/bnus/isapnp/<node> that dumps
-some binary data.
+Same
 
-Is the documentation out of date? I can see the calls to make the
-missing nodes in pnp_add_device() but can't find it called from
-anywhere. Is this a deliberate omission?
+> I think turn off mmu copyback page is important, but I has looked x86
+> resume code, it do not. 
 
-Thanks
+Same
 
-Mark
+> Please take a look.
+
+Please try to be clear.
+
+> thanks.
+
+
 

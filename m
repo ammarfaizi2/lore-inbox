@@ -1,75 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273897AbRIRUS7>; Tue, 18 Sep 2001 16:18:59 -0400
+	id <S273894AbRIRUSJ>; Tue, 18 Sep 2001 16:18:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273896AbRIRUSu>; Tue, 18 Sep 2001 16:18:50 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:23328 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S273895AbRIRUSg>; Tue, 18 Sep 2001 16:18:36 -0400
-Date: Tue, 18 Sep 2001 22:18:54 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>, jogi@planetzork.ping.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10-pre11: alsaplayer skiping during kernel build (-pre10 did not)
-Message-ID: <20010918221854.C720@athlon.random>
-In-Reply-To: <20010918171416.A6540@planetzork.spacenet> <20010918172500.F19092@athlon.random> <20010918173515.B6698@planetzork.spacenet> <20010918174434.I19092@athlon.random> <20010918175104.D6698@planetzork.spacenet> <20010918212856.50cd5b87.skraw@ithnet.com>, <20010918212856.50cd5b87.skraw@ithnet.com>; <20010918214152.A720@athlon.random> <3BA7A853.4EC44195@zip.com.au>
+	id <S273895AbRIRUR7>; Tue, 18 Sep 2001 16:17:59 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:8 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S273894AbRIRURy>;
+	Tue, 18 Sep 2001 16:17:54 -0400
+Date: Tue, 18 Sep 2001 22:17:48 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Andreas Dilger <adilger@turbolabs.com>
+Cc: torvalds@transmeta.com, viro@math.psu.edu, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.10-pre11
+Message-Id: <20010918221748.1f51f801.skraw@ithnet.com>
+In-Reply-To: <20010918131419.A14526@turbolinux.com>
+In-Reply-To: <Pine.GSO.4.21.0109181354470.27125-100000@weyl.math.psu.edu>
+	<Pine.LNX.4.33.0109181122550.9711-100000@penguin.transmeta.com>
+	<20010918131419.A14526@turbolinux.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BA7A853.4EC44195@zip.com.au>; from akpm@zip.com.au on Tue, Sep 18, 2001 at 01:02:27PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 18, 2001 at 01:02:27PM -0700, Andrew Morton wrote:
-> Andrea Arcangeli wrote:
-> > 
-> > I now have an update ready for Linus to merge that should fix the few
-> > leftovers I had in the very first release of the vm rewrite but of
-> > course I will be interested to hear about any regression/progression
-> > about those changes, I'll post them in a few minutes in CC to l-k.
-> > 
-> 
-> Please include Andi's likely()/unlikely() change - it's nice.
+On Tue, 18 Sep 2001 13:14:19 -0600 Andreas Dilger <adilger@turbolabs.com>
+wrote:
 
-I guess I'll postpone the likely/unlikely after resynching with Linus
-since I'm basically ready to run rsync and I prefer to go sleep early
-today and to think about new things tomorrow ;).
+> On Sep 18, 2001  11:27 -0700, Linus Torvalds wrote:
+> [...]
+> The real question is why can't we just open 2.5 and only fix the VM to
+> start with?
 
-I also have a few arguments about the likely/unlikely to solve before
-agreeing on it, in particular in all my usages the value will be either
-0 or 1 so I don't see why should I tell gcc to do !!, probably it will
-be optimized away but I also don't see why should the left term matter
-for an "if", the "if" only cares about zero or non zero, so I should be
-able to define the fast path with an 1 even if my result is 2, otherwise
-it sounds like gcc is doing something strange.
+Hm, I guess if anybody would be capable of _really_ fixing vm in upto-pre10
+state, he would have done it already. It's not that people would not have
+tried, but it looks like nobody is able to get the _whole_ picture of this.
+Surely there are people that know a lot about certain parts of the (old) vm
+code, and thats exactly what leads to this Linus' statements here sounding like
+"I had a look at part xyz of it and it's a mess. Patch appended." (see pre10 vm
+patch).
+You have to keep in mind that a lot of people on the planet try to use 2.4 in a
+unbelievably broad variety of setups - and quite a number of them relies on
+released kernels. If you take a close look at 2.4.7, 2.4.8, 2.4.9 you may well
+find out, that they're unusable compared to 2.2.19. You cannot go on like this.
+I really do back Andrea and Linus for this step, because I can _see_ a great
+win in performance _and_ things got less complex in this code. So there is a
+much bigger chance to tilt the last remaining problems in short time (hopefully
+before 2.4.10 or .11). 
+So I guess the right thing to do now is give Andrea good input of leftover,
+reproducible problems to give him a chance to fix them. A major discussion
+about "doing it all the way round" makes only sense, if someone comes up with
+something _at least_ as good as Andrea's code. 
+Then its "Lonely Linus"' decision to choose. Whatever he will choose, a good
+percentage LKML will be against it. This is a normal thing, the guy that has to
+make the decision is alone most of the time. The only way for you to find out
+if he is right is to _try_ it. If he is, tell him. If he isn't, send a patch.
+He couldn't have been that wrong the last years, though.
 
-> I can't measure any obviously new causes of latency in your
-> VM.  It's nice that you've paid attention to this in various
-> places.
+</end sermon>
 
-thanks.
+Just _one_ opinion from an unimportant guy,
 
-> The main culprits now are the file IO and dirty buffer writeout paths:
-> up to fifty milliseconds in each.
-> 
-> I suggest you stick scheduling points in generic_file_read(),
-> generic_file_write() and write_locked_buffers() and then dispose
-> of the copy-user-latency patch from -aa kernels.
+Stephan
 
-Yes, I pretty much agree on such change, I remeber you just pointed out
-once. It's postponed to tomorrow too ;).
-
-At the moment I just care to post the vm fixes against pre11 plain in
-order to possibly get some feedback on it while I sleep :)
-
-> With the above fixed, the main source of latency is
-> /proc/meminfo->si_swapinfo(). It's about five milliseconds per gig
-> of swap, which isn't too bad.  But it's directly invokable by
-> userspace (ie: /usr/bin/top) and really should be made less dumb.
-
-ok.
-
-Andrea

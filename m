@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280186AbRKIVqR>; Fri, 9 Nov 2001 16:46:17 -0500
+	id <S280171AbRKIVpR>; Fri, 9 Nov 2001 16:45:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280190AbRKIVqI>; Fri, 9 Nov 2001 16:46:08 -0500
-Received: from zero.tech9.net ([209.61.188.187]:22545 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S280186AbRKIVpy>;
-	Fri, 9 Nov 2001 16:45:54 -0500
-Subject: Re: [PATCH] Adding KERN_INFO to some printks #2
-From: Robert Love <rml@tech9.net>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01110923204702.00807@nemo>
-In-Reply-To: <01110913474600.02130@nemo> <1005321383.1209.8.camel@phantasy> 
-	<01110923204702.00807@nemo>
-Content-Type: text/plain
+	id <S280186AbRKIVpI>; Fri, 9 Nov 2001 16:45:08 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:41360 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S280171AbRKIVoy>; Fri, 9 Nov 2001 16:44:54 -0500
+Message-ID: <3BEC4EAA.42A7C25@nortelnetworks.com>
+Date: Fri, 09 Nov 2001 16:46:18 -0500
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: how is processor cache coherency maintained for device drivers
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.07.16.47 (Preview Release)
-Date: 09 Nov 2001 16:45:48 -0500
-Message-Id: <1005342348.808.18.camel@phantasy>
-Mime-Version: 1.0
+X-Orig: <cfriesen@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-11-09 at 18:20, vda wrote:
-> Well... thanks man.
-> I hope patch will be noticed by our tribal leaders :-)
-> (Linus? Alan?)
 
-Alan is really busy stuffing patches off to Linus, and thus he is more
-concerned with getting Linus's 2.4.15 up to sync with him right now. 
-Linus is probably busy with that, too.  If you don't see this in a Linus
--pre, 2.5.0 is also right around the tree.
+I'm trying to help track down some infrequent and difficult to reproduce pci bus
+parity errors that we're seeing on a cPCI card, and one of the things that has
+been suggested is that it may have something to do with DMA coherency between
+devices and the processor.
 
-I think the most important thing you are doing is adding loglevel values
-to printk statements that have none -- that is important not just to
-clarify and make sure the value is right, but because the default
-loglevel can and will change (it has before).
+Can someone point me to the proper code/information that deals with how the
+processor knows that the memory corresponding to the ethernet device is no
+longer up-to-date?  Is it somehow marked as non-cacheable, or is it snooped,
+explicitly flushed, or what?
 
-I went over the patch and found a few things...
+The platform in question is a Motorola MCPN765 card, with a PPC7400 processor,
+running a modified 2.2.17 kernel.
 
-printk(KERN_INFO "No local APIC present or hardware disabled\n");
+Thanks,
 
- I'd make this a KERN_WARNING.  Consider the case where I compile my own
-kernel and I add APIC support.  If the driver is failing to find my APIC
-then either (a) my BIOS is broken or (b) I should remove the driver. 
-Either way I would want to know.
+Chris
 
-printk (KERN_WARNING "mtrr: your CPUs had inconsistent fixed MTRR 
-printk (KERN_WARNING "mtrr: your CPUs had inconsistent variable MTRR
-printk (KERN_WARNING "mtrr: your CPUs had inconsistent MTRRdefType
-printk (KERN_WARNING "mtrr: probably your BIOS does not setup all 
 
- These can actually be KERN_INFO, because it is not a problem and the
-mtrr driver fixes the issue.
-
-There are a _lot_ of printk statements in your patch where you didn't
-add a loglevel.  You modified them for some reason (in many cases to
-change printk("%s" ...) to printk(pf: ...).  You can easily find them
-via a search on `printk("' ... that same search can be a grep to find
-on-specified printks in the whole tree, too :)
-
-Good work.
-
-	Robert Love
-
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbTFIKCH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 06:02:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbTFIKCH
+	id S261454AbTFIKHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 06:07:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbTFIKHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 06:02:07 -0400
-Received: from h-64-105-35-62.SNVACAID.covad.net ([64.105.35.62]:27301 "EHLO
-	adam.yggdrasil.com") by vger.kernel.org with ESMTP id S261182AbTFIKCF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 06:02:05 -0400
-Date: Mon, 9 Jun 2003 03:14:49 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Message-Id: <200306091014.h59AEnU08591@adam.yggdrasil.com>
-To: rusty@rustcorp.com.au
-Subject: 2.5.70-bk1[23]: load_module crashes when aborting module load
-Cc: linux-kernel@vger.kernel.org
+	Mon, 9 Jun 2003 06:07:25 -0400
+Received: from rth.ninka.net ([216.101.162.244]:5507 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S261454AbTFIKHZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 06:07:25 -0400
+Subject: Re: [PATCH] [3/3] PCI segment support
+From: "David S. Miller" <davem@redhat.com>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org,
+       David Mosberger <davidm@hpl.hp.com>
+In-Reply-To: <20030609140749.A15138@jurassic.park.msu.ru>
+References: <20030407234411.GT23430@parcelfarce.linux.theplanet.co.uk>
+	 <20030408203824.A27019@jurassic.park.msu.ru>
+	 <20030608164351.GI28581@parcelfarce.linux.theplanet.co.uk>
+	 <20030609140749.A15138@jurassic.park.msu.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1055154054.9884.2.camel@rth.ninka.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 09 Jun 2003 03:20:56 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rusty,
+On Mon, 2003-06-09 at 03:07, Ivan Kokshaysky wrote:
+> Looks good, but shouldn't we pass 'struct pci_bus *' instead
+> of pci_dev to pci_domain_nr()?
 
-	I thought I should report this problem to you now, as I'm
-about to have to explore some code that I'm not too familiar with
-(vfree) as I continue debugging it.  Also note I am running a
-modified kernel/module.c, so it is remotely possible that this problem
-is self-inflicted, but I don't think so.
+I don't think it matters, but someone may find a useful
+use of having the exact device available, who knows...
 
-	In 2.5.70-bk1[23], I get a kernel bad memory reference
-when trying load a module with an undefined symbol that is not found.
-The bad memory reference occurs in load_module after the call
-to module_free(mod,mod->module_core), the next time that "mod" is
-dereferenced.   Here is a commented excerpt from load_module
-in kernel/module.c:
+> Because another place where the domain number must be checked on is
+> pci_bus_exists().
 
- cleanup:
-        module_unload_free(mod);
-        module_free(mod, mod->module_init);
- free_core:
-        module_free(mod, mod->module_core);
-	/* The following "if" statement generates a kernel bad memory
-	   reference.  --Adam */
- free_percpu:
-        if (mod->percpu)
-                percpu_modfree(mod->percpu);
+We could just pass the bus self device in this case.
 
-	For whatever reason, module->module_core (ee820000) points to
-an address slightly before mod (mod = ee828780, the bad dereference
-is to ee8298a4).  On x86, module_free() is vfree().  I suspect that
-somehow vfree() has gotten confused.
-
-	By the way, there also seems to be a bug in the
-2.5.70-bk12/kernel/module.c changes where mod->percpu is left unitialized
-if a module has no per-cpu data.  I've verified that there really is a
-junk non-zero value in mod->percpu in that case.  However, fixing that
-bug does not eliminate this problem.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Miplitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+-- 
+David S. Miller <davem@redhat.com>

@@ -1,347 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267325AbTGSMOs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 08:14:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269902AbTGSMOs
+	id S267261AbTGSMNN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 08:13:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267325AbTGSMNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 08:14:48 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:10506 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S267325AbTGSMOg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 08:14:36 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Arnd Bergmann <arnd@arndb.de>, Tom Vier <tmv@comcast.net>,
-       linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Linux 2.4.22-pre7
-Date: Sat, 19 Jul 2003 14:25:11 +0200
-User-Agent: KMail/1.5.2
-References: <aJyM.3dH.27@gated-at.bofh.it> <aNLX.6Go.5@gated-at.bofh.it> <200307191142.h6JBg7re022191@post.webmailer.de>
-In-Reply-To: <200307191142.h6JBg7re022191@post.webmailer.de>
+	Sat, 19 Jul 2003 08:13:13 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:50898 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S267261AbTGSMNM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 08:13:12 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 'what to expect'
+References: <20030711140219.GB16433@suse.de> <3F170D0F.7070304@pobox.com>
+	<20030717211623.GA2289@matchmail.com> <3F1713E5.6020206@pobox.com>
+	<20030718091018.A16388@infradead.org>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 18 Jul 2003 20:48:28 +0200
+In-Reply-To: <20030718091018.A16388@infradead.org>
+Message-ID: <m34r1jy8lf.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200307191419.42496.m.c.p@wolk-project.de>
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_niTG/14iSDFV3M7"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christoph Hellwig <hch@infradead.org> writes:
 
---Boundary-00=_niTG/14iSDFV3M7
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> > Even though net devices are independently refcounted and internally 
+> > consistent, I have no idea if the module's code is refcounted elsewhere 
+> > or not.  So, I hope it's safe...
+> 
+> With the rmmod -a cronjobs some people like to run it'll break horribly :)
 
-On Saturday 19 July 2003 13:41, Arnd Bergmann wrote:
-
-Hi Arnd,
-
-> > on alpha:
-> > internal.h:19:28: asm/kmap_types.h: No such file or directory
-> Same on s390 and some other platforms.We should just get rid of
-> this problem by providing a generic kmap_types header.
-I agree on this but your patch is bogus. Please use the attached one instead.
-
-Marcello, please apply this one instead. Against 2.4.22-BK (2.4.21-bk14)
-
-ciao, Marc
-
---Boundary-00=_niTG/14iSDFV3M7
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="kmap-types-cleanup.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="kmap-types-cleanup.patch"
-
-diff -Naurp a/crypto/internal.h b/crypto/internal.h
---- a/crypto/internal.h	2003-07-19 14:09:06.000000000 +0200
-+++ b/crypto/internal.h	2003-07-19 14:18:58.000000000 +0200
-@@ -14,9 +14,9 @@
- #include <linux/mm.h>
- #include <linux/highmem.h>
- #include <linux/init.h>
-+#include <linux/kmap_types.h>
- #include <asm/hardirq.h>
- #include <asm/softirq.h>
--#include <asm/kmap_types.h>
- 
- extern enum km_type crypto_km_types[];
- 
-diff -Naurp a/include/asm-i386/fixmap.h b/include/asm-i386/fixmap.h
---- a/include/asm-i386/fixmap.h	2003-07-19 14:09:31.000000000 +0200
-+++ b/include/asm-i386/fixmap.h	2003-07-19 14:18:58.000000000 +0200
-@@ -20,7 +20,7 @@
- #include <asm/page.h>
- #ifdef CONFIG_HIGHMEM
- #include <linux/threads.h>
--#include <asm/kmap_types.h>
-+#include <linux/kmap_types.h>
- #endif
- 
- /*
-diff -Naurp a/include/asm-i386/highmem.h b/include/asm-i386/highmem.h
---- a/include/asm-i386/highmem.h	2003-07-15 10:28:54.000000000 +0200
-+++ b/include/asm-i386/highmem.h	2003-07-19 14:18:58.000000000 +0200
-@@ -23,7 +23,6 @@
- #include <linux/config.h>
- #include <linux/init.h>
- #include <linux/interrupt.h>
--#include <asm/kmap_types.h>
- #include <asm/pgtable.h>
- 
- #ifdef CONFIG_DEBUG_HIGHMEM
-diff -Naurp a/include/asm-i386/kmap_types.h b/include/asm-i386/kmap_types.h
---- a/include/asm-i386/kmap_types.h	2003-07-19 14:09:31.000000000 +0200
-+++ b/include/asm-i386/kmap_types.h	1970-01-01 01:00:00.000000000 +0100
-@@ -1,16 +0,0 @@
--#ifndef _ASM_KMAP_TYPES_H
--#define _ASM_KMAP_TYPES_H
--
--enum km_type {
--	KM_BOUNCE_READ,
--	KM_SKB_SUNRPC_DATA,
--	KM_SKB_DATA_SOFTIRQ,
--	KM_USER0,
--	KM_USER1,
--	KM_BH_IRQ,
--	KM_SOFTIRQ0,
--	KM_SOFTIRQ1,
--	KM_TYPE_NR
--};
--
--#endif
-diff -Naurp a/include/asm-m68k/kmap_types.h b/include/asm-m68k/kmap_types.h
---- a/include/asm-m68k/kmap_types.h	2003-07-19 14:09:33.000000000 +0200
-+++ b/include/asm-m68k/kmap_types.h	1970-01-01 01:00:00.000000000 +0100
-@@ -1,18 +0,0 @@
--#ifdef __KERNEL__
--#ifndef _ASM_KMAP_TYPES_H
--#define _ASM_KMAP_TYPES_H
--
--enum km_type {
--	KM_BOUNCE_READ,
--	KM_SKB_SUNRPC_DATA,
--	KM_SKB_DATA_SOFTIRQ,
--	KM_USER0,
--	KM_USER1,
--	KM_BH_IRQ,
--	KM_SOFTIRQ0,
--	KM_SOFTIRQ1,
--	KM_TYPE_NR
--};
--
--#endif
--#endif /* __KERNEL__ */
-diff -Naurp a/include/asm-mips/fixmap.h b/include/asm-mips/fixmap.h
---- a/include/asm-mips/fixmap.h	2002-09-27 23:26:03.000000000 +0200
-+++ b/include/asm-mips/fixmap.h	2003-07-19 14:18:58.000000000 +0200
-@@ -18,7 +18,7 @@
- #include <asm/page.h>
- #ifdef CONFIG_HIGHMEM
- #include <linux/threads.h>
--#include <asm/kmap_types.h>
-+#include <linux/kmap_types.h>
- #endif
- 
- /*
-diff -Naurp a/include/asm-mips/highmem.h b/include/asm-mips/highmem.h
---- a/include/asm-mips/highmem.h	2002-12-18 01:03:59.000000000 +0100
-+++ b/include/asm-mips/highmem.h	2003-07-19 14:18:58.000000000 +0200
-@@ -22,7 +22,6 @@
- 
- #include <linux/init.h>
- #include <linux/interrupt.h>
--#include <asm/kmap_types.h>
- #include <asm/pgtable.h>
- 
- /* undef for production */
-diff -Naurp a/include/asm-mips/kmap_types.h b/include/asm-mips/kmap_types.h
---- a/include/asm-mips/kmap_types.h	2002-12-18 01:03:59.000000000 +0100
-+++ b/include/asm-mips/kmap_types.h	1970-01-01 01:00:00.000000000 +0100
-@@ -1,14 +0,0 @@
--#ifndef _ASM_KMAP_TYPES_H
--#define _ASM_KMAP_TYPES_H
--
--enum km_type {
--	KM_BOUNCE_READ,
--	KM_SKB_SUNRPC_DATA,
--	KM_SKB_DATA_SOFTIRQ,
--	KM_USER0,
--	KM_USER1,
--	KM_BIO_IRQ,
--	KM_TYPE_NR
--};
--
--#endif
-diff -Naurp a/include/asm-ppc/highmem.h b/include/asm-ppc/highmem.h
---- a/include/asm-ppc/highmem.h	2003-07-19 14:09:33.000000000 +0200
-+++ b/include/asm-ppc/highmem.h	2003-07-19 14:18:58.000000000 +0200
-@@ -24,7 +24,7 @@
- 
- #include <linux/init.h>
- #include <linux/interrupt.h>
--#include <asm/kmap_types.h>
-+#include <linux/kmap_types.h>
- #include <asm/pgtable.h>
- 
- /* undef for production */
-diff -Naurp a/include/asm-ppc/kmap_types.h b/include/asm-ppc/kmap_types.h
---- a/include/asm-ppc/kmap_types.h	2003-07-19 14:09:33.000000000 +0200
-+++ b/include/asm-ppc/kmap_types.h	1970-01-01 01:00:00.000000000 +0100
-@@ -1,18 +0,0 @@
--#ifdef __KERNEL__
--#ifndef _ASM_KMAP_TYPES_H
--#define _ASM_KMAP_TYPES_H
--
--enum km_type {
--	KM_BOUNCE_READ,
--	KM_SKB_SUNRPC_DATA,
--	KM_SKB_DATA_SOFTIRQ,
--	KM_USER0,
--	KM_USER1,
--	KM_BH_IRQ,
--	KM_SOFTIRQ0,
--	KM_SOFTIRQ1,
--	KM_TYPE_NR
--};
--
--#endif
--#endif /* __KERNEL__ */
-diff -Naurp a/include/asm-ppc64/kmap_types.h b/include/asm-ppc64/kmap_types.h
---- a/include/asm-ppc64/kmap_types.h	2003-07-19 14:09:35.000000000 +0200
-+++ b/include/asm-ppc64/kmap_types.h	1970-01-01 01:00:00.000000000 +0100
-@@ -1,23 +0,0 @@
--#ifdef __KERNEL__
--#ifndef _ASM_KMAP_TYPES_H
--#define _ASM_KMAP_TYPES_H
--
--enum km_type {
--	KM_BOUNCE_READ,
--	KM_SKB_SUNRPC_DATA,
--	KM_SKB_DATA_SOFTIRQ,
--	KM_USER0,
--	KM_USER1,
--	KM_BIO_SRC_IRQ,
--	KM_BIO_DST_IRQ,
--	KM_PTE0,
--	KM_PTE1,
--	KM_IRQ0,
--	KM_IRQ1,
--	KM_SOFTIRQ0,
--	KM_SOFTIRQ1,	
--	KM_TYPE_NR
--};
--
--#endif
--#endif /* __KERNEL__ */
-diff -Naurp a/include/asm-sparc/highmem.h b/include/asm-sparc/highmem.h
---- a/include/asm-sparc/highmem.h	2003-07-15 10:28:56.000000000 +0200
-+++ b/include/asm-sparc/highmem.h	2003-07-19 14:18:58.000000000 +0200
-@@ -21,7 +21,7 @@
- #ifdef __KERNEL__
- 
- #include <linux/interrupt.h>
--#include <asm/kmap_types.h>
-+#include <linux/kmap_types.h>
- 
- /* undef for production */
- #define HIGHMEM_DEBUG 1
-diff -Naurp a/include/asm-sparc/kmap_types.h b/include/asm-sparc/kmap_types.h
---- a/include/asm-sparc/kmap_types.h	2003-07-19 14:09:37.000000000 +0200
-+++ b/include/asm-sparc/kmap_types.h	1970-01-01 01:00:00.000000000 +0100
-@@ -1,16 +0,0 @@
--#ifndef _ASM_KMAP_TYPES_H
--#define _ASM_KMAP_TYPES_H
--
--enum km_type {
--	KM_BOUNCE_READ,
--	KM_SKB_SUNRPC_DATA,
--	KM_SKB_DATA_SOFTIRQ,
--	KM_USER0,
--	KM_USER1,
--	KM_BH_IRQ,
--	KM_SOFTIRQ0,
--	KM_SOFTIRQ1,
--	KM_TYPE_NR
--};
--
--#endif
-diff -Naurp a/include/asm-sparc64/kmap_types.h b/include/asm-sparc64/kmap_types.h
---- a/include/asm-sparc64/kmap_types.h	2003-07-19 14:09:37.000000000 +0200
-+++ b/include/asm-sparc64/kmap_types.h	1970-01-01 01:00:00.000000000 +0100
-@@ -1,20 +0,0 @@
--#ifndef _ASM_KMAP_TYPES_H
--#define _ASM_KMAP_TYPES_H
--
--/* Dummy header just to define km_type.  None of this
-- * is actually used on sparc64.  -DaveM
-- */
--
--enum km_type {
--	KM_BOUNCE_READ,
--	KM_SKB_SUNRPC_DATA,
--	KM_SKB_DATA_SOFTIRQ,
--	KM_USER0,
--	KM_USER1,
--	KM_BH_IRQ,
--	KM_SOFTIRQ0,
--	KM_SOFTIRQ1,
--	KM_TYPE_NR
--};
--
--#endif
-diff -Naurp a/include/asm-x86_64/kmap_types.h b/include/asm-x86_64/kmap_types.h
---- a/include/asm-x86_64/kmap_types.h	2003-07-19 14:09:37.000000000 +0200
-+++ b/include/asm-x86_64/kmap_types.h	1970-01-01 01:00:00.000000000 +0100
-@@ -1,15 +0,0 @@
--#ifndef _ASM_KMAP_TYPES_H
--#define _ASM_KMAP_TYPES_H
--
--enum km_type {
--	KM_BOUNCE_READ,
--	KM_SKB_DATA,
--	KM_SKB_DATA_SOFTIRQ,
--	KM_USER0,
--	KM_USER1,
--	KM_SOFTIRQ0,
--	KM_SOFTIRQ1,
--	KM_TYPE_NR
--};
--
--#endif
-diff -Naurp a/include/linux/highmem.h b/include/linux/highmem.h
---- a/include/linux/highmem.h	2003-07-19 14:09:37.000000000 +0200
-+++ b/include/linux/highmem.h	2003-07-19 14:18:58.000000000 +0200
-@@ -2,6 +2,7 @@
- #define _LINUX_HIGHMEM_H
- 
- #include <linux/config.h>
-+#include <linux/kmap_types.h>
- #include <asm/pgalloc.h>
- 
- #ifdef CONFIG_HIGHMEM
-diff -Naurp a/include/linux/kmap_types.h b/include/linux/kmap_types.h
---- a/include/linux/kmap_types.h	1970-01-01 01:00:00.000000000 +0100
-+++ b/include/linux/kmap_types.h	2003-07-19 14:18:58.000000000 +0200
-@@ -0,0 +1,16 @@
-+#ifndef _LINUX_KMAP_TYPES_H
-+#define _LINUX_KMAP_TYPES_H
-+
-+enum km_type {
-+	KM_BOUNCE_READ,
-+	KM_SKB_SUNRPC_DATA,
-+	KM_SKB_DATA_SOFTIRQ,
-+	KM_USER0,
-+	KM_USER1,
-+	KM_BH_IRQ,
-+	KM_SOFTIRQ0,
-+	KM_SOFTIRQ1,
-+	KM_TYPE_NR
-+};
-+
-+#endif
-
---Boundary-00=_niTG/14iSDFV3M7--
-
+Yes. I think rmmod -a (and modprobe -r) should go away then - unless the
+correct behavior is back.
+-- 
+Krzysztof Halasa
+Network Administrator

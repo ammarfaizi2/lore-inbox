@@ -1,127 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268259AbUHQOWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268256AbUHQOXD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268259AbUHQOWo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 10:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268258AbUHQOWn
+	id S268256AbUHQOXD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 10:23:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268258AbUHQOXC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 10:22:43 -0400
-Received: from webapps.arcom.com ([194.200.159.168]:38415 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S268248AbUHQOTQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 10:19:16 -0400
-Subject: [PATCH] MTD: Additional JEDEC device types
-From: Ian Campbell <icampbell@arcom.com>
-To: torvalds@osdl.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Arcom Control Systems
-Message-Id: <1092752350.9001.109.camel@icampbell-debian>
+	Tue, 17 Aug 2004 10:23:02 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:12930 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268256AbUHQOTf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 10:19:35 -0400
+Date: Tue, 17 Aug 2004 10:18:37 -0400
+From: Alan Cox <alan@redhat.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Alan Cox <alan@redhat.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: PATCH: straighten out the IDE layer locking and add hotplug
+Message-ID: <20040817141837.GA14738@devserv.devel.redhat.com>
+References: <20040815151346.GA13761@devserv.devel.redhat.com> <200408171512.26568.bzolnier@elka.pw.edu.pl> <200408171612.37898.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 17 Aug 2004 15:19:11 +0100
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Aug 2004 14:21:53.0515 (UTC) FILETIME=[8B32EBB0:01C48465]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408171612.37898.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Tue, Aug 17, 2004 at 04:12:37PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> this is dubious for many non PCI drivers which use ide_register_hw() to only
+> claim/fill ide_hwifs[] entry but actual probing is done later by ide-generic 
+> driver - we end up with hwif->present == 0 and hwif->configured == 1
+> and if ide_register_hw() will try to unregister such hwif it will possibly 
+> crash (because we now check for ->configured not ->present in 
+> ide_unregister_hwif) - you've correctly noticed in the FIXMEs that we 
 
-The following patch was just committed to the MTD CVS tree and adds
-entries to jedec_probe.c for AMD AM29F002T, Hyundai HY29F002T and
-Macronix MX29F002T parts.
+We check present as well as we free the various parts.  The problem we have
+is interfaces exist in "allocated by someone but not present" cases. Right
+now the lack of hotplug hides the fact this is totally broken. The unregister
+code tries to be smart about this and unregisters only certain bits of the
+object if its configured & !present. Thats why I save and use the present
+value on entry. 
 
-Please apply.
+I've not looked at how it affects SCAN_HWIF but the other seemed ok. 
 
-Cheers,
-Ian.
-
-Signed-off-by: Ian Campbell <icampbell@arcom.com>
-
-%description
-Add support for a couple of BIOS ROM devices.
-
-%patch
-Index: linux-2.6-bk/drivers/mtd/chips/jedec_probe.c
-===================================================================
---- linux-2.6-bk.orig/drivers/mtd/chips/jedec_probe.c	2004-08-10 17:49:44.000000000 +0100
-+++ linux-2.6-bk/drivers/mtd/chips/jedec_probe.c	2004-08-17 09:28:05.001562971 +0100
-@@ -36,7 +36,8 @@
- #define MANUFACTURER_ST		0x0020
- #define MANUFACTURER_TOSHIBA	0x0098
- #define MANUFACTURER_WINBOND	0x00da
--
-+#define MANUFACTURER_HYUNDAI	0x00AD
-+#define MANUFACTURER_MACRONIX	0x00C2
- 
- /* AMD */
- #define AM29DL800BB	0x22C8
-@@ -56,6 +57,7 @@
- #define AM29F040	0x00A4
- #define AM29LV040B	0x004F
- #define AM29F032B	0x0041
-+#define AM29F002T	0x00B0
- 
- /* Atmel */
- #define AT49BV512	0x0003
-@@ -154,6 +156,11 @@
- /* Winbond */
- #define W49V002A	0x00b0
- 
-+/* Hyundai */
-+#define HY29F002T	0x00B0
-+
-+/* Macronix */
-+#define MX29F002T	0x00B0
- 
- /*
-  * Unlock address sets for AMD command sets.
-@@ -1570,7 +1577,40 @@
- 			ERASEINFO(0x02000, 2),
- 			ERASEINFO(0x04000, 1),
- 		}
--	} 
-+	}, {
-+		mfr_id: MANUFACTURER_AMD,
-+		dev_id: AM29F002T,
-+		name: "AMD AM29F002T",
-+		DevSize: SIZE_256KiB,
-+		NumEraseRegions: 4,
-+		regions: {ERASEINFO(0x10000,3),
-+			  ERASEINFO(0x08000,1),
-+			  ERASEINFO(0x02000,2),
-+			  ERASEINFO(0x04000,1)
-+		}
-+	}, {
-+		mfr_id: MANUFACTURER_HYUNDAI,
-+		dev_id: HY29F002T,
-+		name: "Hyundai HY29F002T",
-+		DevSize: SIZE_256KiB,
-+		NumEraseRegions: 4,
-+		regions: {ERASEINFO(0x10000,3),
-+			  ERASEINFO(0x08000,1),
-+			  ERASEINFO(0x02000,2),
-+			  ERASEINFO(0x04000,1)
-+		}
-+	}, {
-+		mfr_id: MANUFACTURER_MACRONIX,
-+		dev_id: MX29F002T,
-+		name: "Macronix MX29F002T",
-+		DevSize: SIZE_256KiB,
-+		NumEraseRegions: 4,
-+		regions: {ERASEINFO(0x10000,3),
-+			  ERASEINFO(0x08000,1),
-+			  ERASEINFO(0x02000,2),
-+			  ERASEINFO(0x04000,1)
-+		}
-+	}
- };
- 
- 
-
-
--- 
-Ian Campbell, Senior Design Engineer
-                                        Web: http://www.arcom.com
-Arcom, Clifton Road, 			Direct: +44 (0)1223 403 465
-Cambridge CB1 7EA, United Kingdom	Phone:  +44 (0)1223 411 200
+Alan
 

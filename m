@@ -1,78 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262377AbTJAPNN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 11:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbTJAPNN
+	id S262307AbTJAPGy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 11:06:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbTJAPGx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 11:13:13 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:61690 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S262377AbTJAPNH
+	Wed, 1 Oct 2003 11:06:53 -0400
+Received: from lidskialf.net ([62.3.233.115]:39887 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S262307AbTJAPGv convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 11:13:07 -0400
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: "kartikey bhatt" <kartik_me@hotmail.com>, paul@clubi.ie
-Subject: Re: Can't X be elemenated?
-Date: Wed, 1 Oct 2003 10:12:32 -0500
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-References: <Law11-F67ATnLE7P95L00001388@hotmail.com>
-In-Reply-To: <Law11-F67ATnLE7P95L00001388@hotmail.com>
+	Wed, 1 Oct 2003 11:06:51 -0400
+From: Andrew de Quincey <adq@lidskialf.net>
+To: Sven =?iso-8859-1?q?K=F6hler?= <skoehler@upb.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] p2b-ds blacklisted?
+Date: Wed, 1 Oct 2003 16:05:11 +0100
+User-Agent: KMail/1.5.3
+References: <blen4v$a42$1@sea.gmane.org> <200310011516.45878.adq@lidskialf.net> <blepra$g94$1@sea.gmane.org>
+In-Reply-To: <blepra$g94$1@sea.gmane.org>
 MIME-Version: 1.0
-Message-Id: <03100110123301.18755@tabby>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200310011605.11943.adq@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 30 September 2003 23:32, kartikey bhatt wrote:
-> hey everyone who have joined this thread, my fundamental question have got
-> out of scope. I mean to say
+On Wednesday 01 Oct 2003 3:53 pm, Sven Köhler wrote:
+> > I'm sure I saw a comment somewhere saying the P2B-S was blacklisted
+> > because of "bogus IRQ routing". It was in the blacklisting code, but I
+> > can't remember where, or if it was 2.4 or 2.6.
 >
-> 1. Kernel level support for graphics device drivers.
-
-Ok.
-
-> 2. On top of that, one can develop complete lightweight GUI.
-
-don't want it in the kernel (bloat)
-
-> 3. Maybe kernel can provide support for event handling.
-
-already does.
-
-> and I still stick to my opinion that graphics card is a computer resource
-> that needs to be managed by OS rather than 3rd party developers.
-> Just feeding in patches to provide support for AGP gart and DRI
-> is an adhoc solution, a stark immoral choice.
-> you don't know my frustration when i got PC and wasn't able to
-> run X until i810 agp gart support was available at kernel level.
+> Well, the P2B-S is in blacklist.c in 2.4.22.
 >
-> And if you feel that I am a guy heavily dependent on X that's not true.
-> I just mean to say if anything is that kernel level support for graphics
-> device drivers.
-> And X will be automatically eliminated.
+> What does the entry in blacklist.c mean? Does this entry mean acpi=ht is
+> forced like the entry for the P2B-DS in dmi_scan.c?
 
-don't need it/already done in the frame buffer.
+Not sure.. I think it is likely to disable ACPI completely.
 
-You CAN also look at the GGI project (http://www.ggi-project.org/)
+> Is this a hardwired problem on the Motherboard? Or might this be fixed
+> with the latest BIOS?
 
-They have an interesting approach (only slightly superseded by the
-framebuffer driver) - They are/were looking at dividing the graphics
-resource into its' components. Clock drivers, video registers drivers, GPU
-interface drivers, graphic event queue driver. Last time I was looking
-(shortly after the framebuffer introduction) they wanted to be able to mix
-and match the components to the actual devices on the video board (since
-many of them use the same fundamental components) and eliminate the "one
-driver one video device" aspect.
+It would be a problem with the DSDT code in the BIOS. It might be fixed in a 
+later one. 
 
-It may even be suitable for embeded devices... though I think they kinda
-got too large since then.
+There have been lots of ACPI IRQ routing bugfixes (not all in the mainline 
+kernel yet); maybe the P2B-S routing is solved by one of these, maybe not...
 
-They also support X.
+> I'd like to try ACPI on my P2B-DS anyway. I think there was an append
+> line to disable ACPI IRQ Routing - was it acpi=pci?
 
-> and if you are feeling very unhappy about my statement X is bloat,
-> I really apologize for that.
-
-Not unhappy, it just indicated a bit of experience lacking.
+pci=noacpi should do it I think.
 

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263743AbTDNWt3 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:49:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263895AbTDNWt3 (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 18:49:29 -0400
-Received: from irmo.irmo.hr ([161.53.89.100]:57476 "EHLO www3.purger.com")
-	by vger.kernel.org with ESMTP id S263743AbTDNWt1 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 18:49:27 -0400
-Date: Tue, 15 Apr 2003 00:15:19 +0200
-From: Vid Strpic <vms@bofhlet.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: P4-CPU/NoBoot
-Message-ID: <20030414221519.GI17964@home.bofhlet.net>
-Mail-Followup-To: Vid Strpic <vms@bofhlet.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id S263726AbTDNWtY (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:49:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbTDNWtY (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 18:49:24 -0400
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:20104 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id S263726AbTDNWtX (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 18:49:23 -0400
+Date: Mon, 14 Apr 2003 19:01:05 -0400
+From: "Murray J. Root" <murrayr@brain.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Help with SiS 648 chipset and agpgart
+Message-ID: <20030414230105.GD1249@Master.Bellsouth.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200304140439.08812.tlee5794@rushmore.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200304140439.08812.tlee5794@rushmore.com>
 User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux 2.4.20rml
-X-Editor: VIM - Vi IMproved 6.1 (2002 Mar 24, compiled May  3 2002 20:49:56)
-X-I-came-from: scary devil monastery
-X-Politics: UNIX fundamentalist
-X-Face: -|!t[0Pql@=P`A=@?]]hx(Oh!2jK='NQO#A$ir7jYOC*/4DA~eH7XpA/:vM>M@GLqAYUg9$ n|mt)QK1=LZBL3sp?mL=lFuw3V./Q&XotFmCH<Rr(ugDuDx,mM*If&mJvqtb3BF7~~Guczc0!G0C`2 _A.v7)%SGk:.dgpOc1Ra^A$1wgMrW=66X|Lyk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 14, 2003 at 01:07:28PM -0400, Richard B. Johnson wrote:
-> I know RH is at 8.0 now. I will try to install the stuff I have at
-> work on the home CPU, I just brought my SCSI drive and cloned
-> everything. I will boot from a floppy first, then LILO or grib the
-> drive if it boots okay. I just wanted to check if I was going to have
-> any other problems. Thanks.
+On Mon, Apr 14, 2003 at 04:39:08AM -0600, Tim Lee wrote:
+> Hi,
+> 
+> I need to get agpgart to work with a SiS 648 chipset and I
+> haven't seen any implementation of such yet.  I'm currently
+> using a 2.4.19 kernel.  Without a working implementation I
+> can't use accelerated OpenGL with an ATI Radeon 9500 pro
+> because the ATI drivers require working agp support.  I've
+> tried just using the generic-sis but that causes the driver
+> to mess up big time.
+> 
+> Any ideas?
+> 
 
-It's in fact 9.0, try to get that, that P4 is a pretty new CPU :)
+the SiS648 isn't in the main 2.4.x tree. It works in the -ac tree, though.
 
 -- 
-           vms@bofhlet.net, IRC:*@Martin, /bin/zsh. C|N>K
-Linux lorien 2.4.20rml #3 Sat Nov 30 20:35:09 CET 2002 i586
- 00:14:06 up 9 days,  7:39, 37 users,  load average: 0.57, 1.18, 1.85
-"Greed is never good"           - Linus Torvalds
-"I've been told I'm very good." - Graham Greed
+Murray J. Root
+

@@ -1,38 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316199AbSFEUIG>; Wed, 5 Jun 2002 16:08:06 -0400
+	id <S316217AbSFEUIe>; Wed, 5 Jun 2002 16:08:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316214AbSFEUIF>; Wed, 5 Jun 2002 16:08:05 -0400
-Received: from mail.s3.kth.se ([130.237.48.5]:56846 "EHLO elixir.e.kth.se")
-	by vger.kernel.org with ESMTP id <S316199AbSFEUIE>;
-	Wed, 5 Jun 2002 16:08:04 -0400
-To: Michael Zhu <mylinuxk@yahoo.ca>
-Cc: markh@compro.net, kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
-Subject: Re: Load kernel module automatically
-In-Reply-To: <20020605194716.4290.qmail@web14906.mail.yahoo.com>
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 05 Jun 2002 22:07:59 +0200
-Message-ID: <yw1xit4xij4w.fsf@gladiusit.e.kth.se>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
+	id <S316243AbSFEUId>; Wed, 5 Jun 2002 16:08:33 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:24556 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S316217AbSFEUIb>; Wed, 5 Jun 2002 16:08:31 -0400
+Date: Wed, 5 Jun 2002 22:08:26 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Joseph Pingenot <trelane@digitasaru.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Build error on 2.5.20 under unstable debian
+In-Reply-To: <20020605122129.A14027@ksu.edu>
+Message-ID: <Pine.NEB.4.44.0206052203260.11522-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Zhu <mylinuxk@yahoo.ca> writes:
+On Wed, 5 Jun 2002, Joseph Pingenot wrote:
 
-> Hi, I've read the man page of modules.conf. But I
-> still couldn't figure out how to solve my problem. I
-> mean how to change the modules.conf file. Can I edit
-> this file directly?
+> Ah.  What does __devexit_p() do?  It looks to be some sort of macro,
+>   doing a cast?
+>...
 
-Not without a text editor of some kind.
+No, look at the definition in include/linux/init.h:
 
-> Can anyone give me an example?
+<--  snip  -->
 
-emacs modules.conf
+...
+/* Functions marked as __devexit may be discarded at kernel link time, depending
+   on config options.  Newer versions of binutils detect references from
+   retained sections to discarded sections and flag an error.  Pointers to
+   __devexit functions must use __devexit_p(function_name), the wrapper will
+   insert either the function_name or NULL, depending on the config options.
+ */
+#if defined(MODULE) || defined(CONFIG_HOTPLUG)
+#define __devexit_p(x) x
+#else
+#define __devexit_p(x) NULL
+#endif
+...
+
+<--  snip  -->
+
+
+A bit more of explanation is in Documentation/pci.txt.
+
+
+> -Joseph
+
+cu
+Adrian
 
 -- 
-Måns Rullgård
-mru@users.sf.net
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

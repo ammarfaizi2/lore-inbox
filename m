@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261634AbRESCfN>; Fri, 18 May 2001 22:35:13 -0400
+	id <S261637AbRESCox>; Fri, 18 May 2001 22:44:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261637AbRESCfD>; Fri, 18 May 2001 22:35:03 -0400
-Received: from femail15.sdc1.sfba.home.com ([24.0.95.142]:29352 "EHLO
-	femail15.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S261634AbRESCeu>; Fri, 18 May 2001 22:34:50 -0400
-Date: Fri, 18 May 2001 22:34:36 -0400
-From: Tom Vier <tmv5@home.com>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
-Subject: Re: alpha iommu fixes
-Message-ID: <20010518223436.A563@zero>
-In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru>
-Mime-Version: 1.0
+	id <S261638AbRESCon>; Fri, 18 May 2001 22:44:43 -0400
+Received: from mail.hiscs.org ([206.170.178.6]:62957 "EHLO mail.hiscs.org")
+	by vger.kernel.org with ESMTP id <S261637AbRESCob>;
+	Fri, 18 May 2001 22:44:31 -0400
+Message-ID: <3B05DD6E.15320298@users.sourceforge.net>
+Date: Fri, 18 May 2001 19:41:50 -0700
+From: Josh Green <jgreen@users.sourceforge.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Noticeable latency problems after upgrade from 2.4.3 to 2.4.4
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Fri, May 18, 2001 at 09:46:17PM +0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-maybe this third window stuff in cia_enable_broken_tbia() is why i can't
-seem to get the third window to open up. from my reading of the 21174 docs,
-my code should work. since T2_BASE is at 0x40000000 for 1gig, i'd think
-T3_BASE should be at 0x80000000. am i missing something?
+I'm experiencing nasty latency problems (stalls X cursor, Maelstrom
+arcade game :), etc) with Linux kernel 2.4.4. I did not have this
+problem with 2.4.3. I have Mandrake 8.0. I made sure that I compiled the
+2.4.4 kernel with the older egcs 1.1.2 (although I did try it with the
+controversial gcc 2.96 with the same results). 
+Both kernels were downloaded off of kernel.org (not Mandrake modified)
+and I used the same .config.
+Heres a description of my system:
 
-	hose->sg_pci = iommu_arena_new(hose, 0xc0000000, 0x08000000, 32768);
-	*(vip)CIA_IOC_PCI_W3_BASE = 0xc0000000 | 1;
-	*(vip)CIA_IOC_PCI_W3_MASK = (0x08000000 - 1) & 0xfff00000;
-	*(vip)CIA_IOC_PCI_T3_BASE = 0x80000000 >> 2;
+I'm using reiserfs
+Linux version 2.4.4 (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2
+release / Linux-Mandrake 8.0))
+XFree86 4.0.3
+CPU: AMD K6 550 MHZ
+Memory: 128 MB
+HD: WDC WD300BB-00AUA1, ATA IDE DISK drive
+Chipset: VIA VT82C586
 
+Both kernels had the following hard disk tuning parameters (excerpt from
+hdparm):
+/dev/hda:
+ multcount    =  0 (off)
+ I/O support  =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
 
-On Fri, May 18, 2001 at 09:46:17PM +0400, Ivan Kokshaysky wrote:
-> -	*(vip)CIA_IOC_PCI_W3_BASE = CIA_BROKEN_TBI_TRY2_BASE | 3;
-> -	*(vip)CIA_IOC_PCI_W3_MASK = (PAGE_SIZE - 1) & 0xfff00000;
-> +	*(vip)CIA_IOC_PCI_W3_BASE = CIA_BROKEN_TBIA_BASE | 3;
-> +	*(vip)CIA_IOC_PCI_W3_MASK = (CIA_BROKEN_TBIA_SIZE*1024 - 1)
-> +				    & 0xfff00000;
->  	*(vip)CIA_IOC_PCI_T3_BASE = virt_to_phys(ppte) >> 2;
->  }
+I even set the multcount to 8 with a slight increase in hdparm -t read
+performance, but still bad latency.
+The latency issues mainly occur with compiling programs. Compiling my
+autoconf based program and running Maelstrom at the same time served as
+a crude test. 2.4.4 would have large skip outs in sound and pauses in
+gameplay, whereas 2.4.3 runs very smooth. I also did an hdparm -t while
+running tests, I did not perceive the problem in this case though,
+suggesting something besides hard disk access.
 
-
--- 
-Tom Vier <tmv5@home.com>
-DSA Key id 0x27371A2C
+If anyone has any info on what could be causing this, please let me
+know. CC me as I'm not on the list. If there isn't any knowledge of this
+problem, I will try to track it down myself. I guess perhaps narrowing
+it down to a particular pre version and maybe doing some kernel
+profiling (I have no idea how) if all else fails. Lates..
+	Josh Green

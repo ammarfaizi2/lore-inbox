@@ -1,30 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262868AbTDIHFz (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 03:05:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262872AbTDIHFz (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 03:05:55 -0400
-Received: from [212.209.119.90] ([212.209.119.90]:42251 "HELO
-	mail.pricerunner.com") by vger.kernel.org with SMTP id S262868AbTDIHFy (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 03:05:54 -0400
-Message-ID: <3E93C876.6040201@gorling.se>
-Date: Wed, 09 Apr 2003 09:15:02 +0200
-From: =?ISO-8859-1?Q?Stefan_G=F6rling?= <stefan@gorling.se>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
+	id S262885AbTDIHG4 (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 03:06:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262884AbTDIHG4 (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 03:06:56 -0400
+Received: from [195.60.21.2] ([195.60.21.2]:52136 "EHLO pluto.fastfreenet.com")
+	by vger.kernel.org with ESMTP id S262883AbTDIHGy (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 03:06:54 -0400
+Message-ID: <007601c2fecd$12209070$230110ac@kaws>
+From: "Keith Ansell" <keitha@edp.fastfreenet.com>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: bdflush flushing memory mapped pages. 
+Date: Wed, 9 Apr 2003 20:20:18 +0100
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.5.xx boot floppys
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+help
 
-I'm struggling with a troublesome machine, just for the sake of it I 
-though I'd try booting it with a 2.5 floppy, is there someone out there 
-providing standard boot/resuce discs with 2.5 and aic79xx support?
+My application uses SHARED memory mapping files for file I/O, and we have
+observed
+that Linux does not flush dirty pages to disk until munmap or msync are
+called.
 
-Yeah, I know I'm lazy..
+I would like to know are there any development plans which would address
+this issue or
+if there is a version of bdflush which flushes write required pages (dirty
+pages) to disk?
 
-/Stefan
+Regards
+        Keith Ansell.
+
 

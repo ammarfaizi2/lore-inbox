@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271348AbRHQUdt>; Fri, 17 Aug 2001 16:33:49 -0400
+	id <S271584AbRHQUjj>; Fri, 17 Aug 2001 16:39:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271559AbRHQUdj>; Fri, 17 Aug 2001 16:33:39 -0400
-Received: from toole.uol.com.br ([200.231.206.186]:50939 "EHLO
-	toole.uol.com.br") by vger.kernel.org with ESMTP id <S271348AbRHQUdc>;
-	Fri, 17 Aug 2001 16:33:32 -0400
-Message-ID: <3B7D7FA8.7E57F2AB@uol.com.br>
-Date: Fri, 17 Aug 2001 17:33:44 -0300
-From: "Michel A. S. Pereira - KIDMumU|ResolveBucha" 
-	<michelcultivo@uol.com.br>
-Organization: TECHS Provider
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: en
+	id <S271559AbRHQUja>; Fri, 17 Aug 2001 16:39:30 -0400
+Received: from WARSL401PIP3.highway.telekom.at ([195.3.96.75]:36165 "HELO
+	email02.aon.at") by vger.kernel.org with SMTP id <S271584AbRHQUjX>;
+	Fri, 17 Aug 2001 16:39:23 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Peter Klotz <peter.klotz@aon.at>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Error on fs unmount
+Date: Fri, 17 Aug 2001 22:42:26 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <01081718390800.01143@localhost.localdomain> <5.1.0.14.2.20010817190012.04579580@pop.cus.cam.ac.uk>
+In-Reply-To: <5.1.0.14.2.20010817190012.04579580@pop.cus.cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Vmware and 2.4.9
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01081722422601.01143@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Who has or have made a patch to vmware run on Kernel 2.4.9?
+>Peter,
+>
+>Could you tell me whether on startup (or whenever you mount the NTFS
+>volume) it doesn't give a message but saying: "Trying to open system file
+>9!" or "Opening system file 9!".
 
-Thanks
--- 
-============================================
-|PIII 500MHz - 96MB RAM - HD 8.2GB - Savage4 
-|USR Sportster 56K Int Voice - Sb AWE 64
-|CL 6.0 - Kernel 2.4.5 - Snort 1.8
-|www.kidmumu.net - UIN 4553082 - LC 83522
-|Powered by Fanta Uva e suco de Acerola
-============================================
+You were right. I found the message you mentioned several times in 
+/var/log/messages:
+Aug 17 08:16:50 localhost kernel: Trying to open system file 9!   
+
+Thanks a lot for your quick and helpful response.
+
+Bye, Peter.

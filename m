@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264798AbUE2NUK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264851AbUE2NTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264798AbUE2NUK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 09:20:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264836AbUE2NUK
+	id S264851AbUE2NTj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 09:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264836AbUE2NTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 09:20:10 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:28036 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264798AbUE2NT7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 09:19:59 -0400
-Date: Sat, 29 May 2004 15:20:18 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Larry McVoy <lm@work.bitmover.com>, bitkeeper-announce@work.bitmover.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: bk-3.2.0 released
-Message-ID: <20040529132018.GA6221@ucw.cz>
-References: <20040518233238.GC28206@work.bitmover.com> <20040529095419.GB1269@ucw.cz> <20040529130436.GA20605@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 29 May 2004 09:19:38 -0400
+Received: from h2.prohosting.com.ua ([217.16.18.181]:64933 "EHLO
+	h2.prohosting.com.ua") by vger.kernel.org with ESMTP
+	id S264798AbUE2NTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 09:19:25 -0400
+From: Artemio <theman@artemio.net>
+To: "Linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: error compiling linux-2.6.6
+Date: Sat, 29 May 2004 16:21:47 +0300
+User-Agent: KMail/1.6.1
+References: <200405291424.43982.theman@artemio.net>
+In-Reply-To: <200405291424.43982.theman@artemio.net>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040529130436.GA20605@work.bitmover.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200405291620.49602.theman@artemio.net>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - h2.prohosting.com.ua
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - artemio.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 29, 2004 at 06:04:36AM -0700, Larry McVoy wrote:
-> On Sat, May 29, 2004 at 11:54:20AM +0200, Vojtech Pavlik wrote:
-> > On Tue, May 18, 2004 at 04:32:38PM -0700, Larry McVoy wrote:
-> > > BitKeeper Users,
-> > > 
-> > > BK/Pro 3.2.0 has been released and is in the BK download area,
-> > > 
-> > >     http://bitmover.com/download
-> > 
-> > Any chance of a native x86-64 version? 
-> 
-> We don't have any x86-64 machines but we could get one.  I asked about this
-> a while back and people told me that there was no point, the x86 one worked
-> perfectly.  Can you tell me what having a native one would gain?  If there
-> is any gain we'll do it.
+I am continuing my tries...
 
-Well, yes, of course, the x86 version works just fine, because x86-64 is
-backward compatible.
+GCC 2.96, linux-2.6.6.
 
-The benefits won't be huge:
+<make_output>
+LD      .tmp_vmlinux1
+drivers/built-in.o: In function `hpsb_alloc_packet':
+drivers/built-in.o(.text+0x76921): undefined reference to `alloc_skb'
+drivers/built-in.o: In function `hpsb_free_packet':
+drivers/built-in.o(.text+0x769cc): undefined reference to `__kfree_skb'
+drivers/built-in.o: In function `hpsb_packet_sent':
+drivers/built-in.o(.text+0x770a2): undefined reference to `skb_unlink'
+drivers/built-in.o: In function `hpsb_send_packet':
+drivers/built-in.o(.text+0x77250): undefined reference to `skb_queue_tail'
+drivers/built-in.o: In function `abort_requests':
+drivers/built-in.o(.text+0x77cd6): undefined reference to `skb_dequeue'
+drivers/built-in.o: In function `queue_packet_complete':
+drivers/built-in.o(.text+0x77d9b): undefined reference to `skb_queue_tail'
+drivers/built-in.o: In function `hpsbpkt_thread':
+drivers/built-in.o(.text+0x77e00): undefined reference to `skb_dequeue'
+make: *** [.tmp_vmlinux1] Error 1
+</make_output>
 
-	a marginal speed increase due to more registers
-	no need for 32-bit libs on the system and in memory
-	enough address space for bk, should it ever need more
-	a general feeling of doing things right ;)	
+Am I doing something wrong? :-(
 
+
+Artemio.
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+A-Man ::: new music from Artemio ::: http://a-man.artemio.net
+[local time 16:19:25 (GMT +3) 29 May 2004] [system uptime 3 hr 07 min]
+
+

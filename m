@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262905AbUENXIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263124AbUENXIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262905AbUENXIT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 19:08:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbUENXIS
+	id S263124AbUENXIa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 19:08:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264391AbUENXIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 19:08:18 -0400
-Received: from mail.kroah.org ([65.200.24.183]:50396 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262905AbUENXH7 convert rfc822-to-8bit
+	Fri, 14 May 2004 19:08:30 -0400
+Received: from mail.kroah.org ([65.200.24.183]:50652 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263124AbUENXIA convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 19:07:59 -0400
+	Fri, 14 May 2004 19:08:00 -0400
 X-Donotread: and you are reading this why?
 Subject: Re: [PATCH] Driver Core patches for 2.6.6
-In-Reply-To: <10845760433419@kroah.com>
+In-Reply-To: <1084576043923@kroah.com>
 X-Patch: quite boring stuff, it's just source code...
 Date: Fri, 14 May 2004 16:07:23 -0700
-Message-Id: <1084576043923@kroah.com>
+Message-Id: <10845760433731@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,71 +23,58 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1587.5.27, 2004/05/11 16:43:50-07:00, maneesh@in.ibm.com
+ChangeSet 1.1587.5.28, 2004/05/14 12:12:11-07:00, masbock@us.ibm.com
 
-[PATCH] kobject/sysfs race fix
+[PATCH] add ibmasm driver warning message
 
-The following patch fixes the race involved between unregistering a kobject
-and simultaneously opeing a corresponding attribute file in sysfs.
-
-Ideally sysfs should take a ref.  to the kobject as long as it has dentries
-referring to the kobjects, but because of current limitations in
-module/kobject ref counting, sysfs's pinning of kobject leads to
-hang/delays in rmmod of certain modules.  The patch checks for unhashed
-dentries in check_perm() while opening a sysfs file.  If the dentry is
-still hashed then it goes ahead and takes the ref to kobject.  This done
-under the per dentry lock.  It does this in the inline routine
-sysfs_get_kobject(dentry).
+[note, I changed this a bit to be nicer on the system log, greg k-h]
 
 
- fs/sysfs/bin.c   |    2 +-
- fs/sysfs/file.c  |    2 +-
- fs/sysfs/sysfs.h |   13 +++++++++++++
- 3 files changed, 15 insertions(+), 2 deletions(-)
+ drivers/misc/Kconfig         |    8 +++++++-
+ drivers/misc/ibmasm/module.c |    7 +++++++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
 
 
-diff -Nru a/fs/sysfs/bin.c b/fs/sysfs/bin.c
---- a/fs/sysfs/bin.c	Fri May 14 15:56:11 2004
-+++ b/fs/sysfs/bin.c	Fri May 14 15:56:11 2004
-@@ -94,7 +94,7 @@
+diff -Nru a/drivers/misc/Kconfig b/drivers/misc/Kconfig
+--- a/drivers/misc/Kconfig	Fri May 14 15:55:56 2004
++++ b/drivers/misc/Kconfig	Fri May 14 15:55:56 2004
+@@ -6,7 +6,7 @@
  
- static int open(struct inode * inode, struct file * file)
- {
--	struct kobject * kobj = kobject_get(file->f_dentry->d_parent->d_fsdata);
-+	struct kobject *kobj = sysfs_get_kobject(file->f_dentry->d_parent);
- 	struct bin_attribute * attr = file->f_dentry->d_fsdata;
- 	int error = -EINVAL;
+ config IBM_ASM
+ 	tristate "Device driver for IBM RSA service processor"
+-	depends on X86
++	depends on X86 && EXPERIMENTAL
+ 	default n
+ 	---help---
+ 	  This option enables device driver support for in-band access to the
+@@ -20,6 +20,12 @@
+ 	  this feature serial driver support (CONFIG_SERIAL_8250) must be
+ 	  enabled.
+ 	  
++	  WARNING: This software may not be supported or function
++	  correctly on your IBM server. Please consult the IBM ServerProven
++	  website http://www.pc.ibm/ww/eserver/xseries/serverproven for
++	  information on the specific driver level and support statement
++	  for your IBM server.
++
  
-diff -Nru a/fs/sysfs/file.c b/fs/sysfs/file.c
---- a/fs/sysfs/file.c	Fri May 14 15:56:11 2004
-+++ b/fs/sysfs/file.c	Fri May 14 15:56:11 2004
-@@ -238,7 +238,7 @@
+ 	  If unsure, say N.
  
- static int check_perm(struct inode * inode, struct file * file)
- {
--	struct kobject * kobj = kobject_get(file->f_dentry->d_parent->d_fsdata);
-+	struct kobject *kobj = sysfs_get_kobject(file->f_dentry->d_parent);
- 	struct attribute * attr = file->f_dentry->d_fsdata;
- 	struct sysfs_buffer * buffer;
- 	struct sysfs_ops * ops = NULL;
-diff -Nru a/fs/sysfs/sysfs.h b/fs/sysfs/sysfs.h
---- a/fs/sysfs/sysfs.h	Fri May 14 15:56:11 2004
-+++ b/fs/sysfs/sysfs.h	Fri May 14 15:56:11 2004
-@@ -11,3 +11,16 @@
+diff -Nru a/drivers/misc/ibmasm/module.c b/drivers/misc/ibmasm/module.c
+--- a/drivers/misc/ibmasm/module.c	Fri May 14 15:55:56 2004
++++ b/drivers/misc/ibmasm/module.c	Fri May 14 15:55:56 2004
+@@ -126,6 +126,13 @@
  
- extern int sysfs_create_subdir(struct kobject *, const char *, struct dentry **);
- extern void sysfs_remove_subdir(struct dentry *);
+ 	ibmasm_register_uart(sp);
+ 
++	dev_printk(KERN_DEBUG, &pdev->dev, "WARNING: This software may not be supported or function\n");
++	dev_printk(KERN_DEBUG, &pdev->dev, "correctly on your IBM server. Please consult the IBM\n");
++	dev_printk(KERN_DEBUG, &pdev->dev, "ServerProven website\n");
++	dev_printk(KERN_DEBUG, &pdev->dev, "http://www.pc.ibm.com/ww/eserver/xseries/serverproven\n");
++	dev_printk(KERN_DEBUG, &pdev->dev, "for information on the specific driver level and support\n");
++	dev_printk(KERN_DEBUG, &pdev->dev, "statement for your IBM server.\n");
 +
-+
-+static inline struct kobject *sysfs_get_kobject(struct dentry *dentry)
-+{
-+	struct kobject * kobj = NULL;
-+
-+	spin_lock(&dentry->d_lock);
-+	if (!d_unhashed(dentry))
-+		kobj = kobject_get(dentry->d_fsdata);
-+	spin_unlock(&dentry->d_lock);
-+
-+	return kobj;
-+}
+ 	return 0;
+ 
+ error_send_message:
 

@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132296AbRADBYN>; Wed, 3 Jan 2001 20:24:13 -0500
+	id <S132348AbRADBYM>; Wed, 3 Jan 2001 20:24:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132312AbRADBYB>; Wed, 3 Jan 2001 20:24:01 -0500
+	id <S132296AbRADBYB>; Wed, 3 Jan 2001 20:24:01 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:15631 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S132349AbRADBXp>;
-	Wed, 3 Jan 2001 20:23:45 -0500
-Date: Thu, 4 Jan 2001 01:41:15 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Peter Osterlund <peter.osterlund@mailbox.swipnet.se>
-Cc: linux-kernel@vger.kernel.org, linux-parport@torque.net,
-        tim@cyberelk.demon.co.uk
-Subject: Re: Printing to off-line printer in 2.4.0-prerelease
-Message-ID: <20010104014115.C6256@athlon.random>
-In-Reply-To: <m2k88czda4.fsf@ppro.localdomain> <20010103201344.A3203@athlon.random> <m2hf3gz6yc.fsf@ppro.localdomain> <20010103223504.L32185@athlon.random> <m266jww55q.fsf@ppro.localdomain>
+	by vger.kernel.org with ESMTP id <S132312AbRADBXn>;
+	Wed, 3 Jan 2001 20:23:43 -0500
+Date: Wed, 3 Jan 2001 18:09:18 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: fritz@isdn4linux.de, torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] isdn_net: release resources on failure
+Message-ID: <20010103180917.I4328@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	fritz@isdn4linux.de, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m266jww55q.fsf@ppro.localdomain>; from peter.osterlund@mailbox.swipnet.se on Thu, Jan 04, 2001 at 01:08:01AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 04, 2001 at 01:08:01AM +0100, Peter Osterlund wrote:
-> What do you think about the following patch? It also works for all the
-> tests mentioned in my previous message.
+Please apply.
 
-I'm worried somebody needed to disable LP_CAREFUL to print, probably it's not a
-big deal to keep it. About the lp_wait_ready that's what I had in mind with the
-"rework" thing and it looks fine. However parport_write can still could silenty
-discard data, but maybe it can't notice errors with some handshake. I didn't
-checked the details of the DMA based handshake so Tim needs to comment if
-this can be considered a final/right fix (I hope it's not ;).
+                        - Arnaldo
 
-Andrea
+--- linux-2.4.0-prerelease/drivers/isdn/isdn_net.c	Mon Jan  1 14:42:26 2001
++++ linux-2.4.0-prerelease.acme/drivers/isdn/isdn_net.c	Wed Jan  3 18:02:44 2001
+@@ -19,7 +19,10 @@
+  * You should have received a copy of the GNU General Public License
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+- *
++ * 
++ * Changes:
++ * Arnaldo Carvalho de Melo <acme@conectiva.com.br>
++ * - release resources on failure in isdn_net_new - 2001/01/03
+  */
+ 
+ #include <linux/config.h>
+@@ -2325,6 +2328,7 @@
+ 	memset(netdev, 0, sizeof(isdn_net_dev));
+ 	if (!(netdev->local = (isdn_net_local *) kmalloc(sizeof(isdn_net_local), GFP_KERNEL))) {
+ 		printk(KERN_WARNING "isdn_net: Could not allocate device locals\n");
++		kfree(netdev);
+ 		return NULL;
+ 	}
+ 	memset(netdev->local, 0, sizeof(isdn_net_local));
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

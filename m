@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269631AbRHADj0>; Tue, 31 Jul 2001 23:39:26 -0400
+	id <S269620AbRHADh6>; Tue, 31 Jul 2001 23:37:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269624AbRHADjQ>; Tue, 31 Jul 2001 23:39:16 -0400
-Received: from ns3.keyaccesstech.com ([209.47.245.85]:26892 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S269622AbRHADjD>; Tue, 31 Jul 2001 23:39:03 -0400
-Date: Tue, 31 Jul 2001 23:39:11 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: Linux kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Support for serial console on legacy free machines
-In-Reply-To: <m18zh4zcq5.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.33.0107312336280.15064-100000@terbidium.openservices.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+	id <S269621AbRHADhq>; Tue, 31 Jul 2001 23:37:46 -0400
+Received: from zok.sgi.com ([204.94.215.101]:29608 "EHLO zok.corp.sgi.com")
+	by vger.kernel.org with ESMTP id <S269620AbRHADhh>;
+	Tue, 31 Jul 2001 23:37:37 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Alan Olsen <alan@clueserver.org>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PCMCIA IDE_CS in 2.4.7 
+In-Reply-To: Your message of "Tue, 31 Jul 2001 21:03:45 MST."
+             <Pine.LNX.4.10.10107312050460.25753-100000@clueserver.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 01 Aug 2001 13:37:39 +1000
+Message-ID: <11314.996637059@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On 31 Jul 2001, Eric W. Biederman wrote:
+On Tue, 31 Jul 2001 21:03:45 -0700 (PDT), 
+Alan Olsen <alan@clueserver.org> wrote:
+>The module that used to be called "ide_cs.o" is now called "ide-cs.o".
+>It this on purpose or have I found a bug?
 
-> Russell King <rmk@arm.linux.org.uk> writes:
->
-> > No.  Console initialisation is done early, before PCI is setup.  This
-> > means that the serial driver is relying on a static array of IO port
-> > addresses.  At this time, the serial driver hasn't probed any ports at
-> > all, so it doesn't really know what does and doesn't exist.
->
-> Hmm. I hadn't realized it was poking in the dark.
-
-At least some PCI serial cards are just UARTs at a specific I/O address and
-interrupt, and the I/O adress and interrupt are (more or less) constant each
-boot. Could the values of these be passed to the kernel via command-line?
-
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+drivers/ide/Makefile was added to the kernel in 2.4.3-99pre on approx.
+May 19, 2000.  The module was called ide-cs.o then and has had that
+name ever since.  The inconsistency between the kernel and the pcmcia
+package is annoying but changing the kernel name now would probably
+cause more problems that it solved.
 

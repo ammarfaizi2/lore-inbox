@@ -1,45 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313675AbSDPNgf>; Tue, 16 Apr 2002 09:36:35 -0400
+	id <S313673AbSDPNfX>; Tue, 16 Apr 2002 09:35:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313676AbSDPNge>; Tue, 16 Apr 2002 09:36:34 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:63792 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S313675AbSDPNgd>; Tue, 16 Apr 2002 09:36:33 -0400
-Date: Tue, 16 Apr 2002 15:36:19 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Mike Fedyk <mfedyk@matchmail.com>,
-        William Lee Irwin III <wli@holomorphy.com>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] for_each_zone / for_each_pgdat
-Message-ID: <20020416153619.A25328@dualathlon.random>
-In-Reply-To: <20020416013016.GA23513@matchmail.com> <Pine.LNX.4.44L.0204160126510.1960-100000@imladris.surriel.com>
+	id <S313675AbSDPNfW>; Tue, 16 Apr 2002 09:35:22 -0400
+Received: from elin.scali.no ([62.70.89.10]:43018 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S313673AbSDPNfV>;
+	Tue, 16 Apr 2002 09:35:21 -0400
+Subject: Re: Why HZ on i386 is 100 ?
+From: Terje Eggestad <terje.eggestad@scali.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Liam Girdwood <l_girdwood@bitwise.co.uk>,
+        BALBIR SINGH <balbir.singh@wipro.com>,
+        William Olaf Fraczyk <olaf@navi.pl>,
+        Lee Irwin III <wli@holomorphy.com>
+In-Reply-To: <20020416100148.GA17560@venus.local.navi.pl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 16 Apr 2002 15:35:19 +0200
+Message-Id: <1018964120.13527.37.camel@pc-16.office.scali.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 16, 2002 at 01:27:26AM -0300, Rik van Riel wrote:
-> On Tue, Apr 16, 2002 at 02:44:58AM +0200, Andrea Arcangeli wrote:
-> > On Mon, Apr 15, 2002 at 04:20:58PM -0700, William Lee Irwin III wrote:
-> > > I won't scream too loud, but I think it's pretty much done right as is.
-> >
-> > Regardless if that's the cleaner implementation or not, I don't see much
-> > the point of merging those cleanups in 2.4 right now: it won't make any
-> > functional difference to users and it's only a self contained code
-> > cleanup, while other patches that make a runtime difference aren't
-> > merged yet.
+
+I seem to recall from theory that the 100HZ is human dependent. Any
+higher and you would begin to notice delays from you input until
+whatever program you're talking to responds. 
+
+However in order to actually notice it you must have other programs
+running that uses close to 100% CPU *AT LEAST AT THE SAME OR HIGHER
+PRIORITY*. To test this, just running a couple of shells/script with
+while [true;] won't slow you down until you aggressively renice the
+shells/script.
+
+THus: Setting it higher *may* improve your latency if you've other CPU
+intensive task going. Setting it lower will only be a boon if you have
+so many active processes that the kernel spend more than negligible time
+scheduling, thus you spend fewer cycles scheduling per sec. I don't know
+that *so many* is with a 1 GHz CPU is but it's very likely to be > 10.
+The O(1) scheduler in progress will push that even higher.   
+
+TJ
+
+On Tue, 2002-04-16 at 12:01, Olaf Fraczyk wrote:
+> On 2002.04.16 12:29 Liam Girdwood wrote:
+> > On Tue, 2002-04-16 at 09:18, BALBIR SINGH wrote:
+> > > I remember seeing somewhere unix system VII used to have HZ set to
+> > 60
+> > > for the machines built in the 70's. I wonder if todays pentium iiis
+> > and ivs
+> > > should still use HZ of 100, though their internal clock is in GHz.
+> > >
+> > > I think somethings in the kernel may be tuned for the value of HZ,
+> > these
+> > > things would be arch specific.
+> > >
+> > > Increasing the HZ on your system should change the scheduling
+> > behaviour,
+> > > it could lead to more aggresive scheduling and could affect the
+> > > behaviour of the VM subsystem if scheduling happens more frequently.
+> > I am
+> > > just guessing, I do not know.
+> > >
+> > 
+> > I remember reading that a higher HZ value will make your machine more
+> > responsive, but will also mean that each running process will have a
+> > smaller CPU time slice and that the kernel will spend more CPU time
+> > scheduling at the expense of processes.
+> > 
+> Has anyone measured this?
+> This shouldn't be a big problem, because some architectures use value 
+> 1024, eg. Alpha, ia-64.
+> And todays Intel/AMD 32-bit processors are as fast as Alpha was 1-2 
+> years ago.
 > 
-> Sorry to say it, but if you want patches to be merged, why
-> don't you submit them ?
+> Regards,
+> 
+> Olaf
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+_________________________________________________________________________
 
-I submitted these in a past email:
+Terje Eggestad                  mailto:terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.19pre5/vm-33/aa-*
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
+N-0619 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
 
-Andrea

@@ -1,73 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312457AbSCUTPD>; Thu, 21 Mar 2002 14:15:03 -0500
+	id <S312462AbSCUTQx>; Thu, 21 Mar 2002 14:16:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312460AbSCUTOx>; Thu, 21 Mar 2002 14:14:53 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:34067 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S312457AbSCUTOr>; Thu, 21 Mar 2002 14:14:47 -0500
-Date: Thu, 21 Mar 2002 20:14:19 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "David S. Miller" <davem@redhat.com>, lm@bitmover.com, pavel@ucw.cz,
-        linux-kernel@vger.kernel.org
-Subject: Re: Bitkeeper licence issues
-In-Reply-To: <E16nOzQ-0008U7-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0203201520280.20018-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312460AbSCUTQo>; Thu, 21 Mar 2002 14:16:44 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:64446 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S312458AbSCUTQe>; Thu, 21 Mar 2002 14:16:34 -0500
+Date: Thu, 21 Mar 2002 21:16:12 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Adam Kropelin <akropel1@rochester.rr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre3-ac4
+Message-ID: <20020321191612.GH174986@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	"J.A. Magallon" <jamagallon@able.es>,
+	Adam Kropelin <akropel1@rochester.rr.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E16nje1-0002oN-00@the-village.bc.nu> <006101c1d084$275029b0$02c8a8c0@kroptech.com> <20020321152852.GA2028@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Mar 21, 2002 at 04:28:52PM +0100, you [J.A. Magallon] wrote:
+> 
+> On 2002.03.21 Adam Kropelin wrote:
+>
+> >> o The incredible shrinking kernel patch (Andrew Morton)
+> >
+> >Is there a magic incantation I need in order to see an improvement from this?
+> >I'm observing a slight (< 10 KB) increase from -ac3 to -ac4. Same .config, same
+> >compiler.
+> >
+> >I only build 2 modules; everything else is static. Perhaps Andrew's fix is for
+> >heavy module users?
+> >
+> 
+> I think it gives about 100k size decrease IFF you have verbose BUG activated.
 
-On Tue, 19 Mar 2002, Alan Cox wrote:
+See
+http://marc.theaimsgroup.com/?l=linux-kernel&m=101663081100880&w=2
+Subject: [patch] smaller kernels
 
-> Work for me. I've run a profitable small open source company, I've worked
-> for Red Hat. 
+and
+http://marc.theaimsgroup.com/?l=linux-kernel&m=101663080500800&w=2
+[patch] x86 BUG handling
 
-Wow, that kind of answer I had expected the least. :)
+Of the latter, Andrew says: "kernel size is reduced by 90 kbytes
+relative to a CONFIG_DEBUG_BUGVERBOSE=y build" and of the former: "Kernel
+size is reduced by another 110 kbytes in my build."
 
-> Think about it this way. There is no reason to suppose that the concept
-> of the Innovators Dilemma does not ultimately apply to nations.
+The former is a duplicate string removal patch, and gcc >= 3 does most of
+that automatically, so you won't see the much difference. The latter only
+reduces kernel size compared to BUG_VERBOSE=y (and may slightly increase the
+size compared the BUG_VERBOSE=n).
 
-Innovator's Dilemma is an interesting theory, but I think it simplifies
-things too much. I haven't read the book, so I can only judge from
-various reviews I've read. It seems to concentrate too much on the
-actual trigger and neglects the necessary conditions. The major flow
-here is, it assumes that all participants play nice and fair.
-Take for example MS, they don't have to innovate that much by
-themselves, they just buy it. The interesting point here is that their
-biggest threat is now a technology which is not really disruptive, but
-rather a technology they can't buy.
-With nations it actually becomes worse, as soon as politics and economy
-come together there is no fair play anymore. A developing nation may get
-an advantage in a specific area, but the industry nations will do
-everything do prevent that they will get too powerful. The developing
-nations are mostly useful to exploit their resources be foreign
-companies, which expect from their goverments to "protect" their
-investments. 
-Don't make the mistake to just look at hitech industry, this is still a
-growing market (only the gold rush is over). Other more traditional
-markets are already divided and tightly protected.
 
-> Hans Reiser's team of Russian wizards is simply a couple of years ahead of
-> everyone else moving all real software development to the czech republic
-> and india, the phone support to the philipines and the hardware to 
-> taiwanese and chinese bulk build to order.
+-- v --
 
-I agree, although the "couple of years" are debatable in these fast
-changing times. :)
-Another thing to consider is that software development currently is
-still somewhere in the middle ages. Everything is still copied by hand
-and the Gutenberg press of software development hasn't been invented
-yet (there are some interesting developments, but I don't think we're
-there yet). Software development is still a very expensive process, good
-software design requires developer, which must be very capable in
-several areas and at the same time still has to do lots of boring
-repeating work. Most development which is moved to india is also the type
-of development which is most likely to be automated by better tools. So if
-india just relies on this it will be hit very badly.
-
-bye, Roman
-
+v@iki.fi

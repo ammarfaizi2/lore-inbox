@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266969AbSKLVew>; Tue, 12 Nov 2002 16:34:52 -0500
+	id <S266974AbSKLVnu>; Tue, 12 Nov 2002 16:43:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266962AbSKLVew>; Tue, 12 Nov 2002 16:34:52 -0500
-Received: from holomorphy.com ([66.224.33.161]:63164 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S266969AbSKLVew>;
-	Tue, 12 Nov 2002 16:34:52 -0500
-Date: Tue, 12 Nov 2002 13:39:06 -0800
+	id <S266975AbSKLVnt>; Tue, 12 Nov 2002 16:43:49 -0500
+Received: from holomorphy.com ([66.224.33.161]:957 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S266974AbSKLVns>;
+	Tue, 12 Nov 2002 16:43:48 -0500
+Date: Tue, 12 Nov 2002 13:48:04 -0800
 From: William Lee Irwin III <wli@holomorphy.com>
 To: Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
        Martin.Bligh@us.ibm.com, hohnbaum@us.ibm.com
 Subject: Re: [0/4] NUMA-Q: remove PCI bus number mangling
-Message-ID: <20021112213906.GW23425@holomorphy.com>
+Message-ID: <20021112214804.GX23425@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
 	Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
 	Martin.Bligh@us.ibm.com, hohnbaum@us.ibm.com
@@ -25,14 +25,6 @@ Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 12, 2002 at 01:29:28PM -0800, Matthew Dobson wrote:
->> I know I just sent this to you, but I've been meaning to repost this 
->> to lkml anyway.  Here's something I wanted to add to the generic topology 
->> infrastructure for a while.  pcibus_to_node()
->> Have a look at this patch, and see if it might be useful to you, ok?
->> Cheers!
->> -Matt
-
 On Tue, Nov 12, 2002 at 01:35:04PM -0800, William Lee Irwin III wrote:
 > I'll remove the bus number mangling from it so it uses ->sysdata
 > instead, make it an additional stage of the patch series and convert 
@@ -41,8 +33,39 @@ On Tue, Nov 12, 2002 at 01:35:04PM -0800, William Lee Irwin III wrote:
 > method of dealing with this is stuffing arch-private information in
 > ->sysdata and dispatching on that within PCI config access routines.
 
-Also, every PCI bridge in my box has a bus number of 3 so the lookup
-table will produce wrong answers every time.
+[7/4] NUMA-Q: introduce __pcibus_to_node()
+
+This introduces a generic __pcibus_to_node() method in asm/topology.h
+and provides a NUMA-Q -specific implementation.
+
+ asm-generic/topology.h |    3 +++
+ asm-i386/topology.h    |    4 ++++
+ 2 files changed, 7 insertions(+)
 
 
-Bill
+diff -urpN pci-2.5.47-6/include/asm-generic/topology.h pci-2.5.47-7/include/asm-generic/topology.h
+--- pci-2.5.47-6/include/asm-generic/topology.h	2002-11-10 19:28:04.000000000 -0800
++++ pci-2.5.47-7/include/asm-generic/topology.h	2002-11-12 13:03:40.000000000 -0800
+@@ -47,5 +47,8 @@
+ #ifndef __node_to_memblk
+ #define __node_to_memblk(node)		(0)
+ #endif
++#ifndef __pcibus_to_node
++#define __pcibus_to_node(bus)          (0)
++#endif
+ 
+ #endif /* _ASM_GENERIC_TOPOLOGY_H */
+diff -urpN pci-2.5.47-6/include/asm-i386/topology.h pci-2.5.47-7/include/asm-i386/topology.h
+--- pci-2.5.47-6/include/asm-i386/topology.h	2002-11-10 19:28:05.000000000 -0800
++++ pci-2.5.47-7/include/asm-i386/topology.h	2002-11-12 13:04:43.000000000 -0800
+@@ -83,6 +83,10 @@ static inline unsigned long __node_to_cp
+ /* Returns the number of the first MemBlk on Node 'node' */
+ #define __node_to_memblk(node) (node)
+ 
++/* Returns the number of the node containing PCI bus 'bus' */
++#define __pcibus_to_node(bus) ((int)((bus)->sysdata))
++
++
+ #else /* !CONFIG_X86_NUMAQ */
+ /*
+  * Other i386 platforms should define their own version of the 

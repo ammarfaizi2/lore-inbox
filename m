@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267156AbSLDW4G>; Wed, 4 Dec 2002 17:56:06 -0500
+	id <S267142AbSLDXCL>; Wed, 4 Dec 2002 18:02:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267157AbSLDW4F>; Wed, 4 Dec 2002 17:56:05 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48644 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267156AbSLDW4F>;
-	Wed, 4 Dec 2002 17:56:05 -0500
-Message-ID: <3DEE89A9.2000201@pobox.com>
-Date: Wed, 04 Dec 2002 18:03:05 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	id <S267139AbSLDXCL>; Wed, 4 Dec 2002 18:02:11 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:12716 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267142AbSLDXCL>; Wed, 4 Dec 2002 18:02:11 -0500
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.50: unused code in link_path_walk()
+Date: Thu, 05 Dec 2002 00:09:25 +0100
+Message-ID: <87y975xty2.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Military
+ Intelligence, i386-debian-linux)
 MIME-Version: 1.0
-To: "White, Charles" <Charles.White@hp.com>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.20 cciss  patch 01 - adds support for the SA641,
- SA642 and SA6400 controllers.
-References: <A2C35BB97A9A384CA2816D24522A53BB03991726@cceexc18.americas.cpqcorp.net>
-In-Reply-To: <A2C35BB97A9A384CA2816D24522A53BB03991726@cceexc18.americas.cpqcorp.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-White, Charles wrote:
-> linux-2.4.20.cciss_p01/drivers/block/cciss.c
-> --- linux-2.4.20.orig/drivers/block/cciss.c	Thu Nov 28 18:53:12 2002
-> +++ linux-2.4.20.cciss_p01/drivers/block/cciss.c	Wed Dec  4
-> 15:09:39 2002
-> @@ -56,6 +56,11 @@
->  #include "cciss.h"
->  #include <linux/cciss_ioctl.h>
->  
-> +/* remove when PCI_DEVICE_ID_COMPAQ_CCISSC is in pci_ids.h */
-> +#ifndef PCI_DEVICE_ID_COMPAQ_CCISSC
-> +#define PCI_DEVICE_ID_COMPAQ_CCISSC 0x46
-> +#endif
-> +
+This patch removes one unnecessary line of code.
 
+Regards, Olaf.
 
-the patch looks simple and obvious, though I have one objection:  as the 
-comment indicates, this patch hunk should instead be in 
-include/linux/pci_ids.h.  There is no rule against modifying pci_ids.h 
--- please do so, and not crap up drivers with tons of these ifdefs...
-
+diff -urN a/fs/namei.c b/fs/namei.c
+--- a/fs/namei.c	Thu Nov 28 20:44:46 2002
++++ b/fs/namei.c	Wed Dec  4 23:04:54 2002
+@@ -700,7 +700,6 @@
+ 				if (this.name[1] != '.')
+ 					break;
+ 				follow_dotdot(&nd->mnt, &nd->dentry);
+-				inode = nd->dentry->d_inode;
+ 				/* fallthrough */
+ 			case 1:
+ 				goto return_base;

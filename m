@@ -1,18 +1,21 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317002AbSFFWHG>; Thu, 6 Jun 2002 18:07:06 -0400
+	id <S317204AbSFFWId>; Thu, 6 Jun 2002 18:08:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317193AbSFFWHF>; Thu, 6 Jun 2002 18:07:05 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:58016 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317002AbSFFWHE>;
-	Thu, 6 Jun 2002 18:07:04 -0400
-Date: Thu, 6 Jun 2002 23:48:40 +0200
+	id <S317205AbSFFWIc>; Thu, 6 Jun 2002 18:08:32 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:59552 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S317204AbSFFWI3>;
+	Thu, 6 Jun 2002 18:08:29 -0400
+Date: Thu, 6 Jun 2002 23:12:52 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Robert Love <rml@tech9.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove suser()
-Message-ID: <20020606214840.GA1190@elf.ucw.cz>
-In-Reply-To: <1023225311.3904.142.camel@sinai>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-mips@oss.sgi.com, linux-mips-kernel@lists.sourceforge.net
+Subject: tx3912 Re: [PATCH] fbdev updates.
+Message-ID: <20020606211252.GA1112@elf.ucw.cz>
+In-Reply-To: <Pine.LNX.4.44.0206041248330.1200-100000@www.transvirtual.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,42 +26,12 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> Attached patch replaces the lone remaining suser() call with capable()
-> and then removes suser() itself in a triumphant celebration of the glory
-> of capable().  Or something. ;-)
-> 
-> Small cleanup of capable() and some comments, too.
-> 
-> Patch is against 2.5.20, please apply.
-> 
-> 	Robert Love
-> 
-> diff -urN linux-2.5.20/drivers/net/wan/pc300_drv.c linux/drivers/net/wan/pc300_drv.c
-> --- linux-2.5.20/drivers/net/wan/pc300_drv.c	Sun Jun  2 18:44:53 2002
-> +++ linux/drivers/net/wan/pc300_drv.c	Tue Jun  4 13:56:54 2002
-> @@ -2564,7 +2564,7 @@
->  				return -EINVAL;
->  			return 0;
->  		case SIOCSPC300CONF:
-> -			if (!suser())
-> +			if (!capable(CAP_NET_ADMIN))
->  				return -EPERM;
->  			if (!arg || 
->  				copy_from_user(&conf_aux.conf, arg, sizeof(pc300chconf_t)))
-> diff -urN linux-2.5.20/include/linux/compatmac.h linux/include/linux/compatmac.h
-> --- linux-2.5.20/include/linux/compatmac.h	Sun Jun  2 18:44:41 2002
-> +++ linux/include/linux/compatmac.h	Tue Jun  4 13:57:33 2002
-> @@ -102,8 +102,6 @@
->  
->  #define my_iounmap(x, b)             (((long)x<0x100000)?0:vfree ((void*)x))
->  
-> -#define capable(x)                   suser()
-> -
->  #define tty_flip_buffer_push(tty)    queue_task(&tty->flip.tqueue, &tq_timer)
+>    This patch includes the latest in the fbdev BK repository. I have
+> modified several fbdev drivers (maxinefb, tx3912fb, pmag drivers) to the
+> new api. Please test these changes out before I submit them to linus.
+> Thank you. It is against the latest BK tree and 2.5.20.
 
-This is not right I believe. You want to keep compatibility for older
-kernels.
-
+Does the code even boot on any machine having tx3912fb?
 									Pavel
 -- 
 (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.

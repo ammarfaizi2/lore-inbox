@@ -1,61 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbUKBVJZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbUKBVIp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbUKBVJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 16:09:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbUKBVJE
+	id S261383AbUKBVIp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 16:08:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbUKBVIo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 16:09:04 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:65164 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261409AbUKBVIo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 2 Nov 2004 16:08:44 -0500
-Date: Tue, 2 Nov 2004 22:09:25 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       LKML <linux-kernel@vger.kernel.org>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.6.8
-Message-ID: <20041102210925.GA7029@elte.hu>
-References: <OF8F6308EA.F9FADA81-ON86256F40.0071B981-86256F40.0071B9A6@raytheon.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF8F6308EA.F9FADA81-ON86256F40.0071B981-86256F40.0071B9A6@raytheon.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Received: from mail.dif.dk ([193.138.115.101]:1227 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261383AbUKBVII (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 16:08:08 -0500
+Date: Tue, 2 Nov 2004 22:16:45 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: question on common error-handling idiom
+In-Reply-To: <4187E920.1070302@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.61.0411022208390.3285@dragon.hygekrogen.localhost>
+References: <4187E920.1070302@nortelnetworks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2 Nov 2004, Chris Friesen wrote:
 
-* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
-
-> >The only other way for the NMI watchdog to
-> >trigger is if for whatever reason the local APIC timer interrupts are
-> >not getting through and the NMI ticks (which come via a different
-> >interrupt pin) get through.
 > 
-> The other symptoms I was seeing appeared to be timer related
->  - never returned from "sleep 1s" in the shell script
->  - "ps -fe" worked fine, but "top" did not
-> You may be on to something here.
+> There's something I've been wondering about for a while.  There is a lot of
+> code in linux that looks something like this:
+> 
+> 
+> err = -ERRORCODE
+> if (error condition)
+> 	goto out;
+> 
+> 
+> While nice to read, it would seem that it might be more efficient to do the
+> following:
+> 
+> if (error condition) {
+> 	err = -ERRORCODE;
+> 	goto out;
+> }
+> 
+> 
+> Is there any particular reason why the former is preferred?  Is the compiler
+> smart enough to optimize away the additional write in the non-error path?
+> 
+There are some places that do
 
-was this already in the default bootup, or only after the crash
-happened? Does this also happen if you chrt ksoftirqd to FIFO prio 1? 
-Does the 'LOC' count increase for both cpus in /proc/interrupts?
+err = -SOMEERROR;
+if (some_error)
+	goto out;
+if (some_other_error)
+	goto out;
+if (another_error)
+	goto out;
 
-	Ingo
+In that case, where there are several different conditions that need 
+testing, but they all need to return the same error, setting the error 
+just once seems the best approach.
+
+but for the places that do
+
+err = -SOMEERROR;
+if (condition)
+	goto out;
+
+err = -OTHERERROR;
+if (condition)
+	goto out;
+
+I would tend to agree with you that moving the setting of the error inside 
+the if() would make sense.
+
+Let's see what other people think :)
+
+
+--
+Jesper Juhl
+

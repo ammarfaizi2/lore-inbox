@@ -1,36 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbUKIXVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUKIXYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261765AbUKIXVu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 18:21:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUKIXVu
+	id S261763AbUKIXYg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 18:24:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUKIXYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 18:21:50 -0500
-Received: from main.gmane.org ([80.91.229.2]:45707 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261765AbUKIXVU (ORCPT
+	Tue, 9 Nov 2004 18:24:35 -0500
+Received: from waste.org ([209.173.204.2]:28129 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261763AbUKIXYU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 18:21:20 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Luke Maurer <maurerl@carleton.edu>
-Subject: Re: 2.6.10-mm1, =?utf-8?b?Y2xhc3Nfc2ltcGxlXyo=?= and GPL addition
-Date: Tue, 9 Nov 2004 23:12:52 +0000 (UTC)
-Message-ID: <loom.20041110T001059-92@post.gmane.org>
-References: <20041027135052.GE32199@gamma.logic.tuwien.ac.at> <200410272012.44361.dtor_core@ameritech.net> <20041029205505.GB30638@kroah.com> <200410301644.33997.cova@ferrara.linux.it> <20041101223153.GB17341@kroah.com>
+	Tue, 9 Nov 2004 18:24:20 -0500
+Date: Tue, 9 Nov 2004 15:24:02 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Grzegorz Kulewski <kangur@polcom.net>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] change Kconfig entry for RAMFS
+Message-ID: <20041109232402.GA8040@waste.org>
+References: <Pine.LNX.4.58.0411041544220.2187@ppc970.osdl.org> <20041105014146.GA7397@pclin040.win.tue.nl> <Pine.LNX.4.58.0411050739190.2187@ppc970.osdl.org> <20041105195045.GA16766@taniwha.stupidest.org> <Pine.LNX.4.58.0411051203470.2223@ppc970.osdl.org> <Pine.LNX.4.60.0411052242090.3255@alpha.polcom.net> <Pine.LNX.4.58.0411051406200.2223@ppc970.osdl.org> <Pine.LNX.4.60.0411052319160.3255@alpha.polcom.net> <Pine.LNX.4.58.0411051506590.2223@ppc970.osdl.org> <Pine.LNX.4.60.0411060027560.3255@alpha.polcom.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 137.22.1.134 (Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en) AppleWebKit/125.5.5 (KHTML, like Gecko) Safari/125.11)
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.60.0411060027560.3255@alpha.polcom.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have been recently advised that I should not change these symbols, and
-> so I will not.
+On Sat, Nov 06, 2004 at 12:44:14AM +0100, Grzegorz Kulewski wrote:
+> >So at the very least you'd need to make the Kconfig understand the
+> >dependency on ramfs.
+> 
+> Should I add dependency to tmpfs on ramfs when building for embedded? Or 
+> should I introduce new config option to stop registering ramfs as a 
+> mountable filesystem?
 
-How come the change still hasn't been reversed as of 2.6.10-rc1-mm3?
+Root is ramfs at early boot time, making it optional is tricky.
 
-Luke Maurer
-maurerl@carleton.edu
-
+-- 
+Mathematics is the supreme nostalgia of our time.

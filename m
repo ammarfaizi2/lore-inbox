@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270398AbTGRUyu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 16:54:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270386AbTGRUyn
+	id S271787AbTGRU54 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 16:57:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271846AbTGRU5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 16:54:43 -0400
-Received: from fw.osdl.org ([65.172.181.6]:38280 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271851AbTGRUxb (ORCPT
+	Fri, 18 Jul 2003 16:57:50 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:19607 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S271787AbTGRU52 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 16:53:31 -0400
-Date: Fri, 18 Jul 2003 14:00:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ricardo Galli <gallir@uib.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.0-test1 Ext3 Ooops. Reboot needed.
-Message-Id: <20030718140019.4f6667bd.akpm@osdl.org>
-In-Reply-To: <200307181228.40142.gallir@uib.es>
-References: <200307181228.40142.gallir@uib.es>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 18 Jul 2003 16:57:28 -0400
+Message-ID: <3F18627D.2040604@attbi.com>
+Date: Fri, 18 Jul 2003 16:11:25 -0500
+From: Tom Zanussi <trz@attbi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: Tom Zanussi <zanussi@us.ibm.com>, linux-kernel@vger.kernel.org,
+       karim@opersys.com, bob@watson.ibm.com
+Subject: Re: [PATCH] relayfs
+References: <16148.6807.578262.720332@gargle.gargle.HOWL> <20030716145508.1742d722.shemminger@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ricardo Galli <gallir@uib.es> wrote:
->
->  Unable to handle kernel paging request at virtual address e9000018
-> EIP is at find_inode_fast+0x20/0x70
-> Call Trace:
->  [<c0168e42>] iget_locked+0x52/0xc0
->  [<c018a54b>] ext3_lookup+0x6b/0xd0
->  [<c015cd92>] real_lookup+0xd2/0x100
+Stephen Hemminger wrote:
+> Shouldn't relayfs be in the "Pseudo filesystems" part of Kconfig.
+> Also don't need the .ko suffix.
+> 
 
-What is "famd"?  File access monitor daemon?  From where did you obtain it?
+Yeah, I think that makes more sense.  And thanks for your const
+filename patch too.
+
+Tom
+
 

@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132359AbREBIax>; Wed, 2 May 2001 04:30:53 -0400
+	id <S132413AbREBIvy>; Wed, 2 May 2001 04:51:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132372AbREBIap>; Wed, 2 May 2001 04:30:45 -0400
-Received: from intellitel.com ([195.197.177.165]:43780 "EHLO intellitel.com")
-	by vger.kernel.org with ESMTP id <S132359AbREBIac>;
-	Wed, 2 May 2001 04:30:32 -0400
-Posted-Date: Wed, 2 May 2001 11:30:30 +0300
-Date: Wed, 2 May 2001 11:30:30 +0300
-From: Tomi Lapinlampi <lapinlam@intellitel.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PROBLEM] socket buffering problem in 2.2.19
-Message-ID: <20010502113027.T29301@intellitel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S132416AbREBIvp>; Wed, 2 May 2001 04:51:45 -0400
+Received: from digger1.defence.gov.au ([203.5.217.4]:13222 "EHLO
+	digger1.defence.gov.au") by vger.kernel.org with ESMTP
+	id <S132413AbREBIvc>; Wed, 2 May 2001 04:51:32 -0400
+Message-ID: <2149A0BABC77D311AF890090274E00B2024C9F14@salex005.dsto.defence.gov.au>
+From: "Shahin, Mofeed" <Mofeed.Shahin@dsto.defence.gov.au>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Ati Rage 128 problems.
+Date: Wed, 2 May 2001 18:15:45 +0930 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+G'day all,
 
-Hi,
+I have a laptop (Dell Inspiron 8000) which has an Ati M4 Mobility.
+The problem happens whan I try to do 3D stuff on it.
+The example I am using is quake2 pointing at the Mesa GL drivers. (Redhat
+7.1)
+I get about 5-15 seconds into the demo when the whole machine locks up. It
+sometimes comes back and says something along the lines of ~"R128 timed
+out".
+Some times I even get a message in /var/log/messages along the lines of 
+"error in r128_flush_pixmap_cache" or something like that.
+I don't have the laptop in front of me at the moment, and that is why my
+recollection of the error messages is not precise.
 
-There seems to be some kind of a buffering problem in the 2.2.19
-kernel. The following sequence of system calls on a nonblocking TCP 
-socket (on the client side) generates a broken pipe:
+I am wandering if this is a known bug, or new one, or if I am to blame.
 
-    write(2) 	    HTTP REQUEST	read(2)
-2. HTTP client  --------------------> HTTP Server
+BTW : I am running Redhat 7.1 with 2.4.2-2.
 
-                    HTTP RESPONSE       write(2)
-3. HTTP client <--------------------- HTTP Server
-
-                                        shutdown(2), close(2)
-4. HTTP client <--------------------- HTTP Server
-
-    select(2) returns,
-    read(2) => broken pipe, HTTP response is lost
-5. HTTP client <----X
-
-The client in this situation is a bit sluggish and sometimes does not have
-time to read the data before the server has called shutdown and close
-(and the client receives a TCP FIN).
-
-The Linux 2.4.3 kernel and Solaris 7 & 8 seem to perform the buffering of
-data ok on the client side.
-
-Any ideas or suggestions ( other than upgrade to 2.4 :-) ) ?
-
-Regards, Tomi
-
+Mof.

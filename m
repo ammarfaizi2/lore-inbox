@@ -1,100 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbVBKAXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVBKAlF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261963AbVBKAXr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 19:23:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbVBKAXr
+	id S261977AbVBKAlF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 19:41:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVBKAlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 19:23:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42657 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261963AbVBKAWn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 19:22:43 -0500
-Date: Thu, 10 Feb 2005 18:33:39 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Martins Krikis <mkrikis@yahoo.com>, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: [ANNOUNCE] "iswraid" (ICHxR ataraid sub-driver) for 2.4.29
-Message-ID: <20050210203339.GB20828@logos.cnet>
-References: <420631BF.7060407@pobox.com> <420582C6.7060407@pobox.com> <58cb370e05020607197db9ecf4@mail.gmail.com> <420BB77B.3080508@tmr.com> <58cb370e05021012051518e912@mail.gmail.com> <58cb370e0502101404e4ddefa@mail.gmail.com> <20050210183934.GF20153@logos.cnet> <58cb370e050210152820d6fc96@mail.gmail.com>
+	Thu, 10 Feb 2005 19:41:05 -0500
+Received: from lyle.provo.novell.com ([137.65.81.174]:13858 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261977AbVBKAkx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 19:40:53 -0500
+Date: Thu, 10 Feb 2005 16:40:33 -0800
+From: Greg KH <gregkh@suse.de>
+To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] hotplug-ng 001 release
+Message-ID: <20050211004033.GA26624@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <58cb370e050210152820d6fc96@mail.gmail.com>
-User-Agent: Mutt/1.5.5.1i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'd like to announce, yet-another-hotplug based userspace project:
+linux-ng.  This collection of code replaces the existing linux-hotplug
+package with very tiny, compiled executable programs, instead of the
+existing bash scripts.
 
-Hi Bart,
+It currently provides the following:
+	- a /sbin/hotplug multiplexer.  Works identical to the existing
+	  bash /sbin/hotplug.
+	- autoload programs for usb, scsi, and pci modules.  These
+	  programs determine what module needs to be loaded when the
+	  kernel emits a hotplug event for these types of devices.  This
+	  works just like the existing linux-hotplug scripts, with a few
+	  exceptions.
 
-On Fri, Feb 11, 2005 at 12:28:04AM +0100, Bartlomiej Zolnierkiewicz wrote:
+But why redo this all in .c code?  What's wrong with shell scripts?
+Nothing is wrong with shell scripts, unless you don't want to have an
+interpreter in your initramfs/initrd and you want to provide
+/sbin/hotplug and autoload module functionality.  Or if you have a huge
+box that spawns a zillion hotplug events all at once, and you need to be
+able to handle all of that with the minimum amount of processing time
+and memory.
 
-> > > [ This mail is just to explain why I don't like iswraid,
-> > >   I don't care if it gets merged that much... ]
-> > >
-> > > another BTW: this driver adds another incompatibility between
-> > > 2.4.x and 2.6.x.
-> > 
-> > What do you mean "adds another incompatibility" ?
-> > 
-> > That users will have to switch to dmraid when upgrading to v2.6.x ?
-> 
-> It is worse than that - AFAIR iswraid provides some features which
-> are NOT available in 2.6.x kernels. 
+So, how small are these programs?  Take a look:
+   text    data     bss     dec     hex filename
+   4669      32     124    4825    12d9 hotplug
+   5077       8     348    5433    1539 module_pci
+   4925       8     412    5345    14e1 module_scsi
+   5349       8     348    5705    1649 module_usb
 
-Oh really?
+Those are all static binaries, linked with klibc (which is included in
+the hotplug-ng package, just like udev.)
 
-> > > Also most 2.4.x users will want (or have to) migrate
-> > > to 2.6.x one day and they will have to switch to using device mapper
-> > > and dmraid anyway.  From my POV merging/supporting iswraid
-> > > in any way is a lost of time for EVERYBODY in the long-term.
-> > > Martins, I appreciate all hard work that went into iswraid driver but
-> > > please face the simple fact, this driver was already obsoleted in
-> > > the moment it was created (from Linux development process POV).
-> > >
-> > > I previously (October?) asked about merging device-mapper
-> > > instead as it provides easier way to migrate to 2.6.x (not only for
-> > > Intel "RAID component" users but for ALL "RAID components" users)
-> > > as they would be able to use the same method for accessing their
-> > > data in both kernels.  I was said that it is too late for such changes
-> > > (I consider device-mapper a new driver, changes to existing code
-> > > are REALLY minimal AFAIR) and that 2.4.x should stick to ataraid while
-> > > 2.6.x to device-mapper which was just silly argument IMHO (why we
-> > > don't stick to IDE drivers for SATA in 2.4.x?).
-> > 
-> > SATA is not the same case as sw-RAID in my POV Bart, it allows many
-> > users to be _able_ use SATA controllers/drives.
-> 
-> Fully agreed but what is your point?  Mine was that we can different
-> subsystems/drivers for the same device/functionality - like we have
-> both IDE+siimage and libata+sata_sil drivers in 2.4.x.
+This compares to the following bash scripts:
+-rwxr-xr-x  1 root root  4412 Feb 10 15:28 /sbin/hotplug
+-rw-r--r--  1 root root   702 Sep 24 08:04 /etc/hotplug/blacklist
+-rw-r--r--  1 root root  5293 Sep 24 08:04 /etc/hotplug/hotplug.functions
+-rwxr-xr-x  1 root root  3739 Sep 24 08:04 /etc/hotplug/pci.agent
+-rwxr-xr-x  1 root root  1459 Sep 24 08:04 /etc/hotplug/scsi.agent
+-rwxr-xr-x  1 root root 13466 Sep 24 08:04 /etc/hotplug/usb.agent
+-rw-r--r--  1 root root 39306 Sep 24 08:04 /etc/hotplug/usb.distmap
+-rw-r--r--  1 root root  4364 Sep 24 08:04 /etc/hotplug/usb.handmap
+-rw-r--r--  1 root root   189 Sep 24 08:04 /etc/hotplug/usb.usermap
 
-My point is that the SATA subsystem is a very different case from 
-device-mapper.
+All of which are loaded into memory for each hotplug event (for specific
+hotplug events, only that bus type of file is loaded.)
 
-The SATA subsystem provides _hardware_ knowledge, it provides the ability 
-for certain very popular devices to work, and improved functionality
-for devices which could be driven by the IDE subsystem.
+But what about speed?  With a completely unscientific measurement on my
+old, slow laptop, it takes about 2 seconds from the time I plug a usb
+device into the machine, for the proper module to be loaded.  With the
+hotplug-ng program, it takes less than a second.
 
-Now the device mapper can be thought of as a high-level abstraction in which 
-LVM, RAID, and other functionality can be built on top of. We already have 
-those in v2.4. 
+And for those of you who might remember the old dietHotplug program that
+also did the same thing in a tiny amount of space, this project
+obsoletes that one.  dietHotplug had to be rebuilt for every kernel that
+was used on the system, hotplug-ng uses the ability for modprobe to
+determine the module that needs to be loaded based on the module
+aliases[1].
 
-They are quite different.
+The code can be found at:
+	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-ng-001.tar.gz
+for those who wish to poke around in it.
 
-> Maybe Martins was forced to develop for ataraid in 2.4.x
-> because lack of device-mapper.  In such case the current
-> situations is our fault and we can learn something from it.
+I still have a few more programs to write to get it up to the same
+functionality as the existing hotplug scripts (firmware, ieee1392, etc.)
+but those will be done soon.  I'd like to get people's comments on the
+idea, and welcome suggestions and even patches :)
 
-True. 
+hotplug-ng development is done in a BitKeeper repository located at:
+	bk://linuxusb.bkbits.net/hotplug-ng
 
-> > > I finally gave up because I didn't want to waste more my time on this and
-> > > didn't want to go into
-> > > politics etc... but damn iswraid wasn't merged so I feel stupid now. :-)
-> > 
-> > Good to hear your opinion.  
+If anyone ever wants a tarball of the current bk tree, just email me.
 
+thanks,
+
+greg k-h
+
+[1] modprobe as it currently works stops loading modules when it finds
+an alias that matches.  This does not work for drivers that claim to
+support "all devices" and then later on fail on devices that they really
+don't support.  For that, all matching drivers need to be loaded for the
+system to work properly.  The linux-hotplug scripts handle this
+correctly, so if you rely on this functionality, please stick with that
+package for now.  I'll be modifying modprobe to add this feature in the
+near future.
 

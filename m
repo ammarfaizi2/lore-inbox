@@ -1,50 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266257AbTABRsn>; Thu, 2 Jan 2003 12:48:43 -0500
+	id <S266259AbTABRtZ>; Thu, 2 Jan 2003 12:49:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266259AbTABRsn>; Thu, 2 Jan 2003 12:48:43 -0500
-Received: from mailhost.iworld.com ([63.95.15.3]:41873 "EHLO
-	mailhost.iworld.com") by vger.kernel.org with ESMTP
-	id <S266257AbTABRsm>; Thu, 2 Jan 2003 12:48:42 -0500
-Message-ID: <3E147CAD.5050901@jupitermedia.com>
-Date: Thu, 02 Jan 2003 12:53:49 -0500
-From: Byron Albert <balbert@jupitermedia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: cciss driver
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266270AbTABRtY>; Thu, 2 Jan 2003 12:49:24 -0500
+Received: from pusa.informat.uv.es ([147.156.10.98]:7620 "EHLO
+	pusa.informat.uv.es") by vger.kernel.org with ESMTP
+	id <S266259AbTABRtU>; Thu, 2 Jan 2003 12:49:20 -0500
+Date: Thu, 2 Jan 2003 18:57:40 +0100
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_X86_TSC_DISABLE question
+Message-ID: <20030102175740.GA13389@pusa.informat.uv.es>
+References: <20030102144409.GB8309@pusa.informat.uv.es> <124500000.1041529180@titus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <124500000.1041529180@titus>
+User-Agent: Mutt/1.3.28i
+From: uaca@alumni.uv.es
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Thu, Jan 02, 2003 at 09:39:40AM -0800, Martin J. Bligh wrote:
+> Depends on your box. Most standard SMP boxes are all clocked off the
+> same clock, so it's not an issue.
 
-  I have noticed that there have been alot of changes to the cciss 
-driver in the last few revs of the 2.4 kernel a diff of 2.4.18 and 
-2.4.20 show  this (2500 lines in a patch). But the driver version has 
-not changed.  I am trying to figure out how the version in the kernel 
-relates to the version on hp's web site.  On there website they have a 
-2.4.34 version that has patches witch will patch the kernel that comes 
-with redhat 8.0 witch doesn't help me much because that kernel is an rc 
-kernel with about 100 other patches 3 of witch touch this driver.
+Hi Martin
 
- Can any one be of some help. I am going to be deploying alot of 
-machines with this card in the next few months and would like some of 
-the fetures the newer driver gets me.
+Thanks for your reply
 
-Byron
+Is there a way to verify this? or must I contact the motherboard maker and
+ask for it? how I should ask it?
+
+
+Ulisses
+
+> 
+> --On Thursday, January 02, 2003 15:44:09 +0100 uaca@alumni.uv.es wrote:
+> 
+> >Hi all
+> >
+> >I would like to know if in wich degree the issue of unsynced TSCs also
+> >applies  on x86 SMP.
+> >
+> >Thanks
+> >
+> >	Ulisses
+> >
+> >                Debian GNU/Linux: a dream come true
+> >-------------------------------------------------------------------------
+> >---- "Computers are useless. They can only give answers."
+> >Pablo Picasso
+> >
+> >--->	Visita http://www.valux.org/ para saber acerca de la	<---
+> >--->	Asociación Valenciana de Usuarios de Linux		<---
+> >
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> >
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
---------------------------------------------------------------------------------
-Byron Albert 		balbert@jupitermedia.com
-System Engineer		Jupitermedia Corp.
-1-866-385-5247
+                Debian GNU/Linux: a dream come true
+-----------------------------------------------------------------------------
+"Computers are useless. They can only give answers."            Pablo Picasso
 
-	"Engineering does not require science. Science helps a lot but
-	people built perfectly good brick walls long before they knew 
-	why cement works."	-Alan Cox 	
-	
-
-
+--->	Visita http://www.valux.org/ para saber acerca de la	<---
+--->	Asociación Valenciana de Usuarios de Linux		<---
+ 

@@ -1,44 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262271AbUJ1Sit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262896AbUJ1Sic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262271AbUJ1Sit (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 14:38:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbUJ1Sil
+	id S262896AbUJ1Sic (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 14:38:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262918AbUJ1SiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 14:38:41 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:1956 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263033AbUJ1Sg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 14:36:58 -0400
-Subject: Re: My thoughts on the "new development model"
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       "michael@optusnet.com.au" <michael@optusnet.com.au>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>,
-       "'Bill Davidsen'" <davidsen@tmr.com>, Massimo Cetra <mcetra@navynet.it>,
-       Ed Tomlinson <edt@aei.ca>,
-       "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
-       John Richard Moser <nigelenki@comcast.net>
-In-Reply-To: <20041028150329.GK12934@holomorphy.com>
-References: <200410280907_MC3-1-8D5A-FF57@compuserve.com>
-	 <20041028150329.GK12934@holomorphy.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1098984769.9551.10.camel@localhost.localdomain>
+	Thu, 28 Oct 2004 14:38:23 -0400
+Received: from mail.murom.net ([213.177.124.17]:28849 "EHLO mail.murom.net")
+	by vger.kernel.org with ESMTP id S262920AbUJ1SgE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 14:36:04 -0400
+Date: Thu, 28 Oct 2004 22:35:51 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Jason Baron <jbaron@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] 2.4.28-pre3 tty/ldisc fixes
+Message-ID: <20041028183551.GC3253@sirius.home>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 28 Oct 2004 18:33:04 +0100
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ctP54qlpMx3WjD+/"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0409241340090.24358-100000@dhcp83-105.boston.redhat.com>
+X-yoursite-MailScanner-Information: Please contact the ISP for more information
+X-yoursite-MailScanner: Found to be clean
+X-yoursite-MailScanner-SpamCheck: not spam, SpamAssassin (score=-0.048,
+	required 6, autolearn=not spam, AWL -0.05, BAYES_44 -0.00)
+X-MailScanner-From: vsu@altlinux.ru
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-10-28 at 16:03, William Lee Irwin III wrote:
-> 99.99% of users use one arch, i386.
 
-x86_64 has had more of an impact than that.
+--ctP54qlpMx3WjD+/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 99.99% of users use one disk driver, IDE.
+On Fri, 24 Sep 2004 13:49:33 -0400, Jason Baron wrote:
 
-Floppy, usb-storage.
+> Here is a first attempt at bringing Alan's 2.6 tty/ldisc fixes to 2.4. =
+=20
+> I've done some testing with it, but was hoping for broader
+> testing/feedback while all the issues get ironed out. The most notable
+> change is the addition of a wakeup at the end of tty_set_ldisc, for
+> threads waiting for the TTY_LDISC bit to be set.
 
-There is a very sharp peak if you look at actual statistical data.
+> +
+> +	/* Defer ldisc switch */
+> +	/* tty_deferred_ldisc_switch(N_TTY);
+> +
+>  	read_lock(&tasklist_lock);
+>   	for_each_task(p) {
+>  		if ((tty->session > 0) && (p->session =3D=3D tty->session) &&
 
+Here the comment is unclosed; is this intentional?  Simply closing it
+at the same line gives a kernel which cannot complete the system boot
+process: it prints "init_dev but no ldisc", and then init hangs in
+uninterruptible sleep with this backtrace:
+
+Adhoc c0188ab7 <tty_ldisc_ref_wait+47/80>
+Adhoc c0199c30 <con_write+0/30>
+Adhoc c0189648 <tty_write+118/270>
+Adhoc c0139728 <chrdev_open+38/50>
+Adhoc c01386e3 <dentry_open+e3/190>
+Adhoc c0138f16 <sys_write+96/f0>
+Adhoc c01385eb <filp_open+4b/60>
+Adhoc c014246f <getname+5f/a0>
+Adhoc c0138937 <sys_open+57/80>
+
+--ctP54qlpMx3WjD+/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBgTwHW82GfkQfsqIRAtYJAJ9Rt09+vuxwJ58NxyYmoIcB7SZn/gCdFU0B
+4ezpj7oyEB3h/hmFDHDLoWc=
+=d1fJ
+-----END PGP SIGNATURE-----
+
+--ctP54qlpMx3WjD+/--

@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130793AbRC0IlP>; Tue, 27 Mar 2001 03:41:15 -0500
+	id <S130834AbRC0Iof>; Tue, 27 Mar 2001 03:44:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130902AbRC0IlF>; Tue, 27 Mar 2001 03:41:05 -0500
-Received: from mail.n-online.net ([195.30.220.100]:21776 "HELO
-	mohawk.n-online.net") by vger.kernel.org with SMTP
-	id <S130793AbRC0Ik6>; Tue, 27 Mar 2001 03:40:58 -0500
-Date: Tue, 27 Mar 2001 10:40:10 +0200
-From: Thomas Foerster <puckwork@madz.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: URGENT : System hands on "Freeing unused kernel memory: "
-X-Mailer: Thomas Foerster's registered AK-Mail 3.1 publicbeta2a [ger]
+	id <S130902AbRC0IoZ>; Tue, 27 Mar 2001 03:44:25 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:22035 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S130834AbRC0IoM>;
+	Tue, 27 Mar 2001 03:44:12 -0500
+Date: Tue, 27 Mar 2001 10:43:21 +0200
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Cc: engler@csl.Stanford.EDU
+Subject: Re: [ANNOUNCE] The Janitor Project
+Message-ID: <20010327104321.B3974@almesberger.net>
+In-Reply-To: <20010322215215.A1052@conectiva.com.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20010327084101Z130793-406+4326@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20010322215215.A1052@conectiva.com.br>; from acme@conectiva.com.br on Thu, Mar 22, 2001 at 09:52:15PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arnaldo Carvalho de Melo wrote:
+> http://bazar.conectiva.com.br/~acme/TODO
 
-> On 03.27 Thomas Foerster wrote:
->>
->> But suddenly the box was offline. One technical assistant from our ISP tried
->> to reboot
->> our server (he couldn't tell me if there had been any messages on the screen),
->> but the
->> system always hangs on
->>
->> Freeing unused kernel memory: xxk freed
->>
+BTW, I don't know if you're already interacting, but it seems to me that
+there are a lot of things on your list that look as if the MC project at
+Stanford ("CHECKER") could provide automated tests for them.
 
-> Try booting with init=/bin/bash, it looks like kernel gets a bad /sbin/init,
-> and gets stuck. Perhaps the shutdown damaged init, it starts to run and get
-> hung.
+- Werner
 
-That didn't fix the problem :(
-
-When i run "diff" on a new and the "old" init, i get no diffs ...
-
-Must be something other :(
-
-Thomas
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/

@@ -1,133 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266917AbUBRA0U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 19:26:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266911AbUBRAZx
+	id S266863AbUBRATU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 19:19:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266850AbUBRATQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 19:25:53 -0500
-Received: from administration2.networld.com ([209.63.232.103]:6413 "EHLO
-	networld.com") by vger.kernel.org with ESMTP id S266917AbUBRAY0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 19:24:26 -0500
-Message-ID: <4032B084.5020405@networld.com>
-Date: Tue, 17 Feb 2004 17:23:32 -0700
-From: Charles Johnston <cjohnston@networld.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
-X-Accept-Language: en-us, en, pt-br, pt, es, ko, ko-kr
+	Tue, 17 Feb 2004 19:19:16 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:42138 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S266863AbUBRAQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 19:16:42 -0500
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.3-rc4 Massive strange corruption with new radeonfb
-References: <403274D2.4020407@networld.com>	 <1077055997.1076.23.camel@gaston>  <40329B57.9060901@networld.com> <1077060699.1078.38.camel@gaston>
-In-Reply-To: <1077060699.1078.38.camel@gaston>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C3F5B4.75AE4C70"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: Limit hash table size
+Date: Tue, 17 Feb 2004 16:16:31 -0800
+Message-ID: <B05667366EE6204181EABE9C1B1C0EB501F2AAE0@scsmsx401.sc.intel.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: Limit hash table size
+Thread-Index: AcP1rPz/B4fpIreiS+yKtuVaKwtRRAAA7bRg
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
+X-OriginalArrivalTime: 18 Feb 2004 00:16:32.0025 (UTC) FILETIME=[76110090:01C3F5B4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
->>Ok, it worked fine with that line commented out.  I can switch vt's, be 
->>in X, etc. no problems.
-> 
-> 
-> Can you send me the dmesg log still please ?
-> 
+This is a multi-part message in MIME format.
 
-Here it is:
+------_=_NextPart_001_01C3F5B4.75AE4C70
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-radeonfb_pci_register BEGIN
-radeonfb: probed SDR SGRAM 131072k videoram
-radeonfb: mapped 16384k videoram
-radeonfb: Retreived PLL infos from BIOS
-radeonfb: Reference=27.00 MHz (RefDiv=6) Memory=337.00 Mhz, 
-System=243.00 MHz
-1 chips in connector info
-  - chip 1 has 2 connectors
-   * connector 0 of type 2 (CRT) : 2300
-   * connector 1 of type 4 (DVI-D) : 4210
-Starting monitor auto detection...
-radeonfb: I2C (port 1) ... not found
-radeonfb: I2C (port 2) ... not found
-radeonfb: I2C (port 3) ... not found
-radeonfb: I2C (port 4) ... not found
-radeonfb: Reversed DACs detected
-radeonfb: Reversed TMDS detected
-radeonfb: I2C (port 2) ... not found
-radeonfb: I2C (port 4) ... not found
-Non-DDC laptop panel detected
-radeonfb: I2C (port 3) ... not found
-radeonfb: I2C (port 4) ... not found
-radeonfb: Monitor 1 type LCD found
-radeonfb: Monitor 2 type no found
-radeonfb: panel ID string: U0674^B<9A>M1LW02
-radeonfb: detected LVDS panel size from BIOS: 1920x1200
-BIOS provided panel power delay: 1000
-radeondb: BIOS provided dividers will be used
-ref_divider = 6
-post_divider = 1
-fbk_divider = 48
-Scanning BIOS table ...
-  320 x 350
-  320 x 400
-  320 x 400
-  320 x 480
-  400 x 600
-  512 x 384
-  640 x 350
-  640 x 400
-  640 x 475
-  640 x 480
-  720 x 480
-  720 x 576
-  800 x 600
-  848 x 480
-  1024 x 768
-  1280 x 1024
-  1280 x 768
-  1280 x 800
-  1600 x 1200
-  1680 x 1050
-  1920 x 1200
-Found panel in BIOS table:
-   hblank: 264
-   hOver_plus: 96
-   hSync_width: 32
-   vblank: 35
-   vOver_plus: 2
-   vSync_width: 6
-   clock: 16175
-Setting up default mode based on panel info
-radeonfb: Power Management enabled for Mobility chipsets
-radeonfb: ATI Radeon NP  SDR SGRAM 128 MB
-radeonfb_pci_register END
+> I think it would be better to leave things as they are,
+> with a boot option to scale the tables down.
 
-hStart = 2016, hEnd = 2048, hTotal = 2184
-vStart = 1202, vEnd = 1208, vTotal = 1235
-h_total_disp = 0xef0110	   hsync_strt_wid = 0x407da
-v_total_disp = 0x4af04d2	   vsync_strt_wid = 0x604b1
-pixclock = 6182
-freq = 16175
-lvds_gen_cntl: 003cffa5
+OK, here is one that adds boot time parameters only and leave everything
+else untouched.
 
+> The below patch addresses the inode and dentry caches.
+> Need to think a bit more about the networking ones.
 
-> 
->>The only issue I see is when I do a 'clear' on the vt, it doesn't clear 
->>the text, but blanks every nth row of pixels.  Switching vt's and back 
->>clears the screen.
-> 
-> 
-> Does this happen even without using XFree ? There is a known problem
-> with clears when switching _from_ XFree... I'm working on a fix.
-> 
+Don't know what happened to my mailer, the mailing list archive shows
+complete patch including the network part.  Hope this time you receive
+the whole thing.
 
-Yes, the blanking issue is still present without XFree.
+------_=_NextPart_001_01C3F5B4.75AE4C70
+Content-Type: application/octet-stream;
+	name="hash5.patch"
+Content-Transfer-Encoding: base64
+Content-Description: hash5.patch
+Content-Disposition: attachment;
+	filename="hash5.patch"
 
-> 
->>There are also a few rows of garbage pixels at the bottom that linger 
->>across vt switches.
-> 
-> 
-> Yes, same as above afaik
-> 
+ZGlmZiAtTnVyIGxpbnV4LTIuNi4yLXJjMS9mcy9kY2FjaGUuYyBsaW51eC0yLjYuMi1yYzEua2Vu
+L2ZzL2RjYWNoZS5jCi0tLSBsaW51eC0yLjYuMi1yYzEvZnMvZGNhY2hlLmMJMjAwNC0wMS0yMCAx
+OTo0OToyNS4wMDAwMDAwMDAgLTA4MDAKKysrIGxpbnV4LTIuNi4yLXJjMS5rZW4vZnMvZGNhY2hl
+LmMJMjAwNC0wMi0xNyAxNTozMTozNS4wMDAwMDAwMDAgLTA4MDAKQEAgLTE1MjcsNiArMTUyNywx
+NiBAQAogCXJldHVybiBpbm87CiB9CiAKK3N0YXRpYyBfX2luaXRkYXRhIHVuc2lnbmVkIGxvbmcg
+ZGhhc2hfZW50cmllczsKK3N0YXRpYyBpbnQgX19pbml0IHNldF9kaGFzaF9lbnRyaWVzKGNoYXIg
+KnN0cikKK3sKKwlpZiAoIXN0cikKKwkJcmV0dXJuIDA7CisJZGhhc2hfZW50cmllcyA9IHNpbXBs
+ZV9zdHJ0b3VsKHN0ciwgJnN0ciwgMCk7CisJcmV0dXJuIDE7Cit9CitfX3NldHVwKCJkaGFzaF9l
+bnRyaWVzPSIsIHNldF9kaGFzaF9lbnRyaWVzKTsKKwogc3RhdGljIHZvaWQgX19pbml0IGRjYWNo
+ZV9pbml0KHVuc2lnbmVkIGxvbmcgbWVtcGFnZXMpCiB7CiAJc3RydWN0IGhsaXN0X2hlYWQgKmQ7
+CkBAIC0xNTUyLDExICsxNTYyLDEzIEBACiAJCiAJc2V0X3Nocmlua2VyKERFRkFVTFRfU0VFS1Ms
+IHNocmlua19kY2FjaGVfbWVtb3J5KTsKIAotI2lmIFBBR0VfU0hJRlQgPCAxMwotCW1lbXBhZ2Vz
+ID4+PSAoMTMgLSBQQUdFX1NISUZUKTsKLSNlbmRpZgotCW1lbXBhZ2VzICo9IHNpemVvZihzdHJ1
+Y3QgaGxpc3RfaGVhZCk7Ci0JZm9yIChvcmRlciA9IDA7ICgoMVVMIDw8IG9yZGVyKSA8PCBQQUdF
+X1NISUZUKSA8IG1lbXBhZ2VzOyBvcmRlcisrKQorCWlmICghZGhhc2hfZW50cmllcykgeworCQlk
+aGFzaF9lbnRyaWVzID0gUEFHRV9TSElGVCA8IDEzID8KKwkJCQltZW1wYWdlcyA+PiAoMTMgLSBQ
+QUdFX1NISUZUKSA6CisJCQkJbWVtcGFnZXMgPDwgKFBBR0VfU0hJRlQgLSAxMyk7CisJfQorCWRo
+YXNoX2VudHJpZXMgKj0gc2l6ZW9mKHN0cnVjdCBobGlzdF9oZWFkKTsKKwlmb3IgKG9yZGVyID0g
+MDsgKCgxVUwgPDwgb3JkZXIpIDw8IFBBR0VfU0hJRlQpIDwgZGhhc2hfZW50cmllczsgb3JkZXIr
+KykKIAkJOwogCiAJZG8gewpkaWZmIC1OdXIgbGludXgtMi42LjItcmMxL2ZzL2lub2RlLmMgbGlu
+dXgtMi42LjItcmMxLmtlbi9mcy9pbm9kZS5jCi0tLSBsaW51eC0yLjYuMi1yYzEvZnMvaW5vZGUu
+YwkyMDA0LTAxLTIwIDE5OjUwOjQxLjAwMDAwMDAwMCAtMDgwMAorKysgbGludXgtMi42LjItcmMx
+Lmtlbi9mcy9pbm9kZS5jCTIwMDQtMDItMTcgMTU6MzA6NTEuMDAwMDAwMDAwIC0wODAwCkBAIC0x
+MzI3LDYgKzEzMjcsMTYgQEAKIAkJd2FrZV91cF9hbGwod3EpOwogfQogCitzdGF0aWMgX19pbml0
+ZGF0YSB1bnNpZ25lZCBsb25nIGloYXNoX2VudHJpZXM7CitzdGF0aWMgaW50IF9faW5pdCBzZXRf
+aWhhc2hfZW50cmllcyhjaGFyICpzdHIpCit7CisJaWYgKCFzdHIpCisJCXJldHVybiAwOworCWlo
+YXNoX2VudHJpZXMgPSBzaW1wbGVfc3RydG91bChzdHIsICZzdHIsIDApOworCXJldHVybiAxOwor
+fQorX19zZXR1cCgiaWhhc2hfZW50cmllcz0iLCBzZXRfaWhhc2hfZW50cmllcyk7CisKIC8qCiAg
+KiBJbml0aWFsaXplIHRoZSB3YWl0cXVldWVzIGFuZCBpbm9kZSBoYXNoIHRhYmxlLgogICovCkBA
+IC0xMzQwLDkgKzEzNTAsMTMgQEAKIAlmb3IgKGkgPSAwOyBpIDwgQVJSQVlfU0laRShpX3dhaXRf
+cXVldWVfaGVhZHMpOyBpKyspCiAJCWluaXRfd2FpdHF1ZXVlX2hlYWQoJmlfd2FpdF9xdWV1ZV9o
+ZWFkc1tpXS53cWgpOwogCi0JbWVtcGFnZXMgPj49ICgxNCAtIFBBR0VfU0hJRlQpOwotCW1lbXBh
+Z2VzICo9IHNpemVvZihzdHJ1Y3QgaGxpc3RfaGVhZCk7Ci0JZm9yIChvcmRlciA9IDA7ICgoMVVM
+IDw8IG9yZGVyKSA8PCBQQUdFX1NISUZUKSA8IG1lbXBhZ2VzOyBvcmRlcisrKQorCWlmICghaWhh
+c2hfZW50cmllcykgeworCQlpaGFzaF9lbnRyaWVzID0gUEFHRV9TSElGVCA8IDE0ID8KKwkJCQlt
+ZW1wYWdlcyA+PiAoMTQgLSBQQUdFX1NISUZUKSA6CisJCQkJbWVtcGFnZXMgPDwgKFBBR0VfU0hJ
+RlQgLSAxNCk7CisJfQorCWloYXNoX2VudHJpZXMgKj0gc2l6ZW9mKHN0cnVjdCBobGlzdF9oZWFk
+KTsKKwlmb3IgKG9yZGVyID0gMDsgKCgxVUwgPDwgb3JkZXIpIDw8IFBBR0VfU0hJRlQpIDwgaWhh
+c2hfZW50cmllczsgb3JkZXIrKykKIAkJOwogCiAJZG8gewpkaWZmIC1OdXIgbGludXgtMi42LjIt
+cmMxL25ldC9pcHY0L3JvdXRlLmMgbGludXgtMi42LjItcmMxLmtlbi9uZXQvaXB2NC9yb3V0ZS5j
+Ci0tLSBsaW51eC0yLjYuMi1yYzEvbmV0L2lwdjQvcm91dGUuYwkyMDA0LTAxLTIwIDE5OjUwOjQx
+LjAwMDAwMDAwMCAtMDgwMAorKysgbGludXgtMi42LjItcmMxLmtlbi9uZXQvaXB2NC9yb3V0ZS5j
+CTIwMDQtMDItMTcgMTU6NDM6NTkuMDAwMDAwMDAwIC0wODAwCkBAIC0yNzE3LDYgKzI3MTcsMTYg
+QEAKICNlbmRpZiAvKiBDT05GSUdfUFJPQ19GUyAqLwogI2VuZGlmIC8qIENPTkZJR19ORVRfQ0xT
+X1JPVVRFICovCiAKK3N0YXRpYyBfX2luaXRkYXRhIHVuc2lnbmVkIGxvbmcgcmhhc2hfZW50cmll
+czsKK3N0YXRpYyBpbnQgX19pbml0IHNldF9yaGFzaF9lbnRyaWVzKGNoYXIgKnN0cikKK3sKKwlp
+ZiAoIXN0cikKKwkJcmV0dXJuIDA7CisJcmhhc2hfZW50cmllcyA9IHNpbXBsZV9zdHJ0b3VsKHN0
+ciwgJnN0ciwgMCk7CisJcmV0dXJuIDE7Cit9CitfX3NldHVwKCJyaGFzaF9lbnRyaWVzPSIsIHNl
+dF9yaGFzaF9lbnRyaWVzKTsKKwogaW50IF9faW5pdCBpcF9ydF9pbml0KHZvaWQpCiB7CiAJaW50
+IGksIG9yZGVyLCBnb2FsLCByYyA9IDA7CkBAIC0yNzQyLDggKzI3NTIsMTAgQEAKIAlpZiAoIWlw
+djRfZHN0X29wcy5rbWVtX2NhY2hlcCkKIAkJcGFuaWMoIklQOiBmYWlsZWQgdG8gYWxsb2NhdGUg
+aXBfZHN0X2NhY2hlXG4iKTsKIAotCWdvYWwgPSBudW1fcGh5c3BhZ2VzID4+ICgyNiAtIFBBR0Vf
+U0hJRlQpOwotCisJaWYgKCFyaGFzaF9lbnRyaWVzKQorCQlnb2FsID0gbnVtX3BoeXNwYWdlcyA+
+PiAoMjYgLSBQQUdFX1NISUZUKTsKKwllbHNlCisJCWdvYWwgPSAocmhhc2hfZW50cmllcyAqIHNp
+emVvZihzdHJ1Y3QgcnRfaGFzaF9idWNrZXQpKSA+PiBQQUdFX1NISUZUOwogCWZvciAob3JkZXIg
+PSAwOyAoMVVMIDw8IG9yZGVyKSA8IGdvYWw7IG9yZGVyKyspCiAJCS8qIE5PVEhJTkcgKi87CiAK
+ZGlmZiAtTnVyIGxpbnV4LTIuNi4yLXJjMS9uZXQvaXB2NC90Y3AuYyBsaW51eC0yLjYuMi1yYzEu
+a2VuL25ldC9pcHY0L3RjcC5jCi0tLSBsaW51eC0yLjYuMi1yYzEvbmV0L2lwdjQvdGNwLmMJMjAw
+NC0wMS0yMCAxOTo0OTozNi4wMDAwMDAwMDAgLTA4MDAKKysrIGxpbnV4LTIuNi4yLXJjMS5rZW4v
+bmV0L2lwdjQvdGNwLmMJMjAwNC0wMi0xNyAxNTo0NToyNS4wMDAwMDAwMDAgLTA4MDAKQEAgLTI1
+NjksNiArMjU2OSwxNiBAQAogZXh0ZXJuIHZvaWQgX19za2JfY2JfdG9vX3NtYWxsX2Zvcl90Y3Ao
+aW50LCBpbnQpOwogZXh0ZXJuIHZvaWQgdGNwZGlhZ19pbml0KHZvaWQpOwogCitzdGF0aWMgX19p
+bml0ZGF0YSB1bnNpZ25lZCBsb25nIHRoYXNoX2VudHJpZXM7CitzdGF0aWMgaW50IF9faW5pdCBz
+ZXRfdGhhc2hfZW50cmllcyhjaGFyICpzdHIpCit7CisJaWYgKCFzdHIpCisJCXJldHVybiAwOwor
+CXRoYXNoX2VudHJpZXMgPSBzaW1wbGVfc3RydG91bChzdHIsICZzdHIsIDApOworCXJldHVybiAx
+OworfQorX19zZXR1cCgidGhhc2hfZW50cmllcz0iLCBzZXRfdGhhc2hfZW50cmllcyk7CisKIHZv
+aWQgX19pbml0IHRjcF9pbml0KHZvaWQpCiB7CiAJc3RydWN0IHNrX2J1ZmYgKnNrYiA9IE5VTEw7
+CkBAIC0yNjEwLDYgKzI2MjAsOCBAQAogCWVsc2UKIAkJZ29hbCA9IG51bV9waHlzcGFnZXMgPj4g
+KDIzIC0gUEFHRV9TSElGVCk7CiAKKwlpZiAodGhhc2hfZW50cmllcykKKwkJZ29hbCA9ICh0aGFz
+aF9lbnRyaWVzICogc2l6ZW9mKHN0cnVjdCB0Y3BfZWhhc2hfYnVja2V0KSkgPj4gUEFHRV9TSElG
+VDsKIAlmb3IgKG9yZGVyID0gMDsgKDFVTCA8PCBvcmRlcikgPCBnb2FsOyBvcmRlcisrKQogCQk7
+CiAJZG8gewo=
 
-The bottom garbage is not present without XFree.
+------_=_NextPart_001_01C3F5B4.75AE4C70--

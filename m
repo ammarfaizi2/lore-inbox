@@ -1,108 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280403AbRJaSlC>; Wed, 31 Oct 2001 13:41:02 -0500
+	id <S280404AbRJaSlM>; Wed, 31 Oct 2001 13:41:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280405AbRJaSk6>; Wed, 31 Oct 2001 13:40:58 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:12560 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S280403AbRJaSkk>; Wed, 31 Oct 2001 13:40:40 -0500
-Message-ID: <3BE044A8.E91A4F01@zip.com.au>
-Date: Wed, 31 Oct 2001 10:36:24 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13-ac2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.14-pre6
-In-Reply-To: <Pine.LNX.4.33.0110310809200.32460-100000@penguin.transmeta.com>
+	id <S280405AbRJaSlD>; Wed, 31 Oct 2001 13:41:03 -0500
+Received: from [63.231.122.81] ([63.231.122.81]:61799 "EHLO lynx.adilger.int")
+	by vger.kernel.org with ESMTP id <S280404AbRJaSk4>;
+	Wed, 31 Oct 2001 13:40:56 -0500
+Date: Wed, 31 Oct 2001 11:40:02 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+        vda <vda@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Re: Nasty suprise with uptime
+Message-ID: <20011031114002.H16554@lynx.no>
+Mail-Followup-To: Tim Schmielau <tim@physik3.uni-rostock.de>,
+	"Richard B. Johnson" <root@chaos.analogic.com>,
+	vda <vda@port.imtp.ilyichevsk.odessa.ua>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1011031092415.9270A-101000@chaos.analogic.com> <Pine.LNX.4.30.0110311902410.29481-100000@gans.physik3.uni-rostock.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <Pine.LNX.4.30.0110311902410.29481-100000@gans.physik3.uni-rostock.de>; from tim@physik3.uni-rostock.de on Wed, Oct 31, 2001 at 07:16:44PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> In article <3BDFBFF5.9F54B938@zip.com.au>,
-> Andrew Morton  <akpm@zip.com.au> wrote:
-> >
-> >Appended here is a program which creates 100,000 small files.
-> >Using ext2 on -pre5.  We see how long it takes to run
-> >
-> >       (make-many-files ; sync)
-> >
-> >For several values of queue_nr_requests:
-> >
-> >queue_nr_requests:     128     8192    32768
-> >execution time:                4:43    3:25    3:20
-> >
-> >Almost all of the execution time is in the `sync'.
-> 
-> Hmm..  I don't consider "sync" to be a benchmark, and one of the things
-> that made me limit the queue size was in fact that Linux in the
-> timeframe before roughly 2.4.7 or so was _completely_ unresponsive when
-> you did a big "untar" followed by a "sync".
+On Oct 31, 2001  19:16 +0100, Tim Schmielau wrote:
+> The idea was that all drivers that use the 32 bit jiffies counter have to
+> be aware of the wraparound anyways, and won't see a difference.
 
-Sure.  I chose `sync' because it's measurable.  That sync took
-four minutes, so the machine will be locked up seeking for four
-minutes whether the writeback was initiated by /bin/sync or by
-kupdate/bdflush.
+Agreed.  I also like the change that you initialize jiffies to a pre-wrap
+value, so the jiffies wrap bugs can more easily be found/fixed.
 
-> I'd rather have a machine where I don't even much notice the sync than
-> one where a made-up-load and a "sync" that servers no purpose shows
-> lower throughput.
-> 
-> Do you actually have any real load that cares?
+> The race only happens for 64 bit accesses to jiffies, but hey, without
+> the patch these values come out wrong _every_ time, so I believed a
+> tiny window for a single wrong display of uptime every 497.1 days to be
+> acceptable.
 
-All I do is compile kernels :)
+I would say that the race is so rare that it should not be handled, especially
+since it adds extra code in the timer interrupt.
 
-Actually, ext3 journal replay can sometimes take thirty seconds
-or longer - it reads maybe ten megs from the journal and then
-it has to splatter it all over the platter and wait on it.
+> +	/* We need to make sure jiffies_high does not change while
+> +	 * reading jiffies and jiffies_high */
+> +	do {
+> +		jiffies_high_tmp = jiffies_high_shadow;
+> +		barrier();
+> +		jiffies_tmp = jiffies;
+> +		barrier();
+> +	} while (jiffies_high != jiffies_high_tmp);
 
-> ...
-> We have actually talked about some higher-level ordering of the dirty list
-> for at least five years, but nobody has ever done it. And I bet you $5
-> that you'll get (a) better throughput than by making the queues longer and
-> (b) you'll have fine latency while you write and (c) that you want to
-> order the write-queue anyway for filesystems that care about ordering.
+Maybe this could be condensed into a macro/inline, so that people don't
+screw it up (and it looks cleaner).  Like get_jiffies64() or so, for
+those few places that really care about the full value and can't stand
+a miniscule chance of a race (i.e. uptime output is not a candidate).
 
-I'll buy that.  It's not just the dirty list, either.  I've seen 
-various incarnations of page_launder() and its successor which
-were pretty suboptimal from a write clustering pov.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-But it's actually quite seductive to take a huge amount of data and
-just chuck it at the request layer and let Jens sort it out. This
-usually works well and keeps the complexity in one place.
-
-One does wonder whether everything is working as it should, though.
-Creating those 100,000 4k files is going to require writeout of
-how many blocks?  120,000?  And four minutes is enough time for
-34,000 seven-millisecond seeks.  And ext2 is pretty good at laying
-things out contiguously.  These numbers don't gel.
-
-Ah-ha.  Look at the sync_inodes stuff:
-
-	for (zillions of files) {
-		filemap_fdatasync(file)
-		filemap_fdatawait(file)
-	}
-
-If we turn this into
-
-	for (zillions of files)
-		filemap_fdatasync(file)
-	for (zillions of files)
-		filemap_fdatawait(file)
-
-I suspect that interesting effects will be observed, yes?  Especially
-if we have a nice long request queue, and the results of the
-preceding sync_buffers() are still available for being merged with.
-
-kupdate runs this code path as well. Why is there any need for
-kupdate to wait on the writes?
-
-Anyway.  I'll take a look....
-
-
--

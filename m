@@ -1,154 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280892AbRKBXtR>; Fri, 2 Nov 2001 18:49:17 -0500
+	id <S280889AbRKCABC>; Fri, 2 Nov 2001 19:01:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280890AbRKBXtH>; Fri, 2 Nov 2001 18:49:07 -0500
-Received: from mail11.speakeasy.net ([216.254.0.211]:47876 "EHLO
-	mail11.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S280889AbRKBXsv>; Fri, 2 Nov 2001 18:48:51 -0500
-From: safemode <safemode@speakeasy.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: graphical swap comparison of aa and rik vm
-Date: Fri, 2 Nov 2001 18:48:49 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: Mark Hahn <hahn@physics.mcmaster.ca>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0111021110000.2963-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.33L.0111021110000.2963-100000@imladris.surriel.com>
+	id <S280890AbRKCAAx>; Fri, 2 Nov 2001 19:00:53 -0500
+Received: from druid.if.uj.edu.pl ([149.156.64.221]:3342 "HELO
+	druid.if.uj.edu.pl") by vger.kernel.org with SMTP
+	id <S280889AbRKCAAc>; Fri, 2 Nov 2001 19:00:32 -0500
+Date: Sat, 3 Nov 2001 01:00:28 +0100 (CET)
+From: Maciej Zenczykowski <maze@druid.if.uj.edu.pl>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.12-ac3 floppy module requires 0x3f0-0x3f1 ioports
+Message-ID: <Pine.LNX.4.33.0111030050520.19178-100000@druid.if.uj.edu.pl>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_D567LBWKTTB2HP85ZFKI"
-Message-Id: <20011102234857Z280889-17409+7968@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All,
 
---------------Boundary-00=_D567LBWKTTB2HP85ZFKI
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Is there any reason why the floppy module requires the ioport range
+0x3f0-0x3f1 in order to load?  On my computer /proc/ioports reports this
+range as used by PnPBIOS PNP0c02, thus the floppy module cannot reserve
+the range 0x3f0-0x3f5 and refuses to load.
 
-So I added more swap, for 461549568 bytes total, and guess what happens?  No, 
-Rik's vm did not beat AA's.  You might say, "well then it must have came 
-close to tying it now since it has enough swap and wont fall victim to the 
-'speed/size tradeoff'".  No, you would be wrong.  Rik's VM completely locked 
-up in some kind of infinite swap loop like it did before in earlier kernels. 
-My server was swapping ( i saw disk activity) for over 8 hours before i 
-finally rebooted it.  Needless to say that it angers me to unintentionally 
-lock the computer up.  So what's going on here? rik, anyone?  I've used this 
-test before to lock up Rik's VM and it is reproduceable on my machine.  With 
-less swap, it seems to be gone in the latest kernels but when i added more 
-like Rik said to do, it locked up.  For now i'll be running AA kernels until 
-this is figured out.  
-What i found insane from the little info provided by the vmstat i had running 
-at the time was that even with 450+MB of swap, Rik's VM still used it all up. 
-Why would it work better without that much ram but when i add more, it still 
-uses it all up and locks up.  There's something seriously wrong here. I'm 
-going to test's andrea's with the new mem config too later.   My bet is that 
-it doesn't lock up for over 8 hours trying to swap. 
-  
---------------Boundary-00=_D567LBWKTTB2HP85ZFKI
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="stats"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="stats"
+I have taken a quick look at the port specification of the FDC and have
+found no readon for any access to the 0x3f0 port, I have found a reason
+for accessing the 0x3f1 port - but only on PS/2's.  This ain't a PS/2 so
+that is irrelevant.  Furthermore analysis of the code fails to find any
+place where these two ports would actually be used...
 
-ICAgcHJvY3MgICAgICAgICAgICAgICAgICAgICAgbWVtb3J5ICAgIHN3YXAgICAgICAgICAgaW8g
-ICAgIHN5c3RlbSAgICAgICAgIGNwdQogciAgYiAgdyAgIHN3cGQgICBmcmVlICAgYnVmZiAgY2Fj
-aGUgIHNpICBzbyAgICBiaSAgICBibyAgIGluICAgIGNzICB1cyAgc3kgIGlkCiAwICAwICAwICAg
-ICAgMCAyOTM2NzIgICAxNjEyIDM1MzQ4OCAgIDMgICA3ICAgIDIyICAgIDEyICAxMzMgICAgIDUg
-ICA2ICAgMCAgOTQKIDEgIDAgIDAgICAgICAwIDI5MzY3MiAgIDE2MTIgMzUzNDg4ICAgMCAgIDAg
-ICAgIDAgICAgIDAgIDIwNiAgIDU5OSAgIDIgICAyICA5NgogMCAgMCAgMCAgICAgIDAgMjkzNjcy
-ICAgMTYxMiAzNTM0ODggICAwICAgMCAgICAgMCAgICAgMCAgMTQ3ICAgMzUwICAgMSAgIDAgIDk5
-CiAxICAwICAwICAgICAgMCAyOTI0ODggICAxNjQ4IDM1NDA1NiAgIDAgICAwICAgNjQwICAgICAw
-ICAxNDYgICAyMzggIDEyICAgMSAgODcKIDAgIDEgIDAgICAgICAwIDI5MTM2NCAgIDE3NzIgMzU0
-NDUyICAgMCAgIDAgICA2NDQgICAgIDAgIDE3NyAgIDQ1MCAgMjggICAxICA3MQogMCAgMSAgMCAg
-ICAgIDAgMjg5MzQ0ICAgMTg0OCAzNTU3OTIgICAwICAgMCAgMTQ5MiAgICAgMCAgMjA0ICAgNjE0
-ICAxOSAgIDMgIDc4CiAxICAwICAwICAgICAgMCAyNDU5OTYgICAxODc2IDM1NjA4MCAgIDAgICAw
-ICAgMzQ0ICAgICAwICAxNDIgICAzNjEgIDcxICAgNyAgMjIKIDEgIDAgIDAgICAgICAwIDE3NjM5
-NiAgIDE4NzYgMzU2MDgwICAgMCAgIDAgICAgIDAgICAgIDAgIDEwMyAgIDE0OSAgODUgIDE1ICAg
-MAogMSAgMCAgMCAgICAgIDAgIDQ0NjQ0ICAgMTg3NiAzNTYwODAgICAwICAgMCAgICAgMCAgICAg
-MCAgMTA1ICAgMTMxICA4MiAgMTggICAwCiAxICAwICAxICAyMzY5MiAgIDMwNjAgICAxODE2IDMy
-Mzg1NiAgIDAgICAwICAgICA4ICAgICAwICAxMDUgICAxMjUgIDQ2ICA1NCAgIDAKIDEgIDAgIDAg
-IDkwODg4ICAgMzA2NCAgIDE4MTYgMjIyMTk2ICAgMCAgIDAgICAgIDAgICAgIDAgIDEwNyAgIDEz
-MiAgNjcgIDMzICAgMAogMSAgMCAgMCAgOTA4ODggICAzMDY0ICAgMTgxNiAgOTIwMjQgICAwICAg
-MCAgICAgMCAgICAgMCAgMTAzICAgMTMwICA3MCAgMzAgICAwCiAxICAxICAwIDM2NDE0NCAgIDM4
-MDAgICAgNTAwICAxMDI4NCAgIDAgNzQ1NDggICAgMzIgNzQ4NzYgIDIwOSAgIDI4NSAgNDkgIDQ2
-ICAgNQogMSAgMiAgMSAzNjQxMzIgICAzMDU2ICAgIDUwMCAgIDk3NjAgICAwIDI3NjU2ICAgICAw
-IDI3NjUyICAyMzAgICAgODEgICA0ICA0NSAgNTEKIDAgIDMgIDEgMzY0MTMyICAgMzA1NiAgICA1
-MDAgICA5NzYwICAgMCAxNzg2NCAgICAgMCAxNzg2OCAgMjQzICAgMTM1ICAgMCAgIDEgIDk5CiAx
-ICA0ICAyIDM2NDEyMCAgIDMwNjAgICAgNTE2ICAgOTczNiAgIDAgMjczODQgICAgMTYgMjczNzIg
-IDQwOCAgICA2NCAgIDEgIDM1ICA2NAogMyAgMSAgMCAzNjQyMjAgICA0NjA4ICAgIDUyNCAgIDk3
-MjAgICAwIDEwMzU2ICAgICA4IDEwMzcyICAzNzcgICAgMzUgICAyICA5NiAgIDMKIDAgIDQgIDAg
-MzY0MjE2ICAgMzA2NCAgICA1MjQgICA5NTQ4ICA2NCAgIDAgICAgNjggICAgIDQgIDI2MSAgICAy
-OCAgNDUgIDMyICAyNAogMCAgNiAgMCAzNjQyMTYgICAzMDY0ICAgIDUyNCAgIDk1NTYgIDY0ICAg
-MCAgICA3MiAgICAgMCAgMjUwICAgIDMxICAgMCAgIDIgIDk4CiAwICA4ICAwIDM2NDE5MiAgIDMw
-NjQgICAgNTI4ICAgOTU1NiAxMjAgICAwICAgMTI0ICAgICAwICAyNDYgICAgMzQgICAwICAgMSAg
-OTkKIDAgIDkgIDAgMzY0MTkyICAgMzA2NCAgICA1MjggICA5NjE2ICA2NCAgIDAgICAxMjggICAg
-IDAgIDI0NyAgICAzMiAgIDAgICAxICA5OQogICBwcm9jcyAgICAgICAgICAgICAgICAgICAgICBt
-ZW1vcnkgICAgc3dhcCAgICAgICAgICBpbyAgICAgc3lzdGVtICAgICAgICAgY3B1CiByICBiICB3
-ICAgc3dwZCAgIGZyZWUgICBidWZmICBjYWNoZSAgc2kgIHNvICAgIGJpICAgIGJvICAgaW4gICAg
-Y3MgIHVzICBzeSAgaWQKIDAgIDggIDAgMzYzODY4ICAgMzA2NCAgICA1NTYgIDEwODY4IDE1Njgg
-ICAwICAyODgwICAgICAwICAyMjAgICAxNjIgICAwICAgMCAxMDAKIDAgIDYgIDAgMzYyNDgwICAg
-MzA2NCAgICA2MDQgIDExOTU2IDI5NDggICAwICA0MTMyICAgICAwICAyMjEgICAyNzggICAxICAg
-NSAgOTQKIDEgIDEgIDAgMzYxNjY0ICAgMzA2NCAgICA2MzYgIDEyNzQwIDIxNzIgICAwICAzMDIw
-ICAgICAwICAyMTggICAyNjMgICAzICAgMSAgOTYKIDIgIDAgIDAgMzYwNTg0ICAgMzA2NCAgICA2
-NzYgIDEzNTEyIDI3MDQgICAwICAzNTU2ICAgICAwICAyNTQgICAzNjMgIDE2ICAgMyAgODEKIDEg
-IDIgIDAgMzYwNTg0ICAgMzA2NCAgICA3MzYgIDE0Njg0IDcwNCAgIDAgIDE5OTYgICAgIDAgIDI0
-NCAgIDI5OSAgNTIgICA2ICA0MgogMCAgMiAgMCAzNjA1ODQgICAzMDY0ICAgIDc2NCAgMTU1NTIg
-MTg1NiAgIDAgIDI3ODAgICAgIDAgIDE4NyAgIDI2OSAgIDIgICAxICA5NwogMCAgMiAgMCAzNjA1
-ODQgICAzMDY0ICAgIDgyMCAgMTY5ODAgNTY0ICAgMCAgMjEwNCAgICAgMCAgMjE2ICAgMzA1ICA1
-NSAgIDcgIDM4CiAxICAxICAwIDM2MDU4NCAgIDMwNjQgICAgODI0ICAxNzI3NiAyMDQ4ICAgMCAg
-MjM1MiAgICAgMCAgMTc2ICAgMjYyICAgOSAgIDQgIDg3CiAxICAwICAwIDM2MDU4NCAgIDMwNjQg
-ICAgODY0ICAxNzUyNCA1NjMyICAgMCAgNTk2MCAgICAgMCAgMjI3ICAgMzY2ICAgNyAgIDQgIDg5
-CiAxICAwICAxIDM3MTA0MCAgIDMwNjAgICAgODY0ICAxNzUyNCAxNTAwMCAgIDAgMTUwMDAgICAg
-IDggIDM0OCAgIDYwNCAgMzEgIDI4ICA0MgogMSAgMCAgMCAzNjA1ODQgICAzMDY0ICAgIDg2NCAg
-MTc1MzIgNzc2NCA1NTM2ICA3NzcyICA1NTM2ICAyNzYgICAzNjUgIDM4ICAzMyAgMzAKIDIgIDAg
-IDAgMzYwNTg0ICAgMzA2NCAgICA4NjQgIDE3NTMyICAgMCAgIDAgICAgIDAgICAgIDAgIDEwNSAg
-IDEzNCAxMDAgICAwICAgMAogMSAgMCAgMCAzNjA1ODQgICAzMDY0ICAgIDg4MCAgMTc1NjQgNDgw
-ICAgMCAgIDU0NCAgICAgMCAgMTI4ICAgMTY2ICA5OSAgIDEgICAwCiAwICAyICAwIDM2MDU4NCAg
-IDMwNjQgICAgOTAwICAxNjM4OCAzNzQwICAgMCAgNDE0MCAgICAgMCAgMjMzICAgNTU3ICAxMiAg
-IDAgIDg4CiAyICAwICAwIDM2MDU4NCAgIDMwNjQgICAgODcyICAxNjIyNCA1MjM2ICAgMCAgNTQ0
-OCAgICAgMCAgMjc2ICAgNDkxICAgNyAgMTQgIDc5CiAyICAxICAxIDM4MDA5MiAgIDMwNjQgICAg
-OTYwICAxNTc2OCAzNjAgMTAzNzYgICA3MDggMTA1OTYgIDY2MiAgIDIwMyAgNjcgIDMzICAgMAog
-MSAgMCAgMSA0NTA3MjggICAzNDg4ICAgIDk2MCAgMTU3NzIgIDU2IDU1MzYgICAgNjAgIDU1NDAg
-IDEwOSAgIDEyNiAgNTAgIDUwICAgMAogMSAgMCAgMCAzNzQwMjAgICAzMzYwICAgIDk2NCAgMTU4
-OTYgICAwICAgMCAgIDEzMiAgICAgMCAgMTYyICAgMjA3ICA2OCAgMTAgIDIyCiAxICAwICAwIDM2
-MDU4NCAgIDMzNjAgICAgOTY0ICAxNTg5NiAgIDAgICAwICAgICAwICAgICAwICAxMDUgICAxMjkg
-IDc3ICAyMyAgIDAKIDEgIDIgIDAgMzYwNTg0ICAgMzA2MCAgICA5NjggIDE2NDcyIDEyMCAgIDAg
-ICA3MDQgICAgIDAgIDEzNSAgIDE2MiAgOTkgICAxICAgMAogMSAgMCAgMCAzNjA1ODQgICAzMDY0
-ICAgMTAyMCAgMTY4MjQgNTg4ICAgMCAgMTA0OCAgICAgMCAgMTk1ICAgMjYwICA4NyAgMTMgICAw
-CiAgIHByb2NzICAgICAgICAgICAgICAgICAgICAgIG1lbW9yeSAgICBzd2FwICAgICAgICAgIGlv
-ICAgICBzeXN0ZW0gICAgICAgICBjcHUKIHIgIGIgIHcgICBzd3BkICAgZnJlZSAgIGJ1ZmYgIGNh
-Y2hlICBzaSAgc28gICAgYmkgICAgYm8gICBpbiAgICBjcyAgdXMgIHN5ICBpZAogMSAgMCAgMCAz
-NjA1ODQgICAzMDY0ICAgMTA0NCAgMTY4MjQgMTI4ICAgMCAgIDE3NiAgICAgOCAgMTM0ICAgMTcz
-ICA5OSAgIDEgICAwCiAxICAwICAwIDM2MDU4NCAgIDMwNjQgICAxMDQ0ICAxNjgyNCAgIDAgICAw
-ICAgICAwICAgICAwICAxMTUgICAxNDQgMTAwICAgMCAgIDAKIDEgIDAgIDAgMzYwNTg0ICAgMzA2
-NCAgIDEwNDggIDE2ODI4ICAgMCAgIDAgICAgMTIgICAgIDAgIDEyOSAgIDE1NCAxMDAgICAwICAg
-MAogMSAgMiAgMSAzNjA1ODQgICAzMDYwICAgIDU3MiAgIDcwOTIgMTE4OCAyNzU2ICAxNDM2ICAy
-OTA0ICA0MDEgMTMyMTIgIDQ1ICAzNCAgMjIKIDIgIDIgIDEgMzYxOTMyICAgMzA2MCAgICA2MTYg
-ICA1NTIwICAxMiAxMTAxMiAgIDEyMCAxMTAwOCAgMzcyICAgMjg4ICAgMiAgNDggIDUwCiA2ICAw
-ICAyIDM2MTU2NCAgIDMwNjAgICAgNjQ0ICAgNTM3MiAyMzYgMzQ2OTYgICAzMDggMzQ2OTYgIDM0
-NiAgIDEzMCAgIDMgIDcwICAyNwogMyAgMiAgMiA0NTA3MTYgICAzMDY0ICAgIDY2NCAgIDQxNjQg
-MTA4IDI2MjAgICAyNjQgIDI2MzYgIDI4NSAgIDEzOCAgMjEgIDcyICAgOAoxNSAgMCAgMSA0NTA2
-OTYgICAzMDcyICAgIDc2NCAgIDM5MjAgMTgwIDEyMzQyNCAgIDMwOCAxMjM0MjAgMTk5NiAgMTE0
-NCAgIDAgIDIxICA3OAogNCAgMyAgMSA0NTA3MzIgICAzMDY0ICAgIDg2OCAgIDUwMjQgMTMwNCAy
-NTIyMCAgMjYxNiAyNTI2OCAgMzMzICAgMjMzICA0NSAgNTUgICAwCjExICAzICAyIDQ1MDcyOCAg
-IDI3NjAgICAgOTEyICAgNDk4NCAyMjQgNTMwMzYgICAyNzIgNTMwMjQgMTI5NyAgIDIzNCAgIDEg
-IDQ0ICA1NAogNyAgMiAgMSA0NTA3MzIgICAyODI0ICAgIDk0MCAgIDU3OTIgODAwIDg5NjcyICAx
-NzQ0IDg5NzQ0IDEzMzYgICAzMTEgICA2ICA0NyAgNDcKIDEgIDQgIDAgNDUwNzMyICAgMzQ5MiAg
-ICA0OTYgICAzMzc2IDE4NCAgNTIgICAxOTIgICAgNTIgIDI0NiAgICAzOSAgMzggIDYyICAgMAog
-MSAgNCAgMCA0NTA3MTYgICAzMDY0ICAgIDQyOCAgIDMyNTYgMTY4IDM2ODggICA2NTIgIDM2ODQg
-IDMyNyAgICA4MiAgMTQgIDcxICAxNgogMiAgMSAgMCA0NTA3MjggICAzMDY0ICAgIDQ5MiAgIDQw
-ODggMzkyIDE0MTk2ICAxNDc2IDE0MjAwICA0NjQgICAyMjIgICAzICA1MCAgNDcKIDYgIDAgIDAg
-NDUwNzMyICAgMzU1MiAgICA1MjQgICA0MDU2IDEwOCA4NDQ4ICAgMTUyICA4NDY4ICAzODEgICAx
-MzggICA0ICA1NiAgNDAKIDEgIDUgIDEgNDUwNzI4ICAgMzA2MCAgICA0NzIgICAzMDY0IDg0NCA5
-NTk2ICAxMzA4ICA5NjE2ICAzNzEgICAyNzYgICA3ICA5MyAgIDAKIDMgIDEgIDEgNDUwNzI4ICAg
-MzA2MCAgICA0MzYgICAyODY0IDc5NiAxNzIgIDEyMjQgICAyMTIgIDI3OSAgIDY4OCAgIDIgIDk4
-ICAgMAogNCAgMSAgMSA0NTA3MjggICAzMDYwICAgIDI4OCAgIDI4OTIgMTAzNiAxMTYgIDIxNDAg
-ICAxOTIgIDQ3MSAgMjY0MyAgIDAgMTAwICAgMAogNiAgMSAgMSA0NTA3MjggICAzMDYwICAgIDMx
-MiAgIDI5MTIgMTE2MCAgOTYgIDMzNjQgICAxMzIgIDYwOSAgMjY4MyAgIDAgMTAwICAgMAogOSAg
-MCAgMSA0NTA3MzIgICAzMDYwICAgIDMwNCAgIDI3NzYgMTEzMiAxMTIgIDI4NzYgICAxNDQgIDQz
-NCAgMTI0MiAgIDAgMTAwICAgMAo=
+Deciding to take a try at it I changed the floppy module to reserve only
+the 0x3f2-0x3f5 and 0x3f7 ports, recompiled and the module now loads.
+I have not done any tests on it, however copying a diskette via mcopy,
+mdir and plain old mount worked fine.
 
---------------Boundary-00=_D567LBWKTTB2HP85ZFKI--
+All in all I would say that at least in my case there is no reason for
+floppy to reserve these two ports - I don't know about other machines
+(especially PS/2's) - but I cannot see any use of them in the source code
+any way.
+
+Questions, Ideas?
+
+Maciej Zenczykowski
+

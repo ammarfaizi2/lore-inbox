@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280126AbRKVRm5>; Thu, 22 Nov 2001 12:42:57 -0500
+	id <S280190AbRKVRn5>; Thu, 22 Nov 2001 12:43:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280190AbRKVRms>; Thu, 22 Nov 2001 12:42:48 -0500
-Received: from medusa.sparta.lu.se ([194.47.250.193]:40831 "EHLO
-	medusa.sparta.lu.se") by vger.kernel.org with ESMTP
-	id <S280126AbRKVRmm>; Thu, 22 Nov 2001 12:42:42 -0500
-Date: Thu, 22 Nov 2001 17:33:21 +0100 (MET)
-From: Bjorn Wesen <bjorn@sparta.lu.se>
-To: war <war@starband.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Swap vs No Swap.
-In-Reply-To: <3BFD2997.95F2B9EE@starband.net>
-Message-ID: <Pine.LNX.3.96.1011122172658.24026B-100000@medusa.sparta.lu.se>
+	id <S280132AbRKVRns>; Thu, 22 Nov 2001 12:43:48 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:20496 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S280190AbRKVRng>; Thu, 22 Nov 2001 12:43:36 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Ryan Cumming <bodnar42@phalynx.dhs.org>
+Subject: Re: OOM killer in 2.4.15pre1 still not 100% ok
+Date: Thu, 22 Nov 2001 19:42:40 -0200
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01112217224700.01298@manta> <E166wVS-0004Vk-00@localhost>
+In-Reply-To: <E166wVS-0004Vk-00@localhost>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01112219424001.01298@manta>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Nov 2001, war wrote:
-> There is no need for swap if you have enough ram.
-> Using swap with more than enough ram does absolutley nothing for the system,
-> except by degrading the performance of it.
+On Thursday 22 November 2001 14:15, Ryan Cumming wrote:
+> On November 22, 2001 11:22, vda wrote:
+> > Today I saw OOM killer in action for the very fist time.
+> > Just want to inform that it still not 100% ok (IMHO):
+> >
+> > I reconfigured my text box for NFS root fs operation
+> > and turned off swap. The box has 128M RAM.
+>
+> ...
+>
+> > 5:01pm  up  1:08,  3 users,  load average: 0.18, 0.10, 0.06
+> > 61 processes: 58 sleeping, 2 running, 1 zombie, 0 stopped
+> > CPU states:  1.9% user, 15.6% system,  0.0% nice, 82.3% idle
+> > Mem:  126272K av, 123428K used,   2844K free,      0K shrd,     16K buff
+> >Swap:      0K av,      0K used,      0K free                 47748K cached
+>
+> Er, with almost 3megs of free memory and -47megs- of cache, the problem
+> isn't with the OOM killer's selection, but the fact it was triggered with
+> nearly half the RAM still usable. Do you actually know the OOM killer was
+> triggered? Or did top just mysteriously exit?
 
-You're too fast with drawing conclusions. You say you have "enough" ram -
-tell me, how big is your harddisk ? Is it less than 1 GB ? Do you use more
-than 1 GB of data on your harddisk regularly ? 
-
-RAM is not just used to keep your programs in, but also to hold a working
-copy of your dataset on the hard-disk. If the programs you use
-concurrently use 500 MB RAM and never more, and you have 1 GB RAM, you
-have 500 MB over for caching your hard disk content. As long as you only
-access a footprint of 500 MB on your disk, you're fine. 
-
-But as soon as you start accessing more data which in total will add up to
-more than that 1 GB RAM, there is the _potential_ for a swap to speed up
-access. There's absolutely nothing which say it _has_ to speed it up in a
-_particular_ case, but generally it can.
-
-Also remember that a "swap" only swaps dirty pages. Your programs are run
-directly from the page-cache and can be flushed from that even if you have
-"disabled swap". The only thing that differs by adding swap is another
-freedom for the VM system to prioritize memory. Sometimes it does this
-badly, and you get upset, and sometimes it does it well.
-
-/Bjorn
-
+I have no swap at all.
+There was a message "Out of Memory: killing process top" or something such
+on screen.
+--
+vda

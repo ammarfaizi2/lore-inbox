@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318824AbSG0VU2>; Sat, 27 Jul 2002 17:20:28 -0400
+	id <S318823AbSG0VU0>; Sat, 27 Jul 2002 17:20:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318825AbSG0VU1>; Sat, 27 Jul 2002 17:20:27 -0400
-Received: from uucp.nl.uu.net ([193.79.237.146]:42941 "EHLO uucp.nl.uu.net")
-	by vger.kernel.org with ESMTP id <S318824AbSG0VUZ>;
+	id <S318825AbSG0VU0>; Sat, 27 Jul 2002 17:20:26 -0400
+Received: from uucp.nl.uu.net ([193.79.237.146]:42429 "EHLO uucp.nl.uu.net")
+	by vger.kernel.org with ESMTP id <S318823AbSG0VUZ>;
 	Sat, 27 Jul 2002 17:20:25 -0400
-Date: Sat, 27 Jul 2002 23:23:57 +0200 (CEST)
+Date: Sat, 27 Jul 2002 23:22:52 +0200 (CEST)
 From: kees <kees@schoen.nl>
-To: J Sloan <joe@tmsusa.com>
+To: Adrian Bunk <bunk@fs.tum.de>
 cc: <linux-kernel@vger.kernel.org>
 Subject: Re: 2.4.19.rc3 vs 2.4.17
-In-Reply-To: <3D42F155.4060200@tmsusa.com>
-Message-ID: <Pine.LNX.4.33.0207272323210.4063-100000@schoen3.schoen.nl>
+In-Reply-To: <Pine.NEB.4.44.0207272130340.9592-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.LNX.4.33.0207272317540.4063-100000@schoen3.schoen.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,49 +20,55 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-I'll give it a try in the next days.
-tnx
+On Sat, 27 Jul 2002, Adrian Bunk wrote:
 
-Kees
+> On Sat, 27 Jul 2002, kees wrote:
+>
+> > Hi
+> > I ran 2.4.19rc3 but my feeling is: Netscape 6.2 and (KDE3) Konqueror
+> > showed a high number of spontaneous crashes. 256MB Ram xosview shows a few
+> >...
+>
+> You say Netscape and Konqueror crash significantely more often when
+> running 2.4.19-rc3 compared to running the same applications under 2.4.17?
+>
+> Let's try to track it down:
+> - Do only Netscape/Konqueror crash or does X crash or does the whole
+>   computer crash?
 
-On Sat, 27 Jul 2002, J Sloan wrote:
+Only the apps, no X crash.
 
-> Hi,
+> - Is there any error message when the browsers crash, if yes which?
+No messages
+> - Are there any suspicious messages in /var/log/syslog or
+>   /var/log/messages that might help in tracking this down?
+No messages, taht was the fisrt thing I looked.
+> - Is your 2.4.17 a plain ftp.kernel.org kernel or a kernel shipped by your
+>   distribution?
+Plain kernel from source tree
+> - Do you apply any patches to your kernels?
+Not this kernel(s)
+> - Do you ever load non-free kernel modules like e.g. the one from NVidia?
+No
+>   If yes, are your problems reproducible if no non-free modules were
+>   _ever_ loaded since the last reboot?
+> - Is there anything "special" or unusual with your machine (is it a
+>   laptop, root filesystem is on NFS or XFS, unusual hardware,...)?
+SMP, MSI mobo
+Nothing that I can think of. Viewing webpages just did crash the app. very
+often , something that got away when switching back to 2.4.17
+Java(?)
 >
-> 2 comments just from an end-user perspective:
+> > Kees
 >
-> 1. netscape 6.2 is nowhere near stable anyway -
-> I'd recommend either netscape 7-pr1, or a
-> recent mozilla (1.0, 1.1b or latest nightly)
+> cu
+> Adrian
 >
-> 2. Try one of the "enhanced" kernels, e,g,
-> 2.4.19-rc3-ac2 or 2.4.19-rc3aa1 - they have
-> bugfixes and performance enhancements
+> --
 >
-> Joe
+> You only think this is a free country. Like the US the UK spends a lot of
+> time explaining its a free country because its a police state.
+> 								Alan Cox
 >
-> kees wrote:
->
-> >Hi
-> >I ran 2.4.19rc3 but my feeling is: Netscape 6.2 and (KDE3) Konqueror
-> >showed a high number of spontaneous crashes. 256MB Ram xosview shows a few
-> >megs of swap used.  My pencam program didn't download pictures under
-> >2.4.19rc3 and it does under 2.4.17.
-> >Kees
-> >
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> >
-> >
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 >
 

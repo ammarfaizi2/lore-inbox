@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262670AbVCDIzd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262693AbVCDJA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262670AbVCDIzd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 03:55:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbVCDIzc
+	id S262693AbVCDJA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 04:00:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbVCDJA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 03:55:32 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:32952 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262670AbVCDIzV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 03:55:21 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Fri, 4 Mar 2005 09:51:50 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       gene.heskett@verizon.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11 vs DVB cx88 stuffs
-Message-ID: <20050304085150.GB6647@bytesex>
-References: <200503032119.04675.gene.heskett@verizon.net> <20050303224438.2952f63e.akpm@osdl.org> <20050303231716.14a48f5f.akpm@osdl.org> <20050304073917.GA1496@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 4 Mar 2005 04:00:26 -0500
+Received: from siaag2aa.compuserve.com ([149.174.40.131]:50384 "EHLO
+	siaag2aa.compuserve.com") by vger.kernel.org with ESMTP
+	id S262693AbVCDIzu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 03:55:50 -0500
+Date: Fri, 4 Mar 2005 03:52:57 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch ide-dev 6/9] check capacity in
+  ide_task_init_flush()
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: linux-ide <linux-ide@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Tejun Heo <htejun@gmail.com>
+Message-ID: <200503040355_MC3-1-979D-F1DF@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050304073917.GA1496@redhat.com>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 02:39:17AM -0500, Dave Jones wrote:
-> On Thu, Mar 03, 2005 at 11:17:16PM -0800, Andrew Morton wrote:
+On Thu, 24 Feb 2005 at 15:44:34, Bartlomiej Zolnierkiewicz wrote:
+
+> --- a/drivers/ide/ide-io.c    2005-02-23 20:58:16 +01:00
+> +++ b/drivers/ide/ide-io.c    2005-02-23 20:58:16 +01:00
+> @@ -61,7 +61,8 @@
 > 
->  > >  The reason this wasn't picked up is that neither `make allyesconfig' or
->  > >  `make allmodconfig' enables CONFIG_VIDEO_CX88_DVB or
->  > >  CONFIG_VIDEO_CX88_DVB_MODULE.
->  > >
->  > >  For coverage purposes it would be excellent to fix that up too, please.
->  > 
->  > Wise words, those.
+>       memset(task, 0, sizeof(*task));
 > 
-> It's dependant on CONFIG_BROKEN. Remove that, and allmodconfig should pick it up.
+> -     if (ide_id_has_flush_cache_ext(drive->id)) {
+> +     if (ide_id_has_flush_cache_ext(drive->id) &&
+> +         (drive->capacity64 >= (1UL << 28))) {
+                               ^^
+------------------------------>||
 
-It's tagged broken _because_ it doesn't build yet.  I've patches in the
-queue, they depend on some dvb updates through, and I'm bugging the
-linuxtv guys at the moment to push updates, so I can submit my stuff as
-well.  The build failure and the CONFIG_BROKEN will go away then.
+>               tf->command = WIN_FLUSH_CACHE_EXT;
+>               tf->flags |= ATA_TFLAG_LBA48;
+>       } else
 
-There is no point in fixing the build now somehow because that wouldn't
-make the driver actually work ...
+  Shouldn't that be ">" ???
 
-  Gerd
+  Either that or this code from ide-disk is wrong:
 
--- 
-#define printk(args...) fprintf(stderr, ## args)
+        /* limit drive capacity to 137GB if LBA48 cannot be used */
+        if (drive->addressing == 0 && drive->capacity64 > 1ULL << 28) {
+                printk(KERN_WARNING "%s: cannot use LBA48 - full capacity "
+                       "%llu sectors (%llu MB)\n",
+                       drive->name, (unsigned long long)drive->capacity64,
+                       sectors_to_MB(drive->capacity64));
+                drive->capacity64 = 1ULL << 28;
+        }
+
+
+--
+Chuck

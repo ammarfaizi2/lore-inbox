@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264658AbUHGXVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264660AbUHGXU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264658AbUHGXVe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 19:21:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbUHGXVE
+	id S264660AbUHGXU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 19:20:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264658AbUHGXUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 19:21:04 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:53720 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S264643AbUHGXUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 19:20:50 -0400
-Message-ID: <411563D0.1050608@namesys.com>
-Date: Sat, 07 Aug 2004 16:20:48 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-CC: andrea@cpushare.com, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: secure computing for 2.6.7
-References: <20040704173903.GE7281@dualathlon.random>	 <40EC4E96.9090800@namesys.com> <1091536845.7645.60.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1091536845.7645.60.camel@moss-spartans.epoch.ncsc.mil>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 7 Aug 2004 19:20:51 -0400
+Received: from main.gmane.org ([80.91.224.249]:10458 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264640AbUHGXUq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 19:20:46 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Date: Sun, 08 Aug 2004 01:19:09 +0200
+Message-ID: <yw1xu0ve1qqa.fsf@kth.se>
+References: <200408070001.i7701PSa006663@burner.fokus.fraunhofer.de> <1091916508.19077.24.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 161.80-203-29.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:Kks7/5vSp/SYTvzVZEAJp610dMk=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Smalley wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
->On Wed, 2004-07-07 at 15:27, Hans Reiser wrote:
->  
->
->>Am I right to think that this could complement nicely our plans 
->>described at www.namesys.com/blackbox_security.html
->>    
->>
->
->Hi Hans,
->
->Out of curiosity, what do you think that this proposal will achieve that
->cannot already be done via SELinux policy?  SELinux policy can already
->express access rules based not only on the executable and user, but even
->the entire call chain that led to a given executable.
->
->  
->
-Where do you store the access rules?  With the executable?   How do you 
-automate their determination?
+> BTW while I remember cdrecord has a bug with hardcoded iso8859-1
+> copyright symbols in it which mean your copyright banner is invalid
+> unicode on a UTF-8 locale.
+
+Does that also invalidate the copyright?
+
+-- 
+Måns Rullgård
+mru@kth.se
+

@@ -1,70 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbUKWVOt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbUKWVOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbUKWVOt (ORCPT <rfc822;willy@w.ods.org>);
+	id S261530AbUKWVOt (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 23 Nov 2004 16:14:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbUKWTJE
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbUKWTId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 14:09:04 -0500
-Received: from fsmlabs.com ([168.103.115.128]:3264 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261401AbUKWSxs (ORCPT
+	Tue, 23 Nov 2004 14:08:33 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52915 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261356AbUKWR75 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 13:53:48 -0500
-Date: Tue, 23 Nov 2004 11:53:31 -0700 (MST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: "Deepak Kumar Gupta, Noida" <dkumar@hcltech.com>
-cc: "'Robin Holt '" <holt@sgi.com>,
-       "''lilbilchow@yahoo.com' '" <lilbilchow@yahoo.com>,
-       "''ananth@sgi.com' '" <ananth@sgi.com>,
-       "''linux-kernel@vger.kernel.org' '" <linux-kernel@vger.kernel.org>,
-       "''linux-ia64@vger.kernel.org' '" <linux-ia64@vger.kernel.org>
-Subject: RE: smp_call_function/flush_tlb_all hang on large memory system
-In-Reply-To: <267988DEACEC5A4D86D5FCD780313FBB2BFBB6@exch-03.noida.hcltech.com>
-Message-ID: <Pine.LNX.4.61.0411231152020.7167@musoma.fsmlabs.com>
-References: <267988DEACEC5A4D86D5FCD780313FBB2BFBB6@exch-03.noida.hcltech.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 23 Nov 2004 12:59:57 -0500
+Date: Tue, 23 Nov 2004 09:59:44 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: greg@kroah.com
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: ub: flag day - major 180
+Message-ID: <20041123095944.3e39683c@lembas.zaitcev.lan>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.13; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Nov 2004, Deepak Kumar Gupta, Noida wrote:
+The major 180 has been allocated by LANANA. This is needed for people who
+insist on running 2.6 without udev (imagine that).
 
-> Hi Robin 
-> 
-> The output of CPU is 
-> 
-> CPU  A: 0x02:   Kernel: CPU busy
->         0x03:   Kernel: CPU busy
-> CPU  C: 0x03:   Kernel: CPU busy
-> 
-> well regarding filing the issue.. i haven't yet contactated support
-> persons.. send the mail to just know whether there is already a solution
-> available or not.. 
-> 
-> If you are interested in stack trace.. then it is as follows:-
-> 
-> [0]kdb> bt
-> Stack traceback for pid 7
-> 0xe00000307b818000        7        1  1    0   R  0xe00000307b8185a0 *kswapd
-> 0xe00000000444b120 smp_call_function+0x5e0
->         args (0xe000000005033698, 0xe000000005033698, 0x1,
-> 0xa000000000008000, 0x1)
->         kernel .text 0xe000000004400000 0xe00000000444ab40
-> 0xe00000000444b160
-> 0xe00000000444a330 smp_flush_tlb_all+0x30
->         args (0xe0000000044545a0, 0x288)
->         kernel .text 0xe000000004400000 0xe00000000444a300
-> 0xe00000000444a360
-> 0xe0000000044545a0 flush_tlb_range+0x40
->         args (0xe00000307a5b64c8, 0x2000000002128000, 0x200000000212c000,
-> 0xe000000004559880, 0x58e)
->         kernel .text 0xe000000004400000 0xe000000004454560
-> 0xe000000004454700
-> 0xe000000004559880 try_to_swap_out+0x320
->         args (0xe00000307a5b64c8, 0xe00000303b910468, 0x27be00,
-> 0xe000003045638250, 0xa0007fffffe20300)
->         kernel .text 0xe000000004400000 0xe000000004559560
-
-This function holds mm->page_table_lock which is acquired with interrupts 
-disabled. As a result there is a window for deadlock when you descend into 
-smp_call_function. I suggest you run fast from crusty kernels ;)
-
+--- linux-2.6.10-rc2-bk8-ub/drivers/block/ub.c	2004-11-16 17:03:02.000000000 -0800
++++ linux-2.6.10-rc1-ub/drivers/block/ub.c	2004-11-07 19:01:03.000000000 -0800
+@@ -36,7 +36,7 @@
+ #define DRV_NAME "ub"
+ #define DEVFS_NAME DRV_NAME
+ 
+-#define UB_MAJOR 125	/* Stolen from Experimental range for a week - XXX */
++#define UB_MAJOR 180
+ 
+ /*
+  * Definitions which have to be scattered once we understand the layout better.

@@ -1,78 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbULYRCU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbULYRIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbULYRCU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 12:02:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbULYRCT
+	id S261527AbULYRIW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 12:08:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbULYRIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 12:02:19 -0500
-Received: from omega.datac.cz ([81.31.15.4]:64232 "EHLO omega.datac.cz")
-	by vger.kernel.org with ESMTP id S261277AbULYRCN (ORCPT
+	Sat, 25 Dec 2004 12:08:22 -0500
+Received: from coderock.org ([193.77.147.115]:44252 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261527AbULYRIU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 12:02:13 -0500
-Message-ID: <41CD9D00.4090505@feix.cz>
-Date: Sat, 25 Dec 2004 18:01:52 +0100
-From: Michal Feix <michal@feix.cz>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] FW_LOADER required in Kconfig for certain DVB frontend modules
-Content-Type: multipart/mixed;
- boundary="------------030905000409020704070000"
+	Sat, 25 Dec 2004 12:08:20 -0500
+Date: Sat, 25 Dec 2004 18:08:25 +0100
+From: Domen Puncer <domen@coderock.org>
+To: rmk@arm.linux.org.uk
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [patch] maintainers: remove moderated arm list
+Message-ID: <20041225170825.GA31577@nd47.coderock.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030905000409020704070000
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
-
-I would have sent this to DVB maintener, if linuxtv.org wasn't down for the 
-whole day and their SMTP wouldn't reject all emails for linuxtv.org domain. :((
-
-Due to a change between 2.6.9 and 2.6.10 in certain DVB frontend modules, 
-it is now required to have "Hotplug firmware loading support" selected in 
-Kernel configuration (FW_LOADER in .config file).
-
--- 
-Michal Feix
-michal@feix.cz
+If you are subscribed to it, you already know the address. If you are not,
+you probably don't want bounces.
 
 
---------------030905000409020704070000
-Content-Type: text/plain;
- name="dvb-fwloader.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="dvb-fwloader.patch"
+Signed-off-by: Domen Puncer <domen@coderock.org>
 
-diff -ur a/drivers/media/dvb/frontends/Kconfig b/drivers/media/dvb/frontends/Kconfig
---- a/drivers/media/dvb/frontends/Kconfig	Sat Dec 25 12:16:31 2004
-+++ b/drivers/media/dvb/frontends/Kconfig	Sat Dec 25 14:12:36 2004
-@@ -46,6 +46,7 @@
- config DVB_SP8870
-  	tristate "Spase sp8870 based"
- 	depends on DVB_CORE
-+	select FW_LOADER
- 	help
-  	  A DVB-T tuner module. Say Y when you want to support this frontend.
+--- c/MAINTAINERS	2004-12-25 15:50:10.000000000 +0100
++++ a/MAINTAINERS	2004-12-25 18:02:02.000000000 +0100
+@@ -296,7 +296,6 @@
+ ARM/PT DIGITAL BOARD PORT
+ P:	Stefan Eletzhofer
+ M:	stefan.eletzhofer@eletztrick.de
+-L:	linux-arm-kernel@lists.arm.linux.org.uk
+ W:	http://www.arm.linux.org.uk/
+ S:	Maintained
  
-@@ -56,6 +57,7 @@
- config DVB_SP887X
-  	tristate "Spase sp887x based"
- 	depends on DVB_CORE
-+	select FW_LOADER
- 	help
- 	  A DVB-T tuner module. Say Y when you want to support this frontend.
+@@ -309,7 +308,6 @@
+ ARM/STRONGARM110 PORT
+ P:	Russell King
+ M:	rmk@arm.linux.org.uk
+-L:	linux-arm-kernel@lists.arm.linux.org.uk
+ W:	http://www.arm.linux.org.uk/
+ S:	Maintained
  
-@@ -84,6 +86,7 @@
- config DVB_TDA1004X
- 	tristate "Philips TDA10045H/TDA10046H based"
- 	depends on DVB_CORE
-+	select FW_LOADER
- 	help
- 	  A DVB-T tuner module. Say Y when you want to support this frontend.
+@@ -1788,7 +1786,6 @@
+ PXA2xx SUPPORT
+ P:	Nicolas Pitre
+ M:	nico@cam.org
+-L:	linux-arm-kernel@lists.arm.linux.org.uk
+ S:	Maintained
  
-
-
---------------030905000409020704070000--
+ QNX4 FILESYSTEM

@@ -1,86 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263396AbTDXQCz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 12:02:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263726AbTDXQCz
+	id S262620AbTDXQTU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 12:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263402AbTDXQTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 12:02:55 -0400
-Received: from watch.techsource.com ([209.208.48.130]:15066 "EHLO
-	techsource.com") by vger.kernel.org with ESMTP id S263396AbTDXQCx
+	Thu, 24 Apr 2003 12:19:19 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:56962 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S262620AbTDXQTS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 12:02:53 -0400
-Message-ID: <3EA8114A.4020309@techsource.com>
-Date: Thu, 24 Apr 2003 12:31:06 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Thu, 24 Apr 2003 12:19:18 -0400
+Date: Thu, 24 Apr 2003 09:31:23 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 632] New: stream of bugus retval mask errors from ips on boot 
+Message-ID: <82680000.1051201883@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Chuck Ebbert <76306.1226@compuserve.com>, Jens Axboe <axboe@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.21-rc1 pointless IDE noise reduction
-References: <200304241128_MC3-1-35DA-F3DA@compuserve.com> <Pine.LNX.4.53.0304241147420.32073@chaos>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+http://bugme.osdl.org/show_bug.cgi?id=632
+
+           Summary: stream of bugus retval mask errors from ips on boot
+    Kernel Version: 2.5.68-bkcurrent
+            Status: NEW
+          Severity: normal
+             Owner: andmike@us.ibm.com
+         Submitter: plars@austin.ibm.com
 
 
-Richard B. Johnson wrote:
+Distribution:
+SuSE 8.0
+Hardware Environment:
+2-way PIII 550, ServeRaid (ips)
+Software Environment:
+Problem Description:
+This system generates a ton of messages like this on boot:
+Apr 24 10:52:07 triumph kernel: handlers:
+Apr 24 10:52:07 triumph kernel: [<c02ac9d8>] (do_ipsintr+0x0/0xdc)
+Apr 24 10:52:07 triumph kernel: irq event 11: bogus retval mask f7d31600
+Apr 24 10:52:07 triumph kernel: Call Trace:
+Apr 24 10:52:07 triumph kernel:  [<c010ae04>] handle_IRQ_event+0x94/0xf0
+Apr 24 10:52:07 triumph kernel:  [<c010b0e9>] do_IRQ+0xf9/0x1b0
+Apr 24 10:52:07 triumph kernel:  [<c0106df0>] default_idle+0x0/0x34
+Apr 24 10:52:07 triumph kernel:  [<c0105000>] _stext+0x0/0x70
+Apr 24 10:52:07 triumph kernel:  [<c0109910>] common_interrupt+0x18/0x20
+Apr 24 10:52:07 triumph kernel:  [<c0106df0>] default_idle+0x0/0x34
+Apr 24 10:52:07 triumph kernel:  [<c0105000>] _stext+0x0/0x70
+Apr 24 10:52:07 triumph kernel:  [<c0106e1c>] default_idle+0x2c/0x34
+Apr 24 10:52:07 triumph kernel:  [<c0106ea3>] cpu_idle+0x37/0x48
+Apr 24 10:52:07 triumph kernel:  [<c010506d>] _stext+0x6d/0x70
+Apr 24 10:52:07 triumph kernel:  [<c04bc772>] start_kernel+0x176/0x180
 
->On Thu, 24 Apr 2003, Chuck Ebbert wrote:
->
->  
->
->>Jens Axboe wrote:
->>
->>
->>    
->>
->>>>+	return((drive->id->cfs_enable_1 & 0x0400) ? 1 : 0);
->>>> }
->>>>        
->>>>
->>>Seconded, it causes a lot more confusion than it does good.
->>>      
->>>
->>  The return looks like a function call in that last line.
->>
->>  That's one of the few things I find really annoying -- extra parens
->>are fine when they make code clearer, but not there.
->>
->>
->>-------
->> Chuck [ C Style Police, badge #666 ]
->>    
->>
->
->return((drive->id->cfs_enable_1 & 0x0400) ? 1 : 0);
->                                  ^^^^^^|__________ wtf?
->These undefined numbers in the code are much more annoying to me...
->but I don't have a C Style Police Badge.
->
->Also, whatever that is, 0x400, I'll call it MASK, can have shorter
->code like:
->
->   return (drive->id->cfs_enable_1 && MASK); // TRUE/FALSE
->... for pedantics...
->   return (int) (drive->id->cfs_enable_1 && MASK);
->
->
->  
->
+I can attach the entire log if you want, but they all look identical to me,
+irq even 11, mask f7d31600, etc.
 
-That wouldn't work, because && isn't a bitwise operator.  But I agree 
-that the ( x ? 1 : 0 ) method may not be very efficient, because it may 
-involve branches.
-
-Two alternatives:
-
-(a)     !!(x & 0x400)
-
-(b)     (x & 0x400) >> 10
-
+Steps to reproduce:
+Boot on an ips machine with that kernel
 
 

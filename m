@@ -1,63 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266736AbSLDACx>; Tue, 3 Dec 2002 19:02:53 -0500
+	id <S266750AbSLDAXF>; Tue, 3 Dec 2002 19:23:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266746AbSLDACx>; Tue, 3 Dec 2002 19:02:53 -0500
-Received: from cda1.e-mind.com ([195.223.140.107]:13184 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S266736AbSLDACw>;
-	Tue, 3 Dec 2002 19:02:52 -0500
-Date: Wed, 4 Dec 2002 01:09:56 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@digeo.com>, Christoph Hellwig <hch@sgi.com>,
-       rml@tech9.net, linux-kernel@vger.kernel.org
+	id <S266754AbSLDAXF>; Tue, 3 Dec 2002 19:23:05 -0500
+Received: from packet.digeo.com ([12.110.80.53]:22470 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266750AbSLDAXE>;
+	Tue, 3 Dec 2002 19:23:04 -0500
+Message-ID: <3DED4CA4.5B9A20EA@digeo.com>
+Date: Tue, 03 Dec 2002 16:30:28 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: "Martin J. Bligh" <mbligh@aracnet.com>, Christoph Hellwig <hch@sgi.com>,
+       marcelo@connectiva.com.br.munich.sgi.com, rml@tech9.net,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] set_cpus_allowed() for 2.4
-Message-ID: <20021204000956.GH11730@dualathlon.random>
-References: <20021202192652.A25938@sgi.com> <1919608311.1038822649@[10.10.2.3]> <3DEBB4BD.F64B6ADC@digeo.com> <20021202195003.GC28164@dualathlon.random> <3DED18CC.5770EA90@digeo.com> <124510000.1038949781@titus>
-Mime-Version: 1.0
+References: <20021202192652.A25938@sgi.com> <1919608311.1038822649@[10.10.2.3]> <3DEBB4BD.F64B6ADC@digeo.com> <20021202195003.GC28164@dualathlon.random> <3DED18CC.5770EA90@digeo.com> <20021204000618.GG11730@dualathlon.random>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <124510000.1038949781@titus>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Dec 2002 00:30:28.0298 (UTC) FILETIME=[585A62A0:01C29B2C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 03, 2002 at 01:09:42PM -0800, Martin J. Bligh wrote:
-> >>please try with my tree.
-> >
-> >It is greatly improved.  It is still not as smooth as the standard 2.4
-> >scheduler, but I'd characterise it as "a bit jerky" rather than "makes
-> >me want to punch a hole in the monitor".
-> >
-> >The difference is unlikely to be noticed by many.  (But it should be
-> >_better_ than stock 2.4)
+Andrea Arcangeli wrote:
 > 
 > ...
-> 
-> >>can you reproduce with my tree?
 > >
-> >Again, hugely improved over normal O(1) behaviour, but not as responsive
-> >as the stock 2.4 scheduler.
+> > The difference is unlikely to be noticed by many.  (But it should be
+> > _better_ than stock 2.4)
 > 
-> Andrea, which patches in your tree are the ones that fix this?
-> If it's the big-monster one ... any chance you could split out
-> the bits actually fix it? I'd love to be able to apply your fixes
-> to 2.5 and try them there ....
+> it can't be better in SMP because due its scalability feature we
+> completely lose track of the global smp and we only can keep track of
+> the single per-cpu queue. Was it on SMP or UP?
 
-it's all in these patches:
+The problem with the "interactivity estimator" was observed on
+dual CPU.  It has almost vanished in 2.4.20aa1 and I don't think
+it needs any more attention.
 
-andrea@dualathlon:~/remote/kernel.org/kernels/v2.4/2.4.20aa1> ls -1 *sched*
-00_flush-inode-reschedule-2
-00_sched-O1-aa-2.4.19rc3-5.gz
-10_sched-o1-bluetooth-1
-10_sched-o1-hyperthreading-3
-20_apm-o1-sched-1
-20_sched-o1-fixes-8
-71_xfs-sched-1
+(BTW: it is not possible to trigger this problem when the background
+load is just one or more busywaits.  It has to be a compilation.  It
+could be something to do with all the short-lived processes, or gcc -pipe)
 
-I'm fixing the RT case too right now, in a few days a further fix will
-be available to avoid deadlocks of some app with RT enabled.
+> ...
+> > With a `make -j1' running:
+> >
+> > - Normal O(1) behaviour in StarOffice 5.2 is 15-30 second delays between
+> >   actions.
+> >
+> > - With 2.4.20aa1, typing into a text document typically had a 2-3 character
+> >   delay.
+> >
+> > - With the standard 2.4 scheduler the delay is zero characters.
+> 
+> again, I guess that's SMP and that's quite a pain to fix it to be 100%
+> equivalent to 2.4 without hurting scalability.
 
-Andrea
+This problem is the "changed sched_yield semantics".  It was actually
+tested on uniprocessor.  The difference between 2.4 and 2.4-aa is
+still noticeable here, but it is not a terrible problem now.
+
+> ..
+> 
+> Overall I don't see any showstopper with openoffice (or staroffice) on
+> my version of the o1 scheduler.
+
+I'd agree that it's not a showstopper.  It's in the "could be improved
+a bit sometime" department.
+
+Post-2.4, well, spinning on sched_yield() is a silly way to implement
+a graphical application and I don't believe we need to struggle to
+support such a thing.
+
+The Open Group say
+
+     The sched_yield() function shall force the running thread to relinquish
+     the processor until it again becomes the head of its thread list. It
+     takes no arguments.
+
+That's a bit vague, but it does tend to imply that a yield could
+relinquish the CPU for a very long time.

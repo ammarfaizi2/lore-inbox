@@ -1,43 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279750AbRJYKUr>; Thu, 25 Oct 2001 06:20:47 -0400
+	id <S279747AbRJYKXr>; Thu, 25 Oct 2001 06:23:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279756AbRJYKUh>; Thu, 25 Oct 2001 06:20:37 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:7383 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S279750AbRJYKUZ>;
-	Thu, 25 Oct 2001 06:20:25 -0400
-Date: Thu, 25 Oct 2001 12:20:58 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200110251020.MAA13431@harpo.it.uu.se>
-To: R.E.Wolff@BitWizard.nl
-Subject: Re: APIC and "ISA" interrupts.
-Cc: linux-kernel@vger.kernel.org
+	id <S279756AbRJYKXd>; Thu, 25 Oct 2001 06:23:33 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:30036 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S279747AbRJYKXO>; Thu, 25 Oct 2001 06:23:14 -0400
+To: "Linus Torvalds" <torvalds@transmeta.com>
+Cc: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+        "Alan Cox" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        "Patrick Mochel" <mochel@osdl.org>,
+        "Jonathan Lundell" <jlundell@pobox.com>
+Subject: Re: [RFC] New Driver Model for 2.5
+In-Reply-To: <Pine.LNX.4.33.0110250224340.1128-100000@penguin.transmeta.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 25 Oct 2001 04:11:58 -0600
+In-Reply-To: <Pine.LNX.4.33.0110250224340.1128-100000@penguin.transmeta.com>
+Message-ID: <m1elnsdo5t.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Oct 2001 23:32:45 +0200 (MEST), Rogier Wolff wrote:
->After upgrading our fileserver to 2.4, I can't seem to get the ISDN
->card to work. I think that's because the kernel is using the APIC to
->route interrupts, such that my BIOS configuration "used-by-Legacy-ISA" 
->is no longer in effect. 
->
->I tried disabling the APIC with the following results: 
->
->Local APIC disabled by BIOS -- reenabling.
->Found and enabled local APIC!
->Kernel command line: auto BOOT_IMAGE=linux ro root=302 BOOT_FILE=/boot/vmlinuz disableapic
->
->as far as I can see, the code to print "local apci disabled by bios"
->is not called if "disableapic" is on the commandline.
->
->This is linux-2.4.10 that I got with SuSE 7.3
+"Linus Torvalds" <torvalds@transmeta.com> writes:
 
-"disableapic" is not in 2.4.13 vanilla. Some SuSE hack?
-Anyway, try "noapic" instead. That should disable the kernel's use of
-the IO-APIC. The local APIC is a completely different beast, and it is
-unlikely to have anything to do with your interrupt routing problems.
+> On 25 Oct 2001, Eric W. Biederman wrote:
+> >
+> > Or another fun common one.  To shut down the interrupt controller, I first
+> > need to shut down every device that thinks it can generate interrupts.
+> > But my interrupt controller is way out on my pci->isa bridge.  So I
+> > can't shut that device down.
+> >
+> > Sorry this whole device tree idea for shutdown ordering doesn't seem
+> > to match my idea of reality.
+> 
+> Your _examples_ do not match any reality.
 
-Failing that, recompile with CONFIG_X86_UP_IOAPIC=n and CONFIG_SMP=n.
+I'll go as far as agreeing they do not matching any _practical_ reality.
 
-/Mikael
-(. local APIC on UP caretaker .)
+> Don't worry about things like the CPU shutdown: you have to have special
+> code for it anyway.
+
+But that is the case I plan on coding....
+ 
+> Let's face it, the device tree is for _devices_. It's for shutting down a
+> network card before we shut down the PCI bridge that is in front of it.
+> 
+> The issue of "core shutdown" is not covered - and isn't _meant_ to be
+> covered. 
+
+O.k. I'll step back and let you guys handle the normal cases.  I rarely
+get past "core startup" and "core shutdown".  
+
+> That's the problem of the architecture-specific code. There is no
+> point in having a device tree for that, because it's going to be very much
+> architecture-specific anyway (ie on x86 we may have to just blindly trust
+> some silly APCI table data etc).
+
+I'm doing my best to provide a real world alternative to ACPI on some
+boards. 
+
+My perspective is coming from linuxBIOS, or in general GPL'd
+firmware, so it is a little different.  
+
+But at this point in the conversation it looks like I should just back
+off, let the core API get the easy cases correct.  And then come back
+and figure out how to handle the truly weird cases.
+
+Eric

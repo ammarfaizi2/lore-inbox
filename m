@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311701AbSERJdS>; Sat, 18 May 2002 05:33:18 -0400
+	id <S311885AbSERJiC>; Sat, 18 May 2002 05:38:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311564AbSERJdR>; Sat, 18 May 2002 05:33:17 -0400
-Received: from warrior.services.quay.plus.net ([212.159.14.227]:24479 "HELO
-	warrior.services.quay.plus.net") by vger.kernel.org with SMTP
-	id <S311121AbSERJdO>; Sat, 18 May 2002 05:33:14 -0400
-Date: Sat, 18 May 2002 10:32:35 +0100
-From: "J.P. Morris" <jpm@it-he.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Aralion and IDE blasphemy
-Message-Id: <20020518103235.23e5f9a0.jpm@it-he.org>
-In-Reply-To: <E178nIx-00077W-00@the-village.bc.nu>
-X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S311871AbSERJiB>; Sat, 18 May 2002 05:38:01 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:56837
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S311180AbSERJh7>; Sat, 18 May 2002 05:37:59 -0400
+Date: Sat, 18 May 2002 02:37:35 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+cc: linux-ide@vger.kernel.org
+Subject: IO/MMIO 2.4 ATA/IDE driver recore near complete
+Message-ID: <Pine.LNX.4.10.10205180230290.774-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 May 2002 20:22:19 +0100 (BST)
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-> > > What does lspci say the chipset really is ?
-> > 
-> > Here's the entry for it from lspci -v.  I can quote the entire file if you prefer.
-> > 
-> > 00:11.0 RAID bus controller: ARALION Inc: Unknown device 0301
-> 
-> Just the one controller shows up despite it being four ports ?
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes
+PIIX3: IDE controller on PCI bus 00 dev 39
+PIIX3: chipset revision 0
+PIIX3: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:pio, hdd:pio
+SiI680: IDE controller on PCI bus 00 dev 90
+SiI680: chipset revision 1
+SiI680: not 100% native mode: will probe irqs later
+SiI680: mmio capable at 0xe080df00
+SiI680: BASE CLOCK == 2X PCI
+    ide2: MMIO-DMA at 0xe080df00-0xe080df07, BIOS settings: hde:pio, hdf:pio
+    ide3: MMIO-DMA at 0xe080df08-0xe080df0f, BIOS settings: hdg:pio, hdh:pio
+hda: ATAPI 44X CDROM, ATAPI CD/DVD-ROM drive
+hdb: CREATIVEDVD5240E-1, ATAPI CD/DVD-ROM drive
+hde: Maxtor 4G160J8, ATA DISK drive
+hdg: Maxtor 4G160H8, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide2 at 0xe080dfc0-0xe080dfc7,0xe080dfca on irq 9
+ide3 at 0xe080df80-0xe080df87,0xe080df8a on irq 9
+hde: host protected area => 1
+hde: 320173056 sectors (163929 MB) w/2048KiB Cache, CHS=19929/255/63
+hdg: host protected area => 1
+hdg: 320173056 sectors (163929 MB) w/2048KiB Cache, CHS=19929/255/63
+hda: ATAPI 40X CD-ROM drive, 128kB Cache, (U)DMA
+Uniform CD-ROM driver Revision: 3.12
+hdb: ATAPI 32X DVD-ROM drive, 512kB Cache, DMA
 
-All the other entries are for hardware I know, so yes.
+Please note BMDMA for MMIO is not native since there appears to be
+pci-posting errors under x86.
 
-> > However.  I put the thing in to try and relieve a problem of drive bays and
-> > connector lengths.  A bit of lateral thinking has provided another solution
-> > and I no longer need the card urgently.
-> 
-> Aralion claim Linux support so might be worth asking them ?
-> http://www.aralion.com/products/raidControl/ideRaid/ideRaid_ultimaRaid100.htm
+Cheers,
 
-What they will give you is a Windows program in korean.  Later examination
-revealed it to be some kind of self-extracting ZIP file.
+Andre Hedrick
+LAD Storage Consulting Group
 
-Inside are some binary kernel modules they wrote which are specific to RedHat
-7.1's version 2.4.2 kernel.
-
-They've just updated their Windows drivers, so they -may- release a more
-recent version, but I'd prefer not to have a closed binary module present.
-
-
--- 
-JP Morris - aka DOUG the Eagle (Dragon) -=UDIC=-  jpm@it-he.org
-Fun things to do with the Ultima games            http://www.it-he.org
-Developing a U6/U7 clone                          http://ire.it-he.org
-d+++ e+ N+ T++ Om U1234!56!7'!S'!8!9!KA u++ uC+++ uF+++ uG---- uLB----
-uA--- nC+ nR---- nH+++ nP++ nI nPT nS nT wM- wC- y a(YEAR - 1976)

@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262120AbVAYUed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbVAYUjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262120AbVAYUed (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 15:34:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbVAYUdv
+	id S262129AbVAYUjL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 15:39:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVAYUjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 15:33:51 -0500
-Received: from hera.kernel.org ([209.128.68.125]:40076 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S262124AbVAYUcl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 15:32:41 -0500
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: kernel BUG at fs/sysfs/symlink.c:87
-Date: Tue, 25 Jan 2005 12:32:35 -0800
-Organization: Open Source Development Lab
-Message-ID: <20050125123235.118108ca@dxpl.pdx.osdl.net>
-References: <20050124155100.GA2583@paradigm.rfc822.org>
+	Tue, 25 Jan 2005 15:39:11 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:5267 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262129AbVAYUhj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 15:37:39 -0500
+Subject: Re: i8042 access timings
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: dtor_core@ameritech.net, linux-input@atrey.karlin.mff.cuni.cz,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <20050125194647.GB3494@pclin040.win.tue.nl>
+References: <200501250241.14695.dtor_core@ameritech.net>
+	 <20050125105139.GA3494@pclin040.win.tue.nl>
+	 <d120d5000501251117120a738a@mail.gmail.com>
+	 <20050125194647.GB3494@pclin040.win.tue.nl>
+Content-Type: text/plain
+Date: Tue, 25 Jan 2005 15:37:35 -0500
+Message-Id: <1106685456.10845.40.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1106685150 25603 172.20.1.103 (25 Jan 2005 20:32:30 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Tue, 25 Jan 2005 20:32:30 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 0.9.13 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can't reproduce this with 2.6.11-rc2, could you try this patch to
-see if it matters.
+On Tue, 2005-01-25 at 20:46 +0100, Andries Brouwer wrote:
+> On Tue, Jan 25, 2005 at 02:17:33PM -0500, Dmitry Torokhov wrote:
+> 
+> > Still, I wonder if implementing these delays will give IO controller
+> > better chances to react to our queries and will get rid of some
+> > failures.
+> 
+> My objection is this: by doing this you create myths that may
+> be difficult to dispel later. I recall other situations where
+> there were superfluous restrictions and I had a hard time convincing
+> others of the fact that the tests weren't there for any good reason,
+> that there was no single instance of hardware on earth known to
+> work better with the added restrictions.
 
-Puzzled, because the assert is.
-	BUG_ON(!kobj || !kobj->dentry || !name);
-and call is
-	
-	err = sysfs_create_link(&p->kobj, &br->dev->class_dev.kobj, 
-				SYSFS_BRIDGE_PORT_LINK);
-kobj can't be NULL, because &p->kobj can't be NULL
-kobj->dentry is created by kobject_add
-name is SYSFS_BRIDGE_PORT_LINK ("bridge")
+Seems like a comment along the lines of "foo hardware doesn't work right
+unless we delay a bit here" is the obvious solution.  Then someone can
+easily disprove it later.
 
-The kobj->dentry should have been created by kobject_add() 
+Lee
 
-	kobject_set_name(&p->kobj, SYSFS_BRIDGE_PORT_ATTR);
-	p->kobj.ktype = &brport_ktype;
-	p->kobj.parent = &(p->dev->class_dev.kobj);
-	p->kobj.kset = NULL;
-
-	err = kobject_add(&p->kobj);
-and kobject_add does.
-	err = create_dir(kobj);
-create_dir calls sysfs_create_dir(kobj).
-===================
-
-Since kobject_register initializes more fields, perhaps some part of kobject_add
-got confused. Try this.
-
-diff -Nru a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
---- a/net/bridge/br_sysfs_if.c	2005-01-25 12:28:00 -08:00
-+++ b/net/bridge/br_sysfs_if.c	2005-01-25 12:28:00 -08:00
-@@ -229,7 +229,7 @@
- 	p->kobj.parent = &(p->dev->class_dev.kobj);
- 	p->kobj.kset = NULL;
- 
--	err = kobject_add(&p->kobj);
-+	err = kobject_register(&p->kobj);
- 	if(err)
- 		goto out1;
- 

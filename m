@@ -1,28 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262974AbTDBMB0>; Wed, 2 Apr 2003 07:01:26 -0500
+	id <S262972AbTDBMAq>; Wed, 2 Apr 2003 07:00:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262976AbTDBMBZ>; Wed, 2 Apr 2003 07:01:25 -0500
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:49842 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id <S262974AbTDBMBY>; Wed, 2 Apr 2003 07:01:24 -0500
-Message-Id: <200304021211.h32CBkGi007395@locutus.cmf.nrl.navy.mil>
-To: Christoph Hellwig <hch@infradead.org>
-cc: linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ATM] second pass at fixing atm spinlock 
-In-reply-to: Your message of "Wed, 02 Apr 2003 08:18:47 +0100."
-             <20030402081847.A22335@infradead.org> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Wed, 02 Apr 2003 07:11:46 -0500
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+	id <S262974AbTDBMAq>; Wed, 2 Apr 2003 07:00:46 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:34824 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262972AbTDBMAp>; Wed, 2 Apr 2003 07:00:45 -0500
+Date: Wed, 2 Apr 2003 14:11:39 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Keith Owens <kaos@ocs.com.au>
+cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Put all functions in kallsyms 
+In-Reply-To: <6572.1049158014@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.4.44.0304021406140.12110-100000@serv>
+References: <6572.1049158014@ocs3.intra.ocs.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030402081847.A22335@infradead.org>,Christoph Hellwig writes:
->You always include the he driver in your patches, what about cleaning it up
->and submitting it first?
+Hi,
 
-it still has one serious (atleast in my opnion) bug.  the very first pdu
-sent on any particular vpi/vci pair has a corrupted crc.  its during 
-initialization somewhere that i dont get the crc 'counters' cleared.
+On Tue, 1 Apr 2003, Keith Owens wrote:
+
+> Don't.  Almost all kernel threads have a backtrace that goes through
+> __init code, even though that code no longer exists.  The symbols are
+> still needed to get a decent backtrace and the overhead is minimal.
+
+Are you sure, this is still the case? I remember, that this was the main 
+reason that kernel_thread() is not an inline function anymore, so AFAICT 
+there should be no relevant data on the stack anymore which points to init 
+code.
+
+bye, Roman
+

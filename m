@@ -1,47 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267549AbUG3AwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264054AbUG3BQg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267549AbUG3AwA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 20:52:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267560AbUG3Av7
+	id S264054AbUG3BQg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 21:16:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267553AbUG3BQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 20:51:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:19893 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267549AbUG3Avd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 20:51:33 -0400
-Date: Thu, 29 Jul 2004 20:51:27 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@dhcp030.home.surriel.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [patch] mlock-as-nonroot revisted
-In-Reply-To: <20040729142829.2a75c9b9.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0407292050360.9228@dhcp030.home.surriel.com>
-References: <20040729100307.GA23571@devserv.devel.redhat.com>
- <20040729142829.2a75c9b9.akpm@osdl.org>
+	Thu, 29 Jul 2004 21:16:35 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:40591 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S264054AbUG3BQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 21:16:32 -0400
+Message-ID: <4109A05B.6080900@comcast.net>
+Date: Thu, 29 Jul 2004 18:11:55 -0700
+From: "Amit D. Chaudhary" <amit_ml@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: fedora-list@redhat.com, linux-kernel@vger.kernel.org
+Subject: ext3 filesystem corruption with Fedora Core 2, Test 3 with latest
+ 2.6.6.x kernel
+Content-Type: multipart/mixed;
+ boundary="------------090406070402030907050905"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jul 2004, Andrew Morton wrote:
+This is a multi-part message in MIME format.
+--------------090406070402030907050905
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> I seem to recall that Andrea identified reasons why per-user mlock
-> limits were fundamentally broken/unsuitable, but I forget the details.  
-> Perhaps he could remind us?
+What happened:
+I got filesystem corrupted yesterday when using a Fedora Core 3, Test 3 
+with linux kernel 2.6.6-1.435.
 
-Fixed in the current patch.
+The filesystems were /boot and /, particularly files under /bin were 
+missing including /bin/sh, /etc/fstab, etc.
+kernel images, and other files under /boot had disappeared.
 
-> As for this patch: it's a new capability which will get basically zero
-> testing for the next year, which is a worry.  How have you tested it, and
-> how much?
+Setup:
+The desktop is a HP with a P3 700 with 512 MB RAM, 2 HDD, this happenned 
+on ide0 (hda1 and hda3)
+The ext3 filesystems had the default journaling mode.
 
-It's been in RHEL3 for a while now.  First with the
-the mistake Andrea identified, but that code's been
-fixed too now...
+How I ran into it:
+I ran vncserver from one of the mingetty (text) consoles, I am still 
+trying it out and probably used an incorrect xstartup, attached incase 
+it might be useful. Anyways, I did not connect to it, decided to log 
+onto another mingetty (CTRL+ALT+2), this took the login name and hung. 
+Now the computer went into a hard hang (No Oops, CTRL+ALT+DEL, etc did 
+not work.)
+On a reboot using grub directly went into Windows (it is a dual boot 
+system). Using the rescue disk, I noticed, since it did not mount 
+/dev/hda1 as /boot, the old /boot was being effective and suprisingly 
+did not have a link entry.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+I have reinstalled the OS, so no direct help is needed.
+Thought should email it to the list for information and if someone knows 
+which release this happens in and is there a fix to it.
+
+Thanks
+Amit
+
+--------------090406070402030907050905
+Content-Type: text/plain;
+ name="xstartup"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="xstartup"
+
+#!/bin/sh
+
+# Uncomment the following two lines for normal desktop:
+# unset SESSION_MANAGER
+# exec /etc/X11/xinit/xinitrc
+
+[ -x /etc/vnc/xstartup ] && exec /etc/vnc/xstartup
+[ -r $HOME/.Xresources ] && xrdb $HOME/.Xresources
+#Original commands
+#xsetroot -solid grey
+#vncconfig -iconic &
+#xterm -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &
+#twm &
+
+#/usr/bin/gdm-binary  -nodaemon&
+/usr/bin/gnome-keyring-daemon&
+metacity&
+/usr/libexec/gnome-settings-daemon&
+xscreensaver -nosplash&
+magicdev&
+#nautilus&
+gnome-panel&
+eggcups&
+
+konsole&
+
+/usr/libexec/gnome-vfs-daemon&
+dcopserver --nosid --suicide&
+/usr/libexec/mapping-daemon&
+kded&
+klauncher&
+
+--------------090406070402030907050905--

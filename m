@@ -1,62 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264389AbUFPSJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264382AbUFPSLx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264389AbUFPSJY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 14:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264401AbUFPSGj
+	id S264382AbUFPSLx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 14:11:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbUFPSLx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 14:06:39 -0400
-Received: from cfcafw.sgi.com ([198.149.23.1]:19359 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S264375AbUFPSDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 14:03:17 -0400
-Date: Wed, 16 Jun 2004 13:02:08 -0500
-From: Dimitri Sivanich <sivanich@sgi.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org, lse-tech <lse-tech@lists.sourceforge.net>,
-       linux-mm@kvack.org
-Subject: Re: [PATCH]: Option to run cache reap in thread mode
-Message-ID: <20040616180208.GD6069@sgi.com>
-References: <40D08225.6060900@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40D08225.6060900@colorfullife.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 16 Jun 2004 14:11:53 -0400
+Received: from pop.gmx.de ([213.165.64.20]:61569 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264411AbUFPSHX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 14:07:23 -0400
+Date: Wed, 16 Jun 2004 20:07:22 +0200 (MEST)
+From: "Michael Kerrisk" <michael.kerrisk@gmx.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+References: <Pine.LNX.4.58.0406160910020.27252@ppc970.osdl.org>
+Subject: Re: [PATCH 2.6.7] kill(2), killpg(2) wrongly fail with EPERM
+X-Priority: 3 (Normal)
+X-Authenticated: #2864774
+Message-ID: <25304.1087409242@www3.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 16, 2004 at 07:23:49PM +0200, Manfred Spraul wrote:
-> Dimitri wrote:
+Gidday Linus,
+
+> On Wed, 16 Jun 2004, Michael Kerrisk wrote:
+> > 
+> > The following patch for 2.6.7 fixes the problem.  Please apply.
 > 
-> >In the process of testing per/cpu interrupt response times and CPU 
-> >availability,
-> >I've found that running cache_reap() as a timer as is done currently 
-> >results
-> >in some fairly long CPU holdoffs.
-> >
-> What is fairly long?
-Into the 100's of usec.  I consider anything over 30 usec too long.
-I've seen this take longer than 30usec on a small (8p) system.
-
-> If cache_reap() is slow than the caches are too large.
-> Could you limit cachep->free_limit and check if that helps? It's right 
-> now scaled by num_online_cpus() - that's probably too much. It's 
-> unlikely that all 500 cpus will try to refill their cpu arrays at the 
-> same time. Something like a logarithmic increase should be sufficient.
-
-I haven't tried this yet, but I'm even seeing this on 4 cpu systems.
-
-> Do you use the default batchcount values or have you increased the values?
-
-Default.
-
-> I think the sgi ia64 system do not work with slab debugging, but please 
-> check that debugging is off. Debug enabled is slow.
-
-# CONFIG_DEBUG_SLAB is not set
-
+> How about this imho nicer version instead? It results in the main loop
+> being just:
 > 
-> --
->    Manfred
+>         success = 0;
+>         retval = -ESRCH;
+>         for_each_task_pid(pgrp, PIDTYPE_PGID, p, l, pid) {
+>                 int err = group_send_sig_info(sig, info, p);
+>                 success |= !err;
+>                 retval = err;  
+>         }
+>         return success ? 0 : retval;
 
-Dimitri Sivanich <sivanich@sgi.com>
+Yes, it is nicer.
+
+> which seems sensible. If _any_ group-send succeeded, we want to return 
+> success (ie this is not a EPERM vs everything else issue).
+> 
+> Does this work for you?
+
+Well, in terms of SUSv3/POSIX, I don't think there's a problem, 
+since the only errors trhat are specified for kill()/killpg() 
+are EPERM, ESRCH, and EINVAL (invalid signal number).  Aside 
+from the fact that I didn't spot the nice way, I wrote my 
+patch as I did since I was worried about the possibility of 
+some other Linux-specific errno values creeping around in the 
+woodwork.  But a little further investigation seems to show that
+there aren't other cases to worry about (EAGAIN in send_sig()
+doesn't apply for kill()/killpg().  So, your patch is better, 
+since simpler.  I've tested it, and it works as I would expect 
+for EPERM.
+
+Thanks,
+
+Michael
+
+
+> -----
+> ===== kernel/signal.c 1.120 vs edited =====
+> --- 1.120/kernel/signal.c	Wed Jun  9 01:46:51 2004
+> +++ edited/kernel/signal.c	Wed Jun 16 09:09:51 2004
+> @@ -1071,23 +1071,19 @@
+>  	struct task_struct *p;
+>  	struct list_head *l;
+>  	struct pid *pid;
+> -	int retval;
+> -	int found;
+> +	int retval, success;
+>  
+>  	if (pgrp <= 0)
+>  		return -EINVAL;
+>  
+> -	found = 0;
+> -	retval = 0;
+> +	success = 0;
+> +	retval = -ESRCH;
+>  	for_each_task_pid(pgrp, PIDTYPE_PGID, p, l, pid) {
+> -		int err;
+> -
+> -		found = 1;
+> -		err = group_send_sig_info(sig, info, p);
+> -		if (!retval)
+> -			retval = err;
+> +		int err = group_send_sig_info(sig, info, p);
+> +		success |= !err;
+> +		retval = err;
+>  	}
+> -	return found ? retval : -ESRCH;
+> +	return success ? 0 : retval;
+>  }
+>  
+>  int
+> 
+
+-- 
++++ Jetzt WLAN-Router für alle DSL-Einsteiger und Wechsler +++
+GMX DSL-Powertarife zudem 3 Monate gratis* http://www.gmx.net/dsl
+

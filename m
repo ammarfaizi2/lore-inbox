@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315721AbSHITVO>; Fri, 9 Aug 2002 15:21:14 -0400
+	id <S314277AbSHITYP>; Fri, 9 Aug 2002 15:24:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315734AbSHITVN>; Fri, 9 Aug 2002 15:21:13 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:25292 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S315721AbSHITVN>;
-	Fri, 9 Aug 2002 15:21:13 -0400
-Date: Fri, 09 Aug 2002 14:24:09 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: trond.myklebust@fys.uio.no
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5.30+] Fourth attempt at a shared credentials patch
-Message-ID: <55560000.1028921049@baldur.austin.ibm.com>
-In-Reply-To: <15698.59577.788998.300262@charged.uio.no>
-References: <23130000.1028818693@baldur.austin.ibm.com>
- <shsofcdfjt6.fsf@charged.uio.no><44050000.1028823650@baldur.austin.ibm.com>
- <15698.41542.250846.334946@charged.uio.no>
- <52960000.1028829902@baldur.austin.ibm.com>
- <15698.52455.437254.428402@charged.uio.no>
- <81390000.1028837464@baldur.austin.ibm.com>
- <15698.59577.788998.300262@charged.uio.no>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S315445AbSHITYP>; Fri, 9 Aug 2002 15:24:15 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:15116 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S314277AbSHITYO>; Fri, 9 Aug 2002 15:24:14 -0400
+Date: Fri, 9 Aug 2002 16:27:43 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Bill Davidsen <davidsen@tmr.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.4.19-rc5
+In-Reply-To: <Pine.LNX.3.96.1020809133500.23512C-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.44L.0208091627020.23404-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 9 Aug 2002, Bill Davidsen wrote:
+> On Wed, 7 Aug 2002, Rik van Riel wrote:
+> > On Wed, 7 Aug 2002, Bill Davidsen wrote:
+> >
+> > > Sure, glad to. If the 2.5 numbers are much worse than 2.4, somthing
+> > > isn't working as well,
+> >
+> > Are you volunteering to identify that "something" for us ?
+>
+> Hell no. I was simply commenting that there is some general qualitative
+> information available from those numbers, even if it is hard to quantify
+> them.
 
---On Thursday, August 08, 2002 11:55:05 PM +0200 Trond Myklebust
-<trond.myklebust@fys.uio.no> wrote:
+As long as there is nobody to interpret what the dbench
+numbers actually mean, why are we treating them as the
+most important thing around ? ;)
 
-> What if one thread is doing an RPC call while the other is changing
-> the 'groups' entry?
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-Gah.  Good point.  Ok, I've added locking to the cred structure to handle
-this.  Here's my new patch with those changes made:
-
-http://www.ibm.com/linux/ltc/patches/misc/cred-2.5.30-5.diff.gz
-
-I've gone through all the code again, and don't see any other places where
-locking is really necessary.  Feel free to point them out to me if you see
-any.
-
-Dave McCracken
-
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+http://www.surriel.com/		http://distro.conectiva.com/
 

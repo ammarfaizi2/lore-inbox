@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262944AbUJ0WCW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262938AbUJ0WRJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262944AbUJ0WCW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 18:02:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262948AbUJ0V6c
+	id S262938AbUJ0WRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 18:17:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262919AbUJ0WNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 17:58:32 -0400
-Received: from lucidpixels.com ([66.45.37.187]:39364 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S262951AbUJ0Vz1 (ORCPT
+	Wed, 27 Oct 2004 18:13:10 -0400
+Received: from mail3.utc.com ([192.249.46.192]:45189 "EHLO mail3.utc.com")
+	by vger.kernel.org with ESMTP id S262930AbUJ0Vlz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 17:55:27 -0400
-Date: Wed, 27 Oct 2004 17:55:25 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
-To: Andrew Morton <akpm@osdl.org>
-cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures (Part 2)
-In-Reply-To: <20041027145806.4e7acea3.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0410271754280.10927@p500>
-References: <Pine.LNX.4.61.0410250645540.9868@p500> <417CE49B.4060308@yahoo.com.au>
- <Pine.LNX.4.61.0410271733440.10927@p500> <20041027145806.4e7acea3.akpm@osdl.org>
+	Wed, 27 Oct 2004 17:41:55 -0400
+Message-ID: <418015D8.1010304@cybsft.com>
+Date: Wed, 27 Oct 2004 16:40:40 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+References: <20041025104023.GA1960@elte.hu> <417D4B5E.4010509@cybsft.com>	 <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com>	 <20041027002455.GC31852@elte.hu> <417F16BB.3030300@cybsft.com>	 <20041027132926.GA7171@elte.hu> <417FB7F0.4070300@cybsft.com>	 <20041027150548.GA11233@elte.hu>	 <1098889994.1448.14.camel@krustophenia.net>	 <20041027151701.GA11736@elte.hu> <1098897241.8596.5.camel@krustophenia.net>	 <417FD915.304@cybsft.com> <1098898017.8596.9.camel@krustophenia.net>	 <417FDE34.6020704@cybsft.com> <1098906454.1514.1.camel@krustophenia.net>
+In-Reply-To: <1098906454.1514.1.camel@krustophenia.net>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, thanks, one last question,
-
-I do not explicitly set ethtool* tso, however I use dhcpcd on this 
-interface, does that set TSO on the interface? I have never used TSO (that 
-I am aware of) and I am wondering if it is something else?
-
-On Wed, 27 Oct 2004, Andrew Morton wrote:
-
-> Justin Piszcz <jpiszcz@lucidpixels.com> wrote:
+Lee Revell wrote:
+> On Wed, 2004-10-27 at 12:43 -0500, K.R. Foley wrote:
+> 
+>>OH! And thanks. :)
 >>
->> swapper: page allocation failure. order:0, mode:0x20
->>   [<c0139227>] __alloc_pages+0x247/0x3b0
->>   [<c02d9471>] add_interrupt_randomness+0x31/0x40
->>   [<c01393a8>] __get_free_pages+0x18/0x40
->>   [<c013ca2f>] kmem_getpages+0x1f/0xc0
->>   [<c013d770>] cache_grow+0xc0/0x1a0
->>   [<c013da1b>] cache_alloc_refill+0x1cb/0x210
->>   [<c013de81>] __kmalloc+0x71/0x80
->>   [<c036f8f3>] alloc_skb+0x53/0x100
->>   [<c031fe88>] e1000_alloc_rx_buffers+0x48/0xf0
->>   [<c031fb8e>] e1000_clean_rx_irq+0x18e/0x440
->>   [<c031f76b>] e1000_clean+0x5b/0x100
->>   [<c0375f7a>] net_rx_action+0x6a/0xf0
->>   [<c011daa1>] __do_softirq+0x41/0x90
->>   [<c011db17>] do_softirq+0x27/0x30
->>   [<c0106ebc>] do_IRQ+0x10c/0x130
->
-> This should be harmless - networking will recover.  The TSO fix was
-> merged a week or so ago.
->
+> 
+> 
+> Well I tried it and it does not seem to work exactly right.  This might
+> be because I enabled the HPET so the RTC is not getting used.  When I
+> run amlat for a few minutes I get a histogram with only 38 samples.
+> Does this work for you?
+> 
+> Lee
+> 
+> 
+Sorry it took a while to get back to you. Yes I did try it a little 
+earlier and did seem to be getting reasonable numbers. I wouldn't want 
+to publish those numbers yet because I haven't done anything with 
+priorities and I was seeing some higher numbers. I don't have the HPET 
+turned on myself.
+
+kr

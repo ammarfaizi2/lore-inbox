@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131033AbRA3RNf>; Tue, 30 Jan 2001 12:13:35 -0500
+	id <S130761AbRA3RYS>; Tue, 30 Jan 2001 12:24:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131096AbRA3RNZ>; Tue, 30 Jan 2001 12:13:25 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:38925 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S131033AbRA3RNL>; Tue, 30 Jan 2001 12:13:11 -0500
-Date: Tue, 30 Jan 2001 11:07:55 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Todd <todd@unm.edu>
-Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: Re: [ANNOUNCE] Dolphin PCI-SCI RPM Drivers 1.1-4 released
-Message-ID: <20010130110755.A18554@vger.timpanogas.org>
-In-Reply-To: <20010130101958.A18047@vger.timpanogas.org> <Pine.A41.4.31.0101301004290.37454-100000@aix01.unm.edu>
+	id <S131409AbRA3RYJ>; Tue, 30 Jan 2001 12:24:09 -0500
+Received: from columba.EUR.3Com.COM ([161.71.169.13]:57553 "EHLO
+	columba.eur.3com.com") by vger.kernel.org with ESMTP
+	id <S130761AbRA3RX1>; Tue, 30 Jan 2001 12:23:27 -0500
+X-Lotus-FromDomain: 3COM
+From: "Jon Burgess" <Jon_Burgess@eur.3com.com>
+To: David Rees <dbr@spoke.nols.com>, newsreader@mediaone.net
+cc: linux-kernel@vger.kernel.org
+Message-ID: <802569E4.005F6E19.00@notesmta.eur.3com.com>
+Date: Tue, 30 Jan 2001 17:22:05 +0000
+Subject: Re: klogd is acting strange with 2.4
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.A41.4.31.0101301004290.37454-100000@aix01.unm.edu>; from todd@unm.edu on Tue, Jan 30, 2001 at 10:07:07AM -0700
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 30, 2001 at 10:07:07AM -0700, Todd wrote:
-> folx,
-> 
-> On Tue, 30 Jan 2001, Jeff V. Merkey wrote:
-> > What numbers does G-Enet provide
-> > doing userspace -> userspace transfers, and at what processor
-> > overhead?
-> 
-> using stock 2.4 kernel and alteon acenic cards with stock firmware we're
-> seeing 993 MBps userspace->userspace (running netperf UDP_STREAM tests,
-> which run as userspace client and server) with 88% CPU utilization.
-> 
-> Using a modified version of the firmware that we wrote we're getting
-> 993Mbps with 55% CPU utilization.
 
-I was at 2% utilization running the PCI-SCI tests on a D320 PSB64 adapter.
-I doubt you would get good numbers on the box I used with G-Enet -- this 
-box is limited to 70 MB/S PCI throughput.  
 
-> 
-> > I posted the **ACCURATE** numbers from my test, but I did clarify that I
-> > was using a system with a limp PCI bus.
-> >
-> > Jeff
-> 
-> i appreciate that.  i'm just trying to figure out why the numbers are so
-> low compared to the network speed you mentioned.
+>> Before 2.2.18.  Now I've tested with both
+>> 2.4.1-pre12 and 2.4.1.  2.4 kernel klogd is
+>> always using 99% cpu.  What gives?
+>>
 
-Because I used an el-cheapo AMD box.  I provided the info more for a 
-2.2.X/2.4.X comparison than anything.  
+> Can you try 2.4.0?  Are you using the 3c59x ethernet driver?  I've got the
+> same problem on one of my machines, (see message with subject "2.4.1-pre10
+> -> 2.4.1 klogd at 100% CPU ; 2.4.0 OK") and the last thing that is logged
+> s a message from the 3c59x ethernet driver.
 
-Jeff
+I've seen someone else report that this occurs when klogd reads a NULL
+character. In his case the line in the 3c59x.c driver which prints out the
+'product code' was responsible for this.
 
-> 
-> todd
+In the 2.4.1 patch this printk has been added to 3c59x.c:-
+
++    printk(KERN_INFO "  product code '%c%c' rev %02x.%d date %02d-"
++            "%02d-%02d\n", eeprom[6]&0xff, eeprom[6]>>8, eeprom[0x14],
++            step, (eeprom[4]>>5) & 15, eeprom[4] & 31, eeprom[4]>>9);
+
+Could you try commenting out these lines and see if it fixes the problem?
+
+     Jon
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

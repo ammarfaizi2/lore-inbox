@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbUD1XX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbUD1XYp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261791AbUD1XX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 19:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbUD1XX5
+	id S261857AbUD1XYp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 19:24:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbUD1XYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 19:23:57 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29140 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261791AbUD1XX4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 19:23:56 -0400
-Date: Wed, 28 Apr 2004 20:25:01 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Norman Zhang <norman.zhang@rd.arkonnetworks.com>
-Cc: linux-kernel@vger.kernel.org,
-       Nigel Cunningham <ncunningham@users.sourceforge.net>
-Subject: Re: Kernel 2.4.26 Hangs During Boot
-Message-ID: <20040428232501.GD16387@logos.cnet>
-References: <32789.206.116.24.97.1082645283.squirrel@mail.rd.arkonnetworks.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <32789.206.116.24.97.1082645283.squirrel@mail.rd.arkonnetworks.com>
-User-Agent: Mutt/1.5.5.1i
+	Wed, 28 Apr 2004 19:24:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:21671 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261857AbUD1XYj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 19:24:39 -0400
+Date: Wed, 28 Apr 2004 19:24:18 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Paulo Marques <pmarques@grupopie.com>
+cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
+       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+In-Reply-To: <408E5944.8090807@grupopie.com>
+Message-ID: <Pine.LNX.4.44.0404281922310.19633-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 22, 2004 at 07:48:03AM -0700, Norman Zhang wrote:
-> Hi,
-> 
-> I compiled kernel-2.4.26 with
-> 
-> # make xconfig
-> # make dep
-> # make bzImage
-> # make modules
-> # make modules_install
-> # make install
-> 
-> But when I booted the new kernel, I get a complete freeze with no errors
-> or warnings. However IDE disk does spins for awhile. When I rebooted my
-> old kernel, it complains disk corruption. I'm not sure if it is IDE bug.
-> Would someone please give me a few pointers here? I've attached lspci,
-> dmesg, and config below.
+On Tue, 27 Apr 2004, Paulo Marques wrote:
 
-It seems you are using swsusp2? Can you confirm the problem exists in mainline?
+> The way I see it, they know a C string ends with a '\0'. This is like saying 
+> that a English sentence ends with a dot. If they wrote "GPL\0" they are 
+> effectively saying that the license *is* GPL period.
+> 
+> So, where the source code? :)
 
-That will help tracking down the bug.
+Definitely my favorite approach of dealing with these
+people.  Does anybody know whether their modules use
+any EXPORT_SYMBOL_GPL symbols and whether they touch
+any code I could claim copyright on ?
+
+If it touches any of my code, where should I mail the
+cease & desist ? ;)
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315711AbSENNWi>; Tue, 14 May 2002 09:22:38 -0400
+	id <S315717AbSENN01>; Tue, 14 May 2002 09:26:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315717AbSENNWi>; Tue, 14 May 2002 09:22:38 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:60375 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S315711AbSENNWg>;
-	Tue, 14 May 2002 09:22:36 -0400
-Date: Tue, 14 May 2002 23:21:56 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] rationalise asm-*/errno.h
-Message-Id: <20020514232156.3e997bbc.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S315718AbSENN00>; Tue, 14 May 2002 09:26:26 -0400
+Received: from p5087D6B1.dip.t-dialin.net ([80.135.214.177]:15970 "EHLO
+	extern.linux-systeme.org") by vger.kernel.org with ESMTP
+	id <S315717AbSENN0Z>; Tue, 14 May 2002 09:26:25 -0400
+Date: Tue, 14 May 2002 15:26:15 +0200 (MET DST)
+From: mcp@linux-systeme.de
+To: Masaru Kawashima <masaruk@gol.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vmwarefb 0.5.0
+In-Reply-To: <20020514222024.4b18a826.masaruk@gol.com>
+Message-ID: <Pine.LNX.3.96.1020514152442.32207A-100000@fps>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the vein of the previous patch ...
+Hi Masaru,
 
-I noticed that most of the asm-*/errno.h files are basically
-identical.  This patch rationalises them.  It should not change
-the kernel object code.  i386 builds.
+> > diff -uraN linux-2.4.19-pre8/include/linux/fb.h linux/include/linux/fb.h
+> > --- linux-2.4.19-pre8/include/linux/fb.h	Tue May 14 05:11:14 2002
+> > +++ linux/include/linux/fb.h	Tue May 14 01:24:06 2002
+> > @@ -96,6 +96,8 @@
+> >  #define FB_ACCEL_3DLABS_PERMEDIA3 37	/* 3Dlabs Permedia 3		*/
+> >  #define FB_ACCEL_ATI_RADEON	38	/* ATI Radeon family		*/
+> >  
+> > +#define FB_ACCEL_VMWARE_SVGA	50	/* VMware Virtual SVGA Graphics */
+> > +#define FB_ACCE
+> > ^ ^ ^ Where is the rest? :) Looks like incomplete. Or is it only one add?
+> 
+> Take a look at following URLs.
+>   http://marc.theaimsgroup.com/?l=linux-kernel&m=102134726119425&w=2
+>   http://marc.theaimsgroup.com/?l=linux-kernel&m=102134726119425&q=p3
+Could you please take a look at it?! ;) ... Its missing there. Or all my
+browsers are broken and even wget is broken.
 
-diffstat:
- asm-alpha/errno.h        |   38 +------------
- asm-arm/errno.h          |  128 ----------------------------------------------
- asm-cris/errno.h         |  130 -----------------------------------------------
- asm-generic/errno-base.h |   39 ++++++++++++++
- asm-generic/errno.h      |  100 ++++++++++++++++++++++++++++++++++++
- asm-i386/errno.h         |  128 ----------------------------------------------
- asm-ia64/errno.h         |  128 ----------------------------------------------
- asm-m68k/errno.h         |  128 ----------------------------------------------
- asm-mips/errno.h         |   37 +------------
- asm-mips64/errno.h       |   37 +------------
- asm-parisc/errno.h       |   36 -------------
- asm-ppc/errno.h          |  127 +--------------------------------------------
- asm-ppc64/errno.h        |  127 +--------------------------------------------
- asm-s390/errno.h         |  129 ----------------------------------------------
- asm-s390x/errno.h        |  130 -----------------------------------------------
- asm-sh/errno.h           |  128 ----------------------------------------------
- asm-sparc/errno.h        |   37 +------------
- asm-sparc64/errno.h      |   37 +------------
- asm-x86_64/errno.h       |  128 ----------------------------------------------
- 19 files changed, 173 insertions(+), 1599 deletions(-)
+Its the end of the patch!
 
-http://www.canb.auug.org.au/~sfr/15-si.1.2.diff.gz
+ciao, Marc
 
-[Just though it was a little big for linux-kernel.]
-
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/

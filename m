@@ -1,67 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280416AbRJaTn7>; Wed, 31 Oct 2001 14:43:59 -0500
+	id <S280448AbRJaTs3>; Wed, 31 Oct 2001 14:48:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280324AbRJaTnt>; Wed, 31 Oct 2001 14:43:49 -0500
-Received: from mustard.heime.net ([194.234.65.222]:21645 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S280416AbRJaTnf>; Wed, 31 Oct 2001 14:43:35 -0500
-Date: Wed, 31 Oct 2001 20:44:08 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: EM8400/8401 support?
-In-Reply-To: <5.1.0.14.2.20011031174516.00abb140@pop.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.30.0110312037070.28133-100000@mustard.heime.net>
+	id <S280447AbRJaTsT>; Wed, 31 Oct 2001 14:48:19 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:46980 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S280443AbRJaTsJ>;
+	Wed, 31 Oct 2001 14:48:09 -0500
+Message-ID: <3BE0559D.573B9907@pobox.com>
+Date: Wed, 31 Oct 2001 11:48:45 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14-pre6-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Daniel R. Warner" <drwarner@mail.myrealbox.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.14-pre6 + preempt dri lockup
+In-Reply-To: <20011031152822Z280263-17408+8294@vger.kernel.org> <3BE04DE8.F012C592@pobox.com> <3BE050A6.90404@mail.myrealbox.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As Sigma designs do not release specs nor sourcecode there is no open
-> source driver available and I am not aware of any non-official efforts to
-> produce drivers.
+"Daniel R. Warner" wrote:
 
-strange...
-I found a package called NetStream2000-0.2.047.1.tar.gz with these drivers
-with source on Sigma's site. I also found tech spec on the EM840[01] open
-on their sites, although the document was marked 'confidential'.
+> I experience random lockups and crashes in UT and Q3.
+> (not particularly concerned about it though)
+> I have not experienced any problems with this box outside of DRI.
 
-> If you want the em8300 chip then have a look at http://dxr3.sf.net/ where
-> you can find the inofficial Linux GPL drivers for the Sigma designs
-> Realmagic Hollywood+ and Creative dxr3 cards (which are the same).
->
-> HTH,
->
-> Anton
->
-> At 16:12 31/10/01, Roy Sigurd Karlsbakk wrote:
-> >hi
-> >
-> >Are there currently any official kernel support for the Sigma 8400/8401
-> >chips?
-> >I need this...
-> >
-> >Please cc: to me as I'm not on the list
-> >
-> >roy
-> >
-> >---
-> >Praktiserende dyslektiker.
-> >La ikke ortografiske krumspring skygge for
-> >intensjonen bak denne fremstilling.
-> >
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
->
-> --
->    "I've not lost my mind. It's backed up on tape somewhere." - Unknown
-> --
-> Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-> Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-> ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
->
+I have to say, I can't remember ever seeing
+a lockup in q3 with this system - DRI has been
+very well behaved.
+
+Now, sometimes a 3d xscreensaver module
+will freeze and lock the console, but if I log in
+from a serial port or from the net, I can kill the
+module and the console is freed up again.
+
+With the wolfenstein demo, there are some long
+hangs, but it appears to be strictly an application
+issue - if I press escape repeatedly, it usually
+recovers. If it doesn't recover, I can always
+run "[ALT][SYSRQ] k" and get back to the gdm
+login screen.
+
+There have been some buggy test kernels that
+collapsed of their own accord, but I must say,
+no app has ever taken the system down with
+a production kernel, nor with any linus kernel
+newer than 2.4.10 on this UP system.
+
+To recap:
+------------
+
+PIII-933 on intel mobo
+512 MB RAM
+2x30 GB maxtor ide
+Voodoo 3 2000 AGP
+
+Red Hat 7.1 + XFree 4.1.0-3 from rawhide
+kernel 2.4.14-pre6+preempt-2.4.14-pre5-1+2.4.13-low-latency.patch
+
+
+
 

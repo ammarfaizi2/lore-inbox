@@ -1,57 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262529AbVCJAD0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbVCIX7B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262529AbVCJAD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 19:03:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262387AbVCIX7g
+	id S262092AbVCIX7B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 18:59:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbVCIX54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 18:59:36 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:3794 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S262065AbVCIX4w (ORCPT
+	Wed, 9 Mar 2005 18:57:56 -0500
+Received: from colin2.muc.de ([193.149.48.15]:43525 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262525AbVCIXOo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 18:56:52 -0500
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230CC23@exa-atlanta>
-From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-To: "'Christoph Hellwig'" <hch@infradead.org>
-Cc: "'Arjan van de Ven'" <arjan@infradead.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: RE: [ANNOUNCE][PATCH 2.6.11 2/3] megaraid_sas: Announcing new mod
-	 ule  for LSI Logic's SAS based MegaRAID controllers
-Date: Wed, 9 Mar 2005 18:56:02 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+	Wed, 9 Mar 2005 18:14:44 -0500
+Date: 10 Mar 2005 00:14:40 +0100
+Date: Thu, 10 Mar 2005 00:14:40 +0100
+From: Andi Kleen <ak@muc.de>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Page Fault Scalability patch V19 [4/4]: Drop use of page_table_lock in do_anonymous_page
+Message-ID: <20050309231440.GB63395@muc.de>
+References: <20050309201324.29721.28956.sendpatchset@schroedinger.engr.sgi.com> <20050309201344.29721.26698.sendpatchset@schroedinger.engr.sgi.com> <m13bv4whrl.fsf@muc.de> <Pine.LNX.4.58.0503091500040.30604@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0503091500040.30604@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >
->> >Even for kernels with a 64bit dma_addr_t you can get 32bit dma 
->> >addresses
->> >only.  As a start check whether the pci_set_dma_mask for 
->the 64bit mask
->> >failed - in that case you can always use 32bit SGLs.
->> >
->> 
->> Please help me understand: If dma_addr_t is 64 bit, I will get 64bit 
->> addresses in scatterlist regardless the outcome of pci_set_dma_mask, 
->> won't I? These addresses may have valid or null high 
->addresses. My idea
->> was to have 32(64) bit SGLs for 32(64) bit dma_addr_t.
->
->if pci_set_dma_mask for the 64bit mask fails the upper 32bit bit of
->dma_addr_t will guaranteed to be zero, so you don't need to take them
->into account for your hardware SGL.
->
+> If atomic64_t is available on all 64 bit systems then its no problem.
 
-Okay. I understood. Thanks. But please consider this also:
+Most of them have it already. parisc64/ppc64/sh64 are missing it,
+but I assume they will catch up quickly.
 
-Arjan pointed out that by basing my 32/64 SGL decision solely on
-#define IS_DMA64 sizeof(dma_addr_t)==8, I can rely on gcc to optimize the
-unused portion of the code away. If I take pci_set_dma_mask also into
-account, I can't do that, can I?
-
-Thanks,
-Sreenivas
+-Andi

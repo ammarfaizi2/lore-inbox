@@ -1,70 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287425AbSCLI7N>; Tue, 12 Mar 2002 03:59:13 -0500
+	id <S293731AbSCLJAJ>; Tue, 12 Mar 2002 04:00:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293731AbSCLI7E>; Tue, 12 Mar 2002 03:59:04 -0500
-Received: from p50846F82.dip.t-dialin.net ([80.132.111.130]:54757 "EHLO
-	sol.fo.et.local") by vger.kernel.org with ESMTP id <S287425AbSCLI64>;
-	Tue, 12 Mar 2002 03:58:56 -0500
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.6 IDE 19
-In-Reply-To: <E16kUED-0001GB-00@the-village.bc.nu>
-	<Pine.SOL.3.96.1020311180113.13428A-100000@libra.cus.cam.ac.uk>
-	<20020311230158.B3167@ucw.cz>
-From: Joachim Breuer <jmbreuer@gmx.net>
-Date: Tue, 12 Mar 2002 09:58:53 +0100
-In-Reply-To: <20020311230158.B3167@ucw.cz> (Vojtech Pavlik's message of
- "Mon, 11 Mar 2002 23:01:58 +0100")
-Message-ID: <m3d6yakvqq.fsf@venus.fo.et.local>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (Cuyahoga Valley,
- i386-redhat-linux)
+	id <S310190AbSCLI7z>; Tue, 12 Mar 2002 03:59:55 -0500
+Received: from 99dyn73.com21.casema.net ([62.234.30.73]:51666 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S293731AbSCLI7j>; Tue, 12 Mar 2002 03:59:39 -0500
+Message-Id: <200203120859.JAA04099@cave.bitwizard.nl>
+Subject: zero copy. 
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Date: Tue, 12 Mar 2002 09:59:36 +0100 (MET)
+CC: linux-net@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-notice1: This Email contains my Email address. This grants you the right
+X-notice2: to communicate with me using this address, related to the subject
+X-notice3: in this message. Unsollicitated mass-mailings are explictly 
+X-notice4: forbidden here, and by Dutch law. 
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik <vojtech@suse.cz> writes:
 
-> On Mon, Mar 11, 2002 at 06:05:36PM +0000, Anton Altaparmakov wrote:
->> On Mon, 11 Mar 2002, Alan Cox wrote:
->> > > Funny you should mention that point ... The "flagged taskfile code" is a
->> > > project to allow for NATIVE DFT support in Linux.  Nice screw job you did
->> > > to IBM.
->> > 
->> > Ok so whats native DFT and where does he (and I for that matter) read about
->> > it ?
->> 
->> DFT = Drive Fault Tolerance
->
-> Hmmm, I thought it was Drive Fitness test. TLAs ...
->
-> [...]
->
-> Hmm. I stopped believing in the usefulness of the IBM DFT after my IBM
-> drive started giving unrecoverable errors reading my swap partition and
-> the DFT said that everything was OK later when I ran it ...
+Hi,
 
-Happened to me *more than once*. Every single time: Drive has what
-looks like "Surface Errors" to the OS, SMART thinks the drive is
-dandy, DFT thinks the drive is dandy and after using the DFT "erase"
-feature it would even work (on the whole surface) again. Question only
-remains for how long. My dealer usually gives me a replacement disk
-when I tell him "this one's bogus" even if it doesn't show any
-immediate errors in DFT and similar tests, but I'm sure not everyone's
-that lucky.
+Is linux able to do zero copy?
 
-I don't usually bash manufacturers, but with recent (> 10GB) IBM
-ATA-33+ drives I've experienced this behaviour in well above 50% of
-all units I've seen. The MTBF on their SCA LVD ones doesn't make me
-squirm with delight either, but those a) don't lie about being broken
-and b) tend to be easier to replace.
+I remember from previous discussions that there was always a camp
+that would claim that the copy was free because of the checksum, 
+and/or the other way around. And warming the cache on input would
+prove to eliminate almost all overhead. 
 
+I have an application where the bulk of the data is NOT generated or
+consumed by the CPU, in fact, the CPU does not have enough bandwidth
+to move all the data. We really need to have the DMA-devices go and
+get the data for themselves....
 
-So long,
-   Joe
+So far, I'm finding more or less unavoidable copy to/from user calls
+in both the tcp send and the tcp recieve path..... 
+
+Suggestions?
+
+			Roger. 
 
 -- 
-"I use emacs, which might be thought of as a thermonuclear
- word processor."
--- Neal Stephenson, "In the beginning... was the command line"
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

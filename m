@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261308AbTIOM2a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 08:28:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbTIOM2a
+	id S261315AbTIOMfh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 08:35:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbTIOMfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 08:28:30 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:20610 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S261308AbTIOM23 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 08:28:29 -0400
-Date: Mon, 15 Sep 2003 14:28:26 +0200 (MEST)
-Message-Id: <200309151228.h8FCSQ2B022357@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: alan@lxorguk.ukuu.org.uk, davidsen@tmr.com
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-Cc: linux-kernel@vger.kernel.org, zwane@linuxpower.ca
+	Mon, 15 Sep 2003 08:35:36 -0400
+Received: from smtp6.wanadoo.fr ([193.252.22.28]:64173 "EHLO
+	mwinf0304.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S261315AbTIOMfa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 08:35:30 -0400
+Message-ID: <3F65B32E.2050102@wanadoo.fr>
+Date: Mon, 15 Sep 2003 14:40:14 +0200
+From: =?ISO-8859-1?Q?R=E9mi_Colinet?= <remi.colinet@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kernel List <linux-kernel@vger.kernel.org>
+Subject: [2.6.0-test5/-mm2] : compile error with CONFIG_NETFILTER_DEBUG defined
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Sep 2003 08:11:12 -0400 (EDT), Bill Davidsen <davidsen@tmr.com> wrote:
-> On Mon, 15 Sep 2003, Alan Cox wrote:
-> > That disable you talk about is bloat. It also trashes the performance of
-> > PIV boxes. In fact I checked out of interest - the disable hack
-> > currently being used is adding *over* 300 bytes to my kernel as its
-> > inlined repeatedly. So its larger, and it ruins performance for all
-> > processors.
-> 
-> The code to disable prefetch on Athlon is 300 bytes and hurts your PIV?
-> Really? I'll dig back through the code, but I recall it as adding or
-> deleting an entry in a table to enable prefetch. If it's affecting PIV the
-> code to use prefetch is seriously broken.
+Hi,
 
-Bill, look in include/asm-i386/processor.h:
+I have the following error (nearly a typo error) when trying to compile 
+2.6.0-test5/-mm2 with CONFIG_NETFILTER_ENABLE defined.
 
-extern inline void prefetch(const void *x)
-{
-        if (cpu_data[0].x86_vendor == X86_VENDOR_AMD)
-                return;         /* Some athlons fault if the address is bad */
-        alternative_input(ASM_NOP4,
-                          "prefetchnta (%1)",
-                          X86_FEATURE_XMM,
-                          "r" (x));
-}
+  LD      drivers/built-in.o
+  CC      net/ipv4/ip_input.o
+net/ipv4/ip_input.c: In function `ip_local_deliver_finish':
+net/ipv4/ip_input.c:204: invalid suffix on integer constant
+net/ipv4/ip_input.c:204: parse error before numeric constant
+make[2]: *** [net/ipv4/ip_input.o] Error 1
+make[1]: *** [net/ipv4] Error 2
+make: *** [net] Error 2
 
-A dynamic test at each occurrence. That's truly horrible.
-(And I'll hack it out of _my_ kernels ASAP. Can't imagine
-I missed that one.)
 
-/Mikael
+ 198 static inline int ip_local_deliver_finish(struct sk_buff *skb)
+    199 {
+    200         int ihl = skb->nh.iph->ihl*4;
+    201
+    202 #ifdef CONFIG_NETFILTER_DEBUG
+    203         nf_debug_ip_local_deliver(skb);
+    204         skb->nf_debug =3D 0;
+    205 #endif /*CONFIG_NETFILTER_DEBUG*/
+    206
+
+Regards
+Rémi
+

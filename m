@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264850AbTF2WEG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 18:04:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbTF2WEG
+	id S265415AbTF2WFb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 18:05:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265022AbTF2WFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 18:04:06 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:29322 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S264850AbTF2WD5 (ORCPT
+	Sun, 29 Jun 2003 18:05:30 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:29896 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S265728AbTF2WFW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 18:03:57 -0400
-Date: Mon, 30 Jun 2003 00:18:14 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix in-kernel genksyms for parisc symbols
-Message-ID: <20030629221814.GQ17986@khan.acc.umu.se>
-References: <20030625061924.3D1272C28B@lists.samba.org> <Pine.LNX.4.44.0306252221320.10554-100000@chaos.tp1.ruhr-uni-bochum.de>
+	Sun, 29 Jun 2003 18:05:22 -0400
+Date: Sun, 29 Jun 2003 15:13:02 -0700 (PDT)
+Message-Id: <20030629.151302.28804993.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: greearb@candelatech.com, mbligh@aracnet.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: networking bugs and bugme.osdl.org
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1056924426.16255.24.camel@dhcp22.swansea.linux.org.uk>
+References: <1056755070.5463.12.camel@dhcp22.swansea.linux.org.uk>
+	<20030629.141528.74734144.davem@redhat.com>
+	<1056924426.16255.24.camel@dhcp22.swansea.linux.org.uk>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0306252221320.10554-100000@chaos.tp1.ruhr-uni-bochum.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 25, 2003 at 10:22:09PM +0200, Kai Germaschewski wrote:
-> On Wed, 25 Jun 2003, Rusty Russell wrote:
-> 
-> > In message <1056410864.1826.57.camel@mulgrave> you write:
-> > > The problem is that the parisc libgcc.a library contains symbols that
-> > > look like $$mulI and the like, but genksyms doesn't think $ is legal for
-> > > a function symbol, so they all get dropped from the output.  This means
-> > > that inserting almost any module on parisc taints the kernel because
-> > > these symbols have no version.
-> > > 
-> > > The fix (attached below) was to allow $ in an identifier in lex.l (and
-> > > obviously to update the _shipped files as well, but my flex/bison seem
-> > > to be rather different from the one they were generated with, so I'll
-> > > leave that to whomever has the correct versions).
-> > 
-> > Looks fine, but my flex is different, too.  Kai?
-> 
-> I merged it, will submit.
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: 29 Jun 2003 23:07:07 +0100
+   
+   What you don't get is that like you I'm distributing work. I'm
+   getting end users to spot bug correlations - and thats why I want
+   better tools
 
-Could you divulge what version of flex you use, to simplify future
-changes?
+I understand this part, it's great sounding in theory.
 
+But all the examples I've seen are you sifting through bugzilla making
+these correlations.  I've seen no evidence of community participation
+in this activity.
 
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+The greatest tools in the world aren't useful if people don't want
+to use them.
+
+Nobody wants to use tools unless it melds easily into their existing
+daily routine.  This means it must be email based and it must somehow
+work via the existing mailing lists.  It sounds a lot like what I'm
+advocating except that there's some robot monitoring the list
+postings.
+
+But then who monitors and maintains the entries?  That's the big
+problem and I haven't heard a good solution yet.  Going to a web site
+and clicking buttons is not a solution.  That's a waste of time.

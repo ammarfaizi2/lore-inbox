@@ -1,86 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263028AbUESM2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264132AbUESMoa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263028AbUESM2n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 08:28:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264026AbUESM2n
+	id S264132AbUESMoa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 08:44:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264134AbUESMoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 08:28:43 -0400
-Received: from mail45.messagelabs.com ([140.174.2.179]:16553 "HELO
-	mail45.messagelabs.com") by vger.kernel.org with SMTP
-	id S263028AbUESM2l convert rfc822-to-8bit (ORCPT
+	Wed, 19 May 2004 08:44:30 -0400
+Received: from colin2.muc.de ([193.149.48.15]:8971 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S264132AbUESMo2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 08:28:41 -0400
-X-VirusChecked: Checked
-X-Env-Sender: justin.piszcz@mitretek.org
-X-Msg-Ref: server-7.tower-45.messagelabs.com!1084969718!3045435
-X-StarScan-Version: 5.2.11; banners=-,-,-
-X-Originating-IP: [141.156.156.57]
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Linux 2.6.6 appears to be 3 to 4 times slower than 2.6.5.
-Date: Wed, 19 May 2004 08:28:16 -0400
-Message-ID: <5D3C2276FD64424297729EB733ED1F7605FAEB88@email1.mitretek.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Linux 2.6.6 appears to be 3 to 4 times slower than 2.6.5.
-Thread-Index: AcQ9VPiXX/j8TXmzR5KxjqJlarj9GQAR7xvA
-From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
-To: "Bartlomiej Zolnierkiewicz" <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "Justin Piszcz" <jpiszcz@hotmail.com>, <baldrick@free.fr>,
-       <gene.heskett@verizon.net>
-Cc: <linux-kernel@vger.kernel.org>
+	Wed, 19 May 2004 08:44:28 -0400
+Date: 19 May 2004 14:44:27 +0200
+Date: Wed, 19 May 2004 14:44:27 +0200
+From: Andi Kleen <ak@muc.de>
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: Jan Kasprzak <kas@informatics.muni.cz>, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: sendfile -EOVERFLOW on AMD64
+Message-ID: <20040519124427.GA68902@colin2.muc.de>
+References: <1XuW9-3G0-23@gated-at.bofh.it> <m3d650wys1.fsf@averell.firstfloor.org> <20040519103855.GF18896@fi.muni.cz> <20040519105805.GK30909@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040519105805.GK30909@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It may not dause -data corruption- but it deleted a whole bunch of files
-that were in use before the previous reboot.
+> (note error is int, not ssize_t), but I don't see anything obvious
+> for other filesystems.
 
+sendfile64 on 32bit hosts seems to be quite fishy too.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Bartlomiej
-Zolnierkiewicz
-Sent: Tuesday, May 18, 2004 9:23 AM
-To: Justin Piszcz; baldrick@free.fr; gene.heskett@verizon.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.6 appears to be 3 to 4 times slower than 2.6.5.
+It works with ssize_t, which is 32bit only, but there are no checks
+that the transfered file is not >4GB.  It would just wrap in this case.
+It would be better to add such checks for 32bit hosts to sendfile64.
 
-On Monday 17 of May 2004 17:06, Justin Piszcz wrote:
-> Sorry to all, it turns out (in two separate cases I had two different
-> problems that affected the results).
->
-> Case 1: No SMP turned on for CPU w/HT after fix (~4.78 seconds compile
-time
-> (2.6GHZ w/HT))
-> Case 2: Box had 4GB of NON-ECC memory in it, only recognized 2.56GB,
-took
-> out (2) 1GB DDR DIMM's, and the speed returned what it should be.
-(~4.3
-> seconds compile time (3.0GHZ w/HT))
->
-> The control box was a 2.53GHZ (533MHZ BUS w/NO HT) = ~5.3seconds
->
-> I have not tested 2.6.6 recently, but in one of my tests I believe it
-> worked OK, ever since 2.6.6 removed my /etc/lilo.conf and /etc/mtab
-and
-> several other files, I do not wish to touch that kernel with a 10 foot
-poll
-> :-P due to the IDE disk flush/cache issue.
+Or am I missing something?
 
-I told you this already: 2.6.6 IDE changes don't cause data corruption
-- but fixes some instead (that's why there were merged so quickly!)
-so stop spreading FUD and see
-http://bugme.osdl.org/show_bug.cgi?id=2672.
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+-Andi

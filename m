@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261773AbUJYMRk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbUJYMVt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbUJYMRk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 08:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbUJYMRk
+	id S261745AbUJYMVt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 08:21:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbUJYMVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 08:17:40 -0400
-Received: from quechua.inka.de ([193.197.184.2]:45519 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261773AbUJYMRi (ORCPT
+	Mon, 25 Oct 2004 08:21:49 -0400
+Received: from dns1.seagha.com ([217.66.0.18]:6619 "EHLO ndns1.seagha.com")
+	by vger.kernel.org with ESMTP id S261745AbUJYMVr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 08:17:38 -0400
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+	Mon, 25 Oct 2004 08:21:47 -0400
+Message-ID: <6DED3619289CD311BCEB00508B8E133601A68E80@nt-server2.antwerp.seagha.com>
+From: Karl Vogel <karl.vogel@seagha.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <20041024181757.GA28994@sapience.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
-Message-Id: <E1CM3n6-0003ad-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Mon, 25 Oct 2004 14:17:36 +0200
+Subject: ext3 reservation strangeness?!
+Date: Mon, 25 Oct 2004 14:21:29 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20041024181757.GA28994@sapience.com> you wrote:
->   I wonder what interest there might would be in an open source 
->   one-time-password secure id type card? 
+When copying a file on 2.6.9-mm1 with the ext3 reservation code,
+I noticed that there were a lot of fragments. Doing the same when
+the filesystem is mounted with 'noreservation' seems to produce
+better results?! Or am I interpreting this incorrectly?
 
-Yes, I would like to see that also. Maybe a USB Dongle with display. That
-will require only small and simple components.
-> 
->   Not sure how easy it would be to make reset/resync the card to
->   the server random sequence via something - serial/usb/ethernet?
+Example:
 
-Better do it like RSA, keep resync records in the server and not allow any
-electronical interaction with the tokens.
+[root@kvo kvo]# ls -l t
+-rw-r--r--  1 root root 8228490 Oct 23 14:45 t
 
->   Something like an rsa secureid card but open source server?
->   I am sure community could help program the server side?
+Copying this file with reservation code active:
 
-I think there are actually enough OTP Implementations out there, which can
-be somewhat abused. Personally I would love to see a simple opie
-entry/output device with no clocking at all.
+[root@kvo kvo]# mount -t ext3 -o commit=60,reservation /dev/sda1 /mnt
+[root@kvo kvo]# cp t /mnt
+[root@kvo kvo]# filefrag /mnt/t
+/mnt/t: 129 extents found, perfection would be 1 extent
+[root@kvo kvo]# rm -f /mnt/t
+[root@kvo kvo]# umount /mnt
 
-Greetings
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+While doing the same with 'noreservation' produces only 2 extents:
+
+[root@kvo kvo]# mount -t ext3 -o commit=60,noreservation /dev/sda1 /mnt
+[root@kvo kvo]# cp t /mnt
+[root@kvo kvo]# filefrag /mnt/t
+/mnt/t: 2 extents found, perfection would be 1 extent
+[root@kvo kvo]# rm -f /mnt/t
+
+
+There was enough free diskspace available:
+
+[root@kvo kvo]# df /mnt
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/sda1             76904352  25383252  47614496  35% /mnt
+

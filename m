@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313509AbSDGXXv>; Sun, 7 Apr 2002 19:23:51 -0400
+	id <S312735AbSDGXdB>; Sun, 7 Apr 2002 19:33:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313510AbSDGXXu>; Sun, 7 Apr 2002 19:23:50 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39945 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S313509AbSDGXXt>; Sun, 7 Apr 2002 19:23:49 -0400
-Subject: Re: 2.4.18 AND Geode GX1/200Mhz problem
-To: pierre.ficheux@openwide.fr (Pierre Ficheux)
-Date: Mon, 8 Apr 2002 00:41:10 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3CB0D419.F785C6D0@openwide.fr> from "Pierre Ficheux" at Apr 08, 2002 01:19:53 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S312803AbSDGXdA>; Sun, 7 Apr 2002 19:33:00 -0400
+Received: from pD903C98D.dip.t-dialin.net ([217.3.201.141]:57060 "EHLO
+	no-maam.dyndns.org") by vger.kernel.org with ESMTP
+	id <S312735AbSDGXdA>; Sun, 7 Apr 2002 19:33:00 -0400
+Date: Mon, 8 Apr 2002 01:31:22 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: Two fixes for 2.4.19-pre5-ac3
+Message-ID: <20020407233122.GA9883@no-maam.dyndns.org>
+In-Reply-To: <Pine.LNX.4.44.0204071240360.15439-100000@atx.fast.net> <E16uGg1-0006Ln-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16uMHW-0006vK-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: erik.tews@gmx.net (Erik Tews)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	I have a strange problem with a Geode/GX1 200Mhz based system. My
-> kernel is compiled  with 586 as processor type but the system stops just
-> after the 'Uncompressing Linux...Ok, booting the kernel' message. It's
-> strange as GX1 is claimed to work fine with 2.4.18. The same system
-> works fine with 2.2.18 kernel.
+On Sun, Apr 07, 2002 at 06:42:05PM +0100, Alan Cox wrote:
+> > And, unless this is reversed the OpenAFS kernel module won't load (it 
+> > needs sys_call_table.):
+> 
+> Correct. There was agreement a very long time ago that code should not patch
+> the syscall table (for one its not safe). AFS probably needs fixing so the
+> AFS syscall hook is exported portably and nicely in the syscall code.
 
-With 586 and no TSC set it should work fine yes. You might want to plug a 
-serial port in and compile with serial console enabled, see if it gives any
-clues
+I am really not an expert on kernel-programming but I remember that
+there was a security-hole in the ptrace-code with which one a local user
+could gain root access. And there was a little kernel-modul with a
+wrapper-function for the ptrace-syscall that made traces only possible
+if the user who was calling this syscall was root. So if I understand
+right if we don't export the syscall-table it is impossible to write
+such syscall-wrapper-functions and it requires to recompile the kernel
+and reboot the machiene to fix such an security-hole.
+
+So wouldn't it be better to export the syscall-table and just write into
+the documentation that it is not a good idea to manipulate syscalls or
+write a compiler-makro that gives out a warning when such a module is
+beeing compiled.

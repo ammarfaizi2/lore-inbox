@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263209AbUDAWtK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 17:49:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263229AbUDAWtH
+	id S263309AbUDAWvx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 17:51:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263229AbUDAWvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 17:49:07 -0500
-Received: from faui10.informatik.uni-erlangen.de ([131.188.31.10]:16328 "EHLO
-	faui10.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S263209AbUDAWtB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 17:49:01 -0500
-From: Ulrich Weigand <weigand@i1.informatik.uni-erlangen.de>
-Message-Id: <200404012248.AAA23951@faui1d.informatik.uni-erlangen.de>
-Subject: Re: Linux 2.6 nanosecond time stamp weirdness breaks GCC build
-To: Joe.Buck@synopsys.com (Joe Buck)
-Date: Fri, 2 Apr 2004 00:48:55 +0200 (CEST)
-Cc: ak@suse.de (Andi Kleen),
-       weigand@i1.informatik.uni-erlangen.de (Ulrich Weigand), gcc@gcc.gnu.org,
-       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
-In-Reply-To: <20040401143908.B4619@synopsys.com> from "Joe Buck" at Apr 01, 2004 02:39:08 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 1 Apr 2004 17:51:23 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:29366 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263301AbUDAWvO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 17:51:14 -0500
+Subject: Re: [PATCH] mask ADT: replace cpumask_t implementation [3/22]
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: Paul Jackson <pj@sgi.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+In-Reply-To: <20040401124628.2d017aeb.pj@sgi.com>
+References: <20040329041256.0f27e8c4.pj@sgi.com>
+	 <1080611340.6742.147.camel@arrakis> <20040401072232.798d98c8.pj@sgi.com>
+	 <1080852024.9787.87.camel@arrakis>  <20040401124628.2d017aeb.pj@sgi.com>
+Content-Type: text/plain
+Organization: IBM LTC
+Message-Id: <1080859802.9787.90.camel@arrakis>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 01 Apr 2004 14:50:02 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Buck wrote:
+On Thu, 2004-04-01 at 12:46, Paul Jackson wrote:
+> Matthew suggested:
+> > Maybe we could #define it better on UP.  Something along the lines of:
+> > #define cpu_online_map	({ cpumask_t up_cpu_map = { 1UL }; })
+> 
+> Yeah - I started playing with something like that too ...
 
-> Case 2: make falsely thinks that the .c is younger than the .o.  It
-> recompiles the .c file, even though it didn't have to.  Harmless.
+Cool.  I think you're right about an actual cpumask_t for cpu_online_map
+on UP not being a great idea, but I definitely think we can do better
+than just #defining it to cpumask_of_cpu(0).
 
-*Not* harmless, in fact this is exactly what breaks my bootstrap.
+-Matt
 
-Think about what happens when cc1 is 'harmlessly' rebuilt just
-while in a parallel make that very same cc1 binary is used to
-run a compile ...
-
-Bye,
-Ulrich
-
--- 
-  Dr. Ulrich Weigand
-  weigand@informatik.uni-erlangen.de

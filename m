@@ -1,26 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262851AbVCPXDa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262852AbVCPXDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262851AbVCPXDa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 18:03:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbVCPXB3
+	id S262852AbVCPXDb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 18:03:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262858AbVCPXBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 18:01:29 -0500
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:47737 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262851AbVCPXAd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 18:00:33 -0500
-Message-ID: <4238B97A.1030501@sbcglobal.net>
-Date: Wed, 16 Mar 2005 17:55:54 -0500
-From: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041223
-X-Accept-Language: en
+	Wed, 16 Mar 2005 18:01:06 -0500
+Received: from mail.dif.dk ([193.138.115.101]:63616 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262852AbVCPW7u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 17:59:50 -0500
+Date: Thu, 17 Mar 2005 00:01:19 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, yuasa@hh.iij4u.or.jp, ralf@linux-mips.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch][resend] convert a remaining verify_area to access_ok
+ (was: Re: [PATCH 2.6.11-mm1] mips: more convert verify_area to access_ok)
+ (fwd)
+In-Reply-To: <20050316145524.18787569.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.62.0503170000250.2558@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0503162227270.2558@dragon.hyggekrogen.localhost>
+ <20050316145524.18787569.akpm@osdl.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-unsubscribe linux-kernel
+On Wed, 16 Mar 2005, Andrew Morton wrote:
+
+> Jesper Juhl <juhl-lkml@dif.dk> wrote:
+> >
+> > Around 2.6.11-mm1 Yoichi Yuasa found a user of verify_area that I had 
+> >  missed when converting everything to access_ok. The patch below still 
+> >  applies cleanly to 2.6.11-mm4.
+> >  Please apply (unless of course you already picked it up back then and 
+> >  have it in a queue somewhere :) .
+> 
+> That's tricky stuff you're playing with, so I'd prefer it came in via Ralf.
+> However I can queue it up locally so it doesn't get forgotten.
+> 
+Perfectly fine by me.
+
+-- 
+Jesper
+
+

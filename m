@@ -1,80 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131870AbRBMPZW>; Tue, 13 Feb 2001 10:25:22 -0500
+	id <S131810AbRBMPhF>; Tue, 13 Feb 2001 10:37:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131930AbRBMPZM>; Tue, 13 Feb 2001 10:25:12 -0500
-Received: from web9208.mail.yahoo.com ([216.136.129.41]:17416 "HELO
-	web9208.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S131870AbRBMPZG>; Tue, 13 Feb 2001 10:25:06 -0500
-Message-ID: <20010213152459.42571.qmail@web9208.mail.yahoo.com>
-Date: Tue, 13 Feb 2001 07:24:59 -0800 (PST)
-From: bradley mclain <bradley_kernel@yahoo.com>
-Subject: Re: How to install Alan's patches?
-To: Thomas Foerster <puckwork@madz.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010213150328Z131694-514+4497@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S131888AbRBMPg4>; Tue, 13 Feb 2001 10:36:56 -0500
+Received: from h201.s254.netsol.com ([216.168.254.201]:14755 "EHLO
+	tesla.admin.cto.netsol.com") by vger.kernel.org with ESMTP
+	id <S131774AbRBMPgp>; Tue, 13 Feb 2001 10:36:45 -0500
+Date: Tue, 13 Feb 2001 10:36:32 -0500
+From: Pete Toscano <pete@research.netsol.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x SMP blamed for Xfree 4.0 crashes
+Message-ID: <20010213103632.R15595@tesla.admin.cto.netsol.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <XFMail.20010213130505.gale@syntax.dera.gov.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="soWJpSPh+l8Y6Fy7"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <XFMail.20010213130505.gale@syntax.dera.gov.uk>; from gale@syntax.dera.gov.uk on Tue, Feb 13, 2001 at 01:05:05PM -0000
+X-Uptime: 10:31am  up 10 days, 19:43,  9 users,  load average: 0.09, 0.14, 0.09
+X-Married: 457 days, 14 hours, 46 minutes, and 7 seconds
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-from linux (/usr/src/linux) directory, if the patch is
-up a level (/usr/src):
 
-patch -p1 <../patch-2.4.1-ac9
+--soWJpSPh+l8Y6Fy7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-hth,
+i have been running 4.0.2 on my smp system using the 2.4.1 kernel.  the
+one thing is, i was using the xfree out of precision insite's cvs with
+the g400 binary-only hal lib dri module loaded.  every-so-often,
+especially when closing windows or switching virtual desktops, the
+kernel would crash.  luckily, i'm also running kdb on a serial console,
+so i am able to check things out and keep a log.  unfortunately, when
+btp all the processes, i found no text.lock, which is as far as i know
+how to "debug" a kernel crash.
 
-bradley mclain
+of course, this could very well be something wrong with the binary-only
+module from matrox, so i'm seeing if the same problem presents itself
+with the original mga.o loaded (which also disables hardware dri).
 
-ps -- probably a google search with the string 'how to
-install ac patches' will find some instructions for
-you.
+pete
 
---- Thomas Foerster <puckwork@madz.net> wrote:
-> Hi folks,
-> 
-> sorry for the silly question, but i can't get it to
-> work :
-> 
-> I have linux-2.4.1 unpacked, configured and
-> installed.
-> Now i want to apply Alan Cox patche
-> (linux-2.4.1-ac9), but i always get
-> these errors :
-> 
-> [root@space src]# cat /home/puck/patch-2.4.1-ac9 |
-> patch -p0
-> can't find file to patch at input line 4
-> Perhaps you used the wrong -p or --strip option?
-> The text leading up to this was:
-> --------------------------
-> |diff -u --new-file --recursive --exclude-from
-> /usr/src/exclude linux.vanilla/CREDITS
-> linux.ac/CREDITS
-> |--- linux.vanilla/CREDITS      Wed Jan 31 22:05:29
-> 2001
-> |+++ linux.ac/CREDITS   Fri Feb  9 13:19:13 2001
-> --------------------------
-> File to patch: 
-> [root@space src]#
-> 
-> Do i have to create linux.vanilla and linux.ac, or
-> what's the magic?! :-)
-> 
-> Thanx a lot,
->   Thomas
-> 
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Tue, 13 Feb 2001, Tony Gale wrote:
 
+> Having experienced a number of crashes with Xfree 4.0 with 2.4
+> kernels, that I wasn't getting with 2.2 kernels, a quick search on
+> the xfree Xpert mailing list reveals this:
 
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail - only $35 
-a year!  http://personal.mail.yahoo.com/
+--=20
+Pete Toscano         pete@research.netsol.com          703.948.3364
+GPG fingerprint: D8F5 A087 9A4C 56BB 8F78  B29C 1FF0 1BA7 9008 2736
+
+--soWJpSPh+l8Y6Fy7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6iVSAH/Abp5AIJzYRAmMGAJ4z6QwXfQs8mLf28w0RScY3XRFAdQCfbiyn
+k71Ws1SlgEt+fRxKnYb1RR8=
+=al26
+-----END PGP SIGNATURE-----
+
+--soWJpSPh+l8Y6Fy7--

@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280667AbRKBMbR>; Fri, 2 Nov 2001 07:31:17 -0500
+	id <S280666AbRKBMaH>; Fri, 2 Nov 2001 07:30:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280668AbRKBMbH>; Fri, 2 Nov 2001 07:31:07 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:30225 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S280667AbRKBMbB>; Fri, 2 Nov 2001 07:31:01 -0500
-Message-ID: <3BE291F9.5050802@namesys.com>
-Date: Fri, 02 Nov 2001 15:30:49 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: zmwillow <zmwillow@xteamlinux.com.cn>
-CC: linux-kernel-mail-list <linux-kernel@vger.kernel.org>,
-        "Vladimir V. Saveliev" <monstr@namesys.com>
-Subject: Re: where the filesystem size limitation coms from?
-In-Reply-To: <3BE2B5F2.1040009@xteamlinux.com.cn>
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 7bit
+	id <S280671AbRKBM36>; Fri, 2 Nov 2001 07:29:58 -0500
+Received: from cobae1.consultronics.on.ca ([205.210.130.26]:13220 "EHLO
+	cobae1.consultronics.on.ca") by vger.kernel.org with ESMTP
+	id <S280666AbRKBM3k>; Fri, 2 Nov 2001 07:29:40 -0500
+Date: Fri, 2 Nov 2001 07:29:39 -0500
+From: Greg Louis <glouis@dynamicro.on.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 3.0.2 fails to build linux-2.4.13-ac5, 8139.c
+Message-ID: <20011102072939.A1119@athame.dynamicro.on.ca>
+Reply-To: Greg Louis <glouis@dynamicro.on.ca>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <200111020921.fA29LP718803@vegae.deep.net> <E15zd1M-00024u-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <E15zd1M-00024u-00@the-village.bc.nu>
+Organization: Dynamicro Consulting Limited
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-zmwillow wrote:
+On 20011102 (Fri) at 1202:00 +0000, Alan Cox wrote:
+> > 8139too.c:2432: Internal compiler error in reload_cse_simplify_operands, at reload1.c:8364
+> > Please submit a full bug report,
+> > with preprocessed source if appropriate.
+> > See <URL:http://www.gnu.org/software/gcc/bugs.html> for instructions.
+> 
+> You reported the bug to the wrong place. Its a compiler bug not a kernel
+> bug.
 
->Hi:
->That is say: in 2.4.x, the max filesystem size of ext2 is 32T, and i
->want know
->what is the reiserfs(and others) max size ? and where the limitation
->comes from(VFS layer)?
->Maybe you can give some clue .
->And the max file size now biger than 2G(is 16T), how reiserfs implement it?
->Thanx a lot!
->zmwillow
->
->Best regard
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
-block numbers are a 32 bit int is the problem. sectors are also kept as
-a 32 bit int, but that is a layer below reiserfs. block numbers become
-64 bit in reiser4, but not sure when rest of linux goes to 64 bit block
-numbers
+Interesting though: I had exactly the same error with gcc 3.0.1, but
+for me 3.0.2 has compiled that file correctly in a couple of
+13-ac releases, including -ac5.  The resulting kernels are about 8%
+bigger, and seem a trifle slower, than the same ones compiled with
+2.95.3 -- IIRC other people have found the same, so maybe the easy
+fix is to wait a few versions before using gcc 3 for kernel
+compilation.
 
-Hans
-
-
+-- 
+| G r e g  L o u i s          | gpg public key:      |
+|   http://www.bgl.nu/~glouis |   finger greg@bgl.nu |

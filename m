@@ -1,64 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132747AbRDNBF5>; Fri, 13 Apr 2001 21:05:57 -0400
+	id <S132804AbRDNBJh>; Fri, 13 Apr 2001 21:09:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132745AbRDNBFr>; Fri, 13 Apr 2001 21:05:47 -0400
-Received: from web5201.mail.yahoo.com ([216.115.106.95]:9487 "HELO
-	web5201.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S132739AbRDNBFf>; Fri, 13 Apr 2001 21:05:35 -0400
-Message-ID: <20010414010504.2967.qmail@web5201.mail.yahoo.com>
-Date: Fri, 13 Apr 2001 18:05:04 -0700 (PDT)
-From: Rob Landley <telomerase@yahoo.com>
-Subject: How do I make a circular pipe?
-To: linux-kernel@vger.kernel.org
+	id <S132805AbRDNBJ1>; Fri, 13 Apr 2001 21:09:27 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29199 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132804AbRDNBJV>; Fri, 13 Apr 2001 21:09:21 -0400
+Subject: Re: errors(?) in configuration rule files (config.in/Config.in)
+To: Malte.Starostik@t-online.de (Malte Starostik)
+Date: Sat, 14 Apr 2001 02:10:58 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200104140028.f3E0SMO07528@servant.home.lan> from "Malte Starostik" at Apr 14, 2001 02:28:21 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14oEaa-0003vy-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How do I do the following:
+> those contain two default values? For now I made the parser ignore the 
+> $CONFIG_SB_* defaults and use the immediate numbers. How should those be 
+> treated / could they be fixed?
 
-#  --> pppd notty | pppoe -I eth1 | --
-   |_________________________________|
+Use the first value which is non null string.
 
-I.E. connect the stdout of a process  (or chain
-thereof) to its own stdin?
+> In 2.4.2 at least:
+> drivers/char/Config.in, line 179:
+> tristate '/dev/agpgart (AGP Support)' CONFIG_AGP $CONFIG_DRM_AGP
+> According to Documentation/kbuild/config-language.txt, tristate accepts no 
+> default value.
 
-So I wrote a program to do it, along the lines of:
+Thats a bug. Several of these are fixed already tho
 
-sixty-nine /bin/sh -c "pppd notty | pppoe -I eth1"
+> 
 
-With an executable approximately along the lines of
-(warning, pseudo-code, the other machine isn't hooked
-up to the internet at the moment for obvious reasons):
-
-int main(int argc, char *argv[], char *envp[])
-{
-  int fd[2];
-  pipe(fd);
-  dup2(fd[0],0);
-  dup2(fd[0],1);
-  execve(argv[1],argv+1,envp);
-  fprintf(stderr,"Bad.\n");
-  exit(1);
-}
-
-And it didn't work.  I made a little test program that
-writes to stdout and reads from stdin and reports to
-stderr, and it gets nothing.  Apparently, the pipe
-fd's evaporate when the process does an execve.
-
-What do I do?  (If anybody else knows an easier way to
-get pppoe working, that would be helpful too.
-
-Rob
-
-(P.S.  WHY does pppd want to talk to a tty by default
-instead of stdin and stdout?  Were the people who
-wrote it at all familiar with the unix philosophy? 
-Just curious...)
-
-__________________________________________________
-Do You Yahoo!?
-Get email at your own domain with Yahoo! Mail. 
-http://personal.mail.yahoo.com/

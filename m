@@ -1,148 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266853AbUGVRex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266855AbUGVRiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266853AbUGVRex (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 13:34:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266855AbUGVRex
+	id S266855AbUGVRiY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 13:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266860AbUGVRiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 13:34:53 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:48593 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S266853AbUGVRer
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 13:34:47 -0400
-Message-ID: <40FFFB00.3030704@blue-labs.org>
-Date: Thu, 22 Jul 2004 13:36:00 -0400
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040721
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: Video memory corruption during suspend
-References: <20040718225247.GA30971@hell.org.pl> <20040722161047.GB15145@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20040722161047.GB15145@atrey.karlin.mff.cuni.cz>
-Content-Type: multipart/mixed;
- boundary="------------010103020408090008010006"
+	Thu, 22 Jul 2004 13:38:23 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:29853 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266855AbUGVRiN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 13:38:13 -0400
+Date: Thu, 22 Jul 2004 13:39:33 -0200
+From: Jens Axboe <axboe@suse.de>
+To: Tabris <tabris@tabriel.tabris.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Repost] IDE error 2.6.7-rc3-mm2 and 2.6.8-rc1-mm1
+Message-ID: <20040722153933.GJ3987@suse.de>
+References: <200407220659.22948.tabris@tabriel.tabris.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200407220659.22948.tabris@tabriel.tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010103020408090008010006
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, Jul 22 2004, Tabris wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Jul 21 03:00:18 tabriel kernel: hda: drive_cmd: status=0x51 { DriveReady
+> SeekComplete Error }
+> Jul 21 03:00:18 tabriel kernel: hda: drive_cmd: error=0x04 {
+> DriveStatusError }
+> Jul 21 03:00:18 tabriel kernel: ide: failed opcode was: 0xe7
+> Jul 21 03:00:23 tabriel kernel: hda: drive_cmd: status=0x51 { DriveReady
+> SeekComplete Error }
+> Jul 21 03:00:23 tabriel kernel: hda: drive_cmd: error=0x04 {
+> DriveStatusError }
+> Jul 21 03:00:23 tabriel kernel: ide: failed opcode was: 0xe7
+> Jul 21 03:00:28 tabriel kernel: hda: drive_cmd: status=0x51 { DriveReady
+> SeekComplete Error }
+> Jul 21 03:00:28 tabriel kernel: hda: drive_cmd: error=0x04 {
+> DriveStatusError }
+> Jul 21 03:00:28 tabriel kernel: ide: failed opcode was: 0xe7
+> 
+> 	This error did not occur in 2.6.6-rc3-mm2. Turning off ACPI made no 
+> difference, not that I expected one.
+> 
+> 	It appears to be harmless but it's polluting my syslog.
+> 
+> Appears related to 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=108946389700930
+> 
+> 	None of my harddrives are over 60GiB (and hda is an 8GiB), so there's 
+> no reason i should be getting LBA48 Flush Cache.
+> 
+> 	What should I do, what do you need from me to get to the bottom of 
+> this?
 
-Just as a side note, all of the notebooks I have owned or worked on have 
-had suspend issues.  Linux just doesn't handle it very well.  The common 
-problems on resume are:
+Does this work?
 
-1. the screen is somehow switched to the external VGA port or port other 
-than the LCD
-2. the screen is 50% rolled; i.e. the whole screen has been shifted 
-halfway down the screen with the bottom wrapping back up to the top
-3. on a text console, the characters are garbage/high ascii/blocks
-4. the back light is off and can't be turned back on
+--- /opt/kernel/linux-2.6.8-rc1-mm1/drivers/ide/ide-disk.c	2004-07-22 13:37:09.751485758 -0200
++++ linux-2.6.8-rc1-mm1/drivers/ide/ide-disk.c	2004-07-22 13:37:52.812593031 -0200
+@@ -1248,7 +1248,8 @@
+ 
+ 	memset(rq->cmd, 0, sizeof(rq->cmd));
+ 
+-	if ((drive->id->cfs_enable_2 & 0x2400) == 0x2400)
++	if (ide_id_has_flush_cache_ext(drive->id) &&
++	    (drive->capacity64 >= (1UL << 28)))
+ 		rq->cmd[0] = WIN_FLUSH_CACHE_EXT;
+ 	else
+ 		rq->cmd[0] = WIN_FLUSH_CACHE;
+--- /opt/kernel/linux-2.6.8-rc1-mm1/drivers/ide/ide-io.c	2004-07-22 13:37:09.756486583 -0200
++++ linux-2.6.8-rc1-mm1/drivers/ide/ide-io.c	2004-07-22 13:38:23.807708802 -0200
+@@ -67,7 +67,8 @@
+ 	rq->buffer = buf;
+ 	rq->buffer[0] = WIN_FLUSH_CACHE;
+ 
+-	if (ide_id_has_flush_cache_ext(drive->id))
++	if (ide_id_has_flush_cache_ext(drive->id) &&
++	    (drive->capacity64 >= (1UL << 28)))
+ 		rq->buffer[0] = WIN_FLUSH_CACHE_EXT;
+ }
+ 
 
-Of these I'm currently dealing with #1, 2, and 3.  I can fix #1 by using 
-the Function-Display key to step through displays until I have selected 
-the LCD display again.  I fix #2 by ctrl-alt-f1 and then back to X tty.  
-I fix #3 by running setfont.  I haven't had to deal with #4 in over a 
-year, but I no longer have that notebook.
+-- 
+Jens Axboe
 
-Chris root # lspci -vvv -s 0:00.0
-00:00.0 Host bridge: Intel Corp. 82845 845 (Brookdale) Chipset Host 
-Bridge (rev 04)
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort- <MAbort+ >SERR- <PERR-
-        Latency: 0
-        Region 0: Memory at e8000000 (32-bit, prefetchable) [size=64M]
-        Capabilities: [e4] #09 [d104]
-        Capabilities: [a0] AGP version 2.0
-                Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- 
-HTrans- 64bit- FW+ AGP3- Rate=x1,x2,x4
-                Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- 
-Rate=<none>
-
-Chris root # lspci -vvv -s 01:00.0
-01:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 440 
-Go] (rev a3) (prog-if 00 [VGA])
-        Subsystem: Dell Computer Corporation: Unknown device 00d4
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop+ 
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (1250ns min, 250ns max)
-        Interrupt: pin A routed to IRQ 11
-        Region 0: Memory at fc000000 (32-bit, non-prefetchable) [size=16M]
-        Region 1: Memory at e0000000 (32-bit, prefetchable) [size=128M]
-        Region 2: Memory at dff80000 (32-bit, prefetchable) [size=512K]
-        Expansion ROM at 80000000 [disabled] [size=128K]
-        Capabilities: [60] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-        Capabilities: [44] AGP version 2.0
-                Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA- ITACoh- GART64- 
-HTrans- 64bit- FW+ AGP3- Rate=x1,x2,x4
-                Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- 
-Rate=<none>
-
-no DRI/FB.
-
-David
-
-Pavel Machek wrote:
-
->Hi!
->
->  
->
->>My setup is:
->>ASUS L3800C laptop, Radeon M7, i845 chipset, using DRI and radeonfb.
->>
->>Note that this is not specific to the kernel used, as I've been seeing 
->>similar corruption every now and then, most recently under 2.6.7 +
->>ACPICA20040715 + swsusp2.0.0.100 (S3, S4), but also under 2.4 with S1 (but 
->>not with S4/swsusp2).
->>
->>I have a very simple script I use to suspend (i.e. basically echo $arg >
->>/proc/acpi/sleep), which is usually started by acpid. Once the script is
->>triggered (by pressing power / sleep button) and an X session is running, 
->>various red and green patches appear on the screen (the background image
->>and the tinted terminal emulator), followed by the VT switch the PM code
->>does. After resume and subsequent VT switch by the PM code the corruption
->>is still visible. The screen is properly restored by a manual VT switch.
->>The corruption is clearly related to the existing background pixmap, as
->>moving the windows does not change its pattern. Oddly enough, starting a GL
->>app such as glxgears and moving it into and out of focus also properly
->>restores the screen.
->>    
->>
->
->So what happens on 2.6.7 with swsusp1? Can you try vesafb (and fbdev
->Xserver)?
->
->								Pavel
->  
->
-
---------------010103020408090008010006
-Content-Type: text/x-vcard; charset=utf-8;
- name="david+challenge-response.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="david+challenge-response.vcf"
-
-begin:vcard
-fn:David Ford
-n:Ford;David
-email;internet:david@blue-labs.org
-title:Industrial Geek
-tel;home:Ask please
-tel;cell:(203) 650-3611
-x-mozilla-html:TRUE
-version:2.1
-end:vcard
-
-
---------------010103020408090008010006--

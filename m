@@ -1,32 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265784AbUHFPVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268114AbUHFPW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265784AbUHFPVu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 11:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268138AbUHFPVu
+	id S268114AbUHFPW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 11:22:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266009AbUHFPW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 11:21:50 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42630 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265784AbUHFPTA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 11:19:00 -0400
-Date: Fri, 6 Aug 2004 11:33:59 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Vladislav Bolkhovitin <vst@vlnb.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 bitops.h commentary on instruction reordering
-Message-ID: <20040806143359.GC20911@logos.cnet>
-References: <20040805200622.GA17324@logos.cnet> <411392E0.6080507@vlnb.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <411392E0.6080507@vlnb.net>
-User-Agent: Mutt/1.5.5.1i
+	Fri, 6 Aug 2004 11:22:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:11913 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268114AbUHFPWw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 11:22:52 -0400
+Date: Fri, 6 Aug 2004 08:22:48 -0700
+From: John Cherry <cherry@osdl.org>
+Message-Id: <200408061522.i76FMmtu011488@cherrypit.pdx.osdl.net>
+To: linux-kernel@vger.kernel.org
+Subject: IA32 (2.6.8-rc3 - 2004-08-05.22.30) - 1 New warnings (gcc 3.2.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06, 2004 at 06:17:04PM +0400, Vladislav Bolkhovitin wrote:
-> So, is there any way to workaround this problem, i.e. prevent bit 
-> operations reordering on non-x86 architectures? Some kinds of memory 
-> barriers?
-
-Memory barriers, yes, smp_mb(), rmb, wmb and friends.
+drivers/oprofile/oprofilefs.c:50: warning: passing arg 4 of `simple_read_from_buffer' discards qualifiers from pointer target type

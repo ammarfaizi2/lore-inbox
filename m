@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261295AbTADStg>; Sat, 4 Jan 2003 13:49:36 -0500
+	id <S261317AbTADSvS>; Sat, 4 Jan 2003 13:51:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261305AbTADStg>; Sat, 4 Jan 2003 13:49:36 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53822 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S261295AbTADStg>; Sat, 4 Jan 2003 13:49:36 -0500
-To: Andy Pfiffer <andyp@osdl.org>
-Cc: suparna@in.ibm.com,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Werner Almesberger <wa@almesberger.net>
-Subject: Re: 2.5.54: Re: [PATCH][CFT] kexec (rewrite) for 2.5.52
-References: <m1smwql3av.fsf@frodo.biederman.org>
-	<20021231200519.A2110@in.ibm.com> <1041640372.12182.51.camel@andyp>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 04 Jan 2003 11:56:51 -0700
-In-Reply-To: <1041640372.12182.51.camel@andyp>
-Message-ID: <m1vg14kaks.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S261333AbTADSvS>; Sat, 4 Jan 2003 13:51:18 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:64006 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S261317AbTADSvR>;
+	Sat, 4 Jan 2003 13:51:17 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301041859.h04IxaGQ002334@darkstar.example.net>
+Subject: Re: RH73 Promise ATA/133 Install Problems
+To: rbroman@bayarea.net (Randy Broman)
+Date: Sat, 4 Jan 2003 18:59:36 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3E172D5B.70402@bayarea.net> from "Randy Broman" at Jan 04, 2003 10:52:11 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Pfiffer <andyp@osdl.org> writes:
-
-> Eric,
+> I have a  Gigabyte GA-7VRXP motherboard which has an on-board
+> Promise 20276 ATA133/RAID controller. I want to install RH73, on the
+> two ATA133 drives connected to the Promise controller. I've set up
+> the motherboard BIOS with the Promise 20276 interfaces as ATA (not
+> RAID), and I want to install on the two drives in a software RAID
+> configuration.
 > 
-> The patch applied cleanly to 2.5.54 for me.
-> 
-> The kexec portion works just fine and the reboot discovers all of the
-> memory on my system using kexec_tools 1.8.
-> 
-> However, something has recently changed in the 2.5.5x series that causes
-> the reboot to hang while calibrating the delay loop after a kexec
-> reboot:
+> If I start the standard RH73 install it does not identify the two drives 
+> connected to the Promise interfaces.
 
-Thanks I will take a look.  It looks like something is definitely having
-interrupt problems...
+Support for the Promise 20276 went in to the kernel at 2.4.19-pre6.
 
-BTW, Have you tried booting an older kernel?
-That would help indicate where the problem is.  I am pretty certain
-it is from somewhere in the kernels initialization path.
+Can you get to a command prompt and post the output of lspci -v -v?
+Maybe it has a non standard PCI id and is not being recognised.
 
-Eric
+John.

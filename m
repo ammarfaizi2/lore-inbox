@@ -1,60 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264113AbTLEMOx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 07:14:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264118AbTLEMOx
+	id S263969AbTLEMLM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 07:11:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263971AbTLEMLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 07:14:53 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:21655 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S264113AbTLEMOw (ORCPT
+	Fri, 5 Dec 2003 07:11:12 -0500
+Received: from main.gmane.org ([80.91.224.249]:51390 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263969AbTLEMLG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 07:14:52 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16336.30392.344028.347132@alkaid.it.uu.se>
-Date: Fri, 5 Dec 2003 13:14:48 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Josh McKinney <forming@charter.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Catching NForce2 lockup with NMI watchdog
-In-Reply-To: <20031205083349.GA15152@forming>
-References: <20031205045404.GA307@tesore.local>
-	<16336.13962.285442.228795@alkaid.it.uu.se>
-	<20031205083349.GA15152@forming>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+	Fri, 5 Dec 2003 07:11:06 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Is there a "make hole" (truncate in middle) syscall?
+Date: Fri, 05 Dec 2003 13:11:03 +0100
+Message-ID: <yw1xllprihwo.fsf@kth.se>
+References: <200312041432.23907.rob@landley.net> <Pine.LNX.4.58.0312042300550.2330@ua178d119.elisa.omakaista.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:ShyW8RuyCNow4ZhvqdbGQleNURU=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josh McKinney writes:
- > On approximately Fri, Dec 05, 2003 at 08:40:58AM +0100, Mikael Pettersson wrote:
- > > Jesse Allen writes:
- > >  > Hi,
- > >  > 
- > >  > I have a NForce2 board and can easily reproduce a lockup with grep on an IDE 
- > >  > hard disk at UDMA 100.  The lockup occurs when both Local APIC + IO-APIC are 
- > >  > enabled.  It was suggested to me to use NMI watchdog to catch it.  However, the 
- > >  > NMI watchdog doesn't seem to work.
- > >  > 
- > >  > When I set the kernel parameter "nmi_watchdog=1" I get this message in 
- > >  > /var/log/syslog:
- > >  > Dec  4 20:10:30 tesore kernel: ..MP-BIOS bug: 8254 timer not connected to 
- > >  > IO-APIC
- > >  > Dec  4 20:10:30 tesore kernel: timer doesn't work through the IO-APIC - 
- > >  > disabling NMI Watchdog!
- > >  > 
- > >  > "nmi_watchdog=2" seems to work at first, In /var/log/messages:
- > >  > Dec  4 20:13:11 tesore kernel: testing NMI watchdog ... OK.
- > >  > but it still locks up.
- > > 
- > > The NMI watchdog can only handle software lockups, since it relies on
- > > the CPU, and for nmi_watchdog=1 the I/O-APIC + bus, still running.
- > > Hardware lockups result in, well, hardware lockups :-(
- > 
- > So does this confirm that the lockups with nforce2 chipsets and apic
- > is actually a hardware problem after all? 
+Szakacsits Szabolcs <szaka@sienet.hu> writes:
 
-Confirm with very high probability. There may be quirks in nVidia's
-chipset that we (unlike their Windoze drivers) don't know about.
+>> What are the downsides of holes?  [...] is there a performance penalty to
+>> having a file with 1000 4k holes in it, etc...)
+>
+> Depends what you do, what fs you use. Using XFS XFS_IOC_GETBMAPX you might
+> get a huge improvement, see e.g. some numbers,
+>
+> 	http://marc.theaimsgroup.com/?l=reiserfs&m=105827549109079&w=2
+>
+> The problem is, 0 general purpose (like cp, tar, cat, etc) util supports
+> it, you have to code your app accordingly.
 
-Ask nVidia for detailed chipset documentation. Then maybe we can fix this.
+I found this paragraph in the man page of GNU cp:
+
+       --sparse=WHEN
+              A `sparse file' contains  `holes'  -  sequences  of
+              zero  bytes  that  do  not occupy any physical disk
+              blocks; the  `read'  system  call  reads  these  as
+              zeroes.  This can both save considerable disk space
+              and increase speed, since many binary files contain
+              lots  of  consecutive  zero  bytes.  By default, cp
+              detects holes in input source  files  via  a  crude
+              heuristic  and  makes the corresponding output file
+              sparse as well.
+
+              The WHEN value can be one of the following:
+
+              auto   The default behavior:  the  output  file  is
+                     sparse if the input file is sparse.
+
+              always Always make the output file sparse.  This is
+                     useful when the  input  file  resides  on  a
+                     filesystem  that  does  not  support  sparse
+                     files, but the output file is on a  filesys-
+                     tem that does.
+
+              never  Never  make  the output file sparse.  If you
+                     find an application for this option, let  us
+                     know.
+
+
+-- 
+Måns Rullgård
+mru@kth.se
+

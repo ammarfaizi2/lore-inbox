@@ -1,23 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbUBTVXx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 16:23:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbUBTVXx
+	id S261321AbUBTV0E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 16:26:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbUBTV0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 16:23:53 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:24809 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261333AbUBTVXv (ORCPT
+	Fri, 20 Feb 2004 16:26:04 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60394 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261321AbUBTV0B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 16:23:51 -0500
-Date: Fri, 20 Feb 2004 16:23:55 -0500 (EST)
+	Fri, 20 Feb 2004 16:26:01 -0500
+Date: Fri, 20 Feb 2004 16:26:04 -0500 (EST)
 From: James Morris <jmorris@redhat.com>
 X-X-Sender: jmorris@thoron.boston.redhat.com
 To: Jean-Luc Cooke <jlcooke@certainkey.com>
-cc: Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
-       James Morris <jmorris@intercode.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
-In-Reply-To: <20040220190926.GB9980@certainkey.com>
-Message-ID: <Xine.LNX.4.44.0402201622160.7335-100000@thoron.boston.redhat.com>
+cc: Christophe Saout <christophe@saout.de>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: dm-crypt, new IV and standards
+In-Reply-To: <20040220172237.GA9918@certainkey.com>
+Message-ID: <Xine.LNX.4.44.0402201624030.7335-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,19 +27,14 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Fri, 20 Feb 2004, Jean-Luc Cooke wrote:
 
-> > sense and would be redundant. CFB and CTR are not implemented
-> > by cryptoloop BTW.
-> 
-> jlcooke:~/kern/linux-2.6.1/crypto$ grep CTR *.c
-> cipher.c:       case CRYPTO_TFM_MODE_CTR:
-> grep CFB *.c
-> cipher.c:       case CRYPTO_TFM_MODE_CFB:
-> 
-> It should be I wrote it...the crypto part anyways.
-> 
+> If others on the list care to do this, I'll give recommendation on how to 
+> implement the security (hmac, salt, iteration counts, etc).  But I think
+> this may break backward compatibility.  Can anyone speak to this?
 
-These are just placeholders.  Before this, we need to work out how to 
-support stream ciphers in general (perhaps limit to 'byte' streams?).
+Please focus your recommendations on security, not backward compatibility
+with something that is new to the kernel tree, broken and maintainerless.
+
+Thanks,
 
 
 - James

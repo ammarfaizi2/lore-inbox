@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbTEAOQd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 10:16:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbTEAOQd
+	id S261275AbTEAOVG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 10:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbTEAOVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 10:16:33 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:30736 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S261269AbTEAOQd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 10:16:33 -0400
-Date: Thu, 1 May 2003 16:26:43 +0200
-From: Willy TARREAU <willy@w.ods.org>
-To: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
-Cc: Willy TARREAU <willy@w.ods.org>, hugang <hugang@soulinfo.com>,
-       akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] Faster generic_fls
-Message-ID: <20030501142643.GA1483@pcw.home.local>
-References: <200304300446.24330.dphillips@sistina.com> <20030430135512.6519eb53.akpm@digeo.com> <20030501130318.459a4776.hugang@soulinfo.com> <20030430221129.11595e2e.akpm@digeo.com> <20030501133307.158c7e10.hugang@soulinfo.com> <20030501150557.6dc913f7.hugang@soulinfo.com> <20030501135204.GC308@pcw.home.local> <87fzny3gau.fsf@student.uni-tuebingen.de>
+	Thu, 1 May 2003 10:21:06 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:51460 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261275AbTEAOVG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 10:21:06 -0400
+Date: Thu, 1 May 2003 15:33:25 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: must-fix list for 2.6.0
+Message-ID: <20030501153325.A15458@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+References: <20030429155731.07811707.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87fzny3gau.fsf@student.uni-tuebingen.de>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030429155731.07811707.akpm@digeo.com>; from akpm@digeo.com on Tue, Apr 29, 2003 at 03:57:31PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 01, 2003 at 04:14:17PM +0200, Falk Hueffner wrote:
-> Willy TARREAU <willy@w.ods.org> writes:
-> 
-> > On Thu, May 01, 2003 at 03:05:57PM +0800, hugang wrote:
-> > Ok, I recoded the tree myself with if/else, and it's now faster than
-> > all others, whatever the compiler.
-> 
-> Have you tried with not simply increasing, but random numbers? I guess
-> this could make quite a difference here because of branch prediction.
+drivers/scsi/
 
-I thought about this, and indeed, that's what I used in the program I used
-to bench the first function I sent yesterday. The problem of the random, is
-that it's so slow that you must build a giant table and apply your tests to
-this table. So the problem mainly displaces to data cache misses which cost
-more than certain operations. If you try it, you'll note that it's difficult
-to get comparable results twice.
+ - large parts of the locking are hosed or not existant
+      o shost->my_devices isn't locked down at all
+      o the host list ist locked but not refcounted, mess can
+         happen when the spinlock is dropped
+      o there are lots of members of struct Scsi_Host/scsi_device/scsi_cmnd
+        with very unclear locking, many of them probably want to become
+	atomic_t's or bitmaps (for the 1bit bitfields).
+      o there's lots of volatile abuse in the scsi code that needs to
+        be thought about.
+      o there's some global variables incremented without any locks
 
-Other solutions include non-linear suites such as mixing some sequential
-values with BSWAP. Eg: x ^ bswap(x) ^ bswap(x << 4).
+fs/devfs/
 
-Willy
-
+ - there's a fundamental lookup vs devfsd race that's only fixable
+   by introducing a lookup vs devfs deadlock.  I can't see how this
+   is fixable without getting rid of the current devfsd design.
+   Mandrake seems to have a workaround for this so this is at least
+   not triggered so easily, but that's not what I'd considere a fix..

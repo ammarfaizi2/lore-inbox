@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262194AbSJAQ7D>; Tue, 1 Oct 2002 12:59:03 -0400
+	id <S262261AbSJARMc>; Tue, 1 Oct 2002 13:12:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262141AbSJAQ5w>; Tue, 1 Oct 2002 12:57:52 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:45556 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262130AbSJAQ51>;
-	Tue, 1 Oct 2002 12:57:27 -0400
-Date: Tue, 1 Oct 2002 10:02:46 -0700
-From: Greg KH <gregkh@us.ibm.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB OOPS in 2.5.40 ?
-Message-ID: <20021001170246.GA15890@us.ibm.com>
-References: <200210011654.g91GsaU29508@eng2.beaverton.ibm.com>
+	id <S262241AbSJARKq>; Tue, 1 Oct 2002 13:10:46 -0400
+Received: from mnh-1-06.mv.com ([207.22.10.38]:23301 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S262254AbSJARKf>;
+	Tue, 1 Oct 2002 13:10:35 -0400
+Message-Id: <200210011819.NAA02853@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Oleg Drokin <green@namesys.com>
+cc: James Stevenson <james@stev.org>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] uml-patch-2.5.39 
+In-Reply-To: Your message of "Tue, 01 Oct 2002 11:44:54 +0400."
+             <20021001114454.A27039@namesys.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210011654.g91GsaU29508@eng2.beaverton.ibm.com>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.5.39 (i686)
+Date: Tue, 01 Oct 2002 13:19:36 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01, 2002 at 09:54:36AM -0700, Badari Pulavarty wrote:
-> Hi,
-> 
-> I get following Debug Stack while rebooting the machine. (8x P-III).
-> Is this USB related ? It is not causing me any trouble, just an
-> FYI.
+green@namesys.com said:
+> Here's what I need to apply before I can build bk-current with UML
+> support. 
 
-Hm, thought this was fixed (it's a pci_pool issue, not a usb issue).
-I'll look into it.
+Applied, thanks.
 
-And it's not a oops, just a "warning" :)
+> And then kernel mode fault at 0x5a5a5a5e 
 
-thanks,
+Can you get a stack trace from that crash?
 
-greg k-h
+> Just before the crash it warns about winch_interrupt : read failed,
+> errno = 9 fd 57 is losing SIGWINCH support 
+
+This looks different.  Is it consistently the same file descriptor?  If so,
+put a breakpoint on close and see who's closing it who isn't supposed to.
+
+> @@ -863,6 +863,7 @@
+>  			return(-EFAULT);
+>  		return(0);
+>  	}
+> +	return -ENOTTY;
+>  }
+
+I did a check of some of the other block drivers, and they mostly seem to
+do -EINVAL rather than -ENOTTY.  There was an oddball -ENOSYS, but I guess
+I'll stick with -EINVAL.
+
+				Jeff
+

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271231AbTHHF6N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 01:58:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271235AbTHHF6N
+	id S271210AbTHHFzd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 01:55:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271225AbTHHFzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 01:58:13 -0400
-Received: from xs4all.vs19.net ([213.84.236.198]:15035 "EHLO spaans.vs19.net")
-	by vger.kernel.org with ESMTP id S271231AbTHHF6L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 01:58:11 -0400
-Date: Fri, 8 Aug 2003 07:58:09 +0200
-From: Jasper Spaans <jasper@vs19.net>
-To: "J.C. Wren" <jcwren@jcwren.com>
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <20030808055809.GA3832@spaans.vs19.net>
-References: <20030807180032.GA16957@spaans.vs19.net> <1060295842.3169.83.camel@dhcp22.swansea.linux.org.uk> <20030808054604.GA1905@spaans.vs19.net> <200308080153.22495.jcwren@jcwren.com>
+	Fri, 8 Aug 2003 01:55:33 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:31020 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S271210AbTHHFzc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 01:55:32 -0400
+Date: Fri, 8 Aug 2003 08:55:23 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: lm@bitmover.com
+Subject: Re: [OT] bkbits annotated srcs
+Message-ID: <20030808055523.GA150921@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	lm@bitmover.com
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200308080153.22495.jcwren@jcwren.com>
-Attach: /home/spaans/JasperSpaans.vcf
-Organization: http://www.insultant.nl/
-X-Copyright: Copyright 2003 C. Jasper Spaans - All Rights Reserved
-X-message-flag: Warning! The sender of this mail thinks you should use a more secure email client!
-User-Agent: Mutt/1.5.4i
-X-SA-Exim-Mail-From: spaans@spaans.vs19.net
-Subject: [ot] Re: [PATCH] Change all occurrences of 'flavour' to 'flavor'
-Content-Type: text/plain; charset=iso-8859-15
-X-SA-Exim-Version: 3.0+cvs (built Mon Jul 28 22:52:54 EDT 2003)
-X-SA-Exim-Scanned: Yes
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 08, 2003 at 01:53:22AM -0400, J.C. Wren wrote:
+> Larry McVoy wrote:
+> 
+> To get the annotated listing of the most recent version of any file use
+> this URL, changing the filename as appropriate:
+> 
+> http://linux.bkbits.net:8080/linux-2.5/anno/README@+
+> 
+> Note that the "@" may change to a "|" in the future.
 
-> Can we make this a menuconfig option? :)  ALTERNATE_FLAVOR_SPELLING=y.  As you 
-> type 'make', it'll just preprocess all the source files.
+Is there a way to view/get the file in untampered plain text as well?
 
-Uhm, and what about the spelling of that option? ;)
+Occasionally, it is useful to be able to check that a trivial patch still
+applies to the bleeding edge kernel tree, and it's wasteful to download the
+whole tree just for that... And I'm sure it's useful for other purposes as
+well.
 
-(And no, I did not mark this subthread [OT] by accident)
 
-VrGr,
--- 
-Jasper Spaans               http://jsp.vs19.net/contact/
+-- v --
+
+v@iki.fi

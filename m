@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263194AbTCLOne>; Wed, 12 Mar 2003 09:43:34 -0500
+	id <S263195AbTCLOow>; Wed, 12 Mar 2003 09:44:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263195AbTCLOne>; Wed, 12 Mar 2003 09:43:34 -0500
-Received: from dsl2-09018-wi.customer.centurytel.net ([209.206.215.38]:65418
-	"HELO thomasons.org") by vger.kernel.org with SMTP
-	id <S263194AbTCLOnd>; Wed, 12 Mar 2003 09:43:33 -0500
-From: scott thomason <scott-kernel@thomasons.org>
-Reply-To: scott-kernel@thomasons.org
-To: Andre Hedrick <andre@linux-ide.org>, axboe@suse.de,
-       Andries Brouwer <aebr@win.tue.nl>
-Subject: Re: bio too big device
-Date: Wed, 12 Mar 2003 08:54:17 -0600
-User-Agent: KMail/1.5
-References: <Pine.LNX.4.10.10303120205250.391-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10303120205250.391-100000@master.linux-ide.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	id <S263199AbTCLOov>; Wed, 12 Mar 2003 09:44:51 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:29891
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263195AbTCLOou>; Wed, 12 Mar 2003 09:44:50 -0500
+Subject: Re: 2.5.64: i2c-proc kills machine at boot
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: =?unknown-8bit?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Deepak Saxena <deepak@plexity.net>
+In-Reply-To: <20030312125631.GA27966@wohnheim.fh-wedel.de>
+References: <20030311104721.GA401@elf.ucw.cz>
+	 <20030312125631.GA27966@wohnheim.fh-wedel.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303120854.17410.scott-kernel@thomasons.org>
+Organization: 
+Message-Id: <1047484999.22696.7.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 12 Mar 2003 16:03:19 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just so everyone knows...these aren't ancient drives I'm talking 
-about. One is a 30GB Maxtor 5T030H3, less than two years old 
-IIRC, and the other is a 30GB IBM-DTLA-307030 purchased about 
-six months ago.
----scott
+On Wed, 2003-03-12 at 12:56, =?unknown-8bit?Q?J=F6rn?= Engel wrote:
+> On Tue, 11 March 2003 11:47:22 +0100, Pavel Machek wrote:
+> > 
+> > If I turn #ifdef DEBUG in i2c_register_entry() into #if 1, it prints 
+> > 
+> > i2c-proc.o: NULL pointer when trying to install fill_inode fix!\n
+> > 
+> > but boots.
+> 
+> That file need a lot of work anyway. On the shitlist of top stack
+> users, it holds ranks 3 and 9-11. Impressive.
 
-On Wednesday 12 March 2003 04:07 am, Andre Hedrick wrote:
-> No that is wrong to force all other drives to under perform
-> because on one.  If you are going to impose 255 then pushi it
-> back to 128 were it is a single scatter list.  This issue has
-> bugged me for years and now that we know the exact model we
-> apply an exception rule to it.
->
-> This is one silly bug that I have heard about.
->
-> Cheers,
->
-> On Wed, 12 Mar 2003, Jens Axboe wrote:
-> > On Wed, Mar 12 2003, Andre Hedrick wrote:
-> > > So lets dirty list the one drive by Paul G. and be done.
-> > > Can we do that?
-> >
-> > Who cares, really? There's not much point in doing it, we're
-> > talking 248 vs 256 sectors in reality. I think it's a _bad_
-> > idea, lets just keep it at 255 and avoid silly drive bugs
-> > there.
-> >
-> > --
-> > Jens Axboe
->
-> Andre Hedrick
-> LAD Storage Consulting Group
+His problem is i2c not i2o. Also the i2o proc stuff while ugly isnt a
+deep call nest or in irq context so not a big problem. It does want
+fixing but thats a seperate matter
+
+> It also isn't listed in the current MAINTAINERS file. Is i2o currently
+> unmaintained?
+
+Its kind of mine. Maintained is an overly strong word for it however, but I 
+do take patches 8)
 

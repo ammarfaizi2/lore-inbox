@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261392AbTEMPFh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 11:05:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbTEMPFh
+	id S261352AbTEMPO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 11:14:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbTEMPO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 11:05:37 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:22766 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S261392AbTEMPFg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 11:05:36 -0400
-Subject: Re: logs full of chatty IDE cdrom
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1052599284.19351.2.camel@dhcp22.swansea.linux.org.uk>
-References: <20030510201744.GD662@gallifrey>
-	 <1052599284.19351.2.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052736196.5717.104.camel@workshop.saharact.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 12 May 2003 12:43:17 +0200
-Content-Transfer-Encoding: 7bit
+	Tue, 13 May 2003 11:14:57 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:56325 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id S261352AbTEMPO4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 11:14:56 -0400
+Date: Tue, 13 May 2003 17:27:30 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Miles Bader <miles@gnu.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new kconfig goodies
+In-Reply-To: <buou1bz7h9a.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Message-ID: <Pine.LNX.4.44.0305131710280.5042-100000@serv>
+References: <Pine.LNX.4.44.0305111838300.14274-100000@serv>
+ <buou1bz7h9a.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-05-10 at 22:41, Alan Cox wrote:
-> On Sad, 2003-05-10 at 21:17, Dr. David Alan Gilbert wrote:
-> > Hi,
-> >   I'm not sure but this seems to be a lot worse in 2.5.x for some
-> > reason; my logs are full of I/O errors, not ready's and other errors from
-> > my CDROM drive that is playing audio CDs; I suspect at least some of it
-> > is due to kscd trying to figure out if there is a CD in an empty drive.
-> 
-> That shouldnt be generating messages. Its more important to know why or
-> to see wtf its doing that generates them
-> 
+Hi,
 
-I have a Toshiba DVD drive, that while quiet in 2.4, generates 3-4
-messages just during kernel start and initial module loading ..
-I can forward it if need be.
+On 13 May 2003, Miles Bader wrote:
 
+> > I have the following two entries in my Kconfig file (arch/v850/Kconfig):
+> >
+> >    config RTE_CB_MULTI
+> >    	  bool
+> > 	  # RTE_CB_NB85E can either have multi ROM support or not, but
+> > 	  # other platforms (currently only RTE_CB_MA1) require it.
+> > 	  prompt "Multi monitor ROM support" if RTE_CB_NB85E
+> > 	  depends RTE_CB
+> > 	  default y
+> >
+> >    config RTE_CB_MULTI_DBTRAP
+> >    	  bool "Pass illegal insn trap / dbtrap to kernel"
+> > 	  depends RTE_CB_MULTI
+> > 	  default n
+> >
+> > What I expect this to do is to only ask the first question (RTE_CB_MULTI)
+> > if RTE_CB_NB85E is true and otherwise just assume true -- this part
+> > seems to work correctly -- but to _always_ ask the second question
+> > (RTE_CB_MULTI_DBTRAP) as long as its dependencies are true.
 
-Regards,
+With the new patch this will work. The effect is basically the same as if 
+you would add "enable RTE_CB_MULTI" to RTE_CB_MA1 - RTE_CB_MULTI is 
+visible but you cannot change it.
+BTW you can remove the "default n" line, this is the default anyway, so 
+it has no effect.
 
--- 
-Martin Schlemmer
-
+bye, Roman
 

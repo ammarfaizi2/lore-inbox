@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315119AbSENCow>; Mon, 13 May 2002 22:44:52 -0400
+	id <S315130AbSENCtQ>; Mon, 13 May 2002 22:49:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315130AbSENCov>; Mon, 13 May 2002 22:44:51 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:1718 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S315119AbSENCou>;
-	Mon, 13 May 2002 22:44:50 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Thomas Duffy <tduffy@directvinternet.com>
-Cc: Kbuild Devel <kbuild-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [kbuild-devel] Re: Announce: Kernel Build for 2.5, Release 2.4 is available 
-In-Reply-To: Your message of "13 May 2002 17:12:08 MST."
-             <1021335128.25750.23.camel@tduffy-lnx.afara.com> 
+	id <S315133AbSENCtP>; Mon, 13 May 2002 22:49:15 -0400
+Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:52982 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S315130AbSENCtP>;
+	Mon, 13 May 2002 22:49:15 -0400
+Date: Mon, 13 May 2002 22:49:08 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: davej@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.1[345]-dj Add cpqarray_init() back into genhd.c
+Message-ID: <20020514024908.GA7695@www.kroptech.com>
+In-Reply-To: <20020514020334.GA24417@www.kroptech.com> <6422.1021343063@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 14 May 2002 12:44:31 +1000
-Message-ID: <6641.1021344271@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 May 2002 17:12:08 -0700, 
-Thomas Duffy <tduffy@directvinternet.com> wrote:
->ok, kbuild-2.5-sparc64-2.5.15-1 is ready.
+On Tue, May 14, 2002 at 12:24:23PM +1000, Keith Owens wrote:
+> On Mon, 13 May 2002 22:03:34 -0400, 
+> Adam Kropelin <akropel1@rochester.rr.com> wrote:
+> >In 2.5.13-dj1, the call to cpqarray_init() in drivers/block/genhd.c was
+> >dropped. I'm not sure what the intent was since the driver seems to work fine
 
-Does it still need sparc64 hacks or is the base 2.5.15 kernel clean for
-sparc64?
+<snip>
 
->  CC drivers/scsi/aic7xxx/aic7xxx_core.o
->pp_makefile5: stat (drivers/scsi/aic7xxx/aic7xxx_seq.h) failed: No such file or directory
->pp_makefile5: dependencies (pid 15566) returned 1
+> The real problem appears to be cpqarray.c, it wraps the init/exit code
+> in #ifdef MODULE, so the init code is only available to modules.  I
+> think that cpqarray.c should remove the #ifdef MODULE and use the same
+> init mechanism as other drivers, including module_init/exit.  I don't
+> have a card and the code is a mess so I am not going to attempt a patch.
 
-Did not show up in my testing, it was hidden by out of order compiles
-with -j4.  Will be in common-2.5.15-3.
+I'm not seeing it. I see init_module() and cleanup_module() wrapped as you say
+but cpqarray_init() is outside the #ifdef. Also, two versions of cpqarray_setup
+are provided based on #ifdef MODULE but this doesn't look problematic to me.
+I'm a newbie, for sure. Am I overlooking something obvious?
 
-diff -ur 2.5.15-kbuild-2.5/drivers/scsi/aic7xxx/Makefile.in 2.5.15-kbuild-2.5.new/drivers/scsi/aic7xxx/Makefile.in
---- 2.5.15-kbuild-2.5/drivers/scsi/aic7xxx/Makefile.in	Tue May 14 12:38:47 2002
-+++ 2.5.15-kbuild-2.5.new/drivers/scsi/aic7xxx/Makefile.in	Tue May 14 12:37:20 2002
-@@ -19,9 +19,9 @@
- 
- extra_cflags_all($(src_includelist /drivers/scsi))
- 
--# Only aic7xxx.c includes aic7xxx_seq.h.
-+# Only aic7xxx_core.c includes aic7xxx_seq.h.
- 
--$(objfile aic7xxx.o): $(objfile aic7xxx_seq.h)
-+$(objfile aic7xxx_core.o): $(objfile aic7xxx_seq.h)
- 
- # aic7xxx_reg.h is messy.  It is included by aic7xxx.h which is included by
- # aic7xxx_osm.h which is included by several .c files.  Play safe and make all
+--Adam
 

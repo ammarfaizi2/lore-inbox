@@ -1,82 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287149AbSAPSwb>; Wed, 16 Jan 2002 13:52:31 -0500
+	id <S287204AbSAPSx6>; Wed, 16 Jan 2002 13:53:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287158AbSAPSvU>; Wed, 16 Jan 2002 13:51:20 -0500
-Received: from taifun.devconsult.de ([212.15.193.29]:40720 "EHLO
-	taifun.devconsult.de") by vger.kernel.org with ESMTP
-	id <S287163AbSAPSvI>; Wed, 16 Jan 2002 13:51:08 -0500
-Date: Wed, 16 Jan 2002 19:51:06 +0100
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE][PATCH] New fs to control access to system resources
-Message-ID: <20020116195105.C18039@devcon.net>
-Mail-Followup-To: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <87k7uj61tk.fsf@tigram.bogus.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <87k7uj61tk.fsf@tigram.bogus.local>; from olaf.dietsche--list.linux-kernel@exmail.de on Tue, Jan 15, 2002 at 05:01:11PM +0100
-Organization: dev/consulting GmbH
-X-NCC-RegID: de.devcon
+	id <S287173AbSAPSwg>; Wed, 16 Jan 2002 13:52:36 -0500
+Received: from [66.89.142.2] ([66.89.142.2]:60458 "EHLO starship.berlin")
+	by vger.kernel.org with ESMTP id <S287177AbSAPSvf>;
+	Wed, 16 Jan 2002 13:51:35 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] update: preemptive kernel for O(1) sched
+Date: Tue, 15 Jan 2002 15:58:11 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: kpreempt-tech@lists.sourceforge.net
+In-Reply-To: <1010961108.814.12.camel@phantasy> <1010982884.1527.52.camel@phantasy>
+In-Reply-To: <1010982884.1527.52.camel@phantasy>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16QVJC-0000uX-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 05:01:11PM +0100, Olaf Dietsche wrote:
+On January 14, 2002 05:34 am, Robert Love wrote:
+> A version of preempt-stats for the 2.5 series kernel is available at:
 > 
-> this is a new file system to control access to system resources.
-> Currently it controls access to inet_bind() with ports < 1024 only.
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/preempt-stats
+> 
+> and your favorite mirror.  Patches for 2.4 are available, too.
+> 
+> This patch, used on top of preempt-kernel, allows the measuring of
+> periods of non-preemptible so that we can identify long-held locks.  The
+> patch creates a proc entry, latencytimes, which contains the top 20
+> worst-case recorded periods since it was last read.  To begin recording,
+> read the file once.  Subsequent reads will return the results. I.e.,
 
-Just some minor notes from reading the source and docs:
+Nice, but you need a way to turn it off, for example:
 
-- It somewhat collides with the Linux Security Module project
-  (http://lsm.immunix.org/). LSM is AFAIK very likely to be included
-  into kernel somewhere in the 2.5 timeframe, so I don't think your
-  accessfs in its current form will be included into 2.5. Also I don't
-  think it will be included into 2.4 some time, as it is rather
-  intrusive. This doesn't mean that I think your work is bogus, but
-  you should be warned that you will most likely have to maintain it
-  as a separate patch at least until you port it to LSM (which
-  probably will not be possible at least in the first phase of LSM -
-  read the discussions on "restrictive vs. authoritative hooks" in the
-  LSM mailinglist archives).
-- CAP_NET_BIND_SERVICE is ignored completely. IMHO a process with this
-  capability should still be able to override the accessfs
-  permissions, otherwise enabling accessfs will break every setup
-  where CAP_NET_BIND_SERVICE is already used to give non-root
-  processes access to low ports. At least this should be mentioned in
-  the docs (and Configure.help entry!), as it means that you can't mix
-  the accessfs and the capability approach on a machine (e.g. if one
-  wants to migrate the services on the machine one for one). It also
-  breaks any network daemons that already use CAP_NET_BIND_SERVICE
-  internally (don't know of an example, but maybe there are some out
-  there).
-- chown()ing a port to a uid provides this uid also with the ability
-  to pass on access privileges to others via chmod(). It could be
-  argued if it is more sensible to restrict changing privileges to
-  root (maybe CAP_NET_ADMIN is more appropriate?).
+   echo >/proc/latencytimes
 
-And some wishlist items:
+i.e., truncate.
 
-- It would be nice if there were a way to distinguish between TCP and
-  UDP ports.
-- IPv6 support would be nice. This raises the question what will
-  happen if a process has the privileges to bind a particular port
-  with IPv6 but not with IPv4 (IPv6 listeners take IPv4 connections
-  also). Is there any value in distinguishing IPv6 and IPv4 at all,
-  in particular if IPv6 gets into more widespread use in the future?
-- Restricting access to certain high ports would be valuable. For
-  example many SQL server use those ports, and it would be nice if one
-  could prevent ordinary user processes from taking over their ports
-  in case the SQL daemon gets restarted or the like.
+> [23:25:08]rml@langston:~$ cat /proc/latencytimes 
+> Worst 20 latency times of 277 measured in this period.
+>   usec      cause     mask   start line/file      address   end line/file
+>   9982  spin_lock        0   488/sched.c         c0117ee2   645/irq.c
+>    968        BKL        0   666/tty_io.c        c0193d58   645/irq.c
+>    430  spin_lock        0    69/i387.c          c010f34f    96/mmx.c
+>    103       ide0        0   583/irq.c           c010ab1c   645/irq.c
+>    100        BKL        0  2562/buffer.c        c014abda  2565/buffer.c
+>     54        BKL        0   702/tty_io.c        c019406b   704/tty_io.c
+> ... etc
 
-At least accessfs is a nice and expandable idea. Keep up the work :-)
+A more typical form for the file/line would be, e.g., irq.c:645
 
-Andreas
--- 
-       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
-     ---------------------------------------------------------
-         +49 521 1365800 - af@devcon.net - www.devcon.net
+> The goal would be to identity the problem areas and fix them.
+
+Yep, sorry about the nits but that's the way we nitbots are programmed.
+
+--
+Daniel
+

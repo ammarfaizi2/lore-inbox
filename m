@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268997AbRHaTUT>; Fri, 31 Aug 2001 15:20:19 -0400
+	id <S268996AbRHaTT3>; Fri, 31 Aug 2001 15:19:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269041AbRHaTUL>; Fri, 31 Aug 2001 15:20:11 -0400
-Received: from wb3-a.mail.utexas.edu ([128.83.126.138]:45062 "HELO
-	mail.utexas.edu") by vger.kernel.org with SMTP id <S268997AbRHaTUB>;
-	Fri, 31 Aug 2001 15:20:01 -0400
-Message-ID: <3B8FE2D1.A0AD0B04@mail.utexas.edu>
-Date: Fri, 31 Aug 2001 13:17:37 -0600
-From: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>
-Organization: (I do not speak for) The University of Texas at Austin (nor they for 
- me).
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac2 i686)
-X-Accept-Language: en,fr,de
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Athlon doesn't like Athlon optimisation?
-In-Reply-To: <20010831044247.B811@gondor.com> <3B8EFF67.9010409@digitalaudioresources.org> <3B8FD501.CE027082@bigfoot.com>
+	id <S269041AbRHaTTM>; Fri, 31 Aug 2001 15:19:12 -0400
+Received: from mail.arcor-ip.de ([145.253.2.10]:27052 "EHLO mail.arcor-ip.de")
+	by vger.kernel.org with ESMTP id <S268996AbRHaTSs>;
+	Fri, 31 Aug 2001 15:18:48 -0400
+Date: Fri, 31 Aug 2001 21:18:51 +0200
+From: Christopher Ruehl <ruehlc@europe.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: usb_control/bulk_msg
+Message-ID: <20010831211851.A1047@pegasus>
+Reply-To: Christopher Ruehl <ruehlc@europe.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010831093641.A1257@pegasus> <20010831004623.A20895@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010831004623.A20895@kroah.com>; from greg@kroah.com on Fri, Aug 31, 2001 at 12:46:23AM -0700
+OS: Linux pegasus 2.4.9-ac5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Moore wrote:
+> On Fri, Aug 31, 2001 at 09:36:41AM +0200, Christopher Ruehl wrote:
+> > ! PLEASE CC to me i'am not registered to this list
+> Does the same thing happen with the uhci (JE) driver?
+> You will also have better luck asking this on the linux-usb-devel
+> mailing list.
 
-> > It seems to work somewhat better for some if you set your BIOS to the
-> > conservative settings, but that didn't help me.  I have an Epox 8KTA3+ (Via
-> > KT133A) w/ a 1.4GHz Athlon and 512MB memory.  If you can't get it to work that
-> > way, just stick with the K6 setting.  The point is, your hardware is likely fine
-> > (fine being relative, I suppose)
-> > If there are other tricks, I'm all ears.
->
-> The i686 setting works perfectly.
+ok, i'll sent it to linux-usb-devel
 
-For some people.  I have an 8KTA3+ that will boot as an i686, but starts oopsing its
-shorts off after it has been up a while.
+and it's happen with both, the new and 'old JE' uhci
 
-I posted some of the oopsen a few months ago, and to my feeble mind they all looked
-memory related.  (Several were "bug in slab.c" kind of thing, IIRC.)
+i'am also took the delay switch on for slow usb-devices
+CONFIG_USB_LONG_TIMEOUT=y
 
-Bobby Bryant
-Austin, Texas
+but it's doesn't resolve my problem.
 
+thanx for now
+-cr
 

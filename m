@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318815AbSHRDoq>; Sat, 17 Aug 2002 23:44:46 -0400
+	id <S318818AbSHRDxy>; Sat, 17 Aug 2002 23:53:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318816AbSHRDop>; Sat, 17 Aug 2002 23:44:45 -0400
-Received: from 209-221-203-149.dsl.qnet.com ([209.221.203.149]:7433 "HELO
-	divino.rinspin.com") by vger.kernel.org with SMTP
-	id <S318815AbSHRDop>; Sat, 17 Aug 2002 23:44:45 -0400
-Subject: Re: IDE?  IDE-TNG driver
-From: Scott Bronson <bronson@rinspin.com>
-To: Scott Bronson <bronson@rinspin.com>
-Cc: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1029630519.1541.11.camel@emma>
-References: <Pine.LNX.4.44.0208172353330.3111-100000@sharra.ivimey.org> 
-	<1029630519.1541.11.camel@emma>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 17 Aug 2002 20:47:30 -0700
-Message-Id: <1029642451.1599.2.camel@emma>
-Mime-Version: 1.0
+	id <S318833AbSHRDxy>; Sat, 17 Aug 2002 23:53:54 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23054 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318818AbSHRDxx>; Sat, 17 Aug 2002 23:53:53 -0400
+Date: Sat, 17 Aug 2002 21:01:20 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Robert Love <rml@tech9.net>
+cc: Oliver Xymoron <oxymoron@waste.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (0/4) Entropy accounting fixes
+In-Reply-To: <1029642713.863.2.camel@phantasy>
+Message-ID: <Pine.LNX.4.44.0208172058200.1640-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Everyone I've heard advocating a moduleless kernel uses an argument that
-> boils down to "it's slightly more secure."  Does anybody have a GOOD
-> reason for not using modules?  Obsolete or embedded hardware arguments
-> don't count.
 
-Someone replied off-list saying that initrds are too hard to create.
+On 17 Aug 2002, Robert Love wrote:
+> 
+> [1] this is why I wrote my netdev-random patches.  some machines just
+>     have to take the entropy from the network card... there is nothing
+>     else.
 
-That's true.  They are.  One day, hopefully that will change.
+I suspect that Oliver is 100% correct in that the current code is just
+_too_ trusting. And parts of his patches seem to be in the "obviously
+good" category (ie the xor'ing of the buffers instead of overwriting).
 
-Any other reasons?
+So I think that if we just made the code be much less trusting (say, 
+consider the TSC information per interrupt to give only a single bit of 
+entropy, for example), and coupled that with making network devices always 
+be considered sources of entropy, we'd have a reasonable balance. 
 
-    - Scott
-
-
-
+		Linus
 

@@ -1,102 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263062AbUGIUjW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263943AbUGIUkN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbUGIUjW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 16:39:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263943AbUGIUjW
+	id S263943AbUGIUkN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 16:40:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264183AbUGIUkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 16:39:22 -0400
-Received: from dhcp160179209.columbus.rr.com ([24.160.179.209]:11014 "EHLO
-	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
-	id S263062AbUGIUi4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 16:38:56 -0400
-Date: Fri, 9 Jul 2004 16:38:52 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-mm7
-Message-ID: <20040709203852.GA1997@samarkand.rivenstone.net>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20040708235025.5f8436b7.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
-Content-Disposition: inline
-In-Reply-To: <20040708235025.5f8436b7.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040523i
-From: jhf@rivenstone.net (Joseph Fannin)
+	Fri, 9 Jul 2004 16:40:13 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45468 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S263943AbUGIUkC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 16:40:02 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Chris Wright <chrisw@osdl.org>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil,
+       jmorris@redhat.com, mika@osdl.org
+Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
+References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>
+	<Pine.LNX.4.58.0407072214590.1764@ppc970.osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 09 Jul 2004 14:36:09 -0600
+In-Reply-To: <Pine.LNX.4.58.0407072214590.1764@ppc970.osdl.org>
+Message-ID: <m1fz80c406.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@osdl.org> writes:
 
---1yeeQ81UyVL57Vl7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Thu, 8 Jul 2004, Herbert Xu wrote:
+> >
+> > Chris Wright <chrisw@osdl.org> wrote:
+> > > Fixup another round of sparse warnings of the type:
+> > >        warning: Using plain integer as NULL pointer
+> > 
+> > What's wrong with using 0 as the NULL pointer? In contexts where
+> > a plain 0 is unsafe, NULL is usually unsafe as well.
+> 
+> It's not about "unsafe". It's about being WRONG.
 
-On Thu, Jul 08, 2004 at 11:50:25PM -0700, Andrew Morton wrote:
->=20
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7=
--mm7/
+Does this mean constructs like:
+``if (pointer)'' and ``if (!pointer)'' are also outlawed.
 
-> +detect-too-early-schedule-attempts.patch
->=20
->  Catch attempts to call the scheduler before it is ready to go.
+And do we then need to initialize static pointers to NULL instead
+of letting them be implicitly 0.
 
-    With this patch, my Powermac (ppc32) spews 711 (I think)
-warning messages during bootup.  The first one looks like:
+Is doing memset(&(struct with_embeded_pointers), 0, sizeof(struct))
+also wrong?
 
-Calibrating delay loop... 1064.96 BogoMIPS
-Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
-Badness in schedule at kernel/sched.c:2153
-Call trace:
- [c00099e4] dump_stack+0x18/0x28
- [c0006bac] check_bug_trap+0x84/0xac
- [c0006d38] ProgramCheckException+0x164/0x1a4
- [c0006240] ret_from_except_full+0x0/0x4c
- [c02021bc] schedule+0x24/0x684
- [c0005e80] syscall_exit_work+0x108/0x10c
- [c02e0ad0] proc_root_init+0x14c/0x158
- [00000000] 0x0
- [c02ce5a0] start_kernel+0x158/0x184
- [000035fc] 0x35fc
+I don't see that 0 is WRONG.  I do agree that ``((void *)0)'' is
+slightly more typesafe than ``0'', but since we don't have a lot of
+(void *) pointers in the kernel that is still the WRONG pointer type.
 
-and this goes on until:
+I do see that NULL has superior readability and maintainability and so
+should be encouraged by Documentation/CodingStyle.
 
-Badness in schedule at kernel/sched.c:2153
-Call trace:
- [c00099e4] dump_stack+0x18/0x28
- [c0006bac] check_bug_trap+0x84/0xac
- [c0006d38] ProgramCheckException+0x164/0x1a4
- [c0006240] ret_from_except_full+0x0/0x4c
- [c02021bc] schedule+0x24/0x684
- [c00062ec] resume_kernel+0x38/0x58
- [c020249c] schedule+0x304/0x684
- [c002c85c] worker_thread+0x258/0x27c
- [c00317d0] kthread+0xb8/0xc0
- [c0009128] kernel_thread+0x44/0x60
-adb devices: [2]: 2 2 [3]: 3 1
-ADB keyboard at 2, handler set to 3
+The B and K&R roots of a simple single type language are what give C
+most of it's simplicity flexibility and power.  Please don't be so
+eager to throw those out.  
 
-    The full dmesg is 322K, and is up at:
-http://www.rivenstone.net/linux/samarkand.dmesg
+You want to be so typesafe it sounds like you want to recode the
+kernel in Pascal.  You've written sparse, so it should be just a little
+more work to write a Pascal backend.  After that the kernel will be so
+typesafe the compiler won't let us poor programmers get it wrong.
 
-    Most of the traces look something like the bottom one.
-
---=20
-Joseph Fannin
-jhf@rivenstone.net
-
---1yeeQ81UyVL57Vl7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA7wJaWv4KsgKfSVgRArd1AJ9HABUAbUzczJAryxIr1tdkFy/xNwCfR17f
-qYT2j0MGKLDYPHGDr62DPL0=
-=4Aqi
------END PGP SIGNATURE-----
-
---1yeeQ81UyVL57Vl7--
+Eric

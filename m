@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282874AbRK0Iaf>; Tue, 27 Nov 2001 03:30:35 -0500
+	id <S282877AbRK0Iff>; Tue, 27 Nov 2001 03:35:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282868AbRK0Ia0>; Tue, 27 Nov 2001 03:30:26 -0500
-Received: from [213.237.118.153] ([213.237.118.153]:8320 "EHLO Princess")
-	by vger.kernel.org with ESMTP id <S282873AbRK0IaK>;
-	Tue, 27 Nov 2001 03:30:10 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Allan Sandfeld <linux@sneulv.dk>
+	id <S282876AbRK0If0>; Tue, 27 Nov 2001 03:35:26 -0500
+Received: from oker.escape.de ([194.120.234.254]:31005 "EHLO oker.escape.de")
+	by vger.kernel.org with ESMTP id <S282873AbRK0IfH>;
+	Tue, 27 Nov 2001 03:35:07 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: Release Policy [was: Linux 2.4.16  ]
-Date: Tue, 27 Nov 2001 09:28:50 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <Pine.LNX.4.40.0111261216500.88-100000@rc.priv.hereintown.net> <20011126161802.A8398@xi.linuxpower.cx> <3C034889.6040000@oracle.com>
-In-Reply-To: <3C034889.6040000@oracle.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E168dbm-0000Jr-00@Princess>
+Subject: Re: [RFC] [PATCH] omnibus header cleanup, certification
+In-Reply-To: <20011127061714.A41881@cantrip.org> <3C03315C.5060203@zytor.com>
+From: Urs Thuermann <urs@isnogud.escape.de>
+Date: 27 Nov 2001 09:32:09 +0100
+In-Reply-To: <3C03315C.5060203@zytor.com>; from "H. Peter Anvin" on Mon, 26 Nov 2001 22:23:24 -0800
+Message-ID: <m2bshohawm.fsf@isnogud.escape.de>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 November 2001 09:02, Svein Erik Brostigen wrote:
->
-> What really scares me is not so much the way the kernels are numbered as
-> the way features gets added to
-> the kernels.
-> Internally in Oracle we do not add new features to a release number,
-> just bug-fixes.
-> Hence 2.4.0 is the base release of the 2.4.x kernel series. the minor
-> x-number should just indicate a bug-fix
-> release. Thus, no new features should get added to the 2.4 kernel with
-> this numbering schema.
-> If you really want to add features into the 2.4.x kernel, you also need
-> to extend the numbering schema.
-> I.e 2.4.0.x wil then be the bug-fix releases and  2.4.1.x will have new
-> features.
-> This makes it easier to maintain and to understand what is happening
-> between the various releases.
->
-> As far as I can understand, today, new features are added to a released
-> kernel without any sensible numbering scheme
-> identifying this fact. I don't know if a 2.4.10 kernel contains the same
-> features as 2.4.16 with the only difference beeing bug-fixes
-> or if there have been added new features. By using a numbering scheme
-> that is consistent across both development and
-> production kernels, it is easier to identify the features in a kernel.
->
-The problem is that for kernels new features _are_ bug-fixes. Like the new 
-vm, work-around for discovered bugs in hardware, etc., etc. 
-I an way what should't be done in a -rc release is new fixing features, but 
-only the fixing _of_ features. ;-)
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
+> It's also worth noting that there is nothing that it can get confused 
+> with and still have a compilable expression.
+
+Well, there are cases, where -1 and (-1) make a difference (see below)
+but these are extremely unlikely to appear in the kernel src code.
+Thus, I also think these patches are unnecessary.
+
+For example,
+
+    int *p;            and       int *p
+    -1[p];                       (-1)[p];
+
+are both valid and compilable code segments, with no undefined or
+implementation-defined behavior (as long as p points to an element of
+an array other than the first and last), and both code segments do
+different things.
+
+
+> I don't believe the unary-expression patches are necessary.  They are, 
+> of course, harmless, except for the fact that my eyes glazed over 
+> staring at page after page of these, which very few actual potential (!) 
+> bugs (there were a couple, like the iopage+ ones...)
+
+ack.
+
+
+urs

@@ -1,70 +1,153 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263146AbTE0JjK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 05:39:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbTE0JjK
+	id S263171AbTE0JlT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 05:41:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbTE0JlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 05:39:10 -0400
-Received: from ophelia.ess.nec.de ([193.141.139.8]:43980 "EHLO
-	ophelia.hpce.nec.com") by vger.kernel.org with ESMTP
-	id S263146AbTE0JjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 05:39:07 -0400
-From: Erich Focht <efocht@hpce.nec.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [Lse-tech] Node affine NUMA scheduler extension
-Date: Tue, 27 May 2003 11:54:52 +0200
-User-Agent: KMail/1.5.1
-Cc: LSE <lse-tech@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <200305271031.55554.efocht@hpce.nec.com> <20030527091104.GB31510@wotan.suse.de>
-In-Reply-To: <20030527091104.GB31510@wotan.suse.de>
+	Tue, 27 May 2003 05:41:18 -0400
+Received: from web10405.mail.yahoo.com ([216.136.130.97]:36993 "HELO
+	web10405.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263171AbTE0JlO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 05:41:14 -0400
+Message-ID: <20030527095427.29789.qmail@web10405.mail.yahoo.com>
+Date: Tue, 27 May 2003 19:54:27 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Report! Many compile errors with gcc-3.3 2.4.21-rc4
+To: kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305271154.52608.efocht@hpce.nec.com>
+Content-Type: multipart/mixed; boundary="0-2091330904-1054029267=:29562"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 May 2003 11:11, Andi Kleen wrote:
-> On Tue, May 27, 2003 at 10:31:55AM +0200, Erich Focht wrote:
-> > This patch is an adaptation of the earlier work on the node affine
-> > NUMA scheduler to the NUMA features meanwhile integrated into
-> > 2.5. Compared to the patch posted for 2.5.39 this one is much simpler
-> > and easier to understand.
->
-> Yes, it is also much simpler than my implementation (I did a similar
-> homenode scheduler for an 2.4 kernel). The basic principles are the same.
-
-:-)
-
-> But the main problems I have is that the tuning for threads is very
-> difficult. On AMD64 where Node equals CPU it is important
-> to home node balance threads too. After some experiments I settled on
-> homenode assignment on the first load balance (called "lazy homenode")
-> When a thread clones it initially executes on the CPU of the parent, but
-> there is a window until the first load balance tick where it can allocate
-> memory on the wrong node.  I found a lot of code runs very badly until the
-> cache decay parameter is set to 0 (no special cache affinity) to allow
-> quick initial migration.
-
-Interesting observation, I didn't make it when I tried the lazy
-homenode (quite a while ago). But I was focusing on MPI jobs. So what
-if we add a condition to CAN_MIGRATE which disables the cache affinity
-before the first load balance? 
-
-> Migration directly on fork/clone requires a lot
-> of changes and also breaks down on some benchmarks.
-
-Hmmm, I wouldn't allow this to any task/child, only to special
-ones. Under 2.4 I currently use a sched_balance_fork() function
-similar to  sched_balance_exec(). Tasks have a default initial load
-balancing policy of being migrated (and selecting the homenode) at
-exec(). This can be changed (with prctl) to fork(). The ilb policy is
-inheritable. Works fine for OpenMP jobs.
-
-Regards,
-Erich
+--0-2091330904-1054029267=:29562
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Id: 
+Content-Disposition: inline
 
 
+Hi,
+
+The error message is attached file. 
+
+=====
+S.KIEU
+
+http://mobile.yahoo.com.au - Yahoo! Mobile
+- Check & compose your email via SMS on your Telstra or Vodafone mobile.
+--0-2091330904-1054029267=:29562
+Content-Type: application/octet-stream; name="kernel_error."
+Content-Transfer-Encoding: base64
+Content-Description: kernel_error.
+Content-Disposition: attachment; filename="kernel_error."
+
+CmdjYyAtRF9fS0VSTkVMX18gLUkvcm9vdC9saW51eC9pbmNsdWRlIC1XYWxs
+IC1Xc3RyaWN0LXByb3RvdHlwZXMgLVduby10cmlncmFwaHMgLU8yIC1mbm8t
+c3RyaWN0LWFsaWFzaW5nIC1mbm8tY29tbW9uIC1mbm8tc3RyZW5ndGgtcmVk
+dWNlIC1mb21pdC1mcmFtZS1wb2ludGVyIC1waXBlIC1tcHJlZmVycmVkLXN0
+YWNrLWJvdW5kYXJ5PTIgLW1hcmNoPWk2ODYgLURNT0RVTEUgLWcgLW5vc3Rk
+aW5jIC1pd2l0aHByZWZpeCBpbmNsdWRlIC1ES0JVSUxEX0JBU0VOQU1FPWFt
+YmFzc2Fkb3IgIC1jIC1vIGFtYmFzc2Fkb3IubyBhbWJhc3NhZG9yLmMKYW1i
+YXNzYWRvci5jOjMwMToyMTogcGFzdGluZyAiLiIgYW5kICJzdGFydCIgZG9l
+cyBub3QgZ2l2ZSBhIHZhbGlkIHByZXByb2Nlc3NpbmcgdG9rZW4KYW1iYXNz
+YWRvci5jOjMwNToyMzogcGFzdGluZyAiLiIgYW5kICJyZWdpb25zIiBkb2Vz
+IG5vdCBnaXZlIGEgdmFsaWQgcHJlcHJvY2Vzc2luZyB0b2tlbgphbWJhc3Nh
+ZG9yLmM6MzEwOjIwOiBwYXN0aW5nICIuIiBhbmQgImRhdGEiIGRvZXMgbm90
+IGdpdmUgYSB2YWxpZCBwcmVwcm9jZXNzaW5nIHRva2VuCm1ha2VbMl06ICoq
+KiBbYW1iYXNzYWRvci5vXSBFcnJvciAxCgptYTYwMC5jOjUxOjIyOiB3YXJu
+aW5nOiBleHRyYSB0b2tlbnMgYXQgZW5kIG9mICN1bmRlZiBkaXJlY3RpdmUK
+bWE2MDAuYzogSW4gZnVuY3Rpb24gYG1hNjAwX2luaXQnOgptYTYwMC5jOjg5
+OiB3YXJuaW5nOiBjb25jYXRlbmF0aW9uIG9mIHN0cmluZyBsaXRlcmFscyB3
+aXRoIF9fRlVOQ1RJT05fXyBpcyBkZXByZWNhdGVkCm1hNjAwLmM6IEluIGZ1
+bmN0aW9uIGBtYTYwMF9jbGVhbnVwJzoKbWE2MDAuYzo5NTogd2FybmluZzog
+Y29uY2F0ZW5hdGlvbiBvZiBzdHJpbmcgbGl0ZXJhbHMgd2l0aCBfX0ZVTkNU
+SU9OX18gaXMgZGVwcmVjYXRlZAptYTYwMC5jOiBJbiBmdW5jdGlvbiBgbWE2
+MDBfb3Blbic6Cm1hNjAwLmM6MTA4OiB3YXJuaW5nOiBjb25jYXRlbmF0aW9u
+IG9mIHN0cmluZyBsaXRlcmFscyB3aXRoIF9fRlVOQ1RJT05fXyBpcyBkZXBy
+ZWNhdGVkCm1hNjAwLmM6IEluIGZ1bmN0aW9uIGBtYTYwMF9jbG9zZSc6Cm1h
+NjAwLmM6MTI2OiB3YXJuaW5nOiBjb25jYXRlbmF0aW9uIG9mIHN0cmluZyBs
+aXRlcmFscyB3aXRoIF9fRlVOQ1RJT05fXyBpcyBkZXByZWNhdGVkCm1hNjAw
+LmM6IEluIGZ1bmN0aW9uIGBtYTYwMF9jaGFuZ2Vfc3BlZWQnOgptYTYwMC5j
+OjE4Nzogd2FybmluZzogY29uY2F0ZW5hdGlvbiBvZiBzdHJpbmcgbGl0ZXJh
+bHMgd2l0aCBfX0ZVTkNUSU9OX18gaXMgZGVwcmVjYXRlZAptYTYwMC5jOjE4
+OTo0MDogcGFzdGluZyAiOyIgYW5kICJyZXR1cm4iIGRvZXMgbm90IGdpdmUg
+YSB2YWxpZCBwcmVwcm9jZXNzaW5nIHRva2VuCm1hNjAwLmM6MTkyOiB3YXJu
+aW5nOiBjb25jYXRlbmF0aW9uIG9mIHN0cmluZyBsaXRlcmFscyB3aXRoIF9f
+RlVOQ1RJT05fXyBpcyBkZXByZWNhdGVkCm1hNjAwLmM6MjE4OiB3YXJuaW5n
+OiBjb25jYXRlbmF0aW9uIG9mIHN0cmluZyBsaXRlcmFscyB3aXRoIF9fRlVO
+Q1RJT05fXyBpcyBkZXByZWNhdGVkCm1hNjAwLmM6MjQ5OiB3YXJuaW5nOiBj
+b25jYXRlbmF0aW9uIG9mIHN0cmluZyBsaXRlcmFscyB3aXRoIF9fRlVOQ1RJ
+T05fXyBpcyBkZXByZWNhdGVkCm1hNjAwLmM6MjU3OiB3YXJuaW5nOiBjb25j
+YXRlbmF0aW9uIG9mIHN0cmluZyBsaXRlcmFscyB3aXRoIF9fRlVOQ1RJT05f
+XyBpcyBkZXByZWNhdGVkCm1hNjAwLmM6Mjc2OiB3YXJuaW5nOiBjb25jYXRl
+bmF0aW9uIG9mIHN0cmluZyBsaXRlcmFscyB3aXRoIF9fRlVOQ1RJT05fXyBp
+cyBkZXByZWNhdGVkCm1hNjAwLmM6IEluIGZ1bmN0aW9uIGBtYTYwMF9yZXNl
+dCc6Cm1hNjAwLmM6MzAxOiB3YXJuaW5nOiBjb25jYXRlbmF0aW9uIG9mIHN0
+cmluZyBsaXRlcmFscyB3aXRoIF9fRlVOQ1RJT05fXyBpcyBkZXByZWNhdGVk
+Cm1hNjAwLmM6MzAzOjQwOiBwYXN0aW5nICI7IiBhbmQgInJldHVybiIgZG9l
+cyBub3QgZ2l2ZSBhIHZhbGlkIHByZXByb2Nlc3NpbmcgdG9rZW4KbWE2MDAu
+YzozMDY6IHdhcm5pbmc6IGNvbmNhdGVuYXRpb24gb2Ygc3RyaW5nIGxpdGVy
+YWxzIHdpdGggX19GVU5DVElPTl9fIGlzIGRlcHJlY2F0ZWQKbWE2MDAuYzoz
+Mjk6IHdhcm5pbmc6IGNvbmNhdGVuYXRpb24gb2Ygc3RyaW5nIGxpdGVyYWxz
+IHdpdGggX19GVU5DVElPTl9fIGlzIGRlcHJlY2F0ZWQKbWFrZVszXTogKioq
+IFttYTYwMC5vXSBFcnJvciAxCm1ha2VbM106IExlYXZpbmcgZGlyZWN0b3J5
+IGAvcm9vdC9saW51eC9kcml2ZXJzL25ldC9pcmRhJwptYWtlWzJdOiAqKiog
+W19tb2RzdWJkaXJfaXJkYV0gRXJyb3IgMgptYWtlWzJdOiBMZWF2aW5nIGRp
+cmVjdG9yeSBgL3Jvb3QvbGludXgvZHJpdmVycy9uZXQnCm1ha2VbMV06ICoq
+KiBbX21vZHN1YmRpcl9uZXRdIEVycm9yIDIKbWFrZVsxXTogTGVhdmluZyBk
+aXJlY3RvcnkgYC9yb290L2xpbnV4L2RyaXZlcnMnCm1ha2U6ICoqKiBbX21v
+ZF9kcml2ZXJzXSBFcnJvciAyCgoKb2x5bXBpYy5jOjY1ODoxNjogbWlzc2lu
+ZyB0ZXJtaW5hdGluZyAiIGNoYXJhY3RlcgpvbHltcGljLmM6NjU5Ojc6IG1p
+c3NpbmcgdGVybWluYXRpbmcgIiBjaGFyYWN0ZXIKbWFrZVszXTogKioqIFtv
+bHltcGljLm9dIEVycm9yIDEKbWFrZVszXTogTGVhdmluZyBkaXJlY3Rvcnkg
+YC9yb290L2xpbnV4L2RyaXZlcnMvbmV0L3Rva2VucmluZycKbWFrZVsyXTog
+KioqIFtfbW9kc3ViZGlyX3Rva2VucmluZ10gRXJyb3IgMgptYWtlWzJdOiBM
+ZWF2aW5nIGRpcmVjdG9yeSBgL3Jvb3QvbGludXgvZHJpdmVycy9uZXQnCm1h
+a2VbMV06ICoqKiBbX21vZHN1YmRpcl9uZXRdIEVycm9yIDIKbWFrZVsxXTog
+TGVhdmluZyBkaXJlY3RvcnkgYC9yb290L2xpbnV4L2RyaXZlcnMnCm1ha2U6
+ICoqKiBbX21vZF9kcml2ZXJzXSBFcnJvciAyCgpzZGxhX2NoZGxjLmM6NTk0
+OjQzOiBtaXNzaW5nIHRlcm1pbmF0aW5nICIgY2hhcmFjdGVyCnNkbGFfY2hk
+bGMuYzogSW4gZnVuY3Rpb24gYHdwY19pbml0JzoKc2RsYV9jaGRsYy5jOjU5
+NTogZXJyb3I6IHBhcnNlIGVycm9yIGJlZm9yZSAiRmFpbGVkIgpzZGxhX2No
+ZGxjLmM6NTk1OiBlcnJvcjogc3RyYXkgJ1wnIGluIHByb2dyYW0Kc2RsYV9j
+aGRsYy5jOjU5NTo2ODogbWlzc2luZyB0ZXJtaW5hdGluZyAiIGNoYXJhY3Rl
+cgptYWtlWzNdOiAqKiogW3NkbGFfY2hkbGMub10gRXJyb3IgMQptYWtlWzNd
+OiBMZWF2aW5nIGRpcmVjdG9yeSBgL3Jvb3QvbGludXgvZHJpdmVycy9uZXQv
+d2FuJwptYWtlWzJdOiAqKiogW19tb2RzdWJkaXJfd2FuXSBFcnJvciAyCm1h
+a2VbMl06IExlYXZpbmcgZGlyZWN0b3J5IGAvcm9vdC9saW51eC9kcml2ZXJz
+L25ldCcKbWFrZVsxXTogKioqIFtfbW9kc3ViZGlyX25ldF0gRXJyb3IgMgpt
+YWtlWzFdOiBMZWF2aW5nIGRpcmVjdG9yeSBgL3Jvb3QvbGludXgvZHJpdmVy
+cycKbWFrZTogKioqIFtfbW9kX2RyaXZlcnNdIEVycm9yIDIKCnNibmkuYzog
+SW4gZnVuY3Rpb24gYGNhbGNfY3JjMzInOgpzYm5pLmM6MTU1ODogZXJyb3I6
+IGFzbS1zcGVjaWZpZXIgZm9yIHZhcmlhYmxlIGBfY3JjJyBjb25mbGljdHMg
+d2l0aCBhc20gY2xvYmJlciBsaXN0Cm1ha2VbM106ICoqKiBbc2JuaS5vXSBF
+cnJvciAxCm1ha2VbM106IExlYXZpbmcgZGlyZWN0b3J5IGAvcm9vdC9saW51
+eC9kcml2ZXJzL25ldC93YW4nCm1ha2VbMl06ICoqKiBbX21vZHN1YmRpcl93
+YW5dIEVycm9yIDIKbWFrZVsyXTogTGVhdmluZyBkaXJlY3RvcnkgYC9yb290
+L2xpbnV4L2RyaXZlcnMvbmV0JwptYWtlWzFdOiAqKiogW19tb2RzdWJkaXJf
+bmV0XSBFcnJvciAyCm1ha2VbMV06IExlYXZpbmcgZGlyZWN0b3J5IGAvcm9v
+dC9saW51eC9kcml2ZXJzJwptYWtlOiAqKiogW19tb2RfZHJpdmVyc10gRXJy
+b3IgMgoKY3M0Nnh4LmM6OTUwOiBlcnJvcjogbG9uZywgc2hvcnQsIHNpZ25l
+ZCBvciB1bnNpZ25lZCB1c2VkIGludmFsaWRseSBmb3IgYG9mZicKY3M0Nnh4
+LmM6OTUxOiBlcnJvcjogbG9uZywgc2hvcnQsIHNpZ25lZCBvciB1bnNpZ25l
+ZCB1c2VkIGludmFsaWRseSBmb3IgYHZhbCcKY3M0Nnh4LmM6IEluIGZ1bmN0
+aW9uIGBjc19hYzk3X2luaXQnOgpjczQ2eHguYzo0MjYzOiB3YXJuaW5nOiBj
+b21wYXJpc29uIGlzIGFsd2F5cyBmYWxzZSBkdWUgdG8gbGltaXRlZCByYW5n
+ZSBvZiBkYXRhIHR5cGUKbWFrZVsyXTogKioqIFtjczQ2eHgub10gRXJyb3Ig
+MQptYWtlWzJdOiBMZWF2aW5nIGRpcmVjdG9yeSBgL3Jvb3QvbGludXgvZHJp
+dmVycy9zb3VuZCcKbWFrZVsxXTogKioqIFtfbW9kc3ViZGlyX3NvdW5kXSBF
+cnJvciAyCm1ha2VbMV06IExlYXZpbmcgZGlyZWN0b3J5IGAvcm9vdC9saW51
+eC9kcml2ZXJzJwptYWtlOiAqKiogW19tb2RfZHJpdmVyc10gRXJyb3IgMgoK
+ZG5fdGFibGUuYzo4Mzk6MzU6IG1pc3NpbmcgdGVybWluYXRpbmcgIiBjaGFy
+YWN0ZXIKZG5fdGFibGUuYzogSW4gZnVuY3Rpb24gYGRuX2ZpYl9nZXRfdGFi
+bGUnOgpkbl90YWJsZS5jOjg0MDogZXJyb3I6IHBhcnNlIGVycm9yIGJlZm9y
+ZSAiZnJvbSIKZG5fdGFibGUuYzo4NDA6IGVycm9yOiBzdHJheSAnXCcgaW4g
+cHJvZ3JhbQpkbl90YWJsZS5jOjg0MDoxNzogbWlzc2luZyB0ZXJtaW5hdGlu
+ZyAiIGNoYXJhY3RlcgptYWtlWzJdOiAqKiogW2RuX3RhYmxlLm9dIEVycm9y
+IDEKbWFrZVsyXTogTGVhdmluZyBkaXJlY3RvcnkgYC9yb290L2xpbnV4L25l
+dC9kZWNuZXQnCm1ha2VbMV06ICoqKiBbX21vZHN1YmRpcl9kZWNuZXRdIEVy
+cm9yIDIKbWFrZVsxXTogTGVhdmluZyBkaXJlY3RvcnkgYC9yb290L2xpbnV4
+L25ldCcKbWFrZTogKioqIFtfbW9kX25ldF0gRXJyb3IgMgoKCg==
+
+--0-2091330904-1054029267=:29562--

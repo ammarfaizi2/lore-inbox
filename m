@@ -1,45 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133076AbRDZWq3>; Thu, 26 Apr 2001 18:46:29 -0400
+	id <S135275AbRDZXBq>; Thu, 26 Apr 2001 19:01:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135174AbRDZWqT>; Thu, 26 Apr 2001 18:46:19 -0400
-Received: from stassen.k-net.dtu.dk ([130.225.71.227]:40893 "EHLO
-	stassen.k-net.dk") by vger.kernel.org with ESMTP id <S133076AbRDZWqK>;
-	Thu, 26 Apr 2001 18:46:10 -0400
-Date: Fri, 27 Apr 2001 00:48:01 +0200
-From: Martin Clausen <martin@ostenfeld.dk>
-To: James Morris <jmorris@intercode.com.au>
-Cc: netfilter-devel@lists.samba.org, linux-kernel@vger.kernel.org,
-        Paul Rusty Russell <Paul.Russell@rustcorp.com.au>
-Subject: Re: Kernel Oops when using the Netfilter QUEUE target
-Message-ID: <20010427004801.A3464@ostenfeld.dk>
-Reply-To: Martin Clausen <martin@ostenfeld.dk>
-In-Reply-To: <20010425004937.A3904@ostenfeld.dk> <Pine.LNX.4.31.0104251621260.329-100000@blackbird.intercode.com.au>
+	id <S135257AbRDZXBh>; Thu, 26 Apr 2001 19:01:37 -0400
+Received: from unthought.net ([212.97.129.24]:60297 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S135247AbRDZXB0>;
+	Thu, 26 Apr 2001 19:01:26 -0400
+Date: Fri, 27 Apr 2001 01:01:24 +0200
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Martin Clausen <martin@ostenfeld.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Semi-OT] Dual Athlon support in kernel
+Message-ID: <20010427010124.B14524@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Martin Clausen <martin@ostenfeld.dk>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0104240115050.21785-100000@asdf.capslock.lan> <20010425011842.A3942@ostenfeld.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.31.0104251621260.329-100000@blackbird.intercode.com.au>; from jmorris@intercode.com.au on Wed, Apr 25, 2001 at 04:24:46PM +1000
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010425011842.A3942@ostenfeld.dk>; from martin@ostenfeld.dk on Wed, Apr 25, 2001 at 01:18:42AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 25, 2001 at 04:24:46PM +1000, James Morris wrote:
-> > I have encountered a problem (perhaps a bug)! The attached code makes my kernel oops
-> > in some cases when injecting new packets through Netfilter's QUEUE target. The problem
-> > only appears when the original packet is a TCP packet; i have tried with ICMP and UDP packets
-> > also but this does not trigger any oops. I have tried to code on several computers and they
-> > all oops. The following description regards the case when submitting new packets instead
-> > of TCP packets.
+On Wed, Apr 25, 2001 at 01:18:42AM +0200, Martin Clausen wrote:
+> On Tue, Apr 24, 2001 at 01:22:15AM -0400, Mike A. Harris wrote:
+> > Also, what is a good rock solid SCSI RAID controller?  Money is
+> > no object.  Reliability, performance and Linux compatibility are
+> > though.
 > 
-> Please try the patch below.
+> I have very good experiences with the Mylex controllers/drivers! 
+> 
+> But then again I also have good experiences with the new-style SW-RAID;
+> it performs very well indead and it is quite cheap :) 
 
-So i did and it seems to work just fine (= no more oops') under 2.4.3/2.4.2-ac21! The packets 
-being sent also seems to be correct; James you're the man :-)
+Remember, any RAID solution is based on software.  The difference is, whether
+the software is closed-source and hiding on a slow processor, or free software
+running on a much more powerful processor (which on the other hand also needs
+to run other parts of the system, as this is the main CPU).
 
-BTW could you describe the problem? And why it caused an oops?
+The main selling-points of software RAID except for stability and usually much
+higher performance than "hardware" RAID is, that the interaction between the
+userland tools and the RAID code is "open".   People who use RAID, be it one
+kind or the other, occationally meet some problem where the RAID seems to be
+having a will of it's own.  With the "open" solution, you as an administrator
+actually have a chance of figuring out what happens.
 
-Best regards,
-Martin
+I know the usual trouble-shooting on proprietary RAID seems to be "uh, it
+doesn't work ?  well, try the newer drivers and firmware.  Oh, you did that,
+well, then try the older versions then".   If people are comfortable with that
+kind of systems, well, fine as long as it's not my data.   I want to know the
+code I trust my data with.  From an theoretical point of view, it is stupid to
+trust proprietary code - however, in the case of RAID I believe (at least some
+of) the manufacturers has managed to prove that even from a purely pragmatic
+point of view it is stupid to trust their code.
+
+Yet, an awful lot of people seem to prefer the so-called "hardware" RAID  :)
+
 
 -- 
-                       There's no place like ~
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

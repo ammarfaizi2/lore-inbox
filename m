@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273242AbRI0PNg>; Thu, 27 Sep 2001 11:13:36 -0400
+	id <S273246AbRI0PNG>; Thu, 27 Sep 2001 11:13:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273254AbRI0PN1>; Thu, 27 Sep 2001 11:13:27 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:1286 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S273242AbRI0PNN>;
-	Thu, 27 Sep 2001 11:13:13 -0400
-Date: Thu, 27 Sep 2001 12:13:23 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.9-ac15 sluggish
-In-Reply-To: <1001602003.17481.7.camel@nomade>
-Message-ID: <Pine.LNX.4.33L.0109271212100.19147-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273242AbRI0PM4>; Thu, 27 Sep 2001 11:12:56 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:10722 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S273246AbRI0PMm>; Thu, 27 Sep 2001 11:12:42 -0400
+Date: Thu, 27 Sep 2001 09:12:56 -0600
+Message-Id: <200109271512.f8RFCuW20065@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] Linux 0.01 disk lockup
+In-Reply-To: <Pine.LNX.3.96.1010927150812.28147B-100000@artax.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.3.96.1010927150812.28147B-100000@artax.karlin.mff.cuni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 Sep 2001, Xavier Bestel wrote:
+Mikulas Patocka writes:
+> Linux 0.01 has a bug in disk request sorting - when interrupt
+> happens while sorting is active, the interrupt routine won't clear
+> do_hd - thus the disk will stay locked up forever.
 
-> with -ac10 no real bad behavior, just automake is working like crazy.
->
-> with -ac15 the system starts disk-trashing immediately, xterms, ssh or
-> telnet sessions are unresponsive for 20mn (after that I gave up and
-> rebooted)
+Er, why bother to fix bugs in such an ancient kernel, rather than
+upgrading to a more modern kernel (like 0.98:-)? It's like finding a
+bug in 2.3.30 and fixing it rather than grabbing 2.4.10 and seeing if
+the problem persists.
 
-We discovered a merge bug, -ac15 has a few lines in
-try_to_swap_out() 10 lines higher than they were in
-the patch I sent to Alan ;)
+				Regards,
 
-This is fixed in the age+launder patch from my home
-page ard in the vmscan.c I sent to Alan for -ac16.
-
-If you want the patch:
-	http://www.surriel.com/patches/
-
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

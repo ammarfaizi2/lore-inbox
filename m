@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311024AbSC2TMN>; Fri, 29 Mar 2002 14:12:13 -0500
+	id <S311614AbSC2TS4>; Fri, 29 Mar 2002 14:18:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311614AbSC2TMD>; Fri, 29 Mar 2002 14:12:03 -0500
-Received: from smtp-out-7.wanadoo.fr ([193.252.19.26]:16058 "EHLO
-	mel-rto7.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S311024AbSC2TLv>; Fri, 29 Mar 2002 14:11:51 -0500
-Message-ID: <3CA4BC6B.EAEB4364@wanadoo.fr>
-Date: Fri, 29 Mar 2002 20:11:39 +0100
-From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4-ac3 i586)
-X-Accept-Language: fr-FR, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre4-ac[23] do not boot
-In-Reply-To: <E16qz6l-0001Ud-00@the-village.bc.nu>
+	id <S311615AbSC2TSr>; Fri, 29 Mar 2002 14:18:47 -0500
+Received: from bitmover.com ([192.132.92.2]:12943 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S311614AbSC2TSe>;
+	Fri, 29 Mar 2002 14:18:34 -0500
+Date: Fri, 29 Mar 2002 11:18:33 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bkbits.net down
+Message-ID: <20020329111833.B6490@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"Henning P. Schmiedehausen" <hps@intermeta.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200203271853.g2RIrRv11812@work.bitmover.com> <20020327222738.B16149@work.bitmover.com> <20020328112252.F22352@work.bitmover.com> <a81gte$hrj$1@forge.intermeta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've reverted the 1st change with the same result : the system hang
-I've reverted the 2nd change and then the system boot fine
+On Fri, Mar 29, 2002 at 10:50:22AM +0000, Henning P. Schmiedehausen wrote:
+> Larry McVoy <lm@bitmover.com> writes:
+> 
+> >The drive has bad blocks and when it hits them it goes into retry la la land,
+> >so I won't know which data is bad until I hit the bad blocks.
+> 
+> You've learned now the hard way why integrity checks in an application
+> will never be able to replace things like backups or RAID systems. 
+> Maybe you want to reread the flamewar^Wthread from some time ago with
+> your new knowledge.
 
--------
-Regards
-	Jean-Luc
+You obviously didn't read that thread.  Both in the context of
+BitKeeper and in the context of normal data, you would have seen that
+we have backups, we just have backups that we can verify are correct.
+The repositories on bkbits.net are automirrored after each incoming event.
+There were a few ppc ones which were not and we're still trying to figure
+out why, and things like the .ssh keys were not completely backed up;
+we're fixing that by putting that information into a BK repository so
+it will just automirror like everything else.
 
-Alan Cox wrote:
-> 
-> > 2.4.19-pre4-ac[23] does not boot. I've not tested ac1 but vanilla pre4
-> > works.
-> 
-> Can you try backing out the following two changes, one at a time. These are
-> the only ALi specific changes. So firstly I want to see if its an ALi or
-> core IDE bug
-> 
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.19p4/drivers/ide/alim15x3.c linux.19pre4-ac3/drivers/ide/alim15x3.c
-> --- linux.19p4/drivers/ide/alim15x3.c   Mon Mar 25 17:47:11 2002
-> +++ linux.19pre4-ac3/drivers/ide/alim15x3.c     Tue Mar 26 18:36:23 2002
-> @@ -248,7 +248,7 @@
->         byte s_clc, a_clc, r_clc;
->         unsigned long flags;
->         int bus_speed = system_bus_clock();
-> -       int port = hwif->index ? 0x5c : 0x58;
-> +       int port = hwif->channel ? 0x5c : 0x58;
->         int portFIFO = hwif->channel ? 0x55 : 0x54;
->         byte cd_dma_fifo = 0;
-> 
-> @@ -442,6 +442,8 @@
->         ide_dma_action_t dma_func       = ide_dma_on;
->         byte can_ultra_dma              = ali15x3_can_ultra(drive);
-> 
-> +       (void) config_chipset_for_pio(drive);
-> +
->         if ((m5229_revision<=0x20) && (drive->media!=ide_disk))
->                 return hwif->dmaproc(ide_dma_off_quietly, drive);
->
+I'm not sure why you yanking my chain, it's counter productive and 
+flat out rude after I just spent two days doing nothing but putting 
+things back together for kernel developers.  What, exactly, did you
+hope to accomplish?
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

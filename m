@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270958AbRIFOV3>; Thu, 6 Sep 2001 10:21:29 -0400
+	id <S270947AbRIFOfW>; Thu, 6 Sep 2001 10:35:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270992AbRIFOVT>; Thu, 6 Sep 2001 10:21:19 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:38917 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S270958AbRIFOVF>; Thu, 6 Sep 2001 10:21:05 -0400
-Date: Thu, 6 Sep 2001 16:21:24 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Wietse Venema <wietse@porcupine.org>
-Cc: Andrey Savochkin <saw@saw.sw.com.sg>, Andi Kleen <ak@suse.de>,
-        Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
-Message-ID: <20010906162124.D29583@maggie.dt.e-technik.uni-dortmund.de>
-Mail-Followup-To: Wietse Venema <wietse@porcupine.org>,
-	Andrey Savochkin <saw@saw.sw.com.sg>, Andi Kleen <ak@suse.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010906173534.A21874@castle.nmd.msu.ru> <20010906140444.75DC1BC06C@spike.porcupine.org>
-Mime-Version: 1.0
+	id <S270992AbRIFOfM>; Thu, 6 Sep 2001 10:35:12 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16143 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270947AbRIFOfA>; Thu, 6 Sep 2001 10:35:00 -0400
+Subject: Re: page_launder() on 2.4.9/10 issue
+To: znmeb@aracnet.com (M. Edward Borasky)
+Date: Thu, 6 Sep 2001 15:39:17 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <HBEHIIBBKKNOBLMPKCBBOEMFDKAA.znmeb@aracnet.com> from "M. Edward Borasky" at Sep 06, 2001 06:54:14 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010906140444.75DC1BC06C@spike.porcupine.org>; from wietse@porcupine.org on Thu, Sep 06, 2001 at 10:04:44 -0400
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15f0JJ-0008E4-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 06 Sep 2001, Wietse Venema wrote:
+> forgive me if I'm asking a silly question or making a silly comment. It
+> seems to me, from what I've seen of this discussion so far, that the only
+> way one "tunes" Linux kernels at the moment is by changing code and
+> rebuilding the kernel. That is, there are few "tunables" that one can set,
+> based on one's circumstances, to optimize kernel performance for a specific
+> application or environment.
 
-> If Linux insists on breaking SIOCGIFCONF then so be it, even though
-> it works perfectly well on any non-Linux system that I could lay
-> my hands on.
+There are a lot of tunables in /proc/sys. An excellent tool for playing with
+them is "powertweak". 
 
-Linux does not break SIOCGIFCONF as far as I can see, but
-SIOCGIFNETMASK. Your inet_addr_local obtains all interfaces's addresses,
-it just gets the wrong netmasks back.
+> No one "memory management scheme", for example, can be all things to all
+> tasks, and it seems to me that giving users tools to measure and control the
+> behavior of memory management, *preferably without having to recompile and
+> reboot*, should be a major priority if Linux is to succeed in a wide variety
+> of applications.
+
+The VM is tunable in the -ac tree. I still believe the VM can and should be
+self tuning but we are not there yet.
+
+> OK, I'll get off my soapbox now, and ask a related question. Is there a
+> mathematical model of the Linux kernel somewhere that I could get my hands
+> on?
+
+Not that I am aware of. 
+
+Alan

@@ -1,31 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261330AbTAaOsp>; Fri, 31 Jan 2003 09:48:45 -0500
+	id <S261354AbTAaOvP>; Fri, 31 Jan 2003 09:51:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261337AbTAaOsp>; Fri, 31 Jan 2003 09:48:45 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:56327 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S261330AbTAaOso>;
-	Fri, 31 Jan 2003 09:48:44 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301311458.h0VEwqFS001441@darkstar.example.net>
-Subject: Re: [PATCH] 2.5.59 morse code panics
-To: Valdis.Kletnieks@vt.edu
-Date: Fri, 31 Jan 2003 14:58:52 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200301311440.h0VEeRlH005883@turing-police.cc.vt.edu> from "Valdis.Kletnieks@vt.edu" at Jan 31, 2003 09:40:27 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S261356AbTAaOvP>; Fri, 31 Jan 2003 09:51:15 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:50193 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
+	id <S261354AbTAaOvO>; Fri, 31 Jan 2003 09:51:14 -0500
+Date: Fri, 31 Jan 2003 16:00:37 +0100 (CET)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: "Mike A. Harris" <mharris@redhat.com>
+Cc: Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] ext3, reiser, jfs, xfs effect on contest
+In-Reply-To: <Pine.LNX.4.44.0301310907250.893-100000@devel.capslock.lan>
+Message-ID: <Pine.LNX.4.51.0301311555540.30372@dns.toxicfilms.tv>
+References: <Pine.LNX.4.44.0301310907250.893-100000@devel.capslock.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There's a *REASON* that IBM RS/6K boxes have at least a little 3-digit LED
-> display - during boot or a panic, even if you can't trust the console drivers
-> anymore, you can still output *something*.
+> compiling the kernel (or anything for that matter) isn't going to
+> show any difference really because the CPU Mhz and L1/L2 cache
+> are the bottleneck.
+How about a test comprising of lots of mail being
+sent/rejected/bounced/deferred/etc.
+Usually SMTPs like postfix store lots of directories and files in there.
+And thus create lots of reads/writes. We could measure the efficiency of
+that.
+I think it is possible to DoS a system by thrashing its i/o by forcing the
+smtp to do lots of work. With very poor io efficiency that is.
 
-By the way, you can buy cards with LED displays on which monitor port
-80h, and tell you how far through the boot process a box is getting.
-Not much use on a laptop, though :-).
+Propably reiserfs would have better results with such a test, whereas
+ext3 could have better results on a differents test. (different
+application)
 
-John.
+I think the 'best result' fs will vary on the test.
+Also i think it is better to testdrive the file systems using real
+applications on high load.
+
+Regards,
+Maciej Soltysiak
+

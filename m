@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280727AbRKKEEi>; Sat, 10 Nov 2001 23:04:38 -0500
+	id <S280773AbRKKEJI>; Sat, 10 Nov 2001 23:09:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280773AbRKKEES>; Sat, 10 Nov 2001 23:04:18 -0500
-Received: from d141-96-160.home.cgocable.net ([24.141.96.160]:2828 "EHLO
-	spqr.damncats.org") by vger.kernel.org with ESMTP
-	id <S280727AbRKKEEF>; Sat, 10 Nov 2001 23:04:05 -0500
-Message-ID: <3BEDF8A4.1070105@damncats.org>
-Date: Sat, 10 Nov 2001 23:03:48 -0500
-From: John Cavan <johnc@damncats.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: lobo@polbox.com
-CC: linux-kernel@vger.kernel.org
+	id <S280798AbRKKEI6>; Sat, 10 Nov 2001 23:08:58 -0500
+Received: from thor.hol.gr ([194.30.192.25]:33503 "HELO thor.hol.gr")
+	by vger.kernel.org with SMTP id <S280773AbRKKEIm>;
+	Sat, 10 Nov 2001 23:08:42 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Panagiotis Moustafellos <panxer@hol.gr>
+Reply-To: panxer@hol.gr
+To: lobo@polbox.com, linux-kernel@vger.kernel.org
 Subject: Re: Nazi kernels
+Date: Sun, 11 Nov 2001 06:09:35 +0200
+X-Mailer: KMail [version 1.2]
 In-Reply-To: <20011111043442.A3454@chello062179017166.chello.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20011111043442.A3454@chello062179017166.chello.pl>
+MIME-Version: 1.0
+Message-Id: <01111106093500.00720@gryppas>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lobo@polbox.com wrote:
-
- > Hi!
- >
- > Thank You guys for Your work. I'm say goodbye to linux community,
- > because nazi kernel's don't allow me to load modules needed for my
- > graphic card. What will be next, maybe you disable to run non GPL
- > executables under linux ?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
-I'd suggest that you get a clue about what you're talking about before 
-spouting off nonsense. The license code in the kernel doesn't prohibit 
-anything, it simply provides a means of determining if the kernel is 
-running closed code and thus out of the scope of the kernel maintainers.
+> Thank You guys for Your work. I'm say goodbye to linux community,
+> because nazi kernel's don't allow me to load modules needed for my
+> graphic card. What will be next, maybe you disable to run non GPL
+> executables under linux ?
+>
+> Regards Przemek
 
-Frankly, any comparison of SOFTWARE to the horrific evil of the Nazi 
-party is an abomination. For that alone, you really don't earn the price 
-of admission to anything involving a brain. I can't begin to fathom the 
-thought processes of an individual who would belittle the suffering, 
-pain, and sacrifices of those who experience that time period with such 
-a comparison.
+Probably, I shouldnt reply, this kind of statements makes
+you furious... 
+I think you are jumping to conclutions.. who said, or even better,
+who prevented you from using these non gpl modules you are refering to?
+Reconcider, rtfm, and *jesus* dont use such kinds of subjects, it's
+a little heavy an adjective.. ;p
+Regards
 
-I'm sure you're proud.
 
-John
+- --------
+Panagiotis Moustafellos
+(aka panXer)
+- --------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE77foFbGyRbxX5XdQRAotTAJ9B1h7sFhvF3vN6T86td2Kz+UprwgCg6HM8
+d2kk7IZv+KUDbWnwX3coI4M=
+=Wv20
+-----END PGP SIGNATURE-----

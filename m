@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285182AbRLRVQQ>; Tue, 18 Dec 2001 16:16:16 -0500
+	id <S285194AbRLRVWY>; Tue, 18 Dec 2001 16:22:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285179AbRLRVOk>; Tue, 18 Dec 2001 16:14:40 -0500
-Received: from datelc-237.dialup.vol.cz ([212.20.103.238]:33028 "HELO
-	ghost.ucw.cz") by vger.kernel.org with SMTP id <S285161AbRLRVNb>;
-	Tue, 18 Dec 2001 16:13:31 -0500
-Date: Tue, 18 Dec 2001 23:13:38 +0100 (MET)
-From: <brain@artax.karlin.mff.cuni.cz>
-To: <linux-kernel@vger.kernel.org>
-Subject: Problems with GUS PnP: ad1848, pnp
-Message-ID: <Pine.LNX.4.30.0112182250200.1216-100000@ghost.ucw.cz>
-X-Echelon: GRU Vatutinki Chodynka Khodinka Putin Suvorov USA Aquarium Russia Ladygin Lybia China Moscow missile reconnaissance agent spetsnaz security tactical target operation military nuclear force defense spy attack bomb explode tap MI5 IRS KGB CIA FBI NSA AK-47 MOSSAD M16 plutonium smuggle intercept plan intelligence war analysis president
+	id <S285179AbRLRVUt>; Tue, 18 Dec 2001 16:20:49 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:56593 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S285180AbRLRVTy>; Tue, 18 Dec 2001 16:19:54 -0500
+Date: Tue, 18 Dec 2001 19:19:33 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Larry McVoy <lm@bitmover.com>
+Cc: "David S. Miller" <davem@redhat.com>, <alan@lxorguk.ukuu.org.uk>,
+        <torvalds@transmeta.com>, <bcrl@redhat.com>, <davidel@xmailserver.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler ( was: Just a second ) ...
+In-Reply-To: <20011218131713.O26374@work.bitmover.com>
+Message-ID: <Pine.LNX.4.33L.0112181918470.28489-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Tue, 18 Dec 2001, Larry McVoy wrote:
+> On Tue, Dec 18, 2001 at 01:14:20PM -0800, David S. Miller wrote:
+> >    From: Larry McVoy <lm@bitmover.com>
+> >    Date: Tue, 18 Dec 2001 13:02:28 -0800
+> >
+> >    Maybe I'm an old stick in the mud, but IRC seems like a big waste of
+> >    time to me.
+> >
+> > It's like being at a Linux conference all the time. :-)
+>
+> Let me introduce you to this neat invention called a telephone.  It's
+> the black thing next to your desk, it rings, has buttons.  If you push
+> the right buttons, well, it's magic...
 
-When I'm loading modules for my GUS PnP card, I get "No PnP cards found! Trying
-standard ones..." message from the ad1848 module. Can you tell me if this is
-an error or correct behaviour?
+Yeah, but you can't scroll up a page on the phone...
 
-Do I have to give the ad1848 module some parameters? It has io, irq, dma and
-dma2 parameters.
+(also, talking with multiple people at the same time
+is kind of annoying in audio, while it's ok on irc)
 
-I also don't know which pnp driver/tool use to initialize the card. When I use
-isapnp tools (and set io=0x220 irq=11,12 dma=5,7) and then read /proc/isapnp, I
-get really WEIRD output. I'm using lates 1.26 version of isapnp tools.
+Rik
+--
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
 
-Card 1 'GRV0001:Advanced Gravis InterWave Audio' PnP version 1.0 Product version 1.0
-  Logical device 0 'GRV0000:Synth & Codec'
-    Supported registers 0x2
-    Device is active
-    Active port 0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff,0xffff
-    Active IRQ 255 [0xff],255 [0xff]
-    Active DMA 255,255
-    Active memory 0xffffffff,0xffffffff,0xffffffff,0xffffffff
-
-When I set the values using cat > /proc/isapnp (as described in
-Documentation/isapnp.txt) and then cat /proc/isapnp, the values are correct.
-That means one of (or both ;-) ) either isa-pnp module or isapnp tools ISN'T
-ABLE to setup the PnP card. Can you tell me which one is the bad working?
-
-Thanx
-
-Brain
-
---------------------------------
-Petr `Brain' Kulhavy
-<brain@artax.karlin.mff.cuni.cz>
-http://artax.karlin.mff.cuni.cz/~brain
-Faculty of Mathematics and Physics, Charles University Prague, Czech Republic
-
----
-Putt's Law:
-        Technology is dominated by two types of people:
-                Those who understand what they do not manage.
-                Those who manage what they do not understand.
+http://www.surriel.com/		http://distro.conectiva.com/
 

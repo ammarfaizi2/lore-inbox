@@ -1,83 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265435AbTIEVqi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 17:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265100AbTIEVqY
+	id S265003AbTIEVzP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 17:55:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbTIEVw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 17:46:24 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14731 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265435AbTIEVpx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 17:45:53 -0400
-Message-ID: <3F590400.7050600@pobox.com>
-Date: Fri, 05 Sep 2003 17:45:36 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Richard A Nelson <kenpocowboy@bellsouth.net>
-CC: Patrick Mochel <mochel@osdl.org>, Rob Landley <rob@landley.net>,
-       Pavel Machek <pavel@suse.cz>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Fix up power managment in 2.6
-References: <200309050158.36447.rob@landley.net> <Pine.LNX.4.44.0309051044470.17174-100000@cherise> <20030905180248.GB29353@gtf.org> <Pine.LNX.4.56.0309051548400.18554@onpx40.onqynaqf.bet>
-In-Reply-To: <Pine.LNX.4.56.0309051548400.18554@onpx40.onqynaqf.bet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 5 Sep 2003 17:52:58 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:34527 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262854AbTIEVwg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 17:52:36 -0400
+Subject: Re: [OOPS] 2.4.22 / HPT372N
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marko Kreen <marko@l-t.ee>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030905145452.GA24201@l-t.ee>
+References: <20030904190426.GA31977@l-t.ee>
+	 <1062712012.22550.72.camel@dhcp23.swansea.linux.org.uk>
+	 <20030905145452.GA24201@l-t.ee>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1062798689.689.43.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Fri, 05 Sep 2003 22:51:31 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard A Nelson wrote:
-> On Fri, 5 Sep 2003, Jeff Garzik wrote:
+On Gwe, 2003-09-05 at 15:54, Marko Kreen wrote:
+> > so your PCI bus is running at somewhere about 35Mhz and outside the
+> > drivers safe threshold. 
 > 
+> Thats surprising, nobody has intentionally overclocked it.
 > 
->>Note that a lot of ThinkPads out in the field need a BIOS update
->>before their ACPI is working.  (I know this because IBM was quite
->>helpful and proactive in addressing their Linux-related ACPI BIOS
->>issues)
-> 
-> 
-> And even that isn't always enough :(
-> 
-> I have a TP30, 2366-51U with the latest BIOS:
->                 Version: 1IET67WW (2.06 )
->                 Release: 07/17/2003
->                 Processor Manufacturer: GenuineIntel
->                 Processor Version: Pentium(R) 4
-> BIOS32 Service Directory present.
->         Calling Interface Address: 0x000FD7E0
-> ACPI 2.0 present.
->         OEM ID: IBM
-> RSD table at 0x0FF63195.
-> PNP 1.0 present.
->         Event Notification: Polling
->         Event Notification Flag Address: 0x000004B4
->         Real Mode Code Address: F000:9D36
->         Real Mode Data Address: 0040:0000
->         Protected Mode Code Address: 0x000F9D54
->         Protected Mode Data Address: 0x00000400
-> PCI Interrupt Routing 1.0 present.
->         Table Size: 256 bytes
->         Router ID: 00:1f.0
->         Exclusive IRQs: None
->         Compatible Router: 8086:122e
-> 
-> Up through 2.05, ACPI crashed the kernel during boot(2.4 and 2.6) -
-> I posted here about that...  I'm going to try this weekend with
-> the just flashed 2.06 - even though the changelog doesn't indicate
-> anything changed wrt ACPI.
-> 
-> The problem was, iirc, was scanning one of the tables - I can't find
-> the message now :(
+> Now we did some experimenting with it and no BIOS settings seem
+> to affect the FREQ numbers. (Lower CPU/mem speed, 50/25 AGP/PCI speed.)
+> The FREQ still stays fixed at 85.
+> Any idea how to remove the overclocking?  Otherwise it seems
+> like driver bug to me.
 
+The hardware measures the PCI bus clock against its own sources and the
+85 (0x55) is its timing measurement. The maximum range for the 33Mhz 
+timings on the card is  < 0x55 so it decides your clock is outside the
+safe range. HPT have never given us 40Mhz clock timings for the 372N or
+as far as I can tell published them so we don't know how to drive it at
+40Mhz just 33 and 66.
 
-If you are up for a little debugging and comfortable with building your 
-own kernels, then please enable the relaxed-aml-checking and debug 
-options in the ACPI kernel config.  Those, and dmidecode output, will 
-provide useful info to the ACPI folks.
-
-	Jeff
-
-
+You could tweak the driver to accept 0x55 but either the card clock is
+out or you are overclocking your IDE by doing that.
 

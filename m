@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311752AbSDSG5X>; Fri, 19 Apr 2002 02:57:23 -0400
+	id <S311701AbSDSH1X>; Fri, 19 Apr 2002 03:27:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311834AbSDSG5W>; Fri, 19 Apr 2002 02:57:22 -0400
-Received: from holomorphy.com ([66.224.33.161]:53152 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S311752AbSDSG5W>;
-	Fri, 19 Apr 2002 02:57:22 -0400
-Date: Thu, 18 Apr 2002 23:56:32 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] migration thread fix
-Message-ID: <20020419065632.GD21206@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020419064851.GC21206@holomorphy.com> <Pine.LNX.4.44.0204190646380.4350-100000@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S311749AbSDSH1W>; Fri, 19 Apr 2002 03:27:22 -0400
+Received: from tolkor.sgi.com ([192.48.180.13]:7076 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S311701AbSDSH1V>;
+	Fri, 19 Apr 2002 03:27:21 -0400
+Message-ID: <3CBFC755.50106@sgi.com>
+Date: Fri, 19 Apr 2002 02:29:25 -0500
+From: Stephen Lord <lord@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Andrew Morton <akpm@zip.com.au>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Peloquin <peloquin@us.ibm.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Bio pool & scsi scatter gather pool usage
+In-Reply-To: <OFCF00F1A4.2665039D-ON85256B9F.006B755C@pok.ibm.com> from "Mark Peloquin" at Apr 18, 2002 05:58:16 PM <E16yLS4-0005vN-00@the-village.bc.nu> <3CBF5B67.E488A8E5@zip.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Apr 2002, William Lee Irwin III wrote:
->> I've got a few of those around, I'll see if I can reproduce it. How many
->> cpu's did you need to bring it out?
+Andrew Morton wrote:
 
-On Fri, Apr 19, 2002 at 06:48:45AM +0200, Ingo Molnar wrote:
-> 2 physical - but i'd suggest to test Erich's patch instead. I had
-> debugging code in the scheduler which did printks, which slowed down some
-> of the operations in question, such as the startup of the idle thread -
-> which created weird situations. [which might not occur in normal testing,
-> but which are possible nevertheless.]
+>Alan Cox wrote:
+>
+>>>Perhaps, but calls are expensive. Repeated calls down stacked block
+>>>devices will add up. In only the most unusually cases will there
+>>>
+>>You don't need to repeatedly query. At bind time you can compute the
+>>limit for any device heirarchy and be done with it.
+>>
+>
+>S'pose so.  The ideal request size is variable, based
+>on the alignment.  So for exampe if the start block is
+>halfway into a stripe, the ideal BIO size is half a stripe.
+>
+>But that's a pretty simple table to generate once-off,
+>as you say.
+>
 
-That's not many. I'll try it on a bigger one, with a few big fat printk's
-in idle task startup and see if I can bring it down. It's an interesting
-little tidbit of programming.
+But this gets you lowest common denominator sizes for the whole
+volume, which is basically the buffer head approach, chop all I/O up
+into a chunk size we know will always work. Any sort of nasty  boundary
+condition at one spot in a volume means the whole thing is crippled
+down to that level. It then becomes a black magic art to configure a
+volume which is not restricted to a small request size.
 
-As I said earlier, Erich's patch already passed my testing. Thanks though.
+Steve
 
 
-Cheers,
-Bill

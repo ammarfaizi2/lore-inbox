@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129516AbQKOTRH>; Wed, 15 Nov 2000 14:17:07 -0500
+	id <S129732AbQKOT0a>; Wed, 15 Nov 2000 14:26:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129732AbQKOTQ5>; Wed, 15 Nov 2000 14:16:57 -0500
-Received: from f203.law3.hotmail.com ([209.185.241.203]:12036 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id <S129516AbQKOTQq>;
-	Wed, 15 Nov 2000 14:16:46 -0500
-X-Originating-IP: [204.68.140.34]
-From: "jim M." <msg124@hotmail.com>
-To: redhat-install-list@redhat.com, guinness-list@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: JIT/JRE
-Date: Wed, 15 Nov 2000 18:46:40 GMT
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F203b3HnkA0JzsfvhsT00002645@hotmail.com>
-X-OriginalArrivalTime: 15 Nov 2000 18:46:40.0646 (UTC) FILETIME=[64537A60:01C04F34]
+	id <S130394AbQKOT0U>; Wed, 15 Nov 2000 14:26:20 -0500
+Received: from pegasus.wanadoo.be ([195.74.212.10]:23536 "EHLO
+	pegasus.wanadoo.be") by vger.kernel.org with ESMTP
+	id <S129732AbQKOT0E>; Wed, 15 Nov 2000 14:26:04 -0500
+Message-ID: <3A12DD30.DCADAF45@wanadoo.be>
+Date: Wed, 15 Nov 2000 20:00:01 +0100
+From: herman dumont <herman.dumont@wanadoo.be>
+X-Mailer: Mozilla 4.74 [en] (Win98; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: stop e mails
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have a redhat 7.0 and I need to compile some codes.
-I need to use JIT (just in time) compiler and JRE on this
-redhat box.  How do i know if have these on my system?.
-Or the installl CD for the RH7.0 may have it...
+dear,
+if possible, could you please stop sensding the e mails concerning the
+linux... . As my father died a sudden death on the 2 oktober 2000.
 
-J
-_________________________________________________________________________
-Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
-
-Share information about yourself, create your own public profile at 
-http://profiles.msn.com.
+thanks
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

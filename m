@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290125AbSAQUGP>; Thu, 17 Jan 2002 15:06:15 -0500
+	id <S290425AbSAQUL0>; Thu, 17 Jan 2002 15:11:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290332AbSAQUGG>; Thu, 17 Jan 2002 15:06:06 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:781 "EHLO
+	id <S290352AbSAQULQ>; Thu, 17 Jan 2002 15:11:16 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:1549 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S290125AbSAQUFz>; Thu, 17 Jan 2002 15:05:55 -0500
-Date: Thu, 17 Jan 2002 14:52:31 -0500 (EST)
+	id <S290332AbSAQUK7>; Thu, 17 Jan 2002 15:10:59 -0500
+Date: Thu, 17 Jan 2002 15:10:33 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Alexei Podtelezhnikov <apodtele@mccammon.ucsd.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [o(1) sched J0] higher priority smaller timeslices, in fact
-In-Reply-To: <Pine.LNX.4.44.0201161412140.3787-100000@chemcca18.ucsd.edu>
-Message-ID: <Pine.LNX.3.96.1020117144949.2890A-100000@gatekeeper.tmr.com>
+To: David Weinehall <tao@acc.umu.se>
+cc: romano@dea.icai.upco.es, linux-kernel@vger.kernel.org
+Subject: Re: Power off NOT working, kernel 2.4.16
+In-Reply-To: <20020117175446.P5235@khan.acc.umu.se>
+Message-ID: <Pine.LNX.3.96.1020117150001.2890D-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jan 2002, Alexei Podtelezhnikov wrote:
+On Thu, 17 Jan 2002, David Weinehall wrote:
 
-> I still suggest a different set as faster and more readable at least to 
-> me. Just two operations instead of 4!
+> On Thu, Jan 17, 2002 at 08:09:59AM -0500, bill davidsen wrote:
+
+> >   I've had that problem with my BP6 for so long I stopped complaining.
+> > Time to start again, I guess.
+> > 
+> >                                  WHINE
+> > 
+> >   There, now I feel better ;-) Really annoying, though, to have to boot
+> > NT just to turn the machine off.
 > 
-> #define NICE_TO_TIMESLICE(n) (((n)+21)*(HZ/10))  // should be positive!
-> #define MAX_TIMESLICE  NICE_TO_TIMESLICE(19)
-> #define MIN_TIMESLICE  NICE_TO_TIMESLICE(-20)
+> Ever tried holding the power-button for 3 seconds?!
 
-Looks more readable. I wouldn't bet on faster, but definitely more
-readable.
+Given that it should shut down after a job completes and I work 130+ miles
+away, that's not optimal. I'd rather not use the system to heat air that
+the a/c needs to cool so I can run the idle loop. Currently I just run a
+script to use "lilo -R" to boot to an OS which is smart enough to do the
+job. Actually old kernels did the job until the APC was enhanced. More QA
+buy the "it doesn't break MY system" method of testing...
+
+At some point I'll convert to ext3, and shutdown with sync() and have the
+X10 module cut power, or use "find why this kernel shuts it down and that
+one doesn't" as an employment test when some kid applies for a kernel
+hacker job ;-) 
 
 -- 
 bill davidsen <davidsen@tmr.com>

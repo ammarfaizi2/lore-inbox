@@ -1,31 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312754AbSDBDXY>; Mon, 1 Apr 2002 22:23:24 -0500
+	id <S312769AbSDBEhA>; Mon, 1 Apr 2002 23:37:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312752AbSDBDXO>; Mon, 1 Apr 2002 22:23:14 -0500
-Received: from chamber.cco.caltech.edu ([131.215.48.55]:16572 "EHLO
-	chamber.cco.caltech.edu") by vger.kernel.org with ESMTP
-	id <S312754AbSDBDW7>; Mon, 1 Apr 2002 22:22:59 -0500
-Message-ID: <3CA923FF.9060408@bryanr.org>
-Date: Mon, 01 Apr 2002 19:22:39 -0800
-From: Bryan Rittmeyer <bryanr@bryanr.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
+	id <S312770AbSDBEgv>; Mon, 1 Apr 2002 23:36:51 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61194 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S312769AbSDBEgh>; Mon, 1 Apr 2002 23:36:37 -0500
+Date: Mon, 1 Apr 2002 20:32:42 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Richard Henderson <rth@twiddle.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 7.52 second kernel compile
+In-Reply-To: <20020326185356.B19912@twiddle.net>
+Message-ID: <Pine.LNX.4.33.0204012013580.32552-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Luis Falcon <lfalcon@thymbra.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: IRQ routing conflicts / Assigning IRQ 0 to ethernet
-In-Reply-To: <1017704252.20857.7.camel@abyss>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-try the latest acpi patch from http://sf.net/projects/acpi/
 
--Bryan
+On Tue, 26 Mar 2002, Richard Henderson wrote:
+>
+> For the record, Alpha timings:
+> 
+> pca164 @ 533MHz:
+>   72.79: 19
+>    1.50: 20
+>   21.30: 35
+>    1.50: 36
+>    1.30: 105
 
-Luis Falcon wrote:
-> The main problem is that it can't assign an interrupt for the
-> controller, plus I get irq routing conflicts on other devices...
+Interesting. There seems to be three peaks: a big 4/1 split at 19-20 vs
+35-36 cycles, which is probably just the L1 cache (8 bytes per entry,
+32-byte cachelines on the EV5 gives 4 entries per cache load), while the
+much smaller peak at 105 cycles might possibly be due to the virtual
+lookup miss, causing a double TLB miss and a real walk every 8kB entries
+(actually, much more often than that, since there's TLB pressure and the
+virtual PTE mappings get thrown out faster than the theoretical numbers
+would indicate)
+
+It also shows how pretty studly it is to take a sw TLB miss quite that
+quickly. Getting in and out of PAL-mode that fast is rather fast.
+
+> ev6 @ 500MHz:
+>    2.43: 78
+>   72.13: 84
+>    2.55: 89
+>    5.87: 90
+>    1.38: 105
+>    5.94: 108
+>    1.36: 112
+> 
+> I wonder how much of that ev6 slowdown is due to an SRM that's
+> has to handle both 3 and 4 level page tables, and how much is
+> due to the more expensive syncing of the OOO pipeline...
+
+The multi-level page table shouldn't hurt at all for the common case (ie
+the virtual PTE lookup success), so my money would be on the pipeline
+flush.
+
+The other profile difference seems to be due to the 64-byte cacheline (ie
+a cacheline now holds 8 entries, so 7/8th can be filled that way).
+
+However, I doubt whether that third peak could be a double PTE fault, it
+seems too big and too close in cycles to the others. So maybe the third
+peak at 108 cycles is something else... As it seems to balance out very
+nicely with the second peak, I wonder if there might not be something
+making every other cache fill faster - like a 128-byte prefetch or an
+external 128-byte line on the L2/L3? (Ie the third peak would be really
+just the "other half" of the second peak).
+
+		Linus
 

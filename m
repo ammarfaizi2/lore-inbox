@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285907AbRLYVqm>; Tue, 25 Dec 2001 16:46:42 -0500
+	id <S285915AbRLYVxM>; Tue, 25 Dec 2001 16:53:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285910AbRLYVqb>; Tue, 25 Dec 2001 16:46:31 -0500
-Received: from petasus.iil.intel.com ([192.198.152.69]:33775 "EHLO
-	petasus.iil.intel.com") by vger.kernel.org with ESMTP
-	id <S285907AbRLYVqQ>; Tue, 25 Dec 2001 16:46:16 -0500
-Message-ID: <3C28F3A4.4010808@intel.com>
-Date: Tue, 25 Dec 2001 23:46:12 +0200
-From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
-Organization: Intel
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S285927AbRLYVxC>; Tue, 25 Dec 2001 16:53:02 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2824 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S285915AbRLYVwt>; Tue, 25 Dec 2001 16:52:49 -0500
+Subject: Re: RTNETLINK
+To: jjs@pobox.com (J Sloan)
+Date: Tue, 25 Dec 2001 22:02:51 +0000 (GMT)
+Cc: garzik@havoc.gtf.org (Legacy Fishtank),
+        manfred@colorfullife.com (Manfred Spraul),
+        klink@clouddancer.com (Colonel), linux-kernel@vger.kernel.org
+In-Reply-To: <3C28D260.65548D33@pobox.com> from "J Sloan" at Dec 25, 2001 11:24:16 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: (v)sscanf handles %i improperly (+patch)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Izet-0008Be-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found (v)sscanf included in last kernels handles %i format improperly. 
-Currently, up to 2.4.17, %i is handled identical to %d. However, 
-accordingly to man for sscanf,
-
-       i      Matches an  optionally  signed  integer;  the  next
-              pointer  must  be a pointer to int.  The integer is
-              read in base 16 if it begins with `0x' or `0X',  in
-              base 8 if it begins with `0', and in base 10 other­
-              wise.  Only characters that correspond to the  base
-              are used.
-
-Please, when replying, CC me: mailto:vladimir.kondratiev@intel.com
-
-Patch is quite small (against 2.4.17):
-
---- vsprintf.c.orig    Thu Oct 11 20:17:22 2001
-+++ vsprintf.c    Tue Dec 25 23:29:31 2001
-@@ -616,8 +616,9 @@
-         case 'X':
-             base = 16;
-             break;
--        case 'd':
-         case 'i':
-+            base = 0; /* autodetect */
-+        case 'd':
-             is_sign = 1;
-         case 'u':
-             break;
-
+> 
+> Legacy Fishtank wrote:
+> 
+> > It's required by newer RedHat and MDK initscripts, perhaps others.
+> > ip, iproute and similar utilities use it, and so since it's commonly
+> > required DaveM made it unconditional...  I think the checkin comment was
+> > something along the lines of "make it unconditional unless Alan
+> > complains about kernel bloat" :)
+> 
+> Hmm, perhaps RTNETLINK should be enabled
+> IFF networking is selected? I see to remember
+> that was the idea being bandied about...
+> 
+> Anyway, Merry Christmas to all -
+> 
+> jjs
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

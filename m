@@ -1,37 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVBWPZX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVBWP1P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVBWPZX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 10:25:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVBWPZX
+	id S261190AbVBWP1P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 10:27:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbVBWP1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 10:25:23 -0500
-Received: from alog0402.analogic.com ([208.224.222.178]:1152 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261187AbVBWPZT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 10:25:19 -0500
-Date: Wed, 23 Feb 2005 10:24:28 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: accept() fails with EINTER
-Message-ID: <Pine.LNX.4.61.0502231009380.5342@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 23 Feb 2005 10:27:14 -0500
+Received: from leithammel.gnuher.de ([217.160.128.103]:50138 "EHLO
+	leithammel.gnuher.de") by vger.kernel.org with ESMTP
+	id S261190AbVBWP1G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 10:27:06 -0500
+To: linux-kernel@vger.kernel.org
+Path: news.geggus.net!not-for-mail
+From: Sven Geggus <sven@geggus.net>
+Subject: xfsdump broken with Kernel 2.6.11-rc4
+Date: Wed, 23 Feb 2005 16:26:58 +0100 (CET)
+Organization: Geggus clan, virtual section
+Message-ID: <cvi7c2$a3o$1@benzin.geggus.net>
+NNTP-Posting-Host: ::1
+X-Trace: benzin.geggus.net 1109172418 10361 ::1 (23 Feb 2005 15:26:58 GMT)
+X-Complaints-To: usenet@geggus.net
+NNTP-Posting-Date: Wed, 23 Feb 2005 15:26:58 +0000 (UTC)
+X-TERMINAL: rxvt
+X-OS: Debian GNU/Linux (Kernel 2.4.29-exsh-acl)
+User-Agent: tin/1.7.5-20040326 ("Benbecula") (UNIX) (Linux/2.4.29-exsh-acl (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi there,
 
-Trying to run an old server with a new kernel. A connection
-fails with "interrupted system call" as soon as a client
-attempts to connect. A trap in the code to continue
-works, but subsequent send() and recv() calls fail in
-the same way.
+looks like xfsdumpis broken with recent 2.6.11-rc Kernels. 2.6.11-rc4 is the
+one I tried.
 
-Anybody know how to mask that SIGIO (or whatever signal)?
-Setting signal(SIGIO, SIG_IGN) doesn't do anything useful.
+Strange enough ist does seem to work _sometimes_, but it does not work
+most of the time.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+If it does not work I just get the following message:
+
+xfsdump: ERROR: /dev/sda2 does not identify a file system
+
+I'm using Version 2.2.23 from debian sarge.
+
+It seems to always work with the Distribution Kernel from Debian sarge.
+
+Sven
+
+-- 
+"If you continue running Windows, your system may become unstable."
+(Windows 95 BSOD)
+
+/me is giggls@ircnet, http://sven.gegg.us/ on the Web

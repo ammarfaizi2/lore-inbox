@@ -1,109 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266252AbUA2ShN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 13:37:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266263AbUA2ShN
+	id S266308AbUA2Sab (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 13:30:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266317AbUA2Sab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 13:37:13 -0500
-Received: from bay1-f96.bay1.hotmail.com ([65.54.245.96]:25094 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S266252AbUA2ShJ
+	Thu, 29 Jan 2004 13:30:31 -0500
+Received: from wblv-238-222.telkomadsl.co.za ([165.165.238.222]:48002 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S266308AbUA2SaZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 13:37:09 -0500
-X-Originating-IP: [169.204.239.122]
-X-Originating-Email: [highwind747@hotmail.com]
-From: "raymond jennings" <highwind747@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: FW: [ERR] [IDEA] - run-length compaction of block numbers
-Date: Thu, 29 Jan 2004 10:37:06 -0800
+	Thu, 29 Jan 2004 13:30:25 -0500
+Subject: Re: [ANNOUNCE] udev 015 release
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-hotplug-devel@lists.sourceforge.net,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040126215036.GA6906@kroah.com>
+References: <20040126215036.GA6906@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wvNxtpymKvzsz4xA8YMt"
+Message-Id: <1075401020.7680.25.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="----=_NextPart_000_5168_7250_65d1"
-Message-ID: <BAY1-F96zCI50hUlhuv000153ab@hotmail.com>
-X-OriginalArrivalTime: 29 Jan 2004 18:37:06.0954 (UTC) FILETIME=[E5B086A0:01C3E696]
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 29 Jan 2004 20:30:20 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------=_NextPart_000_5168_7250_65d1
-Content-Type: text/plain; format=flowed
-
+--=-wvNxtpymKvzsz4xA8YMt
+Content-Type: multipart/mixed; boundary="=-1AG7uVCRUx3dkVYNHE/u"
 
 
+--=-1AG7uVCRUx3dkVYNHE/u
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->From: postmaster@kornet.net
->To: highwind747@hotmail.com
->Subject: [ERR] [IDEA] - run-length compaction of block numbers
->Date: Wed, 21 Jan 2004 20:03:17 +0900
->
->Transmit Report:
->
->  To: pupuru@kornet.net, 452 Requested action not taken: insufficient 
->system storage.[28,-1,41]
+On Mon, 2004-01-26 at 23:50, Greg KH wrote:
 
-_________________________________________________________________
-Check out the new MSN 9 Dial-up — fast & reliable Internet access with prime 
-features! http://join.msn.com/?pgmarket=en-us&page=dialup/home&ST=1
+I see latest version is very noisy, and although it is a good option
+to have, I think it should be tweakable (and recompiling is not always
+an option if you want some quick debugging).
 
-------=_NextPart_000_5168_7250_65d1
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 8bit
-
-Received: from 211.48.62.166 (211.48.62.166) 
-	at KTMAIL with ESMTP Hanmir
-	by ppp5;Wed, 21 Jan 2004 20:03:17 +0900
-X-MsgID: 1074682997179055492.1.ppp5
-Message-ID: <1074682997179055492.1.ppp5@ppp5>
-Received: from [67.72.78.212] (linux-kernel-owner+pupuru=40kornet.net@vger.kernel.org) by 
-          relay6.kornet.net (Terrace MailWatcher) 
-          with ESMTP id 2004012119:38:24:911785.6463.10095
-          for <pupuru@kornet.net>; 
-          Wed, 21 Jan 2004 19:38:18 +0900 (KST) 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265726AbUAPTjE (ORCPT <rfc822;pupuru@kornet.net>);
-	Fri, 16 Jan 2004 14:39:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265732AbUAPTjE
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 14:39:04 -0500
-Received: from bay1-f117.bay1.hotmail.com ([65.54.245.117]:8714 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S265726AbUAPTjB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 14:39:01 -0500
-Received: from mail pickup service by hotmail.com with Microsoft SMTPSVC;
-	 Fri, 16 Jan 2004 11:38:59 -0800
-Received: from 66.96.64.38 by by1fd.bay1.hotmail.msn.com with HTTP;
-	Fri, 16 Jan 2004 19:38:59 GMT
-X-Originating-IP: [66.96.64.38]
-X-Originating-Email: [highwind747@hotmail.com]
-X-Sender: highwind747@hotmail.com
-From: "raymond jennings" <highwind747@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [IDEA] - run-length compaction of block numbers
-Date: Fri, 16 Jan 2004 11:38:59 -0800
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Y-Message-ID: <BAY1-F117hxeH6PC8MS00006f92@hotmail.com>
-X-OriginalArrivalTime: 16 Jan 2004 19:38:59.0969 (UTC) FILETIME=[6372E710:01C3DC68]
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-
-Is there any value in creating a new filesystem that encodes long contiguous 
-blocks as a single block run instead of multiple block numbers?  A long file 
-may use only a few block runs instead of many block numbers if there is 
-little fragmentation (usually the case).  Also dynamic allocation of 
-inodes...etc.  The details are long; anyone interested can e-mail me 
-privately.
-
-_________________________________________________________________
-Rethink your business approach for the new year with the helpful tips here. 
-http://special.msn.com/bcentral/prep04.armx
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Attached is a simple patch to add a config option to udev.conf to toggle
+logging.
 
 
+Thanks,
 
-------=_NextPart_000_5168_7250_65d1--
+--=20
+Martin Schlemmer
+
+--=-1AG7uVCRUx3dkVYNHE/u
+Content-Disposition: attachment; filename=udev-015-logging-config-option.patch
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=udev-015-logging-config-option.patch; charset=UTF-8
+
+LS0tIHVkZXYtMDE1L01ha2VmaWxlCTIwMDQtMDEtMjkgMjA6MDM6NTUuOTIwODQyNzEyICswMjAw
+DQorKysgdWRldi0wMTUubG9nX29wdGlvbi9NYWtlZmlsZQkyMDA0LTAxLTI5IDIwOjIwOjA2Ljc1
+ODI1Mjk5MiArMDIwMA0KQEAgLTIzMiw2ICsyMzIsNyBAQA0KIAlAZWNobyBcI2RlZmluZSBVREVW
+X0NPTkZJR19GSUxFCVwiJChjb25maWdkaXIpXHVkZXYuY29uZlwiID4+ICRADQogCUBlY2hvIFwj
+ZGVmaW5lIFVERVZfUlVMRVNfRklMRQlcIiQoY29uZmlnZGlyKVx1ZGV2LnJ1bGVzXCIgPj4gJEAN
+CiAJQGVjaG8gXCNkZWZpbmUgVURFVl9QRVJNSVNTSU9OX0ZJTEUJXCIkKGNvbmZpZ2RpcilcdWRl
+di5wZXJtaXNzaW9uc1wiID4+ICRADQorCUBlY2hvIFwjZGVmaW5lIFVERVZfTE9HX0RFRkFVTFQg
+XCJ5ZXNcIiA+PiAkQA0KIA0KICMgY29uZmlnIGZpbGVzIGF1dG9tYXRpY2FsbHkgZ2VuZXJhdGVk
+DQogR0VOX0NPTkZJR1MgPQkkKExPQ0FMX0NGR19ESVIpL3VkZXYuY29uZg0KQEAgLTI1MiwxMiAr
+MjUzLDEyIEBADQogCSQoTEQpICQoTERGTEFHUykgLW8gJEAgJChDUlQwKSB1ZGV2aW5mby5vIGxv
+Z2dpbmcubyB1ZGV2X2NvbmZpZy5vIHVkZXZkYi5vICQoU1lTRlMpICQoVERCKSAkKExJQl9PQkpT
+KSAkKEFSQ0hfTElCX09CSlMpDQogCSQoU1RSSVBDTUQpICRADQogDQotJChEQUVNT04pOiB1ZGV2
+ZC5oIHVkZXZkLm8gdWRldmQubyBsb2dnaW5nLm8NCi0JJChMRCkgJChMREZMQUdTKSAtbyAkQCAk
+KENSVDApIHVkZXZkLm8gbG9nZ2luZy5vICQoTElCX09CSlMpICQoQVJDSF9MSUJfT0JKUykNCisk
+KERBRU1PTik6IHVkZXZkLmggdWRldmQubyB1ZGV2ZC5vIHVkZXZfY29uZmlnLm8gbG9nZ2luZy5v
+ICQoU1lTRlMpDQorCSQoTEQpICQoTERGTEFHUykgLW8gJEAgJChDUlQwKSB1ZGV2ZC5vIHVkZXZf
+Y29uZmlnLm8gbG9nZ2luZy5vICQoU1lTRlMpICQoTElCX09CSlMpICQoQVJDSF9MSUJfT0JKUykN
+CiAJJChTVFJJUENNRCkgJEANCiANCi0kKFNFTkRFUik6IHVkZXZkLmggdWRldnNlbmQubyB1ZGV2
+ZC5vIGxvZ2dpbmcubw0KLQkkKExEKSAkKExERkxBR1MpIC1vICRAICQoQ1JUMCkgdWRldnNlbmQu
+byBsb2dnaW5nLm8gJChMSUJfT0JKUykgJChBUkNIX0xJQl9PQkpTKQ0KKyQoU0VOREVSKTogdWRl
+dmQuaCB1ZGV2c2VuZC5vIHVkZXZkLm8gdWRldl9jb25maWcubyBsb2dnaW5nLm8gJChTWVNGUykN
+CisJJChMRCkgJChMREZMQUdTKSAtbyAkQCAkKENSVDApIHVkZXZzZW5kLm8gdWRldl9jb25maWcu
+byBsb2dnaW5nLm8gJChTWVNGUykgJChMSUJfT0JKUykgJChBUkNIX0xJQl9PQkpTKQ0KIAkkKFNU
+UklQQ01EKSAkQA0KIA0KIGNsZWFuOg0KLS0tIHVkZXYtMDE1L2V0Yy91ZGV2L3VkZXYuY29uZi5p
+bgkyMDA0LTAxLTI5IDE5OjU5OjA4LjI5NjU2ODI0OCArMDIwMA0KKysrIHVkZXYtMDE1LmxvZ19v
+cHRpb24vZXRjL3VkZXYvdWRldi5jb25mLmluCTIwMDQtMDEtMjkgMjA6MTU6MDEuODI0NjA5OTUy
+ICswMjAwDQpAQCAtMjksMyArMjksNiBAQA0KICMgICAgICAgICAgICAgICAgIGV4cGxpY2l0IG1h
+dGNoIGluIHRoZSBwZXJtaXNzaW9ucyBmaWxlDQogZGVmYXVsdF9ncm91cD0icm9vdCINCiANCisj
+IHVkZXZfbG9nIC0gc2V0IHRvICJ5ZXMiIGlmIHlvdSB3YW50IGxvZ2dpbmcsIGVsc2UgIm5vIg0K
+K3VkZXZfbG9nPSJ5ZXMiDQorDQotLS0gdWRldi0wMTUvdWRldl9jb25maWcuYwkyMDA0LTAxLTI5
+IDE5OjIwOjM0LjYzNDI5ODM3NiArMDIwMA0KKysrIHVkZXYtMDE1LmxvZ19vcHRpb24vdWRldl9j
+b25maWcuYwkyMDA0LTAxLTI5IDIwOjIyOjQ5Ljc3MTQ3MTIxNiArMDIwMA0KQEAgLTQ4LDYgKzQ4
+LDcgQEAgY2hhciB1ZGV2X2NvbmZpZ19maWxlbmFtZVtQQVRIX01BWCtOQU1FXw0KIGNoYXIgZGVm
+YXVsdF9tb2RlX3N0cltNT0RFX1NJWkVdOw0KIGNoYXIgZGVmYXVsdF9vd25lcl9zdHJbT1dORVJf
+U0laRV07DQogY2hhciBkZWZhdWx0X2dyb3VwX3N0cltHUk9VUF9TSVpFXTsNCitjaGFyIHVkZXZf
+bG9nX3N0cltCT09MX1NJWkVdOw0KIA0KIA0KIHN0YXRpYyB2b2lkIGluaXRfdmFyaWFibGVzKHZv
+aWQpDQpAQCAtNjAsNiArNjEsNyBAQCBzdGF0aWMgdm9pZCBpbml0X3ZhcmlhYmxlcyh2b2lkKQ0K
+IAlzdHJmaWVsZGNweSh1ZGV2X2NvbmZpZ19maWxlbmFtZSwgVURFVl9DT05GSUdfRklMRSk7DQog
+CXN0cmZpZWxkY3B5KHVkZXZfcnVsZXNfZmlsZW5hbWUsIFVERVZfUlVMRVNfRklMRSk7DQogCXN0
+cmZpZWxkY3B5KHVkZXZfcGVybWlzc2lvbnNfZmlsZW5hbWUsIFVERVZfUEVSTUlTU0lPTl9GSUxF
+KTsNCisJc3RyZmllbGRjcHkodWRldl9sb2dfc3RyLCBVREVWX0xPR19ERUZBVUxUKTsNCiB9DQog
+DQogI2RlZmluZSBzZXRfdmFyKF9uYW1lLCBfdmFyKQkJCQlcDQpAQCAtMTU2LDYgKzE1OCw3IEBA
+IHN0YXRpYyBpbnQgcGFyc2VfY29uZmlnX2ZpbGUodm9pZCkNCiAJCXNldF92YXIoImRlZmF1bHRf
+bW9kZSIsIGRlZmF1bHRfbW9kZV9zdHIpOw0KIAkJc2V0X3ZhcigiZGVmYXVsdF9vd25lciIsIGRl
+ZmF1bHRfb3duZXJfc3RyKTsNCiAJCXNldF92YXIoImRlZmF1bHRfZ3JvdXAiLCBkZWZhdWx0X2dy
+b3VwX3N0cik7DQorCQlzZXRfdmFyKCJ1ZGV2X2xvZyIsIHVkZXZfbG9nX3N0cik7DQogCX0NCiAJ
+ZGJnX3BhcnNlKCIlczolZDolWmQ6IGVycm9yIHBhcnNpbmcgJyVzJyIsIHVkZXZfY29uZmlnX2Zp
+bGVuYW1lLA0KIAkJICBsaW5lbm8sIHRlbXAgLSBsaW5lLCB0ZW1wKTsNCkBAIC0xOTEsNiArMTk0
+LDcgQEAgc3RhdGljIHZvaWQgZ2V0X2RpcnModm9pZCkNCiAJZGJnX3BhcnNlKCJ1ZGV2X2RiX2Zp
+bGVuYW1lID0gJXMiLCB1ZGV2X2RiX2ZpbGVuYW1lKTsNCiAJZGJnX3BhcnNlKCJ1ZGV2X3J1bGVz
+X2ZpbGVuYW1lID0gJXMiLCB1ZGV2X3J1bGVzX2ZpbGVuYW1lKTsNCiAJZGJnX3BhcnNlKCJ1ZGV2
+X3Blcm1pc3Npb25zX2ZpbGVuYW1lID0gJXMiLCB1ZGV2X3Blcm1pc3Npb25zX2ZpbGVuYW1lKTsN
+CisJZGJnX3BhcnNlKCJ1ZGV2X2xvZ19zdHIgPSAlcyIsIHVkZXZfbG9nX3N0cik7DQogCXBhcnNl
+X2NvbmZpZ19maWxlKCk7DQogDQogCWRiZ19wYXJzZSgidWRldl9yb290ID0gJXMiLCB1ZGV2X3Jv
+b3QpOw0KQEAgLTE5OCw2ICsyMDIsNyBAQCBzdGF0aWMgdm9pZCBnZXRfZGlycyh2b2lkKQ0KIAlk
+YmdfcGFyc2UoInVkZXZfZGJfZmlsZW5hbWUgPSAlcyIsIHVkZXZfZGJfZmlsZW5hbWUpOw0KIAlk
+YmdfcGFyc2UoInVkZXZfcnVsZXNfZmlsZW5hbWUgPSAlcyIsIHVkZXZfcnVsZXNfZmlsZW5hbWUp
+Ow0KIAlkYmdfcGFyc2UoInVkZXZfcGVybWlzc2lvbnNfZmlsZW5hbWUgPSAlcyIsIHVkZXZfcGVy
+bWlzc2lvbnNfZmlsZW5hbWUpOw0KKwlkYmdfcGFyc2UoInVkZXZfbG9nX3N0ciA9ICVzIiwgdWRl
+dl9sb2dfc3RyKTsNCiB9DQogDQogdm9pZCB1ZGV2X2luaXRfY29uZmlnKHZvaWQpDQotLS0gdWRl
+di0wMTUvbG9nZ2luZy5jCTIwMDQtMDEtMjkgMTk6MjA6NDAuNjczMzgwMjk2ICswMjAwDQorKysg
+dWRldi0wMTUubG9nX29wdGlvbi9sb2dnaW5nLmMJMjAwNC0wMS0yOSAyMDowMjo0MS4zMTYxODQz
+NDQgKzAyMDANCkBAIC0yNiw2ICsyNiw3IEBADQogI2luY2x1ZGUgPHVuaXN0ZC5oPg0KICNpbmNs
+dWRlIDxzeXNsb2cuaD4NCiANCisjaW5jbHVkZSAidWRldi5oIg0KICNpbmNsdWRlICJsb2dnaW5n
+LmgiDQogDQogDQpAQCAtNDcsNiArNDgsOSBAQCBpbnQgbG9nX21lc3NhZ2UoaW50IGxldmVsLCBj
+b25zdCBjaGFyICpmDQogew0KIAl2YV9saXN0CWFyZ3M7DQogDQorCWlmICgwICE9IHN0cm5jbXAo
+dWRldl9sb2dfc3RyLCAieWVzIiwgQk9PTF9TSVpFKSkNCisJCXJldHVybiAwOw0KKw0KIAlpZiAo
+IWxvZ2dpbmdfaW5pdCkNCiAJCWluaXRfbG9nZ2luZygpOw0KIAl2YV9zdGFydChhcmdzLCBmb3Jt
+YXQpOw0KLS0tIHVkZXYtMDE1L3VkZXYuaAkyMDA0LTAxLTI5IDIwOjAwOjQwLjQ3MzU1NTIxNiAr
+MDIwMA0KKysrIHVkZXYtMDE1LmxvZ19vcHRpb24vdWRldi5oCTIwMDQtMDEtMjkgMjA6MDM6MTYu
+MDk0ODk3MTc2ICswMjAwDQpAQCAtMzIsNiArMzIsNyBAQA0KICNkZWZpbmUgT1dORVJfU0laRQkz
+MA0KICNkZWZpbmUgR1JPVVBfU0laRQkzMA0KICNkZWZpbmUgTU9ERV9TSVpFCTgNCisjZGVmaW5l
+IEJPT0xfU0laRQk1DQogDQogc3RydWN0IHVkZXZpY2Ugew0KIAljaGFyIG5hbWVbTkFNRV9TSVpF
+XTsNCkBAIC03Miw1ICs3Myw2IEBAIGV4dGVybiBjaGFyIHVkZXZfcnVsZXNfZmlsZW5hbWVbUEFU
+SF9NQVgNCiBleHRlcm4gY2hhciBkZWZhdWx0X21vZGVfc3RyW01PREVfU0laRV07DQogZXh0ZXJu
+IGNoYXIgZGVmYXVsdF9vd25lcl9zdHJbT1dORVJfU0laRV07DQogZXh0ZXJuIGNoYXIgZGVmYXVs
+dF9ncm91cF9zdHJbR1JPVVBfU0laRV07DQorZXh0ZXJuIGNoYXIgdWRldl9sb2dfc3RyW0JPT0xf
+U0laRV07DQogDQogI2VuZGlmDQo=
+
+--=-1AG7uVCRUx3dkVYNHE/u--
+
+--=-wvNxtpymKvzsz4xA8YMt
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAGVE7qburzKaJYLYRAmkPAJ4hkbfnb54d93KfgGXLbF+PUkMVbACeKPlk
+88A+vNGArBaF5hpK24BHCpc=
+=TU+n
+-----END PGP SIGNATURE-----
+
+--=-wvNxtpymKvzsz4xA8YMt--
+

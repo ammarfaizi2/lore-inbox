@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291392AbSBHEC5>; Thu, 7 Feb 2002 23:02:57 -0500
+	id <S291393AbSBHED5>; Thu, 7 Feb 2002 23:03:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291393AbSBHECr>; Thu, 7 Feb 2002 23:02:47 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:15109
+	id <S291397AbSBHEDt>; Thu, 7 Feb 2002 23:03:49 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:15877
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S291392AbSBHECf>; Thu, 7 Feb 2002 23:02:35 -0500
-Date: Thu, 7 Feb 2002 19:53:11 -0800 (PST)
+	id <S291393AbSBHEDc>; Thu, 7 Feb 2002 23:03:32 -0500
+Date: Thu, 7 Feb 2002 19:54:09 -0800 (PST)
 From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Skip Ford <skip.ford@verizon.net>
-cc: linux-kernel@vger.kernel.org, garzik@havoc.gtf.org
-Subject: Re: Alpha update for 2.5.3
-In-Reply-To: <20020208015826.JIFG11848.out009.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
-Message-ID: <Pine.LNX.4.10.10202071952340.15165-100000@master.linux-ide.org>
+To: John Weber <weber@nyc.rr.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: linux 2.5.4-pre3 and IDE changes
+In-Reply-To: <3C634346.1010405@nyc.rr.com>
+Message-ID: <Pine.LNX.4.10.10202071953330.15165-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-That code path will go away!
-That is a diagnostic path only.
+I repeat that is a diagnostic layer and is to never be called from the
+kernel, it is a user-space only and will go away.
 
-On Thu, 7 Feb 2002, Skip Ford wrote:
+On Thu, 7 Feb 2002, John Weber wrote:
 
-> Jeff Garzik wrote:
-> > 
-> > Second comment, some of the bits in your patch are in 2.5.3-pre3.  [but
-> > drivers/ide/ide-dma.c does not compile for me, unrelated to alpha...]
+> The address member of struct scatterlist appears to have been changed to 
+> dma_address.
 > 
-> This patch Jens posted seems to fix it.
+> A simple s/\.address/\.dma_address/ should fix this compile error.
 > 
-> -- 
-> Skip
+> ide-dma.c: In function `ide_raw_build_sglist':
+> ide-dma.c:269: structure has no member named `address'
+> ide-dma.c:276: structure has no member named `address'
+> make[3]: *** [ide-dma.o] Error 1
+> make[3]: Leaving directory `/usr/src/linux-2.5.4/drivers/ide'
+> make[2]: *** [first_rule] Error 2
+> make[2]: Leaving directory `/usr/src/linux-2.5.4/drivers/ide'
+> make[1]: *** [_subdir_ide] Error 2
+> make[1]: Leaving directory `/usr/src/linux-2.5.4/drivers'
+> make: *** [_dir_drivers] Error 2
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
 Andre Hedrick

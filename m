@@ -1,41 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264909AbUGBT3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264908AbUGBT3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264909AbUGBT3N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 15:29:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264910AbUGBT3M
+	id S264908AbUGBT3E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 15:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264909AbUGBT3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 15:29:12 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:41390 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264909AbUGBT3J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 15:29:09 -0400
-Date: Fri, 2 Jul 2004 14:29:06 -0500
-From: linas@austin.ibm.com
-To: paulus@au1.ibm.com, paulus@samba.org
-Cc: linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6 PPC64 Power5 PCI boot fixes
-Message-ID: <20040702142906.X21634@forte.austin.ibm.com>
+	Fri, 2 Jul 2004 15:29:04 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:33603 "HELO mproxy.gmail.com")
+	by vger.kernel.org with SMTP id S264908AbUGBT3C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 15:29:02 -0400
+Message-ID: <5ce509fc0407021228277c3bfa@mail.gmail.com>
+Date: Fri, 2 Jul 2004 12:28:42 -0700
+From: Steve Best <creamygoodness@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: BitKeeper question
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi folks, I am looking to programatically pull the latest snapshot of
+the bitkeeper repository on a daily basis, and also track all changes
+to the tree.  I downloaded BitKeeper and was wondering how I configure
+it to achieve this.  I dont need specific commands, I can look those
+up myself in the documentation, I am looking for configuration
+settings.
 
+TIA!
 
-Paul,
-
-Please review and forward upstream the following PCI EEH patch.
-
-This patch allows ppc64 to boot on the Power5 architecture.  The 
-new Power5 PCI bridge design requires EEH to be enabled for all PCI
-devices, not just some PCI devices.  In addition, this patch moves
-the check for PCI to ISA bridges out of perf critical code, and into
-initialization code.   This also avoids race conditions where the 
-device type might not have been set.  Also, some whitespace fixes, 
-and some error-message-printing beautification. 
-
-Signed-off-by: Linas Vepstas <linas@linas.org>
-
---linas
+Cheers,
+Steve Best
+Linux Systems Administrator

@@ -1,62 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265233AbRF0D6p>; Tue, 26 Jun 2001 23:58:45 -0400
+	id <S265245AbRF0EAp>; Wed, 27 Jun 2001 00:00:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265237AbRF0D6f>; Tue, 26 Jun 2001 23:58:35 -0400
-Received: from adsl-63-198-73-118.dsl.lsan03.pacbell.net ([63.198.73.118]:26351
-	"HELO hellman.xman.org") by vger.kernel.org with SMTP
-	id <S265233AbRF0D6W>; Tue, 26 Jun 2001 23:58:22 -0400
-Date: Tue, 26 Jun 2001 20:56:27 -0700
-From: Christopher Smith <x@xman.org>
-To: Dan Kegel <dank@kegel.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: A signal fairy tale
-Message-ID: <33240000.993614187@hellman>
-In-Reply-To: <3B38860D.8E07353D@kegel.com>
-X-Mailer: Mulberry/2.0.8 (Linux/x86 Demo)
+	id <S265242AbRF0EAf>; Wed, 27 Jun 2001 00:00:35 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:42977 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S265237AbRF0EAS>;
+	Wed, 27 Jun 2001 00:00:18 -0400
+Message-ID: <3B395A7A.848908C@mandrakesoft.com>
+Date: Wed, 27 Jun 2001 00:00:58 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: David T Eger <eger@cc.gatech.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCI Power Management / Interrupt Context
+In-Reply-To: <Pine.SOL.4.21.0106262208240.3824-100000@oscar.cc.gatech.edu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Tuesday, June 26, 2001 05:54:37 -0700 Dan Kegel <dank@kegel.com> wrote:
-> Once upon a time a hacker named Xman
-> wrote a library that used aio, and decided
-> to use sigtimedwait() to pick up completion
-> notifications.  It worked well, and his I/O
-> was blazing fast (since was using a copy
-> of Linux that was patched to have good aio).
-> But when he tried to integrate his library
-> into a large application someone else had
-> written, woe! that application's use of signals
-> conflicted with his library.  "Fsck!" said Xman.
-> At that moment a fairy appeared, and said
-> "Young man, watch your language, or I'm going to
-> have to turn you into a goon!  I'm the good fairy Eunice.
-> Can I help you?"  Xman explained his problem to Eunice,
-> who smiled and said "All you need is right here,
-> just type 'man 2 sigopen'".  Xman did, and saw:
+David T Eger wrote:
+> when I read documentation (Documentation/pci.txt) which mentions that
+> remove() can be called from interrupt context.
 
-I must thank the god fair Eunice. ;-) From a programming standpoint, this 
-looks like a really nice approach. I must say I prefer this approach to the 
-various "event" strategies I've seen to date, as it fixes the primary 
-problem with signals, while still allowing us to hook in to all the 
-standard POSIX API's that already use signals. It'd be nice if I could pass 
-in a 0 for signum and have the kernel select from unused signals (problem 
-being that "unused" is not necessarily easy to define), althouh I guess an 
-inefficient version of this could be handled in userland.
+ignore that.  You can sleep in remove, and it will not be called from
+interrupt context.
 
-I presume the fd could be shared between threads and otherwise behave like 
-a normal fd, which would be sooooper nice.
 
-I guess the main thing I'm thinking is this could require some significant 
-changes to the way the kernel behaves. Still, it's worth taking a "try it 
-and see approach". If anyone else thinks this is a good idea I may hack 
-together a sample patch and give it a whirl.
+> Reading code in my sister frame buffer devices, I see that
+> unregister_framebuffer() can fail.  I can easily see a nice happy console
+> or user app diddling away on the framebuffer writing to the memory on the
+> device, and then poof! someone yanks the card, processor takes an
+> interrupt, and then... and then?  what to do?
 
-Thanks again good fairy Dan/Eunice. ;-)
+if someone yanks the card, how is it going to deliver an interrupt to
+the CPU?
 
---Chris
 
+> In fact, here's an interesting snippet from cyber2000fb.c:
+> 
+> static void __devexit cyberpro_remove(struct pci_dev *dev)
+> {
+>         struct cfb_info *cfb = (struct cfb_info *)dev->driver_data;
+> 
+>         if (cfb) {
+>         /*
+>         * If unregister_framebuffer fails, then
+>         * we will be leaving hooks that could cause
+>         * oopsen laying around.
+>         */
+>         if (unregister_framebuffer(&cfb->fb))
+>                 printk(KERN_WARNING "%s: danger Will Robinson, "
+>                         "danger danger!  Oopsen imminent!\n",
+>         cfb->fb.fix.id);
+>         cyberpro_unmap_smem(cfb);
+>         cyberpro_unmap_mmio(cfb);
+>         cyberpro_free_fb_info(cfb);
+> 
+>         /*
+>         * Ensure that the driver data is no longer
+>         * valid.
+>         */
+>         dev->driver_data = NULL;
+>         if (cfb == int_cfb_info)
+>         int_cfb_info = NULL;
+>         }
+> }
+> 
+> So, umm, is there a consensus on what to do if someone currently expects
+> to be writing to memory that doesn't exist any more?
+
+huh?  what are you talking about?  oops or random memory corruption
+occurs.  there is no consensus necessary.
+
+If you are worried about unregister_framebuffer failure, then don't
+deallocate the memory, or sleep until unregister_framebuffer succeeds,
+or any one of a number of workarounds.
+
+	Jeff
+
+
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

@@ -1,38 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131524AbRCUPGb>; Wed, 21 Mar 2001 10:06:31 -0500
+	id <S131525AbRCUPIl>; Wed, 21 Mar 2001 10:08:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131525AbRCUPGV>; Wed, 21 Mar 2001 10:06:21 -0500
-Received: from www.wen-online.de ([212.223.88.39]:14852 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S131524AbRCUPGH>;
-	Wed, 21 Mar 2001 10:06:07 -0500
-Date: Wed, 21 Mar 2001 16:05:20 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Matthias Urlichs <smurf@noris.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
-In-Reply-To: <1eqmmju.3cit2gby1becM%smurf@noris.de>
-Message-ID: <Pine.LNX.4.33.0103211601400.1565-100000@mikeg.weiden.de>
+	id <S131526AbRCUPIb>; Wed, 21 Mar 2001 10:08:31 -0500
+Received: from cs.rice.edu ([128.42.1.30]:62392 "EHLO cs.rice.edu")
+	by vger.kernel.org with ESMTP id <S131525AbRCUPIR>;
+	Wed, 21 Mar 2001 10:08:17 -0500
+From: Bradley Broom <broom@rice.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Bug-report: SCSI related hang doing INQUIRY (DC390 card, 2.4.x kernels)
+Date: Wed, 21 Mar 2001 08:44:48 -0600
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <0103210907340D.13559@dustbin.cs.rice.edu>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Mar 2001, Matthias Urlichs wrote:
 
-> > > I frequently build Mozilla from scratch on my (aging) dual Celeron
-> > > machine.  [...]
-> > >     real    60m4.574s
-> > >     user    101m18.260s  <-- impossible no?
-> > >     sys     3m23.520s
-> >
-> > Why do numbers like this show up?  I noticed some of this after having
-> > enabled SMP on my UP box.
-> >
-> Now why would that be impossible on a two-CPU system?
+Summary: My system freezes *completely* when doing an INQUIRY under 2.4.x
+kernels. SCSI card is a Tekram DC390. Only inquiries to the DISK device cause a
+hang, others succeed.
 
-zzzt.  Right.. impossible on a UP box.
+System details: AMD K63-400MHz, 128 Mb RAM, 1 IDE drive, 1 SCSI controller
+(DC390) plus (output of cat /proc/scsi/scsi):
+Attached devices: 
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: QUANTUM  Model: FIREBALL ST4.3S  Rev: 0F0C
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 01 Lun: 00
+  Vendor: TOSHIBA  Model: CD-ROM XM-6401TA Rev: 1009
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 03 Lun: 00
+  Vendor: YAMAHA   Model: CRW8824S         Rev: 1.00
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 05 Lun: 00
+  Vendor: UMAX     Model: Astra 2200       Rev: V2.3
+  Type:   Scanner                          ANSI SCSI revision: 02
 
-	-Mike
+
+Sending an INQUIRY to the first device in the above list causes
+the system to hang. No error messages, no oops, nothing.
+This occurs with both cdrecord -scanbus and find-scanner (from SANE).
+Using find-scanner, I can send INQUIRIES to only the last three devices without
+problems. Sending an INQUIRY to just the first will hang the system.
+
+This occurs under 2.4.0-4G (from standard SUSE 7.1 installation) and 2.4.2, the
+latter both with and without the SCSI subsystem compiled as modules. There are
+no problems under 2.2.18.
+
+Any help would be greatly appreciated. I'm not subscribed to the list, so
+please explicitly email me any replies straw_broom@rice.edu (removing straw_
+first).
+
+Thanks,
+
+Bradley Broom                              
 

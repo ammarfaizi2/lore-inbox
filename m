@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313504AbSDPCcf>; Mon, 15 Apr 2002 22:32:35 -0400
+	id <S313500AbSDPCdL>; Mon, 15 Apr 2002 22:33:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313530AbSDPCcf>; Mon, 15 Apr 2002 22:32:35 -0400
-Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:2824 "HELO
-	osinvestor.com") by vger.kernel.org with SMTP id <S313504AbSDPCce>;
-	Mon, 15 Apr 2002 22:32:34 -0400
-Date: Mon, 15 Apr 2002 22:32:28 -0400 (EDT)
-From: Rob Radez <rob@osinvestor.com>
-X-X-Sender: <rob@pita.lan>
-To: <linux-kernel@vger.kernel.org>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        "David S. Miller" <davem@redhat.com>
-Subject: [RFC] Making drivers/char/watchdog
-Message-ID: <Pine.LNX.4.33.0204152222100.17511-100000@pita.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313530AbSDPCdK>; Mon, 15 Apr 2002 22:33:10 -0400
+Received: from bitmover.com ([192.132.92.2]:35256 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S313500AbSDPCdJ>;
+	Mon, 15 Apr 2002 22:33:09 -0400
+Date: Mon, 15 Apr 2002 19:33:08 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Ben Greear <greearb@candelatech.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: bk://linux.bkbits.net/linux-2.4 busted
+Message-ID: <20020415193308.E5465@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Ben Greear <greearb@candelatech.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CBB795E.7080902@candelatech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This e-mail probably doesn't affect 99% of you out there, but it's coming
-into your inboxes anyways :-).  How would people feel about moving the
-22 watchdog drivers into their own subdirectory off of drivers/char/ in
-both 2.4 and 2.5?  (Well, 2.5 only has 18 at the moment, but I'm planning
-on adding the 4 2.4-only drivers to 2.5 once updating 2.4 is done)
+On Mon, Apr 15, 2002 at 06:07:42PM -0700, Ben Greear wrote:
+> Feeling lucky, I tried pulling down the bkbits linux-2.4
+> repository.  It does not compile as usual:
 
-I've received a bunch of inquiries about breaking them into their own
-subdirectory.  At the moment there are 20 watchdog drivers in
-drivers/char/ and 2 in drivers/sbus/char/ in 2.4, and 16 in drivers/char/
-and 2 in drivers/sbus/char/ in 2.5.  I think putting them all into one
-place will make them easier to maintain, more standardized, and less
-buggy.
-
-Regards,
-Rob Radez
-
-
+I just cloned it back to the 2.4.18 tag and built it for a 
+server class athlon config and it seems to be working.  FWIW.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,32 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbUDTKMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262448AbUDTKRk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262382AbUDTKMd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 06:12:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbUDTKMd
+	id S262448AbUDTKRk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 06:17:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbUDTKRk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 06:12:33 -0400
-Received: from h020.c000.snv.cp.net ([209.228.32.84]:10916 "HELO
-	c000.snv.cp.net") by vger.kernel.org with SMTP id S262382AbUDTKMc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 06:12:32 -0400
-X-Sent: 20 Apr 2004 10:12:31 GMT
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
+	Tue, 20 Apr 2004 06:17:40 -0400
+Received: from main.gmane.org ([80.91.224.249]:12681 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262448AbUDTKRh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 06:17:37 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-From: dag@bakke.com
-Subject: Re: Total freeze switching X->fb (matrox)
-X-Sent-From: dag@bakke.com
-Date: Tue, 20 Apr 2004 03:12:31 -0700 (PDT)
-X-Mailer: Web Mail 5.6.3-1
-Message-Id: <20040420031231.21166.h014.c000.wm@mail.bakke.com.criticalpath.net>
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: standart events for hotkeys?
+Date: Tue, 20 Apr 2004 12:17:28 +0200
+Message-ID: <MPG.1aef16eec318a14d989695@news.gmane.org>
+References: <200404200042.24671.cijoml@volny.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: oblomov.dipmat.unict.it
+X-Newsreader: MicroPlanet Gravity v2.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try a patch from here:
+Michal Semler (volny.cz) wrote:
+> Hi guys,
+> 
+> I have a question related to keyboard and hotkeys.
+> 
+> Does any standart exist for hotkeys and their returned events?
+> I have 2 keyboards with hotkeys, one on laptop (acerhk operated) and one 
+> wireless (BlueZ bthid operated) and both returns different codes in xev when 
+> same keys are pressed
+> 
+> mail
+> browser
+> etc.
+> 
+> Maybe these should be standardised in all drivers? Can we start same kind of 
+> list, where will be all events stored and then translated by all drivers the 
+> same?
+> 
+> Now users can't use one hotkeys configuration on different keyboards so these 
+> could be renamed to hellkeys :)
+> 
+> Your opinions?
 
-http://platan.vc.cvut.cz/ftp/pub/linux/matrox-latest/
-WFM(tm)
+X already has codes for many of the hotkeys defined in. They have 
+names like XF86AudioMute etc. The inet rules define the proper 
+scancode -> keycode assignment for X for many keyboards modules.
 
-Kudos to Petr V. for maintaining the patch.
+Yes, I think it would be an interesting idea to have some kind of 
+standardization of this for the Linux kernel as well, but before 
+thinking about this (or at the same time) it would be nice if we 
+could fix the bug in the atkbd driver that makes some of the hotkeys 
+that use extended keycodes inaccessible or "shifty".
+
+-- 
+Giuseppe "Oblomov" Bilotta
+
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
+

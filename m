@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261803AbVDAIrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVDAItA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261803AbVDAIrR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 03:47:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVDAIqT
+	id S261612AbVDAItA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 03:49:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbVDAIs7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 03:46:19 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:18377 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261612AbVDAIqJ (ORCPT
+	Fri, 1 Apr 2005 03:48:59 -0500
+Received: from fire.osdl.org ([65.172.181.4]:62146 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261612AbVDAIsg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 03:46:09 -0500
-Date: Fri, 1 Apr 2005 10:45:59 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix atyfb build on ppc
-In-Reply-To: <200503311828.j2VISgPd028711@hera.kernel.org>
-Message-ID: <Pine.LNX.4.62.0504011045030.6801@numbat.sonytel.be>
-References: <200503311828.j2VISgPd028711@hera.kernel.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 1 Apr 2005 03:48:36 -0500
+Date: Fri, 1 Apr 2005 00:48:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: johnpol@2ka.mipt.ru
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cn_queue.c
+Message-Id: <20050401004804.52519e17.akpm@osdl.org>
+In-Reply-To: <1112344811.9334.146.camel@uganda>
+References: <20050331173215.49c959a0.akpm@osdl.org>
+	<1112341236.9334.97.camel@uganda>
+	<20050331235706.5b5981db.akpm@osdl.org>
+	<1112344811.9334.146.camel@uganda>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Mar 2005, Linux Kernel Mailing List wrote:
+Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+>
+>  New object has 0 reference counter when created.
+>  If some work is appointed to the object, then it's counter is atomically
+>  incremented. It is decremented when the work is finished.
+>  If object is supposed to be removed while some work
+>  may be appointed to it, core ensures that no work _is_ appointed, 
+>  and atomically disallows[for example removing workqueue, removing
+>  callback, all with appropriate locks being hold] 
+>  any other work appointment for the given object.
+>  After it [when no work can be appointed to the object] if object
+>  still has pending work [and thus has it's refcounter not zero], 
+>  removing path waits untill appropriate refcnt hits zero. 
+>  Since no _new_ work can be appointed at that level it is just
+>  while (atomic_read(refcnt) != 0)
+>    msleep();
 
-> ChangeSet 1.2305, 2005/03/31 08:49:44-08:00, benh@kernel.crashing.org
-> 
-> 	[PATCH] Fix atyfb build on ppc
-> 	
-> 	This patch fixes a build problem with atyfb on ppc.  It uses the stuff in
-> 	macmodes.c, but doesn't trigger the build of it.  So if no other driver
-> 	using macmodes is built, the link will fail.
-> 	
-> 	Signed-off-by: David Woodhouse <dwmw2@infradead.org>
-> 	Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> 	Signed-off-by: Andrew Morton <akpm@osdl.org>
-> 	Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-> 
-> 
-> 
->  Makefile |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> 
-> diff -Nru a/drivers/video/Makefile b/drivers/video/Makefile
-> --- a/drivers/video/Makefile	2005-03-31 10:28:55 -08:00
-> +++ b/drivers/video/Makefile	2005-03-31 10:28:55 -08:00
-> @@ -30,8 +30,8 @@
->  obj-$(CONFIG_FB_MATROX)		  += matrox/
->  obj-$(CONFIG_FB_RIVA)		  += riva/ vgastate.o
->  obj-$(CONFIG_FB_NVIDIA)		  += nvidia/
-> -obj-$(CONFIG_FB_ATY)		  += aty/
-> -obj-$(CONFIG_FB_ATY128)		  += aty/
-> +obj-$(CONFIG_FB_ATY)		  += aty/ macmodes.o
-> +obj-$(CONFIG_FB_ATY128)		  += aty/ macmodes.o
->  obj-$(CONFIG_FB_RADEON)		  += aty/
->  obj-$(CONFIG_FB_SIS)		  += sis/
->  obj-$(CONFIG_FB_KYRO)             += kyro/
+More like:
 
-Isn't this one obsoleted by `fbdev: Kconfig fix for macmodes and PPC', which
-also went in?
+	while (atomic_read(&obj->refcnt))
+		msleep();
+	kfree(obj);
 
-Gr{oetje,eeting}s,
+which introduces the possibility of someone grabbing a new ref on the
+object just before the kfree().  If there is no means by which any other
+actor can acquire a ref to this object then OK, no race.
 
-						Geert
+But it's rather surprising that such a thing can be achieved without any
+locking.  What happens if another CPU has just entered
+cn_queue_del_callback(), for example?  It has a live cn_callback_entry in
+`cbq' which has a zero refcount - cn_queue_free_dev() can throw it away.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

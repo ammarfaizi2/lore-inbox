@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262410AbTJAQZo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 12:25:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbTJAQVS
+	id S262241AbTJAQW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 12:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbTJAQVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 12:21:18 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:58600 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262410AbTJAQTh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 12:19:37 -0400
-Date: Wed, 1 Oct 2003 18:16:13 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Catalin BOIE <util@deuroconsult.ro>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: chstk - URL?
-In-Reply-To: <Pine.LNX.4.58.0310011223260.22797@hosting.rdsbv.ro>
-Message-ID: <Pine.LNX.4.56.0310011804050.5615@localhost.localdomain>
-References: <Pine.LNX.4.58.0310011218290.22797@hosting.rdsbv.ro>
- <Pine.LNX.4.58.0310011223260.22797@hosting.rdsbv.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Oct 2003 12:21:51 -0400
+Received: from mailwasher.lanl.gov ([192.16.0.25]:45462 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S262241AbTJAQUl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 12:20:41 -0400
+Subject: [PATCH] [TRIVIAL 8/12] 2.6.0-test6-bk remove reference to
+	modules.txt in net/irda/irnet/Kconfig
+From: Steven Cole <elenstev@mesatop.com>
+To: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Content-Type: text/plain
+Organization: 
+Message-Id: <1065025174.1995.2417.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 01 Oct 2003 10:19:35 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch removes the reference to Documentation/modules.txt,
+which has been removed.  The patch was made against the current
+2.6-bk tree.
 
-On Wed, 1 Oct 2003, Catalin BOIE wrote:
+Steven
 
-> I use kernel 2.6.0-test6-mm1 with ecec-shield and X gives me sig 11.
+--- 2.6-bk-current/net/irda/irnet/Kconfig	2003-09-30 21:09:21.000000000 -0600
++++ linux/net/irda/irnet/Kconfig	2003-09-30 22:14:29.000000000 -0600
+@@ -2,11 +2,13 @@
+ 	tristate "IrNET protocol"
+ 	depends on IRDA && PPP
+ 	help
+-	  Say Y here if you want to build support for the IrNET protocol.  If
+-	  you want to compile it as a module (irnet), say M here and read
+-	  <file:Documentation/modules.txt>.  IrNET is a PPP driver, so you
+-	  will also need a working PPP subsystem (driver, daemon and
+-	  config)...
++	  Say Y here if you want to build support for the IrNET protocol.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called irnet.
++
++	  IrNET is a PPP driver, so you will also need a working PPP
++	  subsystem (driver, daemon and config).
+ 
+ 	  IrNET is an alternate way to tranfer TCP/IP traffic over IrDA.  It
+ 	  uses synchronous PPP over a set of point to point IrDA sockets.  You
 
-for security reasons it's not possible to disable exec-shield for setuid
-root processes (such as X). So the solution either to upgrade X to have
-the fix or to switch off exec-shield when you start up X, and switch on
-exec-shield afterwards. A bit painful the later method ...
 
-(alternatively you can also disable the setuid-root protection in the
-kernel, remove the two 'current->personality = PER_LINUX' lines from
-fs/exec.c and recompile the kernel.)
 
-> A program must be compiled with new gcc to work with exec-shield and
-> without chstk?
 
-no. The X segmenation fault is because the X module loader malloc()s
-buffers for code and expects them to be executable. Those buffers were
-non-executable on other architectures already, so the fix is really simple
-- a oneliner #ifdef or so.
 
-	Ingo
+
+

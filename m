@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265249AbTAEUhc>; Sun, 5 Jan 2003 15:37:32 -0500
+	id <S265130AbTAEUme>; Sun, 5 Jan 2003 15:42:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265250AbTAEUhc>; Sun, 5 Jan 2003 15:37:32 -0500
-Received: from holomorphy.com ([66.224.33.161]:28882 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S265249AbTAEUhb>;
-	Sun, 5 Jan 2003 15:37:31 -0500
-Date: Sun, 5 Jan 2003 12:45:51 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jason Papadopoulos <jasonp@boo.net>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rewritten page coloring for 2.4.20 kernel
-Message-ID: <20030105204551.GK9704@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jason Papadopoulos <jasonp@boo.net>, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org
-References: <200301051603.LAA18650@boo-mda02.boo.net> <200301051603.LAA18650@boo-mda02.boo.net> <3.0.6.32.20030105150405.007dead0@boo.net>
+	id <S265134AbTAEUme>; Sun, 5 Jan 2003 15:42:34 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:44419
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265130AbTAEUmd>; Sun, 5 Jan 2003 15:42:33 -0500
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: hps@intermeta.de
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <ava580$g2a$1@forge.intermeta.de>
+References: <20030102013736.GA2708@gnuppy.monkey.org>
+	 <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org>
+	 <20030102055859.GA3991@gnuppy.monkey.org>
+	 <20030102061430.GA23276@mark.mielke.cc>
+	 <E18UIZS-0006Cr-00@fencepost.gnu.org>
+	 <20030103040612.GA10651@work.bitmover.com>
+	 <20030104220651.GA30907@merlin.emma.line.org>
+	 <20030104222330.GA1386@work.bitmover.com>
+	 <20030105101413.GC14362@louise.pinerecords.com>
+	 <ava580$g2a$1@forge.intermeta.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1041802518.15071.0.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3.0.6.32.20030105150405.007dead0@boo.net>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 05 Jan 2003 21:35:19 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:34 AM 1/5/03 -0800, you wrote:
->> What kind of Alpha? Got an oops/backtrace?
->> I probably can't reproduce it directly since my Alpha's diskless.
+On Sun, 2003-01-05 at 20:40, Henning P. Schmiedehausen wrote:
+> Tomas Szepe <szepe@pinerecords.com> writes:
+> 
+> >Even if I overlook that you're effectively comparing the incomparable,
+> >Microsoft making 370 times more than RedHat says _nothing_ about their
+> >actual achievement in terms of software development.  Should you insist
+> 
+> You might simply open your eyes and look around you before you utter
+> such ridicioulous statements.
 
-On Sun, Jan 05, 2003 at 03:04:05PM -0500, Jason Papadopoulos wrote:
-> The machine in question is a DS10 Alphaserver (DP264 type chipset) using an
-> ALI M5229 rev c1 IDE controller (uses the ALI 15x3 driver). The stock 2.5.53
-> kernel panics at boot time because it can't find the root partition; when I
-> first reported the problem, one of the maintainers passed on a patch that
-> resolved some 2.5 IDE issues. With the patch in place, the boot process gets
-> farther along but occaisionally there will be a printout that hda lost an 
-> interrupt. I don't know how far it really gets, because I gave up after other
-> subsystems started reporting errors.
-> I haven't tried 2.5.54, either. I will shortly.
-> Is 2.4 really in bug-fix mode now? 2.4.19 and 2.4.20 were huge patches.
+Your grep is faulty. Linux community members contribute to RFC's under their own names.
 
-Sounds like a job for the IDE crew, who appear to know there are
-pending ali + Alpha issues.
+Try again
 
-
-Bill

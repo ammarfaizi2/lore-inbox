@@ -1,39 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264724AbUEPSK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264746AbUEPSKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264724AbUEPSK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 14:10:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264735AbUEPSK2
+	id S264746AbUEPSKT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 14:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264735AbUEPSKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 14:10:28 -0400
-Received: from mail.scsiguy.com ([63.229.232.106]:61700 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S264724AbUEPSKX
+	Sun, 16 May 2004 14:10:19 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:1670 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264724AbUEPSKQ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 14:10:23 -0400
-Date: Sun, 16 May 2004 12:10:12 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Etienne Vogt <etienne.vogt@obspm.fr>, linux-kernel@vger.kernel.org
-Subject: Re: aic79xx trouble
-Message-ID: <3436150000.1084731012@aslan.btc.adaptec.com>
-In-Reply-To: <Pine.LNX.4.58.0405161930260.2851@siolinb.obspm.fr>
-References: <200405132125.28053.bernd.schubert@pci.uni-heidelberg.de> <200405132136.32703.bernd.schubert@pci.uni-heidelberg.de> <Pine.LNX.4.58.0405161930260.2851@siolinb.obspm.fr>
-X-Mailer: Mulberry/3.1.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Sun, 16 May 2004 14:10:16 -0400
+Subject: Re: 2.6.6 breaks kmail (nfs related?)
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andreas Amann <amann@physik.tu-berlin.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1084730382.3764.7.camel@lade.trondhjem.org>
+References: <200405131411.52336.amann@physik.tu-berlin.de>
+	 <Pine.LNX.4.58.0405152142400.25502@ppc970.osdl.org>
+	 <1084730382.3764.7.camel@lade.trondhjem.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1084731015.3764.10.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 16 May 2004 14:10:15 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  The Adaptec Ultra320 cards (aic79xx) do not work reliably on Tyan Thunder
-> motherboards.
+På su , 16/05/2004 klokka 13:59, skreiv Trond Myklebust:
+> Andreas are both the server and the client running 2.6.6? If so, which
+> do you have to downgrade to 2.6.4 in order to get rid of the error?
 
-The U320 chips likely work a lot better now if you use driver version 2.0.12.
-The AMD chipsets seem to screw up split completions, and this version of
-the driver avoids the issue for the most common case of triggering the
-bug (transaction completion DMAs) by never crossing an ADB boundary with
-a single DMA.
+Oh... Another thing that would be useful: mount options please...
 
---
-Justin
-
+Cheers,
+  Trond

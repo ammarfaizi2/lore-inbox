@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130669AbQKPRbp>; Thu, 16 Nov 2000 12:31:45 -0500
+	id <S131046AbQKPRfp>; Thu, 16 Nov 2000 12:35:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130373AbQKPRbf>; Thu, 16 Nov 2000 12:31:35 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:28173 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130669AbQKPRbZ>; Thu, 16 Nov 2000 12:31:25 -0500
-Date: Thu, 16 Nov 2000 09:01:07 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: schwidefsky@de.ibm.com
-cc: mingo@chiara.elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: Memory management bug
-In-Reply-To: <C1256999.005B8F06.00@d12mta07.de.ibm.com>
-Message-ID: <Pine.LNX.4.10.10011160856010.2184-100000@penguin.transmeta.com>
+	id <S131138AbQKPRff>; Thu, 16 Nov 2000 12:35:35 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:24071 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S131046AbQKPRfZ>;
+	Thu, 16 Nov 2000 12:35:25 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200011161705.UAA03238@ms2.inr.ac.ru>
+Subject: Re: Local root exploit with kmod and modutils > 2.1.121
+To: alan@lxorguk.UKuu.ORG.UK (Alan Cox)
+Date: Thu, 16 Nov 2000 20:05:05 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E13wRWU-0007yG-00@the-village.bc.nu> from "Alan Cox" at Nov 16, 0 07:15:02 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-
-On Thu, 16 Nov 2000 schwidefsky@de.ibm.com wrote:
+> > request_module has the same effect as running suid.  dev_load() can
+> > take the interface name and pass it to modprobe unchanged and modprobe
+> > does not verify its input, it trusts root/kernel.
 > 
-> Ok, the BUG() hit in get_pmd_slow:
-> 
-> pmd_t *
-> get_pmd_slow(pgd_t *pgd, unsigned long offset)
-> {
->         pmd_t *pmd;
->         int i;
-> 
->         pmd = (pmd_t *) __get_free_pages(GFP_KERNEL,2);
+> Then dev_load is being called the wrong way. In older kernels we explicitly
+> only did a dev_load with user passed names providing suser() was true.
 
-You really need 4 pages?
+It checks CAP_SYS_MODULE nowadays.
 
-There's no way to reliably get 4 consecutive pages when you're even close
-to being low on memory. I would suggest just failing with a NULL return
-here.
+Which does not look good by the way, it is function of request_module(),
+rather than of caller.
 
-What is the architecture setup for this machine? I have no clue about
-S/390 memory management. Maybe you can modify the pmd layout?
-
-One potential fix for this is to just make the page size bigger. Make
-"Linux pages" be _two_ hardware pages, and make a Linux pte contain two
-"hardware pte's". That way the pmd would be an order-1 allocation instead
-of an order-2 one. Which is statistically _much_ more likely to be around
-(exponential distribution).
-
-		Linus
-
-
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

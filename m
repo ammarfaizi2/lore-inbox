@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbTHXUvO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 16:51:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbTHXUvO
+	id S261317AbTHXVAw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 17:00:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbTHXVAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 16:51:14 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:26102 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261300AbTHXUvN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 16:51:13 -0400
-Message-ID: <3F49252E.5040900@comcast.net>
-Date: Sun, 24 Aug 2003 16:50:54 -0400
-From: David van Hoose <david.vanhoose@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.22-rc3
-References: <Pine.LNX.4.55L.0308231429530.19769@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.55L.0308231429530.19769@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 24 Aug 2003 17:00:52 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:35028 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S261317AbTHXU7q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 16:59:46 -0400
+Date: Sun, 24 Aug 2003 22:59:38 +0200 (MEST)
+Message-Id: <200308242059.h7OKxcCD028193@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: smiler@lanil.mine.nu, zwane@linuxpower.ca
+Subject: Re: Pentium-M?
+Cc: barryn@pobox.com, linux-kernel@vger.kernel.org, lkml@kcore.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> Hi,
-> 
-> Here goes -rc3, with several fixes. The ACPI changes should fix most of
-> well known ACPI issues: Please test it.
+On Sun, 24 Aug 2003 22:20:13 +0200, Christian Axelsson <smiler@lanil.mine.nu> wrote:
+>Hmm.. I have compiled my whole system with -march=pentium4 and yet not 
+>had a single breakage. Are you sure that this is p3?
 
-ACPI is still working perfectly for me on my Asus P4S8X. No USB or 
-ethernet problems like with 2.6. No odd ACPI warnings or non-fatal 
-errors either.
-Whatever these fixes are, they should also go in 2.6 ASAP. :-)
+Oh yes. The core is most definitely P6+tweaks and not NetBurst.
+This can be deduced from facts like:
+- CPUID family is 6 not 15
+- performance counter architecture is like PIII with some minor
+  tweaks but definitely nothing like P4
+- treated separately from NetBurst in code optimization manual
 
-Rock on!
-David
+The reason compiling with -march=pentium4 doesn't break is that
+the differences ISA-wise are almost nil.
 
+/Mikael

@@ -1,70 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269640AbUJLLgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269622AbUJLLiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269640AbUJLLgP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 07:36:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269624AbUJLLgP
+	id S269622AbUJLLiu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 07:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269632AbUJLLit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 07:36:15 -0400
-Received: from 221-169-69-23.adsl.static.seed.net.tw ([221.169.69.23]:15564
-	"EHLO cola.voip.idv.tw") by vger.kernel.org with ESMTP
-	id S269640AbUJLLdf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 07:33:35 -0400
-Subject: Re: [patch] VP-2.6.9-rc4-mm1-T6
-From: Wen-chien Jesse Sung <jesse@cola.voip.idv.tw>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>,
-       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com
-In-Reply-To: <20041012103512.GA24836@elte.hu>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
-	 <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu>
-	 <1097573492.6157.26.camel@libra>  <20041012103512.GA24836@elte.hu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ZF42KLmiKr1kYtuv6b6y"
-Message-Id: <1097580757.6157.32.camel@libra>
+	Tue, 12 Oct 2004 07:38:49 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:16521 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S269622AbUJLLiZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 07:38:25 -0400
+Subject: Re: Totally broken PCI PM calls
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: David Brownell <david-b@pacbell.net>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       Paul Mackerras <paulus@samba.org>
+In-Reply-To: <1097580477.26690.5.camel@gaston>
+References: <1097455528.25489.9.camel@gaston>
+	 <200410110915.33331.david-b@pacbell.net> <1097533363.13795.22.camel@gaston>
+	 <200410111946.03634.david-b@pacbell.net>  <1097553724.7778.34.camel@gaston>
+	 <1097578189.3728.14.camel@desktop.cunninghams>
+	 <1097580477.26690.5.camel@gaston>
+Content-Type: text/plain
+Message-Id: <1097581104.4350.3.camel@desktop.cunninghams>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 12 Oct 2004 19:32:37 +0800
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 12 Oct 2004 21:38:24 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
---=-ZF42KLmiKr1kYtuv6b6y
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Tue, 2004-10-12 at 21:27, Benjamin Herrenschmidt wrote:
+> > > In the first case, it makes even sense to keep the driver operating
+> > > while the device is D1, the driver would then just wake the device on an
+> > > incoming request (provided this is allowed by the policy). In the later
+> > > case, the driver state is the only thing that matters.
+> > 
+> > Not quite - you have to be able to get the device into a matching state
+> > at resume time. Probably not a problem in most cases, I realise, but
+> > thought it was worth a mention.
+> 
+> Wait, I'm not talking about swsusp here, that's exactly my distinction
+> between driver state and device state :) Only system suspend like swsusp
+> and suspend-to-ram require a completely coherent and frozen memory
+> "image".
 
-Ingo Molnar wrote:
-> * Wen-chien Jesse Sung <jesse@cola.voip.idv.tw> wrote:
->=20
-> > > this should fix the UP build issues reported by many. -T6 also brings
-> > > back the ->break_lock framework and converts a few more locks to raw.
-> >=20
-> > UP build is still failed:=20
-> >  arch/i386/kernel/vm86.c:707: error: `__RAW_SPIN_LOCK_UNLOCKED'
-> > undeclared here (not in a function)
->=20
-> ok, fixed this one too and re-uploaded -T6 - please check whether it
-> builds for you now.
+Oh ok. I thought suspend was one application of what you were talking
+about (not necessarily the only one, but one...)
 
-Yes, it works now! Thanks a lot! :)
+> All sorts of dynamic PM, including system-wide "idle" can deal with
+> scenarios where the driver can stay functional and decide by itself to
+> wake up the device upon incoming requests.
+> 
+> > [...]
+> > 
+> > > Yup, with the exception that it becomes hell when those devices are
+> > > anywhere on the VM path... which makes userspace policy unuseable for
+> > > system suspend.
+> > 
+> > A device on the VM path? I don't follow here. Can I have a hand please?
+> 
+> Any block device basically, I don't even want to think about the issues
+> between NFS & suspend :)
 
---=20
-Best Regards,
-Wen-chien Jesse Sung
+> That is anything that userspace potentially requires to operate (device on
+> the path to an mmap'd file, swap, whatever)...
 
---=-ZF42KLmiKr1kYtuv6b6y
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: 	=?UTF-8?Q?=E9=80=99=E6=98=AF=E6=95=B8=E4=BD=8D=E5=8A=A0=E7=B0=BD?=
-	=?UTF-8?Q?=E7=9A=84=E9=83=B5?= =?UTF-8?Q?=E4=BB=B6?=
+Ah.. I'm with you now. The 'VM path' was too abstract for me at 9:30pm
+:>.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-iD8DBQBBa8DUlZ/JOHsLIwgRAnx7AKCfN9PaCF6a+MFkl7qVfj8JQeViawCfYx4X
-nXUmz6hUl3wXFkwAVReuoyg=
-=ltDj
------END PGP SIGNATURE-----
-
---=-ZF42KLmiKr1kYtuv6b6y--
+Many today claim to be tolerant. True tolerance, however, can cope with others
+being intolerant.
 

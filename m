@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316846AbSE1RbE>; Tue, 28 May 2002 13:31:04 -0400
+	id <S316851AbSE1Rb2>; Tue, 28 May 2002 13:31:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316856AbSE1RbD>; Tue, 28 May 2002 13:31:03 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:64014 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S316846AbSE1RbC>; Tue, 28 May 2002 13:31:02 -0400
-Message-ID: <3CF3BED5.6E194618@linux-m68k.org>
-Date: Tue, 28 May 2002 19:31:01 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S316856AbSE1Rb1>; Tue, 28 May 2002 13:31:27 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:25618 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S316851AbSE1Rb1>; Tue, 28 May 2002 13:31:27 -0400
+Date: Tue, 28 May 2002 10:31:04 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: A Guy Called Tyketto <tyketto@wizard.com>, Dave Jones <davej@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.18-dj1
+In-Reply-To: <20020526090046.A32058@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10205281030250.16297-100000@www.transvirtual.com>
 MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@steeleye.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: A reply on the RTLinux discussion.
-In-Reply-To: <200205281612.g4SGC4t03662@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-James Bottomley wrote:
+> --- orig/drivers/video/fbcmap.c	Fri May  3 11:12:44 2002
+> +++ linux/drivers/video/fbcmap.c	Fri May 10 19:39:38 2002
+> @@ -150,9 +150,9 @@
+>      else
+>  	tooff = from->start-to->start;
+>      size = to->len-tooff;
+> -    if (size > from->len-fromoff)
+> +    if (size > (int)(from->len-fromoff))
+>  	size = from->len-fromoff;
+> -    if (size < 0)
+> +    if (size <= 0)
+>  	return;
+>      size *= sizeof(u16);
 
-> Actually, a patent does do exactly this.  A patent gives you a "negative"
-> right to exclude anyone from using your patented method or process.  If you
-> choose never to licence your patent (as is your right to do so) you block
-> everyone else from making use of it.
+I going to push the fix very soon to linus. I have a bunch of new updates. 
 
-Hmm, I didn't know that. I must have misunderstood something, I'm sorry
-about that.
 
-> In general, about the only restrictions on patents and their licensing
-> arrangements in the US are the antitrust laws.  See:
-> 
-> http://www.usdoj.gov/atr/public/guidelines/ipguide.htm
-> 
-> for a good guide from the horse's mouth.
-
-Uh, that's quite a lot of lawyer language, something like this is
-already difficult to understand in the native language. Could you point
-me to the relevant section, I misunderstood? I couldn't find it.
-
-bye, Roman

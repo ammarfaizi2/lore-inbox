@@ -1,70 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317602AbSGOTAz>; Mon, 15 Jul 2002 15:00:55 -0400
+	id <S317603AbSGOTGC>; Mon, 15 Jul 2002 15:06:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317603AbSGOTAy>; Mon, 15 Jul 2002 15:00:54 -0400
-Received: from relay04.valueweb.net ([216.219.253.238]:28178 "EHLO
-	relay04.valueweb.net") by vger.kernel.org with ESMTP
-	id <S317602AbSGOTAx>; Mon, 15 Jul 2002 15:00:53 -0400
-Message-ID: <3D331D01.F756F16B@opersys.com>
-Date: Mon, 15 Jul 2002 15:05:37 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
-MIME-Version: 1.0
-To: Miguel =?iso-8859-1?Q?Rodr=EDguez?= <agus_081074@yahoo.com>
-CC: linux-kernel@vger.kernel.org, Adeos <adeos-main@mail.freesoftware.fsf.org>
-Subject: Re: patchless debugger for U.P x86
-References: <20020715183746.72137.qmail@web14205.mail.yahoo.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S317604AbSGOTGB>; Mon, 15 Jul 2002 15:06:01 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:43278 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317603AbSGOTGA>;
+	Mon, 15 Jul 2002 15:06:00 -0400
+Date: Mon, 15 Jul 2002 12:08:06 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH] agpgart changes for 2.5.25
+Message-ID: <20020715190806.GA31167@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-This is just fantastic. I'm glad to see someone ran with the ideas of
-patchless kernel debuggers as described in the Adeos paper and the likes.
+These changesets have the latest agpgart code from the -dj tree, and
+I've tried to rename the files to something that makes more sense.
 
-There are definitely interfacing opportunities with the Adeos work
-that's already been done using a kernel patch. Having both Adeos
-as a kernel patch and as a patchless nanokernel is now really within
-our reach.
 
-Kudos to Miguel :)
+Pull from:  http://linuxusb.bkbits.net/agpgart-2.5
 
-Karim
+ drivers/char/agp/agp.c               | 1664 +++++++++++++
+ drivers/char/agp/agpgart_be-ali.c    |  265 --
+ drivers/char/agp/agpgart_be-ali.c    |  265 ++
+ drivers/char/agp/agpgart_be-amd.c    |  408 ---
+ drivers/char/agp/agpgart_be-amd.c    |  408 +++
+ drivers/char/agp/agpgart_be.c        | 1662 -------------
+ drivers/char/agp/agpgart_be.c        | 4470 +++--------------------------------
+ drivers/char/agp/agpgart_be-hp.c     |  394 ---
+ drivers/char/agp/agpgart_be-hp.c     |  394 +++
+ drivers/char/agp/agpgart_be-i460.c   |  595 ----
+ drivers/char/agp/agpgart_be-i460.c   |  595 ++++
+ drivers/char/agp/agpgart_be-i810.c   |  594 ----
+ drivers/char/agp/agpgart_be-i810.c   |  594 ++++
+ drivers/char/agp/agpgart_be-i8x0.c   |  726 -----
+ drivers/char/agp/agpgart_be-i8x0.c   |  728 +++++
+ drivers/char/agp/agpgart_be-sis.c    |  142 -
+ drivers/char/agp/agpgart_be-sis.c    |  142 +
+ drivers/char/agp/agpgart_be-sworks.c |  626 ----
+ drivers/char/agp/agpgart_be-sworks.c |  626 ++++
+ drivers/char/agp/agpgart_be-via.c    |  151 -
+ drivers/char/agp/agpgart_be-via.c    |  151 +
+ drivers/char/agp/agpgart_fe.c        | 1086 --------
+ drivers/char/agp/agpgart_fe.c        |   15 
+ drivers/char/agp/agp.h               |  348 +-
+ drivers/char/agp/ali.c               |  265 ++
+ drivers/char/agp/amd.c               |  408 +++
+ drivers/char/agp/Config.help         |   88 
+ drivers/char/agp/Config.in           |   14 
+ drivers/char/agp/frontend.c          | 1086 ++++++++
+ drivers/char/agp/hp.c                |  394 +++
+ drivers/char/agp/i460.c              |  595 ++++
+ drivers/char/agp/i810.c              |  594 ++++
+ drivers/char/agp/i8x0.c              |  726 +++++
+ drivers/char/agp/Makefile            |   35 
+ drivers/char/agp/sis.c               |  142 +
+ drivers/char/agp/sworks.c            |  626 ++++
+ drivers/char/agp/via.c               |  151 +
+ include/linux/agp_backend.h          |    6 
+ include/linux/agpgart.h              |   10 
+ 39 files changed, 11400 insertions(+), 10789 deletions(-)
+------
 
-Miguel Rodríguez wrote:
-> 
-> I have released an initial alpha release for a x86
-> (uniprocessor) Linux kernel patchless debugger under
-> the GNU GPL at savannah.gnu.org. Project is called
-> kmdbg. First debugger implemented is a remote serial
-> debugger.
-> It is just a simple interrupt/exception/syscall
-> interception scheleton and may have a lot of errors
-> (or not work at all) although it worked for me with
-> kernel 2.4.XX, 2.5.24.
-> See:
-> 
-> https://savannah.gnu.org/projects/kmdbg
-> 
-> Miguel.
-> 
-> _______________________________________________________________
-> Yahoo! Messenger
-> Nueva versión: Webcam, voz, y mucho más ¡Gratis!
-> Descárgalo ya desde http://messenger.yahoo.es
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+ChangeSet@1.643, 2002-07-15 11:54:20-07:00, greg@kroah.com
+  agpgart: added agp prefix to the debug printk
 
--- 
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+ drivers/char/agp/agp.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+------
+
+ChangeSet@1.642, 2002-07-15 11:46:17-07:00, greg@kroah.com
+  agpgart: renamed the agp files to make more sense
+
+ drivers/char/agp/agpgart_be-ali.c    |  265 -----
+ drivers/char/agp/agpgart_be-amd.c    |  408 --------
+ drivers/char/agp/agpgart_be-hp.c     |  394 --------
+ drivers/char/agp/agpgart_be-i460.c   |  595 ------------
+ drivers/char/agp/agpgart_be-i810.c   |  594 ------------
+ drivers/char/agp/agpgart_be-i8x0.c   |  726 ---------------
+ drivers/char/agp/agpgart_be-sis.c    |  142 --
+ drivers/char/agp/agpgart_be-sworks.c |  626 -------------
+ drivers/char/agp/agpgart_be-via.c    |  151 ---
+ drivers/char/agp/agpgart_be.c        | 1662 -----------------------------------
+ drivers/char/agp/agpgart_fe.c        | 1086 ----------------------
+ drivers/char/agp/Makefile            |   22 
+ drivers/char/agp/agp.c               | 1662 +++++++++++++++++++++++++++++++++++
+ drivers/char/agp/ali.c               |  265 +++++
+ drivers/char/agp/amd.c               |  408 ++++++++
+ drivers/char/agp/frontend.c          | 1086 ++++++++++++++++++++++
+ drivers/char/agp/hp.c                |  394 ++++++++
+ drivers/char/agp/i460.c              |  595 ++++++++++++
+ drivers/char/agp/i810.c              |  594 ++++++++++++
+ drivers/char/agp/i8x0.c              |  726 +++++++++++++++
+ drivers/char/agp/sis.c               |  142 ++
+ drivers/char/agp/sworks.c            |  626 +++++++++++++
+ drivers/char/agp/via.c               |  151 +++
+ 23 files changed, 6660 insertions(+), 6660 deletions(-)
+------
+
+ChangeSet@1.641, 2002-07-15 10:33:27-07:00, greg@kroah.com
+  agpgart: fix syntax error in the i8x0 file.
+
+ drivers/char/agp/agpgart_be-i8x0.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+------
+
+ChangeSet@1.640, 2002-07-15 10:26:18-07:00, greg@kroah.com
+  agpgart: Split agpgart code into separate files.
+  
+  The majority of this work was done by Dave Jones, I merely converted the
+  driver to the "new" pci api.
+
+ drivers/char/agp/Config.help         |   88 
+ drivers/char/agp/Config.in           |   14 
+ drivers/char/agp/Makefile            |   13 
+ drivers/char/agp/agp.h               |  348 +-
+ drivers/char/agp/agpgart_be-ali.c    |  265 ++
+ drivers/char/agp/agpgart_be-amd.c    |  408 +++
+ drivers/char/agp/agpgart_be-hp.c     |  394 +++
+ drivers/char/agp/agpgart_be-i460.c   |  595 ++++
+ drivers/char/agp/agpgart_be-i810.c   |  594 ++++
+ drivers/char/agp/agpgart_be-i8x0.c   |  726 +++++
+ drivers/char/agp/agpgart_be-sis.c    |  142 +
+ drivers/char/agp/agpgart_be-sworks.c |  626 ++++
+ drivers/char/agp/agpgart_be-via.c    |  151 +
+ drivers/char/agp/agpgart_be.c        | 4470 +++--------------------------------
+ drivers/char/agp/agpgart_fe.c        |   15 
+ include/linux/agp_backend.h          |    6 
+ include/linux/agpgart.h              |   10 
+ 17 files changed, 4738 insertions(+), 4127 deletions(-)
+------
+

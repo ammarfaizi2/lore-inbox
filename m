@@ -1,96 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267001AbUBGR6u (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 12:58:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266997AbUBGR6u
+	id S267005AbUBGSBh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 13:01:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267009AbUBGSBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 12:58:50 -0500
-Received: from fw.osdl.org ([65.172.181.6]:20103 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267010AbUBGR6K (ORCPT
+	Sat, 7 Feb 2004 13:01:37 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:784 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id S267005AbUBGSBd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 12:58:10 -0500
-Date: Sat, 7 Feb 2004 09:55:39 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Subhasis Kumar Pal <subhasis@isical.ac.in>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM modules loading
-Message-Id: <20040207095539.14e2079f.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0402071354060.764-100000@www.isical.ac.in>
-References: <Pine.LNX.4.44.0402071354060.764-100000@www.isical.ac.in>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 7 Feb 2004 13:01:33 -0500
+Message-ID: <402527DE.5080702@domdv.de>
+Date: Sat, 07 Feb 2004 19:01:02 +0100
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031022
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+CC: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: Unknown symbol _exit when compiling VMware vmmon.o module
+References: <1076175615.798.9.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1076175615.798.9.camel@teapot.felipe-alfaro.com>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Feb 2004 14:13:33 +0530 (IST) Subhasis Kumar Pal <subhasis@isical.ac.in> wrote:
+Felipe Alfaro Solana wrote:
+> Hi!
+> 
+> After installing VMware Workstation 4.5.0-7174 and running
+> vmware-config.pl, I get the following error when trying to insert
+> vmmon.ko into the kernel:
+> 
+> vmmon: Unknown symbol _exit
+> 
+> What can I use instead of _exit(code) inside a module?
+> Thanks!
+> 
 
-| 
-| Sir,
-|     I am trying to load kernel-2.6.2 in my p-iv machine. I am giving the 
-| following information.
-| 
-| Machine : P-IV
-| OS : Redhat 9(kernel-2.4.20-28.9)
-| 
-| Command for compilation of kernel-2.6.2 after untar the file 
-| (linux-2.6.2.tar).
-| 
-|  1. make mrproper
-|  2. make xconfig
-|  3. make modules
-|  4. make modules_install
-|  5. make install
-| 
-| Error for the command "make install" :
-| 
-| 
-|     make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-|   CHK     include/linux/compile.h
-| Kernel: arch/i386/boot/bzImage is ready
-| sh /root/linux-2.6.2/arch/i386/boot/install.sh 2.6.2 
-| arch/i386/boot/bzImage System.map ""
-| No module aic7xxx found for kernel 2.6.2
-| mkinitrd failed
-| make[1]: *** [install] Error 1
-| make: *** [install] Error 2
-| 
-|    But the module file called aic7xxx.ko is present in the directory at
-| "/lib/module/2.6.2/kernel/drivers/scsi/aic7xxx"
-| 
-| 
-|   I have checked the upper version of the following software is at my 
-| machine. 
-| 
-|    o  Gnu C                  2.95.3                  # gcc --version
-| o  Gnu make               3.78                    # make --version
-| o  binutils               2.12                    # ld -v
-| o  util-linux             2.10o                   # fdformat --version
-| o  module-init-tools      0.9.10                  # depmod -V
-| o  e2fsprogs              1.29                    # tune2fs
-| o  jfsutils               1.1.3                   # fsck.jfs -V
-| o  reiserfsprogs          3.6.3                   # reiserfsck -V 
-| 2>&1|grep reiserfsprogs
-| o  xfsprogs               2.6.0                   # xfs_db -V
-| o  pcmcia-cs              3.1.21                  # cardmgr -V
-| o  quota-tools            3.09                    # quota -V
-| o  PPP                    2.4.0                   # pppd --version
-| o  isdn4k-utils           3.1pre1                 # isdnctrl 2>&1|grep 
-| version
-| o  nfs-utils              1.0.5                   # showmount --version
-| o  procps                 3.1.13                  # ps --version
-| o  oprofile               0.5.3                   # oprofiled --version
-| 
-|     I think it is the problem for module extention (.ko). 
-| 
-|     Please send a suitable solution for the above as early as possible. 
+If I do interpret this right please read:
 
-Please use a current version of mkinitrd.  They know about
-.ko (yes, that is the problem).
+http://linux.bkbits.net:8080/linux-2.5/cset@1.1500.1.161?nav=index.html|ChangeSet@-7d
 
-Perhaps that list above should include 'mkinitrd' and version number...
 
---
-~Randy
+-- 
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH
+

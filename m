@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261643AbSJQChG>; Wed, 16 Oct 2002 22:37:06 -0400
+	id <S261646AbSJQCnY>; Wed, 16 Oct 2002 22:43:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261644AbSJQChG>; Wed, 16 Oct 2002 22:37:06 -0400
-Received: from sv1.valinux.co.jp ([202.221.173.100]:56328 "HELO
-	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S261643AbSJQChF>;
-	Wed, 16 Oct 2002 22:37:05 -0400
-Date: Thu, 17 Oct 2002 11:31:26 +0900 (JST)
-Message-Id: <20021017.113126.102592502.taka@valinux.co.jp>
-To: habanero@us.ibm.com
-Cc: neilb@cse.unsw.edu.au, davem@redhat.com, linux-kernel@vger.kernel.org,
-       nfs@lists.sourceforge.net
-Subject: Re: [NFS] Re: [PATCH] zerocopy NFS for 2.5.36
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <012d01c27581$677d2180$2a060e09@beavis>
-References: <15788.57476.858253.961941@notabene.cse.unsw.edu.au>
-	<20021015.213102.80213000.davem@redhat.com>
-	<012d01c27581$677d2180$2a060e09@beavis>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S261650AbSJQCnY>; Wed, 16 Oct 2002 22:43:24 -0400
+Received: from packet.digeo.com ([12.110.80.53]:41877 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261646AbSJQCnX>;
+	Wed, 16 Oct 2002 22:43:23 -0400
+Message-ID: <3DAE252B.A9A5F6B1@digeo.com>
+Date: Wed, 16 Oct 2002 19:49:15 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <conman@kolivas.net>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Pathological case identified from contest
+References: <1034820820.3dae1cd4bc0e3@kolivas.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Oct 2002 02:49:15.0399 (UTC) FILETIME=[C7DD2970:01C27587]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Con Kolivas wrote:
+> 
+> I found a pathological case in 2.5 while running contest with process_load
+> recently after checking the results which showed a bad result for 2.5.43-mm1:
+> 
+> 2.5.43-mm1              101.38  72%     42      31%
+> 2.5.43-mm1              102.90  75%     34      28%
+> 2.5.43-mm1              504.12  14%     603     85%
+> 2.5.43-mm1              96.73   77%     34      26%
+> 
+> This was very strange so I looked into it further
+> 
+> The default for process_load is this command:
+> 
+> process_load --processes $nproc --recordsize 8192 --injections 2
+> 
+> where $nproc=4*num_cpus
+> 
+> When I changed recordsize to 16384, many of the 2.5 kernels started exhibiting
+> the same behaviour. While the machine was apparently still alive and would
+> respond to my request to abort, the kernel compile would all but stop while
+> process_load just continued without allowing anything to happen from kernel
+> compilation for up to 5 minutes at a time. This doesnt happen with any 2.4 kernels.
+> 
 
-Thanks for testing my patches.
+Well it doesn't happen on my test machine (UP or SMP).  I tried
+various recordsizes.  It's probably related to HZ, memory bandwidth
+and the precise timing at which things happen.
 
-> I am still seeing some sort of problem on an 8 way (hyperthreaded 8
-> logical/4 physical) on UDP with these patches.  I cannot get more than 2
-> NFSd threads in a run state at one time.  TCP usually has 8 or more.  The
-> test involves 40 100Mbit clients reading a 200 MB file on one server (4
-> acenic adapters) in cache.  I am fighting some other issues at the moment
-> (acpi wierdness), but so far before the patches, 82 MB/sec for NFSv2,UDP and
-> 138 MB/sec for NFSv2,TCP.  With the patches, 115 MB/sec for NFSv2,UDP and
-> 181 MB/sec for NFSv2,TCP.  One CPU is maxed due to acpi int storm, so I
-> think the results will get better.  I'm not sure what other lock or
-> contention point this is hitting on UDP.  If there is anything I can do to
-> help, please let me know, thanks.
+The test describes itself thusly:
 
-I guess some UDP packets might be lost. It may happen easily as UDP protocol
-doesn't support flow control.
-Can you check how many errors has happened? 
-You can see them in /proc/net/snmp of the server and the clients.
+ *  This test generates a load which simulates a process-loaded system.
+ *
+ *  The test creates a ring of processes, each connected to its predecessor
+ *  and successor by a pipe.  After the ring is created, the parent process
+ *  injects some dummy data records into the ring and then joins.  The
+ *  processes pass the data records around the ring until they are killed.
+ *
 
-And how many threads did you start on your machine?
-Buffer size of a UDP socket depends on number of kNFS threads.
-Large number of threads might help you.
+It'll be starvation in the CPU scheduler I expect.  For some reason
+the ring of piping processes is just never giving a timeslice to
+anything else.  Or maybe something to do with the exceptional
+wakeup strategy which pipes use.
 
-
+Don't now, sorry.  One for the kernel/*.c guys.

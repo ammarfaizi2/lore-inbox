@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266136AbUBCTXX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 14:23:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266129AbUBCTXX
+	id S266083AbUBCTXk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 14:23:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266139AbUBCTXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 14:23:23 -0500
-Received: from mail.shareable.org ([81.29.64.88]:27342 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S266051AbUBCSXs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 13:23:48 -0500
-Date: Tue, 3 Feb 2004 18:23:10 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Ulrich Drepper <drepper@redhat.com>, john stultz <johnstul@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
-Message-ID: <20040203182310.GA18326@mail.shareable.org>
-References: <1075344395.1592.87.camel@cog.beaverton.ibm.com> <401894DA.7000609@redhat.com> <20040201012803.GN26076@dualathlon.random> <401F251C.2090300@redhat.com> <20040203085224.GA15738@mail.shareable.org> <20040203162515.GY26076@dualathlon.random> <20040203173716.GC17895@mail.shareable.org> <20040203181001.GA26076@dualathlon.random>
+	Tue, 3 Feb 2004 14:23:35 -0500
+Received: from dodge.jordet.nu ([217.13.8.142]:55680 "EHLO dodge.jordet.nu")
+	by vger.kernel.org with ESMTP id S266100AbUBCS04 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 13:26:56 -0500
+Subject: Oopses with both recent 2.4.x kernels and 2.6.x kernels
+From: Stian Jordet <liste@jordet.nu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1075832813.5421.53.camel@chevrolet.hybel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040203181001.GA26076@dualathlon.random>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 03 Feb 2004 19:26:53 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> vsyscalls will never execute anything like execve. They can at most
-> modify userspace memory a fixed address, so if the userspace isn't
-> fixed, then nothing can be done with a vsyscall.
+Hello,
 
-Are we talking about the same x86_64?
+I have a server which was running 2.4.18 and 2.4.19 for almost 200 days
+each, without problems. After an upgrade to 2.4.22, the box haven't been
+up for 30 days in a row. This happened early november. I have caputered
+oopses with both 2.4.23 and 2.6.1 which I have sent decoded to the list,
+but have never got any reply.
 
-I see this in arch/x86_64/vsyscall.S:
+I have ran memtest86 on the box, no errors. What else can be the
+problem? I could of course go back to 2.4.19, which I know worked fine,
+but I there have been some fixed security holes since then...
 
-__kernel_vsyscall:
-.LSTART_vsyscall:
-	push	%ebp
-.Lpush_ebp:
-	movl	%ecx, %ebp
-	syscall
+Any thoughts?
 
-Is that page not mapped into userspace?
-
-If the answer is no, then btw we were talking about i386 until you joined in. :)
-The "sysenter" instruction is definitely mapped into userspace there.
-
--- Jamie
+Best regards,
+Stian
 

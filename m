@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270133AbRH1BzF>; Mon, 27 Aug 2001 21:55:05 -0400
+	id <S270134AbRH1B5e>; Mon, 27 Aug 2001 21:57:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270135AbRH1Byy>; Mon, 27 Aug 2001 21:54:54 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:49934 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S270134AbRH1Byt>; Mon, 27 Aug 2001 21:54:49 -0400
-Date: Mon, 27 Aug 2001 21:27:00 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Hugh Dickins <hugh@veritas.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: find_get_swapcache_page() question
-Message-ID: <Pine.LNX.4.21.0108272123380.7385-100000@freak.distro.conectiva>
+	id <S270155AbRH1B5Y>; Mon, 27 Aug 2001 21:57:24 -0400
+Received: from mailsrv.rollanet.org ([192.55.114.7]:19228 "HELO
+	mx.rollanet.org") by vger.kernel.org with SMTP id <S270134AbRH1B5E>;
+	Mon, 27 Aug 2001 21:57:04 -0400
+Message-ID: <3B8AFA81.6B10190C@umr.edu>
+Date: Mon, 27 Aug 2001 20:57:21 -0500
+From: Nathan Neulinger <nneul@umr.edu>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Blocking bind to outbound interface?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Is there any way to block use of an interface for outbound connections?
 
-Ingo,
+I have a host who's primary outbound interface is on a private network
+(using a private address block for our backbone). Unfortunately, this
+means that most applications (those not providing an option to select
+bind address) will bind to this private-net address when establishing
+outbound connections or sending udp packets.
 
-Looking at find_get_swapcache_page(), I can't see _how_ we can find a
-page on the swapper pagecache table that is not a swapcache page.
+The host has another address which is a publically accessible ip, but
+it's not the default route interface.
 
-How that can happen ?
+Is there any way to hide this interface on the host for ALL outbound
+connections without modifying all applications/app invocations? Or some
+way of overriding the mechanism for selection of default interface.
 
-        spin_lock(&pagecache_lock);
-        page = __find_page_nolock(mapping, offset, *hash);
-        if (page) {
-                spin_lock(&pagemap_lru_lock);
-                if (PageSwapCache(page))
-                        page_cache_get(page);
-                else
-                        page = NULL;   <-----
-                spin_unlock(&pagemap_lru_lock);
-        }
-        spin_unlock(&pagecache_lock);
+-- Nathan
 
+------------------------------------------------------------
+Nathan Neulinger                       EMail:  nneul@umr.edu
+University of Missouri - Rolla         Phone: (573) 341-4841
+CIS - Systems Programming                Fax: (573) 341-4216

@@ -1,88 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266513AbUJAVdD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266517AbUJAVRi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266513AbUJAVdD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 17:33:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266547AbUJAVcT
+	id S266517AbUJAVRi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 17:17:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266344AbUJAVRa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 17:32:19 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:29708 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S266513AbUJAVWz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 17:22:55 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] reduce sha512_transform() stack usage, speedup
-Date: Sat, 2 Oct 2004 00:22:45 +0300
-User-Agent: KMail/1.5.4
-Cc: jmorris@redhat.com, linux-kernel@vger.kernel.org
-References: <200410012231.51816.vda@port.imtp.ilyichevsk.odessa.ua> <200410012338.11301.vda@port.imtp.ilyichevsk.odessa.ua> <20041001134322.237b8930.davem@davemloft.net>
-In-Reply-To: <20041001134322.237b8930.davem@davemloft.net>
+	Fri, 1 Oct 2004 17:17:30 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:2530 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266512AbUJAU6f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 16:58:35 -0400
+Message-ID: <415DC5D2.8000405@austin.ibm.com>
+Date: Fri, 01 Oct 2004 16:02:10 -0500
+From: Steven Pratt <slpratt@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+To: linuxram@us.ibm.com
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC] Simplified Readahead
+References: <Pine.LNX.4.44.0409291113580.4449-600000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0409291113580.4449-600000@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410020022.45946.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 October 2004 23:43, David S. Miller wrote:
-> On Fri, 1 Oct 2004 23:38:11 +0300
-> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
-> 
-> > WARNING: compile tested only.
-> 
-> You can't claim a "speed up" if you only compile test your
-> changes.  Neither can you expect us to apply patches in
-> such a case.
+Ram Pai wrote:
 
-Speedup is rather tiny, most probably not measurable.
-Patch optimizes out some memsets, otherwise code
-practically did not change.
+snip...
+
+>>>>>To summarize you noticed 3 problems:
+>>>>>
+>>>>>1. page cache hits not handled properly.
+>>>>>2. readahead thrashing not accounted.
+>>>>>3. read congestion not accounted.
+>>>>>          
+>>>>>
+>
+>
+>I have enclosed 5 patches that address each of the issues.
+>
+>1 . Code is obtuse and hard to maintain
+>
+>	The best I could do is update the comments to reflect the
+>	current code. Hopefully that should help. 
+>	
+>	attached patch 1_comment.patch takes care of that part to
+>	some extent.
+>
+>
+>2. page cache hits not handled properly.
+>
+>	I fixed this by decrementing the size of the next readahead window
+>	by the number of pages hit in the page cache. Now it slowly
+>	accomodates the page cache hits. 
+>
+>	attached patch 2_cachehits.patch takes care of this issue.
+>
+>3. queue congestion not handled.
+>
+>	The fix is: call force_page_cache_readahead() if we are 
+>	populating pages in the current window.
+>	And call do_page_cache_readahead() if we are populating
+>	pages in the ahead window. However if do_page_cache_readahead()
+>	return with congestion, the readahead window is collapsed back 
+>	to size zero. This will ensure that the next time ahead window
+>	is attempted to populate.
+>
+>	attached patch 3_queuecongestion.patch handles this issue.
+>
+>4. page thrash handled ineffectively.
+>
+>	The fix is: on page thrash detection shutdown readahead.
+>
+>	attached patch 4_pagethrash.patch handles this issue.
+>
+>5. slow read path is too slow.
+>
+>	I could not figure out a way to atleast-read-the-requested-
+>	number-of-pages if readahead is shutdown, without incorporating
+>	the readsize parameter to page_cache_readahead(). So had
+>	to pick some of your code in filemap.c to do that. Thanks!
+>	
+>	attached patch 5_fixedslowread.patch handles this issue.
+>
+>
+>Apart from this you have noticed other issues
+>
+>6.  cache lookup done unneccessrily twice for pagecache_hits.
+>
+>	I have not handled this issue currently. But should be doable
+>	if I introducing a flag, which notes when readahead is
+>	shutdown by pagecahche hits. And hence attempts to lookup
+>	the page only once.
+>	
+>
+>And you have other features in your patch which will be the real
+>differentiating factors.
+>
+>7.  exponential expand and shrink of window sizes.
+>
+>8.  overlapped read of current window and ahead window. 
+>
+>	( I think both are  desirable feature )
+>
+>I did run some premilinary tests using your patch and the above patches
+>and found 
+>
+>your patch was doing slightly better on iozone and sysbench.
+>however the above patch were doing slightly better with DSS workload.
+>  
+>
+
+Ok, I have re-run the Tiobench tests.  On a single cpu ide based system 
+you new patches have no noticable effect on sequential read performance 
+(a good thing); but on random I/O things went bad :-(.
+
+Here are the random read results for 16k io with 4GB fileset on 256MB 
+mem, single cpu IDE
+
+               Stock      w/ patches
+
+  Threads      MBs/sec      MBs/sec    %diff         diff  
+---------- ------------ ------------ -------- ------------ 
+         1         1.73         1.72    -0.58        -0.01  
+         4         1.70         1.56    -8.24        -0.14  
+        16         1.66         0.81   -51.20        -0.85  
+        64         1.49         0.68   -54.36        -0.81 
+
+As you can see somewhere after 4 threads the new patches cause performance to tank.  
+
+With 512k ios the problem kicks in with less than 4 threads.
+
+               Stock      w/ patches
+  Threads      MBs/sec      MBs/sec    %diff         diff  
+---------- ------------ ------------ -------- ------------ 
+         1        18.50        18.55     0.27         0.05 
+         4         8.55         6.59   -22.92        -1.96  
+        16         8.40         5.18   -38.33        -3.22 
+        64         7.34         4.76   -35.15        -2.58 
+
+
+Unfortunately this is the _good_ news.  The bad news is that this is much worse on SCSI.
+We lose a few percent on sequential reads for all block sizes and random is just totally screwed.
+
+Here is the same 16k io requests size with 4GB fileset on 1GB memory on 8way system on single scsi disk.
+
+               stock        w/ patch
+   Threads      MBs/sec      MBs/sec    %diff         diff   
+---------- ------------ ------------ -------- ------------ 
+         1         3.43         3.03   -11.66        -0.40   
+         4         4.51         1.06   -76.50        -3.45 
+        16         5.86         1.43   -75.60        -4.43   
+        64         6.13         1.66   -72.92        -4.47 
+
+11% degrade even on 1 thread, 75% degrade for 4 threads and above!  This is horribly broken. 
+
+
+Steve
+
  
-> It's not that difficult to load the tcrypt module and make
-> sure all the tests for the module you're changing still
-> pass.
 
-Done:
 
-testing sha384
-test 1:
-cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7
-pass
-test 2:
-3391fdddfc8dc7393707a65b1b4709397cf8b1d162af05abfe8f450de5f36bc6b0455a8520bc4e6f5fe95b1fe3c8452b
-pass
-test 3:
-09330c33f71147e83d192fc782cd1b4753111b173b3b05d22fa08086e3b0f712fcc7c71a557e2db966c3e9fa91746039
-pass
-test 4:
-3d208973ab3508dbbd7e2c2862ba290ad3010e4978c198dc4d8fd014e582823a89e16f9b2a7bbc1ac938e2d199e8bea4
-pass
-testing sha384 across pages
-test 1:
-3d208973ab3508dbbd7e2c2862ba290ad3010e4978c198dc4d8fd014e582823a89e16f9b2a7bbc1ac938e2d199e8bea4
-pass
 
-testing sha512
-test 1:
-ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f
-pass
-test 2:
-204a8fc6dda82f0a0ced7beb8e08a41657c16ef468b228a8279be331a703c33596fd15c13b1b07f9aa1d3bea57789ca031ad85c7a71dd70354ec631238ca3445
-pass
-test 3:
-8e959b75dae313da8cf4f72814fc143f8f7779c6eb9f7fa17299aeadb6889018501d289e4900f7e4331b99dec4b5433ac7d329eeb6dd26545e96e55b874be909
-pass
-test 4:
-930d0cefcb30ff1133b6898121f1cf3d27578afcafe8677c5257cf069911f75d8f5831b56ebfda67b278e66dff8b84fe2b2870f742a580d8edb41987232850c9
-pass
-testing sha512 across pages
-test 1:
-930d0cefcb30ff1133b6898121f1cf3d27578afcafe8677c5257cf069911f75d8f5831b56ebfda67b278e66dff8b84fe2b2870f742a580d8edb41987232850c9
-pass
 
-Please consider applying.
---
-vda
 

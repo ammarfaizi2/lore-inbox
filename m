@@ -1,60 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264692AbUFSV1B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264717AbUFSVej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264692AbUFSV1B (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 17:27:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264717AbUFSV1B
+	id S264717AbUFSVej (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 17:34:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264723AbUFSVej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 17:27:01 -0400
-Received: from sweetums.bluetronic.net ([24.199.150.42]:26331 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S264692AbUFSV07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 17:26:59 -0400
-Date: Sat, 19 Jun 2004 17:20:05 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: SATA 3112 errors on 2.6.7
-In-Reply-To: <40D49FBC.7040900@pobox.com>
-Message-ID: <Pine.GSO.4.33.0406191704150.25702-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 19 Jun 2004 17:34:39 -0400
+Received: from holomorphy.com ([207.189.100.168]:45711 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264717AbUFSVeh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 17:34:37 -0400
+Date: Sat, 19 Jun 2004 14:34:33 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] flexible-mmap-2.6.7-D5
+Message-ID: <20040619213433.GT1863@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <20040618213814.GA589@elte.hu> <20040618231631.GO1863@holomorphy.com> <20040619074612.GB12020@elte.hu> <20040619083446.GP1863@holomorphy.com> <20040619113836.GA16197@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040619113836.GA16197@elte.hu>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jun 2004, Jeff Garzik wrote:
->I wonder if it helps to add the Seagate drive to the sata_sil blacklist?
+* William Lee Irwin III <wli@holomorphy.com> wrote:
+>> Also, I suspect some more graceful fallback would make sense
+>> particularly for the case of RLIM_INFINITY, which would leave users
+>> that run with, say, all rlimits at RLIM_INFINITY in the interest of
+>> having full access to system resources with a mere 512MB of
+>> virtualspace for the heap, which IIRC glibc is intelligent enough to
+>> circumvent for malloc(), but not for mmap(NULL, ...). [...]
 
-As I said, I tried that with no success.  Btw, there is no such list in
-the SI published driver (or they did it in a manner that is not immediately
-obvious.)  However, this:
-	Maxtor 4D060H3:DAK05GK0:MaxMode=udma-5
-does show up practically without looking :-)
+On Sat, Jun 19, 2004 at 01:38:36PM +0200, Ingo Molnar wrote:
+> well, the 5/6=stack 1/6=malloc rule in the RLIM_INFINITY can be changed. 
+> What would make the most sense - 1/2 for both?
 
-By way of freebsd mailling lists, it appears the dropped DMA thing is common
-to the sil hardware.  However, there must be an errata/work-around as
-SI's driver doesn't exhibit the same problems -- no stalls, no reported
-DMA errors.
-
-Of note is that the drive that most often stalls is of older firmware...
-3.05 vs. the 3.18 of the other drives...
-	Drive information:
-
-	/dev/sga ATA      ST3160023AS      3.18 312581807 blocks
-	/dev/sgb ATA      ST3160023AS      3.18 312581807 blocks
-	/dev/sgc ATA      ST3160023AS      3.18 312581807 blocks
-	/dev/sgd ATA      ST3160023AS      3.05 312581807 blocks
-
-If I can/could get Seagate to give me a 3.18 firmware update for that drive,
-I'll find a way to get it on there :-)
-
-DMA'd reads don't seem to be a problem.  I'm 400G through the 10th loop
-reading the entire array in 8M O_DIRECT chunks (128 16k stripes).  However,
-I will note, the internal configuration of the sil chips are laughable...
-reading from more than one port at a time (doesn't really matter which two)
-degrades performance.  Reading from all four (hello raid) maxes out each port
-to about 24MB/s.  Individually, each port (alone) can read at 48-56MB/s.
-The drives are capable of streaming 85MB/s (if you believe the specs.)
-
---Ricky
+I had in mind fallback as opposed to a changed base, but a particular
+choice of the base may cover enough cases. The bugreport below seems to
+say there's no need for a change.
 
 
+* William Lee Irwin III <wli@holomorphy.com> wrote:
+>> If it's been in production that long, I find it hard to believe that's
+>> never been tripped over. [...]
+
+On Sat, Jun 19, 2004 at 01:38:36PM +0200, Ingo Molnar wrote:
+> it's been tripped over and the 5/6 rule was a fix for such a bugreport. 
+> What happens more in practice frequently is that someone needs a big
+> stack and sets the stack ulimit to RLIM_INFINITY.
+
+This sounds like nothing is needed, then.
+
+
+* William Lee Irwin III <wli@holomorphy.com> wrote:
+>> [...] (also, that 128MB is currently wasted); [...]
+
+On Sat, Jun 19, 2004 at 01:38:36PM +0200, Ingo Molnar wrote:
+> the 128MB is 'wasted' to give some flexibility to the stack rlimits
+> changing runtime. But in practice it's far more important to have the
+> mmap()/malloc() space maximized and flexible than to give the stack
+> automatic flexibility.
+
+Fishing around down there to utilize it for mmap() placement should
+happen anyway if things fall back far enough in the top-down scheme.
+
+Answers like "I've thought about it" or "I've seen this and dealt with
+it" are good enough for me. There isn't much of a normative aspect to
+user virtualspace layout.
+
+Thanks.
+
+
+-- wli

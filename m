@@ -1,131 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132853AbRDIV0x>; Mon, 9 Apr 2001 17:26:53 -0400
+	id <S132854AbRDIVeX>; Mon, 9 Apr 2001 17:34:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132854AbRDIV0n>; Mon, 9 Apr 2001 17:26:43 -0400
-Received: from front1.grolier.fr ([194.158.96.51]:61687 "EHLO
-	front1.grolier.fr") by vger.kernel.org with ESMTP
-	id <S132853AbRDIV0h>; Mon, 9 Apr 2001 17:26:37 -0400
-Date: Mon, 9 Apr 2001 20:14:51 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
-To: Jim Studt <jim@federated.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx and 2.4.3 failures
-In-Reply-To: <200104092033.PAA20057@core.federated.com>
-Message-ID: <Pine.LNX.4.10.10104092009020.397-100000@linux.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132855AbRDIVeN>; Mon, 9 Apr 2001 17:34:13 -0400
+Received: from tangens.hometree.net ([212.34.181.34]:46802 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S132854AbRDIVeG>; Mon, 9 Apr 2001 17:34:06 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: [OT] Re: goodbye
+Date: Mon, 9 Apr 2001 21:34:04 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9at9sc$kva$1@forge.intermeta.de>
+In-Reply-To: <Pine.LNX.4.21.0104031800030.14090-100000@imladris.rielhome.conectiva> <986844003.21377.12.camel@mistress>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 986852044 8774 212.34.181.4 (9 Apr 2001 21:34:04 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Mon, 9 Apr 2001 21:34:04 +0000 (UTC)
+X-Copyright: (C) 1996-2001 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Michael Peddemors <michael@linuxmagic.com> writes:
 
-Looks like an IRQ problem to me.
-I mean the kernel wants to change IRQ routing and just do the wrong job.
+>Uh... use their ISP relay service anyway???
+>I take my laptop all over, to lot's of my clients locations, and if I
+>could relay through their servers, then I had better give them some good
+>advice.. Some places I just pick an available IP and it might not be in
+>the allowed relay list.  And this happens when I am in M$ or Linux..
 
-Ingo reported me a similar problem a couple of week ago that made failed
-the sym53c8xx driver. Looks very similar to this one with the kernel PCI
-code wanting to assign IRQ 11 to almost everything.
+So, Mr. Admin, setup your laptop to use SSL to your SMTP and POP
+server and authenticate with a client side certificate on your
+laptop. Welcome to the 21st century. You may, however, need a little
+more infrastructure than you can pull from your favourite distribution
+box.
 
-Btw, I donnot know the cause of the problem since I am still expecting
-some reply following some suggestions from me. :-)
+>And sometimes, I even go to locations where they can't tell me their
+>ISP's SMTP mailer.. Not to mention, I shouln't have to reset my
+>configuration for each location I happen to be at..
+>The point is, if it is a pain, then people will be less likely to
+>contribute..
 
-  Gerard.
+So you made something wrong. My servers have public IP addresses.
+Wherever I am on the Internet, I can connect to them. I can
+authenticate myself as being me, and they accept my mails. No problem
+here. No reconfiguration, either.
 
-On Mon, 9 Apr 2001, Jim Studt wrote:
+Come on people, stop whining. If everybody here is using mobile clients and
+different locations for mail sending and receiving, you should either
 
-> > > A typical startup with 6.1.9 proceeds like this...  (6.1.10 hangs silently
-> > > after emitting the scsi0 and scsi1 adapter summaries, maybe it is
-> > > going through the same gyrations silently.) 
-> > > 
-> > 
-> 
-> Alan Cox directs...
-> > Try saying N to the AIC7xxx driver and Y to AIC7XXX_OLD and see if that works.
-> > This is important both because it might solve your problem for now but also
-> > because if the old driver works we can be fairly sure the bug is in the 
-> > new adaptec driver and not elsewhere and triggered on it
-> 
-> Using AIC7XXX_OLD does not work either.  Different output....
-> 
-> SCSI subsystem driver Revision: 1.00
-> PCI: Assigned IRQ 11 for device 00:0c.0
-> PCI: The same IRQ used for device 00:0c.1
-> PCI: Found IRQ 11 for device 00:0c.1
-> PCI: The same IRQ used for device 00:0c.0
-> (scsi0) <Adaptec AIC-7896/7 Ultra2 SCSI host adapter> found at PCI 0/12/0
-> (scsi0) Wide Channel A, SCSI ID=7, 32/255 SCBs
-> (scsi0) Downloading sequencer code... 392 instructions downloaded
-> (scsi1) <Adaptec AIC-7896/7 Ultra2 SCSI host adapter> found at PCI 0/12/1
-> (scsi1) Wide Channel B, SCSI ID=7, 32/255 SCBs
-> (scsi1) Downloading sequencer code... 392 instructions downloaded
-> scsi0 : Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI) 5.2.1/5.2.0
->        <Adaptec AIC-7896/7 Ultra2 SCSI host adapter>
-> scsi1 : Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI) 5.2.1/5.2.0
->        <Adaptec AIC-7896/7 Ultra2 SCSI host adapter>
-> scsi : aborting command due to timeout : pid 0, scsi0, channel 0, id 0, lun 0 Inquiry 00 00 00 ff 00 
-> SCSI host 0 abort (pid 0) timed out - resetting
-> SCSI bus is being reset for host 0 channel 0.
-> SCSI host 0 channel 0 reset (pid 0) timed out - trying harder
-> SCSI bus is being reset for host 0 channel 0.
-> SCSI host 0 abort (pid 0) timed out - resetting
-> SCSI bus is being reset for host 0 channel 0.
-> SCSI host 0 channel 0 reset (pid 0) timed out - trying harder
-> SCSI bus is being reset for host 0 channel 0.
-> SCSI host 0 abort (pid 0) timed out - resetting
-> SCSI bus is being reset for host 0 channel 0.
-> ..
-> 
-> 
-> Since we are looking elsewhere now... I have tried PCI access mode
-> BIOS and Direct with no improvement.  
-> 
-> There is an unrecognized PCI bridge resource in the boot messages...
-> 
-> CPU: L1 I cache: 16K, L1 D cache: 16K
-> CPU: L2 cache: 256K
-> Intel machine check architecture supported.
-> Intel machine check reporting enabled on CPU#0.
-> CPU serial number disabled.
-> CPU: Intel Pentium III (Coppermine) stepping 06
-> Enabling fast FPU save and restore... done.
-> Enabling unmasked SIMD FPU exception support... done.
-> Checking 'hlt' instruction... OK.
-> POSIX conformance testing by UNIFIX
-> mtrr: v1.37 (20001109) Richard Gooch (rgooch@atnf.csiro.au)
-> mtrr: detected mtrr type: Intel
-> PCI: Using configuration type 1
-> PCI: Probing PCI hardware
-> Unknown bridge resource 0: assuming transparent
-> Unknown bridge resource 1: assuming transparent
-> Unknown bridge resource 2: assuming transparent
-> Unknown bridge resource 0: assuming transparent
-> Unknown bridge resource 1: assuming transparent
-> Unknown bridge resource 2: assuming transparent
-> PCI: Discovered primary peer bus ff [IRQ]
-> PCI: Using IRQ router PIIX [8086/7110] at 00:12.0
-> 
-> # lspci
-> 00:00.0 Host bridge: Intel Corporation 440GX - 82443GX Host bridge
-> 00:01.0 PCI bridge: Intel Corporation 440GX - 82443GX AGP bridge
-> 00:0c.0 SCSI storage controller: Adaptec 7896
-> 00:0c.1 SCSI storage controller: Adaptec 7896
-> 00:0e.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 08)
-> 00:12.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
-> 00:12.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
-> 00:12.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
-> 00:12.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
-> 00:14.0 VGA compatible controller: Cirrus Logic GD 5480 (rev 23)
-> 01:0f.0 PCI bridge: Digital Equipment Corporation DECchip 21150 (rev 06)
-> 
-> I will go back and try 2.4.0 and 2.4.3-ac3 and see where that gets me.
-> 
-> -- 
->                                      Jim Studt, President
->                                      The Federated Software Group, Inc.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+- get a hosted or housed box with your own mail server
+- use a commercial web or POP/SMTP mail service
+- get an ISP which does have a clue and its mail server not in ORBS or RBL
+  (they may, however not be the cheapest around)
 
+or (as mentioned above), set up a box with TLS, relay from everywhere
+and their neigbor with authentication to this box and then go out via
+a well known SMTP server into the internet.
+
+	Regards
+		Henning
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,74 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261357AbSJQK4a>; Thu, 17 Oct 2002 06:56:30 -0400
+	id <S261352AbSJQKyt>; Thu, 17 Oct 2002 06:54:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261360AbSJQK4a>; Thu, 17 Oct 2002 06:56:30 -0400
-Received: from ns.suse.de ([213.95.15.193]:65288 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S261357AbSJQK42> convert rfc822-to-8bit;
-	Thu, 17 Oct 2002 06:56:28 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SuSE Linux AG
-To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Subject: Re: Posix capabilities
-Date: Thu, 17 Oct 2002 13:02:25 +0200
-User-Agent: KMail/1.4.3
+	id <S261357AbSJQKyt>; Thu, 17 Oct 2002 06:54:49 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:54509 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261352AbSJQKys>; Thu, 17 Oct 2002 06:54:48 -0400
+To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-References: <20021016154459.GA982@TK150122.tuwien.teleweb.at> <20021017032619.GA11954@think.thunk.org> <874rblcpw5.fsf@goat.bogus.local>
-In-Reply-To: <874rblcpw5.fsf@goat.bogus.local>
+Subject: Re: [PATCH][RFC] 2.5.42: remove capable(CAP_SYS_RAWIO) check from
+ open_kmem
+References: <87smza1p7f.fsf@goat.bogus.local>
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Date: Thu, 17 Oct 2002 13:00:24 +0200
+Message-ID: <87bs5tba9j.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210171302.25413.agruen@suse.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 17 October 2002 12:37, Olaf Dietsche wrote:
-> "Theodore Ts'o" <tytso@mit.edu> writes:
-> > Personally, I'm not so convinced that capabilities are such a great
-> > idea.  System administrators have a hard enough time keeping 12 bits
-> > of permissions correct on executable files; with capabilities they
-> > have to keep track of several hundred bits of capabilties flags, which
+Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de> writes:
+
+> In drivers/char/mem.c there's open_port(), which is used as open_mem()
+> and open_kmem() as well. I don't see the benefit of this, since
+> /dev/mem and /dev/kmem are already protected by filesystem
+> permissions.
 >
-> So you claim, system administrators are stupid people?
-
-Filesystem capabilities move complexity out of applications into the file 
-system (=system configuration), so the admins have to deal with an additional 
-task.
-
->From a security point of view suid root applications that are dropping 
-capabilities voluntarily aren't much different from plain old suid root apps; 
-there may still be exploitable bugs before the code that drops capabilities 
-(which doesn't mean that apps shouldn't drop capabilities). With capabilities 
-the kernel ensures that applications cannot exceed their capabilities.
-
-I think the remaining questions really are:
-
-	- how to populate the database of capabilities needed by apps.
-	  (Pavel Machek has started this as part of elfcap [which is a bad
-	  idea], see http://atrey.karlin.mff.cuni.cz/~pavel/caps/capbase.txt)
-
-	- how to make maintaining / monitoring tight capabilities as
-	  effortless as possible.
-
-	- how to set up capabilities when users log in (which users are
-	  granted which capabilities; this can be used to split up the role
-	  of root.)
-
-	- (maybe some more)
-
-> > must be set precisely correctly, or the programs will either (a) fail
-> > to function,
+> mem.c, line 526:
+> static int open_port(struct inode * inode, struct file * filp)
+> {
+> 	return capable(CAP_SYS_RAWIO) ? 0 : -EPERM;
+> }
 >
-> Which you will notice very fast.
+> If anyone knows, why this is done this way, please let me
+> know. Otherwise, I suggest the patch below.
 
-Well perhaps not, the admin gets overloaded with requests/complaints, and 
-finally decides to discard FS caps.
+I haven't got a convincing answer against this patch, so far. The
+patch applies to 2.5.43 as well.
+Linus, please apply.
 
-> > or (b) have a gaping huge security hole.
->
-> Which is not worse, but possibly a lot better, than setuid root.
+Regards, Olaf.
 
-It's worse if apps stop dropping capabilities and instead rely on the caller.
-
---Andreas.
-
+--- a/drivers/char/mem.c	Sat Oct  5 18:44:55 2002
++++ b/drivers/char/mem.c	Sun Oct 13 13:59:25 2002
+@@ -533,15 +533,12 @@
+ #define full_lseek      null_lseek
+ #define write_zero	write_null
+ #define read_full       read_zero
+-#define open_mem	open_port
+-#define open_kmem	open_mem
+ 
+ static struct file_operations mem_fops = {
+ 	llseek:		memory_lseek,
+ 	read:		read_mem,
+ 	write:		write_mem,
+ 	mmap:		mmap_mem,
+-	open:		open_mem,
+ };
+ 
+ static struct file_operations kmem_fops = {
+@@ -549,7 +546,6 @@
+ 	read:		read_kmem,
+ 	write:		write_kmem,
+ 	mmap:		mmap_kmem,
+-	open:		open_kmem,
+ };
+ 
+ static struct file_operations null_fops = {

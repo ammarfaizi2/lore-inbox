@@ -1,71 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264811AbUD1OIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264805AbUD1OI6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264811AbUD1OIs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 10:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264802AbUD1OH4
+	id S264805AbUD1OI6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 10:08:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264812AbUD1OI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 10:07:56 -0400
-Received: from rrcs-central-24-123-144-118.biz.rr.com ([24.123.144.118]:20228
-	"EHLO zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
-	id S264789AbUD1OFa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 10:05:30 -0400
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-From: Tom Sightler <ttsig@tuxyturvy.com>
-To: Marc Boucher <marc@linuxant.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, pmarques@grupopie.com,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       malda@slashdot.org, c-d.hailfinger.kernel.2004@gmx.net,
-       Linus Torvalds <torvalds@osdl.org>, jon787@tesla.resnet.mtu.edu
-In-Reply-To: <1EF114FF-98C4-11D8-85DF-000A95BCAC26@linuxant.com>
-References: <20040427165819.GA23961@valve.mbsi.ca>
-	 <1083107550.30985.122.camel@bach>
-	 <47B669B0-98A7-11D8-85DF-000A95BCAC26@linuxant.com>
-	 <1083117450.2152.222.camel@bach>
-	 <1EF114FF-98C4-11D8-85DF-000A95BCAC26@linuxant.com>
-Content-Type: text/plain
-Message-Id: <1083161029.3788.92.camel@localhost.localdomain>
+	Wed, 28 Apr 2004 10:08:57 -0400
+Received: from mail.tmr.com ([216.238.38.203]:46088 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S264805AbUD1OHn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 10:07:43 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: bug in include file!?
+Date: Wed, 28 Apr 2004 10:08:56 -0400
+Organization: TMR Associates, Inc
+Message-ID: <c6odm2$57s$1@gatekeeper.tmr.com>
+References: <20040426203710.GA3005@matrix>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
-Date: Wed, 28 Apr 2004 10:03:50 -0400
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1083161090 5372 192.168.12.100 (28 Apr 2004 14:04:50 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+In-Reply-To: <20040426203710.GA3005@matrix>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-04-27 at 23:28, Marc Boucher wrote: 
-> We generally prefer to focus on making stuff work for users,
-> rather than waste time arguing about controversial GPL politics.
+csg69@mailbox.hu wrote:
+> Dear Linux Kernel Stuff!
+> 
+> 
+> I encountered a strange error recently, when I tried to
+> compile cdrtools-2.00.3 on my system (debian woody 3.0,
+> kernel 2.6.5, gcc 2.95.4, make 3.79.1).
+> 
+> The bug is in line 217 in /usr/src/linux/include/scsi/scsi.h
+> gcc says: parse error before u8
+> (I think everything is OK there)
+> 
+> Finally I solved the problem by changing the value
+> in cdrtools-2.00.3/DEFAULTS/Defaults.linux
+> 
+> from the original:
+> DEFINCDIRS=	$(SRCROOT)/include /usr/src/linux/include
+> 
+> to:
+> DEFINCDIRS=	$(SRCROOT)/include /usr/include
+> 
+> 
+> It seems that in /usr/include/scsi/scsi.h everything is OK...
+> 
+> 
+> It may be the error of the makefiles or the kernel include files...
+> 
+> Joerg Schilling (schilling@fokus.fraunhofer.de) advised me
+> to send to you this report.
+> He thinks this is a bug in kernel include files.
 
-Well, as one of your customers (I am a paid/licensed user of your
-Conexant modem drivers for my Dell D800) I am completely turned off by
-this.  I use a myriad of different binary drivers on various Linux
-systems, things like the NVidia binary driver, EMC PowerPath, VMware
-binary module, etc.  EMC PowerPath compares well to your example as it
-consist of multiple modules and each one spits out a message.  EMC
-simply used their documentation to tell the user that these messages
-means that the kernel can no longer be supported by the Linux community,
-however, they can be safely ignored.
+I believe he has set this up so that it won't compile correctly unless 
+you have a source tree at /usr/src/linux, and then he uses the includes 
+there. He has ignored being told this is not the proper way to do things.
 
-> I would like however to point out that part of the reason why people
-> sometimes resort to such kludges is that some kernel maintainers have
-> been rather reluctant to accommodate proprietary drivers which
-> unfortunately are a necessary real-world evil
+It may be an unrelated problem, but I think he regards ever case where 
+the kernel people didn't do things for his convenience as a bug, and 
+writes his code to cause problems if you don't do it his way.
 
-In my opinion your actions also represent a real-world evil.  As a user
-I'm reluctant to use proprietary drivers and certainly don't expect the ones
-that I am forced to used to lie about that fact and try to pretend to be GPL
-when they are not.  After reading this I realized that I myself have probably
-reported kernel BUG's while your drivers were loaded, not realizing that my
-kernel was really tainted because it didn't report that fact.  Who knows how
-many other users may have done the same thing?
+If you do audio burns it's worth fighting, they use DMA with the ATA: 
+interface. For data the last time I used ide-scsi it was working again, 
+although it's not the preferred way to operate. YMMV.
 
-You seem to think that acceptance of Linux is somehow more important that the
-GPL.  In my opinion it's exactly the opposite, acceptance and recognition of
-the the importance of the GPL and the rights it gives you is more important
-than the acceptance of Linux.  If the "real-world" forces you to do something
-that gives up those rights (loading a binary module) the kernel should definitely
-make the user aware.
-
-Later,
-Tom
-
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,85 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbUKKAPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbUKKASi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbUKKAPw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 19:15:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbUKKAPw
+	id S262070AbUKKASi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 19:18:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbUKKASi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 19:15:52 -0500
-Received: from soundwarez.org ([217.160.171.123]:50107 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S262161AbUKKAMO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 19:12:14 -0500
-Date: Thu, 11 Nov 2004 01:12:12 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: /sys/devices/system/timer registered twice
-Message-ID: <20041111001212.GA2796@vrfy.org>
-References: <20041109193043.GA8767@vrfy.org> <20041109193947.GA5758@kroah.com> <20041110022535.GA10011@vrfy.org> <20041110223629.GA5925@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041110223629.GA5925@in.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 10 Nov 2004 19:18:38 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:31753 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S262070AbUKKASP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 19:18:15 -0500
+Message-ID: <4192AFDD.3000005@conectiva.com.br>
+Date: Wed, 10 Nov 2004 22:18:37 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Organization: Conectiva S.A.
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix  platform_rename_gsi related ia32 build breakage
+References: <4192A959.9020806@conectiva.com.br> <4192A9BF.2080606@conectiva.com.br> <4192ADF4.1050907@conectiva.com.br>
+In-Reply-To: <4192ADF4.1050907@conectiva.com.br>
+Content-Type: multipart/mixed;
+ boundary="------------060600010508000707090400"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 10, 2004 at 04:36:29PM -0600, Maneesh Soni wrote:
-> On Wed, Nov 10, 2004 at 03:25:35AM +0100, Kay Sievers wrote:
-> > On Tue, Nov 09, 2004 at 11:39:47AM -0800, Greg KH wrote:
-> > > On Tue, Nov 09, 2004 at 08:30:43PM +0100, Kay Sievers wrote:
-> > > > Hi,
-> > > > I got this on a Centrino box with the latest bk:
-> > > > 
-> > > >   [kay@pim linux.kay]$ ls -l /sys/devices/system/
-> > > >   total 0
-> > > >   drwxr-xr-x  7 root root 0 Nov  8 15:12 .
-> > > >   drwxr-xr-x  5 root root 0 Nov  8 15:12 ..
-> > > >   drwxr-xr-x  3 root root 0 Nov  8 15:12 cpu
-> > > >   drwxr-xr-x  3 root root 0 Nov  8 15:12 i8259
-> > > >   drwxr-xr-x  2 root root 0 Nov  8 15:12 ioapic
-> > > >   drwxr-xr-x  3 root root 0 Nov  8 15:12 irqrouter
-> > > >   ?---------  ? ?    ?    ?            ? timer
-> > > > 
-> > > > 
-> > > > It is caused by registering two devices with the name "timer" from:
-> > > > 
-> > > >   arch/i386/kernel/time.c
-> > > >   arch/i386/kernel/timers/timer_pit.c
-> > > > 
-> > > > If I change one of the names, I get two correct looking sysfs entries.
-> > > > 
-> > > > Greg, shouldn't the driver core prevent the corruption of the first
-> > > > device if another one tries to register with the same name?
-> > > 
-> > > Yes, we should handle this.  Can you try the patch below?  I just sent
-> > > it to Linus, as it fixes a bug that was recently introduced.
-> > > 
-> > > The second registration should fail, and this patch will make it fail,
-> > > and recover properly.
-> > 
-> > Yes, the registration fails. But it seems that the second call to
-> > create_dir(kobj) with a kobject with the same name and parent corrupts
-> > the dentry from the first call.
-> > 
-> > To test it, I just called create_dir(kobj) a second time for my video
-> > driver and the sysfs entry of the successful registered kobject was
-> > corrupted:
-> 	> 
-> >   [kay@pim ~]$ ls -la /sys/class/video4linux/
-> >   total 0
-> >   drwxr-xr-x   3 root root 0 Nov 10 02:53 .
-> >   drwxr-xr-x  18 root root 0 Nov 10 02:53 ..
-> >   ?---------   ? ?    ?    ?            ? video0
-> > 
+This is a multi-part message in MIME format.
+--------------060600010508000707090400
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+OK, last try, of course the patch is busted because the #endif should
+be _before_ the break statement.
+
+/me goes looking for a brown paper bag :-(
+
+- Arnaldo
+
+Arnaldo Carvalho de Melo wrote:
+> This one compiles and links OK.
 > 
-> Thanks for reporting this bug. I think the problem here is doing d_drop()
-> for the existing directory dentry in create_dir() for error case. It should
-> not be done for EEXIST. Could you please try the same test with the following 
-> patch applied.
+> - Arnaldo
+> 
+> Arnaldo Carvalho de Melo wrote:
+> 
+>> arch/i386/kernel/built-in.o(.text+0xeade): In function `pin_2_irq':
+>> : undefined reference to `platform_rename_gsi'
+>> make: ** [.tmp_vmlinux1] Erro 1
+>>
+>> Sorry, the patch is not enough...
+>>
+>> - Arnaldo
+>>
+>> Arnaldo Carvalho de Melo wrote:
+>>
+>>> Hi Linus,
+>>>
+>>>     This is needed to build current BK tree on IA32.
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> ===== arch/i386/kernel/io_apic.c 1.116 vs edited =====
+> --- 1.116/arch/i386/kernel/io_apic.c	2004-10-28 05:35:33 -03:00
+> +++ edited/arch/i386/kernel/io_apic.c	2004-11-10 21:58:57 -02:00
+> @@ -1069,12 +1069,14 @@
+>  			while (i < apic)
+>  				irq += nr_ioapic_registers[i++];
+>  			irq += pin;
+> +#ifdef CONFIG_ACPI_BOOT
+>  			/*
+>  			 * For MPS mode, so far only used by ES7000 platform
+>  			 */
+>  			if (platform_rename_gsi)
+>  				irq = platform_rename_gsi(apic, irq);
+>  			break;
+> +#endif
+>  		}
+>  		default:
+>  		{
 
-My second create_dir(), also and the double "timer" registration do not corrupt
-the sysfs directory from the first call anymore. Nice fix!
+--------------060600010508000707090400
+Content-Type: text/plain;
+ name="a.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="a.patch"
 
-Thanks,
-Kay
+===== arch/i386/kernel/io_apic.c 1.116 vs edited =====
+--- 1.116/arch/i386/kernel/io_apic.c	2004-10-28 05:35:33 -03:00
++++ edited/arch/i386/kernel/io_apic.c	2004-11-10 22:17:37 -02:00
+@@ -1069,11 +1069,13 @@
+ 			while (i < apic)
+ 				irq += nr_ioapic_registers[i++];
+ 			irq += pin;
++#ifdef CONFIG_ACPI_BOOT
+ 			/*
+ 			 * For MPS mode, so far only used by ES7000 platform
+ 			 */
+ 			if (platform_rename_gsi)
+ 				irq = platform_rename_gsi(apic, irq);
++#endif
+ 			break;
+ 		}
+ 		default:
+
+--------------060600010508000707090400--

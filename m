@@ -1,54 +1,136 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136428AbREINHQ>; Wed, 9 May 2001 09:07:16 -0400
+	id <S136401AbREINE0>; Wed, 9 May 2001 09:04:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136400AbREINHJ>; Wed, 9 May 2001 09:07:09 -0400
-Received: from midten.fast.no ([213.188.8.11]:1284 "EHLO midten.fast.no")
-	by vger.kernel.org with ESMTP id <S136428AbREINGK>;
-	Wed, 9 May 2001 09:06:10 -0400
-Subject: O_DIRECT support important for high data volume applications
-From: Michael Susag <Michael.Susag@fast.no>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 09 May 2001 15:06:05 +0200
-Message-Id: <989413566.20025.2.camel@mach>
-Mime-Version: 1.0
+	id <S136400AbREINER>; Wed, 9 May 2001 09:04:17 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:49793 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S136401AbREINEG>; Wed, 9 May 2001 09:04:06 -0400
+Date: Wed, 9 May 2001 09:04:01 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: george anzinger <george@mvista.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 
+In-Reply-To: <3AF8661D.F3A08367@mvista.com>
+Message-ID: <Pine.LNX.3.95.1010509085529.8159A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When will we see O_DIRECT support included in
-the Linux kernel?
+On Tue, 8 May 2001, george anzinger wrote:
 
-We have now tested 2.4.4 with the o_direct-5 patch,
-and it still works perfectly.
+> "Richard B. Johnson" wrote:
+> > 
+> > To driver wizards:
+> > 
+> > I have a driver which needs to wait for some hardware.
+> > Basically, it needs to have some code added to the run-queue
+> > so it can get some CPU time even though it's not being called.
+> > 
+[SNIPPED...]
 
-I sent an email about two weeks ago asking if the O_DIRECT 
-patch by Andrea Archangeli would be included in 2.4.4.
-2.4.4 has since been released, but only with the rawio 
-patch, which Andrea considered as a bugfix patch. 
+> How about something like:
+> 
+> #include <linux/timer.h>
+> 
+> void queue_task(void process_timeout(void), unsigned long timeout,
+> struct timer_list *timer, unsigned long data)
+> {
+> 	unsigned long expire = timeout + jiffies;
+> 
+> 	init_timer(&timer);
+> 	timer->expires = expire;
+> 	timer->data = data;
+> 	timer->function = process_timeout;
+> 
+> 	add_timer(&timer);
+> }
+> 
+> 
+> You will have to define the "struct timer_list timer".  This should
+> cause the function passed to be called after "timeout" jiffies (1/HZ,
+> not to be confused with 10 ms).  If you want to stop the timer early do:
+> 
+> 	del_timer_sync(&timer);
+> 
+> "data" was not used in you example, but process_timeout will be passed
+> "data" when it is called.  This routine is called as part of the timer
+> interrupt, so it must be fast and should not do schedule() calls.  It
+> could queue a tasklet, however, to relax constraints a bit.
+> 
+> George
 
-The O_DIRECT patch is in my view really important
-for high data volume applications that do 
-caching internally. The performance graph 
-I posted earlier should be enough evidence.
-
-If I remember correctly, Stephen Tweedie implemented 
-O_DIRECT support already back in 1999. Why this 
-implementation was not included, I do not know.
-
-Linux would be lacking behind other OSs if not 
-O_DIRECT support is added. All major commercial 
-OSs have this capability.
+This is all very nice. This is basically what the 'tasklet' does.
+The problem is that I have in my code something like this:
 
 
--- 
-Michael Susæg, M.Eng.             Mail:  Michael.Susag@fast.no
-Software Engineer                 Web:   http://www.fast.no/
-Fast Search & Transfer ASA        Phone: +47 21 60 12 27
-P.O. Box 1677 Vika                Fax:   +47 21 60 12 01
-NO-0120 Oslo, NORWAY              Mob:   +47 90 06 38 70
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+/*
+ *  This waits for an event-flag to be TRUE. It takes a pointer to
+ *  that flag, plus the number of timer-ticks to wait. If it times-
+ *  out, it returns -ETIME. Otherwise it returns 0.
+ */
+static int waitfor(volatile int *event, int mask, int ticks)
+{
+    unsigned long timer;
+    int stat;
+    DEB(printk("%s waitfor\n", info->dev));
+    stat = -ETIME;
+    timer = jiffies + (unsigned long) ticks;
+    while(!!time_before(jiffies, timer))
+    {
+        if(!!(*event & mask))
+        {
+            stat = 0;
+            break;
+        }
+        schedule();
+    }
+    return stat; 
+}
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+/*
+ *  This waits for a bit in a port to be TRUE. It takes the OFFSET of
+ *  that port, plus the number of timer-ticks to wait. If it times-
+ *  out, it returns -ETIME. Otherwise it returns 0.
+ */
+static int waitport(int offset, int mask, int ticks)
+{
+    unsigned long timer;
+    int stat;
+    DEB(printk("%s waitport\n", info->dev));
+    stat = -ETIME;
+    timer = jiffies + (unsigned long) ticks;
+    while(!!time_before(jiffies, timer))
+    {
+        if(!!(READ_TNT(offset) & mask))
+        {
+            stat = 0;
+            break;
+        }
+        schedule();
+    }
+    return stat; 
+}
 
-Try FAST Search: http://www.alltheweb.com/
+
+Both of these procedures schedule() while waiting for something to
+happen. The wait can be very long (1 second) so I don't want to
+just spin eating CPU cycles. I have to give the CPU to somebody.
+
+
+
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
 

@@ -1,90 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274279AbRIYAZy>; Mon, 24 Sep 2001 20:25:54 -0400
+	id <S274277AbRIYA1O>; Mon, 24 Sep 2001 20:27:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274277AbRIYAZp>; Mon, 24 Sep 2001 20:25:45 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:28688 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S274272AbRIYAZc>; Mon, 24 Sep 2001 20:25:32 -0400
-Date: Mon, 24 Sep 2001 18:29:39 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: "Paul G. Allen" <pgallen@randomlogic.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        jmerkey@utah-nac.org
-Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life in prison
-Message-ID: <20010924182939.A15611@vger.timpanogas.org>
-In-Reply-To: <3BAFC01D.20FA8240@randomlogic.com> <Pine.LNX.4.33L.0109242035540.1864-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.33L.0109242035540.1864-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Mon, Sep 24, 2001 at 08:37:11PM -0300
+	id <S274283AbRIYA1K>; Mon, 24 Sep 2001 20:27:10 -0400
+Received: from zima.ucf.ics.uci.edu ([128.195.23.150]:38622 "HELO
+	zima.ucf.ics.uci.edu") by vger.kernel.org with SMTP
+	id <S274277AbRIYA04>; Mon, 24 Sep 2001 20:26:56 -0400
+Date: Mon, 24 Sep 2001 17:27:21 -0700 (PDT)
+From: Edmund Lau <edlau@ucf.ics.uci.edu>
+To: linux-kernel@vger.kernel.org
+Subject: VmRSS bug on 2.4.10?
+Message-ID: <Pine.GSO.4.40.0109241715210.19607-100000@keg.ucf.ics.uci.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 24, 2001 at 08:37:11PM -0300, Rik van Riel wrote:
+Hi All,
 
-When people are crashing planes into buildings and killing people
-by the thousands, hacking laws should be tough.  The US has shut off
-internet access from Cyprus and several other places, and I've 
-noticed a fall-off of hacking on my servers -- GOOD!.  
+I was doing a "ps aux" on my K6-3 machine running 2.4.10.  I haven't seen
+this posted on the newsflash page yet so I'll post it here.  I noticed
+that my X server was reporting something funny:
 
-Maureen O'Gara at Client Server News is based in NY, and from what she 
-describes, the entire city is in a terrible state.  Let anyone in New 
-York know who is our friend on this list that the Utah Native American 
-Church has sent James Mooney to New York City to conduct ceremonies for 
-the victims and their families.   The mayor's office has given us 
-permission to conduct our ceremonies there for these people without 
-fear of police harassment.
+root       328  0.0  0.0  1004    4 tty4     S    Sep23   0:00 /sbin/getty
+38400 tty4
+root       330  0.2 99.9 24376 4294967072 ?  S    Sep23   3:56
+/usr/local/pkg/X11R6-4.1.0/bin/X -auth /usr/local/pkg/X11R6-4.1.0/lib/X11/xdm/authdir/authfiles/A:0-fTtaTO
+nobody   25244  0.0  2.4  5884 3064 ?        S    06:51   0:14
+/usr/local/pkg/apache-1.3.20/bin/httpd
 
-I am sending him enough peyote to trip out half the city.  Anyone in NY 
-who needs to find healing who is a member of our linux "Family" is 
-welcome at these ceremonies.  These people involved in this terrifying 
-ordeal need to sit in a tepee and go somewhere else for a couple of days
-with the sacred medicine.  
+What in the world? 99.9% MEM?  At first I thought it was because I haven't
+updated my ps tools and such, but they've been working just fine w/ all
+the other 2.4.x kernels I've been running.
 
-New York folks who wish to be involved in these ceremonies can call 
-212-755-0968 or 212-929-9396 to find out where and when.  We have so far
-hosted thousands of the victims in these ceremonies.  All are welcome and 
-their families.  The laws in New York allow non-Indians to use peyote 
-for religious purposes of any race, unlike Utah.  Tell our brothers we 
-open our doors to those in need of spiritual and emotional healing for 
-the people of New York.
+Next thing: cat /proc/330/status shows:
 
-These ceremonies are **FREE**.  The Utah NAC is picking up the tab.
+VmSize:    24376 kB
+VmLck:         0 kB
+VmRSS:  4294967072 kB
+VmData:     5192 kB
+VmStk:        68 kB
+VmExe:      1328 kB
+VmLib:      1092 kB
 
-Do-na-da Go-hv-e
+Wow!  Wish I had that much memory!  I thought I only put in a single
+128meg PC-100 DIMM...  I don't think it's impacting normal functions, but
+I'm not on the console to check if X (X11R6-4.1.0) is still working.
 
-Wa-do
+/proc/meminfo currently reports:
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  129900544 117645312 12255232        0  2711552 39165952
+Swap: 205557760  1236992 204320768
+MemTotal:       126856 kB
+MemFree:         11968 kB
+MemShared:           0 kB
+Buffers:          2648 kB
+Cached:          37476 kB
+SwapCached:        772 kB
+Active:          20240 kB
+Inactive:        20656 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       126856 kB
+LowFree:         11968 kB
+SwapTotal:      200740 kB
+SwapFree:       199532 kB
 
-Jeff
+Anything I can do to help you guys figure it out?  It's a production
+machine so I probably can't help with full blown debugging, but I'll
+produce reports as long as someone tells me what to type in :) I'll leave
+the X server alone for a week or so.  Please CC me as I'm not on the list.
 
+-Ed
 
-> On Mon, 24 Sep 2001, Paul G. Allen wrote:
-> 
-> > If this passes, everyone working in computer security can be
-> > arrested and thrown in prison for life. In addition, people such
-> > as Kevin Mitnick can be thrown back in prison even though they
-> > have already paid for their crime (double jeopardy?).
-> >
-> > http://www.securityfocus.com/news/257
-> 
-> So, would anybody have a nice piece of real estate in the
-> free world where silicon valley could be evacuated to ?
-> 
-> (time to find volunteers to maintain thefreeworld.net ?)
-> 
-> cheers,
-> 
-> Rik
-> --
-> IA64: a worthy successor to the i860.
-> 
-> 		http://www.surriel.com/
-> http://www.conectiva.com/	http://distro.conectiva.com/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

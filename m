@@ -1,90 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262923AbRF0PAc>; Wed, 27 Jun 2001 11:00:32 -0400
+	id <S262715AbRF0PAW>; Wed, 27 Jun 2001 11:00:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262997AbRF0PAX>; Wed, 27 Jun 2001 11:00:23 -0400
-Received: from mail2.megatrends.com ([155.229.80.11]:10514 "EHLO
-	mail2.megatrends.com") by vger.kernel.org with ESMTP
-	id <S262923AbRF0PAG> convert rfc822-to-8bit; Wed, 27 Jun 2001 11:00:06 -0400
-Message-ID: <1355693A51C0D211B55A00105ACCFE6402D25E79@ATL_MS1>
-From: "Atul Mukker." <Atulm@ami.com>
-To: "'Kelly Martin'" <kellym@fb00.fb.org>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: random failures with megaraid driver on 2.4.4 SMP
-Date: Wed, 27 Jun 2001 10:54:39 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2448.0)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	id <S262997AbRF0PAM>; Wed, 27 Jun 2001 11:00:12 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:47441 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262715AbRF0PAB>; Wed, 27 Jun 2001 11:00:01 -0400
+Date: Wed, 27 Jun 2001 16:59:45 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Zeng Yu <yu_zeng@263.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Ramdisk Bug?
+Message-ID: <20010627165945.A16936@athlon.random>
+In-Reply-To: <001e01c0ff14$0bdc7540$0101a8c0@weqeqe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <001e01c0ff14$0bdc7540$0101a8c0@weqeqe>; from yu_zeng@263.net on Wed, Jun 27, 2001 at 10:18:26PM +0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This issue has been acknowledged on 1M/2M controllers with firmware H.01.07
-and H.01.08.
-
-Atul Mukker
-Supervising Software Engineer
-RAID R&D
-American Megatrends Inc.
-6145-F Northbelt Parkway Norcross GA-30071
-E-mail: atulm@ami.com
-HTTP: www.ami.com
-
-
-
-> -----Original Message-----
-> From:	Kelly Martin [SMTP:kellym@fb00.fb.org]
-> Sent:	Wednesday, June 27, 2001 9:26 AM
-> To:	Kelly Martin; 'linux-kernel@vger.kernel.org'
-> Subject:	RE: random failures with megaraid driver on 2.4.4 SMP
+On Wed, Jun 27, 2001 at 10:18:26PM +0800, Zeng Yu wrote:
+> Hi all,
 > 
-> FYI, patching megaraid.c to disable 64-bit mode avoids the problem.
-> Apparently, the firmware provided by HP for this card is buggy in 64 bit
-> mode.  System has run stably for two weeks after applying the patch.
-> Contact me if you want the patch.  Thanks to Martti Hyppänen for the
-> patch.
-> 
-> (Posted because I've received followup inquiries; please cc: replies.)
-> 
-> Kelly Martin
-> American Farm Bureau Federation
-> kellym@fb.org
-> 
-> > -----Original Message-----
-> > From:	Kelly Martin 
-> > Sent:	Thursday, June 07, 2001 12:40 PM
-> > To:	'linux-kernel@vger.kernel.org'
-> > Subject:	random failures with megaraid driver on 2.4.4 SMP
-> > 
-> > I have an HP Netserver 1000r (dual Pentium 3) with a HP NetRAID-1M card
-> > running Linux 2.4.4 with the megaraid driver included in 2.4.4 that has
-> > twice now experienced kernel panics related to file system damage which
-> > appear to be caused by the megaraid driver going mad and scribbling
-> > randomly on the drive.  We have using this same driver with 2.2.x
-> kernels
-> > on other uniprocessor machines with the same NetRAID card for over a
-> year
-> > with no failures, so it seems likely that this is either a 2.4.x problem
-> > or an SMP problem with this driver.  
-> > 
-> > This machine is slated to become a production system and I do not have a
-> > similiarly-configured spare machine, so I am not going to pursue this
-> > problem at this time.  This card works fine under 2.2.x so we are going
-> to
-> > use 2.2.19 on this machine for now.  However, doing so makes our second
-> > processor little more than a space heater.  I have not tried using other
-> > versions of the megaraid driver or kernels other than 2.4.4; I simply
-> > cannot spare the time right now.
-> > 
-> > I am not subscribed to the mailing list; please cc: replies.
-> > 
-> > Kelly Martin
-> > American Farm Bureau Federation
-> > kellym@fb.org
-> > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> I think find a ramdisk bug of 2.4.4 kernel -- ramdisk
+> use both buffers and cached mem of the same size, thus
+> double the mem use. 
+> mke2fs -m0 /dev/ram1
+> mount /dev/ram1 /mnt
+> dd if=/dev/zero of=/mnt/data bs=1k count=110000
+> cat /proc/meminfo will see that both buffers and
+> cached mem increase about 110M of size. More worse,
+> the cached mem won't be released untile the ramdisk
+> be umounted. I attach the meminfo and slabinfo before
+
+the "more worse" part is the only thing which is wrong. The fact cache
+also grows to 110M is expected and it won't change. With the
+blkdev-pagecache patch the cache will grow to 220M and it will shrink to
+110M if you are low on memory (buffer cache will only be allocated for
+the superblock and inode metadata with ext2).
+
+use ramfs if you want zero ram duplication and you don't care about the
+physical representation on disk of your data in cache.
+
+> and after data transfer below.
+
+Try this patch to fix the "more worst part"  (beware totally untested).
+
+--- blkdev-rd/include/linux/swap.h.~1~	Sun Jun 24 02:06:13 2001
++++ blkdev-rd/include/linux/swap.h	Wed Jun 27 16:47:57 2001
+@@ -274,7 +274,7 @@
+ #endif
+ 
+ #define page_ramdisk(page) \
+-	(page->buffers && (MAJOR(page->buffers->b_dev) == RAMDISK_MAJOR))
++	(!page->mapping && page->buffers && (MAJOR(page->buffers->b_dev) == RAMDISK_MAJOR))
+ 
+ extern spinlock_t swaplock;
+ 
+
+Andrea

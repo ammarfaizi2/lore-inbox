@@ -1,63 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286339AbSBCHPR>; Sun, 3 Feb 2002 02:15:17 -0500
+	id <S286411AbSBCH0s>; Sun, 3 Feb 2002 02:26:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286411AbSBCHPG>; Sun, 3 Feb 2002 02:15:06 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:29908 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S286339AbSBCHOt>; Sun, 3 Feb 2002 02:14:49 -0500
-Date: Sun, 3 Feb 2002 08:12:17 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: =?iso-8859-1?q?Kurt=20Johnson?= <gorydetailz@yahoo.co.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: cant compile 2.5.3-dj1
-In-Reply-To: <20020203032247.61375.qmail@web14608.mail.yahoo.com>
-Message-ID: <Pine.NEB.4.44.0202030811260.9676-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286413AbSBCH0j>; Sun, 3 Feb 2002 02:26:39 -0500
+Received: from ns.suse.de ([213.95.15.193]:53509 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S286411AbSBCH03>;
+	Sun, 3 Feb 2002 02:26:29 -0500
+To: Jeff Garzik <garzik@havoc.gtf.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: O_DIRECT fails in some kernel and FS
+In-Reply-To: <E16WkQj-0005By-00@antoli.uib.es.suse.lists.linux.kernel> <3C5AFE2D.95A3C02E@zip.com.au.suse.lists.linux.kernel> <1012597538.26363.443.camel@jen.americas.sgi.com.suse.lists.linux.kernel> <20020202093554.GA7207@tapu.f00f.org.suse.lists.linux.kernel> <234710000.1012674008@tiny.suse.lists.linux.kernel> <20020202205438.D3807@athlon.random.suse.lists.linux.kernel> <242700000.1012680610@tiny.suse.lists.linux.kernel> <3C5C4929.5080403@sgi.com.suse.lists.linux.kernel> <20020202155028.B26147@havoc.gtf.org.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 03 Feb 2002 08:26:28 +0100
+In-Reply-To: Jeff Garzik's message of "2 Feb 2002 21:54:34 +0100"
+Message-ID: <p737kpvauvv.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Feb 2002, Kurt Johnson wrote:
+Jeff Garzik <garzik@havoc.gtf.org> writes:
 
-> Hello,
->...
+> On Sat, Feb 02, 2002 at 02:16:41PM -0600, Stephen Lord wrote:
+> > Can't you fall back to buffered I/O for the tail? OK it complicates the
+> > code, probably a lot, but it keeps things sane from the user's point of
+> > view.
+> 
+> For O_DIRECT, IMHO you should fail not fallback.  You're simply lying
+> to the underlying program otherwise.
 
-Hi Kurt,
+It's just impossible to write a tail which is smaller than a disk block
+without another buffer. 
 
-> filesystems.c
-> filesystems.c:36: syntax error before `int'
-> make[2]: *** [filesystems.o] Error 1
-> make[2]: Leaving directory
-> `/usr/local/src/linux-2.5/fs'
-> make[1]: *** [first_rule] Error 2
-> make[1]: Leaving directory
-> `/usr/local/src/linux-2.5/fs'
-> make: *** [_dir_fs] Error 2
->
-> Is this a known issue? If so, is there any patch?
-
-This is a known issue. The patch is:
-
---- fs/filesystems.c.old	Fri Feb  1 08:55:12 2002
-+++ fs/filesystems.c	Fri Feb  1 08:55:41 2002
-@@ -12,6 +12,7 @@
- #include <linux/smp_lock.h>
- #include <linux/kmod.h>
- #include <linux/nfsd/interface.h>
-+#include <linux/linkage.h>
-
- #if defined(CONFIG_NFSD_MODULE)
- struct nfsd_linkage *nfsd_linkage = NULL;
-
-
-
-> Regards,
->
-> /kj
-
-cu
-Adrian
-
-
+-Andi

@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVB1KNR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVB1KnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261572AbVB1KNR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 05:13:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVB1KNQ
+	id S261573AbVB1KnP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 05:43:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVB1KnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 05:13:16 -0500
-Received: from ext-nj2gw-7.online-age.net ([64.14.56.43]:47322 "EHLO
-	ext-nj2gw-7.online-age.net") by vger.kernel.org with ESMTP
-	id S261572AbVB1KNN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 05:13:13 -0500
-Date: Mon, 28 Feb 2005 11:12:48 +0100
-From: Kiniger <karl.kiniger@med.ge.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and give dev=/dev/hdX as device
-Message-ID: <20050228101248.GA14975@wszip-kinigka.euro.med.ge.com>
-References: <200502152125.j1FLPSvq024249@turing-police.cc.vt.edu> <200502161736.j1GHa4gX013635@turing-police.cc.vt.edu> <cv36kk$54m$1@gatekeeper.tmr.com> <20050218103107.GA15052@wszip-kinigka.euro.med.ge.com> <1108998023.15518.93.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1108998023.15518.93.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Mon, 28 Feb 2005 05:43:15 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:57539 "EHLO xsmtp.ethz.ch")
+	by vger.kernel.org with ESMTP id S261573AbVB1KnM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 05:43:12 -0500
+Message-ID: <4222F5BE.7000301@pixelized.ch>
+Date: Mon, 28 Feb 2005 11:43:10 +0100
+From: "Giacomo A. Catenazzi" <cate@pixelized.ch>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: "Ammar T. Al-Sayegh" <ammar@kunet.com>, linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at mm/rmap.c:483!
+References: <009d01c519e8$166768b0$7101a8c0@shrugy>	 <1109192040.6290.108.camel@laptopd505.fenrus.org>	 <003001c519f1$031afc00$7101a8c0@shrugy>	 <1109196074.6290.116.camel@laptopd505.fenrus.org>	 <007d01c519f9$7c9a5f50$7101a8c0@shrugy>	 <1109234333.6530.19.camel@laptopd505.fenrus.org>	 <004501c51a52$c4200380$7101a8c0@shrugy> <1109237429.6530.23.camel@laptopd505.fenrus.org>
+In-Reply-To: <1109237429.6530.23.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Feb 2005 10:43:10.0288 (UTC) FILETIME=[4BB2A500:01C51D82]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 21, 2005 at 03:00:28PM +0000, Alan Cox wrote:
-> On Gwe, 2005-02-18 at 10:31, Kiniger, Karl (GE Healthcare) wrote:
-> > Not entirely true (at least for me). I actually tried to read the 
-> > last iso9660 data sector with a small C program (reading 2 kb) and
-> > it failed to read the sector. Using ide-scsi I was able to read it.....
+Arjan van de Ven wrote:
+
+>>but what what's the
+>>penalty of preventing microcode from loading? a performance
+>>hit?
 > 
-> Thats the bug that should now be fixed by the ide changes I did so that
-> ide-cd has the knowledge ide-scsi has for partial completions of I/O
+> 
+> not even that; in theory a few cpu bugs may have been fixed. Nobody
+> really knows since there's no changelog for the microcode..
 
-Thanks Alan,
+You can see the processor bugs in intel website, i.e.:
+ftp://download.intel.com/design/Xeon/specupdt/24967847.pdf
 
-hopefully these changes will go into the fedora core3 kernel soon.
+The following sentence (IMHO) meens that bug is corrected in microcode:
+"Workaround: It is possible for the BIOS to contain a workaround
+for this erratum."
 
-Greetings
-Karl
-
--- 
-Karl Kiniger   mailto:karl.kiniger@med.ge.com
-GE Medical Systems Kretztechnik GmbH & Co OHG
-Tiefenbach 15       Tel: (++43) 7682-3800-710
-A-4871 Zipf Austria Fax: (++43) 7682-3800-47
+ciao
+	cate

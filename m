@@ -1,130 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263000AbUDUEbb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264856AbUDUEnp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263000AbUDUEbb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 00:31:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264794AbUDUEbb
+	id S264856AbUDUEnp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 00:43:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264858AbUDUEnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 00:31:31 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:21775 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263000AbUDUEbY (ORCPT
+	Wed, 21 Apr 2004 00:43:45 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:50375 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id S264856AbUDUEnm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 00:31:24 -0400
-Date: Mon, 19 Apr 2004 11:39:50 -0700
-From: Paul Jackson <pj@sgi.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: bitmap, cpumask_arith (was: 2.6.6-rc1-mm1)
-Message-Id: <20040419113950.6f34f435.pj@sgi.com>
-In-Reply-To: <20040419070643.GG743@holomorphy.com>
-References: <20040418230131.285aa8ae.akpm@osdl.org>
-	<20040419062914.GE743@holomorphy.com>
-	<20040418234214.7bfb5392.akpm@osdl.org>
-	<20040419064943.GF743@holomorphy.com>
-	<20040419070643.GG743@holomorphy.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 21 Apr 2004 00:43:42 -0400
+Date: Wed, 21 Apr 2004 14:42:03 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       linuxppc64-dev@lists.linuxppc.org
+Subject: [PATCH] PPC64 iSeries virtual ethernet fix
+Message-Id: <20040421144203.7c7c3d4e.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Wed__21_Apr_2004_14_42_03_+1000_.6VlfrR_A_cTs_to"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok ... lets see here.
+--Signature=_Wed__21_Apr_2004_14_42_03_+1000_.6VlfrR_A_cTs_to
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-This message is in reply to 4 messages from Bill Irwin, dated:
-  Sat, 17 Apr 2004 19:26:38 -0700
-  Sun, 18 Apr 2004 23:29:14 -0700
-  Sun, 18 Apr 2004 23:49:43 -0700
-  Mon, 19 Apr 2004 00:06:43 -0700
+Hi Andrew,
 
+This is the patch I said would be needed due to other patches that were
+applied in parallel with the inclusion of the iSeries virtual ethernet
+driver.
 
-> I'm having enough trouble remembering what Paul Jackson's take on things
+Please apply to your tree and send to Linus.
 
-My take was that in my work-in-progress bitmap/cpumask patches, I have:
-
-  1) Slightly strengthened the constraints (post-conditions) on
-     bitmap ops to not set tail bits so long as none were set on
-     input.  This mostly means that the complement operator zeros
-     out the tail.  The operators that return scalar (weight,
-     for example) or boolean (empty and full, for example) are
-     still careful to avoid depending on the state of the tail.
-
-     This changes Bill Irwin's "don't care" rule into a "don't
-     care, but don't pollute further" rule.
-
-  2) Removed cpumask_arith entirely, along with 30 odd other files,
-     to be replaced by a single cpumask.h set of macros, layered
-     rather thinly on top of bitmap/bitop.
-
-
-> The important aspect of these is that they're pertinent to small SMP
-> systems, ...
-
-I tried making this point before, but failed to communicate.  Let me try
-again.  So far as I know, there is no instance in current Linux kernel
-code using this cpumask facility that is affected (currently broken) by
-the cpumask_arith bugs addressed by Bill's patch.  Do you know of any
-breakage in other _current_ code caused by these cpumask_arith bugs,
-Bill?
-
-As a consequence of my seeing nothing else yet overtly busted by this,
-it was, and remains, my recommendation to Bill to hold off on these
-patches.  Little sense in correcting the semantics of a piece of code
-that I expected to remove shortly anyway, if nothing else cared for now.
-
-However, I realize that Bill takes considerable pride in his work, and
-would like to see this fixed.  It's not worth a big fuss, either way,
-so far as I can tell.
-
-
-> Paul, please remove akpm from the cc: list
-
-I have removed akpm from this reply.
-
-
-> the users of small SMP systems who are affected by the bug(s) you
-> reported.
-
-I am unaware that any user of any small SMP (or other) system
-is affected by these bugs.
-
-
-> If you could review and/or send approval or the like that would be
-> very helpful ...
-
-If we can agree on the actual state of affairs, then I will readily
-agree to such to Andrew, and let him decide on the merits and
-appropriate timing of this patch.
-
->From what I know now, this would mean telling Andrew, of Bill's patch:
-
-  This patch fixes some bugs in the small SMP system (2 to 32 CPU) flavor
-  of cpumasks.  From what we know now, these bugs aren't breaking any
-  other existing code, but they are an accident waiting to happen.
-  If Paul Jackson's bitmap/cpumask rework is adapted in the future,
-  then this code being patched would be replaced anyway.  But for now,
-  these fixes are a definite improvement.
-
-If this does not seem like a correct statement of affairs, lets hash
-that out.  Then when we agree, you should present your patch to him on
-the lkml again, and I will gladly chime in with my endorsement.
-
-Unless, of course, you change your mind and decide to hold off on this
-patch, to which I would even more readily agree <grin>.
-
-
-> I have taken issue only where I believe you need to acquire arch
-> maintainer feedback.
-
-And I have agreed that this is an excellent request.  I was out on
-vacation last week, and hesitated to start the arch maintainer discussion
-the week before, knowing that I would be on vacation, and not wanting to
-start something I would not be around to follow through on.
-
-But I am back now, and expect later this week to begin that discussion,
-as you have recommended.
-
+This patch is realtive to 2.6.6-rc2.
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+diff -ruN 2.6.6-rc2/drivers/net/iseries_veth.c 2.6.6-rc2.veth.1/drivers/net/iseries_veth.c
+--- 2.6.6-rc2/drivers/net/iseries_veth.c	2004-04-21 13:26:12.000000000 +1000
++++ 2.6.6-rc2.veth.1/drivers/net/iseries_veth.c	2004-04-21 14:35:45.000000000 +1000
+@@ -61,7 +61,6 @@
+ #include <linux/types.h>
+ #include <linux/errno.h>
+ #include <linux/ioport.h>
+-#include <linux/pci.h>
+ #include <linux/kernel.h>
+ #include <linux/netdevice.h>
+ #include <linux/etherdevice.h>
+@@ -78,10 +77,11 @@
+ #include <asm/iSeries/HvTypes.h>
+ #include <asm/iSeries/HvLpEvent.h>
+ #include <asm/iommu.h>
++#include <asm/vio.h>
+ 
+ #include "iseries_veth.h"
+ 
+-extern struct pci_dev *iSeries_veth_dev;
++extern struct vio_dev *iSeries_veth_dev;
+ 
+ MODULE_AUTHOR("Kyle Lucke <klucke@us.ibm.com>");
+ MODULE_DESCRIPTION("iSeries Virtual ethernet driver");
+@@ -895,10 +895,10 @@
+ 	}
+ 
+ 	dma_length = skb->len;
+-	dma_address = pci_map_single(iSeries_veth_dev, skb->data,
+-				     dma_length, PCI_DMA_TODEVICE);
++	dma_address = vio_map_single(iSeries_veth_dev, skb->data,
++				     dma_length, DMA_TO_DEVICE);
+ 
+-	if (pci_dma_mapping_error(dma_address))
++	if (dma_mapping_error(dma_address))
+ 		goto recycle_and_drop;
+ 
+ 	/* Is it really necessary to check the length and address
+@@ -1016,8 +1016,8 @@
+ 		dma_address = msg->data.addr[0];
+ 		dma_length = msg->data.len[0];
+ 
+-		pci_unmap_single(iSeries_veth_dev, dma_address, dma_length,
+-				 PCI_DMA_TODEVICE);
++		vio_unmap_single(iSeries_veth_dev, dma_address, dma_length,
++				 DMA_TO_DEVICE);
+ 
+ 		if (msg->skb) {
+ 			dev_kfree_skb_any(msg->skb);
+
+
+--Signature=_Wed__21_Apr_2004_14_42_03_+1000_.6VlfrR_A_cTs_to
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAhfucFG47PeJeR58RAuFmAJ9oYXsCysN/91rMJnQfWd5W9ga/CgCgl7zE
+iZsLmXxWzatx17FDXd40o48=
+=wUCT
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__21_Apr_2004_14_42_03_+1000_.6VlfrR_A_cTs_to--

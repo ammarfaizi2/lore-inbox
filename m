@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267010AbSKLXPf>; Tue, 12 Nov 2002 18:15:35 -0500
+	id <S266760AbSKLXTG>; Tue, 12 Nov 2002 18:19:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267012AbSKLXPf>; Tue, 12 Nov 2002 18:15:35 -0500
-Received: from holomorphy.com ([66.224.33.161]:29373 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267010AbSKLXPe>;
-	Tue, 12 Nov 2002 18:15:34 -0500
-Date: Tue, 12 Nov 2002 15:19:37 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
-       hohnbaum@us.ibm.com
-Subject: Re: [0/4] NUMA-Q: remove PCI bus number mangling
-Message-ID: <20021112231937.GB23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
-	hohnbaum@us.ibm.com
-References: <E18BaIc-0006Zs-00@holomorphy> <20021112205241.GS23425@holomorphy.com> <3DD172B8.8040802@us.ibm.com> <20021112213504.GV23425@holomorphy.com> <20021112213906.GW23425@holomorphy.com> <177250000.1037141189@flay> <20021112215305.GZ23425@holomorphy.com> <179150000.1037145229@flay> <20021112225937.GA23425@holomorphy.com>
+	id <S266709AbSKLXTG>; Tue, 12 Nov 2002 18:19:06 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:47538 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S266760AbSKLXTE>;
+	Tue, 12 Nov 2002 18:19:04 -0500
+Message-Id: <200211122325.gACNPhr08344@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: James Stevenson <james@stev.org>
+cc: Per Andreas Buer <perbu@linpro.no>, linux-kernel@vger.kernel.org,
+       cliffw@osdl.org
+Subject: Re: iostats broken for devices with major number > DK_MAX_DISK (16) 
+In-Reply-To: Message from James Stevenson <james@stev.org> 
+   of "12 Nov 2002 23:01:03 GMT." <1037142064.1570.0.camel@god.stev.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021112225937.GA23425@holomorphy.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Date: Tue, 12 Nov 2002 15:25:43 -0800
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 12, 2002 at 03:53:49PM -0800, Martin J. Bligh wrote:
->> Right, I'm not against the sysdata thing, seems like a much better way
->> to do it in general (what I did was a quick hack). Was just confused
->> by the global bus number assertion, but if we use the sysdata stuff,
->> it's all a non-issue ;-)
+> On Tue, 2002-11-12 at 20:35, Per Andreas Buer wrote:
+> > Hi,
+> > 
+> > sorry for the intrusion. I noticed iostats didn't display statistics for
+> > devices on Mylex RAID constrollers. Det statistics are completely
+> > missing in /proc/stat. The reason seems to be an assumption that disks
+> > have major numbers which are below 16
+> > (http://lxr.linux.no/source/include/linux/kernel_stat.h#L15) which is
+> > used by http://lxr.linux.no/source/fs/proc/proc_misc.c#L344.
+> > 
+> > Devices on Mylex-controllers have major number 48. Would it break
+> > anything if DK_MAX_MAJOR if set higher (e.g. 64)?
+> > 
+> > AFAIK this goes for both 2.4 and the 2.5 series.
+> 
+> i have been runing with 2.4.x kernel with this number
+> set higher i have still yet to see any problem with it
+> other than using more memory.
+> 
+We've had the same problem, and we've been running with DK_MAX_MAJOR == 64, 
+using megaraid and acceleraid 2000 controllers. 
+Haven't seen any problems 
+cliffw
+OSDL
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-On Tue, Nov 12, 2002 at 02:59:37PM -0800, William Lee Irwin III wrote:
-> Non-issue for merging...
-> The pain isn't over yet. =(
-> Core PCI code is assuming unique bus numbers in several places.
-> Fixing now,
-> Bill
 
-... and resource/region stuff is not being dealt with properly either.
-
-Found that after dealing with pci_bus_exists() in pci_alloc_primary_bus().
-
-
-Fixing that too,
-Bill

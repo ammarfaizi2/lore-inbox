@@ -1,92 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272500AbTHKL1l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 07:27:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272504AbTHKL1l
+	id S272509AbTHKLbq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 07:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272511AbTHKLbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 07:27:41 -0400
-Received: from pub237.cambridge.redhat.com ([213.86.99.237]:24040 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S272500AbTHKL1j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 07:27:39 -0400
-Subject: Re: 2.5.x module make questions
-From: David Woodhouse <dwmw2@infradead.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: yiding_wang@agilent.com, linux-kernel@vger.kernel.org,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-In-Reply-To: <20030729210916.GA20154@mars.ravnborg.org>
-References: <334DD5C2ADAB9245B60F213F49C5EBCD05D55239@axcs03.cos.agilent.com>
-	 <20030729210916.GA20154@mars.ravnborg.org>
-Content-Type: text/plain
-Message-Id: <1060601246.8833.9.camel@passion.cambridge.redhat.com>
+	Mon, 11 Aug 2003 07:31:46 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37126 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S272509AbTHKLbp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 07:31:45 -0400
+Date: Mon, 11 Aug 2003 12:31:41 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test2: unable to suspend (APM)
+Message-ID: <20030811123141.A20951@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <20030806231519.H16116@flint.arm.linux.org.uk> <20030811101403.GA360@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.1 (dwmw2) 
-Date: Mon, 11 Aug 2003 12:27:34 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030811101403.GA360@elf.ucw.cz>; from pavel@ucw.cz on Mon, Aug 11, 2003 at 12:14:03PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-07-29 at 22:09, Sam Ravnborg wrote:
-> What Corbet suggest in the referenced doc is to have the following:
+On Mon, Aug 11, 2003 at 12:14:03PM +0200, Pavel Machek wrote:
+> > I'm trying to test out APM on my laptop (in order to test some PCMCIA
+> > changes), but I'm hitting a brick wall.  I've added the device_suspend()
+> > calls for the SAVE_STATE, DISABLE and the corresponding device_resume()
+> > calls into apm's suspend() function.  (this is needed so that PCI
+> > devices receive their notifications.)
 > 
-> ifndef KERNELRELEASE
-> here goes old style Makefile
-> else
-> here goes Kbuild makefile
-> endif
+> Can you verify that it is not device "vetoing" the suspend?
 
-This is pointless. The 'make -C $KERNELDIR SUBDIRS=`pwd`' form has been
-working since at least 2.0, and surely nobody's trying to build for 1.3
-kernels any more? Just do it the latter way unconditionally.
-
-
-> > ag.o: ../../../../t/s/ts.o ../../../f/c/fc.o ../../../f/i/fi.o  s/sl.o 
-> > 	ld -r -o ag.o ../../../../t/s/ts.o ../../../f/c/fc.o ../../../f/i/fi.o s/sl.o 
-> 
-> This looks really ugly. I do not expect kbuild to even get close to help
-> you here. kbuild is designed around the idea that objects are built
-> directory-by-directory, and in the upper level directory the are linked.
-> What you have surely does not follow that principle.
-
-In fact, the kbuild system just uses strings for the SUBDIRS variable...
-it doesn't inspect them to check for '..' in them and deliberately barf
-(although perhaps it should :).
-
-ifndef TOPDIR
-# Invoked from the command line... do it properly
-
-# KERNELDIR can be overridden on the command line
-KERNELDIR := /lib/modules/`uname -r`/build
-
-default:
-	make -C $(KERNELDIR) SUBDIRS=`pwd` modules
-
-else
-# Invoked from the kernel build...
-
-SUBDIRS := ../../../../t/s../../../f/c ../../../f/i s
-
-ag-objs := ../../../../t/s/ts.o ../../../f/c/fc.o ../../../f/i/fi.o \
-		s/sl.o 
-obj-m := ag.o
-
-endif
-> > Any suggestion is welcomed.  If the kbuild cannot do ascending, I have to change the source tree structure but that is the least I want to do.
-> 
-> This is my best suggestion. Follow the normal way of doing things in the
-> kernel make it easier/possible to use the infrastructure provided
-> by the kernel.
-> 
-> PS. Please also read the paper by Kai Germashewski from OLS -
-> see www.linuxsymposium.org - it provide good background info on kbuild.
-> 
-> 	Sam
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Well, the pm_send_all(PM_SUSPEND) in suspend() doesn't trigger the "veto"
+messages, and I don't see any errors reported from device_suspend().
 
 -- 
-dwmw2
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

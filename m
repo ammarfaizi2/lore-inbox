@@ -1,83 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbUFRUi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263596AbUFSA5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262007AbUFRUi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 16:38:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266801AbUFRUI5
+	id S263596AbUFSA5e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 20:57:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbUFSAyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 16:08:57 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:474 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S266602AbUFRUFt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 16:05:49 -0400
-Date: Fri, 18 Jun 2004 22:05:48 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+	Fri, 18 Jun 2004 20:54:35 -0400
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:41896 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S261300AbUFSAld (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 20:41:33 -0400
+Date: Sat, 19 Jun 2004 01:34:48 +0100
+From: Ian Molton <spyro@f2s.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Stop the Linux kernel madness
-Message-ID: <20040618200548.GK20632@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040618153350.GB20632@lug-owl.de> <40D33C58.1030905@am.sony.com>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, tony@atomide.com,
+       david-b@pacbell.net, jamey.hicks@hp.com, joshua@joshuawise.com,
+       jgarzik@pobox.com
+Subject: Re: DMA API issues
+Message-Id: <20040619013448.7d71ebb2.spyro@f2s.com>
+In-Reply-To: <40D3872F.5010007@pobox.com>
+References: <20040618175902.778e616a.spyro@f2s.com>
+	<40D359B3.6080400@pobox.com>
+	<20040619002618.5650e16a.spyro@f2s.com>
+	<1087601446.2134.211.camel@mulgrave>
+	<40D37BA5.8070704@pobox.com>
+	<20040619005714.37b68453.spyro@f2s.com>
+	<40D3838B.2070608@pobox.com>
+	<20040619011621.4491600a.spyro@f2s.com>
+	<40D3872F.5010007@pobox.com>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.9.12-gtk2-20040617 (GTK+ 2.4.1; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="r7yLYIqEOHf/o+Om"
-Content-Disposition: inline
-In-Reply-To: <40D33C58.1030905@am.sony.com>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 18 Jun 2004 20:22:07 -0400
+Jeff Garzik <jgarzik@pobox.com> wrote:
 
---r7yLYIqEOHf/o+Om
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > my CPU can write directly to this 32K of SRAM. the chip can DMA from
+> > it.
+> 
+> 
+> Yes, write via MMIO.  Non-local RAM is not DMA.
 
-On Fri, 2004-06-18 12:02:48 -0700, Tim Bird <tim.bird@am.sony.com>
-wrote in message <40D33C58.1030905@am.sony.com>:
+I fail to see your point. this is NOT MMIO. in MMIO you write and the
+device reads as you write. in DMA, you write and then tell the chip to
+read from the memory you wrote to.
 
-> Here's a shameless plug:  I'm having a CELinux BOF at OLS to discuss
-> this and other issues.  It's the night of Wednesday, July 21.
-> Anyone can drop by if they are interested in this topic.
+this is exactly what Im talking about.
 
-Want to offer some airplane ticket Europe -> Canada and back? I'd love
-at attend!
+Heres what the DMA mapping code deals with:
 
-> >There's a lot of Linux beyond LKML, with a common problem: outdated
-> >source trees, with a shitload of patches. Linus could need another
-> >hacker or two working full-time on reviewing / importing those patches!
->=20
-> The idea of having some dedicated developers perform this function
-> is actually a pretty good one, although I wouldn't burden Linus
-> with managing them.  That is, it might be useful to have some people
-> following behind embedded product developers trying to glean,
-> generalize, forward-port and otherwise clean-up patches that
-> would otherwise never see the light of day.
+CPU-----host bus------>RAM-----io bus---->device
 
-Couldn't have said that any better:)
 
-MfG, JBG
+and heres what I have:
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
+CPU-----host bus----->RAM-----io bus----->device
 
---r7yLYIqEOHf/o+Om
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+the *only* difference is that the RAM in the first case is SDRAM and in
+the latter is SRAM. the type of RAM is irrelevant to the DMA system.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+I *could* (at great expense) replace the SDRAM in a PC with SRAM. DMA
+would still work the same way.
 
-iD8DBQFA00scHb1edYOZ4bsRAu8rAJwIz/YMYqXRPcSnQlt+ipl3kZuN+ACfZjmT
-/Ohc89ky+ulIZsHxwk4KTlE=
-=e/1A
------END PGP SIGNATURE-----
+sure, the SRAM is *on* the die of my OCHI/multi-io controller. whats
+that got to do with it?
 
---r7yLYIqEOHf/o+Om--
+and theres the other issue - if I made an ohci allocator for the SRAM
+I'd have to partition off a small ammount ONLY for OHCI. with only 32K
+to begin with thats a huge penalty for all the other devices in the
+multi IO chip. a bus level DMA allocator solves this AND makes drivers
+cleaner/more maintainable.
+
+What more do you want?

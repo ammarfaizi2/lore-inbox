@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263193AbREWSDO>; Wed, 23 May 2001 14:03:14 -0400
+	id <S263192AbREWSCy>; Wed, 23 May 2001 14:02:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263194AbREWSCy>; Wed, 23 May 2001 14:02:54 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:62304 "EHLO
+	id <S263194AbREWSCo>; Wed, 23 May 2001 14:02:44 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:60000 "EHLO
 	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S263193AbREWSCo>; Wed, 23 May 2001 14:02:44 -0400
-Date: Wed, 23 May 2001 19:02:22 +0100
+	id <S263192AbREWSCf>; Wed, 23 May 2001 14:02:35 -0400
+Date: Wed, 23 May 2001 18:34:19 +0100
 From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <andrewm@uow.edu.au>, lkml <linux-kernel@vger.kernel.org>,
-        Stephen Tweedie <sct@redhat.com>
-Subject: Re: [patch] s_maxbytes handling
-Message-ID: <20010523190222.J27177@redhat.com>
-In-Reply-To: <3B0A7C0F.C824FDB5@uow.edu.au> <E152Dik-00021y-00@the-village.bc.nu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
+Subject: Re: DVD blockdevice buffers
+Message-ID: <20010523183419.I27177@redhat.com>
+In-Reply-To: <20010518210226.A7147@moserv.hasi> <20010518212531.A6763@suse.de> <9e7ain$lis$1@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <E152Dik-00021y-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, May 22, 2001 at 04:05:14PM +0100
+In-Reply-To: <9e7ain$lis$1@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, May 19, 2001 at 07:36:07PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Tue, May 22, 2001 at 04:05:14PM +0100, Alan Cox wrote:
+On Sat, May 19, 2001 at 07:36:07PM -0700, Linus Torvalds wrote:
 
-> > The s_maxbytes logic is different from the
-> > MAX_NON_LFS logic:
-> >         if ( pos + count > MAX_NON_LFS && !(file->f_flags&O_LARGEFILE)) {
-> >                 if (pos >= MAX_NON_LFS) {
-> >                         send_sig(SIGXFSZ, current, 0);
-> >                         goto out;
-> >                 }
+> Right now we don't try to aggressively drop streaming pages, but it's
+> possible. Using raw devices is a silly work-around that should not be
+> needed, and this load shows a real problem in current Linux (one soon to
+> be fixed, I think - Andrea already has some experimental patches for the
+> page-cache thing).
 
-> The spec says of write
->      [EFBIG]
->           The file is a regular file, nbyte is greater than 0 and the
->           starting position is greater than or equal to the offset
->           maximum established in the open file description associated
->           with fildes.
-> 
-> Which seems to say to me that if we write > 0 bytes and we start at or
-> on the boundary we should error - which would agree with your change.
+Right.  I'd like to see buffered IO able to work well --- apart from
+the VM issues, it's the easiest way to allow the application to take
+advantage of readahead.  However, there's one sticking point we
+encountered, which is applications which write to block devices in
+units smaller than a page.  Small block writes get magically
+transformed into read/modify/write cycles if you shift the block
+devices into the page cache.
 
-SuS also states
+Of course, we could just say "then don't do that" and be done with it
+--- after all, we already have this behaviour when writing to regular
+files.
 
-  If a write() requests that more bytes be written than there is room
-  for (for example, the ulimit or the physical end of a medium), only as
-  many bytes as there is room for will be written. For example, suppose
-  there is space for 20 bytes more in a file before reaching a limit. A
-  write of 512 bytes will return 20. The next write of a non-zero number
-  of bytes will give a failure return (except as noted below)  and the
-  implementation will generate a SIGXFSZ signal for the thread.
-
-so SIGXFSZ plus -EFBIG returned would appear to be the correct
-behaviour.  That's certainly what 2.2 used to when it encountered such
-limits.
-
-Cheers,
- Stephen
+--Stephen

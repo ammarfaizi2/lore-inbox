@@ -1,114 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263171AbUDOSJN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 14:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263813AbUDORqu
+	id S263028AbUDORmm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 13:42:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbUDORlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 13:46:50 -0400
-Received: from mail.kroah.org ([65.200.24.183]:24246 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263126AbUDORmL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 13:42:11 -0400
-X-Donotread: and you are reading this why?
-Subject: Re: [PATCH] Driver Core update for 2.6.6-rc1
-In-Reply-To: <10820509121457@kroah.com>
-X-Patch: quite boring stuff, it's just source code...
-Date: Thu, 15 Apr 2004 10:41:52 -0700
-Message-Id: <10820509122120@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
+	Thu, 15 Apr 2004 13:41:49 -0400
+Received: from mail.kroah.org ([65.200.24.183]:34740 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263028AbUDORiJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 13:38:09 -0400
+Date: Thu, 15 Apr 2004 10:35:21 -0700
 From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH] Driver Core update for 2.6.6-rc1
+Message-ID: <20040415173521.GA4117@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1643.36.6, 2004/03/19 16:39:37-08:00, hannal@us.ibm.com
+Hi,
 
-[PATCH] add class support to floppy tape driver zftape-init.c
+Here are a few driver core changes for 2.6.6-rc1.  These have all been
+in the -mm tree for a number of weeks now.  They fix a few minor bugs,
+and add sysfs class support to a few miscellaneous drivers.
 
-Here is a patch to add class support to zftape-init.c:
+I'd like to thank Andrew for fixing the vc bug so that the sysfs class
+patch that I've been sitting on for months can be added to the main
+tree, that was pretty nasty...
 
-MODULE_DESCRIPTION(ZFTAPE_VERSION " - "
-                   "VFS interface for the Linux floppy tape driver. "
-                   "Support for QIC-113 compatible volume table "
-                   "and builtin compression (lzrw3 algorithm)");
+Please pull from:
+	bk://linuxusb.bkbits.net/driver-2.6
 
-I have verified it compiles but do not have the hardware to test it.
+thanks,
+
+greg k-h
+
+p.s. I'll send these as patches in response to this email to lkml for
+those who want to see them.
+
+ drivers/base/Kconfig                    |   16 ++++-----
+ drivers/base/class.c                    |    6 +--
+ drivers/char/dsp56k.c                   |   27 +++++++++++++++-
+ drivers/char/ftape/zftape/zftape-init.c |   17 ++++++++++
+ drivers/char/istallion.c                |   24 ++++++++++++--
+ drivers/char/stallion.c                 |   12 ++++++-
+ drivers/char/tipar.c                    |   16 ++++++---
+ drivers/char/tpqic02.c                  |   44 ++++++++++++++++++++++++++
+ drivers/char/vc_screen.c                |   10 ++++++
+ drivers/char/vt.c                       |    6 ++-
+ drivers/isdn/capi/capi.c                |   53 +++++++++++++++++++++-----------
+ drivers/video/fbmem.c                   |   38 ++++++++++++++++++++++
+ fs/coda/psdev.c                         |   38 +++++++++++++++++++---
+ lib/kobject.c                           |    6 +--
+ 14 files changed, 261 insertions(+), 52 deletions(-)
+-----
 
 
- drivers/char/ftape/zftape/zftape-init.c |   17 +++++++++++++++++
- 1 files changed, 17 insertions(+)
+<lxiep:ltcfwd.linux.ibm.com>:
+  o kobject_set_name() doesn't allocate enough space
 
+<romain:lievin.net>:
+  o tipar char driver (divide by zero)
 
-diff -Nru a/drivers/char/ftape/zftape/zftape-init.c b/drivers/char/ftape/zftape/zftape-init.c
---- a/drivers/char/ftape/zftape/zftape-init.c	Thu Apr 15 10:21:03 2004
-+++ b/drivers/char/ftape/zftape/zftape-init.c	Thu Apr 15 10:21:03 2004
-@@ -38,6 +38,7 @@
- 
- #include <linux/zftape.h>
- #include <linux/init.h>
-+#include <linux/device.h>
- 
- #include "../zftape/zftape-init.h"
- #include "../zftape/zftape-read.h"
-@@ -103,6 +104,8 @@
- 	.release	= zft_close,
- };
- 
-+static struct class_simple *zft_class;
-+
- /*      Open floppy tape device
-  */
- static int zft_open(struct inode *ino, struct file *filep)
-@@ -341,22 +344,29 @@
- 	      "installing zftape VFS interface for ftape driver ...");
- 	TRACE_CATCH(register_chrdev(QIC117_TAPE_MAJOR, "zft", &zft_cdev),);
- 
-+	zft_class = class_simple_create(THIS_MODULE, "zft");
- 	for (i = 0; i < 4; i++) {
-+		class_simple_device_add(zft_class, MKDEV(QIC117_TAPE_MAJOR, i), NULL, "qft%i", i);
- 		devfs_mk_cdev(MKDEV(QIC117_TAPE_MAJOR, i),
- 				S_IFCHR | S_IRUSR | S_IWUSR,
- 				"qft%i", i);
-+		class_simple_device_add(zft_class, MKDEV(QIC117_TAPE_MAJOR, i + 4), NULL, "nqft%i", i);
- 		devfs_mk_cdev(MKDEV(QIC117_TAPE_MAJOR, i + 4),
- 				S_IFCHR | S_IRUSR | S_IWUSR,
- 				"nqft%i", i);
-+		class_simple_device_add(zft_class, MKDEV(QIC117_TAPE_MAJOR, i + 16), NULL, "zqft%i", i);
- 		devfs_mk_cdev(MKDEV(QIC117_TAPE_MAJOR, i + 16),
- 				S_IFCHR | S_IRUSR | S_IWUSR,
- 				"zqft%i", i);
-+		class_simple_device_add(zft_class, MKDEV(QIC117_TAPE_MAJOR, i + 20), NULL, "nzqft%i", i);
- 		devfs_mk_cdev(MKDEV(QIC117_TAPE_MAJOR, i + 20),
- 				S_IFCHR | S_IRUSR | S_IWUSR,
- 				"nzqft%i", i);
-+		class_simple_device_add(zft_class, MKDEV(QIC117_TAPE_MAJOR, i + 32), NULL, "rawqft%i", i);
- 		devfs_mk_cdev(MKDEV(QIC117_TAPE_MAJOR, i + 32),
- 				S_IFCHR | S_IRUSR | S_IWUSR,
- 				"rawqft%i", i);
-+		class_simple_device_add(zft_class, MKDEV(QIC117_TAPE_MAJOR, i + 36), NULL, "nrawrawqft%i", i);
- 		devfs_mk_cdev(MKDEV(QIC117_TAPE_MAJOR, i + 36),
- 				S_IFCHR | S_IRUSR | S_IWUSR,
- 				"nrawqft%i", i);
-@@ -386,12 +396,19 @@
- 	}
-         for (i = 0; i < 4; i++) {
- 		devfs_remove("qft%i", i);
-+		class_simple_device_remove(MKDEV(QIC117_TAPE_MAJOR, i));
- 		devfs_remove("nqft%i", i);
-+		class_simple_device_remove(MKDEV(QIC117_TAPE_MAJOR, i + 4));
- 		devfs_remove("zqft%i", i);
-+		class_simple_device_remove(MKDEV(QIC117_TAPE_MAJOR, i + 16));
- 		devfs_remove("nzqft%i", i);
-+		class_simple_device_remove(MKDEV(QIC117_TAPE_MAJOR, i + 20));
- 		devfs_remove("rawqft%i", i);
-+		class_simple_device_remove(MKDEV(QIC117_TAPE_MAJOR, i + 32));
- 		devfs_remove("nrawqft%i", i);
-+		class_simple_device_remove(MKDEV(QIC117_TAPE_MAJOR, i + 36));
- 	}
-+	class_simple_destroy(zft_class);
- 	zft_uninit_mem(); /* release remaining memory, if any */
-         printk(KERN_INFO "zftape successfully unloaded.\n");
- 	TRACE_EXIT;
+Greg Kroah-Hartman:
+  o Driver class: remove possible oops
+  o VC: fix bug in vty_init() where vcs_init() was not called early enough
+  o add sysfs support for vc devices
+  o Driver Core: fix spaces instead of tabs problem in the Kconfig file
+
+Hanna V. Linder:
+  o Fix class support to istallion.c
+  o Fix for patch to add class support to stallion.c
+  o fix sysfs class support to fs/coda/psdev.c
+  o Add sysfs class support to fs/coda/psdev.c
+  o add class support to dsp56k.c
+  o added class support to istallion.c
+  o added class support to stallion.c
+  o add class support to floppy tape driver zftape-init.c
+  o QIC-02 tape drive hookup to classes in sysfs
+
+Luca Tettamanti:
+  o Sysfs for framebuffer
+
+Marcel Holtmann:
+  o Fix sysfs class support for CAPI
+  o Add sysfs class support for CAPI
 

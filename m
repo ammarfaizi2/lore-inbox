@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264625AbUE0RTR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264673AbUE0RYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264625AbUE0RTR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 13:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264659AbUE0RTQ
+	id S264673AbUE0RYL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 13:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264725AbUE0RYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 13:19:16 -0400
-Received: from hostmaster.org ([212.186.110.32]:8576 "HELO hostmaster.org")
-	by vger.kernel.org with SMTP id S264625AbUE0RRk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 13:17:40 -0400
-Subject: AMD64: IDE performance woes
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-TfiKkqoaJjp1vZpsP8Ze"
-Message-Id: <1085678259.3374.7.camel@hostmaster.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 27 May 2004 19:17:39 +0200
+	Thu, 27 May 2004 13:24:11 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:3309 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S264706AbUE0RXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 13:23:48 -0400
+From: "Buddy Lumpkin" <b.lumpkin@comcast.net>
+To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>
+Cc: "'John Bradford'" <john@grabjohn.com>,
+       "'William Lee Irwin III'" <wli@holomorphy.com>,
+       <orders@nodivisions.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: why swap at all?
+Date: Thu, 27 May 2004 10:27:01 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <40B57E9D.8020606@yahoo.com.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Thread-Index: AcRDrLj5Txp/vOOeQNuPZmniDuQ7pgAEIMSw
+Message-Id: <S264706AbUE0RXs/20040527172348Z+508@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-TfiKkqoaJjp1vZpsP8Ze
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>I can picture it but I don't know how the kernel is going to handle
+>it. All I am doing is speaking from what I have seen.
 
-It seems that IDE performance is severely degraded on AMD64:
+>http://marc.theaimsgroup.com/?l=linux-kernel&m=107817776322044&w=2
 
-hdparm -t timings
-2.4.25/i386:  54.13MB/s
-2.6.6/x86_64: 31.4MB/s
+>This post for example, has profiles of a 32 CPU system with 16 FC
+>controllers and over 1000 disks, doing some database workload. Does
+>this qualify as big iron?
 
-Board is a Tyan Thunder K8W s2885 with an AMD8111 controller
-IDE device parameters are the same (hdparm -a8 -c1 -d1 -m16 -u1)
+>In the bottom profile, you see the disks being kept busy with 50%
+>idle time. The top 6 functions are all to do with generating IO
+>requests and pushing them through the block layer, none of them
+>involve memory reclaim.
 
-Tom
 
---=20
-  T h o m a s   Z e h e t b a u e r   ( TZ251 )
-  PGP encrypted mail preferred - KeyID 96FFCB89
-      finger thomasz@hostmaster.org for key
+They are using direct I/O ... therefore the DMA memory transfers are mapped
+directly into the user address space bypassing the pagecache altogether.
 
-Everybody wants to go to heaven, but nobody wants to die.
+--Buddy
 
---=-TfiKkqoaJjp1vZpsP8Ze
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
 
-iQEVAwUAQLYis2D1OYqW/8uJAQKtnAf/fe2Zzp50EkWB979RE/u1hzxXIVur8/9J
-nkKRZ8VqR1Hzqrmsp8wSlNfzVi99Ba0jlAAS4wlGPp/bbnesbh5K+Xn/RKKelYpr
-YkjASEXnPoG2lS0UrvjvT+QCCbgCzgrnhabU9Epf2kvUQfNHK4JzmJ1W7Mno4kdO
-60AzudBfC533KVUSTEcLjOT4ALrIRNtiHD/DuxPTg5IGTubwLKLnvUuR46VSNRlC
-CAjkMVYeDNpLXnVxaqJMdi+YQCWfhsKs9rXCLDwldbYP2rMl00FJHc8J2+9BICbi
-RoiHVN4R6wVxj5YqWwF/j+hH1i8Q28gr1O5YjU14e1laaUL0ac4bYA==
-=ppZ2
------END PGP SIGNATURE-----
 
---=-TfiKkqoaJjp1vZpsP8Ze--
+There are profiles from a different setup in a related thread here:
+
+http://groups.google.com.au/groups?q=g:thl3816668183d&dq=&hl=en&lr=&ie=UTF-8
+&selm=1yjKu-7qU-1%40gated-at.bofh.it&rnum=9
+
+I think we see kmem_cache_alloc make a miserable showing for the
+memory allocation team, but it wouldn't even be there if the
+profile were sorted by ticks (the left hand column).
+
+
+Now If you had some experiences of memory reclaim slowing down
+block IO, I'd love to hear them because that is related to an area
+that I am looking at currently. I'm not saying what you claim is
+impossible, but it is something that shouldn't happen and we don't
+relly see... You're continuing to insist there is a problem but
+that simply isn't helpful without further details.
 

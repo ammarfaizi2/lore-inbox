@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbVC2MqF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262259AbVC2Mvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbVC2MqF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 07:46:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262287AbVC2MqF
+	id S262259AbVC2Mvc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 07:51:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbVC2Mvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 07:46:05 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:51472 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262285AbVC2Mpz
+	Tue, 29 Mar 2005 07:51:31 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:53394 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262259AbVC2Mv1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 07:45:55 -0500
-Date: Tue, 29 Mar 2005 22:43:22 +1000
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-       Pavel Machek <pavel@ucw.cz>, cryptoapi@lists.logix.cz,
-       Jeff Garzik <jgarzik@pobox.com>, David McCullough <davidm@snapgear.com>
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
-Message-ID: <20050329124322.GA20543@gondor.apana.org.au>
-References: <4243A86D.6000408@pobox.com> <1111731361.20797.5.camel@uganda> <20050325061311.GA22959@gondor.apana.org.au> <20050329102104.GB6496@elf.ucw.cz> <20050329103049.GB19541@gondor.apana.org.au> <1112093428.5243.88.camel@uganda> <20050329104627.GD19468@gondor.apana.org.au> <1112096525.5243.98.camel@uganda> <20050329113921.GA20174@gondor.apana.org.au> <1112098517.5243.102.camel@uganda>
+	Tue, 29 Mar 2005 07:51:27 -0500
+Subject: Re: [patch 1/2] fork_connector: add a fork connector
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+To: Paul Jackson <pj@engr.sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Jay Lan <jlan@engr.sgi.com>,
+       Erich Focht <efocht@hpce.nec.com>, Ram <linuxram@us.ibm.com>,
+       Gerrit Huizenga <gh@us.ibm.com>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>
+In-Reply-To: <20050328134242.4c6f7583.pj@engr.sgi.com>
+References: <1111745010.684.49.camel@frecb000711.frec.bull.fr>
+	 <20050328134242.4c6f7583.pj@engr.sgi.com>
+Date: Tue, 29 Mar 2005 14:51:15 +0200
+Message-Id: <1112100675.8426.72.camel@frecb000711.frec.bull.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1112098517.5243.102.camel@uganda>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+X-Mailer: Evolution 2.0.3 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 29/03/2005 15:01:00,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 29/03/2005 15:01:02,
+	Serialize complete at 29/03/2005 15:01:02
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 29, 2005 at 04:15:17PM +0400, Evgeniy Polyakov wrote:
-> > > On Tue, 2005-03-29 at 20:46 +1000, Herbert Xu wrote:
-> > 
-> > > > Well if you can demonstrate that you're getting a higher rate of
-> > > > throughput from your RNG by doing this in kernel space vs. doing
-> > > > it in user space please let me know.
->
-> > Well when you get 55mb/s from /dev/random please get back to me.
+On Mon, 2005-03-28 at 13:42 -0800, Paul Jackson wrote:
+> Guillaume wrote:
+> >   The lmbench shows that the overhead (the construction and the sending
+> > of the message) in the fork() routine is around 7%.
 > 
-> I cant, noone writes 55mbit into it, but HW RNG drivers could. :)
+> Thanks for including the numbers.  The 7% seems a bit costly, for a bit
+> more accounting information.  Perhaps dean's suggestion, to not use
+> ascii, will help.  I hope so, though I doubt it will make a huge
+> difference.  Was this 7% loss with or without a user level program
+> consuming the sent messages?  I would think that the number of interest
+> would include a minimal consumer task.
 
-Are you intending to feed that into /dev/random at 55mb/s?
+I ran some test using the CBUS instead of the cn_netlink_send() routine
+and the overhead is nearly 0%:
 
-If not then how is this an argument against doing it in userspace
-through rngd?
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+fork connector disabled:
+    Process fork+exit: 148.1429 microseconds
+
+fork connector enabled:
+    Process fork+exit: 148.4595 microseconds
+
+Regards,
+Guillaume
+

@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbUKOQEl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbUKOQ2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbUKOQEl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 11:04:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbUKOQEl
+	id S261628AbUKOQ2R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 11:28:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbUKOQ2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 11:04:41 -0500
-Received: from smtp.wp.pl ([212.77.101.160]:57523 "EHLO smtp.wp.pl")
-	by vger.kernel.org with ESMTP id S261631AbUKOQEi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 11:04:38 -0500
-Date: Mon, 15 Nov 2004 17:04:52 +0100
-From: Marek Szuba <scriptkiddie@wp.pl>
-To: linux-kernel@vger.kernel.org
-Subject: mdacon problem
-Message-Id: <20041115170452.02a93dfb.scriptkiddie@wp.pl>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 15 Nov 2004 11:28:16 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:43525 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261628AbUKOQ2M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 11:28:12 -0500
+Date: Mon, 15 Nov 2004 17:22:32 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: James.Smart@Emulex.Com
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] SCSI: misc possible cleanups
+Message-ID: <20041115162232.GA19860@stusta.de>
+References: <0B1E13B586976742A7599D71A6AC733C12E6F2@xbl3.ma.emulex.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-WP-AV: skaner antywirusowy poczty Wirtualnej Polski S. A.
-X-WP-SPAM: NO AS1=NO(Body=1 Fuz1=1 Fuz2=1) AS2=YES(1.000000) AS3=NO AS4=NO                         
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0B1E13B586976742A7599D71A6AC733C12E6F2@xbl3.ma.emulex.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, Nov 15, 2004 at 08:57:08AM -0500, James.Smart@Emulex.Com wrote:
 
-Recently I have attempted to, in addition to my Matrox framebuffer
-console, enable a second head text console using mdacon driver;
-unfortunately I have been able neither to get it working nor to find any
-information on this in the docs or on the net.
+> Please don't back out the additions to scsi_transport.c!!!
+> 
+> These were hard-fought additions, and required by our driver, which we should call for upstream approval in the near future.
 
-First of all, some technical data - the kernel I use at present is 2.6.7
-(following problems with 2.6.9 which I shall describe in a separate
-post) and the second-head graphics card is an old PCI SVGA (which I
-believe might be the reason why it doesn't work; then again, AFAIK it is
-compatible with the MDA mode).
+Sorry that I didn't state my intention clear enough:
 
-What happened:
-1. The second card got installed in a free PCI slot and the system got
-booted. The primary graphics card works as usual, the monitor connected
-to the secondary one remains in power-saving mode.
+I did not want to propose to simply apply this patch.
+It was intended as a "FYI: the following code is _currently_ unused".
 
-2. Having compiled the appropriate kernel module and loaded it with
-"modprobe mdacon mda_first_vc=13 mda_last_vc=24", the following got sent
-to syslog:
-Nov 14 00:24:23 host kernel: mdacon: MDA with 8K of memory detected.    
-                          
-Nov 14 00:24:23 host kernel: Console: switching consoles 13-24 to MDA-2 
-                          
+> -- James S
 
-3. Nothing else happened: the primary display works as usual and the
-secondary monitor remains in off mode.
+cu
+Adrian
 
-I have also tried loading the module with no options, obtaining
-"Console: switching consoles 1-16 to MDA-2 80x25" but rendering the text
-console unusable (probably due to fbcon).
-
-Could you shed any light on the issue? If you need any more information,
-please don't hesitate to ask.
-
-Regards,
 -- 
-MS
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

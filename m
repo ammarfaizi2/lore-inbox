@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317102AbSHGIiK>; Wed, 7 Aug 2002 04:38:10 -0400
+	id <S317264AbSHGI6j>; Wed, 7 Aug 2002 04:58:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317107AbSHGIiK>; Wed, 7 Aug 2002 04:38:10 -0400
-Received: from 205-158-62-111.outblaze.com ([205.158.62.111]:4881 "HELO
-	ws1-10.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S317102AbSHGIiJ>; Wed, 7 Aug 2002 04:38:09 -0400
-Message-ID: <20020807084133.17787.qmail@mail.com>
-Content-Type: text/plain; charset="iso-8859-1"
+	id <S317299AbSHGI6j>; Wed, 7 Aug 2002 04:58:39 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:35085 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S317264AbSHGI6i>; Wed, 7 Aug 2002 04:58:38 -0400
+Date: Wed, 7 Aug 2002 10:02:16 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, lse <lse-tech@lists.sourceforge.net>,
+       Andrew Morton <akpm@zip.com.au>, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: [Lse-tech] [patch] Scalable statistics counters with /proc reporting
+Message-ID: <20020807100216.A27321@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ravikiran G Thirumalai <kiran@in.ibm.com>,
+	linux-kernel@vger.kernel.org, lse <lse-tech@lists.sourceforge.net>,
+	Andrew Morton <akpm@zip.com.au>,
+	Rik van Riel <riel@conectiva.com.br>
+References: <20020807142227.B12301@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Ana Yuseepi" <anayuseepi@asia.com>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 07 Aug 2002 03:41:33 -0500
-Subject: lost interrupt and inb()
-X-Originating-Ip: 210.159.65.4
-X-Originating-Server: ws1-10.us4.outblaze.com
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020807142227.B12301@in.ibm.com>; from kiran@in.ibm.com on Wed, Aug 07, 2002 at 02:22:27PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello all,
- 
-i tried to made a program in the form of a module. This program would attempt to read/poll status register of IDE until the value for the status register is 0x50. 
- 
-here is the algorithm:
- 
- save_flag();
- disable_interrupt();
- poll_or_read_or_get_input_from_IDE_status_register();
- enable_interrupt();
- restore_flags();
- 
- this program would run fine, but after the program is finished executing, it would display a message:
- ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
- hdc: lost interrupt
- 
-the OS doesn't hang. because normal operation would resume after this program exit.
- OS=linux 7.3, kernel=2.4.18-3
- 
-my question is:
-how can i solve this error such that the error message would not appear anymore?
- 
-i have lots of other questions, but that of the above is the most important..
- 
-hope to hear your reply,
- 
--Ana
--- 
-__________________________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
+On Wed, Aug 07, 2002 at 02:22:27PM +0530, Ravikiran G Thirumalai wrote:
+> Here's the new statctr patch (2.5.29) on top of kmalloc_percpu dynamic 
+> allocator.  This one passes GFP_ flags for statctr_init  as suggested by
+> Andrew Morton and makes use of cpu_possible. Counters can be grouped into 
+> one or multiple /proc files as per Rik's suggestion. 
+> Here are the revised interfaces:
+> 
+> 1. struct statctr_proc_entry
+>    *create_statctr_proc_entry(struct proc_dir_entry *parent, const char *name); 
+>    To create a /proc file to group counters for automatic /proc reporting
+> 
+> 2. free_statctr_proc_entry(struct statctr_proc_entry *)
+> 
+>    To free up the proc entry
+> 
+> 3. int statctr_init(statctr_t *stctr, unsigned long val,
+>                  struct statctr_proc_entry *pentry,
+>                  const char *ctrname, int flags)
+>    
+>    Allocates memory to the counter , initialises it, and links the counter 
+>    with statctr_proc_entry for automatic /proc reporting. ctrname is the
+>    counter label as it appears in /proc, flags are the GFP_ hints.
+>    /proc reporting can be turned off if pentry is NULL.
 
-Get 4 DVDs for $.49 cents! plus shipping & processing. Click to join. 
-http://adfarm.mediaplex.com/ad/ck/990-1736-3566-59
+What about a general s/_proc//g for the API?
+
+For statctr_init the flags argument would much better be named gfp_mask,
+the val argument should be removed and the counter initialized to zero
+by default - that's 90% of the uses..
+
+Also the /proc-based implementation is really ugly.  It should be moved
+over to the seq_file interface at least, a simple ramfs-style own
+filesystem ("stats" filesystem type) would be the cleanest solution.
 

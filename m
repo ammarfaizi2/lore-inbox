@@ -1,69 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131644AbRDSR73>; Thu, 19 Apr 2001 13:59:29 -0400
+	id <S131665AbRDSSE3>; Thu, 19 Apr 2001 14:04:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131665AbRDSR7U>; Thu, 19 Apr 2001 13:59:20 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:44810 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S131644AbRDSR7F>;
-	Thu, 19 Apr 2001 13:59:05 -0400
-Date: Thu, 19 Apr 2001 13:59:55 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: Re: Dead symbol elimination, stage 1
-Message-ID: <20010419135955.A3841@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Russell King <rmk@arm.linux.org.uk>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010419131944.A3049@thyrsus.com> <20010419184444.A3111@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010419184444.A3111@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Thu, Apr 19, 2001 at 06:44:44PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S131669AbRDSSET>; Thu, 19 Apr 2001 14:04:19 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:4826 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S131665AbRDSSEG>;
+	Thu, 19 Apr 2001 14:04:06 -0400
+Date: Thu, 19 Apr 2001 14:02:03 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andreas Dilger <adilger@turbolinux.com>
+cc: linux-kernel@vger.kernel.org, "Theodore Y. Ts'o" <tytso@mit.edu>,
+        Ext2 development mailing list 
+	<ext2-devel@lists.sourceforge.net>
+Subject: Re: ext2 inode size (on-disk)
+In-Reply-To: <200104191741.f3JHfaMZ013988@webber.adilger.int>
+Message-ID: <Pine.GSO.4.21.0104191345400.16930-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk@arm.linux.org.uk>:
-> On Thu, Apr 19, 2001 at 01:19:44PM -0400, Eric S. Raymond wrote:
-> > The following patch cleans dead symbols out of the defconfigs in the 2.4.4pre4
-> > source tree.  It corrects a typo involving CONFIG_GEN_RTC.  Another typo
-> > involving CONFIG_SOUND_YMPCI doesn't need to be corrected, as the symbol
-> > is never set in these files.
+
+
+On Thu, 19 Apr 2001, Andreas Dilger wrote:
+
+> Al, you write:
+> > 	Erm... Folks, can ->s_inode_size be not a power of 2? Both
+> > libext2fs and kernel break in that case. Example:
+> > 
+> > dd if=/dev/zero of=foo bs=1024 count=20480
+> > mkfs -I 192 foo
 > 
-> As I said previously, please don't eliminate the ones on arch/arm -
-> you'll prevent me from sending a patch to Alan without a _lot_ more
-> work.
+> I had always assumed that it would be a power-of-two size, but since it
+> is an undocumented option to mke2fs, I suppose it was never really
+> intended to be used.  It appears, however, that the mke2fs code
+> doesn't do ANY checking on the parameter, so you could concievably make
+> the inode size SMALLER than the current size, and this would DEFINITELY
+> be bad as well.
 
-Um...this is what you said:
+In some sense it does - it dies if you've passed it not a power of two ;-)
+I don't think that segfault is a good way to report the problem, though...
 
-> The ones that show up in arch/arm/def-configs are purely because I've been
-> keeping back the updates to these files; each time the config structure
-> changes, I get a nice big patch from people with the new def-configs.  I
-> didn't want to inflict this too regularly on people.
+Problem with mkfs is obvious, but kernel side is also shady - we could
+have cleaner code if we assumed that inode size is power of 2. As it
+is, we have a code in read_super() that checks for size == 128 _and_
+code that was apparently writen in assumption that it can be not a
+power of 2. However, if that was the really the goal, we fail - code
+in ext2_read_inode() actually would break with such sizes.
 
-I read this as "I haven't fixed the problem because..."  not as "Don't
-fix the problem."  Please be more explicit next time so I won't step on
-your toes?
+In other words, the real question is what the hell are we trying to
+do there. If we want code that deals with sizes that are not powers of 2
+we need to change ext2_read_inode() and friends. It wouldn't be
+hard. OTOH, if we guarantee that inode size will always remain a power of
+2 we can simplify the thing. In any case current situation doesn't
+make much sense. The only question is direction of fix.
 
-I don't care whether it's you or me that cleans up this part of the
-dead-symbol mess.  I'm just trying to get it cleaned up.  
+Could those who introduced ->s_inode_size tell what use had been intended?
 
-I'm rather disturbed by the amount of crap kxref is turning up -- I
-expected dozens of dodgy bits, but I'm finding hundreds.  We need to pay
-better attention to janitorial issues like this if the kernel code
-isn't going to degenerate into an unmaintainable hairball.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+> mke2fs will always set up the filesystem this way, and there is no real
+> reason NOT to do that.  If you are using a filesystem block for the inode
+> table, it is pointless to leave part of it empty, because you can't use
+> it for anything else anyways.
 
-False is the idea of utility that sacrifices a thousand real advantages for
-one imaginary or trifling inconvenience; that would take fire from men because
-it burns, and water because one may drown in it; that has no remedy for evils
-except destruction.  The laws that forbid the carrying of arms are laws of
-such a nature.  They disarm only those who are neither inclined nor determined
-to commit crimes.
-        -- Cesare Beccaria, as quoted by Thomas Jefferson's Commonplace book
+It's not that simple - if you need 160 bytes per inode rounding it up
+to the next power of two will lose a lot. On 4Kb fs it will be
+16 inodes per block instead of 25 - 36% loss...
+

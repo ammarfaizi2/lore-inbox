@@ -1,76 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262821AbTARG7q>; Sat, 18 Jan 2003 01:59:46 -0500
+	id <S262824AbTARHBj>; Sat, 18 Jan 2003 02:01:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262824AbTARG7q>; Sat, 18 Jan 2003 01:59:46 -0500
-Received: from holomorphy.com ([66.224.33.161]:14209 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262821AbTARG7p>;
-	Sat, 18 Jan 2003 01:59:45 -0500
-Date: Fri, 17 Jan 2003 23:08:08 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: akpm@zip.com.au, davej@codemonkey.org.uk, ak@muc.de,
-       Erich Focht <efocht@ess.nec.de>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Christoph Hellwig <hch@infradead.org>, Robert Love <rml@tech9.net>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       Andrew Theurer <habanero@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [patch] sched-2.5.59-A2
-Message-ID: <20030118070808.GA789@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>, akpm@zip.com.au,
-	davej@codemonkey.org.uk, ak@muc.de, Erich Focht <efocht@ess.nec.de>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Christoph Hellwig <hch@infradead.org>, Robert Love <rml@tech9.net>,
-	Michael Hohnbaum <hohnbaum@us.ibm.com>,
-	Andrew Theurer <habanero@us.ibm.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	lse-tech <lse-tech@lists.sourceforge.net>
-References: <200301171535.21226.efocht@ess.nec.de> <Pine.LNX.4.44.0301171607510.10244-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301171607510.10244-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S262877AbTARHBj>; Sat, 18 Jan 2003 02:01:39 -0500
+Received: from ldap.somanetworks.com ([216.126.67.42]:11648 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id <S262824AbTARHBg>; Sat, 18 Jan 2003 02:01:36 -0500
+Date: Sat, 18 Jan 2003 02:10:31 -0500 (EST)
+From: Scott Murray <scottm@somanetworks.com>
+X-X-Sender: scottm@rancor.yyz.somanetworks.com
+To: Rusty Lynch <rusty@linux.co.intel.com>
+cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       pcihpd-discuss <pcihpd-discuss@lists.sourceforge.net>
+Subject: Re: [Pcihpd-discuss] Re: [BUG][2.5]deadlock on cpci hot insert
+In-Reply-To: <1042855474.1016.163.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0301180127080.31889-100000@rancor.yyz.somanetworks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 17, 2003 at 04:11:59PM +0100, Ingo Molnar wrote:
-> agreed, i've attached the -B0 patch that does this. The balancing rates
-> are 1 msec, 2 msec, 200 and 400 msec (idle-local, idle-global, busy-local,
-> busy-global).
+On 17 Jan 2003, Rusty Lynch wrote:
 
-I suspect some of these results may be off on NUMA-Q (or any PAE box)
-if CONFIG_MTRR was enabled. Michael, Martin, please doublecheck
-/proc/mtrr and whether CONFIG_MTRR=y. If you didn't enable it, or if
-you compile times aren't on the order of 5-10 minutes, you're unaffected.
+[snip] 
+> I actually have two ZT5550C boards each using a ZT96073 mezzanine board 
+> (which contains a hard drive a floppy) and each with ZT4804/ZT4802 rear
+> panel transition boards.
+>
+> I do not see anything in my BIOS (v5.15) about "High Availability" options,
+> but looking through the ZT5550 manual on the pt website, I noticed that
+> all ZT550 models before revision 'D' only have active-standby mode, so I 
+> wonder if the bit we are looking at was only used in newer versions of the
+> ZT5550.
 
-The severity of the MTRR regression in 2.5.59 is apparent from:
-$ cat /proc/mtrr
-reg00: base=0xc0000000 (3072MB), size=1024MB: uncachable, count=1
-reg01: base=0x00000000 (   0MB), size=4096MB: write-back, count=1
-$ time make -j bzImage > /dev/null
-make -j bzImage > /dev/null  8338.52s user 245.73s system 1268% cpu 11:16.56 total
+Hmm, based on the research I've done, that does seem to be the case.
 
-Fixing it up by hand (after dealing with various bits of pain) to:
-$ cat /proc/mtrr
-reg00: base=0xc0000000 (3072MB), size=1024MB: uncachable, count=1
-reg01: base=0x00000000 (   0MB), size=4096MB: write-back, count=1
-reg02: base=0x100000000 (4096MB), size=4096MB: write-back, count=1
-reg03: base=0x200000000 (8192MB), size=4096MB: write-back, count=1
-reg04: base=0x300000000 (12288MB), size=4096MB: write-back, count=1
-reg05: base=0x400000000 (16384MB), size=16384MB: write-back, count=1
-reg06: base=0x800000000 (32768MB), size=16384MB: write-back, count=1
-reg07: base=0xc00000000 (49152MB), size=16384MB: write-back, count=1
+> For what it is worth, I messed around with all the possible combinations
+> of system master and peripheral boards that I had, and noted what HCF_HCS
+> was in system log.
+[snip]
 
-make -j bzImage > /dev/null  361.72s user 546.28s system 2208% cpu 41.109 total
-make -j bzImage > /dev/null  364.00s user 575.73s system 2005% cpu 46.858 total
-make -j bzImage > /dev/null  366.77s user 568.44s system 2239% cpu 41.765 total
+That's very useful information, thank you!
 
-I'll do some bisection search to figure out which patch broke the world.
+> Like I mentioned before, I suspect that the last three bits are not
+> implemented on older ZT5550 boards (pre 'D' versions).  In the docs 
+> you have access too, is there reference to a register we could find 
+> out which version of 5550 this board is for?  That would make this
+> easy to solve.
 
--- wli
+I've dug through the rss-1.0-1 tarball released by Ziatech/Intel, and
+have found the init code that handles setup for the different versions
+of the host controller.  Once I decipher it a bit further, I should be
+able to handle the two board versions.  Note, however, that my plan is
+to disable the driver on standby mode boards, since I'm not really in
+a position to work on a RSS capable driver (no hardware or time on my
+part, and SOMA isn't interested in RSS).
+
+> hmm... if HCS_RH_STATE is talking about if the other system board is
+> active or standby, then we could assume both busses need to be added
+> if HCS_RH_STATE is not set. That is unless there such thing as being able to 
+> completely turn off one of the busses.
+
+The docs I have from PT are pretty much specific to the D version of
+the card, so I'll try and decipher the differing bits from the rss-1.0-1
+code.
+
+> BTW, I'm going to be at the Linux World show in NY next week, so I
+> will not be able to try anything new for a week.
+
+I'll do some more experimenting here and try to come up with a patch
+sometime next week that should work with your ZT5550C boards.
+
+Scott
+
+
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
+

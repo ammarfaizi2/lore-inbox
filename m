@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131324AbRAFPwI>; Sat, 6 Jan 2001 10:52:08 -0500
+	id <S131813AbRAFPyH>; Sat, 6 Jan 2001 10:54:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130267AbRAFPvr>; Sat, 6 Jan 2001 10:51:47 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17419 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129857AbRAFPvi>; Sat, 6 Jan 2001 10:51:38 -0500
-Subject: Re: [patch] drivers/net/359x.c
-To: andrewm@uow.edu.au (Andrew Morton)
-Date: Sat, 6 Jan 2001 15:53:32 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org (lkml)
-In-Reply-To: <3A5711AB.D258FEB5@uow.edu.au> from "Andrew Morton" at Jan 06, 2001 11:38:03 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S131936AbRAFPx5>; Sat, 6 Jan 2001 10:53:57 -0500
+Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:26628
+	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S131813AbRAFPxu>; Sat, 6 Jan 2001 10:53:50 -0500
+Date: Sun, 7 Jan 2001 04:53:46 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Alexander Viro <viro@math.psu.edu>,
+        Stefan Traby <stefan@hello-penguin.com>, linux-kernel@vger.kernel.org
+Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
+Message-ID: <20010107045346.B696@metastasis.f00f.org>
+In-Reply-To: <Pine.GSO.4.21.0101060015540.25336-100000@weyl.math.psu.edu> <E14EvNX-0001Ac-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Evex-0001Cr-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14EvNX-0001Ac-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Jan 06, 2001 at 03:35:32PM +0000
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> - Added a hack to override the PCI latency timer for 3c590's (merge
->   from Donald's drivers)
+On Sat, Jan 06, 2001 at 03:35:32PM +0000, Alan Cox wrote:
 
-I suppose I should sort the pci quirk for that one out too some day. Some 
-chipsets (SIS5598 and some other onboard pci video stuff) sulk with a large
-pci latency
+    BTW Al: We have another general vfs/fs problem to handle - which
+    is exceeding max file sizes on limited file systems. Pretty much
+    nobody is getting it right. Ext2 can be tricked to go past the
+    limit, sys5 1k sits there emitting printk messages etc.
 
-> - Added (vastly) extended busywait for command completion for the 3c905CX.
->   and module unload, I don't want to add scheduling to 3c59x's
->   open() method.
+Which filesystems have limits other than 2^31 bytes?
 
-Nod
+I ask this because I was looking at LFS compliance and the way we
+currently do things now isn't very smart. Only ext2 checks of
+O_LARGEFILE at present (well, their is perhaps good reason for this
+as it is one of the fre that supports multiGB files) whereas I think
+this check should be done in the VFS.
 
-> - Don't free skbs we don't own on OOM path in vortex_open().
-> 
->   This bug is probably fatal.  If the interface is opened
->   and it hits an out-of-memory in the right place we end
->   up passing NULL or old pointers to kfree_skb().
 
-Whoops 8)
+
+
+  --cw
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

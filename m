@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263181AbSKEFcz>; Tue, 5 Nov 2002 00:32:55 -0500
+	id <S262702AbSKEFbh>; Tue, 5 Nov 2002 00:31:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264736AbSKEFcy>; Tue, 5 Nov 2002 00:32:54 -0500
-Received: from delta.Colorado.EDU ([128.138.139.9]:56297 "EHLO
-	ibg.colorado.edu") by vger.kernel.org with ESMTP id <S263181AbSKEFcy>;
-	Tue, 5 Nov 2002 00:32:54 -0500
-Message-Id: <200211050539.gA55dKOP014814@ibg.colorado.edu>
-From: Jeff Lessem <3zsltfx02@sneakemail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.46 (and a few older revisions) typo in qlogicfas.c
-Organization: Institute for Behavioral Genetics
-              University of Colorado
-              Boulder, CO  80309-0447
-X-Phone: +1 303 492 2843
-X-FAX: +1 303 492 0852
-X-URL: http://ibgwww.Colorado.EDU/~lessem/
-X-Copyright: All original content is copyright 2002 Jeff Lessem.
-X-Copyright: Quoted and non-original content may be copyright the
-X-Copyright: original author or others.
-Date: Mon, 04 Nov 2002 22:39:20 -0700
-X-MailScanner: Found to be clean
+	id <S262813AbSKEFbh>; Tue, 5 Nov 2002 00:31:37 -0500
+Received: from modemcable074.85-202-24.mtl.mc.videotron.ca ([24.202.85.74]:5130
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262702AbSKEFbg>; Tue, 5 Nov 2002 00:31:36 -0500
+Date: Mon, 4 Nov 2002 23:38:30 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Russell King <rmk@arm.linux.org.uk>
+Subject: Re: 2.5.45 odd deref in serial_in 
+In-Reply-To: <Pine.LNX.4.44.0211042323410.27141-100000@montezuma.mastecende.com>
+Message-ID: <Pine.LNX.4.44.0211042337230.27141-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the last few 2.5.4x kernels there has been a typo in qlogicfas.c
-preventing it from building as a pcmcia driver.  The fix is trivial,
-but I haven't seen it mentioned yet, so I suspect nobody has noticed.
+On Mon, 4 Nov 2002, Zwane Mwaikambo wrote:
 
-diff -Nru linux-2.5.46/drivers/scsi/qlogicfas.c linux/drivers/scsi/qlogicfas.c
---- linux-2.5.46/drivers/scsi/qlogicfas.c	2002-11-04 22:22:39.000000000 -0700
-+++ linux/drivers/scsi/qlogicfas.c	2002-11-04 22:25:47.000000000 -0700
-@@ -613,7 +613,7 @@
- #ifdef PCMCIA
- 
- /*
-- *	Allow PCMCIA code to preset the port */
-+ *	Allow PCMCIA code to preset the port
-  *	port should be 0 and irq to -1 respectively for autoprobing 
-  */
- 
+> The only modifications to this code are a slightly hacked up nmi watchdog 
+> timer.
+
+Not that easy to reproduce, its probably the printk in my nmi handler. 
+Sorry, you can ignore this bugreport.
+
+	Zwane
+-- 
+function.linuxpower.ca
+

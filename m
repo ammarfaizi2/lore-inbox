@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266243AbUIVQwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266252AbUIVQ7o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266243AbUIVQwW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 12:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266249AbUIVQwW
+	id S266252AbUIVQ7o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 12:59:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266250AbUIVQ7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 12:52:22 -0400
-Received: from mail.humboldt.co.uk ([81.2.65.18]:28083 "EHLO
-	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S266243AbUIVQwV
+	Wed, 22 Sep 2004 12:59:44 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:63620 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S266249AbUIVQ7l
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 12:52:21 -0400
-Subject: Re: [PATCH][2.6] Add command function to struct i2c_adapter
-From: Adrian Cox <adrian@humboldt.co.uk>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sensors@stimpy.netroedge.com, Michael Hunold <hunold-ml@web.de>,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <9e4733910409220907727056b4@mail.gmail.com>
-References: <414F111C.9030809@linuxtv.org>
-	 <20040921154111.GA13028@kroah.com> <41506099.8000307@web.de>
-	 <41506D78.6030106@web.de> <1095843365.18365.48.camel@localhost>
-	 <20040922102938.M15856@linux-fr.org> <1095854048.18365.75.camel@localhost>
-	 <20040922122848.M14129@linux-fr.org>
-	 <9e47339104092208403d9de6f4@mail.gmail.com>
-	 <1095868579.18365.105.camel@localhost>
-	 <9e4733910409220907727056b4@mail.gmail.com>
-Content-Type: text/plain
-Message-Id: <1095871863.18365.129.camel@localhost>
+	Wed, 22 Sep 2004 12:59:41 -0400
+Date: Wed, 22 Sep 2004 09:59:29 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>, len.brown@intel.com,
+       acpi-devel@lists.sourceforge.net, lhns-devel@lists.sourceforge.net,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] PATCH-ACPI based CPU hotplug[2/6]-ACPI Eject interface support
+Message-ID: <20040922095929.A2631@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+References: <20040920092520.A14208@unix-os.sc.intel.com> <20040920093532.D14208@unix-os.sc.intel.com> <20040922131757.509ba88d.tokunaga.keiich@jp.fujitsu.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 22 Sep 2004 17:51:04 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040922131757.509ba88d.tokunaga.keiich@jp.fujitsu.com>; from tokunaga.keiich@jp.fujitsu.com on Wed, Sep 22, 2004 at 01:17:57PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-22 at 17:07, Jon Smirl wrote:
-> On Wed, 22 Sep 2004 16:56:19 +0100, Adrian Cox <adrian@humboldt.co.uk> wrote:
-> > Would it do for a display device to expose read-only EDID data through
-> > sysfs, or do you need I2C level access to DDC from userspace?
+> In acpi_eject_store(), eject_operation() is called regardless of the
+> result of acpi_bus_trim().  I think that eject_operation() should be
+> called only when acpi_bus_trim() returns success.  Otherwise, a
+> device stil being online will be ejected forcibly.
 > 
-> For my purpose of decoding the EDID read only access is fine. 
+> Two steps might be needed to do this.
 > 
-> But I do know there are programs that use the user space I2C drivers
-> to control extended monitor functions. Some monitors let you set
-> brightnesss, contrast, on/off via the I2C link.
+>     1. Modify acpi_bus_trim() to return success only when all the
+>         acpi_bus_remove() are done successfully.
+>     2. Modify acpi_eject_store() to see the result and call eject_operation()
+>         only when the result is success.
+Hi Kei-san,
+Your idea and the patch both looks good to me. 
+Thanks for eye balling the code and detecting the corner cases like this.
+> 
+> Here is a patch just to show what I have in mind.  It is still based on
+> the recursion, so please fix it as appropriate ;)
 
-In which case you will need the current mechanism, with the class
-mechanism to stop sensor drivers probing the bus.
+I will merge this with my non-recursion version of the patch and post it ASAP.
 
-- Adrian Cox
-Humboldt Solutions Ltd.
-
-
+thanks,
+Anil

@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbUBVJvK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 04:51:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbUBVJvK
+	id S261216AbUBVKAO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 05:00:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbUBVKAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 04:51:10 -0500
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:35344 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S261211AbUBVJvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 04:51:08 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-Date: Sun, 22 Feb 2004 12:33:18 +0300
-To: linux-hotplug-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: USB class hotplug confusion
-Message-ID: <20040222093318.GA4873@localhost.localdomain>
+	Sun, 22 Feb 2004 05:00:14 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:641 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S261216AbUBVKAK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 05:00:10 -0500
+Date: Sun, 22 Feb 2004 11:00:08 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Herbert Poetzl <herbert@13thfloor.at>, Mikael Pettersson <mikpe@csd.uu.se>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Intel vs AMD x86-64
+Message-ID: <20040222100008.GA1078@ucw.cz>
+References: <Pine.LNX.4.58.0402171739020.2686@home.osdl.org> <16435.14044.182718.134404@alkaid.it.uu.se> <Pine.LNX.4.58.0402180744440.2686@home.osdl.org> <20040222025957.GA31813@MAIL.13thfloor.at> <Pine.LNX.4.58.0402211907100.3301@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <Pine.LNX.4.58.0402211907100.3301@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since some time running -mm produces
+On Sat, Feb 21, 2004 at 07:12:20PM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Sun, 22 Feb 2004, Herbert Poetzl wrote:
+> > 
+> > hmm, so the current x86_64 will be changed to x86-64 or
+> > will there be x86_64 and x86-64?
+> 
+> No. The filesystem policy _tends_ to be that dashes and spaces are turned 
+> into underscores when used as filenames. Don't ask me why (well, the space 
+> part is obvious, since real spaces tend to be a pain to use on the command 
+> line, but don't ask me why people tend to conver a dash to an underscore).
+> 
+> So the real name is (and has always been, as far as I can tell) x86-64. 
 
-cat: /sys//class/usb/lp0/bNumConfigurations: No such file or directory
-/etc/hotplug/usb.agent: line 144: [: too many arguments
+As far as I know, the real reason for the underscore in x86_64 in Linux
+is that autoconf/configure hate dashes in arch names, because of this
+notation:
 
-there is no wonder as
+	x86_64-gnu-linux-pc
 
-{pts/2}% l /sys/class/usb/lp0
-dev  device@  driver@
+If a dash were used, the string would be unparseable without prior
+knowledge of all arch names.
 
-apparently in addition to "normal" USB events we get extra class
-events; I must admit I do not understand what "class" is for and why
-usblp is using it but e.g. joystick (that I have as well) does not.
-
-Is there simple way to simply ignore those events in usb.agent? Or
-better yet - is it possible to specify different agents for "device" and
-"class" events? As kernel provides both they are presumed to be
-different and require different actions?
-
--andrey
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

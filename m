@@ -1,68 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261301AbTDQKYV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 06:24:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbTDQKYV
+	id S261305AbTDQKoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 06:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbTDQKoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 06:24:21 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:30870 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S261301AbTDQKYU (ORCPT
+	Thu, 17 Apr 2003 06:44:16 -0400
+Received: from mx03.cyberus.ca ([216.191.240.24]:18181 "EHLO mx03.cyberus.ca")
+	by vger.kernel.org with ESMTP id S261305AbTDQKoO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 06:24:20 -0400
-Date: Thu, 17 Apr 2003 12:36:07 +0200 (MEST)
-Message-Id: <200304171036.h3HAa7nw024924@harpo.it.uu.se>
-From: mikpe@csd.uu.se
-To: 0@pervalidus.tk, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20: CONFIG_X86_UP_APIC and CONFIG_X86_UP_IOAPIC won't allow me to connect with my ADSL
+	Thu, 17 Apr 2003 06:44:14 -0400
+Date: Thu, 17 Apr 2003 06:55:19 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: Catalin BOIE <util@deuroconsult.ro>
+cc: Manfred Spraul <manfred@colorfullife.com>,
+       Tomas Szepe <szepe@pinerecords.com>, "" <linux-kernel@vger.kernel.org>,
+       "" <netdev@oss.sgi.com>, "" <kuznet@ms2.inr.ac.ru>
+Subject: Re: [PATCH] qdisc oops fix
+In-Reply-To: <Pine.LNX.4.53.0304170844410.23586@hosting.rdsbv.ro>
+Message-ID: <20030417065352.S6710@shell.cyberus.ca>
+References: <20030415084706.O1131@shell.cyberus.ca>
+ <Pine.LNX.4.53.0304160838001.25861@hosting.rdsbv.ro> <20030416072952.E4013@shell.cyberus.ca>
+ <3E9D755A.8060601@colorfullife.com> <20030416142802.E5912@shell.cyberus.ca>
+ <Pine.LNX.4.53.0304170844410.23586@hosting.rdsbv.ro>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wed, 16 Apr 2003 21:53:21 -0300 (BRT), 0@pervalidus.tk wrote:
->I just installed an ECS K7VTA3 5.0 and ADSL. I was using an
->ASUS A7S333 and cable modem.
+
+
+Ok, I stand corrected. Tomas is right- same problem. You had htb loaded
+as a module, the other person had it compiled in ;->
+Get yourself upgraded ;->
+
+cheers,
+jamal
+
+On Thu, 17 Apr 2003, Catalin BOIE wrote:
+
+> > Catalin, Can you what kernel that is?
 >
->With a kernel compiled with CONFIG_X86_UP_APIC and
->CONFIG_X86_UP_IOAPIC adsl-start will timeout. adsl-connect also
->fails.
-
-Any APIC or interrupt-related errors in the kernel log?
-
->With a kernel compiled without CONFIG_X86_UP_APIC and
->CONFIG_X86_UP_IOAPIC I can succesfully establish a connection.
-...
->My APIC enabled dmesg is available at
->http://www.fredlwm.hpg.com.br/dmesg-2.4.20-APIC
-
-Nothing suspicious in this one.
-
-First thing to try:
-Keep UP_APIC enabled but disable UP_IOAPIC.
-
-If this doesn't help:
-Apply the patch below, which fixes a known problem on some mainboards.
-
-If the patch doesn't help:
-Accept that your mainboard doesn't work with APIC (local or I/O) enabled.
-
-/Mikael
-
---- linux-2.4.21-pre7/arch/i386/kernel/apic.c.~1~	2003-04-05 12:35:30.000000000 +0200
-+++ linux-2.4.21-pre7/arch/i386/kernel/apic.c	2003-04-05 13:10:51.000000000 +0200
-@@ -649,7 +649,6 @@
- 	}
- 	set_bit(X86_FEATURE_APIC, &boot_cpu_data.x86_capability);
- 	mp_lapic_addr = APIC_DEFAULT_PHYS_BASE;
--	boot_cpu_physical_apicid = 0;
- 	if (nmi_watchdog != NMI_NONE)
- 		nmi_watchdog = NMI_LOCAL_APIC;
- 
-@@ -1169,8 +1168,7 @@
- 
- 	connect_bsp_APIC();
- 
--	phys_cpu_present_map = 1;
--	apic_write_around(APIC_ID, boot_cpu_physical_apicid);
-+	phys_cpu_present_map = 1 << boot_cpu_physical_apicid;
- 
- 	apic_pm_init2();
- 
+> 2.4.20pre10 works ok but 2.4.20 crash.
+> With traffic -> no crash with 2.4.20. Without traffic, on other machine,
+> no crash.
+>
+>
+> > > It's triggered, because someone does something like
+> > >     spin_lock_bh(&my_lock);
+> > >     p = kmalloc(,GFP_KERNEL);
+> > >
+> > > I don't like the proposed fix: usually code that calls
+> > > kmalloc(,GFP_KERNEL) assumes that it runs at process space, e.g. uses
+> > > semaphores, or non-bh spinlocks, etc.
+> > > slab just happens to contain a test that complains about illegal calls.
+> >
+> > ok. Nice.
+> >
+> > >
+> > > >>Trace; c0127e0f <kmalloc+eb/110>
+> > > >>Trace; c01d3cac <qdisc_create_dflt+20/bc>
+> > > >>Trace; d081ecc7 <END_OF_CODE+1054ff0f/????>
+> > > >>Trace; c01d5265 <tc_ctl_tclass+1cd/214>
+> > > >>Trace; d0820600 <END_OF_CODE+10551848/????>
+> > > >>Trace; c01d27e4 <rtnetlink_rcv+298/3bc>
+> > > >>Trace; c01d0605 <__neigh_event_send+89/1b4>
+> > > >>Trace; c01d7cd4 <netlink_data_ready+1c/60>
+> > > >>Trace; c01d7730 <netlink_unicast+230/278>
+> > > >>Trace; c01d7b73 <netlink_sendmsg+1fb/20c>
+> > > >>Trace; c01c79d5 <sock_sendmsg+69/88>
+> > > >>Trace; c01c8b48 <sys_sendmsg+18c/1e8>
+> > > >>Trace; c0120010 <map_user_kiobuf+8/f8>
+> > > >>
+> > > >>
+> > > >>
+> > > >>
+> > > I don't understand the backtrace. Were any modules loaded? Perhaps
+> > > 0xd081ecc7 is a module.
+> > >
+> >
+> > Probably a module. Again Catalin, run no modules.
+> It's a production machine. I cannot test this. We plan to replace the
+> machine, so I can test then.
+>
+> > > I'd add a
+> > >     if(in_interrupt()) show_stack(NULL);
+> > > into qdisc_create_dflt(), and try to reproduce the bug without modules.
+> > >
+> >
+> > Catalin - again instead of your fix can you please add this call?
+> See above. I cannot test now. I'm very sorry!
+>
+> > cheers,
+> > jamal
+> >
+>
+> ---
+> Catalin(ux) BOIE
+> catab@deuroconsult.ro
+>
+>

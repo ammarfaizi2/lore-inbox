@@ -1,34 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261412AbTDDXKj (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 18:10:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbTDDXKj (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 18:10:39 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:37382 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id S261412AbTDDXKi (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 18:10:38 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Ed Vance <EdV@macrolink.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: your mail 
-In-reply-to: Your message of "Fri, 04 Apr 2003 14:10:16 PST."
-             <11E89240C407D311958800A0C9ACF7D1A33E26@EXCHANGE> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 05 Apr 2003 09:21:22 +1000
-Message-ID: <27796.1049498482@ocs3.intra.ocs.com.au>
+	id S261449AbTDDXPz (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 18:15:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbTDDXPz (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 18:15:55 -0500
+Received: from tomts11.bellnexxia.net ([209.226.175.55]:63939 "EHLO
+	tomts11-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261449AbTDDXPz (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 18:15:55 -0500
+Date: Fri, 4 Apr 2003 18:23:23 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: some serious problems compiling 2.5.66-bk10
+Message-ID: <Pine.LNX.4.44.0304041820540.21137-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Apr 2003 14:10:16 -0800 , 
-Ed Vance <EdV@macrolink.com> wrote:
->Perhaps there is a middle ground. Leave the list open, but require a
->confirmation reply prior to passing along posts from addresses that:
->
->1. are not members of the list, AND
->2. have not previously done a proper confirmation reply.
 
-30 seconds after doing that, the spammers will forge email that claims
-to be from LT, AC, DM, MT etc.  Not to mention all the viruses that
-forge the headers.  Verification by 'From:' line on an open list is
-pointless.
+  i wanted to do another test with bk10 to see if i could
+track down my keyboard problems.  after having to deselect
+a couple graphics drivers as they caused the compile to 
+crash, i got a successful build of bzimage and modules.
+
+  but after i typed "make modules_install", the final
+depmod generated some 2000 lines of unresolved symbols.
+should i have expected this?
+
+rday
 

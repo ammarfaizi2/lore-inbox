@@ -1,73 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315431AbSFCTWp>; Mon, 3 Jun 2002 15:22:45 -0400
+	id <S317460AbSFCTXk>; Mon, 3 Jun 2002 15:23:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317460AbSFCTWp>; Mon, 3 Jun 2002 15:22:45 -0400
-Received: from mx1.afara.com ([63.113.218.20]:29011 "EHLO afara-gw.afara.com")
-	by vger.kernel.org with ESMTP id <S315431AbSFCTWn>;
-	Mon, 3 Jun 2002 15:22:43 -0400
-Subject: Re: [kbuild-devel] Announce: Kernel Build for 2.5, release 3.0 is
-	available
-From: Thomas Duffy <tduffy@directvinternet.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Kbuild Devel <kbuild-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <27953.1023071705@kao2.melbourne.sgi.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 03 Jun 2002 12:22:18 -0700
-Message-Id: <1023132138.25501.6.camel@tduffy-lnx.afara.com>
+	id <S317463AbSFCTXj>; Mon, 3 Jun 2002 15:23:39 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:60105 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S317460AbSFCTXh>;
+	Mon, 3 Jun 2002 15:23:37 -0400
+Date: Mon, 3 Jun 2002 22:23:38 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: please kindly get back to me
+Message-ID: <20020603222338.F18899@mea-ext.zmailer.org>
+In-Reply-To: <61DB42B180EAB34E9D28346C11535A783A7801@nocmail101.ma.tmpw.net> <20020603220046.D18899@mea-ext.zmailer.org> <20020603120653.C4940@work.bitmover.com>
 Mime-Version: 1.0
-X-OriginalArrivalTime: 03 Jun 2002 19:22:35.0254 (UTC) FILETIME=[03F75160:01C20B34]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-06-02 at 19:35, Keith Owens wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Mon, Jun 03, 2002 at 12:06:53PM -0700, Larry McVoy wrote:
+> On Mon, Jun 03, 2002 at 10:00:46PM +0300, Matti Aarnio wrote:
+> >   Anti-spam technology really needs constant evolution, as those
+> >   spammers do evolve themselves...
 > 
-> Content-Type: text/plain; charset=us-ascii
-> 
-> Release 3.0 of kernel build for kernel 2.5 (kbuild 2.5) is available.
-> http://sourceforge.net/projects/kbuild/, package kbuild-2.5, download
-> release 3.0.
-> 
-> kbuild-2.5-core-15
->   Changes from core-14.
-> 
->     Replace mdbm with kbuild specific database engine to increase
->     performance.
-> 
->     Remove CML2 support, Dominik Brodowski, Keith Owens.
-> 
->     Remove the restriction on symlinked sources and targets.  Aegis
->     users should be able to use kbuild 2.5 now.
+> If ever there was something which was screaming for an open source project,
+> it's spam filtering.  It seems like every major mailing list has someone
+> like Matti, working really hard on a thankless task, but losing out under
+> the tide of new spam every day.  Seems to me if there was a public repository
+> (sourceforge, bkbits, whatever) with a collection of procmail filters which
+> have been shown to work correctly, that would be a win.
 
-I get this error now on sparc64:
+  Larry,
 
-tduffy@curie:/build2/tduffy/linux_kbuild$ make -f Makefile-2.5 oldconfig
-Using ARCH='sparc64' AS='as' LD='ld' CC='sparc64-linux-gcc' CPP='sparc64-linux-gcc -E' AR='ar' HOSTAS='as' HOSTLD='gcc' HOSTCC='gcc' HOSTAR='ar'
-Generating global Makefile
-  phase 1 (find all inputs)
-make: *** [phase1] Error 139
+  Best technologies (as I see them, but I am not omniscient, of course)
+  are those that do scoring.  E.g. naving some word NN might not alone
+  be considered spam-signature, but it might increase score, and once
+  the score exceeds arbitrary treshold (lower with short messages?),
+  the message is considered spam, and rejected.
 
-tduffy@curie:/build2/tduffy/linux_kbuild$ make -f Makefile-2.5 oldconfig
-Using ARCH='sparc64' AS='as' LD='ld' CC='sparc64-linux-gcc' CPP='sparc64-linux-gcc -E' AR='ar' HOSTAS='as' HOSTLD='gcc' HOSTCC='gcc' HOSTAR='ar'
-Generating global Makefile
-  phase 1 (find all inputs)
-pp_makefile1: Attempt to fetch invalid key s(0x73)-9473
-make: *** [phase1] Error 134
+  Some recent TEXT/PLAIN spams have been encoded in BASE64 or ingenous
+  QUOTED-PRINTABLE to avoid several common Perl-RE pattern using filters.
 
-more verbose (PP_MAKEFILE1_FLAGS=-v) output:
+  I think there are several free codes of this kind available, but my time
+  has been chronically over-subscribed to do radical things like taking
+  this kind of codes into use.
 
-...
-Generating global Makefile
-  phase 1 (find all inputs)
-pp_makefile1 verbose 1
-    scan_trees   0 /build2/tduffy/linux_kbuild/
-make: *** [phase1] Error 139
+> -- 
+> Larry McVoy     lm at bitmover.com     http://www.bitmover.com/lm 
 
-
--tduffy
-
+/Matti Aarnio

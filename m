@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264436AbTDPQDl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 12:03:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbTDPQDl
+	id S264472AbTDPQNn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 12:13:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264473AbTDPQNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 12:03:41 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:57568 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S264436AbTDPQDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 12:03:33 -0400
-Message-ID: <3E9D8062.1060202@nortelnetworks.com>
-Date: Wed, 16 Apr 2003 12:10:10 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	Wed, 16 Apr 2003 12:13:43 -0400
+Received: from mcomail01.maxtor.com ([134.6.76.15]:19210 "EHLO
+	mcomail01.maxtor.com") by vger.kernel.org with ESMTP
+	id S264472AbTDPQNm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 12:13:42 -0400
+Message-ID: <785F348679A4D5119A0C009027DE33C102E0D12A@mcoexc04.mlm.maxtor.com>
+From: "Mudama, Eric" <eric_mudama@maxtor.com>
+To: "Mudama, Eric" <eric_mudama@Maxtor.com>,
+       "'hps@intermeta.de'" <hps@intermeta.de>, linux-kernel@vger.kernel.org
+Subject: RE: [2.4.21-pre7-ac1] IDE Warning when booting
+Date: Wed, 16 Apr 2003 10:25:18 -0600
 MIME-Version: 1.0
-To: Brien <admin@brien.com>
-Cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
-Subject: Re: my dual channel DDR 400 RAM won't work on any linux distro
-References: <200304161511.h3GFBoe7000614@81-2-122-30.bradfords.org.uk> <003801c3042e$a6bcbea0$6901a8c0@athialsinp4oc1>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brien wrote:
+Was thinking...
 
-> I ran Memtest86, and there're 290 errors that showed up from test 7. But the
-> thing that I don't understand is, if I use either of the RAM modules alone,
-> Linux loads and runs perfectly for as long as I've tried; Could it possibly
-> be a problem with something besides the RAM (e.g. motherboard, CPU)? And I
-> still don't know if my RAM setup is even supported by Linux -- I'm guessing
-> that it is though (?).
+Do you know what attempted multi count was as an argument to SET MULTIPLE
+MODE?
 
-Memory support is generally not something handled by the OS.
+The specification says powers of 2 from 2 to 128 are all valid, however,
+most drives I have looked at only support <= 16.  This has some sort of
+historical oem reason for being the max and I haven't worked here long
+enough to know the 'why'.
 
-The more RAM modules you've got, the more reactance on the bus to memory. It may 
-be that the second module is loading down the bus enough that the mobo can't 
-keep up with the timings.  Try easing off a bit on the memory timings and/or 
-strengthening the memory drive strength.
+However, the ID block also reports the maximum multiple count in word 47
+bits 7..0, so if that was non zero, the drive shouldn't abort it.
 
-Linux often shows up memory problems when M$ doesn't since it is a) more 
-aggressive in its use of memory, and b) capable of driving cpu and chipset 
-closer to their theoretical limits.
+The engineer sitting next to me (former quantum employee) is reasonably
+certain that the drive shouldn't be aborting that command.
 
-Chris
+It'd be interesting to look at the ID block and the task file for that
+command that the drive aborted.
 
+--eric
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
+> > -----Original Message-----
+> > From: Henning P. Schmiedehausen [mailto:hps@intermeta.de]
+> > Sent: Wednesday, April 16, 2003 5:17 AM
+> > To: linux-kernel@vger.kernel.org
+> > Subject: Re: [2.4.21-pre7-ac1] IDE Warning when booting
+> > 
+> > Alan did post an explanation for these (which I haven't read before
+> > posting this) that these are harmless. And yes, the 
+> task_no_data_intr
+> > vs. set_multmode makes all the difference. :-) Getting these quieted
+> > down would be nice, though.
+> > 
+> > 	Regards
+> > 		Henning

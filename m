@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317005AbSFALqm>; Sat, 1 Jun 2002 07:46:42 -0400
+	id <S317007AbSFALzp>; Sat, 1 Jun 2002 07:55:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317006AbSFALql>; Sat, 1 Jun 2002 07:46:41 -0400
-Received: from p508872AA.dip.t-dialin.net ([80.136.114.170]:14472 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317005AbSFALql>; Sat, 1 Jun 2002 07:46:41 -0400
-Date: Sat, 1 Jun 2002 05:46:36 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [Q] kbuild-2.5: inside or outside Makefile
-Message-ID: <Pine.LNX.4.44.0206010542510.29405-100000@hawkeye.luckynet.adm>
+	id <S317008AbSFALzo>; Sat, 1 Jun 2002 07:55:44 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:55045 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S317007AbSFALzn>; Sat, 1 Jun 2002 07:55:43 -0400
+Date: Sat, 1 Jun 2002 13:55:42 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: puw@cola.enlightnet.local
+To: Roger Luethi <rl@hellgate.ch>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix VIA Rhine time outs (some)
+In-Reply-To: <20020601105745.GA2726@k3.hellgate.ch>
+Message-ID: <Pine.LNX.4.44.0206011335300.15719-100000@cola.enlightnet.local>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 1 Jun 2002, Roger Luethi wrote:
 
-You requested piecemeal of kbuild-2.5, and I'm currently hashing it. Thus 
-one question: someone mentioned to migrate current kbuild-2.4 to 
-kbuild-2.5, while Kaos' version suggests to at first have a separate 
-Makefile-2.5.
+> reset via netdev timeout [1]. The patch addresses that by setting the Tx
+> ring buffer pointer to where the driver thinks the chip should continue.
 
-Which do you prefer now? Shall I have it into the current Makefile, or in 
-a separate Makefile-2.5?
+You shouldn't use virt_to_bus().
 
-<URL:ftp://luckynet.dynu.com/pub/linux/kbuild-2.5/>
+On x86 it doesn't matter(?) but on other hw it does.
+See Documentation/DMA-mapping.txt.
 
-Regards,
-Thunder
--- 
-ship is leaving right on time	|	Thunder from the hill at ngforever
-empty harbour, wave goodbye	|
-evacuation of the isle		|	free inhabitant not directly
-caveman's paintings drowning	|	belonging anywhere
+
+The tx_ring array is allocated with pci_alloc_consistent and the addresses
+you are supposed to send to the hardware are the rx_ring_dma and
+tx_ring_dma. tx_ring and rx_ring are for the driver.
+
+The initialisation of tx_ring_dma assumes the area allocted by
+pci_alloc_consistent is contiguous and that it is ok to use any address
+within that area (within any alignment constrinats of the hw). If that
+code is correct you could copy it and do:
+
+int entry = np->dirty_tx % TX_RING_SIZE;
+writel(np->tx_ring_dma + entry * sizeof(struct tx_desc),
+       dev->base_addr + TxRingPtr);
+
+(Or something prettier ...)
+
+/Urban
 

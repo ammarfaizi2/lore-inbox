@@ -1,52 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263637AbTGAUXr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 16:23:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263749AbTGAUXr
+	id S263737AbTGAUWY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 16:22:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263749AbTGAUWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 16:23:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58064 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263637AbTGAUXq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 16:23:46 -0400
-Message-ID: <3F01F125.4060907@pobox.com>
-Date: Tue, 01 Jul 2003 16:37:57 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Tue, 1 Jul 2003 16:22:24 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:5333 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S263737AbTGAUWS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 16:22:18 -0400
+Message-ID: <3F01F13A.9030307@ccs.neu.edu>
+Date: Tue, 01 Jul 2003 16:38:18 -0400
+From: Stan Bubrouski <stan@ccs.neu.edu>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jurgen Kramer <gtm.kramer@inter.nl.net>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ata-scsi driver update
-References: <3F00CEDC.2010806@pobox.com>	 <1057086391.3444.3.camel@paragon.slim>  <3F01E030.9060201@pobox.com> <1057089782.3274.1.camel@paragon.slim>
-In-Reply-To: <1057089782.3274.1.camel@paragon.slim>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: =?ISO-8859-1?Q?C=E9dric?= <cedriccsm2@ifrance.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21 cd-writer problem
+References: <3F01EB61.7030307@ifrance.com>
+In-Reply-To: <3F01EB61.7030307@ifrance.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jurgen Kramer wrote:
-> On Tue, 2003-07-01 at 21:25, Jeff Garzik wrote:
+Cédric,
+
+Have you tried 2.4.21-ac4 or 2.4.22-pre2 yet?  Chances
+are it is fixed in both those patchsets.
+
+-Stan
+
+Cédric wrote:
+
+> Hi,
+> 
+> I'm having trouble with my cd-writer :
+> 
+> /dev/hdd:
+> 
+>  Model=Hewlett-Packard CD-Writer Plus 7500, FwRev=1.0a, SerialNo=YMT3WLUJLS
+>  Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
+>  RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
+>  BuffType=unknown, BuffSize=0kB, MaxMultSect=0
+>  (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
+>  IORDY=on/off, tPIO={min:180,w/IORDY:120}, tDMA={min:120,rec:120}
+>  PIO modes:  pio0 pio1 pio2 pio3 pio4
+>  DMA modes:  sdma0 sdma1 sdma2 mdma0 mdma1 *mdma2
+>  AdvancedPM=no
+> 
+> It is recognized with linux 2.4.18, and isnt with 2.4.21. My box freeze 
+> at its detection.
+> I've tried ide-scsi, which complains about a timeout, and freeze too.
+> 
+> I'm currently locked to linux 2.4.18, and thats a problem for me 
+> (pthreads bug, etc..).
+> 
+> Does someone have a tip, an idea, or something ?
+> 
+> Thanks.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 > 
->>hmmm.  did you run a "make mrproper" or "make distclean" before 
->>building?  The above is a symptom of stale dependencies, not really any 
->>kernel patch.
-> 
-> 
-> Ok I got it. I always get confused with directory names a and b in
-> patches..;-) Compiling now. (BTW what is the proper way to apply such
-> patches?)
-
-Usually:
-
-	cd <toplevel kernel directory>
-	bzcat ../foo.patch.bz2 | patch -sp1
-
-There is also scripts/patch-kernel script that you may play with.
-
-	Jeff
 
 
 

@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268522AbTGISbb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 14:31:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266084AbTGISba
+	id S266091AbTGISlu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 14:41:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266078AbTGISlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 14:31:30 -0400
-Received: from fw-az.mvista.com ([65.200.49.158]:26102 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S268504AbTGISb1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 14:31:27 -0400
-Message-ID: <3F0C6288.4030502@mvista.com>
-Date: Wed, 09 Jul 2003 11:44:24 -0700
-From: Steven Dake <sdake@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Wed, 9 Jul 2003 14:41:50 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:27654 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S266091AbTGISl2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 14:41:28 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: trond.myklebust@fys.uio.no
+Subject: Re: ->direct_IO API change in current 2.4 BK
+Date: Wed, 9 Jul 2003 20:55:41 +0200
+User-Agent: KMail/1.5.2
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+References: <20030709133109.A23587@infradead.org> <200307092041.42608.m.c.p@wolk-project.de> <16140.25619.963866.474510@charged.uio.no>
+In-Reply-To: <16140.25619.963866.474510@charged.uio.no>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: interesting problem with priorities and /sbin/hotplug
-References: <42050DF556283A4D977B111EB70632080DD9B5@orsmsx407.jf.intel.com> <pan.2003.07.03.17.05.54.578748@kroah.com> <3F0C5E3D.1090402@mvista.com> <20030709183435.GA17969@kroah.com>
-In-Reply-To: <20030709183435.GA17969@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307092055.41863.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 09 July 2003 20:50, Trond Myklebust wrote:
 
+Hi Trond,
 
-Greg KH wrote:
+> So they have both XFS + NFS O_DIRECT?
+yes.
 
->On Wed, Jul 09, 2003 at 11:26:05AM -0700, Steven Dake wrote:
->  
->
->>Greg,
->>
->>We found a small problem with the scheduler with our Linux 2.4 O1 
->>backport in that a certain kernel process, keventd, would create a 
->>priority inversion.  If a process was run at realtime priority level 99, 
->>keventd would never run.  The keventd process is required for the 
->>console, creating the appearance that the system had stopped responding.
->>
->>This problem started me thinking about priority inversions with 
->>/sbin/hotplug.  I wanted to get your thoughts about priority inversion 
->>impact on /sbin/hotplug.  Should /sbin/hotplug run at priority level 99 
->>realtime?
->>    
->>
->
->I don't know, why would that help anything out?  How would there be a
->priority inversion in the existing code?
->  
->
-I'm not sure if there is a problem, but one example to consider is the 
-following:
+> The answer to your question is then that somebody made the trivial
+> conversion on XFS... It's just a question of replacing the second
+> argument of the direct_IO() method with a filp, then extracting the
+> inode from that. A 2-liner patch at most...
+EXACT! That was my intention with my small first post ;)
 
-If a process is running with realtime priority 99 totally consuming the 
-system, and an /sbin/hotplug process is started by the kernel because of 
-a device insert or remove, /sbin/hotplug will never be scheduled if it 
-runs with standard priority. If that service depends on those hotplug 
-events, it will never see them (even though they have occured). Since 
-I'm no scheduler expert, I don't know if this is actually how the system 
-would behave.... I do know that it would be desireable to have 
-/sbin/hotplug always run even if other processes in the system are 
-running in realtime priority....
+> The point here is that Marcelo's tree does not include XFS, so my
+> patch can't fix it up...
+> As I said, I suggest replacing KERNEL_HAS_O_DIRECT with
+> KERNEL_HAS_O_DIRECT2 so that the XFS patches can switch on that, and
+> hence provide the 2-liner on newer kernels...
+It's very okay with me.
 
-
+ciao, Marc
 

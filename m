@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261848AbUBWNcV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 08:32:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbUBWNcV
+	id S261851AbUBWNdj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 08:33:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbUBWNdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 08:32:21 -0500
-Received: from smtp9.wanadoo.fr ([193.252.22.22]:14149 "EHLO
-	mwinf0903.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S261848AbUBWNcT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 08:32:19 -0500
-Date: Mon, 23 Feb 2004 14:32:13 +0100
-From: Lucas Nussbaum <lucas@lucas-nussbaum.net>
+	Mon, 23 Feb 2004 08:33:38 -0500
+Received: from spot.plotinka.ru ([212.220.30.16]:47799 "EHLO spot.plotinka.ru")
+	by vger.kernel.org with ESMTP id S261851AbUBWNd2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 08:33:28 -0500
+Date: Mon, 23 Feb 2004 18:33:18 +0500
+From: m0sia <m0sia@plotinka.ru>
 To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.3 still doesn't boot on UltraSparc I
-Message-ID: <20040223133213.GA24179@blop.info>
+Subject: Crazy mouse.
+Message-Id: <20040223183318.6f6f739f@m0sia>
+X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040210163232.GA2107@blop.info>
-Organisation: Lacking
-X-PGP: http://www.lucas-nussbaum.net/pubkey.txt
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I'm tried using kernels
+2.6.1,2.6.1-mm3,2.6.1-love3,2.6.3-mm1,2.6.3-love3 & etc. Everywhere i
+had a same problem. 
 
-As we reported in [1], Linux 2.6.(2|3) doesnt boot on sparc64. We traced the
-problem back to some changes in arch/sparc64/kernel/head.S (2.6.3 does
-boot with 2.6.1's head.S).
+"psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization,
+throwing 2 bytes away."
 
-[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=107643106916202&w=2
+after that mouse going crazy. 
 
-output :
-Allocated 8 Megs of memory at 0x4000000 for kernel
-Loaded kernel version 2.6.3    <--- SILO message
-Illegal Instruction
-{0} ok 
+on kernaltrap i read:
 
-After a discussion with Ben Collins, it seems that only UltraSparc I are
-affected. Could somebody check the new head.S's assembly code ? We are a
-bit short here on sparc64 ASM...
+"Problem:
+~~~~~~~~
 
-Please tell us how we can help.
+I'm getting these:
 
-Thank you,
--- 
-Lucas Nussbaum
-Club GNU/Linux
-ENSIMAG - Departement Telecommunications
+	psmouse.c: PS/2 mouse at serio0 lost synchronization, throwing 2 bytes
+away.
+
+Solution:
+~~~~~~~~~
+
+Check your mouse cable. If this only happens when you move your mouse in
+a certain way, fix the mouse cable or replace the mouse.
+
+Check your kernel and harddisk settings. This message can also happen
+when the mouse interrupt is delayed more than one half of a second. Make
+sure DMA is enabled for your harddrive and CD-ROM. Kill your ACPI/APM
+battery monitoring applet. Try disabling ACPI, frequency scaling. Make
+sure your time is ticking correctly, often with frequency scaling it
+gets unreliable. Even if you're using the ACPI PM Timer as a clock
+source - actually this often leads to the above problem. "
+
+i disabled acpi,frequency scaling, enabled dma & etc, but the problem
+still alive. 
+
+on irc someone said, that it is X11 problem. 
+
+what to do? i simply want my ps/2 mouse work correct. is it very
+difficult to write not buggy psmouse module?

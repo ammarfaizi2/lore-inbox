@@ -1,27 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271848AbTHMLhY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 07:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271883AbTHMLhY
+	id S271834AbTHMLbF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 07:31:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271831AbTHMLbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 07:37:24 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:64987 "HELO
+	Wed, 13 Aug 2003 07:31:05 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:28891 "HELO
 	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S271848AbTHMLhW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 07:37:22 -0400
+	id S271834AbTHMLbB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 07:31:01 -0400
 X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Wed, 13 Aug 2003 13:37:20 +0200
+Date: Wed, 13 Aug 2003 13:30:59 +0200
 From: Stephan von Krawczynski <skraw@ithnet.com>
-To: maney@pobox.com
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.22-rc2 ext2 filesystem corruption
-Message-Id: <20030813133720.69f756d5.skraw@ithnet.com>
-In-Reply-To: <1060774108.8008.16.camel@localhost.localdomain>
-References: <20030812165624.GA1070@furrr.two14.net>
-	<Pine.LNX.4.44.0308121408450.10045-100000@logos.cnet>
-	<20030812213645.GA1079@furrr.two14.net>
-	<1060774108.8008.16.camel@localhost.localdomain>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Realtek network card
+Message-Id: <20030813133059.616f0faa.skraw@ithnet.com>
 Organization: ith Kommunikationstechnik GmbH
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -30,33 +23,24 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Aug 2003 12:28:31 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+Hello all,
 
-> On Maw, 2003-08-12 at 22:36, Martin Maney wrote:
-> > but that made no difference.  I popped a CMD648-based card in, disabled
-> > the on-board Promise chip, and it booted right up and works fine with
-> > 22-rc2.  So if the .id -> .present is the only change that affected the
-> > Promise driver (I did some looking for obvious, but gave up after
-> > realizing that unless the change actually had a /* borks Promise IDE
-> > controllers*/ in it I wouldn't be likely to recognize it), then I guess
-> > that's it.
-> 
-> That change simple turns
-> 
-> 		speed = random()?33:66 (but never > drive allows)
-> 
-> to
-> 		speed = correct value
-> 
-> in the pdc202xx_old driver. There are many things it can trigger but I
-> cannot conceive how it can be wrong itself. And not fixing it leaves it 
-> definitely wrong
+does anybody know how to make the below work (neiter 2.2.25 nor 2.4.21 seem to recognise it):
 
-Maybe try another controller of same type to verify if it's a general problem
-or linked to the specific piece. Could be an awful hw timing bug only showing
-up at full DMA speed...
+lspci --vv:
+
+00:08.0 Ethernet controller: Realtek Semiconductor Co., Ltd.: Unknown device 8131 (rev 10)
+	Subsystem: Realtek Semiconductor Co., Ltd.: Unknown device 8139
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 min, 64 max, 32 set
+	Interrupt: pin A routed to IRQ 11
+	Region 0: I/O ports at e800
+	Region 1: Memory at ee000000 (32-bit, non-prefetchable)
+	Capabilities: [50] Power Management version 2
+		Flags: PMEClk- AuxPwr- DSI- D1+ D2+ PME-
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
 
 Regards,
 Stephan
-

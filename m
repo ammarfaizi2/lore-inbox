@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267185AbUHIUeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267263AbUHIUin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267185AbUHIUeW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 16:34:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266850AbUHIUc1
+	id S267263AbUHIUin (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 16:38:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267249AbUHIUic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 16:32:27 -0400
-Received: from rproxy.gmail.com ([64.233.170.205]:24587 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267185AbUHIUSP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 16:18:15 -0400
-Message-ID: <311601c90408091318699d0141@mail.gmail.com>
-Date: Mon, 9 Aug 2004 14:18:10 -0600
-From: Eric Mudama <edmudama@gmail.com>
-To: Tupshin Harper <tupshin@tupshin.com>
-Subject: Re: Re: /dev/hdl not showing up because of fix-ide-probe-double-detection patch
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4117C028.7080905@tupshin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <411013F7.7080800@tupshin.com> <4111651E.1040406@tupshin.com>	 <20040804224709.3c9be248.akpm@osdl.org> <1091720165.8041.4.camel@localhost.localdomain> <4117C028.7080905@tupshin.com>
+	Mon, 9 Aug 2004 16:38:32 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:45994 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S267198AbUHIUhT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 16:37:19 -0400
+Date: Mon, 9 Aug 2004 16:40:51 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+X-X-Sender: davidsen@oddball.prodigy.com
+To: linux-kernel@vger.kernel.org
+Subject: Mozilla hang with 2.6.8-rc3-mm1
+Message-ID: <Pine.LNX.4.44.0408091634420.32016-100000@oddball.prodigy.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 09 Aug 2004 11:19:20 -0700, Tupshin Harper <tupshin@tupshin.com> wrote:
-> I originally thought that the problem might be not enough bytes being
-> checked, but now I'm concerned that Maxtor has some problem with not
-> having a proper serial number recorded for some drives. hdparm -i also
-> show M0000000000000000000 for both of these drives. Below is the output
-> of hdparm -i for the two drives, and below that, the output of catting
-> /dev/ide/hdk and hdl.
-> 
-> Doing a google search on "M0000000000000000000" shows that there have a
-> been a handful of reports of maxtor drives showing this as the serial
-> number, but I don't see any explanation of why.
+Running this kernel, preempt enabled, SMP enabled to get it to compile, I 
+get Mozilla hangs, seemingly caused by a zombie process. I say that 
+cautiously, the zombie is not seen when the hang is not present, the hang 
+always has the zombie, they may have common cause.
 
-The SN# is garbage in the ID block, I don't know why this is occurring
-with our drives.  I am going to forward this note to our program lead
-for that product to see if he's aware of the issue.  Unfortunately, if
-the utility zone configuration is corrupt, I am not sure anything can
-be done in the field to fix it... the drives might require an RMA. =/
+ps output attached, config is on another machine not currently mountable. 
+At this point just a heads up, I don't have enough info to debug. This is 
+Mozilla 7.1, I'm going to upgrade to 7.1.2 because of security issues, 
+I'll repost with config if the problem comes back, the NFS server machine 
+will be up by noon tomorrow.
 
---eric
+~~~~
+
+ 1349 ?        S      0:00  \_ /bin/sh /usr/bin/mozilla PWD=/home/davidsen 
+TZ=EST5EDT XAUTHORITY=/ho
+ 1359 ?        S      0:00      \_ /bin/sh 
+/usr/local/mozilla/run-mozilla.sh /usr/local/mozilla/mozi
+ 1364 ?        S     41:25          \_ /usr/local/mozilla/mozilla-bin 
+PWD=/home/davidsen XSUNTRANSPO
+ 1368 ?        S      0:06              \_ /usr/local/mozilla/mozilla-bin 
+PWD=/home/davidsen XSUNTRA
+ 1369 ?        S      0:17              |   \_ 
+/usr/local/mozilla/mozilla-bin PWD=/home/davidsen XSU
+ 1371 ?        S      6:53              |   \_ 
+/usr/local/mozilla/mozilla-bin PWD=/home/davidsen XSU
+31520 ?        Z      0:00              \_ [netstat] <defunct>
+
+

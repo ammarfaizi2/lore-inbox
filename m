@@ -1,45 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268730AbUI2RVj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268734AbUI2RZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268730AbUI2RVj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 13:21:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268652AbUI2RVj
+	id S268734AbUI2RZP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 13:25:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268655AbUI2RZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 13:21:39 -0400
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:2820 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S268655AbUI2RV1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 13:21:27 -0400
-Date: Wed, 29 Sep 2004 12:20:58 -0500
-From: mikem <mikem@beardog.cca.cpqcorp.net>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: "Miller, Mike (OS Dev)" <mike.miller@hp.com>,
-       Christoph Hellwig <hch@infradead.org>, marcelo.tosatti@cyclades.com,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       "Baker, Brian (ISS - Houston)" <brian.b@hp.com>
-Subject: Re: patch so cciss stats are collected in /proc/stat
-Message-ID: <20040929172058.GC22308@beardog.cca.cpqcorp.net>
-References: <D4CFB69C345C394284E4B78B876C1CF107DBFE0B@cceexc23.americas.cpqcorp.net> <1096476186.2786.45.camel@laptop.fenrus.com>
+	Wed, 29 Sep 2004 13:25:14 -0400
+Received: from fire.osdl.org ([65.172.181.4]:5838 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S268652AbUI2RWm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 13:22:42 -0400
+Subject: 1 New compile/sparse warning (overnight build)
+From: John Cherry <cherry@osdl.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1096478522.20465.11.camel@cherrybomb.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1096476186.2786.45.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 29 Sep 2004 10:22:03 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 29, 2004 at 06:43:06PM +0200, Arjan van de Ven wrote:
-> On Wed, 2004-09-29 at 18:29, Miller, Mike (OS Dev) wrote:
-> 
-> > > This patch has been reject about half a million times, why are people
-> > > submitting it again and again?
-> > 
-> > As I said in my mail, it's a customer driven issue. As long as customers rely on /proc/stat we'll keep trying. You can't tell a customer how he/she should be doing things on their systems.
-> 
-> I doubt you have many customers using 2.4.28.... I suspect that by now
-> the majority of people is either using an (ancient) 2.4 vendor kernel or
-> a 2.6 kernel. The very low number of reports on lkml about 2.4 seems to
-> confirm that ...
+This sparse warning was introduced with patch 1.2000 (axboe).
+In fs/bio.c (line 509),
 
-Obviously no one is using 2.4.28 yet, but it's pretty hard to update the ancient kernels. I've also submitted patches to our partners to fix this in their distros.
+	if (copy_from_user(addr, (char *) p, bvec->bv_len))
 
-mikem
+should probably be
+
+	if (copy_from_user(addr, (char __user *) p, bvec->bv_len))
+
+John
+
+--------------------------------------------------------------
+
+Compiler: gcc version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)
+Arch: i386
+
+
+Summary:
+   New warnings = 1
+   Fixed warnings = 3
+
+New warnings:
+-------------
+fs/bio.c:509:30: warning: incorrect type in argument 2 (different
+address spaces)
+fs/bio.c:509:30:    expected void const [noderef] *from<asn:1>
+fs/bio.c:509:30:    got char *<noident>
+
+
+Fixed warnings:
+---------------
+fs/bio.c:392:20: warning: incorrect type in argument 1 (different
+address spaces)
+fs/bio.c:392:20:    expected void [noderef] *to<asn:1>
+fs/bio.c:392:20:    got char *uaddr
+
+fs/bio.c:462:31: warning: incorrect type in argument 2 (different
+address spaces)
+fs/bio.c:462:31:    expected void const [noderef] *from<asn:1>
+fs/bio.c:462:31:    got char *<noident>
+
+kernel/sys.c:1737:34: warning: incorrect type in argument 2 (different
+address spaces)
+kernel/sys.c:1737:34:    expected char const [noderef] *src<asn:1>
+kernel/sys.c:1737:34:    got char *<noident>
+
+
+

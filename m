@@ -1,94 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265411AbSJSACP>; Fri, 18 Oct 2002 20:02:15 -0400
+	id <S265403AbSJSAA4>; Fri, 18 Oct 2002 20:00:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265412AbSJSACP>; Fri, 18 Oct 2002 20:02:15 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:13800 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S265411AbSJSACK>; Fri, 18 Oct 2002 20:02:10 -0400
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH][RFC] 2.5.42 (1/2): Filesystem capabilities kernel patch
-References: <Pine.GSO.4.21.0210181845281.21677-100000@weyl.math.psu.edu>
-From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Date: Sat, 19 Oct 2002 02:07:56 +0200
-Message-ID: <87d6q7mgtf.fsf@goat.bogus.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
+	id <S265405AbSJSAA4>; Fri, 18 Oct 2002 20:00:56 -0400
+Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:39050 "EHLO
+	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S265403AbSJSAA4>; Fri, 18 Oct 2002 20:00:56 -0400
+Date: Fri, 18 Oct 2002 19:59:10 -0400 (EDT)
+From: Frank Davis <fdavis@si.rr.com>
+X-X-Sender: fdavis@localhost.localdomain
+To: linux-kernel@vger.kernel.org
+cc: fdavis@si.rr.com
+Subject: 2.5.43 : net/ipv4/ip_forward.c compile error
+Message-ID: <Pine.LNX.4.44.0210181957310.9556-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro <viro@math.psu.edu> writes:
+Hello all,
+  I haven't seen this posted on l-k yet (If I missed it, sorry in 
+advance). While a 'make bzImage' on 2.5.43, I received the following 
+error.
 
-> On Fri, 18 Oct 2002, Olaf Dietsche wrote:
->
->> This patch adds filesystem capabilities to 2.5.42, but it applies to
->> 2.5.43 as well.
->> 
->> It's very simple. In the root directory of every filesystem, there
->> must be a file named ".capabilities". This is the capability database
->> indexed by inode number. These files are populated by a chcap tool,
->> see next mail.
->> 
->> This fs capability system should work on all filesystem, which can
->> provide long dotted names and have some sort of inode. Another benefit
->> is, when holes in files are allowed. Otherwise the .capabilities file
->> could grow pretty large.
->> 
->> I use this on an ext2 filesystem. It boots and seems to work so far.
->> 
->> Comments?
->
-> His-fscking-terical.
+Regards,
+Frank
 
-Yes, I like it very much, too ;-)
+net/ipv4/ip_forward.c: In function `ip_forward_finish':
+net/ipv4/ip_forward.c:56: structure has no member named `key'
+net/ipv4/ip_forward.c:56: structure has no member named `key'
+make[2]: *** [net/ipv4/ip_forward.o] Error 1
+make[1]: *** [net/ipv4] Error 2
+make: *** [net] Error 2
 
-> Seriously, what comments do you expect?
-
-Seriously, I'm more or less a newbie in this area, so I want thoughts
-and suggestions from more experienced people. That's what this list is
-about, isn't it?
-
-> To start
-> with, on a bunch of filesystems inode numbers are unstable.
-
-Not really a problem, so restrict it to stable inode systems only.
-
-> Moreover,
-> owner of that file suddenly gets _all_ capabilities that exist in the
-> system,
-
-Yup, like root for example.
-
-> ditto for any task capable of mount(2),
-
-How's that? I think this task must own the filesystem and root
-directory too.
-
-> ditto for owner of
-> root directory on some filesystem.
-
-Which is a problem for foreign (network) filesystems only. Should be
-solvable with a mount option (i.e. mount -o nocaps ...).
-
-> And there is no way to recognize
-> that file as such, so additional checks on write(), mount(), unlink().
-> etc. are not possible.
-
-Depends on, wether I want to recognize it and do these checks. Anyway,
-could be solved with a mount option too or something like quotactl(2)
-maybe.
-
-> And that is not to mention that binding of
-> non-root will play silly buggers with the entire scheme.
-
-I don't understand this sentence. What do you mean with "binding of
-non-root"?
-
-> IOW, idea is unsalvagable.
-
-I'm working on it. Thanks for sharing your thoughts.
-
-Regards, Olaf.

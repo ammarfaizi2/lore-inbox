@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263124AbTCYR3m>; Tue, 25 Mar 2003 12:29:42 -0500
+	id <S263098AbTCYR2e>; Tue, 25 Mar 2003 12:28:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263125AbTCYR2r>; Tue, 25 Mar 2003 12:28:47 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:2172 "EHLO
+	id <S263131AbTCYR2e>; Tue, 25 Mar 2003 12:28:34 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:63355 "EHLO
 	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S263128AbTCYR2c>; Tue, 25 Mar 2003 12:28:32 -0500
+	id <S263098AbTCYR2a>; Tue, 25 Mar 2003 12:28:30 -0500
 Date: Tue, 25 Mar 2003 17:39:40 GMT
-Message-Id: <200303251739.h2PHdeLm006924@sisko.scot.redhat.com>
+Message-Id: <200303251739.h2PHdeR3006892@sisko.scot.redhat.com>
 From: Stephen Tweedie <sct@redhat.com>
 To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
        alan@lxorguk.ukuu.org.uk, ext2-devel@lists.sourceforge.net
 Cc: Stephen Tweedie <sct@redhat.com>
-Subject: [Patch 8/8] 2.4: Fix flushtime ordering on BUF_DIRTY list
+Subject: [Patch 2/8] 2.4: Fix for enormous numbers of buffers on BUF_LOCKED
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[From Andrew Morton.]  Set the flushtime on committing buffers when they
-are actually sent to the dirty list, not when they are first dirtied.
-Avoids some starvation scenarios when the flushtimes on BUF_DIRTY get
-out-of-order.
+Buffer_head syncing places BUF_DIRTY buffers on the BUF_LOCKED, but
+buffers can stay there indefinitely, upsetting buffer accounting.  The
+symptoms are benign, mostly just nonsensical numbers in alt-sysrq-m
+output, but it's pretty cheap to clean these up in kupdated
+nonetheless, just by refiling any unlocked buffers which happen to be
+at the head of the BUF_LOCKED list.  (We stop at the first locked
+buffer rather than walking the whole list, avoiding walking any
+buffers more than once.)
 
---- linux-2.4-ext3push/fs/jbd/transaction.c.=K0007=.orig	2003-03-25 10:59:15.000000000 +0000
-+++ linux-2.4-ext3push/fs/jbd/transaction.c	2003-03-25 10:59:15.000000000 +0000
-@@ -1138,7 +1138,6 @@ int journal_dirty_metadata (handle_t *ha
- 	
- 	spin_lock(&journal_datalist_lock);
- 	set_bit(BH_JBDDirty, &bh->b_state);
--	set_buffer_flushtime(bh);
- 
- 	J_ASSERT_JH(jh, jh->b_transaction != NULL);
- 	
-@@ -2090,6 +2089,13 @@ void journal_file_buffer(struct journal_
- 	spin_unlock(&journal_datalist_lock);
+--- linux-2.4-ext3push/fs/buffer.c.=K0001=.orig	2003-03-25 10:59:15.000000000 +0000
++++ linux-2.4-ext3push/fs/buffer.c	2003-03-25 10:59:15.000000000 +0000
+@@ -2958,6 +2958,30 @@ int bdflush(void *startup)
+ 	}
  }
  
-+static void jbd_refile_buffer(struct buffer_head *bh)
++
++/*
++ * Do some IO post-processing here!!!
++ */
++void do_io_postprocessing(void)
 +{
-+	if (buffer_dirty(bh) && (bh->b_list != BUF_DIRTY))
-+		set_buffer_flushtime(bh);
-+	refile_buffer(bh);
++	int i;
++	struct buffer_head *bh, *next;
++
++	spin_lock(&lru_list_lock);
++	bh = lru_list[BUF_LOCKED];
++	if (bh) {
++		for (i = nr_buffers_type[BUF_LOCKED]; i-- > 0; bh = next) {
++			next = bh->b_next_free;
++
++			if (!buffer_locked(bh)) 
++				__refile_buffer(bh);
++			else 
++				break;
++		}
++	}
++	spin_unlock(&lru_list_lock);
 +}
 +
- /* 
-  * Remove a buffer from its current buffer list in preparation for
-  * dropping it from its current transaction entirely.  If the buffer has
-@@ -2110,7 +2116,7 @@ void __journal_refile_buffer(struct jour
- 		__journal_unfile_buffer(jh);
- 		jh->b_transaction = NULL;
- 		/* Onto BUF_DIRTY for writeback */
--		refile_buffer(jh2bh(jh));
-+		jbd_refile_buffer(jh2bh(jh));
- 		return;
+ /*
+  * This is the kernel update daemon. It was used to live in userspace
+  * but since it's need to run safely we want it unkillable by mistake.
+@@ -3009,6 +3033,7 @@ int kupdate(void *startup)
+ #ifdef DEBUG
+ 		printk(KERN_DEBUG "kupdate() activated...\n");
+ #endif
++		do_io_postprocessing();
+ 		sync_old_buffers();
+ 		run_task_queue(&tq_disk);
  	}
- 	

@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264629AbTF0SYS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 14:24:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264647AbTF0SYR
+	id S264692AbTF0S05 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 14:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264695AbTF0S05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 14:24:17 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:9710 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S264629AbTF0SYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 14:24:14 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200306271838.h5RIcQh13694@devserv.devel.redhat.com>
-Subject: Re: Linux 2.4.21-ac4
-To: szepe@pinerecords.com (Tomas Szepe)
-Date: Fri, 27 Jun 2003 14:38:26 -0400 (EDT)
-Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20030627183633.GD21564@louise.pinerecords.com> from "Tomas Szepe" at Meh 27, 2003 08:36:33 
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	Fri, 27 Jun 2003 14:26:57 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:4992
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S264692AbTF0S04
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 14:26:56 -0400
+Date: Fri, 27 Jun 2003 14:41:11 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] remove IO APIC newline
+Message-ID: <20030627184111.GB4333@gtf.org>
+References: <200306271836.h5RIakGD026159@hera.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200306271836.h5RIakGD026159@hera.kernel.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> $ ls -la patch-2.4.21-ac[34].gz
-> -rw-r--r--    1 kala     users     2891908 Jun 25 18:32 patch-2.4.21-ac3.gz
-> -rw-r--r--    1 kala     users     2891908 Jun 27 20:07 patch-2.4.21-ac4.gz
-> $ diff patch-2.4.21-ac[34].gz
+On Fri, Jun 27, 2003 at 04:43:13PM +0000, Linux Kernel Mailing List wrote:
+> ChangeSet 1.1490.1.28, 2003/06/27 09:43:13-07:00, randy.dunlap@verizon.net
+> 
+> 	[PATCH] remove IO APIC newline
+> 	
+> 	This patch is to 2.5.73-bk4 and is purely cosmetic.  Please apply.
+> 	It removes the blank line after "testing the IO APIC....":
 
-Intriguing. The joys of caching. Will go fix
+Personally the IO-APIC gunk is gunk that should be hidden behind
+DPRINTK... SMP machines spam dmesg _way_ too much.  Especially once you
+get above 4 processors.
+
+	Jeff
+
+
+

@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261835AbRESPkq>; Sat, 19 May 2001 11:40:46 -0400
+	id <S261845AbRESP47>; Sat, 19 May 2001 11:56:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261839AbRESPk1>; Sat, 19 May 2001 11:40:27 -0400
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:15312 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S261835AbRESPkU>; Sat, 19 May 2001 11:40:20 -0400
-Message-Id: <5.1.0.14.2.20010519163616.00aaa0b0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 19 May 2001 16:40:21 +0100
-To: linux-kernel@vger.kernel.org
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Q: ioctl BLKGETSIZE return value units?
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S261843AbRESP4u>; Sat, 19 May 2001 11:56:50 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:9976 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261562AbRESP4h>; Sat, 19 May 2001 11:56:37 -0400
+Date: Sat, 19 May 2001 11:56:26 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@devserv.devel.redhat.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Andrew Morton <andrewm@uow.edu.au>, <Andries.Brouwer@cwi.nl>,
+        <torvalds@transmeta.com>, <linux-fsdevel@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+ in  userspace
+In-Reply-To: <Pine.GSO.4.21.0105190750380.5339-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0105191153400.5829-100000@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 19 May 2001, Alexander Viro wrote:
 
-What are the units of the return value of the BLKGETSIZE ioctl on Linux?
+> Ben's /dev/md0/<living_horror> is ugly - it's open just for side effects,
+> with no IO supposed to happen.
 
-Is it allways in units of 512 bytes or is it in units of sector size bytes 
-as returned by BLKSSZGET ioctl?
+Now that I'm awake and refreshed, yeah, that's awful.  But
+echo "hot-add,slot=5,device=/dev/sda" >/dev/md0/control *is* sane.  Heck,
+the system can even send back result codes that way.
 
-Thanks in advance.
+		-ben
 
-Best regards,
-
-         Anton
-
-
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

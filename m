@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262003AbTDADO0>; Mon, 31 Mar 2003 22:14:26 -0500
+	id <S261978AbTDADRV>; Mon, 31 Mar 2003 22:17:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262005AbTDADO0>; Mon, 31 Mar 2003 22:14:26 -0500
-Received: from web20002.mail.yahoo.com ([216.136.225.47]:49536 "HELO
-	web20002.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262003AbTDADOZ>; Mon, 31 Mar 2003 22:14:25 -0500
-Message-ID: <20030401032546.17891.qmail@web20002.mail.yahoo.com>
-Date: Mon, 31 Mar 2003 19:25:46 -0800 (PST)
-From: Kenny Simpson <theonetruekenny@yahoo.com>
-Subject: Re: mmap-related questions
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030331125548.D20730@redhat.com>
+	id <S262005AbTDADRV>; Mon, 31 Mar 2003 22:17:21 -0500
+Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:33174 "EHLO
+	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
+	id <S261978AbTDADRU>; Mon, 31 Mar 2003 22:17:20 -0500
+Date: Mon, 31 Mar 2003 19:28:38 -0800 (PST)
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Reply-To: whitney@math.berkeley.edu
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.5.65: Caching MSR_IA32_SYSENTER_CS kills dosemu
+In-Reply-To: <Pine.LNX.4.44.0303311612060.6908-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0303311751550.2324-100000@mf1.private>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Benjamin LaHaise <bcrl@redhat.com> wrote:
-> No.  You must use msync().
+On Mon, 31 Mar 2003, Linus Torvalds wrote:
 
-> Note that fsync() after
-> munmap() will flush the 
-> pages to disk under Linux.
-Sweet!  Paydirt!  Is this documented/guaranteed to
-continue to work for a while?
-Is this true for all non-mmap()ed dirty buffers for a
-given file?
+> Can you check dosemu in text mode to see if the kernel prints out
+> anything. I realize that not many things are relevant in text mode, but
+> I have this memory of dosemu at least historically supporting it. Maybe
+> not any more.
 
-Just to restate what you said:
-- if part of a file is mmap()ed, msync() MUST be used
-to sync it.
-- any non-mmap()ed portions are synched with fsync().
+OK, running dosemu at the console does not cause a lock up.  More
+specifically:  just running dosemu doesn't cause a lock up ever.  To get
+it to lock up, I have to run this game I play.  Under X, just running the
+game and waiting at the game's main menu causes the lock up in a couple
+minutes.  At the console, the game's graphics mode is not supported, so I
+get a blank screen.  But if I run the game blind and wait at the main
+menu, there is never a lock up.
 
-I'm assuming this is a per-process thing.  i.e. The
-above is true regardless of what other processes are
-doing (e.g. even if another process has the same file
-mmap()'d, I don't care).
+Also, it seems that turning off preempt makes the problem go away.  At
+least, I haven't got any lockups yet.
 
-> 2.4.7 is way out of date and should be updated for
-> the numerous bugfixes and 
-> security errata.
-I know.  Unfortunately not my call.  Desperately
-trying to beat people with clue sticks....
+Cheers, Wayne
 
-Thanks!,
--Kenny
 
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Tax Center - File online, calculators, forms, and more
-http://platinum.yahoo.com

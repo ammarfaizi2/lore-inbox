@@ -1,68 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267377AbUHDUDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267397AbUHDUEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267377AbUHDUDv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 16:03:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267397AbUHDUDv
+	id S267397AbUHDUEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 16:04:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267403AbUHDUEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 16:03:51 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:53959 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S267377AbUHDUDr convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 16:03:47 -0400
-From: Bernd Schubert <bernd-schubert@web.de>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 3c59x very slow with 2.6.X
-Date: Wed, 4 Aug 2004 22:03:41 +0200
-User-Agent: KMail/1.6.2
+	Wed, 4 Aug 2004 16:04:24 -0400
+Received: from mail.inter-page.com ([12.5.23.93]:43282 "EHLO
+	mail.inter-page.com") by vger.kernel.org with ESMTP id S267397AbUHDUEO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 16:04:14 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: "'Bill Davidsen'" <davidsen@tmr.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Interesting race condition...
+Date: Wed, 4 Aug 2004 13:03:50 -0700
+Organization: Casabyte, Inc.
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAtvmiCqH5I06YSBiFSV8ZAgEAAAAA@casabyte.com>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200408042203.42367.bernd-schubert@web.de>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <ce6e3r$i4n$1@gatekeeper.tmr.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Using procps version 2.0.7 the inclusion of "e" in the arguments is documented to
+return environment of the process.
 
-somehow the network speed is reduced to 14MBit with 2.6.X on my system, with 
-2.4.X it has full 100MBit.
-As all our systems boot diskless this is really annoying and I will reboot 
-2.4.27 soon.
+So the below issues with "ps eaxf" are only surprising in that you claim the pipe is
+necessary to see the environment.  Ps has "always" done slightly different things
+when used at the head of a pipe.  In particular it will trim it's right side when not
+in a pipe to keep the display readable, while in a pipe the lines will be "as long as
+necessary."
 
-euklid:~# nttcp -T hamilton2
-     Bytes  Real s   CPU s Real-MBit/s  CPU-MBit/s   Calls  Real-C/s   CPU-C/s
-l  8388608    4.73    4.60     14.2004     14.5911    2048    433.36     445.3
-1  8388608    4.73    0.03     14.1984   2236.9621    6145   1300.12  204833.3
+The question of why the original poster was getting the environment when only using
+"ps ax" is interesting.  I'd look for PS_PERSONALITY (etc) in the ps-executing
+environment.  [consult your manual.]
 
+And so on...
 
-from dmesg:
+Rob.
 
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-0000:00:0a.0: 3Com PCI 3c905B Cyclone 100baseTx at 0xb800. Vers LK1.1.19
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org]
+On Behalf Of Bill Davidsen
+Sent: Tuesday, July 27, 2004 1:40 PM
+To: linux-kernel@vger.kernel.org
+Subject: Re: Interesting race condition...
 
+Rob Landley wrote:
+> On Friday 23 July 2004 05:01, P. Benie wrote:
+> 
+>>On Fri, 23 Jul 2004, Rob Landley wrote:
+>>
+>>>I just saw a funky thing.  Here's the cut and past from the xterm...
+>>>
+>>>[root@(none) root]# ps ax | grep hack
+>>> 9964 pts/1    R      0:00 grep hack HOSTNAME= SHELL=/bin/bash TERM=xterm
+>>>HISTSIZE=1000 USER=root
+>>>LS_COLORS=no=00:fi=00:di=00;34:ln=00;36:pi=40;33:so=00;35:bd=40;33;01:cd=
+>>>40;33;01:or=01;05;37;41:mi=01;05;37;41:ex=00;32:*.cmd=00;32:*.exe=00;32:*.
+>>>com=00;32:*.btm=00;32:*.bat=00;32:*.sh=00;32:*.csh=00;32:*.tar=00;31:*.tgz
+>>>= [root@(none) root]# ps ax | grep hack
+>>> 9966 pts/1    S      0:00 grep hack
+>>>
+>>>Seems like some kind of race condition, dunno if it's in Fedore Core 1's
+>>>ps or the 2.6.7 kernel or what...
+>>
+>>The race is in the shell's pipeline - the processes don't start at exactly
+>>the same time, and sometimes ps has completed before the shell has
+>>started grep. This is the expected behaviour.
+> 
+> 
+> It's expected behavior for PS to show a process's environment variables as 
+> part of its command line?
 
-euklid:~# mii-tool 
-eth0: 100 Mbit, full duplex, link ok
+When piped. For instance
+   ps eaxf
+does not, while
+   ps eaxf | cat
+does, at least on my systems. I tried on RHEL AS3.0 thru a four year old 
+version of Slackware, all did the same thing.
 
-
-Any ideas whats going on?
-
-
-
-Please tell me if you need further information.
-
-Cheers,
-	Bernd
-
-
-PS: Happens with 2.6.7 and 2.6.8-rc2-mm2
 
 -- 
-Bernd Schubert
-Physikalisch Chemisches Institut / Theoretische Chemie
-Universität Heidelberg
-INF 229
-69120 Heidelberg
-e-mail: bernd.schubert@pci.uni-heidelberg.de
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+

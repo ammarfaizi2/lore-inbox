@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVCHSSa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVCHSTB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261478AbVCHSSa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 13:18:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVCHSSa
+	id S261482AbVCHSTB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 13:19:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVCHSTB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 13:18:30 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:39566
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261478AbVCHSSO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 13:18:14 -0500
-Date: Tue, 8 Mar 2005 10:17:39 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au, jgarzik@pobox.com,
-       linux-net@vger.kernel.org
-Subject: Re: Fix suspend/resume problems with b44
-Message-Id: <20050308101739.371968be.davem@davemloft.net>
-In-Reply-To: <20050308094655.GA16775@elf.ucw.cz>
-References: <20050308094655.GA16775@elf.ucw.cz>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 8 Mar 2005 13:19:01 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:22940 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261476AbVCHSSr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 13:18:47 -0500
+Subject: Re: Question regarding thread_struct
+From: Robert Love <rml@novell.com>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Cc: Imanpreet Arora <imanpreet@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <2cd57c9005030810144cfc0b@mail.gmail.com>
+References: <c26b959205030809044364b923@mail.gmail.com>
+	 <1110302000.23923.14.camel@betsy.boston.ximian.com>
+	 <c26b959205030809271b8a5886@mail.gmail.com>
+	 <1110302922.28921.3.camel@betsy.boston.ximian.com>
+	 <2cd57c9005030810144cfc0b@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 08 Mar 2005 13:12:30 -0500
+Message-Id: <1110305551.28921.13.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Mar 2005 10:46:55 +0100
-Pavel Machek <pavel@ucw.cz> wrote:
+On Wed, 2005-03-09 at 02:14 +0800, Coywolf Qi Hunt wrote:
 
-> @@ -1934,6 +1936,9 @@
->  	if (!netif_running(dev))
->  		return 0;
->  
-> +	if (request_irq(dev->irq, b44_interrupt, SA_SHIRQ, dev->name, dev))
-> +		printk(KERN_ERR PFX "%s: request_irq failed\n", dev->name);
-> +
+> CONFIG_IRQSTACKS seems only on ppc64. Is it good to add for other archs too?
 
-This is a hard error and means that bringup of the chip
-will totally fail.  It definitely deserves something harder
-than a printk(), but unfortunately ->resume() has no way
-to cleanly fail.
+Some architectures (x86) control per-IRQ stacks via CONFIG_4KSTACKS, so
+enabling that directive turns on 4K stacks and gives interrupts their
+own stack.
+
+	Robert Love
+
 

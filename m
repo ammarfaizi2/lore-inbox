@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264097AbTEWQ5s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 12:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264102AbTEWQ5s
+	id S264099AbTEWRDc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 13:03:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264103AbTEWRDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 12:57:48 -0400
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:18066 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S264097AbTEWQ5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 12:57:47 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Hugh Dickins <hugh@veritas.com>, "Paul E. McKenney" <paulmck@us.ibm.com>
-Subject: Re: [RFC][PATCH] Avoid vmtruncate/mmap-page-fault race
-Date: Fri, 23 May 2003 19:10:58 +0200
-User-Agent: KMail/1.5.1
-Cc: Andrew Morton <akpm@digeo.com>, <hch@infradead.org>, <linux-mm@kvack.org>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0305231713230.1602-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0305231713230.1602-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 23 May 2003 13:03:32 -0400
+Received: from HDOfa-03p5-117.ppp11.odn.ad.jp ([61.196.12.117]:11702 "HELO
+	hokkemirin.dyndns.org") by vger.kernel.org with SMTP
+	id S264099AbTEWRDb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 13:03:31 -0400
+Date: Sat, 24 May 2003 02:16:35 +0900 (JST)
+Message-Id: <20030524.021635.74748205.whatisthis@jcom.home.ne.jp>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-rc3 : 1394 : Cannot detect hard drive(s?).
+From: Kyuma Ohta <whatisthis@jcom.home.ne.jp>
+X-Mailer: Mew version 4.0.52 on Emacs 21.3 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305231910.58743.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 23 May 2003 18:21, Hugh Dickins wrote:
-> Sorry, I miss the point of this patch entirely.  At the moment it just
-> looks like an unattractive rearrangement - the code churn akpm advised
-> against - with no bearing on that vmtruncate race.  Please correct me.
+Hi,
+After 2.4.21-rc2,driver of IEEE1394 storage ( a.k.a. sbp2 ) is not able to
+detect IEEE1394 Hard Drive.
 
-This is all about supporting cross-host mmap (nice trick, huh?).  Yes, 
-somebody should post a detailed rfc on that subject.
+Message of /proc/scsi/sbp2/2 at 2.4.21-rc1 is below:
+IEEE-1394 SBP-2 protocol driver (host: ohci1394)
+$Rev: 878 $ James Goodwin <jamesg@filanet.com>
+SBP-2 module load options:
+- Max speed supported: S200
+- Max sectors per I/O supported: 255
+- Max outstanding commands supported: 64
+- Max outstanding commands per lun supported: 1
+- Serialized I/O (debug): no
+- Exclusive login: yes
+
+# If Max speed is not specified,this issue is happened,too :-(
+
+Message of /proc/scsi/scsi at 2.4.21-rc1 (after -rc2,this message is *not*
+displayed... ) for IEEE1394 hard drive(s) is below :
+
+Host: scsi2 Channel: 00 Id: 00 Lun: 00
+  Vendor: SAMSUNG  Model: SV8004H          Rev:     
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+
 
 Regards,
-
-Daniel
+ Ohta 

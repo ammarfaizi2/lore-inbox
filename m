@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265449AbTFRRuq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 13:50:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265466AbTFRRuq
+	id S265466AbTFRRvU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 13:51:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265468AbTFRRvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 13:50:46 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:17306 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S265449AbTFRRun (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 13:50:43 -0400
-Date: Wed, 18 Jun 2003 20:04:25 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Check in new SN2 file from Jes' gettimeoffset() patch.
-In-Reply-To: <200306181626.h5IGQbH4027481@hera.kernel.org>
-Message-ID: <Pine.GSO.4.21.0306182003320.7606-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 18 Jun 2003 13:51:20 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:39924 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S265466AbTFRRvP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 13:51:15 -0400
+Subject: Re: [PATCH] 2.5.72 O(1) interactivity bugfix
+From: Robert Love <rml@tech9.net>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <200306190043.14291.kernel@kolivas.org>
+References: <200306190043.14291.kernel@kolivas.org>
+Content-Type: text/plain
+Message-Id: <1055959503.7069.1864.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 18 Jun 2003 11:05:05 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 May 2003, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1063.9.23, 2003/05/14 17:56:37-07:00, davidm@tiger.hpl.hp.com
-> 
-> 	Check in new SN2 file from Jes' gettimeoffset() patch.
-> 
-> 
-> # This patch includes the following deltas:
-> #	           ChangeSet	1.1063.9.22 -> 1.1063.9.23
-> #	               (new)	        -> 1.1     timer.c        
-> #
-> 
->  timer.c |   85 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
->  1 files changed, 85 insertions(+)
-> 
-> 
-> diff -Nru a/timer.c b/timer.c
-> --- /dev/null	Wed Dec 31 16:00:00 1969
-> +++ b/timer.c	Wed Jun 18 09:26:40 2003
-        ^^^^^^^
-> @@ -0,0 +1,85 @@
-> +/*
-> + * linux/arch/ia64/sn/kernel/sn2/timer.c
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Just wondering, did this file really end up where it belongs?
+On Wed, 2003-06-18 at 07:43, Con Kolivas wrote:
 
-Gr{oetje,eeting}s,
+> While messing with the interactivity code I found what appears to be an 
+> uninitialised variable (p->sleep_avg), which is responsible for all the 
+> boost/penalty in the scheduler.
 
-						Geert
+The variable isn't uninitialized, it is inherited from the parent.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Recall that the task_struct of the new child starts off as a duplicate
+of the parent's. If the variables are not explicitly set, they remain
+the same as the parent's.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+So this patch ends up resetting the sleep_avg to zero, instead of being
+the same as the parent, which may or may not result in better
+performance.
+
+	Robert Love
 

@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289597AbSBJNSR>; Sun, 10 Feb 2002 08:18:17 -0500
+	id <S289606AbSBJNX4>; Sun, 10 Feb 2002 08:23:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289600AbSBJNSG>; Sun, 10 Feb 2002 08:18:06 -0500
-Received: from cobae1.consultronics.on.ca ([205.210.130.26]:62594 "EHLO
-	cobae1.consultronics.on.ca") by vger.kernel.org with ESMTP
-	id <S289597AbSBJNSA>; Sun, 10 Feb 2002 08:18:00 -0500
-Date: Sun, 10 Feb 2002 08:04:48 -0500
-From: Greg Louis <glouis@dynamicro.on.ca>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: LKML <linux-kernel@vger.kernel.org>, dz@debian.org
-Subject: APM fix from -pre7 seems to break "Dell laptop support"
-Message-ID: <20020210130447.GA1001@athame.dynamicro.on.ca>
-Reply-To: Greg Louis <glouis@dynamicro.on.ca>
-Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-	LKML <linux-kernel@vger.kernel.org>, dz@debian.org
-In-Reply-To: <Pine.LNX.4.21.0202041743180.14205-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0202041743180.14205-100000@freak.distro.conectiva>
-Organization: Dynamicro Consulting Limited
+	id <S289619AbSBJNXu>; Sun, 10 Feb 2002 08:23:50 -0500
+Received: from ws-han1.win-ip.dfn.de ([193.174.75.150]:27639 "EHLO
+	ws-han1.win-ip.dfn.de") by vger.kernel.org with ESMTP
+	id <S289606AbSBJNXm>; Sun, 10 Feb 2002 08:23:42 -0500
+Date: Sun, 10 Feb 2002 14:24:23 +0100
+Message-ID: <vines.sxdD+5GbNwA@SZKOM.BFS.DE>
+X-Priority: 3 (Normal)
+To: <linux-kernel@vger.kernel.org>
+From: <WHarms@bfs.de> (Walter Harms)
+Reply-To: <WHarms@bfs.de>
+Subject: FIX: pc_keyb.c  in >2.2.17 2.4.x 2.5.x
+X-Incognito-SN: 25185
+X-Incognito-Version: 5.1.0.84
+MIME-Version: 1.0
+Content-type: multipart/mixed; boundary="1013347407-MIME-Part-Dividor"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With CONFIG_I8K=y and Massimo Dal Zotto's i8k utilities, it's necessary
-for me to revert Stephen Rothwell's 2.4.17-APM.1 patch that went into
-18-pre7.  If I don't, CPU temperature readings jump around erratically
-and the fans come on at the wrong temperatures.  I reported this to
-Stephen and on lkml at the time -pre7 came out, but the problem is
-still there in -pre9.  If the patch offers real benefits to non-Dell
-folk I guess I can just continue reverting...
 
--- 
-| G r e g  L o u i s          | gpg public key:      |
-|   http://www.bgl.nu/~glouis |   finger greg@bgl.nu |
+--1013347407-MIME-Part-Dividor
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi,
+the "kbd_exists" fix from around 2.3.39 is a bit hard.
+disabling the kdb even when a reset succeeds.
+
+The patch contains a fix. The bug itself is still there.
+
+walter
+
+--1013347407-MIME-Part-Dividor
+Content-type: application/octet-stream;
+              name="pc_keyb.diff"
+Content-Disposition: attachment; filename="pc_keyb.diff"
+Content-Transfer-Encoding: base64
+
+NTI3YTUyOCw1MzYKPiAKPiAKPiAvKgo+IHRoZSBuZXcgImtiZF9leGlzdHMiIGxvZ2ljIGluIHBj
+X2tiZC5jIG1heSBiZSBqdXN0IGNvbXBsZXRlbHkKPiBidWdnZXJlZC4gSXQgdHJpZXMgdG8gbm90
+aWNlIHdoZW4gYSBQQy1zdHlsZSBrZXlib2FyZCBpcyBtaXNzaW5nLCBhbmQKPiBhdm9pZCB0cnlp
+bmcgdG8gc2V0IHRoZSBsZWRzIG9uIGl0IHdoZW4gbm8ga2V5Ym9hcmQgZXhpc3RzLiAKPiAqLwo+
+IAo+IAo1MzFjNTQwLDU0Mgo8IAkJc2VuZF9kYXRhKEtCRF9DTURfRU5BQkxFKTsJLyogcmUtZW5h
+YmxlIGtiZCBpZiBhbnkgZXJyb3JzICovCi0tLQo+IAkJaWYgKCBzZW5kX2RhdGEoS0JEX0NNRF9F
+TkFCTEUpID4gMCkKPiAJCQkga2JkX2V4aXN0cyA9IDE7CS8qIHJlLWVuYWJsZSBrYmQgaWYgbm8g
+ZXJyb3JzICovCj4gCQllbHNlCg==
+
+--1013347407-MIME-Part-Dividor--

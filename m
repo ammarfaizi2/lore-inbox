@@ -1,33 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272072AbRIJWbd>; Mon, 10 Sep 2001 18:31:33 -0400
+	id <S272074AbRIJWfn>; Mon, 10 Sep 2001 18:35:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272074AbRIJWbX>; Mon, 10 Sep 2001 18:31:23 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27407 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S272072AbRIJWbN>; Mon, 10 Sep 2001 18:31:13 -0400
-Date: Mon, 10 Sep 2001 15:26:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Andreas Dilger <adilger@turbolabs.com>, Andrea Arcangeli <andrea@suse.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.4.10-pre5
-In-Reply-To: <Pine.LNX.4.33.0109101439261.1034-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0109101522590.1034-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272076AbRIJWfX>; Mon, 10 Sep 2001 18:35:23 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:2821 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S272074AbRIJWfR>;
+	Mon, 10 Sep 2001 18:35:17 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: David Mansfield <david@ultramaster.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 question about generated files 
+In-Reply-To: Your message of "Mon, 10 Sep 2001 11:23:36 -0400."
+             <Pine.LNX.4.33.0109101118120.24063-100000@mercury.ultramaster.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 11 Sep 2001 08:34:39 +1000
+Message-ID: <25451.1000161279@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 10 Sep 2001 11:23:36 -0400 (EDT), 
+David Mansfield <david@ultramaster.com> wrote:
+>I've read the release announcements about the new kbuild and it sounds
+>like it will be possible to build from kernel sources that reside on a
+>read-only filesystem?  Is that the case?
 
-Btw, with IDE disks, you might try to enable the drive lookahead by hand -
-whether it is enabled by default or not may depend on the drive. Try if
-"hdparm -A1 /dev/hdX" makes a difference for you.
-
-(It probably doesn't, simply because it's probably already enabled, and
-even if it isn't, the lookahead buffer isn't likely to be big enough to
-help that much with the fundamental seeking problem in doing a recursive
-diff).
-
-		Linus
+Yes.  Run with separate source and object directories and nothing
+expect last access time stamp is updated in the source directory.
 

@@ -1,73 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVCVRJ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVCVRNm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261449AbVCVRJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 12:09:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbVCVRJr
+	id S261457AbVCVRNm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 12:13:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbVCVRNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 12:09:47 -0500
-Received: from smtp-out.tiscali.no ([213.142.64.144]:4111 "EHLO
-	smtp-out.tiscali.no") by vger.kernel.org with ESMTP id S261449AbVCVRJg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 12:09:36 -0500
-Subject: Re: forkbombing Linux distributions
-From: Natanael Copa <mlists@tanael.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Tue, 22 Mar 2005 18:09:33 +0100
-Message-Id: <1111511373.23155.41.camel@nc>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Mar 2005 12:13:42 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:15060 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261457AbVCVRN1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 12:13:27 -0500
+Date: Tue, 22 Mar 2005 18:13:17 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Ralf Baechle <ralf@linux-mips.org>
+cc: Jeff Garzik <jgarzik@pobox.com>, Linux/m68k <linux-m68k@vger.kernel.org>,
+       Linux/m68k on Mac <linux-mac68k@mac.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Jazzsonic driver updates
+In-Reply-To: <200503070210.j272ARii023023@hera.kernel.org>
+Message-ID: <Pine.LNX.4.62.0503221807160.20753@numbat.sonytel.be>
+References: <200503070210.j272ARii023023@hera.kernel.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi list!
+On Fri, 28 Jan 2005, Linux Kernel Mailing List wrote:
+> ChangeSet 1.1986, 2005/01/28 00:12:28-05:00, ralf@linux-mips.org
+> 
+> 	[PATCH] Jazzsonic driver updates
+> 	
+> 	 o Resurrect the Jazz SONIC driver after years of it not having been tested
+> 	 o Convert from Space.c initialization to module_init / platform device.
+> 	
+> 	Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
 
-(I'm new to this list so I'm sorry this mail has not correct thread id)
+> --- a/drivers/net/sonic.c	2005-03-06 18:10:39 -08:00
+> +++ b/drivers/net/sonic.c	2005-03-06 18:10:39 -08:00
+> @@ -116,7 +116,7 @@
+>  	/*
+>  	 * Map the packet data into the logical DMA address space
+>  	 */
+> -	if ((laddr = vdma_alloc(PHYSADDR(skb->data), skb->len)) == ~0UL) {
+> +	if ((laddr = vdma_alloc(CPHYSADDR(skb->data), skb->len)) == ~0UL) {
+                                ^^^^^^^^^
+This part broke compilation for Mac/m68k.
 
-I have been following this forkbombing discussions and I would like to
-point out a few things:
+>  		printk("%s: no VDMA entry for transmit available.\n",
+>  		       dev->name);
+>  		dev_kfree_skb(skb);
 
-* When setting limits /etc/limits (or /etc/security/limits.conf) you
-will prevent logged in users to fork too many processes. However, this
-setting will not prevent a missbehaving daemon that is started from a
-bootscript to fork too many processes, even if running as non root.
+Gr{oetje,eeting}s,
 
-* Linux is very generous allowing maximum numbers of processes for
-non-root users by default in comparation to other *nixes.
-
-The kernel defaults is calculated from the amount of RAM in
-kernel/fork.c with in those lines:
-
-        max_threads = mempages / (8 * THREAD_SIZE / PAGE_SIZE);
-
-        /*
-         * we need to allow at least 20 threads to boot a system
-         */
-        if(max_threads < 20)
-                max_threads = 20;
-
-        init_task.signal->rlim[RLIMIT_NPROC].rlim_cur = max_threads/2;
-        init_task.signal->rlim[RLIMIT_NPROC].rlim_max = max_threads/2;
-
-The forkbomb is mentioned already in 2001-06-18 by Rik van Riel that
-suggested mempages / (16 * THREAD_SIZE / PAGE_SIZE)
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=99283072806620&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=99617386529767&w=2
-
-But I cannot find out why it was set back again to 8 * ... I think this
-is the main reason that almost all distros are vulerable to the stupid
-fork bomb attack.
-
-Would it be an idea to set it back to:
-
-mempages / (16 * THREAD_SIZE / PAGE_SIZE)
-
-and let the sysadmins raise the limit with /proc/sys/kernel/threads-max
-if they need more?
+						Geert
 
 --
-Natanael Copa
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265865AbTCELnO>; Wed, 5 Mar 2003 06:43:14 -0500
+	id <S265457AbTCELkj>; Wed, 5 Mar 2003 06:40:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265947AbTCELnO>; Wed, 5 Mar 2003 06:43:14 -0500
-Received: from host217-36-80-42.in-addr.btopenworld.com ([217.36.80.42]:49298
-	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
-	id <S265865AbTCELnN>; Wed, 5 Mar 2003 06:43:13 -0500
-Subject: 2.4 oprofile patches
-From: Gianni Tedesco <gianni@ecsc.co.uk>
+	id <S265339AbTCELkj>; Wed, 5 Mar 2003 06:40:39 -0500
+Received: from pechkin.minfin.bg ([212.122.164.10]:37574 "EHLO
+	pechkin.minfin.bg") by vger.kernel.org with ESMTP
+	id <S265523AbTCELki>; Wed, 5 Mar 2003 06:40:38 -0500
+Message-ID: <3E65E45E.8090401@minfin.bg>
+Date: Wed, 05 Mar 2003 13:49:50 +0200
+From: Kostadin Karaivanov <larry@minfin.bg>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030112
+X-Accept-Language: en-us, en, bg
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-da2Z1777+LkraoDK0cUg"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Mar 2003 11:54:14 +0000
-Message-Id: <1046865254.2283.26.camel@lemsip>
-Mime-Version: 1.0
+Subject: ipsec-tools 0.1 + kernel 2.5.64
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>Hi,
+>
+>both manual keying and automatic keying with racoon (pre-shared secret)
+>are working fine. No need to patch or modify anything. 
+>I tried only ipv4.
+>
+>But: don't "setkey -DP" while racoon is running, it crashes
+>my machine. Sorry, could not get any details.
+This problem is present for me since 2.5.59, but once I get kernel oops
+right after "setkey -DP" and before crash, it is on real tty not ssh or telnet,
+on ssh/telnet console there is nothing exept freeze of course :-), I never tried 
+serial console to catch the oops
+>
+>Andreas
+BTW "ipsec-tools 0.1" from where ???
 
---=-da2Z1777+LkraoDK0cUg
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+wwell Larry
 
-Anyone got oprofile 0.5.1 as a patch against 2.4?
-
-Not important but would save me 20 mins work :)
-
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
-
---=-da2Z1777+LkraoDK0cUg
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA+ZeVmkbV2aYZGvn0RArzsAJsFQxELFsaP9g9ivBAU4+upKstCLwCeJWnV
-d8txBGKBO+Q4s/AOwtDzoQU=
-=u/ex
------END PGP SIGNATURE-----
-
---=-da2Z1777+LkraoDK0cUg--
 

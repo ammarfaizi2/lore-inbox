@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273235AbRISLDS>; Wed, 19 Sep 2001 07:03:18 -0400
+	id <S274032AbRISLD6>; Wed, 19 Sep 2001 07:03:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274031AbRISLDI>; Wed, 19 Sep 2001 07:03:08 -0400
-Received: from gateway-2.hyperlink.com ([213.52.152.2]:51986 "EHLO
-	core-gateway-1.hyperlink.com") by vger.kernel.org with ESMTP
-	id <S273235AbRISLC7>; Wed, 19 Sep 2001 07:02:59 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Martin Brooks <martin@jtrix.com>
-Reply-To: martin@jtrix.com
-Organization: Jtrix Ltd 
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.10pre11 build problem
-Date: Wed, 19 Sep 2001 12:03:22 +0100
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15jf8d-0002Pr-00@obelix.intranet.hyperlink.com>
+	id <S274029AbRISLDt>; Wed, 19 Sep 2001 07:03:49 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:11276 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S274031AbRISLDn>;
+	Wed, 19 Sep 2001 07:03:43 -0400
+Date: Wed, 19 Sep 2001 13:03:06 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH 2.4.10-pre12] sonypi driver merge error
+Message-ID: <20010919130306.E27091@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+While merging the sonypi driver from the -ac tree, the
+following patch was not included, making impossible to
+compile this driver.
 
-I get this error:
+Linus, please apply.
 
-mm/mm.o(.text+0x8202): undefined reference to `__builtin_expect'
-mm/mm.o(.text+0x821f): undefined reference to `__builtin_expect'
-mm/mm.o(.text+0x8272): undefined reference to `__builtin_expect'
-mm/mm.o: In function `kmalloc':
-mm/mm.o(.text+0x8332): undefined reference to `__builtin_expect'
-mm/mm.o(.text+0x834f): undefined reference to `__builtin_expect'
-mm/mm.o(.text+0x83a2): more undefined references to `__builtin_expect' follow
-make: *** [vmlinux] Error 1
+Stelian.
+
+--- linux-2.4.10-pre12.orig/include/linux/sonypi.h	Wed Jul  4 23:41:33 2001
++++ linux-2.4.10-pre12/include/linux/sonypi.h	Wed Sep 19 12:33:27 2001
+@@ -67,6 +67,10 @@
+ #define SONYPI_EVENT_FNKEY_S			29
+ #define SONYPI_EVENT_FNKEY_B			30
+ #define SONYPI_EVENT_BLUETOOTH_PRESSED		31
++#define SONYPI_EVENT_PKEY_P1                    32
++#define SONYPI_EVENT_PKEY_P2                    33
++#define SONYPI_EVENT_PKEY_P3                    34
++
+ 
+ /* brightness etc. ioctls */
+ #define SONYPI_IOCGBRT	_IOR('v', 0, __u8)
 
 
-unhygienix:/usr/src/linux# gcc -v
-Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.4/specs
-gcc version 2.95.4 20010902 (Debian prerelease)
-
-I'm not on the list, please CC any reply.
-
-Regards
 -- 
-
-Martin A. Brooks,  Systems Administrator
-------------------------------------------------
-Jtrix Ltd		t: +44 207 395 4990
-57-59 Neal Street	f: +44 207 395 4991
-Covent Garden		e: martin@jtrix.org
-London WC2H 9PJ		w: http://www.jtrix.org
-
-Running Windows: while (problem){ reboot; last if
-Upgrade||ServicePack||MassivelyPublicisedExploit;} restart;
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

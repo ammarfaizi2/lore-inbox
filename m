@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262116AbVCaXln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbVCaXpn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbVCaXln (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 18:41:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbVCaXkn
+	id S262583AbVCaXpn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 18:45:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbVCaXk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 18:40:43 -0500
-Received: from mail.kroah.org ([69.55.234.183]:38624 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262116AbVCaXYL convert rfc822-to-8bit
+	Thu, 31 Mar 2005 18:40:29 -0500
+Received: from mail.kroah.org ([69.55.234.183]:37856 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262110AbVCaXYK convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 18:24:11 -0500
+	Thu, 31 Mar 2005 18:24:10 -0500
 Cc: khali@linux-fr.org
-Subject: [PATCH] I2C: Fix Vaio EEPROM detection
-In-Reply-To: <111231139374@kroah.com>
+Subject: [PATCH] I2C: Make master_xfer debug messages more useful
+In-Reply-To: <1112311390987@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 31 Mar 2005 15:23:13 -0800
-Message-Id: <1112311393634@kroah.com>
+Date: Thu, 31 Mar 2005 15:23:10 -0800
+Message-Id: <1112311390208@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,37 +24,38 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2339, 2005/03/31 14:29:23-08:00, khali@linux-fr.org
+ChangeSet 1.2328, 2005/03/31 14:07:05-08:00, khali@linux-fr.org
 
-[PATCH] I2C: Fix Vaio EEPROM detection
+[PATCH] I2C: Make master_xfer debug messages more useful
 
-This fixes a bug in the eeprom driver, which made all EEPROMs at
-location 0x57 be erroneously treated as Vaio EEPROMs. I have to say I'm
-quite ashamed that I introduced the bug in the first place, as this was
-a really stupid one.
+While working on the recent saa7110 mess, I found that the debug message
+displayed when calling master_xfer wasn't as useful as it could be. Here
+is a patch improving this.
 
 Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
- drivers/i2c/chips/eeprom.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/i2c/i2c-core.c |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletion(-)
 
 
-diff -Nru a/drivers/i2c/chips/eeprom.c b/drivers/i2c/chips/eeprom.c
---- a/drivers/i2c/chips/eeprom.c	2005-03-31 15:17:18 -08:00
-+++ b/drivers/i2c/chips/eeprom.c	2005-03-31 15:17:18 -08:00
-@@ -210,10 +210,11 @@
- 		if (i2c_smbus_read_byte_data(new_client, 0x80) == 'P'
- 		 && i2c_smbus_read_byte(new_client) == 'C'
- 		 && i2c_smbus_read_byte(new_client) == 'G'
--		 && i2c_smbus_read_byte(new_client) == '-')
-+		 && i2c_smbus_read_byte(new_client) == '-') {
- 			dev_info(&new_client->dev, "Vaio EEPROM detected, "
- 				"enabling password protection\n");
- 			data->nature = VAIO;
-+		}
- 	}
+diff -Nru a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+--- a/drivers/i2c/i2c-core.c	2005-03-31 15:18:36 -08:00
++++ b/drivers/i2c/i2c-core.c	2005-03-31 15:18:36 -08:00
+@@ -587,7 +587,13 @@
+ 	int ret;
  
- 	/* create the sysfs eeprom file */
+ 	if (adap->algo->master_xfer) {
+- 	 	dev_dbg(&adap->dev, "master_xfer: with %d msgs.\n", num);
++#ifdef DEBUG
++		for (ret = 0; ret < num; ret++) {
++			dev_dbg(&adap->dev, "master_xfer[%d] %c, addr=0x%02x, "
++				"len=%d\n", ret, msgs[ret].flags & I2C_M_RD ?
++				'R' : 'W', msgs[ret].addr, msgs[ret].len);
++		}
++#endif
+ 
+ 		down(&adap->bus_lock);
+ 		ret = adap->algo->master_xfer(adap,msgs,num);
 

@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286530AbRLUJOl>; Fri, 21 Dec 2001 04:14:41 -0500
+	id <S286528AbRLUJRL>; Fri, 21 Dec 2001 04:17:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286581AbRLUJOb>; Fri, 21 Dec 2001 04:14:31 -0500
-Received: from ns0.dhm-systems.de ([195.126.154.163]:35855 "EHLO
+	id <S286535AbRLUJRB>; Fri, 21 Dec 2001 04:17:01 -0500
+Received: from ns0.dhm-systems.de ([195.126.154.163]:1296 "EHLO
 	ns0.dhm-systems.de") by vger.kernel.org with ESMTP
-	id <S286569AbRLUJOS>; Fri, 21 Dec 2001 04:14:18 -0500
-Message-ID: <3C22FD46.11CC921A@web-systems.net>
-Date: Fri, 21 Dec 2001 10:13:42 +0100
+	id <S286532AbRLUJQv>; Fri, 21 Dec 2001 04:16:51 -0500
+Message-ID: <3C22FDFE.79B740E@web-systems.net>
+Date: Fri, 21 Dec 2001 10:16:46 +0100
 From: Heinz-Ado Arnolds <Ado.Arnolds@dhm-systems.de>
 Reply-To: Ado.Arnolds@dhm-systems.de
 Organization: DHM GmbH & Co. KG
@@ -18,20 +18,20 @@ To: Marcelo Tosatti <marcelo@conectiva.com.br>,
         Linus Torvalds <torvalds@transmeta.com>, alan@lxorguk.ukuu.org.uk
 CC: linux-kernel@vger.kernel.org, Rogier Wolff <R.E.Wolff@BitWizard.nl>,
         hylafax-users@hylafax.org, hylafax-devel@hylafax.org
-Subject: Re: sx driver, DCD-HylaFAX problem solved
-In-Reply-To: <200112210008.BAA20609@cave.bitwizard.nl>
+Subject: sx driver, DCD-HylaFAX problem solved
+In-Reply-To: <200112210008.BAA20609@cave.bitwizard.nl> <3C22FD46.11CC921A@web-systems.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Rogier Wolff wrote:
-> 
+>
 ...
 > Please Email Marcello, Linus and linux-kernel with this patch, and
 > state that you are submitting this patch on my request for inclusion
 > in the standard kernel.
-> 
+>
 >                         Roger.
 
 Hi Marcelo, hi Linus, hi Alan,

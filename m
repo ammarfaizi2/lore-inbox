@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267923AbUIHNxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269166AbUIHNwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267923AbUIHNxE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 09:53:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267815AbUIHNw6
+	id S269166AbUIHNwf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 09:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268961AbUIHNsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 09:52:58 -0400
-Received: from relay-6v.club-internet.fr ([194.158.96.111]:27581 "EHLO
-	relay-6v.club-internet.fr") by vger.kernel.org with ESMTP
-	id S267923AbUIHNwY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 09:52:24 -0400
-From: pinotj@club-internet.fr
-To: rmk@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: Supported architectures for Linux 2.6
-Date: Wed,  8 Sep 2004 15:52:13 CEST
+	Wed, 8 Sep 2004 09:48:41 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:4872 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267928AbUIHNsD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 09:48:03 -0400
+Date: Wed, 8 Sep 2004 14:47:55 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       "La Monte H.P. Yarroll" <piggy@timesys.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Scott Wood <scott@timesys.com>, Andrey Panin <pazke@donpac.ru>
+Subject: Re: [patch] generic-hardirqs.patch, 2.6.9-rc1-bk14
+Message-ID: <20040908144755.A32156@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>,
+	"La Monte H.P. Yarroll" <piggy@timesys.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Scott Wood <scott@timesys.com>, Andrey Panin <pazke@donpac.ru>
+References: <20040908120613.GA16916@elte.hu> <413EFB11.2000507@timesys.com> <20040908142529.A31922@infradead.org> <20040908134032.GA24201@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Medianet/v2.0
-Message-Id: <mnet2.1094651533.2169.pinotj@club-internet.fr>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040908134032.GA24201@elte.hu>; from mingo@elte.hu on Wed, Sep 08, 2004 at 03:40:32PM +0200
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russel King wrote:
->>
->> I updated the documentation I wrote about architectures supported by
->> the 2.6.X kernel. Here is the beginning for the curious:
->>...
->> The complete file is available here :
->> http://cercle-daejeon.homelinux.org/linux/kernel/arch.txt 
->
->Sorry, I don't have much interest in keeping this up to date for ARM
->platforms; there are too many ARM platforms around which would make
->this a full time job.
+On Wed, Sep 08, 2004 at 03:40:32PM +0200, Ingo Molnar wrote:
+> 
+> * Christoph Hellwig <hch@infradead.org> wrote:
+> 
+> > On Wed, Sep 08, 2004 at 08:29:05AM -0400, La Monte H.P. Yarroll wrote:
+> > > In the interests of full provinence, the TimeSys patches are based on
+> > > work by Andrey Panin.
+> > 
+> > Btw, Andrey's patches got all the things right I complained about :)
+> 
+> do you mean the irq and softirq threading patches?
 
-I understand, Linux is too much portable :-)
-I don't expect we can write a complete and accurate list of all arch in one shot.
-It is something that must evolve like the Kernel or Hardware does.
-
->I'm not certain that all the ARM platforms we appear to support in
->2.6.x are actually working - again, it comes back to time, people and
->testing.
-
-Of course, it will take time. 
-
-What do you think about creating a Wiki from this file that users/maintainers could update easily ?
-
-The portability of Linux shouldn't be underestimate by non-expert people. I believe this file could help.
-
-Regards,
-
-(please, cc: me)
-
---
-Jerome Pinot
-http://cercle-daejeon.homelinux.org/linux
-
+No, irq.c consolidation.

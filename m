@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130107AbRAISlv>; Tue, 9 Jan 2001 13:41:51 -0500
+	id <S130864AbRAISmb>; Tue, 9 Jan 2001 13:42:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131105AbRAISll>; Tue, 9 Jan 2001 13:41:41 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:28940 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S130107AbRAISlc>;
-	Tue, 9 Jan 2001 13:41:32 -0500
-Date: Tue, 9 Jan 2001 19:41:12 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Chris Evans <chris@scary.beasts.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <Pine.LNX.4.30.0101091755320.25936-100000@ferret.lmh.ox.ac.uk>
-Message-ID: <Pine.LNX.4.30.0101091940480.7155-100000@e2>
+	id <S129562AbRAISmO>; Tue, 9 Jan 2001 13:42:14 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45581 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131105AbRAISl6>; Tue, 9 Jan 2001 13:41:58 -0500
+Subject: Re: Failure building 2.4 while running 2.4.  There is no such thing.
+To: silviu@delrom.ro (Silviu Marin-Caea)
+Date: Tue, 9 Jan 2001 18:43:52 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, andre@linux-ide.org
+In-Reply-To: <20010109202036.06741d46.silviu@delrom.ro> from "Silviu Marin-Caea" at Jan 09, 2001 08:20:36 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14G3kQ-0007Ad-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> One is bad hardware.  The other is bad user.  I compiled with DMA support
+> for SiS 5513 and I have SiS 5571.  My appologies for the stupid mistake.
 
-On Tue, 9 Jan 2001, Chris Evans wrote:
-
-> > but in 2.4, with the right patch from Jens, it doesnt suck anymore. )
->
-> Is this "right patch from Jens" on the radar for 2.4 inclusion?
-
-i do hope so!
-
-	Ingo
-
+If the 5513 driver doesnt work on the 5571 it should have ignored it - so
+thats a driver bug
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263242AbVAGAEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVAGAE2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263242AbVAGAEK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 19:04:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263094AbVAGAAC
+	id S261378AbVAGAE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 19:04:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263133AbVAFX7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 19:00:02 -0500
-Received: from sv1.valinux.co.jp ([210.128.90.2]:44176 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S263119AbVAFXzk (ORCPT
+	Thu, 6 Jan 2005 18:59:31 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:62406 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263094AbVAFX4g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 18:55:40 -0500
-Date: Fri, 07 Jan 2005 08:55:37 +0900
-From: Itsuro Oda <oda@valinux.co.jp>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: [Fastboot] Yet another crash dump tool
-Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <m1y8f7nn75.fsf@ebiederm.dsl.xmission.com>
-References: <20050106093723.6C35.ODA@valinux.co.jp> <m1y8f7nn75.fsf@ebiederm.dsl.xmission.com>
-Message-Id: <20050107083247.6C54.ODA@valinux.co.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.10.04 [ja]
+	Thu, 6 Jan 2005 18:56:36 -0500
+Date: Thu, 6 Jan 2005 15:56:34 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, paulmck@us.ibm.com,
+       arjan@infradead.org, linux-kernel@vger.kernel.org, jtk@us.ibm.com,
+       wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
+       greghk@us.ibm.com, Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] add feature-removal-schedule.txt documentation
+Message-ID: <20050106235633.GA10110@kroah.com>
+References: <20050106190538.GB1618@us.ibm.com> <1105039259.4468.9.camel@laptopd505.fenrus.org> <20050106201531.GJ1292@us.ibm.com> <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk> <20050106210408.GM1292@us.ibm.com> <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050106152621.395f935e.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050106152621.395f935e.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Jan 06, 2005 at 03:26:21PM -0800, Andrew Morton wrote:
+> Which begs the question "how do we ever get rid of these things when we
+> have no projected date for Linux-2.8"?
+> 
+> I'd propose:
+> 
+> a) Create Documentation/feature-removal-schedule.txt which describes
+>    things which are going away, when, why, who is involved, etc.
 
-On 05 Jan 2005 22:25:34 -0700
-ebiederm@xmission.com (Eric W. Biederman) wrote:
+Ok, I'll bite, here's a patch that does just that.  Look good?
 
-> One of the problems  Hariprasad and Vivek seem to have been having is
-> that the keeping the crash dump kernel from using the first 1M.  You
-> have avoided that problem correct?
+thanks,
 
-alloc_pages(ZONE_NORMAL) is used to get memory area for the mini kernel
-in "4MB unit"(i386). So the pages is never under 1M.
-(for x86_64, alloc_bootmem is used to reserve the memory for the mini
- kernel. alloc_pages does not guarantee under 4GB!!)
+greg k-h
 
-> As I recall from looking at your patch and it was obviously your last
-> version was that you were using kmalloc or get_free_pages for some 
-> of your data structures that controlled the loaded of the mini kernel
-> instead of allocating those data structures from the reserved area.
+-----------
 
-yes. kmalloc is used to get kimage struct. Indeed it is more safe to
-put such structues in the reserved area (and write protected).
-Thank you for your indication.
+Add Documentation/feature-removal-schedule.txt as a way to notify
+everyone when and what is going to be removed.
 
-> Eric
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-Thanks.
--- 
-Itsuro ODA <oda@valinux.co.jp>
-
+diff -Nru a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/Documentation/feature-removal-schedule.txt	2005-01-06 15:54:40 -08:00
+@@ -0,0 +1,17 @@
++The following is a list of files and features that are going to be
++removed in the kernel source tree.  Every entry should contain what
++exactly is going away, why it is happening, and who is going to be doing
++the work.  When the feature is removed from the kernel, it should also
++be removed from this file.
++
++---------------------------
++
++What:	devfs
++When:	July 2005
++Files:	fs/devfs/*, include/linux/devfs_fs*.h and assorted devfs
++	function calls throughout the kernel tree
++Why:	It has been unmaintained for a number of years, has unfixable
++	races, contains a naming policy within the kernel that is
++	against the LSB, and can be replaced by using udev.
++Who:	Greg Kroah-Hartman <greg@kroah.com>
++

@@ -1,75 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268107AbUHFJ5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265517AbUHFKGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268107AbUHFJ5j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 05:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268112AbUHFJ5j
+	id S265517AbUHFKGb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 06:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268113AbUHFKGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 05:57:39 -0400
-Received: from raven.ecs.soton.ac.uk ([152.78.70.1]:65011 "EHLO
-	raven.ecs.soton.ac.uk") by vger.kernel.org with ESMTP
-	id S268107AbUHFJ5g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 05:57:36 -0400
-Message-ID: <411355B9.9060304@ecs.soton.ac.uk>
-Date: Fri, 06 Aug 2004 10:56:09 +0100
-From: kwl02r <kwl02r@ecs.soton.ac.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 6 Aug 2004 06:06:31 -0400
+Received: from users.linvision.com ([62.58.92.114]:42477 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S265517AbUHFKG3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 06:06:29 -0400
+Date: Fri, 6 Aug 2004 12:06:28 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
 To: linux-kernel@vger.kernel.org
-Subject: strange new system call problems
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: Please contact helpdesk@ecs.soton.ac.uk for more information
-X-ECS-MailScanner: Found to be clean
+Subject: Caching. 
+Message-ID: <20040806100628.GA23325@bitwizard.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hiya,
 
-    I am running the Redhat9 with kernel-2.4.20-8. I added four new 
-system calls for my application program.
-    At file /asm/unistd.h, I added my system calls definition as following.
-   
-    #define __NR_set_tid_address    258 /* last system call defined by 
-system*/
+On our server we run: 
 
-   #define __NR_mysystemcall1  259  /* my first system call*/
-   #define __NR_mysystemcall2  260  /* my second system call*/
-   #define __NR_mysystemcall3  261  /* my third system call*/
-   #define __NR_mysystemcall4  262  /* my forth system call*/
+Linux version 2.4.25-rmap-nonapi (root@obelix) (gcc version 2.95.4
+  20011002 (Debian prerelease)) #1 SMP Tue Jun 15 13:35:04 CEST 2004
 
-   After this , I changed the linux/arch/i386/entry.S as following.
-  . long SYMBOL_NAME(sys_mysystemcall1)             /* 259 system call */
-  .long SYMBOL_NAME(sys_mysystemcall2)              /* 260 system call */
-  .long SYMBOL_NAME(sys_mysystemcall3)              /* 261 system call */
-  .long SYMBOL_NAME(sys_mysystemcall4)              /* 262 system call */
+I have this file: 
 
-   When I compilered a new kernel, there was no any error messages.
-   But only the new system call 259 was working. The rest of three 
-(260-262) did not response
-   anything. If I changed the position of system calls (259->260 and 
-260->259), still the 259 had
-   response. Anyway, only the new system call at the 259 position was 
-working. What is wrong?
-   Other questions are:
-   (1) Is it correct that I add my new definitions at 
-/linux/asm/unistd.h? There is another file under
-         /linux/asm-i386/unistd.h
-   (2) At entry.S, do I need to change codes following for my new system 
-calls? How to change ?
-       
-       .rept NR_syscalls-(.-sys_call_table)/4
-               .long SYMBOL_NAME(sys_ni_syscall)
-        .endr
+ 249412 -rw-rw-r--    2 wolff    hdr      1073741824 Aug  5 15:21 disk.img3
 
-Thanks
+which takes some 250Mb on disk, but is 1Gb in size. It's sparse. 
 
+When I repeatedly GREP trhough this file, I see large amounts of the
+file being reread from disk every time, even though the machine easily
+has enough memory to cache the whole 250Mb of diskblocks that the file
+compromises.
 
+The server has 1Gb of memory. 
 
-   
+To be sure the memory was free, I created a 900Mb application that
+would run-and-touch all it's memory. Killing that would leave the
+machine with "900Mb free" (actualy just over 908000 kb). Then running
+the multiple searches would still page in about half the pages that
+should have been cached.
 
+Even when the file on disk only takes about 1Mb of disk space, still
+500 of the 1000 kbytes of data on the disk was read every time through
+the loop.
 
- 
+My "task at hand" will be done by the time anybody reads this, but
+kernel-memory managing could be better, and someone might want to take
+a look what's going on.
 
-   
+	Roger. 
 
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****

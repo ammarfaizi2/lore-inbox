@@ -1,98 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262122AbUCRJGE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 04:06:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbUCRJGE
+	id S262459AbUCRJKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 04:10:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbUCRJKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 04:06:04 -0500
-Received: from natsmtp01.rzone.de ([81.169.145.166]:20677 "EHLO
-	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S262122AbUCRJF6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 04:05:58 -0500
-Date: Thu, 18 Mar 2004 10:05:22 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.de>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Andrew Morton <akpm@osdl.org>, Kenneth Chen <kenneth.w.chen@intel.com>,
-       linux-ia64@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       CPU Freq ML <cpufreq@www.linux.org.uk>
-Subject: Re: add lowpower_idle sysctl
-Message-ID: <20040318090522.GC15526@dominikbrodowski.de>
-Mail-Followup-To: Zwane Mwaikambo <zwane@linuxpower.ca>,
-	Andrew Morton <akpm@osdl.org>,
-	Kenneth Chen <kenneth.w.chen@intel.com>, linux-ia64@vger.kernel.org,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	CPU Freq ML <cpufreq@www.linux.org.uk>
-References: <20040317170436.430acfbe.akpm@osdl.org> <200403180318.i2I3IDF03166@unix-os.sc.intel.com> <20040317192821.1fe90f24.akpm@osdl.org> <Pine.LNX.4.58.0403172237470.28447@montezuma.fsmlabs.com>
+	Thu, 18 Mar 2004 04:10:25 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:21446 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262459AbUCRJKH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 04:10:07 -0500
+Date: Thu, 18 Mar 2004 10:10:00 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: floppy driver 2.6.3 question
+Message-ID: <20040318091000.GA22234@suse.de>
+References: <20040318071418.GB1072@suse.de> <200403180823.i2I8NZs21184@oboe.it.uc3m.es>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UPT3ojh+0CqEDtpF"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0403172237470.28447@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200403180823.i2I8NZs21184@oboe.it.uc3m.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 18 2004, Peter T. Breuer wrote:
+> "Also sprach Jens Axboe:"
+> > On Wed, Mar 17 2004, Peter T. Breuer wrote:
+> > > 
+> > > In the 2.6.3 floppy driver, when the driver is asked to revalidate by
+> > > kernel check_disk_change (after the latter asks and the floppy signalled
+> > > media_changed), the floppy driver constructs a read bio for the first
+> > > block and submits it via submit_bio, and waits for completion of the
+> > > bio.
+> > > 
+> > > However, the bio's embedded completion only signals back if the
+> > > submitted bio was successful, as far as I can tell:
+> > > 
+> > > 
+> > > static int floppy_rb0_complete(struct bio *bio, unsigned int bytes_done, int err)
+> > > {
+> > > 	if (bio->bi_size)
+> > > 		return 1;
+> > > 
+> > > 	complete((struct completion*)bio->bi_private);
+> > > 	return 0;
+> > > }
+> > > 
+> > > Note that if the bi_size is nonzero, we return without signalling. Now
+> > > bi_size starts out nozero
+> > > 
+> > >     bio.bi_size = size;
+> > > 
+> > > but I _think_ bi_size is zeroed along the way somewhere in end_request
+> > > (who knows?) if all goes well, so that nonzero means we still have more
+> > > to do in this bio. So if things go badly, completion is never signalled
+> > > and the submitted read is waited for forever? (and the result is never
+> > > tested).
+> > 
+> > You are completely missing how it works... ->bi_end_io() is invoked on
+> > every io completion event that the hardware generates,
+> 
+> You are saying the floppy_rb0_complete is possibly called multiple times
+> (presumably by end_that_request_first, or whatever_it_is_called :)?  I
 
---UPT3ojh+0CqEDtpF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It is called from end_that_request_first -> bio_endio() -> bi_end_io().
+So _if_ the floppy driver uses partial completions (ie several calls to
+end_that_request_first(), not just one at the end), then
+floppy_rb0_complete will be called multiple times.
 
-On Wed, Mar 17, 2004 at 10:40:31PM -0500, Zwane Mwaikambo wrote:
-> On Wed, 17 Mar 2004, Andrew Morton wrote:
->=20
-> > "Kenneth Chen" <kenneth.w.chen@intel.com> wrote:
-> > >
-> > >  > > Logically it means a sysctl entry in /proc/sys/kernel.
-> > >  > Yes, but the *meanings* of the different values of that sysctl need
-> > >  > to be defined, and documented.  If lowpower_idle=3D42 has a totally
-> > >  > different meaning on different architectures then that's unfortuna=
-te
-> > >  > but understandable.  But we should at least enumerate the different
-> > >  > values and try to get different architectures to honour `42' in the
-> > >  > same way.
-> > >
-> > >  Writing to sysctl should be a bool, reading the value can be number =
-of
-> > >  module currently disabled low power idle.  I think the original inte=
-nt
-> > >  is to use ref count for enabling/disabling.  (granted, we copied the
-> > >  code from other arch).
+> was not aware of that, but it makes sense, thank you. Once for each bio
+> in the request. But how can it be called multiple times for each bio?
 
-I assume ia64 does idling using the ACPI processor.c driver? If so, couldn't
-writing to /proc/acpi/processor/./power be an option?
+A bio can contain any amount of data, basically. So if you get hardware
+completions for each 512b sector and the bio contains 128K, you'd get
+256 completions.
 
-> > OK, so why not give us:
-> >
-> > #define IDLE_HALT			0
-> > #define IDLE_POLL			1
-> > #define IDLE_SUPER_LOW_POWER_HALT	2
-> >
-> > and so forth (are there any others?).
-> >
-> > Set some system-wide integer via a sysctl and let the particular
-> > architecture decide how best to implement the currently-selected idle m=
-ode?
->=20
-> I'm wondering whether the setting of these magic numbers can't be done
-> using cpufreq infrastructure.
+> I'm trying to understand the 2.6 block driver mechanisms  :-(.
+> 
+> It's hard btw to see from the code precisely what the args to the call
+> of bi_end_io in end_that_request_first are.  err seems to be either 0 or
+> -EIO (if the whole request was not uptodate) and bytes_done appears
+> always to be bi_size for the current bio. __make_request seems to be
+> able to generate a WOULDBLOCK error and bytes_done equal to the whole
+> request size. Yep - I'm confusicated as to whether there is some
+> invariant like bytes_done+bio->bi_size = const or not.
 
-I doubt it -- there's no ia64 cpufreq driver anyway, and cpufreq is about
-frequency scaling and (sometimes) throttling, but not "idling". And
-"idling" is a too different implementation anyways.
+I don't quite follow your last bytes_done+bio->bi_size, that doesn't
+make any sense. If __make_request() calls bio_endio() with the full
+size, you get floppy_rb0_complete() invoked immediately with bi_size ==
+0, ie it completely ends the bio.
 
-	Dominik
+> > but typically
+> > most only care about the final completion (and not any eventual partial
+> > completions along the way).
+> 
+> OK. Where approximately are the partial completion calls generated?
 
---UPT3ojh+0CqEDtpF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+They are generated by the driver.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+> > So driver calls end_request* which does a bio_endio() on the number of
+> > sectors passed in, which in turn decrements bio->bi_size.
+> 
+> You know, I didn't see any such decrement in end_that-request_first.
 
-iD8DBQFAWWZSZ8MDCHJbN8YRAlz4AJ0ZeCCzoZldEp69vQVzq+NnvMTQDACffTW9
-TReGbG5yQcVHeBhXV2c5kHY=
-=YaTB
------END PGP SIGNATURE-----
+Follow the trace on step to bio_endio()
 
---UPT3ojh+0CqEDtpF--
+> > _If_
+> > bio->bi_size never hits zero, then you have a driver bug. If things 'go
+> > badly', then the driver will signal unsuccessful completion of X
+> > sectors.
+> 
+> Hmm, presumably in the case of unsuccessful completion, we still get
+> bio->b_size == 0 in the call to floppy_rb0_complete?  That's good.
+> Then we will always be signalled.
+
+Of course we do, otherwise you'd never be able to sleep on io
+completion.
+
+> > > 	submit_bio(READ, &bio);
+> > > 	generic_unplug_device(bdev_get_queue(bdev));
+> > > 	process_fd_request();
+> > > 	wait_for_completion(&complete);
+> > > 
+> > > 	__free_page(page);
+> > > 
+> > > My reading therefore is that we cannot do revalidation until we are
+> > > sure that the floppy is there. If we feel sure, but are wrong, the 
+> > > test read of the first block will hang during the revalidation.
+> > 
+> > Wrong.
+> 
+> OK, you are saying that the complete will be signalled after the
+> request has been errored. Thank you very much for the explanation!
+
+Yes
+
+-- 
+Jens Axboe
+

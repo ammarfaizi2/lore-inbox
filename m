@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291806AbSBXXVZ>; Sun, 24 Feb 2002 18:21:25 -0500
+	id <S291834AbSBXX3H>; Sun, 24 Feb 2002 18:29:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291834AbSBXXVF>; Sun, 24 Feb 2002 18:21:05 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:48633 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S291806AbSBXXUz>;
-	Sun, 24 Feb 2002 18:20:55 -0500
-Date: Mon, 25 Feb 2002 00:20:53 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200202242320.AAA15930@harpo.it.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] 2.4.18-pre/rc broke PLIP
+	id <S291840AbSBXX2q>; Sun, 24 Feb 2002 18:28:46 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:2569 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S291834AbSBXX2a>;
+	Sun, 24 Feb 2002 18:28:30 -0500
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15481.30370.4736.793688@argo.ozlabs.ibm.com>
+Date: Mon, 25 Feb 2002 10:26:26 +1100 (EST)
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Troy Benjegerdes <hozer@drgw.net>, "David S. Miller" <davem@redhat.com>,
+        dalecki@evision-ventures.com, torvalds@transmeta.com,
+        andre@linuxdiskcert.org, riel@conectiva.com.br,
+        linux-kernel@vger.kernel.org
+Subject: Re: Flash Back -- kernel 2.1.111
+In-Reply-To: <20020225000231.B2590@ucw.cz>
+In-Reply-To: <20020224231002.B2199@ucw.cz>
+	<15481.26697.420856.1109@argo.ozlabs.ibm.com>
+	<20020224233937.B2257@ucw.cz>
+	<20020224.144423.104049454.davem@redhat.com>
+	<20020224235113.B2412@ucw.cz>
+	<20020224165937.I1682@altus.drgw.net>
+	<20020225000231.B2590@ucw.cz>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[sent to Tim Waugh and Marcelo previously, but of course
-I managed to put a typo in the cc: to lkml]
+Vojtech Pavlik writes:
 
-Someone (sorry I forgot who) reported having problems with
-PLIP in recent kernels. I've done some testing and can confirm
-that PLIP worked up to 2.4.17 but broke in 2.4.18-pre/rc.
-The only thing PLIP does is put "plip0: transmit timeout(1,87)"
-messages in the kernel log.
+> I'd guess most hotpluggable PCIs will have a bridge per slot ...
+> hopefully.
 
-After a lot of testing I've narrowed it down to the following
-hunk in the 2.4.18-rc4 patch:
+That is certainly the case on all the IBM pSeries (RS/6000) machines
+with hot-plug PCI that I know of.
 
---- linux.orig/drivers/parport/parport_pc.c	Mon Feb 18 20:18:40 2002
-+++ linux/drivers/parport/parport_pc.c	Mon Jan 14 19:08:50 2002
-@@ -2212,7 +2233,7 @@
- 	}
- 	memcpy (ops, &parport_pc_ops, sizeof (struct parport_operations));
- 	priv->ctr = 0xc;
--	priv->ctr_writable = 0xff;
-+	priv->ctr_writable = ~0x10;
- 	priv->ecr = 0;
- 	priv->fifo_depth = 0;
- 	priv->dma_buf = 0;
-
-If I back this hunk out, PLIP starts working again.
-Is this fix sufficient or is there something else that need fixing?
-
-/Mikael
+Paul.

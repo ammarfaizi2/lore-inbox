@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267646AbUHJRRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267520AbUHJQm4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267646AbUHJRRH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 13:17:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267630AbUHJRLy
+	id S267520AbUHJQm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 12:42:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267550AbUHJQlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 13:11:54 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:51644 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S267645AbUHJRGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 13:06:17 -0400
-Date: Tue, 10 Aug 2004 18:57:52 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: V13 <v13@priest.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       dsaxena@plexity.net, greg@kroah.com,
+	Tue, 10 Aug 2004 12:41:44 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:19181 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267520AbUHJQJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 12:09:42 -0400
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6] Remove spaces from PCI IDE pci_driver.name field
-Message-ID: <20040810165752.GD21534@louise.pinerecords.com>
-References: <20040810001316.GA7292@plexity.net> <20040810155701.GB21534@louise.pinerecords.com> <1092154407.10794.14.camel@mindpipe> <200408101952.18710.v13@priest.com> <1092156906.861.9.camel@mindpipe>
+In-Reply-To: <1092150252.16885.28.camel@localhost.localdomain>
+References: <1092082920.5761.266.camel@cube>
+	 <cone.1092092365.461905.29067.502@pc.kolivas.org>
+	 <1092099669.5759.283.camel@cube>  <yw1xisbrflws.fsf@kth.se>
+	 <1092148392.5818.6.camel@mindpipe>
+	 <1092150252.16885.28.camel@localhost.localdomain>
+Content-Type: text/plain
+Message-Id: <1092154198.10794.9.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1092156906.861.9.camel@mindpipe>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 10 Aug 2004 12:09:58 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug-10 2004, Tue, 12:55 -0400
-Lee Revell <rlrevell@joe-job.com> wrote:
-
-> On Tue, 2004-08-10 at 12:52, V13 wrote:
-> > On Tuesday 10 August 2004 19:13, Lee Revell wrote:
-> > > On Tue, 2004-08-10 at 11:57, Tomas Szepe wrote:
-> > > > Sure, but while with a GUI you can click on almost anything, on the
-> > > > command line spaces in filenames have always been a real pain in
-> > > > the ass, so let's not pretend otherwise.
-> > >
-> > > Ever heard of tab completion?  Think of it as click for the command
-> > > line.
-> > >
-> > > Seriously, do you really *prefer* filenames like
-> > > Foo_Bar-Baa_Baaz_Quux.mp3?
+On Tue, 2004-08-10 at 11:04, Alan Cox wrote:
+> On Maw, 2004-08-10 at 15:33, Lee Revell wrote:
+> > I hate to derail a good flame-fest, but this would be extremely useful,
+> > for more than burning CDs.  Anytime you are dealing with a SCHED_FIFO
+> > process a bug can lock the machine, this would be useful for hacking
+> > jackd for example.
 > > 
-> > Anyone that writes scripts prefers filenames without spaces. It simplifies 
-> > scripts *and* typing a lot. 
-> > 
-> > Card\ 01
-> > Card\ 02
-> > Cardinal
-> > 
-> > Now we have to write: cd Ca<tab>\ <tab>1<tab/space>
+> > If someone wants to code this up I and the other people on jackit-devel
+> > would gladly test it.
 > 
-> Eh, anyone who writes perl scripts on the command line doesn't mind
-> surrounding an expression in quotes.
+> How much is this actually needed and how much is it just a user
+> debugging method problem. Having done real time stuff on VMS (save
+> the tears) we always had a policy that one serial console was a shell
+> at highest priority and nobody ever used that one top priority.
+> 
+> That gave you an emergency control channel.
 
-Except when the quotes are already open.
-Let's drop this now, I can see where the thread is leading.
+Yeah, I haven't yet been in a situation where I needed this, it would be
+useful only in theory.  It sounded like someone was volunteering to code
+it up.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+Lee
+

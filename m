@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261593AbSJURfI>; Mon, 21 Oct 2002 13:35:08 -0400
+	id <S261585AbSJURdb>; Mon, 21 Oct 2002 13:33:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261583AbSJURe7>; Mon, 21 Oct 2002 13:34:59 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:56540 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S261582AbSJURd5>;
-	Mon, 21 Oct 2002 13:33:57 -0400
-Date: Mon, 21 Oct 2002 10:39:50 -0700
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19 orinoco_cs with Lucent WaveLAN "bronze"
-Message-ID: <20021021173949.GC20616@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <200210190922.g9J9M4p15225@Port.imtp.ilyichevsk.odessa.ua> <20021019105938.A14830@flint.arm.linux.org.uk>
+	id <S261587AbSJURdb>; Mon, 21 Oct 2002 13:33:31 -0400
+Received: from sproxy.gmx.net ([213.165.64.20]:40122 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261585AbSJURda>;
+	Mon, 21 Oct 2002 13:33:30 -0400
+Message-Id: <5.1.0.14.2.20021021192410.00b4ffb8@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 21 Oct 2002 19:36:36 +0200
+To: Thomas Molina <tmolina@cox.net>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: loadlin with 2.5.?? kernels
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0210201357050.8843-100000@dad.molina>
+References: <5.1.0.14.2.20021020192952.00b95e80@pop.gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021019105938.A14830@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 19, 2002 at 10:59:38AM +0100, Russell King wrote:
-> On Sat, Oct 19, 2002 at 02:14:57PM +0000, Denis Vlasenko wrote:
-> > Today I played with wireless LAN euqipment for the first time.
-> > I have ISA-to-PCMCIA converter and a Lucent (IEEE) PCMCIA card.
-> > I set up everything as directed by HOWTOs. I do:
+At 01:58 PM 10/20/2002 -0500, Thomas Molina wrote:
+>On Sun, 20 Oct 2002, Mike Galbraith wrote:
+>
+> > At 08:17 AM 10/20/2002 -0500, Thomas Molina wrote:
+> > >On Sun, 20 Oct 2002, Mike Galbraith wrote:
+> > >
+> > > > Greetings,
+> > > >
+> > > > I hadn't had time to build/test kernels since 2.5.8-pre3.  I now 
+> find that
+> > > > loadlin doesn't work on my box any more.  Is this a known 
+> problem?  If so,
+> > > > when did it quit working?  (loadlin obsolete?  other?)
+> > >
+> > >I'm carrying an open problem report from Rene Blokland on this issue.
+> > >What version of the kernel did you try?
+> >
+> > Only 2.5.42.virgin, 2.5.42-mm, 2.5.43-mm and 2.5.44.virgin.  Binary search
+> > pending.
+>
+>The report stated the problem was noted with 2.5.4x.  One of the
+>developers might want to speak up as to whether finding the exact point of
+>breakage is useful.
 
-	Most problem is XXX-to-Pcmcia converters are interrupt
-problems. Make sure irqs are delivered to the driver.
+2.5.32 is the breakage point here.  I hope someone _else_ can salvage 
+loadlin :)
 
-> Yes, I also noticed many problems with the current orinoco_cs driver.
-> I've reported them to David, but had very little response thus far.
-> Basically, iwconfig ethx essid foo appears to crash the cards firmware
-> (I get really interesting series of words in the chips registers giving
-> a nice ASCII string.)
-> 
-> I did find that if I took the wvlan_cs driver from a Red Hat kernel and
-> drop it into 2.5, it works (as far as I can tell) quite nicely.
-> 
-> Unfortunately, I haven't been able to do any further investigation of
-> this; I'm not too bothered because wvlan_cs gets me working.
-> 
-> (My card is a Lucent WaveLAN Silver)
-> 
-> -- 
-> Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
->              http://www.arm.linux.org.uk/personal/aboutme.html
+(lions and tigers and bears - oh my GDT!)
 
-	Which firmware is on the card ?
-	For me, the most usable orinoco.c was release 8b, which was a
-long while back. I personally want to see HostAP in the kernel, which
-should take care of PrismII cards, but we still need to get our
-Orinoco support on track, so send the reports to David.
-	Thanks...
-
-	Jean
+         -Dorothy
 

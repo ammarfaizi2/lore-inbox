@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313125AbSEVMus>; Wed, 22 May 2002 08:50:48 -0400
+	id <S313157AbSEVMwG>; Wed, 22 May 2002 08:52:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313157AbSEVMur>; Wed, 22 May 2002 08:50:47 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:65295 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S313125AbSEVMuq>; Wed, 22 May 2002 08:50:46 -0400
-Subject: Re: [PATCH] SLC82C105 IDE driver: missing __init
-To: pazke@orbita1.ru (Andrey Panin)
-Date: Wed, 22 May 2002 14:10:06 +0100 (BST)
-Cc: dalecki@evision-ventures.com (Martin Dalecki),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020522091648.GB312@pazke.ipt> from "Andrey Panin" at May 22, 2002 01:16:48 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S313179AbSEVMwF>; Wed, 22 May 2002 08:52:05 -0400
+Received: from imailg1.svr.pol.co.uk ([195.92.195.179]:52802 "EHLO
+	imailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S313157AbSEVMwE>; Wed, 22 May 2002 08:52:04 -0400
+Date: Wed, 22 May 2002 13:51:28 +0100
+To: linux-kernel@vger.kernel.org, linux-lvm@sistina.com, lvm-devel@sistina.com
+Subject: [Announce] device-mapper beta3 (fast snapshots)
+Message-ID: <20020522125128.GA2009@fib011235813.fsnet.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17AVsU-0001aF-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> slc82c105_bridge_revision() functions lacks __init modifier.
-> Attached patch (against 2.5.17) fixes it.
-> Compiles, but untested. Please consider applying.
+Beta3 of device-mapper is now available at:
 
-I wouldnt get too carried away with these. Once the IDE core is clean
-enough to allow hot plugging of IDE interfaces those __init's are all going
-to need changing anyway
+   ftp://ftp.sistina.com/pub/LVM2/device-mapper/device-mapper-beta3.0.tgz
 
-(and yes you can get hot pluggable IDE setups already - the mobility stuff
- for example has a case with a PCI split bridge, 3 or 4 PCI slots and
- connects to the cardbus on a laptop)
+The accompanying LVM2 toolset:
+
+   ftp://ftp.sistina.com/pub/LVM2/tools/LVM2.0-beta3.0.tgz
+
+The main addition for this release is high performance persistent
+snapshots, see http://people.sistina.com/~thornber/snap_performance.html
+for a comparison with LVM1 and EVMS.
+
+Please be warned that snapshots will deadlock under load on 2.4.18
+kernels due to a bug in the VM syste, 2.4.19-pre8 works fine.
+
+pvmove is now the only major feature that LVM2 lacks compared with
+LVM1.
+
+- The LVM2 team (Patrick Caulfield, Alasdair Kergon, Joe Thornber)

@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbUKJNDN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbUKJNJr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261788AbUKJNDN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 08:03:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbUKJNDN
+	id S261781AbUKJNJr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 08:09:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbUKJNJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 08:03:13 -0500
-Received: from bay22-f22.bay22.hotmail.com ([64.4.16.72]:10933 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261788AbUKJNDJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 08:03:09 -0500
-X-Originating-IP: [24.91.61.77]
-X-Originating-Email: [jwseigh_055@hotmail.com]
-From: "Joseph Seigh" <jwseigh_055@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Futex wake behavior question
-Date: Wed, 10 Nov 2004 08:02:56 -0500
+	Wed, 10 Nov 2004 08:09:46 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16147 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261781AbUKJNJo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 08:09:44 -0500
+Date: Wed, 10 Nov 2004 13:09:40 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Mangling attributions.
+Message-ID: <20041110130940.A24204@flint.arm.linux.org.uk>
+Mail-Followup-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>,
+	linux-kernel@vger.kernel.org
+References: <200411060407.iA647Wx6013692@hera.kernel.org> <1100083318.21273.41.camel@baythorne.infradead.org> <20041110111333.A18233@flint.arm.linux.org.uk> <4191F9FE.8060701@tebibyte.org> <20041110114935.B18233@flint.arm.linux.org.uk> <yw1xis8dswql.fsf@ford.inprovide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY22-F224OPXok84FT00006346@hotmail.com>
-X-OriginalArrivalTime: 10 Nov 2004 13:03:02.0757 (UTC) FILETIME=[9C8F4950:01C4C725]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <yw1xis8dswql.fsf@ford.inprovide.com>; from mru@inprovide.com on Wed, Nov 10, 2004 at 01:40:34PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(2nd try at posting this.  from different email acct this time)
+On Wed, Nov 10, 2004 at 01:40:34PM +0100, Måns Rullgård wrote:
+> Well, let people agree to their email address being published if they
+> wish.  I personally don't mind it at all.
 
-I have a question about futex wake behavior.  On a uniprocessor is
-it supposed to preempt the caller and dispatch the woken thread if
-all threads in question have equal priority?
+That's extra overhead for scripts and such like which I'm unable to
+ensure is safely implemented.  Sorry.
 
-I was playing around with an experimental lock-free implementation
-of condvars (no internal lock) and I got a 30% performance improvement
-over NPTL's implementation which I didn't expect since the mutex the
-condvar is bound to tends to be the gating factor.  I did getrusage()
-to get some stats and noticed the context switching was proportional
-to the condvar signaling, the difference between the NPTL and lock-free
-versions being one context switch which I attribute to NPTL's internal
-mutex.
+Look, I _am_ taking the easy way out of this by completely avoiding
+the issue by eliminating or munging email addresses such that they
+can't be read as such.  The alternative is that patches go into the
+BK tree as "rmk@flint.arm.linux.org.uk" - but people don't like that
+either.  So the munging is a compromise to keep people happy.
 
-As a side note, since wait morphing doesn't appear to be currently
-implemented in NPTL, you get a performance boost from signaling while
-not holding the mutex since the first thing the woken thread does is
-try to get the lock.  Even with this technique, the lock-free condvar
-does better.
+If people find that unacceptable, here's what those people can do:
 
-This behavior would also cause problems for semaphores and tend to turn
-semaphore calls into expensive coroutine calls.
+ If someone wants me to change this, go find a UK solicitor who is an
+ expert in this area and who is willing to provide his services in this
+ area for free (hey, we're talking about my _personal_ activities here
+ after all which are _completely_ unfunded) to answer questions in this
+ area.  Alternatively, the people with a problem can fund such a solicitor.
 
-So the question is, is this a feature or a bug?  I'm on Suse 9.2 on
-a uniprocessor.  The kernel is 2.6.8-24 and NPTL is 2.3.3.
+Anything short of that are just random opinions and carry no weight
+what so ever, and I will not change my activities in a way which I
+personally believe will infringe UK law.
 
+(PS, bkbits itself seems to munge email addresses.  Maybe someone
+would like to complain to Larry about that?)
 
-Joe Seigh
-
-_________________________________________________________________
-Express yourself instantly with MSN Messenger! Download today - it's FREE! 
-http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

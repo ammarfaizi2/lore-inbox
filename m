@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289571AbSA2LqC>; Tue, 29 Jan 2002 06:46:02 -0500
+	id <S289600AbSA2LqC>; Tue, 29 Jan 2002 06:46:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289533AbSA2LoJ>; Tue, 29 Jan 2002 06:44:09 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:42255 "HELO
+	id <S289571AbSA2Ln5>; Tue, 29 Jan 2002 06:43:57 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:49679 "HELO
 	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S289540AbSA2Lkm>; Tue, 29 Jan 2002 06:40:42 -0500
-Date: Mon, 28 Jan 2002 20:47:46 +0300
-Message-Id: <200201281747.g0SHlkk23098@bitshadow.namesys.com>
+	id <S289532AbSA2Lkk>; Tue, 29 Jan 2002 06:40:40 -0500
+Date: Mon, 28 Jan 2002 20:49:11 +0300
+Message-Id: <200201281749.g0SHnBC23114@bitshadow.namesys.com>
 From: Hans Reiser <reiser@namesys.com>
 To: torvalds@transmeta.com
 CC: reiser@namesys.com, reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] ReiserFS 2.5 Update Patch Set 12 of 25
+Subject: [PATCH] ReiserFS 2.5 Update Patch Set 14 of 25
 MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -21,9 +21,9 @@ This set of patches of which this is one will update ReiserFS in 2.5
 to contain all bugfixes applied to 2.4 plus allow relocating the journal plus
 uuid support plus fix the kdev_t compilation failure.
 
-12-infinite-replay.diff
-    Patch to break infinite loop in journal_read() in the case when the
-    journal log area is completely filled with transactions.
+14-map_block_for_writepage_highmem_fix.diff
+    Fixes erroroneous page access before making sure page is really accessable.
+    Bug can be triggered only on highmem sysetms.
 
 
 The other patches in this set are:
@@ -173,15 +173,33 @@ The other patches in this set are:
 
 
 
---- linux-2.5.3-pre3/fs/reiserfs/journal.c.orig	Wed Jan 23 15:05:10 2002
-+++ linux-2.5.3-pre3/fs/reiserfs/journal.c	Wed Jan 23 15:06:48 2002
-@@ -1724,6 +1724,8 @@
-     }
-     cur_dblock = SB_ONDISK_JOURNAL_1st_BLOCK(p_s_sb) + SB_JOURNAL(p_s_sb)->j_start ;
-     replay_count++ ;
-+   if (cur_dblock == oldest_start)
-+        break;
-   }
+--- linux-2.5.3-pre4/fs/reiserfs/inode.c.orig	Thu Jan 24 12:25:52 2002
++++ linux-2.5.3-pre4/fs/reiserfs/inode.c	Thu Jan 24 12:58:01 2002
+@@ -1772,6 +1772,7 @@
+     int bytes_copied = 0 ;
+     int copy_size ;
  
-   if (oldest_trans_id == 0) {
++    kmap(bh_result->b_page) ;
+ start_over:
+     lock_kernel() ;
+     journal_begin(&th, inode->i_sb, jbegin_count) ;
+@@ -1844,10 +1845,8 @@
+ 
+     /* this is where we fill in holes in the file. */
+     if (use_get_block) {
+-        kmap(bh_result->b_page) ;
+ 	retval = reiserfs_get_block(inode, block, bh_result, 
+ 	                            GET_BLOCK_CREATE | GET_BLOCK_NO_ISEM) ;
+-        kunmap(bh_result->b_page) ;
+ 	if (!retval) {
+ 	    if (!buffer_mapped(bh_result) || bh_result->b_blocknr == 0) {
+ 	        /* get_block failed to find a mapped unformatted node. */
+@@ -1856,6 +1855,7 @@
+ 	    }
+ 	}
+     }
++    kunmap(bh_result->b_page) ;
+     return retval ;
+ }
+ 
 

@@ -1,102 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263244AbTH0KUA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 06:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTH0KUA
+	id S263299AbTH0Kf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 06:35:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbTH0Kf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 06:20:00 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:64905 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S263244AbTH0KT5
+	Wed, 27 Aug 2003 06:35:28 -0400
+Received: from angband.namesys.com ([212.16.7.85]:23177 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S263299AbTH0KfZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 06:19:57 -0400
-Message-ID: <3F4C8619.4020505@softhome.net>
-Date: Wed, 27 Aug 2003 12:21:13 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: cache limit
-References: <oJ5P.699.21@gated-at.bofh.it> <oJ5P.699.23@gated-at.bofh.it> <oJ5P.699.25@gated-at.bofh.it> <oJ5P.699.27@gated-at.bofh.it> <oJ5P.699.19@gated-at.bofh.it> <oQh2.4bQ.13@gated-at.bofh.it> <3F4BB043.6010805@softhome.net> <20030826192333.GA1258@matchmail.com>
-In-Reply-To: <20030826192333.GA1258@matchmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Aug 2003 06:35:25 -0400
+Date: Wed, 27 Aug 2003 14:35:23 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Resident Boxholder <resid@boxho.com>
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: how to log reiser and raid0 crash? 2.6.0-t4
+Message-ID: <20030827103523.GA30728@namesys.com>
+References: <20030826102233.GA14647@namesys.com> <1061922037.1670.3.camel@spc9.esa.lanl.gov> <20030826182609.GO5448@backtop.namesys.com> <1061926566.1076.2.camel@teapot.felipe-alfaro.com> <3F4BBBB3.2080100@boxho.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F4BBBB3.2080100@boxho.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
-> 
-> That was because they wanted the non-streaming files to be left in the cache.
-> 
->>  I will try to produce some benchmarktings tomorrow with different 
->>'mem=%dMB'. I'm afraid to confirm that it will make difference.
->>  But in advance: mantainance of page tables for 1GB and for 128MB of 
->>RAM are going to make a difference.
-> 
-> I'm sorry to say, but you *will* get lower performance if you lower the mem=
-> value below your working set.  This will also lower the total amount of
-> memory available for your applications, and force your apps, to swap and
-> balance cache, and app memory.
-> 
-> That's not what you are looking to benchmark.
-> 
+Hello!
 
-   Okay. I'm completely puzzled.
-   I will qute here only one test - and I really do not understand this 
-stuff.
+On Tue, Aug 26, 2003 at 03:57:39PM -0400, Resident Boxholder wrote:
 
-   Three boots with the same parameters and only mem=nMB, n = 
-{512,256,128} (I have 512MB RAM)
+> I cause a lock up by doing a cp -aR /usr/src /mnt/usr which moves data 
+> larger
+> than total hard buffer cache, to raid0 reiserfs or ext2 ( NOT reiser4!) 
+> I'm wondering what to send in. Maybe I could send a log from successful
+> copy with swap off, showing reiser logging, and config, in case a stress
+> condition or misconfig shows up even when catastrophic failure doesn't
+> occur. With swap on the fail is sudden and no error logging is coming
+> through.
 
-   hdparm tests:
-[root@hera ifilipau]# hdparm -t /dev/hda
-/dev/hda:
-  Timing buffered disk reads:  64 MB in  1.56 seconds = 41.03 MB/sec
-[root@hera ifilipau]# hdparm -T /dev/hda
-/dev/hda:
-  Timing buffer-cache reads:   128 MB in  0.44 seconds =290.91 MB/sec
-[root@hera ifilipau]#
+Is there any chance of using sirial console to see if you can capture something on that?
 
-   Before tests I was doing 'swapoff -a; sync'
-   RedHat's 2.4.20-20.9 kernel.
-
-   What has really puzzled me.
-   Operation: "cat *.bz2 >big_file", where *.bz2 is just two bzipped 
-kernels. Total size: 29MB+32MB (2.4.22 + 2.6.0-test1)
-
-   To be bsolutely fair in this unfair benchmark I have run test only 
-once. Times in seconds as shown by bash's time.
-
-            cat      sync
-   512MB:  1.565    0.007
-   256MB:  1.649    0.008
-   128MB:  2.184    0.007
-
-   Kill me - shoot me, but how it can be?
-   Resulting file fits RAM.
-   Not hard to guess that source files, which no one cares about already 
-- are still hanging in the RAM...
-
-   That's not right: as long as resulting file fits memory - and it fits 
-memory in all (512MB, 256MB, 128MB) cases - this operation should take 
-the _same_ time. (Actually before 128MB test, vmstat was saying that I 
-have +70MB of free non-touched memory)
-
-   So resume is quite simple: kernel loses *terribly* much time 
-resorting read()s against write()s. Way _too_ _much_ time.
-
-   I will try to download RedHat's AS kernel and play with page-cache.
-   After all: if RH has included that feature in their kernels - that 
-means it really make sense ;-)))
-
--- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
-   -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-   * Please avoid sending me Word/PowerPoint/Excel attachments.
-   * See http://www.fsf.org/philosophy/no-word-attachments.html
-   -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-    There should be some SCO's source code in Linux -
-       my servers sometimes are crashing.      -- People
-
+Bye,
+    Oleg

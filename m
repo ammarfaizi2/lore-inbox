@@ -1,54 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263859AbRFDKHV>; Mon, 4 Jun 2001 06:07:21 -0400
+	id <S263828AbRFDCHh>; Sun, 3 Jun 2001 22:07:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264167AbRFDJfV>; Mon, 4 Jun 2001 05:35:21 -0400
-Received: from colorfullife.com ([216.156.138.34]:47117 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S264166AbRFDJfQ>;
-	Mon, 4 Jun 2001 05:35:16 -0400
-Message-ID: <3B1B564E.D83A741A@colorfullife.com>
-Date: Mon, 04 Jun 2001 11:35:10 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-ac6 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: multicast hash incorrect on big endian archs
-In-Reply-To: <3B1A9558.2DBAECE7@colorfullife.com> <15130.61778.471925.245018@pizda.ninka.net> <3B1B3268.2A02D2C@colorfullife.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263832AbRFDCH1>; Sun, 3 Jun 2001 22:07:27 -0400
+Received: from mail.coiinc.com ([207.40.103.90]:47118 "EHLO mail.coiinc.com")
+	by vger.kernel.org with ESMTP id <S263828AbRFDCHW>;
+	Sun, 3 Jun 2001 22:07:22 -0400
+Date: Sun, 3 Jun 2001 20:08:25 -0500
+From: Jerry Frana <franaj@coiinc.com>
+Message-Id: <200106040108.f5418D823560@mail.coiinc.com>
+Subject: USB-storage and 2.4.2
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> 
-> "David S. Miller" wrote:
-> >
-> > Many big-endian systems already need to provide little-endian bitops,
-> > for ext2's sake for example.
-> >
-> > We should formalize this, with {set,clear,change,test}_le_bit which
-> > technically every port has implemented in some for or another already.
-> >
+Hi, i've been having a problem with my usb zip drive (older 100mb model)
 
-That could cause alignment problems.
-<<< from starfire.c
-{
-     long filter_addr;
-     u16 mc_filter[32] __attribute__ ((aligned(sizeof(long)))); 
-<<<
-set_bit requires word alignment, but without the __attibute__ the
-compiler would only guarantee 16-bit alignment. IMHO ugly.
+it's 100% repeateble: 
 
-Should I add __set_bit_{8,16,32} into <linux/bitops.h>, overridable with
-__HAVE_ARCH_SET_BIT_n?
+copy a large file to anywhere, and within a minute or so: 
+copy stops dead.
+and the following appears in the syslog:
 
-Default implementation for the nonatomic __set_bit could be added into
-<linux/bitops.h>, too.
+Jun  3 21:10:56 int-21h kernel: uhci: host controller process error. something bad happened
+Jun  3 21:10:56 int-21h kernel: uhci: host controller halted. very bad
 
-Btw, the correct name would be __set_bit_n: the function don't guarantee
-atomicity.
+my machine is a K6-3/350, kernel 2.4.2, via mvp3 chipset
 
---
-	Manfred
+if you need any more info, please let me know,
+
+Thanks
+David F.

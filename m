@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262295AbVAEImW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262267AbVAEIuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262295AbVAEImW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 03:42:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVAEImW
+	id S262267AbVAEIuV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 03:50:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262292AbVAEIuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 03:42:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:16530 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262295AbVAEImR (ORCPT
+	Wed, 5 Jan 2005 03:50:20 -0500
+Received: from gprs215-128.eurotel.cz ([160.218.215.128]:59265 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262267AbVAEIuN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 03:42:17 -0500
-Date: Wed, 5 Jan 2005 00:42:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-Id: <20050105004202.3de71167.akpm@osdl.org>
-In-Reply-To: <crd864$bkp$1@sea.gmane.org>
-References: <20050102221534.GG4183@stusta.de>
-	<41D87A64.1070207@tmr.com>
-	<20050103003011.GP29332@holomorphy.com>
-	<20050103004551.GK4183@stusta.de>
-	<20050103011935.GQ29332@holomorphy.com>
-	<20050103053304.GA7048@alpha.home.local>
-	<20050103123325.GV29332@holomorphy.com>
-	<20050103213845.GA18010@alpha.home.local>
-	<crd864$bkp$1@sea.gmane.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 5 Jan 2005 03:50:13 -0500
+Date: Wed, 5 Jan 2005 09:49:54 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Li Shaohua <shaohua.li@intel.com>
+Cc: ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Len Brown <len.brown@intel.com>,
+       Greg <greg@kroah.com>, Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: [PATCH 4/4]An ACPI callback for pci_set_power_state
+Message-ID: <20050105084954.GA5170@elf.ucw.cz>
+References: <1104893456.5550.135.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1104893456.5550.135.camel@sli10-desk.sh.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Alexander E. Patrakov" <patrakov@ums.usu.ru> wrote:
->
-> With linux-2.4, I could click on such folder and the
->  list of messages sorted by subject will appear in KMail almost instantly.
->  With linux-2.6, this process takes much longer.
+Hi!
 
-There was a bug in kmail which caused this.  It must have been a quite old
-version.  It can be worked around by mounting the reiserfs3 filessytem with
-the "nolargeio=1" mount option.  Or by upgrading kmail.
+> This is an ACPI callback for pci_set_power_state. Besides setting PCI
+> config space, changing device's power state sometimes requires to power
+> on device's power source and to invoke other firmware methods.
 
+
+> diff -puN drivers/pci/pci.h~acpi-pci-set-power-state-callback drivers/pci/pci.h
+> --- 2.5/drivers/pci/pci.h~acpi-pci-set-power-state-callback	2005-01-05 09:58:06.469923128 +0800
+> +++ 2.5-root/drivers/pci/pci.h	2005-01-05 09:58:06.473922520 +0800
+> @@ -13,6 +13,7 @@ extern int pci_bus_alloc_resource(struct
+>  				  void *alignf_data);
+>  /* Firmware callbacks */
+>  extern int (*platform_pci_get_suspend_state)(struct device *dev, u32 state);
+> +extern int (*platform_pci_set_power_state)(struct pci_dev *dev, int state);
+
+What kind of state is passed here? Why is it u32 in one case and int
+in the second one?
+
+I'm about to introduce separate types for pci power states and system
+power states; could you at least add comments which states are which?
+Also few lines of documentation would be very usefull...
+
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

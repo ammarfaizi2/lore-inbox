@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280820AbRKLPnc>; Mon, 12 Nov 2001 10:43:32 -0500
+	id <S280821AbRKLP6I>; Mon, 12 Nov 2001 10:58:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280821AbRKLPnW>; Mon, 12 Nov 2001 10:43:22 -0500
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:9220 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S280820AbRKLPnK>; Mon, 12 Nov 2001 10:43:10 -0500
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200111121448.PAA01060@green.mif.pg.gda.pl>
-Subject: Re: [PATCH] VIA timer fix was removed?
-To: pellegrini@mpcnet.com.br (Jeronimo Pellegrini)
-Date: Mon, 12 Nov 2001 15:48:24 +0100 (CET)
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
-In-Reply-To: <20011112111409.A2617@socrates> from "Jeronimo Pellegrini" at Nov 12, 2001 11:14:09 AM
-X-Mailer: ELM [version 2.5 PL0pre8]
+	id <S280822AbRKLP57>; Mon, 12 Nov 2001 10:57:59 -0500
+Received: from moon.govshops.com ([207.32.111.5]:58376 "HELO mail.govshops.com")
+	by vger.kernel.org with SMTP id <S280821AbRKLP5u>;
+	Mon, 12 Nov 2001 10:57:50 -0500
+From: "Alok K. Dhir" <alok@dhir.net>
+To: "'Kristian'" <kristian@korseby.net>, <linux-kernel@vger.kernel.org>
+Subject: RE: 2.4.15pre1-Oops with netfilter
+Date: Mon, 12 Nov 2001 10:56:52 -0500
+Message-ID: <001f01c16b92$a54cb6f0$9865fea9@pcsn630778>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+In-Reply-To: <3BEFE601.4050808@korseby.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The following patch (introduced by Vojtech Pavlik some time ago) was
-> removed somewhere between 2.4.14 and 2.4.15-pre3.
-> Without it, the timer counter is reset to a wrong value and
-> gettimeofday() starts to return strange values
+This is likely the same bug that I and a few others on this list
+experienced.  Back out the 4 netfilter patches which went into -pre1 and
+it should work again.
+
+Look for the message with the subject "Confirm netfilter: repeatable
+oops in 2.4.15-pre2" in the archives and it has the patches attached
+which you should reverse apply to your tree.
+
+Al
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Kristian
+> Sent: Monday, November 12, 2001 10:09 AM
+> To: linux-kernel@vger.kernel.org
+> Subject: 2.4.15pre1-Oops with netfilter
 > 
-> Nothing aboutit is mentioned in the changelog, so I suppose it wasn't
-> supposed to be removed?
+> 
+> Hello.
+> 
+> This nice oops is repeatable. After successfully connecting 
+> (via ISDN) to the 
+> internet I'm getting this oops when I'm trying to transfer 
+> something. I'm currently using iptables-1.2.4 & 2.4.15pre1 if 
+> it's relevant.
+> 
+> If you need additional info just let me know.
+> 
+> *Kristian
+> 
+> -- 
+> .. . . reach me :: . .. .. .  . .. . ..  . ... . .
+>                           :: http://www.korseby.net
+>                           :: http://www.tomlab.de 
+> kristian@korseby.net ....::
+> 
 
-Maybe, it happens because somebody forgot to comment why this code is
-necessary here ?
-Just a guess...
-
-> --- linux-2.4.15-pre3/arch/i386/kernel/time.c	Sun Nov 11 21:33:31 2001
-> +++ linux-2.4.15-pre3-new/arch/i386/kernel/time.c	Mon Nov 12 10:45:57 2001
-> @@ -501,6 +501,14 @@
->  
->  		count = inb_p(0x40);    /* read the latched count */
->  		count |= inb(0x40) << 8;
-> +
-> +		if (count > LATCH-1) {
-> +			outb_p(0x34, 0x43);
-> +		        outb_p(LATCH & 0xff, 0x40);
-> +			outb(LATCH >> 8, 0x40);
-> +			count = LATCH - 1;
-> +		}
-> +
->  		spin_unlock(&i8253_lock);
-
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk

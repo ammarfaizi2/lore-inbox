@@ -1,40 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285871AbRLJTD3>; Mon, 10 Dec 2001 14:03:29 -0500
+	id <S285850AbRLJTDV>; Mon, 10 Dec 2001 14:03:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285829AbRLJTDV>; Mon, 10 Dec 2001 14:03:21 -0500
-Received: from h152-148-10-6.outland.lucent.com ([152.148.10.6]:55765 "EHLO
-	alpo.casc.com") by vger.kernel.org with ESMTP id <S285809AbRLJTDE>;
-	Mon, 10 Dec 2001 14:03:04 -0500
-From: John Stoffel <stoffel@casc.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15381.1696.863882.343010@gargle.gargle.HOWL>
-Date: Mon, 10 Dec 2001 14:01:52 -0500
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        "Peter J. Braam" <braam@clusterfs.com>, Nathan Scott <nathans@sgi.com>,
-        Andreas Gruenbacher <ag@bestbits.at>, <linux-kernel@vger.kernel.org>,
-        <linux-fsdevel@vger.kernel.org>, <linux-xfs@oss.sgi.com>
-Subject: Re: [PATCH] Revised extended attributes interface
-In-Reply-To: <Pine.LNX.4.40.0112101059020.7362-100000@filesrv1.baby-dragons.com>
-In-Reply-To: <20011210155628.E1919@redhat.com>
-	<Pine.LNX.4.40.0112101059020.7362-100000@filesrv1.baby-dragons.com>
-X-Mailer: VM 6.95 under Emacs 20.6.1
+	id <S285829AbRLJTDJ>; Mon, 10 Dec 2001 14:03:09 -0500
+Received: from mta8.srv.hcvlny.cv.net ([167.206.5.23]:9962 "EHLO
+	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S283223AbRLJTCv>; Mon, 10 Dec 2001 14:02:51 -0500
+Date: Mon, 10 Dec 2001 14:02:50 -0500 (EST)
+From: Keith Warno <krjw@optonline.net>
+Subject: Re: 2.4.16: scsi "PCI error Interrupt"?!
+In-Reply-To: <Pine.LNX.3.95.1011210123827.517A-100000@chaos.analogic.com>
+X-X-Sender: kw@behemoth.hobitch.com
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Message-id: <Pine.LNX.4.40.0112101339130.7387-100000@behemoth.hobitch.com>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2001-12-10 at 12:44 -0500, Richard B. Johnson uttered:
 
-James> 	Hello Stephen ,  Is this the only attribution ?
+| On Mon, 10 Dec 2001, Keith Warno wrote:
+| > Any ideas?  I really don't like the SCSI controller sharing an interrupt
+| > with anyone but I can't seem to force it to be in its own land.
+|
+| If the controller is a separate board, not built onto the motherboard,
+| move it to a different slot! There is only one interrupt line going
+| to each PCI slot. This should move the IRQ to something else.
 
-Probably.  
+Yes in both cases it's a separate board.  Been here, done this, and no
+joy.  This is what I meant by "I can't seem to force it to be in its own
+land".
 
-James> 	Just love those 'we won't share security info with you unless
-James> 	you are member or pay.' .  Sorry , JimL
+| In the same manner, if a board-mounted device is sharing an IRQ with
+| some slot device, move the slot device to another slot or swap it with
+| something that isn't using an interrupt.
 
-Excuse me?  This is a paper presented at a conference, not a security
-bug report in existing code.  I can totally understand having to pay
-for proceedings from a conference.
+Of course.  Although not applicable in this case.
 
-John
+| Also, if your BIOS has an Y/N entry for (PnP OS), say "N". This
+| will force the BIOS to more-properly allocate resources. This gives
+| Linux at least a "correct" set-up to start with when it configures
+| the PCI interface.
+
+Yep.  It's always set to No.  I have little faith in this Plug 'n' Pray
+OS jazz.
+
+In both boxes the SCSI controller is sharing an interrupt with an AGP
+NVidia board.  Obviously I can't move the NVidia board.  Shuffling the
+SCSI controller around doesn't convince it not to share an IRQ with the
+NVidia board.  (I also have a PCI Linksys NIC and an SB Live on the same
+interrupt.  Go figure.)
+
+The point here is I have not seen syslog messages like
+
+scsi0: PCI error Interrupt at seqaddr = 0x8
+scsi0: Data Parity Error Detected during address or write data phase
+
+in 2.4 kernels prior to 2.4.16.  Perhaps an error was occuring with
+those kernels and just wasn't being logged.  Who knows.  I'd just like
+to know what specifically is causing this message to be emitted by the
+kernel.
+
+Regards,
+kw
+

@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292979AbSCIXep>; Sat, 9 Mar 2002 18:34:45 -0500
+	id <S292982AbSCIXs7>; Sat, 9 Mar 2002 18:48:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292981AbSCIXeg>; Sat, 9 Mar 2002 18:34:36 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:30970
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S292979AbSCIXe1>; Sat, 9 Mar 2002 18:34:27 -0500
-Date: Sat, 9 Mar 2002 15:35:03 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Robert Love <rml@tech9.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] preempt-kernel on 2.4.19-pre2-ac2 bugfix
-Message-ID: <20020309233503.GE896@matchmail.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020308022751.GF28141@matchmail.com> <E16jKJX-00069s-00@the-village.bc.nu> <20020308192643.GA29073@matchmail.com>
+	id <S292983AbSCIXsk>; Sat, 9 Mar 2002 18:48:40 -0500
+Received: from pl100.nas921.ichikawa.nttpc.ne.jp ([210.165.234.100]:25627 "EHLO
+	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S292982AbSCIXsa>;
+	Sat, 9 Mar 2002 18:48:30 -0500
+Date: Sun, 10 Mar 2002 08:48:25 +0900
+From: Bruce Harada <bruce@ask.ne.jp>
+To: Seiichi Nakashima <nakasima@kumin.ne.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.21-pre4 hung up
+Message-Id: <20020310084825.031ee4b0.bruce@ask.ne.jp>
+In-Reply-To: <200203092312.AA00022@prism.kumin.ne.jp>
+In-Reply-To: <200203092312.AA00022@prism.kumin.ne.jp>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.6; i686-pc-linux-gnu)
+X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020308192643.GA29073@matchmail.com>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 08, 2002 at 11:26:43AM -0800, Mike Fedyk wrote:
-> I'll test without preempt and see if it shows up again.  It took a day
-> before though, so...
+On Sun, 10 Mar 2002 08:12:28 +0900
+Seiichi Nakashima <nakasima@kumin.ne.jp> wrote:
+
+> Hi.
 > 
+> I update to linux-2.2.20 + patch-2.2.21-pre4.
+> before I used linux-2.2.20 + patch-2.2.21-pre3, and worked fine.
+> linux-2.2.21-pre4 is normal end to patch, compile and install, but bootup
+> failuer.
 
-I've been running without preempt for about 28hrs with a make -j5 compile
-loop of a kernel tree running, and it looks like it'll do the same thing
-again.
+[SNIP]
 
-Maybe it's from all of the forks as the only things that have been in use are:
+According to other reports, it would appear that this change:
 
-mutt (left running, so scanning for new messages in several folders)
-exim (receiving message for lkml, debian-(devel|user), etc
-top
-make -j loop
+diff -ruN linux-2.2.21-pre3/arch/i386/kernel/bluesmoke.c linux-2.2.21-pre4/arch/i386/kernel/bluesmoke.c
+--- linux-2.2.21-pre3/arch/i386/kernel/bluesmoke.c	Sun Mar  3 23:20:11 2002
++++ linux-2.2.21-pre4/arch/i386/kernel/bluesmoke.c	Sat Mar  9 03:58:57 2002
+@@ -165,7 +164,7 @@
+ 	if(l&(1<<8))
+ 		wrmsr(0x17b, 0xffffffff, 0xffffffff);
+ 	banks = l&0xff;
+-	for(i=1;i<banks;i++)
++	for(i=0;i<banks;i++)
+ 	{
+ 		wrmsr(0x400+4*i, 0xffffffff, 0xffffffff); 
+ 	}
 
-Mozilla is running, but I haven't been using it...
+is the problem. Reversing it (i.e. changing the i=0 to i=1) should allow
+you to boot again.
 
-I'll change to single user mode in monday to check to see if the problem is
-reproducable on non-preempt.
 
-The only thing left would be the kernel or glibc (as init still keeps it
-open so 'shutdown now' wouldn't free that).
-
-How could I test to kill everything opening glibc and still be able to run a
-command to read /proc/meminfo afterward?
-
-Mike

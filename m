@@ -1,86 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264067AbUFKPn7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264082AbUFKPoH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264067AbUFKPn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 11:43:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264082AbUFKPn7
+	id S264082AbUFKPoH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 11:44:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264088AbUFKPoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 11:43:59 -0400
-Received: from [202.125.86.130] ([202.125.86.130]:64137 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S264067AbUFKPn4 convert rfc822-to-8bit (ORCPT
+	Fri, 11 Jun 2004 11:44:07 -0400
+Received: from mail.dif.dk ([193.138.115.101]:8145 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S264082AbUFKPoD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 11:43:56 -0400
-Subject: Problem in module loading automatically at boot time
+	Fri, 11 Jun 2004 11:44:03 -0400
+Date: Fri, 11 Jun 2004 17:43:14 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Tobias Hirning <Tobias.Hirning@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Insults in the kernel-sources
+In-Reply-To: <200406102053.48615.Tobias.Hirning@gmx.de>
+Message-ID: <Pine.LNX.4.56.0406111740300.1585@jjulnx.backbone.dif.dk>
+References: <200406102053.48615.Tobias.Hirning@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Date: Fri, 11 Jun 2004 21:14:41 +0530
-Content-class: urn:content-classes:message
-Message-ID: <1118873EE1755348B4812EA29C55A9722AF3A5@esnmail.esntechnologies.co.in>
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Problem in module loading automatically at boot time
-Thread-Index: AcRPywKPWT4M+sA7TrGtzHCLygPw9w==
-From: "Srinivas G." <srinivasg@esntechnologies.co.in>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Surendra I." <surendrai@esntechnologies.co.in>,
-       "Subramanyam B" <subramanyamb@esntechnologies.co.in>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 10 Jun 2004, Tobias Hirning wrote:
 
-Hi,
+> Hi people,
+> have you ever tried a
+> grep "insult" -i -r ./*
+>  in the sourcetree of the kernel?
 
-I have written a small driver program called hello.c.
+sure.
 
-************************************************************************
-***************
-#include <linux/module.h>
+> So do and think about, because the you can find to much of insults in
+> the sources.
 
-MODULE_LICENSE("GPL");
-
-int init_module(void)
-{
-  printk("<1>" "Hello world\n");
-  return 0;
-}
-
-void cleanup_module(void)
-{
-  printk("<1>good bye\n");
-}
-
-************************************************************************
-****************
-
-I compiled the above program with cc -DMODULE -D__KERNEL__
--I/usr/src/linux2.4/include -O2 -c hello.c
-
-I am using Red Hat Linux 7.3 with kernel version of 2.4.18-3.
-It works fine when I load it with insmod from root prompt.
-
-Now, I want to make it load automatically at boot time. 
-For that I have used the following steps.
-
----> I copied the hello.o file in the
-/lib/modules/2.4.18-3/kernel/drivers/block
-
----> I run the depmod command. It included the above path in
-/lib/modules/2.4.18-3/modules.dep file.
-
----> I added "alias hello1 hello" entry into /etc/modules.conf file.
-
-When I reboot the machine after the above changes, my driver is not
-loaded and an error message is printed as follows.
-
----> depmod: *** Unresolved symbols in
-/lib/modules/2.4.18-3/kernel/drivers/block/hello.o
+Why do you find this to be a problem? People use swear words everywhere,
+why not code comments?  If that's the language that best describes
+something I say use it...
+They are just words, nothing to get so worked up about IMO.
+What matters is the quality of the code, not the level of profanity in the
+comments.
 
 
-Could anyone suggest me, if I am missing anything here?
-
-Srinivas G
-
-
+--
+Jesper Juhl <juhl-lkml@dif.dk>

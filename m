@@ -1,68 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261797AbTFSW1z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 18:27:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbTFSW1y
+	id S261808AbTFSWze (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 18:55:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbTFSWze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 18:27:54 -0400
-Received: from inet-mail4.oracle.com ([148.87.2.204]:36248 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id S261797AbTFSW1x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 18:27:53 -0400
-Message-ID: <3EF23C70.5010901@oracle.com>
-Date: Thu, 19 Jun 2003 15:42:56 -0700
-From: Scot McKinley <scot.mckinley@oracle.com>
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.0.1) Gecko/20020920 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Myers <jgmyers@netscape.com>
-CC: Joel Becker <jlbec@evilplan.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-Subject: Re: [PATCH 2.5.71-mm1] aio process hang on EINVAL
-References: <1055810609.1250.1466.camel@dell_ss5.pdx.osdl.net> <3EEE6FD9.2050908@netscape.com> <20030617085408.A1934@in.ibm.com> <1055884008.1250.1479.camel@dell_ss5.pdx.osdl.net> <3EEFAC58.905@netscape.com> <20030618001534.GJ7895@parcelfarce.linux.theplanet.co.uk> <3EEFB165.5070208@netscape.com> <20030618004214.GK7895@parcelfarce.linux.theplanet.co.uk> <3EF104D7.5050905@netscape.com> <3EF11662.2060102@oracle.com> <3EF22301.1000003@netscape.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Jun 2003 18:55:34 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:3242 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261808AbTFSWzb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 18:55:31 -0400
+Subject: [PATCH 2.7.72-mm1] aio wait on io_queue_wait()
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrew Morton <akpm@digeo.com>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-9g2bZOmfAMT+Rz/trEzl"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 19 Jun 2003 16:09:49 -0700
+Message-Id: <1056064189.17372.48.camel@dell_ss5.pdx.osdl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
- > io_submit() is incapable of returning operation success notifications.
+--=-9g2bZOmfAMT+Rz/trEzl
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Exactly, that's why i proposed a new submission interface. ie, to
-allow io_submit() to support the "always return async, even IF the
-operation has ALREADY completed" paradigm, and another interface
-to support the "return synchronous completions on submission"
-paradigm.
+I've been testing AIO on 2.5.72-mm1.  While running tests using the
+io_submit(), io_queue_run() and io_queue_wait() interfaces, I
+noticed that io_queue_wait() was never waiting.  It was always
+returning immediately.  The library implements 
+io_queue_wait(ctx, timeout) as io_getevents(ctx, 0, 0, NULL, timeout);
 
- > "MAY" is far cry from "MUST".  I object strongly to requiring all
- > callers to io_submit() to be able to handle immediate completions.  In
- > my aio framework, the caller of io_submit() is not in a context where it
- > can invoke completion callbacks, since completion callbacks are not
- > required to be reentrant.
+io_getevents() was always returning immediately since this is asking
+for zero events.  Here's a patch that allows io_getevents() to wait
+for the timeout in this case.  I changed aio_read_evt() to return
+if there are any events, but not the events themselves and changed
+read_events() to wait when there are no events.
 
-Fine (see interfaces defined above).
+I've tested this on my 2-proc.
 
- > For the specific conditions under discussion, it was.  The conditions
- > were certainly extremely rare.
+Thoughts?
 
-Yes, and we've moved past that, since there are other conditions which
-are not as rare.
+Daniel McNeil <daniel@osdl.org>
 
- > The traditional way of dealing with this is to first call the
- > synchronous nonblocking interface, retrying with the asynchronous
- > interface only when the nonblocking one indicates no progress.
 
-Great...i am glad that we atleast agree that the interface is necessary,
-tho maybe not on its makeup.
 
-The issue i brought up (bcopy threshold), is not a non-blocking issue,
-and the above is not the "traditional", nor the correct way of dealing w/
-it. The app should NOT need to make multiple sys-calls to initiate
-the io. By far the majority of the existly network aio api's simply
-return an indication of the immediate/synchronous completion as a
-return indication from a *single* submission routine. There is no
-reason why we cannot, also.
+--=-9g2bZOmfAMT+Rz/trEzl
+Content-Disposition: attachment; filename=patch.2.5.72-mm1.aio
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/x-patch; name=patch.2.5.72-mm1.aio; charset=ISO-8859-1
 
-Regards, -sm
+diff -rupN -X /home/daniel_nfs/dontdiff linux-2.5.72-mm1/fs/aio.c linux-2.5=
+.72-mm1.aio/fs/aio.c
+--- linux-2.5.72-mm1/fs/aio.c	2003-06-19 15:35:38.763726959 -0700
++++ linux-2.5.72-mm1.aio/fs/aio.c	2003-06-19 15:29:50.448560742 -0700
+@@ -956,6 +956,9 @@ int aio_complete(struct kiocb *iocb, lon
+  *	events fetched (0 or 1 ;-)
+  *	FIXME: make this use cmpxchg.
+  *	TODO: make the ringbuffer user mmap()able (requires FIXME).
++ *
++ *	If ent is NULL, then only check if an event is on the ring.
++ *	This is to handle io_queue_wait().
+  */
+ static int aio_read_evt(struct kioctx *ioctx, struct io_event *ent)
+ {
+@@ -972,6 +975,15 @@ static int aio_read_evt(struct kioctx *i
+ 	if (ring->head =3D=3D ring->tail)
+ 		goto out;
+=20
++	/*
++	 * If ent =3D=3D NULL we are just checking,
++	 * so return now saying there is an event.
++	 */
++	if (ent =3D=3D NULL) {
++		ret =3D 1;
++		goto out;
++	}
++
+ 	spin_lock(&info->ring_lock);
+=20
+ 	head =3D ring->head % info->nr;
+@@ -1080,7 +1092,10 @@ static int read_events(struct kioctx *ct
+ 		i ++;
+ 	}
+=20
+-	if (min_nr <=3D i)
++	/*
++	 * To handle io_queue_wait(), do not return if nr and min_nr are zero.
++	 */
++	if (nr && min_nr && min_nr <=3D i)
+ 		return i;
+ 	if (ret)
+ 		return ret;
+@@ -1097,6 +1112,28 @@ static int read_events(struct kioctx *ct
+ 		set_timeout(start_jiffies, &to, &ts);
+ 	}
+=20
++	/*
++	 * Handle io_queue_wait() by waiting for any completed events,
++	 * but not getting them off the ring.
++	 */
++	if (nr =3D=3D 0) {
++		add_wait_queue_exclusive(&ctx->wait, &wait);
++		set_task_state(tsk, TASK_INTERRUPTIBLE);
++		ret =3D aio_read_evt(ctx, 0);
++		/*
++		 * If there are no events and i/o active, wait.
++		 */
++		if (!ret && !to.timed_out && ctx->reqs_active) {
++			schedule();
++		}
++		set_task_state(tsk, TASK_RUNNING);
++		remove_wait_queue(&ctx->wait, &wait);
++		if (timeout)
++			clear_timeout(&to);
++		return 0;
++	}
++
++
+ 	while (likely(i < nr)) {
+ 		add_wait_queue_exclusive(&ctx->wait, &wait);
+ 		do {
+
+--=-9g2bZOmfAMT+Rz/trEzl--
 

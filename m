@@ -1,134 +1,206 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262604AbSLJIO0>; Tue, 10 Dec 2002 03:14:26 -0500
+	id <S266720AbSLJIX2>; Tue, 10 Dec 2002 03:23:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266708AbSLJIO0>; Tue, 10 Dec 2002 03:14:26 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:59133 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S262604AbSLJIOY>;
-	Tue, 10 Dec 2002 03:14:24 -0500
-Message-ID: <3DF5A3C3.1E395B4E@mvista.com>
-Date: Tue, 10 Dec 2002 00:20:19 -0800
+	id <S266728AbSLJIX2>; Tue, 10 Dec 2002 03:23:28 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:27118 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S266720AbSLJIXZ>;
+	Tue, 10 Dec 2002 03:23:25 -0500
+Message-ID: <3DF5A62C.242E171@mvista.com>
+Date: Tue, 10 Dec 2002 00:30:36 -0800
 From: george anzinger <george@mvista.com>
 Organization: Monta Vista Software
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Daniel Jacobowitz <dan@debian.org>, Jim Houston <jim.houston@ccur.com>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
-       "David S. Miller" <davem@redhat.com>, ak@muc.de, davidm@hpl.hp.com,
-       ralf@gnu.org, willy@debian.org
-Subject: Re: [PATCH] compatibility syscall layer (lets try again)
-References: <Pine.LNX.4.44.0212091051120.1282-100000@home.transmeta.com>
-Content-Type: multipart/mixed;
- boundary="------------17292DAD0F344CC3AB29DAE9"
+To: Andrew Morton <akpm@digeo.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/3] High-res-timers part 3 (posix to hrposix) take 20
+References: <3DB9A314.6CECA1AC@mvista.com> <3DF2F965.59D7CD84@mvista.com> <3DF3D706.977AC5BB@digeo.com> <3DF4487C.67FD90EF@mvista.com> <3DF44E98.DD173EE8@digeo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-This is a multi-part message in MIME format.
---------------17292DAD0F344CC3AB29DAE9
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-Linus Torvalds wrote:
+Andrew Morton wrote:
 > 
-> On Mon, 9 Dec 2002, Martin Schwidefsky wrote:
+> george anzinger wrote:
 > >
-> > I had been looking at 2.5.50, we had a different meaning of current.
-> > If you are saying that for any implementation of nanosleep I have to implement
-> > the -ERESTART_RESTARTBLOCK thingy anyway, then I better start with it.
+> > Andrew Morton wrote:
+> > >
+> > > george anzinger wrote:
+> > > >
+> > > > --- linux-2.5.50-bk7-kb/include/linux/id_reuse.h        Wed Dec 31 16:00:00 1969
+> > > > +++ linux/include/linux/id_reuse.h      Sat Dec  7 21:37:58 2002
+> > >
+> > > Maybe I'm thick, but this whole id_resue layer seems rather obscure.
+> > >
+> > > As it is being positioned as a general-purpose utility it needs
+> > > API documentation as well as a general description.
+> >
+> > Hm... This whole thing came up to solve and issue related to
+> > having a finite number of timers.  The ID layer is just a
+> > way of saving a pointer to a given "thing" (a timer
+> > structure in this case) in a way that it can be recovered
+> > quickly.  It is really just a tree structure with 32
+> > branches (or is it sizeof long branches) at each node.
+> > There is a bit map to indicate if any free slots are
+> > available and if so under which branch.  This makes
+> > allocation of a new ID quite fast.  The "reuse" thing is
+> > there to separate it from the original code which
+> > "attempted" to not reuse and ID for some time.
 > 
-> You don't _have_ to. An architecture for which restarting is just too
-> painful can just always choose to return -EINTR, that should be ok. That's
-> how nanosleep() used to work before - it may not be 100% SuS compliant,
-> but it's not as if anybody really cares, I suspect.
+> Sounds a bit like the pid allocator?
 > 
->                 Linus
-> 
-You know, if we unwind to where we started all this, Jim was
-saying that nanosleep did not know it was being restarted. 
-You then introduced the restart block AND the new system
-call.  What if we take a more conservative approach, i.e.
-keep the restart block, toss the restart syscall and the
-"fn" entry in favor of a "restart" flag.  This flag would be
-cleared ALWAYS in the deliver path.  We could use the
-current -ENOHAND and what it does in the no delivery path
-(i.e. backs up PC).  What we would then have is a restarted
-system call with a way to KNOW it was restarted AND a way to
-save info it needs to do the restart.  
+> Is the "don't reuse an ID for some time" requirement still there?
 
-Attached is a patch to take 2.5.50-bk7 to what I am
-suggesting.  -ERESTART_RESTARTBLOCK is no longer used (I did
-not remove the definition), but rather the system call would
-return one of the restart system call error codes (-ENOHAND
-comes to mind) and at the same time set up the restart
-block.  On each entry the system call would check to see if
-the restart_block.fl was set and if so, do the restart thing
-using the saved info.  It would be required to clear
-restart_block.fl once it found it set...
+I don't see the need for the "don't reuse an ID for some
+time" thing and it looked like what Jim had messed up the
+book keeping AND it also looked like it failed to actually
+work.  All of this convinced me that the added complexity
+was just not worth it.
+> 
+> I think you can use radix trees for this.  Just put the pointer
+> to your "thing" direct into the tree.  The space overhead will
+> be about the same.
+> 
+> radix-trees do not currently have a "find next empty slot from this
+> offset" function but that is quite straightforward.  Not quite
+> as fast, unless an occupancy bitmap is added to the radix-tree
+> node.  That's something whcih I have done before - in fact it was
+> an array of occupancy maps so I could do an efficient in-order
+> gang lookup of "all dirty pages from this offset" and "all locked
+> pages from this offset".  It was before its time, and mouldered.
+
+Gosh, I think this is what I have.  Is it already in the
+kernel tree somewhere?  Oh, I found it.  I will look at
+this, tomorrow...
+
+-g
+> 
+> > ...
+> > > A lot of the functions in this header are too large to be inlined.
+> >
+> > Hm...  What is "too large", i.e. how much code.
+> 
+> A few lines, I suspect.
+> 
+> >  Also, is it used more than once?
+> 
+> Don't trust the compiler too much ;)  Uninlining mpage_writepage()
+> saved a couple of hundred bytes of code, even though it has only
+> one call site.
+> 
+> > ...
+> > > Please, just open-code the locking.  This simply makes it harder to follow the
+> > > main code.
+> >
+> > But makes it easy to change the lock method, to, for
+> > example, use irq or irqsave or "shudder" RCU.
+> 
+> A diligent programmer would visit all sites as part of that conversion
+> anyway.
+> 
+> > >
+> > > > +
+> > > > +static struct idr_layer *id_free;
+> > > > +static int id_free_cnt;
+> > >
+> > > hm.  We seem to have a global private freelist here.  Is the more SMP-friendly
+> > > slab not suitable?
+> >
+> > There is a short local free list to avoid calling slab with
+> > a spinlock held.  Only enough entries are kept to allocate a
+> > new node at each branch from the root to leaf, and only for
+> > this reason.
+> 
+> Fair enough. There are similar requirements elsewhere and the plan
+> there is to create a page reservation API, so you can ensure that
+> the page allocator will be able to provide at least N pages.  Then
+> take the lock and go for it.
+> 
+> I have code for that which is about to bite the bit bucket.   But the
+> new version should be in place soon.   Other users will be radix tree
+> nodes, pte_chains and mm_chains (shared pagetable patch).
+> 
+> > ...
+> > >
+> > > Recursion!
+> >
+> > Yes, it is a tree after all.
+> 
+> lib/radix_tree.c does everything iteratively.
+> 
+> > >
+> > > > +void idr_init(struct idr *idp)
+> > >
+> > > Please tell us a bit about this id layer: what problems it solves, how it
+> > > solves them, why it is needed and why existing kernel facilities are
+> > > unsuitable.
+> > >
+> > The prior version of the code had a CONFIG option to set the
+> > maximum number of timers.  This caused enough memory to be
+> > "compiled" in to keep pointers to this many timers.  The ID
+> > layer was invented (by Jim Houston, by the way) to eliminate
+> > this CONFIG thing.  If I were to ask for a capability from
+> > slab that would eliminate the need for this it would be the
+> > ability to, given an address and a slab pool, to validate
+> > that the address was "live" and from that pool.  I.e. that
+> > the address is a pointer to currently allocated block from
+> > that memory pool.  With this, I could just pass the address
+> > to the user as the timer_id.
+> 
+> That might cause problems with 64-bit kernel/32-bit userspace.
+> Passing out kernel addresses in this way may have other problems..
+> 
+> >  As it is, I need a way to give
+> > the user a handle that he can pass back that will allow me
+> > to quickly find his timer and, along the way, validate that
+> > he was not spoofing, or just plain confused.
+> >
+> > So what the ID layer does is pass back an available <id>
+> > (which I can pass to the user) while storing a pointer to
+> > the timer which is <id>ed.  Later, given the <id>, it passes
+> > back the pointer, or NULL if the id is not in use.
+> 
+> OK.
+> 
+> > As I said above, the pointers are kept in "nodes" of 32
+> > along with a few bits of overhead, and these are arranged in
+> > a dynamic tree which grows as the number of allocated timers
+> > increases.  The depth of the tree is 1 for up to 32 , 2 for
+> > up to 1024, and so on.  The depth can never get beyond 5, by
+> > which time the system will, long since, be out of memory.
+> > At this time the leaf nodes are release when empty but the
+> > branch nodes are not.  (This is an enhancement saved for
+> > later, if it seems useful.)
+> >
+> > I am open to a better method that solves the problem...
+> 
+> It seems reasonable.  It would be nice to be able to use radix trees,
+> but that's a lot of work if the patch isn't going anywhere.
+> 
+> If radix trees are unsuitable then yes, dressing this up as a
+> new core kernel capability (documentation!  separate patch!)
+> would be appropriate.
+> 
+> But I suspect the radix-tree _will_ suit, and it would be nice to grow
+> the usefulness of radix-trees rather than creating similar-but-different
+> trees.  We can do whizzy things with radix-trees; more than at present.
+> 
+> Of course, that was only a teeny part of your patch. I just happened
+> to spy it as it flew past.  Given that you're at rev 20, perhaps a
+> splitup and more accessible presentation would help.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
 -- 
 George Anzinger   george@mvista.com
 High-res-timers: 
 http://sourceforge.net/projects/high-res-timers/
 Preemption patch:
 http://www.kernel.org/pub/linux/kernel/people/rml
---------------17292DAD0F344CC3AB29DAE9
-Content-Type: text/plain; charset=us-ascii;
- name="restart-2.5.50-bk7.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="restart-2.5.50-bk7.patch"
-
---- /usr/src/linux-2.5.50-bk7-posix/arch/i386/kernel/signal.c~	Sat Dec  7 21:36:11 2002
-+++ /usr/src/linux-2.5.50-bk7-posix/arch/i386/kernel/signal.c	Tue Dec 10 00:06:10 2002
-@@ -505,9 +505,8 @@
- 	/* Are we from a system call? */
- 	if (regs->orig_eax >= 0) {
- 		/* If so, check system call restarting.. */
-+                current_thread_info()->restart_block.fl = 0;
- 		switch (regs->eax) {
--		        case -ERESTART_RESTARTBLOCK:
--				current_thread_info()->restart_block.fn = do_no_restart_syscall;
- 			case -ERESTARTNOHAND:
- 				regs->eax = -EINTR;
- 				break;
-@@ -591,10 +590,6 @@
- 		    regs->eax == -ERESTARTSYS ||
- 		    regs->eax == -ERESTARTNOINTR) {
- 			regs->eax = regs->orig_eax;
--			regs->eip -= 2;
--		}
--		if (regs->eax == -ERESTART_RESTARTBLOCK){
--			regs->eax = __NR_restart_syscall;
- 			regs->eip -= 2;
- 		}
- 	}
---- /usr/src/linux-2.5.50-bk7-posix/include/linux/thread_info.h~	Sat Dec  7 21:36:43 2002
-+++ /usr/src/linux-2.5.50-bk7-posix/include/linux/thread_info.h	Tue Dec 10 00:12:31 2002
-@@ -11,7 +11,7 @@
-  * System call restart block. 
-  */
- struct restart_block {
--	long (*fn)(struct restart_block *);
-+	long fl;
- 	unsigned long arg0, arg1, arg2;
- };
- 
---- /usr/src/linux-2.5.50-bk7-posix/include/asm-i386/thread_info.h~	Sat Dec  7 21:36:41 2002
-+++ /usr/src/linux-2.5.50-bk7-posix/include/asm-i386/thread_info.h	Tue Dec 10 00:09:32 2002
-@@ -68,7 +68,7 @@
- 	.preempt_count	= 1,			\
- 	.addr_limit	= KERNEL_DS,		\
- 	.restart_block = {			\
--		.fn = do_no_restart_syscall,	\
-+		.fl = 0,			\
- 	},					\
- }
- 
-
-
---------------17292DAD0F344CC3AB29DAE9--
-

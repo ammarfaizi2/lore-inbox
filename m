@@ -1,46 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291874AbSBNU3z>; Thu, 14 Feb 2002 15:29:55 -0500
+	id <S291883AbSBNUdf>; Thu, 14 Feb 2002 15:33:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291878AbSBNU3p>; Thu, 14 Feb 2002 15:29:45 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:5636 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S291874AbSBNU3h>; Thu, 14 Feb 2002 15:29:37 -0500
-Date: Thu, 14 Feb 2002 12:29:19 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-cc: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
-        davej@suse.de, Roman Zippel <zippel@linux-m68k.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] amiga input api drivers 
-In-Reply-To: <200202140653.g1E6rHoL005371@tigger.cs.uni-dortmund.de>
-Message-ID: <Pine.LNX.4.10.10202141226230.19157-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291878AbSBNUdZ>; Thu, 14 Feb 2002 15:33:25 -0500
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:5152 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S291883AbSBNUdS>; Thu, 14 Feb 2002 15:33:18 -0500
+Date: Thu, 14 Feb 2002 21:35:14 +0100
+From: Hans-Joachim Baader <hjb@pro-linux.de>
+Message-Id: <200202142035.g1EKZE216103@mandel.hjb.de>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lk maintainers
+In-Reply-To: <200202140937.g1E9bvt21686@Port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200202140937.g1E9bvt21686@Port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>This document is mailed to lkml regularly and will be modified
+>whenever new victim wishes to be listed in it or someone can
+>no longer devote his time to maintainer work.
 
-> > diff -urN -X /home/jsimmons/dontdiff linux-2.5.4-dj1/arch/m68k/amiga/config.c l
-> > inux/arch/m68k/amiga/config.c
-> > --- linux-2.5.4-dj1/arch/m68k/amiga/config.c	Wed Jan 16 10:31:50 2002
-> > +++ linux/arch/m68k/amiga/config.c	Wed Feb 13 10:26:42 2002
-> > @@ -69,11 +69,13 @@
-> >  extern char m68k_debug_device[];
-> >  
-> >  static void amiga_sched_init(void (*handler)(int, void *, struct pt_regs *));
-> > +#ifndef CONFIG_KEYBOARD_AMIGA
-> >  /* amiga specific keyboard functions */
-> >  extern int amiga_keyb_init(void);
-> >  extern int amiga_kbdrate (struct kbd_repeat *);
-> >  extern int amiga_kbd_translate(unsigned char keycode, unsigned char *keycodep,
-> >  			       char raw_mode);
-> > +#endif
-> 
-> The #ifdef isn't needed: As long as the functions aren't used, gcc won't
-> mind them declared if they aren't around.
+A permanent URL for this thing would be nice...
 
-Personally I like to see all the mach_kbd* etc go away. 
-
+Thanks,
+hjb
+-- 
+Pro-Linux - Germany's largest volunteer Linux support site
+http://www.pro-linux.de/          Public Key ID 0x3DDBDDEA

@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263140AbTEMCtV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 22:49:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263146AbTEMCtV
+	id S263152AbTEMCz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 22:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263160AbTEMCz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 22:49:21 -0400
-Received: from [218.19.159.45] ([218.19.159.45]:260 "EHLO zhangtao.treble.net")
-	by vger.kernel.org with ESMTP id S263140AbTEMCtU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 22:49:20 -0400
-Date: Tue, 13 May 2003 10:17:40 +0800
-From: zhangtao <zhangtao@zhangtao.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: LinuxKernel MailList <linux-kernel@vger.kernel.org>
-Subject: About NLS Codepage 932
-Message-Id: <20030513101740.626a06a5.zhangtao@zhangtao.org>
-In-Reply-To: <1052737621.31246.7.camel@dhcp22.swansea.linux.org.uk>
-References: <20030512100534.1ba6ecd6.zhangtao@zhangtao.org>
-	<1052737621.31246.7.camel@dhcp22.swansea.linux.org.uk>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 12 May 2003 22:55:29 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:61424 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id S263152AbTEMCz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 22:55:28 -0400
+Date: Mon, 12 May 2003 20:07:23 -0700
+From: Chris Wright <chris@wirex.com>
+To: linux-kernel@vger.kernel.org, hch@infradead.org, gregkh@kroah.com,
+       linux-security-module@wirex.com
+Cc: rth@twiddle.net
+Subject: Re: [PATCH] Early init for security modules
+Message-ID: <20030512200723.J19432@figure1.int.wirex.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, hch@infradead.org,
+	gregkh@kroah.com, linux-security-module@wirex.com, rth@twiddle.net
+References: <20030512200309.C20068@figure1.int.wirex.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030512200309.C20068@figure1.int.wirex.com>; from chris@wirex.com on Mon, May 12, 2003 at 08:03:09PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Chris Wright (chris@wirex.com) wrote:
+> As discussed before, here is a simple patch to allow for early
+> initialization of security modules when compiled statically into the
+> kernel.  The standard do_initcalls is too late for complete coverage of
+> all filesystems and threads for example.  If this looks OK, I'd like to
+> push it on to Linus.  Patch is against 2.5.69-bk.  It is tested on i386,
+> and various arch maintainers are copied on relevant bits of patch.
 
-The Codepage 949 Translation table can download from:
+This is just the arch specific linker bits for the early initialization
+for security modules patch.  Does this look sane for this arch?
 
-  http://web.mit.edu/afs/dev.mit.edu/source/src-current/third/libiconv/tests/CP932.TXT
-
-(CP932 is Japanese letters, Japanese Shift-JIS)
-
-But it has much more different of tables in "http://www.microsoft.com/globaldev/reference/dbcs/932.htm"
-
-the origin CP932 table of kernel nls_cp932.c, is close to the Microsoft's table in the web (still some different).
-
-The big different is the area of Char To Unicode, the lead byte is :
-  0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9
-
-In the Microsoft's table (http://www.microsoft.com/globaldev/reference/dbcs/932.htm), they are EMPTY!
-But in the Mit edu's CP932.TXT (http://web.mit.edu/afs/dev.mit.edu/source/src-current/third/libiconv/tests/CP932.TXT), they have corresponding letters. 
-
-Which one is correct? Can someone tell me?  Thanks!
-
-
-							zhangtao 
-							zhangtao@zhantao.org
+--- 1.21/arch/alpha/vmlinux.lds.S	Wed Apr  2 00:42:56 2003
++++ edited/arch/alpha/vmlinux.lds.S	Mon May 12 16:16:54 2003
+@@ -74,6 +74,13 @@
+ 	__con_initcall_end = .;
+   }
+ 
++  . = ALIGN(8);
++  .security_initcall.init : {
++	__security_initcall_start = .;
++	*(.security_initcall.init)
++	__security_initcall_end = .;
++  }
++
+   . = ALIGN(64);
+   __per_cpu_start = .;
+   .data.percpu : { *(.data.percpu) }

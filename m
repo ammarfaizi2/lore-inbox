@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129904AbRBDMb6>; Sun, 4 Feb 2001 07:31:58 -0500
+	id <S131503AbRBDMeh>; Sun, 4 Feb 2001 07:34:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131503AbRBDMbs>; Sun, 4 Feb 2001 07:31:48 -0500
-Received: from [213.97.199.90] ([213.97.199.90]:4 "HELO roku.redroom.com")
-	by vger.kernel.org with SMTP id <S129904AbRBDMbi> convert rfc822-to-8bit;
-	Sun, 4 Feb 2001 07:31:38 -0500
-From: huma@roku.redroom.com
-Date: Sun, 4 Feb 2001 13:28:40 +0100 (CET)
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Problems with ide-scsi in 2.4.1
-Message-ID: <Pine.LNX.4.21.0102040353390.917-100000@roku.redroom.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S131733AbRBDMe1>; Sun, 4 Feb 2001 07:34:27 -0500
+Received: from CPE-61-9-150-57.vic.bigpond.net.au ([61.9.150.57]:27289 "EHLO
+	elektra.higherplane.net") by vger.kernel.org with ESMTP
+	id <S131503AbRBDMeI>; Sun, 4 Feb 2001 07:34:08 -0500
+Date: Sun, 4 Feb 2001 23:43:52 +1100
+From: john slee <indigoid@higherplane.net>
+To: clock@atrey.karlin.mff.cuni.cz
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Inadmissible sound dropouts on 2.2.18
+Message-ID: <20010204234352.D32071@higherplane.net>
+In-Reply-To: <20010204120728.48319@ghost.btnet.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010204120728.48319@ghost.btnet.cz>; from clock@ghost.btnet.cz on Sun, Feb 04, 2001 at 12:07:28PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Feb 04, 2001 at 12:07:28PM +0100, clock@ghost.btnet.cz wrote:
+> The crackling is not dependent on the buffer size you can set up in the C code.
+> The crackling is dependent on the frequency of the sine. It's clearly audible
+> (read: annoying) at 10kHz, audible at 1kHz, inaudible at 100Hz. So I think
+> they are sample dropouts - the card stops playing and repeats one sample until
+> kernel gets the breath and whips itself up to supply next audio data.
 
-Hi all,
+hrm, i just ran your test progam. i don't hear this on my gus classic /
+celeron 533 / 320mb ram.  at least nothing that *sounds* like crackling.
+just a high pitched annoying noise.  using 2.4.1 + andrew morton's
+lowlatency patches.  (which are wonderful, thanks andrew!)
 
-System: kernel 2.4.1 util-linux-2.10r cdrecord-1.9 modutils-2.3.21
+jiggle the cable from the GUS to wherever it goes to.
 
-I have a cd writer and a cdrom in the same pc. When the kernel has SCSI
-support compiled as a module, cdrecord doesn't find anything (hdb=ide-scsi
-is passed with lilo). When is compiled with built-in scsi support, the
-writer is detected, but here comes the strange problem: if i try to mount
-any disc in the cdrom, mount spits that:
-
-isofs_read_super: bread failed, dev=16:40, iso_blknum=16, block=32
-mount: wrong fs type, bad option, bad superblock on /dev/dvd,
-       or too many mounted file systems
-       (could this be the IDE device where you in fact use
-       ide-scsi so that sr0 or sda or so is needed?)
-
-Then if I unload the ide-scsi.o mod, mount works fine. I don't know why
-ide-scsi module is detecting my ide cdrom as a scsi device if the only
-parameter passed to the kernel is "hdb=ide-scsi" (cd writer).
-And why doesn't work cdrecord when scsi support is loaded as a module?
-
-None of these problems happens when using 2.2.18. Both drives work fine
-together, with all the scsi modules and stuff.
-
-
-
-David Gómez
-
-"The question of whether computers can think is just like the question of
- whether submarines can swim." -- Edsger W. Dijkstra
-
-
-
-
+j.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262726AbVCDA1V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVCDAbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262726AbVCDA1V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 19:27:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbVCDAHw
+	id S261299AbVCDAbW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 19:31:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262809AbVCDA3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 19:07:52 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:53923 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262760AbVCCXkg (ORCPT
+	Thu, 3 Mar 2005 19:29:03 -0500
+Received: from news.cistron.nl ([62.216.30.38]:45279 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S261299AbVCDAYK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 18:40:36 -0500
-Date: Thu, 3 Mar 2005 18:39:27 -0500
-From: Bill Nottingham <notting@redhat.com>
-To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Andries Brouwer <aebr@win.tue.nl>, davem@davemloft.net,
-       jgarzik@pobox.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050303233927.GA15850@nostromo.devel.redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, Andries Brouwer <aebr@win.tue.nl>,
-	davem@davemloft.net, jgarzik@pobox.com, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <42264F6C.8030508@pobox.com> <20050302162312.06e22e70.akpm@osdl.org> <42265A6F.8030609@pobox.com> <20050302165830.0a74b85c.davem@davemloft.net> <20050303011151.GJ10124@redhat.com> <20050302172049.72a0037f.akpm@osdl.org> <20050303012707.GK10124@redhat.com> <20050303145846.GA5586@pclin040.win.tue.nl> <20050303130901.655cb9c4.akpm@osdl.org> <20050303212115.GJ29371@redhat.com>
+	Thu, 3 Mar 2005 19:24:10 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: 2.6.11: iostat values broken, or IDE siimage driver ?
+Date: Fri, 4 Mar 2005 00:24:07 +0000 (UTC)
+Organization: Cistron
+Message-ID: <d089r7$iuq$1@news.cistron.nl>
+References: <d053g8$6et$1@news.cistron.nl> <d05513$8fr$1@news.cistron.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050303212115.GJ29371@redhat.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1109895847 19418 194.109.0.112 (4 Mar 2005 00:24:07 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: mikevs@cistron.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones (davej@redhat.com) said: 
->  > [*] I don't know any details of the /proc incompatibility which davej
->  >     mentions, and I'd like to.  That sounds like a screw-up.
-> 
-> We changed the format of /proc/slabinfo.  Running slabtop threw up
-> an error message complaining that the format had changed.
-> 
-> It was a graceful failure, but a failure none-the-less.
-> 
-> Other failures have been somewhat more dramatic.
-> I know ipsec-tools, and alsa-lib have both caused pain
-> on at least one occasion after the last 2-3 kernel updates.
+In article <d05513$8fr$1@news.cistron.nl>,
+Miquel van Smoorenburg <miquels@cistron.nl> wrote:
+>In article <d053g8$6et$1@news.cistron.nl>,
+>Miquel van Smoorenburg <miquels@cistron.nl> wrote:
+>>I just upgrades one of our newsservers from 2.6.9 to 2.6.11. I
+>>use "iostat -k -x 2" to see live how busy the disks are. But
+>>I don't believe that Linux optimizes things so much that a disk
+>>can be 1849.55% busy :)
+>
+>Perhaps this is the cause:
+>
+>Mar  2 19:55:25 hdg: sata_error = 0x00000000, watchdog = 0,
+>siimage_mmio_ide_dma_test_irq
+>Mar  2 19:55:26 quantum last message repeated 12 times
+>hdg: sata_error = 0x00000000, watchdog = 0, siimage_mmio_ide_dma_test_irq
 
-The ones I remember were:
+I just recompiled and reconfigured with libata sata_sil.c instead
+of ide siimage.c, and now everything just works fine.
 
-- alsa-lib, as mentioned
-- ipsec-tools/openswan needed updating when the kernel changed
-   to require forward SAs
-- a old script on an earlier release needed fixed when usbdevfs finally
-   went from being deprecated to dead
+I just noticed this in dmesg:
 
-SELinux changed froom 2.6.early to 2.6.current as well, IIRC.
+** PCI interrupts are no longer routed automatically.  If this
+** causes a device to stop working, it is probably because the
+** driver failed to call pci_enable_device().  As a temporary
+** workaround, the "pci=routeirq" argument restores the old
+** behavior.  If this argument makes the device work again,
+** please email the output of "lspci" to bjorn.helgaas@hp.com
+** so I can fix the driver.
 
-Bill
+.. so perhaps that might causing siimage.c to break, but this
+being a production server now catching up with a backlog I can't
+try it right away.
+
+Mike.
+

@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317012AbSGCQwb>; Wed, 3 Jul 2002 12:52:31 -0400
+	id <S317078AbSGCQwc>; Wed, 3 Jul 2002 12:52:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317261AbSGCQvy>; Wed, 3 Jul 2002 12:51:54 -0400
-Received: from mail.clsp.jhu.edu ([128.220.34.27]:57565 "EHLO
-	mail.clsp.jhu.edu") by vger.kernel.org with ESMTP
-	id <S317253AbSGCQvo>; Wed, 3 Jul 2002 12:51:44 -0400
-Date: Wed, 3 Jul 2002 05:48:09 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Bill Davidsen <davidsen@tmr.com>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: simple handling of module removals Re: [OKS] Module removal
-Message-ID: <20020703034809.GI474@elf.ucw.cz>
-References: <20020702123718.A4711@redhat.com> <Pine.LNX.3.95.1020702075957.24872A-100000@chaos.analogic.com>
+	id <S317253AbSGCQv6>; Wed, 3 Jul 2002 12:51:58 -0400
+Received: from pl425.nas921.ichikawa.nttpc.ne.jp ([210.165.235.169]:56086 "EHLO
+	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S317230AbSGCQvT>;
+	Wed, 3 Jul 2002 12:51:19 -0400
+Date: Thu, 4 Jul 2002 01:53:23 +0900
+From: Bruce Harada <bruce@ask.ne.jp>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-rc1
+Message-Id: <20020704015323.46cc07cf.bruce@ask.ne.jp>
+In-Reply-To: <Pine.LNX.4.44.0207021750560.14729-100000@freak.distro.conectiva>
+References: <Pine.LNX.4.33.0206290033320.22915-100000@devel.blackstar.nl>
+	<Pine.LNX.4.44.0207021750560.14729-100000@freak.distro.conectiva>
+X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.6; i686-pc-linux-gnu)
+X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1020702075957.24872A-100000@chaos.analogic.com>
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-Okay. So we want modules and want them unload. And we want it bugfree.
+On Tue, 2 Jul 2002 17:51:09 -0300 (BRT)
+Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
 
-So... then its okay if module unload is *slow*, right?
+> 
+> Could you please 2.4.18 ?
 
-I believe you can just freeze_processes(), unload module [now its
-safe, you *know* noone is using that module, because all processes are
-in your refrigerator], thaw_processes().
+Don't mean to bitch or anything, but do you think you could try trimming your
+quotes? A 38K mail for one actual line of message strikes me as being a bit
+inefficient, especially since I just had to scroll through the whole thing to
+see if you'd added comments anywhere else ;)
 
-That's going to take *lot* of time, but should be very simple and very
-effective.
-
-								Pavel
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?

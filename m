@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265938AbUFTUHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265939AbUFTUJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265938AbUFTUHE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 16:07:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265939AbUFTUHE
+	id S265939AbUFTUJP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 16:09:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265940AbUFTUJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 16:07:04 -0400
-Received: from mail3.speakeasy.net ([216.254.0.203]:42125 "EHLO
-	mail3.speakeasy.net") by vger.kernel.org with ESMTP id S265938AbUFTUHA convert rfc822-to-8bit
+	Sun, 20 Jun 2004 16:09:15 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:61881 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S265939AbUFTUJM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 16:07:00 -0400
-Message-Id: <6.1.1.1.0.20040620135751.0e03fd50@no.incoming.mail>
-X-Mailer: QUALCOMM Windows Eudora Version 6.1.1.1
-Date: Sun, 20 Jun 2004 14:06:57 -0600
-To: David Woodhouse <dwmw2@infradead.org>
-From: Jeff Woods <Kazrak+kernel@cesmail.net>
-Subject: Re: [PATCH] Stop printk printing non-printable chars
-Cc: matthew-lkml@newtoncomputing.co.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <1087741064.28195.24.camel@localhost.localdomain>
-References: <20040618205355.GA5286@newtoncomputing.co.uk>
- <1087643904.5494.7.camel@imladris.demon.co.uk>
- <20040619154907.GE5286@newtoncomputing.co.uk>
- <1087741064.28195.24.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; format=flowed
-Content-Transfer-Encoding: 8BIT
+	Sun, 20 Jun 2004 16:09:12 -0400
+Message-ID: <40D5EE99.1050300@pacbell.net>
+Date: Sun, 20 Jun 2004 13:07:53 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@steeleye.com>
+CC: Ian Molton <spyro@f2s.com>, rmk+lkml@arm.linux.org.uk,
+       Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com,
+       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com
+Subject: Re: DMA API issues
+References: <1087584769.2134.119.camel@mulgrave>	<20040618195721.0cf43ec2.spyro@f2s.co <40D34078.5060909@pacbell.net>	<20040618204438.35278560.spyro@f2s.com> <1087588627.2134.155.camel@mulgrave	<40D359BB.3090106@pacbell.net> <1087593282.2135.176.camel@mulgrave>	<40D36EDE.2080803@pacbell.net> <1087600052.2135.197.camel@mulgrave>	<40D4849B.3070001@pacbell.net>	<20040619214126.C8063@flint.arm.linux.org.uk>	<1087681604.2121.96.camel@mulgrave> <20040619234933.214b810b.spyro@f2s.com>	<1087738680.10858.5.camel@mulgrave>  <20040620165042.393f2756.spyro@f2s.com> <1087750024.11222.81.camel@mulgrave>
+In-Reply-To: <1087750024.11222.81.camel@mulgrave>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A LKML meta-patch:
+James Bottomley wrote:
 
-@On Sat, 2004-06-19 at 16:49 +0100, matthew-lkml@newtoncomputing.co.uk wrote:
-  Please forgive me if I'm wrong on this, but I seem to remember reading
-  something a while ago indicating that the kernel is and always will be
--internally English (i.e. debugging messages and the like) as there is no
-+internally that subset of English representable in 7-bit ASCII
-+(i.e. debugging messages and the like) as there is no
-  need to bloat it with many different languages (that can be done in
-  userspace). As printk is really just a log system, I personally don't
-  see any way that it should ever print anything other than ASCII.
+> The DMA API is about allowing devices to transact directly with memory
+> behind the memory controller, ...
 
-P.S.  At 6/20/2004 03:17 PM +0100, David Woodhouse wrote:
->It's very naïve of you to think that English means nothing but ASCII.
->Non-ASCII characters play a very important rôle even in English
->communication.
+Nope, that's certainly not in the API spec.  Never has been,
+and I'd have objected if it had been ... because I knew this
+was one of the types of hardware the API needed to support as
+Linux ran on more systems.  The call syntax just returns two
+addresses, usable by host and by device:
 
-Thank you for illustrating the point that maximizing portability and 
-compatibility favors simplicity.
---
-Jeff Woods <kazrak+kernel@cesmail.net> 
+     void *
+     dma_alloc_coherent(struct device *dev, size_t size,
+                 dma_addr_t *dma_handle, int flag);
+
+That doesn't say ANYTHING about where that memory lives, or
+who may or may not have set up a "struct page" (or what the
+page size is for that component).  It certainly doesn't make
+assumptions about which busses are used by CPU or device for
+memory or control access, or how they're linked.
+
+- Dave
 
 

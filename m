@@ -1,66 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131984AbRAWXTx>; Tue, 23 Jan 2001 18:19:53 -0500
+	id <S130847AbRAWXXx>; Tue, 23 Jan 2001 18:23:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131614AbRAWXTj>; Tue, 23 Jan 2001 18:19:39 -0500
-Received: from db0bm.automation.fh-aachen.de ([193.175.144.197]:41223 "EHLO
-	db0bm.ampr.org") by vger.kernel.org with ESMTP id <S131952AbRAWXTT>;
-	Tue, 23 Jan 2001 18:19:19 -0500
-Date: Wed, 24 Jan 2001 00:19:14 +0100
-From: f5ibh <f5ibh@db0bm.ampr.org>
-Message-Id: <200101232319.AAA08536@db0bm.ampr.org>
-To: vandrove@vc.cvut.cz
-Subject: Re: display problem with matroxfb
-Cc: linux-kernel@vger.kernel.org
+	id <S131414AbRAWXXo>; Tue, 23 Jan 2001 18:23:44 -0500
+Received: from femail11.sdc1.sfba.home.com ([24.0.95.107]:55805 "EHLO
+	femail11.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S130847AbRAWXXb>; Tue, 23 Jan 2001 18:23:31 -0500
+Message-ID: <3A6E128D.7C436455@pacbell.net>
+Date: Tue, 23 Jan 2001 15:23:57 -0800
+From: C Sanjayan Rosenmund <gnuman0@pacbell.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Modules not being found with 2.4.0 on a 486 based box
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Please cc: me as well, as I'm on to many lists as is. . .
 
-Hi Petr,
+Irecently built 2.4.0 on two diferent x486 PCs and neither of them
+recognised the new module directory structure found in the 2.4.x
+kernels.  I did not have this problem on the Pentium and better
+machines that I built this same kernel on.  I got around the problem
+by making a symlink from where the module actually was
+(/lib/modules/2.4.0/kernel/drivers/net/) to where the system was
+looking for it (/lib/modules/2.4.0/net/) and all is well. . .for now. 
+I was wondering if there was any light that could be shed on why this
+might happen?  I have only found this to be a problem on 486s,
+everything bigger has worked fine.  Details below:
+Feature		Working		Not Wotking
+Processor	Pentium +	486 (486DX2-66, 486DX-50)
+Distrobution	Debian unstable	Debian stable (unstable caused other
+problems)
+RAM		16Mb +		16Mb +
+Hdd size	1Gb +		540Mb +
+Modules involved Any		network cards (that is all I was using)
 
-> Stop. Do you see right portion of screen in left, left portion in right,
-> with black column in between, or is picture only shifted, without
-> wraparound? I thought that you see wrapped display...
+More info can be provided if needed.  This is low priority, I was
+wondering if you had any ideas why (or how to get around it, other
+than my solution).
 
-The display is shifted, WITH wraparound : the end of the line is at the
-beginning of the following one ...
+Thank you all for your time, and for producing a kernel that is worth
+all this work <grin>.
 
-> Are you sure that it is source of problem? Default matroxfb settings
-> for 640x480 is 'timmings 39721 48 16 33 10 96 2' - As horizontal position
-
-No, I'm not sure ... so I've tested the parameters you mention : 
-timmings 39721 48 16 33 10 96 2
-
-I copied the following block in /etc/fb.modes
-
-mode "640x480-60"
-    # D: 25.200 MHz, H: 31.500 kHz, V: 59.999 Hz
-    geometry 640 480 640 480 8
-    timings 39683 48 16 33 10 96 2
-    accel true
-    rgba 8/0,8/0,8/0,0/0
-endmode
-
-With these parameters, the command 'fbset -match -a' is enough to reset the
-display to normal operation. So, you was right.
-
-> After boot look at /proc/cmdline. If it is cutted at column 64 (or 79),
-> you have to upgrade your LILO. RedHat6.2 uses LILO with this dumb limitation.
-
-I use Debian 2.2 and ... grub. But I've tested with lilo too. With the sae
-results. The cmdline is not truncated.
-
-> Also, you do not have to specify vesa,pixclock,hslen and vslen, as you leave
-> them on defaults. So 'video=matrox:left:50,right:10,upper:32,lower:11'
-> should work... But I think that only 'right:' really matters.
-
-This does not work ... I've to use the fbset command to reset the display to
-normal operation after login in (or in an automatic command at boot time in
-/et/init.d). This works, but I've lost the logo  ;-)
-
---
-Regards
-		Jean-Luc
+-- 
+C Sanjayan Rosenmund
+gnuman0@pacbell.net       ICQ 95669689
+It is dangerous to be right when the government is wrong. - Voltaire
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

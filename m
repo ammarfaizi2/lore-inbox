@@ -1,53 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267385AbTBFUz3>; Thu, 6 Feb 2003 15:55:29 -0500
+	id <S267384AbTBFUx3>; Thu, 6 Feb 2003 15:53:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267386AbTBFUz3>; Thu, 6 Feb 2003 15:55:29 -0500
-Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:36736 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S267385AbTBFUz2>; Thu, 6 Feb 2003 15:55:28 -0500
-Date: Thu, 6 Feb 2003 15:05:11 -0600 (CST)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: possible partition corruption
-In-Reply-To: <20030206123631.617524f7.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.44.0302061501510.998-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267383AbTBFUx3>; Thu, 6 Feb 2003 15:53:29 -0500
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:35485 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
+	id <S267376AbTBFUx1>; Thu, 6 Feb 2003 15:53:27 -0500
+Subject: Re: [PATCH 2.5] fix megaraid driver compile error
+From: Steven Cole <elenstev@mesatop.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Mark Haverkamp <markh@osdl.org>, linux-scsi@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0302061202430.3545-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0302061202430.3545-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 06 Feb 2003 14:00:16 -0700
+Message-Id: <1044565217.14310.253.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Feb 2003, Andrew Morton wrote:
-
-> Thomas Molina <tmolina@cox.net> wrote:
+On Thu, 2003-02-06 at 13:04, Linus Torvalds wrote:
+> 
+> On 6 Feb 2003, Mark Haverkamp wrote:
 > >
-> > I have run into an apparent anomaly while compiling/testing 2.5.59-bk.  My 
-> > normal mode of operation is to do a daily bk pull to get the latest csets 
-> > and do a compile/boot run.  After yesterday's I started seeing problems on 
-> > reboot.  During the reboot I would get the OK booting the kernel followed 
-> > by a system freeze.  After a forced reboot into a stock RedHat 8.0 2.4 
-> > kernel I would see the system misidentify my boot partiton as an ext2 
-> > partition and the following messages would appear:
-> > 
+> > This moves access of the host element to device since host has been
+> > removed from struct scsi_cmnd.
 > 
-> Everything you describe is consistent with a kernel which does not have ext3
-> compiled into it.
+> This is whitespace-damaged.
 > 
-> > EXT2-fs: ide0(3,8): couldn't mount because of unsupported optional feature 
-> > (4).
-> > Kernel panic: VFS: Unable to mount root fs on 08:08
-> > 
+> Please fix broken mailers. I generally don't bother to fix up whitespace
+> damage from people who can't bother to have a good mailer. It's just not 
+> worth it - if I try to fix it up (even if it is often trivial), it just 
+> means that people will continue to send crap patches to me.
 > 
-> That is an ext3 filesystem in the "needs journal recovery" state.  ext2
-> cannot mount that until either fsck or the ext3 kernel driver has run
-> recovery.
-> 
-> grep EXT3 .config ??
-> 
+> 		Linus
 
-I'm aware of that.  I attached the config file showing ext3 was compiled 
-in.  I went through several iterations to ensure that having the proper 
-filesystem compiled in was done.  
+In this case the issue is not a broken mailer, but rather the improper
+use of a good one.  Mark is using Evolution and so am I.  It appears
+that he did a cut and paste from an xterm (or something similar) which
+converted the tabs to spaces.
+
+For other Evolution users out there, a better way to send patches with
+undamaged whitespace and not line-wrapped is to choose Insert and then
+Inline Text File.  This will send a Linus-compatible inlined (not
+attached) patch.  
+
+Here is Mark's patch again, sent from Evolution, and not
+whitespace-damaged:
+
+Steven
+
+--- linux-2.5.59/drivers/scsi/megaraid.c.orig	Thu Feb  6 13:31:24 2003
++++ linux-2.5.59/drivers/scsi/megaraid.c	Thu Feb  6 13:33:06 2003
+@@ -4515,7 +4515,7 @@
+ 		if(scsicmd == NULL) return -ENOMEM;
+ 
+ 		memset(scsicmd, 0, sizeof(Scsi_Cmnd));
+-		scsicmd->host = shpnt;
++		scsicmd->device->host = shpnt;
+ 
+ 		if( outlen || inlen ) {
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
+@@ -4652,7 +4652,7 @@
+ 		if(scsicmd == NULL) return -ENOMEM;
+ 
+ 		memset(scsicmd, 0, sizeof(Scsi_Cmnd));
+-		scsicmd->host = shpnt;
++		scsicmd->device->host = shpnt;
+ 
+ 		if (outlen || inlen) {
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
+
 

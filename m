@@ -1,53 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284874AbRLPWa0>; Sun, 16 Dec 2001 17:30:26 -0500
+	id <S284902AbRLPWkH>; Sun, 16 Dec 2001 17:40:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284879AbRLPWaR>; Sun, 16 Dec 2001 17:30:17 -0500
-Received: from ns01.netrox.net ([64.118.231.130]:8139 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S284874AbRLPWaI> convert rfc822-to-8bit;
-	Sun, 16 Dec 2001 17:30:08 -0500
-Subject: Re: Is /dev/shm needed?
-From: Robert Love <rml@tech9.net>
-To: =?ISO-8859-1?Q?Ra=FAlN=FA=F1ez?= de Arenas Coronado 
-	<raul@viadomus.com>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16FjME-0000WW-00@DervishD.viadomus.com>
-In-Reply-To: <E16FjME-0000WW-00@DervishD.viadomus.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.10.08.57 (Preview Release)
-Date: 16 Dec 2001 17:30:47 -0500
-Message-Id: <1008541849.11242.2.camel@phantasy>
-Mime-Version: 1.0
+	id <S284890AbRLPWj6>; Sun, 16 Dec 2001 17:39:58 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:49643 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S284899AbRLPWjk>;
+	Sun, 16 Dec 2001 17:39:40 -0500
+Message-ID: <3C1D2313.3020105@athlon.maya.org>
+Date: Sun, 16 Dec 2001 23:41:23 +0100
+From: Andreas Hartmann <andihartmann@freenet.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: [2.417rc1] various hotplugging problems
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2001-12-16 at 17:02, RaúlNúñez de Arenas Coronado wrote:
+Hello!
 
->     I don't know if /dev/shm (mounted with shmfs or the newer tmpfs)
-> is needed for proper SYSV IPC operation with newer (2.4.16 and newer)
-> kernel. Anyone can help?
 
-It is not needed.  /dev/shm mounted with tmpfs is only needed for POSIX
-shared memory, which is still fairly rare.  SysV IPC will work fine.
+I'm running kernel 2.4.17rc1 and I have some strange problems with 
+hotplugging and module xircom_tulip_cb (Xircom Cardbus ethernet 
+10/100+Modem 56 (CBEM56G-100) with Thinkpad T21 laptop).
 
->     Moreover: I want to move my /tmp from disk to tmpfs for speed (I
-> make a lot of compiling, so I think it would help). Is this a good
-> idea? If so, what size can be appropriate for a small system that is
-> not permanently running?
+If I put in my card, the networkdriver always starts with
+100 MB/halfduplex (autonegotiation).
 
-Some say it helps, others don't.  Solaris has a similar feature, and it
-seems to work for them.  However, Linux is light and our page-cache
-works well.  Not so sure it is ideal.
+The linkpartner says:
+Setting half-duplex based on auto-negotiated partner ability 0000.
 
-In other words, if you have memory to spare and the data ought to be
-cached, Linux probably will cache it anyhow.  On the other hand, if you
-have lots of memory to spare, give it a try.  Mount /tmp or all of /var
-in tmpfs.
+Next, I forced both sides to do 100Mb full-duplex. As a result,
+I got on the laptop the following errormessage:
+kernel: eth0: Link forced to 100Mbit full-duplex
+kernel: xircom_tulip_cb: outl_CSR6 too many attempts,csr5=0xfffe0000
+but the connect is working with a lot of errors on TX carrier side.
 
-It is dynamic, so you don't need to specify a size.  If you want to give
-a maximum size (probably a good idea), give one.  Depends on what your
-tmp usages are and how much free memory you have.
+eth0      Link encap:Ethernet  HWaddr 00:10:A4:A5:7B:F8
+           inet addr:192.168.2.4  Bcast:192.168.2.255  Mask:255.255.255.0
+           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+           RX packets:71404 errors:0 dropped:0 overruns:0 frame:0
+           TX packets:0 errors:36955 dropped:0 overruns:0 carrier:36955
+           collisions:0 txqueuelen:100
+           RX bytes:103113288 (98.3 Mb)  TX bytes:0 (0.0 b)
+           Interrupt:11 Base address:0x4000
 
-	Robert Love
+
+Otherwise, I didn't get any error on the device of the linkpartner.
+
+If I'm running kernel 2.4.16 with pcmcia_cs package (no hotplugging),
+all is working fine - with using autonegotiation on both sides.
+
+eth0      Link encap:Ethernet  HWaddr 00:10:A4:A5:7B:F8
+           inet addr:192.168.2.4  Bcast:192.168.2.255  Mask:255.255.255.0
+           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+           RX packets:83080 errors:1 dropped:0 overruns:0 frame:0
+           TX packets:47330 errors:0 dropped:0 overruns:0 carrier:0
+           collisions:0 txqueuelen:100
+           RX bytes:103882334 (99.0 Mb)  TX bytes:3124000 (2.9 Mb)
+           Interrupt:11 Base address:0x200
+
+(the one error on RX-side is from startup of the device).
+
+
+There is one more problem with the hotplugging-function of kernel 2.4.17rc1:
+in /lib/modules/2.4.17-rc1/modules.pcimap, the module serial_cs is 
+missing - so the serial port of the Xircom-card can't be loaded 
+(pcimodules can't show it).
+You can insert a line, beginning with serial_cs and the following data 
+are the same as in the xircom_tulip_cb - line. These datas are surely 
+not correct - but the serial device of the Xircom-card is now configured 
+automatically.
+
+
+
+Unfortunately, this wasn't the last problem:
+if you do a apm -s with kernel 2.4.17rc1, it is working fine unless the 
+hotplugging hasn't been started.
+If hotplugging has been started once, the laptop "wakes up" and hangs 
+after apm -s (apm -s doesn't come back again). You can't even ping the 
+laptop. I have to do a hw-reset. I tested those kernel options:
+-> Allow interrupts during APM BIOS calls
+-> Ignore USER SUSPEND
+
+The result was always the same.
+
+The HW-suspend-mode with Fn-F4 isn't working, too.
+
+If I do the same with kernel 2.4.16 and pcmcia_cs-package, the 
+hw-suspend is working fine as long as the cardmgr wasn't stopped or 
+restarted.
+apm -s doesn't behave other as with kernel 2.4.17 and hotplugging.
+
+
+
+Could you please fix these bugs or did I do some configuration errors?
+If you want, I can do some tests for you.
+
+
+Thanks for any hint,
+regards,
+Andreas Hartmann
 

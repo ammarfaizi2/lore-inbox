@@ -1,81 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267388AbRGTVEw>; Fri, 20 Jul 2001 17:04:52 -0400
+	id <S267384AbRGTU6C>; Fri, 20 Jul 2001 16:58:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267389AbRGTVEm>; Fri, 20 Jul 2001 17:04:42 -0400
-Received: from postfix2-2.free.fr ([213.228.0.140]:33543 "HELO
-	postfix2-2.free.fr") by vger.kernel.org with SMTP
-	id <S267388AbRGTVEe> convert rfc822-to-8bit; Fri, 20 Jul 2001 17:04:34 -0400
-Date: Fri, 20 Jul 2001 23:02:20 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
-X-X-Sender: <groudier@gerard>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: SCSI Tape corruption - update
-In-Reply-To: <Pine.LNX.4.05.10107201902150.568-100000@callisto.of.borg>
-Message-ID: <20010720222746.J3846-100000@gerard>
+	id <S267388AbRGTU5w>; Fri, 20 Jul 2001 16:57:52 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:16345 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267384AbRGTU5k>; Fri, 20 Jul 2001 16:57:40 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Paul Larson <plars@austin.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.7-pre9 oops
+Date: Fri, 20 Jul 2001 15:58:52 +0000
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Message-Id: <01072015585201.07147@plars.austin.ibm.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+I got this oops message with 2.4.7-pre9 on SuSE 7.2 today.  It happened 
+during bootup, from the boot.omsg log, it looks like maybe right after the 
+swapspace was added.  Ksymoops parsed oops message is attached below.  Please 
+let me know if any other information would help.  I'm not a subscriber, so 
+please email me directly.
 
+Thanks,
+Paul Larson
 
-On Fri, 20 Jul 2001, Geert Uytterhoeven wrote:
+ksymoops 2.4.1 on i686 2.4.4-64GB-SMP.  Options used
+     -v /usr/src/linux/vmlinux (specified)
+     -K (specified)
+     -L (specified)
+     -o /lib/modules/2.4.4-64GB-SMP/ (default)
+     -m /boot/System.map (specified)
 
-> On Sun, 8 Jul 2001, Geert Uytterhoeven wrote:
-> > New findings:
-> >   - The problem doesn't happen with kernels <= 2.2.17. It does happen with all
-> >     kernels starting with 2.2.18-pre1.
-> >   - The only related stuff that changed in 2.2.18-pre1 seems to be the
-> >     Sym53c8xx driver itself. I'll do some more tests soon to isolate the
-> >     problem.
-> >   - The changes to the Sym53c8xx driver in 2.2.18-pre1 are _huge_. Are the
-> >     individual changes between sym53c8xx-1.3g and sym53c8xx-1.7.0 available
-> >     somewhere?
-
-Not completely. The reason is that I used manual diffing/patching against
-various kernel versions and it would be a PITA to resurrect all
-intermediate driver versions using these patches. If we consider patches
-that went directly to kernel main stream without changing the driver
-version, a double PITA it would be. Btw, for sym-2.1.x series, I now use a
-CVS tree and each driver release is tagged independently. For those ones,
-it will be much more easy to isolate broken changes.
-
-> The problem is indeed introduced by the changes to the Sym53c8xx in 2.2.18-pre1.
-> I managed to find some intermediate versions in the 2.3.x series, and here are the
-> results:
->   - sym53c8xx-1.3g (from BK linuxppc_2_2): OK
->   - sym53c8xx-1.5e: crash in SCSI interrupt during driver init
->   - sym53c8xx-1.5f: lock up during driver init
->   - sym53c8xx-1.5g: random 32-byte error bursts when writing to tape
-
-That's an interesting result. But 1.5g - 1.3g diffs are probably very
-large. Patches available from ftp.tux.org should allow to resurrect
-driver versions 1.4, 1.5, 1.5a, 1.5b, 1.5c, 1.5d.
-
-ftp://ftp.tux.org/pub/roudier/drivers/linux/sym53c8xx/README
-
-You may, for example, apply incremental patches that address kernel 2.2.5
-to a fresh kernel 2.2.5 tree and extract driver files accordingly.
-
-> Perhaps I can get 1.5e and 1.5g to work using some PPC-specific fixes from the
-> 1.3.g driver in the linuxppc_2_2 tree (it differed a bit from the 1.3g in
-> Alan's 2.2.17). But even then the changes in 1.5f and 1.5g are rather small,
-> compared to the changes between 1.3g and 1.5f.
-
-Some PPC specific changes are very probably not present in my driver
-sources. I am unable to help on that point.
-
-> So I'd be very happy if I could get my hand on more intermediate versions.
-> Thanks for your help! I _really_ want to nail this one down!
->
-> Gr{oetje,eeting}s,
-
-Regards,
-  Gérard.
-
-
-
+No modules in ksyms, skipping objects
+<4> WARNING: unexpected IO-APIC, please mail
+<4>cpu: 0, clocks: 1329068, slice: 664534
+<5>ds: no socket drivers loaded!
+<1>Unable to handle kernel NULL pointer dereference at virtual address 
+0000007c
+<4>c01458f2
+<1>*pde = 00000000
+<4>Oops: 0000
+<4>CPU:    0
+<4>EIP:    0010:[proc_pid_make_inode+130/176]
+<4>EFLAGS: 00010206
+<4>eax: 00000000   ebx: c1450000   ecx: cf9ca400   edx: c1056564
+<4>esi: cfedc000   edi: 0000000b   ebp: cf9f0760   esp: cf9f7eb4
+<4>ds: 0018   es: 0018   ss: 0018
+<4>Process ps (pid: 59, stackpage=cf9f7000)
+<4>Stack: c02a52c0 cf9f07c0 c0247b0f c0145b1a cfedc000 c1450000 0000000b 
+fffffff4
+<4>       cf9ca220 cf9f0760 cf9f06e0 ffffffea c0136e6b cf9ca220 cf9f0760 
+cf9f7f2c
+<4>       00000000 cf9ca220 cf9f7f84 c0137511 cf9f06e0 cf9f7f2c 00000000 
+c149c000
+<4>Call Trace: [proc_base_lookup+134/536] [real_lookup+83/196] 
+[path_walk+1321/1880] [open_namei+134/1404] [filp_open+59/92] 
+[sys_open+56/184] [system_call+51/56]
+<4>Code: f6 40 7c 01 74 12 8b 83 24 01 00 00 89 41 30 8b 83 34 01 00
+Using defaults from ksymoops -t elf32-i386 -a i386
+ 
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   f6 40 7c 01               testb  $0x1,0x7c(%eax)
+Code;  00000004 Before first symbol
+   4:   74 12                     je     18 <_EIP+0x18> 00000018 Before first 
+symbol
+Code;  00000006 Before first symbol
+   6:   8b 83 24 01 00 00         mov    0x124(%ebx),%eax
+Code;  0000000c Before first symbol
+   c:   89 41 30                  mov    %eax,0x30(%ecx)
+Code;  0000000f Before first symbol
+   f:   8b 83 34 01 00 00         mov    0x134(%ebx),%eax

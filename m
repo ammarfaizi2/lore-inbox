@@ -1,31 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265717AbSKAULd>; Fri, 1 Nov 2002 15:11:33 -0500
+	id <S265725AbSKAUHA>; Fri, 1 Nov 2002 15:07:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265729AbSKAULd>; Fri, 1 Nov 2002 15:11:33 -0500
-Received: from mailhost.tue.nl ([131.155.2.5]:25207 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S265717AbSKAULc>;
-	Fri, 1 Nov 2002 15:11:32 -0500
-Date: Fri, 1 Nov 2002 21:17:56 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2002-Q4@gmx.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Xiafs inclusion in 2.5?
-Message-ID: <20021101201756.GA269@win.tue.nl>
-References: <Pine.LNX.4.44.0210311837060.2487-100000@home.transmeta.com> <3DC1F7FD.6060703@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DC1F7FD.6060703@gmx.net>
-User-Agent: Mutt/1.3.25i
+	id <S265728AbSKAUHA>; Fri, 1 Nov 2002 15:07:00 -0500
+Received: from c-66-176-164-150.se.client2.attbi.com ([66.176.164.150]:64741
+	"EHLO schizo.psychosis.com") by vger.kernel.org with ESMTP
+	id <S265725AbSKAUG6>; Fri, 1 Nov 2002 15:06:58 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Dave Cinege <dcinege@psychosis.com>
+Reply-To: dcinege@psychosis.com
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] Initrd Dynamic -- Initramfs's GrandDaddy...(and competition)
+Date: Fri, 1 Nov 2002 15:13:21 -0500
+User-Agent: KMail/1.4.2
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@www.linux.org.uk>
+References: <200211010605.12473.dcinege@psychosis.com> <3DC26333.4040006@pobox.com>
+In-Reply-To: <3DC26333.4040006@pobox.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211011513.21582.dcinege@psychosis.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 01, 2002 at 04:41:49AM +0100, Carl-Daniel Hailfinger wrote:
+On Friday 01 November 2002 6:19, Jeff Garzik wrote:
 
-> Andries, could you please send me an image of this floppy?
+> >What initramfs has that this doesn't:
+> >	Load image from a 'linked' kernel location.
+> >	Uses CPIO archives
+>
+> early userspace, which is the whole point of the exercise.
+>
+> We want to move a bunch of stuff _out_ of the kernel to userspace.
 
-See ftp://ftp.cwi.nl/pub/aeb/linux0.99pl7.xiafs
+WHEN THAT DAY COMES....this will cleanly support it. 
 
-Andries
+Infact it supports it now...just not from a 'linked' archive.
+(We'll see if I can change that tonight)
+
+Right now 'early userspace' is a concept not a codeset.
+(Unless someone is hiding it from me...I did ask you where
+it is...) There is no standardized archive that goes there.
+Until it is developed the current initramfs code does nothing
+but eat kernel space.
+
+Unlike the current initramfs solution this code provides a
+smooth transitional base that can CLEANLY be merged back into the
+2.4.xx branch. In a few minutes I can make an #ifdef of the
+legacy floppy/block loading code. (Infact I think I'll do
+just that, and submit an update. Until I hear 'no' from Linus,
+I'm going to punish myself and proceed forward.) 
+
+I'm sitting on the idea 'past performance will yeild similar
+present results'. *14 months* ago I tried to get Initrd Dynamic
+into the 2.4 kernel.
+
+I was told last YEAR 'There is no point. Initramfs is coming.'
+
+Unlike last year the version I'm submitting now is a crystal clean
+merge.
+
+Like last YEAR I'm told 'There is no point. Initramfs is coming.'
+
+Well there is a point:
+	Initrd Dynamic does the job better and it's working now!
+
+Dave
+
+-- 
+The time is now 22:48 (Totalitarian)  -  http://www.ccops.org/
+

@@ -1,51 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129835AbQKUQnS>; Tue, 21 Nov 2000 11:43:18 -0500
+	id <S129325AbQKUQyE>; Tue, 21 Nov 2000 11:54:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129625AbQKUQnI>; Tue, 21 Nov 2000 11:43:08 -0500
-Received: from [64.64.109.142] ([64.64.109.142]:37387 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S130180AbQKUQmi>; Tue, 21 Nov 2000 11:42:38 -0500
-Message-ID: <3A1A9EC6.BF0A3C83@didntduck.org>
-Date: Tue, 21 Nov 2000 11:11:50 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.73 [en] (WinNT; U)
-X-Accept-Language: en
+	id <S129426AbQKUQxz>; Tue, 21 Nov 2000 11:53:55 -0500
+Received: from cannet.com ([206.156.188.2]:11018 "HELO mail.cannet.com")
+	by vger.kernel.org with SMTP id <S129325AbQKUQxm>;
+	Tue, 21 Nov 2000 11:53:42 -0500
+Message-ID: <001301c053d7$347c2880$7930000a@hcd.net>
+From: "Timothy A. DeWees" <whtdrgn@mail.cannet.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Large filesystem?
+Date: Tue, 21 Nov 2000 11:22:06 -0500
 MIME-Version: 1.0
-To: William Stearns <wstearns@pobox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: CC=kgcc incomplete in 2.4.0-test11-ac1
-In-Reply-To: <Pine.LNX.4.30.0011211058200.1207-100000@sparrow.websense.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed;
+	protocol="application/x-pkcs7-signature";
+	micalg=SHA1;
+	boundary="----=_NextPart_000_000F_01C053AD.49423FE0"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2314.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Stearns wrote:
-> 
-> Good day, Alan,
->         A kernel build with your latest prepatch still seems to use gcc
-> to compile some of the auxiliary tools:
-> 
-> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o scripts/mkdep scripts/mkdep.c
-> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer gentbl.c -o gentbl -lm
-> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o scripts/split-include scripts/split-include.c
-> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o conmakehash conmakehash.c
-> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o gen-devlist gen-devlist.c
-> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o tools/build tools/build.c -I/usr/src/linux-2.4.0/include
-> 
->         Do any of the above tools need to use kgcc as well, or is gcc
-> likely to work just fine?
->         Cheers,
->         - Bill
+This is a multi-part message in MIME format.
 
-The userspace tools should be fine with the newer gcc.  It is set up
-this way so that the userspace tools use the native compiler when
-cross-compiling.  If you're really paranoid, set HOSTCC=kgcc as well.
+------=_NextPart_000_000F_01C053AD.49423FE0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+
+Hello kernel hackers,
+
+    Can anyonw point me to doc on how to setup large filesytem support on
+2.2?
+We are using linux to do network backups with Microlite and some of our
+backups are growing above 2 Gb.  Thanks is advance!
 
 --
+Kind Regards,
+Timothy A. DeWees
 
-				Brian Gerst
+------=_NextPart_000_000F_01C053AD.49423FE0
+Content-Type: application/x-pkcs7-signature;
+	name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="smime.p7s"
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIII7jCCAqEw
+ggIKoAMCAQICAwMkHDANBgkqhkiG9w0BAQQFADCBlDELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdl
+c3Rlcm4gQ2FwZTEUMBIGA1UEBxMLRHVyYmFudmlsbGUxDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UE
+CxMUQ2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAx
+OTk5LjkuMTYwHhcNMDAwODI1MTQyNDE2WhcNMDEwODI1MTQyNDE2WjBEMR8wHQYDVQQDExZUaGF3
+dGUgRnJlZW1haWwgTWVtYmVyMSEwHwYJKoZIhvcNAQkBFhJ3aHRkcmduQGNhbm5ldC5jb20wgZ8w
+DQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALJ5dJTLACq2XOImvdzV+9+ljLAiKyoPWnDKTx8wPW+P
+ImV8VRO+DZMG62LqIkwZRwUcwDkPVC1l2NTsiPeTs+V2Wq88MDod6ykAvmGq7b33fuMzrzhGkT1i
+gRzVnvAjfOObtS6rXJBo/O4QHh7M9Mgghqw+G+Iaj/KmW6HZ+CgrAgMBAAGjUDBOMB0GA1UdEQQW
+MBSBEndodGRyZ25AY2FubmV0LmNvbTAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFIir8WCDZlX0
+5FjHRh3AYb0j18OMMA0GCSqGSIb3DQEBBAUAA4GBAK7NQGi7lypyRqBIJqNsb3ttb9uqk/svWipd
+X6rFV3GYgajI0G2APE+2auJaySEzLP/awRURG4PzCP6Lj4gYGwOaOMgCa43H/OyMnlv07G2KcaZk
+9uFMUZf4lnDVFYlG7U/Ugvkoqcyd9Euomjs81SibcmQUqq3RCw6/+zKOXTzvMIIDFDCCAn2gAwIB
+AgIBCzANBgkqhkiG9w0BAQQFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2Fw
+ZTESMBAGA1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UE
+CxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBlcnNv
+bmFsIEZyZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0aGF3dGUu
+Y29tMB4XDTk5MDkxNjE0MDE0MFoXDTAxMDkxNTE0MDE0MFowgZQxCzAJBgNVBAYTAlpBMRUwEwYD
+VQQIEwxXZXN0ZXJuIENhcGUxFDASBgNVBAcTC0R1cmJhbnZpbGxlMQ8wDQYDVQQKEwZUaGF3dGUx
+HTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFp
+bCBSU0EgMTk5OS45LjE2MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCzaVqX1NAWC3q1xV3p
+IZwjcs0STEv3fs/H+8pyJPRCUqxXleN7YXoXhOf9cjk4lLTq7WWnkgZeveBl9hm7lHl2TD65aHB1
+hBz0EXQAvAUsTwkDFzHM9EHUcsamXeKIRLCLLsRN8fDWhT5s85WUeJF+QOmc0Y0VV47Cc+Uw3kb1
+TwIDAQABozcwNTASBgNVHRMBAf8ECDAGAQH/AgEAMB8GA1UdIwQYMBaAFHJJwnM0xlX0C3ZygX53
+9IfnxrIOMA0GCSqGSIb3DQEBBAUAA4GBAGvGWekx+um27LED2N9ycv6RYEjqxlXde/BnjsZhcOdt
+wqU32J23FyhWBYvdXHVvxpGQxmxmcRPQEHxrkW+G4CE2LcHX6rIJrc8tbcaDUpv7u/6ch538t+l0
+kuRcl678fqzKDW9yemcsa3P1hvmd9QBu9B0Hzp2egmMp75MJflXeMIIDLTCCApagAwIBAgIBADAN
+BgkqhkiG9w0BAQQFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAG
+A1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UECxMfQ2Vy
+dGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBlcnNvbmFsIEZy
+ZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0aGF3dGUuY29tMB4X
+DTk2MDEwMTAwMDAwMFoXDTIwMTIzMTIzNTk1OVowgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxX
+ZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRp
+bmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1Ro
+YXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1h
+aWxAdGhhd3RlLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA1GnX1LCUZFtx6UfYDFG2
+6nKRsIRefS0Nj3sS34UldSh0OkIsYyeflXtL734Zhx2G6qPduc6WZBrCFG5ErHzmj+hND3EfQDim
+AKOHePb5lIZererAXnbr2RSjXW56fAylS1V/Bhkpf56aJtVquzgkCGqYx7Hao5iR/Xnb5VrEHLkC
+AwEAAaMTMBEwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQQFAAOBgQDH7JJ+Tvj1lqVnYiqk
+8E0RYNBvjWBYYawmu1I1XAjPMPuoSpaKH2JCI4wXD/S6ZJwXrEcp352YXtJsYHFcoqzceePnbgBH
+H7UNKOgCneSa/RP0ptl8sfjcXyMmCZGAc9AUG95DqYMl8uacLxXK/qarigd1iwzdUYRr5PjRznei
+gTGCAgAwggH8AgEBMIGcMIGUMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRQw
+EgYDVQQHEwtEdXJiYW52aWxsZTEPMA0GA1UEChMGVGhhd3RlMR0wGwYDVQQLExRDZXJ0aWZpY2F0
+ZSBTZXJ2aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwgUlNBIDE5OTkuOS4xNgIDAyQc
+MAkGBSsOAwIaBQCggbowGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcN
+MDAxMTIxMTEyMjA3WjAjBgkqhkiG9w0BCQQxFgQUwKCqqHzMyp1v3h48j8lIp3mLljswWwYJKoZI
+hvcNAQkPMU4wTDAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYF
+Kw4DAgcwDQYIKoZIhvcNAwICASgwBwYFKw4DAh0wDQYJKoZIhvcNAQEBBQAEgYB42vP4TuL1JGQv
+fkiV7Ni3wWaC980A4522JZ5mzS2aJ5t4b9NyKuL2wbGS3EuB2rMReJ0n70LhIhr9UPsXkBIMPR9+
+LJpv7UVSUogyiMqG6SHL1V58RfNAmseDgE7fep/6aops5PEb25J1kWdVRBr3JdiplQwsBkKZFp5c
+0y2VdgAAAAAAAA==
+
+------=_NextPart_000_000F_01C053AD.49423FE0--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

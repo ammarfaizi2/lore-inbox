@@ -1,71 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267234AbUHZDNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266867AbUHZDOO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267234AbUHZDNx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 23:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266867AbUHZDNx
+	id S266867AbUHZDOO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 23:14:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266878AbUHZDOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 23:13:53 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56731 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266863AbUHZDNs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 23:13:48 -0400
-Date: Thu, 26 Aug 2004 04:13:47 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826031347.GQ21964@parcelfarce.linux.theplanet.co.uk>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org> <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk> <20040826001152.GB23423@mail.shareable.org> <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk> <20040826010049.GA24731@mail.shareable.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040826010049.GA24731@mail.shareable.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 25 Aug 2004 23:14:14 -0400
+Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:16511 "HELO
+	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266867AbUHZDOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 23:14:08 -0400
+Message-ID: <412D557B.1090500@triplehelix.org>
+Date: Wed, 25 Aug 2004 20:14:03 -0700
+From: Joshua Kwan <joshk@triplehelix.org>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040819)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+Cc: netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.9-rc1
+References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>	<412CDFEE.1010505@triplehelix.org>	<20040825203206.GS5824@sunbeam.de.gnumonks.org> <20040825164401.12259308.davem@redhat.com>
+In-Reply-To: <20040825164401.12259308.davem@redhat.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 02:00:49AM +0100, Jamie Lokier wrote:
-> viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > > Is this a problem if we treat entering a file-as-directory as crossing
-> > > a mount point (i.e. like auto-mounting)?
-> > 
-> > Yes - mountpoints can't be e.g. unlinked.  Moreover, having directory
-> > mounted on non-directory is also an interesting situation.
-> 
-> Ok, so can we make it so mountpoints can be unlinked? :)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-User-visible change of behaviour and IIRC a SuS violation on top of that.
- 
-> I think the underlying file does not stay locked, and once you've
-> entered it as a directory, it can be unlinked.
+David S. Miller wrote:
+| And adding an export of ip_nat_find_helper (ie. without the two underscore
+| prefix).  Why?
+|
+| If we need to export one, then we need to export both.
 
-So why lock it at all in that case?
+Exporting both was the only way I could get it to compile. On the other
+hand, the fix seems to have worked without any further repercussions.
 
-> I didn't mean locking a chain of mountpoints, I meant the temporary
-> state where two dentries and/or inodes are locked, parent and child,
-> during a path walk.  However I'm not very familiar with that part of
-> the VFS and I see that the current RCU dcache might not lock that much
-> during a path walk.
+- --
+Joshua Kwan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Never had been needed on crossing mountpoints, actually.
-
-> I agree, users shouldn't be able to pin down a file.
-> 
-> I think unlink() should succeed on a file while something is visiting
-> inside its metadata directory.
-
-See above.  Again, the fundamental problem with that is allowing unlink
-and friends on a mountpoint.  I would love to do that, but it always
-generated -EBUSY on all Unices.  Linux got a bit more users and userland
-code than Plan 9 - they can afford such changes, but...
-
-And yes, from the kernel POV it's trivial to do - witness the MNT_DETACH
-codepath in umount - it's much simpler than "normal" umount exactly because
-it doesn't try to emulate old "it's busy, can't umount" behaviour.
-
-With umount we could introduce "don't bother with that shit" flag.  With
-unlink() we would have to make that default behaviour to be useful.
+iQIVAwUBQS1Ve6OILr94RG8mAQLEIhAAqzFjNVxhFmCvj2nYwbMa8l3I7SJdzrFf
+ge1Rua8ktQMOemVebWuReQLsAYm70MCS/JJujAk25raZVTNHtzazNd/bJ03pbjnO
+xcUVt+JK1OzWJcoQYvzJRhDGzrY7GHn/93P0DK5+ROSYBAUVzBT6rO67cJBpsM7V
+t4PVpgMFVpw/sP53sR3uyUSotSPVIHrXnsplyiAvCxhz+y14zwRI9QEhKmRVzjhb
+PlJBooRMmB0rb6l1JATAp3EVpJsA6CBczMd0nsQV478r05OVZkkWcTHT5IlFv2Dr
+k3tDotHKK0FQuqDHULQeuqVWP9Sl35Zp/hEzZQNjywptC0LG7e3x21N/BahuqqaJ
+w+CkunMK4QkmizJNgMHC/CDeaJP1ZlhV9G0V7pTwojjatO4TmQFEtNbaVhaQziCv
+0wx2qeM4nASFyiXwcWR1WSZ4K37NRVYNPlpeAo9QKaW54HZ/tar44bqAMfuAtaqP
+yBNxAT58daPrOT2/ePnbzEMReueMiaWDBoJuzoHxhZ6thbubviYT0iitHKagckeU
+JKKZsKi9t4SJydDZ2pjbFx9bzO4EC6sgjB7YT/1N6ulubu8DFsZYNEfax3n8NgNX
+zmeaVYD/ezUjE5dKXU45PB0KhySDx396x2nh5kcbXPl0NcB8oRX5Hrh/KgOlEbEa
+allwXmgYrYA=
+=d+1T
+-----END PGP SIGNATURE-----

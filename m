@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262416AbTEVAru (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 20:47:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbTEVAru
+	id S262422AbTEVAuH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 20:50:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbTEVAuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 20:47:50 -0400
-Received: from imladris.surriel.com ([66.92.77.98]:45967 "EHLO
-	imladris.surriel.com") by vger.kernel.org with ESMTP
-	id S262416AbTEVArt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 20:47:49 -0400
-Date: Wed, 21 May 2003 21:00:46 -0400 (EDT)
-From: Rik van Riel <riel@imladris.surriel.com>
-To: Robert White <rwhite@casabyte.com>
-cc: David Woodhouse <dwmw2@infradead.org>, "" <ptb@it.uc3m.es>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       "" <linux-kernel@vger.kernel.org>
-Subject: RE: recursive spinlocks. Shoot.
-In-Reply-To: <PEEPIDHAKMCGHDBJLHKGGEENCMAA.rwhite@casabyte.com>
-Message-ID: <Pine.LNX.4.50L.0305212059500.6321-100000@imladris.surriel.com>
-References: <PEEPIDHAKMCGHDBJLHKGGEENCMAA.rwhite@casabyte.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	Wed, 21 May 2003 20:50:07 -0400
+Received: from pop.gmx.de ([213.165.64.20]:2032 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262422AbTEVAuG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 20:50:06 -0400
+Message-ID: <3ECC21C9.5000708@gmx.net>
+Date: Thu, 22 May 2003 03:03:05 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org, oxymoron@waste.org
+Subject: Re: must-fix list, v5
+References: <20030521152255.4aa32fba.akpm@digeo.com>
+In-Reply-To: <20030521152255.4aa32fba.akpm@digeo.com>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 May 2003, Robert White wrote:
+Andrew Morton wrote:
+> Also at ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/must-fix/
+> 
+> For verson 6 I shall go through the "late features" list and prioritise
+> things.
+> 
+> 
+> Changes since v5:
 
-> In point of fact, "proper" locking, when combined with "proper"
-> definitions of an interface dictate that recursive locking is "better".
-> Demanding that a call_EE_ know what locks a call_ER_ (and all
-> antecedents of caller) will have taken is not exactly good design.
+> +o willy: random.c is completely lockfree, and not in a good way.  i had
+> +  some patches but nothing got seriously tested.
+> +
 
-So call_EE_ messes with the data structure which call_ER_
-has locked, unexpectedly because the recursive locking
-doesn't show up as an error.
+IIRC, Oliver Xymoron had some patches to clean up RNG support at the
+time of 2.5.39. Because things were in flux back then, he decided to
+postpone these patches until late in the 2.5 cycle.
 
-Looks like recursive locking would just make debugging
-harder.
+Oliver?
 
-Rik
--- 
-Engineers don't grow up, they grow sideways.
-http://www.surriel.com/		http://kernelnewbies.org/
+
+Regards,
+Carl-Daniel
+

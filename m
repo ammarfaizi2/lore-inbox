@@ -1,83 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264378AbTDPPMa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 11:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264426AbTDPPM3
+	id S264553AbTDPPVS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 11:21:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264556AbTDPPVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 11:12:29 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:4515 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S264378AbTDPPM1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 11:12:27 -0400
-Message-ID: <3E9D755A.8060601@colorfullife.com>
-Date: Wed, 16 Apr 2003 17:23:06 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
+	Wed, 16 Apr 2003 11:21:17 -0400
+Received: from mcomail01.maxtor.com ([134.6.76.15]:41476 "EHLO
+	mcomail01.maxtor.com") by vger.kernel.org with ESMTP
+	id S264553AbTDPPVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 11:21:14 -0400
+Message-ID: <785F348679A4D5119A0C009027DE33C102E0D127@mcoexc04.mlm.maxtor.com>
+From: "Mudama, Eric" <eric_mudama@maxtor.com>
+To: "'hps@intermeta.de'" <hps@intermeta.de>, linux-kernel@vger.kernel.org
+Subject: RE: [2.4.21-pre7-ac1] IDE Warning when booting
+Date: Wed, 16 Apr 2003 09:32:48 -0600
 MIME-Version: 1.0
-To: jamal <hadi@cyberus.ca>
-CC: Catalin BOIE <util@deuroconsult.ro>, Tomas Szepe <szepe@pinerecords.com>,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, kuznet@ms2.inr.ac.ru
-Subject: Re: [PATCH] qdisc oops fix
-References: <20030415084706.O1131@shell.cyberus.ca> <Pine.LNX.4.53.0304160838001.25861@hosting.rdsbv.ro> <20030416072952.E4013@shell.cyberus.ca>
-In-Reply-To: <20030416072952.E4013@shell.cyberus.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jamal wrote:
+So the quantum bigfoot doesn't support setting the multiple block size?
 
->This is a different problem from previous one posted.
->
->Theres a small window (exposed given that you are provisioning a lot
->of qdiscs  and running traffic at the same time) that an incoming packet
->interupt will cause the BUG().
->
->GFP_ATOMIC will fix it, but i wonder if it appropriate.
->  
->
-This is a 2.4 kernel, correct?
+Hrm, how old is that disk?  SET MULTIPLE MODE has been an ATA standard
+command since rev 3 of the spec, circa 1997...
 
->>With many rules (~5000 classes and ~3500 qdiscs and ~50000 filters)
->>the kernel oopses in slab.c:1128.
->>
-This check?
-       if (in_interrupt() && (flags & SLAB_LEVEL_MASK) != SLAB_ATOMIC)
-                BUG();
-It's triggered, because someone does something like
-    spin_lock_bh(&my_lock);
-    p = kmalloc(,GFP_KERNEL);
+I guess that is what Alan meant when he said people throw everything at
+linux hardware wise...
 
-I don't like the proposed fix: usually code that calls 
-kmalloc(,GFP_KERNEL) assumes that it runs at process space, e.g. uses 
-semaphores, or non-bh spinlocks, etc.
-slab just happens to contain a test that complains about illegal calls.
+--eric
 
->>Trace; c0127e0f <kmalloc+eb/110>
->>Trace; c01d3cac <qdisc_create_dflt+20/bc>
->>Trace; d081ecc7 <END_OF_CODE+1054ff0f/????>
->>Trace; c01d5265 <tc_ctl_tclass+1cd/214>
->>Trace; d0820600 <END_OF_CODE+10551848/????>
->>Trace; c01d27e4 <rtnetlink_rcv+298/3bc>
->>Trace; c01d0605 <__neigh_event_send+89/1b4>
->>Trace; c01d7cd4 <netlink_data_ready+1c/60>
->>Trace; c01d7730 <netlink_unicast+230/278>
->>Trace; c01d7b73 <netlink_sendmsg+1fb/20c>
->>Trace; c01c79d5 <sock_sendmsg+69/88>
->>Trace; c01c8b48 <sys_sendmsg+18c/1e8>
->>Trace; c0120010 <map_user_kiobuf+8/f8>
->>
->>
->>    
->>
-I don't understand the backtrace. Were any modules loaded? Perhaps 
-0xd081ecc7 is a module.
 
-I'd add a
-    if(in_interrupt()) show_stack(NULL);
-into qdisc_create_dflt(), and try to reproduce the bug without modules.
-
---
-    Manfred
-
+> -----Original Message-----
+> From: Henning P. Schmiedehausen [mailto:hps@intermeta.de]
+> Sent: Wednesday, April 16, 2003 5:17 AM
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: [2.4.21-pre7-ac1] IDE Warning when booting
+> 
+> Alan did post an explanation for these (which I haven't read before
+> posting this) that these are harmless. And yes, the task_no_data_intr
+> vs. set_multmode makes all the difference. :-) Getting these quieted
+> down would be nice, though.
+> 
+> 	Regards
+> 		Henning

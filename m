@@ -1,74 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129030AbQJ3J2i>; Mon, 30 Oct 2000 04:28:38 -0500
+	id <S129071AbQJ3JcJ>; Mon, 30 Oct 2000 04:32:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129071AbQJ3J23>; Mon, 30 Oct 2000 04:28:29 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:2758 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id <S129030AbQJ3J2U>; Mon, 30 Oct 2000 04:28:20 -0500
-From: kumon@flab.fujitsu.co.jp
-Date: Mon, 30 Oct 2000 18:27:44 +0900
-Message-Id: <200010300927.SAA05368@asami.proc.flab.fujitsu.co.jp>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: kumon@flab.fujitsu.co.jp, Andi Kleen <ak@suse.de>,
-        Alexander Viro <viro@math.psu.edu>,
-        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
-        Olaf Kirch <okir@monad.swb.de>
-Subject: Re: [PATCH] Re: Negative scalability by removal of lock_kernel()?(Was: 
- Strange performance behavior of 2.4.0-test9)
-In-Reply-To: <39FB02D5.9AF89277@uow.edu.au>
-In-Reply-To: <39F957BC.4289FF10@uow.edu.au>
-	<39F92187.A7621A09@timpanogas.org>
-	<Pine.GSO.4.21.0010270257550.18660-100000@weyl.math.psu.edu>
-	<20001027094613.A18382@gruyere.muc.suse.de>
-	<200010271257.VAA24374@asami.proc.flab.fujitsu.co.jp>
-	<39FAF4C6.3BB04774@uow.edu.au>
-	<39FB02D5.9AF89277@uow.edu.au>
-Reply-To: kumon@flab.fujitsu.co.jp
-Cc: kumon@flab.fujitsu.co.jp
-X-Mailer: Handmade Mailer version 1.0
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129312AbQJ3Jb6>; Mon, 30 Oct 2000 04:31:58 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:45830 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S129308AbQJ3Jbq>;
+	Mon, 30 Oct 2000 04:31:46 -0500
+Date: Mon, 30 Oct 2000 11:41:35 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: mingo@elte.hu
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18Pre Lan Performance Rocks!
+In-Reply-To: <20001030021111.A19975@vger.timpanogas.org>
+Message-ID: <Pine.LNX.4.21.0010301127200.3186-100000@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
- > 
- > I agree with me.  Could you please test the scalability
- > of this?
 
-Here is the result, measured on 8-way profusion.
+On Mon, 30 Oct 2000, Jeff V. Merkey wrote:
 
-Andrew posted two paches, so called P1 and P2.
+> [...] you've got the web server covered.  What about file and print.
 
-		Req/s
-test10-pre5:	2255	bad performance
-----
-test9+P2:	5243
-test10-pre5+P1:	5187
-test10-pre5+P2:	5258
+a web server, as you probably know, is a read-mostly fileserver that
+serves files via the HTTP protocol. The rest is only protocol fluff.
 
-P2 may be a little bit better.
+> I think this is great, but most web servers are connected to a T1 or
+> T3 line, and all the fancy optimization means absolutely squat since
+> about 99.999999% of the planet has a max baandwidth of a T1, ADSL, or
+> T3 Line, this is a far cry from Gigabit ethernet, or even 100Mbit
+> ethernet.
 
-----------
-Data summary sorted by the performance:
-	test8		5287 <-- best performance
-	test10-pre5+P2:	5258
-	test9+P2:	5243
-	test9+mypatch:	5192 <-- a little bit worse
-	test10-pre5+P1:	5187
-	test1		3702 <-- no good scalability
-	test10-pre5:	2255 <-- negative scalability
-	test9		2193
+Your argument is curious - first you cry for performance, then you say
+'nobody wants that much bandwidth'. Of course, if the network is bandwidth
+limited then we cannot scale above that bandwidth. But thats not the
+point. The point is to put 10 cards into a server and still being able to
+saturate them. The point is also to spend less cycles on saturating
+available bandwidth. The point is also to not flush the L1 just because
+someone requested a 10K webpage.
 
-The value changes within 30-50 seems fluctuations.
+> How many users can you put on the web server? [...]
 
+tens of thousands, on a single CPU. Can probably handle over 100 thousand
+users as well, with IP aliasing so the socket space is spread out.
 
---
-Computer Systems Laboratory, Fujitsu Labs.
-kumon@flab.fujitsu.co.jp
+> Web servers are also read only data, the easiest of all LAN cases to
+> deal with. It's incoming writes that present all the tough problems,
+
+reads dominate writes in almost all workloads, thats common wisdom. Why
+write if nobody reads the data? And while web servers are mostly read only
+data, they can write data as well, see POST and PUT. The fact that
+incoming writes are hard should not let you distract from the fact that
+reads are also extremely important.
+
+	Ingo
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

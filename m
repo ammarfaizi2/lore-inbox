@@ -1,54 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282873AbRLBNsZ>; Sun, 2 Dec 2001 08:48:25 -0500
+	id <S282877AbRLBNxF>; Sun, 2 Dec 2001 08:53:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282876AbRLBNsP>; Sun, 2 Dec 2001 08:48:15 -0500
-Received: from mail026.mail.bellsouth.net ([205.152.58.66]:52902 "EHLO
-	imf26bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S282873AbRLBNsD>; Sun, 2 Dec 2001 08:48:03 -0500
-Message-ID: <3C0A310E.513903CB@mandrakesoft.com>
-Date: Sun, 02 Dec 2001 08:47:58 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
+	id <S278690AbRLBNw4>; Sun, 2 Dec 2001 08:52:56 -0500
+Received: from wiproecmx2.wipro.com ([164.164.31.6]:16636 "EHLO
+	wiproecmx2.wipro.com") by vger.kernel.org with ESMTP
+	id <S278428AbRLBNwo>; Sun, 2 Dec 2001 08:52:44 -0500
+Message-ID: <006801c17b39$e4344e30$4e05720a@M3HOM103042>
+From: "Venkata Rajesh Velamakanni" <rajesh.venkata@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Regaring Routing Socket support in Linux kernel.
+Date: Sun, 2 Dec 2001 19:31:51 +0530
+Organization: Wipro Ltd.
 MIME-Version: 1.0
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-CC: Keith Owens <kaos@ocs.com.au>,
-        Linux-Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH 2.4.17.2: make ext2 smaller
-In-Reply-To: <3C0A1105.18B76D64@mandrakesoft.com> <25560.1007294074@ocs3.intra.ocs.com.au> <20011202133314.B717@nightmaster.csn.tu-chemnitz.de> <3C0A269F.D2B1D3@mandrakesoft.com> <20011202144019.A741@nightmaster.csn.tu-chemnitz.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="------------InterScan_NT_MIME_Boundary"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser wrote:
-> 
-> On Sun, Dec 02, 2001 at 08:03:27AM -0500, Jeff Garzik wrote:
-> > Ingo Oeser wrote:
-> > > Even this doesn't have to be done manually. Everything that is
-> > > not covered by EXPORT_SYMBOL() in this case can be static, since
-> >
-> > And if !MODULE, then even EXPORT_SYMBOL symbols can become static, if
-> > they are not used outside the compilation unit.
-> 
-> If your compilation units are greater than the current
-> granularity of modules: Yes.
-> 
-> EXPORT_SYMBOL() symbols are Kernel-API, which is also exported to
-> 3rd-party vendors with binary modules. So it makes little sense
-> to me to make them static.
 
-If !MODULES, modules are not supported by that kernel.  It is completely
-safe to make such functions static, if not used outside the compilation
-unit.  For all other cases, it is indeed wrong to make such them static.
+This is a multi-part message in MIME format.
 
-	Jeff
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+
+Hello All,
+
+This is regarding query on AF_ROUTE sockets on Linux.
+
+I would like to know whether Linux supports AF_ROUTE
+sockets or one should use NETLINK sockets or does linux
+support both. 
+
+( In the file linux/socket.h there is comment saying
+#define AF_ROUTE  AF_NETLINK  /* Alias to emulate 4.4 BSD */ )
 
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+Thanks,
+Rajesh.
 
+
+
+
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
+
+-----------------------------------------------------------------------------------------------------------------------
+Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
+is intended for use only by the individual or entity to which it is
+addressed, and may contain information that is privileged, confidential or
+exempt from disclosure under applicable law. If you are not the intended
+recipient or it appears that this mail has been forwarded to you without
+proper authority, you are notified that any use or dissemination of this
+information in any manner is strictly prohibited. In such cases, please
+notify us immediately at mailto:mailadmin@wipro.com and delete this mail
+from your records.
+------------------------------------------------------------------------------------------------------------------------
+
+--------------InterScan_NT_MIME_Boundary--

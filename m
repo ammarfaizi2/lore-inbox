@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263387AbTKWSuM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Nov 2003 13:50:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263388AbTKWSuL
+	id S263412AbTKWTMx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Nov 2003 14:12:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263415AbTKWTMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Nov 2003 13:50:11 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:13020 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263387AbTKWSuJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Nov 2003 13:50:09 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Chris Cheney <ccheney@cheney.cx>
-Subject: Re: bugme #1217: "Use PCI DMA by default when available" does not work
-Date: Sun, 23 Nov 2003 19:51:06 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <20031122204828.GE1411@cheney.cx> <200311222320.18382.bzolnier@elka.pw.edu.pl> <20031123013555.GF1411@cheney.cx>
-In-Reply-To: <20031123013555.GF1411@cheney.cx>
+	Sun, 23 Nov 2003 14:12:53 -0500
+Received: from fw.osdl.org ([65.172.181.6]:32168 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263412AbTKWTMw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Nov 2003 14:12:52 -0500
+Date: Sun, 23 Nov 2003 11:12:47 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Marco d'Itri" <md@Linux.IT>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Len Brown <len.brown@intel.com>, Andi Kleen <ak@muc.de>
+Subject: Re: irq 15: nobody cared! with KT600 chipset and 2.6.0-test9
+In-Reply-To: <20031123185253.GA1986@wonderland.linux.it>
+Message-ID: <Pine.LNX.4.44.0311231056070.17378-100000@home.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311231951.06633.bzolnier@elka.pw.edu.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 23 of November 2003 02:35, Chris Cheney wrote:
-> On Sat, Nov 22, 2003 at 11:20:18PM +0100, Bartlomiej Zolnierkiewicz wrote:
-> > Chris, please post output of 'lspci -vvv -xxx' - it will be very useful.
-> > We can see what registers are programmed differently when autodma is off.
-> >
-> > --bart
->
-> Ok, I have attached the lspci output. This is the output for when
-> autodma is off and hdparm -c3 -d1 -u1 has been run.
 
-Thanks, I need also output of lspci when autodma is on.
+On Sun, 23 Nov 2003, Marco d'Itri wrote:
+>  >Does this one make a difference?
+> No:
 
---bart
+Actually, it _does_ seem to make a difference. The irq probe doesn't 
+report failure any more:
+
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> hdc: CD-ROM 50X, ATAPI CD/DVD-ROM drive
+> hdd: 32X10, ATAPI CD/DVD-ROM drive
+> Badness in request_irq at arch/i386/kernel/irq.c:572
+
+so now we have happily apparently probed the irq, but the problem is that 
+it continues to scream afterwards. So we're still unhappy, but something 
+did actually change. 
+
+I wonder why ACPI matters. It must be changing the polarity or trigger of 
+the irq somehow - but your earlier dmesg output seems to imply that it 
+only changes ELCR for irq9, so it must be somewhere else. Len, ideas?
+
+Also, Marco, it might actually be a VIA IDE driver bug, that leaves the 
+interrupt on during setup somewhere (and the bug just doesn't matter when 
+the IRQ is edge-triggered). So it would be interesting to know what 
+happens if you disable the VIA-specific IDE support...
+
+(Btw, thanks for being so good at testing, despite the lack of major 
+progress).
+
+		Linus
 

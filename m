@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263423AbTIWSlC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 14:41:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbTIWSlB
+	id S262213AbTIWSZA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 14:25:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbTIWSZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 14:41:01 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:52997 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263423AbTIWSk7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 14:40:59 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: Can we kill f inb_p, outb_p and other random I/O on port 0x80, in 2.6?
-Date: 23 Sep 2003 18:31:41 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bkq3id$f0u$1@gatekeeper.tmr.com>
-References: <m1isnlk6pq.fsf@ebiederm.dsl.xmission.com> <1064248391.8895.6.camel@dhcp23.swansea.linux.org.uk> <20030922190054.GC27209@mail.jlokier.co.uk> <m1wuc0io78.fsf@ebiederm.dsl.xmission.com>
-X-Trace: gatekeeper.tmr.com 1064341901 15390 192.168.12.62 (23 Sep 2003 18:31:41 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Tue, 23 Sep 2003 14:25:00 -0400
+Received: from kiuru.kpnet.fi ([193.184.122.21]:36546 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S262213AbTIWSY5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 14:24:57 -0400
+Subject: Re: Spam/LKML
+From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0309231318450.11291@p500>
+References: <Pine.LNX.4.58.0309231318450.11291@p500>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-q3Hh5IJF7VZ0VXlLdbQR"
+Message-Id: <1064341489.12580.4.camel@midux>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 23 Sep 2003 21:24:49 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <m1wuc0io78.fsf@ebiederm.dsl.xmission.com>,
-Eric W. Biederman <ebiederm@xmission.com> wrote:
-| Jamie Lokier <jamie@shareable.org> writes:
 
-| > Unfortunately, there are a lot of drivers, and a lot of x86
-| > arch-specific code, which use the delay operaters.  There's no real
-| > way to verify that all the drivers are fine when the delay is reduced
-| > or removed.
-| 
-| We just need something sufficiently good.  If the delay is removed
-| on a system that needs it someone will complain.
+--=-q3Hh5IJF7VZ0VXlLdbQR
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-The only problem with that is that is that (a) a complaint and a dollar
-will get you a cheap beer, but this is Linux and no one *needs* to fix
-it, therefore not breaking it becomes more important. The top developers
-are not running legacy 386's, I bet. And (b) if the problem comes up
-months from now, will anyone think to try timing changes for "every once
-in a while" problems.
+I've noticed this too. I get around 100 mails/day of the new "security
+update". And then I get 50 more which tell's me that some message could
+not be delivered, which is of course a lie. None of the mail's contain
+"To: ...snip..." and I think this happens because my mail adress is in
+LKML.
 
-I really like the isa_delay() idea, or similar, which will be in a
-single place and probably get enough attention to make it work. It just
-sounds like a safer way to go with equal benefits.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Regards,
+----
+Markus H=E4stbacka <midian@ihme.org>
+
+--=-q3Hh5IJF7VZ0VXlLdbQR
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/cI/x3+NhIWS1JHARAp8/AKCmZYuKIUc2LpvYpX+segwsv0Q+mwCdGvWJ
+MCXuQfEp+auIv70R0qpt7a0=
+=+qon
+-----END PGP SIGNATURE-----
+
+--=-q3Hh5IJF7VZ0VXlLdbQR--
+

@@ -1,56 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129562AbRAINue>; Tue, 9 Jan 2001 08:50:34 -0500
+	id <S129431AbRAINwO>; Tue, 9 Jan 2001 08:52:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129734AbRAINuP>; Tue, 9 Jan 2001 08:50:15 -0500
-Received: from herrmann.cherheim.etc.tu-bs.de ([134.169.88.65]:27404 "EHLO
-	herrmann.cherheim.etc.tu-bs.de") by vger.kernel.org with ESMTP
-	id <S129562AbRAINuH>; Tue, 9 Jan 2001 08:50:07 -0500
-Message-ID: <3A5B170E.F48872A@tu-bs.de>
-Date: Tue, 09 Jan 2001 14:50:06 +0100
-From: Felix Maibaum <f.maibaum@tu-bs.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en
+	id <S129734AbRAINwE>; Tue, 9 Jan 2001 08:52:04 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:3603 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S129584AbRAINwB>;
+	Tue, 9 Jan 2001 08:52:01 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200101091116.f09BGN7281436@saturn.cs.uml.edu>
+Subject: Re: [PATCH] cramfs is ro only, so honour this in inode->mode
+To: shane@agendacomputing.com
+Date: Tue, 9 Jan 2001 06:16:23 -0500 (EST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01010813171211.02165@www.easysolutions.net> from "Shane Nay" at Jan 08, 2001 01:17:12 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: linux <linux-kernel@vger.kernel.org>
-Subject: 2.4.0 bug in SHM an via-rhine or is it my fault?
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks!
+Shane Nay writes:
 
-I searched the kernel archives for information on this at least half a
-yearback but I found only one article on the subject and that was never
-replied to:
+> but the bits are useless in the "normal interpretation" of it,
+...
+> But then you pull out the write bits,
 
-I'm using a via-rhine chip (DFE-530TX) on a 10 Mbit network, I use 2.4.0
-final, Athlon (classic) 1Gig, Abit-KA7 mobo (via KX133), Debian woody.
-whenever I try to get a file on my local network, meaning I get close to
-the 10Mbit barrier the network card hangs up. Traffic just stops.
-One ifdown/ifup and everything works fine again. (for about 10 seconds)
-this problem has persisted for some time now, I thought it would be
-fixed in the final, but, alas, it hasn't. It only happens during high
-traffic, too, at about 400k, no problem!
-
-
-Something new that cropped up in prerelease:
-
-My SHM stopped working!
-everything was fine in test12, and after that all I got was "no space
-left on device".
-Has anything changed that one should know about? I mounted shm like it's
-written in the help, and on a friends celeron SMP machine it works fine,
-I just don't know what I did wrong.
-
-any ideas on any of the 2 problems?
-
-TIA
-
-Felix Maibaum
-
-
+If you need to steal a bit, grab one that won't hurt.
+Take the owner's read bit. (owner may read own files)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271520AbRIBPef>; Sun, 2 Sep 2001 11:34:35 -0400
+	id <S271568AbRIBPbp>; Sun, 2 Sep 2001 11:31:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271634AbRIBPe0>; Sun, 2 Sep 2001 11:34:26 -0400
-Received: from ns.caldera.de ([212.34.180.1]:48287 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S271520AbRIBPeP>;
-	Sun, 2 Sep 2001 11:34:15 -0400
-Date: Sun, 2 Sep 2001 17:33:57 +0200
+	id <S271634AbRIBPb0>; Sun, 2 Sep 2001 11:31:26 -0400
+Received: from ns.caldera.de ([212.34.180.1]:46495 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S271635AbRIBPbV>;
+	Sun, 2 Sep 2001 11:31:21 -0400
+Date: Sun, 2 Sep 2001 17:31:02 +0200
 From: Christoph Hellwig <hch@caldera.de>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] System V filesystem update
-Message-ID: <20010902173357.C11520@caldera.de>
+Subject: [PATCH] VxFS update
+Message-ID: <20010902173102.B11520@caldera.de>
 Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
 	Linus Torvalds <torvalds@transmeta.com>,
 	linux-kernel@vger.kernel.org
@@ -24,14 +24,11 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi Linus,
 
-the appended patch updates the System V filesystem driver to the latest
-version from Alan's tree.
+the appended patch updates the VxFS driver to the latest version as
+found in Alan's tree.  The patch contains:
 
-The follwoing updates are included:
-
-  o add SCO fast symlink support (me)
-  o add readonly SCO AFS support (me)
-  o be more graceful in the case of a wrong filesystem type (aeb)
+ o fix memory leaks for failed mounts (partially from aeb)
+ o allow mounting of filesystem with different blocksizes
 
 Please apply,
 
@@ -41,265 +38,329 @@ Please apply,
 Of course it doesn't work. We've performed a software upgrade.
 
 
-diff -uNr -Xdontdiff ../master/linux-2.4.10-pre3/fs/sysv/Makefile linux/fs/sysv/Makefile
---- ../master/linux-2.4.10-pre3/fs/sysv/Makefile	Mon Jul  2 23:03:04 2001
-+++ linux/fs/sysv/Makefile	Sun Sep  2 17:04:47 2001
-@@ -9,7 +9,8 @@
- 
- O_TARGET := sysv.o
- 
--obj-y   := ialloc.o balloc.o inode.o itree.o file.o dir.o namei.o super.o
-+obj-y   := ialloc.o balloc.o inode.o itree.o file.o dir.o \
-+	   namei.o super.o symlink.o
- obj-m   := $(O_TARGET)
- 
- include $(TOPDIR)/Rules.make
-diff -uNr -Xdontdiff ../master/linux-2.4.10-pre3/fs/sysv/balloc.c linux/fs/sysv/balloc.c
---- ../master/linux-2.4.10-pre3/fs/sysv/balloc.c	Mon Jul  2 23:03:04 2001
-+++ linux/fs/sysv/balloc.c	Sun Sep  2 17:04:47 2001
-@@ -46,6 +46,14 @@
- 	unsigned count;
- 	unsigned block = fs32_to_cpu(sb, nr);
- 
-+	/*
-+	 * This code does not work at all for AFS (it has a bitmap
-+	 * free list).  As AFS is supposed to be read-only no one
-+	 * should call this for an AFS filesystem anyway...
-+	 */
-+	if (sb->sv_type == FSTYPE_AFS)
-+		return;
-+
- 	if (block < sb->sv_firstdatazone || block >= sb->sv_nzones) {
- 		printk("sysv_free_block: trying to free block not in datazone\n");
- 		return;
-@@ -154,6 +162,14 @@
- 	unsigned block;
- 	int n;
- 
-+	/*
-+	 * This code does not work at all for AFS (it has a bitmap
-+	 * free list).  As AFS is supposed to be read-only we just
-+	 * lie and say it has no free block at all.
-+	 */
-+	if (sb->sv_type == FSTYPE_AFS)
-+		return 0;
-+
- 	lock_super(sb);
- 	sb_count = fs32_to_cpu(sb, *sb->sv_free_blocks);
- 
-diff -uNr -Xdontdiff ../master/linux-2.4.10-pre3/fs/sysv/inode.c linux/fs/sysv/inode.c
---- ../master/linux-2.4.10-pre3/fs/sysv/inode.c	Wed Jul 18 03:53:55 2001
-+++ linux/fs/sysv/inode.c	Sun Sep  2 17:16:38 2001
-@@ -131,8 +131,11 @@
- 		inode->i_fop = &sysv_dir_operations;
- 		inode->i_mapping->a_ops = &sysv_aops;
- 	} else if (S_ISLNK(inode->i_mode)) {
--		inode->i_op = &sysv_symlink_inode_operations;
--		inode->i_mapping->a_ops = &sysv_aops;
-+		if (inode->i_blocks) {
-+			inode->i_op = &sysv_symlink_inode_operations;
-+			inode->i_mapping->a_ops = &sysv_aops;
-+		} else
-+			inode->i_op = &sysv_fast_symlink_inode_operations;
- 	} else
- 		init_special_inode(inode, inode->i_mode, rdev);
- }
-@@ -196,7 +199,6 @@
- 				attr->ia_mode = COH_KLUDGE_NOT_SYMLINK;
- 
- 	inode_setattr(inode, attr);
--
- 	return 0;
- }
- 
-diff -uNr -Xdontdiff ../master/linux-2.4.10-pre3/fs/sysv/super.c linux/fs/sysv/super.c
---- ../master/linux-2.4.10-pre3/fs/sysv/super.c	Mon Jul  2 23:03:04 2001
-+++ linux/fs/sysv/super.c	Sun Sep  2 17:04:47 2001
-@@ -26,11 +26,16 @@
- #include <linux/sysv_fs.h>
- #include <linux/init.h>
- 
--/* The following functions try to recognize specific filesystems.
-+/*
-+ * The following functions try to recognize specific filesystems.
-+ *
-  * We recognize:
-  * - Xenix FS by its magic number.
-  * - SystemV FS by its magic number.
-  * - Coherent FS by its funny fname/fpack field.
-+ * - SCO AFS by s_nfree == 0xffff
-+ * - V7 FS has no distinguishing features.
-+ *
-  * We discriminate among SystemV4 and SystemV2 FS by the assumption that
-  * the time stamp is not < 01-01-1980.
+diff -uNr -Xdontdiff ../master/linux-2.4.10-pre3/fs/freevxfs/vxfs_bmap.c linux/fs/freevxfs/vxfs_bmap.c
+--- ../master/linux-2.4.10-pre3/fs/freevxfs/vxfs_bmap.c	Thu Jun 28 02:10:55 2001
++++ linux/fs/freevxfs/vxfs_bmap.c	Sun Sep  2 17:04:50 2001
+@@ -27,7 +27,7 @@
+  * SUCH DAMAGE.
   */
-@@ -197,7 +202,19 @@
- 		sb->sv_bytesex = BYTESEX_BE;
- 	else
- 		return 0;
--	if (sbd->s_time < JAN_1_1980) {
-+ 
-+ 	if (fs16_to_cpu(sb, sbd->s_nfree) == 0xffff) {
-+ 		sb->sv_type = FSTYPE_AFS;
-+ 		if (!(sb->s_flags & MS_RDONLY)) {
-+ 			printk("SysV FS: SCO EAFS on %s detected, " 
-+ 				"forcing read-only mode.\n", 
-+ 				bdevname(sb->s_dev));
-+ 			sb->s_flags |= MS_RDONLY;
-+ 		}
-+ 		return sbd->s_type;
-+ 	}
-+ 
-+	if (fs32_to_cpu(sb, sbd->s_time) < JAN_1_1980) {
- 		/* this is likely to happen on SystemV2 FS */
- 		if (sbd->s_type > 3 || sbd->s_type < 1)
- 			return 0;
-@@ -261,6 +278,7 @@
- 	[FSTYPE_SYSV2]	"SystemV Release 2",
- 	[FSTYPE_COH]	"Coherent",
- 	[FSTYPE_V7]	"V7",
-+	[FSTYPE_AFS]	"AFS",
- };
  
- static void (*flavour_setup[])(struct super_block *) = {
-@@ -269,6 +287,7 @@
- 	[FSTYPE_SYSV2]	detected_sysv2,
- 	[FSTYPE_COH]	detected_coherent,
- 	[FSTYPE_V7]	detected_v7,
-+	[FSTYPE_AFS]	detected_sysv4,
- };
+-#ident "$Id: vxfs_bmap.c,v 1.22 2001/05/26 22:41:23 hch Exp hch $"
++#ident "$Id: vxfs_bmap.c,v 1.23 2001/07/05 19:48:03 hch Exp hch $"
  
- static int complete_read_super(struct super_block *sb, int silent, int size)
-@@ -294,7 +313,8 @@
- 	sb->sv_toobig_block = 10 + bsize_4 * (1 + bsize_4 * (1 + bsize_4));
- 	sb->sv_ind_per_block_bits = n_bits-2;
+ /*
+  * Veritas filesystem driver - filesystem to disk block mapping.
+diff -uNr -Xdontdiff ../master/linux-2.4.10-pre3/fs/freevxfs/vxfs_extern.h linux/fs/freevxfs/vxfs_extern.h
+--- ../master/linux-2.4.10-pre3/fs/freevxfs/vxfs_extern.h	Mon May 21 21:31:06 2001
++++ linux/fs/freevxfs/vxfs_extern.h	Sun Sep  2 17:04:50 2001
+@@ -30,7 +30,7 @@
+ #ifndef _VXFS_EXTERN_H_
+ #define _VXFS_EXTERN_H_
  
--	sb->sv_ninodes = (sb->sv_firstdatazone - sb->sv_firstinodezone) << sb->sv_inodes_per_block_bits;
-+	sb->sv_ninodes = (sb->sv_firstdatazone - sb->sv_firstinodezone)
-+		<< sb->sv_inodes_per_block_bits;
+-#ident "$Id: vxfs_extern.h,v 1.20 2001/04/26 22:48:44 hch Exp hch $"
++#ident "$Id: vxfs_extern.h,v 1.21 2001/08/07 16:13:30 hch Exp hch $"
  
- 	sb->s_blocksize = bsize;
- 	sb->s_blocksize_bits = n_bits;
-@@ -346,13 +366,10 @@
- 	sb->sv_block_base = 0;
+ /*
+  * Veritas filesystem driver - external prototypes.
+@@ -55,8 +55,9 @@
+ /* vxfs_inode.c */
+ extern struct kmem_cache_s	*vxfs_inode_cachep;
+ extern void			vxfs_dumpi(struct vxfs_inode_info *, ino_t);
+-extern struct inode *		vxfs_fake_inode(struct super_block *,
++extern struct inode *		vxfs_get_fake_inode(struct super_block *,
+ 					struct vxfs_inode_info *);
++extern void			vxfs_put_fake_inode(struct inode *);
+ extern struct vxfs_inode_info *	vxfs_blkiget(struct super_block *, u_long, ino_t);
+ extern struct vxfs_inode_info *	vxfs_stiget(struct super_block *, ino_t);
+ extern void			vxfs_read_inode(struct inode *);
+diff -uNr -Xdontdiff ../master/linux-2.4.10-pre3/fs/freevxfs/vxfs_fshead.c linux/fs/freevxfs/vxfs_fshead.c
+--- ../master/linux-2.4.10-pre3/fs/freevxfs/vxfs_fshead.c	Mon May 21 21:31:06 2001
++++ linux/fs/freevxfs/vxfs_fshead.c	Sun Sep  2 17:04:50 2001
+@@ -27,7 +27,7 @@
+  * SUCH DAMAGE.
+  */
  
- 	for (i = 0; i < sizeof(flavours)/sizeof(flavours[0]) && !size; i++) {
--		struct buffer_head *next_bh;
--		next_bh = bread(dev, flavours[i].block, BLOCK_SIZE);
--		if (!next_bh)
--			continue;
- 		brelse(bh);
--		bh = next_bh;
--
-+		bh = bread(dev, flavours[i].block, BLOCK_SIZE);
-+		if (!bh)
-+			continue;
- 		size = flavours[i].test(sb, bh);
+-#ident "$Id: vxfs_fshead.c,v 1.18 2001/04/25 18:11:23 hch Exp $"
++#ident "$Id: vxfs_fshead.c,v 1.19 2001/08/07 16:14:10 hch Exp hch $"
+ 
+ /*
+  * Veritas filesystem driver - fileset header routines.
+@@ -124,7 +124,7 @@
+ 	vxfs_dumpi(vip, infp->vsi_fshino);
+ #endif
+ 
+-	if (!(infp->vsi_fship = vxfs_fake_inode(sbp, vip))) {
++	if (!(infp->vsi_fship = vxfs_get_fake_inode(sbp, vip))) {
+ 		printk(KERN_ERR "vxfs: unabled to get fsh inode\n");
+ 		return -EINVAL;
+ 	}
+@@ -148,7 +148,7 @@
+ #endif
+ 
+ 	tip = vxfs_blkiget(sbp, infp->vsi_iext, sfp->fsh_ilistino[0]);
+-	if (!tip || ((infp->vsi_stilist = vxfs_fake_inode(sbp, tip)) == NULL)) {
++	if (!tip || ((infp->vsi_stilist = vxfs_get_fake_inode(sbp, tip)) == NULL)) {
+ 		printk(KERN_ERR "vxfs: unabled to get structual list inode\n");
+ 		return -EINVAL;
+ 	} else if (!VXFS_ISILT(VXFS_INO(infp->vsi_stilist))) {
+@@ -158,7 +158,7 @@
  	}
  
-@@ -411,8 +428,10 @@
- static struct super_block *v7_read_super(struct super_block *sb,void *data,
- 				  int silent)
+ 	tip = vxfs_stiget(sbp, pfp->fsh_ilistino[0]);
+-	if (!tip || ((infp->vsi_ilist = vxfs_fake_inode(sbp, tip)) == NULL)) {
++	if (!tip || ((infp->vsi_ilist = vxfs_get_fake_inode(sbp, tip)) == NULL)) {
+ 		printk(KERN_ERR "vxfs: unabled to get inode list inode\n");
+ 		return -EINVAL;
+ 	} else if (!VXFS_ISILT(VXFS_INO(infp->vsi_ilist))) {
+diff -uNr -Xdontdiff ../master/linux-2.4.10-pre3/fs/freevxfs/vxfs_inode.c linux/fs/freevxfs/vxfs_inode.c
+--- ../master/linux-2.4.10-pre3/fs/freevxfs/vxfs_inode.c	Thu Jun 28 23:44:10 2001
++++ linux/fs/freevxfs/vxfs_inode.c	Sun Sep  2 17:04:50 2001
+@@ -27,7 +27,7 @@
+  * SUCH DAMAGE.
+  */
+ 
+-#ident "$Id: vxfs_inode.c,v 1.36 2001/05/26 22:28:02 hch Exp hch $"
++#ident "$Id: vxfs_inode.c,v 1.37 2001/08/07 16:13:30 hch Exp hch $"
+ 
+ /*
+  * Veritas filesystem driver - inode routines.
+@@ -47,6 +47,7 @@
+ extern struct inode_operations vxfs_immed_symlink_iops;
+ 
+ static struct file_operations vxfs_file_operations = {
++	.llseek =		generic_file_llseek,
+ 	.read =			generic_file_read,
+ 	.mmap =			generic_file_mmap,
+ };
+@@ -93,7 +94,7 @@
+  * NOTE:
+  *  While __vxfs_iget uses the pagecache vxfs_blkiget uses the
+  *  buffercache.  This function should not be used outside the
+- *  read_super() method, othwerwise the data may be incoherent.
++ *  read_super() method, otherwise the data may be incoherent.
+  */
+ struct vxfs_inode_info *
+ vxfs_blkiget(struct super_block *sbp, u_long extent, ino_t ino)
+@@ -251,7 +252,7 @@
+ }
+ 
+ /**
+- * vxfs_fake_inode - get fake inode structure
++ * vxfs_get_fake_inode - get fake inode structure
+  * @sbp:		filesystem superblock
+  * @vip:		fspriv inode
+  *
+@@ -261,7 +262,7 @@
+  *  Returns the filled VFS inode.
+  */
+ struct inode *
+-vxfs_fake_inode(struct super_block *sbp, struct vxfs_inode_info *vip)
++vxfs_get_fake_inode(struct super_block *sbp, struct vxfs_inode_info *vip)
  {
--	struct buffer_head *bh;
-+	struct buffer_head *bh, *bh2 = NULL;
- 	kdev_t dev = sb->s_dev;
-+	struct v7_super_block *v7sb;
-+	struct sysv_inode *v7i;
+ 	struct inode			*ip = NULL;
  
- 	if (440 != sizeof (struct v7_super_block))
- 		panic("V7 FS: bad super-block size");
-@@ -422,23 +441,41 @@
- 	sb->sv_type = FSTYPE_V7;
- 	sb->sv_bytesex = BYTESEX_PDP;
+@@ -273,6 +274,19 @@
+ }
  
--	set_blocksize(dev,512);
-+	set_blocksize(dev, 512);
+ /**
++ * vxfs_put_fake_inode - free faked inode
++ * *ip:			VFS inode
++ *
++ * Description:
++ *  vxfs_put_fake_inode frees all data asssociated with @ip.
++ */
++void
++vxfs_put_fake_inode(struct inode *ip)
++{
++	iput(ip);
++}
++
++/**
+  * vxfs_read_inode - fill in inode information
+  * @ip:		inode pointer to fill
+  *
+diff -uNr -Xdontdiff ../master/linux-2.4.10-pre3/fs/freevxfs/vxfs_olt.c linux/fs/freevxfs/vxfs_olt.c
+--- ../master/linux-2.4.10-pre3/fs/freevxfs/vxfs_olt.c	Mon May 21 21:31:06 2001
++++ linux/fs/freevxfs/vxfs_olt.c	Sun Sep  2 17:04:50 2001
+@@ -27,7 +27,7 @@
+  * SUCH DAMAGE.
+  */
  
- 	if ((bh = bread(dev, 1, 512)) == NULL) {
- 		if (!silent)
--			printk("VFS: unable to read V7 FS superblock on device "
--			       "%s.\n", bdevname(dev));
-+			printk("VFS: unable to read V7 FS superblock on "
-+			       "device %s.\n", bdevname(dev));
- 		goto failed;
+-#ident "$Id: vxfs_olt.c,v 1.8 2001/04/25 18:11:23 hch Exp hch $"
++#ident "$Id: vxfs_olt.c,v 1.9 2001/08/07 16:14:45 hch Exp hch $"
+ 
+ /* 
+  * Veritas filesystem driver - object location table support.
+@@ -56,11 +56,11 @@
+ }
+ 
+ static __inline__ u_long
+-vxfs_oblock(daddr_t oblock, u_long bsize)
++vxfs_oblock(struct super_block *sbp, daddr_t block, u_long bsize)
+ {
+-	if ((oblock * BLOCK_SIZE) % bsize)
++	if (sbp->s_blocksize % bsize)
+ 		BUG();
+-	return ((oblock * BLOCK_SIZE) / bsize);
++	return (block * (sbp->s_blocksize / bsize));
+ }
+ 
+ 
+@@ -85,7 +85,8 @@
+ 	char			*oaddr, *eaddr;
+ 
+ 
+-	bp = bread(sbp->s_dev, vxfs_oblock(infp->vsi_oltext, bsize), bsize);
++	bp = bread(sbp->s_dev,
++			vxfs_oblock(sbp, infp->vsi_oltext, bsize), bsize);
+ 	if (!bp || !bp->b_data)
+ 		goto fail;
+ 
+diff -uNr -Xdontdiff ../master/linux-2.4.10-pre3/fs/freevxfs/vxfs_super.c linux/fs/freevxfs/vxfs_super.c
+--- ../master/linux-2.4.10-pre3/fs/freevxfs/vxfs_super.c	Thu Jun 28 02:10:55 2001
++++ linux/fs/freevxfs/vxfs_super.c	Sun Sep  2 17:04:50 2001
+@@ -27,7 +27,7 @@
+  * SUCH DAMAGE.
+  */
+ 
+-#ident "$Id: vxfs_super.c,v 1.25 2001/05/25 18:25:55 hch Exp hch $"
++#ident "$Id: vxfs_super.c,v 1.26 2001/08/07 16:13:30 hch Exp hch $"
+ 
+ /*
+  * Veritas filesystem driver - superblock related routines.
+@@ -54,7 +54,6 @@
+ static void		vxfs_put_super(struct super_block *);
+ static int		vxfs_statfs(struct super_block *, struct statfs *);
+ 
+-
+ static struct super_operations vxfs_super_ops = {
+ 	.read_inode =		vxfs_read_inode,
+ 	.put_inode =		vxfs_put_inode,
+@@ -83,14 +82,15 @@
+  *   vxfs_put_super frees all resources allocated for @sbp
+  *   after the last instance of the filesystem is unmounted.
+  */
++
+ static void
+ vxfs_put_super(struct super_block *sbp)
+ {
+ 	struct vxfs_sb_info	*infp = VXFS_SBI(sbp);
+ 
+-	vxfs_put_inode(infp->vsi_fship);
+-	vxfs_put_inode(infp->vsi_ilist);
+-	vxfs_put_inode(infp->vsi_stilist);
++	vxfs_put_fake_inode(infp->vsi_fship);
++	vxfs_put_fake_inode(infp->vsi_ilist);
++	vxfs_put_fake_inode(infp->vsi_stilist);
+ 
+ 	brelse(infp->vsi_bp);
+ 	kfree(infp);
+@@ -135,7 +135,7 @@
+  * vxfs_read_super - read superblock into memory and initalize filesystem
+  * @sbp:		VFS superblock (to fill)
+  * @dp:			fs private mount data
+- * @silent:		???
++ * @silent:		do not complain loudly when sth is wrong
+  *
+  * Description:
+  *   We are called on the first mount of a filesystem to read the
+@@ -167,18 +167,23 @@
+ 
+ 	bp = bread(dev, 1, bsize);
+ 	if (!bp) {
+-		printk(KERN_WARNING "vxfs: unable to read disk superblock\n");
++		if (!silent) {
++			printk(KERN_WARNING
++				"vxfs: unable to read disk superblock\n");
++		}
+ 		goto out;
  	}
  
-+	/* plausibility check on superblock */
-+	v7sb = (struct v7_super_block *) bh->b_data;
-+	if (fs16_to_cpu(sb,v7sb->s_nfree) > V7_NICFREE ||
-+	    fs16_to_cpu(sb,v7sb->s_ninode) > V7_NICINOD ||
-+	    fs32_to_cpu(sb,v7sb->s_time) == 0)
-+		goto failed;
+ 	rsbp = (struct vxfs_sb *)bp->b_data;
+ 	if (rsbp->vs_magic != VXFS_SUPER_MAGIC) {
+-		printk(KERN_NOTICE "vxfs: WRONG superblock magic\n");
++		if (!silent)
++			printk(KERN_NOTICE "vxfs: WRONG superblock magic\n");
+ 		goto out;
+ 	}
+ 
+-	if (rsbp->vs_version < 2 || rsbp->vs_version > 4) {
+-		printk(KERN_NOTICE "vxfs: unsupported VxFS version (%d)\n", rsbp->vs_version);
++	if ((rsbp->vs_version < 2 || rsbp->vs_version > 4) && !silent) {
++		printk(KERN_NOTICE "vxfs: unsupported VxFS version (%d)\n",
++		       rsbp->vs_version);
+ 		goto out;
+ 	}
+ 
+@@ -188,6 +193,7 @@
+ #endif
+ 
+ 	sbp->s_magic = rsbp->vs_magic;
++	sbp->s_blocksize = rsbp->vs_bsize;
+ 	sbp->u.generic_sbp = (void *)infp;
+ 
+ 	infp->vsi_raw = rsbp;
+@@ -195,7 +201,6 @@
+ 	infp->vsi_oltext = rsbp->vs_oltext[0];
+ 	infp->vsi_oltsize = rsbp->vs_oltsize;
+ 	
+-	sbp->s_blocksize = rsbp->vs_bsize;
+ 
+ 	switch (rsbp->vs_bsize) {
+ 	case 1024:
+@@ -208,8 +213,11 @@
+ 		sbp->s_blocksize_bits = 12;
+ 		break;
+ 	default:
+-		printk(KERN_WARNING "vxfs: unsupported blocksise: %d\n",
++		if (!silent) {
++			printk(KERN_WARNING
++				"vxfs: unsupported blocksise: %d\n",
+ 				rsbp->vs_bsize);
++		}
+ 		goto out;
+ 	}
+ 
+@@ -220,20 +228,28 @@
+ 
+ 	if (vxfs_read_fshead(sbp)) {
+ 		printk(KERN_WARNING "vxfs: unable to read fshead\n");
+-		return NULL;
++		goto out;
+ 	}
+ 
+ 	sbp->s_op = &vxfs_super_ops;
+-	if ((sbp->s_root = d_alloc_root(iget(sbp, VXFS_ROOT_INO))))
+-		return (sbp);
++	sbp->s_root = d_alloc_root(iget(sbp, VXFS_ROOT_INO));
++	if (!sbp->s_root) {
++		printk(KERN_WARNING "vxfs: unable to get root dentry.\n");
++		goto out_free_ilist;
++	}
 +
-+	/* plausibility check on root inode: it is a directory,
-+	   with a nonzero size that is a multiple of 16 */
-+	if ((bh2 = bread(dev, 2, 512)) == NULL)
-+		goto failed;
-+	v7i = (struct sysv_inode *)(bh2->b_data + 64);
-+	if ((fs16_to_cpu(sb,v7i->i_mode) & ~0777) != S_IFDIR ||
-+	    (fs32_to_cpu(sb,v7i->i_size) == 0) ||
-+	    (fs32_to_cpu(sb,v7i->i_size) & 017) != 0)
-+		goto failed;
-+	brelse(bh2);
- 
- 	sb->sv_bh1 = bh;
- 	sb->sv_bh2 = bh;
- 	if (complete_read_super(sb, silent, 1))
- 		return sb;
- 
--	brelse(bh);
- failed:
-+	brelse(bh2);
-+	brelse(bh);
++	return (sbp);
+ 	
+-	printk(KERN_WARNING "vxfs: unable to get root dentry.\n");
++out_free_ilist:
++	vxfs_put_fake_inode(infp->vsi_fship);
++	vxfs_put_fake_inode(infp->vsi_ilist);
++	vxfs_put_fake_inode(infp->vsi_stilist);
+ out:
++	brelse(bp);
+ 	kfree(infp);
  	return NULL;
  }
  
-diff -uNr -Xdontdiff ../master/linux-2.4.10-pre3/fs/sysv/symlink.c linux/fs/sysv/symlink.c
---- ../master/linux-2.4.10-pre3/fs/sysv/symlink.c	Thu Jan  1 01:00:00 1970
-+++ linux/fs/sysv/symlink.c	Sun Sep  2 17:04:47 2001
-@@ -0,0 +1,25 @@
-+/*
-+ *  linux/fs/sysv/symlink.c
-+ *
-+ *  Handling of System V filesystem fast symlinks extensions.
-+ *  Aug 2001, Christoph Hellwig (hch@caldera.de)
-+ */
-+
-+#include <linux/fs.h>
-+
-+static int sysv_readlink(struct dentry *dentry, char *buffer, int buflen)
-+{
-+	char *s = (char *)dentry->d_inode->u.sysv_i.i_data;
-+	return vfs_readlink(dentry, buffer, buflen, s);
-+}
-+
-+static int sysv_follow_link(struct dentry *dentry, struct nameidata *nd)
-+{
-+	char *s = (char *)dentry->d_inode->u.sysv_i.i_data;
-+	return vfs_follow_link(nd, s);
-+}
-+
-+struct inode_operations sysv_fast_symlink_inode_operations = {
-+	readlink:	sysv_readlink,
-+	follow_link:	sysv_follow_link,
-+};
-diff -uNr -Xdontdiff ../master/linux-2.4.10-pre3/include/linux/sysv_fs.h linux/include/linux/sysv_fs.h
---- ../master/linux-2.4.10-pre3/include/linux/sysv_fs.h	Tue Aug 14 20:03:14 2001
-+++ linux/include/linux/sysv_fs.h	Sun Sep  2 17:10:45 2001
-@@ -325,6 +325,7 @@
- 	FSTYPE_SYSV2,
- 	FSTYPE_COH,
- 	FSTYPE_V7,
-+	FSTYPE_AFS,
- 	FSTYPE_END,
- };
+-
+ /*
+  * The usual module blurb.
+  */
+@@ -246,7 +262,7 @@
+ 			sizeof(struct vxfs_inode_info), 0, 0, NULL, NULL);
+ 	if (vxfs_inode_cachep)
+ 		return (register_filesystem(&vxfs_fs_type));
+-	return 0;
++	return -ENOMEM;
+ }
  
-@@ -373,6 +374,7 @@
- 
- extern struct inode_operations sysv_file_inode_operations;
- extern struct inode_operations sysv_dir_inode_operations;
-+extern struct inode_operations sysv_fast_symlink_inode_operations;
- extern struct file_operations sysv_file_operations;
- extern struct file_operations sysv_dir_operations;
- extern struct address_space_operations sysv_aops;
+ static void __exit

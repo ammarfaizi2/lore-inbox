@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319546AbSIHAEl>; Sat, 7 Sep 2002 20:04:41 -0400
+	id <S319548AbSIHAOl>; Sat, 7 Sep 2002 20:14:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319547AbSIHAEl>; Sat, 7 Sep 2002 20:04:41 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:42129 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S319546AbSIHAEl>;
-	Sat, 7 Sep 2002 20:04:41 -0400
-Date: Sat, 07 Sep 2002 17:01:51 -0700 (PDT)
-Message-Id: <20020907.170151.84915731.davem@redhat.com>
-To: phillips@arcor.de
-Cc: imran.badr@cavium.com, linux-kernel@vger.kernel.org
-Subject: Re: Calculating kernel logical address ..
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E17nUee-0006Lc-00@starship>
-References: <00d301c25556$4290f5e0$9e10a8c0@IMRANPC>
-	<E17nUee-0006Lc-00@starship>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S319549AbSIHAOl>; Sat, 7 Sep 2002 20:14:41 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:51209
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S319548AbSIHAOk>; Sat, 7 Sep 2002 20:14:40 -0400
+Date: Sat, 7 Sep 2002 17:17:25 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Hell.Surfers@cwctv.net
+cc: drf5n@mug.sys.virginia.edu, jbradford@dial.pipex.com,
+       alan@lxorguk.ukuu.org.uk, degger@fhm.edu, linux-kernel@vger.kernel.org
+Subject: RE:Re: ide drive dying?
+In-Reply-To: <00d2a2451230792DTVMAIL3@smtp.cwctv.net>
+Message-ID: <Pine.LNX.4.10.10209071712060.16589-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Daniel Phillips <phillips@arcor.de>
-   Date: Sat, 7 Sep 2002 03:44:53 +0200
-   
-   It looks good to me.  Note that somebody has added some new voodoo in 2.5
-   so that page table pages can be in highmem, with the result that the above
-   code won't work in 2.5, whether or not highmem is configured.
 
-The example given won't work for kernel text/data addresses on a few
-platforms (sparc64 is one).  And in fact on MIPS the KSEG0 pages lack
-any page tables.
+Hell.Surfers,
 
-There are only three things one can portably obtain a physical address
-of:
+Because when I was booted out of 2.5, effectively, the API for DFT was
+deleted.  So you take away the means to make it work, and they stop moving
+that direction.  Now that -AC series has the API, and 2.5 will see a full
+return of it, I now have to restart the process to motivate them again.
+However since Hitachi may end up buying out IBM's disk manufacturing
+business and their product lines, I now have to go an try an court (old
+dating term for the post 70's crowd) Hitachi.
 
-1) A user address, for a known MM
+Now, what do you want?
 
-2) a kmalloc/get_free_page kernel page
+On Sun, 8 Sep 2002 Hell.Surfers@cwctv.net wrote:
 
-3) A vmalloc page
+> Why don't IBM do a Linux version? Don't they have a linux firmware utility? I thought IBM had a campaign to support linux...
+> 
+> Thanks. Regards, Dean McEwan. OpenModemTalk creator.
+> 
+> On 	Sat, 7 Sep 2002 19:19:21 -0400 (EDT) 	David Forrest <drf5n@mug.sys.virginia.edu> wrote:
+> 
 
-For anything else you're in non-portablt land, including and
-in partiular:
+Andre Hedrick
+LAD Storage Consulting Group
 
-1) kernel stack addresses
-2) addresses within the main kernel image text/data/bss

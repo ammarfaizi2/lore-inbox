@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130737AbRBWXTa>; Fri, 23 Feb 2001 18:19:30 -0500
+	id <S130768AbRBWXWb>; Fri, 23 Feb 2001 18:22:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130768AbRBWXTL>; Fri, 23 Feb 2001 18:19:11 -0500
-Received: from [38.194.216.192] ([38.194.216.192]:53777 "HELO
-	vulcan.jvpbill.com") by vger.kernel.org with SMTP
-	id <S130737AbRBWXTE>; Fri, 23 Feb 2001 18:19:04 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: jorgp <jorgp@bartnet.net>
-Reply-To: jorgp@bartnet.net
-To: linux-kernel@vger.kernel.org
-Subject: Linux-2.4.2 and hamradio as module
-Date: Fri, 23 Feb 2001 17:22:07 -0500
-X-Mailer: KMail [version 1.2]
+	id <S130786AbRBWXWV>; Fri, 23 Feb 2001 18:22:21 -0500
+Received: from eschelon.gamesquad.net ([216.115.239.45]:27655 "HELO
+	eschelon.gamesquad.net") by vger.kernel.org with SMTP
+	id <S130768AbRBWXWQ>; Fri, 23 Feb 2001 18:22:16 -0500
+From: "Vibol Hou" <vhou@khmer.cc>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Subject: UDP attack? How to suppress kernel msgs?
+Date: Fri, 23 Feb 2001 15:21:51 -0800
+Message-ID: <NDBBKKONDOBLNCIOPCGHIEMAEOAA.vhou@khmer.cc>
 MIME-Version: 1.0
-Message-Id: <01022317220700.04453@vulcan.jvpbill.com>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this was built from stock 2.4.2 kernel.
+Hi,
 
+One of my servers running 2.4.1 was attacked earlier today.  I have a strong
+feeling it went down because the kernel was logging too many messages to
+syslog.  There's over 100,000 lines of the following in my syslog:
 
-gcc -D__KERNEL__ -I/usr/src/RPM/BUILD/linux/include -Wall -Wstrict-prototypes 
--O2 -fomit-frame-pointer -fno-strict-aliasing -pipe 
--mpreferred-stack-boundary=2 -march=i586 -DMODULE -DMODVERSIONS -include 
-/usr/src/RPM/BUILD/linux/include/linux/modversions.h   -c -o mkiss.o mkiss.c
-gcc -D__KERNEL__ -I/usr/src/RPM/BUILD/linux/include -Wall -Wstrict-prototypes 
--O2 -fomit-frame-pointer -fno-strict-aliasing -pipe 
--mpreferred-stack-boundary=2 -march=i586 -DMODULE -DMODVERSIONS -include 
-/usr/src/RPM/BUILD/linux/include/linux/modversions.h   -c -o 6pack.o 6pack.c
-6pack.c: In function `sixpack_init_driver':
-6pack.c:714: `KMALLOC_MAXSIZE' undeclared (first use in this function)
-6pack.c:714: (Each undeclared identifier is reported only once
-6pack.c:714: for each function it appears in.)
-make[2]: *** [6pack.o] Error 1
-make[2]: Leaving directory `/usr/src/RPM/BUILD/linux/drivers/net/hamradio'
-make[1]: *** [_modsubdir_net/hamradio] Error 2
-make[1]: Leaving directory `/usr/src/RPM/BUILD/linux/drivers'
-make: *** [_mod_drivers] Error 2
+Feb 23 12:28:25 omega kernel: UDP: bad checksum. From 202.96.140.146:20567
+to 21
+6.115.239.40:113 ulen 1472
+Feb 23 12:28:25 omega kernel: UDP: bad checksum. From 209.249.213.145:36338
+to 2
+16.115.239.40:113 ulen 1472
+Feb 23 12:28:25 omega kernel: UDP: bad checksum. From 194.225.45.233:33762
+to 21
+6.115.239.40:113 ulen 1472
+Feb 23 12:28:25 omega kernel: UDP: bad checksum. From 211.54.39.161:14958 to
+216
+.115.239.40:113 ulen 1472
+Feb 23 12:28:25 omega kernel: UDP: bad checksum. From 202.96.140.167:3467 to
+216
+.115.239.40:113 ulen 1472
 
-Thanks
-Jorg
+How do I suppress these types of messages from hogging up all the CPU?
+
+Thanks,
+Vibol Hou
+

@@ -1,70 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129370AbRADWNf>; Thu, 4 Jan 2001 17:13:35 -0500
+	id <S129324AbRADWOZ>; Thu, 4 Jan 2001 17:14:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131399AbRADWN3>; Thu, 4 Jan 2001 17:13:29 -0500
-Received: from va-ext.webmethods.com ([208.234.160.252]:18752 "EHLO
-	localhost.neuron.com") by vger.kernel.org with ESMTP
-	id <S129370AbRADWNT>; Thu, 4 Jan 2001 17:13:19 -0500
-Date: Thu, 4 Jan 2001 17:15:05 -0500 (EST)
-From: <stewart@neuron.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Viro <aviro@redhat.com>, "Marco d'Itri" <md@Linux.IT>,
-        Jeff Lightfoot <jeffml@pobox.com>, Dan Aloni <karrde@callisto.yi.org>,
-        Anton Blanchard <anton@linuxcare.com.au>
-Subject: Re: test13-pre6
-In-Reply-To: <20010104202330.J1290@redhat.com>
-Message-ID: <Pine.LNX.4.10.10101041711540.2041-100000@localhost>
+	id <S130882AbRADWOH>; Thu, 4 Jan 2001 17:14:07 -0500
+Received: from sls.lcs.mit.edu ([18.27.0.167]:64231 "EHLO sls.lcs.mit.edu")
+	by vger.kernel.org with ESMTP id <S129183AbRADWNq>;
+	Thu, 4 Jan 2001 17:13:46 -0500
+Message-ID: <3A54F593.C3C548E3@sls.lcs.mit.edu>
+Date: Thu, 04 Jan 2001 17:13:39 -0500
+From: I Lee Hetherington <ilh@sls.lcs.mit.edu>
+Organization: MIT Laboratory for Computer Science
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.18-pre25.1.smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Manfred <manfred@colorfullife.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Dell Precision 330 (Pentium 4, i850 chipset, 3c905c)
+In-Reply-To: <3A54F49D.1584571A@colorfullife.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Manfred wrote:
 
-Stephen,
+> Everything except the NIC works?
 
-Have you or can you run these tests directly against a buffered block
-device (bypassing the filesystem) and see if it still behaves correctly?
-I have a Java app that does this and 2.4.0-prerelease shows a cumulative
-sync() time. As I write more data, sync times take longer and longer
-and never comes back down. It takes writing 30-50 megs cumulative (many
-syncs along the way) to become noticable. Noticable are latencies in   
-the 20-30 ms range (up from 0-1 at the start of the test). Eventually  
-the test comes to a grinding halt with all of it's time spent in the 
-kernel.
+Yes.
 
-I don't know when this happened in 2.4.0-testxx, but 2.2.x does not
-show this behavior.
+> What do you mean with "without an interrupt assignment"?
+> Is there no line for ethx in /proc/interrupt, or the number of
+> interrupts remains 0?
 
-stewart
+There is no entry for eth0 anywhere in /proc/interrupts.  That seems
+strange.
 
+> what does `lspic -vxx` say about the interrupt number?
 
-On Thu, 4 Jan 2001, Stephen C. Tweedie wrote:
+lspci -v says IRQ 11, which is what the BIOS says.  This is also what
+I see in dmesg when eth0 is found.
 
-> Hi,
-> 
-> On Fri, Dec 29, 2000 at 04:25:43PM -0800, Linus Torvalds wrote:
-> > 
-> > Stephen: mind trying your fsync/etc tests on this one, to verify that the
-> > inode dirty stuff is all done right?
-> 
-> Back from the Scottish Hogmanay celebrations now. :)  I've run my
-> normal tests on this (based mainly on timing tests which show up
-> exactly how much is being written to disk for 1000 iterations of
-> various fsync/fdatasync/O_SYNC and overwrite/append combinations) and
-> 2.4.0-prerelease seems to be doing the Right Thing.
-> 
-> My standard tests for this don't cover msync --- do you want me to
-> give that a try too?
-> 
-> --Stephen
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+> Is there a BIOS setting similar to "Pnp aware OS"? For the 2.2 kernel
+> that must be "No", 2.2 might run with "Yes", but I'm not sure if the
+> 850i board is supported.
+
+I'll look into this.
+
+Thanks.
+
+--Lee Hetherington
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

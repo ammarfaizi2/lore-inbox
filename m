@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136078AbREIKaw>; Wed, 9 May 2001 06:30:52 -0400
+	id <S136108AbREIKdC>; Wed, 9 May 2001 06:33:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136108AbREIKam>; Wed, 9 May 2001 06:30:42 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:26639 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S136078AbREIKa0>; Wed, 9 May 2001 06:30:26 -0400
-Message-ID: <3AF91C2B.C8230F53@idb.hist.no>
-Date: Wed, 09 May 2001 12:30:03 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre7 i686)
-X-Accept-Language: no, en
+	id <S136113AbREIKcx>; Wed, 9 May 2001 06:32:53 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:55268 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S136108AbREIKcj>; Wed, 9 May 2001 06:32:39 -0400
+From: Stefan Hoffmeister <lkml.2001@econos.de>
+To: Tobias Ringstrom <tori@tellus.mine.nu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <jwright@penguincomputing.com>,
+        <redhat-devel-list@redhat.com>, <linux-kernel@vger.kernel.org>,
+        Jeremy Hogan <jhogan@redhat.com>, Mike Vaillancourt <mikev@redhat.com>,
+        Philip Pokorny <ppokorny@penguincomputing.com>
+Subject: Re: bug in redhat gcc 2.96
+Date: Wed, 09 May 2001 12:31:00 +0200
+Organization: Econos
+Message-ID: <017iftsqpdb9j59cs5vn95mhp8mk59kgjm@4ax.com>
+In-Reply-To: <E14xPli-0001qP-00@the-village.bc.nu> <Pine.LNX.4.33.0105091058480.31224-100000@svea.tellus>
+In-Reply-To: <Pine.LNX.4.33.0105091058480.31224-100000@svea.tellus>
+X-Mailer: Forte Agent 1.8/32.548
 MIME-Version: 1.0
-To: volodya@mindspring.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-In-Reply-To: <Pine.LNX.4.20.0105080941010.1137-100000@node2.localnet.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-volodya@mindspring.com wrote:
-> 
-> I have tried this approach too a couple of years ago. I came to the idea
-> that I want some kind of "event reporting" mechanism to know when
-> application faults and when other events (like I/O) occurs. Booting is
-> just the tip of the iceberg. MOST big apps are seeking on startup because
->    a) their code is spread out all over executable
-Page tuning can fix that.  (Have the compiler & linker increase locality
-by stuffing related code in the same page.  You want fast paths
-stuffed into as few pages as possible, regardless of which functions
-the instructions belong to.)  This also cut down on swapping and TLB
-misses.
-Os/2 gained some nice speedups by doing this.
+: On Wed, 9 May 2001 11:09:14 +0200 (CEST), Tobias Ringstrom wrote:
 
->    b) don't forget shared libraries..
-They can be page tuned too, and they're often partially in
-memory aready when starting apps.
+>On Wed, 9 May 2001, Alan Cox wrote:
+>> > Any suggestions for a way to cope with this?  We have a
+>> > customer who's system fails due to this.
+>>
+>> You can build 2.4 quite sanely with egcs-1.1.2 (aka kgcc)
+>
+>Since there is no kgcc in RH71, 
 
->    c) the practice of keeping configuration files in ~/.filename
->       implies - read a little, seek a little.
->    d) GUI apps tend to have a ton of icons.
-Putting several in a single file, or even the executable will
-help here.
-
-Helge Hafting
+There is an compat-egcs RPM (on CD2?) that contains kgcc. Took me a while
+to find that.

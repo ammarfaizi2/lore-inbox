@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261944AbVDCXAC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbVDCXDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261944AbVDCXAC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 19:00:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVDCXAC
+	id S261942AbVDCXDi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 19:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbVDCXDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 19:00:02 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20959 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261950AbVDCW7t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 18:59:49 -0400
-Date: Mon, 4 Apr 2005 00:59:29 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Norbert Preining <preining@logic.at>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: 2.6.12-rc1-mm4 and suspend2ram (and synaptics)
-Message-ID: <20050403225929.GE13466@elf.ucw.cz>
-References: <20050331220822.GA22418@gamma.logic.tuwien.ac.at> <20050401113335.GA13160@elf.ucw.cz> <20050403224557.GB1015@gamma.logic.tuwien.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050403224557.GB1015@gamma.logic.tuwien.ac.at>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 3 Apr 2005 19:03:38 -0400
+Received: from mail.hosted.servetheworld.net ([62.70.14.38]:54714 "HELO
+	mail.hosted.servetheworld.net") by vger.kernel.org with SMTP
+	id S261942AbVDCXDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 19:03:36 -0400
+Message-ID: <42507645.6010808@osvik.no>
+Date: Mon, 04 Apr 2005 01:03:33 +0200
+From: Dag Arne Osvik <da@osvik.no>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+CC: Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org
+Subject: Re: Use of C99 int types
+References: <424FD9BB.7040100@osvik.no> <20050403220508.712e14ec.sfr@canb.auug.org.au> <424FE1D3.9010805@osvik.no> <20050403181318.GW8859@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20050403181318.GW8859@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Al Viro wrote:
 
-> it is only suspend2ram which stopped working after 2.6.11-mm4 (at least
-> in 2.6.12-rc1-mm3,4).
-> 
-> Concerning tests with minimal kernel config: I guess since it *was*
-> working there should not be a change necessary -- but well, from
-> 2.6.11-mm2 to 2.6.11-mm4 I had to stop hotplug/usb to get ot working, so
-> maybe now I have to stop all the other things. Grrrr. This is not what I
-> want!
-> 
-> Isn't there a different way?
+>On Sun, Apr 03, 2005 at 02:30:11PM +0200, Dag Arne Osvik wrote:
+>  
+>
+>>Yes, but wouldn't it be much better to avoid code like the following, 
+>>which may also be wrong (in terms of speed)?
+>>
+>>#ifdef CONFIG_64BIT  // or maybe CONFIG_X86_64?
+>> #define fast_u32 u64
+>>#else
+>> #define fast_u32 u32
+>>#endif
+>>    
+>>
+>
+>... and with such name 99% will assume (at least at the first reading)
+>that it _is_ 32bits.  We have more than enough portability bugs as it
+>is, no need to invite more by bad names.
+>  
+>
 
-I'd like to fix the problem, but first I need to know where the
-problem is.  If it works with minimal config, I know that it is one of
-drivers you deselected.
-								Pavel
+Agreed.  The way I see it there are two reasonable options.  One is to 
+just use u32, which is always correct but sacrifices speed (at least 
+with the current gcc).  The other is to introduce C99 types, which Linus 
+doesn't seem to object to when they are kept away from interfaces 
+(http://infocenter.guardiandigital.com/archive/linux-kernel/2004/Dec/0117.html).
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+  Dag Arne
+

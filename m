@@ -1,83 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289854AbSBEXSN>; Tue, 5 Feb 2002 18:18:13 -0500
+	id <S289858AbSBEXSx>; Tue, 5 Feb 2002 18:18:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289855AbSBEXSD>; Tue, 5 Feb 2002 18:18:03 -0500
-Received: from darkwing.uoregon.edu ([128.223.142.13]:45991 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S289854AbSBEXR7>; Tue, 5 Feb 2002 18:17:59 -0500
-Date: Tue, 5 Feb 2002 15:17:58 -0800 (PST)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Patrick Mochel <mochel@osdl.org>
-cc: Andre Hedrick <andre@linuxdiskcert.org>,
-        Russell King <rmk@arm.linux.org.uk>, Pavel Machek <pavel@suse.cz>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: driverfs support for motherboard devices
-In-Reply-To: <Pine.LNX.4.33.0202051500510.25114-100000@segfault.osdlab.org>
-Message-ID: <Pine.LNX.4.44.0202051514560.15039-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289859AbSBEXSe>; Tue, 5 Feb 2002 18:18:34 -0500
+Received: from zero.tech9.net ([209.61.188.187]:23053 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S289858AbSBEXSY>;
+	Tue, 5 Feb 2002 18:18:24 -0500
+Subject: Re: Continuing /dev/random problems with 2.4
+From: Robert Love <rml@tech9.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Roland Dreier <roland@topspincom.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1020205175725.3562A-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1020205175725.3562A-100000@gatekeeper.tmr.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 05 Feb 2002 18:17:26 -0500
+Message-Id: <1012951046.1064.123.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Feb 2002, Patrick Mochel wrote:
+On Tue, 2002-02-05 at 18:02, Bill Davidsen wrote:
 
-<really big snip>
-
+> You seem to equate root space with user space, which is a kernel way of
+> looking at things, particularly if you haven't been noting all the various
+> hacker attacks lately. Just because it is possible to run in user space
+> doesn't mean it's desirable to do so, and many sites don't really want
+> things running as root so they can feed other things to the kernel.
 > 
-> Case 3: Quad channel DEC Bridge
-> 
-> Ok, maybe I don't understand completely what you're talking about, Andre. 
-> That's just a 4 channel IDE controller, that happens to be on the board? 
-> So, it's looks the same as the last example.
-> 
-> Unless, I'm missing something, which is always likely.
+> The assumption that power users will know how to fix it and other users
+> won't notice they have no entropy isn't all that appealing to me, I want
+> Linux to be as easy to do right as the competition.
 
-actually it's two two channel controllers on one board...
+It is certainly desirable to run as much as feasibly possible in
+userspace.  The only exception of things that could be handled in
+userspace but are allowed to live in kernel space would be performance
+critical and stable items (say, TCP/IP).
 
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with 
-idebus=xx
-PIIX3: IDE controller on PCI bus 00 dev 39
-PIIX3: chipset revision 0
-PIIX3: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:pio, hdd:pio
-PDC20268: IDE controller on PCI bus 01 dev 10
-PDC20268: chipset revision 2
-PDC20268: not 100% native mode: will probe irqs later
-PDC20268: ROM enabled at 0x000dc000
-PDC20268: pci-config space interrupt mirror fixed.
-PDC20268: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER Mode.
-    ide2: BM-DMA at 0xcc00-0xcc07, BIOS settings: hde:pio, hdf:pio
-    ide3: BM-DMA at 0xcc08-0xcc0f, BIOS settings: hdg:pio, hdh:pio
-PDC20268: IDE controller on PCI bus 01 dev 08
-PDC20268: chipset revision 2
-PDC20268: not 100% native mode: will probe irqs later
-PDC20268: ROM enabled at 0xeded0000
-PDC20268: pci-config space interrupt mirror fixed.
-PDC20268: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER Mode.
-    ide4: BM-DMA at 0xb800-0xb807, BIOS settings: hdi:pio, hdj:pio
-    ide5: BM-DMA at 0xb808-0xb80f, BIOS settings: hdk:pio, hdl:pio
+No one said the rngd has to run as root.  For example, run it as nobody
+in a random group and give /dev/random write privileges to the random
+group.
 
- 
-> 	-pat
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+If userspace equates to insecure, and we stick things in the kernel for
+that reason, we are beyond help ...
 
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
---    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
-The accumulation of all powers, legislative, executive, and judiciary, in 
-the same hands, whether of one, a few, or many, and whether hereditary, 
-selfappointed, or elective, may justly be pronounced the very definition of
-tyranny. - James Madison, Federalist Papers 47 -  Feb 1, 1788
-
+	Robert Love
 

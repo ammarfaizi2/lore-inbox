@@ -1,64 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318789AbSIDN7i>; Wed, 4 Sep 2002 09:59:38 -0400
+	id <S318722AbSIDN5u>; Wed, 4 Sep 2002 09:57:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318810AbSIDN7i>; Wed, 4 Sep 2002 09:59:38 -0400
-Received: from b.mail.peak.org ([198.88.144.71]:28679 "EHLO b.mail.peak.org")
-	by vger.kernel.org with ESMTP id <S318789AbSIDN7h>;
-	Wed, 4 Sep 2002 09:59:37 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Kenneth Corbin <kencx@peak.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Linux consistently crashes running grip. (continued)
-Date: Wed, 4 Sep 2002 06:51:53 -0700
-User-Agent: KMail/1.4.1
-References: <Pine.LNX.4.44.0209040257470.28297-100000@balthasar.nuitari.net>
-In-Reply-To: <Pine.LNX.4.44.0209040257470.28297-100000@balthasar.nuitari.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209040651.53490.kencx@peak.org>
+	id <S318789AbSIDN5u>; Wed, 4 Sep 2002 09:57:50 -0400
+Received: from mta.sara.nl ([145.100.16.144]:62163 "EHLO mta.sara.nl")
+	by vger.kernel.org with ESMTP id <S318722AbSIDN5t>;
+	Wed, 4 Sep 2002 09:57:49 -0400
+Date: Wed, 4 Sep 2002 16:02:04 +0200
+Subject: Re: writing OOPS/panic info to nvram?
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v482)
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+To: morten.helgesen@nextframe.net
+From: Remco Post <r.post@sara.nl>
+In-Reply-To: <20020904145446.B117@sexything>
+Message-Id: <E471FA7E-C00E-11D6-A20D-000393911DE2@sara.nl>
+Content-Transfer-Encoding: 7bit
+X-Pgp-Agent: GPGMail 0.5.3 (v20)
+X-Mailer: Apple Mail (2.482)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 September 2002 12:02 am, Nuitari wrote:
-> On Tue, 3 Sep 2002, Kenneth Corbin wrote:
-> > Long description of same problem.   Still continuing after dumping the
-> > nvidia drivers and upgrading to the latest Redhat kernel.   Anything else
-> > I can do?
-> >
-> > I am not subscribed to this list, please cc me with any response.
-> > Thanks in advance for wading through this.
-> >
-> > 1. Linux consistently crashes running grip.
-> >
-> > 2. Grip 3.0.1-1 is a graphical X frontend for a variety of CD ripper and
-> > MP3 encoder programs.   When it is only ripping CD's everything is OK. 
-> > But when it is ripping and encoding tracks, the system will die shortly
-> > after the ripping operation finishes while the encoding operation is
-> > going on.   The time till death is variable, it has ranged from 5 seconds
-> > to 5 minutes on one occasion, but it always crashes.  It happens with two
-> > different encoders (notlame and oggenc) and two different rippers
-> > (cdparanoia and cdda2wav)  The quickest way to induce a failure is to
-> > make one pass ripping tracks and a second pass asking it to rip and
-> > encode.  It is smart enough to realize the tracks have already been
-> > ripped and doesn't do much beyond checking that they are all accounted
-> > for.   But my system still crashes.
-> >
-> > Gnu C                  2.96
->
-> Did you try testing your ram for any defects (even if it means trying
-> various combinations of ram) ?
-> The only times I had similar problems was when I had faulty ram on my
-> motherboard or (in 1 case) a really defective onboard ide controller.
->
-> Also be careful with Gcc 2.96, there is a lot of problems related to it.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-OK, went looking for hardware diagnostic tools.   memtest86 ran all night 
-without reporting any problems.   But cpuburn-1.4 burnK7 locked up almost 
-immediately.   Interestingly it seems to do OK in single user mode, but if 
-anything else is running things go south very quickly.   Usually it is a 
-silent lockup.  In one case I got an Ooops:0002.   Indications are pointing 
-toward some kind of hardware problem.  Looks like I need to take this to 
-someone who has some real diagnostics, or the resources to swap out parts 
-until things start working.   I'll let you know how this turns out.
+
+On woensdag, september 4, 2002, at 02:54 , Morten Helgesen wrote:
+
+> On Wed, Sep 04, 2002 at 01:49:12PM +0100, Alan Cox wrote:
+>> On Wed, 2002-09-04 at 13:31, Morten Helgesen wrote:
+>>> True - the 'normal' size on a PC is apparently something like 114 
+>>> bytes ...
+>>> I  guess we could use it for something useful ... but maybe not for
+>>> OOPSen/panics.
+>>>
+>>> I didn`t realize we only had 114 bytes to work with.
+>>
+>> We don't. They are all used by the BIOS
+>
+> That makes it even less useful. Oh well.
+>
+
+For PC style hardware it does. For other platforms, it's stil nice to be 
+able to see the oops info on an unattended crash (all crashes? ;) Dump 
+to nvram, dump to file after boot.... Other option is to crash-dump to 
+swap... Question is, do you really want to do that?
+
+- ---
+Met vriendelijke groeten,
+
+Remco Post
+
+SARA - Stichting Academisch Rekencentrum Amsterdam    http://www.sara.nl
+High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
+PGP keys at http://home.sara.nl/~remco/keys.asc
+
+"I really didn't foresee the Internet. But then, neither did the computer
+industry. Not that that tells us very much of course - the computer 
+industry
+didn't even foresee that the century was going to end." -- Douglas Adams
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (Darwin)
+
+iD8DBQE9dhJkBIoCv9yTlOwRAgG3AJ0SFZCTxz01okoJjlD4QHqNEBJjuACgp6sI
+YJloQg8tfaE+677XsT7sq7M=
+=p/b2
+-----END PGP SIGNATURE-----
 

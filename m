@@ -1,77 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261814AbTDBUUZ>; Wed, 2 Apr 2003 15:20:25 -0500
+	id <S261824AbTDBUZc>; Wed, 2 Apr 2003 15:25:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261822AbTDBUUZ>; Wed, 2 Apr 2003 15:20:25 -0500
-Received: from main.gmane.org ([80.91.224.249]:40685 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S261814AbTDBUUX>;
-	Wed, 2 Apr 2003 15:20:23 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Dennis Cook" <cook@sandgate.com>
+	id <S262181AbTDBUZc>; Wed, 2 Apr 2003 15:25:32 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:4535 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S261824AbTDBUZb>;
+	Wed, 2 Apr 2003 15:25:31 -0500
+Date: Wed, 2 Apr 2003 15:36:53 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Dennis Cook <cook@sandgate.com>
+Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
 Subject: Re: Deactivating TCP checksumming
-Date: Wed, 2 Apr 2003 14:22:59 -0500
-Organization: Sandgate Technologies
-Message-ID: <b6fda2$oec$1@main.gmane.org>
-References: <F91mkXMUIhAumscmKC00000f517@hotmail.com> <20030401122824.GY29167@mea-ext.zmailer.org>
-X-Complaints-To: usenet@main.gmane.org
-X-MSMail-Priority: Normal
-X-Newsreader: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Cc: kernelnewbies@nl.linux.org
+Message-ID: <20030402203653.GA2503@gtf.org>
+References: <F91mkXMUIhAumscmKC00000f517@hotmail.com> <20030401122824.GY29167@mea-ext.zmailer.org> <b6fda2$oec$1@main.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b6fda2$oec$1@main.gmane.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Using RH Linux kernel 2.4.18, setting "features" bit NETIF_F_IP_CSUM does
-not appear
-to keep a valid IP checksum from being computed in packets presented to my
-driver
-for transmission. So having HW compute outgoing checksum buys nothing.
-Checked this
-by suppressing HW checksum computation. Packets are still accepted by peer.
+On Wed, Apr 02, 2003 at 02:22:59PM -0500, Dennis Cook wrote:
+> Using RH Linux kernel 2.4.18, setting "features" bit NETIF_F_IP_CSUM does
+> not appear
+> to keep a valid IP checksum from being computed in packets presented to my
+> driver
+> for transmission. So having HW compute outgoing checksum buys nothing.
 
-Dennis Cook
-Sandgate Technologies
+You are not using sendfile(2), which is required to activate h/w csum.
 
-"Matti Aarnio" <matti.aarnio@zmailer.org> wrote in message
-news:20030401122824.GY29167@mea-ext.zmailer.org...
-> On Tue, Apr 01, 2003 at 12:12:04PM +0000, shesha bhushan wrote:
-> > I get that. I can talk with the driver vendor. But to gain the
-usefulness
-> > of caculation of CSUM in HW we need to disable the software CSUM
-> > calculation in TCP layer in the kernel. Am I correct? I am trying to
-find
-> > that and I ma stuck there. How to disble the software TCP CSUM
-calculation?
-> > and later I can talk with driver vendor to enable it in hardware. I
-wanted
-> > help from linux gurus in disabling TCP csum calculation in the kernel.
->
-> The kernel code is already smart enough of detect that the outbound
-> device will handle the checksum calculations all by itself, and not
-> do it in that case.
->
-> Testing of  dev->features   is done in files:
->    net/core/dev.c
->    net/ipv4/tcp.c
-> (depending what protocol is in question.)
-> in the latter case, actually in common tcp path with route-cached
-> route_caps flags.
->
-> I did
->    egrep 'NETIF_F_.._CSUM' net/*/*.c
-> to find those.
-> (and a number of other subset searches finding nothing)
->
-> Grep is your friend.
->
-> This whole "zero-copy" infastructure was implemented during
-> development in 2.3 series.
->
-> > Thanking You
-> > Shesha
->
-> /Matti Aarnio
+	Jeff
 
 
 

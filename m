@@ -1,208 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVCORfg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVCORmd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbVCORfg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 12:35:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVCORes
+	id S261683AbVCORmd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 12:42:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVCORkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 12:34:48 -0500
-Received: from fed1rmmtao07.cox.net ([68.230.241.32]:39661 "EHLO
-	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
-	id S261610AbVCORcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 12:32:16 -0500
-Date: Tue, 15 Mar 2005 10:32:09 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matt Porter <mporter@kernel.crashing.org>
-Subject: [PATCH] ppc32: Delete arch/ppc/syslib/ppc4xx_serial.c
-Message-ID: <20050315173208.GR8345@smtp.west.cox.net>
+	Tue, 15 Mar 2005 12:40:42 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:24850 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261656AbVCORjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 12:39:48 -0500
+Date: Tue, 15 Mar 2005 18:39:46 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Mikael Pettersson <mikpe@user.it.uu.se>
+Cc: linux-kernel@vger.kernel.org, R.E.Wolff@BitWizard.nl
+Subject: Re: [PATCH][2.6.11] generic_serial.h gcc4 fix
+Message-ID: <20050315173946.GR3189@stusta.de>
+References: <16951.6077.612190.675720@alkaid.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <16951.6077.612190.675720@alkaid.it.uu.se>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arch/ppc/syslib/ppc4xx_serial.c is unused cruft, delete.
+On Tue, Mar 15, 2005 at 06:13:33PM +0100, Mikael Pettersson wrote:
+> Fix
+> 
+> drivers/char/generic_serial.c:38: error: static declaration of 'gs_debug' follows non-static declaration
+> include/linux/generic_serial.h:94: error: previous declaration of 'gs_debug' was here
+> 
+> compilation error from gcc4 in generic_serial.h.
+> 
+> /Mikael
+> 
+> --- linux-2.6.11/include/linux/generic_serial.h.~1~	2005-03-02 19:24:19.000000000 +0100
+> +++ linux-2.6.11/include/linux/generic_serial.h	2005-03-15 17:11:07.000000000 +0100
+> @@ -91,6 +91,4 @@ int  gs_setserial(struct gs_port *port, 
+>  int  gs_getserial(struct gs_port *port, struct serial_struct __user *sp);
+>  void gs_got_break(struct gs_port *port);
+>  
+> -extern int gs_debug;
+> -
+>  #endif
 
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+This patch is already in -mm for ages.
 
-diff -urN linux-2.6.11/arch/ppc/syslib/ppc4xx_serial.c linuxppc-2.6.11/arch/ppc/syslib/ppc4xx_serial.c
---- linux-2.6.11/arch/ppc/syslib/ppc4xx_serial.c	Wed Mar 02 00:38:34 2005
-+++ linuxppc-2.6.11/arch/ppc/syslib/ppc4xx_serial.c	Wed Dec 31 17:00:00 1969
-@@ -1,171 +0,0 @@
--/*
-- * arch/ppc/syslib/ppc405_serial.c
-- *
-- * Author: MontaVista Software, Inc.
-- *         	frank_rowand@mvista.com or source@mvista.com
-- * 	   	debbie_chu@mvista.com
-- *
-- * This is a fairly standard 165xx type device that will eventually
-- * be merged with other similar processor/boards.	-- Dan
-- *
-- * 2000 (c) MontaVista, Software, Inc.  This file is licensed under
-- * the terms of the GNU General Public License version 2.  This program
-- * is licensed "as is" without any warranty of any kind, whether express
-- * or implied.
-- *
-- * Console I/O support for Early kernel bringup.
-- */
--
--#include <linux/config.h>
--
--#if defined(CONFIG_IBM405GP) || defined(CONFIG_IBM405CR)
--
--#ifdef CONFIG_KGDB
--#include <asm/kgdb.h>
--#include <linux/init.h>
--#endif
--
--#ifdef CONFIG_DEBUG_BRINGUP
--
--#include <linux/console.h>
--
--extern void ftr_reset_preferred_console(void);
--
--
--static int ppc405_sercons_setup(struct console *co, char *options)
--{
--#ifdef CONFIG_UART0_DEBUG_CONSOLE
--    volatile unsigned char *uart_dll  = (char *)0xef600300;
--    volatile unsigned char *uart_fcr  = (char *)0xef600302;
--    volatile unsigned char *uart_lcr  = (char *)0xef600303;
--#endif
--
--#ifdef CONFIG_UART1_DEBUG_CONSOLE
--    volatile unsigned char *uart_dll  = (char *)0xef600400;
--    volatile unsigned char *uart_fcr  = (char *)0xef600402;
--    volatile unsigned char *uart_lcr  = (char *)0xef600403;
--#endif
--
--    *uart_lcr = *uart_lcr | 0x80;   /* DLAB on  */
--
--/* ftr revisit - there is no config option for this
--**  also see include/asm-ppc/ppc405_serial.h
--**
--** #define CONFIG_IBM405GP_INTERNAL_CLOCK
--*/
--
--
--#ifdef  CONFIG_IBM405GP_INTERNAL_CLOCK
--    /* ftr revisit
--    ** why is bit 19 of chcr0 (0x1000) being set?
--    */
--    /* 0x2a results in data corruption, kgdb works with 0x28 */
--    *uart_dll = 0x28;		    /* 9600 baud */
--    _put_CHCR0((_get_CHCR0() & 0xffffe000) | 0x103e);
--#else
--    *uart_dll = 0x48;		    /* 9600 baud */
--#endif
--    *uart_lcr = *uart_lcr & 0x7f;   /* DLAB off */
--
--    return 0;
--}
--
--
--/*
-- * This is a bringup hack, writing directly to uart0 or uart1
-- */
--
--static void
--ppc405_sercons_write(struct console *co, const char *ptr,
--            unsigned nb)
--{
--    int i;
--
--#ifdef CONFIG_UART0_DEBUG_CONSOLE
--    volatile unsigned char *uart_xmit = (char *)0xef600300;
--    volatile unsigned char *uart_lsr  = (char *)0xef600305;
--#endif
--
--#ifdef CONFIG_UART1_DEBUG_CONSOLE
--    volatile unsigned char *uart_xmit = (char *)0xef600400;
--    volatile unsigned char *uart_lsr  = (char *)0xef600405;
--#endif
--
--    for (i = 0; i < nb; ++i) {
--
--	/* wait for transmit reg (possibly fifo) to empty */
--	while ((*uart_lsr & 0x40) == 0)
--	    ;
--
--	*uart_xmit = (ptr[i] & 0xff);
--
--	if (ptr[i] == '\n') {
--
--	    /* add a carriage return */
--
--	    /* wait for transmit reg (possibly fifo) to empty */
--	    while ((*uart_lsr & 0x40) == 0)
--		;
--
--	    *uart_xmit = '\r';
--	}
--    }
--
--    return;
--}
--
--
--static int
--ppc405_sercons_read(struct console *co, char *ptr, unsigned nb)
--{
--#ifdef CONFIG_UART0_DEBUG_CONSOLE
--    volatile unsigned char *uart_rcv  = (char *)0xef600300;
--    volatile unsigned char *uart_lsr  = (char *)0xef600305;
--#endif
--
--#ifdef CONFIG_UART1_DEBUG_CONSOLE
--    volatile unsigned char *uart_rcv  = (char *)0xef600400;
--    volatile unsigned char *uart_lsr  = (char *)0xef600405;
--#endif
--
--
--    /* ftr revisit: not tested */
--
--    if (nb == 0)
--	return(0);
--
--    if (!ptr)
--	return(-1);
--
--    /* wait for receive reg (possibly fifo) to contain data */
--    while ((*uart_lsr & 0x01) == 0)
--	;
--
--    *ptr = *uart_rcv;
--
--    return(1);
--}
--
--static struct console ppc405_sercons = {
--	.name =		"dbg_cons",
--	.write =	ppc405_console_write,
--	.setup =	ppc405_console_setup,
--	.flags =	CON_PRINTBUFFER,
--	.index =	-1,
--};
--
--void
--register_debug_console(void)
--{
--	register_console(&ppc405_sercons);
--}
--
--void
--unregister_debug_console(void)
--{
--	unregister_console(&ppc405_sercons);
--}
--
--#endif	/* CONFIG_DEBUG_BRINGUP */
--
--#endif	/* #if defined(CONFIG_IBM405GP) || defined(CONFIG_IBM405CR) */
+When doing such patches, -mm is usually a better basis than Linus' tree.
+
+cu
+Adrian
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

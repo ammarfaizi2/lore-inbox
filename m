@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263134AbUFCKhN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263185AbUFCKja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263134AbUFCKhN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 06:37:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbUFCKhN
+	id S263185AbUFCKja (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 06:39:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263169AbUFCKja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 06:37:13 -0400
-Received: from ozlabs.org ([203.10.76.45]:12693 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S263134AbUFCKhM (ORCPT
+	Thu, 3 Jun 2004 06:39:30 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:13207 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S263162AbUFCKjN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 06:37:12 -0400
-MIME-Version: 1.0
+	Thu, 3 Jun 2004 06:39:13 -0400
+Date: Thu, 3 Jun 2004 12:39:07 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Frediano Ziglio <freddyz77@tin.it>
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.x partition breakage and dual booting
+Message-ID: <20040603103907.GV23408@apps.cwi.nl>
+References: <40BA2213.1090209@pobox.com> <20040530183609.GB5927@pclin040.win.tue.nl> <40BA2E5E.6090603@pobox.com> <20040530200300.GA4681@apps.cwi.nl> <s5g8yf9ljb3.fsf@patl=users.sf.net> <20040531180821.GC5257@louise.pinerecords.com> <1086245495.3988.4.camel@freddy>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16574.65100.200483.993848@cargo.ozlabs.ibm.com>
-Date: Thu, 3 Jun 2004 20:32:44 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org,
-       trini@kernel.crashing.org
-Subject: [PATCH][PPC32] Don't synchronize in disable_irq() if no handler
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Disposition: inline
+In-Reply-To: <1086245495.3988.4.camel@freddy>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is the ppc32 counterpart to a fix that went into
-arch/i386/kernel/irq.c last October.  The bug was noted by Al Viro: if
-no handler exists, and we have IRQ_INPROGRESS set because of an
-earlier irq that got through, synchronize_irq() will end up waiting
-forever.
+On Thu, Jun 03, 2004 at 08:51:35AM +0200, Frediano Ziglio wrote:
 
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+> Actually I'm writing two patch:
+>  - extending EDD code to provide DPTE informations and signature for all
+> drives
+>  - modify IDE code to match BIOS disks.
 
-diff -urN linux-2.5/arch/ppc/kernel/irq.c pmac-2.5/arch/ppc/kernel/irq.c
---- linux-2.5/arch/ppc/kernel/irq.c	2004-02-23 12:05:11.000000000 +1100
-+++ pmac-2.5/arch/ppc/kernel/irq.c	2004-03-11 16:49:24.000000000 +1100
-@@ -304,8 +304,10 @@
- 
- void disable_irq(unsigned int irq)
- {
-+	irq_desc_t *desc = irq_desc + irq;
- 	disable_irq_nosync(irq);
--	synchronize_irq(irq);
-+	if (desc->action)
-+		synchronize_irq(irq);
- }
- 
- /**
+That second part is undesirable.
+The Linux IDE code is not interested in getting a conjecture about
+how other operating systems would name or number the disks.
+
+> How to match BIOS with Linux?
+
+It is impossible. But you can easily do a 95% job.
+
+> I think it's important to know BIOS point of view. Linux provide these
+> information so we have two choices to solve the problem:
+> - correct the informations we return
+> - do not return anything and let user space programs do the job!
+
+Yes, leave it to user space. That is what we do today.
+
+> - EDD 2.0. I don't understand why Linux code int 41h/46h and ignore
+> these informations.
+
+Long ago, long before EDD, disks actually had a geometry, and it was
+necessary to find it in order to do I/O to e.g. MFM disks.
+Today disk geometry is not related to the disk, but to the BIOS.
+The kernel has no need to know it.
+
+Andries

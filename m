@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266023AbUEUWXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265939AbUEUWYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266023AbUEUWXo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 18:23:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266045AbUEUWXo
+	id S265939AbUEUWYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 18:24:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266045AbUEUWYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 18:23:44 -0400
-Received: from hqemgate02.nvidia.com ([216.228.112.145]:14348 "EHLO
-	hqemgate02.nvidia.com") by vger.kernel.org with ESMTP
-	id S266023AbUEUWXm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 18:23:42 -0400
-Content-class: urn:content-classes:message
+	Fri, 21 May 2004 18:24:16 -0400
+Received: from [213.171.41.46] ([213.171.41.46]:50437 "EHLO
+	kaamos.homelinux.net") by vger.kernel.org with ESMTP
+	id S265939AbUEUWYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 18:24:12 -0400
+From: Alexey Kopytov <alexeyk@mysql.com>
+Organization: MySQL AB
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Spam: Re: Random file I/O regressions in 2.6 [patch+results]
+Date: Sat, 22 May 2004 02:24:08 +0400
+User-Agent: KMail/1.6.2
+Cc: Jens Axboe <axboe@suse.de>, nickpiggin@yahoo.com.au, linuxram@us.ibm.com,
+       peter@mysql.com, linux-kernel@vger.kernel.org
+References: <200405022357.59415.alexeyk@mysql.com> <20040521075027.GN1952@suse.de> <20040521015647.4c383868.akpm@osdl.org>
+In-Reply-To: <20040521015647.4c383868.akpm@osdl.org>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Subject: [PATCH][2.4.26 x86_64] fix ACPI PRT entry handling
-Date: Fri, 21 May 2004 15:23:22 -0700
-Message-ID: <D621AA393FEB2544B1370005D36B875A05765F86@mail-sc-12.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH][2.4.26 x86_64] fix ACPI PRT entry handling
-Thread-Index: AcQ/gjuF9mVcvVzTQtqMQRPEzymuVg==
-From: "Andy Currid" <acurrid@nvidia.com>
-To: <linux-kernel@vger.kernel.org>
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405220224.08453.alexeyk@mysql.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 21 May 2004 12:56, Andrew Morton wrote:
+>
+>What I need is a way of getting sysbench to create and remove the database
+>files in separate invokations, but the syntax for that is defeating me at
+>present.
+>
 
-This patch fixes a PCI interrupt routing bug that shows up when running
-on x86_64 with ACPI and IOAPIC functionality enabled. Without this patch
-in place, the code attempts to route all configurable PCI interrupts to
-IRQ 0.
+I have changed the syntax to allow creating/removing test files and test 
+running in separate stages:
 
-Regards
+sysbench --test=fileio --file-total-size=3G prepare
 
-Andy
---
-Andy Currid, NVIDIA Corporation 
-acurrid@nvidia.com   408 566 6743
+sysbench --num-threads=16 --test=fileio --file-total-size=3G  
+--file-test-mode=rndrw run
 
---
-diff -Nupr linux-2.4.26/arch/x86_64/kernel/mpparse.c
-linux-2.4.26-patch/arch/x86_64/kernel/mpparse.c
---- linux-2.4.26/arch/x86_64/kernel/mpparse.c	2004-05-21
-06:39:40.000000000 -0700
-+++ linux-2.4.26-patch/arch/x86_64/kernel/mpparse.c	2004-05-21
-06:39:33.000000000 -0700
-@@ -942,8 +942,6 @@ void __init mp_parse_prt (void)
- 			irq = entry->link.index;
- 		}
- 
--		irq = entry->link.index;
--
-   		/* Don't set up the ACPI SCI because it's already set up
-*/
-                 if (acpi_fadt.sci_int == irq) {
-                          entry->irq = irq; /*we still need to set
-entry's irq*/
+sysbench --test=fileio cleanup
+
+The updated version is available from the SysBench page at 
+http://sourceforge.net/projects/sysbench/
+
+-- 
+Alexey Kopytov, Software Developer
+MySQL AB, www.mysql.com
+
+Are you MySQL certified?  www.mysql.com/certification

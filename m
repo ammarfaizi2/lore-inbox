@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbTLUChf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 21:37:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTLUChf
+	id S262038AbTLUCrj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 21:47:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTLUCrj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 21:37:35 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42626 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262078AbTLUChd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 21:37:33 -0500
-Message-ID: <3FE5075D.9080704@pobox.com>
-Date: Sat, 20 Dec 2003 21:37:17 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: linux-net@vger.kernel.org, dbrownell@users.sourceforge.net, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] let USB_{PEGASUS,USBNET} depend on NET_ETHERNET
-References: <20031221022242.GT12750@fs.tum.de>
-In-Reply-To: <20031221022242.GT12750@fs.tum.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 20 Dec 2003 21:47:39 -0500
+Received: from linux-bt.org ([217.160.111.169]:48039 "EHLO mail.holtmann.net")
+	by vger.kernel.org with ESMTP id S262038AbTLUCri (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 21:47:38 -0500
+Subject: Difference between select and enable in Kconfig
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1071974814.2684.41.camel@pegasus>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 21 Dec 2003 03:46:54 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> I observed the following small problem in 2.6:
-> 
-> - MII depends on NET_ETHERNET
-> - USB_PEGASUS and USB_USBNET select MII, but they depend only on NET
->  
-> The patch below lets USB_PEGASUS and USB_USBNET depend on NET_ETHERNET 
-> instead of NET to fix this issue.
+Hi,
 
+while porting some of my drivers to 2.6 which use the firmware loader
+for example I came to the question whether to use select or enable to
+achieve the desired result. Looking at the documention don't gives me
+the answer and from zconf.l I feel that both options are the same. Can
+anyone please explain me the differences if there are any?
 
-Look OK to me.  I'll let GregKH apply...
+Regards
+
+Marcel
+
 

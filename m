@@ -1,39 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263134AbRE1TlK>; Mon, 28 May 2001 15:41:10 -0400
+	id <S263132AbRE1TuU>; Mon, 28 May 2001 15:50:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263144AbRE1TlA>; Mon, 28 May 2001 15:41:00 -0400
-Received: from [130.113.218.59] ([130.113.218.59]:11080 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S263143AbRE1Tko>; Mon, 28 May 2001 15:40:44 -0400
-Date: Mon, 28 May 2001 15:39:00 -0400 (EDT)
-From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-To: Jens Axboe <axboe@suse.de>
-cc: andre@linux-ide.org, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch]: ide dma timeout retry in pio
-In-Reply-To: <20010528203421.N9102@suse.de>
-Message-ID: <Pine.LNX.4.10.10105281533400.25183-100000@coffee.psychology.mcmaster.ca>
+	id <S263136AbRE1TuK>; Mon, 28 May 2001 15:50:10 -0400
+Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:45500 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S263132AbRE1Tt4>; Mon, 28 May 2001 15:49:56 -0400
+Date: Mon, 28 May 2001 20:49:55 +0100 (BST)
+From: "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: VIA KT133A Northbridge bug reported
+Message-ID: <Pine.SOL.3.96.1010528204546.23787A-100000@virgo.cus.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> request, when we hit a dma timout. In this case, what we really want to
-> do is retry the request in pio mode and revert to normal dma operations
-> later again.
+I saw a report on AMDZone of another VIA chipset bug.  The original source
+is:-
+http://www.chip.de/news_stories/news_stories_163106.html
 
-really?  do we know the nature of the DMA engine problem well enough?
-is there a reason to believe that it'll work better "later"?
-I guess I was surprised at resorting to PIO - couldn't we just
-break the request up into smaller chunks, still using DMA?
+The claim from AMDZone's translation is that:-
+" According to the report KT133A boards with chipset codes of 1EA0 and
+1EA4 can have the bug which causes your computer to restart."
 
-I seem to recall Andre saying that the problem arises when the 
-ide DMA engine looses PCI arbitration during a burst.  shorter 
-bursts would seem like the best workaround if this is the problem...
+Has this one bitten Linuxers yet?
 
-resorting to PIO would be such a shame, not only because it eats
-CPU so badly, but also because it has no checksum like UDMA...
 
-thanks, mark hahn.
 

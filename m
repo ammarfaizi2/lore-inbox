@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264806AbSKNJBB>; Thu, 14 Nov 2002 04:01:01 -0500
+	id <S264815AbSKNJsO>; Thu, 14 Nov 2002 04:48:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264808AbSKNJBB>; Thu, 14 Nov 2002 04:01:01 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:13324 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S264806AbSKNJBA>; Thu, 14 Nov 2002 04:01:00 -0500
-Message-ID: <3DD367F4.F5C289DD@aitel.hist.no>
-Date: Thu, 14 Nov 2002 10:08:04 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.47 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: Jirka Kosina <jikos@jikos.cz>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: FW: i386 Linux kernel DoS
-References: <BF9651D8732ED311A61D00105A9CA3150B45FB3C@berkeley.gci.com> 
-	 <20021112233150.A30484@infradead.org> <1037146219.10083.15.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44-jikos1.0211140036240.26832-100000@twin.jikos.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264818AbSKNJsO>; Thu, 14 Nov 2002 04:48:14 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:40145 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S264815AbSKNJsN>; Thu, 14 Nov 2002 04:48:13 -0500
+X-Envelope-From: news@bytesex.org
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: 2.5.47bk2 + current modutils == broken hotplug
+Date: 14 Nov 2002 10:41:54 GMT
+Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
+Message-ID: <slrnat6vfi.jfl.kraxel@bytesex.org>
+References: <20021114032456.46D742C09E@lists.samba.org>
+NNTP-Posting-Host: localhost
+X-Trace: bytesex.org 1037270514 19958 127.0.0.1 (14 Nov 2002 10:41:54 GMT)
+User-Agent: slrn/0.9.7.4 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jirka Kosina wrote:
-[...]
-> At the beginning I thought only kernels <= 2.4.18 were affected; but it
-> appeared that both kernels 2.4.19 and 2.4.20-rc1 are vulnerable as well.
-> The flaw seems to be related to the kernel's handling of the nested task
-> (NT) flag inside a lcall7.
+>  The question is whether to force an /sbin/hotplug change to use the
+>  module alias mechanism, or generate the modules.*map files at "make
+>  modules_install" time to avoid breakage.  I'm leaning towards #2, but
+>  I haven't written it yet (should be simple).
 
-Ouch.  That one froze up 2.5.47, running from a user account.
-I couldn't recover with sysrq, but I was able to
-emergency remount-ro avoiding the bootup fsck's.
+Doing that at modules_install time doesn't work for external drivers
+(which are _not_ in the kernel tree) ...
 
-Helge Hafting
+  Gerd
+
+-- 
+You can't please everybody.  And usually if you _try_ to please
+everybody, the end result is one big mess.
+				-- Linus Torvalds, 2002-04-20

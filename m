@@ -1,107 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265404AbTLHNve (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 08:51:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265412AbTLHNve
+	id S265398AbTLHNtM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 08:49:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265403AbTLHNtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 08:51:34 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:20957 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S265404AbTLHNv2
+	Mon, 8 Dec 2003 08:49:12 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:18308 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S265398AbTLHNtI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 08:51:28 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
+	Mon, 8 Dec 2003 08:49:08 -0500
+Date: Mon, 8 Dec 2003 08:49:29 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Samium Gromoff <deepfire@ibe.miee.ru>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Rootkit queston
+In-Reply-To: <874qwehxf1.wl@drakkar.ibe.miee.ru>
+Message-ID: <Pine.LNX.4.53.0312080836550.28061@chaos>
+References: <874qwehxf1.wl@drakkar.ibe.miee.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16340.33245.887082.96412@laputa.namesys.com>
-Date: Mon, 8 Dec 2003 16:51:25 +0300
-To: Petr Sebor <petr@scssoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: incorrect inode count on reiserfs
-In-Reply-To: <3FD47BFC.9020008@scssoft.com>
-References: <3FD47BFC.9020008@scssoft.com>
-X-Mailer: VM 7.17 under 21.5 (patch 16) "celeriac" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Sebor writes:
- > I have noticed this behavior when moving the inn2 news server to 
- > 2.6.0-test11 kernel
- > from 2.4.23
- > (inn2 refuses to start because if free inode shortage)
- > 
- > 2.6.0-test11:
- > df -i:
- > 
- > Filesystem            Inodes   IUsed   IFree IUse% Mounted on
- > /dev/sda1                  0       0       0    -  /
- > /dev/sdb1                  0       0       0    -  /mnt/sdb1
- > 
- > while df shows:
- > Filesystem           1K-blocks      Used Available Use% Mounted on
- > /dev/sda1            243208608  11069612 232138996   5% /
- > /dev/sdb1             36150172     32840  36117332   1% /mnt/sdb1
- > 
- > different reiserfs based machine with 2.4.23; this is where the inn2
- > used to work before, but the inode test was not failing because of the
- > 'always-nonzero' inode count:
- > 
- > df -i
- > Filesystem            Inodes   IUsed   IFree IUse% Mounted on
- > /dev/hde1            4294967295       0 4294967295    0% /
- > /dev/hdg1            4294967295       0 4294967295    0% /mnt/d2
- > 
- > df
- > Filesystem           1K-blocks      Used Available Use% Mounted on
- > /dev/hde1             77634256  77092844    541412 100% /
- > /dev/hdg1             38586912  19156508  19430404  50% /mnt/d2
- > 
- > another 2.6.0-test11 machine with ext2 reports inode counts correctly. 
- > my assumption is
- > that the problem is somehow reiserfs related, but my knowledge ends here.
- > all reiser fs's are of version 3.6
+On Sat, 6 Dec 2003, Samium Gromoff wrote:
 
-reiserfs has no fixed predefined number of inodes on the file
-system. Hence, field f_files of struct statfs (see man 2 statfs) is not
-applicable to this file system. Man page explicitly says:
+>
+> On Mon, 1 Dec 2003, Richard B. Johnson wrote:
+> > You can check for a common 'root attack', if you have inetd,
+> > by looking at the last few lines in /etc/inetd.conf.
+> > It may have some access port added that allows anybody
+> > who knows about it to log in as root from the network.
+> > It will look something like this:
+> >
+> > # End of inetd.conf.
+> > 4002 stream tcp nowait root /bin/bash --
+> >
+> > In this case, port 4002 will allow access to a root shell
+> > that has no terminal processing, but an attacker can use this
+> > to get complete control of your system. FYI, this is a 5-year-old
+> > attack, long obsolete if you have a "store-bought" distribution
+> > more recent.
+>
+> How is it an attack?
+> 	(in order to write to inetd.conf you need to be root already)
+>
+> And if it is, what does it accomplish?
+> 	(writing a daemon listening on a $BELOVED_PORT port is trivial)
+>
+> regards, Samium Gromoff
+>
 
-       Fields that are undefined for a particular file system are
-       set  to  0.
+The explaination I read about on the web was that inetd had a
+developer's "back-door". If you knew about it, you could write
+to inetd.conf, which had been opened r/w. Other back doors existed
+in other network daemons also. The first exposed one was in
+sendmail. You could do:
+		telnet dumb.victum.com 25
+		victum.com Sendmail 1.2.0 ready at Mon, Dec 4 1998
+08:00:00 -0500
+		WIZ
+		220 Oh great leader.
+		#
 
-Previous man page stated that file system should put -1 (4294967295)
-into undefined fields. Reiserfs has been changed to conform to the
-changed specification.
+.... and you had a root-shell.
 
-SuS simply says:
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-NAME
 
-    fstatvfs, statvfs - get file system information
-
-SYNOPSIS
-
-    [XSI] #include <sys/statvfs.h>
-
-    int fstatvfs(int fildes, struct statvfs *buf);
-    int statvfs(const char *restrict path, struct statvfs *restrict buf);
-
-DESCRIPTION
-
-    [...]
-
-    It is unspecified whether all members of the statvfs structure have
-    meaningful values on all file systems.
-
- > 
- > any ideas?
-
-inn2 should be fixed. :)
-
-Fix would really be simple: ignore test results if ->f_files is 0 or
-0xffffffff.
-
- > 
- > Petr
- > 
-
-Nikita.

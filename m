@@ -1,79 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262674AbTDUVkt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 17:40:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbTDUVkt
+	id S262673AbTDUVly (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 17:41:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbTDUVlx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 17:40:49 -0400
-Received: from siaag1af.compuserve.com ([149.174.40.8]:46745 "EHLO
-	siaag1af.compuserve.com") by vger.kernel.org with ESMTP
-	id S262671AbTDUVkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 17:40:46 -0400
-Date: Mon, 21 Apr 2003 17:48:39 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH] 2.5.68 Fix IO_APIC IRQ assignment bug
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200304211752_MC3-1-3560-DA1F@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Mon, 21 Apr 2003 17:41:53 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:16842 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S262673AbTDUVlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 17:41:45 -0400
+Date: Mon, 21 Apr 2003 17:41:13 -0400
+From: Ben Collins <bcollins@debian.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BK->CVS, kernel.bkbits.net
+Message-ID: <20030421214113.GA2528@phunnypharm.org>
+References: <20030417162723.GA29380@work.bitmover.com> <20030420013440.GG2528@phunnypharm.org> <20030420014930.GA13699@work.bitmover.com> <b81f0a$57i$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <b81f0a$57i$1@cesium.transmeta.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Oops, meant to send this to l-k:
+On Mon, Apr 21, 2003 at 11:58:18AM -0700, H. Peter Anvin wrote:
+> Followup to:  <20030420014930.GA13699@work.bitmover.com>
+> By author:    Larry McVoy <lm@bitmover.com>
+> In newsgroup: linux.dev.kernel
+> >
+> > > I hate asking this on top of the work you already provide, but would it
+> > > be possible to allow rsync access to the repo itself? 
+> > 
+> > If HPA wants to provide that, that's cool.  I think he might already.
+> > If not, ping me again, no problem, we'll set something up.
+> > 
+> 
+> rsync://rsync.kernel.org/pub/scm/linux/kernel/bkcvs/linux-2.[45]/
 
-Linus Torvalds wrote:
+Thanks, in a big way.
 
->> Looks like the fix for the "ran out of interrupt sources" panic
->>has a problem.  It will eventually assign a device the same IRQ
->>number as the first system vector, i.e. the local APIC timer.
- ...
-> Did you actually see this on hardware?
-
-  In my dreams. :)  But someone must have such hardware or the panic
-wouldn't have been removed...
-
-  Only reason I found it at all is I had changed the exact same lines
-in my patch (and mine had a much bigger bug than that.)
-
->Btw, why would you _want_ your redirect table to look like that?
->
->> NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
->> 00 001 01  0    0    0   0   0    1    1    E7     <== timer at level E
->> 01 001 01  0    0    0   0   0    1    1    30     <== start at 30, not
-31
-
- The patch does two things:
-
-  1.  Reserves all of priority level E for the timers --
-      legacy timer at E7, first system vector DF.
-      This is might be worth doing (but first system
-      vector should be E0.)
-
-  2.  Starts assigning devices at 0x30 instead of 0x31.
-
-(1) is probably worth doing (first system vector should be E0, though.)
-
-> Starting at 31 is better, because..
- ...
-> Then we'd have devices at 81 and 89 (two per block of 16 is ok, but 80
-> isn't ok because we use that for system calls).
->
-> And having two devices in the 8x series means that it takes more irq
-> sources to overflow and start to re-use the 3x block - and we want to
-
- But doesn't IRQ 0x80, even though it is software-initiated, contend
-with 'real' device interrupts at priority 8, which would mean there are
-three possible sources (80, 81 and 89?)  That's what I was assuming...
-
-
-
-------
- Chuck
-
-
-
-------
- Chuck
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

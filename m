@@ -1,64 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130217AbQKJSa2>; Fri, 10 Nov 2000 13:30:28 -0500
+	id <S131371AbQKJSpE>; Fri, 10 Nov 2000 13:45:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130819AbQKJSaS>; Fri, 10 Nov 2000 13:30:18 -0500
-Received: from smtp.alacritech.com ([209.10.208.82]:51977 "EHLO
-	smtp.alacritech.com") by vger.kernel.org with ESMTP
-	id <S130217AbQKJSaO>; Fri, 10 Nov 2000 13:30:14 -0500
-Message-ID: <3A0C402F.8F0BA261@alacritech.com>
-Date: Fri, 10 Nov 2000 10:36:31 -0800
-From: "Matt D. Robinson" <yakker@alacritech.com>
-Organization: Alacritech, Inc.
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Rohland <cr@sap.com>
-CC: "Theodore Y. Ts'o" <tytso@MIT.EDU>, richardj_moore@uk.ibm.com,
-        Paul Jakma <paulj@itg.ie>,
-        Michael Rothwell <rothwell@holly-springs.nc.us>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-In-Reply-To: <200011101624.LAA22004@tsx-prime.MIT.EDU> <qww7l6bpyuv.fsf@sap.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131391AbQKJSoy>; Fri, 10 Nov 2000 13:44:54 -0500
+Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:35499 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S131067AbQKJSom>; Fri, 10 Nov 2000 13:44:42 -0500
+Message-Id: <5.0.0.25.2.20001110183746.00ac0e60@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0
+Date: Fri, 10 Nov 2000 18:44:58 +0000
+To: georgn@somanetworks.com
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: compiling 2.4.0-test10 kernel 
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <14860.15798.651952.347977@somanetworks.com>
+In-Reply-To: <7531.973877015@ocs3.ocs-net>
+ <14860.8449.485106.841805@somanetworks.com>
+ <7531.973877015@ocs3.ocs-net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Rohland wrote:
-> 
-> Hi Theodore,
-> 
-> On Fri, 10 Nov 2000, Theodore Y. Ts'o wrote:
-> > P.S.  There are some such RAS features which I wouldn't be surprised
-> > there being interest in having integrated into the kernel directly
-> > post-2.4, with no need to put in "kernel hooks" for that particular
-> > feature.  A good example of that would be kernel crash dumps.  For
-> > all Linux houses which are doing support of customers remotely,
-> > being able to get a crash dump so that developers can investigate a
-> > problem remotely instead of having to fly a developer out to the
-> > customer site is invaluable.  In fact, it might be considerd more
-> > valuable than the kernel debugger....
-> 
-> *Yes* :-)
+At 18:25 10/11/2000, Georg Nikodym wrote:
+>OK, but I guess my question wasn't very clear.  I have a kernel tree,
+>I add a printk to maestro.c and make modules.  I cannot load the
+>module until I rebuild and reinstall everything.  Is there a way to
+>avoid this headache, or, stated differently:  What's the prescribed
+>way to be able to load, unload, build, test modules?
 
-As soon as I finish writing raw write disk routines (not using kiobufs),
-we can _maybe_ get LKCD accepted one of these days, especially now that we
-don't have to build 'lcrash' against a kernel revision.  I'm in the
-middle of putting together raw IDE functions now -- see LKCD mailing
-list for details if you're curious.
+I do the following when I am working on the NTFS driver:
 
-IMHO, GKHI is a good thing -- it would be great to see this used for
-ASSERT() cases (something you can turn on by 'insmod assert.o', which
-would then trigger assert conditionals throughout the kernel ...) I
-realize it would mean some bloat, and I doubt Linus would accept it,
-but it's a nifty concept for enterprise Linux servers (especially
-those that want quick answers to system crashes).
+1st: make mrproper && make menuconfig && make dep && make bzImage && make 
+modules && make modules_install
+2nd: install new kernel, lilo, reboot into new kernel
+3rd: edit the <mymodule>'s source.
+4th: make modules && make modules_install && depmod -a && rmmod <mymodule> 
+&& modprobe <mymodule>
+5th: do testing I wanted to do.
+6th go to 3rd step and repeat until satisfied with result.
 
---Matt
+[NB. Obviously replacing <mymodule> with the module name of whatever I am 
+looking at.
+NB. I have put this in a few convenience scripts...]
 
-> Greetings
->                 Christoph
+This procedure works fine, or at least it does so for all modules I have 
+tried it with (which isn't many, since I only keep NTFS, md and linear as 
+modules...).
+
+HTH,
+
+         Anton
+
+-- 
+      "Education is what remains after one has forgotten everything he 
+learned in school." - Albert Einstein
+-- 
+Anton Altaparmakov  Voice: +44-(0)1223-333541(lab) / +44-(0)7712-632205(mobile)
+Christ's College    eMail: AntonA@bigfoot.com / aia21@cam.ac.uk
+Cambridge CB2 3BU    ICQ: 8561279
+United Kingdom       WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

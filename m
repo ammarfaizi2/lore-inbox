@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275368AbTHSGXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 02:23:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275372AbTHSGXJ
+	id S275358AbTHSGTG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 02:19:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275361AbTHSGTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 02:23:09 -0400
-Received: from f6.mail.ru ([194.67.57.36]:44040 "EHLO f6.mail.ru")
-	by vger.kernel.org with ESMTP id S275368AbTHSGXF (ORCPT
+	Tue, 19 Aug 2003 02:19:05 -0400
+Received: from fw.osdl.org ([65.172.181.6]:20897 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S275358AbTHSGTD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 02:23:05 -0400
-From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6 - synaptics touchpad not handled by any driver
+	Tue, 19 Aug 2003 02:19:03 -0400
+Date: Mon, 18 Aug 2003 23:20:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: russo.lutions@verizon.net, linux-kernel@vger.kernel.org
+Subject: Re: cache limit
+Message-Id: <20030818232024.20c16d1f.akpm@osdl.org>
+In-Reply-To: <200308190533.h7J5XoL06419@Port.imtp.ilyichevsk.odessa.ua>
+References: <3F41AA15.1020802@verizon.net>
+	<200308190533.h7J5XoL06419@Port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [212.248.25.26]
-Date: Tue, 19 Aug 2003 10:23:06 +0400
-Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	  <arvidjaar@mail.ru>
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E19ozta-0002R3-00.arvidjaar-mail-ru@f6.mail.ru>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
+>
+> There was a discussion (and patches) in the middle of 2.5 series
+>  about O_STREAMING open flag which mean "do not aggressively cache
+>  this file". Targeted at MP3/video playing, copying large files and such.
+> 
+>  I don't know whether it actually was merged. If it was,
+>  your program can use it.
 
-It appeared recently on a.o.l.m. Synaptics touchpad is not handled
-by any driver except evdev. It is located in drivers/input/mouse and
-is part of psmouse so one would logically assume it is handled by
-mousedev - but it does not advertise any capability accepted by mousedev.
+It was not.  Instead we have fadvise.  So it would be appropriate to change
+applications such as rsync to optionally run
 
-I: Bus=0011 Vendor=0002 Product=0007 Version=0000
-N: Name="Synaptics Synaptics TouchPad"
-P: Phys=isa0060/serio1/input0
-H: Handlers=
-B: EV=1b
-B: KEY=670000 0 0 0 0 0 0 0 0
-B: ABS=1000003
-B: MSC=4
+	posix_fadvise(fd, 0, -1, POSIX_FADV_DONTNEED)
 
-the buttons advertised are
+against file descriptors just before closing them, so all the pagecache
+gets thrown away.  (Well, most of the pagecache - dirty pages won't get
+dropped - the app must fsync the files by hand first if it wants this)
 
-BTN_LEFT, BTN_RIGHT, BTN_MIDDLE, BTN_FORWARD, BTN_BACK.
+This would be a useful addition to rsync and such applications - it is
+stronger and more specific and safer than banging on the VM for a special
+case.
 
-mousedev accepts device with absolute coordinates only if it
-advertises BTN_TOUCH:
-
-        {
-              .flags    = INPUT_DEVICE_ID_MATCH_EVBIT | INPUT_DEVICE_ID_MATCH_KE
-YBIT | INPUT_DEVICE_ID_MATCH_ABSBIT,
-              .evbit    = { BIT(EV_KEY) | BIT(EV_ABS) },
-              .keybit   = { [LONG(BTN_TOUCH)] = BIT(BTN_TOUCH) },
-              .absbit   = { BIT(ABS_X) | BIT(ABS_Y) },
-         },/* A tablet like device, at least touch detection, two absolute axes
-
-the same as tsdev.
-
-something is fishy :) poor guy expected it to work like a mouse -
-just like 2.4 did.
-
--andrey
+But if you want to bang on the VM for a special case, run 2.6 and set
+/proc/sys/vm/swappiness to zero during the rsync run.
 

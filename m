@@ -1,90 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316089AbSFDCPz>; Mon, 3 Jun 2002 22:15:55 -0400
+	id <S315988AbSFDCsH>; Mon, 3 Jun 2002 22:48:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316092AbSFDCPz>; Mon, 3 Jun 2002 22:15:55 -0400
-Received: from mail118.mail.bellsouth.net ([205.152.58.58]:4595 "EHLO
-	imf18bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S316089AbSFDCPy>; Mon, 3 Jun 2002 22:15:54 -0400
-Message-ID: <3CFC22CE.93DAF5D8@bellsouth.net>
-Date: Mon, 03 Jun 2002 22:15:42 -0400
-From: Albert Cranford <ac9410@bellsouth.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.20 i686)
-X-Accept-Language: en
+	id <S316092AbSFDCsG>; Mon, 3 Jun 2002 22:48:06 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:26057 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S315988AbSFDCsF>; Mon, 3 Jun 2002 22:48:05 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Andreas Dilger <adilger@clusterfs.com>
+Date: Tue, 4 Jun 2002 12:46:50 +1000 (EST)
 MIME-Version: 1.0
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@zip.com.au>
-Subject: Andrew fix it: ethernet tulip misdetected starting 2.5.20
-In-Reply-To: <3CFC0D15.9F03AD36@bellsouth.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15612.10778.673263.187014@notabene.cse.unsw.edu.au>
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Pawel Kot <pkot@linuxnews.pl>, lkml <linux-kernel@vger.kernel.org>,
+        Andre Hedrick <andre@serialata.org>,
+        "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: Another -pre
+In-Reply-To: message from Andreas Dilger on Monday June 3
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton already fixed it in pci device matching fix
-Thanks,
-Albert
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102315156003503&w=2
-Albert Cranford wrote:
+On Monday June 3, adilger@clusterfs.com wrote:
+> On Jun 03, 2002  20:27 -0300, Arnaldo Carvalho de Melo wrote:
+> > > 1 Weird corruption report with AMD chipset in PIO mode
+> > 
+> > Oh, I'm not alone ;) Well, up to now it _seems_ that ext3 is saving my day,
+> > but it only happened two time after I upgraded to 2.4.19-pre8-ac5, none after
+> > I upgraded to 2.4.19-pre9-ac3, but I can't manage to make 'hdparm -X68 /dev/hdd'
+> > to work :( I have already sent detailed information to Andre and discussed
+> > and tried several things sugested in a irc chat.
+> > 
+> > Short description: I use ext3 over raid0, using /dev/hda4 and /dev/hdd1,
+> > /dev/hdc has a CDRW drive, mostly unused, /dev/hdb has nothing, two times
+> > /dev/hda stopped responding, not reproducible AFAIT.
 > 
-> 2.5.19 works while 2.5.20 has mostly correct lspci output (PME- instead of PME+)
-> but the wrong driver gets detected and fails loading.
-> Similar to 3c509 vs 3c590 from Anton.
-> Anyone have any ideas in troubleshooting this?
-> Config:
-> CONFIG_NET_TULIP=y
-> # CONFIG_DE2104X is not set
-> CONFIG_TULIP=m
-> # CONFIG_TULIP_MWI is not set
-> # CONFIG_TULIP_MMIO is not set
-> # CONFIG_DE4X5 is not set
-> 
->               linux-2.5.19
-> dmesg
-> Linux Tulip driver version 1.1.13 (May 11, 2002)
-> PCI: Found IRQ 11 for device 00:0b.0
-> eth0: ADMtek Comet rev 17 at 0xe800, 00:03:6D:16:4E:39, IRQ 11.
-> 
-> lspci -vv
-> 00:0b.0 Ethernet controller: Bridgecom, Inc: Unknown device 0985 (rev 11)
->         Subsystem: Bridgecom, Inc: Unknown device 0574
->         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
->         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
->         Latency: 255 min, 255 max, 32 set, cache line size 08
->         Interrupt: pin A routed to IRQ 11
->         Region 0: I/O ports at e800 [size=256]
->         Region 1: Memory at e3001000 (32-bit, non-prefetchable) [size=1K]
->         Expansion ROM at <unassigned> [disabled] [size=128K]
->         Capabilities: [c0] Power Management version 2
->                 Flags: PMEClk- AuxPwr- DSI- D1+ D2+ PME+
->                 Status: D0 PME-Enable- DSel=0 DScale=0 PME+
-> 
-> ------------------
->              linux-2.5.20
-> dmesg
-> Linux Tulip driver version 1.1.13 (May 11, 2002)
-> PCI: Found IRQ 11 for device 00:0b.0
-> tulip0:  MII transceiver #1 config 1000 status 786d advertising 01e1.
-> eth0: Digital DS21140 Tulip rev 17 at 0xe800, EEPROM not present, 00:4C:69:6E:75:79, IRQ 11.
-> 
-> lspci -vv
-> 00:0b.0 Ethernet controller: Bridgecom, Inc: Unknown device 0985 (rev 11)
->         Subsystem: Bridgecom, Inc: Unknown device 0574
->         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
->         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
->         Latency: 255 min, 255 max, 32 set, cache line size 08
->         Interrupt: pin A routed to IRQ 11
->         Region 0: I/O ports at e800 [size=256]
->         Region 1: Memory at e3001000 (32-bit, non-prefetchable) [size=1K]
->         Expansion ROM at <unassigned> [disabled] [size=128K]
->         Capabilities: [c0] Power Management version 2
->                 Flags: PMEClk- AuxPwr- DSI- D1+ D2+ PME+
->                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> --
-> Albert Cranford Deerfield Beach FL USA
-> ac9410@bellsouth.net
+> Well, there was some corruption in ext3 if you used it over MD RAID with
+> data=journal mode that was discussed recently on ext3-users.  There was
+> a patch posted by Neil Brown which I resend here (full thread archived
+> at https://listman.redhat.com/pipermail/ext3-users/).
 
--- 
-Albert Cranford Deerfield Beach FL USA
-ac9410@bellsouth.net
+It turns out that I missed an important bit (literally) in that patch
+(and another few files got corrupted....)
+Just after (or before)
+ +			clear_bit(BH_Freed, &bh->b_state);
+We need
+ +			clear_bit(BH_JBDDirty, &bh->b_state);
+
+because __journal_unfile_buffer will convert JBDdirty to Dirty just
+like __journal_refile_buffer does.
+
+NeilBrown

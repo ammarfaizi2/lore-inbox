@@ -1,81 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313537AbSDEUCe>; Fri, 5 Apr 2002 15:02:34 -0500
+	id <S313479AbSDEURZ>; Fri, 5 Apr 2002 15:17:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313538AbSDEUCZ>; Fri, 5 Apr 2002 15:02:25 -0500
-Received: from mailb.telia.com ([194.22.194.6]:18192 "EHLO mailb.telia.com")
-	by vger.kernel.org with ESMTP id <S313537AbSDEUCQ>;
-	Fri, 5 Apr 2002 15:02:16 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@norran.net>
-To: Robert Love <rml@tech9.net>
-Subject: Re: [PATCH] preemptive kernel behavior change: don't be rude
-Date: Fri, 5 Apr 2002 22:03:09 +0200
-X-Mailer: KMail [version 1.4]
-In-Reply-To: <Pine.LNX.4.33.0204041740220.7731-100000@penguin.transmeta.com> <1017976155.22299.746.camel@phantasy>
-Cc: lkml <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200204052203.09716.roger.larsson@norran.net>
+	id <S313483AbSDEURE>; Fri, 5 Apr 2002 15:17:04 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:12996 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S313479AbSDEURD>;
+	Fri, 5 Apr 2002 15:17:03 -0500
+Date: Fri, 5 Apr 2002 12:16:52 -0800
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: [QUESTION] How to use interruptible_sleep_on() without races ?
+Message-ID: <20020405121652.B27839@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+In-Reply-To: <20020404190848.C27209@bougret.hpl.hp.com> <E16tTIi-0008GU-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Robert,
+On Fri, Apr 05, 2002 at 01:58:44PM +0100, Alan Cox wrote:
+> > > could just use completions in that case or you could use
+> > > 
+> > > 	wait_event_interruptible(&my_wait_queue, my_condition==FALSE)
+> > > 
+> > > which is a macro that generates the right stuff.
+> > 
+> > 	And it might even want to be defined in include/linux/sched.h
+> 
+> It is 8)
+> 
+> Alan
 
-This does not look symmetrical, add and sub and bitops...
+	*Blush*. Yes it is.
 
-> +#define PREEMPT_ACTIVE		0x4000000
-
-
-> +	/*
-> +	 * if entering from preempt_schedule, off a kernel preemption,
-> +	 * go straight to picking the next task.
-> +	 */
-> +	if (unlikely(preempt_get_count() & PREEMPT_ACTIVE))
-> +		goto pick_next_task;
-> +
-
-
-> +	do {
-> +		current_thread_info()->preempt_count += PREEMPT_ACTIVE;
-> +		schedule();
-> +		current_thread_info()->preempt_count -= PREEMPT_ACTIVE;
-> +		barrier();
-
-And since it has to be zero to end up in the routine anyway...
-
-asmlinkage void preempt_schedule(void)
- {
-	BUG_ON(current_thread_info()->preempt_count != 0);
-
-	do {
-		/* Problem: suppose a new interrupt happens before we got to set
-		 * preempt_count... then we will call this routine recursively.
-		 * innermost will select the correct process, but wont it be scheduled
-		 * away in enclosing preempt_schedule() - schedule() will be called
-		 * with PREEMPT_ACTIVE but not TIF_NEED_RESCHED...
-		 * (goto pick_next_task) */
-
-		current_thread_info()->preempt_count = PREEMPT_ACTIVE;
-
-		/* interrupts here might cause calls to preempt_schedule() but those will
-		   bounce off above since preempt_count != 0 */
-
-		schedule();
-		current_thread_info()->preempt_count = 0;
-
-		/* interrupt here will possibly preempt the right process - no problem */
-
-		/* need to check if any interrupt happened during the preemption off time,
-		 * this case is in fact unlikely  */
-	while (unlikely(test_thread_flag(TIF_NEED_RESCHED)));
-}
-
-/RogerL
-
--- 
-Roger Larsson
-Skellefteå
-Sweden
-
+	Jean

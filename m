@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265390AbSJXLDa>; Thu, 24 Oct 2002 07:03:30 -0400
+	id <S265395AbSJXL1t>; Thu, 24 Oct 2002 07:27:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265392AbSJXLDa>; Thu, 24 Oct 2002 07:03:30 -0400
-Received: from mail.hometree.net ([212.34.181.120]:16073 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S265390AbSJXLDa>; Thu, 24 Oct 2002 07:03:30 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: One for the Security Guru's
-Date: Thu, 24 Oct 2002 11:09:41 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <ap8kdl$bae$1@forge.intermeta.de>
-References: <20021023130251.GF25422@rdlg.net> <1035411315.5377.8.camel@god.stev.org> <20021024101126.GQ147946@niksula.cs.hut.fi>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1035457781 18587 212.34.181.4 (24 Oct 2002 11:09:41 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Thu, 24 Oct 2002 11:09:41 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S265396AbSJXL1t>; Thu, 24 Oct 2002 07:27:49 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:65506 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265395AbSJXL1s>;
+	Thu, 24 Oct 2002 07:27:48 -0400
+Date: Thu, 24 Oct 2002 17:15:28 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [long]2.5.44-mm3 UP went into unexpected trashing
+Message-ID: <20021024171528.D5311@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <3DB7A581.9214EFCC@aitel.hist.no> <3DB7A80C.7D13C750@digeo.com> <3DB7AC97.D31A3CB2@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DB7AC97.D31A3CB2@digeo.com>; from akpm@digeo.com on Thu, Oct 24, 2002 at 08:22:07AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ville Herva <vherva@niksula.hut.fi> writes:
+On Thu, Oct 24, 2002 at 08:22:07AM +0000, Andrew Morton wrote:
+> Andrew Morton wrote:
+> > 
+> > Hopefully the rcu fix in -mm4 will cure this.
+> 
+> Oh.  It was in -mm3 too.  But something went wrong with the
+> dcache shrinking there.
 
->the /dev/kmem hole, but this closes 2 classes of attacks - loading rootkit
->module and booting with a hacked kernel in straight-forward way.
+Backing out larger-cpu-masks.patch fixes this in -mm3 so, -mm4 should not give
+this problem. Basically callbacks are not getting processed due to incorrect 
+rcu_cpu_mask.
 
-Question: What do I lose when you remove /dev/kmem?
-Related question: Would it be useful to make /dev/kmem read-only? 
-
-	Regards
-		Henning
+Maneesh
 
 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5044999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/

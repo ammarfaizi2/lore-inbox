@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131429AbRC0Q7X>; Tue, 27 Mar 2001 11:59:23 -0500
+	id <S131455AbRC0RIX>; Tue, 27 Mar 2001 12:08:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131446AbRC0Q7N>; Tue, 27 Mar 2001 11:59:13 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:38154 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S131429AbRC0Q7H>; Tue, 27 Mar 2001 11:59:07 -0500
-Date: Mon, 26 Mar 2001 14:34:45 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Werner Almesberger <Werner.Almesberger@epfl.ch>
-Cc: linux-kernel@vger.kernel.org, engler@csl.Stanford.EDU
-Subject: Re: [ANNOUNCE] The Janitor Project
-Message-ID: <20010326143445.A1383@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Werner Almesberger <Werner.Almesberger@epfl.ch>,
-	linux-kernel@vger.kernel.org, engler@csl.Stanford.EDU
-In-Reply-To: <20010322215215.A1052@conectiva.com.br> <20010327104321.B3974@almesberger.net>
-Mime-Version: 1.0
+	id <S131459AbRC0RIN>; Tue, 27 Mar 2001 12:08:13 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:64272
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S131455AbRC0RII>; Tue, 27 Mar 2001 12:08:08 -0500
+Date: Tue, 27 Mar 2001 09:06:48 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Uncle George <gatgul@voicenet.com>
+cc: linux-kernel@vger.kernel.org, Jeremy Jackson <jerj@coplanar.net>
+Subject: Re: slow latencies on IDE disk drives( controller? )
+In-Reply-To: <3AC080F3.6A09863C@voicenet.com>
+Message-ID: <Pine.LNX.4.10.10103270904490.16125-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.14i
-In-Reply-To: <20010327104321.B3974@almesberger.net>; from Werner.Almesberger@epfl.ch on Tue, Mar 27, 2001 at 10:43:21AM +0200
-X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Tue, Mar 27, 2001 at 10:43:21AM +0200, Werner Almesberger escreveu:
-> Arnaldo Carvalho de Melo wrote:
-> > http://bazar.conectiva.com.br/~acme/TODO
-> 
-> BTW, I don't know if you're already interacting, but it seems to me that
-> there are a lot of things on your list that look as if the MC project at
-> Stanford ("CHECKER") could provide automated tests for them.
 
-Yup, there has been some interaction in the past and I suggest that the
-Stanford CHECKER people be subscribed to the kernel-janitors list or the
-other way around, so that we can work more closely.
+#define PCI_VENDOR_ID_CONTAQ            0x1080
+#define PCI_DEVICE_ID_CONTAQ_82C599     0x0600
+#define PCI_DEVICE_ID_CONTAQ_82C693     0xc693
 
-One thing is to find error patterns, and this is being done by the janitor
-team and by any other interested people, other point is to go thru the
-kernel sources and see where the patterns appear, and here the CHECKER is a
-very important player if not the most important, and the other is to fix
-the problems found, where active maintainers should do the work, despite
-the fact that some are supposedly maintained (listed in MAINTAINERS or in
-the kernel sources) some aren't, there are even drivers listed as
-maintained but the maintainers don't even have the hardware anymore, and
-new maintainers should appear or the janitors should do the work.
+ * linux/drivers/block/cy82c693.c       Version 0.34    Dec. 13, 1999
+ *
+ *  Copyright (C) 1998-99 Andreas S. Krebs (akrebs@altavista.net), Maintainer
+ *  Copyright (C) 1998-99 Andre Hedrick, Integrater
 
-- Arnaldo
+ * Notes:
+ * - I recently got a 16.8G IBM DTTA, so I was able to test it with
+ *   a large and fast disk - the results look great, so I'd say the
+ *   driver is working fine :-)
+ *   hdparm -t reports 8.17 MB/sec at about 6% CPU usage for the DTTA
+ * - this is my first linux driver, so there's probably a lot  of room
+ *   for optimizations and bug fixing, so feel free to do it.
+ * - use idebus=xx parameter to set PCI bus speed - needed to calc
+ *   timings for PIO modes (default will be 40)
+ * - if using PIO mode it's a good idea to set the PIO mode and
+ *   32-bit I/O support (if possible), e.g. hdparm -p2 -c1 /dev/hda
+ * - I had some problems with my IBM DHEA with PIO modes < 2
+ *   (lost interrupts) ?????
+ * - first tests with DMA look okay, they seem to work, but there is a
+ *   problem with sound - the BusMaster IDE TimeOut should fixed this
+
+This is your fix....
+
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
+

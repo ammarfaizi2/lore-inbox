@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315960AbSEGUDe>; Tue, 7 May 2002 16:03:34 -0400
+	id <S315961AbSEGUHs>; Tue, 7 May 2002 16:07:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315961AbSEGUDd>; Tue, 7 May 2002 16:03:33 -0400
-Received: from outbound.ea.com ([12.35.91.3]:60110 "EHLO outbound.ea.com")
-	by vger.kernel.org with ESMTP id <S315960AbSEGUDc>;
-	Tue, 7 May 2002 16:03:32 -0400
-Subject: Has anyone integrated the e1000 driver into the 2.4.x kernel
-From: Thomas Schenk <tschenk@origin.ea.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	id <S315962AbSEGUHr>; Tue, 7 May 2002 16:07:47 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56325 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315961AbSEGUHq>; Tue, 7 May 2002 16:07:46 -0400
+Subject: Re: Memory Barrier Definitions
+To: engebret@vnet.ibm.com (Dave Engebretsen)
+Date: Tue, 7 May 2002 21:27:04 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <3CD830BE.CAB7FA96@vnet.ibm.com> from "Dave Engebretsen" at May 07, 2002 02:53:34 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.4 
-Date: 07 May 2002 15:04:08 -0500
-Message-Id: <1020801852.26725.23.camel@bagend.origin.ea.com>
-Mime-Version: 1.0
+Message-Id: <E175BY8-0008S4-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am working a project where I need to be able to compile the Intel
-e1000 driver into a monolithic kernel, but the readme says that you can
-only use the driver as a module.  Is there some technical reason why
-this driver cannot be compiled into the kernel instead of being used as
-a module?
+> forms of processor memory barrier instructions.  It is _very_ expensive
+> to blindly force all memory references to be ordered completely to the
+> seperate spaces.  The use of wmb(), rmb(), and mb() is overloaded in the
+> context of PowerPC.
 
-Tom S.
+I think I follow
 
--- 
-+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-| Tom Schenk      | A positive attitude may not solve all your    |
-| Online Ops      | problems, but it will annoy enough people to  |
-| tschenk@ea.com  | make it worth the effort. -- Herm Albright    |
-+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+You have
+
+	Compiler ordering
+	CPU v CPU memory ordering
+	CPU v I/O memory ordering
+	I/O v I/O memory ordering
+
+and our current heirarchy is a little bit more squashed than that. I'd 
+agree. We actually hit a corner case of this on the IDT winchip x86 where
+we run relaxed store ordering and have to define wmb() as a locked add of
+zero to the top of stack - which does have a penalty that isnt needed
+for CPU ordering.
+
+How much of this impacts Mips64 ?
+
+Alan
+
 

@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270676AbRHJW5k>; Fri, 10 Aug 2001 18:57:40 -0400
+	id <S270673AbRHJW5k>; Fri, 10 Aug 2001 18:57:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270672AbRHJW5b>; Fri, 10 Aug 2001 18:57:31 -0400
-Received: from zero.tech9.net ([209.61.188.187]:18696 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S270674AbRHJW5U>;
-	Fri, 10 Aug 2001 18:57:20 -0400
-Subject: Re: Remotely rebooting a machine with state 'D' processes, how?
-From: Robert Love <rml@tech9.net>
+	id <S270676AbRHJW5a>; Fri, 10 Aug 2001 18:57:30 -0400
+Received: from weta.f00f.org ([203.167.249.89]:38033 "EHLO weta.f00f.org")
+	by vger.kernel.org with ESMTP id <S270672AbRHJW5P>;
+	Fri, 10 Aug 2001 18:57:15 -0400
+Date: Sat, 11 Aug 2001 10:58:19 +1200
+From: Chris Wedgwood <cw@f00f.org>
 To: Herbert Xu <herbert@gondor.apana.org.au>
 Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <E15VL6x-0007Jm-00@gondolin.me.apana.org.au>
-In-Reply-To: <E15VL6x-0007Jm-00@gondolin.me.apana.org.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 10 Aug 2001 18:57:54 -0400
-Message-Id: <997484288.688.9.camel@phantasy>
+Subject: Re: Remotely rebooting a machine with state 'D' processes, how?
+Message-ID: <20010811105819.A1299@weta.f00f.org>
+In-Reply-To: <200108102159.f7ALxb908284@penguin.transmeta.com> <E15VL6x-0007Jm-00@gondolin.me.apana.org.au>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E15VL6x-0007Jm-00@gondolin.me.apana.org.au>
+User-Agent: Mutt/1.3.20i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11 Aug 2001 08:50:35 +1000, Herbert Xu wrote:
-> Linus Torvalds <torvalds@transmeta.com> wrote:
-> > In article <20010810231906.A21435@bonzo.nirvana> you write:
-> 
-> > You have to use the reboot() system call directly as root, with the
-> > proper arguments to make it avoid doing even any sync. See
-> 
-> >        man 2 reboot
-> 
-> How do you do this when the process in the D state is holding the BKL?
+On Sat, Aug 11, 2001 at 08:50:35AM +1000, Herbert Xu wrote:
 
-the kernel should not sleep when it is holding the BKL (or any
-semaphore).
+    How do you do this when the process in the D state is holding the BKL?
 
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+On ia32:
+
+        outb(0xfe, 0x64);
+
+I have a command-line proglet for doing this, and also a patch to add
+to SysReq is people really want such a thing.
+
+
+
+  --cw
 

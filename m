@@ -1,137 +1,167 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283615AbRLEA1w>; Tue, 4 Dec 2001 19:27:52 -0500
+	id <S283613AbRLEAhM>; Tue, 4 Dec 2001 19:37:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283616AbRLEA1n>; Tue, 4 Dec 2001 19:27:43 -0500
-Received: from manotes3.ma.lycos.com ([209.202.247.138]:22792 "EHLO
-	manotes3.ma.lycos.com") by vger.kernel.org with ESMTP
-	id <S283615AbRLEA1a>; Tue, 4 Dec 2001 19:27:30 -0500
-Subject: NFS Performance on Linux 2.2.19 (RedHat version) -- lstat64() ?
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFEE87D44A.D1899606-ON85256B19.00026956@ma.lycos.com>
-From: Joe.Pranevich@corp.terralycos.com
-Date: Tue, 4 Dec 2001 19:27:38 -0500
-X-MIMETrack: Serialize by Router on MANOTES3/Lycos(Release 5.0.8 |June 18, 2001) at 12/04/2001
- 07:27:30 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S283620AbRLEAhE>; Tue, 4 Dec 2001 19:37:04 -0500
+Received: from bitmover.com ([192.132.92.2]:12006 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S283613AbRLEAgs>;
+	Tue, 4 Dec 2001 19:36:48 -0500
+Date: Tue, 4 Dec 2001 16:36:46 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Lars Brinkhoff <lars.spam@nocrew.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
+        hps@intermeta.de, linux-kernel@vger.kernel.org
+Subject: SMP/cc Cluster description [was Linux/Pro]
+Message-ID: <20011204163646.M7439@work.bitmover.com>
+Mail-Followup-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Lars Brinkhoff <lars.spam@nocrew.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
+	hps@intermeta.de, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0112042129160.4079-100000@imladris.surriel.com> <2457910296.1007480257@mbligh.des.sequent.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <2457910296.1007480257@mbligh.des.sequent.com>; from Martin.Bligh@us.ibm.com on Tue, Dec 04, 2001 at 03:37:37PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Dec 04, 2001 at 03:37:37PM -0800, Martin J. Bligh wrote:
+> >> > Premise 3: it is far easier to take a bunch of operating system images
+> >> >    and make them share the parts they need to share (i.e., the page
+> >> >    cache), than to take a single image and pry it apart so that it
+> >> >    runs well on N processors.
+> >> 
+> >> Of course it's easier. But it seems like you're left with much more
+> >> work to reiterate in each application you write to run on this thing.
+> >> Do you want to do the work once in the kernel, or repeatedly in each
+> >> application?
+> > 
+> > There seems to be a little misunderstanding here; from what
+> > I gathered when talking to Larry, the idea behind ccClusters
+> > is that they provide a single system image in a NUMA box, but
+> > with separated operating system kernels.
 
-I'm currently involved in porting one of our properties over to Linux from
-Solaris and have noticed some disparities in NFS client performance between
-Linux and Solaris and I thought I'd ask about it. (The property is almost
-100% NFS-based with a couple terabytes of storage on the backend in a sort
-of hashed directory structure.) The NFS servers that we are using are all
-NetApps.
+Right except NUMA is orthogonal, ccClusters work fine on a regular SMP 
+box.
 
-I have run quick benchmarks (dd'ing from /dev/zero to files on the nfs
-mount, then reading them back on other hosts) and have seen good
-performance for Linux all around. (The servers that we are using are IBM
-dual 800 mhz jobs w/ 2 Gig RAM vs a Sun E450) Under these simple
-circumstances, Linux ranges from almost as good as Solaris (writing to NFS)
-to almost twice as good (reading from NFS)-- at least how we have things
-setup, but not in a precise testing environment. Where my confusion comes
-in is that a simple "ls" against a directory with a couple files takes
-approximately 4-5 times as long under Linux as on Solaris. Doing a "strace
--c" on the ls process shows that nearly all of the time is being spent in
-lstat64(). (And yes, I was using "ls --color=none" :) ) (Our application
-does a lot of similar operations, so this is a valid test.)
+> OK, then I've partially misunderstood this ... can people provide some 
+> more reference material? Please email to me, and I'll collate the results
+> back to the list (should save some traffic).
 
-Is this a known issue or is there are workaround that might allow me to
-improve performance? Although I'm running a RedHat kernel (which I
-understand is based on one of the AC kernels, partly), there may be a newer
-version of the NFS client software that I could try. (I found the
-SourceForge site for the server software, but not the client.) Does the 2.4
-kernel have significantly better NFS performance or any advantage that
-might be worth the effort of switching for benchmarking? (You'd think I
-might know the answer to that, wouldn't you...)
+I'll try and type in a small explanation, I apologize in advance for the
+bervity, I'm under a lot of pressure on the BK front these days...
 
-(And yes, I know that this is an apples-to-oranges comparison, but since
-we're mostly network bound I don't think it's likely to be much of a deal.)
+The most recent set of slides are here:
 
-Thanks so much for your help, I've appended some additional information to
-this mail that may make things clearer.
+    http://www.bitmover.com/ml/slide01.html
 
-Joe Pranevich (wearing his Lycos hat)
-Production Service Manager
-Lycos Personal Publishing
+A couple of useful papers are at
 
---
+    http://www.bitmover.com/llnl/smp.pdf
+    http://www.bitmover.com/llnl/labs.pdf
 
-NFS options:
+The first explains why I think fine grained multi threading is a mistake
+and the second is a paper I wrote to try and get LLNL to push for what
+I called SMP clusters (which are not a cluster of SMPs, they are a 
+cluster of operating system instances on a single SMP).
 
-hard,nfsvers=3,intr,rsize=8192,wsize=8192,bg
+The basic idea is this: if you consider the usefulness of an SMP versus a
+cluster, the main thing in favor of the SMP is
 
-(similar trials were performed with NFS v2, and both TCP and UDP modes.)
+    all processes/processors can share the same memory at memory speeds.
+    I typically describe this as "all processes can mmap the same data".
+    A cluster loses here, even if it provides DSM over a high speed
+    link, it isn't going to have 200 ns caches misses, it's orders of
+    magnitude slower.  For a lot of MPI apps that doesn't matter, but
+    there are apps for which high performance shared memory is required.
 
-Ethernet cards are eepro100 cards using the Linux "eepro100.o" driver. I
-did a benchmark with Intel's e100.o driver and it was twice as slow, even
-with hardware checksumming enabled. Note that I'm forcing duplex and speed,
-but not doing any other trickery.
+There are other issues like having a big fast bus, load balancing, etc.,
+but the main thing is that you can share data quickly and coherently.
+If you don't need that performance/coherency and you can afford to 
+replicate the data, a traditional cluster is a *much* cheaper and 
+easier answer.  Many problems, such as web server farms, are better
+done on Beowulf style clusters than an SMP, they will actually scale
+better.
 
-strace -c -f ls -alF --color=none
+OK, so suppose we focus on the SMP problem space.  It's a requirement
+that all the processes on all the processors need to be able to access
+memory coherently.  DSM and/or MPI isn't an answer for this problem 
+space.
 
-% time     seconds  usecs/call     calls    errors syscall
------- ----------- ----------- --------- --------- ----------------
- 99.82    4.184893        3532      1185           lstat64
-  0.12    0.005008         218        23         5 open
-  0.04    0.001773         253         7           getdents
-  0.01    0.000292          14        21           write
-  0.00    0.000116          10        12           read
-  0.00    0.000109           5        24           old_mmap
-  0.00    0.000074           4        21           close
-  0.00    0.000057           6         9           munmap
-  0.00    0.000046           5        10           brk
-  0.00    0.000029          15         2           socket
-  0.00    0.000025           5         5           fcntl
-  0.00    0.000025           2        13           fstat
-  0.00    0.000019          10         2         2 connect
-  0.00    0.000016           3         5           mprotect
-  0.00    0.000014           2         6           fstat64
-  0.00    0.000010           2         5           lseek
-  0.00    0.000008           4         2         2 ioctl
-  0.00    0.000006           6         1           getpid
-  0.00    0.000005           5         1           time
-  0.00    0.000002           2         1           personality
------- ----------- ----------- --------- --------- ----------------
-100.00    4.192527                  1355         9 total
+The traditional way to use an SMP is to take a single OS image and 
+"thread" it such that all the CPUs can be in the OS at the same time.
+Pretty much all the data structures need to get a lock and each CPU
+takes the lock before it uses the data structure.  The limit of the
+ratio of locks to cache lines is 1:1, i.e., each cache line will need
+a lock in order to get 100% of the scaling on the system (yes, I know
+this isn't quite true but it is close and you get the idea).
 
-Same directory on Sun: (although their truss adds two seconds to this
-command. When done un-trussed using "time", it's only one second. Linux
-isn't as affected as such.)
+Go read the "smp.pdf" paper for my reasons on why this is a bad approach,
+I'll assume for now you are willing to agree that it is for the purposes
+of discussion.
 
-syscall      seconds   calls  errors
-_exit            .00       1
-read             .00       1
-write            .02      11
-open             .00       6      1
-close            .00       6
-time             .00       1
-brk              .00      60
-stat             .00       1
-fstat            .00       3
-ioctl            .01       2      2
-execve           .00       1
-fcntl            .00       2
-mmap             .00       7
-munmap           .00       2
-memcntl          .00       1
-llseek           .00       1
-acl              .14    1185
-door             .00       4
-getdents64       .00      53
-lstat64          .40    1185
-fstat64          .00       2
-open64           .00       2
-                ----     ---    ---
-sys totals:      .57    2537      3
-usr time:        .33
-elapsed:        3.05
+If we want to get the most use out of big SMP boxes but we also want to
+do the least amount of "damage" in the form of threading complexity in
+the source base.  This is a "have your cake and eat it too" goal, one
+that I think is eminently reachable.
 
+So how I propose we do this is by booting multiple Linux images on
+a single box.  Each OS image owns part of the machine, 1-4 CPUs, 0 or
+more devices such as disk, ethernet, etc., part of memory.  In addition,
+all OS images share, as a page cache, part of main memory, typically
+the bulk of main memory.
 
+The first thing to understand that the *only* way to share data is in
+memory, in the globally shared page cache.  You do not share devices,
+devices are proxied.  So if I want data from your disk or file system,
+I ask you to put it in memory and then I mmap it.  In fact, you really
+only share files and you only share them via mmap (yeah, read and write
+as well but that's the uninteresting case).
 
+This sharing gets complex because now we have more than one OS image
+which is managing the same set of pages.  One could argue that the 
+code complexity is just as bad as a fine grained multi threaded OS
+image but that's simply incorrect.  I would hide almost 100% of this
+code in a file system, with some generic changes (as few as possible)
+in the VM system.  There are some changes in the process layer as well,
+but we'll talk about them later.
 
+If you're sitting here thinking about all the complexity involved in
+sharing pages, it is really helpful to think about this in the following
+way (note you would not actually implement it like this in the long
+run but you could start this way):
+
+Imagine that for any given file system there is one server OS image and N
+client os images.  Imagine that for each client, there is a proxy process
+running on behalf of the client on the server.  Sort of like NFS biods.
+Each time the client OS wants to do an mmap() it asks the proxy to do
+the mmap().  There are some corner cases but if you think about it, by
+having the proxies do the mmaps, we *know* that all the server OS data
+structures are correct.  As far as the server is concerned, the remote
+OS clients are no different than the local proxy process.  This is from
+the correctness point of view, not the performance point of view.
+
+OK, so we've handled setting up the page tables, but we haven't handled
+page faults or pageouts.  Let's punt on pageouts for the time being,
+we can come back to that.  Let's figure out a pagefault path that will
+give correct, albeit slow, behaviour.  Suppose that when the client faults
+on a page, the client side file system sends a pagefault message to the
+proxy, the proxy faults in the page, calls a new vtop() system call to
+get the physical page, and passes that page descriptor back to the client
+side.  The client side loads up the TLB & page tables and away we go.
+Whoops, no we don't, because the remote OS could page out the page and
+the client OS will get the wrong data (think about a TLB shootdown that
+_didn't_ happen when it should have; bad bad bad).  Again, thinking 
+just from the correctness point of view, suppose the proxy mlock()ed
+the page into memory.  Now we know it is OK to load it up and use it.
+This is why I said skip pageout for now, we're not going to do them 
+to start with anyway.
+
+OK, so start throwing stones at this.  Once we have a memory model that
+works, I'll go through the process model.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

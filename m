@@ -1,995 +1,126 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129391AbQLALvI>; Fri, 1 Dec 2000 06:51:08 -0500
+	id <S129434AbQLAMAJ>; Fri, 1 Dec 2000 07:00:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129434AbQLALu7>; Fri, 1 Dec 2000 06:50:59 -0500
-Received: from david.siemens.de ([192.35.17.14]:5079 "EHLO david.siemens.de")
-	by vger.kernel.org with ESMTP id <S129391AbQLALuu>;
-	Fri, 1 Dec 2000 06:50:50 -0500
-X-Envelope-Sender-Is: tjeerd.mulder@fujitsu-siemens.com (at relayer david.siemens.de)
-Message-ID: <3A278916.6FF0C5DE@fujitsu-siemens.com>
-Date: Fri, 01 Dec 2000 12:18:46 +0100
-From: Tjeerd Mulder <tjeerd.mulder@fujitsu-siemens.com>
-X-Mailer: Mozilla 4.05 [de] (Win95; I)
+	id <S129325AbQLAL77>; Fri, 1 Dec 2000 06:59:59 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:32896 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129434AbQLAL7o>;
+	Fri, 1 Dec 2000 06:59:44 -0500
+Date: Fri, 1 Dec 2000 06:28:56 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andreas Dilger <adilger@turbolinux.com>
+cc: linux-kernel@vger.kernel.org, "Theodore Y. Ts'o" <tytso@mit.edu>,
+        Ext2 development mailing list 
+	<ext2-devel@lists.sourceforge.net>
+Subject: Re: [CFT][RFC] ext2_new_inode() fixes and cleanup
+In-Reply-To: <200012010827.eB18R0u22296@webber.adilger.net>
+Message-ID: <Pine.GSO.4.21.0012010529171.22427-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] i810_audio 2.4.0-test11
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes the same changes (dma_prog and poll) that are already made to
-some other OSS drivers (test12-pre3). Further it finally includes all modifications
-made in 2.2.18 (Alan: why do you do them line by line ?).
-
-It implements mono output and fixes a bug in the dma logic (reset necessary 
-because some descriptors are already prefetched and are not updated
-when the dma is only halted and not reset). There is still a bug in the
-device close handling, it gives an occasional dma overrun error.
- 
-It has been tested on by 3 people on 4 different machines with 3 different
-chip sets and at least 3 different codecs, so it really should work !
-And it does the same things the alsa driver does.
 
 
-diff -u --recursive linux-2.4.0-test11-org/drivers/sound/i810_audio.c linux-2.4.0-test11-clean/drivers/sound/i810_audio.c
---- linux-2.4.0-test11-org/drivers/sound/i810_audio.c	Thu Nov  9 02:09:50 2000
-+++ linux-2.4.0-test11-clean/drivers/sound/i810_audio.c	Thu Nov 30 14:22:11 2000
-@@ -10,6 +10,13 @@
-  *	Extended by: Zach Brown <zab@redhat.com>  
-  *			and others..
-  *
-+ *	Modified to support mono audio out, not supported in mapped mode.
-+ *	The chip can do stereo only, the output buffer always holds stereo data.
-+ *	I think it now conforms a little bit to the OSS Programmers Guide 1.11
-+ *	For me mono and stereo mp3 files and wav files now work with xmms and mpg123
-+ *	and other tools. And KDE sounds now work.
-+ *	Tjeerd Mulder <tjeerd.mulder@fujitsu-siemens.com>
-+ *
-  *  Hardware Provided By:
-  *	Analog Devices (A major AC97 codec maker)
-  *	Intel Corp  (you've probably heard of them already)
-@@ -107,10 +114,6 @@
- #define ADC_RUNNING	1
- #define DAC_RUNNING	2
- 
--#define I810_FMT_16BIT	1
--#define I810_FMT_STEREO	2
--#define I810_FMT_MASK	3
--
- /* the 810's array of pointers to data buffers */
- 
- struct sg_item {
-@@ -131,15 +134,16 @@
- 	struct sg_item sg[SG_LEN];	/* 32*8 */
- 	u32 offset;			/* 4 */
- 	u32 port;			/* 4 */
--	u32 used;
--	u32 num;
-+	u32 used;			/* 4 */
-+	u32 num;			/* 4 */
- };
- 
- /*
-  * we have 3 seperate dma engines.  pcm in, pcm out, and mic.
-  * each dma engine has controlling registers.  These goofy
-  * names are from the datasheet, but make it easy to write
-- * code while leafing through it.
-+ * code while leafing through it. Right now we don't support
-+ * the MIC input.
-  */
- 
- #define ENUM_ENGINE(PRE,DIG) 									\
-@@ -183,7 +187,8 @@
- #define INT_MASK (INT_SEC|INT_PRI|INT_MC|INT_PO|INT_PI|INT_MO|INT_NI|INT_GPI)
- 
- 
--#define DRIVER_VERSION "0.01"
-+/* This version is the based  on version 0.17 in the 2.2.18 kernel */
-+#define DRIVER_VERSION "0.18 (for 2.4.0-test11)"
- 
- /* magic numbers to protect our data structures */
- #define I810_CARD_MAGIC		0x5072696E /* "Prin" */
-@@ -194,9 +199,6 @@
- /* maxinum number of AC97 codecs connected, AC97 2.0 defined 4 */
- #define NR_AC97		2
- 
--static const unsigned sample_size[] = { 1, 2, 2, 4 };
--static const unsigned sample_shift[] = { 0, 1, 1, 2 };
--
- enum {
- 	ICH82801AA = 0,
- 	ICH82901AB,
-@@ -243,7 +245,9 @@
- 	struct dmabuf {
- 		/* wave sample stuff */
- 		unsigned int rate;
--		unsigned char fmt, enable;
-+	        unsigned int bps_buffer;	/* bytes per sample in the dma buffer */
-+		unsigned int bps_user;		/* bytes per sample for the user */
-+		unsigned char enable;
- 
- 		/* hardware channel */
- 		struct i810_channel *channel;
-@@ -259,13 +263,12 @@
- 		unsigned hwptr;		/* where dma last started, updated by update_ptr */
- 		unsigned swptr;		/* where driver last clear/filled, updated by read/write */
- 		int count;		/* bytes to be comsumed or been generated by dma machine */
--		unsigned total_bytes;	/* total bytes dmaed by hardware */
- 
- 		unsigned error;		/* number of over/underruns */
- 		wait_queue_head_t wait;	/* put process on wait queue when no more space in buffer */
- 
- 		/* redundant, but makes calculations easier */
--		unsigned fragsize;
-+		unsigned fragsize;	/* size of a fragment in the dma buffer */
- 		unsigned dmasize;
- 		unsigned fragsamples;
- 
-@@ -277,6 +280,10 @@
- 		unsigned ossfragshift;
- 		int ossmaxfrags;
- 		unsigned subdivision;
-+
-+		/* These fields are used by SNDCTL_DSP_GETIPTR and GETOPTR only */
-+		unsigned total_bytes;	/* total bytes dmaed by hardware */
-+		unsigned blocks;	/* fragments dmaed by hardware */
- 	} dmabuf;
- };
- 
-@@ -319,11 +326,12 @@
- static struct i810_card *devs = NULL;
- 
- static int i810_open_mixdev(struct inode *inode, struct file *file);
-+static int i810_release_mixdev(struct inode *inode, struct file *file);
- static int i810_ioctl_mixdev(struct inode *inode, struct file *file, unsigned int cmd,
- 				unsigned long arg);
- static loff_t i810_llseek(struct file *file, loff_t offset, int origin);
- 
--extern __inline__ unsigned ld2(unsigned int x)
-+static __inline__ unsigned ld2(unsigned int x)
- {
- 	unsigned r = 0;
- 	
-@@ -369,7 +377,7 @@
- 	card->channel[0].used=1;
- 	card->channel[0].offset = 0;
- 	card->channel[0].port = 0x00;
--	card->channel[1].num=0;
-+	card->channel[0].num=0;
- 	return &card->channel[0];
- }
- 
-@@ -475,53 +483,27 @@
- 	printk("i810_audio: called i810_set_adc_rate : rate = %d\n", rate);
- #endif
- 	return rate;
--}
- 
--/* prepare channel attributes for playback */ 
--static void i810_play_setup(struct i810_state *state)
--{
--//	struct dmabuf *dmabuf = &state->dmabuf;
--//	struct i810_channel *channel = dmabuf->channel;
--	/* Fixed format. .. */
--	//if (dmabuf->fmt & I810_FMT_16BIT)
--	//if (dmabuf->fmt & I810_FMT_STEREO)
--}
--
--/* prepare channel attributes for recording */
--static void i810_rec_setup(struct i810_state *state)
--{
--//	u16 w;
--//	struct i810_card *card = state->card;
--//	struct dmabuf *dmabuf = &state->dmabuf;
--//	struct i810_channel *channel = dmabuf->channel;
--
--	/* Enable AC-97 ADC (capture) */
--//	if (dmabuf->fmt & I810_FMT_16BIT) {
--//	if (dmabuf->fmt & I810_FMT_STEREO)
- }
- 
--
- /* get current playback/recording dma buffer pointer (byte offset from LBA),
-    called with spinlock held! */
-    
--extern __inline__ unsigned i810_get_dma_addr(struct i810_state *state)
-+static __inline__ unsigned i810_get_dma_addr(struct i810_state *state)
- {
- 	struct dmabuf *dmabuf = &state->dmabuf;
--	u32 offset;
-+	unsigned int civ, offset;
- 	struct i810_channel *c = dmabuf->channel;
- 	
- 	if (!dmabuf->enable)
- 		return 0;
--	offset = inb(state->card->iobase+c->port+OFF_CIV);
--	offset++;
--	offset&=31;
--	/* Offset has to compensate for the fact we finished the segment
--	   on the IRQ so we are at next_segment,0 */
--//	printk("BANK%d ", offset);
--	offset *= (dmabuf->dmasize/SG_LEN);
--//	printk("DMASZ=%d", dmabuf->dmasize);
--//	offset += 1024-(4*inw(state->card->iobase+c->port+OFF_PICB));
--//	printk("OFF%d ", offset);
-+	do {
-+		civ = inb(state->card->iobase+c->port+OFF_CIV);
-+		offset = (civ + 1) * (dmabuf->dmasize/SG_LEN) -
-+				2 * inw(state->card->iobase+c->port+OFF_PICB);
-+		/* CIV changed before we read PICB (very seldom) ? 
-+		 * then PICB was rubbish, so try again */
-+	} while (civ != inb(state->card->iobase+c->port+OFF_CIV)); 
- 	return offset;
- }
- 
-@@ -534,11 +516,11 @@
- 	offset = inb(state->card->iobase+c->port+OFF_CIV);
- 	offset *= (dmabuf->dmasize/SG_LEN);
- 	
--	dmabuf->hwptr=dmabuf->swptr = offset;
-+	dmabuf->hwptr = dmabuf->swptr = offset;
- }
- 	
- /* Stop recording (lock held) */
--extern __inline__ void __stop_adc(struct i810_state *state)
-+static __inline__ void __stop_adc(struct i810_state *state)
- {
- 	struct dmabuf *dmabuf = &state->dmabuf;
- 	struct i810_card *card = state->card;
-@@ -572,7 +554,7 @@
- }
- 
- /* stop playback (lock held) */
--extern __inline__ void __stop_dac(struct i810_state *state)
-+static __inline__ void __stop_dac(struct i810_state *state)
- {
- 	struct dmabuf *dmabuf = &state->dmabuf;
- 	struct i810_card *card = state->card;
-@@ -666,6 +648,7 @@
- static int prog_dmabuf(struct i810_state *state, unsigned rec)
- {
- 	struct dmabuf *dmabuf = &state->dmabuf;
-+	struct i810_card *card = state->card;
- 	struct sg_item *sg;
- 	unsigned bytepersec;
- 	unsigned bufsize;
-@@ -674,11 +657,7 @@
- 	unsigned fragsize;
- 	int i;
- 
--	spin_lock_irqsave(&state->card->lock, flags);
--	resync_dma_ptrs(state);
--	dmabuf->total_bytes = 0;
--	dmabuf->count = dmabuf->error = 0;
--	spin_unlock_irqrestore(&state->card->lock, flags);
-+	outb(0, card->iobase+dmabuf->channel->port + OFF_CR);	/* halt DMA machine, should have been done already */
- 
- 	/* allocate DMA buffer if not allocated yet */
- 	if (!dmabuf->rawbuf)
-@@ -686,8 +665,9 @@
- 			return ret;
- 
- 	/* FIXME: figure out all this OSS fragment stuff */
--	bytepersec = dmabuf->rate << sample_shift[dmabuf->fmt];
-+	bytepersec = dmabuf->rate * dmabuf->bps_user;
- 	bufsize = PAGE_SIZE << dmabuf->buforder;
-+
- 	if (dmabuf->ossfragshift) {
- 		if ((1000 << dmabuf->ossfragshift) < bytepersec)
- 			dmabuf->fragshift = ld2(bytepersec/1000);
-@@ -697,19 +677,27 @@
- 		/* lets hand out reasonable big ass buffers by default */
- 		dmabuf->fragshift = (dmabuf->buforder + PAGE_SHIFT -2);
- 	}
-+	
-+	dmabuf->ossfragshift = dmabuf->fragshift;
-+							/* double or half the amount of data */
-+	if (dmabuf->bps_user < dmabuf->bps_buffer)	/* write: convert from 16 bit mono to 16 stereo */
-+		dmabuf->fragshift++;
-+	if (dmabuf->bps_user > dmabuf->bps_buffer)	/* read: convert from 16 bit stereo to 16 mono (future) */
-+		dmabuf->fragshift--;
-+
- 	dmabuf->numfrag = bufsize >> dmabuf->fragshift;
- 	while (dmabuf->numfrag < 4 && dmabuf->fragshift > 3) {
- 		dmabuf->fragshift--;
- 		dmabuf->numfrag = bufsize >> dmabuf->fragshift;
- 	}
--	dmabuf->fragsize = 1 << dmabuf->fragshift;
-+	dmabuf->fragsize = (1 << dmabuf->fragshift);
- 	if (dmabuf->ossmaxfrags >= 4 && dmabuf->ossmaxfrags < dmabuf->numfrag)
- 		dmabuf->numfrag = dmabuf->ossmaxfrags;
--	dmabuf->fragsamples = dmabuf->fragsize >> sample_shift[dmabuf->fmt];
--	dmabuf->dmasize = dmabuf->numfrag << dmabuf->fragshift;
-+	
-+	dmabuf->fragsamples = dmabuf->fragsize / dmabuf->bps_buffer; 
-+	dmabuf->dmasize = dmabuf->numfrag * dmabuf->fragsize;
- 
--	memset(dmabuf->rawbuf, (dmabuf->fmt & I810_FMT_16BIT) ? 0 : 0x80,
--	       dmabuf->dmasize);
-+	memset(dmabuf->rawbuf, 0 , dmabuf->dmasize);
- 
- 	/*
- 	 *	Now set up the ring 
-@@ -719,8 +707,8 @@
- 	fragsize = bufsize / SG_LEN;
- 	
- 	/*
--	 *	Load up 32 sg entries and take an interrupt at half
--	 *	way (we might want more interrupts later..) 
-+	 *	Load up 32 sg entries and take an interrupt at each
-+	 *	step (we might want less interrupts later..) 
- 	 */
- 	  
- 	for(i=0;i<32;i++)
-@@ -730,68 +718,31 @@
- 		sg->control|=CON_IOC;
- 		sg++;
- 	}
--	spin_lock_irqsave(&state->card->lock, flags);
--	outl(virt_to_bus(&dmabuf->channel->sg[0]), state->card->iobase+dmabuf->channel->port+OFF_BDBAR);
--	outb(16, state->card->iobase+dmabuf->channel->port+OFF_LVI);
--	outb(0, state->card->iobase+dmabuf->channel->port+OFF_CIV);
--	if (rec) {
--		i810_rec_setup(state);
--	} else {
--		i810_play_setup(state);
--	}
--	spin_unlock_irqrestore(&state->card->lock, flags);
-+	spin_lock_irqsave(&card->lock, flags);
-+	outb(2, card->iobase+dmabuf->channel->port + OFF_CR);	/* reset DMA machine */
-+	outl(virt_to_bus(&dmabuf->channel->sg[0]), card->iobase+dmabuf->channel->port+OFF_BDBAR);
-+	outb(16, card->iobase+dmabuf->channel->port + OFF_LVI);
-+	outb(0, card->iobase+dmabuf->channel->port + OFF_CIV);
-+	
-+	dmabuf->total_bytes = 0;
-+	dmabuf->count = dmabuf->error = 0;
-+	resync_dma_ptrs(state);
-+	
-+	spin_unlock_irqrestore(&card->lock, flags);
- 
- 	/* set the ready flag for the dma buffer */
- 	dmabuf->ready = 1;
- 
- #ifdef DEBUG
--	printk("i810_audio: prog_dmabuf, sample rate = %d, format = %d, numfrag = %d, "
--	       "fragsize = %d dmasize = %d\n",
--	       dmabuf->rate, dmabuf->fmt, dmabuf->numfrag,
--	       dmabuf->fragsize, dmabuf->dmasize);
-+	printk("i810_audio: prog_dmabuf, sample rate = %d, bps_buffer = %d, bps_user =  %d,\n\t"
-+		"numfrag = %d, fragsize = %d dmasize = %d fragshift = %d, ossfragshift = %d\n",
-+	       dmabuf->rate, dmabuf->bps_buffer, dmabuf->bps_user, dmabuf->numfrag,
-+	       dmabuf->fragsize, dmabuf->dmasize, dmabuf->fragshift, dmabuf->ossfragshift);
- #endif
- 
- 	return 0;
- }
- 
--/* we are doing quantum mechanics here, the buffer can only be empty, half or full filled i.e.
--   |------------|------------|   or   |xxxxxxxxxxxx|------------|   or   |xxxxxxxxxxxx|xxxxxxxxxxxx|
--   but we almost always get this
--   |xxxxxx------|------------|   or   |xxxxxxxxxxxx|xxxxx-------|
--   so we have to clear the tail space to "silence"
--   |xxxxxx000000|------------|   or   |xxxxxxxxxxxx|xxxxxx000000|
--*/
--static void i810_clear_tail(struct i810_state *state)
--{
--	struct dmabuf *dmabuf = &state->dmabuf;
--	unsigned swptr;
--	unsigned char silence = (dmabuf->fmt & I810_FMT_16BIT) ? 0 : 0x80;
--	unsigned int len;
--	unsigned long flags;
--
--	spin_lock_irqsave(&state->card->lock, flags);
--	swptr = dmabuf->swptr;
--	spin_unlock_irqrestore(&state->card->lock, flags);
--
--	if (swptr == 0 || swptr == dmabuf->dmasize / 2 || swptr == dmabuf->dmasize)
--		return;
--
--	if (swptr < dmabuf->dmasize/2)
--		len = dmabuf->dmasize/2 - swptr;
--	else
--		len = dmabuf->dmasize - swptr;
--
--	memset(dmabuf->rawbuf + swptr, silence, len);
--
--	spin_lock_irqsave(&state->card->lock, flags);
--	dmabuf->swptr += len;
--	dmabuf->count += len;
--	spin_unlock_irqrestore(&state->card->lock, flags);
--
--	/* restart the dma machine in case it is halted */
--	start_dac(state);
--}
--
- static int drain_dac(struct i810_state *state, int nonblock)
- {
- 	DECLARE_WAITQUEUE(wait, current);
-@@ -826,7 +777,7 @@
- 		}
- 
- 		tmo = (dmabuf->dmasize * HZ) / dmabuf->rate;
--		tmo >>= sample_shift[dmabuf->fmt];
-+		tmo = tmo / dmabuf->bps_buffer;
- 		if (!schedule_timeout(tmo ? tmo : 1) && tmo){
- 			printk(KERN_ERR "i810_audio: drain_dac, dma timeout?\n");
- 			break;
-@@ -847,15 +798,14 @@
- 	unsigned hwptr, swptr;
- 	int clear_cnt = 0;
- 	int diff;
--	unsigned char silence;
--//	unsigned half_dmasize;
- 
- 	/* update hardware pointer */
- 	hwptr = i810_get_dma_addr(state);
- 	diff = (dmabuf->dmasize + hwptr - dmabuf->hwptr) % dmabuf->dmasize;
- //	printk("HWP %d,%d,%d\n", hwptr, dmabuf->hwptr, diff);
- 	dmabuf->hwptr = hwptr;
--	dmabuf->total_bytes += diff;
-+	dmabuf->total_bytes += diff * dmabuf->bps_user/dmabuf->bps_buffer;
-+	dmabuf->blocks +=  diff / dmabuf->fragsize;
- 
- 	/* error handling and process wake up for DAC */
- 	if (dmabuf->enable == ADC_RUNNING) {
-@@ -875,17 +825,17 @@
- 			}
- 			else if (!dmabuf->endcleared) {
- 				swptr = dmabuf->swptr;
--				silence = (dmabuf->fmt & I810_FMT_16BIT ? 0 : 0x80);
- 				if (dmabuf->count < (signed) dmabuf->fragsize) 
- 				{
- 					clear_cnt = dmabuf->fragsize;
- 					if ((swptr + clear_cnt) > dmabuf->dmasize)
- 						clear_cnt = dmabuf->dmasize - swptr;
--					memset (dmabuf->rawbuf + swptr, silence, clear_cnt);
-+					memset (dmabuf->rawbuf + swptr, 0, clear_cnt);
- 					dmabuf->endcleared = 1;
- 				}
--			}			
--			wake_up(&dmabuf->wait);
-+			}
-+			if (dmabuf->count < (signed)dmabuf->dmasize/2)
-+				wake_up(&dmabuf->wait);
- 		}
- 	}
- 	/* error handling and process wake up for DAC */
-@@ -902,10 +852,14 @@
- 				   it here, just stop the machine and let the process force hwptr
- 				   and swptr to sync */
- 				__stop_dac(state);
--				printk("DMA overrun on send\n");
-+				if (dmabuf->count > dmabuf->dmasize)
-+				       	printk(KERN_WARNING "i810_audio: DMA overrun on send.\n");
-+				else
-+					printk(KERN_WARNING "i810_audio: DMA underrun on send.\n");
- 				dmabuf->error++;
- 			}
--			wake_up(&dmabuf->wait);
-+			if (dmabuf->count < (signed)dmabuf->dmasize/2)
-+				wake_up(&dmabuf->wait);
- 		}
- 	}
- }
-@@ -1038,7 +992,7 @@
- 			}
- 			/* This isnt strictly right for the 810  but it'll do */
- 			tmo = (dmabuf->dmasize * HZ) / (dmabuf->rate * 2);
--			tmo >>= sample_shift[dmabuf->fmt];
-+			tmo = tmo / dmabuf->bps_buffer;
- 			/* There are two situations when sleep_on_timeout returns, one is when
- 			   the interrupt is serviced correctly and the process is waked up by
- 			   ISR ON TIME. Another is when timeout is expired, which means that
-@@ -1122,8 +1076,6 @@
- 			cnt = dmabuf->dmasize - dmabuf->count;
- 		spin_unlock_irqrestore(&state->card->lock, flags);
- 
--		if (cnt > count)
--			cnt = count;
- 		if (cnt <= 0) {
- 			unsigned long tmo;
- 			/* buffer is full, start the dma machine and wait for data to be
-@@ -1135,7 +1087,7 @@
- 			}
- 			/* Not strictly correct but works */
- 			tmo = (dmabuf->dmasize * HZ) / (dmabuf->rate * 2);
--			tmo >>= sample_shift[dmabuf->fmt];
-+			tmo = tmo / dmabuf->bps_buffer;
- 			/* There are two situations when sleep_on_timeout returns, one is when
- 			   the interrupt is serviced correctly and the process is waked up by
- 			   ISR ON TIME. Another is when timeout is expired, which means that
-@@ -1159,19 +1111,54 @@
- 			}
- 			continue;
- 		}
--		if (copy_from_user(dmabuf->rawbuf + swptr, buffer, cnt)) {
--			if (!ret) ret = -EFAULT;
--			return ret;
--		}
--
--		swptr = (swptr + cnt) % dmabuf->dmasize;
--
--		spin_lock_irqsave(&state->card->lock, flags);
--		dmabuf->swptr = swptr;
--		dmabuf->count += cnt;
--		dmabuf->endcleared = 0;
--		spin_unlock_irqrestore(&state->card->lock, flags);
- 
-+		if (dmabuf->bps_buffer > dmabuf->bps_user) {
-+			/* this can only mean that we have  to convert from mono to stereo */
-+			int i;
-+			unsigned short *p, *q;
-+			/* We want to write count bytes and have room for cnt bytes,
-+			 * however because the i810 can do stereo only we have to duplicate
-+			 * all samples, so we really only have room for cnt/2 bytes. */
-+			cnt = cnt/2;
-+			if (cnt > count)
-+				cnt = count;
-+			/*  we do 16 bits only */
-+			if (cnt < 2)
-+				break;
-+			if (copy_from_user(dmabuf->rawbuf + swptr, buffer, cnt)) {
-+				if (!ret) ret = -EFAULT;
-+				return ret;
-+			}
-+			/* duplicate the samples */
-+			p = dmabuf->rawbuf + swptr;
-+			q = p + cnt/2 - 1;
-+			p = p + cnt - 1;
-+			for (i=cnt/2; --i;) {
-+				*p-- = *q;
-+				*p-- = *q--;
-+			}
-+			swptr = (swptr + cnt*2) % dmabuf->dmasize;
-+			spin_lock_irqsave(&state->card->lock, flags);
-+			dmabuf->swptr = swptr;
-+			dmabuf->count += cnt*2;
-+			dmabuf->endcleared = 0;
-+			spin_unlock_irqrestore(&state->card->lock, flags);
-+		}
-+		else
-+		{
-+			if (cnt > count)
-+				cnt = count;
-+			if (copy_from_user(dmabuf->rawbuf + swptr, buffer, cnt)) {
-+				if (!ret) ret = -EFAULT;
-+				return ret;
-+			}
-+			swptr = (swptr + cnt) % dmabuf->dmasize;
-+			spin_lock_irqsave(&state->card->lock, flags);
-+			dmabuf->swptr = swptr;
-+			dmabuf->count += cnt;
-+			dmabuf->endcleared = 0;
-+			spin_unlock_irqrestore(&state->card->lock, flags);
-+		}
- 		count -= cnt;
- 		buffer += cnt;
- 		ret += cnt;
-@@ -1186,12 +1173,18 @@
- 	struct i810_state *state = (struct i810_state *)file->private_data;
- 	struct dmabuf *dmabuf = &state->dmabuf;
- 	unsigned long flags;
--	unsigned int mask = 0;
-+	unsigned int mask = 0, ret;
- 
--	if (file->f_mode & FMODE_WRITE)
-+	if (file->f_mode & FMODE_WRITE) {
-+		if (!dmabuf->ready && (ret = prog_dmabuf(state, 0)))
-+			return ret;
- 		poll_wait(file, &dmabuf->wait, wait);
--	if (file->f_mode & FMODE_READ)
-+	}
-+	if (file->f_mode & FMODE_READ) {
-+		if (!dmabuf->ready && (ret = prog_dmabuf(state, 1)))
-+			return ret;
- 		poll_wait(file, &dmabuf->wait, wait);
-+	}
- 
- 	spin_lock_irqsave(&state->card->lock, flags);
- 	i810_update_ptr(state);
-@@ -1231,6 +1224,9 @@
- 		goto out;
- 
- 	ret = -EINVAL;
-+	if (dmabuf->bps_user != dmabuf->bps_buffer)
-+		goto out;
-+
- 	if (vma->vm_pgoff != 0)
- 		goto out;
- 	size = vma->vm_end - vma->vm_start;
-@@ -1274,17 +1270,15 @@
- 			stop_dac(state);
- 			synchronize_irq();
- 			dmabuf->ready = 0;
--			resync_dma_ptrs(state);
- 			dmabuf->swptr = dmabuf->hwptr = 0;
--			dmabuf->count = dmabuf->total_bytes = 0;
-+			dmabuf->count = dmabuf->total_bytes = dmabuf->blocks = 0;
- 		}
- 		if (file->f_mode & FMODE_READ) {
- 			stop_adc(state);
- 			synchronize_irq();
--			resync_dma_ptrs(state);
- 			dmabuf->ready = 0;
- 			dmabuf->swptr = dmabuf->hwptr = 0;
--			dmabuf->count = dmabuf->total_bytes = 0;
-+			dmabuf->count = dmabuf->total_bytes = dmabuf->blocks = 0;
- 		}
- 		return 0;
- 
-@@ -1293,7 +1287,7 @@
- 			return drain_dac(state, file->f_flags & O_NONBLOCK);
- 		return 0;
- 
--	case SNDCTL_DSP_SPEED: /* set smaple rate */
-+	case SNDCTL_DSP_SPEED: /* set sample rate */
- 		if (get_user(val, (int *)arg))
- 			return -EFAULT;
- 		if (val >= 0) {
-@@ -1317,30 +1311,39 @@
- 	case SNDCTL_DSP_STEREO: /* set stereo or mono channel */
- 		if (get_user(val, (int *)arg))
- 			return -EFAULT;
--		if(val==0)
--			return -EINVAL;
- 		if (file->f_mode & FMODE_WRITE) {
-+			if ((val==0) && !dmabuf->mapped) {
-+				dmabuf->bps_user  = 2;
-+				dmabuf->bps_buffer = 4;
-+			} else {
-+				dmabuf->bps_user  = 4;
-+				dmabuf->bps_buffer = 4;
-+				val = 1;
-+			}
- 			stop_dac(state);
- 			dmabuf->ready = 0;
--			dmabuf->fmt = I810_FMT_STEREO;
- 		}
- 		if (file->f_mode & FMODE_READ) {
-+			/* READ is currently always stereo */
- 			stop_adc(state);
- 			dmabuf->ready = 0;
--			dmabuf->fmt = I810_FMT_STEREO;
-+			dmabuf->bps_user  = 4;
-+			dmabuf->bps_buffer = 4;
-+			val = 1;
- 		}
-+		put_user(val, (int *)arg);
- 		return 0;
- 
- 	case SNDCTL_DSP_GETBLKSIZE:
- 		if (file->f_mode & FMODE_WRITE) {
- 			if ((val = prog_dmabuf(state, 0)))
- 				return val;
--			return put_user(dmabuf->fragsize, (int *)arg);
-+			return put_user(dmabuf->fragsamples * dmabuf->bps_user, (int *)arg);
- 		}
- 		if (file->f_mode & FMODE_READ) {
- 			if ((val = prog_dmabuf(state, 1)))
- 				return val;
--			return put_user(dmabuf->fragsize, (int *)arg);
-+			return put_user(dmabuf->fragsamples * dmabuf->bps_user, (int *)arg);
- 		}
- 
- 	case SNDCTL_DSP_GETFMTS: /* Returns a mask of supported sample format*/
-@@ -1368,13 +1371,24 @@
- 			if (file->f_mode & FMODE_WRITE) {
- 				stop_dac(state);
- 				dmabuf->ready = 0;
-+				if ((val > 1) || dmabuf->mapped) {
-+					dmabuf->bps_user = 4;
-+					val = 2;
-+				} else {
-+					dmabuf->bps_user = 2;
-+				}
-+				dmabuf->bps_buffer = 4;
- 			}
- 			if (file->f_mode & FMODE_READ) {
-+				/* READ is currently always stereo */
- 				stop_adc(state);
- 				dmabuf->ready = 0;
-+				dmabuf->bps_user  = 4;
-+				dmabuf->bps_buffer = 4;
-+				val = 2;
- 			}
- 		}
--		return put_user(2, (int *)arg);
-+		return put_user(val > 1 ? 2 : 1, (int *)arg);
- 
- 	case SNDCTL_DSP_POST:
- 		/* FIXME: the same as RESET ?? */
-@@ -1408,28 +1422,28 @@
- 	case SNDCTL_DSP_GETOSPACE:
- 		if (!(file->f_mode & FMODE_WRITE))
- 			return -EINVAL;
--		if (!dmabuf->enable && (val = prog_dmabuf(state, 0)) != 0)
-+		if (!dmabuf->ready && (val = prog_dmabuf(state, 0)) != 0)
- 			return val;
- 		spin_lock_irqsave(&state->card->lock, flags);
- 		i810_update_ptr(state);
--		abinfo.fragsize = dmabuf->fragsize;
--		abinfo.bytes = dmabuf->dmasize - dmabuf->count;
-+		abinfo.bytes = (dmabuf->dmasize - dmabuf->count) * dmabuf->bps_user / dmabuf->bps_buffer;
-+		abinfo.fragsize = dmabuf->fragsamples * dmabuf->bps_user;
- 		abinfo.fragstotal = dmabuf->numfrag;
--		abinfo.fragments = abinfo.bytes >> dmabuf->fragshift;
-+		abinfo.fragments = abinfo.bytes >> dmabuf->ossfragshift;
- 		spin_unlock_irqrestore(&state->card->lock, flags);
- 		return copy_to_user((void *)arg, &abinfo, sizeof(abinfo)) ? -EFAULT : 0;
- 
- 	case SNDCTL_DSP_GETISPACE:
- 		if (!(file->f_mode & FMODE_READ))
- 			return -EINVAL;
--		if (!dmabuf->enable && (val = prog_dmabuf(state, 1)) != 0)
-+		if (!dmabuf->ready && (val = prog_dmabuf(state, 1)) != 0)
- 			return val;
- 		spin_lock_irqsave(&state->card->lock, flags);
- 		i810_update_ptr(state);
--		abinfo.fragsize = dmabuf->fragsize;
--		abinfo.bytes = dmabuf->count;
-+		abinfo.bytes = dmabuf->count * dmabuf->bps_user / dmabuf->bps_buffer;
-+		abinfo.fragsize = dmabuf->fragsamples * dmabuf->bps_user;
- 		abinfo.fragstotal = dmabuf->numfrag;
--		abinfo.fragments = abinfo.bytes >> dmabuf->fragshift;
-+		abinfo.fragments = abinfo.bytes >> dmabuf->ossfragshift;
- 		spin_unlock_irqrestore(&state->card->lock, flags);
- 		return copy_to_user((void *)arg, &abinfo, sizeof(abinfo)) ? -EFAULT : 0;
- 
-@@ -1438,7 +1452,7 @@
- 		return 0;
- 
- 	case SNDCTL_DSP_GETCAPS:
--	    return put_user(DSP_CAP_REALTIME|DSP_CAP_TRIGGER|DSP_CAP_MMAP|DSP_CAP_BIND,
-+	    return put_user(DSP_CAP_REALTIME|DSP_CAP_TRIGGER|DSP_CAP_MMAP,
- 			    (int *)arg);
- 
- 	case SNDCTL_DSP_GETTRIGGER:
-@@ -1473,10 +1487,14 @@
- 	case SNDCTL_DSP_GETIPTR:
- 		if (!(file->f_mode & FMODE_READ))
- 			return -EINVAL;
-+		if (!dmabuf->ready && (val = prog_dmabuf(state, 1)) != 0)
-+			return val;
- 		spin_lock_irqsave(&state->card->lock, flags);
- 		i810_update_ptr(state);
- 		cinfo.bytes = dmabuf->total_bytes;
--		cinfo.blocks = dmabuf->count >> dmabuf->fragshift;
-+		cinfo.blocks = dmabuf->blocks;
-+		dmabuf->blocks = 0;
-+		/* this field is useless */
- 		cinfo.ptr = dmabuf->hwptr;
- 		if (dmabuf->mapped)
- 			dmabuf->count &= dmabuf->fragsize-1;
-@@ -1486,10 +1504,14 @@
- 	case SNDCTL_DSP_GETOPTR:
- 		if (!(file->f_mode & FMODE_WRITE))
- 			return -EINVAL;
-+		if (!dmabuf->ready && (val = prog_dmabuf(state, 0)) != 0)
-+			return val;
- 		spin_lock_irqsave(&state->card->lock, flags);
- 		i810_update_ptr(state);
- 		cinfo.bytes = dmabuf->total_bytes;
--		cinfo.blocks = dmabuf->count >> dmabuf->fragshift;
-+		cinfo.blocks = dmabuf->blocks;
-+		dmabuf->blocks = 0;
-+		/* this field is useless */
- 		cinfo.ptr = dmabuf->hwptr;
- 		if (dmabuf->mapped)
- 			dmabuf->count &= dmabuf->fragsize-1;
-@@ -1502,6 +1524,8 @@
- 	case SNDCTL_DSP_GETODELAY:
- 		if (!(file->f_mode & FMODE_WRITE))
- 			return -EINVAL;
-+		if (!dmabuf->ready && (val = prog_dmabuf(state, 0)) != 0)
-+			return val;
- 		spin_lock_irqsave(&state->card->lock, flags);
- 		i810_update_ptr(state);
- 		val = dmabuf->count;
-@@ -1512,8 +1536,7 @@
- 		return put_user(dmabuf->rate, (int *)arg);
- 
- 	case SOUND_PCM_READ_CHANNELS:
--		return put_user((dmabuf->fmt & I810_FMT_STEREO) ? 2 : 1,
--				(int *)arg);
-+		return put_user(2, (int *)arg);
- 
- 	case SOUND_PCM_READ_BITS:
- 		return put_user(AFMT_S16_LE, (int *)arg);
-@@ -1531,7 +1554,6 @@
- static int i810_open(struct inode *inode, struct file *file)
- {
- 	int i = 0;
--	int minor = MINOR(inode->i_rdev);
- 	struct i810_card *card = devs;
- 	struct i810_state *state = NULL;
- 	struct dmabuf *dmabuf = NULL;
-@@ -1579,29 +1601,26 @@
- 	down(&state->open_sem);
- 
- 	/* set default sample format. According to OSS Programmer's Guide  /dev/dsp
--	   should be default to unsigned 8-bits, mono, with sample rate 8kHz and
--	   /dev/dspW will accept 16-bits sample */
-+	   should be default to unsigned 8-bits, mono, with sample rate 8kHz .
-+	   But not if the hardware does not support this format, so we default
-+	   to 48kHz, stereo 16 bit. All codecs support this. */
-+	dmabuf->bps_user  = 4;
-+	dmabuf->bps_buffer = 4;
-+	dmabuf->ossfragshift = 0;
-+	dmabuf->ossmaxfrags  = 0;
-+	dmabuf->subdivision  = 0;
- 	if (file->f_mode & FMODE_WRITE) {
--		dmabuf->fmt &= ~I810_FMT_MASK;
--		dmabuf->fmt |= I810_FMT_16BIT;
--		dmabuf->ossfragshift = 0;
--		dmabuf->ossmaxfrags  = 0;
--		dmabuf->subdivision  = 0;
- 		i810_set_dac_rate(state, 48000);
- 	}
- 
- 	if (file->f_mode & FMODE_READ) {
--		dmabuf->fmt &= ~I810_FMT_MASK;
--		dmabuf->fmt |= I810_FMT_16BIT;
--		dmabuf->ossfragshift = 0;
--		dmabuf->ossmaxfrags  = 0;
--		dmabuf->subdivision  = 0;
- 		i810_set_adc_rate(state, 48000);
- 	}
- 
- 	state->open_mode |= file->f_mode & (FMODE_READ | FMODE_WRITE);
- 	up(&state->open_sem);
- 
-+	MOD_INC_USE_COUNT;
- 	return 0;
- }
- 
-@@ -1611,10 +1630,8 @@
- 	struct dmabuf *dmabuf = &state->dmabuf;
- 
- 	lock_kernel();
--	if (file->f_mode & FMODE_WRITE) {
--		i810_clear_tail(state);
-+	if (file->f_mode & FMODE_WRITE)
- 		drain_dac(state, file->f_flags & O_NONBLOCK);
--	}
- 
- 	/* stop DMA state machine and free DMA buffers/channels */
- 	down(&state->open_sem);
-@@ -1636,7 +1653,7 @@
- 	kfree(state->card->states[state->virt]);
- 	state->card->states[state->virt] = NULL;
- 	unlock_kernel();
--
-+	MOD_DEC_USE_COUNT;
- 	return 0;
- }
- 
-@@ -1661,6 +1678,8 @@
- 
- 	while(count-- && (inb(card->iobase + CAS) & 1)) 
- 		udelay(1);
-+	if(!count)
-+		printk(KERN_ERR "i810_audio: AC97 access failed.\n");
- 	return inw(card->ac97base + (reg&0x7f));
- }
- 
-@@ -1671,6 +1690,8 @@
- 
- 	while(count-- && (inb(card->iobase + CAS) & 1)) 
- 		udelay(1);
-+	if(!count)
-+		printk(KERN_ERR "i810_audio: AC97 write access failed.\n");
- 	outw(data, card->ac97base + (reg&0x7f));
- }
- 
-@@ -1695,6 +1716,13 @@
-  match:
- 	file->private_data = card->ac97_codec[i];
- 
-+	MOD_INC_USE_COUNT;
-+	return 0;
-+}
-+
-+static int i810_release_mixdev(struct inode *inode, struct file *file)
-+{
-+	MOD_DEC_USE_COUNT;
- 	return 0;
- }
- 
-@@ -1711,6 +1739,7 @@
- 	llseek:		i810_llseek,
- 	ioctl:		i810_ioctl_mixdev,
- 	open:		i810_open_mixdev,
-+	release:	i810_release_mixdev,
- };
- 
- /* AC97 codec initialisation. */
-@@ -1723,6 +1752,7 @@
- 	int i=0;
- 	u32 reg;
- 
-+	
- 	reg = inl(card->iobase + GLOB_CNT);
- 	
- 	if((reg&2)==0)	/* Cold required */
-@@ -1746,7 +1776,7 @@
- 		printk(KERN_ERR "i810_audio: AC'97 reset failed.\n");
- 		return 0;
- 	}
--
-+ 
- 	current->state = TASK_UNINTERRUPTIBLE;
- 	schedule_timeout(HZ/5);
- 		
-@@ -1768,6 +1798,9 @@
- 		if (ac97_probe_codec(codec) == 0)
- 			break;
- 
-+		/* Now check the codec for useful features to make up for 
-+		   the dumbness of the 810 hardware engine */
-+
- 		eid = i810_ac97_get(codec, AC97_EXTENDED_ID);
- 		
- 		if(eid==0xFFFFFF)
-@@ -1777,10 +1810,36 @@
- 			break;
- 		}
- 		
-+		
- 		card->ac97_features = eid;
- 				
--		if(!(eid&0x0001))
-+		if (!(eid&0x0001))
- 			printk(KERN_WARNING "i810_audio: only 48Khz playback available.\n");
-+		else
-+		{
-+			/* In the AD1885 you cannot enable VRA when
-+			 * the analog sections are not yet ready */
-+			for (i=10; i--;)
-+			{
-+				if ((i810_ac97_get(codec, AC97_POWER_CONTROL) & 0xf) == 0xf)
-+					break;
-+				current->state = TASK_UNINTERRUPTIBLE;
-+				schedule_timeout(HZ/10);
-+			}
-+			if (i == 0)
-+				printk(KERN_WARNING "i810_audio: Analog subsections not ready.\n");
-+
-+			/* Enable variable rate mode. */
-+			i810_ac97_set(codec, AC97_EXTENDED_STATUS, 9);
-+
-+			i810_ac97_set(codec,AC97_EXTENDED_STATUS,
-+				i810_ac97_get(codec, AC97_EXTENDED_STATUS)|0xE800);
-+			if (!((i = i810_ac97_get(codec, AC97_EXTENDED_STATUS))&1))
-+			{
-+				printk(KERN_WARNING "i810_audio: Codec refused to allow VRA, using 48Khz only %04x.\n", i);
-+				card->ac97_features&=~1;
-+			}
-+		}
- 			
- 		if ((codec->dev_mixer = register_sound_mixer(&i810_mixer_fops, -1)) < 0) {
- 			printk(KERN_ERR "i810_audio: couldn't register mixer!\n");
-@@ -1788,9 +1847,6 @@
- 			break;
- 		}
- 
--		/* Now check the codec for useful features to make up for 
--		   the dumbness of the 810 hardware engine */
--		   
- 		card->ac97_codec[num_ac97] = codec;
- 
- 		/* if there is no secondary codec at all, don't probe any more */
-@@ -1904,7 +1960,7 @@
- }
- 
- 
--MODULE_AUTHOR("");
-+MODULE_AUTHOR("Assorted");
- MODULE_DESCRIPTION("Intel 810 audio support");
- MODULE_PARM(ftsodell, "i");
- MODULE_PARM(clocking, "i");
+On Fri, 1 Dec 2000, Andreas Dilger wrote:
+
+> Alexander, Ted,
+> I was taking a hard look at the proposed changes.  In load_inode_bitmap()
+> we shouldn't be cacheing the I/O error case (this was in the old code too).
+
+I know. I left it in place since I don't like the idea of putting many
+not-absolutely-trivial changes into one chunk...
+
+> We should probably reconcile the changes here with load_block_bitmap(),
+> or for that matter, we should make a single function and pass in a
+> pointer to s_{block,inode}_bitmap and s_{block,inode}_bitmap_number
+> arrays and save the duplicate code maintenance (even if inline).
+
+The former - definitely yes (I just don't want to deal with changes in
+too many places at once), the latter... I'm not sure that it's a right
+thing. Generic manipulations of LRU - sure, but let's make it a helper
+function and lets take the actual loading of the bitmaps into its
+(2) callers.
+
+> If we have a generic function like so:
+> 
+> struct buffer_head *load_bitmap(struct super_block *sb,
+> 				unsigned int block_group,
+> 				unsigned long *bitmap_number,
+> 				struct buffer_head *bitmap,
+> 				size_t gdt_offset)
+
+Too many arguments. Exposed to all callers...
+
+BTW, I would actually start with initializing the caches with NULLs and
+forgetting about the counters (->s_loaded_foo_bitmap). That would allow
+to shrink the load_foo_bitmap quite seriously - look at the code and
+you'll see. Then code duplication becomes almost a non-issue.
+
+> Comments/changes are enclosed below, with sh style # comments by me.
+> PS - discussion on this should probably move to ext2-devel or fsdevel.
+ 
+> > +		if (sbi->s_inode_bitmap_number[slot] == slot)
+> > +			goto found;
+> 		/* FIXME: when online shrinking we may go from case B to A */
+	Keeps the behaviour of old code.
+
+> > +		ext2_panic (sb, "load_inode_bitmap",
+> > +			    "block_group != inode_bitmap_number");
+ 
+> # Need to fix callers of load_inode_bitmap() to check for NULL return
+
+If you do the return NULL instead of return ERR_PTR(...). OTOH, right
+now we only do ERR_PTR(-EIO), so we might pass NULL just fine. I'm
+not sure that we'll never want other error values, though...
+
+> # In find_cg_other() we should probably should also check for free blocks,
+> # to give inode a chance to be close to any blocks it will likely soon
+> # allocate.  Don't need to byte swap to test non-zeroness...  It would be
+> # nice to use "gdt" instead of "cg", to keep it consistent with the rest
+> # of the ext2 code... Maybe find_group_dir() and find_group_other()?
+
+<shrug> History. It used to be called "cylinder group" in FFS.
+
+> # In ext2_new_inode() you removed the case where the bit was set between
+> # time we searched and the time we set it.  This probably can't happen
+> # while we hold the superblock lock.  It may be worth keeping for when we
+> # go to per-group locks.
+
+No, it isn't. Notice that find_cg_foo() updates the per-group counters.
+So nobody can take the last free bit from us.
+
+> 	/* With the superblock lock we are safe here, but not once it's gone.
+> 	if (ext2_set_bit(j, bh->b_data)) {
+> 		ext2_warning(sb, __FUNCTION__,
+> 			     "bit already set for inode %d", j);
+> 		goto repeat;
+> 	}
+
+No. Sorry, but "goto repeat" is a very loud "we have a race here" alarm.
+Doing that after you've found and fixed recoverable error is OK. Using
+that to deal with races is a recipe for big trouble. Protect the
+search-and-set with a spinlock and that's it. In any case, if we do the
+"goto repeat" variant we should not do ext2_warning() (it _is_ bogus)
+and we should return only to ext2_find_first_zero_bit() - we had already
+reserved an empty inode in the counter and repeating the whole search
+for appropriate group is a huge overkill.
+
+> 	*/
+> 
+> # Need to check that we got a good gdp back here...
+> > +fail2:
+> > +	gdp = ext2_get_group_desc (sb, i, &bh2);
+
+Why? ext2_get_group_desc() can't fail, since we've already called it with
+that argument and ->s_group_desc[] is not cleaned. If you are thinking about
+resize - let's add a resize_sem and make current users of lock_super() do
+down_read() and resizer do down_write() - no additional contention for normal
+case and you really don't want to do resize while allocating. Notice that
+as soon as we start removing elements from ->s_group_desc[] we are in for
+a major PITA - brelse() on a buffer_head * that can be in use right now...
+Not nice.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

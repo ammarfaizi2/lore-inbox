@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129807AbRAYRFa>; Thu, 25 Jan 2001 12:05:30 -0500
+	id <S129311AbRAYRFk>; Thu, 25 Jan 2001 12:05:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129737AbRAYRFU>; Thu, 25 Jan 2001 12:05:20 -0500
-Received: from cmn2.cmn.net ([206.168.145.10]:13896 "EHLO cmn2.cmn.net")
-	by vger.kernel.org with ESMTP id <S129311AbRAYRFD>;
-	Thu, 25 Jan 2001 12:05:03 -0500
-Message-ID: <3A705CAF.70909@valinux.com>
-Date: Thu, 25 Jan 2001 10:04:47 -0700
-From: Jeff Hartmann <jhartmann@valinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.12-20smp i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Timur Tabi <ttabi@interactivesi.com>
-CC: Roman Zippel <roman@augan.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: ioremap_nocache problem?
-In-Reply-To: <3A6D5D28.C132D416@sangate.com> <20010123165117Z131182-221+34@kanga.kvack.org> 
-		<20010123165117Z131182-221+34@kanga.kvack.org> ; from ttabi@interactivesi.com on Tue, Jan 23, 2001 at 10:53:51AM -0600 <20010125155345Z131181-221+38@kanga.kvack.org> <20010125165001Z132264-460+11@vger.kernel.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S132897AbRAYRFa>; Thu, 25 Jan 2001 12:05:30 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:62406 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129311AbRAYRFX>;
+	Thu, 25 Jan 2001 12:05:23 -0500
+Date: Thu, 25 Jan 2001 17:03:11 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Mike Black <mblack@csihq.com>
+Cc: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>,
+        Stephen Tweedie <sct@redhat.com>
+Subject: Re: Largefile support in 2.4
+Message-ID: <20010125170311.C12984@redhat.com>
+In-Reply-To: <06dc01c0863d$29383390$e1de11cc@csihq.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <06dc01c0863d$29383390$e1de11cc@csihq.com>; from mblack@csihq.com on Wed, Jan 24, 2001 at 02:38:00PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timur Tabi wrote:
+Hi,
 
-> ** Reply to message from Roman Zippel <roman@augan.com> on Thu, 25 Jan 2001
-> 17:44:51 +0100
-> 
-> 
-> 
->> set_bit(PG_reserved, &page->flags);
->> 	ioremap();
->> 	...
->> 	iounmap();
->> 	clear_bit(PG_reserved, &page->flags);
-> 
-> 
-> The problem with this is that between the ioremap and iounmap, the page is
-> reserved.  What happens if that page belongs to some disk buffer or user
-> process, and some other process tries to free it.  Won't that cause a problem?
+On Wed, Jan 24, 2001 at 02:38:00PM -0500, Mike Black wrote:
+> How do normal users get to create/maintain large files (i.e. >2G) in Linux
+> 2.4 on i386?
 
-	The page can't belong to some other process/kernel component.  You own 
-the page if you allocated it.  The kernel will only muck with memory you 
-allocated if its GFP_HIGHMEM, or under certain circumstances if you map 
-it into a user process (There are several rules here and I won't go into 
-them, look at the DRM mmap setup for a start if your interested.)  This 
-is the correct ordering of the calls (I was the one who added support to 
-the kernel to ioremap real ram, trust me.)
+> The root user can make filesize unlimited but a non-root user cannot.  They
+> come up with the same limits in both tcsh and bash (i.e. filesize
+> 1048576 kbytes or 0x40000000)
 
--Jeff
+Check your distribution's login process.  The kernel sets no default
+limit, but several distributions let you set default limits for login.
+It's quite common to see core limits set on all logins, and I seem to
+recall at least Debian setting some of the other limits too.
 
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

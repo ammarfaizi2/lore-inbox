@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262584AbTE2T5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 15:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbTE2T5Q
+	id S262620AbTE2UAi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 16:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbTE2UAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 15:57:16 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:22410 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S262584AbTE2T5P (ORCPT
+	Thu, 29 May 2003 16:00:38 -0400
+Received: from holomorphy.com ([66.224.33.161]:650 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262620AbTE2UAh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 15:57:15 -0400
-Date: Thu, 29 May 2003 22:10:10 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: "David S. Miller" <davem@redhat.com>, ak@suse.de, akpm@digeo.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: must-fix list, v5
-Message-ID: <20030529201010.GF1454@elf.ucw.cz>
-References: <p73wuga6rin.fsf@oldwotan.suse.de> <20030529.023203.41634240.davem@redhat.com> <20030529112517.GC1215@elf.ucw.cz> <20030529.042615.55727031.davem@redhat.com> <1054208379.5223.0.camel@laptop.fenrus.com>
+	Thu, 29 May 2003 16:00:37 -0400
+Date: Thu, 29 May 2003 13:13:37 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Morten Helgesen <morten.helgesen@nextframe.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: list_head debugging patch
+Message-ID: <20030529201337.GC8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Morten Helgesen <morten.helgesen@nextframe.net>,
+	linux-kernel@vger.kernel.org
+References: <20030529130807.GH19818@holomorphy.com> <200305292158.52311.morten.helgesen@nextframe.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1054208379.5223.0.camel@laptop.fenrus.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <200305292158.52311.morten.helgesen@nextframe.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, May 29, 2003 at 09:58:52PM +0200, Morten Helgesen wrote:
+> one more ... 
+> elem = c3a6464c, elem->prev = c11d59e8, elem->prev->next = c28cc1ec
+> ------------[ cut here ]------------
+> kernel BUG at include/linux/list.h:39!
+> invalid operand: 0000 [#1]
+> CPU:    0
+> EIP:    0060:[<c016b21c>]    Not tainted
+> EFLAGS: 00010286
+> EIP is at file_kill+0x2c/0x150
 
-> >    What is copy_in_user?
-> > 
-> > Both source and destination pointers are in userspace.
-> 
-> sys_memcpy() ?
+Same thing; nuke the __list_head_check() check in list_empty() please.
 
-No, its for in-kernel usage. If you want to copy 10 bytes in
-userspace, you can't use memcpy()... You'd have to do copy_from_user()
-then copy_to_user(); and that's what copy_in_user does.
 
-							Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+-- wli

@@ -1,42 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262228AbTDAJtn>; Tue, 1 Apr 2003 04:49:43 -0500
+	id <S262214AbTDAJs0>; Tue, 1 Apr 2003 04:48:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262229AbTDAJtn>; Tue, 1 Apr 2003 04:49:43 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:49876 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S262228AbTDAJtm>; Tue, 1 Apr 2003 04:49:42 -0500
-Date: Tue, 1 Apr 2003 20:02:37 +1000
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: sct@redhat.com, akpm@zip.com.au, adilger@clusterfs.com
-Subject: 2.5.66: slow to friggin slow journal recover
-Message-ID: <20030401100237.GA459@zip.com.au>
+	id <S262219AbTDAJs0>; Tue, 1 Apr 2003 04:48:26 -0500
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:5252 "EHLO phoebee")
+	by vger.kernel.org with ESMTP id <S262214AbTDAJsY>;
+	Tue, 1 Apr 2003 04:48:24 -0500
+Date: Tue, 1 Apr 2003 11:59:01 +0200
+From: Martin Zwickel <martin.zwickel@technotrend.de> (by way of Martin
+	Zwickel <martin.zwickel@technotrend.de>)
+To: Miek Gieben <miekg@atoom.net>
+Message-Id: <20030401115901.3b5ce423.martin.zwickel@technotrend.de>
+In-Reply-To: <20030401093646.GA11420@atoom.net>
+References: <20030401093646.GA11420@atoom.net>
+Organization: TechnoTrend AG
+X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.4.21-pre5-ac3 i686 Intel(R) Pentium(R) 4 CPU 2.40GHz
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg="pgp-sha1"; boundary="=.qjZUgANtgY(7rh"
+Subject: Re: 2.4.21-pre6 and usb-uhci
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The journal recovery rangers from slow to really friggin slow under
-2.5.66 with definate pauses in disk io stretching for 10s of seconds.
-This does not happen with 2.5.63 and if I hit ^c on fsck and let the
-kernel handle the journal recover for all partitions  on mountime
-the recovery under 2.5.66 is either so fast that you don't notice
-it or just a buttload faster. Very objective measurements of time but
-the slowness of a journal recover as done by fsck is so noticible it's
-not funny.
+--=.qjZUgANtgY(7rh
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-At the time of fsck journal recover or moiunt-time kernel journal
-recover DMA is turned on the drive.
 
-e2fsprogs 1.27 is in use. (1.27-2 from debian woody)
+try using it as a module!
+
+from greg:
+> Yes, the usb host controller drivers do not get built in 2.4.21-pre6
+> if
+> selected to be compiled into the kernel.  This was my fault, and a
+> patch
+> has been sent to Marcelo to fix this.
+> 
+> Sorry,
+> 
+> greg k-h
+
+Regards,
+Martin
+
+
 
 -- 
-"Other countries of course, bear the same risk. But there's no doubt his
-hatred is mainly directed at us. After all this is the guy who tried to
-kill my dad."
-        - George W. Bush Jr, Leader of the United States Regime
-          September 26, 2002 (from a political fundraiser in Houston, Texas)
+Martin Zwickel <martin.zwickel@technotrend.de>
+
+Research & Development
+
+TechnoTrend AG <http://www.technotrend.de>
+Werner-von-Siemens-Str. 6
+86159 Augsburg (Germany)
+
+Tel: [+49-821-450448-16] <---> Fax: [+49-821-450448-11]
+
+--------------------------------------------------------------------
+This email, together with any attachments,  is for the exclusive and
+confidential use of the addressee(s). Any other distribution, use or
+reproduction without the sender's prior consent is  unauthorised and
+strictly  prohibited.  If  you have received this message  in error,
+please notify the sender by email immediately and delete the message
+from your computer without making copies.
+
+--=.qjZUgANtgY(7rh
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+iWLlmjLYGS7fcG0RAhIHAJ48fELNKJAyHp4VxuiSBc/u0qBgKgCfYIR9
+5LuzrTcqXewjCIkYtGomJ5U=
+=qvqC
+-----END PGP SIGNATURE-----
+
+--=.qjZUgANtgY(7rh--

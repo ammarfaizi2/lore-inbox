@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289277AbSBDXaI>; Mon, 4 Feb 2002 18:30:08 -0500
+	id <S289278AbSBDXdQ>; Mon, 4 Feb 2002 18:33:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289278AbSBDX35>; Mon, 4 Feb 2002 18:29:57 -0500
-Received: from asooo.flowerfire.com ([63.254.226.247]:3726 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S289277AbSBDX3q>; Mon, 4 Feb 2002 18:29:46 -0500
-Date: Mon, 4 Feb 2002 17:29:42 -0600
-From: Ken Brownfield <brownfld@irridia.com>
-To: Willy Tarreau <wtarreau@free.fr>
-Cc: jon-anderson@rogers.com, linux-kernel@vger.kernel.org
-Subject: Re: 760MPX IO/APIC Errors...
-Message-ID: <20020204172942.C14297@asooo.flowerfire.com>
-In-Reply-To: <200202031027.g13ARMN03118@ns.home.local>
-Mime-Version: 1.0
+	id <S289281AbSBDXdG>; Mon, 4 Feb 2002 18:33:06 -0500
+Received: from ua0d5hel.dial.kolumbus.fi ([62.248.132.0]:26712 "EHLO
+	porkkala.uworld.dyndns.org") by vger.kernel.org with ESMTP
+	id <S289278AbSBDXcx>; Mon, 4 Feb 2002 18:32:53 -0500
+Message-ID: <3C5F1A17.A0713D5@kolumbus.fi>
+Date: Tue, 05 Feb 2002 01:32:40 +0200
+From: Jussi Laako <jussi.laako@kolumbus.fi>
+X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: mingo@elte.hu
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] improving O(1)-J9 in heavily threaded situations
+In-Reply-To: <Pine.LNX.4.33.0202050155370.19367-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200202031027.g13ARMN03118@ns.home.local>; from wtarreau@free.fr on Sun, Feb 03, 2002 at 11:27:22AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At what point do your machines stop booting, i.e., what was the last
-printed kernel message on the console?  Also, can you send me full
-dmesgs from your machines after booting?
+Ingo Molnar wrote:
+> 
+> what does 'loose datablocks' mean? What application loses datablocks?
 
-I'm trying to corelate these issues with APIC issues I've had in the
-past (and I'm thinking of getting the A7M266D at some point).
+My app http://hasas.sf.net
 
-Thanks,
+It's because either distributor's send thread isn't woken up and at
+pthread_cond_broadcast() or it's not at pthread_cond_wait() because
+receiving process is not receiving it's data because of CPU time starvation.
+Thus receiving "CPU hog" process is losing blocks of data.
+
+Data path basically is:
+
+1) read() data from soundcard
+2) pthread_cond_broadcast() it
+3) pthread_cond_wait() returns		| there are N of these
+4) write() data to tcp socket		|
+
+5) read() data from tcp socket
+6) pthread_cond_broadcast() it
+7) pthread_cond_wait() returns		| there are N of these
+8) write() data to unix socket		| (here the loss probably happens)
+
+9) read() data from unix socket		| there are N of these
+10) do some CPU hog stuff		| (this process doesn't get all
+11) write() results to tcp socket	| of the data)
+
+12) read() results from tcp socket			| ...and N of these
+13) scale data for drawing to screen			|
+14) do a bit system-cpu-time hog drawing to screen	|
+
+
+	- Jussi Laako
+
 -- 
-Ken.
-brownfld@irridia.com
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers
 
-PS: MPS1.4 ==> APIC_DM_FIXED?
-
-On Sun, Feb 03, 2002 at 11:27:22AM +0100, Willy Tarreau wrote:
-| Hi Jon,
-| 
-| same motherboard here, but with 2 XP1800+.
-| It couldn't boot until I either disabled IO/APIC or disable MPS1.4 support
-| in the bios setup. Finally, I disabled MPS1.4 and let IO/APIC enabled and
-| it works really well in SMP. (In fact, I couldn't really imagine how fast
-| this could be !)
-| 
-| Regards,
-| Willy
-| 
-| -
-| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-| the body of a message to majordomo@vger.kernel.org
-| More majordomo info at  http://vger.kernel.org/majordomo-info.html
-| Please read the FAQ at  http://www.tux.org/lkml/

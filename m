@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269424AbVBETkC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266686AbVBETjl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269424AbVBETkC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 14:40:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269464AbVBETkC
+	id S266686AbVBETjl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 14:39:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269464AbVBETjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 14:40:02 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:25563 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S269424AbVBETiu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 14:38:50 -0500
-Date: Sat, 5 Feb 2005 20:38:48 +0100
-From: Stelian Pop <stelian@popies.net>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: lm@bitmover.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050205193848.GH5028@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Francois Romieu <romieu@fr.zoreil.com>, lm@bitmover.com,
-	linux-kernel@vger.kernel.org
-References: <20050203220059.GD5028@deep-space-9.dsnet> <20050203222854.GC20914@bitmover.com> <20050204130127.GA3467@crusoe.alcove-fr> <20050204160631.GB26748@bitmover.com> <20050204170306.GB3467@crusoe.alcove-fr> <20050204183922.GC27707@bitmover.com> <20050204200507.GE5028@deep-space-9.dsnet> <20050204201157.GN27707@bitmover.com> <20050204214015.GF5028@deep-space-9.dsnet> <20050204233153.GA28731@electric-eye.fr.zoreil.com>
+	Sat, 5 Feb 2005 14:39:40 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:2576 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S269410AbVBETiP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 14:38:15 -0500
+Date: Sat, 5 Feb 2005 20:38:13 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] add compiler-gcc4.h
+Message-ID: <20050205193813.GG3129@stusta.de>
+References: <20050130130308.GK3185@stusta.de> <m1pszn3t2w.fsf@muc.de> <41FCFED4.1070301@tiscali.de> <ctrtbe$570$1@terminus.zytor.com> <20050205135026.GC3129@stusta.de> <42051460.9060208@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050204233153.GA28731@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <42051460.9060208@zytor.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 05, 2005 at 12:31:53AM +0100, Francois Romieu wrote:
-
-> Stelian Pop <stelian@popies.net> :
-> [...]
-> > Now, suppose one of my patches introduced a problem. How can someone
-> > not using BK isolate the patch which introduced the problem ? All he
-> > can do is to back out the entire set of patches, and the whole point
-> > of having split the patch initialy into logical changes is lost.
+On Sat, Feb 05, 2005 at 10:45:52AM -0800, H. Peter Anvin wrote:
+> Adrian Bunk wrote:
+> >
+> >As I already said in this thread:
+> >  The currently used file for gcc 4 is compiler-gcc+.h, not
+> >  compiler-gcc3.h .
+> >
+> >And the current setup is to have one file for every major number of gcc.
+> >I have no strong opinion whether this approach or the approach of one 
+> >file for all gcc versions is better - but with the current approach, 
+> >everything else than a separate file for gcc 4 wasn't logical.
 > 
-> Nope: he digs the bk-commit mailing list archives.
-> 
-> For example, from Roland's mail
-> 2005/01/31 01:37:39-05:00 len.brown
-> 2005/01/31 01:35:48-05:00 len.brown
-> 2005/01/31 00:15:20-05:00 len.brown
-> 2005/01/31 00:12:40-05:00 len.brown
-> [etc.]
-> 
-> $ grep +/^ChangeSet.*2005/01/31.*len.brown ~/Mail/linux/bk-commit/200505
-> ChangeSet 1.1983.5.2, 2005/01/31 00:15:20-05:00, len.brown@intel.com
-> ChangeSet 1.1938.498.11, 2005/01/31 00:12:40-05:00, len.brown@intel.com
-> ChangeSet 1.1983.5.3, 2005/01/31 01:37:39-05:00, len.brown@intel.com
-> ChangeSet 1.1938.498.12, 2005/01/31 01:35:48-05:00, len.brown@intel.com
-> 
-> Same thing as in Roland's mail but the changes are isolated.
+> Yes it is.  It's perfectly logical: gcc+ contains the "going forward" 
+> version, and until it supports some feature that isn't in all versions 
+> of gcc4, it's the right thing to do.
+>...
 
-Interesting, I fergot about those commit mails, thanks for remining
-me.
+It doesn't seem to be logical for everyone whether compiler-gcc+.h or 
+compiler-gcc3.h is used for gcc 4.0 ...
 
-I think those emails could provide the missing piece of the puzzle
-and we could generate the missing branches based on them. 
+Perhaps compiler-gcc+.h (which wasn't always updated when 
+compiler-gcc3.h was updated) should be removed?
 
-Stelian.
+> 	-hpa
+
+cu
+Adrian
+
 -- 
-Stelian Pop <stelian@popies.net>
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

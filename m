@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVA2SNa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVA2SRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261212AbVA2SNa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 13:13:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbVA2SN3
+	id S261363AbVA2SRM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 13:17:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVA2SQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 13:13:29 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:13230 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261212AbVA2SNH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 13:13:07 -0500
-Date: Sat, 29 Jan 2005 13:12:58 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
+	Sat, 29 Jan 2005 13:16:59 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:63626 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261363AbVA2SQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 13:16:36 -0500
+Date: Sat, 29 Jan 2005 18:16:26 +0000
+From: Christoph Hellwig <hch@infradead.org>
 To: John Richard Moser <nigelenki@comcast.net>
-cc: Christoph Hellwig <hch@infradead.org>, Jakub Jelinek <jakub@redhat.com>,
+Cc: Jakub Jelinek <jakub@redhat.com>, Rik van Riel <riel@redhat.com>,
        Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
        akpm@osdl.org
 Subject: Re: Patch 4/6  randomize the stack pointer
+Message-ID: <20050129181626.GA3080@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	John Richard Moser <nigelenki@comcast.net>,
+	Jakub Jelinek <jakub@redhat.com>, Rik van Riel <riel@redhat.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <Pine.LNX.4.58.0501271010130.2362@ppc970.osdl.org> <41F95F79.6080904@comcast.net> <1106862801.5624.145.camel@laptopd505.fenrus.org> <41F96C7D.9000506@comcast.net> <Pine.LNX.4.61.0501282147090.19494@chimarrao.boston.redhat.com> <41FB2DD2.1070405@comcast.net> <20050129173704.GM11199@devserv.devel.redhat.com> <41FBCC91.8010602@comcast.net> <20050129175549.GA2846@infradead.org> <41FBD1AE.2080608@comcast.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <41FBD1AE.2080608@comcast.net>
-Message-ID: <Pine.LNX.4.61.0501291312290.7589@chimarrao.boston.redhat.com>
-References: <1106848051.5624.110.camel@laptopd505.fenrus.org>
- <41F92D2B.4090302@comcast.net> <Pine.LNX.4.58.0501271010130.2362@ppc970.osdl.org>
- <41F95F79.6080904@comcast.net> <1106862801.5624.145.camel@laptopd505.fenrus.org>
- <41F96C7D.9000506@comcast.net> <Pine.LNX.4.61.0501282147090.19494@chimarrao.boston.redhat.com>
- <41FB2DD2.1070405@comcast.net> <20050129173704.GM11199@devserv.devel.redhat.com>
- <41FBCC91.8010602@comcast.net> <20050129175549.GA2846@infradead.org>
- <41FBD1AE.2080608@comcast.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Jan 2005, John Richard Moser wrote:
+On Sat, Jan 29, 2005 at 01:10:54PM -0500, John Richard Moser wrote:
+> > Yeah, I guess your extensive compiler internals experience and knowledge
+> > of gcc internals weights a lot more than the opinion of the gcc team..
+> > 
+> 
+> I read "implementation" as "the way it's implemented," not as "the
+> quality of the code."
 
+Doesn't really matter, it'd fit for both.
+
+> 
 > Did I miss the target?  *Aims in the other direction then?*
 
-Depends.  If you aimed to kick your own arse, you did pretty well.
+Yes.  Try to search for propolice in the gcc mailglist archives
+as a start.  Doing a little bit of research before calling someone
+a liar is usually considered a good idea.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan

@@ -1,48 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265513AbUBPNZb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 08:25:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265515AbUBPNZb
+	id S265529AbUBPNgW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 08:36:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265532AbUBPNgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 08:25:31 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:42195 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S265513AbUBPNZ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 08:25:28 -0500
-Date: Mon, 16 Feb 2004 12:52:22 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Jurriaan on adsl-gate <thunder7@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
-Subject: Re: Keyboard on ... reports too many keys pressed
-Message-ID: <20040216115221.GC470@openzaurus.ucw.cz>
-References: <20040207064027.GA20495@gates.of.nowhere>
+	Mon, 16 Feb 2004 08:36:22 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:11962 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S265529AbUBPNgT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 08:36:19 -0500
+Subject: Re: kthread, signals and PF_FREEZE (suspend)
+From: Christophe Saout <christophe@saout.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: LKML <linux-kernel@vger.kernel.org>, pavel@suse.cz
+In-Reply-To: <20040216034251.0912E2C0F8@lists.samba.org>
+References: <20040216034251.0912E2C0F8@lists.samba.org>
+Content-Type: text/plain
+Message-Id: <1076938575.7350.29.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040207064027.GA20495@gates.of.nowhere>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 16 Feb 2004 14:36:15 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Am Mo, den 16.02.2004 schrieb Rusty Russell um 04:38:
 
-> On my laptop, I get a lot of
+> > That means that signal_pending() will return true for that process which
+> > will make kthread stop the thread.
 > 
-> Keyboard on ... reports too many keys pressed.
-> 
-> That may well be the case, I use my normal hands on a small
-> laptop-keyboard.
-> Why is that message printed? There nothing I can do about pressing
-> multiple keys by accident, so I don't think it's useful.
-> 
-> It does, however, frequently mess up the commandline, which leads to big
-> frustration.
-> 
-> Couldn't this be wrapped in #ifdef ATKBD_DEBUG or something? Is it
-> really necessary to see this message?
+> Yes, the way they are currently coded.  I had assumed that spurious
+> signals do not occur.
 
-Its error condition -- keyboard lost track of keys -- and
-yes thats worth a printk. Try running klogd.
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Yes, the freeze signalling is somewhat hackish. It sets the PF_FREEZE
+flag and calls signal_wake_up on the process.
+
+> Pavel, what is the answer here?  Should the refrigerator code be in
+> the kthread infrastructure?  Why does the workqueue code set
+> PF_IOTHREAD?
+
+If PF_IOTHREAD is set the suspend code won't try to freeze the process
+(kthread works here with the suspend code).
+
+But you could change
+
+while (!signal_pending(current))
+        ret = threadfn(data);
+
+to
+
+for (;;) {
+	if (current->flags & PF_FREEZE)
+		refrigerator(PF_IOTHREAD);
+	if (signal_pending())
+		break;
+        ret = threadfn(data);
+}
+
+or something like that.
+
+The threadfn will return when it sees a signal. If it was a "PF_FREEZE
+signal" the refrigerator will suspend the code and flush the signal. The
+threadfn will be reentered afterwards (it should be prepared for this to
+happen if it doesn't handle PF_FREEZE itself).
+
+If it was real signal the thread will exit.
+
+BTW: You might want to export the kthread functions:
+
+EXPORT_SYMBOL(kthread_create);
+EXPORT_SYMBOL(kthread_bind);
+EXPORT_SYMBOL(kthread_stop);
+
+Should I send a patch to Andrew?
+
 

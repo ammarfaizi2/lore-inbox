@@ -1,131 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263868AbUBKVvq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 16:51:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266164AbUBKVvq
+	id S266172AbUBKVxn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 16:53:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUBKVxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 16:51:46 -0500
-Received: from fw.osdl.org ([65.172.181.6]:13992 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263868AbUBKVvm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 16:51:42 -0500
-Date: Wed, 11 Feb 2004 13:53:25 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: thockin@sun.com
-Cc: torvalds@osdl.org, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH - raise max_anon limit
-Message-Id: <20040211135325.7b4b5020.akpm@osdl.org>
-In-Reply-To: <20040211210930.GJ9155@sun.com>
-References: <20040206221545.GD9155@sun.com>
-	<20040207005505.784307b8.akpm@osdl.org>
-	<20040207094846.GZ21151@parcelfarce.linux.theplanet.co.uk>
-	<20040211203306.GI9155@sun.com>
-	<Pine.LNX.4.58.0402111236460.2128@home.osdl.org>
-	<20040211210930.GJ9155@sun.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 11 Feb 2004 16:53:43 -0500
+Received: from elektra.telenet-ops.be ([195.130.132.49]:14829 "EHLO
+	elektra.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S266172AbUBKVwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 16:52:40 -0500
+Date: Wed, 11 Feb 2004 22:46:45 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Paul Mundt <lethal@linux-sh.org>,
+       Guido Guenther <agx@sigxcpu.org>
+Subject: [WATCHDOG] v2.6.2 patches
+Message-ID: <20040211224645.A25177@infomag.infomag.iguana.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Hockin <thockin@sun.com> wrote:
->
-> > I'd suggest just raising it to 64k or so, that's likely to be acceptable, 
-> > and it's a static 8kB array. That's likely not much more than the code 
-> > needed to worry about dynamic entries, yet I'd assume that changing it 
-> > from 256 to 64k is going to make most people say "enough".
-> 
-> How's this then?  It doesn't get any simpler..
 
-Well it is lazy, wastes 0.4% of a 2M machine's memory and still has a
-hard-wired limit.
+Hi Linus, Andrew,
 
-Wanna test this?
+please do a
 
- 25-akpm/fs/super.c |   38 +++++++++++++++++++++++---------------
- 1 files changed, 23 insertions(+), 15 deletions(-)
+	bk pull http://linux-watchdog.bkbits.net/linux-2.6-watchdog
 
-diff -puN fs/super.c~max_anon-use-idr fs/super.c
---- 25/fs/super.c~max_anon-use-idr	Wed Feb 11 13:41:57 2004
-+++ 25-akpm/fs/super.c	Wed Feb 11 13:50:16 2004
-@@ -23,6 +23,8 @@
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/slab.h>
-+#include <linux/init.h>
-+#include <asm/semaphore.h>
- #include <linux/smp_lock.h>
- #include <linux/acct.h>
- #include <linux/blkdev.h>
-@@ -33,6 +35,7 @@
- #include <linux/security.h>
- #include <linux/vfs.h>
- #include <linux/writeback.h>		/* for the emergency remount stuff */
-+#include <linux/idr.h>
- #include <asm/uaccess.h>
- 
- 
-@@ -536,38 +539,43 @@ void emergency_remount(void)
-  * filesystems which don't use real block-devices.  -- jrs
-  */
- 
--enum {Max_anon = 256};
--static unsigned long unnamed_dev_in_use[Max_anon/(8*sizeof(unsigned long))];
--static spinlock_t unnamed_dev_lock = SPIN_LOCK_UNLOCKED;/* protects the above */
-+static struct idr unnamed_dev_idr;
-+static DECLARE_MUTEX(unnamed_dev_sem);
- 
- int set_anon_super(struct super_block *s, void *data)
- {
- 	int dev;
--	spin_lock(&unnamed_dev_lock);
--	dev = find_first_zero_bit(unnamed_dev_in_use, Max_anon);
--	if (dev == Max_anon) {
--		spin_unlock(&unnamed_dev_lock);
--		return -EMFILE;
-+
-+	down(&unnamed_dev_sem);
-+	if (idr_pre_get(&unnamed_dev_idr) == 0) {
-+		up(&unnamed_dev_sem);
-+		return -ENOMEM;
- 	}
--	set_bit(dev, unnamed_dev_in_use);
--	spin_unlock(&unnamed_dev_lock);
-+	dev = idr_get_new(&unnamed_dev_idr, NULL);
-+	up(&unnamed_dev_sem);
- 	s->s_dev = MKDEV(0, dev);
- 	return 0;
- }
--
- EXPORT_SYMBOL(set_anon_super);
- 
- void kill_anon_super(struct super_block *sb)
- {
- 	int slot = MINOR(sb->s_dev);
-+
- 	generic_shutdown_super(sb);
--	spin_lock(&unnamed_dev_lock);
--	clear_bit(slot, unnamed_dev_in_use);
--	spin_unlock(&unnamed_dev_lock);
-+	down(&unnamed_dev_sem);
-+	idr_remove(&unnamed_dev_idr, slot);
-+	up(&unnamed_dev_sem);
- }
--
- EXPORT_SYMBOL(kill_anon_super);
- 
-+static int __init unnamed_dev_idr_init(void)
-+{
-+	idr_init(&unnamed_dev_idr);
-+	return 0;
-+}
-+core_initcall(unnamed_dev_idr_init);
-+
- void kill_litter_super(struct super_block *sb)
- {
- 	if (sb->s_root)
+This will update the following files:
 
-_
+ drivers/char/watchdog/i810-tco.c     |  437 ----------------------
+ drivers/char/watchdog/i810-tco.h     |   42 --
+ arch/m68k/Kconfig                    |   45 --
+ arch/sh/Kconfig                      |   56 --
+ arch/sparc/Kconfig                   |   15 
+ arch/sparc64/Kconfig                 |   15 
+ drivers/char/watchdog/Kconfig        |  506 ++++++++++++++------------
+ drivers/char/watchdog/Makefile       |    4 
+ drivers/char/watchdog/acquirewdt.c   |   59 ++-
+ drivers/char/watchdog/advantechwdt.c |    2 
+ drivers/char/watchdog/alim1535_wdt.c |    1 
+ drivers/char/watchdog/alim7101_wdt.c |    1 
+ drivers/char/watchdog/amd7xx_tco.c   |    2 
+ drivers/char/watchdog/i8xx_tco.c     |  510 ++++++++++++++++++++++++++
+ drivers/char/watchdog/i8xx_tco.h     |   42 ++
+ drivers/char/watchdog/indydog.c      |  111 ++++-
+ drivers/char/watchdog/pcwd_pci.c     |  681 +++++++++++++++++++++++++++++++++++
+ drivers/char/watchdog/sbc60xxwdt.c   |    1 
+ drivers/char/watchdog/sc520_wdt.c    |    1 
+ drivers/char/watchdog/scx200_wdt.c   |    1 
+ drivers/char/watchdog/shwdt.c        |  131 ++++--
+ drivers/char/watchdog/softdog.c      |    5 
+ drivers/char/watchdog/wafer5823wdt.c |    1 
+ 23 files changed, 1764 insertions(+), 905 deletions(-)
+
+through these ChangeSets:
+
+<willy@debian.org> (04/02/11 1.1613)
+   [WATCHDOG] v2.6.2 watchdog-architecture-cleanup
+   
+   In order to make the watchdog menu useful for some architectures, we need
+   to only be able to select the watchdogs that can compile.  This patch also
+   moves the SuperH watchdog from its own Kconfig file to the normal one.
+
+<wim@iguana.be> (04/02/11 1.1614)
+   [WATCHDOG] v2.6.2 shwdt-cleanup
+   
+   Make heartbeat a module parameter and some general clean-up.
+
+<wim@iguana.be> (04/02/11 1.1615)
+   [WATCHDOG] v2.6.2 watchdog-module_*-update
+   
+   Update MODULE_* information
+
+<wim@iguana.be> (04/02/11 1.1616)
+   [WATCHDOG] v2.6.2 acquirewdt-cleanup
+   
+   small cleanup
+
+<wim@iguana.be> (04/02/11 1.1617)
+   [WATCHDOG] v2.6.2 indydog-v0.3_update
+   
+   Added notifier support
+   Moved start and stop code to their own subroutines
+   Extended ioctl support
+   Add MODULE_* info
+
+<wim@iguana.be> (04/02/11 1.1618)
+   [WATCHDOG] v2.6.2 i8xx_tco-v0.06_update
+   
+   Version 0.06 of the intel i8xx TCO driver:
+   * change i810_margin to heartbeat (in seconds)
+   * use module_param
+   * added notify system support
+   * renamed module to i8xx_tco
+
+<wim@iguana.be> (04/02/11 1.1619)
+   [WATCHDOG] v2.6.2 watchdog-Kconfig-patch
+   
+   Cleanup/Restructuring of drivers/char/watchdog/Kconfig
+
+<wim@iguana.be> (04/02/11 1.1620)
+   [WATCHDOG] v2.6.2 indydog-Kconfig+Makefile-patch
+   
+   Apparently we ported the indydog code to the 2.5/2.6 kernel series,
+   but we forgot to put it in the kernel configuration file + the Makefile
+
+<wim@iguana.be> (04/02/11 1.1621)
+   [WATCHDOG] v2.6.2 pcwd_pci-watchdog
+   
+   Add the Berkshire Products PCI-PC Watchdog driver
+
+<wim@iguana.be> (04/02/11 1.1622)
+   [WATCHDOG] v2.6.2 arch-[m68k/sparc/sparc64]-Kconfig-patch
+   
+   Source WATCHDOG config info from drivers/char/watchdog/Kconfig
+   for m68k, sparc and sparc64 architectures
+
+
+The ChangeSets can also be looked at on:
+	http://linux-watchdog.bkbits.net:8080/linux-2.6-watchdog
+
+Greetings,
+Wim.
 

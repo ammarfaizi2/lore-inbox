@@ -1,93 +1,154 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbTDDTxK (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 14:53:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbTDDTxK (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 14:53:10 -0500
-Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:25333 "HELO
-	cocodriloo.com") by vger.kernel.org with SMTP id S261335AbTDDTxH (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 14:53:07 -0500
-Date: Fri, 4 Apr 2003 22:12:41 +0200
-From: Antonio Vargas <wind@cocodriloo.com>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Antonio Vargas <wind@cocodriloo.com>,
-       Hubertus Franke <frankeh@watson.ibm.com>, linux-kernel@vger.kernel.org,
-       Robert Love <rml@tech9.net>
-Subject: Re: fairsched + O(1) process scheduler
-Message-ID: <20030404201241.GB15864@wind.cocodriloo.com>
-References: <20030401125159.GA8005@wind.cocodriloo.com> <20030401164126.GA993@holomorphy.com> <20030401221927.GA8904@wind.cocodriloo.com> <200304021144.21924.frankeh@watson.ibm.com> <20030403125355.GA12001@wind.cocodriloo.com> <20030403192241.GB1828@holomorphy.com> <20030404112704.GA15864@wind.cocodriloo.com> <20030404140447.GC1828@holomorphy.com>
+	id S261341AbTDDT4y (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 14:56:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbTDDT4y (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 14:56:54 -0500
+Received: from mail-2.tiscali.it ([195.130.225.148]:27278 "EHLO
+	mail.tiscali.it") by vger.kernel.org with ESMTP id S261341AbTDDT4v (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 14:56:51 -0500
+Date: Fri, 4 Apr 2003 22:07:49 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jeffrey Baker <jwbaker@acm.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: performance degradation from 2.4.17 to 2.4.21-pre5aa2
+Message-ID: <20030404200749.GV16293@dualathlon.random>
+References: <20030404181648.GA23281@heat> <20030404184059.GR16293@dualathlon.random> <20030404190550.GB25891@heat>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030404140447.GC1828@holomorphy.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030404190550.GB25891@heat>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 04, 2003 at 06:04:47AM -0800, William Lee Irwin III wrote:
-> On Thu, Apr 03, 2003 at 11:22:41AM -0800, William Lee Irwin III wrote:
-> >> Use spin_lock_irq(&uidhash_lock) or you will deadlock if you hold it
-> >> while you take a timer tick, but it's wrong anyway. it's O(N) with
-> >> respect to number of users present. An O(1) algorithm could easily
-> >> make use of reference counts held by tasks.
-> [...]
-> >> This isn't right, when expiration happens needs to be tracked by both
-> >> user and task. Basically which tasks are penalized when the user
-> >> expiration happens? The prediction is the same set of tasks will always
-> >> be the target of the penalty.
+On Fri, Apr 04, 2003 at 11:05:50AM -0800, Jeffrey Baker wrote:
+> On Fri, Apr 04, 2003 at 08:40:59PM +0200, Andrea Arcangeli wrote:
+> > On Fri, Apr 04, 2003 at 10:16:48AM -0800, Jeffrey Baker wrote:
+> > > 
+> > > I guess the punch line is that the kernel can look good on
+> > > paper but be a stinker in reality.  I've since moved the
+> > 
+> > well, those numbers are paper yes, but they're generated in real life
+> > with some of the best and most reliable open benchmarks that I'm aware
+> > of (peraphs with the exception of dbench, that at least when read alone
+> > doesn't tell you the whole picture, but it's still good to benchmark the
+> > writeback cache changes across otherwise unchanged kernels).
 > 
-> On Fri, Apr 04, 2003 at 01:27:04PM +0200, Antonio Vargas wrote:
-> > Just out of experimenting, I've coded something that looks reasonable
-> > and would not experience starvation.
-> > In the normal scheduler, a non-interactive task will, when used all
-> > his timeslice, reset p->time_slice and queue onto the expired array.
-> > I'm now reseting p->reserved_time_slice instead and queuing the task
-> > onto a per-user pending task queue.
-> > A separate kernel thread walks the user list, calculates the user
-> > timeslice and distributes it to it's pending tasks. When a task
-> > receives timeslices, it's moved from the per-user pending queue to
-> > the expired array of the runqueue, thus preparing it to run on the
-> > next array-switch.
+> Of course.  My only point is the old nugget that the only
+> useful benchmark is your own actual workload.
+
+that's certainly the most interesting ;). Actually in this case it seems
+a quite common workload too which makes it even more interesting. I'm
+quite surprised you see a big regression.
+
 > 
-> Hmm, priorities getting recalculated by a kernel thread sounds kind of
-> scary, but who am I to judge?
-
-First and foremost, root user is handled as usual, so kernel tasks should
-also be handled as usual if they always run as root...
-but I've yet to find out how to check if a task is a kernel thread or not,
-and skip these explicitely just to be safe.
-
-Also, while I've coded it on a kernel thread, I'd settle perfectly to a
-periodic timer, but I don't know yet ask for one... perhaps a
-self-propagating workqueue entry with a delay?
-
-> On Fri, Apr 04, 2003 at 01:27:04PM +0200, Antonio Vargas wrote:
-> > If the user has many timeslices, he can give timeslices to many tasks, thus
-> > getting more work done.
-> > While the implementation may not be good enough, due to locking problems and
-> > the use of a kernel-thread, I think the fundamental algorithm feels right.
-> > William, should I take the lock on the uidhash_list when adding a task
-> > to a per-user task list?
+> > can you check if:
+> > 
+> > 	echo 1000 >/proc/sys/vm/vm_mapped_ratio
 > 
-> Possible, though I'd favor a per-user spinlock.
+> Will try this.
+> 
+> > helps? That can be enabled very safely, there's no downside except it'll
+> > swap less.
+> > 
+> > Also make sure the 3400M of cache aren't all shared memory (not sure if
+> > mysql provides a very large memory model), in such case you may be
+> > bitten by the lowmem reservation, in such case you can boot with this
+> > parameter passed to the kernel via grub or lilo:
+> 
+> Not sure how to determine this.  Postgresql is using 512MB
+> shared memory total.  This is configured in postgresql.conf.
+> I'm not certain how mysql uses shared memory.  I do know
+> that it doesn't bother mmaping its data files.
+> 
+> > 	lower_zone_reserve=256,256
 
-So, when trying to add a task to the per-user pending tasks, I'd have
-to do this:
+for the pure shm you can see /dev/shm and `ipcs`. For the regular
+MAP_SHARED you'd need to have a look at /proc/pid/maps of mysql.
 
-1. spin_lock_irqsave(uidhash_lock, flags)
-2. spin_lock(my_user->user_lock)
-3. spin_unlock_restore(uidhash_lock, flags);
+> > 
+> > Then it will reserve less lowmem and it'll give you more ram to allocate
+> > in shm (see your "free is now around 100M, it can go down to 20M or so
+> > with such parameter, giving you 80M back that can make a difference
+> > since you're only 200M into swap).
+> 
+> /proc/meminfo:
+> 
+>         total:    used:    free:  shared: buffers:  cached:
+> Mem:  4124626944 4013682688 110944256        0 13500416 3556990976
+> Swap: 970571776 196100096 774471680
+> MemTotal:      4027956 kB
+> MemFree:        108344 kB
+> MemShared:           0 kB
+> Buffers:         13184 kB
+> Cached:        3381220 kB
+> SwapCached:      92404 kB
+> Active:         690052 kB
+> Inactive:      3021568 kB
+> HighTotal:     2113472 kB
+> HighFree:         4264 kB
+> LowTotal:      1914484 kB
+> LowFree:        104080 kB
+> SwapTotal:      947824 kB
+> SwapFree:       756320 kB
+> BigFree:             0 kB
 
-Is this any good?
+this looks good. You're around 200M in swap, and you probably want to
+avoid that. The suggestions of vm_mapped_ratio and lower_zone_reserve=
+still looks the most appropriate here ;)
 
-Could I simply do "spin_unlock(my_user->user_lock)" at end without
-taking the uidhash_lock again?
+> 
+> 
+> > but it's not very recommended, since it can lead to normal zones
+> > shortages in some conditions (like pagetables filling zone normal, or
+> > anon memory and shm filling zone normal w/o swap). But you can give it a
+> > spin (it won't be less safe than 2.4.17 anyways)
+> > 
+> > Also I would be extremely interested to see the:
+> > 
+> > 	readprofile -m /boot/System.map-2.4.21-pre5aa2 | sort -nr +2
+> > 	readprofile -m /boot/System.map-2.4.21-pre5aa2 | sort -nr
+> 
+> I can give you this in a few days.  I'm not at liberty to reboot the
+> machine.
 
-> The code looks reasonable now, modulo that race you asked about.
+you need to reboot to pass profile=2 to generate /proc/profile yes
 
-What do I need to lock when I want to add a task to a runqueue?
-I'm doing a "spin_lock_irq(this_rq()->lock);"
+> 
+> > output, to see where you're spending all such system time, if it's
+> > swapping time walking pagetables or something else. the offender should
+> > definitely showup in the readprofile.
+> 
+> I actually think swap activity is minimal, despite the large amount
+> of swap used.  The disk with the swap (and root) filesystem has only
+> 360242 commands since boot time, compared with 15 million commands
+> on the data disks.
 
-As you can see, I'm not yet at speed with the locking rules... any
-online references to the latest locking rules? The BKL was really
-easy to understand in comparison! *grin*
+It's minimal but there definitely was some swapin, and swapin are
+often synchronous, so I don't exclude completely the slowdown is due
+more swapping.
 
-Greets, Antonio.
+Would be interesting to see a /proc/meminfo with 2.4.17 and vmstat too
+to see if it's swapping much less, or similar.
+
+> 
+> > Would also be interesting if you could try a vanilla 2.4.21-pre5 (or
+> > pre6) and see if you get the same problem, many things have changed
+> > since 2.4.17, I don't touch drivers usually.
+> 
+> I don't know if this will be possible.
+
+Ok.
+
+One more thing, if the db is doing lots of sync writes that makes the
+async cache not very worthwhile, you could also try:
+
+	echo 30 500 0 0 500 3000 40 20 0 >/proc/sys/vm/bdflush
+
+to decrease the amount of dirty memory that can coexist at any given
+time. I recall 2.4.17 was more restrictive on that.
+
+But the most interesting will be the readprofile.
+
+Andrea

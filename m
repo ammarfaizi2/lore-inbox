@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130865AbQK1WHt>; Tue, 28 Nov 2000 17:07:49 -0500
+        id <S130807AbQK1WZR>; Tue, 28 Nov 2000 17:25:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131244AbQK1WHa>; Tue, 28 Nov 2000 17:07:30 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:40857 "EHLO hera.cwi.nl")
-        by vger.kernel.org with ESMTP id <S131212AbQK1WHY>;
-        Tue, 28 Nov 2000 17:07:24 -0500
-Date: Tue, 28 Nov 2000 22:37:21 +0100
-From: Andries Brouwer <aeb@veritas.com>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: Peter Cordes <peter@llama.nslug.ns.ca>, linux-kernel@vger.kernel.org
-Subject: Re: access() says EROFS even for device files if /dev is mounted RO
-Message-ID: <20001128223721.B11055@veritas.com>
-In-Reply-To: <20001128010942.A9133@veritas.com> <200011281404.PAA24567@cave.bitwizard.nl>
-Mime-Version: 1.0
+        id <S131194AbQK1WY5>; Tue, 28 Nov 2000 17:24:57 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17978 "EHLO
+        the-village.bc.nu") by vger.kernel.org with ESMTP
+        id <S130807AbQK1WYt>; Tue, 28 Nov 2000 17:24:49 -0500
+Subject: Re: [PATCH] no RLIMIT_NPROC for root, please
+To: baggins@sith.mimuw.edu.pl (Jan Rekorajski)
+Date: Tue, 28 Nov 2000 21:54:00 +0000 (GMT)
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20001128214309.F2680@sith.mimuw.edu.pl> from "Jan Rekorajski" at Nov 28, 2000 09:43:09 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200011281404.PAA24567@cave.bitwizard.nl>; from R.E.Wolff@BitWizard.nl on Tue, Nov 28, 2000 at 03:04:31PM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E140shP-00055W-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 28, 2000 at 03:04:31PM +0100, Rogier Wolff wrote:
-
-> Ok, so if you read the standard carefully you get a bogus result. 
-
-Why bogus? Things could have been otherwise, but the important
-part is that all Unices do things the same way.
-
-> Question: Was it meant this way, or did someone just make a mistake
-> (which happened to slip through and get approved into the standard)? 
+> Why is RLIMIT_NPROC apllied to root(uid 0) processes? It's not kernel j=
+> ob to
+> prevent admin from shooting him/her self in the foot.
 > 
-> I happen to think the second. 
-> 
-> - Is it desirable to have a write-open of a device on a read-only 
-> fail? I don't think so. You can't open the initial console etc etc.
+> root should be able to do fork() regardless of any limits,
+> and IMHO the following patch is the right thing.
 
-Nevertheless the standard requires this.
+This patch is bogus. root can always raise their limit. But having root
+tasks by default not take out the box is good
 
-> - Is it desirable to have access (W_OK) and "open-for-write" return
-> different results? I don't think so. 
-
-Nevertheless there have never been systems where access and open
-behaved identically. An easy example is given by directories
-that have write access when a w bit is set, but return EISDIR
-upon open-for-write.
-
-Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

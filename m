@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316772AbSEUXUA>; Tue, 21 May 2002 19:20:00 -0400
+	id <S316777AbSEUXXo>; Tue, 21 May 2002 19:23:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316776AbSEUXT7>; Tue, 21 May 2002 19:19:59 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:37644 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S316772AbSEUXT7>; Tue, 21 May 2002 19:19:59 -0400
-Date: Wed, 22 May 2002 01:20:01 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-        ACPI mailing list <acpi-devel@lists.sourceforge.net>
-Subject: Re: suspend-to-{RAM,disk} for 2.5.17
-Message-ID: <20020521232001.GK22878@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020521222858.GA14737@elf.ucw.cz> <Pine.LNX.4.33.0205211557410.1307-100000@penguin.transmeta.com>
+	id <S316780AbSEUXXn>; Tue, 21 May 2002 19:23:43 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:54022 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S316777AbSEUXXm>; Tue, 21 May 2002 19:23:42 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Message-ID: <86256BC0.00807DCA.00@smtpnotes.altec.com>
+Date: Tue, 21 May 2002 18:20:56 -0500
+Subject: Re: Linux-2.5.17
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Major parts are: process stopper, S3 specific code, S4 specific
-> > code. What can I do to make this applied?
-> 
-> Applied. Nothing needed but some time for me to look through it.
 
-Wow, good!
+Thanks for the information.
 
-> It still has a few too many #ifdef CONFIG_SUSPEND, and I get this
-> feeling 
+So, I'm just getting used to the idea of using new tools to build kernels, and
+now I learn that 2.5 breaks an ordinary program that I use all day, every day.
+It just keeps getting better and better...
 
-I'll hunt them down.
 
-> that the background deamons shouldn't need to do the "freeze()" by
-> hand 
-> but simply be automatically frozen and thawed when they sleep by looking 
-> at the KERNTHREAD bit or something, but..
 
-Do you think I should modify schedule() to do freezing automatically?
-I wanted to keep my hands off hot paths... I'd rather not do that. 
 
-I guess adding maybe_refrigerator() macro should solve that without
-introducing overhead in schedule().
 
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+"David S. Miller" <davem@redhat.com> on 05/21/2002 04:30:11 PM
+
+To:   Wayne Brown/Corporate/Altec@Altec
+cc:   linux-kernel@vger.kernel.org
+
+Subject:  Re: Linux-2.5.17
+
+
+
+   From: Wayne.Brown@altec.com
+   Date: Tue, 21 May 2002 13:52:08 -0500
+
+   Under 2.5.17 there is a problem with gtop 1.0.9.
+
+The /proc/meminfo output changed, and this makes a lot of programs
+reading that file explode.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+

@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267132AbTAFTiI>; Mon, 6 Jan 2003 14:38:08 -0500
+	id <S267124AbTAFTlp>; Mon, 6 Jan 2003 14:41:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267133AbTAFTiI>; Mon, 6 Jan 2003 14:38:08 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:46221 "HELO palrel10.hp.com")
-	by vger.kernel.org with SMTP id <S267132AbTAFTiH>;
-	Mon, 6 Jan 2003 14:38:07 -0500
-Date: Mon, 6 Jan 2003 11:45:13 -0800
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Paul Mackerras <paulus@samba.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, davidm@hpl.hp.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.5] PCI: allow alternative methods for probing the BARs
-Message-ID: <20030106194513.GC26790@cup.hp.com>
-References: <Pine.LNX.4.44.0301052009050.3087-100000@home.transmeta.com> <1041848998.666.4.camel@zion.wanadoo.fr>
+	id <S267128AbTAFTlp>; Mon, 6 Jan 2003 14:41:45 -0500
+Received: from ns.suse.de ([213.95.15.193]:59918 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267124AbTAFTlp>;
+	Mon, 6 Jan 2003 14:41:45 -0500
+Date: Mon, 6 Jan 2003 20:50:22 +0100
+From: Olaf Kirch <okir@suse.de>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix NFS IRIX compatibility braindamage
+Message-ID: <20030106195021.GD8269@suse.de>
+References: <200210291208.g9TC8s305165@hera.kernel.org> <20030106193320.GD16489@codemonkey.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <1041848998.666.4.camel@zion.wanadoo.fr>
+In-Reply-To: <20030106193320.GD16489@codemonkey.org.uk>
 User-Agent: Mutt/1.4i
-From: grundler@cup.hp.com (Grant Grundler)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 06, 2003 at 11:31:10AM +0100, Benjamin Herrenschmidt wrote:
-> For example, since we do not quite deal with PCI domains yet,
+On Mon, Jan 06, 2003 at 07:33:20PM +0000, Dave Jones wrote:
+> I'm going through the old 2.4 changelogs looking for bits that
+> have been missed out, the little one liners have been going
+> direct to Linus/maintainer, but here's the first one I'm
+> unsure of..
+> 
+> Any reason this is missing in 2.5 ?
 
-I thought Bjorn Helgaas submitted "PCI Segment" support for ia64?
-Was something else missing from that? Or was that 2.4.x only?
+I think I sent it to the NFS mailing list and forgot about it
+afterwards.
 
-IIRC, lspci needs to be fixed to support this as well.
+The problem this patch tries to address is that the current code allows
+diskless clients to chmod device files, even when the directory is
+exported read-only.
 
-grant
+Olaf
+-- 
+Olaf Kirch     |  Anyone who has had to work with X.509 has probably
+okir@suse.de   |  experienced what can best be described as
+---------------+  ISO water torture. -- Peter Gutmann

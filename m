@@ -1,113 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262940AbVBCRz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262863AbVBCSA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262940AbVBCRz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 12:55:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263654AbVBCRze
+	id S262863AbVBCSA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 13:00:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263164AbVBCSAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 12:55:34 -0500
-Received: from mail.kroah.org ([69.55.234.183]:61351 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262940AbVBCRlF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 12:41:05 -0500
-Cc: khali@linux-fr.org
-Subject: [PATCH] I2C: Use standard temperature converters for as99127f
-In-Reply-To: <1107452338762@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 3 Feb 2005 09:38:58 -0800
-Message-Id: <11074523383338@kroah.com>
+	Thu, 3 Feb 2005 13:00:00 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:20148 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262863AbVBCRv3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 12:51:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=oXQKpksR5B9PViDkT3miPSoEcfbbR0qr562FKPabJsKjffmQsI6czlep/U9PcM9GEQKo+qqMF9H1U2Y5YPj6VXYH2tIsX/Fd0Iui3vDjKWu5LfnNbZdt4/1EOaAVOpV021/p4eVj4UeP+C+PSlAzK8fiCy3m+sVPeWSSzY5Fy0Q=
+Message-ID: <58cb370e050203094326ddfce8@mail.gmail.com>
+Date: Thu, 3 Feb 2005 18:43:07 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <tj@home-tj.org>
+Subject: Re: [PATCH 2.6.11-rc2 29/29] ide: make data_phase explicit in NO_DATA cases
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <20050202031238.GN1187@htj.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Transfer-Encoding: 7bit
+References: <20050202024017.GA621@htj.dyndns.org>
+	 <20050202031238.GN1187@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2043, 2005/02/03 00:29:27-08:00, khali@linux-fr.org
+On Wed, 2 Feb 2005 12:12:38 +0900, Tejun Heo <tj@home-tj.org> wrote:
+> > 29_ide_explicit_TASKFILE_NO_DATA.patch
+> >
+> >       Make data_phase explicit in NO_DATA cases.
+> 
+> Signed-off-by: Tejun Heo <tj@home-tj.org>
+> 
+> Index: linux-ide-export/drivers/ide/ide-disk.c
+> ===================================================================
+> --- linux-ide-export.orig/drivers/ide/ide-disk.c        2005-02-02 10:28:07.852771465 +0900
+> +++ linux-ide-export/drivers/ide/ide-disk.c     2005-02-02 10:28:08.121727827 +0900
+> @@ -300,6 +300,7 @@ static unsigned long idedisk_read_native
+>         args.tfRegister[IDE_SELECT_OFFSET]      = 0x40;
+>         args.tfRegister[IDE_COMMAND_OFFSET]     = WIN_READ_NATIVE_MAX;
+>         args.command_type                       = IDE_DRIVE_TASK_NO_DATA;
+> +       args.data_phase                         = TASKFILE_NO_DATA;
+>         args.handler                            = &task_no_data_intr;
 
-[PATCH] I2C: Use standard temperature converters for as99127f
+Could you add small helper to ide.h for doing this?
 
-When support for the Asus AS99127F chip was once added to the w83781d
-driver, it was decided that we would treat temp2 and temp3 as having a
-LSB of 0.25 degree C, as opposed to 0.5 degree C for the compatible
-Winbond chips. The reason why this was done seems to be a couple of
-users reporting that these temperatures were reading twice as high as it
-should for them in the first place. We had much more feedback about the
-A99127F chip since, and it turns out that the exact conversion required
-for temp2 and temp3 depends on the motherboard model. For some models
-(including my A7V133-C), we now have to multiply the readings by 2,
-effectively negating the change that was once done in the driver. For
-other models, a linear conversion formula is needed. The bottom line is
-that the raw readings from the driver are correct for no known board,
-while it would be for at least some of them if we had kept the same LSB
-as the Winbond chips are known to have. Thus I believe that the standard
-LSB of 0.5 degree C should be restored.
+static inline void ide_prep_no_data_cmd(ide_task_t *task)
+{
+        task->command_type = IDE_DRIVE_TASK_NO_DATA;
+        task->data_phase      = TASKFILE_NO_DATA;
+        task->handler            = &task_no_data_intr;
+}
 
-There is no datasheet available for the AS99127F chip, so whatever was
-done was guess work (and still is). I see no reason why we would keep
-additional code in the w83781d driver to handle this former supposed
-difference, especially when the facts now tend to prove that this
-difference doesn't exist.
+Also please move this patch earlier in the series
+so I can merge it quickly.
 
-The following patch drops the additional code and treats temp2 and temp3
-the same way for all chips supported by the w83781d driver. A similar
-change will be made to the 2.4 version of this driver, and the default
-sensors.conf will be updated accordingly. Users will have to update
-their configuration file, or their readings will of course read twice as
-high as they should due to the old conversion formulae.
-
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- drivers/i2c/chips/w83781d.c |   20 +++-----------------
- 1 files changed, 3 insertions(+), 17 deletions(-)
-
-
-diff -Nru a/drivers/i2c/chips/w83781d.c b/drivers/i2c/chips/w83781d.c
---- a/drivers/i2c/chips/w83781d.c	2005-02-03 09:35:09 -08:00
-+++ b/drivers/i2c/chips/w83781d.c	2005-02-03 09:35:09 -08:00
-@@ -175,11 +175,6 @@
- 						: (val)) / 1000, 0, 0xff))
- #define TEMP_FROM_REG(val)		(((val) & 0x80 ? (val)-0x100 : (val)) * 1000)
- 
--#define AS99127_TEMP_ADD_TO_REG(val)	(SENSORS_LIMIT((((val) < 0 ? (val)+0x10000*250 \
--						: (val)) / 250) << 7, 0, 0xffff))
--#define AS99127_TEMP_ADD_FROM_REG(val)	((((val) & 0x8000 ? (val)-0x10000 : (val)) \
--						>> 7) * 250)
--
- #define ALARMS_FROM_REG(val)		(val)
- #define PWM_FROM_REG(val)		(val)
- #define PWM_TO_REG(val)			(SENSORS_LIMIT((val),0,255))
-@@ -417,13 +412,8 @@
- { \
- 	struct w83781d_data *data = w83781d_update_device(dev); \
- 	if (nr >= 2) {	/* TEMP2 and TEMP3 */ \
--		if (data->type == as99127f) { \
--			return sprintf(buf,"%ld\n", \
--				(long)AS99127_TEMP_ADD_FROM_REG(data->reg##_add[nr-2])); \
--		} else { \
--			return sprintf(buf,"%d\n", \
--				LM75_TEMP_FROM_REG(data->reg##_add[nr-2])); \
--		} \
-+		return sprintf(buf,"%d\n", \
-+			LM75_TEMP_FROM_REG(data->reg##_add[nr-2])); \
- 	} else {	/* TEMP1 */ \
- 		return sprintf(buf,"%ld\n", (long)TEMP_FROM_REG(data->reg)); \
- 	} \
-@@ -442,11 +432,7 @@
- 	val = simple_strtol(buf, NULL, 10); \
- 	 \
- 	if (nr >= 2) {	/* TEMP2 and TEMP3 */ \
--		if (data->type == as99127f) \
--			data->temp_##reg##_add[nr-2] = AS99127_TEMP_ADD_TO_REG(val); \
--		else \
--			data->temp_##reg##_add[nr-2] = LM75_TEMP_TO_REG(val); \
--		 \
-+		data->temp_##reg##_add[nr-2] = LM75_TEMP_TO_REG(val); \
- 		w83781d_write_value(client, W83781D_REG_TEMP_##REG(nr), \
- 				data->temp_##reg##_add[nr-2]); \
- 	} else {	/* TEMP1 */ \
-
+Thanks.

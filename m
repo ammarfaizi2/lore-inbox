@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318779AbSG0QAI>; Sat, 27 Jul 2002 12:00:08 -0400
+	id <S318778AbSG0QBG>; Sat, 27 Jul 2002 12:01:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318778AbSG0QAI>; Sat, 27 Jul 2002 12:00:08 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:20646 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S318779AbSG0QAH>;
-	Sat, 27 Jul 2002 12:00:07 -0400
-Date: Sat, 27 Jul 2002 18:03:25 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Subject: sisfb driver irq fixups
-Message-ID: <20020727160325.GA29221@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S318780AbSG0QBG>; Sat, 27 Jul 2002 12:01:06 -0400
+Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:9344 "EHLO
+	DervishD.pleyades.net") by vger.kernel.org with ESMTP
+	id <S318778AbSG0QBF>; Sat, 27 Jul 2002 12:01:05 -0400
+Date: Sat, 27 Jul 2002 18:11:27 +0200
+Organization: Pleyades
+To: vherva@niksula.hut.fi, raul@pleyades.net
+Subject: Re: About the need of a swap area
+Cc: linux-kernel@vger.kernel.org
+Message-ID: <3D42C62F.mail5XQ31DIAC@viadomus.com>
+References: <3D42907C.mailFS15JQVA@viadomus.com>
+ <20020727144228.GQ1548@niksula.cs.hut.fi>
+In-Reply-To: <20020727144228.GQ1548@niksula.cs.hut.fi>
+User-Agent: nail 9.31 6/18/02
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+From: DervishD <raul@pleyades.net>
+Reply-To: DervishD <raul@pleyades.net>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Already sent to Thomas,
+    Hi Ville :)
 
---- sis_main.c~	Thu Jul  4 17:58:26 2002
-+++ sis_main.c	Sat Jul 27 17:40:48 2002
-@@ -651,6 +651,7 @@
- 	struct fb_fix_screeninfo fix;
- 	struct display *display;
- 	struct display_switch *sw;
-+	static spinlock_t driver_lock = SPIN_LOCK_UNLOCKED;
- 	long flags;
- 
- 	if (con >= 0)
-@@ -674,7 +675,7 @@
- 	display->inverse = sisfb_inverse;
- 	display->var = *var;
- 
--	save_flags(flags);
-+	spin_lock_irqsave(&driver_lock, flags);
- 	switch (ivideo.video_bpp) {
- #ifdef FBCON_HAS_CFB8
- 	   case 8:
-@@ -706,7 +707,7 @@
- 	}
- 	memcpy(&sisfb_sw, sw, sizeof(*sw));
- 	display->dispsw = &sisfb_sw;
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&driver_lock, flags);
- 
- 	display->scrollmode = SCROLL_YREDRAW;
- 	sisfb_sw.bmove = fbcon_redraw_bmove;
+>>     I read a time ago that, no matter the RAM you have, adding a
+>> swap-area will improve performance a lot. So I tested.
+>Well, no. I don't know where you read it, but that's wrong.
 
+    I don't remember clearly. Maybe at linux-gazette or someplace
+like that. Moreover, maybe I take the phrase out of context.
 
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+>Where swap helps perfomance is when you can swap _inactive_ (parts of)
+>programs out, and use the freed memory for disk cache.
+
+    Yes, that makes sense, obviously. My question is more: when an
+inactive page will be swapped out? Only when there is no more RAM
+left? When free RAM goes below some point? How to configure it?
+
+>> the memory is not prone to be filled.
+>So you have 512MB of RAM? All the programs (without X) will fit
+>there easily. You'll still have plenty for disk cache.
+
+    Except when I'm compiling something large, the memory is almost
+entirely free. I have a lot of memory for having a lot of cache, so
+when I develope things go real fast. For example, I use gcc, make and
+binutils (and an editor) most of the time. Well, thanks to the disk
+cache, the first time they are run is the only disk access...
+
+    Moreover, sometimes I use ram disks.
+
+>BUT: if something unexpected happens - a programs goes out of
+>control and eats heaps of memory - the swap can save you.
+
+    But in such a case, highs are the chances of the program crashing
+due to a memory error if there is no swap. I really don't understan
+why swap may save me in this case O:)) Maybe the swap-in, swap-out
+will make that process slower and I have some spare CPU to be able to
+kill the program?
+
+>Hope this helps.
+
+    Yes, thank you :))
+    Raúl

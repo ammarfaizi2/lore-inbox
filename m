@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266703AbUGVQNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266704AbUGVQPk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266703AbUGVQNm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 12:13:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266704AbUGVQNm
+	id S266704AbUGVQPk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 12:15:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266702AbUGVQPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 12:13:42 -0400
-Received: from fed1rmmtao09.cox.net ([68.230.241.30]:7649 "EHLO
-	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
-	id S266703AbUGVQNj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 12:13:39 -0400
-Date: Thu, 22 Jul 2004 09:13:35 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: Oliver Neukum <oliver@neukum.org>, Jesse Stockall <stockall@magma.ca>,
-       linux-kernel@vger.kernel.org, rgooch@safe-mbox.com, akpm@osdl.org
-Subject: Re: [PATCH] delete devfs
-Message-ID: <20040722091335.A17187@home.com>
-References: <20040721141524.GA12564@kroah.com> <1090446817.8033.18.camel@homer.blizzard.org> <20040721220529.GB18721@kroah.com> <200407220047.53153.oliver@neukum.org> <20040722064952.GC20561@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040722064952.GC20561@kroah.com>; from greg@kroah.com on Thu, Jul 22, 2004 at 02:49:53AM -0400
+	Thu, 22 Jul 2004 12:15:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:28297 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266704AbUGVQP1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 12:15:27 -0400
+Date: Thu, 22 Jul 2004 09:15:24 -0700 (PDT)
+From: Judith Lebzelter <judith@osdl.org>
+To: <linux-kernel@vger.kernel.org>
+cc: <linux-aio@kvack.org>, <linux-osdl@osdl.org>, <mason@suse.com>
+Subject: aio-stress test added to OSDL STP 
+Message-ID: <Pine.LNX.4.33.0407201554410.13228-100000@osdlab.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 22, 2004 at 02:49:53AM -0400, Greg KH wrote:
-> Also, everyone please, consider these points about the current devfs
-> code:
-> 	- it is unmaintained, and has been for years.
-> 	- it contains known bugs (race conditions), that are pretty much
-> 	  unsolvable with the current architecture of the code, that
-> 	  have been pointed out many times, for years.
-> 	- there is almost no functionality that devfs provides that is
-> 	  not provided with udev[1]
-> 	- no distro supports devfs
+Hello;
 
-Minor nit: this is not true, maybe if you are talking only about
-desktop/server distros. MontaVista Linux 3.1 uses devfs by default.
+'aio-stress' is now available as a new test on the Scalable Test
+Platform:
+   http://www.osdl.org/lab_activities/kernel_testing/stp/
 
-However, with udev devfs compatibility it easy for that distro
-to migrate users IMHO. So, let's apply this patch so mvista doesn't
-ship another release with devfs. :)
+We'd (especially cliffw) like to apologize to akpm for taking way too
+long to do this.
 
--Matt
+Here are results for linux-2.6.7 on a 2CPU host:
+   http://khack.osdl.org/stp/295155/
+
+The test runs on our 1, 2 and 4 CPU hosts.  By default it runs with
+2 X 1G files, 4 X 1G files and 8 X 1G files on those hosts, respectively.
+Each request runs once with the '-O' option (on 2.6 kernels) and once
+without.  It is compiled with libaio-0.3.99-2.
+
+Most of the usual options are available:  -r for record size,
+-s for file size, -t for number of threads, -S for O_SYNC with writes.
+Additionally, -F sets the number of files and -f sets file system type.
+
+We will run it automatically on the mainline kernels.
+
+Thanks;
+
+Judith Lebzelter
+OSDL
+
+

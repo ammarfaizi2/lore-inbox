@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262382AbTFBPBY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 11:01:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbTFBPBY
+	id S262426AbTFBPGO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 11:06:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbTFBPGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 11:01:24 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:15021 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262382AbTFBPBX (ORCPT
+	Mon, 2 Jun 2003 11:06:14 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:60902
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262426AbTFBPGN convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 11:01:23 -0400
-Date: Mon, 2 Jun 2003 17:14:13 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Tom Sightler <ttsig@tuxyturvy.com>
-Cc: Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Strange load issues with 2.5.69/70 in both -mm and -bk trees.
-In-Reply-To: <1054560974.1918.2.camel@iso-8590-lx.zeusinc.com>
-Message-ID: <Pine.LNX.4.44.0306021712530.7224-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 2 Jun 2003 11:06:13 -0400
+Subject: Re: 2.4.21 can't set IDE DMA on harddrive (HDIO_SET_DMA failed:
+	Operation not permitted)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: =?ISO-8859-1?Q?J=E9r=F4me_Aug=E9?= <jauge@club-internet.fr>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030602114838.GA1730@satellite.workgroup.fr>
+References: <20030602114838.GA1730@satellite.workgroup.fr>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Organization: 
+Message-Id: <1054563706.7495.24.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 02 Jun 2003 15:21:47 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Llu, 2003-06-02 at 12:48, Jérôme Augé wrote:
+> I checked my logs and found that the 2.4.21 kernel use E-IDE version
+> 7.00beta[34]-.2.4 and the 2.4.20 one use version 6.31.
+> 
+> Looks like something went wrong in the IDE code regarding DMA settings ?
+> 
+> Here is the output from 'lspci' for my IDE controler (Toshiba Satellite
+> 2540CDT):
 
-On 2 Jun 2003, Tom Sightler wrote:
+It used to be caught by the generic DMA driver that would just run with
+BIOS settings. This approach unfortunately also tended to grab devices
+that didn't work with just BIOS settings so I took it out and just left
+a table of known OK devices.
 
-> Sorry, this is my fault, I'm actually renicing the process to '10' not
-> '-10' that's a typo.  I tested this again this morning to make sure.  
-> I'm renicing this as a regular user, I don't think that a regular user
-> is allowed to renice to a negative value.
+I'll add the toshiba one back and I've also pinged Toshiba to see if
+they will give me the docs to support it properly.
 
-hm. Which process is generating the sound? But yes, if a positive renicing
-for the wine process solved the audio problem then this is bad.
-
-	Ingo
+Alan
 

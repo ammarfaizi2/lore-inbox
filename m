@@ -1,76 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbUDEP2l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 11:28:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbUDEP2l
+	id S262863AbUDEPe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 11:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbUDEPe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 11:28:41 -0400
-Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:34433 "EHLO
-	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S261225AbUDEP2j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 11:28:39 -0400
-Date: Mon, 5 Apr 2004 16:28:34 +0100
-From: Hugo Mills <hugo-lkml@carfax.org.uk>
-To: Carlos Fernandez Sanz <cfs-lk@nisupu.com>
-Cc: Wakko Warner <wakko@animx.eu.org>, linux-kernel@vger.kernel.org
-Subject: Re: 3com issues in 2.6.5
-Message-ID: <20040405152834.GA11853@carfax.org.uk>
-Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
-	Carlos Fernandez Sanz <cfs-lk@nisupu.com>,
-	Wakko Warner <wakko@animx.eu.org>, linux-kernel@vger.kernel.org
-References: <003301c41b18$38ff7f90$1530a8c0@HUSH> <20040405110541.B22980@animx.eu.org> <000401c41b1f$d2cf65c0$1530a8c0@HUSH>
+	Mon, 5 Apr 2004 11:34:27 -0400
+Received: from ip68-230-241-31.sd.sd.cox.net ([68.230.241.31]:55721 "EHLO
+	fed1rmmtao08.cox.net") by vger.kernel.org with ESMTP
+	id S262863AbUDEPeY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 11:34:24 -0400
+Date: Mon, 5 Apr 2004 08:34:23 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Sid Boyce <sboyce@blueyonder.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-mm1
+Message-ID: <20040405153423.GK31152@smtp.west.cox.net>
+References: <40715203.8070004@blueyonder.co.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <000401c41b1f$d2cf65c0$1530a8c0@HUSH>
-X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
-X-GPG-Key: 1C335860
-X-Parrot: It is no more. It has joined the choir invisible.
-X-IRC-Nicks: hugo darksatanic
+In-Reply-To: <40715203.8070004@blueyonder.co.uk>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 05, 2004 at 01:33:07PM +0100, Sid Boyce wrote:
 
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> CC      arch/x86_64/kernel/setup.o
+> arch/x86_64/kernel/setup.c:258: warning: initialization from 
+> incompatible pointer type
+> arch/x86_64/kernel/setup.c: In function `setup_arch':
+> arch/x86_64/kernel/setup.c:411: error: `saved_command_line' undeclared 
+> (first use in this function)
+> arch/x86_64/kernel/setup.c:411: error: (Each undeclared identifier is 
+> reported only once
+> arch/x86_64/kernel/setup.c:411: error: for each function it appears in.)
+> make[1]: *** [arch/x86_64/kernel/setup.o] Error 1
+> make: *** [arch/x86_64/kernel] Error 2
+> -------------------------------------------------------------------
+> strlcpy(saved_command_line, early_command_line, COMMAND_LINE_SIZE);
 
-On Mon, Apr 05, 2004 at 05:08:16PM +0200, Carlos Fernandez Sanz wrote:
-> > > module with both interfaces up, but obviously as soon as I do that they
-> > > dissapear - I assume this is the intended 2.6 behaviour).
-> >
-> > Let me ask you, are you noticing slowness sending or receiving?  I'm
-> having
-> 
-> Yes, this is why I started to look at the problem.
-> (slow as in 100 kb/s in a 100 Mbit/s LAN).
+Yes, something like this is needed, on top of Rusty's early_param patch:
+diff -puN include/linux/init.h~fix-rusty include/linux/init.h
+--- linux-2.6.5-rc3/include/linux/init.h~fix-rusty	2004-04-02 08:30:50.600483739 -0700
++++ linux-2.6.5-rc3-trini/include/linux/init.h	2004-04-02 08:30:50.604482833 -0700
+@@ -143,6 +143,7 @@ extern void setup_arch(void);
+ 
+ /* Relies on saved_command_line being set */
+ void __init parse_early_options(void);
++extern char saved_command_line[];
+ #endif /* __ASSEMBLY__ */
+ 
+ /**
 
-   I'm reasonably certain that there's something wrong somewhere with
-the 2.6 network subsystem. I've been getting _very_ slow network
-performance with a PCI natsemi card -- characterised by repeated
-netdev watchdog timeouts under any load heavier than an ssh terminal
-session.
-
-   Hugo.
+Assuming that is, that arch/x86_64/kernel/setup.c has #include
+<linux/init.h>, which I assume it does.
 
 -- 
-=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
-  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
-              --- w.w.w.  : England's batting scorecard ---              
-
---AhhlLboLdkugWU4S
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAcXsissJ7whwzWGARAkukAJ9m7YvvIdOKKeJaFqrrrW+6rGylCACgk+0E
-E2JTq7hOiMahKKyvotD8FfQ=
-=A9B+
------END PGP SIGNATURE-----
-
---AhhlLboLdkugWU4S--
+Tom Rini
+http://gate.crashing.org/~trini/

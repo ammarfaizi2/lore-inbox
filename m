@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286087AbRLTFKt>; Thu, 20 Dec 2001 00:10:49 -0500
+	id <S286108AbRLTFRK>; Thu, 20 Dec 2001 00:17:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286099AbRLTFKj>; Thu, 20 Dec 2001 00:10:39 -0500
-Received: from bexfield.research.canon.com.au ([203.12.172.125]:51037 "HELO
-	b.mx.canon.com.au") by vger.kernel.org with SMTP id <S286087AbRLTFK2>;
-	Thu, 20 Dec 2001 00:10:28 -0500
-Date: Thu, 20 Dec 2001 16:10:21 +1100
-From: Cameron Simpson <cs@zip.com.au>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: "David S. Miller" <davem@redhat.com>, billh@tierra.ucsd.edu,
-        bcrl@redhat.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        linux-aio@kvack.org
-Subject: Re: aio
-Message-ID: <20011220161021.A3303@zapff.research.canon.com.au>
-Reply-To: cs@zip.com.au
-In-Reply-To: <20011219135708.A12608@devserv.devel.redhat.com> <20011219.161359.71089731.davem@redhat.com> <20011219171631.A544@burn.ucsd.edu> <20011219.172046.08320763.davem@redhat.com> <mailman.1008816001.10138.linux-kernel2news@redhat.com> <200112200507.fBK57LC25752@devserv.devel.redhat.com>
+	id <S286100AbRLTFQ7>; Thu, 20 Dec 2001 00:16:59 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:41601
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S286099AbRLTFQz>; Thu, 20 Dec 2001 00:16:55 -0500
+Date: Thu, 20 Dec 2001 00:04:45 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: CML2 1.9.11 is available
+Message-ID: <20011220000445.A8684@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <200112200507.fBK57LC25752@devserv.devel.redhat.com>; from zaitcev@redhat.com on Thu, Dec 20, 2001 at 12:07:21AM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 20, 2001 at 12:07:21AM -0500, Pete Zaitcev <zaitcev@redhat.com> wrote:
-| >[...]
-| > However, heavily threaded apps regardless of language are hardly likely
-| > to disappear; threads are the natural way to write many many things. And
-| > if the kernel implements threads as on Linux, then the scheduler will
-| > become much more important to good performance.
-| 
-| Cameron seems to be arguing with DaveM,
+Release 1.9.11: Wed Dec 19 23:57:21 EST 2001
+	* Added a ruleset-debugging mode to cmlconfigure.py.
+	* Add 'like' keyword so help entries can be re-used by reference.
+	* Fix some scoping problems in kxref.py that confused pre-2.2 Pythons.
 
-About the wrong things, but no matter.
+I haven't solved Richard Todd's bugs in the logic engine yet =-- fortunately
+they don't show up in ordinary use.  I expect to nail these shortly.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-| but subconsciously he
-| only supports DaveM's point about AIO: Java cannot make use
-| of AIO, so that's one (large or small, important or unimportant)
-| group of applications down from the count.
-
-You're sure? Java _authors_ can't make use of it, but Java _implementors_
-probably have good reason to want it ...
-
-| Just trying to keep on topic :)
-
-Whatever for?
---
-Cameron Simpson, DoD#743        cs@zip.com.au    http://www.zip.com.au/~cs/
-
-Reaching consensus in a group often is confused with finding the right
-answer.	- Norman Maier
+Americans have the will to resist because you have weapons. 
+If you don't have a gun, freedom of speech has no power.
+         -- Yoshimi Ishikawa, Japanese author, in the LA Times 15 Oct 1992

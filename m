@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271212AbTGYQIx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 12:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272170AbTGYQIx
+	id S272215AbTGYQOC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 12:14:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272216AbTGYQOC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 12:08:53 -0400
-Received: from mta11.srv.hcvlny.cv.net ([167.206.5.46]:23250 "EHLO
-	mta11.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S271212AbTGYQIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 12:08:52 -0400
-Date: Fri, 25 Jul 2003 12:23:37 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: Net device byte statistics
-In-reply-to: <200307250654.h6P6s9j05200@Port.imtp.ilyichevsk.odessa.ua>
-To: vda@port.imtp.ilyichevsk.odessa.ua,
-       Bernd Eckenfels <ecki-lkm@lina.inka.de>, linux-kernel@vger.kernel.org
-Message-id: <200307251223.51849.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-Content-description: clearsigned data
-User-Agent: KMail/1.5.2
-References: <E19fqMF-0007me-00@calista.inka.de>
- <200307250654.h6P6s9j05200@Port.imtp.ilyichevsk.odessa.ua>
+	Fri, 25 Jul 2003 12:14:02 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:27808 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S272215AbTGYQOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 12:14:00 -0400
+Date: Fri, 25 Jul 2003 12:18:04 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Sam Bromley <sbromley@cogeco.ca>, Torrey Hoffman <thoffman@arnor.net>,
+       gaxt <gaxt@rogers.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux firewire devel <linux1394-devel@lists.sourceforge.net>
+Subject: Re: Firewire
+Message-ID: <20030725161803.GJ1512@phunnypharm.org>
+References: <20030725012723.GF23196@ruvolo.net> <20030725012908.GT1512@phunnypharm.org> <1059103424.24427.108.camel@daedalus.samhome.net> <20030725041234.GX1512@phunnypharm.org> <20030725053920.GH23196@ruvolo.net> <20030725133438.GZ1512@phunnypharm.org> <20030725142907.GI23196@ruvolo.net> <20030725142926.GD1512@phunnypharm.org> <20030725154009.GF1512@phunnypharm.org> <20030725160706.GK23196@ruvolo.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030725160706.GK23196@ruvolo.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Jul 25, 2003 at 09:07:06AM -0700, Chris Ruvolo wrote:
+> On Fri, Jul 25, 2003 at 11:40:09AM -0400, Ben Collins wrote:
+> > Ok, so revert everything and try this patch.
+> 
+> FYI, I got this compile warning (but I don't think its relevant).  Full
+> output from module load follows.
 
-On Friday 25 July 2003 03:03, Denis Vlasenko wrote:
-> I sample the data every minute. Will need to do it much more often
-> on 10ge ifaces, when those will appear at my home ;)
+Ok, in ieee1394_core.c, when it does the "packet removed in
+abort_timedouts" could you make it print the value of jiffies, expire
+and packet->sendtime?
 
-Speed			Time for one overflow
+Thanks.
 
-10Gbits/s	=> 3.436 seconds
-1Gbit/s		=> 34.36 seconds
-100Mbits/s	=> 343.6 seconds
-
-> Or we will need 64bit counters then.
-
-For anything up to (and including) 1GBit/s it is possible to do in easily in 
-userspace, but then were are getting into an area where a program would have 
-to check the files every 3 seconds (and a bit of load could delay it long 
-enough for an overflow to happen.)
-
-Jeff.
-
-- -- 
-FORTUNE PROVIDES QUESTIONS FOR THE GREAT ANSWERS: #19
-A:      To be or not to be.
-Q:      What is the square root of 4b^2?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/IVmNwFP0+seVj/4RAioPAJ0Y9+lsU/pcwubJeyt8sIogOJt7/ACgoNhT
-o1qluqX84CNqU2du7WXG4Eo=
-=IlX4
------END PGP SIGNATURE-----
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/

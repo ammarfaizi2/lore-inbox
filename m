@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131805AbRAMTqP>; Sat, 13 Jan 2001 14:46:15 -0500
+	id <S130346AbRAMTuF>; Sat, 13 Jan 2001 14:50:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132017AbRAMTqG>; Sat, 13 Jan 2001 14:46:06 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32520 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131805AbRAMTpt>; Sat, 13 Jan 2001 14:45:49 -0500
-Subject: Re: ide.2.4.1-p3.01112001.patch
-To: vojtech@suse.cz (Vojtech Pavlik)
-Date: Sat, 13 Jan 2001 19:46:42 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <20010113150046.E1155@suse.cz> from "Vojtech Pavlik" at Jan 13, 2001 03:00:46 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132017AbRAMTt4>; Sat, 13 Jan 2001 14:49:56 -0500
+Received: from smtp-out2.bellatlantic.net ([199.45.40.144]:64492 "EHLO
+	smtp-out2.bellatlantic.net") by vger.kernel.org with ESMTP
+	id <S130346AbRAMTtp>; Sat, 13 Jan 2001 14:49:45 -0500
+Date: Sat, 13 Jan 2001 14:49:43 -0500 (EST)
+From: Werner <werner.lx@verizon.net>
+To: linux-kernel@vger.kernel.org
+Subject: HP Pavilion 8290 HANGS on boot 2.4/2.4-test9
+Message-ID: <Pine.LNX.4.21.0101131444030.1779-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14HWdQ-0006VF-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  		if (IDE_PCI_DEVID_EQ(d->devid, DEVID_SIS5513) ||
->  		    IDE_PCI_DEVID_EQ(d->devid, DEVID_AEC6260) ||
->  		    IDE_PCI_DEVID_EQ(d->devid, DEVID_PIIX4NX) ||
-> -		    IDE_PCI_DEVID_EQ(d->devid, DEVID_HPT34X))
-> +		    IDE_PCI_DEVID_EQ(d->devid, DEVID_HPT34X)  ||
-> +		    IDE_PCI_DEVID_EQ(d->devid, DEVID_VIA_IDE) ||
-> +		    IDE_PCI_DEVID_EQ(d->devid, DEVID_VP_IDE))
->  			autodma = 0;
->  		if (autodma)
->  			hwif->autodma = 1;
 
-How about
+HP Pavilion 8290, PII 400MHz, 256MB hangs on boot 2.4 and 2.4-test9 on RH7.0.
+I tried to compile 2.4-test9 on RH 7.0 with gcc versions 2.96-54, 2.96-69,
+and with kgcc 1.1.2-40 (egcs-2.91.66) without success.
 
-		    && !force_dma)
+The first and last message I get is: 
+"Uncompressing Linux... OK, booting the kernel"
+
+I never get to the start_kernel() function in main.c
+I had no problems to get 2.4 (testx) running on IBM 300PL (PIII 500MHz, 192MB).
+After running 'make mrproper' and 'make xconfig' I changed only SMP to No.
+
+Can you please tell me how I can print debug information to the console in
+arch/i386/boot/compressed/head.s and in arch/i386/kernel/head.S
+_without_ impacting the rest of the assembly code?
+
+# lspci
+00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge(rev 02)
+00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge(rev 02)
+00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
+00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
+00:0a.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI]
+00:0b.0 Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink] (rev 74)
+00:0c.0 Ethernet controller: National Semiconductor Corporation: Unknown device 0020
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 1X/2X (rev 5c)
+
+Let me know what I can do.
+
+Thanks
+Werner
 
 
-__setup("force_dma") ...
 
-So those who want to play fast can
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

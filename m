@@ -1,73 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265116AbTFEUg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 16:36:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265118AbTFEUg2
+	id S265112AbTFEUgB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 16:36:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265116AbTFEUgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 16:36:28 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:28131 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S265116AbTFEUg0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 16:36:26 -0400
-Date: Thu, 5 Jun 2003 22:49:55 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
-Subject: [Patch] 2.5.70-bk9 zlib cleanup #5 __32BIT__ and STDC
-Message-ID: <20030605204955.GH22439@wohnheim.fh-wedel.de>
-References: <20030605194644.GA22439@wohnheim.fh-wedel.de> <20030605200958.GB22439@wohnheim.fh-wedel.de> <20030605201850.GC22439@wohnheim.fh-wedel.de> <20030605203346.GE22439@wohnheim.fh-wedel.de>
+	Thu, 5 Jun 2003 16:36:01 -0400
+Received: from 198.216-123-194-0.interbaun.com ([216.123.194.198]:61313 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP id S265112AbTFEUgA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 16:36:00 -0400
+Date: Thu, 5 Jun 2003 14:49:25 -0600
+From: Michal Jaegermann <michal@harddata.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: /proc/bus/pci
+Message-ID: <20030605144925.A5993@mail.harddata.com>
+References: <20030605125013$41ac@gated-at.bofh.it> <20030605160017$10e1@gated-at.bofh.it> <frodoid.frodo.873cioa34p.fsf@usenet.frodoid.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030605203346.GE22439@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <frodoid.frodo.873cioa34p.fsf@usenet.frodoid.org>; from lkml@mf.frodoid.org on Thu, Jun 05, 2003 at 06:41:10PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus!
+On Thu, Jun 05, 2003 at 06:41:10PM +0200, Julien Oster wrote:
+> Linus Torvalds <torvalds@transmeta.com> writes:
+> 
+> > A "phb" just makes me go "Whaa?"
+> 
+> But people doing computer stuff *love* abbrevations. Ask any
+> non-kernel-developer (or non-kernel-interested) about ACPI, MSI, MSWR,
+> MTRR, APIC, IO-APIC, TSC, PTE or XT-PIC-IRQ and he will not only go
+> "Whaa?" but "WHAAAAHELP!" :-)
 
-This one is working now.  Please apply.
+In a message from 2nd of July, here on lkml, Andre Hedrick wrote
 
-Jörn
+<quote>
+I need to sit down with JG, AC, BZ, JA and work out a TF <> FIS lib
+for First Party DMA.
+    
+I need to rip the SATA 1.0 out of drivers/ide/* ...
+....
+    
+Obviously TCQ in FPDMA via direct FIS will map to SCSI with less
+pain.
+    
+I have FPDMA cores.
+</quote>
 
--- 
-When you close your hand, you own nothing. When you open it up, you
-own the whole world.
--- Li Mu Bai in Tiger & Dragon
+In the first moment I started to wonder if this is a spoof; but
+after a while I decided that likely it is not.  Still a translator
+could be handy or it is time to update V.E.R.A. :-)
 
---- linux-2.5.70-bk9/include/linux/zconf.h~zlib_cleanup_more_intentions	2003-06-05 22:36:32.000000000 +0200
-+++ linux-2.5.70-bk9/include/linux/zconf.h	2003-06-05 22:42:41.000000000 +0200
-@@ -8,18 +8,6 @@
- #ifndef _ZCONF_H
- #define _ZCONF_H
- 
--#if defined(__GNUC__) || defined(__386__) || defined(i386)
--#  ifndef __32BIT__
--#    define __32BIT__
--#  endif
--#endif
--
--#if defined(__STDC__) || defined(__cplusplus)
--#  ifndef STDC
--#    define STDC
--#  endif
--#endif
--
- /* The memory requirements for deflate are (in bytes):
-             (1 << (windowBits+2)) +  (1 << (memLevel+9))
-  that is: 128K for windowBits=15  +  128K for memLevel = 8  (default values)
-@@ -49,13 +37,7 @@
- 
-                         /* Type declarations */
- 
--#ifndef OF /* function prototypes */
--#  ifdef STDC
- #    define OF(args)  args
--#  else
--#    define OF(args)  ()
--#  endif
--#endif
- 
- typedef unsigned char  Byte;  /* 8 bits */
- typedef unsigned int   uInt;  /* 16 bits or more */
+  Michal

@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317414AbSFDJAj>; Tue, 4 Jun 2002 05:00:39 -0400
+	id <S316577AbSFDJHV>; Tue, 4 Jun 2002 05:07:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317415AbSFDJAi>; Tue, 4 Jun 2002 05:00:38 -0400
-Received: from port326.ds1-brh.adsl.cybercity.dk ([217.157.160.207]:34352 "EHLO
-	mail.jaquet.dk") by vger.kernel.org with ESMTP id <S317414AbSFDJAh>;
-	Tue, 4 Jun 2002 05:00:37 -0400
-Date: Tue, 4 Jun 2002 11:00:32 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: "Anthony J. Breeds-Taurima" <tony@cantech.net.au>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Subject: Re: [PATCH] 2.4.19-pre10 s/Efoo/-Efoo/ drivers/char/rio/*.c
-Message-ID: <20020604110032.A28843@jaquet.dk>
-In-Reply-To: <Pine.LNX.4.44.0206041643070.32156-100000@thor.cantech.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S317421AbSFDJHU>; Tue, 4 Jun 2002 05:07:20 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:45574 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316577AbSFDJHT>; Tue, 4 Jun 2002 05:07:19 -0400
+Message-ID: <3CFC7591.2010201@evision-ventures.com>
+Date: Tue, 04 Jun 2002 10:08:49 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: PATCH/RFC: fix 2.5.20 ramdisk
+In-Reply-To: <20020603180627.A23056@flint.arm.linux.org.uk> <20020604083525.GA2512@suse.de> <20020604094532.A30552@flint.arm.linux.org.uk> <3CFC7226.2010101@evision-ventures.com> <20020604095427.B30552@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 04, 2002 at 04:48:58PM +0800, Anthony J. Breeds-Taurima wrote:
-> Hello All,
-> 	This is another cleanup patch changing positive return values into
-> negative's.
+Russell King wrote:
+> On Tue, Jun 04, 2002 at 09:54:14AM +0200, Martin Dalecki wrote:
+> 
+>>>--- orig/drivers/block/rd.c	Wed May 29 21:40:26 2002
+>>>+++ linux/drivers/block/rd.c	Tue Jun  4 09:44:21 2002
+>>>@@ -144,6 +144,7 @@
+>>> {
+>>> 	struct address_space * mapping;
+>>> 	unsigned long index;
+>>>+	unsigned int vec_offset;
+>>
+>>Just a small nit. Shouldn't taht be size_t ?
 > 
 > 
-> Yours Tony
+> I really don't see where you got that thought from.  A bio_vec is:
 > 
-> Jan 22-26 2003      Linux.Conf.AU       http://conf.linux.org.au/
->          The Australian Linux Technical Conference!
+> struct bio_vec {
+>         struct page     *bv_page;
+>         unsigned int    bv_len;
+>         unsigned int    bv_offset;
+> };
 > 
-> --------------------------------------------------------------------------------
-> diff -X dontdiff -urN linux-2.4.19-pre10.clean/drivers/char/rio/rio_linux.c linux-2.4.19-pre10/drivers/char/rio/rio_linux.c
-> --- linux-2.4.19-pre10.clean/drivers/char/rio/rio_linux.c	Tue Apr 30 13:22:07 2002
-> +++ linux-2.4.19-pre10/drivers/char/rio/rio_linux.c	Tue Jun  4 16:27:36 2002
-> @@ -702,7 +702,7 @@
->    func_enter();
->  
->    /* The "dev" argument isn't used. */
-> -  rc = -riocontrol (p, 0, cmd, (void *)arg, suser ());
-> +  rc = riocontrol (p, 0, cmd, (void *)arg, suser ());
+> bv_offset is unsigned int.  Therefore, vec_offset should be likewise.
 
-I'm sorry but since this code indeed changes the positive return
-codes into negatives, what is the purpose of your patch? Have you
-talked to the maintainer (R.E.Wolff)?
+Ahh. Of course I see. Thank you for explaining.
 
-
-Rasmus

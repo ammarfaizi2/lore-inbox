@@ -1,86 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281290AbRKLH2w>; Mon, 12 Nov 2001 02:28:52 -0500
+	id <S281292AbRKLHZm>; Mon, 12 Nov 2001 02:25:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281294AbRKLH2m>; Mon, 12 Nov 2001 02:28:42 -0500
-Received: from main.sonytel.be ([195.0.45.167]:34938 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S281290AbRKLH2g>;
-	Mon, 12 Nov 2001 02:28:36 -0500
-Date: Mon, 12 Nov 2001 08:27:48 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Bakonyi Ferenc <fero@drama.obuda.kando.hu>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] hgafb oopses
-In-Reply-To: <Pine.LNX.4.40.0111091302580.16816-100000@drama.koli>
-Message-ID: <Pine.GSO.4.21.0111120822550.11251-100000@mullein.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281290AbRKLHZc>; Mon, 12 Nov 2001 02:25:32 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:18 "HELO palrel12.hp.com")
+	by vger.kernel.org with SMTP id <S281292AbRKLHZX>;
+	Mon, 12 Nov 2001 02:25:23 -0500
+Date: Sun, 11 Nov 2001 23:26:15 -0800 (PST)
+From: Grant Grundler <grundler@cup.hp.com>
+Message-Id: <200111120726.XAA13975@milano.cup.hp.com>
+To: omnibook@zurich.ai.mit.edu
+Subject: OB600 PCMCIA - my summer vacation story
+Cc: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Nov 2001, Bakonyi Ferenc wrote:
-> Somebody submitted a patch against 2.4.13 which broke hgafb. That patch
-> called isa_memset() and isa_writeb() with an _already_ mapped address.
-> So that address was mapped twice -> oops.
+Hi,
+I finally got around to writing about how I spent my summer vacation.
+Well, wasn't really a vacation (4 monthes unpaid time-off from HP) 
+and I did (too) many other things as well. But I did hack on OB600
+PCMCIA support and ultimately didn't get it working.  I ran out of
+time.  It's frustrating I can't use my ob600 as a route/firewall/
+dhcp/nat server.  But I know *alot* more about PCMCIA than I did before
+and that was really the goal.
 
-Sorry... Anyway, the old code was broken too, since it wasn't portable.
+If anyone has docs for the VL82C717 chip or win95 OB600SS.VXD source code,
+I'm pretty sure I can make it work. With a PCMCIA bus analyzer, I might
+try again...I have a 16500B with 16550 and 16510 add-on cards if
+someone wants to loan me a PCMCIA pod.
 
-(Why did no one told me? I did receive an additional patch to make hgafb work
- again after I posted the first version to linux-kernel, which I did
- incorporate in the final version).
+In case anyone wants to hack on it further, source and notes
+are on:
+	ftp://gsyprf10.external.hp.com/pub/ob600/ob600_ss.c
+	ftp://gsyprf10.external.hp.com/pub/ob600/notes.ob600_ss
 
-> The patch below is against 2.4.15-pre1. It resolves the ISA address
-> confusion, replaces scr_{read|write} functions with isa_{read|write},
-> and elimiates a cosmetic compiler warning about suggested parens.
-
-But it does some other Bad Things(TM): putting ISA memory _adresses_ and
-_16_bit_ values in _unsigned_chars_ is not good for your health...
-
-> --- linux-2.4.15-pre1/drivers/video/hgafb.c	Fri Nov  9 12:22:42 2001
-> +++ linux/drivers/video/hgafb.c	Fri Nov  9 12:26:33 2001
-> @@ -312,10 +312,10 @@
->  static int __init hga_card_detect(void)
->  {
->  	int count=0;
-> -	u16 *p, p_save;
-> -	u16 *q, q_save;
-> +	unsigned char p, p_save;
-> +	unsigned char q, q_save;
-        ^^^^^^^^^^^^^
->
-> -	hga_vram_base = VGA_MAP_MEM(0xb0000);
-> +	hga_vram_base = 0xb0000;
->  	hga_vram_len  = 0x08000;
->
->  	if (request_region(0x3b0, 12, "hgafb"))
-> @@ -325,14 +325,14 @@
->
->  	/* do a memory check */
->
-> -	p = (u16 *) hga_vram_base;
-> -	q = (u16 *) (hga_vram_base + 0x01000);
-> +	p = hga_vram_base;
-> +	q = hga_vram_base + 0x01000;
->
-> -	p_save = scr_readw(p); q_save = scr_readw(q);
-> +	p_save = isa_readw(p); q_save = isa_readw(q);
->
-> -	scr_writew(0xaa55, p); if (scr_readw(p) == 0xaa55) count++;
-> -	scr_writew(0x55aa, p); if (scr_readw(p) == 0x55aa) count++;
-> -	scr_writew(p_save, p);
-> +	isa_writew(0xaa55, p); if (isa_readw(p) == 0xaa55) count++;
-> +	isa_writew(0x55aa, p); if (isa_readw(p) == 0x55aa) count++;
-> +	isa_writew(p_save, p);
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+grant

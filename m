@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315430AbSFTRKg>; Thu, 20 Jun 2002 13:10:36 -0400
+	id <S315279AbSFTRQl>; Thu, 20 Jun 2002 13:16:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315431AbSFTRKf>; Thu, 20 Jun 2002 13:10:35 -0400
-Received: from holomorphy.com ([66.224.33.161]:17855 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S315430AbSFTRKe>;
-	Thu, 20 Jun 2002 13:10:34 -0400
-Date: Thu, 20 Jun 2002 10:10:06 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Sandy Harris <pashley@storm.ca>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: McVoy's Clusters (was Re: latest linus-2.5 BK broken)
-Message-ID: <20020620171006.GV22961@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Sandy Harris <pashley@storm.ca>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0206191018510.2053-100000@home.transmeta.com> <m1d6umtxe8.fsf@frodo.biederman.org> <20020619222444.A26194@work.bitmover.com> <3D11F7B9.27C74922@storm.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <3D11F7B9.27C74922@storm.ca>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S315285AbSFTRQk>; Thu, 20 Jun 2002 13:16:40 -0400
+Received: from hq.tensilica.com ([65.205.227.29]:62707 "EHLO
+	mail-in.hq.tensilica.com") by vger.kernel.org with ESMTP
+	id <S315279AbSFTRQk>; Thu, 20 Jun 2002 13:16:40 -0400
+Message-ID: <3D120DEB.5040304@tensilica.com>
+Date: Thu, 20 Jun 2002 10:16:27 -0700
+From: RW Hawkins <rw@tensilica.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Cort Dougan <cort@fsmlabs.com>
+CC: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Benjamin LaHaise <bcrl@redhat.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: latest linus-2.5 BK broken
+References: <Pine.LNX.4.44.0206191018510.2053-100000@home.transmeta.com> <m1d6umtxe8.fsf@frodo.biederman.org> <20020620103003.C6243@host110.fsmlabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 20, 2002 at 11:41:45AM -0400, Sandy Harris wrote:
-> For large multi-processor systems, it isn't clear that those matter
-> much. On single user systems I've tried , ps -ax | wc -l usually
-> gives some number 50 < n < 100. For a multi-user general purpose
-> system, my guess would be something under 50 system processes plus
-> 50 per user. So for a dozen to 20 users on a departmental server,
-> under 1000. A server for a big application, like database or web,
-> would have fewer users and more threads, but still only a few 100
-> or at most, say 2000.
+You're missing the point. Larry is saying "I have been down this road 
+before, take heed". We don't want to waste the time reinventing bloat 
+when we can learn from others mistakes.
 
-Certain unnameable databases like to have 2K processes at minimum and
-see task counts soar even higher under significant loads.
+-RW
 
-Also, the scholastic departmental servers I've seen in action generally
-host 300+ users with something less than 50/logged in user and something
-more than 50 for the baseline. For the school-wide one I used hosting
-10K+ (40K+?) users generally only between 500 and 2500 (where the non-rare
-maximum was around 1500) are logged in simultaneously, and the task/user
-count was more like 5-10, with a number of them (most?) riding at 2 or 3
-(shell + MUA or shell + 2 tasks for rlogin to elsewhere). The uncertainty
-with respect to number of accounts is due to no userlists being visible.
+ Cort Dougan wrote:
 
-I can try to contact some of the users or administrators if better
-numbers are needed, though it may not work as I've long since graduated.
+>"Beating the SMP horse to death" does make sense for 2 processor SMP
+>machines.  When 64 processor machines become commodity (Linux is a
+>commodity hardware OS) something will have to be done.  When research
+>groups put Linux on 1k processors - it's an experiment.  I don't think they
+>have much right to complain that Linux doesn't scale up to that level -
+>it's not designed to.
+>
+>That being said, large clusters are an interesting research area but it is
+>_not_ a failing of Linux that it doesn't scale to them.
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
 
-Cheers,
-Bill
+
+

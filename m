@@ -1,69 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311040AbSCLMzS>; Tue, 12 Mar 2002 07:55:18 -0500
+	id <S311127AbSCLM53>; Tue, 12 Mar 2002 07:57:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311024AbSCLMzI>; Tue, 12 Mar 2002 07:55:08 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:4136 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S311023AbSCLMyt>; Tue, 12 Mar 2002 07:54:49 -0500
-Date: Tue, 12 Mar 2002 13:56:05 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: wli@holomorphy.com, wli@parcelfarce.linux.theplanet.co.uk,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        linux-kernel@vger.kernel.org, riel@surriel.com, hch@infradead.org,
-        phillips@bonn-fries.net
-Subject: Re: 2.4.19pre2aa1
-Message-ID: <20020312135605.P25226@dualathlon.random>
-In-Reply-To: <20020312041958.C687@holomorphy.com> <20020312070645.X10413@dualathlon.random> <20020312112900.A14628@holomorphy.com>
+	id <S311023AbSCLM5L>; Tue, 12 Mar 2002 07:57:11 -0500
+Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:62640 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S311127AbSCLM4w>; Tue, 12 Mar 2002 07:56:52 -0500
+Date: Tue, 12 Mar 2002 12:55:43 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Malte Starostik <malte@kde.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: directory notifications lost after fork?
+Message-ID: <20020312125543.B4281@kushida.apsleyroad.org>
+In-Reply-To: <200203120247.05611.malte@kde.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20020312112900.A14628@holomorphy.com>
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
-Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200203120247.05611.malte@kde.org>; from malte@kde.org on Tue, Mar 12, 2002 at 02:47:05AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 12, 2002 at 11:29:00AM +0000, wli@holomorphy.com wrote:
-> For specific reasons why multiplication by a magic constant (related to
-> the golden ratio) should have particularly interesting scattering
-> properties, Knuth cites Vera Turán Sós, Acta Math. Acad. Sci. Hung. 8
+Malte Starostik wrote:
+> Imagine a file manager that has a view on a large directory like
+> /usr/bin. Now a file in that directory is added / removed /
+> changed. With dnotify, the filemanager will have to rescan the whole
+> directory as a reaction to the signal, to find out which file has
+> changed. OTOH, with FAM, it gets a precise event that tells "file
+> `somebinary' has been added" or similar.
 
-I know about the scattering properties of some number (that is been
-measured empirically if I remeber well what I read). I was asking for
-something else, I was asking if this magical number can scatter better a
-random input as well or not. My answer is no. And I believe the nearest
-you are to random input to the hashfn the less the mul can scatter
-better than the input itself and it will just lose cache locality for
-consecutive pages. So the nearest you are, the better if you avoid the
-mul and you take full advantage of the randomness of the input, rather
-than keeping assuming the input has pattenrs.
+It would indeed be very cool if dnotify could say which inode has been
+updated.  The problem I have with FAM is that notifications aren't
+immediate, which makes it useless for my fast dynamic web server
+application.  For that, notifications have to be strong enough to
+support the rule "if I have not received a dnotify _now_, then my cached
+stat() result is valid for files in that directory _now_".
 
-I mean, start reading from /dev/random and see how the distribution goes
-with and without mul, it will be the same I think.
+> I don't have much of a clue about the kernel, so please excuse my ignorance, 
+> but the imon patch seems pretty unintrusive to me and enables more 
+> fine-grained file change notifications than dnotify. Also, FAM can monitor 
+> NFS-mounted directories with almost no network overhead when it's also 
+> running on the server.
 
-> I will either sort out the results I have on the waitqueues or rerun
-> tests at my leisure.
+Ah, thanks, I didn't know about imon.
 
-I'm waiting for it, if you've monitor patches I can run something too.
-I'd like to count the number of collisions over time in particular.
+The imon API is nice -- I could use that and more efficiently than
+dnotify.  (I can't use FAM because of notification delays, but the imon
+device is just right).
 
-> Note I am only trying to help you avoid shooting yourself in the foot.
+Unfortunately the implementation is rather intrusive.  As it says, it
+implies a performance hit on every file operation on all files, if any
+file is being monitored.  So I can see it being disabled on high
+performance servers, which is where I need it.
 
-If I've rescheduling problems you're likely to have them too, I'm quite
-sure, if something the fact I keep the hashtable large enough will make
-me less bitten by the collisions. The only certain way to avoid riskying
-regressions would be to backout the wait_table part that was merged in
-mainline 19pre2. the page_zone thing cannot generate any regression for
-instance (same is true for page_address), the wait_table part is gray
-area instead, it's just an heuristic like all the hashes and you can
-always have a corner case bitten hard, it's just that the probabiliy for
-such a corner case to happen has to be small enough for it to be
-acceptable, but you can always be unlucky, no matter if you mul or not,
-you cannot predict the future of what's the next pages that the people
-will wait on from userspace.
+A fusion of imon and dnotify would be good:
 
-Andrea
+   - absolute minimum impact on file operations: a small inline check,
+     per inode not globally, as dnotify does now.
+
+   - imon-style hash table used for inodes that aren't in core, so you
+     can monitor a large number of files individually without pulling
+     their inodes into core.  When inodes are brought into core then the
+     hash table entries are moved to the in core inode, and vice versa.
+
+     (Not sure about the reliability of hashing on inode numbers,
+     though -- some filesystems don't provide reliable inode numbers).
+
+   - dnotify-style lists of monitoring requests attached to in core
+     inodes.
+
+   - per-process monitoring sets, as dnotify does.
+
+   - imon-style precision notification of individual files, including
+     reliably monitoring files which are hard linked in different
+     directories.
+
+   - dnotify causes files to notify their parent directory (yes it's
+     ambiguous with hard links).  In a per-file scheme, one possible
+     flag on a file's inode would be "notify my parent directory".  I
+     see no reason not to extend that to "I am a directory.  If I
+     receive a notification from a child, notify _my_ parent directory",
+     for those occasions when you'd like to monitor a whole directory
+     hierarchy without having to do the equivalent slow disk accesses of
+     "find -print" on it first.
+
+   - guarantee that the event will be sent to the monitoring process
+     immediately after the operation which triggers the event, and
+     before the operation releases inode semaphore, if it has it -- so
+     that monitoring processes can depend on "if I haven't received a
+     notification then my stat() cache is still valid".
+
+Some ideas.  I would really like this to be usable with my idea for a
+fast dynamic web server, which is also a "make" server, so I'm willing
+to put some work in here.
+
+Feedback appreciated,
+-- Jamie

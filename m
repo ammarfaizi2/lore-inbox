@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129660AbQKQS77>; Fri, 17 Nov 2000 13:59:59 -0500
+	id <S129270AbQKQTAt>; Fri, 17 Nov 2000 14:00:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129270AbQKQS7t>; Fri, 17 Nov 2000 13:59:49 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:47156 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129220AbQKQS7n>; Fri, 17 Nov 2000 13:59:43 -0500
-Date: Fri, 17 Nov 2000 19:28:34 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Christoph Rohland <cr@sap.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Tigran Aivazian <tigran@veritas.com>,
-        Mikael Pettersson <mikpe@csd.uu.se>, Jordan <ledzep37@home.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Error in x86 CPU capabilities starting with test5/6
-Message-ID: <20001117192834.A30047@athlon.random>
-In-Reply-To: <E13wkLK-0000bP-00@the-village.bc.nu> <qwwpujuvk1s.fsf@sap.com> <20001117161833.A27098@athlon.random> <qwwaeaytwfa.fsf@sap.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <qwwaeaytwfa.fsf@sap.com>; from cr@sap.com on Fri, Nov 17, 2000 at 05:06:49PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S130417AbQKQTAj>; Fri, 17 Nov 2000 14:00:39 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:6671 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129270AbQKQTAV>; Fri, 17 Nov 2000 14:00:21 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: VGA PCI IO port reservations
+Date: 17 Nov 2000 10:29:58 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8v3tf6$s3e$1@cesium.transmeta.com>
+In-Reply-To: <3A156116.65CDBBE9@didntduck.org> <200011171656.QAA01320@raistlin.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2000 at 05:06:49PM +0100, Christoph Rohland wrote:
-> Could I get this for i686? :-)
+Followup to:  <200011171656.QAA01320@raistlin.arm.linux.org.uk>
+By author:    Russell King <rmk@arm.linux.org.uk>
+In newsgroup: linux.dev.kernel
+>
+> Brian Gerst writes:
+> > This is an artifact from the ISA 10-bit IO bus.  Many ISA cards do not
+> > decode all 16 address bits so you get aliases of the 0x100-0x3ff region
+> > throughout IO space.  PCI cards should only use the first 256 ports of
+> > any 1k block to avoid aliases unless they claim the base alias.  For
+> > example, all the xxe8 addresses for the S3 are aliases of 0x02e8 to an
+> > ISA card.  Video cards are an exception to the general rule because they
+> > have to support all the legacy VGA crap.
+> 
+> No.  All xxe8 addresses access specific registers.  For example:
+> 
+>   0x9ea8 is the drawing command
+>   0xa2e8 is the background colour register
+>   0xa6e8 is the foreground colour register
+> 
+> So, as you see they aren't aliases.
+> 
 
-If we break binary compatibility yes. I mean: new glibc binaries wouldn't
-run anymore on older kernels. Also new static binaries wouldn't run
-anymore on older kernels. At least if we don't introduce runtime
-checks to guess if current kernel supports vsyscall or not (and if we do
-that it means we're adding slow checks in an extremely fast path and that's
-not what we want :).
+They aren't, but because early ISA cards did use these as aliases,
+board manufacturers said "hey, we only need to allocate the bottom 10
+bits, and we can use the remaining 6 address lines as we please."
 
-As about the broken calling conventions of the IA32 ABI, I think it doesn't
-worth to break the binary compatibility at this late stage.
+Sigh.
 
-Andrea
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

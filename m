@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261517AbSJMNFq>; Sun, 13 Oct 2002 09:05:46 -0400
+	id <S261666AbSJMNwz>; Sun, 13 Oct 2002 09:52:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261519AbSJMNFq>; Sun, 13 Oct 2002 09:05:46 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:58631 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261517AbSJMNFp>; Sun, 13 Oct 2002 09:05:45 -0400
-Date: Sun, 13 Oct 2002 14:11:35 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: shadow@andrew.cmu.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: AFS system call registration function (was Re: Two fixes for 2.4.19-pre5-ac3)
-Message-ID: <20021013141135.A15708@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	shadow@andrew.cmu.edu, linux-kernel@vger.kernel.org
-References: <3DA89B05.mailESG1QJVJI@johnstown.andrew.cmu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DA89B05.mailESG1QJVJI@johnstown.andrew.cmu.edu>; from shadow@andrew.cmu.edu on Sat, Oct 12, 2002 at 05:58:29PM -0400
+	id <S261639AbSJMNwy>; Sun, 13 Oct 2002 09:52:54 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:46111 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S261644AbSJMNww>; Sun, 13 Oct 2002 09:52:52 -0400
+Date: Sun, 13 Oct 2002 14:59:32 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Walter Haidinger <walter.haidinger@gmx.at>
+cc: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: isofs: cruft option with volume_seq_no? (patch included)
+In-Reply-To: <Pine.LNX.4.44.0210131403580.25059-100000@banshee.dnsalias.org>
+Message-ID: <Pine.LNX.4.44.0210131457290.1485-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 12, 2002 at 05:58:29PM -0400, shadow@andrew.cmu.edu wrote:
-> And then, xyzzy, and nothing happened.
-> Anyhow, this implements more or less exactly what's in 2.4.19 for nfs,
-> and adds the necessary wrapper for s390x.
+On Sun, 13 Oct 2002, Walter Haidinger wrote:
+> 
+> If you create an iso image with mkisofs and use the -volset-seqno option,
+> any subsequent mount attempt will result in the following message:
+> 
+> kernel: Warning: defective CD-ROM (volume sequence number 2). Enabling
+> "cruft" mount option.
+> 
+> Q: Why isn't this bug(?) fixed yet?
 
-Please don't put it into the NFS files.  And I'd suggest to use u32
-instead of long for the interface, to simplify 32bit compatiblity.
+Summary of changes from v2.5.41 to v2.5.42
+============================================
 
-Also, what exactly is this call doing?  I seems to be yet another
-multiplexer syscall and we already have more than enough of those.
+<Andries.Brouwer@cwi.nl>
+	[PATCH] isofs fix
+	
+	The patch below removes some dead code and nonsense code.
+	The part that changes behaviour is
+	
+	 -       if (sbi->s_cruft == 'n' &&
+	 -           (volume_seq_no != 0) && (volume_seq_no != 1)) {
+	 -               printk(KERN_WARNING "Warning: defective CD-ROM "
+	 -                      "(volume sequence number %d). "
+	 -                      "Enabling \"cruft\" mount option.\n", volume_seq_no);
+	 -               sbi->s_cruft = 'y';
+	 -       }
+	
+	that has already bitten lots of people.
+	
+	Nothing is wrong with a volume sequence number different from 0 or 1.
+	(Cf. Ecma-119.pdf, Sections 4.17, 4.18, 6.6.)
 

@@ -1,93 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130521AbRBTUOl>; Tue, 20 Feb 2001 15:14:41 -0500
+	id <S130413AbRBTUPV>; Tue, 20 Feb 2001 15:15:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130579AbRBTUOb>; Tue, 20 Feb 2001 15:14:31 -0500
-Received: from [216.218.132.86] ([216.218.132.86]:43773 "EHLO
-	web1.workspot.net") by vger.kernel.org with ESMTP
-	id <S130521AbRBTUOP>; Tue, 20 Feb 2001 15:14:15 -0500
-Subject: (BUG) 3c509b and kernel 2.4.x
-Mime-Version: 1.0
-To: linux-kernel@vger.kernel.org
-From: Lazarus Long <lazarus@workspot.net>
-Cc: lazarus@workspot.net, becker@webserv.gsfc.nasa.gov
-Message-Id: <E14VJAd-00007S-00@web1.workspot.net>
-Date: Tue, 20 Feb 2001 12:13:59 -0800
+	id <S130404AbRBTUPL>; Tue, 20 Feb 2001 15:15:11 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:3588 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S130540AbRBTUOe>;
+	Tue, 20 Feb 2001 15:14:34 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200102202014.XAA00920@ms2.inr.ac.ru>
+Subject: Re: 2.4.1 under heavy network load - more info
+To: magnus.walldal@b-linc.COM (Magnus Walldal)
+Date: Tue, 20 Feb 2001 23:14:06 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <HFEDLHHPHHEOBHLNPJOKIEHNCAAA.magnus.walldal@b-linc.com> from "Magnus Walldal" at Feb 19, 1 06:15:01 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(I searched, but I have not seen this posted to the list before.)
+Hello!
 
-Non-modular support for 3Com EtherLinkIII cards, specifically the ISA
-3c509b, worked fine in kernel 2.2.18.
+> of errors a bit but I'm not sure I fully understand the implications of
+> doing so.
 
-CONFIG_EL3=y
+Until these numbers do not exceed total amount of RAM, this is exactly
+the action required in this case.
 
-What worked in kernel 2.2.18 does not work in kernel 2.4.1 however.
+Dumps, which you sent to me, show nothing pathological. Actually,
+they are made in some period of full peace: only 47 orphans and
+only about 10MB of accounted memory.
 
-http://groups.google.com (deja's successor) reveals that multiple
-systems are having this problem, but there are no solutions listed
-there (at least not among the English posts.  I don't speak German,
-but apparently many Linux users do.)  I've spent quite a number of hours
-attempting to resolve the matter, but with no success either.
 
-Search for "Linux 2.4 3c509" shows the follow excerpts among the responses:
+> echo 30 > /proc/sys/net/ipv4/tcp_fin_timeout
 
- > [1.] Upon boot, the 2.4.1 kernel misconfigures one of two 3c509b NICs
- > installed in my computer as "BNC" rather than "10baseT".
+This is not essential with 2.4. In 2.4 this state does not grab any essential
+resources.
 
-I get the same here.
+> echo 0 > /proc/sys/net/ipv4/tcp_timestamps
+> echo 0 > /proc/sys/net/ipv4/tcp_sack
 
- > Boot messages for eth0 in kernel 2.2:
- > eth0: 3c509 at 0x300 tag 1, 10baseT port, address 00 a0 24 e9 8d a1, IRQ 10.
- > and in 2.4:
- > eth0: 3c509 at 0x300, BNC port, address 00 a0 24 e9 8d a1, IRQ 10.
- >
- > i don't know why it says BNC port.. but it isn't right, it should be 10baseT
+Why?
 
-Again, similar results here.  Incorrect port in 2.4.1 but correct in 2.2.18.
 
- > I have three 3com cards( 1 3c590 Vortex, 1 3c900 Cyclone, 1 3c509B) which
- > have no trouble with 2.2 kernels. But when I am trying to play with 2.4.0
- > kernel, the 3c509 just can not load.
+> echo "3072 3584 6144" > /proc/sys/net/ipv4/tcp_mem
 
-While my other NICs differ, the end result is that the 3c509 does not
-work, yet the other NICs do, which is as I have experienced as well.
+If you still have problems with orphans, you should raise these
+numbers. Extremal settings are sort of:
 
-At the LILO prompt, I pass parameters as follows:
-LILO boot: Linux241 ether=10,0x300,eth0 ether=7,0x320,eth1
-and the (NE2000 clone) eth0 card works fine, but the 3c509b eth1 card does not.
+Z=<total amount of ram in pages>
+Y=<something < Z>
+Z=<something < Y>
+echo "$X $Y $Z" > /proc/sys/net/ipv4/tcp_mem
 
-LILO boot: Linux241 ether=7,0x320,eth0 ether=10,0x300,eth1
-is not a solution, and merely causes the ethX values to flip-flop,
-with the same failure.  (Anticipated, but I'm mentioning it in case it
-matters to anyone.)
+Set them to maximum and if the messages will not disappear completely,
+decrease them to more tough limits.
 
-And of course, I should mention that
-LILO boot: Linux2218 ether=10,0x300,eth0 ether=7,0x320,eth1
-works just fine, with the NE2000 clone on eth0 *and* the 3c509b on eth1.
-(LILO boot: Linux2218 ether=7,0x320,eth0 ether=10,0x300,eth1
-functions as expected as well, with the flip-flop and both cards working.)
 
-There are features of kernel 2.4.x that I consider necessary (including,
-but not limited to, netfilter) so using kernel 2.2.18 is not an adequate
-solution here.
+> Feb 18 15:05:44 mcquack kernel: sending pkt_too_big to self
 
-I've tried recompiling the kernel stripped down to bare minimums for
-testing, but nothing seems to resolve this.  I've also tested the kernel
-on both a 486dx33 and a PII400, with the same results.  I've also tried
-using this as a single NIC in the ether=, for testing, even though
-that is not a satisfactory situation here.  Again, failure.  I've even
-physically removed the other NICs from the machine and acheived no success.
+Normal. Debugging.
 
-I don't see this driver mentioned in MAINTAINERS so I'm filing this
-bug report to the list.  (I'm uncertain if this is Donald Becker's
-"baby" currently or not.)  I'm omitting dmesg and .config etc. since
-it doesn't seem to be necessary; anyone with a 3c509b will probably get
-similar results with a 2.4.x kernel.  If needed I can send any specifics
-upon request.
 
-Please CC: lazarus@workspot.com in any discussion, as I am not on the list.
+> Feb 18 15:24:07 mcquack kernel: TCP: peer xx.xx.xx.xx:1084/7000 shrinks
+> window 2106777705:1072:2106779313. Bad, what else can I say?
 
---------------------------------------------------------------
-Get "Your Linux Desktop on the Net" at http://www.workspot.com
+Debugging too.
+
+> Feb 18 15:42:06 mcquack kernel: TCP: dbg sk->wmem_queued 5664
+> tcp_orphan_count 99 tcp_memory_allocated 6145
+
+Number Z is exceeded, newly _closed_ sockets will be aborted and
+stack entered state of moderation of its appetite.
+
+Dump, which you have sent to me and further messages in logs,
+show that it succeded and converged to normal state.
+
+
+> Please let me know if I can provide more debug info or test something!
+
+Actually, the only dubious place in your original report was something
+about behaviour of ssh. ssh surely cannot be affected by this effect.
+Could you elaborate this? What kind of problem exactly? Maybe, some
+tcpdump is the problem is reproducable.
+
+Alexey

@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbVCBJRO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbVCBJSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262235AbVCBJRO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 04:17:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbVCBJRO
+	id S262236AbVCBJSj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 04:18:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbVCBJSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 04:17:14 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:30621 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262235AbVCBJRL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 04:17:11 -0500
-Subject: Missing 'noinline' and '__compiler_offsetof' for GCC4+
-From: David Woodhouse <dwmw2@infradead.org>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 02 Mar 2005 09:16:47 +0000
-Message-Id: <1109755008.19535.16.camel@hades.cambridge.redhat.com>
+	Wed, 2 Mar 2005 04:18:38 -0500
+Received: from fire.osdl.org ([65.172.181.4]:32178 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262236AbVCBJSW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 04:18:22 -0500
+Date: Wed, 2 Mar 2005 01:14:48 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jes Sorensen <jes@wildopensource.com>
+Cc: bunk@stusta.de, linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: [2.6.11-rc5-mm1 patch] reiser4 Kconfig help cleanup
+Message-Id: <20050302011448.37f1e951.akpm@osdl.org>
+In-Reply-To: <yq0is4afml7.fsf@jaguar.mkp.net>
+References: <20050301012741.1d791cd2.akpm@osdl.org>
+	<20050301234324.GJ4845@stusta.de>
+	<yq0is4afml7.fsf@jaguar.mkp.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point we'll want to create 'compiler-gcc4.h' but probably not
-until it's going to be actually differ from 'compiler-gcc+.h'. Because
-they only get out of date if they're not used by anyone...
+Jes Sorensen <jes@wildopensource.com> wrote:
+>
+> >>>>> "Adrian" == Adrian Bunk <bunk@stusta.de> writes:
+> 
+> Adrian> The current reiser4 help texts have two disadvantages: 1. they
+> Adrian> are more marketing speech than technical speech with some
+> Adrian> debatable statements 2. they are too long
+> 
+> Excellent patch, that help description has been totally inappropriate
+> since it was first introduced. I'm sure it will do fine on namesys'
+> website, but not in the kernel.
+> 
+> Adrian> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> Signed-off-by: Jes Sorensen <jes@wildopensource.com>
+> 
+> Speaking of inappropriate components in reiser4:
+> 
+> [jes@tomahawk linux-2.6.11-rc5-mm1]$ grep PG_arch fs/reiser4/*.c
+> fs/reiser4/page_cache.c:               page_flag_name(page, PG_arch_1),
+> fs/reiser4/txnmgr.c:                    assert("vs-1448", test_and_clear_bit(PG_arch_1, &node->pg->flags));
+> fs/reiser4/txnmgr.c:            ON_DEBUG(set_bit(PG_arch_1, &(copy->pg)->flags));
+> 
+> Someone was obviously smoking something illegal, what part of 'arch'
+> did she/he not understand? I assume we can request this is fixed by
+> the patch owner asap.
+> 
 
---- linux-2.6.10/include/linux/compiler-gcc+.h~	2004-12-24 21:35:39.000000000 +0000
-+++ linux-2.6.10/include/linux/compiler-gcc+.h	2005-03-01 15:49:47.000000000 +0000
-@@ -13,4 +13,6 @@
- #define __attribute_used__	__attribute__((__used__))
- #define __attribute_pure__	__attribute__((pure))
- #define __attribute_const__	__attribute__((__const__))
-+#define  noinline		__attribute__((noinline))
- #define __must_check 		__attribute__((warn_unused_result))
-+#define __compiler_offsetof(a,b) __builtin_offsetof(a,b)
+Could the reiserfs team please comment?
 
+If it's just debug then probably it would be better to add a new flag.
 
--- 
-dwmw2
+If these pages are never mmapped then it'll just happen to work, I guess. 
+But a filesystem really shouldn't be dinking with PG_arch_1.
 

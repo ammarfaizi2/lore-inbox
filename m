@@ -1,100 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316172AbSEJX6y>; Fri, 10 May 2002 19:58:54 -0400
+	id <S316174AbSEKAAb>; Fri, 10 May 2002 20:00:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316174AbSEJX6x>; Fri, 10 May 2002 19:58:53 -0400
-Received: from web10401.mail.yahoo.com ([216.136.130.93]:33867 "HELO
-	web10401.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S316172AbSEJX6v>; Fri, 10 May 2002 19:58:51 -0400
-Message-ID: <20020510235851.2870.qmail@web10401.mail.yahoo.com>
-Date: Sat, 11 May 2002 09:58:51 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: Re: OOPS 2.4.19-pre7-ac4 (Was: strange things in kernel 2.4.19-pre7-ac4 + preempt patch)
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200205101413.g4AEDEX29793@Port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-1559846563-1021075131=:99891"
-Content-Transfer-Encoding: 8bit
+	id <S316176AbSEKAAa>; Fri, 10 May 2002 20:00:30 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:62738 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S316174AbSEKAA2>;
+	Fri, 10 May 2002 20:00:28 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] BUG() disassembly tweak 
+In-Reply-To: Your message of "Fri, 10 May 2002 15:58:16 MST."
+             <3CDC5088.C723E5AA@zip.com.au> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 11 May 2002 10:00:13 +1000
+Message-ID: <2045.1021075213@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-1559846563-1021075131=:99891
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
+On Fri, 10 May 2002 15:58:16 -0700, 
+Andrew Morton <akpm@zip.com.au> wrote:
+>Well given that kbuild-2.5 has a single makefile running
+>out of $(TOPDIR), it _should_ be chopping the absolute
+>pathname out of the include path and the .c path:
+>
+>	gcc -I include drivers/net/foo.c
+>
+>There will be no starting-with-slash __FILE__s in the output of
+>this command.
 
+Separate source and object.  Multiple source trees to support
+additional drivers, filesystems etc.  kbuild 2.5 runs in the object
+directory, reading from the source directories.  Path names are
+absolute.
 
-> 
-> You need to decode oops. Use ksymoops. 
-
-Ok I just compile ksymoops and here is the result
-
-
-
-=====
-Steve Kieu
-
-http://messenger.yahoo.com.au - Yahoo! Messenger
-- A great way to communicate long-distance for FREE!
---0-1559846563-1021075131=:99891
-Content-Type: application/octet-stream; name="oops.log"
-Content-Transfer-Encoding: base64
-Content-Description: oops.log
-Content-Disposition: attachment; filename="oops.log"
-
-a3N5bW9vcHMgMi40LjQgb24gaTY4NiAyLjQuMTktcHJlNy1hYzQuICBPcHRp
-b25zIHVzZWQKICAgICAtViAoZGVmYXVsdCkKICAgICAtayAvcHJvYy9rc3lt
-cyAoZGVmYXVsdCkKICAgICAtbCAvcHJvYy9tb2R1bGVzIChkZWZhdWx0KQog
-ICAgIC1vIC9saWIvbW9kdWxlcy8yLjQuMTktcHJlNy1hYzQvIChkZWZhdWx0
-KQogICAgIC1tIC9ib290L1N5c3RlbS5tYXAgKGRlZmF1bHQpCgpXYXJuaW5n
-OiBZb3UgZGlkIG5vdCB0ZWxsIG1lIHdoZXJlIHRvIGZpbmQgc3ltYm9sIGlu
-Zm9ybWF0aW9uLiAgSSB3aWxsCmFzc3VtZSB0aGF0IHRoZSBsb2cgbWF0Y2hl
-cyB0aGUga2VybmVsIGFuZCBtb2R1bGVzIHRoYXQgYXJlIHJ1bm5pbmcKcmln
-aHQgbm93IGFuZCBJJ2xsIHVzZSB0aGUgZGVmYXVsdCBvcHRpb25zIGFib3Zl
-IGZvciBzeW1ib2wgcmVzb2x1dGlvbi4KSWYgdGhlIGN1cnJlbnQga2VybmVs
-IGFuZC9vciBtb2R1bGVzIGRvIG5vdCBtYXRjaCB0aGUgbG9nLCB5b3UgY2Fu
-IGdldAptb3JlIGFjY3VyYXRlIG91dHB1dCBieSB0ZWxsaW5nIG1lIHRoZSBr
-ZXJuZWwgdmVyc2lvbiBhbmQgd2hlcmUgdG8gZmluZAptYXAsIG1vZHVsZXMs
-IGtzeW1zIGV0Yy4gIGtzeW1vb3BzIC1oIGV4cGxhaW5zIHRoZSBvcHRpb25z
-LgoKY3B1OiAwLCBjbG9ja3M6IDY2ODIwOSwgc2xpY2U6IDMzNDEwNApVbmFi
-bGUgdG8gaGFuZGxlIGtlcm5lbCBwYWdpbmcgcmVxdWVzdCBhdCB2aXJ0dWFs
-IGFkZHJlc3MgMDEwMDAwMWIKYzAxMmI0NTUKKnBkZSA9IDAwMDAwMDAwCk9v
-cHM6IDAwMDAKQ1BVOiAgICAwCkVJUDogICAgMDAxMDpbPGMwMTJiNDU1Pl0g
-ICAgTm90IHRhaW50ZWQKVXNpbmcgZGVmYXVsdHMgZnJvbSBrc3ltb29wcyAt
-dCBlbGYzMi1pMzg2IC1hIGkzODYKRUZMQUdTOiAwMDAxMzI0NgplYXg6IDAx
-MDAwMDAwICAgZWJ4OiBjNTQ1YTAwMCAgIGVjeDogYzExMTIyNTQgICBlZHg6
-IDAwMDAwMDAwCmVzaTogYzExMTIyNTQgICBlZGk6IGMwMjc5MmMwICAgZWJw
-OiBjNjY2N2VkOCAgIGVzcDogYzY2NjdlZDAKZHM6IDAwMTggICBlczogMDAx
-OCAgIHNzOiAwMDE4ClByb2Nlc3MgWCAocGlkOiAxMDIsIHN0YWNrcGFnZT1j
-NjY2NzAwMCkKU3RhY2s6IGM1NDVhMDAwIGMxMTEyMjU0IGM2NjY3ZWVjIGMw
-MThlNGIyIGMxMTEyMjU0IGM3YjQwN2NjIGM3YjQxODAwIGM2NjY3ZjA4IAog
-ICAgICAgYzAxOGU1MTEgYzAyNzkyYzAgYzU0NWEwMDAgMDAwMDAwMDAgYmZm
-ZmY5NjggYzAyNzkyYzAgYzY2NjdmNjggYzAxOGU5ZTkgCiAgICAgICBjMDI3
-OTJjMCAwMDAwMDAwMCBjMDI3OTJjMCAwMDAwMDAwMiAwMDAwMDAwMCAwMDAw
-MDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAKQ2FsbCBUcmFjZTogWzxjMDE4ZTRi
-Mj5dIFs8YzAxOGU1MTE+XSBbPGMwMThlOWU5Pl0gWzxjMDE4ZGYwND5dIFs8
-YzAxNDllZGI+XSAKICAgWzxjMDEwOGM1Yj5dIApDb2RlOiAwZiBiNiA1MCAx
-YiA4YiAxYyA5NSAwNCBlNCAyNSBjMCA4OSBjMiA2OSBkMiBiMSA3OSAzNyA5
-ZSA4YiAKCj4+RUlQOyBjMDEyYjQ1NSA8dW5sb2NrX3BhZ2UrNS83MD4gICA8
-PT09PT0KVHJhY2U7IGMwMThlNGIyIDxpODEwX2ZyZWVfcGFnZSszMi81MD4K
-VHJhY2U7IGMwMThlNTExIDxpODEwX2RtYV9jbGVhbnVwKzQxL2IwPgpUcmFj
-ZTsgYzAxOGU5ZTkgPGk4MTBfZG1hX2luaXQrYjkvZTA+ClRyYWNlOyBjMDE4
-ZGYwNCA8aTgxMF9pb2N0bCtlNC8xMDA+ClRyYWNlOyBjMDE0OWVkYiA8c3lz
-X2lvY3RsKzI2Yi8yYjA+ClRyYWNlOyBjMDEwOGM1YiA8c3lzdGVtX2NhbGwr
-MzMvMzg+CkNvZGU7ICBjMDEyYjQ1NSA8dW5sb2NrX3BhZ2UrNS83MD4KMDAw
-MDAwMDAgPF9FSVA+OgpDb2RlOyAgYzAxMmI0NTUgPHVubG9ja19wYWdlKzUv
-NzA+ICAgPD09PT09CiAgIDA6ICAgMGYgYjYgNTAgMWIgICAgICAgICAgICAg
-ICBtb3Z6YmwgMHgxYiglZWF4KSwlZWR4ICAgPD09PT09CkNvZGU7ICBjMDEy
-YjQ1OSA8dW5sb2NrX3BhZ2UrOS83MD4KICAgNDogICA4YiAxYyA5NSAwNCBl
-NCAyNSBjMCAgICAgIG1vdiAgICAweGMwMjVlNDA0KCwlZWR4LDQpLCVlYngK
-Q29kZTsgIGMwMTJiNDYwIDx1bmxvY2tfcGFnZSsxMC83MD4KICAgYjogICA4
-OSBjMiAgICAgICAgICAgICAgICAgICAgIG1vdiAgICAlZWF4LCVlZHgKQ29k
-ZTsgIGMwMTJiNDYyIDx1bmxvY2tfcGFnZSsxMi83MD4KICAgZDogICA2OSBk
-MiBiMSA3OSAzNyA5ZSAgICAgICAgIGltdWwgICAkMHg5ZTM3NzliMSwlZWR4
-LCVlZHgKQ29kZTsgIGMwMTJiNDY4IDx1bmxvY2tfcGFnZSsxOC83MD4KICAx
-MzogICA4YiAwMCAgICAgICAgICAgICAgICAgICAgIG1vdiAgICAoJWVheCks
-JWVheAoKCjEgd2FybmluZyBpc3N1ZWQuICBSZXN1bHRzIG1heSBub3QgYmUg
-cmVsaWFibGUuCg==
-
---0-1559846563-1021075131=:99891--

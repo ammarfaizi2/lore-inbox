@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129091AbRBABMA>; Wed, 31 Jan 2001 20:12:00 -0500
+	id <S129072AbRBABPB>; Wed, 31 Jan 2001 20:15:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129121AbRBABLu>; Wed, 31 Jan 2001 20:11:50 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:59654 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129096AbRBABLk>; Wed, 31 Jan 2001 20:11:40 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14968.47020.607266.58625@wire.cadcamlab.org>
-Date: Wed, 31 Jan 2001 19:11:08 -0600 (CST)
-To: David Lang <dlang@diginsite.com>
-Cc: Tom Leete <tleete@mountain.net>, David Ford <david@linux.com>,
-        Stephen Frost <sfrost@snowman.net>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.x and SMP fails to compile (`current' undefined)
-In-Reply-To: <3A77ED7F.466582F0@mountain.net>
-	<Pine.LNX.4.31.0101311536520.5898-100000@dlang.diginsite.com>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
+	id <S129079AbRBABOv>; Wed, 31 Jan 2001 20:14:51 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:36851 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S129072AbRBABOn>; Wed, 31 Jan 2001 20:14:43 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200102010114.f111E4213892@webber.adilger.net>
+Subject: Re: Any reason why we can't auto-start LVM (vg's) in the kernel?
+In-Reply-To: <033201c08be7$d8e22760$160912ac@stcostlnds2zxj> from List User at
+ "Jan 31, 2001 06:42:20 pm"
+To: List User <lists@chaven.com>
+Date: Wed, 31 Jan 2001 18:14:04 -0700 (MST)
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steve, writes:
+> Is there any reason why we can't auto-detect/bring up volume-groups in the
+> kernel instead of creating a ramdisk volume to do a vgscan and then mount a
+> rootlv?
 
-[David Lang]
-> about the third story down is one mentioning SMP athlon boards
-> actually starting to show up
+Um, yes, because it won't work.  The user tools do the I/O of LVM state
+information to the disk.  The kernel LVM module has no concept of how
+LVM information is stored on disk.
 
-Cool!  I want one.  So ... is there any way to know if and when Linux
-kernel support will be available?  I assume AMD doesn't follow the MPS
-1.x standards.
+> Just trying to see if there is a way (or would make sense) to skip the
+> ramdisk stage in mounting a root logical volume.
 
-Peter
+Need to re-write (or at least seriously enhance) the LVM kernel code to do
+this.  Sorry.
+
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,140 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262721AbUC3Abk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 19:31:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUC3AbZ
+	id S263295AbUC3Akm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 19:40:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263301AbUC3Akl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 19:31:25 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:9446 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261631AbUC3AbL (ORCPT
+	Mon, 29 Mar 2004 19:40:41 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:37060 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263295AbUC3Akk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 19:31:11 -0500
-Subject: Re: [PATCH] mask ADT: new mask.h file [2/22]
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Paul Jackson <pj@sgi.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Dave Hansen <haveblue@us.ibm.com>
-In-Reply-To: <20040329041253.5cd281a5.pj@sgi.com>
-References: <20040329041253.5cd281a5.pj@sgi.com>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1080606618.6742.89.camel@arrakis>
+	Mon, 29 Mar 2004 19:40:40 -0500
+Date: Mon, 29 Mar 2004 15:43:30 -0800
+From: Paul Jackson <pj@sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
+       akpm@osdl.org, haveblue@us.ibm.com
+Subject: Re: [PATCH] mask ADT: bitmap and bitop tweaks [1/22]
+Message-Id: <20040329154330.445e10e2.pj@sgi.com>
+In-Reply-To: <20040329235233.GV791@holomorphy.com>
+References: <20040329041249.65d365a1.pj@sgi.com>
+	<1080601576.6742.43.camel@arrakis>
+	<20040329235233.GV791@holomorphy.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 29 Mar 2004 16:30:18 -0800
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-03-29 at 04:12, Paul Jackson wrote:
-> Patch_2_of_22 - New mask ADT
-> 	Adds new include/linux/mask.h header file
-> 
-> 	==> See this mask.h header for more extensive mask documentation <==
-> 
+My thinking on when to worry about the unused bits, and when not to, is
+thus.
 
-<snip>
+For the lib/bitmap.c code, it seems that the existing standard, followed
+by everything except bitmap_complement(), is to not set any unused bits
+(at least when called with correct arguments in range), but to always
+filter them out when testing for some Boolean condition or scalar result
+(weight).
 
-> + *           Various Implementation Details
-> + *           ==============================
-> + *
-> + * The parameter 'T' above must be a variable of the appropriate
-> + *   mask type (cpumask_t or nodemask_t, for instance).  This
-> + *   variable is only used for its typeof() information.
-> + *
-> + * For details of mask_scnprintf() and mask_parse(), see
-> + *   bitmap_scnprintf() and bitmap_parse() in lib/bitmap.c
-> + *
-> + * A new *mask type should be defined, such as cpumask_t or
-> + *   nodemask_t, for each possibly different sized (number of
-> + *   bits) bitmask based on this mask ADT.  The definition
-> + *   for example of cpumask_t is:
-> + *           typedef __mask(NR_CPUS) cpumask_t;
+So I fixed bitmap_complement() to also not set them, and I put checks in
+my new Booleans bitmap_subset() and bitmap_intersects(), to filter them
+out.
 
-Is this necessary, or just convenient?  I can see how it would be
-necessary for the mask_of_bit() function...
+But I didn't worry about them in bitmap_xor() or bitmap_andnot(), just
+like the similar bitmap_or() and bitmap_and() don't worry about them
+(proper calls of or/and/xor/andnot will not set the unused bits anyway.)
 
+The standard I set for the include/linux/mask.h code is different than
+for lib/bitmap.c.  In the mask.h code, I won't set them if all your
+calls are proper and in range (same as bitmap), but I also make no
+effort to filter them out on Boolean or scalar ops (though if some
+bitmap op I happen to call does filter such, I don't worry about it).
 
-> + * These macros presume that all masks passed in a given call
-> + *   are the same nbits long, and that only bits in positions
-> + *   b where 0 <= b < nbits might be set in input masks.
-> + *   They ensure that no additional bits outside this range
-> + *   become set (however don't protect against improperly set
-> + *   bits that are outside this range but still inside the array
-> + *   of unsigned longs representing the mask.)  In other words,
-> + *   any implementation of these ops may assume as a precondition
-> + *   that any unused bits (bits in the array of unsigned
-> + *   longs, outside the range 0 to nbits-1) are zero.  And any
-> + *   implementation of these ops must ensure as a postcondition
-> + *   on all output masks that this same precondition (unused
-> + *   bits are zero) holds.  If you manage to create, by some
-> + *   other means, a mask with some unused bits non-zero, and
-> + *   then pass that mask to one of these mask operations, that
-> + *   operation may malfunction.
-> + *
-> + * The abstract bit model supported by these masks is that of
-> + *   an infinite set of bits, in positions numbered 0 and up,
-> + *   where all but the first 'nbits' bits are always zero.
-> + *   Calls that implicitly attempt to set any bit outside of
-> + *   the first 'nbits' bits successfully and quietly leave such
-> + *   bits as zero.  Calls that query or modify specifically
-> + *   numbered bit positions require as a precondition that the
-> + *   specified bit position 'n' is the range 0 <= n < nbits, and
-> + *   may malfunction if handed a bit position outside this range.
+So with the bitmap API, you can get unused bits set, and not notice it
+in most cases, due to the filtering.  But with the mask API, you'd best
+not screw up and set them, or else you might get different Boolean and
+scalar results, depending on implementation details.
 
-Ok...  This implies that my comments on the last patch were valid.  I
-like this model.  Assume the unused bits aren't set, and take care not
-to set them.  I'm happy to see this spelled out explicitly.
+My biggest defense against coding bugs in kernel code using these masks
+is to get the cpumask and nodemask API easier to understand and use.
+This should reduce bugs do to coder confusion.  So long as they call
+this stuff with proper arguments, all is well.
 
+The bitmap stuff probably does more checking than I would like, but I
+felt it was more important to be consistent there, as bitmaps are an
+exposed API in their own right.  Either add unused bit zeroing and
+filtering in the remaining places (complement and the new subset and
+intersects), or rip it all out.
 
-> + * The underlying bitmap.c operations such as bitmap_and() and
-> + *   bitmap_or() don't follow this model.  They don't assume
-> + *   the precondition that unused bits are zero, and they do
-> + *   mask off any unused portion of input masks in most cases.
-> + *   However the underlying bitop.h operations, such as set_bit()
-> + *   and clear_bit(), do no sanitizing of their inputs, depending
-> + *   heavily on preconditions.
-
-bitmap_and() & bitmap_or() *do not* mask off the unused input bits. 
-Unless you add that code in a subsequent patch...  This paragraph seems
-a bit unclear.  You're saying that bitmap_and() & bitmap_or() *don't*
-follow the precondition, but *do* mask off unused bits, which I'm not
-seeing.  Then the 'however' is confusing, because you continue with the
-same point about *not* following preconditions.  Maybe something like:
-
-"The underlying bitmap.c operations such as bitmap_and() and bitmap_or()
-don't follow this model of 'unused bits'.  Users must follow the
-precondition that unused bits are zero to guarantee no unused bits are
-set by the operations.  Further, the underlying bitop.h operations, such
-as set_bit() and clear_bit(), do no sanitizing of their inputs, also
-depending on users not to set/clear unused bits (ie: ensure 0 <= b <
-nbits)."
-
-
-> + * The file include/mask.h applies to all architectures.
-> + *   Architectures requiring custom details should provide
-> + *   them in their include/asm-<arch>/bitops.h file, and
-> + *   if necessary modify the common include/linux/mask.h
-> + *   file to conditionally generate the necessary code,
-> + *   depending on compile time settings.  No need to write
-> + *   ugly #ifdef's to do this - gcc provides a rich set
-> + *   of compile time extensions.  See further for example:
-> + *   http://gcc.gnu.org/onlinedocs/gcc-3.3.3/gcc/C-Extensions.html
-
-I think that it wouldn't be terribly ugly to split out the 1 unsigned
-long special cases (bitmap_and, bitmap_or, etc) with #ifdefs.  I think
-that in some ways it makes it a little more readable because it gets rid
-of "if (sizeof(foo) == sizeof(unsigned long))..." all over the place.  I
-don't feel strongly enough about it to make a stink, though...
-
-
-> +#define mask_test_and_set(bit, mask)					\
-> +	test_and_set_bit(bit, (mask)._m)
-
-test_and_set_bit((bit), (mask)._m) ?
-
--Matt
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

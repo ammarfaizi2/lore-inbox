@@ -1,47 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278507AbRJPC6Q>; Mon, 15 Oct 2001 22:58:16 -0400
+	id <S278506AbRJPDC1>; Mon, 15 Oct 2001 23:02:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278506AbRJPC6G>; Mon, 15 Oct 2001 22:58:06 -0400
-Received: from zok.sgi.com ([204.94.215.101]:64927 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S278507AbRJPC55>;
-	Mon, 15 Oct 2001 22:57:57 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.13-pre3 arm/i386/mips/mips64/s390/s390x/sh die() deadlock 
-In-Reply-To: Your message of "Mon, 15 Oct 2001 19:36:02 MST."
-             <Pine.LNX.4.33.0110151934060.4179-100000@penguin.transmeta.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 16 Oct 2001 12:58:21 +1000
-Message-ID: <18966.1003201101@kao2.melbourne.sgi.com>
+	id <S278509AbRJPDCR>; Mon, 15 Oct 2001 23:02:17 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55300 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278506AbRJPDCI>; Mon, 15 Oct 2001 23:02:08 -0400
+Date: Mon, 15 Oct 2001 20:01:56 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT][PATCH] large /proc/mounts and friends
+In-Reply-To: <Pine.GSO.4.21.0110152050010.11608-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0110151936580.4179-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Oct 2001 19:36:02 -0700 (PDT), 
-Linus Torvalds <torvalds@transmeta.com> wrote:
->On Tue, 16 Oct 2001, Keith Owens wrote:
->>
->> Any die() routine that uses die_lock to avoid multiple cpu reentrancy
->> will deadlock on recursive die() errors.
->
->Well, I have to say that I personally have always considered the "die"
->lock to not be about multiple CPU re-entrancy, but _exactly_ to stop
->infinite oops reports if an oops itself oopses.
->
->I much prefer a dead machine with a partially visible oops over a oops
->where the original oops has scrolled away due to recursive faults.
 
-AFAIK, Andrew Morton was considering concurrent calls to die() when he
-added die_lock.  There had been bug reports where both cpus were trying
-to dump registers at the same time so the output was interleaved and
-unreadable, die_lock prevented that.
+On Mon, 15 Oct 2001, Alexander Viro wrote:
+>
+> 	See comments in fs/seq_file.c for description of interface - I
+> hope they are clear enough.
 
-IMHO it is unrealistic to expect that all code inside die() will never
-fail.  Any unexpected kernel corruption could cause the register or
-backtrace dump to fail.  The patch gets the best of both worlds.  It
-protects against recursive errors and against concurrent calls to
-die().
+Al, I understand why you'd like the seq interface, but quite frankly, I
+would personally much prefer a different approach: namely making the file
+position be a "structured" thing instead, and have (for example) the low
+12 bits be the character index, and the upper 52 bits be various "field
+indexes" depending on what file it is.
+
+If you have a character sequence number, that means that you _always_ have
+to re-generate the whole file up to the new read-point. That simply does
+not scale. Sure, it works well enough when the user usually reads the
+whole file, but it's still a silly design.
+
+File positions do not have to be consecutive, especially for /proc files
+that already confuse things like "less" by not having a well-defined
+length etc.
+
+You have 64 bits to play with, and you can pretty much organize them any
+way you want. For example, for many things it might be:
+
+ - low 12 bits are "offset in entry string"
+ - next X bits are "hash index"
+ - next Y bits are "position on hash chain"
+
+which tends to work pretty well with things that are hashed (it mounts,
+sockets, etc) and that don't necessarily have a good cardinal ordering.
+
+Can it get confused when people insert/remove entries at the same time we
+read /proc? Sure. That's pretty much unavoidable with the /proc interface,
+as we can't hold any locks across user-mode system calls. But using a
+structured approach may make it _much_ more likely that the user doesn't
+get data where a entry is cut off in the middle, though - especially if
+you make the read routine be eager to return partial reads rather than
+cutting things off in the middle..
+
+(In other words: with a structured approach you can make guarantees about
+the stability of each entry - you just can't necessarily guarantee that
+all entries are shown or that some entries might not be duplicated..)
+
+This approach is actually already used for some things - the "readdir()"
+thing with "FIRST_PROCESS_ENTRY", for example. But also see a better
+example in "proc_pid_read_maps()" with the high bits being the "line
+number", and the low bits being the offset within the line.
+
+Final note: another _extremely_ useful thing for performance is to have a
+special "EOF" value for f_pos, because all normal applications end up
+having to always do at least two reads: first to get the data (usually
+the user buffer is larger than the amounf of data generated), the second
+to just get the "0" for EOF. If the second read can be done without any
+data generation or lock handling, that often speeds up /proc accesses by
+a noticeable amount.
+
+The special EOF value fits very well with the "structure" approach.
+
+For example, it's quite common to know that each individual entry is
+limited in size (with PAGE_SIZE being a nice common max size for any
+entry), and the thing that makes the whole /proc file potentially large is
+that there are many entries. I'd rather have that kind of helper routines:
+a helper routine where there would be a "print out entry X" routine, and
+then common routines to turn that "print out entry X" into a full
+proc_xxx_read() function.
+
+Al?
+
+		Linus
+
 

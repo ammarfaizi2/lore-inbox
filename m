@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130003AbQL1Mmz>; Thu, 28 Dec 2000 07:42:55 -0500
+	id <S130401AbQL1Msr>; Thu, 28 Dec 2000 07:48:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130401AbQL1Mmp>; Thu, 28 Dec 2000 07:42:45 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16401 "EHLO
+	id <S132397AbQL1Msg>; Thu, 28 Dec 2000 07:48:36 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19473 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130003AbQL1Mm1>; Thu, 28 Dec 2000 07:42:27 -0500
-Subject: Re: innd mmap bug in 2.4.0-test12
-To: aheitner@andrew.cmu.edu (Ari Heitner)
-Date: Thu, 28 Dec 2000 12:14:12 +0000 (GMT)
-Cc: cw@f00f.org (Chris Wedgwood), linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <Pine.SOL.3.96L.1001228000150.3482A-100000@unix13.andrew.cmu.edu> from "Ari Heitner" at Dec 28, 2000 12:06:47 AM
+	id <S130401AbQL1MsW>; Thu, 28 Dec 2000 07:48:22 -0500
+Subject: Re: Linux 2.2.19pre3
+To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
+Date: Thu, 28 Dec 2000 12:20:16 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20001228112305.A2571@emma1.emma.line.org> from "Matthias Andree" at Dec 28, 2000 11:23:05 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14Bbwk-0003dO-00@the-village.bc.nu>
+Message-Id: <E14Bc2d-0003e0-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> does anyone other than me think that the pm code is *way* too agressive about
-> spinning down the hard drive? my 256mb laptop (2.2.16) will only spin down the
-> disk for about 30 seconds before it decides it's got something else it feels
-> like writing out, and spins back up. Spinnup has got to be more wasteful than
-> just leaving the drive spinning...
+> Wait a minute, this is a new board. I had a suspicion, and I have a new
+> suspect, can we investigate this?
 
-Take that up with your bios. Hard disk power management is done by the drive
-and bios settings. hdparm will let you override it. You can also get good
-results using noatime to avoid atime writes on reading
+Yep
+
+> I rebooted, and since I left APM out, the system clock is alright since
+> 63 mins. Might the APM BIOS CPU IDLE calls be related? I did *not* enable
+
+If the APM bios holds interrupts off or doesnt let Linux handle each time
+tick.
+
+> CONFIG_APM_ALLOW_INTS. I'll investigate this right now and report back
+> what I find.
+
+That would be interesting
+> 
+> > adjtimex will let you tell Linux the clock on the board is crap too
+> 
+> Where is the source for the adjtimex /program/? SuSE don't bring
+> adjtimex.
+
+tickadj I think is one front end to it
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262954AbTJJPpI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 11:45:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbTJJPpI
+	id S262980AbTJJP5h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 11:57:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262958AbTJJP5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 11:45:08 -0400
-Received: from pat.uio.no ([129.240.130.16]:16526 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262954AbTJJPpE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 11:45:04 -0400
-To: Miles Bader <miles@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: net/sunrpc/clnt.c compilation error: tk_pid field
-References: <buo65ixv63j.fsf@mcspd15.ucom.lsi.nec.co.jp>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 10 Oct 2003 11:44:52 -0400
-In-Reply-To: <buo65ixv63j.fsf@mcspd15.ucom.lsi.nec.co.jp>
-Message-ID: <shs3ce1ksgb.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	Fri, 10 Oct 2003 11:57:19 -0400
+Received: from WARSL402PIP4.highway.telekom.at ([195.3.96.79]:12622 "HELO
+	email05.aon.at") by vger.kernel.org with SMTP id S262980AbTJJPz7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 11:55:59 -0400
+From: Gregor Burger <gregor.burger@aon.at> (by way of Gregor Burger
+	<gregor.burger@aon.at>)
+Subject: Re: nforce2 unknown memory device
+Date: Fri, 10 Oct 2003 17:56:18 +0200
+User-Agent: KMail/1.5.9
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200310101756.18941.gregor.burger@aon.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Miles Bader <miles@lsi.nec.co.jp> writes:
+Am Friday 10 October 2003 17:34 schrieben Sie:
+> On Fri, 2003-10-10 at 16:25, Gregor Burger wrote:
+> > i tried to switch the memory sticks but nothing. when i install 1024 MB
+> > ram linux detects 1008; with 512 i get 502.
+>
+> Some chipsets with built-in VGA reserve a certain amount of system
+> memory for graphics memory.
 
-     > With linux-2.6.0-test7, I get compilation errors like:
-     >      CC net/sunrpc/clnt.o
-     >    net/sunrpc/clnt.c:965: structure has no member named
-     >    `tk_pid' net/sunrpc/clnt.c:970: structure has no member
-     >    named `tk_pid' net/sunrpc/clnt.c:976: structure has no
-     >    member named `tk_pid' make[2]: *** [net/sunrpc/clnt.o] Error
-     >    1
+it doesn't seem to have a built-in vga. my only graphics card is a radeon
+r300.
 
-See yesterday's discussion of this very same topic on this very same
-list. A fix is already in Linus' bitkeeper repository...
+doesn't anybody else have similar problems? if its like that then i have
+to go an buy a new board.
 
-Cheers,
-   Trond
+gregor

@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130107AbQLSXYj>; Tue, 19 Dec 2000 18:24:39 -0500
+	id <S130464AbQLSX0j>; Tue, 19 Dec 2000 18:26:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130464AbQLSXY3>; Tue, 19 Dec 2000 18:24:29 -0500
-Received: from waste.org ([209.173.204.2]:4656 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S130107AbQLSXYT>;
-	Tue, 19 Dec 2000 18:24:19 -0500
-Date: Tue, 19 Dec 2000 16:53:46 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>, <Andries.Brouwer@cwi.nl>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: set_rtc_mmss: can't update from 0 to 59
-In-Reply-To: <200012192225.WAA00449@raistlin.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.30.0012191633350.18938-100000@waste.org>
+	id <S130656AbQLSX03>; Tue, 19 Dec 2000 18:26:29 -0500
+Received: from virtualro.ic.ro ([194.102.78.138]:21262 "EHLO virtualro.ic.ro")
+	by vger.kernel.org with ESMTP id <S130464AbQLSX0U>;
+	Tue, 19 Dec 2000 18:26:20 -0500
+Date: Wed, 20 Dec 2000 00:56:01 +0200 (EET)
+From: Jani Monoses <jani@virtualro.ic.ro>
+To: linux-kernel@vger.kernel.org
+Subject: pci.c question [recent changes undone]
+Message-ID: <Pine.LNX.4.10.10012200048180.18898-100000@virtualro.ic.ro>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Dec 2000, Russell King wrote:
 
-> Oliver Xymoron writes:
-> > On Mon, 18 Dec 2000, Russell King wrote:
-> > > So, why don't we update the hours and be done with it?  We would have to
-> > > play the same game with the days of the month vs hours.  Also, we don't
-> > > know if the CMOS clock is programmed for UTC time or not (the kernel's
-> > > idea of time is UTC.  Your CMOS may be programmed for EST for instance).
-> >
-> > Sounds like its still broken then - there are time zones which are not
-> > even multiples of 60 minutes.
->
-> Correct; please examine the code and you will find the answer to this.
-> Specifically, look at the lines around the following comment:
->
-> 	/* correct for half hour time zone */
+	Hi 
+	I'm curios what was that change & undo about in test12
+and test13pre3ac3 regarding the disabling of PCI IO and MM access while
+writing to the config registers in pci_read_bases().
 
-Uhh.. Kathmandu? Chatham Island? +5:45 and +13:45 (DST) respectively.
+These lines were cut from test 12 and now they are back.      
 
-At any rate, the printk should go - do_timer_interrupt already expects the
-"bug"  its reporting.
+      /* Disable IO and memory while we fiddle */
+       pci_read_config_word(dev, PCI_COMMAND, &cmd);
+       tmp = cmd & ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY);
+       pci_write_config_word(dev, PCI_COMMAND, tmp);
+	[.....]
+       pci_write_config_word(dev, PCI_COMMAND, cmd);
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+Why were they cut in the first place?
+Can anyone enlighten me?
+
+Thanks,
+Jani.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

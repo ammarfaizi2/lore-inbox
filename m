@@ -1,57 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272361AbTGaAWf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 20:22:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272368AbTGaAWf
+	id S272370AbTGaAYy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 20:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272373AbTGaAYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 20:22:35 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:32496 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S272361AbTGaAWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 20:22:34 -0400
-Date: Thu, 31 Jul 2003 02:22:31 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: TSCs are a no-no on i386
-Message-ID: <20030731002230.GE22991@fs.tum.de>
-References: <20030730135623.GA1873@lug-owl.de> <20030730181006.GB21734@fs.tum.de> <20030730183033.GA970@matchmail.com> <20030730184529.GE21734@fs.tum.de> <1059595260.10447.6.camel@dhcp22.swansea.linux.org.uk> <20030730203318.GH1873@lug-owl.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030730203318.GH1873@lug-owl.de>
-User-Agent: Mutt/1.4.1i
+	Wed, 30 Jul 2003 20:24:54 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:45523 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S272370AbTGaAYu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 20:24:50 -0400
+Message-Id: <200307310022.h6V0MGjK012821@death.ibm.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: Willy Tarreau <willy@w.ods.org>, jgarzik@pobox.com,
+       marcelo@conectiva.com.br, netdev@oss.sgi.com,
+       bonding-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.22-pre9-bk : bonding bug fixes 
+In-Reply-To: Message from "David S. Miller" <davem@redhat.com> 
+   of "Wed, 30 Jul 2003 16:49:07 PDT." <20030730164907.43b2d343.davem@redhat.com> 
+Date: Wed, 30 Jul 2003 17:22:15 -0700
+From: Jay Vosburgh <fubar@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 30, 2003 at 10:33:18PM +0200, Jan-Benedict Glaw wrote:
->...
-> That sounds a tad inelegant to me. Really, I'd prefer to see libstdc++
-> be compiled for i386 ...
-> 
-> ...and IFF those new opcodes bring _that_ much performance, then we
-> should think about another Debian distribution for i686-linux. Up to
-> now, I was really proud of having _one_ distribution that's basically
-> capable of running on all and any machines I own...
+>On Wed, 30 Jul 2003 16:06:58 +0200
+>Willy Tarreau <willy@w.ods.org> wrote:
+>
+>> there are still a few bugs in the current bonding driver. I've reported them
+>> several times now, but perhaps not at the right places...
+>
+>So now we have these few bug fixes, and the backport of the
+>2.6.x version of the bonding code, both submitted on the same
+>day in fact :-)
+>
+>Jeff I'd recommend we put Willy's fixes in if you think they're
+>OK, then we can think about the 2.6.x backport work for 2.4.23-preX
 
-The 486 emlation patch for 386 is the way to still allow 386's to run 
-Debian.
+	I've been looking at Willy's fixes, and the typo (first patch)
+and locking fix (third patch) both look good to me.  The second patch
+(the dead code warning) points out a real problem, in that the code in
+question really has no function, but the patch probably doesn't go far
+enough for a final solution (the variable that code would set,
+arp_target_hw_addr, is referenced in other places, but ends up always
+being NULL because the dead code is the only place it was ever set).
 
-To compile libstdc++ for 486 wasn't a performance question - a
-libstdc++.so.5 compiled for 386 would have meant that C++ binaries
-compiled on Debian wouldn't run on other Linux distributions and vice
-versa [1] (it's a bug in libstdc++ that will AFAIR be fixed in gcc 3.4).
+	A more proper solution would be to simply delete the dead code
+and the arp_target_hw_addr variable, and replace the variable
+references with NULL.  This means that all of the ARP probes sent will
+be sent out as broadcasts, which is what's already happening, this
+just makes the code clearer.  Patch follows (which replaces Willy's
+second patch).
 
-> MfG, JBG
+	Does this sound reasonable to everybody?
 
-cu
-Adrian
+	-J
 
-[1] http://lists.debian.org/debian-devel/2003/debian-devel-200304/msg01895.html
+---
+	-Jay Vosburgh, IBM Linux Technology Center, fubar@us.ibm.com
 
--- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--- linux-2.4.22-pre9-bk-wt/drivers/net/bonding/bond_main.c	2003-07-30 17:06:50.000000000 -0700
++++ linux-2.4.22-pre9-bk/drivers/net/bonding/bond_main.c	2003-07-30 17:08:53.000000000 -0700
+@@ -463,7 +463,6 @@
+ static unsigned long arp_target[MAX_ARP_IP_TARGETS] = { 0, } ;
+ static int arp_ip_count = 0;
+ static u32 my_ip = 0;
+-char *arp_target_hw_addr = NULL;
+ 
+ static char *primary= NULL;
+ 
+@@ -596,8 +595,7 @@
+ 
+ 	for (i = 0; (i<MAX_ARP_IP_TARGETS) && arp_target[i]; i++) { 
+ 		arp_send(ARPOP_REQUEST, ETH_P_ARP, arp_target[i], slave->dev, 
+-			 my_ip, arp_target_hw_addr, slave->dev->dev_addr,
+-			 arp_target_hw_addr); 
++			 my_ip, NULL, slave->dev->dev_addr, NULL); 
+ 	} 
+ }
+  
+@@ -1031,10 +1029,6 @@
+ 	}
+ 	if (arp_interval> 0) {  /* arp interval, in milliseconds. */
+ 		del_timer(&bond->arp_timer);
+-                if (arp_target_hw_addr != NULL) {
+-			kfree(arp_target_hw_addr); 
+-			arp_target_hw_addr = NULL;
+-		}
+ 	}
+ 
+ 	if (bond_mode == BOND_MODE_8023AD) {
+@@ -3281,28 +3275,6 @@
+ 		memcpy(&my_ip, the_ip, 4);
+ 	}
+ 
+-	/* if we are sending arp packets and don't know 
+-	 * the target hw address, save it so we don't need 
+-	 * to use a broadcast address.
+-	 * don't do this if in active backup mode because the slaves must 
+-	 * receive packets to stay up, and the only ones they receive are 
+-	 * broadcasts. 
+-	 */
+-	if ( (bond_mode != BOND_MODE_ACTIVEBACKUP) && 
+-             (arp_ip_count == 1) &&
+-	     (arp_interval > 0) && (arp_target_hw_addr == NULL) &&
+-	     (skb->protocol == __constant_htons(ETH_P_IP) ) ) {
+-		struct ethhdr *eth_hdr = 
+-			(struct ethhdr *) (((char *)skb->data));
+-		struct iphdr *ip_hdr = (struct iphdr *)(eth_hdr + 1);
+-
+-		if (arp_target[0] == ip_hdr->daddr) {
+-			arp_target_hw_addr = kmalloc(ETH_ALEN, GFP_KERNEL);
+-			if (arp_target_hw_addr != NULL)
+-				memcpy(arp_target_hw_addr, eth_hdr->h_dest, ETH_ALEN);
+-		}
+-	}
+-
+ 	read_lock(&bond->lock);
+ 
+ 	read_lock(&bond->ptrlock);

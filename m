@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316187AbSETSYg>; Mon, 20 May 2002 14:24:36 -0400
+	id <S316189AbSETS0p>; Mon, 20 May 2002 14:26:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316189AbSETSYf>; Mon, 20 May 2002 14:24:35 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:65030 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316187AbSETSYf>; Mon, 20 May 2002 14:24:35 -0400
-Date: Mon, 20 May 2002 14:19:48 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Miquel van Smoorenburg <miquels@cistron.nl>, linux-kernel@vger.kernel.org
-Subject: Re: IO stats in /proc/partitions
-In-Reply-To: <E17899v-0003Cl-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.96.1020520141820.29156A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316194AbSETS0o>; Mon, 20 May 2002 14:26:44 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:60405 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S316189AbSETS0n>; Mon, 20 May 2002 14:26:43 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Mon, 20 May 2002 12:24:57 -0600
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Mounting 'foreign' file-systems
+Message-ID: <20020520182457.GA7784@turbolinux.com>
+Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
+	Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.95.1020520111351.169A-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 May 2002, Alan Cox wrote:
-
-> > Perhaps, but I had the opposite experience. I noticed by accident
-> > that iostat (as included in Debian) suddenly had working extended
-> > statistics. So there are *certainly* tools that get fixed by
-> > 2.4.19-pre7. I was pleasantly surprised.
+On May 20, 2002  11:22 -0400, Richard B. Johnson wrote:
+> On Linux 2.4.18, I can no longer mount CDROMs that were created
+> using ext2 as the file-system (yes I know this is not specified).
+> I used to use these CDROMs as part of a "rescue" package.
 > 
-> Pretty much every vendor shipped the /proc/partitions changes and
-> has tools that will look for them. Its annoying to change stuff but
-> long term /proc/partitions is the wrong place for disk stats
+> Now, these can still be mounted through the loop device as is
+> shown below....
 
-  Changes belong in 2.5, /proc/partitions is the wrong place, but it's
-also the place the tools expect. I hope that's not going to change in the
-stable kernel.
+Probably a filesystem != CDROM blocksize issue.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 

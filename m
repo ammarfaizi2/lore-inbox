@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288880AbSAERPN>; Sat, 5 Jan 2002 12:15:13 -0500
+	id <S288882AbSAERQn>; Sat, 5 Jan 2002 12:16:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288881AbSAEROx>; Sat, 5 Jan 2002 12:14:53 -0500
-Received: from ns.suse.de ([213.95.15.193]:44549 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S288880AbSAEROn>;
-	Sat, 5 Jan 2002 12:14:43 -0500
-Date: Sat, 5 Jan 2002 18:14:42 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Paul Jakma <paulj@alphyra.ie>
-Cc: <knobi@knobisoft.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
-In-Reply-To: <Pine.LNX.4.33.0201051659040.15928-100000@dunlop.dub.ie.alphyra.com>
-Message-ID: <Pine.LNX.4.33.0201051807160.27113-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288881AbSAERQd>; Sat, 5 Jan 2002 12:16:33 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:26856 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S288882AbSAERQY>;
+	Sat, 5 Jan 2002 12:16:24 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 5 Jan 2002 17:16:22 GMT
+Message-Id: <UTC200201051716.RAA234622.aeb@cwi.nl>
+To: Andries.Brouwer@cwi.nl, bryce@obviously.com, util-linux@math.uio.no
+Subject: Re: Why would a valid DVD show zero files on Linux?
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Jan 2002, Paul Jakma wrote:
+	From bryce@obviously.com Sat Jan  5 17:14:28 2002
 
-> how does devicefs differ from devfs? eg, on some of my systems i mount
-> devfs on /devfs and an ls -l of it shows all the devices that
-> currently have drivers that registered them.
+	Here is the table of contents mounted three ways.  First udf, then
+	iso9660, then iso9660 nojoliet.  Only the udf version works with the
+	application.  Note that the huge udf filesizes are not a mistake -
+	this DVD is also offered as 7 CD set.
 
-different goals. One of the reasons this has come about is for power
-management, we need a tree like structure so that we for eg, power
-down a network card before powering down the pci bridge it sits on.
-(The idea being to power down from the leaves, and work your way back
-up to the root of the tree)
+[iso9660 nojoliet:]
 
-devicefs is just a means of exporting this to userspace, be that for
-usage with the userspace acpi tools, or for hinv like programs.
-As I mentioned earlier, ACPI enumerates pretty much everything in the
-system, even if theres no driver for it.
-If there is a driver for it, it can register things like "I support
-these power saving states" with driverfs for additional functionality.
+	/mnt/cdrom1/data:
+	total 22849
+	dr-xr-xr-x    1 root     root         2048 Feb 28  2001 .
+	dr-xr-xr-x    1 root     root         2048 Feb 28  2001 ..
+	-r-xr-xr-x    1 root     root      1181228 Feb 28  2001 gridak.dat
+	-r-xr-xr-x    1 root     root      1921298 Feb 28  2001 gridak.ind
+	-r-xr-xr-x    1 root     root      3603453 Feb 28  2001 grid.dat
+	-r-xr-xr-x    1 root     root       797273 Feb 28  2001 grid.ind
+	-r-xr-xr-x    1 root     root        34839 Feb 28  2001 vec.cov
+	-r-xr-xr-x    1 root     root     15153107 Feb 28  2001 vec.v
+	-r-xr-xr-x    1 root     root       643405 Feb 28  2001 vec.vi
 
-It would be nice at some point to get some of the other (pre-ACPI)
-busses registering stuff there too, for completeness.
+Hmm. I find
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+total 3266826
+dr-xr-xr-x    1 root     root         2048 Feb 28  2001 .
+dr-xr-xr-x    1 root     root         2048 Feb 28  2001 ..
+-r-xr-xr-x    1 root     root     1832319997 Feb 28  2001 grid.dat
+-r-xr-xr-x    1 root     root     51128921 Feb 28  2001 grid.ind
+-r-xr-xr-x    1 root     root     34735660 Feb 28  2001 gridak.dat
+-r-xr-xr-x    1 root     root      1921298 Feb 28  2001 gridak.ind
+-r-xr-xr-x    1 root     root        34839 Feb 28  2001 vec.cov
+-r-xr-xr-x    1 root     root     1424439251 Feb 28  2001 vec.v
+-r-xr-xr-x    1 root     root       643405 Feb 28  2001 vec.vi
 
+Could it be that you are using some old kernel, say, older than
+2.4.13, that enables the "cruft" option when it sees a big file?
+(You should see the corresponding messages in the logs.)
+
+Andries

@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbUDABa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 20:30:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbUDABa3
+	id S261785AbUDABfw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 20:35:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbUDABfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 20:30:29 -0500
-Received: from clix.aarnet.edu.au ([192.94.63.10]:33761 "EHLO
-	clix.aarnet.edu.au") by vger.kernel.org with ESMTP id S261817AbUDABaY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 20:30:24 -0500
-Subject: New entry for MAINTAINERS
-From: Glen Turner <glen.turner@aarnet.edu.au>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Organization: Australian Academic and Research Network
-Message-Id: <1080782885.6555.10.camel@andromache>
+	Wed, 31 Mar 2004 20:35:52 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:64862 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261785AbUDABfv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 20:35:51 -0500
+Date: Wed, 31 Mar 2004 17:35:12 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, wli@holomorphy.com
+Subject: Re: [PATCH] mask ADT: new mask.h file [2/22]
+Message-Id: <20040331173512.68727b4c.pj@sgi.com>
+In-Reply-To: <20040331172709.2eb40475.akpm@osdl.org>
+References: <20040329041253.5cd281a5.pj@sgi.com>
+	<1080779931.9787.3.camel@arrakis>
+	<20040331165830.3b7e0aec.pj@sgi.com>
+	<20040331172709.2eb40475.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 01 Apr 2004 10:58:05 +0930
-Content-Transfer-Encoding: 8bit
-X-MDSA: Yes
-X-Spam-Score: -100 USER_IN_WHITELIST
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> <Wakes up.  Have they finished yet?>
 
-"MILLIONS OF LINES OF UNIX® CODE" DISCOVERED BY "MIT MATHEMATICIANS"
-P: Darl McBride
-W: http://www.sco.com/
-W: http://www.thescogroup.com/
-S: The Dark Matter Theory of Linux which explains why the kernel
-   tarball is so much larger than can be reasonably expected and is
-   ever-expanding.  Even legal discovery seeking the code "with
-   specificity" cannot find these millions of lines without the
-   closest judicial assistance.
-W: http://www.novell.com/ -- it's our UNIX®, we didn't sell it to
-                             Caldera when we sold them... well
-                             not much really.
-W: http://www.berkeley.edu/ -- it's mostly our Unix in UNIX®.
-W: http://www.opengroup.org/ -- it's our ® in UNIX®.
-W: http://www.sgi.com/ -- our search finds no Darl^H^H Dark Matter
-                          in Linux.
-W: http://www.legal.ibm.com/ -- "we spell Linux 'LINUX®'".
-W: http://www.eng.ibm.com/ -- "we would like to spell Linux 'LNX' bt
-                              Lns Trvlds hs trd mrk".
+Not yet.  (Do you want on/off the CC list on this chatter ...?)
+
+
+> I'll need reminding what these patches actually do.
+
+Yup - when we are ready to recommend you include them.
+
+The fundamental reason - code and complexity reduction, so that the
+    users of cpumasks and nodemasks can figure them out with less effort.
+    And by distilling out the basic 'mask' ADT from cpumasks, the nodemask
+    type can be added more easily.
+
+But I'll happily repeat that, when the time comes.
+
+
+> Can you sit on them for two weeks?
+
+Sure.  Too easy.  It would have been a week before we were ready
+to encourage your consideration anyway.
 
 -- 
- gdt/2004-04-01
-
-
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

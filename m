@@ -1,48 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262360AbUAOPhO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 10:37:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbUAOPhO
+	id S262765AbUAOPib (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 10:38:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263742AbUAOPia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 10:37:14 -0500
-Received: from scrat.hensema.net ([62.212.82.150]:46503 "EHLO
-	scrat.hensema.net") by vger.kernel.org with ESMTP id S262360AbUAOPhN
+	Thu, 15 Jan 2004 10:38:30 -0500
+Received: from fed1mtao05.cox.net ([68.6.19.126]:63398 "EHLO
+	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S262765AbUAOPi2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 10:37:13 -0500
-From: Erik Hensema <erik@hensema.net>
-Subject: Re: True story: "gconfig" removed root folder...
-Date: Thu, 15 Jan 2004 15:37:09 +0000 (UTC)
-Message-ID: <slrnc0dct5.2o5.erik@bender.home.hensema.net>
-References: <1074177405.3131.10.camel@oebilgen> <Pine.LNX.4.58.0401151558590.27223@serv> <87ptdl2q7l.fsf@asmodeus.mcnaught.org>
-Reply-To: erik@hensema.net
-User-Agent: slrn/0.9.7.4 (Linux)
-To: linux-kernel@vger.kernel.org
+	Thu, 15 Jan 2004 10:38:28 -0500
+Date: Thu, 15 Jan 2004 08:38:24 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] 2.6 && module + -g && kernel w/o -g
+Message-ID: <20040115153824.GE983@stop.crashing.org>
+References: <20040114210937.GA983@stop.crashing.org> <20040115013723.29B912C0DC@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040115013723.29B912C0DC@lists.samba.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug McNaught (doug@mcnaught.org) wrote:
-> Roman Zippel <zippel@linux-m68k.org> writes:
-> 
->> On Thu, 15 Jan 2004, Ozan Eren Bilgen wrote:
->>
->>> Today I downloaded 2.6.1 kernel and tried to configure it with "make
->>> gconfig". After all changes I selected "Save As" and clicked "/root"
->>> folder to save in. Then I clicked "OK", without giving a file name. I
->>> expected that it opens root folder and lists contents. But this magic
->>> configurator removed (rm -Rf) my root folder and created a file named
->>> "root". It was a terrible experience!..
->>
->> I only did a quick check with menuconfig. Are you sure it's really
->> removed? It should still be there as "/root.old".
->> I probably should change the behaviour of the save routine to behave
->> differently for directories as argument, but it doesn't remove it.
->> (Changing gconfig to only accept files in the save request would probably
->> be nice too...)
-> 
-> The real lesson here is "don't compile your kernel as root".  There's
-> no need to do so.
+On Thu, Jan 15, 2004 at 10:00:11AM +1100, Rusty Russell wrote:
 
-Yes, having your user homedirectory removed is *much* better :-)
+> In message <20040114210937.GA983@stop.crashing.org> you write:
+> > Okay.  I've been looking at stock 2.6.1 noticed  that the fix for this
+> > issue that Rusty proposed, and that ultimately made it into 2.6.1-rc3
+> > (or so) is not correct.  The problem is that we do:
+> > 
+> > err = module_frob_arch_sections(hdr, sechdrs, secstrings, mod);
+> > /* Which goes over every .debug section and can take _ages_ on something
+> >  * like ipv6 */
+> 
+> Right.  So the arch-specific module_frob_arch_sections() can be slow.
+> Logically, the fix should be in those module_frob_arch_sections(), not
+> in the generic code.
+
+So it was right the first time, OK. :)
+
+> > +		/* If we find any debug RELAs, frob these away now. */
+> > +		if (sechdrs[i].sh_type == SHT_RELA &&
+> > +				(strstr(secstrings+sechdrs[i].sh_name, ".debug")
+> > +				 != 0))
+> > +			sechdrs[i].sh_type = SHT_NULL;
+> > +
+> 
+> Doesn't cover SHT_REL, and I really dislike name matches: they've bitten
+> us before.
+> 
+> Really, I prefer the arch-specific optimization.
+
+FWIW, this isn't an optimization, taking 12 minutes to load the ipv6
+module is a bug. :)
+
+Andrew, can you please apply the following patch?  Thanks.
+--- 1.10/arch/ppc/kernel/module.c	Fri Sep 12 09:26:52 2003
++++ edited/arch/ppc/kernel/module.c	Thu Jan 15 08:35:40 2004
+@@ -88,6 +88,10 @@
+ 		    != is_init)
+ 			continue;
+ 
++		/* We don't want to look at debug sections. */
++		if (strstr(secstrings + sechdrs[i].sh_name, ".debug") != 0)
++			continue;
++
+ 		if (sechdrs[i].sh_type == SHT_RELA) {
+ 			DEBUGP("Found relocations in section %u\n", i);
+ 			DEBUGP("Ptr: %p.  Number: %u\n",
 
 -- 
-Erik Hensema <erik@hensema.net>
+Tom Rini
+http://gate.crashing.org/~trini/

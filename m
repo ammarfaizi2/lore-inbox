@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266434AbUAHACO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 19:02:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266374AbUAHAAW
+	id S266304AbUAGX6y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 18:58:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266325AbUAGX6y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 19:00:22 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32193 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265778AbUAGX5T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 18:57:19 -0500
-Message-ID: <3FFC9CC6.6010701@pobox.com>
-Date: Wed, 07 Jan 2004 18:56:54 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Wed, 7 Jan 2004 18:58:54 -0500
+Received: from [193.138.115.2] ([193.138.115.2]:11275 "HELO
+	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
+	id S266304AbUAGX6a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 18:58:30 -0500
+Date: Thu, 8 Jan 2004 00:55:26 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: James Simmons <jsimmons@infradead.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Blank Screen in 2.6.0
+In-Reply-To: <Pine.LNX.4.44.0401071741570.31020-100000@phoenix.infradead.org>
+Message-ID: <Pine.LNX.4.56.0401080052170.9700@jju_lnx.backbone.dif.dk>
+References: <Pine.LNX.4.44.0401071741570.31020-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: [autofs] [RFC] Towards a Modern Autofs
-References: <1b5GC-29h-1@gated-at.bofh.it> <1b6CO-3v0-15@gated-at.bofh.it> <m3ad50tmlq.fsf@averell.firstfloor.org> <3FFC46EB.9050201@zytor.com> <3FFC7469.3050700@sun.com> <3FFC7469.3050700@sun.com> <3FFC790A.3060206@pobox.com> <3FFC9A76.4070407@sun.com>
-In-Reply-To: <3FFC9A76.4070407@sun.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Waychison wrote:
-> You wouldn't put a bdflush daemon in userspace either would you?  The 
-> loop in question is just that; (overly simplified):
-> 
-> while (1) {
->     f = ask_kernel_if_anything_looks_inactive();
->     if (f) {
->         try_to_umount(f);
->         continue;
->     } else {
->         sleep(x seconds);
->     }
-> }
-> 
-> My point is, if this is the only active action done by userspace, why 
-> open it up to being broken?
+
+On Wed, 7 Jan 2004, James Simmons wrote:
+
+> Yeah!!!
+>
+> > The bad news is that it still doesn't work quite right.
+>
+> I expected that. Newer Nvidia cards are not properly supported.
+>
+
+Ok, just know that I'm willing to test any patches you may have for rivafb.
 
 
-You're still using arguments -against- putting software in the kernel. 
-You don't decrease software's chances of "being broken" by putting it in 
-the kernel, the opposite occurs -- you increase the likelihood of making 
-the entire system unstable.  This is one point that Solaris and Win32 
-have both missed :)
+> > Also, after starting X (using the "nv" driver, not a fb X server) - if I
+> > switch back to a text console then the screen is completely garbled - I
+> > can switch back to X just fine though.
+>
+> Try using the UseFBDev flag for teh X server. That usually helps.
+>
 
-	Jeff
+Ok, I'll try that "soonish" and report the result.
+For now I'm simply using vesafb which works well.
 
 
+-- Jesper Juhl
 

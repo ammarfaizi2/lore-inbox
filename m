@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262627AbVAPWPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262635AbVAPWQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262627AbVAPWPT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 17:15:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262628AbVAPWPT
+	id S262635AbVAPWQs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 17:16:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbVAPWQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 17:15:19 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:41093 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262627AbVAPWPO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 17:15:14 -0500
-Subject: Re: User space out of memory approach
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Edjard Souza Mota <edjard@gmail.com>
-Cc: Ilias Biris <xyz.biris@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4d6522b90501160206306b0140@mail.gmail.com>
-References: <3f250c71050110134337c08ef0@mail.gmail.com>
-	 <4d6522b9050110144017d0c075@mail.gmail.com>
-	 <20050110200514.GA18796@logos.cnet>
-	 <1105403747.17853.48.camel@tglx.tec.linutronix.de>
-	 <4d6522b90501101803523eea79@mail.gmail.com>
-	 <1105433093.17853.78.camel@tglx.tec.linutronix.de>
-	 <1105461106.16168.41.camel@localhost.localdomain>
-	 <4e1a70d1050111111614670f32@mail.gmail.com>
-	 <4e1a70d10501111246391176b@mail.gmail.com>
-	 <1105630523.4644.52.camel@localhost.localdomain>
-	 <4d6522b90501160206306b0140@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105907681.12201.3.camel@localhost.localdomain>
+	Sun, 16 Jan 2005 17:16:47 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:49937 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S262635AbVAPWQI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 17:16:08 -0500
+Date: Sun, 16 Jan 2005 23:24:28 +0100
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Dave Airlie <airlied@gmail.com>, covici@ccs.covici.com,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10 dies when X tries to initialize PCI radeon 9200 SE
+Message-ID: <20050116222428.GA20189@hh.idb.hist.no>
+References: <41E64DAB.1010808@hist.no> <16870.21720.866418.326325@ccs.covici.com> <21d7e997050113130659da39c9@mail.gmail.com> <20050115185712.GA17372@hh.idb.hist.no> <21d7e997050116020859687c4a@mail.gmail.com> <20050116105011.GA5882@hh.idb.hist.no> <9e4733910501160304642f7882@mail.gmail.com> <20050116121823.GA7734@hh.idb.hist.no> <9e4733910501161408710bbbe2@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 16 Jan 2005 21:10:48 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e4733910501161408710bbbe2@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2005-01-16 at 10:06, Edjard Souza Mota wrote:
-> What do you think about the point we are trying to make, i.e., moving the
-> ranking of PIDs to be killed to user space? Or, making user have some influence
-> on it? We were misunderstood because the patch we sent was to make "a slight"
-> organization in the way OOM killer compute rates to PIDs, not to change its
+On Sun, Jan 16, 2005 at 05:08:12PM -0500, Jon Smirl wrote:
+> On Sun, 16 Jan 2005 13:18:23 +0100, Helge Hafting
+> <helgehaf@aitel.hist.no> wrote:
+> > On Sun, Jan 16, 2005 at 06:04:32AM -0500, Jon Smirl wrote:
+> > > you need to check the output from "modprobe drm debug=1" "modprobe
+> > > radeon" and see if drm is misidentifying the board as AGP. We don't
+> > > want to fix something if it isn't broken.
+> > > 
+> > Stupid question - how do I get a modular drm?
+> 
+> For older radeon drivers "modprobe radeon debug=1" should work. I also
+> think you can do it for compiled in ones by adding the kernel
+> parameter radeon.debug=1
 
-Im sceptical there is an answer but moving it to user space (or at least
-implementing /proc tunables in user space to experiment) certainly seems
-to be the right way to find out.
+I tried that - and got a message from the radeon module that "debug" 
+was an unknown parameter.
 
-> Well, while AF_TELEPATH socket is not on its way :) ... we may at
-> least experiment
-> different raking policies.
-
-agreed
-
+Helge Hafting

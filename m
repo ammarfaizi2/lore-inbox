@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263851AbUAEMTS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 07:19:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264163AbUAEMTS
+	id S263832AbUAEMSb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 07:18:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUAEMSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 07:19:18 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:39564 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263851AbUAEMTH (ORCPT
+	Mon, 5 Jan 2004 07:18:31 -0500
+Received: from hell.org.pl ([212.244.218.42]:17930 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S263832AbUAEMSa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 07:19:07 -0500
-Date: Mon, 5 Jan 2004 13:19:05 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Nathaniel W. Filardo" <nwf@andrew.cmu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: File system cache corruption in 2.6?
-Message-ID: <20040105121905.GB3124@suse.de>
-References: <Pine.LNX.4.58-035.0401050014450.5565@unix49.andrew.cmu.edu>
+	Mon, 5 Jan 2004 07:18:30 -0500
+Date: Mon, 5 Jan 2004 13:18:30 +0100
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Arjan van de Ven <arjanv@redhat.com>, jw schultz <jw@pegasys.ws>
+Subject: Re: [2.6.0-mm2] PM timer still has problems
+Message-ID: <20040105121830.GA12521@hell.org.pl>
+References: <20031230204831.GA17344@hell.org.pl> <20031230200249.107b56f0.akpm@osdl.org> <20040104004449.GA20647@hell.org.pl> <200401050117.06681.dtor_core@ameritech.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58-035.0401050014450.5565@unix49.andrew.cmu.edu>
+In-Reply-To: <200401050117.06681.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 05 2004, Nathaniel W. Filardo wrote:
-> Hi all,
-> 	I'm trying to work out the cause of a series of issues I've seen
-> on my 2.6 machine.  It appears as though files (specifically libraries) in
-> memory can get corrupted, resulting in strangeness like segfaults and
-> things like "relocation error: can't find symbol ...-VOMD-POINTER" instead
-> of "...-VOID-POINTER".
+Thus wrote Dmitry Torokhov:
+> I threw a monkey wrench in timer code and came up with the patch below...
+> It is not intended for inclusion as is, just some work in progress.
+> 
+> I decided to go hpet way and use tsc in ACPI PM timer to do delay stuff
+> and monotonic clock. Plus there some code rearrangements, and stuff I grabbed
+> from the CPUFREQ list (Dominics + Li Shahoua P4 variable tsc info ), etc...
+> If there is an interest I can split the code into smaller chinks. For what
+> it worth I am running with ACPI PM timer, CPUFREQ (dynamically switching
+> frequency based on load) and Synaptics and everything is calm. Ntpd has also
+> stopped complaining about loosing sync...
 
-That's a single bit error.
+Well, no luck here. When clock=pmtmr is appended, the system hangs just
+after printing:
+#v+
+Warning: clock= override failed. Defaulting to PIT
+Using pit for high-res timesource
+Detected 1700.598 MHz processor.
+Console: colour VGA+ 80x25
+#v-
 
-> I don't believe it's actual hardware failure for a few reasons: memtest86
-> passes all tests, GCC doesn't crash (it's a Gentoo system, so gcc and I
-> are well acquainted - and before I get jumped on, I've installed udev ;)
-> ), and most importantly, sometimes thrashing the file system or engaging a
-> kernel compile will rectify the situation, as just happened with emacs.
-> It crashed, I killed it, it wouldn't load - I started a kernel compile,
-> waited a bit, and lo', it works again.  No messages of relevance appear in
-> dmesg.
+The system boots fine without the clock= parameter, though.
+[it's an ASUS L3800C laptop with a P4-M and 2.6.1-rc1-mm1 with your patch
+on top]
 
-It looks _extremely_ much like bad memory, or bad hardware. Sometimes
-memtest just doesn't catch all errors (how long did you run it? needs
-several days often).
+Best regards,
 
 -- 
-Jens Axboe
-
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131754AbRASNmU>; Fri, 19 Jan 2001 08:42:20 -0500
+	id <S131444AbRASOUq>; Fri, 19 Jan 2001 09:20:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131814AbRASNmL>; Fri, 19 Jan 2001 08:42:11 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:61451 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S131754AbRASNmE>; Fri, 19 Jan 2001 08:42:04 -0500
-Date: 18 Jan 2001 20:46:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <7u7k1VlXw-B@khms.westfalen.de>
-In-Reply-To: <Pine.LNX.4.10.10101180822020.18072-100000@penguin.transmeta.com>
-Subject: Re: Is sendfile all that sexy?
-X-Mailer: CrossPoint v3.12d.kh5 R/C435
+	id <S131646AbRASOUg>; Fri, 19 Jan 2001 09:20:36 -0500
+Received: from host213-120-148-5.btopenworld.com ([213.120.148.5]:866 "EHLO
+	nvlonlx01.nv.london") by vger.kernel.org with ESMTP
+	id <S131444AbRASOUZ>; Fri, 19 Jan 2001 09:20:25 -0500
+Date: Fri, 19 Jan 2001 14:19:45 +0000 (UTC)
+From: Mo McKinlay <mmckinlay@gnu.org>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+cc: Mo McKinlay <mmckinlay@gnu.org>, Peter Samuelson <peter@cadcamlab.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: named streams, extended attributes, and posix
+In-Reply-To: <004701c081ef$e32dcb90$8501a8c0@gromit>
+Message-ID: <Pine.LNX.4.30.0101191417510.663-100000@nvws005.nv.london>
+Organization: inter/open Labs
+X-URL: http://www.interopen.org/
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <200101181001.f0IA11I25258@webber.adilger.net> <Pine.LNX.4.10.10101180822020.18072-100000@penguin.transmeta.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-torvalds@transmeta.com (Linus Torvalds)  wrote on 18.01.01 in <Pine.LNX.4.10.10101180822020.18072-100000@penguin.transmeta.com>:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> if your "normal" usage pattern really is to just move the data without
-> even looking at it, then you have to ask yourself whether you're doing
-> something worthwhile in the first place.
+Today, Michael Rothwell (rothwell@holly-springs.nc.us) wrote:
 
-Web server. FTP server. Network file server. cp. mv. cat. dd.
+  > Unfortunately, unix allows everything but "/" in filenames. This was
+  > probably a mistake, as it makes it nearly impossible to augment the
+  > namespace, but it is the reality.
 
-In short, vfs->net (what sendfile already does) and vfs->vfs are probably  
-the most interesting applications, with net->vfs as a possible third.  
-Classical bulk data copy applications.
+  > Did you read the "new namespace" section of the paper?
 
-All the other stuff I can think of really does want to look at the data,  
-and we can already handle virtual memory just fine with read/write/mmap.
+I've not, so pardon me if I make a bad assumption (and slap me for it,
+too), but doesn't introducing a new namespace segregate the streams from
+the files/directories, thus introducing an artifical separation which
+isn't really there? (Pretty much why I'm more in favour of a specific API
+for reading streams, extended attributes and whatnot, over any of the
+other solutions thus suggested).
 
-MfG Kai
+Mo.
+
+- -- 
+Mo McKinlay
+mmckinlay@gnu.org
+- -------------------------------------------------------------------------
+GnuPG/PGP Key: pub  1024D/76A275F9 2000-07-22
+
+
+
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjpoTQMACgkQRcGgB3aidfmurACdEb+w6gwUW7fc4FVdZ7umHlDs
+/AgAoN8SOXejiKDd8G/KPVTP7qZwzhnO
+=Ld9D
+-----END PGP SIGNATURE-----
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

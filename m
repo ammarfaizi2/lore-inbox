@@ -1,71 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267471AbTBUO7g>; Fri, 21 Feb 2003 09:59:36 -0500
+	id <S267467AbTBUO6f>; Fri, 21 Feb 2003 09:58:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267473AbTBUO7g>; Fri, 21 Feb 2003 09:59:36 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:50627 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S267471AbTBUO7e>; Fri, 21 Feb 2003 09:59:34 -0500
-Date: Fri, 21 Feb 2003 16:09:35 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Alan Cox <alan@redhat.com>, James Simmons <jsimmons@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.62-ac1
-Message-ID: <20030221150935.GO531@fs.tum.de>
-References: <200302202233.h1KMX8408821@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200302202233.h1KMX8408821@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4i
+	id <S267471AbTBUO6f>; Fri, 21 Feb 2003 09:58:35 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11528 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267467AbTBUO6e>; Fri, 21 Feb 2003 09:58:34 -0500
+Date: Fri, 21 Feb 2003 07:05:47 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Zwane Mwaikambo <zwane@holomorphy.com>, Chris Wedgwood <cw@f00f.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous
+ reboots)
+In-Reply-To: <Pine.LNX.4.44.0302210758290.1701-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0302210702320.7573-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 20, 2003 at 05:33:08PM -0500, Alan Cox wrote:
 
->...
-> Linux 2.5.62-ac1
->...
-> o	FBdev updates					(James Simmons)
->...
+On Fri, 21 Feb 2003, Ingo Molnar wrote:
+> > 
+> > This is a single non-serializing bit test, and if it means that the task
+> > counters are _right_, that's definitely the right thing to do.
+> 
+> ok. Plus the wait_task_inactive() stuff was always a bit volatile. Now we
+> could in fact remove it from release_task(), right?
 
-FYI:
+Yes, except for the same concerns I had about your patch moving it.
 
-This causes the followig compile error (more error messages in this file
-skipped):
+That part could be cleanly solvged by just moving a lot of the tear-down
+of the "struct task_struct" entirely into "__put_task_struct()" (which now
+can never be called with "current == tsk"), ie if we do the "free_user()"
+_there_, then I think we can remove the wait_task_inactive() entirely from 
+the wait path.
 
-<--  snip  -->
-
-...
-  gcc -Wp,-MD,drivers/video/aty/.mach64_ct.o.d -D__KERNEL__ -Iinclude 
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 
--Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
--DKBUILD_BASENAME=mach64_ct -DKBUILD_MODNAME=atyfb -c -o 
-drivers/video/aty/mach64_ct.o drivers/video/aty/mach64_ct.c
-drivers/video/aty/mach64_ct.c: In function `aty_dsp_gt':
-drivers/video/aty/mach64_ct.c:51: structure has no member named 
-`xclk_post_div_real'
-drivers/video/aty/mach64_ct.c:60: structure has no member named 
-`fifo_size'
-drivers/video/aty/mach64_ct.c:67: structure has no member named 
-`fifo_size'
-drivers/video/aty/mach64_ct.c:69: structure has no member named 
-`page_size'
-drivers/video/aty/mach64_ct.c:86: structure has no member named 
-`dsp_loop_latency'
-...
-make[3]: *** [drivers/video/aty/mach64_ct.o] Error 1
-
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+		Linus
 

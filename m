@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129773AbQLHSNU>; Fri, 8 Dec 2000 13:13:20 -0500
+	id <S129842AbQLHSOU>; Fri, 8 Dec 2000 13:14:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129842AbQLHSNK>; Fri, 8 Dec 2000 13:13:10 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:40460 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129773AbQLHSNE>; Fri, 8 Dec 2000 13:13:04 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S132556AbQLHSOK>; Fri, 8 Dec 2000 13:14:10 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:36369 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129842AbQLHSOB>;
+	Fri, 8 Dec 2000 13:14:01 -0500
+Message-ID: <3A311D95.A39E0241@mandrakesoft.com>
+Date: Fri, 08 Dec 2000 12:42:45 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
+        Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: NTFS repair tools]
+In-Reply-To: <3A3066EC.3B657570@timpanogas.org> <E144O4d-0003vd-00@the-village.bc.nu> <20001208113340.B4730@vger.timpanogas.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14897.7451.710204.633241@wire.cadcamlab.org>
-Date: Fri, 8 Dec 2000 11:40:43 -0600 (CST)
-To: root@chaos.analogic.com
-Cc: Matthew Vanecek <linux4us@home.com>, Rainer Mager <rmager@vgkk.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Signal 11
-In-Reply-To: <3A310E18.DD23D416@home.com>
-	<Pine.LNX.3.95.1001208113945.1500A-100000@chaos.analogic.com>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-[Dick Johnson]
-> > >   char main[]={0xf0,0x0f,0xc0,0xc8};    /* try also on NT (: */
-> > me2v@reliant DRFDecoder $ ./op
-> > Illegal instruction (core dumped)
+"Jeff V. Merkey" wrote:
 > 
-> Yep. And on early Pentinums, the ones with the "f00f" bug, it would
-> lock the machine tighter than a witches crotch. Ooops, not
-> politically correct.... It would allow user-mode code to halt the
-> machine.
+> On Fri, Dec 08, 2000 at 02:00:29PM +0000, Alan Cox wrote:
+> > > Agree.  We need to disable it, since folks do not read the docs
+> > > (obviously).  Of course, we could leave it on, and I could start
+> > > charging money for these tools -- there's little doubt it would be a
+> > > lucrative business.  Perhaps this is what I'll do if the numbers of
+> > > copies keeps growing.  When it hits > 100 per week, it's taking a lot of
+> > > our time to support, so I will have to start charging for it.
+> >
+> > I am very firmly against removing something because people do not read manuals,
+> > what is next fdisk , mkfs ?.
+> 
+> We should put in a nastier message then.  It WILL DESTROY DATA IRREPARABLY
+> and I've got even more bad news -- because it's in Linux, Microsoft is already
+> altering the on-disk structures again, so it's about to be broken in R/O
+> mode as well when Whistler comes out.
 
-...Until Linux 2.0.34 or so (can't remember the exact version number)
-which had the workaround for this bug, about a week after the bug was
-discovered.
+We don't need any messages.  If (DANGEROUS) is not sufficient, then
+disable the feature unconditionally.  Someone hacking on the code will
+be smart enough to enable the stuff while they are debugging.
 
-And I was reminded in private mail that the correct lockup sequence is
-actually
+	Jeff
 
-  char main[]={0xf0,0x0f,0xc7,0xc8};
 
-where the 0xc8 can be anything from 0xc8 to 0xcf.
-
-Peter
+-- 
+Jeff Garzik         |
+Building 1024       | These are not the J's you're lookin' for.
+MandrakeSoft        | It's an old Jedi mind trick.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

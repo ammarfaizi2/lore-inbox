@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261255AbUCCXgG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 18:36:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbUCCXgG
+	id S261264AbUCCXhM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 18:37:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbUCCXhL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 18:36:06 -0500
-Received: from gate.crashing.org ([63.228.1.57]:22982 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261255AbUCCXgD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 18:36:03 -0500
-Subject: [PATCH] radeonfb: some more PLL problems
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1078356251.15324.31.camel@gaston>
+	Wed, 3 Mar 2004 18:37:11 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:3203 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S261264AbUCCXhA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 18:37:00 -0500
+Date: Wed, 3 Mar 2004 23:36:04 +0000
+From: Dave Jones <davej@redhat.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Cpufreq mailing list <cpufreq@www.linux.org.uk>,
+       kernel list <linux-kernel@vger.kernel.org>, davej@codemonkey.ork.uk,
+       paul.devriendt@amd.com
+Subject: Re: powernow-k8-acpi driver
+Message-ID: <20040303233603.GA18722@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Pavel Machek <pavel@suse.cz>,
+	Cpufreq mailing list <cpufreq@www.linux.org.uk>,
+	kernel list <linux-kernel@vger.kernel.org>, davej@codemonkey.ork.uk,
+	paul.devriendt@amd.com
+References: <20040303215435.GA467@elf.ucw.cz> <20040303222712.GA16874@redhat.com> <20040303223510.GE222@elf.ucw.cz> <20040303224841.GB16874@redhat.com> <20040303225405.GF222@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 04 Mar 2004 10:24:11 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040303225405.GF222@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Wed, Mar 03, 2004 at 11:54:05PM +0100, Pavel Machek wrote:
+ > Hi!
+ > 
+ > >  > We could make that functionality depend on CONFIG_ACPI, and allow
+ > >  > runtime selection only if its defined... But those two drivers are
+ > >  > pretty different just now and acpi-dependend chunk is pretty big. (It
+ > >  > does funny stuff like polling for AC plug removal if we are in
+ > >  > high-power state  and battery would not handle that. Old driver simply
+ > >  > refused to use high-power states on such machines.)
+ > > 
+ > > you're aware of Dominik/Bruno's work on the 'acpilib'[1] stuff in this
+ > > area right ? We'll need that anyway for Powernow-k7 and maybe longhaul too
+ > > and its senseless duplicating this code.
+ > 
+ > That [1] looks like promise of url, but I don't see that url.
 
-I've had reports of flicker that appear with large (23") flat panels
-and radeonfb. From experiments, it appears that forbiding the "odd"
-PLL divider values fix it (like it fixes the blur problem on TMDS2).
-There should not be anything special with TMDS1 and "odd" PLL values
-though, so the problem may be subtely different (a bandwidth problem),
-but until I have proper bandwidth calculation and access to this
-monitor, the following patch is an acceptable workaround
-(Odd PLL values aren't that useful anyway)
+Hmm, cpufreq mailing list archives are your best bet.
+What I meant to add was..
 
-===== drivers/video/aty/radeon_base.c 1.8 vs edited =====
---- 1.8/drivers/video/aty/radeon_base.c	Wed Feb 18 17:02:05 2004
-+++ edited/drivers/video/aty/radeon_base.c	Thu Mar  4 10:16:41 2004
-@@ -1329,6 +1329,16 @@
- 	 * not sure which model starts having FP2_GEN_CNTL, I assume anything more
- 	 * recent than an r(v)100...
- 	 */
-+#if 0
-+	/* XXX I had reports of flicker happening with the cinema display
-+	 * on TMDS1 that seem to be fixed if I also forbit odd dividers in
-+	 * this case. This could just be a bandwidth calculation issue, I
-+	 * haven't implemented the bandwidth code yet, but in the meantime,
-+	 * forcing uses_dvo to 1 fixes it and shouln't have bad side effects,
-+	 * I haven't seen a case were were absolutely needed an odd PLL
-+	 * divider. I'll find a better fix once I have more infos on the
-+	 * real cause of the problem.
-+	 */
- 	while (rinfo->has_CRTC2) {
- 		u32 fp2_gen_cntl = INREG(FP2_GEN_CNTL);
- 		u32 disp_output_cntl;
-@@ -1362,6 +1372,9 @@
- 		uses_dvo = 1;
- 		break;
- 	}
-+#else
-+	use_dvo = 1;
-+#endif
- 	if (freq > rinfo->pll.ppll_max)
- 		freq = rinfo->pll.ppll_max;
- 	if (freq*12 < rinfo->pll.ppll_min)
+[1] acpilib is a made up name I just came up with, I've no idea
+    what the guys who wrote it are referring to it as.
 
+		Dave
 

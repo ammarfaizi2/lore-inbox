@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281124AbRKYVuA>; Sun, 25 Nov 2001 16:50:00 -0500
+	id <S281118AbRKYVwa>; Sun, 25 Nov 2001 16:52:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281128AbRKYVtu>; Sun, 25 Nov 2001 16:49:50 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33037 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281105AbRKYVtp>; Sun, 25 Nov 2001 16:49:45 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: 2.4.15-final drivers/net/bonding.c includes user space headers
-Date: 25 Nov 2001 13:49:33 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9trp1d$ppg$1@cesium.transmeta.com>
-In-Reply-To: <18133.1006497103@kao2.melbourne.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S281126AbRKYVwK>; Sun, 25 Nov 2001 16:52:10 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:30739 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S281118AbRKYVwA>;
+	Sun, 25 Nov 2001 16:52:00 -0500
+Date: Sun, 25 Nov 2001 19:51:51 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: <Teodor.Iacob@astral.kappa.ro>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.16-pre1
+Message-ID: <20011125195151.D1706@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	<Teodor.Iacob@astral.kappa.ro>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011125145134.B23807@flint.arm.linux.org.uk> <Pine.LNX.4.31.0111252343030.14413-100000@linux.kappa.ro>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.31.0111252343030.14413-100000@linux.kappa.ro>
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <18133.1006497103@kao2.melbourne.sgi.com>
-By author:    Keith Owens <kaos@ocs.com.au>
-In newsgroup: linux.dev.kernel
->
-> 2.4.15-final/drivers/net/bonding.c:188: #include <limits.h>
-> 
-> Kernel code must not include use space headers.  I thought this had
-> been fixed.  It will not compile in 2.5.
-> 
+Em Sun, Nov 25, 2001 at 11:44:11PM +0200, Teodor Iacob escreveu:
+> Could someone tell if reiserfs or ext3 filesystems are affected by this?
 
-<limits.h> is one of the compiler-provided headers, i.e. from
-/usr/lib/gcc-lib/*/*/include -- if your kbuild harness don't
-allow those headers to be included, it's broken.
+AFAIK, yes, all filesystems with backing storage are affected.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+- Arnaldo

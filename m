@@ -1,64 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261425AbRE3RLH>; Wed, 30 May 2001 13:11:07 -0400
+	id <S261682AbRE3ROH>; Wed, 30 May 2001 13:14:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261682AbRE3RK5>; Wed, 30 May 2001 13:10:57 -0400
-Received: from gw.chygwyn.com ([62.172.158.50]:6667 "EHLO gw.chygwyn.com")
-	by vger.kernel.org with ESMTP id <S261425AbRE3RKo>;
-	Wed, 30 May 2001 13:10:44 -0400
-From: Steve Whitehouse <steve@gw.chygwyn.com>
-Message-Id: <200105301715.SAA21607@gw.chygwyn.com>
-Subject: Re: Zerocopy NBD
-To: marcelo@conectiva.com.br (Marcelo Tosatti)
-Date: Wed, 30 May 2001 18:15:30 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0105301208140.5110-100000@freak.distro.conectiva> from "Marcelo Tosatti" at May 30, 2001 12:08:56 PM
-Organization: ChyGywn Limited
-X-RegisteredOffice: 7, New Yatt Road, Witney, Oxfordshire. OX28 1NU England
-X-RegisteredNumber: 03887683
-Reply-To: Steve Whitehouse <Steve@ChyGwyn.com>
-X-Mailer: ELM [version 2.5 PL1]
+	id <S261696AbRE3RN5>; Wed, 30 May 2001 13:13:57 -0400
+Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:50447 "EHLO
+	carlsberg.amagerkollegiet.dk") by vger.kernel.org with ESMTP
+	id <S261682AbRE3RNs>; Wed, 30 May 2001 13:13:48 -0400
+Date: Wed, 30 May 2001 19:13:37 +0200 (CEST)
+From: "Rasmus B. Hansen" <moffe@amagerkollegiet.dk>
+To: Edsel Adap <edsel@adap.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: ln -s broken on 2.4.5
+In-Reply-To: <20010530124052.A26266@adap.org>
+Message-ID: <Pine.BSO.4.33.0105301911200.28371-100000@smaug.amagerkollegiet.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 30 May 2001, Edsel Adap wrote:
 
-> 
-> On Wed, 30 May 2001, Steve Whitehouse wrote:
-> >
-[info about NBD patch deleted] 
-> >
-> Cool. 
-> 
-> Are you seeing performance improvements with the patch ?
->  
+> I downloaded the linux 2.4.5 sources and built and installed them on my
+> system.  Since then, I've noticed strange file system behavior:
 
-Yes, but my testing is not in anyway complete yet. The only network device
-I have which is supported by zerocopy is loopback and there appear to be
-problems with deadlocks when using NBD over loopback. So what I did was to
-modify the NBD server (the userland one from Pavel Machek's web site)
-so that it didn't actually do any disk I/O. It still copied the data from
-the network into a buffer on write and it returns zeroed buffers on read
-(not that thats important as only the write patch is affected in the patch).
+> marvin:/tmp> ln -s foo bar
 
-I could then test using dd which is a bit artificial in that it creates
-large requests giving probably much more data per NBD request than would
-be usual under a filesystem load and hence also better with the zerocopy
-patch. A timed dd with 100000 blocks of 1k spent 1.2 secs of system time
-to do the write with NBD in 2.4.5 and 0.8 secs with my patch.
+> lrwxrwxrwx    1 adap     users           3 May 30 12:09 bar -> bar
 
-Also it may well be possible to adjust the network stack's memory management
-to give better performance. I upped the values in tcp_[r|w]mem but I've
-not checked what different vaules would do to those figures.
+> Notice that the symlink created is wrong.  It seems that any symlink I
+> create is always linked to itself.
 
-I want to do some more testing though in case I've made an error somewhere
-in the method. I'd be particularly interested to hear from someone who
-has any results for real hardware. If I have time I'll look into whether
-the eepro100 or SysKonnect GigE cards could be made to support zerocopy
-as they are the ones I have here,
+I tried the same:
 
-Steve.
+moffe@grignard:/tmp/test# ls -la
+totalt 1
+drwxr-xr-x    2 moffe    users          48 ons maj 30 19:10:20 2001 .
+drwxrwxrwt   13 root     root          496 ons maj 30 19:10:40 2001 ..
+moffe@grignard:/tmp/test# ln -s foo bar
+moffe@grignard:/tmp/test# ls -la
+totalt 1
+drwxr-xr-x    2 moffe    users          72 ons maj 30 19:10:58 2001 .
+drwxrwxrwt   13 root     root          496 ons maj 30 19:10:40 2001 ..
+lrwxrwxrwx    1 moffe    users           3 ons maj 30 19:10:58 2001 bar -> foo
+moffe@grignard:/tmp/test# cd /boot/test/
+moffe@grignard:/boot/test# ls -la
+totalt 2
+drwxr-xr-x    2 moffe    users        1024 ons maj 30 19:10:28 2001 .
+drwxr-xr-x    4 root     root         1024 ons maj 30 19:10:28 2001 ..
+moffe@grignard:/boot/test# ln -s foo bar
+moffe@grignard:/boot/test# ls -la
+totalt 2
+drwxr-xr-x    2 moffe    users        1024 ons maj 30 19:11:09 2001 .
+drwxr-xr-x    4 root     root         1024 ons maj 30 19:10:28 2001 ..
+lrwxrwxrwx    1 moffe    users           3 ons maj 30 19:11:09 2001 bar -> foo
+
+/ is on reiserfs and /boot is on ext2 - as you see, I do not have the
+problem (also running 2.4.5).
+
+Could it be a fileutils problem?
+
+Rasmus
+
+-- 
+-- [ Rasmus 'Møffe' Bøg Hansen ] --------------------------------------
+Programming is a race between programmers, who try and make more and
+more idiot-proof software, and universe, which produces more and more
+remarkable idiots.
+Until now, universe leads the race.
+                                                           - R. Cooka
+-------------------------------- [ moffe at amagerkollegiet dot dk ] --
 

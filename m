@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287502AbSAXLa2>; Thu, 24 Jan 2002 06:30:28 -0500
+	id <S287545AbSAXLhO>; Thu, 24 Jan 2002 06:37:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287532AbSAXLaR>; Thu, 24 Jan 2002 06:30:17 -0500
-Received: from pat.uio.no ([129.240.130.16]:18173 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S287502AbSAXLaC>;
-	Thu, 24 Jan 2002 06:30:02 -0500
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: <linux-kernel@vger.kernel.org>
+	id <S287537AbSAXLhE>; Thu, 24 Jan 2002 06:37:04 -0500
+Received: from mustard.heime.net ([194.234.65.222]:22755 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S287535AbSAXLgv>; Thu, 24 Jan 2002 06:36:51 -0500
+Date: Thu, 24 Jan 2002 12:36:48 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Error with Root-fs on NFS...
-In-Reply-To: <Pine.LNX.4.30.0201241036100.29293-100000@mustard.heime.net>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 24 Jan 2002 12:29:52 +0100
-In-Reply-To: <Pine.LNX.4.30.0201241036100.29293-100000@mustard.heime.net>
-Message-ID: <shs1yggdm1b.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+In-Reply-To: <shs1yggdm1b.fsf@charged.uio.no>
+Message-ID: <Pine.LNX.4.30.0201241231460.29780-100000@mustard.heime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Roy Sigurd Karlsbakk <roy@karlsbakk.net> writes:
+> Well:
+>       Is there a portmapper running on the server?
 
-     > Hi all I apologize if this is a well-known error, but after
-     > searching all archives I can think of, including google, I
-     > still can't find anything but questions.
+Yes
 
-     > Version: linux-2.4.17+Tux2.4.17a0+rmap11c+ide2.4.17.01192002
+>       Is it accessible to the client (/etc/hosts.{allow,deny}, ipchains,...)?
 
-     > sockets 1.0/SMP for Linux NET4.0.  Looking up port of RPC
-     > 100003/2 on 192.168.144.247 RPC: sendmsg returned error 101
-     > portmap: RPC call returned error 101 Root-NFS: Unable to get
-     > nfsd port number from server, using default Looking up port of
-     > RPC 100005/1 on 192.168.144.247 RPC: sendmsg returned error 101
-     > portmap: RPC call returned error 101 Root-NFS: Unable to get
-     > mountd port number from server, using default RPC: sendmsg
-     > returned error 101 mount: RPC call returned error 101 Root-NFS:
-     > Server returned error -101 while mounting /croot VFS: Unable to
-     > mount root fs via NFS, trying floppy.
+Yes. No hosts.(allow|deny) setup. No ip(table|chain)s in kernel.
 
-Well:
-      Is there a portmapper running on the server?
-      Is it accessible to the client (/etc/hosts.{allow,deny}, ipchains,...)?
-      Is the portmapper advertising NFS version 2 (BTW: the syntax is 'v3' not 'nfsvers=3' on NFSroot)?
-      Is it advertising mountd version 1?
+>       Is the portmapper advertising NFS version 2 (BTW: the syntax is 'v3' not 'nfsvers=3' on NFSroot)?
 
-Cheers,
-  Trond
+I've tried running default. The nfsvers=3 was just another attempt.
+
+>       Is it advertising mountd version 1?
+
+I beleive so... Isn't that the default?
+
+As I mentioned earlier - NFS works from the same computer when booted from
+hdd or floppy
+
+regards
+
+roy
+
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

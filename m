@@ -1,76 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263060AbTCSQju>; Wed, 19 Mar 2003 11:39:50 -0500
+	id <S263101AbTCSQms>; Wed, 19 Mar 2003 11:42:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263068AbTCSQju>; Wed, 19 Mar 2003 11:39:50 -0500
-Received: from mail.ccur.com ([208.248.32.212]:55556 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id <S263060AbTCSQjs>;
-	Wed, 19 Mar 2003 11:39:48 -0500
-Message-ID: <3E789FF4.DFDE1248@ccur.com>
-Date: Wed, 19 Mar 2003 11:51:00 -0500
-From: Jim Houston <jim.houston@ccur.com>
-Reply-To: jim.houston@ccur.com
-Organization: Concurrent Computer Corp.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@digeo.com>,
-       Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>, joe.korty@ccur.com
-Subject: Re: [patch] sched-2.5.64-D3, more interactivity changes
-References: <20030318215228.417e0a58.akpm@digeo.com>
-	 <Pine.LNX.4.44.0303171114310.19107-100000@localhost.localdomain>
-	 <20030318215228.417e0a58.akpm@digeo.com> <5.2.0.9.2.20030319091819.00ca4bf0@pop.gmx.net>
-Content-Type: text/plain; charset=us-ascii
+	id <S263100AbTCSQms>; Wed, 19 Mar 2003 11:42:48 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:19589
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263093AbTCSQmS>; Wed, 19 Mar 2003 11:42:18 -0500
+Subject: Re: problem with pcmcia, pci and hard disk
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mauro Chiarugi <maurochiarugi@tiscali.it>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030319174705.37994a18.maurochiarugi@tiscali.it>
+References: <20030319173523.745fb4a9.maurochiarugi@tiscali.it>
+	 <20030319174705.37994a18.maurochiarugi@tiscali.it>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048097045.30751.64.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 19 Mar 2003 18:04:06 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-03-19 at 16:47, Mauro Chiarugi wrote:
+> I forgot to explain why in the subject i've written hard disk too..
+> When, at the boot, every 27 times, it check the file system, some times
+> (or every time, i don't sure..) it fails... :-( I use ext3.
 
-Hi Everyone,
+It should never be failing, on 2.4.18 or 2.5.x with ext3. You should
+get log playbacks on a crash and maybe an fsck every 27 if you set the
+checking to run that way.
 
-I like Ingo's round down the sleep time fix.  It solves most
-of the problems.
+My first guess is you have something corrupting data - bad memory, bad
+disk, overclocking or of course a software bug that you happen to hit
+and nobody else seems to.
 
-I have been chasing a small case it doesn't fix.  If you have
-a circle of processes passing a token (like the irman test which
-is part of contest), the processes can still get to inflated 
-priorities if they are preempted by other processes.
+What drivers are you running
 
-Consider one of the processes in the circle.  It spends most of
-its time blocked waiting for its turn to pass the token.  With Ingo's
-change it doesn't get a sleep time credit because the sleep time 
-almost always rounds down to zero.  But if any of the process in
-the loop is delayed (maybe it used its time slice), then all of the
-other processes in the chain will get a sleep_avg credit for that
-delay time.
-
-Here is the idea I have been playing with (in activate_task):
-
-        sync_wake_cycle = 0
-	if (!in_interrupt()) {
-                /*
-                 * Detect cycles of synchronous wakeups.  This catches
-                 * the old circle of processes passing a token benchmarks.
-                 * If none of the processes ever sleep they should not
-                 * get an interactive bonus.
-                 */
-                if (current->sync_wake_leader == p->sync_wake_leader)
-                        sync_wake_cycle = 1;
-                else if (current->sync_wake_leader)
-                        p->sync_wake_leader = current->sync_wake_leader;
-                else
-                        p->sync_wake_leader = current;
-        } else {
-                p->sync_wake_leader = 0;
-        } 
-
-If sync_wake_cycle is set, don't credit the sleep_avg.  If there is an 
-interactive task in the loop, it will break the loop when it is woken by
-a real interrupt.
-
-I hope to get another version of my run_avg based (and overly optimistically
-named) self-tuning scheduler out soon.
-
-Jim Houston - Concurrent Computer Corp.

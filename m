@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbUAIPXg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 10:23:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUAIPXg
+	id S261973AbUAIPPA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 10:15:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbUAIPPA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 10:23:36 -0500
-Received: from [212.239.224.221] ([212.239.224.221]:37252 "EHLO
-	precious.kicks-ass.org") by vger.kernel.org with ESMTP
-	id S262123AbUAIPXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 10:23:13 -0500
-From: Jan De Luyck <lkml@kcore.org>
-To: linux-kernel@vger.kernel.org
-Subject: [2.4.18]: Reiserfs: vs-2120: add_save_link: insert_item returned -28
-Date: Fri, 9 Jan 2004 16:22:41 +0100
-User-Agent: KMail/1.5.4
-Cc: reiserfs-list@namesys.com
+	Fri, 9 Jan 2004 10:15:00 -0500
+Received: from ns.suse.de ([195.135.220.2]:19664 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261973AbUAIPO6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 10:14:58 -0500
+To: Paul Jackson <pj@sgi.com>
+Cc: Paul Mackerras <paulus@samba.org>, akpm@osdl.org, joe.korty@ccur.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: seperator error in __mask_snprintf_len
+References: <20040107165607.GA11483@rudolph.ccur.com>
+	<20040107113207.3aab64f5.akpm@osdl.org>
+	<20040108051111.4ae36b58.pj@sgi.com>
+	<16381.57040.576175.977969@cargo.ozlabs.ibm.com>
+	<20040109064619.35c487ec.pj@sgi.com>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: Edwin Meese made me wear CORDOVANS!!
+Date: Fri, 09 Jan 2004 16:14:55 +0100
+In-Reply-To: <20040109064619.35c487ec.pj@sgi.com> (Paul Jackson's message of
+ "Fri, 9 Jan 2004 06:46:19 -0800")
+Message-ID: <je1xq9duhc.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401091622.41352.lkml@kcore.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello list,
+Paul Jackson <pj@sgi.com> writes:
 
-Today I discovered I could no longer create files on one of my boxes, which 
-still runs 2.4.18 (box is too far away to upgrade right now). It gives me 
-'disk full' messages.
+> This would be defined in the include/asm-sparc64/cpumask.h and
+> include/asm-ppc64/cpumask.h files, with a no-op default in the
+> include/asm-generic/cpumask.h file for other architectures that
+> don't need it. 
 
-The following message is all over my logs since January 3:
+S390x is big-endian, too.  IMHO it should rather be in
+include/linux/byteorder, or derived from the macros in there.
 
-vs-2120: add_save_link: insert_item returned -28
+Andreas.
 
-I can't seem to find much on this issue, is this a bug in reiserfs (which is 
-fixed in a later version)? Is something wrong with the fs itself?
-
-Thanks for answers.
-
-[I'm not subscribed @ reiserfs-list, so please cc me with answers from that 
-list]
-
-Jan
 -- 
-It is exactly because a man cannot do a thing that he is a proper judge of it.
-		-- Oscar Wilde
-
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,167 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264095AbTGGBFP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 21:05:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264152AbTGGBFP
+	id S264152AbTGGBTp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 21:19:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264393AbTGGBTp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 21:05:15 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12811 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S264095AbTGGBFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 21:05:02 -0400
-To: linux-kernel@vger.kernel.org
-From: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: kernel oops with .74 snapshot.
-Date: Sun, 06 Jul 2003 18:19:29 -0700
-Organization: Open Source Development Labs
-Message-ID: <1057540770.215922@palladium.transmeta.com>
-References: <87n0frp4v1.fsf@enki.rimspace.net>
+	Sun, 6 Jul 2003 21:19:45 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:21222 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S264152AbTGGBTo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 21:19:44 -0400
+Date: Sun, 6 Jul 2003 20:11:49 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Larry McVoy <lm@work.bitmover.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.22-pre3
+Message-ID: <20030707001149.GO502@phunnypharm.org>
+References: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva> <20030706134156.GG502@phunnypharm.org> <Pine.LNX.4.55L.0307062157300.30827@freak.distro.conectiva> <20030707010527.GA30154@work.bitmover.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="nextPart1102352.1rsrL49xfO"
-Content-Transfer-Encoding: 7Bit
-X-Trace: palladium.transmeta.com 1057540770 21815 127.0.0.1 (7 Jul 2003 01:19:30 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 7 Jul 2003 01:19:30 GMT
-User-Agent: KNode/0.7.2
-Cache-Post-Path: palladium.transmeta.com!unknown@torvalds-home.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030707010527.GA30154@work.bitmover.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1102352.1rsrL49xfO
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
+On Sun, Jul 06, 2003 at 06:05:27PM -0700, Larry McVoy wrote:
+> On Sun, Jul 06, 2003 at 10:00:34PM -0300, Marcelo Tosatti wrote:
+> > On Sun, 6 Jul 2003, Ben Collins wrote:
+> > > Any chance you could be consistent in tagging the -pre's? Neither pre2,
+> > > nor pre3 is tagged in BK, and thus, not tagged in CVS/SVN either.
+> > 
+> > I guess I have tagged -pre2 and -pre3:
+> > 
+> > Maybe I'm missing something?
+> 
+> Hmm.   Ben, look again in the CVS tree and make sure that the tags aren't
+> there.  Maybe the converter screwed up?  
 
-Daniel Pittman wrote:
->
-> I got the following series of oops reports when booting a .74 snapshot.
-> Following is information on the latest changeset in the CVS export
-> server, and the reports.
+Doesn't show up in linux-2.4/ChangeSet,v as a tag.
 
-Just out of interest, does this fix it for you? It looks sane, but since
-David is off for the weekend, I don't want to apply it without some serious
-feedback that "yes, it fixes the problem".
-
-                Linus
-
---nextPart1102352.1rsrL49xfO
-Content-Type: text/x-diff; name="network-bug"
-Content-Transfer-Encoding: 8Bit
-Content-Disposition: attachment; filename="network-bug"
-
-Index: linux-2.5/net/ipv4/igmp.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/net/ipv4/igmp.c,v
-retrieving revision 1.29
-diff -u -r1.29 igmp.c
---- linux-2.5/net/ipv4/igmp.c	1 Jul 2003 16:42:06 -0000	1.29
-+++ linux-2.5/net/ipv4/igmp.c	3 Jul 2003 05:06:18 -0000
-@@ -2099,7 +2099,7 @@
- 	struct in_device *in_dev;
- };
- 
--#define	igmp_mc_seq_private(seq)	((struct igmp_mc_iter_state *)&seq->private)
-+#define	igmp_mc_seq_private(seq)	((struct igmp_mc_iter_state *)(seq)->private)
- 
- static inline struct ip_mc_list *igmp_mc_get_first(struct seq_file *seq)
- {
-@@ -2254,7 +2254,7 @@
- 	struct ip_mc_list *im;
- };
- 
--#define igmp_mcf_seq_private(seq)	((struct igmp_mcf_iter_state *)&seq->private)
-+#define igmp_mcf_seq_private(seq)	((struct igmp_mcf_iter_state *)(seq)->private)
- 
- static inline struct ip_sf_list *igmp_mcf_get_first(struct seq_file *seq)
- {
-Index: linux-2.5/net/ipv4/raw.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/net/ipv4/raw.c,v
-retrieving revision 1.32
-diff -u -r1.32 raw.c
---- linux-2.5/net/ipv4/raw.c	1 Jul 2003 16:42:06 -0000	1.32
-+++ linux-2.5/net/ipv4/raw.c	3 Jul 2003 05:06:18 -0000
-@@ -687,7 +687,7 @@
- 	int bucket;
- };
- 
--#define raw_seq_private(seq) ((struct raw_iter_state *)&seq->private)
-+#define raw_seq_private(seq) ((struct raw_iter_state *)(seq)->private)
- 
- static struct sock *raw_get_first(struct seq_file *seq)
- {
-Index: linux-2.5/net/ipv6/anycast.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/net/ipv6/anycast.c,v
-retrieving revision 1.4
-diff -u -r1.4 anycast.c
---- linux-2.5/net/ipv6/anycast.c	1 Jul 2003 16:42:06 -0000	1.4
-+++ linux-2.5/net/ipv6/anycast.c	3 Jul 2003 05:06:18 -0000
-@@ -441,7 +441,7 @@
- 	struct inet6_dev *idev;
- };
- 
--#define ac6_seq_private(seq)	((struct ac6_iter_state *)&seq->private)
-+#define ac6_seq_private(seq)	((struct ac6_iter_state *)(seq)->private)
- 
- static inline struct ifacaddr6 *ac6_get_first(struct seq_file *seq)
- {
-Index: linux-2.5/net/ipv6/ip6_flowlabel.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/net/ipv6/ip6_flowlabel.c,v
-retrieving revision 1.5
-diff -u -r1.5 ip6_flowlabel.c
---- linux-2.5/net/ipv6/ip6_flowlabel.c	1 Jul 2003 16:42:06 -0000	1.5
-+++ linux-2.5/net/ipv6/ip6_flowlabel.c	3 Jul 2003 05:06:18 -0000
-@@ -559,7 +559,7 @@
- 	int bucket;
- };
- 
--#define ip6fl_seq_private(seq)	((struct ip6fl_iter_state *)&(seq)->private)
-+#define ip6fl_seq_private(seq)	((struct ip6fl_iter_state *)(seq)->private)
- 
- static struct ip6_flowlabel *ip6fl_get_first(struct seq_file *seq)
- {
-Index: linux-2.5/net/ipv6/mcast.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/net/ipv6/mcast.c,v
-retrieving revision 1.25
-diff -u -r1.25 mcast.c
---- linux-2.5/net/ipv6/mcast.c	1 Jul 2003 16:42:06 -0000	1.25
-+++ linux-2.5/net/ipv6/mcast.c	3 Jul 2003 05:06:18 -0000
-@@ -2045,7 +2045,7 @@
- 	struct inet6_dev *idev;
- };
- 
--#define igmp6_mc_seq_private(seq)	((struct igmp6_mc_iter_state *)&seq->private)
-+#define igmp6_mc_seq_private(seq)	((struct igmp6_mc_iter_state *)(seq)->private)
- 
- static inline struct ifmcaddr6 *igmp6_mc_get_first(struct seq_file *seq)
- {
-@@ -2185,7 +2185,7 @@
- 	struct ifmcaddr6 *im;
- };
- 
--#define igmp6_mcf_seq_private(seq)	((struct igmp6_mcf_iter_state *)&seq->private)
-+#define igmp6_mcf_seq_private(seq)	((struct igmp6_mcf_iter_state *)(seq)->private)
- 
- static inline struct ip6_sf_list *igmp6_mcf_get_first(struct seq_file *seq)
- {
-Index: linux-2.5/net/ipv6/raw.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/net/ipv6/raw.c,v
-retrieving revision 1.31
-diff -u -r1.31 raw.c
---- linux-2.5/net/ipv6/raw.c	1 Jul 2003 16:42:06 -0000	1.31
-+++ linux-2.5/net/ipv6/raw.c	3 Jul 2003 05:06:18 -0000
-@@ -913,7 +913,7 @@
- 	int bucket;
- };
- 
--#define raw6_seq_private(seq) ((struct raw6_iter_state *)&seq->private)
-+#define raw6_seq_private(seq) ((struct raw6_iter_state *)(seq)->private)
- 
- static struct sock *raw6_get_first(struct seq_file *seq)
- {
-
---nextPart1102352.1rsrL49xfO--
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132904AbRDJCmD>; Mon, 9 Apr 2001 22:42:03 -0400
+	id <S132902AbRDJCmD>; Mon, 9 Apr 2001 22:42:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132906AbRDJClx>; Mon, 9 Apr 2001 22:41:53 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:49310 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id <S132904AbRDJClp>; Mon, 9 Apr 2001 22:41:45 -0400
-Date: Tue, 10 Apr 2001 11:41:28 +0900
-Message-ID: <y9t9easn.wl@frostrubin.open.nm.fujitsu.co.jp>
-From: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrew Morton <andrewm@uow.edu.au>, Ben LaHaise <bcrl@redhat.com>,
-        David Howells <dhowells@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: rw_semaphores
-In-Reply-To: <Pine.LNX.4.31.0104081841440.7671-100000@penguin.transmeta.com>
-In-Reply-To: <3AD0FD0F.9B0C47FD@uow.edu.au>
-	<Pine.LNX.4.31.0104081841440.7671-100000@penguin.transmeta.com>
-User-Agent: Wanderlust/2.4.0 (Rio) EMY/1.13.9 (Art is long, life is short) SLIM/1.14.3 () APEL/10.2 MULE XEmacs/21.2 (beta46) (Urania) (i586-kondara-linux)
+	id <S132904AbRDJCly>; Mon, 9 Apr 2001 22:41:54 -0400
+Received: from shell.ca.us.webchat.org ([216.152.64.152]:32762 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S132902AbRDJCli>; Mon, 9 Apr 2001 22:41:38 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: <ram@kasenna.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Increasing the FD_SETSIZE
+Date: Mon, 9 Apr 2001 19:41:35 -0700
+Message-ID: <NCBBLIEPOCNJOAEKBEAKAECOOEAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+In-Reply-To: <3AD26831.9DAA0BDE@kasenna.com>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
+> I am having trouble with increasing the file descriptor size for my
+> application - it opens several files for each client session (and needs
+> to keep them open as long as the session is active, which can be upto 3
+> hours long). What I see from the application is "open failed in
+> FileStreamReader::setupFile: Too many open files".
+>
+> I have bumped up /proc/sys/fs/file-max to 16K, but I am failing at  2638
+> (cat /proc/sys/fs/file-max returns "2638 97 16384") when the number of
+> files my app opened reached 1023.
+>
+> There is a comment in /usr/include/linux/posix_types.h regarding
+> __FD_SETSIZE being set to 1024. How can I increase this value?
 
-At Sun, 8 Apr 2001 20:08:13 -0700 (PDT),
-Linus Torvalds wrote:
-> 
-> Can anybody shoot any holes in this? I haven't actually tested it, but
-> race conditions in locking primitives are slippery things, and I'd much
-> rather have an algorithm we can _think_ about and prove to be working. And
-> I think the above one is provably correct.
+	You are tinkering with the wrong value. FD_SETSIZE affects fd_sets used in
+the 'select' system call. If you don't use select (and you shouldn't) it's
+not an issue.
 
-  I am not familiar with semaphore or x86, so this may not be correct,
-but if the following sequence is possible, the writer can call wake_up()
-before the reader calls add_wait_queue() and reader may sleep forever.
-Is it possible?
+	Also, tampering with the system-wide limits is the wrong approach too.
+There is no problem in the kernel for you to fix.
 
+	What you are hitting is a per-process resource limit. Read the man pages on
+'setrlimit' or the bash help on 'ulimit'.
 
-Reader							Writer
+	DS
 
-    down_read:
-	lock incl (%sem)
-	js __down_read_failed
-						    up_write:
-							lock andl $0x3fffffff,(%sem)
-							jne __up_write_wakeup
-
-						    __up_write_wakeup:
-							spin_lock(&sem->lock);
-							wake_up(&sem->waiters);
-							spin_unlock(&sem->lock);
-    __down_read_failed:
-	spin_lock(%sem->lock)
-	add_wait_queue(&sem->waiters, &wait);
-	.
-	.

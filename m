@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261984AbSJQUYC>; Thu, 17 Oct 2002 16:24:02 -0400
+	id <S261863AbSJQUWY>; Thu, 17 Oct 2002 16:22:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262065AbSJQUYC>; Thu, 17 Oct 2002 16:24:02 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:32702 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261984AbSJQUYA>;
-	Thu, 17 Oct 2002 16:24:00 -0400
-Date: Thu, 17 Oct 2002 13:22:29 -0700 (PDT)
-Message-Id: <20021017.132229.107707607.davem@redhat.com>
-To: eric@bartonsoftware.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel vaddr -> struct page
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200210171911.g9HJBHk02456@bartonsoftware.com>
-References: <200210171911.g9HJBHk02456@bartonsoftware.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S262022AbSJQUWY>; Thu, 17 Oct 2002 16:22:24 -0400
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:35854 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261863AbSJQUWW>;
+	Thu, 17 Oct 2002 16:22:22 -0400
+Date: Thu, 17 Oct 2002 13:28:02 -0700
+From: Greg KH <greg@kroah.com>
+To: Russell Coker <russell@coker.com.au>
+Cc: Christoph Hellwig <hch@infradead.org>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: [PATCH] remove sys_security
+Message-ID: <20021017202802.GA592@kroah.com>
+References: <20021017195015.A4747@infradead.org> <20021017195838.A5325@infradead.org> <20021017190723.GB32537@kroah.com> <200210172220.21458.russell@coker.com.au>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210172220.21458.russell@coker.com.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 17, 2002 at 10:20:21PM +0200, Russell Coker wrote:
+>  With the current LSM setup of a 2^32 LSM calls, you can 
+> choose a number somewhat arbitarily and be fairly sure that it won't conflict 
+> and that you can later register the same number with the LSM people.
 
-vmalloc_to_page() does not work on kmalloc/kmap'd memory.
+You do not have to "register" a syscall number with the LSM people.  We
+don't care.  Use whatever you want for your sys_security call.  If you
+want to be nice, read the documentation and use a module id that is
+unique.
 
-On many system kmalloc memory is not even represented in the
-page tables because the mapping goes through a direct bypass
-window.
+Personally I hate the "module id" idea, but that's just me...
 
-You need to know where the object came from to convert it
-into a page properly.  You should be allocating and passing
-around pages internally anyways.
+thanks,
+
+greg k-h

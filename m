@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315276AbSGYOoz>; Thu, 25 Jul 2002 10:44:55 -0400
+	id <S315427AbSGYOxv>; Thu, 25 Jul 2002 10:53:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315277AbSGYOoz>; Thu, 25 Jul 2002 10:44:55 -0400
-Received: from ns.suse.de ([213.95.15.193]:10258 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S315276AbSGYOoy>;
-	Thu, 25 Jul 2002 10:44:54 -0400
-Date: Thu, 25 Jul 2002 16:48:07 +0200
-From: Dave Jones <davej@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andre Hedrick <andre@linux-ide.org>, martin@dalecki.de,
-       Vojtech Pavlik <vojtech@suse.cz>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PCI config locking (WAS Re: [RFC/CFT] cmd640 irqlocking fixes)2
-Message-ID: <20020725164807.Y16446@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Andre Hedrick <andre@linux-ide.org>, martin@dalecki.de,
-	Vojtech Pavlik <vojtech@suse.cz>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-References: <20020725133918.37@192.168.4.1> <20020725141811.29565@192.168.4.1> <1027611916.9488.79.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1027611916.9488.79.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Thu, Jul 25, 2002 at 04:45:15PM +0100
+	id <S315430AbSGYOxv>; Thu, 25 Jul 2002 10:53:51 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:45064 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S315427AbSGYOxu>; Thu, 25 Jul 2002 10:53:50 -0400
+Message-Id: <200207251455.g6PEtvbA048548@aslan.scsiguy.com>
+To: Jens Axboe <axboe@suse.de>
+cc: "KOCHI, Takayoshi" <t-kouchi@mvf.biglobe.ne.jp>,
+       linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Subject: Re: [PATCH] aic7xxx driver doesn't release region 
+In-Reply-To: Your message of "Thu, 25 Jul 2002 15:21:18 +0200."
+             <20020725132118.GB8761@suse.de> 
+Date: Thu, 25 Jul 2002 08:55:57 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 25, 2002 at 04:45:15PM +0100, Alan Cox wrote:
- > But does anybody but x86 uses CMD640 ? :)
- > Possibly. I don't know.
+>> I don't recall when exactly this was fixed in the aic7xxx driver,
+>> but probably 6.2.5 or so.  The 2.5.X kernel must not be using
+>> a recent version of the driver.  Marcelo's tree has 6.2.8
+>
+>You make it sounds as if someone would be updating it for you. The
+>version that is in 2.5 is the version that you last updated it to, end
+>of story.
 
-ISTR these monsters appear on some Alphas too ?
+You make it sound like I have ever done any developement for 2.5.  I
+haven't.  Someone else did the port of the aic7xxx to 2.5.  End of
+story. 8-)
 
-        Dave
+Unfortunately, I haven't had any spare time to play with 2.5.  I have
+faithfully maintained the 2.4 driver and will look at 2.5 once the
+time to do so presents itself.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+--
+Justin

@@ -1,67 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262387AbSKTXto>; Wed, 20 Nov 2002 18:49:44 -0500
+	id <S264910AbSKTXoF>; Wed, 20 Nov 2002 18:44:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263105AbSKTXto>; Wed, 20 Nov 2002 18:49:44 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:42116 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S262387AbSKTXtn>; Wed, 20 Nov 2002 18:49:43 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 20 Nov 2002 15:57:26 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Mark Mielke <mark@mark.mielke.cc>
-cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] epoll interface change and glibc bits ...
-In-Reply-To: <20021120235135.GA32715@mark.mielke.cc>
-Message-ID: <Pine.LNX.4.44.0211201546250.974-100000@blue1.dev.mcafeelabs.com>
+	id <S264936AbSKTXnV>; Wed, 20 Nov 2002 18:43:21 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:14017 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S264910AbSKTXmp>; Wed, 20 Nov 2002 18:42:45 -0500
+Message-ID: <001701c290ef$8417f020$94d40a0a@amr.corp.intel.com>
+From: "Rusty Lynch" <rusty@linux.co.intel.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [Coding style question] XXX_register or register_XXX
+Date: Wed, 20 Nov 2002 15:49:50 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Nov 2002, Mark Mielke wrote:
+Is there an accepted standard on naming for registration functions?  If have
+a foo
+object that other things can register and unregister with, should the
+function names be:
 
-> On Wed, Nov 20, 2002 at 03:19:30PM -0800, Davide Libenzi wrote:
-> > On Wed, 20 Nov 2002, Mark Mielke wrote:
-> > > >     struct epoll_event {
-> > > >         unsigned short events;
-> > > >         unsigned short revents;
-> > > >         __uint64_t obj;
-> > > >     };
-> > > Forget any argument I had against removing 'fd'. This sounds good.
-> > > Perhaps 'obj' should be named 'userdata'?
-> > >      struct epoll_event {
-> > >          unsigned short   events;
-> > >          unsigned short   revents;
-> > >          __uint64_t       userdata;
-> > >      };
-> > Do we want to have a union instead of a direct 64bit int ?
->
-> I was going to suggest this, except I couldn't figure out what to
-> suggest that it look like... I finally figured that the value could be
-> cast, or wrapped in a union by userspace (although theoretically, this
-> might mean more words than absolutely necessary to initialize on a
-> 32-bit CPU...)
->
-> What were you thinking? 1X64 bit or 2X32 bit?
+int register_foo(&something);
+int unregister_foo(&something);
 
-Something like :
+ - or -
 
-typedef union epoll_obj {
-	void *ptr;
-	__uint32_t u32[2];
-	__uint64_t u64;
-} epoll_obj_t;
+int foo_register(&something);
+int foo_unregister(&something);
 
-I'm open to suggestions though. The "ptr" enable me to avoid wierd casts
-to avoid gcc screaming.
-
-
-
-
-- Davide
-
-
+    -rustyl
 

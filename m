@@ -1,105 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291160AbSBLSsv>; Tue, 12 Feb 2002 13:48:51 -0500
+	id <S287287AbSBLTPu>; Tue, 12 Feb 2002 14:15:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291162AbSBLSsl>; Tue, 12 Feb 2002 13:48:41 -0500
-Received: from zarjazz.demon.co.uk ([194.222.135.25]:22912 "EHLO
-	zarjazz.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S291160AbSBLSsc>; Tue, 12 Feb 2002 13:48:32 -0500
-Message-ID: <003d01c1b3f5$ce90a570$0201010a@frodo>
-From: "Vincent Sweeney" <v.sweeney@barrysworld.com>
-To: "Andrew Morton" <akpm@zip.com.au>, "Dan Kegel" <dank@kegel.com>
-Cc: <linux-kernel@vger.kernel.org>, <coder-com@undernet.org>,
-        "Dan Kegel" <dank@kegel.com>
-In-Reply-To: <3C56E327.69F8B70F@kegel.com> <001901c1a900$e2bc7420$0201010a@frodo> <3C58D50B.FD44524F@kegel.com> <001d01c1aa8e$2e067e60$0201010a@frodo> <3C5CEEED.E98D35B7@kegel.com> <3C5CF686.1145AE14@zip.com.au>
-Subject: Re: PROBLEM: high system usage / poor SMP network performance
-Date: Tue, 12 Feb 2002 18:48:00 -0000
+	id <S290276AbSBLTPl>; Tue, 12 Feb 2002 14:15:41 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:28124 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S287287AbSBLTP3>;
+	Tue, 12 Feb 2002 14:15:29 -0500
+From: David Mosberger <davidm@hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <15465.27077.652387.974359@napali.hpl.hp.com>
+Date: Tue, 12 Feb 2002 11:15:17 -0800
+To: David Howells <dhowells@redhat.com>
+Cc: "David S. Miller" <davem@redhat.com>, torvalds@transmeta.com,
+        davidm@hpl.hp.com, anton@samba.org, linux-kernel@vger.kernel.org,
+        zippel@linux-m68k.org
+Subject: Re: thread_info implementation
+In-Reply-To: <23729.1013520070@warthog.cambridge.redhat.com>
+In-Reply-To: <davem@redhat.com>
+	<20020211.185100.68039940.davem@redhat.com>
+	<23729.1013520070@warthog.cambridge.redhat.com>
+X-Mailer: VM 7.00 under Emacs 21.1.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well I've recoded the poll() section in the ircu code base as follows:
+>>>>> On Tue, 12 Feb 2002 13:21:10 +0000, David Howells <dhowells@redhat.com> said:
 
-Instead of the default :
+  David.H> What might be worth doing is to move the task_struct slab
+  David.H> cache and (de-)allocator out of fork.c and to stick it in
+  David.H> the arch somewhere. Then archs aren't bound to have the two
+  David.H> separate. So for a system that can handle lots of memory,
+  David.H> you can allocate the thread_info, task_struct and
+  David.H> supervisor stack all on one very large chunk if you so
+  David.H> wish.
 
-    ...
-    nfds = poll(poll_fds, pfd_count, timeout);
-    ...
+Could you do this?  I'd prefer if task_info could be completely hidden
+inside the x86/sparc arch-specific code, but if things are set up such
+that we at least have the option to keep the stack, task_info, and
+task_struct in a single chunk of memory (and without pointers between
+them), I'd have much less of an issue with it.
 
-we now have
-
-    ...
-    nfds = poll(poll_fds, pfd_count, 0);
-    if (nfds == 0) {
-      usleep(1000000 / 10); /* sleep 1/10 second */
-      nfds = poll(poll_fds, pfd_count, timeout);
-    }
-    ...
-
-And as 'top' results now show, instead of maxing out a dual P3-800 we now
-only use a fraction of that without any noticable side effects.
-
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
-14684 ircd      15   0 81820  79M   800 S    22.5 21.2 215:39 ircd
-14691 ircd      12   0 80716  78M   800 S    21.1 20.9 212:22 ircd
-
-
-Vince.
-
------ Original Message -----
-From: "Andrew Morton" <akpm@zip.com.au>
-To: "Dan Kegel" <dank@kegel.com>
-Cc: "Vincent Sweeney" <v.sweeney@barrysworld.com>;
-<linux-kernel@vger.kernel.org>; <coder-com@undernet.org>; "Kevin L.
-Mitchell" <klmitch@mit.edu>
-Sent: Sunday, February 03, 2002 8:36 AM
-Subject: Re: PROBLEM: high system usage / poor SMP network performance
-
-
-> Dan Kegel wrote:
-> >
-> > Before I did any work, I'd measure CPU
-> > usage under a simulated load of 2000 clients, just to verify that
-> > poll() was indeed a bottleneck (ok, can't imagine it not being a
-> > bottleneck, but it's nice to have a baseline to compare the improved
-> > version against).
->
-> I half-did this earlier in the week.  It seems that Vincent's
-> machine is calling poll() maybe 100 times/second.  Each call
-> is taking maybe 10 milliseconds, and is returning approximately
-> one measly little packet.
->
-> select and poll suck for thousands of fds.  Always did, always
-> will.  Applications need to work around this.
->
-> And the workaround is rather simple:
->
-> ....
-> + usleep(100000);
-> poll(...);
->
-> This will add up to 0.1 seconds latency, but it means that
-> the poll will gather activity on ten times as many fds,
-> and that it will be called ten times less often, and that
-> CPU load will fall by a factor of ten.
->
-> This seems an appropriate hack for an IRC server.  I guess it
-> could be souped up a bit:
->
-> usleep(nr_fds * 50);
->
-> -
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+	--david

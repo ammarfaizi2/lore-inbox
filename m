@@ -1,56 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266042AbSLYDYD>; Tue, 24 Dec 2002 22:24:03 -0500
+	id <S266078AbSLYDdB>; Tue, 24 Dec 2002 22:33:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266069AbSLYDYD>; Tue, 24 Dec 2002 22:24:03 -0500
-Received: from mail7.bigmailbox.com ([209.132.220.38]:36053 "EHLO
-	mail7.bigmailbox.com") by vger.kernel.org with ESMTP
-	id <S266042AbSLYDYC>; Tue, 24 Dec 2002 22:24:02 -0500
-Date: Tue, 24 Dec 2002 19:31:31 -0800
-Message-Id: <200212250331.gBP3VVO25167@mail7.bigmailbox.com>
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
-X-Mailer: MIME-tools 4.104 (Entity 4.116)
+	id <S266081AbSLYDdB>; Tue, 24 Dec 2002 22:33:01 -0500
+Received: from ip68-101-124-193.oc.oc.cox.net ([68.101.124.193]:34964 "EHLO
+	ip68-4-86-174.oc.oc.cox.net") by vger.kernel.org with ESMTP
+	id <S266078AbSLYDdB>; Tue, 24 Dec 2002 22:33:01 -0500
+Date: Tue, 24 Dec 2002 19:41:12 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
+Subject: Re: Horrible drive performance under concurrent i/o jobs (dlh problem?)
+Message-ID: <20021225034112.GA2323@ip68-4-86-174.oc.oc.cox.net>
+References: <000d01c2a8b6$3d102e20$941e1c43@joe> <B7CC2AA8-1720-11D7-8DC6-000393950CC2@karlsbakk.net> <20021224172122.GB30929@pegasys.ws>
 Mime-Version: 1.0
-X-Originating-Ip: [66.156.182.28]
-From: "Tracy Stone" <tracystone@countrylife.net>
-To: youremail@yourdomain.com
-Subject: Buy Printer Ink Direct from Factory, SAVE up to 89%
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021224172122.GB30929@pegasys.ws>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Buy Printer Ink Direct from Factory and SAVE up to 89%
-We carry inkjet cartridges for all your favorite brands
-Canon, Epson, Hewlett Packard, Lexmark and many more 
-Visit us on the web at: http://excuria.com/inkstore
+On Tue, Dec 24, 2002 at 09:21:23AM -0800, jw schultz wrote:
+> If the the stated average seek is 50% of full stroke and not
 
+no, stated average seek = one third (~33%) of full stroke
 
+google for "average seek stroke" if you don't believe me :)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-ID: 2002-12-24 21:39
-
-To be permanently remove from this distribution system
-send an email to postmaster@excuria.com with subject line of:
-Remove youremail@yourdomain.com from excuria
-
-
-
-
-
-------------------------------------------------------------
-Learn to bake bread, make cheese, raise livestock, garden, live off the land, 
-and more!  Visit Countrylife.net --> http://www.countrylife.net
+-Barry K. Nathan <barryn@pobox.com>

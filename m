@@ -1,60 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267343AbUBSVbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 16:31:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267240AbUBSVbQ
+	id S267575AbUBSVfq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 16:35:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267317AbUBSVfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 16:31:16 -0500
-Received: from mta8.srv.hcvlny.cv.net ([167.206.5.75]:17024 "EHLO
-	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S267343AbUBSVav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 16:30:51 -0500
-Date: Thu, 19 Feb 2004 16:30:41 -0500
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: sysconf - exposing constants to userspace
-In-reply-to: <20040219204820.GC9155@sun.com>
-To: thockin@sun.com, Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Message-id: <200402191630.47047.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-Content-description: clearsigned data
-User-Agent: KMail/1.5.4
-References: <20040219204820.GC9155@sun.com>
+	Thu, 19 Feb 2004 16:35:46 -0500
+Received: from mid-1.inet.it ([213.92.5.18]:45214 "EHLO mid-1.inet.it")
+	by vger.kernel.org with ESMTP id S267573AbUBSVe4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 16:34:56 -0500
+From: Fabio Coatti <cova@ferrara.linux.it>
+Organization: FerraraLUG
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.6.3-mm1 and aic7xxx
+Date: Thu, 19 Feb 2004 22:34:53 +0100
+User-Agent: KMail/1.6
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402192234.53855.cova@ferrara.linux.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I'm experiencing some problems with 2.6.3-mm1 release: on boot the system 
+hangs trying to detect scsi devices, and the light on scsi cdrom flashes 
+every few seconds. With 2.6.3-rc3-mm1 all works just fine, and I get this 
+syslog entry:
 
-On Thursday 19 February 2004 15:48, Tim Hockin wrote:
-> What is the preferred way to expose "constants" to userland?  I
-> quoty-finger "constants" because they may be defined as constants to any
-> given kernel, they are not necessarily constant over time.
->
-> There are things which can be changed as constants which would currently
-> require a libc recompile.  For example NGROUPS_MAX :).  Since it just got
-> merged, anyone who wants to use it will have to recompile their libc to get
-> the new value of NGROUPS_MAX.
->
-> I found an old old patch to do this via read-only sysctl() entries.  Should
-> I resurrect that patch?  Or maybe just do a sys_sysconf() entry?  Or should
-> I just shut up and tell users to cope with recompiling libc?
+Feb 19 22:23:15 kefk kernel: ahc_pci:3:6:0: Host Adapter Bios disabled.  Using 
+default SCSI device parameters
+Feb 19 22:23:15 kefk kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA 
+DRIVER, Rev 6.2.36
+Feb 19 22:23:15 kefk kernel:         <Adaptec 2902/04/10/15/20C/30C SCSI 
+adapter>
+Feb 19 22:23:15 kefk kernel:         aic7850: Single Channel A, SCSI Id=7, 
+3/253 SCBs
 
-I think that making something in /sys would make the most sense, with one 
-constant per file. We could dump the consts files to for example /sys/consts, 
-or make a logical directory structure to make navigation easier.
+<<<<<<<<<<<<<<<2.6.3-mm1 hangs here
 
-Jeff.
+Feb 19 22:23:15 kefk kernel:
+Feb 19 22:23:15 kefk kernel:   Vendor: Nikon     Model: COOLSCANIII       Rev: 
+1.31
+Feb 19 22:23:15 kefk kernel:   Type:   Scanner                            ANSI 
+SCSI revision: 02
+Feb 19 22:23:15 kefk kernel: (scsi0:A:3): 10.000MB/s transfers (10.000MHz, 
+offset 15)
+Feb 19 22:23:15 kefk kernel:   Vendor: PLEXTOR   Model: CD-ROM PX-40TS    Rev: 
+1.01
+Feb 19 22:23:15 kefk kernel:   Type:   CD-ROM                             ANSI 
+SCSI revision: 02
+Feb 19 22:23:15 kefk kernel: (scsi0:A:5): 10.000MB/s transfers (10.000MHz, 
+offset 15)
+Feb 19 22:23:15 kefk kernel:   Vendor: YAMAHA    Model: CRW6416S          Rev: 
+1.0c
+Feb 19 22:23:15 kefk kernel:   Type:   CD-ROM                             ANSI 
+SCSI revision: 02
 
-- -- 
-UNIX is user-friendly ... it's just selective about who it's friends are
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+I've also noticed (only with 2.6.3-mm1) a "PCI BIOS passed non existent PCI 
+BUS 0!" message when it probes ICH5, i.e.
 
-iD8DBQFANSsEwFP0+seVj/4RAgiaAJ9ka5sUjXEE+xNazblPO73/ovnsrACgpZPX
-kGZV3gEplJpx24eL62AuQqA=
-=3HMU
------END PGP SIGNATURE-----
+Feb 19 22:23:15 kefk kernel: ICH5: IDE controller at PCI slot 0000:00:1f.1
 
+<<<<<<<<<<<<HERE
+
+Feb 19 22:23:15 kefk kernel: ICH5: chipset revision 2
+Feb 19 22:23:15 kefk kernel: ICH5: not 100%% native mode: will probe irqs 
+later
+Feb 19 22:23:15 kefk kernel:     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: 
+hda:DMA, hdb:pio
+Feb 19 22:23:15 kefk kernel:     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: 
+hdc:pio, hdd:pio
+
+system: PIV 2.HT/i875p (abit ic7-g), SMP kernel (SMT), 
+gcc (GCC) 3.3.1 (Mandrake Linux 9.2 3.3.1-2mdk)
+
+I can provide more details if needed, and any help will be appreciated.
+
+Thanks.
+
+-- 
+Fabio Coatti       http://www.ferrara.linux.it/members/cova     
+Ferrara Linux Users Group           http://ferrara.linux.it
+GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
+Old SysOps never die... they simply forget their password.

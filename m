@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbULFAjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbULFAmC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261441AbULFAjm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 19:39:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbULFAjm
+	id S261437AbULFAmC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 19:42:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbULFAmB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 19:39:42 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:6345 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261437AbULFAjU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 19:39:20 -0500
-Message-ID: <41B3AA33.6020806@g-house.de>
-Date: Mon, 06 Dec 2004 01:39:15 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: undefined reference to `pgd_offset_is_obsolete' (ppc32)
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Dec 2004 19:42:01 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:21259 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261437AbULFAlc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 19:41:32 -0500
+Date: Mon, 6 Dec 2004 01:41:27 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Cc: pazke@donpac.ru, linux-visws-devel@lists.sf.net,
+       James.Bottomley@HansenPartnership.com
+Subject: [2.6 patch] i386: reboot.c cleanups
+Message-ID: <20041206004127.GH2953@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+The partch below includes the following changes:
+- arch/i386/kernel/reboot.c: make reboot_thru_bios static
+- arch/i386/mach-visws/reboot.c: remove the unused reboot_thru_bios and
+                                 reboot_smp
+- arch/i386/mach-voyager/voyager_basic.c: remove the unused reboot_thru_bios
+- arch/i386/mach-voyager/voyager_smp.c: remove the unused reboot_smp
 
-hi list,
 
-today i got an error while compiling 2.6.10-rc2-mm4:
+diffstat output:
+ arch/i386/kernel/reboot.c              |    2 +-
+ arch/i386/mach-visws/reboot.c          |    3 ---
+ arch/i386/mach-voyager/voyager_basic.c |    2 --
+ arch/i386/mach-voyager/voyager_smp.c   |    2 --
+ 4 files changed, 1 insertion(+), 8 deletions(-)
 
-arch/ppc/mm/built-in.o(.init.text+0x1d0): In function `paging_init':
-: undefined reference to `pgd_offset_is_obsolete'
-make: *** [.tmp_vmlinux1] Error 1
 
-for the sake of readability, the full output is here:
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-http://nerdbynature.de/bits/hal/2.6.10-rc2-mm3/make.log
-http://nerdbynature.de/bits/hal/2.6.10-rc2-mm3/config
+--- linux-2.6.10-rc2-mm4-full/arch/i386/kernel/process.c.old	2004-12-06 01:25:27.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/i386/kernel/process.c	2004-12-06 01:25:38.000000000 +0100
+@@ -60,7 +60,7 @@
+ 
+ asmlinkage void ret_from_fork(void) __asm__("ret_from_fork");
+ 
+-int hlt_counter;
++static int hlt_counter;
+ 
+ unsigned long boot_option_idle_override = 0;
+ EXPORT_SYMBOL(boot_option_idle_override);
+--- linux-2.6.10-rc2-mm4-full/arch/parisc/kernel/process.c.old	2004-12-06 01:25:55.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/parisc/kernel/process.c	2004-12-06 01:26:01.000000000 +0100
+@@ -54,7 +54,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/unwind.h>
+ 
+-int hlt_counter;
++static int hlt_counter;
+ 
+ /*
+  * Power off function, if any
+--- linux-2.6.10-rc2-mm4-full/arch/x86_64/kernel/process.c.old	2004-12-06 01:26:17.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/x86_64/kernel/process.c	2004-12-06 01:26:28.000000000 +0100
+@@ -53,7 +53,7 @@
+ 
+ unsigned long kernel_thread_flags = CLONE_VM | CLONE_UNTRACED;
+ 
+-atomic_t hlt_counter = ATOMIC_INIT(0);
++static atomic_t hlt_counter = ATOMIC_INIT(0);
+ 
+ unsigned long boot_option_idle_override = 0;
+ EXPORT_SYMBOL(boot_option_idle_override);
 
-vanilla 2.6-BK kernels compile fine, the .config was adopted from the
-working kernel of 2.6.10-rc3 (yes '' | make oldconfig).
-
-this is tried on a i386-for-ppc32(target-arch)-cross-compile environment,
-gcc-3.4.2, binutils-2.15.
-
-please let me know if you need further details.
-
-Christian.
-- --
-BOFH excuse #239:
-
-CPU needs bearings repacked
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBs6oz+A7rjkF8z0wRAsQiAJ9fgqypXQ9LMyidcx8deyMV5e2QtQCffs76
-dhe8RXy+NGXgrnI+LGDxQHA=
-=ZEQ6
------END PGP SIGNATURE-----

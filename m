@@ -1,72 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269099AbRIHLxi>; Sat, 8 Sep 2001 07:53:38 -0400
+	id <S269354AbRIHNBp>; Sat, 8 Sep 2001 09:01:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269174AbRIHLx3>; Sat, 8 Sep 2001 07:53:29 -0400
-Received: from smtp-server3.tampabay.rr.com ([65.32.1.41]:1441 "EHLO
-	smtp-server3.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S269099AbRIHLxT>; Sat, 8 Sep 2001 07:53:19 -0400
-Message-ID: <022001c1385c$e536b900$b6562341@cfl.rr.com>
-From: "Mike Black" <mblack@csihq.com>
-To: <trond.myklebust@fys.uio.no>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <024f01c13601$c763d3c0$e1de11cc@csihq.com><shsae07md9d.fsf@charged.uio.no><033a01c1379e$e3514880$e1de11cc@csihq.com><15256.56528.460569.700469@charged.uio.no><04c301c137b4$34604590$e1de11cc@csihq.com> <15257.63655.764646.844202@charged.uio.no>
-Subject: Re: 2.4.8 NFS Problems
-Date: Sat, 8 Sep 2001 07:53:36 -0400
+	id <S269372AbRIHNBf>; Sat, 8 Sep 2001 09:01:35 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54797 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269354AbRIHNBb>; Sat, 8 Sep 2001 09:01:31 -0400
+Subject: Re: 2.4.10-pre5
+To: kingsley@wintronics.com.au (Kingsley Foreman)
+Date: Sat, 8 Sep 2001 14:05:19 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <003001c1382d$f483d9d0$010da8c0@uglypunk> from "Kingsley Foreman" at Sep 08, 2001 03:44:31 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-Id: <E15fhnT-0003np-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Did some more testing this A.M.
+> ferred-stack-boundary=2 -march=i586 -DMODULE   -c -o rd.o rd.c
+> > rd.c: In function `rd_ioctl':
+> > rd.c:262: invalid type argument of `->'
+> > rd.c: In function `rd_cleanup':
+> > rd.c:375: too few arguments to function `blkdev_put'
 
-Soft Mount:
-    Took me several tries -- had to run a tiobench on the server side to
-make for some I/O contention.  Was able to get EIO error (since this is Sat
-the system was pretty idle).
-Hard Mount:
-    Unable to reproduce even though 10 second timeouts could be seen.
-Soft Mount (retrans=5)
-    Unable to reproduce
-
-Could be the interaction with ext3 where I/O gets bound up a while.  Just
-long enough to trigger the timeouts for a soft mount.
------ Original Message -----
-From: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-To: "Mike Black" <mblack@csihq.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Sent: Saturday, September 08, 2001 6:53 AM
-Subject: Re: 2.4.8 NFS Problems
-
-
-> >>>>> " " == Mike Black <mblack@csihq.com> writes:
->
->      > The file is being copied from yeti to picard.  Last packet seen
->      > is picard telling yeti "OK" after the commit.  If soft timeouts
->      > were occurring shouldn't we be seeing packets from yeti again
->      > with no response from picard?
->
-> You are assuming that the last packet seen is the one that corresponds
-> to your read. In doing so, you are neglecting the fact that these are
-> asynchronous reads, and that file readahead can muddle the waters for
-> you.
->
-> Look, this is getting us nowhere. The bottom line is: if you are able
-> to reproduce the EIO on hard mounts it is a bug, and I'll be happy to
-> help you trace it. If it is occuring only on soft mounts, it is user
-> error...
->
-> Cheers,
->   Trond
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+2.4.10pre5 doesnt compile for rd. It looks like the same error I got when 
+I applied Al's patch to -ac (and thus took it back out)

@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130272AbRCBB6I>; Thu, 1 Mar 2001 20:58:08 -0500
+	id <S130276AbRCBCAu>; Thu, 1 Mar 2001 21:00:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130276AbRCBB57>; Thu, 1 Mar 2001 20:57:59 -0500
-Received: from 200-221-84-35.dsl-sp.uol.com.br ([200.221.84.35]:63495 "HELO
-	dumont.rtb.ath.cx") by vger.kernel.org with SMTP id <S130272AbRCBB5q>;
-	Thu, 1 Mar 2001 20:57:46 -0500
-Date: Thu, 1 Mar 2001 22:57:39 -0300
-From: Rogerio Brito <rbrito@iname.com>
-To: Jeremy Jackson <jerj@coplanar.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: [Newbie] Re: Problem creating filesystem
-Message-ID: <20010301225739.A674@iname.com>
-Mail-Followup-To: Jeremy Jackson <jerj@coplanar.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <11dd01c0a04e$98b92e60$f40237d1@MIACFERNANDEZ> <3A9B24BE.69777690@coplanar.net>
-Mime-Version: 1.0
+	id <S130277AbRCBCAl>; Thu, 1 Mar 2001 21:00:41 -0500
+Received: from raven.toyota.com ([63.87.74.200]:34565 "EHLO raven.toyota.com")
+	by vger.kernel.org with ESMTP id <S130276AbRCBCAc>;
+	Thu, 1 Mar 2001 21:00:32 -0500
+Message-ID: <3A9EFEBE.C7E32E09@toyota.com>
+Date: Thu, 01 Mar 2001 18:00:30 -0800
+From: J Sloan <jjs@toyota.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+CC: "Matilainen Panu (NRC/Helsinki)" <panu.matilainen@nokia.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x very unstable on 8-way IBM 8500R
+In-Reply-To: <Pine.LNX.4.21.0103011701360.8542-100000@sol.compendium-tech.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3A9B24BE.69777690@coplanar.net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 26 2001, Jeremy Jackson wrote:
-> Carlos Fernandez Sanz wrote:
-> > The IDE controller is
-> >   Bus  0, device  17, function  0:
-> >     Unknown mass storage controller: Promise Technology Unknown device (rev
-> > 2).
-> >       Vendor id=105a. Device id=d30.
-> >       Medium devsel.  IRQ 10.  Master Capable.  Latency=32.
-> 
-> Unrelated to disk "problem", you might want to set your PCI latency timer in
-> BIOS to 64 or more.
+"Dr. Kelsey Hudson" wrote:
 
-	Ok, I understand that this is probably off-topic and way too
-	basic, but what exactly would this do, in layman terms? Would
-	the latency being set to 32 result in any potential data
-	corruption?  BTW, to set this quantity, one should use setpci,
-	right?
+> Under redhat 7 you should use kgcc to compile the kernel, since gcc2.96 is
+> inherently broken(*).
 
+Or upgrade to the current Red Hat 7 gcc, which works quite well.
 
-	Thanks for any help, Roger...
+jjs
 
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogerio Brito - rbrito@iname.com - http://www.ime.usp.br/~rbrito/
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268044AbTGIBN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 21:13:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268057AbTGIBN1
+	id S265586AbTGIBTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 21:19:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265597AbTGIBTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 21:13:27 -0400
-Received: from holomorphy.com ([66.224.33.161]:55207 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S268044AbTGIBNY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 21:13:24 -0400
-Date: Tue, 8 Jul 2003 18:29:21 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [announce, patch] 4G/4G split on x86, 64 GB RAM (and more) support
-Message-ID: <20030709012921.GJ15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <Pine.LNX.4.44.0307082332450.17252-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0307082332450.17252-100000@localhost.localdomain>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Tue, 8 Jul 2003 21:19:16 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:22657 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S265586AbTGIBTP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 21:19:15 -0400
+Date: Tue, 8 Jul 2003 22:30:26 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops on 2.4.22-pre2
+In-Reply-To: <Pine.LNX.4.53.0307090014290.26653@oceanic.wsisiz.edu.pl>
+Message-ID: <Pine.LNX.4.55L.0307082229370.15908@freak.distro.conectiva>
+References: <Pine.LNX.4.53.0307021529310.19377@oceanic.wsisiz.edu.pl>
+ <Pine.LNX.4.55L.0307081828020.25622@freak.distro.conectiva>
+ <Pine.LNX.4.53.0307090014290.26653@oceanic.wsisiz.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 09, 2003 at 12:45:52AM +0200, Ingo Molnar wrote:
-> The patch is orthogonal to wli's pgcl patch - both patches try to achieve
-> the same, with different methods. I can very well imagine workloads where
-> we want to have the combination of the two patches.
-
-Well, your patch does have the advantage of not being a "break all
-drivers" affair.
-
-Also, even though pgcl scales "perfectly" wrt. highmem (nm the code
-being a train wreck), the raw capacity increase is needed. There are
-enough other reasons to go through with ABI-preserving page clustering
-that they're not really in competition with each other.
-
-Looks good to me. I'll spin it up tonight.
 
 
--- wli
+On Wed, 9 Jul 2003, Lukasz Trabinski wrote:
+
+> On Tue, 8 Jul 2003, Marcelo Tosatti wrote:
+>
+> Hello.
+>
+> > We have discussed the problem and there is a partial fix in the current
+> > 2.4 BK tree. ChangeSet@1.1070 is the fix.
+>
+> Great.
+>
+> > Can you try to reproduce the problem with the latest BK tree?
+>
+> I will try, but probably, it can be difficulty to reproduce, because it
+> was happaned only once.
+
+Fine, but at least try hard to make it oops again, please. :))

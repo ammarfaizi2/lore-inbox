@@ -1,91 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbUCAJEe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 04:04:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbUCAJEd
+	id S261169AbUCAJIg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 04:08:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbUCAJId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 04:04:33 -0500
-Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:27398 "EHLO
-	ford.pronto.tv") by vger.kernel.org with ESMTP id S261237AbUCAJEK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 04:04:10 -0500
-To: Marc Giger <gigerstyle@gmx.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel unaligned acc on Alpha
-References: <20040229215546.065f42e9.gigerstyle@gmx.ch>
-	<yw1xvflp1sv6.fsf@kth.se> <20040229230318.493034b2.gigerstyle@gmx.ch>
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: Sun, 29 Feb 2004 23:36:48 +0100
-In-Reply-To: <20040229230318.493034b2.gigerstyle@gmx.ch> (Marc Giger's
- message of "Sun, 29 Feb 2004 23:03:18 +0100")
-Message-ID: <yw1xishp1pj3.fsf@kth.se>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Mon, 1 Mar 2004 04:08:33 -0500
+Received: from mtaw6.prodigy.net ([64.164.98.56]:19422 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S261169AbUCAJFg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 04:05:36 -0500
+Message-ID: <4042FCBC.7000809@matchmail.com>
+Date: Mon, 01 Mar 2004 01:05:00 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Nick Piggin <piggin@cyberone.com.au>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: MM VM patches was: 2.6.3-mm4
+References: <20040225185536.57b56716.akpm@osdl.org> <4042F38B.8020307@matchmail.com> <4042F7E6.1050904@cyberone.com.au>
+In-Reply-To: <4042F7E6.1050904@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Giger <gigerstyle@gmx.ch> writes:
+Nick Piggin wrote:
+> 
+> 
+> Mike Fedyk wrote:
+> 
+>> Andrew Morton wrote:
+>>
+>>> shrink_slab-for-all-zones.patch
+>>>   vm: scan slab in response to highmem scanning
+>>>
+>>> zone-balancing-fix.patch
+>>>   vmscan: zone balancing fix
+>>
+>>
+>>
+>> On 2.6.3 + [1] + nfsd-lofft.patch running on a 1GB ram file server.   
+>> I have noticed two related issues.
+>>
+>> First, under 2.6.3 it averages about 90MB[2] anon memory, and 30MB 
+>> with the -mm4 vm (the rest is in swap cache).  This could balance out 
+>> on the normal non-idle week-day load though...
+>>
+>> Second the -mm4 vm, there is a lot more swapping[3] going on during 
+>> the daily updatedb, and backup runs that are performed on this machine.
+>> I'd have to call this second issue a regression, but I want to run it 
+>> a couple more days to see if it gets any better (unless you agree of 
+>> course).
+>>
+> 
+> There are a few things backed out now in 2.6.4-rc1-mm1, and quite a
+> few other changes. I hope we can trouble you to test 2.6.4-rc1-mm1?
 
-> Hi Måns,
->
-> On Sun, 29 Feb 2004 22:24:45 +0100
-> mru@kth.se (Måns Rullgård) wrote:
->
->> Marc Giger <gigerstyle@gmx.ch> writes:
->> 
->> > Hi All,
->> >
->> > I have a lot of unaligned accesses in kernel space:
->> >
->> > kernel unaligned acc    : 2191330
->> > (pc=fffffffc002557d8,va=fffffffc00256059)
->> >
->> > It seems to be located in the networking part (iptables?) from the
->> > kernel. Can someone please help me how to find the location of these
->> > uac's? I already have recompiled the kernel with debugging enabled
->> > and tried to debug it with gdb. 
->> 
->> Find the matching function in System.map.  Look for the entry with the
->> highest address less than or equal to the pc value.
->
-> The highest address in System.map is 
-> fffffc000076fab0 A _end
->
-> /proc/ksyms is more informative. It seems the function is in a
-> module.
+Yes, I saw that, but since I wasn't using the new code, I chose to keep 
+it in the "-mm4" thread. :-D
 
-Yes, of course.
+I'll backport it to 2.6.3 if it doesn't patch with "-F3"...
 
-> fffffffc00254800 ipt_unregister_table   [ip_tables]
-> fffffffc00256051 __insmod_ip_tables_S.rodata_L16        [ip_tables]
+> Tell me, do you have highmem enabled on this system? If so, swapping
 
-That seems to support my suspicion that something is doing unaligned
-accesses of static data.
+Yes, to get that extra 128MB ram. :)
 
-> ipt_unregister_table is the most matching funtion, but makes no sense to
-> me, since I don't load and unload it 2191330 times:-)
+> might be explained by the batching patch. With it, a small highmem
+> zone could possibly place quite a lot more pressure on a large
+> ZONE_NORMAL.
+> 
+> 2.6.4-rc1-mm1 sould do much better here.
 
-There is probably some function after ipt_unregister_table in the
-source code that is not being exported from the object file.
+OK, I'll give that one a shot Monday or Tuesday night.
 
-> Do you have more tips how to find the right funtion in the modules?
+So, I'll merge up 2.6.3 + "vm of rc1-mm1" and tell you guys what I see.
 
-Disassemble (objdump -s) the module and look for load or store
-instructions with the same page offset as the reported pc value, in
-this case 0x17d8.  You'll want to compile with debugging symbols so
-you get the function names printed even for static functions.
+Are the graphs helpful at all?
 
-Another thing is to look for casts to (int *) or (long *) in the
-source code.  There's often one somewhere close to the unaligned
-access.  You might also check where static data is being accessed.
-Depending on the amount of static data and the number of accesses this
-might be more trouble than it's worth.
-
-BTW, which kernel version is this?
-
--- 
-Måns Rullgård
-mru@kth.se
+Mike

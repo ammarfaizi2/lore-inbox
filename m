@@ -1,67 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265970AbTF3Wcx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 18:32:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265971AbTF3Wcx
+	id S265971AbTF3WdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 18:33:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265973AbTF3WdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 18:32:53 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:56812 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S265970AbTF3Wct
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 18:32:49 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: [PATCH] patch-O1int-0306302317 for 2.5.73 interactivity
-Date: Tue, 1 Jul 2003 08:50:36 +1000
-User-Agent: KMail/1.5.2
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-References: <200307010029.19423.kernel@kolivas.org> <Pine.LNX.4.53.0306301405230.2299@montezuma.mastecende.com>
-In-Reply-To: <Pine.LNX.4.53.0306301405230.2299@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 30 Jun 2003 18:33:16 -0400
+Received: from w240.z209220232.was-dc.dsl.cnc.net ([209.220.232.240]:38331
+	"EHLO yendi.dmeyer.net") by vger.kernel.org with ESMTP
+	id S265971AbTF3WdG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 18:33:06 -0400
+Date: Mon, 30 Jun 2003 18:47:26 -0400
+From: dmeyer@dmeyer.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21 IDE problems (lost interrupt, bad DMA status)
+Message-ID: <20030630224726.GA22579@jhereg.dmeyer.net>
+Reply-To: dmeyer@dmeyer.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307010850.36040.kernel@kolivas.org>
+In-Reply-To: <20030630221542.GA17416@alf.amelek.gda.pl>
+User-Agent: Mutt/1.4.1i
+X-Newsgroups: local.linux.kernel
+Organization: dmeyer.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Jul 2003 04:27, Zwane Mwaikambo wrote:
-> On Tue, 1 Jul 2003, Con Kolivas wrote:
-> > Buried deep in another mail thread was the latest implementation of my
-> > O1int patch so I've brought it to the surface to make it clear this one
-> > is significantly different from past iterations.
-> >
-> > Summary:
-> > Decreases audio skipping with loads.
-> > Smooths out X performance with load.
->
-> I tried this with normal developer box type load on a slow box ie;
->
-> 2x 400MHz 512MB source/build fs' on UW2 SCSI
-> kernel: 2.5.72-mm3
->
-> 2x make -j2 bzImage
-> bk pull (linux-2.5 repo)
-> cvs import of 2.5 tree
-> navigating bk revtool (this normally causes pauses)
-> read disk benchmark just to thrash IDE about a bit ;)
->
-> Still a few MP3 pauses (due to bk revtool mainly) but mouse/keyboard
-> response was good, there is however a vast improvement over 2.5.73
-> stock (2-5s pauses with no keyboard/mouse response) for my particular
-> workload.
+In article <20030630221542.GA17416@alf.amelek.gda.pl> you write:
+> Hi,
+> 
+> After upgrading the kernel from 2.4.20 to 2.4.21, sometimes I see
+> the following messages:
+> 
+> hda: dma_timer_expiry: dma status == 0x24
+> hda: lost interrupt
+> hda: dma_intr: bad DMA status (dma_stat=30)
+> hda: dma_intr: status=0x50 { DriveReady SeekComplete }
+> 
+> It happens especially when there is a lot of disk I/O (which stops
+> for a few seconds when these messages appear), with three different
+> disks (very unlikely they all decided to die at the same time...),
+> one old ATA33 (QUANTUM FIREBALL SE8.4A) and two newer ATA100 disks
+> (WDC WD300BB-32CCB0, ST340015A).  IDE controller: VIA VT82C686B
+> on a MSI MS-6368L motherboard.
+> 
+> I don't remember seeing anything like that in any earlier 2.4.x
+> kernels.  Is this a known problem?  Is this anything dangerous -
+> should I disable UDMA for now to play it safe?
 
-Thanks for testing and working with me.
+I never saw any corruption when I had it.  I've seen this with stock
+kernels since 2.4.18 or so with ACPI and APIC enabled; with ac kernels
+I never get it (I'm suspecting the old ACPI in the stock kernels is
+the problem).
 
-Please if others are testing and still having problems note this work is _not_ 
-complete yet, but I do need to assess every incremental change to make sure 
-it addresses the issue I am trying to fix at each step.
+So my suggestion is either turn off ACPI and/or APIC, or try
+2.4.21-ac.
 
-For what it's worth there are still at least 3 things I need to 
-implement/change in this patch which induce problems still, so tell me of 
-your experiences and I will try hard to accomodate.
-
-Con
-
+-- 
+Dave Meyer
+dmeyer@dmeyer.net

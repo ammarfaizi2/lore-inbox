@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267761AbTAHHvo>; Wed, 8 Jan 2003 02:51:44 -0500
+	id <S267773AbTAHHwx>; Wed, 8 Jan 2003 02:52:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267764AbTAHHvo>; Wed, 8 Jan 2003 02:51:44 -0500
-Received: from [212.71.168.94] ([212.71.168.94]:48077 "EHLO
-	vagabond.cybernet.cz") by vger.kernel.org with ESMTP
-	id <S267761AbTAHHvn>; Wed, 8 Jan 2003 02:51:43 -0500
-Date: Wed, 8 Jan 2003 09:00:05 +0100
-From: Jan Hudec <bulb@ucw.cz>
-To: Gerhard Mack <gmack@innerfire.net>
-Cc: Andreas Dilger <adilger@clusterfs.com>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       Max Valdez <maxvaldez@yahoo.com>, Jan Hudec <bulb@ucw.cz>,
-       kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Undelete files on ext3 ??
-Message-ID: <20030108080005.GK2141@vagabond>
-Mail-Followup-To: Jan Hudec <bulb@ucw.cz>,
-	Gerhard Mack <gmack@innerfire.net>,
-	Andreas Dilger <adilger@clusterfs.com>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	Max Valdez <maxvaldez@yahoo.com>,
-	kernel <linux-kernel@vger.kernel.org>
-References: <20030107115544.W31555@schatzie.adilger.int> <Pine.LNX.4.44.0301080000250.18804-100000@innerfire.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301080000250.18804-100000@innerfire.net>
-User-Agent: Mutt/1.4i
+	id <S267776AbTAHHwt>; Wed, 8 Jan 2003 02:52:49 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:1481 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S267764AbTAHHvx>; Wed, 8 Jan 2003 02:51:53 -0500
+From: Richard Stallman <rms@gnu.org>
+To: billh@gnuppy.monkey.org
+CC: mark@mark.mielke.cc, lm@bitmover.com, linux-kernel@vger.kernel.org,
+       paul@clubi.ie, riel@conectiva.com.br, billh@gnuppy.monkey.org
+In-reply-to: <20030107141758.GA10770@gnuppy.monkey.org>
+	(billh@gnuppy.monkey.org)
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+Reply-to: rms@gnu.org
+References: <20030102061430.GA23276@mark.mielke.cc> <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103040612.GA10651@work.bitmover.com> <20030104220651.GA30907@merlin.emma.line.org> <20030104222330.GA1386@work.bitmover.com> <E18VFaz-0008S0-00@fencepost.gnu.org> <20030105221345.GA31840@mark.mielke.cc> <E18Vao9-0002JZ-00@fencepost.gnu.org> <20030106173949.GA1712@gnuppy.monkey.org> <E18Vtxz-0002cB-00@fencepost.gnu.org> <20030107141758.GA10770@gnuppy.monkey.org>
+Message-Id: <E18WB8Q-0004k6-00@fencepost.gnu.org>
+Date: Wed, 08 Jan 2003 03:00:22 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 08, 2003 at 12:01:34AM -0500, Gerhard Mack wrote:
-> On Tue, 7 Jan 2003, Andreas Dilger wrote:
-> 
-> > Date: Tue, 7 Jan 2003 11:55:44 -0700
-> > From: Andreas Dilger <adilger@clusterfs.com>
-> > To: Richard B. Johnson <root@chaos.analogic.com>
-> > Cc: Max Valdez <maxvaldez@yahoo.com>, Jan Hudec <bulb@ucw.cz>,
-> >      kernel <linux-kernel@vger.kernel.org>
-> > Subject: Re: Undelete files on ext3 ??
-> >
-> > On Jan 07, 2003  13:17 -0500, Richard B. Johnson wrote:
-> > > Therefore, it's time for somebody to put a 'dumpster` in all the Linux
-> > > file-systems.  Somebody should then modify `rm` and the kernel unlink
-> > > to `mv' files to the dumpster directory on the file-system, instead of
-> > > really deleting them. Then, just like the Redmond stuff, a separate
-> > > program can be used to clear out the "dumpster" or `mv` them back.
-> >
-> > This is very FAQ.  Please see the l-k archives for any year to find
-> > lengthy discussions about this.
-> >
-> 
-> Funny my gnome2 install has a wastebasket and last I checked if you open a
-> command shell in windows and del *.* you are screwed anyhow.
-> 
-> So we have exactly the same functionality windows does.
+    activistic political structure to bind a project like this, but
+    the successful execution of Linux as a large scale political,
+    social and economic product (credit to folks like Linus, Alan Cox,
+    Stephen Tweedie, etc...)  
 
-Yes. But we could do better. Since no program uses the __syscall
-interface directly, wraping unlink in libc would affect all programs
-including rm. It could even be done withou recompiling anything using
-LD_PRELOAD.
+When you say "Linux" here, do you mean the kernel, or the whole
+GNU/Linux system?  With all due respect, I think you may not have
+answered this question for yourself, because the people that you name
+are people who worked on the kernel, but the success that you talk
+about is the success of the whole system.  (No kernel alone could have
+had this effect.)
 
--------------------------------------------------------------------------------
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+The practice of referring to the whole system by the same name as the
+kernel alone leads to constant confusion between the two.  You will
+often see statements that "Linux is a Unix-like operating system, like
+Solaris or FreeBSD, which is released under the GNU GPL."  That is
+false regardless of what meaning you assign to "Linux".  The only way
+to avoid confusion is to stop calling the whole system by the name
+used for the kernel.
+
+			      really paved the way for the entire open
+    source community as we understand it.
+
+Our community is the free software community; it was built by the
+idealism of the free software movement.
+
+Like any community, it contains people with different views.  Nowadays
+many of the people in our community support the open source movement.
+The open source advocates are legitimate members of the community, and
+some have contributed to it.  They have a right to form a movement to
+promote their views, but that movement was started only in 1998, long
+after the community existed.  Their movement did not build the
+community, and it should not be named after them.
+
+Speaking of which, your ideas seem to have a lot in common with the
+free software movement.  I wonder if you thought that the open source
+movement was the only one and that we all support it.  (Many
+inaccurate articles give that impression.)  If you read about the free
+software movement, you might decide we are closer to your views.
+
+See http://www.gnu.org/philosophy/, and in particular
+http://www.gnu.org/philosophy/free-software-for-freedom.html for an
+explanation of the difference between the two movements.  We and they
+have similar practices, which is why we and they can work together
+some of the time, but what we say about it is very different from
+what they say.
+

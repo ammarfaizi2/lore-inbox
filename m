@@ -1,104 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265901AbSKOIE1>; Fri, 15 Nov 2002 03:04:27 -0500
+	id <S265894AbSKOIDT>; Fri, 15 Nov 2002 03:03:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265939AbSKOIE0>; Fri, 15 Nov 2002 03:04:26 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:49677 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S265901AbSKOIEC>; Fri, 15 Nov 2002 03:04:02 -0500
-Date: Fri, 15 Nov 2002 06:10:44 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: pavel@suse.cz, Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] swsuspend and CONFIG_DISCONTIGMEM=y
-Message-ID: <20021115081044.GI18180@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	pavel@suse.cz, Linus Torvalds <torvalds@transmeta.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S265898AbSKOIDT>; Fri, 15 Nov 2002 03:03:19 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:43137 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S265894AbSKOICg>;
+	Fri, 15 Nov 2002 03:02:36 -0500
+Date: Fri, 15 Nov 2002 09:09:22 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [patch] Input - Add a missing \n [2/13]
+Message-ID: <20021115090922.A16779@ucw.cz>
+References: <20021115090818.A16761@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021115090818.A16761@ucw.cz>; from vojtech@suse.cz on Fri, Nov 15, 2002 at 09:08:18AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=suspend -DKBUILD_MODNAME=suspend -DEXPORT_SYMTAB  -c -o kernel/suspend.o kernel/suspend.c
-kernel/suspend.c:295: warning: #warning This might be broken. We need to somehow wait for data to reach the disk
-kernel/suspend.c: In function `free_some_memory':
-kernel/suspend.c:627: `contig_page_data' undeclared (first use in this function)
-kernel/suspend.c:627: (Each undeclared identifier is reported only once
-kernel/suspend.c:627: for each function it appears in.)
-make[1]: ** [kernel/suspend.o] Erro 1
-make: ** [kernel] Erro 2
-[acme@oops hell_header-2.5]$ grep CONFIG_DISCONTIGMEM .config
-CONFIG_DISCONTIGMEM=y
-
-and in ./mm/page_alloc.c
-
-#ifndef CONFIG_DISCONTIGMEM
-static bootmem_data_t contig_bootmem_data;
-struct pglist_data contig_page_data = { .bdata = &contig_bootmem_data };
-
-void __init free_area_init(unsigned long *zones_size)
-{
-        free_area_init_node(0, &contig_page_data, NULL, zones_size, 0, NULL);
-        mem_map = contig_page_data.node_mem_map;
-}
-#endif
-
-So perhaps the following patch is in order? Its kind of brute force, disabling it
-altogether, but it at least fixes it for now.
 
 You can import this changeset into BK by piping this whole message to:
 '| bk receive [path to repository]' or apply the patch as usual.
+'bk pull bk://linux-input.bkbits.net/linux-input' should work as well.
 
 ===================================================================
 
+ChangeSet@1.781.10.3, 2002-10-13 14:53:42+02:00, kronos@kronoz.cjb.net
+  I found a missing '\n' in serio.c:118. This prevents the next printk to
+  be interpreted correctly.
 
-ChangeSet@1.851, 2002-11-15 06:07:56-02:00, acme@conectiva.com.br
-  o swsusp: depends on CONFIG_DISCONTIGMEM=n
 
-
- Kconfig |    2 +-
+ serio.c |    2 +-
  1 files changed, 1 insertion(+), 1 deletion(-)
 
+===================================================================
 
-diff -Nru a/arch/i386/Kconfig b/arch/i386/Kconfig
---- a/arch/i386/Kconfig	Fri Nov 15 06:09:18 2002
-+++ b/arch/i386/Kconfig	Fri Nov 15 06:09:18 2002
-@@ -1518,7 +1518,7 @@
+diff -Nru a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+--- a/drivers/input/serio/serio.c	Fri Nov 15 08:32:00 2002
++++ b/drivers/input/serio/serio.c	Fri Nov 15 08:32:00 2002
+@@ -115,7 +115,7 @@
+ 			refrigerator(PF_IOTHREAD);
+ 	} while (!signal_pending(current));
  
- config SOFTWARE_SUSPEND
- 	bool "Software Suspend (EXPERIMENTAL)"
--	depends on EXPERIMENTAL && PM
-+	depends on EXPERIMENTAL && PM && !DISCONTIGMEM
- 	---help---
- 	  Enable the possibilty of suspendig machine. It doesn't need APM.
- 	  You may suspend your machine by 'swsusp' or 'shutdown -z <time>' 
+-	printk(KERN_DEBUG "serio: kseriod exiting");
++	printk(KERN_DEBUG "serio: kseriod exiting\n");
+ 
+ 	unlock_kernel();
+ 	complete_and_exit(&serio_exited, 0);
 
 ===================================================================
 
-
 This BitKeeper patch contains the following changesets:
-1.851
+1.781.10.3
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch30899
-M'XL(`*ZKU#T``\V4T6K;,!2&KZ.GT"CT9M@^1[84Q>"1-LG:D*8-:0N#,8:J
-M:'%H;`7+2=?AAY^=;$VW;BL;&TP2DM`11[\^_>B`7CM3Q"VE,T,.Z*EU9=S2
-M-C>Z7&R4KVWFWQ1U8&IM'0A2FYG@>!2X.[=V*Y///.9S4L<GJM0IW9C"Q2WT
-MPX>5\GYEXM9T<')]=C0E)$EH+U7YW%R:DB8)*6VQ4<N9ZZHR7=K<+PN5N\R4
-MVY.KAZT5`V!UY=@.@8L*!43M2N,,445H9L`B*:)]MD;F+W,A(@>!(?(*H(,1
-MZ5/T)4<*+$`,D%,0,;1C+CQ@,0!M^'2_YT)?(O6`'-._>XT>T=32'>*8SDS#
-MV5&;T][%^>OAR?O^\+*>70U/QH-QDI,1%9P))),]6N+]9B$$%)!7]--BM3++
-M[G*1KS]ZF9"WOBWF;[]>[UVE"IT&BU"*8%3#^+"8[VA""!"%#&7%(B%E)9"%
-M*$'==)"W!>@?X_M9MN9M)(B052`Z`%O7/-G:N.<?J27%VI7WW:;7MEAMU:KU
-M\WF;TJZ51Q5PR>3.4]\Z2L0A>]91^!\XJN%^0;WB;MMJ@TR>/L$?N*R/G"%%
-M,OPRMAYI&;R9#*;#\>#\ZNB,'A[2R;CI7SS6MO]I=&KTK5MG"<=(1EPQ\AD,
-'L(Q2R@0`````
+begin 664 bkpatch16554
+M'XL(`/"BU#T``]5474_;,!1]KG_%%3RP">'XQDF:9NK4\2&&F#;4C3>DR74,
+M"6EL9+OE0_GQ,VD%&YI@7R]+(EW9N3XZQ^?8FW#JE"T&2W/IE:S()KPWSA<#
+MMW"*RKLPGAH3QE%E6A6MNZ)9$]7Z:N%)^'\BO*Q@J:PK!DCYPXR_O5+%8'IP
+M>/KAW920\1CV*J$OU&?E83PFWMBEF)=N(GPU-YIZ*[1KE1=4FK9[:.UBQN+P
+MICCD+,TZS%@R["26B")!5;(XR;.$V+:9"-O2>:T7-]38"[IHGH`@0\YRGB+K
+MTCC-4K(/2(<Y4F24`XLC9!%RP*1(>9'$VRPN&(/&&FW<I"]W5%[.J`[\MQ%V
+M&-F%?RMBCT@X@G.ST"4(:&OG:GT!6V=Z"VH-P:;:4%D@YA2^5+6#*ZN62GL'
+MOE*@U8T/,[7V3:`5D&8JK/+*ABZO2I#&6B7]_):28TAY8$).'ATA.[_Y$,($
+M(V]?V('2UO?!B&0E;'1I;IVO91.ME7RW*PEC:<>2;)1U2HIT-E+G93Y$I<3/
+M#7@`[E.X`OP!]MYLC%/.AQWGF.1]_IY9]'(B_UX*69^>R?IL_8H([(&QX_$H
+MR?K$8OPTJWSX8E;Q/\[JRK]/L&.O^R]D[^0Y*_\@RON!)R`Y6I7!BMFKXX/I
+MQZ_[![NGA[#18Q?0]+4$=5/[H/=,;[Q^\W@'RDK)QBW:L8I3D8_*&?D&\]9Z
+%-EX%````
 `
 end
-
-

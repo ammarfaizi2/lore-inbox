@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293135AbSDPNEg>; Tue, 16 Apr 2002 09:04:36 -0400
+	id <S313670AbSDPNV0>; Tue, 16 Apr 2002 09:21:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312619AbSDPNEg>; Tue, 16 Apr 2002 09:04:36 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:51074 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S293135AbSDPNEf>; Tue, 16 Apr 2002 09:04:35 -0400
-Date: Tue, 16 Apr 2002 08:42:28 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: BALBIR SINGH <balbir.singh@wipro.com>
-cc: William Lee Irwin III <wli@holomorphy.com>, Olaf Fraczyk <olaf@navi.pl>,
-        linux-kernel@vger.kernel.org
-Subject: RE: Why HZ on i386 is 100 ?
-In-Reply-To: <AAEGIMDAKGCBHLBAACGBEEONCEAA.balbir.singh@wipro.com>
-Message-ID: <Pine.LNX.3.95.1020416083349.18369B-100000@chaos.analogic.com>
+	id <S313671AbSDPNVZ>; Tue, 16 Apr 2002 09:21:25 -0400
+Received: from polywog.navpoint.com ([207.106.42.251]:1152 "EHLO
+	polywog.navpoint.com") by vger.kernel.org with ESMTP
+	id <S313670AbSDPNVY>; Tue, 16 Apr 2002 09:21:24 -0400
+Date: Tue, 16 Apr 2002 09:28:11 -0400 (EDT)
+From: E M Recio <polywog@navpoint.com>
+X-X-Sender: <erecio@polywog.navpoint.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: AMD Athlon + VIA Crashing On Disk I/O
+Message-ID: <Pine.LNX.4.33.0204160921060.472-100000@polywog.navpoint.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Apr 2002, BALBIR SINGH wrote:
+Hiya,
 
-> I remember seeing somewhere unix system VII used to have HZ set to 60
-> for the machines built in the 70's. I wonder if todays pentium iiis and ivs
-> should still use HZ of 100, though their internal clock is in GHz. 
-> 
+I have an AMD Athlon 1.2 with a VIA 8259A Chipset (see bottom). If I
+compile the kernel with the Athlon option it crashes all the time. In
+fact, I can't even get Redhat 7.2 installed without a core dump when it
+tries to mount the filesystem. With the later kernels, it doesn't core
+dump, but just freezes.
 
-A different clock goes to the timer chip. It is always:
+IE: If I have ide-scsi module loaded, and I try to access the floppy
+drive, it locks up the machine (regardless of whether cputype is Athlon
+or K6.)
 
-	CLOCK_TICK_RATE 1193180 Hz
-unless an Elan SC-520 at which time the frequency is:
-	CLOCK_TICK_RATE 1189200 Hz 
+IE: Updatedb locks up the machine.
 
-(from ../include/asm/timex.h)
+I get (when FSCK):
 
-> I think somethings in the kernel may be tuned for the value of HZ, these
-> things would be arch specific.
-> 
-> Increasing the HZ on your system should change the scheduling behaviour,
-> it could lead to more aggresive scheduling and could affect the
-> behaviour of the VM subsystem if scheduling happens more frequently. I am
-> just guessing, I do not know.
-> 
+spurious 8259A IRQ7
 
-It doesn't/can't change scheduling behavior. It changes only the rate
-at which a CPU bound task will get the CPU taken away. It also changes
-the rate it which it gets it back, in a 1:1 ratio, with a net effect
-of nothing-gained/nothing-lost except for preemption overhead.
+Does anyone know if there's a bug fix for this chipset? My board is
+made from FIC (crappy, instructions don't even matchup). I used to be
+able to fix it by changing the CPU type to K6 but that doesn't work now
+with the later kernels (2.4.15 and up.)
 
-> Changing though trivial would require a good look at all the code that
-> uses HZ.
-> 
+5000-500f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+6000-607f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+c000-c00f : VIA Technologies, Inc. Bus Master IDE
 
-The reference to HZ seems to be correct in all the headers so changing
-it is trivial.
+-- 
 
+Best Regards,
+E. M. Recio
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
+****************************************************
+* Email: < polywog@navpoint.com > ICQ: < 458043 >  *
+* Homepage: < http://polywog.navpoint.com >        *
+****************************************************
 

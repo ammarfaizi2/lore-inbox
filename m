@@ -1,82 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265203AbTLaSEw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 13:04:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265217AbTLaSEw
+	id S265216AbTLaSU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 13:20:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265218AbTLaSU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 13:04:52 -0500
-Received: from rat-3.inet.it ([213.92.5.93]:31923 "EHLO rat-3.inet.it")
-	by vger.kernel.org with ESMTP id S265203AbTLaSEu (ORCPT
+	Wed, 31 Dec 2003 13:20:57 -0500
+Received: from rs9.luxsci.com ([66.216.98.59]:61671 "EHLO rs9.luxsci.com")
+	by vger.kernel.org with ESMTP id S265216AbTLaSU4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 13:04:50 -0500
-From: Paolo Ornati <ornati@lycos.it>
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Subject: Re: 2.6.1-rc1 [resend]
-Date: Wed, 31 Dec 2003 19:03:56 +0100
-User-Agent: KMail/1.5.2
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0312310033110.30995@home.osdl.org> <200312311645.23348.ornati@lycos.it> <3FF2F9FE.2000403@wmich.edu>
-In-Reply-To: <3FF2F9FE.2000403@wmich.edu>
+	Wed, 31 Dec 2003 13:20:56 -0500
+Message-ID: <3FF31366.30206@acm.org>
+Date: Wed, 31 Dec 2003 10:20:22 -0800
+From: Javier Fernandez-Ivern <ivern@acm.org>
+Reply-To: ivern@acm.org
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312311903.56832.ornati@lycos.it>
+To: rudi@lambda-computing.de
+Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
+Subject: Re: File change notification
+References: <3FF2FC85.5070906@lambda-computing.de>
+In-Reply-To: <3FF2FC85.5070906@lambda-computing.de>
+X-Enigmail-Version: 0.82.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 31 December 2003 17:31, Ed Sweetman wrote:
-> Paolo Ornati wrote:
-> > On Wednesday 31 December 2003 16:20, you wrote:
-> >>On Wednesday 31 December 2003 16:06, you wrote:
-> >>>>What io scheduler are you using? Or, could you post /var/log/dmesg?
-> >>
-> >>On Wed, Dec 31, 2003 at 04:19:27PM +0100, Paolo Ornati wrote:
-> >>>"dmesg" and "config" attached.
-> >>
-> >>Could you try this with elevator=deadline?
-> >
-> > ok, I have just tried...
-> > I don't see any big difference.
->
-> Wasn't it mentioned in another thread related to a drop in ide
-> performance that there is possibly some bug in the ide code that ends up
-> requiring you to set the readahead on all your devices to see the max
-> performance of any one?
->
-> set all the readaheads of all your ide devices to 8192  You should see
-> the best peformance doing this.
+Rüdiger Klaehn wrote:
 
-No, I have just try it but I don't see any changes.
+> I have been wondering for some time why there is no decent file change 
+> notification mechanism in linux. Is there some deep philosophical reason 
+> for this, or is it just that nobody has found the time to implement it? 
+> If it is the latter, I am willing to implement it as long there is a 
+> chance to get this accepted into the mainstream kernel.
 
-My question is about a strange change of "behaviour" in IDE performance 
-changing readahead.
+Well, there's fam.  But AFAIK that's all done in user space, and your 
+approach would be significantly more efficient (as a matter of fact, fam 
+could be modified to use your change device as a first level of 
+notification.)
 
-Here I report a new thing that I've noticed today:
-
-Kernel 2.6.0:
-
-o readahead up to 224:
-when I run "hdparm -t /dev/hda" the HD LED light up... and after a while 
-light down
-
-o readahead > 224:
-running "hdparm" the HD LED starts blinking... and then light down
-
-The best performance are riched with values between 128 and 224 --> IOW when 
-the HD led starts blinking the performance diminish...
-
-
-Kernel 2.6.1-rc1:
-
-the HD LED starts to blink with readahead = 16 !!!
-Why?
-
-
-BYE
+I'll be interested in testing this, or (if you wish) help get it done. 
+I'm a kernel hacking newbie at the moment, but I have tinkered around 
+enough with the VFS to be able to work on this.  Up to you.
 
 -- 
-	Paolo Ornati
-	Linux v2.6.0
-
+Javier Fernandez-Ivern

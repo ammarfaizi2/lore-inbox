@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262096AbSIYUbB>; Wed, 25 Sep 2002 16:31:01 -0400
+	id <S262099AbSIYUIb>; Wed, 25 Sep 2002 16:08:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262122AbSIYUbB>; Wed, 25 Sep 2002 16:31:01 -0400
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:495 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S262096AbSIYUbA>; Wed, 25 Sep 2002 16:31:00 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Wed, 25 Sep 2002 14:34:14 -0600
-To: tytso@mit.edu
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
-Message-ID: <20020925203414.GF22795@clusterfs.com>
-Mail-Followup-To: tytso@mit.edu, torvalds@transmeta.com,
+	id <S262101AbSIYUIa>; Wed, 25 Sep 2002 16:08:30 -0400
+Received: from crack.them.org ([65.125.64.184]:39179 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S262099AbSIYUI3>;
+	Wed, 25 Sep 2002 16:08:29 -0400
+Date: Wed, 25 Sep 2002 16:13:38 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] exit-fix-2.5.38-E3
+Message-ID: <20020925201338.GA32366@nevyn.them.org>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	Linus Torvalds <torvalds@transmeta.com>,
 	linux-kernel@vger.kernel.org
-References: <E17uINs-0003bG-00@think.thunk.org>
+References: <Pine.LNX.4.44.0209252113280.16723-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E17uINs-0003bG-00@think.thunk.org>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <Pine.LNX.4.44.0209252113280.16723-100000@localhost.localdomain>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 25, 2002  16:03 -0400, tytso@mit.edu wrote:
-> This patch significantly increases the speed of using large directories.
-> Creating 100,000 files in a single directory took 38 minutes without
-> directory indexing... and 11 seconds with the directory indexing turned on.
+On Wed, Sep 25, 2002 at 09:20:01PM +0200, Ingo Molnar wrote:
+> @@ -57,31 +58,31 @@
+>  void release_task(struct task_struct * p)
+>  {
+>  	struct dentry *proc_dentry;
+> +	task_t *leader;
+>  
+> -	if (p->state != TASK_ZOMBIE)
+> +	if (p->state < TASK_ZOMBIE)
 
-Not mentioned, but very important to note is that the dir indexing code
-is 100% compatible with older kernels (even back to 1.2 days) for both
-read and write.
+Could you check TASK_ZOMBIE and TASK_DEAD explicitly, or add a comment
+in sched.h saying that only DEAD should be above ZOMBIE?  Otherwise, if
+someone needs a new task state, this'll get out of sync.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+Just my 2c.
 
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

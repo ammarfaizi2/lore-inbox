@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277831AbRJWP6F>; Tue, 23 Oct 2001 11:58:05 -0400
+	id <S277833AbRJWQCP>; Tue, 23 Oct 2001 12:02:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277828AbRJWP5t>; Tue, 23 Oct 2001 11:57:49 -0400
-Received: from colorfullife.com ([216.156.138.34]:52234 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S277825AbRJWP5f>;
-	Tue, 23 Oct 2001 11:57:35 -0400
-Message-ID: <001401c15bdb$85030e60$010411ac@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: "\"Richard B. Johnson\"" <root@chaos.analogic.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Behavior of poll() within a module
-Date: Tue, 23 Oct 2001 17:58:03 +0200
+	id <S277851AbRJWQCF>; Tue, 23 Oct 2001 12:02:05 -0400
+Received: from main.sonytel.be ([195.0.45.167]:38800 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S277833AbRJWQBw>;
+	Tue, 23 Oct 2001 12:01:52 -0400
+Date: Tue, 23 Oct 2001 18:01:30 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: drevil@warpcore.org
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
+In-Reply-To: <20011022203159.A20411@virtucon.warpcore.org>
+Message-ID: <Pine.GSO.4.21.0110231800450.22706-100000@mullein.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> The following actual module code:
->
-> static unsigned int vxi_poll(struct file *fp, struct poll_table_struct *wait)
-> {
->     unsigned long flags;
->     unsigned int mask;
->     DEB(printk("vxi_poll\n"));
->     info->poll_active++;
->     poll_wait(fp, &info->wait, wait);
->     spin_lock_irqsave(&vxi_lock, flags);
->     mask = info->poll_mask;
->     if(!--info->poll_active)
->         info->poll_mask = 0;
->     spin_unlock_irqrestore(&vxi_lock, flags);
->     DEB(printk("vxi_poll returns\n"));
->     return mask;
-> }
-Which module is that? I can't find it in Linus tree.
-Is "info" a global variable?
+On Mon, 22 Oct 2001 drevil@warpcore.org wrote:
+> On Mon, Oct 22, 2001 at 11:50:59PM +0100, Alan Cox wrote:
+> > I really doubt Nvidia will open their driver code. I've heard them explain
+> > some of the reasons they don't and in part they make complete sense.
+> 
+> Microsoft deals with companies that won't always give them access to the drivers
+> directly, but often they will tell users workarounds, or at least attempt to
+> gather enough knowledge since they are tehnically the OS vendor to give to the
+> driver provider to fix the problem. If you are the OS provider, and a change you
+> make breaks user drivers/programs generally I think it's a polite gesture to at
+> least attempt to find out what's going on and then pass that information on to
+> the people who can properly handle it...
 
-* poll is called without any SMP locking, "info->poll_active++" is not SMP safe. Use atomic_inc, or even better just delete that
-line.
-* Clearing poll_mask during poll is wrong.
-poll should return the events that are currently available, i.e. what would happen if read() or write() would be called now.
+Of course the Linux kernel developers provide information: they even provide
+the sources of their kernel.
 
-read() on a non-blocking file handle would return immediately with 1 or more bytes read --> set POLLIN
-write() on a non-blocking file handle would return immediately with a nonzero byte count written--> set POLLOUT.
-The clearing of poll_mask must occur during read() and write() if these conditions are not true anymore.
+Gr{oetje,eeting}s,
+
+						Geert
 
 --
-    Manfred
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

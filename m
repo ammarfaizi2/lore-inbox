@@ -1,61 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282357AbRKXDgJ>; Fri, 23 Nov 2001 22:36:09 -0500
+	id <S282359AbRKXDtl>; Fri, 23 Nov 2001 22:49:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282358AbRKXDgA>; Fri, 23 Nov 2001 22:36:00 -0500
-Received: from maynard.mail.mindspring.net ([207.69.200.243]:31260 "EHLO
-	maynard.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S282357AbRKXDfy>; Fri, 23 Nov 2001 22:35:54 -0500
-Message-ID: <3BFF16F0.C331F0E4@mindspring.com>
-Date: Fri, 23 Nov 2001 19:41:36 -0800
-From: Joe <joeja@mindspring.com>
-Reply-To: joeja@mindspring.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
+	id <S282360AbRKXDtb>; Fri, 23 Nov 2001 22:49:31 -0500
+Received: from smtp01.iprimus.net.au ([203.134.64.99]:5647 "EHLO
+	smtp01.iprimus.net.au") by vger.kernel.org with ESMTP
+	id <S282359AbRKXDt0>; Fri, 23 Nov 2001 22:49:26 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jeff <jeff_l@iprimus.com.au>
+Reply-To: jeff_l@iprimus.com.au
+To: <linux-kernel@vger.kernel.org>
+Subject: Problems booting linux kernel
+Date: Sat, 24 Nov 2001 14:52:27 +1100
+X-Mailer: KMail [version 1.3]
 MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>, linux-kernel@vger.kernel.org
-Subject: 2.4.14/2.4.15 cpia driver IS broke.. no its parport && other problems 
- with 2.4.15 
-In-Reply-To: <Pine.LNX.4.33.0111230950580.24427-100000@netfinity.realnet.co.sz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-ID: <S37ThqyOfdS1U94odj20001785f@smtp01.iprimus.net.au>
+X-OriginalArrivalTime: 24 Nov 2001 03:49:18.0179 (UTC) FILETIME=[FE358330:01C1749A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been doing some testing and debugging and found out that something in
-the 2.4.14 parport driver is breaking my webcam II.  I have a patch that
-reverts out all the changes in 2.4.14 parport driver back to 2.4.13 and the
-driver now works.  I am going to do some more testing and see if I can narrow
-the code down.  Right now the patch is  about 700+ lines, but reverts out
-ALL the parport changes.
+Greetings,
+	I have two eide hard drives arranged as master and slave on my primary
+ide controller.  The 20G seagate is the master and it has LILO as the 
+bootloader.  This drive also has an old RH 6.1 install on it that I hardly
+use.  A 30G quantum is the slave and it has linux that I built from sources.  
+This latter drive and OS is the one I use mostly.  
+	Now I want to configure the 30G drive as the master and I want to use
+the 20G (current master) for other things.
 
-My hardward is a VIA chipset (686). It is the ABiT KT7A MB.
+	My 30G drive has a / (root) partition (currently /dev/hdb2) and a /boot 
+partition (currently /dev/hdb1).  I couldn't get LILO to start properly when I
+installed it on my 30G drive so I've switched to GRUB.  (I'll switch back to 
+LILO if need be and I get good advice.)   I can get GRUB to start my kernel 
+but my kernel panics when trying to mount file systems.  Here is a transcript 
+of the kernel output:
 
-What's happening is that the cpia is being recgonized, but the video device
-is not accessable. This is in both 2.4.15 and 2.4.14, with the creative
-WebCam II.
+attempt to access beyond end of device
+03:42: rw=0, want=1, liimt=1
+EXT2-fs: unable to read superblock
+FAT: bogus logical sector size 0
+FAT: bogus logical sector size 0
+attempt to access beyond end of device
+03:42: rw=0, want=33, limit=1
+isofs_read_super: bread failed, dev=03:42, iso_blknum=16, block=32
+Kernel panic: VFS: Unable to mount root fs on 03:42
 
-In the /proc/cpia/video0 file it shows the CPIA version as 0.00 instead of
-1.20.
+When I switch everything back to the way it was this kernel can be started 
+without a problem.
 
-On another note it seems that with 2.4.15 umount is not working on my
-machine.  It mounts the drives okay, but requires umount -n to be used which
-seems to be forcing the unmount of the drive.  I am using mount 2.11g do
-I need to upgrade this? I'm NOT using ext3 fs, just ext2.  Do I need to
-upgrade something??
+In switching the drives' master/slave status around I have (of course) done 
+the following:
+* changed jumper settings on both drives
+* edited /etc/fstab on the 30G drive (the one I want to boot as master).
+* modified the bios settings (got bios to autodetect drives in new
+  configuration).
 
-Oh and because umount fails all my services leave files in /var/lock and
-/tmp.X11** and when the system restarts many of these services are to dumb to
-realize that the PID for these processes is not running and don't start
-(xdm/gdm).   The other thing that happens is that when I restart the machine
-it comes up and runs fsck on most of the drives and then it has other
-problems.
+Why does my kernel panic?  How do I fix the problem so that I can boot the 
+linux kernel on my 30G drive when the drive is configured as master instead 
+of slave?
 
-The only workaournd seems to be to bring the machine to runlevel 1 (init
-1) from runlevel 5 or 3 before I shutdown.    This kills ALL the services.
-Then I can umount -n the drives, run e2fsck (if need), remount them and
-remove the lock files and tmp files (if they are there still). remount the
-drives and then halt the machine.  It shouldnt be that hard though.
-
-Joe
-
+Please help,
+		Jeff
+    
+-- 
+===============================================================================
+I never saw a wild thing
+sorry for itself.
+A small bird will drop frozen dead from a bough
+without ever having felt sorry for itself.
+	-- "Self-Pity" by David Herbert Lawrence (1885-1930)

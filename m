@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131997AbRC1PcW>; Wed, 28 Mar 2001 10:32:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132042AbRC1PcN>; Wed, 28 Mar 2001 10:32:13 -0500
-Received: from gull.prod.itd.earthlink.net ([207.217.121.85]:24539 "EHLO gull.prod.itd.earthlink.net") by vger.kernel.org with ESMTP id <S132033AbRC1PcF>; Wed, 28 Mar 2001 10:32:05 -0500
-Date: Wed, 28 Mar 2001 07:32:29 -0800 (PST)
-From: James Simmons <jsimmons@linux-fbdev.org>
-X-X-Sender: <jsimmons@linux.local>
-To: Gunther Mayer <Gunther.Mayer@t-online.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: mouse problems in 2.4.2 -> lost byte
-Message-ID: <Pine.LNX.4.31.0103280722310.948-100000@linux.local>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131974AbRC1Pwn>; Wed, 28 Mar 2001 10:52:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131976AbRC1Pwc>; Wed, 28 Mar 2001 10:52:32 -0500
+Received: from finch-post-10.mail.demon.net ([194.217.242.38]:55302 "EHLO finch-post-10.mail.demon.net") by vger.kernel.org with ESMTP id <S131974AbRC1PwU>; Wed, 28 Mar 2001 10:52:20 -0500
+Message-ID: <ZEABaXAGggw6EwTH@sis-domain.demon.co.uk>
+Date: Wed, 28 Mar 2001 16:49:26 +0100
+To: linux-kernel@vger.kernel.org
+From: Simon Williams <announce@sis-domain.demon.co.uk>
+Subject: Re: Disturbing news..
+References: <01032806093901.11349@tabby> <Pine.GSO.3.96.1010328144551.7198A-100000@laertes> <F6Om1QA+9ew6EwTq@sis-domain.demon.co.uk> <20010328100440.A5941@zalem.puupuu.org>
+In-Reply-To: <20010328100440.A5941@zalem.puupuu.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Turnpike Integrated Version 5.01 S <Qn604$JeDmmUs1jEKXSOEfAuuD>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->Where can I get your driver?
-
-I attach it to the other posting to this thread. I also have it in CVS at
-http://linuxconsole.sourceforge.net with a bunch of other input drivers.
-
->> Section "Pointer"
->>             Protocol    "ImPS/2"
->>             Device      "/dev/input/mice"
+In message <20010328100440.A5941@zalem.puupuu.org>, Olivier Galibert
+<galibert@pobox.com> writes
+>On Wed, Mar 28, 2001 at 03:04:46PM +0100, Simon Williams wrote:
+>> I think their point was that a program could only change permissions
+>> of a file that was owned by the same owner.  If a file is owned by a
+>> different user & has no write permissions for any user, the program
+>> can't modify the file or it's permissions.
 >
->What is better in using /dev/input/mice than /dev/psaux
->on this problem exactly?
+>You mean, you usually have write permissions for other than the owner
+>on executable files?
+>
+>Let me reformulate that.  You usually have write permissions for other
+>than the owner, and not only on some special, untrusted log files (I'm
+>talking files, here, not device nodes)?  What's your umask, 0?
+>
 
-The reason to use /dev/input/mice is the PS/2 mouse driver itself has not
-been ported over to the input suite for 2.4.X. You can use the above for
-the USB mouse now. Now if you have a USB mouse plus a PS/2 mouse then
-having both use /dev/psaux would require a reworking of the PS/2 driver.
-I rather port over the PS/2 mouse to use /dev/input/mice. I have done this
-for my CVS but since the PS/2 mouse shares the same chipset as the PS/2
-keyboard you have to use both input drivers. It would be better if XFree86
-would have a /dev/eventX driver but we would wait a long time for that to
-happen :-(
+Firstly, I'm relatively new to Linux (only about 3 yrs experience) &
+don't claim to be an expert.  Secondly, I don't think I stated my point
+very clearly.
 
-MS: (n) 1. A debilitating and surprisingly widespread affliction that
-renders the sufferer barely able to perform the simplest task. 2. A disease.
+No, I don't have write permissions set on an executable for any user
+other than the owner.
 
-James Simmons  [jsimmons@linux-fbdev.org]               ____/|
-fbdev/console/gfx developer                             \ o.O|
-http://www.linux-fbdev.org                               =(_)=
-http://linuxgfx.sourceforge.net                            U
-http://linuxconsole.sourceforge.net
+What I meant was that if a file is owned by root with permissions of,
+say, 555 (r-xr-xr-x), not setuid or setgid, then another executable
+run as a non-root user cannot modify it or change the permissions to
+7 (rwx).
 
+>
+>> Sounds like a good plan to me.
+>
+>PEBCAK.  Unix security is not designed with dumb "administrators" in
+>mind, nor should be.  User friendly is good.  Luser friendly isn't,
+>it's either dumbing down or unnecessarily restrictive.
+>
+
+I completely agree (even with the PEBCAK part :)).  UNIX security on
+corporate networks or public-facing systems should be left to experts.
+I, on the other hand, am a home-user trying to learn how Linux works &
+how to secure it, I don't pretend to be an expert.
+
+My policy is to give necessary permissions & no more.  I would set the
+aforementioned permissions on the main system binaries which would allow
+other users to get on with what they need to do without being able to
+affect the workspaces of other users, only their own.
+
+I'm open to contructive criticism on this.
+
+
+-- 
+Simon Williams

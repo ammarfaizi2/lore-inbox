@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbULCE44@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbULCE5g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261400AbULCE44 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 23:56:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbULCE4z
+	id S261981AbULCE5g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 23:57:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbULCE5f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 23:56:55 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:59598 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261400AbULCE4x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 23:56:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=nFwYT9a6K44WpyDzHqHyr+fu9HQ0owehzAKAsGrsKIGEZUjulpS1jzawOpvpbQCfeM7Wn2lBkCBy7Tp4f7zyeg+mmd2ZlsE9OGWlGAc6sBHAJWpM6aDh029J8sYw83NXe54kmQNCb2qC2tXwAitf9hbVpQTgSkA8TiEzkntWOfA=
-Message-ID: <5d3341c0041202205640aef878@mail.gmail.com>
-Date: Thu, 2 Dec 2004 22:56:52 -0600
-From: Mark Miller <mirell@gmail.com>
-Reply-To: Mark Miller <mirell@gmail.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: Contribute - How to
-Cc: ram mohan <madhaviram123@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <41AFEB48.60800@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041203042003.57961.qmail@web90007.mail.scd.yahoo.com>
-	 <41AFEB48.60800@osdl.org>
+	Thu, 2 Dec 2004 23:57:35 -0500
+Received: from 70-56-133-193.albq.qwest.net ([70.56.133.193]:13966 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261981AbULCE52 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 23:57:28 -0500
+Date: Thu, 2 Dec 2004 21:56:24 -0700 (MST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+To: Pedro Larroy <piotr@larroy.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH][BUG] Badness in smp_call_function at arch/i386/kernel/smp.c:552
+In-Reply-To: <20041202210340.GA19140@larroy.com>
+Message-ID: <Pine.LNX.4.61.0412022152480.21568@montezuma.fsmlabs.com>
+References: <20041202210340.GA19140@larroy.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 02 Dec 2004 20:27:52 -0800, Randy.Dunlap <rddunlap@osdl.org> wrote:
-> ram mohan wrote:
+On Thu, 2 Dec 2004, Pedro Larroy wrote:
 
-> > 4. Can I suggest new features?
-> Of course.  But part of the Linux culture is that
-> ideas/suggestions don't carry much weight.  It's
-> sometimes phrased as:
->    Shut up and code.
-> or
->    Show us the code.
-> so send patches too.  :)
+> This happens when triggering sysrq-B to reboot box:
+> 
+> SysRq : Emergency Sync
+> Emergency Sync complete
+> SysRq : Resetting
+> Badness in smp_call_function at arch/i386/kernel/smp.c:552
+>  [<c011192e>] smp_call_function+0xfe/0x110
+>  [<c011ccf4>] call_console_drivers+0x74/0x100
+>  [<c011d0cf>] release_console_sem+0x7f/0xc0
+>  [<c011198b>] smp_send_stop+0x1b/0x30
+>  [<c0111204>] machine_shutdown+0x34/0x60
+>  [<c011ce97>] printk+0x17/0x20
+>  [<c021a1fc>] __handle_sysrq+0x7c/0x110
 
-While this may be true of those on the Linux Kernel Mailing List, I
-would hope (from your statement of "Linux Culture", this would involve
-things periphially related to Linux, such as KDE), that ideas and
-suggestions would actually carry _some_ wait.
+ChangeSet 1.2026.75.111 2004/11/07 20:06:32 jbaron@redhat.com
+  [PATCH] fix alt-sysrq deadlock
 
-Although I can fully understand developers of the Linux Kernel taking
-this mindset, since it is not dealing with such things as the User
-Interface.
+__handle_sysrq was modified to do a spin_lock_irqsave so we were 
+entering smp_send_stop with interrupts. So enable interrupts in 
+machine_shutdown().
 
-Just something I've had to deal with recently. Don't mind me.
+Signed-off-by: Zwane Mwaikambo <zwane@holomorphy.com>
+
+Index: linux-2.6.10-rc2-mm4/arch/i386/kernel/reboot.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.10-rc2-mm4/arch/i386/kernel/reboot.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 reboot.c
+--- linux-2.6.10-rc2-mm4/arch/i386/kernel/reboot.c	30 Nov 2004 18:52:19 -0000	1.1.1.1
++++ linux-2.6.10-rc2-mm4/arch/i386/kernel/reboot.c	3 Dec 2004 04:28:28 -0000
+@@ -274,6 +274,8 @@ void machine_shutdown(void)
+ #ifdef CONFIG_SMP
+ 	int reboot_cpu_id;
  
-> --
-> ~Randy
-
--- 
-Mark A. Miller               
-mirell@gmail.com              
-US +1 512 796 3592     
-http://mirell.org
---------------------------------------------------------
-Vice President and CFO of Linucon
-http://linucon.org
++	local_irq_enable();
++
+ 	/* The boot cpu is always logical cpu 0 */
+ 	reboot_cpu_id = 0;
+ 

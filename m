@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262302AbVAEL2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262333AbVAELa3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262302AbVAEL2E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 06:28:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVAEL0g
+	id S262333AbVAELa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 06:30:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262338AbVAELa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 06:26:36 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:48528 "EHLO
+	Wed, 5 Jan 2005 06:30:29 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:59024 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262333AbVAELZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 06:25:17 -0500
-Date: Wed, 5 Jan 2005 11:25:16 +0000
+	id S262333AbVAELaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 06:30:18 -0500
+Date: Wed, 5 Jan 2005 11:30:08 +0000
 From: Christoph Hellwig <hch@infradead.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: "Jack O'Quin" <joq@io.com>, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050105112516.GA31119@infradead.org>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Felipe Alfaro Solana <lkml@mac.com>, Rik van Riel <riel@redhat.com>,
+       Adrian Bunk <bunk@stusta.de>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       William Lee Irwin III <wli@debian.org>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+Subject: Re: starting with 2.7
+Message-ID: <20050105113008.GA31195@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Lee Revell <rlrevell@joe-job.com>, Jack O'Quin <joq@io.com>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	Ingo Molnar <mingo@elte.hu>
-References: <1104374603.9732.32.camel@krustophenia.net> <20050103140359.GA19976@infradead.org> <1104862614.8255.1.camel@krustophenia.net> <20050104182010.GA15254@infradead.org> <87u0pxhvn0.fsf@sulphur.joq.us> <1104865198.8346.8.camel@krustophenia.net>
+	Willy Tarreau <willy@w.ods.org>,
+	Felipe Alfaro Solana <lkml@mac.com>, Rik van Riel <riel@redhat.com>,
+	Adrian Bunk <bunk@stusta.de>,
+	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	William Lee Irwin III <wli@debian.org>,
+	linux-kernel@vger.kernel.org, Andries Brouwer <aebr@win.tue.nl>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+References: <0F9DCB4E-5DD1-11D9-892B-000D9352858E@mac.com> <Pine.LNX.4.61.0501031648300.25392@chimarrao.boston.redhat.com> <5B2E0ED4-5DD3-11D9-892B-000D9352858E@mac.com> <20050103221441.GA26732@infradead.org> <20050104054649.GC7048@alpha.home.local> <20050104063622.GB26051@parcelfarce.linux.theplanet.co.uk> <9F909072-5E3A-11D9-A816-000D9352858E@mac.com> <Pine.LNX.4.61.0501040735410.25392@chimarrao.boston.redhat.com> <85546E06-5E50-11D9-A816-000D9352858E@mac.com> <20050104200912.GA22075@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1104865198.8346.8.camel@krustophenia.net>
+In-Reply-To: <20050104200912.GA22075@alpha.home.local>
 User-Agent: Mutt/1.4.1i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 04, 2005 at 01:59:57PM -0500, Lee Revell wrote:
-> We could do it the was OSX (our real competition) does if that would
-> make people happy.  They just let any user run RT tasks.  Oh wait, but
-> that's a "broken design", everyone knows that OSX is a joke, no one
-> would use *that* OS to mix a CD or score a movie.  :-)
+On Tue, Jan 04, 2005 at 09:09:12PM +0100, Willy Tarreau wrote:
+> Not only proprietary software. I nearly don't use any (vmware a few times a
+> year). Viro would tell you that the problem is on the editor's side. I have
+> often been annoyed by opensource patches breakage. Try to use the same PaX
+> patch for 4 months, for example, without getting rejects nor wrongly applied
+> chunks !
 
-No one sane (well, no one sane with a background in Operating Systems)
-would use OS X at all.
+Note that even if we had a stable _driver_ interface PaX would certainly
+not fall under that.  It pokes really deep into VM interals.
 

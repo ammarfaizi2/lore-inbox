@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVASBDc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVASBFN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261517AbVASBDc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 20:03:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVASBDc
+	id S261519AbVASBFN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 20:05:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVASBFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 20:03:32 -0500
-Received: from mail.kroah.org ([69.55.234.183]:7589 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261517AbVASBDa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 20:03:30 -0500
-Date: Tue, 18 Jan 2005 17:03:23 -0800
-From: Greg KH <greg@kroah.com>
-To: long <tlnguyen@snoqualmie.dp.intel.com>
-Cc: linux-kernel@vger.kernel.org, tom.l.nguyen@intel.com
-Subject: Re: [PATCH] PCI: add PCI Express Port Bus Driver subsystem
-Message-ID: <20050119010323.GA23090@kroah.com>
-References: <200501190159.j0J1xi4Q024191@snoqualmie.dp.intel.com>
+	Tue, 18 Jan 2005 20:05:13 -0500
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:10421 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261519AbVASBFE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 20:05:04 -0500
+Date: Tue, 18 Jan 2005 17:04:37 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Pavel Machek <pavel@ucw.cz>, George Anzinger <george@mvista.com>,
+       john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dynamic tick patch
+Message-ID: <20050119010437.GC4860@atomide.com>
+References: <20050119000556.GB14749@atomide.com> <1106094130.30792.12.camel@krustophenia.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200501190159.j0J1xi4Q024191@snoqualmie.dp.intel.com>
+In-Reply-To: <1106094130.30792.12.camel@krustophenia.net>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 18, 2005 at 05:59:44PM -0800, long wrote:
-> On Tue Jan 18 11:41:01 2005 Greg KH wrote:
-> >> >
-> >> >
-> >> > This puts all of the pcie "port" structures in /sys/devices/  Shouldn't
-> >> > you make the parent of the device you create point to the pci_dev
-> >> > structure that's passed into this function?  That would make the sysfs
-> >> > tree a lot saner I think.
-> >> 
-> >> The patch makes the parent of the device point to the pci_dev structure
-> >> that is passed into this function. If you think it is cleaner that the
-> >> patch should not, I will update the patch to reflect your input.
-> >
-> >That would be great, but it doesn't show up that way on my box.  All of
-> >the portX devices are in /sys/devices/ which is what I don't think you
-> >want.  I would love for them to have the parent of the pci_dev structure
-> >:)
+* Lee Revell <rlrevell@joe-job.com> [050118 16:22]:
+> On Tue, 2005-01-18 at 16:05 -0800, Tony Lindgren wrote:
+> > Currently supported timers are TSC and ACPI PM timer. Other
+> > timers should be easy to add. Both TSC and ACPI PM timer
+> > rely on the PIT timer for interrupts, so the maximum skip
+> > inbetween ticks is only few seconds at most.
+> > 
 > 
-> Agree. Thanks for your inputs. The patch below include the changes based
-> on your previous post.
+> An interesting hack if your sound cards interval timer is supported and
+> can interrupt at high enough resolution (currently ymfpci, emu10k1 and
+> some ISA cards) would be to use it as the system timer.  Who knows, it
+> might even be useful for games, music and AV stuff that clocks off the
+> sound card anyway.  It would probably be easy, ALSA has a very clean
+> timer API.
 
-Hm, that seems like a pretty big patch just to add a pointer to a parent
-device :)
+Hmmm, that never occured to me, but sounds interesting. I wonder if
+the patch already removes some latencies, as the sound card interrupt
+triggers the timer interrupt as well?
 
-What really does this patch do?  What does the sysfs tree now look like?
-
-thanks,
-
-greg k-h
+Tony

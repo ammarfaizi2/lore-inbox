@@ -1,49 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132870AbQKZXMh>; Sun, 26 Nov 2000 18:12:37 -0500
+        id <S131747AbQKZXOR>; Sun, 26 Nov 2000 18:14:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132871AbQKZXM1>; Sun, 26 Nov 2000 18:12:27 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:17924 "EHLO bug.ucw.cz")
-        by vger.kernel.org with ESMTP id <S132870AbQKZXMQ>;
-        Sun, 26 Nov 2000 18:12:16 -0500
-Date: Fri, 24 Nov 2000 07:47:53 +0000
+        id <S131530AbQKZXN5>; Sun, 26 Nov 2000 18:13:57 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:18948 "EHLO bug.ucw.cz")
+        by vger.kernel.org with ESMTP id <S130783AbQKZXNr>;
+        Sun, 26 Nov 2000 18:13:47 -0500
+Date: Fri, 24 Nov 2000 08:09:50 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: John Alvord <jalvo@mbay.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removal of "static foo = 0"
-Message-ID: <20001124074753.A214@toy>
-In-Reply-To: <3a219890.57346310@mail.mbay.net> <Pine.LNX.4.21.0011261048130.1039-100000@penguin.homenet>
+To: Guest section DW <dwguest@win.tue.nl>
+Cc: Keith Owens <kaos@ocs.com.au>, "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: silly [< >]
+Message-ID: <20001124080950.C214@toy>
+In-Reply-To: <200011251026.eAPAQKG210983@saturn.cs.uml.edu> <6551.975150464@ocs3.ocs-net> <20001125192030.A7152@win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0011261048130.1039-100000@penguin.homenet>; from tigran@veritas.com on Sun, Nov 26, 2000 at 10:52:05AM +0000
+In-Reply-To: <20001125192030.A7152@win.tue.nl>; from dwguest@win.tue.nl on Sat, Nov 25, 2000 at 07:20:30PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> Sorry, John, I _have_ to [give good example to others]. The above says
-> that _you_ my dear friend, do not know where the BSS clearing code is. It
-> is not in setup.S. It is not even in the same directory, where setup.S is.
-> It is in arch/i386/kernel/head.S, starting from line 120:
-> 
-> /*
->  * Clear BSS first so that there are no surprises...
->  */
->         xorl %eax,%eax
->         movl $ SYMBOL_NAME(__bss_start),%edi
->         movl $ SYMBOL_NAME(_end),%ecx
->         subl %edi,%ecx
->         cld
->         rep
->         stosb
-> 
-> ... speaking of which (putting asbesto on and hiding from Andries ;) can't
-> we optimize this code to move words at a time and not bytes.... ;)
-
-There's better way: put bss clearing code at beggining of .C code and
-do it with memset. [x86-64 does it this way.] It is both more obvious
-[no assembly] and faster [memset is optimized].
+You complain that most important information is on begging of OOps. So what
+about moving most important info to the end? I.e. stack trace first, EIP next;
+or even print EIP twice. Than s to [<, ksymoops will not break ;-)
 								Pavel
 
 -- 

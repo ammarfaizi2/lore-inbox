@@ -1,12 +1,12 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293713AbSDJEmB>; Wed, 10 Apr 2002 00:42:01 -0400
+	id <S312442AbSDJEmr>; Wed, 10 Apr 2002 00:42:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312442AbSDJEmA>; Wed, 10 Apr 2002 00:42:00 -0400
-Received: from 202-77-223-23.outblaze.com ([202.77.223.23]:48616 "EHLO
+	id <S312443AbSDJEmq>; Wed, 10 Apr 2002 00:42:46 -0400
+Received: from 202-77-223-23.outblaze.com ([202.77.223.23]:54760 "EHLO
 	testdcc.outblaze.com") by vger.kernel.org with ESMTP
-	id <S293713AbSDJEmA>; Wed, 10 Apr 2002 00:42:00 -0400
-Message-ID: <20020410044156.2881.qmail@fastermail.com>
+	id <S312442AbSDJEmp>; Wed, 10 Apr 2002 00:42:45 -0400
+Message-ID: <20020410044243.2916.qmail@fastermail.com>
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
@@ -14,12 +14,12 @@ MIME-Version: 1.0
 X-Mailer: MIME-tools 5.41 (Entity 5.404)
 From: "mark manning" <mark.manning@fastermail.com>
 To: linux-kernel@vger.kernel.org
-Date: Tue, 09 Apr 2002 23:41:56 -0500
+Date: Tue, 09 Apr 2002 23:42:43 -0500
 Subject: Re: nanosleep
 X-Originating-Ip: 67.241.61.228
 X-Originating-Server: ws4.hk5.outblaze.com
-X-DCC-Outblaze-Metrics: testdcc.outblaze.com 100; env_From=9 From=9 Message-ID=1 Received=1 Body=1
-	Fuz1=1 Fuz2=1
+X-DCC-Outblaze-Metrics: testdcc.outblaze.com 100; env_From=10 From=10 Message-ID=1 Received=1
+	Body=2 Fuz1=2 Fuz2=2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

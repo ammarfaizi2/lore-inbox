@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268230AbRGWNeO>; Mon, 23 Jul 2001 09:34:14 -0400
+	id <S268237AbRGWOVC>; Mon, 23 Jul 2001 10:21:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268229AbRGWNeE>; Mon, 23 Jul 2001 09:34:04 -0400
-Received: from ogma.cisco.com ([144.254.74.39]:47577 "HELO ogma.cisco.com")
-	by vger.kernel.org with SMTP id <S268227AbRGWNdt>;
-	Mon, 23 Jul 2001 09:33:49 -0400
-Message-ID: <3B5C27BD.A81DF676@cisco.com>
-Date: Mon, 23 Jul 2001 15:33:49 +0200
-From: Jan Just Keijser <janjust@cisco.com>
-Organization: Cisco Systems Inc
-X-Mailer: Mozilla 4.08 [en] (X11; I; Linux 2.2.19-6.2.1 i686)
+	id <S268239AbRGWOUw>; Mon, 23 Jul 2001 10:20:52 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:28941 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S268237AbRGWOUe>; Mon, 23 Jul 2001 10:20:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Larry McVoy <lm@bitmover.com>
+Subject: Re: Common hash table implementation
+Date: Mon, 23 Jul 2001 16:24:58 +0200
+X-Mailer: KMail [version 1.2]
+Cc: "Brian J. Watson" <Brian.J.Watson@compaq.com>,
+        Larry McVoy <lm@bitmover.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <01071815464209.12129@starship> <01072122255100.02679@starship> <20010722093732.A6000@work.bitmover.com>
+In-Reply-To: <20010722093732.A6000@work.bitmover.com>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: linux 2.4.7: DAC960.c no longer builds
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01072316245803.00315@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi all,
+On Sunday 22 July 2001 18:37, Larry McVoy wrote:
+> On Sat, Jul 21, 2001 at 10:25:51PM +0200, Daniel Phillips wrote:
+> >   1) How random is the hash
+> >   2) How efficient is it
+>
+> The hash is not the only part to consider for performance.  The rest
+> of the code is important as well.  The code I pointed you to has been
+> really carefully tuned for performance.
 
-just grabbed the linux 2.4.7 sources and started compiling; it barfs on
-the DAC960.c module (which I need, actually):
+Yes, I can see that.  The linear congruential hash will be faster than 
+the CRC32 on most modern machines, where we have fast multiplies vs 
+multi-cycle table access.
 
-gcc -D__KERNEL__ -I/local/janjust/src/linux-2.4.7/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2
--fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe  -march=i686
--DMODULE -DMODVERSIONS -include
-/local/janjust/src/linux-2.4.7/include/linux/modversions.h
--DEXPORT_SYMTAB -c DAC960.c
-DAC960.c: In function `DAC960_ProcessRequest':
-DAC960.c:2771: structure has no member named `sem'
-make[2]: *** [DAC960.o] Error 1
+If it's true that the CRC32 is actually less random as well, I'd 
+consider dropping the others and just going with the linear 
+congruential hash.
 
+> And it can be made to be MP
+> safe, SGI did that and managed to get 455,000 random fetches/second
+> on an 8 way R4400 (each of these is about the same as the original
+> Pentium at 150Mhz).
 
-This member has indeed been removed from
-$TOPDIR/include/linux/blkdev.h...
+Did I mention that your linear congruential hash rated among the best 
+of all I've tested?  It's possible it might be further improved along 
+the lines I suggested.  I'll try this pretty soon.
 
-JJK / Jan Just Keijser
-Cisco Systems Inc
-
+--
+Daniel
 

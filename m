@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261177AbTC0SmM>; Thu, 27 Mar 2003 13:42:12 -0500
+	id <S261273AbTC0Snp>; Thu, 27 Mar 2003 13:43:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261273AbTC0SmM>; Thu, 27 Mar 2003 13:42:12 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:44296 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261177AbTC0SmL>;
-	Thu, 27 Mar 2003 13:42:11 -0500
-Date: Thu, 27 Mar 2003 10:52:22 -0800
-From: Greg KH <greg@kroah.com>
-To: Jan Dittmer <j.dittmer@portrix.net>
-Cc: Mark Studebaker <mds@paradyne.com>, azarah@gentoo.org,
-       KML <linux-kernel@vger.kernel.org>, Dominik Brodowski <linux@brodo.de>,
-       sensors@Stimpy.netroedge.com
-Subject: Re: lm sensors sysfs file structure
-Message-ID: <20030327185222.GI32667@kroah.com>
-References: <1048582394.4774.7.camel@workshop.saharact.lan> <20030325175603.GG15823@kroah.com> <1048705473.7569.10.camel@nosferatu.lan> <3E82024A.4000809@portrix.net> <20030326202622.GJ24689@kroah.com> <3E82292E.536D9196@paradyne.com> <20030326225234.GA27436@kroah.com> <3E83459A.3090803@portrix.net>
+	id <S261274AbTC0Snp>; Thu, 27 Mar 2003 13:43:45 -0500
+Received: from inet-mail2.oracle.com ([148.87.2.202]:21495 "EHLO
+	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
+	id <S261273AbTC0Sno>; Thu, 27 Mar 2003 13:43:44 -0500
+Date: Thu, 27 Mar 2003 10:52:08 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: WimMark I report for 2.5.66-mm1
+Message-ID: <20030327185208.GC32000@ca-server1.us.oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E83459A.3090803@portrix.net>
-User-Agent: Mutt/1.4i
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 27, 2003 at 07:40:26PM +0100, Jan Dittmer wrote:
-> Greg KH wrote:
-> >That would give us one value per file, use no floating point in the
-> >kernel (fake or not) and generally make things a whole lot more orderly.
-> >Also, if a sensor does not have a max value (for example, I don't really
-> >know if this is true), instead of having to fake a value, it can just
-> >not create the file.  Then userspace can easily detect this is not
-> >supported, and is not a placeholder value.
-> >
-> 
-> Is this the way you want to go? Just an example for the voltages.
+	There seem to have been some NFS issues during this run (other
+things are on NFS), so take the bad numbers with a grain of salt.  The
+best numbers for each run (1119.58 for AS and 1532.29 for DL) are
+consistent with earlier kernels, though on the low end.
 
-That looks very good to me, nice job.
+WimMark I report for 2.5.66-mm1
 
-Sensors developers, does this look sane?
+Runs (as):  1119.58 735.69 879.24
+Runs (deadline):  1221.11 1376.93 1532.29
 
-> Btw, is it indended behaviour of sysfs, that after writing to a file, 
-> the size is zero?
+	WimMark I is a rough benchmark we have been running
+here at Oracle against various kernels.  Each run tests an OLTP
+workload on the Oracle database with somewhat restrictive memory
+conditions.  This reduces in-memory buffering of data, allowing for
+more I/O.  The I/O is read and sync write, random and seek-laden.
+	The benchmark is called "WimMark I" because it has no
+official standing and is only a relative benchmark useful for comparing
+kernel changes.  The benchmark is normalized an arbitrary kernel, which
+scores 1000.0.  All other numbers are relative to this.
+	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
+of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
+10K RPM U2W SCSI of similar vintage.  The data files are living on an
+ext3 filesystem.  Unless mentioned, all runs are
+on this machine (variation in hardware would indeed change the
+benchmark).
 
-Hm, don't know about that, I haven't seen that before.  If you cat the
-file after writing it, does the file size change?
+-- 
 
-thanks,
+Life's Little Instruction Book #510
 
-greg k-h
+	"Count your blessings."
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

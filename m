@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261323AbTDCQWK>; Thu, 3 Apr 2003 11:22:10 -0500
+	id <S261320AbTDCQTe>; Thu, 3 Apr 2003 11:19:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261326AbTDCQWK>; Thu, 3 Apr 2003 11:22:10 -0500
-Received: from CPEdeadbeef0000-CM400026342639.cpe.net.cable.rogers.com ([24.114.185.204]:516
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S261323AbTDCQWJ>; Thu, 3 Apr 2003 11:22:09 -0500
-Date: Thu, 3 Apr 2003 11:36:50 -0500 (EST)
-From: Shawn Starr <spstarr@sh0n.net>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Narayan Desai <desai@mcs.anl.gov>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.66-bk5 spinlock warnings/errors - Specifically ide-io:109
- spinlock notice
-In-Reply-To: <3E8BCB3A.8080806@colorfullife.com>
-Message-ID: <Pine.LNX.4.44.0304031136430.270-100000@coredump.sh0n.net>
+	id <S261321AbTDCQTe>; Thu, 3 Apr 2003 11:19:34 -0500
+Received: from denise.shiny.it ([194.20.232.1]:50578 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S261320AbTDCQTe>;
+	Thu, 3 Apr 2003 11:19:34 -0500
+Message-ID: <XFMail.20030403183058.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <3E8BFAA3.7010608@canada.com>
+Date: Thu, 03 Apr 2003 18:30:58 +0200 (CEST)
+From: Giuliano Pochini <pochini@shiny.it>
+To: Nehal <nehal@canada.com>
+Subject: Re: mount hfs on SCSI cdrom = segfault
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I will test this tonight when I get home :-)
+>>Once upon a time it worked just fine. Then someone removed
+>>support for !=512 bytes sectors...
+>>To workaround, use loopback.
+>>
+> (yes Oliver has told me about this workaround)
+> 
+> 1. do u know why it was removed?
+> 2. is there a reason why can't support for it be put back?
 
-On Thu, 3 Apr 2003, Manfred Spraul wrote:
+I don't know why, and I don't know if it was removed from the
+hfs code or if hfs relied on some features of a lower layer
+that has been modified.
 
-> Shawn wrote:
->
-> >>List:     linux-kernel
-> >>Subject:  2.5.66-bk5 spinlock warnings/errors
-> >From:     Narayan Desai <desai () mcs ! anl ! gov>
-> >>Date:     2003-04-02 4:01:02
-> >
-> >>hda: dma_timer_expiry: dma status == 0x24
-> >>drivers/ide/ide-io.c:109: spin_lock(drivers/ide/ide.c:c037abe8) already
-> >>locked by drivers/ide/ide-io.c/948 drivers/ide/ide-io.c:990:
-> >>spin_unlock(drivers/ide/ide.c:c037abe8) not locked
-> >>hda: lost interrupt
-> >>hda: dma_intr: bad DMA status (dma_stat=30)
-> >>hda: dma_intr: status=0x50 { DriveReady SeekComplete }
-> >
-> >I had this problem last night while making a huge debian package (tar.bz2
-> >stage). It occured once.
-> >
-> >
-> The attached patch should fix the problem:
-> the dma_timer_expiry handler calls HWGROUP(drive)->handler in the wrong
-> context. Instead of calling ->handler directly, the ->expiry handler
-> must inform the caller that ->handler must be called, and then the
-> caller must do some setup before calling ->handler.
->
-> --
->     Manfred
->
+
+Bye.
 

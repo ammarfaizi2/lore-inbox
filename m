@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263284AbREaXsm>; Thu, 31 May 2001 19:48:42 -0400
+	id <S263288AbREaXuw>; Thu, 31 May 2001 19:50:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263285AbREaXsd>; Thu, 31 May 2001 19:48:33 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:23241 "EHLO
-	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S263284AbREaXsO>; Thu, 31 May 2001 19:48:14 -0400
-Message-ID: <3B16D852.91C5F2F1@idcomm.com>
-Date: Thu, 31 May 2001 17:48:34 -0600
-From: "D. Stimits" <stimits@idcomm.com>
-Reply-To: stimits@idcomm.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac5-1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: missing sysrq
-In-Reply-To: <E155aEF-0006VC-00@sites.inka.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+	id <S263289AbREaXum>; Thu, 31 May 2001 19:50:42 -0400
+Received: from [213.96.124.18] ([213.96.124.18]:19691 "HELO dardhal")
+	by vger.kernel.org with SMTP id <S263288AbREaXuc>;
+	Thu, 31 May 2001 19:50:32 -0400
+Date: Fri, 1 Jun 2001 01:50:59 +0000
+From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
+	<jldomingo@crosswinds.net>
+To: CML2 <linux-kernel@vger.kernel.org>
+Subject: Re: Configure.help is complete
+Message-ID: <20010601015059.A4526@dardhal.mired.net>
+Mail-Followup-To: CML2 <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20010531142321.A9220@thyrsus.com>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Eckenfels wrote:
-> 
-> In article <3B15EF16.89B18D@idcomm.com> you wrote:
-> > However, if I go to /proc/sys/kernel/sysrq does not exist.
-> 
-> It is a compile time option, so the person who compiled your kernel left it
-> out.
+On Thursday, 31 May 2001, at 14:23:21 -0400,
+Eric S. Raymond wrote:
 
-I compiled it, and the sysrq is definitely in the config. No doubt at
-all. I also use make mrproper and config again before dep and actual
-compile. Maybe it is just a quirk/oddball.
+> José Luis Domingo López <jldomingo@crosswinds.net>:
+> > Would it be great to have a similar documentation for those hundreds of
+> > "files" under /proc ?.
+> 
+> Yes, this would be wonderful.  Are you volunteering to write it?
+>
+I'm not skilled enough to write even simple C or PERL programs, but maybe
+I could try improving linux kernel documentation. Not sure about the
+procedure to take nor the available time I'll have. But I'm willing to
+help where I can.
 
-D. Stimits, stimits@idcomm.com
+Would be nice to know whether there is some sense in documenting the whole
+/proc, just the part of ot that will stay in 2.5.x or continue with what
+we have rught now.
 
-> 
-> > vm.freepages = 383 766 1149
-> 
-> tat feature is removed in recent VM Systems.
-> 
-> Greetings
-> Bernd
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I'll check the mentioned program to see if there is the information I
+need. Stay tuned :)
+
+Regards.
+
+--
+José Luis Domingo López
+Linux Registered User #189436     Debian GNU/Linux Potato (P166 64 MB RAM)
+ 
+jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
+jdomingo AT internautas DOT   org  => Spam at your own risk
+

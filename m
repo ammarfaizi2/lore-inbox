@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264436AbTKUUOg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 15:14:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbTKUUOf
+	id S264422AbTKUUKY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 15:10:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264423AbTKUUKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 15:14:35 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:53678 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264436AbTKUUOP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 15:14:15 -0500
-Date: Fri, 21 Nov 2003 21:14:08 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ionice kills vanilla 2.6.0-test9 was [Re: [PATCH] cfq + io priorities (fwd)]
-Message-ID: <20031121201408.GF6616@suse.de>
-References: <20031113124510.GZ643@openzaurus.ucw.cz> <20031121153900.GA193@elf.ucw.cz>
+	Fri, 21 Nov 2003 15:10:23 -0500
+Received: from 217-124-33-199.dialup.nuria.telefonica-data.net ([217.124.33.199]:3968
+	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
+	id S264422AbTKUUKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Nov 2003 15:10:22 -0500
+Date: Fri, 21 Nov 2003 21:10:19 +0100
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org, Voicu Liviu <pacman@mscc.huji.ac.il>,
+       kerin@recruit2recruit.net
+Subject: Re: 2.6.0-test9-mm4 (only) and vmware
+Message-ID: <20031121201019.GA5848@localhost>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, Voicu Liviu <pacman@mscc.huji.ac.il>,
+	kerin@recruit2recruit.net
+References: <20031120225354.GB5094@localhost> <20031120225629.GN22764@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031121153900.GA193@elf.ucw.cz>
+In-Reply-To: <20031120225629.GN22764@holomorphy.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 21 2003, Pavel Machek wrote:
-> Hi!
-> 
-> > > I'm attaching the simple ionice tool. It's used as follows:
-> > 
-> > Here's one that works, sorry about that. To compile:
-> > 
-> > # gcc -Wall -D__X86 -o ionice ionice.c
-> > 
-> > or other define for PPC or X86_64.
-> 
-> Well, did that, run it on vanilla kernel, and it kills the
-> machine. Can someone reproduce it?
+On Thursday, 20 November 2003, at 14:56:29 -0800,
+William Lee Irwin III wrote:
 
-I saw that on ppc too, btw, didn't trace it yet. But there definitely is
-a problem with calling syscalls that don't exist.
+> @@ -1424,7 +1424,7 @@ do_no_page(struct mm_struct *mm, struct 
+>  	pte_t entry;
+>  	struct pte_chain *pte_chain;
+>  	int sequence = 0;
+> -	int ret;
+> +	int ret = VM_FAULT_MINOR;
+>  
+I applied it manually to 2.6.0-test9-mm4 (because there is some offset
+that prevents the patch to apply cleanly to it).
 
-> [What is needed to start using cfq? Is your patch, this utility and
-> elevator=cfq enough?]
+Compiled the kernel with the exact same configuration used in previous
+tests, as well as modules. Booted with this new kernel
+(2.6.0-test9-mm4-fix) and reconfigured (vmware-config.pl) VMware.
 
-Yes, that is it. Your result may vary though, I have a newer cfq that's
-almost ready for release that fixes varies performance problems.
+Otherwise, everything is as it was yesterday. Booted the program,
+started the same guest operating system as ever, and now the BUG is gone
+and everything works OK.
+
+Great work, greetings.
 
 -- 
-Jens Axboe
-
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test9-mm4-fix)

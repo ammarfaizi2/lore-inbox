@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310405AbSBRKfP>; Mon, 18 Feb 2002 05:35:15 -0500
+	id <S292630AbSBQA1C>; Sat, 16 Feb 2002 19:27:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310404AbSBRKfG>; Mon, 18 Feb 2002 05:35:06 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:26191 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S310397AbSBRKe6>; Mon, 18 Feb 2002 05:34:58 -0500
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linux-Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] Merge e1000 gigabit driver (yay)
-In-Reply-To: <3C6E2F92.FD196E71@mandrakesoft.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 18 Feb 2002 03:30:25 -0700
-In-Reply-To: <3C6E2F92.FD196E71@mandrakesoft.com>
-Message-ID: <m1wuxb3wvy.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S292633AbSBQA0x>; Sat, 16 Feb 2002 19:26:53 -0500
+Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:62936
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S292630AbSBQA0d>; Sat, 16 Feb 2002 19:26:33 -0500
+Date: Sat, 16 Feb 2002 19:26:19 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Rob Landley <landley@trommello.org>
+cc: "Eric S. Raymond" <esr@thyrsus.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Disgusted with kbuild developers
+In-Reply-To: <20020217000440.FTZN23150.femail44.sdc1.sfba.home.com@there>
+Message-ID: <Pine.LNX.4.44.0202161923590.32153-100000@xanadu.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+On Sat, 16 Feb 2002, Rob Landley wrote:
 
-> Linus,
+> On Saturday 16 February 2002 11:06 am, Nicolas Pitre wrote:
 > 
-> I'm pleased to submit to you a BK merge of Intel's e1000 driver.  The
-> license is now "GPL or (BSD + patent grant)", which should satisfy those
-> concerns.
-
-Nice progress.
- 
-> I would also like to publicly thank Intel for this work.  The two
-> contributors listed have been very responsive to feedback, and they have
-> put a good deal of work into beating the driver into shape for a kernel
-> merge.
+> > Don't tell us that's not doable.  Do it and show us that you can do a
+> > perfect translation of CML1 into CML2 with all CML1 structural flaws.
 > 
-> Now I just hope I can convince them to open up their hardware specs :)
+> "Hey, the new VM in 2.4.10 should have replicated the swap overload failure 
+> case in 2.4.9!  The first implementation should definitely melt down exactly 
+> the same way!  We need to artificially introduce all the flaws in the old 
+> one, just to prove it can be done!  Otherwise the new code is not 
+> interesting."
 
-This is almost as important.  Currently this greatly reduces the value
-of their hardware as it places stumbling blocks in road of distributed
-debugging.  And the fewer eyes the deeper the bugs.  For that reason
-the company I work for has been looking for alternatives to Intel's
-network cards. 
+Rob:
 
-Eric
+Please read my other mails, understand the nuances, then come back, OK?
+
+
+Nicolas
+

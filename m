@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129624AbRCFWqF>; Tue, 6 Mar 2001 17:46:05 -0500
+	id <S129618AbRCFWvF>; Tue, 6 Mar 2001 17:51:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129631AbRCFWpz>; Tue, 6 Mar 2001 17:45:55 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:29964
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129624AbRCFWpm>; Tue, 6 Mar 2001 17:45:42 -0500
-Date: Tue, 6 Mar 2001 14:44:38 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: scott1021@mediaone.net, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: Linux 2.4.2-ac12
-In-Reply-To: <E14aPqG-0001aD-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10103061443010.13719-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S129643AbRCFWuz>; Tue, 6 Mar 2001 17:50:55 -0500
+Received: from gateway.sequent.com ([192.148.1.10]:41190 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S129618AbRCFWuj>; Tue, 6 Mar 2001 17:50:39 -0500
+Date: Tue, 6 Mar 2001 14:45:52 -0800
+From: Jonathan Lahr <lahr@sequent.com>
+To: Anton Blanchard <anton@linuxcare.com.au>
+Cc: Jonathan Lahr <lahr@sequent.com>, linux-kernel@vger.kernel.org
+Subject: Re: kernel lock contention and scalability
+Message-ID: <20010306144552.G6451@w-lahr.des.sequent.com>
+In-Reply-To: <20010215104656.A6856@w-lahr.des.sequent.com> <20010305113807.A3917@linuxcare.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010305113807.A3917@linuxcare.com>; from anton@linuxcare.com.au on Mon, Mar 05, 2001 at 11:38:08AM +1100
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Mar 2001, Alan Cox wrote:
 
-> >   Just trying 2.4.3-pre2 now. It appears to be working fine. I used the
-> > same config from my ac11-12 attempts. My systems problem with ac11-12 must
-> > not be something common between them.  Hope this helps.
-> 
-> It helps a lot. I now know not to submit the VIA ide driver to Linus until
-> further investigation is completed.
+> Tridge and I tried out the postgresql benchmark you used here and this
+> contention is due to a bug in postgres. From a quick strace, we found
+> the threads do a load of select(0, NULL, NULL, NULL, {0,0}). Basically all
+> threads are pounding on schedule().
+...
+> Our guess is that the app has some form of userspace synchronisation
+> (semaphores/spinlocks). I'd argue that the app needs to be fixed not the
+> kernel, or a more valid test case is put forwards. :)
+...
+> PS: I just looked at the postgresql source and the spinlocks (s_lock() etc)
+> are in a tight loop doing select(0, NULL, NULL, NULL, {0,0}). 
 
-Now you know why I pawned it off the VIA-core to Vojtech ;-)
-It is a mess!
+Anton,
 
-Andre Hedrick
-Linux ATA Development
+Thanks for looking into postgresql/pgbench related locking.  Yes, 
+apparently postgresql uses a synchronization scheme that uses select()
+to effect delays for backing off while attempting to acquire a lock.
+However, it seems to me that runqueue lock contention was not entirely due 
+to postgresql code, since it was largely alleviated by the multiqueue 
+scheduler patch.
 
+In using postgresql/pgbench to measure lock contention, I was attempting
+to apply a typical server workload to measure scalability using only open 
+software.  My goal is to load and measure the kernel for server performance, 
+so I need to ensure that the software I use represents likely real world 
+server configurations.  I did not use mysql, because it cannot perform 
+transactions which I considered important.  Any pointers to other open 
+database software or benchmarks that might be suitable for this effort 
+would be appreciated.
+
+Jonathan
 

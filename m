@@ -1,81 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263005AbTJJRgS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 13:36:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263010AbTJJRgS
+	id S262970AbTJJReW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 13:34:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbTJJReV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 13:36:18 -0400
-Received: from sea2-f11.sea2.hotmail.com ([207.68.165.11]:59912 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263005AbTJJRgK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 13:36:10 -0400
-X-Originating-IP: [129.128.161.249]
-X-Originating-Email: [danielharker@hotmail.com]
-From: "Daniel Harker" <danielharker@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: original redhat config
-Date: Fri, 10 Oct 2003 11:36:08 -0600
+	Fri, 10 Oct 2003 13:34:21 -0400
+Received: from agminet02.oracle.com ([141.146.126.229]:34968 "EHLO
+	agminet02.oracle.com") by vger.kernel.org with ESMTP
+	id S262970AbTJJReB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 13:34:01 -0400
+Date: Fri, 10 Oct 2003 10:33:44 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: statfs() / statvfs() syscall ballsup...
+Message-ID: <20031010173344.GC29301@ca-server1.us.oracle.com>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Ulrich Drepper <drepper@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20031010162606.GB28773@ca-server1.us.oracle.com> <Pine.LNX.4.44.0310100939300.20420-100000@home.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Sea2-F11XoZl0fqWcH800005aac@hotmail.com>
-X-OriginalArrivalTime: 10 Oct 2003 17:36:09.0206 (UTC) FILETIME=[FDA63960:01C38F54]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310100939300.20420-100000@home.osdl.org>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey guys,
+On Fri, Oct 10, 2003 at 09:50:02AM -0700, Linus Torvalds wrote:
+> The fact is, the high end is getting smaller and smaller. If Oracle wants 
+> to go after that high-end-only market, then be my guest. 
 
-I've had quite a problem compiling my kernel lately  :).  I've spent maybe 2 
-weeks day and night trying to just patch my kernel with the bootsplash patch 
-found at bootsplash.org.
+	No, the high-end for hardware is getting smaller.  The need for
+high-end jobs is just fine.  But as you point out, the high-end jobs are
+being done by low-end hardware.  And here is Oracle, promoting a bank of
+cheap-ass 2-way boxen to do the job.
 
-Originally, I downloaded the lastest stable kernel at www.kernel.org. 
-2.4.22.  I tried to compile it on my Redhat 9 system, and for somereason or 
-another it just wouldn't work.  I wonder if the new kernels work properly 
-with redhat 9? Well that's not really my question per say.
+> Have you guys learnt _nothing_ from the past? The reason MicroSoft and
+> Linux are kicking all the other vendors butts is that _small_ is
+> beautiful. Especially when small is "powerful enough".
 
-I did finally get ahold of a kernel source for redhat 9, and recompiled it 
-with the bootsplash patch. HURAY! but, when I rebooted, I got a nasty 
-surprise! my USB mouse didn't work, my sound card didn't work and neither 
-did my network card!
+	Again, we need this sort of stuff precisely because we'd rather
+use 2 $5k Linux/Intel servers than 1 $40k Sun server (and the Linux box
+outruns the Sun, quite comfortably).  That's the "powerful enough",
+right there.
 
-So naturally, I figured that what really happened was that when I compiled 
-the kernel, it didn't use the configure that redhat 9 originally put on my 
-system when it installed.  So, someone told me in an irc chat room that in 
-the /boot directory I could find a .config file, and sure enough it was 
-there!  So i recompiled my kernel with the .config file, and i rebooted 
-hoping that it would work, and my USB mouse, networkcard, and soundcard 
-didn't work!! :(
+> And believing that the load will keep up with "big iron hardware" is just 
+> not _true_. It's never been true. "Small iron" not only keeps up, but 
+> overtakes it - to the point where you have to start doing new things just 
+> to be able to take advantage of it.
 
-I think they are all modules.  My theory is that I must have accedently 
-changed the .config file in the /boot directory that redhat put there when 
-it installed my system, because let's face it, I attempted to recompile the 
-kernel like 20 or 30 times.  :).  So the configuration didn't really work 
-for my system anymore.
+	Linus, I've said it twice above.  This has been our entire
+direction for the past couple years, and we've been loud about it.
+Please, knock us for what we do wrong, but recognize what we are
+actually doing wrong, not what you think we are doing.
 
-With university, it's really hard to find time to go through every little 
-thing in the make menuconfig.  I know that if I spent hours and hours, I 
-could figure out exactly what modules my mouse needs, what my network card 
-and sound card needs, but I just don't have the time.
+> Ok. Let's just hope all the crackers and virus writers believe you when 
+> you say "you shouldn't do that".
 
-My question:  Is there a way (without reinstalling) to get the make 
-menuconfig to use exactly what redhat configured for my system?  So that my 
-mouse, soundcard, and network card work? I pretty much want it to be the 
-exact same kernel configuration but with the bootsplash patch.
+	Well, if a cracker and virus writer can get enough priviledge to
+write(), cached or O_DIRECT, they can corrupt you without worrying about
+this specific gotcha.  That doesn't mean you don't fix it, but it also
+doesn't mean you throw up your hands and claim you can't do it.
 
-Can I run a program that will make a .config file for make menuconfig from 
-the settings that I have on my computer?  Could i reinstall the redhat .rpm 
-kernel file and maybe it would have the options for my system?
+> BIG FRIGGING HINT: a _real_ OS doesn't allow data corruption even for
+> cases where "you shouldn't do that". It shouldn't allow reading of data
+> that you haven't written. And "you shouldn't do that" is _not_ an excuse
+> for having bad interfaces that cause problems.
 
-I really would like the answers to all of these questions.  Thank you so 
-much for taking your time to read this and reply.
+	I know that, I agree with it, and I said as much a few emails
+past.  Linux should refuse to corrupt your data.  But you've taken the
+tack "It is unsafe today, so we should abandon it altogether, never mind
+fixing it.", which doesn't logically follow.
 
-My email adress is:  danielharker@hotmail.com
+Joel
 
-Thankyou.
+-- 
 
-dan
+"Behind every successful man there's a lot of unsuccessful years."
+        - Bob Brown
 
-_________________________________________________________________
-The new MSN 8: smart spam protection and 2 months FREE*  
-http://join.msn.com/?page=features/junkmail
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127
+-- 
 
+"When choosing between two evils, I always like to try the one
+ I've never tried before."
+        - Mae West
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

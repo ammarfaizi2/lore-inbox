@@ -1,52 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315437AbSELWAF>; Sun, 12 May 2002 18:00:05 -0400
+	id <S315439AbSELWEQ>; Sun, 12 May 2002 18:04:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315438AbSELWAE>; Sun, 12 May 2002 18:00:04 -0400
-Received: from p0211.as-l042.contactel.cz ([194.108.237.211]:9600 "EHLO
-	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S315437AbSELWAD>;
-	Sun, 12 May 2002 18:00:03 -0400
-Date: Mon, 13 May 2002 00:00:08 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pdc202xx.c fails to compile in 2.5.15
-Message-ID: <20020512220008.GA2935@ppc.vc.cvut.cz>
-In-Reply-To: <3CDD4DE5.5030200@evision-ventures.com> <877km99nt1.fsf_-_@atlas.iskon.hr>
-Mime-Version: 1.0
+	id <S315438AbSELWEP>; Sun, 12 May 2002 18:04:15 -0400
+Received: from [128.195.36.171] ([128.195.36.171]:27890 "HELO
+	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with SMTP
+	id <S315439AbSELWEO>; Sun, 12 May 2002 18:04:14 -0400
+Subject: Re: UDMA Troubles and Possible Physical Damage?!
+To: aeleblanc@olgc.on.ca
+Date: Sun, 12 May 2002 15:06:45 -0700 (PDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <OF3BBACEBD.3823AB14-ON85256BB7.0074FF80@LocalDomain> from "aeleblanc@olgc.on.ca" at May 12, 2002 05:27:20 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+Message-Id: <20020512220645.973FA89546@cx518206-b.irvn1.occa.home.com>
+From: barryn@pobox.com (Barry K. Nathan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 12, 2002 at 09:19:22PM +0200, Zlatko Calusic wrote:
-> pdc202xx.x fails to compile in 2.5.15. Error messages below.
+> Duron 1GHz on an ACS Mobo with SiS Chipset. 100MHz FSB & 384 MB PC133 
+> SDRAM.
+> and a Fujitsu 30MB ATA100 Drive
 > 
-> pdc202xx.c:1453: unknown field `exnablebits' specified in initializer
-> pdc202xx.c:1453: warning: braces around scalar initializer
-> pdc202xx.c:1453: warning: (near initialization for `chipsets[3].init_dma')
-> make[3]: *** [pdc202xx.o] Error 1
+> 
+> I Just finished installing Debian - Woody, which installs Kernel Version 
+> 2.2.17 I Believe (I may be wrong there)
 
-If you have PDC20265 like I have, you must also remove test on device class,
-as 20265 reports itself as generic mass storage (class 0x0180) and not as
-IDE (it is real IDE, not RAID, really). 
+For anything recent, you really want the IDE support in 2.4.19-preX (latest
+is -pre8).
 
-Because of there are apparently devices on which you must check device class
-(2.5.14 talks about CY82C693 and IT8172G), I'll leave proper fix on Martin,
-but simple fix below work fine on my Asus A7V.
-							Petr Vandrovec
-							vandrove@vc.cvut.cz
+> I installed and ran hdparm and after telling me that dma and all that 
+> other good stuff was disabled it said "HDIO: Failed to check BUSSTATE"
+> 
+> i ran hdparm -c3 -d1 -X34 to try and get DMA Working... the command ran 
 
---- drivers/ide/ide-pci.c	Sun May 12 02:46:44 2002
-+++ drivers/ide/ide-pci.c	Fri May 10 00:25:29 2002
-@@ -701,7 +701,7 @@
- 			hpt374_device_order_fixup(dev, d);
- 	} else if (d->vendor == PCI_VENDOR_ID_PROMISE && d->device == PCI_DEVICE_ID_PROMISE_20268R)
- 		pdc20270_device_order_fixup(dev, d);
--	else if ((dev->class >> 8) == PCI_CLASS_STORAGE_IDE) {
-+	else if (1 || (dev->class >> 8) == PCI_CLASS_STORAGE_IDE) {
- 		printk(KERN_INFO "ATA: %s (%04x:%04x) on PCI slot %s\n",
- 				dev->name, vendor, device, dev->slot_name);
- 		setup_pci_device(dev, d);
+Usually -X## commands are just asking for trouble these days (the driver
+should be doing it on its own, and in the newer kernels, it does). The
+most that should be needed is "hdparm -d1" and that's only needed if the
+"DMA enabled by default" config option wasn't enabled at kernel compile
+time.  
+
+> fine but as soon as I tried to run another command (just 'ls' in fact) the 
+> system Locked up Solid.  upon rebooting my Bios didn't even Pick up the 
+> Hard drive.. I did a Hard reset again and the Bios picked it up, then 
+> reset again and it failed to pick it up again.. is it possible that I 
+> Screwed up my motherboard or Hard drive somehow?
+
+In this kind of situation you want to turn off the power to the machine
+for a few minutes, ideally unplugging the machine from mains if you really
+want to be sure. If the IDE controller somehow gets confused, a "hard
+reset" alone isn't enough to fix things (speaking from personal
+experience).
+
+I doubt there is physical damage, but I don't know for sure. In any case,
+try unplugging the thing for a few minutes, and see if you still have
+problems. (Make sure you do *not* use that hdparm -X34 option.)
+
+> the on a side note, before attempting to use hdparm under the above 
+> mentioned kernel, I compiled a custom 2.4.18 kernel, however it caused 
+> even more problems with ide, a bunch of:
+> 
+> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> 
+> Flew by then it said ide0: reset: success, then locked up again.
+> 
+> if anyone can help it would be greatly appreciated.
+
+I would start by trying 2.4.19-pre8. If that doesn't help, there are even
+newer IDE driver patches on http://www.linuxdiskcert.org/ which might be
+worth a try.
+
+-Barry K. Nathan <barryn@pobox.com>

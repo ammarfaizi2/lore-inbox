@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264964AbTLFIZK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 03:25:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264968AbTLFIZK
+	id S264963AbTLFIYq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 03:24:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264964AbTLFIYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 03:25:10 -0500
-Received: from mxsf12.cluster1.charter.net ([209.225.28.212]:24585 "EHLO
-	mxsf12.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S264964AbTLFIZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 03:25:05 -0500
-Date: Sat, 6 Dec 2003 03:23:12 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Catching NForce2 lockup with NMI watchdog - found?
-Message-ID: <20031206082312.GA1730@forming>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <1070672114.2759.8.camel@big.pomac.com> <1070675560.4117.9.camel@athlonxp.bradney.info>
+	Sat, 6 Dec 2003 03:24:46 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:27661 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S264963AbTLFIYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 03:24:45 -0500
+Date: Sat, 6 Dec 2003 09:20:11 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Chuck Lever <cel@citi.umich.edu>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4 read ahead never reads the last page in a file
+Message-ID: <20031206082011.GD11325@alpha.home.local>
+References: <Pine.BSO.4.33.0312031800270.24127-100000@citi.umich.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1070675560.4117.9.camel@athlonxp.bradney.info>
-X-Editor: GNU Emacs 21.1
-X-Operating-System: Debian GNU/Linux 2.6.0-test11-Jm-nf2 i686
-X-Uptime: 03:06:49 up 21 min,  6 users,  load average: 3.40, 3.10, 2.06
-User-Agent: Mutt/1.5.4i
-From: Josh McKinney <forming@charter.net>
+In-Reply-To: <Pine.BSO.4.33.0312031800270.24127-100000@citi.umich.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On approximately Sat, Dec 06, 2003 at 02:52:40AM +0100, Craig Bradney wrote:
-> Ok.. I decided I would try the patch out.. here are the results:
-> 
-[snip]
+Hi Chuck,
 
-I tried it out too since doing some greps after 3 days uptime crashed
-it again.  Guess I am not so lucky.  So far so good with the new
-patch, timer is using apic and no crashes yet, after 30 minutes of 
-grep's and hdparms.  Tried booting with nmi_watchdog=1 and got this:
+I've run 2.4.23 both vanilla and patched, and I confirm a win on NFS reads.
+I tested from 1 to 6 parallel reads consisting of md5sum of kernel includes :
+  time find include -type f | xargs md5sum >/dev/null &
+Results below :
 
-...trying to set up timer (IRQ0) through the 8259A ...
-..... (found pin 0) ...works.
-activating NMI Watchdog ... done.
-testing NMI watchdog ... CPU#0: NMI appears to be stuck!
+processes   2.4.23       2.4.23-patched
+    1       11.5         11.45
+    2       12.82        12.68
+    3       14.7         14.4
+    4       17.8         17.3
+    5       21.5         21.0
+    6       25.7         25.0  => server is saturated 100% sys
+    7       29.3         29.0  => server is saturated 100% sys
 
-Going to retry with nmi_watchdog=2 and see if that works.
+Fileset contain 7346 files totalizing 29952 kB.
+So there's a gain of nearly 3% in the best case (6 processes). Not bad.
+I suspect that I could also gain slightly more by patching the server too.
 
-> 
-> Im not getting any NMI counts.. should I use nmi-watchdog=1?
-> 
-> 
-[snip]
+Cheers,
+Willy
 
--- 
-Josh McKinney		     |	Webmaster: http://joshandangie.org
---------------------------------------------------------------------------
-                             | They that can give up essential liberty
-Linux, the choice       -o)  | to obtain a little temporary safety deserve 
-of the GNU generation    /\  | neither liberty or safety. 
-                        _\_v |                          -Benjamin Franklin

@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289621AbSAJT07>; Thu, 10 Jan 2002 14:26:59 -0500
+	id <S289627AbSAJTdJ>; Thu, 10 Jan 2002 14:33:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289655AbSAJT0n>; Thu, 10 Jan 2002 14:26:43 -0500
+	id <S289624AbSAJTdC>; Thu, 10 Jan 2002 14:33:02 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:17823 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S289637AbSAJTZ7>;
-	Thu, 10 Jan 2002 14:25:59 -0500
-Date: Thu, 10 Jan 2002 19:26:52 +0100 (CET)
-From: Cristiano Paris <c.paris@libero.it>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.18pre2 oops using agpgart
-In-Reply-To: <20020110110547.A4633@kittpeak.ece.umn.edu>
-Message-ID: <Pine.LNX.4.33.0201101925080.27496-100000@gandalf.rhpk.springfield.inwind.it>
+	by vger.kernel.org with ESMTP id <S289652AbSAJT0w>;
+	Thu, 10 Jan 2002 14:26:52 -0500
+Message-ID: <3C3DDEA9.E8FAB8DC@nortelnetworks.com>
+Date: Thu, 10 Jan 2002 13:34:17 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rob Landley <landley@trommello.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <E16OUu0-00035o-00@the-village.bc.nu> <200201101753.g0AHrlA17591@snark.thyrsus.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, Jan 10, 2002 at 05:44:17PM +0100, Cristiano Paris wrote:
-> > It finally turned out that using the agpgart module with my notebook makes
-> > my machine crash and reset. Here's the last oops :
->
-> Hehehe you think this error is specific to agpgart?
+Rob Landley wrote:
 
-No, I don't think so. IMHO, it seems a VM problem which badly interact
-with the agpgart or at least doesn't work well with agpgart.
+> And a sound card with only 1mS of buffer in it is definitely not useable on
+> windoze, the minimum buffer in the cheapest $12 PCI sound card I've seen is
+> about 1/4 second (250ms).  (Is this what you mean by "hardware fun"?)  Even
+> if the app was taking half that, it's still a > 100ms big gap where the OS
+> leaves it hanging before you get a dropout.  (Okay, some of that's watermark
+> policy, not sending more data to the card until half the buffer is
+> exhausted...)  What sound output device DOESN'T have this much cache?
 
-> I've seen very
-> similar traces from SMP.  Even sent these specific tracebacks here,
-> offered to help track down the problem, got 0 help.  This problem
-> has been around since at least 2.4.2.
+Imagine taking an input, doing dsp-type calculations on it, and sending it back
+as output.  Now...imagine doing it in realtime with the output being fed back to
+a monitor speaker.  Think about what would happen if the output of the monitor
+speaker is 1/4 second behind the input at the mike.  Now do you see the
+problem?  A few ms of delay might be okay.  A few hundred ms definately is not.
 
-Thanks :-)
+> Now VIDEO is a slightly more interesting problem.  (Or synchronizing audio
+> and video by sending really tiny chunks of audio.)  There's no hardware
+> buffer there to cover our latency sins.  Then again, dropping frames is
+> considered normal in the video world, isn't it? :)
 
-Cristiano
+If I'm trying to watch a DVD on my computer, and assuming my CPU is powerful
+enough to decode in realtime, then I want the DVD player to take
+priority--dropping frames just because I'm starting up netscape is not
+acceptable.
 
+Chris
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

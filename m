@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264796AbUEER4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264799AbUEERyH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264796AbUEER4X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 13:56:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264800AbUEER4W
+	id S264799AbUEERyH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 13:54:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264796AbUEERyG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 13:56:22 -0400
-Received: from mail.kroah.org ([65.200.24.183]:17836 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264796AbUEERyN (ORCPT
+	Wed, 5 May 2004 13:54:06 -0400
+Received: from mail.kroah.org ([65.200.24.183]:63659 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264799AbUEERx5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 13:54:13 -0400
-Date: Wed, 5 May 2004 10:53:23 -0700
+	Wed, 5 May 2004 13:53:57 -0400
+Date: Wed, 5 May 2004 09:16:29 -0700
 From: Greg KH <greg@kroah.com>
-To: Michael Hunold <hunold@convergence.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Jean Delvare <khali@linux-fr.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, sensors@stimpy.netroedge.com
-Subject: Re: [PATCH][2.6]
-Message-ID: <20040505175323.GA13088@kroah.com>
-References: <409923F7.7050101@convergence.de>
+To: Daniel Moyne <dmoyne@tiscali.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [bug kernel 2.6 / USB / SCSI] report
+Message-ID: <20040505161629.GA23860@kroah.com>
+References: <200405051318.50204.dmoyne@tiscali.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <409923F7.7050101@convergence.de>
+In-Reply-To: <200405051318.50204.dmoyne@tiscali.fr>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 05, 2004 at 07:27:19PM +0200, Michael Hunold wrote:
+On Wed, May 05, 2004 at 01:18:49PM +0200, Daniel Moyne wrote:
+> USB :
 > 
-> I think these things are unquestionable and don't make any functional 
-> changes to the code, so this should be applied to 2.6 now.
+> - the only way to get my USB printer recognized is to use the following 
+> modules (from lsmod) :
+> usblp                  12256  0
+> ehci-hcd               24196  0
+> uhci-hcd               29104  0
+> usbcore                99132  6 hid,usblp,ehci-hcd,uhci-hcd
+> 
+> and set the following "append" option in lilo :
+> 	append="devfs=mount noapic resume=/dev/hda5"
+> what is relevant here is obviously the "noapic" option ("apic=ht" works fine 
+> for kernel 2.4.x)
 
-"now" as in 2.6.6-rc3?  No.
+Ok, there's no problem there.
 
-Now as in I'll add it to my i2c tree, which will get picked up by -mm
-and let it bake a bit and then pushed to Linus, yes.
+> - ohci does not work !
 
-I'll look this over and add it to my tree, thanks,
+Do you have OHCI hardware?  If not, why would you expect it to work?
+
+thanks,
 
 greg k-h

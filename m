@@ -1,103 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262265AbVBSX3X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262267AbVBSXdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262265AbVBSX3X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 18:29:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbVBSX3W
+	id S262267AbVBSXdj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 18:33:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbVBSXdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 18:29:22 -0500
-Received: from farside.demon.co.uk ([62.49.25.247]:21492 "EHLO
-	mail.farside.org.uk") by vger.kernel.org with ESMTP id S262265AbVBSX3O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 18:29:14 -0500
-From: Malcolm Rowe <malcolm-linux@farside.org.uk>
-To: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Symlink /sys/class/block to /sys/block
-Date: Sat, 19 Feb 2005 23:29:13 +0000
+	Sat, 19 Feb 2005 18:33:38 -0500
+Received: from gate.crashing.org ([63.228.1.57]:29631 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262267AbVBSXdh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 18:33:37 -0500
+Subject: Re: Current bk on ppc32: kernel text corruption
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>,
+       "Antonino A. Daplas" <adaplas@hotpop.com>
+In-Reply-To: <1108710554.5587.1.camel@gaston>
+References: <1108710554.5587.1.camel@gaston>
+Content-Type: text/plain
+Date: Sun, 20 Feb 2005 10:32:12 +1100
+Message-Id: <1108855933.5584.2.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-Message-ID: <courier.4217CBC9.000027C1@mail.farside.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg, 
+On Fri, 2005-02-18 at 18:09 +1100, Benjamin Herrenschmidt wrote:
+> Ok, we may not be over with memory corruption bugs yet. ppc64 now seem
+> stable running LTP overnight, but my laptop has a page of kernel .text
+> replaced with zero's as soon as I launch X (and just X, no need to launc
+> the whole desktop environment).
+> 
+> I suspect remap_pfn_range() but I haven't checked yet.
 
-Following the discussion in [1], the attached patch creates /sys/class/block
-as a symlink to /sys/block. The patch applies to 2.6.11-rc4-bk7. 
+Ok, I found it. It's a bug that was there forever it seems, where
+radeonfb accel ops may corrupt kernel memory (via bus master from the
+radeon chip) when switching back from X, due to X remapping some areas
+of the card vs. fbcon calling some radeonfb accel ops before radeonfb
+has a chance to re-initialize the chip (when switching back from X).
 
-Please cc: me on any replies - I'm not subscribed to the mailing list. 
+I'm cooking a workaround patch for 2.6.11, will be ready as soon as I
+have tested. Proper fix is to make sure fbcon never calls any fbdev
+accel op before the chip has been properly restored (by a set_var call),
+but that is beyond the scope of 2.6.11 I suppose...
 
-[1] http://marc.theaimsgroup.com/?m=110506536315986 
-
-Regards,
-Malcolm 
-
-Signed-off-by: Malcolm Rowe <malcolm-linux@farside.org.uk> 
-
-diff -ur linux-2.6.11-rc4-bk7/drivers/base/class.c 
-linux-2.6.11-rc4-bk7-diff/drivers/base/class.c
- --- linux-2.6.11-rc4-bk7/drivers/base/class.c	2005-02-19 21:34:31.000000000 
-+0000
-+++ linux-2.6.11-rc4-bk7-diff/drivers/base/class.c	2005-02-19 
-21:38:31.000000000 +0000
-@@ -69,7 +69,7 @@
-}; 
-
-/* Hotplug events for classes go to the class_obj subsys */
- -static decl_subsys(class, &ktype_class, NULL);
-+decl_subsys(class, &ktype_class, NULL); 
-
-
-int class_create_file(struct class * cls, const struct class_attribute * 
-attr)
-diff -ur linux-2.6.11-rc4-bk7/drivers/block/genhd.c 
-linux-2.6.11-rc4-bk7-diff/drivers/block/genhd.c
- --- linux-2.6.11-rc4-bk7/drivers/block/genhd.c	2005-02-19 21:34:31.000000000 
-+0000
-+++ linux-2.6.11-rc4-bk7-diff/drivers/block/genhd.c	2005-02-19 
-22:01:56.000000000 +0000
-@@ -14,6 +14,7 @@
-#include <linux/slab.h>
-#include <linux/kmod.h>
-#include <linux/kobj_map.h>
-+#include <linux/sysfs.h> 
-
-#define MAX_PROBE_HASH 255	/* random */ 
-
-@@ -300,11 +301,24 @@
-	return NULL;
-} 
-
-+extern struct subsystem class_subsys;
-+
-static int __init genhd_device_init(void)
-{
-	bdev_map = kobj_map_init(base_probe, &block_subsys);
-	blk_dev_init();
- -	subsystem_register(&block_subsys);
-+	if (!subsystem_register(&block_subsys)) {
-+		/*
-+		 * /sys/block should really live under /sys/class, but for
-+		 * the moment, we can only have class devices, not
-+		 * sub-classes-devices. Until we can move /sys/block into
-+		 * the right place, create a symlink from /sys/class/block to
-+		 * /sys/block, so that userspace doesn't need to know about
-+		 * the difference.
-+		 */
-+		sysfs_create_link(&class_subsys.kset.kobj,
-+				  &block_subsys.kset.kobj, "block");
-+	}
-	return 0;
-} 
-
-@@ -406,6 +420,7 @@
-static void disk_release(struct kobject * kobj)
-{
-	struct gendisk *disk = to_disk(kobj);
-+	sysfs_remove_link(&class_subsys.kset.kobj, "block");
-	kfree(disk->random);
-	kfree(disk->part);
-	free_disk_stats(disk); 
+Ben.
 
 

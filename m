@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273305AbRKMPsd>; Tue, 13 Nov 2001 10:48:33 -0500
+	id <S273854AbRKMP42>; Tue, 13 Nov 2001 10:56:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273902AbRKMPsX>; Tue, 13 Nov 2001 10:48:23 -0500
-Received: from mail205.mail.bellsouth.net ([205.152.58.145]:50451 "EHLO
-	imf05bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S273305AbRKMPsK>; Tue, 13 Nov 2001 10:48:10 -0500
-Message-ID: <000301c16b98$b1a276a0$5201a8c0@genesis>
-From: "Ben Israel" <ben@genesis-one.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "John O'Neil" <joneil@genesis-one.com>
-In-Reply-To: <00b201c16b81$9d7aaba0$5101a8c0@pbc.adelphia.net>
-Subject: Re: File System Performance
-Date: Mon, 12 Nov 2001 11:40:09 -0500
+	id <S273902AbRKMP4I>; Tue, 13 Nov 2001 10:56:08 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:8976 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S273854AbRKMP4E>; Tue, 13 Nov 2001 10:56:04 -0500
+Date: Tue, 13 Nov 2001 13:55:42 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: linux readahead setting?
+In-Reply-To: <Pine.LNX.4.30.0111131619230.1290-100000@mustard.heime.net>
+Message-ID: <Pine.LNX.4.33L.0111131355030.20809-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2314.1300
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->
-> It works, and it'll get you close to disk bandwidth with this test.
-> But the effects of this change on other workloads (the so-called
-> "slow growth" scenario) still needs to be understood and tested.
->
+On Tue, 13 Nov 2001, Roy Sigurd Karlsbakk wrote:
 
-Does compiling the kernel constitute a reasonable example of a slow
-growth workload? If not what is a slow growth workload where file
-system performance is important?
+> I heard linux does <= 32 page readahead from block devices
+> (scsi/ide/que?). Is there a way to double this? I want to read 256kB
+> chunks from the SCSI drives, as to get the best speed. These numbers are
+> based on some testing and information I've got from Compaq's storage guys.
 
+The -ac kernels have a way to tune this dynamically,
+I guess we might want to push this change into 2.4
+later on...
 
+regards,
 
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
 
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

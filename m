@@ -1,65 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132063AbRAKT0r>; Thu, 11 Jan 2001 14:26:47 -0500
+	id <S129896AbRAKTpS>; Thu, 11 Jan 2001 14:45:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132648AbRAKT0h>; Thu, 11 Jan 2001 14:26:37 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:3085 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S132063AbRAKT0Z>;
-	Thu, 11 Jan 2001 14:26:25 -0500
-Message-ID: <3A5E08CE.1F67629@mandrakesoft.com>
-Date: Thu, 11 Jan 2001 14:26:06 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre1 i686)
-X-Accept-Language: en
+	id <S130392AbRAKTpJ>; Thu, 11 Jan 2001 14:45:09 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:31758 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S129896AbRAKTpC>;
+	Thu, 11 Jan 2001 14:45:02 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200101111938.f0BJcOt490764@saturn.cs.uml.edu>
+Subject: Re: Subtle MM bug
+To: sct@redhat.com (Stephen C. Tweedie)
+Date: Thu, 11 Jan 2001 14:38:24 -0500 (EST)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
+        sct@redhat.com (Stephen C. Tweedie),
+        torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), ak@suse.de (Andi Kleen),
+        trond.myklebust@fys.uio.no (Trond Myklebust),
+        phillips@innominate.de (Daniel Phillips), linux-kernel@vger.kernel.org
+In-Reply-To: <20010111173512.M25375@redhat.com> from "Stephen C. Tweedie" at Jan 11, 2001 05:35:12 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]  8139too.c patch to allow setting of MAC address to actually 
- work.
-In-Reply-To: <3A556E47.522FCE7@candelatech.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Greear wrote:
-> 
-> This was gleaned from conversations with Donald Becker w/regard
-> to why:   ifconfig eth1 hw ether a:b:c:d:e:f
-> fails to work with the RTL drivers.
-> 
-> This fixes the problem, at least on my machine:
-> 
-> (The new line has ### in front of it..)
-> 
-> 8139too.c, line 1229, from kernel 2.4.prerelease:
-> 
->         /* Check that the chip has finished the reset. */
->         for (i = 1000; i > 0; i--)
->                 if ((RTL_R8 (ChipCmd) & CmdReset) == 0)
->                         break;
-> 
->         /* Restore our idea of the MAC address. */
-> ###        RTL_W8_F  (Cfg9346, 0xC0); /* Fix provided by Becker */
->         RTL_W32_F (MAC0 + 0, cpu_to_le32 (*(u32 *) (dev->dev_addr + 0)));
->         RTL_W32_F (MAC0 + 4, cpu_to_le32 (*(u32 *) (dev->dev_addr + 4)));
-> 
-> The 2.2.18 driver is broken too, but I think Donald is going to send
-> the fixes for it.
+Stephen C. Tweedie writes:
+> On Thu, Jan 11, 2001 at 11:50:21AM -0500, Albert D. Cahalan wrote:
+>> Stephen C. Tweedie writes:
 
-I have updated 8139too to include this and other changes.  The new
-version can be downloaded from the SourceForge project page
-(http://sourceforge.net/projects/gkernel/), and hopefully it should show
-up in a release kernel eventually...
+>>> But is it really worth the pain?  I'd hate to have to audit the
+>>> entire VFS to make sure that it works if another thread changes our
+>>> credentials in the middle of a syscall, so we either end up having to
+>>> lock the credentials over every VFS syscall, or take a copy of the
+>>> credentials and pass it through every VFS internal call that we make.
+>>
+>> 1. each thread has a copy, and doesn't need to lock it
+>
+> We already have that...
+>
+>> 2. threads are commanded to change their own copy
+>
+> We already do that: that's how the current pthreads works.
 
-	Jeff
+I thought it was unimplemented. Even so, it is at least one
+extra round trip to/from the kernel. (I'd guess trips>1)
+
+>> Credentials could be changed on syscall exit. It is a bit like
+>> doing signals I think, with less overhead than making userspace
+>> muck around with signal handlers and synchronization crud.
+>
+> Yuck.  Far better to send a signal than to pollute the syscall exit
+> path.  And what about syscalls which block indefinitely?  We _want_
+> the signal so that they get woken up to do the credentials change.
+
+The syscall exit path itself need not be polluted. Changes to
+recalc_sigpending and do_signal would get the job done.
+For the former, either add an extra word of kernel-internal
+signal data or just check a simple flag. For do_signal, maybe
+add an extra "if(foo)" at the top of the main loop. (that would
+depend on what was done to recalc_sigpending)
+
+I suppose the goodness or badness of this depends partly on how
+much you are willing to pay for pthreads that are fast and correct.
+People around here seem to like burying their heads in hope that
+pthreads will just go away, while app developers stubbornly try to
+use the API.
 
 
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

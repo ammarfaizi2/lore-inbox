@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287607AbSAFDC2>; Sat, 5 Jan 2002 22:02:28 -0500
+	id <S287657AbSAFD1w>; Sat, 5 Jan 2002 22:27:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287612AbSAFDCJ>; Sat, 5 Jan 2002 22:02:09 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:61454
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S287607AbSAFDB7>; Sat, 5 Jan 2002 22:01:59 -0500
-Date: Sat, 5 Jan 2002 18:58:38 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PDC20269 support in 2.2?
-In-Reply-To: <Pine.LNX.4.30.0201052018520.10735-100000@mustard.heime.net>
-Message-ID: <Pine.LNX.4.10.10201051849540.24436-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S287615AbSAFD1m>; Sat, 5 Jan 2002 22:27:42 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:4338 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S287626AbSAFD1h>;
+	Sat, 5 Jan 2002 22:27:37 -0500
+Date: Sat, 5 Jan 2002 20:27:15 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Jason Thomas <jason@topic.com.au>,
+        linux-kernel <linux-kernel@vger.kernel.org>, marcelo@conectiva.com.br
+Subject: Re: oops in devfs
+Message-ID: <20020105202715.N12868@lynx.no>
+Mail-Followup-To: Richard Gooch <rgooch@ras.ucalgary.ca>,
+	Jason Thomas <jason@topic.com.au>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	marcelo@conectiva.com.br
+In-Reply-To: <20020103014507.GB19702@topic.com.au> <200201030724.g037ONj04041@vindaloo.ras.ucalgary.ca> <20020103224744.GB29846@topic.com.au> <200201060047.g060l4p08166@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <200201060047.g060l4p08166@vindaloo.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Sat, Jan 05, 2002 at 05:47:04PM -0700
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Jan 05, 2002  17:47 -0700, Richard Gooch wrote:
+> Ah! You're using LVM! There are known bugs in LVM which cause memory
+> corruptions. I told Heinz about this on 16-DEC, but it appears the CVS
+> tree hasn't been updated yet. So grab the latest CVS tree (which fixes
+> some bugs) and then apply the appended patch (which fixes more
+> bugs). You definately need both. The patch should be applied in the
+> drivers/md directory.
 
-Roy,
+Hmm, my understanding was that the LVM CVS already had this patch
+applied, but I could be wrong...  In any case, I haven't seen anything
+about updating the kernel LVM to match CVS since Alan merged in his
+-ac LVM code into 2.4.15 or so.
 
-The day somebody pays for it and the check clears the bank or it is
-requested by the 2.2.X kernel maintainer for inclusion.  Since none of the
-distros are willing to fund the development of the driver, it is now
-market driven development.  The companys maintain the chipset code, they
-pay for updates for the new hardware, somebody who has the latest
-hardware effected does a gpl good deed, and when it is convienent to do
-busy work for kicks who knows.  Since I recently totalled my Porsche and
-technically should have died, I have more concerns than doing busy work
-for something that does not produce an income (or a replacement toy car).
-I suspect this had much to do with my irrational behavor lately.  One
-should note I have no excuse for the flames I blasted Jens with, nor any
-explaination.
-
-
-Regards,
-
-Andre Hedrick
-Linux ATA Development
-
-On Sat, 5 Jan 2002, Roy Sigurd Karlsbakk wrote:
-
-> hi
-> 
-> I saw a previous thread about this, but I can't work. It's not mentioned
-> in the latest patch (ide.2.2.19.05042001.patch.gz) either.
-> 
-> Does anyone know if or when this will be back ported to 2.2?
-> 
-> roy
-> 
-> --
-> Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-> 
-> Computers are like air conditioners.
-> They stop working when you open Windows.
-> 
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

@@ -1,50 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318383AbSGYI1l>; Thu, 25 Jul 2002 04:27:41 -0400
+	id <S318376AbSGYIjs>; Thu, 25 Jul 2002 04:39:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318384AbSGYI1l>; Thu, 25 Jul 2002 04:27:41 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:64517 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S318383AbSGYI1k>; Thu, 25 Jul 2002 04:27:40 -0400
-Message-ID: <3D3FB5F6.3060000@evision.ag>
-Date: Thu, 25 Jul 2002 10:25:26 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Samuel Thibault <samuel.thibault@fnac.net>, martin@dalecki.de,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drivers/ide/qd65xx: no cli/sti (2.4.19-pre3 & 2.5.28)
-References: <Pine.LNX.4.44.0205260248160.17222-400000@youpi.residence.ens-lyon.fr> <Pine.LNX.4.10.10207250128110.4868-100000@bureau.famille.thibault.fr> <20020725093154.A21541@ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318377AbSGYIjs>; Thu, 25 Jul 2002 04:39:48 -0400
+Received: from maroon.csi.cam.ac.uk ([131.111.8.2]:35280 "EHLO
+	maroon.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S318376AbSGYIjr>; Thu, 25 Jul 2002 04:39:47 -0400
+Message-Id: <5.1.0.14.2.20020725092538.00b0bd30@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 25 Jul 2002 09:43:08 +0100
+To: Linus Torvalds <torvalds@transmeta.com>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: 2.5.28 and partitions
+Cc: Alexander Viro <viro@math.psu.edu>, <Andries.Brouwer@cwi.nl>,
+       <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0207242213540.1231-100000@home.transmeta.com
+ >
+References: <5.1.0.14.2.20020725030051.02114cb0@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> On Thu, Jul 25, 2002 at 01:45:00AM +0200, Samuel Thibault wrote:
-> 
->>Hello,
->>
->>Here are patches for 2.4.19-pre3 & 2.5.28 which free them from using
->>cli/sti in qd65xx stuff.
-> 
-> 
-> Cool.
-> 
-> 
->>(also using ide's OUT_BYTE / IN_BYTE btw)
-> 
-> 
-> In my opinion this doesn't make sense. The qd65xx is a VESA Local Bus
-> only hardware and is very very unlikely to be used on anything else than
-> an x86, where these defines are needed. Also, the ports written to are
-> not a part of the IDE controller region, so the IN_BYTE/OUT_BYTE macros
-> might not work there if it was ever used on a non-x86 machine. Also, it
-> makes the code less readable.
+At 06:15 25/07/02, Linus Torvalds wrote:
+>On Thu, 25 Jul 2002, Anton Altaparmakov wrote:
+> >
+> > >u64 for sector_t doesn't change anything for 64bit boxen that might be
+> > >interested in really large disks and screws 32bit ones that shouldn't
+> > >have to pay for that...
+> >
+> > True. That's why sector_t should be a compile time option in the kernel
+> > "Enable large device support > 2TiB:  Y/N". Then I am happy and loads of
+> > other people because we can use large raid arrays without having to buy the
+> > latest expensive system and other people are happy for having faster 32-bit
+> > code... Surely we can write robust enough code which will work with either
+> > sector_t size...
+>
+>Careful. One issue is user-level interfaces to the kernel. I would suggest
+>any user level interface should use u64, not "sector_t". So that there is
+>zero confusion. Clearly 64-bit sector numbers will be/are really close to
+>being an issue for some people.
 
-Amen. BTW> I think proper fix is to simple *remove* the cli() cti()
-commands. They don't make much sense in first place.
+Of course. We do need a consistent ABI... But I don't see that as a big 
+problem. There aren't that many places that take sectors as arguments that 
+we need to fix AFAICS.
+
+Both there and for user supplied byte offsets/sizes, we just need to check 
+that user supplied values are not being overflowed on 32-bit sector_t 
+compiled kernels... something like
+
+         if (sizeof(sector_t) == 4) {
+                 if (value & ~(((u64)1 << 32) - 1))
+                         return -E2BIG;
+         }
+
+should compile out nicely for 64-bit sector_t and provide a simple, highly 
+optimized check for 32-bit sector_t... (If gcc optimizes it well I should 
+hope it will just do a simple 32-bit compare of the high 32-bits with zero...)
+
+I have to admit that if it was just up to me, I would make sector_t 
+unconditionally u64, so there don't need to be checks like the above all 
+over the place... But that's just me... (-;
+
+Best regards,
+
+         Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

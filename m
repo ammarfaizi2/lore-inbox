@@ -1,117 +1,253 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261974AbVBIXxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261978AbVBIXyc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261974AbVBIXxg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 18:53:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbVBIXxg
+	id S261978AbVBIXyc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 18:54:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbVBIXyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 18:53:36 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:52106 "EHLO
-	mail.bitmover.com") by vger.kernel.org with ESMTP id S261974AbVBIXxO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 18:53:14 -0500
-Date: Wed, 9 Feb 2005 15:53:12 -0800
-To: Nicolas Pitre <nico@cam.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Jon Smirl <jonsmirl@gmail.com>,
-       tytso@mit.edu, Stelian Pop <stelian@popies.net>,
-       Francois Romieu <romieu@fr.zoreil.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050209235312.GA25351@bitmover.com>
-Mail-Followup-To: lm@bitmover.com, Nicolas Pitre <nico@cam.org>,
-	Roman Zippel <zippel@linux-m68k.org>, Jon Smirl <jonsmirl@gmail.com>,
-	tytso@mit.edu, Stelian Pop <stelian@popies.net>,
-	Francois Romieu <romieu@fr.zoreil.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20050209184629.GR22893@bitmover.com> <Pine.LNX.4.61.0502091513060.7836@localhost.localdomain>
+	Wed, 9 Feb 2005 18:54:32 -0500
+Received: from ozlabs.org ([203.10.76.45]:43949 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261978AbVBIXxr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 18:53:47 -0500
+Date: Thu, 10 Feb 2005 10:53:40 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Anton Blanchard <anton@samba.org>, Maynard Johnson <mpjohn@us.ibm.com>,
+       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: [PPC64] (resend) Functions to reserve performance monitor hardware
+Message-ID: <20050209235340.GA5324@localhost.localdomain>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+	Maynard Johnson <mpjohn@us.ibm.com>, linuxppc64-dev@ozlabs.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0502091513060.7836@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
-From: lm@bitmover.com (Larry McVoy)
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 09, 2005 at 03:13:48PM -0500, Nicolas Pitre wrote:
-> Are you saying that it is now OK to write scripts that would bit bang
-> on
-> the bkbits http interface to fetch patches/comments with the purpose
-> of
-> populating an alternate scm?  Andreas tried that a while ago but you
-> threatened to shut the service down entirely if he was to continue.
+Andrew, here's a resend of this patch.  My earlier version had a few
+stupid errors which should be corrected in this one.  Please apply.
 
-Go for it, if it becomes a problem we'll rate limit it.  Our first
-concern is that the BK users can get at the trees so if you are eating up
-the bandwidth too much we'll slow down the web interface.
+The PPC64 interrupt code includes a hook to call when an exception
+from the performance monitor unit occurs.  However, there's no way of
+reserving the hook properly, so if more than one bit of code tries to
+use it things will get ugly.  Currently oprofile is the only user, but
+there are likely to be more in future e.g. perfctr, if and when it
+reaches a fit state for merging.
 
-> | What you could make available in the bkcvs export would be, for each
-> | changeset (both for the changesets and for the merged changesets),
-> | include three BKRevs:  the changeset's one, the changeset's parent
-> one,
-> | and the changeset's merge parent one.
->
-> Is the above actually part of the protected BK IP?  
+This patch creates functions to reserve and release the performance
+monitor hardware (including its interrupt), and makes oprofile use
+them.  It also creates a new arch/ppc64/kernel/pmc.c, in which we can
+put any future helper functions for handling the performance monitor
+counters.
 
-Yes.
+Signed-off-by: David Gibson <dwg@au1.ibm.com>
 
-> I think what people want here is the tree structure representation in
-> whatever form, not necessarily in the BK format.  
+Index: working-2.6/arch/ppc64/kernel/pmc.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ working-2.6/arch/ppc64/kernel/pmc.c	2005-02-10 10:50:16.639578008 +1100
+@@ -0,0 +1,64 @@
++/*
++ *  linux/arch/ppc64/kernel/pmc.c
++ *
++ *  Copyright (C) 2004 David Gibson, IBM Corporation.
++ *
++ *  This program is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU General Public License
++ *  as published by the Free Software Foundation; either version
++ *  2 of the License, or (at your option) any later version.
++ */
++
++#include <linux/config.h>
++#include <linux/errno.h>
++#include <linux/spinlock.h>
++
++#include <asm/processor.h>
++#include <asm/pmc.h>
++
++/* Ensure exceptions are disabled */
++static void dummy_perf(struct pt_regs *regs)
++{
++	unsigned int mmcr0 = mfspr(SPRN_MMCR0);
++
++	mmcr0 &= ~(MMCR0_PMXE|MMCR0_PMAO);
++	mtspr(SPRN_MMCR0, mmcr0);
++}
++
++static spinlock_t pmc_owner_lock = SPIN_LOCK_UNLOCKED;
++static void *pmc_owner_caller; /* mostly for debugging */
++perf_irq_t perf_irq = dummy_perf;
++
++int reserve_pmc_hardware(perf_irq_t new_perf_irq)
++{
++	int err = 0;
++
++	spin_lock(&pmc_owner_lock);
++
++	if (pmc_owner_caller) {
++		printk(KERN_WARNING "reserve_pmc_hardware: "
++		       "PMC hardware busy (reserved by caller %p)\n",
++		       pmc_owner_caller);
++		err = -EBUSY;
++		goto out;
++	}
++
++	pmc_owner_caller = __builtin_return_address(0);
++	perf_irq = new_perf_irq ? : dummy_perf;
++
++ out:
++	spin_unlock(&pmc_owner_lock);
++	return err;
++}
++
++void release_pmc_hardware(void)
++{
++	spin_lock(&pmc_owner_lock);
++
++	WARN_ON(! pmc_owner_caller);
++
++	pmc_owner_caller = NULL;
++	perf_irq = dummy_perf;
++
++	spin_unlock(&pmc_owner_lock);
++}
+Index: working-2.6/arch/ppc64/kernel/traps.c
+===================================================================
+--- working-2.6.orig/arch/ppc64/kernel/traps.c	2005-02-10 10:50:14.653478576 +1100
++++ working-2.6/arch/ppc64/kernel/traps.c	2005-02-10 10:50:16.640577856 +1100
+@@ -41,6 +41,7 @@
+ #include <asm/rtas.h>
+ #include <asm/systemcfg.h>
+ #include <asm/machdep.h>
++#include <asm/pmc.h>
+ 
+ #ifdef CONFIG_DEBUGGER
+ int (*__debugger)(struct pt_regs *regs);
+@@ -450,18 +451,7 @@
+ 	die("Unrecoverable VMX/Altivec Unavailable Exception", regs, SIGABRT);
+ }
+ 
+-/* Ensure exceptions are disabled */
+-static void dummy_perf(struct pt_regs *regs)
+-{
+-	unsigned int mmcr0 = mfspr(SPRN_MMCR0);
+-
+-	mmcr0 &= ~(MMCR0_PMXE|MMCR0_PMAO);
+-	mtspr(SPRN_MMCR0, mmcr0);
+-}
+-
+-void (*perf_irq)(struct pt_regs *) = dummy_perf;
+-
+-EXPORT_SYMBOL(perf_irq);
++extern perf_irq_t perf_irq;
+ 
+ void performance_monitor_exception(struct pt_regs *regs)
+ {
+Index: working-2.6/include/asm-ppc64/pmc.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ working-2.6/include/asm-ppc64/pmc.h	2005-02-10 10:50:16.641577704 +1100
+@@ -0,0 +1,29 @@
++/*
++ * pmc.h
++ * Copyright (C) 2004  David Gibson, IBM Corporation
++ * 
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ * 
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ * 
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
++ */
++#ifndef _PPC64_PMC_H
++#define _PPC64_PMC_H
++
++#include <asm/ptrace.h>
++
++typedef void (*perf_irq_t)(struct pt_regs *);
++
++int reserve_pmc_hardware(perf_irq_t new_perf_irq);
++void release_pmc_hardware(void);
++
++#endif /* _PPC64_PMC_H */
+Index: working-2.6/arch/ppc64/kernel/Makefile
+===================================================================
+--- working-2.6.orig/arch/ppc64/kernel/Makefile	2005-02-10 10:50:14.653478576 +1100
++++ working-2.6/arch/ppc64/kernel/Makefile	2005-02-10 10:50:16.641577704 +1100
+@@ -11,7 +11,7 @@
+ 			udbg.o binfmt_elf32.o sys_ppc32.o ioctl32.o \
+ 			ptrace32.o signal32.o rtc.o init_task.o \
+ 			lmb.o cputable.o cpu_setup_power4.o idle_power4.o \
+-			iommu.o sysfs.o
++			iommu.o sysfs.o pmc.o
+ 
+ obj-$(CONFIG_PPC_OF) +=	of_device.o
+ 
+Index: working-2.6/arch/ppc64/oprofile/common.c
+===================================================================
+--- working-2.6.orig/arch/ppc64/oprofile/common.c	2005-02-10 10:50:14.653478576 +1100
++++ working-2.6/arch/ppc64/oprofile/common.c	2005-02-10 10:50:16.642577552 +1100
+@@ -15,6 +15,7 @@
+ #include <linux/errno.h>
+ #include <asm/ptrace.h>
+ #include <asm/system.h>
++#include <asm/pmc.h>
+ 
+ #include "op_impl.h"
+ 
+@@ -22,9 +23,6 @@
+ extern struct op_ppc64_model op_model_power4;
+ static struct op_ppc64_model *model;
+ 
+-extern void (*perf_irq)(struct pt_regs *);
+-static void (*save_perf_irq)(struct pt_regs *);
+-
+ static struct op_counter_config ctr[OP_MAX_COUNTER];
+ static struct op_system_config sys;
+ 
+@@ -35,11 +33,12 @@
+ 
+ static int op_ppc64_setup(void)
+ {
+-	/* Install our interrupt handler into the existing hook.  */
+-	save_perf_irq = perf_irq;
+-	perf_irq = op_handle_interrupt;
++	int err;
+ 
+-	mb();
++	/* Grab the hardware */
++	err = reserve_pmc_hardware(op_handle_interrupt);
++	if (err)
++		return err;
+ 
+ 	/* Pre-compute the values to stuff in the hardware registers.  */
+ 	model->reg_setup(ctr, &sys, model->num_counters);
+@@ -52,10 +51,7 @@
+ 
+ static void op_ppc64_shutdown(void)
+ {
+-	mb();
+-
+-	/* Remove our interrupt handler. We may be removing this module. */
+-	perf_irq = save_perf_irq;
++	release_pmc_hardware();
+ }
+ 
+ static void op_ppc64_cpu_start(void *dummy)
 
-That's fine, they can do that.  Get the patches and figure out how to
-put them back together.  These people do know how to use patch, right?
-OK, then they are welcome to patch things in, when they don't work, find
-a place they do work and create a branch, patch them, repeat.  Haven't
-they ever dealt with a patch reject before?  It's not that hard.
 
-> You can't deny others access to the whole of the
-> Linux kernel development history even if their purpose is to import it
-> into a competing system (more on that below).
-
-I'm not denying anyone that.  The history consists of the diffs and the
-checkin comments, you have that.
-
-> Again I wholeheartedly agree with you above.  But that's not exactly the
-> point.  You certainly have the right to protect your work.  But please
-> admit that the Linux kernel developers own the right to move (100% not
-> 96%) of the development tree with all its branches _they_ produced.
-
-_They_ didn't produce the branching structure, BitKeeper did that.
-Go look, there isn't a way to type a command which produces a branch in
-BK.  So claiming that metadata is property of the developers is nonsense,
-they didn't produce, it isn't physically possible for them to produce it.
-
-That's part of BK's design and power.  100% of what any developer
-produced is already available on the web, in the form that has been
-used for more than 10 years as the preferred form, a unified diff.
-And we added comments because those are useful and you typed them in.
-You guys have been importing patches for more than a decade, since when
-did that become a problem?
-
-> Now obviously enough some people will run away with that raw data and
-> try to import the Linux kernel source tree in their own scm of choice.
-> That's why I'm asking you "and so what?"
-
-That's fine if they want to do that, they have the patches.  What they
-don't get is the tree structure that BK has because that gives them the
-ability to go back and forth and say "well, BK did it this way and it
-worked, why doesn't it work in our system?".  
-
-> Note that if someone actually needs a big tree to test bench an
-> alternate scm there are alternatives to the kernel -- gcc is a good
-> example.  So allowing the Linux kernel tree to be imported into another
-> scm is not really a requirement for developing on said scm.
-
-Indeed.  I don't suppose there is any chance you could get people to go
-play with the gcc tree?  
-
-> I'm just wondering why providing some additional info which would allow
-> for rebuilding the tree with all changeset relationships (into whatever
-> alternate inferior scm that's not the point) would uncover your IP.
-
-I think you are fishing for BK internal information and I'm not going
-to bite.  The bottom line is that we laid out some rules, the BK users
-agreed to them, that's the deal.  If you don't like the deal then go
-build an alternative.  You can use all the patches you want from BK but
-you don't get to use BK's metadata.
-
---lm
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist.  NOT _the_ _other_ _way_
+				| _around_!
+http://www.ozlabs.org/people/dgibson

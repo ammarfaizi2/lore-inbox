@@ -1,75 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278522AbRLSRtl>; Wed, 19 Dec 2001 12:49:41 -0500
+	id <S278701AbRLSRvm>; Wed, 19 Dec 2001 12:51:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278701AbRLSRta>; Wed, 19 Dec 2001 12:49:30 -0500
-Received: from ca-ol-tours-10-196.abo.wanadoo.fr ([80.8.7.196]:30608 "EHLO
-	walhalla.agaha") by vger.kernel.org with ESMTP id <S278522AbRLSRtQ>;
-	Wed, 19 Dec 2001 12:49:16 -0500
-To: "M. R. Brown" <mrbrown@0xd6.org>
-Cc: nbecker@fred.net, linux-kernel@vger.kernel.org
-Subject: On K7, -march=k6 is good (Was Re: Why no -march=athlon?)
-In-Reply-To: <x88r8ptki37.fsf@rpppc1.hns.com> <20011217174020.GA24772@0xd6.org>
-From: Benoit Poulot-Cazajous <poulot@ifrance.com>
-Organization: Sun Microsystems
-Date: 19 Dec 2001 18:46:13 +0100
-In-Reply-To: <20011217174020.GA24772@0xd6.org>
-Message-ID: <lnitb3drx6.fsf_-_@walhalla.agaha>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S280426AbRLSRvd>; Wed, 19 Dec 2001 12:51:33 -0500
+Received: from bitmover.com ([192.132.92.2]:23969 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S278701AbRLSRvV>;
+	Wed, 19 Dec 2001 12:51:21 -0500
+Date: Wed, 19 Dec 2001 09:51:20 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Larry McVoy <lm@bitmover.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IRC (was: Scheduler)
+Message-ID: <20011219095120.D14938@work.bitmover.com>
+Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
+	Larry McVoy <lm@bitmover.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0112180917050.2867-100000@penguin.transmeta.com> <E16GPXv-0008LJ-00@the-village.bc.nu> <20011218130228.N26374@work.bitmover.com> <E16Gkli-0000UY-00@starship.berlin>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E16Gkli-0000UY-00@starship.berlin>; from phillips@bonn-fries.net on Wed, Dec 19, 2001 at 06:44:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"M. R. Brown" <mrbrown@0xd6.org> writes:
-
-> * nbecker@fred.net <nbecker@fred.net> on Mon, Dec 17, 2001:
+On Wed, Dec 19, 2001 at 06:44:35PM +0100, Daniel Phillips wrote:
+> On December 18, 2001 10:02 pm, Larry McVoy wrote:
+> > Maybe I'm an old stick in the mud, but IRC seems like a big waste of
+> > time to me.  It's perfect for off the cuff answers and fairly useless
+> > for thoughtful answers.  We used to write well thought out papers and
+> > specifications for OS work.  These days if you can't do it in a paragraph
+> > on IRC it must not be worth doing, eh?
 > 
-> > I noticed that linux/arch/i386/Makefile says:
-> > 
-> > ifdef CONFIG_MK7
-> > CFLAGS += -march=i686 -malign-functions=4 
-> > endif
-> > 
-> > 
-> > Why not -march=athlon?  Is this just for compatibility with old gcc?
-> 
-> The recommend kernel compiler is gcc 2.95.x, which doesn't support
-> "-march=athlon".
+> To put this into a more immediate perspective for you, suppose you wanted to 
+> get some traction under your SMP Clusters proposal?  I'd suggest it's already 
+> been kicked around as much as it's going to be on lkml, and you already wrote 
+> your paper, so the next step would be to get together face-to-face with some 
+> folks who have a clue.  Well, unless you're willing to wait months for the 
+> right people to show up in the Bay Area, IRC is the way to go.
 
-But gcc-2.95,x _supports_ "-march=k6", and we should use that instead of
-"-march-i686".
+Actually, I haven't written a paper.  A paper is something which lays out
 
-Obvious patch for 2.4.16 :
+    goals
+    architecture
+    milestones
+    design details
 
---- linux-2.4.16/arch/i386/Makefile	Thu Apr 12 21:20:31 2001
-+++ linux-2.4.16-bpc/arch/i386/Makefile	Sun Dec 16 15:44:06 2001
-@@ -63,7 +63,7 @@
- endif
- 
- ifdef CONFIG_MK7
--CFLAGS += $(shell if $(CC) -march=athlon -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=athlon"; else echo "-march=i686 -malign-functions=4"; fi) 
-+CFLAGS += $(shell if $(CC) -march=athlon -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=athlon"; elif $(CC) -march=k6 -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=k6 -malign-functions=4"; else echo "-march=i686 -malign-functions=4"; fi)
- endif
- 
- ifdef CONFIG_MCRUSOE
+and should be sufficient to make the project happen should I be hit by a
+bus.  That's my main complaint with IRC, it requires me to keep coming
+back and explaining the same thing over and over again.
 
-I have tested this change, using 3 steps of the ChorusOS compilation
-as benchmarks (The test first bootstrap gcc, then compiles various
-cross-compilers in parallel and then uses them to build ChorusOS for
-various architectures). On my XP1800+, it gives :
+Here's an idea: you go try and get some traction on the OS cluster idea.
+I'll give you 6 months and we'll see what happens.  If nothing has
+happened, I'll produce a decent paper describing it and then we wait
+another 6 months to see what happens.  I'll bet you 10:1 odds I get a
+lot more action from a lot more people than you do.  Nope, wait, make
+that 100:1 odds.
 
-before the patch :
-1017.92user 261.80system 24:39.89elapsed 86%CPU
-706.33user 160.79system 16:23.61elapsed 88%CPU
-1787.38user 418.76system 43:35.97elapsed 84%CPU
+I've seen how little I manage to get done by talking.  Talk is cheap.
+I've also seen how much I get done when I write a paper which other
+people can pass around, think about, discuss, and implement.  A senior
+guy at Morgan Stanley (hi marc) once told me "if you want to get things
+done, write them down".  And in my case, since people tend to like to
+argue with me rather than listen to me (yup, it's my fault, my "style"
+leaves "room for improvement" translation: sucks rocks), a paper is 
+far more effective.  My style is pretty much removed from the equation.
 
-after the patch :
-1018.42user 253.85system 24:44.68elapsed 85%CPU
-704.89user 151.76system 16:16.14elapsed 87%CPU
-1786.96user 410.76system 43:05.32elapsed 85%CPU
-
-The improvement in system time is nice.
-
-  -- Benoit
-
+I can just see me on IRC, all I'd be getting is style complaints while
+people successfully avoid the real points.  Look at the last 8 years 
+of LKML.  I'd say most of the effect was from the LMbench paper and
+maybe a few threads on performance which would have been more effective
+if I'd written a detailed paper explaining my point of view.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

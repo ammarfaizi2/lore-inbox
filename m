@@ -1,66 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267401AbUI0WRl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267382AbUI0WUm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267401AbUI0WRl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 18:17:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267403AbUI0WRl
+	id S267382AbUI0WUm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 18:20:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267405AbUI0WUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 18:17:41 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:2542 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267401AbUI0WRi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 18:17:38 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] handle usb host allocation failures
-Date: Mon, 27 Sep 2004 15:17:32 -0700
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_8FJWBKQSwkd+jh4"
-Message-Id: <200409271517.32192.jbarnes@engr.sgi.com>
+	Mon, 27 Sep 2004 18:20:42 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:1977 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S267382AbUI0WUi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 18:20:38 -0400
+Subject: Re: mlock(1)
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: Stefan Seyfried <seife@suse.de>,
+       Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20040927141652.GF28865@dualathlon.random>
+References: <E1CAzyM-0008DI-00@calista.eckenfels.6bone.ka-ip.net>
+	 <1096071873.3591.54.camel@desktop.cunninghams>
+	 <20040925011800.GB3309@dualathlon.random> <4157B04B.2000306@suse.de>
+	 <20040927141652.GF28865@dualathlon.random>
+Content-Type: text/plain
+Message-Id: <1096323761.3606.3.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 28 Sep 2004 08:22:41 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_8FJWBKQSwkd+jh4
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi.
 
-It looks like a host (like ohci or whatever) could try to allocate a new 
-usb_device structure with usb_alloc_dev and get back a valid pointer even if 
-the allocation of its private data failed.  I first saw this in the 2.4 
-sources, but it looks like 2.6 has the same problem.  This patch attempts to 
-fix it by freeing dev if the ->allocate() routine fails, and then returns 
-NULL instead of a potentially dangerous dev pointer.
+On Tue, 2004-09-28 at 00:16, Andrea Arcangeli wrote: 
+> On Mon, Sep 27, 2004 at 08:16:43AM +0200, Stefan Seyfried wrote:
+> > Andrea Arcangeli wrote:
+> > 
+> > > random keys are exactly fine, but only for the swap usage on a desktop
+> > > machine (the one I mentioned above, where the user will not be asked for
+> > > a password), but it's not ok for suspend/resume, suspend/resume needs
+> > > a regular password asked to the user both at suspend time and at resume
+> > > time.
+> > 
+> > Why not ask on every boot? (and yes, the passphrase could be stored on a
+> > fixed disk location - hashed with a function of sufficient complexity
+> > and number of bits, just to warn the user if he does a typo, couldn't
+> > it?). If suspend is working, you basically never reboot. So why ask on
+> > suspend _and_ resume? This also solves the "suspend on lid close" issue.
+> 
+> because I never use suspend/resume on my desktop, I never shutdown my
+> desktop. I don't see why should I spend time typing a password when
+> there's no need to. Every single guy out there will complain at linux
+> hanging during boot asking for password before reaching kdm.
+> 
+> I figured out how to make the swap encryption completely transparent to
+> userspace, and even to swap suspend, so I think it's much better than
+> having userspace asking the user for a password, or userspace choosing a
+> random password.
 
-Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
+The public/private key idea makes good sense to me.
 
-Thanks,
-Jesse
+> > And a resume is - in the beginning - a boot, so just ask early enough
+> > (maybe the bootloader could do this?)
+> 
+> yes, but the bootloader passes the paramters via /proc/cmdline, and it's
+> not nice to show the password in cleartext there.
 
---Boundary-00=_8FJWBKQSwkd+jh4
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="usb-alloc-dev-nomem.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="usb-alloc-dev-nomem.patch"
+If this password is only needed when resuming, that's not an issue
+because the command line given when resuming will be lost when the
+original kernel data is copied back.
 
-===== drivers/usb/core/usb.c 1.174 vs edited =====
---- 1.174/drivers/usb/core/usb.c	2004-08-03 07:18:53 -07:00
-+++ edited/drivers/usb/core/usb.c	2004-09-27 15:13:25 -07:00
-@@ -759,7 +759,10 @@
- 	init_MUTEX(&dev->serialize);
- 
- 	if (dev->bus->op->allocate)
--		dev->bus->op->allocate(dev);
-+		if (dev->bus->op->allocate(dev)) {
-+			kfree(dev);
-+			return NULL;
-+		}
- 
- 	return dev;
- }
+> suspend/resume is just unusable for me on the laptop until we fix the
+> crypto issues.
 
---Boundary-00=_8FJWBKQSwkd+jh4--
+There's already compression support. It's simpler to reverse, of course,
+but it doesn't help?
+
+Regards,
+
+Nigel
+

@@ -1,67 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbVBKGnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262197AbVBKGqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262156AbVBKGnM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 01:43:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbVBKGnL
+	id S262197AbVBKGqp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 01:46:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbVBKGqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 01:43:11 -0500
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:4259 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262156AbVBKGnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 01:43:02 -0500
-Subject: Re: 2.6.11-rc3-mm2
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Paul Davis <paul@linuxaudiosystems.com>, Matt Mackall <mpm@selenic.com>,
-       Chris Wright <chrisw@osdl.org>, "Jack O'Quin" <jack.oquin@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>,
-       rlrevell@joe-job.com, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <420C51DF.3000707@bigpond.net.au>
-References: <200502110341.j1B3fS8o017685@localhost.localdomain>
-	 <1108098286.5098.41.camel@npiggin-nld.site>
-	 <420C51DF.3000707@bigpond.net.au>
+	Fri, 11 Feb 2005 01:46:44 -0500
+Received: from lyle.provo.novell.com ([137.65.81.174]:55601 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S262197AbVBKGqm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 01:46:42 -0500
+Subject: Re: [ANNOUNCE] hotplug-ng 001 release
+From: Greg KH <gregkh@suse.de>
+To: Bill Nottingham <notting@redhat.com>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20050211031823.GE29375@nostromo.devel.redhat.com>
+References: <20050211004033.GA26624@suse.de>
+	 <20050211031823.GE29375@nostromo.devel.redhat.com>
 Content-Type: text/plain
-Date: Fri, 11 Feb 2005 17:42:53 +1100
-Message-Id: <1108104173.5098.49.camel@npiggin-nld.site>
+Date: Thu, 10 Feb 2005 22:46:57 -0800
+Message-Id: <1108104417.32129.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-11 at 17:34 +1100, Peter Williams wrote:
-> Nick Piggin wrote:
-
-> > I can't say much about it because I'm not putting my hand up to
-> > do anything. Just mentioning that rlimit would be better if not
-> > for the userspace side of the equation. I think most were already
-> > agreed on that point anyway though.
+On Thu, 2005-02-10 at 22:18 -0500, Bill Nottingham wrote:
+> Greg KH (gregkh@suse.de) said: 
+> > I'd like to announce, yet-another-hotplug based userspace project:
+> > linux-ng.  This collection of code replaces the existing linux-hotplug
+> > package with very tiny, compiled executable programs, instead of the
+> > existing bash scripts.
+> > 
+> > It currently provides the following:
+> > 	- a /sbin/hotplug multiplexer.  Works identical to the existing
+> > 	  bash /sbin/hotplug.
 > 
-> I think that the rlimits are a good idea in themselves but not as a 
-> solution to this problem.  I.e. having a RT CPU rate rlimit should not 
-> be a sufficient (or necessary for that matter) condition to change 
-> policy to SCHED_OTHER or SCHED_RR but could still be used to limit the 
-> possibility of lock out.
+> How does this interact with current usage of udevsend as the hotplug
+> multiplexer?
 
-Ah well that may be a good way to do it indeed. As I said, I
-don't know much about privileges etc.
+First off, not everyone wants to use udev (I know, horrible thought...)
+This provides those people a solution to a "I want a tiny /sbin/hotplug"
+problem.
 
-But I just want to be clear that I'm not trying to stop RT-LSM
-going in (if only because I don't care one way or the other
-about it).
+Also, udevstart working as /sbin/hotplug is great for keeping things in
+order, which is important during normal operation.  But during the boot
+sequence, the odds of getting out-of-order events, or even remove
+events, is somewhat limited.  So, this /sbin/hotplug replacement can
+work in an initrd/initramfs image when udevstart would be overkill.
 
->   (But I guess even that is a violation of RT 
-> semantics?)
-> 
+And finally, even if you do use udevstart to manager /sbin/hotplug
+events, you still need a module autoloader program.  This package
+provides executables for that problem, if you don't want to (or you
+can't) use the existing linux-hotplug scripts.  udev will never do the
+module loading logic, so there's no duplication in this case.
 
-I'd have to re-read the standard, but it may not be. For example,
-a compliant system advertises the minimum and maximum priority
-levels available - you may be able to adjust these based on what
-the rlimit is set to. On the other hand, yes it may violate the
-stanards.
+Hope this helps.  I do realize the whole hotplug process is getting a
+bit complicated.  I hope to write up some good documentation on what all
+is involved to help clear up some of the confusion that the combination
+of udev, udevsend, udevd, hal, /etc/hotplug.d/, /etc/dev.d/,
+and /sbin/hotplug have caused lately.
 
-Nick
+thanks,
 
-
+greg k-h
 

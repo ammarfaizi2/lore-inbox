@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130541AbQLFBuh>; Tue, 5 Dec 2000 20:50:37 -0500
+	id <S131221AbQLFBx7>; Tue, 5 Dec 2000 20:53:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130756AbQLFBu2>; Tue, 5 Dec 2000 20:50:28 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:8196 "EHLO
+	id <S131219AbQLFBxt>; Tue, 5 Dec 2000 20:53:49 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:10500 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130541AbQLFBuR>; Tue, 5 Dec 2000 20:50:17 -0500
-Subject: Re: [RFC-2] Configuring Synchronous Interfaces in Linux
-To: sl@fireplug.net
-Date: Wed, 6 Dec 2000 01:21:52 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20001205145535.A13431@fireplug.net> from "Stuart Lynne" at Dec 05, 2000 02:55:35 PM
+	id <S130756AbQLFBxf>; Tue, 5 Dec 2000 20:53:35 -0500
+Subject: Re: That horrible hack from hell called A20
+To: hpa@transmeta.com (H. Peter Anvin)
+Date: Wed, 6 Dec 2000 01:25:04 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        torvalds@transmeta.com (Linus Torvalds), kai@thphy.uni-duesseldorf.de
+In-Reply-To: <3A2D7AA4.9E7D414F@transmeta.com> from "H. Peter Anvin" at Dec 05, 2000 03:30:44 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E143THN-0000A1-00@the-village.bc.nu>
+Message-Id: <E143TKU-0000AS-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ditto, we have an adsl driver that we setup by overloading various otherwise
-> unused options in ifconfig (mem_start, io_addr etc) to do this. Cheaper and
-> faster than writing yet another ioctl using device configuration agent, but
-> distasteful non the less.
+> Okay, here is my latest attempt to find a way to toggle A20M# that
+> genuinely works on all machines -- including Olivettis, IBM Aptivas,
+> bizarre notebooks, yadda yadda.
 
-Generic is not always good , thats why we have SIOCDEVPRIVATE. One thing Im
-pondering is if we should make the hardware config ioctl take a hardware type
-ident with each struct. That would help make all the ethernet agree, all the
-wan agree, all the ADSL agree without making a nasty mess.
+Can I suggest a slightly different hammer. Flip the A20 via the keyboard
+controller and set the timeout to say 1 second. If that fails then kick the
+0x92 stuff ?
 
-> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

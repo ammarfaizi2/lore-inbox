@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130038AbRBYMmo>; Sun, 25 Feb 2001 07:42:44 -0500
+	id <S129126AbRBYNAj>; Sun, 25 Feb 2001 08:00:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129896AbRBYMmf>; Sun, 25 Feb 2001 07:42:35 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:42252 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S130038AbRBYMmT>;
-	Sun, 25 Feb 2001 07:42:19 -0500
-Date: Sun, 25 Feb 2001 13:41:56 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: netdev@oss.sgi.com,
-        Linux Knernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: New net features for added performance
-Message-ID: <20010225134156.K18271@almesberger.net>
-In-Reply-To: <3A9842DC.B42ECD7A@mandrakesoft.com> <3A986EDB.363639E7@coplanar.net> <20010225162357.A12123@metastasis.f00f.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010225162357.A12123@metastasis.f00f.org>; from cw@f00f.org on Sun, Feb 25, 2001 at 04:23:57PM +1300
+	id <S129149AbRBYNAT>; Sun, 25 Feb 2001 08:00:19 -0500
+Received: from mail.uni-kl.de ([131.246.137.52]:34539 "EHLO mail.uni-kl.de")
+	by vger.kernel.org with ESMTP id <S129126AbRBYNAO>;
+	Sun, 25 Feb 2001 08:00:14 -0500
+Message-ID: <3A990148.4F113D8@itwm.uni-kl.de>
+Date: Sun, 25 Feb 2001 13:57:44 +0100
+From: braun@itwm.fhg.de
+Organization: ITWM e. V.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: jhartmann@valinux.com
+Subject: Small fix for via agpgart in 2.2.19pre13
+Content-Type: multipart/mixed;
+ boundary="------------9A7AF173CC701E337111C58B"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> That said, it would be an extemely neat thing to do from a technical
-> perspective, but I don't know if you would ever get really good
-> performance from it.
+This is a multi-part message in MIME format.
+--------------9A7AF173CC701E337111C58B
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Well, you'd have to re-design the networking code to support NUMA
-architectures, with a fairly fine granularity. I'm not sure you'd gain
-anything except possibly for the forwarding fast path.
+Hello all,
 
-A cheaper, and probably more useful possibility is hardware assistance for
-specific operations. E.g. hardware-accelerated packet classification looks
-interesting. I'd also like to see hardware-assistance for shaping on other
-media than ATM.
+the following fix from linux-2.4.2 is not yet in 2.2.19pre.
+The agpgart module can not be properly unloaded and 
+reloaded without it.
+(see http://uwsg.indiana.edu/hypermail/linux/kernel/0101.2/1273.html
+for details)
 
-- Werner
+Martin Braun
+--------------9A7AF173CC701E337111C58B
+Content-Type: text/plain; charset=us-ascii;
+ name="linux-2.2.19pre-agpgart.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.2.19pre-agpgart.diff"
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+--- linux-2.2.19-pre13/drivers/char/agp/agpgart_be.c	Sat Feb 24 13:29:30 2001
++++ linux/drivers/char/agp/agpgart_be.c	Sun Feb 25 13:32:16 2001
+@@ -1304,9 +1304,11 @@
+ 	aper_size_info_8 *previous_size;
+ 
+ 	previous_size = A_SIZE_8(agp_bridge.previous_size);
+-	pci_write_config_dword(agp_bridge.dev, VIA_ATTBASE, 0);
+ 	pci_write_config_byte(agp_bridge.dev, VIA_APSIZE,
+ 			      previous_size->size_value);
++	/* Do not disable by writing 0 to VIA_ATTBASE, it screws things up
++	 * during reinitialization.
++	 */
+ }
+ 
+ static void via_tlbflush(agp_memory * mem)
+
+--------------9A7AF173CC701E337111C58B--
+

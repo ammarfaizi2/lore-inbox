@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275511AbRJFTFw>; Sat, 6 Oct 2001 15:05:52 -0400
+	id <S275526AbRJFTHc>; Sat, 6 Oct 2001 15:07:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275520AbRJFTFm>; Sat, 6 Oct 2001 15:05:42 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:8969 "EHLO
+	id <S275529AbRJFTHW>; Sat, 6 Oct 2001 15:07:22 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:14345 "EHLO
 	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S275511AbRJFTFe>; Sat, 6 Oct 2001 15:05:34 -0400
-Date: Sat, 6 Oct 2001 21:05:55 +0200 (CEST)
+	id <S275526AbRJFTHS>; Sat, 6 Oct 2001 15:07:18 -0400
+Date: Sat, 6 Oct 2001 21:07:31 +0200 (CEST)
 From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
+Reply-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Anton Blanchard <anton@samba.org>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
         linux-kernel@vger.kernel.org
 Subject: Re: %u-order allocation failed
-In-Reply-To: <Pine.LNX.3.96.1011006173010.32345A-200000@artax.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.3.96.1011006210335.7808B-200000@artax.karlin.mff.cuni.cz>
+In-Reply-To: <20011007041201.D15309@krispykreme>
+Message-ID: <Pine.LNX.3.96.1011006203014.7808A-100000@artax.karlin.mff.cuni.cz>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1908636959-2044777418-1002395155=:7808"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+> > Of course vmalloc space can overflow - but it overflows only when the
+> > machine is overloaded with too many processes, too many processes with
+> > many filedescriptors etc. On the other hand, the buddy allocator fails
+> > *RANDOMLY*. Totally randomly, depending on cache access patterns and
+> > page allocation times.
+> 
+> vmalloc space is also much worse for tlb usage when the main kernel mapping
+> uses large hardware ptes. Ingo and davem pointed this out to me recently
+> when I wanted to allocate the pagecache hash using vmalloc (at the
+> moment it maxes out at order 10 which is much to small for machines
+> with large memory).
 
---1908636959-2044777418-1002395155=:7808
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+OK, but my patch uses vmalloc only as a fallback when buddy fails. The
+probability that buddy fails is small. It is slower but with very small
+probability.
 
-> This is enhanced version of a patch that fixes select and poll as well.
-> Again - not compiled, not tried. 
+It is perfectly OK to have a bit slower access to task_struct with
+probability 1/1000000.
 
-There is a bug that it does not align allocation - so things like
-(%esp & ~8191) won't work. This should be applied on the top of it.
+But it is ***BAD*BUG*** if allocation of task_struct fails with
+probability 1/1000000.
+
+> If you could get away with a single page stack, then you could allocate
+> the task struct separately and avoid any order 1 allocation. But you
+> would probably need interrupt stacks to get away with a single page
+> stack.
+
+Yes, but there are still other dangerous usages of kmalloc and
+__get_free_pages. (The most offending one is in select.c)
+
+
+It is sad that core VM developers did not write any documentation that
+explains that high-order allocations can fail any time and the caller must
+not abort his operation when it happens. Instead - they are trying to make
+high-order allocations fail less often :-/  How should random
+Joe-driver-developer know, that kmalloc(4096) is safe and kmalloc(4097) is
+not?
+
+Now parts of a kernel written by people who know about buddy allocator
+(page/buffer/dentry/inode hash allocations, filedescriptor array
+allocation) are written correctly with the assumption that high-order
+allocation may fail. 
+
+Other parts of kernel written by people who do not know about buddy
+allocator (task_struct allocation, select and probably a lot of drivers)
+assume that high-order allocation always succeeds. task_struct and select
+can be fixed easily, but cleaning the shit in drivers will be real pain
+and it will probably never be finished :-(
 
 Mikulas
 
---1908636959-2044777418-1002395155=:7808
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="vmalloc.patch.3"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.3.96.1011006210555.7808C@artax.karlin.mff.cuni.cz>
-Content-Description: 
 
-LS0tIGxpbnV4LW9yaWcvbW0vdm1hbGxvYy5jCVNhdCBPY3QgIDYgMTY6MjE6
-NDcgMjAwMQ0KKysrIGxpbnV4L21tL3ZtYWxsb2MuYwlTYXQgT2N0ICA2IDIx
-OjAxOjAwIDIwMDENCkBAIC0xNzAsNiArMTcwLDkgQEANCiB7DQogCXVuc2ln
-bmVkIGxvbmcgYWRkcjsNCiAJc3RydWN0IHZtX3N0cnVjdCAqKnAsICp0bXAs
-ICphcmVhOw0KKwlpbnQgYWxpZ24gPSAwOw0KKw0KKwlpZiAoc2l6ZSA+IFBB
-R0VfU0laRSAmJiAhKHNpemUgJiAoc2l6ZSAtIDEpKSkgYWxpZ24gPSBzaXpl
-IC0gMTsNCiANCiAJYXJlYSA9IChzdHJ1Y3Qgdm1fc3RydWN0ICopIGttYWxs
-b2Moc2l6ZW9mKCphcmVhKSwgR0ZQX0tFUk5FTCk7DQogCWlmICghYXJlYSkN
-CkBAIC0xODMsNiArMTg2LDcgQEANCiAJCWlmIChzaXplICsgYWRkciA8PSAo
-dW5zaWduZWQgbG9uZykgdG1wLT5hZGRyKQ0KIAkJCWJyZWFrOw0KIAkJYWRk
-ciA9IHRtcC0+c2l6ZSArICh1bnNpZ25lZCBsb25nKSB0bXAtPmFkZHI7DQor
-CQlhZGRyID0gKGFkZHIgKyBhbGlnbikgJiB+YWxpZ247DQogCQlpZiAoYWRk
-ciA+IFZNQUxMT0NfRU5ELXNpemUpDQogCQkJZ290byBvdXQ7DQogCX0NCg==
---1908636959-2044777418-1002395155=:7808--
+

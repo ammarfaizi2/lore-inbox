@@ -1,56 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316996AbSGHSMh>; Mon, 8 Jul 2002 14:12:37 -0400
+	id <S316959AbSGHSKu>; Mon, 8 Jul 2002 14:10:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317024AbSGHSMg>; Mon, 8 Jul 2002 14:12:36 -0400
-Received: from pD952ABA4.dip.t-dialin.net ([217.82.171.164]:54487 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316996AbSGHSMf>; Mon, 8 Jul 2002 14:12:35 -0400
-Date: Mon, 8 Jul 2002 12:15:08 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Matthias Fricke <matthiasfricke@onetel.net.uk>
-cc: Gilad Ben-Yossef <gilad@benyossef.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Ooops
-In-Reply-To: <3D29D1CD.18E7B128@onetel.net.uk>
-Message-ID: <Pine.LNX.4.44.0207081206140.10105-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316996AbSGHSKt>; Mon, 8 Jul 2002 14:10:49 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:47627 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S316959AbSGHSKs>; Mon, 8 Jul 2002 14:10:48 -0400
+Date: Mon, 8 Jul 2002 20:13:31 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: simple handling of module removals Re: [OKS] Module removal
+Message-ID: <20020708181331.GD28335@atrey.karlin.mff.cuni.cz>
+References: <20020705134816.GA112@elf.ucw.cz> <9171.1026053813@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9171.1026053813@ocs3.intra.ocs.com.au>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-On Mon, 8 Jul 2002, Matthias Fricke wrote:
-> I just tried to decrease the mem= parameter, but that does not work. It
-> crashes after having initialized the agpgart video support, wich I have
-> compiled in the kernel. Maybe I need to set up that as a module.
+> >> Modules can run their own kernel threads.  When the module shuts down
+> >> it terminates the threads but we must wait until the process entries
+> >> for the threads have been reaped.  If you are not careful, the zombie
+> >> clean up code can refer to the module that no longer exists.  You must
+> >> not freeze any threads that belong to the module.
+> >
+> >Look at the code. freezer will try for 5 seconds, then give up. So, in
+> >rare case module has some threads, rmmod will simply fail. I believe
+> >we can fix rare remaining modules one by one.
+> 
+> There is no failure path for rmmod.  Once rmmod sees a use count of 0,
+> it must succeed.  Which is why both Rusty and I agree that rmmod must
+> be split in two, one piece that is allowed to fail and a second piece
+> that is not.
+> 
+> BTW, freeze_processes() silently ignores zombie processes.  The test is
+> not obvious, it is hidden in the INTERESTING macro which has an
+> embedded 'continue' to break out of the loop.  Easy to miss.
 
-...and crash when loading the module.
+Is there problems? Zombie processes are basically dead, not
+interesting, processes.
 
-Is there a bios upgrade available for your system? Does it work if you 
-fiddle around with the AGP aperture size in the BIOS? (Don't laugh - been 
-there, done that! We've had a case where it worked.)
+> >> You must not freeze any process that has entered the module but not yet
+> >> incremented the use count, nor any process that has decremented the use
+> >> count but not yet left the module.  Simply looking at the EIP after
+> >
+> >Look how freezer works. refrigerator() is blocking, by definition. So
+> >if all processes reach refrigerator(), and the use count == 0, it is
+> >indeed safe to unload.
+> 
+> freeze_processes()
+>   signal_wake_up() - sets TIF_SIGPENDING for other task
+>     kick_if_running()
+>       resched_task() - calls preempt_disable() for this cpu
+>         smp_send_reschedule()
+> 	  smp_reschedule_interrupt() - now on another cpu
+> 	    ret_from_intr
+> 	      resume_kernel - on other cpu
+> 
+> With CONFIG_PREEMPT, a process running on another cpu without a lock
+> when freeze_processes() is called should immediately end up in
+> schedule.  I don't see anything in that code path that disables
+> preemption on other cpus.  If I am right, then a second cpu could be in
+> this window when freeze_processes is called
+> 
+>   if (xxx->func)
+>     xxx->func()
 
-> > Local APIC disabled by BIOS -- reenabling.
-> > Found and enabled local APIC!
+okay, so we have
 
-Can you enable this directly?
+	if (xxx->func)
+		interrupt
+			schedule()
 
-> > eth[0-7]: D-Link DE-600 pocket adapter: not at I/O 0x378.
-> > D-Link DE-620 pocket adapter not identified in the printer port
+but schedule at this point is certainly not going to enter signal
+handling code, so refrigerator is deffered at run to userspace, so it
+continues with
+		interrupt return
+		xxx->func()
+	...
+	attempt to return to userspace
+		signal code
+			refrigerator().
 
-That part looks weird. There seems a bit more loose in your system?
+So I believe that is safe.
 
-							Regards,
-							Thunder
+> where func is a module function.  There is still a window from loading
+> the function address, through calling the function and up to the point
+> where the function does MOD_INC_USE_COUNT.  Any reschedule in that
+> window opens a race with rmmod.  Without preemption, freeze might be
+> safe, with preemption the race is back again.
+
+								Pavel
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

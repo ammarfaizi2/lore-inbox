@@ -1,75 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265012AbUD2WhD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265005AbUD2Wg7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265012AbUD2WhD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 18:37:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265008AbUD2WhB
+	id S265005AbUD2Wg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 18:36:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265013AbUD2Wgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 18:37:01 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:28655 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265012AbUD2Wgx
+	Thu, 29 Apr 2004 18:36:54 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:56818 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S265005AbUD2Wgr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 18:36:53 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Patrick Wildi <patrick@wildi.com>
-Subject: Re: [RFC][PATCH] 2.4 IDE Serverworks OSB4 DMA patch
-Date: Fri, 30 Apr 2004 00:37:10 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       andre@linux-ide.org
-References: <Pine.LNX.4.58.0404291130420.19527@bern.wildisoft.net> <200404292132.26039.bzolnier@elka.pw.edu.pl> <Pine.LNX.4.58.0404291455480.13881@bern.wildisoft.net>
-In-Reply-To: <Pine.LNX.4.58.0404291455480.13881@bern.wildisoft.net>
+	Thu, 29 Apr 2004 18:36:47 -0400
+Message-ID: <40918375.2090806@mvista.com>
+Date: Thu, 29 Apr 2004 15:36:37 -0700
+From: Todd Poynor <tpoynor@mvista.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: mochel@digitalimplant.org, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Hotplug for device power state changes
+References: <20040429202654.GA9971@dhcp193.mvista.com> <20040429224243.L16407@flint.arm.linux.org.uk>
+In-Reply-To: <20040429224243.L16407@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404300037.10054.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 30 of April 2004 00:09, Patrick Wildi wrote:
-> On Thu, 29 Apr 2004, Bartlomiej Zolnierkiewicz wrote:
-> > On Thursday 29 of April 2004 21:04, Patrick Wildi wrote:
-> > > I have been using a OSB4 chipset based system with a CompactFlash
-> > > that supports PIO only and a laptop IBM/Hitachi Travelstar HDD
-> > > that supports UDMA.
-> > > For both drives, the serverworks code misconfigures the drives:
-> > >
-> > > - for the CF (hooked up as /dev/hda), svwks_config_drive_xfer_rate()
-> > >   will not match any tests (drive->autodma = 0, id->capability = 2,
-> > >   id->field_valid = 1), but the function will then call
-> > >   hwif->ide_dma_on(drive), which it should not do for this drive.
-> > >   This patch moves the enabling of DMA up into the DMA section of
-> > >   the code.
-> >
-> > Yep, known bug, it is fixed in 2.6.
-> >
-> > It is present in many other drivers, my 2.6 patch needs to be backported.
->
-> Are you the maintainer for 2.4 or to whom should I send the changes?
+Russell King wrote:
 
-Send them to me.
+> Note that we should run this synchronously with userspace - ie, wait
+> for the userspace hotplug script to finish executing before moving
+> on to the next device.  Why?
+> 
+> Think of the case where we're suspending the complete system.  If you
+> go round and asynchonously try to run userspace scripts, chances are
+> you'll have the CPU asleep before _any_ of the scripts have run, which
+> means (eg) your DHCP client couldn't tell the server that its released
+> its allocation.
 
-> > > - for the Travelstart HDD, the settings coming into
-> > >   svwks_config_drive_xfer_rate() are: drive->autodma = 32,
-> > >   id->capability = 15, id->field_valid = 7, id->dma_ultra = 0x43f.
-> > >   But as this is an OSB4, the hwif->ultra_mask is set to not support
-> > >   UDMA. Unfortunately in that case svwks_config_drive_xfer_rate()
-> > >   falls through to the end of the function, instead of trying
-> > >   other DMA modes.
-> >
-> > Good catch.
-> >
-> > It seems the same bug can be present in other drivers too (hint, hint).
-> > ;)
->
-> I noticed that the piix driver uses the exact same logic. I could
-> replicate this part of the patch for other 2.4 drivers. I have no
-> way of testing them.
-> I can send you a combined patch for 2.4. I am not yet using 2.6.
+I figured system suspend/resume would need to be a separate event and 
+isn't covered by this patch, which is for "runtime" individual device 
+suspend/resume only.  Also, the flood of notifications of all devices 
+suspending/resuming might not be useful -- the single system 
+suspend/resume event could imply these device events, although perhaps 
+in some cases something would want to know exactly which devices were 
+operable at system suspend time.  I can also send a patch for system 
+suspend/resume hotplug if there's interest.
 
-No problem. :)
+Now that you mention it, device power hotplug should be synchronous, to 
+make sure the power management application has reacted to the changed 
+state prior to the device going into actual service (in the case of a 
+resume).
 
-Thanks!
-Bartlomiej
+> Also, should we be telling userspace about suspend before we actually
+> suspend the device?
 
+I suppose that, depending on the reason notification is needed, "just 
+before" or "just after" might be the right answer.  Now that you bring 
+this up, it was originally my intention to notify of suspend "just 
+after" (so power mgr can change power state, knowing that the associated 
+device no longer has any requirements), and notify of resume "just 
+before" (so power mgr can adjust power state to match requirements about 
+to be put into service).  I'd be interested in hearing about other usage 
+scenarios that might need a different notification order.  Thanks,
+
+-- 
+Todd Poynor
+MontaVista Software

@@ -1,54 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289013AbSBDPN5>; Mon, 4 Feb 2002 10:13:57 -0500
+	id <S289015AbSBDPT2>; Mon, 4 Feb 2002 10:19:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289017AbSBDPNr>; Mon, 4 Feb 2002 10:13:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47367 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289013AbSBDPNk>;
-	Mon, 4 Feb 2002 10:13:40 -0500
-Message-ID: <3C5EA521.B7D2F8C2@mandrakesoft.com>
-Date: Mon, 04 Feb 2002 10:13:37 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Chris Mason <mason@suse.com>, Andrea Arcangeli <andrea@suse.de>,
-        linux-kernel@vger.kernel.org
+	id <S289016AbSBDPTR>; Mon, 4 Feb 2002 10:19:17 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:2708 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S289015AbSBDPTN>;
+	Mon, 4 Feb 2002 10:19:13 -0500
 Subject: Re: O_DIRECT fails in some kernel and FS
-In-Reply-To: <E16WkQj-0005By-00@antoli.uib.es.suse.lists.linux.kernel> <3C5AFE2D.95A3C02E@zip.com.au.suse.lists.linux.kernel> <1012597538.26363.443.camel@jen.americas.sgi.com.suse.lists.linux.kernel> <20020202093554.GA7207@tapu.f00f.org.suse.lists.linux.kernel> <234710000.1012674008@tiny.suse.lists.linux.kernel> <20020202205438.D3807@athlon.random.suse.lists.linux.kernel> <242700000.1012680610@tiny.suse.lists.linux.kernel> <3C5C4929.5080403@sgi.com.suse.lists.linux.kernel> <20020202155028.B26147@havoc.gtf.org.suse.lists.linux.kernel> <p737kpvauvv.fsf@oldwotan.suse.de>
-Content-Type: text/plain; charset=us-ascii
+From: Steve Lord <lord@sgi.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Jeff Garzik <garzik@havoc.gtf.org>, Chris Mason <mason@suse.com>,
+        Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@zip.com.au>,
+        Ricardo Galli <gallir@uib.es>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020203224406.GA17396@tapu.f00f.org>
+In-Reply-To: <1012597538.26363.443.camel@jen.americas.sgi.com>
+	<20020202093554.GA7207@tapu.f00f.org> <234710000.1012674008@tiny>
+	<20020202205438.D3807@athlon.random> <242700000.1012680610@tiny>
+	<3C5C4929.5080403@sgi.com> <20020202155028.B26147@havoc.gtf.org>
+	<3C5D3DE9.4080503@sgi.com> <20020203140926.GA14532@tapu.f00f.org>
+	<3C5D51A0.4050509@sgi.com>  <20020203224406.GA17396@tapu.f00f.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 04 Feb 2002 09:15:30 -0600
+Message-Id: <1012835730.26397.519.camel@jen.americas.sgi.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+On Sun, 2002-02-03 at 16:44, Chris Wedgwood wrote:
+> On Sun, Feb 03, 2002 at 09:05:04AM -0600, Stephen Lord wrote:
 > 
-> Jeff Garzik <garzik@havoc.gtf.org> writes:
+>     but page faults are not blocked out for the duration of the I/O so
+>     the coherency is weak.
 > 
-> > On Sat, Feb 02, 2002 at 02:16:41PM -0600, Stephen Lord wrote:
-> > > Can't you fall back to buffered I/O for the tail? OK it complicates the
-> > > code, probably a lot, but it keeps things sane from the user's point of
-> > > view.
-> >
-> > For O_DIRECT, IMHO you should fail not fallback.  You're simply lying
-> > to the underlying program otherwise.
+> I was thinking this would also be goof, basically invalidate those
+> pages and remove them from the VMAs, marking them as unusable pending
+> IO completion --- the logic her being if you were to fault on an
+> invalidated page during IO you deserve to block indefinitely until the
+> IO completes.
 > 
-> It's just impossible to write a tail which is smaller than a disk block
-> without another buffer.
+>     However, if an application is doing a combination of mmapped and
+>     direct I/O to a file at the same time, then it should generally
+>     have some form of user space synchronization anyway.
+> 
+> I hadn't considered that.  I imagined an application doing either but
+> not both, and the kernel enforcing this.  However, in the case when
+> you want to mmap a large file, you may want to manipulate some pages
+> using mmap whilst writing others with O_DIRECT.  Although, in such
+> cases arguably you could using multiple mapping's.
+> 
+> 
 
-I argue, for reiserfs:
+If an application is single threaded then it cannot be doing both at
+the same time - so all we need to do is flush and invalidate mappings
+at the start of I/O. This is really only needed for the range covered by
+the direct read/write.
 
-For O_DIRECT writes, the preferred behavior is to write disk blocks
-obtained through the normal methods (get_block, etc.), and fully support
-inodes for which file tails do not exist.
+If an application is multithreaded and is doing mmap and direct I/O
+from different threads without doing its own synchronization, then it
+is broken, there is no ordering guarantee provided by the kernel as
+to what happens first.
 
-For O_DIRECT reads, if the data is determined to be in a file tail,
-->direct_IO should either (a) fail or (b) dump the file tail to a normal
-disk block before performing ->direct_IO.
+> 
+>    --cw
+
+Steve
 
 -- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+
+Steve Lord                                      voice: +1-651-683-3511
+Principal Engineer, Filesystem Software         email: lord@sgi.com

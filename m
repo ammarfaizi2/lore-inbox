@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290122AbSAKV3C>; Fri, 11 Jan 2002 16:29:02 -0500
+	id <S290124AbSAKVgC>; Fri, 11 Jan 2002 16:36:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290121AbSAKV2w>; Fri, 11 Jan 2002 16:28:52 -0500
-Received: from tomts6.bellnexxia.net ([209.226.175.26]:33783 "EHLO
-	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S290122AbSAKV2i>; Fri, 11 Jan 2002 16:28:38 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: <mingo@elte.hu>
-Subject: Re: [patch] O(1) scheduler-H6 and nice +19
-Date: Fri, 11 Jan 2002 16:28:33 -0500
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <Pine.LNX.4.33.0201111723260.3212-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.33.0201111723260.3212-100000@localhost.localdomain>
-Cc: linux-kernel@vger.kernel.org
+	id <S290125AbSAKVfy>; Fri, 11 Jan 2002 16:35:54 -0500
+Received: from AGrenoble-101-1-1-156.abo.wanadoo.fr ([193.251.23.156]:24193
+	"EHLO strider.virtualdomain.net") by vger.kernel.org with ESMTP
+	id <S290124AbSAKVfo> convert rfc822-to-8bit; Fri, 11 Jan 2002 16:35:44 -0500
+Message-ID: <3C3F5C43.7060300@wanadoo.fr>
+Date: Fri, 11 Jan 2002 22:42:27 +0100
+From: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, fr
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020111212834.D36DFBA489@oscar.casa.dyndns.org>
+To: mingo@elte.hu
+Cc: Mike Kravetz <kravetz@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Anton Blanchard <anton@samba.org>, george anzinger <george@mvista.com>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [patch] O(1) scheduler, -G1, 2.5.2-pre10, 2.4.17 (fwd)
+In-Reply-To: <Pine.LNX.4.33.0201110142160.12174-100000@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 11, 2002 11:24 am, you wrote:
-> On Wed, 9 Jan 2002, Ed Tomlinson wrote:
-> > Noticed something about tasks running with nice 19.  They seem to
-> > always get 25-35% of the cpu.  This happens with kernel compiles and
-> > some other benchmarking processes.  If I kill the setiathome task, the
-> > other processes shoot up to 90% and above.
->
-> why dont you run the setiathome task at nice +19? that way it'll share CPU
-> time with other niced processes.
+Ingo Molnar wrote:
 
-Setiathome _is_ running at nice +19...  The H6 version cured the 2.4.17 boot
-problem here.  Here are some numbers (H6) for you to consider:
+> On Thu, 10 Jan 2002, Mike Kravetz wrote:
+> 
+> 
+>>If I run 3 cpu-hog tasks on a 2 CPU system, then 1 task will get an
+>>entire CPU while the other 2 tasks share the other CPU (easily
+>>verified by a simple test program). On previous versions of the
+>>scheduler 'balancing' this load was achieved by the global nature of
+>>time slices. No task was given a new time slice until the time slices
+>>of all runnable tasks had expired.  In the current scheduler, the
+>>decision to replenish time slices is made at a local (pre-CPU) level.
+>>I assume the load balancing code should take care of the above
+>>workload?  OR is this the behavior we desire? [...]
+>>
+> 
+> Arguably this is the most extreme situation - every other distribution
+> (2:3, 3:4) is much less problematic. Will this cause problems? We could
+> make the fairness-balancer more 'sharp' so that it will oscillate the
+> length of the two runqueues at a slow pace, but it's still caching loss.
+> 
+> 
+>>We certainly have optimal cache use.
+>>
+> 
+> indeed. The question is, should we migrate processes around just to get
+> 100% fairness in 'top' output? The (implicit) cost of a task migration
+> (caused by the destruction & rebuilding of cache state) can be 10
+> milliseconds easily on a system with big caches.
+> 
+> 	Ingo
 
-make bzImage with setiathome running nice +19
 
-make bzImage  391.11s user 30.85s system 62% cpu 11:17.37 total
+I do vote for optimal cache use. Using squid (200MB process in my case)
+can be much faster if squid stays on the same CPU for a while, instead
+of hopping from one CPU to another (dual PII350 machine).
 
-make bzImage alone
+François Cami
 
-make bzImage  397.33s user 32.14s system 92% cpu 7:43.58 total
 
-Notice the large difference in run times...
-
-System is: UP K6-III 400, 512M
-
-Ed Tomlinson
 

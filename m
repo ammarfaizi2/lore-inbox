@@ -1,73 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290386AbSAXWRC>; Thu, 24 Jan 2002 17:17:02 -0500
+	id <S290376AbSAXWWC>; Thu, 24 Jan 2002 17:22:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290378AbSAXWQw>; Thu, 24 Jan 2002 17:16:52 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:2395 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S290376AbSAXWQl>; Thu, 24 Jan 2002 17:16:41 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hans-Peter Jansen <hpj@urpla.net>
-Organization: LISA GmbH
-To: Daniel Nofftz <nofftz@castor.uni-trier.de>
-Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
-Date: Thu, 24 Jan 2002 23:16:29 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Ed Sweetman <ed.sweetman@wmich.edu>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.40.0201242152370.9957-100000@infcip10.uni-trier.de>
-In-Reply-To: <Pine.LNX.4.40.0201242152370.9957-100000@infcip10.uni-trier.de>
+	id <S290389AbSAXWVy>; Thu, 24 Jan 2002 17:21:54 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3081 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S290376AbSAXWVk>; Thu, 24 Jan 2002 17:21:40 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: RFC: booleans and the kernel
+Date: 24 Jan 2002 14:21:28 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a2q1d8$vuj$1@cesium.transmeta.com>
+In-Reply-To: <200201242141.g0OLfjL06681@home.ashavan.org.> <Pine.LNX.4.44.0201241545120.2839-100000@waste.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20020124221630.500F81101@shrek.lisa.de>
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 24. January 2002 21:54, Daniel Nofftz wrote:
-> On Thu, 24 Jan 2002, Hans-Peter Jansen wrote:
-> > You can see, enough idleness...
-> >
-> > The question is, why amd_disconnect=true causes this distortion. I tend
-> > to believe that dis-/reconnecting CPU takes simply too long in this
-> > scenario.
->
-> hmmm ... yes ... this would be my idea too ... maybee the dis-reconnect
-> procedure is to slow on "slow" computers to grant undisrupted audio or
-> video streams ...
->
-> i have no problem with this ... maybee caus i have a "faster" cpu ?
+Followup to:  <Pine.LNX.4.44.0201241545120.2839-100000@waste.org>
+By author:    Oliver Xymoron <oxymoron@waste.org>
+In newsgroup: linux.dev.kernel
+> 
+> > It doesn't fix  "if ( x = true)". If would
+> > just make it more legit to use "if (x)".
+> 
+> It's been legit and idiomatic since day 1, if not sooner.
+> 
 
-Asus A7V133 with 1.2 GHz Athlon:
+The main reasons for bool is:
 
-<4>Detected 1224.230 MHz processor.
-<4>Calibrating delay loop... 2444.49 BogoMIPS
-<4>Memory: 771764k/786352k available (1104k kernel code, 14196k reserved, 
-303k data, 224k 
-init, 0k highmem)
+a) The ability to save space.  No need to waste a 32- or 64-bit word
+   to hold a single bit.  If you're on an architecture that has flags
+   or predicates you may be able to carry a boolean in such a value
+   instead of in a full register.
 
-System feels fast normally, and feels noticable slower with disconnected
-feature. The problem with vlc is it's timing fragility to get smooth video 
-and synchronous audio output. (I also need alsa > 0.9.0 and XVideo scaling 
-on my Matrox G450 to get there, btw).
+b) Compatibility with other languages, including but not limited to
+   C++ (there is a standard under development for inter-language linking,
+   incidentally.)  C++, of course, needs bool for overloading reasons.
 
-System is fast enough to compile the kernel during playback without a
-hitch. CD copying with cdrdao is a different story. This would be my
-ultimate latency check (but haven't played with low latency, yet).
+c) The ability to cast to bool and get an unambiguous true or false:
 
-If you like playing vcds and/or dvds, try vlc 0.2.92:
-http://www.videolan.org/pub/videolan/vlc/0.2.92/vlc-0.2.92.tar.bz2
-It's my stablest player so far. I'm trying mplayer CVS from time to
-time, also xine, ogle but vlc is my personal favorite (I'm using a 0.2.92 
-CVS version and play plain vob's from my server most of the time).
-Ask me privately, if you need any help with such stuff..
+     b = (bool)a;
 
-> daniel
->
->
-> # Daniel Nofftz
-> # Sysadmin CIP-Pool Informatik
-> # University of Trier(Germany), Room V 103
-> # Mail: daniel@nofftz.de
+   This replaces the idiomatic but occationally confusing
 
-Cheers,
-  Hans-Peter
+     b = !!a;
+
+d) Similarly, you can avoid doing booleanization multiple times:
+
+   /* Highly artificial example */
+   int foo(bool a)
+   {
+       return a ? 55 : 47;
+   }
+
+   ... could be implemented by the compiler as 47 + (a << 3), or
+   depending on your ABI convention, perhaps a caller calling
+   foo(x < 4) could be implemented as foo(x-4) without needing to
+   convert it into an integer of exactly 1 and 0.
+
+   Given the way C currently does it, you pretty much have do
+   booleanize both in the caller and the callee to be on the safe
+   side.
+
+	-hpa
+
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

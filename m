@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271131AbUJUX6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271099AbUJUX6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271131AbUJUX6w (ORCPT <rfc822;willy@w.ods.org>);
+	id S271099AbUJUX6w (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 21 Oct 2004 19:58:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271099AbUJUX4z
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271123AbUJUX4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 19:56:55 -0400
-Received: from ozlabs.org ([203.10.76.45]:30607 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S271131AbUJUXqj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 19:46:39 -0400
-Subject: Re: Am I paranoid or is everyone out to break my kernel builds
-	(Breakage in drivers/pcmcia)
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041021105026.C3089@flint.arm.linux.org.uk>
-References: <20041021100903.A3089@flint.arm.linux.org.uk>
-	 <20041021023135.074c7988.akpm@osdl.org>
-	 <20041021105026.C3089@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1098399488.12103.1.camel@localhost.localdomain>
+	Thu, 21 Oct 2004 19:56:49 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:63406
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S271099AbUJUXqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 19:46:13 -0400
+Date: Thu, 21 Oct 2004 16:40:07 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       jgarzik@pobox.com, gnb@sgi.com, akepner@sgi.com
+Subject: Re: [PATCH] use mmiowb in tg3.c
+Message-Id: <20041021164007.4933b10b.davem@davemloft.net>
+In-Reply-To: <200410211628.06906.jbarnes@engr.sgi.com>
+References: <200410211613.19601.jbarnes@engr.sgi.com>
+	<200410211628.06906.jbarnes@engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 22 Oct 2004 09:46:26 +1000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-21 at 19:50, Russell King wrote:
-> On Thu, Oct 21, 2004 at 02:31:35AM -0700, Andrew Morton wrote:
-> > Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > > Take special note of the '&' before 'num' in the above initialiser, and
-> > > check the structure:
-> > 
-> > Something's out of whack with your tree.  You should have:
-> 
-> Ok, but what's the point of the change?  If it's to indicate that
-> we're returning a value, shouldn't the other module_param* macros
-> also be fixed in the same way, or do we just like special cases?
+On Thu, 21 Oct 2004 16:28:06 -0700
+Jesse Barnes <jbarnes@engr.sgi.com> wrote:
 
-Only module_param_array() sets a number: the number of elements in the
-array.  By making that arg a pointer, we can put "NULL" there, since it
-turned out many people didn't care how many elements there were (and
-were overloading the same variable for all their arrays, which breaks
-printing in sysfs).
+> This patch originally from Greg Banks.  Some parts of the tg3 driver depend on 
+> PIO writes arriving in order.  This patch ensures that in two key places 
+> using the new mmiowb macro.  This not only prevents bugs (the queues can be 
+> corrupted), but is much faster than ensuring ordering using PIO reads (which 
+> involve a few round trips to the target bus on some platforms).
 
-Hope that helps,
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+Do other PCI systems which post PIO writes also potentially reorder
+them just like this SGI system does?  Just trying to get this situation
+straight in my head.
 

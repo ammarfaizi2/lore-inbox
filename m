@@ -1,78 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129345AbQLKHbT>; Mon, 11 Dec 2000 02:31:19 -0500
+	id <S129361AbQLKH5i>; Mon, 11 Dec 2000 02:57:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129875AbQLKHa7>; Mon, 11 Dec 2000 02:30:59 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:59793 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129345AbQLKHax>; Mon, 11 Dec 2000 02:30:53 -0500
-Message-ID: <3A347C69.9635C3B4@uow.edu.au>
-Date: Mon, 11 Dec 2000 18:04:09 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-CC: Marcus Meissner <Marcus.Meissner@caldera.de>, linux-kernel@vger.kernel.org
-Subject: Re: hotplug mopup
-In-Reply-To: <200012101510.QAA29551@ns.caldera.de> from "Marcus Meissner" at Dec 10, 2000 04:10:01 PM <200012110236.eBB2ar7216847@saturn.cs.uml.edu>
+	id <S129415AbQLKH53>; Mon, 11 Dec 2000 02:57:29 -0500
+Received: from sundiver.zdv.Uni-Mainz.DE ([134.93.174.136]:30724 "HELO
+	gateway.intern.kubla.de") by vger.kernel.org with SMTP
+	id <S129361AbQLKH5U>; Mon, 11 Dec 2000 02:57:20 -0500
+Date: Mon, 11 Dec 2000 08:26:46 +0100
+From: Dominik Kubla <dominik.kubla@uni-mainz.de>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18-25 DELL Laptop Video Problems
+Message-ID: <20001211082646.B4646@uni-mainz.de>
+Mail-Followup-To: Dominik Kubla <dominik.kubla@uni-mainz.de>,
+	"Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20001209160027.A15007@vger.timpanogas.org> <E144sZd-0005q5-00@the-village.bc.nu> <20001209181351.C15531@vger.timpanogas.org> <20001210174906.B2161@uni-mainz.de> <20001210155016.A19788@vger.timpanogas.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001210155016.A19788@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Sun, Dec 10, 2000 at 03:50:16PM -0700
+X-No-Archive: yes
+Restrict: no-external-archive
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Albert D. Cahalan" wrote:
+On Sun, Dec 10, 2000 at 03:50:16PM -0700, Jeff V. Merkey wrote:
 > 
-> Marcus Meissner writes:
+> Can you enable both at the same time?  It's an installer issue with laptops
+> and I need tobe able to detect whatever is running.
 > 
-> >> - On the unregister/removal path, the netdevice layer ensures that
-> >>   the interface is removed from the kernel namespace prior to launching
-> >>   `/sbin/hotplug net unregister eth0'.
-> >>
-> >>   This means that when handling netdevice unregistration
-> >>   /sbin/hotplug cannot and must not attempt to do anything with eth0!
-> >>   Generally it'll fail to find an interface with this name.  If it does
-> >>   find eth0, it'll be the wrong one due to a race.
-> >
-> > I always thought I should have to do "/sbin/ifdown eth0" here.
-> > (Just as I do /sbin/ifup eth0 on register.)
-> 
-> Yes, definitely. Otherwise, how can one replace the eth0 hardware
-> without messing up the network settings? This is supposed to be
-> hot plug and all... to me that means I can rip out one network
-> card and pop in another without breaking my ssh connections.
 
-Let's see...
+IIRC you can choose at boot time using a kernel parameter.
 
-You pull the card (let's suppose it's Cardbus).  That causes an
-interrupt which eventually gets fed to the PCI layer's
-pci_remove_device().
-
-The PCI layer calls the netdevice's pci_driver.remove() method.
-
-Typically, xxx_remove() calls unregister_netdevice().
-
-unregister_netdevice() downs the interface, then removes the
-netdevice from the kernel namespace and then runs
-'/sbin/hotplug net unregister eth0' asynchronously.
-
-When we return from unregister_netdevice() we can guarantee
-that the driver's module refcount is zero if this was the
-last matching device.
-
-We then wind all the way back to the PCI layer, whizzing gaily
-back through the driver whose module refcount is now zero.  Sigh.
-
-The PCI layer runs '/sbin/hotplug pci remove' asynchronously.  The
-driver can be unloaded.
-
-So where in all of this can you read the interface's network
-settings?  Nowhere, I'm afraid.  They're released in
-unregister_netdevice().
-
-Isn't this a userspace tool problem?
-
--
+Dominik
+-- 
+Drug misuse is not  a disease, it is a decision, like  the decision to step
+out in  front of a  moving car. You  would call that  not a disease  but an
+error of judgment.  --Philip K. Dick. Author's Note, A SCANNER DARKLY, 1977
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,63 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267403AbTAGPxJ>; Tue, 7 Jan 2003 10:53:09 -0500
+	id <S267410AbTAGP4D>; Tue, 7 Jan 2003 10:56:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267404AbTAGPxJ>; Tue, 7 Jan 2003 10:53:09 -0500
-Received: from lmail.actcom.co.il ([192.114.47.13]:20874 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S267403AbTAGPxI>; Tue, 7 Jan 2003 10:53:08 -0500
-Date: Tue, 7 Jan 2003 18:01:30 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: fix "ide_scan_direction defined but not used" in ide.c
-Message-ID: <20030107160130.GC27032@alhambra>
-References: <20030107131002.GI25540@alhambra> <1041957377.20658.28.camel@irongate.swansea.linux.org.uk>
+	id <S267411AbTAGP4D>; Tue, 7 Jan 2003 10:56:03 -0500
+Received: from adsl-67-121-154-100.dsl.pltn13.pacbell.net ([67.121.154.100]:3296
+	"EHLO localhost") by vger.kernel.org with ESMTP id <S267410AbTAGP4A>;
+	Tue, 7 Jan 2003 10:56:00 -0500
+Date: Tue, 7 Jan 2003 08:04:16 -0800
+To: Con Kolivas <conman@kolivas.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-ck2 and some game timings
+Message-ID: <20030107160416.GA15405@kanoe.ludicrus.net>
+References: <20030106193730.GA22289@kanoe.ludicrus.net> <200301072237.27766.conman@kolivas.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
 Content-Disposition: inline
-In-Reply-To: <1041957377.20658.28.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+In-Reply-To: <200301072237.27766.conman@kolivas.net>
+User-Agent: Mutt/1.5.3i
+From: "Joshua M. Kwan" <joshk@ludicrus.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 07, 2003 at 04:36:17PM +0000, Alan Cox wrote:
-> On Tue, 2003-01-07 at 13:10, Muli Ben-Yehuda wrote:
-> > ide_scan_drection is only used if CONFIG_BLK_DEV_IDEPCI is defined,
-> > giving a compilation warning otherwise. Against 2.5.54-bk. 
-> 
-> Please reject. This is uglier than the warning and not the right
-> approach
 
-Alan, I bow to your superior knowledge and judgement. However,
-'ide_scan_direction' is only used in two places in ide.c, and both of
-those are only compiled in if CONFIG_BLK_DEV_IDEPCI:  
+--45Z9DzgjV8m4Oswq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-in ide_setup(): 
+Was it changed at any other points in the Linux kernel? I've been always
+playing zblast everytime i am waiting for a kernel to compile, since the ta=
+ilend
+of 2.3 :)
 
-#ifdef CONFIG_BLK_DEV_IDEPCI
-        if (!strcmp(s, "ide=reverse")) {
-                ide_scan_direction = 1;
-                printk(" : Enabled support for IDE inverse scan order.\n");
-                return 1;
-        }
-#endif /* CONFIG_BLK_DEV_IDEPCI */
+Regards
+Josh
 
-in probe_for_hwifs(): 
+On Tue, Jan 07, 2003 at 10:37:23PM +1100, Con Kolivas wrote:
+> On Tuesday 07 Jan 2003 6:37 am, you wrote:
+> > This was a while ago... But when I upgraded to kernel 2.4.20-ck2, I
+> > tried to play ZBlast (www.svgalib.org/rus/zblast) in both console
+> > (svgalib) and X mode and the game seemed to be running in double time!
+> > Is this a timing problem within the code or a quirk in the low latency
+> > routines of the -ck2 patch? When useing a vanilla 2.4.20 kernel there is
+> > nothing wrong.
+> >
+> > Has anyone else noticed this?
+>=20
+> Nope, you're the first. There is one thing that could explain it though, =
+and=20
+> that is the increased timer interrupt frequency in -ck2 from 100 to 1000H=
+z.=20
+> Perhaps something in that game is based on the interrupt frequency. For a=
+ll=20
+> other things there is no reason any timer should go haywire.
+>=20
+> Con
 
-#ifdef CONFIG_BLK_DEV_IDEPCI
-        if (pci_present())
-        {
-                ide_scan_pcibus(ide_scan_direction);
-        }
-#endif /* CONFIG_BLK_DEV_IDEPCI */
+--45Z9DzgjV8m4Oswq
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-So protecting the variable with #ifdef .. #endif seems the simplest
-and least intrusive way to fix it. How would you prefer I do it? 
--- 
-Muli Ben-Yehuda
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-my opinions may seem crazy. But they all make sense. Insane sense, but
-sense nontheless. -- Shlomi Fish on #offtopic.
+iD8DBQE+GvqA6TRUxq22Mx4RAlciAJ9hx6rK2cVT2NIULhujqV5MAWX+dACgqH/Y
+p7HjepTKVgjxZDdclWbFsck=
+=cQIQ
+-----END PGP SIGNATURE-----
 
+--45Z9DzgjV8m4Oswq--

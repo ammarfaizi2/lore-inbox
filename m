@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264240AbTICSTb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 14:19:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264179AbTICSSN
+	id S264115AbTICSJ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 14:09:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264158AbTICSIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 14:18:13 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:27866 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264191AbTICSQy
+	Wed, 3 Sep 2003 14:08:06 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:44046 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264115AbTICSHv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 14:16:54 -0400
-Date: Wed, 3 Sep 2003 11:15:52 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       "Brown, Len" <len.brown@intel.com>, Giuliano Pochini <pochini@shiny.it>,
-       Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-Message-ID: <20030903181552.GF5769@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	"Brown, Len" <len.brown@intel.com>,
-	Giuliano Pochini <pochini@shiny.it>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <BF1FE1855350A0479097B3A0D2A80EE009FCEB@hdsmsx402.hd.intel.com> <20030903111934.GF10257@work.bitmover.com> <20030903180037.GP4306@holomorphy.com> <20030903180547.GD5769@work.bitmover.com> <20030903181550.GR4306@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030903181550.GR4306@holomorphy.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+	Wed, 3 Sep 2003 14:07:51 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Fix up power managment in 2.6
+Date: 3 Sep 2003 17:59:09 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bj5a5d$8b8$1@gatekeeper.tmr.com>
+References: <20030902094701.GD145@elf.ucw.cz> <Pine.LNX.4.44.0309020825280.5614-100000@cherise> <20030903174904.GH30629@atrey.karlin.mff.cuni.cz>
+X-Trace: gatekeeper.tmr.com 1062611949 8552 192.168.12.62 (3 Sep 2003 17:59:09 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2003 at 11:15:50AM -0700, William Lee Irwin III wrote:
-> Independent operating system instances running under a hypervisor don't
-> qualify as a cache-coherent cluster that I can tell; it's merely dynamic
-> partitioning, which is great, but nothing to do with clustering or SMP.
+In article <20030903174904.GH30629@atrey.karlin.mff.cuni.cz>,
+Pavel Machek  <pavel@suse.cz> wrote:
+| Hi!
+| 
+| > > -void software_resume(void)
+| > > +int __init swsusp_restore(void)
+| > >  {
+| > > -       if (num_online_cpus() > 1) {
+| > > -               printk(KERN_WARNING "Software Suspend has
+| > > malfunctioning SMP support. Disabled :(\n");
+| > > -               return;
+| > > -       }
+| > > 
+| > > I can not easily see where you moved this check.
+| > 
+| > Read the rest of the patches, and the changelogs (I do believe it's in 
+| > them). It's in kernel/power/main.c::enter_state(), so all PM handlers can 
+| > use it. 
+| 
+| Notice that this is done during resume. You are free to suspend with 1
+| cpu, then attempt to resume with 2 cpus. Not *too* likely to happen,
+| but....
 
-they can map memory between instances
+Would it matter if you did? Unless you are running an SMP kernel? I
+guess at some point the laptop CPUs will have HT, and SMP will be more
+of an issue than it is now.
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

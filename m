@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318529AbSHEN46>; Mon, 5 Aug 2002 09:56:58 -0400
+	id <S318536AbSHEOGi>; Mon, 5 Aug 2002 10:06:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318536AbSHEN46>; Mon, 5 Aug 2002 09:56:58 -0400
-Received: from pat.uio.no ([129.240.130.16]:14814 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S318529AbSHEN4w>;
-	Mon, 5 Aug 2002 09:56:52 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-Subject: Re: Fragment flooding in 2.4.x/2.5.x
-References: <200206281821.WAA00420@mops.inr.ac.ru>
-	<200207011414.50465.trond.myklebust@fys.uio.no>
-	<20020803.031740.84726417.davem@redhat.com>
-	<15694.33047.965504.346909@charged.uio.no>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 05 Aug 2002 16:00:25 +0200
-In-Reply-To: <15694.33047.965504.346909@charged.uio.no>
-Message-ID: <shs7kj576di.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318539AbSHEOGi>; Mon, 5 Aug 2002 10:06:38 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:9969 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318536AbSHEOGh>; Mon, 5 Aug 2002 10:06:37 -0400
+Subject: Re: i810 sound broken...
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: venom@sns.it
+Cc: Thomas Munck Steenholdt <tmus@get2net.dk>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.43.0208051546120.8463-100000@cibs9.sns.it>
+References: <Pine.LNX.4.43.0208051546120.8463-100000@cibs9.sns.it>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 05 Aug 2002 16:28:45 +0100
+Message-Id: <1028561325.18478.55.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+On Mon, 2002-08-05 at 14:47, venom@sns.it wrote:
+> Still OSS modules for i810 does not work with 2.5 kernels, actually 2.4
+> is fine. No time to switch to alsa (and not interested for now too).
 
-     > Concerning the 2.4.x kernel: it would be very nice if this fix
-     > made it into 2.4.19, as the bug has already been known to crash
-     > a few servers...
+OSS for 2.5 is someone elses problem. I have no plan to do any work on
+the old OSS drivers for the 2.5 tree or even to submit 2.4 updates into
+2.5 for it. 
 
-Bump the above request to read '...made it into 2.4.20...'. I replied
-before I saw Marcelo's announcement.
-
-Cheers,
-  Trond

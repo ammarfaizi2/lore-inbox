@@ -1,93 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291653AbSBNNql>; Thu, 14 Feb 2002 08:46:41 -0500
+	id <S291654AbSBNNvb>; Thu, 14 Feb 2002 08:51:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291654AbSBNNqb>; Thu, 14 Feb 2002 08:46:31 -0500
-Received: from gold.he.net ([216.218.149.2]:54026 "EHLO gold.he.net")
-	by vger.kernel.org with ESMTP id <S291653AbSBNNqW>;
-	Thu, 14 Feb 2002 08:46:22 -0500
-Reply-To: <jss@pacbell.net>
-From: "J.S.S." <jss@pacbell.net>
-To: "Drew P. Vogel" <dvogel@intercarve.net>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: Unable to compile 2.5.4: "control reaches end of non-void functionm"
-Date: Thu, 14 Feb 2002 05:49:09 -0800
-Message-ID: <PGEMINDOPMDNMJINCKBNIEFICBAA.jss@pacbell.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.33.0202131955210.17093-100000@northface.intercarve.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S291658AbSBNNvV>; Thu, 14 Feb 2002 08:51:21 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:55495 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S291654AbSBNNvJ>; Thu, 14 Feb 2002 08:51:09 -0500
+Date: Thu, 14 Feb 2002 07:50:41 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200202141350.HAA29931@tomcat.admin.navo.hpc.mil>
+To: gurre@start.no, Rob Landley <landley@trommello.org>
+Subject: Re: ssh primer (was Re: pull vs push (was Re: [bk patch] Make
+ cardbus compile in -pre4))
+Cc: Aaron Lehmann <aaronl@vitelus.com>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got it. Fixed it.
-Still getting the video.o compile problem, but this hasn't been fixed yet
-(although it's been discussed a bit, the outcome wasn't too clear).
-
-
------Original Message-----
-From: Drew P. Vogel [mailto:dvogel@intercarve.net]
-Sent: Wednesday, February 13, 2002 4:56 PM
-To: J.S.S.
-Cc: Steve Kieu; linux-kernel
-Subject: RE: Unable to compile 2.5.4: "control reaches end of non-void
-functionm"
-
-
-If it is in processor.h, search the archives. There was a patch for this
-submitted to the list about a week ago.
-
---Drew Vogel
-
-On Wed, 13 Feb 2002, J.S.S. wrote:
-
->I have this same problem on both my laptop and my testbox.  It happens
->everytime and I have yet to compile 2.5.4 successfully.  Although, I
-suspect
->it's in my config file - I'm just using an old config file I used for my
->2.4.17 kernel which works just fine.
->
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org
->[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Steve Kieu
->Sent: Tuesday, February 12, 2002 8:49 PM
->To: kernel
->Subject: Re: Unable to compile 2.5.4: "control reaches end of non-void
->functionm"
->
->
->
->Hi,
->
->It seems nobody having this problem? No one replies at
->least why, so I just want to add one more case of
->compiling error. Exactly the same message as yours.
->
->
->
->=====
->S.KIEU
->
->http://greetings.yahoo.com.au - Yahoo! Greetings
->- Send your Valentines love online.
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
-
---Drew Vogel
-
+------HEADER END-DONT REMOVE------ 
+> Rob Landley <landley@trommello.org> writes:
+> 
+> > Not that it's worth it. Keys get exponentially more difficult to
+> > brute force as the key length increases. I read part of a book a
+> > long time ago (might have been called "applied cryptography") that
+> > figured out that if you could build a perfectly efficient computer
+> > that could do 1 bit's worth of calculation with the the amount of
+> > energy in the minimal electron state transition in a hydrogen atom,
+> > and you built a dyson sphere around the sun to capture its entire
+> > energy output for the however many billion years its expected to
+> > last, you wouldn't even brute-force exhaust a relatively small
+> > keyspace (128 bits? 256 bits? Something like that).
+> >
+> > Somebody else here is likely to recognize the above anecdote and give a more 
+> > accurate reference.  Book title and page number would be good...
+> 
+> Bruce Schneier's "Applied Cryptography" (second edition, may be in the
+> first edition as well), pages 157-158 ("Thermodynamic Limitations").
+Remember - this is a dated example, since some theories are beginning
+to consider storing & computing data with photons/interference patterns...
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+Any opinions expressed are solely my own.

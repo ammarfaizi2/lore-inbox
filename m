@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310144AbSCAWyn>; Fri, 1 Mar 2002 17:54:43 -0500
+	id <S310151AbSCAXBy>; Fri, 1 Mar 2002 18:01:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310146AbSCAWye>; Fri, 1 Mar 2002 17:54:34 -0500
-Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:63664 "HELO
-	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
-	id <S310144AbSCAWyS>; Fri, 1 Mar 2002 17:54:18 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: SSSCA: We're in trouble now
-In-Reply-To: <3C7FDAB1.6F687440@randomlogic.com>
-	<1015014449.16520.9.camel@unaropia> <1015014637.811.0.camel@bip>
-	<1015018176.16520.66.camel@unaropia>
-From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
-Date: Fri, 01 Mar 2002 23:47:25 +0100
-In-Reply-To: <1015018176.16520.66.camel@unaropia> (Shawn Starr's message of
- "01 Mar 2002 16:29:08 -0500")
-Message-ID: <87henzoqgy.fsf@CERT.Uni-Stuttgart.DE>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1 (i686-pc-linux-gnu)
+	id <S310152AbSCAXBp>; Fri, 1 Mar 2002 18:01:45 -0500
+Received: from ja.mac.ssi.bg ([212.95.166.194]:44292 "EHLO u.domain.uli")
+	by vger.kernel.org with ESMTP id <S310151AbSCAXB3>;
+	Fri, 1 Mar 2002 18:01:29 -0500
+Date: Sat, 2 Mar 2002 01:01:25 +0000 (GMT)
+From: Julian Anastasov <ja@ssi.bg>
+X-X-Sender: ja@u.domain.uli
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org, <kain@kain.org>
+Subject: Re: OOPS: Multipath routing 2.4.17
+In-Reply-To: <p73sn7jkixm.fsf@oldwotan.suse.de>
+Message-ID: <Pine.LNX.4.44.0203020050220.1706-100000@u.domain.uli>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shawn Starr <spstarr@sh0n.net> writes:
 
-> Linux doesnt use the BIOS if you tell it not to, if it can avoid using
-> it. It will :)
+	Hello,
 
-The problem is that if you don't follow the Trusted Computing Platform
-Alliance booting procedure, you won't see much mass-compatible content
-on the Internet any longer.
+On 1 Mar 2002, Andi Kleen wrote:
 
-The solution is simple: go and create your own content, and share it
-with your friends. But you won't get Hollywood movies this way.
+> #if 1
+> 		if (power <= 0) {
+> 			printk(KERN_CRIT "impossible 777\n");
+> 			return;
+> 		}
+> #endif
+>
+> should stop it; making it just not work, but not crash.
+> If he still gets a division by zero then something else is fishy.
 
--- 
-Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
-University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+	How oops is reached:
+
+	2 CPUs enter fib_select_multipath while fib_power is 1.
+Both see 1 at 'if (fi->fib_power <= 0) {', so no 777, CPU1 changes
+fib_power from 1 to 0 before CPU2 reaches 'w = jiffies % fi->fib_power;'
+
+	How 888 is printed:
+
+both CPUs see 1 in 'w = jiffies % fi->fib_power;' but the first
+changes nh_power and fib_power from 1 to 0. CPU2 sees 0 everywhere
+and prints 888. I assume nobody plays with DEAD.
+
+	If I understand correctly the locking (please correct me),
+we can have many threads at the same time:
+
+- many in ip_route_* calling fib_select_multipath
+
+- one in rtnetlink playing with nh_*
+
+> -Andi
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
+

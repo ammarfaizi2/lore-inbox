@@ -1,50 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262932AbUEBJh0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262956AbUEBKC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262932AbUEBJh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 05:37:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbUEBJh0
+	id S262956AbUEBKC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 06:02:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbUEBKC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 05:37:26 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25615 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262932AbUEBJhZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 05:37:25 -0400
-Date: Sun, 2 May 2004 10:37:21 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>, vandrove@vc.cvut.cz, cw@f00f.org,
-       koke@amedias.org, linux-kernel@vger.kernel.org
-Subject: Re: strange delays on console logouts (tty != 1)
-Message-ID: <20040502103721.C9605@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, vandrove@vc.cvut.cz,
-	cw@f00f.org, koke@amedias.org, linux-kernel@vger.kernel.org
-References: <20040430195351.GA1837@amedias.org> <20040501214617.GA6446@taniwha.stupidest.org> <20040501232448.GA4707@vana.vc.cvut.cz> <20040501180347.31f85764.akpm@osdl.org> <20040502090059.A9605@flint.arm.linux.org.uk> <20040502011337.2b0b3ca3.akpm@osdl.org> <20040502091751.B9605@flint.arm.linux.org.uk>
+	Sun, 2 May 2004 06:02:27 -0400
+Received: from null.rsn.bth.se ([194.47.142.3]:4801 "EHLO null.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S262956AbUEBKCI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 06:02:08 -0400
+Subject: Re: [PATCH][2.4] remove amd7(saucy)_tco
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+In-Reply-To: <20040502084841.GA10228@alpha.home.local>
+References: <Pine.LNX.4.58.0405011534230.2332@montezuma.fsmlabs.com>
+	 <20040502084841.GA10228@alpha.home.local>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Z4SP7UUNlJaFXQGW9yM1"
+Message-Id: <1083492123.1100.48.camel@tux.rsn.bth.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040502091751.B9605@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Sun, May 02, 2004 at 09:17:51AM +0100
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 02 May 2004 12:02:04 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 02, 2004 at 09:17:51AM +0100, Russell King wrote:
-> > If so, how is tty_hangup() getting involved?
-> 
-> The only way it could be invoked is via SAK, which obviously isn't
-> happening here.
-> 
-> However, login _does_ call sys_vhangup() which in turn calls tty_vhangup()
-> so I suspect that the statement "tty hangup is scheduled for work_queue"
-> is based on the _assumption_ that sys_vhangup() calls tty_hangup()
-> rather than the function it actually does.
 
-Ok, the VT_OPENQRY crap is a debian modification to agetty.  As far as
-I can see, there is no code in agetty which calls sys_vhangup().
+--=-Z4SP7UUNlJaFXQGW9yM1
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-So the question to Petr is: how did you determine that the tty was
-being hung up?
+On Sun, 2004-05-02 at 10:48, Willy Tarreau wrote:
+> On Sat, May 01, 2004 at 03:37:36PM -0400, Zwane Mwaikambo wrote:
+> > Hello Marcelo,
+> > 	This driver has already been removed in 2.6, essentially we've had
+> > problems getting it working (it's been a while now) with a lot of board=
+s,
+> > all seems to be alright until the actual point where the hardware is
+> > supposed to reset the system. So lets just back it out.
+>=20
+> Indeed, I've just checked here, because I believed I had seen it working,
+> but now I think it was the softdog. It does nothing at all. I've download=
+ed
+> and read AMD's datasheet and the driver seems to do the right thing. BTW,
+> I wonder if the chip is buggy or not, because I tried to play with the
+> SYSRST and FULLRST bits in the 0xCF9 register. Changing SYSRST to 1 does =
+not
+> change anything, and changing FULLRST to 1 immediately reboots the machin=
+e
+> even if no reset was pending !
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Exactly the same thing we (zwane and I) saw when trying to fix it. We
+gave up after some time. We tested it on the 760mpx chipset on an Asus
+A7M-266D motherboard (don't remember which north/south bridge
+combination that is)
+
+We've also seen even weirder things on the same chipset but from another
+motherboard-manufacturer. There absolutely nothing happened after the
+timer reached 0. No bits set anywhere. On my board we at least got that.
+
+I use pci-based watchdog cards instead...
+
+--=20
+/Martin
+
+--=-Z4SP7UUNlJaFXQGW9yM1
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAlMcbWm2vlfa207ERAuRxAJ9VnVWUR8dPJ/mcPJikdE7H6pu14wCcD0N9
+KpyvgqQe7z7IFa8Cz+Y6P10=
+=9mKe
+-----END PGP SIGNATURE-----
+
+--=-Z4SP7UUNlJaFXQGW9yM1--

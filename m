@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129492AbQKPGrM>; Thu, 16 Nov 2000 01:47:12 -0500
+	id <S129251AbQKPH6q>; Thu, 16 Nov 2000 02:58:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129738AbQKPGrC>; Thu, 16 Nov 2000 01:47:02 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:40975 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129492AbQKPGqs> convert rfc822-to-8bit; Thu, 16 Nov 2000 01:46:48 -0500
-Message-ID: <3A137BC7.CE072C5F@transmeta.com>
-Date: Wed, 15 Nov 2000 22:16:39 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10-pre3 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S129511AbQKPH60>; Thu, 16 Nov 2000 02:58:26 -0500
+Received: from slc25.modem.xmission.com ([166.70.9.25]:5897 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S129251AbQKPH6X>; Thu, 16 Nov 2000 02:58:23 -0500
+To: andersen@codepoet.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Q: Linux rebooting directly into linux.
+In-Reply-To: <m17l6deey7.fsf@frodo.biederman.org> <20001114011331.B1496@codepoet.org> <m1bsvia9bt.fsf@frodo.biederman.org> <20001115163012.B13732@codepoet.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 15 Nov 2000 23:19:52 -0700
+In-Reply-To: Erik Andersen's message of "Wed, 15 Nov 2000 16:30:12 -0700"
+Message-ID: <m1g0ks8mlz.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Modprobe local root exploit
-In-Reply-To: <10170.974355294@kao2.melbourne.sgi.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id WAA07998
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> 
-> On 15 Nov 2000 22:04:47 -0800,
-> "H. Peter Anvin" <hpa@zytor.com> wrote:
-> >No, it's correct, actually, but probably not what you want.  It will
-> >include all letters [A-Za-z], but if a module named "ärlig"...
-> 
-> Trying to sanitise the module name in request_module is the wrong fix
-> anyway, the kernel can ask for any module name it likes.  What it must
-> not do is treat user supplied input _unchanged_ as a module name.
-> 
-> modutils 2.3.20 (just released) fixes all the known local root
-> exploits, without kernel changes.  However 2.3.20 does nothing about
-> this problem: "ping6 -I module_name" which lets any user load any
-> module.  That problem exists because the kernel passes user supplied
-> data unchanged to request_module.  The only fix is to add a prefix to
-> user supplied input (say 'user-interface-') before passing the text to
-> request_module.  This has to be fixed in the higher layers of the
-> kernel, it cannot be fixed in request_module or modprobe.
-> 
+Erik Andersen <andersen@codepoet.org> writes:
 
-Sure, but if you have to change the kernel anyway you ought to pass the
-"--" option so modprobe knows that regardless what the string is, it's a
-module name and not an option.
+> On Tue Nov 14, 2000 at 07:59:18AM -0700, Eric W. Biederman wrote:
+> > 
+> > All mkelfImage does is the pasting of initrd's, command lines,
+> > and just a touch of argument conversion code.
+> 
+> You can link in an initrd using linker magic, i.e.
+>     $(OBJCOPY) --add-section=image=kernel --add-section=initrd=initrd.gz
 
-	-hpa
+Hmm this is certainly possible.
+My impression is that this doesn't currently work on x86.
+I would love to be wrong.
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+> This is done in ppc/boot/Makefile for example.  It might be a nice thing
+> to add a .config option to optionally specify an initrd to link into
+> the kernel image.  Similarly, several architectures have a CONFIG_CMDLINE
+> which could also do the job (see arch/ppc/config.in for example).  
+> 
+> Presumably, by doing such things you could avoid needing to use mkelfImage.
+
+Agreed.  And I would like to see that.
+With the 2.4 code freeze it is too late to do that today. 
+Also mkelfImage gives me backwards compatibility for now.
+
+Eric
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

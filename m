@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262573AbVCPNPl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262565AbVCPNNz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262573AbVCPNPl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 08:15:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbVCPNPk
+	id S262565AbVCPNNz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 08:13:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262572AbVCPNNz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 08:15:40 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:37082 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262573AbVCPNPS (ORCPT
+	Wed, 16 Mar 2005 08:13:55 -0500
+Received: from khc.piap.pl ([195.187.100.11]:2052 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S262565AbVCPNNx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 08:15:18 -0500
-Subject: [PATCH] Reserve Bootmem fix for booting nondefault location kernel
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       fastboot <fastboot@lists.osdl.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Content-Type: multipart/mixed; boundary="=-d/XlY9CnMwuAb0WYNFjA"
-Date: Wed, 16 Mar 2005 18:45:12 +0530
-Message-Id: <1110978912.3575.35.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Wed, 16 Mar 2005 08:13:53 -0500
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.11.4
+References: <20050316002222.GA30602@kroah.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Wed, 16 Mar 2005 14:11:43 +0100
+In-Reply-To: <20050316002222.GA30602@kroah.com> (Greg KH's message of "Tue,
+ 15 Mar 2005 16:22:22 -0800")
+Message-ID: <m3u0nbybu8.fsf@defiant.localdomain>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=-=-=
 
---=-d/XlY9CnMwuAb0WYNFjA
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Greg KH <greg@kroah.com> writes:
 
+> I've release 2.6.11.4 with two security fixes in it.  It can be found at
+> the normal kernel.org places.
 
+How about the N2/C101/PCI200SYN WAN driver fix (kernel panic on receive)?
 
---=-d/XlY9CnMwuAb0WYNFjA
-Content-Disposition: attachment; filename=x86-nondefault-kernel-reserve-bootmem-fix.patch
-Content-Type: text/x-patch; name=x86-nondefault-kernel-reserve-bootmem-fix.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Signed-off-by: Krzysztof Halasa <khc@pm.waw.pl>
 
+-- 
+Krzysztof Halasa
 
-This patch fixes a problem with reserving memory during boot up of a kernel
-built for non-default location. Currently boot memory allocator reserves the
-memory required by kernel image, boot allocaotor bitmap etc. It assumes that
-kernel is loaded at 1MB (HIGH_MEMORY hard coded to 1024*1024). But kernel can
-be built for non-default locatoin, hence existing hardcoding will lead to
-reserving unnecessary memory. This patch fixes it.
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: inline; filename=hdlc-skb-dev-only.patch
 
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
+--- linux/drivers/net/wan/hd6457x.c	28 Oct 2004 06:16:08 -0000	1.15
++++ linux/drivers/net/wan/hd6457x.c	1 Mar 2005 00:58:08 -0000
+@@ -315,7 +315,7 @@
+ #endif
+ 	stats->rx_packets++;
+ 	stats->rx_bytes += skb->len;
+-	skb->dev->last_rx = jiffies;
++	dev->last_rx = jiffies;
+ 	skb->protocol = hdlc_type_trans(skb, dev);
+ 	netif_rx(skb);
+ }
 
- linux-2.6.11-mm3-vivek/arch/i386/kernel/setup.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff -puN arch/i386/kernel/setup.c~x86-nondefault-kernel-reserve-bootmem-fix arch/i386/kernel/setup.c
---- linux-2.6.11-mm3/arch/i386/kernel/setup.c~x86-nondefault-kernel-reserve-bootmem-fix	2005-03-15 14:15:25.391856008 +0530
-+++ linux-2.6.11-mm3-vivek/arch/i386/kernel/setup.c	2005-03-15 14:16:12.780651816 +0530
-@@ -1135,8 +1135,8 @@ void __init setup_bootmem_allocator(void
- 	 * the (very unlikely) case of us accidentally initializing the
- 	 * bootmem allocator with an invalid RAM area.
- 	 */
--	reserve_bootmem(HIGH_MEMORY, (PFN_PHYS(min_low_pfn) +
--			 bootmap_size + PAGE_SIZE-1) - (HIGH_MEMORY));
-+	reserve_bootmem(__PHYSICAL_START, (PFN_PHYS(min_low_pfn) +
-+			 bootmap_size + PAGE_SIZE-1) - (__PHYSICAL_START));
- 
- 	/*
- 	 * reserve physical page 0 - it's a special BIOS page on many boxes,
-_
-
---=-d/XlY9CnMwuAb0WYNFjA--
-
+--=-=-=--

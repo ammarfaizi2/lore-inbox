@@ -1,74 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130758AbRAUA0a>; Sat, 20 Jan 2001 19:26:30 -0500
+	id <S132158AbRAUAaa>; Sat, 20 Jan 2001 19:30:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132158AbRAUA0U>; Sat, 20 Jan 2001 19:26:20 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:2572 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130758AbRAUA0J>; Sat, 20 Jan 2001 19:26:09 -0500
-Date: Sat, 20 Jan 2001 16:25:45 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Roman Zippel <zippel@fh-brandenburg.de>
-cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-Subject: Re: Is sendfile all that sexy?
-In-Reply-To: <Pine.GSO.4.10.10101202107590.12223-100000@zeus.fh-brandenburg.de>
-Message-ID: <Pine.LNX.4.10.10101201612240.10849-100000@penguin.transmeta.com>
+	id <S132637AbRAUAaT>; Sat, 20 Jan 2001 19:30:19 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:48913 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S132158AbRAUAaK>;
+	Sat, 20 Jan 2001 19:30:10 -0500
+Message-ID: <3A6A2D8D.D55655D5@mandrakesoft.com>
+Date: Sat, 20 Jan 2001 19:30:05 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Tobias Burnus <burnus@gmx.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Ethernet drivers: SiS 900, Netgear FA311
+In-Reply-To: <3A6A2B9A.5F40CA04@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tobias Burnus wrote:
+> I think those drivers have not yet been merged. Since I happend to have
+> those (and had problem to get them run with the default kernel) I'd like
+> to asked whether those can be included into the kernel. They are GNU
+> licensed. Seemingly the SiS updates the existing sis900 driver, the
+> FA311 is not yet supported by the kernel.
 
+Not true, see natsemi.c (in 2.4.x at least).
 
-On Sat, 20 Jan 2001, Roman Zippel wrote:
-> 
-> AFAIK as long as that dummy page struct is only used in the page cache,
-> that should work, but you get new problems as soon as you map the page
-> also into a user process (grep for CONFIG_DISCONTIGMEM under
-> include/asm-mips64 to see the needed changes). In the worst case one
-> might need reverse mapping to get the page back. :)
-
-No, for the CONTIGMEM case you can just use remap_page_range() directly:
-it won't actually map the "struct page*" into the user space, it will just
-map a special reserved page into user space. No changes needed.
-
-So it just so happens that the physical address of the two "pages" is the
-same in this case - one reachable through the dummy "struct page *" and
-one reachable through the VM layer. The VM layer will never see the dummy
-"struct page", and that's ok. It doesn't need it.
-
-Now, there are things to look out for: when you do these kinds of dummy
-"struct page" tricks, some macros etc WILL NOT WORK. In particular, we do
-not currently have a good "page_to_bus/phys()" function. That means that
-anybody trying to do DMA to this page is currently screwed, simply because
-he has no good way of getting the physical address.
-
-This is a limitation in general: the PTE access functions would also like
-to have "page_to_phys()" and "phys_to_page()" functions. It gets even
-worse with IO mappings, where "CPU-physical" is NOT necessarily the same
-as "bus-physical".
-
-It shouldn't be too hard to do the phys/bus addresses in general,
-something like this should actually do it
-
-	static inline unsigned long page_to_physnr(struct page * page)
-	{
-		unsigned long offset;
-		struct zone_struct * zone = page->zone;
-
-		offset = zone->zone_mem_map - page;
-		return zone->zone_start_paddr + offset;
-	}
-
-except right now I think "zone_start_paddr" is defined wrong (it's defined
-to be the actual physical address, rather than being the "physical address
-shifted right by the page-size". It needs to be the latter in order to
-handle physical memory spaces that are bigger than "unsigned long" (ie
-x86 PAE mode). Making the thing "unsigned long long" is _not_ an option,
-considering how crappy gcc is at double integers.
-
-		Linus
-
+-- 
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

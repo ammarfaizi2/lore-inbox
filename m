@@ -1,67 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265170AbTLLO4l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 09:56:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265223AbTLLO4l
+	id S265223AbTLLO6X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 09:58:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265243AbTLLO56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 09:56:41 -0500
-Received: from mail.jlokier.co.uk ([81.29.64.88]:19843 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S265170AbTLLO4i
+	Fri, 12 Dec 2003 09:57:58 -0500
+Received: from mail.dietlibc.org ([212.84.236.4]:40849 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S265223AbTLLO4y
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 09:56:38 -0500
-Date: Fri, 12 Dec 2003 14:51:24 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Duncan Sands <baldrick@free.fr>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>,
-       =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
-Message-ID: <20031212145124.GA13865@mail.shareable.org>
-References: <20031208154256.GV19856@holomorphy.com> <3FD5AB6C.3040008@aitel.hist.no> <20031212112636.GA12727@mail.shareable.org> <200312121433.14603.baldrick@free.fr>
+	Fri, 12 Dec 2003 09:56:54 -0500
+Date: Fri, 12 Dec 2003 15:56:52 +0100
+From: Johannes Stezenbach <js@convergence.de>
+To: sensors@stimpy.netroedge.com
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: 2.6.0-test11: i2c-dev.h for userspace
+Message-ID: <20031212145652.GA30747@convergence.de>
+Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
+	sensors@stimpy.netroedge.com, Greg KH <greg@kroah.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200312121433.14603.baldrick@free.fr>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Duncan Sands wrote:
-> >     2. Keep track of when devices are used, and when they are not busy.
-> >        We already have this, it's the module reference count.
-> 
-> USB modules (eg: xxxx-hcd) are typically set up so they can be
-> unloaded at any time: the act of unloading disconnects any devices
-> driven by the module and frees resources.  I guess this is
-> problematic for your point 2.  I understand that some network
-> modules work this way too.
+Hi,
 
-I don't see a problem.  A HCD device such as a keyboard is always
-"active" because it must always be listening for keys as long as the
-keyboard is plugged in.  You can explicitly "soft unplug" by unloading
-the module; the proposal doesn't change that.  (Although it would be a
-nice interface to copy the PCMCIA method, where you tell the USB
-subsystem to disconnect a device instead of having to know which
-module(s) to unload).
+I had some trouble compiling a userspace application
+which uses the I2C device interface (the DirectFB
+Matrox driver). Apparently some stuff has been removed
+from i2c-dev.h, and Documentation/i2c/dev-interface is
+out of date. I'm using Debian unstable (where glibc is
+built with kernel 2.6 headers).
 
-I agree that in that case, the device is active regardless of its
-module reference count.  They aren't the same thing.
+The patch below puts back some "#if __KERNEL__" conditionals
+so i2c.h can be included without errors in userspace progams.
 
-(Taking it further, USB keyboard is an example of a driver that could
-be made permanently demand-pageable as all of the code _could_ be
-executed in a process context, if USB's callbacks were made to work
-that way, but that road is potentially quite a complicated and error
-prone one).
+Regards,
+Johannes
 
-A network device is similar as long as its interface is up (if it's a
-device).  A protocol module is active as long as it has any active
-users, for which various definitions are possible.
 
-Protocol (+ mid-layer, helper modules etc.) show that ideally the
-"active" property of a module includes any references to it by other
-active modules, which can be interpreted in a simple or a complicated
-way, depending on how thoroughly you want modules to be paged out
-while still presenting their interfaces in /sys, /dev, /proc,
-ifconfig, iptables etc.
 
--- Jamie
+--- linux-2.6.0-test11-bk8/include/linux/i2c.h.orig	2003-12-12 15:19:12.000000000 +0100
++++ linux-2.6.0-test11-bk8/include/linux/i2c.h	2003-12-12 15:19:37.000000000 +0100
+@@ -28,21 +28,26 @@
+ #ifndef _LINUX_I2C_H
+ #define _LINUX_I2C_H
+ 
++#ifdef __KERNEL__
+ #include <linux/module.h>
+-#include <linux/types.h>
+-#include <linux/i2c-id.h>
+ #include <linux/device.h>	/* for struct device */
+ #include <asm/semaphore.h>
++#endif
++#include <linux/types.h>
++#include <linux/i2c-id.h>
+ 
+ /* --- General options ------------------------------------------------	*/
+ 
+ struct i2c_msg;
++union i2c_smbus_data;
++
++#ifdef __KERNEL__
++
+ struct i2c_algorithm;
+ struct i2c_adapter;
+ struct i2c_client;
+ struct i2c_driver;
+ struct i2c_client_address_data;
+-union i2c_smbus_data;
+ 
+ /*
+  * The master routines are the ones normally used to transmit data to devices
+@@ -384,6 +389,7 @@
+ 
+ /* Return 1 if adapter supports everything we need, 0 if not. */
+ extern int i2c_check_functionality (struct i2c_adapter *adap, u32 func);
++#endif /* #if __KERNEL__ */
+ 
+ /*
+  * I2C Message - used for pure i2c transaction, also from /dev interface
+@@ -530,6 +536,8 @@
+ 				/* written byte (except address)	*/
+ #define I2C_MDELAY	0x0706	/* millisec delay between written bytes */
+ 
++
++#ifdef __KERNEL__
+ /* ----- I2C-DEV: char device interface stuff ------------------------- */
+ 
+ #define I2C_MAJOR	89		/* Device major number		*/
+@@ -605,5 +613,6 @@
+ 	set_current_state(TASK_INTERRUPTIBLE);
+ 	schedule_timeout(timeout);
+ }
++#endif /* #if __KERNEL__ */
+ 
+ #endif /* _LINUX_I2C_H */
+--- linux-2.6.0-test11-bk8/include/linux/i2c-dev.h.orig	2003-12-12 15:19:17.000000000 +0100
++++ linux-2.6.0-test11-bk8/include/linux/i2c-dev.h	2003-12-12 15:19:37.000000000 +0100
+@@ -25,6 +25,7 @@
+ #define _LINUX_I2C_DEV_H
+ 
+ #include <linux/types.h>
++#include <linux/compiler.h>
+ 
+ /* Some IOCTL commands are defined in <linux/i2c.h> */
+ /* Note: 10-bit addresses are NOT supported! */

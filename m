@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262783AbSKROxE>; Mon, 18 Nov 2002 09:53:04 -0500
+	id <S262528AbSKRO6J>; Mon, 18 Nov 2002 09:58:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262789AbSKROxE>; Mon, 18 Nov 2002 09:53:04 -0500
-Received: from ncc1701.cistron.net ([62.216.30.38]:1545 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S262783AbSKROxE>; Mon, 18 Nov 2002 09:53:04 -0500
-From: Rene Blokland <reneb@orac.aais.org>
-Subject: Re: [PATCH] Re: 2.5.48 Compilation Failure skbuff.c
-Date: Mon, 18 Nov 2002 15:40:04 +0100
-Organization: Cistron
-Message-ID: <slrnathuu3.ua9.reneb@orac.aais.org>
-References: <20021118125450.GA14855@outpost.ds9a.nl> <Mutt.LNX.4.44.0211190013030.22010-100000@blackbird.intercode.com.au>
-Reply-To: reneb@cistron.nl
-X-Trace: ncc1701.cistron.net 1037631603 5451 195.64.94.30 (18 Nov 2002 15:00:03 GMT)
-X-Complaints-To: abuse@cistron.nl
+	id <S262457AbSKRO6J>; Mon, 18 Nov 2002 09:58:09 -0500
+Received: from wiprom2mx2.wipro.com ([203.197.164.42]:10450 "EHLO
+	wiprom2mx2.wipro.com") by vger.kernel.org with ESMTP
+	id <S262528AbSKRO6I>; Mon, 18 Nov 2002 09:58:08 -0500
+Message-ID: <3DD90197.4DDEEE61@wipro.com>
+Date: Mon, 18 Nov 2002 20:34:55 +0530
+From: Rashmi Agrawal <rashmi.agrawal@wipro.com>
+Reply-To: rashmi.agrawal@wipro.com
+Organization: wipro tech
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3custom16Nov2002 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
+Subject: Failover in NFS
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Nov 2002 15:04:57.0194 (UTC) FILETIME=[DBA48CA0:01C28F13]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Mutt.LNX.4.44.0211190013030.22010-100000@blackbird.intercode.com.au>, James Morris wrote:
-> On Mon, 18 Nov 2002, bert hubert wrote:
-> 
->> On Mon, Nov 18, 2002 at 01:36:48PM +0100, Rene Blokland wrote:
->> > Hello, 2.5.48 Doesn't compile for me on a AMD k6-3 with gcc-3.2 and glibc-2.3.1
+Hi All,
 
-> 
-> A fix is below.
-It would be great if this solved everything but :
+I might be very wrong but I am trying to do following
 
+1. I have a 4 node cluster and nfsv3 in all the nodes of cluster with
+server running in one
+of the 2 nodesconnected to shared storage and 2 other nodes are acting
+as clients.
+2. If nfs server node crashes, I need to failover to another node
+wherein I need to have access
+to the lock state of the previous server and I need to tell the clients
+that the IP address of the
+nfs server node has changed. IS IT POSSIBLE or what can be done to
+implement it?
 
-  Generating include/linux/compile.h (updated)
-  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=version -DKBUILD_MODNAME=version   -c -o init/version.o init/version.c
-   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o init/do_mounts.o init/initramfs.o
-  	ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  usr/built-in.o  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
-init/built-in.o(.init.text+0x660): In function `start_kernel':
-: undefined reference to `extable_init'
-make: *** [vmlinux] Error 1
+Another scenario is..
+1. When one of the client crashes, it has to failover to another client,
+in that case if client
+crashed with some locks held how the newly come up client going to grab
+the lock again
+when it is not released? Again the server might already be taking care
+of it but I am not
+sure about it.
 
+I hope I can use NFS for this kind of set up and if not what will it
+take to have this kind of set
+up usinf NFS?
 
+Regards
+Rashmi
 
--- 
-Groeten / Regards, Rene J. Blokland
 

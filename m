@@ -1,159 +1,202 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271773AbRIHRec>; Sat, 8 Sep 2001 13:34:32 -0400
+	id <S271787AbRIHRmd>; Sat, 8 Sep 2001 13:42:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271775AbRIHReX>; Sat, 8 Sep 2001 13:34:23 -0400
-Received: from s340-modem2946.dial.xs4all.nl ([194.109.171.130]:53893 "EHLO
-	sjoerd.sjoerdnet") by vger.kernel.org with ESMTP id <S271773AbRIHReP>;
-	Sat, 8 Sep 2001 13:34:15 -0400
-Date: Sat, 8 Sep 2001 19:33:35 +0200 (CEST)
-From: Arjan Filius <iafilius@xs4all.nl>
-X-X-Sender: <arjan@sjoerd.sjoerdnet>
-Reply-To: Arjan Filius <iafilius@xs4all.nl>
-To: Robert Love <rml@tech9.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Feedback on preemptible kernel patch
-In-Reply-To: <999928066.903.18.camel@phantasy>
-Message-ID: <Pine.LNX.4.33.0109081920540.3542-100000@sjoerd.sjoerdnet>
+	id <S271788AbRIHRmY>; Sat, 8 Sep 2001 13:42:24 -0400
+Received: from mail.gmx.net ([213.165.64.20]:14583 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S271787AbRIHRmU>;
+	Sat, 8 Sep 2001 13:42:20 -0400
+Message-ID: <3B9A588B.EA0762D2@gmx.at>
+Date: Sat, 08 Sep 2001 19:42:35 +0200
+From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Arjan van de Ven <arjanv@redhat.com>
+Subject: [PATCH] ataraid-hpt370: multiple raid volumes
+Content-Type: multipart/mixed;
+ boundary="------------6C4E9A2ACDCC2F66A7397FCB"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Robert,
+This is a multi-part message in MIME format.
+--------------6C4E9A2ACDCC2F66A7397FCB
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
+Hi!
 
-I tried 2.4.10-pre4 with patch-rml-2.4.10-pre4-preempt-kernel-1.
-But it seems to hit highmem (see below) (i do have 1.5GB ram)
-2.4.10-pre4 plain runs just fine.
+Appended is a short patch that allows you to have more than one raid
+volume. The same thing should probably be also done to the promise code.
+I had no time to check. :(
+I just needed this for moveing my data from the wracky IBM DLTA disks to
+the new ones. It is a quick hack, but appears to work.
 
-With the kernel option mem=850M the patched kernel boots an seems to run
-fine. However i didn't do any stress testing yet, but i still notice
-hickups while playing mp3 files at -10 nice level with mpg123 on a 1.1GHz
-Athlon, and removing for example a _large_ file (reiser-on-lvm).
+greetings,
+Wilfried
+--------------6C4E9A2ACDCC2F66A7397FCB
+Content-Type: text/plain; charset=us-ascii;
+ name="multiple-raid-hpt370.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="multiple-raid-hpt370.diff"
 
-My syslog output with highmem:
+diff -Nur linux-2.4.8-ac11/drivers/ide/hptraid.c linux-2.4.8-ac11-raid/drivers/ide/hptraid.c
+--- linux-2.4.8-ac11/drivers/ide/hptraid.c	Sun Aug 26 18:32:29 2001
++++ linux-2.4.8-ac11-raid/drivers/ide/hptraid.c	Sat Sep  8 19:32:14 2001
+@@ -58,6 +58,25 @@
+ 	unsigned int cutoff_disks[8];	
+ };
+ 
++struct hptraid_dev {
++	int major;
++	int minor;
++	int device;
++};
++
++static struct hptraid_dev devlist[]=
++{
++
++	{IDE0_MAJOR,  0, -1},
++	{IDE0_MAJOR, 64, -1},
++	{IDE1_MAJOR,  0, -1},
++	{IDE1_MAJOR, 64, -1},
++	{IDE2_MAJOR,  0, -1},
++	{IDE2_MAJOR, 64, -1},
++	{IDE3_MAJOR,  0, -1},
++	{IDE3_MAJOR, 64, -1}
++};
++
+ static struct raid_device_operations hptraid_ops = {
+ 	open:                   hptraid_open,
+ 	release:                hptraid_release,
+@@ -274,16 +293,23 @@
+ 	return lba;
+ }
+ 
+-static void __init probedisk(int major, int minor,int device)
++static u_int32_t magiccookie;
++static char magicpresent;
++static void __init probedisk(struct hptraid_dev *disk, int device)
+ {
+ 	int i;
+         struct highpoint_raid_conf *prom;
+ 	static unsigned char block[4096];
++
++	if (disk->device != -1)	/* disk is occupied? */
++		return;
++
++	printk(KERN_INFO "probeing 0x%.2X%.2X...\n", disk->major, disk->minor);
+ 	
+-	if (maxsectors(major,minor)==0)
++	if (maxsectors(disk->major,disk->minor)==0)
+ 		return;
+ 	
+-        if (read_disk_sb(major,minor,(unsigned char*)&block,sizeof(block)))
++        if (read_disk_sb(disk->major,disk->minor,(unsigned char*)&block,sizeof(block)))
+         	return;
+                                                                                                                  
+         prom = (struct highpoint_raid_conf*)&block[512];
+@@ -295,25 +321,30 @@
+         	return;
+         }
+ 
++		/* disk from another array */
++	if(magicpresent && prom->magic_0 != magiccookie)
++		return;
++
+ 	i = prom->disk_number;
+ 	if (i<0)
+ 		return;
+ 	if (i>8) 
+ 		return;
+ 
+-	raid[device].disk[i].bdev = bdget(MKDEV(major,minor));
++	raid[device].disk[i].bdev = bdget(MKDEV(disk->major,disk->minor));
+         if (raid[device].disk[i].bdev != NULL) {
+         	int j=0;
+         	struct gendisk *gd;
+         	/* This is supposed to prevent others from stealing our underlying disks */
+ 		blkdev_get(raid[device].disk[i].bdev, FMODE_READ|FMODE_WRITE, 0, BDEV_RAW);
++
+ 		/* now blank the /proc/partitions table for the wrong partition table,
+ 		   so that scripts don't accidentally mount it and crash the kernel */
+ 		lock_kernel();
+ 		gd=gendisk_head;
+ 		while (gd!=NULL) {
+-			if (gd->major==major) {
+-				for (j=1+(minor<<gd->minor_shift);j<((minor+1)<<gd->minor_shift);j++) {
++			if (gd->major==disk->major) {
++				for (j=1+(disk->minor<<gd->minor_shift);j<((disk->minor+1)<<gd->minor_shift);j++) {
+ 					gd->part[j].nr_sects=0;
+ 				}
+ 			}
+@@ -322,11 +353,14 @@
+ 		}
+ 		unlock_kernel();
+         }
+-	raid[device].disk[i].device = MKDEV(major,minor);
+-	raid[device].disk[i].sectors = maxsectors(major,minor);
++	raid[device].disk[i].device = MKDEV(disk->major,disk->minor);
++	raid[device].disk[i].sectors = maxsectors(disk->major,disk->minor);
+ 	raid[device].stride = (1<<prom->raid0_shift);
+ 	raid[device].disks = prom->raid_disks;
+ 	raid[device].sectors = prom->total_secs;
++	magicpresent=1;
++	magiccookie=prom->magic_0;
++	disk->device=device;
+ 			
+ }
+ 
+@@ -361,14 +395,10 @@
+ {
+ 	int i,count;
+ 
+-	probedisk(IDE0_MAJOR,  0, device);
+-	probedisk(IDE0_MAJOR, 64, device);
+-	probedisk(IDE1_MAJOR,  0, device);
+-	probedisk(IDE1_MAJOR, 64, device);
+-	probedisk(IDE2_MAJOR,  0, device);
+-	probedisk(IDE2_MAJOR, 64, device);
+-	probedisk(IDE3_MAJOR,  0, device);
+-	probedisk(IDE3_MAJOR, 64, device);
++	magicpresent=0;
++	for(i=0; i < 8; i++) {
++		probedisk(devlist+i, device);
++	}
+                                                                 	
+ 	fill_cutoff(device);
+ 	
+@@ -398,15 +428,20 @@
+ 
+ static __init int hptraid_init(void)
+ {
+-	int retval,device;
++	int retval,device,count=0;
+ 	
+-	device=ataraid_get_device(&hptraid_ops);
+-	if (device<0)
+-		return -ENODEV;
+-	retval = hptraid_init_one(device);
+-	if (retval)
+-		ataraid_release_device(device);
+-	return retval;
++	do
++	{
++		device=ataraid_get_device(&hptraid_ops);
++		if (device<0)
++			return (count?0:-ENODEV);
++		retval = hptraid_init_one(device);
++		if (retval)
++			ataraid_release_device(device);
++		else
++			count++;
++	} while(!retval);
++	return (count?0:retval);
+ }
+ 
+ static void __exit hptraid_exit (void)
 
-Sep  8 18:10:16 sjoerd kernel: kernel BUG at /usr/src/linux-2.4.10-pre4/include/asm/highmem.h:95!
-Sep  8 18:10:16 sjoerd kernel: invalid operand: 0000
-Sep  8 18:10:16 sjoerd kernel: CPU:    0
-Sep  8 18:10:16 sjoerd kernel: EIP:    0010:[do_wp_page+636/1088]
-Sep  8 18:10:16 sjoerd kernel: EFLAGS: 00010282
-Sep  8 18:10:16 sjoerd kernel: eax: 00000043   ebx: 080bdd5c   ecx: f5764260   edx: f4d4c000
-Sep  8 18:10:16 sjoerd kernel: esi: c26cca60   edi: ffffffff   ebp: c26ca134   esp: f4d4dec8
-Sep  8 18:10:16 sjoerd kernel: ds: 0018   es: 0018   ss: 0018
-Sep  8 18:10:16 sjoerd kernel: Process S11dhcpd (pid: 2507, stackpage=f4d4d000)
-Sep  8 18:10:16 sjoerd kernel: Stack: c0210bd2 c0210cc0 0000005f 080bdd5c f5805f00 ffffffff 00000001 c012437d
-Sep  8 18:10:16 sjoerd kernel:        f5805f00 f4d49a00 080bdd5c f4c822f4 55d54065 f4d4c000 f4d49a00 f5805f00
-Sep  8 18:10:16 sjoerd kernel:        f5805f1c c0111a17 f5805f00 f4d49a00 080bdd5c 00000001 f4d4c000 00000007
-Sep  8 18:10:16 sjoerd kernel: Call Trace: [handle_mm_fault+141/224] [do_page_fault+375/1136] [do_page_fault+0/1136] [__mmdrop+58/64] [do_exit+595/640]
-Sep  8 18:10:16 sjoerd kernel:    [error_code+52/64]
-Sep  8 18:10:16 sjoerd kernel:
-Sep  8 18:10:16 sjoerd kernel: Code: 0f 0b 83 c4 0c 8b 15 e8 2f 2a c0 89 f0 2b 05 ac ba 2a c0 69
-Sep  8 18:10:16 sjoerd kernel: MAC unknown INTRUDERS?? (tf) IN=eth0 OUT= MAC= SRC=192.168.0.5 DST=192.168.0.255 LEN=241 TOS=0x02 PREC=0x00 TTL=64 ID=0 DF PROTO=UDP SPT=138 DPT=138 LEN=221
-Sep  8 18:10:16 sjoerd kernel: MAC unknown INTRUDERS?? (tf) IN=eth0 OUT= MAC= SRC=192.168.0.5 DST=192.168.0.255 LEN=96 TOS=0x02 PREC=0x00 TTL=64 ID=0 DF PROTO=UDP SPT=137 DPT=137 LEN=76
-Sep  8 18:10:16 sjoerd kernel: kernel BUG at /usr/src/linux-2.4.10-pre4/include/asm/highmem.h:95!
-Sep  8 18:10:16 sjoerd kernel: invalid operand: 0000
-Sep  8 18:10:16 sjoerd kernel: CPU:    0
-Sep  8 18:10:16 sjoerd kernel: EIP:    0010:[do_anonymous_page+130/368]
-Sep  8 18:10:16 sjoerd kernel: EFLAGS: 00010286
-Sep  8 18:10:16 sjoerd kernel: eax: 00000043   ebx: 080c501c   ecx: f5764260   edx: f4d4c000
-Sep  8 18:10:16 sjoerd kernel: esi: c26c4fec   edi: f5805f00   ebp: f4d497c0   esp: f4d4dea0
-Sep  8 18:10:16 sjoerd kernel: ds: 0018   es: 0018   ss: 0018
-Sep  8 18:10:16 sjoerd kernel: Process dhcpd (pid: 2508, stackpage=f4d4d000)
-Sep  8 18:10:16 sjoerd kernel: Stack: c0210bd2 c0210cc0 0000005f 080c501c f4d497c0 f5805f00 00000001 c012420f
-Sep  8 18:10:16 sjoerd kernel:        f5805f00 f4d497c0 f4c63314 00000001 080c501c 080c501c f5805f00 ffffffff
-Sep  8 18:10:16 sjoerd kernel:        00000001 c012434e f5805f00 f4d497c0 080c501c 00000001 f4c63314 f4d4c000
-Sep  8 18:10:16 sjoerd kernel: Call Trace: [do_no_page+47/272] [handle_mm_fault+94/224] [do_page_fault+375/1136] [do_page_fault+0/1136] [do_munmap+86/640]
-Sep  8 18:10:16 sjoerd kernel:    [fput+116/224] [do_brk+176/368] [sys_brk+187/240] [error_code+52/64]
-Sep  8 18:10:16 sjoerd kernel:
-Sep  8 18:10:16 sjoerd kernel: Code: 0f 0b 83 c4 0c 8b 15 e8 2f 2a c0 89 f0 2b 05 ac ba 2a c0 69
-Sep  8 18:10:16 sjoerd kernel: kernel BUG at /usr/src/linux-2.4.10-pre4/include/asm/highmem.h:95!
-Sep  8 18:10:16 sjoerd kernel: invalid operand: 0000
-Sep  8 18:10:16 sjoerd kernel: CPU:    0
-Sep  8 18:10:16 sjoerd kernel: EIP:    0010:[do_anonymous_page+130/368]
-Sep  8 18:10:16 sjoerd kernel: EFLAGS: 00010282
-Sep  8 18:10:16 sjoerd kernel: eax: 00000043   ebx: 40017000   ecx: f5735f7c   edx: f4c88000
-Sep  8 18:10:16 sjoerd kernel: esi: c26c9298   edi: f5805d80   ebp: f4c945c0   esp: f4c89dc8
-Sep  8 18:10:16 sjoerd kernel: ds: 0018   es: 0018   ss: 0018
-Sep  8 18:10:16 sjoerd kernel: Process python (pid: 2456, stackpage=f4c89000)
-Sep  8 18:10:16 sjoerd kernel: Stack: c0210bd2 c0210cc0 0000005f 40017000 f4c945c0 f5805d80 00000001 c012420f
-Sep  8 18:10:16 sjoerd kernel:        f5805d80 f4c945c0 f4c9c05c 00000001 40017000 40017000 f5805d80 ffffffff
-Sep  8 18:10:16 sjoerd kernel:        00000001 c012434e f5805d80 f4c945c0 40017000 00000001 f4c9c05c f4c88000
-Sep  8 18:10:16 sjoerd kernel: Call Trace: [do_no_page+47/272] [handle_mm_fault+94/224] [do_page_fault+375/1136] [do_page_fault+0/1136] [block_read_full_page+240/688]
-Sep  8 18:10:16 sjoerd kernel:    [error_code+52/64] [file_read_actor+113/224] [do_generic_file_read+505/1344] [generic_file_read+99/128] [file_read_actor+0/224] [sys_read+150/208]
-Sep  8 18:10:16 sjoerd kernel:    [system_call+51/56]
-Sep  8 18:10:16 sjoerd kernel:
-Sep  8 18:10:16 sjoerd kernel: Code: 0f 0b 83 c4 0c 8b 15 e8 2f 2a c0 89 f0 2b 05 ac ba 2a c0 69
-Sep  8 18:10:16 sjoerd kernel: kernel BUG at /usr/src/linux-2.4.10-pre4/include/asm/highmem.h:95!
-Sep  8 18:10:16 sjoerd kernel: kernel BUG at /usr/src/linux-2.4.10-pre4/include/asm/highmem.h:95!
-Sep  8 18:10:16 sjoerd kernel: invalid operand: 0000
-Sep  8 18:10:16 sjoerd kernel: CPU:    0
-Sep  8 18:10:16 sjoerd kernel: EIP:    0010:[do_wp_page+636/1088]
-Sep  8 18:10:16 sjoerd kernel: EFLAGS: 00010282
-Sep  8 18:10:16 sjoerd kernel: eax: 00000043   ebx: bffff960   ecx: f5764260   edx: f4ce4000
-Sep  8 18:10:16 sjoerd kernel: esi: c26d04d0   edi: ffffffff   ebp: c26ca4a8   esp: f4ce5ec8
-Sep  8 18:10:16 sjoerd kernel: ds: 0018   es: 0018   ss: 0018
-Sep  8 18:10:16 sjoerd kernel: Process rc (pid: 2514, stackpage=f4ce5000)
-Sep  8 18:10:16 sjoerd kernel: Stack: c0210bd2 c0210cc0 0000005f bffff960 f5805780 ffffffff 00000001 c012437d
-Sep  8 18:10:16 sjoerd kernel:        f5805780 f4c54dc0 bffff960 f4ca8ffc 55e30065 f4ce4000 f4c54dc0 f5805780
-Sep  8 18:10:16 sjoerd kernel:        f580579c c0111a17 f5805780 f4c54dc0 bffff960 00000001 f4ce4000 00000007
-Sep  8 18:10:16 sjoerd kernel: Call Trace: [handle_mm_fault+141/224] [do_page_fault+375/1136] [do_page_fault+0/1136] [__mmdrop+58/64] [do_exit+595/640]
-Sep  8 18:10:16 sjoerd kernel:    [error_code+52/64]
-Sep  8 18:10:16 sjoerd kernel:
-Sep  8 18:10:16 sjoerd kernel: Code: 0f 0b 83 c4 0c 8b 15 e8 2f 2a c0 89 f0 2b 05 ac ba 2a c0 69
-Sep  8 18:10:16 sjoerd kernel: kernel BUG at /usr/src/linux-2.4.10-pre4/include/asm/highmem.h:95!
-Sep  8 18:10:16 sjoerd kernel: invalid operand: 0000
-Sep  8 18:10:16 sjoerd kernel: CPU:    0
-Sep  8 18:10:16 sjoerd kernel: EIP:    0010:[filemap_nopage+300/1344]
-Sep  8 18:10:16 sjoerd kernel: EFLAGS: 00010282
-Sep  8 18:10:16 sjoerd kernel: eax: 00000043   ebx: 00000001   ecx: f5764260   edx: f4c3e000
-Sep  8 18:10:16 sjoerd kernel: esi: c297ac20   edi: 00000015   ebp: c270df9c   esp: f4c3fb30
-Sep  8 18:10:16 sjoerd kernel: ds: 0018   es: 0018   ss: 0018
-Sep  8 18:10:16 sjoerd kernel: Process ncpserv (pid: 2513, stackpage=f4c3f000)
-Sep  8 18:10:16 sjoerd kernel: Stack: c02110b2 c0211160 0000005f 40016000 f4c54f00 f4c62140 00000001 00000019
-Sep  8 18:10:16 sjoerd kernel:        f7af9960 f74f7a24 f74f7980 f4db9c40 c0124252 f4c54f00 40016000 00000001
-Sep  8 18:10:16 sjoerd kernel:        400162a8 f4c62140 ffffffff 00000001 c012434e f4c62140 f4c54f00 400162a8
-Sep  8 18:10:16 sjoerd kernel: Call Trace: [do_no_page+114/272] [handle_mm_fault+94/224] [do_page_fault+375/1136] [do_page_fault+0/1136] [file_read_actor+177/224]
-Sep  8 18:10:16 sjoerd kernel:    [update_atime+68/80] [do_generic_file_read+1333/1344] [do_munmap+86/640] [update_atime+68/80] [error_code+52/64] [clear_user+46/64]
-Sep  8 18:10:16 sjoerd kernel:    [padzero+28/32] [load_elf_interp+619/704] [load_elf_binary+1959/2704] [load_elf_binary+0/2704] [nfsd:__insmod_nfsd_O/lib/modules/2.4.10-pre4/kernel/fs/nfsd/nfsd+-13721617/96] [search_binary_handler+152/496]
-Sep  8 18:10:16 sjoerd kernel:    [do_execve+380/496] [do_execve+403/496] [sys_execve+47/96] [system_call+51/56]
-Sep  8 18:10:16 sjoerd kernel:
-Sep  8 18:10:16 sjoerd kernel: Code: 0f 0b 83 c4 0c 8b 15 e8 2f 2a c0 89 f0 2b 05 ac ba 2a c0 69
-Sep  8 18:10:16 sjoerd kernel: LOOUT REJECT TCP IN= OUT=lo SRC=127.0.0.1 DST=127.0.0.1 LEN=356 TOS=0x02 PREC=0x00 TTL=64 ID=32512 PROTO=TCP SPT=32775 DPT=15607 WINDOW=32767 RES=0x00 ACK PSH FIN URGP=0
-Sep  8 18:10:16 sjoerd kernel: invalid operand: 0000
-Sep  8 18:10:16 sjoerd kernel: CPU:    0
-Sep  8 18:10:16 sjoerd kernel: EIP:    0010:[do_wp_page+636/1088]
-Sep  8 18:10:16 sjoerd kernel: EFLAGS: 00010282
-Sep  8 18:10:16 sjoerd kernel: eax: 00000043   ebx: 080b170c   ecx: f4ce4260   edx: f5946000
-Sep  8 18:10:16 sjoerd kernel: esi: c26dec2c   edi: ffffffff   ebp: c26ca2cc   esp: f5947ec8
-Sep  8 18:10:16 sjoerd kernel: ds: 0018   es: 0018   ss: 0018
-Sep  8 18:10:16 sjoerd kernel: Process rc (pid: 156, stackpage=f5947000)
-Sep  8 18:10:16 sjoerd kernel: Stack: c0210bd2 c0210cc0 0000005f 080b170c f752a080 ffffffff 00000001 c012437d
-Sep  8 18:10:16 sjoerd kernel:        f752a080 f75282c0 080b170c f59de2c4 56197065 f5946000 f75282c0 f752a080
-Sep  8 18:10:16 sjoerd kernel:        f752a09c c0111a17 f752a080 f75282c0 080b170c 00000001 f5946000 00000007
-Sep  8 18:10:16 sjoerd kernel: Call Trace: [handle_mm_fault+141/224] [do_page_fault+375/1136] [do_page_fault+0/1136] [copy_thread+136/160] [do_fork+1619/1792]
-Sep  8 18:10:16 sjoerd kernel:    [write_chan+0/544] [sys_fork+20/32] [error_code+52/64]
-Sep  8 18:10:16 sjoerd kernel:
-Sep  8 18:10:16 sjoerd kernel: Code: 0f 0b 83 c4 0c 8b 15 e8 2f 2a c0 89 f0 2b 05 ac ba 2a c0 69
-Sep  8 18:10:16 sjoerd kernel: kernel BUG at /usr/src/linux-2.4.10-pre4/include/asm/highmem.h:95!
-Sep  8 18:10:16 sjoerd kernel: invalid operand: 0000
-Sep  8 18:10:16 sjoerd kernel: CPU:    0
-Sep  8 18:10:16 sjoerd kernel: EIP:    0010:[do_wp_page+636/1088]
-Sep  8 18:10:16 sjoerd kernel: EFLAGS: 00010282
-Sep  8 18:10:16 sjoerd kernel: eax: 00000043   ebx: 080b04e0   ecx: f5735f7c   edx: c299a000
-Sep  8 18:10:16 sjoerd kernel: esi: c2962850   edi: ffffffff   ebp: c292d82c   esp: c299bec8
-Sep  8 18:10:16 sjoerd kernel: ds: 0018   es: 0018   ss: 0018
-Sep  8 18:10:16 sjoerd kernel: Process init (pid: 1, stackpage=c299b000)
-Sep  8 18:10:16 sjoerd kernel: Stack: c0210bd2 c0210cc0 0000005f 080b04e0 f752a140 ffffffff 00000001 c012437d
-Sep  8 18:10:16 sjoerd kernel:        f752a140 f7528180 080b04e0 f751a2c0 5f910065 c299a000 f7528180 f752a140
-Sep  8 18:10:16 sjoerd kernel:        f752a15c c0111a17 f752a140 f7528180 080b04e0 00000001 c299a000 00000007
-Sep  8 18:10:16 sjoerd kernel: Call Trace: [handle_mm_fault+141/224] [do_page_fault+375/1136] [do_page_fault+0/1136] [copy_thread+136/160] [do_fork+1619/1792]
-Sep  8 18:10:16 sjoerd kernel:    [sys_fork+20/32] [error_code+52/64]
-Sep  8 18:10:16 sjoerd kernel:
-Sep  8 18:10:16 sjoerd kernel: Code: 0f 0b 83 c4 0c 8b 15 e8 2f 2a c0 89 f0 2b 05 ac ba 2a c0 69
-
--- 
-Arjan Filius
-mailto:iafilius@xs4all.nl
+--------------6C4E9A2ACDCC2F66A7397FCB--
 

@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289226AbSA2NOC>; Tue, 29 Jan 2002 08:14:02 -0500
+	id <S289212AbSA2NNm>; Tue, 29 Jan 2002 08:13:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288845AbSA2NNx>; Tue, 29 Jan 2002 08:13:53 -0500
-Received: from newton.math.uni-mannheim.de ([134.155.89.79]:39385 "EHLO
-	newton.math.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S288810AbSA2NNj>; Tue, 29 Jan 2002 08:13:39 -0500
-Message-Id: <7624197.q1iQU4070A@newssend.sf-tec.de>
-From: Rolf Eike Beer <eike@euklid.math.uni-mannheim.de>
-Subject: [2.5.3-pre5] BUG on boot
-To: linux-kernel@vger.kernel.org
-Date: Tue, 29 Jan 2002 14:14:19 +0100
-User-Agent: KNode/0.6.1
+	id <S288845AbSA2NNd>; Tue, 29 Jan 2002 08:13:33 -0500
+Received: from rgminet2.oracle.com ([148.87.122.31]:38621 "EHLO
+	rgminet2.oracle.com") by vger.kernel.org with ESMTP
+	id <S288810AbSA2NNU>; Tue, 29 Jan 2002 08:13:20 -0500
+Message-ID: <3C56A031.A2D205B9@oracle.com>
+Date: Tue, 29 Jan 2002 14:14:25 +0100
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Support Services
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.3-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8Bit
+To: Andi Kleen <ak@suse.de>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        John Levon <movement@marcelothewonderpenguin.com>,
+        linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: [PATCH] Fix 2.5.3pre reiserfs BUG() at boot time
+In-Reply-To: <20020125180149.GB45738@compsoc.man.ac.uk> <Pine.LNX.4.33.0201251006220.1632-100000@penguin.transmeta.com> <20020125204911.A17190@wotan.suse.de> <20020125133814.U763@lynx.adilger.int> <20020125231555.A22583@wotan.suse.de> <3C54871E.80621B4E@oracle.com> <20020128010142.A23952@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yesterday I tried to boot 2.5.3-pre5 on my Compaq ProSignia 
-(486DX2-66,36MB RAM, SCSI-only).
+Andi Kleen wrote:
+> 
+> On Mon, Jan 28, 2002 at 12:02:54AM +0100, Alessandro Suardi wrote:
+> >
+> > 2.5.3-pre5 + this patch still can't boot my system. I haven't had
+> >  time to copy down oops at boot, will do if needed.
+> 
+> Please do. I cannot see anything in the patch that should prevent bootup
+> though, so I would also recommend a make clean and recompile first just
+> to make sure it isn't a broken build.
 
-Output written down from screen, so maybe threre is a typo. If someone 
-needs .config or something more just ask.
+I ended up away from email for a couple of days and saw -pre6;
+ re-patched from 2.5.2 to -pre6, boot is okay .
 
-devfs: V1.10 ( 20020120) ...
-devfs: boot_options: 0x1
-Kernel BUG ar slab.c: 641
-invalid operand: 0000
-CPU: 0
-EIP: 0010:[<c0125398>] Not tainted
-EFLAGS: 00010286
-eax: 0000001a ebx: c023d030 ecx: c0221280 edx: 00000866
-esi: 00000184 edi: c01fea28 ebp: 00000000 esp: c10a5f84
-ds: 0018 es: 0018 ss: 0018
-Process swapper (pid 1: stackpage= c10a5000)
-stack: c01ef750 00000281 c023d030 c0231fd4 00000000 0008e000
-       c0224aa0 00000000 c0132338 c0224aa0 c023d02c c0231fd4
-       c017133d c01fea13 00000184 00000000 00002000 c01712f0
-       00000000 c0239326 c023d030 c02326ba 00010f00 c02326f5
-Call trace c0132338 c017133d c01712f0 c0105027 c0107078
-Code 0f 0b 83 c4 08 8d 76 00 f7 44 24 38 ff 0f ff ff 74 16 68 a0
-<0>Kernel panic: attempt to kill init!
+Thanks & ciao,
 
-Eike
--- 
-Es wäre schon wünschenswert, wenn die DAUs das Stück toten Baum, was
-mit der Suse mitkommt, nutzen würden. Entweder zum Lesen, oder um sich
-damit so lange auf den Schädel zu hauen, bis die Kollegen vom RD
-anrücken müssen.        Hauke Heidtmann in feuerwehrmann.talk
+--alessandro
+
+ "this machine will, will not communicate
+   these thoughts and the strain I am under
+  be a world child, form a circle before we all go under"
+                         (Radiohead, "Street Spirit [fade out]")

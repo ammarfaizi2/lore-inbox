@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287658AbSASWcB>; Sat, 19 Jan 2002 17:32:01 -0500
+	id <S287769AbSASWe7>; Sat, 19 Jan 2002 17:34:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287626AbSASWbu>; Sat, 19 Jan 2002 17:31:50 -0500
-Received: from mgw-x2.nokia.com ([131.228.20.22]:14577 "EHLO mgw-x2.nokia.com")
-	by vger.kernel.org with ESMTP id <S287619AbSASWbg>;
-	Sat, 19 Jan 2002 17:31:36 -0500
-Message-ID: <3C49F473.9050106@nokia.com>
-Date: Sun, 20 Jan 2002 00:34:27 +0200
-From: Dmitri Kassatkine <dmitri.kassatkine@nokia.com>
-Reply-To: affix-devel@lists.sourceforge.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
-X-Accept-Language: en
+	id <S287748AbSASWet>; Sat, 19 Jan 2002 17:34:49 -0500
+Received: from pa160.grajewo.sdi.tpnet.pl ([217.96.134.160]:64386 "HELO
+	pa160.grajewo.sdi.tpnet.pl") by vger.kernel.org with SMTP
+	id <S287743AbSASWeg>; Sat, 19 Jan 2002 17:34:36 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Gniazdowski <refuse7@poczta.fm>
+Reply-To: refuse7@poczta.fm
+Organization: none
+To: "Martin Eriksson" <nitrax@giron.wox.org>
+Subject: Re: reiserFS undeletion
+Date: Sat, 19 Jan 2002 23:45:04 +0100
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20020119121610.DD9D02B5D9@pa160.grajewo.sdi.tpnet.pl> <20020119172934.4240F2B5D9@pa160.grajewo.sdi.tpnet.pl> <001301c1a11a$79884580$0201a8c0@HOMER>
+In-Reply-To: <001301c1a11a$79884580$0201a8c0@HOMER>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Newsgroups: comp.os.linux.networking
-To: Affix support <affix-support@lists.sourceforge.net>,
-        affix-devel@lists.sourceforge.net,
-        Bluetooth-Drivers-for-Linux 
-	<Bluetooth-Drivers-for-Linux@research.nokia.com>,
-        NRC-WALLET DL <DL.NRC-WALLET@nokia.com>,
-        linux-net <linux-net@vger.kernel.org>, linux-kernel@vger.kernel.org
-Subject: New Affix Release: Affix-0_9pre9
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020119224504.6470F2BB61@pa160.grajewo.sdi.tpnet.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+19 Jan 2002 19:52, Martin Eriksson wrote:
+> > 19 Jan 2002 17:41, Hans Reiser wrote:
+> > > we only log metadata.
+> >
+> > I know. Butt if i delete some file, it dosnt mean i set zero on sectors
+> > on disk. So imvho all is needet is meta data.
+>
+> Yes, but (not butt =) if you have done some other file operations after the
+> delete, your deleted file might have been overwritten by another file.
+> Especially if you have little free space on your hard disk.
 
-Find new affix release Affix-0_9pre9 on
-http://affix.sourceforge.net
+Yep but ( ;)  80% situations is like "ups i deleted it" and undeletion 
+operation is taken straight after that. So it would be nice to have it... 
+Just a sugestion...
 
-br, Dmitri
-
--- 
- Dmitri Kassatkine
- Nokia Research Center / Helsinki
- Mobile: +358 50 4836365
- E-Mail: dmitri.kassatkine@nokia.com
-
-
+Regards Gniazdowski.

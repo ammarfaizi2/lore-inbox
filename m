@@ -1,43 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVCAB3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVCABeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbVCAB3m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 20:29:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbVCAB3m
+	id S261191AbVCABeo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 20:34:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVCABeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 20:29:42 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:2339 "EHLO
-	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S261190AbVCAB3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 20:29:38 -0500
-Date: Mon, 28 Feb 2005 19:29:34 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: swapper: page allocation failure. order:1, mode:0x20
-In-reply-to: <1109640134.4229.15.camel@desktop.cunningham.myip.net.au>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <4223C57E.1070407@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <3CRTy-82M-27@gated-at.bofh.it> <4223C121.6090904@shaw.ca>
- <1109640134.4229.15.camel@desktop.cunningham.myip.net.au>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+	Mon, 28 Feb 2005 20:34:44 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:19220
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S261191AbVCABen (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 20:34:43 -0500
+Date: Tue, 1 Mar 2005 02:34:42 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [andrea@cpushare.com: Re: [Twisted-Python] linux kernel 2.6.11-rc broke twisted process pipes]
+Message-ID: <20050301013442.GY8880@opteron.random>
+References: <20050301010728.GX8880@opteron.random> <Pine.LNX.4.58.0502281714420.25732@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0502281714420.25732@ppc970.osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham wrote:
-> Hi.
-> 
-> On Tue, 2005-03-01 at 12:10, Robert Hancock wrote:
-> 
->>Bernd Schubert wrote:
->>Essentially the tg3 Ethernet driver is trying to allocate memory to 
->>store a received packet, and is unable to do so. Since this is done 
->>inside interrupt context, this allocation has to be serviced from 
->>physical memory. Order 1 means it only wanted one page of memory, and 
-> 
-> 
-> Minor point, I know, but it's 2 pages of memory. If it couldn't get an
-> order zero page, that would be even greater hernia material!
+On Mon, Feb 28, 2005 at 05:16:35PM -0800, Linus Torvalds wrote:
+> I assume you mean 2.6.11-rc5, not 2.6.5-rc11.
 
-Indeed.. off-by-one error :-)
+Indeed sorry, I've probably typed that 2.6.5 number too many times ;)
+
+> As you say, for pipes, none. It only matters on sockets that can have
+> urgent data (aka oob - out-of-band data).
+
+Ok thanks.

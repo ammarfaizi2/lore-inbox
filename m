@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264621AbUD2Ops@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264649AbUD2Oqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264621AbUD2Ops (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 10:45:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264649AbUD2Opr
+	id S264649AbUD2Oqd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 10:46:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264700AbUD2Oqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 10:45:47 -0400
-Received: from florence.buici.com ([206.124.142.26]:51847 "HELO
-	florence.buici.com") by vger.kernel.org with SMTP id S264621AbUD2Opm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 10:45:42 -0400
-Date: Thu, 29 Apr 2004 07:45:39 -0700
-From: Marc Singer <elf@buici.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: riel@redhat.com, brettspamacct@fastclick.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-Message-ID: <20040429144538.GA708@buici.com>
-References: <20040428180038.73a38683.akpm@osdl.org> <Pine.LNX.4.44.0404282143360.19633-100000@chimarrao.boston.redhat.com> <20040428185720.07a3da4d.akpm@osdl.org> <20040429022944.GA24000@buici.com> <20040428193541.1e2cf489.akpm@osdl.org> <20040429031059.GA26060@buici.com> <20040428201924.719dfb68.akpm@osdl.org> <20040429041302.GA26845@buici.com> <20040428213359.77f9dfb5.akpm@osdl.org>
+	Thu, 29 Apr 2004 10:46:33 -0400
+Received: from mail1.thewrittenword.com ([67.95.107.114]:7688 "EHLO
+	mail1.thewrittenword.com") by vger.kernel.org with ESMTP
+	id S264649AbUD2Oq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 10:46:26 -0400
+Date: Thu, 29 Apr 2004 09:46:23 -0500
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: kernel BUG at inode.c:1204! in 2.2.26
+Message-ID: <20040429144623.GA52886@mail1.thewrittenword.com>
+References: <20040429041420.GA85751@mail1.thewrittenword.com> <20040429143351.GA19056@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040428213359.77f9dfb5.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040429143351.GA19056@logos.cnet>
+User-Agent: Mutt/1.5.6i
+From: china@thewrittenword.com (Albert Chin-A-Young)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 28, 2004 at 09:33:59PM -0700, Andrew Morton wrote:
-> Marc Singer <elf@buici.com> wrote:
-> >
-> > It could work differently from that.  For example, if we had 500M
-> > total, we map 200M, then we do 400M of IO.  Perhaps we'd like to be
-> > able to say that a 400M page cache is too big.
+On Thu, Apr 29, 2004 at 11:33:51AM -0300, Marcelo Tosatti wrote:
 > 
-> Try it - you'll find that the system will leave all of your 200M of mapped
-> memory in place.  You'll be left with 300M of pagecache from that I/O
-> activity.  There may be a small amount of unmapping activity if the I/O is
-> a write, or if the system has a small highmem zone.  Maybe.
-
-Are you sure?  Isn't that what the other posters are winging about?
-They do lots of IO and then they have to wait for the system to page
-Mozilla back in.
-
-> Beware that both ARM and NFS seem to be doing odd things, so try it on a
-> PC+disk first ;)
-
-Yeah, I know that there is still something odd in ARM-land.  I assume
-that the other posters are using IA32. 
-
-> No, the system will only start to unmap pages if reclaim of unmapped
-> pagecache is getting into difficulty.  The threshold of "getting into
-> difficulty" is controlled by /proc/sys/vm/swappiness.
-
-What constitutes 'difficulty'?  Perhaps this is rhetorical. 
-
-> > I've read the source for where swappiness comes into play.  Yet I
-> > cannot make a statement about what it means.  Can you?
+> I believe this mibht be caused by the VMWare modules you are using.
 > 
-> It controls the level of page reclaim distress at which we decide to start
-> reclaiming mapped pages.
+> Mind trying to reproduce it without external modules?
+
+Sure. I'll reboot tonight without the modules. BTW, why do you think
+this?
+
+> On Wed, Apr 28, 2004 at 11:14:20PM -0500, Albert Chin-A-Young wrote:
+> > Upgraded to 2.2.26 on April 26 and received the following on April 27:
+> > 
+> > kernel: kernel BUG at inode.c:1204!
+> > kernel: invalid operand: 0000
+> > kernel: CPU:    0
+> > kernel: EIP:    0010:[iput+608/624] Tainted: PF
+> > kernel: EFLAGS: 00010246
+> > kernel: eax: 00000000   ebx: de603980   ecx: de603990   edx: de603990
+> > kernel: esi: f7e6bc00   edi: 00000000   ebp: 00007a61   esp: f7e71efc
+> > kernel: ds: 0018   es: 0018   ss: 0018
+> > kernel: Process kswapd (pid: 4, stackpage=f7e71000)
+> > kernel: Stack: 00000292 de605880 00000292 de605918 de605900 de603980 c0148a4d de603980 
+> > kernel:        de605880 00000017 c1886114 c0260e38 000063ad c0148da4 00009446 c012d336 
+> > kernel:        00000006 000001d0 ffffffff 000001d0 00000017 00000020 000001d0 c0260e38 
+> > kernel: Call Trace:    [prune_dcache+221/336] [shrink_dcache_memory+36/64] [shrink_cache+358/896] [shrink_caches+61/96] [try_to_free_pages_zone+98/240]
+> > kernel:   [kswapd_balance_pgdat+102/176] [kswapd_balance+40/64] [kswapd+152/192] [kswapd+0/192] [rest_init+0/64] [arch_kernel_thread+46/64]
+> > kernel:   [kswapd+0/192]
+> > kernel: 
+> > kernel: Code: 0f 0b b4 04 86 4b 23 c0 e9 c3 fd ff ff 8d 76 00 8b 54 24 04 
+> > 
+> > I did not encounter an OOPS. I saw this and then rebooted.
 > 
-> We prefer to reclaim pagecache, but we have to start swapping at *some*
-> level of reclaim failure.  swappiness sets that level, in rather vague
-> units.
+> 
 
-I'm not sure I see why we have to swap.  If have of memory is mapped,
-and the user is using those pages with some frequency, perhaps we
-should never reclaim mapped pages.
-
+-- 
+albert chin (china@thewrittenword.com)

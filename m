@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271032AbRH1Vzm>; Tue, 28 Aug 2001 17:55:42 -0400
+	id <S271265AbRH1WHP>; Tue, 28 Aug 2001 18:07:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271142AbRH1Vzc>; Tue, 28 Aug 2001 17:55:32 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47376 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S271032AbRH1VzQ>; Tue, 28 Aug 2001 17:55:16 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Treating parallel port as serial device
-Date: 28 Aug 2001 14:55:04 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9mh3vo$q9m$1@cesium.transmeta.com>
-In-Reply-To: <9mgtpb$mf4$1@sisko.my.home>
-MIME-Version: 1.0
+	id <S271698AbRH1WHE>; Tue, 28 Aug 2001 18:07:04 -0400
+Received: from host62-7-81-3.btinternet.com ([62.7.81.3]:44305 "EHLO Wasteland")
+	by vger.kernel.org with ESMTP id <S271265AbRH1WGv>;
+	Tue, 28 Aug 2001 18:06:51 -0400
+Message-Id: <m15bqoz-000CbxC@Wasteland>
 Content-Type: text/plain; charset=US-ASCII
+From: Matthew M <matthew.macleod@btinternet.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+Date: Tue, 28 Aug 2001 22:54:51 +0100
+X-Mailer: KMail [version 1.2.9]
+In-Reply-To: <200108270203.WAA19775@smarty.smart.net> <20824.998880763@kao2.melbourne.sgi.com> <87jKQ9pmw-B@khms.westfalen.de>
+In-Reply-To: <87jKQ9pmw-B@khms.westfalen.de>
+X-Host-System: Linux 2.4.9 #16 / Wasteland
+X-GPG-Fingerprint: 04C4A04D
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <9mgtpb$mf4$1@sisko.my.home>
-By author:    "Tony Hoyle" <tmh@nothing-on.tv>
-In newsgroup: linux.dev.kernel
->
-> I'm looking to attach a serial device to my box that has only TTL level
-> I/O.  Since I'm more of a software than a hardware person making a
-> circuit board up with a max232 in is a bit risky...  I want to connect
-> the I/O to the parallel port.
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Most RS232 boards accept TTL level input, so your only problem is
-output.  You may want to simply construct a level converter, such as a
-voltage divider or zener diode on your input.
+#ifdef CONFIG_PNEUMONOULTRAMICROSCOPICSILICOVOLCANOCONIOSIS
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+	cough();
+	panic("*wheeze* I don't feel so good....");
+	
+#endif
+
+
+- -- 
+*matt* 
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7jBMtzhSxTQTEoE0RAjLZAJ9bBUIAKo71Zv7OnJi274+jWzsB4QCfT7eW
+hj0jcQCbeP5etZ4kWtjDvio=
+=USl2
+-----END PGP SIGNATURE-----

@@ -1,39 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264547AbTI2TXq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 15:23:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264548AbTI2TXp
+	id S264546AbTI2TXR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 15:23:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264547AbTI2TXR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 15:23:45 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13270 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264547AbTI2TXn (ORCPT
+	Mon, 29 Sep 2003 15:23:17 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:54707 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S264546AbTI2TXO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 15:23:43 -0400
-Date: Mon, 29 Sep 2003 12:23:33 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Bradley Chapman <kakadu_croc@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Defunct event/0 processes under 2.6.0-test6-mm1
-Message-ID: <20030929122333.C6871@osdlab.pdx.osdl.net>
-References: <20030929120910.A6895@osdlab.pdx.osdl.net> <20030929191352.10470.qmail@web40902.mail.yahoo.com>
+	Mon, 29 Sep 2003 15:23:14 -0400
+Date: Mon, 29 Sep 2003 15:23:07 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Brian Gerst <bgerst@didntduck.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386 do_machine_check() is redundant.
+Message-ID: <20030929192307.GA24740@gtf.org>
+References: <1064775868.5045.4.camel@laptop.fenrus.com> <Pine.LNX.4.44.0309291142430.3626-100000@home.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030929191352.10470.qmail@web40902.mail.yahoo.com>; from kakadu_croc@yahoo.com on Mon, Sep 29, 2003 at 12:13:52PM -0700
+In-Reply-To: <Pine.LNX.4.44.0309291142430.3626-100000@home.osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Bradley Chapman (kakadu_croc@yahoo.com) wrote:
-> He is right. I reverted call_usermodehelper-retval-fix-2.patch and everything
-> works again. Why would that break the source of events/0 and hotplug?
+On Mon, Sep 29, 2003 at 11:46:12AM -0700, Linus Torvalds wrote:
+> Has anybody checked out whether the kernel works with -mregparm=3? I
+> forget who did a lot of the work on it originally, and it certainly _used_
+> to work fine. The improvements to both code size and performance were, if 
+> I remember correctly, measurable but not huge.
 
-That patch changes the SIGCHLD handler for kernel threads that are
-started via wait_for_helper().  These threads are cloned from keventd
-(hence events/0 as the process name), and they call hotplug.  The child
-is not being reaped properly.
+That jibes with what I would expect (I missed the older threads, but
+was nonetheless toying with this idea myself)...
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Function arguments on the stack are likely to be in L1 cache anyway,
+so accessing arguments is already pretty cheap.  And storing the
+parameters in registers might increase the number of spills slightly,
+for cases, where an argument isn't used much, or at all.
+
+Ideally unit-at-a-time could figure out the optimal -mregparm value :)
+
+
+> One worry (apart from just broken compilers and missing "asmlinkage" 
+> annotations) is that having compiler-version-dependent calling conventions 
+> makes for another variable to take into account when chasing down bugs and 
+> worrying about things like the Nvidia module etc. So it's probably not 
+> worth doing unless the advantages are clear.
+
+Well...  even with completely open source, you're never gonna have a
+working system with modules built using compiler versions and options
+that differ from the main kernel image.  In the past, changing compiler
+versions would definitely affect the module interfaces adversely.
+
+So while I agree with your overall conservatism, worrying about
+supporting miscompiled modules is the road to Hades...
+
+	Jeff
+
+
+

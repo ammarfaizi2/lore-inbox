@@ -1,61 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266737AbUHCVC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266839AbUHCVCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266737AbUHCVC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 17:02:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266839AbUHCVC0
+	id S266839AbUHCVCr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 17:02:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266846AbUHCVCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 17:02:26 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:55436 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S266737AbUHCVCX (ORCPT
+	Tue, 3 Aug 2004 17:02:47 -0400
+Received: from alias.nmd.msu.ru ([193.232.127.67]:8965 "EHLO alias.nmd.msu.ru")
+	by vger.kernel.org with ESMTP id S266839AbUHCVCk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 17:02:23 -0400
-Subject: Re: [RFC] dev_acpi: device driver for userspace access to ACPI
-From: Alex Williamson <alex.williamson@hp.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: acpi-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1091558040.27397.5523.camel@nighthawk>
-References: <1091552426.4981.103.camel@tdi>
-	 <1091554271.27397.5327.camel@nighthawk>  <1091557050.4981.135.camel@tdi>
-	 <1091558040.27397.5523.camel@nighthawk>
-Content-Type: text/plain
-Organization: LOSL
-Date: Tue, 03 Aug 2004 15:02:16 -0600
-Message-Id: <1091566936.4981.188.camel@tdi>
+	Tue, 3 Aug 2004 17:02:40 -0400
+Date: Wed, 4 Aug 2004 01:02:39 +0400
+From: Alexander Lyamin <flx@msu.ru>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Hans Reiser <reiser@namesys.com>, andrea@cpushare.com,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re:  secure computing for 2.6.7
+Message-ID: <20040803210239.GB7236@alias.nmd.msu.ru>
+Reply-To: flx@msu.ru
+Mail-Followup-To: flx@msu.ru, Stephen Smalley <sds@epoch.ncsc.mil>,
+	Hans Reiser <reiser@namesys.com>, andrea@cpushare.com,
+	lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+References: <20040704173903.GE7281@dualathlon.random> <40EC4E96.9090800@namesys.com> <1091536845.7645.60.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1091536845.7645.60.camel@moss-spartans.epoch.ncsc.mil>
+X-Operating-System: Linux 2.6.5-7.95-bigsmp
+X-Fnord: +++ath
+X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
+X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-03 at 11:34 -0700, Dave Hansen wrote:
-
-> Instead of architecting a generic interface, might you simply exclude
-> access from your driver to things that already have generic interfaces? 
-> I think there are things that we exclude from /proc/device-tree on ppc64
-> because there's a generic equivalent elsewhere.  
+Tue, Aug 03, 2004 at 08:40:45AM -0400, Stephen Smalley wrote:
+> On Wed, 2004-07-07 at 15:27, Hans Reiser wrote:
+> > Am I right to think that this could complement nicely our plans 
+> > described at www.namesys.com/blackbox_security.html
+> Hi Hans,
 > 
+> Out of curiosity, what do you think that this proposal will achieve that
+> cannot already be done via SELinux policy?  SELinux policy can already
+> express access rules based not only on the executable and user, but even
+> the entire call chain that led to a given executable.
 
-   The access interfaces I'm exposing are pretty simple building block
-type features.  It's a toolset to poke at namespace, not a predefined
-set of device specific functions.  I'm sure you can mix them all
-together and duplicate something that already exists, but trying to
-kludge in limitations sounds futile and would reduce the usefulness of
-the entire interface.  Besides, given a choice, I kinda doubt people are
-going to choose to implement something that requires them to know about
-ACPI ;^)
+convinience ? speed ?
 
-> There are certainly some very platform-specific things that obviously
-> need to be done with direct access to the firmware, and that we don't
-> want to pollute the kernel with.  Parsing some of the firmware error
-> logs on ppc64 comes to mind.  You just need to be *very* careful with
-> the application authors because it's such a big gun :)
 
-   This is certainly a big gun, but in the software world, I'd rather
-have a big gun available than no gun at all.  Thanks for the comments,
+RBAC is a Good Thing, but I wonder if it could provide throughout syntax analysis
+for vfs related syscalls. As it is now.
 
-	Alex
+At least what declared in their docs, fs-wise they are somewhat like this
+
+Macro Name	Description
+stat_file_perms	Permissions to call stat or access on a file.
+x_file_perms	Permissions to execute a file.
+r_file_perms	Permissions to read a file.
+rx_file_perms	Permissions to read and execute a file.
+rw_file_perms	Permissions to read and write a file.
+ra_file_perms	Permissions to read and append to a file.
+link_file_perms	Permissions to link, unlink, or rename a file.
+create_file_perms	Permissions to create, access, and delete a file.
+r_dir_perms	Permissions to read and search a directory.
+rw_dir_perms	Permissions to read and modify a directory.
+ra_dir_perms	Permissions to read and add entries to a directory.
+create_dir_perms	Permissions to create, access, and delete a directory.
+mount_fs_perms	Permissions to mount and unmount a filesystem.
+
+
+*shrugs*
+Well, I am probably wrong...
+
+p.s. _AND_ if I remember correctly reiser4 supposed to provide finer-then-file grain security.
+well, at least it easily could, being truly semantic-enabled fs.
 
 -- 
-Alex Williamson                             HP Linux & Open Source Lab
-
+"the liberation loophole will make it clear.."
+lex lyamin

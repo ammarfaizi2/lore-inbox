@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289339AbSA1Tho>; Mon, 28 Jan 2002 14:37:44 -0500
+	id <S289347AbSA1Tky>; Mon, 28 Jan 2002 14:40:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289343AbSA1The>; Mon, 28 Jan 2002 14:37:34 -0500
-Received: from peabody.ximian.com ([141.154.95.10]:18442 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP
-	id <S289339AbSA1ThP>; Mon, 28 Jan 2002 14:37:15 -0500
-Subject: Ethernet data corruption?
-From: Kevin Breit <mrproper@ximian.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1.99+cvs.2002.01.23.19.37 (Preview Release)
-Date: 28 Jan 2002 14:40:03 -0600
-Message-Id: <1012250404.5401.6.camel@kbreit.lan>
-Mime-Version: 1.0
+	id <S289341AbSA1Tkt>; Mon, 28 Jan 2002 14:40:49 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:26127 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S289344AbSA1Tkm>;
+	Mon, 28 Jan 2002 14:40:42 -0500
+Date: Mon, 28 Jan 2002 17:40:22 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Vincent Sweeney <v.sweeney@barrysworld.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: high system usage / poor SMP network performance
+In-Reply-To: <002801c1a832$d38933e0$0201010a@frodo>
+Message-ID: <Pine.LNX.4.33L.0201281739190.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	The other night, my friend was sending me a video over the internet. 
-We tried http, ftp, and other protocols, using different download
-applications.  It seemed to be corrupt, the same way, everytime.  It
-wouldn't work, and had a different md5sum than the "good" version on my
-friend's computer.  Eventually we got it working.
-	The same issue came up again today.  I uploaded my Java project on my
-professor's server and it gives me an error.  However, if I load the
-html file with the Java applet in my web browser from this hard disk
-(instead of from the prof's), it works.
-	I am wondering if there is some sort of corruption going on here.  I am
-using Red Hat's 2.4.9-21 kernel.
+On Mon, 28 Jan 2002, Vincent Sweeney wrote:
 
-Thanks
+> > >     CPU0 states: 27.2% user, 62.4% system,  0.0% nice,  9.2% idle
+> > >     CPU1 states: 28.4% user, 62.3% system,  0.0% nice,  8.1% idle
+> >
+> > The important bit here is     ^^^^^^^^ that one. Something is causing
+> > horrendous lock contention it appears.
+>
+> I've switched a server over to the default eepro100 driver as supplied
+> in 2.4.17 (compiled as a module). This is tonights snapshot with about
+> 10% higher user count than above (2200 connections per ircd)
 
-Kevin Breit
+Hummm ... poll() / select() ?  ;)
 
+> I will try the profiling tomorrow
 
+readprofile | sort -n | tail -20
 
+kind regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

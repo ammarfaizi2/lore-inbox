@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280251AbRJaOja>; Wed, 31 Oct 2001 09:39:30 -0500
+	id <S280246AbRJaOkK>; Wed, 31 Oct 2001 09:40:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280249AbRJaOjU>; Wed, 31 Oct 2001 09:39:20 -0500
-Received: from waste.org ([209.173.204.2]:50467 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S280246AbRJaOjD>;
-	Wed, 31 Oct 2001 09:39:03 -0500
-Date: Wed, 31 Oct 2001 08:42:50 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Andreas Dilger <adilger@turbolabs.com>
-cc: Theodore Tso <tytso@mit.edu>, Horst von Brand <vonbrand@inf.utfsm.cl>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] random.c bugfix
-In-Reply-To: <20011030231926.E800@lynx.no>
-Message-ID: <Pine.LNX.4.30.0110310836360.28953-100000@waste.org>
+	id <S280249AbRJaOkB>; Wed, 31 Oct 2001 09:40:01 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:14998 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S280246AbRJaOjx>;
+	Wed, 31 Oct 2001 09:39:53 -0500
+Date: Wed, 31 Oct 2001 14:40:27 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        Johan <jo_ni@telia.com>, linux-kernel@vger.kernel.org
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: Still having problems with eepro100
+Message-ID: <1217333392.1004539227@[10.132.113.67]>
+In-Reply-To: <38130000.1004461656@shed>
+In-Reply-To: <38130000.1004461656@shed>
+X-Mailer: Mulberry/2.1.0 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Oct 2001, Andreas Dilger wrote:
+Johan,
 
-> On Oct 30, 2001  11:07 -0500, Theodore Tso wrote:
-> > Zero-padding isn't a problem, since it's perfectly safe to mix in zero
-> > bytes into the pool.
->
-> Well, Oliver tends to disagree.  I don't know enough either way.  It _does_
-> seem bad that if you wrote continually wrote 1-byte values into /dev/random
-> and padded out the end of the word that it would be bad.  However, in the
-> end this is no worse than cat /dev/zero > /dev/random, which is also allowed.
+--On Tuesday, October 30, 2001 5:07 PM +0000 Alex Bligh - linux-kernel 
+<linux-kernel@alex.org.uk> wrote:
 
-That was just conservatism on my part. There are a large number of hashes
-and ciphers for which zero inputs are suboptimal so my gut feel was that
-it was a bad idea. That was silly of me, given the way the mixing works.
+> If you mean occasional lockups, which go away if you do ifdown / ifup,
+> then try the patch I posted Sunday - it forces one of the bug workarounds
+> on, which was dependent on eeprom by default. Also has a debug line
+> which writes out what it thinks the chip ID is, which activates
+> (or not) the other bug workaround. Alan put some or all of this
+> patch into the latest -ac; from his docs I couldn't tell whether
+> he put in the 'always use bug override' bit, and I expect not.
+> if you want to do it yourself, find where rx_bug is set, and just
+> set it to 1 the line afterwards, and try that.
+
+Though this worked for me before, it appears to have stopped working
+and I don't think I reverted the code (sigh). Are you by any chance
+using something with apm in, or using it as a module and removing
+the module? The only difference here between working and non-working
+is that I've suspended and resumed the machine (/without/ power
+management / apm compiled in).
+
+> Alternatively, try the intel drivers.
+
+I am informed by someone who really should know that this /does/ work.
 
 --
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+Alex Bligh

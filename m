@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317489AbSGTUgV>; Sat, 20 Jul 2002 16:36:21 -0400
+	id <S317505AbSGTUi6>; Sat, 20 Jul 2002 16:38:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317493AbSGTUgV>; Sat, 20 Jul 2002 16:36:21 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55815 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317489AbSGTUgV>; Sat, 20 Jul 2002 16:36:21 -0400
-Date: Sat, 20 Jul 2002 13:40:22 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Robert Love <rml@tech9.net>
-cc: linux-kernel@vger.kernel.org, <linux-mm@kvack.org>,
-       <riel@conectiva.com.br>, <wli@holomorphy.com>
-Subject: Re: [PATCH] generalized spin_lock_bit
-In-Reply-To: <1027196511.1555.767.camel@sinai>
-Message-ID: <Pine.LNX.4.44.0207201335560.1492-100000@home.transmeta.com>
+	id <S317506AbSGTUi6>; Sat, 20 Jul 2002 16:38:58 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:3849 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317505AbSGTUi4>; Sat, 20 Jul 2002 16:38:56 -0400
+Date: Sat, 20 Jul 2002 17:41:39 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>, Ed Tomlinson <tomlins@cam.org>
+Subject: Re: [PATCH][1/2] return values shrink_dcache_memory etc
+In-Reply-To: <Pine.LNX.4.44.0207201308180.1419-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44L.0207201740580.12241-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 20 Jul 2002, Linus Torvalds wrote:
+> On Sat, 20 Jul 2002, Rik van Riel wrote:
+> >
+> > this patch, against current 2.5.27, builds on the patch that let
+> > kmem_cache_shrink return the number of pages freed. This value
+> > is used as the return value for shrink_dcache_memory and friends.
 
-
-On 20 Jul 2002, Robert Love wrote:
+> I'd be much more interested in the "put the cache pages on the dirty list,
+> and have memory pressure push them out in LRU order" approach. Somebody
+> already had preliminary patches.
 >
-> The attached patch implements bit-sized spinlocks via the following
-> interfaces:
+> That gets _rid_ of dcache_shrink() and friends, instead of making them
+> return meaningless numbers.
 
-I'm not entirely convinced.
+OK, I'll try to forward-port Ed's code to do that from 2.4 to 2.5
+this weekend...
 
-Some architectures simply aren't good at doing bitwise locking, and we may
-have to change the current "pte_chain_lock()" to a different
-implementation.
+regards,
 
-In particular, with the current pte_chain_lock() interface, it will be
-_trivial_ to turn that bit in page->flags to be instead a hash based on
-the page address into an array of spinlocks. Which is a lot more portable
-than the current code.
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-(The current code works, but look at what it generates on old sparcs, for
-example).
-
-Your patch, while it cleans up some things, makes it a lot harder to do
-those kinds of changes later.
-
-So I would suggest (at least for now) to _not_ get rid of the
-pte_chain_lock() abstraction, and re-doing your patch with that in mind.
-Gettign rid of the (unnecessary) UP locking is good, but getting rid of
-the abstraction doesn't look like a wonderful idea to me.
-
-		Linus
+http://www.surriel.com/		http://distro.conectiva.com/
 

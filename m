@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316267AbSETTjI>; Mon, 20 May 2002 15:39:08 -0400
+	id <S316301AbSETTlT>; Mon, 20 May 2002 15:41:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316272AbSETTjH>; Mon, 20 May 2002 15:39:07 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:5643 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S316267AbSETTjG>; Mon, 20 May 2002 15:39:06 -0400
-Date: Mon, 20 May 2002 16:38:15 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-cc: Andrew Morton <akpm@zip.com.au>, Andrea Arcangeli <andrea@suse.de>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Bug with shared memory.
-In-Reply-To: <1232903251.1021886554@[10.10.2.3]>
-Message-ID: <Pine.LNX.4.44L.0205201630050.24352-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S316272AbSETTlS>; Mon, 20 May 2002 15:41:18 -0400
+Received: from freeside.toyota.com ([63.87.74.7]:61445 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S316289AbSETTlQ>; Mon, 20 May 2002 15:41:16 -0400
+Message-ID: <3CE95153.50701@lexus.com>
+Date: Mon, 20 May 2002 12:41:07 -0700
+From: J Sloan <jjs@lexus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020519
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Louis Garcia <louisg00@bellsouth.net>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Planning on a new system
+In-Reply-To: <1021856882.1814.12.camel@tiger>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 May 2002, Martin J. Bligh wrote:
+Louis Garcia wrote:
 
-> 1) Running Oracle apps, doing raw IO. We are running an -aa kernel
-> on this machine, and it doesn't help.
+>CPU: 2.2GHz Intel® Pentium® 4 Processor with 512K L2 cache
+>
+wow, bleeding edge -
 
-> So, we haven't really given Andrea's patch a fair test yet. If you
-> guys can agree which the better approach is by just discussing it,
+>
+>RAM: 256MB 266MHz DDR SDRAM
+>
+(?) only 256 MB?
 
-One thing that seems to be missing in Linux are proper VM
-statistics. There is no way handwaving and discussions are
-going to be better than a measurement of what's going on
-inside the VM.
+If it was my system, I'd rather have a P4 1.6
+and 512 MB RAM for performance reasons
 
-Treating the different VM patch sets as black boxes with
-benchmarks will show us which VM works best for which
-benchmark, but it won't show us why or how to combine the
-good features of the different VMs...
+RAM is so cheap it would be insane to go
+stingy on RAM
 
-I think good statistics to start would be the traditional
-page fault rate (pf), page free rate (fr), page scan rate
-(sr), reclaims (re), pageout (po), pagein (pi) and some
-variation of iowait stats.
+>Graphics adapter 32MB NVIDIA ? GeForce2? MX200 AGP Graphics
+>
+Very solid card - actually you can get MX400
+with 64 NB RAM for $55 or so -
 
-regards,
+Basic X11 will work out of the box, but for
+any 3D work you will need to download the
+nvidia drivers from their website -
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+Joe
 
-http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,40 +1,461 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262543AbUKLOZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbUKLObb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262543AbUKLOZk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 09:25:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262541AbUKLOZk
+	id S262536AbUKLObb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 09:31:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbUKLOba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 09:25:40 -0500
-Received: from cimice4.lam.cz ([212.71.168.94]:34183 "EHLO beton.cybernet.src")
-	by vger.kernel.org with ESMTP id S262539AbUKLOZ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 09:25:28 -0500
-Date: Fri, 12 Nov 2004 14:25:25 +0000
-From: Karel Kulhavy <clock@twibright.com>
+	Fri, 12 Nov 2004 09:31:30 -0500
+Received: from smtp-vbr1.xs4all.nl ([194.109.24.21]:17683 "EHLO
+	smtp-vbr1.xs4all.nl") by vger.kernel.org with ESMTP id S262536AbUKLOae
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 09:30:34 -0500
+Date: Fri, 12 Nov 2004 15:30:12 +0100
+From: Jurriaan <thunder7@xs4all.nl>
 To: linux-kernel@vger.kernel.org
-Subject: pcf8591 range list syntax
-Message-ID: <20041112142525.GA19825@beton.cybernet.src>
+Subject: md linear personality oops on boot with 2.6.10-rc1-mm4 and 2.6.10-rc1-mm5
+Message-ID: <20041112143012.GA3676@middle.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Orientation: Gay
+X-Message-Flag: Still using Outlook? As you can see, it has some errors.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Personalities : [linear] [raid0] [raid1] [raid5] [raid6] [raid10] 
+Event: 6                   
+md3 : active raid1 hdc1[0] hda1[1]
+      497856 blocks [2/2] [UU]
+      
+md4 : active raid1 hdc3[0] hda3[1]
+      8008320 blocks [2/2] [UU]
+      
+md2 : active raid1 hdc5[0] hda5[1]
+      16008640 blocks [2/2] [UU]
+      
+md5 : active raid1 hdc6[0] hda6[1]
+      8008256 blocks [2/2] [UU]
+      
+md1 : active linear hdi1[2] hdc7[1] hda7[0]
+      85963392 blocks 64k rounding
+      
+md0 : active raid1 hdc8[0] hda8[1]
+      62645312 blocks [2/2] [UU]
+      
+unused devices: <none>
 
-modinfo pcf8591 in 2.6.8.1 says:
-"parm:           probe_range:List of adapter,start-addr,end-addr triples to
-scan additionally "
+and the partition type on /dev/hdi1, /dev/hdc7 and /dev/hda7 is 0xfd,
+meaning the partition is automatically assembled during boot.
 
-when I call modprobe pcf8591 probe_range=..., what is the syntax of the list?
-Are the addresses in decimal (0,255) or hexa (0,ff) or variable base
-(0,0xff)?
+In 2.6.9-mm1, this works.
+In 2.6.10-rc1-mm4 and 2.6.10-rc1-mm5, I get an oops during boot:
 
-When I want to specify 2 triples say 0,0,8 and 1,4,6 , is it
-probe_range=0,0,8,1,4,6 or probe_range={0,0,8},{1,4,6} or something like
-this or something completely different?
+linear_run+0x20b
 
-Cl<
+and the backtrace:
 
+do_md_run
+__down_trylock
+vprintk
+autorun_array
+vprintk
+autorun_devices
+autostart_arrays
+
+Below are my .config and the part about md and /dev/md1 from dmesg from
+2.6.9-mm1.
+
+Kind regards,
+Jurriaan
+
+.config:
+
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_LOCK_KERNEL=y
+CONFIG_LOCALVERSION=""
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+CONFIG_SYSCTL=y
+CONFIG_AUDIT=y
+CONFIG_AUDITSYSCALL=y
+CONFIG_LOG_BUF_SHIFT=15
+CONFIG_HOTPLUG=y
+CONFIG_KOBJECT_UEVENT=y
+CONFIG_IKCONFIG=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_CC_ALIGN_FUNCTIONS=0
+CONFIG_CC_ALIGN_LABELS=0
+CONFIG_CC_ALIGN_LOOPS=0
+CONFIG_CC_ALIGN_JUMPS=0
+CONFIG_MODULES=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_MPENTIUM4=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HPET_TIMER=y
+CONFIG_HPET_EMULATE_RTC=y
+CONFIG_SMP=y
+CONFIG_NR_CPUS=2
+CONFIG_SCHED_SMT=y
+CONFIG_PREEMPT=y
+CONFIG_PREEMPT_BKL=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_X86_MCE_P4THERMAL=y
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_IRQBALANCE=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_KERN_PHYS_OFFSET=1
+CONFIG_PM=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SLEEP_PROC_FS=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BATTERY=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_VIDEO=m
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_THINKPAD=m
+CONFIG_ACPI_IBM=m
+CONFIG_ACPI_BLACKLIST_YEAR=0
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_X86_PM_TIMER=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_LEGACY_PROC=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_PCMCIA_PROBE=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_FW_LOADER=m
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+CONFIG_PNP=y
+CONFIG_PNPACPI=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_LBD=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_HPT366=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_BLK_DEV_SR=y
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_SPI_ATTRS=y
+CONFIG_SCSI_SYM53C8XX_2=y
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+CONFIG_SCSI_QLA2XXX=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_LINEAR=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_MD_RAID10=y
+CONFIG_MD_RAID5=y
+CONFIG_MD_RAID6=y
+CONFIG_IEEE1394=y
+CONFIG_IEEE1394_OHCI1394=y
+CONFIG_IEEE1394_RAWIO=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_TCPDIAG=y
+CONFIG_NETFILTER=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_QUEUE=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_LIMIT=y
+CONFIG_IP_NF_MATCH_IPRANGE=y
+CONFIG_IP_NF_MATCH_MAC=y
+CONFIG_IP_NF_MATCH_PKTTYPE=y
+CONFIG_IP_NF_MATCH_MARK=y
+CONFIG_IP_NF_MATCH_MULTIPORT=y
+CONFIG_IP_NF_MATCH_TOS=y
+CONFIG_IP_NF_MATCH_RECENT=y
+CONFIG_IP_NF_MATCH_ECN=y
+CONFIG_IP_NF_MATCH_DSCP=y
+CONFIG_IP_NF_MATCH_AH_ESP=y
+CONFIG_IP_NF_MATCH_LENGTH=y
+CONFIG_IP_NF_MATCH_TTL=y
+CONFIG_IP_NF_MATCH_TCPMSS=y
+CONFIG_IP_NF_MATCH_HELPER=y
+CONFIG_IP_NF_MATCH_STATE=y
+CONFIG_IP_NF_MATCH_CONNTRACK=y
+CONFIG_IP_NF_MATCH_OWNER=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IP_NF_TARGET_ULOG=y
+CONFIG_IP_NF_TARGET_TCPMSS=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_TARGET_NETMAP=y
+CONFIG_IP_NF_TARGET_SAME=y
+CONFIG_IP_NF_MANGLE=y
+CONFIG_IP_NF_TARGET_TOS=y
+CONFIG_IP_NF_TARGET_ECN=y
+CONFIG_IP_NF_TARGET_DSCP=y
+CONFIG_IP_NF_TARGET_MARK=y
+CONFIG_IP_NF_TARGET_CLASSIFY=y
+CONFIG_IP_NF_RAW=m
+CONFIG_IP_NF_TARGET_NOTRACK=m
+CONFIG_IP_NF_ARPTABLES=y
+CONFIG_IP_NF_ARPFILTER=y
+CONFIG_IP_NF_ARP_MANGLE=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_PCI=y
+CONFIG_8139TOO=y
+CONFIG_E1000=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1600
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1200
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_LIBPS2=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+CONFIG_PRINTER=y
+CONFIG_HW_RANDOM=y
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_DRM=y
+CONFIG_DRM_RADEON=y
+CONFIG_HPET=y
+CONFIG_HPET_MMAP=y
+CONFIG_HANGCHECK_TIMER=y
+CONFIG_I2C=y
+CONFIG_I2C_ALGOBIT=y
+CONFIG_FB=y
+CONFIG_FB_MODE_HELPERS=y
+CONFIG_FB_TILEBLITTING=y
+CONFIG_FB_RADEON=y
+CONFIG_FB_RADEON_I2C=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_FONTS=y
+CONFIG_FONT_SUN12x22=y
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_MONO=y
+CONFIG_LOGO_LINUX_VGA16=y
+CONFIG_LOGO_LINUX_CLUT224=y
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_TIMER=y
+CONFIG_SND_PCM=y
+CONFIG_SND_HWDEP=y
+CONFIG_SND_RAWMIDI=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=y
+CONFIG_SND_VERBOSE_PRINTK=y
+CONFIG_SND_AC97_CODEC=y
+CONFIG_SND_EMU10K1=y
+CONFIG_SND_INTEL8X0=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB_EHCI_HCD=y
+CONFIG_USB_UHCI_HCD=y
+CONFIG_USB_PRINTER=y
+CONFIG_USB_STORAGE=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISERFS_FS=y
+CONFIG_XFS_FS=y
+CONFIG_DNOTIFY=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_UDF_FS=y
+CONFIG_UDF_NLS=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_UFS_FS=y
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_SUNRPC=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_CODEPAGE_850=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_15=y
+CONFIG_NLS_UTF8=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_CRC32=y
+CONFIG_LIBCRC32C=m
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_X86_TRAMPOLINE=y
+CONFIG_PC=y
+
+relevant part of 2.6.9-mm1 dmesg:
+
+Linux version 2.6.9-mm1 (jurriaan@middle) (gcc version 3.3.5 (Debian 1:3.3.5-2)) #6 SMP Tue Nov 9 12:23:44 CET 2004
+2175MB HIGHMEM available.
+896MB LOWMEM available.
+md: linear personality registered as nr 1
+md: raid0 personality registered as nr 2
+md: raid1 personality registered as nr 3
+md: raid10 personality registered as nr 9
+md: raid5 personality registered as nr 4
+raid5: automatically using best checksumming function: pIII_sse
+   pIII_sse  :  3888.000 MB/sec
+raid5: using function: pIII_sse (3888.000 MB/sec)
+raid6: int32x1    867 MB/s
+raid6: int32x2   1093 MB/s
+raid6: int32x4    824 MB/s
+raid6: int32x8    601 MB/s
+raid6: mmxx1     2539 MB/s
+raid6: mmxx2     3179 MB/s
+raid6: sse1x1    1660 MB/s
+raid6: sse1x2    2304 MB/s
+raid6: sse2x1    2742 MB/s
+raid6: sse2x2    3386 MB/s
+raid6: using algorithm sse2x2 (3386 MB/s)
+md: raid6 personality registered as nr 8
+md: md driver 0.90.1 MAX_MD_DEVS=256, MD_SB_DISKS=27
+Advanced Linux Sound Architecture Driver Version 1.0.6 (Sun Aug 15 07:17:53 2004 UTC).
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: considering hdi1 ...
+md:  adding hdi1 ...
+md: hdc8 has different UUID to hdi1
+md:  adding hdc7 ...
+md: hdc6 has different UUID to hdi1
+md: hdc5 has different UUID to hdi1
+md: hdc3 has different UUID to hdi1
+md: hdc1 has different UUID to hdi1
+md: hda8 has different UUID to hdi1
+md:  adding hda7 ...
+md: hda6 has different UUID to hdi1
+md: hda5 has different UUID to hdi1
+md: hda3 has different UUID to hdi1
+md: hda1 has different UUID to hdi1
+md: created md1
+md: bind<hda7>
+md: bind<hdc7>
+md: bind<hdi1>
+md: running: <hdi1><hdc7><hda7>
+md: ... autorun DONE.
+ReiserFS: md1: found reiserfs format "3.6" with standard journal
+ReiserFS: md1: using ordered data mode
+ReiserFS: md1: journal params: device md1, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
+ReiserFS: md1: checking transaction log (md1)
+ReiserFS: md1: Using r5 hash to sort names
+-- 
+And the next time you consider complaining that running Lucid Emacs
+19.05 via NFS from a remote Linux machine in Paraguay doesn't seem to
+get the background colors right, you'll know who to thank.
+	Matt Welsh
+Debian (Unstable) GNU/Linux 2.6.9-mm1 2x6078 bogomips load 0.25

@@ -1,53 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261684AbRFRQzv>; Mon, 18 Jun 2001 12:55:51 -0400
+	id <S261577AbRFRQ5l>; Mon, 18 Jun 2001 12:57:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261758AbRFRQzl>; Mon, 18 Jun 2001 12:55:41 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:48610 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261577AbRFRQz2>;
-	Mon, 18 Jun 2001 12:55:28 -0400
-Date: Mon, 18 Jun 2001 12:55:21 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: Re: [PATCH] devfs v181 available
-In-Reply-To: <200106181515.f5IFFcA00598@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.GSO.4.21.0106181240360.18769-100000@weyl.math.psu.edu>
+	id <S261758AbRFRQ5b>; Mon, 18 Jun 2001 12:57:31 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:25594 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S261577AbRFRQ5Z>; Mon, 18 Jun 2001 12:57:25 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200106181656.f5IGuamN013348@webber.adilger.int>
+Subject: Re: Simple example of using slab allocator?
+In-Reply-To: <20010615151901.G28394@one-eyed-alien.net> "from Matthew Dharm at
+ Jun 15, 2001 03:19:01 pm"
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+Date: Mon, 18 Jun 2001 10:56:36 -0600 (MDT)
+CC: Kernel Developer List <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matthew Dharm writes:
+> For 2.5, I'm planning on switching my driver over to the slab allocator,
+> for a variety of reasons.  Does anyone have a _dead_ simple example of how
+> to use such a beast?  I've seen the various web pages and document
+> explaining the API, but I love to see working examples for reference (and
+> to fill in the blanks).
 
+The slab allocator IS dead simple to use, basically:
 
-On Mon, 18 Jun 2001, Richard Gooch wrote:
+- driver global variable:
 
-> > Irrelevant. BKL provides an exclusion only on non-blocking areas.
-> 
-> Yeah, I know all that.
+kmem_cache_t *usb_mass_cachep;
+	
+- in the driver init function:
 
-So what the hell are you talking about?
+	usb_mass_cachep = kmem_cache_create("usb_mass_cache",
+					    sizeof(struct whatever),
+					    0, SLAB_HWCACHE_ALIGN,
+					    NULL, NULL);
+	(check for NULL usb_mass_slab)
 
-> > _Moved_ them there from the callers of these functions. And AFAICS
-> > you do need BKL for get_devfs_entry_...(); otherwise relocation of
-> > the table will be able to screw you inside of that function. Now, it
-> > will merrily screw you anyway in a lot of places, but that's another
-> > story.
-> 
-> OK, so it was another global change.
+- in the driver cleanup function:
 
-Moving BKL into the ->readlink() and ->follow_link()? Sure, it was a global
-change. About a year ago.
+	if (usb_mass_cachep && kmem_cache_destroy(usb_mass_cachep))
+		printk(KERN_ERR "usb_mass_cache: not all structures freed\n");
 
-> Question: assuming data fed to vfs_follow_link() is "safe", does it
-            ^^^^^^^^
-> need the BKL? I can see that vfs_readlink() obviously doesn't need
-> it. From reading Documentation/filesystems/Locking I suspect it
-> doesn't need the BKL, but the way I read it says "follow_link() method
-> does not *have* the BKL already". But that doesn't explicitely say
-> whether vfs_follow_link() needs it.
+- wherever you need an item from the slab cache:
 
-vfs_follow_link() doesn't need it. Moreover, if data fed to it is unsafe
-without BKL, you are screwed even if you take BKL. So assumption above
-is bogus - you _never_ need BKL on that call.
+	whateverp = kmem_cache_alloc(usb_mass_cachep, GFP_KERNEL);
+	(check for NULL whateverp)
 
+- when you are done with it:
+
+	kmem_cache_free(usb_mass_cachep, whateverp);
+
+Notes:
+- if you have a slab leak and you don't free all of the items (hence the slab
+  cache is not removed), you will probably get an oops when you reload the
+  driver.  You can only have one slab cache per name ("usb_mass_cache" here).
+- You may need different alignment (SLAB_HWCACHE_ALIGN), or not
+- You may need different allocation policy (GFP_KERNEL), or not
+
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,64 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264917AbUD1QOy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbUD1TOa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264917AbUD1QOy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 12:14:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264850AbUD1QOx
+	id S261244AbUD1TOa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 15:14:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbUD1TC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 12:14:53 -0400
-Received: from anubis.medic.chalmers.se ([129.16.30.218]:23232 "EHLO
-	anubis.medic.chalmers.se") by vger.kernel.org with ESMTP
-	id S264917AbUD1QO1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 12:14:27 -0400
-From: Goran Cengic <cengic@s2.chalmers.se>
-Organization: Chalmers University of Technology
+	Wed, 28 Apr 2004 15:02:56 -0400
+Received: from dns1.vanja.com ([207.44.194.94]:19418 "EHLO dns1.vanja.com")
+	by vger.kernel.org with ESMTP id S264935AbUD1Qds (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 12:33:48 -0400
+Date: Wed, 28 Apr 2004 18:33:25 +0200
+From: Vanja Hrustic <vanja@pobox.com>
 To: linux-kernel@vger.kernel.org
-Subject: Special place for tird-party modules.
-Date: Wed, 28 Apr 2004 18:14:24 +0200
-User-Agent: KMail/1.6
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Subject: PCI problem with RICOH RL5C475 PCI/PCMCIA adapter, on 2.4.26
+Message-Id: <20040428183325.2860bd95.vanja@pobox.com>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404281814.24991.cengic@s2.chalmers.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+I have PCI-PCMCIA adapter (Ricoh RL5C475 based) in a desktop machine.
 
-The other day I installed some newly compiled modules with "make 
-modules_install" from the source three and that action removed already 
-installed nvidia kernel module so I had to rebuild and install it again.
+Initially, I had problems making it work, but managed to get help on
+comp.os.linux.portable. Now, most of the cards work okay.
 
-This leads to following question:
+However, I still have one wireless PCMCIA card (Prism GT based) which
+doesn't work, and was advised to post the problem here.
 
-I know that kernel can be compiled so that it cant load different versions of 
-the modules (it says so in the help text of the kernel configuration). How 
-come then there is no special place, say /lib/modules/local, for third-party 
-modules so that they can be installed just by copying them there from the 
-distribution archive and doing whatever configuration needed from there on? 
+Dave (from comp.os.linux.portable) said:
 
-This way hardware vendors could just compile the module and distribute it in 
-the binary form. This would also make it easy to upgrade the kernel without 
-having to reinstall all the drivers. What are arguments for and against this 
-approach? Why does the nvidia driver have to be compiled for different kernel 
-versions? Can't they make one module that fits all kernels?
+"This part is a tricky one.  It is a bug in the kernel's PCI resource
+allocation code.  It tries to allocate CardBus memory resources from
+whatever memory ranges happened to be allocated for the bridge device
+by the BIOS at power-up time; but in this case, those memory windows
+are too small.  There isn't a simple fix for this and I don't have a
+good suggestion for what to do about it; you can report it on the
+linux-kernel mailing list."
 
-Another question is, if there is a way to compile kernel that loads modules of 
-different versions, why are the modules still installed in 
-"/lib/modules/`uname -r`/*" instead of "/lib/modules/*" by default? In another 
-words. Why is it necessary to upgrade modules with every kerenel release even 
-though some of them might not be in the need there of?
+cardmgr starts okay, and when I insert the card, I get:
 
-I do understand that many developers have several kernel version installed at 
-the same time but is it possible to share between the versions at least the 
-modules that are not developed as the part of the kernel?
+Apr 23 16:16:52 amber cardmgr[7537]: watching 1 socket
+Apr 23 18:16:52 amber kernel: cs: IO port probe 0xc000-0xcfff: clean.
+Apr 23 18:16:58 amber kernel: cs: cb_alloc(bus 2): vendor 0x1260, device 0x3890
+Apr 23 18:16:58 amber kernel: PCI: Failed to allocate resource 0(e2006000-e2004fff) for 02:00.0
+Apr 23 18:16:58 amber kernel: PCI: Enabling device 02:00.0 (0000 -> 0002)
+Apr 23 16:16:58 amber cardmgr[7538]: socket 0: CardBus hotplug device
+Apr 23 18:16:58 amber /etc/hotplug/pci.agent: Setup prism54 for PCI slot 02:00.0
+Apr 23 18:16:58 amber kernel: Loaded prism54 driver, version 1.1
+Apr 23 18:16:58 amber kernel: PCI: Unable to reserve mem region #1:fffff000@e2006000 for device 02:00.0
+Apr 23 18:16:58 amber kernel: PCI: Unable to reserve mem region #1:fffff000@e2006000 for device 02:00.0
+Apr 23 18:16:58 amber kernel: prism54: pci_request_regions failure (rc=-16)
+Apr 23 18:16:58 amber insmod: /lib/modules/2.4.26/kernel/drivers/net/wireless/prism54/prism54.o: init_module: No such device
+Apr 23 18:16:58 amber insmod: Hint: insmod errors can be caused by incorrect module parameters, including invalid IO or IRQ parameters.      You may find more information in syslog or the output from dmesg
+Apr 23 18:16:58 amber insmod: /lib/modules/2.4.26/kernel/drivers/net/wireless/prism54/prism54.o: insmod /lib/modules/2.4.26/kernel/drivers/net/wireless/prism54/prism54.o failed
+Apr 23 18:16:58 amber insmod: /lib/modules/2.4.26/kernel/drivers/net/wireless/prism54/prism54.o: insmod prism54 failed
+Apr 23 18:16:58 amber /etc/hotplug/pci.agent: ... can't load module prism54
+Apr 23 18:16:58 amber /etc/hotplug/pci.agent: missing kernel or user mode driver prism54 
 
-If I'm missing something cruical please point it out to me.
+lspci -vvv shows:
 
-Thanks in advance.
+...
+01:08.0 CardBus bridge: Ricoh Co Ltd RL5c475 (rev 80)
+        Subsystem: CARRY Computer ENG. CO Ltd: Unknown device 0101
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 168
+        Interrupt: pin A routed to IRQ 5
+        Region 0: Memory at e2000000 (32-bit, non-prefetchable) [size=4K]
+        Bus: primary=01, secondary=02, subordinate=02, sec-latency=176
+        Memory window 0: e2001000-e2002000 (prefetchable)
+        Memory window 1: e2003000-e2004000
+        I/O window 0: 0000c000-0000c403
+        I/O window 1: 0000c800-0000cc03
+        BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt- PostWrite+
+        16-bit legacy interface ports at 0001
 
-/Goran
+02:00.0 Network controller: Intersil Corporation Intersil ISL3890 [Prism GT/Prism Duette] (rev 01)
+        Subsystem: Unknown device 17cf:0014
+        Control: I/O- Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 5
+        Region 0: [virtual] Memory at e2006000 (32-bit, non-prefetchable)
+        Capabilities: [dc] Power Management version 1
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+...
 
-mailto:cengic@s2.chalmers.se
-Have a nice day :)
+Kernel is 2.4.26, running on nForce2 based motherboard. Kernel is compiled
+with CONFIG_HIMEM enabled, although same behaviour was with the same
+option disabled.
+
+Any help with this is much appreciated. I will provide more details, if
+needed.
+
+Thanks.
+

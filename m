@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130253AbRB1QgH>; Wed, 28 Feb 2001 11:36:07 -0500
+	id <S130260AbRB1Qhr>; Wed, 28 Feb 2001 11:37:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130260AbRB1Qf5>; Wed, 28 Feb 2001 11:35:57 -0500
-Received: from ncc1701.cistron.net ([195.64.68.38]:59404 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S130253AbRB1Qfs>; Wed, 28 Feb 2001 11:35:48 -0500
-From: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: Unmounting and ejecting the root fs on shutdown.
-Date: Wed, 28 Feb 2001 16:37:13 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <97j9fp$h1o$1@ncc1701.cistron.net>
-In-Reply-To: <E44E649C7AA1D311B16D0008C73304460933B1@caspian.prebus.uppsala.se>
-X-Trace: ncc1701.cistron.net 983378233 17464 195.64.65.67 (28 Feb 2001 16:37:13 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S130261AbRB1Qhh>; Wed, 28 Feb 2001 11:37:37 -0500
+Received: from colorfullife.com ([216.156.138.34]:15890 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S130260AbRB1QhX>;
+	Wed, 28 Feb 2001 11:37:23 -0500
+Message-ID: <3A9D2953.D4681F43@colorfullife.com>
+Date: Wed, 28 Feb 2001 17:37:39 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2-ac4 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: viro@math.psu.edu
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Kernel bug in inode.c:885 when floppy disk removed
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E44E649C7AA1D311B16D0008C73304460933B1@caspian.prebus.uppsala.se>,
-Per Erik Stendahl  <PerErik@onedial.se> wrote:
->Mounting a ramdisk for / is doable (I think) but kludgy since you have
->to symlink or mount so many subdirectories. Right now I only have /var
->in a ramdisk (and why _WHY_ is /etc/mtab located in /etc and not
->in /var??).
+Alexander Viro wrote:
+> 
+> - Doctor, it hurts when I do it! 
+> - Don't do it, then. 
+>
+Interesting bugfix:
+have you checked which BUG was triggered?
 
-If /var is on a seperate partition, how are you going to access it
-if /var hasn't been mounted yet ?
+It's a bug in ext2_free_inode(): 
+if a io error occurs, then clear_inode() is not called, but
+super_operation.delete_inode() must call clear_inode() before returning.
 
-Mike.
--- 
-I live the way I type; fast, with a lot of mistakes.
-
+--
+	Manfred

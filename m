@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262549AbTDUV0m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 17:26:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbTDUV0m
+	id S262594AbTDUVaE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 17:30:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbTDUVaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 17:26:42 -0400
-Received: from AMarseille-201-1-3-29.abo.wanadoo.fr ([193.253.250.29]:7207
-	"EHLO gaston") by vger.kernel.org with ESMTP id S262549AbTDUV0l
+	Mon, 21 Apr 2003 17:30:04 -0400
+Received: from sccrmhc03.attbi.com ([204.127.202.63]:57224 "EHLO
+	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP id S262594AbTDUVaD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 17:26:41 -0400
-Subject: Re: [PATCH] dmasound resurrection
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0304211847160.24620-100000@callisto>
-References: <Pine.LNX.4.44.0304211847160.24620-100000@callisto>
-Content-Type: text/plain
+	Mon, 21 Apr 2003 17:30:03 -0400
+Message-ID: <3EA465AA.6000507@acm.org>
+Date: Mon, 21 Apr 2003 16:42:02 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Experimental IPMI driver
+X-Enigmail-Version: 0.74.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050961045.626.34.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 21 Apr 2003 23:37:25 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-04-21 at 18:52, Geert Uytterhoeven wrote:
-> When ALSA was integrated in 2.5.5, the dmasound drivers were silently removed
-> from the build list, and no one noticed. Later the drivers were upgraded but
-> some bugs were introduced, and no one noticed.
-> 
-> The patch below is a first step in reviving the dmasound drivers.
-> 
-> Any comments from the PPC camp?
+I have been working on a new version of the IPMI driver.  It's actually
+not terribly different than the old version (no functional or interface
+differences), but has the following differences:
 
-The pmac side of dmasound is quite badly outdated in 2.5, I'll look
-into updating it, along with some other major driver updates, though
-it may take a little while
+    * It will properly parse ACPI tables to find IPMI interfaces (the
+      old driver had some ACPI parsing code, but it was broken).
+    * It supports a SMIC interface.
+    * It has a socket interface to IPMI.
 
-Ben.
+I'm putting it out for people to beat on, so have at it!
+
+You can get it from SourceForge at
+http://sourceforge.net/projects/openipmi/, under "Experimental Driver". 
+There are 2.5.68 and 2.4.20 versions.
+
+-Corey
+

@@ -1,32 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261701AbSKUBLy>; Wed, 20 Nov 2002 20:11:54 -0500
+	id <S261732AbSKUBNN>; Wed, 20 Nov 2002 20:13:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261732AbSKUBLy>; Wed, 20 Nov 2002 20:11:54 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:58878 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S261701AbSKUBLx>; Wed, 20 Nov 2002 20:11:53 -0500
-Message-ID: <288F9BF66CD9D5118DF400508B68C44604758DE4@orsmsx113.jf.intel.com>
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: "'Jeff V. Merkey'" <jmerkey@vger.timpanogas.org>,
-       Robert Olsson <Robert.Olsson@data.slu.se>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: RE: e1000 fixes (NAPI)
-Date: Wed, 20 Nov 2002 17:18:51 -0800
+	id <S261742AbSKUBNM>; Wed, 20 Nov 2002 20:13:12 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:3717 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S261732AbSKUBNL>; Wed, 20 Nov 2002 20:13:11 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 20 Nov 2002 17:20:54 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Mark Mielke <mark@mark.mielke.cc>
+cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] epoll interface change and glibc bits ...
+In-Reply-To: <20021121012334.GG32715@mark.mielke.cc>
+Message-ID: <Pine.LNX.4.44.0211201719060.974-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Need another fix.  You need to reinstrument the tasklet 
-> schedule in the fill_rx_ring instread of doing the whole thing from 
-> interrupt.  When the system is loaded at 100% saturation on gigbit 
-> with 300 byte packets or smaller, the driver does not allow any 
-> processes to run, and you cannot log in via ssh or any user space 
-> apps.  This is severely busted.   
+On Wed, 20 Nov 2002, Mark Mielke wrote:
 
-That's one of the points of NAPI - to process high traffic Rx rates outside
-of h/w interrupt context.
+> On Thu, Nov 21, 2002 at 12:28:16AM +0000, Jamie Lokier wrote:
+> > Davide Libenzi wrote:
+> > > typedef union epoll_obj {
+> > > 	void *ptr;
+> > > 	__uint32_t u32[2];
+> > > 	__uint64_t u64;
+> > > } epoll_obj_t;
+> > > I'm open to suggestions though. The "ptr" enable me to avoid wierd casts
+> > > to avoid gcc screaming.
+> > That makes more sense to me, because it will be fine to use `ptr' even
+> > on 128-bit pointer machines when they arrive, yet preserves the
+> > property that 64<->32 bit conversion functions don't need to reformat
+> > the buffer when running 32-bit applications on a 64-bit CPU... even if
+> > the 32-bit application uses the `ptr' field.
+> > Did I just write that? :)
+>
+> The problem with sizeof(void *) being >= sizeof(__uint64_t) is that the
+> data structure is the wrong length. Binary compatibility would not be
+> maintained.
+>
+> Still... I believe that the days of 128-bit pointers are comfortably
+> far enough away that it does not cause any concerns at all for me. (I
+> suspect the kernel will need quite a few more changes than just this
+> to support 128-bit poitners...)
 
--scott
+In theory it is possible to pass epoll_create() an extra parameter that
+will set the size of the extra data, from 0 up to N. And the kernel will
+return this data "as is". It'll become nasty in user space to access data
+though.
+
+
+
+
+- Davide
+
+

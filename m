@@ -1,30 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293132AbSDMSYN>; Sat, 13 Apr 2002 14:24:13 -0400
+	id <S293131AbSDMSSR>; Sat, 13 Apr 2002 14:18:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293187AbSDMSYM>; Sat, 13 Apr 2002 14:24:12 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42246 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293132AbSDMSYM>; Sat, 13 Apr 2002 14:24:12 -0400
-Subject: Re: Multiple zlib.c's in 2.4.18
-To: Sverker.Wiberg@uab.ericsson.se (Sverker Wiberg)
-Date: Sat, 13 Apr 2002 19:42:01 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <3CB6F332.18225BA4@uab.ericsson.se> from "Sverker Wiberg" at Apr 12, 2002 04:46:10 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S293132AbSDMSSQ>; Sat, 13 Apr 2002 14:18:16 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:21006
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S293131AbSDMSSQ>; Sat, 13 Apr 2002 14:18:16 -0400
+Date: Sat, 13 Apr 2002 11:15:41 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: VIA, 32bit PIO and 2.5.x kernel
+In-Reply-To: <E16wRU9-0000hL-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10204131059000.489-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16wSTJ-0000qU-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Further checking reveals that ./arch/ppc/boot/lib/zlib.c is based on
-> zlib-0.95, while the other two are zlib-1.0.4.
-> 
-> Which one should I use? Shouldn't they be merged? And what about the
-> double-free() bug?
+On Sat, 13 Apr 2002, Alan Cox wrote:
 
-There is progress going on to merge them (see 2.4.19-ac) so hopefully RSN
-that question won't be worth asking. 
+> > > The global "wheee I'm a poor and can't afford 32 bit IO" option will remain
+> > > there of course.
+> > > 
+> > > So we have no  issue here. OK?
+> 
+> What if the user doesn't know the precise innards of their hardware. IDE
+> more than anything else has to automagically do the right thing. Given the
+> size of the PIO transfer loop and the way for some boards its weirdly 
+> dependant on hardware magic and wonder is there any reason for not just 
+> making the host controller provide the function or reference an ide library
+> function for "sane" hardware ?
+
+You are making a nice case to not set 32-bit for PIO.
+I never run 32-bit PIO in development because of the false results you end
+up seeing.
+
+For the formal record: The ATA interface data transfers are done 16-bits
+	(2 bytes) at a time in PIO and DMA.
+
+PERIOD!
+
+Andre Hedrick
+LAD Storage Consulting Group
+

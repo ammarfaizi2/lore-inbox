@@ -1,32 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265831AbSKBANW>; Fri, 1 Nov 2002 19:13:22 -0500
+	id <S265838AbSKBAEd>; Fri, 1 Nov 2002 19:04:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265834AbSKBANW>; Fri, 1 Nov 2002 19:13:22 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:3910 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S265831AbSKBANW>;
-	Fri, 1 Nov 2002 19:13:22 -0500
-Date: Sat, 2 Nov 2002 01:19:47 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
+	id <S265836AbSKBAEd>; Fri, 1 Nov 2002 19:04:33 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:46282 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265834AbSKBAEa>;
+	Fri, 1 Nov 2002 19:04:30 -0500
+Date: Fri, 1 Nov 2002 16:07:00 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Dave Jones <davej@codemonkey.org.uk>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: [announce] swap mini-howto
-Message-ID: <20021102001947.GA461@win.tue.nl>
-References: <Pine.LNX.4.33L2.0211011540140.28320-100000@dragon.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L2.0211011540140.28320-100000@dragon.pdx.osdl.net>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <20021102000907.GA9229@suse.de>
+Message-ID: <Pine.LNX.4.33L2.0211011606330.28320-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 01, 2002 at 03:58:27PM -0800, Randy.Dunlap wrote:
+On Sat, 2 Nov 2002, Dave Jones wrote:
 
->   http://www.xenotime.net/linux/swap-mini-howto.txt
+| On Fri, Nov 01, 2002 at 03:58:27PM -0800, Randy.Dunlap wrote:
+|  >
+|  > Hi,
+|  >
+|  > Last week I was looking for a swap-space (mini) HOWTO and
+|  > didn't find one, so I threw one together quickly.  It's at
+|  >   http://www.xenotime.net/linux/swap-mini-howto.txt
+|  > (Yeah, I know that this isn't a tough subject, but sometimes
+|  > people need something like this.)
+|
+| I could have sworn I've seen one of these before..
+I expected to find one, but I searched and searched...
 
-Maybe either refer to 'man mkswap' or add a sentence
-about versions. (If you boot both 2.0 and 2.2 then
-use mkswap -v0 to get swap space also 2.0 can use.)
+|  > I'm sure that it has some things that need to be corrected,
+|  > so if any of you could send such corrections to me, I'd
+|  > appreciate it.
+|
+| Might be nice to mention that using multiple swap partitions
+| on different disks will 'stripe' requests across disks a-la-raid0
+Yep, will do.
 
-Andries
+-- 
+~Randy
+

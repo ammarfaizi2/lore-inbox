@@ -1,32 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbUKSUvv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbUKSU7r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261558AbUKSUvv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 15:51:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbUKSUvv
+	id S261562AbUKSU7r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 15:59:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbUKSU7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 15:51:51 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:31267 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261558AbUKSUvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 15:51:50 -0500
-Date: Fri, 19 Nov 2004 20:50:59 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Christoph Lameter <clameter@sgi.com>
-cc: torvalds@osdl.org, <akpm@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, <linux-mm@kvack.org>,
-       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: page fault scalability patch V11 [1/7]: sloppy rss
-In-Reply-To: <Pine.LNX.4.58.0411191142540.24095@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.44.0411192045500.6940-100000@localhost.localdomain>
+	Fri, 19 Nov 2004 15:59:47 -0500
+Received: from h151_115.u.wavenet.pl ([217.79.151.115]:8655 "EHLO
+	alpha.polcom.net") by vger.kernel.org with ESMTP id S261562AbUKSU7n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 15:59:43 -0500
+Date: Fri, 19 Nov 2004 21:59:36 +0100 (CET)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Eric Pouech <pouech-eric@wanadoo.fr>, Roland McGrath <roland@redhat.com>,
+       Mike Hearn <mh@codeweavers.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: ptrace single-stepping change breaks Wine
+In-Reply-To: <Pine.LNX.4.58.0411191119320.2222@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.60.0411192151030.23411@alpha.polcom.net>
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
+ <419E42B3.8070901@wanadoo.fr> <Pine.LNX.4.58.0411191119320.2222@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, against what tree do these patches apply?
-Apparently not linux-2.6.9, nor latest -bk, nor -mm?
+On Fri, 19 Nov 2004, Linus Torvalds wrote:
+> On Fri, 19 Nov 2004, Eric Pouech wrote:
+>>
+>> the first patch put in BK by Linus doesn't fix the problem. Any plan to fix the
+>> two other spots Roland mentionned ?
+>
+> Can you just try it? I don't have wine, and since my main machine is
+> ppc64, and I don't actually have any windows programs to test even on any
+> of my laptops...
 
-Hugh
+You could probably use QEMU to run windows binaries on ppc. It has some 
+kind of user-mode (per process) emulation and it was designed (at the 
+begining) exactly to run wine on !x86. I do not know if the wine emulation 
+is still supported (because Fabrice is mainly working on whole-system 
+emulation), but you can fix any issues with never wine versions in 5 
+minutes I will bet two beers... :-)
+
+And some windows programs to test can be found on the Internet.
+
+
+Thanks,
+
+Grzegorz Kulewski
+
+
+PS. Thanks for your work Fabrice!
 

@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262794AbUFQTiL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbUFQTic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262794AbUFQTiL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 15:38:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbUFQTiL
+	id S262766AbUFQTic (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 15:38:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbUFQTia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 15:38:11 -0400
-Received: from smtp-out2.xs4all.nl ([194.109.24.12]:47378 "EHLO
-	smtp-out2.xs4all.nl") by vger.kernel.org with ESMTP id S262794AbUFQThm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 15:37:42 -0400
-Date: Thu, 17 Jun 2004 21:37:40 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.local
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: hfs warning in 2.4.27-pre6
-In-Reply-To: <Pine.GSO.4.58.0406172106390.1495@waterleaf.sonytel.be>
-Message-ID: <Pine.LNX.4.58.0406172134220.10292@scrub.local>
-References: <Pine.GSO.4.58.0406172106390.1495@waterleaf.sonytel.be>
+	Thu, 17 Jun 2004 15:38:30 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:9428 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S262766AbUFQThf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 15:37:35 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16593.62204.126371.863028@napali.hpl.hp.com>
+Date: Thu, 17 Jun 2004 12:37:32 -0700
+To: Balazs Scheidler <bazsi@balabit.hu>
+Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: kernel oops on ia64 (2.6.6 + 0521 ia64 patch)
+In-Reply-To: <1087489727.30553.0.camel@bzorp.balabit>
+References: <1087420973.4345.19.camel@bzorp.balabit>
+	<16592.60876.886257.165633@napali.hpl.hp.com>
+	<1087489727.30553.0.camel@bzorp.balabit>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>>> On Thu, 17 Jun 2004 18:28:48 +0200, Balazs Scheidler <bazsi@balabit.hu> said:
 
-On Thu, 17 Jun 2004, Geert Uytterhoeven wrote:
+  >>  Does the oops go away with an SMP kernel?
 
-> Not a new one:
-> 
-> | super.c: In function `parse_options':
-> | super.c:164: warning: `names' might be used uninitialized in this function
-> | super.c:164: warning: `fork' might be used uninitialized in this function
-> 
-> and it's not a compiler glitch.
+  Balazs> yes, it does.
 
-Eek, the only halfway sane and simple solution would be to disable 
-parse_options() for remount completely, so it will always be initialized.
+Does the attached patch fix the UP problem for you?
 
-bye, Roman
+	--david
+
+===== include/asm-ia64/gcc_intrin.h 1.5 vs edited =====
+--- 1.5/include/asm-ia64/gcc_intrin.h	Mon May 10 23:44:41 2004
++++ edited/include/asm-ia64/gcc_intrin.h	Thu Jun 17 12:10:52 2004
+@@ -581,7 +587,7 @@
+ 
+ #define ia64_intrin_local_irq_restore(x)			\
+ do {								\
+-	asm volatile ("     cmp.ne p6,p7=%0,r0;;"		\
++	asm volatile (";;   cmp.ne p6,p7=%0,r0;;"		\
+ 		      "(p6) ssm psr.i;"				\
+ 		      "(p7) rsm psr.i;;"			\
+ 		      "(p6) srlz.d"				\

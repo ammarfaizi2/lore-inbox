@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262848AbUA3RVr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 12:21:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbUA3RVr
+	id S262925AbUA3RYq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 12:24:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbUA3RYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 12:21:47 -0500
-Received: from gprs116-76.eurotel.cz ([160.218.116.76]:27265 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262848AbUA3RVo (ORCPT
+	Fri, 30 Jan 2004 12:24:33 -0500
+Received: from main.gmane.org ([80.91.224.249]:29653 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262925AbUA3RXS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 12:21:44 -0500
-Date: Fri, 30 Jan 2004 18:01:08 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: Mark Borgerding <mark@borgerding.net>,
-       Michael A Halcrow <mahalcro@us.ibm.com>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: Encrypted Filesystem
-Message-ID: <20040130170108.GA625@elf.ucw.cz>
-References: <OFA97B290B.67DE842E-ON87256E27.0061728C-86256E27.0061BB0E@us.ibm.com> <40156546.1050809@borgerding.net> <1075151094.809.11.camel@teapot.felipe-alfaro.com>
+	Fri, 30 Jan 2004 12:23:18 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: [OT] Crazy idea:  Design open-source graphics chip
+Date: Fri, 30 Jan 2004 18:23:15 +0100
+Message-ID: <yw1xekthfj0c.fsf@kth.se>
+References: <4017F2C0.4020001@techsource.com> <200401291211.05461.chakkerz@optusnet.com.au>
+ <40193136.4070607@techsource.com>
+ <200401291629.i0TGTN7S001406@81-2-122-30.bradfords.org.uk>
+ <40193A67.7080308@techsource.com>
+ <200401291718.i0THIgbb001691@81-2-122-30.bradfords.org.uk>
+ <4019472D.70604@techsource.com>
+ <200401291855.i0TItHoU001867@81-2-122-30.bradfords.org.uk>
+ <40195AE0.2010006@techsource.com> <401A33CA.4050104@aitel.hist.no>
+ <401A8E0E.6090004@techsource.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1075151094.809.11.camel@teapot.felipe-alfaro.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:rz8OP3hk2dj32HuzFc0BMOCr/NE=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Timothy Miller <miller@techsource.com> writes:
 
-> > Have you given any thought to journalling? fscking? Can directory 
-> > contents be encrypted?  If so, what does the dir look like to others 
-> > (e.g. backup utils)
-> > 
-> > Per-file signatures will severely affect random access performance.  
-> > Changing 1 byte in a 1 GB file would require the whole thing to be reread.
-> 
-> What about calculating signatures on a per-block basis instead?
+>> Why VGA?  When you have a _driver_ , you don't need compatibility at
+>> all.
+>
+> BOOT CONSOLE.  You cannot get a boot console on a PC without a VGA
+> core. Once the kernel takes over, you're right, but until then...
 
-Hmm, having md5's in indirect blocks would be very nice for detecting
-cable problems ;-). That's usefull even without encryption.
-								Pavel
+Why PC?
+
+>> Another reason to drop VGA then - money.
+>
+> As soon as PC BIOS's don't require it, we can drop it.
+
+Linuxbios?
+
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Måns Rullgård
+mru@kth.se
+

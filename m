@@ -1,72 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314243AbSFBVb1>; Sun, 2 Jun 2002 17:31:27 -0400
+	id <S314396AbSFBVcd>; Sun, 2 Jun 2002 17:32:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314396AbSFBVb0>; Sun, 2 Jun 2002 17:31:26 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:45802 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S314243AbSFBVbZ>;
-	Sun, 2 Jun 2002 17:31:25 -0400
-Date: Sun, 2 Jun 2002 23:30:43 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Anthony Spinillo <tspinillo@linuxmail.org>, linux-kernel@vger.kernel.org
-Subject: Re: INTEL 845G Chipset IDE Quandry
-Message-ID: <20020602233043.A11698@ucw.cz>
-In-Reply-To: <20020602101628.4230.qmail@linuxmail.org> <3CFA73C3.9010902@evision-ventures.com>
+	id <S314422AbSFBVcc>; Sun, 2 Jun 2002 17:32:32 -0400
+Received: from adsl-212-59-30-243.takas.lt ([212.59.30.243]:2036 "EHLO
+	mg.homelinux.net") by vger.kernel.org with ESMTP id <S314396AbSFBVca>;
+	Sun, 2 Jun 2002 17:32:30 -0400
+Date: Sun, 2 Jun 2002 23:31:52 +0200
+From: Marius Gedminas <mgedmin@centras.lt>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SMB filesystem
+Message-ID: <20020602213151.GD14126@gintaras>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3CFA875D.1050300@linkvest.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rz+pwK2yUstbofK6"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.28i
+X-URL: http://ice.dammit.lt/~mgedmin/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 02, 2002 at 09:36:35PM +0200, Martin Dalecki wrote:
-> Anthony Spinillo wrote:
-> > Back to my original problem, will there be a fix before 2010? ;)
-> 
-> Well since you have already tyred yourself to poke at it.
-> Well please just go ahead and atd an entry to the table
-> at the end of piix.c which encompasses the device.
-> Do it by copying over the next familiar one and I would
-> be really geald if you could just test whatever this
-> worked. If yes well please send me just the patch and
-> I will include it.
 
-Note it works with 2.5 already. We have the device there.
+--rz+pwK2yUstbofK6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> > 
-> > Tony
-> > 
-> > 
-> > Martin Dalecki wrote:
-> > 
-> > 
-> >>Of year 2010 - remember learning proper C will take him time.
-> >>Becouse I never ever saw any code contributed by him
-> >>despite the fact that I'm still open for patches, as
-> >>I have told him upon request.
-> >>Once exception was a broken patch which even didn't
-> >>compile and couldn't solve the problem it was
-> >>proclaiming to solve.
-> >>
-> >>
-> > 
-> > 
-> 
-> 
-> 
-> -- 
-> - phone: +49 214 8656 283
-> - job:   eVision-Ventures AG, LEV .de (MY OPINIONS ARE MY OWN!)
-> - langs: de_DE.ISO8859-1, en_US, pl_PL.ISO8859-2, last ressort: ru_RU.KOI8-R
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Sun, Jun 02, 2002 at 11:00:13PM +0200, Jean-Eric Cuendet wrote:
+> I'm thinking of implementing an smb filesystem, the way AFS implement=20
+> the AFS client fs kernel driver.
+> - Mount the smb filesystem on /smb (done at boot time)
+> - Every user has list dir access on /smb
+> - There, you see each workgroup/domain available on the network
+> - Then in each domain, a list of machines
+> - Then in each machine, a list of shares
+> - Then a list of files/dirs
+[...]
+> Thanks for comments/ideas.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Can this be done with autofs in userspace?  It works for NFS, just cd to
+/autofs-mountpoint/hostname.
+
+Marius Gedminas
+--=20
+Any sufficiently advanced Operating System is indistinguishable from Linux.
+		-- Jim Dennis
+
+--rz+pwK2yUstbofK6
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE8+o7HkVdEXeem148RAvDLAKCPALQXFk6Bk/86Yv3BwpcAxbyZPACghlGl
+HDwZvLQ2ebqoIFzgX11Vuqo=
+=vAQX
+-----END PGP SIGNATURE-----
+
+--rz+pwK2yUstbofK6--

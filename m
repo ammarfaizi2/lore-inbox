@@ -1,68 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130272AbQK1Ejt>; Mon, 27 Nov 2000 23:39:49 -0500
+        id <S130337AbQK1Eoj>; Mon, 27 Nov 2000 23:44:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130337AbQK1Eji>; Mon, 27 Nov 2000 23:39:38 -0500
-Received: from thalia.fm.intel.com ([132.233.247.11]:25104 "EHLO
-        thalia.fm.intel.com") by vger.kernel.org with ESMTP
-        id <S130272AbQK1Ej2>; Mon, 27 Nov 2000 23:39:28 -0500
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDD86@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'Albert D. Cahalan'" <acahalan@cs.uml.edu>, hpa@zytor.com
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: KERNEL BUG: console not working in linux
-Date: Mon, 27 Nov 2000 20:09:10 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-        charset="iso-8859-1"
+        id <S130668AbQK1Eoa>; Mon, 27 Nov 2000 23:44:30 -0500
+Received: from munchkin.spectacle-pond.org ([209.192.197.45]:11017 "EHLO
+        munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
+        id <S130337AbQK1EoP>; Mon, 27 Nov 2000 23:44:15 -0500
+Date: Mon, 27 Nov 2000 23:15:11 -0500
+From: Michael Meissner <meissner@spectacle-pond.org>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Andrea Arcangeli <andrea@suse.de>, kumon@flab.fujitsu.co.jp,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removal of "static foo = 0"
+Message-ID: <20001127231511.C17104@munchkin.spectacle-pond.org>
+In-Reply-To: <20001128042850.A29908@athlon.random> <Pine.GSO.4.21.0011272234550.7352-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.GSO.4.21.0011272234550.7352-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Mon, Nov 27, 2000 at 10:35:45PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I've been taking some holidays and haven't followed
-all of this thread closely, but:
-
-> From: Albert D. Cahalan [mailto:acahalan@cs.uml.edu]
+On Mon, Nov 27, 2000 at 10:35:45PM -0500, Alexander Viro wrote:
 > 
-> H. Peter Anvin writes:
-> > [Albert Cahalan]
-> >> [Alan Cox]
 > 
-> >>>> 1) Why did they disable my videocard ?
-> >>>
-> >>> Because your machine is not properly PC compatible
-> >>
-> >> The same can be said of systems that don't support the
-> >> standard keyboard controller for A20 control.
-
-Just curious: Are you (Alan?) saying this ("standard") based on the
-unpublished IBM PC specs (well, it was when I needed it around
-1990; don't know about now ???).  Or do you have a copy
-of it?  They were mighty hard to come by, and I was working
-on a contract for IBM at the time (not at Intel).
-
-> > Yes, it can.  Unfortunately, some "legacy-free" PCs apparently
-> > are starting to take the tack that the KBC is legacy.  Therefore,
-> > the use of port 92h is mandatory on those systems.
+> On Tue, 28 Nov 2000, Andrea Arcangeli wrote:
 > 
-> Not just embedded systems?
-
-Right.  Not just embedded systems.
-
-> > Port 92h dates back to at the very least the IBM PS/2.
+> > On Tue, Nov 28, 2000 at 12:10:33PM +0900, kumon@flab.fujitsu.co.jp wrote:
+> > > If you have two files:
+> > > test1.c:
+> > > int a,b,c;
+> > > 
+> > > test2.c:
+> > > int a,c;
+> > > 
+> > > Which is _stronger_?
 > > 
-> > Either way, the video card of the original poster is broken in more
-> > ways than that.  Ports 0x00-0xFF are reserved for the motherboard
-> > chipset and have been since the original IBM PC.
+> > Those won't link together as they aren't declared static.
 > 
-> His video card is the motherboard. He has built-in video.
-> So the port is being used by his motherboard chipset.
-> -
+> Try it. They _will_ link together.
 
-~Randy
+This is a GCC extension (actually it is a pretty common UNIX extension, but the
+official standard says you can only have one definition of a global variable).
 
+Off the top of my head, here are some reasons variables could be put in
+different orders:
+
+   1)	The compilation system has the concept of a small data pointer, which
+	is a register that is assumed by the compiler to point to a small
+	region of memory (it is never allocated by the compiler and setup in
+	the initialization modules).  The compiler decides to put some
+	variables into the small data region and other variables outside of
+	it.  Typically the choice is based on size of the variable.  Small data
+	pointers are typically used when the machine has plenty of registers
+	and it takes 2 or more instructions to build the address of a random
+	variable in memory with load high/load low type instructions, and the
+	small data pointer has the upper half already loaded, and uses special
+	relocations to access the variable based off of the difference of a
+	special symbol.
+
+   2)	Even without a small data pointer, a compiler might decide to sort the
+	variables emitted based on either size or number of accesses to take
+	advantage of instructions with smaller offsets.
+
+   3)	The above mentioned global, non-initialized variables (ie, the
+	so-called 'common' variables).  Where the linker puts the variables
+	into the bss section in any order it chooses.  For example, the VMS
+	linker used to sort common variables alphabetically.
+
+   4)	For static variables, the compilation system might decide to omit the
+	variable until it sees a reference to the variable, and if the first
+	variable is referenced in one function, and the second is referenced
+	several functions later.
+
+   5)	At some point in the future, on machines with many more registers than
+	the normal 32, the linker might see all references to a variable, and
+	decide to put it in a static register rather than memory.
+
+   6)	A checkout compiler could randomly order things specifically to catch
+	these type of errors (the problem with the normal checkout compilers
+	that I'm aware of, is that the kernel uses structs to talk to real
+	devices and interact with system calls with fixed layouts).
+
+-- 
+Michael Meissner, Red Hat, Inc.
+PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
+Work:	  meissner@redhat.com		phone: +1 978-486-9304
+Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

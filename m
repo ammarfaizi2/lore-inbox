@@ -1,45 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290882AbSBLJsT>; Tue, 12 Feb 2002 04:48:19 -0500
+	id <S290878AbSBLJv7>; Tue, 12 Feb 2002 04:51:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290881AbSBLJsJ>; Tue, 12 Feb 2002 04:48:09 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:42907 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S290878AbSBLJr6>; Tue, 12 Feb 2002 04:47:58 -0500
-Message-ID: <3C68E4CB.BE64EBA6@redhat.com>
-Date: Tue, 12 Feb 2002 09:47:55 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-26beta.16smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Internal compiler error in 2.4.5 (hacky workaround)
-In-Reply-To: <20020211201505.GA9922@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S290881AbSBLJvt>; Tue, 12 Feb 2002 04:51:49 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:5568 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S290878AbSBLJvh>; Tue, 12 Feb 2002 04:51:37 -0500
+Message-Id: <200202120950.g1C9ooce002431@tigger.cs.uni-dortmund.de>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        Kernel Janitors <kernel-janitor-discuss@lists.sourceforge.net>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] printk prefix cleanups. 
+In-Reply-To: Message from Zwane Mwaikambo <zwane@linux.realnet.co.sz> 
+   of "Tue, 12 Feb 2002 08:26:15 +0200." <Pine.LNX.4.44.0202120823200.27768-100000@netfinity.realnet.co.sz> 
+Date: Tue, 12 Feb 2002 10:50:49 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> 
-> Hi!
-> 
-> This makes gcc survive... adding volatile everywhere ;-).
-> 
-> int blk_ioctl(volatile kdev_t dev, volatile unsigned int cmd, volatile
-> unsigned long arg)
-> {
->         volatile request_queue_t *q;
->         volatile struct gendisk *g;
->         volatile u64 ullval = 0;
->         volatile int intval, *iptr;
->         volatile unsigned short usval;
+Zwane Mwaikambo <zwane@linux.realnet.co.sz> said:
+> Here is a simple patch which reduces resultant binary size by 1.2k for 
+> this particular module (opl3sa2). Perhaps we should consider adding this 
+> on the janitor TODO list for cleaning up other printks.
 
-For 2.4 I can see such a workaround being accepted; however for 2.5 I
-would say 
-to keep the code clean of such things and rather get the compiler fixed
-(or the
-specific version depricated).
+I don't see how changing "opl3sa2: stuff" to "opl3sa2" ": " "stuff" (which
+is what you want to get after preprocesing, and which gcc will happily
+concatenate to give exactly the former before doing anything else) can
+change the size in any way...
+-- 
+Horst von Brand			     http://counter.li.org # 22616

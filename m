@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261609AbVDEHZZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbVDEH0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261609AbVDEHZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 03:25:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVDEHXI
+	id S261606AbVDEH0V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 03:26:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVDEHZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 03:23:08 -0400
-Received: from rproxy.gmail.com ([64.233.170.194]:22588 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261589AbVDEHVX (ORCPT
+	Tue, 5 Apr 2005 03:25:54 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:14512 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261601AbVDEHWq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 03:21:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=MOUhbMhv4iBN5oGtvneqopPuQbRcFndlYcsq+ESmxFL6a57iIG6z/PhdkLAe1Cgbm2nbb2M4IQ+NLtDYWy41w4o742YFTGEz8adCU6Ok1eMLW9vPXfJWi17o4Z8Z5CaSsCpAM3RvrCD3CZbkPRu40JhImV1pPBuYyfK4tjOnvIA=
-Message-ID: <21d7e9970504050021419911b0@mail.gmail.com>
-Date: Tue, 5 Apr 2005 17:21:20 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.12-rc2-mm1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050405000524.592fc125.akpm@osdl.org>
+	Tue, 5 Apr 2005 03:22:46 -0400
+Date: Tue, 5 Apr 2005 00:20:58 -0700
+From: Paul Jackson <pj@engr.sgi.com>
+To: Andi Kleen <ak@muc.de>
+Cc: kenneth.w.chen@intel.com, torvalds@osdl.org, nickpiggin@yahoo.com.au,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: auto-tune migration costs
+Message-Id: <20050405002058.3d90a2de.pj@engr.sgi.com>
+In-Reply-To: <m1d5t91zqn.fsf@muc.de>
+References: <200504020100.j3210fg04870@unix-os.sc.intel.com>
+	<20050402145351.GA11601@elte.hu>
+	<20050402215332.79ff56cc.pj@engr.sgi.com>
+	<20050403070415.GA18893@elte.hu>
+	<20050403043420.212290a8.pj@engr.sgi.com>
+	<20050403071227.666ac33d.pj@engr.sgi.com>
+	<20050403150102.GA25442@elte.hu>
+	<20050403153056.0ad6ee8e.pj@engr.sgi.com>
+	<m1d5t91zqn.fsf@muc.de>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <20050405000524.592fc125.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> - Nobody said anything about the PM resume and DRI behaviour in
->   2.6.12-rc1-mm4.  So it's all perfect now?
+Andi wrote:
+> There is already an arch neutral mechanism in sysfs, see
+> /sys/devices/system/node/node*/distance
 
-Well the DRI is, both reports of bugs have been fixed :-), the bug
-should be closed on bugs.kernel.org I think, and it looks rock solid
-on my box both FC3 and Debian sarge..
+Excellent - thank-you.
 
-Dave.
+> But of course SLIT doesn't know anything about cache latencies.
+
+Of course.  Though SLIT does know about basic node distances, which
+tend to correlate with cache migration costs, apparently closely enough
+for our current modest needs.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

@@ -1,111 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263945AbTDWDrM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 23:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263946AbTDWDrL
+	id S263946AbTDWD6k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 23:58:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263948AbTDWD6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 23:47:11 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:61404 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263945AbTDWDrK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 23:47:10 -0400
-From: Tom Zanussi <zanussi@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 22 Apr 2003 23:58:40 -0400
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:40118 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S263946AbTDWD6i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 23:58:38 -0400
+Message-ID: <20030423041036.28763.qmail@email.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
-Message-ID: <16038.3933.389383.172250@lepton.softprops.com>
-Date: Tue, 22 Apr 2003 22:58:21 -0500
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: "'Tom Zanussi'" <zanussi@us.ibm.com>,
-       "'karim@opersys.com'" <karim@opersys.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] printk subsystems
-In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780C263B3E@orsmsx116.jf.intel.com>
-References: <A46BBDB345A7D5118EC90002A5072C780C263B3E@orsmsx116.jf.intel.com>
-X-Mailer: VM(ViewMail) 7.01 under Emacs 20.7.2
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "dan carpenter" <error27@email.com>
+To: kernel-janitor-discuss@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, smatch-discuss@lists.sf.net
+Date: Tue, 22 Apr 2003 23:10:36 -0500
+Subject: smatch/kbugs.org update 2.5.68
+X-Originating-Ip: 66.127.101.73
+X-Originating-Server: ws3-5.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Perez-Gonzalez, Inaky writes:
- > 
- > > From: Tom Zanussi [mailto:zanussi@us.ibm.com]
- > > Perez-Gonzalez, Inaky writes:
- > >  > > From: Tom Zanussi [mailto:zanussi@us.ibm.com]
- > >  > >
- > >  > > In relayfs, the event can be generated directly into the space
- > >  > > reserved for it - in fact this is exactly what LTT does.  There
- > aren't
- > >  > > two separate steps, one 'generating' the event and another copying it
- > >  > > to the relayfs buffer, if that's what you mean.
- > >  >
- > >  > In this case, what happens if the user space, through mmap, copies
- > >  > while the message is half-baked (ie, from another CPU) ... won't it
- > >  > be inconsistent?
- > > 
- > > There's a count kept, per sub-buffer, that's updated after each write.
- > > If this count doesn't match the expected size of the sub-buffer, the
- > > reader can ignore the incomplete buffer and come back to it later.
- > > The count is maintained automatically by relay_write(); if you're
- > > writing directly into the channel as LTT does though, part of the task
- > > is to call relay_commit() after the write, which updates the count and
- > > maintains consistency.
- > 
- > Hmmm, scratch, scratch ... there is something I still don't get here. 
- > I am in lockless_commit() - for what you say, and what I read, I would 
- > then expect the length of the sub-buffer would be mapped to user space, 
- > so I can memcpy out of the mmaped area and then take only the part that
- > is guaranteed to be consistent. But the atomic_add() is done on the 
- > rchan->scheme.lockless.fillcount[buffer_number]. So, I don't see how
- > that count pops out to user space, as rchan->buf to rchan->buf + rchan->
- > alloc_size is what is mapped, and rchan is a kernel-only struct that
- > is not exposed through mmap().
- > 
+I just returned from vacation yesterday.  So the kbugs.org 
+update is a bit late.
 
-It 'pops' out to user space through some protocol defined between a
-relayfs kernel client and the user space program.  relayfs doesn't say
-anything about the protocol, but does provide the kernel client enough
-information about the state of the channel via relay_info(), which
-supplies among other things (these aren't the real names, they're
-changed here to make things maybe a little clearer):
+The notable thing this release is the update to the UnFree 
+script.  Credit for that goes to Oleg Drokin.  Apparently I 
+screwed the script up with one of my merges.
 
-n_subbufs - number of sub-buffers
-subbuf_size - size of each sub-bufer
-subbuf_complete[] - array of booleans basically the result of 
-		  fillcount[subbuf_no] == subbuf_size
-subbufs_produced - by the channel
-subbufs_consumed - by userspace client, maybe
+For the 2.5.67 results there was a bug in the ifcond.pm 
+module and that is why the Dereference and UnFree bug count 
+was higher than it should have been.  There are still problems 
+remaining with ifcond.pm which may be causing false positives 
+in the Dereference and UnFree checks.
 
-This is enough information for a userspace client to figure out what
-to log.  How it gets there and when is up to the client.  For
-instance, the kernel client could send a signal whenever a sub-buffer
-is full (which it's notified of, if it chooses to be, by a delivery
-callback).  The user client could then do something like
+mysql> select count(*), script, kernelver from bugs where 
+kernelver = "2.5.67" or kernelver = "2.5.68" 
+group by kernelver,script order by script,kernelver;
++----------+-------------------+-----------+
+| count(*) | script            | kernelver |
++----------+-------------------+-----------+
+|      411 | Dereference       | 2.5.67    |
+|      326 | Dereference       | 2.5.68    |
+|        2 | GFP_DMA           | 2.5.67    |
+|        5 | GFP_DMA           | 2.5.68    |
+|       49 | ReleaseRegion     | 2.5.67    |
+|       50 | ReleaseRegion     | 2.5.68    |
+|       44 | SpinlockUndefined | 2.5.67    |
+|       44 | SpinlockUndefined | 2.5.68    |
+|        6 | SpinSleepLazy     | 2.5.67    |
+|        5 | SpinSleepLazy     | 2.5.68    |
+|      122 | UncheckedReturn   | 2.5.67    |
+|      112 | UncheckedReturn   | 2.5.68    |
+|      874 | UnFree            | 2.5.67    |
+|      132 | UnFree            | 2.5.68    |
+|       29 | UnreachedCode     | 2.5.67    |
+|       26 | UnreachedCode     | 2.5.68    |
++----------+-------------------+-----------+
 
-buf = mmap(fd, n_bufs * bufsize); /* whole channel is mapped */ 
+There are a total of 700 possible bugs for 2.5.68.  In 
+terms of moderation, 74 have been moderated as bugs and 
+73 as false positives.
 
-sighandler()
-{
-	get_channel_info_from_kernel(&info); /* ioctl/procfs/sysfs/... */
-	subbufs_ready = subbufs_produced - subbufs_consumed;
-	for(i=0; i<subbufs_ready; i++) {
-		 subbuf_no = (subbufs_consumed + i) % n_subbufs;
-		 if(!buffer_complete[subbuf_no])
-			break; /* Try again next sig */
-		 write(log_fd, buf + subbufno * subbuf_size, subbuf_size);
-	 }
-}
+best regards,
+dan carpenter
 
- > And then, once I have this, next time I read I don't want to read
- > what I already did; I guess I can advance my buf pointer to 
- > buf+real_size, but then how do I wrap around - meaning, how do I
- > detect when do I have to wrap?
- > 
-
-Wrapping is taken care of automatically in the above code.
 
 -- 
-Regards,
-
-Tom Zanussi <zanussi@us.ibm.com>
-IBM Linux Technology Center/RAS
+_______________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
 

@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266249AbUIOCMM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266627AbUIOCVy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266249AbUIOCMM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 22:12:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbUIOCMM
+	id S266627AbUIOCVy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 22:21:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266749AbUIOCVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 22:12:12 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:51633 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266627AbUIOCLZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 22:11:25 -0400
-Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
-From: Lee Revell <rlrevell@joe-job.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrea Arcangeli <andrea@novell.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040915013925.GF9106@holomorphy.com>
-References: <20040914110611.GA32077@elte.hu> <20040914112847.GA2804@elte.hu>
-	 <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au>
-	 <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au>
-	 <20040914140905.GM4180@dualathlon.random> <41470021.1030205@yahoo.com.au>
-	 <20040914150316.GN4180@dualathlon.random>
-	 <1095210126.2406.70.camel@krustophenia.net>
-	 <20040915013925.GF9106@holomorphy.com>
-Content-Type: text/plain
-Message-Id: <1095214289.2406.101.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 14 Sep 2004 22:11:29 -0400
+	Tue, 14 Sep 2004 22:21:54 -0400
+Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:34943 "HELO
+	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266627AbUIOCVx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 22:21:53 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Mouse Problems with 2.6
+Date: Tue, 14 Sep 2004 21:21:49 -0500
+User-Agent: KMail/1.6.2
+Cc: r2 <torsten.foertsch@gmx.net>
+References: <200409142344.00646.r2@opi.home>
+In-Reply-To: <200409142344.00646.r2@opi.home>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409142121.50186.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-14 at 21:39, William Lee Irwin III wrote:
-> > With Ingo's patches the worst case latency on the same machine as my XP
-> > example is about 150 usecs.  So, it seems to me that Ingo's patches can
-> > achieve results as good or better than OSX even without the one or two
-> > "dangerous" changes, like the removal of lock_kernel around
-> > do_tty_write.
+On Tuesday 14 September 2004 04:43 pm, r2 wrote:
+> I'd also like to get the old kernel 2.4 touchpad behaviour. With 2.4 the it
+> had sent a Button1 event by simply touching it. Now I have to press the
+> appropriate button.
+>
+
+http://w1.894.telia.com/~u89404340/touchpad/index.html to enjoy all features
+of your fine touchpad.
+ 
+> I have seen the module parameter "proto" in the source. Is it worth to play
+> with it?
 > 
-> The code we're most worried is buggy, not just nonperformant.
-> 
 
-Understood.  The only dangerous change I know of in the VP patches is
-the one Alan took issue with, the aforementioned removal of lock_kernel
-in the tty code.  IIRC this only produced a latency of about 300 usecs,
-and only when switching VT's from a console to X and back.  My point was
-that it's quite possible that we can get OSX-like results without the
-more dangerous changes.
+That's another option - psmouse.proto=bare will restore tapping as well.
 
-Ingo, if you want to send me a patch set without the more controversial
-changes, I can compare the performance.  A diff against the latest VP
-patch would be OK.
-
-Lee
-
-
-
+-- 
+Dmitry

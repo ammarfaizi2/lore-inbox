@@ -1,73 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262335AbULOLta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbULOLtg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262335AbULOLta (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 06:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbULOLt3
+	id S262337AbULOLtg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 06:49:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbULOLtf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 06:49:29 -0500
-Received: from mail.outpost24.com ([212.214.12.146]:19671 "EHLO
-	klippan.outpost24.com") by vger.kernel.org with ESMTP
-	id S262335AbULOLtY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 06:49:24 -0500
-Message-ID: <41C024B0.4010009@outpost24.com>
-Date: Wed, 15 Dec 2004 12:49:04 +0100
-From: David Jacoby <dj@outpost24.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (Windows/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux kernel IGMP vulnerabilities, PATCH IS BROKEN!
-References: <41BFF931.6030205@outpost24.com> <20041215.180839.93043538.yoshfuji@linux-ipv6.org>
-In-Reply-To: <20041215.180839.93043538.yoshfuji@linux-ipv6.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Dec 2004 06:49:35 -0500
+Received: from gprs215-247.eurotel.cz ([160.218.215.247]:64128 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262337AbULOLta (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 06:49:30 -0500
+Date: Wed, 15 Dec 2004 12:49:16 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Cc: Andi Kleen <ak@suse.de>, Rik van Riel <riel@redhat.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, Steven.Hand@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk
+Subject: Re: arch/xen is a bad idea
+Message-ID: <20041215114916.GB1232@elf.ucw.cz>
+References: <p73acsg1za1.fsf@bragg.suse.de> <E1CeLLB-0000Sl-00@mta1.cl.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1CeLLB-0000Sl-00@mta1.cl.cam.ac.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-Anyone else tried to apply this patch? The patch does work but not 
-properly.
-I guess the machie is secure against the DoS attack but after i 
-installed the patch
-i cant use SSH.When i tryed to SSH i didnt get any password prompt.
+> > > Stunned silence I guess - merging an architecture is
+> > > usually much more controversial ;)
+> > 
+> > In my opinion it's still an extremly bad idea to have arch/xen
+> > an own architecture. It will cause a lot of work long term
+> > to maintain it, especially when it gets x86-64 support too.
+> > It would be much better to just merge it with i386/x86-64.
+> 
+> Andi, I totally agree that merging into i386 could be a long term
+> goal. However, its just not feasible right now. The changes
+> required are way too intrusive. We put considerable effort into
+> investigating this approach, but came to the conclusion that with
+> the current structure of arch i386 it was going to be way too
+> messy. 
 
+Okay, what about this one:
 
-user@autopsia:~$ ssh user@192.168.0.1
-Permission denied, please try again.
-Permission denied, please try again.
-Permission denied (publickey,password,keyboard-interactive).
+You merge xen hooks in mainline, but keep maintaining arch/xen
+out-of-tree? You have to maintain it yourself, anyway, and having
+hooks merged should make it easy.
 
-The patch will crash SSH :|
-
-//David
-
-
-YOSHIFUJI Hideaki wrote:
-
->In article <41BFF931.6030205@outpost24.com> (at Wed, 15 Dec 2004 09:43:29 +0100), David Jacoby <dj@outpost24.com> says:
->
->  
->
->>Any advice about how people can patch this security issue?
->>    
->>
->
->http://linux.bkbits.net:8080/linux-2.6/cset@41bf39b1RGfvOMInGewwDyzfcuL2OQ
->
->--yoshfuji
->
->  
->
-
-
+When xen is merged into i386 (you said that is your long-term goal
+anyway), you can merge that into mainline...
+							Pavel
 -- 
-Outpost24 AB
-
-David Jacoby
-Research & Development
-
-Office: +46-455-612310
-Mobile: +46-455-612311
-(www.outpost24.com) (dj@outpost24.com) 
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

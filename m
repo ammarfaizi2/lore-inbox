@@ -1,67 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262882AbTDIHN5 (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 03:13:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262883AbTDIHN4 (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 03:13:56 -0400
-Received: from sccrmhc03.attbi.com ([204.127.202.63]:15747 "EHLO
-	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP id S262882AbTDIHNz (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 03:13:55 -0400
-Message-ID: <3E93CAC8.8070407@namesys.com>
-Date: Wed, 09 Apr 2003 11:24:56 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Oleg Drokin <green@namesys.com>
-CC: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.67 - reiserfs go boom.
-References: <20030409011802.GD25834@suse.de> <20030409105339.A26788@namesys.com>
-In-Reply-To: <20030409105339.A26788@namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id S262872AbTDIH1S (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 03:27:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262877AbTDIH1S (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 03:27:18 -0400
+Received: from granite.he.net ([216.218.226.66]:38150 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S262872AbTDIH1R (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 03:27:17 -0400
+Date: Wed, 9 Apr 2003 00:41:24 -0700
+From: Greg KH <greg@kroah.com>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: KML <linux-kernel@vger.kernel.org>, sensors@Stimpy.netroedge.com
+Subject: Re: [PATCH-2.5] Fix w83781d sensor to use Milli-Volt for in_* in sysfs
+Message-ID: <20030409074124.GA9813@kroah.com>
+References: <1049750163.4174.35.camel@nosferatu.lan> <20030407215443.GA4386@kroah.com> <1049775078.23992.2.camel@nosferatu.lan> <20030408220444.GA6674@kroah.com> <1049869101.2754.31.camel@workshop.saharact.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1049869101.2754.31.camel@workshop.saharact.lan>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Drokin wrote:
+On Wed, Apr 09, 2003 at 08:18:21AM +0200, Martin Schlemmer wrote:
+> On Wed, 2003-04-09 at 00:04, Greg KH wrote:
+> 
+> > Oh, I'm getting the following warning when building the driver, want to
+> > look into this?
+> > 
+> > drivers/i2c/chips/w83781d.c: In function `store_fan_div_reg':
+> > drivers/i2c/chips/w83781d.c:715: warning: `old3' might be used uninitialized in this function
+> >   
+> 
+> It is because old3 is only referenced if:
+> 
+>  ((data->type != w83781d) && data->type != as99127f)
+> 
+> as those two chips don't have extended divisor bits ...
+> 
+> It is however set in the first occurrence:
+> 
+> ---------------------------------------------------------------------
+>        /* w83781d and as99127f don't have extended divisor bits */
+>        if ((data->type != w83781d) && data->type != as99127f) {
+>                old3 = w83781d_read_value(client, W83781D_REG_VBAT);
+>        }
+> ---------------------------------------------------------------------
+> 
+> and thus is rather gcc being brain dead for not being able to figure
+> old3 is only used within a if block like that.
+> 
+> I was not sure about style policy in a case like this, so I left it as
+> is, it should however be possible to 'fix' it with:
 
->Hello!
->
->On Wed, Apr 09, 2003 at 02:18:02AM +0100, Dave Jones wrote:
->
->  
->
->>Whilst running fsx.. (Though fsx didn't trigger any error,
->>and is still running)..
->>buffer layer error at fs/buffer.c:127
->>Call Trace:
->> [<c016d260>] __wait_on_buffer+0xd0/0xe0
->> [<c0121760>] autoremove_wake_function+0x0/0x50
->> [<c0121760>] autoremove_wake_function+0x0/0x50
->> [<c02886c8>] reiserfs_unmap_buffer+0x68/0xa0
->>    
->>
->
->Andrew Morton said "That's not a bug.  It is errant debugging code." because the page is locked by us,
->so buffers are safe.
->So I am not looking into this and hoping that somebody will fix the debugging code instead ;)
->
->Bye,
->    Oleg
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
-Oleg, if someone doesn't do it for you in 7 days, you must do it....
+Thanks, I've applied this.
 
-errant debugging code is a bug....  when users (reasonably) think our fs 
-has bugs, that needs to be fixed;-)
-
--- 
-Hans
-
-
+greg k-h

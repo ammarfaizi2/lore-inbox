@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316499AbSFDHHe>; Tue, 4 Jun 2002 03:07:34 -0400
+	id <S316500AbSFDHLO>; Tue, 4 Jun 2002 03:11:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316500AbSFDHHd>; Tue, 4 Jun 2002 03:07:33 -0400
-Received: from mortar.viawest.net ([216.87.64.7]:64961 "EHLO
-	mortar.viawest.net") by vger.kernel.org with ESMTP
-	id <S316499AbSFDHHd>; Tue, 4 Jun 2002 03:07:33 -0400
-Date: Tue, 4 Jun 2002 00:07:21 -0700
-From: A Guy Called Tyketto <tyketto@wizard.com>
-To: Dave Jones <davej@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.20-dj1
-Message-ID: <20020604070721.GA2946@wizard.com>
-In-Reply-To: <20020604000029.GA13899@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux/2.5.7 (i686)
-X-uptime: 11:39pm  up  4:16,  2 users,  load average: 0.00, 0.00, 0.00
-X-RSA-KeyID: 0xE9DF4D85
-X-DSA-KeyID: 0xE319F0BF
-X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
+	id <S316503AbSFDHLN>; Tue, 4 Jun 2002 03:11:13 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:40976 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S316500AbSFDHLM>; Tue, 4 Jun 2002 03:11:12 -0400
+Date: Tue, 4 Jun 2002 04:10:55 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: Larry McVoy <lm@work.bitmover.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: please kindly get back to me
+In-Reply-To: <20020603222338.F18899@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.4.44L.0206040406510.24135-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 04, 2002 at 01:00:29AM +0100, Dave Jones wrote:
-> Just a resync against 2.5.20, I'll start digging through
-> the rather large patch queue next time, after pushing another
-> load of this to Linus..
-> 
+On Mon, 3 Jun 2002, Matti Aarnio wrote:
 
-        -dj1 oopsed on me at bootup, when kicking in the framebuffer (ATI Rage 
-128/Radeon). The following patch fixed it for me. It's a variant of the patch 
-sent in earlier for the same problem. -dj1 fixed pat of it, this should fix 
-the rest. 
+>   Best technologies (as I see them, but I am not omniscient, of course)
+>   are those that do scoring.  E.g. naving some word NN might not alone
 
---- linux/drivers/video/fbcmap.c.bork	Mon Jun  3 19:08:43 2002
-+++ linux/drivers/video/fbcmap.c	Mon Jun  3 19:09:45 2002
-@@ -150,7 +150,7 @@
-     else
- 	tooff = from->start-to->start;
-     size = to->len-tooff;
--    if (size > from->len-fromoff)
-+    if (size > (int)(from->len-fromoff))
- 	size = from->len-fromoff;
-     if (size <= 0)
- 	return;
+>   I think there are several free codes of this kind available, but my time
+>   has been chronically over-subscribed to do radical things like taking
+>   this kind of codes into use.
 
+1) mv resend resend.mj
 
-                                                        BL.
+2) use this script as resend
+
+--------------
+#!/bin/sh
+
+/path/to/spamassassin -L | /path/to/resend.mj $*
+--------------
+
+3) add X-Spam-Flag:.*YES to taboo_headers
+
+I'm doing this for the listar setup on nl.linux.org and things
+work great. Only took 10 minutes to install, too.
+
+Rik
 -- 
-Brad Littlejohn                         | Email:        tyketto@wizard.com
-Unix Systems Administrator,             |           tyketto@ozemail.com.au
-Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
-  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265189AbSJRPyC>; Fri, 18 Oct 2002 11:54:02 -0400
+	id <S265183AbSJRPuX>; Fri, 18 Oct 2002 11:50:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265192AbSJRPyC>; Fri, 18 Oct 2002 11:54:02 -0400
-Received: from mx.alles.or.jp ([210.231.151.65]:50858 "EHLO mx.alles.or.jp")
-	by vger.kernel.org with ESMTP id <S265189AbSJRPyA>;
-	Fri, 18 Oct 2002 11:54:00 -0400
-Message-ID: <3DB03026.63AF250F@alles.or.jp>
-Date: Sat, 19 Oct 2002 01:00:38 +0900
-From: Takeharu Kato <tk1219@alles.or.jp>
-X-Mailer: Mozilla 4.05 [ja] (Win95; I)
+	id <S265194AbSJRPuX>; Fri, 18 Oct 2002 11:50:23 -0400
+Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:57245 "EHLO
+	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S265183AbSJRPuV>; Fri, 18 Oct 2002 11:50:21 -0400
+Date: Fri, 18 Oct 2002 16:56:17 +0100 (BST)
+From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
+X-X-Sender: alastair@gerber
+To: dbarrera@us.ibm.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Machine hang - OOPS
+Message-ID: <Pine.GSO.4.44.0210181653050.22210-100000@gerber>
 MIME-Version: 1.0
-To: karim@opersys.com
-CC: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>
-Subject: Re: [ltt-dev] [ANNOUNCE] LTT 0.9.6pre2: Per-CPU buffers, TSC timestamps, etc.
-References: <3DAF850D.D104A6D@opersys.com>
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Yaghmour:
+> My machine 'hanged' last night while running	the Database Opensource
+   Test
+>   Suite (DOTS) with DB2 on a standard Red Hat Linux release 7.3
+   (Valhalla),
+>    Kernel 2.4.18-3bigmem on an i686 installation. The machine appears
+   hang,
+>   although it replies to a ping.
 
-Karim Yaghmour wrote:
-> 
-> A new development version of LTT is now available, 0.9.6pre2.
-> Here's what's new:
-> - Per-CPU buffering
-> - TSC timestamping
-> - Use of syscall interface instead of char dev abstraction
-> 
-As long as I think, 0.9.6pre2 has called CHAR DEV in LibUserTrace.
-Should I apply the patch which you send before?
+Just before Alan says it :-)
 
--- 
----------------------------
-Takeharu KATO
-E-mail: tk1219@alles.or.jp
+There have been 4 errata kernels released for RH 7.3 so far, so you
+really ought to upgrade to the latest of those for starters. Obviously,
+your problem may not be easily reproducible, but if you _could_
+reproduce it on the latest kernel, I think people would take a higher
+level of interest! Just my advice....
+
+Cheers
+Alastair                            .-=-.
+__________________________________,'     `.
+                                           \   www.mrc-bsu.cam.ac.uk
+Alastair Stevens, Systems Management Team   \       01223 330383
+MRC Biostatistics Unit, Cambridge UK         `=.......................
+

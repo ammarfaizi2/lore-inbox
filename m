@@ -1,64 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289592AbSAWAhc>; Tue, 22 Jan 2002 19:37:32 -0500
+	id <S289588AbSAWAhW>; Tue, 22 Jan 2002 19:37:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289594AbSAWAhW>; Tue, 22 Jan 2002 19:37:22 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:8714 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S289592AbSAWAhM>; Tue, 22 Jan 2002 19:37:12 -0500
-Date: Wed, 23 Jan 2002 01:37:05 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: <puw@cola.teststation.com>
-To: Justin A <justin@bouncybouncy.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: via-rhine timeouts
-In-Reply-To: <20020122234201.GA835@bouncybouncy.net>
-Message-ID: <Pine.LNX.4.33.0201230107420.4854-100000@cola.teststation.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289594AbSAWAhM>; Tue, 22 Jan 2002 19:37:12 -0500
+Received: from mail1.amc.com.au ([203.15.175.2]:17668 "HELO mail1.amc.com.au")
+	by vger.kernel.org with SMTP id <S289588AbSAWAhA>;
+	Tue, 22 Jan 2002 19:37:00 -0500
+Message-Id: <5.1.0.14.0.20020123112137.009ef8b0@mail.amc.localnet>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 23 Jan 2002 11:36:56 +1100
+To: linux-kernel@vger.kernel.org
+From: Stuart Young <sgy@amc.com.au>
+Subject: Re: Athlon PSE/AGP Bug
+Cc: Steve Brueggeman <xioborg@yahoo.com>
+In-Reply-To: <c5qr4uk3adm53fgvuibld2tnjtnfnq0a5i@4ax.com>
+In-Reply-To: <1011737673.10474.12.camel@psuedomode>
+ <1011610422.13864.24.camel@zeus>
+ <20020121.053724.124970557.davem@redhat.com>
+ <20020121.053724.124970557.davem@redhat.com>
+ <20020121175410.G8292@athlon.random>
+ <3C4C5B26.3A8512EF@zip.com.au>
+ <o7cp4ukpr9ehftpos1hg807a9hfor7s55e@4ax.com>
+ <hbep4uka8q6t1tfv6694sjtvfrulipg3a4@4ax.com>
+ <87k7uakutl.fsf@CERT.Uni-Stuttgart.DE>
+ <1011737673.10474.12.camel@psuedomode>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Jan 2002, Justin A wrote:
+At 04:52 PM 22/01/02 -0600, Steve Brueggeman wrote:
+>I would like to see some indication that someone is collecting data
+>related to "running stable with mem=nopentium on Athelon
+>architecture", and maybe we can see a pattern here.  Heck maybe we see
+>2 or 3 different patterns here.
 
-> I've been getting many errors due to timeouts, everything was fine while
-> I was at home, but here at school it's a major problem:
+Well I'm quite willing to give all the system specs we have at work and the 
+ones I have at home (all up, this is about 12 Athlon's that are running 
+Linux, all running fine so far with no issues) towards this process.
 
-You did get them at home too? (with the same (type of) hardware?)
+I've not seen your system specs, so I'm wondering what sort of m/board you 
+have? The mention of the SiS AGP support makes me wonder if you are running 
+an SiS chipset board. In the past, Linux kernel developers and the XFree86 
+team have had a huge amount of trouble (or in some cases, flat refusal) in 
+getting certain (usually up to date) specs out of SiS, and I'm wondering if 
+maybe this could be related somehow, as none of the systems I've got have 
+an SiS chipset in them (they are all AMD or VIA chipsets).
 
-> Jan 22 18:10:34 bouncybouncy kernel: NETDEV WATCHDOG: eth0: transmit
-> timed out
-> Jan 22 18:10:34 bouncybouncy kernel: eth0: Transmit timed out, status
-> 0000, PHY 
-> status 782d, resetting...
-> 
-> Jan 22 18:10:34 bouncybouncy kernel: eth0: reset did not complete in 10
-> ms.
-> 
-> once it complains about that, it stops working until I reboot.
-
-10ms is a very long time. Normally the hardware resets a lot faster than
-that, and when it doesn't I suspect it is in some really bad state.
-
-You are not the first to report this. And it is a message that could be
-caused by a lot of things, I guess.
+Now I'm not saying this is an SiS issue, but maybe it's more prevalent with 
+SiS chipsets? Until we get some hard data, who knows!
 
 
-But I have finally managed to get these timeouts to happen on my VT6102
-too (using an evil combination of running a remote Internet Explorer over
-VNC). I have planned to examine it, but I probably won't get around to
-that for at least a couple of weeks.
+Stuart Young - sgy@amc.com.au
+(aka Cefiar) - cefiar1@optushome.com.au
 
-Some ideas you could try:
-+ The via-rhine driver at
-  http://www.scyld.com/network/ethercard.html
-  (the one in the kernel is almost the same as this one)
-+ Move the card to another slot (remove/re-arrange other cards in the box)
-+ Since it appears to be load related, perhaps it can be hidden by slowing
-  things down (eg add a small udelay() to via_rhine_start_tx)
-
-(or you could try to figure out what the driver is doing when these 
- things happen.)
-
-/Urban
+[All opinions expressed in the above message are my]
+[own and not necessarily the views of my employer..]
 

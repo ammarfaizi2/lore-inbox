@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267366AbTBUAEt>; Thu, 20 Feb 2003 19:04:49 -0500
+	id <S267335AbTBUANb>; Thu, 20 Feb 2003 19:13:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267331AbTBUAEk>; Thu, 20 Feb 2003 19:04:40 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:14342 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267366AbTBUADx>;
-	Thu, 20 Feb 2003 19:03:53 -0500
-Date: Thu, 20 Feb 2003 16:06:47 -0800
-From: Greg KH <greg@kroah.com>
-To: kernel1@jsl.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Keyspan USB/Serial Drivers for 2.4.20/2.4.21-pre4
-Message-ID: <20030221000647.GA26468@kroah.com>
-References: <200302202328.h1KNSaj26209@jsl.com>
+	id <S267337AbTBUANb>; Thu, 20 Feb 2003 19:13:31 -0500
+Received: from pine.compass.com.ph ([202.70.96.37]:36165 "HELO
+	pine.compass.com.ph") by vger.kernel.org with SMTP
+	id <S267335AbTBUANa>; Thu, 20 Feb 2003 19:13:30 -0500
+Subject: Re: [Linux-fbdev-devel] Re: FBdev updates.
+From: Antonino Daplas <adaplas@pol.net>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       James Simmons <jsimmons@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+In-Reply-To: <20030220182941.GK14445@vana.vc.cvut.cz>
+References: <Pine.LNX.4.44.0302200108090.20350-100000@phoenix.infradead.org>
+	<20030220150201.GD13507@codemonkey.org.uk> 
+	<20030220182941.GK14445@vana.vc.cvut.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1045787031.2051.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200302202328.h1KNSaj26209@jsl.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Feb 2003 08:24:17 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 20, 2003 at 03:28:35PM -0800, System Administrator wrote:
-> Hello List,
+On Fri, 2003-02-21 at 02:29, Petr Vandrovec wrote:
 > 
->  I'm not sure why, but the current kernel source tree doesn't support some
-> of the Keyspan USB/Serial adapter products (49WLC and MPR).  There is code
-> at: http://www.keyspan.com/support/linux/files/currentversion/rev2003jan31/
-> but it only works with 2.4.18 or 2.4.19.  Keyspan seems to think the code
-> is current and they didn't want my patches.  Here they are for posterity.
+> I was for five weeks in U.S., so I did not do anything with
+> matroxfb during that time. I plan to use fillrect and copyrect
+> from generic code (although it means unnecessary multiply on
+> generic side, and division in matroxfb, but well, if we gave
+> up on reasonable speed for fbdev long ago...). But I simply
+> want loadfont and putcs hooks for character painting. And if 
+> fbdev maintainer does not want to give me them, well, then 
+> matroxfb and fbdev are not compatible.
 
-Any reason you didn't send this to the listed maintainer for these
-drivers?  :)
+Petr,
 
-Thanks for doing this, but why did you modify the Config.in file so
-much?  That's not correct.
+I submitted the Tile Blitting patch to James some time ago, it has
+tilefill, tilecopy and tileblit hooks.  These hooks should eliminate the
+"multiply in fbcon, divide in driver" bottleneck.
 
-And does this patch work with the new devices?
+It should result in the same behavior as you would expect in the the 2.4
+API, so you can use text mode with your matroxfb driver.  These same
+hooks will also help optimize drawing if we need to use fonts like
+12x22.
 
-thanks,
+Tony
 
-greg k-h
+

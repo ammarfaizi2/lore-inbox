@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbTENTjh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 15:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbTENTjh
+	id S261241AbTENThS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 15:37:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbTENThR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 15:39:37 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:18194 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id S261210AbTENTjf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 15:39:35 -0400
-Date: Wed, 14 May 2003 21:51:56 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Miles Bader <miles@gnu.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new kconfig goodies
-In-Reply-To: <20030513211749.GA340@gnu.org>
-Message-ID: <Pine.LNX.4.44.0305142014500.5042-100000@serv>
-References: <Pine.LNX.4.44.0305111838300.14274-100000@serv>
- <buou1bz7h9a.fsf@mcspd15.ucom.lsi.nec.co.jp> <Pine.LNX.4.44.0305131710280.5042-100000@serv>
- <20030513211749.GA340@gnu.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 14 May 2003 15:37:17 -0400
+Received: from smtp1.libero.it ([193.70.192.51]:36797 "EHLO smtp1.libero.it")
+	by vger.kernel.org with ESMTP id S261241AbTENThQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 15:37:16 -0400
+Date: Wed, 14 May 2003 21:49:20 +0300
+From: Daniele Pala <dandario@libero.it>
+To: Ahmed Masud <masud@googgun.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Core Dump Report
+Message-ID: <20030514184920.GA390@libero.it>
+References: <NHBBIPBFKBJLCPPIPIBCIEGFCAAA.chandrasekhar.nagaraj@patni.com> <Pine.LNX.4.33.0305140815050.10993-100000@marauder.googgun.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0305140815050.10993-100000@marauder.googgun.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, 13 May 2003, Miles Bader wrote:
-
-> BTW, the name `enable' seems to be a misnomer -- `enable' implies that it
-> forces the depends to be y, but not that it also forces the _value_.
+On Wed, May 14, 2003 at 08:16:11AM -0400, Ahmed Masud wrote:
 > 
-> Why not have two:
 > 
->   enable FOO	- forces the `depends' value of FOO to y
-> 		  but it will still prompt
->   force FOO	- forces both the `depends' and value of FOO to y
-> 		  prompting for FOO is turned off
+> On Wed, 14 May 2003, Chandrasekhar wrote:
+> 
+> > Hi Experts,
+> >
+> > I want to obtain the core dump information from the running kernel.
+> > How can I do so by reading the /proc/kcore file.?
+> >
+> > Regards
+> > Chandrasekhar
+> > -
+> >
+> 
+> For all intents and purposes you can treat /proc/kcore as a coredump file
+> :) . Have a look at kgdb and related tools to interpret it correctly.
+> 
 
-I don't really like "force", it's IMO a bit too strong and too unspecific 
-(although enable is here only a bit better). The first I'd rather call 
-"visible", but I don't see a need for this and I wouldn't immediately know 
-how to support this, a config entry can have multiple prompts and every 
-prompt has its own dependencies, so which one should I enable? It would 
-probably be easier to enable/force the dependencies so the prompt becomes 
-visible.
+yeah, except that /proc/kcore is "dynamic" so you can't always trust the gdb cached information.
 
-But I'm open to suggestions for a better name, "select" might be a good 
-alternative. Other ideas? Opinions?
+> Cheers,
+> 
+> Ahmed.
+>
 
-bye, Roman
+Cheers,
+	
+	Daniele 
 

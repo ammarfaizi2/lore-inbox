@@ -1,44 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbUEFJGz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbUEFJSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261897AbUEFJGz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 05:06:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbUEFJGz
+	id S261879AbUEFJSp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 05:18:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbUEFJSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 05:06:55 -0400
-Received: from amsfep13-int.chello.nl ([213.46.243.24]:7213 "EHLO
-	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261897AbUEFJGx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 05:06:53 -0400
-X-Mailer: Openwave WebEngine, version 2.8.8 (webedge20-101-183-105-20021108)
-X-Originating-IP: [194.171.252.100]
-From: <h.verhagen@chello.nl>
-Reply-To: h.verhagen@chello.nl
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
-Date: Thu, 6 May 2004 11:06:52 +0200
+	Thu, 6 May 2004 05:18:45 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:10903 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S261879AbUEFJSk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 05:18:40 -0400
+From: "Sourav Sen" <souravs@india.hp.com>
+To: <Matt_Domsch@dell.com>, <matthew.e.tolentino@intel.com>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: [2.6.6 PATCH] Exposing EFI memory map
+Date: Thu, 6 May 2004 14:48:32 +0530
+Message-ID: <003901c4334b$1a8a6de0$39624c0f@india.hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20040506090652.MPQH15342.amsfep13-int.chello.nl@localhost>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: 
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No wonder the module doesn't work with 4K stacks.
-It wonders that it actually  works with 8K stacks :)
-The nividia module seems extremely stack hungry. 
+Resending it as the last one line wrapped :-(
 
-[harm@node-d-8d2e c]$ objdump -d /lib/modules/2.4.26/kernel/drivers/video/nvidia.o | ./checkstack.pl
-0xb6ff3 _nv002427rm: sub $0x908,%esp          (almost 4K !)
-0x7ff93 _nv003775rm: sub $0x64c,%esp          ( ~1-2K)
-0x21fd3 _nv000899rm: sub $0x648,%esp
-f53f: 81 ec 94 05 00 00 sub $0x594,%esp
-_nv003402rm: sub $0x594,%esp
-0x10247 _nv003354rm: sub $0x520,%esp
-0x42633 _nv003333rm: sub $0x4a8,%esp
-0x100bb _nv003353rm: sub $0x490,%esp
-0x842ff _nv004811rm: sub $0x41c,%esp          (1K from here)
+----------------------------------------------------
+Hi,
 
+The following simple patch creates a read-only file 
+"memmap" under <mount point>/firmware/efi/ in sysfs 
+and exposes the efi memory map thru it.
+ 
+Thanks
+Sourav
+HP-STS, Bangalore
 
-Regards,
-Harm
+The patch is w.r.t 2.6.6-rc3
+----------------------------
+===========================================================================
+--- a/drivers/firmware/efivars.c        2004-05-05 13:55:40.000000000 +0530
++++ b/drivers/firmware/efivars.c        2004-05-06 14:03:13.000000000 +0530
+@@ -580,10 +580,42 @@ systab_read(struct subsystem *entry, cha
+        return str - buf;
+ }
 
++/*
++ * Expose the efi memory map as kernel keeps it. Note, it may be a little
++ * different from what gets actually passed in at loader handoff time as a
++ * call to efi_memmap_walk modifies that.
++ */
++
++static ssize_t
++efi_memmap_read(struct subsystem *entry, char * buf)
++{
++       void * efi_map_start, *efi_map_end, *p;
++       efi_memory_desc_t *md;
++       u64 efi_desc_size;
++       char * str = buf;
++
++       if (!entry || !buf)
++               return -EINVAL;
++
++       efi_map_start = __va(ia64_boot_param->efi_memmap);
++       efi_map_end   = efi_map_start + ia64_boot_param->efi_memmap_size;
++       efi_desc_size = ia64_boot_param->efi_memdesc_size;
++
++       for (p = efi_map_start; p < efi_map_end; p += efi_desc_size) {
++               md = (efi_memory_desc_t *)p;
++               str += sprintf(str, "%2u  %-#18lx  %#016lx %#016lx\n", \
++                       md->type, md->attribute, md->phys_addr, \
++                       md->phys_addr + (md->num_pages << EFI_PAGE_SHIFT));
++       }
++       return (str - buf);
++}
++
+ static EFI_ATTR(systab, 0400, systab_read, NULL);
++static EFI_ATTR(memmap, 0400, efi_memmap_read, NULL);
+
+ static struct subsys_attribute *efi_subsys_attrs[] = {
+        &efi_attr_systab,
++       &efi_attr_memmap,       /* Here comes one */
+        NULL,   /* maybe more in the future? */
+ }; 

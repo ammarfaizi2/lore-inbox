@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313644AbSDJTca>; Wed, 10 Apr 2002 15:32:30 -0400
+	id <S313660AbSDJTer>; Wed, 10 Apr 2002 15:34:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313649AbSDJTc3>; Wed, 10 Apr 2002 15:32:29 -0400
-Received: from ns.suse.de ([213.95.15.193]:51726 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S313644AbSDJTc2>;
-	Wed, 10 Apr 2002 15:32:28 -0400
-To: Hirokazu Takahashi <taka@valinux.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zerocopy NFS updated
-In-Reply-To: <20020410.190550.83626375.taka@valinux.co.jp.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 10 Apr 2002 21:32:22 +0200
-Message-ID: <p73662zpcxl.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S313661AbSDJTeq>; Wed, 10 Apr 2002 15:34:46 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:19206 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S313660AbSDJTep>; Wed, 10 Apr 2002 15:34:45 -0400
+Date: Wed, 10 Apr 2002 12:34:23 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ReiserFS Bug Fixes 3 of 6 (Please apply all 6)
+In-Reply-To: <87wuvfxstu.fsf@CERT.Uni-Stuttgart.DE>
+Message-ID: <Pine.LNX.4.10.10204101232200.30667-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hirokazu Takahashi <taka@valinux.co.jp> writes:
 
-> But I wonder about sendpage. I guess HW IP checksum for outgoing
-> pages might be miscalculated as VFS can update them anytime.
-> New feature like COW pagecache should be added to VM and they 
-> should be duplicated in this case.
+> > Another model you might consider, one which would probably make you
+> > more money, make us happier, and better avoid "freeloaders", would be
+> > to make bitkeeper free for use with free software only.  This would be
+> > rather similar to what I use for reiserfs, which is free for use with
+> > free operating systems only,
+> 
+> Really?  I thought ReiserFS was released under the GPL.  Is this no
+> longer the case?
 
-For hw checksums it should not be a problem. NICs usually load
-the packet into their packet fifo and compute the checksum on the fly
-and then patch it into the header in the fifo before sending it out. A
-NIC that would do slow PCI bus mastering twice just to compute the checksum
-would be very dumb and I doubt they exist (if yes I bet it would be
-faster to do software checksumming on them). When the NIC only
-accesses the memory once there is no race window.
+Because something is GPL doesn't mean it is free dollar wise. GPL is free
+as in free speech not free beer.
 
--Andi
+
+

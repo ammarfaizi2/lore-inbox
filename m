@@ -1,74 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbTEESB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 14:01:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbTEESB6
+	id S261180AbTEESFd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 14:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbTEESFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 14:01:58 -0400
-Received: from mx1.it.wmich.edu ([141.218.1.89]:58022 "EHLO mx1.it.wmich.edu")
-	by vger.kernel.org with ESMTP id S261176AbTEESB4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 14:01:56 -0400
-Message-ID: <3EB6AA01.30601@wmich.edu>
-Date: Mon, 05 May 2003 14:14:25 -0400
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030318
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.68-bk7: Where oh where have my sensors gone? (i2c)
-References: <20030427115644.GA492@zip.com.au> <20030428205522.GA26160@kroah.com> <20030505083458.GA621@zip.com.au> <20030505165848.GA1249@kroah.com>
-In-Reply-To: <20030505165848.GA1249@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 5 May 2003 14:05:33 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:46720 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261180AbTEESFb (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 14:05:31 -0400
+Message-Id: <200305051817.h45IHwJC003355@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Steven Cole <elenstev@mesatop.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
+       Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Kernel hot-swap using Kexec, BProc and CC/SMP Clusters. 
+In-Reply-To: Your message of "Mon, 05 May 2003 12:00:15 MDT."
+             <1052157615.2163.113.camel@spc9.esa.lanl.gov> 
+From: Valdis.Kletnieks@vt.edu
+References: <1052140733.2163.93.camel@spc9.esa.lanl.gov> <m1d6ixb8m7.fsf@frodo.biederman.org>
+            <1052157615.2163.113.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1876400151P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 05 May 2003 14:17:57 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hey guys.  Notice a missing proc driver? hint: i2c.    That's why 
-sensors wont work even when you load the modules. At least that's what i 
-can tell from what the lm_sensors page mentions and what not.
+--==_Exmh_-1876400151P
+Content-Type: text/plain; charset=us-ascii
+
+On Mon, 05 May 2003 12:00:15 MDT, Steven Cole said:
+
+> Perhaps two uptimes could be kept. The current concept of uptime would
+> remain as is, analogous to the reign of a king (the current kernel), and
+> a new integrated uptime would be analogous to the life of a dynasty. The
+> dynasty uptime would be one of the many things the new kernel learned
+> about on booting. This new dynasty uptime could become quite long if
+> everything keeps on ticking.
+
+Make sure you handle the case of a dynasty that starts on a 2.7.13 kernel
+and is finally deposed by a power failure in 2.7.39.
 
 
-Greg KH wrote:
-> On Mon, May 05, 2003 at 06:34:58PM +1000, CaT wrote:
-> 
->>On Mon, Apr 28, 2003 at 01:55:22PM -0700, Greg KH wrote:
->>
->>>On Sun, Apr 27, 2003 at 09:56:44PM +1000, CaT wrote:
->>>
->>>>I keep a-lookin but I can't find any data. Have I missed something?
->>>>
->>>># find | grep -i pii
->>>>./bus/pci/drivers/piix4 smbus
->>>>./bus/pci/drivers/piix4 smbus/00:07.3
->>>>./bus/pci/drivers/PIIX IDE
->>>>./bus/pci/drivers/PIIX IDE/00:07.1
->>>># find | grep -i i2c
->>>>./bus/i2c
->>>>./bus/i2c/drivers
->>>>./bus/i2c/drivers/lm75
->>>>./bus/i2c/drivers/IT87xx
->>>>./bus/i2c/drivers/dev driver
->>>>./bus/i2c/devices
->>>
->>>No devices?  Does 2.5.68 work for you?
->>
->>Does not look like it:
-> 
-> 
-> Ok, but 2.5.67 worked for you, right?  Care to do a binary search
-> through the different -bk trees inbetween to find where it stopped
-> working for you?
-> 
-> thanks,
-> 
-> greg k-h
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+--==_Exmh_-1876400151P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQE+tqrVcC3lWbTT17ARAnImAKCkobfhiQB38EJnBT8hZ9Exw9x91QCgr4zJ
+7wEJoMp7pR4si/SpgpGxDHs=
+=rZRL
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1876400151P--

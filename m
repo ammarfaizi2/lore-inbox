@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269756AbUICTXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269762AbUICT1I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269756AbUICTXw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 15:23:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269758AbUICTXv
+	id S269762AbUICT1I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 15:27:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269603AbUICTWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 15:23:51 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:44212 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269756AbUICTXU (ORCPT
+	Fri, 3 Sep 2004 15:22:15 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:13956 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S269752AbUICTUt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 15:23:20 -0400
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-From: john stultz <johnstul@us.ibm.com>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: george anzinger <george@mvista.com>, lkml <linux-kernel@vger.kernel.org>,
-       tim@physik3.uni-rostock.de, Ulrich.Windl@rz.uni-regensburg.de,
-       clameter@sgi.com, Len Brown <len.brown@intel.com>,
-       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-In-Reply-To: <1094193731.434.7232.camel@cube>
-References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
-	 <1094159379.14662.322.camel@cog.beaverton.ibm.com>
-	 <4137CB3E.4060205@mvista.com>  <1094193731.434.7232.camel@cube>
-Content-Type: text/plain
-Message-Id: <1094239113.14662.500.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 03 Sep 2004 12:18:34 -0700
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Sep 2004 15:20:49 -0400
+Message-Id: <200409031917.i83JHodv010368@laptop11.inf.utfsm.cl>
+To: Stuart Young <cef-lkml@optusnet.com.au>
+cc: linux-kernel@vger.kernel.org, Helge Hafting <helge.hafting@hist.no>,
+       "Theodore Ts'o" <tytso@mit.edu>, Jeremy Allison <jra@samba.org>,
+       Jamie Lokier <jamie@shareable.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Rik van Riel <riel@redhat.com>,
+       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
+       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net,
+       Linus Torvalds <torvalds@osdl.org>, reiser@namesys.com, hch@lst.de,
+       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4 
+In-Reply-To: Message from Stuart Young <cef-lkml@optusnet.com.au> 
+   of "Fri, 03 Sep 2004 20:41:18 +1000." <200409032041.22128.cef-lkml@optusnet.com.au> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Fri, 03 Sep 2004 15:17:49 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-02 at 23:42, Albert Cahalan wrote:
-> > > +int ntp_leapsecond(struct timespec now)
-> > > +{
-> > > +	/*
-> > > +	 * Leap second processing. If in leap-insert state at
-> > > +	 * the end of the day, the system clock is set back one
-> > > +	 * second; if in leap-delete state, the system clock is
-> > > +	 * set ahead one second. The microtime() routine or
-> > > +	 * external clock driver will insure that reported time
-> > > +	 * is always monotonic. The ugly divides should be
-> > > +	 * replaced.
-> 
-> Don't optimize until the patch is in and stable.
-> The divides can be removed much later. Wait months,
-> if not forever, before making the code less readable.
-> 
-> The same goes for arch-specific non-syscall hacks.
+Stuart Young <cef-lkml@optusnet.com.au> said:
 
-Yep. Code readability is crucial, although performance is also a concern
-that *has* to be addressed. 
+[...]
 
-As much as I'm probably digging myself a hole in doing all of this, I
-really don't want to work on time for the rest of my life, so making the
-code clear and readable is my only hope for passing this on.  :)
+> Hence why I was suggesting the idea of disposable data in streams. As
+> long as people KNOW it's disposable, but useful to keep around as it cuts
+> down the time needed to do stuff, then apps will start to pick up
+> transporting streams properly. Least then (hopefully) no real information
+> will get lost that is important. Once transporting streams becomes
+> commonplace, then perhaps streams can be used for more useful things.
 
--john
+How will you prevent people putting the "real" data under some random
+stream, "just because it is a prettier name"? (Yes, I've seen Windows users
+exporting everything because they found the folder + hand icon
+prettier...).  Short answer: You can't. And if you did, then it would be
+(another) hell to go through when you start using streams for "useful
+data".
 
+[...]
 
+> The point of such information in my examples is that a stream can store
+> information in a particular format (ie: an index) that is common to one
+> indexing app/library.
+
+Great. Now you just need to convince everybody and Aunt Tillie to use that
+same format.
+
+>                       Such an index can be used by ANY app that knows the
+> index format to search the document. This is almost exactly what MS will
+> do (if they haven't done it already) with the File Indexing Service. As
+> it's ONE library, then any new user app that creates data can add index
+> creation by adding one library. And any app that wants to search these
+> indexes would need only to add one library, not every library for every
+> format that it wants to search. It's essentially an n^2 vs 2n problem.
+
+Doable if you can just go and force a format/stream layout/application
+suite on each and every user. Won't happen in Linux (and I'm happy for
+that).
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

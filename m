@@ -1,130 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270005AbTGLJ6j (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 05:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270006AbTGLJ6j
+	id S270007AbTGLKGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 06:06:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270008AbTGLKGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 05:58:39 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:59404 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S270005AbTGLJ6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 05:58:35 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: devfs@oss.sgi.com
-Subject: [PATCH][2.5.75] devfsd hangs on restart - is_devfsd_or_child() problem
-Date: Sat, 12 Jul 2003 14:11:41 +0400
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, Thierry Vignaud <tvignaud@mandrakesoft.com>,
-       Andrew Morton <akpm@osdl.org>
-References: <200307112247.12646.arvidjaar@mail.ru>
-In-Reply-To: <200307112247.12646.arvidjaar@mail.ru>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_d79D/ejDfe6Z1Wd"
-Message-Id: <200307121411.41131.arvidjaar@mail.ru>
+	Sat, 12 Jul 2003 06:06:08 -0400
+Received: from mx.laposte.net ([213.30.181.11]:26786 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id S270007AbTGLKGG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 06:06:06 -0400
+Subject: Re: MCE exception advice
+From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1058004581.6808.10.camel@rousalka.dyndns.org>
+References: <1058004581.6808.10.camel@rousalka.dyndns.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-WNMQvqaghERO6cDfFG1t"
+Organization: Adresse personnelle
+Message-Id: <1058005248.7107.1.camel@rousalka.dyndns.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 12 Jul 2003 12:20:48 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-00=_d79D/ejDfe6Z1Wd
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+--=-WNMQvqaghERO6cDfFG1t
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-On Friday 11 July 2003 22:47, Andrey Borzenkov wrote:
-> I cannot believe it is so fragile ...
->
-> is_devfsd_or_child() simplemindedly checks for pgrp:
->
-> static int is_devfsd_or_child (struct fs_info *fs_info)
-> {
->     if (current == fs_info->devfsd_task) return (TRUE);
->     if (current->pgrp == fs_info->devfsd_pgrp) return (TRUE);
->     return (FALSE);
-> }   /*  End Function is_devfsd_or_child  */
->
+Le sam 12/07/2003 =E0 12:09, Nicolas Mailhot a =E9crit :
+> [ Please CC me on answers since I'm not on the list ]
+>=20
+> Hi,
+>=20
+> 	I've been getting MCE's repeatedly today when trying to compile
+> 2.5.75-bk1 on 2.5.75-bk1 (obviously I didn't have them yesterday when I
+> build my first 2.5.75-bk1 kernel on a 2.4 kernel).
+>=20
+> 	The MCE is always the same (I think) and reads like this :
+>=20
+> CPU 0: Machine Check Exception: 0000000000000004
+> Bank 0: b600000000000135 at 000000000b99b9f0
 
-Andrew, one more for your collection :)
+Well looking in the logs the MCE type is always the same but the actual
+address changes :
 
-The code that did proper check existed in 2.4 and was removed in 2.5 for 
-whatever reason. The patch restores it slightly modified as below.
+/var/log/messages:4371:Jul 12 11:14:08 rousalka kernel: Bank 0:
+b67e800000000135 at 0000000004fc8678
+/var/log/messages:4692:Jul 12 11:22:52 rousalka kernel: Bank 0:
+b607000000000135 at 0000000011b6e7f0
+/var/log/messages:4982:Jul 12 11:29:49 rousalka kernel: Bank 0:
+b674000000000135 at 0000000017c029f0
+/var/log/messages:5265:Jul 12 11:45:15 rousalka kernel: Bank 0:
+b600000000000135 at 000000000b99b9f0
 
-2.4 code looks somewhat unclean in that
+What's the best course of action now ?
 
-- it traverses task list without lock. 
-- is starts from current->real_parent but nothing prevents current be 
-init_task itself. This hung for me on 2.5 during boot. May be 2.4 does 
-something differently.
+--=20
+Nicolas Mailhot
 
-Comments?
+--=-WNMQvqaghERO6cDfFG1t
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
 
-regards
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
--andrey
+iD8DBQA/D+EAI2bVKDsp8g0RApYGAKCQmZDYNXLGl0isehQDeRvaDO/DNgCgtfWF
+0ClGFB+4ewHq9SWiGQCnx1U=
+=tDyS
+-----END PGP SIGNATURE-----
 
-This is trivially reproduced under 2.5 by using devfsd.conf lines
-
-LOOKUP  ^foo$   EXECUTE /home/bor/tmp/devfsd/handler /dev/bar
-LOOKUP  ^bar$   EXECUTE /home/bor/tmp/devfsd/handler /dev/foo
-
-and handler like
-
--------- cut here ----------
-#include <unistd.h>
-
-int
-main(int argc, char **argv, char **envp)
-{
-        if (argc <= 1)
-                return 0;
-
-        setpgrp();
-        return access(argv[1], R_OK);
-}
--------- cut here ----------
-
-and doing ls /dev/foo
---Boundary-00=_d79D/ejDfe6Z1Wd
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="2.5.75-is_devfsd_or_child.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="2.5.75-is_devfsd_or_child.patch"
-
---- linux-2.5.75-smp/fs/devfs/base.c.devfsd_child	2003-07-11 19:41:46.000000000 +0400
-+++ linux-2.5.75-smp/fs/devfs/base.c	2003-07-12 13:51:49.000000000 +0400
-@@ -676,6 +676,7 @@
- #include <linux/smp.h>
- #include <linux/version.h>
- #include <linux/rwsem.h>
-+#include <linux/sched.h>
- 
- #include <asm/uaccess.h>
- #include <asm/io.h>
-@@ -1325,8 +1326,20 @@ static void free_dentry (struct devfs_en
- 
- static int is_devfsd_or_child (struct fs_info *fs_info)
- {
--    if (current == fs_info->devfsd_task) return (TRUE);
--    if (current->pgrp == fs_info->devfsd_pgrp) return (TRUE);
-+    struct task_struct *p = current;
-+
-+    if (p == fs_info->devfsd_task) return (TRUE);
-+    if (p->pgrp == fs_info->devfsd_pgrp) return (TRUE);
-+    read_lock(&tasklist_lock);
-+    for ( ; p != &init_task; p = p->real_parent)
-+    {
-+	if (p == fs_info->devfsd_task)
-+	{
-+	    read_unlock (&tasklist_lock);
-+	    return (TRUE);
-+	}
-+    }
-+    read_unlock (&tasklist_lock);
-     return (FALSE);
- }   /*  End Function is_devfsd_or_child  */
- 
-
---Boundary-00=_d79D/ejDfe6Z1Wd--
+--=-WNMQvqaghERO6cDfFG1t--
 

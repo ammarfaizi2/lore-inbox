@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262211AbTEURZO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 13:25:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbTEURZO
+	id S262220AbTEURbf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 13:31:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbTEURbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 13:25:14 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:28934 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262211AbTEURZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 13:25:13 -0400
-Date: Wed, 21 May 2003 18:38:14 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ross Biro <rossb@google.com>
-Cc: linux-kernel@vger.kernel.org
+	Wed, 21 May 2003 13:31:35 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:26131 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S262220AbTEURbe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 13:31:34 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Christoph Hellwig <hch@infradead.org>, Ross Biro <rossb@google.com>
 Subject: Re: Patch FIOFLUSH
-Message-ID: <20030521183814.A1291@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ross Biro <rossb@google.com>, linux-kernel@vger.kernel.org
-References: <3ECBB723.7070707@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Wed, 21 May 2003 19:44:19 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <3ECBB723.7070707@google.com> <20030521183814.A1291@infradead.org>
+In-Reply-To: <20030521183814.A1291@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3ECBB723.7070707@google.com>; from rossb@google.com on Wed, May 21, 2003 at 10:28:03AM -0700
+Message-Id: <200305211944.19442.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 21, 2003 at 10:28:03AM -0700, Ross Biro wrote:
-> 
-> Here's a patch against 2.4.18 that allows user space to flush a file 
-> from both the buffer cache and the page cache.  The reason for flushing 
-> a file from the caches is to the read the file again to verify it made 
-> it to more permanent storage correctly.  Someone may want to add 
-> similiar code to 2.5.
+On Wednesday 21 May 2003 19:38, Christoph Hellwig wrote:
 
-This came up at SGI some time ago and the right solution is _not_ a new
-ioctl but fadvise(..., POSIX_FADV_DONTNEED).   I'll submit a clean backport
-once 2.4.21 is out (if that will ever happen)
+Hi Christoph,
 
+> This came up at SGI some time ago and the right solution is _not_ a new
+> ioctl but fadvise(..., POSIX_FADV_DONTNEED).   I'll submit a clean backport
+could you please send it to me even 2.4.21 is not out? Thank you.
+
+> once 2.4.21 is out (if that will ever happen)
+ROTFL! :-)
+
+ciao, Marc

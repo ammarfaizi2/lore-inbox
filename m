@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266142AbVBDSd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVBDRjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266142AbVBDSd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 13:33:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264797AbVBDSaz
+	id S261561AbVBDRjS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 12:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265309AbVBDRfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 13:30:55 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:52676 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S264938AbVBDS3t (ORCPT
+	Fri, 4 Feb 2005 12:35:40 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:56007 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263450AbVBDRb4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 13:29:49 -0500
-Message-Id: <200502041713.j14HDkjp006327@laptop11.inf.utfsm.cl>
-To: jerome lacoste <jerome.lacoste@gmail.com>
-cc: Bernd Eckenfels <ecki-news2005-01@lina.inka.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Huge unreliability - does Linux have something to do with it? 
-In-Reply-To: Message from jerome lacoste <jerome.lacoste@gmail.com> 
-   of "Fri, 04 Feb 2005 12:28:07 BST." <5a2cf1f60502040328aaf6c9f@mail.gmail.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Fri, 04 Feb 2005 14:13:46 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.4 (inti.inf.utfsm.cl [200.1.19.1]); Fri, 04 Feb 2005 15:29:31 -0300 (CLST)
+	Fri, 4 Feb 2005 12:31:56 -0500
+From: David Howells <dhowells@redhat.com>
+To: torvalds@osdl.org, akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] FRV: Make the bit finding functions take const pointers
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
+Date: Fri, 04 Feb 2005 17:31:50 +0000
+Message-ID: <28761.1107538310@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jerome lacoste <jerome.lacoste@gmail.com> said:
-> Bernd Eckenfels <ecki-news2005-01@lina.inka.de> said:
-> >> Could a hardware failure look like bad sectors to fsck?
 
-> > A failure of the bus or a former sporadic error can cause defective fs, but
-> > normally you have a read error in fsck no structure error.
-> > 
-> > Are you using hdparm? is the system perhaps overheating or overclocked?
+The attached patch makes the bit finding functions in asm/bitops.h take const
+pointers since they don't modify what they access.
 
-> no overclock
-> hdparm is used but I cannot tell you exactly what the config is (now
-> machine has been running memtest for 1.5 hour). I don't think I use
-> special option: probably the defaults in my config file (mult_sect 16,
-> dma on, write_cache off).
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+warthog>diffstat -p1 frv-findbit-const-2611rc3.diff 
+ include/asm-frv/bitops.h |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-There are combinations of IDE + disk that slowly corrupt filesystems with
-DMA on, if the default setting is DMA off _don't touch it_. Not all bad
-combinations are catched by the code in the kernel (intel + some Western
-Digital disk is what drove me up the wall until I disabled DMA).
-
-What machine is this, what disk?
-
-> overheating: perhaps. The machine is hot and running many hours per
-> day (usually 12-16). It s running the fans very often, but it's always
-> been like that. I've tried to control the fan, but then the
-> temperature goes high very quickly. So I let the fans run.
-
-Wise decision.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+diff -uNrp /warthog/kernels/linux-2.6.11-rc3/include/asm-frv/bitops.h linux-2.6.11-rc3-frv/include/asm-frv/bitops.h
+--- /warthog/kernels/linux-2.6.11-rc3/include/asm-frv/bitops.h	2005-02-04 11:50:21.000000000 +0000
++++ linux-2.6.11-rc3-frv/include/asm-frv/bitops.h	2005-02-04 14:24:36.000000000 +0000
+@@ -178,9 +178,9 @@ extern int find_next_bit(const unsigned 
+ #define find_first_zero_bit(addr, size) \
+         find_next_zero_bit((addr), (size), 0)
+ 
+-static inline int find_next_zero_bit (void * addr, int size, int offset)
++static inline int find_next_zero_bit(const void *addr, int size, int offset)
+ {
+-	unsigned long *p = ((unsigned long *) addr) + (offset >> 5);
++	const unsigned long *p = ((const unsigned long *) addr) + (offset >> 5);
+ 	unsigned long result = offset & ~31UL;
+ 	unsigned long tmp;
+ 
+@@ -277,11 +277,11 @@ static inline int ext2_test_bit(int nr, 
+ #define ext2_find_first_zero_bit(addr, size) \
+         ext2_find_next_zero_bit((addr), (size), 0)
+ 
+-static inline unsigned long ext2_find_next_zero_bit(void *addr,
++static inline unsigned long ext2_find_next_zero_bit(const void *addr,
+ 						    unsigned long size,
+ 						    unsigned long offset)
+ {
+-	unsigned long *p = ((unsigned long *) addr) + (offset >> 5);
++	const unsigned long *p = ((const unsigned long *) addr) + (offset >> 5);
+ 	unsigned long result = offset & ~31UL;
+ 	unsigned long tmp;
+ 

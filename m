@@ -1,64 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274875AbRJ2NWa>; Mon, 29 Oct 2001 08:22:30 -0500
+	id <S274990AbRJ2N0A>; Mon, 29 Oct 2001 08:26:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274653AbRJ2NWU>; Mon, 29 Oct 2001 08:22:20 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:25731 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S274951AbRJ2NWI>; Mon, 29 Oct 2001 08:22:08 -0500
-Message-ID: <001a01c1607d$06aca200$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Laurent Deniel" <deniel@worldnet.fr>
-In-Reply-To: <3BDC3F24.4D66FA0A@worldnet.fr>
-Subject: Re: Ethernet NIC dual homing
-Date: Mon, 29 Oct 2001 14:24:24 +0100
+	id <S275003AbRJ2NZu>; Mon, 29 Oct 2001 08:25:50 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:38159 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S274990AbRJ2NZk>; Mon, 29 Oct 2001 08:25:40 -0500
+Date: Mon, 29 Oct 2001 11:25:57 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Hrishi <hrishi@mediaibc.com>
+Cc: <linux-kernel@vger.kernel.org>, Sven Goethel <sgoethel@jausoft.com>
+Subject: Re: will linux getting an illegal piece of software ? (political)
+In-Reply-To: <200110291323.SAA03972@voodoo.pinkpoodles.com>
+Message-ID: <Pine.LNX.4.33L.0110291125380.22127-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Laurent Deniel" <deniel@worldnet.fr>
-To: <linux-kernel@vger.kernel.org>
-Sent: Sunday, October 28, 2001 6:23 PM
-Subject: Ethernet NIC dual homing
-
-
+On Mon, 29 Oct 2001, Hrishi wrote:
+> On Monday 29 October 2001 05:49 pm, Sven Goethel wrote:
+> > (a lot of stuff)
 >
-> Hi,
->
-> Does someone know if there is some work in the area of NIC dual homing ?
-> By NIC dual homing, I mean two network devices (e.g. Ethernet) that are
-> connected to the same IP subnet but only one is active (at IP level) at a
-> time. When a faulty condition is detected (e.g. link down or lack of I/O),
-> the kernel switches to the second NIC. Such a similar feature exists in
-> Tru64 UNIX (NetRAIN), HP-UX (APA) and Solaris (Sun Cluster pnmd).
-> What is the best way to handle that in Linux ? I thought about an IP
-virtual
-> device that could be mapped on two eternet NIC and some ioctl to switch
-from
-> one NIC to another or a generic virtual ethernet driver that could handle
-two
-> real ethernet drivers ?
+> IMO, right topic, wrong list.
 
-Well, it shouldn't be too hard to modify the bonding driver to do something
-like this (?), and instead the most work should (and will) go into the
-user-space daemon. That way it would be possible not only to detect faulty
-NIC hardware, but also to detect for example a faulty network segment.
+Maybe I should start a web forum or discussion list
+for thefreeworld.net ;)
 
-Anyone wants to take a shot on this? I'm gonna look into it a bit, because
-it sounds like a nice project for me as a linux-kernel-programmer newbie.
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
 
-_____________________________________________________
-|  Martin Eriksson <nitrax@giron.wox.org>
-|  MSc CSE student, department of Computing Science
-|  Umeå University, Sweden
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

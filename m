@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272895AbTG3OLY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 10:11:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272894AbTG3OLL
+	id S272910AbTG3ORZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 10:17:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272894AbTG3ORY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 10:11:11 -0400
-Received: from ifi.informatik.uni-stuttgart.de ([129.69.211.1]:45523 "EHLO
-	ifi.informatik.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id S272904AbTG3OIp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 10:08:45 -0400
-Date: Wed, 30 Jul 2003 16:07:22 +0200
-From: "Marcelo E. Magallon" <mmagallo@debian.org>
-To: linux-kernel@vgers.kernel.org
-Subject: [PATCH] [2.4] AGPGART maximum memory computed incorrectly
-Message-ID: <20030730140722.GB9076@informatik.uni-stuttgart.de>
-Mail-Followup-To: "Marcelo E. Magallon" <mmagallo@debian.org>,
-	linux-kernel@vgers.kernel.org
+	Wed, 30 Jul 2003 10:17:24 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:34756 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S272910AbTG3ORF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 10:17:05 -0400
+Date: Wed, 30 Jul 2003 07:16:47 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: M?ns Rullg?rd <mru@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BK2CVS up to date
+Message-ID: <20030730141647.GA21513@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	M?ns Rullg?rd <mru@users.sourceforge.net>,
+	linux-kernel@vger.kernel.org
+References: <20030730124515.GA19748@work.bitmover.com> <yw1xispknohi.fsf@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Operating-System: Linux techno 2.4.21-ck1
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <yw1xispknohi.fsf@users.sourceforge.net>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Jul 30, 2003 at 03:16:57PM +0200, M?ns Rullg?rd wrote:
+> Larry McVoy <lm@bitmover.com> writes:
+> 
+> > There was a pause in the updating of the 2.5 CVS tree exported from the
+> > 2.5 BK tree; it was related to the move to the new colo.  The trees are
+> > up to date now and I suspect that Ben's BK2SVN mirror will be updated
+> > soon as well.
+> 
+> That reminds me that (last time I checked (last week)) the CVS tag for
+> 2.4.21 was missing.  There's only a tag for 2.4.21-pre8, which is
+> equal to 2.4.21, but, IMHO, the final version should have a tag.
 
- the following patch fixes a problem that shows up on machines with 4GB
- of physical RAM.  The operation num_physpages << PAGE_SHIFT overflows
- and the maximum memory is reported as 0.  Please apply before releasing
- 2.4.22.
+$ rlog ChangeSet,v | more
 
- Thanks,
-
- Marcelo
-
---- linux-2.4.22-pre6-ac1+p4+4gb/drivers/char/agp/agpgart_be.c.orig	2003-07-30 12:26:18.000000000 +0200
-+++ linux-2.4.22-pre6-ac1+p4+4gb/drivers/char/agp/agpgart_be.c	2003-07-30 12:29:03.000000000 +0200
-@@ -5655,7 +5655,11 @@
- {
- 	long memory, index, result;
- 
--	memory = (num_physpages << PAGE_SHIFT) >> 20;
-+#if PAGE_SHIFT < 20
-+	memory = num_physpages >> (20 - PAGE_SHIFT);
-+#else
-+	memory = num_physpages << (PAGE_SHIFT - 20);
-+#endif
- 	index = 1;
- 
- 	while ((memory > maxes_table[index].mem) &&
+RCS file: ChangeSet,v
+Working file: ChangeSet
+head: 1.3660
+branch:
+locks: strict
+access list:
+symbolic names:
+        v2_4_22-pre8: 1.3645
+        v2_4_22-pre7: 1.3621
+        v2_4_22-pre6: 1.3577
+        v2_4_22-pre5: 1.3538
+        v2_4_22-pre1: 1.3211
+        v2_4_21: 1.3190
+...
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

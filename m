@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265851AbSL3Uc3>; Mon, 30 Dec 2002 15:32:29 -0500
+	id <S265843AbSL3Uby>; Mon, 30 Dec 2002 15:31:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265995AbSL3Uc0>; Mon, 30 Dec 2002 15:32:26 -0500
-Received: from pD9E460C6.dip.t-dialin.net ([217.228.96.198]:25820 "EHLO xpc823")
-	by vger.kernel.org with ESMTP id <S265851AbSL3UcW>;
-	Mon, 30 Dec 2002 15:32:22 -0500
-Message-ID: <3E10AFE7.6030301@elitedvb.net>
-Date: Mon, 30 Dec 2002 21:43:19 +0100
-From: Felix Domke <tmbinc@elitedvb.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Indention - why spaces?
-References: <20021230122857.GG10971@wiggy.net> <200212301249.gBUCnXrV001099@darkstar.example.net> <20021230131725.GA16072@suse.de> <32797.62.98.199.18.1041274402.squirrel@webmail.roma2.infn.it> <20021230190034.GG3143@conectiva.com.br> <3E109EF1.5040901@WirelessNetworksInc.com>
-In-Reply-To: <3E109EF1.5040901@WirelessNetworksInc.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265851AbSL3Uby>; Mon, 30 Dec 2002 15:31:54 -0500
+Received: from ulima.unil.ch ([130.223.144.143]:34213 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id <S265843AbSL3Ubx>;
+	Mon, 30 Dec 2002 15:31:53 -0500
+Date: Mon, 30 Dec 2002 21:40:17 +0100
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: Max Valdez <maxvaldez@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: module-init-tools-0.9.7 on MDK 9.0
+Message-ID: <20021230204017.GA8809@ulima.unil.ch>
+References: <1041280171.11695.51.camel@garaged.fis.unam.mx>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YiEDa0DAkWCtVeE4"
+Content-Disposition: inline
+In-Reply-To: <1041280171.11695.51.camel@garaged.fis.unam.mx>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
 
-> This problem is as old as the typewriter itself.  The trouble is that 
-> a Tab character doesn't have a fixed size - some set it to 3 
-> characters wide, some to 4 some to 8, or whatever.
->
-> The 'indent' program was written a couple of decades ago, to pretty 
-> print C code.  It has a 'GNU' standard, but I'm not aware of a 'Linux' 
-> standard.  Anyhoo, the only way to prevent indentation wars is to use 
-> spaces, not tabs and to set 'diff' to ignore white space when 
-> comparing files... 
+--YiEDa0DAkWCtVeE4
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Anyhow, sorry, i really can't understand that. What could be more 
-"indention war preventing" that letting everybody use his own indention 
-width?
+On Mon, Dec 30, 2002 at 02:29:31PM -0600, Max Valdez wrote:
+> Hi all:
+>=20
+> Again, in the process of compiling and installing kernel 2.5.53, I got
+> the tip of module-init-tools-0.9.7 needed (from Frank Davis, Thanks!),
+> but when i try to install it, I get this error:
+>=20
+> gcc  -g -O2  -o insmod.static -static insmod.o
+> /usr/bin/ld: cannot find -lc
+> collect2: ld returned 1 exit status
+> make: *** [insmod.static] Error 1
 
-There are two main aspects of *not* using tabs:
- - editors mess them up. but: use an *editor*. not a word processor. 
-kernel source's line endings are \n, not \r\n. some (windows) editors 
-mess them up.  and nobody cares (and that's ok that way. nobody WANTS to 
-use an editor which messes up so simple things).
-some editors don't show tabs. well. this leads to a mixup of tabs <-> 
-spaces. but if you really fear about this, just use an editor which 
-supports showing tabs. joe doesn't show spaces (by default?), but i 
-never missed that, for example.
- - aligning. well, just use spaces for aligning, tabs for indention. two 
-different things. two different characters.
+Just install glibc-static-devel...
 
-TAB characters simply *have* no assigned width. that's the reason for 
-them. they are not a macro for 3/4/8 spaces.
+	Gr=E9goire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
 
-not using spaces, in my eyes, just *takes* a possibility to 
-platform-independant format sourcecode on the given screensize. it gives 
-you nothing.
+--YiEDa0DAkWCtVeE4
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-and as they might be some pitfalls (wrong aligning etc.), you can still 
-set the tabwidth to the one of the author. in that case, you didn't win 
-anything by using tabs, but you didn't loose either.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-again, i was just *wondering* why everybody is using spaces, and still, 
-i can't find a good reason for that. if anybody shows me that, i'll 
-maybe start using spaces (again).
+iD8DBQE+EK8qFDWhsRXSKa0RAg18AJ0V0yMmrghEsr4MOSNtZ9unRsYjtQCdHr9x
+Op8h03dZ8iwt682JmA/TEdM=
+=/F+n
+-----END PGP SIGNATURE-----
 
-felix
-
-
-
+--YiEDa0DAkWCtVeE4--

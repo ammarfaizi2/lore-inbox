@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312134AbSDEDAv>; Thu, 4 Apr 2002 22:00:51 -0500
+	id <S312141AbSDEDDV>; Thu, 4 Apr 2002 22:03:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312169AbSDEDAl>; Thu, 4 Apr 2002 22:00:41 -0500
-Received: from to-velocet.redhat.com ([216.138.202.10]:5879 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S312134AbSDEDAW>; Thu, 4 Apr 2002 22:00:22 -0500
-Date: Thu, 4 Apr 2002 22:00:22 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>, joeja@mindspring.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: faster boots?
-Message-ID: <20020404220022.F24914@redhat.com>
-In-Reply-To: <3CACEF18.CE742314@zip.com.au> <200204050218.g352ILY32221@vindaloo.ras.ucalgary.ca> <3CAD1142.82527917@zip.com.au>
-Mime-Version: 1.0
+	id <S312169AbSDEDDL>; Thu, 4 Apr 2002 22:03:11 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35858 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312141AbSDEDC6>; Thu, 4 Apr 2002 22:02:58 -0500
+Subject: Re: [QUESTION] How to use interruptible_sleep_on() without races ?
+To: jt@hpl.hp.com
+Date: Fri, 5 Apr 2002 04:20:04 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux kernel mailing list),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        jgarzik@mandrakesoft.com (Jeff Garzik)
+In-Reply-To: <20020404185232.B27209@bougret.hpl.hp.com> from "Jean Tourrilhes" at Apr 04, 2002 06:52:32 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16tKGi-0007Sy-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 04, 2002 at 06:51:46PM -0800, Andrew Morton wrote:
-> Still.  Joe tells me (offlist) that his machine is taking
-> ages just to get to the "starting init" stage.
+> 	if(my_condition == TRUE)
+> 		interruptible_sleep_on(&my_wait_queue);
+> ----------------------------------
+> 
+> 	Then, at some point, a timer/BH/soft-irq will do :
+> -------------------------------
+> 	my_condition == FALSE;
+> 	wake_up_interruptible(&my_wait_queue);
+> 
+> 	I looked at it in every possible way, and I don't see how it
+> is possible to use safely interruptible_sleep_on(). And I wonder :
 
-I find that on heavily scsi systems: one machine spins each of 13 disks 
-up sequentially.  This makes the initial boot take 3-5 minutes before 
-init even gets its foot in the door.  If someone made a patch to spin 
-up scsi disks on the first access, I'd gladly give it a test. ;-)
+It isnt for interrupt stuff - its going back to the old kernel behaviour
+when it used to be usable
 
-		-ben
--- 
-"A man with a bass just walked in,
- and he's putting it down
- on the floor."
+> interruptible_sleep_on() but use some complex code around schedule()
+> (and there must be a simpler and cleaner solution for such a simple
+> problem).
+
+Actually the code it uses is clean, slightly verbose but clean. It puts
+the phases in the right order and that fixes the race cleanly. You
+could just use completions in that case or you could use
+
+	wait_event_interruptible(&my_wait_queue, my_condition==FALSE)
+
+which is a macro that generates the right stuff.
+
+Alan

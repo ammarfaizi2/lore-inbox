@@ -1,44 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269325AbUJFRSy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269332AbUJFRTn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269325AbUJFRSy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 13:18:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269310AbUJFRQu
+	id S269332AbUJFRTn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 13:19:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269328AbUJFRTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 13:16:50 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:17323 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269286AbUJFRQb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 13:16:31 -0400
-Subject: Re: Problem - install scsi adapter and scanner
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: jurek Ela Tryjarscy <jurekt@kabatnet.waw.pl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41618A69.7050706@kabatnet.waw.pl>
-References: <41618A69.7050706@kabatnet.waw.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1097079242.29251.55.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 06 Oct 2004 17:14:02 +0100
+	Wed, 6 Oct 2004 13:19:17 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:28371 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S269318AbUJFRSu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 13:18:50 -0400
+Message-Id: <200410061718.i96HI9606629@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Ingo Molnar'" <mingo@elte.hu>
+Cc: "'Ingo Molnar'" <mingo@redhat.com>, <linux-kernel@vger.kernel.org>,
+       "'Andrew Morton'" <akpm@osdl.org>,
+       "'Nick Piggin'" <nickpiggin@yahoo.com.au>
+Subject: RE: Default cache_hot_time value back to 10ms
+Date: Wed, 6 Oct 2004 10:18:22 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcSreJ7r80w/4muGQg6nBEuqOAE2igATAQow
+In-Reply-To: <20041006074815.GC1137@elte.hu>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-10-04 at 18:37, jurek Ela Tryjarscy wrote:
-> Hi ,
-> In my box I have Redhat 9.
-> I must connect via SCSI Interface Umax Mirage II scanner.
-> SCSI adapter is Acard AEC-6712TU.
-> 
-> System logs contain:
-> 
-> Oct  4 19:19:05 localhost kernel:    ACARD AEC-671X PCI Ultra/W SCSI-3 
-> Host Adapter: 0    IO:1000, IRQ:11.
-> Oct  4 19:19:05 localhost kernel:          ID:  7  Host Adapter
-> Oct  4 19:19:05 localhost kernel: scsi0 : ACARD AEC-6710/6712/67160 PCI 
-> Ultra/W/LVD SCSI-3 Adapter Driver V2.6+ac
+> Chen, Kenneth W wrote on Tuesday, October 05, 2004 10:31 AM
+> > We have experimented with similar thing, via bumping up sd->cache_hot_time to
+> > a very large number, like 1 sec.  What we measured was a equally low throughput.
+> > But that was because of not enough load balancing.
+>
+> Since we are talking about load balancing, we decided to measure various
+> value for cache_hot_time variable to see how it affects app performance. We
+> first establish baseline number with vanilla base kernel (default at 2.5ms),
+> then sweep that variable up to 1000ms.  All of the experiments are done with
+> Ingo's patch posted earlier.  Here are the result (test environment is 4-way
+> SMP machine, 32 GB memory, 500 disks running industry standard db transaction
+> processing workload):
+>
+> cache_hot_time  | workload throughput
+> --------------------------------------
+>          2.5ms  - 100.0   (0% idle)
+>          5ms    - 106.0   (0% idle)
+>          10ms   - 112.5   (1% idle)
+>          15ms   - 111.6   (3% idle)
+>          25ms   - 111.1   (5% idle)
+>          250ms  - 105.6   (7% idle)
+>          1000ms - 105.4   (7% idle)
+>
+> Clearly the default value for SMP has the worst application throughput (12%
+> below peak performance).  When set too low, kernel is too aggressive on load
+> balancing and we are still seeing cache thrashing despite the perf fix.
+> However, If set too high, kernel gets too conservative and not doing enough
+> load balance.
 
-The card didn't see the scanner, check your cabling/setup.
+Ingo Molnar wrote on Wednesday, October 06, 2004 12:48 AM
+> could you please try the test in 1 msec increments around 10 msec? It
+> would be very nice to find a good formula and the 5 msec steps are too
+> coarse. I think it would be nice to test 7,9,11,13 msecs first, and then
+> the remaining 1 msec slots around the new maximum. (assuming the
+> workload measurement is stable.)
 
-Alan
+I should've post the whole thing yesterday, we had measurement of 7.5 and
+12.5 ms.  Here is the result (repeating 5, 10, 15 for easy reading).
+
+ 5   ms 106.0
+ 7.5 ms 110.3
+10   ms 112.5
+12.5 ms 112.0
+15   ms 111.6
+
+
+> > This value was default to 10ms before domain scheduler, why does domain
+> > scheduler need to change it to 2.5ms? And on what bases does that decision
+> > take place?  We are proposing change that number back to 10ms.
+>
+> agreed. What value does cache_decay_ticks have on your box?
+
+
+I see all the fancy calculation with cache_decay_ticks on x86, but nobody
+actually uses it in the domain scheduler.  Anyway, my box has that value
+hard coded to 10ms (ia64).
+
+- Ken
+
 

@@ -1,38 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269737AbUICSed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269729AbUICSaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269737AbUICSed (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 14:34:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269704AbUICSeQ
+	id S269729AbUICSaA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 14:30:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269718AbUICS3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 14:34:16 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:21889 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S269519AbUICSbV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 14:31:21 -0400
-Date: Fri, 3 Sep 2004 14:31:14 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Need to configure AT/LANTIC NE2000 ethernet
-Message-ID: <Pine.LNX.4.53.0409031427100.7534@chaos>
+	Fri, 3 Sep 2004 14:29:22 -0400
+Received: from dfw-gate1.raytheon.com ([199.46.199.230]:21939 "EHLO
+	dfw-gate1.raytheon.com") by vger.kernel.org with ESMTP
+	id S269729AbUICS20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 14:28:26 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q9
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OFF6D4A65F.6B636459-ON86256F04.00651ACF@raytheon.com>
+From: Mark_H_Johnson@Raytheon.com
+Date: Fri, 3 Sep 2004 13:28:03 -0500
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 09/03/2004 01:28:05 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>a quick suggestion: could you add this near the top of sched.c (below
+>the #include lines):
+>
+> #define static
+>
+>this will turn off all inlining and makes the scheduler-internal
+>functions visible. ....
 
-Anybody know where Donald Becker's atlantic.c program is??
-I modified ne.c to recognize a (ZIATEC) card, the correct IRQ was
-found, etc. Linux is perfectly happy.... but the board
-doesn't send or receive anything. Probably the AUI isn't
-turned on.
+I did this and built a broken kernel. I panics very early in start up.
+I also got warnings like
+kernel/sched.c: In function __might_sleep
+kernel/sched.c:4974: warning: prev_jiffy might be used uninitialized in
+this function
+which if I read the code right should be a local static variable.
 
-ZIATEC seems to have been gobbled up and I need to replace the
-home-brew software in about 1000 systems with Linux.
+I suppose you meant
+ #define inline
+instead (which throws a warning about a duplicate definition; can I
+ignore it?)
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
 

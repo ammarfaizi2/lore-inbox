@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265318AbSKAQk3>; Fri, 1 Nov 2002 11:40:29 -0500
+	id <S265071AbSKAQha>; Fri, 1 Nov 2002 11:37:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265325AbSKAQk3>; Fri, 1 Nov 2002 11:40:29 -0500
-Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:11516 "EHLO
-	swan.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S265318AbSKAQk2>; Fri, 1 Nov 2002 11:40:28 -0500
-Date: Fri, 1 Nov 2002 09:40:05 -0800 (PST)
-From: James Simmons <jsimmons@infradead.org>
-X-X-Sender: <jsimmons@maxwell.earthlink.net>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [BK console] console updates.
-In-Reply-To: <20021030215258.A10037@infradead.org>
-Message-ID: <Pine.LNX.4.33.0211010937050.6296-100000@maxwell.earthlink.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265076AbSKAQha>; Fri, 1 Nov 2002 11:37:30 -0500
+Received: from skyline.vistahp.com ([65.67.58.21]:7650 "HELO
+	escalade.vistahp.com") by vger.kernel.org with SMTP
+	id <S265071AbSKAQh3>; Fri, 1 Nov 2002 11:37:29 -0500
+Message-ID: <20021101164421.22388.qmail@escalade.vistahp.com>
+References: <Pine.GSO.4.21.0211011004050.20586-100000@weyl.math.psu.edu>
+            <Pine.LNX.4.44.0211011108320.10880-100000@ibm-ps850.purdueriots.com>
+            <20021101083243.E22577@work.bitmover.com>
+In-Reply-To: <20021101083243.E22577@work.bitmover.com>
+From: "Brian Jackson" <brian-kernel-list@mdrx.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux without Linus was Re: What's left over.
+Date: Fri, 01 Nov 2002 10:44:21 -0600
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Larry McVoy writes: 
 
-> On Wed, Oct 30, 2002 at 01:56:38PM -0800, James Simmons wrote:
-> > I doubt this code will go into 2.5.X but it is avaiable for anyone to play
-> > with it.
->
-> Why?  I don't want to live another release with the old, crappy console,
-> and you've been working on this during almost all of 2.4 now..
+> On Fri, Nov 01, 2002 at 11:16:20AM -0500, Patrick Finnegan wrote:
+>> On Fri, 1 Nov 2002, Alexander Viro wrote:
+>> > It's not a fscking public service.  Linus has full control over his
+>> > tree.  You have equally full control over your tree.  Linus can't
+>> > tell you what patches to apply in your tree.  You can't tell Linus
+>> > what patches he should apply to his. 
+>> 
+>> I'm sorry it _is_ a public service.  Once tens of people started
+>> contributing to it, it became one.  
+> 
+> Pat, the public service that Linus provides is doing exactly what he does.
+> He's acting as a filter.  You may or may not agree with the things he
+> lets in or does not.  That's fine, if you think you can do a better job
+> you have that option.  i can imagine your answer is "I think he's doing
+> a fine job except for my project which isn't getting in" or something
+> like that.  That's a bummer for you but keep the big picture in mind.
+> Linus is the glue which keeps the Linux world from turning into the
+> BSD mess.  He is the acknowledged leader.  Without him we have a bunch
+> of semi-leaders, with him we have a real leader.  The fact that Linus
+> is here, leading this herd of cats, is a gift to the world.  Try and
+> imagine Linux without him, it's not a pretty picture. 
+> 
 
-Give my console diff a try.
+What something like:
+Virox
+Hellwigix
+Alanix
+KHix 
 
-http://phoenix.infradead.org/~jsimmons/console.diff.gz
+eeewww, I can't bring myself to think about it 
 
-Its against 2.5.45. It has 3 bugs I know of.
-
-1) Switch back to X messes up the screen.
-
-2) I had to disable the beeper. I have to think of a proper solution to
-   that problem with Vojtech.
-
-3) Software suspend is broken because the console has moved from the
-   global int currcons to private struct vc_data to represent a VC.
-   BTW what was the author of that code trying to do any ways?
-
-
+> So figure out a way to work with him, don't stress him out, he's a
+> critical resource without a viable replacement.
+> -- 
+> ---
+> Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+ 

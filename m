@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318222AbSHIKK5>; Fri, 9 Aug 2002 06:10:57 -0400
+	id <S318223AbSHIKRw>; Fri, 9 Aug 2002 06:17:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318223AbSHIKK5>; Fri, 9 Aug 2002 06:10:57 -0400
-Received: from ns.suse.de ([213.95.15.193]:41221 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318222AbSHIKK4>;
-	Fri, 9 Aug 2002 06:10:56 -0400
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: klibc development release
-References: <aivdi8$r2i$1@cesium.transmeta.com>
-X-Yow: It's hard being an ARTIST!!
-From: Andreas Schwab <schwab@suse.de>
-Date: Fri, 09 Aug 2002 12:14:38 +0200
-In-Reply-To: <aivdi8$r2i$1@cesium.transmeta.com> ("H. Peter Anvin"'s message
- of "8 Aug 2002 20:39:52 -0700")
-Message-ID: <jek7n049v5.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.3.50 (ia64-suse-linux)
+	id <S318227AbSHIKRw>; Fri, 9 Aug 2002 06:17:52 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:7697 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S318223AbSHIKRv>; Fri, 9 Aug 2002 06:17:51 -0400
+Date: Fri, 9 Aug 2002 12:21:30 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Peter Samuelson <peter@cadcamlab.org>
+cc: Andi Kleen <ak@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: 64bit clean drivers was Re: Linux 2.4.20-pre1
+In-Reply-To: <20020808174227.GE380@cadcamlab.org>
+Message-ID: <Pine.LNX.4.44.0208091204360.28515-100000@serv>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
+Hi,
 
-|> I would particularly appreciate portability comments, since I'm flying
-|> blind on non-i386 machines (anyone want to send me hardware?),
+On Thu, 8 Aug 2002, Peter Samuelson wrote:
 
-You don't need hardware, just use a cross-compiler.
+> > Boolean is simple, what about tristate symbols? How does it modify
+> > the input range?
+>
+> !y == n
+> !m == n
+> !n == y
+>
+> To me these are the only semantics that make any sense.  Certainly if
+> it goes in the kernel it needs to be added to config-language.txt.
 
-Andreas.
+I would define !m as m, e.g. it would allow
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+dep_tristate "" CONFIG_OLD !$CONFIG_NEW
+dep_tristate "" CONFIG_NEW !$CONFIG_OLD
+
+This means only a single driver could be build into the kernel, but both
+could be compiled as module.
+If we had real expression there, your semantics could easily be described
+as $CONFIG!=n, but it wouldn't be possible to describe my semantics.
+
+bye, Roman
+

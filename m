@@ -1,294 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261416AbSJCWpC>; Thu, 3 Oct 2002 18:45:02 -0400
+	id <S261439AbSJCW6P>; Thu, 3 Oct 2002 18:58:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261415AbSJCWpB>; Thu, 3 Oct 2002 18:45:01 -0400
-Received: from holomorphy.com ([66.224.33.161]:17099 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261405AbSJCWoM>;
-	Thu, 3 Oct 2002 18:44:12 -0400
-Date: Thu, 3 Oct 2002 15:48:59 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-fsdevel@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu, mochel@osdl.org,
-       akpm@zip.com.au
-Subject: move ramfs' pure dcache manipulations into libfs.c
-Message-ID: <20021003224859.GF12432@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-	viro@math.psu.edu, mochel@osdl.org, akpm@zip.com.au
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S261444AbSJCW6P>; Thu, 3 Oct 2002 18:58:15 -0400
+Received: from mg01.austin.ibm.com ([192.35.232.18]:53953 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S261439AbSJCW6L>; Thu, 3 Oct 2002 18:58:11 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] EVMS core 3/4: evms_ioctl.h
+Date: Thu, 3 Oct 2002 17:30:46 -0500
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
+References: <02100307370503.05904@boiler.suse.lists.linux.kernel> <p73vg4jr1ic.fsf@oldwotan.suse.de>
+In-Reply-To: <p73vg4jr1ic.fsf@oldwotan.suse.de>
+MIME-Version: 1.0
+Message-Id: <0210031730460A.05904@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The simple_link(), simple_unlink(), simple_rename(), simple_sync_file(),
-simple_rmdir(), and simple_empty() functions are easy to duplicate.
-Basically, I duplicated them in an fs patch of mine, and Linus told me
-to put them in libfs.c
+On Thursday 03 October 2002 10:22, Andi Kleen wrote:
+> Kevin Corry <corryk@us.ibm.com> writes:
+> > +struct evms_plugin_ioctl_pkt {
+> > +	ulong feature_id;
+> > +	s32 feature_command;
+> > +	s32 status;
+> > +	void *feature_ioctl_data;
+> > +};
+>
+> This is passed between user space and kernel space right?
+>
+> For 32bit emulation on 64bit purposes you should always use explicitely
+> sized types (u32/u64 not ulong). The pointer will still need to be
+> converted. Best is to avoid pointers if possible (e.g. couldn't the data
+> just be tacked on here?)
 
-Pat Mochel has acked the changes for driverfs (in that he'll convert
-the stuff over when they're available from libfs), and my hugetlbfs
-implementation was the thing that spurred the whole incident.
+The ulong is definitely wrong. Should be u32.
 
+In general, we are aware of the issues with using 32-bit user-space on top of 
+64-bit kernel. If you take a look at evms.c you will find several functions 
+that get registered at init-time with the 32-to-64-bit ioctl conversion code. 
+These take care of translating pointers from user-space to kernel-space in 
+this situation. EVMS has been tested on ppc64 with success, and we have 
+someone currently running tests on sparc64 to make sure it works there as 
+well.
 
-Here it is,
-Bill
+> > +#define EVMS_EVENT_END_OF_DISCOVERY     0
+> > +
+> > +/**
+> > + * struct evms_notify_pkt - evms event notification ioctl packet
+> > definition + * @command:	0 = unregister, 1 = register
+> > + * @eventry:	event structure
+> > + * @status:	returned operation status
+> > + *
+> > + * ioctl packet definition for EVMS_PROCESS_NOTIFY_EVENT ioctl
+> > + **/
+> > +struct evms_notify_pkt {
+> > +	s32 command;
+> > +	struct evms_event eventry;
+>
+> If eventry contains any potential 64bit stuff it would be best to align it
+> to 64bit explicitely
 
+Correct. In this particular case we are safe, since struct evms_event only 
+contains 32bit fields. But we may switch this around anyway just to be even 
+safer.
 
-diff -Nur --exclude=SCCS --exclude=BitKeeper --exclude=ChangeSet linux-2.5/fs/libfs.c hugetlbfs/fs/libfs.c
---- linux-2.5/fs/libfs.c	Wed Oct  2 20:14:48 2002
-+++ hugetlbfs/fs/libfs.c	Thu Oct  3 15:42:44 2002
-@@ -208,3 +208,73 @@
- 	deactivate_super(s);
- 	return ERR_PTR(-ENOMEM);
- }
-+
-+int simple_link(struct dentry *old_dentry, struct inode *dir, struct dentry *dentry)
-+{
-+	struct inode *inode = old_dentry->d_inode;
-+
-+	inode->i_nlink++;
-+	atomic_inc(&inode->i_count);
-+	dget(dentry);
-+	d_instantiate(dentry, inode);
-+	return 0;
-+}
-+
-+static inline int simple_positive(struct dentry *dentry)
-+{
-+	return dentry->d_inode && !d_unhashed(dentry);
-+}
-+
-+int simple_empty(struct dentry *dentry)
-+{
-+	struct dentry *child;
-+	int ret = 0;
-+
-+	spin_lock(&dcache_lock);
-+	list_for_each_entry(child, &dentry->d_subdirs, d_child)
-+		if (simple_positive(child))
-+			goto out;
-+	ret = 1;
-+out:
-+	spin_unlock(&dcache_lock);
-+	return ret;
-+}
-+
-+int simple_unlink(struct inode *dir, struct dentry *dentry)
-+{
-+	struct inode *inode = dentry->d_inode;
-+
-+	inode->i_nlink--;
-+	dput(dentry);
-+	return 0;
-+}
-+
-+int simple_rmdir(struct inode *dir, struct dentry *dentry)
-+{
-+	if (!simple_empty(dentry))
-+		return -ENOTEMPTY;
-+
-+	dentry->d_inode->i_nlink--;
-+	simple_unlink(dir, dentry);
-+	dir->i_nlink--;
-+	return 0;
-+}
-+
-+int simple_rename(struct inode *old_dir, struct dentry *old_dentry, struct inode *new_dir, struct dentry *new_dentry)
-+{
-+	struct inode *inode;
-+
-+	if (!simple_empty(new_dentry))
-+		return -ENOTEMPTY;
-+
-+	inode = new_dentry->d_inode;
-+	if (inode) {
-+		inode->i_nlink--;
-+		dput(new_dentry);
-+	}
-+	if (S_ISDIR(old_dentry->d_inode->i_mode)) {
-+		old_dir->i_nlink--;
-+		new_dir->i_nlink++;
-+	}
-+	return 0;
-+}
-diff -Nur --exclude=SCCS --exclude=BitKeeper --exclude=ChangeSet linux-2.5/fs/ramfs/inode.c hugetlbfs/fs/ramfs/inode.c
---- linux-2.5/fs/ramfs/inode.c	Wed Oct  2 20:14:49 2002
-+++ hugetlbfs/fs/ramfs/inode.c	Thu Oct  3 15:28:04 2002
-@@ -155,102 +155,6 @@
- 	return ramfs_mknod(dir, dentry, mode | S_IFREG, 0);
- }
- 
--/*
-- * Link a file..
-- */
--static int ramfs_link(struct dentry *old_dentry, struct inode * dir, struct dentry * dentry)
--{
--	struct inode *inode = old_dentry->d_inode;
--
--	inode->i_nlink++;
--	atomic_inc(&inode->i_count);	/* New dentry reference */
--	dget(dentry);		/* Extra pinning count for the created dentry */
--	d_instantiate(dentry, inode);
--	return 0;
--}
--
--static inline int ramfs_positive(struct dentry *dentry)
--{
--	return dentry->d_inode && !d_unhashed(dentry);
--}
--
--/*
-- * Check that a directory is empty (this works
-- * for regular files too, they'll just always be
-- * considered empty..).
-- *
-- * Note that an empty directory can still have
-- * children, they just all have to be negative..
-- */
--static int ramfs_empty(struct dentry *dentry)
--{
--	struct list_head *list;
--
--	spin_lock(&dcache_lock);
--	list = dentry->d_subdirs.next;
--
--	while (list != &dentry->d_subdirs) {
--		struct dentry *de = list_entry(list, struct dentry, d_child);
--
--		if (ramfs_positive(de)) {
--			spin_unlock(&dcache_lock);
--			return 0;
--		}
--		list = list->next;
--	}
--	spin_unlock(&dcache_lock);
--	return 1;
--}
--
--/*
-- * Unlink a ramfs entry
-- */
--static int ramfs_unlink(struct inode * dir, struct dentry *dentry)
--{
--	struct inode *inode = dentry->d_inode;
--
--	inode->i_nlink--;
--	dput(dentry);			/* Undo the count from "create" - this does all the work */
--	return 0;
--}
--
--static int ramfs_rmdir(struct inode * dir, struct dentry *dentry)
--{
--	int retval = -ENOTEMPTY;
--
--	if (ramfs_empty(dentry)) {
--		dentry->d_inode->i_nlink--;
--		ramfs_unlink(dir, dentry);
--		dir->i_nlink--;
--		retval = 0;
--	}
--	return retval;
--}
--
--/*
-- * The VFS layer already does all the dentry stuff for rename,
-- * we just have to decrement the usage count for the target if
-- * it exists so that the VFS layer correctly free's it when it
-- * gets overwritten.
-- */
--static int ramfs_rename(struct inode * old_dir, struct dentry *old_dentry, struct inode * new_dir,struct dentry *new_dentry)
--{
--	int error = -ENOTEMPTY;
--
--	if (ramfs_empty(new_dentry)) {
--		struct inode *inode = new_dentry->d_inode;
--		if (inode) {
--			inode->i_nlink--;
--			dput(new_dentry);
--		}
--		if (S_ISDIR(old_dentry->d_inode->i_mode)) {
--			old_dir->i_nlink--;
--			new_dir->i_nlink++;
--		}
--		error = 0;
--	}
--	return error;
--}
- 
- static int ramfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
- {
-@@ -270,11 +174,6 @@
- 	return error;
- }
- 
--static int ramfs_sync_file(struct file * file, struct dentry *dentry, int datasync)
--{
--	return 0;
--}
--
- static struct address_space_operations ramfs_aops = {
- 	.readpage	= ramfs_readpage,
- 	.writepage	= fail_writepage,
-@@ -286,20 +185,20 @@
- 	.read		= generic_file_read,
- 	.write		= generic_file_write,
- 	.mmap		= generic_file_mmap,
--	.fsync		= ramfs_sync_file,
-+	.fsync		= simple_sync_file,
- 	.sendfile	= generic_file_sendfile,
- };
- 
- static struct inode_operations ramfs_dir_inode_operations = {
- 	.create		= ramfs_create,
- 	.lookup		= simple_lookup,
--	.link		= ramfs_link,
--	.unlink		= ramfs_unlink,
-+	.link		= simple_link,
-+	.unlink		= simple_unlink,
- 	.symlink	= ramfs_symlink,
- 	.mkdir		= ramfs_mkdir,
--	.rmdir		= ramfs_rmdir,
-+	.rmdir		= simple_rmdir,
- 	.mknod		= ramfs_mknod,
--	.rename		= ramfs_rename,
-+	.rename		= simple_rename,
- };
- 
- static struct super_operations ramfs_ops = {
-diff -Nur --exclude=SCCS --exclude=BitKeeper --exclude=ChangeSet linux-2.5/include/linux/fs.h hugetlbfs/include/linux/fs.h
---- linux-2.5/include/linux/fs.h	Wed Oct  2 20:14:55 2002
-+++ hugetlbfs/include/linux/fs.h	Thu Oct  3 15:42:48 2002
-@@ -1290,6 +1290,12 @@
- extern loff_t dcache_dir_lseek(struct file *, loff_t, int);
- extern int dcache_readdir(struct file *, void *, filldir_t);
- extern int simple_statfs(struct super_block *, struct statfs *);
-+extern int simple_link(struct dentry *, struct inode *, struct dentry *);
-+extern int simple_unlink(struct inode *, struct dentry *);
-+extern int simple_rmdir(struct inode *, struct dentry *);
-+extern int simple_rename(struct inode *, struct dentry *, struct inode *, struct dentry *);
-+extern int simple_sync_file(struct file *, struct dentry *, int);
-+extern int simple_empty(struct dentry *);
- extern struct dentry *simple_lookup(struct inode *, struct dentry *);
- extern ssize_t generic_read_dir(struct file *, char *, size_t, loff_t *);
- extern struct file_operations simple_dir_operations;
-diff -Nur --exclude=SCCS --exclude=BitKeeper --exclude=ChangeSet linux-2.5/kernel/ksyms.c hugetlbfs/kernel/ksyms.c
---- linux-2.5/kernel/ksyms.c	Wed Oct  2 20:14:56 2002
-+++ hugetlbfs/kernel/ksyms.c	Thu Oct  3 15:42:48 2002
-@@ -302,6 +302,12 @@
- EXPORT_SYMBOL(simple_lookup);
- EXPORT_SYMBOL(simple_dir_operations);
- EXPORT_SYMBOL(simple_dir_inode_operations);
-+EXPORT_SYMBOL(simple_link);
-+EXPORT_SYMBOL(simple_unlink);
-+EXPORT_SYMBOL(simple_rmdir);
-+EXPORT_SYMBOL(simple_rename);
-+EXPORT_SYMBOL(simple_sync_file);
-+EXPORT_SYMBOL(simple_empty);
- EXPORT_SYMBOL(fd_install);
- EXPORT_SYMBOL(put_unused_fd);
- EXPORT_SYMBOL(get_sb_bdev);
+> > + **/
+> > +struct evms_user_disk_info_pkt {
+> > +	u32 status;
+> > +	u32 flags;
+> > +	u64 disk_handle;
+> > +	u32 disk_dev;
+> > +	u32 geo_sectors;
+> > +	u32 geo_heads;
+> > +	u64 geo_cylinders;
+>
+> emulation trap: on x86-64/ia64 u64 have different alignment on 32bit vs
+> 64bit (4 bytes vs natural). Please make sure that u64 is always explicitely
+> 64bit aligned. It isn't here.
+>
+> > +	u64 disk_handle;
+> > +	s32 io_flag;
+> > +	u64 starting_sector;
+>
+> Same issue
+
+Yep. We'll get those fixed. Thanks for pointing these out.
+
+>
+> It would be best to clean the ABI up now when you can still change it.
+> Otherwise the emulation functions later will be very ugly
+> (take a look at the LVM horror in arch/x86_64/ia32/ia32_ioctl.c for a
+> bad example - LVM1 wasn't cleaned up in time)
+>
+> -Andi
+
+Thanks for the suggestions!
+
+-- 
+Kevin Corry
+corryk@us.ibm.com
+http://evms.sourceforge.net/

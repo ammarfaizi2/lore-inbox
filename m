@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129765AbRASSa7>; Fri, 19 Jan 2001 13:30:59 -0500
+	id <S130541AbRASSet>; Fri, 19 Jan 2001 13:34:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130541AbRASSau>; Fri, 19 Jan 2001 13:30:50 -0500
-Received: from mout0.freenet.de ([194.97.50.131]:45533 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S129765AbRASSaR>;
-	Fri, 19 Jan 2001 13:30:17 -0500
-From: mkloppstech@freenet.de
-Message-Id: <200101191800.TAA00672@john.epistle>
-Subject: oops
-To: linux-kernel@vger.kernel.org
-Date: Fri, 19 Jan 2001 19:00:31 +0100 (CET)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S135473AbRASSek>; Fri, 19 Jan 2001 13:34:40 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:4880 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S130541AbRASSe2>;
+	Fri, 19 Jan 2001 13:34:28 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200101191818.VAA24360@ms2.inr.ac.ru>
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Fri, 19 Jan 2001 21:18:04 +0300 (MSK)
+Cc: mingo@elte.hu, torvalds@transmeta.com, raj@cup.hp.com,
+        linux-kernel@vger.kernel.org, davem@redhat.com
+In-Reply-To: <20010119162552.D3447@athlon.random> from "Andrea Arcangeli" at Jan 19, 1 04:25:52 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Many oopses appeared, among others gcc closed with signal 11.
+Hello!
 
-One output:
-Jan 19 18:45:12 john kernel: Unable to handle kernel paging request at virtual a
-Jan 19 18:45:12 john kernel:  printing eip:
-Jan 19 18:45:12 john kernel: c0123b27
-Jan 19 18:45:12 john kernel: *pde = 00000000
-Jan 19 18:45:12 john kernel: Oops: 0000
-Jan 19 18:45:12 john kernel: CPU:    0
-Jan 19 18:45:12 john kernel: EIP:    0010:[__find_lock_page+23/224]
-Jan 19 18:45:12 john kernel: EFLAGS: 00010206
-Jan 19 18:45:12 john kernel: eax: cff40000   ebx: 000d3199   ecx: c44f2d64   edx
-Jan 19 18:45:12 john kernel: esi: fffffff4   edi: cff7f8e4   ebp: c44f2d64   esp
-Jan 19 18:45:12 john kernel: ds: 0018   es: 0018   ss: 0018
-Jan 19 18:45:12 john kernel: Process cpp (pid: 7077, stackpage=c45e1000)
-Jan 19 18:45:12 john kernel: Stack: cff7f8e4 fffffff4 00000004 c45e1f98 c0126210
-Jan 19 18:45:12 john kernel:        ffffffea cc730640 0000aba8 bfffee4c 00001000
-Jan 19 18:45:12 john kernel:        cff7f8e4 00000001 00000000 00000004 c44f2d1c
-Jan 19 18:45:12 john kernel: Call Trace: [generic_file_write+656/1232] [sys_writ
-Jan 19 18:45:12 john kernel:
+> The "uncork" won't push the last skb on the wire if there is not acknowledged
+> data in the write_queue and the payload of the last skb in the write_queue
+> isn't large MSS. This because the `uncork' will only re-evaluate the
+> write_queue in function of the _nagle_ algorithm, quite correctly because the
+> "uncork" will move frok "cork" to "nagle" (not from "cork" to "nodelay").
 
-Please cc to mkloppstech@freenet.de
-Mirko Kloppstech
+At least for your own implementation of SIOCPUSH has "1" among
+arguments of push_pending_frames, so that this does not happen. 8)8)
+
+The second thing, which makes argument above wrong is that
+both classic Nagle and linux-2.4 Nagle (extended by Minshall),
+do not have this problem. Your argument applies to buggy flavor
+of nagling specific to 2.2.
+
+
+However, SIOCPUSH really affects latency badly in some curcumstances.
+Actually, Ingo already learned this from bad experience with TUX. 8)
+Namely, when push cannot push anything due to congestion window
+or receiver window, http/1.0 style synchronous connections suffer.
+The lesson is that when reply is better to be disabled.
+
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

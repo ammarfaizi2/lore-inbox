@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129596AbQKUFTz>; Tue, 21 Nov 2000 00:19:55 -0500
+	id <S129604AbQKUFtf>; Tue, 21 Nov 2000 00:49:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129604AbQKUFTp>; Tue, 21 Nov 2000 00:19:45 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:46384 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S129596AbQKUFTd>; Tue, 21 Nov 2000 00:19:33 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Matthew Vanecek <linux4us@home.com>
-cc: linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Assembler warnings 
-In-Reply-To: Your message of "Mon, 20 Nov 2000 22:11:04 MDT."
-             <3A19F5D8.38BF5384@home.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 21 Nov 2000 15:49:20 +1100
-Message-ID: <5600.974782160@kao2.melbourne.sgi.com>
+	id <S129700AbQKUFt0>; Tue, 21 Nov 2000 00:49:26 -0500
+Received: from sp28fe.nerdc.ufl.edu ([128.227.128.108]:8715 "EHLO smtp.ufl.edu")
+	by vger.kernel.org with ESMTP id <S129604AbQKUFtO>;
+	Tue, 21 Nov 2000 00:49:14 -0500
+From: rml@ufl.edu
+To: <linux-kernel@vger.kernel.org>
+Subject: [WEIRD] working kernel off RH7's gcc-2.96!?
+Message-ID: <974783952.3a1a05d0c4840@webmail.ufl.edu>
+Date: Tue, 21 Nov 2000 00:19:12 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.0-cvs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Nov 2000 22:11:04 -0600, 
-Matthew Vanecek <linux4us@home.com> wrote:
->Hi.  I see these warnings while compiling modules in 2.4.0-test10.  This
->is with RH 7.0's kgcc (why-oh-why did they base their system on
->2.96!!).  It doesn't seem to break anything--I'm just curious as to what
->the warnings signify.
->
->{standard input}: Assembler messages:
->{standard input}:8: Warning: Ignoring changed section attributes for
->.modinfo
+i dont want to revisit the flame fest (at all, please) but it seems i have been
+using a kernel that successfully compiled under RedHat 7's gcc snapshot (2.96). 
+i normally use gcc-2.91.66 for everything (mv kgcc gcc) but just synced my
+system with rawhide, so the gcc/kgcc pair is back on my system and i forgot. so
+i recompiled to test11 yesterday, and:
 
-Firstly you should not be compiling the kernel with gcc 2.96, you
-should be using kgcc.  Search recent l-k archives for kgcc.
+[00:05:51]rml@phantasy:~# cat /proc/version 
+Linux version 2.4.0-test11 (rml@phantasy) (gcc version 2.96 20000731 (Red Hat
+Linux 7.0)) #1 Mon Nov 20 19:06:06 EST 2000
 
-Secondly that is a warning that section .modinfo was initially created
-without the allocation bit but later usage of the section implies that
-the allocation bit should be set.  Creating .modinfo as non-allocated
-was an old kludge to stop the module descriptive data being loaded into
-memory as part of the module.  modutils 2.3.19 onwards force .modinfo
-to be non-allocated (and hence not loaded into kernel memory), even if
-the allocate bit is set.  Feel free to try this patch, it is not urgent
-so I have not sent it to Linus "code freeze" Torvalds yet.
+the odd thing is, not only did it compile, but my machine has been up for a day
+with heavy use in X with a full-featured kernel! not only no OOPSs, but no bugs!
 
-Against 2.4.0-test11-pre6, it might fit 2.4.0-test11.
+the only thing i thought of was that alan's kgcc detection routine was in-place,
+and using the detected kgcc to compile but then doing a hardcoded use of "gcc"
+to grab the version ... but i could not find the code by grepping.
 
-Index: 0-test11-pre6.1/include/linux/module.h
---- 0-test11-pre6.1/include/linux/module.h Sun, 12 Nov 2000 14:59:01 +1100 kaos (linux-2.4/W/33_module.h 1.1.2.1.2.1.2.1.2.1.1.3 644)
-+++ 0-test11-pre6.1(w)/include/linux/module.h Tue, 21 Nov 2000 15:46:58 +1100 kaos (linux-2.4/W/33_module.h 1.1.2.1.2.1.2.1.2.1.1.3 644)
-@@ -247,12 +247,6 @@ static const struct gtype##_id * __modul
-   __attribute__ ((unused)) = name
- #define MODULE_DEVICE_TABLE(type,name)		\
-   MODULE_GENERIC_TABLE(type##_device,name)
--/* not put to .modinfo section to avoid section type conflicts */
--
--/* The attributes of a section are set the first time the section is
--   seen; we want .modinfo to not be allocated.  */
--
--__asm__(".section .modinfo\n\t.previous");
- 
- /* Define the module variable, and usage macros.  */
- extern struct module __this_module;
+so i went ahead and removed kgcc from my path and recompiled, and sure enough --
+it compiled fine.
 
+just fyi, but someone tell me i am on crack... regardless, i am about to reboot
+into a gcc-2.91.66 kernel.
+
+-- 
+Robert M. Love
+rml@tech9.net
+rml@ufl.edu
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

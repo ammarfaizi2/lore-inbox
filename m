@@ -1,122 +1,357 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262797AbTI2EEH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 00:04:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262799AbTI2EEH
+	id S262801AbTI2Esz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 00:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbTI2Esz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 00:04:07 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:48367 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262797AbTI2EEB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 00:04:01 -0400
-Date: Mon, 29 Sep 2003 09:39:35 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Daniel McNeil <daniel@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-Subject: Re: slab corruption on AIO 2.6.0-test5-mm4
-Message-ID: <20030929040935.GA3637@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <1064596018.1950.10.camel@ibm-c.pdx.osdl.net> <1064620762.2115.29.camel@ibm-c.pdx.osdl.net>
+	Mon, 29 Sep 2003 00:48:55 -0400
+Received: from DSL022.labridge.com ([206.117.136.22]:36113 "EHLO Perches.com")
+	by vger.kernel.org with ESMTP id S262801AbTI2Esq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 00:48:46 -0400
+Subject: [PATCH] 2..6.0-bk6 /drivers/acpi/* ACPI printf fixes - save 1.3KB
+From: Joe Perches <joe@perches.com>
+To: torvalds@osdl.org
+Cc: andrew.grover@intel.com, paul.s.diefenbaugh@intel.com,
+       linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1064810106.29230.11.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1064620762.2115.29.camel@ibm-c.pdx.osdl.net>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 28 Sep 2003 21:35:06 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 26, 2003 at 04:59:23PM -0700, Daniel McNeil wrote:
-> I re-ran an aio test using O_DIRECT to copy a file to an already
-> allocated file.  The kernel is 2.6.0-test5-mm4 with
-> CONFIG_DEBUG_PAGEALLOC enabled.
->              
-> # Files before test:
-> $ ls -l
-> -rw-rw-r--    1 daniel   daniel   88289280 Sep 26 11:18 ff2
-> -rw-------    1 daniel   daniel   88289280 Jun  9 16:54 glibc-2.3.2.tar
-> 
-> # Test program doing 8k O_DIRECT aio with only 1 outstanding i/o
-> # at a time.
-> $ time aiocp -b 8k -n 1 -f O_DIRECT glibc-2.3.2.tar ff2
-> 
-> #
-> # Kernel Message
->                                                                      
-> Unable to handle kernel paging request at virtual address ddb1df60
->  printing eip:
-> c0148440
-> *pde = 00076063
-> *pte = 1db1d000
-> Oops: 0002 [#1]
-> PREEMPT SMP DEBUG_PAGEALLOC
-> CPU:    0
-> EIP:    0060:[<c0148440>]    Not tainted VLI
-> EFLAGS: 00210287
-> EIP is at __generic_file_aio_write_nolock+0xa01/0xce2
-> eax: 00002000   ebx: 05433000   ecx: ddb1df60   edx: 00000000
-> esi: 00000000   edi: ccf0fe74   ebp: d2c4de54   esp: d2c4dd60
-> ds: 007b   es: 007b   ss: 0068
-> Process aiocp (pid: 1966, threadinfo=d2c4c000 task=dbf009b0)
-> Stack: 00000001 ddb1df28 d2c4de80 00000000 00000000 00000001 00000001 00000000
->        d2d00f28 ccf11e74 d2c4debc 00000000 00000000 00000001 00000009 00002000
->        00000000 df2f9df8 fffffff4 de852df8 ffffffff 00000000 c14a3c88 00002000
-> Call Trace:
->  [<c012022c>] kernel_map_pages+0x28/0x5d
->  [<c014f381>] cache_init_objs+0xe2/0x1d5
->  [<c01489f9>] generic_file_aio_write+0x97/0x163
->  [<c01aa04f>] ext3_file_write+0x3f/0xcc
->  [<c0194844>] aio_pwrite+0x42/0xb3
->  [<c01939f5>] aio_run_iocb+0xb2/0x20e
->  [<c0192fbe>] __aio_get_req+0x27/0x180
->  [<c0194802>] aio_pwrite+0x0/0xb3
->  [<c0194c7c>] io_submit_one+0x1fa/0x2d3
->  [<c0194e32>] sys_io_submit+0xdd/0x143
->  [<c03c4423>] syscall_call+0x7/0xb
->                                                                                 
-> Code: ff ff 7c 18 7f 08 39 9d 48 ff ff ff 76 0e 8b 85 6c ff ff ff 85 c0
-> 0f 84 c1 00 00 00 8b 85 48 ff ff ff 8b 95 4c ff ff ff 8b 4d 14 <89> 01
-> 89 51 04 8b 85 68 ff ff ff 85 c0 78 22 8b 5d 84 f6 43 19
->  <7>exit_aio:ioctx still alive: 2 1 0
-> 
-> 
-> 
-> Looking at the disassembly it looks like it blew up on
-> mm/filemap.c line 1848:
-> 
-> 	*ppos = end;
-> 
-> generic_file_aio_write() calls __generic_file_aio_write_nolock() 
-> with these parameters:
-> 
-> ret = __generic_file_aio_write_nolock(iocb, &local_iov, 1,
->                                                 &iocb->ki_pos);
-> 
-> So it looks like the *ppos is writing to iocb->ki_pos, but the
-> iocb has somehow already been freed.  Well, that's my guess for
+Change formats strings to use less code&data space & apms->amps typo fix
 
-If the i/o completes by the time we get to line 1848, this sounds
-quite possible (aio_complete() would have been called and freed
-the iocb in finished_one_bio). I wonder why this race didn't show 
-up earlier, though ...
+diff -urN a/drivers/acpi/ac.c b/drivers/acpi/ac.c
+--- a/drivers/acpi/ac.c	2003-09-08 12:50:02.000000000 -0700
++++ b/drivers/acpi/ac.c	2003-09-28 10:19:56.000000000 -0700
+@@ -124,18 +124,9 @@
+ 		return 0;
+ 	}
+ 
+-	seq_puts(seq, "state:                   ");
+-	switch (ac->state) {
+-	case ACPI_AC_STATUS_OFFLINE:
+-		seq_puts(seq, "off-line\n");
+-		break;
+-	case ACPI_AC_STATUS_ONLINE:
+-		seq_puts(seq, "on-line\n");
+-		break;
+-	default:
+-		seq_puts(seq, "unknown\n");
+-		break;
+-	}
++	seq_printf(seq,"%-25s%s\n","state:",
++		   ac->state==ACPI_AC_STATUS_OFFLINE ? "off-line" :
++		   ac->state==ACPI_AC_STATUS_ONLINE ? "on-line" : "unknown");
+ 
+ 	return 0;
+ }
+diff -urN a/drivers/acpi/battery.c b/drivers/acpi/battery.c
+--- a/drivers/acpi/battery.c	2003-09-08 12:50:19.000000000 -0700
++++ b/drivers/acpi/battery.c	2003-09-28 11:59:15.000000000 -0700
+@@ -51,6 +51,8 @@
+ #define ACPI_BATTERY_NOTIFY_INFO	0x81
+ #define ACPI_BATTERY_UNITS_WATTS	"mW"
+ #define ACPI_BATTERY_UNITS_AMPS		"mA"
++#define ACPI_BATTERY_UNITS_WATTHOURS	"mWh"
++#define ACPI_BATTERY_UNITS_AMPHOURS	"mAh"
+ 
+ 
+ #define _COMPONENT		ACPI_BATTERY_COMPONENT
+@@ -98,7 +100,7 @@
+ 
+ struct acpi_battery_flags {
+ 	u8			present:1;	/* Bay occupied? */
+-	u8			power_unit:1;	/* 0=watts, 1=apms */
++	u8			power_unit:1;	/* 0=watts, 1=amps */
+ 	u8			alarm:1;	/* _BTP present? */
+ 	u8			reserved:5;
+ };
+@@ -354,7 +356,7 @@
+ 	int			result = 0;
+ 	struct acpi_battery	*battery = (struct acpi_battery *) data;
+ 	struct acpi_battery_info *bif = NULL;
+-	char			*units = "?";
++	char			*unithours;
+ 	char			*p = page;
+ 	int			len = 0;
+ 
+@@ -364,9 +366,9 @@
+ 		goto end;
+ 
+ 	if (battery->flags.present)
+-		p += sprintf(p, "present:                 yes\n");
++		p += sprintf(p, "%-25s%s\n", "present:", "yes");
+ 	else {
+-		p += sprintf(p, "present:                 no\n");
++		p += sprintf(p, "%-25s%s\n", "present:", "no");
+ 		goto end;
+ 	}
+ 
+@@ -378,53 +380,53 @@
+ 		goto end;
+ 	}
+ 
+-	units = bif->power_unit ? ACPI_BATTERY_UNITS_AMPS : ACPI_BATTERY_UNITS_WATTS;
++	unithours = bif->power_unit ? ACPI_BATTERY_UNITS_AMPHOURS : ACPI_BATTERY_UNITS_WATTHOURS;
+ 					
+ 	if (bif->design_capacity == ACPI_BATTERY_VALUE_UNKNOWN)
+-		p += sprintf(p, "design capacity:         unknown\n");
++		p += sprintf(p, "%-25s%s\n", "design capacity:", "unknown");
+ 	else
+-		p += sprintf(p, "design capacity:         %d %sh\n",
+-			(u32) bif->design_capacity, units);
++		p += sprintf(p, "%-25s%d %s\n", "design capacity:",
++			(u32) bif->design_capacity, unithours);
+ 
+ 	if (bif->last_full_capacity == ACPI_BATTERY_VALUE_UNKNOWN)
+-		p += sprintf(p, "last full capacity:      unknown\n");
++		p += sprintf(p, "%-25s%s\n", "last full capacity:", "unknown");
+ 	else
+-		p += sprintf(p, "last full capacity:      %d %sh\n",
+-			(u32) bif->last_full_capacity, units);
++		p += sprintf(p, "%-25s%d %s\n", "last full capacity:",
++			(u32) bif->last_full_capacity, unithours);
+ 
+ 	switch ((u32) bif->battery_technology) {
+ 	case 0:
+-		p += sprintf(p, "battery technology:      non-rechargeable\n");
++		p += sprintf(p, "%-25s%s\n", "battery technology:", "non-rechargeable");
+ 		break;
+ 	case 1:
+-		p += sprintf(p, "battery technology:      rechargeable\n");
++		p += sprintf(p, "%-25s%s\n", "battery technology:", "rechargeable");
+ 		break;
+ 	default:
+-		p += sprintf(p, "battery technology:      unknown\n");
++		p += sprintf(p, "%-25s%s\n", "battery technology:", "unknown");
+ 		break;
+ 	}
+ 
+ 	if (bif->design_voltage == ACPI_BATTERY_VALUE_UNKNOWN)
+-		p += sprintf(p, "design voltage:          unknown\n");
++		p += sprintf(p, "%-25s%s\n", "design voltage:", "unknown");
+ 	else
+-		p += sprintf(p, "design voltage:          %d mV\n",
++		p += sprintf(p, "%-25s%d mV\n", "design voltage:",
+ 			(u32) bif->design_voltage);
+ 	
+-	p += sprintf(p, "design capacity warning: %d %sh\n",
+-		(u32) bif->design_capacity_warning, units);
+-	p += sprintf(p, "design capacity low:     %d %sh\n",
+-		(u32) bif->design_capacity_low, units);
+-	p += sprintf(p, "capacity granularity 1:  %d %sh\n",
+-		(u32) bif->battery_capacity_granularity_1, units);
+-	p += sprintf(p, "capacity granularity 2:  %d %sh\n",
+-		(u32) bif->battery_capacity_granularity_2, units);
+-	p += sprintf(p, "model number:            %s\n",
++	p += sprintf(p, "%-25s%d %s\n", "design capacity warning:",
++		(u32) bif->design_capacity_warning, unithours);
++	p += sprintf(p, "%-25s%d %s\n", "design capacity low:",
++		(u32) bif->design_capacity_low, unithours);
++	p += sprintf(p, "%-25s%d %s\n", "capacity granularity 1:",
++		(u32) bif->battery_capacity_granularity_1, unithours);
++	p += sprintf(p, "%-25s%d %s\n", "capacity granularity 2:",
++		(u32) bif->battery_capacity_granularity_2, unithours);
++	p += sprintf(p, "%-25s%s\n", "model number:",
+ 		bif->model_number);
+-	p += sprintf(p, "serial number:           %s\n",
++	p += sprintf(p, "%-25s%s\n", "serial number:",
+ 		bif->serial_number);
+-	p += sprintf(p, "battery type:            %s\n",
++	p += sprintf(p, "%-25s%s\n", "battery type:",
+ 		bif->battery_type);
+-	p += sprintf(p, "OEM info:                %s\n",
++	p += sprintf(p, "%-25s%s\n", "OEM info:",
+ 		bif->oem_info);
+ 
+ end:
+@@ -453,7 +455,8 @@
+ 	int			result = 0;
+ 	struct acpi_battery	*battery = (struct acpi_battery *) data;
+ 	struct acpi_battery_status *bst = NULL;
+-	char			*units = "?";
++	char			*units;
++	char			*unithours;
+ 	char			*p = page;
+ 	int			len = 0;
+ 
+@@ -463,15 +466,16 @@
+ 		goto end;
+ 
+ 	if (battery->flags.present)
+-		p += sprintf(p, "present:                 yes\n");
++		p += sprintf(p, "%-25s%s\n", "present:", "yes");
+ 	else {
+-		p += sprintf(p, "present:                 no\n");
++		p += sprintf(p, "%-25s%s\n", "present:", "no");
+ 		goto end;
+ 	}
+ 
+ 	/* Battery Units */
+ 
+ 	units = battery->flags.power_unit ? ACPI_BATTERY_UNITS_AMPS : ACPI_BATTERY_UNITS_WATTS;
++	unithours = battery->flags.power_unit ? ACPI_BATTERY_UNITS_AMPHOURS : ACPI_BATTERY_UNITS_WATTHOURS;
+ 
+ 	/* Battery Status (_BST) */
+ 
+@@ -482,35 +486,35 @@
+ 	}
+ 
+ 	if (!(bst->state & 0x04))
+-		p += sprintf(p, "capacity state:          ok\n");
++		p += sprintf(p, "%-25s%s\n", "capacity state:", "ok");
+ 	else
+-		p += sprintf(p, "capacity state:          critical\n");
++		p += sprintf(p, "%-25s%s\n", "capacity state:", "critical");
+ 
+ 	if ((bst->state & 0x01) && (bst->state & 0x02))
+-		p += sprintf(p, "charging state:          charging/discharging\n");
++		p += sprintf(p, "%-25s%s\n", "charging state:", "charging/discharging");
+ 	else if (bst->state & 0x01)
+-		p += sprintf(p, "charging state:          discharging\n");
++		p += sprintf(p, "%-25s%s\n", "charging state:", "discharging");
+ 	else if (bst->state & 0x02)
+-		p += sprintf(p, "charging state:          charging\n");
++		p += sprintf(p, "%-25s%s\n", "charging state:", "charging");
+ 	else
+-		p += sprintf(p, "charging state:          unknown\n");
++		p += sprintf(p, "%-25s%s\n", "charging state:", "unknown");
+ 
+ 	if (bst->present_rate == ACPI_BATTERY_VALUE_UNKNOWN)
+-		p += sprintf(p, "present rate:            unknown\n");
++		p += sprintf(p, "%-25s%s\n", "present rate:", "unknown");
+ 	else
+-		p += sprintf(p, "present rate:            %d %s\n",
++		p += sprintf(p, "%-25s%d %s\n", "present rate:",
+ 			(u32) bst->present_rate, units);
+ 
+ 	if (bst->remaining_capacity == ACPI_BATTERY_VALUE_UNKNOWN)
+-		p += sprintf(p, "remaining capacity:      unknown\n");
++		p += sprintf(p, "%-25s%s\n", "remaining capacity:", "unknown");
+ 	else
+-		p += sprintf(p, "remaining capacity:      %d %sh\n",
+-			(u32) bst->remaining_capacity, units);
++		p += sprintf(p, "%-25s%d %s\n", "remaining capacity:",
++			(u32) bst->remaining_capacity, unithours);
+ 
+ 	if (bst->present_voltage == ACPI_BATTERY_VALUE_UNKNOWN)
+-		p += sprintf(p, "present voltage:         unknown\n");
++		p += sprintf(p, "%-25s%s\n", "present voltage:", "unknown");
+ 	else
+-		p += sprintf(p, "present voltage:         %d mV\n",
++		p += sprintf(p, "%-25s%d mV\n", "present voltage:",
+ 			(u32) bst->present_voltage);
+ 
+ end:
+@@ -537,7 +541,7 @@
+ 	void			*data)
+ {
+ 	struct acpi_battery	*battery = (struct acpi_battery *) data;
+-	char			*units = "?";
++	char			*unithours;
+ 	char			*p = page;
+ 	int			len = 0;
+ 
+@@ -553,15 +557,14 @@
+ 
+ 	/* Battery Units */
+ 	
+-	units = battery->flags.power_unit ? ACPI_BATTERY_UNITS_AMPS : ACPI_BATTERY_UNITS_WATTS;
++	unithours = battery->flags.power_unit ? ACPI_BATTERY_UNITS_AMPHOURS : ACPI_BATTERY_UNITS_WATTHOURS;
+ 
+ 	/* Battery Alarm */
+ 
+-	p += sprintf(p, "alarm:                   ");
+ 	if (!battery->alarm)
+-		p += sprintf(p, "unsupported\n");
++		p += sprintf(p, "%-25s%s\n", "alarm:", "unsupported");
+ 	else
+-		p += sprintf(p, "%d %sh\n", (u32) battery->alarm, units);
++		p += sprintf(p, "%-25s%d %s\n", "alarm:", (u32) battery->alarm, unithours);
+ 
+ end:
+ 	len = (p - page);
+diff -urN a/drivers/acpi/thermal.c b/drivers/acpi/thermal.c
+--- a/drivers/acpi/thermal.c	2003-09-08 12:50:22.000000000 -0700
++++ b/drivers/acpi/thermal.c	2003-09-28 12:15:41.000000000 -0700
+@@ -776,7 +776,7 @@
+ 	if (!tz)
+ 		goto end;
+ 
+-	seq_puts(seq, "state:                   ");
++	seq_printf(seq, "%-25s", "state:");
+ 
+ 	if (!tz->state.critical && !tz->state.hot && !tz->state.passive && !tz->state.active)
+ 		seq_puts(seq, "ok\n");
+@@ -816,7 +816,7 @@
+ 	if (result)
+ 		goto end;
+ 
+-	seq_printf(seq, "temperature:             %ld C\n", 
++	seq_printf(seq, "%-25s%ld C\n","temperature:", 
+ 		KELVIN_TO_CELSIUS(tz->temperature));
+ 
+ end:
+@@ -841,21 +841,21 @@
+ 		goto end;
+ 
+ 	if (tz->trips.critical.flags.valid)
+-		seq_printf(seq, "critical (S5):           %ld C\n",
++		seq_printf(seq, "%-25s%ld C\n", "critical (S5):",
+ 			KELVIN_TO_CELSIUS(tz->trips.critical.temperature));
+ 
+ 	if (tz->trips.hot.flags.valid)
+-		seq_printf(seq, "hot (S4):                %ld C\n",
++		seq_printf(seq, "%-25s%ld C\n", "hot (S4):",
+ 			KELVIN_TO_CELSIUS(tz->trips.hot.temperature));
+ 
+ 	if (tz->trips.passive.flags.valid) {
+-		seq_printf(seq, "passive:                 %ld C: tc1=%lu tc2=%lu tsp=%lu devices=",
++		seq_printf(seq, "%-25s%ld C: tc1=%lu tc2=%lu tsp=%lu", "passive:",
+ 			KELVIN_TO_CELSIUS(tz->trips.passive.temperature),
+ 			tz->trips.passive.tc1,
+ 			tz->trips.passive.tc2, 
+ 			tz->trips.passive.tsp);
++		seq_puts(seq, " devices=");
+ 		for (j=0; j<tz->trips.passive.devices.count; j++) {
+-
+ 			seq_printf(seq, "0x%p ", tz->trips.passive.devices.handles[j]);
+ 		}
+ 		seq_puts(seq, "\n");
+@@ -864,8 +864,9 @@
+ 	for (i = 0; i < ACPI_THERMAL_MAX_ACTIVE; i++) {
+ 		if (!(tz->trips.active[i].flags.valid))
+ 			break;
+-		seq_printf(seq, "active[%d]:               %ld C: devices=",
++		seq_printf(seq, "active[%d]:               %ld C:",
+ 			i, KELVIN_TO_CELSIUS(tz->trips.active[i].temperature));
++		seq_puts(seq, " devices=");
+ 		for (j = 0; j < tz->trips.active[i].devices.count; j++) 
+ 			seq_printf(seq, "0x%p ",
+ 				tz->trips.active[i].devices.handles[j]);
+@@ -937,8 +938,7 @@
+ 		goto end;
+ 	}
+ 
+-	seq_printf(seq, "cooling mode:            %s\n",
+-		tz->cooling_mode?"passive":"active");
++	seq_printf(seq, "%-25s%s\n", "cooling mode:", tz->cooling_mode ? "passive" : "active");
+ 
+ end:
+ 	return 0;
+@@ -998,7 +998,7 @@
+ 		goto end;
+ 	}
+ 
+-	seq_printf(seq, "polling frequency:       %lu seconds\n",
++	seq_printf(seq, "%-25s%lu seconds\n", "polling frequency:",
+ 		(tz->polling_frequency / 10));
+ 
+ end:
 
-Regards
-Suparna
-
-> now.  I'm still looking at the code.
-> 
-> Daniel
-> 
-> 
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-aio' in
-> the body to majordomo@kvack.org.  For more info on Linux AIO,
-> see: http://www.kvack.org/aio/
-> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
-
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Labs, India
 

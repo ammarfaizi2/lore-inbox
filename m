@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129097AbQKWWAo>; Thu, 23 Nov 2000 17:00:44 -0500
+        id <S129295AbQKWWBx>; Thu, 23 Nov 2000 17:01:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129295AbQKWWAe>; Thu, 23 Nov 2000 17:00:34 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:49424 "EHLO zikova.cvut.cz")
-        by vger.kernel.org with ESMTP id <S129097AbQKWWAV>;
-        Thu, 23 Nov 2000 17:00:21 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Thu, 23 Nov 2000 22:29:50 MET-1
+        id <S130420AbQKWWBn>; Thu, 23 Nov 2000 17:01:43 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:29413 "EHLO math.psu.edu")
+        by vger.kernel.org with ESMTP id <S129295AbQKWWBb>;
+        Thu, 23 Nov 2000 17:01:31 -0500
+Date: Thu, 23 Nov 2000 16:31:28 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: {PATCH} isofs stuff
+In-Reply-To: <20001123225900.E28963@mea-ext.zmailer.org>
+Message-ID: <Pine.GSO.4.21.0011231618120.11491-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: VMWare will not run on kernel 2.4.0-test11
-CC: linux-kernel@vger.kernel.org (Linux-KERNEL)
-X-mailer: Pegasus Mail v3.40
-Message-ID: <DB4EB260F6F@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Nov 00 at 20:22, Alan Cox wrote:
-> > vmware-2.0.3-786 refused to run.  Running vmware-config.pl resulted in a
-> > the following message:
+
+
+On Thu, 23 Nov 2000, Matti Aarnio wrote:
+
+> On Thu, Nov 23, 2000 at 12:38:55PM -0800, Linus Torvalds wrote:
+> ... 
+> > In fact, almost all filesystems do this at some point. ext2 does it for
+> > directories too, for some very similar reasons that isofs does. See
+> > fs/ext2/dir.c:
+> > 
+> > 	blk = (filp->f_pos) >> EXT2_BLOCK_SIZE_BITS(sb);
+> > 
+> > (and don't ask me about the extraneous parenthesis. I bet some LISP
+> > programmer felt alone and decided to make it a bit more homey).
+> > 
+> > 		Linus
 > 
-> Run 2.4.0-test11-ac3
+>    Propably some programmer has been bitten once too many times with
+>    C's operator precedence rules, which only affect more complicated
+>    expressions -- and thus are used rarely, and not remembered well.
 
-Hi Alan,
-  is change to field name temporary, and name will be reverted back
-to flags, even although contents may differ between 2.2.x and 2.4.x,
-or is there features to stay? Currently VMware does
+Come again?  Precedence or not, how in hell could anything be stronger than
+-> or . on the _right_ side? Field names are atoms, you can't have an
+expression there...
 
-"^\(features\|flags\).* tsc"
-
-but question is - should we leave it here, or revert it back?
-
-  BTW, as I told couple of times here, if you have problem with VMware
-on 2.3.x/2.4.x kernel, please first visit news server news.vmware.com
-and look into vmware.for-linux.experimental newsgroup. If you'll not
-find fix/workaround here (this one is there since Tigran pointed it to
-me more than week ago - Nov 15, 02:59 CET), post question to that forum. 
-I watch that newsgroup almost continuously during my working hours (that 
-is aprox. 12:00-24:00 CET Mon-Fri).
-                                            Thanks,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266096AbUGOAqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266031AbUGOAej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266096AbUGOAqm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 20:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265207AbUGOAfu
+	id S266031AbUGOAej (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 20:34:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266025AbUGOAeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 20:35:50 -0400
-Received: from mail.kroah.org ([69.55.234.183]:31104 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266034AbUGOAT7 convert rfc822-to-8bit
+	Wed, 14 Jul 2004 20:34:36 -0400
+Received: from mail.kroah.org ([69.55.234.183]:42112 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266072AbUGOAUJ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 20:19:59 -0400
+	Wed, 14 Jul 2004 20:20:09 -0400
 X-Donotread: and you are reading this why?
 Subject: Re: [PATCH] Driver Core patches for 2.6.8-rc1
-In-Reply-To: <1089850703420@kroah.com>
+In-Reply-To: <10898507032467@kroah.com>
 X-Patch: quite boring stuff, it's just source code...
-Date: Wed, 14 Jul 2004 17:18:23 -0700
-Message-Id: <10898507033692@kroah.com>
+Date: Wed, 14 Jul 2004 17:18:24 -0700
+Message-Id: <1089850704407@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,97 +23,60 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1784.12.4, 2004/07/08 16:46:10-07:00, dtor_core@ameritech.net
+ChangeSet 1.1784.12.8, 2004/07/14 16:20:29-07:00, olh@suse.de
 
-[PATCH] Driver core: kset_find_obj should increment refcount of the found object
+[PATCH] add removeable sysfs block device attribute
 
-kset_find_obj should increment refcount of the found object so users of
-the function can safely use returned object
+This patch adds a /block/*/removeable sysfs attribute. A value of 1
+indicates the media can change anytime. This is a hint for userland
+to poll such devices for possible media changes, and leave all others alone.
+There is currently no way to see if a connected usb-storage device is a
+disk or a card reader. It will also show 1 for CD and ZIP drives.
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+It was done by Patrick Mansfield a while ago. I can probably not
+sigh-off his work. ;)
+
+
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/base/bus.c               |    2 ++
- drivers/base/core.c              |   10 ++++++++++
- drivers/pci/hotplug/rpaphp_vio.c |    9 ++++++++-
- lib/kobject.c                    |    7 ++++---
- 4 files changed, 24 insertions(+), 4 deletions(-)
+ drivers/block/genhd.c |   11 +++++++++++
+ 1 files changed, 11 insertions(+)
 
 
-diff -Nru a/drivers/base/bus.c b/drivers/base/bus.c
---- a/drivers/base/bus.c	2004-07-14 17:11:41 -07:00
-+++ b/drivers/base/bus.c	2004-07-14 17:11:41 -07:00
-@@ -607,6 +607,8 @@
-  *
-  *	Call kset_find_obj() to iterate over list of buses to
-  *	find a bus by name. Return bus if found.
-+ *
-+ *	Note that kset_find_obj increments bus' reference count.
-  */
- 
- struct bus_type * find_bus(char * name)
-diff -Nru a/drivers/base/core.c b/drivers/base/core.c
---- a/drivers/base/core.c	2004-07-14 17:11:41 -07:00
-+++ b/drivers/base/core.c	2004-07-14 17:11:41 -07:00
-@@ -378,6 +378,16 @@
- 	return error;
- }
- 
-+/**
-+ *	device_find - locate device on a bus by name.
-+ *	@name:	name of the device.
-+ *	@bus:	bus to scan for the device.
-+ *
-+ *	Call kset_find_obj() to iterate over list of devices on
-+ *	a bus to find device by name. Return device if found.
-+ *
-+ *	Note that kset_find_obj increments device's reference count.
-+ */
- struct device *device_find(const char *name, struct bus_type *bus)
+diff -Nru a/drivers/block/genhd.c b/drivers/block/genhd.c
+--- a/drivers/block/genhd.c	2004-07-14 17:10:38 -07:00
++++ b/drivers/block/genhd.c	2004-07-14 17:10:38 -07:00
+@@ -352,6 +352,12 @@
  {
- 	struct kobject *k = kset_find_obj(&bus->devices, name);
-diff -Nru a/drivers/pci/hotplug/rpaphp_vio.c b/drivers/pci/hotplug/rpaphp_vio.c
---- a/drivers/pci/hotplug/rpaphp_vio.c	2004-07-14 17:11:41 -07:00
-+++ b/drivers/pci/hotplug/rpaphp_vio.c	2004-07-14 17:11:41 -07:00
-@@ -86,7 +86,14 @@
- 	}
- 	slot->dev_type = VIO_DEV;
- 	slot->dev.vio_dev = vio_find_node(dn);
--	if (!slot->dev.vio_dev)
-+	if (slot->dev.vio_dev) {
-+		/*
-+		 * rpaphp is the only owner of vio devices and
-+		 * does not need extra reference taken by
-+		 * vio_find_node
-+		 */
-+		put_device(&slot->dev.vio_dev->dev);
-+	} else
- 		slot->dev.vio_dev = vio_register_device_node(dn);
- 	if (slot->dev.vio_dev)
- 		slot->state = CONFIGURED;
-diff -Nru a/lib/kobject.c b/lib/kobject.c
---- a/lib/kobject.c	2004-07-14 17:11:41 -07:00
-+++ b/lib/kobject.c	2004-07-14 17:11:41 -07:00
-@@ -537,7 +537,8 @@
-  *	@name:	object's name.
-  *
-  *	Lock kset via @kset->subsys, and iterate over @kset->list,
-- *	looking for a matching kobject. Return object if found.
-+ *	looking for a matching kobject. If matching object is found
-+ *	take a reference and return the object.
-  */
- 
- struct kobject * kset_find_obj(struct kset * kset, const char * name)
-@@ -548,8 +549,8 @@
- 	down_read(&kset->subsys->rwsem);
- 	list_for_each(entry,&kset->list) {
- 		struct kobject * k = to_kobj(entry);
--		if (kobject_name(k) && (!strcmp(kobject_name(k),name))) {
--			ret = k;
-+		if (kobject_name(k) && !strcmp(kobject_name(k),name)) {
-+			ret = kobject_get(k);
- 			break;
- 		}
- 	}
+ 	return sprintf(page, "%d\n", disk->minors);
+ }
++static ssize_t disk_removable_read(struct gendisk * disk, char *page)
++{
++	return sprintf(page, "%d\n",
++		       (disk->flags & GENHD_FL_REMOVABLE ? 1 : 0));
++
++}
+ static ssize_t disk_size_read(struct gendisk * disk, char *page)
+ {
+ 	return sprintf(page, "%llu\n", (unsigned long long)get_capacity(disk));
+@@ -384,6 +390,10 @@
+ 	.attr = {.name = "range", .mode = S_IRUGO },
+ 	.show	= disk_range_read
+ };
++static struct disk_attribute disk_attr_removable = {
++	.attr = {.name = "removable", .mode = S_IRUGO },
++	.show	= disk_removable_read
++};
+ static struct disk_attribute disk_attr_size = {
+ 	.attr = {.name = "size", .mode = S_IRUGO },
+ 	.show	= disk_size_read
+@@ -396,6 +406,7 @@
+ static struct attribute * default_attrs[] = {
+ 	&disk_attr_dev.attr,
+ 	&disk_attr_range.attr,
++	&disk_attr_removable.attr,
+ 	&disk_attr_size.attr,
+ 	&disk_attr_stat.attr,
+ 	NULL,
 

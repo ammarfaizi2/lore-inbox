@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263655AbTJCJUA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 05:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbTJCJUA
+	id S263676AbTJCKEj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 06:04:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263678AbTJCKEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 05:20:00 -0400
-Received: from dyn-ctb-203-221-73-69.webone.com.au ([203.221.73.69]:3852 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S263655AbTJCJTy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 05:19:54 -0400
-Message-ID: <3F7D3F37.1060005@cyberone.com.au>
-Date: Fri, 03 Oct 2003 19:19:51 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       Matthew Wilcox <willy@debian.org>
-Subject: must-fix list reconciliation
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Oct 2003 06:04:38 -0400
+Received: from bvds.geneva.edu ([63.172.29.191]:49117 "EHLO bvds.geneva.edu")
+	by vger.kernel.org with ESMTP id S263676AbTJCKEi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 06:04:38 -0400
+From: <bvds@bvds.geneva.edu>
+To: ak@suse.de
+Cc: linux-kernel@vger.kernel.org
+In-reply-to: <p73y8w2yboa.fsf@oldwotan.suse.de> (message from Andi Kleen on 03
+	Oct 2003 10:20:53 +0200)
+Subject: Re: segfault error on x86_64
+References: <20031002215345.A1D33E24D6@bvds.geneva.edu.suse.lists.linux.kernel> <p73y8w2yboa.fsf@oldwotan.suse.de>
+Message-Id: <20031003100434.105F0E24D6@bvds.geneva.edu>
+Date: Fri,  3 Oct 2003 06:04:34 -0400 (EDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
-As you might or might not know, the must-fix / should-fix lists have been
-inadvertently forked. We are merging them again, so please don't update
-the wiki until we have worked out what to do with them. This should be a
-day or two at most.
+>> Sep 30 23:45:00 gideon kernel: bumps[12960]: segfault at 0000002a95611000 rip 0000000000402150 rsp 0000007fbffff1a8 error 6
+>
+>Some random program on your system. The x86-64 kernel logs all unhandled
+>segfaults by default. It is unlikely to be a kernel problem.
+>
+>-Andi
 
-I had the idea that maybe we could put them into the source tree, and
-encourage people to keep them up to date by making them become criteria
-for the feature and code freeze. Comments?
+So it doesn't have to be a kernel module of some kind?  
+I have lm_sensors and comedi (data acquisition stuff) running,
+which have modules inserted into the kernel.
 
-Thanks,
-Nick
-
+BvdS

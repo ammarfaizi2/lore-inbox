@@ -1,61 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263761AbRFLXS0>; Tue, 12 Jun 2001 19:18:26 -0400
+	id <S263816AbRFLXWq>; Tue, 12 Jun 2001 19:22:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263814AbRFLXSQ>; Tue, 12 Jun 2001 19:18:16 -0400
-Received: from [203.36.158.121] ([203.36.158.121]:2056 "EHLO
-	piro.kabuki.sfarc.net") by vger.kernel.org with ESMTP
-	id <S263761AbRFLXSH>; Tue, 12 Jun 2001 19:18:07 -0400
-Date: Wed, 13 Jun 2001 09:15:06 +1000
-From: Daniel Stone <daniel@kabuki.sfarc.net>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Daniel Stone <daniel@kabuki.sfarc.net>,
-        Daniel Podlejski <underley@underley.eu.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: XFS and Alan kernel tree
-Message-ID: <20010613091505.A3989@kabuki.openfridge.net>
-Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
-	Daniel Stone <daniel@kabuki.sfarc.net>,
-	Daniel Podlejski <underley@underley.eu.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <13436.992386996@ocs4.ocs-net>
+	id <S263834AbRFLXWg>; Tue, 12 Jun 2001 19:22:36 -0400
+Received: from maynard.mail.mindspring.net ([207.69.200.243]:26420 "EHLO
+	maynard.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S263825AbRFLXWS>; Tue, 12 Jun 2001 19:22:18 -0400
+Subject: Re: Getting A Patch Into The Kernel
+From: Robert Love <rml@tech9.net>
+To: craigl@promise.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <005101c0f38f$e2000960$bd01a8c0@promise.com>
+In-Reply-To: <005101c0f38f$e2000960$bd01a8c0@promise.com>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 12 Jun 2001 19:21:50 -0400
+Message-Id: <992388112.5004.0.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <13436.992386996@ocs4.ocs-net>
-User-Agent: Mutt/1.3.18i
-Organisation: Sadly lacking
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 13, 2001 at 09:03:16AM +1000, Keith Owens wrote:
-> On Wed, 13 Jun 2001 08:25:52 +1000, 
-> Daniel Stone <daniel@kabuki.sfarc.net> wrote:
-> >On Sat, May 05, 2001 at 11:08:16PM +0200, Daniel Podlejski wrote:
-> >> I merge XFS witch Alan tree (2.4.4-ac5). It's seems to be stable.
-> >> Patch against Alan tree is avaliable at:
-> >
-> >Hi Daniel,
-> >I've got a KDB patch against a relatively recent 2.4.5-ac6, but are you
-> >still continuing your porting effort to the -ac series?
-> 
-> kdb v1.8-2.4.5-ac6 works for -ac6 through -ac13.  None of the changes
-> in that series affect kdb.
-> 
-> There have been some significant changes to page I/O handling in
-> 2.4.6-pre[12] which are reflected in the XFS CVS tree.  -ac13 is still
-> using the old page_launder() code which is not as clean.  In addition
-> kdb for Linus's and AC's trees has diverged quite a bit because of the
-> console and NMI cleanup in -ac.  Fitting XFS from CVS into -ac13 will
-> be very nasty, you might want to wait until AC syncs to Linus's kernel
-> or Linus takes some of the -ac changes.
+Hi, this is the correct forum.  You can submit the patch here.  Merely
+paste the patch output inline into your email, and make your subject
+"[PATCH] 2.4.5 FastTrak RAID Whatever Fix" and explain in the email.
 
-Hmm, I've got Rik's page_launder patch which was posted to lkml a couple of
-days ago, and hand-hacked that into ac. I got the CVS tree and manually
-hacked out 2.4.6-pre2, but with 22 different files with rejects when I tried
-to put -ac in, I just gave up.
+Note your code must become GPL licensed.
 
-d 
+I would suggest making the patch against the latest kernel, 2.4.5 -- or
+even better, 2.4.5-ac13 or 2.4.6-pre2.
+
+I suggest reading linux/Documentation/SubmittingPatches for coding
+standards, etc.
+
+It is good to see manufactures supporting their products in Linux, thank
+you!
 
 -- 
-Daniel Stone		<daniel@kabuki.openfridge.net> <daniel@kabuki.sfarc.net>
+Robert M. Love
+rml@ufl.edu
+rml@tech9.net
+
+On 12 Jun 2001 15:34:43 -0700, Craig Lyons wrote:
+> Hello,
+> 
+> My name is Craig Lyons and I am the marketing manager at Promise Technology.
+> We have a question and are hoping you can point us in the right direction.
+> In the 2.4 kernel there is support for some of our products (Ultra 66, Ultra
+> 100, etc.). As you may or may not know, our Ultra family of controllers
+> (which are just standard IDE controllers and do not have RAID) use the same
+> ASIC on them as our FastTrak RAID controllers do. The 2.4 kernel will
+> recognize our Ultra family of controllers, but there is a problem in that a
+> FastTrak will not be recognized as a FastTrak, but as an Ultra.
+> Consequently, the array on the FastTrak is not recognized as an array, but
+> instead each disk is seen individually, and the users data cannot be
+> properly accessed. We have a patch that fixes this and are wondering if it
+> is possible to get this patch into the kernel, and if so, how this would be
+> done?
+> 
+> I apologize if this is the incorrect e-mail to be making this request to. If
+> this is not the correct address to be posting this message, any assistance
+> as to where it should be directed would be greatly appreciated.
+> 
+> Regards,
+> 
+> Craig
+

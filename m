@@ -1,65 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263491AbTBQBzX>; Sun, 16 Feb 2003 20:55:23 -0500
+	id <S264920AbTBQCDo>; Sun, 16 Feb 2003 21:03:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264920AbTBQBzX>; Sun, 16 Feb 2003 20:55:23 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:12429 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S263491AbTBQBzV>; Sun, 16 Feb 2003 20:55:21 -0500
-Date: Sun, 16 Feb 2003 18:05:01 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Manfred Spraul <manfred@colorfullife.com>
-cc: Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@digeo.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@holomorphy.com>
-Subject: Re: more signal locking bugs?
-Message-ID: <68480000.1045447501@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.44.0302161620020.1609-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0302161620020.1609-100000@home.transmeta.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S264925AbTBQCDn>; Sun, 16 Feb 2003 21:03:43 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:65042 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S264920AbTBQCDn>; Sun, 16 Feb 2003 21:03:43 -0500
+Date: Sun, 16 Feb 2003 21:10:21 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.21-pre4 comparison bugs
+In-Reply-To: <20030208232510.GA1841@werewolf.able.es>
+Message-ID: <Pine.LNX.3.96.1030216210059.29049F-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ok, I committed this alternative change, which isn't quite as minimal, but 
-> looks a lot cleaner to me.
+On Sun, 9 Feb 2003, J.A. Magallon wrote:
+
+> So:
 > 
-> Also, looking at execve() and other paths, we do seem to have sufficient 
-> protection from the tasklist_lock that signal delivery should be fine. So 
-> despite a long and confused thread, I think in the end the only real bug 
-> was the one Martin found which should be thus fixed..
+> unsgined f()
+> {
+> 	return -1;
+> }
+> 
+> if ((int)f()<0)
+> ??
+> 
+> Wouldn't you get killed by some kind of bit/sign extension in the return ?
+> Just to be sure, probably the answer is just 'go learn C internals'...
 
-Ran your patch ... but I get plenty of these now:
+Fuzzy thinking and non-portable. I think the answer is that someone didn't
+put enough thought into the error returns. This is trickery to avoid
+defining an error value to return. One of those "it works on most
+compilers and computers" things. Definitely low human readability. If the
+return value is always small enough to be positive if cast to (int), why
+not return int? Can't say without looking at actual code rather than a
+general example.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
- printing eip:
-c016d5a8
-*pde = 2e10f001
-*pte = 00000000
-Oops: 0000
-CPU:    2
-EIP:    0060:[<c016d5a8>]    Not tainted
-EFLAGS: 00010202
-EIP is at collect_sigign_sigcatch+0x1c/0x44
-eax: ed6d72c0   ebx: ed403f50   ecx: 00000004   edx: 00000001
-esi: ed403f48   edi: ed6d72c0   ebp: 00000000   esp: ed403eec
-ds: 007b   es: 007b   ss: 0068
-Process ps (pid: 19988, threadinfo=ed402000 task=ed9352a0)
-Stack: c011d115 c02af820 c016dab8 ed6d72c0 ed403f48 ed403f50 ed6d72c0 edb99a50 
-       ed6d72c0 eebf33c0 ee225000 c034e400 ed403f50 ed403f48 00000000 52000000 
-       00008800 00000125 eebf33c0 eebf33e0 00000000 00000000 00000000 000000d0 
-Call Trace:
- [<c011d115>] do_exit+0x30d/0x31c
- [<c016dab8>] proc_pid_stat+0x110/0x324
- [<c0130076>] __get_free_pages+0x4e/0x54
- [<c016b497>] proc_info_read+0x53/0x130
- [<c0145215>] vfs_read+0xa5/0x128
- [<c01454a2>] sys_read+0x2a/0x3c
- [<c0108b3f>] syscall_call+0x7/0xb
+Because it mostly works, I'm not sure what priority a more readable return
+code would have, though.
 
-Code: 8b 01 83 f8 01 75 08 8d 42 ff 0f ab 06 eb 0a 85 c0 74 06 8d 
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,58 +1,243 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282823AbRLKUki>; Tue, 11 Dec 2001 15:40:38 -0500
+	id <S282907AbRLKU43>; Tue, 11 Dec 2001 15:56:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282824AbRLKUk2>; Tue, 11 Dec 2001 15:40:28 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:51702 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S282823AbRLKUkR>; Tue, 11 Dec 2001 15:40:17 -0500
-Message-ID: <3C166F19.90701CC7@mvista.com>
-Date: Tue, 11 Dec 2001 12:39:53 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S282824AbRLKU4T>; Tue, 11 Dec 2001 15:56:19 -0500
+Received: from mail020.mail.bellsouth.net ([205.152.58.60]:29122 "EHLO
+	imf20bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S282728AbRLKU4G>; Tue, 11 Dec 2001 15:56:06 -0500
+Message-ID: <3C1673D1.9080807@mindspring.com>
+Date: Tue, 11 Dec 2001 16:00:01 -0500
+From: Jonathan Stanford <jomast@mindspring.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: high-res-timers-discourse@lists.sourceforge.net,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Interesting problem with intervals and high-res-timers
-Content-Type: text/plain; charset=iso-8859-15
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org, manfred@colorfullife.com,
+        Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: USB + PCI - IRQ = kernel bug??
+In-Reply-To: <E16DmLM-0005Js-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In testing the latest high-res-timer code on a 2-way SMP machine I have
-found that it is easy to trigger an NMI oops.  This happens when the
-interval is coded to be very short.  Currently I have the resolution set
-to 1 micro second.  The test code is trying to set up a timer with 1
-micro second interval, something we just don't have the horse power to
-do.
+Looks like this patch did the trick guys!
+Thanks!
 
-This puts the cpu into a loop processing the timer pops and starves the
-other cpu causing an NMI.  (As I understand it, each cpu need to handle
-at least one interrupt ever 500 ticks to avoid the NMI.  Usually
-(always?) this interrupt is provided by the timer, however, the timer,
-for some reason, always interrupts on the using (abusing) cpu.  (Any one
-who has a better understanding of the NMI watch dog operation, please
-help me here.)
+(patch was applied to 2.4.17-pre8)
 
-Solutions:
-It seems prudent to limit the interval so as to keep it large enough to
-avoid this issue.  The problem is that, no matter what the limit is, it
-can be subverted by starting another timer.  I have considered keeping
-track of all active timers with intervals under a jiffie and sliding the
-limit based on that, but it seem to me that this is decidedly
-unpredictable.
+-Jonathan Stanford
 
-The code I currently have measures the supportable interval at boot time
-and then, when ever a timer is about to be requested whose time will
-fall in that interval, pushing the timer out (by adding intervals). 
-Alarms skipped by this are accounted for in the overrun counter. 
-However, as I observed above, this is easily defeated by starting
-another timer.
 
-Comments?
--- 
-George           george@mvista.com
-High-res-timers: http://sourceforge.net/projects/high-res-timers/
-Real time sched: http://sourceforge.net/projects/rtsched/
+Alan Cox wrote:
+
+>>this problem appears on everything from 2.4.7 (RH7.2 kern)  to the 
+>>latest and greatest (2.4.17-pre8) and probably earlier kernels as well....
+>>
+>>the southbridge/usb controler is the VIA Technologies, Inc. VT82C686b chip as you can see in 
+>>
+>
+>Seems to be a lot of stuff where the pci routing and Linux isnt getting on
+>when it comes to VIA and USB. Dunno if its wrong BIOS tables but the
+>following previous patch might help you
+>
+>Let Manfred and co know if it does
+>
+>Alan
+>
+>
+>>From manfred@colorfullife.com Sun Nov 04 22:07:34 2001
+>To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+>CC: jgarzik@mandrakesoft.com
+>Subject: pci-irq.c
+>Status: RO
+>
+>Hi Alan,
+>
+>attached is my cleanup of pci-irq.c.
+>It works with all my mobos (piix, ali, via) and should fix the vaio
+>problem.
+>
+>The main change is a code cleanup (do not scan first for a good irq,
+>and then discard the result and use what's currently installed in
+>the irq router, etc) and documentation.
+>
+>Actual changes:
+>* if r->set exists, then always write our idea of the irq number
+>into the irq router, even if we use the bios supplied dev->irq number.
+>* ignore 'dev2->irq' mismatches - if they exist (e.g. Toms vaio),
+>then we must solve them by either using 'dev->irq' or 'dev2->irq'.
+>Just looking away means that one device won't work.
+>* bounds checking in pirq_via_set. I think I saw pirq=0x58 with my
+>ali board, I must check the docu if that can be right.
+>
+>But I doubt that this solves your via sound problems.
+>via sound interrupts are handled with special code in via_quirks,
+>and that code is not pirq compatible. Do you have lspci -vxx /
+>dump_pirq output?
+>
+>--
+>	Manfred
+>
+>
+>--- 2.4/arch/i386/kernel/pci-irq.c	Sat Nov  3 19:51:08 2001
+>+++ build-2.4/arch/i386/kernel/pci-irq.c	Sun Nov  4 22:47:22 2001
+>@@ -197,13 +197,24 @@
+>  */
+> static int pirq_via_get(struct pci_dev *router, struct pci_dev *dev, int pirq)
+> {
+>-	return read_config_nybble(router, 0x55, pirq);
+>+	/* the internal devices (APCI, MC97, AC97, USB port 1 and 2
+>+	 * are handled by quirk_via_acpi and quirk_via_irqpic
+>+	 */
+>+	if (pirq < 6)
+>+		return read_config_nybble(router, 0x55, pirq);
+>+	return 0;
+> }
+> 
+> static int pirq_via_set(struct pci_dev *router, struct pci_dev *dev, int pirq, int irq)
+> {
+>-	write_config_nybble(router, 0x55, pirq, irq);
+>-	return 1;
+>+	/* the internal devices (APCI, MC97, AC97, USB port 1 and 2
+>+	 * are handled by quirk_via_acpi and quirk_via_irqpic
+>+	 */
+>+	if (pirq < 6) {
+>+		write_config_nybble(router, 0x55, pirq, irq);
+>+		return 1;
+>+	}
+>+	return 0;
+> }
+> 
+> /*
+>@@ -536,8 +547,8 @@
+> {
+> 	u8 pin;
+> 	struct irq_info *info;
+>-	int i, pirq, newirq;
+>-	int irq = 0;
+>+	int i, pirq;
+>+	int irq;
+> 	u32 mask;
+> 	struct irq_router *r = pirq_router;
+> 	struct pci_dev *dev2;
+>@@ -570,48 +581,65 @@
+> 	mask &= pcibios_irq_mask;
+> 
+> 	/*
+>-	 * Find the best IRQ to assign: use the one
+>-	 * reported by the device if possible.
+>+	 * Find the best IRQ to assign:
+>+	 * 1) hardcoded into pirq 0xf?
+>+	 * 2) dev->irq.
+>+	 * 	There are 2 sources for dev->irq:
+>+	 * 	a) stored by the bios into PCI_INTERRUPT_LINE
+>+	 * 	b) multiple devices share one pirq, then the loop
+>+	 * 	   at the end of this function writes to dev->irq
+>+	 * 3) stored by the bios into the irq router
+>+	 * 4) only if assign is set: search for a low penalty irq
+> 	 */
+>-	newirq = dev->irq;
+>-	if (!newirq && assign) {
+>-		for (i = 0; i < 16; i++) {
+>-			if (!(mask & (1 << i)))
+>-				continue;
+>-			if (pirq_penalty[i] < pirq_penalty[newirq] &&
+>-			    !request_irq(i, pcibios_test_irq_handler, SA_SHIRQ, "pci-test", dev)) {
+>-				free_irq(i, dev);
+>-				newirq = i;
+>-			}
+>-		}
+>-	}
+>-	DBG(" -> newirq=%d", newirq);
+>-
+>-	/* Check if it is hardcoded */
+> 	if ((pirq & 0xf0) == 0xf0) {
+> 		irq = pirq & 0xf;
+> 		DBG(" -> hardcoded IRQ %d\n", irq);
+> 		msg = "Hardcoded";
+>+	} else if (dev->irq) {
+>+		irq = dev->irq;
+>+		DBG(" -> preselected IRQ %d\n", irq);
+>+		msg = "Preselected";
+>+		if (!(mask & (1<<irq)))
+>+			printk(KERN_INFO "PCI: pirq table doesn't match preselected IRQ for %s, using preselected irq.\n", dev->slot_name);
+> 	} else if (r->get && (irq = r->get(pirq_router_dev, dev, pirq))) {
+> 		DBG(" -> got IRQ %d\n", irq);
+> 		msg = "Found";
+>-	} else if (newirq && r->set && (dev->class >> 8) != PCI_CLASS_DISPLAY_VGA) {
+>-		DBG(" -> assigning IRQ %d", newirq);
+>-		if (r->set(pirq_router_dev, dev, pirq, newirq)) {
+>-			eisa_set_level_irq(newirq);
+>-			DBG(" ... OK\n");
+>-			msg = "Assigned";
+>-			irq = newirq;
+>+		if (!(mask & (1<<irq)))
+>+			printk(KERN_INFO "PCI: pirq table doesn't match IRQ router setting for %s, using irq router setting.\n", dev->slot_name);
+>+	} else if (assign) {
+>+		for (i = 0; i < 16; i++) {
+>+			if (!(mask & (1 << i)))
+>+				continue;
+>+			if (pirq_penalty[i] < pirq_penalty[irq] &&
+>+			    !request_irq(i, pcibios_test_irq_handler, SA_SHIRQ, "pci-test", dev)) {
+>+				free_irq(i, dev);
+>+				irq = i;
+>+			}
+> 		}
+>-	}
+>+		DBG(" -> assigning irq=%d\n", irq);
+>+		msg = "Assigned";
+>+	} else
+>+		return 0;
+>+	if (!irq)
+>+		return 0;
+> 
+>-	if (!irq) {
+>-		DBG(" ... failed\n");
+>-		if (newirq && mask == (1 << newirq)) {
+>-			msg = "Guessed";
+>-			irq = newirq;
+>-		} else
+>-			return 0;
+>+	if ((pirq & 0xf0) != 0xf0 && r->set && (dev->class >> 8) != PCI_CLASS_DISPLAY_VGA) {
+>+		/* always rewrite our idea of the interrupt routing back into
+>+		 * the irq router
+>+		 */
+>+		if (r->set(pirq_router_dev, dev, pirq, irq)) {
+>+			DBG("Set succeeded\n");
+>+			eisa_set_level_irq(irq);
+>+		} else {
+>+			DBG("Set failed\n");
+>+			/* We ignore this error unless there is no way 
+>+			 * the irq routing could work without a successful
+>+			 * r->set().
+>+			 */
+>+			if (!strcmp(msg, "Assigned") && mask != (1<<irq)) {
+>+				return 0;
+>+			}
+>+		}
+> 	}
+> 	printk(KERN_INFO "PCI: %s IRQ %d for device %s\n", msg, irq, dev->slot_name);
+> 
+>@@ -625,11 +653,13 @@
+> 		if (!info)
+> 			continue;
+> 		if (info->irq[pin].link == pirq) {
+>-			/* We refuse to override the dev->irq information. Give a warning! */
+>+			/* Give a warning if we have to overwrite dev->irq information.
+>+			 * This only happens when multiple devices share one pirq, and
+>+			 * the bios claims that it routes them to different irq numbers.
+>+			 */
+> 		    	if (dev2->irq && dev2->irq != irq) {
+> 		    		printk(KERN_INFO "IRQ routing conflict for %s, have irq %d, want irq %d\n",
+> 				       dev2->slot_name, dev2->irq, irq);
+>-		    		continue;
+> 		    	}
+> 			dev2->irq = irq;
+> 			pirq_penalty[irq]++;
+>
+>
+
+
+

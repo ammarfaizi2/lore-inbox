@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264934AbSKNPhb>; Thu, 14 Nov 2002 10:37:31 -0500
+	id <S264938AbSKNPwU>; Thu, 14 Nov 2002 10:52:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264936AbSKNPhb>; Thu, 14 Nov 2002 10:37:31 -0500
-Received: from office.mandrakesoft.com ([195.68.114.34]:40445 "EHLO
-	vador.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S264934AbSKNPha>; Thu, 14 Nov 2002 10:37:30 -0500
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Jeff Garzik <jgarzik@pobox.com>, kaos@ocs.com.au,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Modules in 2.5.47-bk...
-References: <20021114042738.2091E2C080@lists.samba.org>
-X-URL: <http://www.linux-mandrake.com/
-Organization: MandrakeSoft
-From: Thierry Vignaud <tvignaud@mandrakesoft.com>
-Date: Thu, 14 Nov 2002 16:45:16 +0100
-In-Reply-To: <20021114042738.2091E2C080@lists.samba.org> (Rusty Russell's
- message of "Thu, 14 Nov 2002 16:22:10 +1100")
-Message-ID: <m2bs4si29f.fsf@vador.mandrakesoft.com>
-User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2.92
- (i386-mandrake-linux-gnu)
+	id <S264936AbSKNPwU>; Thu, 14 Nov 2002 10:52:20 -0500
+Received: from windsormachine.com ([206.48.122.28]:16905 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S264938AbSKNPwT>; Thu, 14 Nov 2002 10:52:19 -0500
+Date: Thu, 14 Nov 2002 10:59:09 -0500 (EST)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: Jani Averbach <jaa@cc.jyu.fi>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: How do I re-activate IDE controller (secondary channel) after
+ boot?
+In-Reply-To: <Pine.GSO.4.33.0211141724410.20634-100000@tukki.cc.jyu.fi>
+Message-ID: <Pine.LNX.4.33.0211141048050.10843-100000@router.windsormachine.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell <rusty@rustcorp.com.au> writes:
+On Thu, 14 Nov 2002, Jani Averbach wrote:
 
-> > The backward compat thing is really a hack, and not system
-> > software done right :( modutils should not need to rename all its
-> > binaries *.old -- and have that be the default that users see when
-> > installing the rpm.  No company worth its shareholders would
-> > release a package full of "*.old" binaries.  Come on...
-> 
-> OK, would calling it "*-2.4" or something help?
+> > I thought I remembered a way to get the full capacity after Linux has
+> > booted up, using that method.
+> >
+>
+> Even when drive has been jumppered to 32G? Please tell. =)
 
-most distros come with some alternative system (at lest, debian, mdk &
-rh), so this problem can legally be left to vendors.
+Well, from a debian-user posting I made today about crontab, and then
+finding out i misread his statement completely, I'm in danger of
+having my license to help revoked.
+
+But I'll google anyways
+
+take a look at the Large-Disk-HOWTO
+
+www.win.tue.nl/~aeb/linux/Large-Disk-11.html#ss11.3
+
+There's a program called setmax, that sets the maximum capacity.  As well,
+there appears to be kernel patches, these appear to have been applied to
+2.5.3 and above, but maybe not 2.4.x?
+
+According to the howto, drives over 137 are still limited, with a patch to
+2.5.3 handling it again.
+
+I'm hoping someone who knows more about the kernel whether this patch has
+been applied somewhere along the line.
+
+Is your drive an IBM?
+
+Apparently Maxtor does it right, and IBM doesn't.  IBM , you software clip
+the drive to a certain size in another machine, and then move it back to
+your original machine.
+
+Maxtor, you can just use the setmax.
+
+Hopefully my rambling helps, and doesn't get my license to help taken away
+
+Mike
 

@@ -1,69 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276600AbRI2Tob>; Sat, 29 Sep 2001 15:44:31 -0400
+	id <S276601AbRI2UAz>; Sat, 29 Sep 2001 16:00:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276601AbRI2ToV>; Sat, 29 Sep 2001 15:44:21 -0400
-Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:2827 "EHLO
-	boris.prodako.se") by vger.kernel.org with ESMTP id <S276600AbRI2ToF>;
-	Sat, 29 Sep 2001 15:44:05 -0400
-Date: Sat, 29 Sep 2001 21:43:04 +0200 (CEST)
-From: Tobias Ringstrom <tori@ringstrom.mine.nu>
-X-X-Sender: <tori@boris.prodako.se>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10 VM, active cache pages, and OOM
-In-Reply-To: <9p54c2$836$1@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0109292135200.17290-100000@boris.prodako.se>
+	id <S276604AbRI2UAo>; Sat, 29 Sep 2001 16:00:44 -0400
+Received: from pD900F0CE.dip.t-dialin.net ([217.0.240.206]:25095 "EHLO
+	neon.hh59.org") by vger.kernel.org with ESMTP id <S276601AbRI2UAh>;
+	Sat, 29 Sep 2001 16:00:37 -0400
+Date: Sat, 29 Sep 2001 22:02:07 +0200 (CEST)
+From: Axel Siebenwirth <axel@hh59.org>
+To: Kernel Ml <linux-kernel@vger.kernel.org>
+Subject: compilation error with 2.4.10 (gcc 3.1)
+Message-ID: <Pine.LNX.4.33.0109292144280.5924-100000@neon.hh59.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Sep 2001, Linus Torvalds wrote:
+Hallo,
 
-> However, I'd also like to fix generic_file_read() to only mark the page
-> accessed when we're touching it for the first time, and notice
-> sequential accesses automatically. That way the use-once logic doesn't
-> depend on the read size - which is a totally independent problem.
->
-> If you want to test, the fix for _that_ is in mm/filemap.c:
-> do_generic_file_read(), where the code does:
->
-> 		...
->                 ret = actor(desc, page, offset, nr);
->                 offset += ret;
->                 index += offset >> PAGE_CACHE_SHIFT;
->                 offset &= ~PAGE_CACHE_MASK;
->
->                 mark_page_accessed(page);
-> 		...
->
-> and it would be interesting to hear if the behaviour improves with the
-> above mark_page_accessed() logic moved a bit and changed to:
->
-> 		...
->                 ret = actor(desc, page, offset, nr);
-> 		if (!offset || !file->f_reada)
-> 			mark_page_accessed(page);
->                 offset += ret;
->                 index += offset >> PAGE_CACHE_SHIFT;
->                 offset &= ~PAGE_CACHE_MASK;
-> 		...
->
-> (which basically says: we only mark the page accessed if we read the
-> _beginning_ of the page, or if we just did a seek to it)
->
-> Btw, if you test the above change out and confirm that it fixes te
-> behaviour, please send me an acknowledgement email - I've not done it in
-> my own tree yet, and unless I get a "yes, that works well" email I won't
-> be doing it..
+I have tried to compile official kernel 2.4.10 with gcc 3.1 from CVS and
+get the following error:
 
-Yes, that works well, and I tried with a block sizes of 1, 512, 4095 and
-4096.  The cache pages are not beeing activated now.  When reading the
-same buf twice with a seek between the reads, the pages are activated, as
-expected.
+ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext
+[...]
+init/main.o: In function `check_fpu':
+init/main.o(.text.init+0x51): undefined reference to `__buggy_fxsr_alignment'
 
-I'll have a look at the other problem, and Andrea's solution, later.
+I'm aware that this might possibly related to the "too" new gcc version.
+Due to lack of knowledge about c programming, I cannot have a look to
+solve it myself.
+Any solution or help would be deeply appreciated.
 
-/Tobias
+Thanks for reading,
+Axel
+
+
+
+P.S. An excerpt from my .config:
+
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+CONFIG_MPENTIUMIII=y
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MCYRIXIII is not set
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+# CONFIG_TOSHIBA is not set
+# CONFIG_MICROCODE is not set
+# CONFIG_X86_MSR is not set
+CONFIG_X86_CPUID=y
+CONFIG_NOHIGHMEM=y
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM64G is not set
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=y
+# CONFIG_SMP is not set
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+
 

@@ -1,80 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265175AbSJaEEU>; Wed, 30 Oct 2002 23:04:20 -0500
+	id <S265180AbSJaEHJ>; Wed, 30 Oct 2002 23:07:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265176AbSJaEEU>; Wed, 30 Oct 2002 23:04:20 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:25146 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S265175AbSJaEET>; Wed, 30 Oct 2002 23:04:19 -0500
-To: Andy Pfiffer <andyp@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
-       Werner Almesberger <wa@almesberger.net>, Pavel Machek <pavel@ucw.cz>,
-       "Ph. Marek" <marek@bmlv.gv.at>, Pavel Roskin <proski@gnu.org>,
-       Torrey Hoffman <thoffman@arnor.net>,
-       Rob Landley <landley@trommello.org>,
-       Kasper Dupont <kasperd@daimi.au.dk>
-Subject: Re: [CFT] [PATCH] kexec 2.5.44 (minimal)
-References: <m1lm4jj7v5.fsf_-_@frodo.biederman.org>
-	<1036017717.1726.7.camel@andyp>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 30 Oct 2002 20:59:20 -0700
-In-Reply-To: <1036017717.1726.7.camel@andyp>
-Message-ID: <m1r8e7gsx3.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S265182AbSJaEHJ>; Wed, 30 Oct 2002 23:07:09 -0500
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:9745 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S265180AbSJaEHI>; Wed, 30 Oct 2002 23:07:08 -0500
+Message-ID: <3DC0ACA9.2090807@lougher.demon.co.uk>
+Date: Thu, 31 Oct 2002 04:08:09 +0000
+From: Phillip Lougher <phillip@lougher.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:0.9.9) Gecko/20020604
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>, plougher@acm.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ANNOUNCEMENT: Squashfs released (a highly compressed filesystem)
+References: <3DBF43ED.70001@lougher.demon.co.uk> <3DBF4DBA.8060005@rackable.com> <3DBF5756.2010702@lougher.demon.co.uk> <20021030072838.A628@nightmaster.csn.tu-chemnitz.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Pfiffer <andyp@osdl.org> writes:
-
-> On Mon, 2002-10-28 at 00:16, Eric W. Biederman wrote:
-> > And is currently kept in two pieces.
-> > The pure system call.
-> > http://www.xmission.com/~ebiederm/files/kexec/linux-2.5.44.x86kexec-2.diff
-> > 
-> > And the set of hardware fixes known to help kexec.
-> >
-> http://www.xmission.com/~ebiederm/files/kexec/linux-2.5.44.x86kexec-hwfixes.diff
+Ingo Oeser wrote:
+> On Wed, Oct 30, 2002 at 03:51:50AM +0000, Phillip Lougher wrote:
+>
+>>File sizes upto 2^32 are supported.
+ >
+> Why limiting to 2GB? AFAIR you wanted to use a cramfs-like
+> filesystem for backups. Are videos and large data bases not worth
+> of backing up?
 > 
+
+Why are files limited to 4GB? (2^32). Simply because I never
+thought anything bigger was needed :-)  Initially files were limited to
+2^24 (like cramfs), but because of compressed metadata I thought I could
+justify an extra 8 bits in the inode, in consideration of the
+extra functionality.
+
+Going from 32 bits to 40 bits say is a bigger jump - an extra
+2 bytes per file inode (1 byte for the extra file size, and 1
+byte because the file start block pointer must increase
+by 1 byte as well).  Considering the fact I've tried to squeeze
+every last byte out...
+
+However, I could add the extra two bytes if people thought
+it was worth it.
+
+Alternatively,  squashfs uses different inodes per file type.  I could
+add an extra "big file" type to deal with files bigger than 4GB.  This
+would mean > 4GB files are supported, with only one extra byte per inode
+for smaller files.  I'll think about it...
+
+> It seems to be good work. So I really wait for Al Viros comments ;-)
+
+Thanks!
+
+Phillip
+
+> Regards
 > 
-> Eric,
-> 
-> Hmmm... I'm having a lot more problems on my troublesome machine with
-> this patchset than I did with the previous iteration.  I've
-> triple-checked the application of the patches, but I can't even get
-> kexec_test to start, much less run to completion.
-> 
-> The new behavior is that the system appears to hang immediately after
-> invoking "kexec kexec_test".
-> 
-> What could I have done wrong?
+> Ingo Oeser
 
-With out some amount of output I don't have a clue.
-
-With just the first patch it doesn't work on SMP, but I don't try it to see
-what the failure mode was.
-
-With the second patch all should be the same except the legacy pic actually
-gets disabled.  I wonder if disabling the legacy pic locks your system?
-
-There should be two printks one about shuting down devices,
-and another about kexecing the image.  And knowing when which of those
-printed could be useful.
-
-In any event.  Remove the shutdown routine in arch/i386/kernel/i8259.c
-That should restore the kernel to it's previous behavior if something really changed...
-
- static struct device_driver i8259A_driver = {
- 	.name		= "pic",
- 	.bus		= &system_bus_type,
- 	.resume		= i8259A_resume,
-- 	.shutdown	= i8259A_shutdown,
- };
-
-Or you could try it with a uniprocessor kernel and just the first patch.
-
-Eric
 

@@ -1,103 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262849AbULRHrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262848AbULRHrE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262849AbULRHrO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 02:47:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262847AbULRHrO
+	id S262848AbULRHrE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 02:47:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262847AbULRHrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 02:47:14 -0500
-Received: from penta.pentaserver.com ([216.74.97.66]:54410 "EHLO
-	penta.pentaserver.com") by vger.kernel.org with ESMTP
-	id S262852AbULRHqn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 02:46:43 -0500
-From: Manu Abraham <manu@kromtek.com>
-Reply-To: manu@kromtek.com
-Organization: Kromtek Systems
-To: Brad Campbell <brad@wasp.net.au>
-Subject: Re: Issue on connect 2 modems with a single phone line
-Date: Sat, 18 Dec 2004 11:45:59 +0400
-User-Agent: KMail/1.6.2
-Cc: David Lawyer <dave@lafn.org>, Pavel Machek <pavel@suse.cz>,
-       Park Lee <parklee_sel@yahoo.com>, linux-kernel@vger.kernel.org
-References: <20041215184206.43601.qmail@web51505.mail.yahoo.com> <20041216085828.GG1189@lafn.org> <41C3D5AD.7090507@wasp.net.au>
-In-Reply-To: <41C3D5AD.7090507@wasp.net.au>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 18 Dec 2004 02:47:03 -0500
+Received: from orb.pobox.com ([207.8.226.5]:50576 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S262853AbULRHph (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Dec 2004 02:45:37 -0500
+Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.10-rc3-bk11
+From: Scott Feldman <sfeldma@pobox.com>
+Reply-To: sfeldma@pobox.com
+To: Ed L Cashin <ecashin@coraid.com>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+In-Reply-To: <87k6rhc4uk.fsf@coraid.com>
+References: <87k6rhc4uk.fsf@coraid.com>
+Content-Type: text/plain
+Message-Id: <1103356085.3369.140.camel@sfeldma-mobl.dsl-verizon.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 17 Dec 2004 23:48:05 -0800
 Content-Transfer-Encoding: 7bit
-Message-Id: <200412181145.59211.manu@kromtek.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - penta.pentaserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kromtek.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat December 18 2004 11:01 am, Brad Campbell wrote:
-> David Lawyer wrote:
-> > On Thu, Dec 16, 2004 at 02:01:38AM +0100, Pavel Machek wrote:
-> >>Hi!
-> >>
-> >>>  I want to try serial console in order to see the
-> >>>complete Linux kernel oops.
-> >>>  I have 2 computers, one is a PC, and the other is a
-> >>>Laptop. Unfortunately,my Laptop doesn't have a serial
-> >>>port on it. But then, the each machine has a internal
-> >>>serial modem respectively.
-> >>>  Then, can I use a telephone line to directly connect
-> >>>the two machines via their internal modems (i.e. One
-> >>>end of the telephone line is plugged into The PC's
-> >>>modem, and the other end is plugged into The Laptop's
-> >>>modem directly), and let them do the same function as
-> >>>two serial ports and a null modem can do? If it is,
-> >>>How to achieve that?
-> >>
-> >>You'd need phone exchange to do this. Most modems will not talk using
-> >>simple cable. With 12V power supply and resistor phone exchange is
-> >>quite easy to emulate, but...
-> >
-> > Here's what I once wrote in Modem-HOWTO:
-> >
-> >   Most modems are designed to be connected only to telephone lines and
-> >   will not work over just a pair of wires.  This is because the
-> >   telephone company supplies the telephone line with a 40-50 volt DC
-> >   voltage which powers part of the modem.  Recall that ordinary
-> >   conventional telephones are entirely powered by the voltage from the
-> >   telephone company.  Without such a DC voltage, the modem lacks power
-> >   and can't send out data.  Furthermore, the telephone company has
-> >   special signals indicating a ring, line busy, etc.  Conventional
-> >   modems expect and respond to these signals.
->
-> I have used analogue modems back to back for years and have *never* come
-> across a modem that sourced anything other than it's ringing signal (via an
-> opto) from the phone line. Every single modem I have here will talk to the
-> others over a straight telephone cable.
-What about power ? The opto-coupler will not work without power.
+On Fri, 2004-12-17 at 07:38, Ed L Cashin wrote:
 
->
-> Analogue modems use a line transformer to couple to the phone network
-> usually with a decoupling capacitor on the phone end of the network to
-> prevent large current flows through the transformer. They use a standard AC
-The capacitor is used to prevent DC saturation of the transformer core rather 
-than doing current limiting, A capacitor cannot do current limiting. When the 
-lag changes by changing the capacitance value,  general concept is that a 
-capacitor can limit current which is very much wrong.
+> +       ETH_P_AOE = 0x88a2,
 
-Manu
+include/linux/if_ether.h already defines this as ETH_P_EDP2=0x88A2; use
+that.
 
-> analogue signal. Nothing more than an audio transformer linkage.
->
-> Now, sometimes a modem needs coaxing to ignore the lack of dial/call
-> progress tones, but they should always talk to each other regardless of
-> line voltage.
->
-> ATA on one end and ATD on the other will normally get them talking.
-> As a test I just looped my internal AMR winmodem to my Xircom Realport V90
-> modem and got a solid 28.8k link. No problem.
->
-> If the fluid is salty enough you could probably get analogue modems to talk
-> over wet string (I have certainly passed RS485 over wet string before).
+> +static int
+> +aoehdr_atainit(struct aoedev *d, struct aoe_hdr *h)
+> +{
+> +       u16 type = __constant_cpu_to_be16(ETH_P_AOE);
+                                                                                How about __constant_htons()?
+                                                                                > +aoecmd_cfg(ushort aoemajor, unsigned char aoeminor)
+> +{
+> +       struct aoe_hdr *h;
+> +       struct aoe_cfghdr *ch;
+> +       struct sk_buff *skb, *sl;
+> +       struct net_device *ifp;
+> +       u16 aoe_type = __constant_cpu_to_be16(ETH_P_AOE);
+
+Ditto
+
+> +enum {
+> +       IFLISTSZ = 1024,
+> +};
+> +
+> +static char aoe_iflist[IFLISTSZ];
+> +
+> +int
+> +is_aoe_netif(struct net_device *ifp)
+> +{
+> +       register char *p, *q;
+> +       register int len;
+> +
+> +       if (aoe_iflist[0] == '\0')
+> +               return 1;
+> +
+> +       for (p = aoe_iflist; *p; p = q + strspn(q, WHITESPACE)) {
+> +               q = p + strcspn(p, WHITESPACE);
+> +               if (q != p)
+> +                       len = q - p;
+> +               else
+> +                       len = strlen(p); /* last token in aoe_iflist
+*/
+> +
+> +               if (strlen(ifp->name) == len && !strncmp(ifp->name, p,
+len))
+> +                       return 1;
+> +               if (q == p)
+> +                       break;
+> +       }
+> +
+> +       return 0;
+> +}
+
+This is getting called for every skb received.  Do you really want to
+walk a string array looking for "eth0" or "eth1" for every receive
+packet?  Maybe making the locals "register" helps speed things up.  :-)
+
+Seriously, can you achieve the same by registering the packet type
+handler for each dev and let netif_receive_skb() do the check for
+skb->dev == packet_type->dev?
+
+> +skb_check(struct sk_buff *skb)
+> +{
+> +       if (skb_is_nonlinear(skb))
+> +       if ((skb = skb_share_check(skb, GFP_ATOMIC)))
+> +       if (skb_linearize(skb, GFP_ATOMIC) < 0) {
+> +               dev_kfree_skb(skb);
+> +               return NULL;
+> +       }
+
+indentation of if's
+
+> + * (1) i have no idea if this is redundant, but i can't figure why
+> + * the ifp is passed in if it is.
+
+This isn't necessary - see deliver_skb()
+
+> +       skb->len += ETH_HLEN;   /* (2) */
+
+You want to do a skb_push(skb, ETH_HLEN) here instead to keep skb->len
+and skb->data corresponding (basically to undo the skb->pull() in
+eth_type_trans()).  skb->mac.raw will still be correct.
+
+> +       n = __be32_to_cpu(*((u32 *) h->tag));
+
+Use ntohl() variant since this is network header field.
+
+> +       if (h->verfl & AOEFL_ERR) {
+> +               n = h->err;
+> +               if (n > NECODES)
+> +                       n = 0;
+> +               printk(KERN_CRIT "aoe: aoenet_rcv: error packet from
+%d.%d; "
+> +                       "ecode=%d '%s'\n",
+> +                      __be16_to_cpu(*((u16 *) h->major)), h->minor,
+> +                       h->err, aoe_errlist[n]);
+> +               goto exit;
+> +       }
+
+Is there a better way to handle errors than flooding the log?
+
+> +       dev_kfree_skb(skb);
+
+kfree_skb() should be enough.
+
+-scott
+

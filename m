@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269180AbRHBWHc>; Thu, 2 Aug 2001 18:07:32 -0400
+	id <S269171AbRHBWJm>; Thu, 2 Aug 2001 18:09:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269177AbRHBWHW>; Thu, 2 Aug 2001 18:07:22 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:43269 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S269180AbRHBWHN>; Thu, 2 Aug 2001 18:07:13 -0400
-Date: Thu, 2 Aug 2001 19:07:11 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-Cc: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	id <S269177AbRHBWJc>; Thu, 2 Aug 2001 18:09:32 -0400
+Received: from waste.org ([209.173.204.2]:23592 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S269171AbRHBWJ0>;
+	Thu, 2 Aug 2001 18:09:26 -0400
+Date: Thu, 2 Aug 2001 17:09:04 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: george anzinger <george@mvista.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Chris Friesen <cfriesen@nortelnetworks.com>,
         <linux-kernel@vger.kernel.org>
-Subject: Re: Ongoing 2.4 VM suckage
-In-Reply-To: <Pine.LNX.4.33.0108021448400.21298-100000@heat.gghcwest.com>
-Message-ID: <Pine.LNX.4.33L.0108021900080.5582-100000@duckman.distro.conectiva>
+Subject: Re: No 100 HZ timer !
+In-Reply-To: <3B69C394.4A0C20B9@mvista.com>
+Message-ID: <Pine.LNX.4.30.0108021641250.2340-100000@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Aug 2001, Jeffrey W. Baker wrote:
+On Thu, 2 Aug 2001, george anzinger wrote:
 
-> Gosh, here's an idea: if there is no memory left and someone
-> malloc()s some more, have malloc() fail?  Kill the process that
-> required the memory? I can't believe the attitude I am hearing.
-> Userland processes should be able to go around doing whaever the
-> fuck they want and the box should stay alive.
+> I guess I am confused.  How is it that raising HZ improves throughput?
+> And was that before or after the changes in the time slice routines that
+> now scale with HZ and before were fixed?  (That happened somewhere
+> around 2.2.14 or 2.2.16 or so.)
 
-If you have a proposal on what to do when both ram
-and swap fill up and you need more memory, please
-let me know.
+My guess is that processes that are woken up for whatever reason get to
+run sooner, reducing latency, and thereby increasing throughput when not
+compute-bound. Presumably this was with shorter time slices.
 
-Until then, we'll kill processes when we exhaust
-both memory and swap ;)
-
-cheers,
-
-Rik
 --
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

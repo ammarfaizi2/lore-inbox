@@ -1,68 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262623AbTEAAtk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 20:49:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbTEAAtk
+	id S262638AbTEAAvA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 20:51:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbTEAAvA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 20:49:40 -0400
-Received: from smtp-out.comcast.net ([24.153.64.109]:51737 "EHLO
-	smtp-out.comcast.net") by vger.kernel.org with ESMTP
-	id S262623AbTEAAti (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 20:49:38 -0400
-Date: Wed, 30 Apr 2003 21:00:30 -0400
-From: rmoser <mlmoser@comcast.net>
-Subject: Re: Kernel source tree splitting
-In-reply-to: <20030501005224.GA8676@work.bitmover.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <200304302100300700.0157A42C@smtp.comcast.net>
-MIME-version: 1.0
-X-Mailer: Calypso Version 3.30.00.00 (3)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-References: <200304301946130000.01139CC8@smtp.comcast.net>
- <20030430172102.69e13ce9.rddunlap@osdl.org>
- <20030501005224.GA8676@work.bitmover.com>
+	Wed, 30 Apr 2003 20:51:00 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:55013 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262638AbTEAAu6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 20:50:58 -0400
+Date: Wed, 30 Apr 2003 18:03:17 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: paulus@samba.org
+Cc: Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+Message-ID: <20030501010317.GB8676@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>, paulus@samba.org,
+	Larry McVoy <lm@bitmover.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <170EBA504C3AD511A3FE00508BB89A9202032941@exnanycmbx4.ipc.com> <20030430152041.GA22038@work.bitmover.com> <16048.20899.694659.419853@nanango.paulus.ozlabs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16048.20899.694659.419853@nanango.paulus.ozlabs.org>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
+	DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, May 01, 2003 at 08:43:47AM +1000, Paul Mackerras wrote:
+> Larry McVoy writes:
+> 
+> > What I haven't seen is a lot of revolutionary work.  All of that seems
+> > to come from commercial companies and at a pretty slow pace.  There are
+> 
+> Didn't the web start out as open source?  Certainly it didn't come
+> from a commercial company.  And the web is arguably the biggest
+> revolution in computing in the last 10 years.
 
+Well, http was from CERN and Mosaic was from a University, right? 
+And yes, I'd agree 100% that the Web is absolutely the biggest deal 
+in computing in the last 10 years, in fact, I think you could argue
+that it is the biggest deal in computing pretty much ever.
 
-*********** REPLY SEPARATOR  ***********
+On the other hand, Google is probably the most useful way to use the
+web at that was absolutely a for profit commercial venture.
 
-On 4/30/2003 at 5:52 PM Larry McVoy wrote:
+And as much as I dislike Microsoft, I'd argue that the middleware layer
+that they provide which makes all the windows apps work together is 
+maybe even a bigger deal than the web.  Unix has been trying to build
+something like that for decades and never has.  Neither Gnome nor KDE 
+matches what they have, not a chance.  And the reason is that that 
+layer is the computing version of ditch digging, it's not sexy, it's
+not math, it's just a pile of grunt work, a huge pile.  And Microsoft
+did it and not all the Unix guys plus all the open source guys have
+anything remotely as useful.
 
->It would be *really* cool if the Makefile dependencies actually worked.
->It's a very little known fact but if you are in an RCS or SCCS (and BK
->looks like SCCS to make) source tree and the files are not checked out,
->you can just say
->
->	make
->
->and make will look for a makefile, if there isn't one but there is a
->SCCS/s.[Mm]akefile it will check it out, look at the dependencies and start
->checking those out and keep doing it to satisfy the target.
->
->It's a really pleasant way to work, the "make clobber" target "cleans"
->all the source so it isn't checked out, the directory is nice and empty.
->This makes it easy to see stuff you still need to check in or think about.
->It's definitely an old timer way of working, I'm pretty sure that the
->original Unix was done this way but just because it is old doesn't mean
->it is bad.  Opinions differ on that :)
->
->Here's a make in a cleaned BK source tree:
-[cut]
-
-....
-
-Larry... what the heck are you talking about?  No really you lost me
-:)
-
-Are you talking about hitting a button and flushing all the code but
-what's new, or about actually making different tarballs cause the
-source tree to auto-adapt to what's in it?
-
-What is RCS/SCCS
-
---Bluefox Icy
-
+Don't get me wrong, I think Microsoft as an OS company is the worldest
+biggest joke.  Anyone who thinks that socket "handles" are different
+than file "handles" just doesn't get the abstraction at all.  It's 
+pathetic, amazingly so.  But they got the application support layer 
+pretty right or at least very useful and workable.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

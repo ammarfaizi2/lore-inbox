@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316503AbSFJXC6>; Mon, 10 Jun 2002 19:02:58 -0400
+	id <S316519AbSFJXFo>; Mon, 10 Jun 2002 19:05:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316512AbSFJXC5>; Mon, 10 Jun 2002 19:02:57 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:15624 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316503AbSFJXC5>;
-	Mon, 10 Jun 2002 19:02:57 -0400
-Date: Mon, 10 Jun 2002 15:59:16 -0700
-From: Greg KH <greg@kroah.com>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] PCI Hotplug ACPI driver minor fix.
-Message-ID: <20020610225915.GA5067@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S316512AbSFJXFn>; Mon, 10 Jun 2002 19:05:43 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61968 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316519AbSFJXFm>;
+	Mon, 10 Jun 2002 19:05:42 -0400
+Message-ID: <3D053010.9060409@mandrakesoft.com>
+Date: Mon, 10 Jun 2002 19:02:40 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/00200205
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Brad Hards <bhards@bigpond.net.au>
+CC: Kai Henningsen <kaih@khms.westfalen.de>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: of ethernet names (was [PATCH] Futex Asynchronous
+In-Reply-To: <Pine.LNX.4.44.0206091130490.13751-100000@home.transmeta.com> <8QbwdDPmw-B@khms.westfalen.de> <3D051DAF.6020107@mandrakesoft.com> <200206110852.57442.bhards@bigpond.net.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Brad Hards wrote:
+> On Tue, 11 Jun 2002 07:44, Jeff Garzik wrote:
+> 
+>>Actually, networking is moving in the direction described --
+>>yes, as Linus points out, we will need the magic ioctl stuff for back
+>>compat.
+>>But the main way to communicate with a net device is netlink, already a
+>>chardev.  ifconfig actually should be updated to use netlink.
+> 
+> Is there any documentation on the netlink API, beyond UTSL(iproute)?
+> Reference would be good, but a tutorial would be ideal.
 
-Here's a patch against 2.4.19-pre10 that exports a needed symbol from
-the ACPI core.  This symbol is needed for the PCI Hotplug ACPI driver.
 
-thanks,
+I don't know of any...  Alexey/DaveM/Jamal are probably the best people 
+to ask.
 
-greg k-h
+	Jeff
 
 
-diff -Naur -X ../dontdiff a/drivers/acpi/acpi_ksyms.c b/drivers/acpi/acpi_ksyms.c
---- a/drivers/acpi/acpi_ksyms.c	Mon Jun 10 12:07:36 2002
-+++ a/drivers/acpi/acpi_ksyms.c	Thu Feb 21 15:19:37 2002
-@@ -106,6 +106,7 @@
- EXPORT_SYMBOL(acpi_enter_sleep_state);
- EXPORT_SYMBOL(acpi_get_system_info);
- EXPORT_SYMBOL(acpi_leave_sleep_state);
-+EXPORT_SYMBOL(acpi_walk_namespace);
- /*EXPORT_SYMBOL(acpi_save_state_mem);*/
- /*EXPORT_SYMBOL(acpi_save_state_disk);*/
- EXPORT_SYMBOL(acpi_hw_register_read);
+
 

@@ -1,61 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288977AbSBDNnH>; Mon, 4 Feb 2002 08:43:07 -0500
+	id <S288978AbSBDNlR>; Mon, 4 Feb 2002 08:41:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288981AbSBDNnB>; Mon, 4 Feb 2002 08:43:01 -0500
-Received: from wep10a-3.wep.tudelft.nl ([130.161.65.38]:7439 "EHLO
-	wep10a-3.wep.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S288977AbSBDNl5>; Mon, 4 Feb 2002 08:41:57 -0500
-Date: Mon, 4 Feb 2002 14:41:46 +0100 (CET)
-From: Taco IJsselmuiden <taco@wep.tudelft.nl>
-Reply-To: Taco IJsselmuiden <taco@wep.tudelft.nl>
-To: Jens Axboe <axboe@suse.de>
-cc: Paul Bristow <paul@paulbristow.net>, linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] Oops with ide-floppy in 2.5.2 / 2.5.3
-In-Reply-To: <20020204091509.Q29553@suse.de>
-Message-ID: <Pine.LNX.4.21.0202041440390.23695-100000@banaan.taco.dhs.org>
+	id <S288973AbSBDNlI>; Mon, 4 Feb 2002 08:41:08 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:51347 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S288976AbSBDNlC>;
+	Mon, 4 Feb 2002 08:41:02 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Generic HDLC patch for 2.5.3
+In-Reply-To: <20020202190242.C1740@havoc.gtf.org>
+	<E16XAnc-00010K-00@the-village.bc.nu>
+	<20020202200332.A3740@havoc.gtf.org>
+	<20020203181302.C12963@fafner.intra.cogenit.fr>
+	<20020203124614.A10139@havoc.gtf.org>
+	<20020203230652.D12963@fafner.intra.cogenit.fr>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 04 Feb 2002 13:58:28 +0100
+In-Reply-To: <20020203230652.D12963@fafner.intra.cogenit.fr>
+Message-ID: <m3g04h5rpn.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens, Paul,
+Francois Romieu <romieu@cogenit.fr> writes:
 
-> If the driver knows what it is doing, then this patch should cure your
-> problem.
-> 
-> --- drivers/ide/ide.c~        Mon Feb  4 09:12:10 2002
-> +++ drivers/ide/ide.c Mon Feb  4 09:14:39 2002
-> @@ -1784,6 +1784,8 @@
->       if (blk_queue_empty(&drive->queue) || action == ide_preempt) {
->               if (action == ide_preempt)
->                       hwgroup->rq = NULL;
-> +             if (!blk_queue_empty(&drive->queue))
-> +                     list_entry_rq(queue_head)->flags &= ~REQ_STARTED;
->       } else {
->               if (action == ide_wait || action == ide_end) {
->                       queue_head = queue_head->prev;
-> 
+> --- linux-2.5.3-kh/include/linux/hdlc/ioctl.h	Thu Jan  1 01:00:00 1970
+> +++ linux-2.5.3/include/linux/hdlc/ioctl.h	Sun Feb  3 21:46:11 2002
+> +typedef struct {
+> +	unsigned short encoding;
+> +	unsigned short parity;
+> +} raw_proto;
 
-when using this in vanilla 2.5.3 it continues to oops.
-But, when using Ingo's K0 on top of 2.5.3 it 'works' with this patch.
-That is: it doesn't oops.
-it now just goes:
-brood:~# insmod ide-floppy
-using /lib/modules/2.5.3-K0/kernel/drivers/ide/ide-floppy.o
-ide-floppy driver 0.98a
-hdd: 98304kB, 196608 blocks, 512 sector size
+This isn't for "raw" protocol. It's for raw _HDLC_ (or "just" HDLC),
+so I think a better name is still hdlc_proto.
 
+> +struct hdlc_settings {
+> +	union {
+> +		raw_proto		raw;
+> +		cisco_proto		cisco;
+> +		fr_proto		fr;
+> +		fr_proto_pvc		fr_pvc;
+> +		sync_serial_settings	sync;
+> +		te1_settings		te1;
+> +	} hdlcs_hdlcu;
+> +};
 
-and doesn't return to the prompt
+I want to avoid such a union, because it's possible some of future member
+structs will be large.
 
-and /proc/modules has
-ide-floppy             11744 (initializing)
-(even after waiting a _LONG_ time....)
+> @@ -95,10 +96,13 @@ struct ifmap 
+>  struct if_settings
+>  {
+>  	unsigned int type;	/* Type of physical device or protocol */
+> -	unsigned int data_length; /* device/protocol data length */
+> -	void * data;		/* pointer to data, ignored if length = 0 */
+> +	union {
+> +		/* {atm/eth/dsl}_settings anyone ? */
+> +		struct hdlc_settings ifsu_hdlc;
+> +	} ifs_ifsu;
+>  };
 
-
-
-Cheers,
-Taco.
-
-
+And here. It's currently impossible, as if_settings must be 16 bytes long
+at most. Unless, of course, we have a variable-sized ifreq.
+-- 
+Krzysztof Halasa
+Network Administrator

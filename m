@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267695AbTAHDyZ>; Tue, 7 Jan 2003 22:54:25 -0500
+	id <S267697AbTAHD6M>; Tue, 7 Jan 2003 22:58:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267697AbTAHDyZ>; Tue, 7 Jan 2003 22:54:25 -0500
-Received: from unthought.net ([212.97.129.24]:57763 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S267695AbTAHDyY>;
-	Tue, 7 Jan 2003 22:54:24 -0500
-Date: Wed, 8 Jan 2003 05:03:03 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Greg Stark <gsstark@mit.edu>
+	id <S267698AbTAHD6M>; Tue, 7 Jan 2003 22:58:12 -0500
+Received: from smtp.comcast.net ([24.153.64.2]:11869 "EHLO smtp.comcast.net")
+	by vger.kernel.org with ESMTP id <S267697AbTAHD6L>;
+	Tue, 7 Jan 2003 22:58:11 -0500
+Date: Tue, 07 Jan 2003 23:00:56 -0500
+From: Russell Leighton <russ@elegant-software.com>
+Subject: Re: long stalls
+To: Brian Tinsley <btinsley@emageon.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: More tests [Was: Problem with read blocking for a long time on /dev/scd1]
-Message-ID: <20030108040303.GE3960@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Greg Stark <gsstark@mit.edu>, linux-kernel@vger.kernel.org
-References: <87adj0b3hj.fsf@stark.dyndns.tv> <87u1h799v5.fsf@stark.dyndns.tv> <87of7euj51.fsf_-_@stark.dyndns.tv> <20021222201345.GG30634@unthought.net> <87n0mxt8md.fsf@stark.dyndns.tv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <87n0mxt8md.fsf@stark.dyndns.tv>
-User-Agent: Mutt/1.3.28i
+Message-id: <3E1BA278.2000003@elegant-software.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.9)
+ Gecko/20020311
+References: <3E1B73F3.2070604@emageon.com>
+ <3E1B8439.8040209@elegant-software.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 23, 2002 at 03:58:02AM -0500, Greg Stark wrote:
-> Jakob Oestergaard <jakob@unthought.net> writes:
-> 
-...
-> When your process is blocked, what wait channel does ps -elf list for it?
-> What system call does strace -T show it executing and for how long?
 
-On the NFS server, knfsd and kupdated will block on "wait_on_b" (WCHAN
-in top).
+Minor correction: 3ware RAID controller.
 
-I guess an strace on the NFS client would just show the process waiting
-in some open/read/write/close code, waiting for NFS/RPC. Not much good.
+Russell Leighton wrote:
 
-The hangs last for approximately 5 seconds, sometimes around 10.
+>
+> I can't help, but I can echo a "me too".
+>
+> We only see it when I have 2 file I/O intensive processes...they both 
+> will just stop for some few seconds, system seems idle...then
+> they just start again. RH7.3 SMP, Dual PIII, 4GB RAM, 3com RAID 
+> Controller .
+>
+> Brian Tinsley wrote:
+>
+>> We have been having terrible problems with long stalls, meaning from 
+>> a couple of minutes to an hour, happening when filesystem I/O load 
+>> gets high. The system time as reported by vmstat or sar will increase 
+>> up to 99% and as it spreads to each procesor, the system becomes 
+>> completely unresponsive (except that it responds to pings just fine - 
+>> interesting!). When the system finally returns to the world of the 
+>> living, the only evidence that something bad has happened is the 
+>> runtime for kswapd is abnormally high. I have seen this happen with 
+>> the stock 2.4.17, 2.4.19, and 2.4.20 kernels on SMP PIII and PIV 
+>> machines (either 4GB or 8GB RAM, all SCSI disks, dual GigE NICs). 
+>> I've searched the lkml archives and google and have found several 
+>> similar postings, but there is never an explanation or resolution. 
+>> Any help would be *very* much appreciated! If any info from the 
+>> system in question is desired, I will be glad to provide it.
+>>
+>>
+>>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+

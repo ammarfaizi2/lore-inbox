@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319816AbSIMWkY>; Fri, 13 Sep 2002 18:40:24 -0400
+	id <S319818AbSIMWpt>; Fri, 13 Sep 2002 18:45:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319817AbSIMWkX>; Fri, 13 Sep 2002 18:40:23 -0400
-Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:60058 "EHLO
-	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S319816AbSIMWkW>; Fri, 13 Sep 2002 18:40:22 -0400
-Date: Fri, 13 Sep 2002 19:44:56 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "Timothy D. Witham" <wookie@osdl.org>
-cc: jimsibley@earthlink.net, <linux-kernel@vger.kernel.org>,
-       <thunder@lightweight.ods.org>
-Subject: RE: Killing/balancing processes when overcommited
-In-Reply-To: <1031956299.2317.240.camel@wookie-t23.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.44L.0209131943390.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319819AbSIMWpr>; Fri, 13 Sep 2002 18:45:47 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:33777 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S319818AbSIMWpp>;
+	Fri, 13 Sep 2002 18:45:45 -0400
+Date: Sat, 14 Sep 2002 00:50:33 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: "David S. Miller" <davem@redhat.com>
+Cc: defouwj@purdue.edu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.0-2.5 bug in ip_options_compile
+Message-ID: <20020913225033.GP2242@khan.acc.umu.se>
+References: <20020913220838.GA1579@blorp.plorb.com> <20020913.151306.40776578.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020913.151306.40776578.davem@redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Sep 2002, Timothy D. Witham wrote:
+On Fri, Sep 13, 2002 at 03:13:06PM -0700, David S. Miller wrote:
+>    From: Jeff DeFouw <defouwj@purdue.edu>
+>    Date: Fri, 13 Sep 2002 17:08:38 -0500
+> 
+>    While reading about IP options, I found the IPOPT_END padding (cleaning)
+>    in ip_options_compile (net/ipv4/ip_options.c) was not incrementing a
+>    pointer.  There should be an optptr++ in the for end-of-block statement
+>    to go along with the l--, otherwise it's just comparing the same byte
+>    for each l.  Patch is against 2.4.19.  From the kernel source browser
+>    this bug is also in 2.5.31, 2.2.21, and 2.0.39.
+> 
+> Thanks a lot for spotting this, I will add this
+> to my 2.4.x and 2.5.x trees and merge upstream.
 
->   In this case the offense is asking for more memory.  So it is the
-> process that asks for more memory that goes away.  Again sometimes it
-> will be an innocent bystander but hopefully it will eventually be the
-> process that is causing the problem.
+Thanks. Will be in 2.0.40-rc7.
 
-If you kill the process that requests memory, the sequence often
-goes as follows:
 
-1) memory is exhausted
-
-2) the network driver can't allocate memory and
-   spits out a message
-
-3) syslogd and/or klogd get killed
-
-Clearly you want to be a bit smarter about which process to kill.
-
-regards,
-
-Rik
+Regards: David Weinehall
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
-
+ /> David Weinehall <tao@acc.umu.se> /> Northern lights wander      <\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,77 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262288AbRGSPpB>; Thu, 19 Jul 2001 11:45:01 -0400
+	id <S262634AbRGSPwl>; Thu, 19 Jul 2001 11:52:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262634AbRGSPow>; Thu, 19 Jul 2001 11:44:52 -0400
-Received: from mail.rdsnet.ro ([193.231.236.16]:48520 "HELO rdsnet.ro")
-	by vger.kernel.org with SMTP id <S262288AbRGSPon>;
-	Thu, 19 Jul 2001 11:44:43 -0400
-Date: Thu, 19 Jul 2001 18:44:52 +0300 (EEST)
-From: Cornel Ciocirlan <ctrl@rdsnet.ro>
-To: linux-kernel@vger.kernel.org
-Subject: Request for comments
-Message-ID: <Pine.LNX.4.21.0107191757400.17990-100000@groove.rdsnet.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263748AbRGSPwW>; Thu, 19 Jul 2001 11:52:22 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:28934 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S262634AbRGSPwT>; Thu, 19 Jul 2001 11:52:19 -0400
+Date: Thu, 19 Jul 2001 17:50:19 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Steve Kieu <haiquy@yahoo.com>
+Cc: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+Message-ID: <20010719175019.B13239@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010718182201.J13239@arthur.ubicom.tudelft.nl> <20010719020259.24124.qmail@web10408.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010719020259.24124.qmail@web10408.mail.yahoo.com>; from haiquy@yahoo.com on Thu, Jul 19, 2001 at 12:02:59PM +1000
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi, 
+On Thu, Jul 19, 2001 at 12:02:59PM +1000, Steve Kieu wrote:
+>  --- Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL> wrote: > On
+> > FUD. I've been using reiserfs on quite some systems
+> 
+> Probably !. I said just from my computer, :-)
+> 
+> Reiserfs uses system resources more than others.
+> Perfomance is ok (not as far more or less than JFS)
+> but after using for a while, some mysterious things
+> happen ; for example, the ini file of some program is
+> changed wihtout any reason. For example I run mc and
+> make it learn all keys, and pause when executing a
+> command ; After reboot, sometimes all these setting
+> are lost, some times not. It still happen with XFS
+> though but never see in ext2, ext3 (now I am using)
 
-I was thinking of starting a project to implement a Cisco-like
-"NetFlow" architecture for Linux. This would be relevant for edge routers
-and/or network monitoring devices.  
-
-What this would do is keep a "cache" of all the "flows" that are passing
-through the system; a flow is defined as the set of packets that have the
-same headers - or header fields. For example we could choose "ip source,
-ip destination, ip protocol, ip source port [if relevant], ip destination
-port [ if relevant ], and maintain a cache of all distinct such
-"flows" that pass through the system. The flows would have to be
-"expired" from the cache (LRU) and there should be a limit on the size of
-the cache.
-
-What can we use the cache for: 
-
-a) more efficient packet filtering. After a cache entry is created for a
-flow,  we apply the ACLs for the packet and associate the action with the
-flow. All subsequent packets belonging to the same flow will be
-dropped/accepted without re-appying the packet filtering rules
-b) traffic statistics. When expiring a flow in the cache we could send a
-special "messagge" to a user-space process with the 
-	* flow caracteristics (ip src,ip dest etc)
-	* total number of packets that were associated with this flow
-	* flow start timestamp, flow last-activity timestamp
-	* avg pkts/second while the flow was active
-	* total bytes transmitted for this flow 
-c) we could make routing decisions by looking at the flow cache, eg when 
-  we first create the flow we look into the routing table and save the 
-  index of the output interface in the flow cache. Subsequent packets
-  matching the flow will not  cause a search through the routing table. 
-d) prevent denial-of-service by configuring for example automatic
-filtering of a flow that matches more than some-high-value pps (Most flows
-will probably be 1000 pps max, while packet floods can be 5k-25k easily)
-
-Problems: 
-- some overhead will be added, however if we implement a) and c) above we
-can reduce it. d) will also make the system perform better under high
-load.
-- we need to come up with a pretty efficient data structure to search
-through it very quickly - if we route 20k pps, too much overhead will kill
-us. I was thinking of a hash table with AVL trees instead of linked lists,
-which I think the buffer cache is using; other options: splay trees maybe
-useful ?)
-- in all cases we'll need something like an expiry thread that actively
-removes inactive flows from the cache 
-
-Is it useful at all ? Point b) above could be implemented in userspace
-(Actually I've done a basic skeleton a while ago). Are the others worth
-the trouble ?
-
-What do you gurus think ?
-
-Kind regards,
-Cornel.
+That sounds more like hardware problems to me.
 
 
+Erik
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

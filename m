@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312311AbSDDM55>; Thu, 4 Apr 2002 07:57:57 -0500
+	id <S313162AbSDDNNd>; Thu, 4 Apr 2002 08:13:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313164AbSDDM5w>; Thu, 4 Apr 2002 07:57:52 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:15633 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S312311AbSDDM5g>; Thu, 4 Apr 2002 07:57:36 -0500
-Message-ID: <3CAC3F42.4040100@evision-ventures.com>
-Date: Thu, 04 Apr 2002 13:55:46 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.8-pre1 fs/dquot
-In-Reply-To: <Pine.LNX.4.33.0204031714080.12444-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S313164AbSDDNNX>; Thu, 4 Apr 2002 08:13:23 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:9213 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S313162AbSDDNNT>;
+	Thu, 4 Apr 2002 08:13:19 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Thu, 4 Apr 2002 13:13:18 GMT
+Message-Id: <UTC200204041313.NAA524931.aeb@cwi.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] omission in video driver
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looking further through the pre patch I have found the following:
+> if you think a linux KDSBORDER is worthwhile
 
-diff -Nru a/fs/dquot.c b/fs/dquot.c
---- a/fs/dquot.c	Wed Apr  3 17:11:14 2002
-+++ b/fs/dquot.c	Wed Apr  3 17:11:14 2002
-...
-+static ctl_table fs_table[] = {
-+ 
-{FS_NRDQUOT, "dquot-nr", &nr_dquots, 2*sizeof(int),
-+ 
-  0444, NULL, &proc_dointvec},
-+ 
-{},
-+};
+Maybe mostly fun.
 
+> Ok, so if we feed the above four lines through s/palette/border/g
+> then we have an acceptable API?
 
-What the heck is "dquot-nr"?
+Yes.
 
-The breakup between the two abbreviations is not nice for the following reasons:
+>> [In fact the author of the palette patch did not know the standard
+>> for escape sequences, but nobody stopped him.]
 
-1. Invention of - is redundant becouse the whole thing is an abbreviation
-    anyway.
+> Alas, I too don't know what would be the standard/ANSI escape
+> sequences for setting border colours
 
-2. It violates C/perl/whatever rules for item names.
+I meant it differently.
 
-3. The order of "nr" "preposition" and the "-" after the item is not consistant
-    with the actual usage in application code!
+Escape sequences have a certain structure described
+in various standards, like ISO 6429 (ECMA 48).
+That is useful, it enables applications to parse input
+into text and escape sequences without knowing of all
+escape sequences precisely what they are supposed to do.
 
-The surrounding FS_NRDQUOT and nr_dquots show nicely that replacing
-"dquot-nr" with "nrdquot" would fit much better and be much more consistant
-with the implicite naming conventions used by programmers. Far easier
-to grasp becouse there is no such thing as a disk quota of numbers...
+For example, for security one might want to have a filter
+that removes the escape sequences (or maybe only the
+unrecognized escape sequences) from text written to the
+terminal.
 
-Just nit-picking and ducking... ;-)
+Attempt to summarize very briefly:
+One has
+- single byte codes in 0x00-0x1f, like CR, LF, FF, ESC, BEL, etc.
+- single byte codes in 0x80-0x9f, also representable as
+  ESC followed by a single byte code in 0x40-0x5f.
+  For example, CSI can be 0x9b or ESC [.
+- two byte sequences of the form ESC followed by a byte in 0x60-0x7e.
+- sequences that start with CSI, then zero or more parameter bytes
+  in 0x30-0x3f, then zero or more intermediate bytes in 0x20-0x2f,
+  then one final byte in 0x40-0x7e.
+  For example, a typical sequence might be ESC [ rr ; cc H
+  where rr and cc are sequences of decimal digits, and this
+  sequence moves the cursor to row rr and column cc.
+- finally there sequences that start with an opening delimiter
+  (e.g. ESC _ or ESC P or ESC ] or ESC ^ or ESC X) and end
+  with a string terminator (0x9c or ESC \).
 
+The palette setting sequence that Linux uses is
+ESC ] P nrrggbb. There is no string terminator here.
+
+So, the structure of the sequence is wrong.
+The choice of sequence, probably random, with P for palette,
+is also wrong, SGR (set graphics rendition) or DCS (device
+control string) would have been more logical choices.
+
+Andries

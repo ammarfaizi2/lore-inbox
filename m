@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292944AbSCDWWK>; Mon, 4 Mar 2002 17:22:10 -0500
+	id <S292941AbSCDWXE>; Mon, 4 Mar 2002 17:23:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292942AbSCDWWA>; Mon, 4 Mar 2002 17:22:00 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:5899 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S292941AbSCDWVp>; Mon, 4 Mar 2002 17:21:45 -0500
-Date: Mon, 4 Mar 2002 23:21:39 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: <puw@cola.teststation.com>
-To: Kerekfy Peter <kerekfyp@fazekas.hu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: linux kernel bug report
-In-Reply-To: <Pine.LNX.4.33.0203041729450.10999-600000@pingvin.fazekas.hu>
-Message-ID: <Pine.LNX.4.33.0203042310500.16082-100000@cola.teststation.com>
+	id <S292942AbSCDWWz>; Mon, 4 Mar 2002 17:22:55 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28683 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292941AbSCDWWr>; Mon, 4 Mar 2002 17:22:47 -0500
+Subject: Re: FPU precision & signal handlers (bug?)
+To: eries@there.com (Eric Ries)
+Date: Mon, 4 Mar 2002 22:37:57 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200203041858.g24IwW115990@thdev4.there.com> from "Eric Ries" at Mar 04, 2002 10:58:32 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16i15h-0000q9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Mar 2002, Kerekfy Peter wrote:
+> handlers. We use signals extensively in our program, and were quite
+> surprised to find kernel FINIT traps being generated from them. After
+> reading through the 2.4.2 source, I now believe that all signal
+> handlers run with the default FPU control word in effect. Here's
+> why...
 
-> root@athene:~ # cat /proc/version
-> Linux version 2.4.18 (root@athene) (gcc version 2.95.3 20010315 (SuSE)) #2
-> Sat Mar 2 11:36:17 CET 2002
+Think about MMX and hopefully it makes sense then.
 
-If you can repeat this on any 2.4.x except 2.4.18 (and it's -rc versions)
-I am interested.
+> strikes me as kind of a hack. Why should the signal handler, alone
+> among all my functions (excepting main) be responsible for blowing
+> away the control word?
 
-Otherwise I believe this is known and that the fix is available as:
-  http://www.hojdpunkten.ac.se/054/samba/00-smbfs-2.4.18-codepage.patch.gz
-
-Also in 2.4.18-ac3, and hopefully soon in 2.4.19-pre3.
-
-/Urban
+Right - I would expect it to be restored at the end of the signal handler
+for you - is that occuring or not ? I just want to make sure I understand
+the precise details of the problem here.
 

@@ -1,186 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbTIPG4X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 02:56:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbTIPG4X
+	id S261791AbTIPHI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 03:08:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbTIPHI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 02:56:23 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:23219 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261779AbTIPG4T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 02:56:19 -0400
-Date: Tue, 16 Sep 2003 08:55:53 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: David Yu Chen <dychen@stanford.edu>
-Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu,
-       David Woodhouse <dwmw2@infradead.org>, linux-mtd@lists.infradead.org
-Subject: Re: [CHECKER] 32 Memory Leaks on Error Paths
-Message-ID: <20030916065553.GA12329@wohnheim.fh-wedel.de>
-References: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU>
-User-Agent: Mutt/1.3.28i
+	Tue, 16 Sep 2003 03:08:28 -0400
+Received: from 202-47-55-78.adsl.gil.com.au ([202.47.55.78]:4481 "HELO
+	longlandclan.hopto.org") by vger.kernel.org with SMTP
+	id S261791AbTIPHI0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 03:08:26 -0400
+Message-ID: <3F66B671.1020805@longlandclan.hopto.org>
+Date: Tue, 16 Sep 2003 17:06:25 +1000
+From: Stuart Longland <stuartl@longlandclan.hopto.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5b) Gecko/20030827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jeremyjin@nucleus.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How to know current Kernel Configuration?
+References: <0e851eca491344bebdb7b1a70a1bc608.jeremyjin@nucleus.com>
+In-Reply-To: <0e851eca491344bebdb7b1a70a1bc608.jeremyjin@nucleus.com>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 September 2003 21:35:46 -0700, David Yu Chen wrote:
-> 
-> [FILE:  2.6.0-test5/drivers/mtd/chips/cfi_cmdset_0020.c]
-> [FUNC:  cfi_staa_setup]
-> [LINES: 191-211]
-> [VAR:   mtd]
->  186:	struct mtd_info *mtd;
->  187:	unsigned long offset = 0;
->  188:	int i,j;
->  189:	unsigned long devsize = (1<<cfi->cfiq->DevSize) * cfi->interleave;
->  190:
-> START -->
->  191:	mtd = kmalloc(sizeof(*mtd), GFP_KERNEL);
->  192:	//printk(KERN_DEBUG "number of CFI chips: %d\n", cfi->numchips);
->  193:
->  194:	if (!mtd) {
->  195:		printk(KERN_ERR "Failed to allocate memory for MTD device\n");
->  196:		kfree(cfi->cmdset_priv);
->         ... DELETED 9 lines ...
->  206:	mtd->eraseregions = kmalloc(sizeof(struct mtd_erase_region_info) 
->  207:			* mtd->numeraseregions, GFP_KERNEL);
->  208:	if (!mtd->eraseregions) { 
->  209:		printk(KERN_ERR "Failed to allocate memory for MTD erase region info\n");
->  210:		kfree(cfi->cmdset_priv);
-> END -->
->  211:		return NULL;
->  212:	}
->  213:	
->  214:	for (i=0; i<cfi->cfiq->NumEraseRegions; i++) {
->  215:		unsigned long ernum, ersize;
->  216:		ersize = ((cfi->cfiq->EraseRegionInfo[i] >> 8) & ~0xff) * cfi->interleave;
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Valid.
+jeremyjin@nucleus.com wrote:
 
-> [FILE:  2.6.0-test5/drivers/mtd/chips/cfi_cmdset_0020.c]
-> [FUNC:  cfi_staa_setup]
-> [LINES: 191-235]
-> [VAR:   mtd]
->  186:	struct mtd_info *mtd;
->  187:	unsigned long offset = 0;
->  188:	int i,j;
->  189:	unsigned long devsize = (1<<cfi->cfiq->DevSize) * cfi->interleave;
->  190:
-> START -->
->  191:	mtd = kmalloc(sizeof(*mtd), GFP_KERNEL);
->  192:	//printk(KERN_DEBUG "number of CFI chips: %d\n", cfi->numchips);
->  193:
->  194:	if (!mtd) {
->  195:		printk(KERN_ERR "Failed to allocate memory for MTD device\n");
->  196:		kfree(cfi->cmdset_priv);
->         ... DELETED 33 lines ...
->  230:		if (offset != devsize) {
->  231:			/* Argh */
->  232:			printk(KERN_WARNING "Sum of regions (%lx) != total size of set of interleaved chips (%lx)\n", offset, devsize);
->  233:			kfree(mtd->eraseregions);
->  234:			kfree(cfi->cmdset_priv);
-> END -->
->  235:			return NULL;
->  236:		}
->  237:
->  238:		for (i=0; i<mtd->numeraseregions;i++){
->  239:			printk(KERN_DEBUG "%d: offset=0x%x,size=0x%x,blocks=%d\n",
->  240:			       i,mtd->eraseregions[i].offset,
+| And I want to keep most configuration settings because I think these
+settings should be pretty good,
+| how can I know the current configuration of the current kernel? I know
+make has a option "make oldconfig",
+| but seems like it is the old configuration of the last times "make",
+not the one of current running kernel.
 
-Also valid.
+Ahh, it's using the default configuration from the linux source, I'm not
+sure where it's stored, somewhere in arch/i386... as far as I know.
 
-> looks like checking for mtdblks instead of mtdblk
-> [FILE:  2.6.0-test5/drivers/mtd/mtdblock.c]
-> [FUNC:  mtdblock_open]
-> [LINES: 277-279]
-> [VAR:   mtdblk]
->  272:		mtdblks[dev]->count++;
->  273:		return 0;
->  274:	}
->  275:	
->  276:	/* OK, it's not open. Create cache info for it */
-> START -->
->  277:	mtdblk = kmalloc(sizeof(struct mtdblk_dev), GFP_KERNEL);
->  278:	if (!mtdblks)
-> END -->
->  279:		return -ENOMEM;
->  280:
->  281:	memset(mtdblk, 0, sizeof(*mtdblk));
->  282:	mtdblk->count = 1;
->  283:	mtdblk->mtd = mtd;
->  284:
+However, Red Hat stores their version of the .config file in /boot as
+config-`uname -r`.  So copy this to your kernel source directory as
+.config, then try make oldconfig, etc...
 
-Invalid.  This is quite an obvious false positive, at least if your
-algorithm checks for possible value ranges.
+A quick way of doing this... (assuming you are in the kernel source
+directory)
 
-> [FILE:  2.6.0-test5/fs/jffs2/scan.c]
-> [FUNC:  jffs2_scan_medium]
-> [LINES: 98-109]
-> [VAR:   flashbuf]
->   93:			buf_size = c->sector_size;
->   94:		else
->   95:			buf_size = PAGE_SIZE;
->   96:
->   97:		D1(printk(KERN_DEBUG "Allocating readbuf of %d bytes\n", buf_size));
-> START -->
->   98:		flashbuf = kmalloc(buf_size, GFP_KERNEL);
->   99:		if (!flashbuf)
->  100:			return -ENOMEM;
->  101:	}
->  102:
->  103:	for (i=0; i<c->nr_blocks; i++) {
->  104:		struct jffs2_eraseblock *jeb = &c->blocks[i];
->  105:
->  106:		ret = jffs2_scan_eraseblock(c, jeb, buf_size?flashbuf:(flashbuf+jeb->offset), buf_size);
->  107:
->  108:		if (ret < 0)
-> END -->
->  109:			return ret;
->  110:
->  111:		ACCT_PARANOIA_CHECK(jeb);
->  112:
->  113:		/* Now decide which list to put it on */
->  114:		switch(ret) {
+# cp /boot/config-`uname -r` .config
 
-Valid.  And not trivial to fix.
+Then run...
 
-> [FILE:  2.6.0-test5/fs/jffs2/scan.c]
-> [FUNC:  jffs2_scan_medium]
-> [LINES: 98-233]
-> [VAR:   flashbuf]
->   93:			buf_size = c->sector_size;
->   94:		else
->   95:			buf_size = PAGE_SIZE;
->   96:
->   97:		D1(printk(KERN_DEBUG "Allocating readbuf of %d bytes\n", buf_size));
-> START -->
->   98:		flashbuf = kmalloc(buf_size, GFP_KERNEL);
->   99:		if (!flashbuf)
->  100:			return -ENOMEM;
->  101:	}
->  102:
->  103:	for (i=0; i<c->nr_blocks; i++) {
->         ... DELETED 124 lines ...
->  228:	}
->  229:	if (c->nr_erasing_blocks) {
->  230:		if ( !c->used_size && ((empty_blocks+bad_blocks)!= c->nr_blocks || bad_blocks == c->nr_blocks) ) {
->  231:			printk(KERN_NOTICE "Cowardly refusing to erase blocks on filesystem with no valid JFFS2 nodes\n");
->  232:			printk(KERN_NOTICE "empty_blocks %d, bad_blocks %d, c->nr_blocks %d\n",empty_blocks,bad_blocks,c->nr_blocks);
-> END -->
->  233:			return -EIO;
->  234:		}
->  235:		jffs2_erase_pending_trigger(c);
->  236:	}
->  237:	if (buf_size)
->  238:		kfree(flashbuf);
+# make oldconfig
+# make xconfig, menuconfig or config	- optional
+# make dep bzImage modules modules_install - usual build procedure.
 
-Same one, basically.
+| Is there any command to list all current running linux kernel
+configuration which is used to compile that version?
+Not in 2.4.x as far as I know, but there is a virtual file in /proc
+(/proc/ikconfig or something like that I think) that does this.
 
-Jörn
+- --
++-------------------------------------------------------------+
+| Stuart Longland           stuartl at longlandclan.hopto.org |
+| Brisbane Mesh Node: 719             http://stuartl.cjb.net/ |
+| I haven't lost my mind - it's backed up on a tape somewhere |
+| Griffith Student No:           Course: Bachelor/IT (Nathan) |
++-------------------------------------------------------------+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
--- 
-Geld macht nicht glücklich.
-Glück macht nicht satt.
+iD8DBQE/ZrZxIGJk7gLSDPcRAg5/AJ0d9VzrldoRxWbEeaGMW4KIP5dMpgCePHjw
+wmkxGNq+SthHSBSeo+XQBKY=
+=XfjP
+-----END PGP SIGNATURE-----
+

@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263429AbUGMHea@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUGMHm5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263429AbUGMHea (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 03:34:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUGMHe3
+	id S263540AbUGMHm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 03:42:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263790AbUGMHm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 03:34:29 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:23508 "EHLO
-	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S263429AbUGMHe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 03:34:28 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] v850: Define find_first_bit
+	Tue, 13 Jul 2004 03:42:57 -0400
+Received: from colin2.muc.de ([193.149.48.15]:10245 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S263540AbUGMHm4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 03:42:56 -0400
+Date: 13 Jul 2004 09:42:55 +0200
+Date: Tue, 13 Jul 2004 09:42:55 +0200
+From: Andi Kleen <ak@muc.de>
+To: "Blackwood, John" <john.blackwood@ccur.com>
 Cc: linux-kernel@vger.kernel.org
-From: Miles Bader <miles@gnu.org>
-Message-Id: <20040713073416.62F99444@mctpc71>
-Date: Tue, 13 Jul 2004 16:34:16 +0900 (JST)
+Subject: Re: [PATCH] arch/i386|x86_64/kernel/ptrace.c linux-2.6.7
+Message-ID: <20040713074254.GA41931@muc.de>
+References: <40F33B35.3020209@ccur.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40F33B35.3020209@ccur.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Miles Bader <miles@gnu.org>
+On Mon, Jul 12, 2004 at 09:30:29PM -0400, Blackwood, John wrote:
+> > returned
+> > value into 'ret' from the __put_user() or __get_user() calls, in the
+> > same way that the arch/x86_64/ia32/ptrace32.c code does.
+> > 
+> > Additionally, for x86_64 only, the access_ok() size parameter should
+> > really
+> > be sizeof(struct user_regs_struct) instead of FRAME_SIZE, since on
+> > x86_64
+> > the user_regs_struct being read/written is actually a bit larger than
+> > the FRAME_SIZE define.
+> > 
+> > 
+> > Thank you.
+> > 
+> Sorry, I guess my diffs got new-line-botched-up.
+> 
+> I'll try again:
 
- include/asm-v850/bitops.h |    6 ++++++
- 1 files changed, 6 insertions(+)
+The newlines were still broken, but I applied the x86-64 part by
+hand. Thanks. For i386 I guess Andrew will queue it up. 
 
-diff -ruN -X../cludes linux-2.6.8-rc1-moo/include/asm-v850/bitops.h linux-2.6.8-rc1-moo-v850-20040713/include/asm-v850/bitops.h
---- linux-2.6.8-rc1-moo/include/asm-v850/bitops.h	2004-07-13 10:39:36 +0900
-+++ linux-2.6.8-rc1-moo-v850-20040713/include/asm-v850/bitops.h	2004-07-13 16:20:12 +0900
-@@ -267,6 +267,12 @@
- 	return result + generic_ffs_for_find_next_bit(tmp);
- }
- 
-+/*
-+ * find_first_bit - find the first set bit in a memory region
-+ */
-+#define find_first_bit(addr, size) \
-+	find_next_bit((addr), (size), 0)
-+
- 
- #define ffs(x) generic_ffs (x)
- #define fls(x) generic_fls (x)
+-Andi

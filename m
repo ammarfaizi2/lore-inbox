@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbUDXDrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbUDXDsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261887AbUDXDrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 23:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbUDXDrJ
+	id S261914AbUDXDsN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 23:48:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbUDXDsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 23:47:09 -0400
-Received: from mail.tpgi.com.au ([203.12.160.100]:39092 "EHLO
-	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S261887AbUDXDrH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 23:47:07 -0400
-Date: Sat, 24 Apr 2004 13:27:37 +1000
-From: "Nigel Cunningham" <ncunningham@linuxmail.com>
-To: "Grzegorz Piotr Jaskiewicz" <gj@pointblue.com.pl>,
-       "Pavel Machek" <pavel@ucw.cz>
-Subject: Re: swsusp: fix error handling in "not enough swap space"
-Cc: "kernel list" <linux-kernel@vger.kernel.org>
-Reply-To: ncunningham@linuxmail.com
-References: <4089DC36.5020806@pointblue.com.pl>
-Content-Type: text/plain; format=flowed; delsp=yes; charset=us-ascii
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-ID: <opr6xykbzqruvnp2@laptop-linux.wpcb.org.au>
-In-Reply-To: <4089DC36.5020806@pointblue.com.pl>
-User-Agent: Opera M2/7.50 (Linux, build 663)
-X-TPG-Antivirus: Passed
+	Fri, 23 Apr 2004 23:48:12 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:63920 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261914AbUDXDsJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 23:48:09 -0400
+Subject: Re: kernel trace (with KDB)
+From: Jim Houston <jim.houston@comcast.net>
+Reply-To: jim.houston@comcast.net
+To: Olaf Dabrunz <od@suse.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040423235521.GA19942@suse.de>
+References: <20040423235521.GA19942@suse.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1082778274.993.239.camel@new.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 23 Apr 2004 23:44:34 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Fri, 2004-04-23 at 19:55, Olaf Dabrunz wrote:
+> Hello,
+> 
+> you once submitted a patch implementing a "kernel trace mechanism for
+> KDB". Do you have a current version of this patch for 2.6 kernels?
+> 
+> Will function call tracing ever be integrated into KDB?
 
-Can we assume you've tried running mkswap again? Could you also show  
-/proc/meminfo prior to suspending?
+Hi Olaf,
 
-Regards,
+The last time I had it working was in a linux-2.6.0-test3 based kernel.
+If you would like a project, I would be glad to send you what I have.
 
-Nigel
+Jim Houston - Concurrent Computer Corp.
 
--- 
-Nigel Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614, Australia.
-+61 (2) 6251 7727 (wk)

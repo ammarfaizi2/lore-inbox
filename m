@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266020AbTAUHzq>; Tue, 21 Jan 2003 02:55:46 -0500
+	id <S266478AbTAUH6h>; Tue, 21 Jan 2003 02:58:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266250AbTAUHzq>; Tue, 21 Jan 2003 02:55:46 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:38292 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S266020AbTAUHzp>; Tue, 21 Jan 2003 02:55:45 -0500
-Message-Id: <200301210756.h0L7uOah002481@eeyore.valparaiso.cl>
-To: David Schwartz <davids@webmaster.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       brand@eeyore.valparaiso.cl
-Subject: Re: Is the BitKeeper network protocol documented? 
-In-Reply-To: Your message of "Mon, 20 Jan 2003 11:46:39 PST."
-             <20030120194744.AAA20909@shell.webmaster.com@whenever> 
-Date: Tue, 21 Jan 2003 08:56:24 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S266716AbTAUH6h>; Tue, 21 Jan 2003 02:58:37 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:33936
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S266478AbTAUH6g>; Tue, 21 Jan 2003 02:58:36 -0500
+Date: Tue, 21 Jan 2003 03:07:33 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: Alan <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] smp_call_function_mask
+In-Reply-To: <3E2CF327.8030107@colorfullife.com>
+Message-ID: <Pine.LNX.4.44.0301210304210.2653-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Schwartz <davids@webmaster.com>
-> On Mon, 20 Jan 2003 16:52:56 +0100, Horst von Brand wrote:
-> >>    I think you're ignoring the way the GPL defines the "source 
-> >>code".
+On Tue, 21 Jan 2003, Manfred Spraul wrote:
 
-> >>The GPL defines the "source code" as the preferred form for modifying
-> >>the program. If the preferred form of a work for purposes of
-> >>modifying it is live access to a BK repository, then that's the
-> >>"source code" for GPL purposes.
+> from 2.5.52, <asm-i386/atomic.h>
+>     #define atomic_read(v)          ((v)->counter)
+> AFAIK atomic_read never contained locked bus cycles.
+> 
+> Btw, Zwane, what about removing non_atomic from the prototype?
 
-> >You are a lawyer working in this area, and so can cite chapter and
-> >verse where this definition was made (the GPL text is rather vague)?
+The funny thing is, there are about 3 different versions of 
+smp_call_function and removing nonatomic would reduce the argument count 
+(there are some architectures which use 'retry' in nonatomic's place) and 
+i'm a bit wary of making other archs bend over for i386 these days. 
+Perhaps renaming it to __unused or something similarly obvious.
 
-> 	Nobody knows, that's definitely part of the problem. If you 
-> genuinely want to make a good faith effort to comply with the GPL, 
-> I'm not sure what you can do other than guess.
+	Zwane
 
-Well, as a license is in escence a promise not to sue you for using my
-property as long as you comply with certain conditions, it will then be up
-to the licensors. If Linus is OK with distributing just tar.bz2's, its OK
-for the kernel. Also, RMS specifically said using bk doesn't make the
-repository source in the GPL sense (this is presumably the intention the
-FSF will put forward, and which most other GPL-licensing parties will
-agree).
-
-IANAL (and happy for it ;-)
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+function.linuxpower.ca
+

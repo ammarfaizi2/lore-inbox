@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271007AbRICBil>; Sun, 2 Sep 2001 21:38:41 -0400
+	id <S271068AbRICBue>; Sun, 2 Sep 2001 21:50:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271019AbRICBib>; Sun, 2 Sep 2001 21:38:31 -0400
-Received: from sweetums.bluetronic.net ([66.57.88.6]:20637 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id <S271007AbRICBiT>; Sun, 2 Sep 2001 21:38:19 -0400
-Date: Sun, 2 Sep 2001 21:38:32 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetopia.net>
-X-X-Sender: <jfbeam@sweetums.bluetronic.net>
+	id <S271072AbRICBuY>; Sun, 2 Sep 2001 21:50:24 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:45784 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S271068AbRICBuK>; Sun, 2 Sep 2001 21:50:10 -0400
+Date: Mon, 3 Sep 2001 03:50:25 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: pvr2fb.c
-In-Reply-To: <E15dh74-0000d0-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.33.0109022133470.23852-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org,
+        Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>
+Subject: Re: Editing-in-place of a large file
+Message-ID: <20010903035025.B802@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <20010903032439.A802@nightmaster.csn.tu-chemnitz.de> <E15diak-0000mq-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <E15diak-0000mq-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Sep 03, 2001 at 02:31:58AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Sep 2001, Alan Cox wrote:
->> PS: Compiling 2.4.9 on an Alpha is turning up all manner of weird stuff.  Like
->>     a lot of drivers that aren't 64bit clean, missing parts of asm-alpha...
->
->Linus should have the main missing bits of asm-alpha in 2.4.10pre - although
->on x86 that crashes rapidly for me.
+On Mon, Sep 03, 2001 at 02:31:58AM +0100, Alan Cox wrote:
+> Another approach would be to keep your own index of blocks and use that
+> for the data reads.
 
-No one said mine was bootable either :-)  It builds.  Booting has yet to be
-tested (must fix dinner first.)
+That is reimplementing file system functionality in user space. 
+I'm in doubts that this is considered good design...
 
-The things I go through for my "neat toys" (firewire on an alpha)  On a side
-note, the Alpha BIOS Emulation (tm) isn't exactly perfect... the Mylex RAID
-configuration stuff won't run -- I know I'm asking alot *grin*  I'll try it
-with the DPT (I20) controller in a while. (It ain't easy putting cards in
-my alpha.  I've bled on it a few times in the process already.)
+But I've done a similar thing anyway (using a ordered list of
+continous mmap()ed chunks) some years ago (see my other posting
+in this thread mentioning C++) ;-)
 
---Ricky
+> Since fdelete and fzero wont actually relayout the files in
+> order to make the data linear (even if such calls existed)
+> there isnt much point performancewise doing it in kernel space
+
+That's the problem of the file system to be used. And the data
+doesn't need to be linear. Current file systems on Linux only
+avoid fragmentation, but they don't actively fight it by moving
+things around, so this doesn't matter anyway.
+
+> - its a very specialised application
+
+Editing video and audio streams is more common then you think and
+letting the user wait, while we copy 4GB around is not what I
+consider user friendly, even for the selective user friendlyness
+of a Unix ;-)
 
 
+Regards
+
+Ingo Oeser

@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284867AbRLPWGP>; Sun, 16 Dec 2001 17:06:15 -0500
+	id <S284850AbRLPWKe>; Sun, 16 Dec 2001 17:10:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284842AbRLPWGF>; Sun, 16 Dec 2001 17:06:05 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:32888 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S284867AbRLPWFy>; Sun, 16 Dec 2001 17:05:54 -0500
-Date: Mon, 17 Dec 2001 00:05:24 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Matt_Domsch@Dell.com
+	id <S284871AbRLPWKY>; Sun, 16 Dec 2001 17:10:24 -0500
+Received: from ppp-105-9.29-151.libero.it ([151.29.9.105]:47353 "HELO
+	blu.blu.i.prosa.it") by vger.kernel.org with SMTP
+	id <S284850AbRLPWKG>; Sun, 16 Dec 2001 17:10:06 -0500
+Date: Sun, 16 Dec 2001 23:02:06 +0100
+From: antirez <antirez@invece.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: malloc 1GB on a 2GB ia64 box fails - 17rc1 woes w/ qla1280 an d reiserfs
-Message-ID: <20011217000524.L12063@niksula.cs.hut.fi>
-In-Reply-To: <71714C04806CD5119352009027289217022C40F5@ausxmrr502.us.dell.com>
+Subject: Re: Booting a modular kernel through a multiple streams file
+Message-ID: <20011216230206.J446@blu>
+Reply-To: antirez <antirez@invece.org>
+In-Reply-To: <3C1D060B.9475C9F8@bluewin.ch> <9vj2c7$vgr$1@cesium.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <71714C04806CD5119352009027289217022C40F5@ausxmrr502.us.dell.com>; from Matt_Domsch@Dell.com on Sun, Dec 16, 2001 at 03:47:54PM -0600
+In-Reply-To: <9vj2c7$vgr$1@cesium.transmeta.com>; from hpa@zytor.com on Sun, Dec 16, 2001 at 01:06:15PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 16, 2001 at 03:47:54PM -0600, you [Matt_Domsch@Dell.com] claimed:
-> > It didn't boot, though. qla1280 just hung after "verifying 
-> > chip" phase.
-> > Strangely, I don't see any changes to qla1280.c in -rc1.
+On Sun, Dec 16, 2001 at 01:06:15PM -0800, H. Peter Anvin wrote:
+> Followup to:  <3C1D060B.9475C9F8@bluewin.ch>
+> By author:    Otto Wyss <otto.wyss@bluewin.ch>
+> In newsgroup: linux.dev.kernel
+> > 
+> > Disadvantages:
+> > - Someone else has to do it, I'm not a kernel/driver developer
+> > 
 > 
-> That's a known heisenbug on ia64, and it's been around for a while, not new
-> to recent kernels.  Generally it disappears if you reboot, or try
-> introducing debugging to find it...
+> By this you have pretty much shown yourself utterly unqualified to be
+> a kernel *designer*.  I won't even go into the various bogus
 
-Thanks for the info. In that case I'll try to boot 17rc1 a few times more. I
-never saw this with .16 nor the Mandrake default .8mdk10. I had trouble
-getting the initrd working with .17rc1 (never succeeded), so I compiled ext3
-and qla1280 statically as opposed to .16 where I had them as modules. I
-don't know if that has anything to do with it.
+Agreed, but it should be also noted that to be able to do
+kernel coding is insufficient to do kernel design.
+The same for user space, to be able to write correct C (or .*)
+will not stop people to write code with unsane design, organization
+and data structures.
 
-The reiserfs incident is still a bit worrying...
+You can see it on freshmeat and in many popular kernels every day.
+I see it with my code every time I read my last-month source code.
 
-
--- v --
-
-v@iki.fi
+-- 
+Salvatore Sanfilippo <antirez@invece.org>
+http://www.kyuzz.org/antirez
+finger antirez@tella.alicom.com for PGP key
+28 52 F5 4A 49 65 34 29 - 1D 1B F6 DA 24 C7 12 BF

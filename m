@@ -1,77 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262456AbTKNUBY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 15:01:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264145AbTKNUBY
+	id S264398AbTKNUGM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 15:06:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264442AbTKNUGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 15:01:24 -0500
-Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:32937 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262456AbTKNUBW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 15:01:22 -0500
-Date: Fri, 14 Nov 2003 21:01:19 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Harald Welte <laforge@gnumonks.org>,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: [2.6] Nonsense-messages from iptables + co.
-Message-ID: <20031114200119.GA27789@merlin.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-	Harald Welte <laforge@gnumonks.org>,
-	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>
-References: <20031114132054.GA646@merlin.emma.line.org> <20031114151004.GE2395@obroa-skai.de.gnumonks.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 14 Nov 2003 15:06:12 -0500
+Received: from out006pub.verizon.net ([206.46.170.106]:20418 "EHLO
+	out006.verizon.net") by vger.kernel.org with ESMTP id S264398AbTKNUGJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 15:06:09 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+To: Andries Brouwer <aebr@win.tue.nl>, Patrick Beard <patrick@scotcomms.co.uk>
+Subject: Re: 2.6.0-test9 VFAT problem
+Date: Fri, 14 Nov 2003 15:06:07 -0500
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <09A92EA4A9D2D51182170004AC96FE7A1216BB@mercury.scotcomms> <20031114190337.GA18107@win.tue.nl>
+In-Reply-To: <20031114190337.GA18107@win.tue.nl>
+Organization: None that appears to be detectable by casual observers
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031114151004.GE2395@obroa-skai.de.gnumonks.org>
-User-Agent: Mutt/1.5.5.1i
+Message-Id: <200311141506.07784.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.205.12.17] at Fri, 14 Nov 2003 14:06:07 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Nov 2003, Harald Welte wrote:
+On Friday 14 November 2003 14:03, Andries Brouwer wrote:
+>On Fri, Nov 14, 2003 at 11:51:57AM -0000, Patrick Beard wrote:
+>> > > My fstab entry is;
+>> > > /dev/sda    /mnt/smedia    vfat    rw,user,noauto    0,0
+>> >
+>> > I would guess that you have to mount /dev/sda1 or perhaps
+>> > /dev/sda4. Isn't that what you do under 2.4?
+>>
+>> Yes, with 2.4 I used sda1. When I first compiled 2.6 I used sda1
+>> but I got the 'wrong fs..' error. This was a clean install of
+>> debian so I didn't have my original fstab. I checked the web and
+>> noticed people using sda. so I tried that - same error. In trying
+>> to get this to work I've used sda and sda1 at different times both
+>> gave the same errors.
+>
+>Good.
+>
+>Maybe you know already, but just to be sure:
+>You must use sda if the thing has no partition table.
+>You must use sda1 if the thing has a partition table.
+>
+>So, if sda1 works under 2.4, then sda is certainly wrong under 2.6 -
+>your device would just look like garbage and the error messages are
+>meaningless.
+>Only try sda1, and report whatever goes wrong in that case.
+>
+>Andries
 
-> On Fri, Nov 14, 2003 at 02:20:54PM +0100, Matthias Andree wrote:
-> > Who the heck added these unhelpful
-> > 
-> > "ipt_hook: happy cracking."
-> > 
-> > messages to iptables/mangling/connection tracking code? There are three
-> > instances.
-> 
-> I guess it was Rusty.  The idea message is a funny way of telling you
-> that you are sending incomplete ip headers.
+I just played 210 monkeys, and /dev/sda doesn't work for mount, but 
+sda1 does.  Both work for a read by dd FWTW.  Links suitably 
+restored.
 
-Am I? what's with the *_limit() function called before the printk?
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 
-> Something that is not
-> likely to occur unless you are trying to send corrupt packets via raw ip
-> sockets...
-
-Not at the times when these occurred.
-
-> > If the kernel has got something to say, it should be clear what the
-> > kernel means, say, maximum <whatever> rate exceeded or something, not
-> > such junk like this.
-> 
-> There are people who do actually have fun developing linux code.  And
-> Rusty has a peculiar sense of humor... for further reference see the
-> comments like 'furniture shopping' throughout the netfilter/iptables
-> source code.  I sometimes wish I had the same humor like he has.
-> 
-> Yes, I know.  Stuff like this is not exactly useful in error messages.
-> I'd say it's one of the few remainders of the 2.3.x early development
-> time.  Like the "Rusty's brain broke" messages that have recently been
-> removed/replaced.
-> 
-> btw: *nix has a long history of funny error messages, like 'printer on
-> fire' or others.
-
-I don't mind having fun developing or placing funny error messages, and
-I hadn't taken that as "serious problem" message but rather as "someone
-in the wild tries to cheat on us" but how do I know?  I'm a bit more
-cautious with network related stuff, particular with packet filtering
-and things like that. I'd suggest that the fun be put in the comments,
-or that funny error messages are accompanied by a plain text explanation
-in parentheses, or there is at least a "dictionary" of error messages in
-the comments of the *.c files that a geek could find...

@@ -1,62 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267443AbTBUN60>; Fri, 21 Feb 2003 08:58:26 -0500
+	id <S267442AbTBUODj>; Fri, 21 Feb 2003 09:03:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267444AbTBUN60>; Fri, 21 Feb 2003 08:58:26 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:62909 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267443AbTBUN6Z>;
-	Fri, 21 Feb 2003 08:58:25 -0500
-Date: Fri, 21 Feb 2003 14:20:39 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Thomas Schlichter <schlicht@uni-mannheim.de>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5] replace flush_map() in arch/i386/mm/pageattr.c w ith flush_tlb_all()
-Message-ID: <20030221142039.GA21532@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Thomas Schlichter <schlicht@uni-mannheim.de>,
-	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@digeo.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0302211217390.1531-100000@localhost.localdomain> <200302211342.19007.schlicht@uni-mannheim.de>
+	id <S267444AbTBUODj>; Fri, 21 Feb 2003 09:03:39 -0500
+Received: from hacksaw.org ([216.41.5.170]:58032 "EHLO
+	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
+	id <S267442AbTBUODi>; Fri, 21 Feb 2003 09:03:38 -0500
+Message-Id: <200302211413.h1LEDjsu018068@habitrail.home.fools-errant.com>
+X-Mailer: exmh version 2.6 02/09/2003 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: card id's
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200302211342.19007.schlicht@uni-mannheim.de>
-User-Agent: Mutt/1.5.3i
+Date: Fri, 21 Feb 2003 09:13:45 -0500
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 21, 2003 at 01:42:12PM +0100, Thomas Schlichter wrote:
+Sorry for such a low level question, but...
 
- > > No.  All that does is make sure that the cpu you start out on is
- > > flushed, once or twice, and the cpu you end up on may be missed.
- > > Use preempt_disable and preempt_enable.
- > 
- > Oh, you are right! I think I am totally stupid this morning...!
- > Now finally I hope this is the correct patch...
+"Regarding pcmcia cards and device drivers, is the manufacturer id reported by 
+cardctl ident" the same one expected in the id table handed to 
+pci_register_driver()?
 
-That would appear to do what you want, but its an ugly construct to
-be repeating everywhere that wants to call a function on all CPUs.
-It would probably clean things up a lot if we had a function to do..
-
-static inline void on_each_cpu(void *func)
-{      
-#ifdef CONFIG_SMP
-	preempt_disable();
-	smp_call_function(func, NULL, 1, 1);
-	func(NULL);
-	preempt_enable();
-#else
-	func(NULL);
-#endif
-}
-
-Bluesmoke and agpgart could both use this to cleanup some mess,
-and no doubt there are others
-
-Comments?
-
-		Dave
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
+The musician has three disciplines: the disciplines of the hands, the head and 
+the heart.
+http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+
+

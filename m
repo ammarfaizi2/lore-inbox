@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279024AbRJZTpq>; Fri, 26 Oct 2001 15:45:46 -0400
+	id <S279081AbRJZTv0>; Fri, 26 Oct 2001 15:51:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279081AbRJZTpg>; Fri, 26 Oct 2001 15:45:36 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:54069 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S279024AbRJZTpY>; Fri, 26 Oct 2001 15:45:24 -0400
-Date: Fri, 26 Oct 2001 15:46:00 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Christian Widmer <cwidmer@iiic.ethz.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: priority queues on dp83820
-Message-ID: <20011026154600.A25890@redhat.com>
-In-Reply-To: <200110261415.f9QEF9305606@mail.swissonline.ch>
+	id <S279105AbRJZTvQ>; Fri, 26 Oct 2001 15:51:16 -0400
+Received: from harddata.com ([216.123.194.198]:30724 "EHLO mail.harddata.com")
+	by vger.kernel.org with ESMTP id <S279081AbRJZTvD>;
+	Fri, 26 Oct 2001 15:51:03 -0400
+Date: Fri, 26 Oct 2001 13:51:37 -0600
+From: Michal Jaegermann <michal@harddata.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: issue: deleting one IP alias deletes all
+Message-ID: <20011026135137.A11455@mail.harddata.com>
+In-Reply-To: <3BD5AED6.90401C9C@sun.com> <Pine.LNX.4.31.0110251121490.31833-100000@netmonster.pakint.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <200110261415.f9QEF9305606@mail.swissonline.ch>; from cwidmer@iiic.ethz.ch on Fri, Oct 26, 2001 at 04:01:48PM +0200
+In-Reply-To: <Pine.LNX.4.31.0110251121490.31833-100000@netmonster.pakint.net>; from mgm@paktronix.com on Thu, Oct 25, 2001 at 11:30:13AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 26, 2001 at 04:01:48PM +0200, Christian Widmer wrote:
-> has anybody try to use the priority queues of the dp83820?
-> or does somebody know where to get docu knewer then the 
-> preliminary form february 2001?
+On Thu, Oct 25, 2001 at 11:30:13AM -0500, Matthew G. Marsh wrote:
+> On Tue, 23 Oct 2001, Tim Hockin wrote:
+> 
+> > Can anyone fill me in?
+> 
+> RPDB documentation is your freind.
 
-I've not tried implementing priority queuing ins ns83820.c, but 
-the docs from Febuary 2001 are reasonably complete.
+The main problem with this documentation is that, wherever I have
+seen it, it comes _only_ as few sizeable Postscript files.  Like
+this (after 'ls -s' so sizes are in kilobytes):
 
-> i wrote a driver for the dp83820. now i tried to use 
-> priority queuing for prescheduled zero copy datastreans.
-> first i just whanted enable priority queueing without 
-> inserting of any vlan tag. this works for 1 to 3 queues 
-> like it sais in the docu (untagged packets are queued 
-> like packets with priority 0). but when i enable the 4th
-> queue i receive all none tagged data on queue 1 instead 
-> of queue 0. and if i enalbe vlan-tagging globaly or on 
-> a per packet basis i don't get any interrupts on the 
-> receiving side. has anybody an idea whats going on. if 
-> you need the code to have a lock at - let me know, i 
-> realy need some help.
+ 120 /usr/share/doc/iproute-2.2.4/api-ip6-flowlabels.ps
+ 336 /usr/share/doc/iproute-2.2.4/ip-cref.ps
+ 124 /usr/share/doc/iproute-2.2.4/ip-tunnels.ps
 
-The receiver won't accept packets if they do not match the filter 
-and filtering is enabled.  If you have any of the reject bits set 
-in the RXCFG register, that could well be tripping your code up.
+Mighty helpful if you happen to have only a text interface as is often
+the case when you work on more complicated routing setups.  It is also
+excellent for grepping (NOT!) through a 60 pages long document if you
+want to find something on a particular topic.  Unfortunately it was not
+apparently written in 'texinfo', or similar, as then one would have also
+_at least_ .info files and an easy way to search through the whole thing
+does not matter what kind of a display you have.
 
-		-ben
+HTML format would be of some help but searches through that, especially
+if multiple files are involved, are also not that nice.  Right now your
+best bet is probably to print that out and carry a stack of papers with
+you wherever you may need it.  Other than that you are currently reduced
+to '/sbin/ip help' although you may follow up with something like
+'/sbin/ip addr help' and you will get something to parse. :-)
+
+  Michal

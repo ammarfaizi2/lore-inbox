@@ -1,64 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262943AbSJBDSF>; Tue, 1 Oct 2002 23:18:05 -0400
+	id <S262949AbSJBDWu>; Tue, 1 Oct 2002 23:22:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262945AbSJBDSF>; Tue, 1 Oct 2002 23:18:05 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:63499 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S262943AbSJBDSE>; Tue, 1 Oct 2002 23:18:04 -0400
-Date: Wed, 2 Oct 2002 04:23:27 +0100
-From: John Levon <levon@movementarian.org>
-To: linux-kernel@vger.kernel.org
-Cc: willy@debian.org
-Subject: Re: flock(fd, LOCK_UN) taking 500ms+ ?
-Message-ID: <20021002032327.GA91947@compsoc.man.ac.uk>
-References: <20021002023901.GA91171@compsoc.man.ac.uk>
+	id <S262950AbSJBDWu>; Tue, 1 Oct 2002 23:22:50 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:53512 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262949AbSJBDWt>;
+	Tue, 1 Oct 2002 23:22:49 -0400
+Date: Tue, 1 Oct 2002 20:25:49 -0700
+From: Greg KH <greg@kroah.com>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: vojtech@suse.cz
+Subject: Re: 2.5.39 + evms 1.2.0 burn test
+Message-ID: <20021002032548.GB11871@kroah.com>
+References: <20021002030422.GA2127@merlin.emma.line.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021002023901.GA91171@compsoc.man.ac.uk>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *17wa6h-000NzI-00*YE18j5pvs7Y* (Manchester Computing, University of Manchester)
+In-Reply-To: <20021002030422.GA2127@merlin.emma.line.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 02, 2002 at 03:39:01AM +0100, John Levon wrote:
+On Wed, Oct 02, 2002 at 05:04:22AM +0200, Matthias Andree wrote:
+> 
+> 5. usb: usbkbd (module) cannot be loaded, missing symbol:
+>    usb_kbd_free_buffers.
 
-> Unlock, took 541386 usecs
+Vojtech, I've seen this for a while, but forgot to mention it.  Any fix?
 
-Hmm. This :
+thanks,
 
---- linux-linus/fs/locks.c	Sat Sep 28 15:56:28 2002
-+++ linux/fs/locks.c	Wed Oct  2 04:15:54 2002
-@@ -727,11 +727,11 @@
- 	}
- 	unlock_kernel();
- 
--	if (found)
--		yield();
--
- 	if (new_fl->fl_type == F_UNLCK)
- 		return 0;
-+
-+	if (found)
-+		yield();
- 
- 	lock_kernel();
- 	for_each_lock(inode, before) {
-
-"fixes" the problem (a simultaneous kernel compile is going on; it's a
-2-way SMP machine). What is the yield for ? What's the right fix (if
-any) ? This turns our app's main loop from a second or two into a
-90-second behemoth.
-
-There are no other apps taking locks on the relevant files, btw
-
-regards
-john
-
--- 
-"I never understood what's so hard about picking a unique
- first and last name - and not going beyond the 6 character limit."
- 	- Toon Moene
+greg k-h

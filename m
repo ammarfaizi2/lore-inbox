@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264979AbTFQWbT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 18:31:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264981AbTFQWbS
+	id S264990AbTFQWhH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 18:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264994AbTFQWhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 18:31:18 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:48090 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264979AbTFQWbN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 18:31:13 -0400
-Date: Tue, 17 Jun 2003 15:40:37 -0700 (PDT)
-Message-Id: <20030617.154037.78070671.davem@redhat.com>
-To: jamagallon@able.es
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: [PATCHES] 2.4.x net driver updates
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030617222750.GE13990@werewolf.able.es>
-References: <20030612194926.GA7653@gtf.org>
-	<20030617222750.GE13990@werewolf.able.es>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Tue, 17 Jun 2003 18:37:06 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:1641 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264990AbTFQWhF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 18:37:05 -0400
+Date: Tue, 17 Jun 2003 15:51:43 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] PCI device list locking
+Message-Id: <20030617155143.6d3a2e95.akpm@digeo.com>
+In-Reply-To: <20030617212628.GA12723@kroah.com>
+References: <20030617212628.GA12723@kroah.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Jun 2003 22:51:00.0506 (UTC) FILETIME=[EC3C97A0:01C33522]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "J.A. Magallon" <jamagallon@able.es>
-   Date: Wed, 18 Jun 2003 00:27:50 +0200
+Greg KH <greg@kroah.com> wrote:
+>
+> +		spin_lock(&pci_bus_lock);
+>  
 
-   Any info about the RX_POLLING (NAPI) option for e1000 ?
-   What is that for ?
+I have a vague feeling that some code somewhere may be calling these
+functions from interrupt context.
 
-Software based interrupt mitigation, see:
-
-Documentation/networking/NAPI_HOWTO.txt
-
-and more specifically:
-
-http://www.cyberus.ca/~hadi/usenix-paper.tgz
+I may have misremembered, but perhaps a sprinkling of
+WARN_ON(irqs_disabled()) would be prudent for now.
 

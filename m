@@ -1,76 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129707AbQLEH1h>; Tue, 5 Dec 2000 02:27:37 -0500
+	id <S129886AbQLEHkY>; Tue, 5 Dec 2000 02:40:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129799AbQLEH11>; Tue, 5 Dec 2000 02:27:27 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:784 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129707AbQLEH1O>; Tue, 5 Dec 2000 02:27:14 -0500
-Date: Mon, 4 Dec 2000 23:19:28 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-To: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with Athlon CPU
-In-Reply-To: <Pine.LNX.4.30.0012050205570.2065-100000@lt.wsisiz.edu.pl>
-Message-ID: <Pine.LNX.4.30.0012042315410.620-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2000 by Mike A. Harris - All rights reserved
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130093AbQLEHkN>; Tue, 5 Dec 2000 02:40:13 -0500
+Received: from tnt-dal-42-203.dallas.net ([209.44.42.203]:31752 "EHLO
+	bfgbhome.inetint.com") by vger.kernel.org with ESMTP
+	id <S129886AbQLEHkB>; Tue, 5 Dec 2000 02:40:01 -0500
+Date: Tue, 5 Dec 2000 01:07:30 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: "Theodore Y. Ts'o" <tytso@MIT.EDU>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        pavel@suse.cz, kernel@blackhole.compendium-tech.com, hps@tanstaafl.de,
+        linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
+Subject: Re: Fasttrak100 questions...
+Message-ID: <20001205010730.A5760@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+	"Theodore Y. Ts'o" <tytso@MIT.EDU>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, pavel@suse.cz,
+	kernel@blackhole.compendium-tech.com, hps@tanstaafl.de,
+	linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
+In-Reply-To: <20001202182126.A20944@vger.timpanogas.org> <200012030342.WAA17517@tsx-prime.MIT.EDU> <20001202221146.A21761@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <20001202221146.A21761@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Sat, Dec 02, 2000 at 10:11:46PM -0700
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Dec 2000, Lukasz Trabinski wrote:
+Jeff,
 
->Date: Tue, 5 Dec 2000 02:19:55 +0100 (CET)
->From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
->To: linux-kernel@vger.kernel.org
->Cc: jakub@redhat.com
->Content-Type: TEXT/PLAIN; charset=ISO-8859-2
->Subject: Problems with Athlon CPU
->
->Hello
->
->There is probably not a kernel bug, but bug in gcc, but... :)
+Have you also seen this applied where it is to the employer's
+disadvantage?  For example, given that I looked at and worked
+with GPL code (say Linux kernel) in University before taking
+employment as a programmer that the employer's product is
+inevitably contaiminated and no longer a trade secret?  Can
+a previous employee get an injunction against their former
+employer to cease and desist from using this negative knowledge?
 
-It is a kernel bug.
+If so, I might have a solution: make the Linux kernel required
+reading in University programming classes!
 
-[SNIP]
+On Sat, 02 Dec 2000, Jeff V. Merkey wrote:
 
->gcc version 2.96 20000731 (Red Hat Linux 7.0)
- ^^^^^^^^^^^^^^^^
+> On Sat, Dec 02, 2000 at 10:42:29PM -0500, Theodore Y. Ts'o wrote:
+> >    Date: Sat, 2 Dec 2000 18:21:26 -0700
+> >    From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+> > 
+> >    Under this argument, it is argued that the engineer who had source 
+> >    code access "inevitably used" negative knowledge he gained from 
+> >    his study of the Linux sources.  Absent the vague descriptions of
+> >    what a "derivative work" is in the GPL, it could be argued that 
+> >    conversion of any knowledge contained in GPL code is a "derivative
+> >    work".  
+> > 
 
-You can't build a kernel with that compiler.  You _must_ use gcc
-2.91.66 or another compiler that can compile the kernel.  Red Hat
-ships gcc 2.91.66 packaged as "kgcc" for kernel builds as do
-other major vendors.
-
-You must edit the top level makefile appropriately first before
-building.
-
->[lukasz@beer lukasz]$ rpm -q glibc
->glibc-2.2-5
-
-The kernel doesn't use any libc so it doesn't matter.
-
->Any sugestions? On others machines with AMD-K6 or Petnium-III/II and
->with the same version of glibc and gcc that problems does not exists!
-
-No, you must have a different gcc on the other machines.  You
-can't build a kernel with gcc 2.96 as the kernel is buggy.
-
-
-----------------------------------------------------------------------
-      Mike A. Harris  -  Linux advocate  -  Open source advocate
-          This message is copyright 2000, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
-
-If you think C++ is not overly complicated, just what is a protected
-abstract virtual base pure virtual private destructor, and when
-was the last time you needed one?
-  -- Tom Cargill, C++ Journal, Fall 1990.
-
+-- 
+Brian F. G. Bidulock    ¦ The reasonable man adapts himself to the ¦
+bidulock@openss7.org    ¦ world; the unreasonable one persists in  ¦
+http://www.openss7.org/ ¦ trying  to adapt the  world  to himself. ¦
+                        ¦ Therefore  all  progress  depends on the ¦
+                        ¦ unreasonable man. -- George Bernard Shaw ¦
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

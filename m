@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264330AbTEaOIP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 10:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbTEaOIO
+	id S264334AbTEaOWB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 10:22:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbTEaOWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 10:08:14 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:6666 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264330AbTEaOIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 10:08:13 -0400
-Date: Sat, 31 May 2003 15:21:33 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Chris Heath <chris@heathens.co.nz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.5] UTF-8 support in console
-Message-ID: <20030531152133.A32144@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Chris Heath <chris@heathens.co.nz>, linux-kernel@vger.kernel.org
-References: <20030531095521.5576.CHRIS@heathens.co.nz>
+	Sat, 31 May 2003 10:22:01 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:27616
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264334AbTEaOWA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 10:22:00 -0400
+Subject: Re: [2.5.70] - APIC error on CPU0: 00(40)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: rol@as2917.net, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200305311052.h4VAqxEM001927@harpo.it.uu.se>
+References: <200305311052.h4VAqxEM001927@harpo.it.uu.se>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1054388239.27311.3.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030531095521.5576.CHRIS@heathens.co.nz>; from chris@heathens.co.nz on Sat, May 31, 2003 at 10:10:54AM -0400
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 31 May 2003 14:37:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sad, 2003-05-31 at 11:52, mikpe@csd.uu.se wrote:
+> Received illegal vector errors. Your boot log reveals that you're
+> using ACPI and IO-APIC on a SiS chipset. Disable those and try
+> again -- I wouldn't bet on ACPI+IO-APIC working on SiS.
 
-+static void set_inverse_trans_unicode(struct vc_data *conp, struct uni_pagedir *p)
-
-Please linewrap after 80 chars.
-
-+{
-+	int i, j, k, glyph;
-+	u16 **p1, *p2;
-+	u16 *q;
-+	
-+	if (!p) return;
-
-Please split this into two lines. Can p ever be null_
-
-+	q = p->inverse_trans_unicode;
-+
-+	if (!q) {
-
-Kill the blank line above.
-
-+		q = p->inverse_trans_unicode = (u16 *) 
-+			kmalloc(MAX_GLYPH * sizeof(u16), GFP_KERNEL);
-
-The cast is not needed.  And btw, where is q freed?
-
-+		if (!q) return;
-
-Two lines again.
+2.5.x has the needed code to handle SiS APIC. Does Linus 2.5.70 also
+have the fixes to not re-route the SMI pins ?
 

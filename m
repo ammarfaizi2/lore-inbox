@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbRAKGdB>; Thu, 11 Jan 2001 01:33:01 -0500
+	id <S131503AbRAKGnZ>; Thu, 11 Jan 2001 01:43:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132289AbRAKGcv>; Thu, 11 Jan 2001 01:32:51 -0500
-Received: from web2201.mail.yahoo.com ([128.11.68.29]:45838 "HELO
-	web2201.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129511AbRAKGci>; Thu, 11 Jan 2001 01:32:38 -0500
-Message-ID: <20010111063237.29844.qmail@web2201.mail.yahoo.com>
-Date: Wed, 10 Jan 2001 22:32:37 -0800 (PST)
-From: Anonymous Anonymous <ut_bookstore@yahoo.com>
-Subject: Kernel 2.6/3.0 feature -- CPU sets/virtual machine partition??
-To: linux-kernel@vger.kernel.org
+	id <S131660AbRAKGnQ>; Thu, 11 Jan 2001 01:43:16 -0500
+Received: from vault12.wastelandranger.org ([63.171.230.193]:15109 "EHLO
+	wastelandranger.org") by vger.kernel.org with ESMTP
+	id <S131503AbRAKGnE>; Thu, 11 Jan 2001 01:43:04 -0500
+Date: Thu, 11 Jan 2001 00:43:10 -0600 (CST)
+From: Joseph Anthony <jga@vault12.wastelandranger.org>
+X-X-Sender: <jga@wastelandranger.org>
+Reply-To: <jga@wastelandranger.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: PPP: VJ decompression error
+Message-ID: <Pine.LNX.4.31.0101110039350.3216-100000@wastelandranger.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-Is anyone doing CPU sets/virtual partition for Linux??
+Ok, I just upgraded to 2.4.0 from 2.2.17 and I get a slew of these "PPP:
+VJ decompression error" messages in my kern.log. I have searched all over
+the place for a patch or an answer, but find nothing. These messages show
+up mostly when I use Netscape, if that helps.
 
-Solaris and IRIX support CPU sets, and many sites find
-them useful, espectially when the machine has more
-than 8 CPUs.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+=         Gentlemen! You can't fight in here, this is the War Room!         =
+=  Joseph Anthony  jga@wastelandranger.org  http://www.wastelandranger.org  =
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-And HP-UX 11i added virtual machine partitions, and
-this is even more useful for the ASP environments.
-
-rayson
-
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Photos - Share your holiday photos online!
-http://photos.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

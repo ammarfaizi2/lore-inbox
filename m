@@ -1,45 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265234AbUFMRN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265227AbUFMRRa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265234AbUFMRN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 13:13:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265224AbUFMRNH
+	id S265227AbUFMRRa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 13:17:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265232AbUFMRQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 13:13:07 -0400
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:16137 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id S265225AbUFMRMn convert rfc822-to-8bit (ORCPT
+	Sun, 13 Jun 2004 13:16:07 -0400
+Received: from gate.crashing.org ([63.228.1.57]:12995 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265227AbUFMRPe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 13:12:43 -0400
-Date: Sun, 13 Jun 2004 18:10:35 +0100
-From: Simon Richard Grint <rgrint@compsoc.man.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Compile failure
-Message-ID: <20040613171035.GA455@srg.demon.co.uk>
+	Sun, 13 Jun 2004 13:15:34 -0400
+Subject: Re: [PATCH] Fix ppc64 out_be64
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Roland Dreier <roland@topspin.com>, Andrew Morton <akpm@osdl.org>
+Cc: anton@au.ibm.com, linuxppc64-dev <linuxppc64-dev@lists.linuxppc.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <52llir5rr2.fsf@topspin.com>
+References: <521xkk77xh.fsf@topspin.com> <1087141822.8210.176.camel@gaston>
+	 <52llir5rr2.fsf@topspin.com>
+Content-Type: text/plain
+Message-Id: <1087146682.8697.184.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 13 Jun 2004 12:11:23 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all
 
-I have just downloaded the most recent bk snapshot of 2.6.7rc3 and
-it fails to compile, instead producing the error:
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.text+0xa5c72): In function ci_initialize':
-: undefined reference to PSB_WARNING'
-make: *** [.tmp_vmlinux1] Error 1
+> Yes, that looks fine (after fixing val to be unsigned long in
+> out_be64).  You know infinitely more about ppc64 asm than I do so I'm
+> sure your version is better.
 
-The linking error seems to stem from a newly implemented
-packet size check in the ohci_initialize function of 
-drivers/ieee1394/ohci1394.c not having defined HPSB_WARNING
-before use.
+Well, I may know ppc asm, but gcc inline asm still drives me nuts :)
 
-Regards
+Here's a fixed version (Andrew, please apply)
 
-sr
+----
+
+Patch fixes out_be64 implementation on ppc64 along with a glich in
+out_be32 (inconsistent) use of barrier.
+
+Signed-off-by: Roland Dreier <roland@topspin.com>
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+
+===== include/asm-ppc64/io.h 1.18 vs edited =====
+--- 1.18/include/asm-ppc64/io.h	2004-05-21 02:50:11 -05:00
++++ edited/include/asm-ppc64/io.h	2004-06-13 12:09:16 -05:00
+@@ -307,7 +307,7 @@
+ 
+ static inline void out_be32(volatile unsigned *addr, int val)
+ {
+-	__asm__ __volatile__("stw%U0%X0 %1,%0; eieio"
++	__asm__ __volatile__("stw%U0%X0 %1,%0; sync"
+ 			     : "=m" (*addr) : "r" (val));
+ }
+ 
+@@ -356,9 +356,9 @@
+ 			     : "=&r" (tmp) , "=&r" (val) : "1" (val) , "b" (addr) , "m" (*addr));
+ }
+ 
+-static inline void out_be64(volatile unsigned long *addr, int val)
++static inline void out_be64(volatile unsigned long *addr, unsigned long val)
+ {
+-	__asm__ __volatile__("std %1,0(%0); sync" : "=m" (*addr) : "r" (val));
++	__asm__ __volatile__("std%U0%X0 %1,%0; sync" : "=m" (*addr) : "r" (val));
+ }
+ 
+ #ifndef CONFIG_PPC_ISERIES 
+
+

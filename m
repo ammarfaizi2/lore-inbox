@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267659AbUIPRTq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268263AbUIPRXz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267659AbUIPRTq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 13:19:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268215AbUIPRQa
+	id S268263AbUIPRXz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 13:23:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268215AbUIPRUN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 13:16:30 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:8141 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268365AbUIPRPZ (ORCPT
+	Thu, 16 Sep 2004 13:20:13 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:49634 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268263AbUIPRQZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 13:15:25 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
+	Thu, 16 Sep 2004 13:16:25 -0400
 Subject: Re: 2.6.9-rc2-mm1
-Date: Thu, 16 Sep 2004 10:14:59 -0700
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org, Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       len.brown@intel.com
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200409161345.56131.norberto+linux-kernel@bensa.ath.cx>
 References: <20040916024020.0c88586d.akpm@osdl.org>
-In-Reply-To: <20040916024020.0c88586d.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409161014.59686.jbarnes@engr.sgi.com>
+	 <200409161345.56131.norberto+linux-kernel@bensa.ath.cx>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Eh8OG53CY4tgyC5pyVl8"
+Organization: Red Hat UK
+Message-Id: <1095354962.2698.22.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 16 Sep 2004 19:16:02 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, September 16, 2004 2:40 am, Andrew Morton wrote:
->  bk-acpi.patch
 
-Looks like some changes in this patch break sn2.  In particular, this hunk in 
-acpi_pci_irq_enable():
+--=-Eh8OG53CY4tgyC5pyVl8
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
--               if (dev->irq && (dev->irq <= 0xF)) {
-+               if (dev->irq >= 0 && (dev->irq <= 0xF)) {
-                        printk(" - using IRQ %d\n", dev->irq);
-                        return_VALUE(dev->irq);
-                }
-                else {
-                        printk("\n");
--                       return_VALUE(0);
-+                       return_VALUE(-EINVAL);
-                }
+On Thu, 2004-09-16 at 18:45, Norberto Bensa wrote:
+> Andrew Morton wrote:
+> > +tune-vmalloc-size.patch
+>=20
+> This one of course breaks nvidia's binary driver; so nvidia users should =
+do a=20
+> "patch -Rp1" to revert it.
 
-Now instead of returning 0, we'll get -EINVAL when a driver calls 
-pci_enable_device.  This is arguably correct since there's no _PRT entry (and 
-in fact no ACPI namespace on sn2), but shouldn't the code above be looking at 
-the 'pin' value instead of dev->irq?  The sn2 specific PCI code sets up each 
-dev->irq long before this with the correct values...
+eh why how ?? what evil stuff is nvidia doing this time ?
 
-Thanks,
-Jesse
+--=-Eh8OG53CY4tgyC5pyVl8
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBScpSxULwo51rQBIRAoKAAJwJmG5SvQ8x/U6RHuU0xLO2DkuizgCbB0N7
+w3KHXtDIAKlASwaBqkE7Mqg=
+=8rP4
+-----END PGP SIGNATURE-----
+
+--=-Eh8OG53CY4tgyC5pyVl8--
+

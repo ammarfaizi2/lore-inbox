@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280703AbRK1VNe>; Wed, 28 Nov 2001 16:13:34 -0500
+	id <S280678AbRK1VMy>; Wed, 28 Nov 2001 16:12:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280725AbRK1VN0>; Wed, 28 Nov 2001 16:13:26 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:8968 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S280703AbRK1VNQ>; Wed, 28 Nov 2001 16:13:16 -0500
-Message-ID: <3C05533D.98DCE6D1@zip.com.au>
-Date: Wed, 28 Nov 2001 13:12:29 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
+	id <S280728AbRK1VMo>; Wed, 28 Nov 2001 16:12:44 -0500
+Received: from tartarus.telenet-ops.be ([195.130.132.34]:17839 "EHLO
+	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S280697AbRK1VMa>; Wed, 28 Nov 2001 16:12:30 -0500
+Message-ID: <3C055334.6030007@zipkid.com>
+Date: Wed, 28 Nov 2001 22:12:20 +0100
+From: ZipKid <stefan@zipkid.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.4) Gecko/20010923
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolabs.com>
-CC: "'lkml'" <linux-kernel@vger.kernel.org>
-Subject: Re: Unresponiveness of 2.4.16
-In-Reply-To: <3C03FE2F.63D7ACFD@zip.com.au> <Pine.LNX.4.21.0111281604390.15571-100000@freak.distro.conectiva> <3C054992.48F5C9E7@zip.com.au>,
-		<3C054992.48F5C9E7@zip.com.au>; from akpm@zip.com.au on Wed, Nov 28, 2001 at 12:31:14PM -0800 <20011128135611.D856@lynx.no>
-Content-Type: text/plain; charset=us-ascii
+To: Adrian Daminato <adrian@tucows.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hiding arp for server farms
+In-Reply-To: <3C0522C4.E5321021@tucows.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
-> 
-> On Nov 28, 2001  12:31 -0800, Andrew Morton wrote:
-> > write-cluster.patch
-> >       ext2 metadata prereading and various other hacks which
-> >       prevent writes from stumbling over reads, and thus ruining
-> >       write clustering.  This patch is in the early prototype stage
-> 
-> Shouldn't the ext2_inode_preread() code use "ll_rw_block(READ_AHEAD,...)"
-> just to be proper?
-> 
+Adrian Daminato wrote:
 
-Yes, especially now the request queues are shorter than they have
-historically been.  READA also needs to be propagated through the
-pagecache readhead, which may prove tricky.
+>Okay, I've seen similar posts to this, but none of them provide a solution that
+>I can use.
+>
+>I'm running several 2.2 machines behind a Radware load balancer, which uses
+>something called "local triangulation".  Basically the Radware responds to ARP
+>requests for the IP of the farm, passes the packet to one of the servers, and
+>the server responds directly to the client.  Each server has an aliased
+>interface on the loopback for the IP of the farm, and
+>/proc/sys/net/ipv4/conf/all/hidden and lo/hidden are set to 1.  That works,
+>great, no problems.
+>
+>Now, introduce an unpatched 2.4.x kernel.  The hidden option no longer exists,
+>and for ease of operating a production environment, we prefer to use stock
+>kernels straight from kernel.org, no patches at all.  I've tried many different
+>suggestion from the list:
+>
+>1) ifconfig eth0 -arp
+>    We have over 60 servers on the subnet these farms are on, and they need to
+>be able to communicate with each other.  When I do this, I can't talk to other
+>servers on the network, and keeping an /etc/ethers file up to date is a daunting
+>task, and not practical.
+>
+>2) arp_filter
+>    I tried using it in a couple of ways, but there doesn't appear to be very
+>
 
-But so little code is actually using READA at this stage that I didn't
-bother - I first need to go through those paths and make sure that they
-are in fact complete, working and useful...
+I have tested this setup and had the same problems on a 2.4.12 kernel. I 
+tried out a few things
+and could not resolve this issue. Fortunately for me the client is 
+running solaris and that does
+not have this bug.
+Sorry but I have no solution...
 
--
+Stefan - ZipKid - Goethals
+
+

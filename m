@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290763AbSARRjy>; Fri, 18 Jan 2002 12:39:54 -0500
+	id <S290767AbSARRnx>; Fri, 18 Jan 2002 12:43:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290764AbSARRjd>; Fri, 18 Jan 2002 12:39:33 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:64754 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S290763AbSARRjY>; Fri, 18 Jan 2002 12:39:24 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20020112063412.F511@toy.ucw.cz> 
-In-Reply-To: <20020112063412.F511@toy.ucw.cz>  <m26669olcu.fsf@goliath.csn.tu-chemnitz.de> <E16Oocq-0005tX-00@the-village.bc.nu> 
-To: Pavel Machek <pavel@suse.cz>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Ronald Wahl <Ronald.Wahl@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Q] Looking for an emulation for CMOV* instructions. 
-Mime-Version: 1.0
+	id <S290764AbSARRno>; Fri, 18 Jan 2002 12:43:44 -0500
+Received: from [212.18.235.99] ([212.18.235.99]:25870 "EHLO street-vision.com")
+	by vger.kernel.org with ESMTP id <S290767AbSARRn0>;
+	Fri, 18 Jan 2002 12:43:26 -0500
+From: Justin Cormack <kernel@street-vision.com>
+Message-Id: <200201181743.g0IHhO226012@street-vision.com>
+Subject: performance of O_DIRECT on md/lvm
+To: linux-kernel@vger.kernel.org
+Date: Fri, 18 Jan 2002 17:43:23 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 18 Jan 2002 17:38:33 +0000
-Message-ID: <3535.1011375513@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Reading files with O_DIRECT works very nicely for me off a single drive 
+(for video streaming, so I dont want cacheing), but is extremely slow on
+software raid0 devices, and striped lvm volumes. Basically a striped 
+raid device reads at much the same speed as a single device with O_DIRECT,
+while reading the same file without O_DIRECT gives the expected performance
+(but with unwanted cacheing).
 
-pavel@suse.cz said:
->  RPM does not help. Think new machine failed, but you still have some
-> trash with 386 on it, so you connect your disk to it, boot from
-> floppy, and expect it to work.
+raw devices behave similarly (though if you are using them you can probably
+do your own raid0).
 
-What if my spare machine is an ARM? Should I still expect it to work?
+My guess is this is because of the md blocksizes being 1024, rather than
+4096: is this the case and is there a fix (my quick hack at md.c to try
+to make this happen didnt work).
 
---
-dwmw2
-
-
+Justin

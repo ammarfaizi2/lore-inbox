@@ -1,34 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266257AbSL1SL1>; Sat, 28 Dec 2002 13:11:27 -0500
+	id <S266259AbSL1SQy>; Sat, 28 Dec 2002 13:16:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266259AbSL1SL1>; Sat, 28 Dec 2002 13:11:27 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:63237 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S266257AbSL1SL0>; Sat, 28 Dec 2002 13:11:26 -0500
-Date: Sat, 28 Dec 2002 18:19:39 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Richard Henderson <rth@twiddle.net>
-cc: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [Linux-fbdev-devel] [FB PATCH]
-In-Reply-To: <20021227155451.A3942@twiddle.net>
-Message-ID: <Pine.LNX.4.44.0212281819070.5974-100000@phoenix.infradead.org>
+	id <S266278AbSL1SQy>; Sat, 28 Dec 2002 13:16:54 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:17320 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S266259AbSL1SQx>;
+	Sat, 28 Dec 2002 13:16:53 -0500
+Message-ID: <3E0DEC83.2070900@colorfullife.com>
+Date: Sat, 28 Dec 2002 19:25:07 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: James Bottomley <James.Bottomley@steeleye.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFT][PATCH] generic device DMA implementation
+References: <200212281813.gBSIDNP02885@localhost.localdomain>
+In-Reply-To: <200212281813.gBSIDNP02885@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+James Bottomley wrote:
 
-> > Strange, it's defined in drivers/video/fbmem.c in my copy of 2.5.53.
-> 
-> Ah.  It's not exported, so fbcon as a module fails.
-> Not sure how I missed it with a grep...
+>The problem really only occurs if the CPU can modify part of a cache line 
+>while a device has modified memory belonging to another part.  Now a flush 
+>from the CPU will destroy the device data (or an invalidate from the driver 
+>destroy the CPU's data).  The problem is effectively rendered harmless if only 
+>data going in the same direction shares a cache line (even if it is for 
+>different devices).  It strikes me that this is probably true for network data 
+>and would explain the fact that I haven't seen any obvious network related 
+>corruption.
+>  
+>
+Yes. Networking usually generates exclusive cachelines.
+I'm aware of two special cases:
+If multiple kmalloc buffers fit into one cacheline, then it can happen 
+all the time. But the smallest kmalloc buffer is 64 bytes [assuming page 
+size > 4096].
+Is your cache line >= 128 bytes?
 
-That problem is fixed already in the latest BK tree. I will push today the 
-most recent fixes.
+Or sendfile() of a mmap'ed file that is modified by userspace. That is 
+the recommended approach for zerocopy tx, but I'm not sure which apps 
+actually use that. IIRC DaveM mentioned the approach.
+
+Additionally, the TCP checksum could catch the corruption and resent the 
+packet - you wouldn't notice the corruptions, unless you use hw checksums.
+
+--
+    Manfred
 

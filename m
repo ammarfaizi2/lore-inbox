@@ -1,73 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264461AbUFLA1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264488AbUFLAal@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264461AbUFLA1y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 20:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264452AbUFLA1y
+	id S264488AbUFLAal (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 20:30:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264452AbUFLAal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 20:27:54 -0400
-Received: from opersys.com ([64.40.108.71]:35341 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S264461AbUFLA1w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 20:27:52 -0400
-Message-ID: <40CA4D23.2010006@opersys.com>
-Date: Fri, 11 Jun 2004 20:24:03 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Fri, 11 Jun 2004 20:30:41 -0400
+Received: from mail010.syd.optusnet.com.au ([211.29.132.56]:56490 "EHLO
+	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264488AbUFLAah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 20:30:37 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Performance regression in 2.6.7-rc3
+Date: Sat, 12 Jun 2004 10:28:00 +1000
+User-Agent: KMail/1.6.1
+Cc: Nick Piggin <piggin@cyberone.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       William Lee Irwin III <wli@holomorphy.com>
 MIME-Version: 1.0
-To: Geoff Levand <geoffrey.levand@am.sony.com>
-CC: high-res-timers-discourse@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, George Anzinger <george@mvista.com>
-Subject: Re: [ANNOUNCE] high-res-timers patches for 2.6.6
-References: <40C7BE29.9010600@am.sony.com>
-In-Reply-To: <40C7BE29.9010600@am.sony.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_Q4kyAbdSBstgmrD"
+Message-Id: <200406121028.06812.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Geoff Levand wrote:
-> For those interested, the set of three patches provide POSIX high-res 
-> timer support for linux-2.6.6.  The core and i386 patches are updates of 
-> George Anzinger's hrtimers-2.6.5-1.0.patch available on SourceForge 
-> <http://sourceforge.net/projects/high-res-timers/>.  The ppc32 port is 
-> not available on SourceForge yet.
+--Boundary-00=_Q4kyAbdSBstgmrD
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I've got to ask:
+=2D----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Just reading from the Posix 1003.1b section 14 spec referenced by the HRT
-main project page, I see the following:
-------------------------------------------------------------------------------
-Realtime applications must be able to operate on data within strict timing
-constraints in order to schedule application or system events. Timing
-requirements can be in response to the need for either high system throughput
-or fast response time. Applications requiring high throughput may process
-large amounts of data and use a continuous stream of data points equally
-spaced in time. For example, electrocardiogram research uses a continuous
-stream of data for qualitative and quantitative analysis.
-------------------------------------------------------------------------------
+Hi all
 
-If this is really the goal here, then why not just integrate Adeos into
-the kernel and make some form of HRT as a loadable module that uses Adeos to
-provide its services?
-
-Currently Adeos runs on x86, ARM (MMU-full and MMU-less), PPC, so portability
-is not an issue. Plus, the interface provided can either be directly used
-by drivers to get hard-rt interrupts or it can be used by another layer to
-provide more elaborate services (like RTAI or, potentially, HRT.) Using the
-virtual interrupts that can be dynamically allocated at runtime, it's rather
-easy to send signals between domains.
-
-Sure, you may not have the exact Posix 1003.1b API, but I don't remember there
-being any persistent goal of having the kernel conform to any standard.
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+The OSDL robot monkeys revealed a massive reproducible regression in the=20
+dbt3-pgsql benchmark which could be related to MBligh's measure regression.
 
 
+2.6.7-rc2: http://khack.osdl.org/stp/293625/
+Composite 	Query Processing Power 	Throughput Numerical Quantity
+199.38 	152.52 	260.63
+
+vs
+
+2.6.7-rc3: http://khack.osdl.org/stp/293704/
+Composite 	Query Processing Power 	Throughput Numerical Quantity
+152.13 	146.36 	158.12
+
+
+with a little bit of detective work and help from Wli we tracked down that=
+=20
+this patch caused it:
+[PATCH] sched: improve wakeup-affinity
+A massive increase in idle time was observed and the throughput dropped by =
+40%
+Reversing this patch gave these results:
+
+backsched1: http://khack.osdl.org/stp/293865/
+Composite 	Query Processing Power 	Throughput Numerical Quantity
+193.93 	145.95 	257.67
+
+
+It may be best to reverse this patch until the regression is better=20
+understood.
+Here is a patch reversing it:
+
+Con
+=2D----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAyk4SZUg7+tp6mRURAk5RAKCKIxzmRS3u+gs8W5gVyGgvL6glUgCeNggF
+8mBUT4HtP4g5d/MViraZ9ds=3D
+=3Dvj+s
+=2D----END PGP SIGNATURE-----
+
+--Boundary-00=_Q4kyAbdSBstgmrD
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="backsched1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="backsched1.patch"
+
+--- linux-2.6.7-rc3-base/kernel/sched.c	2004-06-10 23:29:04.000000000 +1000
++++ linux-2.6.7-rc3-backsched/kernel/sched.c	2004-06-12 02:11:13.600754377 +1000
+@@ -770,8 +770,7 @@ static int try_to_wake_up(task_t * p, un
+ 		this_load -= SCHED_LOAD_SCALE;
+ 
+ 	/* Don't pull the task off an idle CPU to a busy one */
+-	if (load < SCHED_LOAD_SCALE && load + this_load > SCHED_LOAD_SCALE
+-			&& this_load > load)
++	if (load < SCHED_LOAD_SCALE/2 && this_load > SCHED_LOAD_SCALE/2)
+ 		goto out_set_cpu;
+ 
+ 	new_cpu = this_cpu; /* Wake to this CPU if we can */
+@@ -1633,7 +1632,8 @@ nextgroup:
+ 	return busiest;
+ 
+ out_balanced:
+-	if (busiest && idle != NOT_IDLE && max_load > SCHED_LOAD_SCALE) {
++	if (busiest && (idle == NEWLY_IDLE ||
++			(idle == IDLE && max_load > SCHED_LOAD_SCALE)) ) {
+ 		*imbalance = 1;
+ 		return busiest;
+ 	}
+
+--Boundary-00=_Q4kyAbdSBstgmrD--

@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262498AbTEIMVt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 08:21:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbTEIMVt
+	id S262578AbTEIMa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 08:30:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262638AbTEIMa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 08:21:49 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:44767 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S262498AbTEIMVs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 08:21:48 -0400
-Subject: [PATCH] Fix for vma merging refcounting bug
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>
-Cc: Stephen Tweedie <sct@redhat.com>, Andrew Morton <akpm@digeo.com>,
-       Andrea Arcangeli <andrea@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052483661.3642.16.camel@sisko.scot.redhat.com>
+	Fri, 9 May 2003 08:30:28 -0400
+Received: from ns.tasking.nl ([195.193.207.2]:18440 "EHLO ns.tasking.nl")
+	by vger.kernel.org with ESMTP id S262578AbTEIMa1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 08:30:27 -0400
+To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 09 May 2003 13:34:21 +0100
+X-Newsreader: knews 1.0b.1
+Reply-To: dick.streefland@altium.nl (Dick Streefland)
+Organization: Altium BV
+X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
+References: <1052437088.13561.36.camel@orca.madrabbit.org>
+From: spam@altium.nl (Dick Streefland)
+Subject: Re: The magical mystical changing ethernet interface order
+Content-Type: text/plain; charset=us-ascii
+NNTP-Posting-Host: 172.17.1.66
+Message-ID: <5ac2.3ebba1fb.84d7e@altium.nl>
+Date: Fri, 09 May 2003 12:41:31 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When a new vma can be merged simultaneously with its two immediate
-neighbours in both directions, vma_merge() extends the predecessor vma
-and deletes the successor.  However, if the vma maps a file, it fails to
-fput() when doing the delete, leaving the file's refcount inconsistent.
+Ray Lee <ray-lk@madrabbit.org> wrote:
+| Debian already supports this, integrated into the normal scheme for
+| dealing with interfaces. Anyone running Debian can take a look at
+| /usr/share/doc/ifupdown/examples directory, the network-interfaces.gz
+| file contains sample /etc/network/interfaces stanzas for configuring
+| your interfaces via MAC address:
+| 
+| 	auto eth0 eth1
+| 	mapping eth0 eth1
+| 		script /path/to/get-mac-addr.sh
+| 		map 11:22:33:44:55:66 lan
+| 		map AA:BB:CC:DD:EE:FF internet
+| 	iface lan inet static
+| 		address 192.168.42.1
+| 		netmask 255.255.255.0
+| 		pre-up /usr/local/sbin/enable-masq $IFACE
+| 	iface internet inet dhcp
+| 		pre-up /usr/local/sbin/firewall $IFACE
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1083  -> 1.1084 
-#	           mm/mmap.c	1.79    -> 1.80   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/05/09	sct@sisko.scot.redhat.com	1.1084
-# Fix vma merging problem leading to file refcount getting out of sync.
-# --------------------------------------------
-#
-diff -Nru a/mm/mmap.c b/mm/mmap.c
---- a/mm/mmap.c	Fri May  9 13:26:53 2003
-+++ b/mm/mmap.c	Fri May  9 13:26:53 2003
-@@ -471,6 +471,8 @@
- 			spin_unlock(lock);
- 			if (need_up)
- 				up(&inode->i_mapping->i_shared_sem);
-+			if (file)
-+				fput(file);
- 
- 			mm->map_count--;
- 			kmem_cache_free(vm_area_cachep, next);
+I just do:
 
+	auto  net
+	iface net inet static
+		pre-up    nameif net 00:00:C0:4F:8B:F6  
+		...
+
+	auto  lan
+	iface lan inet static
+		pre-up    nameif lan 00:60:B0:EC:92:F9  
+		...
+
+-- 
+Dick Streefland                      ////                      Altium BV
+dick.streefland@altium.nl           (@ @)          http://www.altium.com
+--------------------------------oOO--(_)--OOo---------------------------
 

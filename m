@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261857AbSJQHzt>; Thu, 17 Oct 2002 03:55:49 -0400
+	id <S261825AbSJQIAf>; Thu, 17 Oct 2002 04:00:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261859AbSJQHzt>; Thu, 17 Oct 2002 03:55:49 -0400
-Received: from packet.digeo.com ([12.110.80.53]:46746 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261857AbSJQHzs>;
-	Thu, 17 Oct 2002 03:55:48 -0400
-Message-ID: <3DAE6E63.EFAF0F80@digeo.com>
-Date: Thu, 17 Oct 2002 01:01:39 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Con Kolivas <conman@kolivas.net>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] 2.5.43-mm2 with contest
-References: <1034840438.3dae6976a93fb@kolivas.net>
+	id <S261851AbSJQIAf>; Thu, 17 Oct 2002 04:00:35 -0400
+Received: from cmailm3.svr.pol.co.uk ([195.92.193.19]:2053 "EHLO
+	cmailm3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S261825AbSJQIAf>; Thu, 17 Oct 2002 04:00:35 -0400
+Date: Thu, 17 Oct 2002 09:05:52 +0100
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>
+Subject: Re: [PATCH] Device-mapper submission 6/7
+Message-ID: <20021017080552.GA2418@fib011235813.fsnet.co.uk>
+References: <20021015175858.GA28170@fib011235813.fsnet.co.uk> <3DAC5B47.7020206@pobox.com> <20021015214420.GA28738@fib011235813.fsnet.co.uk> <3DAD75AE.7010405@pobox.com> <20021016152047.GA11422@fib011235813.fsnet.co.uk> <3DAD8CC9.9020302@pobox.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Oct 2002 08:01:40.0268 (UTC) FILETIME=[6CAD2EC0:01C275B3]
+Content-Disposition: inline
+In-Reply-To: <3DAD8CC9.9020302@pobox.com>
+User-Agent: Mutt/1.4i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
+On Wed, Oct 16, 2002 at 11:59:05AM -0400, Jeff Garzik wrote:
+> This is a _new_ addition, so from our perspective we want to get it 
+> right(tm) and change things now.  I know this differs from your 
+> perspective, but that's really a different context and [bluntly] doesn't 
+> matter.
 > 
-> Here are the updated benchmarks with contest v0.51 (http://contest.kolivas.net)
-> showing the change from -mm1 to -mm2. Other results removed for clarity.
-> 
-> noload:
-> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-> 2.4.18 [3]              71.8    93      0       0       1.01
-> 2.5.43 [2]              74.6    92      0       0       1.04
-> 2.5.43-mm1 [4]          74.9    93      0       0       1.05
-> 2.5.43-mm2 [2]          73.4    93      0       0       1.03
+> Adding ioctls now and then removing them later is a software engineering 
+> no-no.  Save everyone lots of headache and ditch them now.
 
-Would be interesting to run
+I'm forced to agree with you, but have a couple of concerns:
 
-	blockdev --setra 1024 /dev/hdXX
+Is there anyone out there who is going to argue against using an fs
+interface when I submit it ?  Speak now or forever hold your peace !
 
-here.  We're getting more idle time with 2.5 and that can only
-be due to disk wait - the IO scheduler changes.  This might make a
-small difference.
+If dm now misses the feature freeze deadline due to this extra work,
+is it going to be possible to still place it in 2.5 at a later date ?
+(dm with an ioctl interface is better than no dm at all).
 
-> ...
-> Removal of per-cpu pages patch does not seem to have been detrimental to contest
-> benchmarks at least - perhaps this is responsible for the noload being better now?
-
-Well that code is still there.  I'd expect a very small benefit from it
-in this testing.
+- Joe

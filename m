@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263737AbUC3Pnk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 10:43:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUC3Pnk
+	id S261816AbUC3PyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 10:54:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbUC3PyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 10:43:40 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:56298 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263732AbUC3Pnd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 10:43:33 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-       =?iso-8859-1?q?Andr=E9=20Hedrick?= <andre@linux-ide.org>
-Subject: Re: [PATCH] Bogus LBA48 drives
-Date: Tue, 30 Mar 2004 17:51:36 +0200
-User-Agent: KMail/1.5.3
-Cc: Lionel Bergeret <lbergeret@swing.be>, JunHyeok Heo <jhheo@idis.co.kr>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-References: <Pine.GSO.4.58.0403301654300.9765@waterleaf.sonytel.be>
-In-Reply-To: <Pine.GSO.4.58.0403301654300.9765@waterleaf.sonytel.be>
+	Tue, 30 Mar 2004 10:54:09 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:29574 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261816AbUC3PyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 10:54:07 -0500
+Message-ID: <406997E3.60005@nortelnetworks.com>
+Date: Tue, 30 Mar 2004 10:53:07 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Matthew Dobson <colpatch@us.ibm.com>, Paul Jackson <pj@sgi.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH] mask ADT: bitmap and bitop tweaks [1/22]
+References: <20040329041249.65d365a1.pj@sgi.com> <1080601576.6742.43.camel@arrakis> <20040329235233.GV791@holomorphy.com>
+In-Reply-To: <20040329235233.GV791@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403301751.36892.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 30 of March 2004 17:22, Geert Uytterhoeven wrote:
-> Apparently some IDE drives (e.g. a pile of 80 GB ST380020ACE drives I have
-> access to) advertise to support LBA48, but don't, causing kernels that
-> support LBA48 (i.e. anything newer than 2.4.18, including 2.4.25 and 2.6.4)
-> to fail on them.  Older kernels (including 2.2.20 on the Debian woody CDs)
-> work fine.
->
-> One problem with those drives is that the lba_capacity_2 field in their
-> drive identification is set to 0, making the IDE driver think the disk is 0
-> bytes large. At first I tried modifying the driver to use lba_capacity if
-> lba_capacity_2 is set to 0, but this caused disk errors. So it looks like
-> those drives don't support the increased transfer size of LBA48 neither.
+William Lee Irwin III wrote:
+> On Mon, Mar 29, 2004 at 03:06:16PM -0800, Matthew Dobson wrote:
+>>If we're
+>>not assuming the unused bits are 0's, then we need to do this last word
+>>special casing in bitmap_xor & bitmap_andnot, because they could set the
+>>unused bits.  Or am I confused?
+> 
+> 
+> No, not those two. xor of 0's is 0 again. and of 0 and anything is 0 again.
 
-I think somebody should make Seagate aware of the issue.
+Huh?  Xor of 0 and 1 is 1.
 
-> I added a workaround for these drives to both 2.4.25 and 2.6.4. I'll send
-> patches in follow-up emails.
-
-They look okay but some comment about this issue would be useful.
-
-Thanks,
-Bartlomiej
-
+Chris

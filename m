@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266511AbUHOHKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266514AbUHOHNa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266511AbUHOHKi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 03:10:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266514AbUHOHKi
+	id S266514AbUHOHNa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 03:13:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266517AbUHOHNa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 03:10:38 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:19848 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S266511AbUHOHKf
+	Sun, 15 Aug 2004 03:13:30 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:1077 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S266514AbUHOHN2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 03:10:35 -0400
-Date: Sun, 15 Aug 2004 09:13:05 +0200
+	Sun, 15 Aug 2004 03:13:28 -0400
+Date: Sun, 15 Aug 2004 09:15:59 +0200
 From: Sam Ravnborg <sam@ravnborg.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [PATCH] kconfig.debug for 2.6.8
-Message-ID: <20040815071304.GA7182@mars.ravnborg.org>
-Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
-	Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-References: <20040814110522.4879ddd4.rddunlap@osdl.org>
+To: Andres Salomon <dilinger@voxel.net>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] don't delete debian directory in official debian builds
+Message-ID: <20040815071559.GB7182@mars.ravnborg.org>
+Mail-Followup-To: Andres Salomon <dilinger@voxel.net>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <1092512343.3971.23.camel@spiral.internal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040814110522.4879ddd4.rddunlap@osdl.org>
+In-Reply-To: <1092512343.3971.23.camel@spiral.internal>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 14, 2004 at 11:05:22AM -0700, Randy.Dunlap wrote:
+On Sat, Aug 14, 2004 at 03:39:03PM -0400, Andres Salomon wrote:
+> Hi,
 > 
-> Here's the Kconfig.debug patch updated for 2.6.8:
+> Somewhere along the 2.6 series, there was a change made that causes
+> distclean to automatically delete the debian/ subdirectory from the top
+> of the kernel tree.  This causes grief for the official debian kernel
+> packages; the debian directory shouldn't be deleted in the packages.
+> Please apply the attached patch; it causes the debian/ subdirectory to
+> only be deleted if there's no debian/official.
 > 
->   http://developer.osdl.org/rddunlap/kconfig/kconfig-debug-268.patch
+> An even better solution would be to mark the debian directory as being
+> created by the kernel (touch debian/linus), and only delete it if the
+> kernel created it.
 
-Hi Andrew.
+Such special cases are not acceptable.
 
-Any good way we can bring this patch forward?
-Currently it causes 9 rejects in -mm, and I understand why you are not
-inclined to fix that up.
+If this causes a problem then there are the following options:
+1) Rename directory in debian or the kernel
+2) Debian apply a patch to the kernel
 
-I can see clashes with at least LOCKMETER, SCHEDSTATS and KGDB in -mm.
+Preference to 1).
 
-Would it be better to divide it in smaller parts?
-o lib/Kconfig.debug
-o i386 specific changes
-o ia64 specific changes
-o architectures that do not cause rejects in -mm + -vanilla
-o etc.
+Comments?
 
-The rejects may still be present, but make it easier to pick what
-applies, and drop the rest for now.
-
-Along the lines of Kconfig.drivers - but hopefully introduced a bit faster.
-
-        Sam
+	Sam

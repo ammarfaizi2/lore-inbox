@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277210AbRJaAOP>; Tue, 30 Oct 2001 19:14:15 -0500
+	id <S276759AbRJaAO0>; Tue, 30 Oct 2001 19:14:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275990AbRJaAOI>; Tue, 30 Oct 2001 19:14:08 -0500
-Received: from [207.8.4.6] ([207.8.4.6]:55584 "EHLO one.interactivesi.com")
-	by vger.kernel.org with ESMTP id <S277295AbRJaAN6>;
-	Tue, 30 Oct 2001 19:13:58 -0500
-Message-ID: <3BDF423D.1060503@interactivesi.com>
-Date: Tue, 30 Oct 2001 18:13:49 -0600
-From: Timur Tabi <ttabi@interactivesi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S275990AbRJaAOR>; Tue, 30 Oct 2001 19:14:17 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50449 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S276759AbRJaAOL>; Tue, 30 Oct 2001 19:14:11 -0500
+Date: Tue, 30 Oct 2001 16:12:36 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Module Licensing?
-In-Reply-To: <E15yi1Q-0001ad-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+cc: Denis Zaitsev <zzz@cd-club.ru>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] init/main.c/root_dev_names - another one #ifdef
+In-Reply-To: <E15yj2E-0001o7-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0110301610460.1336-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
 
->>files and closed-source .o files.  That is, it's "mixed source" - part of the 
->>driver is open-source and part is closed-source.  What happens if the 
->>open-source version of the driver is the only code that uses GPL-only symbols. 
->>  How is that handled?
->>
-> 
-> Well then the open source bit would be GPL which would mean you can;t link
-> it with the binary bit.
+On Wed, 31 Oct 2001, Alan Cox wrote:
+>
+> It took that out deliberately a few months back. The ifdefs in fact
+> break stuff
+>
+> Firstly the array is __init so is discarded on boot
 
+I think that array really is broken. We should get the name association
+from the array that "register_blkdev()" maintains, I'm sure. That way
+random stupid driver X doesn't need to touch a common init/main.c file,
+which I find personally offensive.
 
-Ah, but what happens if I distribute the source code, the closed-source .o 
-files, and a makefile, and tell people that they should link it?  Am I 
-violating the GPL, or is the end-user?
+		Linus
 

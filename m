@@ -1,117 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262701AbVAQFvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262703AbVAQGH6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262701AbVAQFvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 00:51:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbVAQFvQ
+	id S262703AbVAQGH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 01:07:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbVAQGH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 00:51:16 -0500
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:16554 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S262701AbVAQFuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 00:50:50 -0500
-Date: Sun, 16 Jan 2005 21:50:44 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Cc: cw@f00f.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Horrible regression with -CURRENT from "Don't busy-lock-loop in preemptable spinlocks" patch
-Message-ID: <20050117055044.GA3514@taniwha.stupidest.org>
+	Mon, 17 Jan 2005 01:07:58 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:47366 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262703AbVAQGHv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 01:07:51 -0500
+Date: Mon, 17 Jan 2005 07:07:46 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andi Kleen <ak@suse.de>
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] x86_64: kill stale mtrr_centaur_report_mcr
+Message-ID: <20050117060746.GW4274@stusta.de>
+References: <20050116074817.GX4274@stusta.de> <20050117055040.GE19187@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050117055040.GE19187@wotan.suse.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Mon, Jan 17, 2005 at 06:50:40AM +0100, Andi Kleen wrote:
+> On Sun, Jan 16, 2005 at 08:48:17AM +0100, Adrian Bunk wrote:
+> > I didn't know the x86_64 port supports the Centaur CPU.  ;-)
+> 
+> Have you actually compiled this? Most of the gunk in asm-x86_64/mtrr.h
+> is because we share the MTRR driver with i386, and there is no good
+> way to disable specific CPUs in there.
 
-The change below is causing major problems for me on a dual K7 with
-CONFIG_PREEMPT enabled (cset -x and rebuilding makes the machine
-usable again).
+If X86_64 wouldn't have hijyacked CONFIG_X86, you could simply put 
+obj-$(CONFIG_X86) there...
 
-This change was merged a couple of days ago so I'm surprised nobody
-else has reported this.  I tried to find where this patch came from
-but I don't see it on lkml only the bk history.
+I haven't tried to compile it, but OTOH I haven't yet found which dirty 
+tricks you are using for compiling arch/i386/kernel/cpu/centaur.c on
+x86_64...
 
-Note, even with this removed I'm still seeing a few (many actually)
-"BUG: using smp_processor_id() in preemptible [00000001] code: xxx"
-messages which I've not seen before --- that might be unrelated but I
-do see *many* such messages so I'm sure I would have noticed this
-before or it would have broken something earlier.
+> -Andi
 
-Is this specific to the k7 or do other people also see this?
+cu
+Adrian
 
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-Thanks,
-
-  --cw
-
----
-
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2005/01/15 09:40:45-08:00 mingo@elte.hu 
-#   [PATCH] Don't busy-lock-loop in preemptable spinlocks
-#   
-#   Paul Mackerras points out that doing the _raw_spin_trylock each time
-#   through the loop will generate tons of unnecessary bus traffic.
-#   Instead, after we fail to get the lock we should poll it with simple
-#   loads until we see that it is clear and then retry the atomic op. 
-#   Assuming a reasonable cache design, the loads won't generate any bus
-#   traffic until another cpu writes to the cacheline containing the lock.
-#   
-#   Agreed.
-#   
-#   Signed-off-by: Ingo Molnar <mingo@elte.hu>
-#   Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-# 
-# kernel/spinlock.c
-#   2005/01/14 16:00:00-08:00 mingo@elte.hu +8 -6
-#   Don't busy-lock-loop in preemptable spinlocks
-# 
-diff -Nru a/kernel/spinlock.c b/kernel/spinlock.c
---- a/kernel/spinlock.c	2005-01-16 21:43:15 -08:00
-+++ b/kernel/spinlock.c	2005-01-16 21:43:15 -08:00
-@@ -173,7 +173,7 @@
-  * (We do this in a function because inlining it would be excessive.)
-  */
- 
--#define BUILD_LOCK_OPS(op, locktype)					\
-+#define BUILD_LOCK_OPS(op, locktype, is_locked_fn)			\
- void __lockfunc _##op##_lock(locktype *lock)				\
- {									\
- 	preempt_disable();						\
-@@ -183,7 +183,8 @@
- 		preempt_enable();					\
- 		if (!(lock)->break_lock)				\
- 			(lock)->break_lock = 1;				\
--		cpu_relax();						\
-+		while (is_locked_fn(lock) && (lock)->break_lock)	\
-+			cpu_relax();					\
- 		preempt_disable();					\
- 	}								\
- }									\
-@@ -204,7 +205,8 @@
- 		preempt_enable();					\
- 		if (!(lock)->break_lock)				\
- 			(lock)->break_lock = 1;				\
--		cpu_relax();						\
-+		while (is_locked_fn(lock) && (lock)->break_lock)	\
-+			cpu_relax();					\
- 		preempt_disable();					\
- 	}								\
- 	return flags;							\
-@@ -244,9 +246,9 @@
-  *         _[spin|read|write]_lock_irqsave()
-  *         _[spin|read|write]_lock_bh()
-  */
--BUILD_LOCK_OPS(spin, spinlock_t);
--BUILD_LOCK_OPS(read, rwlock_t);
--BUILD_LOCK_OPS(write, rwlock_t);
-+BUILD_LOCK_OPS(spin, spinlock_t, spin_is_locked);
-+BUILD_LOCK_OPS(read, rwlock_t, rwlock_is_locked);
-+BUILD_LOCK_OPS(write, rwlock_t, spin_is_locked);
- 
- #endif /* CONFIG_PREEMPT */
- 

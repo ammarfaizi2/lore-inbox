@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbTFJVig (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 17:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263273AbTFJVg6
+	id S263938AbTFJVmu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 17:42:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbTFJVgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 17:36:58 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:19612 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263152AbTFJSg7 convert rfc822-to-8bit
+	Tue, 10 Jun 2003 17:36:49 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:10658 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263273AbTFJShD convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 14:36:59 -0400
+	Tue, 10 Jun 2003 14:37:03 -0400
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10552709651073@kroah.com>
+Message-Id: <10552709691608@kroah.com>
 Subject: Re: [PATCH] Yet more PCI fixes for 2.5.70
-In-Reply-To: <10552709651054@kroah.com>
+In-Reply-To: <10552709691520@kroah.com>
 From: Greg KH <greg@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Tue, 10 Jun 2003 11:49:25 -0700
+Date: Tue, 10 Jun 2003 11:49:29 -0700
 Content-Transfer-Encoding: 7BIT
 To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1330, 2003/06/09 15:37:14-07:00, greg@kroah.com
+ChangeSet 1.1376, 2003/06/09 16:19:46-07:00, greg@kroah.com
 
-PCI: remove pci_present() from drivers/i2c/i2c-elektor.c
-
-
- drivers/i2c/i2c-elektor.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+PCI: remove pci_present() from sound/oss/esssolo1.c
 
 
-diff -Nru a/drivers/i2c/i2c-elektor.c b/drivers/i2c/i2c-elektor.c
---- a/drivers/i2c/i2c-elektor.c	Tue Jun 10 11:21:36 2003
-+++ b/drivers/i2c/i2c-elektor.c	Tue Jun 10 11:21:36 2003
-@@ -188,7 +188,7 @@
- #ifdef __alpha__
- 	/* check to see we have memory mapped PCF8584 connected to the 
- 	Cypress cy82c693 PCI-ISA bridge as on UP2000 board */
--	if ((base == 0) && pci_present()) {
-+	if (base == 0) {
- 		
- 		struct pci_dev *cy693_dev =
-                     pci_find_device(PCI_VENDOR_ID_CONTAQ, 
+ sound/oss/esssolo1.c |    2 --
+ 1 files changed, 2 deletions(-)
+
+
+diff -Nru a/sound/oss/esssolo1.c b/sound/oss/esssolo1.c
+--- a/sound/oss/esssolo1.c	Tue Jun 10 11:17:37 2003
++++ b/sound/oss/esssolo1.c	Tue Jun 10 11:17:37 2003
+@@ -2459,8 +2459,6 @@
+ 
+ static int __init init_solo1(void)
+ {
+-	if (!pci_present())   /* No PCI bus in this machine! */
+-		return -ENODEV;
+ 	printk(KERN_INFO "solo1: version v0.20 time " __TIME__ " " __DATE__ "\n");
+ 	if (!pci_register_driver(&solo1_driver)) {
+ 		pci_unregister_driver(&solo1_driver);
 

@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129447AbRBMTSl>; Tue, 13 Feb 2001 14:18:41 -0500
+	id <S129042AbRBMT0d>; Tue, 13 Feb 2001 14:26:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129626AbRBMTSV>; Tue, 13 Feb 2001 14:18:21 -0500
-Received: from CRUSH.REM.CMU.EDU ([128.2.81.185]:32909 "EHLO crush.hunch.net")
-	by vger.kernel.org with ESMTP id <S129558AbRBMTSN>;
-	Tue, 13 Feb 2001 14:18:13 -0500
-Date: Tue, 13 Feb 2001 14:22:05 -0500 (EST)
-From: John Langford <l_k_account@crush.hunch.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.1 loopback bug
-Message-ID: <Pine.LNX.4.21.0102131414210.16046-100000@crush.hunch.net>
+	id <S129181AbRBMT0X>; Tue, 13 Feb 2001 14:26:23 -0500
+Received: from sense-gold-134.oz.net ([216.39.162.134]:29956 "EHLO
+	sense-gold-134.oz.net") by vger.kernel.org with ESMTP
+	id <S129042AbRBMT0I>; Tue, 13 Feb 2001 14:26:08 -0500
+Date: Tue, 13 Feb 2001 11:26:23 -0800 (PST)
+From: al goldstein <gold@sense-gold-134.oz.net>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: al goldstein <gold@sense-gold-134.oz.net>,
+        kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.1 swaps hardware addresses for ethernet cards
+In-Reply-To: <3A891B97.4F9805A6@uow.edu.au>
+Message-ID: <Pine.LNX.4.21.0102131119250.2457-100000@sense-gold-134.oz.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There seems to be a heisenbug embedded in the 2.4 loopback driver.  The
-symptom is that at some point a kernel call just fails to return.  I've
-tried to reduce this to the simplest possible example and came up with the
-following trace for a generic 2.4.1 kernel.
+On Tue, 13 Feb 2001, Andrew Morton wrote:
 
-[root@crush jl]# ls -l bigrandom 
--rw-r--r--    1 jl       500      2097152000 Feb  6 12:16 bigrandom
-[root@crush jl]# /sbin/losetup /dev/loop1 bigrandom 
-Feb  6 14:46:24 crush kernel: loop: enabling 8 loop devices
-[root@crush jl]# strace /sbin/mke2fs /dev/loop1
-lseek(3, 1745338368, SEEK_SET)          = 1745338368
-write(3, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"...,32768) = 32768
-lseek(3, 1745371136, SEEK_SET)          = 1745371136
-write(3, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"...,32768
+Thanks Andrew, I appreciate your note. I'll try it again with 509 as a module.
+I had forgotten about linkage order problems.
 
-This last write never returned, the mke2fs process became unkillable, and
-load went to '4'.  There were no interesting messages in the log.  The
-thing which makes this bug nasty is that it surfaces at a random
-time.  I've had it happen on a file size of 1GB, but it only reliably
-happens on a 2GB file.
 
-Is anyone working on this?  Or do you have suggestions for debugging it?
-
--John
+> al goldstein wrote:
+> > 
+> > I have 2 ether cards 59x (eth0) and 509 (eth1). I have been adding 509
+> > at boot in lilo.conf. Using this same config in 2.4.1 results in
+> > the hardware addresses for the cards to be swapped. If I remove 509 from
+> > Lilo I get the same result. Suggestions would be appreciated
+> 
+> If both drivers are statically linked into the kernel then
+> I guess this is entirely dependent upon the linkage order of
+> net/core/dev.o and drivers/net/3c59x.o.
+> 
+> If you make the drivers modular then you can force the order
+> within your boot scripts.
+> 
+> If you make just one driver modular then that one will be
+> "eth1".
+> 
+> You can grab Andi's "nameif" app which allows you to rename
+> interfaces based on their MAC address, which will certainly
+> put and end to the issue.  I'm not sure whether this
+> app is in net-tools yet.
+> 
+> Finally, you can wait until the Linux hotplug architecture
+> is fully implemented, after which the naming order will
+> be nicely randomised each time you boot :)
+> 
+> It's fun, isn't it?
+> 
+> -
+> 
 

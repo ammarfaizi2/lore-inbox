@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264788AbTFESUh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 14:20:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264803AbTFESUh
+	id S264803AbTFESXe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 14:23:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264807AbTFESXe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 14:20:37 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:26125
+	Thu, 5 Jun 2003 14:23:34 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:30477
 	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S264788AbTFESUg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 14:20:36 -0400
-Date: Thu, 5 Jun 2003 11:34:08 -0700
+	id S264803AbTFESXd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 14:23:33 -0400
+Date: Thu, 5 Jun 2003 11:37:02 -0700
 From: Mike Fedyk <mfedyk@matchmail.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Ed Vance <EdV@macrolink.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [2.5] Non-blocking write can block
-Message-ID: <20030605183408.GB3291@matchmail.com>
-Mail-Followup-To: Davide Libenzi <davidel@xmailserver.org>,
-	Ed Vance <EdV@macrolink.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <11E89240C407D311958800A0C9ACF7D1A33EBD@EXCHANGE> <Pine.LNX.4.55.0306041717230.3655@bigblue.dev.mcafeelabs.com>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Vladimir Saveliev <vs@namesys.com>, LKML <linux-kernel@vger.kernel.org>,
+       reiserfs-dev@namesys.com
+Subject: Re: file write performance drop between 2.5.60 and 2.5.70
+Message-ID: <20030605183702.GC3291@matchmail.com>
+Mail-Followup-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+	Vladimir Saveliev <vs@namesys.com>,
+	LKML <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com
+References: <200306042017.53435.vs@namesys.com> <1054749758.699.5.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55.0306041717230.3655@bigblue.dev.mcafeelabs.com>
+In-Reply-To: <1054749758.699.5.camel@teapot.felipe-alfaro.com>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 04, 2003 at 05:19:05PM -0700, Davide Libenzi wrote:
-> Besides the stupid name O_REALLYNONBLOCK, it really should be different
-> from both O_NONBLOCK and O_NDELAY. Currently in Linux they both map to the
-> same value, so you really need a new value to not break binary compatibility.
+On Wed, Jun 04, 2003 at 08:02:39PM +0200, Felipe Alfaro Solana wrote:
+> On Wed, 2003-06-04 at 18:17, Vladimir Saveliev wrote:
+> > Hi
+> > 
+> > It looks like file write performance dropped somewhere between 2.5.60 and 
+> > 2.5.70.
+> > Doing
+> > time dd if=/dev/zero of=file bs=4096 count=60000
+> > 
+> > on a box with Xeon(TM) CPU 2.40GHz and 1gb of RAM
+> > I get for ext2
+> > 2.5.60: 	real	1.42 sys 0.77
+> > 2.5.70: 	real 1.73 sys 1.23
+> > for reiserfs
+> > 2.5.60: 	real 1.62 sys 1.56
+> > 2.5.70: 	real 1.90 sys 1.86
+> > 
+> > Any ideas of what could cause this drop?
+> 
+> What filesystem are you using?
 
-Hmm, wouldn't that be source and binary compatability?  If an app used
-O_NDELAY and O_NONBLOCK interchangably, then a change to O_NDELAY would
-break source compatability too.
+Good one.
 
-Also, what do other UNIX OSes do?  Do they have seperate semantics for
-O_NONBLOCK and O_NDELAY?  If so, then it would probably be better to change
-O_NDELAY to be similar and add another feature at the same time as reducing
-platform specific codeing in userspace.
+ext2 and reiserfs.
+
+Read the origional message again.

@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313882AbSEAS0C>; Wed, 1 May 2002 14:26:02 -0400
+	id <S313898AbSEASqw>; Wed, 1 May 2002 14:46:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313902AbSEAS0B>; Wed, 1 May 2002 14:26:01 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:22283 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S313882AbSEASZ5>;
-	Wed, 1 May 2002 14:25:57 -0400
-Date: Wed, 1 May 2002 20:25:44 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] reworked IDE/general tagged command queueing
-Message-ID: <20020501182544.GF811@suse.de>
-In-Reply-To: <Pine.LNX.4.44.0205010900050.4589-100000@home.transmeta.com> <3CD0119D.1080905@evision-ventures.com> <3CD02139.3020009@evision-ventures.com>
+	id <S313902AbSEASqv>; Wed, 1 May 2002 14:46:51 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:59921 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S313898AbSEASqu>;
+	Wed, 1 May 2002 14:46:50 -0400
+Date: Wed, 1 May 2002 10:43:19 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew T Sydelko <sydelko@ecn.purdue.edu>
+Cc: linux-kernel@vger.kernel.org, torvalds@penguin.transmeta.com
+Subject: Re: 2.5.1[012] compile fix under drivers/usb/storage
+Message-ID: <20020501174319.GF1734@kroah.com>
+In-Reply-To: <200205011458.g41EwwD6027915@philmont.ecn.purdue.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 03 Apr 2002 15:09:40 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 01 2002, Martin Dalecki wrote:
-> >Well after a short cross over look at it I agree.
-> >The generic interface looks sane for me as well. However
-> >I will have to look a bit deeper, becouse at the first sight
-> >the double pointer to tag_index looks a bit "overelaborate"
-> >to me. But I may change my opinnion after looking at the
-> >actual usage - so please take this small bit of critique
-> >with a good grain of salt...
-> >
-> >+#define BLK_TAGS_PER_LONG    (sizeof(unsigned long) * 8)
-> >+#define BLK_TAGS_MASK        (BLK_TAGS_PER_LONG - 1)
-> >+
-> >+struct blk_queue_tag {
-> >+ struct request **tag_index;    /* map of busy tags */
-> >+ unsigned long *tag_map;        /* bit map of free/busy tags */
-> >+ struct list_head busy_list;    /* fifo list of busy tags */
-> >+ int busy;            /* current depth */
-> >+ int max_depth;
-> >+};
-> >+
+On Wed, May 01, 2002 at 09:58:57AM -0500, Andrew T Sydelko wrote:
 > 
-> Well I revoke my objections. tag_index is fine :-).
+> The following patch fixes compilation problems due to structure changes.
+> The patch applies against 2.5.1[012].
+> 
+> drivers/usb/storage/datafab.c
+> drivers/usb/storage/jumpshot.c
 
-It should be, it's just an index of pointer to request, so no double
-indirections :)
+I don't think this is the proper fix for this code (due to highmem
+issues).  Could you please work with the usb-storage author and
+maintainer to get this fixed.
 
--- 
-Jens Axboe
+thanks,
 
+greg k-h

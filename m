@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135869AbRD3Qvv>; Mon, 30 Apr 2001 12:51:51 -0400
+	id <S136488AbRD3Q4V>; Mon, 30 Apr 2001 12:56:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136488AbRD3Qvm>; Mon, 30 Apr 2001 12:51:42 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:59618 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S135869AbRD3Qve>;
-	Mon, 30 Apr 2001 12:51:34 -0400
-Message-ID: <3AED980A.4323AF7D@mandrakesoft.com>
-Date: Mon, 30 Apr 2001 12:51:22 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
+	id <S136489AbRD3Q4L>; Mon, 30 Apr 2001 12:56:11 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4105 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136488AbRD3Qz5>; Mon, 30 Apr 2001 12:55:57 -0400
+Subject: Re: Alpha compile problem solved by Andrea (pte_alloc)
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Mon, 30 Apr 2001 17:56:41 +0100 (BST)
+Cc: ebiederm@xmission.com (Eric W. Biederman),
+        mag@fbab.net ("Magnus Naeslund(f)"),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <20010430014653.C923@athlon.random> from "Andrea Arcangeli" at Apr 30, 2001 01:46:53 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Elmer Joandi <elmer@linking.ee>
-Cc: Ookhoi <ookhoi@dds.nl>, Francois Gouget <fgouget@free.fr>,
-        linux-kernel@vger.kernel.org, elmer@ylenurme.ee
-Subject: Re: Aironet doesn't work
-In-Reply-To: <Pine.LNX.4.21.0104301133110.9957-100000@ns.linking.ee>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14uGya-0008He-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Elmer Joandi wrote:
-> the whole pcmcia does not work in 2.4.
+> On alpha it's racy if you set CONFIG_ALPHA_LARGE_VMALLOC y (so don't do
+> that as you don't need it). As long as you use only 1 entry of the pgd
+> for the whole vmalloc space (CONFIG_ALPHA_LARGE_VMALLOC n) alpha is
+> safe.
 
-Prove it.
+Its racy for all cases on the Alpha because the exception table fixes are
+not done.
 
-It works for people with correct 2.4 kernel configurations.
+> OTOH x86 is racy and there's no workaround available at the moment.
 
--- 
-Jeff Garzik      | Game called on account of naked chick
-Building 1024    |
-MandrakeSoft     |
+-ac fixes all known problems there 
+
+Alan
+

@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277210AbRJQU7Q>; Wed, 17 Oct 2001 16:59:16 -0400
+	id <S277206AbRJQVDG>; Wed, 17 Oct 2001 17:03:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277208AbRJQU7G>; Wed, 17 Oct 2001 16:59:06 -0400
-Received: from hermes.toad.net ([162.33.130.251]:42472 "EHLO hermes.toad.net")
-	by vger.kernel.org with ESMTP id <S277206AbRJQU6x>;
-	Wed, 17 Oct 2001 16:58:53 -0400
-Subject: Re: [PATCH] PnP BIOS -- bugfix; update devlist on setpnp
-From: Thomas Hood <jdthood@mail.com>
-To: Gunther Mayer <Gunther.Mayer@t-online.de>
-Cc: "Steven A. DuChene" <sduchene@mindspring.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3BCDAC10.A7F40982@t-online.de>
-In-Reply-To: <1003288485.14282.100.camel@thanatos>
-	<20011017041014.B2015@lapsony.mydomain.here> 
-	<3BCDAC10.A7F40982@t-online.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 17 Oct 2001 16:58:33 -0400
-Message-Id: <1003352314.1188.30.camel@thanatos>
+	id <S277208AbRJQVC4>; Wed, 17 Oct 2001 17:02:56 -0400
+Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:26885 "EHLO
+	moria.gondor.com") by vger.kernel.org with ESMTP id <S277206AbRJQVCk>;
+	Wed, 17 Oct 2001 17:02:40 -0400
+Date: Wed, 17 Oct 2001 23:03:13 +0200
+From: Jan Niehusmann <jan@gondor.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Oops in usb-storage.c
+Message-ID: <20011017230312.A21046@gondor.com>
+In-Reply-To: <20011017005822.A2161@gondor.com> <20011016175640.A18541@one-eyed-alien.net> <20011017031113.A3072@gondor.com> <20011016183243.B18541@one-eyed-alien.net> <20011017034410.A3722@gondor.com> <20011016232452.A22978@one-eyed-alien.net> <20011017124249.A1505@gondor.com> <20011017121540.A32020@one-eyed-alien.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011017121540.A32020@one-eyed-alien.net>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-10-17 at 12:04, Gunther Mayer wrote:
-> i2c-piix4 has to be taught to ignore PNP0c0x reservations.
-> 
-> PNP0C02 means "mainboard resource" and obviously i2c-piix4
-> would like to use it, so it should make use of it's knowledge.
-> 
-> As "mainboard resouce" is very generic we must reserve it
-> to protect against mapping other addresses over it.
+On Wed, Oct 17, 2001 at 12:15:40PM -0700, Matthew Dharm wrote:
+> This looks better... but you have a dangerous memset() in an else clause --
+> the request buffer pointer could be pointing to a scatter-gather list, so
+> you can't just memset on it.
 
-Your approach would work.  But ...
+Oh yes, I see - this memset is probably useless with the latest patch.
+With an older version, it prevented the return of garbage from INQUIRY
+in some cases, but with the later version INQUIRY is handeld specially
+anyways.
 
-Alan has said that the thing to do is mark these resources
-as extant but unused.  I presume one does this by calling
-request_resource with appropriate flags [un]set.
-
-Thomas
+Jan
 

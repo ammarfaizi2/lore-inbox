@@ -1,102 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129652AbQLSMeT>; Tue, 19 Dec 2000 07:34:19 -0500
+	id <S130092AbQLSMgJ>; Tue, 19 Dec 2000 07:36:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130092AbQLSMeK>; Tue, 19 Dec 2000 07:34:10 -0500
-Received: from smtp5.mail.yahoo.com ([128.11.69.102]:11782 "HELO
-	smtp5.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S130090AbQLSMeE>; Tue, 19 Dec 2000 07:34:04 -0500
-X-Apparently-From: <p?gortmaker@yahoo.com>
-Message-ID: <3A3F42FC.4E341732@yahoo.com>
-Date: Tue, 19 Dec 2000 06:14:04 -0500
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.18 i486)
+	id <S130120AbQLSMf7>; Tue, 19 Dec 2000 07:35:59 -0500
+Received: from 209.102.21.2 ([209.102.21.2]:52751 "EHLO dragnet.seagull.net")
+	by vger.kernel.org with ESMTP id <S130092AbQLSMfr>;
+	Tue, 19 Dec 2000 07:35:47 -0500
+Message-ID: <3A3F1E6A.AAEC9F5F@goingware.com>
+Date: Tue, 19 Dec 2000 08:38:02 +0000
+From: "Michael D. Crawford" <crawford@goingware.com>
+Organization: GoingWare Inc. - Expert Software Development and Consulting
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel list <linux-kernel@vger.kernel.org>
-CC: tytso@mit.edu
-Subject: [PATCH] ident of whole-disk ext2 fs
+To: linux-kernel@vger.kernel.org
+Subject: Linux Quality Database Project
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I always disliked the unknown partition table messages you get when you
-mke2fs a whole disk and don't bother with a table at all, so I fixed it.
-Output before/after shown below:
+Last may I posted a message to the list with the subject "Organized
+Linux QA?" asking if there'd be any interest
+in building a web database to collect bug reports in linux kernel test
+versions and to make it easier to search for
+bugs (and success reports) based on things like hardware configuration
+and kernel configuration (the database would parse .config files and you
+could search by the options in it).
 
- Partition check:
-  hda: hda1 hda2
-- hdd: unknown partition table
-+ hdd: whole disk EXT2-fs, revision 1.0, 1k blocks, status: clean.
- VFS: Mounted root (ext2 filesystem) readonly.
- Freeing unused kernel memory: 32k freed
+My original message is archived at:
 
-Note that I placed the check right before we give up and print the unknown
-message, so all the other identification schemes get their chance to prod
-at the disk first.  Patch against 2.2.18 follows -- not necessarily
-advocating it for 2.2 - just happened to be what I patched... :)
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0005.3/1437.html
 
-Paul.
+and was posted Wed, May 31 2000.  You can read the brief thread that
+ensued from the archives.
 
+I felt the process of reporting a bug to the linux-kernel list and
+staying on the list to ensure the bug got fixed and stayed fix was
+likely to be intimidating to a lot of the people who might otherwise be
+helpful to you in reporting bugs.
+I thought a web application like this would encourage more users to
+participate, basically you'd need to know enough to apply a patch, build
+a kernel from source and log the results into a web form.
 
+Things got kind of nuts in my consulting business for a while (I also
+got married, on July 22, to a woman from Newfoundland - I'm from
+California) and I couldn't deal with this for a while.  But my life is
+settling down a bit and I'd like to take this back up.
 
---- linux-2.2.18/drivers/block/genhd.c~	Mon Dec 11 20:26:14 2000
-+++ linux/drivers/block/genhd.c	Tue Dec 12 08:11:12 2000
-@@ -232,6 +232,39 @@
- 	return ret;
- }
- 
-+/*
-+ * Lots of people put ext2 fs directly onto a whole disk, without a 
-+ * partition table.  Looks kind of silly if we call a disk with our
-+ * own filesystem "unknown". - Paul G.
-+ */
-+
-+#ifdef CONFIG_EXT2_FS
-+#include <linux/ext2_fs.h>
-+
-+static int ext2_partition(struct gendisk *hd, unsigned int dev, unsigned long first_sector)
-+{
-+	struct buffer_head *bh;
-+	struct ext2_super_block *es;
-+
-+	if (!(bh = bread(dev, 1, get_ptable_blocksize(dev)))) {
-+		printk("unable to read block one.\n");
-+		return -1;
-+	}
-+	es = (struct ext2_super_block *) bh->b_data;
-+	if (le16_to_cpu(es->s_magic) != EXT2_SUPER_MAGIC) {
-+		brelse(bh);
-+		return 0;
-+	}
-+	printk(" whole disk EXT2-fs, revision %d.%d, %dk blocks, status: %sclean.\n",
-+		le32_to_cpu(es->s_rev_level),
-+		le16_to_cpu(es->s_minor_rev_level),
-+		1<<le32_to_cpu(es->s_log_block_size),
-+		le16_to_cpu(es->s_state) == EXT2_VALID_FS ? "" : "un");
-+	brelse(bh);
-+	return 1;
-+}
-+#endif
-+
- #ifdef CONFIG_MSDOS_PARTITION
- /*
-  * Create devices for each logical partition in an extended partition.
-@@ -1608,6 +1641,10 @@
- #endif
- #ifdef CONFIG_ARCH_S390
- 	if (ibm_partition (hd, dev, first_sector))
-+		return;
-+#endif
-+#ifdef CONFIG_EXT2_FS
-+	if (ext2_partition(hd, dev, first_sector))
- 		return;
- #endif
- 	printk(" unknown partition table\n");
+So far the project has nothing but a home page saying what it's about,
+but it's hosted at SunSITE Denmark
+(http://sunsite.dk), which has a powerful server and provides a lot of
+services to the open source community:
 
+http://linuxquality.sunsite.dk
 
+If you'd like to participate or know someone who would there's
+instructions on subscribing to the database developer's mailing list on
+the page (send an empty message to linuxquality-dev-subscribe@sunsite.dk
+)
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+Of course, the sort of programming one usually does for a
+database-backed web application is typically different than kernel
+programming so I don't expect many of you will want to help write the
+thing.  But I would appreciate having some of you participate in the
+design so that we can ensure the result will serve your needs, and
+passing this message on to web applications programmers who you think
+might want to participate.
+
+I want to say right off that it is not my objective to impose some kind
+of corporate quality process on the Linux kernel developers.  That would
+be pretty presumptuous of me as I've never been a kernel developer, let
+alone any kind of leader in the Linux community.  So there will be
+explicitly no requirement that any developer participate at all to work
+with the bug database - I'm not suggesting you all should start tracking
+your open bugs on my database or closing them when they're fixed or
+referring them back to testers as is the usual practice in big company
+software projects.
+
+I do want to provide configurable levels of participation, ranging from
+a request that submitted bugs in a particular component just be
+forwarded to the linux-kernel list, to mailing problem summaries to a
+developer who would then browse the database, to the possibility of
+interacting regularly with the database.
+
+It would be fine if the database served as a passive repository of bug
+info that you could browse at your leisure.
+
+(I'm not subscribed to the linux-kernel list, but will be reading it off
+an archive.  Subscribing last spring filled my inbox so full that it
+overflowed /tmp on my hosting service when I ran elm).
+
+Regards,
+
+Michael D. Crawford
+GoingWare Inc. -Expert Software Development and Consulting
+http://www.goingware.com/
+crawford@goingware.com
+
+   Tilting at Windmills for a Better Tomorrow.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312449AbSDEKN6>; Fri, 5 Apr 2002 05:13:58 -0500
+	id <S312444AbSDEKLS>; Fri, 5 Apr 2002 05:11:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312446AbSDEKNs>; Fri, 5 Apr 2002 05:13:48 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:57761 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S312449AbSDEKNg>;
-	Fri, 5 Apr 2002 05:13:36 -0500
-Date: Fri, 5 Apr 2002 12:12:02 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>,
-        Larry McVoy <lm@bitmover.com>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <Pine.LNX.4.33.0204041720210.1546-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0204051211170.10408-100000@lisianthus.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312446AbSDEKLJ>; Fri, 5 Apr 2002 05:11:09 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:12691 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S312444AbSDEKK7>;
+	Fri, 5 Apr 2002 05:10:59 -0500
+Date: Fri, 05 Apr 2002 02:04:43 -0800 (PST)
+Message-Id: <20020405.020443.115246313.davem@redhat.com>
+To: stelian.pop@fr.alcove.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: socket write(2) after remote shutdown(2) problem ?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020405095038.GB16595@come.alcove-fr>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Apr 2002, Linus Torvalds wrote:
-> On Thu, 4 Apr 2002, Albert D. Cahalan wrote:
-> > 
-> > So then something like this...
-> > 
-> > alias ls='/bin/ls --ignore=SCCS'
-> 
-> Oh, that's very useful. Considering that everything else still finds them, 
-> like find, shell autocompletion etc.
-> 
-> The only thing "--ignore=xxx" is useful for is hackers that want to break 
-                                                 ^^^^^^^
-> into your system and hide their files.
+   From: Stelian Pop <stelian.pop@fr.alcove.com>
+   Date: Fri, 5 Apr 2002 11:50:39 +0200
 
-Ugh, this is linux-kernel! (cfr. signature)
+   	* the client side socket passes in CLOSE-WAIT state
+   	* the client issues a write on the socket which succeds.
+ ...   
+   Attached are sample codes for the "server" and the "client". Test
+   was done on latest 2.4 and 2.5 kernels.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Your client does not do any write()'s after the shutdown call.
+It simply exit(0)'s.

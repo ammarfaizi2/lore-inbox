@@ -1,122 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318358AbSH0VDC>; Tue, 27 Aug 2002 17:03:02 -0400
+	id <S318426AbSH0VFE>; Tue, 27 Aug 2002 17:05:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318366AbSH0VDC>; Tue, 27 Aug 2002 17:03:02 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:8610 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318358AbSH0VDA>;
-	Tue, 27 Aug 2002 17:03:00 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
-Message-ID: <OF05D43610.2879BBAC-ON87256C22.0073ADF3@us.ibm.com>
-From: Juan Gomez <juang@us.ibm.com>
-Date: Tue, 27 Aug 2002 15:06:33 -0600
-Subject: NFS lockd patch proposal for user-level control of the grace period 
-X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Build V60_M14_08012002 Release
- Candidate|August 01, 2002) at 08/27/2002 15:06:36
-MIME-Version: 1.0
-Content-type: multipart/mixed; 
-	Boundary="0__=08BBE6B1DFE02B638f9e8a93df938690918c08BBE6B1DFE02B63"
-Content-Disposition: inline
+	id <S318368AbSH0VEe>; Tue, 27 Aug 2002 17:04:34 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:17792 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S318383AbSH0VDW>;
+	Tue, 27 Aug 2002 17:03:22 -0400
+Date: Tue, 27 Aug 2002 14:55:13 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Corey Minyard <minyard@acm.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] IPMI driver for Linux
+Message-ID: <20020827145512.K35@toy.ucw.cz>
+References: <3D63B612.8020706@acm.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3D63B612.8020706@acm.org>; from minyard@acm.org on Wed, Aug 21, 2002 at 10:47:30AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0__=08BBE6B1DFE02B638f9e8a93df938690918c08BBE6B1DFE02B63
-Content-type: text/plain; charset=US-ASCII
+Hi!
 
+> I have been working on an IPMI driver for Linux for MontaVista, and I 
+> think it's ready to see the light of day :-).  I would like to see this 
 
-
-
-
-Following up with Alan request here I am sending a patch for fs/lockd/svc.c
-that contains the grace period control feature through the proc filesystem,
-feedback & sugestions are very welcome as is the prompt inclusion in the
-linux distribution :-)
-
-
-(See attached file: userl-gracep-control.patch)
-
-Regards, Juan
---0__=08BBE6B1DFE02B638f9e8a93df938690918c08BBE6B1DFE02B63
-Content-type: application/octet-stream; 
-	name="userl-gracep-control.patch"
-Content-Disposition: attachment; filename="userl-gracep-control.patch"
-Content-transfer-encoding: base64
-
-KioqIHN2Yy5jLm9sZAlUdWUgQXVnIDI3IDIwOjU0OjAxIDIwMDIKLS0tIHN2Yy5jCVR1ZSBBdWcg
-MjcgMjA6NTE6MjAgMjAwMgoqKioqKioqKioqKioqKioKKioqIDM1LDQwICoqKioKLS0tIDM1LDQy
-IC0tLS0KICAjaW5jbHVkZSA8bGludXgvbG9ja2QvbG9ja2QuaD4KICAjaW5jbHVkZSA8bGludXgv
-bmZzLmg+CiAgCisgI2luY2x1ZGUgPGxpbnV4L3Byb2NfZnMuaD4KKyAKICAjZGVmaW5lIE5MTURC
-R19GQUNJTElUWQkJTkxNREJHX1NWQwogICNkZWZpbmUgTE9DS0RfQlVGU0laRQkJKDEwMjQgKyBO
-TE1TU1ZDX1hEUlNJWkUpCiAgI2RlZmluZSBBTExPV0VEX1NJR1MJCShzaWdtYXNrKFNJR0tJTEwp
-KQoqKioqKioqKioqKioqKioKKioqIDc3LDgyICoqKioKLS0tIDc5LDI0MSAtLS0tCiAgCW5sbXN2
-Y19ncmFjZV9wZXJpb2QgPSAwOwogIH0KICAKKyAKKyAKKyAvKgorICAqIFRoaXMgY29kZSBlbmFi
-bGUgdXNlci1sZXZlbCBjb250cm9sIG9mIHRoZSBncmFjZSBwZXJpb2Qgc3RhdGUgb2YgdGhlIGxv
-Y2tkCisgICogZGFlbW9uLgorICAqLworIAorIAorIC8qIDE6IG5sbV9wcm9jX2ZzIG5vdCBpbnRp
-YWxpemVkLCAwOiBpbml0aWFsaXplZCAqLworIHN0YXRpYyBpbnQgbmxtX3Byb2NfZnNfaW5pdF9m
-bGFnID0gMTsKKyAKKyBzdGF0aWMgdW5zaWduZWQgbG9uZyBncmFjZV9wZXJpb2RfZXhwaXJlOwor
-IAorIAorIAorIAorIC8qIEZ1bmN0aW9uIHVzZWQgdG8gcmVhZCBncmFjZSBwZXJpb2Qgc3RhdHVz
-IG9mIGxvY2tkICovCisgCisgc3RhdGljIHNzaXplX3QKKyBubG1zdmNfZ3JhY2VfcGVyaW9kX3Jl
-YWQoY2hhciAqcGFnZSwgCisgICAgICAgICAgICAgICAgICAgICAgICAgIGNoYXIgKipzdGFydCwg
-CisgICAgICAgICAgICAgICAgICAgICAgICAgIG9mZl90IG9mZiwKKyAgICAgICAgICAgICAgICAg
-ICAgICAgICAgaW50IGNvdW50LCAKKyAgICAgICAgICAgICAgICAgICAgICAgICAgaW50ICplb2Ys
-IAorICAgICAgICAgICAgICAgICAgICAgICAgICB2b2lkICpkYXRhKQorIHsKKyAgICAgY2hhciAg
-ICAgICAgKnMgPSBubG1zdmNfZ3JhY2VfcGVyaW9kID8gIjEiIDogIjAiOworICAgICBpbnQgICAg
-ICAgICBsZW4gPSBzdHJsZW4ocyk7CisgCisgICAgICplb2YgPSAwOworICAgICAqc3RhcnQgPSBw
-YWdlOworIAorICAgICBpZiAob2ZmIDwgMCkKKyAgICAgICAgIHJldHVybiAtRUlOVkFMOworIAor
-ICAgICBpZiAob2ZmID49IGxlbil7CisgICAgICAgKmVvZiA9IDE7CisgICAgICAgcmV0dXJuIDA7
-CisgICAgIH0KKyAKKyAgICAgaWYgKGxlbiA8IChvZmYgKyBjb3VudCkpIHsKKyAKKyAgICAgICAq
-ZW9mID0gMTsKKyAgICAgICBjb3VudCA9IGxlbiAtIG9mZjsKKyAKKyAgICAgfSBlbHNlIHsKKyAK
-KyAgICAgICBjb3VudCA9IGxlbjsKKyAKKyAgICAgfQorIAorICAgICBtZW1jcHkocGFnZSwgcyAr
-IG9mZiwgY291bnQpOworIAorICAgICByZXR1cm4gY291bnQ7CisgCisgfS8qIHN0YXRpYyBzc2l6
-ZV90IG5sbXN2Y19ncmFjZV9wZXJpb2RfcmVhZCgpICovCisgCisgCisgLyoKKyAgKiBTZXQgc3Rh
-dHVzIG9mIGVudHJ5L2JpbmZtdF9taXNjOgorICAqICcxJyBlbmFibGVzLCAnMCcgZGlzYWJsZXMg
-YW5kICctMScgY2xlYXJzIGVudHJ5L2JpbmZtdF9taXNjCisgICovCisgc3RhdGljIGludCBwYXJz
-ZV9jb21tYW5kKGNvbnN0IGNoYXIgKmJ1ZmZlciwgc2l6ZV90IGNvdW50KQorIHsKKyAJY2hhciBz
-WzRdOworIAorIAlpZiAoIWNvdW50KQorIAkJcmV0dXJuIDA7CisgCisgCWlmIChjb3VudCA+IDMp
-CisgCQlyZXR1cm4gLUVJTlZBTDsKKyAKKyAJbWVtY3B5KHMsIGJ1ZmZlciwgY291bnQpOworIAor
-IAlpZiAoc1tjb3VudC0xXSA9PSAnXG4nKQorIAkJY291bnQtLTsKKyAKKyAJaWYgKGNvdW50ID09
-IDEgJiYgc1swXSA9PSAnMCcpCisgCQlyZXR1cm4gMTsKKyAKKyAJaWYgKGNvdW50ID09IDEgJiYg
-c1swXSA9PSAnMScpCisgCQlyZXR1cm4gMjsKKyAKKyAJcmV0dXJuIC1FSU5WQUw7CisgCisgfQor
-IAorIC8qIEZ1bmN0aW9uIHVzZWQgdG8gc2V0L3Jlc2V0IGdyYWNlIHBlcmlvZCBzdGF0dXMgb2Yg
-bG9ja2QgKi8KKyAKKyBzdGF0aWMgc3NpemVfdCBubG1zdmNfZ3JhY2VfcGVyaW9kX3dyaXRlKHN0
-cnVjdCBmaWxlICpmaWxlLCAKKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgIGNvbnN0IGNoYXIgKmJ1ZmZlciwKKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgIHVuc2lnbmVkIGxvbmcgY291bnQsCisgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICB2b2lkICpkYXRhKQorIHsKKyAgICAgaW50IHJlcyA9IHBhcnNlX2Nv
-bW1hbmQoYnVmZmVyLCBjb3VudCk7CisgICAgIHN0cnVjdCBkZW50cnkgKnJvb3Q7CisgICAgIAor
-ICAgICBzd2l0Y2ggKHJlcykgeworICAgICBjYXNlIDE6IAorICAgICAgICAgY2xlYXJfZ3JhY2Vf
-cGVyaW9kKCk7CisgICAgICAgICBicmVhazsKKyAgICAgY2FzZSAyOiAKKyAgICAgICAgIGdyYWNl
-X3BlcmlvZF9leHBpcmUgPSBzZXRfZ3JhY2VfcGVyaW9kKCk7CisgICAgICAgICBicmVhazsKKyAg
-ICAgZGVmYXVsdDogCisgICAgICAgICByZXR1cm4gcmVzOworICAgICB9CisgICAgIHJldHVybiBj
-b3VudDsKKyAKKyB9Lyogc3RhdGljIHNzaXplX3Qgbmxtc3ZjX2dyYWNlX3BlcmlvZF93cml0ZSgp
-ICovCisgCisgCisgCisgCisgCisgc3RhdGljIHN0cnVjdCBwcm9jX2Rpcl9lbnRyeSAqYmFzZTsK
-KyAKKyAKKyBzdGF0aWMgdm9pZCBubG1fcHJvY19mc19pbml0KCkKKyB7CisgICBzdHJ1Y3QgcHJv
-Y19kaXJfZW50cnkgKnA7CisgCisgICBpZiAobmxtX3Byb2NfZnNfaW5pdF9mbGFnKXsKKyAgICAg
-CisgICAgIGlmICghKGJhc2UgPSBwcm9jX21rZGlyKCJubG0iLCBwcm9jX3Jvb3RfZnMpKSkKKyAg
-ICAgICByZXR1cm47CisgICAgIAorICAgICBubG1fcHJvY19mc19pbml0X2ZsYWcgPSAwOworIAor
-ICAgICBpZiAoKHAgPSBjcmVhdGVfcHJvY19lbnRyeSgibmxtc3ZjX2dyYWNlX3BlcmlvZCIsIDAs
-IGJhc2UpKSkgeworIAorICAgICAgIHAtPnJlYWRfcHJvYyA9IG5sbXN2Y19ncmFjZV9wZXJpb2Rf
-cmVhZDsKKyAgICAgICBwLT53cml0ZV9wcm9jID0gbmxtc3ZjX2dyYWNlX3BlcmlvZF93cml0ZTsK
-KyAKKyAgICAgfQorICAgICAKKyAgIH0KKyAKKyB9Lyogc3RhdGljIGludCBubG1fcHJvY19mc19p
-bml0KCkgKi8KKyAKKyAKKyAKKyAKKyBzdGF0aWMgdm9pZCBubG1fcHJvY19mc19leGl0KCkKKyB7
-CisgCisgICAgIGlmICghbmxtX3Byb2NfZnNfaW5pdF9mbGFnICYmIGJhc2UpeworICAgICAgICAg
-CisgICAgICAgcmVtb3ZlX3Byb2NfZW50cnkoIm5sbXN2Y19ncmFjZV9wZXJpb2QiLCBiYXNlKTsK
-KyAgICAgICByZW1vdmVfcHJvY19lbnRyeSgibmxtIiwgcHJvY19yb290X2ZzKTsKKyAKKyAgICAg
-fQorIAorIH0vKiBzdGF0aWMgdm9pZCBubG1fcHJvY19mc19leGl0KCkgKi8KKyAKKyAKKyAKICAv
-KgogICAqIFRoaXMgaXMgdGhlIGxvY2tkIGtlcm5lbCB0aHJlYWQKICAgKi8KKioqKioqKioqKioq
-KioqCioqKiA4NSw5MSAqKioqCiAgewogIAlzdHJ1Y3Qgc3ZjX3NlcnYJKnNlcnYgPSBycXN0cC0+
-cnFfc2VydmVyOwogIAlpbnQJCWVyciA9IDA7Ci0gCXVuc2lnbmVkIGxvbmcgZ3JhY2VfcGVyaW9k
-X2V4cGlyZTsKICAKICAJLyogTG9jayBtb2R1bGUgYW5kIHNldCB1cCBrZXJuZWwgdGhyZWFkICov
-CiAgCU1PRF9JTkNfVVNFX0NPVU5UOwotLS0gMjQ0LDI0OSAtLS0tCioqKioqKioqKioqKioqKgoq
-KiogMjI4LDIzMyAqKioqCi0tLSAzODYsMzkzIC0tLS0KICAJaWYgKG5sbXN2Y19waWQpCiAgCQln
-b3RvIG91dDsKICAKKyAgICAgICAgIG5sbV9wcm9jX2ZzX2luaXQoKTsKKyAKICAJLyoKICAJICog
-U2FuaXR5IGNoZWNrOiBpZiB0aGVyZSdzIG5vIHBpZCwKICAJICogd2Ugc2hvdWxkIGJlIHRoZSBm
-aXJzdCB1c2VyIC4uLgoqKioqKioqKioqKioqKioKKioqIDI5MSwyOTYgKioqKgotLS0gNDUxLDQ1
-OSAtLS0tCiAgCQkJZ290byBvdXQ7CiAgCX0gZWxzZQogIAkJcHJpbnRrKEtFUk5fV0FSTklORyAi
-bG9ja2RfZG93bjogbm8gdXNlcnMhIHBpZD0lZFxuIiwgbmxtc3ZjX3BpZCk7CisgCisgICAgICAg
-ICBubG1fcHJvY19mc19leGl0KCk7CisgCiAgCiAgCWlmICghbmxtc3ZjX3BpZCkgewogIAkJaWYg
-KHdhcm5lZCsrID09IDApCg==
-
---0__=08BBE6B1DFE02B638f9e8a93df938690918c08BBE6B1DFE02B63--
+Just out of curiosity, what is IPMI?
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

@@ -1,65 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265058AbTBGNfJ>; Fri, 7 Feb 2003 08:35:09 -0500
+	id <S265243AbTBGNi3>; Fri, 7 Feb 2003 08:38:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265102AbTBGNfJ>; Fri, 7 Feb 2003 08:35:09 -0500
-Received: from unthought.net ([212.97.129.24]:56280 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S265099AbTBGNfH>;
-	Fri, 7 Feb 2003 08:35:07 -0500
-Date: Fri, 7 Feb 2003 14:44:46 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Race in RPC code
-Message-ID: <20030207134446.GB25807@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	linux-kernel@vger.kernel.org
-References: <20030207123123.GA25807@unthought.net> <15939.45806.714661.655592@charged.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <15939.45806.714661.655592@charged.uio.no>
-User-Agent: Mutt/1.3.28i
+	id <S265250AbTBGNi3>; Fri, 7 Feb 2003 08:38:29 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:36764 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265243AbTBGNi1>; Fri, 7 Feb 2003 08:38:27 -0500
+Date: Fri, 7 Feb 2003 08:49:36 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Martin Zielinski <mz@seh.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: TCP Connection times out
+In-Reply-To: <200302071430.34001.mz@seh.de>
+Message-ID: <Pine.LNX.3.95.1030207083742.28526B-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 07, 2003 at 02:21:50PM +0100, Trond Myklebust wrote:
-> >>>>> " " == Jakob Oestergaard <jakob@unthought.net> writes:
+On Fri, 7 Feb 2003, Martin Zielinski wrote:
+
+> Hello,
+> I'm not on the list, so I'm not really informed what's going on. But...
 > 
+> our problem is a network printer the has paper empty.
+> The socket connection to the printer broke down after ~45 minutes with
+> errno 110 (Connection timed out).
 > 
->      > We don't know whether req has been modified between the
->      > assignment and the spin_lock.
+> Linux base version is 2.4.18 on a strongarm machine.
 > 
-> It had better not be. If it is, then I want to know where so that we
-> can fix it.
+> Tracking this down brought us to the tcp_send_probe0 function in 
+> net/ipv4/tcp_output.c.
+> The tp->backoff value becomes allways increased.
+> on this machine from 31 on  (tp->rto << tp->backoff) is 0.
 > 
-> req->rq_xprt is set up when the request is initialized. It
-> is not meant to change until the request gets released. This again
-> should not happen while the request is still on the wait queue.
+> The xmit timer is set to this timeout value - resulting in an ACK burst.
+> If the TCP sender gets the (default) 16 ACKS out, before the receiver can 
+> answer them, the connection dies.
+> This happened every night, when the printer received a huge job from a
+> foreign  office.
 > 
-> IOW the fix you propose would just be papering over another problem.
+> If this isn't a bug, it should be made configurable. Or do we miss something?
+> 
+> Thanks.
 
-Any suggestions as to how it could happen?
+Get new firmware for your printer. It's broken. The connection
+timed out because the connection timed out, i.e., when the printer
+is out of paper, it refuses to ACK incoming packets. You do not
+modify a standard TCP/IP implementation to fix a broken printer.
 
-The box is running huge compile jobs (>100MB memory used by each
-compiler - runs 2-3 compilers concurrently) all day long - we never had
-a GCC sig11 error. It has 512 MB of ECC memory (and ECC is enabled) - I
-seriously doubt that we have a memory corruption problem.
+The printer is expecting to hold-off incoming network data, by
+refusing to ACK it, until someone adds more paper. This is
+unconsionable behavior that violates any standards of Engineering
+practice. There is no time-out you could increase because the
+printer may be out-of-paper forever, i.e., somebody needs to go
+buy some. Network-connected devices just can't do things this
+way. The name of the vendor should be published and the vendor
+"educated" in such a way that no such printers remain connected
+to a network until they are fixed.
 
-The panic has happened once, just today.
+And, if Linux didn't follow the standard, and let dead "connected"
+devices remain in a connected state, servers that use connections
+would would become impossible.
 
-I will be happy to try other solutions, but I can't verify whether they
-work - I mean, if the box runs another few months without crashing that
-doesn't really prove anything...
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 
-Thanks for commenting!
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:

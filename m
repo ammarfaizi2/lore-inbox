@@ -1,113 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267162AbSKSVVr>; Tue, 19 Nov 2002 16:21:47 -0500
+	id <S267163AbSKSV3v>; Tue, 19 Nov 2002 16:29:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267163AbSKSVVr>; Tue, 19 Nov 2002 16:21:47 -0500
-Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:13531 "EHLO
-	mail.kolivas.net") by vger.kernel.org with ESMTP id <S267162AbSKSVVp>;
-	Tue, 19 Nov 2002 16:21:45 -0500
-Message-ID: <1037741326.3ddaad0ef119d@kolivas.net>
-Date: Wed, 20 Nov 2002 08:28:46 +1100
-From: Con Kolivas <conman@kolivas.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@digeo.com>
-Subject: [BENCHMARK] 2.5.48-mm1 with contest
+	id <S267321AbSKSV3v>; Tue, 19 Nov 2002 16:29:51 -0500
+Received: from boxer.fnal.gov ([131.225.80.86]:24463 "EHLO boxer.fnal.gov")
+	by vger.kernel.org with ESMTP id <S267163AbSKSV3t>;
+	Tue, 19 Nov 2002 16:29:49 -0500
+Date: Tue, 19 Nov 2002 15:36:53 -0600 (CST)
+From: Steven Timm <timm@fnal.gov>
+To: <linux-kernel@vger.kernel.org>
+Subject: AMD 760MPX dma_intr: error=0x40 { UncorrectableError }
+Message-ID: <Pine.LNX.4.31.0211191529360.12125-100000@boxer.fnal.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are contest benchmarks up to 2.5.48-mm1
 
-noload:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [5]              71.7    93      0       0       0.98
-2.5.47 [3]              73.5    93      0       0       1.00
-2.5.47-mm1 [5]          73.6    93      0       0       1.01
-2.5.47-mm3 [2]          73.7    93      0       0       1.01
-2.5.48 [5]              73.9    93      0       0       1.01
-2.5.48-mm1 [5]          73.8    93      0       0       1.01
+I have recently observed a large frequency of this error on
+a bunch of compute servers with brand new disks.
 
-cacherun:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [2]              66.6    99      0       0       0.91
-2.5.47 [3]              68.3    99      0       0       0.93
-2.5.47-mm1 [5]          68.4    99      0       0       0.93
-2.5.47-mm3 [2]          68.3    99      0       0       0.93
-2.5.48 [5]              68.5    99      0       0       0.94
-2.5.48-mm1 [5]          68.3    99      0       0       0.93
+Nov 15 01:42:52 fnd0172 kernel: hdb: dma_intr: status=0x51 { DriveReady
+SeekComplete Error }
+Nov 15 01:42:52 fnd0172 kernel: hdb: dma_intr: error=0x40 {
+UncorrectableError }, LBAsect=44763517, sector=11235856
+Nov 15 01:42:52 fnd0172 kernel: end_request: I/O error, dev 03:42 (hdb),
+sector 11235856
 
-process_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              109.5   57      119     44      1.50
-2.5.47 [3]              83.4    82      22      21      1.14
-2.5.47-mm1 [5]          83.0    83      21      20      1.13
-2.5.47-mm3 [2]          84.2    82      22      21      1.15
-2.5.48 [5]              86.5    79      26      23      1.18
-2.5.48-mm1 [5]          90.5    76      30      26      1.24
+Configuration is the following:
+Tyan 2466 motherboard which has AMD760MPX chipset, dual Athlon MP2000+
+processors  (supports UltraATA100)
 
-dbench_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [1]              346.6   20      1       57      4.73
-2.5.47 [2]              224.2   33      1       44      3.06
-2.5.47-mm3 [2]          201.6   38      1       39      2.75
-2.5.48 [5]              236.4   31      1       43      3.23
-2.5.48-mm1 [5]          234.2   32      1       39      3.20
+hda=Seagate ST340016A 40 GB drive, ext2 FS
+hdb=Seagate ST380021A 80 GB drive, ext2 FS.
 
-ctar_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              117.4   63      1       7       1.60
-2.5.47 [3]              93.9    80      1       5       1.28
-2.5.47-mm1 [5]          94.0    81      1       5       1.28
-2.5.47-mm3 [2]          94.0    81      1       6       1.28
-2.5.48 [5]              93.5    81      1       5       1.28
-2.5.48-mm1 [5]          95.4    79      1       5       1.30
+There are many entries in this mailing list saying that
+the above error is a sign of a bad disk.  Seagate diagnostics
+say so too.. It is just hard to believe that 30 hard drives could
+go bad in less than a month.
 
-xtar_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              150.8   49      2       8       2.06
-2.5.47 [3]              167.1   45      2       7       2.28
-2.5.47-mm1 [5]          118.5   64      1       7       1.62
-2.5.47-mm3 [2]          211.3   38      2       6       2.89
-2.5.48 [5]              184.4   41      2       6       2.52
-2.5.48-mm1 [5]          210.7   35      2       6       2.88
+I know errors of this type were common on machines with Serverworks
+OSB4 chipsets.  Has anyone else heard of this error happening on
+non-serverworks chipsets such as VIA or AMD?  And is the drive
+really bad or will a low level format clear the bad blocks
+and let the drive operate again?
 
-io_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              474.1   15      36      10      6.48
-2.5.47 [3]              165.9   46      9       9       2.27
-2.5.47-mm1 [5]          126.3   61      5       8       1.73
-2.5.47-mm3 [2]          117.1   65      4       8       1.60
-2.5.48 [5]              131.4   59      6       8       1.79
-2.5.48-mm1 [5]          119.9   62      4       7       1.64
+Steve Timm
 
-read_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              102.3   70      6       3       1.40
-2.5.47 [3]              103.4   74      6       4       1.41
-2.5.47-mm1 [5]          100.6   76      7       4       1.37
-2.5.47-mm3 [2]          218.5   34      10      2       2.98*
-2.5.48 [5]              102.9   74      6       4       1.41
-2.5.48-mm1 [5]          256.7   29      11      2       3.51*
+------------------------------------------------------------------
 
-list_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              90.2    76      1       17      1.23
-2.5.47 [3]              100.2   71      1       20      1.37
-2.5.47-mm1 [5]          102.4   69      1       19      1.40
-2.5.47-mm3 [2]          101.2   71      1       21      1.38
-2.5.48 [5]              98.2    72      1       19      1.34
-2.5.48-mm1 [5]          99.3    72      1       21      1.36
+SMART shows the following error structure:
 
-mem_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              103.3   70      32      3       1.41
-2.5.47 [3]              151.1   49      35      2       2.06
-2.5.47-mm1 [5]          127.0   58      29      2       1.73
-2.5.47-mm3 [2]          243.8   31      39      1       3.33*
-2.5.48 [5]              121.2   61      30      2       1.66
-2.5.48-mm1 [5]          290.7   26      42      1       3.97*
+SMART Error Log:
+SMART Error Logging Version: 1
+Error Log Data Structure Pointer: 03
+ATA Error Count: 13
+Non-Fatal Count: 0
 
-Con
+Error Log Structure 1:
+DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
+ 00   00   08   57   09   ab    f2   c8     40315
+ 00   00   08   5f   09   ab    f2   c8     40315
+ 00   00   08   67   09   ab    f2   c8     40315
+ 00   00   08   6f   09   ab    f2   c8     40315
+ 00   00   08   77   09   ab    f2   c8     40315
+ 00   40   00   7d   09   ab    f2   51     922746
+Error condition:  33    Error State:       3
+Number of Hours in Drive Life: 1021 (life of the drive in hours)
+
+Error Log Structure 2:
+DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
+ 00   00   08   07   d5   55    f1   ca     40320
+ 00   00   08   3f   00   5c    f1   ca     40320
+ 00   00   08   97   33   5d    f1   ca     40320
+ 00   00   08   87   97   0f    f2   ca     40320
+ 00   00   08   77   09   ab    f2   c8     40320
+ 00   40   00   7d   09   ab    f2   51     922746
+Error condition:  33    Error State:       3
+Number of Hours in Drive Life: 1021 (life of the drive in hours)
+
+Error Log Structure 3:
+DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
+ 00   00   28   bf   8f   52    f1   c8     23662
+ 00   00   98   e7   8f   52    f1   c8     23662
+ 00   00   68   ff   9a   52    f1   c8     23662
+ 00   00   d8   67   9b   52    f1   c8     23662
+ 00   00   28   07   a3   52    f1   c8     23662
+ 00   40   00   25   a3   52    f1   51     1124073
+Error condition: 161    Error State:       3
+Number of Hours in Drive Life: 1040 (life of the drive in hours)
+
+Error Log Structure 4:
+DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
+ 00   00   e0   4f   09   ab    f2   c8     40280
+ 00   00   d8   57   09   ab    f2   c8     40285
+ 00   00   d0   5f   09   ab    f2   c8     40290
+ 00   00   c8   67   09   ab    f2   c8     40296
+ 00   00   c0   6f   09   ab    f2   c8     40301
+ 00   40   00   7d   09   ab    f2   51     922746
+Error condition:  33    Error State:       3
+Number of Hours in Drive Life: 1021 (life of the drive in hours)
+
+Error Log Structure 5:
+DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
+ 00   00   d8   57   09   ab    f2   c8     40285
+ 00   00   d0   5f   09   ab    f2   c8     40290
+ 00   00   c8   67   09   ab    f2   c8     40296
+ 00   00   c0   6f   09   ab    f2   c8     40301
+ 00   00   b8   77   09   ab    f2   c8     40306
+ 00   40   00   7d   09   ab    f2   51     922746
+Error condition:  33    Error State:       3
+Number of Hours in Drive Life: 1021 (life of the drive in hours)
+
+
+
+Steven C. Timm (630) 840-8525  timm@fnal.gov  http://home.fnal.gov/~timm/
+Fermilab Computing Division/Operating Systems Support
+Scientific Computing Support Group--Computing Farms Operations
+

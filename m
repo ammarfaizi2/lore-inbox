@@ -1,57 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129270AbRBQHUI>; Sat, 17 Feb 2001 02:20:08 -0500
+	id <S129387AbRBQHW2>; Sat, 17 Feb 2001 02:22:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129387AbRBQHT6>; Sat, 17 Feb 2001 02:19:58 -0500
-Received: from cc399455-a.chmchl1.ca.home.com ([65.0.176.232]:4100 "EHLO
-	polaris.meanyhead.com") by vger.kernel.org with ESMTP
-	id <S129270AbRBQHTp>; Sat, 17 Feb 2001 02:19:45 -0500
-Message-ID: <016701c098b2$2a43f030$0300000a@spica>
-From: "Mike Pontillo" <mike_p@polaris.wox.org>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <3A8CF1FE.16672.10105D@localhost> <3A8CF1FE.16672.10105D@localhost> <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com>
-Subject: Re: Linux stifles innovation...
-Date: Fri, 16 Feb 2001 23:20:54 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S129608AbRBQHWI>; Sat, 17 Feb 2001 02:22:08 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:9743 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129387AbRBQHWF>;
+	Sat, 17 Feb 2001 02:22:05 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Shawn Starr <Shawn.Starr@sh0n.net>
+cc: lkm <linux-kernel@vger.kernel.org>
+Subject: Re: [PROBLEM]: grep hanging with ReiserFS 
+In-Reply-To: Your message of "Sat, 17 Feb 2001 02:12:40 CDT."
+             <3A8E2467.FC6FE1B4@sh0n.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 17 Feb 2001 18:21:58 +1100
+Message-ID: <15264.982394518@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> For example, if there were six different companies that marketed ethernet
-> drivers for the eepro100, you'd have a choice of which one to buy..perhaps
-> with different "features" that were of value to you. Instead, you have
-> crappy GPL code that locks up under load, and its not worth spending
-> corporate dollars to fix it because you have to give away your work for
-> free under GPL. And since there is a "free" driver that most people can
-> use, its not worth building a better mousetrap either because the market
-is
-> too small. So, the handful of users with problems get to "fit it
-> themselves", most of whom cant of course.
->
+On Sat, 17 Feb 2001 02:12:40 -0500, 
+Shawn Starr <Shawn.Starr@sh0n.net> wrote:
+> grep -r "216.234.235.46" *
+>Im using grep in /etc and its just waiting....
 
-     Assuming I am a corporate entity and I need to spend a few bucks to fix
-a GPL driver, just because I fix it and deploy my fix on my corporation's
-internal network machines -- and quite possibly benefit the hell out of
-myself and my company -- that does not mean that I have to release my work
-for free under the GPL. Of course, the *nice* thing to do would be to
-release it under the GPL even if I was only using the fix internally -- but
-I am under no obligation to do that, if, say, I just wanted to keep ahead of
-my competitors. Maybe I was planning to wait awhile so I could get ahead in
-my market. Maybe I'm just an IP freak and I want to keep my code to myself.
-Whatever. My understanding is that the only restrictions I have is that I
-can't sell or distribute the darned thing. If, say for example I needed to
-fix that driver so that it would work on my new WhizBang 2001 Corporate
-Server that is about to hit the market, then I would be making money on the
-hardware, and as an added bonus my company looks good because it has an
-"open" driver for its server. (no matter that it "had" to under the GPL)
-
-Mike Pontillo
-
+grep -r follows symlinks and tries to open named pipes.  If you have
+qmail installed then /etc/qmail is a symlink to /var/qmail and named
+pipe /var/qmail/queue/lock/trigger lives down there.  grep hangs trying
+to open the pipe.  Not a reiserfs problem, just a badly designed
+application.
 

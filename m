@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281488AbRLRCxS>; Mon, 17 Dec 2001 21:53:18 -0500
+	id <S282861AbRLRDGK>; Mon, 17 Dec 2001 22:06:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282859AbRLRCxI>; Mon, 17 Dec 2001 21:53:08 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27912 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281488AbRLRCxB>; Mon, 17 Dec 2001 21:53:01 -0500
-To: linux-kernel@vger.kernel.org
-From: Daniel Quinlan <quinlan@transmeta.com>
-Subject: Re: [PATCH] Endianness-aware mkcramfs
-Date: 17 Dec 2001 18:52:30 -0800
-Organization: Transmeta Corporation
-Message-ID: <6ylmg1tf2p.fsf@sodium.transmeta.com>
-In-Reply-To: <3C0BD8FD.F9F94BE0@mvista.com> <3C0CB59B.EEA251AB@lightning.ch>
-X-Trace: palladium.transmeta.com 1008643950 1309 127.0.0.1 (18 Dec 2001 02:52:30 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 18 Dec 2001 02:52:30 GMT
-Original-Sender: quinlan@transmeta.com
-X-Newsreader: Gnus v5.7/Emacs 20.4
-Cache-Post-Path: palladium.transmeta.com!unknown@sodium.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S282859AbRLRDF7>; Mon, 17 Dec 2001 22:05:59 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:24336 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S282861AbRLRDFq>; Mon, 17 Dec 2001 22:05:46 -0500
+Date: Mon, 17 Dec 2001 19:08:25 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler ( was: Just a second ) ...
+In-Reply-To: <Pine.LNX.4.33.0112171825460.2108-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.40.0112171849490.1577-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Marmier <daniel.marmier@lightning.ch> writes:
+On Mon, 17 Dec 2001, Linus Torvalds wrote:
 
-> Here you are, against kernel 2.4.16. The patch is not as clean as one
-> would like it to be, but we use it and it works well for us.
-> 
-> Basically it adds a "-b" (byteorder option) which can take four parameters:
->    -bb	creates a big-endian cramfs,
->    -bl	creates a little-endian cramfs,
->    -bh	creates a cramfs with the same endianness as the host,
->    -br	creates a cramfs with the reverse endianness as the host,
-> where "host" refers to the machine running the mkcramfs program.
-> 
-> As told above, it could be cleaner, but I don't know of a nice method of
-> accessing byteorder dependent data through structures.
-> 
-> Have a nice day,
+> Quite frankly, I'd be a _lot_ more interested in making the scheduling
+> slices _shorter_ during 2.5.x, and go to a 1kHz clock on x86 instead of a
+> 100Hz one, _despite_ the fact that it will increase scheduling load even
+> more. Because it improves interactive feel, and sometimes even performance
+> (ie being able to sleep for shorter sequences of time allows some things
+> that want "almost realtime" behaviour to avoid busy-looping for those
+> short waits - improving performace exactly _because_ they put more load on
+> the scheduler).
 
-Hmm... I've been on vacation, so I'm joining the discussion a little
-late here, but as hpa and others have said, cramfs is defined to be
-little-endian -- we do not want two different versions of the
-filesystem.
+I'm ok with increasing HZ but not so ok with decreasing time slices.
+When you switch a task you've a fixed cost ( tlb, cache image,... ) that,
+if you decrease the time slice, you're going to weigh with a lower run time
+highering its percent impact.
+The more interactive feel can be achieved by using a real BVT
+implementation :
 
-Send me a patch so big-endian systems byte-swap metadata (and the
-equivalent for the mkcramfs/cramfsck programs) and I'd be happy to
-help you clean it up and get it into the kernel.
+-            p->counter = (p->counter >> 1) + NICE_TO_TICKS(p->nice);
++            p->counter += NICE_TO_TICKS(p->nice);
 
- Dan
+The only problem with this is that, with certain task run patterns,
+processes can run a long time ( having an high dynamic priority ) before
+they get scheduled.
+What i was thinking was something like, in timer.c :
+
+        if (p->counter > decay_ticks)
+            --p->counter;
+        else if (++p->timer_ticks >= MAX_RUN_TIME) {
+            p->counter -= p->timer_ticks;
+            p->timer_ticks = 0;
+            p->need_resched = 1;
+        }
+
+Having MAX_RUN_TIME ~= NICE_TO_TICKS(0)
+In this way I/O bound tasks can run with high priority giving a better
+interactive feel, w/out running too much freezing the system when exiting
+from a quite long I/O wait.
+
+
+
+
+- Davide
+
 

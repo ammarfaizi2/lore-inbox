@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311029AbSCHTPJ>; Fri, 8 Mar 2002 14:15:09 -0500
+	id <S311035AbSCHTPj>; Fri, 8 Mar 2002 14:15:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311032AbSCHTO7>; Fri, 8 Mar 2002 14:14:59 -0500
-Received: from rover.mkp.net ([209.217.122.9]:54030 "EHLO rover")
-	by vger.kernel.org with ESMTP id <S311029AbSCHTOo>;
-	Fri, 8 Mar 2002 14:14:44 -0500
-To: Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de>
-Cc: Stephen Lord <lord@sgi.com>, linux-kernel@vger.kernel.org,
-        linux-xfs@oss.sgi.com
-Subject: Re: 2.4.18-rc4-aa1 XFS oopses caused by cpio
-From: "Martin K. Petersen" <mkp@mkp.net>
-Organization: mkp.net
-In-Reply-To: <1015580766.20800.3.camel@svetljo.st-peter.stw.uni-erlangen.de>
-	<3C88B612.1070206@sgi.com>
-	<3C88C9A1.5070502@st-peter.stw.uni-erlangen.de>
-	<3C88CB1C.90203@sgi.com>
-	<1015613123.4301.11.camel@svetljo.st-peter.stw.uni-erlangen.de>
-Date: 08 Mar 2002 14:14:36 -0500
-In-Reply-To: <1015613123.4301.11.camel@svetljo.st-peter.stw.uni-erlangen.de>
-Message-ID: <yq13czax46b.fsf@austin.mkp.net>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Civil Service)
+	id <S311034AbSCHTPa>; Fri, 8 Mar 2002 14:15:30 -0500
+Received: from exchange.macrolink.com ([64.173.88.99]:62222 "EHLO
+	exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S311032AbSCHTPV>; Fri, 8 Mar 2002 14:15:21 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D13A76E7@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'David Woodhouse'" <dwmw2@infradead.org>
+Cc: "'linux-serial'" <linux-serial@vger.kernel.org>,
+        "'linux-kernel'" <linux-kernel@vger.kernel.org>,
+        Russell King <rmk@arm.linux.org.uk>
+Subject: RE: [PATCH] serial.c procfs kudzu - discussion 
+Date: Fri, 8 Mar 2002 11:15:19 -0800 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Svetoslav" == Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de> writes:
+On Fri Mar 08, 2002, David Woodhouse wrote:
+> 
+> Don't forget the fact that non-existent ports are visible, you 
+> can open their device nodes, etc. That's just screwed. 
 
-Svetoslav> and a stupid question is there a way to limit the I/O
-Svetoslav> request that XFS sends to the lower layer ( soft RAID or
-Svetoslav> lvm ) without need to modify existing fs just a hack until
-Svetoslav> the raid-0 code in 2.5 is fixed
+David,
 
-Not really.  Besides, requests may be merged and that would give the
-same result.
+Care to submit a patch or propose a specific method, for discussion?
 
-I've been busy with IA-64 stuff the last week - I'll try to get back
-to the RAID hacking this weekend.  I have all of my code merged but
-still need to deal with multi-zone setups.
+Ed Vance
 
--- 
-Martin K. Petersen, Principal Linux Consultant, Linuxcare, Inc.
-mkp@linuxcare.com, http://www.linuxcare.com/
-SGI XFS for Linux Developer, http://oss.sgi.com/projects/xfs/
+---------------------------------------------------------------- 
+Ed Vance              serial24@macrolink.com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------
 

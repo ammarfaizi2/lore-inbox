@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264945AbSJVUlZ>; Tue, 22 Oct 2002 16:41:25 -0400
+	id <S264941AbSJVUkq>; Tue, 22 Oct 2002 16:40:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264944AbSJVUlW>; Tue, 22 Oct 2002 16:41:22 -0400
-Received: from [202.88.156.6] ([202.88.156.6]:46752 "EHLO
-	saraswati.hathway.com") by vger.kernel.org with ESMTP
-	id <S264943AbSJVUlT>; Tue, 22 Oct 2002 16:41:19 -0400
-Date: Wed, 23 Oct 2002 01:34:38 +0530
-From: Dipankar Sarma <dipankar@gamebox.net>
-To: Corey Minyard <cminyard@mvista.com>
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NMI request/release
-Message-ID: <20021023013438.E25716@dikhow>
-Reply-To: dipankar@gamebox.net
-References: <3DB4AABF.9020400@mvista.com> <20021022021005.GA39792@compsoc.man.ac.uk> <3DB4B8A7.5060807@mvista.com> <20021022025346.GC41678@compsoc.man.ac.uk> <3DB54C53.9010603@mvista.com> <1035307430.1008.1476.camel@phantasy> <3DB59431.2090807@mvista.com>
+	id <S264943AbSJVUkq>; Tue, 22 Oct 2002 16:40:46 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:39587 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S264941AbSJVUkp>;
+	Tue, 22 Oct 2002 16:40:45 -0400
+Date: Tue, 22 Oct 2002 22:46:44 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: erich@uruk.org
+Cc: David Grothe <dave@gcom.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I386 cli
+Message-ID: <20021022224644.A25463@ucw.cz>
+References: <5.1.0.14.2.20021022145759.02861ec8@localhost> <E1845KV-0002ab-00@trillium-hollow.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DB59431.2090807@mvista.com>; from cminyard@mvista.com on Tue, Oct 22, 2002 at 08:30:16PM +0200
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E1845KV-0002ab-00@trillium-hollow.org>; from erich@uruk.org on Tue, Oct 22, 2002 at 01:08:43PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 08:30:16PM +0200, Corey Minyard wrote:
-> Robert Love wrote:
-> >At least on the variant of RCU that is in 2.5, the RCU code does the
-> >read side by disabling preemption.  Nothing else.
-> >
-> In 2.5.44, stock from kernel.org, rcu_process_callbacks() calls 
-> local_irq_disable().  Is that just preemption disabling, now?
+On Tue, Oct 22, 2002 at 01:08:43PM -0700, erich@uruk.org wrote:
 
-No, that is to allow queueing of callbacks from irq context - see
-call_rcu(). Since the queues are per-CPU, we don't need any spinlock.
-rcu_process_callbacks() is always invoked from the RCU per-CPU tasklet,
-so preemption doesn't come into picture. But irq disabling is needed
-so that it doesn't race with call_rcu().
+> David Grothe <dave@gcom.com> wrote:
+> 
+> > In 2.5.41every architecture except Intel 386 has a "#define cli 
+> > <something>" in its asm-arch/system.h file.  Is there supposed to be such a 
+> > define in asm-i386/system.h?  If not, where does the "official" definition 
+> > of cli() live for Intel?  Or what is the include file that one needs to 
+> > pick it up?  I can't find it.
+> 
+> I'm sure there is no definition because "cli" is the native assembler
+> instruction on x86.
 
-Only preemption related issue with RCU is that in the reader
-side (in your case traversing the nmi handler list for invocation),
-there should not be any preemption (not possible anyway in your case).
-This is achieved by rcu_read_lock()/rcu_read_unlock() which essentially
-disables/enables preemption.
+Wrong reason. Furthermore, cli(), meaning 'global interrupt disable,
+across all processors', is not doable with a single instruction anyway.
+It's not defined, because it should not be used - usually the usage of
+cli() means a bug.
 
-The idea is that if you get preempted while holding reference to
-some RCU protected data, it is not safe to invoke the RCU callback.
-Once you get preempted, you can run on a different CPU and keeping
-track of the preempted tasks become difficult. Besides preempted
-tasks with low priority can delay RCU update for long periods.
-Hence the disabling of preemption which is not worse than locks.
-
-
-> >But anyhow, disabling interrupts should not affect NMIs, no?
-> >
-> You are correct.  disabling preemption or interrupts has no effect on NMIs.
-
-Yes.
-
-Thanks
-Dipankar
+-- 
+Vojtech Pavlik
+SuSE Labs

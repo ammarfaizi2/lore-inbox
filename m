@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVBJUxa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbVBJVFl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261625AbVBJUxa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 15:53:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbVBJUxa
+	id S261879AbVBJVFl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 16:05:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbVBJVFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 15:53:30 -0500
-Received: from rproxy.gmail.com ([64.233.170.199]:34228 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261625AbVBJUxZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 15:53:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding;
-        b=C/IZj7oCS9rCvjF3Ey56dUCS074+znAfGDhwZ+JlBpaJumBDG5LtY3wwhE4btLKgoIQc/F02m1FrvqM+Z+pDUsmTkhF3u3vEu4Pd2uoXDzFWxkpSkQ2y0Y7GWU5yNqcAu2U9RoSinT7Uwjb51RNAHTyDJFnNHVcXV6ZGDAQ3/vM=
-Message-ID: <a075431a050210125145d51e8c@mail.gmail.com>
-Date: Thu, 10 Feb 2005 14:51:44 -0600
-From: "Jack O'Quin" <jack.oquin@gmail.com>
-Reply-To: "Jack O'Quin" <jack.oquin@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.11-rc3-mm2
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Con Kolivas <kernel@kolivas.org>, rlrevell@joe-job.com,
-       Chris Wright <chrisw@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Feb 2005 16:05:41 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:65523 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261879AbVBJVFf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 16:05:35 -0500
+Message-ID: <420BCC9C.8080807@mvista.com>
+Date: Thu, 10 Feb 2005 13:05:32 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: William Weston <weston@lysdexia.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
+References: <20050204100347.GA13186@elte.hu> <Pine.LNX.4.58.0502081135340.21618@echo.lysdexia.org> <20050209115121.GA13608@elte.hu> <Pine.LNX.4.58.0502091233360.4599@echo.lysdexia.org> <20050210075234.GC9436@elte.hu> <420BC23F.6030308@mvista.com> <20050210204031.GA17260@elte.hu>
+In-Reply-To: <20050210204031.GA17260@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[direct reply bounced, resending via gmail]
+I am seeing:
+kernel/built-in.o(.text+0x4974): In function `copy_mm':
+/usr/src/cvs/mvl-kernel-26/makena/linux-2.6.10/kernel/fork.c:493: undefined 
+reference to `__spin_is_locked'
+kernel/built-in.o(.text+0x9f5a): In function `next_thread':
+/usr/src/cvs/mvl-kernel-26/makena/linux-2.6.10/kernel/exit.c:877: undefined 
+reference to `__raw_rwlock_is_locked'
+net/built-in.o(.text+0x1258): In function `__sock_create':
+/usr/src/cvs/mvl-kernel-26/makena/linux-2.6.10/net/socket.c:175: undefined 
+reference to `__spin_is_locked'
+net/built-in.o(.text+0x16b54): In function `dev_deactivate':
+/usr/src/cvs/mvl-kernel-26/makena/linux-2.6.10/net/sched/sch_generic.c:594: 
+undefined reference to `__spin_is_locked'
+make[1]: *** [vmlinux] Error 1
+make: *** [bzImage] Error 2
 
-Andrew Morton <akpm@osdl.org> writes:
 
-> Christoph Hellwig <hch@infradead.org> wrote:
-> >
-> > On Thu, Feb 10, 2005 at 02:35:08AM -0800, Andrew Morton wrote:
-> > > 
-> > > 
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc3/2.6.11-rc3-mm2/
-> > > 
-> > > 
-> > > - Added the mlock and !SCHED_OTHER Linux Security Module for the audio guys.
-> > >   It seems that nothing else is going to come along and this is completely
-> > >   encapsulated.
-> > 
-> > Even if we accept a module that grants capabilities to groups this
-> > isn't fine yet because it only supports two specific capabilities
-> > (and even those two in different ways!) instead of adding generic
-> > support to bind capabilities to groups.
-> 
-> I'm sure that got discussed somewhere in the 1000 emails which flew past
-> last time.  Jack?
+Possibly from:
+define __raw_spin_is_locked(x)	(*(volatile signed char *)(&(x)->lock) <= 0)
+#define __raw_spin_unlock_wait(x) \
+	do { barrier(); } while(__spin_is_locked(x))
+in asm/spinlock.h
 
-[adding cc: for the main discussion participants]
+should that be __raw_spin_is_locked(x) instead?
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
 
-Most people felt that a more general capabilities module would be nice
-to have.  But, no one offered any code, or volunteered to work on it.
-
-I have no objection to that approach, but am not willing or able to do
-it myself.  My opinion is that expanding the scope of the LSM would
-significantly increase its security risk.  That job needs to be done
-very carefully, by someone with a deep understanding of the kernel's
-internal use of capabilities.
-
-Perhaps, Christoph's suggestion could become part of a more general
-module, which might replace the RT-LSM in the 2.8 timeframe.  Our LSM
-is a modest solution aimed at solving the immediate needs of audio
-developers and users with minimal impact on kernel security or
-correctness.

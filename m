@@ -1,137 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261726AbVB1UgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbVB1UnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261726AbVB1UgP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 15:36:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbVB1UgO
+	id S261730AbVB1UnG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 15:43:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVB1UnG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 15:36:14 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:29201 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261726AbVB1Ufm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 15:35:42 -0500
-Date: Mon, 28 Feb 2005 21:35:36 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Donald Duckie <schipperke2000@yahoo.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ethertap.c compilation problem
-Message-ID: <20050228203536.GG1850@alpha.home.local>
-References: <20050228110439.86144.qmail@web53605.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050228110439.86144.qmail@web53605.mail.yahoo.com>
-User-Agent: Mutt/1.4i
+	Mon, 28 Feb 2005 15:43:06 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:21576 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261730AbVB1UnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 15:43:02 -0500
+Date: Mon, 28 Feb 2005 20:41:31 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Mauricio Lin <mauriciolin@gmail.com>
+cc: Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org, rrebel@whenu.com,
+       marcelo.tosatti@cyclades.com, nickpiggin@yahoo.com.au
+Subject: Re: [PATCH] A new entry for /proc
+In-Reply-To: <3f250c7105022801564a0d0e13@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0502282029470.28484@goblin.wat.veritas.com>
+References: <20050106202339.4f9ba479.akpm@osdl.org> 
+    <Pine.LNX.4.44.0501081917020.4949-100000@localhost.localdomain> 
+    <3f250c710502220513179b606a@mail.gmail.com> 
+    <3f250c71050224003110e74704@mail.gmail.com> 
+    <20050224010947.774628f3.akpm@osdl.org> 
+    <3f250c710502240343563c5cb0@mail.gmail.com> 
+    <20050224035255.6b5b5412.akpm@osdl.org> 
+    <3f250c7105022507146b4794f1@mail.gmail.com> 
+    <3f250c71050228014355797bd8@mail.gmail.com> 
+    <3f250c7105022801564a0d0e13@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 28 Feb 2005, Mauricio Lin wrote:
+> 
+> Now I am testing with /proc/pid/smaps and the values are showing that
+> the old one is faster than the new one. So I will keep using the old
+> smaps version.
 
-On Mon, Feb 28, 2005 at 03:04:39AM -0800, Donald Duckie wrote:
-(...)
-> In file included from /usr/include/asm/atomic.h:17,
->                  from /usr/include/linux/module.h:25,
->                  from auto_irq.c:33:
-> /usr/include/asm/system.h: In function `tas':
-> /usr/include/asm/system.h:81: unknown register name
-> `t' in `asm'
-> In file included from /usr/include/linux/sched.h:14,
->                  from auto_irq.c:34:
-> /usr/include/linux/timex.h: At top level:
-> /usr/include/linux/timex.h:173: field `time' has
-> incomplete type
-> In file included from /usr/include/linux/sched.h:82,
->                  from auto_irq.c:34:
-> /usr/include/linux/timer.h:17: field `list' has
-> incomplete type
-> auto_irq.c: In function `autoirq_report':
-> auto_irq.c:51: `jiffies' undeclared (first use in this
-> function)
-> auto_irq.c:51: (Each undeclared identifier is reported
-> only once
-> auto_irq.c:51: for each function it appears in.)
+Sorry, I don't have time for more than the briefest look.
 
-Missing or bad includes. Is your 'include/asm' link pointing
-to the valid arch ? Have you got any reports that this arch
-compiles without any tweaking ?
+It appears that your old resident_mem_size method is just checking
+pte_present, whereas your new smaps_pte_range method is also doing
+pte_page (yet no prior check for pfn_valid: wrong) and checking
+!PageReserved i.e. accessing the struct page corresponding to each
+pte.  So it's not a fair comparison, your new method is accessing
+many more cachelines than your old method.
 
-> auto_irq.c: At top level:
-> auto_irq.c:56: syntax error before
-> "this_object_must_be_defined_as_export_objs_in_the_Makefile"
+Though it's correct to check pfn_valid and !PageReserved to get the
+same total rss as would be reported elsewhere, I'd suggest that it's
+really not worth the overhead of those struct page accesses: just
+stick with the pte_present test.
 
-it means that you must append the name of the resulting ".o" file to
-the "export_objs" list in the makefile located in the same directory.
+Your smaps_pte_range is missing pte_unmap?
 
-(...)
-
- 
-> basing on this compile log, i am expecting that: 
-> (for example)
-> /usr/include/asm/system.h
-> to be
-> /usr/src/linux-sh-2.4.18/include/asm/system.h
-
-This should not be true. /usr/include/asm should reflect the includes for
-YOUR architecture, not the one your are currently cross-compiling for. But
-at most it may prevent you from compiling user-space progs (eg: lxdialog),
-but should not cause any trouble to other parts of the kernel.
-
-> I know that there is no need to touch the Makefiles,
-> Rules.make for this, but I also tried replacing all
-> $(TOPDIR) to /usr/src/linux-sh-2.4.18.
-> The result was still the same.
-
-No need to play with this. Oh, and BTW, are you sure that your GCC version
-is compatible with 2.4.18 ? You should use 2.95 or even 2.91 for this, but
-I don't think that any 3.X will work.
-
-> I already ran make dep, make clean, and still got the
-> same result.
-
-Out of curiosity, have you done 'make oldconfig' ?
-And also, have you set ARCH=sh4 ?
-
-> And also to my surprise, 
-> /usr/src/linux -> linux-sh-2.4.18
-
-you don't need /usr/src/linux at all, and I even suggest that you remove
-this link which seems to confuse you.
-
-> /usr/src/linux-sh-2.4.18
-> doing a : 
-> cd linux
-> would result to:
-> /usr/src/linux   instead of   /usr/src/linux-sh-2.4.18
-> has anyone experienced this?
-
-This is a configurable 'cd' behaviour. Use 'cd -P' to follow the Physical
-path. Man bash for more info.
-
-> if so, can this be explained as to why this is the
-> result?
-
-absolutely not related.
-
-> hoping for some insights on how to proceed with my
-> compilation problem.
-
-Well, at least clean up the few points above to leverage confusion, ensure
-that your GCC is able to compile this tree and that you have set every
-variable correctly, and if it still does not work, follow the includes and
-try to find what breaks by hand.
-
-You should be compiling this way :
-
-$ cd /usr/src/linux-sh-2.4.18
-$ cp .config ../.config.saved
-$ make ARCH=sh4 distclean
-$ mv ../.config.saved .config
-$ make ARCH=sh4 CROSS_COMPILE=sh4-linux- oldconfig
-$ make ARCH=sh4 CROSS_COMPILE=sh4-linux- dep
-$ make ARCH=sh4 CROSS_COMPILE=sh4-linux- vmlinux modules
-
-If you think you have no reason to encounter such problems, try to get in
-touch with the arch maintainer.
-
-Regards,
-Willy
-
+Hugh

@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277827AbRJ1Il4>; Sun, 28 Oct 2001 03:41:56 -0500
+	id <S277900AbRJ1JFa>; Sun, 28 Oct 2001 04:05:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277829AbRJ1Ilq>; Sun, 28 Oct 2001 03:41:46 -0500
-Received: from pc3-redb4-0-cust245.bre.cable.ntl.com ([213.106.223.245]:2036
-	"HELO opel.itsolve.co.uk") by vger.kernel.org with SMTP
-	id <S277827AbRJ1Ild>; Sun, 28 Oct 2001 03:41:33 -0500
-Date: Sun, 28 Oct 2001 08:42:08 +0000
-From: Mark Zealey <mark@zealos.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.13 default config
-Message-ID: <20011028084208.A24803@itsolve.co.uk>
-In-Reply-To: <Pine.LNX.4.21.0110271847240.12381-200000@Consulate.UFP.CX> <21646.1004231366@ocs3.intra.ocs.com.au>
+	id <S277904AbRJ1JFV>; Sun, 28 Oct 2001 04:05:21 -0500
+Received: from pl038.nas921.ichikawa.nttpc.ne.jp ([210.165.234.38]:12599 "EHLO
+	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S277900AbRJ1JFR>;
+	Sun, 28 Oct 2001 04:05:17 -0500
+Date: Sun, 28 Oct 2001 18:03:54 +0900
+From: Bruce Harada <bruce@ask.ne.jp>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.20-pre11 compile error
+Message-Id: <20011028180354.5b10bcd0.bruce@ask.ne.jp>
+X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.8; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <21646.1004231366@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Sun, Oct 28, 2001 at 12:09:26PM +1100
-X-Operating-System: Linux sunbeam 2.2.19 
-X-Homepage: http://zealos.org/
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 28, 2001 at 12:09:26PM +1100, Keith Owens wrote:
 
-> On Sat, 27 Oct 2001 18:52:23 +0100 (BST), 
-> Riley Williams <root@MemAlpha.CX> wrote:
-> >The enclosed patch (against the raw 2.4.13 tree) adds a `make defconfig`
-> >option that configures Linux with the default options obtained by simply
-> >pressing ENTER to every prompt that comes up.
-> >
-> >Please apply.
-> 
-> Please don't.  You cannot blindly reply 'y' to all new options, it will
-> hang on numbers and strings, the answer has to be context sensitive.
-> There is already a patch for make allyes, allno, allmod and random (but
-> valid) configs in kbuild 2.5.  That patch is context sensitive and can
-> easily be extended with defconfig.
+When compiling 2.2.20-pre11, I get the following error:
 
-Pressing enter, not 'y'. There's a difference there, 'y' says yes and enter says
-to accept the default
+-------
+make[1]: Entering directory `/usr/src/linux-2.2.20/arch/i386/kernel'
+cc -D__KERNEL__ -I/usr/src/linux-2.2.20/include -Wall -Wstrict-prototypes -O2
+-fomit-frame-pointer  -pipe -fno-strength-reduce -m486 -malign-loops=2
+-malign-jumps=2 -malign-functions=2 -DCPU=586   -c -o process.o process.c
+process.c: In function `sys_execve':
+process.c:812: structure has no member named `ptrace'
+process.c:812: `PT_DTRACE' undeclared (first use this function)
+process.c:812: (Each undeclared identifier is reported only once
+process.c:812: for each function it appears in.)
+make[1]: *** [process.o] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.2.20/arch/i386/kernel'
+make: *** [_dir_arch/i386/kernel] Error 2
+-------
 
--- 
+The cause appears to be the following change in arch/i386/kernel/process.c:
 
-Mark Zealey (aka JALH on irc.openprojects.net: #zealos and many more)
-mark@zealos.org
-mark@itsolve.co.uk
+-------
+@@ -808,7 +809,7 @@
+                goto out;
+        error = do_execve(filename, (char **) regs.ecx, (char **) regs.edx, &regs);
+        if (error == 0)
+-               current->flags &= ~PF_DTRACE;
++               current->ptrace &= ~PT_DTRACE;
+        putname(filename);
+ out:
+        unlock_kernel();
+-------
 
-UL++++>$ G!>(GCM/GCS/GS/GM) dpu? s:-@ a16! C++++>$ P++++>+++++$ L+++>+++++$
-!E---? W+++>$ N- !o? !w--- O? !M? !V? !PS !PE--@ PGP+? r++ !t---?@ !X---?
-!R- b+ !tv b+ DI+ D+? G+++ e>+++++ !h++* r!-- y--
+Any suggestions as to a fix? This is a libc5 system (5.4.46).
 
-(www.geekcode.com)
+
+Bruce
+

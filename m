@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261800AbTCaS5a>; Mon, 31 Mar 2003 13:57:30 -0500
+	id <S261816AbTCaTAD>; Mon, 31 Mar 2003 14:00:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261801AbTCaS5a>; Mon, 31 Mar 2003 13:57:30 -0500
-Received: from holomorphy.com ([66.224.33.161]:36292 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261800AbTCaS53>;
-	Mon, 31 Mar 2003 13:57:29 -0500
-Date: Mon, 31 Mar 2003 11:08:03 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Christoph Hellwig <hch@infradead.org>, Andrea Arcangeli <andrea@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 64GB NUMA-Q after pgcl
-Message-ID: <20030331190803.GS30140@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-References: <20030328040038.GO1350@holomorphy.com> <20030330231945.GH2318@x30.local> <20030331042729.GQ30140@holomorphy.com> <20030331183506.GC11026@x30.random> <20030331194117.A27859@infradead.org>
+	id <S261818AbTCaTAD>; Mon, 31 Mar 2003 14:00:03 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:11393 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261816AbTCaTAB>;
+	Mon, 31 Mar 2003 14:00:01 -0500
+Date: Mon, 31 Mar 2003 11:05:51 -0800 (PST)
+Message-Id: <20030331.110551.14104246.davem@redhat.com>
+To: yoshfuji@linux-ipv6.org
+Cc: kuznet@ms2.inr.ac.ru, netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+       usagi@linux-ipv6.org, pioppo@ferrara.linux.it
+Subject: Re: [PATCH] IPv6: Don't assign a same IPv6 address on a same
+ interface
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030331.103451.118020141.yoshfuji@linux-ipv6.org>
+References: <20030330163656.GA18645@ferrara.linux.it>
+	<20030331.033524.114862210.yoshfuji@linux-ipv6.org>
+	<20030331.103451.118020141.yoshfuji@linux-ipv6.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030331194117.A27859@infradead.org>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+Content-Type: Text/Plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 31, 2003 at 08:35:06PM +0200, Andrea Arcangeli wrote:
->> About you not caring anymore about the mem_map array size, that still
->> matters on the embedded usage, infact rmap on the embedded usage is the
->> biggest waste there, normally they don't even have swap so if something
->> you should use the rmap provided for truncate, rather than wasting
->> memory in the mem_map array.
+   From: YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org>
+   Date: Mon, 31 Mar 2003 10:34:51 +0900 (JST)
 
-On Mon, Mar 31, 2003 at 07:41:17PM +0100, Christoph Hellwig wrote:
-> We have CONFIG_SWAP for that in 2.5..
+   In article <20030331.033524.114862210.yoshfuji@linux-ipv6.org> (at Mon, 31 Mar 2003 03:35:24 +0900 (JST)), YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org> says:
+   
+   > In article <20030330163656.GA18645@ferrara.linux.it> (at Sun, 30 Mar 2003 18:36:56 +0200), Simone Piunno <pioppo@ferrara.linux.it> says:
+   > 
+   > >  - locking inside ipv6_add_addr() is simpler and more linear but
+   > >    semantically wrong because you're unable to tell the user why his 
+   > >    "ip addr add" failed.  E.g. you answer ENOBUFS instead of EEXIST.
+   > 
+   > We don't want to create duplicate address in any case.
+   > ipv6_add_addr() IS right place.
+   > And, we can return error code by using IS_ERR() etc.
+   > I'll fix this.
+   
+   Here's the revised patch.
 
-I think the rmap allocations currently depend on CONFIG_MMU; IMHO it
-can be moved to CONFIG_SWAP if/when objrmap is merged since only
-anonymous memory will need pte_chains then, and it can't be evicted.
+Applied to both 2.4.x and 2.5.x.
 
+BTW, 2.4.x patch failed in two spots, one was author comment
+which I easily fixed, second was in privacy code which I did not
+apply yet to 2.4.x (I fixed this too, don't worry).
 
--- wli
+I do not want to put privacy code into 2.4.x until crypto is there.
+I plan to put crypto lib into 2.4.22-pre1.

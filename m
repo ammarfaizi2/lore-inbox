@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285309AbRL2TNA>; Sat, 29 Dec 2001 14:13:00 -0500
+	id <S285326AbRL2TP3>; Sat, 29 Dec 2001 14:15:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285288AbRL2TMu>; Sat, 29 Dec 2001 14:12:50 -0500
-Received: from waste.org ([209.173.204.2]:30673 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S285269AbRL2TMl>;
-	Sat, 29 Dec 2001 14:12:41 -0500
-Date: Sat, 29 Dec 2001 13:12:33 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Legacy Fishtank <garzik@havoc.gtf.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] rlimit_nproc
-In-Reply-To: <E16KOYH-0000Fr-00@starship.berlin>
-Message-ID: <Pine.LNX.4.43.0112291309060.18183-100000@waste.org>
+	id <S285303AbRL2TPU>; Sat, 29 Dec 2001 14:15:20 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5381 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S285269AbRL2TPO>; Sat, 29 Dec 2001 14:15:14 -0500
+Date: Sat, 29 Dec 2001 11:12:33 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Legacy Fishtank <garzik@havoc.gtf.org>
+cc: Benjamin LaHaise <bcrl@redhat.com>, "Eric S. Raymond" <esr@thyrsus.com>,
+        Dave Jones <davej@suse.de>, "Eric S. Raymond" <esr@snark.thyrsus.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
+Subject: Re: State of the new config & build system
+In-Reply-To: <20011228195914.A14127@havoc.gtf.org>
+Message-ID: <Pine.LNX.4.33.0112291111130.23542-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Dec 2001, Daniel Phillips wrote:
 
-> > You of course need something like -2.4 and -2.5.
+On Fri, 28 Dec 2001, Legacy Fishtank wrote:
 >
-> Yes:
->
->     linux-patches-2.0@kernel.org
->     linux-patches-2.2@kernel.org
->     linux-patches-2.4@kernel.org
->     linux-patches-2.5@kernel.org
->
-> Now... conventions for the subject line?
+> A per-driver metadata file is IMHO clearly the preferred solution.
 
-Subjects should be human-readable and descriptive. If they're going to
-Linux-kernel, they should contain [patch]. I don't think you can
-realistically ask for much more unless you put something behind it capable
-of rejecting non-conformers.
+Note that it doesn't need to be per-driver: there are good reasons to have
+"combined" files too. For example, things like "architecture config" could
+all be in one file, along with similar drivers (ie "3com network devices",
+whatever).
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+		Linus
 

@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271140AbTHLVkc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 17:40:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271177AbTHLVkb
+	id S271159AbTHLVgd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 17:36:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271156AbTHLVgd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 17:40:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:3299 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271140AbTHLVjG (ORCPT
+	Tue, 12 Aug 2003 17:36:33 -0400
+Received: from mail.kroah.org ([65.200.24.183]:3279 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S271155AbTHLVga (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 17:39:06 -0400
-Date: Tue, 12 Aug 2003 14:25:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test3-mm1 and rootflags
-Message-Id: <20030812142519.69a04b7c.akpm@osdl.org>
-In-Reply-To: <200308121855.h7CIt6St002437@turing-police.cc.vt.edu>
-References: <200308121855.h7CIt6St002437@turing-police.cc.vt.edu>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 12 Aug 2003 17:36:30 -0400
+Date: Tue, 12 Aug 2003 14:35:49 -0700
+From: Greg KH <greg@kroah.com>
+To: Christoph Hellwig <hch@infradead.org>, Andries Brouwer <aebr@win.tue.nl>,
+       linux-scsi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: [PATCH] oops in sd_shutdown
+Message-ID: <20030812213549.GA2158@kroah.com>
+References: <Pine.LNX.4.53.0308111426570.16008@thevillage.soulcatcher> <20030812002844.B1353@pclin040.win.tue.nl> <20030812075353.A18547@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030812075353.A18547@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
->
-> OK.. I'm stumped..
+On Tue, Aug 12, 2003 at 07:53:53AM +0100, Christoph Hellwig wrote:
+> On Tue, Aug 12, 2003 at 12:28:44AM +0200, Andries Brouwer wrote:
+> > I see an Oops in the SCSI code, caused by the fact that sdkp is NULL
+> > in sd_shutdown. "How can that be?", you will ask - dev->driver_data was set
+> > in sd_probe. But in my case sd_probe never finished. An insmod usb-storage
+> > hangs forever, or at least for more than six hours, giving ample opportunity
+> > to observe this race between sd_probe and sd_shutdown.
+> > (Of course sd_probe hangs in sd_revalidate disk.)
 > 
-> While testing something, I tried to boot with 'rootflags=noatime', and
-> found the system wouldn't boot, as ext3, ext2, and reiserfs all failed to
-> recognize the option.  Looking at the code in fs/ext3/super.c:parse_options()
-> and init/do_mounts.c:root_data_setup(), it appears to be impossible
-> to set any of the filesystem-independent flags via rootflags, which explains
-> the special-case code for the 'ro' and 'rw' flags.  However, there doesn't
-> seem to be any way to pass nodev, noatime, nodiratime, or any of the other
-> flags.  (And yes, all 3 of those make sense in my environment - it's a laptop
-> and I don't need atime, and I use devfs so nodev on the root makes sense too).
-> 
+> Well, this same problem could show upb in any other driver.  Could
+> you instead send a patch to Pat that the driver model never calls
+> the shutdown method for a driver that hasn't finished ->probe?
 
-The fs-independent options are parsed in user space by mount(8), and are
-passed into the kernel as individual bits in a `flags' argument.
+I think it already will not do that due to taking the bus->subsys.rwsem
+before calling either probe() or remove().
 
-So we'd need a new `rootopts=0x0040' thingy to support this.  But given
-that most things can be set after boot with `mount / -o remount,noatime',
-it may not be necessary.
+thanks,
 
+greg k-h

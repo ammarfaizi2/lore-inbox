@@ -1,62 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289377AbSAODDu>; Mon, 14 Jan 2002 22:03:50 -0500
+	id <S289379AbSAODIb>; Mon, 14 Jan 2002 22:08:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289376AbSAODDl>; Mon, 14 Jan 2002 22:03:41 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:2034 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S289377AbSAODDa>; Mon, 14 Jan 2002 22:03:30 -0500
-Message-ID: <3C439B96.76C0DDD1@mvista.com>
-Date: Mon, 14 Jan 2002 19:01:42 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Oliver.Neukum@lrz.uni-muenchen.de
-CC: Robert Love <rml@tech9.net>, Momchil Velikov <velco@fadata.bg>,
-        yodaiken@fsmlabs.com, Daniel Phillips <phillips@bonn-fries.net>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <16QDdD-1EqtSyC@fwd03.sul.t-online.com> <1011040605.4604.26.camel@phantasy> <16QFsj-206pZgC@fwd03.sul.t-online.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S289378AbSAODIV>; Mon, 14 Jan 2002 22:08:21 -0500
+Received: from [202.135.142.196] ([202.135.142.196]:57865 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S289376AbSAODIR>; Mon, 14 Jan 2002 22:08:17 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] PATH_MAX Poxification.
+Date: Tue, 15 Jan 2002 14:08:25 +1100
+Message-Id: <E16QJxZ-00035E-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Neukum wrote:
-> 
-> > Well, semaphores block.  And we have these races right now with
-> > SCHED_FIFO tasks.  I still contend preempt does not change the nature of
-> > the problem and it certainly doesn't introduce a new one.
-> 
-> But it does:
-> 
-> down(&sem);
-> do_something_that_cannot_block();
-> up(&sem);
-> 
-> Will stop a SCHED_FIFO task for a definite amount of time. Only
-> until it returns from the kernel to user space at worst.
-> 
-> If do_something_that_cannot_block() can be preempted, a SCHED_FIFO
-> task can block indefinitely long on the semaphore, because you have
-> no guarantee that the scheduler will ever again select the the preempted task.
-> In fact it must never again select the preempted task as long as there's
-> another runnable SCHED_FIFO task.
-> 
-This is not true, and if it is is a scheduler bug.  When a task (any
-task) gets preempted it is not moved from the front of its queue, thus,
-in this case, the FIFO task will still be the fitst task at its prioity
-to run.  Also, it can only be preempted by another real time task of
-higher priority.  Now it is possible that that task may block on the
-same sem, but this is simple priority inversion and has nothing to do
-with the sem holder being FIFO, RR or any thing else.  In other words
-preemption does NOT change a FIFO (or any other) task's position in the
-dispatch queue.
+As went in to 2.5.2...
 
+Thanks!
+Rusty.
 
--- 
-George           george@mvista.com
-High-res-timers: http://sourceforge.net/projects/high-res-timers/
-Real time sched: http://sourceforge.net/projects/rtsched/
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.4.14/include/linux/limits.h working-2.4.14-pathmax/include/linux/limits.h
+--- linux-2.4.14/include/linux/limits.h	Thu Jul 29 03:30:10 1999
++++ working-2.4.14-pathmax/include/linux/limits.h	Wed Nov 21 10:59:37 2001
+@@ -11,7 +11,7 @@
+ #define MAX_CANON        255	/* size of the canonical input queue */
+ #define MAX_INPUT        255	/* size of the type-ahead buffer */
+ #define NAME_MAX         255	/* # chars in a file name */
+-#define PATH_MAX        4095	/* # chars in a path name */
++#define PATH_MAX        4096	/* # chars in a path name including nul */
+ #define PIPE_BUF        4096	/* # bytes in atomic write to a pipe */
+ 
+ #define RTSIG_MAX	  32
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.4.14/fs/dcache.c working-2.4.14-pathmax/fs/dcache.c
+--- linux-2.4.14/fs/dcache.c	Thu Oct  4 15:57:36 2001
++++ working-2.4.14-pathmax/fs/dcache.c	Wed Nov 21 12:04:18 2001
+@@ -1262,7 +1262,7 @@
+ 		panic("Cannot create buffer head SLAB cache");
+ 
+ 	names_cachep = kmem_cache_create("names_cache", 
+-			PATH_MAX + 1, 0, 
++			PATH_MAX, 0, 
+ 			SLAB_HWCACHE_ALIGN, NULL, NULL);
+ 	if (!names_cachep)
+ 		panic("Cannot create names SLAB cache");
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.4.14/fs/namei.c working-2.4.14-pathmax/fs/namei.c
+--- linux-2.4.14/fs/namei.c	Thu Oct 18 07:46:29 2001
++++ working-2.4.14-pathmax/fs/namei.c	Wed Nov 21 10:57:58 2001
+@@ -99,16 +99,17 @@
+  * kernel data space before using them..
+  *
+  * POSIX.1 2.4: an empty pathname is invalid (ENOENT).
++ * PATH_MAX includes the nul terminator --RR.
+  */
+ static inline int do_getname(const char *filename, char *page)
+ {
+ 	int retval;
+-	unsigned long len = PATH_MAX + 1;
++	unsigned long len = PATH_MAX;
+ 
+ 	if ((unsigned long) filename >= TASK_SIZE) {
+ 		if (!segment_eq(get_fs(), KERNEL_DS))
+ 			return -EFAULT;
+-	} else if (TASK_SIZE - (unsigned long) filename < PATH_MAX + 1)
++	} else if (TASK_SIZE - (unsigned long) filename < PATH_MAX)
+ 		len = TASK_SIZE - (unsigned long) filename;
+ 
+ 	retval = strncpy_from_user((char *)page, filename, len);
+
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

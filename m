@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317592AbSIEOTn>; Thu, 5 Sep 2002 10:19:43 -0400
+	id <S317540AbSIEO3T>; Thu, 5 Sep 2002 10:29:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317597AbSIEOTn>; Thu, 5 Sep 2002 10:19:43 -0400
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:29845 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S317592AbSIEOTm>; Thu, 5 Sep 2002 10:19:42 -0400
-Subject: patch for IA64: fix do_sys32_msgrcv bad address error.
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OFFB350C4A.BB78D4E6-ON65256C2B.004CF605@in.ibm.com>
-From: "R Sreelatha" <rsreelat@in.ibm.com>
-Date: Thu, 5 Sep 2002 19:46:40 +0530
-X-MIMETrack: Serialize by Router on d23m0062/23/M/IBM(Release 5.0.9a |January 7, 2002) at
- 05/09/2002 07:46:40 PM
+	id <S317603AbSIEO3S>; Thu, 5 Sep 2002 10:29:18 -0400
+Received: from grace.speakeasy.org ([216.254.0.2]:50192 "HELO
+	grace.speakeasy.org") by vger.kernel.org with SMTP
+	id <S317540AbSIEO3O>; Thu, 5 Sep 2002 10:29:14 -0400
+Date: Thu, 5 Sep 2002 09:33:49 -0500 (CDT)
+From: Mike Isely <isely@pobox.com>
+X-X-Sender: isely@grace.speakeasy.net
+Reply-To: Mike Isely <isely@pobox.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Henning P.   Schmiedehausen" <hps@intermeta.de>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.20-pre5-ac2: Promise Controller LBA48 DMA fixed
+In-Reply-To: <1031236308.6603.4.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0209050931230.10556-100000@grace.speakeasy.net>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In sys_ia32.c file, in the do_sys32_msgrcv() function call,  the value of
-ipck.msgp is interpreted as a 64 bit address, whereas it is a 32 bit
-address.
-Hence, do_sys32_msgrcv() finally returns EFAULT(bad address) error.
-The patch below takes care of this by type casting ipck.msgp to type u32.
-The patch is created for 2.5.32 version of the kernel.
+On 5 Sep 2002, Alan Cox wrote:
 
---- arch/ia64/ia32/sys_ia32.c Thu Sep  5 19:13:02 2002
-+++ /home/sree/bug1054/sys_ia32.c   Thu Sep  5 19:12:08 2002
-@@ -2263,7 +2263,7 @@
-            err = -EFAULT;
-            if (copy_from_user(&ipck, uipck, sizeof(struct ipc_kludge)))
-                  goto out;
--           uptr = (void *)A(ipck.msgp);
-+           uptr = (void *)A((u32)ipck.msgp);
-            msgtyp = ipck.msgtyp;
-      }
-      err = -ENOMEM;
+> On Thu, 2002-09-05 at 15:12, Mike Isely wrote:
+> > Yes that is true.  But this is Andre's code and it seemed to me to be
+> > more important to follow his style.  But whatever...
+> 
+> Its a good general rule but for the IDE, break it ;)
+> 
+
+Point taken.  I should have expected to hear this :-)
+
+  -Mike
 
 
-I am not subscribed to lkml. Please send your replies to
-"rsreelat@in.ibm.com".
-
-regards,
-Sreelatha
-
-
+                        |         Mike Isely          |     PGP fingerprint
+    POSITIVELY NO       |                             | 03 54 43 4D 75 E5 CC 92
+ UNSOLICITED JUNK MAIL! |   isely @ pobox (dot) com   | 71 16 01 E2 B5 F5 C1 E8
+                        |   (spam-foiling  address)   |
 

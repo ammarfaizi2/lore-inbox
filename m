@@ -1,32 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316960AbSGHO7j>; Mon, 8 Jul 2002 10:59:39 -0400
+	id <S316797AbSGHPKl>; Mon, 8 Jul 2002 11:10:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316964AbSGHO7i>; Mon, 8 Jul 2002 10:59:38 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:14581 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S316960AbSGHO7i>;
-	Mon, 8 Jul 2002 10:59:38 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 8 Jul 2002 17:02:18 +0200 (MEST)
-Message-Id: <UTC200207081502.g68F2I701471.aeb@smtp.cwi.nl>
-To: linux-kernel@vger.kernel.org
-Subject: IDE, util-linux
+	id <S316852AbSGHPKk>; Mon, 8 Jul 2002 11:10:40 -0400
+Received: from adsl-161-92.barak.net.il ([62.90.161.92]:22803 "EHLO
+	qlusters.com") by vger.kernel.org with ESMTP id <S316797AbSGHPKj>;
+	Mon, 8 Jul 2002 11:10:39 -0400
+Subject: Re: Kernel Ooops
+From: Gilad Ben-Yossef <gilad@benyossef.com>
+To: Matthias Fricke <matthiasfricke@onetel.net.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3D29A2D9.CD8936DB@onetel.net.uk>
+References: <3D29A2D9.CD8936DB@onetel.net.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 08 Jul 2002 18:12:19 +0300
+Message-Id: <1026141140.5287.45.camel@sake>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yesterday util-linux 2.11t was released.
-As always, comments are welcome.
+On Mon, 2002-07-08 at 17:34, Matthias Fricke wrote:
+> Hallo,
+> 
+> I am using 2.4.18 Kernel on a 512MB RAM Mashine.
+> Kernel detects only 256 MB.
+> If I am booting lilo with mem=512M the kernel Ooopses and panics.
+> 
+> The kernel is patched with kernel patch of kernel.org from februar 18
+> th.
 
-Wanted to continue some usb-storage work on 2.5 and
-recklessly booted 2.5.25. It survived for several hours,
-then deadlocked. Two filesystems turned out to be corrupted.
-Wouldn't mind if the rock solid 2.4 handling of HPT366
-was carefully copied to 2.5, that today quickly causes
-corruption and quickly deadlocks or crashes.
-[Yes, these are independent bugs. The fact that the current
-IDE code writes to random disk sectors is much more annoying
-than the fact that it crashes and deadlocks. This random
-writing is observed only on disks on the HPT366 card.]
+>From my experience this usually means that the system in question has a
+display card that uses some of the main memory. SInce I see this is a
+laptop this makes even more sense. Try booting with mem=504M or less (if
+your display card uses more memory) and there's a good chance that the
+panic will go away.
 
-Andries
+Cheers,
+Gilad.
+
+-- 
+Gilad Ben-Yossef <gilad@benyossef.com>
+Code mangler, senior coffee drinker and VP SIGSEGV
+Qlusters ltd.
+
+"You got an EMP device in the server room? That is so cool."
+      -- from a hackers-il thread on paranoia
+
+
 

@@ -1,67 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266295AbUIMQPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267734AbUIMPRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266295AbUIMQPo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 12:15:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266096AbUIMQNk
+	id S267734AbUIMPRL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 11:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268575AbUIMPIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 12:13:40 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:7610 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266295AbUIMQK7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 12:10:59 -0400
-Subject: Re: radeon-pre-2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Vladimir Dergachev <volodya@mindspring.com>
-Cc: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>,
-       Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@gmail.com>,
-       Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0409131113240.5077@node2.an-vo.com>
-References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>
-	 <Pine.LNX.4.58.0409100209100.32064@skynet>
-	 <9e47339104090919015b5b5a4d@mail.gmail.com>
-	 <20040910153135.4310c13a.felix@trabant>
-	 <9e47339104091008115b821912@mail.gmail.com>
-	 <1094829278.17801.18.camel@localhost.localdomain>
-	 <9e4733910409100937126dc0e7@mail.gmail.com>
-	 <1094832031.17883.1.camel@localhost.localdomain>
-	 <9e47339104091010221f03ec06@mail.gmail.com>
-	 <1094835846.17932.11.camel@localhost.localdomain>
-	 <9e47339104091011402e8341d0@mail.gmail.com>
-	 <Pine.LNX.4.58.0409102254250.13921@skynet>
-	 <1094853588.18235.12.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0409110137590.26651@skynet>
-	 <1094912726.21157.52.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0409122319550.20080@skynet>
-	 <1095035276.22112.31.camel@admin.tel.thor.asgaard.local>
-	 <Pine.LNX.4.61.0409122042370.9611@node2.an-vo.com>
-	 <1095036743.22137.48.camel@admin.tel.thor.asgaard.local>
-	 <Pine.LNX.4.61.0409131047060.4885@node2.an-vo.com>
-	 <1095083862.14587.18.camel@localhost.localdomain>
-	 <Pine.LNX.4.61.0409131113240.5077@node2.an-vo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1095088021.14587.40.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 13 Sep 2004 16:07:03 +0100
+	Mon, 13 Sep 2004 11:08:22 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:43679 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S267555AbUIMPAp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 11:00:45 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: 2.4.28-pre3: broken ips update
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Date: Mon, 13 Sep 2004 11:00:43 -0400
+Message-ID: <A121ABA5B472B74EB59076B8E3C8F01979658B@rtpe2k01.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.4.28-pre3: broken ips update
+Thread-Index: AcSZoHcjo/kQwefdSL6PaUixWtvm5QAAXnqA
+From: "Hammer, Jack" <Jack_Hammer@adaptec.com>
+To: <arjanv@redhat.com>
+Cc: "Adrian Bunk" <bunk@fs.tum.de>,
+       "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>,
+       <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-09-13 at 16:20, Vladimir Dergachev wrote:
-> > It depends how the various components fit together. Clearly for Radeon
-> > you want everyone using the DMA command path when DRI is loaded. That
-> > doesn't require "one driver"
+
+I concur with Arjan's critique.  
+
+Please disregard this patch and I will create a new one, with Arjan's
+recommendation, shortly.
+
+Jack 
+
+
+
+-----Original Message-----
+From: Arjan van de Ven [mailto:arjanv@redhat.com] 
+Sent: Monday, September 13, 2004 10:46 AM
+To: Hammer, Jack
+Cc: Adrian Bunk; Marcelo Tosatti; linux-kernel@vger.kernel.org;
+linux-scsi@vger.kernel.org
+Subject: RE: 2.4.28-pre3: broken ips update
+
+On Mon, 2004-09-13 at 16:28, Hammer, Jack wrote:
+> Marcelo,
+
+> --- linux.orig/drivers/scsi/ips.h	Mon Sep 13 09:40:04 2004
+> +++ linux/drivers/scsi/ips.h	Mon Sep 13 09:40:27 2004
+> @@ -97,7 +97,7 @@
+>  
+>     #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+>     
+> -      #ifndef irqreturn_t
+> +      #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,23)
+>           typedef void irqreturn_t;
+>        #endif
 > 
-> Alan, do I understand right that you are proposing to have two pieces of 
-> code in the framebuffer - one that can program the card in the absence of 
-> DRM driver and one that uses CP when it is present ?
 
-We could do, or the DRM driver could provide DMA methods for the
-framebuffer driver to use. I mean it might be that we should always be
-using DMA methods in all the drivers for radeon all the time anyway  ?
+your fix is wrong.
+you should nuke all version codes, and ONLY ifndef for  IRQ_NONE and
+nothing else. That's not just cosmetics, that's also to make keep
+working with those exact vendor kernels  you claim to have tested on :)
 
-The fb driver gets told when DRI comes and goes which means the two can
-choose to co-operate if they wish.
 

@@ -1,66 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318913AbSHEWnQ>; Mon, 5 Aug 2002 18:43:16 -0400
+	id <S318900AbSHEW6D>; Mon, 5 Aug 2002 18:58:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318915AbSHEWnQ>; Mon, 5 Aug 2002 18:43:16 -0400
-Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:43789 "EHLO
-	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id <S318913AbSHEWnP>; Mon, 5 Aug 2002 18:43:15 -0400
-Date: Tue, 6 Aug 2002 00:46:50 +0200 (CEST)
-From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-To: Chris Mason <mason@suse.com>
-Cc: Oleg Drokin <green@namesys.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: reiserfs blocks long on getdents64() during concurrent write
-In-Reply-To: <1028585680.24117.295.camel@tiny>
-Message-ID: <Pine.LNX.4.44.0208060030150.1357-100000@pc40.e18.physik.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318901AbSHEW6C>; Mon, 5 Aug 2002 18:58:02 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:56053 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318900AbSHEW6C>; Mon, 5 Aug 2002 18:58:02 -0400
+Subject: Re: 2.4.19 MAESTRO sound /dev/dsp3 broken (luxury problem)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Voluspa <voluspa@bigfoot.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020806004059.43db99fb.voluspa@bigfoot.com>
+References: <20020806004059.43db99fb.voluspa@bigfoot.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 06 Aug 2002 01:20:23 +0100
+Message-Id: <1028593223.18478.129.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 Aug 2002, Chris Mason wrote:
-
-> 01-relocation-4 deals with allowing reiserfs to use an external logging
-> device.  It isn't related to your problem, but 02-commit_super-8 is
-> diffed against it.
+On Mon, 2002-08-05 at 23:40, Voluspa wrote:
 > 
-> 02-commit_super-8 does two things.  First it changes sync_supers() so
-> that it won't loop on a single filesystem while it's super is dirty. 
-> Before, if kupdate triggered a write_super call, and another FS writer
-> redirtied the super after write_super cleared it (but before it
-> returned), write_super gets called a second time.  Since a commit was
-> done for each write_super call, that gets expensive quickly.
-> 
-> Second, the patch adds a commit_super call, and changes sync() to use
-> that instead of write_super.  This allows the FS to skip the commit when
-> write_super is called.
-> 
-> This does lead to fewer commits and longer running transactions, but
-> does not increase the amount of time it takes the write() call to
-> complete.  It does increase the time between when you make a metadata
-> change and when that change actually goes to the disk.  
-> 
-Ahh, thanks! This sounds like a good idea to me, hopefully your patch will 
-be accepted despite the fact that Alan is busy doing other things ;-)
+> The fourth channel, aka /dev/dsp3, of the MAESTRO sound driver is broken (yeah, sob, sob) in 2.4.19 and -ac1. Last working that I've used, compiled as a module, was 2.4.19-pre10-ac1. The "sound" now coming out of that channel is a cry from the wilderness (confirmed with RealOne Player and gqmpeg and xine and...)
 
-Coming back to the issue: applying these patches increased the throughput
-by about 20% :-) Now it takes about 100sec instead of 120sec to write a
-2GB file. Tomorrow I will try it without the write_times part, to see how 
-much that does.
-
-But more important: the hiccups are more seldom and sometimes shorter than 
-before. With plain 2.4.19 I would hit it about twice per minute (I have 
-not measured it), now it happens only after two minutes when writing 1M 
-chunks at 20MB/s. The longest seen so far was also about 4 seconds, 
-though.
-
-Ciao,
-					Roland
-
-+---------------------------+-------------------------+
-|    TU Muenchen            |                         |
-|    Physik-Department E18  |  Raum    3558           |
-|    James-Franck-Str.      |  Telefon 089/289-12592  |
-|    85747 Garching         |                         |
-+---------------------------+-------------------------+
+Can you try and find out exactly which kernel it broke at. The only
+maestro change Im aware of was in rc1-ac7 and wouldn't have that affect
+in any way I can imagine..
 

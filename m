@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261829AbUKPVgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbUKPVgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261829AbUKPVgv (ORCPT <rfc822;willy@w.ods.org>);
+	id S261828AbUKPVgv (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 16 Nov 2004 16:36:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261828AbUKPVfA
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbUKPVeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 16:35:00 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:9944 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261829AbUKPVeJ (ORCPT
+	Tue, 16 Nov 2004 16:34:46 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:35267 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261828AbUKPVdU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 16:34:09 -0500
-Date: Tue, 16 Nov 2004 23:36:08 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Dean Nelson <dcn@sgi.com>
-Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch] export sched_setscheduler() for kernel module use
-Message-ID: <20041116223608.GA27550@elte.hu>
-References: <4198F70D.mailxMSZ11J00J@aqua.americas.sgi.com> <20041115105801.T14339@build.pdx.osdl.net> <20041115203343.GA32173@sgi.com> <20041116104821.GA31395@elte.hu> <20041116201841.GA29687@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041116201841.GA29687@sgi.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 16 Nov 2004 16:33:20 -0500
+Date: Tue, 16 Nov 2004 22:33:18 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: A M <alim1993@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Accessing program counter registers from within C or Aseembler.
+In-Reply-To: <20041116212015.32217.qmail@web51901.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.53.0411162228440.20331@yvahk01.tjqt.qr>
+References: <20041116212015.32217.qmail@web51901.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>Hello,
+>
+>Does anybody know how to access the address of the
+>current executing instruction in C while the program
+>is executing?
 
-* Dean Nelson <dcn@sgi.com> wrote:
+With the aid of a second program, yes.
+For one program: not directly. It's because the EIP changes while you are
+calclating it.
+You could f.e.:
 
-> > could you make sched_setscheduler() also include a parameter for the
-> > nice value, so that ->static_prio could be set at the same time too
-> > (which would have relevance if SCHED_OTHER is used)? This would make it
-> > a generic kernel-internal API to change all the priority parameters.
-> > Looks good otherwise.
-> 
-> Yeah, I can do that. I'll probably be getting back to you with a
-> question or two, if what you're after isn't obvious once I start
-> making the changes for the nice parameter.
+int main(void) {
 
-another potential API would be to use the linear priority range that the
-scheduler has internally, from 0 (RT prio 99) to 140 (nice +19). I'm not
-sure which solution is the better one. Using the linear priority has the
-advantage of not having to pass any policy value - priorities between 0
-and 99 implicitly mean SCHED_FIFO, priorities above that would mean
-SCHED_NORMAL, a pretty natural and compact interface.
+    printf("owned\n");
+mark:
+    printf("pwned\n");
+    printf("%p\n", &&mark);
+}
 
-	Ingo
+GCC specific.
+Or you could also poke around with __builtin_return_address, or even peek at
+the stack yourself.
+
+>Also, is there a method to load a program image from
+>memory not a file (an exec that works with a memory
+>address)? Mainly I am looking for a method that brings
+>a program image into memory modify parts of it and
+>start the in-memory modified version.
+
+No, because that opens a wide door for trojans and stack smashers.
+
+>Can anybody think of a method to replace a thread
+>image without replacing the whole process image?
+
+It would not be a thread then.
+
+
+Jan Engelhardt
+-- 
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

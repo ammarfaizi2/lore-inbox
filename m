@@ -1,94 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315415AbSIDVGp>; Wed, 4 Sep 2002 17:06:45 -0400
+	id <S315440AbSIDVMM>; Wed, 4 Sep 2002 17:12:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315427AbSIDVGp>; Wed, 4 Sep 2002 17:06:45 -0400
-Received: from web13808.mail.yahoo.com ([216.136.175.18]:22276 "HELO
-	web13808.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S315415AbSIDVGo>; Wed, 4 Sep 2002 17:06:44 -0400
-Message-ID: <20020904211118.37877.qmail@web13808.mail.yahoo.com>
-Date: Wed, 4 Sep 2002 14:11:18 -0700 (PDT)
-From: "M.L.PrasannaK.R." <mlpkr@yahoo.com>
-Subject: fsuid0 caps
-To: linux-kernel@vger.kernel.org
+	id <S315430AbSIDVMM>; Wed, 4 Sep 2002 17:12:12 -0400
+Received: from ns.splentec.com ([209.47.35.194]:9996 "EHLO pepsi.splentec.com")
+	by vger.kernel.org with ESMTP id <S315419AbSIDVMK>;
+	Wed, 4 Sep 2002 17:12:10 -0400
+Message-ID: <3D767830.66A0963B@splentec.com>
+Date: Wed, 04 Sep 2002 17:16:32 -0400
+From: Luben Tuikov <luben@splentec.com>
+Organization: Splentec Ltd.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-18106085-1031173878=:37422"
+To: Doug Ledford <dledford@redhat.com>
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: aic7xxx sets CDR offline, how to reset?
+References: <dledford@redhat.com> <200209032148.g83LmeP09177@localhost.localdomain> <20020903184216.F12201@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-18106085-1031173878=:37422
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Doug Ledford wrote:
+> 
+> Not really.  It hasn't been done yet, but one of my goals is to change the
+> scsi commands over to reasonable list usage (finally) so that we can avoid
+> all these horrible linear scans it does now looking for an available
+> command
 
-In reply to
-ttp://www.uwsg.iu.edu/hypermail/linux/kernel/0204.3/0380.html
+Using the struct list_head for this will literally allow you to do _magic_.
+Avoiding the linear scan is the last thing this will fix.
 
-This is documentation error. There is also a break in default
-semantics of uid0 that needs to be fixed.
-It is not a security hole as it results in the reduced capabilities
-rather than in the increased capabilities.
+It would allow for a lot better/simpler/sound design of all of
+the mid layer/SCSI core. Things will be/become easier as you
+point out below. Currently the mid-layer queuing is hairy at best.
 
-setresuid(x,x,-1) clears effective caps.
-setfsuid(0) rstores CAP_FS_MASK effective caps.
-setresuid(-1,-1,x) clears both effective and permitted caps.
-Both fs and non fs caps are lost.
+I'm all for it.
 
-This results in uid0 with no capabilties and no way of
-restoring them. If this is valid issue, something like
-the following patch fixes it.
+> So,
+> basically, you have a list item struct on each command.  When you build
+> the commands, you add them to SDpnt->free_list.  When you need a command,
+> instead of searching for a free one, you just grab the head of
+> SDpnt->free_list and use it.  Once you've built the command and are ready
+> to hand it off to the lldd, you put the command on the tail of the
+> SDpnt->active_list.  When a command completes, you list_remove() it from
+> the SDpnt->active_list and put it on the SDpnt->complete_list to be
+> handled by the tasklet.  When the tasklet actually completes the command,
+> it frees the scsi command struct by simply putting it back on the
+> SDpnt->free_list.
 
-Thanks,
-MLPKR.
+Great!
 
+Once you're on that train, you may want to rethink the whole queuing
+mechanism of the mid-layer (straight from sd/etc and internally down to LLDD)
+for an improved design.
 
+There'd be problems like cmd moving b/n lists is atomic, only cmd movers
+can actually cancel a command, move before calling queuecommand(), etc,
+but is nothing extraordinary.
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Finance - Get real-time stock quotes
-http://finance.yahoo.com
---0-18106085-1031173878=:37422
-Content-Type: application/x-unknown; name="fsuid_caps.patch"
-Content-Transfer-Encoding: base64
-Content-Description: fsuid_caps.patch
-Content-Disposition: attachment; filename="fsuid_caps.patch"
+> Now, granted, that is more complex than going straight to a BDR, but I
+> have to argue that it *isn't* that complex.  It certainly isn't the
+> nightmare you make it sound like ;-)
 
-LS0tIHN5cy5jCUZyaSBBdWcgMzAgMTg6NDI6MjAgMjAwMgorKysgL3RtcC9z
-eXMuYwlXZWQgU2VwICA0IDIwOjEyOjUxIDIwMDIKQEAgLTQ1MCw3ICs0NTAs
-NyBAQAogICoKICAqICAxKSBXaGVuIHNldCp1aWRpbmcgX2Zyb21fIG9uZSBv
-ZiB7cixlLHN9dWlkID09IDAgX3RvXyBhbGwgb2YKICAqICB7cixlLHN9dWlk
-ICE9IDAsIHRoZSBwZXJtaXR0ZWQgYW5kIGVmZmVjdGl2ZSBjYXBhYmlsaXRp
-ZXMgYXJlCi0gKiAgY2xlYXJlZC4KKyAqICBjbGVhcmVkIHdpdGggdGhlIGV4
-Y2VwdGlvbiBjYXNlIHJlbGF0ZWQgdG8gZnN1aWQuIFNlZSBiZWxvdy4KICAq
-CiAgKiAgMikgV2hlbiBzZXQqdWlkaW5nIF9mcm9tXyBldWlkID09IDAgX3Rv
-XyBldWlkICE9IDAsIHRoZSBlZmZlY3RpdmUKICAqICBjYXBhYmlsaXRpZXMg
-b2YgdGhlIHByb2Nlc3MgYXJlIGNsZWFyZWQuCkBAIC00NzIsNiArNDcyLDE1
-IEBACiAgKiBLZWVwaW5nIHVpZCAwIGlzIG5vdCBhbiBvcHRpb24gYmVjYXVz
-ZSB1aWQgMCBvd25zIHRvbyBtYW55IHZpdGFsCiAgKiBmaWxlcy4uCiAgKiBU
-aGFua3MgdG8gT2xhZiBLaXJjaCBhbmQgUGV0ZXIgQmVuaWUgZm9yIHNwb3R0
-aW5nIHRoaXMuCisgKgorICogQ2hhbmdlOgorICogIEludmFyaWFudCBmc3Vp
-ZCA9MCBpZmYgb25lIG9mIHRoZSB7cixlLHN9dWlkID09IDAgaXMgbm8gbW9y
-ZSB2YWxpZC4KKyAqICBTbyBydWxlIDEgc2hvdWxkIGJlIG1vZGlmaWVkIGFz
-CisgKiAgNCkgV2hlbiBzZXQqdWlkaW5nIF9mcm9tXyBvbmUgb2Yge3IsZSxz
-fXVpZCA9PSAwIF90b18gYWxsIG9mCisgKiAge3IsZSxzfXVpZCAhPSAwLCB0
-aGUgZmlsZSBzeXN0ZW0gcGVybWl0dGVkIGFuZCBlZmZlY3RpdmUgCisgKiAg
-Y2FwYWJpbGl0aWVzIGFyZSBjbGVhcmVkIGJhc2VkIG9uIHRoZSB2YWx1ZSBv
-ZiBmc3VpZCAhPSAwLCAKKyAqICBhbmQgb3RoZXIgZWZmZWN0aXZlIGFuZCBw
-ZXJtaXR0ZWQgY2FwYWJpbHRpZXMgd2lsbCBiZSBjbGVhcmVkIAorICogIHJl
-Z2FyZGxlc3Mgb2YgdGhlIHZhbHVlIG9mIGZzdWlkLgogICovCiBzdGF0aWMg
-aW5saW5lIHZvaWQgY2FwX2VtdWxhdGVfc2V0eHVpZChpbnQgb2xkX3J1aWQs
-IGludCBvbGRfZXVpZCwgCiAJCQkJICAgICAgIGludCBvbGRfc3VpZCkKQEAg
-LTQ3OSw4ICs0ODgsMTQgQEAKIAlpZiAoKG9sZF9ydWlkID09IDAgfHwgb2xk
-X2V1aWQgPT0gMCB8fCBvbGRfc3VpZCA9PSAwKSAmJgogCSAgICAoY3VycmVu
-dC0+dWlkICE9IDAgJiYgY3VycmVudC0+ZXVpZCAhPSAwICYmIGN1cnJlbnQt
-PnN1aWQgIT0gMCkgJiYKIAkgICAgIWN1cnJlbnQtPmtlZXBfY2FwYWJpbGl0
-aWVzKSB7Ci0JCWNhcF9jbGVhcihjdXJyZW50LT5jYXBfcGVybWl0dGVkKTsK
-LQkJY2FwX2NsZWFyKGN1cnJlbnQtPmNhcF9lZmZlY3RpdmUpOworCQlpZiAo
-Y3VycmVudC0+ZnN1aWQgIT0gMCkgeworCQkJY2FwX2NsZWFyKGN1cnJlbnQt
-PmNhcF9wZXJtaXR0ZWQpOworCQkJY2FwX2NsZWFyKGN1cnJlbnQtPmNhcF9l
-ZmZlY3RpdmUpOworCQl9CisJCWVsc2UgeworCQkJY2FwX3QoY3VycmVudC0+
-Y2FwX2VmZmVjdGl2ZSkgJj0gQ0FQX0ZTX01BU0s7CisJCQljYXBfdChjdXJy
-ZW50LT5jYXBfcGVybWl0dGVkKSAmPSBDQVBfRlNfTUFTSzsKKwkJfQogCX0K
-IAlpZiAob2xkX2V1aWQgPT0gMCAmJiBjdXJyZW50LT5ldWlkICE9IDApIHsK
-IAkJY2FwX2NsZWFyKGN1cnJlbnQtPmNhcF9lZmZlY3RpdmUpOwo=
+No, it certainly is NOT!
 
---0-18106085-1031173878=:37422--
+Granted, by looking at the code it will not be overly clear
+who moves what and when, but a 2 page commentary on the design
+would only leave one exlaiming ``Aaaaah... such simplicity, so great!'' 
+
+> Well, as I've laid it out above, I don't really think it's all that much
+> to implement ;-)  At least not in the mid layer.
+
+Right, it's not. This type of queuing mechanism would only make things
+more consistent and easy to manipulate.
+
+There'd be logistical issues, but those are easy to figure out
+with pen and paper.
+
+-- 
+Luben
+
+``Perfection is achieved not when there is nothing more to add
+  but when there is nothing left to take away.''
+                              Antoine de Saint Exupery

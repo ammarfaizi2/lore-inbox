@@ -1,69 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261430AbUB0AKL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 19:10:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbUB0AKL
+	id S261390AbUB0AL2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 19:11:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261404AbUB0AL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 19:10:11 -0500
-Received: from fw.osdl.org ([65.172.181.6]:4487 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261557AbUB0AIR (ORCPT
+	Thu, 26 Feb 2004 19:11:27 -0500
+Received: from smtp06.auna.com ([62.81.186.16]:30154 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S261390AbUB0ALV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 19:08:17 -0500
-Date: Thu, 26 Feb 2004 16:06:16 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Jochen Roemling <jochen@roemling.net>
-Cc: linux-kernel@vger.kernel.org, chrisw@osdl.org
-Subject: Re: shmget with SHM_HUGETLB flag: Operation not permitted
-Message-ID: <20040226160616.E1652@build.pdx.osdl.net>
-References: <1tCuq-3AH-1@gated-at.bofh.it> <1tCEo-3Lh-27@gated-at.bofh.it> <1tDgT-4r2-13@gated-at.bofh.it> <403E87CF.1080409@roemling.net>
+	Thu, 26 Feb 2004 19:11:21 -0500
+Date: Fri, 27 Feb 2004 01:11:15 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.3-mm4
+Message-ID: <20040227001115.GA2627@werewolf.able.es>
+References: <20040225185536.57b56716.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <403E87CF.1080409@roemling.net>; from jochen@roemling.net on Fri, Feb 27, 2004 at 12:57:03AM +0100
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040225185536.57b56716.akpm@osdl.org> (from akpm@osdl.org on Thu, Feb 26, 2004 at 03:55:36 +0100)
+X-Mailer: Balsa 2.0.16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jochen Roemling (jochen@roemling.net) wrote:
-> Chris Wright wrote:
-> > In case that part wasn't clear, it would be CAP_IPC_LOCK capability.
-> > 
-> Thanks. Capset was the keyword I couldn't remember.
+
+On 02.26, Andrew Morton wrote:
 > 
-> _Background:_
-> I would like to install Oracle 10g Database on Linux with HUGETLB 
-> support. The oracle binary exits with -EPERM because it is not allowed 
-> to create a shared memory segment with the SHM_HUGETLB flag set.
-
-OK, as expected.
-
-> I installed the libcap2 package (from debian testing) and now have the 
-> tool "setcap" available. I wanted to test this on my example pgm 
-> mentioned in the original post using:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3/2.6.3-mm4/
 > 
-> roesrv01~ # setcap CAP_IPC_LOCK a.out
-> fatal error: Invalid argument
-> usage: setcap [-q] (-|<caps>) <filename> [ ... (-|<capsN>) <filenameN> ]
+> - Big knfsd update.  Mainly for nfsv4
 > 
-> using the number "14" instead of the name "CAP_IPC_LOCK" doesn't work 
-> either. I don't have any glue. Do have a simple example for me?
-
-did you try setpcaps?  smth like setpcaps cap_ipc_lock+e <pid>
-
-> By the way: CAP_IPC_LOCK is only checked in line 508 of ipc/shm.c:
-<snip>
->                  if (!capable(CAP_IPC_LOCK)) {
->                          err = -EPERM;
->                          goto out;
->                  }
+> - DVB udpate
 > 
-> There is nothing around that says: "Allow this only without HUGETLB".
-> Are you sure that this capability is my problem?
+> - Various fixes
+> 
 
-Yes, take a look at fs/hugetlbfs/inode.c::hugetlb_zero_setup()
+As somebody also stated, there are problems with sensors:
 
-thanks,
--chris
+werewolf:~# service lm_sensors start
+Loading sensors modules: 
+w83781d-isa-0290: Can't access procfs/sysfs file for writing;
+Run as root?
+Starting sensord:                                               [  OK  ]
+
+I _was_ root. And initscripts are run as root ?
+
+Perhaps this is a more generic problem with sysfs :(.
+
+TIA
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
-
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 10.0 (RC1) for i586
+Linux 2.6.3-jam4 (gcc 3.4.0 (Mandrake Linux 10.0 3.4.0-0.2mdk))

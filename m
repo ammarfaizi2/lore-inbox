@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265966AbTGIMQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 08:16:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266004AbTGIMQ7
+	id S268201AbTGIMaI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 08:30:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268222AbTGIMaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 08:16:59 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:22290 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265966AbTGIMQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 08:16:35 -0400
-Date: Wed, 9 Jul 2003 13:31:09 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: marcelo@connectiva.com.br, trond.myklebust@fys.uio.no
-Cc: linux-kernel@vger.kernel.org
-Subject: ->direct_IO API change in current 2.4 BK
-Message-ID: <20030709133109.A23587@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	marcelo@connectiva.com.br, trond.myklebust@fys.uio.no,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Wed, 9 Jul 2003 08:30:08 -0400
+Received: from ns.suse.de ([213.95.15.193]:26374 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268201AbTGIMaG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 08:30:06 -0400
+To: "Kirill Korotaev" <kksx@mail.ru>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [announce, patch] 4G/4G split on x86, 64 GB RAM (and more) support
+References: <E19aCeB-000ICs-00.kksx-mail-ru@f23.mail.ru.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 09 Jul 2003 14:44:40 +0200
+In-Reply-To: <E19aCeB-000ICs-00.kksx-mail-ru@f23.mail.ru.suse.lists.linux.kernel>
+Message-ID: <p73wuerq37r.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just got a nice XFS oops due to the direct_IO API change in
-2.4.  Guys, this is a STABLE series and APIs are supposed to be exactly
-that, _STABLE_.  If you really think O_DIRECT on NFS is soo important
-please add a ->direct_IO2 for NFS like the reiserfs read_inode2 hack.
+"Kirill Korotaev"  <kksx@mail.ru> writes:
 
-But what's the use of it anyway?  AFAIK it's mostly for whoracle setups
-that have their data on netapps but that needs a certified vendor kernel
-not mainline..
+> I didn't change TASK_SIZE in my patch, since there is a bug in libpthread,
+> which causes SIGSEGV when java on non-standart kernel split is run :(((
+> Test it with your kernel pls if not yet. You can find a jbb2000 test in
+> internet.
+
+That's fixed in the Sun JVM 1.4.2, or in Blackdown 1.4.1. I had the same
+problem on AMD64. Currently it has a special "3GB" personality to 
+deal with the older JVMs. All the personality does is to move the top
+of stack, an application could still place mmaps behind it.
+
+-Andi

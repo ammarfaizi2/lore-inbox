@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVC2VC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVC2VEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbVC2VC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 16:02:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbVC2VC1
+	id S261428AbVC2VEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 16:04:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVC2VEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 16:02:27 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:34536 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261420AbVC2VCX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 16:02:23 -0500
-Subject: Re: [RFD] 'nice' attribute for executable files
-From: Lee Revell <rlrevell@joe-job.com>
-To: Wiktor <victorjan@poczta.onet.pl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4249B2B8.1090807@poczta.onet.pl>
-References: <4249B2B8.1090807@poczta.onet.pl>
-Content-Type: text/plain
-Date: Tue, 29 Mar 2005 16:02:22 -0500
-Message-Id: <1112130142.5141.23.camel@mindpipe>
+	Tue, 29 Mar 2005 16:04:15 -0500
+Received: from main.gmane.org ([80.91.229.2]:13741 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261428AbVC2VEJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 16:04:09 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: [PATCH] embarassing typo
+Date: Tue, 29 Mar 2005 23:02:21 +0200
+Message-ID: <yw1xd5ti17z6.fsf@ford.inprovide.com>
+References: <1112128584.25954.6.camel@tux.lan>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:uAfr4ReCL00vdslLPuGaNg9qCGU=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-29 at 21:55 +0200, Wiktor wrote:
-> Hi all,
-> 
-> recently i had to run some program (xmms) with lowered nice value as 
-> normal user. to do that i had to su to the root account and then execute 
-> nice --5 xmms.
+"Ronald S. Bultje" <rbultje@ronald.bitfreak.net> writes:
 
-Let me guess, the sound skips unless you run at a low nice value.
-That's bad design on the part of XMMS.
+> --- linux-2.6.5/drivers/media/video/zr36050.c.old	16 Sep 2004 22:53:27 -0000	1.2
+> +++ linux-2.6.5/drivers/media/video/zr36050.c	29 Mar 2005 20:30:23 -0000
+> @@ -419,7 +419,7 @@
+>  	dri_data[2] = 0x00;
+>  	dri_data[3] = 0x04;
+>  	dri_data[4] = ptr->dri >> 8;
+> -	dri_data[5] = ptr->dri * 0xff;
+> +	dri_data[5] = ptr->dri & 0xff;
 
-nice is the wrong way to handle RT constraints.  You need a proper
-design (ie multithreaded).
+Hey, that's a nice obfuscation of a simple negation.
 
-See JACK for an example of how to do it right.
+BTW, when assigning to a char type, is the masking really necessary at
+all?  I can't see that it should make a difference.  Am I missing
+something subtle?
 
-http://jackit.sf.net
-
-Or, since you don't need low latency, use a bigger buffer.
-
-Proper handling of RT constraints has been discussed to death on LKML
-and other lists (executive summary: almost no one does it right.
-mplayer is one of the most egregious offenders).
-
-Lee
+-- 
+Måns Rullgård
+mru@inprovide.com
 

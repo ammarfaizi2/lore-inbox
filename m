@@ -1,434 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267450AbUJBSH5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267452AbUJBSKD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267450AbUJBSH5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 14:07:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267452AbUJBSH5
+	id S267452AbUJBSKD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 14:10:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267460AbUJBSKD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 14:07:57 -0400
-Received: from smtp-vbr5.xs4all.nl ([194.109.24.25]:25360 "EHLO
-	smtp-vbr5.xs4all.nl") by vger.kernel.org with ESMTP id S267450AbUJBSHi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 14:07:38 -0400
-Date: Sat, 2 Oct 2004 20:07:11 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: some traces during 2.6.9-rc3-mm1 boot (using smp_processor_id() in preemptable code)
-Message-ID: <20041002180711.GA5458@middle.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
+	Sat, 2 Oct 2004 14:10:03 -0400
+Received: from cantor.suse.de ([195.135.220.2]:50131 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267452AbUJBSJb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Oct 2004 14:09:31 -0400
+Date: Sat, 2 Oct 2004 20:09:26 +0200
+From: Olaf Hering <olh@suse.de>
+To: Hubert Tonneau <hubert.tonneau@fullpliant.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB storage crash report in 2.6 SMP
+Message-ID: <20041002180926.GA17247@suse.de>
+References: <04E3EF912@server5.heliogroup.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="d6Gm4EdcadzBjdND"
 Content-Disposition: inline
-X-Message-Flag: Still using Outlook? As you can see, it has some errors.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <04E3EF912@server5.heliogroup.fr>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-e1000: fast: e1000_watchdog: NIC Link is Up 1000 Mbps Full Duplex
-using smp_processor_id() in preemptible code: ip/349
- [<c0104d88>] dump_stack+0x17/0x1b
- [<c011a0e6>] smp_processor_id+0x92/0x98
- [<c044239e>] neigh_lookup+0x3d/0xca
- [<c048d3a8>] ip6_route_add+0x3ee/0x5bd
- [<c0487c34>] addrconf_prefix_route+0x6f/0x91
- [<c0487d62>] addrconf_add_lroute+0x40/0x44
- [<c0488b97>] addrconf_notify+0xcf/0x15d
- [<c012a289>] notifier_call_chain+0x1a/0x2f
- [<c043e03c>] dev_open+0x67/0x7d
- [<c043f3f5>] dev_change_flags+0x50/0x105
- [<c0475082>] devinet_ioctl+0x226/0x632
- [<c04770fa>] inet_ioctl+0x56/0x8d
- [<c043669c>] sock_ioctl+0xaf/0x225
- [<c0163df6>] sys_ioctl+0xb3/0x1ed
- [<c0103f07>] syscall_call+0x7/0xb
-using smp_processor_id() in preemptible code: ip/349
- [<c0104d88>] dump_stack+0x17/0x1b
- [<c011a0e6>] smp_processor_id+0x92/0x98
- [<c044219b>] neigh_alloc+0x10d/0x15f
- [<c04424fc>] neigh_create+0x25/0x1d8
- [<c048d3de>] ip6_route_add+0x424/0x5bd
- [<c0487c34>] addrconf_prefix_route+0x6f/0x91
- [<c0487d62>] addrconf_add_lroute+0x40/0x44
- [<c0488b97>] addrconf_notify+0xcf/0x15d
- [<c012a289>] notifier_call_chain+0x1a/0x2f
- [<c043e03c>] dev_open+0x67/0x7d
- [<c043f3f5>] dev_change_flags+0x50/0x105
- [<c0475082>] devinet_ioctl+0x226/0x632
- [<c04770fa>] inet_ioctl+0x56/0x8d
- [<c043669c>] sock_ioctl+0xaf/0x225
- [<c0163df6>] sys_ioctl+0xb3/0x1ed
- [<c0103f07>] syscall_call+0x7/0xb
-using smp_processor_id() in preemptible code: ip/350
- [<c0104d88>] dump_stack+0x17/0x1b
- [<c011a0e6>] smp_processor_id+0x92/0x98
- [<c044239e>] neigh_lookup+0x3d/0xca
- [<c048d3a8>] ip6_route_add+0x3ee/0x5bd
- [<c0487c34>] addrconf_prefix_route+0x6f/0x91
- [<c0487d62>] addrconf_add_lroute+0x40/0x44
- [<c0487da9>] addrconf_add_dev+0x43/0x7f
- [<c048833c>] inet6_addr_add+0x46/0xdf
- [<c0445c19>] rtnetlink_rcv+0x2c9/0x376
- [<c044a127>] netlink_data_ready+0x55/0x5d
- [<c04497d6>] netlink_sendskb+0x24/0x45
- [<c0449e20>] netlink_sendmsg+0x1d5/0x2a5
- [<c0436099>] sock_sendmsg+0xb3/0xce
- [<c043778b>] sys_sendmsg+0x175/0x1d6
- [<c0437ba5>] sys_socketcall+0x20c/0x229
- [<c0103f07>] syscall_call+0x7/0xb
-using smp_processor_id() in preemptible code: ip/350
- [<c0104d88>] dump_stack+0x17/0x1b
- [<c011a0e6>] smp_processor_id+0x92/0x98
- [<c044239e>] neigh_lookup+0x3d/0xca
- [<c048d3a8>] ip6_route_add+0x3ee/0x5bd
- [<c0487c34>] addrconf_prefix_route+0x6f/0x91
- [<c0489016>] addrconf_dad_start+0xd2/0xd7
- [<c048837b>] inet6_addr_add+0x85/0xdf
- [<c0445c19>] rtnetlink_rcv+0x2c9/0x376
- [<c044a127>] netlink_data_ready+0x55/0x5d
- [<c04497d6>] netlink_sendskb+0x24/0x45
- [<c0449e20>] netlink_sendmsg+0x1d5/0x2a5
- [<c0436099>] sock_sendmsg+0xb3/0xce
- [<c043778b>] sys_sendmsg+0x175/0x1d6
- [<c0437ba5>] sys_socketcall+0x20c/0x229
- [<c0103f07>] syscall_call+0x7/0xb
-using smp_processor_id() in preemptible code: ip/353
- [<c0104d88>] dump_stack+0x17/0x1b
- [<c011a0e6>] smp_processor_id+0x92/0x98
- [<c044239e>] neigh_lookup+0x3d/0xca
- [<c048d3a8>] ip6_route_add+0x3ee/0x5bd
- [<c048e2d8>] inet6_rtm_newroute+0x36/0x47
- [<c0445c19>] rtnetlink_rcv+0x2c9/0x376
- [<c044a127>] netlink_data_ready+0x55/0x5d
- [<c04497d6>] netlink_sendskb+0x24/0x45
- [<c0449e20>] netlink_sendmsg+0x1d5/0x2a5
- [<c0436099>] sock_sendmsg+0xb3/0xce
- [<c043778b>] sys_sendmsg+0x175/0x1d6
- [<c0437ba5>] sys_socketcall+0x20c/0x229
- [<c0103f07>] syscall_call+0x7/0xb
-using smp_processor_id() in preemptible code: ip/353
- [<c0104d88>] dump_stack+0x17/0x1b
- [<c011a0e6>] smp_processor_id+0x92/0x98
- [<c044219b>] neigh_alloc+0x10d/0x15f
- [<c04424fc>] neigh_create+0x25/0x1d8
- [<c048d3de>] ip6_route_add+0x424/0x5bd
- [<c048e2d8>] inet6_rtm_newroute+0x36/0x47
- [<c0445c19>] rtnetlink_rcv+0x2c9/0x376
- [<c044a127>] netlink_data_ready+0x55/0x5d
- [<c04497d6>] netlink_sendskb+0x24/0x45
- [<c0449e20>] netlink_sendmsg+0x1d5/0x2a5
- [<c0436099>] sock_sendmsg+0xb3/0xce
- [<c043778b>] sys_sendmsg+0x175/0x1d6
- [<c0437ba5>] sys_socketcall+0x20c/0x229
- [<c0103f07>] syscall_call+0x7/0xb
-tg3: onboard: Link is up at 100 Mbps, full duplex.
 
-.config:
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_GENERIC_IOMAP=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_BROKEN=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_KOBJECT_UEVENT=y
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-CONFIG_KALLSYMS=y
-CONFIG_KALLSYMS_ALL=y
-CONFIG_KALLSYMS_EXTRA_PASS=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_IOSCHED_CFQ=y
-CONFIG_SHMEM=y
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_STOP_MACHINE=y
-CONFIG_X86_PC=y
-CONFIG_MPENTIUM4=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_HPET_TIMER=y
-CONFIG_HPET_EMULATE_RTC=y
-CONFIG_SMP=y
-CONFIG_SCHED_SMT=y
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_BKL=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_X86_MCE_P4THERMAL=y
-CONFIG_MICROCODE=y
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-CONFIG_HIGHMEM4G=y
-CONFIG_HIGHMEM=y
-CONFIG_HIGHPTE=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_REGPARM=y
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SLEEP_PROC_FS=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-CONFIG_ACPI_THINKPAD=m
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_X86_PM_TIMER=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_MMCONFIG=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-CONFIG_PARPORT_1284=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDESCSI=y
-CONFIG_IDE_GENERIC=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_AMD74XX=y
-CONFIG_BLK_DEV_HPT366=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_BLK_DEV_PDC202XX_OLD=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_CHR_DEV_ST=y
-CONFIG_BLK_DEV_SR=y
-CONFIG_CHR_DEV_SG=y
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_SPI_ATTRS=y
-CONFIG_SCSI_SYM53C8XX_2=y
-CONFIG_SCSI_QLA2XXX=y
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_LINEAR=y
-CONFIG_MD_RAID0=y
-CONFIG_MD_RAID1=y
-CONFIG_MD_RAID10=y
-CONFIG_MD_RAID5=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_ROUTE_VERBOSE=y
-CONFIG_SYN_COOKIES=y
-CONFIG_IPV6=y
-CONFIG_NETFILTER=y
-CONFIG_IP6_NF_IPTABLES=y
-CONFIG_IP6_NF_MATCH_LIMIT=y
-CONFIG_IP6_NF_MATCH_MAC=y
-CONFIG_IP6_NF_MATCH_RT=y
-CONFIG_IP6_NF_MATCH_OPTS=y
-CONFIG_IP6_NF_MATCH_FRAG=y
-CONFIG_IP6_NF_MATCH_HL=y
-CONFIG_IP6_NF_MATCH_MULTIPORT=y
-CONFIG_IP6_NF_MATCH_OWNER=y
-CONFIG_IP6_NF_MATCH_MARK=y
-CONFIG_IP6_NF_MATCH_IPV6HEADER=y
-CONFIG_IP6_NF_MATCH_AHESP=y
-CONFIG_IP6_NF_MATCH_LENGTH=y
-CONFIG_IP6_NF_MATCH_EUI64=y
-CONFIG_IP6_NF_FILTER=y
-CONFIG_IP6_NF_TARGET_LOG=y
-CONFIG_IP6_NF_MANGLE=y
-CONFIG_IP6_NF_TARGET_MARK=y
-CONFIG_IP6_NF_RAW=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=y
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_NET_TULIP=y
-CONFIG_TULIP=y
-CONFIG_TULIP_MWI=y
-CONFIG_TULIP_MMIO=y
-CONFIG_NET_PCI=y
-CONFIG_8139TOO=y
-CONFIG_E1000=y
-CONFIG_E1000_NAPI=y
-CONFIG_TIGON3=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_SERIO_LIBPS2=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_LEGACY_PTYS=y
-CONFIG_PRINTER=y
-CONFIG_WATCHDOG=y
-CONFIG_SOFT_WATCHDOG=y
-CONFIG_HW_RANDOM=y
-CONFIG_RTC=y
-CONFIG_AGP=y
-CONFIG_AGP_INTEL=y
-CONFIG_DRM=y
-CONFIG_DRM_RADEON=y
-CONFIG_DRM_MGA=y
-CONFIG_HANGCHECK_TIMER=y
-CONFIG_I2C=y
-CONFIG_I2C_CHARDEV=m
-CONFIG_I2C_ALGOBIT=y
-CONFIG_I2C_ISA=m
-CONFIG_I2C_VIAPRO=m
-CONFIG_I2C_SENSOR=m
-CONFIG_SENSORS_VIA686A=m
-CONFIG_SENSORS_W83781D=m
-CONFIG_SENSORS_EEPROM=m
-CONFIG_FB=y
-CONFIG_FB_MODE_HELPERS=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB_MATROX=y
-CONFIG_FB_MATROX_G450=y
-CONFIG_FB_MATROX_G100=y
-CONFIG_FB_RADEON=y
-CONFIG_FB_RADEON_I2C=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_FONTS=y
-CONFIG_FONT_SUN12x22=y
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_MONO=y
-CONFIG_LOGO_LINUX_VGA16=y
-CONFIG_LOGO_LINUX_CLUT224=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_TIMER=y
-CONFIG_SND_PCM=y
-CONFIG_SND_HWDEP=y
-CONFIG_SND_RAWMIDI=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=y
-CONFIG_SND_MPU401_UART=y
-CONFIG_SND_OPL3_LIB=y
-CONFIG_SND_AC97_CODEC=y
-CONFIG_SND_EMU10K1=y
-CONFIG_SND_CMIPCI=y
-CONFIG_SND_INTEL8X0=y
-CONFIG_SND_VIA82XX=y
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_EHCI_HCD=y
-CONFIG_USB_UHCI_HCD=y
-CONFIG_USB_PRINTER=y
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_EXT2_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_REISER4_FS=y
-CONFIG_REISER4_LARGE_KEY=y
-CONFIG_REISERFS_FS=y
-CONFIG_XFS_FS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_UDF_FS=y
-CONFIG_UDF_NLS=y
-CONFIG_FAT_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_NTFS_FS=y
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_SUNRPC=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_FRAME_POINTER=y
-CONFIG_EARLY_PRINTK=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_CRC32=y
-CONFIG_GENERIC_HARDIRQS=y
-CONFIG_X86_SMP=y
-CONFIG_X86_HT=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_X86_TRAMPOLINE=y
-CONFIG_PC=y
+ On Thu, Sep 30, Hubert Tonneau wrote:
 
-Hope this helps,
-Jurriaan
+> Copying a large amount of datas (several gigabytes) between two USB 2.0 attached
+> disks will crash any Linux 2.6 SMP kernel, including 2.6.9-rc3.
+> 
+> The stack report is:
+> qh_completions 0x7B/0x118 [ehci_hcd]
+
+this was fixed a while ago, but not yet synced with Linus.
+
+...
+Maybe the call chain is something like this:
+
+ehci_irq
+spin_lock (&ehci->lock)
+  ehci_work                             ehci_watchdog
+    end_unlink_async
+      qh_completions
+        ehci_urb_done
+        spin_unlock (&ehci->lock)
+          usb_hcd_giveback_urb          spin_lock (&ehci->lock)
+                                          ehci_work
+
+now ehci_watchdog could proceed until usb_hcd_giveback_urb returns, then 
+ehci_urb_done must wait until the watchdog is done. both seem to operate  
+on the same list. I cant test it right now, box crashed.
+...
+
+
 -- 
-That which walks the corridors of power is a virus that mutates;
-immune to all resistance, and every turn of history...
-	New Model Army - Killing
-Debian (Unstable) GNU/Linux 2.6.9-rc1-mm4 2x6078 bogomips load load 0.35
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG
+
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: attachment; filename="ehci-0802.patch"
+
+This addresses an SMP-only issue with the EHCI driver, where only one CPU
+should scan the schedule at a time (scanning is not re-entrant) but either
+the IRQ handler or a watchdog timer could end up starting it.  Many thanks
+to Olaf Hering for isolating the failure mode!
+
+Once once CPU starts scanning, any other might as well finish right
+away.  This fix just adds a flag to detect that case.
+
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+
+--- 1.93/drivers/usb/host/ehci-hcd.c	Mon Aug 23 16:48:53 2004
++++ edited/ehci-hcd.c	Thu Sep  2 16:05:47 2004
+@@ -695,9 +695,18 @@
+ 	timer_action_done (ehci, TIMER_IO_WATCHDOG);
+ 	if (ehci->reclaim_ready)
+ 		end_unlink_async (ehci, regs);
++
++	/* another CPU may drop ehci->lock during a schedule scan while
++	 * it reports urb completions.  this flag guards against bogus
++	 * attempts at re-entrant schedule scanning.
++	 */
++	if (ehci->scanning)
++		return;
++	ehci->scanning = 1;
+ 	scan_async (ehci, regs);
+ 	if (ehci->next_uframe != -1)
+ 		scan_periodic (ehci, regs);
++	ehci->scanning = 0;
+ 
+ 	/* the IO watchdog guards against hardware or driver bugs that
+ 	 * misplace IRQs, and should let us run completely without IRQs.
+--- 1.43/drivers/usb/host/ehci.h	Tue Aug 24 12:18:34 2004
++++ edited/ehci.h	Thu Sep  2 15:32:30 2004
+@@ -53,6 +53,7 @@
+ 	struct ehci_qh		*async;
+ 	struct ehci_qh		*reclaim;
+ 	unsigned		reclaim_ready : 1;
++	unsigned		scanning : 1;
+ 
+ 	/* periodic schedule support */
+ #define	DEFAULT_I_TDPS		1024		/* some HCs can do less */
+
+--d6Gm4EdcadzBjdND--

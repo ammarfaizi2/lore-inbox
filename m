@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268887AbUHLXmr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268880AbUHLXo0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268887AbUHLXmr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 19:42:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268880AbUHLXmq
+	id S268880AbUHLXo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 19:44:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268888AbUHLXoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 19:42:46 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:9611 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S268887AbUHLXlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 19:41:37 -0400
-Date: Fri, 13 Aug 2004 00:39:50 +0100
-From: Dave Jones <davej@redhat.com>
-To: "John W. Linville" <linville@tuxdriver.com>
-Cc: Patrick Mansfield <patmans@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, James.Bottomley@SteelEye.com,
-       zaitcev@redhat.com
-Subject: Re: [patch] 2.6 -- add IOI Media Bay to SCSI quirk list
-Message-ID: <20040812233950.GA26970@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"John W. Linville" <linville@tuxdriver.com>,
-	Patrick Mansfield <patmans@us.ibm.com>,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-	James.Bottomley@SteelEye.com, zaitcev@redhat.com
-References: <200408122137.i7CLbGU13688@ra.tuxdriver.com> <20040812225118.GA20904@beaverton.ibm.com> <411BF6A5.2030306@tuxdriver.com>
+	Thu, 12 Aug 2004 19:44:25 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:41873 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S268880AbUHLXoM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 19:44:12 -0400
+Subject: Re: module.viomap support for ppc64
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Hollis Blanchard <hollisb@us.ibm.com>
+Cc: Olaf Hering <olh@suse.de>, Dave Boutcher <boutcher@us.ibm.com>,
+       linuxppc64-dev@lists.linuxppc.org,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1092339278.19137.8.camel@localhost>
+References: <20040812173751.GA30564@suse.de>
+	 <1092339278.19137.8.camel@localhost>
+Content-Type: text/plain
+Message-Id: <1092354195.25196.11.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <411BF6A5.2030306@tuxdriver.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 13 Aug 2004 09:43:15 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 12, 2004 at 07:00:53PM -0400, John W. Linville wrote:
- > Patrick Mansfield wrote:
- > 
- > >We seem to be getting quite a few of these. In theory we could add a line
- > >like this for every multi-lun SCSI device.
- > Isn't that what the quirk list is for?
- > 
- > >Can you instead try booting with scsi_mod.max_luns=8 (or such) or build
- > >with SCSI_MULTI_LUN enabled?
- > 
- > That works for my box, but what about for others?  Like those who may 
- > have both a multi-lun device and a single-lun device that hangs on a 
- > non-zero lun?  What about the average luser who can't be bothered to 
- > hack-up his startup scripts or *gasp* rebuild his kernel?
- > 
- > It seems like the quirk list is there for a reason.  If we start 
- > rejecting certain devices, then what is the criteria for a device to 
- > actually make it on the list?
+On Fri, 2004-08-13 at 05:34, Hollis Blanchard wrote:
+> On Thu, 2004-08-12 at 12:37, Olaf Hering wrote:
+> > Current MODULE_DEVICE_TABLE(vio, $table); defines 2 char pointers. I'm
+> > not sure if depmod can really handle it. Where do they point to in the
+> > module binary? I could find an answer, so far. I just declared an array.
+> 
+> Olaf explained on irc that output_vio_entry() below was finding NULL for
+> the name and compat pointers. Perhaps some additional relocation needs
+> to take place before those can be used?
 
-I hit the same problem when I tried to get James to merge around a half dozen
-or so entries (thats since grown to almost double that).  One possibility
-is to fix this in the USB storage layer. (Assume all USB SCSI devices are
-capable of handling MULTI_LUN without problem).
+1) Please use char arrays of some fixed size.
 
-I believe Pete Zaitcev was writing an alternative usb-storage driver
-that did something along these lines, but I'm not sure of the details.
+2) Please modify scripts/mod/file2alias.c in the kernel source, not the
+module tools.  The modules.XXXmap files are deprecated: device tables
+are supposed to be converted to aliases in the build process, and that
+is how userspace tools like hotplug are to find them.
 
-	Dave
+3) I will still accept patches to module-init-tools if required for 2.4
+compatibility, but they will be going away at some point!
+
+Hope that clarifies!
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269002AbRHQABU>; Thu, 16 Aug 2001 20:01:20 -0400
+	id <S269158AbRHQACk>; Thu, 16 Aug 2001 20:02:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269158AbRHQABK>; Thu, 16 Aug 2001 20:01:10 -0400
-Received: from mail.scsiguy.com ([63.229.232.106]:13840 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S269002AbRHQABF>; Thu, 16 Aug 2001 20:01:05 -0400
-Message-Id: <200108170001.f7H01GI82362@aslan.scsiguy.com>
-To: A.J.Scott@casdn.neu.edu
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.8 aic7xxx -- continuous bus resets 
-In-Reply-To: Your message of "Wed, 15 Aug 2001 16:04:25 EDT."
-             <3B7A9D88.23945.BFC66BE@localhost> 
-Date: Thu, 16 Aug 2001 18:01:16 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S269178AbRHQACa>; Thu, 16 Aug 2001 20:02:30 -0400
+Received: from [209.10.41.242] ([209.10.41.242]:59100 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S269158AbRHQACX>;
+	Thu, 16 Aug 2001 20:02:23 -0400
+Organization: 
+Date: Fri, 17 Aug 2001 02:56:46 +0300 (EET DST)
+From: mythos <papadako@csd.uoc.gr>
+To: <linux-kernel@vger.kernel.org>
+Subject: VIA vt82c686a and second channel
+Message-ID: <Pine.GSO.4.33.0108170253560.624-100000@iridanos.csd.uch.gr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->I thought I'd look at the 2.4.8 kernel while I figure out what's 
->wrong with my 2.2.18 installation. The kernel loading gets stuck with 
->errors from the aic7xxx driver, which keeps timeing out querying the 
->bus looking for non-existant drives, and when it finaly tries to 
->query a drive that exists it claims to see bus errors. End result is 
->that Linux 2.4.8 never mounts any drives or finishes loading.
->
->The system is an IBM 704 with a built in adaptec aic-7880U 
->controller, with two drives on first scsi buss. 
->
->2.2.18 has no problems with the adaptec controllers, but has other 
->issues, which seem to be timer related.
+When I try to enable DMA on the second channel of my controller,I get the
+following message:
+hdc: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hdc: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+hdc: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hdc: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+hdc: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hdc: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+hdc: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hdc: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+hdc: DMA disabled
+ide1: reset: success
+Why is this happening?
+What is the difference between the first channel where DMA works just fine
+and the second one?
+Thanks in advance.
 
-2.4.9 has the latest aic7xxx driver in it.  Can you see if that changes
-things for you?  If not, can you hook up a serial console to the machine
-and provide all of the messages from an aic7xxx=verbose boot?
+		Mythos
 
-Thanks,
-Justin
+

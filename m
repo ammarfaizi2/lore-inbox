@@ -1,14 +1,14 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276743AbRJBWPJ>; Tue, 2 Oct 2001 18:15:09 -0400
+	id <S276738AbRJBWTk>; Tue, 2 Oct 2001 18:19:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276739AbRJBWPB>; Tue, 2 Oct 2001 18:15:01 -0400
-Received: from cs82093.pp.htv.fi ([212.90.82.93]:1920 "EHLO cs82093.pp.htv.fi")
-	by vger.kernel.org with ESMTP id <S276738AbRJBWOw>;
-	Tue, 2 Oct 2001 18:14:52 -0400
-Message-ID: <3BBA3C71.40C3D719@welho.com>
-Date: Wed, 03 Oct 2001 01:15:13 +0300
-From: Mika Liljeberg <Mika.Liljeberg@welho.com>
+	id <S276745AbRJBWTT>; Tue, 2 Oct 2001 18:19:19 -0400
+Received: from maila.telia.com ([194.22.194.231]:23498 "EHLO maila.telia.com")
+	by vger.kernel.org with ESMTP id <S276738AbRJBWTK>;
+	Tue, 2 Oct 2001 18:19:10 -0400
+Message-ID: <3BBA3D74.3452996E@canit.se>
+Date: Wed, 03 Oct 2001 00:19:32 +0200
+From: Kenneth Johansson <ken@canit.se>
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
@@ -23,20 +23,13 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Petr Vandrovec wrote:
 
+>
 > I was not able to find where problem could be with unpatched
 > kernel, but arguments passed to do_brk(), set into mm->start_brk,
 > {start,end}_code and so on looks very suspicious... But as on my
 > system it does not crash neither with nor without patch below, I
 > leave answer on someone else.
 
-Well, your patch does seem to fix it:
+I no longer get the restart but then I also made more than this change to the kernel and tested
+with the new vmlinux image.
 
-$ /usr/src/linux-2.4.10/vmlinux
-Segmentation fault
-$ dmesg
-...
-elf_map error code: -22
-
-Cheers,
-
-	MikaL

@@ -1,62 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262612AbVAEVuT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262618AbVAEVuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262612AbVAEVuT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 16:50:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbVAEVsb
+	id S262618AbVAEVuS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 16:50:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVAEVrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 16:48:31 -0500
-Received: from mail.dif.dk ([193.138.115.101]:17341 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262611AbVAEVqr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 16:46:47 -0500
-Date: Wed, 5 Jan 2005 22:58:07 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] pedantic correctness cleanup for conf.c in scripts/kconfig/
- .
-In-Reply-To: <200501051326.56959.zippel@linux-m68k.org>
-Message-ID: <Pine.LNX.4.61.0501052250550.3492@dragon.hygekrogen.localhost>
-References: <Pine.LNX.4.61.0501040031460.3529@dragon.hygekrogen.localhost>
- <200501051326.56959.zippel@linux-m68k.org>
+	Wed, 5 Jan 2005 16:47:43 -0500
+Received: from mail.portrix.net ([212.202.157.208]:22754 "EHLO
+	zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S262609AbVAEVnb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 16:43:31 -0500
+Message-ID: <41DC5F62.9090006@ppp0.net>
+Date: Wed, 05 Jan 2005 22:42:58 +0100
+From: Jan Dittmer <jdittmer@ppp0.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041124 Thunderbird/0.9 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: mpm@selenic.com
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: ketchup patch for 2.6-ac
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------030105070306090803080301"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jan 2005, Roman Zippel wrote:
+This is a multi-part message in MIME format.
+--------------030105070306090803080301
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-> Hi,
-> 
-> On Tuesday 04 January 2005 00:35, Jesper Juhl wrote:
-> 
-> > @@ -305,8 +305,8 @@ static int conf_choice(struct menu *menu
-> >    printf("%*s%s\n", indent - 1, "", menu_get_prompt(menu));
-> >    def_sym = sym_get_choice_value(sym);
-> >    cnt = def = 0;
-> > -  line[0] = '0';
-> > -  line[1] = 0;
-> > +  line[0] = '\0';
-> > +  line[1] = '\0';
-> >    for (child = menu->list; child; child = child->next) {
-> >     if (!menu_is_visible(child))
-> >      continue;
-> 
-> This would make a difference and even the other change is not an improvement, 
-> 0 is special string marker and not a character.
-> 
-You are right. that bit actually makes a difference, that was not my 
-intention but a silly error. I didn't spot it at the time for some reason 
-and the testing I did didn't show any behavioral differences so it slipped 
-through.
-As to 0 vs \0 I know \0 ("the null character") has the value 0 (zero) so 
-the compiled code will be identical, but using \0 is IMO a good idea to 
-emphazise the character nature of it. But, I don't care greatly, I just 
-saw it and thought "ohh, why 0 and not the null char? Let's fix that up", 
-so I wrote a patch to make that change in case others agreed with me.
+Hi Matt,
 
+attached patch adds support for 2.6-ac releases to ketchup.
 
--- 
-Jesper
+Thanks for the nice tool,
 
+Jan
 
+--------------030105070306090803080301
+Content-Type: text/plain;
+ name="ketchup-ac.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ketchup-ac.patch"
+
+--- ketchup-0.9	2005-01-05 22:14:23.000000000 +0100
++++ ketchup	2005-01-05 22:40:06.000000000 +0100
+@@ -219,6 +219,14 @@
+     part = last(url)
+     return part[:-1]
+ 
++def latest_ac(url, pat):
++    url = kernel_url + '/people/alan/linux-2.6/'
++    url += last(url)
++    for l in urllib.urlopen(url).readlines():
++        m=re.search('(?i)<a href="patch-(.*)\.bz2">', l)
++        if m: n = m.group(1)
++    return n
++
+ def latest_26(url, pat):
+     for l in urllib.urlopen(url).readlines():
+         m = re.search('"LATEST-IS-(.*)"', l)
+@@ -300,6 +308,10 @@
+                kernel_url + "/people/akpm/patches/" +
+                "%(tree)s/%(prebase)s/%(full)s/%(full)s.bz2", "",
+                1, "Andrew Morton's -mm development tree"),
++    '2.6-ac': (latest_ac,
++               kernel_url + "/people/alan/linux-%(tree)s/" +
++               "%(prebase)s/patch-%(full)s.bz2", "",
++               1, "Alan Cox's -ac development tree"),
+     '2.6-tiny': (latest_dir,
+                  "http://www.selenic.com/tiny/%(full)s.patch.bz2",
+                  r'(2.6.*?).patch.bz2',
+
+--------------030105070306090803080301--

@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269991AbRHJTml>; Fri, 10 Aug 2001 15:42:41 -0400
+	id <S269987AbRHJTqv>; Fri, 10 Aug 2001 15:46:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269989AbRHJTmb>; Fri, 10 Aug 2001 15:42:31 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:39012 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S269984AbRHJTmX>; Fri, 10 Aug 2001 15:42:23 -0400
-Date: Fri, 10 Aug 2001 15:42:16 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@touchme.toronto.redhat.com>
-To: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-cc: <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <mike@bigstorage.com>, <kevin@bigstorage.com>
-Subject: Re: [PATCH] 64 bit scsi read/write
-In-Reply-To: <20010726041821.C19238@vestdata.no>
-Message-ID: <Pine.LNX.4.33.0108101541230.5531-100000@touchme.toronto.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S269989AbRHJTql>; Fri, 10 Aug 2001 15:46:41 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:6661 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S269987AbRHJTqf>; Fri, 10 Aug 2001 15:46:35 -0400
+Date: Fri, 10 Aug 2001 15:44:02 -0400
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: safemode <safemode@speakeasy.net>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: kapm-idled shows 90+% cpu usage when idle
+Message-ID: <20010810154402.G1004@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010809233425Z270606-28344+3498@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010809233425Z270606-28344+3498@vger.kernel.org>; from safemode@speakeasy.net on Thu, Aug 09, 2001 at 07:33:42PM -0400
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Jul 2001, Ragnar Kjørstad wrote:
+On Thu, Aug 09, 2001 at 07:33:42PM -0400, safemode wrote:
+> Is this a true usage reading or just some quirk that's supposed to happen?   
 
-> Did you forget something in your patch, or was it not supposed to work
-> on ia32?
->
-> This is kind of urgent, because I will temporarely be without testing
-> equipment pretty soon. Tips are appreciated!
+See http://www.tux.org/lkml/#s14-1
 
-Please try it without a modular kernel.
 
-		-ben
+Erik
 
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

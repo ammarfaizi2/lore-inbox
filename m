@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262690AbTDEWMT (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 17:12:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbTDEWMT (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 17:12:19 -0500
-Received: from node181b.a2000.nl ([62.108.24.27]:31120 "EHLO ddx.a2000.nu")
-	by vger.kernel.org with ESMTP id S262690AbTDEWMS (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Apr 2003 17:12:18 -0500
-Date: Sun, 6 Apr 2003 00:24:12 +0200 (CEST)
-From: Stephan van Hienen <kernel@ddx.a2000.nu>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-Subject: Re: onboard ICH4 seen as ICH3 (ultra100 controller onboard)
- (2.4.20/2.4.21-pre7)
-In-Reply-To: <Pine.LNX.4.10.10304051337470.29290-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.53.0304060006190.18036@ddx.a2000.nu>
-References: <Pine.LNX.4.10.10304051337470.29290-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S262693AbTDEWTI (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 17:19:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTDEWTI (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 17:19:08 -0500
+Received: from [12.47.58.55] ([12.47.58.55]:50063 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S262693AbTDEWTI (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Apr 2003 17:19:08 -0500
+Date: Sat, 5 Apr 2003 14:31:38 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: mbligh@aracnet.com, mingo@elte.hu, hugh@veritas.com, dmccr@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: objrmap and vmtruncate
+Message-Id: <20030405143138.27003289.akpm@digeo.com>
+In-Reply-To: <20030405220621.GG1326@dualathlon.random>
+References: <20030404163154.77f19d9e.akpm@digeo.com>
+	<12880000.1049508832@flay>
+	<20030405024414.GP16293@dualathlon.random>
+	<20030404192401.03292293.akpm@digeo.com>
+	<20030405040614.66511e1e.akpm@digeo.com>
+	<20030405163003.GD1326@dualathlon.random>
+	<20030405132406.437b27d7.akpm@digeo.com>
+	<20030405220621.GG1326@dualathlon.random>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 Apr 2003 22:30:33.0456 (UTC) FILETIME=[F8B3DF00:01C2FBC2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Apr 2003, Andre Hedrick wrote:
-
+Andrea Arcangeli <andrea@suse.de> wrote:
 >
-> NO, since they all use the same timings there is no problem.
-> Intel never made an Ultra 133, and all the timings from PIIX forward build
-> on each other.
-i didn't say anything about u133 ?
-(hdparm -x69 = udma5/u100 ?)
+> I see what you mean, you're right. That's because all the 10,000 vma
+> belongs to the same inode.
 
->
-> There is no bug, except in your BIOS maybe.
-in my bios i didn't select any drives (i thought linux was just bypassing
-bios for disk access ?)
-so why can't i use u100 with the onboard controller ? (which is an u100
-controller)
+I see two problems with objrmap - this search, and the complexity of the
+interworking with nonlinear mappings.
+
+There is talk going around about implementing some more sophisticated search
+structure thatn a linear list.
+
+And treating the nonlinear mappings as being mlocked is a great
+simplification - I'd be interested in Ingo's views on that.
+

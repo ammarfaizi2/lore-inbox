@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267594AbTBEAY4>; Tue, 4 Feb 2003 19:24:56 -0500
+	id <S267621AbTBEA0w>; Tue, 4 Feb 2003 19:26:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267605AbTBEAY4>; Tue, 4 Feb 2003 19:24:56 -0500
-Received: from mgw-dax2.ext.nokia.com ([63.78.179.217]:12940 "EHLO
-	mgw-dax2.ext.nokia.com") by vger.kernel.org with ESMTP
-	id <S267594AbTBEAYz> convert rfc822-to-8bit; Tue, 4 Feb 2003 19:24:55 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-content-class: urn:content-classes:message
+	id <S267639AbTBEA0w>; Tue, 4 Feb 2003 19:26:52 -0500
+Received: from 4-088.ctame701-1.telepar.net.br ([200.193.162.88]:5285 "EHLO
+	4-088.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S267621AbTBEA0v>; Tue, 4 Feb 2003 19:26:51 -0500
+Date: Tue, 4 Feb 2003 22:36:05 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org, "" <tytso@thunk.org>
+Subject: [PATCH][RESEND 3] disassociate_ctty SMP fix
+Message-ID: <Pine.LNX.4.50L.0302042235180.32328-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: Problems with bootimg (wish to be personally CC'ed the answers/comments posted to the list in response to this posting)
-Date: Tue, 4 Feb 2003 16:33:24 -0800
-Message-ID: <4D7B558499107545BB45044C63822DDE0219C291@mvebe001.americas.nokia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Problems with bootimg (wish to be personally CC'ed the answers/comments posted to the list in response to this posting)
-Thread-Index: AcLMrjeET9n8QsZyQvaCK8DcnFisbw==
-From: <Sowmya.Krishnaswamy@nokia.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 05 Feb 2003 00:33:25.0093 (UTC) FILETIME=[31C16950:01C2CCAE]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-We are trying to use bootimg for dual boot: 
+the following patch, against today's BK tree, fixes a small
+SMP race in disassociate_ctty.  This function gets called
+from do_exit, without the BKL held.
 
-# bootimg -f bzImage -n -i ram40.img.gz -v console=ttyS0,115200n8 ramdisk_size=131072 root=/dev/ram
+However, it sets the *tty variable before grabbing the bkl,
+then makes decisions on what the variable was set to before
+the lock was grabbed, despite the fact that another process
+could modify its ->tty pointer in this same function.
 
-bzImage "2.4.17_MVL21CGENOKIA_4-cpi1-lb-arun (abalasub@mvaserg011) #5 SMP Wed Nov 27 17:27:00 PST 2002"
+please apply,
+thank you,
 
-    1439613 bytes (352 pages) 0x4109cc08-0x411fcc07 -> 0x100000-0x25fff
-    16161140 bytes (3946 pages) 0x40131008-0x4109b007 -> 0x8668c-0xff068b
-    4096 bytes (1 page) 0x804b908-0x804c907 -> 0x90000-0x90fff
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 
-Total 4299 pages, start address is 0x100000
 
-Loading Kernel Image vmlinuz
-Running boot code at 0x03011000
+===== drivers/char/tty_io.c 1.50 vs edited =====
+--- 1.50/drivers/char/tty_io.c	Sat Dec  7 16:23:16 2002
++++ edited/drivers/char/tty_io.c	Sat Jan 11 11:37:34 2003
+@@ -571,7 +571,7 @@
+  */
+ void disassociate_ctty(int on_exit)
+ {
+-	struct tty_struct *tty = current->tty;
++	struct tty_struct *tty;
+ 	struct task_struct *p;
+ 	struct list_head *l;
+ 	struct pid *pid;
+@@ -579,6 +579,7 @@
 
-SYSTEM STOPS PRINTING MESSAGES AND HANGS. Has anyone faced a similar problem before. Any Suggestions?
+ 	lock_kernel();
 
-Thanks,
-
-Sowmya  
-
++	tty = current->tty;
+ 	if (tty) {
+ 		tty_pgrp = tty->pgrp;
+ 		if (on_exit && tty->driver.type != TTY_DRIVER_TYPE_PTY)

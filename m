@@ -1,54 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272043AbRIDRyp>; Tue, 4 Sep 2001 13:54:45 -0400
+	id <S272044AbRIDRzZ>; Tue, 4 Sep 2001 13:55:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272034AbRIDRyf>; Tue, 4 Sep 2001 13:54:35 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:2450 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S272043AbRIDRy1>; Tue, 4 Sep 2001 13:54:27 -0400
-Date: Tue, 4 Sep 2001 13:54:27 -0400
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: page_launder() on 2.4.9/10 issue
-Message-ID: <20010904135427.A30503@cs.cmu.edu>
-Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010904131349.B29711@cs.cmu.edu> <Pine.LNX.4.21.0109041253510.2038-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0109041253510.2038-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.20i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+	id <S272034AbRIDRzQ>; Tue, 4 Sep 2001 13:55:16 -0400
+Received: from jive.SoftHome.net ([204.144.231.93]:12007 "EHLO softhome.net")
+	by vger.kernel.org with ESMTP id <S272044AbRIDRzC>;
+	Tue, 4 Sep 2001 13:55:02 -0400
+From: "John L. Males" <jlmales@softhome.net>
+Organization: Toronto, Ontario, Canada
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Tue, 4 Sep 2001 13:54:43 -0500
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re[05]: Question Re AC Patch with VM Tuneable Parms for now
+Reply-to: jlmales@softhome.net
+CC: linux-kernel@vger.kernel.org
+Message-ID: <3B94DD23.23714.3DD82D@localhost>
+In-Reply-To: <3B943CB0.14656.754C73@localhost> from "John L. Males" at Sep 04, 2001 02:30:08 AM
+In-Reply-To: <E15eI05-0003k5-00@the-village.bc.nu>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 04, 2001 at 12:56:32PM -0300, Marcelo Tosatti wrote:
-> On Tue, 4 Sep 2001, Jan Harkes wrote:
-> > One other observation, we should add anonymously allocated memory to the
-> > active-list as soon as they are allocated in do_nopage. At the moment a
-> > large part of memory is not aged at all until we start swapping things
-> > out.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Alan,
+
+Thanks for confirming the VM tuneable parameters are set via the
+/proc.
+
+
+Regards,
+
+John L. Males
+Willowdale, Ontario
+Canada
+04 September 2001 13:54
+mailto:jlmales@softhome.net
+
+
+Subject:        	Re: Question Re AC Patch with VM Tuneable Parms for
+now
+To:             	jlmales@softhome.net
+Date sent:      	Tue, 4 Sep 2001 16:20:29 +0100 (BST)
+Copies to:      	linux-kernel@vger.kernel.org
+From:           	Alan Cox <alan@lxorguk.ukuu.org.uk>
+
+> > Can someone advise me if the "Make several vm behaviours tunable
+> > for now" as of the 2.4.9-ac4 patch are implemented in the kernel
+> > .config file?  If so is there an easy way to carry forward a
+> > 2.4.8 version of
 > 
-> With reverse mappings we can completly remove the "swap_out()" loop logic
-> and age pte's at refill_inactive_scan(). 
+> They are in /proc
 > 
-> All that with anon memory added to the active-list as soon as allocated,
-> of course.
+> > the .config file using "make xconfig" so that I do not have to
+> > set all the setting I have made from scratch?  I get the sense
+> > from the 
 > 
-> Jan, I suggest you to take a look at the reverse mapping code. 
+> Make oldconfig
 
-I'm getting pretty sick and tired of these endless discussion. People
-have been reporting problems and they are pretty much alway met with the
-answer, "it works here, if you can do better send a patch".
 
-Now for the past _9_ stable kernel releases, page aging hasn't worked
-at all!! Nobody seems to even have bothered to check. I send in a patch
-and you basically answer with "Ohh, but we know about that one. Just
-apply patch wizzbangfoo#105 which basically does everything differently".
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 6.5.8 for non-commercial use 
+<http://www.pgp.com>
 
-Yeah I'll have a look at that code, and I'll check what the page ages
-look like when I actually run it (if it doesn't crash the system first).
+iQA/AwUBO5UjbeAqzTDdanI2EQI6NgCg/knbU1jUslN9fghSkX+ATtSjRK8An1qp
+KWVcObgu/BKDkuVkDpTp3rrC
+=+GQB
+-----END PGP SIGNATURE-----
 
-Jan
 
+
+"Boooomer ... Boom Boom, how are you Boom Boom" Boomer 1985 - February/2000

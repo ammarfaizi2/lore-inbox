@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272209AbRH3NLG>; Thu, 30 Aug 2001 09:11:06 -0400
+	id <S272213AbRH3NSH>; Thu, 30 Aug 2001 09:18:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272208AbRH3NK5>; Thu, 30 Aug 2001 09:10:57 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:62728 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S272209AbRH3NKp>; Thu, 30 Aug 2001 09:10:45 -0400
-Message-ID: <3B8E3B0C.DD7032FA@idb.hist.no>
-Date: Thu, 30 Aug 2001 15:09:32 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.10-pre2 i686)
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <200108300956.f7U9u7D16494@wildsau.idv-edu.uni-linz.ac.at>
+	id <S272200AbRH3NR6>; Thu, 30 Aug 2001 09:17:58 -0400
+Received: from t2.redhat.com ([199.183.24.243]:28402 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S272215AbRH3NRn>; Thu, 30 Aug 2001 09:17:43 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <200108301310.f7UDAXx05887@buggy.badula.org> 
+In-Reply-To: <200108301310.f7UDAXx05887@buggy.badula.org> 
+To: Ion Badulescu <ionut@cs.columbia.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 30 Aug 2001 14:17:22 +0100
+Message-ID: <19468.999177442@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Rosmanith wrote:
-> 
-> > Please guys. The issue of sign in comparisons are a LOT more complicated
-> > than most of you seem to think.
-> 
-> as a friend of mine put it on IRC:
->   "Your little brains are not able to grasp the complicated issue of
->   sign in comparisons."
-> 
-> If the problem is compiler-related, shouldn't it be forwared to the
-> gcc-group?
-> 
-C has (complicated) rules for this.  The gcc people can't break them in
-order to
-make it easier for developers to understand.  But you may of course
-try a discussion on comp.lang.c
 
-Helge Hafting
+
+ionut@cs.columbia.edu said:
+> ... unless of course the programmer used an unsigned char when what he
+>  really wanted was a signed char. But in that case even your typed min
+>  macro won't save him, because what should the forced type be anyway?
+> If  it's "int", nothing changes; if it's "signed char", you risk
+> truncating  the int. So you end up with something like
+
+> 	min(int, a, (char)b) 
+
+If the programmer wrote that when he really wanted a signed char, he has 
+more fundamental brokenness to worry about than the min/max fun.
+
+--
+dwmw2
+
+

@@ -1,142 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265618AbUEZPqY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265625AbUEZPt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265618AbUEZPqY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 11:46:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265621AbUEZPqY
+	id S265625AbUEZPt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 11:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265626AbUEZPt0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 11:46:24 -0400
-Received: from 208.177.141.226.ptr.us.xo.net ([208.177.141.226]:18142 "HELO
-	ash.lnxi.com") by vger.kernel.org with SMTP id S265618AbUEZPqU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 11:46:20 -0400
-Subject: abysmal e1000 performance (DITR)
-From: Thayne Harbaugh <tharbaugh@lnxi.com>
-Reply-To: tharbaugh@lnxi.com
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Linux Networx
-Message-Id: <1085585749.30156.1161.camel@tubarao>
+	Wed, 26 May 2004 11:49:26 -0400
+Received: from fw.osdl.org ([65.172.181.6]:60582 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265625AbUEZPtY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 11:49:24 -0400
+Date: Wed, 26 May 2004 08:38:59 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Zenaan Harkness <zen@freedbms.net>
+Cc: debian-devel@lists.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: drivers DB and id/ info registration
+Message-Id: <20040526083859.418e42fa.rddunlap@osdl.org>
+In-Reply-To: <1085573236.2213.77.camel@zen8100a.freedbms.net>
+References: <1085542706.2908.25.camel@zen8100a.freedbms.net>
+	<20040526065447.GA32304@dat.etsit.upm.es>
+	<200405260918.51589@fortytwo.ch>
+	<1085566079.2522.54.camel@zen8100a.freedbms.net>
+	<1085571316.906.3.camel@localhost>
+	<1085573236.2213.77.camel@zen8100a.freedbms.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 26 May 2004 09:35:49 -0600
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The DITR (Dynamic Interrupt Throttle Rate) introduced in the 5.x version
-of the e1000 driver can limit performance to less than 50% of expected.
+On Wed, 26 May 2004 22:07:17 +1000 Zenaan Harkness wrote:
 
-I have two machines with secondary e1000 NICs directly connected (no
-switch).  I run a test using Netpipe
-(http://www.scl.ameslab.gov/netpipe/):
+| On Wed, 2004-05-26 at 21:35, Wouter Verhelst wrote:
+| > Op wo 26-05-2004, om 12:07 schreef Zenaan Harkness:
+| > > I develop widget X.
+| > > 
+| > > I contact microsoft and have X incorporated into windows.
 
-flu2:~ # /tmp/NPtcp -h 10.0.0.1
-Send and receive buffers are 16384 and 87380 bytes
-(A bug in Linux doubles the requested buffer sizes)
-Now starting the main loop
-  0:       1 bytes   4999 times -->      0.03 Mbps in     250.03 usec
-  1:       2 bytes    399 times -->      0.06 Mbps in     250.02 usec
-  2:       3 bytes    399 times -->      0.09 Mbps in     250.02 usec
+I think that most companies do it themselves (or pay to have
+it done) for Windows drivers, if their devices don't fit into
+some well-known interface.
 
-(mostly uninteresting lines)
+For Linux drivers, it means finding the right group/project,
+if it exists...  Could be hard to find at times.
 
- 70:   24573 bytes    121 times -->    380.39 Mbps in     492.85 usec
- 71:   24576 bytes    135 times -->    380.43 Mbps in     492.86 usec
- 72:   24579 bytes    135 times -->    380.49 Mbps in     492.84 usec
- 73:   32765 bytes     67 times -->    341.32 Mbps in     732.39 usec
- 74:   32768 bytes     68 times -->    341.37 Mbps in     732.35 usec
- 75:   32771 bytes     68 times -->    341.41 Mbps in     732.33 usec
- 76:   49149 bytes     68 times -->    437.02 Mbps in     858.04 usec
- 77:   49152 bytes     77 times -->    451.39 Mbps in     830.77 usec
- 78:   49155 bytes     80 times -->    499.57 Mbps in     750.69 usec
+| > Rotfl.
+| 
+| OK, bad assumption.
+| 
+| The only reason I say that is that so many devices work
+| "seamlessly" with MSW*
+| 
+|  - recently I read a review on the X-Arcade retro joystick
+| controllers (those heavy "for cabinets and MAME" things).
+| The reviewer just plugged it in and Windows literally popped
+| up with a dialog telling the "end user recognizable" name of
+| the device.
+| 
+|  - a year or so back, my brother bought a "blue eye" USB
+| external 2.5" HDD (really nice looking thing) and on his
+| XP box it auto added a new drive (E: or whatever). Seamless.
+| 
+| So how come devices tend to just plug and play when
+| used with Windows (USB HDDs, audi cards, logitec gear)?
+| 
+| Will a "visible"/ centralized location where manufacturers
+| can submit info on their devices (for free software kernels)
+| help to get us closer to the "front line" of device support?
 
-That's the best performance, but it drops back down.
+I hear this way too much, for 2 reasons.
 
- 79:   65533 bytes     44 times -->    409.48 Mbps in    1221.00 usec
- 80:   65536 bytes     40 times -->    409.42 Mbps in    1221.24 usec
- 81:   65539 bytes     40 times -->    409.43 Mbps in    1221.28 usec
+(a) You are right, we want to get to that model in Linux.
 
-Not much different.
+(b) The thing that bugs me (I guess) and that people seem to
+overlook again and again is that Linux developers are not
+provided the same access to hardware interface specs that other
+driver developers have.  That leaves reverse engineering or
+trial-and-error (mostly error).  That's an awful way to write
+a driver IMO.  So to me it's just a specs issue, and many
+companies won't or cannot provide product specs (often because
+they don't own the IP inside the product, sometimes because
+they _assume_ that it might aid their competition).
 
-121: 8388605 bytes      3 times -->    379.88 Mbps in  168474.49 usec
-122: 8388608 bytes      3 times -->    411.24 Mbps in  155625.68 usec
-123: 8388611 bytes      3 times -->    395.81 Mbps in  161693.50 usec
-
-And there's the end.
-
-I would expect to see ~900 Mbps performance (in fact, a Broadcom tg3 NIC
-in the same machine gives the expected ~900 Mbps performance).  The
-older, 4.x e1000 series of drivers gives the ~900 Mbps performance as
-expected.  I have traced the abysmal performance to the DITR code.  I
-have added some output to the e1000_main.c:e1000_watchdog() section
-where the Dynamic interrupt is calculated and set.  It's interesting to
-note how the goc (good octet count) and the itr oscillate during the
-netpipe run (ritr is the real ITR setting that is written to the e1000
-ITR register):
-
-goc(18=9+9) dif(0) ritr(1953) DITR = 2000
-goc(0=0+0) dif(0) ritr(488) DITR = 8000
-goc(44=22+22) dif(0) ritr(1953) DITR = 2000
-goc(0=0+0) dif(0) ritr(488) DITR = 8000
-goc(54=27+27) dif(0) ritr(1953) DITR = 2000
-
-(many lines of oscillation and increased activity)
-
-goc(0=0+0) dif(0) ritr(488) DITR = 8000
-goc(10558=5299+5258) dif(41) ritr(1930) DITR = 2023
-goc(0=0+0) dif(0) ritr(488) DITR = 8000
-goc(9996=5228+4768) dif(459) ritr(1717) DITR = 2275
-goc(0=0+0) dif(0) ritr(488) DITR = 8000
-goc(11180=5378+5801) dif(422) ritr(1754) DITR = 2226
-goc(0=0+0) dif(0) ritr(488) DITR = 8000
-goc(10817=5304+5512) dif(208) ritr(1846) DITR = 2115
-
-
-It is very interesting to note that if the 5.x driver is loaded with
-InterruptThrottleRate=8000 (the default setting of the 4.x e1000 drivers
-- which also disables dynamic adjustment of the ITR) then performance is
-~900 Mbps:
-
-119: 6291456 bytes      3 times -->    891.33 Mbps in   53851.83 usec
-120: 6291459 bytes      3 times -->    891.34 Mbps in   53851.35 usec
-121: 8388605 bytes      3 times -->    895.99 Mbps in   71429.49 usec
-122: 8388608 bytes      3 times -->    881.12 Mbps in   72634.50 usec
-123: 8388611 bytes      3 times -->    885.65 Mbps in   72263.48 usec
-
-My assessment for the poor performance using is DITR is that this
-reduces load on the box by limiting interrupts while increasing latency
-to service the packets.  The problem is that this is done irrespective
-of the actual load on the system and thus results in gratuitous latency
-being added.  In other words: why limit the interrupts and reduce the
-load on the system when the system isn't loaded and has nothing better
-to do?  This kills performance on systems that have plenty of horsepower
-to handle their load as well as service interrupts.
-
-It would be nice if DITR considered tho load when calculating the ITR
-setting.  Another possibility is to simply disable DITR by default - set
-ITR to the original 4.x value of 8000 - because DITR is redundant with
-NAPI.  It's likely better to use something generic and well known so
-that people can find and fix load problems rather than something obscure
-that causes no-load problems.
-
---- linux/drivers/net/e1000/e1000_param.c.orig	2004-05-25
-18:05:10.000000000 -0700
-+++ linux/drivers/net/e1000/e1000_param.c	2004-05-25 18:05:26.000000000
--0700
-@@ -224,7 +224,7 @@
- #define MAX_TXABSDELAY            0xFFFF
- #define MIN_TXABSDELAY                 0
- 
--#define DEFAULT_ITR                    1
-+#define DEFAULT_ITR                 8000
- #define MAX_ITR                   100000
- #define MIN_ITR                      100
- 
-
-Maybe the patch would be better with a comment about why DITR is
-disabled by default in favor of NAPI?
-
--- 
-Thayne Harbaugh
-Linux Networx
-
+--
+~Randy

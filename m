@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267311AbTA0WH7>; Mon, 27 Jan 2003 17:07:59 -0500
+	id <S267309AbTA0WJr>; Mon, 27 Jan 2003 17:09:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267309AbTA0WH7>; Mon, 27 Jan 2003 17:07:59 -0500
-Received: from smtp.terra.es ([213.4.129.129]:60134 "EHLO tsmtp9.mail.isp")
-	by vger.kernel.org with ESMTP id <S267311AbTA0WHz>;
-	Mon, 27 Jan 2003 17:07:55 -0500
-Date: Mon, 27 Jan 2003 23:16:27 +0100
-From: Arador <diegocg@teleline.es>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.59-mm5: cpu1 not working
-Message-Id: <20030127231627.2b23e456.diegocg@teleline.es>
-In-Reply-To: <Pine.LNX.3.96.1030127162924.27928C-101000@gatekeeper.tmr.com>
-References: <20030124224836.639ebefa.diegocg@teleline.es>
-	<Pine.LNX.3.96.1030127162924.27928C-101000@gatekeeper.tmr.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S267313AbTA0WJr>; Mon, 27 Jan 2003 17:09:47 -0500
+Received: from [195.208.223.248] ([195.208.223.248]:12928 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S267309AbTA0WIo>; Mon, 27 Jan 2003 17:08:44 -0500
+Date: Tue, 28 Jan 2003 01:17:10 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Martin Mares <mj@ucw.cz>,
+       geert@linux-m68k.org, Richard Henderson <rth@twiddle.net>,
+       "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.5] VGA IO on systems with multiple PCI IO domains
+Message-ID: <20030128011710.A638@localhost.park.msu.ru>
+References: <20030126181326.A799@localhost.park.msu.ru> <20030126214550.GB6873@ucw.cz> <1043624458.2755.37.camel@zion.wanadoo.fr> <20030127094645.GD604@ucw.cz> <20030127134010.C2569@jurassic.park.msu.ru> <1043690104.2756.42.camel@zion.wanadoo.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1043690104.2756.42.camel@zion.wanadoo.fr>; from benh@kernel.crashing.org on Mon, Jan 27, 2003 at 06:55:04PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Jan 2003 16:34:22 -0500 (EST)
-Bill Davidsen <davidsen@tmr.com> wrote:
+On Mon, Jan 27, 2003 at 06:55:04PM +0100, Benjamin Herrenschmidt wrote:
+> Well, your example clearly limits us to one IO space for VGA, which
+> might not be what we want. The problem also exist for some fbdev drivers
+> which might need to tap the VGA IOs of a given PCI card (thus getting
+> access to the "legacy" IOs of the bus the card is on).
 
-> That's the thing I would expect to see if you used 'noapic' and watchdog. 
-> I posted over the weekend that I have been seeing some inobvious results
-> to IPC benchmarking with scombinations of noapic and watchdog, but I
-> didn't snap the interrupts. I'll be happy to add that to my list of stuff
-> to try next weekend, but the box is not a toy during the week, and I would
-> have a five hour round trip drive if a reboot failed, so I'll pass on
-> trying it until I'll in the same room. 
+You are right, I've already realized that. :-)
+The struct pci_bus * arg to legacy_ioport_remap (maybe better
+pci_legacy_ioport_remap) is really good idea, and it's perfectly
+ok to pass NULL in the vgacon case - we are limited to only one
+VGA console anyway.
+After the PCI setup is done, pci_legacy_ioport_remap(pbus, &legacy_resource)
+would solve any problem I can think of, including multiple ISA bridges.
 
-no "noapic" here:
-
-kernel /boot/linux-2.5.59-mm5 root=/dev/hda5 ro vga=0x30a profile=2 nmi_watchdog=1
+Ivan.

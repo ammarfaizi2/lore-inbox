@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285704AbSADX04>; Fri, 4 Jan 2002 18:26:56 -0500
+	id <S285747AbSADX21>; Fri, 4 Jan 2002 18:28:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285709AbSADX0r>; Fri, 4 Jan 2002 18:26:47 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:6917 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S285704AbSADX0j>; Fri, 4 Jan 2002 18:26:39 -0500
-Message-ID: <3C363913.DA9CABCF@zip.com.au>
-Date: Fri, 04 Jan 2002 15:21:55 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-        riel@surriel.com, mjc@kernel.org, bcrl@redhat.com
-Subject: Re: hashed waitqueues
-In-Reply-To: <20020104094049.A10326@holomorphy.com> <3C3635A8.447EE52E@zip.com.au>
-Content-Type: text/plain; charset=us-ascii
+	id <S285828AbSADX2R>; Fri, 4 Jan 2002 18:28:17 -0500
+Received: from smtp1.ndsu.NoDak.edu ([134.129.111.146]:15113 "EHLO
+	smtp1.ndsu.nodak.edu") by vger.kernel.org with ESMTP
+	id <S285747AbSADX2H>; Fri, 4 Jan 2002 18:28:07 -0500
+Subject: Re: PATCH 2.5.2.7: io.h cleanup and userspace nudge
+From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020104191632.GK28621@thune.mrc-home.com>
+In-Reply-To: <200201041831.g04IVAD23320@vindaloo.ras.ucalgary.ca>
+	<Pine.LNX.4.33.0201041940150.20620-100000@Appserv.suse.de>
+	<200201041841.g04IflL23687@vindaloo.ras.ucalgary.ca> 
+	<20020104191632.GK28621@thune.mrc-home.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 04 Jan 2002 17:28:06 -0600
+Message-Id: <1010186893.1424.0.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Fri, 2002-01-04 at 13:16, Mike Castle wrote:
+> On Fri, Jan 04, 2002 at 11:41:47AM -0700, Richard Gooch wrote:
+> > Not if you want a lightweight C library. Such as when running off a CF
+> > card.
 > 
-> > +       /*
-> > +        * Although the default semantics of wake_up() are
-> > +        * to wake all, here the specific function is used
-> > +        * to make it even more explicit that a number of
-> > +        * pages are being waited on here.
-> > +        */
-> > +       if(waitqueue_active(page_waitqueue(page)))
-> > +               wake_up_all(page_waitqueue(page));
-> ...
+> But aren't there better options for a lightweight C library than libc5?
 > 
-> Also, why wake_up_all()?  That will wake all tasks which are sleeping
-> in __lock_page(), even though they've asked for exclusive wakeup
-> semantics.  Will a bare wake_up() here not suffice?
+> At least that would involve using something that's being maintained.
 > 
 
-Doh.  It helps to read the comment.  Suggest that __lock_page()
-be changed to use add_wait_queue().
+Yes indeed, something like this perhaps?
 
--
+http://www.fefe.de/dietlibc/
+
+Regards,
+Reid
+--
+Ignorance of all things is an evil neither terrible nor excessive, nor
+yet the greatest of all; but great cleverness and much learning, if they
+be accompanied by a bad training, are a much greater misfortune. - Plato
+

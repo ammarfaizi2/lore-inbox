@@ -1,42 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267021AbSLXAVl>; Mon, 23 Dec 2002 19:21:41 -0500
+	id <S267022AbSLXAXq>; Mon, 23 Dec 2002 19:23:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267022AbSLXAVl>; Mon, 23 Dec 2002 19:21:41 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:18818 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267021AbSLXAVk>;
-	Mon, 23 Dec 2002 19:21:40 -0500
-Date: Mon, 23 Dec 2002 16:23:51 -0800 (PST)
-Message-Id: <20021223.162351.40761424.davem@redhat.com>
-To: cw@f00f.org
-Cc: kiran@in.ibm.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Convert sockets_in_use to use per_cpu areas
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021224000048.GA14346@tapu.f00f.org>
-References: <20021223190847.G23413@in.ibm.com>
-	<20021223.121632.105420794.davem@redhat.com>
-	<20021224000048.GA14346@tapu.f00f.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S267023AbSLXAXp>; Mon, 23 Dec 2002 19:23:45 -0500
+Received: from vsmtp4.tin.it ([212.216.176.224]:15258 "EHLO smtp4.cp.tin.it")
+	by vger.kernel.org with ESMTP id <S267022AbSLXAXo>;
+	Mon, 23 Dec 2002 19:23:44 -0500
+Message-ID: <3E07AB4D.8030703@tin.it>
+Date: Tue, 24 Dec 2002 01:33:17 +0100
+From: AnonimoVeneziano <voloterreno@tin.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021218 Debian/1.2.1-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: black666@inode.at
+CC: linux-kernel@vger.kernel.org
+Subject: Re: vt8235 fix, hopefully last variant
+References: <20021219112640.A21164@ucw.cz> <200212232242.20382.black666@inode.at> <3E07A5AC.3060201@tin.it> <200212240126.46794.black666@inode.at>
+In-Reply-To: <200212240126.46794.black666@inode.at>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Chris Wedgwood <cw@f00f.org>
-   Date: Mon, 23 Dec 2002 16:00:48 -0800
+Patrick Petermair wrote:
 
-   On Mon, Dec 23, 2002 at 12:16:32PM -0800, David S. Miller wrote:
-   
-   > You have to provide an explicit initializer for DEFINE_PER_CPU
-   > declarations or you break some platforms with older GCC's which
-   > otherwise won't put it into the proper section.
-   
-   I wonder if "some platforms with older GCC's" will ever have these
-   issues resolved...
+>AnonimoVeneziano:
+>
+>  
+>
+>>>What is it exactly that doesn't work? The patching, compiling,
+>>>booting, dma,...?
+>>>
+>>>      
+>>>
+>>The patching .... it said something about HUNKS failed....
+>>    
+>>
+>
+>It's normal that Hunk 1 and 2 fail... Hunk 3 is the important one. So 
+>you can compile the kernel even with Hunks 1&2 failing.
+>
+>Quote from Vojtech:
+>-----
+>
+>  
+>
+>>I tried the last patch, but it didn't work - I got Hunk messages:
+>>
+>>starbase:/usr/src/linux-2.4.20# patch -p1 < vt8235-atapi 
+>>patching file drivers/ide/via82cxxx.c
+>>Hunk #1 FAILED at 1.
+>>Hunk #2 FAILED at 141.
+>>Hunk #3 succeeded at 283 (offset -57 lines).
+>>2 out of 3 hunks FAILED -- saving rejects to file 
+>>starbase:/usr/src/linux-2.4.20# 
+>>    
+>>
+>
+>Since they're in comments only, you can ignore them.
+>
+>-----
+>
+>Patrick
+>
+>
+>  
+>
+Ah, ok, thank you very much, tomorrow I'll try to compile.I've tried to 
+compile the patch vt8235-min (with 2 hunks failed) but It wasn't work. 
+With vt8235-atapi I haven't tried at all when I've saw the failed hunks. 
+I haven't compile.
 
-I still don't have gcc-3.2.1 working properly on sparc64.
+Thank you
 
-I hope to have it working soon, but this does mean that 2.6.x
-cannot deprecate it, whereas 2.7.x certainly can.
+Bye
+
+Marcello
+

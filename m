@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270992AbRIFOfx>; Thu, 6 Sep 2001 10:35:53 -0400
+	id <S271006AbRIFOsO>; Thu, 6 Sep 2001 10:48:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270999AbRIFOfm>; Thu, 6 Sep 2001 10:35:42 -0400
-Received: from va.flyingbuttmonkeys.com ([207.198.61.36]:26571 "EHLO
-	va.flyingbuttmonkeys.com") by vger.kernel.org with ESMTP
-	id <S270992AbRIFOfd>; Thu, 6 Sep 2001 10:35:33 -0400
-Message-ID: <002b01c136e1$3bb36a80$81d4870a@cartman>
-Reply-To: "Michael Rothwell" <rothwell@holly-springs.nc.us>
-From: "Michael Rothwell" <rothwell@holly-springs.nc.us>
-To: <linux-kernel@vger.kernel.org>
-Subject: nfs is stupid ("getfh failed")
-Date: Thu, 6 Sep 2001 10:35:53 -0400
-Organization: Holly Springs, NC
+	id <S271018AbRIFOsF>; Thu, 6 Sep 2001 10:48:05 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25871 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271006AbRIFOrp>; Thu, 6 Sep 2001 10:47:45 -0400
+Subject: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
+To: wietse@porcupine.org (Wietse Venema)
+Date: Thu, 6 Sep 2001 15:51:38 +0100 (BST)
+Cc: saw@saw.sw.com.sg (Andrey Savochkin), ak@suse.de (Andi Kleen),
+        matthias.andree@stud.uni-dortmund.de (Matthias Andree),
+        linux-kernel@vger.kernel.org, wietse@porcupine.org (Wietse Venema)
+In-Reply-To: <20010906140444.75DC1BC06C@spike.porcupine.org> from "Wietse Venema" at Sep 06, 2001 10:04:44 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Message-Id: <E15f0VG-0008Et-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Two systems that worked fine for weeks, both running 2.4.[7,8] kernels. The
-server is running 2.4.8 and exporting a reiserfs filesystem via nfs. Or it
-was, anyway. The server was shut down and brought back up (power failure).
-The client was then
-rebooted.
+> > > Even if it checked the address it would not be unique because you can have multiple
+> > > interfaces with the same addresses but different netmasks.
+> 
+> The same IP address with different netmasks on the same hardware
+> interface? The mind boggles. How does one handle broadcasts?
 
-server# cat /etc/exports
-/export 192.168.1.*(rw,no_root_squash)
-/export/home 192.168.1.*(rw,no_root_squash)
+Same as before. You have two for a single IP address/netmask
+(255.255.255.255 and the local one). You have another per address/mask pair
+you add.
 
-client# mount /export
-mount: 192.168.1.1:/export failed, reason given by server: Permission denied
-
-server# tail /var/log/messages
-Sep  6 09:37:43 gateway rpc.mountd: authenticated mount request from
-192.168.1.133:933 for /export (/export)
-Sep  6 09:37:43 gateway rpc.mountd: getfh failed: Operation not permitted
-
-... so,  rebooting two working systems seems to kill NFS. Any ideas why?
-
-On a related topic, will Linux ever have a better file-service protocol?
-
-
-
-
+The application supplies a target broadcast address so there isnt any real
+problem

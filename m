@@ -1,33 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288321AbSACV1Z>; Thu, 3 Jan 2002 16:27:25 -0500
+	id <S288258AbSACV3P>; Thu, 3 Jan 2002 16:29:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288308AbSACV1P>; Thu, 3 Jan 2002 16:27:15 -0500
-Received: from ns.suse.de ([213.95.15.193]:59150 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S288325AbSACV07>;
-	Thu, 3 Jan 2002 16:26:59 -0500
-Date: Thu, 3 Jan 2002 22:26:55 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Lionel Bouton <Lionel.Bouton@free.fr>
-Cc: <cs@zip.com.au>, Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-In-Reply-To: <3C34C9D4.4030705@free.fr>
-Message-ID: <Pine.LNX.4.33.0201032225130.13260-100000@Appserv.suse.de>
+	id <S288308AbSACV3H>; Thu, 3 Jan 2002 16:29:07 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:17926 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S288258AbSACV2r>; Thu, 3 Jan 2002 16:28:47 -0500
+Message-ID: <3C34CC02.31848E01@zip.com.au>
+Date: Thu, 03 Jan 2002 13:24:18 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: =?iso-8859-1?Q?Jos=E9?= Luis Domingo =?iso-8859-1?Q?L=F3pez?= 
+	<jdomingo@internautas.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Suspected bug in shrink_caches()
+In-Reply-To: <200201030538.g035ceM31957@mysql.sashanet.com>,
+		<200201030538.g035ceM31957@mysql.sashanet.com> <20020103184609.GA3890@localhost>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jan 2002, Lionel Bouton wrote:
+José Luis Domingo López wrote:
+> 
+> On Wednesday, 02 January 2002, at 22:38:40 -0700,
+> Sasha Pachev wrote:
+> 
+> > I am quite sure there is still a bug in shrink_caches(), at least there was
+> > one in 2.4.17-rc2. I have not tried later releases, but there is nothing in
+> > the changelog about the fixes anywhere near that area of the code, so I have
+> > to assume the problem is still there.
+> > [...]
+> > When we get to the point where free memory starts running low, even though we
+> > may have something like 100 MB of cache, shrink_caches() fails to free up
+> > enough memory, which triggers the evil oom killer. Obviously, in the above
+> > situation the correct behaviour is to go on cache diet before considering the
+> > murders.
+> >
+> I can confirm this behaviour in my own machine. 128 MB of RAM, swap
+> space turned off, machine running KDE 2.2.x, Konqueror, rxvt's, gkrellm,
+> xmms and some daemons, and mighty Mozilla :). At this point there are
+> still a couple of MB free, a couple buffered and aproximately 40 MB
+> in caches.
 
-> > Further, binaries which grovel in /dev/kmem tend to have to be kept in sync
-> > with the kernel;
-> Read dmidecode.c, it's an exception.
+The current VM gets really unhappy when you push it hard if there's no
+swap available.
 
-Not really. acpidmp, dump_pirq, sbf, mgainfo.. the list goes on.
-The original statement above is nonsense.
+> ...
+> 
+> Maybe unrelated, maybe not, is the fact that in 2.4.17 I still see short
+> "freezes" in interactive response after doing intensive disk access
+> (untarring something, finishing some dd'ing, rebuilding Debian package
+> database, etc.). Both on medium-end hardware (128 MB RAM, PIII 600) and
+> low-end hardware (64 MB RAM, P166). Vanilla 2.4.17 on both, with ext2 as
+> the only filesystem used in mounted partitions.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Please test
+http://www.zip.com.au/~akpm/linux/2.4/2.4.18-pre1/read-latency2.patch
 
+-

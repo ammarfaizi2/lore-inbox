@@ -1,65 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270418AbTGSACt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 20:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270432AbTGSACt
+	id S270433AbTGSAGh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 20:06:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270435AbTGSAGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 20:02:49 -0400
-Received: from cpt-dial-196-30-178-11.mweb.co.za ([196.30.178.11]:52608 "EHLO
-	nosferatu.lan") by vger.kernel.org with ESMTP id S270418AbTGSACs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 20:02:48 -0400
-Subject: Re: 2.6.0 BK snapshots
-From: Martin Schlemmer <azarah@gentoo.org>
-Reply-To: azarah@gentoo.org
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: KML <linux-kernel@vger.kernel.org>, torvalds@osdl.org
-In-Reply-To: <20030718160551.GC27152@gtf.org>
-References: <1058542891.1164.1602.camel@workshop.saharacpt.lan>
-	 <20030718160551.GC27152@gtf.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-C2c1Hoc0eflGAECkpE/G"
-Message-Id: <1058573885.1834.3.camel@nosferatu.lan>
+	Fri, 18 Jul 2003 20:06:36 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:16851 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S270433AbTGSAGf convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 20:06:35 -0400
+Date: Fri, 18 Jul 2003 20:21:31 -0400
+From: Tom Vier <tmv@comcast.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.22-pre7
+Message-ID: <20030719002131.GA5924@zero>
+Reply-To: Tom Vier <tmv@comcast.net>
+References: <Pine.LNX.4.55L.0307181649290.29493@freak.distro.conectiva>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 19 Jul 2003 02:18:05 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <Pine.LNX.4.55L.0307181649290.29493@freak.distro.conectiva>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+on alpha:
 
---=-C2c1Hoc0eflGAECkpE/G
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+gcc -D__KERNEL__ -I/src/build/linux-2.4.22-pre7-part-build/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-fomit-frame-pointer -pipe -mno-fp-regs -ffixed-8 -mcpu=ev67 -Wa,-mev6
+-nostdinc -iwithprefix include -DKBUILD_BASENAME=api  -DEXPORT_SYMTAB -c
+api.c
+In file included from api.c:21:
+internal.h:19:28: asm/kmap_types.h: No such file or directory
+In file included from api.c:21:
+internal.h:24: error: return type is an incomplete type
+internal.h: In function rypto_kmap_type':
+internal.h:25: error: invalid use of undefined type num km_type'
+internal.h:25: warning: eturn' with a value, in function returning void
 
-On Fri, 2003-07-18 at 18:05, Jeff Garzik wrote:
-> On Fri, Jul 18, 2003 at 05:41:32PM +0200, Martin Schlemmer wrote:
-> > Any chance that we will see BK snapshots of 2.6 soon ?
-> > Missing the second day kernel recompile =3D)
->=20
-> I know, I know...  ;-)
->=20
-> Suffixes ("-testN") break my snapshot process.  Should be fixed
-> sometime today...
-
-Thanks =3D)
-
---=20
-
-Martin Schlemmer
-
-
-
-
---=-C2c1Hoc0eflGAECkpE/G
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/GI48qburzKaJYLYRAs/GAJ9bw/sGzBGYeVS/prlOK1n9OeAvMQCeM7gF
-sOWRmkZSGwQJ1kcebPt7y90=
-=fqBt
------END PGP SIGNATURE-----
-
---=-C2c1Hoc0eflGAECkpE/G--
-
+-- 
+Tom Vier <tmv@comcast.net>
+DSA Key ID 0xE6CB97DA

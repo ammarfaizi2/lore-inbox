@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132444AbQK0CTK>; Sun, 26 Nov 2000 21:19:10 -0500
+        id <S135291AbQK0CUK>; Sun, 26 Nov 2000 21:20:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S135291AbQK0CTA>; Sun, 26 Nov 2000 21:19:00 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:58640 "EHLO
+        id <S135347AbQK0CTu>; Sun, 26 Nov 2000 21:19:50 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:59152 "EHLO
         vger.timpanogas.org") by vger.kernel.org with ESMTP
-        id <S132444AbQK0CSy>; Sun, 26 Nov 2000 21:18:54 -0500
-Date: Sun, 26 Nov 2000 19:45:43 -0700
+        id <S135345AbQK0CTq>; Sun, 26 Nov 2000 21:19:46 -0500
+Date: Sun, 26 Nov 2000 19:46:43 -0700
 From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: initdata for modules?
-Message-ID: <20001126194543.D2265@vger.timpanogas.org>
-In-Reply-To: <20001126170135.A1787@vger.timpanogas.org> <1887.975282334@kao2.melbourne.sgi.com>
+To: David Ford <david@linux.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] modutils 2.3.20 and beyond
+Message-ID: <20001126194643.E2265@vger.timpanogas.org>
+In-Reply-To: <20001126163655.A1637@vger.timpanogas.org> <E140AZB-0002Qh-00@the-village.bc.nu> <20001126164556.B1665@vger.timpanogas.org> <3A21968B.5CDB12BF@haque.net> <20001126170334.B1787@vger.timpanogas.org> <3A21A7D9.9CE7077B@linux.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <1887.975282334@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Mon, Nov 27, 2000 at 10:45:34AM +1100
+In-Reply-To: <3A21A7D9.9CE7077B@linux.com>; from david@linux.com on Sun, Nov 26, 2000 at 04:16:26PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2000 at 10:45:34AM +1100, Keith Owens wrote:
-> On Sun, 26 Nov 2000 17:01:35 -0700, 
-> "Jeff V. Merkey" <jmerkey@vger.timpanogas.org> wrote:
-> >insmod ppp_deflate (should trigger load of all these modules).  I 
-> >know it's works this way if there's a modules.dep file laying 
-> >around, but it would be nice for it to work this way without 
-> >needing the external text file.
+On Sun, Nov 26, 2000 at 04:16:26PM -0800, David Ford wrote:
+> "Jeff V. Merkey" wrote:
 > 
-> There is a clean split between modprobe and insmod, modprobe is the
-> high level command that does all the fancy checking for inter module
-> dependencies, handling aliases and extracting options from
-> modules.conf.  insmod is the low level command that does exactly what
-> you tell it to do, no more, no less.  The only smarts that insmod has
-> is the ability to take a module name without '/' and find it using the
-> patchs in modules.conf.  That split between high and low level commands
-> is too useful to contaminate.
+> > On Sun, Nov 26, 2000 at 06:02:35PM -0500, Mohammad A. Haque wrote:
+> > > I'd rather have Anaconda changed rather than special casing standard
+> > > utils to account for distro handling.
+> >
+> > Great.  Then tell RedHat to rewrite it without the need for these switches.
+> > They will say NO.  It's a trivial change, and would save me a lot of hours
+> > rewriting scripts.  I did it once, but if RedHat has standardized on this
+> > set of switches, why not add them as alias commands?  It's a trivial
+> > patch.
 > 
-> modules.conf already supports "above" and "below" commands for
-> non-standard dependencies.  The problem of not having a module.dep on
-> the first boot of a new kernel was addressed in kernel 2.4.0-test5 or
-> thereabouts, make modules_install runs depmod to build modules.dep
-> ready for the first boot.
+> Then let RedHat maintain their version of modutils.  RedHat isn't the
+> standard, nor should RedHat dictate to authors, nor should other distributions
+> and persons be affected by RedHat's methods.
+> 
+> If you don't like it, replace your depmod with a script that strips that flag
+> before calling the original depmod.
 
-
-Good.  I am glad this is being addressed.
+Anaconda is open sourced, so it's not technically tied to any one 
+distributor any more....
 
 Jeff
+
+> 
+> -d
+> 
+
+Content-Description: Card for David Ford
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

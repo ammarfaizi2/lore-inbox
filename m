@@ -1,82 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267928AbUJJAla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267934AbUJJAmU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267928AbUJJAla (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 20:41:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267934AbUJJAla
+	id S267934AbUJJAmU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 20:42:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267935AbUJJAmU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 20:41:30 -0400
-Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:56055 "EHLO
-	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S267928AbUJJAl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 20:41:27 -0400
-From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] ide-dma blacklist behaviour broken
-Date: Sun, 10 Oct 2004 02:42:39 +0200
-User-Agent: KMail/1.6.2
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20041005142001.GR2433@suse.de>
-In-Reply-To: <20041005142001.GR2433@suse.de>
-MIME-Version: 1.0
+	Sat, 9 Oct 2004 20:42:20 -0400
+Received: from sa8.bezeqint.net ([192.115.104.22]:10644 "EHLO sa8.bezeqint.net")
+	by vger.kernel.org with ESMTP id S267934AbUJJAmM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 20:42:12 -0400
+Date: Sun, 10 Oct 2004 02:43:16 +0200
+From: Micha Feigin <michf@post.tau.ac.il>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+Message-ID: <20041010004316.GK3165@luna.mooo.com>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
+References: <41677E4D.1030403@mvista.com> <yw1xk6u0hw2m.fsf@mru.ath.cx> <1097356829.1363.7.camel@krustophenia.net> <yw1xis9ja82z.fsf@mru.ath.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410100242.39249.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <yw1xis9ja82z.fsf@mru.ath.cx>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-[ linux-ide MIA ]
-
-On Tuesday 05 October 2004 16:20, Jens Axboe wrote:
-> Hi,
+On Sat, Oct 09, 2004 at 11:35:16PM +0200, M?ns Rullg?rd wrote:
+> Lee Revell <rlrevell@joe-job.com> writes:
 > 
-> The blacklist stuff is broken. When set_using_dma() calls into
-> ide_dma_check(), it returns ide_dma_off() for a blacklisted drive. This
-> of course succeeds, returning success to the caller of ide_dma_check().
-> Not so good... It then uncondtionally calls ide_dma_on(), which turns on
-> dma for the drive.
+> > On Sat, 2004-10-09 at 09:15, M?ns Rullg?rd wrote:
+> >> I got this thing to build by adding a few EXPORT_SYMBOL, patch below.
+> >> Now it seems to be running quite well.  I am, however, getting
+> >> occasional "bad: scheduling while atomic!" messages, all alike:
+> >> 
+> >
+> > I am getting the same message.   Also, leaving all the default debug
+> > options on, I got this debug output, but it did not coincide with the
+> > "bad" messages.
+> >
+> > Mtx: dd84e644 [773] pri (0) inherit from [3] pri(92)
+> > Mtx dd84e644 task [773] pri (92) restored pri(0). Next owner [3] pri (92)
+> > Mtx: dd84e644 [773] pri (0) inherit from [3] pri(92)
+> > Mtx dd84e644 task [773] pri (92) restored pri(0). Next owner [3] pri (92)
+> > Mtx: dd84e644 [773] pri (0) inherit from [3] pri(92)
+> > Mtx dd84e644 task [773] pri (92) restored pri(0). Next owner [3] pri (92)
+> 
+> Well, those don't give me any clues.
+> 
+> I had the system running that kernel for a bit over an hour and got
+> five of the "bad" messages, approximately evenly spaced in a
+> two-minute interval about 20 minutes after boot.
+> 
+> I did notice one improvement compared to vanilla 2.6.8.1.  The sound
+> didn't skip when I switched from X to a text console.  However, my
+> keyboard no longer worked in X, but that seems to be due to some
+> recent changes to the input subsystem.
 
-- s/ide_dma_check/->ide_dma_check/
-- s/ide_dma_off/__ide_dma_off/
+There was some change in 2.6.9-pre-something that cause the mouse and
+keyboard to exchange event interfaces between them, if it interests you.
 
-> This moves the check to ide_dma_on() so we also catch the buggy
-> ->ide_dma_check() defined by various chipset drivers.
-
-Yep, good catch.
-
-> --- drivers/ide/ide-dma.c~	2004-10-05 16:11:49.631910586 +0200
-> +++ drivers/ide/ide-dma.c	2004-10-05 16:21:58.828330845 +0200
-> @@ -354,11 +355,13 @@
->  	struct hd_driveid *id = drive->id;
->  	ide_hwif_t *hwif = HWIF(drive);
+> 
+> Did you build it with our without my patch, BTW?
+> 
+> -- 
+> M?ns Rullg?rd
+> mru@mru.ath.cx
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 >  
-> -	if ((id->capability & 1) && hwif->autodma) {
-> -		/* Consult the list of known "bad" drives */
-> -		if (__ide_dma_bad_drive(drive))
-> -			return __ide_dma_off(drive);
-> +	/* Consult the list of known "bad" drives */
-> +	if (__ide_dma_bad_drive(drive)) {
-> +		__ide_dma_off(drive);
-> +		return 1;
-> +	}
->  
-> +	if ((id->capability & 1) && hwif->autodma) {
->  		/*
->  		 * Enable DMA on any drive that has
->  		 * UltraDMA (mode 0/1/2/3/4/5/6) enabled
-
-Is __ide_dma_bad_drive() check still needed?
-Doesn't __ide_dma_on() fix handle this now?
-
-> @@ -512,6 +515,9 @@
->   
->  int __ide_dma_on (ide_drive_t *drive)
->  {
-> +	if (__ide_dma_bad_drive(drive))
-> +		return 1;
-> +
->  	drive->using_dma = 1;
->  	ide_toggle_bounce(drive, 1);
->  
+>  +++++++++++++++++++++++++++++++++++++++++++
+>  This Mail Was Scanned By Mail-seCure System
+>  at the Tel-Aviv University CC.
+> 

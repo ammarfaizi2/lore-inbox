@@ -1,83 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130062AbRCAWdw>; Thu, 1 Mar 2001 17:33:52 -0500
+	id <S130063AbRCAWeC>; Thu, 1 Mar 2001 17:34:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130064AbRCAWdn>; Thu, 1 Mar 2001 17:33:43 -0500
-Received: from unthought.net ([212.97.129.24]:39656 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S130062AbRCAWda>;
-	Thu, 1 Mar 2001 17:33:30 -0500
-Date: Thu, 1 Mar 2001 23:33:28 +0100
-From: Jakob ÿstergaard <jakob@unthought.net>
-To: Fernando Fuganti <fuganti@conectiva.com.br>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: ZF MachZ Watchdog driver
-Message-ID: <20010301233328.A11851@unthought.net>
-Mail-Followup-To: Jakob ÿstergaard <jakob@unthought.net>,
-	Fernando Fuganti <fuganti@conectiva.com.br>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <Pine.LNX.4.21.0103011924480.991-200000@ze.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.21.0103011924480.991-200000@ze.distro.conectiva>; from fuganti@conectiva.com.br on Thu, Mar 01, 2001 at 07:37:46PM -0300
+	id <S130064AbRCAWdx>; Thu, 1 Mar 2001 17:33:53 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:55027 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130063AbRCAWdq>; Thu, 1 Mar 2001 17:33:46 -0500
+Date: Thu, 1 Mar 2001 19:31:45 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-mm@kvack.org>, Xos… V·zquez <xose@smi-ps.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH] oom-killer trigger
+Message-ID: <Pine.LNX.4.33.0103011904140.1304-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 01, 2001 at 07:37:46PM -0300, Fernando Fuganti wrote:
-> 
-> Hi !
-> 
-> This is the driver for the builtin watchdog device on the embedded MachZ
-> processor made by ZFmicro. The patch is against 2.2.19pre16 and the
-> driver is based on sbc60xxwdt.c. 
-> 
+Hi,
 
-I have a user-space daemon for driving the watchdog.  I see it uses the
-same user-space interface as sbc60xxwdt.c, except it can't be disabled :)
+the OOM killer in Linux 2.4 has a rather embarrasing bug.
 
-Did you write one too ?
+1. the OOM killer never triggers if we have > freepages.min
+   of free memory
+2. __alloc_pages() never allocates pages to < freepages.min
+   for user allocations
 
-Should we find somewhere to actually publish these watchdog-daemons ?
+==> the OOM killer never gets triggered under some workloads;
+    the system just sits around with nr_free_pages == freepages.min
 
-Or have I completely missed that there already is a place for these
-daemons, and that there already exist publicly available daemons for
-driving the sbc60xxwdt and ZFmicro ?
+The patch below trivially fixes this by upping the OOM kill limit
+by a really small number of pages ...
 
-Btw. Alan, the documentation somehow got lost to the sbc60xxwdc driver
-when you so kindly converted it to 2.4  -  it's here below  :)
+Now lets hope it won't trigger too early (but since it'll only
+trigger when we're completely out of swap, etc...).
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob ÿstergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 
 
-diff -Nru linux/Documentation/Configure.help linux.loaded/Documentation/Configure.help
---- linux/Documentation/Configure.help	Wed Apr 26 20:03:13 2000
-+++ linux.loaded/Documentation/Configure.help	Wed Apr 26 19:31:41 2000
-@@ -9371,6 +9371,18 @@
-   module, say M here and read Documentation/modules.txt. Most people
-   will say N.
- 
-+SBC-60XX Watchdog Timer
-+CONFIG_60XX_WDT
-+ This driver can be used with the watchdog timer found on some
-+ single board computers, namely the 6010 PII based computer.
-+ It may well work with other cards.  It reads port 0x443 to enable
-+ and re-set the watchdog timer, and reads port 0x45 to disable
-+ the watchdog.  If you have a card that behave in similar ways,
-+ you can probably make this driver work with your card as well.
-+
-+ You can compile this driver directly into the kernel, or use
-+ it as a module.  The module will be called sbc60xxwdt.o.
-+
- Enhanced Real Time Clock Support
- CONFIG_RTC
-   If you say Y here and create a character special file /dev/rtc with
+--- mm/oom_kill.c.orig	Thu Mar  1 18:57:11 2001
++++ mm/oom_kill.c	Thu Mar  1 18:58:23 2001
+@@ -188,13 +188,17 @@
+  *
+  * Returns 0 if there is still enough memory left,
+  * 1 when we are out of memory (otherwise).
++ *
++ * Note that since __alloc_pages() never lets user
++ * allocations go below freepages.min, we have to
++ * use a slightly higher threshold here...
+  */
+ int out_of_memory(void)
+ {
+ 	struct sysinfo swp_info;
+
+ 	/* Enough free memory?  Not OOM. */
+-	if (nr_free_pages() > freepages.min)
++	if (nr_free_pages() > freepages.min + 4)
+ 		return 0;
+
+ 	if (nr_free_pages() + nr_inactive_clean_pages() > freepages.low)
+

@@ -1,75 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264931AbSJVUqz>; Tue, 22 Oct 2002 16:46:55 -0400
+	id <S264994AbSJVUt6>; Tue, 22 Oct 2002 16:49:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264929AbSJVUqz>; Tue, 22 Oct 2002 16:46:55 -0400
-Received: from mail-3.tiscali.it ([195.130.225.149]:51907 "EHLO
-	mail.tiscali.it") by vger.kernel.org with ESMTP id <S264986AbSJVUqx> convert rfc822-to-8bit;
-	Tue, 22 Oct 2002 16:46:53 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Emilio Gargiulo <emilio.gargiulo@infinito.it>
-To: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: [patch] 2.4 raid shutdown issue
-Date: Tue, 22 Oct 2002 22:51:24 +0200
-User-Agent: KMail/1.4.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210222251.24380.emilio.gargiulo@infinito.it>
+	id <S264995AbSJVUt6>; Tue, 22 Oct 2002 16:49:58 -0400
+Received: from trillium-hollow.org ([209.180.166.89]:40078 "EHLO
+	trillium-hollow.org") by vger.kernel.org with ESMTP
+	id <S264994AbSJVUt5>; Tue, 22 Oct 2002 16:49:57 -0400
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: I386 cli 
+In-Reply-To: Your message of "Tue, 22 Oct 2002 22:46:44 +0200."
+             <20021022224644.A25463@ucw.cz> 
+Date: Tue, 22 Oct 2002 13:55:49 -0700
+From: erich@uruk.org
+Message-Id: <E184645-0002hK-00@trillium-hollow.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel 2.4.19
-I've found a minor problem with software RAID during linux shutdown.
-If the raid device contains a filesystem, and the filesystem wasn't dismounted 
-at shutdown time, the RAID device will not shutdown properly, and at next 
-reboot it'll need a resync.
-This happens when:
-- I have the root filesystem on a RAID1 device
-- The RAID isn't compiled as module
-- The RAID partition id is 0xfd (linux raid autodetect)
-So I wrote this kernel patch forcing read-only mode for every RAID device, 
-before shutdown.
-This is my first kernel patch, so, maybe, there could be a cleaner way to 
-resolve this issue; please, let me know your opinion on it.
 
-*****************
+Vojtech Pavlik <vojtech@suse.cz> wrote:
 
---- linux/drivers/md/md.c.orig	2002-10-13 21:37:34.000000000 +0200
-+++ linux/drivers/md/md.c	2002-10-13 23:55:15.000000000 +0200
-@@ -1794,9 +1794,15 @@
- 	int err = 0, resync_interrupted = 0;
- 	kdev_t dev = mddev_to_kdev(mddev);
- 
--	if (atomic_read(&mddev->active)>1) {
--		printk(STILL_IN_USE, mdidx(mddev));
--		OUT(-EBUSY);
-+	if (ro < 3 ) {
-+		if (atomic_read(&mddev->active)>1) {
-+			printk(STILL_IN_USE, mdidx(mddev));
-+			OUT(-EBUSY);
-+		}
-+	} else {
-+		if (atomic_read(&mddev->active)>1) {
-+			printk("md: md%d forcing to read-only mode\n", mdidx(mddev));
-+		}
- 	}
- 
- 	if (mddev->pers) {
-@@ -3608,7 +3614,7 @@
- 		printk(KERN_INFO "md: stopping all md devices.\n");
- 
- 		ITERATE_MDDEV(mddev,tmp)
--			do_md_stop (mddev, 1);
-+			do_md_stop (mddev, 3);
- 		/*
- 		 * certain more exotic SCSI devices are known to be
- 		 * volatile wrt too early system reboots. While the
+...
+> > I'm sure there is no definition because "cli" is the native assembler
+> > instruction on x86.
+> 
+> Wrong reason. Furthermore, cli(), meaning 'global interrupt disable,
+> across all processors', is not doable with a single instruction anyway.
+> It's not defined, because it should not be used - usually the usage of
+> cli() means a bug.
 
+Yeah, I noticed I made a thinko here by not looking at the file itself,
+and assuming it was just a direct assembler hack...  essentially the
+C-level variant of what is called in most OSes "splhi/spllo" rather
+than "cli/sti", probably because that was how it was originally
+used.
 
+Good that it's finally getting purged.
 
-
-*****************
-
-Thanks
-Emilio Gargiulo 
+--
+    Erich Stefan Boleyn     <erich@uruk.org>     http://www.uruk.org/
+"Reality is truly stranger than fiction; Probably why fiction is so popular"

@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269193AbUJKT3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269203AbUJKTjQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269193AbUJKT3q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 15:29:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269198AbUJKT3q
+	id S269203AbUJKTjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 15:39:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269205AbUJKTjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 15:29:46 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:34713 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S269193AbUJKT3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 15:29:45 -0400
-Subject: Re: Linux 2.6.9-rc4 - pls test (and no more patches)
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Andre Tomt <andre@tomt.net>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <416ACF5E.80407@tomt.net>
-References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>	<416A53D3.9020002@tomt.ne
-	t> 	<Pine.LNX.4.58.0410110758500.3897@ppc970.osdl.org>
-	<1097507381.2029.40.camel@mulgrave>  <416ACF5E.80407@tomt.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 11 Oct 2004 14:29:27 -0500
-Message-Id: <1097522974.2029.161.camel@mulgrave>
-Mime-Version: 1.0
+	Mon, 11 Oct 2004 15:39:16 -0400
+Received: from nemesis.nephthys.org ([82.67.27.49]:59594 "EHLO
+	mx1.nephthys.org") by vger.kernel.org with ESMTP id S269203AbUJKTjP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 15:39:15 -0400
+From: Glennie Vignarajah <glenny@nephthys.org>
+Organization: Nephthys
+To: linux-kernel@vger.kernel.org
+Subject: Re: possible GPL violation by Free
+Date: Mon, 11 Oct 2004 21:39:09 +0200
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200410112139.09905.glenny@nephthys.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-11 at 13:22, Andre Tomt wrote:
-> I've been running 2.20.3.1 + the data corruption bug fix on megaraids 
-> ranging from low-end SATA adapters to the u320scsi ones for a while on a 
-> 2.6.8 based kernel, nothing have blown up yet. The old 2.20.3.1 without 
-> the fix have been holding up too though - however having a known data 
-> corruption bug lingering doesn't feel so good :-)
+Helge Hafting a écrit: 
+ 
+> Perhaps customers can demand to _rent_ the source code too then? 
 
-Yes, well, that's one of the things that worries me slightly ... no-one
-has reported the data corruption that the patch claims to fix.  That's
-one of the reasons I was planning to take it through the normal cycle.
-
-James
-
-
+ After few discussions on proad.free.adsl and on linuxfr.org
+(http://linuxfr.org/~superzen/15187.html), it seems that Free
+_lends_ the Freebox (at no charge) while people use their Internet
+Access. When one stops his Internet Access abonnement, he has sent
+it back.
+ Moreover, Freebox boots (each power cycle) over the network and
+downloads the OS (which seems to Linux and it's not resident). The
+bootstrap code used to boot over network is from Broadcom (for V4
+model). So even if you can buy it, you just have a box without any
+OS inside.
+-- 
+Glennie
+"Personne ne survit au fait d'être estimé au-dessus de sa valeur." 

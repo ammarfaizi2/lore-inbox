@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318388AbSHEL7w>; Mon, 5 Aug 2002 07:59:52 -0400
+	id <S318414AbSHEMVd>; Mon, 5 Aug 2002 08:21:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318390AbSHEL7w>; Mon, 5 Aug 2002 07:59:52 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:6141 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318388AbSHEL7w>; Mon, 5 Aug 2002 07:59:52 -0400
-Subject: Re: 2.4.19-ac1 and later: kernel BUG in apm.c:899 (SMP,
-	apm=power-off)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: thunder7@xs4all.nl
+	id <S318415AbSHEMVd>; Mon, 5 Aug 2002 08:21:33 -0400
+Received: from pimout4-ext.prodigy.net ([207.115.63.103]:25291 "EHLO
+	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S318414AbSHEMVc>; Mon, 5 Aug 2002 08:21:32 -0400
+Message-Id: <200208051225.g75CP4v316564@pimout4-ext.prodigy.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
+       Patrick Mochel <mochel@osdl.org>, Adam Belay <ambx1@netscape.net>
+Subject: Re: [PATCH] integrate driverfs and devfs (2.5.28)
+Date: Mon, 5 Aug 2002 02:26:35 -0400
+X-Mailer: KMail [version 1.3.1]
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020805053156.GA476@middle.of.nowhere>
-References: <20020805053156.GA476@middle.of.nowhere>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 05 Aug 2002 14:22:07 +0100
-Message-Id: <1028553727.18156.34.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+References: <Pine.LNX.4.44.0207291431381.22697-100000@cherise.pdx.osdl.net> <200207292326.g6TNQcI19062@fachschaft.cup.uni-muenchen.de>
+In-Reply-To: <200207292326.g6TNQcI19062@fachschaft.cup.uni-muenchen.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-05 at 06:31, Jurriaan wrote:
-> Since 2.4.19-ac1 I occasionally (like 1 in 3 times) see an Oops while
-> shutting down, containing the line
-> 
-> kernel BUG in apm.c:899
-> 
-> This is an Abit VP6 dual board, with a via chipset. Below you'll find
-> lspci, (limited) dmesg, and .config information.
+On Monday 29 July 2002 07:25 pm, Oliver Neukum wrote:
+> Am Dienstag, 30. Juli 2002 00:21 schrieb Patrick Mochel:
+> > 1) devfs imposes a default naming policy. That is bad, wrong and unjust.
+> > There shalt not be a default naming policy in the kernel. Period.
+>
+> Why not? Who really needs the ability to name anything in /dev ?
+> You can always use a symlink if you realy, realy want.
 
-Basically its oopsing because it was about to make an APM call on a
-processor other than CPU#0 (physical id), it set the cpus_allowed mask
-to CPU#0 only and then rescheduled but ended up on a CPU that was not
-CPU#0. Thats because its not making the right and proper calls for the
-O(1) scheduler - Willy's patch I merged is right - but not for -ac.
+Okay, I'll bite.
 
-I'll fix that in -ac5.
+So what's root_dev_names in init/do_mounts.c?  If a default naming policy is 
+so unacceptably evil, is that being removed in 2.5 and everybody being told 
+to use major/minor for the root device?
 
-It should be enough to swap
+By the way, why doesn't imposing consistent predefined major/minor numbers 
+(0x0301 instead of "hda1") count as "policy"?   I'm honestly curious...
 
-		current->cpus_allowed = 1;
-
-with
-		set_cpus_allowed(current, 1 << cpu_logical_map(0));
-
-		
-in that file
-
+Rob

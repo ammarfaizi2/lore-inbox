@@ -1,123 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131171AbRCWQMa>; Fri, 23 Mar 2001 11:12:30 -0500
+	id <S131191AbRCWPzo>; Fri, 23 Mar 2001 10:55:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131194AbRCWQMK>; Fri, 23 Mar 2001 11:12:10 -0500
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:50052 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S131171AbRCWQMB>; Fri, 23 Mar 2001 11:12:01 -0500
-Date: Fri, 23 Mar 2001 11:10:56 -0500
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Adding just a pinch of icache/dcache pressure...
-Message-ID: <20010323111056.A9332@cs.cmu.edu>
-Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <20010323015358Z129164-406+3041@vger.kernel.org> <Pine.LNX.4.21.0103230403370.29682-100000@imladris.rielhome.conectiva> <20010323122815.A6428@win.tue.nl> <m1hf0k1qvi.fsf@frodo.biederman.org> <3ABB6833.183E9188@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <3ABB6833.183E9188@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Mar 23, 2001 at 10:13:55AM -0500
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+	id <S131171AbRCWPzf>; Fri, 23 Mar 2001 10:55:35 -0500
+Received: from www.microgate.com ([216.30.46.105]:12556 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP
+	id <S131191AbRCWPzW>; Fri, 23 Mar 2001 10:55:22 -0500
+Message-ID: <003101c0b3b1$976fe550$013ca8c0@diemos>
+From: "Paul Fulghum" <paulkf@microgate.com>
+To: "Andrew Morton" <andrewm@uow.edu.au>, "Kevin Buhr" <buhr@stat.wisc.edu>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <vbaofv1nyza.fsf@mozart.stat.wisc.edu>	<15027.20462.682109.679714@argo.linuxcare.com.au>	<vbasnkblsvd.fsf@mozart.stat.wisc.edu>	<15034.53871.560040.366149@argo.linuxcare.com.au>,	Paul Mackerras's message of "Fri, 23 Mar 2001 15:34:55 +1100 (EST)" <vbalmpxyo7n.fsf@mozart.stat.wisc.edu> <3ABB2B4B.93515581@uow.edu.au>
+Subject: Re: PATCH against 2.4.2: TTY hangup on PPP channel corrupts kernel memory
+Date: Fri, 23 Mar 2001 09:54:49 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 23, 2001 at 10:13:55AM -0500, Jeff Garzik wrote:
-> Personally I think the OOM killer itself is fine.  I think there are
-> problems elsewhere which are triggering the OOM killer when it should
-> not be triggered, ie. a leak like Doug Ledford was reporting.
+From: "Andrew Morton" <andrewm@uow.edu.au>
+
+> Your analysis is correct.  It's a bug.
 > 
-> I definitely see heavier page/dcache usage in 2.4 -- but that is to be
-> expected due to 2.4 changes!  So it is incredibily difficult to quantify
-> if something is wrong, and if so, where...
+> Furthermore, n_hdlc_tty_open() (for example) can sleep prior to
+> incrementing the module refcount, which means the module can be
+> unloaded while it's running.  I cut a patch ages ago which fixes
+> this one for both ttys and ldiscs.  I never got around to sending
+> it to anyone.
 > 
-> My own impressions of 2.4 are that it "feels faster" for my own uses and
-> it's stable.  The downsides I find are that heavy fs activity seems to
-> imply increased swapping, which jibes with a guess that the page/dcache
-> is exceptionally greedy with releasing pages under memory pressure.
-> 
-> </unquantified vague ramble>
+> > Does this mean that all line discipline implementations must use a
+> > spinlock around critical code in "open", "close", and every other line
+> > discipline function?  It looks like they must, and it looks like most
+> > don't right now.
 
-Like I said earlier, I should stop theorizing and write the code. Here
-is a teeny little patch that adds a bit of pressure to the inode and
-dentry slabcaches during inactive shortage.
+I have experienced essentially the same problem:
+A line discipline can be switched while a user mode program is blocked
+inside of a line discipline call.
 
-On the 512MB desktop without the change, the inode+dentry slabs
-typically used up about 300MB after running my normal day-to-day
-workload for about 24 hours. Now, the inode+dentry slabs are using
-only 90MB.
+In my case the call was ioctl() (select) which went through the ldisc
+(n_hdlc) and was being serviced by (and blocked in) the tty layer. 
 
-As there is more memory available for the buffer and page caches, kswapd
-seems to have less trouble keeping up with my typical workload.
+Two processes had the underlying serial device open. One process
+restored the ldisc to N_TTY, exited, and the script that started
+the process unloaded the ldisc driver (which had
+a zero ref count as a result of being switched out).
+When the select call of the other process tried to return
+(to the n_hdlc ldisc), the code was already unloaded and an
+oops occurred.
+
+I was not too worried about this because it was caused by
+a series of wrong (buggy) moves by the user mode processes.
+
+But it goes back to the problem of allowing the ldisc to
+change when there are existing calls blocked in (or through)
+the ldisc. 
+
+Paul Fulghum paulkf@microgate.com
+Microgate Corporation www.microgate.com
 
 
-btw. There definitely is a network receive buffer leak somewhere in
-either the 3c905C path or higher up in the network layers (2.4.0 or
-2.4.1). The normal path does not leak anything.
-
-I was seeing it only for a couple of days when there was a failing
-switch that must have randomly corrupted packets. The switch got
-replaced and the leakage disappeared, so I went back into a non-ikd
-kernel and stopped looking for the problem.
-
-Jan
-
-
-=================
---- linux/fs/inode.c.orig	Thu Mar 22 13:20:55 2001
-+++ linux/fs/inode.c	Thu Mar 22 14:00:10 2001
-@@ -270,19 +270,6 @@
- 	spin_unlock(&inode_lock);
- }
- 
--/*
-- * Called with the spinlock already held..
-- */
--static void sync_all_inodes(void)
--{
--	struct super_block * sb = sb_entry(super_blocks.next);
--	for (; sb != sb_entry(&super_blocks); sb = sb_entry(sb->s_list.next)) {
--		if (!sb->s_dev)
--			continue;
--		sync_list(&sb->s_dirty);
--	}
--}
--
- /**
-  *	write_inode_now	-	write an inode to disk
-  *	@inode: inode to write to disk
-@@ -507,8 +494,6 @@
- 	struct inode * inode;
- 
- 	spin_lock(&inode_lock);
--	/* go simple and safe syncing everything before starting */
--	sync_all_inodes();
- 
- 	entry = inode_unused.prev;
- 	while (entry != &inode_unused)
-@@ -554,6 +539,9 @@
- 
- 	if (priority)
- 		count = inodes_stat.nr_unused / priority;
-+
-+	if (priority < 6)
-+		sync_inodes(0);
- 
- 	prune_icache(count);
- 	kmem_cache_shrink(inode_cachep);
---- linux/mm/vmscan.c.orig	Thu Mar 22 14:00:41 2001
-+++ linux/mm/vmscan.c	Thu Mar 22 14:35:26 2001
-@@ -845,9 +845,11 @@
- 	 * reclaim unused slab cache if memory is low.
- 	 */
- 	if (free_shortage()) {
-+		shrink_dcache_memory(5, gfp_mask);
-+		shrink_icache_memory(5, gfp_mask);
-+	} else {
- 		shrink_dcache_memory(DEF_PRIORITY, gfp_mask);
- 		shrink_icache_memory(DEF_PRIORITY, gfp_mask);
--	} else {
- 		/*
- 		 * Illogical, but true. At least for now.
- 		 *

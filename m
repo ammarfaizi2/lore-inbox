@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263501AbREYDHV>; Thu, 24 May 2001 23:07:21 -0400
+	id <S263504AbREYDMy>; Thu, 24 May 2001 23:12:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263505AbREYDHM>; Thu, 24 May 2001 23:07:12 -0400
-Received: from csl.Stanford.EDU ([171.64.66.149]:4062 "EHLO csl.Stanford.EDU")
-	by vger.kernel.org with ESMTP id <S263501AbREYDHD>;
-	Thu, 24 May 2001 23:07:03 -0400
-From: Dawson Engler <engler@csl.Stanford.EDU>
-Message-Id: <200105250307.UAA00899@csl.Stanford.EDU>
-Subject: Re: [CHECKER] large stack variables (>=1K) in 2.4.4 and 2.4.4-ac8
-To: viro@math.psu.edu (Alexander Viro)
-Date: Thu, 24 May 2001 20:07:00 -0700 (PDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0105242257280.24864-100000@weyl.math.psu.edu> from "Alexander Viro" at May 24, 2001 11:00:23 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S263505AbREYDMn>; Thu, 24 May 2001 23:12:43 -0400
+Received: from COR0ppp-101.uc.infovia.com.ar ([209.13.178.101]:48389 "EHLO
+	Ono-Sendai.linux.hack") by vger.kernel.org with ESMTP
+	id <S263504AbREYDMi>; Thu, 24 May 2001 23:12:38 -0400
+Date: Fri, 25 May 2001 00:14:54 -0300 (ART)
+From: <bruj0@securityportal.com.ar>
+To: <linux-kernel@vger.kernel.org>
+Subject: PATCH: "Kernel Insider" (security optimization)
+Message-ID: <Pine.LNX.4.31.0105250006440.1495-100000@Ono-Sendai.linux.hack>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Ah, nice --- I keep meaning to tell the checker to demote its warning
-> > about NULL bugs or large stack vars in __init routines and/or routines
-> > that have the substring "init" in them ;-)
-> 
-> Please, don't. These functions are often used from/as init_module(),
-> so they must handle the case when allocation fails. They can be
-> called long after the boot.
+Hello, i wrote a modification for kernels 2.4.x, actually it can be
+lodaded as a module and its not intrusive. I would love to get you opinions,
+critics, flames about it. Plase CC: me becouse im not in the list. thanx
+The whole package with a intructions is at
+http://securityportal.com.ar/files/insider-1.6.tar.gz
 
-I meant "demote"  to mean "reducing the ranking of these errors during
-sorting" rather than "eliminate from the error logs".  
+This is the description:
+INSIDER
+-------
+Its a linux kernel modification, that allows to decide wich uid, pid or
+file can open a tcp socket in listening state.
+The changes to the kernel are really insignificant, only to export 2
+variables.
+When  a program tries to open a port it first makes a md5 checksum
+of the file and compares it with the config list then it compares the user
+id and finally the pid.
+The policy is to "DENY" everything that is not in the allowed list.
 
+Bruj0
 

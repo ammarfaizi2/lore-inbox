@@ -1,59 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264075AbTKJTYo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 14:24:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264076AbTKJTYo
+	id S264088AbTKJTa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 14:30:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264089AbTKJTa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 14:24:44 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:28047 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264075AbTKJTYn
+	Mon, 10 Nov 2003 14:30:57 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:47314 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S264088AbTKJTaw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 14:24:43 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 10 Nov 2003 11:23:54 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Andrea Arcangeli <andrea@suse.de>, Larry McVoy <lm@bitmover.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel.bkbits.net off the air
-In-Reply-To: <3FAFE22B.3030108@zytor.com>
-Message-ID: <Pine.LNX.4.44.0311101122420.2097-100000@bigblue.dev.mdolabs.com>
+	Mon, 10 Nov 2003 14:30:52 -0500
+Date: Mon, 10 Nov 2003 17:28:14 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.23-rc1
+Message-ID: <Pine.LNX.4.44.0311101723110.2001-100000@logos.cnet>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Nov 2003, H. Peter Anvin wrote:
 
-> Andrea Arcangeli wrote:
-> > 
-> > you must pick file2 before file1:
-> > 
-> > 	you:
-> > 
-> > 	do
-> > 		get file2
-> > 		get repo-file1-j
-> > 		get file1
-> > 	while file2 != file1 && sleep 10
-> >
-> 
-> Okay... I'm starting to think the sequencing requirements on these files
-> may be hard to maintain across multiple levels of rsync... but perhaps
-> I'm wrong, in particular if 'file2' sorts hierachially-lexically last
-> and 'file1' first...
+Hi, 
 
-Doing something like:
+Here goes -rc1.
 
-rsync file2
-rsync repo
-rsync file1
-
-should work, doesn't it?
+It contains network driver fixes (b44, tg3, 8139cp), several x86-64
+bugfixes, amongst others.
 
 
+Please help testing!
 
-- Davide
+
+Summary of changes from v2.4.23-pre9 to v2.4.23-rc1
+============================================
+
+<marcelo:logos.cnet>:
+  o MAINTAINERS update for HP
+  o Backport 2.6 Linus fix for minix corruption problem noted by Konstantin Boldyshev
+  o Changed EXTRAVERSION to -rc1
+
+<philipc:snapgear.com>:
+  o [netdrvr 8139cp] Fix NAPI race
+
+<pp:ee.oulu.fi>:
+  o [netdrvr b44] Fix irq enable/disable; fix oops due to lack of SET_NETDEV_DEV() call
+
+<xose:wanadoo.es>:
+  o 2.4.23-pre9 fix for kbuild - hotplug_acpi
+
+Adrian Bunk:
+  o fix SOUND_CMPCI Configure.help entry
+
+Andi Kleen:
+  o x86-64 update
+  o K8 AGP driver updates
+  o Make new driver i386 only
+  o Fix Documentation.help for K8 AGP driver
+  o Add missing nforce3s pci-id
+  o Fix TSS limit on x86-64
+
+Andrew Morton:
+  o Restore /proc/pid/maps formatting
+
+Dave Kleikamp:
+  o JFS: Fix race between link() and unlink()
+  o JFS: i_nlink should be checked while holding commit_sem
+
+David S. Miller:
+  o [TG3]: Fix bugs in ETHTOOL_SSET introduced by ethtool_ops conversion
+  o [TG3]: Bump driver version and release date
+
+David Woodhouse:
+  o ilookup() for 2.4
+  o JFFS2 garbage collect race fix
+
+Douglas Gilbert:
+  o Do not accept negative size's in SG_SET_RESERVED_SIZE
+
+Eric Brower:
+  o [SPARC]: Fix _IOC_SIZE() macro when direction is _IOC_NONE
+
+Herbert Xu:
+  o Fix BUS_ISA name conflict
+
+Jan Kara:
+  o Fix quota accounting bug
+
+John Stultz:
+  o Fix x440+ACPI problem
+  o Fix cyclone timer (x44x)
+
+Marcel Holtmann:
+  o Make firmware loading work builtin
+
+Ralf Bächle:
+  o [netdrvr pcnet32] add missing pci_dma_sync_single
+
+Scott Feldman:
+  o [e100] sync with 2.6 updates
+  o [e1000] sync with 2.6 updates
+
+Stelian Pop:
+  o meye driver update
 
 

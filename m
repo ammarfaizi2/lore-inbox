@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261804AbTICJlr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 05:41:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbTICJlr
+	id S261772AbTICJim (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 05:38:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbTICJim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 05:41:47 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:39164 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S261804AbTICJlo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 05:41:44 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: Scaling noise
-Date: Wed, 3 Sep 2003 05:41:39 -0400
-Message-ID: <BF1FE1855350A0479097B3A0D2A80EE009FCEB@hdsmsx402.hd.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Scaling noise
-Thread-Index: AcNx9bJ+QrZlxOVnRXGMIgvgBWHWuwAB7l/A
-From: "Brown, Len" <len.brown@intel.com>
-To: "Giuliano Pochini" <pochini@shiny.it>, "Larry McVoy" <lm@bitmover.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 03 Sep 2003 09:41:41.0487 (UTC) FILETIME=[944847F0:01C371FF]
+	Wed, 3 Sep 2003 05:38:42 -0400
+Received: from tench.street-vision.com ([212.18.235.100]:44684 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id S261772AbTICJik (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 05:38:40 -0400
+Subject: Re: devfs to be obsloted by udev?
+From: Justin Cormack <justin@street-vision.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Ed Sweetman <ed.sweetman@wmich.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200309022219.02549.bzolnier@elka.pw.edu.pl>
+References: <3F54A4AC.1020709@wmich.edu> 
+	<200309022219.02549.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 03 Sep 2003 10:38:48 +0100
+Message-Id: <1062581929.30060.197.camel@lotte.street-vision.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Latency is not bandwidth.
+On Tue, 2003-09-02 at 21:19, Bartlomiej Zolnierkiewicz wrote:
+> 
+> initramfs
 
-Bingo.
+which seems to have been postponed to 2.7.
 
-The way to address memory latency is by increasing bandwidth and
-increasing parallelism to use it -- thus amortizing the latency.  HT is
-one of many ways to do this.  If systems are to grow faster at a rate
-better than memory speeds, then plan on more parallelism, not less.
 
--Len
+> On Tuesday 02 of September 2003 16:09, Ed Sweetman wrote:
+> > It appears that devfs is to be replaced by the use of udev in the not so
+> > distant future.  I'm not sure how it's supposed to replace a static /dev
+> > situaton seeing as how it is a userspace daemon.  Is it not supposed to
+> > replace /dev even when it's completed?  I dont see the real benefit in
+> > having two directories that basically give the same info.  Right now we
+> > have something like that with proc and sysfs although not everything in
+> > proc makes sense to be in sysfs and both are virtual fs's where as /dev
+> > is a static fs on the disk that takes up space and inodes and includes
+> > way too many files that a system may not use.  If udev is to take over
+> > the job of devfs, how will modules and drivers work that require device
+> > files to be present in order to work since undoubtedly the udev daemon
+> > will have to wait until the kernel is done booting before being run.
+> >
+> > I'm just not following how it is going to replace devfs and thus why
+> > devfs is being abandoned as mentioned in akpm's patchset. Or as it
+> > seems, already has been abandoned.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+

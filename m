@@ -1,30 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270240AbRHMPIC>; Mon, 13 Aug 2001 11:08:02 -0400
+	id <S270253AbRHMPWO>; Mon, 13 Aug 2001 11:22:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270246AbRHMPHw>; Mon, 13 Aug 2001 11:07:52 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53765 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270240AbRHMPHj>; Mon, 13 Aug 2001 11:07:39 -0400
-Subject: Re: struct page to 36 (or 64) bit bus address?
-To: davem@redhat.com (David S. Miller)
-Date: Mon, 13 Aug 2001 16:10:07 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, sandy@storm.ca, linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "David S. Miller" at Aug 13, 2001 07:21:57 AM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15WJLz-0007ae-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S270252AbRHMPWF>; Mon, 13 Aug 2001 11:22:05 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:18192 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S270250AbRHMPWA>;
+	Mon, 13 Aug 2001 11:22:00 -0400
+Date: Mon, 13 Aug 2001 17:22:11 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH 2.4.8 and 2.4.8-ac2] sonypi driver documentation updates.
+Message-ID: <20010813172211.K24523@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And net drivers would do something similar, registering something
-> that will do "netdev_wake_queue();" etc.
+Hi,
 
-I don't want a callback, or if you give me a callback for scsi I'll just
-turn it into a callback to wake_up(). Thats all I happen to need. net
-drivers might be different
+This patch updates the documentation for the sonypi driver, 
+reporting some issues found by several users.
 
-Alan
+Linus, Alan, please apply.
+
+--- linux-2.4.8-ac2.orig/Documentation/sonypi.txt	Wed Jul  4 23:41:33 2001
++++ linux-2.4.8-ac2/Documentation/sonypi.txt	Mon Aug 13 17:19:34 2001
+@@ -65,6 +65,19 @@
+ Bugs:
+ -----
+ 
++	- several users reported that this driver disables the BIOS-managed
++	  Fn-keys which put the laptop in sleeping state, or switch the
++	  external monitor on/off. There is no workaround yet, since this
++	  driver disables all APM management for those keys, by enabling the
++	  ACPI management (and the ACPI core stuff is not complete yet). If
++	  you have one of those laptops with working Fn keys and want to 
++	  continue to use them, don't use this driver.
++
++	- some users reported that the laptop speed is lower (dhrystone
++	  tested) when using the driver with the fnkeyinit parameter. I cannot
++	  reproduce it on my laptop and not all users have this problem.
++	  Still under investigation.
++	
+ 	- since all development was done by reverse engineering, there is
+ 	  _absolutely no guarantee_ that this driver will not crash your
+ 	  laptop. Permanently.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

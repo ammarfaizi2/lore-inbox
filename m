@@ -1,73 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbUJaOYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbUJaOoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261630AbUJaOYi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 09:24:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbUJaOYi
+	id S261631AbUJaOoI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 09:44:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbUJaOoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 09:24:38 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:21438 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261630AbUJaOYO convert rfc822-to-8bit (ORCPT
+	Sun, 31 Oct 2004 09:44:08 -0500
+Received: from baikonur.stro.at ([213.239.196.228]:2734 "EHLO baikonur.stro.at")
+	by vger.kernel.org with ESMTP id S261631AbUJaOoE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 09:24:14 -0500
-Date: Sun, 31 Oct 2004 14:24:10 +0000
-From: Willem Riede <osst@riede.org>
-Subject: rmmod osst hangs whenever osst gets loaded by hotplug at boot
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-X-Mailer: Balsa 2.2.4
-Message-Id: <1099232650l.6300l.5l@serve.riede.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	DelSp=Yes	Format=Flowed
+	Sun, 31 Oct 2004 09:44:04 -0500
+Date: Sun, 31 Oct 2004 15:43:53 +0100
+From: maximilian attems <janitor@sternwelten.at>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Margit Schubert-While <margitsw@t-online.de>,
+       Nishanth Aravamudan <nacc@us.ibm.com>, hvr@gnu.org,
+       mcgrof@studorgs.rutgers.edu, kernel-janitors@lists.osdl.org,
+       netdev@oss.sgi.com, Domen Puncer <domen@coderock.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.4] back port msleep(), msleep_interruptible()
+Message-ID: <20041031144353.GA28667@stro.at>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Margit Schubert-While <margitsw@t-online.de>,
+	Nishanth Aravamudan <nacc@us.ibm.com>, hvr@gnu.org,
+	mcgrof@studorgs.rutgers.edu, kernel-janitors@lists.osdl.org,
+	netdev@oss.sgi.com, Domen Puncer <domen@coderock.org>,
+	linux-kernel@vger.kernel.org
+References: <20040923221303.GB13244@us.ibm.com> <20040923221303.GB13244@us.ibm.com> <5.1.0.14.2.20040924074745.00b1cd40@pop.t-online.de> <415CD9D9.2000607@pobox.com> <20041030222228.GB1456@stro.at> <41841886.2080609@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+In-Reply-To: <41841886.2080609@pobox.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks,
+On Sat, 30 Oct 2004, Jeff Garzik wrote:
 
-I need some help here. I've been wrecking my brain to understand why
-"rmmod osst" works just fine whenever I perfom the "modprobe osst"
-manually from a terminal but always hangs when I coax hotplug (by a
-modified /etc/hotplug/scsi.agent) to do the loading at boot time...
+> I'm pretty sure more than one of these symbols clashes with a symbol 
+> defined locally in a driver.  I like the patch but we can't apply it 
+> until the impact on existing code is evaluated.
+> 
+> 	Jeff
 
-[root@fallguy osst]# ps alx
-F   UID   PID  PPID PRI  NI   VSZ  RSS WCHAN  STAT TTY        TIME COMMAND
-4     0  3509  3472  17   0  3124  380 -      D+   pts/1      0:00 rmmod osst
+current 2.4 has no ssleep() nor jiffies_to_usecs() nor jiffies_to_msecs()
+users. so no namespace conflicts on them.
 
-It is the call to "scsi_unregister_driver(&osst_template.gendrv)" that
-doesn't return. AFAICT, this can only be due to "down(&drv->unload_sem)"
-in driver_unregister() at line 111 of linux-2.6.9/drivers/base/driver.c.
+i found a strange unsupported "msleep" syscall in
+./arch/parisc/hpux/sys_hpux.c
 
-For that semaphore to be free a call to "up(&drv->unload_sem)" in  
-driver_release() at line 68 of linux-2.6.9/drivers/base/bus.c is needed.
+left this one appart, i resend the msleep patch + 5 cleanup patches.
+they remove duplicate msleep() or msecs_to_jiffies() definitions.
+they are all compile tested, but the one touching drivers/char/shwdt.c
+please show me if i forgot something.
 
-That would happen if osst_template.gendrv.bus->subsys.kset.kobj.kref.refcount  
-reached zero in put_bus() called from bus_remove_driver() [put_bus translates  
-into a kobject_put which does kref_put(&kobj->kref, kobject_release), which
-is documented to "Decrement the refcount, and if 0, call kobject_cleanup()",
-with kobject_cleanup doing "get_ktype(kobj)->release(kobj)"].
+--
+maks
+kernel janitor  	http://janitor.kernelnewbies.org/
 
-Having traced all that, and created some debug output fromm osst, I'm now even  
-more baffled -- the refcount is 14 regardless of when/how osst was loaded at  
-the time of the call to scsi_unregister_driver (the only difference is that it  
-already reached 14 when osst initialized, if osst gets loaded at boot time  
-register_driver makes it 10, with 4 references counted later).
 
-The other counts must be from the other drivers on the "scsi" bus:
-[root@fallguy ~]# ls /sys/bus/scsi/drivers
-osst  sd  sr  st
-
-There should be no way that refcount can make it back to zero, which would  
-imply that rmmod osst should always hang. But it doesn't. Which must mean that  
-I don't realy understand what's going on :-(
-
-So I'm lost, which is why I'm asking for help :-) . Can somebody explain it?
-
-(by the way, I can get rmmod st to hang in the same way)
-
-For the record - I'm doing this testing on a scsi based dual PIII machine  
-running Fedora Core release 2.92 (FC3 Test 3) kernel 2.6.9-1.643smp.
-
-Thanks, Willem Riede.
-
+ps dropped  prism54-devel@prism54.org from cc as this ml rejects my mails.

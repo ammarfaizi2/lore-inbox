@@ -1,145 +1,214 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132876AbRDXIGk>; Tue, 24 Apr 2001 04:06:40 -0400
+	id <S132864AbRDXILa>; Tue, 24 Apr 2001 04:11:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132879AbRDXIG3>; Tue, 24 Apr 2001 04:06:29 -0400
-Received: from [202.54.26.202] ([202.54.26.202]:20654 "EHLO hindon.hss.co.in")
-	by vger.kernel.org with ESMTP id <S132864AbRDXIGQ>;
-	Tue, 24 Apr 2001 04:06:16 -0400
-X-Lotus-FromDomain: HSS
-From: alad@hss.hns.com
-To: David Konerding <dek_ml@konerding.com>
-cc: Ulrich Drepper <drepper@cygnus.com>, root@chaos.analogic.com,
-        linux-kernel@vger.kernel.org
-Message-ID: <65256A38.002AFECC.00@sandesh.hss.hns.com>
-Date: Tue, 24 Apr 2001 13:26:24 +0530
-Subject: Re: BUG: Global FPU corruption in 2.2
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S132883AbRDXILV>; Tue, 24 Apr 2001 04:11:21 -0400
+Received: from roll.cefriel.it ([131.175.53.4]:6414 "EHLO roll.cefriel.it")
+	by vger.kernel.org with ESMTP id <S132864AbRDXILP>;
+	Tue, 24 Apr 2001 04:11:15 -0400
+Message-ID: <76D2776C1B442B4C90E1F95FCA217C46866D65@roll.cefriel.it>
+From: Paolo Castagna <castagna@cefriel.it>
+To: linux-kernel@vger.kernel.org
+Subject: [help] TCP rate control and Linux TCP/IP Stack?
+Date: Tue, 24 Apr 2001 10:11:15 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
 Hi,
-     I want to look into this problem. Its seems to be very interesting. But I
-was not following the thread from the beginning (and I mistakely deleted all
-these mails :( .. ).. I hope you won't mind answering following questions...
+I'm an Italian student and I'm doing a Master Thesis on TCP rate 
+control.
 
-1) you are doing this on an MP or a uniprocessor ?
-2) I want to know how are you calling sys_ptrace(Attach) and
-sys_ptrace(detach).. i.e is it something linke following
+TCP rate control is a new technique for transparently augmenting 
+end-to-end TCP performance by controlling the sending rate of a TCP 
+source. The sending rate of a TCP source is determined by its window
+size, the round trip time and the rate of acknowledgments. 
+TCP rate control affects these aspects by modifying the ack number 
+and receiver window fields in acknowledgments and by modulating the 
+acknowledgment rate. From a performance viewpoint a key benefit of 
+TCP rate control is to avoid adverse performance effects due to 
+packet losses such as reduced goodput and unfairness or large spread
+in per-user goodputs. Further, TCP rate control positively affects
+performance even if the bottleneck is non-local and the end-host
+TCP implementations are non-conforming. [see article below]
 
-      for(;;){
-     sys_ptrace(attach to process);
-     sys_wait4();
-     sys_ptrace(detach from process);
-      }
+I would like to know your opinions about that, and if there is 
+already something similar in the Linux world. I've already see 
+the kernel sources but I didn't find something like that. Yes,
+I know CBQ, traffic shaping (classic), netfilter.
 
-In short the sequence of system calls you are using for attaching and detaching
-to the process
+I'll appreciate suggestion about how to implement such ideas,
+TCP rate control, I mean, on Linux, specifically in the 
+kernel 2.4.x
 
-3) Have you tried doing attach and detach only once ? If not.. can you please
-try this and let me know whether by doing attach and detach one time also
-results in global FPU corruption. Please do not fork in the above process.
+There are two algorithms in the TCP rate control technique, as 
+describe in the paper below, may be usefull for you to have the
+algorithms:
 
----------
+---------------------------------------------------------------------
 
-Whenever process A calls sys_ptrace(Attach) to Process B, sys_ptrace sends
-SIGSTOP to process B.
-Now process B in do_signal, checks that it is being traced and then it does the
-following
-     current->state = TASK_STOPPED;
-     notify_parent(current,SIGCHLD);
-     schedule();
+Algorithm 1 - Rate Allocation Algorithm
 
-so now in schedule() --> __switch_to --> unlazy_fpu() function we do following
-     if (current->flags & PF_USEDFPU)
-          save_fpu();
+The goal of this algorithm is to allocate max-min fair rates to 
+competing TCP flows. Initially, equal rate allocations are given to 
+all competing flows. Then sending rates of flows are estimated by 
+maintaining an exponential average over a rate sampling interval.
+When a flow does not to utilize its allocation, it is labeled as 
+bottlenecked. Excess allocation is stripped off from all such 
+bottlenecked flows and allocated to non-bottlenecked or hungry flows. 
+This step is repeated until there is no residual bandwidth to 
+allocate or all flows are bottlenecked. This algorithm is invoked 
+every time a new flow begins, a flow terminates or when the rate 
+sampling interval expires. The resulting rate allocations are 
+stored into a table. 
 
-In save_fpu() we do following
-     fnsave current->tss.i387
-     fwait;
+---------------------------------------------------------------------
 
-I want to ask a question....... is it possible if 'somehow' we were not able to
-save the complete floating point state with fnsave i.e. current->tss.i387 is
-'invalid' after
-          fnsave current->tss.i387
-     fwait;
+1. For each flow i, let Ri be the measured rate 
+   and Ai be the allocated rate.
 
-Thanks
-Amol
+2. If N is the total number of flows and B is the bottleneck
+   capacity, the initial allocation for each flow i is
 
+     Ai = B / N                                      (2)
 
+3. If Ri < (p * Ai) for some satisfaction percentage p 
+   (a statically chosen parameter), then mark flow i as 
+   bottlenecked, else mark it as hungry.
 
+4. Let U be the aggregate residual bandwidth i.e the
+   bandwidth which remains unutilized by the bottlenecked
+   flows.
 
+5. Distribute this residual bandwidth evenly over all the
+   hungry flows. If H is the total number of hungry flows, 
+   the new allocation for a hungry flow j is given by
 
-David Konerding <dek_ml@konerding.com> on 04/23/2001 01:09:27 AM
+     Aj = Aj + (U / H)                               (3)
 
-To:   Ulrich Drepper <drepper@cygnus.com>
-cc:   root@chaos.analogic.com, linux-kernel@vger.kernel.org (bcc: Amol Lad/HSS)
+6. For each bottlenecked flow k the new allocation is
+   given by
 
-Subject:  Re: BUG: Global FPU corruption in 2.2
+     Ak = (Ak + Rk) / 2                              (4)
 
+   So for bottlenecked flows, the allocation approaches
+   the measured rate over successive iterations of the
+   algorithm.
 
+---------------------------------------------------------------------
 
+About this algorithm, I've a problem... how can I measure the rate
+Ri for each TCP flow? I've found NeTraMet on this URL:
+http://www.auckland.ac.nz/net/Accounting/ntm.Release.note.html
+... and I've also read the discussion about that on linux-kernel 
+mailing list. Where is the best place to make a such thing? 
+I've thought in /net/core/dev.c in function dev_queue_xmit. 
+And, again, how can I associate the rate Ri to each TCP flow?
 
-Ulrich Drepper wrote:
+---------------------------------------------------------------------
 
-> "Richard B. Johnson" <root@chaos.analogic.com> writes:
->
-> > The kernel doesn't know if a process is going to use the FPU when
-> > a new process is created. Only the user's code, i.e., the 'C' runtime
-> > library knows.
->
-> Maybe you should try to understand the kernel code and the features of
-> the processor first.  The kernel can detect when the FPU is used for
-> the first time.
+Algorithm 2 - Rate Enforcement Algorithm
 
-OK, regardless of how the linux kernel actually manages the FPU for user-space
+This algorithm enforces the rate allocation by converting the rate 
+to a window value. Additionally, it spaces out the acknowledgments 
+of a flow, so that they are evenly distributed over its RTT.
 
-programs, does anybody have any comments on the original bugreport?
+---------------------------------------------------------------------
 
->We have found that one of our programs can cause system-wide
->corruption of the x86 FPU under 2.2.16 and 2.2.17.  That is, after we
->run this program, the FPU gives bad results to all subsequent
->processes.
+1. For each flow i let
 
->We see this problem on dual 550MHz Xeons with 1GB RAM.  We have 64 of
->these things, and we see the problem on every node we try (dozens).
->We don't have other SMPs handy.  Uniprocessors, including other PIIIs,
->don't seem to be affected.
+     wi = the calculated window size in units of packets.
+     Di = the inter-ack spacing in seconds.
+     RTTi = the round trip time (RTT) of flow i, ideally
+     not including queuing delays, in seconds.
+     MSSi = the maximum segment size of flow i, in bytes.
+     Ai = the rate allocation in bytes/s.
 
->Below are two programs we use to produce the behavior.  The first
->program, pi, repeatedly spawns 10 parallel computations of pi.  When
->all is well, each process prints pi as it completes.
+2. Observe that for each flow i, we have:
 
->The second program, pt, repeatedly attaches to and detaches from
->another process.  Run pt against the root pi process until the output
->of pi begins to look wrong.  Then kill everything and run pi by itself
->again.  It will no longer produce good results.  We find that the FPU
->persistently gives bad results until we reboot.
+     wi * MSSi = Ai * RTTi                           (5)
 
-I tried this on my dual PIII-600 runnng 2.2.19 and got exactly the behavior
-described.
-If it is a bug in the linux kernel (I can see nothing wrong with the source
-code provided),
-I would suspect probems with SMP and ptrace, somehow causing the wrong FP
-registers
-to be returned to a process after the scheduler restarted it.  It's very
-interesting that the
-PI program works fine until you run PT, but after you run PT, PI is screwed
-until reboot.
+   So the window value can be calculated as, 
+   
+     wi = (Ai * RTTi) / MSSi                         (6)
 
+3. The inter-ack spacing time (RTTi/wi) can also be
+   obtained from equation (5):
 
+     Di = RTTi / wi = MSSi / Ai                      (7)
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+4. For each flow i, acks (if available) are clocked out
+   at intervals of Di with the receiver window field set
+   to Wi. 
 
+5. The receiver window field of the ack of flow i is set as:
 
+     Wi = min(wi * MSSi , actual receiver window)    (8)
 
+6. The ack number field in the header is determined based
+   upon two variables (max and min sequence number) used to 
+   denote the ack queue. In the common case, the ack number 
+   would be chosen to progress by one MSSi.
+   
+---------------------------------------------------------------------
 
+About this algorithm, where is, for you, the best place
+where to do a such thing? In general I'd like to do only minor
+changes possible in the kernel sources, and I would like to 
+implement a module for TCP rate control.
+I've also found an usefull paper by Glenn Herrin, I've try the
+example with the kernel v2.4.3 but I've some problem with it: 
+when I export a symbol from the kernel, using EXPORT_SYMBOL and I 
+try to use it from a module I have the error: "undefined symbol in 
+mymodule" even if it's listed in /boot/System.map 
+
+---------------------------------------------------------------------
+
+Papers:
+
+o Shrikrishna Karandikar, Shivkumar Kalyanaraman, 
+  Prasad Bagal, Bob Packer, 
+  "TCP Rate Control",
+  Computer Communication Review, a publication of ACM SIGCOMM, 
+  volume 30, number 1, January 2000. ISSN # 0146-4833. 
+  URL:
+http://www.acm.org/sigcomm/ccr/archive/2000/jan00/ccr-200001-kara.html
+
+o Glenn Herrin,
+  Linux IP Networking, 
+  A Guide to the Implementation and 
+  Modification of the Linux Protocol Stack 
+  TR 00-04, May 31, 2000 
+  URL: http://kernelnewbies.org/documents/ipnetworking/
+
+o Others interesting papers:
+  URL:
+http://www.ecse.rpi.edu/Homepages/shivkuma/research/papers-rpi.html#tcp
+
+---------------------------------------------------------------------
+
+Commercial products based on idea of TCP Rate Control:
+
+o Packeteer - http://www.packeteer.com/ (*) [nasdaq: PKTR]
+o Allot - http://www.allot.com/
+
+(*) I know about patents.
+
+---------------------------------------------------------------------
+
+I beg your pardon for the lenght of this message, and also for my
+bad english :/ I hope this is the right place for a such discussion, 
+if not, please, excuse me, and if you know send me some references.
+
+Greetings,
+Paolo Castagna.
+
+---------------------------------------------------------------------
+
+PS:
+Keywords:  TCP, TCP Rate Control, Congestion Control, Ack Bucket.
+Not pertinet: ECN, SACK, Tocken Bucket, Queueing Disciplines, CBQ, 
+WFF, Filters, RED, ...

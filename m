@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263485AbTICOxg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 10:53:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263492AbTICOxg
+	id S262423AbTICOqY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 10:46:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262702AbTICOqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 10:53:36 -0400
-Received: from uucp.cistron.nl ([62.216.30.38]:28942 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S263485AbTICOxc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 10:53:32 -0400
-From: dth@ncc1701.cistron.net (Danny ter Haar)
-Subject: Re: 2.6.0-test4(-mmX) via-rhine ethernet onboard C3 mini-itx doesn't work
-Date: Wed, 3 Sep 2003 14:53:31 +0000 (UTC)
-Organization: Cistron
-Message-ID: <bj4v9b$c48$1@news.cistron.nl>
-References: <20030903113737.A3655@pc9391.uni-regensburg.de> <20030903114611.C3655@pc9391.uni-regensburg.de>
-X-Trace: ncc1701.cistron.net 1062600811 12424 62.216.30.38 (3 Sep 2003 14:53:31 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@ncc1701.cistron.net (Danny ter Haar)
-To: linux-kernel@vger.kernel.org
+	Wed, 3 Sep 2003 10:46:24 -0400
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:14610 "EHLO
+	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id S262363AbTICOqT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 10:46:19 -0400
+To: Mathieu Chouquet-Stringer <mchouque@online.fr>
+Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Compiling latest 2.6 bk snapshot on Alpha
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+Reply-to: mzyngier@freesurf.fr
+References: <20030903143157.GA17699@localhost>
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: Wed, 03 Sep 2003 16:40:31 +0200
+Message-ID: <wrpznhm3pgg.fsf@hina.wild-wind.fr.eu.org>
+In-Reply-To: <20030903143157.GA17699@localhost> (Mathieu Chouquet-Stringer's
+ message of "Wed, 3 Sep 2003 10:31:57 -0400")
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Guggenberger  <Christian.Guggenberger@physik.uni-regensburg.de> wrote:
->Some days ago a patch for 2.6 has been posted on bugzilla, (see some of the 
->last entries of Bug #10).
->This one got IO-APIC + ACPI working for the first time in a year on my EPOX 
->8k5a3+.
->(via-rhine, usb , sound )
->Please try !
+>>>>> "Mathieu" == Mathieu Chouquet-Stringer <mchouque@online.fr> writes:
 
-You mean this one? (so small, probably no-one minds)
+Mathieu> I've been hitting the same error every time I try to compile
+Mathieu> bk current on alpha, namely the linker can't do its job on
+Mathieu> .tmp_vmlinux1.  My compiler is "gcc version 3.2.3 (Debian)"
+Mathieu> (but I also tried with 3.3 and 2.95), same problem.
 
-diff -uNr linux-2.6.0-test4-bk2.orig/drivers/acpi/pci_link.c linux-2.6.0-test4-bk2/drivers/acpi/pci_link.c
---- linux-2.6.0-test4-bk2.orig/drivers/acpi/pci_link.c	2003-08-23 01:52:08.000000000 +0200
-+++ linux-2.6.0-test4-bk2/drivers/acpi/pci_link.c	2003-08-30 10:05:20.514059029 +0200
-@@ -360,6 +360,8 @@
- 		return_VALUE(-ENODEV);
- 	}
- 
-+
-+#ifdef DONT_REMOVE_CHECK
- 	/* Make sure the active IRQ is the one we requested. */
- 	result = acpi_pci_link_get_current(link);
- 	if (result) {
-@@ -375,6 +377,10 @@
- 		return_VALUE(-ENODEV);
- 	}
- 
-+#else
-+        link->irq.active = irq;
-+#endif
-+
- 	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Set IRQ %d\n", link->irq.active));
- 	
- 	return_VALUE(0);
+Please check your binutils version. Here is the one I use, with great
+success :
 
-------------
+maz@panther:/mnt/i386/linux-2.5$ alpha-linux-ld --version
+GNU ld version 2.13.90.0.18 20030121
 
-Danny
-
+	M.
 -- 
-I think so Brain, but why does a forklift 
-have to be so big if all it does is lift forks?
-
+Places change, faces change. Life is so very strange.

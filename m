@@ -1,66 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287862AbSATDO7>; Sat, 19 Jan 2002 22:14:59 -0500
+	id <S287907AbSATDo3>; Sat, 19 Jan 2002 22:44:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287863AbSATDOt>; Sat, 19 Jan 2002 22:14:49 -0500
-Received: from CPE00c0f0141dc1.cpe.net.cable.rogers.com ([24.42.47.5]:24500
-	"EHLO mail.jukie.net") by vger.kernel.org with ESMTP
-	id <S287862AbSATDOj>; Sat, 19 Jan 2002 22:14:39 -0500
-Date: Sat, 19 Jan 2002 22:14:28 -0500
-From: Bart Trojanowski <bart@jukie.net>
-To: Kallol Biswas <kallol@efi.com>
+	id <S287865AbSATDoU>; Sat, 19 Jan 2002 22:44:20 -0500
+Received: from charger.oldcity.dca.net ([207.245.82.76]:29649 "EHLO
+	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
+	id <S287881AbSATDoH>; Sat, 19 Jan 2002 22:44:07 -0500
+Date: Sat, 19 Jan 2002 22:43:33 -0500
+From: christophe =?iso-8859-15?Q?barb=E9?= 
+	<christophe.barbe.ml@online.fr>
+To: Kai Henningsen <kaih@khms.westfalen.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: C source lines for assembly listing
-Message-ID: <20020119221428.O18844@jukie.net>
-In-Reply-To: <Pine.LNX.4.40L0.0201170137380.32025-100000@karma.oltrelinux.com> <3C462ACD.5F61BFDC@efi.com>
+Subject: Re: rm-ing files with open file descriptors
+Message-ID: <20020120034333.GA13588@online.fr>
+Mail-Followup-To: Kai Henningsen <kaih@khms.westfalen.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020119041857.GA10795@storm.local> <87lmevjrep.fsf@localhost.localdomain> <20020119041857.GA10795@storm.local> <20020119145132.GA972@online.fr> <8HBE2ej1w-B@khms.westfalen.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="IUSVF+LtaR4kWxuH"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C462ACD.5F61BFDC@efi.com>; from kallol@efi.com on Wed, Jan 16, 2002 at 05:37:17PM -0800
+In-Reply-To: <8HBE2ej1w-B@khms.westfalen.de>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: debian SID Gnu/Linux 2.4.17 on i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---IUSVF+LtaR4kWxuH
-Content-Type: text/plain; charset=us-ascii
+--M9NhX3UHpAaciwkO
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-* Kallol Biswas <kallol@efi.com> [020116 20:35]:
-> Hi,
->      Does gcc have an option to list the C source line information for
-> assembly instructions?
+On Sat, Jan 19, 2002 at 08:01:00PM +0200, Kai Henningsen wrote:
+> christophe.barbe.ml@online.fr (christophe barb?)  wrote on 19.01.02 in <2=
+0020119145132.GA972@online.fr>:
+>=20
+> > On Sat, Jan 19, 2002 at 05:18:57AM +0100, Andreas Bombe wrote:
+> > > Whether that was an intended or accidental feature only someone with
+> > > more insight into Unix history can answer.  It's that feature that le=
+ts
+> > > us do live upgrades of distributions without rebooting (executables a=
+nd
+> > > libraries can be replaced without affecting the currently running
+> > > processes), at the very least much easier than it would be without th=
+is
+> > > behaviour.
+> >
+> > I remember that previous debian release come with a patched kernel to
+> > allow live upgrade. It was explained in the FAQ that the patch was
+> > required for this purpose.
+>=20
+> Complete and utter bullshit. This was never true, and the FAQ never =20
+> claimed this.
+>=20
+> >    7.2 Debian claims to be able to update a running program;
+> >       how is this accomplished?
+>=20
+> ... under which was originally explained how running demons would be =20
+> restarted, and later it was also mentioned that replacing in-use files is=
+ =20
+> possible under Unix. Nothing more. (Google groups will happily find those=
+ =20
+> versions, they were in use from 1996 to 2001 according to the archive.)
+>=20
+> > What was in this patch?
+>=20
+> The patch only exists in your fantasy.
 
-I am not sure what you are asking for... but I will give it a shot. ;)
+Ok you are right. I've checked old versions of this FAQ and this patch
+only exists in my fantasy.
 
-One of the tools that comes with the package binutils is called objdump.
+I take your 'Complete and utter bullshit' comment as a debian compliment
+and not as an insult.
 
-If you compile your source with -g flag then you can use objdump to
-display mixed assembly and C source code.
+Christophe
 
-	gcc -g foo.c -o foo.o
-	objdumpt -S foo.o
-
-I hope this helps.
-
-B.
+>=20
+> MfG Kai
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 --=20
-				WebSig: http://www.jukie.net/~bart/sig/
+Christophe Barb=E9 <christophe.barbe@ufies.org>
+GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
 
---IUSVF+LtaR4kWxuH
+Ce que l'on con=E7oit bien s'=E9nonce clairement,
+Et les mots pour le dire arrivent ais=E9ment.
+   Nicolas Boileau, L'Art po=E9tique
+
+--M9NhX3UHpAaciwkO
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Comment: Pour information voir http://www.gnupg.org
 
-iD8DBQE8SjYUkmD5p7UxHJcRAmPsAJ42VqzefU83dBiQp1citwyl82tnvwCZATR6
-fF3vkYcLO7h6mropR7jW30k=
-=wX45
+iD8DBQE8Sjzkj0UvHtcstB4RAjx8AKCfhVa90W2Bxa9J47bgrHHprGeEBQCgjOi8
+fGFTJYYJQ+wVY9onfFL/uhM=
+=0zxr
 -----END PGP SIGNATURE-----
 
---IUSVF+LtaR4kWxuH--
+--M9NhX3UHpAaciwkO--

@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262066AbTJKPBe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 11:01:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTJKPBe
+	id S263319AbTJKPCL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 11:02:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263320AbTJKPCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 11:01:34 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:1205 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S262066AbTJKPBd (ORCPT
+	Sat, 11 Oct 2003 11:02:11 -0400
+Received: from ns.suse.de ([195.135.220.2]:21449 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263319AbTJKPCI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 11:01:33 -0400
-Message-ID: <3F881B46.6070301@colorfullife.com>
-Date: Sat, 11 Oct 2003 17:01:26 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] SMP races in the timer code, timer-fix-2.6.0-test7-A0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 11 Oct 2003 11:02:08 -0400
+Date: Sat, 11 Oct 2003 17:00:09 +0200
+From: Andi Kleen <ak@suse.de>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_AGP_AMD_{8151->K8} Configure.help entry
+Message-ID: <20031011150009.GA6674@wotan.suse.de>
+References: <20031011121107.GV24300@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031011121107.GV24300@fs.tum.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo wrote:
+On Sat, Oct 11, 2003 at 02:11:07PM +0200, Adrian Bunk wrote:
+> In 2.4.23-pre CONFIG_AGP_AMD_8151 was renamed to CONFIG_AGP_AMD_K8, but 
+> the configure.help entry was forgotten. he following trivial patch fixes 
+> this:
 
->fixing this second race is hard - it involves a heavy race-check operation
->that has to lock all bases, and has to re-check the base->running_timer
->value, and timer_pending condition atomically.
->  
->
-What about moving the "timer running" information into the timer_list, 
-instead of keeping it in the base?
-For example base=0 means neither running nor pending. base=1 means 
-running, but not pending, and pointers mean pending on the given base.
+Thanks. Fixed in my tree.
 
-This would allow an atomic test without the brute force locking.
-
---   
-     Manfred
-
-
+-Andi

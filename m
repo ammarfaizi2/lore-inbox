@@ -1,59 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266346AbRGBDAe>; Sun, 1 Jul 2001 23:00:34 -0400
+	id <S266352AbRGBDG4>; Sun, 1 Jul 2001 23:06:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266352AbRGBDAY>; Sun, 1 Jul 2001 23:00:24 -0400
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:37702 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S266351AbRGBDAN>; Sun, 1 Jul 2001 23:00:13 -0400
+	id <S266350AbRGBDGp>; Sun, 1 Jul 2001 23:06:45 -0400
+Received: from gc-nas-01-s23.cinergycom.net ([216.135.20.55]:1664 "EHLO
+	kmw.yi.org") by vger.kernel.org with ESMTP id <S266352AbRGBDGd>;
+	Sun, 1 Jul 2001 23:06:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Kurt Maxwell Weber <kmw@rowsw.com>
+Reply-To: kmw@rowsw.com
+Organization: ROW Software and Web Design
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
 Subject: Re: Uncle Sam Wants YOU!
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-To: Ted Unangst <tedu@stanford.edu>
-Cc: Ben Ford <ben@kalifornia.com>, Paul Mundt <lethal@ChaoticDreams.ORG>,
-        Adam Schrotenboer <ajschrotenboer@lycosmail.com>,
-        LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.31.0107011729310.5242-100000@cardinal0.Stanford.EDU>
-In-Reply-To: <Pine.GSO.4.31.0107011729310.5242-100000@cardinal0.Stanford.EDU>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.10.99 (Preview Release)
-Date: 01 Jul 2001 22:56:37 -0400
-Message-Id: <994042598.12021.4.camel@localhost.localdomain>
-Mime-Version: 1.0
+Date: Sun, 1 Jul 2001 22:06:25 -0500
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <3B3F5F5C.40907@lycosmail.com> <3B3FB754.8040305@kalifornia.com> <20010701191121.C12476@vger.timpanogas.org>
+In-Reply-To: <20010701191121.C12476@vger.timpanogas.org>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <01070122062500.00261@zaphodbeeblebrox>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I re-subscribed for this? Blarg. When did the LKML turn into slashdot?
+Good god, I've created a monster.
 
+I intended to just make one point and that be the end of it, but obviously I 
+misjudged.  I should have just sent it privately so as to prevent this flood 
+of OT posts.  I apologize for that.  I made a mistake, and now I know better.
 
-On 01 Jul 2001 17:33:38 -0700, Ted Unangst wrote:
-> On Sun, 1 Jul 2001, Ben Ford wrote:
-> 
-> > Name a single tech company anywhere in the world that doesn't have to
-> > deal with microsoftisms.
-> 
-> http://www.wasabisystems.com/
-> 
-> > Well, when you realize that Bill Gates (not MS, just Bill Gates
-> > personally) has enough money to give every person in the world $10 out
-> > of his pocket, then you see this argument in a different light.
-> 
-> that's called capitalism.
-> 
-> ted
-> 
-> --
-> "First, it was not a strip bar, it was an erotic club.  And second,
-> what can I say?  I'm a night owl."
->       - M. Barry, Mayor of Washington, DC
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---
-Michael Rothwell
-rothwell@holly-springs.nc.us
+Sorry for the trouble.
 
+-- 
+Regards,
+Kurt Weber
+kmw@rowsw.com
 

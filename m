@@ -1,68 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286222AbSAAG7l>; Tue, 1 Jan 2002 01:59:41 -0500
+	id <S287770AbSAAHBL>; Tue, 1 Jan 2002 02:01:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287767AbSAAG7b>; Tue, 1 Jan 2002 01:59:31 -0500
-Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:41224 "HELO
-	yucs.org") by vger.kernel.org with SMTP id <S286222AbSAAG7Z>;
-	Tue, 1 Jan 2002 01:59:25 -0500
-Subject: Re: Dual athlon XP 1800 problems
-From: Shaya Potter <spotter@opus.cs.columbia.edu>
-To: Dave Jones <davej@suse.de>
-Cc: ccroswhite@get2chip.com, Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020101032335.A11129@suse.de>
-In-Reply-To: <3C311B00.FFB58648@get2chip.com> 
-	<20020101032335.A11129@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 01 Jan 2002 01:58:23 -0500
-Message-Id: <1009868304.27412.2.camel@zaphod>
-Mime-Version: 1.0
+	id <S287769AbSAAHBD>; Tue, 1 Jan 2002 02:01:03 -0500
+Received: from smtp002pub.verizon.net ([206.46.170.181]:48054 "EHLO
+	smtp002pub.verizon.net") by vger.kernel.org with ESMTP
+	id <S285169AbSAAHAs>; Tue, 1 Jan 2002 02:00:48 -0500
+Date: Tue, 1 Jan 2002 02:00:01 -0500 (EST)
+From: Werner Puschitz <werner.lx@verizon.net>
+X-X-Sender: <werner.lx@localhost.localdomain>
+To: Rob Landley <landley@trommello.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Re: Framebuffer...Why oh Why???
+In-Reply-To: <20020101054301.YWGP617.femail27.sdc1.sfba.home.com@there>
+Message-ID: <Pine.LNX.4.33.0201010152190.3557-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I missed the original message, I'm running a dual athlon 1800+ XP system
-(actually both CPU for some reason get identified as MPs, but they are
-retail XP chips).
+On Mon, 31 Dec 2001, Rob Landley wrote:
 
-I assume you are using a tyan tiger or thunder motherboard (as I dont
-know of any others in retail yet).  Is your ram registered ecc ram?  If
-it's not, that most likely is your problem.
-
-Is your ram from tyan's approved list?  Mine isn't (crucial, but I have
-never had bad luck with them, even though others seem to have had some
-problems), but I would see if it would change if you would get ram from
-suppliers tyan reccomends.
-
-On the issue of future motherboards not supporting XPs at all, I've read
-in multiple places that the rumor to that effect was false, and that the
-motherboards will not lock out XPs, they just won't be supported (much
-like motherboard manufacturers don't support overclocking, but many give
-you the means to do it).  If you have information direct from the
-manufacturers, than I have no reason to not believe you.
-
-On Mon, 2001-12-31 at 22:23, Dave Jones wrote:
-> On Mon, Dec 31, 2001 at 06:12:16PM -0800, ccroswhite@get2chip.com wrote:
->  > I am having problems with dual athlons and more than 512M RAM.
->  > Here is the configuration:
->  > Dual Athlon XP 1800
->                ^^
->  Not a valid SMP configuration. Some people are getting away with
->  running XP's in SMP boxes, others aren't. And soon, it looks like
->  no new XP's will run in SMP at all.
+> On Sunday 30 December 2001 07:19 pm, Linus Torvalds wrote:
+> > On Sun, 30 Dec 2001, Timothy Covell wrote:
+> > > 	When X11 locks up, I can still kill it and my box lives.  When
+> > > framebuffers crash, their is no recovery save rebooting.  Back in 1995
+> > > I thought that linux VTs and X11 implemenation blew Solaris out of the
+> > > water, and now we want throw away our progress?  I'm still astounded
+> > > by the whole "oooh I can see  a penquin while I boot-up" thing?
+> > > Granted, frame buffers have usage in embedded systems, but do they
+> > > really have to be so deeply integrated??
+> >
+> > They aren't.
+> >
+> > No sane person should use frame buffers if they have the choice.
+> >
+> > Like your mama told you: "Just say no". Use text-mode and X11, and be
+> > happy.
+> >
+> > Some people don't have the choice, of course.
+> >
+> > 		Linus
 > 
->  Take one out/boot a UP kernel, and see if the problems go away.
+> X11 isn't always an improvement.  I've got an X hang on my laptop (about once 
+> a week) that freezes the keyboard and ignores mouse clicks.  Numlock doesn't 
+> change the keyboard LEDs, CTRL-ALT-BACKSPACE won't do a thing, and although I 
+> can ssh in and run top (and see the CPU-eating loop), kill won't take X down 
+> and kill-9 leaves the video display up so the console that thinks it's in 
+> text mode, but isn't, is still useless.  (And that's assuming I'm plugged 
+> into the network and have another box around to ssh in from...)
 > 
->  Dave.
+> Compiling a debug version of X to run under gdb via ssh is on my to-do list...
 > 
-> -- 
-> Dave Jones.                    http://www.codemonkey.org.uk
-> SuSE Labs.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> A userspace program that takes over your main I/O devices modally and keeps 
+> them if it hangs isn't THAT much better than having the kernel ignore you 
+> directly...
+
+I'm having the exact same problems on my ThinkPad 390X. Sometimes it
+freezes several times a day with the exact same symptoms. RedHat 6.2
+worked fine on this laptop. The problems started with 7.1 which uses 
+XFree86 4.0, and it didn't get better with 7.2 (XFree86 4.1).
+What makes it even worse is that after a warm reboot, the screen and 
+keyboard locks up again as soon as gdm gets started (Numlock doesn't work 
+etc.). So I always have to turn off the power to get the laptop working 
+again.
+
+Werner
 
 

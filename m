@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312279AbSEMK2g>; Mon, 13 May 2002 06:28:36 -0400
+	id <S312296AbSEMKef>; Mon, 13 May 2002 06:34:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312296AbSEMK2f>; Mon, 13 May 2002 06:28:35 -0400
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:1789 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S312279AbSEMK2e>; Mon, 13 May 2002 06:28:34 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
+	id <S312414AbSEMKee>; Mon, 13 May 2002 06:34:34 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:39438 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S312296AbSEMKee>; Mon, 13 May 2002 06:34:34 -0400
+Date: Sun, 12 May 2002 17:41:40 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Changelogs on kernel.org
+Message-ID: <20020512204140.GB7593@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020512010709.7a973fac.spyro@armlinux.org> <abmi0f$ugh$1@penguin.transmeta.com> <20020512203103.GA9087@gallifrey>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15583.38222.512544.921796@wombat.chubb.wattle.id.au>
-Date: Mon, 13 May 2002 20:28:30 +1000
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, axboe@suse.de,
-        akpm@zip.com.au, martin@dalecki.de, neilb@cse.unsw.edu.au
-Subject: Re: [PATCH] remove 2TB block device limit
-In-Reply-To: <1060250300@toto.iv>
-X-Mailer: VM 7.03 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Em Sun, May 12, 2002 at 09:31:03PM +0100, Dr. David Alan Gilbert escreveu:
+> Perhaps insisting that each check in message includes a single line (sub
+> 60 chars) description; could turn those into description : name and
+> remove dupes?
 
-There's now a patch available against 2.5.15, and the BK repository
-has been updated to v2.5.15 as well:
+That'd be nice indeed, like %{summary} and %{description} in rpm spec files 8)
 
-    http://www.gelato.unsw.edu.au/patches/2.5.15-largefile-patch
-    bk://gelato.unsw.edu.au:2023/
+A simple script would just get the line with '^Summary:' and generate the
+one page "executive" summary...
 
-Peter C
-peterc@gelato.unsw.edu.au
+Now to wait for the non auto part of the story: discipline of kernel hackers,
+erm, it seems we'll need an human doing the summary... ;(
+
+- Arnaldo

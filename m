@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284890AbRLPXD4>; Sun, 16 Dec 2001 18:03:56 -0500
+	id <S284906AbRLPXO1>; Sun, 16 Dec 2001 18:14:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284903AbRLPXDr>; Sun, 16 Dec 2001 18:03:47 -0500
-Received: from 217-126-161-163.uc.nombres.ttd.es ([217.126.161.163]:55424 "EHLO
-	DervishD.viadomus.com") by vger.kernel.org with ESMTP
-	id <S284890AbRLPXDh>; Sun, 16 Dec 2001 18:03:37 -0500
-To: raul@viadomus.com, rml@tech9.net
+	id <S284908AbRLPXOH>; Sun, 16 Dec 2001 18:14:07 -0500
+Received: from adsl-67-36-120-14.dsl.klmzmi.ameritech.net ([67.36.120.14]:63418
+	"HELO tabris.net") by vger.kernel.org with SMTP id <S284906AbRLPXOA>;
+	Sun, 16 Dec 2001 18:14:00 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Adam Schrotenboer <adam@tabris.net>
+Organization: Dome-S-Isle Data
+To: Robert Love <rml@tech9.net>,
+        =?iso-8859-1?q?Ra=FAlN=FA=F1ez=20de=20Arenas=20Coronado?= 
+	<raul@viadomus.com>
 Subject: Re: Is /dev/shm needed?
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E16FkV9-00010E-00@DervishD.viadomus.com>
-Date: Mon, 17 Dec 2001 00:15:23 +0100
-From: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
-	 Coronado <raul@viadomus.com>
-Reply-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
-	   Coronado <raul@viadomus.com>
-X-Mailer: DervishD TWiSTiNG Mailer
+Date: Sun, 16 Dec 2001 18:13:58 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16FjME-0000WW-00@DervishD.viadomus.com> <1008541849.11242.2.camel@phantasy>
+In-Reply-To: <1008541849.11242.2.camel@phantasy>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011216231358.99830FB80D@tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hello Robert :)
+On Sunday 16 December 2001 17:30, Robert Love wrote:
+> In other words, if you have memory to spare and the data ought to be
+> cached, Linux probably will cache it anyhow.  On the other hand, if you
+> have lots of memory to spare, give it a try.  Mount /tmp or all of /var
+> in tmpfs.
 
->It is not needed.  /dev/shm mounted with tmpfs is only needed for POSIX
->shared memory, which is still fairly rare.
+Unfortunately, some(many?) distros are b0rken in re /var/. There is stuff put 
+there that is needed across boots (for example, mandrake puts the DNS master 
+files in /var/named.)
 
-    That this means that I can mount more than one 'tmpfs' just like
-if it's a *real* filesystem? I wasn't sure, since it's implemented
-thru the page cache.
+>
+> It is dynamic, so you don't need to specify a size.  If you want to give
+> a maximum size (probably a good idea), give one.  Depends on what your
+> tmp usages are and how much free memory you have.
+>
+> 	Robert Love
 
->It is dynamic, so you don't need to specify a size.
+-- 
+tabris
 
-    Yes, I knew, I meant the maximum size. I don't want half of the
-RAM occupied just by a programming mistake ;)))
+   Sweet is love when all is sane
+   Sweet is death to rid the pain
+   Cruel is death when all is well
+   Cruel is love when all is hell
 
-    Thanks a lot for your help :)
-    Raúl
+                                                            Author unkown
+

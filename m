@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130716AbRBAU7k>; Thu, 1 Feb 2001 15:59:40 -0500
+	id <S131222AbRBAVSN>; Thu, 1 Feb 2001 16:18:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131008AbRBAU7b>; Thu, 1 Feb 2001 15:59:31 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:16915 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S130716AbRBAU7P>; Thu, 1 Feb 2001 15:59:15 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
-MIME-Version: 1.0
+	id <S131789AbRBAVSE>; Thu, 1 Feb 2001 16:18:04 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:1796 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S131222AbRBAVRv>;
+	Thu, 1 Feb 2001 16:17:51 -0500
+Message-ID: <20010201201703.A123@bug.ucw.cz>
+Date: Thu, 1 Feb 2001 20:17:03 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Yi Li <yili@sgi.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: XFS file system Pre-Release
+In-Reply-To: <4FAC40499714D31186C60060943F47A902C0C4F0@mtv-mven006e--n.engr.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14969.52732.55971.245131@wire.cadcamlab.org>
-Date: Thu, 1 Feb 2001 14:58:36 -0600 (CST)
-To: John Jasen <jjasen1@umbc.edu>
-Cc: "Michael J. Dikkema" <mjd@moot.ca>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.1 - can't read root fs (devfs maybe?)
-In-Reply-To: <20010201114848.A4161@cadcamlab.org>
-	<Pine.SGI.4.31L.02.0102011349410.71788-100000@irix2.gl.umbc.edu>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
+X-Mailer: Mutt 0.93i
+In-Reply-To: <4FAC40499714D31186C60060943F47A902C0C4F0@mtv-mven006e--n.engr.sgi.com>; from Yi Li on Mon, Jan 29, 2001 at 10:49:38AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-[John Jasen]
-> Errrr .... upon careful reading of the devfs/devfsd documentation,
-> you'll find that it says to put /sbin/devfsd /dev in amongst the
-> first lines in rc.sysinit.
+> We will be demonstrating XFS as the root file system for high availability
+> and clustering solutions in SGI systems at LinuxWorld New York from January
+> 31 to February 2. Free XFS CDs will also be available at LinuxWorld.
 
-> In looking through rc.sysinit, / is not mounted rw until much later.
-
-Who said anything about *re*-mounting '/'?  We are talking about having
-trouble mounting '/' the *first* time, i.e. before rc.sysinit ever gets
-a chance to run.
-
-How did you expect to run /sbin/devfsd when /sbin doesn't exist yet?
-
-Peter
+What support does XFS provide for clustering?
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

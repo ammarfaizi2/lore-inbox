@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262304AbUCCA6y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 19:58:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbUCCA6y
+	id S262306AbUCCBBd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 20:01:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbUCCBBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 19:58:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:15059 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262304AbUCCA6x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 19:58:53 -0500
-Date: Tue, 2 Mar 2004 16:59:28 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Art Haas" <ahaas@airmail.net>
+	Tue, 2 Mar 2004 20:01:33 -0500
+Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:53349 "HELO
+	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262306AbUCCBBb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 20:01:31 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Ben Collins <bcollins@debian.org>
+Subject: Re: 2.6.4-rc1: OOPS when daisy-chaining ieee1394 devices
+Date: Tue, 2 Mar 2004 20:01:24 -0500
+User-Agent: KMail/1.6
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Compile kernel with GCC-3.5 and without regparm
-Message-Id: <20040302165928.3bdd918d.akpm@osdl.org>
-In-Reply-To: <20040303002339.GA20651@artsapartment.org>
-References: <20040303002339.GA20651@artsapartment.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <200403012229.35742.dtor_core@ameritech.net> <20040302041849.GQ1078@phunnypharm.org>
+In-Reply-To: <20040302041849.GQ1078@phunnypharm.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200403022001.24938.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Art Haas" <ahaas@airmail.net> wrote:
->
-> I tried to build the kernel with my CVS GCC-3.5 compiler today, and had
-> all sorts of failures about prototypes not matching.
+On Monday 01 March 2004 11:18 pm, Ben Collins wrote:
+> On Mon, Mar 01, 2004 at 10:29:34PM -0500, Dmitry Torokhov wrote:
+> > Hi,
+> > 
+> > Got the following oops when trying to power up DVD burner daisy chained to
+> > a WD hard drive. Reproducible with latest -bk as well as with ieee1394 patch
+> > from -mm tree. This is a regression as it was somewhat worked with earlier
+> > 2.6 kernels (well, earlier kernels could only log in into the last powered
+> > device, reconnecting to devices sitting earlier in chain was always failing),
+> > but there was no oopses.
+> 
+> Let me know if this patch works for you.
+> 
 
--mm is where the gcc-3.5 action is.  There seems to be a bit of an arms
-race going on wherein the gcc developers are trying to break the kernel
-build faster than I and others can fix it.
+It works very nicely, no more oopses and I can even access both daisy-chained
+devices simultaneously.
 
-See the fastcall-* patches.
+Great job, thanks!
+
+-- 
+Dmitry

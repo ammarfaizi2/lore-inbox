@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318365AbSG3Rfq>; Tue, 30 Jul 2002 13:35:46 -0400
+	id <S315485AbSG3Rt1>; Tue, 30 Jul 2002 13:49:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318366AbSG3Rfq>; Tue, 30 Jul 2002 13:35:46 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:33805 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S318365AbSG3Rfp>; Tue, 30 Jul 2002 13:35:45 -0400
-Date: Tue, 30 Jul 2002 13:33:23 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jens Axboe <axboe@suse.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] block/elevator updates + deadline i/o scheduler
-In-Reply-To: <20020726120248.GI14839@suse.de>
-Message-ID: <Pine.LNX.3.96.1020730132645.4849B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315779AbSG3Rt1>; Tue, 30 Jul 2002 13:49:27 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:42900 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S315485AbSG3Rt0>;
+	Tue, 30 Jul 2002 13:49:26 -0400
+Message-Id: <200207301752.g6UHqjo32751@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Axel Siebenwirth <axel@hh59.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Testing of filesystems 
+In-Reply-To: Your message of "Tue, 30 Jul 2002 11:49:02 +0200."
+             <20020730094902.GA257@prester.freenet.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 30 Jul 2002 10:52:45 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Jul 2002, Jens Axboe wrote:
-> Finally, I've done some testing on it. No testing on whether this really
-> works well in real life (that's what I want testers to do), and no
-> testing on benchmark performance changes etc. What I have done is
-> beat-up testing, making sure it works without corrupting your data. I'm
-> fairly confident that does. Most testing was on SCSI (naturally),
-> however IDE has also been tested briefly.
+> Hi,
+> 
+> I wonder what a good way is to stress test my JFS filesystem. Is there a tool
+> that does something like that maybe? Dont't want performance testing, just
+> all kinds of stress testing to see how the filesystem "is" and to check
+> integrity and functionality.
+> What are you filesystem developers use to do something like that?
+> 
 
-First, great job on the explanation, it went right in my folder for "when
-the docs are clear" explanations.
+You can use the Scalable  Test Platform at the OSDL. 
+We currently have iozone and tiobench test which support JFS, and
+we're looking to add other tests.  For details, see 
+http://www.osdl.org/stp/
+cliffw
 
-Now a request, if someone is running a database app and tests this I'd
-love to see the results. I expect things like LMbench to show more threads
-ending at the same time, but will it help a reall app?
+> Thanks,
+> Axel
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-I bet it was tested briefly on IDE, my last use of IDE a week or so ago
-lasted until I did "make dep" and the output went all over every attached
-drive :-( Still, nice to know it will work if IDE makes it into 2.5.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
 

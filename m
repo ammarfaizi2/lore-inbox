@@ -1,42 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268955AbUHMDd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268961AbUHMDx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268955AbUHMDd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 23:33:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268961AbUHMDd1
+	id S268961AbUHMDx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 23:53:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268963AbUHMDx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 23:33:27 -0400
-Received: from fw.osdl.org ([65.172.181.6]:21940 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268955AbUHMDd0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 23:33:26 -0400
-Date: Thu, 12 Aug 2004 20:33:17 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andreas Dilger <adilger@clusterfs.com>
-cc: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: Possible dcache BUG
-In-Reply-To: <20040813022759.GN18216@schnapps.adilger.int>
-Message-ID: <Pine.LNX.4.58.0408122033040.1839@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org>
- <20040808113930.24ae0273.akpm@osdl.org> <200408100012.08945.gene.heskett@verizon.net>
- <200408102342.12792.gene.heskett@verizon.net> <Pine.LNX.4.58.0408102044220.1839@ppc970.osdl.org>
- <20040810211849.0d556af4@laptop.delusion.de> <Pine.LNX.4.58.0408102201510.1839@ppc970.osdl.org>
- <Pine.LNX.4.58.0408102213250.1839@ppc970.osdl.org> <20040812180033.62b389db@laptop.delusion.de>
- <Pine.LNX.4.58.0408121813190.1839@ppc970.osdl.org> <20040813022759.GN18216@schnapps.adilger.int>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 12 Aug 2004 23:53:29 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:17037 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268961AbUHMDx1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 23:53:27 -0400
+Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <1092364786.877.1.camel@mindpipe>
+References: <20040726082330.GA22764@elte.hu>
+	 <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu>
+	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
+	 <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
+	 <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu>
+	 <20040810132654.GA28915@elte.hu>  <20040812235116.GA27838@elte.hu>
+	 <1092360317.1304.72.camel@mindpipe>  <1092360704.1304.76.camel@mindpipe>
+	 <1092364786.877.1.camel@mindpipe>
+Content-Type: text/plain
+Message-Id: <1092369242.2769.1.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 12 Aug 2004 23:54:02 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 12 Aug 2004, Andreas Dilger wrote:
+On Thu, 2004-08-12 at 22:39, Lee Revell wrote:
+> On Thu, 2004-08-12 at 21:31, Lee Revell wrote:
+> > On Thu, 2004-08-12 at 21:25, Lee Revell wrote:
+> > > Does not compile.  For each module I get:
+> > > 
+> > 
+> > Never mind, stupid mistake on my part.
+> > 
 > 
-> So putting something like the above in cache_alloc_refill() is probably
-> the right thing.
+> Argh, this is actually a fatal bug, and not a mistake on my part. 
+> mcount is an unknown symbol, and make modules_install does not like
+> that.
+> 
+> I checked Module.symvers and it is not in there, but this seems to be a
+> generated file, and I have no idea why mcount does not appear.
+> 
 
-Yes, that sounds about right.
+I think appending this to i386_ksyms.c fixes the problem:
 
-		Linus
+#ifdef CONFIG_PREEMPT_TIMING
+EXPORT_SYMBOL(mcount);
+#endif
+
+Possibly that should be CONFIG_LATENCY_TRACE.
+
+Lee
+
+
+

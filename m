@@ -1,61 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129333AbRBGRe4>; Wed, 7 Feb 2001 12:34:56 -0500
+	id <S129032AbRBGRk4>; Wed, 7 Feb 2001 12:40:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129053AbRBGReg>; Wed, 7 Feb 2001 12:34:36 -0500
-Received: from tux.rsn.hk-r.se ([194.47.143.135]:52384 "EHLO tux.rsn.hk-r.se")
-	by vger.kernel.org with ESMTP id <S129333AbRBGReZ>;
-	Wed, 7 Feb 2001 12:34:25 -0500
-Date: Wed, 7 Feb 2001 18:24:44 +0100 (CET)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: macro@ds2.pg.gda.pl, linux-kernel@vger.kernel.org
-Subject: Re: APIC lockup in 2.4.x-x
-In-Reply-To: <3A8031AA.1FFDF6AE@colorfullife.com>
-Message-ID: <Pine.LNX.4.21.0102071821460.6615-100000@tux.rsn.hk-r.se>
+	id <S129144AbRBGRkq>; Wed, 7 Feb 2001 12:40:46 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:38924 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S129032AbRBGRka>; Wed, 7 Feb 2001 12:40:30 -0500
+Date: Wed, 07 Feb 2001 12:39:59 -0500
+From: Chris Mason <mason@suse.com>
+To: Xuan Baldauf <xuan--reiserfs@baldauf.org>, David Rees <dbr@spoke.nols.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+Message-ID: <511820000.981567599@tiny>
+In-Reply-To: <3A818619.7C3967BC@baldauf.org>
+X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Feb 2001, Manfred Spraul wrote:
 
-> Martin Josefsson wrote:
-> > 
-> > Hi
-> > 
-> > I saw your patch for the APIC lockup and I saw that it was included in
-> > 2.4.1-ac2 so I tried that one.. but it didn't help..
-> > 
-> > I can begin with describing my machine:
-> > 
-> > dual pIII 800 (133MHz FSB)
-> > Asus P3C-D mainboard with i820 chipset
-> > 256MB rimm (rambus)
-> > Dlink DFE570TX (4 port tulip card)
-> > Adaptec 29160 scsicard and 18GB scsidisk.
-> >
+
+On Wednesday, February 07, 2001 06:30:01 PM +0100 Xuan Baldauf
+<xuan--reiserfs@baldauf.org> wrote:
+> In my case, it's a SIS5513 board.
 > 
-> Could you apply the attached patch, enable sysrq, compile & install the
-> kernel, reboot and press sysrq-q after ifup?
+> I have to note that I now have one case which is between offset 9260 and
+> 11016. So probably the tails unpacking theory does not work out.
 > 
-> We assumed that only the old io apic for 440 BX boards is affected, but
-> your board contains a newer apic intrated in the ICH.
+> After a more systematical search, I have found following offsets:
 > 
-> But probably you ran into another bug - the tulip driver doesn't use
-> disable_irq()
+> 9260..11016 = 1756
+> 4204.. 5964 = 1760
+> 2160.. 3243 = 1083
+> 2896.. 3534 =  638
+> 1392.. 3704 = 2312
+> 
+> and so on. Maybe I should write a program which automatically detects and
+> reports the zero blocks. I think the theory of tails unpacking does not
+> work out, because there are also areas affected which are not between 2048
+> and 4096. Also the length of the zeroing can be greater than 2048.
+> However, I did not encounter a length of over 4096.
+> 
 
-Hi
+Files up to around 16k in length can have tails, and tails can be larger
+than 2048 bytes.
 
-After running the test during night I saw that the machine had hung a few
-minutes after I want to bed. It didn't respond to anything, not even sysrq
+Also interesting would be info about when the file closes.  reiserfs only
+creates a tail on file close (file writes always go to full blocks).  If
+you application has the file mmap'd the rules change a little (does it?).
 
-Any more ideas?
-If you have any suggestions or any patch that might fix it or show where
-the problem is, send it to me. I'll test all patches, this is a
-testmachine right now.
-
-/Martin
+-chris
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

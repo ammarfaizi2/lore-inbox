@@ -1,132 +1,819 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268553AbUHTSYZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268674AbUHTSWy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268553AbUHTSYZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 14:24:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268476AbUHTSYY
+	id S268674AbUHTSWy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 14:22:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268671AbUHTSWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 14:24:24 -0400
-Received: from fire.osdl.org ([65.172.181.4]:47016 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S268565AbUHTSQN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 14:16:13 -0400
-Subject: Re: 2.6.8.1-mm3 (compile stats)
-From: John Cherry <cherry@osdl.org>
+	Fri, 20 Aug 2004 14:22:41 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62369 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S268468AbUHTSKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 14:10:49 -0400
 To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040820031919.413d0a95.akpm@osdl.org>
-References: <20040820031919.413d0a95.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1093025543.5075.2.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 20 Aug 2004 11:12:24 -0700
-Content-Transfer-Encoding: 7bit
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH 8/14] kexec: kexec-generic
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 20 Aug 2004 12:09:30 -0600
+Message-ID: <m1acwp65r9.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No change in reiser4 4k stack errors.
 
-Alex Zarochentsev wrote:
+Here is the architecture independent part of kexec.
 
->
->yes. there are large objects (reiser4 context, balancing pools, ...)
-which
->reiser4 allocates on stack. we will use kmalloc/slab for them and see
-how
->performance is changed.  not trivial things will be required if those
-fixes
->would not enough.
-
------------------------------------------------------------------
-
-
-Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
-
-Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
-                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
---------------- ---------- -------- -------- -------- -------- --------
-2.6.8.1-mm3       0w/96e    0w/0e    78w/97e   4w/0e   1w/0e     74w/89e
-2.6.8.1-mm2       0w/96e    0w/0e    78w/97e   4w/0e   1w/0e     74w/89e
-2.6.8.1-mm1       0w/0e     0w/0e    78w/0e    4w/0e   1w/0e     74w/0e
-2.6.8-rc4-mm1     0w/0e     0w/5e    81w/0e    4w/0e   1w/0e     75w/0e
-2.6.8-rc3-mm2     1w/7e     0w/5e    82w/8e    4w/0e   2w/8e     75w/0e
-2.6.8-rc3-mm1     0w/0e     1w/5e    81w/9e    4w/0e   1w/0e     75w/0e
-2.6.8-rc2-mm2     0w/0e     4w/5e    87w/9e    4w/0e   1w/0e     80w/0e
-2.6.8-rc2-mm1     0w/0e     0w/0e    83w/9e    3w/0e   1w/0e     81w/0e
-2.6.8-rc1-mm1     0w/0e     0w/0e    88w/9e    5w/0e   1w/0e     87w/0e
-2.6.7-mm7         0w/0e     0w/0e    89w/9e    5w/0e   1w/0e     84w/0e
-2.6.7-mm6         0w/0e     0w/0e    85w/9e    5w/0e   1w/0e     80w/0e
-2.6.7-mm5         0w/0e     0w/0e    92w/0e    5w/0e   1w/0e     87w/0e
-2.6.7-mm4         0w/0e     0w/0e    94w/0e    5w/0e   1w/0e     89w/0e
-2.6.7-mm3         0w/0e     0w/0e    90w/6e    5w/0e   1w/0e     86w/0e
-2.6.7-mm2         0w/0e     0w/0e   109w/0e    7w/0e   1w/0e    106w/0e
-2.6.7-mm1         0w/0e     5w/0e   108w/0e    5w/0e   1w/0e    104w/0e
-2.6.7-rc3-mm2     0w/0e     5w/0e   105w/10e   5w/0e   2w/0e    100w/2e
-2.6.7-rc3-mm1     0w/0e     5w/0e   104w/10e   5w/0e   2w/0e    100w/2e
-2.6.7-rc2-mm2     0w/0e     5w/0e   109w/10e   5w/0e   2w/0e    105w/2e
-2.6.7-rc2-mm1     0w/0e    12w/0e   158w/13e   5w/0e   3w/0e    153w/4e
-2.6.7-rc1-mm1     0w/0e     6w/0e   108w/0e    5w/0e   2w/0e    104w/0e
-2.6.6-mm5         0w/0e     0w/0e   109w/5e    5w/0e   2w/0e    110w/0e
-2.6.6-mm4         0w/0e     0w/0e   112w/9e    5w/0e   2w/5e    106w/1e
-2.6.6-mm3         3w/9e     0w/0e   120w/26e   5w/0e   2w/0e    114w/10e
-2.6.6-mm2         4w/11e    0w/0e   120w/24e   6w/0e   2w/0e    118w/9e
-2.6.6-mm1         1w/0e     0w/0e   118w/25e   6w/0e   2w/0e    114w/10e
-2.6.6-rc3-mm2     0w/0e     0w/0e   117w/ 0e   8w/0e   2w/0e    116w/0e
-2.6.6-rc3-mm1     0w/0e     0w/0e   120w/10e   8w/0e   2w/0e    152w/2e
-2.6.6-rc2-mm2     0w/0e     1w/5e   118w/ 0e   8w/0e   3w/0e    118w/0e
-2.6.6-rc2-mm1     0w/0e     0w/0e   115w/ 0e   7w/0e   3w/0e    116w/0e
-2.6.6-rc1-mm1     0w/0e     0w/7e   122w/ 0e   7w/0e   4w/0e    122w/0e
-2.6.5-mm6         0w/0e     0w/0e   123w/ 0e   7w/0e   4w/0e    124w/0e
-2.6.5-mm5         0w/0e     0w/0e   119w/ 0e   7w/0e   4w/0e    120w/0e
-2.6.5-mm4         0w/0e     0w/0e   120w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.5-mm3         0w/0e     1w/0e   121w/12e   7w/0e   3w/0e    123w/0e
-2.6.5-mm2         0w/0e     0w/0e   128w/12e   7w/0e   3w/0e    134w/0e
-2.6.5-mm1         0w/0e     5w/0e   122w/ 0e   7w/0e   3w/0e    124w/0e
-2.6.5-rc3-mm4     0w/0e     0w/0e   124w/ 0e   8w/0e   4w/0e    126w/0e
-2.6.5-rc3-mm3     0w/0e     5w/0e   129w/14e   8w/0e   4w/0e    129w/6e
-2.6.5-rc3-mm2     0w/0e     5w/0e   130w/14e   8w/0e   4w/0e    129w/6e
-2.6.5-rc3-mm1     0w/0e     5w/0e   129w/ 0e   8w/0e   4w/0e    129w/0e
-2.6.5-rc2-mm5     0w/0e     5w/0e   130w/ 0e   8w/0e   4w/0e    129w/0e
-2.6.5-rc2-mm4     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-2.6.5-rc2-mm3     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-2.6.5-rc2-mm2     0w/0e     5w/0e   137w/ 0e   8w/0e   3w/0e    134w/0e
-2.6.5-rc2-mm1     0w/0e     5w/0e   136w/ 0e   8w/0e   3w/0e    134w/0e
-2.6.5-rc1-mm2     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-2.6.5-rc1-mm1     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-2.6.4-mm2         1w/2e     5w/2e   144w/10e   8w/0e   3w/2e    144w/0e
-2.6.4-mm1         1w/0e     5w/0e   146w/ 5e   8w/0e   3w/0e    144w/0e
-2.6.4-rc2-mm1     1w/0e     5w/0e   146w/12e  11w/0e   3w/0e    147w/2e
-2.6.4-rc1-mm2     1w/0e     5w/0e   144w/ 0e  11w/0e   3w/0e    145w/0e
-2.6.4-rc1-mm1     1w/0e     5w/0e   147w/ 5e  11w/0e   3w/0e    147w/0e
-2.6.3-mm4         1w/0e     5w/0e   146w/ 0e   7w/0e   3w/0e    142w/0e
-2.6.3-mm3         1w/2e     5w/2e   146w/15e   7w/0e   3w/2e    144w/5e
-2.6.3-mm2         1w/8e     5w/0e   140w/ 0e   7w/0e   3w/0e    138w/0e
-2.6.3-mm1         1w/0e     5w/0e   143w/ 5e   7w/0e   3w/0e    141w/0e
-2.6.3-rc3-mm1     1w/0e     0w/0e   144w/13e   7w/0e   3w/0e    142w/3e
-2.6.3-rc2-mm1     1w/0e     0w/265e 144w/ 5e   7w/0e   3w/0e    145w/0e
-2.6.3-rc1-mm1     1w/0e     0w/265e 141w/ 5e   7w/0e   3w/0e    143w/0e
-2.6.2-mm1         2w/0e     0w/264e 147w/ 5e   7w/0e   3w/0e    173w/0e
-2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
-2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
-2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
-2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
-2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
-2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
-2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
-2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
-2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
-2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
-2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
-2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
-
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-
-John
-
-
-
+diff -uNr linux-2.6.8.1-mm2-e820-64bit.x86_64/MAINTAINERS linux-2.6.8.1-mm2-kexec-generic/MAINTAINERS
+--- linux-2.6.8.1-mm2-e820-64bit.x86_64/MAINTAINERS	Fri Aug 20 09:56:45 2004
++++ linux-2.6.8.1-mm2-kexec-generic/MAINTAINERS	Fri Aug 20 10:43:51 2004
+@@ -1244,6 +1244,17 @@
+ W:	http://www.cse.unsw.edu.au/~neilb/patches/linux-devel/
+ S:	Maintained
+ 
++KEXEC
++P:	Eric Biederman
++P:	Randy Dunlap
++M:	ebiederm@xmission.com
++M:	rddunlap@osdl.org
++W:	http://www.xmission.com/~ebiederm/files/kexec/
++W:	http://developer.osdl.org/rddunlap/kexec/
++L:	linux-kernel@vger.kernel.org
++L:	fastboot@osdl.org
++S:	Maintained
++
+ LANMEDIA WAN CARD DRIVER
+ P:	Andrew Stanley-Jones
+ M:	asj@lanmedia.com
+diff -uNr linux-2.6.8.1-mm2-e820-64bit.x86_64/include/linux/kexec.h linux-2.6.8.1-mm2-kexec-generic/include/linux/kexec.h
+--- linux-2.6.8.1-mm2-e820-64bit.x86_64/include/linux/kexec.h	Wed Dec 31 17:00:00 1969
++++ linux-2.6.8.1-mm2-kexec-generic/include/linux/kexec.h	Fri Aug 20 10:43:51 2004
+@@ -0,0 +1,56 @@
++#ifndef LINUX_KEXEC_H
++#define LINUX_KEXEC_H
++
++#if CONFIG_KEXEC
++#include <linux/types.h>
++#include <linux/list.h>
++#include <asm/kexec.h>
++
++/*
++ * This structure is used to hold the arguments that are used when loading
++ * kernel binaries.
++ */
++
++typedef unsigned long kimage_entry_t;
++#define IND_DESTINATION  0x1
++#define IND_INDIRECTION  0x2
++#define IND_DONE         0x4
++#define IND_SOURCE       0x8
++
++#define KEXEC_SEGMENT_MAX 8
++struct kexec_segment {
++	void *buf;
++	size_t bufsz;
++	void *mem;
++	size_t memsz;
++};
++
++struct kimage {
++	kimage_entry_t head;
++	kimage_entry_t *entry;
++	kimage_entry_t *last_entry;
++
++	unsigned long destination;
++
++	unsigned long start;
++	struct page *control_code_page;
++
++	unsigned long nr_segments;
++	struct kexec_segment segment[KEXEC_SEGMENT_MAX];
++
++	struct list_head control_pages;
++	struct list_head dest_pages;
++	struct list_head unuseable_pages;
++};
++
++
++/* kexec interface functions */
++extern void machine_kexec(struct kimage *image);
++extern int machine_kexec_prepare(struct kimage *image);
++extern void machine_kexec_cleanup(struct kimage *image);
++extern asmlinkage long sys_kexec(unsigned long entry, long nr_segments,
++	struct kexec_segment *segments);
++extern struct page *kimage_alloc_control_pages(struct kimage *image, unsigned int order);
++extern struct kimage *kexec_image;
++#endif
++#endif /* LINUX_KEXEC_H */
+diff -uNr linux-2.6.8.1-mm2-e820-64bit.x86_64/include/linux/reboot.h linux-2.6.8.1-mm2-kexec-generic/include/linux/reboot.h
+--- linux-2.6.8.1-mm2-e820-64bit.x86_64/include/linux/reboot.h	Thu Jul 15 07:27:45 2004
++++ linux-2.6.8.1-mm2-kexec-generic/include/linux/reboot.h	Fri Aug 20 10:43:51 2004
+@@ -51,6 +51,8 @@
+ extern void machine_halt(void);
+ extern void machine_power_off(void);
+ 
++extern void machine_shutdown(void);
++
+ #endif
+ 
+ #endif /* _LINUX_REBOOT_H */
+diff -uNr linux-2.6.8.1-mm2-e820-64bit.x86_64/kernel/Makefile linux-2.6.8.1-mm2-kexec-generic/kernel/Makefile
+--- linux-2.6.8.1-mm2-e820-64bit.x86_64/kernel/Makefile	Fri Aug 20 09:56:45 2004
++++ linux-2.6.8.1-mm2-kexec-generic/kernel/Makefile	Fri Aug 20 10:43:51 2004
+@@ -18,6 +18,7 @@
+ obj-$(CONFIG_KALLSYMS) += kallsyms.o
+ obj-$(CONFIG_PM) += power/
+ obj-$(CONFIG_BSD_PROCESS_ACCT) += acct.o
++obj-$(CONFIG_KEXEC) += kexec.o
+ obj-$(CONFIG_COMPAT) += compat.o
+ obj-$(CONFIG_IKCONFIG) += configs.o
+ obj-$(CONFIG_IKCONFIG_PROC) += configs.o
+diff -uNr linux-2.6.8.1-mm2-e820-64bit.x86_64/kernel/kexec.c linux-2.6.8.1-mm2-kexec-generic/kernel/kexec.c
+--- linux-2.6.8.1-mm2-e820-64bit.x86_64/kernel/kexec.c	Wed Dec 31 17:00:00 1969
++++ linux-2.6.8.1-mm2-kexec-generic/kernel/kexec.c	Fri Aug 20 10:43:51 2004
+@@ -0,0 +1,640 @@
++/*
++ * kexec.c - kexec system call
++ * Copyright (C) 2002-2004 Eric Biederman  <ebiederm@xmission.com>
++ *
++ * This source code is licensed under the GNU General Public License,
++ * Version 2.  See the file COPYING for more details.
++ */
++
++#include <linux/mm.h>
++#include <linux/file.h>
++#include <linux/slab.h>
++#include <linux/fs.h>
++#include <linux/kexec.h>
++#include <linux/spinlock.h>
++#include <linux/list.h>
++#include <linux/highmem.h>
++#include <net/checksum.h>
++#include <asm/page.h>
++#include <asm/uaccess.h>
++#include <asm/io.h>
++#include <asm/system.h>
++
++/*
++ * When kexec transitions to the new kernel there is a one-to-one
++ * mapping between physical and virtual addresses.  On processors
++ * where you can disable the MMU this is trivial, and easy.  For
++ * others it is still a simple predictable page table to setup.
++ *
++ * In that environment kexec copies the new kernel to its final
++ * resting place.  This means I can only support memory whose
++ * physical address can fit in an unsigned long.  In particular
++ * addresses where (pfn << PAGE_SHIFT) > ULONG_MAX cannot be handled.
++ * If the assembly stub has more restrictive requirements
++ * KEXEC_SOURCE_MEMORY_LIMIT and KEXEC_DEST_MEMORY_LIMIT can be
++ * defined more restrictively in <asm/kexec.h>.
++ *
++ * The code for the transition from the current kernel to the
++ * the new kernel is placed in the control_code_buffer, whose size
++ * is given by KEXEC_CONTROL_CODE_SIZE.  In the best case only a single
++ * page of memory is necessary, but some architectures require more.
++ * Because this memory must be identity mapped in the transition from
++ * virtual to physical addresses it must live in the range
++ * 0 - TASK_SIZE, as only the user space mappings are arbitrarily
++ * modifiable.
++ *
++ * The assembly stub in the control code buffer is passed a linked list
++ * of descriptor pages detailing the source pages of the new kernel,
++ * and the destination addresses of those source pages.  As this data
++ * structure is not used in the context of the current OS, it must
++ * be self-contained.
++ *
++ * The code has been made to work with highmem pages and will use a
++ * destination page in its final resting place (if it happens
++ * to allocate it).  The end product of this is that most of the
++ * physical address space, and most of RAM can be used.
++ *
++ * Future directions include:
++ *  - allocating a page table with the control code buffer identity
++ *    mapped, to simplify machine_kexec and make kexec_on_panic more
++ *    reliable.
++ */
++
++/*
++ * KIMAGE_NO_DEST is an impossible destination address..., for
++ * allocating pages whose destination address we do not care about.
++ */
++#define KIMAGE_NO_DEST (-1UL)
++
++static int kimage_is_destination_range(
++	struct kimage *image, unsigned long start, unsigned long end);
++static struct page *kimage_alloc_page(struct kimage *image, unsigned int gfp_mask, unsigned long dest);
++
++
++static int kimage_alloc(struct kimage **rimage,
++	unsigned long nr_segments, struct kexec_segment *segments)
++{
++	int result;
++	struct kimage *image;
++	size_t segment_bytes;
++	unsigned long i;
++
++	/* Allocate a controlling structure */
++	result = -ENOMEM;
++	image = kmalloc(sizeof(*image), GFP_KERNEL);
++	if (!image) {
++		goto out;
++	}
++	memset(image, 0, sizeof(*image));
++	image->head = 0;
++	image->entry = &image->head;
++	image->last_entry = &image->head;
++
++	/* Initialize the list of control pages */
++	INIT_LIST_HEAD(&image->control_pages);
++
++	/* Initialize the list of destination pages */
++	INIT_LIST_HEAD(&image->dest_pages);
++
++	/* Initialize the list of unuseable pages */
++	INIT_LIST_HEAD(&image->unuseable_pages);
++
++	/* Read in the segments */
++	image->nr_segments = nr_segments;
++	segment_bytes = nr_segments * sizeof*segments;
++	result = copy_from_user(image->segment, segments, segment_bytes);
++	if (result)
++		goto out;
++
++	/*
++	 * Verify we have good destination addresses.  The caller is
++	 * responsible for making certain we don't attempt to load
++	 * the new image into invalid or reserved areas of RAM.  This
++	 * just verifies it is an address we can use.
++	 */
++	result = -EADDRNOTAVAIL;
++	for (i = 0; i < nr_segments; i++) {
++		unsigned long mend;
++		mend = ((unsigned long)(image->segment[i].mem)) +
++			image->segment[i].memsz;
++		if (mend >= KEXEC_DESTINATION_MEMORY_LIMIT)
++			goto out;
++	}
++
++	/*
++	 * Find a location for the control code buffer, and add it
++	 * the vector of segments so that it's pages will also be
++	 * counted as destination pages.
++	 */
++	result = -ENOMEM;
++	image->control_code_page = kimage_alloc_control_pages(image,
++		get_order(KEXEC_CONTROL_CODE_SIZE));
++	if (!image->control_code_page) {
++		printk(KERN_ERR "Could not allocate control_code_buffer\n");
++		goto out;
++	}
++
++	result = 0;
++ out:
++	if (result == 0) {
++		*rimage = image;
++	} else {
++		kfree(image);
++	}
++	return result;
++}
++
++static int kimage_is_destination_range(
++	struct kimage *image, unsigned long start, unsigned long end)
++{
++	unsigned long i;
++
++	for (i = 0; i < image->nr_segments; i++) {
++		unsigned long mstart, mend;
++		mstart = (unsigned long)image->segment[i].mem;
++		mend   = mstart + image->segment[i].memsz;
++		if ((end > mstart) && (start < mend)) {
++			return 1;
++		}
++	}
++	return 0;
++}
++
++static struct page *kimage_alloc_pages(unsigned int gfp_mask, unsigned int order)
++{
++	struct page *pages;
++	pages = alloc_pages(gfp_mask, order);
++	if (pages) {
++		unsigned int count, i;
++		pages->mapping = NULL;
++		pages->private = order;
++		count = 1 << order;
++		for(i = 0; i < count; i++) {
++			SetPageReserved(pages + i);
++		}
++	}
++	return pages;
++}
++
++static void kimage_free_pages(struct page *page)
++{
++	unsigned int order, count, i;
++	order = page->private;
++	count = 1 << order;
++	for(i = 0; i < count; i++) {
++		ClearPageReserved(page + i);
++	}
++	__free_pages(page, order);
++}
++
++static void kimage_free_page_list(struct list_head *list)
++{
++	struct list_head *pos, *next;
++	list_for_each_safe(pos, next, list) {
++		struct page *page;
++
++		page = list_entry(pos, struct page, lru);
++		list_del(&page->lru);
++
++		kimage_free_pages(page);
++	}
++}
++		
++struct page *kimage_alloc_control_pages(struct kimage *image, unsigned int order)
++{
++	/* Control pages are special, they are the intermediaries
++	 * that are needed while we copy the rest of the pages
++	 * to their final resting place.  As such they must
++	 * not conflict with either the destination addresses
++	 * or memory the kernel is already using.
++	 *
++	 * The only case where we really need more than one of
++	 * these are for architectures where we cannot disable
++	 * the MMU and must instead generate an identity mapped
++	 * page table for all of the memory.
++	 *
++	 * At worst this runs in O(N) of the image size.
++	 */
++	struct list_head extra_pages;
++	struct page *pages;
++	unsigned int count;
++
++	count = 1 << order;
++	INIT_LIST_HEAD(&extra_pages);
++
++	/* Loop while I can allocate a page and the page allocated
++	 * is a destination page.
++	 */
++	do {
++		unsigned long pfn, epfn, addr, eaddr;
++		pages = kimage_alloc_pages(GFP_KERNEL, order);
++		if (!pages)
++			break;
++		pfn   = page_to_pfn(pages);
++		epfn  = pfn + count;
++		addr  = pfn << PAGE_SHIFT;
++		eaddr = epfn << PAGE_SHIFT;
++		if ((epfn >= (KEXEC_CONTROL_MEMORY_LIMIT >> PAGE_SHIFT)) ||
++			kimage_is_destination_range(image, addr, eaddr))
++		{
++			list_add(&pages->lru, &extra_pages);
++			pages = NULL;
++		}
++	} while(!pages);
++	if (pages) {
++		/* Remember the allocated page... */
++		list_add(&pages->lru, &image->control_pages);
++
++		/* Because the page is already in it's destination
++		 * location we will never allocate another page at
++		 * that address.  Therefore kimage_alloc_pages
++		 * will not return it (again) and we don't need
++		 * to give it an entry in image->segment[].
++		 */
++	}
++	/* Deal with the destination pages I have inadvertently allocated.
++	 *
++	 * Ideally I would convert multi-page allocations into single
++	 * page allocations, and add everyting to image->dest_pages.
++	 * 
++	 * For now it is simpler to just free the pages.
++	 */
++	kimage_free_page_list(&extra_pages);
++	return pages;
++	
++}
++
++static int kimage_add_entry(struct kimage *image, kimage_entry_t entry)
++{
++	if (*image->entry != 0) {
++		image->entry++;
++	}
++	if (image->entry == image->last_entry) {
++		kimage_entry_t *ind_page;
++		struct page *page;
++		page = kimage_alloc_page(image, GFP_KERNEL, KIMAGE_NO_DEST);
++		if (!page) {
++			return -ENOMEM;
++		}
++		ind_page = page_address(page);
++		*image->entry = virt_to_phys(ind_page) | IND_INDIRECTION;
++		image->entry = ind_page;
++		image->last_entry =
++			ind_page + ((PAGE_SIZE/sizeof(kimage_entry_t)) - 1);
++	}
++	*image->entry = entry;
++	image->entry++;
++	*image->entry = 0;
++	return 0;
++}
++
++static int kimage_set_destination(
++	struct kimage *image, unsigned long destination)
++{
++	int result;
++
++	destination &= PAGE_MASK;
++	result = kimage_add_entry(image, destination | IND_DESTINATION);
++	if (result == 0) {
++		image->destination = destination;
++	}
++	return result;
++}
++
++
++static int kimage_add_page(struct kimage *image, unsigned long page)
++{
++	int result;
++
++	page &= PAGE_MASK;
++	result = kimage_add_entry(image, page | IND_SOURCE);
++	if (result == 0) {
++		image->destination += PAGE_SIZE;
++	}
++	return result;
++}
++
++
++static void kimage_free_extra_pages(struct kimage *image)
++{
++	/* Walk through and free any extra destination pages I may have */
++	kimage_free_page_list(&image->dest_pages);
++
++	/* Walk through and free any unuseable pages I have cached */
++	kimage_free_page_list(&image->unuseable_pages);
++
++}
++static int kimage_terminate(struct kimage *image)
++{
++	int result;
++
++	result = kimage_add_entry(image, IND_DONE);
++	if (result == 0) {
++		/* Point at the terminating element */
++		image->entry--;
++		kimage_free_extra_pages(image);
++	}
++	return result;
++}
++
++#define for_each_kimage_entry(image, ptr, entry) \
++	for (ptr = &image->head; (entry = *ptr) && !(entry & IND_DONE); \
++		ptr = (entry & IND_INDIRECTION)? \
++			phys_to_virt((entry & PAGE_MASK)): ptr +1)
++
++static void kimage_free_entry(kimage_entry_t entry)
++{
++	struct page *page;
++
++	page = pfn_to_page(entry >> PAGE_SHIFT);
++	kimage_free_pages(page);
++}
++
++static void kimage_free(struct kimage *image)
++{
++	kimage_entry_t *ptr, entry;
++	kimage_entry_t ind = 0;
++
++	if (!image)
++		return;
++	kimage_free_extra_pages(image);
++	for_each_kimage_entry(image, ptr, entry) {
++		if (entry & IND_INDIRECTION) {
++			/* Free the previous indirection page */
++			if (ind & IND_INDIRECTION) {
++				kimage_free_entry(ind);
++			}
++			/* Save this indirection page until we are
++			 * done with it.
++			 */
++			ind = entry;
++		}
++		else if (entry & IND_SOURCE) {
++			kimage_free_entry(entry);
++		}
++	}
++	/* Free the final indirection page */
++	if (ind & IND_INDIRECTION) {
++		kimage_free_entry(ind);
++	}
++
++	/* Handle any machine specific cleanup */
++	machine_kexec_cleanup(image);
++
++	/* Free the kexec control pages... */
++	kimage_free_page_list(&image->control_pages);
++	kfree(image);
++}
++
++static kimage_entry_t *kimage_dst_used(struct kimage *image, unsigned long page)
++{
++	kimage_entry_t *ptr, entry;
++	unsigned long destination = 0;
++
++	for_each_kimage_entry(image, ptr, entry) {
++		if (entry & IND_DESTINATION) {
++			destination = entry & PAGE_MASK;
++		}
++		else if (entry & IND_SOURCE) {
++			if (page == destination) {
++				return ptr;
++			}
++			destination += PAGE_SIZE;
++		}
++	}
++	return 0;
++}
++
++static struct page *kimage_alloc_page(struct kimage *image, unsigned int gfp_mask, unsigned long destination)
++{
++	/*
++	 * Here we implement safeguards to ensure that a source page
++	 * is not copied to its destination page before the data on
++	 * the destination page is no longer useful.
++	 *
++	 * To do this we maintain the invariant that a source page is
++	 * either its own destination page, or it is not a
++	 * destination page at all.
++	 *
++	 * That is slightly stronger than required, but the proof
++	 * that no problems will not occur is trivial, and the
++	 * implementation is simply to verify.
++	 *
++	 * When allocating all pages normally this algorithm will run
++	 * in O(N) time, but in the worst case it will run in O(N^2)
++	 * time.   If the runtime is a problem the data structures can
++	 * be fixed.
++	 */
++	struct page *page;
++	unsigned long addr;
++
++	/*
++	 * Walk through the list of destination pages, and see if I
++	 * have a match.
++	 */
++	list_for_each_entry(page, &image->dest_pages, lru) {
++		addr = page_to_pfn(page) << PAGE_SHIFT;
++		if (addr == destination) {
++			list_del(&page->lru);
++			return page;
++		}
++	}
++	page = NULL;
++	while (1) {
++		kimage_entry_t *old;
++
++		/* Allocate a page, if we run out of memory give up */
++		page = kimage_alloc_pages(gfp_mask, 0);
++		if (!page) {
++			return 0;
++		}
++		/* If the page cannot be used file it away */
++		if (page_to_pfn(page) > (KEXEC_SOURCE_MEMORY_LIMIT >> PAGE_SHIFT)) {
++			list_add(&page->lru, &image->unuseable_pages);
++			continue;
++		}
++		addr = page_to_pfn(page) << PAGE_SHIFT;
++
++		/* If it is the destination page we want use it */
++		if (addr == destination)
++			break;
++
++		/* If the page is not a destination page use it */
++		if (!kimage_is_destination_range(image, addr, addr + PAGE_SIZE))
++			break;
++
++		/*
++		 * I know that the page is someones destination page.
++		 * See if there is already a source page for this
++		 * destination page.  And if so swap the source pages.
++		 */
++		old = kimage_dst_used(image, addr);
++		if (old) {
++			/* If so move it */
++			unsigned long old_addr;
++			struct page *old_page;
++
++			old_addr = *old & PAGE_MASK;
++			old_page = pfn_to_page(old_addr >> PAGE_SHIFT);
++			copy_highpage(page, old_page);
++			*old = addr | (*old & ~PAGE_MASK);
++
++			/* The old page I have found cannot be a
++			 * destination page, so return it.
++			 */
++			addr = old_addr;
++			page = old_page;
++			break;
++		}
++		else {
++			/* Place the page on the destination list I
++			 * will use it later.
++			 */
++			list_add(&page->lru, &image->dest_pages);
++		}
++	}
++	return page;
++}
++
++static int kimage_load_segment(struct kimage *image,
++	struct kexec_segment *segment)
++{
++	unsigned long mstart;
++	int result;
++	unsigned long offset;
++	unsigned long offset_end;
++	unsigned char *buf;
++
++	result = 0;
++	buf = segment->buf;
++	mstart = (unsigned long)segment->mem;
++
++	offset_end = segment->memsz;
++
++	result = kimage_set_destination(image, mstart);
++	if (result < 0) {
++		goto out;
++	}
++	for (offset = 0;  offset < segment->memsz; offset += PAGE_SIZE) {
++		struct page *page;
++		char *ptr;
++		size_t size, leader;
++		page = kimage_alloc_page(image, GFP_HIGHUSER, mstart + offset);
++		if (page == 0) {
++			result  = -ENOMEM;
++			goto out;
++		}
++		result = kimage_add_page(image, page_to_pfn(page) << PAGE_SHIFT);
++		if (result < 0) {
++			goto out;
++		}
++		ptr = kmap(page);
++		if (segment->bufsz < offset) {
++			/* We are past the end zero the whole page */
++			memset(ptr, 0, PAGE_SIZE);
++			kunmap(page);
++			continue;
++		}
++		size = PAGE_SIZE;
++		leader = 0;
++		if ((offset == 0)) {
++			leader = mstart & ~PAGE_MASK;
++		}
++		if (leader) {
++			/* We are on the first page zero the unused portion */
++			memset(ptr, 0, leader);
++			size -= leader;
++			ptr += leader;
++		}
++		if (size > (segment->bufsz - offset)) {
++			size = segment->bufsz - offset;
++		}
++		if (size < (PAGE_SIZE - leader)) {
++			/* zero the trailing part of the page */
++			memset(ptr + size, 0, (PAGE_SIZE - leader) - size);
++		}
++		result = copy_from_user(ptr, buf + offset, size);
++		kunmap(page);
++		if (result) {
++			result = (result < 0) ? result : -EIO;
++			goto out;
++		}
++	}
++ out:
++	return result;
++}
++
++/*
++ * Exec Kernel system call: for obvious reasons only root may call it.
++ *
++ * This call breaks up into three pieces.
++ * - A generic part which loads the new kernel from the current
++ *   address space, and very carefully places the data in the
++ *   allocated pages.
++ *
++ * - A generic part that interacts with the kernel and tells all of
++ *   the devices to shut down.  Preventing on-going dmas, and placing
++ *   the devices in a consistent state so a later kernel can
++ *   reinitialize them.
++ *
++ * - A machine specific part that includes the syscall number
++ *   and the copies the image to it's final destination.  And
++ *   jumps into the image at entry.
++ *
++ * kexec does not sync, or unmount filesystems so if you need
++ * that to happen you need to do that yourself.
++ */
++struct kimage *kexec_image = NULL;
++
++asmlinkage long sys_kexec_load(unsigned long entry, unsigned long nr_segments,
++	struct kexec_segment *segments, unsigned long flags)
++{
++	struct kimage *image;
++	int result;
++
++	/* We only trust the superuser with rebooting the system. */
++	if (!capable(CAP_SYS_BOOT))
++		return -EPERM;
++
++	/*
++	 * In case we need just a little bit of special behavior for
++	 * reboot on panic.
++	 */
++	if (flags != 0)
++		return -EINVAL;
++
++	if (nr_segments > KEXEC_SEGMENT_MAX)
++		return -EINVAL;
++
++	image = NULL;
++	result = 0;
++
++	if (nr_segments > 0) {
++		unsigned long i;
++		result = kimage_alloc(&image, nr_segments, segments);
++		if (result) {
++			goto out;
++		}
++		result = machine_kexec_prepare(image);
++		if (result) {
++			goto out;
++		}
++		image->start = entry;
++		for (i = 0; i < nr_segments; i++) {
++			result = kimage_load_segment(image, &image->segment[i]);
++			if (result) {
++				goto out;
++			}
++		}
++		result = kimage_terminate(image);
++		if (result) {
++			goto out;
++		}
++	}
++
++	image = xchg(&kexec_image, image);
++
++ out:
++	kimage_free(image);
++	return result;
++}
+diff -uNr linux-2.6.8.1-mm2-e820-64bit.x86_64/kernel/sys.c linux-2.6.8.1-mm2-kexec-generic/kernel/sys.c
+--- linux-2.6.8.1-mm2-e820-64bit.x86_64/kernel/sys.c	Fri Aug 20 09:56:45 2004
++++ linux-2.6.8.1-mm2-kexec-generic/kernel/sys.c	Fri Aug 20 10:43:51 2004
+@@ -17,6 +17,8 @@
+ #include <linux/init.h>
+ #include <linux/highuid.h>
+ #include <linux/fs.h>
++#include <linux/kernel.h>
++#include <linux/kexec.h>
+ #include <linux/workqueue.h>
+ #include <linux/device.h>
+ #include <linux/times.h>
+@@ -225,6 +227,7 @@
+ cond_syscall(sys_lookup_dcookie)
+ cond_syscall(sys_swapon)
+ cond_syscall(sys_swapoff)
++cond_syscall(sys_kexec_load)
+ cond_syscall(sys_init_module)
+ cond_syscall(sys_delete_module)
+ cond_syscall(sys_socketpair)
+@@ -510,6 +513,24 @@
+ 		machine_restart(buffer);
+ 		break;
+ 
++#ifdef CONFIG_KEXEC
++	case LINUX_REBOOT_CMD_KEXEC:
++	{
++		struct kimage *image;
++		image = xchg(&kexec_image, 0);
++		if (!image) {
++			unlock_kernel();
++			return -EINVAL;
++		}
++		notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
++		system_state = SYSTEM_BOOTING;
++		device_shutdown();
++		printk(KERN_EMERG "Starting new kernel\n");
++		machine_shutdown();
++		machine_kexec(image);
++		break;
++	}
++#endif
+ #ifdef CONFIG_SOFTWARE_SUSPEND
+ 	case LINUX_REBOOT_CMD_SW_SUSPEND:
+ 		{

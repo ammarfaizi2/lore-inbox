@@ -1,101 +1,149 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266125AbSLISQQ>; Mon, 9 Dec 2002 13:16:16 -0500
+	id <S265843AbSLIRrj>; Mon, 9 Dec 2002 12:47:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266128AbSLISQQ>; Mon, 9 Dec 2002 13:16:16 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:42672 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S266125AbSLISQO>; Mon, 9 Dec 2002 13:16:14 -0500
-Date: Mon, 9 Dec 2002 19:23:51 +0100
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: rui.p.m.sousa@clix.pt
-Subject: [OOPS] 2.5.50 Emu10K1 OSS
-Message-Id: <20021209192351.070368ef.us15@os.inf.tu-dresden.de>
-Organization: Disorganized
-X-Mailer: Sylpheed version 0.8.6claws66 (GTK+ 1.2.10; Linux 2.5.50)
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.sDZIzjkdPdYjsQ"
+	id <S265885AbSLIRrj>; Mon, 9 Dec 2002 12:47:39 -0500
+Received: from mailnw.centurytel.net ([209.206.160.237]:2226 "EHLO
+	mailnw.centurytel.net") by vger.kernel.org with ESMTP
+	id <S265843AbSLIRrg>; Mon, 9 Dec 2002 12:47:36 -0500
+Message-ID: <3DF549BC.8050806@centurytel.net>
+Date: Mon, 09 Dec 2002 18:56:12 -0700
+From: eric lin <fsshl@centurytel.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021208 Debian/1.2.1-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: debian-user@lists.debian.org
+Subject: from intel onboard Lan and audo to install 2.4.50
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.sDZIzjkdPdYjsQ
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+
+Colin Watson wrote:
+
+ >On Mon, Dec 09, 2002 at 12:59:55AM -0700, eric lin wrote:
+ >
+ >
+ >> the following dmesg seem to show it detect my ac97 is i810_audio but
+ >>it said Primary codec not ready
+ >>
+ >>please help on this
+ >>in 2.4.20 intel borad
+ >>/* eepro is also not work, both I all put in my /etc/modules */
+ >>
+ >>sincere ERic
+ >>www.linuxspice.com
+ >>linux pc for sale
+ >>
+ >>eepro_init_module: Probe is very dangerous in ISA boards!
+ >>eepro_init_module: Please add "autodetect=1" to force probe
+ >>CSLIP: code copyright 1989 Regents of the University of California
+ >>PPP generic driver version 2.4.2
+ >>PPP Deflate Compression module registered
+ >>PPP BSD Compression module registered
+ >>Intel 810 + AC97 Audio, version 0.21, 23:23:34 Nov 30 2002
+ >>PCI: Found IRQ 3 for device 00:1f.5
+ >>PCI: Sharing IRQ 3 with 00:1f.3
+ >>PCI: Setting latency timer of device 00:1f.5 to 64
+ >>i810: Intel ICH4 found at IO 0xe080 and 0xe400, IRQ 3
+ >>i810_audio: Audio Controller supports 6 channels.
+ >>i810_audio: Primary codec not ready.
+ >>
+ >>
+ >
+ >As far as I can tell, this happens if the i810 doesn't have the ac97
+ >codec. Assuming that it really is an i810 card [1], you might have
+ >better luck getting a response from the linux-kernel mailing list.
+ >
+ >[1] You've explicitly put it in /etc/modules, so who knows! Note that I
+ >    don't have to explicitly add i810_audio to /etc/modules or
+ >    /etc/modutils/* for my laptop; instead the kernel works it out
+ >    automatically.
+ >
+ >
+ >
+ >>eepro_init_module: Probe is very dangerous in ISA boards!
+ >>eepro_init_module: Please add "autodetect=1" to force probe
+ >>
+ >>
+ >
+ >The eepro module needs at least an io argument to set the I/O base
+ >address(es), and possibly an irq argument too. You can use 'options'
+ >lines in /etc/modutils/* to set options that are always added when
+ >probing named modules; see the modules.conf(5) man page and remember to
+ >run update-modules after editing files in /etc/modutils.
+ >
+my lspci -v result related to intel onboard LAN(assume is eepro)
+
+ >02:08.0 Ethernet controller: Intel Corp.: Unknown device 1039 (rev 82)
+ >        Subsystem: Intel Corp.: Unknown device 3015
+ >        Flags: bus master, medium devsel, latency 32, IRQ 11
+ >        Memory at feafe000 (32-bit, non-prefetchable) [size=4K]
+ >        I/O ports at d880 [size=64]
+ >        Capabilities: <available only to root>
+ >
+
+ >If it's a PCI card, you might want eepro100 instead?
+ >
+ >
+ >
+I tried put a line in /etc/modutils/actions
+insmod eepro autodetect=1 IO=d880 IRQ=11
+reboot , still not work
+(may be sytax is wrong, have any opinion? do see man page have its 
+syntax on the option feature)
+
+some say newest kernel 2.5.50 can solve all above hardware(intel board 
+on board LAN and audio ) problem, so I download full tar.gz, choose what 
+my hardware fit
+make install
+
+error happen, I justify one of it, first one, in 
+linux-2.4.50/include/asm-i386/io_apic.h
+containing sis_apic_bug  not include its .h file
+
+then re do  make install
+still error, this time I have no clue
+-----------------------------------------------------
+in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o 
+--end-group  -o vmlinux
+drivers/built-in.o(.text+0x11f15): In function `kd_nosound':
+: undefined reference to `input_event'
+drivers/built-in.o(.text+0x11f31): In function `kd_nosound':
+: undefined reference to `input_event'
+drivers/built-in.o(.text+0x11fc8): In function `kd_mksound':
+: undefined reference to `input_event'
+drivers/built-in.o(.text+0x12baa): In function `kbd_bh':
+: undefined reference to `input_event'
+drivers/built-in.o(.text+0x12bb8): In function `kbd_bh':
+: undefined reference to `input_event'
+drivers/built-in.o(.text+0x12bc9): more undefined references to 
+`input_event' follow
+drivers/built-in.o(.text+0x13003): In function `kbd_connect':
+: undefined reference to `input_open_device'
+drivers/built-in.o(.text+0x1301f): In function `kbd_disconnect':
+: undefined reference to `input_close_device'
+drivers/built-in.o(.init.text+0xd71): In function `kbd_init':
+: undefined reference to `input_register_handler'
+make: *** [vmlinux] Error 1
+fsshl@www:~/linux-2.5.50$
+------------------------------------------------------------
+
+also I have difficult(unsuccess) patch 2.5.50
+I did
+gzip -cd patch-2.5.50-ac1.gz  | patch -p0
+in my home direction which I untar unzip linux-2.5.50.tar.gz
+it ask file to patch
+I type patch-2.5.50-ac1.gz again,   not right, so produc .orig and .rej 
+files, please help on that
+
+highly appreciate your help and your time
+sincere Eric
+www.linuxspice.com
+linux pc for sale
 
 
-Hi,
-
-I just got the following oops under 2.5.50. I have a SB Live with Emu10K1
-chip, and I'm using the old OSS drivers in the kernel. This is the first
-time it actually oopsed. I've booted the same kernel several times before
-without any oddities.
-
-Regards,
--Udo.
-
-ksymoops 2.4.5 on i686 2.5.50.  Options used
-     -V (default)                           
-     -K (specified)
-     -l /proc/modules (default)
-     -o /lib/modules/2.5.50/ (default)
-     -m /boot/System.map-2.5.50 (specified)
-
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Unable to handle kernel NULL pointer dereference at virtual address 000002fc
-c029e9a6
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0060:[<c029e9a6>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010002
-eax: 00000002   ebx: ede02000   ecx: edd98444   edx: 00000003
-esi: 00000202   edi: efb6d900   ebp: 00000000   esp: ede03f24
-ds: 0068   es: 0068   ss: 0068
-Stack: edac9bfc edd080c0 effe2500 edf5e640 eddcc6c0 effe2500 edd98444 edac7f40
-       c01450e7 edd98444 eddcc6c0 eddcc6c0 00000000 efc5dc80 00000001 c0143494
-       eddcc6c0 efc5dc80 00000001 00000004 efc5dc80 c011c0b7 eddcc6c0 efc5dc80
- [<c01450e7>] __fput+0xd7/0xe0
- [<c0143494>] filp_close+0x74/0xa0
- [<c011c0b7>] put_files_struct+0x57/0xc0
- [<c011c76f>] do_exit+0x12f/0x2d0
- [<c011c943>] sys_exit+0x13/0x20
- [<c010926f>] syscall_call+0x7/0xb
-Code: 80 bd fc 02 00 00 00 74 11 8b 44 24 0c 80 b8 01 74 00 00 00
 
 
->>EIP; c029e9a6 <emu10k1_audio_release+36/1d0>   <=====
-
->>ebx; ede02000 <END_OF_CODE+2d95e348/????>
->>ecx; edd98444 <END_OF_CODE+2d8f478c/????>
->>edi; efb6d900 <END_OF_CODE+2f6c9c48/????>
->>esp; ede03f24 <END_OF_CODE+2d96026c/????>
-
-Code;  c029e9a6 <emu10k1_audio_release+36/1d0>
-00000000 <_EIP>:
-Code;  c029e9a6 <emu10k1_audio_release+36/1d0>   <=====
-   0:   80 bd fc 02 00 00 00      cmpb   $0x0,0x2fc(%ebp)   <=====
-Code;  c029e9ad <emu10k1_audio_release+3d/1d0>
-   7:   74 11                     je     1a <_EIP+0x1a>
-Code;  c029e9af <emu10k1_audio_release+3f/1d0>
-   9:   8b 44 24 0c               mov    0xc(%esp,1),%eax
-Code;  c029e9b3 <emu10k1_audio_release+43/1d0>
-   d:   80 b8 01 74 00 00 00      cmpb   $0x0,0x7401(%eax)
-
---=.sDZIzjkdPdYjsQ
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE99N+7nhRzXSM7nSkRAoAtAJ4oA8jsViE7a2XGSNBfarFueoQI/gCfRRFd
-V7jVib7Wcn8FdLkiWi3ZBYA=
-=t3x7
------END PGP SIGNATURE-----
-
---=.sDZIzjkdPdYjsQ--

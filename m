@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267759AbUHJVyh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267763AbUHJVzm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267759AbUHJVyh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 17:54:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267763AbUHJVyh
+	id S267763AbUHJVzm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 17:55:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267764AbUHJVzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 17:54:37 -0400
-Received: from s2.ukfsn.org ([217.158.120.143]:64948 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S267759AbUHJVye (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 17:54:34 -0400
-Message-ID: <41194431.6010300@dgreaves.com>
-Date: Tue, 10 Aug 2004 22:54:57 +0100
-From: David Greaves <david@dgreaves.com>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Luesley, William" <william.luesley@amsjv.com>
-Cc: "'Paul Jakma'" <paul@clubi.ie>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Network routing issue
-References: <22CE8E75BE6AD3119A9800508B0FF7E9030BADD7@nmex02.nm.dsx.bae.co.uk>
-In-Reply-To: <22CE8E75BE6AD3119A9800508B0FF7E9030BADD7@nmex02.nm.dsx.bae.co.uk>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 10 Aug 2004 17:55:42 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:52151 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267763AbUHJVzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 17:55:39 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O5
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <20040810132654.GA28915@elte.hu>
+References: <1090795742.719.4.camel@mindpipe>
+	 <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe>
+	 <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe>
+	 <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu>
+	 <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu>
+	 <20040809104649.GA13299@elte.hu>  <20040810132654.GA28915@elte.hu>
+Content-Type: text/plain
+Message-Id: <1092174959.5061.6.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 10 Aug 2004 17:56:00 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-08-10 at 09:26, Ingo Molnar wrote:
+> i've uploaded the latest version of the voluntary-preempt patch:
+>     
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc3-O5
+> 
+> -O5 fixes the APIC lockup issues. The bug was primarily caused by PCI
+> POST delays causing IRQ storms of level-triggered IRQ sources that were
+> hardirq-redirected. Also found some bugs in delayed-IRQ masking and
+> unmasking. SMP should thus work again too.
+> 
 
->>You're on the wrong track. C doesnt even need IP addresses, two 
->>choices:
->>    
->>
->>- C as bridge and use ebtables (C doesnt even need addresses 
->>theoretically)
->>    
->>
->>- C as router, use iptables. C needs one or more addresses which must 
->>be different.
->>    
->>
->My problem is I need to modify the messages before passing them on.  As far
->as I'm aware, bridges don't do that - but then I'm a newbie when it comes to
->bridging!
->  
->
-http://www.spinics.net/lists/netfilter/msg13455.html
+The mlockall() issue seems to be fixed.  Now I get this one when
+starting jackd:
 
-http://ebtables.sourceforge.net/documentation.html
+(jackd/12427): 10882us non-preemptible critical section violated 400 us preempt threshold starting at kernel_fpu_begin+0x10/0x60 and ending at fast_clear_page+0x75/0xa0
+ [<c0106777>] dump_stack+0x17/0x20
+ [<c01140eb>] sub_preempt_count+0x4b/0x60
+ [<c01d1585>] fast_clear_page+0x75/0xa0
+ [<c013ea86>] do_anonymous_page+0x86/0x180
+ [<c013ebd0>] do_no_page+0x50/0x300
+ [<c013f041>] handle_mm_fault+0xc1/0x170
+ [<c013da33>] get_user_pages+0x133/0x3d0
+ [<c013f198>] make_pages_present+0x68/0x90
+ [<c0140948>] do_mmap_pgoff+0x3f8/0x640
+ [<c010b7f6>] sys_mmap2+0x76/0xb0
+ [<c0106117>] syscall_call+0x7/0xb
 
-I don't know if it will do what you want 'out of the box'
-
-if not then the sensible thing to do would be to route and setup:
-
-          A ------------ C  C  ---------- B
-192.168.1.1    192.168.1.2  192.168.2.1   192.168.2.2
-
-and use iptables to do user space packet filtering.
-
-http://www.netfilter.org/documentation/HOWTO//netfilter-hacking-HOWTO-4.html#ss4.7
-http://www.lowth.com/howto/iptables-treasures.php
-
-I saw that ebtables can use iptables modules (with some hacking)
-
-David
+Lee
 

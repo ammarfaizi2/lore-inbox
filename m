@@ -1,64 +1,155 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273888AbRJYNax>; Thu, 25 Oct 2001 09:30:53 -0400
+	id <S273902AbRJYNdD>; Thu, 25 Oct 2001 09:33:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273831AbRJYNad>; Thu, 25 Oct 2001 09:30:33 -0400
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:51076 "EHLO ookhoi.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S273333AbRJYNa3>;
-	Thu, 25 Oct 2001 09:30:29 -0400
-Date: Thu, 25 Oct 2001 15:31:03 +0200
-From: Ookhoi <ookhoi@ookhoi.xs4all.nl>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Thomas Svedberg <thsv@bigfoot.com>, linux-kernel@vger.kernel.org,
-        rgooch@atnf.csiro.au
-Subject: Re: Network device problems
-Message-ID: <20011025153103.T24475@humilis>
-Reply-To: ookhoi@ookhoi.xs4all.nl
-In-Reply-To: <1004013479.2597.50.camel@athlon1.hemma.se> <3BD80A32.16D618FD@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BD80A32.16D618FD@mandrakesoft.com>
-User-Agent: Mutt/1.3.19i
-X-Uptime: 10:37:19 up 9 days, 16:44, 10 users,  load average: 0.00, 0.00, 0.00
+	id <S273912AbRJYNcy>; Thu, 25 Oct 2001 09:32:54 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:62736 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S273904AbRJYNce>; Thu, 25 Oct 2001 09:32:34 -0400
+Message-ID: <3BD8154E.24511282@loewe-komp.de>
+Date: Thu, 25 Oct 2001 15:36:14 +0200
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: LOEWE. Hannover
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.9-ac3 i686)
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: =?iso-8859-1?Q?Ren=E9?= Scharfe <l.s.r@web.de>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] strtok --> strsep in framebuffer drivers (part 2)
+In-Reply-To: <m15wXDA-007qbNC@smtp.web.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
-
-> Thomas Svedberg wrote:
-> > 
-> > Just updated to RedHat 7.2 and after compiling and starting my new
-> > kernel my network interfaces won't go up (not even lo), I get the
-> > following message:
-> > "ifup: Cannot send dump request: Connection refused".
-> > 
-> > Tried kernels 2.4.12-ac2 and -ac6 (One of my -ac2 kernels worked fine
-> > before the upgrade).
-> > 
-> > Using the RedHat precompiled kernels it works (but then I have no lVM)
-> > 
-> > Anyone have any clues ?
+René Scharfe wrote:
 > 
-> Yep.  Newer initscripts from RedHat and Mandrake (and others?) require
-> CONFIG_NETLINK_DEV.  initscripts runs, IIRC, iproute, which in turn
-> requires the netlink device.
+> Hello,
 > 
-> I have a feeling this is going to be a FAQ.  Pretty much anybody who
-> uses these initscripts and compiles their own kernel !CONFIG_NETLINK_DEV
-> will hit this.
+> I just noticed two framebuffer drivers with strtok calls that somehow
+> passed below my radar (cscope). Patch below converts them, too. And it
+> re-adds "ignore empty tokens" functionalty, which I forgot about the
+> last time. Please apply.
+> 
+> René
+> 
+> diff -Nur ../linux-2.4.13-pre6/drivers/video/amifb.c ./drivers/video/amifb.c
+> --- ../linux-2.4.13-pre6/drivers/video/amifb.c  Tue Oct 23 22:13:43 2001
+> +++ ./drivers/video/amifb.c     Tue Oct 23 23:04:03 2001
+> @@ -1193,6 +1193,8 @@
+>                 return 0;
+> 
+>         while (this_opt = strsep(&options, ",")) {
+> +               if (!*this_opt)
+> +                       continue;
+>                 if (!strcmp(this_opt, "inverse")) {
+>                         amifb_inverse = 1;
+>                         fb_invert_cmaps();
+> diff -Nur ../linux-2.4.13-pre6/drivers/video/atafb.c ./drivers/video/atafb.c
+> --- ../linux-2.4.13-pre6/drivers/video/atafb.c  Fri Sep 14 01:04:43 2001
+> +++ ./drivers/video/atafb.c     Tue Oct 23 23:00:59 2001
+> @@ -2899,7 +2899,7 @@
+>      if (!options || !*options)
+>                 return 0;
+> 
+> -    for(this_opt=strtok(options,","); this_opt; this_opt=strtok(NULL,",")) {
+> +    while (this_opt = strsep(&options, ",")) {
+>         if (!*this_opt) continue;
+>         if ((temp=get_video_mode(this_opt)))
+>                 default_par=temp;
+> diff -Nur ../linux-2.4.13-pre6/drivers/video/aty/atyfb_base.c ./drivers/video/aty/atyfb_base.c
+> --- ../linux-2.4.13-pre6/drivers/video/aty/atyfb_base.c Tue Oct 23 22:13:43 2001
+> +++ ./drivers/video/aty/atyfb_base.c    Tue Oct 23 23:05:24 2001
+> @@ -2522,6 +2522,8 @@
+>         return 0;
+> 
+>      while (this_opt = strsep(&options, ",")) {
+> +       if (!*this_opt)
+> +               continue;
+>         if (!strncmp(this_opt, "font:", 5)) {
+>                 char *p;
+>                 int i;
+> diff -Nur ../linux-2.4.13-pre6/drivers/video/aty128fb.c ./drivers/video/aty128fb.c
+> --- ../linux-2.4.13-pre6/drivers/video/aty128fb.c       Tue Oct 23 22:13:43 2001
+> +++ ./drivers/video/aty128fb.c  Tue Oct 23 23:06:17 2001
+> @@ -1614,6 +1614,8 @@
+>         return 0;
+> 
+>      while (this_opt = strsep(&options, ",")) {
+> +       if (!*this_opt)
+> +           continue;
+>         if (!strncmp(this_opt, "font:", 5)) {
+>             char *p;
+>             int i;
+> diff -Nur ../linux-2.4.13-pre6/drivers/video/clgenfb.c ./drivers/video/clgenfb.c
+> --- ../linux-2.4.13-pre6/drivers/video/clgenfb.c        Wed Oct 10 00:13:02 2001
+> +++ ./drivers/video/clgenfb.c   Tue Oct 23 22:59:38 2001
+> @@ -2817,8 +2817,7 @@
+>         if (!options || !*options)
+>                 return 0;
+> 
+> -       for (this_opt = strtok (options, ","); this_opt != NULL;
+> -            this_opt = strtok (NULL, ",")) {
+> +       while (this_opt = strsep (&options, ",")) {
+>                 if (!*this_opt) continue;
+> 
+>                 DPRINTK("clgenfb_setup: option '%s'\n", this_opt);
+> diff -Nur ../linux-2.4.13-pre6/drivers/video/cyberfb.c ./drivers/video/cyberfb.c
+> --- ../linux-2.4.13-pre6/drivers/video/cyberfb.c        Tue Oct 23 22:13:43 2001
+> +++ ./drivers/video/cyberfb.c   Tue Oct 23 23:07:42 2001
+> @@ -1023,6 +1023,8 @@
+>         }
+> 
+>         while (this_opt = strsep(&options, ",")) {
+> +               if (!*this_opt)
+> +                       continue;
+>                 if (!strcmp(this_opt, "inverse")) {
+>                         Cyberfb_inverse = 1;
+>                         fb_invert_cmaps();
+> diff -Nur ../linux-2.4.13-pre6/drivers/video/radeonfb.c ./drivers/video/radeonfb.c
+> --- ../linux-2.4.13-pre6/drivers/video/radeonfb.c       Tue Oct 23 22:13:43 2001
+> +++ ./drivers/video/radeonfb.c  Tue Oct 23 23:09:58 2001
+> @@ -538,6 +538,8 @@
+>                  return 0;
+> 
+>         while (this_opt = strsep (&options, ",")) {
+> +               if (!*this_opt)
+> +                       continue;
+>                  if (!strncmp (this_opt, "font:", 5)) {
+>                          char *p;
+>                          int i;
+> diff -Nur ../linux-2.4.13-pre6/drivers/video/retz3fb.c ./drivers/video/retz3fb.c
+> --- ../linux-2.4.13-pre6/drivers/video/retz3fb.c        Tue Oct 23 22:13:43 2001
+> +++ ./drivers/video/retz3fb.c   Tue Oct 23 23:30:56 2001
+> @@ -1349,6 +1349,8 @@
+>                 return 0;
+> 
+>         while (this_opt = strsep(&options, ",")) {
+> +               if (!*this_opt)
+> +                       continue;
+>                 if (!strcmp(this_opt, "inverse")) {
+>                         z3fb_inverse = 1;
+>                         fb_invert_cmaps();
+> diff -Nur ../linux-2.4.13-pre6/drivers/video/riva/fbdev.c ./drivers/video/riva/fbdev.c
+> --- ../linux-2.4.13-pre6/drivers/video/riva/fbdev.c     Tue Oct 23 22:13:43 2001
+> +++ ./drivers/video/riva/fbdev.c        Tue Oct 23 23:31:33 2001
+> @@ -2046,6 +2046,8 @@
+>                 return 0;
+> 
+>         while (this_opt = strsep(&options, ",")) {
+> +               if (!*this_opt)
+> +                       continue;
 
-But what about:
+NAME
+       strsep - extract token from string
+[...]
+RETURN VALUE
+       The strsep() function returns a pointer to the  token,  or
+       NULL if delim is not found in stringp.
 
-CONFIG_NETLINK_DEV
-  This option will be removed soon. Any programs that want to use
-  character special nodes like /dev/tap0 or /dev/route (all with major
-  number 36) need this option, and need to be rewritten soon to use
-  the real netlink socket.
-  This is a backward compatibility option, choose Y for now.
+If strsep returns NULL, and you dereference it -> Oops.
 
-IIRC it says "will be removed soon" and "This is a backward
-compatibility option" for a long time now (since 2.3?, didn' check). It
-is not strange for people not to enable it imho. 
 
-	Ookhoi
+! if (!this_opt)
+	continue;

@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283783AbSAAUS7>; Tue, 1 Jan 2002 15:18:59 -0500
+	id <S283758AbSAAUNU>; Tue, 1 Jan 2002 15:13:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283723AbSAAUSu>; Tue, 1 Jan 2002 15:18:50 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:44787 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S283783AbSAAUSh>;
-	Tue, 1 Jan 2002 15:18:37 -0500
-Date: Tue, 1 Jan 2002 13:18:17 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Andrew Clausen <clausen@gnu.org>
-Cc: linux-kernel@vger.kernel.org, bug-parted@gnu.org,
-        evms-devel@lists.sourceforge.net
-Subject: Re: [Evms-devel] userspace discovery of partitions
-Message-ID: <20020101131817.J12868@lynx.no>
-Mail-Followup-To: Andrew Clausen <clausen@gnu.org>,
-	linux-kernel@vger.kernel.org, bug-parted@gnu.org,
-	evms-devel@lists.sourceforge.net
-In-Reply-To: <20020102055735.C472@gnu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20020102055735.C472@gnu.org>; from clausen@gnu.org on Wed, Jan 02, 2002 at 05:57:35AM +1100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S283782AbSAAUNJ>; Tue, 1 Jan 2002 15:13:09 -0500
+Received: from host213-123-132-94.in-addr.btopenworld.com ([213.123.132.94]:62477
+	"EHLO ambassador.mathewson.int") by vger.kernel.org with ESMTP
+	id <S283758AbSAAUMw>; Tue, 1 Jan 2002 15:12:52 -0500
+Message-Id: <200201012012.g01KCjY21113@ambassador.mathewson.int>
+Subject: Re: Athalon Motherboard Question
+To: linux-kernel@vger.kernel.org
+From: Joseph Mathewson <joe@mathewson.co.uk>
+Reply-to: joe.mathewson@btinternet.com
+Date: Tue, 01 Jan 2002 20:12:45 -0000
+X-Mailer: TiM infinity-ALPHA6-rc1
+X-TiM-Client: dhcp-client-9.mathewson.int [192.168.0.108]
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 02, 2002  05:57 +1100, Andrew Clausen wrote:
-> As discussed a while ago (see thread starting at
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0105.2/0659.html), I
-> wrote a frontend to libparted that does nothing but probe all
-> block devices for partition tables, and tells the kernel what
-> partitions it finds.  It optionally prints a short summary.
+In message "Athalon Motherboard Question", <Edward Muller> wrote:
 
-This would mesh nicely with the filesystem (and other content) probing
-tool/lib that I wrote, blkid.  It probes filesystem types (and also
-label, uuid, fs size for common fs types).
-
-> The hope is to be able to remove partition table parsing from the
-> kernel, and share partition table code with libparted.
+> Slightly off topic ... but I couldn't think of a better place to ask, or
+> at least not one with more knowledgable people on the subject.
 > 
-> It's called partprobe, and is distributed with Parted.  Get it from:
+> I'm looking to upgrade my Motherboard.
 > 
-> 	ftp.gnu.org/gnu/parted/devel/parted-1.5.6-pre2.tar.gz
+> So I'm wondering which Athlon/XP motherboard you guys would use? I know
+> there were (or are?) problems with some of the VIA chipsets and most of
+> the Athlon MoBos seem to use some VIA chipset.
 > 
-> When partprobe/libparted are compiled with --enable-discover-only
-> --disable-nls etc (see README), it comes to about 73k (35k
-> compressed), not including libc or libuuid.  Unfortunately, this is
-> still quite large to be including in things like initramfs.  Is
-> it worth paying this price?
+> Anyway. Suggestions welcome.
+> 
+> Thanks,
+> EAM
 
-Hmm, it does seem a bit large for what it is doing.  Any idea where
-the bloat is coming from?
+The Athlon XP/MP SMP issues (as well as the VIA chipset issues) are becoming
+quite FAQs.  It strikes me a kept-up-to-date site listing current issues that
+are known/being fixed/hardware bugs/whatever would be useful.  I would be
+prepared to have a go if some maintainers (/knowledgeable kernel hackers) could
+give me some info, but I'm certainly not a kernel guru and would not be able to
+handle troubleshooting mail from all Linux's AMD users :).
 
-My blkid lib is 34kB (uncompressed) and supports 23 filesystem types
-(all that the current mount(8) has), although only a handful have full
-LABEL and UUID support.  The user tool is 6.5kB and I also use libuuid.so.
+I could quite easily hack together something in PHP for listing known
+working/known broken configurations (proc/mobo/?), I guess.  
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Thoughts/suggestions?
 
+Joe.

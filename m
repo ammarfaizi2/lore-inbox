@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261674AbTHTBM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 21:12:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbTHTBM6
+	id S261694AbTHTBXb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 21:23:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbTHTBXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 21:12:58 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:48276
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S261674AbTHTBM5 convert rfc822-to-8bit (ORCPT
+	Tue, 19 Aug 2003 21:23:31 -0400
+Received: from smtp3.wanadoo.fr ([193.252.22.25]:26549 "EHLO
+	mwinf0603.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S261694AbTHTBX3 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 21:12:57 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns?=
-	=?iso-8859-1?q?=20Rullg=E5rd?=),
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O17int
-Date: Wed, 20 Aug 2003 11:19:40 +1000
+	Tue, 19 Aug 2003 21:23:29 -0400
+From: jjluza <jjluza@yahoo.fr>
+To: Greg KH <greg@kroah.com>
+Subject: Re: Problem with 2.6-testXX and alcatel speedtouch usb modem
+Date: Wed, 20 Aug 2003 03:23:42 +0200
 User-Agent: KMail/1.5.3
-References: <200308200102.04155.kernel@kolivas.org> <yw1xbrulxyn8.fsf@users.sourceforge.net>
-In-Reply-To: <yw1xbrulxyn8.fsf@users.sourceforge.net>
+References: <200308200206.20798.jjluza@yahoo.fr> <20030820003403.GA13833@kroah.com>
+In-Reply-To: <20030820003403.GA13833@kroah.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200308201119.41093.kernel@kolivas.org>
+Message-Id: <200308200323.42884.jjluza@yahoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Aug 2003 04:58, Måns Rullgård wrote:
-> Another XEmacs strangeness:
+Le Mercredi 20 Août 2003 02:34, vous avez écrit :
+> On Wed, Aug 20, 2003 at 02:06:20AM +0200, jjluza wrote:
+> > I try to make this modem working.
+> > It works very well on kernel 2.4 series.
+> > It work with some kernel 2.6 until test2-mm1.
+> > But since test2-mm1, the newer kernel doesn't work anymore.
+> > There is 2 related drivers for this modem.
+> > The one which is included in the kernel and which can be found here :
+> > http://www.linux-usb.org/SpeedTouch/
+> > and the one which I've always used until now :
+> > speedtouch.sourceforge.net
+> >
+> > when I notice that the old one doesn't work anymore, I try with the
+> > driver which included in the kernel, without success.
 >
-> When compiling from xemacs, everything is fine until the compilation
-> is done.  Then xemacs starts spinning wildly in some loop doing this:
-> This goes on for anything from half a second to several seconds.
-> During that time other processes, except X, are starved.
+> Take a look at a thread about this on the linux-usb-devel mailing list.
+> People are working on narrowing down the patch that caused this problem
+> and could probably use your help.
 >
-> I saw this first with 2.6.0-test1 vanilla, then it went away in -test2
-> and -test3, only to show up again with O16.3int.  My O16.2 kernel
-> seems ok, which seems strange to me since the difference from O16.2 to
-> O16.3 is very small.
+> thanks,
+>
+> greg k-h
 
-While being a small patch, 16.2-16.3 was a large change. It removed the very 
-aggressive starvation avoidance of spin on wait waker/wakee in 16.2, which 
-clearly helped your issue.
 
-> Any ideas?
-
-Pretty sure we have another spinner. A reniced -11 batch run of top -d 1 and 
-vmstat during the spinning, and a kernel profile for that time will be 
-helpful.
-
-Con
+ok, I find the mailing list you said
+I find the thread too, but it seems that the problem they pointed has nothing 
+to do with mine.
+Anyway, I post a copy of my message on the user ml  ;)
+If you think I should post on the devel ml, I could post a copy on it too.
+thanks.
 

@@ -1,76 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261439AbSIZSlH>; Thu, 26 Sep 2002 14:41:07 -0400
+	id <S261453AbSIZSyR>; Thu, 26 Sep 2002 14:54:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261441AbSIZSlH>; Thu, 26 Sep 2002 14:41:07 -0400
-Received: from web21401.mail.yahoo.com ([216.136.232.71]:64815 "HELO
-	web21401.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261439AbSIZSlE>; Thu, 26 Sep 2002 14:41:04 -0400
-Message-ID: <20020926184618.35723.qmail@web21401.mail.yahoo.com>
-Date: Thu, 26 Sep 2002 11:46:18 -0700 (PDT)
-From: Venkatesh Rao <rpranesh@yahoo.com>
-Subject: Problems with tcp_retransmit_skb - Please omit the previous incomplete mail
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261454AbSIZSyR>; Thu, 26 Sep 2002 14:54:17 -0400
+Received: from port326.ds1-brh.adsl.cybercity.dk ([217.157.160.207]:4924 "EHLO
+	mail.jaquet.dk") by vger.kernel.org with ESMTP id <S261453AbSIZSyQ>;
+	Thu, 26 Sep 2002 14:54:16 -0400
+Date: Thu, 26 Sep 2002 20:59:24 +0200
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: mingo@redhat.com, davem@redhat.com, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] gfp_t
+Message-ID: <20020926185924.GA1892@jaquet.dk>
+References: <20020926044401.9C60D2C3CC@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
+Content-Disposition: inline
+In-Reply-To: <20020926044401.9C60D2C3CC@lists.samba.org>
+User-Agent: Mutt/1.3.28i
+X-PGP-Key: http://www.jaquet.dk/rasmus/pubkey.asc
+X-PGP-Fingerprint: 925A 8E4B 6D63 1C22 BFB9  29CF 9592 4049 9E9E 26CE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have a strange problem with tcp_retransmit_skb. I
-will describe my setup before i describe my problem.
 
-Please CC me.
+--M9NhX3UHpAaciwkO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Setup:
-ucLinux 2.4.10 based kernel running on a embedded
-processor (coldfire) with 40 MIPS processing
-capablity.
+On Thu, Sep 26, 2002 at 02:35:30PM +1000, Rusty Russell wrote:
+> This creates a mythical gfp_t for passing gfp states, and conversion
+> macros __GFP() and __UNGFP(), to give warnings, It's 55k, so
+> compressed and attached.
 
-Problem:
-This embedded system sends relatively huge amount of
-data (~1.5MB/s) over ethernet to a remote system which
-process the data. On a normal case it all works great.
-But when there is a lot of traffic on the network
-(simulated by running flood ping between two desktop
-linux systems connected to the same hub as this
-embedded system), embedded systems Linux TCP/IP stack
-go haywire. 
+This breaks ntfs/malloc.h which is doing the following:
+49:       return __vmalloc(size, GFP_NOFS | __GFP_HIGHMEM, PAGE_KERNEL);
 
-More details:
-Since there is a high traffic on the network, the
-embedded system cannot transmit packet and this
-triggers tcp retransmit in the stack. 
+This turns into=20
+=09
+          return __vmalloc(size, ((struct gfp_arg *)(0x10 | 0x40 |
+		0x80)) | 0x02, ((pgprot_t) { (__PAGE_KERNEL) } ));
+	=09
+which '|' is not happy with.
 
-But the first check on the tcp_transmit_skb fails
+Regards,
+  Rasmus
 
-if (atomic_read(&sk->wmem_alloc) > min_t(int,
-sk->wmem_queued+(sk->wmem_queued>>2),sk->sndbuf))
-   return -EAGAIN
+--M9NhX3UHpAaciwkO
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-When conditions fails, the value of wmem_alloc is ~ 
-around 56K-154K, sndbuf = 64K and wmem_queued is
-around 44K.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Each time it tries to retransmit this if condition
-always fail and the whole transmission times out. 
+iD8DBQE9k1kMlZJASZ6eJs4RAtFJAJ4szg9Fv5EUe/wN0pm2vohOjMpf3gCfUjfM
+n0GtQXK7MAZL3/+vjfBxyR0=
+=VBcf
+-----END PGP SIGNATURE-----
 
-Once this retransmission phase kicks in, even if the
-ping flooding is stopped , tcp stack never recovers.
-
-This happens only on the send path of tcp never on the
-receive path.
-
-Any hints in  helping me debug this issue will be
-appreciated.
-
-Thanks
-Venkatesh
-
-
-
-
-__________________________________________________
-Do you Yahoo!?
-New DSL Internet Access from SBC & Yahoo!
-http://sbc.yahoo.com
+--M9NhX3UHpAaciwkO--

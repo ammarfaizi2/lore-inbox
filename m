@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbTGMOgy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 10:36:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268843AbTGMOgy
+	id S263062AbTGMOSp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 10:18:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268501AbTGMOSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 10:36:54 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45740 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263152AbTGMOgx
+	Sun, 13 Jul 2003 10:18:45 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:47055 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263062AbTGMOSo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 10:36:53 -0400
-Message-ID: <3F1171E3.3060303@pobox.com>
-Date: Sun, 13 Jul 2003 10:51:15 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Sun, 13 Jul 2003 10:18:44 -0400
+Date: Sun, 13 Jul 2003 16:33:07 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: <jiho@c-zone.net>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Who's minding the IDE driver?!?
+In-Reply-To: <3F1098D1.3030706@c-zone.net>
+Message-ID: <Pine.SOL.4.30.0307131631400.8063-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-To: Alan Shih <alan@storlinksemi.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: TCP IP Offloading Interface
-References: <ODEIIOAOPGGCDIKEOPILCEMBCMAA.alan@storlinksemi.com>
-In-Reply-To: <ODEIIOAOPGGCDIKEOPILCEMBCMAA.alan@storlinksemi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Shih wrote:
-> Has anyone worked on a standard interface between TOE and Linux? (ie.
-> something like Trapeze/Myrinet's GMS?)
-> 
-> Or TOE is a forbidden discussion?  Any effort in making Linux the OS for TOE
-> at all even though Linux is a little too heavy for it?
 
+On Sat, 12 Jul 2003 jiho@c-zone.net wrote:
 
-I do not forsee there _ever_ being a TOE interface for Linux.
+> I've had no response to my earlier post (Subject:  IDE driver:  CBLID
+> revisited).
 
-It's not a forbidden discussion, but, the networking developers tend to 
-ignore people who mention TOE because it's been discussed to death, and 
-no evidence has ever been presented to prove it has advantages where it 
-matters, and it has significant _dis_advantages from the get-go.
+Don't expect any maintainer to reply every single mail.
 
-I really should write an LKML FAQ entry for TOE.
+> In comparing the driver to docs I have, I've noticed some things and
+> have more to say about the VIA support, but I'm not much for sending
+> e-mail to myself....
 
-	Jeff
+Vojtech Pavlik is maintaining VIA IDE driver.
+(please cc: me)
 
+> I posted to this list to begin with because I found nowhere else to take
+> the issue.  It seems impossible to determine who's supposed to be
+> maintaining the IDE driver these days.
 
+me 2.5 kernels.
+Alan Cox 2.4 kernels. (please cc: me)
+
+--
+Bartlomiej
 

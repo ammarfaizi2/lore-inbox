@@ -1,72 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVAYD24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbVAYDdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbVAYD24 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 22:28:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVAYD24
+	id S261784AbVAYDdA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 22:33:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbVAYDdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 22:28:56 -0500
-Received: from fire.osdl.org ([65.172.181.4]:4320 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S261783AbVAYD2x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 22:28:53 -0500
-Message-ID: <41F5BB0D.6090006@osdl.org>
-Date: Mon, 24 Jan 2005 19:20:45 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: tridge@osdl.org
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Andreas Gruenbacher <agruen@suse.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: memory leak in 2.6.11-rc2
-References: <20050120020124.110155000@suse.de>	<16884.8352.76012.779869@samba.org>	<200501232358.09926.agruen@suse.de>	<200501240032.17236.agruen@suse.de>	<16884.56071.773949.280386@samba.org> <16885.47804.68041.144011@samba.org>
-In-Reply-To: <16885.47804.68041.144011@samba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 24 Jan 2005 22:33:00 -0500
+Received: from fmr14.intel.com ([192.55.52.68]:25245 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261784AbVAYDc6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 22:32:58 -0500
+Subject: Re: [PATCH 4/29] x86-i8259-shutdown
+From: Len Brown <len.brown@intel.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com>
+References: <x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1106623970.2399.205.camel@d845pe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 24 Jan 2005 22:32:50 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Tridgell wrote:
-> I've fixed up the problems I had with raid, and am now testing the
-> recent xattr changes with dbench and nbench.
+On Wed, 2005-01-19 at 02:31, Eric W. Biederman wrote:
+> From: Eric W. Biederman <ebiederm@xmission.com>
 > 
-> The problem I've hit now is a severe memory leak. I have applied the
-> patch from Linus for the leak in free_pipe_info(), and still I'm
-> leaking memory at the rate of about 100Mbyte/minute.
+> This patch disables interrupt generation from the legacy pic on
+> reboot.  Now that there is a sys_device class it should not be called
+> while drivers are still using interrupts.
 > 
-> I've tested with both 2.6.11-rc2 and with 2.6.11-rc1-mm2, both with
-> the pipe leak fix. The setup is:
-> 
->  - 4 way PIII with 4G ram
->  - qla2200 adapter with ibm fastt200 disk array 
->  - running dbench -x and nbench on separate disks, in a loop
-> 
-> The oom killer kicks in after about 30 minutes. Naturally the oom
-> killer decided to kill my sshd, which was running vmstat :-) 
+> There is a report about this breaking ACPI power off on some systems.
+> http://bugme.osdl.org/show_bug.cgi?id=4041
+> However the final comment seems to exhonorate this code.  So until
+> I get more information I believe that was a false positive.
 
-Do you have today's memleak patch applied?  (cut-n-paste below).
+No, the last comment in the bug report
+(davej says that there were poweroff problems in FC)
+does not exhonerate this patch.
+All it says is that there are additional poweroff bugs out there.
 
--- 
-~Randy
+-Len
 
 
-----
---- 1.40/fs/pipe.c	2005-01-15 12:01:16 -08:00
-+++ edited/fs/pipe.c	2005-01-24 14:35:09 -08:00
-@@ -630,13 +630,13 @@
-  	struct pipe_inode_info *info = inode->i_pipe;
-
-  	inode->i_pipe = NULL;
--	if (info->tmp_page)
--		__free_page(info->tmp_page);
-  	for (i = 0; i < PIPE_BUFFERS; i++) {
-  		struct pipe_buffer *buf = info->bufs + i;
-  		if (buf->ops)
-  			buf->ops->release(info, buf);
-  	}
-+	if (info->tmp_page)
-+		__free_page(info->tmp_page);
-  	kfree(info);
-  }
-
--

@@ -1,55 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270243AbTG1Onr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 10:43:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270248AbTG1Onr
+	id S270244AbTG1Or4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 10:47:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270271AbTG1Or4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 10:43:47 -0400
-Received: from dsl2.external.hp.com ([192.25.206.7]:64017 "EHLO
-	dsl2.external.hp.com") by vger.kernel.org with ESMTP
-	id S270243AbTG1Onq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 10:43:46 -0400
-Date: Mon, 28 Jul 2003 08:59:01 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Grant Grundler <grundler@parisc-linux.org>, davem@redhat.com,
-       alan@lxorguk.ukuu.org.uk, James.Bottomley@SteelEye.com, axboe@suse.de,
-       suparna@in.ibm.com, linux-kernel@vger.kernel.org,
-       alex_williamson@hp.com, bjorn_helgaas@hp.com
-Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
-Message-ID: <20030728145901.GA18738@dsl2.external.hp.com>
-References: <20030708213427.39de0195.ak@suse.de> <20030708.150433.104048841.davem@redhat.com> <20030708222545.GC6787@dsl2.external.hp.com> <20030708.152314.115928676.davem@redhat.com> <20030723114006.GA28688@dsl2.external.hp.com> <20030728131513.5d4b1bd3.ak@suse.de>
+	Mon, 28 Jul 2003 10:47:56 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:25037 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S270244AbTG1Orz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 10:47:55 -0400
+Message-Id: <200307281503.h6SF2w630943@zeus.kernel.org>
+From: bpac31@juno.com
+To: linux-kernel@vger.kernel.org
+Subject: economic woes?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030728131513.5d4b1bd3.ak@suse.de>
-User-Agent: Mutt/1.3.28i
-X-Home-Page: http://www.parisc-linux.org/
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Tue, 29 Jul 2003 00:00:10 +0900
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 28, 2003 at 01:15:13PM +0200, Andi Kleen wrote:
-> Download reaim from sourceforge
+whats up dude, you should see this! i saved a bomb..
 
-http://lwn.net/Articles/20733/
-	"(couldn't think of a better name, sorry)"
+it's very special.only the banks know about it..
 
-I was happy when "apt-get install reaim" just worked... *sigh*
-But figured out "reaim" != "re-aim-7".
-debian doesn't know anything about re-aim-7. :^(
+I hope your ready for lower mortgage repayments!
 
-http://sourceforge.org/projects/re-aim-7
-	We're Sorry.
-	The SourceForge.net Website is currently down for maintenance.
-	We will be back shortly
-
-willy mentioned it's on OSDL too. Will look for that next.
-
-> Use the workfile.new_dbase test
-> Run it with 100-500 users (reaim -f workfile... -s 100 -e 500 -i 100) 
-> I tested with ext3 on a single SCSI disk.
-
-thanks Andi - hopefully I can generate results this afternoon
-when I've got connectivity again.
-
-grant
+http://btrack.iwon.com/r.pl?redir=http://money@cheapermortgage.cn/4/index.asp?RefID=198478

@@ -1,95 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264353AbUBHTNg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 14:13:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264358AbUBHTNg
+	id S264433AbUBHTPC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 14:15:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264441AbUBHTPB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 14:13:36 -0500
-Received: from mta06bw.bigpond.com ([144.135.24.156]:26871 "EHLO
-	mta06bw.bigpond.com") by vger.kernel.org with ESMTP id S264353AbUBHTNE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 14:13:04 -0500
-Date: Sun, 08 Feb 2004 11:10:54 -0800
-From: t_ken2003 <t_ken2003@telstra.com>
-Subject: your kind attention
-To: tylerken2003@netscape.net
-Message-id: <186649183d46.183d46186649@email.bigpond.com>
-MIME-version: 1.0
-X-Mailer: iPlanet Messenger Express 5.2 HotFix 1.14 (built Oct 10 2003)
-Content-type: text/plain; charset=us-ascii
-Content-language: en
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-X-Accept-Language: en
+	Sun, 8 Feb 2004 14:15:01 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:45528 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264433AbUBHTOx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 14:14:53 -0500
+Date: Sun, 8 Feb 2004 20:06:47 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 405] Amiga Hydra Ethernet new driver model
+In-Reply-To: <20040208184705.GW7388@fs.tum.de>
+Message-ID: <Pine.GSO.4.58.0402082000580.6076@waterleaf.sonytel.be>
+References: <200402081528.i18FSTrV026999@callisto.of.borg>
+ <20040208184705.GW7388@fs.tum.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 8 Feb 2004, Adrian Bunk wrote:
+> On Sun, Feb 08, 2004 at 04:28:29PM +0100, Geert Uytterhoeven wrote:
+> > Hydra Ethernet: Convert to the new driver model
+> >
+> > --- linux-2.6.3-rc1/drivers/net/hydra.c	2004-02-08 10:19:34.000000000 +0100
+> > +++ linux-m68k-2.6.3-rc1/drivers/net/hydra.c	2004-02-08 11:47:55.000000000 +0100
+> >...
+> > -static int __init hydra_init(unsigned long board);
+> > +static int __devinit hydra_init_one(struct zorro_dev *z,
+> > +				    const struct zorro_device_id *ent);
+> > +static int __init hydra_init(struct zorro_dev *z);
+> >...
+> > +static int __devinit hydra_init_one(struct zorro_dev *z,
+> > +				    const struct zorro_device_id *ent)
+> > +{
+> > +    int err;
+> >
+> > -    return err;
+> > +    if (!request_mem_region(z->resource.start, 0x10000, "Hydra"))
+> > +	return -EBUSY;
+> > +    if ((err = hydra_init(z))) {
+> > +	release_mem_region(z->resource.start, 0x10000);
+> > +	return -EBUSY;
+> > +    }
+> > +    return 0;
+> >  }
+> >...
+>
+> __init hydra_init called from __devinit hydra_init_one ?
+>
+> This will break when compiling the driver statically into a kernel with
+> CONFIG_HOTPLUG=y .
 
-Mr. Kenneth Tyler
-Commonwealth Bank of Australia,
-18 Bank Place Melbourne
-Australia.
+Thanks, you're right!
 
+I checked the other drivers, and zorro8390.c has the same problem with
+zorro8390_init(). I'll fix them and will resend after 2.6.3.
 
-Dear friend,
+BTW, while verifying the rules w.r.t. the various __*it markers, I stumbled
+across this in Documentation/pci.txt (while it's not really PCI-related):
 
-This is a proposal in context but actually an appeal soliciting for your
-unreserved assistance in consummating an urgent transaction requiring maximum
-confidence. Though this approach appears desperate, I can assure you that
-whatever questions you would need to ask or any other thing you will need
-to know regarding this proposal will be adequately answered to give you
-a clearer understanding of it, so as to arrive at a successful conclusion.
+| Tips:
+|         The module_init()/module_exit() functions (and all initialization
+|         functions called only from these) should be marked __init/exit.
+|         The struct pci_driver shouldn't be marked with any of these tags.
+|         The ID table array should be marked __devinitdata.
+|         The probe() and remove() functions (and all initialization
+|         functions called only from these) should be marked __devinit/exit.
+|         If you are sure the driver is not a hotplug driver then use only
+|         __init/exit __initdata/exitdata.
+|
+|         Pointers to functions marked as __devexit must be created using
+|         __devexit_p(function_name).  That will generate the function
+|         name or NULL if the __devexit function will be discarded.
 
-My name is Mr. Kenneth Tyler, Head of Securities,Commonwealth BanofAustralia,
-Melbourne. On December 6, 2001, a foreign consultant/contractor with the
-Cadbury Kenya Ltd, Mr. David Sidney Jocelyn-Duffield, made a numbered time fixed) Deposit for twelve calendar months, valued at US$30,000,000.00, (Thirty MillionUnited States Dollars) in my branch. Upon maturity, I sent a routine notification to his forwarding address but got no reply. After a month,I sent a reminder and finally we discovered from his contract 
-employers,the Cadbury Kenya Ltd, that Mr. Jocelyn-Duffield died from an 
-automobile accident. On further investigation, I found out that he died without making a WILL, and all attempts to trace his next of kin was fruitless. I therefore made further investigation and discovered that Mr. Jocelyn-Duffield did not declare any next of kin or relations in all his official documents,includinghis Bank Deposit paperwork in our Bank. I have carefully moved out thesefunds(US$30million)from our bank as sundry funds to an offshore Deposit Company in the European Union.
+But a quick look shows that very few drivers seem to mark their ID table array
+__devinitdata...
 
->From past experiences, I know that no one will ever come forward to claim
-the deceased funds. According to Australian Law, at the expiration of 5
-(five) years,the funds will be Unclaimable and revert to the ownership of
-the Australia Government if nobody applies to claim the fund. In order to avert this negative development,I in conjunction with a colleague (the Chief Operating Officer in the bank)now seek your permission to allow my attorney do a CHANOWNERSHIP/REASSIGNMENTOF CREDIT of stated funds from the "deceased" to your name, so that thefunds (US$30million) would be released to you as the new owner (on behalf of me and my colleague). We are writing you because, as public servants,we cannot operate a foreign account or have an account that is more than$160,000:00. Consequently, I will present you as the owner of the  funds in the Deposit Company so you can be able to claim them. This is simple.I will like you to provide immediately;
+Gr{oetje,eeting}s,
 
-1. Full names
-2. Contact address
-3. Telephone and fax numbers
+						Geert
 
-Once I receive these information, I will prepare the necessary documents
-which will put you in place as the new owner of the funds. The money will
-then be released to your custody by the Deposit Company, for us to share
-in the ratio of 70% for us and 30% for you. There is no risk at all as all
-the paperwork for this transaction will be done by the solicitor and this
-will guarantees the successful execution of this transaction. If you are
-interested, please reply immediately via my email address. Upon your 
-response,I shall then provide you with more details and my confidential phone numberfor further explanation that will help you understand the transaction.
-No doubt this proposal will make you apprehensive,please we imploy you to
-observe utmost confidentiality and rest assured that this transaction would
-be most profitable for both of us because we shall require your assistance
-to invest our share in your country(buying of properties like real estate
-etc). This is why your urgent action and response is of priority to enable
-us conclude this transaction in a timely and professional  manner.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-I await your swift response please through my alternative/private email
-box: tylerken2003@netscape.net, signifying your decision.
-
-Regards,
-
-Mr. Kenneth Tyler.
-
-
-
-----------------
-Powered by telstra.com
-                                                                      
-
-
-----------------
-Powered by telstra.com
-                                                                      
-
-
-----------------
-Powered by telstra.com
-                                                                      
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

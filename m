@@ -1,30 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318691AbSHBLDX>; Fri, 2 Aug 2002 07:03:23 -0400
+	id <S318590AbSHBLDI>; Fri, 2 Aug 2002 07:03:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318716AbSHBLDX>; Fri, 2 Aug 2002 07:03:23 -0400
-Received: from sproxy.gmx.net ([213.165.64.20]:37266 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S318691AbSHBLDW>;
-	Fri, 2 Aug 2002 07:03:22 -0400
-Date: Fri, 2 Aug 2002 13:06:52 +0200
-From: gigerstyle@gmx.ch
-To: linux-kernel@vger.kernel.org
-Subject: Booting 2.4.19-rc5-ac4
-Message-Id: <20020802130652.6cf578e6.gigerstyle@gmx.ch>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S318691AbSHBLDI>; Fri, 2 Aug 2002 07:03:08 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:19446 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318590AbSHBLDH>; Fri, 2 Aug 2002 07:03:07 -0400
+Subject: Re: Linux 2.5.30
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Banai Zoltan <bazooka@emitel.hu>, Alexander Viro <viro@math.psu.edu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0208012015291.16391-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0208012015291.16391-100000@home.transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 02 Aug 2002 13:23:18 +0100
+Message-Id: <1028290998.18309.9.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Fri, 2002-08-02 at 04:17, Linus Torvalds wrote:
+> If the PNP BIOS panic is new (ie it didn't happen in 2.5.24), can you
+> write down the whole panic (and look up the symbols) and send that one to
+> Ingo Molnar <mingo@elte.hu>?
+> 
+> That would most likely be due to some of the GDT reorganizations that
+> happened for 2.5.30 due to the thread-local-storage patches.
 
-I have some troubles with booting of the newest -ac Kernels (also with 2.4.19-rc3-ac5). 
-Lilo prints out that I have to append the right root partition. I am sure that it's the right one. I am able to boot other Kernels (2.4.16 and 2.4.18) with the same Lilo configuration and also the same kernel configuration.
+The PnPBIOS gdt setup changes I did are wrong somewhere. If I can get
+2.5.30 to actually boot I'll try and track it down. The traces I have
+basically go 
+	kernel -> kernel -> kernel -> pnpbios *BANG*
 
-What am I doing wrong?
+and appear to be jumping to the wrong physical address (ie gdt is
+incorrect)
 
-Thanks folks!
-
-Marc

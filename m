@@ -1,124 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262382AbUDOVyi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 17:54:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUDOVyi
+	id S262986AbUDOV5V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 17:57:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263372AbUDOV5V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 17:54:38 -0400
-Received: from mail.kroah.org ([65.200.24.183]:21434 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262382AbUDOVyd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 17:54:33 -0400
-Date: Thu, 15 Apr 2004 14:36:02 -0700
-From: Greg KH <greg@kroah.com>
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] [PATCH] back out sysfs reference count change
-Message-ID: <20040415213600.GD13578@kroah.com>
-References: <20040402043814.GA6993@in.ibm.com> <Pine.LNX.4.44L0.0404021629210.889-100000@ida.rowland.org> <20040406101320.GB1270@in.ibm.com> <20040414132015.GD5422@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040414132015.GD5422@in.ibm.com>
-User-Agent: Mutt/1.5.6i
+	Thu, 15 Apr 2004 17:57:21 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:2812 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id S262986AbUDOV5B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 17:57:01 -0400
+Date: Thu, 15 Apr 2004 23:56:09 +0200 (METDST)
+From: Arjen Verweij <A.Verweij2@ewi.tudelft.nl>
+Reply-To: a.verweij@student.tudelft.nl
+To: Len Brown <len.brown@intel.com>
+cc: ross@datscreative.com.au, <christian.kroener@tu-harburg.de>,
+       <linux-kernel@vger.kernel.org>,
+       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+       Jamie Lokier <jamie@shareable.org>,
+       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
+       Craig Bradney <cbradney@zip.com.au>, Daniel Drake <dan@reactivated.net>,
+       Ian Kumlien <pomac@vapor.com>, Jesse Allen <the3dfxdude@hotmail.com>,
+       Allen Martin <AMartin@nvidia.com>
+Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
+ for idle=C1halt, 2.6.5
+In-Reply-To: <1082060255.24425.180.camel@dhcppc4>
+Message-ID: <Pine.GHP.4.44.0404152351170.11882-100000@elektron.its.tudelft.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 14, 2004 at 06:50:15PM +0530, Maneesh Soni wrote:
-> On Tue, Apr 06, 2004 at 03:43:20PM +0530, Maneesh Soni wrote:
-> [..] 
-> > 
-> > o The following patch fixes the race involved between unregistering a kobject 
-> >   and simultaneously opeing a corresponding attribute file in sysfs. 
-> > 
-> >   Ideally sysfs should take a ref. to the kobject as long as it has dentries 
-> >   referring to the kobject, but because of current limitations in 
-> >   module/kobject ref counting, sysfs's  pinning of kobject leads to 
-> >   hang/delays in rmmod of certain modules. The patch uses a new flag to mark
-> >   dentries as disconnected from a valid kobject in the process of unregistering
-> >   the kobject. The ->open in sysfs is failed if it finds a disconnected dentry.
-> >   Marking and checking for the flag is done under dentry->d_inode->i_sem.
-> > 
-> [..]
-> 
-> 
-> Hi Greg / Andrew,
->                                                                                 
-> This problem can be solved without using the d_flags as I did previously. 
-> Viro suggested to just check for DCACHE_UNHASHED in check_perm() and this also 
-> solves the race. Please see the following patch instead of the previous one.
+On 15 Apr 2004, Len Brown wrote:
 
-This patch looks sane, Andrew, can you let it sit in your -mm tree for a
-while to see if anything breaks with it?
+> On Thu, 2004-04-15 at 11:10, Ross Dickson wrote:
+> > On Wednesday 14 April 2004 11:02, Len Brown wrote:
+> > > Re: IRQ0 XT-PIC timer issue
+> > >
+> > > Since the hardware is connected to APIC pin0, it is a BIOS bug
+> > > that an ACPI interrupt source override from pin2 to IRQ0 exists.
+> > >
+> > > With this simple 2.6.5 patch you can specify "acpi_skip_timer_override"
+> > > to ignore that bogus BIOS directive.  The result is with your
+> > > ACPI-enabled APIC-enabled kernel, you'll get IRQ0 IO-APIC-edge timer.
+> > >
+> > > Probably there is a more clever way to trigger this workaround
+> > > automatcially instead of via boot parameter.
+>
+> > Hi Len, I have updated my nforce2 patches for 2.6.5 to work with your patch.
+> > I have tested them only on one nforce2 board Epox 8Rga+ but as little has
+> > changed in core functionality from past releases I think all will be OK....
+> > Hopefully no clock skew. I saw none on my system but thats no guarantee.
+>
+> While I don't want to get into the business of maintaining
+> a dmi_scan entry for every system with this issue, I think
+> it might be a good idea to add a couple of example entries
+> for high volume systems for which there is no BIOS fix available.
+>
+> Got any opinions on which system to use as the example?
+> I'll need the output from dmidecode for them.
+>
+> > I tried your above patch with the timer_ack on as is default in 2.6.5 and
+> > nmi_watchdog=1 failed as expected. I still think Maciej's 8259 ack patch
+> > is more complete solution to the ack issue but this one gets watchdog going for
+> > nforce2. I cannot see anyone using your above patch without an integrated
+> > apic and tsc so I cannot see a problem triggering it off your kern arg.
+>
+> "acpi_skip_timer_override" is specific to IOAPIC mode,
+> since that is the only place that the bogus interrupt
+> source override is used.
+>
+> I'm not clued-in on the nmi_watchdog and 8259 ack issues.
+> My focus is primarily the ACPI issues involved in getting
+> these systems up and running in IOAPIC mode.
+>
+> > The second patch is the C1halt update I suggested in another posting.
+> > http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-04/1707.html
+>
+> Clearly this hang issue is more important than the timer issue.
+> I'm impressed that you built such a sophisticated patch without
+> any support from the vendors.  But it would be a "really good thing"
+> if we got some input from the vendors before considering putting
+> a workaround into the upstream kernel -- for they may have
+> guidance which would either simplify it, or make it unnecessary.
+> Perhaps Allen Martin at nVidia can comment?
 
-thanks,
+Yes, this sounds like a marvellous idea, since every board except some
+Shuttle board after a BIOS update does not suffer from these hangs.
+Unfortunately, Allen Martin already commented on this once:
 
-greg k-h
+"Likely the root of the problem has to do with the way the Linux kernel is
+using the ACPI methods to setup the interrupts which is different from win
+9x/2k/XP. I can help track this down, unfortunately so far I've been
+unable to reproduce the hangs on any of the boards I have."
+-Allen
 
-----------------------------------------------------------------------------
+http://lkml.org/lkml/2003/12/5/156
 
-o The following patch fixes the race involved between unregistering a kobject 
-  and simultaneously opeing a corresponding attribute file in sysfs. 
+Maybe he can find useful hints on how to crash his box with an nforce2
+chipset here:
 
-o Ideally sysfs should take a ref. to the kobject as long as it has dentries 
-  referring to the kobjects, but because of current limitations in 
-  module/kobject ref counting, sysfs's  pinning of kobject leads to 
-  hang/delays in rmmod of certain modules. The patch checks for unhashed 
-  dentries in check_perm() while opening a sysfs file. If the dentry is 
-  still hashed then it goes ahead and takes the ref to kobject. This done
-  under the per dentry lock. It does this in the inline routine 
-  sysfs_get_kobject(dentry).
+http://atlas.et.tudelft.nl/verwei90/nforce2/
 
+Basically just enable APIC in the kernel and start pushing the HDD or
+anything related to I/O really. The crashes come more regularely in 2.6
+kernels because of the increased Hz value.
 
- fs/sysfs/bin.c   |    2 +-
- fs/sysfs/file.c  |    2 +-
- fs/sysfs/sysfs.h |   13 +++++++++++++
- 3 files changed, 15 insertions(+), 2 deletions(-)
+Regards,
 
-diff -puN fs/sysfs/sysfs.h~sysfs-d_fsdata-race-fix-2 fs/sysfs/sysfs.h
---- linux-2.6.5-mm5/fs/sysfs/sysfs.h~sysfs-d_fsdata-race-fix-2	2004-04-14 14:55:26.000000000 +0530
-+++ linux-2.6.5-mm5-maneesh/fs/sysfs/sysfs.h	2004-04-14 15:29:51.000000000 +0530
-@@ -11,3 +11,16 @@ extern void sysfs_hash_and_remove(struct
- 
- extern int sysfs_create_subdir(struct kobject *, const char *, struct dentry **);
- extern void sysfs_remove_subdir(struct dentry *);
-+
-+
-+static inline struct kobject * sysfs_get_kobject(struct dentry * dentry)
-+{
-+	struct kobject * kobj = NULL;
-+
-+	spin_lock(&dentry->d_lock);
-+	if (!d_unhashed(dentry))
-+		kobj = kobject_get(dentry->d_fsdata);
-+	spin_unlock(&dentry->d_lock);
-+
-+	return kobj;
-+}
-diff -puN fs/sysfs/file.c~sysfs-d_fsdata-race-fix-2 fs/sysfs/file.c
---- linux-2.6.5-mm5/fs/sysfs/file.c~sysfs-d_fsdata-race-fix-2	2004-04-14 14:55:30.000000000 +0530
-+++ linux-2.6.5-mm5-maneesh/fs/sysfs/file.c	2004-04-14 14:56:17.000000000 +0530
-@@ -238,7 +238,7 @@ sysfs_write_file(struct file *file, cons
- 
- static int check_perm(struct inode * inode, struct file * file)
- {
--	struct kobject * kobj = kobject_get(file->f_dentry->d_parent->d_fsdata);
-+	struct kobject * kobj = sysfs_get_kobject(file->f_dentry->d_parent);
- 	struct attribute * attr = file->f_dentry->d_fsdata;
- 	struct sysfs_buffer * buffer;
- 	struct sysfs_ops * ops = NULL;
-diff -puN fs/sysfs/bin.c~sysfs-d_fsdata-race-fix-2 fs/sysfs/bin.c
---- linux-2.6.5-mm5/fs/sysfs/bin.c~sysfs-d_fsdata-race-fix-2	2004-04-14 14:55:32.000000000 +0530
-+++ linux-2.6.5-mm5-maneesh/fs/sysfs/bin.c	2004-04-14 14:56:17.000000000 +0530
-@@ -94,7 +94,7 @@ static ssize_t write(struct file * file,
- 
- static int open(struct inode * inode, struct file * file)
- {
--	struct kobject * kobj = kobject_get(file->f_dentry->d_parent->d_fsdata);
-+	struct kobject * kobj = sysfs_get_kobject(file->f_dentry->d_parent);
- 	struct bin_attribute * attr = file->f_dentry->d_fsdata;
- 	int error = -EINVAL;
- 
+Arjen
 

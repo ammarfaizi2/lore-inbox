@@ -1,111 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269184AbRHBWUW>; Thu, 2 Aug 2001 18:20:22 -0400
+	id <S269188AbRHBWUm>; Thu, 2 Aug 2001 18:20:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269188AbRHBWUN>; Thu, 2 Aug 2001 18:20:13 -0400
-Received: from unthought.net ([212.97.129.24]:63170 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S269184AbRHBWUE>;
-	Thu, 2 Aug 2001 18:20:04 -0400
-Date: Fri, 3 Aug 2001 00:20:12 +0200
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ongoing 2.4 VM suckage
-Message-ID: <20010803002012.F7650@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	"Jeffrey W. Baker" <jwbaker@acm.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010802234434.E7650@unthought.net> <Pine.LNX.4.33.0108021448400.21298-100000@heat.gghcwest.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.33.0108021448400.21298-100000@heat.gghcwest.com>; from jwbaker@acm.org on Thu, Aug 02, 2001 at 02:52:11PM -0700
+	id <S269183AbRHBWUe>; Thu, 2 Aug 2001 18:20:34 -0400
+Received: from srvr2.telecom.lt ([212.59.0.1]:28795 "EHLO mail.takas.lt")
+	by vger.kernel.org with ESMTP id <S269178AbRHBWUZ>;
+	Thu, 2 Aug 2001 18:20:25 -0400
+Message-Id: <200108022220.AAA1547023@mail.takas.lt>
+Date: Fri, 3 Aug 2001 00:16:00 +0200 (EET)
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: Fw: PATCH: creating devices for multiple sound cards
+To: linux-kernel@vger.kernel.org, Chris Rankin <rankinc@pacbell.net>,
+        linux-sound@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.4.7 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 02, 2001 at 02:52:11PM -0700, Jeffrey W. Baker wrote:
-> On Thu, 2 Aug 2001, Jakob Østergaard wrote:
-> 
-> > You fill up mem and you fill up swap, and you complain the box is
-> > acting funny ??
-> 
-> The kernel should save whatever memory it needs to do its work.  It isn't
-> my problem, from userland, to worry that I take the last page in the
-> machine.  If the kernel needs pages to operate efficiently, it had better
-> reserve them and not just hand them out until it locks up.
+Hello,
 
-Sure, I agree,  to an extent.
+Why this patch was not applied (I checked 2.4.7)?
 
-If I start 50 CPU-bound jobs on my one-processor machine, I don't want the
-kernel to tell me "no, you probably didn't mean to do that, I'll kill 40 of
-your jobs so the others will go faster".    Same with resource usage - it's not
-the kernel's job to implement that kind of policy - you have ulimits for
-limiting your users, and if it's your own machine you should have enough
-knowledge to know that deliberately using up every resource in the machine is
-going to cause a resource shortage.
+------ Forwarded message ------
+From: Chris Rankin <rankinc@pacbell.net>
+Date: Sat, 14 Apr 2001 09:44:35 +0200
+Subject: PATCH: creating devices for multiple sound cards
+To: linux-sound@vger.kernel.org
 
-It is possible that there is a real problem and the kernel doesn't operate
-efficiently in your case - I won't argue with that.   But you cannot expect
-your system to perform very well if you use up all resources - maybe if you 
-hit a real bug in your case, and if someone fixes it, the kernel will operate
-efficiently under those circumstances - but userspace will *not* operate
-very well if you want the OOM killer to regularly kill "production" jobs etc.
+Hi,
+I have just installed a new sound card in my machine, and have left
+the built-in sound chip enabled despite the motherboard manufacturer's
+warning of Bad Things. The result is that I now have two sound devices
+in my machine - an ICH (i810_audio) and a Soundblaster Live! The Live!
+is device 0, of course. Anyway, I am using the ALSA drivers because
+the native i810_audio module caused a kernel panic (NULL pointer
+reference in an interrupt handler, I believe), and I have noticed that
+the ALSA drivers have difficulty creating OSS device nodes for both
+cards. I have traced the problem to the register_sound_special()
+function within Linux's soundcore.o module. Basically, ALSA uses this
+function to create OSS devices, but this function was never written
+with more than one sound device in mind. Until now.
 
-At least, you must be doing another kind of production that what I'm used to
-  :)
+A few points about this patch:
 
-> 
-> > This is a clear case of "Doctor it hurts when I ..."  - Don't do it !
-> >
-> > I'm interested in hearing how you would accomplish graceful
-> > performance degradation in a situation where you have used up any
-> > possible resource on the machine.  Transparent process back-tracking ?
-> > What ?
-> 
-> Gosh, here's an idea: if there is no memory left and someone malloc()s
-> some more, have malloc() fail?
+1. I have renamed "sequencer2" to "music" because of a potential naming
+conflict between devices 14,8 ("music" on card 0) and 14,33 ("sequencer"
+on card 2).
 
-Actually, having malloc() fail is not that simple  :)
+2. I have renamed device "midi00" to "midi". "midi01" now becomes "midi1"
+as well, although I would also point out that this is now consistent with
+the behaviour of the register_sound_midi() function.
 
-> Kill the process that required the memory?
+Having applied this patch, ALSA gives me two mixer devices in /dev/sound,
+and I no longer get messages like these in my logs:
 
-Yes, you're perfectly right here.  If there's a critical shortage the OOM
-killer should strike.
+Apr 12 01:36:54 (none) kernel: devfs: devfs_register(): device already registered: "unknown"
 
-However - it should only strike the offending process (detecting that is hard
-enough).  And it should not be possible for an attacker or untrusted user to
-cause the OOM killer to kill anything but his own jobs.
+Apr 12 01:40:04 (none) kernel: devfs: devfs_register(): device already registered: "mixer"
+Apr 12 01:40:04 (none) kernel: devfs: devfs_register(): device already registered: "dsp"
 
-> I can't believe the attitude I am hearing.  Userland processes should be
-> able to go around doing whaever the fuck they want and the box should stay
-> alive.
+Cheers,
+Chris
 
-No offense was intended.
+--- linux-2.4.3/drivers/sound/sound_core.c.orig        Fri Mar 16 23:00:44 2001
++++ linux-2.4.3/drivers/sound/sound_core.c        Sat Apr 14 00:13:18 2001
+@@ -227,9 +227,10 @@
+  
+ int register_sound_special(struct file_operations *fops, int unit)
+ {
+-        char *name;
++        const char *name;
++        const int minor = (unit & 15);
 
-But if this things were really so simple, they would have been in the kernel
-for ages.
+-        switch (unit) {
++        switch (minor) {
+             case 0:
+                 name = "mixer";
+                 break;
+@@ -237,7 +238,7 @@
+                 name = "sequencer";
+                 break;
+             case 2:
+-                name = "midi00";
++                name = "midi";
+                 break;
+             case 3:
+                 name = "dsp";
+@@ -255,7 +256,7 @@
+                 name = "unknown7";
+                 break;
+             case 8:
+-                name = "sequencer2";
++                name = "music";
+                 break;
+             case 9:
+                 name = "dmmidi";
+@@ -279,7 +280,7 @@
+                 name = "unknown";
+                 break;
+         }
+-        return sound_insert_unit(&chains[unit&15], fops, -1, unit, unit+1,
++        return sound_insert_unit(&chains[minor], fops, -1, minor, minor+128,
+                                  name, S_IRUSR | S_IWUSR);
+ }
+  
 
-I'm tempted to say:  Well your ideals seem to correlate well with the general
-ideals of the LKML wrt. VM and OOM - it'd be great if you could post a patch to
-fix it all properly     :)
+To unsubscribe from this list: send the line "unsubscribe linux-sound" in
+the body of a message to majordomo@vger.kernel.org
 
-We all want:  Perfect performance in both normal and resource-starved cases,
-an OOM killer that strikes fairly when necessary and only when necessary,  a
-userspace that's not just fool-proof but "very fool-proof", etc. etc.
+-------- End of message -------
 
-
->  Currently, if a userland process runs amok, the kernel goes into
-> self-fucking mode for the rest of the week.
-
-We know.
-
-What is your suggestion for tackling this problem ?
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:

@@ -1,68 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262481AbTIPUEY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 16:04:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbTIPUEX
+	id S262507AbTIPT4h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 15:56:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbTIPTz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 16:04:23 -0400
-Received: from gprs151-26.eurotel.cz ([160.218.151.26]:5251 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262481AbTIPUEW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 16:04:22 -0400
-Date: Tue, 16 Sep 2003 22:04:07 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Olivier Galibert <galibert@limsi.fr>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Stephan von Krawczynski <skraw@ithnet.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       neilb@cse.unsw.edu.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: experiences beyond 4 GB RAM with 2.4.22
-Message-ID: <20030916200407.GE1006@elf.ucw.cz>
-References: <20030916102113.0f00d7e9.skraw@ithnet.com> <Pine.LNX.4.44.0309161009460.1636-100000@logos.cnet> <20030916153658.3081af6c.skraw@ithnet.com> <1063722973.10037.65.camel@dhcp23.swansea.linux.org.uk> <20030916171057.GA8210@openzaurus.ucw.cz> <20030916195345.GB68728@dspnet.fr.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030916195345.GB68728@dspnet.fr.eu.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Tue, 16 Sep 2003 15:55:59 -0400
+Received: from paiol.terra.com.br ([200.176.3.18]:56292 "EHLO
+	paiol.terra.com.br") by vger.kernel.org with ESMTP id S262499AbTIPTzi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 15:55:38 -0400
+Date: Tue, 16 Sep 2003 16:55:33 -0300
+Message-Id: <HLBOOL$9F22A6BA6BDFE9CEF6137FE62345D3D3@terra.com.br>
+Subject: =?iso-8859-1?Q?(Possible_Fix)_MS-PNR_SCSI_Card_/_NCR5380_SCSI_Driver?=
+MIME-Version: 1.0
+X-Sensitivity: 3
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+From: "=?iso-8859-1?Q?Wagner_Volanin?=" <fadinha.mail@terra.com.br>
+To: "=?iso-8859-1?Q?linux-kernel?=" <linux-kernel@vger.kernel.org>
+X-XaM3-API-Version: 3.2 R28 (B53 pl3)
+X-type: 0
+X-SenderIP: 200.165.18.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > > Well, I do understand the bounce buffer problem, but honestly the current way
-> > > > of handling the situation seems questionable at least. If you ever tried such a
-> > > > system you notice it is a lot worse than just dumping the additional ram above
-> > > > 4GB. You can really watch your network connections go bogus which is just
-> > > > unacceptable. Is there any thinkable way to ommit the bounce buffers and still
-> > > > do something useful with the beyond-4GB ram parts?
-> > > 
-> > > The 2.6 tree is somewhat better about this but at the end of the day if
-> > > your I/O subsystem can't do the job your box will not perform ideally.
-> > > For some workloads its a huge win to have the extra RAM, for others the
-> > > I/O is a real pain. 
-> > 
-> > If he has trouble logging in, then there's a bug somewhere.
-> > Bounce buffers should not slow machine down more than
-> > 2x, and from his description it looks like way worse slowdown. 
-> 
-> The box does not just slowdown, the box crawls on the floor wimpering.
-> Nothing works except ping until the i/os are finished (and they seem
-> to crawl too), then everything works perfectly again.
+I have an old Genius Colorpage-SP2 SCSI scanner.
+It is shipped with a MS-PNR 8bit ISA non-pnp proprietary SCSI
+card from Microtek.
 
-That seems like bug ;-). Can you do some kind of memstat to see if it
-is not something like atomic pages shortage? Also try to run vanilla
-kernel. And try running it UP.
+Although its chipset is a NCR53c400a, it wouldn't work with the
+appropriate driver, always accusing timeout, whatever settings
+I passed to it.
 
-> We're quite eager to fix the problem too, if you want us to test some
-> things.
+Today I messed a little with the NCR5380.c file in drivers/scsi
+which is included by the g_NCR5380 driver and I couldn't understand
+one thing:
 
-I'm afraid I do not have big-enough box close-enough to fix that.
+Why the function NCR5380_poll_politely() returned the value 'r'
+on success if this value should be '0' case everything went ok...
 
-Does it happen with another disk driver, too? What about interrupts,
-are not they disabled for too long? Can you enable PREEMPT to see
-'scheduling in atomic' warnings?
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+So I changed "return r;" to "return 0;" and after that my
+scanner worked fine, and was easily detected by SANE, without
+a single error message.  :)
+
+I have not the time to delve into the problem further, but I
+wanted to report this. I couldn't find any counter-effects caused
+by changing these return values.
+
+- Wagner Volanin.
+
+
+GCC:            gcc 2.95 (Debian Stable)
+Kernel:         2.6.0-test5 compiled for Pentium-MMX.
+Computer:       Pentium MMX with PCCHIPS Motherboard.
+Distribution:   Debian Unstable
+Command issued:
+ modprobe g_NCR5380 ncr_53c400a=1 ncr_addr=0x280 ncr_irq=255
+
+
+The diff for the file follows below:
+(Apply it inside drivers/scsi directory)
+
+
+--- NCR5380.c.orig	2003-09-16 18:24:00.000000000 +0000
++++ NCR5380.c	2003-09-16 18:53:59.000000000 +0000
+@@ -371,18 +371,18 @@
+ 	while( n-- > 0)
+ 	{
+ 		r = NCR5380_read(reg);
+ 		if((r & bit) == val)
+-			return r;
++			return 0;
+ 		cpu_relax();
+ 	}
+ 	
+ 	/* t time yet ? */
+ 	while(time_before(jiffies, end))
+ 	{
+ 		r = NCR5380_read(reg);
+ 		if((r & bit) == val)
+-			return r; 
++			return 0; 
+ 		if(!in_interrupt())
+ 			yield();
+ 		else
+ 			cpu_relax();
+
+
+
+

@@ -1,107 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267558AbUG3B1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267568AbUG3Br1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267558AbUG3B1t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 21:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267560AbUG3B1t
+	id S267568AbUG3Br1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 21:47:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267571AbUG3Br1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 21:27:49 -0400
-Received: from [193.219.234.171] ([193.219.234.171]:21882 "HELO WORKGROUP4")
-	by vger.kernel.org with SMTP id S267558AbUG3B1k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 21:27:40 -0400
-X-Priority: 3 (normal)
-X-MSMail-Priority: Normal
-X-Mailer: PSS Mailer V3.0
-Importance: Normal
-Date: Thu, 29 Jul 2004 2:27:47 -0700
-From: <charlesmbahmy5@sify.com>
-Subject: Urgent and Important Proposal (Transfer of investment Funds)
-Message-Id: <S267558AbUG3B1k/20040730012740Z+1446@vger.kernel.org>
-To: unlisted-recipients:; (no To-header on input)
+	Thu, 29 Jul 2004 21:47:27 -0400
+Received: from out002pub.verizon.net ([206.46.170.141]:41128 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S267568AbUG3BrX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 21:47:23 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2 crash(s)?
+Date: Thu, 29 Jul 2004 21:47:21 -0400
+User-Agent: KMail/1.6.82
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>
+References: <200407242156.40726.gene.heskett@verizon.net> <200407291822.47209.gene.heskett@verizon.net> <20040729151415.094c8d01.rddunlap@osdl.org>
+In-Reply-To: <20040729151415.094c8d01.rddunlap@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200407292147.21463.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [141.153.90.166] at Thu, 29 Jul 2004 20:47:22 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To: <linux-kernel@vger.kernel.org>
-From: <charlesmbahmy5@sify.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: base64
+On Thursday 29 July 2004 18:14, Randy.Dunlap wrote:
+[...]
+I've gone clear back to a 2.6.7 kernel because thats the newest one 
+that has a diff when cmp'ing fs/dcache.c files to whats in 2.6.8-rc2.
 
-T0ZGSUNFIE9GIFRIRSBBVURJVElORy4NCg0KTUFOQUdFUiBBRlJJQ0FOIERFVkVMT1BNRU5UIEJB
-TksNCnByaXZhdGUgZW1haWw6IGNoYXJsZXNtYmFoMjM0QHNpZnkuY29tIG9yDQpjaGFybGVzbWJh
-aEBzaWZ5LmNvbQ0KTkVYVCBPRiBLSU4gQ0xBSU1TDQpUUkFOU0ZFUiBPRiBPTkUgSFVORFJFTkQg
-QU5EIFRXRU5UWSBTSVgNCk1JTExJT04gVS5TLkRPTExBUlMgKCQxMjYsMDAwLDAwMCwwMCkNCi0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LQ0KREVBUiBQQVJUTkVSLA0KSU4gT1JERVIgVE8gVFJBTlNGRVIgT1VUICggT05FIEhVTkRSRU5E
-IEFORCBUV0VOVFkgU0lYDQpNSUxMSU9OIFUuUy5ET0xMQVJTKSBGUk9NIE9VUiBCQU5LLiBJIEhB
-VkUgVEhFIENPVVJBR0UgVE8NCkxPT0sgRk9SIEEgUkVMSUFCTEUgQU5EIEhPTkVTVCBQRVJTT04g
-V0hPIFdJTEwgQkUgQ0FQQUJMRQ0KRk9SIFRISVMgSU1QT1JUQU5UIEJVU0lORVNTLiBCRUxJRVZJ
-TkcgVEhBVCBZT1UgV0lMTCBORVZFUg0KTEVUIE1FIERPV04gRUlUSEVSIE5PVyBPUiBJTiBGVVRV
-UkUuDQpJIEFNIERSIENIQVJMRVMgTUJBSCBUSEUgQ09NUFVUSU5HIE1BTkFHRVIgT0YgKEFEQikg
-QUZSSUNBIERFVkVMT1BNRU5UDQpCQU5LDQpJTiBBRlJJQ0EuIFRIRVJFIElTIEFOIEFDQ09VTlQg
-T1BFTkVEIElODQpUSElTIEJBTksgSU4gMTk4MCBBTkQgU0lOQ0UgMTk5MCBOT0JPRFkgSEFTIE9Q
-RVJBVEVEDQpPTiBUSElTIEFDQ09VTlQgQUdBSU4uIEFGVEVSIEdPSU5HIFRIUk9VR0ggU09NRSBP
-TEQNCkZJTEVTIElOIFRIRSBSRUNPUkRTIEkgRElTQ09WRVJFRCBUSEFUIElGIEkgRE8gTk9UDQpS
-RU1JVFQgVEhJUyBNT05FWSBPVVQgVVJHRU5URUxZIElUIFdJTEwgRk9SRkVJVEVEIEZPUg0KTk9U
-SElORy4NClRIRSBPV05FUiBPRiBUSElTIEFDQ09VTlQgSVMgTVIuIENMQVlUT04gUklFREZJRUxE
-IEENCkZPUklHTkVSIEFORCBUSEUgTUFOQUdFUiBPRiBQRVRST0wgQ0hFTUlDQUwgU0VSVklDRSwg
-QQ0KQ0hFTUlDQUwgRU5HSU5FRVIgQlkgUFJPRkZFU1NJT04gQU5EIEhFIERJRUQgU0lOQ0UNCjE5
-OTAuIE5PIE9USEVSIFBFUlNPTiBLTk9XUyBBQk9VVCBUSElTIEFDQ09VTlQgT1INCkFOWVRISU5H
-IENPTkNFUk5JTkcgSVQsIFRIRSBBQ0NPVU5UIEhBUyBOTyBPVEhFUg0KQkVORUZJQ0lBUlkgQU5E
-IE1ZIElOVkVTVElHQVRJT04gUFJPVkVEIFRPIE1FIEFTIFdFTEwNClRIQVQgSElTIENPTVBBTlkg
-RE9FUyBOT1QgS05PVyBBTllUSElORyBBQk9VVCBUSElTDQpBQ0NPVU5UIEFORCBUSEUgQU1PVU5U
-IElOVkxPVkVEIElTIChVLlMuJCAxMjYsMDAwLDAwMC4wMCkuDQpJIFdBTlQgVE8gVFJBTlNGRVIg
-VEhJUyBNT05FWSBJTlRPIEEgU0FGRSBGT1JFSUdODQpBQ0NPVU5UIEFCUk9BRCBCVVQgSSBET04n
-VCBLTk9XIEFOWSBGT1JFSUdORVIsIEkgQU0NCk9OTFkgQ09OVEFDVElORyBZT1UgQVMgQSBGT1JF
-SUdORVIgQkVDQVVTRSBUSElTIE1PTkVZDQpDQU4gTk9UIEJFIEFQUFJPVkVEIFRPIEFOWSBMT0NB
-TCBCQU5LIEhFUkUgQlVUIENBTg0KT05MWSBCRSBBUFBST1ZFRCBUTyBBTlkgRk9SRUlHTiBBQ0NP
-VU5UIEJFQ0FVU0UgVEhFDQpNT05FWSBJUyBJTiBVLlMgRE9MTEFSUyBBTkQgVEhFIEZPTUVSIE9X
-TkVSIE9GIFRIRQ0KQUNDT1VOVCBJUyBNUi4gQ0xBWVRPTiBSSUVERklFTEQgQU5EIEhFIFdBUyBB
-DQpGT1JFSUdORVIgVE9PLg0KSSBLTk9XIFRIQVQgVEhJUyBNRVNTQUdFIFdJTEwgQ09NRSBUTyBZ
-T1UgQVMgQQ0KU1VSUFJJU0UgQVMgV0UgRE9OJ1QgS05PVyBPVVJTRUxWRVMgQkVGT1JFLCBCVVQg
-QkUNClNVUkUgVEhBVCBJVCBJUyBSRUFMIEFORCBBIEdFTlVJTkUgQlVTSU5FU1MgQU5EIEFMU08g
-MTAwJSBSSVNLIEZSRUUuDQpJIE9OTFkgR09UIFlPVVIgQ09OVEFDVCBBRERSRVNTIEZST00gVEhF
-IElOVEVSTkVUDQpMSVNUSU5HIFdJVEggVEhFIEJFTElFVkUgSU4gR09EIFRIQVQgWU9VIFdJTEwg
-TkVWRVINCkxFVCBNRSBET1dOIElOIFRISVMgQlVTSU5FU1MsIFlPVSBBUkUgVEhFIE9OTFkgUEVS
-U09ODQpUSEFUIEkgSEFWRSBDT05UQUNURUQgRk9SIFRISVMgQlVTSU5FU1MgRk9SIE5PVy4gU08N
-ClBMRUFTRSBSRVBMWSBVUkdFTlRMWS5XSVRIIFRIRSBGT0xMT1dJTkcgSU5GT1JNQVRJT05TDQpG
-VUxMIE5BTUUgLE9GRklDRSAvUkVTSURFTlQgQUREUkVTUywgUEhPTkUvRkFYIENPTlRBQ1QsTUFS
-SVRBTCBTVEFUVUUgQU5EDQpBQ0NPVU5UIERFVEFJTFMgVE8gUFJPQ0VFRCBUSEUgVFJBTlNGRVIN
-CldIRU4gVEhFIFRSQU5TRkVSIElTIEFQUFJPVkVEIEFORCBQQVlNRU5UIFNDSEVEVUxFIElTDQpB
-TExPQ0FURUQgT1ZFUlNFQVMsIFRIUk9VR0ggVEhFIE9GRlNIT1JFIFBBWUlORw0KREVMRUdBVEUg
-Rk9SIEZJTkFMIENMRUFSQU5DRSBBTkQgU0lHTklORyBPRiBUSEUNClBBWU1FTlQgUkVBTEVBU0Ug
-Rk9STSBCWSBUSEUgQkVORUZJQ0lBUlksIEkgV0FOVCBVUyBUTw0KU0VFIEFUIFRIRSBPVkVSU0VB
-IFBBWUlORyBDTEVBUkFOQ0UgT0ZGSUNFIEZBQ0UgVE8NCkZBQ0UgT1IgU0lHTklORyBPRiBUSEUg
-T1JJR0lOQUwgQklORElORyBBR1JFRU1FTlQgVE8NCkJJTkQgVVMgVE9HRVRIRVIgU08gVEhBVCBX
-RSBDQU4gUkVDRUlWRSBUSElTIE1PTkVZDQpJTlRPIEEgRk9SRUlHTiBBQ0NPVU5UIE9SIEFOWSBB
-Q0NPVU5UIE9GIFlPVVIgQ0hPSUNFDQpXSEVSRSBUSEUgRlVORCBXSUxMIEJFIFJFTUlUVEVELg0K
-SSBBTSBDT05UQUNUSU5HIFlPVSBCRUNBVVNFIE9GIFRIRSBORUVEIFRPIElOVk9MVkUgQQ0KRk9S
-RUlHTkVSIFdJVEggQSBGT1JFSUdOIEFDQ09VTlQgVE8gQUNUIEFTIFRIRSBSRUFMDQpCRU5FRklD
-SUFSWS4gSSBORUVEIFlPVVIgQ08tT1BFUkFUSU9OIFRPIE1BS0UgVEhJUw0KV09SSyBGSU5FLCBC
-RUNBVVNFIFRIRSBNQU5BR0VNRU5UIElTIFJFQURZIFRPIEFQUFJPVkUgVEhJUw0KUEFZTUVOVCBU
-TyBBTlkgRk9SRUlHTkVSIFdITyBIQVMgVEhFIENPUlJFQ1QgSU5GT1JNQVRJT04gVE8NClRISVMg
-QUNDT1VOVC4gV0hJQ0ggSSBXSUxMIEdJVkUgVE8gWU9VIFdIRU4gU1VSRSBPRiBZT1VSDQpDQVBB
-QklMSVRZIFRPIEhBTkRMRSBTVUNIIEFNT1VOVCBJTiBTVFJJQ1QgQ09ORklERU5DRSBBTkQNClRS
-VVNULCBBQ0NPUkRJTkcgVE8gTVkNCklOU1RSVUNUSU9OUyBBTkQgTVkgQURJVklDRSBGT1IgT1VS
-IE1VVFVBTCBCRU5FRklUDQpCRUNBVVNFIEkgRE9OJ1QgV0FOVCBUTyBNQUtFIEFOWSBNSVNUQUtF
-LCBJIE5FRUQgWU9VUg0KU1RST05HIEFTU1VSQU5DRSBBTkQgVFJVU1QuIEkgU0hBTEwgREVTVFJP
-WUVEIEFMTA0KRE9DVU1FTlQgQ09OQ0VSTklORyBUSElTIFRSQU5TQUNUSU9OUyBJTU1FRElBVEVM
-WSBXRQ0KUkVDRUlWRUQgVEhJUyBNT05FWSBMSVZJTkcgTk8gVFJBQ0UgVE8gQU5ZIFBMQUNFLg0K
-SSBXSUxMIFVTRSBNWSBQT1NJVElPTiBBTkQgSU5GTFVFTkNFIE9OIE9USEVSIFNUQUZGUw0KVE8g
-RUZGRUNUIFRIRSBMRUdBTCBBUFBST1ZBTFMgQU5EIE9OV0FSRCBUUkFOU0ZFUiBPRg0KVEhJUyBN
-T05FWSBUTyBZT1VSIEFDQ09VTlQgV0lUSCBBUFBST1BSSUFURSBDTEVBUkFOQ0UgRlJPTQ0KRk9S
-RUlHTiBQQVlNRU5UIERFUEFSVE1FTlQuIFdJVEggQVNTVVJBTkNFIFRIQVQgVEhJUyBNT05FWQ0K
-V0lMTCBJTlRBQ1QgUEVORElORyBNWSBQSFlTSUNBTCBBUlJJVkFMIElOIFlPVVIgQ09VTlRSWSBG
-T1INClRIRSBTSEFSSU5HIEFORCBPVEhFUiBJTlZFU1RNRU5ULg0KQVQgVEhFIENPTkNMVVNJT04g
-T0YgVEhJUyBCVVNJTkVTUywgWU9VIFdJTEwgQkUgR0lWRU4gMjAlDQpPRiBUSEUgVE9UQUwgQU1N
-T1VOVCwgNzAlIFdJTEwgQkUgRk9SIE1FLCBXSElMRSAxMCUgV0lMTCBCRQ0KRk9SIEFOWSBFWFBF
-TlNFUyBJRiBPQ0NVUiAsIEJPVEggUEFSVElFUyBNSUdIVCBIQVZFIElOQ1VSRUQgRFVSSU5HIFRI
-RQ0KUFJPQ0VTUyBPRiBUSElTIFRSQU5TQUNUSU9OLg0KSSBMT09LIEZPUldBUkQgVE8gWU9VUiBF
-QVJMSUVTVCBSRVBMWSBUSFJPVUdIIE1ZDQpQUklWQVRFICBBTkQgQ09ORklERU5USUFMIEUgTUFJ
-TA0KQUREUkVTUzoNCihjaGFybGVzbWJhaDIzNEBzaWZ5LmNvbSkgb3IgKGNoYXJsZXNtYmFoQHNp
-ZnkuY29tKQ0KQUxMIEkgTkVFRCBJUyBZT1VSIEFDQ0VUQU5DRSBBTkQgSURFTlRJRklDQVRJT04g
-U08gSSBDQU4gS05PVyBZT1UgQU5EDQpUUlVTVA0KWU9VIEFORCBBTFNPIFlPVVIgQkFOSyBERVRB
-SUxTIFRPIFBST0NFRUQgVEhFIFRSQU5TRkVSIEhPUEUgSSBDQU4gUkVMSUEgT04NCllPVS4NCllP
-VVJTIFRSVUxZLA0KDQpEUiwgQ0hBUkxFUyBNQkFILg0KDQo=
+I've had one Oops, virtually the same one, but it didn't kill the 
+machine like it would have if I was running 2.6.8-rc2.
+>| >and
+>| >make path/to/<file containing prune_dcache>.s
+>|
+>| But this ones still being difficult.  Make does want to generate
+>| it. At best it claims that dcache.o is uptodate. I don't figure
+>| one file is worth much without the other, so whats wrong with my
+>| syntax? [root@coyote fs]# make dcache.c>.s
+>| [root@coyote fs]# less .s
+>| Which contains "make: Nothing to be done for `dcache.c'."
+>
+>This should be (without < > brackets):
+>
+>make fs/dcache.s
 
+Aha!  Voila!! It doesn't work in the "fs" subdir, but back out to the 
+top of the src tree and it works just fine.  Duh...
+
+Now, I must confess that what I'm looking at in those two files is 
+the .s is the source assembly that would normally be fed to gas, and 
+the objdump'ed version is the dissed object translated back to gas 
+source.  If no mistakes, they should be pretty close to the same I'd 
+think.  Am I on the right track?  Or full of it?
+
+Here's the theory thats gradually formed in whats left of my mind:
+--------------
+5 things changed in the kernel soft when I changed the mobo.
+1. The ide driver, from via686a to the nforce2 version.
+2. The video driver, because the old card failed and took the mobo 
+with it.
+3. Ethernet driver is now forcedeth instead of rtl-8139too
+4. A different alsa driver, from via8233 to intel-8x0
+5. The 4Gb switch is turned on in the kernel now as theres a gig of 
+ram on this board.
+--------------
+
+I can't do anything about the first 2, but I can do without the last 
+200 megs of ram long enough to test that, and I can switch back to 
+the rtl-8139too card for ethernet, and I can turn off alsasound.
+
+In the meantime I turned a bunch of stuff the logs were complaining 
+about off, like sgi_fam (what the heck is that?), some ups daemons 
+for brands I don't have, that sort of thing, and have a tail running 
+on the log.  So far, its clean since the restart of xinetd.  Another 
+16 hours will tell most of the tale for this particular instant 
+configuration.
+
+One final question if I may:  What do I turn off (or on) in the video 
+dept of the kernel so that my screen doesn't go black after vmlinuz 
+is unpacked, and not come back on till "init" is run, at which point 
+the screen comes back on in what looks to be exactly the same mode?
+
+Anything that goes on in that time period must be read 
+from /var/log/dmesg later if I want to see it.
+
+>--
+>~Randy
+
+-- 
+Cheers Randy, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

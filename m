@@ -1,82 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285516AbSBLPzb>; Tue, 12 Feb 2002 10:55:31 -0500
+	id <S290747AbSBLP5V>; Tue, 12 Feb 2002 10:57:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287552AbSBLPzW>; Tue, 12 Feb 2002 10:55:22 -0500
-Received: from taifun.devconsult.de ([212.15.193.29]:48905 "EHLO
-	taifun.devconsult.de") by vger.kernel.org with ESMTP
-	id <S287373AbSBLPzH>; Tue, 12 Feb 2002 10:55:07 -0500
-Date: Tue, 12 Feb 2002 16:55:04 +0100
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+	id <S291038AbSBLP5M>; Tue, 12 Feb 2002 10:57:12 -0500
+Received: from boink.boinklabs.com ([162.33.131.250]:22288 "EHLO
+	boink.boinklabs.com") by vger.kernel.org with ESMTP
+	id <S290747AbSBLP47>; Tue, 12 Feb 2002 10:56:59 -0500
+Date: Tue, 12 Feb 2002 10:56:58 -0500
+From: Charlie Wilkinson <cwilkins@boinklabs.com>
 To: linux-kernel@vger.kernel.org
-Cc: Matt Gauthier <elleron@yahoo.com>
-Subject: Re: secure erasure of files?
-Message-ID: <20020212165504.A5915@devcon.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Matt Gauthier <elleron@yahoo.com>
-In-Reply-To: <Pine.LNX.4.30.0202121409150.18597-100000@mustard.heime.net> <Pine.LNX.4.33.0202121438560.7616-100000@unicef.org.yu>
+Subject: Hard lock-ups on RH7.2 install - Via Chipset?
+Message-ID: <20020212105658.D11655@boink.boinklabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0202121438560.7616-100000@unicef.org.yu>; from zdavid@unicef.org.yu on Tue, Feb 12, 2002 at 02:41:19PM +0100
-Organization: dev/consulting GmbH
-X-NCC-RegID: de.devcon
+X-Mailer: Mutt 1.0i
+X-Home-Sweet-Home: RedHat 6.0 / Linux 2.2.12 on an AMD K6-225
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 12, 2002 at 02:41:19PM +0100, Davidovac Zoran wrote:
+Greetings fellow bit jockeys,
+This has been driving me nuts for over a week now.  All discussion
+found and solutions tried so far have proven fruitless.  If someone
+could point me at a fix or offer any insights, I would be most thrilled.
+I've read about some Athlon/Via related problems, so I'm hoping it fits
+in with that somehow.
 
-(srm maintainer cc'ed)
+The box is a AMD 1.3GHz Athlon with a "bcm Advanced Research" BC133KT-100
+motherboard (Via KT133/VT8363/686B), two Promise Ultra100Tx2 cards, and
+an IBM 75gb drive on each IDE channel (four drives in all).  The graphics
+card is an Nvidia TNT2 AGP, but I'm thinking that doesn't matter too
+much as the problem occurs just fine in character mode with no activity
+on the screen.  I've yanked out network cards, disabled unused ports,
+picked conservative BIOS settings, but to no avail.
 
-> there is srm (secure rm) somewhere on the net
-> here srm.sourceforge.net
-> srm - secure file deletion for posix systems
+The problem first occurred when I tried to do a RH7.2 install.  I set
+each drive up identically, creating a software RAID5 container across all
+four drives.  The box consistently freezes solid either while creating
+the ext3 filesystem on RAID5, or in the early phases of the .rpm march.
+(Note that means concurrent load on all four drives...)
 
-Broken as designed, it simply /can't/ work reliably (not to mention
-the other comments that you can even recover data overwritten multiple
-times).
+Numerous things tried...  Finally booted into rescue mode (starting with
+the latest RH7.2 updated boot image, FWIW) and tried running concurrent
+dd's out to the drives in various combinations, as in:
 
-Nothing stops the kernel (or the filesystem for that matter) from
-shuffling around disk blocks while you are overwriting the file. You
-may end up overwriting other disk blocks than the data you want to
-hide lives in if the filesystem decides that your file may fit better
-into other blocks, which leaves the original data completely intact.
+(dd if=/dev/zero of=/dev/hde2 &) ; (dd if=/dev/zero of=/dev/hdg2 &) ; etc...
 
-I don't know if any filesystem currently relocates blocks if you
-overwrite a file, but it's certainly possible and allowed (everything
-else except the filesystem itself simply must not care where the data
-actually ends up on the disk).
+What I found was that writing out to any two drives was fine.  Writing to
+all four will consistently lock up the machine after about 5-10 seconds.
+So it seems load related.  (No, I didn't try three drives.)
 
-In addition to the design breakage, the current implementation of srm
-is simply crap. Here is the part actually overwriting the file:
+Any clues?  Any fixes?  Pretty please?  :)
 
----------- snip ----------
-  int i = 0;
-
-  lseek(file, 0, SEEK_SET);
-  while (i < file_size - buffsize)
-    i += write(file, buffer, buffsize);
-  write(file, buffer, file_size - i);
----------- snip ----------
-
-Guess what happens if you try to srm a file longer than INT_MAX bytes?
-And what if write() returns an error? Ghee, overwriting the file
-backwards from the beginning, until infinity? Impressive...
-
-Ah, and look at rename_unlink(): it tries to "overwrite" the
-original filename with random characters. It does this by generating a
-new 14 character random filename and rename()ing the file to that name
-(keeping it in the same directory). Well, for example on plain stupid
-(no pun ;-) ext2fs there are /many/ situations where the new directory
-entry ends up in a totally different place than the old one (e.g. a
-filename shorter than 14 characters if there is no free space around
-the old direntry).
-
-Well, enough for now...
-
-Andreas
--- 
-       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
-     ---------------------------------------------------------
-         +49 521 1365800 - af@devcon.net - www.devcon.net
+-cw-

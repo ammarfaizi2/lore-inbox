@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263943AbTJ1M3c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 07:29:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263945AbTJ1M3c
+	id S263945AbTJ1Mhg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 07:37:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263955AbTJ1Mhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 07:29:32 -0500
-Received: from gprs196-218.eurotel.cz ([160.218.196.218]:34691 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263943AbTJ1M3b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 07:29:31 -0500
-Date: Tue, 28 Oct 2003 13:29:07 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Pavel Machek <pavel@suse.cz>, felipe_alfaro@linuxmail.org, mochel@osdl.org,
-       george@mvista.com, johnstul@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [pm] fix time after suspend-to-*
-Message-ID: <20031028122907.GA1940@elf.ucw.cz>
-References: <Pine.LNX.4.44.0310271535160.13116-100000@cherise> <1067329994.861.3.camel@teapot.felipe-alfaro.com> <20031028093233.GA1253@elf.ucw.cz> <20031028224101.3220e0a6.sfr@canb.auug.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031028224101.3220e0a6.sfr@canb.auug.org.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Tue, 28 Oct 2003 07:37:36 -0500
+Received: from enigma.barak.net.il ([212.150.48.99]:23747 "EHLO
+	enigma.barak.net.il") by vger.kernel.org with ESMTP id S263945AbTJ1Mhf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 07:37:35 -0500
+From: "Amir Hermelin" <amir@montilio.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: how do file-mapped (mmapped) pages become dirty?
+Date: Tue, 28 Oct 2003 14:35:55 +0200
+Organization: Montilio
+Message-ID: <006901c39d50$0b1313d0$2501a8c0@CARTMAN>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
+When a process mmaps a file, how does the kernel know the memory has been
+written to (and hence the page is dirty)? Is this done by setting the
+protected flag, and when the memory is first written to it's set to dirty?
+What function is responsible for this setting? And when will the page be
+written back to disk (i.e. where's the flusher located)?
 
-> > Not sure... We do not want applications to know. Certainly we can't
-> > send a signal; SIGPWR already has some meaning and it would be bad to
-> > override it.
-> 
-> And SIGPWR is a bad choice anyway as the default action for SIGPWR
-> is to terminate the process - I can't see people being amused if all
-> their processes are killed when they suspend their laptop :-)
-> 
-> We could invent a new signal whose default action is ignore ... Solaris
-> has SIGFREEZE and SIGTHAW (the comment in the header file says used by CPR
-> - whatever that is).  SIGSUSPEND and SIGRESUME?
+Thanks for any help,
+Amir.
 
-Is adding signal really that easy? I thought there's limited number of
-them...
 
-								Pavel
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

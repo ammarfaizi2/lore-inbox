@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273619AbRJBM7C>; Tue, 2 Oct 2001 08:59:02 -0400
+	id <S273626AbRJBNBW>; Tue, 2 Oct 2001 09:01:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273626AbRJBM6w>; Tue, 2 Oct 2001 08:58:52 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:61451 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S273619AbRJBM6n>;
-	Tue, 2 Oct 2001 08:58:43 -0400
-Date: Tue, 2 Oct 2001 14:59:02 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Stephen Frost <sfrost@snowman.net>
-Cc: alan@whirlnet.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.11-pre2
-Message-Id: <20011002145902.5b74e5bf.skraw@ithnet.com>
-In-Reply-To: <20011002085326.B29860@ns>
-In-Reply-To: <Pine.LNX.4.33.0110011438230.990-100000@penguin.transmeta.com>
-	<200110012218.f91MIGU10233@hswn.dk>
-	<20011002125040.A10878@whirlnet.co.uk>
-	<20011002143939.34e5cd62.skraw@ithnet.com>
-	<20011002085326.B29860@ns>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S273644AbRJBNBM>; Tue, 2 Oct 2001 09:01:12 -0400
+Received: from rkom.r-kom.de ([212.77.162.22]:40068 "EHLO urfass.r-kom.de")
+	by vger.kernel.org with ESMTP id <S273626AbRJBNBB>;
+	Tue, 2 Oct 2001 09:01:01 -0400
+Date: Tue, 2 Oct 2001 15:01:29 +0200
+From: "Stefan M. Brandl" <smb@smbnet.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10 doesn't boot
+Message-ID: <20011002150129.A2211@urfass.r-kom.de>
+In-Reply-To: <20011002145833.A2200@urfass.r-kom.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011002145833.A2200@urfass.r-kom.de>
+User-Agent: Mutt/1.3.22.1i
+X-NCC-RegID: de.r-kom
+X-URL: http://www.smbnet.de/
+X-Organization: heavy overdose administration
+X-Location: Regensburg, Bavaria, Germany
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Oct 2001 08:53:27 -0400 Stephen Frost <sfrost@snowman.net> wrote:
+In article <1002022144.29780.30.camel@steph> you wrote:
+> o know this can sound stupid but is your machine overclocked ?
+>
+> Since kernel 2.4.9, it seems to be more sensitive about overclocked
+> speed than before ...
+>
 
-> * Stephan von Krawczynski (skraw@ithnet.com) wrote:
-> > On Tue, 2 Oct 2001 12:50:40 +0100 Alan Ford <alan@whirlnet.co.uk> wrote:
-> > 
-> > > -	action_msg:	"Emergency Remount R/0\n",
-> > > +	action_msg:	"Emergency Remount R/O\n",
-> > 
-> > What exactly do you want to fix with this patch?
-> 
-> 	That changes 'R/0' (R slash Zero) to R/O (R slash O).
-> 	I think 'Read-Only' is what is meant in this 'action_msg'
-> 	and is probably better represented with 'R/O' than 'R/0'.
+No, it's not overclocked.
+It's a plain P-III 650MHz.
+I have another machine with an 1.4GHz Athlon that works perfect.
 
-Sorry for asking. I could not determine the difference in my on-screen font.
 
-Regards,
-Stephan
-
+Stefan

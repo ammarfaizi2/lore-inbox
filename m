@@ -1,69 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292331AbSBBRqR>; Sat, 2 Feb 2002 12:46:17 -0500
+	id <S292330AbSBBRz6>; Sat, 2 Feb 2002 12:55:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292330AbSBBRqH>; Sat, 2 Feb 2002 12:46:07 -0500
-Received: from mustard.heime.net ([194.234.65.222]:64684 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S292331AbSBBRp5>; Sat, 2 Feb 2002 12:45:57 -0500
-Date: Sat, 2 Feb 2002 18:45:45 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Roger Larsson <roger.larsson@norran.net>
-cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@zip.com.au>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Errors in the VM - detailed 
-In-Reply-To: <200202021732.g12HWMU25229@mailc.telia.com>
-Message-ID: <Pine.LNX.4.30.0202021843430.11440-100000@mustard.heime.net>
+	id <S292332AbSBBRzs>; Sat, 2 Feb 2002 12:55:48 -0500
+Received: from as1-4-7.bn.g.bonet.se ([194.236.61.89]:25473 "HELO cucumelo.org")
+	by vger.kernel.org with SMTP id <S292330AbSBBRzd>;
+	Sat, 2 Feb 2002 12:55:33 -0500
+Message-ID: <3C5C7C66.1050007@cucumelo.org>
+Date: Sat, 02 Feb 2002 18:55:18 -0500
+From: Benny Sjostrand <gorm@cucumelo.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010914
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: 512 Mb DIMM not detected by the BIOS!
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Andrew did supply a patch for Riel but he did not accept all of it?
->
-> Lets see again. Do I understand you correctly:
-> rmap 11c fixes the problem #1 but not 11b? are all later
-> rmaps good?
+Hello everyone!
 
-I've just tried 11c and 12a. Both are good. The change was made between
-11b and 11c.
+I'm new to this mailinglist so please tellme if you think i'm "out of 
+topoic".
 
->
-> rmap 11c:
->   - oom_kill race locking fix                             (Andres Salomon)
->   - elevator improvement                                  (Andrew Morton)
->   - dirty buffer writeout speedup (hopefully ;))          (me)
->   - small documentation updates                           (me)
->   - page_launder() never does synchronous IO, kswapd
->     and the processes calling it sleep on higher level    (me)
->   - deadlock fix in touch_page()                          (me)
-> rmap 11b:
->
-> Lets see, not oom condition, no dirty buffers (read "only"),
-> not documentation, page_launder (no dirty...), not deadlock.
-> Remaining is the elevator... And that can really be it!
-> (read ahead related too...)
->
-> and 2.4.18-pre2 (or later) does not fix it?
+I've have trouble with the following issue:
+On two x86 machines, one AMD k62 and a Pentium the Bios dont wont to 
+detect properly a 512 MB PC133 DIMM, the K62 based it dont detect it at 
+all, and on the PII it detect it as a 128MB DIMM.
+I suspect that's the BIOS that "sucks", not the HW, i supose that the HW 
+is capable to deal with 512MB DIMM's, so my question to you 
+"kernel-gurus", is there any posibility to configure the Linux kernel to 
+bypass the BIOS and actually use my 512MB ?
 
-I'll try.
+Thanks!
 
->
-> 2.4.18-pre2:
-> - ...
-> - Fix elevator insertion point on failed
->   request merge					(Jens Axboe)
-> - ...
-> pre1:
+/Benny
 
-btw... I beleive the error #2 is Tux specific. I'm debugging it now. Sorry
-for that
-
-roy
-
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
 

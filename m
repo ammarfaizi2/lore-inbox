@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264402AbRFNCTk>; Wed, 13 Jun 2001 22:19:40 -0400
+	id <S264310AbRFNCbL>; Wed, 13 Jun 2001 22:31:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264405AbRFNCTa>; Wed, 13 Jun 2001 22:19:30 -0400
-Received: from f89.law12.hotmail.com ([64.4.19.89]:63756 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S264402AbRFNCTN>;
-	Wed, 13 Jun 2001 22:19:13 -0400
-X-Originating-IP: [142.169.166.23]
-From: "Seigneur Angmar" <seigneurangmar@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Lecteur CD-ROM
-Date: Wed, 13 Jun 2001 22:19:03 -0400
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Message-ID: <F89qlOQq2vXqZAmN0oG000027c6@hotmail.com>
-X-OriginalArrivalTime: 14 Jun 2001 02:19:04.0337 (UTC) FILETIME=[61F98810:01C0F478]
+	id <S264303AbRFNCbB>; Wed, 13 Jun 2001 22:31:01 -0400
+Received: from server1.cosmoslink.net ([208.179.167.101]:29748 "EHLO
+	server1.cosmoslink.net") by vger.kernel.org with ESMTP
+	id <S264310AbRFNCaw>; Wed, 13 Jun 2001 22:30:52 -0400
+Message-ID: <016c01c0f47a$08807e40$4fa6b3d0@Toshiba>
+From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+In-Reply-To: <NEBBJBCAFMMNIHGDLFKGCEFCEEAA.rmager@vgkk.com>  <200106140200.f5E20NL3012987@typhaon.pacific.net.au>
+Subject: Re: Download process for a "split kernel" (was: obsolete code must die) 
+Date: Wed, 13 Jun 2001 19:30:52 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bonsoir,
-    Je vous décrirai le problème du mieux que je peux.  Avant tout, je tiens 
-à souligner que, sous les mêmes configurations, le problème ne s'est produit 
-et reproduit que sur les kernels 2.4.X (kernels testés : 2.2.18, 2.2.19, 
-2.4.0, 2.4.3, 2.4.5).
+>
+> Or as a simpler design, something like;
+>
+>   * a copy of the kernel maintained in a CVS tree
+>   * kernel download would pull down:
+>         * the build script
+>         * a file containing the list of filenames depended on by
+>           each config option
+>   * build script builds the config and then cvs updates the file list
+>     and the files for each config option in question to the version as
+>     tagged in the build script
+>
+> Someone could relatively easily maintain this separate to all the kernel
+> developers, and it would mean only ever having to download files you were
+> actually using.
 
-    J'ai en ma possession un CD-R (fait sous Windows 98) qui fonctionne sans 
-reproches.  Absolument rien d'anormal ne se produit quand j'écris la ligne 
-suivante : "mount /dev/cdrom".  Le problème survient quand j'essaye de 
-copier un fichier sur le disc dur.  Le message suivant s'affiche :
+OR
 
-hdb: command error: status=0x51 { DriveReady SeekComplete Error }
-hdb: command error: error=0x54
-end_request: I/O error, dev 03:40 (hdb), sector 14776
-hdb: command error: status=0x51 { DriveReady SeekComplete Error }
-hdb: command error: error=0x54
-end_request: I/O error, dev 03:40 (hdb), sector 14780
-cp: wumpscut - mortal highway.mp3: Input/output error
-...
+50 % of kernel size is from /linux/drivers
+25 % of kernel size is from machine dependent /linux/arch/XXXX and
+/linux/include/XXXX
 
-Je rappelle que ce problème n'est jamais arrivé sur aucuns des kernels 2.2.X 
-que j'ai compilé.
+If  we are able to divide Linux tree in such a way that everyone can
+download it from from their personnal modems and enjoy linux.
 
-N.B. : je possède un ATAPI CDROM: LTN242F
+may be i am wrong .
 
-Merci beaucoup
+But i love downloading whole kernel and i usually refer different
+architectures.
 
-Michel
+Thank you,
 
-_________________________________________________________________________
-Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
+Best Regards,
+
+Jaswinder.
+--
+These are my opinions not 3Di.
+
 

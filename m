@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267434AbSKQCQR>; Sat, 16 Nov 2002 21:16:17 -0500
+	id <S267435AbSKQCVb>; Sat, 16 Nov 2002 21:21:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267435AbSKQCQR>; Sat, 16 Nov 2002 21:16:17 -0500
-Received: from mx11.dmz.fedex.com ([199.81.193.118]:37380 "EHLO
-	mx11.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S267434AbSKQCQQ>; Sat, 16 Nov 2002 21:16:16 -0500
-Date: Sun, 17 Nov 2002 10:21:34 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Jeff Chua <jchua@fedex.com>
-cc: Andries Brouwer <aebr@win.tue.nl>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Subject: Re: VFAT mount (bug or feature?
-In-Reply-To: <Pine.LNX.4.44.0211170944020.432-100000@boston.corp.fedex.com>
-Message-ID: <Pine.LNX.4.44.0211171019550.524-100000@boston.corp.fedex.com>
+	id <S267437AbSKQCVb>; Sat, 16 Nov 2002 21:21:31 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:34354
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S267435AbSKQCVb>; Sat, 16 Nov 2002 21:21:31 -0500
+Date: Sat, 16 Nov 2002 21:31:55 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: John Levon <levon@movementarian.org>
+cc: Corey Minyard <cminyard@mvista.com>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: NMI handling rework for x86
+In-Reply-To: <20021117020017.GA96715@compsoc.man.ac.uk>
+Message-ID: <Pine.LNX.4.44.0211162128450.1543-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 11/17/2002
- 10:23:08 AM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 11/17/2002
- 10:23:11 AM,
-	Serialize complete at 11/17/2002 10:23:11 AM
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 17 Nov 2002, John Levon wrote:
 
-On Sun, 17 Nov 2002, Jeff Chua wrote:
+> One thing: since we have the unnatural relationship between the watchdog
+> and oprofile, I would much prefer that be obvious in the priority. e.g
+> MAX_NMI_PRIORITY, which oprofile uses, then watchdog is MAX_NMI_PRIORITY
+> -1. Currently the gap between the two values you use indicates it's OK
+> to have another handler inbetween, which it definitely isn't.
 
-> But, 2.4.20-rc2 seems ok.
->
-> 'mount -o umask=022' now works under 2.4.20-rc2.
+Hmm how about when the machine really is in trouble, we really wouldn't 
+want some things to be running when we want the watchdog to trigger. How 
+do you propose we handle this? nmi_watchdog_tick is pretty light so it has 
+a lesser chance of blowing up in various code when the machine is on the 
+brink of death.
 
-"remount" doesn't work.
+150,000? Nice Corey, again i stand corrected on that front.
 
-mount -o umask=022 -t vfat /dev/hda1 /dos
-mount -o umask=000 -o remount -t vfat /dev/hda1 /dos
-
-The above didn't work.
-
-umount /dos
-mount -o umask=022 -t vfat /dev/hda1 /dos
-umount /dos
-mount -o umask=000 -t vfat /dev/hda1 /dos
-
-
-Jeff
-
+	Zwane
+-- 
+function.linuxpower.ca
 

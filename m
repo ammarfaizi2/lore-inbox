@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291394AbSBSND4>; Tue, 19 Feb 2002 08:03:56 -0500
+	id <S291399AbSBSNK6>; Tue, 19 Feb 2002 08:10:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291393AbSBSNDr>; Tue, 19 Feb 2002 08:03:47 -0500
-Received: from natpost.webmailer.de ([192.67.198.65]:38911 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S291450AbSBSNDd>; Tue, 19 Feb 2002 08:03:33 -0500
-Date: Tue, 19 Feb 2002 13:57:58 +0100
-From: Kristian <kristian.peters@korseby.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18-pre9-ac4 filesystem corruption
-Message-Id: <20020219135758.67f7f4c2.kristian.peters@korseby.net>
-In-Reply-To: <E16d982-0000LP-00@the-village.bc.nu>
-In-Reply-To: <20020219125211.10f80f4e.kristian.peters@korseby.net>
-	<E16d982-0000LP-00@the-village.bc.nu>
-X-Mailer: Sylpheed version 0.7.1claws7 (GTK+ 1.2.10; i386-redhat-linux)
-X-Operating-System: Debian GNU/Linux 2.4.17
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S291397AbSBSNKs>; Tue, 19 Feb 2002 08:10:48 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:25102 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S291393AbSBSNKn>;
+	Tue, 19 Feb 2002 08:10:43 -0500
+Date: Tue, 19 Feb 2002 10:10:28 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: [PATCH] reduce struct_page size
+In-Reply-To: <Pine.LNX.4.33.0202181806340.24597-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0202191009260.1930-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > I've seen filesystem corruption using -ac4 with ext2 although I'm not using
-> > a SIS chipset. So I really recommend using not this patch.
-> 
-> The SiS patch is only changing anything if the SiS vode is in use.
-> 
-> Precisely what chipset, what IDE, what ide cable (40/80 pin) and drives
-> do you have. What hdparm commands are you using if any ?
+On Mon, 18 Feb 2002, Linus Torvalds wrote:
+> On Mon, 18 Feb 2002, Rik van Riel wrote:
+> >
+> > o page->zone is shrunk from a pointer to an index into a small
+> >   array of zones ... this means we have space for 3 more chars
+> >   in the struct page to other stuff (say, page->age)
+>
+> Why not put "page->zone" into the page flags instead?
 
-No hdparm settings. 40pin cable and this drive:
+Done.  I'll resubmit the patch with this change once I've
+tested the thing, in an hour or two.
 
-$ dmesg|grep hda
-    ide0: BM-DMA at 0x10a0-0x10a7, BIOS settings: hda:DMA, hdb:DMA
-hda: WDC AC24300L, ATA DISK drive
-hda: 8421840 sectors (4312 MB) w/256KiB Cache, CHS=557/240/63, UDMA(33)
+regards,
 
-$ lspci
-00:00.0 Host bridge: Intel Corp. 440BX/ZX - 82443BX/ZX Host bridge (rev 02)
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX - 82443BX/ZX AGP bridge (rev 02)
-00:0e.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone]
-00:0f.0 Token ring network controller: IBM 16/4 Token ring UTP/STP controller (r
-ev 05)
-00:14.0 ISA bridge: Intel Corp. 82371AB PIIX4 ISA (rev 02)
-00:14.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01)
-00:14.2 USB Controller: Intel Corp. 82371AB PIIX4 USB (rev 01)
-00:14.3 Bridge: Intel Corp. 82371AB PIIX4 ACPI (rev 02)
-01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 AGP (rev 01)
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
 
-Before you ask: I'll test memory later just to be sure.
+http://www.surriel.com/		http://distro.conectiva.com/
 
-*Kristian
-
-  :... [snd.science] ...:
- ::
- :: http://www.korseby.net
- :: http://gsmp.sf.net
-  :..........................:

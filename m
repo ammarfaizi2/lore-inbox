@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263015AbUENXga@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264673AbUEOBJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbUENXga (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 19:36:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264529AbUENX2r
+	id S264673AbUEOBJn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 21:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264658AbUEOBF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 19:28:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:17858 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263015AbUENX0p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 19:26:45 -0400
-Date: Fri, 14 May 2004 16:29:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Henrik.Seidel@gmx.de
-Subject: Re: sysfs warning + spinlock BUG in typhoon radio
-Message-Id: <20040514162919.143c0d6c.akpm@osdl.org>
-In-Reply-To: <20040514113804.1964105f.rddunlap@osdl.org>
-References: <20040514113804.1964105f.rddunlap@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 14 May 2004 21:05:57 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:32738 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264660AbUEOBC4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 21:02:56 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
+Date: Sat, 15 May 2004 03:05:06 +0200
+User-Agent: KMail/1.5.3
+Cc: rene.herman@keyaccess.nl, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       arjanv@redhat.com
+References: <409F4944.4090501@keyaccess.nl> <20040514032657.GB704@elf.ucw.cz> <20040514175918.6b9f4c9d.akpm@osdl.org>
+In-Reply-To: <20040514175918.6b9f4c9d.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405150305.06385.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+On Saturday 15 of May 2004 02:59, Andrew Morton wrote:
+> Pavel Machek <pavel@ucw.cz> wrote:
+> > > > It's a bit grubby, but we could easily add a fourth state to
+> > > >  `system_state': split SYSTEM_SHUTDOWN into SYSTEM_REBOOT and
+> > > > SYSTEM_HALT. That would be a quite simple change.
+> > >
+> > > Like this.  I checked all the SYSTEM_FOO users and none of them seem to
+> > > care about the shutdown state at present.  Easy.
+> >
+> > Perhaps this should be parameter to device_shutdown? This is quite
+> > ugly.
 >
-> Calling initcall 0xc10bc558: typhoon_init+0x0/0x12a()
-> Typhoon Radio Card driver v0.1
-> CLASS: registering class device: ID = 'radio2'
-> class_hotplug - name = radio2
-> videodev: "Typhoon Radio" has no release callback. Please fix your driver for proper sysfs support, see http://lwn.net/Articles/36850/
-> radio-typhoon: port 0x316.
-> radio-typhoon: mute frequency is 87500 kHz.
-> eip: c0b946cc
-> ------------[ cut here ]------------
-> kernel BUG at include/asm/spinlock.h:120!
+> Rather than a parameter to ->shutdown it would be better to add a new
+> ->restart method to devices and IDE can implement one of those.
+>
+> I don't know if it's worth the effort though.  Is any other driver likely
+> to want to discriminate between reboot and shutdown?
 
-Does this fix?
-
-
-diff -puN drivers/media/radio/radio-typhoon.c~typhoon-locking-fix drivers/media/radio/radio-typhoon.c
---- 25/drivers/media/radio/radio-typhoon.c~typhoon-locking-fix	Fri May 14 16:26:46 2004
-+++ 25-akpm/drivers/media/radio/radio-typhoon.c	Fri May 14 16:28:29 2004
-@@ -326,7 +326,6 @@ static int __init typhoon_init(void)
- 		return -EINVAL;
- 	}
- 	typhoon_unit.iobase = io;
--	init_MUTEX(&typhoon_unit.lock);
- 
- 	if (mutefreq < 87000 || mutefreq > 108500) {
- 		printk(KERN_ERR "radio-typhoon: You must set a frequency (in kHz) used when muting the card,\n");
-@@ -337,6 +336,7 @@ static int __init typhoon_init(void)
- #endif /* MODULE */
- 
- 	printk(KERN_INFO BANNER);
-+	init_MUTEX(&typhoon_unit.lock);
- 	io = typhoon_unit.iobase;
- 	if (!request_region(io, 8, "typhoon")) {
- 		printk(KERN_ERR "radio-typhoon: port 0x%x already in use\n",
-
-_
+it seems only drivers/char/watchdog/alim7101_wdt.c
+(currently uses reboot notifier for that)
 

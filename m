@@ -1,72 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317855AbSHUEqg>; Wed, 21 Aug 2002 00:46:36 -0400
+	id <S317859AbSHUE7s>; Wed, 21 Aug 2002 00:59:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317858AbSHUEqg>; Wed, 21 Aug 2002 00:46:36 -0400
-Received: from brynhild.mtroyal.ab.ca ([142.109.10.24]:52970 "EHLO
-	brynhild.mtroyal.ab.ca") by vger.kernel.org with ESMTP
-	id <S317855AbSHUEqd>; Wed, 21 Aug 2002 00:46:33 -0400
-Date: Tue, 20 Aug 2002 22:50:07 -0600 (MDT)
-From: James Bourne <jbourne@mtroyal.ab.ca>
-To: Christoph Hellwig <hch@infradead.org>
-cc: jack@suse.cz, "Dmitry N. Hramtsov" <hdn@nsu.ru>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: vfsv0 quota patch
-In-Reply-To: <20020820161046.A26295@infradead.org>
-Message-ID: <Pine.LNX.4.44.0208202248020.30816-100000@skuld.mtroyal.ab.ca>
-MIME-Version: 1.0
-X-scanner: scanned by Inflex 1.0.12.2 - (http://pldaniels.com/inflex/)
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317864AbSHUE7r>; Wed, 21 Aug 2002 00:59:47 -0400
+Received: from mail12.speakeasy.net ([216.254.0.212]:57248 "EHLO
+	mail.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S317859AbSHUE7r>; Wed, 21 Aug 2002 00:59:47 -0400
+Subject: Re: devfs
+From: Ed Sweetman <safemode@speakeasy.net>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200208210449.g7L4nBo23764@vindaloo.ras.ucalgary.ca>
+References: <Pine.GSO.4.21.0208181852450.3920-100000@weyl.math.psu.edu>
+	<1029712550.3331.43.camel@psuedomode> 
+	<200208210449.g7L4nBo23764@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 21 Aug 2002 01:03:52 -0400
+Message-Id: <1029906233.14060.44.camel@psuedomode>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Aug 2002, Christoph Hellwig wrote:
-
-> On Tue, Aug 20, 2002 at 04:26:20PM +0200, jack@suse.cz wrote:
-> >   The computer will be probably offline for a while (as far as I know
-> >   there are problems with electricity etc...). But you can also
-> >   use -ac versions of kernel which should contain latest quota patches
-> >   (actually more recent that on my ftp site...).
+On Wed, 2002-08-21 at 00:49, Richard Gooch wrote:
+> It seems the reason you removed devfs is that you followed Al's bad
+> advice:
+> Alexander Viro writes:
+> > Don't be silly - if you want to test anything, devfs is the last
+> > thing you want on the system.
 > 
-> Or the quota patch from the 2.4.19 XFS split patches.  It might have some
-> trivial rejects in Makefile/Config but should work without any problems.
-
-You can find the vfsv0 quota patches for 2.4.18 and 2.4.19
-at http://www.hardrock.org/kernel/
-
-The 2.4.18 patch is from .cz (a while ago), and the 2.4.19 is a diff I
-took after applying and very little merging (IIRC) from the 2.4.18 patch
-to the base 2.4.19 kernel.
-
-I have done some prelim. testing it the 2.4.19 patch does seem to work fine.
-
-Regards
-James Bourne
-
+> In fact, devfs works quite robustly for many people, and wasn't
+> involved in the IDE problems you were having. Al is an absolutist: if
+> it's not 100% provably correct, it falls into his other category,
+> "spawn of satan".
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> So next time someone claims devfs is causing you problems, treat it
+> with the skepticism it deserves.
 > 
-
--- 
-James Bourne, Supervisor Data Centre Operations
-Mount Royal College, Calgary, AB, CA
-www.mtroyal.ab.ca
-
-******************************************************************************
-This communication is intended for the use of the recipient to which it is
-addressed, and may contain confidential, personal, and or privileged
-information. Please contact the sender immediately if you are not the
-intended recipient of this communication, and do not copy, distribute, or
-take action relying on it. Any communication received in error, or
-subsequent reply, should be deleted or destroyed.
-******************************************************************************
+> 				Regards,
+> 
+> 					Richard....
 
 
-"There are only 10 types of people in this world: those who
-understand binary and those who don't."
-
+Ok, well the more happy the people who have the ability to know what the
+problem is the better so despite a simple usb issue, moving out of devfs
+wasn't a hassle.  I'm willing to move back to vanilla if it helps in
+chasing a problem down.  I'm just kind of disappointed that the
+discussion of me playing around with devfs got more attention from the
+ide guys than the actual problem since it seems to be strictly DMA
+related and not a drive problem so if it's chipset conflicts it should
+be documented either in the good-bad firmware so the kernel disables dma
+on boot of this particular promise chipset when this particular via
+chipset is present or in the HELP for the config option so at least
+users are aware that drive corruption has been known to happen on the
+linux promise driver when dma is enabled on some via chipsets.  That is
+unless it's a fixable problem.  Which i rather hope it is.  neither the
+abit motherboard or promise controller card are uncommon.   But since
+nobody i know has via + promise setups I cant ask them to run the
+cerberus test to see the same behavior to see the extent of the promise
++ via problems or if it's even got anything to do with via.  (shrugs)
 

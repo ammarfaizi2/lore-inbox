@@ -1,73 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290946AbSBVBYK>; Thu, 21 Feb 2002 20:24:10 -0500
+	id <S290827AbSBVB3v>; Thu, 21 Feb 2002 20:29:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290878AbSBVBXw>; Thu, 21 Feb 2002 20:23:52 -0500
-Received: from balu.sch.bme.hu ([152.66.208.40]:7081 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S290827AbSBVBXs> convert rfc822-to-8bit;
-	Thu, 21 Feb 2002 20:23:48 -0500
-Date: Fri, 22 Feb 2002 02:23:28 +0100 (MET)
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: =?gb2312?q?hanhbkernel?= <hanhbkernel@yahoo.com.cn>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: boot messeage
-In-Reply-To: <20020222011800.95965.qmail@web15003.mail.bjs.yahoo.com>
-Message-ID: <Pine.GSO.4.30.0202220222420.11273-100000@balu>
+	id <S290878AbSBVB3a>; Thu, 21 Feb 2002 20:29:30 -0500
+Received: from starbug.ugh.net.au ([203.31.238.37]:36876 "EHLO
+	starbug.ugh.net.au") by vger.kernel.org with ESMTP
+	id <S290827AbSBVB3W>; Thu, 21 Feb 2002 20:29:22 -0500
+Date: Fri, 22 Feb 2002 12:29:20 +1100 (EST)
+From: David Burrows <snadge@ugh.net.au>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dodgey Linus BogoMIPS code ;) (was Re: baffling linux bug)
+In-Reply-To: <20020222011209.GE20060@matchmail.com>
+Message-ID: <20020222122108.I15623-100000@starbug.ugh.net.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 21 Feb 2002, Mike Fedyk wrote:
+> I didn't see one thing mentioning Linus in there... ;)  I could sue if you
+> were selling something. ;)
 
-I think you should use the append="quiet" option. This way use get only
-errors shown.
+Kind of.  Except Linus wrote the particular section of code in question.
+=)
 
-On Fri, 22 Feb 2002, [gb2312] hanhbkernel wrote:
+> Anyway, jiffies are same as HZ and on i386 100 jiffies/sec, and one timer
+> interrupt per jiffie.
 
-> When booting Linux, the kernel messages are shown on
-> screen.
-> I don't like to show these messages, so  "Support for
-> console on virtual terminal" and "Support for console
-> on serial port" are not chose when compiling kernel.
-> But using the new kernel, computer can't boot. If one
-> of "Support for console on virtual terminal" and
-> "Support for console on serial port" is chose,
-> Computer can be booted. If I don’t like the booting
-> messages shown through terminal or HyperTerminal on
-> screen.
-> the following is my lilo.conf
-> boot=/dev/hda
-> map=/boot/map
-> install=/boot/boot.b
-> prompt
-> timeout=50
-> message=/boot/message
-> linear
-> default=linux-2.4.17
-> image=/boot/linux2417
-> 	label=linux-2.4.17
-> 	initrd=/root/initrd
-> 	append="root=/dev/ram0 init=linuxrc rw"
-> I using append="console=quiet  root=/dev/ram0
-> init=linuxrc rw" and
-> append="console=/dev/null root=/dev/ram0 init=linuxrc
-> rw" but computer can not be booted.
-> Would you like to tell me how could I do?
->
->
->
-> _________________________________________________________
-> Do You Yahoo!?
-> 到世界杯主题公园玩一玩，赢取世界杯门票乐一乐。
-> http://cn.worldcup.yahoo.com/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Or perhaps not in the case of my hardware functioning properly one day,
+and never to boot linux (but fine with everything else) again..
 
--- 
-pozsy
+I need a sure fire way of testing whether the timer interrupt works,
+perhaps even a kernel patch to include such a check before initialising
+the timers.  Is there a possibility of working around such problem?  I
+would rather destroy this motherboard than sacrifice it to running
+inferior operating systems for the remainder of its life. =)
+
+Regards,
+
+Dave.
 

@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267042AbTBVQtO>; Sat, 22 Feb 2003 11:49:14 -0500
+	id <S266907AbTBVQtB>; Sat, 22 Feb 2003 11:49:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267070AbTBVQtO>; Sat, 22 Feb 2003 11:49:14 -0500
-Received: from maile.telia.com ([194.22.190.16]:52940 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S267042AbTBVQtN>;
-	Sat, 22 Feb 2003 11:49:13 -0500
-X-Original-Recipient: linux-kernel@vger.kernel.org
-Date: Sat, 22 Feb 2003 17:57:59 +0100 (CET)
-Message-Id: <20030222.175759.127093070.cfmd@swipnet.se>
-To: alan@lxorguk.ukuu.org.uk
-Cc: mikpe@user.it.uu.se, davidsen@tmr.com, linux-kernel@vger.kernel.org
-Subject: Re: Module loading on demand
-From: Magnus Danielson <cfmd@swipnet.se>
-In-Reply-To: <1045935675.4721.1.camel@irongate.swansea.linux.org.uk>
-References: <200302221545.h1MFjmkW006417@harpo.it.uu.se>
-	<1045935675.4721.1.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Mew version 3.1 on Emacs 21.2 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S267033AbTBVQtB>; Sat, 22 Feb 2003 11:49:01 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:54534 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id <S266907AbTBVQtA>; Sat, 22 Feb 2003 11:49:00 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302221659.h1MGxtpf000883@81-2-122-30.bradfords.org.uk>
+Subject: Re: Minutes from Feb 21 LSE Call
+To: mbligh@aracnet.com (Martin J. Bligh)
+Date: Sat, 22 Feb 2003 16:59:55 +0000 (GMT)
+Cc: lm@bitmover.com, davem@redhat.com, lse-tech@lists.sf.et,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <28900000.1045931966@[10.10.2.4]> from "Martin J. Bligh" at Feb 22, 2003 08:39:27 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Module loading on demand
-Date: 22 Feb 2003 17:41:15 +0000
+> OK, I predict that Linux will take over the whole of the high end server
+> market ... if people stop complaining about us fixing scalability. That
+> should give some nicer numbers ....
 
-> The other nasty is that if you install Rusty's rpms for the better module tools, and
-> then install a Red Hat kernel errata your errata kernel will not boot because the
-> Rusty tools replace insmod.static with a tool which only works standalone on 2.5. Its
-> not a big deal since most people who build 2.5 kernels build their own 2.4 ones too,
-> and you can fix the initrd by hand, but it is one to know about.
+Extending the useful life of current hardware will shift profit even
+further towards support contracts, and away from hardware sales.
 
-The solution in Debian was to include both the 2.4 and 2.5 variants. There
-where a bug in that, since initrd-tools forgot to include it, which is now
-resolved. The correct variant was used depending on which kernel where
-installed. A neater solution where to include the correct tools and modules
-for kernel.
+Imagine the performance gain a webserver serving mostly static
+content, with light database and scripting usage is going to see
+moving from a 2.4 -> 2.6 kernel?  Zero copy and filesystem
+improvements alone will extend it's useful life dramatically, in my
+opinion.
 
-Cheers,
-Magnus
+John.

@@ -1,81 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267594AbUHYPJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267669AbUHYPNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267594AbUHYPJv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 11:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267669AbUHYPJv
+	id S267669AbUHYPNS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 11:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267690AbUHYPNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 11:09:51 -0400
-Received: from fire.osdl.org ([65.172.181.4]:19672 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S267594AbUHYPJr (ORCPT
+	Wed, 25 Aug 2004 11:13:18 -0400
+Received: from cantor.suse.de ([195.135.220.2]:14301 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267669AbUHYPNQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 11:09:47 -0400
-Subject: 6 new compile/sparse warnings (daily build)
-From: John Cherry <cherry@osdl.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1093446333.19925.4.camel@cherrybomb.pdx.osdl.net>
+	Wed, 25 Aug 2004 11:13:16 -0400
+Date: Wed, 25 Aug 2004 17:11:06 +0200
+From: Olaf Dabrunz <od@suse.de>
+To: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: [Patch] TIOCCONS security
+Message-ID: <20040825151106.GA21687@suse.de>
+Mail-Followup-To: Linux kernel list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 25 Aug 2004 08:05:33 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Compiler: gcc version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)
-Arch: i386
+the ioctl TIOCCONS allows any user to redirect console output to another
+tty. This allows anyone to suppress messages to the console at will.
 
+AFAIK nowadays not many programs write to /dev/console, except for start
+scripts and the kernel (printk() above console log level).
 
-Summary:
-   New warnings = 6
-   Fixed warnings = 2
+Still, I believe that administrators and operators would not like any
+user to be able to hijack messages that were written to the console.
 
-New warnings:
--------------
-drivers/usb/gadget/inode.c:693:17: warning: incorrect type in assignment
-(different type sizes)
-drivers/usb/gadget/inode.c:693:17:    expected int [usertype] (
-*[addressable] [toplevel] ki_retry )( ... )
-drivers/usb/gadget/inode.c:693:17:    got long ( static [addressable]
-[toplevel] *<noident> )( ... )
-drivers/usb/gadget/inode.c:693: warning: assignment from incompatible
-pointer type
+The only user of TIOCCONS that I am aware of is bootlogd/blogd, which
+runs as root. Please comment if there are other users.
 
-drivers/usb/gadget/inode.c:693:17: warning: incorrect type in assignment
-(different type sizes)
-drivers/usb/gadget/inode.c:693:17:    expected int [usertype] (
-*[addressable] [toplevel] ki_retry )( ... )
-drivers/usb/gadget/inode.c:693:17:    got long ( static [addressable]
-[toplevel] *<noident> )( ... )
+Is there any reason why normal users should be able to use TIOCCONS?
 
-fs/aio.c:1322:39: warning: incorrect type in argument 2 (different
-address spaces)
-fs/aio.c:1322:39:    expected char [noderef] *<noident><asn:1>
-fs/aio.c:1322:39:    got char *[addressable] [toplevel] ki_buf
+Otherwise I would suggest to restrict access to root (CAP_SYS_ADMIN),
+e.g. with this patch.
 
-fs/aio.c:1359:40: warning: incorrect type in argument 2 (different
-address spaces)
-fs/aio.c:1359:40:    expected char const [noderef] *<noident><asn:1>
-fs/aio.c:1359:40:    got char *[addressable] [toplevel] ki_buf
+--- drivers/char/tty_io.c.orig	2004-08-25 12:51:17.000000000 +0200
++++ drivers/char/tty_io.c	2004-08-25 17:05:15.097068780 +0200
+@@ -1566,10 +1566,10 @@
+ 
+ static int tioccons(struct file *file)
+ {
++	if (!capable(CAP_SYS_ADMIN))
++		return -EPERM;
+ 	if (file->f_op->write == redirected_tty_write) {
+ 		struct file *f;
+-		if (!capable(CAP_SYS_ADMIN))
+-			return -EPERM;
+ 		spin_lock(&redirect_lock);
+ 		f = redirect;
+ 		redirect = NULL;
 
-fs/aio.c:1413:7: warning: incorrect type in argument 1 (different
-address spaces)
-fs/aio.c:1413:7:    expected void [noderef] *<noident><asn:1>
-fs/aio.c:1413:7:    got char *[addressable] [toplevel] ki_buf
-
-fs/aio.c:1425:7: warning: incorrect type in argument 1 (different
-address spaces)
-fs/aio.c:1425:7:    expected void [noderef] *<noident><asn:1>
-fs/aio.c:1425:7:    got char *[addressable] [toplevel] ki_buf
-
-
-Fixed warnings:
----------------
-security/selinux/hooks.c:2825: warning: `ret' might be used
-uninitialized in this function
-
-security/selinux/hooks.c:2886: warning: `ret' might be used
-uninitialized in this function
-
-
+-- 
+Olaf Dabrunz (od/odabrunz), SUSE Linux AG, Nürnberg
 

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312097AbSCQSfp>; Sun, 17 Mar 2002 13:35:45 -0500
+	id <S312095AbSCQShC>; Sun, 17 Mar 2002 13:37:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312096AbSCQSfd>; Sun, 17 Mar 2002 13:35:33 -0500
-Received: from mark.mielke.cc ([216.209.85.42]:23307 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S312091AbSCQSfR>;
-	Sun, 17 Mar 2002 13:35:17 -0500
-Date: Sun, 17 Mar 2002 13:31:03 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Ken Hirsch <kenhirsch@myself.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: fadvise syscall?
-Message-ID: <20020317133103.B16140@mark.mielke.cc>
-In-Reply-To: <3C945635.4050101@mandrakesoft.com> <005301c1cdc6$5a26de80$0100a8c0@DELLXP1> <5.1.0.14.2.20020317170621.00abd980@pop.cus.cam.ac.uk>
+	id <S312094AbSCQSgx>; Sun, 17 Mar 2002 13:36:53 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:27380
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S312095AbSCQSgn>; Sun, 17 Mar 2002 13:36:43 -0500
+Date: Sun, 17 Mar 2002 10:37:52 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Theodore Tso <tytso@mit.edu>, David Rees <dbr@greenhydrant.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: mke2fs (and mkreiserfs) core dumps
+Message-ID: <20020317183752.GB27249@matchmail.com>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	David Rees <dbr@greenhydrant.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020313123114.A11658@greenhydrant.com> <20020313205537.GC429@turbolinux.com> <20020313133748.A12472@greenhydrant.com> <20020313215420.GD429@turbolinux.com> <20020315182355.A1123@thunk.org> <20020317072653.GB1150@turbolinux.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <5.1.0.14.2.20020317170621.00abd980@pop.cus.cam.ac.uk>; from aia21@cam.ac.uk on Sun, Mar 17, 2002 at 05:14:20PM +0000
+In-Reply-To: <20020317072653.GB1150@turbolinux.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 17, 2002 at 05:14:20PM +0000, Anton Altaparmakov wrote:
-> At 15:13 17/03/02, Ken Hirsch wrote:
-> >There is a posix_fadvise() syscall in the POSIX Advanced Realtime
-> >specification
-> >http://www.opengroup.org/onlinepubs/007904975/functions/posix_fadvise.html
-> Posix or not I still don't see why one would want that. You know what you 
-> are going to be using a file for at open time and you are not going to be 
-> changing your mind later. If you can show me a single _real_world_ example 
-> where one would genuinely want to change from one access pattern to another 
-> without closing/reopening a particular file I would agree that fadvise is a 
-> good idea but otherwise I think open(2) is the superior approach.
+On Sun, Mar 17, 2002 at 12:26:53AM -0700, Andreas Dilger wrote:
+> On Mar 15, 2002  18:23 -0500, Theodore Tso wrote:
+> > There's also the question
+> > whether or not filesize limits should really apply to device files,
+> > since the original point of filesize limits were as a simple-minded
+> > quota control mechanism, and there seems to be little point to causing
+> > attempts to access block deivces to fail --- under what circumstances
+> > would this *ever* be considered a useful thing?
+> 
+> Yes, I have always considered this a kernel bug (introduced in 2.4.10),
+> but my (admittedly feeble) attempts to get it fixed were not accepted.
+> At one point I thought a fix went into 2.4.18-pre[12] or so, but I
+> guess not.  I haven't tried in a while, so maybe I should make another
+> attempt.
+> 
 
-Also, at least in theory, open() can begin loading pages the moment it
-completes (if the system is sufficiently idle). Calling madvise() "at
-some later point" would allow a window during which the kernel could
-already be loading the wrong pages, before it is *then* told "oh btw, I
-really want *these* pages." As an example (assuming open() doesn't do this
-already) I would be pleasantly surprised if open(O_RDONLY | O_SEQUENTIAL)
-began loading at least the first page in the file the moment open() was
-successful. Then, when we get control back to actually do a read() (we
-may have been interrupted during open()) the page is already there.
-
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
+Was that part of the 2.4.10-pre11 -aa VM merge, or was it from another
+seperate patch?
 

@@ -1,54 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263378AbUCTLlq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 06:41:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263382AbUCTLlq
+	id S263382AbUCTL7o (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 06:59:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263384AbUCTL7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 06:41:46 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:20906 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263378AbUCTLlp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 06:41:45 -0500
-Date: Sat, 20 Mar 2004 12:41:12 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Stefan Smietanowski <stesmi@stesmi.com>
-Cc: Peter Williams <peterw@aurema.com>, Micha Feigin <michf@post.tau.ac.il>,
-       John Reiser <jreiser@BitWagon.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: finding out the value of HZ from userspace
-Message-ID: <20040320114112.GA29102@devserv.devel.redhat.com>
-References: <20040311141703.GE3053@luna.mooo.com> <1079198671.4446.3.camel@laptop.fenrus.com> <4053624D.6080806@BitWagon.com> <20040313193852.GC12292@devserv.devel.redhat.com> <40564A22.5000504@aurema.com> <20040316063331.GB23988@devserv.devel.redhat.com> <40578FDB.9060000@aurema.com> <20040320102241.GK2803@devserv.devel.redhat.com> <405C2AC0.70605@stesmi.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
+	Sat, 20 Mar 2004 06:59:44 -0500
+Received: from dsl81-215-37317.adsl.ttnet.net.tr ([81.215.145.197]:14208 "EHLO
+	hightemple.highland") by vger.kernel.org with ESMTP id S263382AbUCTL7m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 06:59:42 -0500
+From: Tarkan Erimer <tarkane@solmaz.com.tr>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG]: BIND fails to start with 2.6.4[5-rc1]
+Date: Sat, 20 Mar 2004 13:57:16 +0200
+User-Agent: KMail/1.6.1
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <405C2AC0.70605@stesmi.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_cGDXArwyYrSSqaE"
+Message-Id: <200403201357.16203.tarkane@solmaz.com.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
+--Boundary-00=_cGDXArwyYrSSqaE
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-On Sat, Mar 20, 2004 at 12:28:00PM +0100, Stefan Smietanowski wrote:
-> 
-> Then you include it in the default distro of choice so that
-> everybody can use it and there you are.
+H=C4=B0,
 
-but what is the POINT of all this changing/breaking ?
-Can someone at least tell me that ?
+I  have an interesting problem. BIND (BIND 9.2.3) is not working with=20
+linux-2.6.4 and linux-2.6.5-rc1 (haven't tried linux-2.6.5-rc2, yet). But=20
+linux-2.6.4-rc2 works fine with BIND. When the system boots and starts=20
+BIND daemon, I got the following error message:
 
---UugvWAfsgieZRqgk
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Starting BIND:  /usr/sbin/named
+named: capset failed: Operation not permitted
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+By the way, I'm using Slackware 9.1. Also, my ver_linux output attached=20
+to this mail.
 
-iD8DBQFAXC3XxULwo51rQBIRAnmIAJ9B3hG2lSrkhmqMCEvVvxhuF3OWpgCeIRwC
-/aP7ilnKrWCzzjwuGSSjsww=
-=pPKG
------END PGP SIGNATURE-----
+Regards
 
---UugvWAfsgieZRqgk--
+--Boundary-00=_cGDXArwyYrSSqaE
+Content-Type: text/plain;
+  charset="utf-8";
+  name="ver_linux.out"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="ver_linux.out"
+
+bash-2.05b# sh scripts/ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+
+Linux hightemple 2.6.5-rc1 #1 Fri Mar 19 23:11:03 EET 2004 i686 unknown unknown GNU/Linux
+
+Gnu C                  3.3.3
+Gnu make               3.80
+util-linux             2.12
+mount                  2.12
+module-init-tools      0.9.14
+e2fsprogs              1.34
+jfsutils               1.1.3
+xfsprogs               2.5.6
+pcmcia-cs              3.2.5
+quota-tools            3.09.
+PPP                    2.4.1
+nfs-utils              1.0.6
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Linux C++ Library      5.0.5
+Procps                 2.0.16
+Net-tools              1.60
+Kbd                    1.08
+Sh-utils               5.0.91
+Modules Loaded         rfcomm snd_mixer_oss snd l2cap hci_usb bluetooth uhci_hcd ohci_hcd nvidia sb sb_lib uart401 sound soundcore sg sd_mod ide_scsi 3c59x usb_storage usbcore scsi_mod agpgart apm reiserfs
+bash-2.05b#
+--Boundary-00=_cGDXArwyYrSSqaE--

@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262980AbUCKEEz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 23:04:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262981AbUCKEEz
+	id S262981AbUCKEF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 23:05:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbUCKEF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 23:04:55 -0500
-Received: from ext-nj2gw-3.online-age.net ([216.35.73.165]:4537 "EHLO
-	ext-nj2gw-3.online-age.net") by vger.kernel.org with ESMTP
-	id S262980AbUCKEEx convert rfc822-to-8bit (ORCPT
+	Wed, 10 Mar 2004 23:05:57 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:31191 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262981AbUCKEFy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 23:04:53 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6521.0
-content-class: urn:content-classes:message
+	Wed, 10 Mar 2004 23:05:54 -0500
+Date: Wed, 10 Mar 2004 23:06:37 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Jouni Malinen <jkmaline@cc.hut.fi>
+cc: Clay Haapala <chaapala@cisco.com>, "David S. Miller" <davem@redhat.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Crypto API and keyed non-HMAC digest algorithms / Michael MIC
+In-Reply-To: <20040311030035.GA3782@jm.kir.nu>
+Message-ID: <Xine.LNX.4.44.0403102302450.935-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: (0 == foo), rather than (foo == 0)
-Date: Thu, 11 Mar 2004 09:34:44 +0530
-Message-ID: <905989466451C34E87066C5C13DDF034593393@HYDMLVEM01.e2k.ad.ge.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: (0 == foo), rather than (foo == 0)
-Thread-Index: AcQHEMR8wDa/yUL1SaeesRuJtYXsCAAC8mZg
-From: "Godbole, Amarendra \(GE Consumer & Industrial\)" 
-	<Amarendra.Godbole@ge.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 11 Mar 2004 04:04:48.0711 (UTC) FILETIME=[FF03ED70:01C4071D]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As a result, using the former just tends to increase peoples 
-> confusion by making code harder to read, which in turn tends 
-> to increase the chance of bugs.
+On Wed, 10 Mar 2004, Jouni Malinen wrote:
 
-Kindly don't insult the kernel developers' with such statements. ;-)
-They are smart enough to understand such constructs, which, I 
-deduce from what someone said earlier in this thread. So no 
-confusion  would prevail here...[take it in a lighter vein folks, I 
-am kidding.]
+> On Wed, Mar 10, 2004 at 10:45:28AM -0500, James Morris wrote:
+> 
+> I was unable to reproduce the oops by loading tcrypt. All tests passed
+> and the kernel was fine. I did this testing with Linux 2.6.4-rc3 and
+> all crypto algs compiled as modules. I will try this again with the
+> latest linus-2.5 BK tree just in case. Anyway, if you happen to have any
+> more details from the oops like backtrace or any ideas of what might be
+> causing the difference in our results, they would be very helpful.
+> 
 
-> So don't do it. The kind of bug that the "0 == x" syntax 
-> protects against is LESS LIKELY to happen than the kind of 
-> bug it tends to cause.
+I can't reproduce it now either (AFAICR, it oopsed in test_hash().  
 
-Agreed and understood. Thanks.
+I suspect it may have been caused by loading tcrypt module which was out
+of sync with the digest setkey change.
 
-Sincere apologies for my previous ``non-text wrapped'' post. This
-won't happen henceforth.
 
-Cheers,
-Amarendra
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
---
-Picture Perfect Engineering / These opinions are mine.
+

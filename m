@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbTIYKPx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 06:15:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbTIYKPx
+	id S261782AbTIYKO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 06:14:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbTIYKO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 06:15:53 -0400
-Received: from mail2.uu.nl ([131.211.16.76]:10384 "EHLO mail2.uu.nl")
-	by vger.kernel.org with ESMTP id S261783AbTIYKPs (ORCPT
+	Thu, 25 Sep 2003 06:14:27 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:13548 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S261782AbTIYKO0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 06:15:48 -0400
-Subject: Re: linux/time.h annoyance
-From: Ronald Bultje <rbultje@ronald.bitfreak.net>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030925105436.A8809@infradead.org>
-References: <1064483200.6405.442.camel@shrek.bitfreak.net>
-	 <20030925105436.A8809@infradead.org>
-Content-Type: text/plain
-Message-Id: <1064485031.2220.468.camel@shrek.bitfreak.net>
+	Thu, 25 Sep 2003 06:14:26 -0400
+Date: Thu, 25 Sep 2003 03:01:09 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Joe Perches <joe@perches.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] 2.6.0-bk6 net/core/dev.c
+Message-Id: <20030925030109.09bbedca.davem@redhat.com>
+In-Reply-To: <1064423867.15283.11.camel@localhost.localdomain>
+References: <Pine.LNX.4.44.0309241012110.3178-100000@home.osdl.org>
+	<1064423867.15283.11.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 25 Sep 2003 12:17:12 +0200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-09-25 at 11:54, Christoph Hellwig wrote:
-> On Thu, Sep 25, 2003 at 11:48:01AM +0200, Ronald Bultje wrote:
-> > Hi,
-> > 
-> > I'm annoyed by something in linux/time.h. The issue is as follows:
-> > 
-> > -
-> > #include <sys/time.h>
-> > #include <linux/time.h>
-> > int main () { return 0; }
+On Wed, 24 Sep 2003 10:17:47 -0700
+Joe Perches <joe@perches.com> wrote:
+
+> On Wed, 2003-09-24 at 10:13, Linus Torvalds wrote:
+> > Looks sane, but wouldn't it be cleaner to put this ugly special case logic
+> > with casts etc in an inline function and make the code a bit more readable
+> > at the same time?
 > 
-> So don't include it.  Userspace should use <sys/time.h>, not kernel
-> headers.
+> I've got those.
+> 
+> I've done the ((void*)1) conversions to PKT_SHARED_SKBs
+> and found this missing.  I'll submit those separately.
 
-linux/videodev2.h includes linux/time.h. And I need linux/videodev2.h in
-my application, there is no sys/ equivalent. I expect there's more of
-such cases.
+Send me what you have and I'll review and apply it.
 
-I also explained this in my first email. ;).
-
-Ronald
-
--- 
-Ronald Bultje <rbultje@ronald.bitfreak.net>
-Linux Video/Multimedia developer
-
+I haven't accomplished anything today because I've been sick,
+but tomorrow I should be back to full speed once more.

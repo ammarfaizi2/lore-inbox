@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131453AbRAJV5n>; Wed, 10 Jan 2001 16:57:43 -0500
+	id <S130696AbRAJV7w>; Wed, 10 Jan 2001 16:59:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132127AbRAJV5W>; Wed, 10 Jan 2001 16:57:22 -0500
-Received: from 216.41.5.host170 ([216.41.5.170]:60540 "EHLO
-	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
-	id <S131692AbRAJV5P>; Wed, 10 Jan 2001 16:57:15 -0500
-Message-Id: <200101102157.f0ALvCr01485@habitrail.home.fools-errant.com>
-X-Mailer: exmh version 2.1.1 10/15/1999
-To: kernel@ddx.a2000.nu
-cc: linux-kernel@vger.kernel.org
-Subject: Re: unexplained high load 
-In-Reply-To: Your message of "Wed, 10 Jan 2001 22:49:27 +0100."
-             <Pine.LNX.4.30.0101102247510.4377-100000@ddx.a2000.nu> 
+	id <S131022AbRAJV7m>; Wed, 10 Jan 2001 16:59:42 -0500
+Received: from hercules.telenet-ops.be ([195.130.132.33]:4100 "HELO
+	smtp.pandora.be") by vger.kernel.org with SMTP id <S130696AbRAJV7f>;
+	Wed, 10 Jan 2001 16:59:35 -0500
+Date: Wed, 10 Jan 2001 22:53:25 +0100
+From: mo6 <sjoos@pandora.be>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Robert Kaiser <rob@sysgo.de>, linux-kernel@vger.kernel.org
+Subject: Re: Anybody got 2.4.0 running on a 386 ?
+Message-ID: <20010110225325.A9547@pandora.be>
+In-Reply-To: <01010922090000.02630@rob> <3A5B7F76.ABDFED7A@didntduck.org> <01010922264400.02737@rob> <20010110205127.B982@pandora.be> <3A5CC3A1.3D8F6BF3@didntduck.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 10 Jan 2001 16:57:12 -0500
-From: Hacksaw <hacksaw@hacksaw.org>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3A5CC3A1.3D8F6BF3@didntduck.org>; from bgerst@didntduck.org on Wed, Jan 10, 2001 at 03:18:41PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> .nfs0000000000ca402500000006
+On Wed, Jan 10, 2001 at 03:18:41PM -0500, Brian Gerst wrote:
 > 
-> so i think there is some lock from the nfs server or client
-> 
-> will try to restart nfs client
-> and see if this fixes it.
-> 
+> move up to 2.4.0-testX kernels
 
-Most likely you will have to restart the nfs server on the other side as well, 
-but it's worth a try.
+I just tested 2.4.0-test1, it doesn't boot on the 386 with the same symptoms 
+as 2.4.0.
 
-Tripwire watches the checksum of the binaries you deem important, and 
-complains if they change. There are a few things like it.
+2.3.99-pre9 same.
 
-See http://freshmeat.net/search/?q=tripwire
+2.3.99-pre8 is the last one that boots correctly.
 
+There is one weird thing I notice, the vga-bios-screen at boot-up is
+monochrome every other automatic reboot.
 
+with kind regards,
 
+Sven
+-- 
+If the odds are a million to one against something occurring, chances
+are 50-50 it will.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

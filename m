@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261645AbSIXMg3>; Tue, 24 Sep 2002 08:36:29 -0400
+	id <S261656AbSIXMif>; Tue, 24 Sep 2002 08:38:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261656AbSIXMg3>; Tue, 24 Sep 2002 08:36:29 -0400
-Received: from [217.167.51.129] ([217.167.51.129]:26850 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S261645AbSIXMg3>;
-	Tue, 24 Sep 2002 08:36:29 -0400
-From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
-To: "Richard Zidlicky" <rz@linux-m68k.org>,
-       "Andre Hedrick" <andre@linux-ide.org>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: IDE janitoring comments
-Date: Tue, 24 Sep 2002 14:41:33 +0200
-Message-Id: <20020924124133.29552@192.168.4.1>
-In-Reply-To: <20020924113535.11318@192.168.4.1>
-References: <20020924113535.11318@192.168.4.1>
-X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S261658AbSIXMif>; Tue, 24 Sep 2002 08:38:35 -0400
+Received: from ns.suse.de ([213.95.15.193]:61188 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261656AbSIXMie>;
+	Tue, 24 Sep 2002 08:38:34 -0400
+To: John Levon <movement@marcelothewonderpenguin.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] oprofile 2.5.38 patch
+References: <20020923222933.GA33523@compsoc.man.ac.uk.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 24 Sep 2002 14:43:47 +0200
+In-Reply-To: John Levon's message of "24 Sep 2002 00:31:55 +0200"
+Message-ID: <p73r8fjsgl8.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>I need different transfer functions depending on whether drive
->>control data(like IDENT,SMART) or HD sectors are to be transfered. 
->>Control data requires byteswapping to correct bus-byteorder
->>whereas sector r/w has to be raw for compatibility.
->>
->>So that will require 2 additional iops pointers and some change
->>in ide_handler_parser or ide_cmd_type_parser to select the
->>appropriate version depending on the drive command.
->
->No, it doesn't. There are already separate iops for control
->and datas, typically {in,out}{b,w,l} are for control (though
->only "b" versions are really useful and {in,out}s{b,w,l} are
->for datas.
+John Levon <movement@marcelothewonderpenguin.com> writes:
 
-Oops, sorry, I mis-read you
+> At :
+> 
+> http://oprofile.sourceforge.net/oprofile-2.5.html
 
-Well, if you have proper iops that swap for normal datas, then
-you can use the "normal" fixup routines for control datas
-like ident, the same we use on PPC or other BE archs.
++       page = (unsigned char *)__get_free_page(GFP_KERNEL);
++       if (!page)
++               return -ENOMEM;
++
++       spin_lock(&oprofilefs_lock);
++       len = sprintf(page, "%lu\n", *value);
++       spin_unlock(&oprofilefs_lock);
 
-The problem is typiucally the same for everybody here: the
-swapping of datas themselves must be done so that you get an
-exact image of the datas in memory, then you need additional
-fixup to "interpret" some of these (ident, smart, ...)
+wouldn't an on stack buffer do nicely to format a single number ? 
 
-Ben.
+ulong_write_file: 
 
+it doesn't length limit count before passing to kmalloc - hole.
+Also has overflow bugs (consider someone passing 0xffffffff-1). 
 
+The sys_lookup_dcookie call looks like a security hole to me. After
+all it could allow everybody to lookup random paths by trying all 
+dcookies, even though the directories may be unreadable for him. It should 
+be probably made root only
+
+Adding a list_head to task_struct looks quite ugly to me. Is there
+surely no better way ? e.g. you could just put it in a file private
+structure and the daemon keeps the file open.
+
+-Andi

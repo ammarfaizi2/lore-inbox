@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293680AbSC2S0F>; Fri, 29 Mar 2002 13:26:05 -0500
+	id <S293510AbSC2S0F>; Fri, 29 Mar 2002 13:26:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293245AbSC2SZ4>; Fri, 29 Mar 2002 13:25:56 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:51187
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S293510AbSC2SZl>; Fri, 29 Mar 2002 13:25:41 -0500
-Date: Fri, 29 Mar 2002 10:27:07 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: pjd@fred001.dynip.com, robert@schwebel.de,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Networking with slow CPUs
-Message-ID: <20020329182707.GG8627@matchmail.com>
-Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>, pjd@fred001.dynip.com,
-	robert@schwebel.de,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200203291133.g2TBXsi10506@fred.cambridge.ma.us> <Pine.LNX.3.96.1020329104533.22866C-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
+	id <S293680AbSC2SZz>; Fri, 29 Mar 2002 13:25:55 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:17125 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S293245AbSC2SZi>;
+	Fri, 29 Mar 2002 13:25:38 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15524.45472.231096.377756@napali.hpl.hp.com>
+Date: Fri, 29 Mar 2002 10:25:36 -0800
+To: arjan@fenrus.demon.nl
+Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] generic show_stack facility
+In-Reply-To: <200203291716.g2THGNq08251@fenrus.demon.nl>
+X-Mailer: VM 7.01 under Emacs 21.1.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 29, 2002 at 10:47:55AM -0500, Bill Davidsen wrote:
-> On Fri, 29 Mar 2002 pjd@fred001.dynip.com wrote:
-> 
-> > Robert Schwebel wrote:
-> > > 
-> > > Is there a possibility to "harden" a small machine (33 MHz embedded
-> > > device) against e.g. flood pings from the outside world?
-> > 
-> > It *is* bleeding edge, as someone else pointed out, but you should 
-> > really investigate NAPI.  It's designed to make Linux resiliant against
-> > non-flow-controlled network loads like routing, which sounds like 
-> > just the ticket.
-> 
->   There is rate limiting in recent iptables, as well. I don't regard
-> iptable as bleeding edge, so that may have a higher comfort level.
-> 
+>>>>> On Fri, 29 Mar 2002 17:16:23 GMT, arjan@fenrus.demon.nl said:
 
-Yes, but it won't keep the interrupts from all of those packets from
-overloading, and DoSing it or possibly crashing the system.
+  >> BTW: this is not at all an ia64-specific issue.  It applies to
+  >> any arch that doesn't maintain a frame pointer on the stack.
+  >> Basic compiler technology.
+
+  Arjan> oh you mean like x86 ?
+
+As far as I know, the x86 version of show_trace() still relies on the
+fact that (a) return addresses are stored on the memory stack, (b)
+they are stored in the order in which the routines were called, and
+(c) that there aren't too many other values on the stack that look
+like kernel text addresses.  As long as an x86 compiler uses the CALL
+instruction, that should be the case.  But this certainly isn't the
+case for all architectures (though I do agree that it is a heuristic
+should work reasonably well for several architectures).
+
+	--david

@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315800AbSEEBB0>; Sat, 4 May 2002 21:01:26 -0400
+	id <S315801AbSEEBED>; Sat, 4 May 2002 21:04:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315801AbSEEBBZ>; Sat, 4 May 2002 21:01:25 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:31498 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315800AbSEEBBY>; Sat, 4 May 2002 21:01:24 -0400
-Message-ID: <3CD475A1.7070809@evision-ventures.com>
-Date: Sun, 05 May 2002 01:58:25 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S315804AbSEEBEC>; Sat, 4 May 2002 21:04:02 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:27338 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S315801AbSEEBEB>; Sat, 4 May 2002 21:04:01 -0400
+Date: Sat, 4 May 2002 18:04:01 -0700 (PDT)
+From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: IO stats in /proc/partitions
+In-Reply-To: <Pine.LNX.4.33.0205041718290.4175-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <Pine.LNX.4.33.0205041720150.11514-100000@shell1.aracnet.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.13 IDE and preemptible kernel problems
-In-Reply-To: <Pine.LNX.4.44.0205031110550.1602-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Linus Torvalds napisa?:
-> 
-> On Fri, 3 May 2002, Martin Dalecki wrote:
-> 
-> 
->>Uz.ytkownik Andi Kleen napisa?:
->>
->>>Hi,
->>>
->>>When booting an preemptible kernel 2.5.13 kernel on x86-64 I get
->>>very quickly an scheduling in interrupt BUG. It looks like the
->>>preempt_count becomes 0 inside the ATA interrupt handler. This
->>>could happen when save_flags/restore_flags and friends are unmatched
->>>and you have too many flags restores in IDE.
->>
->>Thank you for pointing out. I will re check it.
-> 
-> 
-> Martin, may I suggest that the next line of cleanups should be to remove
-> all vestiges of the old global interrupt locking from the IDE driver?
+On Sat, 4 May 2002, Mark Hahn wrote:
 
-Right agreed. I forgot that this is just presumably a "workaround
-for borken hardware", which in fact is a long standing workarodund
-for driver reentrancy problems.
+> perhaps you've mistaken this for a Windows mailing list.
 
-> Including, for example, the crap "PCI method 1" access stuff in CMD640x..
+Well, it's Sunday in many parts of the world, so I will haul out my
+soapbox and put on my flame-retardant jump-suit (penguin/tuxedo style,
+of course :).
 
-Naj... I could try.
+OK ... since you brought up Windows ... IMHO one of the things Windows
+NT does *much* better than *any* UNIX, including Linux, is the
+performance monitoring tools. First, you have a registry interface that
+allows fetching of any counter by name, complete with an explanation of
+what the counter means. I can pick this info up in Visual Basic, Visual
+C++, C#, Java and even Perl. *And*, I can access these data over the
+network from another system. The level of detail on things like disk I/O
+is richer than most UNIX implementations.
 
-> Also, if you turn on spinlock debugging, that tends to help find the
-> really silly things faster (leaving the harder races to be solved by
-> brainforce ;)
+Second, you have an API that allows an application developer to *easily*
+add application-specific performance counters to the set that's
+collected. And third, you have the PerfMon tool, which lets you capture
+data in binary log files, graph data in real time, export data to
+comma-separated value files for off-line analysis, and issue alerts when
+a variable goes into a sysadmin-defined unacceptable range. In short,
+Windows NT performance monitoring was *designed* -- it didn't *evolve*.
 
-Indeed... thank you for this hint.
+But design takes time ... and it isn't always as much fun as evolution.
+So we performance engineers on the UNIX/Linux front build our own tools
+-- sar, top, procinfo, iostat, vmstat, etc. -- and some of us, myself
+among them, write code to parse their output or, in the case of Linux,
+sometimes parse the files in /proc themselves. And we write R code to
+plot the graphs that the techies and managers need to make capacity
+planning decisions and solve performance issues for our users.
+
+Yeah ...  it's a lot more fun than designing and implementing a
+performance monitoring infrastructure like Windows has. It's also
+frightfully inefficent to have the kernel do a "printf" on demand to
+generate ASCII data, then open and read a bunch o' files in a humongous
+Perl script and collect the samples in CSV format.
+-- 
+M. Edward Borasky
+znmeb@borasky-research.net
+
+The COUGAR Project
+http://www.borasky-research.com/Cougar.htm
+
+If I had 40 billion dollars for every software monopoly that sells an
+unwieldy and hazardously complex development environment and is run by
+an arrogant college dropout with delusions of grandeur who treats his
+employees like serfs while he is acclaimed as a man of compelling
+vision, I'd be a wealthy man.
 

@@ -1,119 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268300AbUHQPL0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268277AbUHQPME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268300AbUHQPL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 11:11:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268296AbUHQPLY
+	id S268277AbUHQPME (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 11:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268270AbUHQPMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 11:11:24 -0400
-Received: from mo1.b-one.net ([195.47.247.27]:33683 "EHLO smtp1.b-one.net")
-	by vger.kernel.org with ESMTP id S268284AbUHQPIS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 11:08:18 -0400
-Message-ID: <1218.80.62.167.105.1092755294.squirrel@80.62.167.105>
-Date: Tue, 17 Aug 2004 17:08:14 +0200 (CEST)
-Subject: 
-From: morten@team60.dk
-To: Hi@nowhere.in.space,
-       "Please CC to morten at team60 dot" <dk@nowhere.in.space>,
-       "as I'm not substribed.]"@/etc/mailname
+	Tue, 17 Aug 2004 11:12:03 -0400
+Received: from fep02fe.ttnet.net.tr ([212.156.4.132]:51413 "EHLO
+	fep02.ttnet.net.tr") by vger.kernel.org with ESMTP id S268277AbUHQPLL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 11:11:11 -0400
+Message-ID: <41221FDB.1020807@ttnet.net.tr>
+Date: Tue, 17 Aug 2004 18:10:19 +0300
+From: "O.Sezer" <sezeroz@ttnet.net.tr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: tr, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: marcelo.tosatti@cyclades.com
+Subject: [PATCH] [2.4.28-pre1] more gcc3.4 inline fixes [0/10]
+Content-Type: text/plain;
+	charset=us-ascii;
+	format=flowed
+Content-Transfer-Encoding: 7bit
+X-ESAFE-STATUS: Mail clean
+X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here are a bunch of fixes for gcc-3.4 inlining failures.
+Most of them follow the "inline functions must be defined
+before they're used" rule. Fixes were taken from the 2.6
+tree whenever possible. These patches  apply after Mikael's
+inline fixes posted recently at this list. Compile tested
+with gcc-3.4.0.  Please review and apply to 2.4.28.
 
-I have a 120GB Seagate SATA HDD on a nForce2 motherboard with the siI 3512A
-SATA controller. I use the sata_sil driver. Please ask for more" <specs@nowhere.in.space>,
- ")
+Regards,
+Ozkan Sezer
 
-A few days ago I installed Debian Sarge 3.1RC1 with the new Debian installer.
-FYI it has a 2.4.26 kernel. I proceeded to download the new 2.6.8.1 kernel
-from" <kernel.org@nowhere.in.space>,
- "configuring and compiling it. Everything seemed to go smooth.
-Then I wanted to install modconf and ran apt-get install modconf. It fetched
-the package from the Internet as it was supposed" <to@nowhere.in.space>,
- "but when it was about
-to unpack the" <package@nowhere.in.space>,
- "command 0x35" <timeout@nowhere.in.space>,
- "ERROR on" <channel@nowhere.in.space>,
- id@nowhere.in.space,
- lun@nowhere.in.space,
- "I/O" <error@nowhere.in.space>,
- "dev" <sda@nowhere.in.space>,
- "abnormal status 0x58 on port 0xE181B087
+#01 -> drivers/block/*
+#02 -> drivers/char/*
+#03 -> drivers/ieee1394/*, drivers/isdn/*
+#04 -> drivers/media/*
+#05 -> drivers/mtd/*
+#06 -> drivers/net/*
+#07 -> drivers/scsi/*
+#08 -> drivers/usb/*, drivers/video/*
+#09 -> fs/*
+#10 -> net/*
 
-I" <rebooted@nowhere.in.space>,
- "repeated - same result.
-I also tried the precompiled binaries of 2.6.7 from the Debian" <archives@nowhere.in.space>,
- "but that too yielded the same result.
-I also tried that it froze during boot a few" <times@nowhere.in.space>,
- "when initializing all
-the daemons.
-
-In between I used the 2.4.26 kernel that came with" <Sarge@nowhere.in.space>,
- "and it worked
-perfectly fine. I also have Windows 2000 on dual" <boot@nowhere.in.space>,
- "and there's no
-problems there" <either@nowhere.in.space>,
- "so I don't think it's a hardware problem.
-
-I heard that there has been a lot of work on SATA in 2.6.7 and" <2.6.8@nowhere.in.space>,
- "so
-could this be a bug?
-
-Thanks in" <advance@nowhere.in.space>,
- linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-
-
-
-
-Hi,
-
-[Note: Please CC to morten at team60 dot dk, as I'm not substribed.]
-
-
-I have a 120GB Seagate SATA HDD on a nForce2 motherboard with the siI 3512A
-SATA controller. I use the sata_sil driver. Please ask for more specs, if
-you need them. :)
-
-A few days ago I installed Debian Sarge 3.1RC1 with the new Debian installer.
-FYI it has a 2.4.26 kernel. I proceeded to download the new 2.6.8.1 kernel
-from kernel.org, configuring and compiling it. Everything seemed to go
-smooth.
-Then I wanted to install modconf and ran apt-get install modconf. It fetched
-the package from the Internet as it was supposed to, but when it was about
-to unpack the package, linux froze and I got an error similar to the one
-below.
-
-ata1: command 0x35 timeout, stat 0x58 host_stat 0x1
-scsi: ERROR on channel 0, id 0, lun 0, CDB: 0x2a 00 0d 95 b9 9c 00 04 00 00
-current sda: sense = 70  3
-ASC= c ASCQ= 2
-Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00 0x00
-0x0c 0x02
-end_request: I/O error, dev sda, sector 227916204
-ATA: abnormal status 0x58 on port 0xE181B087
-ATA: abnormal status 0x58 on port 0xE181B087
-ATA: abnormal status 0x58 on port 0xE181B087
-
-I rebooted, repeated - same result.
-I also tried the precompiled binaries of 2.6.7 from the Debian archives,
-but that too yielded the same result.
-I also tried that it froze during boot a few times, when initializing all
-the daemons.
-
-In between I used the 2.4.26 kernel that came with Sarge, and it worked
-perfectly fine. I also have Windows 2000 on dual boot, and there's no
-problems there either, so I don't think it's a hardware problem.
-
-I heard that there has been a lot of work on SATA in 2.6.7 and 2.6.8, so
-could this be a bug?
-
-Thanks in advance,
-
-Morten Bojsen-Hansen
-morten at team60 dot dk
-
+  drivers/block/cciss.c                  |   59 +-
+  drivers/block/cpqarray.c               |   27 -
+  drivers/char/ip2main.c                 |    8
+  drivers/char/istallion.c               |   40 -
+  drivers/char/mxser.c                   |  196 ++++----
+  drivers/ieee1394/eth1394.c             |   29 -
+  drivers/isdn/hisax/isar.c              |   30 -
+  drivers/media/radio/radio-maestro.c    |   48 +-
+  drivers/media/video/w9966.c            |   16
+  drivers/mtd/devices/doc1000.c          |  227 ++++-----
+  drivers/net/dmfe.c                     |   28 -
+  drivers/net/e100/e100_main.c           |  272 +++++------
+  drivers/net/e1000/e1000_main.c         |  126 ++---
+  drivers/net/eql.c                      |  334 +++++++-------
+  drivers/net/hamachi.c                  |  206 ++++-----
+  drivers/net/hamradio/dmascc.c          |  237 +++++-----
+  drivers/net/smc9194.c                  |  250 +++++------
+  drivers/scsi/AM53C974.c                |  144 +++---
+  drivers/scsi/aic7xxx/aic79xx_osm.c     |   26 -
+  drivers/scsi/ips.c                     |  750 
+++++++++++++++++-----------------
+  drivers/scsi/megaraid.c                |   36 -
+  drivers/scsi/megaraid2.c               |  482 ++++++++++-----------
+  drivers/scsi/megaraid2.h               |   10
+  drivers/scsi/nsp32.c                   |   85 +--
+  drivers/scsi/qla1280.c                 |   69 +--
+  drivers/scsi/scsiiom.c                 |  120 ++---
+  drivers/scsi/sim710.c                  |  332 +++++++-------
+  drivers/usb/host/hc_sl811.c            |    6
+  drivers/usb/ov511.c                    |    6
+  drivers/usb/se401.c                    |   76 +--
+  drivers/usb/w9968cf.c                  |   10
+  drivers/video/riva/fbdev.c             |    2
+  fs/freevxfs/vxfs_extern.h              |    2
+  fs/freevxfs/vxfs_subr.c                |   13
+  fs/intermezzo/cache.c                  |    8
+  fs/intermezzo/file.c                   |    9
+  fs/intermezzo/journal_xfs.c            |    2
+  fs/intermezzo/methods.c                |    2
+  fs/intermezzo/psdev.c                  |    7
+  fs/intermezzo/sysctl.c                 |    5
+  fs/ncpfs/ncplib_kernel.h               |    2
+  include/linux/fs.h                     |    2
+  include/linux/fsfilter.h               |   32 -
+  include/linux/intermezzo_fs.h          |  124 ++---
+  include/linux/reiserfs_fs.h            |   24 -
+  include/net/irda/irlmp_frame.h         |    2
+  include/net/irda/timer.h               |   18
+  net/appletalk/ddp.c                    |    4
+  net/atm/lec.c                          |    8
+  net/bluetooth/l2cap.c                  |   18
+  net/bluetooth/sco.c                    |   49 +-
+  net/ipv4/netfilter/ip_nat_snmp_basic.c |  142 +++---
+  net/irda/wrapper.c                     |   54 +-
+  53 files changed, 2406 insertions(+), 2408 deletions(-)

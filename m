@@ -1,113 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264145AbTLYA4M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 19:56:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbTLYA4M
+	id S264229AbTLYBJb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 20:09:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264240AbTLYBJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 19:56:12 -0500
-Received: from mail.kroah.org ([65.200.24.183]:26785 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264145AbTLYA4H (ORCPT
+	Wed, 24 Dec 2003 20:09:31 -0500
+Received: from crisium.vnl.com ([194.46.8.33]:34314 "EHLO crisium.vnl.com")
+	by vger.kernel.org with ESMTP id S264229AbTLYBJa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 19:56:07 -0500
-Date: Wed, 24 Dec 2003 16:56:14 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] udev 011 release
-Message-ID: <20031225005614.GA18568@kroah.com>
+	Wed, 24 Dec 2003 20:09:30 -0500
+Date: Thu, 25 Dec 2003 01:09:25 +0000
+From: Dale Amon <amon@vnl.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
+Subject: Re: Question on LFS in Redhat
+Message-ID: <20031225010925.GG4987@vnl.com>
+Mail-Followup-To: Dale Amon <amon@vnl.com>,
+	Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+References: <20031223151042.GE9089@vnl.com> <1072193917.5262.1.camel@laptop.fenrus.com> <20031223235827.GK9089@vnl.com> <20031224084903.GB20976@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031224084903.GB20976@devserv.devel.redhat.com>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux, the choice of a GNU generation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've released the 011 version of udev.  It can be found at:
- 	kernel.org/pub/linux/utils/kernel/hotplug/udev-011.tar.gz
+On Wed, Dec 24, 2003 at 09:49:03AM +0100, Arjan van de Ven wrote:
+> You really shouldn't be running a 2.4.16 kernel (not without the latest
+> security patches for such a kernel from a distro) given the amount of security issues
+> fixed since... and since I don't think any distro ever shipped 2.4.16 (some
+> shipped 2.4.17, a bunch shipped 2.4.18 but even RH doesn't do patches for
+> that 2.4.18 tree anymore since they have been obsoleted by 2.4.20 and newer
+> kernels).
 
-rpms built against Red Hat FC1 are available at:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-011-1.i386.rpm
-with the source rpm at:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-011-1.src.rpm
+Not really my choice... and from what you say I'd better
+not *touch* their stock kernel if I a project for which I 
+specced that box happens.
 
-udev is a implementation of devfs in userspace using sysfs and
-/sbin/hotplug.  It requires a 2.6 kernel to run.  Please see the udev
-FAQ for any questions about it:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ
+Also, fresh feedback from the Consensys is that:
 
-The major changes since the 010 release are:
-	- The _long_ time delay on startup if you used the udev init
-	  script is now gone.  We now fork a new process of udev for
-	  every device in the sysfs tree, causing any slow udev proceses
-	  (due to the type of device) to be not noticeable by the user.
+	"Just to be precise - As of today the kernel 
+	 is 2.4.18-i59smp #1"
 
-	- The RPM package is built against klibc.  If you have any
-	  problems with this image, please let me know.
+So that is a little better but still a little out
+of date. I'm not terribly worried about the local
+exploit because you don't tend to want to allow external
+login accounts on things on your SAN's...
 
-	- The big "always wait 1 second" problem with the 010 release is
-	  now pretty much fixed.  I still need some libsysfs changes to
-	  work around some of the delays I had to hard code in, but for
-	  any device that is not a partition, and has a "device"
-	  symlink, udev will not sleep at all.  If a device does not
-	  have a "device" symlink, we will wait around for a few seconds
-	  to see if one is going to be created or not, and then move on.
-	  It's the only sane way of handling the issue of not knowing
-	  what kinds of devices have symlinks and which ones do not.
-
-	- fixed a few bugs when devices did not have a "device" symlink.
-	  Rules were getting applied when they should not have been.
-
-	- LABEL and CALLOUT rules now no longer require the BUS key.  If
-	  the BUS key is not present, the LABEL or CALLOUT rule will be
-	  always be checked.  This allows us to use these types of rules
-	  for devices without a "device" symlink.
-
-	- a few other minor tweaks and bug fixes too.
-
-Thanks again to everyone who has send me patches for this release, a
-full list of everyone, and their changes is below.
-
-udev development is done in a BitKeeper repository located at:
-	bk://linuxusb.bkbits.net/udev
-
-Daily snapshots of this tree used to be found at:
-	http://www.codemonkey.org.uk/projects/bitkeeper/udev/
-But that box seems to be down now.  Hopefully it will be restored
-someday.  If anyone ever wants a tarball of the current bk tree, just
-email me.
-
-It's time to go cook the Tofurky...
-
-thanks,
-
-greg k-h
-
-Summary of changes from v010 to v011
-============================================
-
-<mbuesch:freenet.de>:
-  o proper cleanup on udevdb_init() failure
-
-<mh:nadir.org>:
-  o patch udev 009-010 rpm spec file
-
-<svetljo:gmx.de>:
-  o fix udev sed Makefile usage
-
-Greg Kroah-Hartman:
-  o add documentation about the BUS key being optional for the LABEL rule
-  o add tests for LABEL rule with a device that has no bus
-  o Don't require the BUS value for the LABEL rule
-  o If a LABEL rule has a BUS id, then we must check to see if the device is on a bus
-  o add documentation about the BUS key being optional for the CALLOUT rule
-  o If a CALLOUT rule has a BUS id, then we must check to see if the device is on a bus
-  o Don't require the BUS value for the CALLOUT rule
-  o add test for callout rule with a device that has no bus
-  o 010_bk stamp
-  o added different build options to the rpm udev.spec file
-  o add pci to the bus_files list
-  o check for empty line a bit better in the parser
-  o more init script cleanups, the stop target now calls udev to cleanup instead of just removing the whole /udev directory
-  o make udev init script run udev in the background to let startup go much faster
-  o fix long delay for all devices in namedev
-  o v010 release TAG: v010
-
+-- 
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------

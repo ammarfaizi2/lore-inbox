@@ -1,49 +1,183 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290658AbSBOTQF>; Fri, 15 Feb 2002 14:16:05 -0500
+	id <S290671AbSBOTRK>; Fri, 15 Feb 2002 14:17:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290662AbSBOTPz>; Fri, 15 Feb 2002 14:15:55 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:57870 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S290658AbSBOTPl>;
-	Fri, 15 Feb 2002 14:15:41 -0500
-Date: Fri, 15 Feb 2002 11:11:23 -0800
-From: Greg KH <greg@kroah.com>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Pierre Rousselet <pierre.rousselet@wanadoo.fr>,
-        lkml <linux-kernel@vger.kernel.org>,
-        linux-usb-devel@lists.sourceforge.net
-Subject: Re: 2.5.5-pre1 rmmod usb-uhci hangs
-Message-ID: <20020215191123.GA3082@kroah.com>
-In-Reply-To: <Pine.LNX.4.33.0202150956400.829-100000@segfault.osdlab.org> <Pine.LNX.4.33.0202151019590.829-100000@segfault.osdlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0202151019590.829-100000@segfault.osdlab.org>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Fri, 18 Jan 2002 17:10:29 -0800
+	id <S290664AbSBOTQT>; Fri, 15 Feb 2002 14:16:19 -0500
+Received: from exchange.macrolink.com ([64.173.88.99]:40205 "EHLO
+	exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S290662AbSBOTQH>; Fri, 15 Feb 2002 14:16:07 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D13A769F@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'alexis raynaud'" <araynaud@alphalink.fr>
+Cc: "'linux-serial@vger.kernel.org'" <linux-serial@vger.kernel.org>,
+        "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: Problem to use a Oxford semiconductor Intelligent DUAL Channe
+	l UA RT (OX16PCI952)
+Date: Fri, 15 Feb 2002 11:17:02 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 15, 2002 at 10:22:05AM -0800, Patrick Mochel wrote:
-> 
-> On Fri, 15 Feb 2002, Patrick Mochel wrote:
-> 
-> > 
-> > > no, it doesn't solve the problem. i would like to test it whith 
-> > > preemtible kernel not set but it doesn't boot.
-> > 
-> > While Greg's patch did fix part of the problem, the rest of it was on my 
-> > end. Could you try this patch, and see if helps?
-> 
-> Actually, the patch that I sent is against my current tree, which includes 
-> some changes that I've already pushed to Linus. If you're using BK, you 
-> should be able to pull his current tree (if you're into that kinda thing). 
-> Or, wait until -pre2. Sorry about that.
+Hi Alexis,
 
-Your current tree, + this patch, + my patch solves all of the unloading,
-removing, and loading problems that I had been seeing.
+There is no matching entry for this board in the serial driver's pci_boards
+table. The 9521 device code is a new one. The driver is looking for 950A for
+16PCI952 UART.
 
-Thanks for finding this.
+Since you are getting data output, I suspect your card's oscillator does not
+match the driver's default. What is the highest supported baud rate that
+this card? (the rate you get when UART divisor reg is = 1) Default is 115200
+bps. If your card's oscillator rate is not 1.8432 MHz, then the default baud
+rate calculation will be wrong. 
 
-greg k-h
+If you can find out the maximum baud rate, try adjusting the it for the port
+with setserial's baud_base parameter. Two common base baud rates for 95X
+based cards are 921600 and 3125000. 
+
+If you cannot be sure what the card's baud rate clock base is, then
+calculate the actual data rate by cat'ing a large file out the port and
+timing it. Calculate the bytes per second and multiply by the number of
+bit-times for your async config (usually 10, 1 start, 8 data, 1 stop). This
+will tell you for sure if the base_baud value needs to be adjusted.
+
+let me know what happens.
+
+Good luck,
+Ed Vance
+
+---------------------------------------------------------------- 
+Ed Vance              edv@macrolink.com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------
+
+-----Original Message-----
+From: alexis raynaud [mailto:araynaud@alphalink.fr]
+Sent: Friday, February 15, 2002 7:42 AM
+To: 'linux-serial@vger.kernel.org'
+Subject: Problem to use a Oxford semiconductor Intelligent DUAL Channel
+UA RT (OX16PCI952)
+
+
+Hello, I hope U can help me...
+
+here is my configuration :
+
+I have a Intel motherboard AL440LX, with a PII 400 + a OX16PCI952.
+My system is a RedHat 7.1 seawolf (and I also try on a Mandrake 8.1)
+with a kernel 2.4.2-2.
+Here are my version of serial's rpm :
+		statserial-1.1-20
+		setserial-2.17-2
+
+Here is the lspci -v :
+	00:00.0 Host bridge: Intel Corporation 440LX/EX - 82443LX/EX
+Host bridge (rev 03)
+	        Flags: bus master, medium devsel, latency 32
+	        Memory at f8000000 (32-bit, prefetchable) [size=64M]
+	        Capabilities: [a0] AGP version 1.0
+	
+	00:01.0 PCI bridge: Intel Corporation 440LX/EX - 82443LX/EX AGP
+bridge (rev 03) (prog-if 00 [Normal decode])
+	        Flags: bus master, 66Mhz, medium devsel, latency 64
+	        Bus: primary=00, secondary=01, subordinate=01,
+sec-latency=64
+	
+	00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 01)
+	        Flags: bus master, medium devsel, latency 0
+	
+	00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev
+01) (prog-if 80 [Master])
+	        Flags: bus master, medium devsel, latency 64
+	        I/O ports at fc90 [size=16]
+	
+	00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev
+01) (prog-if 00 [UHCI])
+	        Flags: bus master, medium devsel, latency 64, IRQ 9
+	        I/O ports at fcc0 [size=32]
+
+	00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 01)
+	        Flags: medium devsel, IRQ 9
+	
+	00:0d.0 VGA compatible controller: ATI Technologies Inc 3D Rage
+I/II 215GT [Mach64 GT] (rev 41) (prog-if 00 [VGA])
+	        Subsystem: ATI Technologies Inc 3D Rage I/II 215GT
+[Mach64 GT]
+	        Flags: bus master, stepping, medium devsel, latency 66
+	        Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
+	        I/O ports at f800 [size=256]
+	        Memory at fedff000 (32-bit, non-prefetchable) [size=4K]
+	        Expansion ROM at <unassigned> [disabled] [size=128K]
+	
+	00:0e.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
+RTL-8139 (rev 10)
+	        Subsystem: Realtek Semiconductor Co., Ltd. RT8139
+	        Flags: bus master, medium devsel, latency 64, IRQ 11
+	        I/O ports at f400 [size=256]
+	        Memory at fedfec00 (32-bit, non-prefetchable) [size=256]
+	        Capabilities: [50] Power Management version 2
+	        Capabilities: [60] Vital Product Data
+
+	00:0f.0 Serial controller: Oxford Semiconductor Ltd: Unknown
+device 9521 (prog-if 06 [16950])
+	        Subsystem: Oxford Semiconductor Ltd: Unknown device 0001
+	        Flags: medium devsel, IRQ 10
+	        I/O ports at fc78 [size=8]
+	        I/O ports at fc88 [size=8]
+	        I/O ports at fce0 [size=32]
+	        Memory at fedfc000 (32-bit, non-prefetchable) [size=4K]
+	        Memory at fedfd000 (32-bit, non-prefetchable) [size=4K]
+	        Capabilities: [40] Power Management version 1
+	
+	00:0f.1 Parallel controller: Oxford Semiconductor Ltd: Unknown
+device 9523 (prog-if 01 [BiDir])
+	        Subsystem: Oxford Semiconductor Ltd: Unknown device 0001
+	        Flags: medium devsel, IRQ 10
+	        I/O ports at fc68 [size=8]
+	        I/O ports at fc74 [size=4]
+	        I/O ports at fca0 [size=32]
+	        Memory at fedfb000 (32-bit, non-prefetchable) [size=4K]
+	        Capabilities: [40] Power Management version 1
+
+
+I also make a :	setserial /dev/ttyS2 port 0xfc78 irq 10 that returns 
+
+	/dev/ttyS2, UART: 16950/954, Port: 0xfc78, IRQ: 10
+witch seems to be good
+
+but when I connect a modem (UsRobotics 56k FaxModem ext)on the Serial
+port and run the commande "wvdialconf", 
+I can seen the modem light blinking (Rd, Sd) but not detect it
+here is the result of the wvdialconf : 
+
+	ttyS2<*1>: ATQ0 V1 E1 -- ATQ0 V1 E1
+	ttyS2<*1>: ATQ0 V1 E1 -- ATQ0 V1 E1
+	ttyS2<*1>: ATQ0 V1 E1 -- ATQ0 V1 E1
+	ttyS2<*1>: nothing.
+	ttyS0<*1>: ATQ0 V1 E1 -- ATQ0 V1 E1 -- ATQ0 V1 E1 -- nothing.
+	ttyS1<*1>: ATQ0 V1 E1 -- ATQ0 V1 E1 -- ATQ0 V1 E1 -- nothing.
+	Port Scan<*1>: S3   S4   S5   S6   S7   S8   S9   S10
+	Port Scan<*1>: S11  S12  S13  S14  S15  S16  S17  S18
+	Port Scan<*1>: S19  S20  S21  S22  S23  S24  S25  S26
+	Port Scan<*1>: S27  S28  S29  S30  S31  SA0  SA1  SA2
+	Port Scan<*1>: SC0  SC1  SC2  SC3  SI0  SI1  SI2  SI3
+	Port Scan<*1>: SI4  SI5  SI6  SI7  SI8  SI9  SI10 SI11
+	Port Scan<*1>: SI12 SI13 SI14 SI15 SR0  SR1  SR2  SR3
+	Port Scan<*1>: SR4  SR5  SR6  SR7  SR8  SR9  SR10 SR11
+	Port Scan<*1>: SR12 SR13 SR14 SR15 SR16 SR17 SR18 SR19
+	Port Scan<*1>: SR20 SR21 SR22 SR23 SR24 SR25 SR26 SR27
+	Port Scan<*1>: SR28 SR29 SR30 SR31 SR256 SR257 SR258 SR259
+	Port Scan<*1>: SR260 SR261 SR262 SR263 SR264 SR265 SR266 SR267
+	Port Scan<*1>: SR268 SR269 SR270 SR271 SR272 SR273 SR274 SR275
+	Port Scan<*1>: SR276 SR277 SR278 SR279 SR280 SR281 SR282 SR283
+	Port Scan<*1>: SR284 SR285 SR286 SR287
+
+In advance, 
+Thank a lot 
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-serial" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

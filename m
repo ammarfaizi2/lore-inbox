@@ -1,69 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262862AbUC2V3A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 16:29:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262814AbUC2V3A
+	id S263142AbUC2Vc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 16:32:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263143AbUC2Vc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 16:29:00 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:21720 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262862AbUC2V25 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 16:28:57 -0500
-Date: Mon, 29 Mar 2004 23:28:34 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Lev Lvovsky <lists1@sonous.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: older kernels + new glibc?
-Message-ID: <20040329212832.GB26854@devserv.devel.redhat.com>
-References: <5516F046-81C1-11D8-A0A8-000A959DCC8C@sonous.com> <1080594005.3570.12.camel@laptop.fenrus.com> <50DC82B4-81C5-11D8-A0A8-000A959DCC8C@sonous.com> <1080595343.3570.15.camel@laptop.fenrus.com> <ACFAE876-81C7-11D8-A0A8-000A959DCC8C@sonous.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="H+4ONPRPur6+Ovig"
-Content-Disposition: inline
-In-Reply-To: <ACFAE876-81C7-11D8-A0A8-000A959DCC8C@sonous.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 29 Mar 2004 16:32:28 -0500
+Received: from intolerance.mr.itd.umich.edu ([141.211.14.78]:59830 "EHLO
+	intolerance.mr.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S263142AbUC2Vbs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 16:31:48 -0500
+Date: Mon, 29 Mar 2004 16:30:51 -0500 (EST)
+From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+X-X-Sender: vrajesh@eecs2340u28.engin.umich.edu
+To: Hugh Dickins <hugh@veritas.com>
+cc: Andrea Arcangeli <andrea@suse.de>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc2-aa5
+In-Reply-To: <Pine.LNX.4.44.0403291843320.18876-100000@localhost.localdomain>
+Message-ID: <Pine.GSO.4.58.0403291615540.13685@eecs2340u28.engin.umich.edu>
+References: <Pine.LNX.4.44.0403291843320.18876-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---H+4ONPRPur6+Ovig
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Andrew Moroton <akpm@osld.org> wrote:
+>> Andrea Arcangeli <andrea@suse.de> wrote:
+>>
+>> Notably there is a BUG_ON(page->mapping) triggering in
+>> page_remove_rmap in the pagecache case. that could be ex-pagecache
+>> being
+>> removed from pagecache before all ptes have been zapped, infact the
+>> page_remove_rmap triggers in the vmtruncate path.
+>
+> Confused.  vmtruncate zaps the ptes before removing pages from
+> pagecache,
+> so I'd expect a non-null ->mapping in page_remove_rmap() is a very
+> common
+> thing.  truncate a file which someone has mmapped and it'll happen every
+> time, will it not?
 
+Andrea missed a not (!) in the BUG_ON. It is BUG_ON(!page->mapping).
 
-On Mon, Mar 29, 2004 at 01:26:00PM -0800, Lev Lvovsky wrote:
-> On Mar 29, 2004, at 1:22 PM, Arjan van de Ven wrote:
-> 
-> >On Mon, 2004-03-29 at 23:09, Lev Lvovsky wrote:
-> >>We have the source of the drivers, but they are specific to the 2.2.x
-> >>kernels.  I am not a kernel hacker, and this would be way beyond my
-> >>area of expertise.
-> >>
-> >>And sadly, this doesn't answer the initial question.
-> >
-> >then to answer your question; at compile time you tell glibc what
-> >minimum kernel version it can assume, and based on that glibc will
-> >enable/disable certain features. So it depends on what your distro
-> >supplied there if it'll work or not. if you tell glibc that at minimum
-> >you do 2.4.1 for example, then no a 2.2 kernel won't work. I think most
-> >distros do this (or an even later version) since a few years now.
-> 
-> perfect - where does this variable get set?  sorry for what now seems 
-> like OT glibc stuff.
+The race Andrea hit _may_ be the mremap vs. vmtruncate race I hit:
 
-it's passed to glibc ./configure at build time; if you have an rpm based
-distro you'll see it in the specfile of the src.rpm
+http://marc.theaimsgroup.com/?l=linux-mm&m=107720111303624
 
---H+4ONPRPur6+Ovig
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+A first truncate that raced with mremap and left an orphaned pte.
+The following truncate tried to clear the orphaned pte, and reached
+page_remove_rmap with page->mapping == NULL.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Yes. It can happen in all 2.4 and 2.6 kernels.
 
-iD8DBQFAaJUAxULwo51rQBIRApoDAJ0RssU3B4wy7jNZm5XLrNo3Qh+rPwCgktoK
-YVukpT14wMpTBDlRUE+2i5U=
-=UYXe
------END PGP SIGNATURE-----
+Hugh has a better fix than mine for the mremap vs. truncate race
+in his anobjrmap 7/6 patch.
 
---H+4ONPRPur6+Ovig--
+http://marc.theaimsgroup.com/?l=linux-kernel&m=107998825716363
+
+With prio_tree we have to modify Hugh's fix, though.
+
+Thanks,
+Rajesh
+

@@ -1,126 +1,350 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262679AbVAFAxW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262680AbVAFA5O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262679AbVAFAxW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 19:53:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbVAFAxW
+	id S262680AbVAFA5O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 19:57:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbVAFA5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 19:53:22 -0500
-Received: from CPE-139-168-157-43.nsw.bigpond.net.au ([139.168.157.43]:36600
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id S262679AbVAFAxH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 19:53:07 -0500
-Message-ID: <41DC8BED.3020405@eyal.emu.id.au>
-Date: Thu, 06 Jan 2005 11:53:01 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
+	Wed, 5 Jan 2005 19:57:14 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:65171 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262680AbVAFAzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 19:55:20 -0500
+Date: Wed, 5 Jan 2005 16:55:14 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: torvads@osdl.org
+cc: akpm@osdl.org, jlan@sgi.com, linux-kernel@vger.kernel.org
+Subject: Move accounting function calls out of critical vm code paths
+Message-ID: <Pine.LNX.4.58.0501051651140.10377@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-To: list linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.10 IDE lockups
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to figure out if this is a problem with my system or
-a kernel issue.
+The new accounting patches add function calls to critical code paths.
+These statistics have traditionally be gathered during
+the timer tick. Accounting is dependent on stime being incremented:
 
-The symptom is that an IDE disk reports a DMA problem and then the
-machine locks up hard (not even SysRq).
+void acct_update_integrals(void)
+{
+        struct task_struct *tsk = current;
 
-I ran an overnight memcheck and all was well.
+        if (likely(tsk->mm)) {
+                long delta = tsk->stime - tsk->acct_stimexpd;
 
-Now, I cannot blame the software outright because a second disk
-(hdb) was added about the time the problems started. Either the
-disk is at fault or it just provoked a real software bug.
+                tsk->acct_stimexpd = tsk->stime;
+                tsk->acct_rss_mem1 += delta * tsk->mm->rss;
+                tsk->acct_vm_mem1 += delta * tsk->mm->total_vm;
+        }
+}
 
-The new hdb is used strictly for mythtv, and looking at the
-latest crash I can say with confidence that hdb had no activity.
-It died at 09:20:01 and I was, naturally, still sleeping happily
-at the time. Mythtv had no active clients and the log shows
-an idle server. BTW, I has a 'sync' done every 10s to reduce
-the damage, but I expect it had nothing to write to hdb.
+If stime has not increased then delta == 0 and nothing happens just
+a multiplication with zero....
 
-I had lockups where hda reported an errors, and others where
-hdb reported the error.
+Thus one may move the calls to the timer interrupt and only call
+acct_update_integrals if stime has been incremented. This will avoid
+having to spent time to gather statistics in the hot paths of the vm.
 
-This showed up with 2.6.10, -ac3, -mm1 and -rc3-mm1. At times
-I could even see an oops. Here are some snippets. How should I
-proceed with the investigation?
+One disadvantage is that rss etc may now peak between stime increments without
+being noticed. But I think we are mostly interested in prolonged memory use
+rather than accurate data on the max rss ever reached.
 
-Boot log
-========
-hda: status timeout: status=0x80 { Busy }
-ide: failed opcode was: unknown
-hda: DMA disabled
-hdb: DMA disabled
-hda: drive not ready for command
-ide0: reset: success
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-and the system went on without DMA.
+Index: linux-2.6.10/kernel/timer.c
+===================================================================
+--- linux-2.6.10.orig/kernel/timer.c	2005-01-05 16:23:39.000000000 -0800
++++ linux-2.6.10/kernel/timer.c	2005-01-05 16:35:51.000000000 -0800
+@@ -32,6 +32,7 @@
+ #include <linux/jiffies.h>
+ #include <linux/cpu.h>
+ #include <linux/syscalls.h>
++#include <linux/acct.h>
 
-serial console
-==============
-hda: dma_timer_expiry: dma status == 0x61
-hda: DMA timeout error
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -815,6 +816,10 @@
+ 		if (psecs / HZ >= p->signal->rlim[RLIMIT_CPU].rlim_max)
+ 			send_sig(SIGKILL, p, 1);
+ 	}
++	if (system) {
++		acct_update_integrals(p);
++		update_mem_hiwater(p);
++	}
+ }
 
-And the machine is dead. I saw this one most of the time
+ static inline void do_it_virt(struct task_struct * p, unsigned long ticks)
+Index: linux-2.6.10/mm/memory.c
+===================================================================
+--- linux-2.6.10.orig/mm/memory.c	2005-01-05 16:23:39.000000000 -0800
++++ linux-2.6.10/mm/memory.c	2005-01-05 16:23:41.000000000 -0800
+@@ -46,7 +46,6 @@
+ #include <linux/highmem.h>
+ #include <linux/pagemap.h>
+ #include <linux/rmap.h>
+-#include <linux/acct.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
 
-An unusual boot log with 2.6.10-rc3-mm1
-===================
-------------[ cut here ]------------
-PREEMPT SMP
-Modules linked in: ichxrom mtdcore chipreg map_funcs ehci_hcd usb_storage scsi_mod uhci_hcd usbcore shpchp pci_hotplug intel_mch_agp intel_agp agpgart parport_pc parport evdev nls_cp437 msdos fat dm_mod rtc unix
-CPU:    0
-EIP:    0060:[__change_page_attr+412/425]    Not tainted VLI
-EFLAGS: 00010002   (2.6.10-rc3-mm1)
-EIP is at __change_page_attr+0x19c/0x1a9
-eax: ffffffff   ebx: c2ff6000   ecx: c2ff6000   edx: 00000246
-esi: 00000000   edi: 00000173   ebp: 00000246   esp: c3dcbf0c
-ds: 007b   es: 007b   ss: 0068
-Process modprobe (pid: 2601, threadinfo=c3dcb000 task=f7b71a60)
-Stack: 00000000 00500000 ffb00000 c2ff6000 00000000 00000000 00000246 c0116254         c2ff6000 00000173 ffb00000 f8a80000 00500000 c3dcb000 c0115dbd c2ff6000
-        00000500 00000173 c19f0000 00000000 c3dcbf7f f880e2cd ffb00000 00500000
-Call Trace:
-  [change_page_attr+71/92] change_page_attr+0x47/0x5c
-  [ioremap_nocache+147/170] ioremap_nocache+0x93/0xaa
-  [pg0+943305421/1069069312] ichxrom_init_one+0x1a4/0x580 [ichxrom]
-  [pci_find_device+47/51] pci_find_device+0x2f/0x33
-  [pg0+944808020/1069069312] init_ichxrom+0x54/0x56 [ichxrom]
-  [sys_init_module+367/542] sys_init_module+0x16f/0x21e
-  [syscall_call+7/11] syscall_call+0x7/0xb
-Code: fc fe ff ff 80 3e 00 78 15 29 d3 c1 fb 05 c1 e3 0c 09 fb 89 1e f0 ff 49 04 e9 f5 fe ff ff 0f 0b 82 00 44 4e 2d c0 e9 e8 fe ff ff <0f> 0b 6c 00 44 4e 2d c0 e9 71 fe ff ff 55 b8 18 b8 30 c0 57 31
-  <6>note: modprobe[2601] exited with preempt_count 1
-  [schedule+2904/2909] schedule+0xb58/0xb5d
-  [zap_pgd_range+70/98] zap_pgd_range+0x46/0x62
-  [cond_resched+39/60] cond_resched+0x27/0x3c
-  [unmap_vmas+388/661] unmap_vmas+0x184/0x295
-  [exit_mmap+165/400] exit_mmap+0xa5/0x190
-  [mmput+67/246] mmput+0x43/0xf6
-  [do_exit+424/1333] do_exit+0x1a8/0x535
-  [do_trap+0/272] do_trap+0x0/0x110
-  [do_invalid_op+0/195] do_invalid_op+0x0/0xc3
-  [do_invalid_op+174/195] do_invalid_op+0xae/0xc3
-  [buffered_rmqueue+294/586] buffered_rmqueue+0x126/0x24a
-  [__change_page_attr+412/425] __change_page_attr+0x19c/0x1a9
-  [__alloc_pages+596/1033] __alloc_pages+0x254/0x409
-  [smp_call_function+196/272] smp_call_function+0xc4/0x110
-  [__get_free_pages+51/63] __get_free_pages+0x33/0x3f
-  [error_code+43/48] error_code+0x2b/0x30
-  [__change_page_attr+412/425] __change_page_attr+0x19c/0x1a9
-  [change_page_attr+71/92] change_page_attr+0x47/0x5c
-  [ioremap_nocache+147/170] ioremap_nocache+0x93/0xaa
-  [pg0+943305421/1069069312] ichxrom_init_one+0x1a4/0x580 [ichxrom]
-  [pci_find_device+47/51] pci_find_device+0x2f/0x33
-  [pg0+944808020/1069069312] init_ichxrom+0x54/0x56 [ichxrom]
-  [sys_init_module+367/542] sys_init_module+0x16f/0x21e
-  [syscall_call+7/11] syscall_call+0x7/0xb
+@@ -739,7 +738,6 @@
+ 	tlb = tlb_gather_mmu(mm, 0);
+ 	unmap_vmas(&tlb, mm, vma, address, end, &nr_accounted, details);
+ 	tlb_finish_mmu(tlb, address, end);
+-	acct_update_integrals();
+ 	spin_unlock(&mm->page_table_lock);
+ }
 
-But the machine continued the boot to completion.
+@@ -1336,8 +1334,6 @@
+ 			mm->anon_rss--;
+ 		if (PageReserved(old_page)) {
+ 			++mm->rss;
+-			acct_update_integrals();
+-			update_mem_hiwater();
+ 		} else
+ 			page_remove_rmap(old_page);
+ 		break_cow(vma, new_page, address, page_table);
+@@ -1620,8 +1616,6 @@
+ 		remove_exclusive_swap_page(page);
 
--- 
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
-	If attaching .zip rename to .dat
+ 	mm->rss++;
+-	acct_update_integrals();
+-	update_mem_hiwater();
+
+ 	pte = mk_pte(page, vma->vm_page_prot);
+ 	if (write_access && can_share_swap_page(page)) {
+@@ -1688,8 +1682,6 @@
+ 			goto out;
+ 		}
+ 		mm->rss++;
+-		acct_update_integrals();
+-		update_mem_hiwater();
+ 		entry = maybe_mkwrite(pte_mkdirty(mk_pte(page,
+ 							 vma->vm_page_prot)),
+ 				      vma);
+@@ -1799,8 +1791,6 @@
+ 	if (pte_none(*page_table)) {
+ 		if (!PageReserved(new_page))
+ 			++mm->rss;
+-		acct_update_integrals();
+-		update_mem_hiwater();
+
+ 		flush_icache_page(vma, new_page);
+ 		entry = mk_pte(new_page, vma->vm_page_prot);
+@@ -2124,10 +2114,8 @@
+  * update_mem_hiwater
+  *	- update per process rss and vm high water data
+  */
+-void update_mem_hiwater(void)
++void update_mem_hiwater(struct task_struct *tsk)
+ {
+-	struct task_struct *tsk = current;
+-
+ 	if (tsk->mm) {
+ 		if (tsk->mm->hiwater_rss < tsk->mm->rss)
+ 			tsk->mm->hiwater_rss = tsk->mm->rss;
+Index: linux-2.6.10/kernel/exit.c
+===================================================================
+--- linux-2.6.10.orig/kernel/exit.c	2005-01-05 16:23:38.000000000 -0800
++++ linux-2.6.10/kernel/exit.c	2005-01-05 16:23:41.000000000 -0800
+@@ -801,8 +801,8 @@
+ 		ptrace_notify((PTRACE_EVENT_EXIT << 8) | SIGTRAP);
+ 	}
+
+-	acct_update_integrals();
+-	update_mem_hiwater();
++	acct_update_integrals(current);
++	update_mem_hiwater(current);
+ 	group_dead = atomic_dec_and_test(&tsk->signal->live);
+ 	if (group_dead)
+ 		acct_process(code);
+Index: linux-2.6.10/mm/swapfile.c
+===================================================================
+--- linux-2.6.10.orig/mm/swapfile.c	2005-01-05 16:23:39.000000000 -0800
++++ linux-2.6.10/mm/swapfile.c	2005-01-05 16:23:41.000000000 -0800
+@@ -24,7 +24,6 @@
+ #include <linux/module.h>
+ #include <linux/rmap.h>
+ #include <linux/security.h>
+-#include <linux/acct.h>
+ #include <linux/backing-dev.h>
+ #include <linux/syscalls.h>
+
+@@ -437,8 +436,6 @@
+ 	set_pte(dir, pte_mkold(mk_pte(page, vma->vm_page_prot)));
+ 	page_add_anon_rmap(page, vma, address);
+ 	swap_free(entry);
+-	acct_update_integrals();
+-	update_mem_hiwater();
+ }
+
+ /* vma->vm_mm->page_table_lock is held */
+Index: linux-2.6.10/include/linux/mm.h
+===================================================================
+--- linux-2.6.10.orig/include/linux/mm.h	2005-01-05 16:23:38.000000000 -0800
++++ linux-2.6.10/include/linux/mm.h	2005-01-05 16:31:49.000000000 -0800
+@@ -835,7 +835,7 @@
+ }
+
+ /* update per process rss and vm hiwater data */
+-extern void update_mem_hiwater(void);
++extern void update_mem_hiwater(struct task_struct *tsk);
+
+ #ifndef CONFIG_DEBUG_PAGEALLOC
+ static inline void
+Index: linux-2.6.10/include/linux/acct.h
+===================================================================
+--- linux-2.6.10.orig/include/linux/acct.h	2005-01-05 16:23:38.000000000 -0800
++++ linux-2.6.10/include/linux/acct.h	2005-01-05 16:31:33.000000000 -0800
+@@ -120,12 +120,12 @@
+ struct super_block;
+ extern void acct_auto_close(struct super_block *sb);
+ extern void acct_process(long exitcode);
+-extern void acct_update_integrals(void);
++extern void acct_update_integrals(struct task_struct *tsk);
+ extern void acct_clear_integrals(struct task_struct *tsk);
+ #else
+ #define acct_auto_close(x)	do { } while (0)
+ #define acct_process(x)		do { } while (0)
+-#define acct_update_integrals()		do { } while (0)
++#define acct_update_integrals(x)	do { } while (0)
+ #define acct_clear_integrals(task)	do { } while (0)
+ #endif
+
+Index: linux-2.6.10/kernel/acct.c
+===================================================================
+--- linux-2.6.10.orig/kernel/acct.c	2005-01-05 16:23:38.000000000 -0800
++++ linux-2.6.10/kernel/acct.c	2005-01-05 16:28:00.000000000 -0800
+@@ -534,10 +534,8 @@
+  * acct_update_integrals
+  *    -  update mm integral fields in task_struct
+  */
+-void acct_update_integrals(void)
++void acct_update_integrals(struct task_struct *tsk)
+ {
+-	struct task_struct *tsk = current;
+-
+ 	if (likely(tsk->mm)) {
+ 		long delta = tsk->stime - tsk->acct_stimexpd;
+
+Index: linux-2.6.10/mm/rmap.c
+===================================================================
+--- linux-2.6.10.orig/mm/rmap.c	2005-01-05 16:23:39.000000000 -0800
++++ linux-2.6.10/mm/rmap.c	2005-01-05 16:23:41.000000000 -0800
+@@ -51,7 +51,6 @@
+ #include <linux/swapops.h>
+ #include <linux/slab.h>
+ #include <linux/init.h>
+-#include <linux/acct.h>
+ #include <linux/rmap.h>
+ #include <linux/rcupdate.h>
+
+@@ -607,7 +606,6 @@
+ 	}
+
+ 	mm->rss--;
+-	acct_update_integrals();
+ 	page_remove_rmap(page);
+ 	page_cache_release(page);
+
+@@ -712,7 +710,6 @@
+
+ 		page_remove_rmap(page);
+ 		page_cache_release(page);
+-		acct_update_integrals();
+ 		mm->rss--;
+ 		(*mapcount)--;
+ 	}
+Index: linux-2.6.10/mm/mmap.c
+===================================================================
+--- linux-2.6.10.orig/mm/mmap.c	2005-01-05 16:23:39.000000000 -0800
++++ linux-2.6.10/mm/mmap.c	2005-01-05 16:24:24.000000000 -0800
+@@ -21,7 +21,6 @@
+ #include <linux/hugetlb.h>
+ #include <linux/profile.h>
+ #include <linux/module.h>
+-#include <linux/acct.h>
+ #include <linux/mount.h>
+ #include <linux/mempolicy.h>
+ #include <linux/rmap.h>
+@@ -1021,8 +1020,6 @@
+ 					pgoff, flags & MAP_NONBLOCK);
+ 		down_write(&mm->mmap_sem);
+ 	}
+-	acct_update_integrals();
+-	update_mem_hiwater();
+ 	return addr;
+
+ unmap_and_free_vma:
+@@ -1369,8 +1366,6 @@
+ 	if (vma->vm_flags & VM_LOCKED)
+ 		vma->vm_mm->locked_vm += grow;
+ 	__vm_stat_account(vma->vm_mm, vma->vm_flags, vma->vm_file, grow);
+-	acct_update_integrals();
+-	update_mem_hiwater();
+ 	anon_vma_unlock(vma);
+ 	return 0;
+ }
+@@ -1434,8 +1429,6 @@
+ 	if (vma->vm_flags & VM_LOCKED)
+ 		vma->vm_mm->locked_vm += grow;
+ 	__vm_stat_account(vma->vm_mm, vma->vm_flags, vma->vm_file, grow);
+-	acct_update_integrals();
+-        update_mem_hiwater();
+ 	anon_vma_unlock(vma);
+ 	return 0;
+ }
+@@ -1823,8 +1816,6 @@
+ 		mm->locked_vm += len >> PAGE_SHIFT;
+ 		make_pages_present(addr, addr + len);
+ 	}
+-	acct_update_integrals();
+-	update_mem_hiwater();
+ 	return addr;
+ }
+
+Index: linux-2.6.10/mm/mremap.c
+===================================================================
+--- linux-2.6.10.orig/mm/mremap.c	2005-01-05 16:23:39.000000000 -0800
++++ linux-2.6.10/mm/mremap.c	2005-01-05 16:25:30.000000000 -0800
+@@ -16,7 +16,6 @@
+ #include <linux/fs.h>
+ #include <linux/highmem.h>
+ #include <linux/security.h>
+-#include <linux/acct.h>
+ #include <linux/syscalls.h>
+
+ #include <asm/uaccess.h>
+@@ -251,9 +250,6 @@
+ 					   new_addr + new_len);
+ 	}
+
+-	acct_update_integrals();
+-	update_mem_hiwater();
+-
+ 	return new_addr;
+ }
+
+@@ -390,8 +386,6 @@
+ 				make_pages_present(addr + old_len,
+ 						   addr + new_len);
+ 			}
+-			acct_update_integrals();
+-			update_mem_hiwater();
+ 			ret = addr;
+ 			goto out;
+ 		}
+Index: linux-2.6.10/fs/exec.c
+===================================================================
+--- linux-2.6.10.orig/fs/exec.c	2005-01-05 16:23:38.000000000 -0800
++++ linux-2.6.10/fs/exec.c	2005-01-05 16:34:16.000000000 -0800
+@@ -1165,8 +1165,8 @@
+
+ 		/* execve success */
+ 		security_bprm_free(bprm);
+-		acct_update_integrals();
+-		update_mem_hiwater();
++		acct_update_integrals(current);
++		update_mem_hiwater(current);
+ 		kfree(bprm);
+ 		return retval;
+ 	}

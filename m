@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316391AbSEVRkA>; Wed, 22 May 2002 13:40:00 -0400
+	id <S316573AbSEVRnj>; Wed, 22 May 2002 13:43:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316421AbSEVRj7>; Wed, 22 May 2002 13:39:59 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:1546 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S316391AbSEVRj5>; Wed, 22 May 2002 13:39:57 -0400
-Date: Wed, 22 May 2002 10:39:33 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: vojtech@suse.cz, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.17 /dev/ports
-In-Reply-To: <E17AZrv-0002Ia-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10205221034210.4611-100000@www.transvirtual.com>
+	id <S316593AbSEVRni>; Wed, 22 May 2002 13:43:38 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:44818 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316573AbSEVRng>; Wed, 22 May 2002 13:43:36 -0400
+Message-ID: <3CEBC9EE.2090701@evision-ventures.com>
+Date: Wed, 22 May 2002 18:40:14 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Tom Rini <trini@kernel.crashing.org>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.17 IDE 67
+In-Reply-To: <3CEB466B.3090604@evision-ventures.com> <20020522171329.GG1209@opus.bloom.county> <3CEBC576.4060703@evision-ventures.com> <20020522173137.GH1209@opus.bloom.county>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > Alan you are thinking to PC here. On embedded devices that run X it is
-> > just extra over head to use the VT interface. It would be much lighter
-> > weigth to use the /dev/input/event interface. Personally I like to see
-> > KBDRATE and alot of other junk go away in the console code. Intead we
-> > just use the input api and /dev/fb with DRI. I have talked to Jim Getty
-> > about this and likes to see things head in this direction.
+Uz.ytkownik Tom Rini napisa?:
+>
+> And when the PPC4xx drivers are ready to be submitted we'll need to add
+> in __powerpc__ tests too.  Can't we just keep CONFIG_DMA_NONPCI for now?
 > 
-> DRI ? What good is DRI to me on an embedded box. 
 
-You be surprised what is coming out soon into the embedded market :-) 3D
-will soon be coming to small hand held devices!!
+Plese feel free to add them when and where they are needed.
+It's no problem to clean this all up
+then again if a true usage pattern emerges.
+And I have no problem with patches toching "core" driver stuff as long
+as the changes are justified I will integrate them with pleasure at time.
 
-> What good is an fb driver when my hardware does text mode ? 
-
-Text mode is the expection not the norm. 
-
-> Why do I want the whole input layer loaded for a single fixed keyboard
-> controller, or a serial interface driven by user mode ?
-
-One is portablity. The input layer handles more than just keyboards.
-All input devices look the same. Most embedded devices with input
-interfaces have more than one type of input device (touchscreen,
-attachable keyboards, buttons etc). Plus the input layer is modular and it
-is small. 
+In the time between I tend to code for reality and not for vapour
+(no offence intendid...) :-).
 

@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319229AbSIFRBb>; Fri, 6 Sep 2002 13:01:31 -0400
+	id <S319265AbSIFRED>; Fri, 6 Sep 2002 13:04:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319233AbSIFRBb>; Fri, 6 Sep 2002 13:01:31 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:50677
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319229AbSIFRBa>; Fri, 6 Sep 2002 13:01:30 -0400
+	id <S319267AbSIFRED>; Fri, 6 Sep 2002 13:04:03 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:24768 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S319265AbSIFREC>;
+	Fri, 6 Sep 2002 13:04:02 -0400
+Date: Fri, 06 Sep 2002 10:06:27 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: jeff@AmeriCom.com, linux-kernel@vger.kernel.org
 Subject: Re: Linux SMP kernel bug with > 512M ram
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: jeff@AmeriCom.com
-Cc: linux-kernel@vger.kernel.org
+Message-ID: <55628028.1031306786@[10.10.2.3]>
 In-Reply-To: <20020906165516.17282.qmail@solo.americom.com>
 References: <20020906165516.17282.qmail@solo.americom.com>
-Content-Type: text/plain
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 06 Sep 2002 18:07:08 +0100
-Message-Id: <1031332028.9945.74.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-06 at 17:55, jeff@AmeriCom.com wrote:
+Works fine for me with up to 32Gb of RAM. Can you try a vaguely
+current kernel?
+
+Martin.
+
+--On Friday, September 06, 2002 4:55 PM +0000 jeff@AmeriCom.com wrote:
+
+> 
 > I've been having problems with a few of our servers and I can't seem to find this 
 > problem mentioned anywhere else. All of the dual processor machines will not operate 
 > with greater than 512 megs of ram with the newer SMP kernels (2.4.7-10enterprise #1 
-
-2.4.7 is hardly "new". Red Hat has issued errata kernels going up to
-2.4.9.
-
 > SMP). Two of the dual P3 1ghz machines crash after a few minutes, when the memory 
 > usage gets high enough, I presume. The errors they spit out vary, but its only when 
 > I go over 512megs of ram, and only on dual processor machines. I had a slightly 
-
-Chipset or memory hardware problems seem the most likely cause if the
-errors seem random or weird
-
 > different problem when I tried to set it up on a dual p2 266 machine, when I go over 
 > 512 megs there, the system takes an hour to boot up, and everything crawls from 
-
-Thats BIOS. Thats a well known BIOS problem where the BIOS doesnt
-configure the mtrr registers properly. You can work around that one by
-tweaking the settings by hand or probably by getting a newer BIOS 
+> there. I asked a friend of mine to try this newer kernel with his dual processor 
+> server, and he says the same thing (when I go over 512, it crashes). Has anybody had 
+> this problem? Is there a fix?
+> 
+> Regards,
+> 
+> Jeffrey Moss
+> jeff@americom.com
+> 
+> 
+> 
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
 

@@ -1,60 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129088AbQKCHWr>; Fri, 3 Nov 2000 02:22:47 -0500
+	id <S129767AbQKCIAq>; Fri, 3 Nov 2000 03:00:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130134AbQKCHWa>; Fri, 3 Nov 2000 02:22:30 -0500
-Received: from cc993546-b.srst1.fl.home.com ([24.3.77.52]:13828 "EHLO
-	comptechnews.com") by vger.kernel.org with ESMTP id <S129166AbQKCHWY>;
-	Fri, 3 Nov 2000 02:22:24 -0500
-From: "Robert B. Easter" <reaster@comptechnews.com>
-Date: Fri, 3 Nov 2000 02:30:03 -0500
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-Cc: TimO <hairballmt@mcn.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-via@gtf.org
-To: linux-via@havoc.gtf.org, Vojtech Pavlik <vojtech@suse.cz>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-In-Reply-To: <39E54117.37461BD1@mandrakesoft.com> <3A00F515.45D67F1C@mandrakesoft.com> <20001102084052.A862@suse.cz>
-In-Reply-To: <20001102084052.A862@suse.cz>
-Subject: Re: Announce: Via audio driver update
+	id <S130111AbQKCIAg>; Fri, 3 Nov 2000 03:00:36 -0500
+Received: from Prins.externet.hu ([212.40.96.161]:16402 "EHLO
+	prins.externet.hu") by vger.kernel.org with ESMTP
+	id <S129875AbQKCIAS>; Fri, 3 Nov 2000 03:00:18 -0500
+Date: Fri, 3 Nov 2000 09:00:06 +0100 (CET)
+From: Narancs 1 <narancs1@externet.hu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: so vesafb doesn't work in i815
+In-Reply-To: <E13rOWr-0001ik-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.02.10011030852170.2786-100000@prins.externet.hu>
 MIME-Version: 1.0
-Message-Id: <00110302300301.03733@comptechnews>
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 November 2000 02:40, Vojtech Pavlik wrote:
-> On Thu, Nov 02, 2000 at 12:01:09AM -0500, Jeff Garzik wrote:
-> > Please grab 1.1.14, there were a number of bug fixes since 1.1.10.  You
-> > can get this version in the recently-released 2.4.0-test10 kernel, or
-> > download from http://sourceforge.net/projects/gkernel/
->
-> Hi!
->
-> I'd like to report a bug, too. On my system, with the test10 kernel,
-> regardless of what frequency the software sets, the data is always
-> played at 48 KHz.
->
-> Via 686a audio driver 1.1.14
-> ac97_codec: AC97 Audio codec, id: 0x574d:0x4c00 (Wolfson WM9704)
-> via82cxxx: board #1 at 0xDC00, IRQ 10
->
-> The codec doesn't support variable rate input, as far as I know. Could
-> that be the cause?
+On Thu, 2 Nov 2000, Alan Cox wrote:
 
-What is the difference between the VIA686A kernel distribution audio driver 
-and the VIA686a module provided by ALSA (which works fine)?  It seems like 
-ALSA provides a fully functioning VIA686a module.  Why the duplication of 
-effort/re-coding?  I suppose there is some major difference that I don't 
-understand?
 
--- 
--------- Robert B. Easter  reaster@comptechnews.com ---------
-- CompTechNews Message Board   http://www.comptechnews.com/ -
-- CompTechServ Tech Services   http://www.comptechserv.com/ -
----------- http://www.comptechnews.com/~reaster/ ------------
+
+> > xfree 4.0.1d supports it, but the screen flicker so hard, that is is
+> > unusable. 
+> 
+> Ah there is a trick to that bit. If you have some i810 stuff then XFree does
+> funnies if you have DRM enabled. 
+I did disable loading drm/dri module from xf86config/kernel module
+It acts the same.
+
+> 
+> The following combination I know works
+> 
+> 2.2.18pre18
+I have 2.4.0-test10
+> XFree 4.0 rpms from Red Hat (not 100% sure which 4.0 set they match sorry)
+> DRM disabled in the XF86Config.
+debian 4.0.1d 
+> 
+> On my i810 the DRM/flicker problem isnt present but I have seen other folks with
+> it and disabling the direct 3d stuff cured it.
+what other modules?
+> 
+> 2.2.18pre18 also supports the i810 audio reasonably well. For full UDMA ide you
+> want 2.4test or 2.2.18pre18 + ide patch
+how?
+which driver?
+I couldn't get i810 ihc driver go in 2.4.0t10
+Alsa works, but it plays pcm like micky mouse (faster).
+They said, it is fixed in the CVS i haven't tried/
+
+thanx!
+Alan Cox is my man.
+Narancs v1
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266089AbUFDXS4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266086AbUFDXWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266089AbUFDXS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 19:18:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266069AbUFDXPL
+	id S266086AbUFDXWM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 19:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266070AbUFDXTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 19:15:11 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:153 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S266068AbUFDXNr
+	Fri, 4 Jun 2004 19:19:41 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6041 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264428AbUFDXPD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 19:13:47 -0400
-Message-ID: <40C101D5.3050101@blue-labs.org>
-Date: Fri, 04 Jun 2004 19:12:21 -0400
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040412
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [boot hang] 2.6.7-rc2, VIA VT8237
-References: <40C0D8FE.7040009@blue-labs.org> <200406042238.04100.bzolnier@elka.pw.edu.pl> <40C0DEC0.90805@blue-labs.org>
-In-Reply-To: <40C0DEC0.90805@blue-labs.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Fri, 4 Jun 2004 19:15:03 -0400
+Date: Sat, 5 Jun 2004 00:14:56 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: linux-kernel@vger.kernel.org
+Cc: perex@suse.cz, torvalds@osdl.org
+Subject: Re: [RFC] ASLA design, depth of code review and lack thereof
+Message-ID: <20040604231456.GS12308@parcelfarce.linux.theplanet.co.uk>
+References: <20040604230819.GR12308@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040604230819.GR12308@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Both 2.6.5 and 2.6.7 will boot using the GENERIC IDE driver.  I haven't 
-yet gotten any kernel to not lock up using the VIA driver.
+On Sat, Jun 05, 2004 at 12:08:19AM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> Ladies and gentlemen, may I politely ask what description would fit somebody
+> who have made the following
+> 
+>         case SNDRV_PCM_FORMAT_FLOAT_BE:
+>         {
+>                 union {
+>                         float f;
+>                         u_int32_t i;
+>                 } u;
+>                 u.f = 0.0;
+> #ifdef SNDRV_LITTLE_ENDIAN
+>                 return bswap_32(u.i);
+> #else
+>                 return u.i;
+> #endif
+>         }
+> and quite a few similar, er, wonders an ioctl?
 
-On another note, I can't get ANY network card to work in this machine 
-other than with the gentoo LiveCD;  tulip, 3com, RTL, eepro, smc..
+... immediately followed by a self-LART - it's still an ugly code, all
+right, but that's not an ioctl.
 
-The e100 driver even gives me this nonsense: "SIOCSIFFLAGS: Connection 
-timed out" when setting the interface up.
-
-The eepro100 driver says it can't initialize the 82557 and check that 
-the card is in a bus-master capable slot.  Self test failed.
-
-This is silly.  The same hardware all works with the LiveCD kernel, no 
-boot options.
-
-david
-
+My apologies to everyone.

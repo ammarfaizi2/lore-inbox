@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317500AbSG2QTi>; Mon, 29 Jul 2002 12:19:38 -0400
+	id <S317506AbSG2Qcq>; Mon, 29 Jul 2002 12:32:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317503AbSG2QTi>; Mon, 29 Jul 2002 12:19:38 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56847 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S317500AbSG2QTi>; Mon, 29 Jul 2002 12:19:38 -0400
-Date: Mon, 29 Jul 2002 18:23:01 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Dave Jones <davej@suse.de>, Russell King <rmk@arm.linux.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: /proc/pci removal?
-Message-ID: <20020729162301.GA5377@atrey.karlin.mff.cuni.cz>
-References: <20020729131717.A25451@flint.arm.linux.org.uk> <20020729152938.G17798@suse.de>
+	id <S317508AbSG2Qcq>; Mon, 29 Jul 2002 12:32:46 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:15098 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317506AbSG2Qcq>; Mon, 29 Jul 2002 12:32:46 -0400
+Subject: Re: cli/sti removal from linux-2.5.29/drivers/ide?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org, martin@dalecki.de
+In-Reply-To: <200207291549.IAA04805@adam.yggdrasil.com>
+References: <200207291549.IAA04805@adam.yggdrasil.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 29 Jul 2002 18:51:48 +0100
+Message-Id: <1027965108.4050.14.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020729152938.G17798@suse.de>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, world!\n
+> 	With this change, I believe I can remove all of the
+> cli()...restore_flags() pairs from the channel->tuneproc functions of
+> each IDE driver.  I have also removed what appear to be some
 
-> ISTR Linus was quite attached to it, so it got un-obsoleted.
+Some tuning locks are needed because an interrupt during the magic
+tuning sequence will break stuff
 
-Exactly.  I've marked it as obsolete years ago, but when I wanted
-to rip it out, Linus said he likes /proc/pci and it has to stay.
 
-I still think that it's an extremely ugly interface, especially
-because it requires the kernel to contain the list of vendor and device
-names.
+g is ready, program the new timings
+>  	 */
+> -	spin_lock(&cmd640_lock, flags);
+> +	spin_lock_irqsave(&cmd640_lock, flags);
+>  	/*
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-Who is General Failure and why is he reading my disk?
+For the CMD640 please see the patch I posted. It has to use pci_lock and
+it needs other 2.4 fixes forward porting which I did
+
+
+> -	save_flags(flags);
+> -	cli();	/* all CPUs (there should only be one CPU with this chipset) */
+> +	local_irq_save(flags); /* There should only be one CPU with this
+> +				  chipset. */
+
+Not needed that I can see. It also wants to use the proper master/mwi
+functions. I've got a diff for this I can post.
+
+
+

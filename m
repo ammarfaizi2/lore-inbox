@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313639AbSDHOsH>; Mon, 8 Apr 2002 10:48:07 -0400
+	id <S313640AbSDHOug>; Mon, 8 Apr 2002 10:50:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313640AbSDHOsG>; Mon, 8 Apr 2002 10:48:06 -0400
-Received: from [193.120.151.1] ([193.120.151.1]:60413 "EHLO mail.asitatech.com")
-	by vger.kernel.org with ESMTP id <S313639AbSDHOsF>;
-	Mon, 8 Apr 2002 10:48:05 -0400
-From: "Jarlath Burke" <jarlath.burke@asitatech.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Cc: "Jarlath Burke" <jarlath.burke@asitatech.com>
-Subject: RARP server support on Linux 2.4
-Date: Mon, 8 Apr 2002 15:50:51 +0100
-Message-ID: <NCEGLAPNBLBCNHJEMJEKEEBGDCAA.jarlath.burke@asitatech.com>
+	id <S313642AbSDHOuf>; Mon, 8 Apr 2002 10:50:35 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:40709 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S313640AbSDHOue>; Mon, 8 Apr 2002 10:50:34 -0400
+Date: Mon, 8 Apr 2002 10:48:08 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: John Levon <movement@marcelothewonderpenguin.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Two fixes for 2.4.19-pre5-ac3
+In-Reply-To: <20020407173343.GA18940@compsoc.man.ac.uk>
+Message-ID: <Pine.LNX.3.96.1020408104259.21476B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I'm trying to get RARP to work on my 2.4.5 kernel, but I see that
-RARP server support has been removed from it, and that it has
-been moved to userland in the form of the rarpd daemon.
+On Sun, 7 Apr 2002, John Levon wrote:
 
-I have downloaded and compiled the rarpd daemon (and libpcap and
-libnet dependencies), and got it to run on my 2.4.5 kernel, but I
-don't know what to do with it.
+> But what about the recent discussion on the removal of sys_call_table ?
+> 
+> (I believe it was along the lines of "it's ugly, prevent it ...", "ah,
+> but it has real uses, so why can't it stay as deprecated/unadvised ?"
+> "*no response*").
+> 
+> I'm a bit disappointed this has just gone in without any real discussion
+> on the usefulness of this for certain circumstances :(
 
-With the 2.2.x kernel, if you ran the command "rarp -a", it would
-give you a list of the current RARP cache, and it was possible to
-manipulate the kernel's RARP table using the "rarp -s hostname hw_addr"
-and "rarp -d hostname" commands.
+  Sure, removing that would break a lot of cracker software. Oh wait,
+maybe that's a good thing...
 
-But I can't see any way of doing this now - is there a utility to talk to
-the rarpd daemon to view RARP entries and to manipulate the RARP
-table? Is the RARP table still maintained in the kernel?
+  For legitimate use, if any, a compile-time optional system call could be
+added requiring a capability to use, and programs which are currently
+doing that (AFS?) can be converted to use another f/s interface. I have
+seen a few mentions of software which DO use that capability, I'm not sure
+I've seen one which can be done no other way. 
 
-I'm not subscribed to the mailing list so please CC me on any replies.
-Thanks in advance,
-Jarlath.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

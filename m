@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbULTTKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbULTTQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261597AbULTTKh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 14:10:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbULTTKh
+	id S261615AbULTTQm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 14:16:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbULTTQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 14:10:37 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:7053 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261597AbULTTKc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 14:10:32 -0500
-Date: Tue, 21 Dec 2004 00:55:58 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Reimplementation of linux dynamic percpu memory allocator
-Message-ID: <20041220192558.GA17194@in.ibm.com>
-References: <41C35DD6.1050804@colorfullife.com> <20041220182057.GA16859@in.ibm.com> <41C718C7.1020908@colorfullife.com>
+	Mon, 20 Dec 2004 14:16:42 -0500
+Received: from out011pub.verizon.net ([206.46.170.135]:5797 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S261615AbULTTQg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 14:16:36 -0500
+Date: Mon, 20 Dec 2004 19:15:40 +0000
+From: Eric Buddington <ebuddington@verizon.net>
+To: linux-kernel@vger.kernel.org
+Subject: SATA TX2/ST3160023AS on 2.6.10-rc2: "ata1: command timeout"
+Message-ID: <20041220191540.GA2948@pool-151-203-151-16.wma.east.verizon.net>
+Reply-To: ebuddington@wesleyan.edu
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41C718C7.1020908@colorfullife.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.4.1i
+Organization: ECS Labs
+X-Eric-Conspiracy: there is no conspiracy
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.203.151.16] at Mon, 20 Dec 2004 13:16:35 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 20, 2004 at 07:24:07PM +0100, Manfred Spraul wrote:
-> >
-> No, not fast path. But it can happen a few thousand times. The slab 
-> implementation failed due to heavy internal fragmentation. If your code 
-> runs fine with a few thousand users, then there shouldn't be a problem.
+I am suffering complete freezes on my system with a Promise TX2
+controller tring to talk to a ST3160023AS drive. It works fine for
+hours or days at a time, but will occasionally log an error of "ata1:
+command timeout", then freeze within a minute, such that alt-SysRq-b
+doesn't work.
 
-If there is a stress test I can use, I can try running it.
+This seems to happen more often when the drive is in heavy use. I
+do not know a way to trigger it specifically.
 
-> >>>     
-> >..
-> For non-NUMA systems, I would use get_free_pages() to allocate a 
-> multi-page area instead of map_vm_area(). Typically, get_free_pages() is 
-> backed by large pte memory and map_vm_area() by normal virtual memory.
+Kernel: 2.6.10-rc2, unpatched
 
-Hmm...the arithmetic becomes tricky then.  Right now I allocate
-NR_CPUS * PCU_BLOCKSIZE + BLOCK_MANAGEMENT_SIZE amount of KVA for a block,
-allocate pages for cpu_possible cpus and map corresponding va space
-with allocated pages using map_vm_area.  We may fragment if
-NR_CPUS * PCPU_BLOCKSIZE doesn't fit into a proper page order,
-also we'd be wasting pages for !cpu_possible(cpus) of NR_CPUS
+Hardware:
+Athlon 950
+Unknown mass storage controller: Promise Technology, Inc. PDC20375 (SATA150 TX2plus) (rev 2)
+ST3160023AS
+Hauppauge WinTV performing constant video capture (don't know if PCI saturation could contribute to this problem)
 
-Thanks,
-Kiran
+Last log entries (logged via netconsole):
+atkbd.c: Spurious ACK on isa0060/serio0. Some program, like XFree86, might be trying access hardware directly.
+scsi: unknown opcode 0x04
+scsi: unknown opcode 0x2a
+scsi: unknown opcode 0x35
+scsi: unknown opcode 0x5b
+scsi: unknown opcode 0x1e
+ata1: command timeout
+
+I hope this is enough information to be useful. Thanks to Jeff Garzik
+for all his work on SATA...
+
+-Eric
+

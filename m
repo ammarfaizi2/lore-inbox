@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262264AbULMHNj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262268AbULMHOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262264AbULMHNj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 02:13:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbULMHNi
+	id S262268AbULMHOd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 02:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbULMHOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 02:13:38 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:42124 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262264AbULMHN0 (ORCPT
+	Mon, 13 Dec 2004 02:14:33 -0500
+Received: from fsmlabs.com ([168.103.115.128]:5303 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262268AbULMHOJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 02:13:26 -0500
-Date: Mon, 13 Dec 2004 08:09:44 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-12
-Message-ID: <20041213070944.GA3345@elte.hu>
-References: <1102776772.2968.4.camel@rousalka.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1102776772.2968.4.camel@rousalka.dyndns.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 13 Dec 2004 02:14:09 -0500
+Date: Mon, 13 Dec 2004 00:13:32 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+cc: paulmck@us.ibm.com, sfr@canb.auug.org.au, linux-kernel@vger.kernel.org,
+       dipankar@in.ibm.com, shaohua.li@intel.com, len.brown@intel.com
+Subject: Re: [PATCH] Remove RCU abuse in cpu_idle()
+In-Reply-To: <20041212224133.0e8d001e.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0412130010570.16940@montezuma.fsmlabs.com>
+References: <20041205004557.GA2028@us.ibm.com> <20041206111634.44d6d29c.sfr@canb.auug.org.au>
+ <20041205232007.7edc4a78.akpm@osdl.org> <Pine.LNX.4.61.0412060157460.1036@montezuma.fsmlabs.com>
+ <20041206160405.GB1271@us.ibm.com> <Pine.LNX.4.61.0412060941560.5219@montezuma.fsmlabs.com>
+ <20041206192243.GC1435@us.ibm.com> <Pine.LNX.4.61.0412110804500.5214@montezuma.fsmlabs.com>
+ <Pine.LNX.4.61.0412112123490.7847@montezuma.fsmlabs.com>
+ <Pine.LNX.4.61.0412112205290.7847@montezuma.fsmlabs.com>
+ <Pine.LNX.4.61.0412112244000.7847@montezuma.fsmlabs.com>
+ <20041212221327.375fa4d0.akpm@osdl.org> <Pine.LNX.4.61.0412122317380.16940@montezuma.fsmlabs.com>
+ <20041212224133.0e8d001e.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 12 Dec 2004, Andrew Morton wrote:
 
-* Nicolas Mailhot <Nicolas.Mailhot@laPoste.net> wrote:
-
-> Just FYI real-time kernels do not boot on my Fedora Devel (Rawhide)
-> system, including -RT-2.6.10-rc2-mm3-V0.7.32-12. 2.6.10-rc2-mm4 OTOH
-> boots fine. It freezes just after initial hardware init before going
-> into gfx mode.
+> Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
+> >
+> > > This gives me scadzillions of "using smp_procesor_id() in preemptible"
+> >  > warnings.
 > 
-> (kernel config available on demand, it's almost the same - 2.6.10-rc2-
-> mm4 was generated using a make oldconfig on the -RT-2.6.10-rc2-mm3-
-> V0.7.32-12 file)
+> As does the current_cpu_data evaluation in default_idle(), now we've gone
+> and dropped the rcu_read_lock() from around it.  That debugging patch is a
+> pain.
+> 
+> I'll switch it to boot_cpu_data.
 
-cannot reproduce this on two testsystems using your .config, so it's
-probably some hardware detail that makes the difference.
+I really should have turned on all the debugging knobs, although i might 
+have hesitated before scattering _smp_processor_id in places.
 
-	Ingo

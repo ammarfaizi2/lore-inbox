@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131283AbQKPS3x>; Thu, 16 Nov 2000 13:29:53 -0500
+	id <S129211AbQKPScx>; Thu, 16 Nov 2000 13:32:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131166AbQKPS3m>; Thu, 16 Nov 2000 13:29:42 -0500
-Received: from mail.inconnect.com ([209.140.64.7]:45189 "HELO
-	mail.inconnect.com") by vger.kernel.org with SMTP
-	id <S131178AbQKPS3a>; Thu, 16 Nov 2000 13:29:30 -0500
-Date: Thu, 16 Nov 2000 10:59:27 -0700 (MST)
-From: Dax Kelson <dax@gurulabs.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: APM oops with Dell 5000e laptop
-In-Reply-To: <E13wRYd-0007yS-00@the-village.bc.nu>
-Message-ID: <Pine.SOL.4.30.0011161054420.16124-100000@ultra1.inconnect.com>
+	id <S129230AbQKPScn>; Thu, 16 Nov 2000 13:32:43 -0500
+Received: from [151.17.201.167] ([151.17.201.167]:30834 "EHLO proxy.teamfab.it")
+	by vger.kernel.org with ESMTP id <S129211AbQKPScc>;
+	Thu, 16 Nov 2000 13:32:32 -0500
+Message-ID: <3A1420FD.528D2C41@teamfab.it>
+Date: Thu, 16 Nov 2000 19:01:33 +0100
+From: Luca Montecchiani <luca.montecchiani@teamfab.it>
+X-Mailer: Mozilla 4.72C-CCK-MCD Caldera Systems OpenLinux [en] (X11; U; Linux 2.2.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Chip Schweiss <chip@innovates.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18pre21 - IP kernel level autoconfiguration
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox said once upon a time (Thu, 16 Nov 2000):
+> It seem somewhere between 2.2.17 and the current 2.2.18 kernel, IP 
+> kernel level autoconfiguration has been broken. Upon kernel loading 
+> the Ethernet card is detected and loaded properly, but the bootp code 
+> never seems to be executed and mounting the root partion via NFS then 
+> fails from lack of IP configuration. 
+> I haven't had any luck tracing down the root of this problem. 
+> Anyone else experience this problem or have a patch to fix it? 
 
-> > I just got a Sceptre 6950 (also known as a Dell 5000e), I just installed
-> > Red Hat 7.0 on it, and got an APM related oops at boot.
->
-> Yep. This is not a Linux problem
+Hi!
 
-The kernel works around/ignores/disables other broken hardware or broken
-features of otherwise working hardware with black lists.  There will be
-many *many* of these laptops sold.
+I've the same behavior here:
 
-Is there a way to uniquely identify the affected BIOSes at boot time and
-turn off APM?  According to Brad Douglas, the 32-bit Get Power Status
-(0AH) call is broken.
+ server kernel : 2.2.17
+ dhcpd         : 2.0b1pl29
+ client kernel : 2.2.18-21
+ client cmdline: root=/dev/nfs nfsroot=/foo/bar ip=bootp
 
-Supposedly there will be a BIOS update in the "future" to correct this
-problem.
+After some quick tests seem that if you want bootp
+you _need_ to compile the client's kernel with _only_ bootp,
+if you have also dhcp, it doesn't work :(
 
-Dax
+Dhcp into kernel is COOL and I hope that someone is
+porting on 2.4 ;), doesn't seem that hard
 
+hope this help,
+luca
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

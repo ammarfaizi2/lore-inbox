@@ -1,57 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130139AbRARNah>; Thu, 18 Jan 2001 08:30:37 -0500
+	id <S135220AbRARN4q>; Thu, 18 Jan 2001 08:56:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135652AbRARNa1>; Thu, 18 Jan 2001 08:30:27 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:3603 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S135554AbRARNaL>;
-	Thu, 18 Jan 2001 08:30:11 -0500
-Date: Thu, 18 Jan 2001 14:29:44 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Rick Jones <raj@cup.hp.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-In-Reply-To: <3A661A00.E3344A18@cup.hp.com>
-Message-ID: <Pine.LNX.4.30.0101181422180.823-100000@elte.hu>
+	id <S135424AbRARN4h>; Thu, 18 Jan 2001 08:56:37 -0500
+Received: from msgrouter2.onetel.net.uk ([212.67.96.141]:21021 "EHLO
+	msgrouter2.onetel.net.uk") by vger.kernel.org with ESMTP
+	id <S135220AbRARN4c>; Thu, 18 Jan 2001 08:56:32 -0500
+Reply-To: <lar@cs.york.ac.uk>
+From: "Laramie Leavitt" <laramieleavitt@onetel.net.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Is sendfile all that sexy?
+Date: Thu, 18 Jan 2001 14:00:19 -0000
+Message-ID: <JKEGJJAJPOLNIFPAEDHLOEDGCEAA.laramieleavitt@onetel.net.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
+In-Reply-To: <3A646CBB.3D4355E5@linuxjedi.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Jakub Jelinek wrote:
+>
+> > > This makes me wonder...
+> > >
+> > > If the kernel only kept a queue of the three smallest unused fd's, and
+> > > when the queue emptied handed out whatever it liked, how many things
+> > > would break?  I suspect this would cover a lot of bases...
+> >
+> > First it would break Unix98 and other standards:
+> [snip]
+>
+> Yeah, I reallized it would violate at least POSIX.  The discussion was
+> just bandying about ways to avoid an expensive 'open()' without breaking
+> lots of utilities and glibc stuff.  This might be something that could
+> be configured for specific server environments, where performance is
+> more imporant than POSIX/Unix98, but you still don't want to completely
+> break the system.  Just a thought, brain-damaged as it might be. ;-)
+>
 
-On Wed, 17 Jan 2001, Rick Jones wrote:
+Merely following the discussion a thought occurred to me of how
+to make fd allocation fairly efficient (and simple) even if it retains
+the O(n) structure worst case.  I don't know how it is currently implemented
+so this may be how it is done, or I may be way off base.
 
-> certainly, i see by your examples how cork can make life easier on the
-> developer - they can putc() the reply if they want. for a persistent
-> http connection, there would be the cork and uncork each time, for a
-> pipelined connection, it is basically a race - how does the client
-> present requests to the connection, what are the speeds of that
-> connection relative to the speed of the server getting replies into
-> the socket that sort of thing.
+First, keep a table of FDs in sorted order ( mark deleted entries )
+that you can access quickly.  O(1) lookup.
 
-such dynamic properties should IMO never become visible to user-space
-interfaces i believe. TCP_CORK/MSG_MORE (which are both the same thing, in
-a different interface) are a way to specify logical neighborhood of
-app-side SENDs. I believe the most sensible and generic thing to do is to
-require MSG_MORE information from the application: 'is it likely that the
-application is going to SEND something soon, or not?'.
+Then, maintain this struct like
 
-Submitting an exact timetable of planned future SENDs (with a fully
-specified probability distribution of every expected future SEND event)
-would be the most informative thing to do, but this is not very practical.
+struct
+{
+	int lowest_fd;
+	int highest_fd;
+}
 
-Basically MSG_MORE is a simplified probability distribution of the next
-SEND, and it already covers all the other (iovec, nagle, TCP_CORK)
-mechanizm available, in a surprisingly easy way IMO. I believe MSG_MORE is
-very robust from a theoreticaly point of view.
+open:
+	if( lowest_fd == highest_fd )
+	{
+		fd = lowest_fd;
+		lowest_fd = ++highest_fd;
+	}
+	if( flags == IGNORE_UNIX98 )
+	{
+		fd = highest_fd++;
+	}
+	else
+	{
+		fd = lowest_fd
+		lowest_fd = linear_search( lowest_fd+1, highest_fd );
+	}
 
-To use this information to judge saturation situations properly is
-completely up to the stack.
+close:
+	if( fd < lowest_fd )
+	{
+		lowest_fd = fd;
+	}
+	else if( fd == highest_fd - 1 )
+	{
+		if( highest_fd == lowest_fd )
+		{
+			lowest_fd = --highest_fd;
+		}
+		else
+		{
+			highest_fd;
+		}
+	}
 
-	Ingo
+For common cases this would be fairly quick.  It would be very easy to
+implement an O(1) allocation if you want it to be fast ( at the expense
+of a growing file handle table. )
+
+Just thinking about it.
+Laramie.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,67 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136367AbRD2U7R>; Sun, 29 Apr 2001 16:59:17 -0400
+	id <S136371AbRD2VQE>; Sun, 29 Apr 2001 17:16:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136369AbRD2U7H>; Sun, 29 Apr 2001 16:59:07 -0400
-Received: from elin.scali.no ([195.139.250.10]:6926 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S136367AbRD2U6y>;
-	Sun, 29 Apr 2001 16:58:54 -0400
-Message-ID: <3AEC8223.DD87ADFE@scali.no>
-Date: Sun, 29 Apr 2001 16:05:39 -0500
-From: Steffen Persvold <sp@scali.no>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17-16enterprise i686)
+	id <S136374AbRD2VPp>; Sun, 29 Apr 2001 17:15:45 -0400
+Received: from chromium11.wia.com ([207.66.214.139]:51208 "EHLO
+	neptune.kirkland.local") by vger.kernel.org with ESMTP
+	id <S136371AbRD2VPl>; Sun, 29 Apr 2001 17:15:41 -0400
+Message-ID: <3AEC8562.887CFA72@chromium.com>
+Date: Sun, 29 Apr 2001 14:19:30 -0700
+From: Fabio Riccardi <fabio@chromium.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@club-internet.fr>
-CC: lkml <linux-kernel@vger.kernel.org>, davej@suse.de, troels@thule.no
-Subject: Re: ServerWorks LE and MTRR
-In-Reply-To: <Pine.LNX.4.10.10104291846080.1226-100000@linux.local>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: mingo@elte.hu
+CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Christopher Smith <x@xman.org>, Andrew Morton <andrewm@uow.edu.au>,
+        "Timothy D. Witham" <wookie@osdlab.org>, David_J_Morse@Dell.com
+Subject: Re: X15 alpha release: as fast as TUX but in user space
+In-Reply-To: <Pine.LNX.4.33.0104280923520.12895-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gérard Roudier wrote:
-> 
-> On Sun, 29 Apr 2001, Steffen Persvold wrote:
-> 
-> > Hi all,
-> >
-> > I just compiled 2.4.4 and are running it on a Serverworks LE motherboard.
-> > Whenever I try to add a write-combining region, it gets rejected. I took a peek
-> > in the arch/i386/kernel/mtrr.c and found that this is just as expected with
-> > v1.40 of the code. It is great that the mtrr code checks and prevents the user
-> > from doing something that could eventually lead to data corruption. Using
-> > write-combining on PCI acesses can lead to this on certain LE revisions but
-> > _not_ all (only rev < 5). Therefore please consider my small patch to allow the
-> > good ones to be able to use write-combining. I have several rev 06 and they are
-> > working fine with this patch.
-> 
-> You wrote that 'only rev < 5' can lead to data corruption, but your patch
-> seems to disallow use of write combining for rev 5 too.
-> 
-> Could you clarify?
+Linux 2.4 is surely one of the most advanced OSs ever happened, especially
+from the optimization point of view and for the admirable economy of concepts
+on which it lies. I definitively hope that X15 helps reinforcing the success
+to this amazing system.
 
-Oops just a typo, it should be <= 5. The patch is correct.
+TUX has definitively been my performance yardstick for the development of
+X15, but I had many sources of inspiration for the X15 architecture. Maybe
+the most relevant are the Flash Web Server (Pai, Druschel, Zwaenepoel),
+several Linus observations on this list about (web) server architecture and
+kernnel services, and the reading of the Hennessy & Patterson architecture
+books. Last but not least, aside from some heated discussions, research in
+microkernel architecture has taught us many lessons on how to achieve an
+efficient model of interaction across separate addressing spaces.
 
-> 
->   Gérard.
-> 
-> PS:
-> >From what hat did you get this information ? as it seems that ServerWorks
-> require NDA for letting know technical information on their chipsets.
-> 
+If i have to make some sort of educated guess and point at where the current
+bottleneck lies for web server performance, I would say that it is somewhere
+between the memory subsystem and the PCI bus.
 
-I've learned it the hard way, I have two types : Compaq DL360 (rev 5) and a
-Tyan S2510 (rev 6). On the compaq machine I constantly get data corruption on
-the last double word (4 bytes) in a 64 byte PCI burst when I use write
-combining on the CPU. On the Tyan however the transfer is always ok.
+With zero-copy sendfile data movement is not an issue anymore, asynchronous
+network IO allows for really inexpensive thread scheduling, and system call
+invocation adds a very negligible overhead in Linux. What we are left with
+now is purely wait cycles, the CPUs and the NICs are contending for memory
+and bus bandwidth. It would be really interesting to see where the network
+shifts now that faster machines are becoming available.
 
--- 
- Steffen Persvold                        Systems Engineer
- Email  : mailto:sp@scali.com            Scali AS (http://www.scali.com)
- Norway : Tel  : (+47) 2262 8950         Olaf Helsets vei 6
-          Fax  : (+47) 2262 8951         N-0621 Oslo, Norway
+On my whish list for future kernel developments I would definitively put disk
+asynchronous IO and a more decent file descriptor passing implementation.
+I'll detail this in subsequent messages.
 
- USA    : Tel  : (+1) 713 706 0544       10500 Richmond Avenue, Suite 190
-                                         Houston, Texas 77042, USA
+I'll surely check out the impact of Ingo's patches on TUX performance
+sometime this week.
+
+I'd also like to reiterate my request for help for testing X15 on higher end
+server architectures.
+
+X15 is still very young alpha code and I can surely improve its performance
+in many ways.
+
+ - Fabio
+
+Ingo Molnar wrote:
+
+> On Fri, 27 Apr 2001, Fabio Riccardi wrote:
+>
+> > I'd like to announce the first release of X15 Alpha 1, a _user space_
+> > web server that is as fast as TUX.
+>
+> great, the first TUX clone! ;-)
+>
+> This should put the accusations to rest that Linux got the outstandingly
+> high SPECweb99 scores only because the webserver was in kernel-space. It's
+> the 2.4 kernel's high performance that enabled those results, having the
+> web-server in kernel-space didnt have much effect. TUX was and remains a
+> testbed to test high-performance webserving (and FTP serving), without the
+> API-exporting overhead of userspace.
+>
+> [i suspect the small performance advantage of X15 is due to subtle
+> differences in the SPECweb99 user-space module: eg. while the TUX code was
+> written, tested and ready to use mmap()-enabled
+> TUXAPI_alloc_read_objectbuf(), it wasnt enabled actually. I sent Fabio a
+> mail how to enable it, perhaps he can do some tests to confirm this
+> suspicion?]
+>
+> doing a TUX 2.0 SPECweb99 benchmark on the latest -ac kernels, 86% of time
+> is spent in generic parts of the kernel, 12% of time is spent in the
+> user-space SPECweb99 module, and only 2% of time is spent in TUX-specific
+> kernel code.
+>
+> doing the same test with the original TUX 1.0 code shows that more than
+> 50% of CPU time was spent in TUX-specific code.
+>
+> what does this mean? In the roughly 6 months since TUX 1.0 was released,
+> we moved much of the TUX 1.0 -only improvements into the generic kernel
+> (most of which was made available to user-space as well), and TUX itself
+> became smaller and smaller (and used more and more generic parts of the
+> kernel). So in effect X15 is executing 50% TUX code :-)
+>
+> (there are still a number of performance improvement patches pending that
+> are not integrated yet: the pagecache extreme-scalability patch and the
+> smptimers patch. These patches speed both X15 and TUX up.)
+>
+> (there is one thing though that can never be 'exported to user-space': to
+> isolate possibly untrusted binary application code from the server itself,
+> without performance degradation. So we always have to be mentally open to
+> the validity of kernel-space services.)
+>
+>         Ingo
+

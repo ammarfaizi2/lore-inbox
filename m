@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265350AbRGEWua>; Thu, 5 Jul 2001 18:50:30 -0400
+	id <S265402AbRGEW6l>; Thu, 5 Jul 2001 18:58:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265367AbRGEWuV>; Thu, 5 Jul 2001 18:50:21 -0400
-Received: from sncgw.nai.com ([161.69.248.229]:16883 "EHLO mcafee-labs.nai.com")
-	by vger.kernel.org with ESMTP id <S265350AbRGEWuD>;
-	Thu, 5 Jul 2001 18:50:03 -0400
-Message-ID: <XFMail.20010705155318.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <9515.994372983@redhat.com>
-Date: Thu, 05 Jul 2001 15:53:18 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: David Woodhouse <dwmw2@infradead.org>
+	id <S265405AbRGEW6b>; Thu, 5 Jul 2001 18:58:31 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:52750 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S265402AbRGEW6T>; Thu, 5 Jul 2001 18:58:19 -0400
 Subject: Re: linux/macros.h(new) and linux/list.h(mod) ...
-Cc: linux-kernel@vger.kernel.org, Daniel Phillips <phillips@bonn-fries.net>
+To: dwmw2@infradead.org (David Woodhouse)
+Date: Thu, 5 Jul 2001 23:57:11 +0100 (BST)
+Cc: phillips@bonn-fries.net (Daniel Phillips),
+        davidel@xmailserver.org (Davide Libenzi), linux-kernel@vger.kernel.org
+In-Reply-To: <9515.994372983@redhat.com> from "David Woodhouse" at Jul 05, 2001 11:43:03 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15II3b-0003T8-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 05-Jul-2001 David Woodhouse wrote:
-> 
-> phillips@bonn-fries.net said:
->> This program prints garbage:
->>      #define min(x,y) ({ typeof((x)) _x = (x); typeof((y)) _y = (y);
->>      #(_x>_y)?_y:_x; })
->>              int main (void) { 
->>              int _x = 3, _y = 4; 
->>              printf("%i\n", min(_x, _y)); 
->>              return 0; 
->>      } 
-> 
 > Life's a bitch.
 > cf. get_user(__ret_gu, __val_gu); (on i386)
 > 
 > Time to invent a gcc extension which gives us unique names? :)
 
-Something like ::(x) to move up one level the name resolution for example.
+#define min(a,b) __magic_minfoo(a,b, __var##__LINE__, __var2##__LINE__)
+
+#define __magic_minfoo(A,B,C,D) \
+	{ typeof(A) C = (A)  .... }
 
 
-
-- Davide
+Alan
 

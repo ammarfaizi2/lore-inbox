@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262735AbSJLC2t>; Fri, 11 Oct 2002 22:28:49 -0400
+	id <S262728AbSJLC2k>; Fri, 11 Oct 2002 22:28:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262743AbSJLC2t>; Fri, 11 Oct 2002 22:28:49 -0400
-Received: from holomorphy.com ([66.224.33.161]:35459 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262735AbSJLC2s>;
-	Fri, 11 Oct 2002 22:28:48 -0400
-Date: Fri, 11 Oct 2002 19:31:13 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.41-mm3
-Message-ID: <20021012023113.GB10722@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Daniel Phillips <phillips@arcor.de>, Andrew Morton <akpm@digeo.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <3DA699AA.BBA05716@digeo.com> <E180C1o-0000Uz-00@starship>
+	id <S262735AbSJLC2k>; Fri, 11 Oct 2002 22:28:40 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:54912 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262728AbSJLC2k>;
+	Fri, 11 Oct 2002 22:28:40 -0400
+Date: Fri, 11 Oct 2002 19:27:50 -0700 (PDT)
+Message-Id: <20021011.192750.85684324.davem@redhat.com>
+To: sandy@storm.ca
+Cc: mk@linux-ipv6.org, linux-kernel@vger.kernel.org, design@lists.freeswan.org,
+       usagi@linux-ipv6.org
+Subject: Re: [Design] [PATCH] USAGI IPsec
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3DA857AB.2010504@storm.ca>
+References: <m3k7kpjt7c.wl@karaba.org>
+	<3DA857AB.2010504@storm.ca>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E180C1o-0000Uz-00@starship>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 11 October 2002 11:28, Andrew Morton wrote:
->> . Turns out that the idea of unmapped mapped pagecache a little earlier
->>   than swapping out anon memory was a poor one.
+   From: Sandy Harris <sandy@storm.ca>
+   Date: Sat, 12 Oct 2002 10:11:07 -0700
 
-On Sat, Oct 12, 2002 at 04:29:20AM +0200, Daniel Phillips wrote:
-> Translation into English?
+   Please remove DES as it is insecure. For discussion, see:
+   http://www.freeswan.org/freeswan_trees/freeswan-1.98b/doc/politics.html#desnotsecure
 
-Priority paging blows goats.
+It's fine for testing purposes, leave it in.

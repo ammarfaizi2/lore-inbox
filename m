@@ -1,82 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270469AbTGNAXa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 20:23:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270470AbTGNAXa
+	id S270473AbTGNAaT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 20:30:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270474AbTGNAaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 20:23:30 -0400
-Received: from 69-55-72-150.ppp.netsville.net ([69.55.72.150]:19918 "EHLO
-	tiny.suse.com") by vger.kernel.org with ESMTP id S270469AbTGNAX1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 20:23:27 -0400
-Subject: Re: RFC on io-stalls patch
-From: Chris Mason <mason@suse.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@digeo.com>, Alexander Viro <viro@math.psu.edu>
-In-Reply-To: <20030713193548.GL16313@dualathlon.random>
-References: <Pine.LNX.4.55L.0307081651390.21817@freak.distro.conectiva>
-	 <20030710135747.GT825@suse.de> <1057932804.13313.58.camel@tiny.suse.com>
-	 <20030712073710.GK843@suse.de> <1058034751.13318.95.camel@tiny.suse.com>
-	 <20030713090116.GU843@suse.de> <1058113238.13313.127.camel@tiny.suse.com>
-	 <20030713174709.GA843@suse.de>  <20030713193548.GL16313@dualathlon.random>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1058142999.13317.137.camel@tiny.suse.com>
+	Sun, 13 Jul 2003 20:30:19 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:44264 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S270473AbTGNAaH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 20:30:07 -0400
+Date: Mon, 14 Jul 2003 02:44:51 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Ed Okerson <eokerson@quicknet.net>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [2.5 patch] let CONFIG_PHONE_IXJ_PCMCIA depend on CONFIG_PCMCIA
+Message-ID: <20030714004451.GH12104@fs.tum.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 13 Jul 2003 20:36:40 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-07-13 at 15:35, Andrea Arcangeli wrote:
-> On Sun, Jul 13, 2003 at 07:47:09PM +0200, Jens Axboe wrote:
-> > Just catering to the sync reads is probably good enough, and I think
-> > that passing in that extra bit of information is done the best through
-> > just a b_state bit.
-> 
-> not sure if we should pass this bit of info, I guess if we add it we can
-> just threats all reads equally and give them the spare reserved
-> requests unconditionally, so the highlevel isn't complicated (of course
-> it would be optional, so nothing would break but it would be annoying
-> for benchmarking new fs having to patch stuff first to see the effect of
-> the spare reserved requests).
-> 
+CONFIG_PHONE_IXJ_PCMCIA needs CONFIG_PCMCIA but there was no Kconfig
+pendency. The link errors with CONFIG_PHONE_IXJ_PCMCIA and
+!CONFIG_PCMCIA are at the bottom of this mail.
 
-By goal with the b_state bit was to change this:
+The fis is simple:
 
-bread
-submit_bh
-__get_request_wait (unplugs just to get a free rq)
-wait_on_buffer (run tq_disk)
+--- linux-2.5.75-mm1/drivers/telephony/Kconfig.old	2003-07-14 02:26:31.000000000 +0200
++++ linux-2.5.75-mm1/drivers/telephony/Kconfig	2003-07-14 02:27:13.000000000 +0200
+@@ -39,7 +39,7 @@
+ 
+ config PHONE_IXJ_PCMCIA
+ 	tristate "QuickNet Internet LineJack/PhoneJack PCMCIA support"
+-	depends on PHONE_IXJ
++	depends on PHONE_IXJ && PCMCIA
+ 	help
+ 	  Say Y here to configure in PCMCIA service support for the Quicknet
+ 	  cards manufactured by Quicknet Technologies, Inc.  This changes the
 
-Into this:
 
-bread
-set BH_Sync
-submit_bh
-__make_request (get a reserved sync request, unplugs to start the read)
-buffer up to date
+Please apply
+Adrian
 
-It's wishful thinking, since the unplug doesn't mean we end up with an
-unlocked buffer.  But at the very least, taking a reserved sync request
-and unplugging right away shouldn't be worse than the current method of
-unplugging just to get a request.  
 
-And on boxes with lots of busy drives, avoiding tq_disk is a good thing,
-even if we only manage to avoid it for a small percentage of the reads.
+<--  snip  -->
 
-> > I'll try and bench a bit tomorrow with that patched in.
-> 
-> Cool thanks.
+...
+  LD      .tmp_vmlinux1
+drivers/built-in.o(.text+0x7a7b16): In function `ixj_attach':
+: undefined reference to `CardServices'
+drivers/built-in.o(.text+0x7a7b34): In function `ixj_attach':
+: undefined reference to `cs_error'
+drivers/built-in.o(.text+0x7a7bef): In function `ixj_detach':
+: undefined reference to `CardServices'
+drivers/built-in.o(.text+0x7a7c00): In function `ixj_detach':
+: undefined reference to `cs_error'
+drivers/built-in.o(.text+0x7a7c56): In function `ixj_get_serial':
+: undefined reference to `CardServices'
+drivers/built-in.o(.text+0x7a7c6a): In function `ixj_get_serial':
+: undefined reference to `CardServices'
+drivers/built-in.o(.text+0x7a7e1a): In function `ixj_config':
+: undefined reference to `CardServices'
+drivers/built-in.o(.text+0x7a7e36): In function `ixj_config':
+: undefined reference to `CardServices'
+drivers/built-in.o(.text+0x7a7e59): In function `ixj_config':
+: undefined reference to `CardServices'
+drivers/built-in.o(.text+0x7a7e97): more undefined references to 
+`CardServices' follow
+drivers/built-in.o(.text+0x7a7fa9): In function `ixj_config':
+: undefined reference to `cs_error'
+drivers/built-in.o(.text+0x7a7fcf): In function `ixj_config':
+: undefined reference to `CardServices'
+drivers/built-in.o(.text+0x7a807f): In function `ixj_cs_release':
+: undefined reference to `CardServices'
+drivers/built-in.o(.text+0x7a808d): In function `ixj_cs_release':
+: undefined reference to `CardServices'
+drivers/built-in.o(.text+0x7a813c): In function `ixj_event':
+: undefined reference to `CardServices'
+drivers/built-in.o(.text+0x7a8170): In function `ixj_event':
+: undefined reference to `CardServices'
+drivers/built-in.o(.text+0x7a8189): In function `ixj_pcmcia_exit':
+: undefined reference to `pcmcia_unregister_driver'
+drivers/built-in.o(.init.text+0x9efe9): In function `ixj_pcmcia_init':
+: undefined reference to `pcmcia_register_driver'
+make: *** [.tmp_vmlinux1] Error 1
 
-Thanks Jens
-
--chris
-
+<--  snip  -->
 
 

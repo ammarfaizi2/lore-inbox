@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263716AbTIHW4o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 18:56:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263718AbTIHW4n
+	id S263622AbTIHWzO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 18:55:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263716AbTIHWzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 18:56:43 -0400
-Received: from holomorphy.com ([66.224.33.161]:55462 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263716AbTIHW4m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 18:56:42 -0400
-Date: Mon, 8 Sep 2003 15:57:49 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Timothy Miller <miller@techsource.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Use of AI for process scheduling
-Message-ID: <20030908225749.GJ4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Timothy Miller <miller@techsource.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3F5CD863.4020605@techsource.com>
+	Mon, 8 Sep 2003 18:55:14 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:35608 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S263622AbTIHWzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 18:55:10 -0400
+Date: Mon, 8 Sep 2003 23:54:03 +0100
+From: Dave Jones <davej@redhat.com>
+To: Dennis Freise <Cataclysm@final-frontier.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New ATI FireGL driver supports 2.6 kernel
+Message-ID: <20030908225401.GD681@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Dennis Freise <Cataclysm@final-frontier.org>,
+	linux-kernel@vger.kernel.org
+References: <001a01c3765b$1f1ad6e0$0419a8c0@firestarter.shnet.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F5CD863.4020605@techsource.com>
-Organization: The Domain of Holomorphy
+In-Reply-To: <001a01c3765b$1f1ad6e0$0419a8c0@firestarter.shnet.org>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 08, 2003 at 03:28:35PM -0400, Timothy Miller wrote:
-> Ok, I know I'm going too far.  Right now, the best application would be 
-> the process scheduler, but we should start thinking about ways of making 
-> the system "self aware" and "self correcting" so that when the model 
-> observes the logic to misbehave, detailed information can be produced 
-> for debugging purposes.
-> Naturally, I am interested in contributing to this, but some of what I 
-> will have to learn to participate will come out of ensuing discussions. 
->  I have a lot to learn, but I think if these ideas are valuable, others 
-> who already know enough will start to do something with them.
+On Tue, Sep 09, 2003 at 12:47:02AM +0200, Dennis Freise wrote:
+ > > isn't the 2.5 AGP GPL licensed? How can ATI then include it in a bin
+ > > only module ? ....
+ > 
+ > The ATI drivers are NOT binary-only!
 
-Show me the code.
+http://www.codemonkey.org.uk/projects/agp/binary.shtml
 
+ > agpgart (modified by ATI, I suppose) is
+ > included in form of sourcecode, being compiled on installation. Dunno what
+ > else could violate GPL :)
 
--- wli
+Linking GPL code to binary .o files, and then disabling the
+MODULE_LICENSE("GPL") smells pretty fishy to me.
+
+		Dave
+
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266101AbSLIUr2>; Mon, 9 Dec 2002 15:47:28 -0500
+	id <S266157AbSLIVF0>; Mon, 9 Dec 2002 16:05:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266114AbSLIUr2>; Mon, 9 Dec 2002 15:47:28 -0500
-Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:16158
-	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
-	id <S266101AbSLIUr1>; Mon, 9 Dec 2002 15:47:27 -0500
-Message-ID: <3DF50274.1020204@rackable.com>
-Date: Mon, 09 Dec 2002 12:52:04 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+	id <S266175AbSLIVF0>; Mon, 9 Dec 2002 16:05:26 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:60890 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S266157AbSLIVFZ>;
+	Mon, 9 Dec 2002 16:05:25 -0500
+Message-ID: <3DF5075A.2090009@colorfullife.com>
+Date: Mon, 09 Dec 2002 22:12:58 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Spacecake <lkml@spacecake.plus.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: HPT372 RAID controller
-References: <20021208123134.4be342c7.lkml@spacecake.plus.com>	<3DF4E433.5010207@rackable.com> <20021209203338.32e8665f.lkml@spacecake.plus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "David S. Miller" <davem@redhat.com>
+CC: wli@holomorphy.com, anton@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.50-BK + 24 CPUs
+References: <20021208212808.GY9882@holomorphy.com>	<1039389778.13079.1.camel@rth.ninka.net>	<3DF4CCCE.7040407@colorfullife.com> <20021209.121557.17268348.davem@redhat.com>
+In-Reply-To: <20021209.121557.17268348.davem@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Dec 2002 20:55:05.0508 (UTC) FILETIME=[403F9E40:01C29FC5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Spacecake wrote:
+David S. Miller wrote:
 
->Hi,
+>   From: Manfred Spraul <manfred@colorfullife.com>
+>   Date: Mon, 09 Dec 2002 18:03:10 +0100
 >
->Thanks for the reply.
->So, i tried the ac patch and now it all works!
->Now all my harddisks are on this controller (CD-ROM and stuff are on the
->original one), i just want to make sure... this is a stable kernel,
->right? And the driver, it's... stable? :)
-><frets over prospect of data loss>
+>   Unfortunately zero-copy doesn't help to avoid the schedules:
+>   Zero copy just avoid the copy to kernel - you still need one schedule 
+>   for each page to be transfered.
+>
+>The zerocopy patches copied up to 64k (or rather, 16 pages, something
+>like that) at once, that's going to lead to 16 times less schedules.
+>
+>The 64k number was decided arbitrarily (it's what freebsd's pipe code
+>uses) and it can be experimented with.
 >  
 >
-  I've found the ac kernel to be fairly stable.  Provided you don't 
-start selecting some of the new bleedin edge features.  The only issues 
-I know with 2.4.20-ac1 were some DRI/AGP issues.  I've got a new of 
-systems that are only stable with the ac series.
+Only if user space writes in 64 kB chunks - if user space writes 4 kB 
+chunks, then zerocopy doesn't help much against schedule [depending on 
+the implementation, it halves the number of schedules].
+And page table tricks (COW) tricks are not acceptable.
 
->In future i'll always try the ac kernel before asking people.
->Will this appear in 2.4.21?
->
-
-  It will be merged at some point in the future.  When is really up to 
-the 2.4 maintainer, and Alan.  Currently the ac ide code works better 
-than the mainline 2.4 ide code for me.  So I'm all for a merge;-)
-
-
-
+--
+    Manfred
 

@@ -1,89 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262777AbTLIEX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 23:23:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbTLIEX2
+	id S262848AbTLIFEg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 00:04:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbTLIFEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 23:23:28 -0500
-Received: from lists.us.dell.com ([143.166.224.162]:34449 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S262777AbTLIEXZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 23:23:25 -0500
-Date: Mon, 8 Dec 2003 22:23:22 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.23-bk bogus edd changeset - Re: 2.4.23 compile error in edd
-Message-ID: <20031208222322.A21354@lists.us.dell.com>
-References: <Pine.SOL.4.58.0312042225300.26114@yellow.csi.cam.ac.uk> <Pine.LNX.4.44.0312051109580.1782-100000@logos.cnet> <20031205113619.A20371@lists.us.dell.com> <1070901250.4508.1.camel@imp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 9 Dec 2003 00:04:36 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:59337
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S262848AbTLIFEe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 00:04:34 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
+Subject: Re: State of devfs in 2.6?
+Date: Mon, 8 Dec 2003 23:04:33 -0600
+User-Agent: KMail/1.5
+References: <200312081536.26022.andrew@walrond.org> <20031208154256.GV19856@holomorphy.com> <200312081559.04771.andrew@walrond.org>
+In-Reply-To: <200312081559.04771.andrew@walrond.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1070901250.4508.1.camel@imp>; from aia21@cam.ac.uk on Mon, Dec 08, 2003 at 04:34:10PM +0000
+Message-Id: <200312082304.33891.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> With latest 2.4-BK which includes your compile fix, compiling the kernel
-> with the attached .config, installing and attempting to boot the kernel
-> causes immediate reboot on my workstation.
-> 
-> Disabling EDD in the .config, recompiling and installing the kernel
-> makes it boot just fine.
-> 
-> Let me know if you want me to test any patches, need any more
-> information, etc...
+On Monday 08 December 2003 09:59, Andrew Walrond wrote:
+> On Monday 08 Dec 2003 3:42 pm, William Lee Irwin III wrote:
+> > I would say it's deprecated at the very least. sysfs and udev are
+> > supposed to provide equivalent functionality, albeit by a somewhat
+> > different mechanism.
+>
+> Thanks for the pointer.
+>
+> So how good is the device coverage offered by sysfs/udev ? Do they provide
+> a viable/complete MAKEDEV replacement yet?
 
-Ok, I'm betting that your BIOS doesn't like the int13 call in setup.S for some
-reason.
+My understanding is that udev takes the information exported by sysfs about 
+what devices exist in the system, and creates device nodes in /dev (which can 
+be a ramfs mount or part of a persistent filesystem, udev itself doesn't 
+care).  I'm guessing it traverses sysfs to see what the system's got on 
+startup (some variant of "find /sys -name device", perhaps) and then receives 
+hotplug events when new devices are added later.  On the whole, this is 
+generally cool, hotplug friendly, and small and simple.  _and_ the result 
+looks like a recognizable /dev directory, so end-user applications don't have 
+to be "devfs aware" (which was a bad sign from day 1 if you ask me).
 
-#if defined(CONFIG_EDD) || defined(CONFIG_EDD_MODULE)
-# Read the first sector of device 80h and store the 4-byte signature
-        movl    $0xFFFFFFFF, %eax
-        movl    %eax, (DISK80_SIG_BUFFER)       # assume failure
-        movb    $READ_SECTORS, %ah
-        movb    $1, %al                         # read 1 sector
-        movb    $0x80, %dl                      # from device 80
-        movb    $0, %dh                         # at head 0
-        movw    $1, %cx                         # cylinder 0, sector 0
-        pushw   %es
-        pushw   %ds
-        popw    %es
-        movw    $EDDBUF, %bx
-        int     $0x13
-        jc      disk_sig_done
-        movl    (EDDBUF+MBR_SIG_OFFSET), %eax
-        movl    %eax, (DISK80_SIG_BUFFER)       # store success
-disk_sig_done:
-        popw    %es
+Unfortunately, sysfs doesn't yet export device node information for everything 
+in the system yet.  (There aren't any under /sys/cdev, /sys/devices/legacy, 
+or /sys/devices/system, for example).  There are pending patches to add more, 
+but they're not considered bug fixes, so Linus won't take them before 2.6.0 
+and we'll have to wait until after 2.6.0 for development on this subsystem to 
+finish.
 
+Probably somewhere in the 2.6.4 to 2.6.6 timeframe, sysfs will have all the 
+device exports udev needs.  (Or at least all the ones anybody's complained 
+about yet.)  Until then...  dunno.  Maybe you can use a /dev directory on a 
+persistent filesystem that you mknod any extra devices you need into 
+yourself?)
 
-To test this, would you mind #if 0'ing everything starting with
-movb $READ_SECTORS, %ah   through the popw %es at the end?  That
-should leave you with a file in /proc/bios/int13_dev80/mbr_signature
-that says 0xFFFFFFFF, but a booting system.
-
-I'm wondering if %eax shouldn't be zeroed before the int13.  The
-bottom word gets set properly, but the top word is 0xFFFF which your
-BIOS may not like?  That would be another test, add an
-
- xor %eax, %eax
-
-before the movb $READ_SECTORS, %ah.
-
-
-My BIOSs I've seen this on work, so it could be BIOS-dependent;
-clearing eax before setting the lower bytes would be OK if that fixes
-it.
-
-I'm travelling Monday and Tuesday, but will respond ASAP.
-
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+Rob

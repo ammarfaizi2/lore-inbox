@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264817AbRFSWn0>; Tue, 19 Jun 2001 18:43:26 -0400
+	id <S264823AbRFSWqG>; Tue, 19 Jun 2001 18:46:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264819AbRFSWnQ>; Tue, 19 Jun 2001 18:43:16 -0400
-Received: from marine.sonic.net ([208.201.224.37]:12894 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S264817AbRFSWnE>;
-	Tue, 19 Jun 2001 18:43:04 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Tue, 19 Jun 2001 15:42:51 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to compile on one machine and install on another?
-Message-ID: <20010619154251.G6778@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3B2FC7F4.2AAA6A8D@inet.com>
-User-Agent: Mutt/1.3.18i
+	id <S264827AbRFSWp4>; Tue, 19 Jun 2001 18:45:56 -0400
+Received: from fw.gurulabs.com ([209.140.75.26]:26361 "HELO mail.gurulabs.com")
+	by vger.kernel.org with SMTP id <S264823AbRFSWpv>;
+	Tue, 19 Jun 2001 18:45:51 -0400
+Date: Tue, 19 Jun 2001 16:45:49 -0600 (MDT)
+From: Dax Kelson <dkelson@gurulabs.com>
+To: Ben Greear <greearb@candelatech.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Holger Kiehl <Holger.Kiehl@dwd.de>,
+        "David S. Miller" <davem@redhat.com>,
+        VLAN Mailing List <vlan@Scry.WANfear.com>,
+        "vlan-devel (other)" <vlan-devel@lists.sourceforge.net>,
+        Lennert <buytenh@gnu.org>, Gleb Natapov <gleb@nbase.co.il>
+Subject: Re: Should VLANs be devices or something else?
+In-Reply-To: <3B2FCE0C.67715139@candelatech.com>
+Message-ID: <Pine.LNX.4.33.0106191641150.17061-100000@duely.gurulabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 19, 2001 at 04:45:24PM -0500, Eli Carter wrote:
-> Gabriel Rocha wrote:
-> > you could always compile on one machine and nfs mount the /usr/src/linux
-> > and do a make modules_install from the nfs mounted directory...
-> 
-> Which would require exporting that filesystem with root permissions
-> enabled...any security bells going off?
+On Tue, 19 Jun 2001, Ben Greear wrote:
 
-Why would you need to have nfs root access?
+> I have had a good discussion with Dave Miller today, and there
+> is one outstanding issue to clear up before my 802.1Q VLAN patch may
+> be considered for acceptance into the kernel:
+>
+> Should VLANs be devices or some other thing?
 
-You're reading from the nfs mount, not writing to it.
+I would vote that VLANs be devices.
 
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+Conceptually, VLANs as network devices is a no brainer.
+
+Dax
+

@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292341AbSBBSLU>; Sat, 2 Feb 2002 13:11:20 -0500
+	id <S292332AbSBBSQw>; Sat, 2 Feb 2002 13:16:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292332AbSBBSLN>; Sat, 2 Feb 2002 13:11:13 -0500
-Received: from thor.hol.gr ([194.30.192.25]:21989 "HELO thor.hol.gr")
-	by vger.kernel.org with SMTP id <S292341AbSBBSK5>;
-	Sat, 2 Feb 2002 13:10:57 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Panagiotis Moustafellos <panxer@hol.gr>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.2 cmpci.c Compilation error
-Date: Sat, 2 Feb 2002 20:01:26 +0200
-X-Mailer: KMail [version 1.2]
+	id <S292336AbSBBSQn>; Sat, 2 Feb 2002 13:16:43 -0500
+Received: from relay-4v.club-internet.fr ([194.158.96.115]:16588 "HELO
+	relay-4v.club-internet.fr") by vger.kernel.org with SMTP
+	id <S292332AbSBBSQ0>; Sat, 2 Feb 2002 13:16:26 -0500
+Message-ID: <3C5C2D8F.2050003@freesurf.fr>
+Date: Sat, 02 Feb 2002 19:18:55 +0100
+From: Kilobug <kilobug@freesurf.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020201
+X-Accept-Language: fr-fr, fr, en
 MIME-Version: 1.0
-Message-Id: <02020220012604.00250@gryppas>
-Content-Transfer-Encoding: 7BIT
+To: Benny Sjostrand <gorm@cucumelo.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 512 Mb DIMM not detected by the BIOS!
+In-Reply-To: <3C5C7C66.1050007@cucumelo.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear sirs,
-When i try to make bzImage the 2.5.2 kernel having enabled the following;
-CONFIG_SOUND=y
-CONFIG_SOUND_CMPCI=y
-CONFIG_SOUND_CMPCI_FM=y
-CONFIG_SOUND_CMPCI_FMIO=388
-CONFIG_SOUND_CMPCI_FMIO=388
-CONFIG_SOUND_CMPCI_MIDI=y
-CONFIG_SOUND_CMPCI_MPUIO=330
-CONFIG_SOUND_CMPCI_JOYSTICK=y
-CONFIG_SOUND_CMPCI_CM8738=y
-CONFIG_SOUND_CMPCI_SPDIFINVERSE=y
-CONFIG_SOUND_CMPCI_SPDIFLOOP=y
-CONFIG_SOUND_CMPCI_SPEAKERS=2
+Benny Sjostrand wrote:
+> Hello everyone!
 
-I get the following error;
-cmpci.c: In function `cm_open_mixdev':
-cmpci.c:1443: invalid operands to binary &
-cmpci.c: In function `cm_release_mixdev':
-cmpci.c:1457: warning: unused variable `s'
-cmpci.c: In function `cm_open':
-cmpci.c:2193: invalid operands to binary &
-cmpci.c: In function `cm_midi_open':
+Hello
 
-and goes on for some more lines..
-Is this a known bug? could it be that some options are conflicting?
-Thanks in advance,
+> so my question to you "kernel-gurus", is there any posibility
+ > to configure the Linux kernel to bypass the BIOS and actually
+ > use my 512MB ?
+
+You don't need to be a "kernel-guru" to answer this question.
+The list of kernel boot parameters is in
+linux/Documentation/kernel-parameters.txt
+There, you can find:
+
+  mem=nn[KMG]     [KNL,BOOT] force use of a specific amount of
+                  memory; to be used when the kernel is not able
+                  to see the whole system memory or for test.
+
+So append mem=512M in your kernel command line. If you use lilo add
+append = "mem=512M" in your lilo.conf file (and rerun lilo).
 
 -- 
---
-Panagiotis Moustafellos
-(aka panXer)
+** Gael Le Mignot "Kilobug", Ing3 EPITA - http://kilobug.free.fr **
+Home Mail   : kilobug@freesurf.fr          Work Mail : le-mig_g@epita.fr
+GSM         : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
+Fingerprint : 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
+
+"Software is like sex it's better when it's free.", Linus Torvalds
+

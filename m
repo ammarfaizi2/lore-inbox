@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290304AbSBKUAc>; Mon, 11 Feb 2002 15:00:32 -0500
+	id <S290285AbSBKUIw>; Mon, 11 Feb 2002 15:08:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290297AbSBKUA0>; Mon, 11 Feb 2002 15:00:26 -0500
-Received: from host132.googgun.cust.cyberus.ca ([209.195.125.132]:12691 "EHLO
-	marauder.googgun.com") by vger.kernel.org with ESMTP
-	id <S290285AbSBKUAP>; Mon, 11 Feb 2002 15:00:15 -0500
-Date: Mon, 11 Feb 2002 14:59:35 -0500 (EST)
-From: Ahmed Masud <masud@marauder.googgun.com>
-To: Tom Lord <lord@regexps.com>
-cc: <pavel@suse.cz>, <linux-kernel@vger.kernel.org>
-Subject: Re: a new arch feature "for Linus"
-In-Reply-To: <200202112245.OAA20127@morrowfield.home>
-Message-ID: <Pine.LNX.4.33.0202111457480.5668-100000@marauder.googgun.com>
+	id <S290297AbSBKUIn>; Mon, 11 Feb 2002 15:08:43 -0500
+Received: from pop.gmx.net ([213.165.64.20]:48769 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S290285AbSBKUId>;
+	Mon, 11 Feb 2002 15:08:33 -0500
+Message-ID: <041a01c1b337$ee407760$4000a8c0@angband>
+Reply-To: "Andreas Happe" <andreashappe@subdimension.com>
+From: "Andreas Happe" <andreashappe@gmx.net>
+To: "lkml" <linux-kernel@vger.kernel.org>, "Oleg Drokin" <green@namesys.com>
+In-Reply-To: <000c01c1b0bf$567ab910$704e2e3e@angband> <20020208180216.H32413@suse.de> <00c301c1b0d7$d1f07ae0$4e492e3e@angband> <20020211160658.A7863@namesys.com>
+Subject: Re: boot problems using 2.5.3-dj3 || -dj4
+Date: Mon, 11 Feb 2002 21:05:08 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 11 Feb 2002, Tom Lord wrote:
+[...]
+> > the error occurs in  ./fs/reiserfs/tail-conversion.c .
+> > the kernel oops jumped to another position by now, but it is still the
+same
+> > error message. I'm using a reiserfs root position.
+> Can you please decode the oops you provided.
+> Also can you run reiserfsck on your partition and give us the log file?
+> Thank you. (you may need to boot off rescue CD or something to
+> be able to run reiserfsck on root partition).
+>
 
->
->
-> It's true, to the best of my knowledge.
->
-> -t
->
->
->
->    Date: Mon, 11 Feb 2002 12:55:08 +0000
->    From: Pavel Machek <pavel@suse.cz>
->    Cc: linux-kernel@vger.kernel.org
->    Content-Type: text/plain; charset=us-ascii
->    X-UIDL: dda5f09a906d84e75abb5b2582204cb3
->
->    Hi!
->
->    > [1] "Lines of Development" is a trademark of BitMover, Inc.
->
->    Is this joke or serious?
+i've done this yesterday and there were a couple of errors (i rebuilt the
+tree and tried to rebuild the sb). Due to an error at rebuilding the super
+block, I reinstalled my linux system ( i'm not sure if this is related to my
+actual kernel, btw. there were some null - files on the fs )
 
-Even if Lines of Development is a trademark, it is only a trademark in a
-particular context. Using it elsewhere, so long as there is no ambiguity
-with the description of the Art in the trademark application is okay and
-does not violate the trademark.
+I havn't experienced any errors since then ...
 
- - A.
+thx,
+-Andreas
+
+> Bye,
+>     Oleg
 
 

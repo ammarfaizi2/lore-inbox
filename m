@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271605AbTGRKe2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 06:34:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271617AbTGRKe1
+	id S270203AbTGRKgT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 06:36:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271532AbTGRKgT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 06:34:27 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:17674 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S271605AbTGRKeY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 06:34:24 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200307181049.h6IAnFi00440@devserv.devel.redhat.com>
-Subject: Re: new raid server crashed - no idea why!
-To: raz@macs.hw.ac.uk (Ross Macintyre)
-Date: Fri, 18 Jul 2003 06:49:15 -0400 (EDT)
-Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org,
-       linux-megaraid-devel@dell.com, salvini@macs.hw.ac.uk,
-       donald@macs.hw.ac.uk
-In-Reply-To: <SIMEON.10307181006.C@pcraz.macs.hw.ac.uk> from "Ross Macintyre" at Gor 18, 2003 10:37:06 
-X-Mailer: ELM [version 2.5 PL6]
+	Fri, 18 Jul 2003 06:36:19 -0400
+Received: from ns0.eris.qinetiq.com ([128.98.1.1]:24630 "HELO
+	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
+	id S270203AbTGRKgI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 06:36:08 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Subject: Re: devfsd/2.6.0-test1
+Date: Fri, 18 Jul 2003 11:49:55 +0100
+User-Agent: KMail/1.4.3
+Cc: Thierry Vignaud <tvignaud@mandrakesoft.com>, linux-kernel@vger.kernel.org
+References: <200307172145.14681.arvidjaar@mail.ru>
+In-Reply-To: <200307172145.14681.arvidjaar@mail.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200307181149.55663.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > guess fro the traces and the fact the dual athlons are infamously 
-> > sensitive about ram
-> 
-> Could you be a bit more specific about this please?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I have a near endless series of dual athlon bug reporta that go
 
-	It crashes randomly
-	Run memtest86
-	It says lots of bad things
+> >> tv@vador ~ $ urpmf /etc/modprobe.devfs
+> >> module-init-tools:/etc/modprobe.devfs
+> >
+> > Interesting, an urpmf for that on my 9.1 box reveals nothing...
+>
+> the package is in cooker since today. Get SRPMs for modutils, devfsd and
+> module-init-tools, compile and install.
 
-In paticular if you have more than two banks of RAM on dual athlon boards it
-almost always has to be registered DIMM.
+Ok, I've got those and I now have a modules.devfs...
+I'm getting the impression that a bunch of modules have changed their names 
+(i810_audio for example).
+Even though I've changed (or I think I have) these module names in 
+modprobe.conf I'm seeing failures for loading the old ones... Is something 
+reading modules.conf that shouldn't?
 
-> swap the memory about and run memtest86 on the problem machine's memory 
-> in the other machine. (I am assuming here that the machine needs to be 
-> shut down to run memtest86?)
+Cheers,
 
-Only if its another identical dual athlon and then you'd be better
-running the other one and testing the one with the problem.
+Mark.
 
-> to have it crashing on me, but before I test the memory, I want to have 
-> looked at all the other possibilities first.
-> Any more suggestions?
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ TIM
+St Andrews Road, Malvern
+GPG Public Key ID: 455420ED
 
-Until you've checked the memory - not really.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/F9DTBn4EFUVUIO0RAh9jAJ4hX6y6+rwDDOSsIfzm9MQMl+hIkwCeJsOa
+rXjtNYZe/ZvOx+waW1+mOd4=
+=udld
+-----END PGP SIGNATURE-----
+

@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264974AbUBOPsC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 10:48:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265061AbUBOPsC
+	id S265061AbUBOPxO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 10:53:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265062AbUBOPxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 10:48:02 -0500
-Received: from moutng.kundenserver.de ([212.227.126.186]:5101 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S264974AbUBOPr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 10:47:59 -0500
-Date: Sun, 15 Feb 2004 16:47:56 +0100
-From: Michael Meskes <michael@fam-meskes.de>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Michael Meskes <michael@fam-meskes.de>,
-       Linux-Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: atkbd.c: Unknown key released/psmouse
-Message-ID: <20040215154756.GA5629@trantor.fam-meskes.de>
-References: <20040214143410.GA2334@1> <20040214152127.GA397@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 15 Feb 2004 10:53:14 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:25841 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265061AbUBOPxD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 10:53:03 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: chip@pobox.com (Chip Salzenberg)
+Subject: Re: Linux 2.6.3-rc3 - missing IDE hunk from bk4; good or bad?
+Date: Sun, 15 Feb 2004 16:58:57 +0100
+User-Agent: KMail/1.5.3
+References: <E1AsO6X-0003hW-1u@tytlal>
+In-Reply-To: <E1AsO6X-0003hW-1u@tytlal>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040214152127.GA397@ucw.cz>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:da5cff6069dd6897c77170232368d0ba
+Message-Id: <200402151658.57710.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 14, 2004 at 04:21:27PM +0100, Vojtech Pavlik wrote:
-> Please try eith 2.6.3-rc, there was a bug in 2.6.2 in i8042.c that could
-> cause all kinds of errors like this.
 
-I just tried -rc2 and -rc3 to no avail. The situation remains the same.
-And I do not know enough about the serial input stuff to debug it
-myself. I'm willing to try what you ask me to.
+Bad.
 
-Michael
--- 
-Michael Meskes
-Email: Michael at Fam-Meskes dot De
-ICQ: 179140304, AIM/Yahoo: michaelmeskes, Jabber: meskes@jabber.org
-Go SF 49ers! Go Rhein Fire! Use Debian GNU/Linux! Use PostgreSQL!
+On Sunday 15 of February 2004 16:22, Chip Salzenberg wrote:
+> Linus writes:
+> >More merges, although most of them are architecture updates. IA64,
+> >ppc32/64, SuperH and ARM.
+>
+> One non-arch difference between rc3 and bk4 seems to involve IDE DMA.
+
+There are no IDE DMA related changes (except build fix) between rc3 and bk4.
+
+> When I ran briefly ran bk4 I got a few IDE DMA errors (ThinkPad A30,
+> TOSHIBA MK8025GAS).  Makes one wonder.  Thus:
+
+Please send dmesg command output and your config kernel config
+if you want anybody to look at IDE problems...
+
+> Is the IDE patch in bk4 (that's missing from rc3) going to be in
+> 2.6.3?  Does it only come into play with SCSI, as it seems to, or
+> does it affect a non-SCSI setup?
+
+This was in SATA libata driver and was reverted because caused problems.
+[ libata is independent of IDE drivers from linux/drivers/ide/ ]
+
+If you don't use libata this chunk shouldn't affect you.
+
+Cheers,
+--bart
+

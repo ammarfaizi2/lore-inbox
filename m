@@ -1,70 +1,75 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315454AbSFJU6G>; Mon, 10 Jun 2002 16:58:06 -0400
+	id <S316217AbSFJVMW>; Mon, 10 Jun 2002 17:12:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316217AbSFJU6F>; Mon, 10 Jun 2002 16:58:05 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:24716 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S316163AbSFJU6D>; Mon, 10 Jun 2002 16:58:03 -0400
-Date: Mon, 10 Jun 2002 13:57:34 -0700
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: Scheduler Bug (set_cpus_allowed)
-Message-ID: <20020610135734.D1565@w-mikek2.des.beaverton.ibm.com>
-In-Reply-To: <20020607121207.B1532@w-mikek2.des.beaverton.ibm.com> <Pine.LNX.4.44.0206102053310.28876-100000@elte.hu>
+	id <S316258AbSFJVMV>; Mon, 10 Jun 2002 17:12:21 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:38096
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S316217AbSFJVMS>; Mon, 10 Jun 2002 17:12:18 -0400
+Date: Mon, 10 Jun 2002 14:11:52 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+Cc: Thunder from the hill <thunder@ngforever.de>,
+        Andrew Morton <akpm@zip.com.au>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.21 kill warnings 4/19
+Message-ID: <20020610211152.GQ14252@opus.bloom.county>
+In-Reply-To: <Pine.LNX.4.44.0206101403010.6159-100000@hawkeye.luckynet.adm> <3D050350.A7011AE4@zip.com.au> <Pine.LNX.4.44.0206101403010.6159-100000@hawkeye.luckynet.adm> <5.1.0.14.2.20020610135622.08f678d8@mail1.qualcomm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 10, 2002 at 10:12:46PM +0200, Ingo Molnar wrote:
+On Mon, Jun 10, 2002 at 02:01:24PM -0700, Maksim (Max) Krasnyanskiy wrote:
 > 
-> i agree that this is a subtle issue. My first version of the migration
-> code did something like this - it's a natural desire to manually migrate
-> the target task (there are various levels of doing this - the very first
-> version of the code directly unlinked the thread from the current runqueue
-> and linked it into the target runqueue), instead of having to switch to a
-> migration-thread.
+> >> > wrt the __func__ thing: is it possible to do:
+> >> >
+> >> > #if (compiler version test)
+> >> > #define __FUNCTION__ __func__
+> >> > #endif
+> >> >
+> >> > to kill the 3.x warning?
+> >>
+> >> #include <stdio.h>
+> >> #define __FUNCTION__ __func__
+> >>
+> >> int main(int argc, char **argv) {
+> >>   int i;
+> >>
+> >>   for (i = 0; i < argc; i++) {
+> >>     printf(__FUNCTION__ " encountered argument ");
+> >>     printf("%s\n", argv[i]);
+> >>   }
+> >>
+> >>   exit(0);
+> >> }
+> >>
+> >> Obviously, yes.
+> >
+> >Nope.
+> >$ gcc-3.1 -Wall -o foo foo.c
+> >foo.c: In function `main':
+> >foo.c:8: parse error before string constant
+> >
+> >And line 8 is:
+> >printf(__FUNCTION__ " encountered argument ");
 > 
-> the fundamental reason for this fragility is the following: the room to
-> move the concept of migration into the O(1) design is very very small, if
-> the condition is to not increase the cost of the scheduler fastpath.
+> Well, those will brake. But in general it's possible. And I already do that 
+> in Bluetooth code (it's been converted recently).
 > 
-> the only robust way i found was to use a highprio helper thread which
-> naturally unschedules the current task. Attempts to somehow unschedule a
-> to-be-migrated task without having to switch into the helper thread turned
-> out to be problematic.
+> So
 > 
+> #if __GNUC__ <= 2 && __GNUC_MINOR__ < 95
+> #define __func__ __FUNCTION__
+> #endif
+> 
+> does the trick. All gcc's newer than 2.95 support __func__.
 
-Ingo, I saw your patch to remove the frozen lock from the scheduler
-and agree this is the best way to go.  Once this change is made, I
-think it is then safe to add a fast path for migration
-(to set_cpus_allowed) as:
-
-	/*
-	 * If the task is not on a runqueue (and not running), then
-	 * it is sufficient to simply update the task's cpu field.
-	 */
-	if (!p->array && (p != rq->curr)) {
-		p->thread_info->cpu = __ffs(p->cpus_allowed);
-		task_rq_unlock(rq, &flags);
-		goto out;
-	}
-
-Would you agree that this is now safe?  My concern is not so
-much with the performance of set_cpus_allowed, but rather in
-using the same concept to 'move' tasks in this state.
-
-Consider the '__wake_up_sync' functionality that existed in the
-old scheduler for pipes.  One result of __wake_up_sync is that
-the reader and writer of the pipe were scheduled on the same
-CPU.  This seemed to help with pipe bandwidth.  Perhaps we could
-add code something like the above to wakeup a task on a specific
-CPU.  This could be used in VERY VERY specific cases (such as
-blocking reader/writer on pipe) to increase performance.
+Right.  Maybe it should even go in <linux/compiler.h> if it's not
+already there.
 
 -- 
-Mike
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

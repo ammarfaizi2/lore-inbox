@@ -1,58 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129719AbRB0SV6>; Tue, 27 Feb 2001 13:21:58 -0500
+	id <S129741AbRB0ScT>; Tue, 27 Feb 2001 13:32:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129737AbRB0SVs>; Tue, 27 Feb 2001 13:21:48 -0500
-Received: from atlrel2.hp.com ([156.153.255.202]:32724 "HELO atlrel2.hp.com")
-	by vger.kernel.org with SMTP id <S129734AbRB0SVS>;
-	Tue, 27 Feb 2001 13:21:18 -0500
-From: Khalid Aziz <khalid@lyra.fc.hp.com>
-Message-Id: <200102271621.LAA19986@lyra.fc.hp.com>
-Subject: [PATCH] enhancement in drivers/scsi/ncr53c8xx.c
-To: linux-kernel@vger.kernel.org
-Date: Tue, 27 Feb 2001 11:21:35 -0500 (EST)
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129737AbRB0ScJ>; Tue, 27 Feb 2001 13:32:09 -0500
+Received: from enhanced.ppp.eticomm.net ([206.228.183.5]:7675 "EHLO
+	intech19.enhanced.com") by vger.kernel.org with ESMTP
+	id <S129740AbRB0ScA>; Tue, 27 Feb 2001 13:32:00 -0500
+To: Mike Dresser <mdresser@windsormachine.com>
+Cc: Khalid Aziz <khalid@fc.hp.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18 IDE tape problem, with ide-scsi
+In-Reply-To: <54u25g3yb9.fsf_-_@intech19.enhanced.com> <3A9BC2A9.F5EE8554@fc.hp.com> <544rxg2gde.fsf@intech19.enhanced.com> <3A9BE4C1.1868F020@windsormachine.com>
+From: Camm Maguire <camm@enhanced.com>
+Date: 27 Feb 2001 13:31:35 -0500
+In-Reply-To: Mike Dresser's message of "Tue, 27 Feb 2001 12:32:49 -0500"
+Message-ID: <54u25gvuyg.fsf@intech19.enhanced.com>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When working with LVD SCSI bus, I have found it to be rather useful 
-to know if the bus is operating in LVD or SE mode since the bus auto 
-switches. All the info needed to print the bus mode is already there 
-in ncr53c8xx driver. This patch simply adds appropriate printk to do 
-that.
+Greetings!  You are certainly right here, at least in part.  The ide
+patches for 2.2 definitely impair tape operation on these boxes.
+There was a crude workaround suggested on this list to use the
+ide-scsi driver -- this basically worked, but gave *many* error
+messages in the kernel log, and was significantly less reliable than
+stock 2.2.18.  I'm still using ide-scsi out of inertia, but I suspect
+that ide-tape might be just fine with stock 2.2.18 too.  And when I
+saw some support for the ALI chipset, the decision was clear to drop
+the latest ide stuff.
 
---- ncr53c8xx.c.bak	Tue Feb 27 11:09:22 2001
-+++ ncr53c8xx.c	Tue Feb 27 11:09:43 2001
-@@ -3539,6 +3539,23 @@
- 	if (np->scsi_mode == SMODE_HVD)
- 		np->rv_stest2 |= 0x20;
- 
-+	switch (np->scsi_mode) {
-+		case SMODE_SE:
-+			printk(KERN_INFO "%s: Bus mode: Single-Ended\n",
-+				ncr_name(np));
-+			break;
-+
-+		case SMODE_LVD:
-+			printk(KERN_INFO "%s: Bus mode: LVD\n",
-+				ncr_name(np));
-+			break;
-+
-+		case SMODE_HVD:
-+			printk(KERN_INFO "%s: Bus mode: High Voltage Differential\n",
-+				ncr_name(np));
-+			break;
-+	}
-+
- 	/*
- 	**	Set LED support from SCRIPTS.
- 	**	Ignore this feature for boards known to use a 
+This has been the situation for some time.  Is this going to be
+resolved soon?
 
+Mike Dresser <mdresser@windsormachine.com> writes:
 
-====================================================================
-Khalid Aziz                             Linux Development Laboratory
-(970)898-9214                                        Hewlett-Packard
-khalid@fc.hp.com                                    Fort Collins, CO
+> > > ASC/ASCQ of 0x20/0x00 means "Invalid command operation code". So the
+> > > drive is rejecting a command sent to it by the driver. If the other
+> > > drive that is working is identical to seemingly non-working one, maybe
+> > > this drive is going bad.
+> > >
+> >
+> > Thanks for the error identification.  The other drive is of a
+> > *different* model.  This drive showed this behavior from the day I
+> > bought it.  The drive could be going bad, but I doubt it.  Is it
+> > possible that this manufacturer (Conner) has some peculiar
+> > implementation of the spec?  I recall reading on this list sometime
+> > back of similar workarounds to unusual drives.
+> 
+> When you go to 2.4.x, you'll likely run into the problem of your HP 14Gb not able to restore anymore.  Same as if you apply the
+> linux-ide patches to 2.2.x
+> 
+> Mike Dresser
+> sysadmin
+> Windsor Machine & Stamping
+> 
+> 
+> 
+
+-- 
+Camm Maguire			     			camm@enhanced.com
+==========================================================================
+"The earth is but one country, and mankind its citizens."  --  Baha'u'llah

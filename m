@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261684AbTCGQyh>; Fri, 7 Mar 2003 11:54:37 -0500
+	id <S261676AbTCGQxv>; Fri, 7 Mar 2003 11:53:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261685AbTCGQyh>; Fri, 7 Mar 2003 11:54:37 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:64929 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261684AbTCGQye>;
-	Fri, 7 Mar 2003 11:54:34 -0500
-Date: Fri, 7 Mar 2003 09:04:47 -0800
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: John Bradford <john@grabjohn.com>
-Cc: hannal@us.ibm.com, lse-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: Agenda for Mar 7 Call - note new number
-Message-ID: <20030307090447.A1655@w-mikek2.beaverton.ibm.com>
-References: <118350000.1046994507@w-hlinder> <200303070854.h278sx59000567@81-2-122-30.bradfords.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200303070854.h278sx59000567@81-2-122-30.bradfords.org.uk>; from john@grabjohn.com on Fri, Mar 07, 2003 at 08:54:59AM +0000
+	id <S261677AbTCGQxv>; Fri, 7 Mar 2003 11:53:51 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:34997 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S261676AbTCGQxu>; Fri, 7 Mar 2003 11:53:50 -0500
+Message-ID: <3E68D116.6040304@namesys.com>
+Date: Fri, 07 Mar 2003 20:04:22 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steven Cole <elenstev@mesatop.com>
+CC: "Martin J. Bligh" <mbligh@aracnet.com>, Val Henson <val@nmt.edu>,
+       Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Those ruddy punctuation fixes
+References: <20030305111015.B8883@flint.arm.linux.org.uk><20030305122008.GA4280@suse.de>	 <1046920285.3786.68.camel@spc1.mesatop.com>	<20030307010422.GI26725@boardwalk>	<1047005054.4114.99.camel@spc1.mesatop.com> 	<300890000.1047008011@[10.10.2.4]> <1047009782.4114.108.camel@spc1.mesatop.com>
+In-Reply-To: <1047009782.4114.108.camel@spc1.mesatop.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 07, 2003 at 08:54:59AM +0000, John Bradford wrote:
-> > ***-> Note number and passcode are different than last call
-> > 
-> > USA Toll Free:      1-800-967-7144
-> > International Toll: +1-719-457-2632
-> > Passcode: 492596
-> > 
-> > 9:30am PST (GMT-0800), 11:30am CST, 12:30pm EST every other Friday
-> 
-> Is this for invited guests only, or are we all welcome to call and
-> listen in?
-
-John,
-
-I beleive everyone is welcome.  There are only a limited number
-of lines, but I don't think they have ever hit the limit.  If
-this ever becomes an issue, I'm sure Hanna will address it.
+You are fixing things and people are giving you shit for it.  People who 
+want evidence that making something better is worth doing before they do 
+it are....  Sigh.  In the unlikely event that Linus doesn't take your 
+fixes directly, I'll take them for reiserfs, just let me know.  ReiserFS 
+code is as good as we know how to make it, as a matter of policy, and 
+that includes the comments.
 
 -- 
-Mike
+Hans
+
+

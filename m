@@ -1,71 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261987AbUBWS3V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 13:29:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbUBWS3V
+	id S261990AbUBWSce (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 13:32:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261992AbUBWSce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 13:29:21 -0500
-Received: from fw.osdl.org ([65.172.181.6]:2523 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261987AbUBWS3T (ORCPT
+	Mon, 23 Feb 2004 13:32:34 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:19899 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261990AbUBWScc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 13:29:19 -0500
-Date: Mon, 23 Feb 2004 10:21:35 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: piggin@cyberone.com.au, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH] fix shmat
-Message-Id: <20040223102135.2f878f93.rddunlap@osdl.org>
-In-Reply-To: <403A4328.5010302@colorfullife.com>
-References: <E1AvBNO-0004QF-00@bkwatch.colorfullife.com>
-	<403A4328.5010302@colorfullife.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 23 Feb 2004 13:32:32 -0500
+Date: Mon, 23 Feb 2004 10:32:24 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: hch@lst.de, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Please back out the bluetooth sysfs support
+Message-Id: <20040223103224.5206c7f5.davem@redhat.com>
+In-Reply-To: <1077560544.2791.63.camel@pegasus>
+References: <20040223103613.GA5865@lst.de>
+	<20040223101231.71be5da2.davem@redhat.com>
+	<1077560544.2791.63.camel@pegasus>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Feb 2004 19:15:04 +0100 Manfred Spraul <manfred@colorfullife.com> wrote:
+On Mon, 23 Feb 2004 19:22:24 +0100
+Marcel Holtmann <marcel@holtmann.org> wrote:
 
-|  From the bitkeeper commit message queue:
-| 
-| >	
-| >	sys_shmat() need to be declared asmlinkage.  This causes breakage when we
-| >	actually get the proper prototypes into caller's scope.
-| >  
-| >
-| Why? sys_shmat is not a system call. Or at least there is a comment just 
-| before the implementation that this is not a syscall.
-| I think either the asmlinkage or the comment are wrong:
-| /*
-|  * Fix shmaddr, allocate descriptor, map shm, add attach descriptor to 
-| lists.
-|  *
-|  * NOTE! Despite the name, this is NOT a direct system call entrypoint. The
-| 
-| >  * "raddr" thing points to kernel space, and there has to be a wrapper around
-| >  * this.
-| >  */
-| >-long sys_shmat(int shmid, char __user *shmaddr, int shmflg, ulong *raddr)
-| >+asmlinkage long sys_shmat(int shmid, char __user *shmaddr, int shmflg, ulong *raddr)
-| > {
-| > 	struct shmid_kernel *shp;
-| > 	unsigned long addr;
-| >
-| 
-| I'd propose to remove the asmlinkage and to move the prototype (without 
-| asmlinkage) back from syscalls.h to shm.h - what do you think?
+> > Ok Christoph, I'm taking to Marcel about what we'll do, and thus
+> > it'll be resolved within the next day one way or another.
+> > 
+> > Thanks for pointing this out.
+> 
+> it seems that I missed a posting here. What is the problem?
 
-It's not a syscall AFAICT.
-It's not listed in any .S files, like most syscalls are.
-However, it is listed in kernel/sys.c as a "cond_syscall",
-which I'm guessing is incorrect.
-
-I'd like to rename it so that it doesn't begin with "sys_".
-
---
-~Randy
+Marcelo, I forwarde Christoph's lkml posting, did you get that?
+If not, just grep for this subject on marc.theaimsgroup.com or some
+other lkml archive.

@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288262AbSA0Ror>; Sun, 27 Jan 2002 12:44:47 -0500
+	id <S288276AbSA0Ry1>; Sun, 27 Jan 2002 12:54:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288276AbSA0Rof>; Sun, 27 Jan 2002 12:44:35 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:11927 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S288262AbSA0Roa>;
-	Sun, 27 Jan 2002 12:44:30 -0500
-Date: Sun, 27 Jan 2002 18:37:58 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [patch] [sched] x86 idle thread should clear %fs, %gs
-Message-ID: <Pine.LNX.4.33.0201271826220.5785-100000@localhost.localdomain>
+	id <S288284AbSA0RyR>; Sun, 27 Jan 2002 12:54:17 -0500
+Received: from pop.gmx.de ([213.165.64.20]:46941 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S288276AbSA0RyG>;
+	Sun, 27 Jan 2002 12:54:06 -0500
+Message-ID: <3C543E86.7F0FA37A@gmx.net>
+Date: Sun, 27 Jan 2002 18:53:10 +0100
+From: root <gunther.mayer@gmx.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Martin Dalecki <dalecki@evision-ventures.com>
+CC: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: CRAP in 2.4.18-pre7
+In-Reply-To: <20020126171545.GB11344@fefe.de> <3C52E671.605FA2F3@mandrakesoft.com> <3C540A90.5020904@evision-ventures.com> <3C542FE6.7C56D6BD@mandrakesoft.com> <3C5439C1.6000305@evision-ventures.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Martin Dalecki wrote:
 
-the idle thread (on SMP, all idle threads) should clear the %fs and %gs
-register, we forgot to clear these registers after the boot process. This
-is especially important in kernels with the previous %fs/%gs patch
-applied. (The patch below is against 2.5.3-pre3.)
+> Jeff Garzik wrote:
+>
+> >Martin Dalecki wrote:
+> >
+> >>I would like to notice that the changes in 2.4.18-pre7 to the
+> >>tulip eth driver are apparently causing absymal performance drops
+> >>on my version of this card. Apparently the performance is dropping
+> >>>from the expected 10MB/s to about 10kB/s. The only special
+> >>thing about the configuration in question is the fact that it's
+> >>a direct connection between two hosts. Well, more precisely it's
+> >>a cross-over link between my notebook and desktop.
+> >>
+> >
+> >Are you seeing collisions?
+> >
+> NO not at all! The transfer is one with scp over a corssover direct link
+> between two hosts.
+> No hub between involved.
 
-i've checked and it apperas that the 0.01 Linux kernel source code has the
-same problem, in boot/head.s the idle task loads the 0x10 selector, and
-INIT_TASK's init TSS uses the 0x17 selector for %gs and never clears it.
-:-)
+You don't need a hub to have collisions.
 
-while it's not an issue from the correctness point of view in the 0.01
-kernel either, the TSS switching microcode probably exeutes slightly
-faster if %gs is 0 for both tasks.
+Duplex mismatch (i.e. one card in full-duplex, the other in half-duplex)
+would just show 10-50 KByte/sec transfer rates typically.
 
-so it appears that this lowlevel x86 performance bug(?) is more than 11
-years old! :-)
-
-	Ingo
-
---- linux/arch/i386/kernel/setup.c.orig	Sun Jan 27 15:14:43 2002
-+++ linux/arch/i386/kernel/setup.c	Sun Jan 27 16:01:34 2002
-@@ -2803,9 +2803,10 @@
- 	load_TR(nr);
- 	load_LDT(&init_mm);
-
--	/*
--	 * Clear all 6 debug registers:
--	 */
-+	/* Clear %fs and %gs. */
-+	asm volatile ("xorl %eax, %eax; movl %eax, %fs; movl %eax, %gs");
-+
-+	/* Clear all 6 debug registers: */
-
- #define CD(register) __asm__("movl %0,%%db" #register ::"r"(0) );
-
+The card's statistics about "collisions" and "late collisions" would
+positively prove if this is the case.
 

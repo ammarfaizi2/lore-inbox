@@ -1,63 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261353AbSLMEvh>; Thu, 12 Dec 2002 23:51:37 -0500
+	id <S261376AbSLMEyX>; Thu, 12 Dec 2002 23:54:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261354AbSLMEvh>; Thu, 12 Dec 2002 23:51:37 -0500
-Received: from wiprom2mx2.wipro.com ([203.197.164.42]:58496 "EHLO
-	wiprom2mx2.wipro.com") by vger.kernel.org with ESMTP
-	id <S261353AbSLMEvg> convert rfc822-to-8bit; Thu, 12 Dec 2002 23:51:36 -0500
-x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: [BENCHMARK] short summary of LM bench performance of mm2 patch
-Date: Fri, 13 Dec 2002 10:29:11 +0530
-Message-ID: <94F20261551DC141B6B559DC4910867201DF05@blr-m3-msg.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BENCHMARK] short summary of LM bench performance of mm2 patch
-Thread-Index: AcKiZGAISLpte7/zQFmN1VDZpI/mCA==
-From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Josh Fryman" <fryman@cc.gatech.edu>
-X-OriginalArrivalTime: 13 Dec 2002 04:59:11.0983 (UTC) FILETIME=[608937F0:01C2A264]
+	id <S261401AbSLMEyX>; Thu, 12 Dec 2002 23:54:23 -0500
+Received: from bitmover.com ([192.132.92.2]:52676 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S261376AbSLMEyW>;
+	Thu, 12 Dec 2002 23:54:22 -0500
+Date: Thu, 12 Dec 2002 21:02:05 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Aniruddha M Marathe <aniruddha.marathe@wipro.com>
+Cc: linux-kernel@vger.kernel.org, Josh Fryman <fryman@cc.gatech.edu>
+Subject: Re: [BENCHMARK] short summary of LM bench performance of mm2 patch
+Message-ID: <20021212210205.C14853@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Aniruddha M Marathe <aniruddha.marathe@wipro.com>,
+	linux-kernel@vger.kernel.org, Josh Fryman <fryman@cc.gatech.edu>
+References: <94F20261551DC141B6B559DC4910867201DF05@blr-m3-msg.wipro.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <94F20261551DC141B6B559DC4910867201DF05@blr-m3-msg.wipro.com>; from aniruddha.marathe@wipro.com on Fri, Dec 13, 2002 at 10:29:11AM +0530
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Josh, please comment on the format.
-Here is a short summary of performance of 2.5.51 mm2 as compared to 2.5.51 mm1 on LM bench. Figures below are 'median' of 5 results.
+On Fri, Dec 13, 2002 at 10:29:11AM +0530, Aniruddha M Marathe wrote:
+> Hi,
+> Josh, please comment on the format.
 
--------------------------------------------------------------------------------
-For detailed results, please mail me so that I will send results individually.
--------------------------------------------------------------------------------
-
-								2.5.51 mm1		2.5.51-mm2
-==================================================================================
-Processor, Processes - times in microseconds - smaller is better
-
-1. Null call time decreased a bit.			0.46			0.44
-2. increase in time for fork proc 			362			403
-----------------------------------------------------------------------------------
-Context switching - times in microseconds - smaller is better
-
-1. 2p/16K ctxsw						5.01			4.84
-----------------------------------------------------------------------------------
-*Local* Communication latencies in microseconds - smaller is better
-1. UDP							33			35
-2. TCP							122			125
-----------------------------------------------------------------------------------
-File & VM system latencies in microseconds - smaller is better
-1. 10K file delete					57			59
-2. mmap latency						615			651
-==================================================================================
-
-Rest of the results are not much different.
-	
-
-Regards,
-Aniruddha Marathe
-WIPRO technologies, India
-Aniruddha.marathe@wipro.com			
-+91-80-5502001 extn 5092
+Well, I'm not josh, but what is wrong with the default LMbench output
+format?  It's much easier to see what's going on than what you posted.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,68 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbUJXQAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbUJXQEO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261540AbUJXQAc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 12:00:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbUJXP7b
+	id S261558AbUJXQEO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 12:04:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbUJXQDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 11:59:31 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:14411 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261523AbUJXP41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 11:56:27 -0400
-Date: Sun, 24 Oct 2004 16:56:04 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: Hans Reiser <reiser@namesys.com>, David Howells <dhowells@redhat.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2/2] reiser4 cachefs delete_from_page_cache
-In-Reply-To: <Pine.LNX.4.44.0410241651540.12023-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0410241654360.12023-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Sun, 24 Oct 2004 12:03:52 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:52864 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S261544AbUJXP7a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 11:59:30 -0400
+Date: Sun, 24 Oct 2004 19:59:23 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: alex@local.promotion-ie.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux 2.6.9 on alpha noritake
+Message-ID: <20041024195923.A794@den.park.msu.ru>
+References: <1098476483.11296.37.camel@pro30.local.promotion-ie.de> <1098520279.14984.12.camel@pro30.local.promotion-ie.de> <20041023175811.GA23184@twiddle.net> <20041024144329.A623@den.park.msu.ru> <1098632003.8479.4.camel@pro30.local.promotion-ie.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1098632003.8479.4.camel@pro30.local.promotion-ie.de>; from alex@local.promotion-ie.de on Sun, Oct 24, 2004 at 05:33:23PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replace reiser4 and cachefs remove_from_page_cache,page_cache_release
-by delete_from_page_cache.  Sorry, but this patch is incomplete:
-reiser4-export-remove_from_page_cache.patch also needs updating (easiest
-just to edit the patch itself), I'd better leave that part to you...
+On Sun, Oct 24, 2004 at 05:33:23PM +0200, alex@local.promotion-ie.de wrote:
+> but as usually one thing fixed next broken....
+> now the sym53c8xx won't scan the SCSI bus.
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
- fs/cachefs/block.c      |    3 +--
- fs/reiser4/page_cache.c |   10 +++-------
- 2 files changed, 4 insertions(+), 9 deletions(-)
+Probably it's my fault - previous patch was incomplete.
+Please try this one instead.
 
---- 2.6.9-mm1/fs/cachefs/block.c	2004-10-22 13:07:38.000000000 +0100
-+++ linux/fs/cachefs/block.c	2004-10-23 21:15:09.735234048 +0100
-@@ -392,8 +392,7 @@ int cachefs_block_cow(struct cachefs_sup
- 		page = xchg(&block->page, NULL);
+Ivan.
+
+--- 2.6.9/include/asm-alpha/core_cia.h	Tue Oct 19 01:54:30 2004
++++ linux/include/asm-alpha/core_cia.h	Sun Oct 24 16:52:42 2004
+@@ -347,14 +347,14 @@ __EXTERN_INLINE unsigned int cia_ioread8
+ 	unsigned long addr = (unsigned long) xaddr;
+ 	unsigned long result, base_and_type;
  
- 		mapping->a_ops->releasepage(page, GFP_NOFS);
--		remove_from_page_cache(page);
--		page_cache_release(page);
-+		delete_from_page_cache(page);
- 		page = NULL;
+-	/* We can use CIA_MEM_R1_MASK for io ports too, since it is large
+-	   enough to cover all io ports, and smaller than CIA_IO.  */
+-	addr &= CIA_MEM_R1_MASK;
+ 	if (addr >= CIA_DENSE_MEM)
+ 		base_and_type = CIA_SPARSE_MEM + 0x00;
+ 	else
+ 		base_and_type = CIA_IO + 0x00;
  
- 		ret = add_to_page_cache_lru(newpage, mapping, block->bix,
---- 2.6.9-mm1/fs/reiser4/page_cache.c	2004-10-22 13:07:42.000000000 +0100
-+++ linux/fs/reiser4/page_cache.c	2004-10-23 21:16:31.336828720 +0100
-@@ -759,13 +759,9 @@ drop_page(struct page *page)
- #if defined(PG_skipped)
- 	ClearPageSkipped(page);
- #endif
--	if (page->mapping != NULL) {
--		remove_from_page_cache(page);
--		unlock_page(page);
--		/* page removed from the mapping---decrement page counter */
--		page_cache_release(page);
--	} else
--		unlock_page(page);
-+	if (page->mapping != NULL)
-+		delete_from_page_cache(page);
-+	unlock_page(page);
++	/* We can use CIA_MEM_R1_MASK for io ports too, since it is large
++	   enough to cover all io ports, and smaller than CIA_IO.  */
++	addr &= CIA_MEM_R1_MASK;
+ 	result = *(vip) ((addr << 5) + base_and_type);
+ 	return __kernel_extbl(result, addr & 3);
  }
+@@ -364,12 +364,12 @@ __EXTERN_INLINE void cia_iowrite8(u8 b, 
+ 	unsigned long addr = (unsigned long) xaddr;
+ 	unsigned long w, base_and_type;
  
+-	addr &= CIA_MEM_R1_MASK;
+ 	if (addr >= CIA_DENSE_MEM)
+ 		base_and_type = CIA_SPARSE_MEM + 0x00;
+ 	else
+ 		base_and_type = CIA_IO + 0x00;
  
-
++	addr &= CIA_MEM_R1_MASK;
+ 	w = __kernel_insbl(b, addr & 3);
+ 	*(vuip) ((addr << 5) + base_and_type) = w;
+ }
+@@ -379,12 +379,12 @@ __EXTERN_INLINE unsigned int cia_ioread1
+ 	unsigned long addr = (unsigned long) xaddr;
+ 	unsigned long result, base_and_type;
+ 
+-	addr &= CIA_MEM_R1_MASK;
+ 	if (addr >= CIA_DENSE_MEM)
+ 		base_and_type = CIA_SPARSE_MEM + 0x08;
+ 	else
+ 		base_and_type = CIA_IO + 0x08;
+ 
++	addr &= CIA_MEM_R1_MASK;
+ 	result = *(vip) ((addr << 5) + base_and_type);
+ 	return __kernel_extwl(result, addr & 3);
+ }
+@@ -394,12 +394,12 @@ __EXTERN_INLINE void cia_iowrite16(u16 b
+ 	unsigned long addr = (unsigned long) xaddr;
+ 	unsigned long w, base_and_type;
+ 
+-	addr &= CIA_MEM_R1_MASK;
+ 	if (addr >= CIA_DENSE_MEM)
+ 		base_and_type = CIA_SPARSE_MEM + 0x08;
+ 	else
+ 		base_and_type = CIA_IO + 0x08;
+ 
++	addr &= CIA_MEM_R1_MASK;
+ 	w = __kernel_inswl(b, addr & 3);
+ 	*(vuip) ((addr << 5) + base_and_type) = w;
+ }

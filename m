@@ -1,195 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289170AbSAMMrO>; Sun, 13 Jan 2002 07:47:14 -0500
+	id <S289171AbSAMMwp>; Sun, 13 Jan 2002 07:52:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289171AbSAMMrF>; Sun, 13 Jan 2002 07:47:05 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:12385 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S289170AbSAMMqx>; Sun, 13 Jan 2002 07:46:53 -0500
-Date: Sun, 13 Jan 2002 12:46:50 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] 2.4.18-pre3: fix PLIP
-Message-ID: <20020113124650.O31314@redhat.com>
-In-Reply-To: <20020111233009.29852.qmail@web20207.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020111233009.29852.qmail@web20207.mail.yahoo.com>; from vasvir@yahoo.gr on Fri, Jan 11, 2002 at 03:30:09PM -0800
+	id <S289172AbSAMMwf>; Sun, 13 Jan 2002 07:52:35 -0500
+Received: from linux.kappa.ro ([194.102.255.131]:38350 "EHLO linux.kappa.ro")
+	by vger.kernel.org with ESMTP id <S289171AbSAMMwS>;
+	Sun, 13 Jan 2002 07:52:18 -0500
+Date: Sun, 13 Jan 2002 14:51:57 +0200 (EET)
+From: Teodor Iacob <theo@astral.kappa.ro>
+X-X-Sender: <theo@linux.kappa.ro>
+Reply-To: <Teodor.Iacob@astral.kappa.ro>
+To: <linux-kernel@vger.kernel.org>
+Subject: APIC error on CPUx
+Message-ID: <Pine.LNX.4.31.0201131451270.28863-100000@linux.kappa.ro>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+Hello,
 
-This patch from Niels fixes the problem with PLIP.
+I just got the following message in syslog:
+Jan 13 14:35:00 firelog kernel: APIC error on CPU1: 00(02)
 
-Tim.
-*/
+And from what I saw in the source it seems to be something bad that
+shouldn't happen. Could someone explain this?
 
---- linux/drivers/parport/parport_pc.c.ecr2	Sun Jan 13 12:44:52 2002
-+++ linux/drivers/parport/parport_pc.c	Sun Jan 13 12:45:08 2002
-@@ -128,7 +128,6 @@
- static int change_mode(struct parport *p, int m)
- {
- 	const struct parport_pc_private *priv = p->physport->private_data;
--	int ecr = ECONTROL(p);
- 	unsigned char oecr;
- 	int mode;
- 
-@@ -140,7 +139,7 @@
- 	}
- 
- 	/* Bits <7:5> contain the mode. */
--	oecr = inb (ecr);
-+	oecr = inb (ECONTROL (p));
- 	mode = (oecr >> 5) & 0x7;
- 	if (mode == m) return 0;
- 
-@@ -631,7 +630,7 @@
- 			/* FIFO is full. Wait for interrupt. */
- 
- 			/* Clear serviceIntr */
--			outb (ecrval & ~(1<<2), ECONTROL (port));
-+			ECR_WRITE (port, ecrval & ~(1<<2));
- 		false_alarm:
- 			ret = parport_wait_event (port, HZ);
- 			if (ret < 0) break;
-@@ -859,7 +858,7 @@
- 		printk (KERN_DEBUG "%s: FIFO is stuck\n", port->name);
- 
- 		/* Prevent further data transfer. */
--		frob_econtrol (port, 0xe0, ECR_TST << 5);
-+		frob_set_mode (port, ECR_TST);
- 
- 		/* Adjust for the contents of the FIFO. */
- 		for (written -= priv->fifo_depth; ; written++) {
-@@ -956,7 +955,7 @@
- 		printk (KERN_DEBUG "%s: FIFO is stuck\n", port->name);
- 
- 		/* Prevent further data transfer. */
--		frob_econtrol (port, 0xe0, ECR_TST << 5);
-+		frob_set_mode (port, ECR_TST);
- 
- 		/* Adjust for the contents of the FIFO. */
- 		for (written -= priv->fifo_depth; ; written++) {
-@@ -1135,7 +1134,7 @@
- 			}
- 
- 			/* Clear serviceIntr */
--			outb (ecrval & ~(1<<2), ECONTROL (port));
-+			ECR_WRITE (port, ecrval & ~(1<<2));
- 		false_alarm:
- dump_parport_state ("waiting", port);
- 			ret = parport_wait_event (port, HZ);
-@@ -1738,7 +1737,7 @@
- 	if ((inb (ECONTROL (pb)) & 0x3 ) != 0x1)
- 		goto no_reg;
- 
--	outb (0x34, ECONTROL (pb));
-+	ECR_WRITE (pb, 0x34);
- 	if (inb (ECONTROL (pb)) != 0x35)
- 		goto no_reg;
- 
-@@ -1816,8 +1815,8 @@
- 		return 0;
- 
- 	/* Find out FIFO depth */
--	frob_set_mode (pb, ECR_SPP); /* Reset FIFO */
--	frob_set_mode (pb, ECR_TST); /* TEST FIFO */
-+	ECR_WRITE (pb, ECR_SPP << 5); /* Reset FIFO */
-+	ECR_WRITE (pb, ECR_TST << 5); /* TEST FIFO */
- 	for (i=0; i < 1024 && !(inb (ECONTROL (pb)) & 0x02); i++)
- 		outb (0xaa, FIFO (pb));
- 
-@@ -1826,7 +1825,7 @@
- 	 * it doesn't support ECP or FIFO MODE
- 	 */
- 	if (i == 1024) {
--		frob_set_mode (pb, ECR_SPP);
-+		ECR_WRITE (pb, ECR_SPP << 5);
- 		return 0;
- 	}
- 
-@@ -1877,8 +1876,8 @@
- 
- 	priv->readIntrThreshold = i;
- 
--	frob_set_mode (pb, ECR_SPP); /* Reset FIFO */
--	outb (0xf4, ECONTROL (pb)); /* Configuration mode */
-+	ECR_WRITE (pb, ECR_SPP << 5); /* Reset FIFO */
-+	ECR_WRITE (pb, 0xf4); /* Configuration mode */
- 	config = inb (CONFIGA (pb));
- 	pword = (config >> 4) & 0x7;
- 	switch (pword) {
-@@ -1939,7 +1938,7 @@
- 		return 0;
- 
- 	oecr = inb (ECONTROL (pb));
--	frob_set_mode (pb, ECR_PS2);
-+	ECR_WRITE (pb, ECR_PS2 << 5);
- 	result = parport_PS2_supported(pb);
- 	ECR_WRITE (pb, oecr);
- 	return result;
-@@ -1972,8 +1971,8 @@
- 	/* Check for Intel bug. */
- 	if (priv->ecr) {
- 		unsigned char i;
--		for (i = 0; i < 4; i++) {
--			frob_set_mode (pb, i);
-+		for (i = 0x00; i < 0x80; i += 0x20) {
-+			ECR_WRITE (pb, i);
- 			if (clear_epp_timeout (pb)) {
- 				/* Phony EPP in ECP. */
- 				return 0;
-@@ -2004,7 +2003,7 @@
- 
- 	oecr = inb (ECONTROL (pb));
- 	/* Search for SMC style EPP+ECP mode */
--	frob_set_mode (pb, ECR_EPP);
-+	ECR_WRITE (pb, 0x80);
- 	outb (0x04, CONTROL (pb));
- 	result = parport_EPP_supported(pb);
- 
-@@ -2045,7 +2044,7 @@
- 		PARPORT_IRQ_NONE, 7, 9, 10, 11, 14, 15, 5
- 	};
- 
--	frob_set_mode (pb, ECR_CNF); /* Configuration MODE */
-+	ECR_WRITE (pb, ECR_CNF << 5); /* Configuration MODE */
- 
- 	intrLine = (inb (CONFIGB (pb)) >> 3) & 0x07;
- 	irq = lookup[intrLine];
-@@ -2062,16 +2061,16 @@
- 	sti();
- 	irqs = probe_irq_on();
- 		
--	frob_set_mode (pb, ECR_SPP); /* Reset FIFO */
--	frob_econtrol (pb, ECR_MODE_MASK | 0x04, (ECR_TST << 5) | 0x04);
--	frob_set_mode (pb, ECR_TST);
-+	ECR_WRITE (pb, ECR_SPP << 5); /* Reset FIFO */
-+	ECR_WRITE (pb, (ECR_TST << 5) | 0x04);
-+	ECR_WRITE (pb, ECR_TST << 5);
- 
- 	/* If Full FIFO sure that writeIntrThreshold is generated */
- 	for (i=0; i < 1024 && !(inb (ECONTROL (pb)) & 0x02) ; i++) 
- 		outb (0xaa, FIFO (pb));
- 		
- 	pb->irq = probe_irq_off(irqs);
--	frob_set_mode (pb, ECR_SPP);
-+	ECR_WRITE (pb, ECR_SPP << 5);
- 
- 	if (pb->irq <= 0)
- 		pb->irq = PARPORT_IRQ_NONE;
---- linux/drivers/parport/ChangeLog.ecr2	Sun Jan 13 12:44:52 2002
-+++ linux/drivers/parport/ChangeLog	Sun Jan 13 12:45:08 2002
-@@ -1,3 +1,8 @@
-+2002-01-13  Niels Kristian Bech Jensen  <nkbj@image.dk>
-+
-+	* parport_pc.c: Change some occurrences of frob_set_mode to
-+	ECR_WRITE.  This fixes PLIP.
-+
- 2002-01-04  Tim Waugh  <twaugh@redhat.com>
- 
- 	* share.c (parport_claim_or_block): Sleep interruptibly to prevent
+I am using kernel 2.4.18-pre3 with the latest ext3 patch especially for
+this release.
+
+The hardware configuration would be:
+
+PCI listing:
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C691 [Apollo PRO] (rev c4)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3 AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev
+22)
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev
+10)
+00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+(rev 30)
+00:0c.0 RAID bus controller: Promise Technology, Inc.: Unknown device 0d30
+(rev 02)
+00:0e.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100]
+(rev 08)
+00:0f.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100]
+(rev 08)
+00:11.0 SCSI storage controller: Adaptec 7892B (rev 02)
+00:12.0 VGA compatible controller: Cirrus Logic GD 5446 (rev 45)
+
+CPU listing:
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 3
+cpu MHz         : 668.208
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
+cmov pat pse36 mmx fxsr sse
+bogomips        : 1333.65
+
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 3
+cpu MHz         : 668.208
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
+cmov pat pse36 mmx fxsr sse
+bogomips        : 1333.65
+
+
+Teo
+
+
+

@@ -1,76 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269184AbRH0VlX>; Mon, 27 Aug 2001 17:41:23 -0400
+	id <S269254AbRH0Vqx>; Mon, 27 Aug 2001 17:46:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269223AbRH0VlP>; Mon, 27 Aug 2001 17:41:15 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:13064 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S269184AbRH0VlC>; Mon, 27 Aug 2001 17:41:02 -0400
-Message-ID: <3B8ABE71.5FE927D2@namesys.com>
-Date: Tue, 28 Aug 2001 01:41:05 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdlab.org>
-CC: Andrew Theurer <habanero@us.ibm.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        reiserfs-dev@namesys.com, Nikita Danilov <god@namesys.com>,
-        Alexander Zarochentcev <zam@namesys.com>
-Subject: Re: [reiserfs-dev] Re: Journal Filesystem Comparison on Netbench
-In-Reply-To: <3B8A6122.3C784F2D@us.ibm.com> <3B8AA7B9.8EB836FF@namesys.com> <3B8AB96B.A978392E@osdlab.org>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	id <S269223AbRH0Vqo>; Mon, 27 Aug 2001 17:46:44 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39954 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S269197AbRH0Vqh>; Mon, 27 Aug 2001 17:46:37 -0400
+From: Linus Torvalds <torvalds@transmeta.com>
+Date: Mon, 27 Aug 2001 14:44:01 -0700
+Message-Id: <200108272144.f7RLi1707676@penguin.transmeta.com>
+To: phillips@bonn-fries.net, linux-kernel@vger.kernel.org
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+Newsgroups: linux.dev.kernel
+In-Reply-To: <20010827203125Z16070-32383+1731@humbolt.nl.linux.org>
+In-Reply-To: <Pine.LNX.4.33L.0108241600410.31410-100000@duckman.distro.conectiva> <20010827185803Z16034-32384+632@humbolt.nl.linux.org> <200108271953.VAA20749@ns.cablesurf.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" wrote:
-> 
-> Hans-
-> 
-> Have you consider using OSDL machines for your testing?
-> It probably wouldn't replicate Andrew's systems exactly,
-> but we do have [2,4,8]-way systems that could be made
-> available for your use.
-> 
-> ~Randy
-> 
-> Hans Reiser wrote:
-> >
-> > Please mount with -notails and repeat your results.  ReiserFS can either save
-> > you on disk space, or save you on performance, but not both at the same time.
-> > That said, it does not surprise me that our locking is coarser than other
-> > filesystems, and we will be fixing that in version 4.  Unfortunately we don't
-> > have the hardware to replicate your results.
-> >
-> > Hans
-> >
-> > Andrew Theurer wrote:
-> > >
-> > > Hello all,
-> > >
-> > > I recently starting doing some fs performance comparisons with Netbench
-> > > and the journal filesystems available in 2.4:  Reiserfs, JFS, XFS, and
-> > > Ext3.  I thought some of you may be interested in the results.  Below
-> > > is the README from the http://lse.sourceforge.net.  There is a kernprof
-> > > for each test, and I am working on the lockmeter stuff right now.  Let
-> > > me
-> > > know if you have any comments.
-> > >
-> > > Andrew Theurer
-> > > IBM LTC
+In article <20010827203125Z16070-32383+1731@humbolt.nl.linux.org> you write:
+>On August 27, 2001 09:43 pm, Oliver Neukum wrote:
+>> 
+>> If we are optimising for streaming (which readahead is made for) dropping 
+>> only one page will buy you almost nothing in seek time. You might just as 
+>> well drop them all and correct your error in one larger read if necessary.
+>> Dropping the oldest page is possibly the worst you can do, as you will need 
+>> it soonest.
+>
+>Yes, good point.  OK, I'll re-examine the dropping logic.  Bear in mind, 
+>dropping readahead pages is not supposed to happen frequently under 
+>steady-state operation, so it's not that critical what we do here, it's going 
+>to be hard to create a load that shows the impact.  The really big benefit 
+>comes from not overdoing the readahead in the first place, and not underdoing 
+>it either.
 
+Note that the big reason why I did _not_ end up just increasing the
+read-ahead value from 31 to 511 (it was there for a short while) is that
+large read-ahead does not necessarily improve performance AT ALL,
+regardless of memory pressure. 
 
-Ok, let's take you up on that....
+Why? Because if the IO request queue fills up, the read-ahead actually
+ends up waiting for requests, and ends up being synchronous. Which
+totally destroys the whole point of doing read-ahead in the first place.
+And a large read-ahead only makes this more likely.
 
-we are having discussions right now of whether ReiserFS is too coarsely grained
-(I argue yes based on code inspection not code measurement, others measure no
-contention on a two CPU machine and say no, none of us have the hardware to
-really know....)
+Also note that doing tons of parallel reads _also_ makes this more
+likely, and actually ends up also mixing the read-ahead streams which is
+exactly what you do not want to do.
 
-Your hardware might help us quite a bit.
+The solution to both problems is to make the read-ahead not wait
+synchronously on requests - that way the request allocation itself ends
+up being a partial throttle on memory usage too, so that you actually
+probably end up fixing the problem of memory pressure _too_.
 
-Elena, Zam, and Nikita, please email Randy off-list and make arrangements.
+This requires that the read-ahead code would start submitting the blocks
+using READA, which in turn requires that the readpage() function get a
+"READ vs READA" argument.  And the ll_rw_block code would obviously have
+to honour the rw_ahead hint and submit_bh() would have to return an
+error code - which it currently doesn't do, but which should be trivial
+to implement. 
 
-Hans
+I really think that doing anything else is (a) stupid and (b) wrong.
+Trying to come up with a complex algorithm on how to change read-ahead
+based on memory pressure is just bound to be extremely fragile and have
+strange performance effects. While letting the IO layer throttle the
+read-ahead on its own is the natural and high-performance approach.
+
+		Linus

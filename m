@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316798AbSFCO0p>; Mon, 3 Jun 2002 10:26:45 -0400
+	id <S317031AbSFCOdl>; Mon, 3 Jun 2002 10:33:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316802AbSFCO0o>; Mon, 3 Jun 2002 10:26:44 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:38385 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316798AbSFCO0o>; Mon, 3 Jun 2002 10:26:44 -0400
-Subject: Re: [PATCH] I2O support on alpha.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pierrick Hascoet <pierrick.hascoet@hydromel.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0206031049010.11680-200000@host.alias.fr>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 03 Jun 2002 16:29:06 +0100
-Message-Id: <1023118146.3439.71.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S317226AbSFCOdk>; Mon, 3 Jun 2002 10:33:40 -0400
+Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:63924
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S317031AbSFCOdg>; Mon, 3 Jun 2002 10:33:36 -0400
+Date: Mon, 3 Jun 2002 10:33:25 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Keith Owens <kaos@ocs.com.au>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: If you want kbuild 2.5, tell Linus
+In-Reply-To: <3434.1023112731@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.4.44.0206031024320.30310-100000@xanadu.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-06-03 at 10:23, Pierrick Hascoet wrote:
->  		msg[0] = (FIVE_WORD_MSG_SIZE|SGL_OFFSET_0);
->  		msg[1] = I2O_CMD_BLOCK_CFLUSH<<24|HOST_TID<<12|dev->tid;
->  		msg[2] = i2ob_context|0x40000000;
-> -		msg[3] = (u32)query_done;
-> +		msg[3] = (unsigned long)query_done;
+On Mon, 3 Jun 2002, Keith Owens wrote:
 
-query_done is a 64bit value, msg[3] is 32bit. On your box it happens
-that the query_done value fits into 32 bits. Really the pointer needs
-replacing with something saner. I have some ideas. One would be to add
+> I regret having to do this but Linus has left me with no other options.
 
-		val = i2o_query_alloc(address);
-		i2o_query_done(val);
-		i2o_query_free(val);
+Keith: You're becoming even more stubborn and blinded than ESR was.
 
-functionality that tracked the pointers in a seperate array
+Linus became interested in kbuild-2.5 when someone else than you decided to
+feed him with small patches, exactly what I told you a while ago and what
+you called a "stupid comment".
 
-Similar problems in the fp->private_data casting too. That wants pushing
-into an array of some sort. I'll apply the header changes and other
-fixes and think about the harder ones
+Shame on you Keith.
+
+Resisting the widely known Linus procedure will lead you nowhere, whether it
+looks stupid or not to you.
+
+
+Nicolas
 

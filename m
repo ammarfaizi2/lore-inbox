@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261841AbTIPLKB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 07:10:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbTIPLKA
+	id S261823AbTIPLe4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 07:34:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTIPLe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 07:10:00 -0400
-Received: from [203.124.210.99] ([203.124.210.99]:57802 "EHLO
+	Tue, 16 Sep 2003 07:34:56 -0400
+Received: from [203.124.210.99] ([203.124.210.99]:3275 "EHLO
 	rocklines.oyeindia.com") by vger.kernel.org with ESMTP
-	id S261841AbTIPLJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 07:09:58 -0400
+	id S261823AbTIPLey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 07:34:54 -0400
 From: "msrinath" <msrinath@bplitl.com>
 To: <linux-kernel@vger.kernel.org>
 Subject: Kernel NMI error
-Date: Tue, 16 Sep 2003 16:43:55 +0530
-Message-ID: <004c01c37c43$9ecaf4e0$1d03000a@srinath>
+Date: Tue, 16 Sep 2003 17:08:31 +0530
+Message-ID: <004d01c37c47$0e6ef1e0$1d03000a@srinath>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -70,6 +70,9 @@ Sep 16 07:33:54 cbesc kernel:   Receiver lock-up workaround activated.
 
 Please let me know why this happened and whether it indicates any hardware
 problem in the system.
+
+Please send a CC to my email address, since I have not subscribed to the
+list.
 
 Thanks & Regards,
 

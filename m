@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263269AbTDVQJN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 12:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263272AbTDVQJN
+	id S263286AbTDVQQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 12:16:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbTDVQQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 12:09:13 -0400
-Received: from host-62-245-209-215.customer.m-online.net ([62.245.209.215]:25480
-	"EHLO frodo.midearth.frodoid.org") by vger.kernel.org with ESMTP
-	id S263269AbTDVQJM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 12:09:12 -0400
-To: linux-kernel@vger.kernel.org
-Subject: kernel ring buffer accessible by users
-From: Julien Oster <frodo@dereference.de>
-Organization: FRODOID.ORG
-X-Face: #C"_SRmka_V!KOD9IoD~=}8-P'ekRGm,8qOM6%?gaT(k:%{Y+\Cbt.$Zs<[X|e)<BNuB($kI"KIs)dw,YmS@vA_67nR]^AQC<w;6'Y2Uxo_DT.yGXKkr/s/n'Th!P-O"XDK4Et{`Di:l2e!d|rQoo+C6)96S#E)fNj=T/rGqUo$^vL_'wNY\V,:0$q@,i2E<w[_l{*VQPD8/h5Y^>?:O++jHKTA(
-Date: Tue, 22 Apr 2003 18:21:16 +0200
-Message-ID: <frodoid.frodo.87wuhmh5ab.fsf@usenet.frodoid.org>
-User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
+	Tue, 22 Apr 2003 12:16:09 -0400
+Received: from 60.54.252.64.snet.net ([64.252.54.60]:43415 "EHLO
+	hotmale.blue-labs.org") by vger.kernel.org with ESMTP
+	id S263286AbTDVQQI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 12:16:08 -0400
+Message-ID: <3EA56D99.8060300@blue-labs.org>
+Date: Tue, 22 Apr 2003 12:28:09 -0400
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030421
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: devfs_register(cpu/microcode): illegal mode: 8180
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Bmilter: Processing completed, Bmilter version 0.1.1 build 930; timestamp 2003-04-22 12:28:13, message serial number 4377
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+FYI, Still hasn't been fixed in 2.5.68 :)
 
-Hello,
+david
 
-it's been quite a while that I noticed that any ordinary user, not
-just root, can type "dmesg" to see the kernel ring buffer.
 
-My question now is: Why? I often saw things in the kernel ring buffer
-which I don't want every user to know (e.g. some telephone numbers with
-ISDN).
-
-Are there any problems in just letting root get the contents of the
-kernel ring buffer?
-
-Julien

@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262276AbRENJr3>; Mon, 14 May 2001 05:47:29 -0400
+	id <S262278AbRENKGk>; Mon, 14 May 2001 06:06:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262317AbRENJrJ>; Mon, 14 May 2001 05:47:09 -0400
-Received: from ns.suse.de ([213.95.15.193]:47629 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S262276AbRENJrC>;
-	Mon, 14 May 2001 05:47:02 -0400
-Date: Mon, 14 May 2001 11:46:24 +0200
-From: Andi Kleen <ak@suse.de>
-To: root <root@norma.kjist.ac.kr>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de
+	id <S262310AbRENKGa>; Mon, 14 May 2001 06:06:30 -0400
+Received: from mean.netppl.fi ([195.242.208.16]:33796 "EHLO mean.netppl.fi")
+	by vger.kernel.org with ESMTP id <S262278AbRENKGP>;
+	Mon, 14 May 2001 06:06:15 -0400
+Date: Mon, 14 May 2001 13:06:12 +0300
+From: Pekka Pietikainen <pp@evil.netppl.fi>
+To: linux-kernel@vger.kernel.org
 Subject: Re: 3c590 vs. tulip
-Message-ID: <20010514114624.A25364@gruyere.muc.suse.de>
-In-Reply-To: <200105140809.f4E89qO11455@norma.kjist.ac.kr>
+Message-ID: <20010514130612.A32567@netppl.fi>
+In-Reply-To: <OE73aZbF27y4RbrxUrO000014d0@hotmail.com> <20010511155641.A11827@gruyere.muc.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200105140809.f4E89qO11455@norma.kjist.ac.kr>; from root@norma.kjist.ac.kr on Mon, May 14, 2001 at 05:09:52PM +0900
+X-Mailer: Mutt 1.0pre3i
+In-Reply-To: <20010511155641.A11827@gruyere.muc.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 14, 2001 at 05:09:52PM +0900, root wrote:
-> Basically, it appears that Don Becker praised the Tulip chipset the most.  
-> How much important is "zero copy TX and hardware checksumming"?
+On Fri, May 11, 2001 at 03:56:41PM +0200, Andi Kleen wrote:
+> On Fri, May 11, 2001 at 09:27:29AM -0400, Dan Mann wrote:
+> > I was just wondering if anybody had an idea which nic card might be a better
+> > choice for me; I have a pci 3c590 and a pci smc that uses the tulip driver.
+> > I don't have the card number for the smc with me handy, however I know both
+> > cards were manufactured in 1995.  Is either card/driver a better choice for
+> > a mildly used file server (I am running 2.4.4 Linus)?
+> 
+> As of 2.4.4 newer 3c90x (I guess you mean that, 3c59x should be mostly
+> extinct now) are a better choice because they support zero copy TX and 
+> hardware checksumming while tulip does not.
+>From what I remember, 3c590 was a horribly buggy card that sometimes
+broke even in workstation use (possibly fixed by driver updates more
+recently). 3c905B and later are fine, I'm not sure if the original
+905 had any bad issues. The original ones definately won't do zero-copy.
 
-Zero copy TX is not that important yet except if you use samba or Tux or
-proftpd or anything else that uses sendfile, but RX hardware checksumming 
-is important as it saves a lot of CPU during receiving big packets. 
-2.4 can in some circumstances do the checksumming during a copy (see 
-netstat -s TCPHPHitsToUser), but hardware checksum is still preferable.
-2.2 benefits from it more. 
+The tulips from that era work pretty reliably. Some of the older ones
+just won't do autonegotiation (I've seen this with an old 
+SMC with both 10/100baseTX and 9-pin "for use with token ring cabling"
+connectors). Forcing the link speed works just fine, though.
 
-The document seems to be rather outdated BTW, even boomerang is an 
-old 3com chipset. Please not that the 4byte receive restriction on Tulip
-also hurts i386. 
+-- 
+Pekka Pietikainen
 
--Andi
+
+

@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132081AbQLHNY7>; Fri, 8 Dec 2000 08:24:59 -0500
+	id <S132086AbQLHN1T>; Fri, 8 Dec 2000 08:27:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132086AbQLHNYt>; Fri, 8 Dec 2000 08:24:49 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:6917 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S132081AbQLHNYm>; Fri, 8 Dec 2000 08:24:42 -0500
-Date: Fri, 8 Dec 2000 15:51:28 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI bridge setup weirdness
-Message-ID: <20001208155128.A2926@jurassic.park.msu.ru>
-In-Reply-To: <200012072246.eB7Mk9e13384@flint.arm.linux.org.uk>
+	id <S132142AbQLHN1K>; Fri, 8 Dec 2000 08:27:10 -0500
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:5384 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S132086AbQLHN06>; Fri, 8 Dec 2000 08:26:58 -0500
+From: sswapnee@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
+To: linux-kernel@vger.kernel.org
+Message-ID: <CA2569AF.00470FB0.00@d73mta05.au.ibm.com>
+Date: Fri, 8 Dec 2000 18:16:00 +0530
+Subject: Unresolved symbol problem
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <200012072246.eB7Mk9e13384@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Thu, Dec 07, 2000 at 10:46:08PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 07, 2000 at 10:46:08PM +0000, Russell King wrote:
-> It appears to be caused by the pci_read_bridge_bases code copying the
-> pointer to the resources instead of making a copy of the resources
-> themselves.
+Hello,
 
-No, pci_read_bridge_bases() is obsoleted by new pci setup code. ;-)
-You have to set up bus resources properly in pcibios_fixup_bus().
-For a single root bus configuration, you don't need to do anything
-with the root bus itself - its resources already point to ioport_resource
-and iomem_resource, which should be ok. For pci-pci bridges you have
-to add something like this:
+I am new to linux world and currently learning to write device drivers and
+modules.  This question might have been
+repeated many times on the list but I havent found any satisfactory answer
+in the archives hence I am posting this question
+again.  While loading the module, the insmod complains about several
+unresolved symbols namely securebits, printk, dput, d_alloc_root,
+__generic_copy_to_user etc.  I am not using any of these but still I am
+getting the errors.  Can someone please
+tell me why am I getting this error?  How to resolve this error?
 
-	struct pci_dev *bridge = bus->self;
+I am using Linux 2.4.0-test10 on Intel Pentium box.
 
-	if (bridge) {
-		int i;
+Thanking you in anticipation
+Swapneel
 
-		for(i=0; i<3; i++) {
-			bus->resource[i] =
-				&bridge->resource[PCI_BRIDGE_RESOURCES+i];
-			bus->resource[i]->name = bus->name;
-		}
-		bus->resource[0]->flags = pci_bridge_check_io(bridge);
-		bus->resource[1]->flags = IORESOURCE_MEM;
-		bus->resource[0]->end = ioport_resource.end;
-		bus->resource[1]->end = iomem_resource.end;
-		/* Turn off downstream PF memory address range by default */
-		bus->resource[2]->start = 1024*1024;
-		bus->resource[2]->end = bus->resource[2]->start - 1;
-	}
 
-Check arch/alpha/kernel/pci.c:pcibios_fixup_bus() for reference.
-
-Ivan.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

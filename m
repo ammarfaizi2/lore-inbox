@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279418AbRLUKg4>; Fri, 21 Dec 2001 05:36:56 -0500
+	id <S276369AbRLUKxL>; Fri, 21 Dec 2001 05:53:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276424AbRLUKgg>; Fri, 21 Dec 2001 05:36:36 -0500
-Received: from euston.inpharmatica.co.uk ([195.102.24.12]:36259 "EHLO
-	sunsvr03.inpharmatica.co.uk") by vger.kernel.org with ESMTP
-	id <S279418AbRLUKg2>; Fri, 21 Dec 2001 05:36:28 -0500
-Message-ID: <3C2310A4.1010004@purplet.demon.co.uk>
-Date: Fri, 21 Dec 2001 10:36:20 +0000
-From: Mike Jagdis <jaggy@purplet.demon.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en, fr, de
+	id <S276424AbRLUKxB>; Fri, 21 Dec 2001 05:53:01 -0500
+Received: from kryton.packetst0rm.net ([195.58.191.168]:16607 "EHLO
+	mx0.packetst0rm.net") by vger.kernel.org with ESMTP
+	id <S276369AbRLUKwx>; Fri, 21 Dec 2001 05:52:53 -0500
+Date: Fri, 21 Dec 2001 11:52:42 +0100 (CET)
+From: Michael Kummer <frost@packetst0rm.net>
+X-X-Sender: frost@warp4
+Reply-To: Michael Kummer <michael@kummer.cc>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Received erroneous SM_UNMON
+Message-ID: <Pine.LNX.4.40.0112211151080.242-100000@warp4>
 MIME-Version: 1.0
-To: esr@thyrsus.com
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help editorial policy
-In-Reply-To: <20011220143247.A19377@thyrsus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric S. Raymond wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> I guess it's a pretty quiet week in kernel-hacker land.  Must be,
-> otherwise people would have better things to do than argue over KB
-> vs. KiB.  The alternative would be to conclude that significant
-> portions of the lkml population prefer flaming to coding, and that
-> couldn't possibly be the case, could it?
+what does that mean?
 
+<snip>
+Dec 21 11:49:28 freedom rpc.statd[104]: Received erroneous SM_UNMON
+request from freedom for 192.168.88.100
+Dec 21 11:49:28 kryton rpc.statd[13057]: Received erroneous SM_UNMON
+request from kryton for 195.58.191.166
+<snip>
 
-Surely not?
+best regards
 
-> However.  In the *absence* of a clear consensus, I will follow best
-> practices.  Best practice in editing a technical or standards document
-> is to (a) avoid ambiguous usages, seek clarity and precision; and (b)
-> to use, follow and reference international standards.
+Michael Kummer
 
+- ---
 
-"Best" practice? That's the *only* practice! Guesswork and assumption
-has no place in technical documentation!
+Web:	http://www.packetst0rm.net / http://www.sprinter-sbg.at
+Email:	michael@kummer.cc
+UIN:	96628703
+IRC:	irc.packetst0rm.net #taskforce
+Addr:	Lieferinger-Hauptstrasse 47 / A - 5020 Salzburg
+Mobil:	+43 664 3333995
 
-				Mike
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://quantumlab.net/pine_privacy_guard/
+
+iD8DBQE8IxR/TOeKpVx8ESMRAqDGAJ42IbLuvOa3EUQO8CiRiK1v1aJwlQCglce7
+OTPbwW33g1sG+pUkXXE5MQA=
+=Xj7x
+-----END PGP SIGNATURE-----
 

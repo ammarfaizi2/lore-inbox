@@ -1,68 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbTIYN0d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 09:26:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbTIYN0d
+	id S261205AbTIYNda (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 09:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbTIYNda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 09:26:33 -0400
-Received: from web40903.mail.yahoo.com ([66.218.78.200]:56758 "HELO
-	web40903.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261193AbTIYN0b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 09:26:31 -0400
-Message-ID: <20030925132630.59015.qmail@web40903.mail.yahoo.com>
-Date: Thu, 25 Sep 2003 06:26:30 -0700 (PDT)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: 2.6.0-test broke RPM 4.2 on Red Hat 9 in a VERY weird way
-To: linux-kernel@vger.kernel.org
+	Thu, 25 Sep 2003 09:33:30 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18626 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261205AbTIYNd3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 09:33:29 -0400
+Date: Thu, 25 Sep 2003 14:33:27 +0100 (BST)
+From: marcelo@parcelfarce.linux.theplanet.co.uk
+To: "Brown, Len" <len.brown@intel.com>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: RE: HT not working by default since 2.4.22
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0CC8708@hdsmsx402.hd.intel.com>
+Message-ID: <Pine.LNX.4.44.0309251426570.30864-100000@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just discovered a very strange and unusual problem with rpm on my Red Hat 9
-laptop running 2.6.0-test. Under 2.4.22-ac2 rpm runs perfectly fine, but when I
-run it under 2.6.0-test, it outputs the following errors:
+On Wed, 24 Sep 2003, Brown, Len wrote:
 
-sudo rpm -Uvh alsa-driver-0.9.6-1.fr.i386.rpm
-Password:
-rpmdb: unable to join the environment
-error: db4 error(11) from dbenv->open: Resource temporarily unavailable
-error: cannot open Packages index using db3 - Resource temporarily unavailable (11)
-error: cannot open Packages database in /var/lib/rpm
-warning: alsa-driver-0.9.6-1.fr.i386.rpm: V3 DSA signature: NOKEY, key ID e42d547b
-rpmdb: unable to join the environment
-error: db4 error(11) from dbenv->open: Resource temporarily unavailable
-error: cannot open Packages database in /var/lib/rpm
-rpmdb: unable to join the environment
-error: db4 error(11) from dbenv->open: Resource temporarily unavailable
-error: cannot open Packages database in /var/lib/rpm
+> Okay, so what to do?
+> 
+> We could make 2.4.23 like 2.4.21 where ACPI code for HT is included in
+> the kernel even when CONFIG_ACPI is not set.
+> 
+> Or we could leave 2.4.23 like 2.4.22 where disabling CONFIG_ACPI really
+> does remove all ACPI code in the kernel; and when CONFIG_ACPI is set,
+> CONFIG_ACPI_HT_ONLY is available to limit ACPI to just the tables part
+> needed for HT.
 
-I have never seen rpm do this before, and it only occurs under 2.6.0-test. It
-happens under these specific kernels:
+CONFIG_ACPI_HT should be not dependant on CONFIG_ACPI. So
 
-2.6.0-test5-bk10
-2.6.0-test5-bk11
-2.6.0-test5-mm4
+1) Please make it very clear on the configuration that for HT 
+CONFIG_ACPI_HT_ONLY is needed
+2) Move it outside CONFIG_ACPI. 
 
-I have not tried -test5-bk12 yet, but I have a feeling that I will get the same
-errors. I have checked syslog and dmesg and there are no errors from the kernel;
-under 2.4.22-ac2 rpm works perfectly fine, so I don't believe it's file corruption
-or filesystem breakage.
+OK? 
 
-Does anyone have any ideas that I can try?
-
-Thanks!
-
-Brad
+Thank you.
 
 
-
-=====
-Brad Chapman
-
-Permanent e-mail: kakadu_croc@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com

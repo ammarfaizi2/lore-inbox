@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264146AbSKDHny>; Mon, 4 Nov 2002 02:43:54 -0500
+	id <S262380AbSKDHu5>; Mon, 4 Nov 2002 02:50:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265977AbSKDHny>; Mon, 4 Nov 2002 02:43:54 -0500
-Received: from h-64-105-136-52.SNVACAID.covad.net ([64.105.136.52]:26312 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S264146AbSKDHnx>; Mon, 4 Nov 2002 02:43:53 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 3 Nov 2002 23:50:15 -0800
-Message-Id: <200211040750.XAA01372@baldur.yggdrasil.com>
-To: davem@redhat.com
-Subject: Re: Patch: linux-2.5.45/drivers/base/bus.c - new field to consolidate memory allocation in many drivers
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org, mochel@osdl.org
+	id <S263794AbSKDHu5>; Mon, 4 Nov 2002 02:50:57 -0500
+Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:10708 "EHLO
+	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S262380AbSKDHu4>; Mon, 4 Nov 2002 02:50:56 -0500
+From: <benh@kernel.crashing.org>
+To: "Linus Torvalds" <torvalds@transmeta.com>, "Pavel Machek" <pavel@ucw.cz>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: don't eat ide disks
+Date: Mon, 4 Nov 2002 08:57:09 +0100
+Message-Id: <20021104075709.20542@smtp.wanadoo.fr>
+In-Reply-To: <Pine.LNX.4.44.0211031439330.11657-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0211031439330.11657-100000@home.transmeta.com>
+X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Miller writes:
->I don't know how much I like the DMA memory being allocated
->transparently based upon some structure initialization values.
+>Just send a request down the request list, and make sure that
 >
->I'd rather the DMA alloc/free be explicit in the drivers.
+> - the command is marked as being non-mergeable or re-orderable by 
+>   software (as all special commands are)
+>
+> - the command is not re-orderable / mergeable by hardware (and since the
+>   command in question would be something like "flush" or "spindown",
+>   hardware really would be quite broken if it re-ordered it ;)
+>
+>and then just wait for its completion.
 
-	I think I roughly understand your attitude.  Certainly I am of
-wary adding more abstraction.  Programmers tend to get lost in it.  In
-spite of the best intentions, code is often made less readable and
-maintainable, bugs less apparent.
+Ok, good, this is exactly what I was talking about in a
+previous mail, escept you have the real code ;)
 
-	However, at some point, abstraction can be worth it.  The
-resulting code actually shirnking, accelerating, being clearer,
-when the abstraction results in the removal of bugs, are all
-metrics that I would look at.
+Though I do insist of this beeing bus ordering driven, that
+is this command is to be sent down the queue by the ide-disk driver
+itself, when asked for suspend by it's parent, whataver it is
+(typically the PCI based controller driver).
 
-	Lifting most of the memory allocation and DMA mapping out of
-the drivers will remove thousands of lines from Linux drivers in
-aggregate and remove hundreds of potentially buggy error branches.  It
-will be a little easier see the hardware from reading the driver.
-In comparison, the CPU costs are small and may be negative if
-some of that consolidation allows for additional optimizations.
+That would exactly provide the implementation for the save_state
+callback. Though there is still a small issue in using synchronize
+cache vs. standby.
 
-	I'd be interested in knowing how you quantify this trade-off
-and what you think might persuade you to support or at least be
-neutral toward this type of facility (results of converting drivers,
-examples of buggy error branches?).  Please keep in mind that not all
-drivers necessarily need to use these facilities.
+Our model currently specify we have save_state (which blocks IOs),
+then later on, suspend, which does the actual power off. While this
+is actually a good things (especially with swsusp, that should allow
+us to not poweroff devices on the path to the disk, a future
+optimisation avoiding a full wakeup of all devices), in this specific
+case, it also means we can't use the queue at the suspend() state
+to send the STANDBY command. If we send the STANDBY command (to
+spin off the platters) at save_state() time instead, we get the
+chance of have to wait again for re-spinning up on suspend to
+disk.
 
->Otherwise, the ->ops->alloc_consistent et al. abstraction
->looks ok.
+Maybe the fix is as simple as doing sync. cache in save_state, standby
+in suspend(), but the later beeing done without using the queue (which
+is what I do in my current pmac implementation in 2.4, direct ATA reg.
+blasting, ugh !). Or maybe we can find a way to carry a "hint" during
+the suspend process so that save_state "knows" the device is marked
+as the target for a later suspend to disk process, and "avoids"
+doing a standby in that case.
 
-	Thanks.
+What do you think ?
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Ben.
 
-	
+

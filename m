@@ -1,33 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281095AbRKLWdN>; Mon, 12 Nov 2001 17:33:13 -0500
+	id <S281094AbRKLWgx>; Mon, 12 Nov 2001 17:36:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281079AbRKLWdF>; Mon, 12 Nov 2001 17:33:05 -0500
-Received: from tourian.nerim.net ([62.4.16.79]:26888 "HELO tourian.nerim.net")
-	by vger.kernel.org with SMTP id <S281095AbRKLWdA>;
-	Mon, 12 Nov 2001 17:33:00 -0500
-Message-ID: <3BF04E1A.2070205@free.fr>
-Date: Mon, 12 Nov 2001 23:32:58 +0100
-From: Lionel Bouton <Lionel.Bouton@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011110
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
+	id <S281079AbRKLWgq>; Mon, 12 Nov 2001 17:36:46 -0500
+Received: from mhub-w2.tc.umn.edu ([160.94.160.45]:40616 "EHLO
+	mhub-w2.tc.umn.edu") by vger.kernel.org with ESMTP
+	id <S281075AbRKLWgc>; Mon, 12 Nov 2001 17:36:32 -0500
+Date: Mon, 12 Nov 2001 16:36:30 -0600 (CST)
+From: Grant Erickson <erick205@umn.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Lionel Bouton <Lionel.Bouton@free.fr>, linux-kernel@vger.kernel.org
 Subject: Re: File System Performance
-In-Reply-To: <3BF03402.87D44589@zip.com.au> <3BF03402.87D44589@zip.com.au> <1005600431.13303.10.camel@jen.americas.sgi.com> <3BF04289.8FC8B7B7@zip.com.au> <9spg3c$7bb$1@penguin.transmeta.com> <3BF04A37.29E19B1A@zip.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-Id: <Pine.SOL.4.20.0111121635370.14228-100000@garnet.tc.umn.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Mon, 12 Nov 2001, Linus Torvalds wrote:
+> On Mon, 12 Nov 2001, Lionel Bouton wrote:
+> >
+> > Seems not the case with gnu tar : write isn't even called once on the fd
+> > returned by open("/dev/null",...). In fact a "grep write" on the strace 
+> > output is empty in the "tar cf /dev/null" case. Every file in the tar-ed
+> > tree is stat-ed but no-one is read-ed.
+> 
+> Wow. What a sleazy optimization - it can't be anything but a special case.
+> 
+> How do they do it anyway? By matching on the name Or by knowing what the
+> minor/major numbers of /dev/null are supposed to be on that particular  
+> operating system?
+  
+>From src/buffer.c in tar-1.13.19 in open_archive():
+  
+        [ ... ]
+  
+        #if !MSDOS
+  
+          /* Detect if outputting to "/dev/null".  */
+          {
+            static char const dev_null[] = "/dev/null";
+            struct stat dev_null_stat;
+  
+            dev_null_output =
+              (strcmp (archive_name_array[0], dev_null) == 0
+               || (! _isrmt (archive)
+                   && S_ISCHR (archive_stat.st_mode)
+                   && stat (dev_null, &dev_null_stat) == 0
+                   && archive_stat.st_dev == dev_null_stat.st_dev
+                   && archive_stat.st_ino == dev_null_stat.st_ino));
+          }
+  
+        [ ... ]
 
->
->[...]
->        Corrections to speed-up the sizeing pass in Amanda:
->
-An ugly hack in tar justified by a lack of functionnality in Amanda ?!
+Regards,
 
-Would be typical behavior in a closed-source environnement and make me 
-ROTFL :-/
+Grant
+
+
+-- 
+ Grant Erickson                       University of Minnesota Alumni
+  o mail:erick205@umn.edu                                 1996 BSEE
+  o http://www.umn.edu/~erick205                          1998 MSEE
 

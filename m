@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129112AbQKNPOq>; Tue, 14 Nov 2000 10:14:46 -0500
+	id <S129466AbQKNPR4>; Tue, 14 Nov 2000 10:17:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129466AbQKNPOg>; Tue, 14 Nov 2000 10:14:36 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:56194 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129112AbQKNPOV>; Tue, 14 Nov 2000 10:14:21 -0500
-Date: Tue, 14 Nov 2000 09:43:54 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Keith Owens <kaos@ocs.com.au>, linux-kernel <linux-kernel@i405.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: newbie, 2.4.0-test11-pre4 no compile when CONFIG_AGP=y
-In-Reply-To: <3A114955.3B58479A@mandrakesoft.com>
-Message-ID: <Pine.LNX.3.95.1001114093947.22448A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130187AbQKNPRh>; Tue, 14 Nov 2000 10:17:37 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:22364
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129466AbQKNPR0>; Tue, 14 Nov 2000 10:17:26 -0500
+Date: Tue, 14 Nov 2000 16:44:47 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: oops in 2.2.17, not in 2.2.14-5
+Message-ID: <20001114164447.A4286@jaquet.dk>
+In-Reply-To: <20001113180449.A652@jaquet.dk> <20001114135924.A3649@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001114135924.A3649@jaquet.dk>; from rasmus@jaquet.dk on Tue, Nov 14, 2000 at 01:59:24PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Nov 2000, Jeff Garzik wrote:
-
-> Keith Owens wrote:
-> > 
-> > On Tue, 14 Nov 2000 00:56:13 -0800,
-> > linux-kernel <linux-kernel@i405.com> wrote:
-> > >I'll preface this saying I'm a kernel compile newbie and I could be making
-> > >the most basic of mistakes.
-> > 
-> > You are.  Hand editing the .config file gives undefined results.  Make
-> > all changes through menuconfig or xconfig.  The config system does lots
-> > of work behind the scenes which is not peformed if you hand edit.
 > 
-> Hand editing works just fine...   You just have to remember to run "make
-> oldconfig" afterwards.
+> OK, I tried with 2.2.16 and 2.2.18pre21 compiled with egcs-2.91.66
+> (the kernels reported yesterday were compiled with 2.95.2).
 > 
-> 	Jeff
+> 2.2.16 oopsed faithfully (I could not get hold of the oops as several
+> scrolled by and none made it to the log). 2.2.18pre21 does not oops.
+> Bzip2 core dumps, but gzip makes it through. So it seems that my
+> problem has been solved already and proactively :)
+> 
 
-Only __sometimes__. There are "questions" that will be skipped even
-in `make oldconfig` if some things are hand edited. Hand editing,
-followed by `make oldconfig` works only if you know what you are doing.
+Eeek. Apparently I was a bit too early with the champagne... I was
+away for an hour or so and when I came back it (2.2.18pre21) had 
+oopsed with multiple oops (i.e. the first offscreen) and hardlocked.
+I'm now running 2.2.14-5 again, doing the exact same stuff and it
+seems to hold up... (knock wood).
 
-I wouldn't suggest it for a "newbie'.
+Barring someine suggestin a better solution I'll try to compile 
+a kernel with serial console and capture an oops that way.
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+Regards
+  Rasmus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

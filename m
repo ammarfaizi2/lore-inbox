@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129445AbRBFOZG>; Tue, 6 Feb 2001 09:25:06 -0500
+	id <S129446AbRBFOZG>; Tue, 6 Feb 2001 09:25:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129400AbRBFOY5>; Tue, 6 Feb 2001 09:24:57 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:16903 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S129446AbRBFOYX>; Tue, 6 Feb 2001 09:24:23 -0500
-Message-ID: <3A800912.1B77C3DB@Hell.WH8.TU-Dresden.De>
-Date: Tue, 06 Feb 2001 15:24:18 +0100
-From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-Organization: Dept. Of Computer Science, Dresden University Of Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac3 i686)
-X-Accept-Language: en, de-DE
-MIME-Version: 1.0
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: VIA silent disk corruption - bad news
-In-Reply-To: <14B049560B85@vcnet.vc.cvut.cz>
-Content-Type: text/plain; charset=us-ascii
+	id <S129445AbRBFOY4>; Tue, 6 Feb 2001 09:24:56 -0500
+Received: from wiiusc.wii.ericsson.net ([192.36.108.17]:6208 "EHLO
+	hell.wii.ericsson.net") by vger.kernel.org with ESMTP
+	id <S129400AbRBFOYX>; Tue, 6 Feb 2001 09:24:23 -0500
+Message-Id: <200102061424.PAA32284@hell.wii.ericsson.net>
+X-Mailer: exmh version 2.2_20001214 06/23/2000 with nmh-1.0.3
+To: linux-kernel@vger.kernel.org
+From: Anders Eriksson <aer-list@mailandnews.com>
+Subject: sync & asyck i/o 
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1995718836P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 06 Feb 2001 15:24:11 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
-> 
-> On  5 Feb 01 at 23:08, Udo A. Steinberg wrote:
-> 
-> > 00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0305 (rev 02)
-> >         Subsystem: Asustek Computer, Inc.: Unknown device 8033
-> >         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> >         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium
->                   >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
->                                                     ^^^^^^
-> I tried all different settings in BIOS, and I even programmed values
-> from your lspci to my VIA (except for SDRAM timmings) - and although
-> it is a bit better, it is not still perfect.
+--==_Exmh_-1995718836P
+Content-Type: text/plain; charset=us-ascii
 
-> So for today I'm back on [UMS]DMA disabled. I'll try downgrading BIOS
-> today, but it looks to me like that something is severely broken here.
 
-Are your drives connected to the VIA or the Promise controller? Mine
-are both connected to the PDC20265 and running in UDMA-100 mode. There
-have been several threads on lkml about corruption on disks connected
-to Via chipset IDE controllers, although I didn't follow them in great
-detail. Maybe your problem is not related to the host bridge, but to
-the IDE controller?
+According to the man page for fsync it copies in-core data to disk 
+prior to its return. Does that take async i/o to the media in account? 
+I.e. does it wait for completion of the async i/o to the disk?
 
--Udo.
+/Anders
+
+
+
+--==_Exmh_-1995718836P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.2 (GNU/Linux)
+Comment: Exmh version 2.2_20000822 06/23/2000
+
+iD8DBQE6gAkL/X4RQObd8qERAg0kAJ9it8YKHSQxlpfLbzaeV4oJV/L8cwCcCD1L
+hO5tlD2KhiDXds1JXMb8BCk=
+=5zM4
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1995718836P--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

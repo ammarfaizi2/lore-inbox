@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135378AbRD3Pjb>; Mon, 30 Apr 2001 11:39:31 -0400
+	id <S135403AbRD3Plw>; Mon, 30 Apr 2001 11:41:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135386AbRD3PjV>; Mon, 30 Apr 2001 11:39:21 -0400
-Received: from dutidad.twi.tudelft.nl ([130.161.158.199]:21900 "EHLO dutidad")
-	by vger.kernel.org with ESMTP id <S135378AbRD3PjG>;
-	Mon, 30 Apr 2001 11:39:06 -0400
-Date: Mon, 30 Apr 2001 17:39:04 +0200
-From: "Charl P. Botha" <c.p.botha@its.tudelft.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pci/quirks.c - VIA PCI latency in 2.4.4
-Message-ID: <20010430173904.A8741@dutidad.twi.tudelft.nl>
-Reply-To: "Charl P. Botha" <c.p.botha@its.tudelft.nl>
-In-Reply-To: <20010430155844.E8052@dutidad.twi.tudelft.nl> <E14uEkK-00088U-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14uEkK-00088U-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Apr 30, 2001 at 03:33:49PM +0100
+	id <S135397AbRD3Plm>; Mon, 30 Apr 2001 11:41:42 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:46210 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S135386AbRD3PlZ>; Mon, 30 Apr 2001 11:41:25 -0400
+Date: Mon, 30 Apr 2001 11:41:11 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Greg Hosler <hosler@lugs.org.sg>
+cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com
+Subject: Re: AC'97 (VT82C686A) & IRQ reassignment (I/O APIC)
+In-Reply-To: <XFMail.010430233825.hosler@lugs.org.sg>
+Message-ID: <Pine.LNX.3.95.1010430113545.13070A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 30, 2001 at 03:33:49PM +0100, Alan Cox wrote:
-> > No fix is known for intel pci-to-host bridges with the 686B south bridge,
-> > and in the case of the AMD-761 chipset, there are certain BIOS settings you
-> > can change.  See: http://home.tiscalinet.de/au-ja/review-kt133a-4-en.html
+On Mon, 30 Apr 2001, Greg Hosler wrote:
+
+> The AC'97 has an IRQ register which allows for IRQ's 1, and 3 thru 14
+> (page 107 of the VT82C686 datasheet, under section "Offset 3C, Interrupt Line")
 > 
-> The -ac tree has the ability to kill IDE DMA across the entire system. It may
-> be this is what should be done with all hybrid setups where there is no known
-> fix.
+> The problem I'm seeing is that on a SMB machine, the IRQ's get reassigned by
+> the I/O APIC code, and my AC'97 gets assigned an IRQ of 18 (which won't fit into
+> 4 bits :(
+> 
+> Is there any way to reassign an IRQ to one that teh AC'97 will be happy with ?
+> 
+> Does any other device already have to do this ?
+> 
+> thx, and rgds,
+> 
+> -Greg
 
-Alternatively, too much time shouldn't be spent on this specific bug.  VIA
-has recognised it, and motherboard vendors are already starting to release
-updated BIOSes that sport the required settings (e.g. Abit, see
-http://www.viahardware.com/faq/kt7/faqbios.html).  I'm just afraid if the
-kernel starts disabling IDE DMA on certain of these setups, there'll have to
-be checks (in the kernel) for possible future updated BIOSes as well (else
-we disable IDE DMA where it's not necessary).
 
-Selective application of the fix (as in my patch) does no harm on the known
-combinations though.
+Observe that the PCI DWORD (long) register at DWORD offset 15 consists
+of 4 byte-wide registers (from the PCI specification), Max_lat, Min_Gnt,
+Interrupt pin, and interrupt line.  Nothing has to fit into 4 bits, you
+have 8 bits. I haven't looked at the Linux code, but if it provides only 4
+bits for the IRQ, it's broken. 
 
-My very humble 2c,
+Cheers,
+Dick Johnson
 
--- 
-charl p. botha      | computer graphics and cad/cam 
-http://cpbotha.net/ | http://www.cg.its.tudelft.nl/
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+

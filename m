@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263310AbUATXr2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 18:47:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263832AbUATXr1
+	id S265914AbUATXne (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 18:43:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265923AbUATXne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 18:47:27 -0500
-Received: from [24.35.117.106] ([24.35.117.106]:58501 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263310AbUATXr0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 18:47:26 -0500
-Date: Tue, 20 Jan 2004 18:47:02 -0500 (EST)
-From: Thomas Molina <tmolina@cablespeed.com>
-X-X-Sender: tmolina@localhost.localdomain
-To: GCS <gcs@lsc.hu>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.1-mm5
-In-Reply-To: <20040120230907.GA20425@lsc.hu>
-Message-ID: <Pine.LNX.4.58.0401201842490.9398@localhost.localdomain>
-References: <Pine.LNX.4.58.0401201724190.9398@localhost.localdomain>
- <20040120230907.GA20425@lsc.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Jan 2004 18:43:34 -0500
+Received: from gate.crashing.org ([63.228.1.57]:52949 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265914AbUATXnc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 18:43:32 -0500
+Subject: Re: swsusp does not stop DMA properly during resume
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040120150629.6949eda7.akpm@osdl.org>
+References: <20040120224653.GA19159@elf.ucw.cz>
+	 <20040120150629.6949eda7.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1074642037.739.49.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 21 Jan 2004 10:40:38 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> I _think_ what this patch is doing is suspending all devices from within
+> the boot kernel before starting into the resumed kernel.  Is this correct?
+> 
+> > +	update_screen(fg_console);	/* Hmm, is this the problem? */
+> 
+> Cryptic comment.  To what "problem" does this refer?
 
-On Wed, 21 Jan 2004, GCS wrote:
+Note that you should make sure all calls to update_screen (among others)
+are guarded by the console semaphore, with my VT patch, not doing so
+will result in WARN_ON's
 
-> On Tue, Jan 20, 2004 at 05:56:42PM -0500, Thomas Molina <tmolina@cablespeed.com> wrote:
-> > Finding module dependencies:  cat: 
-> > /sys//devices/pci0000:00/0000:00:07.2/usb1/bNumConfigurations: No such 
-> > file or directory
-> > /etc/hotplug/usb.agent: line 144: [: too many arguments
->  I think you use Debian, and it's a bug in their scripts, not in the
-> kernel itself.
+Ben.
 
-I use RedHat Fedora Core 1 on this machine actually.  It might well be a 
-problem with the scripts, but I don't get these messages under 2.4.X nor 
-under 2.6.0 bitkeeper.  
+

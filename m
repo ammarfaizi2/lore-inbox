@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268032AbUHQAMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268041AbUHQAQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268032AbUHQAMz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 20:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268036AbUHQAMw
+	id S268041AbUHQAQi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 20:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268036AbUHQAQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 20:12:52 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:37811 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268032AbUHQAIq (ORCPT
+	Mon, 16 Aug 2004 20:16:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:15286 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268038AbUHQAOb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 20:08:46 -0400
-Date: Mon, 16 Aug 2004 17:08:33 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Mike_Phillips@URSCorp.com
-Cc: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Neil Horman <nhorman@redhat.com>
-Subject: Re: [Patch} to fix oops in olympic token ring driver on media
- disconnect
-Message-Id: <20040816170833.7f2b0e46@lembas.zaitcev.lan>
-In-Reply-To: <OF11E315D2.D4CBAED1-ON85256EF2.0052F29D-85256EF2.0053587E@urscorp.com>
-References: <411D536A.7050206@pobox.com>
-	<OF11E315D2.D4CBAED1-ON85256EF2.0052F29D-85256EF2.0053587E@urscorp.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 16 Aug 2004 20:14:31 -0400
+Date: Mon, 16 Aug 2004 20:13:36 -0400
+From: Alan Cox <alan@redhat.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Alan Cox <alan@redhat.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: PATCH: switch ide-proc to use the ide_key functionality
+Message-ID: <20040817001336.GA25753@devserv.devel.redhat.com>
+References: <20040815150414.GA12181@devserv.devel.redhat.com> <200408170135.11465.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408170135.11465.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Aug 2004 11:10:19 -0400
-Mike_Phillips@URSCorp.com wrote:
+On Tue, Aug 17, 2004 at 01:35:11AM +0200, Bartlomiej Zolnierkiewicz wrote:
+> Alan, 'ide_key' protection misses driver specfiic /proc/entries.
 
-> > Well, regardless, Neil's patch is IMO a good first step.
-> 
-> Neil's patch is to make the annoying regression test failure go away. To 
-> be honest I have had *one* user email me that this is a problem and once I 
-> gave them the "don't remove the cable on token ring, its not ethernet" 
-> talk, they were fine. 
+Ok need to fix that
 
-Maybe they are afraid of your bofh-ness, man.
+> It is also still racy for some drivers because ide_register_hw() -> 
+> init_hwif_data() sets hwif->key to zero - you must set hwif->hold to 1.
 
-> It works, its used by an ever decreasing number of users - let it have a 
-> peaceful and graceful old age.
+ide_register_hw holds ide_setting_sem. I think that should be ok ?
 
-I don't think this works with a bug so clear-cut as this one.
+> Can't we solve the problem in simpler way by covering affected /proc
+> handlers with ide_setting_sem?
 
-On the USB front it's so hard to find any users with meaningful
-bug reports that I apply fixes for singular users, if they make
-broader sense. How do you know that that one user you mentioned is
-not a representative of countless IBM minions who clang their chains,
-pull Token Ring cables and cry in their dungeons...
+You'd need to refcount the ide objects because the 'data' value is long
+lived. I did consider this but it seemed more complex. It also leaves end
+users able to open an ide file and prevent unloading although I'm not
+sure it is a big issue.
 
--- Pete

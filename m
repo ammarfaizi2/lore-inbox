@@ -1,56 +1,256 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262111AbTKPH11 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 02:27:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbTKPH11
+	id S262580AbTKPIQX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 03:16:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbTKPIQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 02:27:27 -0500
-Received: from userel174.dsl.pipex.com ([62.188.199.174]:28296 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id S262111AbTKPH1Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 02:27:25 -0500
-Date: Sun, 16 Nov 2003 07:27:23 +0000 (GMT)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-X-X-Sender: tigran@einstein.homenet
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: Harald Welte <laforge@netfilter.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: seq_file and exporting dynamically allocated data
-In-Reply-To: <Pine.LNX.4.44.0311152135370.743-100000@einstein.homenet>
-Message-ID: <Pine.LNX.4.44.0311160717250.765-100000@einstein.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 16 Nov 2003 03:16:23 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:51092 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262432AbTKPIQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 03:16:06 -0500
+Subject: [PATCH] Add lib/parser.c kernel-doc
+From: Will Dyson <will_dyson@pobox.com>
+To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1068970562.19499.11.camel@thalience>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 16 Nov 2003 03:16:03 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Al,
+When I converted befs's option parsing to use the new lib/parser.c
+functions, I had to read the functions (and the patch converting ext3)
+in order to understand exactly how to use them. They are not that
+complicated, but since I'd already read and (hopefully) understood the
+functions, I figured I'd add a bit of documentation for others.
 
-I remembered the other two areas where, maybe, seq API can be slightly 
-improved:
+I am not the author of the functions I am attempting to document here,
+so any mistakes are just that: mistakes on my part.
 
-a) no "THIS_MODULE" style module refcounting, so I had to do manual 
-MOD_INC_USE_COUNT/MOD_DEC_USE_COUNT in ->open/release. I am aware of the 
-deficiencies of this approach, of course (it's been discussed too many 
-times in the last several years).
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or
+higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1352  -> 1.1353 
+#	        lib/parser.c	1.2     -> 1.3    
+#	include/linux/parser.h	1.1     -> 1.2    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/11/16	will@thalience.(none)	1.1353
+# Add documentation and comments to lib/parser.c and
+include/linux/parser.h
+# --------------------------------------------
+#
+diff -Nru a/include/linux/parser.h b/include/linux/parser.h
+--- a/include/linux/parser.h	Sun Nov 16 03:02:39 2003
++++ b/include/linux/parser.h	Sun Nov 16 03:02:39 2003
+@@ -1,3 +1,14 @@
++/*
++ * linux/include/linux/parser.h
++ *
++ * Header for lib/parser.c
++ * Intended use of these functions is parsing filesystem argument
+lists,
++ * but could potentially be used anywhere else that simple option=arg 
++ * parsing is required.
++ */
++
++
++// associates an integer enumerator with a pattern string.
+ struct match_token {
+ 	int token;
+ 	char *pattern;
+@@ -5,17 +16,18 @@
+ 
+ typedef struct match_token match_table_t[];
+ 
++// Maximum number of arguments that match_token will find in a pattern
+ enum {MAX_OPT_ARGS = 3};
+ 
++// Describe the location within a string of a substring
+ typedef struct {
+ 	char *from;
+ 	char *to;
+ } substring_t;
+ 
+ int match_token(char *s, match_table_t table, substring_t args[]);
+-
+-int match_int(substring_t *, int *result);
+-int match_octal(substring_t *, int *result);
+-int match_hex(substring_t *, int *result);
+-void match_strcpy(char *, substring_t *);
+-char *match_strdup(substring_t *);
++int match_int(substring_t *s, int *result);
++int match_octal(substring_t *s, int *result);
++int match_hex(substring_t *s, int *result);
++void match_strcpy(char *to, substring_t *s);
++char *match_strdup(substring_t *s);
+diff -Nru a/lib/parser.c b/lib/parser.c
+--- a/lib/parser.c	Sun Nov 16 03:02:39 2003
++++ b/lib/parser.c	Sun Nov 16 03:02:39 2003
+@@ -11,6 +11,17 @@
+ #include <linux/slab.h>
+ #include <linux/string.h>
+ 
++/**
++ * match_one: - Determines if a string matches a simple pattern
++ * @s: the string to examine for presense of the pattern
++ * @p: the string containing the pattern
++ * @args: array of %MAX_OPT_ARGS &substring_t elements. Used to return
+match
++ * locations.
++ *
++ * Description: Determines if the pattern @p is present in string @s.
+Can only
++ * match extremely simple token=arg style patterns. If the pattern is
+found,
++ * the location(s) of the arguments will be returned in the @args
+array.
++ */
+ static int match_one(char *s, char *p, substring_t args[])
+ {
+ 	char *meta;
+@@ -74,6 +85,20 @@
+ 	}
+ }
+ 
++/**
++ * match_token: - Find a token (and optional args) in a string
++ * @s: the string to examine for token/argument pairs
++ * @table: match_table_t describing the set of allowed option tokens
+and the
++ * arguments that may be associated with them. Must be terminated with
+a
++ * &struct match_token who's pattern is set to the NULL pointer.
++ * @args: array of %MAX_OPT_ARGS &substring_t elements. Used to return
+match
++ * locations.
++ *
++ * Description: Detects which if any of a set of token strings has been
+passed
++ * to it. Tokens can include up to MAX_OPT_ARGS instances of basic
+c-style
++ * format identifiers which will be taken into account when matching
+the
++ * tokens, and who's locations will be returned in the @args array.
++ */
+ int match_token(char *s, match_table_t table, substring_t args[])
+ {
+ 	struct match_token *p;
+@@ -84,6 +109,16 @@
+ 	return p->token;
+ }
+ 
++/**
++ * match_number: scan a number in the given base from a substring_t
++ * @s: substring to be scanned
++ * @result: resulting integer on success
++ * @base: base to use when converting string
++ *
++ * Description: Given a &substring_t and a base, attempts to parse the
+substring
++ * as a number in that base. On success, sets @result to the integer
+represented
++ * by the string and returns 0. Returns either -ENOMEM or -EINVAL on
+failure.
++ */
+ static int match_number(substring_t *s, int *result, int base)
+ {
+ 	char *endp;
+@@ -103,27 +138,71 @@
+ 	return ret;
+ }
+ 
++/**
++ * match_int: - scan a decimal representation of an integer from a
+substring_t
++ * @s: substring_t to be scanned
++ * @result: resulting integer on success
++ *
++ * Description: Attempts to parse the &substring_t @s as a decimal
+integer. On
++ * success, sets @result to the integer represented by the string and
+returns 0.
++ * Returns either -ENOMEM or -EINVAL on failure.
++ */
+ int match_int(substring_t *s, int *result)
+ {
+ 	return match_number(s, result, 0);
+ }
+ 
++/**
++ * match_octal: - scan an octal representation of an integer from a
+substring_t
++ * @s: substring_t to be scanned
++ * @result: resulting integer on success
++ *
++ * Description: Attempts to parse the &substring_t @s as an octal
+integer. On
++ * success, sets @result to the integer represented by the string and
+returns
++ * 0. Returns either -ENOMEM or -EINVAL on failure.
++ */
+ int match_octal(substring_t *s, int *result)
+ {
+ 	return match_number(s, result, 8);
+ }
+ 
++/**
++ * match_hex: - scan a hex representation of an integer from a
+substring_t
++ * @s: substring_t to be scanned
++ * @result: resulting integer on success
++ *
++ * Description: Attempts to parse the &substring_t @s as a hexadecimal
+integer.
++ * On success, sets @result to the integer represented by the string
+and
++ * returns 0. Returns either -ENOMEM or -EINVAL on failure.
++ */
+ int match_hex(substring_t *s, int *result)
+ {
+ 	return match_number(s, result, 16);
+ }
+ 
++/**
++ * match_strcpy: - copies the characters from a substring_t to a
+c-string
++ * @to: c-string to copy characters to.
++ * @s: &substring_t to copy
++ *
++ * Description: Copies the set of characters represented by the given
++ * &substring_t @s to the c-style string @to. Caller guarantees that
+@to is
++ * large enough to hold the characters of @s.
++ */
+ void match_strcpy(char *to, substring_t *s)
+ {
+ 	memcpy(to, s->from, s->to - s->from);
+ 	to[s->to - s->from] = '\0';
+ }
+ 
++/**
++ * match_strdup: - allocate a new c-string with the contents of a
+substring_t
++ * @s: &substring_t to copy
++ *
++ * Description: Allocates and returns a c-string filled with the
+contents of
++ * the &substring_t @s. The caller is responsible for freeing the
+returned
++ * string with kfree().
++ */
+ char *match_strdup(substring_t *s)
+ {
+ 	char *p = kmalloc(s->to - s->from + 1, GFP_KERNEL);
 
-b) no way to reset the 'offset' to 0 when the ->next() detects that it is
-back at the head of linked list, i.e. when it should return NULL. It's OK
-for a user app to detect that (e.g. check proc->pid == 0 thus it's a
-"swapper"  and so the beginning of the next chunk of processes) but it
-also has to issue lseek(fd, 0, SEEK_SET), otherwise the offsets will keep
-growing larger and larger and the kernel has to loop around that list (in
-->start() when it tries to walk a set distance from the head) many times
-unnecessarily and so the performance goes down. I tried doing something
-like this:
 
-  m->index = m->count = m->from = *ppos = 0;
-
-in the ->next() function whenever it detects that the 'next' element is 
-'init_task' but it didn't help. And I understand why, i.e. read(2) really 
-is supposed to increment the offset correctly, so what I require would 
-break the normal Unix read(2) semantics. So, maybe forcing user app to 
-issue lseek(fd, 0, SEEK_SET) is the only sensible solution... If you have 
-better ideas, please let me know.
-
-Kind regards
-Tigran
+-- 
+Will Dyson
+"Back off man, I'm a scientist!" -Dr. Peter Venkman
 

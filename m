@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264285AbTI2UUs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 16:20:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264703AbTI2UUs
+	id S264705AbTI2UZw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 16:25:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264706AbTI2UZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 16:20:48 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:20110 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264285AbTI2UUr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 16:20:47 -0400
-Date: Mon, 29 Sep 2003 22:20:45 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Brian Gerst <bgerst@didntduck.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: -mregparm=3 (was  Re: [PATCH] i386 do_machine_check() is redundant.
-In-Reply-To: <1064775868.5045.4.camel@laptop.fenrus.com>
-Message-ID: <Pine.LNX.4.58.0309292214100.3276@artax.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.44.0309281121470.15408-100000@home.osdl.org>
- <1064775868.5045.4.camel@laptop.fenrus.com>
+	Mon, 29 Sep 2003 16:25:52 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22544 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S264705AbTI2UZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 16:25:50 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] ULL fixes for qlogicfc
+Date: 29 Sep 2003 13:25:20 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <bla4fg$pbp$1@cesium.transmeta.com>
+References: <E1A41Rq-0000NJ-00@hardwired> <20030929172329.GD6526@gtf.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Use machine_check_vector in the entry code instead.
-> >
-> > This is wrong. You just lost the "asmlinkage" thing, which means that it
-> > breaks when asmlinkage matters.
-> >
-> > And yes, asmlinkage _can_ matter, even on x86. It disasbles regparm, for
-> > one thing, so it makes a huge difference if the kernel is compiled with
-> > -mregparm=3 (which used to work, and which I'd love to do, but gcc has
-> > often been a tad fragile).
+Followup to:  <20030929172329.GD6526@gtf.org>
+By author:    Jeff Garzik <jgarzik@pobox.com>
+In newsgroup: linux.dev.kernel
 >
-> gcc 3.2 and later are supposed to be ok (eg during 3.2 development a
-> long standing bug with regparm was fixed and now is believed to work)...
-> since our makefiles check gcc version already... this can be made gcc
-> version dependent as well for sure..
+> On Mon, Sep 29, 2003 at 06:04:34PM +0100, davej@redhat.com wrote:
+> > diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/scsi/qlogicfc.c linux-2.5/drivers/scsi/qlogicfc.c
+> > --- bk-linus/drivers/scsi/qlogicfc.c	2003-09-08 00:47:00.000000000 +0100
+> > +++ linux-2.5/drivers/scsi/qlogicfc.c	2003-09-08 01:30:56.000000000 +0100
+> > @@ -718,8 +718,8 @@ int isp2x00_detect(Scsi_Host_Template * 
+> >  				continue;
+> >  
+> >  			/* Try to configure DMA attributes. */
+> > -			if (pci_set_dma_mask(pdev, (u64) 0xffffffffffffffff) &&
+> > -			    pci_set_dma_mask(pdev, (u64) 0xffffffff))
+> > +			if (pci_set_dma_mask(pdev, 0xffffffffffffffffULL) &&
+> > +			    pci_set_dma_mask(pdev, 0xffffffffULL))
+> >  					continue;
+> 
+> Looks great.
+> 
+> I wonder if you are motivated to create similar pci_set_dma_mask()
+> cleanups for other drivers?  ;-)  Several other drivers need this same
+> cleanup, too.
+> 
 
-They are still buggy. gcc 3.3.1 miscompiles itself with -mregparm=3
-(without -O or -O2 it works). (I am too lazy to spend several days trying
-to find exactly which function in gcc was miscompiled, maybe I do it one
-day). gcc 2.95.3 compiles gcc 3.3.1 with -mregparm=3 -O2 correctly.
-gcc 3.4 doesn't seem to be better.
+Dumb question: why marking these explicitly as ULL instead of letting
+the compiler do its usual promotion?
 
-gcc 2.7.2.3 has totally broken -mregparm=3, even quite simple programs
-fail.
+(By all means, remove the explicit cast -- the function call should do
+this by itself.)
 
-Mikulas
+0xffffffff is unsigned int and will be promoted to
+0x00000000ffffffffULL by the function call.  0xffffffffffffffff is UL
+on 64-bit platforms and ULL on 32-bit platforms and will be promoted
+to 0xffffffffffffffffULL by the function call.
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+If you send me mail in HTML format I will assume it's spam.
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262740AbREOLeT>; Tue, 15 May 2001 07:34:19 -0400
+	id <S262744AbREOLmK>; Tue, 15 May 2001 07:42:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262741AbREOLeK>; Tue, 15 May 2001 07:34:10 -0400
-Received: from web13304.mail.yahoo.com ([216.136.175.40]:45321 "HELO
-	web13304.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262740AbREOLd7>; Tue, 15 May 2001 07:33:59 -0400
-Message-ID: <20010515113357.8157.qmail@web13304.mail.yahoo.com>
-Date: Tue, 15 May 2001 04:33:57 -0700 (PDT)
-From: Joerg Pommnitz <pommnitz@yahoo.com>
-Subject: Re: TCP capture effect :: estimate queue length ?
-To: linux-kernel@vger.kernel.org
-Cc: ralf@uni-koblenz.de
+	id <S262746AbREOLmA>; Tue, 15 May 2001 07:42:00 -0400
+Received: from m3d.uib.es ([130.206.132.6]:13496 "EHLO m3d.uib.es")
+	by vger.kernel.org with ESMTP id <S262744AbREOLlz>;
+	Tue, 15 May 2001 07:41:55 -0400
+From: "Ricardo Galli" <gallir@uib.es>
+To: <linux-kernel@vger.kernel.org>
+Subject: Reiserfs, Mongo and CPU question
+Date: Tue, 15 May 2001 13:41:01 +0200
+Message-ID: <NDBBKGPFCLNOBENJJLDDIEBCCHAA.gallir@uib.es>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Pathchar, yet another Van Jacobsen toy does this. Unfortunately the old
-> and rotten pre-version you can find in ftp.ee.lbl.gov/pathchar/ is afaik
-> the last one. In the past it served me well you find about how ISPs are
-> lying ... 100mbit backbone = fast ethernet in their computer room ...
-
-clink and pchar are reimplementations of pathchar that
-come with sources:
-http://www.employees.org/~bmah/Software/pchar
-http://rocky.wellesley.edu/downey/clink
-
-Regards
-Jörg
-
-=====
--- 
-Regards
-       Joerg
+Hans and reiserfs developers,
+	the same student of my university
+(http://www.cs.helsinki.fi/linux/linux-kernel/2001-18/0654.html) was
+carrying up the mongo benchmarks against reiser, xfs, jfs and ext2 for
+different base sizes.
 
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Auctions - buy the things you want at great prices
-http://auctions.yahoo.com/
+For example, for the base size of 10.000 (the average of a clean
+distribution is about 16.000 bytes) ReiserFS is even slower than ext2. I've
+realised the bottleneck may be the CPU, a Cyrix MII 233MHz.
+
+FSYS=ext2 FSYS=reiserfs
+
+(time in sec.)
+Create    32.72 / 56.90 = 0.58
+Fragm.    1.49 / 2.22 = 0.67
+
+Copy    98.53 / 131.81 = 0.75
+Fragm.    1.49 / 2.26 = 0.66
+
+Slinks    4.82 / 5.08 = 0.95
+Read    187.90 / 299.23 = 0.63
+Stats    1.01 / 0.99 = 1.02
+Rename    2.40 / 2.23 = 1.08
+Delete    6.55 / 4.82 = 1.36
+
+
+Can you confirm it? We are going to do the same benchmarks on a PIII if you
+think it's due to the cpu.
+
+I don't post the URL of the benchmarks to the list because last time we were
+slashdotted ;-) and we aren't convinced they are valueable, but I can send
+it to you directly if you are interested.
+
+Regards,
+
+--
+ricardo galli
+

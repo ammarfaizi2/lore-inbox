@@ -1,61 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268008AbRGVRsW>; Sun, 22 Jul 2001 13:48:22 -0400
+	id <S268014AbRGVRwC>; Sun, 22 Jul 2001 13:52:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268009AbRGVRsM>; Sun, 22 Jul 2001 13:48:12 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:780 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S268008AbRGVRr7>; Sun, 22 Jul 2001 13:47:59 -0400
-To: Douglas Gilbert <dougg@torque.net>
-Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
-        Alexander Viro <viro@math.psu.edu>
-Subject: Re: MO-Drive under 2.4.7 usinf vfat
-In-Reply-To: <3B5AE813.658ADC66@torque.net>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: 23 Jul 2001 02:47:24 +0900
-In-Reply-To: <3B5AE813.658ADC66@torque.net>
-Message-ID: <87itgkdff7.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.104
+	id <S268013AbRGVRvx>; Sun, 22 Jul 2001 13:51:53 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:54789 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S268012AbRGVRvs>;
+	Sun, 22 Jul 2001 13:51:48 -0400
+Date: Sun, 22 Jul 2001 19:51:43 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: "Alan J. Wylie" <alan.nospam@glaramara.freeserve.co.uk>
+cc: <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: ipt_unclean: TCP flags bad: 4
+In-Reply-To: <15194.61662.338810.87576@glaramara.freeserve.co.uk>
+Message-ID: <Pine.LNX.4.33.0107221947420.739-100000@Expansa.sns.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi,
 
-Douglas Gilbert <dougg@torque.net> writes:
+There was a bug introduced with kernel 2.4.6, but it was
+solved with one of the latest 2.4.7-pre patch, i do not remember which
+one.
 
-> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
-> > Is the capacity of your MO disk more than 640M?
-> 
-> No, the capacity is 635600896 bytes.
+actually i was happily using tcp_unclean on my production servers, but
+with 2.4.6 i was forced to avoid it.
+I still have to try 2.4.7 to see if it works properly.
 
-[...]
+If you use a rule like
 
-> 
-> > Perhaps, your MO disk will have the `ls' of a value smaller 
-> > than 2048.
-> Yes, ls=512 .
-> 
-> > Logical sector size smaller than device sector size cannot
-> > be handled with FAT of 2.4 series.
-> 
-> Great. When will that be fixed (Jens?) ? If not, can we get 
-> a more civilized response than the current oops?
+iptables -A INPUT -m unlean -j DROP
 
-The cause of this problem is me, and I think that it is the bug.
-How should this problem be solved? I think that it is either of the
-following.
+are you still able to connect in/out of your box?
 
-    1) logical sector size smaller than device sector size isn't
-       supported. (and output the message)
+bests
+Luigi
 
-    2) read a file data via block buffer (like FAT of 2.2 series).
 
-    3) other (drivers/block/loop.c?)
+On Sun, 22 Jul 2001, Alan J. Wylie wrote:
 
-Please comment.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+>
+> I've just upgraded to 2.4.7, and I'm getting lots of errors:
+>
+> ipt_unclean: TCP flags bad: 4
+>
+> I only see them when my ppp link is up - pppd version 2.4.0
+>
+> Looking at ipt_unclean.c it seems that this message will be generated
+> when I send a packet with flags set to RST only.
+>
+> I've run a ppp session with the pppd option "record" turned on, and
+> analysed the output with "ethereal". This is indeed what is on the
+> wire. I'm no expert on TCP I'm afraid. The complete TCP stream
+> follows:
+>
+> ------------------------------------------------------------------------------
+> No. Time        Source                Destination           Protocol Info
+>
+> 129 12.800000   62.137.113.223        news.svr.pol.co.uk    TCP
+>     1148 > nntp [SYN] Seq=3684831495 Ack=0 Win=5840 Len=0
+>
+> 131 12.900000   news.svr.pol.co.uk    62.137.113.223        TCP
+>     nntp > 1148 [SYN, ACK] Seq=2607886663 Ack=3684831496 Win=32736 Len=0
+>
+> 137 13.300000   62.137.113.223        news.svr.pol.co.uk    TCP
+>     1148 > nntp [FIN, ACK] Seq=3684831502 Ack=2607887466 Win=7090 Len=0
+>
+> 142 13.400000   62.137.113.223        news.svr.pol.co.uk    TCP
+>     1148 > nntp [RST] Seq=3684831503 Ack=0 Win=0 Len=0
+> ------------------------------------------------------------------------------
+>
+> --
+> Alan J. Wylie                        http://www.glaramara.freeserve.co.uk/
+> "Perfection [in design] is achieved not when there is nothing left to add,
+> but rather when there is nothing left to take away."
+>   Antoine de Saint-Exupery
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

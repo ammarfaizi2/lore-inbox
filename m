@@ -1,27 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131563AbRC3UQr>; Fri, 30 Mar 2001 15:16:47 -0500
+	id <S131643AbRC3VO5>; Fri, 30 Mar 2001 16:14:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131486AbRC3UQh>; Fri, 30 Mar 2001 15:16:37 -0500
-Received: from crete.csd.uch.gr ([147.52.16.2]:18101 "EHLO crete.csd.uch.gr")
-	by vger.kernel.org with ESMTP id <S131563AbRC3UQ3>;
-	Fri, 30 Mar 2001 15:16:29 -0500
+	id <S131653AbRC3VOr>; Fri, 30 Mar 2001 16:14:47 -0500
+Received: from crete.csd.uch.gr ([147.52.16.2]:33740 "EHLO crete.csd.uch.gr")
+	by vger.kernel.org with ESMTP id <S131643AbRC3VO3>;
+	Fri, 30 Mar 2001 16:14:29 -0500
 Organization: 
-Date: Fri, 30 Mar 2001 23:13:00 +0300 (EET DST)
+Date: Sat, 31 Mar 2001 00:10:57 +0300 (EET DST)
 From: mythos <papadako@csd.uoc.gr>
 To: <linux-kernel@vger.kernel.org>
-Subject: Matrox G400 Dualhead
-Message-ID: <Pine.GSO.4.33.0103302310180.7739-100000@iridanos.csd.uch.gr>
+Subject: Re: Matrox G400 Dualhead
+In-Reply-To: <Pine.LNX.4.10.10103301243360.23679-100000@clueserver.org>
+Message-ID: <Pine.GSO.4.33.0103310006130.8217-100000@iridanos.csd.uch.gr>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does anyone know why fualhead is not working anymore?
-I just get a screen with rubbish on the second head.
-Also when kernel loads and and registers fb1 I lose signal
-on the second head.
+Dualhead is not working with the current kernel(2.4.3).
+With 2.4.2 it was working just fine.
+I have not used any special compiler flags,just the usual ones
+and I am not loading XFree.
+Also does anyone know why when I change from Xfree to console
+most of the times the console is corrupted..?
+This is a problem which I have noticed from Xfree-4.0 and after.
 
-	Thanks for your help.
+Thanks in advance.
+
 
 

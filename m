@@ -1,81 +1,128 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261453AbTCYEXg>; Mon, 24 Mar 2003 23:23:36 -0500
+	id <S261369AbTC3PmA>; Sun, 30 Mar 2003 10:42:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261452AbTCYEXg>; Mon, 24 Mar 2003 23:23:36 -0500
-Received: from f111.pav2.hotmail.com ([64.4.37.111]:56580 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S261447AbTCYEXe>;
-	Mon, 24 Mar 2003 23:23:34 -0500
-X-Originating-IP: [202.54.64.9]
-X-Originating-Email: [senthil_gowran@hotmail.com]
-From: "Senthil Kumar" <senthil_gowran@hotmail.com>
-To: linux-kernel@vger.kernel.org, majordomo@vger.kernel.org
-Subject: Please send a reply to me....
-Date: Tue, 25 Mar 2003 04:34:37 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F111KV6aGHW5uUJvf5w0000e9f0@hotmail.com>
-X-OriginalArrivalTime: 25 Mar 2003 04:34:38.0288 (UTC) FILETIME=[D847B500:01C2F287]
+	id <S261389AbTC3PmA>; Sun, 30 Mar 2003 10:42:00 -0500
+Received: from [200.165.68.1] ([200.165.68.1]:13237 "EHLO net-rosas.com.br")
+	by vger.kernel.org with ESMTP id <S261369AbTC3Plu>;
+	Sun, 30 Mar 2003 10:41:50 -0500
+From: Cabral Bandeira da Silva <woody@net-rosas.com.br>
+To: adrianafallani@hotmail.com, alx@zipmail.com.br, linch03@mail.ru,
+   lilikamil@ig.com.br, murrssa@ig.com.br, anactslin@bol.com.br,
+   tutalita@hotmail.com, raskolnikov1999@canada.com, caiovalle@hotmail.com,
+   camilalls@mtv.com.br, fabitrema@hotmail.com, febelmonte@yahoo.com.br,
+   siebeneinenrock@hotmail.com, sk8_punkrock@hotmail.com,
+   ca.veklischer@nestle.com.br, lilica.nit@globo.com, l_fidelles@hotmail.com,
+   anderson@linuxclube.com, gorpo@linuxclube.com, analyser@linuxclube.com,
+   isk@linuxclube.com, emersonalecrim@linuxclube.com, surf@linuxclube.com,
+   arx@linuxclube.com, angusy@linuxclube.com, rigues@revistadolinux.com.br,
+   linux-kernel@vger.kernel.org
+Subject: =?ISO-8859-1?Q?PROMO=C7=D5ES_NES?=TLE_2003
+Message-ID: <1049039361.3e871201e67bb@www.net-rosas.com.br>
+Date: Sun, 30 Mar 2003 12:49:21 -0300 (BRT)
+Cc: woody@barbacena.com.br
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+User-Agent: IMP/PHP IMAP webmail program 2.2.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Dear All,
-
-   Please give me some idea to play the extracted data from mp3 in real time 
-application.
-i. e. From the mp3 file i extracted the data to be played alone to my local 
-buffer leaving the Frame information of 32 bits.
-
-Then through ioctl() function i wrote the channel, bitrate and Format.
-Then through write function i wrote the data captured in the local buffer to 
-the dsp device /dev/dsp.
-But i am getting only the irregular noise.
-
-Is any uncompression should be done for data and written.
-Is so how the uncompression should be done..
-with thanks and regards
-Senthil
+PROMOÇÕES_NESTLE_2003 
 
 
+> 
 
 
+>_NESTLE_2003 
 
 
+> 
 
 
+> 
 
 
+> >PROMOÇÕES_NESTLE_2003 
 
 
+> >Promoção Nestlé 2003 
 
 
+> > 
 
 
+> >Com os novos lançamentos da linha Nestlé para 2003 , 
 
 
-Dear All,
-
-   Please give me some idea to play the extracted data from mp3 in real time 
-application.
-i. e. From the mp3 file i extracted the data to be played alone to my local 
-buffer leaving the Frame information of 32 bits.
-
-Then through ioctl() function i wrote the channel, bitrate and Format.
-Then through write function i wrote the data captured in the local buffer to 
-the dsp device /dev/dsp.
-But i am getting only the irregular noise.
-
-Is any uncompression should be done for data and written.
-Is so how the uncompression should be done..
-with thanks and regards
-Senthil
+> >precisamos estar divulgando essa linha para o maior 
 
 
+> >número de pessoas, e uma estratégia encontrada por 
 
 
-_________________________________________________________________
-Get ball by ball action on your desktop. 
-http://server1.msn.co.in/msnspecials/cricketdownload/contest.asp Get Hutch 
-MSN Cricketer
+> >nosso depto. de marketing foi a divulgação via e-
+
+
+mail. 
+
+
+> >Divulgue esse mail para 15 pessoas com cópia para 
+
+
+> >ca.veklischer@nestle.com.br, que entraremos em 
+
+
+> >contato com você e enviaremos um lindo kit com todas 
+
+
+> >as novidades da linha Nestlé 2003. 
+
+
+> >Atenciosamente, 
+
+
+> > 
+
+
+> >CARLOS ADOLPHO VEKLISCHER 
+
+
+> >Nestlé Brazil 
+
+
+> >Gerente de Marketing 
+
+
+> > 
+
+
+> >> 
+
+
+> > 
+
+
+> > 
+
+
+>Tânia Tavares - CLINIC WEB DESIGN 
+
+
+>Tel. :(11) 6213-8743 Fax.:(11) 6211-3533 
+
+
+>E-mail:clinicasp@clinicasp.com.br 
+
+
+>Site :http://www.clinicasp.com.br 
+
+
+>__________________________________________________ 
+
+
+>Email na Web by Silicom ISP http://www.sili.com.br 
+
+
+> Tel (0xx11) 6198-2526 - São Paulo - SP 
 

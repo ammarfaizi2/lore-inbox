@@ -1,81 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267352AbUIUGgR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267466AbUIUGmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267352AbUIUGgR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 02:36:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267400AbUIUGgR
+	id S267466AbUIUGmg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 02:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267464AbUIUGmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 02:36:17 -0400
-Received: from [195.167.234.212] ([195.167.234.212]:32666 "EHLO atchik.com")
-	by vger.kernel.org with ESMTP id S267352AbUIUGgO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 02:36:14 -0400
-Date: Tue, 21 Sep 2004 08:33:18 +0200
-From: Colin Leroy <colin@colino.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pmac: don't add =?ISO-8859-15?B?IrBDIg==?= suffix in
- sys	for adt746x driver
-Message-ID: <20040921083318.1bdddd72@pirandello>
-In-Reply-To: <1095401127.5105.73.camel@gaston>
-References: <1095401127.5105.73.camel@gaston>
-X-Mailer: Sylpheed-Claws 0.9.12cvs102.2 (GTK+ 2.4.0; i686-redhat-linux-gnu)
-X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
+	Tue, 21 Sep 2004 02:42:36 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:24035 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S267480AbUIUGm3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 02:42:29 -0400
+Date: Tue, 21 Sep 2004 08:40:29 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+Cc: jmerkey@galt.devicelogics.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2 bio sickness with large writes
+Message-ID: <20040921064029.GB2287@suse.de>
+References: <4148D2C7.3050007@drdos.com> <20040916063416.GI2300@suse.de> <4149C176.2020506@drdos.com> <20040917073653.GA2573@suse.de> <20040917201604.GA12974@galt.devicelogics.com> <414F0F87.9040903@drdos.com> <20040920180957.GB7616@suse.de> <414F2D80.9090909@drdos.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-X-Atchik-MailScanner-Information: Please contact the ISP for more information
-X-Atchik-MailScanner: Found to be clean
-X-MailScanner-From: colin@colino.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <414F2D80.9090909@drdos.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Sep 2004 at 16h09, Benjamin Herrenschmidt wrote:
-
-Hi, 
-
-> The adt746x driver currently adds a "°C" suffix to temperatures
-> exposed via sysfs, and I don't like that. First, we all agree that any
-> other unit here makes no sense (do we ? do we ? yes of course :) and I
-> don't like having anything but numbers in there, and finally it's more
-> consistent with what the g5 driver does.
+On Mon, Sep 20 2004, Jeff V. Merkey wrote:
+> Jens Axboe wrote:
 > 
-> And finally, the _REAL_ reason is that this is not a low ASCII
-> character and so has nothing to do in the kernel sources or in /sys :)
+> >>page and offset sematics in the interface are also somewhat burdensome. 
+> >>Wouldn't a more reasonable
+> >>interface for async IO be:
+> >>
+> >>address
+> >>length
+> >>address
+> >>length
+> >>
+> >>rather than
+> >>
+> >>page structure
+> >>offset in page structure
+> >>page structure
+> >>offset in page structure
+> >>   
+> >>
+> >
+> >No, because { address, length } cannot fully describe all memory in any
+> >given machine.
+> >
+> > 
+> >
+> This response I don't understand. How memory is described in a machine 
+> for DMA addressibility
+> is pretty standard (with the exception of memory on intel machine in 32 
+> bit systems above 4GBthat need page tables) --
+> a physical numerical address. But who is going to DMA into memory not in 
+> the address space.
 
-Fine with me!  (Patch may be broken too...)
+The mapped address, yes, not the data you are actually mapping for dma.
+On 32-bit intel boxes, even with just 1GB of memory, you don't have a
+kernel mapping of the memory above 960MB.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Signed-off-by: Colin Leroy <colin@colino.net>
-===== drivers/macintosh/therm_adt746x.c 1.4 vs edited =====
---- 1.4/drivers/macintosh/therm_adt746x.c	2004-05-29 17:26:34 +10:00
-+++ edited/drivers/macintosh/therm_adt746x.c	2004-09-17 15:59:59 +10:00
-@@ -417,11 +417,6 @@
-  * choice but implement a bunch of them...
-  *
-  */
--#define BUILD_SHOW_FUNC_DEG(name, data)				\
--static ssize_t show_##name(struct device *dev, char *buf)	\
--{								\
--	return sprintf(buf, "%d°C\n", data);			\
--}
- #define BUILD_SHOW_FUNC_INT(name, data)				\
- static ssize_t show_##name(struct device *dev, char *buf)	\
- {								\
-@@ -453,10 +448,10 @@
- 	return n;						\
- }
- 
--BUILD_SHOW_FUNC_DEG(cpu_temperature,	 (read_reg(thermostat, TEMP_REG[1])))
--BUILD_SHOW_FUNC_DEG(gpu_temperature,	 (read_reg(thermostat, TEMP_REG[2])))
--BUILD_SHOW_FUNC_DEG(cpu_limit,		 thermostat->limits[1])
--BUILD_SHOW_FUNC_DEG(gpu_limit,		 thermostat->limits[2])
-+BUILD_SHOW_FUNC_INT(cpu_temperature,	 (read_reg(thermostat, TEMP_REG[1])))
-+BUILD_SHOW_FUNC_INT(gpu_temperature,	 (read_reg(thermostat, TEMP_REG[2])))
-+BUILD_SHOW_FUNC_INT(cpu_limit,		 thermostat->limits[1])
-+BUILD_SHOW_FUNC_INT(gpu_limit,		 thermostat->limits[2])
- 
- BUILD_SHOW_FUNC_INT(specified_fan_speed, fan_speed)
- BUILD_SHOW_FUNC_INT(cpu_fan_speed,	 (read_fan_speed(thermostat, FAN_SPEED[0])))
+> >Any chunk of memory has a page associated with it, but it may not have a
+> >kernel address mapping associated with it. So some identifier was needed
+> >other than a virtual address, a page is as good as any so making one up
+> >would be silly.
+> >
+> >Once you understand this, it doesn't seem so odd. You need to pass in a
+> >single page or sg table to map for dma anyways, the sg table holds page
+> >pointers as well.
+> >
+> > 
+> >
+> >>I can assume from the interface as designed that if you pass an offset 
+> >>for a page that is not page aligned,
+> >>and ask for a 4K write, then you will end up dropping the data on the 
+> >>floor than spans beyond the end of the page.
+> >>   
+> >>
+> >
+> >What kind of bogus example is that? Asking for a 4K write from a 4K page
+> >but asking to start 1K in that page is just stupid and not even remotely
+> >valid.
+> >
+> > 
+> >
+> Hardware doesn't care about page boundries. It sees hardware addresses
+> and lengths, at least most SG hardware I've worked with does. For ease
+> of submission, an interface that takes <address,length> would suffice.
+
+But what if there's no 'address' that identifies the piece of memory you
+want to do io for? It might not be directly addressable by the kernel.
+
+The pci dma mapping will coalesce the segments for you in the sg table
+according to the hardware restrictions. Most hardware understands sg
+addressing, if it doesn't it's a bad design imho.
+
+> Why on earth would someone need a context pointer into the kernel's
+> page tables to submit an SG into a device, apart from performing
+> virtual-to-physical translation?
+
+Ehm well exactly to do that virtual-to-physical translation, perhaps?
+That's the whole point.
+
+> >It's not difficult at all. Apparently you don't understand it so you
+> >think it's difficult, that's only natural. But you have access to the
+> >page mapping of any given piece of data always, or if you have the
+> >virtual address only it's trivial to go to the { page, offset } mapping.
+> > 
+> >
+> No, I do understand, and using page/offset at a low level SG interface
+
+You pretty much continue to describe throughout this mail that you do
+not understand why that is so.
+
+> IS burdensome.  I mean, if this is what I have to support I guess I
+> have to use it, but it will be just another section of code where I
+> have another **FAT** layer to waste more CPU cycles calculating
+> offset/page (oh yeah I have to lookup the struct page * structure
+> also) when it would be much simpler to just submit address/len in i386
+
+What a load of crap. Where does this waste of cycles come from?
+
+> systems. With this type of interface, If I have for instance an
+> on-disk structure that starts in the middle of a 4K page due to other
+> headers, etc. than spans a page, I cannot just submit the address and
+> length, I have to break it into two bio requests instead of one with a
+> for () loop from hell and calculate the offsets and rumage around in
+> memory looking up struct page * addresses.
+
+Calculating an offset is extremely complicated and wasteful, indeed.
+It's at least a few cycles.
+
+If you just used the bio_add_page() stuff like you are supposed to, you
+would not have to do that either.
+
+> >I can only imagine that you are used to a very different interface on
+> >some other OS so you think it's difficult to use. Most of your
+> >complaints seem to be based on false assumptions or because you don't
+> >understand why certain design decisions were made.
+> >
+> > 
+> >
+> 
+> No. I am used to programming to hardware with SG devices that all OS 
+> use. Is there somewhere a page based
+> SG device (other than SCI) for disk drive?. I don't think so, I think 
+> they operate address/len, address/len, etc.
+
+Where 'address' is the dma address, not the virtual address. You need
+the page to do that translation.
+
 -- 
-Colin
+Jens Axboe
+

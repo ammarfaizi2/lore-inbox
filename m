@@ -1,78 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270822AbTGVORE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 10:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270823AbTGVORE
+	id S270833AbTGVOX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 10:23:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270853AbTGVOX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 10:17:04 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:55773 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S270822AbTGVORA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 10:17:00 -0400
-Date: Tue, 22 Jul 2003 16:23:53 +0200
-From: Dominik Brodowski <linux@brodo.de>
-To: textshell@neutronstar.dyndns.org, davej@suse.de
-Cc: linux-kernel@vger.kernel.org, Henrik Persson <nix@syndicalist.net>
-Subject: Re: 2.6.0-test1: CPUFreq not working, can't find sysfs interface
-Message-ID: <20030722142353.GA1301@brodo.de>
-References: <20030720150243.GJ2331@neutronstar.dyndns.org> <200307201745.h6KHjcHt095999@sirius.nix.badanka.com> <20030720211246.GK2331@neutronstar.dyndns.org> <20030722120811.GD1160@brodo.de> <20030722141839.GD7517@neutronstar.dyndns.org>
+	Tue, 22 Jul 2003 10:23:27 -0400
+Received: from www.13thfloor.AT ([212.16.59.250]:28900 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S270833AbTGVOXZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 10:23:25 -0400
+Date: Tue, 22 Jul 2003 16:38:35 +0200
+From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: ROOT NFS fixes ...
+Message-ID: <20030722143835.GC16779@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	lkml <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030722141839.GD7517@neutronstar.dyndns.org>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 22, 2003 at 04:18:39PM +0200, textshell@neutronstar.dyndns.org wrote:
-> So it seems to me that the BIOS doesn't have the tables for my Athlon
-> model/stepping. I tried to get a new bios from hp, but it didn't change anything
-> relevant (they changed something in the PSTs but did not add a new one for my
-> processor)
 
-Indeed, that's the BUG().
+Hi Trond!
 
-> > I guess it's yet another BIOS problem... [as seen quite often wrt AMD
-> > PowerNow, unfortunately]
-> 
-> I think it would be a good thing to display a Message explaining why powernow
-> isn't working to the user in the case that no relevant PST is found.
+please have a look at the attached patch, which
+addresses the root=/dev/wossname issue, when ROOT_NFS
+is configured. this is a NFS only issue, and IMHO
+fixes an erroneous behaviour.
 
-Patch appended at the end.
+if it seems okay to you, please let Marcelo know,
+so he could add this patch to the next -pre kernel
 
-> Can you suggest any workaround for this problem, or is my only option to
-> complain to HP do supply an updated BIOS. 
+MTIA,
+Herbert
 
-Well, you could try using the PST which mostly matches your system except
-the CPUID [PST #12, see below] -- if the values used are similar to the ones
-Windows XP uses. But this might be risky!!!
 
-> I very much would like to have a way to override (or add to) the bios provided
-> values.
+------------- NFS ROOT FIX
 
-AFAIK, Dave Jones will add support to override the BIOS-provided tables.
+diff -NurbP --minimal linux-2.4.22-pre7/fs/nfs/nfsroot.c linux-2.4.22-pre7-fix/fs/nfs/nfsroot.c
+--- linux-2.4.22-pre7/fs/nfs/nfsroot.c	2003-06-13 16:51:37.000000000 +0200
++++ linux-2.4.22-pre7-fix/fs/nfs/nfsroot.c	2003-07-21 22:15:12.000000000 +0200
+@@ -305,7 +305,7 @@
+  */
+ int __init nfs_root_setup(char *line)
+ {
+-	ROOT_DEV = MKDEV(UNNAMED_MAJOR, 255);
++	ROOT_DEV = MKDEV(NFS_MAJOR, NFS_MINOR);
+ 	if (line[0] == '/' || line[0] == ',' || (line[0] >= '0' && line[0] <= '9')) {
+ 		strncpy(nfs_root_name, line, sizeof(nfs_root_name));
+ 		nfs_root_name[sizeof(nfs_root_name)-1] = '\0';
+diff -NurbP --minimal linux-2.4.22-pre7/include/linux/nfs.h linux-2.4.22-pre7-fix/include/linux/nfs.h
+--- linux-2.4.22-pre7/include/linux/nfs.h	2000-04-01 18:04:27.000000000 +0200
++++ linux-2.4.22-pre7-fix/include/linux/nfs.h	2003-07-21 22:13:12.000000000 +0200
+@@ -30,6 +30,9 @@
+ #define NFS_MNT_PROGRAM	100005
+ #define NFS_MNT_PORT	627
+ 
++#define NFS_MAJOR   	UNNAMED_MAJOR
++#define NFS_MINOR   	0xff
++
+ /*
+  * NFS stats. The good thing with these values is that NFSv3 errors are
+  * a superset of NFSv2 errors (with the exception of NFSERR_WFLUSH which
+diff -NurbP --minimal linux-2.4.22-pre7/init/do_mounts.c linux-2.4.22-pre7-fix/init/do_mounts.c
+--- linux-2.4.22-pre7/init/do_mounts.c	2003-07-19 14:14:31.000000000 +0200
++++ linux-2.4.22-pre7-fix/init/do_mounts.c	2003-07-21 22:13:12.000000000 +0200
+@@ -88,7 +88,7 @@
+ 	const char *name;
+ 	const int num;
+ } root_dev_names[] __initdata = {
+-	{ "nfs",     0x00ff },
++	{ "nfs",     MKDEV(NFS_MAJOR, NFS_MINOR) },
+ 	{ "hda",     0x0300 },
+ 	{ "hdb",     0x0340 },
+ 	{ "loop",    0x0700 },
+@@ -759,7 +759,8 @@
+ static void __init mount_root(void)
+ {
+ #ifdef CONFIG_ROOT_NFS
+-	if (MAJOR(ROOT_DEV) == UNNAMED_MAJOR) {
++       if (MAJOR(ROOT_DEV) == NFS_MAJOR
++           && MINOR(ROOT_DEV) == NFS_MINOR) {
+ 		if (mount_nfs_root()) {
+ 			sys_chdir("/root");
+ 			ROOT_DEV = current->fs->pwdmnt->mnt_sb->s_dev;
+diff -NurbP --minimal linux-2.4.22-pre7/net/ipv4/ipconfig.c linux-2.4.22-pre7-fix/net/ipv4/ipconfig.c
+--- linux-2.4.22-pre7/net/ipv4/ipconfig.c	2003-07-19 14:14:31.000000000 +0200
++++ linux-2.4.22-pre7-fix/net/ipv4/ipconfig.c	2003-07-21 22:15:50.000000000 +0200
+@@ -1234,7 +1234,7 @@
+ 			 * 				-- Chip
+ 			 */
+ #ifdef CONFIG_ROOT_NFS
+-			if (ROOT_DEV == MKDEV(UNNAMED_MAJOR, 255)) {
++			if (ROOT_DEV == MKDEV(NFS_MAJOR, NFS_MINOR)) {
+ 				printk(KERN_ERR 
+ 					"IP-Config: Retrying forever (NFS root)...\n");
+ 				goto try_try_again;
 
->  --DEBUG: 7a0 ?= 781 && 21 ?= 21, 11 ?= 11
->  PST:12 (@0x4017d8dc)
->   cpuid: 0x781	  fsb: 133	  maxFID: 0x15	  startvid: 0xb
->   num of p states in this table: 6
->     FID: 0x12 (4.0x [532MHz])	VID: 0x13 (1.200V)
->     FID: 0x4 (5.0x [665MHz])	VID: 0x13 (1.200V)
->     FID: 0x6 (6.0x [798MHz])	VID: 0x13 (1.200V)
->     FID: 0x8 (7.0x [931MHz])	VID: 0x13 (1.200V)
->     FID: 0xe (10.0x [1330MHz])	VID: 0xe (1.300V)
->     FID: 0x15 (13.5x [1796MHz])	VID: 0xb (1.450V)
 
-	Dominik
-
-diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/powernow-k7.c linux/arch/i386/kernel/cpu/cpufreq/powernow-k7.c
---- linux-original/arch/i386/kernel/cpu/cpufreq/powernow-k7.c	2003-07-11 14:12:35.000000000 +0200
-+++ linux/arch/i386/kernel/cpu/cpufreq/powernow-k7.c	2003-07-22 16:16:00.000000000 +0200
-@@ -345,6 +345,7 @@
- 						p+=2;
- 				}
- 			}
-+			dprintk (KERN_INFO PFX "Did not find any PST table for this CPU -- exiting\n");
- 			return -EINVAL;
- 		}
- 		p++;

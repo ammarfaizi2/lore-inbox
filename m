@@ -1,52 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262965AbUKRVFS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbUKRWe7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262965AbUKRVFS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 16:05:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbUKRVDS
+	id S261186AbUKRWe7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 17:34:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbUKRWdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 16:03:18 -0500
-Received: from mail.timesys.com ([65.117.135.102]:1097 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S261161AbUKRVAu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 16:00:50 -0500
-Subject: Re: [PATCH] MII bus API for PHY devices
-From: Jason McMullan <jason.mcmullan@timesys.com>
-To: Andy Fleming <afleming@freescale.com>
-Cc: "<netdev@oss.sgi.com>" <netdev@oss.sgi.com>,
-       "<linux-kernel@vger.kernel.org>" <linux-kernel@vger.kernel.org>
-In-Reply-To: <2B68D9FA-399B-11D9-96F6-000393C30512@freescale.com>
-References: <069B6F33-341C-11D9-9652-000393DBC2E8@freescale.com>
-	 <9B0D9272-398A-11D9-96F6-000393C30512@freescale.com>
-	 <1100806489.14467.47.camel@jmcmullan>
-	 <2B68D9FA-399B-11D9-96F6-000393C30512@freescale.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 18 Nov 2004 16:00:47 -0500
-Message-Id: <1100811647.14467.52.camel@jmcmullan>
+	Thu, 18 Nov 2004 17:33:17 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:20625
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261170AbUKRW3z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 17:29:55 -0500
+Date: Thu, 18 Nov 2004 14:14:08 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: "John W. Linville" <linville@tuxdriver.com>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com, greearb@candelatech.com, vlan@scry.wanfear.com
+Subject: Re: [patch netdev-2.6] vlan_dev: return 0 on vlan_dev_change_mtu
+ success
+Message-Id: <20041118141408.686e7b16.davem@davemloft.net>
+In-Reply-To: <20041118140436.A16007@tuxdriver.com>
+References: <20041118140436.A16007@tuxdriver.com>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1-1mdk 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-18 at 13:50 -0600, Andy Fleming wrote:
-> Jason McMullan said:
-> >
-> > Actually, each PHY should have it's own device directory, like every
-> > other device. Eventually, PHYs should have /dev/phy* entries, where
-> > user-space can read/write PHY registers.
+On Thu, 18 Nov 2004 14:04:36 -0500
+"John W. Linville" <linville@tuxdriver.com> wrote:
+
+> The VLAN net driver needs to return 0 from vlan_dev_change_mtu()
+> on success.
 > 
-> I think you misunderstood.  Are you talking about sysfs?  I was talking 
-> about actual source files.  i.e. should there be dm9161.c, m88e1101.c, 
-> cis8201.c, etc.
+> Signed-off-by: John W. Linville <linville@tuxdriver.com>
 
-	Yes, I am talking about sysfs. And yes, I think every PHY should have
-it's own .c file. (although most people could get away with
-using a non-IRQ 'drivers/net/phy/phy-generic.c'
-
-> Also, do we need user-space to read/write PHY registers.  ethtool has 
-> this capability, I believe, and the interfaces there are settled.
-
-Doh! I forgot.
-
--- 
-Jason McMullan <jason.mcmullan@timesys.com>
+Both 2.4.x and 2.6.x variants applied, thanks John.

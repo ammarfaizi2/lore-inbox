@@ -1,40 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135963AbRAMAma>; Fri, 12 Jan 2001 19:42:30 -0500
+	id <S135964AbRAMAqa>; Fri, 12 Jan 2001 19:46:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135964AbRAMAmV>; Fri, 12 Jan 2001 19:42:21 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5126 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135963AbRAMAmI>; Fri, 12 Jan 2001 19:42:08 -0500
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Sat, 13 Jan 2001 00:43:25 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10101121631250.8097-100000@penguin.transmeta.com> from "Linus Torvalds" at Jan 12, 2001 04:35:46 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135970AbRAMAqV>; Fri, 12 Jan 2001 19:46:21 -0500
+Received: from [216.184.166.130] ([216.184.166.130]:2874 "EHLO
+	scsoftware.sc-software.com") by vger.kernel.org with ESMTP
+	id <S135964AbRAMAqL>; Fri, 12 Jan 2001 19:46:11 -0500
+Date: Fri, 12 Jan 2001 16:43:40 +0000 (   )
+From: John Heil <kerndev@sc-software.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linus Torvalds <torvalds@transmeta.com>, Vojtech Pavlik <vojtech@suse.cz>,
+        linux-kernel@vger.kernel.org
+Subject: Re: ide.2.4.1-p3.01112001.patch
+In-Reply-To: <E14HEVf-0005K2-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.95.1010112162542.1292a-100000@scsoftware.sc-software.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14HEn2-0005M6-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	interrupt_handler()
-> 	{
-> 		status = readl(dev->status);
-> 		if (status & MY_IRQ_DISABLE)
-> 			return;
+On Sat, 13 Jan 2001, Alan Cox wrote:
 
-Unfortunately on the 8390 the IRQ statud register is on page 0. The code
-on the other CPU might not be on page 0. That means we can't even safely
-check if there is an irq pending or clear it down (bad news on ne2k-pci)
-without getting that lock.
+> Date: Sat, 13 Jan 2001 00:25:28 +0000 (GMT)
+> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> To: Linus Torvalds <torvalds@transmeta.com>
+> Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+> Subject: Re: ide.2.4.1-p3.01112001.patch
+> 
+> > what the bug is, and whether there is some other work-around, and whether
+> > it is 100% certain that it is just those two controllers (maybe the other
+> > ones are buggy too, but the 2.2.x tests basically cured their symptoms too
+> > and peopl ehaven't reported them because they are "fixed").
+> 
+> I've not seen reports on the later chips. If they had been buggy and then 
+> fixed I'd have expected much unhappy ranting before the change
 
-That means we have to be able to just block that one irq source to avoid
-horrible SMP latency problems. 
+The "fix" was an hdparm command like hdparm -X66 -m16c1d1 /dev/hda.
+Which I set for my VIA 686a on a Tyan mobo w a 1G Athlon.
 
-Alan
+Interestingly, initially feeding that chip 40 wire cables (w/o the
+-X66 of course) would result in the crc errors followed by DMA turn off,
+about 85% of time... Other 15% was fine and DMA worked great.
+
+I then switched to the 80 wire cable and DMA became rock solid at
+which point the -X66 was added.
+
+Just thought I'd add some data points :) 
+
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
+
+-----------------------------------------------------------------
+John Heil
+South Coast Software
+Custom systems software for UNIX and IBM MVS mainframes
+1-714-774-6952
+kerndev@sc-software.com
+johnhscs@sc-software.com
+http://www.sc-software.com
+-----------------------------------------------------------------
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

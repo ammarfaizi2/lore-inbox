@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266693AbUF3PVd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266705AbUF3PWw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266693AbUF3PVd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 11:21:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266699AbUF3PV1
+	id S266705AbUF3PWw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 11:22:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266703AbUF3PWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 11:21:27 -0400
-Received: from janus.foobazco.org ([198.144.194.226]:1408 "EHLO
-	mail.foobazco.org") by vger.kernel.org with ESMTP id S266693AbUF3PVK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 11:21:10 -0400
-Date: Wed, 30 Jun 2004 08:21:07 -0700
-From: wesolows@foobazco.org
-To: "David S. Miller" <davem@redhat.com>
-Cc: Jamie Lokier <jamie@shareable.org>, sparclinux@vger.kernel.org,
-       ultralinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: A question about PROT_NONE on Sparc and Sparc64
-Message-ID: <20040630152107.GA20438@foobazco.org>
-References: <20040630030503.GA25149@mail.shareable.org> <20040629221711.77f0fca5.davem@redhat.com>
+	Wed, 30 Jun 2004 11:22:48 -0400
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:33195 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S266699AbUF3PWS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 11:22:18 -0400
+Date: Wed, 30 Jun 2004 16:22:03 +0100
+From: Ian Molton <spyro@f2s.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: A question about PROT_NONE on ARM and ARM26
+Message-Id: <20040630162203.245ae9b2.spyro@f2s.com>
+In-Reply-To: <20040630145942.GH29285@mail.shareable.org>
+References: <20040630024434.GA25064@mail.shareable.org>
+	<20040630091621.A8576@flint.arm.linux.org.uk>
+	<20040630145942.GH29285@mail.shareable.org>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.9.12-gtk2-20040617 (GTK+ 2.4.1; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040629221711.77f0fca5.davem@redhat.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 29, 2004 at 10:17:11PM -0700, David S. Miller wrote:
+On Wed, 30 Jun 2004 15:59:42 +0100
+Jamie Lokier <jamie@shareable.org> wrote:
 
-> > In include/asm-sparc/pgtsrmmu.h, there's:
-> > 
-> > #define SRMMU_PAGE_NONE    __pgprot(SRMMU_VALID | SRMMU_CACHE | \
-> > 				    SRMMU_PRIV | SRMMU_REF)
-> > #define SRMMU_PAGE_RDONLY  __pgprot(SRMMU_VALID | SRMMU_CACHE | \
-> > 				    SRMMU_EXEC | SRMMU_REF)
-> > 
-> > This one bothers me.  The difference is that PROT_NONE pages are not
-> > accessible to userspace, and not executable.
-> > 
-> > So userspace will get a fault if it tries to read a PROT_NONE page.
-> > 
-> > But what happens when the kernel reads one?  Don't those bits mean
-> > that the read will succeed?  I.e. write() on a PROT_NONE page will
-> > succeed, instead of returning EFAULT?
-> > 
-> > If so, this is a bug.  A minor bug, perhaps, but nonetheless I wish to
-> > document it.
 > 
-> Yes this one is a bug and not intentional.
+> Here's an optimisation idea, for ARM26 only:
+> ...........................................
 > 
-> Keith W., we need to fix this.  Probably the simplest fix is just to
-> drop the SRMMU_VALID bit.
+> Do you need the "strlst" instructions in putuser.S?  They're followed
+> by "strge" instructions.
 
-Ok, I'll try this approach and see what happens.
+ARM26 is special compared to some other architectures.
 
--- 
-Keith M Wesolowski
+the CPU has a 64MB address space, and in all known ARM26 + MMU
+configurations, the bottom 32MB are the logical addresses. the upper
+32MB (where kernel, physical RAM (16MB max) and IO live) are physically
+addressable ONLY.
+
+the kernel isnt mapped into the virtual address space on ARM26. it could
+be, but with only 512 logical pages maximum on a normal machine (1024 on
+a machine with very little RAM) it would cripple the system even more
+than it already is.
+
+the tests in ARM26 determine wether to use a translated access or a
+nontranslated one depending on wether we access kernel or user space.

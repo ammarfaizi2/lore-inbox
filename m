@@ -1,67 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129181AbRBUWy6>; Wed, 21 Feb 2001 17:54:58 -0500
+	id <S129170AbRBUWy2>; Wed, 21 Feb 2001 17:54:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130408AbRBUWyv>; Wed, 21 Feb 2001 17:54:51 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:46601 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129183AbRBUWyd>; Wed, 21 Feb 2001 17:54:33 -0500
-Message-ID: <3A94470C.2E54EB58@transmeta.com>
-Date: Wed, 21 Feb 2001 14:54:04 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S129183AbRBUWyS>; Wed, 21 Feb 2001 17:54:18 -0500
+Received: from evl.evl.uic.edu ([131.193.48.80]:60683 "EHLO evl.uic.edu")
+	by vger.kernel.org with ESMTP id <S129170AbRBUWyJ>;
+	Wed, 21 Feb 2001 17:54:09 -0500
+Date: Wed, 21 Feb 2001 16:54:01 -0600 (CST)
+From: "Michael W. Bogucki" <mbogucki@evl.uic.edu>
+To: linux-kernel@vger.kernel.org
+Subject: hda: irq timeout's??
+Message-ID: <Pine.SGI.3.95.1010221164326.75860B-100000@greenberg.evl.uic.edu>
 MIME-Version: 1.0
-To: Martin Mares <mj@suse.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [rfc] Near-constant time directory index for Ext2
-In-Reply-To: <20010221220835.A8781@atrey.karlin.mff.cuni.cz> <XFMail.20010221132959.davidel@xmailserver.org> <20010221223238.A17903@atrey.karlin.mff.cuni.cz> <971ejs$139$1@cesium.transmeta.com> <20010221233204.A26671@atrey.karlin.mff.cuni.cz> <3A94435D.59A4D729@transmeta.com> <20010221235008.A27924@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares wrote:
-> 
-> Hello!
-> 
-> > You're right.  However, for each hash table operation to be O(1) the size
-> > of the hash table must be >> n.
-> 
-> If we are talking about average case complexity (which is the only possibility
-> with fixed hash function and arbitrary input keys), it suffices to have
-> hash table size >= c*n for some constant c which gives O(1/c) cost of
-> all operations.
-> 
+Hello All,
+	I know that this question has been asked in the past (according to
+the archives), but I have not been able to find a solution to this problem
+(in the archives.)
+	First of all here's the system specs as well as OS.
 
-True.  Note too, though, that on a filesystem (which we are, after all,
-talking about), if you assume a large linear space you have to create a
-file, which means you need to multiply the cost of all random-access
-operations with O(log n).
+Supermicro P6DNE (yeah I know..it's old...)
+Bios Rev 1.8d (the latest one.)
+64 Megs of Ram
+8 gig Seagate U4 Model ST 38421A drive. 
+Dual 166 Mhz (512k cache) procs
 
-> > I suggested at one point to use B-trees with a hash value as the key.
-> > B-trees are extremely efficient when used on a small constant-size key.
-> 
-> Although from asymptotic complexity standpoint hashing is much better
-> than B-trees, I'm not sure at all what will give the best performance for
-> reasonable directory sizes. Maybe the B-trees are really the better
-> alternative as they are updated dynamically and the costs of successive
-> operations are similar as opposed to hashing which is occassionally very
-> slow due to rehashing unless you try to rehash on-line, but I don't
-> know any algorithm for on-line rehashing with both inserts and deletes
-> which wouldn't be awfully complex and slow (speaking of multiplicative
-> constants, of course -- it's still O(1) per operation, but "the big Oh
-> is really big there").
+OS: Redhat ver 7.0 with kernel 2.2.16.
+I've also tried 6.0, 6.1, 6.2 (with the stock kernels.)
 
-Well, once you multiply with O(log n) for the file indirection (which
-B-trees don't need, since they inherently handle blocking and thus can
-use block pointers directly) then the asymptotic complexity is the same
-as well, and I think the B-trees are the overall winner.
+Just recently I've been getting this error popping up on the console:
 
-	-hpa
+hda: irp timeout: Status=0xd0 {Busy}
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+**AS WELL AS**
+
+hda: irp timeout: Status=0x58 {DriveReady SeekComplete DataRequest}
+
+Now I will mention that I have replaced the harddrive in this system 4
+times. Each time was because the drive started acting up (and these
+messages were appearing.) 
+
+The latest drive, which is less that 3 months old, will make all sorts of
+clicking sounds...just like all the previous drives, and the system load
+would go up beyond 2.0, just for a simple 'ls' command.
+
+Has anyone been able to come up with a solution to this problem??
+
+I have already tried using a POST probe as well as Microscope 2000.
+They both state that nothing is wrong with the system.
+
+Please email/CC back at mbogucki@evl.uic.edu.
+
+Thank you for your time and help!!
+
+
+--|\/| | |< E
+
+The most exciting phrase to hear in science, the one that heralds new
+discoveries, is not "Eureka!" (I found it!) but "That's funny ..."
+                -- Isaac Asimov
+

@@ -1,54 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264191AbUFKQ0P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264153AbUFKRD0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264191AbUFKQ0P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 12:26:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264117AbUFKQRd
+	id S264153AbUFKRD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 13:03:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264270AbUFKRCV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 12:17:33 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:8089 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264119AbUFKQQJ
+	Fri, 11 Jun 2004 13:02:21 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:3456 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264229AbUFKQ73
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 12:16:09 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: linux-ide@vger.kernel.org
-Subject: [PATCH] IDE update for 2.6.7-rc3 [7/12]
-Date: Fri, 11 Jun 2004 17:59:54 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+	Fri, 11 Jun 2004 12:59:29 -0400
+Date: Fri, 11 Jun 2004 12:59:16 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: "Srinivas G." <srinivasg@esntechnologies.co.in>
+cc: linux-kernel@vger.kernel.org,
+       "Surendra I." <surendrai@esntechnologies.co.in>,
+       Subramanyam B <subramanyamb@esntechnologies.co.in>
+Subject: Re: Problem in module loading automatically at boot time
+In-Reply-To: <1118873EE1755348B4812EA29C55A9722AF3A5@esnmail.esntechnologies.co.in>
+Message-ID: <Pine.LNX.4.53.0406111255020.746@chaos>
+References: <1118873EE1755348B4812EA29C55A9722AF3A5@esnmail.esntechnologies.co.in>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200406111759.54209.bzolnier@elka.pw.edu.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 11 Jun 2004, Srinivas G. wrote:
 
-[PATCH] ide: fix ide-cd to not retry REQ_DRIVE_TASKFILE requests
+>
+> Hi,
+>
+> I have written a small driver program called hello.c.
+>
+> ************************************************************************
+> ***************
+> #include <linux/module.h>
+>
+> MODULE_LICENSE("GPL");
+>
+> int init_module(void)
+> {
+>   printk("<1>" "Hello world\n");
+>   return 0;
+> }
+>
+> void cleanup_module(void)
+> {
+>   printk("<1>good bye\n");
+> }
+>
+> ************************************************************************
+> ****************
+>
+> I compiled the above program with cc -DMODULE -D__KERNEL__
+> -I/usr/src/linux2.4/include -O2 -c hello.c
+>
+> I am using Red Hat Linux 7.3 with kernel version of 2.4.18-3.
+> It works fine when I load it with insmod from root prompt.
+>
+> Now, I want to make it load automatically at boot time.
+> For that I have used the following steps.
+>
+> ---> I copied the hello.o file in the
+> /lib/modules/2.4.18-3/kernel/drivers/block
+>
+> ---> I run the depmod command. It included the above path in
+> /lib/modules/2.4.18-3/modules.dep file.
+>
+> ---> I added "alias hello1 hello" entry into /etc/modules.conf file.
+>
+> When I reboot the machine after the above changes, my driver is not
+> loaded and an error message is printed as follows.
+>
+> ---> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.18-3/kernel/drivers/block/hello.o
+>
+>
+> Could anyone suggest me, if I am missing anything here?
+>
+> Srinivas G
+>
 
-'cat /proc/ide/hdx/identify' generates REQ_DRIVE_TASKFILE request
-(for WIN_PIDENTIFY command) even for devices controlled by ide-cd.
+Maybe `depmod -e ...` would tell you what symbols are missing??
 
-All other drivers don't retry such requests.
+Then, after you observe that, try including <linux/kernel.h>,
+and <linux/module.h>, like you are supposed to do.
 
-Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
 
- linux-2.6.7-rc3-bzolnier/drivers/ide/ide-cd.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-diff -puN drivers/ide/ide-cd.c~ide_cdrom_taskfile drivers/ide/ide-cd.c
---- linux-2.6.7-rc3/drivers/ide/ide-cd.c~ide_cdrom_taskfile	2004-06-10 23:01:31.725338592 +0200
-+++ linux-2.6.7-rc3-bzolnier/drivers/ide/ide-cd.c	2004-06-10 23:01:31.731337680 +0200
-@@ -574,7 +574,7 @@ ide_startstop_t ide_cdrom_error (ide_dri
- 	if (drive == NULL || (rq = HWGROUP(drive)->rq) == NULL)
- 		return ide_stopped;
- 	/* retry only "normal" I/O: */
--	if (rq->flags & (REQ_DRIVE_CMD | REQ_DRIVE_TASK)) {
-+	if (rq->flags & (REQ_DRIVE_CMD | REQ_DRIVE_TASK | REQ_DRIVE_TASKFILE)) {
- 		rq->errors = 1;
- 		ide_end_drive_cmd(drive, stat, err);
- 		return ide_stopped;
-
-_
 

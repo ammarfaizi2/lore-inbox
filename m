@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263299AbTDRXWp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 19:22:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263300AbTDRXWp
+	id S263300AbTDRXXz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 19:23:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbTDRXXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 19:22:45 -0400
-Received: from nika.frontier.iarc.uaf.edu ([137.229.94.16]:1920 "EHLO
-	nika.frontier.iarc.uaf.edu") by vger.kernel.org with ESMTP
-	id S263299AbTDRXWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 19:22:45 -0400
-Date: Fri, 18 Apr 2003 15:34:42 -0800
-From: Christopher Swingley <cswingle@iarc.uaf.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.67 oops upon removing USB flash drive
-Message-ID: <20030418233442.GB831@iarc.uaf.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030418232756.GA831@iarc.uaf.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Apr 2003 19:23:55 -0400
+Received: from siaag1ad.compuserve.com ([149.174.40.6]:49057 "EHLO
+	siaag1ad.compuserve.com") by vger.kernel.org with ESMTP
+	id S263300AbTDRXXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 19:23:53 -0400
+Date: Fri, 18 Apr 2003 19:33:22 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [PATCH] Solved: 2.4.20, 2.5.66 have different IDE channel
+  order
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Greg Kroah-Hartman <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-ID: <200304181935_MC3-1-3503-83F@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030418232756.GA831@iarc.uaf.edu>
-X-gpg-fingerprint: B96C 58DC 0643 F8FE C9D0  8F55 1542 1A4F 0698 252E
-X-gpg-key: [http://www.frontier.iarc.uaf.edu/~cswingle/gnupgkey.asc]
-X-URL: [http://www.frontier.iarc.uaf.edu/~cswingle/]
-X-Editor: VIM [http://www.vim.org]
-X-message-flag: Consider Linux: fast, reliable, secure & free!
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Christopher Swingley <cswingle@iarc.uaf.edu> [2003-Apr-18 15:27 AKDT]:
-> Inserting, mounting and then removing a USB mass storage device caused 
-> the oops at the bottom of this message.  Afterwords USB mass storage 
-> devices no longer worked.
 
-I forgot to mention, I also umounted it (and waited for the little light 
-to stop flashing) before pulling it out of the USB socket.
+  2.4 builds its global PCI device list in breadth-first order.
 
-Chris
--- 
-Christopher S. Swingley          email: cswingle@iarc.uaf.edu
-IARC -- Frontier Program         Please use encryption.  GPG key at:
-University of Alaska Fairbanks   www.frontier.iarc.uaf.edu/~cswingle/
+  2.5 is doing the scan that way but defers the construction of the
+global list until later and then does it depth-first.  This causes
+devices to found in different order by drivers. The below fixed that
+problem for me:
 
+
+--- linux-2.5.66-ref/drivers/pci/bus.c	Sat Mar 29 09:16:22 2003
++++ linux-2.5.66-uni/drivers/pci/bus.c	Fri Apr 18 19:08:04 2003
+@ -75,7 +75,8 @
+  * Add newly discovered PCI devices (which are on the bus->devices
+  * list) to the global PCI device list, add the sysfs and procfs
+  * entries.  Where a bridge is found, add the discovered bus to
+- * the parents list of child buses, and recurse.
++ * the parents list of child buses, and recurse (breadth-first
++ * to be compatible with 2.4)
+  *
+  * Call hotplug for each new devices.
+  */
+@ -98,6 +99,12 @
+ #endif
+ 		pci_create_sysfs_dev_files(dev);
+ 
++	}
++
++	list_for_each_entry(dev, &bus->devices, bus_list) {
++
++		BUG_ON(list_empty(&dev->global_list));
++
+ 		/*
+ 		 * If there is an unattached subordinate bus, attach
+ 		 * it and then scan for unattached PCI devices.
+
+
+------
+ Chuck

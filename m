@@ -1,30 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281228AbRKYXRi>; Sun, 25 Nov 2001 18:17:38 -0500
+	id <S281205AbRKYXSH>; Sun, 25 Nov 2001 18:18:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281204AbRKYXR1>; Sun, 25 Nov 2001 18:17:27 -0500
-Received: from jik-0.dsl.speakeasy.net ([66.92.77.120]:10112 "EHLO
-	jik.kamens.brookline.ma.us") by vger.kernel.org with ESMTP
-	id <S281194AbRKYXRJ>; Sun, 25 Nov 2001 18:17:09 -0500
-Date: Sun, 25 Nov 2001 18:17:08 -0500
-From: Jonathan Kamens <jik@kamens.brookline.ma.us>
-Message-Id: <200111252317.fAPNH8c10292@jik.kamens.brookline.ma.us>
-To: linux-kernel@vger.kernel.org
-Subject: How do I add a drive to the DMA blacklist?
+	id <S281197AbRKYXR5>; Sun, 25 Nov 2001 18:17:57 -0500
+Received: from hall.mail.mindspring.net ([207.69.200.60]:28726 "EHLO
+	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S281205AbRKYXRr>; Sun, 25 Nov 2001 18:17:47 -0500
+Message-ID: <3C017C1B.8B8610DE@mindspring.com>
+Date: Sun, 25 Nov 2001 16:17:47 -0700
+From: Jim Henderson <hendersj@mindspring.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: J Sloan <jjs@pobox.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM:  kernel BUG at filemap.c:791
+In-Reply-To: <3C016E08.3C2D2537@mindspring.com> <3C017A6E.A4A3E2A6@pobox.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How do I get a drive added to the DMA blacklists in ide-dma.c?  I sent
-E-mail to Andre Hedrick in August about a drive that claims to support
-DMA but flakes out as soon as the kernel tries to use it -- the "WDC
-AC31000H".  This is not surprising, since all the other WDC drives of
-this vintage have the same problem.  I included a patch to add this
-drive to the two blacklists in ide-dma.c.  Andre never responded to my
-E-mail, and the drive still hasn't been added to the blacklists.
+J Sloan wrote:
+> Wow, it must have taken quite some effort
+> to patch a 2.2 kernel for ext3!
+> 
+> OK, assuming you really mean 2.4.14, there
+> is a patch floating around the list for that -
 
-Am I doing something wrong?  What do I need to do to get this drive
-added to the blacklists?
+You are correct, I fat-fingered the kernel version, 2.4.14 is what I'm
+running.  Been running 2.4.x kernels for quite a while now, and I catch
+myself freqently making that mistake when I type the version.
 
-Thanks,
+> I had a compaq 6500 that would scribble
+> on the disk and then lock up hard at some
+> random point in time - but that behaviour
+> could be triggered immediatley by running
+> dbench  - Look for the compaq patches from
+> Jens Axboe or better yet, lose 2.4.14 and go
+> straight to 2.4.16-pre1, since it has the ida
+> raid fixes, and ext3 support already.
 
-  Jonathan Kamens
+Will give the 2.4.16-pre1 kernel a shot and see how it behaves.
+
+I should have mentioned in my intial post as well that I've seen both
+hard locks (as in this case) and soft locks (where I could use the
+'magic sysreq key' feature), both of which referenced this particular
+code segment.
+
+Thanks for the quick response.
+
+Jim

@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285134AbRL0NsE>; Thu, 27 Dec 2001 08:48:04 -0500
+	id <S286283AbRL0NsD>; Thu, 27 Dec 2001 08:48:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286275AbRL0Nrz>; Thu, 27 Dec 2001 08:47:55 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:41873 "EHLO
+	id <S285134AbRL0Nry>; Thu, 27 Dec 2001 08:47:54 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:41105 "EHLO
 	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S286277AbRL0Nrd>; Thu, 27 Dec 2001 08:47:33 -0500
-Date: 27 Dec 2001 12:35:00 +0200
+	id <S286275AbRL0Nrd>; Thu, 27 Dec 2001 08:47:33 -0500
+Date: 27 Dec 2001 13:22:00 +0200
 From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Message-ID: <8FeKgxdXw-B@khms.westfalen.de>
-In-Reply-To: <20011221180354.A10001@iglou.com>
+Message-ID: <8FeKhwMmw-B@khms.westfalen.de>
+In-Reply-To: <20011221160333.K15926@redhat.com>
 Subject: Re: Configure.help editorial policy
 X-Mailer: CrossPoint v3.12d.kh8 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <20011221180354.A10001@iglou.com>
+In-Reply-To: <20011221205711.GA32465@weta.f00f.org> <20011221201033.GA32368@weta.f00f.org> <20011221153136.G15926@redhat.com> <20011221205711.GA32465@weta.f00f.org> <20011221160333.K15926@redhat.com>
 X-No-Junk-Mail: I do not want to get *any* junk mail.
 Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
 X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jeffm@iglou.com (Jeff Mcadams)  wrote on 21.12.01 in <20011221180354.A10001@iglou.com>:
+bcrl@redhat.com (Benjamin LaHaise)  wrote on 21.12.01 in <20011221160333.K15926@redhat.com>:
 
-> Also sprach Oliver Xymoron
-> >Not true. Bandwidth is measured in metric.
+> On Sat, Dec 22, 2001 at 09:57:11AM +1300, Chris Wedgwood wrote:
+> > I don't want to get dragged into this silly debate; the point I was
+> > making is that we already have considerable inconsistency and choosing
+> > STANDARDS BASED tokens might not be a bad thing.
 >
-> If by this you mean that in networking, a megabit per second is equal to
-> 1000^2, or a gigabit per second is 1000^3, then my response consists of:
->
-> Uhm, no.
+> They're defacto standards that have been in use for well over a decade.
 
-Well, 64 kBit/s is certainly equal to 64000 bits per second. (That's  
-ISDN.)
+And it's been wrong for all of that decade, because the rest of the world  
+- *all* of it - has been using a different version for quite a bit longer  
+than that.
 
-And from a quick look through Google, Ethernet - in 10M, 100M, and G  
-variants at least - also uses decimal powers.
+> Hmmm, all of the advertising, computer media and electrical engineering
+> related material I've read recently seems to be using GB.  In fact, there
+> was one very article about the whole issue that found the computer
+> industry to be remarkably consistent in using terms like "10GB" with no
+> space between the number and the measuring unit.  Oh wait, sorry, that's
+> not formally approved by any standards bodies.
 
-So I'd say that's "Uhm, yes".
+Unfortunately, while the typesetting may be consistent, the *meaning*  
+isn't. You cannot swap out 10GB RAM to a 10GB hard disk, it will overflow.
+
+> Many standards bodies are examples of confusopolies.
+
+Well, this particular "de facto standard" certainly is a confusopoly.
+
 
 MfG Kai

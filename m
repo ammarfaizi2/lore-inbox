@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264436AbTF0OuY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 10:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264450AbTF0OuX
+	id S264447AbTF0Our (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 10:50:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264449AbTF0Our
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 10:50:23 -0400
-Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:13481 "EHLO
-	d12lmsgate-5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S264436AbTF0OuU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 10:50:20 -0400
-Date: Fri, 27 Jun 2003 17:03:28 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390 patches: description.
-Message-ID: <20030627150328.GA3591@mschwid3.boeblingen.de.ibm.com>
-Mime-Version: 1.0
+	Fri, 27 Jun 2003 10:50:47 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:24039 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S264447AbTF0Ouo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 10:50:44 -0400
+Date: Fri, 27 Jun 2003 08:04:39 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Daniel Phillips <phillips@arcor.de>, Mel Gorman <mel@csn.ul.ie>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC] My research agenda for 2.7
+Message-ID: <25700000.1056726277@[10.10.2.4]>
+In-Reply-To: <200306271654.46491.phillips@arcor.de>
+References: <200306250111.01498.phillips@arcor.de> <Pine.LNX.4.53.0306271345330.14677@skynet> <23430000.1056725030@[10.10.2.4]> <200306271654.46491.phillips@arcor.de>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
-7 patches for s390.
+--Daniel Phillips <phillips@arcor.de> wrote (on Friday, June 27, 2003 16:54:46 +0200):
 
-Short descriptions:
-1) Basic patch to get kernel working on s390 again.
-2) Compat fixes for s390. 
-3) Common i/o layer patch. Most important change is the option to
-   enable/disable path grouping. It makes no sense to try path grouping
-   on devices that don't support it. It is now the decision of the device
-   driver to use path grouping or not.
-4) Some dasd stuff. Nothing important.
-5) Correct call to SET_MODULE_OWNER in the network device drivers.
-6) Fix two typos in xpram.
-7) Return 0 on success in tty3215_init.
+> On Friday 27 June 2003 16:43, Martin J. Bligh wrote:
+>> The buddy allocator is not a good system for getting rid of fragmentation.
+> 
+> We've talked in the past about throwing out the buddy allocator and adopting 
+> something more modern and efficient and I hope somebody will actually get 
+> around to doing that.  In any event, defragging is an orthogonal issue.  Some 
+> allocation strategies may be statistically more resistiant to fragmentation 
+> than others, but no allocator has been invented, or ever will be, that can 
+> guarantee that terminal fragmentation will never occur - only active 
+> defragmentation can provide such a guarantee.
 
-Patches are against linux-bk as of 2003/06/27.
+Whilst I agree with that in principle, it's inevitably expensive. Thus 
+whilst we may need to have that code, we should try to avoid using it ;-)
 
-blue skies,
-  Martin.
+The buddy allocator is obviously flawed in this department ... strategies
+like allocating a 4M block to a process up front, then allocing out of that
+until we're low on mem, then reclaiming in as large blocks as possible from
+those process caches, etc, etc, would obviously help too. Though maybe
+we're just permanently low on mem after a while, so it'd be better to just
+group pagecache pages together ... that would actually be pretty simple to
+change ... hmmm.
+
+M.
 

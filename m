@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281493AbRKHJ2v>; Thu, 8 Nov 2001 04:28:51 -0500
+	id <S281496AbRKHKBE>; Thu, 8 Nov 2001 05:01:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281486AbRKHJ2l>; Thu, 8 Nov 2001 04:28:41 -0500
-Received: from dire.bris.ac.uk ([137.222.10.60]:15327 "EHLO dire.bris.ac.uk")
-	by vger.kernel.org with ESMTP id <S281491AbRKHJ2g>;
-	Thu, 8 Nov 2001 04:28:36 -0500
-Date: Thu, 8 Nov 2001 09:28:08 +0000 (GMT)
-From: Matt <madmatt@bits.bris.ac.uk>
+	id <S281497AbRKHKAp>; Thu, 8 Nov 2001 05:00:45 -0500
+Received: from mta.sara.nl ([145.100.16.144]:44500 "EHLO mta.sara.nl")
+	by vger.kernel.org with ESMTP id <S281496AbRKHKAe>;
+	Thu, 8 Nov 2001 05:00:34 -0500
+Message-Id: <200111081000.LAA00436@zhadum.sara.nl>
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Remco Post <r.post@sara.nl>
 To: linux-kernel@vger.kernel.org
-Subject: My 3c980 is misdetected
-Message-ID: <Pine.LNX.4.21.0111080916480.20023-100000@bits.bris.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Yet another design for /proc. Or actually /kernel. 
+In-Reply-To: Message from "William Knop" <w_knop@hotmail.com> 
+   of "Wed, 07 Nov 2001 14:41:26 EST." <F218Wqr2f9hYDkngMUJ00002181@hotmail.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 08 Nov 2001 11:00:27 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-More NIC-related queries,
+> >>Here's my go at a new design for /proc. I designed it from a userland
+> >>point of view and tried not to drown myself into details.
+> >
+> >Did you have to change the subject line. It makes it harder to kill >file 
+> >when people keep doing that
+> 
+> You really consider this discussion to be unimportant? Granted, the lack of 
+> organization in /proc is not a bug, but keeping the kernel organized is part 
+> of maintenence. Like cleaning my room-- it's not a showstopper if it is 
+> messy, but it is nicer and easier to work in when neat.
+> 
+> Will Knop
+> w_knop@hotmail.com
 
-Under the 2.4.13 kernel, the 3c59x.o driver misdetects my 3c980 as a 3c982
-(the dual port version of what I assume is the same card):
+Hi,
 
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-00:09.0: 3Com PCI 3c982 Dual Port Server Cyclone at 0xdc00. Vers LK1.1.16
+the discussion is irrelevant. Despite what everybody thinks, Linus thinks 
+/proc must be not binary, so it will stay that way for those of us who run 
+Linus kernels...
 
-Here is the output of lspci -v:
+I can inmagine people like Alan ignoring this discussion after such a 
+statement, the outcome of the discussion is irrelevant for the kernel 
+development.
 
-00:09.0 Ethernet controller: 3Com Corporation: Unknown device 9805 (rev 78)
-        Subsystem: 3Com Corporation: Unknown device 1000
-        Flags: bus master, medium devsel, latency 32, IRQ 10
-        I/O ports at dc00 [size=128]
-        Memory at db000000 (32-bit, non-prefetchable) [size=128]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [dc] Power Management version 2
 
-It all seems to work fine, but I was wondering if this might cause a
-hiccup anywhere? 2.2.19 identified my card correctly, and I have some
-earlier 3c980 models in another box still running 2.2.19, which get
-detected correctly too:
-
-00:0a.0 Class 0200: 10b7:9800
-        Subsystem: 10b7:9800
-        Flags: bus master, medium devsel, latency 32, IRQ 17
-        I/O ports at d880
-        Memory at efffaf80 (32-bit, non-prefetchable)
-        Expansion ROM at effc0000 [disabled]
-        Capabilities: [dc] Power Management version 1
-
-Cheers
-
-Matt
 -- 
-"Phase plasma rifle in a forty-watt range?"
-"Only what you see on the shelves, buddy."
+Met vriendelijke groeten,
+
+Remco Post
+
+SARA - Stichting Academisch Rekencentrum Amsterdam
+High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
+
+"I really didn't foresee the Internet. But then, neither did the computer
+industry. Not that that tells us very much of course - the computer industry
+didn't even foresee that the century was going to end." -- Douglas Adams
+
 

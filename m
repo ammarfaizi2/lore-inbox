@@ -1,82 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262601AbUKXK2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262595AbUKXKcJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262601AbUKXK2J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 05:28:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbUKXK0l
+	id S262595AbUKXKcJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 05:32:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbUKXKcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 05:26:41 -0500
-Received: from gprs214-63.eurotel.cz ([160.218.214.63]:46464 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262595AbUKXK0O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 05:26:14 -0500
-Date: Wed, 24 Nov 2004 11:25:57 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Zhu, Yi" <yi.zhu@intel.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org
-Subject: Re: [linux-pm] [PATCH] make pm_suspend_disk suspend/resume sysdev and dpm_off_irq
-Message-ID: <20041124102557.GB1107@elf.ucw.cz>
-References: <3ACA40606221794F80A5670F0AF15F8403BD5868@pdsmsx403>
+	Wed, 24 Nov 2004 05:32:09 -0500
+Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:61319 "EHLO
+	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
+	id S262595AbUKXKcG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 05:32:06 -0500
+Date: Wed, 24 Nov 2004 11:21:51 +0100
+From: Guido Guenther <agx@sigxcpu.org>
+To: hugang@soulinfo.com
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org
+Subject: Re: [PATH] swsusp update 3/3
+Message-ID: <20041124102150.GC15009@bogon.ms20.nix>
+References: <20041119194007.GA1650@hugang.soulinfo.com> <20041120003010.GG1594@elf.ucw.cz> <20041120081219.GA2866@hugang.soulinfo.com> <20041120224937.GA979@elf.ucw.cz> <20041122072215.GA13874@hugang.soulinfo.com> <20041122102612.GA1063@elf.ucw.cz> <20041122103240.GA11323@hugang.soulinfo.com> <20041122110247.GB1063@elf.ucw.cz> <20041122165858.GC10609@hugang.soulinfo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F8403BD5868@pdsmsx403>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20041122165858.GC10609@hugang.soulinfo.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> This patch makes the new swsusp code ( pm_suspend_disk since 2.6.9-rc3) 
-> call suspend/resume functions for sysdev and devices in dpm_off_irq
-> list. 
-> Otherwise, PCI link device in the system won't provide correct interrupt
-> for PCI
-> devices during resume.
-
-I do not think this is right approach; you enable interrupts then
-disable that again, potentially without interrupt controller being
-initialized.
-
-This should be better patch:
-								Pavel
-
---- clean/kernel/power/swsusp.c	2004-10-19 14:16:29.000000000 +0200
-+++ linux/kernel/power/swsusp.c	2004-11-23 23:11:04.000000000 +0100
-@@ -854,11 +840,13 @@
- 	if ((error = arch_prepare_suspend()))
- 		return error;
- 	local_irq_disable();
-+	sysdev_suspend(3);
- 	save_processor_state();
- 	error = swsusp_arch_suspend();
- 	/* Restore control flow magically appears here */
- 	restore_processor_state();
- 	restore_highmem();
-+	sysdev_resume();
- 	local_irq_enable();
- 	return error;
- }
-@@ -878,6 +866,7 @@
- {
- 	int error;
- 	local_irq_disable();
-+	sysdev_suspend(3);
- 	/* We'll ignore saved state, but this gets preempt count (etc) right */
- 	save_processor_state();
- 	error = swsusp_arch_resume();
-@@ -887,6 +876,7 @@
- 	BUG_ON(!error);
- 	restore_processor_state();
- 	restore_highmem();
-+	sysdev_resume();
- 	local_irq_enable();
- 	return error;
- }
-
-
-
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+On Tue, Nov 23, 2004 at 12:58:58AM +0800, hugang@soulinfo.com wrote:
+> --- linux-2.6.9-ppc-g4-peval/drivers/video/aty/radeon_pm.c	2004-10-20 15:55:34.000000000 +0800
+> +++ linux-2.6.9-ppc-g4-peval-hg/drivers/video/aty/radeon_pm.c	2004-11-22 17:16:58.000000000 +0800
+> @@ -859,6 +859,10 @@
+>  	 * know we'll be rebooted, ...
+>  	 */
+>  
+> +#if 0	/* this breaks suspend to ram until the dust settles... */
+> +	if (state != PM_SUSPEND_MEM)
+> +#endif
+> +		return 0;
+>  	printk(KERN_DEBUG "radeonfb: suspending to state: %d...\n", state);
+>  	
+>  	acquire_console_sem();
+Please don't. I only added this to my ppc swsusp patches as a temporary
+hack. It should use "flags = SUSPEND_TO_RAM" from Pavel's bigdiff.
+I submitted other parts to BenH a while ago, I'm currently working on
+cleaning some parts up and make it work with suspend-to-ram.
+ -- Guido

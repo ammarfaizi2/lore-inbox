@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284816AbRLLBEH>; Tue, 11 Dec 2001 20:04:07 -0500
+	id <S284242AbRLLBJH>; Tue, 11 Dec 2001 20:09:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284242AbRLLBDv>; Tue, 11 Dec 2001 20:03:51 -0500
-Received: from miami.integratus.com ([192.111.50.240]:16113 "HELO
-	mail.integratus.com") by vger.kernel.org with SMTP
-	id <S284812AbRLLBD2>; Tue, 11 Dec 2001 20:03:28 -0500
-Message-ID: <3C16AC44.E226F60D@integratus.com>
-Date: Tue, 11 Dec 2001 17:00:52 -0800
-From: curtis@integratus.com
-Organization: Integratus, Inc.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+	id <S284814AbRLLBI5>; Tue, 11 Dec 2001 20:08:57 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:267 "EHLO vasquez.zip.com.au")
+	by vger.kernel.org with ESMTP id <S284242AbRLLBIp>;
+	Tue, 11 Dec 2001 20:08:45 -0500
+Message-ID: <3C16ADB1.F9E847E9@zip.com.au>
+Date: Tue, 11 Dec 2001 17:06:57 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: Anton Altaparmakov <aia21@cam.ac.uk>, Nathan Scott <nathans@sgi.com>,
-        Andreas Gruenbacher <ag@bestbits.at>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: reiser4 (was Re: [PATCH] Revised extended attributesinterface)
-In-Reply-To: <20011205143209.C44610@wobbly.melbourne.sgi.com>	 <20011207202036.J2274@redhat.com>	 <20011208155841.A56289@wobbly.melbourne.sgi.com>	 <3C127551.90305@namesys.com>	 <20011211134213.G70201@wobbly.melbourne.sgi.com> <5.1.0.14.2.20011211184721.04adc9d0@pop.cus.cam.ac.uk> <3C166920.77F644F@integratus.com> <3C167BF1.6090301@namesys.com> <3C1690E6.914911A2@integratus.com> <3C16969C.3070508@namesys.com>
+To: Berend De Schouwer <bds@jhb.ucs.co.za>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Kernel Oops on cat /proc/ioports
+In-Reply-To: <1008073796.5535.5.camel@bds.ucs.co.za>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-> I'll try to convince you again when I have working code that isn't
-> monstrous code, but allows users full choice, ok?
+Berend De Schouwer wrote:
+> 
+> [1.] One line summary of the problem:
+> 
+> Running "cat /proc/ioports" causes a segfault and kernel oops.
+> 
+> ...
+> [7.3.] Module information (from /proc/modules):
+> 
+> cyclades              147616  16 (autoclean)
 
-It's a deal!
+cyclades does request_region(), but forgets to do release_region().
+This will leave the region allocated in kernel data structures,
+but its "name" field resides in module memory.
 
-Thanks,
+So if you load cyclades.o, then rmmod it, then cat /proc/ioports,
+you'll touch unmapped memory and go boom.
 
-	Curtis
+Some brave soul needs to teach cyclades about release_region().
+Shame the Nobel prizes are all gone this year.
 
--- 
-Curtis Anderson						curtis@integratus.com
+-

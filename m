@@ -1,45 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263033AbRFJBoJ>; Sat, 9 Jun 2001 21:44:09 -0400
+	id <S263032AbRFJBkJ>; Sat, 9 Jun 2001 21:40:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263034AbRFJBn7>; Sat, 9 Jun 2001 21:43:59 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:28073 "EHLO
+	id <S263033AbRFJBkA>; Sat, 9 Jun 2001 21:40:00 -0400
+Received: from horus.its.uow.edu.au ([130.130.68.25]:28070 "EHLO
 	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S263033AbRFJBns>; Sat, 9 Jun 2001 21:43:48 -0400
-Message-ID: <3B22CEF9.6DEB1A66@uow.edu.au>
-Date: Sun, 10 Jun 2001 11:35:53 +1000
+	id <S263032AbRFJBju>; Sat, 9 Jun 2001 21:39:50 -0400
+Message-ID: <3B22CDFA.2BC46385@uow.edu.au>
+Date: Sun, 10 Jun 2001 11:31:38 +1000
 From: Andrew Morton <andrewm@uow.edu.au>
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre4 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: hofmang@ibm.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 3C905b partial  lockup in 2.4.5-pre5 and up to 2.4.6-pre1
-In-Reply-To: <3B221A56.31120.3C1910@localhost>
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] truncate_inode_pages
+In-Reply-To: <Pine.GSO.4.21.0106091331120.19361-100000@weyl.math.psu.edu>,
+		<Pine.GSO.4.21.0106091331120.19361-100000@weyl.math.psu.edu> <01061000533601.03897@starship>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Glenn C. Hofmann" wrote:
+Daniel Phillips wrote:
 > 
-> I have tried 2.4.5-pre2 up to 2.4.6-pre1 with the same results.  Everything boots
-> great and I can login fine.  When I try to assign an IP via DHCP or ifconfig, the system
-> sits and stares at me indefinitely.  2.4.5-pre4 didn't compile for me, but pre3 works fine
-> and pre5 locks.  There is keyboard response, and Alt-SysRq will tell me that it knows I
-> want it to sync the disks, but won't actually do it.  It will reboot, though.  I can switch
-> between terminals, but cannot type anything at the login prompt.
-> 
-> The board is a Abit KT7-RAID.  I have waited to see if this issue has been resolved and
-> will recompile the newer kernels (AC and Linus flavours) to see if it has cleared up, but
-> wanted to see if maybe there is something else I should look at.  I can provide any more
-> information that might help, so please let me know.  Thanks in advance.
+> This is easy, just set the list head to the page about to be truncated.
 
-There's a problem in some versions of `pump' where it gets
-confused and ends up spinning indefinitely.  If you're using
-pump could you please try the latest RPM?
+Works for me.
 
-If that doesn't help, and if you're unable to kill pump
-with ^C, and if other virtual consoles are not responding then
-it could be a kernel problem - try hitting sysrq-T and feeding
-the resulting logs through `ksymoops -m System.map'
+--- linux-2.4.5/mm/filemap.c	Mon May 28 13:31:49 2001
++++ linux-akpm/mm/filemap.c	Sun Jun 10 11:29:19 2001
+@@ -235,12 +235,13 @@
+ 
+ 		/* Is one of the pages to truncate? */
+ 		if ((offset >= start) || (*partial && (offset + 1) == start)) {
++			list_del(head);
++			list_add_tail(head, curr);
+ 			if (TryLockPage(page)) {
+ 				page_cache_get(page);
+ 				spin_unlock(&pagecache_lock);
+ 				wait_on_page(page);
+-				page_cache_release(page);
+-				return 1;
++				goto out_restart;
+ 			}
+ 			page_cache_get(page);
+ 			spin_unlock(&pagecache_lock);
+@@ -252,11 +253,14 @@
+ 				truncate_complete_page(page);
+ 
+ 			UnlockPage(page);
+-			page_cache_release(page);
+-			return 1;
++			goto out_restart;
+ 		}
+ 	}
+ 	return 0;
++out_restart:
++	page_cache_release(page);
++	spin_lock(&pagecache_lock);
++	return 1;
+ }
+ 
+ 
+@@ -273,15 +277,18 @@
+ {
+ 	unsigned long start = (lstart + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
+ 	unsigned partial = lstart & (PAGE_CACHE_SIZE - 1);
++	int complete;
+ 
+-repeat:
+ 	spin_lock(&pagecache_lock);
+-	if (truncate_list_pages(&mapping->clean_pages, start, &partial))
+-		goto repeat;
+-	if (truncate_list_pages(&mapping->dirty_pages, start, &partial))
+-		goto repeat;
+-	if (truncate_list_pages(&mapping->locked_pages, start, &partial))
+-		goto repeat;
++	do {
++		complete = 1;
++		while (truncate_list_pages(&mapping->clean_pages, start, &partial))
++			complete = 0;
++		while (truncate_list_pages(&mapping->dirty_pages, start, &partial))
++			complete = 0;
++		while (truncate_list_pages(&mapping->locked_pages, start, &partial))
++			complete = 0;
++	} while (!complete);
+ 	spin_unlock(&pagecache_lock);
+ }

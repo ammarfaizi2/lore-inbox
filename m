@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286692AbSANO1F>; Mon, 14 Jan 2002 09:27:05 -0500
+	id <S286590AbSANO3f>; Mon, 14 Jan 2002 09:29:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286672AbSANO0t>; Mon, 14 Jan 2002 09:26:49 -0500
-Received: from albatross-ext.wise.edt.ericsson.se ([194.237.142.116]:39300
-	"EHLO albatross-ext.wise.edt.ericsson.se") by vger.kernel.org
-	with ESMTP id <S286692AbSANO0J>; Mon, 14 Jan 2002 09:26:09 -0500
-Message-ID: <F50839283B51D211BC300008C7A4D63F0C1075A2@eukgunt002.uk.eu.ericsson.se>
-From: "Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>
-To: "'Giacomo Catenazzi'" <cate@debian.org>
-Cc: "'esr@thyrsus.com'" <esr@thyrsus.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: RE: ISA hardware discovery -- the elegant solution
-Date: Mon, 14 Jan 2002 15:25:50 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S286647AbSANO30>; Mon, 14 Jan 2002 09:29:26 -0500
+Received: from host213-121-105-84.in-addr.btopenworld.com ([213.121.105.84]:32458
+	"HELO mail.dark.lan") by vger.kernel.org with SMTP
+	id <S286590AbSANO3R>; Mon, 14 Jan 2002 09:29:17 -0500
+Subject: Re: [PATCH] oom_kill() race?
+From: Gianni Tedesco <gianni@ecsc.co.uk>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0201140433480.32617-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.33L.0201140433480.32617-100000@imladris.surriel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 14 Jan 2002 14:29:13 +0000
+Message-Id: <1011018553.15409.10.camel@lemsip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Giacomo Catenazzi [mailto:cate@debian.org]
-> >>
-> >>The kernel's device drivers have, of course, to include probe
-> >>routines, and those hard-compiled in typically log the presence of
-> >>their hardware to /var/log/mesg when it loads.  By scanning that
-> >>file, we in effect get to use those probes.
-> >>
-> > 
-> > Doesn't this mean that you would need a fully functional kernel
-> > before you get to run the autoconfigurator?
+On Mon, 2002-01-14 at 06:34, Rik van Riel wrote:
+> Rik
+> -- 
+> "Linux holds advantages over the single-vendor commercial OS"
+>     -- Microsoft's "Competing with Linux" document
 > 
-> 
-> Not a problem. Autoconfiguration is made to help configuring
-> the kernel, before to compile it. So you need a linux working
-> machine (actually you can cross-compile).
-> 
-> Our task is to allow user to compile a kernel, with the
-> needed drivers, without the non used drivers.
+> http://www.surriel.com/		http://distro.conectiva.com/
 
-OK, well I guess I am a little confused.
+Heh,
 
-If I hit an autoconfigurator button then I would expect a kernel that
-will boot and know everything there is to know about my machine.
+Ive got a copy of that document here because my company is a MS partner.
+Ironically enough it manages to hang MS word, abiword to the rescue.
 
-Without probing the hardware how will the autoconfigurator cope with 
-the hardware changing underneath it?
+I love the whole "Windows is good for the user because it increases your
+profit margin" angle.
 
-Michael
+Fun reading.
+
+-- 
+// Gianni Tedesco <gianni@ecsc.co.uk>
+80% of all email is a figment of procmails imagination.
+

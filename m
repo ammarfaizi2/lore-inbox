@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131990AbRDYNYk>; Wed, 25 Apr 2001 09:24:40 -0400
+	id <S132821AbRDYNav>; Wed, 25 Apr 2001 09:30:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132821AbRDYNYa>; Wed, 25 Apr 2001 09:24:30 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:25986 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S131990AbRDYNYX>;
-	Wed, 25 Apr 2001 09:24:23 -0400
-Message-ID: <3AE6D007.4F519933@mandrakesoft.com>
-Date: Wed, 25 Apr 2001 09:24:23 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre6 i686)
-X-Accept-Language: en
+	id <S135199AbRDYNam>; Wed, 25 Apr 2001 09:30:42 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:39947
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S132821AbRDYNa3>; Wed, 25 Apr 2001 09:30:29 -0400
+Date: Wed, 25 Apr 2001 09:29:53 -0400
+From: Chris Mason <mason@suse.com>
+To: Pavel Machek <pavel@suse.cz>, viro@math.psu.edu,
+        kernel list <linux-kernel@vger.kernel.org>
+cc: torvalds@transmeta.com
+Subject: Re: [patch] linux likes to kill bad inodes
+Message-ID: <302200000.988205393@tiny>
+In-Reply-To: <20010422141042.A1354@bug.ucw.cz>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        netdev@oss.sgi.com
-Subject: Announce: ECN vendor support page
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To all--
 
-As ECN deployment increases, people are increasingly noticing that some
-key web sites are still inaccessible when ECN is enabled.
 
-A Web site has been created to assist with this transition, with two key
-features:  (1) ECN-related fixes are posted on this Web page, and (2)
-vendors whose products are broken are posted on this Web page.
+On Sunday, April 22, 2001 02:10:42 PM +0200 Pavel Machek <pavel@suse.cz>
+wrote:
 
-The address is		http://gtf.org/garzik/ecn/
+> Hi!
+> 
+> I had a temporary disk failure (played with acpi too much). What
+> happened was that disk was not able to do anything for five minutes
+> or so. When disk recovered, linux happily overwrote all inodes it
+> could not read while disk was down with zeros -> massive disk
+> corruption.
+> 
+> Solution is not to write bad inodes back to disk.
+> 
 
-If you have comments, fixes or updates for this Web page, especially new
-links to vendor fixes or acknowledged vendor bugs, please e-mail them to
-ecn@gtf.org.
+Wouldn't we rather make it so bad inodes don't get marked dirty at all?
 
--- 
-Jeff Garzik      | You know, I like you Stuart.
-Building 1024    | You're not like the other kids
-MandrakeSoft     | in the trailer park.
+-chris
+

@@ -1,59 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271918AbRIDJXT>; Tue, 4 Sep 2001 05:23:19 -0400
+	id <S271919AbRIDJbL>; Tue, 4 Sep 2001 05:31:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271919AbRIDJXK>; Tue, 4 Sep 2001 05:23:10 -0400
-Received: from urc1.cc.kuleuven.ac.be ([134.58.10.3]:16257 "EHLO
-	urc1.cc.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id <S271918AbRIDJW5>; Tue, 4 Sep 2001 05:22:57 -0400
-Message-ID: <3B9498A6.5B216ABE@pandora.be>
-Date: Tue, 04 Sep 2001 11:02:30 +0200
-From: Bart Vandewoestyne <Bart.Vandewoestyne@pandora.be>
-Organization: MyHome
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: nl-BE, nl, en, de
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Dos2Linux
-Content-Type: text/plain; charset=us-ascii
+	id <S271921AbRIDJbC>; Tue, 4 Sep 2001 05:31:02 -0400
+Received: from d179.dhcp212-198-121.noos.fr ([212.198.121.179]:19473 "EHLO
+	microsoft.com") by vger.kernel.org with ESMTP id <S271919AbRIDJar>;
+	Tue, 4 Sep 2001 05:30:47 -0400
+Subject: Re: [RFD] readonly/read-write semantics
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Bryan Henderson <hbryan@us.ibm.com>, linux-fsdevel@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <Pine.GSO.4.21.0109040001000.26423-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0109040001000.26423-100000@weyl.math.psu.edu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99+cvs.2001.08.22.00.33 (Preview Release)
+Date: 04 Sep 2001 11:26:16 +0200
+Message-Id: <999595577.11178.3.camel@nomade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How do I translate the following piece of DOS-code to linux?
+On mar, 2001-09-04 at 06:09, Alexander Viro wrote:
 
-static union {
-  unsigned int *a;      // One 32 bits address
-  unsigned long  l;     // One 32 bits long
-  unsigned int w[2];    // Two 16 bits words
-  unsigned char  b[4];  // Four 8 bits bytes
-} DMAaddr;
+> Read-only is more complex - in addition to mount side ("does anyone want
+> it to be r/w") there is a filesystem side ("does fs agree to be r/w")...
 
-static union {
-  signed int w;         // One 16 bits words
-  signed char  b[2];    // Two 8 bits bytes
-} DMAcntr;
+How about, say, a reiserfs mounted r/o on a shared partition (loopback
+over nfs) ? If it contains errors, maybe 2 "clients" will attempt to
+rollback at the same time. Is the solution to never mount, even r/o,
+remote journalling fs ?
 
-...
-
-static void setadr( unsigned int far *buff, unsigned int length )
-{
-  unsigned int lw;
-
-  lw = FP_SEG( buff );                // Segment address of buffer
-  DMAaddr.w[1] = ( lw >> 12 ) & 0xf;    // Makes real 32bit address
-  DMAaddr.w[0] = ( lw << 4 ) & 0xfff0;
-  DMAaddr.l += ( unsigned long )FP_OFF( buff );
-  DMAcntr.w = length;
-}
-
-
-Thanks,
-mc303
-
--- 
-Ing. Bart Vandewoestyne			 Bart.Vandewoestyne@pandora.be
-Hugo Verrieststraat 48			       GSM: +32 (0)478 397 697
-B-8550 Zwevegem			 http://users.pandora.be/vandewoestyne
-----------------------------------------------------------------------
-"Any fool can know, the point is to understand." - Albert Einstein
+	Xav

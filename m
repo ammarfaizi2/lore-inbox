@@ -1,71 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269329AbUJFR3X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268838AbUJFRfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269329AbUJFR3X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 13:29:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269310AbUJFR0U
+	id S268838AbUJFRfS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 13:35:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268886AbUJFRfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 13:26:20 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:8949 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S269320AbUJFRTo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 13:19:44 -0400
-From: Arnd Bergmann <arnd@arndb.de>
+	Wed, 6 Oct 2004 13:35:18 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:31388 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268838AbUJFRfG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 13:35:06 -0400
+Message-ID: <41642CBA.7030709@redhat.com>
+Date: Wed, 06 Oct 2004 13:34:50 -0400
+From: Neil Horman <nhorman@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Alex Bennee <kernel-hacker@bennee.com>
-Subject: Re: [PATCH] RFC. User space backtrace on segv
-Date: Wed, 6 Oct 2004 19:17:06 +0200
-User-Agent: KMail/1.6.2
-Cc: "LinuxSH (sf)" <linuxsh-dev@lists.sourceforge.net>,
+CC: "LinuxSH (sf)" <linuxsh-dev@lists.sourceforge.net>,
        "Linux-SH (m17n)" <linux-sh@m17n.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1097080652.5420.34.camel@cambridge> <1097080781.5420.36.camel@cambridge>
-In-Reply-To: <1097080781.5420.36.camel@cambridge>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_XiCZBygY2gawbWI";
-  charset="iso-8859-15"
+Subject: Re: [PATCH] RFC. User space backtrace on segv
+References: <1097080652.5420.34.camel@cambridge>
+In-Reply-To: <1097080652.5420.34.camel@cambridge>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410061917.11641.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alex Bennee wrote:
+> Hi,
+> 
+> I hacked up this little patch to dump the stack and attempt to generate
+> a back-trace for errant user-space tasks.
+> 
+> What:
+> 
+> Generates a back-trace of the user application on (in this case) a segv
+> caused by an unaligned access. This particular patch is against 2.4.22
+> on the SH which is what I'm working with but there no reason it couldn't
+> be more generalised.
+> 
+> How:
+> 
+> Its not the most intelligent approach as it basically walks up the stack
+> reading values and seeing if the address corresponds to one of the
+> processes executable VMA's. If it matches it assumes its the return
+> address treats that section as a "frame"
+> 
+> Why:
+> 
+> I work with embedded systems and for a myriad of reasons doing a full
+> core dump of the crashing task is a pain. Often just knowing the
+> immediate call stack and local variables is enough to look at what went
+> wrong with objdump -S.
+> 
+> Questions:
+> 
+> Have I replicated anything that is already hidden in the code base?
+> Would this be useful (as a CONFIG_ option) for embedded systems?
+> 
 
---Boundary-02=_XiCZBygY2gawbWI
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-On Mittwoch, 6. Oktober 2004 18:39, Alex Bennee wrote:
-> On Wed, 2004-10-06 at 17:37, Alex Bennee wrote:
-> > Hi,
-> >=20
-> > I hacked up this little patch to dump the stack and attempt to generate
-> > a back-trace for errant user-space tasks.
-> >  <snip>
->=20
+IIRC, there is already a backtrace function defined for most arches in 
+the c library.  in execinfo.h there is a family of backtrace functions 
+that can unwind the stack fairly well for most arches, and store the 
+trace in a post SIGSEGV-safe fashion.
 
-Note that there already is similar functionality on s390, possibly on
-other architectures as well. In kernel/sysctl.c, there is code
-to make the behavior run-time selectable. The sysctl is currently called=20
-KERN_S390_USER_DEBUG_LOGGING and compiled in only for s390, but it might
-be a good idea to define this in an architecture independent way, e.g.
-with a config option that is always selected on s390, sh and possibly
-other archs.
+Neil
 
-	Arnd <><
-
---Boundary-02=_XiCZBygY2gawbWI
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBZCiX5t5GS2LDRf4RAp//AKCfAN/7KORG8Qd4bqE71/6IoKGLPQCfdde/
-TH3YQt3Gxl8HmnPaMC8ySaM=
-=OQ9T
------END PGP SIGNATURE-----
-
---Boundary-02=_XiCZBygY2gawbWI--
+-- 
+/***************************************************
+  *Neil Horman
+  *Software Engineer
+  *Red Hat, Inc.
+  *nhorman@redhat.com
+  *gpg keyid: 1024D / 0x92A74FA1
+  *http://pgp.mit.edu
+  ***************************************************/

@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261744AbTCQQMj>; Mon, 17 Mar 2003 11:12:39 -0500
+	id <S261756AbTCQQQD>; Mon, 17 Mar 2003 11:16:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261750AbTCQQMj>; Mon, 17 Mar 2003 11:12:39 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:50274 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id <S261744AbTCQQMi>; Mon, 17 Mar 2003 11:12:38 -0500
-Date: Mon, 17 Mar 2003 16:25:24 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: phillip@lougher.demon.co.uk
-cc: linux-kernel@vger.kernel.org, <dan@intrago.co.uk>
-Subject: Re: PROBLEM: (kern.log) kernel BUG at shmem.c:486!
-In-Reply-To: <E18uuS7-0002KU-0X@anchor-post-33.mail.demon.net>
-Message-ID: <Pine.LNX.4.44.0303171621250.1176-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S261760AbTCQQQD>; Mon, 17 Mar 2003 11:16:03 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:63641 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S261756AbTCQQQC>; Mon, 17 Mar 2003 11:16:02 -0500
+Date: Mon, 17 Mar 2003 16:24:21 -0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Philippe De Muyter <phdm@macqel.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sundance DFE-580TX DL10050B patch
+Message-ID: <20030317172416.GA3366@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Philippe De Muyter <phdm@macqel.be>, linux-kernel@vger.kernel.org
+References: <200303171356.h2HDu9U30575@mail.macqel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200303171356.h2HDu9U30575@mail.macqel.be>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Mar 2003 phillip@lougher.demon.co.uk wrote:
-> Dan Searle wrote:
-> >
-> >Mar  7 16:13:16 censornet-halewood kernel: Neighbour tabe overflow.
-> >Mar  7 16:13:21 censornet-halewood kernel: NET: 445 messages suppressed.
-> >Mar  7 16:13:21 censornet-halewood kernel: Neighbour table overflow.
-> >
-> >Mar  7 18:44:48 censornet-halewood kernel: kernel BUG at shmem.c:486!
-> >Mar  7 18:44:48 censornet-halewood kernel: invalid operand: 0000
-> 
-> The kernel BUG at shmem.c:486 is not the real bug, you've
-> hit a kernel sanity check which has failed, because
-> something beforehand has got the kernel in an fscked state.
+On Mon, Mar 17, 2003 at 02:56:09PM +0100, Philippe De Muyter wrote:
 
-I agree with Phillip, that BUG at shmem.c:486 is not one I've heard
-of people hitting.  But you could easily hit it if memory is getting
-corrupted: worth running memtest86 for the evening and overnight.
+ > +		writew((dev->dev_addr[i + 1] << 8) + dev->dev_addr[i],
 
-Hugh
+Don't you want to OR those together instead of add them ?
+
+		Dave
 

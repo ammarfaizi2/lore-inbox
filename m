@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272449AbSISTNs>; Thu, 19 Sep 2002 15:13:48 -0400
+	id <S272427AbSISTL6>; Thu, 19 Sep 2002 15:11:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272493AbSISTNs>; Thu, 19 Sep 2002 15:13:48 -0400
-Received: from khms.westfalen.de ([62.153.201.243]:29093 "EHLO
-	khms.westfalen.de") by vger.kernel.org with ESMTP
-	id <S272449AbSISTNq>; Thu, 19 Sep 2002 15:13:46 -0400
-Date: 19 Sep 2002 21:10:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Message-ID: <8XBysGvmw-B@khms.westfalen.de>
-In-Reply-To: <Pine.LNX.4.44.0209190938340.1594-100000@home.transmeta.com>
-Subject: Re: [patch] generic-pidhash-2.5.36-D4, BK-curr
-X-Mailer: CrossPoint v3.12d.kh10 R/C435
+	id <S272429AbSISTL6>; Thu, 19 Sep 2002 15:11:58 -0400
+Received: from dsl-213-023-020-102.arcor-ip.net ([213.23.20.102]:11925 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S272427AbSISTLw>;
+	Thu, 19 Sep 2002 15:11:52 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Dave Olien <dmo@osdl.org>
+Subject: Re: [2.5] DAC960
+Date: Thu, 19 Sep 2002 21:16:53 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Jens Axboe <axboe@suse.de>, Samium Gromoff <_deepfire@mail.ru>,
+       linux-kernel@vger.kernel.org
+References: <E17odbY-000BHv-00@f1.mail.ru> <E17r2Rr-0001Vk-00@starship> <20020919114934.A27630@acpi.pdx.osdl.net>
+In-Reply-To: <20020919114934.A27630@acpi.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-References: <Pine.LNX.4.44.0209190938340.1594-100000@home.transmeta.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17s6nH-0000xq-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-torvalds@transmeta.com (Linus Torvalds)  wrote on 19.09.02 in <Pine.LNX.4.44.0209190938340.1594-100000@home.transmeta.com>:
+On Thursday 19 September 2002 20:49, Dave Olien wrote:
+> I've been doing more work on the driver.  Wednesday, I was
+> going crazy because the data I read back from the device
+> was SOMETIMES NOT the same data I wrote there.
+> 
+> On Thursday, I switched from Linux 2.5.34 to Linux 2.5.36.
+> Now, the driver reads back the same data it wrote.  There must
+> have been some bio changes in 2.5.36.  2.5.36 also
+> calls the driver shutdown notifier routine, which 2.5.34 didn't.
+> This uncovered a coding bug that causes a kernel OOPS during shutdown.
+> That'll be fixed in the next patch.
+> 
+> I'm about to test changes that put the command and status memory
+> mailboxes into dma memory regions.  Once I've tested that,
+> I'll send you a new patch (Probably on Monday after week end
+> testing).
+> 
+> After that, I'll change the status reporting structures to be in dma
+> memory regions.  Expect a patch containing that maybe the end of
+> next week, or the Monday following ( September 30).
 
-> On Thu, 19 Sep 2002, Andries Brouwer wrote:
+I was in the process of writing to you as this one came in...
 
-> > [POSIX 1003.1-2001]
+I have booted 2.5.34 and 2.5.36, the same controller as yours, on my dual
+PIII box and it is apparently functioning well.  I have not done any kind
+of load testing yet.
 
-> > The controlling terminal is inherited by a child process during a fork()
-> > function call. A process relinquishes its controlling terminal when it
-> > creates a new session with the setsid() function; other processes
-> > remaining in the old session that had this terminal as their controlling
-> > terminal continue to have it.
->
-> Well, that certainly clinches the fact that the controlling terminal _can_
-> and does continue to be hold by processes outside the current session
-> group.
+Congratulations!  I presume you are now the DAC960 maintainer, subject to
+approval from on high of course, and assuming you are willing.  I'd like
+to do some spelling changes, just obvious ones for now, like removing
+spelling wrappers from standard kernel interfaces.  Want patches?
 
-On the contrary: it says that this can never happen - the new session has  
-no controlling terminal, and can't get the old one unless the old session  
-loses it first.
-
-MfG Kai
+-- 
+Daniel

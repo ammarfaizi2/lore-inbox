@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270185AbTGMJJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 05:09:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270186AbTGMJJ0
+	id S270190AbTGMJ0L (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 05:26:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270192AbTGMJ0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 05:09:26 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:50701 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S270185AbTGMJJZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 05:09:25 -0400
-Date: Sun, 13 Jul 2003 10:24:07 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jan Dittmer <j.dittmer@portrix.net>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: Three drivers/i2c/ patches
-Message-ID: <20030713102407.A24901@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jan Dittmer <j.dittmer@portrix.net>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org
-References: <3F107F0F.40701@portrix.net>
+	Sun, 13 Jul 2003 05:26:11 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:43278 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S270190AbTGMJ0J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 05:26:09 -0400
+Date: Sun, 13 Jul 2003 11:40:54 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Forking shell bombs
+Message-ID: <20030713094053.GC14349@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <3F0C2FCB.8060304@blue-labs.org> <BKEGKPICNAKILKJKMHCAOELCENAA.Riley@Williams.Name>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1ccMZA6j1vT5UqiK"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3F107F0F.40701@portrix.net>; from j.dittmer@portrix.net on Sat, Jul 12, 2003 at 11:35:11PM +0200
+In-Reply-To: <BKEGKPICNAKILKJKMHCAOELCENAA.Riley@Williams.Name>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> diff -urN -X exclude linux-bk/drivers/i2c/i2c-elektor.c 2.5.75-bk1/drivers/i2c/i2c-elektor.c
-> --- linux-bk/drivers/i2c/i2c-elektor.c	Sun Jun 15 14:04:13 2003
-> +++ 2.5.75-bk1/drivers/i2c/i2c-elektor.c	Sat Jul 12 11:51:34 2003
-> @@ -59,6 +59,8 @@
->    need to be rewriten - but for now just remove this for simpler reading */
->  
->  static wait_queue_head_t pcf_wait;
-> +
-> +spinlock_t pcf_pending_lock = SPIN_LOCK_UNLOCKED;
->  static int pcf_pending;
->  
->  /* ----- global defines -----------------------------------------------	*/
-> @@ -120,12 +122,12 @@
->  	int timeout = 2;
->  
->  	if (irq > 0) {
-> -		cli();
-> +		spin_lock_irq(&pcf_pending_lock);
->  		if (pcf_pending == 0) {
->  			interruptible_sleep_on_timeout(&pcf_wait, timeout*HZ );
->  		} else
->  			pcf_pending = 0;
-> -		sti();
-> +		spin_unlock_irq(&pcf_pending_lock);
 
-Sleeping with interrupts disabled and a spinlock held still isn't exactly
-a good idea.  As is sleep_on..
+--1ccMZA6j1vT5UqiK
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Sun, 2003-07-13 10:10:22 +0100, Riley Williams <Riley@Williams.Name>
+wrote in message <BKEGKPICNAKILKJKMHCAOELCENAA.Riley@Williams.Name>:
+> Hi all.
+>=20
+> It sounds like what is required is some way of basically saying
+> "Don't permit new processes to be created if CPU usage > 75%"
+> (where the 75% is configurable but less than 100%).
+
+That won't allow a load > 0.75 .  Bad idea.
+
+MfG, JBG
+
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
+
+--1ccMZA6j1vT5UqiK
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/ESklHb1edYOZ4bsRAuwrAJwMQ9HOnA6aOuIFKiq7YjHtKCkxywCaAkVT
+l7FP1bY9tl4l7T3X1h9cKyY=
+=0HPS
+-----END PGP SIGNATURE-----
+
+--1ccMZA6j1vT5UqiK--

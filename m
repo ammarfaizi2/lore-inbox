@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264569AbUEaGZA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbUEaG3w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264569AbUEaGZA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 02:25:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264571AbUEaGZA
+	id S262103AbUEaG3w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 02:29:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUEaG3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 02:25:00 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:33321 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S264569AbUEaGY7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 02:24:59 -0400
-Date: Mon, 31 May 2004 08:27:26 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: carbonated beverage <ramune@net-ronin.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: makefile fix
-Message-ID: <20040531062726.GB2216@mars.ravnborg.org>
-Mail-Followup-To: carbonated beverage <ramune@net-ronin.org>,
-	linux-kernel@vger.kernel.org
-References: <20040529205109.GA27792@net-ronin.org>
+	Mon, 31 May 2004 02:29:52 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:15233 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262103AbUEaG3u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 02:29:50 -0400
+Date: Mon, 31 May 2004 08:30:13 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org,
+       Sau Dan Lee <danlee@informatik.uni-freiburg.de>, tuukkat@ee.oulu.fi
+Subject: Re: SERIO_USERDEV patch for 2.6
+Message-ID: <20040531063013.GB268@ucw.cz>
+References: <xb7r7t2b3mb.fsf@savona.informatik.uni-freiburg.de> <200405301116.31356.dtor_core@ameritech.net> <20040530205119.GD1971@ucw.cz> <200405301850.49219.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040529205109.GA27792@net-ronin.org>
+In-Reply-To: <200405301850.49219.dtor_core@ameritech.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 29, 2004 at 01:51:09PM -0700, carbonated beverage wrote:
-> Every time I build on the Ultra, I get a file called "64" in the top-level
-> directory.  Here's a small patch to make it do the right thing(tm).
+On Sun, May 30, 2004 at 06:50:48PM -0500, Dmitry Torokhov wrote:
+
+> > > But in the meantime marking several ports raw will allow most of the users
+> > > use old means of communicating with their pointing devices without too
+> > > much effort.
+> > 
+> > It'd be good to find out what devices we don't support yet (I know of
+> > ALPS, which we have a patch pending for and IBM TouchPoints), too. 
+> > 
 > 
-> Note, I'm using ash as my /bin/sh.  Works for me, at least, with bash and
-> ash.
+> Sau Dan Lee's Lifebook touchscreen ;) The data processing seems to be
+> trivial, but I don't have any idea how to detect it. And without being
+> able to explicitly control binding for a specific serio port its hard
+> to do drivers for hardware that we can't autodetect. We just have to
+> assume that device behind a port is of specific type and when there
+> are many ports its usually wrong.
 
-Patch is already in Linus' tree. Christoph digged it out of Debian.
+Conclusion: We need sysfs, and we need it soon.
 
-	Sam
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

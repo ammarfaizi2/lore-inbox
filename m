@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261570AbTDKTcb (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 15:32:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbTDKTcb (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 15:32:31 -0400
-Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:14576 "HELO
-	cocodriloo.com") by vger.kernel.org with SMTP id S261570AbTDKTca (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 15:32:30 -0400
-Date: Fri, 11 Apr 2003 21:54:19 +0200
-From: Antonio Vargas <wind@cocodriloo.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: build breaks with UML patch
-Message-ID: <20030411195419.GH25862@wind.cocodriloo.com>
-References: <20030411213443.A35199@freebsdcluster.dk>
+	id S261675AbTDKTon (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 15:44:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbTDKTon (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 15:44:43 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:16297 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261675AbTDKTol (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 15:44:41 -0400
+Date: Fri, 11 Apr 2003 12:58:43 -0700
+From: Greg KH <greg@kroah.com>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: "Kevin P. Fleming" <kpfleming@cox.net>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       message-bus-list@redhat.com
+Subject: Re: [ANNOUNCE] udev 0.1 release
+Message-ID: <20030411195843.GO1821@kroah.com>
+References: <20030411172011.GA1821@kroah.com> <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk> <20030411182313.GG25862@wind.cocodriloo.com> <3E970A00.2050204@cox.net> <20030411192827.GC31739@ca-server1.us.oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030411213443.A35199@freebsdcluster.dk>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030411192827.GC31739@ca-server1.us.oracle.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 11, 2003 at 09:34:43PM +0200, Vikram Rangnekar wrote:
+On Fri, Apr 11, 2003 at 12:28:27PM -0700, Joel Becker wrote:
+> On Fri, Apr 11, 2003 at 11:31:28AM -0700, Kevin P. Fleming wrote:
+> > - if any partitions are found, they are registered with the kernel using 
+> > device-mapper ioctls
+> > - because these new "mapped sections" of the drive are _also_ usable block 
+> > devices in their own right, they generate hotplug events
 > 
-> arch/i386/kernel/sys_i386.c: In function `do_mmap2':
-> arch/i386/kernel/sys_i386.c:59: warning: passing arg 1 of `do_mmap_pgoff'
-> from incompatible pointertype
-> arch/i386/kernel/sys_i386.c:59: warning: passing arg 2 of `do_mmap_pgoff'
-> makes pointer from integer without a cast
-> arch/i386/kernel/sys_i386.c:59: too few arguments to function `do_mmap_pgoff'
-> make[1]: *** [arch/i386/kernel/sys_i386.o] Error 1
-> make: *** [arch/i386/kernel] Error 2
-> 
-> When i try to make the 2.5.67 kernel with the uml-patch-2.5.67-1  
-> 
-> regards
-> Vikram (http://www.vicramresearch.com)
+> 	In reality, we need /dev/disk0 for disks, and /dev/part0 for
+> partitions, and /dev/lv0 for logical volumes from the LVM.
 
-Did you remember to do the ARCH=um thing everywhere?
+Well, that's maybe what _you_ want to call your disks and partitions,
+but not what I want to call them :)
 
-ie: make ARCH=um menuconfig
-    make ARCH=um linux
+> There's going to be a war over this naming, and that's why this is
+> hard.
 
-I missed it a few times when starting with uml :)
+No, there isn't.  That's what I am trying to completely avoid with udev.
+It will allow you to plug in whatever device naming scheme that you
+want.  This will keep all of the disc vs. disk flamewars from every
+happening in the kernel community (well, I can hope...)
 
+I'll be providing a small default name scheme that happens to match the
+current Documentation/devices.txt names, and possibly a devfs naming
+scheme for those people who like that scheme.  After that, it will be
+quite easy for you to create a Oracle naming scheme where you give
+different prefixes to your partitions vs. disks.
+
+This scheme allows you to use databases, flat files, or even send a
+message across the network to a admin console to get the name of a new
+device.  Much more flexible than setting a kernel naming scheme, and
+moves this whole argument and policy out of the kernel.
+
+thanks,
+
+greg k-h

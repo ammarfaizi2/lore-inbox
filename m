@@ -1,37 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbUK3Vpm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbUK3VtS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262329AbUK3Vpm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 16:45:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbUK3Vpl
+	id S262339AbUK3VtS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 16:49:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262340AbUK3VtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 16:45:41 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:30879 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262329AbUK3Vpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 16:45:34 -0500
-Subject: Re: GPL violation by iRiver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: mocm@mocm.de
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <16812.54768.113410.288108@mocm.de>
-References: <16812.54768.113410.288108@mocm.de>
+	Tue, 30 Nov 2004 16:49:18 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:2251 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262339AbUK3VtH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 16:49:07 -0500
+Subject: Re: Suspend 2 merge: 49/51: Checksumming
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Rob Landley <rob@landley.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041130130745.GB4670@openzaurus.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <200411290455.10318.rob@landley.net>
+	 <1101767472.4343.439.camel@desktop.cunninghams>
+	 <200411291830.33885.rob@landley.net>
+	 <1101775792.4329.23.camel@desktop.cunninghams>
+	 <20041130130745.GB4670@openzaurus.ucw.cz>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1101847326.25603.187.camel@localhost.localdomain>
+Message-Id: <1101851144.5715.19.camel@desktop.cunninghams>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 30 Nov 2004 20:42:10 +0000
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 01 Dec 2004 08:45:44 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-11-30 at 20:20, Marcus Metzler wrote:
-> Has anybody else tried to contact them? If you are interested, there
+Hi.
 
-No but I've received various bits of their publicity and other stuff
-which clearly states they are Linux based. They've certainly not tried
-to hide the fact so that is promising.
+On Wed, 2004-12-01 at 00:07, Pavel Machek wrote:
+> > Mmm. I wonder how much code that would require us to add. I do like the
+> > idea of not interacting where the answer is obvious :>. I still think,
+> > however, that interacting when the answer isn't obvious is the right
+> > thing to do. Take for example the case where we find an image, but the
+> > device numbers look like they belong to 2.4 and we're a 2.6 kernel. We
+> > can't read the header (we can't be sure that this is the cause). The
+> > user - or their cat - might have selected the wrong boot image
+> > unintentionally. Why shouldn't we give them the opportunity to reboot
+> > and get the right one?
+> 
+> Well, kernel depending on user feedback has some interesting issues...
+> ...like user not speaking english or user using speech output.
+> Thats why pushing "Shall I reboot?" etc prompts into userland
+> is good idea. (Distros probably will not get it right, either, but at least
+> they get a chance.)
 
-In fact its archived at:
+And if we don't have userspace yet? (No initrd/initramfs).
 
-http://www.iriver.com/html/company/press/copr_pr_view.asp?searchField=&searchString=&page=1&idx=51&tmpSearchField=all&tmpSearchString=
+The language issue is a good point; the whole issue of kernel messages
+and languages needs a more general solution.
+
+It probably also helps to remember the point to this:
+- avoid file system corruption
+- give the user a chance to confirm/fix actions that look wrong
+
+Would making interaction a compile time option make you happy? (That
+said, I'm not looking forward to trying to guess what the system should
+do in some of these cases if not allowed to ask).
+
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
 

@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265940AbUEUQkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265930AbUEURIr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265940AbUEUQkK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 12:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265920AbUEUQkK
+	id S265930AbUEURIr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 13:08:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265931AbUEURIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 12:40:10 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:49795 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S265940AbUEUQkF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 12:40:05 -0400
-Subject: Re: 2.6.6 breaks kmail (nfs related?)
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andreas Amann <amann@physik.tu-berlin.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200405211727.14917.amann@physik.tu-berlin.de>
-References: <200405131411.52336.amann@physik.tu-berlin.de>
-	 <200405171331.35688.amann@physik.tu-berlin.de>
-	 <1084809309.3669.17.camel@lade.trondhjem.org>
-	 <200405211727.14917.amann@physik.tu-berlin.de>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1085157602.3666.70.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 21 May 2004 12:40:02 -0400
+	Fri, 21 May 2004 13:08:47 -0400
+Received: from [141.156.69.115] ([141.156.69.115]:5799 "EHLO
+	mail.infosciences.com") by vger.kernel.org with ESMTP
+	id S265930AbUEURIp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 13:08:45 -0400
+Message-ID: <40AE379D.9090401@infosciences.com>
+Date: Fri, 21 May 2004 13:08:45 -0400
+From: nardelli <jnardelli@infosciences.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] [PATCH] visor: Fix Oops on disconnect
+References: <Pine.LNX.4.44L0.0405211103350.651-100000@ida.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0405211103350.651-100000@ida.rowland.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På fr , 21/05/2004 klokka 11:27, skreiv Andreas Amann:
+Alan Stern wrote:
+> On Fri, 21 May 2004, nardelli wrote:
+> 
+> 
+>>The api for usb_control_msg says, 'If successful, it returns 0, othwise a
+>>negative error number', and I didn't see any other way to figure out how
+>>much data was being returned.
+> 
+> 
+> In the current kernel sources, the kerneldoc for usb_control_msg() says
+> "If successful, it returns the number of bytes transferred, otherwise a 
+> negative error number."
+> 
 
-> In both cases the server was 2.4.25. Who is now wrong in this case, the client 
-> or the server? To me it looks now, as if the server needs to be fixed, but I 
-> am no expert. 
+Sorry, I was looking at dated api docs at kernelnewbies.org.  I'll use
+the size returned from usb_control_msg() instead of memset().
 
-Yep. This is a server side bug. I just checked the dump, and the client
-is indeed sending the correct filehandle (exactly the same one as in the
-COMMIT just before it).
 
-Hmm... It looks to me as if you are exporting that filesystem with the
-"subtree_check" option enabled. Could you try to set "no_subtree_check"?
-The subtree checking stuff breaks NFS in various subtle ways (including
-renames etc), and is one of the more common sources of ESTALE errors.
-
-Cheers,
-  Trond
+-- 
+Joe Nardelli
+jnardelli@infosciences.com

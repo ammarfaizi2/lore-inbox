@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263080AbTC1SM4>; Fri, 28 Mar 2003 13:12:56 -0500
+	id <S263086AbTC1Sas>; Fri, 28 Mar 2003 13:30:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263081AbTC1SM4>; Fri, 28 Mar 2003 13:12:56 -0500
-Received: from mnh-1-10.mv.com ([207.22.10.42]:33285 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S263080AbTC1SMz>;
-	Fri, 28 Mar 2003 13:12:55 -0500
-Message-Id: <200303281822.NAA02492@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: uml-patch-2.5.66-1
+	id <S263082AbTC1Sas>; Fri, 28 Mar 2003 13:30:48 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:7434 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S263071AbTC1Sar>;
+	Fri, 28 Mar 2003 13:30:47 -0500
+Date: Fri, 28 Mar 2003 19:41:53 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Jens Axboe <axboe@suse.de>, Nick Piggin <piggin@cyberone.com.au>,
+       Andrew Morton <akpm@digeo.com>, dougg@torque.net,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [patch for playing] 2.5.65 patch to support > 256 disks
+Message-ID: <20030328184153.GA11941@win.tue.nl>
+References: <200303211056.04060.pbadari@us.ibm.com> <200303261629.34868.pbadari@us.ibm.com> <20030327091854.GY30908@suse.de> <200303280904.41797.pbadari@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 28 Mar 2003 13:22:41 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Disposition: inline
+In-Reply-To: <200303280904.41797.pbadari@us.ibm.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates UML to 2.5.66.  Functionally, it's the same as the last
-2.5 UML patch.
+On Fri, Mar 28, 2003 at 09:04:41AM -0800, Badari Pulavarty wrote:
 
-The 2.5.66-1 UML patch is available at
-        http://uml-pub.ists.dartmouth.edu/uml/uml-patch-2.5.66-1.bz2
- 
-For the other UML mirrors and other downloads, see 
-        http://user-mode-linux.sourceforge.net/dl-sf.html
- 
-Other links of interest:
- 
-        The UML project home page : http://user-mode-linux.sourceforge.net
-        The UML Community site : http://usermodelinux.org
+> 2) Instead of allocating hd_struct structure for all possible partitions,
+> why not allocated them dynamically, as we see a partition ? This
+> way we could (in theory) support more than 16 partitions, if needed.
 
-				Jeff
+This is what I plan to do.
+Of course you are welcome to do it first.
+
+Andries
 

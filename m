@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318293AbSG3OLF>; Tue, 30 Jul 2002 10:11:05 -0400
+	id <S318272AbSG3OBK>; Tue, 30 Jul 2002 10:01:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318296AbSG3OLF>; Tue, 30 Jul 2002 10:11:05 -0400
-Received: from ns.suse.de ([213.95.15.193]:2575 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318293AbSG3OLE>;
-	Tue, 30 Jul 2002 10:11:04 -0400
-Date: Tue, 30 Jul 2002 16:13:45 +0200
-From: Andi Kleen <ak@suse.de>
-To: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+	id <S318274AbSG3OBK>; Tue, 30 Jul 2002 10:01:10 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34823 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318272AbSG3OBJ>;
+	Tue, 30 Jul 2002 10:01:09 -0400
+Message-ID: <3D469CEF.1040104@mandrakesoft.com>
+Date: Tue, 30 Jul 2002 10:04:31 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] eepro 0.13a
-Message-ID: <20020730161345.A3998@wotan.suse.de>
-References: <20020730125601.GT16077@cathedrallabs.org.suse.lists.linux.kernel> <p73sn21s5ij.fsf@oldwotan.suse.de> <20020730134825.GU16077@cathedrallabs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020730134825.GU16077@cathedrallabs.org>
-User-Agent: Mutt/1.3.22.1i
+References: <20020730125601.GT16077@cathedrallabs.org.suse.lists.linux.kernel> <p73sn21s5ij.fsf@oldwotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> printk that doesn't start a new line had KERN_* removed because it prints in
-> the middle of line KERN_* macros like
->  id: 0xb4 <7> io: 0x340 <6>eth0: Intel EtherExpress Pro/10+ ISA
-> i had the same reaction but Michael pointed this to me. i don't know exactly
-> how this macro works, but you'll have the line printed out with the
+Andi Kleen wrote:
+>>@@ -633,37 +633,37 @@
+>> 
+>> 	i = inb(dev->base_addr + ID_REG);
+>> 	printk(KERN_DEBUG " id: %#x ",i);
+>>-	printk(KERN_DEBUG " io: %#x ", (unsigned)dev->base_addr);
+>>+	printk(" io: %#x ", (unsigned)dev->base_addr);
+>> 
+>> 	switch (lp->eepro) {
+>> 		case LAN595FX_10ISA:
+>>-			printk(KERN_INFO "%s: Intel EtherExpress 10 ISA\n at %#x,",
+>>+			printk("%s: Intel EtherExpress 10 ISA\n at %#x,",
+>> 					dev->name, (unsigned)dev->base_addr);
+> 
+> 
+> [more cases deleted]
+> 
+> This surely can't be right. Why are you dropping all the KERN_*s ?
 
-The macro just prepends a sting using ISO C string concatenation.
-> beggining using KERN_* macro. isn't that sufficient?
 
-That makes sense. Thanks,
+I have a feeling he ran a diff between his "pure" copy and the kernel 
+copy, and assumed the output was correct....
 
--Andi
+	Jeff
+
+
+
+

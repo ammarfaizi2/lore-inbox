@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282706AbRLLWOf>; Wed, 12 Dec 2001 17:14:35 -0500
+	id <S282492AbRLLWTP>; Wed, 12 Dec 2001 17:19:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282492AbRLLWOZ>; Wed, 12 Dec 2001 17:14:25 -0500
-Received: from jhuml4.jhu.edu ([128.220.2.67]:32504 "EHLO jhuml4.jhu.edu")
-	by vger.kernel.org with ESMTP id <S282687AbRLLWOR>;
-	Wed, 12 Dec 2001 17:14:17 -0500
-Date: Wed, 12 Dec 2001 17:15:10 -0500
-From: Thomas Hood <jdthood@mail.com>
-Subject: USB not processing APM suspend event properly?
-To: linux-kernel@vger.kernel.org
-Message-id: <1008195310.1126.17.camel@thanatos>
-MIME-version: 1.0
-X-Mailer: Evolution/1.0 (Preview Release)
-Content-type: text/plain
-Content-transfer-encoding: 7bit
+	id <S282664AbRLLWTF>; Wed, 12 Dec 2001 17:19:05 -0500
+Received: from mail7.cadvision.com ([207.228.64.92]:46863 "EHLO
+	mail7.cadvision.com") by vger.kernel.org with ESMTP
+	id <S282492AbRLLWSy>; Wed, 12 Dec 2001 17:18:54 -0500
+Message-ID: <000701c1835b$5cca29e0$0100007f@localdomain.wni.com.wirelessnetworksinc.com>
+From: "Herman Oosthuysen" <Herman@WirelessNetworksInc.com>
+To: "Galappatti, Kishantha" <Kishantha.Galappatti@gs.com>,
+        "'lkml'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <D28C5BE01ECBD41198ED00D0B7E4C9DA08E1AF3A@gsny31e.ny.fw.gs.com>
+Subject: Re: Bluetooth support on Linux
+Date: Wed, 12 Dec 2001 15:21:30 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following syslog fragment shows what happens when I
-suspended a while ago.  The USB subsystem disconnected
-my USB mouse, but then tried (twice) to reconnect it again
-while the apm driver was still processing the suspend.  The
-attempts to reconnect failed.  I presume there is something
-wrong with this picture.  Does this indicate a bug in
-USB power management?
-
-(The repeated "received system suspend notify" messages are
-there because I have apm debug messages switch on, and I
-am using a ThinkPad, which generates repeated suspend
-events.)
-
-Dec  9 17:38:27 thanatos kernel: apm: received system suspend notify
-Dec  9 17:38:27 thanatos kernel: usb.c: USB disconnect on device 4
-Dec  9 17:38:27 thanatos kernel: apm: received system suspend notify
-Dec  9 17:38:27 thanatos kernel: apm: received system suspend notify
-Dec  9 17:38:27 thanatos kernel: hub.c: USB new device connect on
-bus1/1, assigned device number 5
-Dec  9 17:38:28 thanatos kernel: apm: received system suspend notify
-Dec  9 17:38:30 thanatos last message repeated 2 times
-Dec  9 17:38:30 thanatos kernel: usb_control/bulk_msg: timeout
-Dec  9 17:38:30 thanatos kernel: usb.c: USB device not accepting new
-address=5 (error=-110)
-Dec  9 17:38:31 thanatos kernel: hub.c: USB new device connect on
-bus1/1, assigned device number 6
-Dec  9 17:38:31 thanatos kernel: apm: setting state busy
-Dec  9 17:38:31 thanatos kernel: apm: received system suspend notify
-Dec  9 17:38:33 thanatos last message repeated 2 times
-Dec  9 17:38:34 thanatos kernel: usb_control/bulk_msg: timeout
-Dec  9 17:38:34 thanatos kernel: usb.c: USB device not accepting new
-address=6 (error=-110)
-Dec  9 17:38:34 thanatos kernel: apm: received system suspend notify
-Dec  9 17:38:35 thanatos kernel: apm: received system suspend notify
-Dec  9 17:38:36 thanatos kernel: apm: setting state busy
+We are developing Linux based, Bluetooth access points (Engineering models
+are available) and can soon supply mass produced USB dongles (factory is
+building them now), but a generic Bluetooth driver isn't something that can
+easily be included in the Kernel itself, since the modules are still
+evolving too rapidly.  In a couple years it would probably be a different
+matter when the module market has stabilized a bit.
+--
+Herman Oosthuysen
+Herman@WirelessNetworksInc.com
+Suite 300, #3016, 5th Ave NE,
+Calgary, Alberta, T2A 6K4, Canada
+Phone: (403) 569-5688, Fax: (403) 235-3965
+----- Original Message -----
+From: Galappatti, Kishantha <Kishantha.Galappatti@gs.com>
+To: 'lkml' <linux-kernel@vger.kernel.org>
+Sent: Wednesday, December 12, 2001 2:43 PM
+Subject: Bluetooth support on Linux
 
 
+> Is there a project to support Bluetooth in the kernel?  If so, can someone
+> give me pointers to it. If not, any plans to? I know about the Axis and
+> bluez projects.
+>
+> regds,
+>
+> --kish
+>
+>
+> Kishantha Galappatti
+> Senior Technology Analyst
+> IMD Infrastructure
+> Goldman Sachs Group Inc.
+> 32 Old Slip, 9th Flr
+> New York, NY 10005
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

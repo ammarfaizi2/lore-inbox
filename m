@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262747AbVBCQtU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262447AbVBCQyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262747AbVBCQtU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 11:49:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263676AbVBCQtT
+	id S262447AbVBCQyW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 11:54:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbVBCQuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 11:49:19 -0500
-Received: from terminus.zytor.com ([209.128.68.124]:9143 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S262747AbVBCQp7
+	Thu, 3 Feb 2005 11:50:44 -0500
+Received: from 67.107.199.112.ptr.us.xo.net ([67.107.199.112]:12279 "EHLO
+	hathawaymix.org") by vger.kernel.org with ESMTP id S263173AbVBCQts
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 11:45:59 -0500
-Message-ID: <42025540.4070600@zytor.com>
-Date: Thu, 03 Feb 2005 08:45:52 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+	Thu, 3 Feb 2005 11:49:48 -0500
+Message-ID: <420257ED.3020002@hathawaymix.org>
+Date: Thu, 03 Feb 2005 09:57:17 -0700
+From: Shane Hathaway <shane@hathawaymix.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041228
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-References: <20050202155403.GE3117@crusoe.alcove-fr> <200502030028.j130SNU9004640@terminus.zytor.com> <20050203033459.GA29409@bitmover.com>
-In-Reply-To: <20050203033459.GA29409@bitmover.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Configure MTU via kernel DHCP
+References: <E1CwfQK-00011a-00@gondolin.me.apana.org.au>
+In-Reply-To: <E1CwfQK-00011a-00@gondolin.me.apana.org.au>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
+Herbert Xu wrote:
+> Shane Hathaway <shane@hathawaymix.org> wrote:
 > 
-> As Peter said, we do exports from Linus' tree every 24 hours.  I can
-> think of two things that we could do which might be useful to the non BK
-> users: export more frequently (pretty questionable in my mind but it's
-> no big deal to bump it up to twice or whatever) and/or export other trees
-> (far more interesting in my mind).
+>>The attached patch enhances the kernel's DHCP client support (in 
+>>net/ipv4/ipconfig.c) to set the interface MTU if provided by the DHCP server.  
+>>Without this patch, it's difficult to netboot on a network that uses jumbo 
+>>frames.  The patch is based on 2.6.10, but I'll update it to the latest 
+>>testing kernel if that would expedite its inclusion in the kernel.
 > 
+> 
+> Have you looked at using initramfs and running the DHCP client in
+> user space? You'll get a lot more freedom that way.
 
-I think exporting every 6 hours might be a good place.  That avoids the 
-"can't get it until tomorrow" effect.
+Hey, that's a good idea.  I'll explore it.
 
-As far as exporting other trees, I'll leave it up to whomever wants it 
-to say which, but we certainly can host the uplink result.
+Shane
 
-	-hpa

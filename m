@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268702AbTHESkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 14:40:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269559AbTHESkZ
+	id S269659AbTHESn5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 14:43:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269750AbTHESn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 14:40:25 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:21523 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S268702AbTHESkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 14:40:22 -0400
-Message-ID: <3F2FFD05.90902@techsource.com>
-Date: Tue, 05 Aug 2003 14:52:53 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Julien Oster <lkml@mf.frodoid.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Turning off automatic screen clanking
-References: <eFZJ.6X7.29@gated-at.bofh.it> <eH5i.7XC.15@gated-at.bofh.it>	<eNaA.4vE.1@gated-at.bofh.it> <eRHk.85K.5@gated-at.bofh.it>	<fmBF.48z.41@gated-at.bofh.it> <fotH.5J2.17@gated-at.bofh.it>	<frB6.8gE.7@gated-at.bofh.it> <frodoid.frodo.87brv7t46v.fsf@usenet.frodoid.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Aug 2003 14:43:57 -0400
+Received: from guri.is.kpn.be ([193.74.71.22]:2530 "EHLO guri.is.kpn.be")
+	by vger.kernel.org with ESMTP id S269659AbTHESny (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 14:43:54 -0400
+Date: Tue, 5 Aug 2003 20:47:01 +0200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: time for some drivers to be removed?
+Message-ID: <20030805184701.GA15740@gouv>
+References: <200308051242.h75CgSj6028203@harpo.it.uu.se> <1060101338.1189.4.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1060101338.1189.4.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.5.4i
+From: Leopold Gouverneur <lgouv@pi.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Julien Oster wrote:
+On Tue, Aug 05, 2003 at 05:35:38PM +0100, Alan Cox wrote:
+> > 
+> > ftape fails on SMP due to sti/save_flags/restore_flags removal.
 > 
-> 
-> And then I see no point in cycling the colors instead of blanking.
-> 
+> The -ac tree has some stuff for this sitting in it but I've not been able to
+> find a tester..
 
+I would be happy to test (I have the hardware :( ) but your patch
+don't compile due to sti and restore_flags still in ftape/lowlevel
 
-The idea is to save your screen from burn-in AND be able to read it at 
-the same time.  I wasn't considering power-saving.  If you keep changing 
-the colors on the screen but maintain contrast between characters and 
-the background, that would do the trick.
+Thanks anyway
 

@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285850AbSBCGXg>; Sun, 3 Feb 2002 01:23:36 -0500
+	id <S286188AbSBCGaI>; Sun, 3 Feb 2002 01:30:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286179AbSBCGX1>; Sun, 3 Feb 2002 01:23:27 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:52750 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S285850AbSBCGXV>;
-	Sun, 3 Feb 2002 01:23:21 -0500
-Date: Sat, 2 Feb 2002 22:21:24 -0800
-From: Greg KH <greg@kroah.com>
-To: Nathan <wfilardo@fuse.net>
-Cc: Dave Jones <davej@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Issues with 2.5.3-dj1
-Message-ID: <20020203062124.GA15134@kroah.com>
-In-Reply-To: <3C5B5EC0.40503@fuse.net> <20020202055115.GA11359@kroah.com> <3C5B8C0D.8090009@fuse.net> <20020202133358.A5738@suse.de> <3C5C8CA2.9000103@fuse.net>
-Mime-Version: 1.0
+	id <S286207AbSBCG35>; Sun, 3 Feb 2002 01:29:57 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20240 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S286188AbSBCG3n>;
+	Sun, 3 Feb 2002 01:29:43 -0500
+Message-ID: <3C5CD8A2.697F5F2A@zip.com.au>
+Date: Sat, 02 Feb 2002 22:28:50 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@linuxdiskcert.org>
+CC: Manuel McLure <manuel@mclure.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17 Oops when trying to mount ATAPI CDROM
+In-Reply-To: <20020202170244.A12338@ulthar.internal> <Pine.LNX.4.10.10202021715180.26613-100000@master.linux-ide.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C5C8CA2.9000103@fuse.net>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Sun, 06 Jan 2002 04:04:13 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 02, 2002 at 08:04:34PM -0500, Nathan wrote:
-> Dave Jones wrote:
+Andre Hedrick wrote:
 > 
-> >On Sat, Feb 02, 2002 at 01:49:49AM -0500, Nathan wrote:
-> >
-> >> Alright... a 2.5.3 with no extras boots fine (with init=/bin/bash) and 
-> >> can load and unload hotplug several times without OOPSing.  So it 
-> >> appears to be something else.  Hope that helps.
-> >
-> >Do you have driverfs mounted ? Can you try 2.5.3 + greg's
-> >USB driverfs patch ?
-> >
-> Unless driverfs is mounted by default or by something other than 
-> /etc/fstab, no I don't have it on.
+> Manuel,
+> 
+> Would you be kind enough to be a little more specific on the hardware?
+> The attached devices bu make model and real vender if known.
+> 
+>
 
-It's internally mounted even if you don't physically mount the fs.
+There are eight different config_drive_xfer_rate() functions.
+And they all basically do this:
 
-> w/ Greg's USB driverfs patch : system proves to be stable.
->    (though 2.5.3 sometimes looses my keyboard after a time?)
+	if (id && ...) {
+		...
+	} else if (id->xxx)
 
-Is this a USB keyboard?  Are there any kernel log messages?
+So either
 
-> Raw -dj1:  explosion as above. [no ACPI (doesn't compile anyway), no 
-> preempt this time around, either.]
->    (also lost my keyboard.  Odd.  Seems to be about 50% of the time 
-> with 2.5.3 + anything.)
+1: The first test for id=NULL is unneeded or
 
-Hm, input layer changes?
+2: id can sometimes be null, which will oops in the way
+   Manuel describes.
 
-Glad 2.5.3 is working for you :)
-
-Thanks for testing it with my driverfs patch.
-
-greg k-h
+-

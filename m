@@ -1,64 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287625AbSAHDVF>; Mon, 7 Jan 2002 22:21:05 -0500
+	id <S287617AbSAHDZf>; Mon, 7 Jan 2002 22:25:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287617AbSAHDU4>; Mon, 7 Jan 2002 22:20:56 -0500
-Received: from mail118.mail.bellsouth.net ([205.152.58.58]:38561 "EHLO
-	imf18bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S287604AbSAHDUl>; Mon, 7 Jan 2002 22:20:41 -0500
-Subject: Re: Linux 2.4.18-pre2
-From: Louis Garcia <louisg00@bellsouth.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-IlNSe8fkurKrsJckcytA"
-X-Mailer: Evolution/1.0
-Date: 07 Jan 2002 22:23:25 -0500
-Message-Id: <1010460206.8690.0.camel@tiger>
-Mime-Version: 1.0
+	id <S287629AbSAHDZP>; Mon, 7 Jan 2002 22:25:15 -0500
+Received: from dsl-213-023-038-159.arcor-ip.net ([213.23.38.159]:9742 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S287619AbSAHDZI>;
+	Mon, 7 Jan 2002 22:25:08 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: PATCH 2.5.2.9: ext2 unbork fs.h (part 1/7)
+Date: Tue, 8 Jan 2002 04:28:53 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux-Kernel list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>, viro@math.psu.edu
+In-Reply-To: <20020107132121.241311F6A@gtf.org> <E16NbYF-0001Qq-00@starship.berlin> <3C3A33E2.D297F570@mandrakesoft.com>
+In-Reply-To: <3C3A33E2.D297F570@mandrakesoft.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Nmwe-0003D6-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On January 8, 2002 12:48 am, Jeff Garzik wrote:
+> > Moving the ext2 headers from include/linux to fs/ext2 is an interesting
+> > feature of your patch, though it isn't essential to the idea you're
+> > presenting.  But is there a good reason why ext2_fs_i.h and ext2_fs_sb.h
+> > should remain separate from ext2_fs.h?  It looks like gratuitous
+> > modularity to me.
+> 
+> apparently userspace includes them, which is the reason for the strange
+> types.  good reason to continue to keep them separate.  That's also why
+> my patch7 adds an ifdef __KERNEL__.
 
---=-IlNSe8fkurKrsJckcytA
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+It's unnecessary for userspace to include those headers, they are 
+kernel-private.
 
-The radeonfb is still broken from the update in pre1. I have attached
-the missing parts of that update. This is from Ani Joshi himself.
-
---Louis
-
-
-
-
-
-
---=-IlNSe8fkurKrsJckcytA
-Content-Type: application/x-bzip
-Content-Disposition: attachment; filename=radeonfb-updatefix.patch.bz2
-Content-Transfer-Encoding: base64
-
-QlpoOTFBWSZTWY+OZ10AAc9/gHg0n7/If//0f+//9L/vn0RQBLrysbLWUAAKDESCE9NQ0NAyGgAA
-0AAGQDQ0AA4yYJoZDIyMmhoA0GRhANBo0yGIaADNSVMT0gAAGjQNGgADINNAAAAA4yYJoZDIyMmh
-oA0GRhANBo0yGIaACRICTBAJNCGjQGgaDQBoaNNAaGJo00ycHvoNqQyQxMcJprerWDbNgVSdAbUV
-rm1UATQVDfg4JGaLnlLrZ40r7VT3y3dYKq4ayoVV4qIwCxGuXJJaQXiN41+pga6ZUmuqzB6Pa/DZ
-StOTlhPFj7m+0zbfsUi9BIPTYwY00kGmJnG4mIAl6XVF3+7KnW6+YWA0MzLEI10LKeg5VqDT08IE
-LPCdM7AOSRghANIPKkcT7eXYkd3sgXF3jAbaX2lSBeqNKdLLqQmgaVFSKBZuc9uwMOREDSqogT/h
-AhGAKQwBg0kKVPnyNcpD+2wWprTZUwqeFPbGgaBMBjQCEMbJ8QkJqsKyV68J3tKjXxcZWInxWfGx
-4lG4fXryNtEiYkWAaiABSBYAU9ClsyjPL1qaROcqs2c23iB5TudZI1mhg/Of6do4oNGbvJKVhoJ+
-18MkFMAbA4DUkDSbrRkpzO28iLy8mUuq0ytWxmq3nK0OU9MH6oW0LdOcUuwNEL8OARLDUt8JQy/U
-iEI7BwuapMaanKeIoQtBDdBOrRMt4hFWFcaGZJHpCEHgoRPlrhVScCekaCPZzPNNqh2eV2rFCdOE
-RWibeBbau2Zlr7S5Svr78KYyNdMupMlWw8s9JGZhu+tJGqSO6AMDtgfJ0/UfeLyHfdvfhfuIcqNw
-WQiZaMFHdEhHX0qiKgQuomZUcc0ie103mqNTVvxd+CMZpBizg2keBhjkPvGRKURBA5VohyMiFDEY
-q9OJSFiKjSbGMZoXDChYxPdyllkakh3yUGVUjeVw2FjjiSTwCDisCWF4r0WNVrdzNp4syhtmjfsy
-MKmR0ESaZoVrLacDib+BZgcTEyDXGLQEQla7G0LqWUjRa3Sc8UwJ1Hepoke80XJgYNqwRDZYXNlU
-YieRJEKgcxreyBsp4znkLQAqVY5M6yz4VYZLGcQ4uQdTkNhwe+vRj03NDeb1JaDHKNedNNsHKe4d
-78hmHC5DgkFaHEnPc7IWBMGrVC+6HstcLZt6khi6DG4rlLaEBSWSoHEhC5jEaYvIpYNlKEJSGi20
-xrgPMAxFMwMymsh8IxbnnLltg3BpvMs4QG5SCC0FjwGpUkZGLRmGy1cac83uODxFstqrGETrKk7t
-k4o+it7ztesyhgdoikTrbDlO2EWl4yRaZx2WwK4KPRyw5aRbltwmGJsz1CrM2UwjSZuwdZU65rWc
-7+QnIlIfXubszzH7IPM+RuOlB7PZP4IkIpIw/tIS/w+Y8JXwpCXXOk+hJE/w3495g16z+zNOSCZv
-sSjCjJBP6PkgOPTBN0UCRLpgRyQSMg8gjPmV4FC4c2j/szGYjFBmIlJIkbDznNCDVH/i7kinChIR
-8czroA==
-
---=-IlNSe8fkurKrsJckcytA--
-
-
+--
+Daniel

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263010AbTDILeG (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 07:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263011AbTDILeG (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 07:34:06 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:23707
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263010AbTDILeF (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 07:34:05 -0400
-Subject: Re: 2.4.21pre6 (__ide_dma_test_irq) called while not waiting
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Soeren Sonnenburg <kernel@nn7.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1049879881.2774.40.camel@fortknox>
-References: <1049879881.2774.40.camel@fortknox>
+	id S263015AbTDILhG (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 07:37:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263012AbTDILhG (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 07:37:06 -0400
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:15242 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S263015AbTDILhF (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 07:37:05 -0400
+Subject: Re: 2.5: Can't unmount fs after using NFS
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <16016.61751.120794.728107@notabene.cse.unsw.edu.au>
+References: <1049036587.600.9.camel@teapot>
+	 <16016.61751.120794.728107@notabene.cse.unsw.edu.au>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1049885242.9897.7.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1049888885.608.1.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 09 Apr 2003 11:47:25 +0100
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 09 Apr 2003 13:48:05 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-04-09 at 10:18, Soeren Sonnenburg wrote:
-> hdi: 4 bytes in FIFO
-> hdi: timeout waiting for DMA
-> hdi: (__ide_dma_test_irq) called while not waiting
-> hdi: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
+On Mon, 2003-04-07 at 05:32, Neil Brown wrote:
+> On  March 30, felipe_alfaro@linuxmail.org wrote:
+> > Hi,
+> > 
+> > Since I started testing 2.5 on my NFS server, I'm having problems
+> > unmounting filesystems that were exported by NFS (of course, before
+> > trying to unmount, I stopped NFS):
 > 
-> hdk: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
+> Thankyou for the bug report.  After spending far too long looking in
+> the wrong place, I looked in the right place and found it.
+> This patch should fix it.
 
-This looks like a shared IRQ occurred while a command was being
-sent. The IDE layer apparently tested for the IRQ before it 
-was ready to do so as part of finding out what is going on. The
--ac tree (and pre7) may possibly have fixed it with the command
-delay stuff that Ross Biro figured out
+I'm sorry to say the patch doesn't fix the problem. After sometime under
+normal usage of the NFS server, I can't still unmount the volume after
+stopping the NFS service.
+
+Do you want me to do anything else?
+
+________________________________________________________________________
+Linux Registered User #287198
 

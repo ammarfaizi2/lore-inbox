@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263276AbTCSXxk>; Wed, 19 Mar 2003 18:53:40 -0500
+	id <S263299AbTCSX5b>; Wed, 19 Mar 2003 18:57:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263278AbTCSXxk>; Wed, 19 Mar 2003 18:53:40 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:42411 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263276AbTCSXxb>;
-	Wed, 19 Mar 2003 18:53:31 -0500
-Date: Wed, 19 Mar 2003 16:02:50 -0800 (PST)
-Message-Id: <20030319.160250.42440240.davem@redhat.com>
-To: hpa@zytor.com
-Cc: mirrors@kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Deprecating .gz format on kernel.org
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3E78D0DE.307@zytor.com>
-References: <3E78D0DE.307@zytor.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263300AbTCSX5b>; Wed, 19 Mar 2003 18:57:31 -0500
+Received: from ns.suse.de ([213.95.15.193]:28165 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S263299AbTCSX5a>;
+	Wed, 19 Mar 2003 18:57:30 -0500
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: share COMPATIBLE_IOCTL()s across architectures
+References: <20030319232157.GA13415@elf.ucw.cz.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 20 Mar 2003 01:08:27 +0100
+In-Reply-To: Pavel Machek's message of "20 Mar 2003 00:48:29 +0100"
+Message-ID: <p7365qe5284.fsf@amdsimf.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "H. Peter Anvin" <hpa@zytor.com>
-   Date: Wed, 19 Mar 2003 12:19:42 -0800
+Pavel Machek <pavel@suse.cz> writes:
 
-   Now, the questions that come up are:
-   
-   i) Does this sound reasonable to everyone?  In particular, is there any
-   loss in losing the "original" compressed files?
-   
-   ii) Assuming a yes on the previous question, what time frame would it
-   make sense for this changeover to happen over?
+> --- linux-test/include/linux/compat_ioctl.h	2003-03-20 00:08:12.000000000 +0100
+> +++ linux/include/linux/compat_ioctl.h	2003-03-19 23:36:24.000000000 +0100
+> @@ -0,0 +1,641 @@
+> +/* List here explicitly which ioctl's are known to have
+> + * compatible types passed or none at all...
+> + */
+> +/* Big T */
+> +COMPATIBLE_IOCTL(TCGETA)
 
-I'm fine with this, and my personal feeling on time is the sooner
-the better.
+Shouldn't you put the include files needed for all that in there too?
 
-It's pretty hard to find a Linux system without bzip2 these days.
+Otherwise you have another ugly list to duplicate. The includes
+cannot be put inside the ioctl list, because in some extreme 
+case they can generate code (e.g. when gcc decides to ignore inline
+again and emits functions for includes)
+
+It could be done with a special symbol like:
+
+#ifdef DO_INCLUDES
+#include foo1
+#include foo2
+#else
+COMPATIBLE_IOCTL(...)
+#endif
+
+-Andi

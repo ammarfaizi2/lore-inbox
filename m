@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263333AbSKRR76>; Mon, 18 Nov 2002 12:59:58 -0500
+	id <S262790AbSKRSKT>; Mon, 18 Nov 2002 13:10:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263362AbSKRR76>; Mon, 18 Nov 2002 12:59:58 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:4480 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S263333AbSKRR75>;
-	Mon, 18 Nov 2002 12:59:57 -0500
-Date: Mon, 18 Nov 2002 19:06:56 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: rusty@rustcorp.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.5.48: BUG() at kernel/module.c:1000
-Message-ID: <20021118180656.GA2663@vana>
-Mime-Version: 1.0
+	id <S262905AbSKRSKT>; Mon, 18 Nov 2002 13:10:19 -0500
+Received: from packet.digeo.com ([12.110.80.53]:34758 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262790AbSKRSKR>;
+	Mon, 18 Nov 2002 13:10:17 -0500
+Message-ID: <3DD92E92.EEB9ECD6@digeo.com>
+Date: Mon, 18 Nov 2002 10:16:50 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: William Lee Irwin III <wli@holomorphy.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, rml@tech9.net, riel@surriel.com, akpm@zip.com.au
+Subject: Re: unusual scheduling performance
+References: <20021118081854.GJ23425@holomorphy.com> <705474709.1037608454@[10.10.2.3]> <20021118165316.GK23425@holomorphy.com> <3DD92914.1060301@us.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Nov 2002 18:16:50.0830 (UTC) FILETIME=[AA4DFAE0:01C28F2E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rusty,
-  I'm trying to get VMware working, and unfortunately new insmod
-is not able to load generated module. It died at line 1000 of 
-kernel/module.c, because of used.core_size > mod->core_size:
-     INIT=0/0  CORE=34252/34228
+Dave Hansen wrote:
+> 
+> ...
+>      rwsem_down_write_failed:           133    133
 
-  Do you have any idea what's wrong with generated vmmon.o?
-After I did "strip -R .note vmmon.o", module was insmod-dable.
-Unfortunately lsmod now says 
-"KBUILD_MODNAME         34220  0 [permanent]", although there is
-no explanation in dmesg why it was marked [permanent] :-(
+Possible culprit.
 
-  If you are interested, generated vmmon.o is available at
-http://vana.vc.cvut.cz/vmmon.o (if vana.vc.cvut.cz is alive)
-(and yes, I fixed KBUILD_MODNAME module name here already...
-but with vmmon in .modulename it does not die so spectacullary).
-
-  And if we are talking about module names, I'm using
-"insmod -o dummy0 dummy.o" & "insmod -o dummy1 dummy.o" to create
-two dummy interfaces. What should I do now? Compile two dummy.o,
-each with different module name?
-						Thanks,
-							Petr Vandrovec
+Please stick a dump_stack() in rwsem_down_write_failed(), and add the below.
+Suggest you stick with 2.5.47 to diagnose this.  The loss of kksymoops
+is a pain.
 
 
+ fs/eventpoll.c |    2 ++
+ 1 files changed, 2 insertions(+)
 
-/tmp/vmware-config0/vmmon.o:     file format elf32-i386
+--- 25/fs/eventpoll.c~hey	Mon Nov 18 10:13:40 2002
++++ 25-akpm/fs/eventpoll.c	Mon Nov 18 10:14:01 2002
+@@ -328,6 +328,8 @@ void eventpoll_release(struct file *file
+ 	if (list_empty(lsthead))
+ 		return;
+ 
++	printk("hey!\n");
++
+ 	/*
+ 	 * We don't want to get "file->f_ep_lock" because it is not
+ 	 * necessary. It is not necessary because we're in the "struct file"
 
-Sections:
-Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         00006520  00000000  00000000  00000034  2**2
-                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
-  1 .rodata       00001b3f  00000000  00000000  00006560  2**5
-                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, DATA
-  2 __ksymtab     00000040  00000000  00000000  000080a0  2**5
-                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, DATA
-  3 .data         00000010  00000000  00000000  000080e0  2**2
-                  CONTENTS, ALLOC, LOAD, DATA
-  4 .modulename   0000000f  00000000  00000000  000080f0  2**0
-                  CONTENTS, ALLOC, LOAD, DATA
-  5 .bss          000004ec  00000000  00000000  00008100  2**5
-                  ALLOC
-  6 .comment      00000150  00000000  00000000  00008100  2**0
-                  CONTENTS, READONLY
-  7 .note         0000008c  00000000  00000000  00008250  2**0
-                  CONTENTS, READONLY
-
+_

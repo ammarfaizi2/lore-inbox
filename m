@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbVCDHe2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262624AbVCDHjv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261281AbVCDHe2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 02:34:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262527AbVCDHe2
+	id S262624AbVCDHjv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 02:39:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262619AbVCDHjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 02:34:28 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:14780 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261281AbVCDHeX (ORCPT
+	Fri, 4 Mar 2005 02:39:51 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:47843 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262633AbVCDHjZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 02:34:23 -0500
-Date: Fri, 4 Mar 2005 08:34:08 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Junfeng Yang <yjf@stanford.edu>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net,
-       jfs-discussion@www-124.southbury.usf.ibm.com, reiser@namesys.com,
-       mc@cs.Stanford.EDU
-Subject: Re: [CHECKER] Do ext2, jfs and reiserfs respect mount -o sync/dirsync
- option?
-In-Reply-To: <Pine.GSO.4.44.0503032211570.7754-100000@elaine24.Stanford.EDU>
-Message-ID: <Pine.LNX.4.61.0503040831470.7350@yvahk01.tjqt.qr>
-References: <Pine.GSO.4.44.0503032211570.7754-100000@elaine24.Stanford.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 4 Mar 2005 02:39:25 -0500
+Date: Fri, 4 Mar 2005 02:39:17 -0500
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: gene.heskett@verizon.net, linux-kernel@vger.kernel.org, kraxel@bytesex.org
+Subject: Re: 2.6.11 vs DVB cx88 stuffs
+Message-ID: <20050304073917.GA1496@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, gene.heskett@verizon.net,
+	linux-kernel@vger.kernel.org, kraxel@bytesex.org
+References: <200503032119.04675.gene.heskett@verizon.net> <20050303224438.2952f63e.akpm@osdl.org> <20050303231716.14a48f5f.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050303231716.14a48f5f.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->All warnings boil down to a single cause:  when these file systems are
->mounted -o sync or dirsync, dirty blocks are still written out
->asynchronously.  It appears to me that these mount options don't have any
->effect on these file systems.  Is this the intended behavior?
+On Thu, Mar 03, 2005 at 11:17:16PM -0800, Andrew Morton wrote:
 
-At least my HDD LED flashes regularly when I add -o sync...
-(Using `mount / -o remount,sync`)
+ > >  The reason this wasn't picked up is that neither `make allyesconfig' or
+ > >  `make allmodconfig' enables CONFIG_VIDEO_CX88_DVB or
+ > >  CONFIG_VIDEO_CX88_DVB_MODULE.
+ > >
+ > >  For coverage purposes it would be excellent to fix that up too, please.
+ > 
+ > Wise words, those.
 
-It may happen that FISC reads the disk before the write command even finished. 
-With all the HD head movement optimization in the kernel (block layer, 
-boiling down to TCQ/NCQ), this sounds possible.
+It's dependant on CONFIG_BROKEN. Remove that, and allmodconfig should pick it up.
 
+		Dave
 
-Jan Engelhardt
--- 

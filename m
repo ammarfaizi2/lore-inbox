@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129057AbQKIMUy>; Thu, 9 Nov 2000 07:20:54 -0500
+	id <S129163AbQKIMXy>; Thu, 9 Nov 2000 07:23:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129163AbQKIMUo>; Thu, 9 Nov 2000 07:20:44 -0500
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:59145 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S129057AbQKIMUh>; Thu, 9 Nov 2000 07:20:37 -0500
-Message-ID: <3A0A968B.85A6770E@holly-springs.nc.us>
-Date: Thu, 09 Nov 2000 07:20:27 -0500
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Rohland <cr@sap.com>
-CC: Larry McVoy <lm@bitmover.com>, richardj_moore@uk.ibm.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-In-Reply-To: <80256991.007632DE.00@d06mta06.portsmouth.uk.ibm.com>
-		<3A09C725.6CFA0EE2@holly-springs.nc.us> <qwwn1f9lhdg.fsf@sap.com>
-		<20001108235312.H22781@work.bitmover.com> <qwwzoj9k02h.fsf@sap.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130447AbQKIMXe>; Thu, 9 Nov 2000 07:23:34 -0500
+Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:51977 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S129163AbQKIMXd>; Thu, 9 Nov 2000 07:23:33 -0500
+From: bsuparna@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
+To: "David S. Miller" <davem@redhat.com>
+cc: torvalds@transmeta.com, aviro@redhat.com, linux-kernel@vger.kernel.org
+Message-ID: <CA256992.004406D2.00@d73mta05.au.ibm.com>
+Date: Thu, 9 Nov 2000 17:46:53 +0530
+Subject: Re: Oddness in i_shared_lock and page_table_lock nesting
+	 hierarchies ?
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Rohland wrote:
-> If we would not allow binary only modules I would not have such a big
-> problem with that...
 
-I'm not sure how you would do that.
- 
-> I understand that the one size fits all approach has some limitations
-> if you want to run on PDAs up to big iron. But a framework to overload
-> core kernel functions with modules smells a lot of binary only, closed
-> source, vendor specific Linux on high end machines.
+ > The fix we agreed on back then is easy (make rest of kernel match
+ > vmtruncate()'s locking order), it just takes time to implement and
+ > test.
 
-Since Linux is GPL, how would you stop this?
- 
-> And then I don't see the value of Linux anymore.
+  David,
 
-Same as before -- freedom and low cost. The primary advantae of Linux
-over other OSes is the GPL. 
+  I was looking into the vmm code and trying to work out exactly how to fix
+this, and there are
+  some questions in my mind - mainly a few cases (involving multiple vma
+updates) which
+  I'm not sure about the cleanest way to tackle.
+  But before I bother anyone with those, I thought I ought to go through
+the earlier discussions
+  that you had while coming up with what the fix should be. Maybe you've
+already gone over
+  this once.
+  Could you point me to those ? Somehow I haven't been successful in
+locating them.
 
-I think and Advanced Linux Kernel PRoject would be a good idea for a
-number of reasons. It would give "Enterprise" users their own special
-kernel, just like the microcontroller and real-time guys have. It would
-also provide a parallel development track for Linux that could provide
-real competition and value to the Linus-version kernel. The "Enterprise"
-machines that IBM, HP and SGI would target aren't all S/390s; there
-would be significant overlap of their low end with Linus' high end, I
-think. Like 8+-way SMP servers.
+  Regards
+  Suparna
 
--M
+
+  Suparna Bhattacharya
+  Systems Software Group, IBM Global Services, India
+  E-mail : bsuparna@in.ibm.com
+  Phone : 91-80-5267117, Extn : 2525
+
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

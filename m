@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263096AbRF0PNF>; Wed, 27 Jun 2001 11:13:05 -0400
+	id <S263318AbRF0PQp>; Wed, 27 Jun 2001 11:16:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263318AbRF0PMz>; Wed, 27 Jun 2001 11:12:55 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:20997 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S263096AbRF0PMf>;
-	Wed, 27 Jun 2001 11:12:35 -0400
-To: Robert Love <rml@tech9.net>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        "Holzrichter," Bruce <bruce.holzrichter@monster.com>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: Maintainers master list?
-In-Reply-To: <Pine.LNX.4.33L.0106261602380.23373-100000@duckman.distro.conectiva> <993588379.763.0.camel@phantasy>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 27 Jun 2001 17:12:18 +0200
-In-Reply-To: Robert Love's message of "26 Jun 2001 16:46:05 -0400"
-Message-ID: <d3bsnac5yl.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S263257AbRF0PQf>; Wed, 27 Jun 2001 11:16:35 -0400
+Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:23073 "EHLO
+	mailsorter1.ma.tmpw.net") by vger.kernel.org with ESMTP
+	id <S263318AbRF0PQS>; Wed, 27 Jun 2001 11:16:18 -0400
+Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C9B6C50@nocmail.ma.tmpw.net>
+From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+To: "'Rik van Riel'" <riel@conectiva.com.br>,
+        "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+Cc: "'esr@thyrsus.com'" <esr@thyrsus.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: RE: Maintainers master list?
+Date: Wed, 27 Jun 2001 11:15:17 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Robert" == Robert Love <rml@tech9.net> writes:
 
-Robert> me.  I took issue with the MAINTAINERS file when Eric brought
-Robert> it up originally.  However, I don't think drastic measures
-Robert> need to be taken.  I have seen a lot of ideas, including
-Robert> Meta-data in the kernel source.
+>On Tue, 26 Jun 2001, Holzrichter, Bruce wrote:
 
-Robert> What I think we need is the simple solution: find a maintainer
-Robert> for the file, cleanup the current cruft and misinformation,
-Robert> and then actively work to keep the file current.  I am willing
-Robert> to be this maintainer.
+>> respect Eric, and all the developers work.  How about starting
+>> with a simple MAINTAINERS file maintainer?  Someone to actively
+>> follow project developers and contact info?
 
-A good place to start would be to write a script that checks the email
-addresses listed in there for bounces say every 6 months (not too
-often or people will get grumphy). Oh and maybe include the data about
-the person so he/she can verify it's ok, maybe this way we can get
-forget this meta-data sillyness.
+>That's the best idea I've read so far.
 
-Robert> I am not a major "maintainer" in the kernel, but I have and do
-Robert> contribute.  Thus I think this is a good task for me.  I am
-Robert> willing and wanting to do this.  Comments?
+>Any takers?
 
-Well, you'd become the maintainer maintainer. Thats worth a slot in
-the MAINTAINERS file ;-)
+Along with some other people that have replied, I would be happy to help out
+any way I can.
 
-Jes
+Bruce H.

@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263167AbUKTUMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263172AbUKTUUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263167AbUKTUMW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 15:12:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263169AbUKTUMW
+	id S263172AbUKTUUf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 15:20:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbUKTUUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 15:12:22 -0500
-Received: from penguin.ucs.ed.ac.uk ([129.215.70.82]:11404 "EHLO
-	penguin.ucs.ed.ac.uk") by vger.kernel.org with ESMTP
-	id S263167AbUKTUMS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 15:12:18 -0500
-To: Jin Suh <jinssuh@yahoo.com>
+	Sat, 20 Nov 2004 15:20:34 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:29156 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263173AbUKTUUV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 15:20:21 -0500
+Date: Sat, 20 Nov 2004 21:19:45 +0100
+From: Jens Axboe <axboe@suse.de>
+To: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.28] Enabling a SATA drive (sata_promise.o) with Promise Fastrak S150 TX2Plus SATA PCI card?
-References: <20041119200331.53569.qmail@web41210.mail.yahoo.com>
-From: Kenneth MacDonald <kenny@holyrood.ed.ac.uk>
-Date: 20 Nov 2004 20:12:07 +0000
-In-Reply-To: <20041119200331.53569.qmail@web41210.mail.yahoo.com>
-Message-ID: <yqo7jog46w8.fsf@penguin.ucs.ed.ac.uk>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: Is controlling DVD speeds via SET_STREAMING supported?
+Message-ID: <20041120201944.GA26240@suse.de>
+References: <20041120161704.GA14743@hardeman.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041120161704.GA14743@hardeman.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jin" == Jin Suh <jinssuh@yahoo.com> writes:
+On Sat, Nov 20 2004, David Härdeman wrote:
+> Hi,
+> 
+> currently my DVD player sounds like a jet plane when playing ordinary 
+> audio CD's. I tried the different approaches to lowering playback speed 
+> that are commonly used (hdparm, setspeed, etc) but none of them worked.
+> 
+> Then I found this thread:
+> http://marc.theaimsgroup.com/?t=99366299900003&r=1&w=2
+> 
+> Which seems to indicate that DVD players need a different command 
+> (SET_STREAMING), the thread is from 2001, and I've not been able to find 
+> any more recent information.
+> 
+> So, my question is, is this implemented in the kernel and are there any 
+> userspace tools to set the playback speed?
 
-    Jin> Hello, I have a Dell 650/Linux-2.4.28 with a Promise Fastrak
-    Jin> S150 TX2Plus SATA PCI card with 2 250GB Western digital
-    Jin> drives connected. Could anyone help me how to enable the SATA
-    Jin> drives? I had 2.4.25 one time and it showed me /dev/hde and
-    Jin> /dev/hdg but the new SATA driver should show as /dev/sdX,
-    Jin> right?
-
-    Jin> I see libata.o and sata_promise.o modules. When I do
-    Jin> "modprobe libata and modprobe sata_promise", I got bunch of
-    Jin> "Unresolved symbols". I also downloaded ft3xx driver and
-    Jin> didn't work too. Any idea? I rebooted the same machine with
-    Jin> Suse9.1 (2.6.x kernel). It loaded the libata.o and
-    Jin> sata_promise.o and I could see /dev/sda and /dev/sdb as SATA
-    Jin> drives correctly.  I also have a Intel P5 ICH5, D875PBZ with
-    Jin> 2 SATA ports. I also could not enable the drives with
-    Jin> ata_piix.o. Any helps would be appreciated.
-
-I had this problem when I was using an insmod from busybox compiled up
-without the tainted kernel checking feature.  the libata.o module is a
-GPLONLY as far as I recall.
-
-So, check your insmod/modprobe versions.
-
-Kenny.
+I don't know of any, but it is trival to write using SG_IO (or just
+CDROM_SEND_PACKET for this simple use, since only a trivial amount of
+data involved). If you are not sure how to do it, let me know and I can
+easily write one in minutes.
 
 -- 
-Desktop Services Team, EUCS.
+Jens Axboe
 
-University of Edinburgh, Scotland.

@@ -1,66 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264815AbUGGC3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264858AbUGGClP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264815AbUGGC3l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 22:29:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264850AbUGGC3l
+	id S264858AbUGGClP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 22:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264860AbUGGClP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 22:29:41 -0400
-Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:47221 "HELO
-	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264815AbUGGC3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 22:29:39 -0400
-Message-ID: <40EB600C.8020603@yahoo.com.au>
-Date: Wed, 07 Jul 2004 12:29:32 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: William Lee Irwin III <wli@holomorphy.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-mm6
-References: <20040705023120.34f7772b.akpm@osdl.org>	<20040706125438.GS21066@holomorphy.com>	<20040706233618.GW21066@holomorphy.com> <20040706170247.5bca760c.davem@redhat.com>
-In-Reply-To: <20040706170247.5bca760c.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Jul 2004 22:41:15 -0400
+Received: from 221-169-69-23.adsl.static.seed.net.tw ([221.169.69.23]:26511
+	"EHLO cola.voip.idv.tw") by vger.kernel.org with ESMTP
+	id S264858AbUGGClM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 22:41:12 -0400
+Subject: Re: 2.6.7+BK bad: scheduling while atomic! (ALSA?)
+From: Wen-chien Jesse Sung <jesse@cola.voip.idv.tw>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.44.0407070206220.24637-100000@math.ut.ee>
+References: <Pine.GSO.4.44.0407070206220.24637-100000@math.ut.ee>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-SHEVL+k1T7tbSnqnJKSQ"
+Message-Id: <1089168049.3892.19.camel@libra>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 07 Jul 2004 10:40:50 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> On Tue, 6 Jul 2004 16:36:18 -0700
-> William Lee Irwin III <wli@holomorphy.com> wrote:
-> 
-> 
->>I have it isolated down to the sched-clean-init-idle.patch and
->>sched-clean-fork.patch. sched-clean-init-idle.patch fails to build without
->>the second of those two applied, so I didn't do any work to narrow it down
->>further.
-> 
-> 
-> One thing to note is that we don't currently call the
-> wake_up_forked_process() thing in our SMP idle bootup
-> dispatcher in arch/sparc64/kernel/smp.c
-> 
-> Perhaps that is somehow related to the problems.
-> In that case the culprit would be the first patch,
-> sched-clean-init-idle.patch
-> 
 
-Yes, I missed sparc64 due to the lack of wake_up_forked_process. Dang.
+--=-SHEVL+k1T7tbSnqnJKSQ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Well, what used to happen is that wake_up_forked_process would put the
-idle task on the runqueue like a regular process, then init_idle would
-take it off again.
+> Alsamixergui aslo still segfaults (with double
+> segfault as it actually did before):
+>=20
+> bad: scheduling while atomic!
+>  [<c02989a3>] schedule+0x463/0x470
+>  [<c014a984>] vfs_write+0xe4/0x120
+>  [<c014aa58>] sys_write+0x38/0x60
+>  [<c0103eee>] work_resched+0x5/0x16
 
-However after the patch, init_idle simply does all the work itself,
-and doesn't have to deal with removal from the runqueue. Now sparc64
-uses "kernel_thread" to clone its idle tasks, which *does* put the
-process onto the runqueue. init_idle then also makes it the idle task.
-This is probably why it blows up.
+Hi,
 
-I guess another small function to remove the task from the runqueue
-before calling init_idle for those arches that want it would be the
-way to go.
+I got similar output here when I try to run xmms with alsa plugin.
+Solved with modified sound/core/control.c. Maybe you can try this tiny
+patch. :)
 
-Sorry, this is my fault. Got to run now, but I'll send a patch to try
-in a few hours if someone hasn't already.
+--=20
+Best Regards,
+Wen-chien Jesse Sung
+
+--- linux/sound/core/control.c.orig	2004-07-06 18:38:55.000000000 +0800
++++ linux/sound/core/control.c	2004-07-06 18:39:30.000000000 +0800
+@@ -1114,7 +1114,7 @@ static ssize_t snd_ctl_read(struct file=20
+ 			wait_queue_t wait;
+ 			if ((file->f_flags & O_NONBLOCK) !=3D 0 || result > 0) {
+ 				err =3D -EAGAIN;
+-				goto out;
++				goto __end;
+ 			}
+ 			init_waitqueue_entry(&wait, current);
+ 			add_wait_queue(&ctl->change_sleep, &wait);
+@@ -1135,7 +1135,7 @@ static ssize_t snd_ctl_read(struct file=20
+ 		kfree(kev);
+ 		if (copy_to_user(buffer, &ev, sizeof(snd_ctl_event_t))) {
+ 			err =3D -EFAULT;
+-			goto __end;
++			goto out;
+ 		}
+ 		spin_lock_irq(&ctl->read_lock);
+ 		buffer +=3D sizeof(snd_ctl_event_t);
+
+
+--=-SHEVL+k1T7tbSnqnJKSQ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: 	=?UTF-8?Q?=E9=80=99=E6=98=AF=E6=95=B8=E4=BD=8D=E5=8A=A0=E7=B0=BD?=
+	=?UTF-8?Q?=E7=9A=84=E9=83=B5?= =?UTF-8?Q?=E4=BB=B6?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA62KxlZ/JOHsLIwgRAvCaAJ916/CsW6cYuCzn19xIDIvZxl40YwCeKLcI
+lssiFjvXZHVRUBtuyz/Av6g=
+=qDrF
+-----END PGP SIGNATURE-----
+
+--=-SHEVL+k1T7tbSnqnJKSQ--
+

@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVALL5o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVALMEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVALL5o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 06:57:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbVALL5n
+	id S261163AbVALMEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 07:04:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbVALMEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 06:57:43 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:25235
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S261161AbVALL5k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 06:57:40 -0500
-Subject: Re: [PATCH 2.6.10-mm2 Resend] Make use of preempt_schedule_irq
-	[2/3] (PPC)
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050112124910.1.patchmail@tglx>
-References: <20050112124910.1.patchmail@tglx>
-Content-Type: text/plain
-Date: Wed, 12 Jan 2005 12:57:38 +0100
-Message-Id: <1105531058.17853.223.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+	Wed, 12 Jan 2005 07:04:25 -0500
+Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:51630 "EHLO
+	cenedra.walrond.org") by vger.kernel.org with ESMTP id S261163AbVALMEW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 07:04:22 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: Mariusz Mazur <mmazur@kernel.pl>
+Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.10.0
+Date: Wed, 12 Jan 2005 12:04:15 +0000
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <200501081613.27460.mmazur@kernel.pl> <200501121049.10219.andrew@walrond.org> <200501121211.23475.mmazur@kernel.pl>
+In-Reply-To: <200501121211.23475.mmazur@kernel.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501121204.15255.andrew@walrond.org>
+X-Spam-Score: 4.3 (++++)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make use of the new preempt_schedule_irq function.
+On Wednesday 12 January 2005 11:11, Mariusz Mazur wrote:
+>
+> Looks like you've linked your kernel's config.h to llh and that causes the
+> problem. You shouldn't do that unless you have a specific reason to,
+> otherwise you might end up with problems I'm unable to test for (I can't
+> check every possible combination of kernel CONFIG_'s).
+>
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+It seems that mysql looks for the existence of a compilable linux/config.h and 
+uses it if available. This has just happened to work until latest release of 
+llh. I had read your faq, but too long ago ;)
 
----
-entry.S |   12 +-----------
-1 files changed, 1 insertion(+), 11 deletions(-)
----
+Thanks!
 
-Index: 2.6.10-mm2/arch/ppc/kernel/entry.S
-===================================================================
---- 2.6.10-mm2/arch/ppc/kernel/entry.S	(revision 148)
-+++ 2.6.10-mm2/arch/ppc/kernel/entry.S	(working copy)
-@@ -624,18 +624,8 @@
- 	beq+	restore
- 	andi.	r0,r3,MSR_EE	/* interrupts off? */
- 	beq	restore		/* don't schedule if so */
--1:	lis	r0,PREEMPT_ACTIVE@h
--	stw	r0,TI_PREEMPT(r9)
--	ori	r10,r10,MSR_EE
--	SYNC
--	MTMSRD(r10)		/* hard-enable interrupts */
--	bl	schedule
--	LOAD_MSR_KERNEL(r10,MSR_KERNEL)
--	SYNC
--	MTMSRD(r10)		/* disable interrupts */
-+1:	bl	preempt_schedule_irq
- 	rlwinm	r9,r1,0,0,18
--	li	r0,0
--	stw	r0,TI_PREEMPT(r9)
- 	lwz	r3,TI_FLAGS(r9)
- 	andi.	r0,r3,_TIF_NEED_RESCHED
- 	bne-	1b
-
-
+Andrew

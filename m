@@ -1,65 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314635AbSDTPqD>; Sat, 20 Apr 2002 11:46:03 -0400
+	id <S314617AbSDTPnw>; Sat, 20 Apr 2002 11:43:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314640AbSDTPqC>; Sat, 20 Apr 2002 11:46:02 -0400
-Received: from mg01.austin.ibm.com ([192.35.232.18]:7301 "EHLO
-	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S314635AbSDTPqB>; Sat, 20 Apr 2002 11:46:01 -0400
-Message-ID: <002201c1e882$ffe03200$2e060e09@beavis>
-From: "Andrew Theurer" <habanero@us.ibm.com>
-To: "Hirokazu Takahashi" <taka@valinux.co.jp>
-Cc: <trond.myklebust@fys.uio.no>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020419.122142.85422229.taka@valinux.co.jp><E16yUXe-0004qj-00@charged.uio.no><200204192128.QAA24592@popmail.austin.ibm.com> <20020420.191419.35011774.taka@valinux.co.jp>
-Subject: Re: [PATCH] zerocopy NFS updated
-Date: Sat, 20 Apr 2002 10:49:38 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S314632AbSDTPnv>; Sat, 20 Apr 2002 11:43:51 -0400
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:12105 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S314617AbSDTPnu>; Sat, 20 Apr 2002 11:43:50 -0400
+Date: Sat, 20 Apr 2002 17:47:25 +0200
+From: Heinz Diehl <hd@cavy.de>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org, jamagallon@able.es
+Subject: Re: update for {Re: [PATCHSET] Linux 2.4.19-pre7-jam1, -jam2}
+Message-ID: <20020420154725.GA1887@chiara.cavy.de>
+Mail-Followup-To: Andre Hedrick <andre@linux-ide.org>,
+	linux-kernel@vger.kernel.org, jamagallon@able.es
+In-Reply-To: <20020419232633.GA1775@werewolf.able.es> <Pine.LNX.4.10.10204200335390.19117-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: private site in Mannheim/Germany
+X-PGP-Key: To get my public-key, send mail with subject 'get pgpkey'
+User-Agent: Mutt/1.5.0i (Linux 2.4.19-pre7 i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi,
->
-> > With all this talk on serialization on UDP, and have a question.  first,
-let
-> > me explain the situation.  I have an NFS test which calls 48 clients to
-read
-> > the same 200 MB file on the same server.  I record the time for all the
-> > clients to finish and then calculate the total throughput. The server is
-a
-> > 4-way IA32.  (I used this test to measure the zerocopy/tcp/nfs patch)
-Now,
-> > right before the test, the 200 MB file is created on the server, so
-there is
-> > no disk IO at all during the test.  It's just an very simple cached
-read.
-> > Now, when the clients use udp, I can only get a run queue length of 1,
-and I
-> > have confirmed there is only one nfsd thread in svc_process() at one
-time,
-> > and I am 65% idle.  With tcp, I can get all nfsd threads running, and
-max all
-> > CPUs.  Am I experiencing a bottleneck/serialization due to a single UDP
-> > socket?
->
-> What version do you use?
-> 2.5.8 kernel has a problem in readahead of NFSD.
-> It doesn't work at all.
+On Sat Apr 20 2002, Andre Hedrick wrote:
 
-I have this problem on every version I have used, including 2.4.18, 2.4.18
-w/ Niel's patches, 2.5.6, and 2.5.7.  One other thing I forgot to mention:
-If I set the number of resident nfsd threads to "2", I can get 2 nfsd
-threads running at once (nfsd_busy = 2), along with ~30% improvement in
-throughput.  If I use any other qty of resident nfsd threads, I always get
-exactly 1 nfsd threads running (nfsd_busy = 1) during this test.  With tcp
-there is no serialization at all.  I can get nearly 48 nfsd threads busy
-with the 48 clients all reading at once.
+> http://www.linuxdiskcert.org/ide-2.4.19-p7.all.convert.6.patch.bz2
 
--Andrew
+No problems so far, will report if something strange occurs.
 
+-- 
+# Heinz Diehl, 68259 Mannheim, Germany

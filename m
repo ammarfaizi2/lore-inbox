@@ -1,57 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312887AbSDTTiC>; Sat, 20 Apr 2002 15:38:02 -0400
+	id <S312855AbSDTTiA>; Sat, 20 Apr 2002 15:38:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312899AbSDTTiB>; Sat, 20 Apr 2002 15:38:01 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1550 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312887AbSDTTh7>;
-	Sat, 20 Apr 2002 15:37:59 -0400
-Message-ID: <3CC1C38F.37D1F8C2@zip.com.au>
-Date: Sat, 20 Apr 2002 12:37:51 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S312899AbSDTTh7>; Sat, 20 Apr 2002 15:37:59 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:11255 "EHLO
+	lapdancer.baythorne.internal") by vger.kernel.org with ESMTP
+	id <S312855AbSDTTh6>; Sat, 20 Apr 2002 15:37:58 -0400
+Date: Sat, 20 Apr 2002 20:37:39 +0100 (BST)
+From: David Woodhouse <dwmw2@infradead.org>
+X-X-Sender: dwmw2@lapdancer.baythorne.internal
+To: Sebastian Droege <sebastian.droege@gmx.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: BK patches exported.
+In-Reply-To: <20020420181837.0025c52e.sebastian.droege@gmx.de>
+Message-ID: <Pine.LNX.4.44.0204202037030.2761-100000@lapdancer.baythorne.internal>
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre7aa1
-In-Reply-To: <20020420194213.K1291@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> ...
-> Only in 2.4.19pre6aa1: 00_prepare-write-fixes-2
-> Only in 2.4.19pre7aa1: 00_prepare-write-fixes-3
-> 
->         Add a missing flush_dcache_page() to the prepare write corruption
->         fixes. Noticed by Andrew Morton.
-> 
+On Sat, 20 Apr 2002, Sebastian Droege wrote:
 
-Why do we perform those "flushes"[1] at all?  The memsets should
-never occur when the page is mapped into any process tables.
+> Yeah nice but is it somehow possible to create one big patch including
+> all changes automatical? It's much work to download all the 10000
+> changesets one by one ;(
 
-I seem to be missing something here.
+Done. 
 
+-- 
+dwmw2
 
-[1] Can we please not that term?  A "flush" is something which you
-    do to a "dunny" after taking a "crap". [2]
-
-    Caches are either "written back" or are "invalidated".  Nothing
-    else.
-
-    This is not just semantics.  This stuff is hard.  90% of kernel
-    developers are on x86, and 90% of those do not understand the
-    nuances of all this.  The careful choice and use of terminology
-    will aid other platforms.
-
-[2] And a "sync" is something which you wash your hands in after the
-    "flush".
-
-    Dirty disk data is either "written out" or is "waited upon".  The
-    kernel has real performance bugs due to this confusion.
-
--

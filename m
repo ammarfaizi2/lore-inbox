@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262753AbUBZJ7j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 04:59:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbUBZJ7j
+	id S262756AbUBZKCh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 05:02:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbUBZKCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 04:59:39 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:51430 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262753AbUBZJ7i (ORCPT
+	Thu, 26 Feb 2004 05:02:37 -0500
+Received: from users.linvision.com ([62.58.92.114]:36784 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S262756AbUBZKCE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 04:59:38 -0500
-MIME-Version: 1.0
+	Thu, 26 Feb 2004 05:02:04 -0500
+Date: Thu, 26 Feb 2004 11:02:02 +0100
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Nico Schottelius <nico-kernel@schottelius.org>,
+       Nathan Scott <nathans@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: another hard disk broken or xfs problems?
+Message-ID: <20040226100202.GA7006@bitwizard.nl>
+References: <20040225220051.GA187@schottelius.org> <20040225223428.GD640@frodo> <20040225234944.GD187@schottelius.org> <20040226032741.GB1177@frodo> <20040226082551.GA218@schottelius.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16445.50041.813575.425095@alkaid.it.uu.se>
-Date: Thu, 26 Feb 2004 10:59:21 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: ross@datscreative.com.au
-Cc: a.verweij@student.tudelft.nl, Arjen Verweij <A.Verweij2@ewi.tudelft.nl>,
-       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
-       <linux-kernel@vger.kernel.org>, Jamie Lokier <jamie@shareable.org>,
-       Ian Kumlien <pomac@vapor.com>, Jesse Allen <the3dfxdude@hotmail.com>,
-       Craig Bradney <cbradney@zip.com.au>, Daniel Drake <dan@reactivated.net>
-Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround instead of apic ack delay.
-In-Reply-To: <200402261013.38536.ross@datscreative.com.au>
-References: <Pine.GHP.4.44.0402252234370.16736-100000@elektron.its.tudelft.nl>
-	<200402261013.38536.ross@datscreative.com.au>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <20040226082551.GA218@schottelius.org>
+User-Agent: Mutt/1.3.28i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ross Dickson writes:
- > > Something else that strikes me as odd, is that 2.6.3-mm like I built it,
- > > immediately locks up solid if you omit apic_tack=2, but 2.4 with acpi and
- > > apic enabled, without Ross' patches would not react this vigorously.
- > 
- > I have found it to be the 1000Hz timer ticks by default in 2.6 whereas in
- > 2.4 you only have 100Hz ticks. By default you can have 10 times the quantity of
- > disconnects and reconnects per second with 2.6 as compared with 2.4. 
- > The -CPU? -Chipset? -memory? -power supply? -track layout? -bios timings? etc.
- > combo the way it is set up on a lot of Nforce2 boards cannot hack it.
+On Thu, Feb 26, 2004 at 09:25:51AM +0100, Nico Schottelius wrote:
+> I am really wondering about the error message, as "internal errors" 
+> indicate for me an error in the kernel.
 
-One option is to reduce HZ, by e.g. applying
-http://www.csd.uu.se/~mikpe/linux/patches/2.6/patch-config-hz-2.6.3
-and selecting CONFIG_HZ_100.
+[...]
 
-I did this originally to prevent clock slowdown on a 486 during
-heavy disk I/O, but at least one person reported that it helped
-his PIII as well: that could very well have been a chipset or
-#SMM BIOS issue.
+> And btw, do all filesystem drivers behave in this way, printing internal
+> errors and displaying call traces when they find errors in the
+> filesystem?
+
+For a filesystem driver, things are clear: it's the only one writing
+to the data on the drive. So when things go wrong: in principle, it's
+an internal error. 
+
+It would be nice if you'd always be able to salvage your data by
+just mounting the partition, but that's not the case. A specialized
+program like ...-repair or fsck will do a better job. 
+
+Now for a logging filesystem, the assumption that it messed up itself
+is even stronger than for a classical filesystem. It should be able
+to handle whatever happens. 
+
+It's very difficult to check all assumptions about what's on the disk
+at every step and still have a reasonable performance. That's why some
+errors may only be noticed a bit late and lead to slightly misleading
+error messages. 
+
+	Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****

@@ -1,45 +1,285 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311749AbSFENhw>; Wed, 5 Jun 2002 09:37:52 -0400
+	id <S314485AbSFENi5>; Wed, 5 Jun 2002 09:38:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314485AbSFENhv>; Wed, 5 Jun 2002 09:37:51 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:1540 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S311749AbSFENhv>; Wed, 5 Jun 2002 09:37:51 -0400
-Date: Wed, 5 Jun 2002 09:33:00 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Memory management in Kernel 2.4.x
-In-Reply-To: <1022539726.4124.2.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.3.96.1020605092821.910B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314680AbSFENi4>; Wed, 5 Jun 2002 09:38:56 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:5561 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S314485AbSFENiv>; Wed, 5 Jun 2002 09:38:51 -0400
+Date: Wed, 5 Jun 2002 15:38:34 +0200
+From: Andi Kleen <ak@muc.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Call for testers - fixed RAID5 XOR functions
+Message-ID: <20020605153834.A15485@averell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 May 2002, Alan Cox wrote:
 
-> On Mon, 2002-05-27 at 22:22, H. Peter Anvin wrote:
-    <_snip_>
-> > Well, if you can't fork a new process because that would push you into
-> > overcommit, then you usually can't actually do anything useful on the
-> > machine.
-> 
-> Thats actually easy to deal with and on my list for modes 4 and 5 (2 and
-> 3 with root granted a reserved fraction)
+While porting xor.h to x86-64 I noticed that the accelerated RAID-5 XOR
+functions for i386 used incorrect inline assembly. The were clobbering
+upto 7 registers without gcc telling it. It is pure luck that it worked
+so far, although I'm dubious about it for the versions with 4 and 5 inputs
+(has that been really tested? - they clobber 5 or 6 registers and unless it 
+was pure luck that the caller had some dead registers in one particular
+compiler output it must have caused data corruptions) 
 
-It seems to me that selectively limiting the number of processes in a
-pgroup, or selectively killing large RSS programs in a large pgroup
-(non-root) would be one way to identify the processes which were either
-clone/fork looping, or have children begetting children. After than
-perhaps killing or restricting from the high numerical uid down. That
-might tend to spare system and/or well-behaved processes.
+I unfortunately don't have a RAID-5 so I cannot test. From visual inspection
+the new assembly seems to be correct. I would be grateful if someone with
+RAID-5 could test it by doing some writes and then removing one disk and
+testing recovery. Best would be tests with 3,4,5,6 disks, but only specific
+cases will do also. 
 
-Comment?
+I did also align the XMM saves on 16 bytes to save a few cycles.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Here is the patch for 2.4.19pre9 (but should apply to most 2.4 and 2.5) 
+
+-Andi
+
+--- linux-2.4.19pre9/include/asm-i386/xor.h	Fri Sep 14 23:25:21 2001
++++ linux-2.4.19pre9-work/include/asm-i386/xor.h	Wed Jun  5 15:06:40 2002
+@@ -76,9 +76,9 @@
+ 	"       addl $128, %2         ;\n"
+ 	"       decl %0               ;\n"
+ 	"       jnz 1b                ;\n"
+-       	:
+-	: "r" (lines),
+-	  "r" (p1), "r" (p2)
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2)
++	:
+ 	: "memory");
+ 
+ 	FPU_RESTORE;
+@@ -126,9 +126,9 @@
+ 	"       addl $128, %3         ;\n"
+ 	"       decl %0               ;\n"
+ 	"       jnz 1b                ;\n"
+-       	:
+-	: "r" (lines),
+-	  "r" (p1), "r" (p2), "r" (p3)
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2), "+r" (p3)
++	:
+ 	: "memory");
+ 
+ 	FPU_RESTORE;
+@@ -181,14 +181,15 @@
+ 	"       addl $128, %4         ;\n"
+ 	"       decl %0               ;\n"
+ 	"       jnz 1b                ;\n"
+-       	:
+-	: "r" (lines),
+-	  "r" (p1), "r" (p2), "r" (p3), "r" (p4)
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2), "+r" (p3), "+r" (p4)
++	:
+ 	: "memory");
+ 
+ 	FPU_RESTORE;
+ }
+ 
++
+ static void
+ xor_pII_mmx_5(unsigned long bytes, unsigned long *p1, unsigned long *p2,
+ 	      unsigned long *p3, unsigned long *p4, unsigned long *p5)
+@@ -198,7 +199,11 @@
+ 
+ 	FPU_SAVE;
+ 
++	/* need to save/restore p4/p5 manually otherwise gcc's 10 argument
++	   limit gets exceeded (+ counts as two arguments) */
+ 	__asm__ __volatile__ (
++		"  pushl %4\n"
++		"  pushl %5\n"
+ #undef BLOCK
+ #define BLOCK(i) \
+ 	LD(i,0)					\
+@@ -241,9 +246,11 @@
+ 	"       addl $128, %5         ;\n"
+ 	"       decl %0               ;\n"
+ 	"       jnz 1b                ;\n"
+-       	:
+-	: "g" (lines),
+-	  "r" (p1), "r" (p2), "r" (p3), "r" (p4), "r" (p5)
++	"	popl %5\n"
++	"	popl %4\n"
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2), "+r" (p3)
++	: "r" (p4), "r" (p5) 
+ 	: "memory");
+ 
+ 	FPU_RESTORE;
+@@ -297,9 +304,9 @@
+ 	"       addl $64, %2         ;\n"
+ 	"       decl %0              ;\n"
+ 	"       jnz 1b               ;\n"
+-	: 
+-	: "r" (lines),
+-	  "r" (p1), "r" (p2)
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2)
++	:
+ 	: "memory");
+ 
+ 	FPU_RESTORE;
+@@ -355,9 +362,9 @@
+ 	"       addl $64, %3         ;\n"
+ 	"       decl %0              ;\n"
+ 	"       jnz 1b               ;\n"
+-	: 
+-	: "r" (lines),
+-	  "r" (p1), "r" (p2), "r" (p3)
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2), "+r" (p3)
++	:
+ 	: "memory" );
+ 
+ 	FPU_RESTORE;
+@@ -422,9 +429,9 @@
+ 	"       addl $64, %4         ;\n"
+ 	"       decl %0              ;\n"
+ 	"       jnz 1b               ;\n"
+-	: 
+-	: "r" (lines),
+-	  "r" (p1), "r" (p2), "r" (p3), "r" (p4)
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2), "+r" (p3), "+r" (p4)
++	:
+ 	: "memory");
+ 
+ 	FPU_RESTORE;
+@@ -439,7 +446,10 @@
+ 
+ 	FPU_SAVE;
+ 
++	/* need to save p4/p5 manually to not exceed gcc's 10 argument limit */
+ 	__asm__ __volatile__ (
++	"	pushl %4\n"
++	"	pushl %5\n"        	
+ 	" .align 32,0x90             ;\n"
+ 	" 1:                         ;\n"
+ 	"       movq   (%1), %%mm0   ;\n"
+@@ -498,9 +508,11 @@
+ 	"       addl $64, %5         ;\n"
+ 	"       decl %0              ;\n"
+ 	"       jnz 1b               ;\n"
+-	: 
+-	: "g" (lines),
+-	  "r" (p1), "r" (p2), "r" (p3), "r" (p4), "r" (p5)
++	"	popl %5\n"
++	"	popl %4\n"
++	: "+g" (lines),
++	  "+r" (p1), "+r" (p2), "+r" (p3)
++	: "r" (p4), "r" (p5)
+ 	: "memory");
+ 
+ 	FPU_RESTORE;
+@@ -554,6 +566,8 @@
+ 		: "r" (cr0), "r" (xmm_save)	\
+ 		: "memory")
+ 
++#define ALIGN16 __attribute__((aligned(16)))
++
+ #define OFFS(x)		"16*("#x")"
+ #define PF_OFFS(x)	"256+16*("#x")"
+ #define	PF0(x)		"	prefetchnta "PF_OFFS(x)"(%1)		;\n"
+@@ -575,7 +589,7 @@
+ xor_sse_2(unsigned long bytes, unsigned long *p1, unsigned long *p2)
+ {
+         unsigned long lines = bytes >> 8;
+-	char xmm_save[16*4];
++	char xmm_save[16*4] ALIGN16;
+ 	int cr0;
+ 
+ 	XMMS_SAVE;
+@@ -616,9 +630,9 @@
+         "       addl $256, %2           ;\n"
+         "       decl %0                 ;\n"
+         "       jnz 1b                  ;\n"
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2)
+ 	:
+-	: "r" (lines),
+-	  "r" (p1), "r" (p2)
+         : "memory");
+ 
+ 	XMMS_RESTORE;
+@@ -629,7 +643,7 @@
+ 	  unsigned long *p3)
+ {
+         unsigned long lines = bytes >> 8;
+-	char xmm_save[16*4];
++	char xmm_save[16*4] ALIGN16;
+ 	int cr0;
+ 
+ 	XMMS_SAVE;
+@@ -677,9 +691,9 @@
+         "       addl $256, %3           ;\n"
+         "       decl %0                 ;\n"
+         "       jnz 1b                  ;\n"
++	: "+r" (lines),
++	  "+r" (p1), "+r"(p2), "+r"(p3)
+ 	:
+-	: "r" (lines),
+-	  "r" (p1), "r"(p2), "r"(p3)
+         : "memory" );
+ 
+ 	XMMS_RESTORE;
+@@ -690,7 +704,7 @@
+ 	  unsigned long *p3, unsigned long *p4)
+ {
+         unsigned long lines = bytes >> 8;
+-	char xmm_save[16*4];
++	char xmm_save[16*4] ALIGN16;
+ 	int cr0;
+ 
+ 	XMMS_SAVE;
+@@ -745,9 +759,9 @@
+         "       addl $256, %4           ;\n"
+         "       decl %0                 ;\n"
+         "       jnz 1b                  ;\n"
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2), "+r" (p3), "+r" (p4)
+ 	:
+-	: "r" (lines),
+-	  "r" (p1), "r" (p2), "r" (p3), "r" (p4)
+         : "memory" );
+ 
+ 	XMMS_RESTORE;
+@@ -758,12 +772,15 @@
+ 	  unsigned long *p3, unsigned long *p4, unsigned long *p5)
+ {
+         unsigned long lines = bytes >> 8;
+-	char xmm_save[16*4];
++	char xmm_save[16*4] ALIGN16;
+ 	int cr0;
+ 
+ 	XMMS_SAVE;
+ 
++	/* need to save p4/p5 manually to not exceed gcc's 10 argument limit */
+         __asm__ __volatile__ (
++		" pushl %4\n"
++		" pushl %5\n"
+ #undef BLOCK
+ #define BLOCK(i) \
+ 		PF1(i)					\
+@@ -820,9 +837,11 @@
+         "       addl $256, %5           ;\n"
+         "       decl %0                 ;\n"
+         "       jnz 1b                  ;\n"
+-	:
+-	: "r" (lines),
+-	  "r" (p1), "r" (p2), "r" (p3), "r" (p4), "r" (p5)
++	"	popl %5\n"	
++	"	popl %4\n"	
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2), "+r" (p3)
++	: "r" (p4), "r" (p5)
+ 	: "memory");
+ 
+ 	XMMS_RESTORE;
 

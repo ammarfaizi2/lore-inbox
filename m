@@ -1,210 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276424AbSBMNRu>; Wed, 13 Feb 2002 08:17:50 -0500
+	id <S282511AbSBMNoJ>; Wed, 13 Feb 2002 08:44:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281214AbSBMNRp>; Wed, 13 Feb 2002 08:17:45 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:36550 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S276424AbSBMNR3>; Wed, 13 Feb 2002 08:17:29 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200202131317.g1DDHSQ14686@devserv.devel.redhat.com>
-Subject: Linux 2.4.18pre9-ac3
-To: linux-kernel@vger.kernel.org
-Date: Wed, 13 Feb 2002 08:17:28 -0500 (EST)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S282843AbSBMNoA>; Wed, 13 Feb 2002 08:44:00 -0500
+Received: from coruscant.franken.de ([193.174.159.226]:24460 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id <S282511AbSBMNns>; Wed, 13 Feb 2002 08:43:48 -0500
+Date: Wed, 13 Feb 2002 14:33:59 +0100
+From: Harald Welte <laforge@gnumonks.org>
+To: linux-kernel@vger.kernel.org, netfilter-devel@lists.samba.org
+Subject: Re: [netfilter]: FTP connection tracking problem
+Message-ID: <20020213143359.P24781@sunbeam.de.gnumonks.org>
+Mail-Followup-To: Harald Welte <laforge@gnumonks.org>,
+	linux-kernel@vger.kernel.org, netfilter-devel@lists.samba.org
+In-Reply-To: <20020212221239.GB2161@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20020212221239.GB2161@localhost>; from jdomingo@internautas.org on Tue, Feb 12, 2002 at 11:12:39PM +0100
+X-Operating-System: Linux sunbeam.de.gnumonks.org 2.4.17
+X-Date: Today is Pungenday, the 43rd day of Chaos in the YOLD 3168
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[+ indicates stuff that went to Marcelo, o stuff that has not,
- * indicates stuff that is merged in mainstream now, X stuff that proved
-   bad and was dropped out]
+On Tue, Feb 12, 2002 at 11:12:39PM +0100, Jose Luis Domingo Lopez wrote:
 
-Linux 2.4.18pre9-ac3
-o	Clean up various macros and misuse of ;		(Timothy Ball)
-o	Correct procfs locking fixup			(Al Viro)
-o	Speed up ext2/ext3 synchronous mounts		(Andrew Morton)
-o	Update IDE DMA blacklist			(Jonathan Kamens)
-o	Update to XFree86 DRM 4.2 (compatible to 4.1)	(Rik Faith, 
-	and adds I830 DRM				 Jeff Hartmann,
-							 Keith Whitwell,
-							 Abraham vd Merwe
-							 and others)
-o	IBM Lanstreamer updates				(Mike Phillips)
-o	Fix acct rlimit problem (I hope)		(me)
-	| Problem noted by Ian Allen
-o	Automatically set file limits based on mem size	(Andi Kleen)
-o	Correct scsi reservation conflict handling	(James Bottomley)
-	and add the scsi reset api code
-o	Add further kernel docs				(me)
-o	Merge to rmap-12e				(Rik van Riel and co)
-	|merge patch from Nick Orlov
-o	Small fix to the eata driver update		(Dario Ballabio)
+> The strange part is that this will show up with just some FTP clients
+> and/or remote FTP servers. For example, text-mode web browser "links"
+> doesn't work in any case. On the other hand, text-mode browser "lynx"
+> works nice in the same places where "links" fails. "wget", "ftp" and
+> "ncftp" show various degrees of success with several combinations of
+> active/passive transfer mode and remote FTP servers (tried with
+> ftp.kernel.org, ftp.at.kernel.org, ftp.mozilla.org, ftp.rediris.es,
+> ftp.sourceforge.net).
 
+FTP connection tracking generally works very well.  It's widely deployed
+and in most scenarios it is working fine.
 
-Linux 2.4.18pre9-ac2
-o	Nat Semi now use their own ident on the Geode	(Hiroshi Miura)
-o	Put #error in two files that need FPU fixups	(me)
-o	Correct a specific mmap return to match posix	(Christopher Yeoh)
-o	Add Eepro100/VE ident				(Hanno Boeck)
-o	Add provides for DRM to the kernel make rpm	(Alexander Hoogerhuis)
-o	Fix a problem where vm86 irq releasing could be	(Stas Sergeev)
-	missed
-o	EATA and U14/34F driver updates			(Dario Ballabio)
-o	Handle EMC storage arrays that report SCSI-2 	(Kurt Garloff)
-	but want REPORT_LUNs
-o	Update README, defconfig, remove autogen files	(Niels Jensen)
-o	Add AFAVLAB PCI serial support			(Harald Welte)
-o	Fix incorrect resource free in eexpress		(Gianluca Anzolin)
-o	Variable size rawio optimisations		(Badari Pulavarty)
-o	Add AT's compatible 8139 cardbus chip		(Go Taniguchi)
-o	Fix crash with newest hpt ide chips		(Arjan van de Ven)
-o	Fix tiny SMP race in pid selection		(Erik Hendriks)
-o	Hopefully fix pnpbios crash caused by early	(me)
-	kernel_thread creation
+The "links" browser is violating the RFC's by not waiting for server
+responses after sending PORT commands to the server.  This is a problem
+with the browser, and it should be fixed on the browser side.  I doubt
+it works well with other ftp masquerading/nat solutions.
 
-Linux 2.4.18pre9-ac1
-o	Initial merge of DVD card driver  (Christian Wolff,Marcus Metzler)
-	| This is just an initial testing piece. DVB needs merging
-	| properly and this is only a first bit of testing
-o	Random number generator support for AMD768	(me)
-o	Add AMD768 to i810 driver pci ident list	(me)
-o	Initial AMD768 power management work		(me)
-	| Unfinished pending some docs clarifications
-o	Fix bugbuf mishandling for modular es1370	(me)
-o	Fix up i2o readl abuse, post_wait race, and	(me, Arjan van de Ven)
-	some deadlock cases
-o	Added cpu_relax to yam driver 			(me)
-o	Fixup AMD762 if the BIOS apparently got it wrong(me)
-	(eg ASUS boards)
-o	MP1.4 alignment fixup
-o	pcwd cleanup, backport of fixes from 2.5	(Rob Radez)
-o	Add support for more Moxa cards to mxser	(Damian Wrobel)
-o	Add remaining missing MODULE_LICENSE tags	(Hubert Mantel)
-o	Fix floppy reservation ranges			(Anton Altaparmakov)
-o	Fix max file size setup				(Andi Kleen)
+I'm a heavy user of wget / ftp / mirror / ncftp, and I've never experienced
+any of the problems you describe.  Please give me exact ftp server hostnames
+where I can try to reproduce your problem.
 
-Linux 2.4.18pre7-ac3
-o	Fix a wrong error return in the megaraid driver	(Arjan van de Ven)
-*	FreeVXFS update					(Christoph Hellwig)
-+	Qnxfs update					(Anders Larsen)
-o	Fix non compile with PCI=n			(Adrian Bunk)
-o	Fix DRM 4.0 non compile in i810			(me)
-o	Drop out now dead CLONE thread/parent fixup	(Dave McCracken)
-*	Make NetROM incoming frame check stricter	(Tomi Manninen)
-*	Use sock_orphan in AX.25/NetROM			(Jeroen PE1RXQ)
-o	Pegasus update					(Petko Manolov)
-o	Make reparent_to_init and exec_usermodehelper	(Andrew Morton)
-	use set_user, fix a tiny set_user SMP race
-o	Mark framebuffer mappings VM_IO			(Andrew Morton)
-o	Neomagic frame buffer driver			(Denis Kropp)
-	- Needs FPU code fixing before it can be merged
-o	Hyperthreading awareness for MTRR driver
-o	Correct NR_IRQ with no apic support		(Brian Gerst)
-*	Fix missing includes in sound drivers		(Michal Jaegermann)
+> For example, "ftp.rediris.es" won't even show the greeting message with
+> "links", but will with for example "ncftp". However, trying to download
+> some file from the server, stalls as soon as some kilobytes of data have
+> been received (in the order of 8 to 10 KB).
 
-Linux 2.4.18pre7-ac2
-*	i810 audio driver update			(Doug Ledford)
-o	Early ioremap for x86 specific code		(Mikael Pettersson)
-	| This is needed to do things like apic/dmi detect early enough
-o	Pentium IV APIC/NMI watchdog			(Mikael Pettersson)
-*	Add C1MRX support to sonypi driver		(Junichi Morita)
-*	Fix "make rpm" with two '-' in extraversion	(Gerald Britton)
-o	Fix aacraid hang/irq storm on i960 boards	(Chris Pascoe)
-*	Fix isdn audio compiler behaviour dependancy	(Urs Thuermann)
-*	YAM driver fixes				(Jean-Paul Roubelat)
-*	ROSE protocol stack update/fixes		(Jean-Paul Roubelat)
-o	Fix UFS/CDROM oops				(Zwane Mwaikambo)
-o	Fix nm256 hang on Dell Latitude			(origin unknown)
-	| Please test this tree with other NM256 based boxes and check
-	| those still work...
-o	Merge PnPBIOS patch		(Thomas Hood, David Hinds, Tom Lees,
-					 Christian Schmidt, ..)
-o	Merge new sis frame buffer drivers		(Thomas Winischhofer)
-*	cs46xx oops fix					(Mike Gorse)
-*	Fix a second cs46xx bug related to this		(me)
-o	Fix acpitable oopses on boot and other problems	(James Cleverdon)
-o	Fix io port type on the hpt366 driver		(Pete Popov)
-o	Updated matrox drivers				(Petr Vandrovec)
-*	IPchains fixes needed for 2.4.18pre7
-o	IDE config text updates for the IDE patches	(Anton Altaparmakov)
-o	Merge the first bits of ZV support		(Marcus Metzler)
-o	Add initial ZV support to yenta socket driver	(me)
-	for TI cards
-o	Fix pirq routing on the CS5530 			(me)
-	| Finally the palmax pcmcia/cardbus works properly
+As I said, forget about links. Use ftp or ncftp and you can be sure they
+comply to the RFC's.
 
-Linux 2.4.18pre7-ac1
-o	Merge with 2.4.18pre7				(Arjan van de Ven)
-	| + some quota fixups redone by me
-	| several 18pre7 netfilter bugs left unfixed for now
-o	Rmap-12a					(Rik van Riel and co)
+Some other notes:
 
-Linux 2.4.18pre3-ac2
+- greeting messages are part of the control connection which is not 
+  really touched by conntrack.
 
-o	Re-merge the IDE patches			(Andre Hedrick and co)
-*	Fix check/request region in ali_ircc and lowcomx(Steven Walter)
-	com90xx, sealevel, sb1000
-*	Remove unused message from 6pack driver		(Adrian Bunk)
-*	Fix unused variable warning in i60scsi		(Adrian Bunk)
-*	Fix off by one floppy oops			(Keith Owens)
-o	Fix i2o_config use of undefined C		(Andreas Dilger)
-*	Fix fdomain scsi oopses				(Per Larsson)
-*	Fix sf16fmi hang on boot			(me)
-o	Add bridge resources to the resource tree	(Ivan Kokshaysky)
-*	Fix iphase ATM oops on close in on case	   (Till Immanuel Patzschke)
-*	Enable OOSTORE on winchip processors		(Dave Jones, me)
-	| Worth about 10-20% performance 
-*	Code Page 1250 support				(Petr Titera)
-*	Fix sdla and hpfs doc typos			(Sven Vermeulen)
-o	Document /proc/stat				(Sven Heinicke)
-*	Update cs4281 drivers				(Tom Woller)
-	| Fixes xmms stutter, remove wrapper code
-	| handle tosh boxes, allow record device change
-	| trigger wakeups on ioctl triggered changes
-+/o/X	Fix locking of file struct stuff found by ibm	(Dipankar Sarma)
-	audit
-o	Use spin_lock_init in serial.c			(Dave Miller)
-*	Fix AF_UNIX shutdown bug			(Dave Miller)
+- I can not imagine how the ftp conntrack helper should cause stalls in
+  file transfers.  Are you 100% sure this is caused by netfilter?  Do 
+  you see packet drops/ delays when comparing incoming/outgoing packets
+  on your firewall?  What happens without ip_conntrack_ftp?  Stalls could
+  be network problems in general or bandwith throttling on the server.
 
-Linux 2.4.18pre3-ac1
+- I have just successfully downloaded about 50MB from ftp.rediris.es 
+  through a netfilter conntrack+nat box, I get constant transfer rates of 
+  about 700kbits/sec on a 1mbit internet uplink.
 
-o	32bit uid quota
-o	rmap-11b VM					(Rik van Riel,
-							 William Irwin etc)
-*	Make scsi printer visible			(Stefan Wieseckel)
-*	Report Hercules Fortissimo card			(Minya Sorakinu)
-*	Fix O_NDELAY close mishandling on the following	(me)
-	sound cards: cmpci, cs46xx, es1370, es1371,
-	esssolo1, sonicvibes
-*	tdfx pixclock handling fix			(Jurriaan)
-o	Fix mishandling of file system size limiting	(Andrea Arcangeli)
-*	generic_serial cleanups				(Rasmus Andersen)
-o	serial.c locking fixes for SMP - move from cli	(Kees)
-	too
-*	Truncate fixes from old -ac tree		(Andrew Morton)
-*	Hopefully fix the i2o oops			(me)
-	| Not the right fix but it'll do till I rewrite this
-*	Fix non blocking tty blocking bug		(Peter Benie)
-o	IRQ routing workaround for problem HP laptops	(Cory Bell)
-*	Fix the rcpci driver				(Pete Popov)
-*	Fix documentation of aedsp location		(Adrian Bunk)
-*	Fix the worst of the APM ate my cpu problems	(Andreas Steinmetz)
-*	Correct icmp documentation			(Pierre Lombard)
-*	Multiple mxser crash on boot fix	(Stephan von Krawczynski)
-o	ldm header fix					(Anton Altaparmakov)
-*	Fix unchecked kmalloc in i2c_proc	(Ragnar Hojland Espinosa)
-*	Fix unchecked kmalloc in airo_cs	(Ragnar Hojland Espinosa)
-*	Fix unchecked kmalloc in btaudio	(Ragnar Hojland Espinosa)
-*	Fix unchecked kmalloc in qnx4/inode.c	(Ragnar Hojland Espinosa)
-*	Disable DRM4.1 GMX2000 driver (4.0 required)	(me)
-*	Fix sb16 lower speed limit bug			(Jori Liesenborgs)
-o	Fix compilation of orinoco driver		(Ben Herrenschmidt)
-*	ISAPnP init fix					(Chris Rankin)
-o	Export release_console_sem			(Andrew Morton)
-*	Output nat crash fix				(Rusty Russell)
-*	Fix PLIP					(Niels Jensen)
-o	Natsemi driver hang fix				(Manfred Spraul)
-*	Add mono/stereo reporting to gemtek pci radio	(Jonathan Hudson)
+> If we configure INPUT to not discard packets, and just ACCEPT all that
+> comes in solves the proble. ECN is not compiled in nor activated. The rest
+> of network-related kernel tunnable parameters have default values.
+
+how are your input rules related to forwarded/NAT'ed traffic through
+the firewall?  INPUT rules are for the local machine only.  Or are you
+running some ftp/http proxy like squid on the local box?
+
+> I am willing to perform as much tests as you need to help discover what
+> is going on, so if I missed something important, please ask.
+
+- tcpdump/ethereral on incoming+outgoing interface. see if there are 
+  really packet drops / ack storms / ...
+- enable ftp conntrack debugging (in ip_conntrack_ftp.c and ip_nat_ftp.c
+  there is something like 
+
+#if 0
+#define DEBUGP(format, args...) printk(KERN_DEBUG __FILE__ ":" __FUNCTION__ \
+                                        ":" format, ## args)
+#else
+#define DEBUGP(format, args...)
+#endif
+
+just change the "if 0" to "if 1", recompile and reinstall your modules.
+
+you should get detailed debug logs in your syslog for every ftp connection
+
+- what does /proc/net/ip_conntrack say about expectations
+- what if you only use ip_conntrack_ftp without nat
+
+> José Luis Domingo López
+> Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
+>  
+> jdomingo AT internautas DOT   org  => Spam at your own risk
+> 
+> 
+> 
+
+-- 
+Live long and prosper
+- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
+============================================================================
+GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M+ 
+V-- PS++ PE-- Y++ PGP++ t+ 5-- !X !R tv-- b+++ !DI !D G+ e* h--- r++ y+(*)

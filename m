@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266977AbRHMTY1>; Mon, 13 Aug 2001 15:24:27 -0400
+	id <S267520AbRHMT0Q>; Mon, 13 Aug 2001 15:26:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266806AbRHMTYQ>; Mon, 13 Aug 2001 15:24:16 -0400
-Received: from xilofon.it.uc3m.es ([163.117.139.114]:6272 "EHLO
-	xilofon.it.uc3m.es") by vger.kernel.org with ESMTP
-	id <S266977AbRHMTYD>; Mon, 13 Aug 2001 15:24:03 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200108131924.VAA03520@xilofon.it.uc3m.es>
-Subject: Re: Is there something that can be done against this ???
-X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
-In-Reply-To: <3B7822E5.9AE35D4A@interplus.ro> "from Mircea Ciocan at Aug 13,
- 2001 09:56:37 pm"
+	id <S267836AbRHMT0H>; Mon, 13 Aug 2001 15:26:07 -0400
+Received: from runyon.cygnus.com ([205.180.230.5]:42237 "EHLO cygnus.com")
+	by vger.kernel.org with ESMTP id <S267520AbRHMTZ6>;
+	Mon, 13 Aug 2001 15:25:58 -0400
 To: Mircea Ciocan <mirceac@interplus.ro>
-Date: Mon, 13 Aug 2001 21:24:06 +0200 (CEST)
-CC: linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL89 (25)]
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Is there something that can be done against this ???
+In-Reply-To: <E15WK98-0007gd-00@the-village.bc.nu>
+	<3B7822E5.9AE35D4A@interplus.ro>
+Reply-To: drepper@cygnus.com (Ulrich Drepper)
+X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
+X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
+From: Ulrich Drepper <drepper@redhat.com>
+Date: 13 Aug 2001 12:19:44 -0700
+In-Reply-To: Mircea Ciocan's message of "Mon, 13 Aug 2001 21:56:37 +0300"
+Message-ID: <m3itfru5rj.fsf@otr.mynet>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Mircea Ciocan wrote:"
-> P.S. Please tell me that I'm just being parnoid and that crap didn't
-> work on your systems with a lookalike configuration.
+Mircea Ciocan <mirceac@interplus.ro> writes:
 
-It doesn't work. It just looks like it does to the viewer!
+> 	The attached piece of script kiddie shit is the first one that worked
+> flawlessly on my Mandrake box :((( ( kernel 2.4.7ac2, glibc-2.2.3 ),
+> instant root access !!!.
 
-The "exploit" is a loadable shared library that replaces the 
-getuid, geteuid, getgid and getegid functions with dummies that
-always return 0. So the code in bash that looks up the
-prompt and all thatgoes and  looks up roots .profile. The result is
-that you get what looks like a root prompt, and your calls to 
-id return 0 :-)
+This is a hoax.  Try doing something with your "exploited" shell.
 
-But it can't really change uid. Try touching a file in / !
-
-Peter
+-- 
+---------------.                          ,-.   1325 Chesapeake Terrace
+Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+Red Hat          `--' drepper at redhat.com   `------------------------

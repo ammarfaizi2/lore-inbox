@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287249AbSACNBL>; Thu, 3 Jan 2002 08:01:11 -0500
+	id <S287254AbSACNGL>; Thu, 3 Jan 2002 08:06:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287251AbSACNBC>; Thu, 3 Jan 2002 08:01:02 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:44040 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S287249AbSACNAs>; Thu, 3 Jan 2002 08:00:48 -0500
-Message-Id: <200201031300.g03D0cwF021145@pincoya.inf.utfsm.cl>
-To: "Eric S. Raymond" <esr@thyrsus.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems? 
-In-Reply-To: Message from "Eric S. Raymond" <esr@thyrsus.com> 
-   of "Wed, 02 Jan 2002 16:47:57 CDT." <20020102164757.A16976@thyrsus.com> 
-Date: Thu, 03 Jan 2002 10:00:38 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S287258AbSACNGC>; Thu, 3 Jan 2002 08:06:02 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:11277 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S287254AbSACNFu>; Thu, 3 Jan 2002 08:05:50 -0500
+Message-ID: <3C345493.5040800@evision-ventures.com>
+Date: Thu, 03 Jan 2002 13:54:43 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Nathan Bryant <nbryant@allegientsystems.com>
+CC: linux-kernel@vger.kernel.org, tom@infosys.tuwien.ac.at
+Subject: Re: [Fwd: i810_audio]
+In-Reply-To: <3C3382CA.3000503@allegientsystems.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" <esr@thyrsus.com> said:
+Nathan Bryant wrote:
 
-[...]
+> [oops, resending because i used the old lkml address by accident]
+>
+> Hi Tom,
+>
+> Can you have a look at Doug Ledford's 0.13 driver? this incorporates 
+> most or all of the fixes you mentioned, except for SiS support, and 
+> some other fixes; it hasn't been incorporated into the main kernel 
+> quite yet because it needs more testing. 
 
-> But only for people and programs with root privileges.  It all turns
-> then, on whether we want to insist that all software doing hardware 
-> probing must have root privileges to function.
 
-So bind it to a capability.
+Let me allow for a bit of advertising... Hist SiS changes work fine for 
+me with the exception
+of recording.,
 
-> I submit that the answer is "no" -- the right direction, for security
-> and other reasons, is to make *fewer* capabilities dependent on root
-> privileges rather than more, and to reject design approaches that
-> imply creating more suid programs to give ordinary users capabilities
-> that involve only *reading* config information.
 
-Then create /etc/dmi or /var/log/dmi on boot from an initscript. /proc is a
-nice idea for _process_ information, the other junk in there should go away
-IMVHO. Hard to do as it is now customary. Adding more junk is (a) kernel
-bloat, (b) hard to clean up later.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

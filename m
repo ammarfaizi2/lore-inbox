@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267847AbTBJMTu>; Mon, 10 Feb 2003 07:19:50 -0500
+	id <S267836AbTBJMTV>; Mon, 10 Feb 2003 07:19:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267849AbTBJMTu>; Mon, 10 Feb 2003 07:19:50 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:31362 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S267847AbTBJMTf>;
-	Mon, 10 Feb 2003 07:19:35 -0500
-Date: Mon, 10 Feb 2003 13:28:56 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Andrew Morton <akpm@digeo.com>, reiser@namesys.com, jakob@unthought.net,
+	id <S267838AbTBJMTV>; Mon, 10 Feb 2003 07:19:21 -0500
+Received: from dial-ctb04112.webone.com.au ([210.9.244.112]:37639 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id <S267836AbTBJMRf>;
+	Mon, 10 Feb 2003 07:17:35 -0500
+Message-ID: <3E479AA1.3050308@cyberone.com.au>
+Date: Mon, 10 Feb 2003 23:27:13 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: andrea@suse.de, reiser@namesys.com, jakob@unthought.net,
        david.lang@digitalinsight.com, riel@conectiva.com.br,
        ckolivas@yahoo.com.au, linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3 / aa / rmap with contest]
-Message-ID: <20030210122856.GJ31401@dualathlon.random>
-References: <20030210010937.57607249.akpm@digeo.com> <3E4779DD.7080402@namesys.com> <20030210101539.GS31401@dualathlon.random> <3E4781A2.8070608@cyberone.com.au> <20030210111017.GV31401@dualathlon.random> <3E478C09.6060508@cyberone.com.au> <20030210113923.GY31401@dualathlon.random> <20030210034808.7441d611.akpm@digeo.com> <20030210120916.GD31401@dualathlon.random> <3E47985A.8000203@cyberone.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E47985A.8000203@cyberone.com.au>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3
+ / aa / rmap with contest]
+References: <3E47579A.4000700@cyberone.com.au>	<20030210080858.GM31401@dualathlon.random>	<20030210001921.3a0a5247.akpm@digeo.com>	<20030210085649.GO31401@dualathlon.random>	<20030210010937.57607249.akpm@digeo.com>	<3E4779DD.7080402@namesys.com>	<20030210101539.GS31401@dualathlon.random>	<3E4781A2.8070608@cyberone.com.au>	<20030210111017.GV31401@dualathlon.random>	<3E478C09.6060508@cyberone.com.au>	<20030210113923.GY31401@dualathlon.random>	<20030210034808.7441d611.akpm@digeo.com>	<3E4792B7.5030108@cyberone.com.au> <20030210041245.68665ff6.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 10, 2003 at 11:17:30PM +1100, Nick Piggin wrote:
-> Andrea Arcangeli wrote:
-> 
-> >On Mon, Feb 10, 2003 at 03:48:08AM -0800, Andrew Morton wrote:
-> >
-> >>Andrea Arcangeli <andrea@suse.de> wrote:
-> >>
-> >>>It's the readahead in my tree that allows the reads to use the max scsi
-> >>>command size. It has nothing to do with the max scsi command size
-> >>>itself.
-> >>>
-> >>Oh bah.
-> >>
-> >>-               *max_ra++ = vm_max_readahead;
-> >>+               *max_ra = ((128*4) >> (PAGE_SHIFT - 10)) - 1;
-> >>
-> >>
-> >>Well of course that will get bigger bonnie numbers, for exactly the 
-> >>reasons
-> >>I've explained.  It will seek between files after every 512k rather than
-> >>after every 128k.
-> >>
-> >
-> >NOTE: first there is no seek at all in the benchmark we're talking
-> >about, no idea why you think there are seeks. This is not tiobench, this
-> >is bonnie sequential read.
-> >
-> Yes, Andrew obviously missed this... Anyway, could it be due to
-> a big stripe size and hitting more disks in the RAID? How does
-> a single SCSI disk perform here, Andrea?
+Andrew Morton wrote:
 
-Actually I increased readahead to more than just 512k in my last tree,
-especially to take care of RAID :) so that both lowlevel will get the
-512k, instead of being limited to 256k command each 8) This might apply
-to hardware raid too.
+>Nick Piggin <piggin@cyberone.com.au> wrote:
+>
+>>That is what I can't understand. Movement of the disk head should
+>>be exactly the same in either situation and 128K is not exactly
+>>a pitiful request size - so it suggests a quirk somewhere. It
+>>is not as if the disk has to be particularly smart or know a
+>>lot about the data in order to optimise the head movement for
+>>a load like this.
+>>
+>
+>Yes, that's a bit odd.  Some reduction in CPU cost and bus
+>traffic, etc would be expected.   Could be that sending out a
+>request which is larger than a track is saving a rev of the disk
+>for some reason.
+>
+Shouldn't be. Even at 128KB readahead we should always have
+outstanding requests against the disk in a streaming read
+scenario, right? Maybe if the track buffers are bigger than
+128K?
 
-Andrea
+Is there a magic number above which you see the improvement,
+Andrea? Or does it steadily climb?
+

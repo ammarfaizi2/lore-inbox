@@ -1,36 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316928AbSE1UnJ>; Tue, 28 May 2002 16:43:09 -0400
+	id <S316916AbSE1Unc>; Tue, 28 May 2002 16:43:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316942AbSE1UnH>; Tue, 28 May 2002 16:43:07 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:62620 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316928AbSE1Um2>;
-	Tue, 28 May 2002 16:42:28 -0400
-Date: Mon, 27 May 2002 14:58:56 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Vojtech Pavlik <vojtech@suse.cz>,
-        Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] New driver for Artop [Acard] controllers.
-Message-ID: <20020527145855.J35@toy.ucw.cz>
-In-Reply-To: <20020526130547.A16548@ucw.cz> <Pine.LNX.4.10.10205261551320.3010-100000@master.linux-ide.org>
+	id <S316933AbSE1UnR>; Tue, 28 May 2002 16:43:17 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:60060 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316915AbSE1Ulf>;
+	Tue, 28 May 2002 16:41:35 -0400
+Date: Tue, 28 May 2002 21:32:22 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+        ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: Re: suspend-to-{RAM,disk} for 2.5.17
+Message-ID: <20020528193220.GB189@elf.ucw.cz>
+In-Reply-To: <20020521222858.GA14737@elf.ucw.cz> <20020527194018.GQ14918@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> All of the original code described how to make the hardware operate.  If
-> your code makes the hardware operate, then it uses material copyrighted 
-> and owned by me.
+> The rest is okay...
+> 
+> I'd try writing it this way, and though I've not tested it, I've walked
+> buddy lists a few times in the past week or two:
+> 
+> 
+> #ifdef CONFIG_SOFTWARE_SUSPEND
+> int is_head_of_free_region(struct page *page)
+> {
+> 	zone_t *zone, *node_zones = pgdat_list->node_zones;
+> 	unsigned long flags;
+> 
+> 	for (zone = node_zones; zone - node_zones < MAX_NR_ZONES; ++zone) {
+> 		int order;
+> 		list_t *curr;
+> 
+> 		/*
+> 		 * Should not matter as we need quiescent system for
+> 		 * suspend anyway, but...
+> 		 */
+> 		spin_lock_irqsave(&zone->lock, flags);
+> 		for (order = MAX_ORDER - 1; order >= 0; --order)
+> 			list_for_each(curr, &zone->free_area[order].free_list)
+<== HERE ==>
+> 				if (page == list_entry(curr, struct page, list))
+> 					return 1 << order;
+> 		spin_unlock_irqrestore(&zone->lock, flags);
+> 
+> 	}
+> 	return 0;
+> }
+> #endif /* CONFIG_SOFTWARE_SUSPEND */
 
-No its not. He wrote it, he's copyright owner.
-								Pavel
+I had to add
+	if (!curr) break; 
+
+to fix the oops. It now looks way nicer. Thanx.
+									Pavel
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

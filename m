@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132125AbRCYRCK>; Sun, 25 Mar 2001 12:02:10 -0500
+	id <S132124AbRCYRCU>; Sun, 25 Mar 2001 12:02:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132122AbRCYRCA>; Sun, 25 Mar 2001 12:02:00 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:28172 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S132124AbRCYRBq>;
-	Sun, 25 Mar 2001 12:01:46 -0500
-Date: Sun, 25 Mar 2001 19:00:59 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Mitchell Blank Jr <mitch@sfgoth.com>
-Cc: Wichert Akkerman <wichert@cistron.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Larger dev_t
-Message-ID: <20010325190059.B16840@pcep-jamie.cern.ch>
-In-Reply-To: <UTC200103251231.OAA10795.aeb@vlet.cwi.nl> <99l375$rn5$1@picard.cistron.nl> <20010325081524.E30469@sfgoth.com>
+	id <S132122AbRCYRCK>; Sun, 25 Mar 2001 12:02:10 -0500
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:58290 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S132124AbRCYRCE>; Sun, 25 Mar 2001 12:02:04 -0500
+Date: Sun, 25 Mar 2001 19:01:19 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: Alex Riesen <vmagic@users.sourceforge.net>, linux-kernel@vger.kernel.org
+Subject: Re: ACPI power-off doesn't work on Asus CUV4X (VIA Apollo 133)
+Message-ID: <20010325190119.Z11126@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <20010324182516.A1255@steel> <20010324225308.Y11126@nightmaster.csn.tu-chemnitz.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010325081524.E30469@sfgoth.com>; from mitch@sfgoth.com on Sun, Mar 25, 2001 at 08:15:24AM -0800
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010324225308.Y11126@nightmaster.csn.tu-chemnitz.de>; from ingo.oeser@informatik.tu-chemnitz.de on Sat, Mar 24, 2001 at 10:53:08PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mitchell Blank Jr wrote:
-> Wichert Akkerman wrote:
-> > You are just delaying the problem then, at some point your uptime will
-> > be large enough that you have run through all 64bit pids for example.
+On Sat, Mar 24, 2001 at 10:53:08PM +0100, Ingo Oeser wrote:
+> On Sat, Mar 24, 2001 at 06:25:16PM +0100, Alex Riesen wrote:
+> > As i recompiled 2.4.2-ac20 with ACPI support
+> > the system cannot switch itself off.
+> > I get a message "Couldn't switch to S5" if
+> > try to call reboot(2).
+> > At load it shows that the mode is supported.
 > 
-> 64 bits is enough to fork 1 million processes per second for over
-> 500,000 years.  I think that's putting the problem off far enough.
+> Same with AMR P6BAP-AP and P6VAP-AP () mainboards.
+> 
+> Firmware supports C2 C3 S0 S1 S4 S5.
+> 
+> All options for acpi tried.
+> 
+> #define APCI_DEBUG 1 has NO effect on verbosity of messages :-(
+> 
+> What should I do to get more debug info?
+ 
+Just left it in FYI, Andrew.
 
-The year is 2006.  IBM's latest supercluster has 1000 boxes, each with 4
-x 8-way SMT processors running at 1THz.  Dense optical interconnect
-provides NUMA-style cache coherency, and the entire system runs like a
-giant SMP box (using kernel data structure replication).  Each active
-thread is able to clone() 500,000,000 threads per second, in a pid space
-shared throughout the cluster.
+> I'll try backing out all changes between 2.4.0 and 2.4.2-ac20,
+> because there it worked ;-)
 
-A virus arrives containing while(1){clone();}
+Ok, that worked. Backing out all the changes made it shutdown
+again.
 
-Engineers observe pid wraparound approximately 2 weeks later :-)
+Since this shouldn't by the right way to fix this problem, what
+else can I do Andrew?
 
--- Jamie
+The BIG Problem is: This is an embedded machine, so I cannot
+attach all the funny debug tools. The most thing I can do is
+printk and evtl. ikdb. I have only 16MB flash disk on this
+machine and it is full already :-(
+
+Regards
+
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262100AbUJZD5c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbUJZC4M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262100AbUJZD5c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 23:57:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbUJZDxW
+	id S262060AbUJZC4M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 22:56:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbUJZC4B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 23:53:22 -0400
-Received: from hera.kernel.org ([63.209.29.2]:50816 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S262066AbUJZDs5 (ORCPT
+	Mon, 25 Oct 2004 22:56:01 -0400
+Received: from holomorphy.com ([207.189.100.168]:55520 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262060AbUJZCqo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 23:48:57 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Is anyone using the load_ramdisk= option in the kernel still?
-Date: Tue, 26 Oct 2004 03:48:40 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <clkheo$otl$1@terminus.zytor.com>
+	Mon, 25 Oct 2004 22:46:44 -0400
+Date: Mon, 25 Oct 2004 19:43:27 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jesse Barnes <jbarnes@sgi.com>
+Cc: Christoph Lameter <clameter@sgi.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Hugepages demand paging V2 [0/8]: Discussion and overview
+Message-ID: <20041026024327.GF17038@holomorphy.com>
+References: <B05667366EE6204181EABE9C1B1C0EB504BFA47C@scsmsx401.amr.corp.intel.com> <Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com> <20041026022322.GD17038@holomorphy.com> <200410251940.30574.jbarnes@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1098762521 25526 127.0.0.1 (26 Oct 2004 03:48:41 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Tue, 26 Oct 2004 03:48:41 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410251940.30574.jbarnes@sgi.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, Oct 25, 2004 at 06:26:42PM -0700, Christoph Lameter wrote:
+>>> - Clearing hugetlb pages is time consuming using clear_highpage in
+>>> alloc_huge_page. Make it possible to use hw assist via DMA or so there?
 
-I've come to the conclusion that in order to stay backwards
-compatible while moving root-mounting stuff to userspace, in the
-initial patch everything in prepare_namespace() and south needs to be
-fully supported in userspace.  This looks perfectly doable, but is a
-fair bit of work.
+On Monday, October 25, 2004 7:23 pm, William Lee Irwin III wrote:
+>> It's possible, but it's been found not to be useful. What has been found
+>> useful is assistance from much lower-level memory hardware of a kind
+>> not to be had in any extant mass-manufactured machines.
 
-The one piece of ugliness I've encountered has to do with the
-load_ramdisk= option; this causes a ramdisk to be loaded from an
-external device, usually a floppy.  The ugliness has to do with the
-fact that it requires the kernel itself to deduce the size of the
-ramdisk, which is filesystem-specific.  Although this code is
-currently run for initrds as well, it doesn't need to, since the
-kernel knows the size of an initrd.
+On Mon, Oct 25, 2004 at 07:40:30PM -0700, Jesse Barnes wrote:
+> Do you have examples?  SGI hardware has a so-called 'BTE' (for Block Transfer 
+> Engine) that can arbitrarily zero or copy pages w/o CPU assistance.  It's 
+> builtin to the memory controller.  Using it to zero the pages has the 
+> advantages of being asyncrhonous and not hosing the CPU cache.
 
-This code isn't complex by any means, but it's ugly and complex, and
-I'm trying to make something a bit cleaner than just copying the
-existing in-kernel code to userspace.
+That's the same kind of thing, so it apparently has been
+mass-manufactured.
 
-So, in short:
 
-a) Does anyone use the load_ramdisk= option anymore, or is it
-legitimate to drop?
-
-b) If it is necessary to retain, does anyone care if this option would
-only support gzip format in the future, i.e. NOT support uncompressed
-filesystem images?  Since a gzip stream is self-terminating, this
-takes care of the problem of finding the end, but adds a sizable chunk
-of code to the kinit binary.
-
-	-hpa
-
+-- wli

@@ -1,69 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263708AbUDVHa3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263735AbUDVHaa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263708AbUDVHa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 03:30:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263722AbUDVHaE
+	id S263735AbUDVHaa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 03:30:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263825AbUDVH3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 03:30:04 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:52550 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263708AbUDVHXO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 03:23:14 -0400
-Date: Thu, 22 Apr 2004 00:05:06 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: colpatch@us.ibm.com, wli@holomorphy.com, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org
-Subject: [Patch 1 of 17] cpumask v4 - Document bitmap.c bit model
-Message-Id: <20040422000506.6ec1a26c.pj@sgi.com>
-In-Reply-To: <20040421232247.22ffe1f2.pj@sgi.com>
-References: <20040421232247.22ffe1f2.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 22 Apr 2004 03:29:32 -0400
+Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:24218 "HELO
+	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263820AbUDVHXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 03:23:44 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: /dev/psaux-Interface
+Date: Thu, 22 Apr 2004 02:23:41 -0500
+User-Agent: KMail/1.6.1
+Cc: Sau Dan Lee <danlee@informatik.uni-freiburg.de>,
+       Kim Holviala <kim@holviala.com>, Tuukka Toivonen <tuukkat@ee.oulu.fi>
+References: <Pine.GSO.4.58.0402271451420.11281@stekt37> <200404220139.02775.dtor_core@ameritech.net> <xb71xmgebkr.fsf@savona.informatik.uni-freiburg.de>
+In-Reply-To: <xb71xmgebkr.fsf@savona.informatik.uni-freiburg.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="big5"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200404220223.41361.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mask1-bitmap-comment - Document bitmap.c bit model.
-        Document the bitmap bit model, including handling of unused bits,
-        and operation preconditions and postconditions.
+On Thursday 22 April 2004 02:06 am, Sau Dan Lee wrote:
+> >>>>> "Dmitry" == Dmitry Torokhov <dtor_core@ameritech.net> writes:
+> 
+>     Dmitry> OK, here you go. It is the first cut. The driver creates
+>     Dmitry> an absolute device for the touchscreen and a fake
+>     Dmitry> pass-through port to for the pointing device which works
+>     Dmitry> in relative mode. All fancy stuff can be done in userspace
+>     Dmitry> via evdev.
+> 
+> I  still  haven't  tried  it.   But upon  first  inspection,  I  found
+> something undesirable already.
+> 
+> +static void lbtouch_pass_pt_packet(struct serio *ptport, unsigned char *packet)
+> +{
+> +	struct psmouse *child = ptport->private;
+> +
+> +	if (child && child->state == PSMOUSE_ACTIVATED) {
+> +		serio_interrupt(ptport, packet[0], 0, NULL);
+> +		serio_interrupt(ptport, packet[1], 0, NULL);
+> +		serio_interrupt(ptport, packet[2], 0, NULL);
+> +	}
+> +}
+> +
+> 
+> So,  you're  imposing the  policy  that  the  packets must  as  3-byte
+> packets?
 
-Index: 2.6.5.bitmap/lib/bitmap.c
-===================================================================
---- 2.6.5.bitmap.orig/lib/bitmap.c	2004-04-05 02:00:15.000000000 -0700
-+++ 2.6.5.bitmap/lib/bitmap.c	2004-04-05 02:50:25.000000000 -0700
-@@ -12,6 +12,26 @@
- #include <asm/bitops.h>
- #include <asm/uaccess.h>
- 
-+/*
-+ * bitmaps provide an array of bits, implemented using an an
-+ * array of unsigned longs.  The number of valid bits in a
-+ * given bitmap need not be an exact multiple of BITS_PER_LONG.
-+ *
-+ * The possible unused bits in the last, partially used word
-+ * of a bitmap are 'don't care'.  The implementation makes
-+ * no particular effort to keep them zero.  It ensures that
-+ * their value will not affect the results of any operation.
-+ * The bitmap operations that return Boolean (bitmap_empty,
-+ * for example) or scalar (bitmap_weight, for example) results
-+ * carefully filter out these unused bits from impacting their
-+ * results.
-+ *
-+ * Except for bitmap_complement, these operations hold to a
-+ * slightly stronger rule: if you don't input any bitmaps to
-+ * these ops that have some unused bits set, then they won't
-+ * output any set unused bits in output bitmaps.
-+ */
-+
- #define MAX_BITMAP_BITS	512U	/* for ia64 NR_CPUS maximum */
- 
- int bitmap_empty(const unsigned long *bitmap, int bits)
+Yes, this is my uderstanding of Lifebook protocol. It is incapable of anything
+but bare PS/2 as far as the pointing device goes. If we ever get a spec we can
+revisit it.
 
+> My  experiences in  writing my XFree86  driver is  that some 
+> bytes  are sometimes  dropped, for  reasons I  don't know.   My driver
+> would  attempt to  resync, although  not reliably  because  the packet
+> format   in   touch-screen   mode   does  not   provide   a   reliable
+> synchronization mechanism (such  as parity, a special bit  to mark the
+> end of a packet, etc.).
+>
+
+There is a timeout and synchronization attempt in psmosue_interrupt (parent
+of this module) so you should be covered. 
+
+> I don't know whether the dropping  of bytes is specific to my machine,
+> or is common to all B142 models.
+> 
+> 
+> +static psmouse_ret_t lbtouch_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
+> +{
+> +	struct input_dev *dev = &psmouse->dev;
+> +	unsigned char *p = psmouse->packet;
+> +	int x, y, touch;
+> +
+> +	input_regs(dev, regs);
+> +
+> +	if (psmouse->pktcnt < 3)
+> +		return PSMOUSE_GOOD_DATA;
+> +
+> 
+> The  same problem.   You  wait  for a  complete  3-byte packet  before
+> emitting an event.  What happens to dropped bytes?
+> 
+
+The packet is dropped when we wait for a byte for too long.
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Dmitry

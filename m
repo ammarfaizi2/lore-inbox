@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143596AbRA1QwU>; Sun, 28 Jan 2001 11:52:20 -0500
+	id <S143532AbRA1Q6V>; Sun, 28 Jan 2001 11:58:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143532AbRA1QwK>; Sun, 28 Jan 2001 11:52:10 -0500
-Received: from pcep-jamie.cern.ch ([137.138.38.126]:59653 "EHLO
-	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
-	id <S143597AbRA1QwC>; Sun, 28 Jan 2001 11:52:02 -0500
-Date: Sun, 28 Jan 2001 17:51:53 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Dax Kelson <dax@gurulabs.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: hotmail not dealing with ECN
-Message-ID: <20010128175153.B9106@pcep-jamie.cern.ch>
-In-Reply-To: <20010126160342.B7096@pcep-jamie.cern.ch> <Pine.SOL.4.30.0101271857190.19930-100000@ultra1.inconnect.com>
-Mime-Version: 1.0
+	id <S143568AbRA1Q6L>; Sun, 28 Jan 2001 11:58:11 -0500
+Received: from femail1.rdc1.on.home.com ([24.2.9.88]:23784 "EHLO
+	femail1.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S143532AbRA1Q6B>; Sun, 28 Jan 2001 11:58:01 -0500
+Message-ID: <3A746512.74CE13D4@home.com>
+Date: Sun, 28 Jan 2001 13:29:38 -0500
+From: John Kacur <jkacur@home.com>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16-3 i586)
+X-Accept-Language: en, ru, ja
+MIME-Version: 1.0
+To: mike <lazybrain@rcn.com>
+CC: Linux-Kernel@vger.kernel.org
+Subject: Re: doesn't boot.
+In-Reply-To: <3A744BD0.332CBBAD@rcn.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.SOL.4.30.0101271857190.19930-100000@ultra1.inconnect.com>; from dax@gurulabs.com on Sat, Jan 27, 2001 at 06:59:46PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dax Kelson wrote:
-> Jamie Lokier said once upon a time (Fri, 26 Jan 2001):
+mike wrote:
 > 
-> > Does ECN provide perceived benefits to the node using it?
+> Hi,  im not sure if im emailing the right place but its  a start. I just
+> setup kernel 2.4.0 and well it doesnt boot.
 > 
-> Why are you even making suggestions when you haven't even read the RFC?
+> it says " ok booting the kernel" then nothing happens on the screen, and
+> I hear no activity from the computer. I tried it several times following
+> the
+> instructions, I did make mrproper, etc, tired putting the source in a
+> different dir, etc. I remember to reinstall lilo, all the good stuff. Im
+> not sure whats wrong.
 > 
-> It seems that knowing what ECN is would be prerequisite to engaging in
-> discussion about it.
+> My system is 2 466 celerons, abtit bp6 , 128ram, voodoo 3 3000,  maxtor
+> hd, all custom built. Anyone have any ideas? thanks in advance.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
-I do know what ECN is thanks.  Whether it provides _actual_ perceived
-benefits depends on how widely deployed ECN routers and servers are.
-
--- Jamie
-
+When you configured the kernel, did you remember to change the processor
+type to "Pentium Pro/Celeron/Pentium II"?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

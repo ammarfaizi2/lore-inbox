@@ -1,62 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262936AbVA2Q1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVA2QnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262936AbVA2Q1w (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 11:27:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262937AbVA2Q1w
+	id S261232AbVA2QnU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 11:43:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVA2QnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 11:27:52 -0500
-Received: from a26.t1.student.liu.se ([130.236.221.26]:30175 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S262936AbVA2Q1t
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 11:27:49 -0500
-Message-ID: <41FBB982.10608@drzeus.cx>
-Date: Sat, 29 Jan 2005 17:27:46 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Geert Uytterhoeven <geert@linux-m68k.org>,
-       LKML <linux-kernel@vger.kernel.org>, wbsd-devel@list.drzeus.cx
-Subject: Re: [Wbsd-devel] [PATCH 540] MMC_WBSD depends on ISA
-References: <200501072250.j07MonUe012310@anakin.of.borg> <41E22B4F.4090402@drzeus.cx> <41FB91A3.7060404@drzeus.cx> <20050129135714.GA320@infradead.org> <20050129145417.A12311@flint.arm.linux.org.uk> <20050129150023.GA959@infradead.org> <41FBAC44.9020502@drzeus.cx> <20050129155722.GA1320@infradead.org> <41FBB500.80805@drzeus.cx> <20050129161325.GA1834@infradead.org>
-In-Reply-To: <20050129161325.GA1834@infradead.org>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 29 Jan 2005 11:43:20 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:8457 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261232AbVA2Qmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 11:42:42 -0500
+Subject: Re: Patch 4/6  randomize the stack pointer
+From: Arjan van de Ven <arjan@infradead.org>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-Reply-To: <41FBB821.3000403@comcast.net>
+References: <20050127101117.GA9760@infradead.org>
+	 <20050127101322.GE9760@infradead.org>  <41F92721.1030903@comcast.net>
+	 <1106848051.5624.110.camel@laptopd505.fenrus.org>
+	 <41F92D2B.4090302@comcast.net>
+	 <Pine.LNX.4.58.0501271010130.2362@ppc970.osdl.org>
+	 <41F95F79.6080904@comcast.net>
+	 <1106862801.5624.145.camel@laptopd505.fenrus.org>
+	 <41F96C7D.9000506@comcast.net>
+	 <Pine.LNX.4.61.0501282147090.19494@chimarrao.boston.redhat.com>
+	 <41FB2DD2.1070405@comcast.net>
+	 <1106986224.4174.65.camel@laptopd505.fenrus.org>
+	 <41FBB821.3000403@comcast.net>
+Content-Type: text/plain
+Date: Sat, 29 Jan 2005 17:42:35 +0100
+Message-Id: <1107016955.4174.127.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+On Sat, 2005-01-29 at 11:21 -0500, John Richard Moser wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
 
->On Sat, Jan 29, 2005 at 05:08:32PM +0100, Pierre Ossman wrote:
->  
->
->>For i386 and x86_64 it's defined as virt_to_phys in asm/io.h without any 
->>#ifdef:s protecting it.
->>    
->>
->
->Not all the world is a PC
->
->  
->
-Then the dependency should in that case be on architectures. It is 
-connected similar to a floppy (which is not dependent on ISA and uses 
-isa_virt_to_bus).
+> These are the only places mprotect() is mentioned; a visual scan
+> confirms no trickery:
+> 
+>         if( fork() == 0 ) {
+>                 /* Perform a dirty (but not unrealistic) trick to circumvent
+>                  * the kernel protection.
+>                  */
+>                 if( paxtest_mode == 1 ) {
+>                         pthread_t thread;
+>                         pthread_create(&thread, NULL, test_thread, dummy);
+>                         doit();
+>                         pthread_kill(thread, SIGTERM);
+>                 } else {
 
-The point is that isa_virt_to_bus() is the method used by devices 
-connected in the same way. This works on the platforms where the device 
-can be found (i386 and x86_64). We can not make it dependent on ISA 
-since you cannot enable ISA on all platforms where it exists (i.e. 
-x86_64). Either fix that or make the driver depend on architecture the 
-same way floppy does.
+> So, there you have it.  These tests do not intentionally kill
+> exec-shield based on its known issue with tracking the upper limit of
+> the code segment.
 
-Using the generic DMA API might be a viable option now that x86_64 seems 
-to be fixed. But it doesn't have a good track record so I'm not prepared 
-to commit any changes until I have time to properly test it. There might 
-still be assumptions about PCI lurking around.
 
-Rgds
-Pierre
+here they do.
+dummy is a local NESTED function, which causes the stack to *correctly*
+be marked executable, due to the need of trampolines. 
+That disables execshield for any tests that use dummy.o, which most of
+them are.
+

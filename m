@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314670AbSEFS7I>; Mon, 6 May 2002 14:59:08 -0400
+	id <S314675AbSEFTB1>; Mon, 6 May 2002 15:01:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314658AbSEFS7H>; Mon, 6 May 2002 14:59:07 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:51979
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S314656AbSEFS7G>; Mon, 6 May 2002 14:59:06 -0400
-Date: Mon, 6 May 2002 11:57:41 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Jens Axboe <axboe@suse.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Subject: Re: [PATCH] IDE TCQ for 2.4.19-pre8
-In-Reply-To: <20020506134535.GC18817@suse.de>
-Message-ID: <Pine.LNX.4.10.10205061154520.22915-100000@master.linux-ide.org>
+	id <S314658AbSEFTBZ>; Mon, 6 May 2002 15:01:25 -0400
+Received: from mail.uklinux.net ([80.84.72.21]:57362 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S314657AbSEFTBY>;
+	Mon, 6 May 2002 15:01:24 -0400
+Envelope-To: linux-kernel@vger.kernel.org
+Date: Mon, 6 May 2002 20:01:01 +0100 (BST)
+From: Peter Denison <lkml@marshadder.uklinux.net>
+X-X-Sender: peterd@marshall.localnet
+To: Dave Jones <davej@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drivers/net/depca.c tidyup
+In-Reply-To: <20020506193247.C22215@suse.de>
+Message-ID: <Pine.LNX.4.44.0205061944460.30139-100000@marshall.localnet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 May 2002, Jens Axboe wrote:
+On Mon, 6 May 2002, Dave Jones wrote:
 
-> People who were (rightfully so) afraid to test 2.5 can now play with ide
-> tagged queueing in 2.4. Works great here.
+> On Mon, May 06, 2002 at 06:17:00PM +0100, Peter Denison wrote:
+>  > The ALIGN macro is defined centrally - remove the local version
+> 
+> They aren't functionally equivalent though are they?
 
-So how much longer will this game go on or should I invest "enigma device"
-to be able to read and track the renaming game.  Obvious you are left
-hanging in 2.5 under tag w/o a solid working transport layer and no diag
-access to test.
+Eek. I thought they were.
 
-Cheers,
+-#define ALIGN4      ((u_long)4 - 1)       /* 1 longword align */
+-#define ALIGN8      ((u_long)8 - 1)       /* 2 longword (quadword) align */
+-#define ALIGN         ALIGN8              /* Keep the LANCE happy... */
 
-Andre Hedrick
-LAD Storage Consulting Group
+-	offset = (offset + ALIGN) & ~ALIGN;
++	offset = ALIGN(offset, 8);
+
+And from include/linux/cache.h:
+
+#define ALIGN(x,a) (((x)+(a)-1)&~((a)-1))
+
+So, we're replacing (offset + 8 - 1) & ~(8-1) = (offset + 7) & ~7
+with (((offset)+(8)-1)&~((8)-1)) = ((offset+7)&~7)
+
+I think they're the same, aren't they, except for the promotion to u_long, 
+which is probably bogus anyway?
+
+-- 
+Peter Denison <peterd at marshadder dot uklinux dot net>
+Please note that my address is changing from <peterd at pnd-pc dot demon.co.uk>
 

@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129611AbQKHWTO>; Wed, 8 Nov 2000 17:19:14 -0500
+	id <S129996AbQKHWWD>; Wed, 8 Nov 2000 17:22:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129957AbQKHWTD>; Wed, 8 Nov 2000 17:19:03 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:26189
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S129611AbQKHWS5>; Wed, 8 Nov 2000 17:18:57 -0500
-Date: Wed, 8 Nov 2000 23:11:11 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: malloc(1/0) ??
-Message-ID: <20001108231111.D622@jaquet.dk>
-In-Reply-To: <NCBBLIEPOCNJOAEKBEAKEEAJLMAA.davids@webmaster.com> <Pine.LNX.4.21.0011080149010.32613-100000@server.serve.me.nl> <8ucj2m$oiq$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <8ucj2m$oiq$1@cesium.transmeta.com>; from hpa@zytor.com on Wed, Nov 08, 2000 at 02:11:34PM -0800
+	id <S130098AbQKHWVx>; Wed, 8 Nov 2000 17:21:53 -0500
+Received: from fe040.world-online.no ([213.142.64.154]:22671 "HELO
+	mail.world-online.no") by vger.kernel.org with SMTP
+	id <S129996AbQKHWVj>; Wed, 8 Nov 2000 17:21:39 -0500
+Message-ID: <001601c049d2$404d2010$0201000a@tripwire>
+From: "Andre Tomt" <andre@tomt.net>
+To: "James Simmons" <jsimmons@suse.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0011081258310.259-100000@euclid.oak.suse.com>
+Subject: Re: Network error
+Date: Wed, 8 Nov 2000 23:21:29 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2000 at 02:11:34PM -0800, H. Peter Anvin wrote:
-> Followup to:  <Pine.LNX.4.21.0011080149010.32613-100000@server.serve.me.nl>
-> By author:    Igmar Palsenberg <maillist@chello.nl>
-> In newsgroup: linux.dev.kernel
 
-[snip]
+> Something I seen on a lug. Anyone have a patch for this?
+>
+> I'm trying to compile a 2.2.17 kernel.  When I do a make bzImage, I get
+> this error.  It seems to be centering on networking areas (nfs, svclock,
+> tcp, etc.)
+>
+> tcp_input.c:1393:52: warning: pasting would not give a valid preprocessing
+> token
+> tcp_input.c:1441:85: warning: pasting would not give a valid preprocessing
+> token
 
-> > May I remind you guys that a malloc(0) is equal to a free(). There is no
-> > way that any mem get's malloced. 
-> > 
-> 
-> Where the heck did you get idea?
-> 
-> 	-hpa
+This is a non fatal warning, not an error. However, newer "in-development"
+gcc's have other issues making it refuse to build a full kernel image.
+Either fix the makefile to use a compatible cc (egcs, kgcc for example),
+define CC to make, or downgrade the default compiler to anything below or
+including gcc-2.95.2
 
-Probably from the malloc man page where it is stated that *realloc* 
-with size 0 equals free :)
--- 
-        Rasmus(rasmus@jaquet.dk)
+Whatever makes you sleep well at night.
 
-Which is worse: Ignorance or Apathy?
-Who knows? Who cares?
+--
+André Tomt
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

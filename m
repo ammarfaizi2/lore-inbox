@@ -1,79 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265143AbUAKNxe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 08:53:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265869AbUAKNxe
+	id S264535AbUAKNuA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 08:50:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264537AbUAKNuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 08:53:34 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58380 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265143AbUAKNxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 08:53:15 -0500
-Date: Sun, 11 Jan 2004 13:53:09 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-       Helge Hafting <helgehaf@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 NFS-server low to 0 performance
-Message-ID: <20040111135309.F1931@flint.arm.linux.org.uk>
-Mail-Followup-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-	Helge Hafting <helgehaf@aitel.hist.no>,
-	linux-kernel@vger.kernel.org
-References: <1073771855.3958.15.camel@nidelv.trondhjem.org> <Pine.LNX.4.44.0401102338270.7120-100000@poirot.grange> <20040111131857.GA11246@hh.idb.hist.no>
+	Sun, 11 Jan 2004 08:50:00 -0500
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:47369 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S264535AbUAKNt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 08:49:58 -0500
+Date: Sun, 11 Jan 2004 14:51:50 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@stimpy.netroedge.com>
+Subject: [PATCH 2.4] i2c cleanups, third wave (1/8)
+Message-Id: <20040111145150.3e1d04fc.khali@linux-fr.org>
+In-Reply-To: <20040111144214.7a6a4e59.khali@linux-fr.org>
+References: <20040111144214.7a6a4e59.khali@linux-fr.org>
+Reply-To: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@stimpy.netroedge.com>
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040111131857.GA11246@hh.idb.hist.no>; from helgehaf@aitel.hist.no on Sun, Jan 11, 2004 at 02:18:57PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 11, 2004 at 02:18:57PM +0100, Helge Hafting wrote:
-> On Sat, Jan 10, 2004 at 11:42:45PM +0100, Guennadi Liakhovetski wrote:
-> > The only my doubt was - yes, you upgrade the __server__, so, you look in
-> > Changes, upgrade all necessary stuff, or just upgrade blindly (as does
-> > happen sometimes, I believe) a distribution - and the server works, fine.
-> > What I find non-obvious, is that on updating the server you have to
-> > re-configure __clients__, see? Just think about a network somewhere in a
-> 
-> If you upgrade the server and read "Changes", then a note in changes might
-> say that "you need to configure carefully or some clients could get in trouble."
-> (If the current "Changes" don't have that - post a documentation patch.)
+This patch fixes a few errors in drivers/i2c/Config.in:
+* missing dependancy
+* empty line, indentation, typo
 
-[This is more to Guennadi than Helge]
+The thin part of this patch that also applies to linux 2.6 has been sent
+to Greg KH.
 
-I don't see why such a patch to "Changes" should be necessary.  The
-problem is most definitely with the client hardware, and not the
-server software.
 
-The crux of this problem comes down to the SMC91C111 having only a
-small on-board packet buffer, which is capable of storing only about
-4 packets (both TX and RX).  This means that if you receive 8 packets
-with high enough interrupt latency, you _will_ drop some of those
-packets.
-
-Note that this is independent of whether you're using DMA mode with
-the SMC91C111 - DMA mode only allows you to off load the packets from
-the chip faster once you've discovered you have a packet to off load
-via an interrupt.
-
-It won't be just NFS that's affected - eg, if you have 4kB NFS packets
-and several machines broadcast an ARP at the same time, you'll again
-run out of packet space on the SMC91C111.  Does that mean you should
-somehow change the way ARP works?
-
-Sure, reducing the NFS packet size relieves the problem, but that's
-just a work around for the symptom and nothing more.  It's exactly
-the same type of work around as switching the SMC91C111 to operate at
-10mbps only - both work by reducing the rate at which packets are
-received by the target, thereby offsetting the interrupt latency
-and packet unload times.
-
-Basically, the SMC91C111 is great for use on small, *well controlled*
-embedded networks, but anything else is asking for trouble.
+--- linux-2.4.24-pre3/drivers/i2c/Config.in.orig	Wed Dec 31 17:22:11 2003
++++ linux-2.4.24-pre3/drivers/i2c/Config.in	Sun Jan  4 20:00:59 2004
+@@ -7,7 +7,6 @@
+ tristate 'I2C support' CONFIG_I2C
+ 
+ if [ "$CONFIG_I2C" != "n" ]; then
+-
+    dep_tristate 'I2C bit-banging interfaces'  CONFIG_I2C_ALGOBIT $CONFIG_I2C
+    if [ "$CONFIG_I2C_ALGOBIT" != "n" ]; then
+       dep_tristate '  Philips style parallel port adapter' CONFIG_I2C_PHILIPSPAR $CONFIG_I2C_ALGOBIT $CONFIG_PARPORT
+@@ -36,7 +35,7 @@
+    if [ "$CONFIG_8xx" = "y" ]; then
+       dep_tristate 'MPC8xx CPM I2C interface' CONFIG_I2C_ALGO8XX $CONFIG_I2C
+       if [ "$CONFIG_RPXLITE" = "y" -o "$CONFIG_RPXCLASSIC" = "y" ]; then
+-         dep_tristate '  Embedded Planet RPX Lite/Classic suppoort' CONFIG_I2C_RPXLITE $CONFIG_I2C_ALGO8XX
++         dep_tristate '  Embedded Planet RPX Lite/Classic support' CONFIG_I2C_RPXLITE $CONFIG_I2C_ALGO8XX
+       fi
+    fi
+    if [ "$CONFIG_405" = "y" ]; then
+@@ -55,14 +54,14 @@
+       dep_tristate '  MAX1617 Temperature Sensor' CONFIG_I2C_MAX1617 $CONFIG_I2C_ALGO_SIBYTE
+    fi
+ 
+-  if [ "$CONFIG_SGI_IP22" = "y" ]; then
+-     dep_tristate 'I2C SGI interfaces' CONFIG_I2C_ALGO_SGI $CONFIG_I2C
+-  fi
++   if [ "$CONFIG_SGI_IP22" = "y" ]; then
++      dep_tristate 'I2C SGI interfaces' CONFIG_I2C_ALGO_SGI $CONFIG_I2C
++   fi
+  
+ # This is needed for automatic patch generation: sensors code starts here
+ # This is needed for automatic patch generation: sensors code ends here
+ 
+    dep_tristate 'I2C device interface' CONFIG_I2C_CHARDEV $CONFIG_I2C
+-   dep_tristate 'I2C /proc interface (required for hardware sensors)' CONFIG_I2C_PROC $CONFIG_I2C
++   dep_tristate 'I2C /proc interface (required for hardware sensors)' CONFIG_I2C_PROC $CONFIG_I2C $CONFIG_SYSCTL
+ fi
+ endmenu
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313476AbSC2QDq>; Fri, 29 Mar 2002 11:03:46 -0500
+	id <S313474AbSC2QG4>; Fri, 29 Mar 2002 11:06:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313472AbSC2QD1>; Fri, 29 Mar 2002 11:03:27 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23818 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S313473AbSC2QDX>; Fri, 29 Mar 2002 11:03:23 -0500
-Subject: Re: 2.4.19-pre4-ac[23] do not boot
-To: jean-luc.coulon@wanadoo.fr (Jean-Luc Coulon)
-Date: Fri, 29 Mar 2002 16:20:07 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3CA486FF.5003AA42@wanadoo.fr> from "Jean-Luc Coulon" at Mar 29, 2002 04:23:43 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S313475AbSC2QGr>; Fri, 29 Mar 2002 11:06:47 -0500
+Received: from imladris.infradead.org ([194.205.184.45]:48390 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S313473AbSC2QGe>; Fri, 29 Mar 2002 11:06:34 -0500
+Date: Fri, 29 Mar 2002 16:06:18 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: davidm@hpl.hp.com
+Cc: Christoph Hellwig <hch@infradead.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] generic show_stack facility
+Message-ID: <20020329160618.A25410@phoenix.infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch>, davidm@hpl.hp.com,
+	Christoph Hellwig <hch@infradead.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020329152314.A22333@phoenix.infradead.org> <15524.35903.821173.784043@napali.hpl.hp.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16qz6l-0001Ud-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.4.19-pre4-ac[23] does not boot. I've not tested ac1 but vanilla pre4
-> works.
+On Fri, Mar 29, 2002 at 07:46:07AM -0800, David Mosberger wrote:
+> Christoph, why do you think the prototype for ia64 is different?
 
-Can you try backing out the following two changes, one at a time. These are
-the only ALi specific changes. So firstly I want to see if its an ALi or
-core IDE bug
+I have stopped to wonder why ia64 does things differently.
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.19p4/drivers/ide/alim15x3.c linux.19pre4-ac3/drivers/ide/alim15x3.c
---- linux.19p4/drivers/ide/alim15x3.c	Mon Mar 25 17:47:11 2002
-+++ linux.19pre4-ac3/drivers/ide/alim15x3.c	Tue Mar 26 18:36:23 2002
-@@ -248,7 +248,7 @@
- 	byte s_clc, a_clc, r_clc;
- 	unsigned long flags;
- 	int bus_speed = system_bus_clock();
--	int port = hwif->index ? 0x5c : 0x58;
-+	int port = hwif->channel ? 0x5c : 0x58;
- 	int portFIFO = hwif->channel ? 0x55 : 0x54;
- 	byte cd_dma_fifo = 0;
- 
-@@ -442,6 +442,8 @@
- 	ide_dma_action_t dma_func	= ide_dma_on;
- 	byte can_ultra_dma		= ali15x3_can_ultra(drive);
- 
-+	(void) config_chipset_for_pio(drive);
-+	
- 	if ((m5229_revision<=0x20) && (drive->media!=ide_disk))
- 		return hwif->dmaproc(ide_dma_off_quietly, drive);
- 
+>  It's
+> because it *has to be*.  In general, you can't do a backtrace without
+> having the full (preserved) state of the CPU at the point of which the
+> backtrace begins.
+
+So your suggestion is to move the other architectures to the ia64 prototype
+or to not have an architecture-independand stack-traceback facility at all?
+
+	Christoph
+

@@ -1,136 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266704AbUIOSwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267287AbUIOSxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266704AbUIOSwo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 14:52:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUIOSwo
+	id S267287AbUIOSxU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 14:53:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUIOSxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 14:52:44 -0400
-Received: from grendel.firewall.com ([66.28.58.176]:26279 "EHLO
-	grendel.firewall.com") by vger.kernel.org with ESMTP
-	id S266704AbUIOSwh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 14:52:37 -0400
-Date: Wed, 15 Sep 2004 20:52:30 +0200
-From: Marek Habersack <grendel@caudium.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Kernel BUG() triggerred by Tux
-Message-ID: <20040915185230.GA4502@beowulf.thanes.org>
-Reply-To: grendel@caudium.net
+	Wed, 15 Sep 2004 14:53:19 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:64656 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267287AbUIOSxP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 14:53:15 -0400
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
+From: john stultz <johnstul@us.ibm.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: george anzinger <george@mvista.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
+       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
+       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>
+In-Reply-To: <Pine.LNX.4.58.0409151025090.3219@schroedinger.engr.sgi.com>
+References: <1095265942.29408.2847.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0409150940420.1249@schroedinger.engr.sgi.com>
+	 <1095268408.29408.2918.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0409151025090.3219@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Message-Id: <1095274131.29408.2990.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
-Content-Disposition: inline
-Organization: I just...
-X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
-X-message-flag: Outlook - A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.6+20040818i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 15 Sep 2004 11:48:51 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-09-15 at 10:30, Christoph Lameter wrote:
+> On Wed, 15 Sep 2004, john stultz wrote:
+> 
+> > Well, not all time sources have that feature. Both TSC, and cyclone
+> > don't. You'd have to do something else for those. This is why my
+> > proposal has absolutely nothing to do with interrupt generation. It has
+> > a single hook that needs to be called only every once in a while, which
+> > can be done however any architecture wants.
+> >
+> > Interrupt generation has more to do with soft-timers and scheduling then
+> > time of day anyway.
+> 
+> Hmm... I think this is a serious issue. The ability to exactly time an
+> interrupt and therefore specific actions is important. Maybe we can have a
+> fall back to soft interrupts if interrupt_at == NULL?
 
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Oh, its an issue, but one the time of day subsystem shouldn't solve. The
+code that manages interval (be it timer or whatever) interrupts should
+use the time of day subsystem to ensure they are triggering accurately,
+and manipulate the intervals as needed. 
 
-Hello,
+> If the scheduler could assign dynamic time slices to processes then new
+> more effective designs of process scheduling become possible. F.e. on an
+> SMP system if a single process is running and no other contention exists
+> then the scheduler can simply let the process run without interruption.
+> 
+> On the other hand the system may reduce the time slices assigned to a
+> process that causes significant load on the system in order to insure the
+> responsiveness of other applications despite the load.
 
-  I realize that this question might be out of topic for this list, but
-since I've already tried to get help from the Tux mailing list and had no
-response, I'm hoping I will find some guidance here. The bug can be
-triggerred very easily by installing and using the demo4.c module shipped
-with the tux userland (tested with the 3 last versions of the Tux patch for
-both 2.4 and the 2.6 kernels). BUG() gets called when the request is
-redirected by Tux to the userland server and _after_ the latter handles the
-connection and delivers the content to the browser. Here's the message:
+Yep, all of this is outside what the time of day subsystem should do.
+Interval interrupt scheduling should be done by other code (I suggest
+the timer code do it).
 
-Sep 15 12:39:30 quantum kernel: ------------[ cut here ]------------
-Sep 15 12:39:30 quantum kernel: kernel BUG at fs/inode.c:1098!
-Sep 15 12:39:30 quantum kernel: invalid operand: 0000 [#1]
-Sep 15 12:39:30 quantum kernel: PREEMPT=20
-Sep 15 12:39:30 quantum kernel: Modules linked in: ds eth1394 ohci1394 ieee=
-1394 via_ircc yenta_socket pcmcia_core ircomm_tty ircomm irda crc_ccitt
-Sep 15 12:39:30 quantum kernel: CPU:    0
-Sep 15 12:39:30 quantum kernel: EIP:    0060:[iput+114/128]    Not tainted
-Sep 15 12:39:30 quantum kernel: EFLAGS: 00010246   (2.6.8.1-tux-a4)=20
-Sep 15 12:39:30 quantum kernel: EIP is at iput+0x72/0x80
-Sep 15 12:39:30 quantum kernel: eax: c040a860   ebx: cbb32b84   ecx: 000000=
-00   edx: cbb32b94
-Sep 15 12:39:30 quantum kernel: esi: c9e5c2d0   edi: cbb32b84   ebp: cbb32b=
-84   esp: cd71ee48
-Sep 15 12:39:30 quantum kernel: ds: 007b   es: 007b   ss: 0068
-Sep 15 12:39:30 quantum kernel: Process tux (pid: 2465, threadinfo=3Dcd71e0=
-00 task=3Dcdc9a7a0)
-Sep 15 12:39:30 quantum kernel: Stack: c016b202 cb49db00 cd71e000 c016800a =
-cbb32b84 c04997b0 cb49db00 c02da7a0=20
-Sep 15 12:39:30 quantum kernel:        cefbd4a0 c0151999 c9e5c2d0 cb49db00 =
-c9e5c2d0 cb49db00 00000000 cdb03a20=20
-Sep 15 12:39:30 quantum kernel:        00000000 c0150009 cb49db00 cdb03a20 =
-cdb03a20 cb49db00 cbaf34a4 c03381a1=20
-Sep 15 12:39:30 quantum kernel: Call Trace:
-Sep 15 12:39:30 quantum kernel:  [iput+98/128] iput+0x62/0x80
-Sep 15 12:39:30 quantum kernel:  [dput+250/528] dput+0xfa/0x210
-Sep 15 12:39:30 quantum kernel:  [sock_close+0/80] sock_close+0x0/0x50
-Sep 15 12:39:30 quantum kernel:  [__fput+201/304] __fput+0xc9/0x130
-Sep 15 12:39:30 quantum kernel:  [filp_close+89/144] filp_close+0x59/0x90
-Sep 15 12:39:30 quantum kernel:  [tux_close+97/160] tux_close+0x61/0xa0
-Sep 15 12:39:30 quantum kernel:  [flush_request+1475/2496] flush_request+0x=
-5c3/0x9c0
-Sep 15 12:39:30 quantum kernel:  [redirect_request+215/416] redirect_reques=
-t+0xd7/0x1a0
-Sep 15 12:39:30 quantum kernel:  [tux_schedule_atom+73/272] tux_schedule_at=
-om+0x49/0x110
-Sep 15 12:39:30 quantum kernel:  [process_requests+288/496] process_request=
-s+0x120/0x1f0
-Sep 15 12:39:30 quantum kernel:  [event_loop+501/624] event_loop+0x1f5/0x270
-Sep 15 12:39:30 quantum kernel:  [__sys_tux+763/5920] __sys_tux+0x2fb/0x1720
-Sep 15 12:39:30 quantum kernel:  [redirect_request+0/416] redirect_request+=
-0x0/0x1a0
-Sep 15 12:39:30 quantum kernel:  [sys_chdir+117/144] sys_chdir+0x75/0x90
-Sep 15 12:39:30 quantum kernel:  [capable+35/96] capable+0x23/0x60
-Sep 15 12:39:30 quantum kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Sep 15 12:39:30 quantum kernel: Code: 0f 0b 4a 04 5f 38 37 c0 eb a5 8d 74 26
-00 83 ec 0c 8b 44 24=20
-Sep 15 12:39:30 quantum kernel:  Possibly unexpected TUX-thread exit(11) at=
- c0105228?
--------
 
-After that, TUX enters an endless loop, spewing the following message to the
-console:
+> If one can schedule a tick dynamically then also NTP time correction can
+> be "scheduled" when it is likely that the clock has sufficiently deviated
+> from standard time. As soon as the time source has been sufficiently tamed
+> by scaling it correctly then the periods of checkup on the time source
+> could be gradually expanded.
 
-Sep 15 15:52:59 quantum kernel: PRINT req cbe9c7f8 <c03c8f73>, sock 00000000
-Sep 15 15:52:59 quantum kernel: ... idx: 0
-Sep 15 15:52:59 quantum kernel: ... meth:{<null>}, uri:{<null>}, query:{<nu=
-ll>}, ver:{<null>}
-Sep 15 15:52:59 quantum kernel: ... post_data:{<NULL>}(0).
-Sep 15 15:52:59 quantum kernel: ... headers: {<NULL>}
+NTP adjustments need to be applied smoothly and consistently as time
+progresses. Adjustment to the NTP parameters occur at do_adjtimex and at
+interval boundaries (ie: the interrupt_hook in my code, or look at
+update_wall_time and second_overflow in the existing code). So in my
+understanding its not really a schedulable function. 
 
-The machine is responsive, can be accessed and used, but there is no way to
-get tux working after the above happens and it is not possible to reboot the
-machine using shutdown/reboot, power button etc - it has to be forcibly
-powered down.
 
-The configuration of the machine the BUG gets triggerred on doesn't matter,
-it is happening in exactly the same way on any machine I could try this on.
+> Real time features such as posix-timer's also depend on the ability to
+> deliver a signal at an exact point in time. Soft timers can only give a
+> very rough approximation in these cases.
+> 
+> So I think this feature is essential.
 
-I've tried to investigate the issue on my own, but so far I've failed
-miserably and I would appreciate any kind of pointers to help me solve the
-issue,
+I think the functionality is essential, but that it doesn't belong in the time of day code.
 
-tia,
+Basically we have two things we're trying to do: 
 
-marek
+1. Keep accurate time 
+2. Generate hardware interrupts accurately
 
---qMm9M+Fa2AknHoGS
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+While frequently the same hardware can do both, not all hardware is
+usable for both functions. Thus I believe we should cleanly split these
+two subsystems. My proposal only provided the keep accurate time part,
+however one could using that functionality, to then manipulate hardware
+interrupts to ensure accuracy in the timer subsystem.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+thanks
+-john
 
-iD8DBQFBSI9uq3909GIf5uoRAo2AAJ4/hKKbiCiWgjGkjIPSpvl4rRA+mgCdEhJS
-GRCsS1EbEbIzGckcYEeG2N0=
-=aPnW
------END PGP SIGNATURE-----
-
---qMm9M+Fa2AknHoGS--

@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288840AbSAEPUh>; Sat, 5 Jan 2002 10:20:37 -0500
+	id <S288838AbSAEPV3>; Sat, 5 Jan 2002 10:21:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288843AbSAEPU1>; Sat, 5 Jan 2002 10:20:27 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:9477 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S288840AbSAEPUJ>;
-	Sat, 5 Jan 2002 10:20:09 -0500
-Date: Sat, 5 Jan 2002 16:19:58 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: nknight@pocketinet.com
-Cc: kernel@theoesters.com, linux-kernel@vger.kernel.org
-Subject: Re: 1gb RAM + 1gb SWAP + make -j bzImage = OOM
-Message-Id: <20020105161958.43d7ab25.skraw@ithnet.com>
-In-Reply-To: <WHITExcPbVzv2N2Ku2000000c76@white.pocketinet.com>
-In-Reply-To: <004b01c1955e$ecbc9190$6400a8c0@philxp>
-	<20020104220240.233ae66a.skraw@ithnet.com>
-	<WHITExcPbVzv2N2Ku2000000c76@white.pocketinet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S288843AbSAEPVR>; Sat, 5 Jan 2002 10:21:17 -0500
+Received: from cs182172.pp.htv.fi ([213.243.182.172]:5253 "EHLO
+	cs182172.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S288838AbSAEPVK>; Sat, 5 Jan 2002 10:21:10 -0500
+Message-ID: <3C3719D1.F3B214B6@welho.com>
+Date: Sat, 05 Jan 2002 17:20:49 +0200
+From: Mika Liljeberg <Mika.Liljeberg@welho.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Kevin P. Fleming" <kevin@labsysgrp.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How to debug very strange packet delivery problem?
+In-Reply-To: <005001c194d9$b5793c40$6caaa8c0@kevin>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jan 2002 16:42:43 -0800
-Nicholas Knight <nknight@pocketinet.com> wrote:
+"Kevin P. Fleming" wrote:
+> The machine runs fine, and other nodes on the local network (i.e. using the
+> ethernet interface) can communicate with it just fine. I can also bring up
+> the ppp link, and communicate with everything on the corporate WAN without
+> trouble. I can communicate _through_ this machine from nodes on the local
+> network to the corporate WAN just fine. But...
+> 
+> What I _cannnot_ do is initiate a connection from a node on the other side
+> of the ppp link (the corporate side) to this machine. There are at least
+> three daemon processes on this system I've tried to connect to: xinetd (for
+> telnet), bind and exim. None of these are using tcp_wrappers. The symptoms
+> are that the TCP SYN packet (to open the connection) arrives at the ppp0
+> interface (verified by using tcpdump on the ppp0 interface), but then is not
+> delivered to the waiting process on its open socket.
 
+Hi Kevin,
 
-> I have absilutely no trouble reproducing on an 800MHz Athlon with 256MB 
-> RAM/256MB swap on 2.4.17
+You seem to know what you're doing there, but it would still help if you
+could provide some details of your routing configuration and servers,
+e.g. output of ifconfig, route -n, and netstat -anot, iptables -L
+(provided that the company security policy allows you to share this
+info, of course :-). Are you doing NAT between the local net and the
+corporate WAN or are you sharing a subnet? Are you sure that it's the
+SYN getting lost rather than the SYN-ACK from the server? Even though
+your machine is forwarding fine it might still be a routing problem of
+some kind.
 
-The simple question is: is the RAM sufficient at all to spawn such a lot of cc
-processes? In my setup I get around 1000 concurrently working during -j. This
-sounds like a real problem for 256/256, or not?
+Cheers,
 
-Regards,
-Stephan
-
+	MikaL

@@ -1,79 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267493AbTBJBaJ>; Sun, 9 Feb 2003 20:30:09 -0500
+	id <S267498AbTBJBg6>; Sun, 9 Feb 2003 20:36:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267497AbTBJBaJ>; Sun, 9 Feb 2003 20:30:09 -0500
-Received: from mithra.wirex.com ([65.102.14.2]:14608 "EHLO mail.wirex.com")
-	by vger.kernel.org with ESMTP id <S267493AbTBJBaH>;
-	Sun, 9 Feb 2003 20:30:07 -0500
-Message-ID: <3E4702CE.3040403@wirex.com>
-Date: Sun, 09 Feb 2003 17:39:26 -0800
-From: Crispin Cowan <crispin@wirex.com>
-Organization: WireX Communications, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-Cc: torvalds@transmeta.com, linux-security-module@wirex.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] LSM changes for 2.5.59
-References: <20030206151820.A11019@infradead.org> <Pine.LNX.3.96.1030207205056.31221A-100000@dixie> <20030209200626.A7704@infradead.org>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-md5;
- protocol="application/pgp-signature";
- boundary="------------enig0B9BC945BEE5B8FAC44569DB"
+	id <S267547AbTBJBg6>; Sun, 9 Feb 2003 20:36:58 -0500
+Received: from dp.samba.org ([66.70.73.150]:37805 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267498AbTBJBg4>;
+	Sun, 9 Feb 2003 20:36:56 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Frank Davis <fdavis@si.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: re: smctr patch (with no subect)
+In-reply-to: Your message of "Fri, 07 Feb 2003 12:05:28 CDT."
+             <Pine.LNX.4.44.0302071204270.6917-100000@master> 
+Date: Mon, 10 Feb 2003 11:20:02 +1100
+Message-Id: <20030210014640.D2DD72C078@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig0B9BC945BEE5B8FAC44569DB
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+In message <Pine.LNX.4.44.0302071204270.6917-100000@master> you write:
+> Hello all,
+>    The following patch addresses buzilla bug # 312, and removes an
+> offending semicolon. Please review for inclusion.
+> 
+> Regards,
+> Frank
+> 
+> --- linux/drivers/net/tokenring/smctr.c.old	2003-01-16 21:22:09.000000000 -
+0500
+> +++ linux/drivers/net/tokenring/smctr.c	2003-02-07 03:10:50.000000000 -
+0500
+> @@ -3064,7 +3064,7 @@
+>          __u8 r;
+>  
+>          /* Check if node address has been specified by user. (non-0) */
+> -        for(i = 0; ((i < 6) && (dev->dev_addr[i] == 0)); i++);
+> +        for(i = 0; ((i < 6) && (dev->dev_addr[i] == 0)); i++)
+>          {
+>                  if(i != 6)
+>                  {
 
-Christoph Hellwig wrote:
+NAK, I believe this is the way the code is supposed to work.
 
->you don't get tru security by adding hooks.  security needs a careful
->design and more strict access control policy can but don't have to be part
->of that design.
->
-LSM does have a careful design. The design goal was to permit loadable 
-kernel modules to mediate access to critical kernel objects by user 
-level processes. By providing such a facility, LSM enables arbitrary 
-security policies and policy management engines to be implemented as 
-loadable modules. This solves the "make one size fit all" problem of 
-diverse interests lobbying Linus to adopt one security model or another 
-as the Linux standard. The LSM design saves Linus from having to make 
-such a  choice by allowing end-users to make their own choice, meeting a 
-goal stated by Linus nearly two years ago.
+Of course, opening a new block after the for is completely gratuitous
+and designed to fool the reader.
 
->The real problem is adding mess to the kernel.
->
-Christoph's problem is likely that he doesn't like the design. Fair 
-enough, can't please everyone, but a lot of effort went into that 
-design. I also suspect that Christoph does not approve of Linus' design 
-goal either, but he's never said that when I was looking.
-
-Crispin
-
--- 
-Crispin Cowan, Ph.D.
-Chief Scientist, WireX                      http://wirex.com/~crispin/
-Security Hardened Linux Distribution:       http://immunix.org
-			    Just say ".Nyet"
-
-
---------------enig0B9BC945BEE5B8FAC44569DB
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE+RwLb5ZkfjX2CNDARAcqbAKCA6jGImutCM6GKRa1Mfz+0JU/Q0gCgx+VM
-p25z6ij3wV2lS21SUE+QOTI=
-=chgz
------END PGP SIGNATURE-----
-
---------------enig0B9BC945BEE5B8FAC44569DB--
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,121 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261205AbSKKUKm>; Mon, 11 Nov 2002 15:10:42 -0500
+	id <S261286AbSKKUNR>; Mon, 11 Nov 2002 15:13:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261223AbSKKUKm>; Mon, 11 Nov 2002 15:10:42 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:39609 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S261205AbSKKUKk>; Mon, 11 Nov 2002 15:10:40 -0500
-Date: Mon, 11 Nov 2002 18:17:17 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Art Haas <ahaas@airmail.net>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] C99 designated initializers for drivers/ide/pci (2 of 2)
-Message-ID: <20021111201717.GH12732@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Art Haas <ahaas@airmail.net>, linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
-References: <20021111155945.GK20969@debian>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021111155945.GK20969@debian>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+	id <S261290AbSKKUNQ>; Mon, 11 Nov 2002 15:13:16 -0500
+Received: from mg03.austin.ibm.com ([192.35.232.20]:17363 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S261286AbSKKUNP> convert rfc822-to-8bit; Mon, 11 Nov 2002 15:13:15 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Andrew Theurer <habanero@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: acenic problems on 2.5.47
+Date: Mon, 11 Nov 2002 14:16:56 -0600
+User-Agent: KMail/1.4.3
+Cc: linux-acenic@SunSITE.dk
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200211111416.56167.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Nov 11, 2002 at 09:59:45AM -0600, Art Haas escreveu:
-> Here's the second patch for drivers/ide/pci that switch the header files
-> (and two lines in serverworks.c) to use C99 designated initializers. The
-> patches are against 2.5.47.
+I seem to be having a driver issue with acenic Gb adapters on 2.5.47.  Out of 
+four adapters, usually one, but sometimes two of the four adapters are 
+initialized upon 'insmod acenic':
 
-Art, comments below
- 
-> --- linux-2.5.47/drivers/ide/pci/opti621.h.old	2002-10-07 15:45:28.000000000 -0500
-> +++ linux-2.5.47/drivers/ide/pci/opti621.h	2002-11-11 07:22:07.000000000 -0600
-> @@ -11,38 +11,38 @@
->  
->  static ide_pci_device_t opti621_chipsets[] __devinitdata = {
->  	{	/* 0 */
-> -		vendor:		PCI_VENDOR_ID_OPTI,
-> -		device:		PCI_DEVICE_ID_OPTI_82C621,
-> -		name:		"OPTI621",
-> -		init_setup:	init_setup_opti621,
-> -		init_chipset:	NULL,
-> -		init_iops:	NULL,
-> -		init_hwif:	init_hwif_opti621,
-> -		init_dma:	init_dma_opti621,
-> -		channels:	2,
-> -		autodma:	AUTODMA,
-> -		enablebits:	{{0x45,0x80,0x00}, {0x40,0x08,0x00}},
-> -		bootable:	ON_BOARD,
-> -		extra:		0,
-> +		.vendor		= PCI_VENDOR_ID_OPTI,
-> +		.device		= PCI_DEVICE_ID_OPTI_82C621,
-> +		.name		= "OPTI621",
-> +		.init_setup	= init_setup_opti621,
-> +		.init_chipset	= NULL,
-> +		.init_iops	= NULL,
+acenic.c: v0.92 08/05/2002  Jes Sorensen, linux-acenic@SunSITE.dk
+                            http://home.cern.ch/~jes/gige/acenic.html
+eth1: Alteon AceNIC Gigabit Ethernet at 0xfba00000, irq 3
+  Tigon II (Rev. 6), Firmware: 12.4.11, MAC: 00:60:cf:21:2a:78
+  PCI cache line size set incorrectly (64 bytes) by BIOS/FW, correcting to 128
+  PCI bus width: 64 bits, speed: 66MHz, latency: 240 clks
+  Disabling PCI memory write and invalidate
+eth1: Firmware NOT running!
+eth1: Alteon AceNIC Gigabit Ethernet at 0xfbb00000, irq 4
+  Tigon II (Rev. 6), Firmware: 12.4.11, MAC: 00:60:cf:21:2a:7c
+  PCI cache line size set incorrectly (64 bytes) by BIOS/FW, correcting to 128
+  PCI bus width: 64 bits, speed: 66MHz, latency: 240 clks
+  Disabling PCI memory write and invalidate
+eth1: Firmware NOT running!
+eth1: Alteon AceNIC Gigabit Ethernet at 0xfbc00000, irq 10
+  Tigon II (Rev. 6), Firmware: 12.4.11, MAC: 00:60:cf:21:27:df
+  PCI cache line size set incorrectly (64 bytes) by BIOS/FW, correcting to 128
+  PCI bus width: 64 bits, speed: 66MHz, latency: 240 clks
+  Disabling PCI memory write and invalidate
+eth1: Firmware NOT running!
+eth1: Alteon AceNIC Gigabit Ethernet at 0xfbc04000, irq 11
+  Tigon II (Rev. 6), Firmware: 12.4.11, MAC: 00:60:cf:21:27:e5
+  PCI cache line size set incorrectly (64 bytes) by BIOS/FW, correcting to 128
+  PCI bus width: 64 bits, speed: 66MHz, latency: 240 clks
+  Disabling PCI memory write and invalidate
+eth1: Firmware up and running
 
-Those two lines can be removed
 
-> +		.init_hwif	= init_hwif_opti621,
-> +		.init_dma	= init_dma_opti621,
-> +		.channels	= 2,
-> +		.autodma	= AUTODMA,
-> +		.enablebits	= {{0x45,0x80,0x00}, {0x40,0x08,0x00}},
-> +		.bootable	= ON_BOARD,
-> +		.extra		= 0,
+It appears the first three cards do not get the firmware up and running, while 
+the fourth one does, and is assigned eth1.  I swear I have seen this before, 
+but can't remember what the problem was.  Anybody know?  Also, an oops on 
+rmmod:
 
-This one as well
+Unable to handle kernel paging request at virtual address f8956140
+f891b562
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0060:[<f891b562>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286
+eax: f7c72000   ebx: 000003fc   ecx: 37d4a200   edx: f8956000
+esi: f7c72160   edi: 00000100   ebp: f7c72000   esp: f6821f84
+ds: 0068   es: 0068   ss: 0068
+Stack: f891b000 fffffff0 f891b000 bfffe6fc c0116e53 f891b000 fffffff0 f6845000
+       bfffe6fc c011639f f891b000 00000000 f6820000 0805fbf4 bfffe6dc c010874f
+       bffff8f2 08067008 00000100 0805fbf4 bfffe6dc bfffe6fc 00000081 0000002b
+Call Trace: [<c0116e53>]  [<c011639f>]  [<c010874f>]
+Code: 8b 82 40 01 00 00 0d 00 00 01 00 89 82 40 01 00 00 83 7e 14
 
->  	},{	/* 1 */
-> -		vendor:		PCI_VENDOR_ID_OPTI,
-> -		device:		PCI_DEVICE_ID_OPTI_82C825,
-> -		name:		"OPTI621X",
-> -		init_setup:	init_setup_opti621,
-> -		init_chipset:	NULL,
-> -		init_iops:	NULL,
-> -		init_hwif:	init_hwif_opti621,
-> -                init_dma:	init_dma_opti621,
-> -		channels:	2,
-> -		autodma:	AUTODMA,
-> -		enablebits:	{{0x45,0x80,0x00}, {0x40,0x08,0x00}},
-> -		bootable:	ON_BOARD,
-> -		extra:		0,
-> +		.vendor		= PCI_VENDOR_ID_OPTI,
-> +		.device		= PCI_DEVICE_ID_OPTI_82C825,
-> +		.name		= "OPTI621X",
-> +		.init_setup	= init_setup_opti621,
-> +		.init_chipset	= NULL,
-> +		.init_iops	= NULL,
+>>EIP; f891b562 <END_OF_CODE+384afc46/????>   <=====
+Trace; c0116e52 <free_module+16/98>
+Trace; c011639e <sys_delete_module+ea/1b0>
+Trace; c010874e <syscall_call+6/a>
+Code;  f891b562 <END_OF_CODE+384afc46/????>
+00000000 <_EIP>:
+Code;  f891b562 <END_OF_CODE+384afc46/????>   <=====
+   0:   8b 82 40 01 00 00         mov    0x140(%edx),%eax   <=====
+Code;  f891b568 <END_OF_CODE+384afc4c/????>
+   6:   0d 00 00 01 00            or     $0x10000,%eax
+Code;  f891b56c <END_OF_CODE+384afc50/????>
+   b:   89 82 40 01 00 00         mov    %eax,0x140(%edx)
+Code;  f891b572 <END_OF_CODE+384afc56/????>
+  11:   83 7e 14 00               cmpl   $0x0,0x14(%esi)
 
-Ditto
 
-> +		.init_hwif	= init_hwif_opti621,
-> +                .init_dma	= init_dma_opti621,
-> +		.channels	= 2,
-> +		.autodma	= AUTODMA,
-> +		.enablebits	= {{0x45,0x80,0x00}, {0x40,0x08,0x00}},
-> +		.bootable	= ON_BOARD,
-> +		.extra		= 0,
 
-Ditto
+Thanks,
 
->  	},{
-> -		vendor:		0,
-> -		device:		0,
-> -		channels:	0,
-> -		bootable:	EOL,
-> +		.vendor		= 0,
-> +		.device		= 0,
-> +		.channels	= 0,
-> +		.bootable	= EOL,
->  	}
-
-Here a { .bootable = EOL, } would do it, no need for the others
-
-Ditto for the other patches that I just snipped
-
-- Arnaldo
+Andrew Theurer

@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264245AbTCXPwb>; Mon, 24 Mar 2003 10:52:31 -0500
+	id <S264253AbTCXPz0>; Mon, 24 Mar 2003 10:55:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264252AbTCXPwb>; Mon, 24 Mar 2003 10:52:31 -0500
-Received: from smtp3.wanadoo.fr ([193.252.22.27]:11066 "EHLO
-	mwinf0404.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S264245AbTCXPwb>; Mon, 24 Mar 2003 10:52:31 -0500
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: 2.5 AGP no good (VIA KT333, radeon 7500)
-Date: Mon, 24 Mar 2003 17:03:25 +0100
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	id <S264254AbTCXPz0>; Mon, 24 Mar 2003 10:55:26 -0500
+Received: from files.ssi.bg ([217.79.71.21]:50953 "HELO files.ssi.bg")
+	by vger.kernel.org with SMTP id <S264253AbTCXPzZ>;
+	Mon, 24 Mar 2003 10:55:25 -0500
+Date: Mon, 24 Mar 2003 18:01:25 +0200
+From: Alexander Atanasov <alex@ssi.bg>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux@brodo.de, linux-kernel@vger.kernel.org,
+       B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: ide: indeed, using list_for_each_entry_safe removes endless
+ looping / hang [Was: Re: 2.5.65-ac2 -- hda/ide trouble on ICH4]
+Message-Id: <20030324180125.2606b046.alex@ssi.bg>
+In-Reply-To: <1048514373.25136.4.camel@irongate.swansea.linux.org.uk>
+References: <Pine.LNX.4.21.0303241129420.855-100000@mars.zaxl.net>
+	<1048514373.25136.4.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303241703.25873.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Friday 21 March 2003 16:38, you wrote:
-> > On Fri, Mar 21, 2003 at 04:15:28PM +0100, Duncan Sands wrote:
-> >  > X-windows starts, but the picture is horribly torn, only the grey
-> >  > stipple pattern is recognizable.  Any thoughts?  Or should I start a
-> >  > binary search for the last version that worked?
-> >
-> > Strange, and this only happens when you have agpgart loaded ?
+	Hello,
+
+On 24 Mar 2003 13:59:33 +0000
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+
+> On Mon, 2003-03-24 at 09:55, Alexander Atanasov wrote:
+> > i can't reproduce the hang but it seems that drives without driver
+> > can get both in ata_unused and idedefault_driver.drives and lists go
+> > nuts. It kills ata_unused and uses idedefault_driver.drives only,
+> > boots fine here. I'd guess you have ide-cd as module, and the two
+> > drives handled by it couse the trouble - first joins the lists
+> > second couses the loop.
 > 
-> It was a BIOS problem: I flashed it, and the problem has gone
-> (the agpgart: Putting AGP V2 device at 00:00.0 into 1x mode
-> messages have gone too).  The strange thing is, there was no
-> problem with 2.4 even before flashing the BIOS.
+> We need to know the difference between the two really so I would much
+> rather ensure we don't end up on both lists at once (which is a bug)
+> than lose a list
+> 
 
-It was not a BIOS problem.  I just went back to an earlier BK tree
-and the problem reappeared.  I must have updated the BK tree
-between tests.  Sorry for the misleading information.
+	I don't understand, what's the difference and how the list is lost?
+ata_unused used to hold all drives that were not claimed by any driver,
+now idedefault_driver claims all that drives, all drives go in the .list
+of its driver. ide_register_driver wants to take all unused drives and
+attach them to the newly registered driver, so take all drives that use
+idedefault_driver, and try, if they fail to find a driver they end up
+again with the same driver and list (idedefault_driver). I think
+idedefault_driver.list and ata_unused became dublicates, and the proper
+place is to hold drives with no real driver is idedefault_driver, so the
+patch. list from ata_unused becomes idedefault_driver.list, and does
+exactly the same as ata_unused. I want to understand where i'm wrong, 
+please?
 
-Duncan.
+The bug is there,  and waiting to explode, keeping both lists would mean to 
+add one more  list head  in ide_drive_t,  is that the fix you want?
+
+--
+have fun,
+alex
+ 

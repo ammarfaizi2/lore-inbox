@@ -1,89 +1,71 @@
 Return-Path: <linux-kernel-owner+ralf=40uni-koblenz.de@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S317269AbSHHClU>; Wed, 7 Aug 2002 22:41:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S317279AbSHHClU>; Wed, 7 Aug 2002 22:41:20 -0400
-Received: from hawk.alarit.com ([193.201.100.234]:12548 "EHLO hawk") by vger.kernel.org with ESMTP id <S317269AbSHHClS>; Wed, 7 Aug 2002 22:41:18 -0400
-From: "Alex Kotov" <software@alarit.com>
-Reply-To: "Alex Kotov" <software@alarit.com>
-To: linux-kernel@vger.kernel.org
-Subject: Virtual Serial Driver 
-MIME-Version: 1.0 
-Content-type: multipart/mixed; boundary="Boundary 3D51DD40" 
-Message-Id: <20020808024118Z317269-685+26181@vger.kernel.org>
-Date: Wed, 7 Aug 2002 22:41:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S319264AbSH2QtL>; Thu, 29 Aug 2002 12:49:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S319270AbSH2QtL>; Thu, 29 Aug 2002 12:49:11 -0400
+Received: from [212.175.170.66] ([212.175.170.66]:1757 "HELO lycos.co.uk") by vger.kernel.org with SMTP id <S319264AbSH2QtK>; Thu, 29 Aug 2002 12:49:10 -0400
+Reply-To: <advice4n87yh87y@lycos.co.uk>
+Message-ID: <022e55d02c4c$7478d4c5$3dc23cb8@xdcham>
+From: <advice4n87yh87y@lycos.co.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: 90 Day Trial                                   
+Date: Thu, 29 Aug 0102 08:43:28 +1100
+MiME-Version: 1.0
+Content-Type: multipart/mixed; boundary="----=_NextPart_000_00D1_07E20E7C.C0624C36"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+X-Spam-Flag: YES
+X-Spam-Report: 26.3 hits, 5 required; * -1.0 -- Found a X-Mailing-List header *  4.3 -- MiME-Version header (oddly capitalized) *  4.0 -- Subject contains lots of white space *  2.6 -- From: contains numbers mixed in with letters *  1.1 -- Invalid Date: year begins with zero *  0.5 -- From: does not include a real name *  4.0 -- BODY: Says: "to be removed, reply via email" or similar *  2.9 -- BODY: Claims you can be removed from the list *  1.1 -- BODY: A word in all caps repeated on the line *  1.0 -- BODY: Free Offer *  1.0 -- BODY: Sign up Free Today *  1.0 -- BODY: Satisfaction Guaranteed *  2.1 -- Message text disguised using base-64 encoding *  1.0 -- Message has X-MSMail-Priority, but no X-MimeOLE *  0.7 -- Date: is 3 to 6 hours before Received: date
 
---Boundary 3D51DD40
-Content-type: text/plain; charset=iso-8859-1
-
-	 
-Good day!
-
-Our company ( www.alarit.com ) offers software for developers  - 
-"Virtual Serial Driver". If you are dealing with development 
-in area of serial streams our new product can help you in your work.
-
-Virtual Serial Driver is appointed for emulation of one, two 
-or more (up to 200) serial streams. Hardware devices are not necessary. 
-This product is based on Windows XP DDK and doesn’t require using 
-devices of other manufacturers. The whole product is created 
-with the help of Microsoft tools.
-Virtual Serial Driver realizes full emulation of Serial Port functions, 
-connected with each other with the help of NULL-MODEM or full cable, 
-including DTR, CTS, DSR, RTS.
-Virtual Serial Driver can be interesting for software (Windows 
-Platforms) developers, who use external devices connected with computer 
-by serial port. Also, it will be interesting for developers 
-of the products appointed for connection of two or more computers 
-through serial ports. 
+------=_NextPart_000_00D1_07E20E7C.C0624C36
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: base64
 
 
-More details and free demo version (only 28 kb) available at
-http://www.alarit.com/index.php?pg=products&subpg=p_afsd
-
-Also if you are or know somebody who may be interested in such software 
-just let us know and you can earn 20% comission from each sold copy
-as our reseller.
-
-
-Regards 
-Alex Kotov
-AlarIT Inc.
-Products manager
-E-mail: software@alarit.com
-Telephone: +380-61-234-8109
-Telephone-fax: +380-61-234-5457
-
-P.S. our team of 120 full time programmers can develop any individual 
-solution for you for fee 10 USD per hour. For more information 
-take a look at http://www.alarit.com
-
----------------------------------------------------------------
-Anti-spam policy :
-Your e-mail was taken from open sources. Sorry if you are not
-interested in receiving of our information.
-In this case please visit the following link to be removed from 
-mailing list:
-http://193.201.100.234/nocafe.php?em=linux-kernel@vger.kernel.org
-Sorry again for disturbing. 
-
---Boundary 3D51DD40
-Content-type: text/plain; name="disclaimer.txt" 
-Content-disposition: attachment; filename="disclaimer.txt" 
-Content-transfer-encoding: base64 
-
-VGhpcyBlLW1haWwgYW5kIGFueSBmaWxlcyB0cmFuc21pdHRlZCB3aXRoIGl0IGFyZSBjb25maWRl
-bnRpYWwgKGFuZCBtYXkNCmNvbnRhaW4gcHJpdmlsZWdlZCBpbmZvcm1hdGlvbikgdG8gdGhlIG9y
-ZGluYXJ5IHVzZXIgb2YgdGhlIGUtbWFpbCBhZGRyZXNzIHRvDQp3aGljaCBpdCB3YXMgYWRkcmVz
-c2VkIGFuZCBtdXN0IG5vdCBiZSBjb3BpZWQsIGRpc2Nsb3NlZCBvciBkaXN0cmlidXRlZCB3aXRo
-b3V0DQp0aGUgcHJpb3IgYXV0aG9yaXNhdGlvbiBvZiB0aGUgc2VuZGVyLlBsZWFzZSBub3RpZnkg
-dGhlIHNlbmRlciBhbmQgZGVzdHJveSB0aGlzDQplLW1haWwgaW1tZWRpYXRlbHkgaWYgeW91IGFy
-ZSBub3QgdGhlIGludGVuZGVkIHJlY2lwaWVudC4gUGxlYXNlIGFsc28gbm90ZSB0aGF0DQp3aGls
-ZSBvdXIgb3duIHNvZnR3YXJlIHN5c3RlbXMgaGF2ZSBiZWVuIHVzZWQgdG8gdHJ5IHRvIGVuc3Vy
-ZSB0aGF0IHRoaXMgZS1tYWlsDQpoYXMgYmVlbiBzd2VwdCBmb3IgdmlydXNlcyB3ZSBkbyBub3Qg
-YWNjZXB0IHJlc3BvbnNpYmlsaXR5IGZvciBhbnkgZGFtYWdlIG9yDQpsb3NzIGNhdXNlZCBpbiBy
-ZXNwZWN0IG9mIGFueSB2aXJ1c2VzIHRyYW5zbWl0dGVkIGJ5IHRoZSBlLW1haWwuIFBsZWFzZSBl
-bnN1cmUNCnlvdXIgb3duIGNoZWNrcyBhcmUgY2FycmllZCBvdXQgYmVmb3JlIGFueSBhdHRhY2ht
-ZW50cyBhcmUgb3BlbmVkLg==
-
---Boundary 3D51DD40--
+OTAgRGF5IFRyaWFsIE9mZmVyICENCg0KSW52ZXN0b3JzIEVkZ2UgSW50ZXJu
+YXRpb25hbCBoYXMgYSBzdG9jaywgYW5kIG9wdGlvbiBzZXJ2aWNlIHRoYXQg
+aXMgbWFraW5nIA0KbGVhcHMgaW4gdGhpcyB2b2xhdGlsZSBtYXJrZXQuIFdl
+IGhhdmUgYSBzdG9jayBzZXJ2aWNlIG9yIG9wdGlvbiBzZXJ2aWNlIA0KZm9y
+IDk1IGRvbGxhcnMgYSBtb250aC4gT3IgeW91IG1heSBnZXQgYm90aCBzZXJ2
+aWNlcyBmb3IgMTUwIGRvbGxhcnMgYSBtb250aC4gDQpIZXJlYHMgaG93IGl0
+IHdvcmtzLiBZb3UgcGF5IDk1IGRvbGxhcnMgZm9yIGVpdGhlciBzZXJ2aWNl
+IG9yIDE1MCBkb2xsYXJzIA0KZm9yIGJvdGggc2VydmljZXMsIGFuZCB5b3Ug
+d2lsbCBub3QgYmUgYmlsbGVkIGFnYWluIGZvciA5MCBkYXlzLiBUaGF0IGdp
+dmVzIA0KeW91IDMgbW9udGhzIHRvIHNlZSBob3cgZ29vZCBvdXIgYW5hbHlz
+dHMgYXJlLiBJZiB5b3UgYXJlIHNhdGlzZmllZCB3ZSB3aWxsIA0KYmlsbCB5
+b3UgbW9udGhseSBhZnRlciB5b3VyIDkwIGRheSB0cmlhbCBwZXJpb2QuIElm
+IHlvdSBhcmUgbm90IHNhdGlzZmllZCANCndlIHdpbGwgbm90IGJpbGwgYWZ0
+ZXIgOTAgZGF5cy4gV2UgZ3VhcmFudGVlIHlvdSAyIHJlY29tbWVuZGF0aW9u
+cyBhIHdlZWsgDQpmb3IgZWFjaCBzZXJ2aWNlLiBUaGF0IG1lYW5zIDggcmVj
+b21tZW5kYXRpb25zLCBvciAxNiByZWNvbW1lbmRhdGlvbnMgYSANCm1vbnRo
+IGlmIHlvdSBjaG9vc2UgYm90aCBzZXJ2aWNlcy4gV2Ugd291bGQgZ3Vlc3Mg
+YSB0cmFjayByZWNvcmQgb2Ygc29tZSANCnR5cGUgaXMgaW4gb3JkZXIuIFNv
+IGhlcmVgcyBhIHRyYWNrIHJlY29yZCBmb3IgZWFjaCBzZXJ2aWNlIHRoZSBs
+YXN0IDMwIGRheXMuDQoNCg0KDQpGaXJzdCBvdXIgc3RvY2sgc2VydmljZSBy
+ZXN1bHRzIGFyZTogQXQmVChUKSA5LjcwLTEyLjMwICsyNyUsQ29tY2FzdChD
+TUNTSykgMjEuOTAtMjQuMjUgKzEyJSwgDQpDaXNjbyBTeXN0ZW1zKENTQ08p
+IDEyLjUwLTE0Ljc1ICsxNSUsIE9yYWNsZSA5LjYwLTEwLjkzICsxMyUsIA0K
+QXBwbGllZCBNYXRlcmlhbHMoQU1BVCkgMTQuMDAtMTUuNDcgKzExJSwgT2Zm
+aWNlIERlcG90IDEzLjUwLTE0LjY5ICs5JS4gDQoNCk5vdCBiYWQgZm9yIHRo
+ZSBsYXN0IDMwIGRheXMuDQoNCk91ciBvcHRpb24gc2VydmljZSBpcyBhIGxp
+dHRsZSBtb3JlIGltcHJlc3NpdmUuDQoNClF3ZXN0KFEgVEEpIDMuMzAtMy41
+MCArMyUsTmFzZGFxKFFBViBUVykgLjc1LTEuNzAgKzEyNSUsIE5hc2RhcShR
+QVYgVFgpIDEuMTAtMi4yNSArMTA1JSwgDQpUeWNvIChUWUMgVEMpIDIuMzUt
+NC4xMCArNzIlLCBBT0woQU9MIFVCKSAuODAtMS40MCArODAlLCBBT0woQU9M
+IFZVKSAuNTAtLjgwICs2MCUuDQoNCk5lZWQgd2Ugc2F5IG1vcmUhIFBheSBv
+bmNlIGFuZCBkb25gdCBwYXkgZm9yIDkwIGRheXMuIE91ciBhbmFseXN0cyBh
+cmUgZWFnZXIgdG8gc2hvdyB5b3UsIA0KYW5kIG91ciBjb25zdWx0YW50cyBh
+cmUgZWFnZXIgdG8gc2VydmUgeW91Lg0KDQpEb25gdCBkZWxheSBTSUdOIFVQ
+IFRPREFZIQ0KDQoNCg0KV2VsY29tZSAsDQoNClRoZSBFZGdlIFRlYW0gODAw
+LTQwOS05OTE4DQoNCg0KDQoNCg0KDQoNCg0KVG8gQmUgUmVtb3ZlZCBQbGVh
+c2UgU2VuZCBFbWFpbCBUbyBvcHRvdXQyQG15ZW1haWxib3guY29tDQo0MzU2
+RWtaRzEtNjE2RVB3TzY2NjV1Y1lHMi00MzR0VGFJMjc1NnpQSkQ4LTk2MW1R
+QWkzNzY2dmw1Mw==
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+------=_NextPart_000_00D1_07E20E7C.C0624C36--

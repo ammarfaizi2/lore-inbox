@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbUKCKOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbUKCK3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbUKCKOl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 05:14:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbUKCKOl
+	id S261501AbUKCK3t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 05:29:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbUKCK3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 05:14:41 -0500
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:19319 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261506AbUKCKOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 05:14:39 -0500
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.6.8
-Date: Wed, 3 Nov 2004 11:15:49 +0100
-User-Agent: KMail/1.6.2
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
-References: <1099227269.1459.45.camel@krustophenia.net> <200411030009.53343.annabellesgarden@yahoo.de> <20041103011254.GA16884@elte.hu>
-In-Reply-To: <20041103011254.GA16884@elte.hu>
+	Wed, 3 Nov 2004 05:29:49 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:50701 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261501AbUKCK3s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 05:29:48 -0500
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       vlobanov <vlobanov@speakeasy.net>
+Subject: Re: [TRIVIAL PATCH] /init/version.c
+Date: Wed, 3 Nov 2004 12:29:31 +0200
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0411022359001.17128@shell2.speakeasy.net> <Pine.LNX.4.53.0411030929140.26206@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.53.0411030929140.26206@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200411031115.49486.annabellesgarden@yahoo.de>
+Content-Disposition: inline
+Message-Id: <200411031229.31412.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch 03 November 2004 02:12 schrieb Ingo Molnar:
+On Wednesday 03 November 2004 10:29, Jan Engelhardt wrote:
+> >Hi,
+> >
+> >After looking over the MAINTAINERS file, I have no idea who the right
+> >point of contact / maintainer is for this code. (Or, I simply missed the
+> >right entry while reading, which has been known to happen.) Please advise.
 > 
-> * Karsten Wiese <annabellesgarden@yahoo.de> wrote:
-> 
-> > Am Dienstag 02 November 2004 16:06 schrieb Ingo Molnar:
-> > > i've uploaded a fixed kernel (-V0.6.8) to:
-> > >
-> > >   http://redhat.com/~mingo/realtime-preempt/
-> > >
-> > > (this kernel also has the module-put-unlock-kernel fix that should solve
-> > > the other warning reported by Thomas and Bill.)
-> > >
-> > > 	Ingo
-> > 
-> > Fixed a deadlock in snd-es1968 with attached patch.
-> 
-> thanks. This is a (SMP-only) bug in the vanilla driver too, correct?
+> As stated in the MAINTAINERS file at the end, everything else goes to Linus.
 
-Yes. I sent the patch to alsa-devel too.
+However, I suspect it won't even compile.
 
-Karsten
+See:
+http://lxr.linux.no/source/init/main.c?v=2.6.8.1#L76
+http://lxr.linux.no/source/fs/proc/proc_misc.c?v=2.6.8.1#L253
+--
+vda
+

@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264883AbUAFSdS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 13:33:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265083AbUAFSbm
+	id S265056AbUAFS0U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 13:26:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265061AbUAFS0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 13:31:42 -0500
-Received: from [212.28.208.94] ([212.28.208.94]:38159 "HELO dewire.com")
-	by vger.kernel.org with SMTP id S265080AbUAFSax (ORCPT
+	Tue, 6 Jan 2004 13:26:19 -0500
+Received: from smtp2.libero.it ([193.70.192.52]:15235 "EHLO smtp2.libero.it")
+	by vger.kernel.org with ESMTP id S265056AbUAFS0N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 13:30:53 -0500
-From: Robin Rosenberg <roro.l@dewire.com>
-To: linux-kernel@vger.kernel.org
-Subject: USB timeout  Canon Powsrshot S30
-Date: Tue, 6 Jan 2004 19:27:00 +0100
-User-Agent: KMail/1.5.3
+	Tue, 6 Jan 2004 13:26:13 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401061927.00833.roro.l@dewire.com>
+Message-ID: <16378.65140.114558.996798@gargle.gargle.HOWL>
+Date: Tue, 6 Jan 2004 19:29:08 +0100
+To: Duncan Sands <baldrick@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: speedtouch for 2.6.0
+In-Reply-To: <200312301702.26973.baldrick@free.fr>
+References: <16366.61517.501828.389749@gargle.gargle.HOWL>
+	<200312300911.02044.baldrick@free.fr>
+	<16369.40927.110483.701341@gargle.gargle.HOWL>
+	<200312301702.26973.baldrick@free.fr>
+X-Mailer: VM 7.03 under Emacs 21.2.1
+From: "Guldo K" <guldo@tiscali.it>
+Reply-to: "Guldo K" <guldo@tiscali.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ > Maybe you should start with 2.4 and not 2.6.
 
-I'm having problem with retrieving av big avi from my camera. I get a timeout. The avi is just above 10MB which
-is about as large as it can be. Retrieving the thumbinail works fine. This is what comes in the log with USB_DEBUG set.
+Thanks for your help.
 
-The camera uses PTP for picture transfer, not USB Mass Storage. I have not had any problems with this camera before,
-but I have not had larger files that ~5MB either. The same problem occurs with any kernel (2.4 mandrake, 2.6 vanilla 
-or 2.6 mandrake). 
+I compiled 2.4.22, and tried to install speedbundle;
+but it looks like I still have the very same error
+messages... I'd try and understand what kernel headers
+*are* (sorry), but in the meantime I switched back to
+the user driver.
+One more thing to ask you: I discarded all the config
+made for the kernel driver (I think so...), but as I plug
+my modem in, the speedtch module is loaded.
+I have to unload it in order to get modem_run to work
+properly with the user driver.
+Why is it so? How can I make speedtch not to be loaded
+automatically, if I can?
+(without recompiling the kernel)
 
-Can I change the timeout somehow? There are lots of modules and I'm not sure which one is responsible for what. 
+Thank you very much!
 
-Jan  6 12:28:28 h6n2fls33o811 kernel: drivers/usb/core/usb.c: registered new driver usbfs
-Jan  6 12:28:28 h6n2fls33o811 kernel: drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface driver v2.1
-Jan  6 12:28:28 h6n2fls33o811 kernel: uhci_hcd 0000:00:07.2: new USB bus registered, assigned bus number 1
-Jan  6 12:28:28 h6n2fls33o811 kernel: hub 1-0:1.0: USB hub found
-Jan  6 12:28:02 h6n2fls33o811 usb: Initierar USB-kontroller (usb-uhci):  succeeded 
-Jan  6 12:28:03 h6n2fls33o811 usb: Monterar USB-filsystem succeeded 
-Jan  6 12:33:45 h6n2fls33o811 kernel: hub 1-0:1.0: new USB device on port 2, assigned address 2
-Jan  6 12:33:57 h6n2fls33o811 kernel: usb 1-2: bulk timeout on ep3in
+ > Ciao,
+ > 
+ > Duncan.
 
-(The occasional swedish i18in is I believe close enough to the english original to be understood, but I don't like editing logs).
+Ciao,
 
--- robin
-
-
+*Guldo*
 

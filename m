@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289017AbSAZEeL>; Fri, 25 Jan 2002 23:34:11 -0500
+	id <S289020AbSAZEsD>; Fri, 25 Jan 2002 23:48:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289020AbSAZEdz>; Fri, 25 Jan 2002 23:33:55 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:34025 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S289017AbSAZEdu>;
-	Fri, 25 Jan 2002 23:33:50 -0500
-Date: Fri, 25 Jan 2002 23:33:44 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Dan Maas <dmaas@dcine.com>, Andreas Schwab <schwab@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] ACPI mentioned on lwn.net/kernel
-In-Reply-To: <20020126034559.G5730@kushida.apsleyroad.org>
-Message-ID: <Pine.GSO.4.21.0201252327001.27397-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289021AbSAZErx>; Fri, 25 Jan 2002 23:47:53 -0500
+Received: from taifun.devconsult.de ([212.15.193.29]:14602 "EHLO
+	taifun.devconsult.de") by vger.kernel.org with ESMTP
+	id <S289020AbSAZErn>; Fri, 25 Jan 2002 23:47:43 -0500
+Date: Sat, 26 Jan 2002 05:47:40 +0100
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: Rob Landley <landley@trommello.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Really odd behavior of overlapping named pipes?
+Message-ID: <20020126054740.A30571@devcon.net>
+Mail-Followup-To: Rob Landley <landley@trommello.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020126021610.YKAU20810.femail29.sdc1.sfba.home.com@there>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020126021610.YKAU20810.femail29.sdc1.sfba.home.com@there>; from landley@trommello.org on Fri, Jan 25, 2002 at 01:13:58PM -0500
+Organization: dev/consulting GmbH
+X-NCC-RegID: de.devcon
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 26 Jan 2002, Jamie Lokier wrote:
-
-> I once wrote a Perl script that needed to know the current directory.
-> It did:
+On Fri, Jan 25, 2002 at 01:13:58PM -0500, Rob Landley wrote:
 > 
->    use POSIX 'getcwd'
->    getcwd(...)
+> int pipes[2];
 > 
-> After a few months, I was annoyed by the slowness of this script
-> (compared with other scripts) and decided to try speeding it up.  It
-> turns out that the above two lines took about 0.25 of a second, and that
-> was the dominant running time of the script.
+> pipe(pipes)
+> dup2(pipes[0],0);
+> close(pipes[0]);
 > 
-> I replaced getcwd() with `/bin/pwd`.  Lo!  It took about 0.0075 second.
-> 
-> Says very good things about Linux' fork, exec and mmap times, and about
-> Glibc's dynamic loading time, I think.
+> Boom: the pipe is no longer usable.  The stdin instance of it is closed too.  
+> Read from it you get an error.  (But if I DON'T close it, I'm leaking file 
+> handles, aren't I?  AAAAAAAAH!)
 
-Most likely it says very bad things about getcwd() implementation in Perl
-compared to sys_getcwd() in the kernel.  The latter just walks the chain
-of dentries copying ->d_name.name into the buffer.  The former... my guess
-would be stat ".", open "..", readdir from it, stat every damn object in
-there until you find one with the right ->st_ino, put its name as the
-last component and repeat the whole thing until you reach root...
+Did you close stdin before the pipe()? If so, the read end of the pipe
+will get descriptor 0, the dup2() has actually no effect, and with the
+close() you just closed stdin again.
 
+Andreas
+-- 
+       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
+     ---------------------------------------------------------
+         +49 521 1365800 - af@devcon.net - www.devcon.net

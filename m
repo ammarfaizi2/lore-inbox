@@ -1,73 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312498AbSEUKK1>; Tue, 21 May 2002 06:10:27 -0400
+	id <S312526AbSEUKOI>; Tue, 21 May 2002 06:14:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312526AbSEUKK0>; Tue, 21 May 2002 06:10:26 -0400
-Received: from unet4-131.univie.ac.at ([131.130.233.131]:1152 "EHLO server.lan")
-	by vger.kernel.org with ESMTP id <S312498AbSEUKKZ>;
-	Tue, 21 May 2002 06:10:25 -0400
-From: Melchior FRANZ <a8603365@unet.univie.ac.at>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.5.17: compile error: sound/driver/opl3/opl3_oss.c 
-Date: Tue, 21 May 2002 12:05:08 +0200
-User-Agent: KMail/1.4.5
-X-PGP: http://www.unet.univie.ac.at/~a8603365/melchior.franz
+	id <S312558AbSEUKOH>; Tue, 21 May 2002 06:14:07 -0400
+Received: from sproxy.gmx.de ([213.165.64.20]:37644 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S312526AbSEUKOG>;
+	Tue, 21 May 2002 06:14:06 -0400
+Message-ID: <3CEA1DE8.6080201@gmx.at>
+Date: Tue, 21 May 2002 12:14:00 +0200
+From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:0.9.9) Gecko/20020412 Debian/0.9.9-6
+X-Accept-Language: en, de-at, de
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200205211205.09824@pflug3.gphy.univie.ac.at>
+To: alex-n@ua.fm
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BUG?
+In-Reply-To: <web-10136453@ua.fm>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is now the third or fourth kernel in a row that exhibits the same
-compile error. The configuration is as follows:
+alex-n@ua.fm wrote:
+> Dear Sirs,
+> this can be lamer's question (I'm sorry rite now!), but...
+> 
+> The report itself is:
+> 
+> ################################################################################
+> 
+> [1.] Linux crashes at the 'interactive startup' boot stage.
+> 
+> [2.] Once the system is trying to boot, first stage (which is
+>      *before* msg 'Interactive startup') it is all O.K. Once the
+>      'Interactive startup' stage begins, the bootstrap process
+>      fails with diffirent msgs; all of them begins with "Unable
+>      to handle kernel paging request at address..." or "Unable
+>      to handle kernel dereference at address..." (first 'reason'
+>      is in the majority of cases, the second is quite unusual).
+> 
+>      It seems to me that this is a trouble with initrd.img,
+>      because once I've recompiled kernel with ALL OPTIONS (not
+>      suitable to my hardware, i.e. SCSI adapters) turned OFF,
+>      the problem remains.
+[snip]
 
-  CONFIG_SOUND=m
-  CONFIG_SND=m
-  CONFIG_SND_SEQUENCER=m                      <====  [1]
-  # CONFIG_SND_OSSEMUL is not set
-  # CONFIG_SND_RTCTIMER is not set
-  CONFIG_SND_VERBOSE_PRINTK=y
-  CONFIG_SND_DEBUG=y
-  CONFIG_SND_DEBUG_MEMORY=y
-  CONFIG_SND_DEBUG_DETECT=y
-  CONFIG_SND_MPU401=m
-  CONFIG_SND_CS4232=m
-  CONFIG_SND_CS4236=m
-  CONFIG_SND_OPL3SA2=m
+2.4.7 does not have some VIA chipset workarounds that caused oopses when 
+the kernel was compiled with K7 optimization. So set the optimization to 
+AMD K6 or use a more recent kernel version. I think 2.4.16 and later 
+versions have fixed this problem.
 
-
-And that's what I get during "make modules":
-
-  gcc -D__KERNEL__ -I/usr/src/linux-2.5.17/include -Wall -Wstrict-prototypes \
-    -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common \
-    -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE \
-    -DKBUILD_BASENAME=opl3_oss -c -o opl3_oss.o opl3_oss.c
-  opl3_oss.c:25: parse error before `*'
-  opl3_oss.c:25: warning: function declaration isn't a prototype
-  opl3_oss.c:26: parse error before `*'
-  opl3_oss.c:26: warning: function declaration isn't a prototype
-  opl3_oss.c:27: parse error before `*'
-  opl3_oss.c:27: warning: function declaration isn't a prototype
-  opl3_oss.c:28: parse error before `*'
-  opl3_oss.c:28: warning: function declaration isn't a prototype
-  opl3_oss.c:29: parse error before `*'
-  opl3_oss.c:29: warning: function declaration isn't a prototype
-  opl3_oss.c:49: parse error before `oss_callback'
-  opl3_oss.c:49: warning: type defaults to `int' in declaration of `oss_callback'
-  opl3_oss.c:50: unknown field `owner' specified in initializer
-  opl3_oss.c:50: warning: initialization makes integer from pointer without a cast
-  opl3_oss.c:51: unknown field `open' specified in initializer
-  opl3_oss.c:51: warning: excess elements in scalar initializer
-  [lots of further similar errors]
-
-
-Seems that there are some header definitions missing, such as
-sound/core/seq/oss/seq_oss_device.h and others.
-
-[1]  The kernel compiles if I unset CONFIG_SND_SEQUENCER.
-
-m.
+hope this helps,
+Wilfried
 

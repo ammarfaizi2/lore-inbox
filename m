@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262308AbUBXRMz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 12:12:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbUBXRMe
+	id S262307AbUBXRSW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 12:18:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbUBXRRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 12:12:34 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33726 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262308AbUBXRJI
+	Tue, 24 Feb 2004 12:17:13 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37566 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262307AbUBXRKp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 12:09:08 -0500
-Date: Tue, 24 Feb 2004 17:09:06 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: "Steven J. Hill" <sjhill@realitydiluted.com>
-Cc: Jeremy Higdon <jeremy@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] 2.6.2, Partition support for SCSI CDROM...
-Message-ID: <20040224170906.GQ25779@parcelfarce.linux.theplanet.co.uk>
-References: <40396134.6030906@realitydiluted.com> <20040222190047.01f6f024.akpm@osdl.org> <40396E8F.4050307@realitydiluted.com> <20040224061130.GC503530@sgi.com> <403B8108.6080606@realitydiluted.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <403B8108.6080606@realitydiluted.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 24 Feb 2004 12:10:45 -0500
+Message-ID: <403B8587.3030009@pobox.com>
+Date: Tue, 24 Feb 2004 12:10:31 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Henrik Gustafsson <henrik.gustafsson@fnord.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Promise SATA driver
+References: <200402241110.07526.andrew@walrond.org> <20040224154446.GA28720@ee.oulu.fi> <403B73E3.80100@pobox.com> <200402241630.36105.andrew@walrond.org> <403B8028.1060700@pobox.com> <opr3vv7qk4uwbm4s@localhost>
+In-Reply-To: <opr3vv7qk4uwbm4s@localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 11:51:20AM -0500, Steven J. Hill wrote:
-> +/*
-> + * Device node mappings are as follows:
-> + *
-> + *    sr0 - first CDROM, whole disk
-> + *    sr1 - first CDROM, first partition
-> + *
-> + *    [...]
-> + *
-> + *    sr16 - first CDROM, sixteenth partition
-> + *    sr17 - second CDROM, whole disk
-> + *    sr18 - second CDROM, first partition
+Henrik Gustafsson wrote:
+> On Tue, 24 Feb 2004 11:47:36 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
+> 
+>> Andrew Walrond wrote:
+>>
+>>> I take it the software raid thing wasn't part of the gpl'ed driver, 
+>>> and isn't something that is likely to happen?
+>>
+>>
+>>
+>> In 2.4, RAID0 and RAID1 are supported via the pdcraid driver.
+>>
+>> In 2.6, Promise software RAID support does not exist.  In 
+>> conversations with Promise, we all agreed to encourage and support the 
+>> standard Linux RAID, md.
+>>
+>>     Jeff
+> 
+> 
+> Does that apply to the FastTrack S150 SX4 aswell? The hardware 
+> XOR-engine will not be used?
+> What about the onboard cache?
 
-Umm... no.  I suspect you mean:
 
-sr15 - first CDROM, fifteenth partition
-sr16 - second CDROM, whole disk
-sr17 - second CDROM, first partition
+I'm glad you asked.
 
-But what a bad idea for device names.  Why not
+The SX4 is a very different story.  The hardware XOR engine and on-board 
+cache are not currently used, but they will be in the future.
 
-sr0 whole disc
-sr0a ... sr0o partitions
-sr1, sr1a ... sr1o
+For the TX series, there is no on-board cache, so hardware XOR engine 
+isn't very useful.  For the SX series, it is very useful.
 
-It's probably too late to be consistent with discs and call them
-sra, sra1, ... sra15
-srb, srb1, ... srb15
+Promise did some neat stuff with the SX4...  so neat it takes some 
+thinking to figure out how to best implement it in Linux :)
 
-> + *    [...]
-> + */
-> +static int partitions = 16;
+	Jeff
 
-15.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+

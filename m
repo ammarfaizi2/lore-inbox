@@ -1,77 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVCYFyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVCYF4r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVCYFyp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 00:54:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVCYFyo
+	id S261380AbVCYF4r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 00:56:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVCYFzc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 00:54:44 -0500
-Received: from digitalimplant.org ([64.62.235.95]:64466 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S261366AbVCYFyf
+	Fri, 25 Mar 2005 00:55:32 -0500
+Received: from digitalimplant.org ([64.62.235.95]:3283 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S261380AbVCYFym
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 00:54:35 -0500
-Date: Thu, 24 Mar 2005 21:54:28 -0800 (PST)
+	Fri, 25 Mar 2005 00:54:42 -0500
+Date: Thu, 24 Mar 2005 21:54:31 -0800 (PST)
 From: Patrick Mochel <mochel@digitalimplant.org>
 X-X-Sender: mochel@monsoon.he.net
 To: linux-kernel@vger.kernel.org
 cc: greg@kroah.com
-Subject: [1/12] More Driver Model Locking Changes
-Message-ID: <Pine.LNX.4.50.0503242149310.18863-100000@monsoon.he.net>
+Subject: [2/12] More Driver Model Locking Changes
+Message-ID: <Pine.LNX.4.50.0503242150330.19795-100000@monsoon.he.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-ChangeSet@1.2239, 2005-03-24 10:48:35-08:00, mochel@digitalimplant.org
-  [driver core] Remove the unused device_find().
+ChangeSet@1.2240, 2005-03-24 10:50:24-08:00, mochel@digitalimplant.org
+  [driver core] Use bus_for_each_{dev,drv} for driver binding.
+
+  - Now possible, since the lists are locked using the klist lock and not the
+    global rwsem.
 
 
   Signed-off-by: Patrick Mochel <mochel@digitalimplant.org>
 
-diff -Nru a/drivers/base/core.c b/drivers/base/core.c
---- a/drivers/base/core.c	2005-03-24 20:34:00 -08:00
-+++ b/drivers/base/core.c	2005-03-24 20:34:00 -08:00
-@@ -401,24 +401,6 @@
- 	return error;
+diff -Nru a/drivers/base/dd.c b/drivers/base/dd.c
+--- a/drivers/base/dd.c	2005-03-24 20:33:53 -08:00
++++ b/drivers/base/dd.c	2005-03-24 20:33:53 -08:00
+@@ -85,6 +85,29 @@
  }
 
--/**
-- *	device_find - locate device on a bus by name.
-- *	@name:	name of the device.
-- *	@bus:	bus to scan for the device.
-- *
-- *	Call kset_find_obj() to iterate over list of devices on
-- *	a bus to find device by name. Return device if found.
-- *
-- *	Note that kset_find_obj increments device's reference count.
-- */
--struct device *device_find(const char *name, struct bus_type *bus)
--{
--	struct kobject *k = kset_find_obj(&bus->devices, name);
--	if (k)
--		return to_dev(k);
--	return NULL;
--}
--
- int __init devices_init(void)
- {
- 	return subsystem_register(&devices_subsys);
-@@ -434,7 +416,6 @@
- EXPORT_SYMBOL_GPL(device_unregister);
- EXPORT_SYMBOL_GPL(get_device);
- EXPORT_SYMBOL_GPL(put_device);
--EXPORT_SYMBOL_GPL(device_find);
 
- EXPORT_SYMBOL_GPL(device_create_file);
- EXPORT_SYMBOL_GPL(device_remove_file);
-diff -Nru a/include/linux/device.h b/include/linux/device.h
---- a/include/linux/device.h	2005-03-24 20:34:00 -08:00
-+++ b/include/linux/device.h	2005-03-24 20:34:00 -08:00
-@@ -376,7 +376,6 @@
++static int __device_attach(struct device_driver * drv, void * data)
++{
++	struct device * dev = data;
++	int error;
++
++	error = driver_probe_device(drv, dev);
++
++	if (error == -ENODEV && error == -ENXIO) {
++		/* Driver matched, but didn't support device
++		 * or device not found.
++		 * Not an error; keep going.
++		 */
++		error = 0;
++	} else {
++		/* driver matched but the probe failed */
++		printk(KERN_WARNING
++		       "%s: probe of %s failed with error %d\n",
++		       drv->name, dev->bus_id, error);
++	}
++	return 0;
++}
++
++
+ /**
+  *	device_attach - try to attach device to a driver.
+  *	@dev:	device.
+@@ -95,34 +118,35 @@
   */
- extern struct device * get_device(struct device * dev);
- extern void put_device(struct device * dev);
--extern struct device *device_find(const char *name, struct bus_type *bus);
+ int device_attach(struct device * dev)
+ {
+- 	struct bus_type * bus = dev->bus;
+-	struct list_head * entry;
+-	int error;
+-
+ 	if (dev->driver) {
+ 		device_bind_driver(dev);
+ 		return 1;
+ 	}
+
+-	if (bus->match) {
+-		list_for_each(entry, &bus->drivers.list) {
+-			struct device_driver * drv = to_drv(entry);
+-			error = driver_probe_device(drv, dev);
+-			if (!error)
+-				/* success, driver matched */
+-				return 1;
+-			if (error != -ENODEV && error != -ENXIO)
++	return bus_for_each_drv(dev->bus, NULL, dev, __device_attach);
++}
++
++
++static int __driver_attach(struct device * dev, void * data)
++{
++	struct device_driver * drv = data;
++	int error = 0;
++
++	if (!dev->driver) {
++		error = driver_probe_device(drv, dev);
++		if (error) {
++			if (error != -ENODEV) {
+ 				/* driver matched but the probe failed */
+ 				printk(KERN_WARNING
+-				    "%s: probe of %s failed with error %d\n",
+-				    drv->name, dev->bus_id, error);
++				       "%s: probe of %s failed with error %d\n",
++				       drv->name, dev->bus_id, error);
++			} else
++				error = 0;
+ 		}
+ 	}
+-
+ 	return 0;
+ }
+
+-
+ /**
+  *	driver_attach - try to bind driver to devices.
+  *	@drv:	driver.
+@@ -137,24 +161,7 @@
+  */
+ void driver_attach(struct device_driver * drv)
+ {
+-	struct bus_type * bus = drv->bus;
+-	struct list_head * entry;
+-	int error;
+-
+-	if (!bus->match)
+-		return;
+-
+-	list_for_each(entry, &bus->devices.list) {
+-		struct device * dev = container_of(entry, struct device, bus_list);
+-		if (!dev->driver) {
+-			error = driver_probe_device(drv, dev);
+-			if (error && (error != -ENODEV))
+-				/* driver matched but the probe failed */
+-				printk(KERN_WARNING
+-				    "%s: probe of %s failed with error %d\n",
+-				    drv->name, dev->bus_id, error);
+-		}
+-	}
++	bus_for_each_dev(drv->bus, NULL, drv, __driver_attach);
+ }
 
 
- /* drivers/base/platform.c */

@@ -1,76 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286649AbSABCag>; Tue, 1 Jan 2002 21:30:36 -0500
+	id <S286662AbSABCpk>; Tue, 1 Jan 2002 21:45:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286650AbSABCa1>; Tue, 1 Jan 2002 21:30:27 -0500
-Received: from [208.179.59.195] ([208.179.59.195]:21332 "EHLO
-	Booterz.killerlabs.com") by vger.kernel.org with ESMTP
-	id <S286649AbSABCaQ>; Tue, 1 Jan 2002 21:30:16 -0500
-Message-ID: <3C327009.8040606@blue-labs.org>
-Date: Tue, 01 Jan 2002 21:27:21 -0500
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011231
-X-Accept-Language: en-us
+	id <S286650AbSABCpa>; Tue, 1 Jan 2002 21:45:30 -0500
+Received: from mailout6-1.nyroc.rr.com ([24.92.226.177]:55490 "EHLO
+	mailout6.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S286654AbSABCpT>; Tue, 1 Jan 2002 21:45:19 -0500
+Message-ID: <01a101c19337$88c1ef60$1a01a8c0@allyourbase>
+From: "Dan Maas" <dmaas@dcine.com>
+To: "Larry McVoy" <lm@bitmover.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <fa.j24p57v.1d34p2v@ifi.uio.no> <fa.i865mpv.1g42885@ifi.uio.no>
+Subject: Re: a great C++ book?
+Date: Tue, 1 Jan 2002 21:45:26 -0500
 MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: Stewart Smith <stewart@softhome.net>, timothy.covell@ashavan.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: RFC: Linux Bug Tracking & Feature Tracking DB
-In-Reply-To: <Pine.LNX.4.33.0112312048160.17274-100000@Appserv.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->>Starting a browser is equivalent to starting a mail client.  In some
->>instances it's the same program.
->>
->
->keeping a terminal with ssh open all day is feasible (and is what I
->and a lot of others probably do). Keeping mozilla open all day is
->not practical. (and no, w3m/lynx etc are not practical for using
->bugzilla imo).
->
+> It's hard to explain a love/hate relationship with C++.  I think many
+> systems programmers come to a point where they can "speak" C++ and do so
+> in design conversations all the time, talking about the "objects" and the
+> "methods", etc.  But they program in C. [...] The reality is that you want
+> tp program in a fairly object oriented way but you also want to avoid
+> "the creeping horror that modern C++ has become.".
 
-Eh?  Why isn't it?  I keep it open for weeks if it doesn't crash.
+These statements resonate very strongly with my experience... A few times
+already I've said to myself "today is the day I start using C++ instead of
+C." But every time I've turned back.
 
->>Hitting 2-3 keypresses to archive an email...how do you manage that
->>archive v.s. it being managed for you w/ bugzilla?
->>
->
->both mua's I use have comprehensive indexing/searching abilities.
->s25<enter> saves a patch for applying later.
->
->cat ~/25 | patch -p1  is all I need to do, plus I have an archive
->of patches applied on what date, along with the descriptive mails
->that went with them.
->
->Effortless.
->
->If a patch needs reversing, I load the mua, move the mail to another
->folder, and do the same with patch -R
->
->Dave.
->
+To be fair, most of the problems I encountered were
+quality-of-implementation issues rather than problems with C++ the language.
+(The only serious complaint I have about C++ the language is the lack of
+opaque types -- yes, I know of the famous "pimpl" idiom, and find its syntax
+and inefficiency rather disgusting).
 
-Then your system works for you, but it doesn't make anything available 
-for anyone else nor does it allow for anything other than the simple 
-collection of emails/patches.  That's the point of an accessible 
-database.  Over years of development, trying to maintain a comprehensive 
-system would require you to index what "25" relates to.
+If you read Stroustrup's "The Design and Evolution of C++," [book
+recommendation =)] you will gain an appreciation of the effort the language
+designers spent to ensure that C++ imposed no overhead for features that
+aren't used. However, I've found that G++ and the associated GNU
+implementation of the C++ standard library do not really deliver on this
+promise. The assembly code output by G++ is often cluttered with seemingly
+unnecessary cruft (way beyond the expected overheads of e.g. virtual table
+indirections for virtual function calls). And don't even get me started on
+all the gunk it puts in your symbol table (run nm(1) on any C++ object and
+you'll see what I mean). (yes I know about -fno-exceptions and -fno-rtti)
 
-The point of this DB in discussion is to make it easier for everyone, 
-from developer to the random person who only reads lkml when he needs to 
-find an answer.  Make it easier to research, catalog, reference, 
-explain, and derive all the parts of a given bug.
+You might say, "who cares about crufty assembly here and there, much less
+symbol table pollution?" While these issues might not concern the typical
+application developer, I care very much about cleanliness of my code, and I
+know the Linux kernel hackers are very aware of how their C code interacts
+with GCC...
 
-For example, the ECN issue.  Anyone from developer to Joe Admin could 
-look up "connection failed" and get back a group of results with a high 
-"ECN" hit rate.  A few seconds to type it in and a minute later he has 
-probably put 0 in tcp_ecn and happily wanders away.
+I long for the day when I will be able to declare a struct member private,
+use inheritance, and declare a local variable anywhere in a basic block in
+my code... But I need to have a clean C++ compiler and library
+implementation with true pay-as-you-go overheads before I make the switch.
 
-David
-
+Regards,
+Dan
 

@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269715AbTGJXmE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 19:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269718AbTGJXmE
+	id S269712AbTGJXtj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 19:49:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269717AbTGJXtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 19:42:04 -0400
-Received: from ns.suse.de ([213.95.15.193]:16394 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269715AbTGJXk5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 19:40:57 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.75
-References: <20030710223548.A20214@flint.arm.linux.org.uk.suse.lists.linux.kernel>
-	<Pine.LNX.4.44.0307101512350.4757-100000@home.osdl.org.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 11 Jul 2003 01:55:26 +0200
-In-Reply-To: <Pine.LNX.4.44.0307101512350.4757-100000@home.osdl.org.suse.lists.linux.kernel>
-Message-ID: <p73isqaos29.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 10 Jul 2003 19:49:39 -0400
+Received: from cs180094.pp.htv.fi ([213.243.180.94]:51076 "EHLO
+	hades.pp.htv.fi") by vger.kernel.org with ESMTP id S269712AbTGJXtg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 19:49:36 -0400
+Subject: Re: 2.4.21+ - IPv6 over IPv4 tunneling b0rked
+From: Mika Liljeberg <mika.liljeberg@welho.com>
+To: CaT <cat@zip.com.au>
+Cc: yoshfuji@linux-ipv6.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       pekkas@netcore.fi
+In-Reply-To: <20030710233931.GG1722@zip.com.au>
+References: <20030710154302.GE1722@zip.com.au>
+	 <1057854432.3588.2.camel@hades>  <20030710233931.GG1722@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1057881869.3588.10.camel@hades>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 11 Jul 2003 03:04:29 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+On Fri, 2003-07-11 at 02:39, CaT wrote:
+> And having remembered /127 being mentioned as bad I changed the
+> interface config to a netmask of /64. Dropped it and brought it
+> up and it all works.
 > 
-> Also, the only real point of a stable release is for distribution makers.
-> That pretty much cuts the list of "needs to be supported" down to x86,
-> ia64, x86-64 and possibly sparc/alpha.
+> There's something fundamental about ipv6 netmasks that I just don't
+> understand...
 
-No ppc, ppc64, s390?
+Well, the thing is that prefix:: is a special anycast address that
+identifies a router on the link prefix::/n, where n is the prefix
+length. You had configured a 127-bit link prefix, meaning that you had
+only one valid unicast address (last bit == 1) in addition to the router
+anycast address (last bit == 0).
 
-Current bad issues for x86-64: 
+Normally, IPv6 networks are supposed to use 64-bit on-link prefixes but
+the implementation can be written in such a way that other prefix
+lengths can be configured.
 
-- IDE Taskfile IO when enabled corrupts file systems on AMD8111
-(on others too?).  This is the worst because there is no fix available.
-I would propose to completely disable taskfile in Kconfig 
-until the issue is resolved.
+Setting your tunnel prefix to /64 is certainly the right thing to do. 
 
-- Reiserfs zeroes every second 4K block in any write >4K on 64bit systems
-(patch is in -mm*). Hopefully the patch can be merged before 2.6-pre.
+	MikaL
 
-and 
-
-- doesn't compile (trivial fixes are already sent) 
-
--Andi

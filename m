@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265783AbUFDNJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265786AbUFDNKX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265783AbUFDNJL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 09:09:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265777AbUFDNJK
+	id S265786AbUFDNKX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 09:10:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUFDNKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 09:09:10 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:2754 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S265783AbUFDNJI (ORCPT
+	Fri, 4 Jun 2004 09:10:23 -0400
+Received: from main.gmane.org ([80.91.224.249]:25567 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265787AbUFDNKP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 09:09:08 -0400
-Date: Fri, 4 Jun 2004 15:08:20 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Christoph Hellwig <hch@ucw.cz>, vojtech@suse.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Lowered priority of "too many keys" message in atkbd
-Message-ID: <20040604130818.GA17261@wohnheim.fh-wedel.de>
-References: <20040530083126.GA30916@lst.de> <20040604124811.GC11950@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040604124811.GC11950@elf.ucw.cz>
-User-Agent: Mutt/1.3.28i
+	Fri, 4 Jun 2004 09:10:15 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andy Hawkins <andy@gently.org.uk>
+Subject: Re: DriveReady SeekComplete Error
+Date: Fri, 4 Jun 2004 13:02:18 +0000 (UTC)
+Organization: Gently
+Message-ID: <slrncc0smq.i1n.andy@gently.org.uk>
+References: <20040604075448.GK18885@web1.rockingstone.nl> <200406040943.i549h2aG000175@81-2-122-30.bradfords.org.uk> <20040604095409.GL18885@web1.rockingstone.nl> <20040604095900.GO1946@suse.de> <20040604100258.GM18885@web1.rockingstone.nl> <20040604100813.GP1946@suse.de>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cpc3-swin2-3-0-cust120.brhm.cable.ntl.com
+User-Agent: slrn/0.9.7.4 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 June 2004 14:48:11 +0200, Pavel Machek wrote:
-> 
-> > This patch is from the Debian kernel package and I think it's valid
-> > because this error doesn't cause any kind of malfunction of the
-> > system.
-> 
-> Except perhaps dropped key?
-> 
-> When keypress is lost, I like to know if my fingers are to blame,
-> keyboard hardware is to blame, or keyboard is misdesigned.
+Hi,
 
-And from experience I can tell, that lossy keyboards are a royal pain
-in the behind.  And the system not doing *exactly* what I tell it to
-do *is* a malfunction of the system.
+In article <20040604100813.GP1946@suse.de>,
+           Jens Axboe<axboe@suse.de> wrote:
+> The that's a known error, you should not worry about it. It's fixed in
+> later kernels.
 
-"This is bad.  Do you really want to do it? (y/n)"
+I'm seeing this error too, and also frequent crashes (total lock ups) of the
+machine (every day or two at the moment). Could the two be related?
 
-Just a single wrong key, eh!
+I haven't got round to doing any diagnostics yet, but there's nothing
+obvious in the logs. I was going to dismantle the machine and check
+connections etc. first.
 
-Jörn
+Andy
 
--- 
-Fools ignore complexity.  Pragmatists suffer it.
-Some can avoid it.  Geniuses remove it.
--- Perlis's Programming Proverb #58, SIGPLAN Notices, Sept.  1982

@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131644AbRDYUX1>; Wed, 25 Apr 2001 16:23:27 -0400
+	id <S131665AbRDYUcI>; Wed, 25 Apr 2001 16:32:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131665AbRDYUXI>; Wed, 25 Apr 2001 16:23:08 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:10756 "EHLO
-	bug.ucw.cz") by vger.kernel.org with ESMTP id <S131644AbRDYUXA>;
-	Wed, 25 Apr 2001 16:23:00 -0400
-Message-ID: <20010425222227.B1540@bug.ucw.cz>
-Date: Wed, 25 Apr 2001 22:22:27 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Grover, Andrew" <andrew.grover@intel.com>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Lid support for ACPI
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDDC9@orsmsx35.jf.intel.com>
-Mime-Version: 1.0
+	id <S131666AbRDYUb5>; Wed, 25 Apr 2001 16:31:57 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:46093
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S131665AbRDYUbq>; Wed, 25 Apr 2001 16:31:46 -0400
+Date: Wed, 25 Apr 2001 16:28:06 -0400
+From: Chris Mason <mason@suse.com>
+To: Pavel Machek <pavel@suse.cz>, viro@math.psu.edu,
+        kernel list <linux-kernel@vger.kernel.org>,
+        jack@atrey.karlin.mff.cuni.cz
+cc: torvalds@transmeta.com
+Subject: Re: [patch] linux likes to kill bad inodes
+Message-ID: <466810000.988230486@tiny>
+In-Reply-To: <20010425220120.A1540@bug.ucw.cz>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDDC9@orsmsx35.jf.intel.com>; from Grover, Andrew on Wed, Apr 25, 2001 at 10:23:12AM -0700
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> We already have lid support in the latest ACPI versions (not in the official
-> kernel yet.) You can download this code from
-> http://developer.intel.com/technology/iapc/acpi/downloads.htm .
 
-This site is as ugly as hell but does the trick. (And btw link to
-"kernel howto" points to list of howtos [after really ugly
-disclaimer], not to kernel howto directly; and size of patch with
-"debug version" on page is wrong).
+On Wednesday, April 25, 2001 10:01:20 PM +0200 Pavel Machek <pavel@suse.cz>
+wrote:
 
-> It'd be great if you could focus your testing and patches on this code base
-> -- I think it's a lot better but it's still a work in progress.
+> Hi!
+> 
+>> > Hi!
+>> > 
+>> > I had a temporary disk failure (played with acpi too much). What
+>> > happened was that disk was not able to do anything for five minutes
+>> > or so. When disk recovered, linux happily overwrote all inodes it
+>> > could not read while disk was down with zeros -> massive disk
+>> > corruption.
+>> > 
+>> > Solution is not to write bad inodes back to disk.
+>> > 
+>> 
+>> Wouldn't we rather make it so bad inodes don't get marked dirty at all?
+> 
+> I guess this is cheaper: we can mark inode dirty at 1000 points, but
+> you only write it at one point.
 
-Are you planning to merge to 2.4.4?
+Whoops, I worded that poorly.  To me, it seems like a bug to dirty a bad
+inode.  If this patch works, it is because somewhere, somebody did
+something with a bad inode, and thought the operation worked (otherwise,
+why dirty it?).  
 
-> PS I'm not quite sure why you copied the acpi list *and* lkml.. ;-)
+So yes, even if we dirty them in a 1000 different places, we need to find
+the one place that believes it can do something worthwhile to a bad inode.
 
-Is acpi list some kind of lkml subset? [I wanted people to know that
-I'm playing with acpi. I probably should stop mailing to acpi list
-that I do not read...]
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+-chris
+
+

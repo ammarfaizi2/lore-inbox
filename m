@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264572AbUESVsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264588AbUESV5g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264572AbUESVsa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 17:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264579AbUESVsa
+	id S264588AbUESV5g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 17:57:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264600AbUESV5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 17:48:30 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:14354 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264572AbUESVs3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 17:48:29 -0400
-Date: Wed, 19 May 2004 22:47:55 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: David Eger <eger@theboonies.us>
-cc: akpm@osdl.org,
-       Linux Frame Buffer Dev 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] FB accel capabilities patch
-In-Reply-To: <1085002775.40abd417121b0@mail.theboonies.us>
-Message-ID: <Pine.LNX.4.44.0405192242070.28783-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 19 May 2004 17:57:36 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9736 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264588AbUESV5f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 17:57:35 -0400
+Date: Wed, 19 May 2004 22:57:29 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Tim Bird <tim.bird@am.sony.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Mark Gross <mgross@linux.jf.intel.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ANNOUNCE: CE Linux Forum - Specification V1.0 draft
+Message-ID: <20040519225729.A28893@flint.arm.linux.org.uk>
+Mail-Followup-To: Tim Bird <tim.bird@am.sony.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Mark Gross <mgross@linux.jf.intel.com>,
+	linux kernel <linux-kernel@vger.kernel.org>
+References: <40A90D00.7000005@am.sony.com> <20040517201910.A1932@infradead.org> <200405171342.49891.mgross@linux.intel.com> <20040518074854.A7348@infradead.org> <40ABB5E2.3040908@am.sony.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <40ABB5E2.3040908@am.sony.com>; from tim.bird@am.sony.com on Wed, May 19, 2004 at 12:30:42PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 19, 2004 at 12:30:42PM -0700, Tim Bird wrote:
+> The non-normative section of this spec. explains where this was
+> a problem in 2.4, and why it is desirable, from the standpoint of
+> bootup time reduction, to avoid these busywaits.
 
-> Will it suffice to add
-> 
-> #define FBINFO_FLAG_MODULE FBIF_MODULE
-> 
-> for backwards compatibility?
-> 
-> I'd prefer the new flags to be FBIF_*, as the identifier
-> FBINFO_FLAG_HWACCEL_COPYAREA seems sorta long to me...
+In this case, it's really a bug that IDE is using a busy wait where it
+should be using a sleeping wait.  It's a bug, plain and simple.  To
+wrap the bug into "a spec" somehow seems wrong to me, especially when
+it would be far better to report the problem as a bug.
 
-I agree. I dropped the _FLAG_ part. It just more readable with FBINFO.
-If you have no problem with that I will add it to the fbdev-2.6 BK tree. 
-Andrew has asked me to move everything to a BK tree for him to pull.
+Sure, specs make suit-wearing people happy, but that doesn't mean that
+they're appropriate as a bug reporting method. 8)
 
-> I'll sync with linus's bk tomorrow and try to rework my main patch; the
-> "mainline" patch I posted was against his bk shortly after 2.6.6...
-
-I will setup the new fbdev-2.6 BK repos tonight for Andrew so try tomorrow 
-to sync against that tree. 
-
-> I take it this is in addition to your con2fb patch I have posted at that web
-> address?
-
-Yes. I see that patch works like a charm for you. :-)
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

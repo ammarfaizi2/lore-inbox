@@ -1,54 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266907AbTB0U0R>; Thu, 27 Feb 2003 15:26:17 -0500
+	id <S266953AbTB0UXc>; Thu, 27 Feb 2003 15:23:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266886AbTB0U0Q>; Thu, 27 Feb 2003 15:26:16 -0500
-Received: from crack.them.org ([65.125.64.184]:54703 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S266994AbTB0UZC>;
-	Thu, 27 Feb 2003 15:25:02 -0500
-Date: Thu, 27 Feb 2003 15:35:12 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Invalid compilation without -fno-strict-aliasing
-Message-ID: <20030227203512.GA12623@nevyn.them.org>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-References: <20030227194522.GA10427@nevyn.them.org> <Pine.LNX.4.44.0302271157380.9696-100000@home.transmeta.com>
+	id <S266961AbTB0UXc>; Thu, 27 Feb 2003 15:23:32 -0500
+Received: from zmamail01.zma.compaq.com ([161.114.64.101]:62223 "EHLO
+	zmamail01.zma.compaq.com") by vger.kernel.org with ESMTP
+	id <S266953AbTB0UXa>; Thu, 27 Feb 2003 15:23:30 -0500
+Date: Thu, 27 Feb 2003 14:36:22 +0600
+From: Stephen Cameron <steve.cameron@hp.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.63 cciss fix unlikely startup problem
+Message-ID: <20030227083622.GA3704@zuul.cca.cpqcorp.net>
+Reply-To: steve.cameron@hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302271157380.9696-100000@home.transmeta.com>
-User-Agent: Mutt/1.5.1i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 27, 2003 at 12:00:46PM -0800, Linus Torvalds wrote:
-> 
-> On Thu, 27 Feb 2003, Daniel Jacobowitz wrote:
-> > > 
-> > > My personal opinion is (and was several years ago when this started
-> > > coming up) that a cast (any cast) should do it. But I don't are _what_
-> > > it is, as long as it is syntactically sane and isn't limited to special
-> > > cases like unions.
-> > 
-> > Well, if that's all you're asking for, it's easy - I don't know if
-> > you'll agree that the syntax is sane, but it's there.  From the GCC 3.3
-> > manual:
-> > 
-> > `may_alias'
-> 
-> Halleluja. It still leaves us with all other compilers unaccounted for, 
-> but yes, this will allow fixing the problem for us in the future.
-> 
-> Too bad the current gcc-3.3 is apparently not useful for the kernel for
-> other reasons right now (ie the inlining issue which is being discussed on
-> the gcc lists, and that annoying sign warning), but that may well be 
-> resolved by the time it gets released.
+Another cciss patch for 2.5.63
 
-We could work around both of these: disable the sign compare warning,
-and use check_gcc to set a high number for -finline-limit...
+Add CCISS_GETLUNINFO ioctl.
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+This ioctl returns the LUNID, number of partitions, and current 
+number of opens on a logical volume.   Used by the array config utility
+or any app that needs to send passthrough commands to a particular 
+logical disk.
+
+-- steve
+
+--- linux-2.5.63/drivers/block/cciss.c~getluninfo_ioctl	2003-02-27 14:11:51.000000000 +0600
++++ linux-2.5.63-scameron/drivers/block/cciss.c	2003-02-27 14:11:51.000000000 +0600
+@@ -589,6 +589,24 @@ static int cciss_ioctl(struct inode *ino
+ 	case CCISS_REVALIDVOLS:
+                 return( revalidate_allvol(inode->i_rdev));
+ 
++ 	case CCISS_GETLUNINFO: {
++ 		LogvolInfo_struct luninfo;
++ 		struct gendisk *disk = hba[ctlr]->gendisk[dsk];
++ 		drive_info_struct *drv = &hba[ctlr]->drv[dsk];
++ 		int i;
++ 		
++ 		luninfo.LunID = drv->LunID;
++ 		luninfo.num_opens = drv->usage_count;
++ 		luninfo.num_parts = 0;
++ 		/* count partitions 1 to 15 with sizes > 0 */
++ 		for(i=1; i <MAX_PART; i++)
++ 			if (disk->part[i].nr_sects != 0)
++ 				luninfo.num_parts++;
++ 		if (copy_to_user((void *) arg, &luninfo,
++ 				sizeof(LogvolInfo_struct)))
++ 			return -EFAULT;
++ 		return(0);
++ 	}
+ 	case CCISS_DEREGDISK:
+ 		return( deregister_disk(ctlr,dsk));
+ 
+--- linux-2.5.63/include/linux/cciss_ioctl.h~getluninfo_ioctl	2003-02-27 14:11:51.000000000 +0600
++++ linux-2.5.63-scameron/include/linux/cciss_ioctl.h	2003-02-27 14:11:51.000000000 +0600
+@@ -169,6 +169,11 @@ typedef struct _IOCTL_Command_struct {
+   BYTE			   *buf;
+ } IOCTL_Command_struct;
+ 
++typedef struct _LogvolInfo_struct{
++	__u32	LunID;
++	int	num_opens;  /* number of opens on the logical volume */
++	int	num_parts;  /* number of partitions configured on logvol */
++} LogvolInfo_struct;
+ 
+ #define CCISS_GETPCIINFO _IOR(CCISS_IOC_MAGIC, 1, cciss_pci_info_struct)
+ 
+@@ -190,5 +195,6 @@ typedef struct _IOCTL_Command_struct {
+ #define CCISS_REGNEWDISK  _IOW(CCISS_IOC_MAGIC, 13, int)
+ 
+ #define CCISS_REGNEWD	   _IO(CCISS_IOC_MAGIC, 14)
++#define CCISS_GETLUNINFO   _IOR(CCISS_IOC_MAGIC, 17, LogvolInfo_struct)
+ 
+ #endif  
+
+_

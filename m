@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132623AbRDKQ0a>; Wed, 11 Apr 2001 12:26:30 -0400
+	id <S132622AbRDKQZA>; Wed, 11 Apr 2001 12:25:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132626AbRDKQ0U>; Wed, 11 Apr 2001 12:26:20 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:28817 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S132623AbRDKQ0J>;
-	Wed, 11 Apr 2001 12:26:09 -0400
-Date: Wed, 11 Apr 2001 12:26:08 -0400
-From: nicholas black <dank@havoc.gtf.org>
-To: linux-kernel@vger.kernel.org
-Subject: ati mach64vt, atyfb.c, fbcon and black screens
-Message-ID: <20010411122608.A26493@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S132623AbRDKQYv>; Wed, 11 Apr 2001 12:24:51 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:777 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S132622AbRDKQYk>;
+	Wed, 11 Apr 2001 12:24:40 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: info <5740@mail.ru>
+Date: Wed, 11 Apr 2001 18:23:45 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: 2.4.3 compile error No 3
+CC: linux-kernel@vger.kernel.org, John Jasen <jjasen@datafoundation.com>
+X-mailer: Pegasus Mail v3.40
+Message-ID: <4AC3B9077C6@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i'm running 2.4.3, and attempting to use the ati mach64 framebuffer
-driver (atyfb.c) in place of the slooow vesa fb.  my card is an ati
-mach64 vt4 according to lspci, claimed in atyfb.c line 555 to be
-supported.  on startup, however, i get kernel decompression, followed
-by a black screen.  it appears the boot sequence does not complete, as i
-can't even ssh into the box, although the case may be that init is
-hitting a point where it needs interaction somewhere.
+On 11 Apr 01 at 20:15, info wrote:
+> 
+> By the way, I thung that it is a good idea - to modify
+> xconfig/meniconfig script  in manner to make disable ipx if sysctl
+> setted off - like in many other cross-dependance options. 
 
-i've compiled my kernel with:
-	vga console
-	vga mode selection support
-	framebuffer->ati mach64 support,
-
-all as builtins.  as explained in Documentation/fb/modedb.txt, the atyfb
-driver is supported by modedb, and i've placed
-
-append="video=atyfb:640x480"
-
-in my lilo.conf.  it is probably worth noting that i also still have
-vga=791 in my lilo.conf from the vesafb days; i'm considering that 
-this (as it, for one, specifies a different resolution) may be the
-culprit, but the box is at home.
-
-any ideas?  if i simply need to rtfm, please direct me; i've been
-searching for an answer to this since 2.2.
-
--- 
-nicholas black  -=+=-  dank@gtf.org  -=+=-  http://www.angband.org/~dank/
-  head developer, trellis network security   http://www.trellisinc.com/
-"one of god's own prototypes, some kind of high-powered mutant never even
-considered for mass-production...too weird to live, and too rare to die."
+Without sysctl you cannot disable Netbios propagation packet routing.
+And no machine with enabled Netbios routing passes our 'you must not
+participate in broadcast storms' test if it has enabled more than
+one IPX frame on each interface. So you'll get disconnected from our 
+university net.
+                                    Petr Vandrovec
+                                    vandrove@vc.cvut.cz
+                                    

@@ -1,65 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274681AbRJAHj6>; Mon, 1 Oct 2001 03:39:58 -0400
+	id <S274701AbRJAHiS>; Mon, 1 Oct 2001 03:38:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274708AbRJAHjs>; Mon, 1 Oct 2001 03:39:48 -0400
-Received: from mail.scs.ch ([212.254.229.5]:35472 "EHLO mail.scs.ch")
-	by vger.kernel.org with ESMTP id <S274681AbRJAHji>;
-	Mon, 1 Oct 2001 03:39:38 -0400
-Message-ID: <3BB81DCD.24D8338F@scs.ch>
-Date: Mon, 01 Oct 2001 09:39:57 +0200
-From: Martin Maletinsky <maletinsky@scs.ch>
-Organization: Supercomputing Systems
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
+	id <S274681AbRJAHh7>; Mon, 1 Oct 2001 03:37:59 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:19730 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S274688AbRJAHhr>;
+	Mon, 1 Oct 2001 03:37:47 -0400
+Date: Mon, 1 Oct 2001 09:35:47 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Rik van Riel <riel@conectiva.com.br>, Kenneth Johansson <ken@canit.se>,
+        "Randy.Dunlap" <rddunlap@osdlab.org>,
+        Andreas Dilger <adilger@turbolabs.com>, <linux-kernel@vger.kernel.org>,
+        <linux-net@vger.kernel.org>, <netdev@oss.sgi.com>
+Subject: Re: [patch] netconsole-2.4.10-B1
+In-Reply-To: <200109301225.f8UCPXl16936@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.33.0110010924380.3436-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Anil Kumar <kernelmack@yahoo.com>
-CC: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: Re: putting a user program to sleep till interrupted
-In-Reply-To: <20010928165004.3060.qmail@web20401.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-A good explanation is found in:
-http://www.linuxdoc.org/LDP/lki/lki-2.html#ss2.5
+On Sun, 30 Sep 2001, Richard Gooch wrote:
 
-and also in Chapter 5, 'Linux Device Drivers' from Alessandro Rubini & Jonathan Corbet
-(you find an electronic version of the book in http://www.oreilly.com/catalog/linuxdrive2/)
-
-regards
-Martin
-
-Anil Kumar wrote:
-
-> hi,
-> I wanted to know how a user program/process can be put
-> to sleep by using the functions given in the kernel. I
-> will be calling the function not from user space but
-> from kernel space, i.e. from inside the kernel. I also
-> want to be able to start it again whenever required.
-> I went thru sched.c but couldn't figure out how to
-> make my own wait list.
-> Thanx in advance.
-> Anil
+> I usually think of "server" as the box that's running all the time,
+> providing a service to multiple clients. In this case, the netconsole
+> server should always be running, accepting log messages for storage.
+> The clients (which are transitory, otherwise netconsole wouldn't be
+> needed:-), initiate work for the server to do.
 >
-> __________________________________________________
-> Do You Yahoo!?
-> Listen to your Yahoo! Mail messages from any phone.
-> http://phone.yahoo.com
-> -
-> Kernelnewbies: Help each other learn about the Linux kernel.
-> Archive:       http://mail.nl.linux.org/kernelnewbies/
-> IRC Channel:   irc.openprojects.net / #kernelnewbies
-> Web Page:      http://www.kernelnewbies.org/
+> Face it, Ingo's use of "client" and "server" is contrary to accepted
+> usage. You can't finesse around it.
 
---
-Supercomputing System AG          email: maletinsky@scs.ch
-Martin Maletinsky                 phone: +41 (0)1 445 16 05
-Technoparkstrasse 1               fax:   +41 (0)1 445 16 10
-CH-8005 Zurich
+'server' is the box that serves content. 'client' is one that requests and
+accepts it. in the case of netconsole, it's the netconsole-module box that
+produces the messages, and the other one gets them.
 
+it's analogous to a browser <-> http server relationship. The browser gets
+messages from multiple servers - often in parallel. That is a 1:N
+relationship as well.
+
+the fact that the netconsole-module box did not get any formal 'request'
+from the other side does not mean it's not the content generator: right
+now the 'request' is implicit, but in the future it might be formalized.
+The netconsole patch will soon be extended to do crashdumps - and in this
+case it will not only be a log message server, it will also be a crashdump
+server.
+
+to further underscore why the netconsole-module box is a 'log message
+server', it can produce messages to multiple 'clients'. (this is already
+possible by renaming the netconsole module's symbols and inserting it as
+eg. netconsole2.o.)
+
+but in the case of logging there is indeed another way to think about it
+as well: the netconsole-module box is asking the other side to store logs.
+But in internet terms it's usually the content producer that is the
+server, and the content sink that is the client. And i've been coding HTTP
+and FTP server software lately which influenced my terminology :)
+
+in this sense a browser is a 'server' too => the http server requests the
+served page to be stored on the client.
+
+but telling any side to be wrong is stupid - both are correct, and the
+correct meaning of 'server' depends alot on context. this is why i defined
+the terms.
+
+	Ingo
 

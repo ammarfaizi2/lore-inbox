@@ -1,79 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262545AbTCIRKQ>; Sun, 9 Mar 2003 12:10:16 -0500
+	id <S262546AbTCIRLF>; Sun, 9 Mar 2003 12:11:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262546AbTCIRKQ>; Sun, 9 Mar 2003 12:10:16 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:54430 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262545AbTCIRKP>; Sun, 9 Mar 2003 12:10:15 -0500
-To: Andi Kleen <ak@muc.de>
-Subject: Re: [PATCH] Fix memory leak in copy_thread - correction.
-Cc: linux-kernel@vger.kernel.org
-References: <20030309163339.GA2346@averell>
-From: Andi Kleen <ak@muc.de>
-Date: Sun, 09 Mar 2003 18:20:36 +0100
-In-Reply-To: <20030309163339.GA2346@averell> (Andi Kleen's message of "Sun,
- 9 Mar 2003 17:33:39 +0100")
-Message-ID: <m33clwzcbf.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-MIME-Version: 1.0
+	id <S262547AbTCIRLF>; Sun, 9 Mar 2003 12:11:05 -0500
+Received: from dsl081-067-005.sfo1.dsl.speakeasy.net ([64.81.67.5]:17806 "EHLO
+	renegade") by vger.kernel.org with ESMTP id <S262546AbTCIRLA>;
+	Sun, 9 Mar 2003 12:11:00 -0500
+Date: Sun, 9 Mar 2003 09:20:45 -0800
+From: Zack Brown <zbrown@tumblerings.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Message-ID: <20030309172045.GP4170@renegade>
+References: <m14r6ck6jd.fsf@frodo.biederman.org> <Pine.LNX.4.44.0303091609440.5042-100000@serv> <8200000.1047228943@[10.10.2.4]>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8200000.1047228943@[10.10.2.4]>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@muc.de> writes:
+On Sun, Mar 09, 2003 at 08:55:44AM -0800, Martin J. Bligh wrote:
+> I think it's possible to get 90% of the functionality that most of us
+> (or at least I) want without the distributed stuff. If that's 10% of
+> the effort, would be really nice to have the auto-merging type of
+> functionality at least.
 
-> Discovered on x86-64 and now ported.
->
-> copy_thread could leak memory if you had a io bitmap and passed wrong
-> arguments to the new clone flags.
+> If I'm missing something fundamental here, it wouldn't suprise me ;-)
 
-[...]
+I think the fundamental thing you're missing is that Linus doesn't want it. ;-)
 
-Oops that was the wrong buggy version of the patch. Please ignore that
-and use this one
+As long as people keep trying to avoid the hard problems that Linus and Larry
+keep pointing out, I doubt any effort will get very far. I see a lot of cases
+where someone says, "yeah, but we can side-step that problem if we do x,
+y, or z." That doesn't help. The question is, what are the actual features
+required for a version control system that could win support among the top
+kernel developers?
 
--Andi
+People in the know hint at these features ("naming is really important"),
+but the details are apparently complicated enough that no one wants to sit
+down and actually describe them. They just hint at the *sort* of problems
+they are, and then someone says, "but that's not really a problem because
+of x, y, or z that can be done instead."
 
---- linux/arch/i386/kernel/process.c	2003-02-26 12:55:16.000000000 +0100
-+++ linux-2.5.63-work/arch/i386/kernel/process.c	2003-03-04 22:28:20.000000000 +0100
-@@ -281,6 +281,7 @@
- {
- 	struct pt_regs * childregs;
- 	struct task_struct *tsk;
-+	int err;
- 
- 	childregs = ((struct pt_regs *) (THREAD_SIZE + (unsigned long) p->thread_info)) - 1;
- 	struct_cpy(childregs, regs);
-@@ -316,20 +317,27 @@
- 		struct user_desc info;
- 		int idx;
- 
-+		err = -EFAULT;
- 		if (copy_from_user(&info, (void *)childregs->esi, sizeof(info)))
--			return -EFAULT;
-+			goto out;
-+		err = -EINVAL;
- 		if (LDT_empty(&info))
--			return -EINVAL;
-+			goto out;
- 
- 		idx = info.entry_number;
- 		if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
--			return -EINVAL;
-+			goto out;
- 
- 		desc = p->thread.tls_array + idx - GDT_ENTRY_TLS_MIN;
- 		desc->a = LDT_entry_a(&info);
- 		desc->b = LDT_entry_b(&info);
- 	}
--	return 0;
-+
-+	err = 0;
-+ out:
-+	if (!err && p->thread.ts_io_bitmap)
-+		kfree(p->thread.ts_io_bitmap);
-+	return err;
- }
- 
- /*
+Then people get sidetracked on the features they personally would settle for,
+and the real point gets lost in the fog. Or else they start dreaming
+about what the perfect system would be like, describing features that
+would not actually be required for a kernel-ready version control
+system.
+
+Unless the people in the know actually speak up, the rest of us just won't
+be able to figure out what they need. A lot of projects are chasing their
+tails right now, trying to do something, but lacking the direction they need
+in order to do it.
+
+Be well,
+Zack
+
+> 
+> M.
+
+-- 
+Zack Brown

@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264699AbSLMOfd>; Fri, 13 Dec 2002 09:35:33 -0500
+	id <S264690AbSLMOfU>; Fri, 13 Dec 2002 09:35:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264705AbSLMOfd>; Fri, 13 Dec 2002 09:35:33 -0500
-Received: from mxintern.kundenserver.de ([212.227.126.204]:3782 "EHLO
-	mxintern.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S264699AbSLMOfc>; Fri, 13 Dec 2002 09:35:32 -0500
-Date: Fri, 13 Dec 2002 15:43:17 +0100
-From: Anders Henke <anders.henke@sysiphus.de>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: using 2 TB  in real life
-Message-ID: <20021213144317.GA21991@schlund.de>
-References: <UTC200212122315.gBCNFdp22965.aeb@smtp.cwi.nl>
+	id <S264699AbSLMOfU>; Fri, 13 Dec 2002 09:35:20 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:14743 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S264690AbSLMOfT>;
+	Fri, 13 Dec 2002 09:35:19 -0500
+Date: Fri, 13 Dec 2002 15:43:02 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: key "stuck" after resume
+Message-ID: <20021213154302.B6001@ucw.cz>
+References: <20021212194644.GA767@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <UTC200212122315.gBCNFdp22965.aeb@smtp.cwi.nl>
-User-Agent: Mutt/1.3.28i
-Organization: Schlund + Partner AG
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021212194644.GA767@elf.ucw.cz>; from pavel@ucw.cz on Thu, Dec 12, 2002 at 08:46:44PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 13th 2002, Andries.Brouwer@cwi.nl wrote:
-> > SCSI device sdb: -320126976 512-byte hdwr sectors (-163904 MB)
+On Thu, Dec 12, 2002 at 08:46:44PM +0100, Pavel Machek wrote:
+
+> Hi!
 > 
-> Yes, the code in 2.4.20 works up to 30 bits.
-> A slight modification works up to 31 bits.
+> Vojtech, would it be possible to clear "keyboard down" map during
+> resume? It is pretty unlikely to be valid at that point :-).
+> 								Pavel
 
-It works up to less than 30 bits - a 0.9 TB Device shows up as
+Yes, that is possible (and not that hard to do).
 
-SCSI device sdb: 1806745600 512-byte hdwr sectors (-174457 MB)
-
-while a 480 GB Device (correctly) shows up this way:
-
-SCSI device sda: 961818624 512-byte hdwr sectors (492451 MB)
-
-At 0.5 TB (29 bits) the first problem occurs: negative size.
-At 1 T (30 bits), the sector count also becomes negative.
-
-Your patch (thank you!) does fix both problems and up to 1.9 TB,
-everything works as expected:
-
-SCSI device sdb: 3974840320 512-byte hdwr sectors (2035118 MB)
-
-Yes, it's purely cosmetical, but should be included in the main tree.
-
-
-Regards,
-
-Anders
 -- 
-http://sysiphus.de
+Vojtech Pavlik
+SuSE Labs

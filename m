@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315443AbSFCTux>; Mon, 3 Jun 2002 15:50:53 -0400
+	id <S315454AbSFCTvN>; Mon, 3 Jun 2002 15:51:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315454AbSFCTuw>; Mon, 3 Jun 2002 15:50:52 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48645 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315443AbSFCTuu>; Mon, 3 Jun 2002 15:50:50 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: please kindly get back to me
-Date: 3 Jun 2002 12:50:35 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <adghab$20m$1@cesium.transmeta.com>
-In-Reply-To: <61DB42B180EAB34E9D28346C11535A783A7801@nocmail101.ma.tmpw.net> <20020603220046.D18899@mea-ext.zmailer.org> <20020603120653.C4940@work.bitmover.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S315455AbSFCTvM>; Mon, 3 Jun 2002 15:51:12 -0400
+Received: from 216-42-72-145.ppp.netsville.net ([216.42.72.145]:64237 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S315454AbSFCTvK>; Mon, 3 Jun 2002 15:51:10 -0400
+Subject: Re: [RFC] iput() cleanup (was Re: [patch 12/16] fix race between
+	writeback and unlink)
+From: Chris Mason <mason@suse.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <akpm@zip.com.au>, Alexander Viro <aviro@redhat.com>,
+        lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0206031232500.1947-100000@penguin.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 03 Jun 2002 15:49:24 -0400
+Message-Id: <1023133764.22608.1867.camel@tiny>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020603120653.C4940@work.bitmover.com>
-By author:    Larry McVoy <lm@bitmover.com>
-In newsgroup: linux.dev.kernel
->
-> On Mon, Jun 03, 2002 at 10:00:46PM +0300, Matti Aarnio wrote:
-> >   Anti-spam technology really needs constant evolution, as those
-> >   spammers do evolve themselves...
+On Mon, 2002-06-03 at 15:34, Linus Torvalds wrote:
 > 
-> If ever there was something which was screaming for an open source project,
-> it's spam filtering.  It seems like every major mailing list has someone
-> like Matti, working really hard on a thankless task, but losing out under
-> the tide of new spam every day.  Seems to me if there was a public repository
-> (sourceforge, bkbits, whatever) with a collection of procmail filters which
-> have been shown to work correctly, that would be a win.
+> On 3 Jun 2002, Chris Mason wrote:
+> > 
+> > Now that is kinda neat, calling it with the inode lock held lets me move
+> > some things out of reiserfs_file_release which need i_sem, and move them
+> > into a less expensive drop_inode call without grabbing the semaphore.
 > 
+> CAREFUL!
+> 
+> If you make real per-FS use of this, and aren't just using the standard 
+> ones, you need to be very very careful. In particular, you get called with 
+> the inode lock held, but you would have to drop the lock yourself after 
+> having removed the inode from the hash chains etc. I'd like people to 
+> avoid playing too many games in this area, the locking and the exact 
+> semantics of "drop_inode" are rather nasty.
 
-The biggest problem is that you're bound to get sued, so you have to
-worry about legal defence...
+Right, I don't want too much in there.  There are a few things I need to
+do when I know nobody else is messing with the inode, and I'm using
+i_sem to provide that now.  put_inode doesn't do what I need because
+knfsd might iget his way into the mess.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+I'm talking a very limited set of operations followed by calling the
+generic functions.  I might not do it at all if I can't get them safe
+when called under the spin lock.
+
+-chris
+
+

@@ -1,68 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319845AbSINC5Q>; Fri, 13 Sep 2002 22:57:16 -0400
+	id <S319844AbSINCyi>; Fri, 13 Sep 2002 22:54:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319846AbSINC5Q>; Fri, 13 Sep 2002 22:57:16 -0400
-Received: from almesberger.net ([63.105.73.239]:58890 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S319845AbSINC5P>; Fri, 13 Sep 2002 22:57:15 -0400
-Date: Sat, 14 Sep 2002 00:02:00 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Jeff Chua <jchua@fedex.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] initrd >24MB corruption (fwd)
-Message-ID: <20020914000159.A3352@almesberger.net>
-References: <Pine.LNX.4.44.0208271038450.25059-100000@boston.corp.fedex.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208271038450.25059-100000@boston.corp.fedex.com>; from jchua@fedex.com on Tue, Aug 27, 2002 at 10:49:13AM +0800
+	id <S319845AbSINCyi>; Fri, 13 Sep 2002 22:54:38 -0400
+Received: from tomts16.bellnexxia.net ([209.226.175.4]:30691 "EHLO
+	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S319844AbSINCyg>; Fri, 13 Sep 2002 22:54:36 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Jens Axboe <axboe@suse.de>, Andre Hedrick <andre@linux-ide.org>
+Subject: Re: 34-bk current ide problems - unexpected interrupt
+Date: Fri, 13 Sep 2002 22:58:21 -0400
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <200209120838.44092.tomlins@cam.org> <20020913060647.GH1847@suse.de> <200209132142.23964.tomlins@cam.org>
+In-Reply-To: <200209132142.23964.tomlins@cam.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209132258.21297.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Chua wrote:
-> Who else can help with this problem? I tried to write to Werner
-> Almesberger <werner.almesberger@epfl.ch> (no such email)
+On September 13, 2002 09:42 pm, Ed Tomlinson wrote:
+> Hi,
+>
+> To check if the problem I am seeing is with the port to 2.5 I tried
+> 2.4.20-pre5-ac4 and 2.4.20-pre5-ac6.  Both booted correctly.
+>
+> Now to try 2.5.34+bk without Andrew's mm patch.  If that fails what
+> debugging info would help solve the unexpected interrupt problem?
 
-That one is gone. wa@almesberger.net should work for the
-forseeable future.
+to summerize
 
-> I'm suspecting that somehow part of initrd is being corrupted during boot
+2.4.20-pre5-ac4	works
+2.4.20-pre5-ac5	works
+2.5.34-mm1		works	(without Jens ide port of pre5-ac4)
+2.5.34-mm2		fails with unexpected interrupt loop
+2.5.34-bk current	fails with unexpected interrupt loop
 
-The initrd is typically loaded below 16 MB. Your bzImage
-uncompresses after the loaded kernel, so if your kernel is, say,
-3 MB and compresses to 1 MB (that's a reasonably lean 2.4.19 kernel),
-up to about 4.5 MB are overwritten already when getting the kernel
-in place. A 6 MB/2 MB kernel would happy scribble over ~8.5 MB.
+Removing the printk from ide.c does _not_ cure the problem.   The ide
+setting between 2.4 and 2.5 were as identical as I can make them.
 
-See also figures 7 and 8 of
-http://www.almesberger.net/cv/papers/ols2k-9.ps
+A failing 2.5 boot gives:
 
-> ... does that mean the gzipped fs can only be <8MB? That could explain why
-> the ram6MB.gz worked and ram8MB.gz doesn't.
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes
+VP_IDE: IDE controller at PCI slot 00:07.1
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+VP_IDE: VIA vt82c586b (rev 47) IDE UDMA33 controller on pci00:07.1
+    ide0: BM-DMA at 0xa000-0xa007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xa008-0xa00f, BIOS settings: hdc:DMA, hdd:DMA
+hda: QUANTUM FIREBALLP KA13.6, ATA DISK drive
+hda: DMA disabled
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hdc: CD-ROM 50X, ATAPI CD/DVD-ROM drive
+hdd: HP COLORADO 20GB, ATAPI TAPE drive
+hdc: DMA disabled
+hdd: DMA disabled
+ide1 at 0x170-0x177,0x376 on irq 15
+PDC20267: IDE controller at PCI slot 00:09.0
+PCI: Found IRQ 12 for device 00:09.0
+PDC20267: chipset revision 2
+PDC20267: not 100% native mode: will probe irqs later
+PDC20267: ROM enabled at 0xeb000000
+PDC20267: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+    ide2: BM-DMA at 0xbc00-0xbc07, BIOS settings: hde:DMA, hdf:pio
+    ide3: BM-DMA at 0xbc08-0xbc0f, BIOS settings: hdg:DMA, hdh:pio
+hde: QUANTUM FIREBALLP AS40.0, ATA DISK drive
+ide2 at 0xac00-0xac07,0xb002 on irq 12
+ide_intr: unexpected interrupt!
+ide_intr: unexpected interrupt!
+ide_intr: unexpected interrupt!
+....
 
-The 8 MB mapping affects mainly the maximum kernel size and
-shouldn't matter in this case. If you want to try anyway, you
-should be able to increase the mapping by pushing
-arch/i386/kernel/head.S:empty_zero_page down by a page, and
-adjusting the .org below too.
+A working 2.4-pre5-ac4 boot gives:
+Sep 13 21:17:50 oscar kernel: Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+Sep 13 21:17:50 oscar kernel: ide: Assuming 33MHz system bus speed for PIO modes
+Sep 13 21:17:50 oscar kernel: VP_IDE: IDE controller at PCI slot 00:07.1
+Sep 13 21:17:50 oscar kernel: VP_IDE: chipset revision 6
+Sep 13 21:17:50 oscar kernel: VP_IDE: not 100%% native mode: will probe irqs later
+Sep 13 21:17:50 oscar kernel: VP_IDE: VIA vt82c586b (rev 47) IDE UDMA33 controller on pci00:07.1
+Sep 13 21:17:50 oscar kernel:     ide0: BM-DMA at 0xa000-0xa007, BIOS settings: hda:DMA, hdb:DMA
+Sep 13 21:17:50 oscar kernel:     ide1: BM-DMA at 0xa008-0xa00f, BIOS settings: hdc:DMA, hdd:DMA
+Sep 13 21:17:50 oscar kernel: PDC20267: IDE controller at PCI slot 00:09.0
+Sep 13 21:17:50 oscar kernel: PCI: Found IRQ 12 for device 00:09.0
+Sep 13 21:17:50 oscar kernel: PDC20267: chipset revision 2
+Sep 13 21:17:50 oscar kernel: PDC20267: not 100%% native mode: will probe irqs later
+Sep 13 21:17:50 oscar kernel: PDC20267: ROM enabled at 0xeb000000
+Sep 13 21:17:50 oscar kernel: PDC20267: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+Sep 13 21:17:50 oscar kernel:     ide2: BM-DMA at 0xbc00-0xbc07, BIOS settings: hde:DMA, hdf:pio
+Sep 13 21:17:50 oscar kernel:     ide3: BM-DMA at 0xbc08-0xbc0f, BIOS settings: hdg:DMA, hdh:pio
+Sep 13 21:17:50 oscar kernel: hda: QUANTUM FIREBALLP KA13.6, ATA DISK drive
+Sep 13 21:17:50 oscar kernel: hda: DMA disabled
+Sep 13 21:17:50 oscar kernel: blk: queue c02a83c0, I/O limit 4095Mb (mask 0xffffffff)
+Sep 13 21:17:50 oscar kernel: hdc: CD-ROM 50X, ATAPI CD/DVD-ROM drive
+Sep 13 21:17:50 oscar kernel: hdd: HP COLORADO 20GB, ATAPI TAPE drive
+Sep 13 21:17:50 oscar kernel: hdc: DMA disabled
+Sep 13 21:17:50 oscar kernel: hdd: DMA disabled
+Sep 13 21:17:50 oscar kernel: hde: QUANTUM FIREBALLP AS40.0, ATA DISK drive
+Sep 13 21:17:50 oscar kernel: blk: queue c02a8ca8, I/O limit 4095Mb (mask 0xffffffff)
+Sep 13 21:17:50 oscar kernel: hdg: QUANTUM FIREBALLP AS40.0, ATA DISK drive
 
-So, assuming the problem is indeed the kernel overwriting initrd,
-there are three things you can do to avoid this:
+Notice that 2.4 orders the boot differently.  Wonder if this is significant?
 
- - use a smaller initrd (they were never meant to be quite
-   *that* big anyway :-)
- - make your kernel smaller
- - get your boot loader to load the initrd at a higher
-   address, or find a boot loader that does (no, I don't
-   know which ones do, and whether they do this reliably.
-   Section 2.5 of my booting paper (see above) explains
-   some potential pitfalls.)
+What additional info would help?
 
-- Werner
+Ed Tomlinson
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+
+
+

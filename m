@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273406AbRIWLaq>; Sun, 23 Sep 2001 07:30:46 -0400
+	id <S273382AbRIWLlT>; Sun, 23 Sep 2001 07:41:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273413AbRIWLa0>; Sun, 23 Sep 2001 07:30:26 -0400
-Received: from daleth.esc.cam.ac.uk ([131.111.64.59]:30479 "EHLO
-	beth.esc.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S273406AbRIWLaT>; Sun, 23 Sep 2001 07:30:19 -0400
-Date: Sun, 23 Sep 2001 12:30:42 +0100
-From: James McKenzie <kernel@ostrich.dhs.org>
+	id <S273414AbRIWLlK>; Sun, 23 Sep 2001 07:41:10 -0400
+Received: from [213.96.124.18] ([213.96.124.18]:20974 "HELO dardhal")
+	by vger.kernel.org with SMTP id <S273382AbRIWLlC>;
+	Sun, 23 Sep 2001 07:41:02 -0400
+Date: Sun, 23 Sep 2001 13:42:33 +0000
+From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
+	<jdomingo@internautas.org>
 To: linux-kernel@vger.kernel.org
-Subject: alpha 4K mmap offsets and em86
-Message-ID: <20010923123042.B32649@hecate.esc.cam.ac.uk>
+Subject: Re: Whats in the wings for 2.5 (when it opens)
+Message-ID: <20010923134232.A5315@dardhal.mired.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010918001826.7D118A0E5@oscar.casa.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-X-Mail-Author: fish
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20010918001826.7D118A0E5@oscar.casa.dyndns.org>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Monday, 17 September 2001, at 20:18:25 -0400,
+Ed Tomlinson wrote:
 
-very sorry if this has been discussed before I couldn't
-find any references in the archive. There is a program
-on the alpha architecture which can (with a little help
-from the kernel) execute ia32 linux binaries it's useful
-if you need to run badly written 32 bit code.
+> Hi,
+> 
+> Seems like there is a lot of code "ready" for consideration in a 2.5 kernel.
+> I can think of:
+> [...]
+>
+Maybe this is something worth to have a look at:
+http://evlog.sourceforge.net/
 
-The emulator needs to mmap elf binaries in, and 
-offsets in ia32 elf files are 4k aligned for a 4k
-pagesize. On 2.2 on an alpha you could do
-mmap(NULL,3176, ... , fd, 0x1000);
-but now in 2.4 but in 2.4 it returns EINVAL.
+It seems to be an "enterprise-class advanced event logging system for
+Linux", trying toi be compliant with upcoming POSIX Standard 1003.25,
+"System API - Services for Reliable, Available, and Serviceable Systems".
 
-The code in mm/mmap.c and vm_area_struct seem to
-now count the offset in pages rather than bytes, 
-which would make fixing this ugly [maybe an element
-in the structure to store 'slop' ?]
+It requires kernel patches and userspace logging daemon to work. Kernel
+patches are available for 2.4.4 and as I can see from the kernel patch, it
+is little intrusive (hardly any changes to existing kernel code, and adds
+a couple of new files). It also requires a patched glibc, but the required
+patch (for glibc2.2.3) is very little.
 
-I can fix static binaries by patching an ia32 ld
-to generate 8k alignments and running ld on the
-binary  - but I suspect this problem will surface 
-again once ia64 takes off.
-
-Any ideas or pointers very welcome,
-
-Thanks,
-
-James.
-
-
-
-
-
+--
+José Luis Domingo López
+Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
+ 
+jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
+jdomingo AT internautas DOT   org  => Spam at your own risk
 

@@ -1,410 +1,222 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261371AbSJHXGG>; Tue, 8 Oct 2002 19:06:06 -0400
+	id <S261372AbSJHXIb>; Tue, 8 Oct 2002 19:08:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261397AbSJHXGF>; Tue, 8 Oct 2002 19:06:05 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:44297 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261371AbSJHXEE>;
-	Tue, 8 Oct 2002 19:04:04 -0400
-Date: Tue, 8 Oct 2002 16:05:54 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Subject: [PATCH] LSM changes for 2.5.40
-Message-ID: <20021008230553.GB11247@kroah.com>
-References: <20021008230506.GA11247@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021008230506.GA11247@kroah.com>
-User-Agent: Mutt/1.4i
+	id <S261368AbSJHXIF>; Tue, 8 Oct 2002 19:08:05 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:32439 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261398AbSJHXHU>; Tue, 8 Oct 2002 19:07:20 -0400
+Message-ID: <3DA36673.30702@us.ibm.com>
+Date: Tue, 08 Oct 2002 16:12:51 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: oops in 2.5.41-bk in tasklet_hi_action
+References: <20021008223044.GB10837@kroah.com>
+Content-Type: multipart/mixed;
+ boundary="------------090500090808080000060709"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.704   -> 1.705  
-#	 include/linux/ipc.h	1.1     -> 1.2    
-#	           ipc/msg.c	1.6     -> 1.7    
-#	include/linux/security.h	1.3     -> 1.4    
-#	    security/dummy.c	1.6     -> 1.7    
-#	security/capability.c	1.5     -> 1.6    
-#	           ipc/sem.c	1.11    -> 1.12   
-#	          ipc/util.c	1.5     -> 1.6    
-#	           ipc/shm.c	1.17    -> 1.18   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/10/08	sds@tislabs.com	1.705
-# [PATCH] Base set of LSM hooks for SysV IPC
-# 
-# The patch below adds the base set of LSM hooks for System V IPC to the
-# 2.5.41 kernel.  These hooks permit a security module to label
-# semaphore sets, message queues, and shared memory segments and to
-# perform security checks on these objects that parallel the existing
-# IPC access checks.  Additional LSM hooks for labeling and controlling
-# individual messages sent on a single message queue and for providing
-# fine-grained distinctions among IPC operations will be submitted
-# separately after this base set of LSM IPC hooks has been accepted.
-# --------------------------------------------
-#
-diff -Nru a/include/linux/ipc.h b/include/linux/ipc.h
---- a/include/linux/ipc.h	Tue Oct  8 15:51:15 2002
-+++ b/include/linux/ipc.h	Tue Oct  8 15:51:15 2002
-@@ -63,6 +63,7 @@
- 	gid_t		cgid;
- 	mode_t		mode; 
- 	unsigned long	seq;
-+	void		*security;
- };
- 
- #endif /* __KERNEL__ */
-diff -Nru a/include/linux/security.h b/include/linux/security.h
---- a/include/linux/security.h	Tue Oct  8 15:51:15 2002
-+++ b/include/linux/security.h	Tue Oct  8 15:51:15 2002
-@@ -572,6 +572,50 @@
-  * 	is being reparented to the init task.
-  *	@p contains the task_struct for the kernel thread.
-  *
-+ * Security hooks affecting all System V IPC operations.
-+ *
-+ * @ipc_permission:
-+ *	Check permissions for access to IPC
-+ *	@ipcp contains the kernel IPC permission structure
-+ *	@flag contains the desired (requested) permission set
-+ *	Return 0 if permission is granted.
-+ *
-+ * Security hooks for System V IPC Message Queues
-+ *
-+ * @msg_queue_alloc_security:
-+ *	Allocate and attach a security structure to the
-+ *	msq->q_perm.security field. The security field is initialized to
-+ *	NULL when the structure is first created.
-+ *	@msq contains the message queue structure to be modified.
-+ *	Return 0 if operation was successful and permission is granted.
-+ * @msg_queue_free_security:
-+ *	Deallocate security structure for this message queue.
-+ *	@msq contains the message queue structure to be modified.
-+ *
-+ * Security hooks for System V Shared Memory Segments
-+ *
-+ * @shm_alloc_security:
-+ *	Allocate and attach a security structure to the shp->shm_perm.security
-+ *	field.  The security field is initialized to NULL when the structure is
-+ *	first created.
-+ *	@shp contains the shared memory structure to be modified.
-+ *	Return 0 if operation was successful and permission is granted.
-+ * @shm_free_security:
-+ *	Deallocate the security struct for this memory segment.
-+ *	@shp contains the shared memory structure to be modified.
-+ *
-+ * Security hooks for System V Semaphores
-+ *
-+ * @sem_alloc_security:
-+ *	Allocate and attach a security structure to the sma->sem_perm.security
-+ *	field.  The security field is initialized to NULL when the structure is
-+ *	first created.
-+ *	@sma contains the semaphore structure
-+ *	Return 0 if operation was successful and permission is granted.
-+ * @sem_free_security:
-+ *	deallocate security struct for this semaphore
-+ *	@sma contains the semaphore structure.
-+ *
-  * @ptrace:
-  *	Check permission before allowing the @parent process to trace the
-  *	@child process.
-@@ -785,6 +829,17 @@
- 			   unsigned long arg5);
- 	void (*task_kmod_set_label) (void);
- 	void (*task_reparent_to_init) (struct task_struct * p);
-+
-+	int (*ipc_permission) (struct kern_ipc_perm * ipcp, short flag);
-+
-+	int (*msg_queue_alloc_security) (struct msg_queue * msq);
-+	void (*msg_queue_free_security) (struct msg_queue * msq);
-+
-+	int (*shm_alloc_security) (struct shmid_kernel * shp);
-+	void (*shm_free_security) (struct shmid_kernel * shp);
-+
-+	int (*sem_alloc_security) (struct sem_array * sma);
-+	void (*sem_free_security) (struct sem_array * sma);
- 
- 	/* allow module stacking */
- 	int (*register_security) (const char *name,
-diff -Nru a/ipc/msg.c b/ipc/msg.c
---- a/ipc/msg.c	Tue Oct  8 15:51:15 2002
-+++ b/ipc/msg.c	Tue Oct  8 15:51:15 2002
-@@ -22,6 +22,7 @@
- #include <linux/init.h>
- #include <linux/proc_fs.h>
- #include <linux/list.h>
-+#include <linux/security.h>
- #include <asm/uaccess.h>
- #include "util.h"
- 
-@@ -89,6 +90,7 @@
- static int newque (key_t key, int msgflg)
+This is a multi-part message in MIME format.
+--------------090500090808080000060709
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Greg KH wrote:
+> I got the following oops on 2.5.41 + latest bk tree as of 3 pm PST under
+> heavy ide load:
+> 
+> It's a UP box running with SMP and preempt enabled.
+> 
+> Unable to handle kernel NULL pointer dereference at virtual address 00000004
+> *pde = 00000000
+> Oops: 0002
+> hid uhci-hcd usbcore  
+> CPU:    0
+> EIP:    0060:[<c0125292>]    Not tainted
+> EFLAGS: 00010016
+> EIP is at run_timer_tasklet+0x102/0x220
+ > <snip>
+> Call Trace:
+>  [<c01215c0>] tasklet_hi_action+0x80/0xd0
+>  [<c01212bb>] do_softirq+0x5b/0xc0
+>  [<c01114d1>] smp_apic_timer_interrupt+0x111/0x140
+>  [<c0109b0f>] do_IRQ+0x18f/0x230
+>  [<c0108256>] apic_timer_interrupt+0x1a/0x20
+
+Notice that eip is actually in run_timer_tasklet and __run_timers is 
+inlined there.  You're actually crashing in __run_timers, in the same 
+place as me, before Ingo's fix.  Try the attached patch that I got 
+from Ingo this morning.  There is still some kind of problem for me, 
+but it might be a completely different one.
+
+My oops is while running Specweb, so high interrupt load for me too.
+-- 
+Dave Hansen
+haveblue@us.ibm.com
+
+--------------090500090808080000060709
+Content-Type: text/plain;
+ name="run_timers_fix-ingo-0.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="run_timers_fix-ingo-0.patch"
+
+Received: from localhost (nighthawk [127.0.0.1])
+	by nighthawk.sr71.net (8.11.6/8.11.6) with ESMTP id g98AuLc12011
+	for <dave@localhost>; Tue, 8 Oct 2002 03:56:24 -0700
+Received: from imap.linux.ibm.com [9.27.103.44]
+	by localhost with IMAP (fetchmail-5.9.0)
+	for dave@localhost (multi-drop); Tue, 08 Oct 2002 03:56:24 -0700 (PDT)
+Received: from localhost ([unix socket])
+	by imap.linux.ibm.com (Cyrus v2.1.9) with LMTP; Tue, 08 Oct 2002 06:55:42 -0400
+X-Sieve: CMU Sieve 2.2
+Received: from smtp.linux.ibm.com (linux.ibm.com [9.26.4.197])
+	by imap.linux.ibm.com (Postfix) with ESMTP id 401627C017
+	for <haveblue@imap.linux.ibm.com>; Tue,  8 Oct 2002 06:55:42 -0400 (EDT)
+Received: from northrelay03.pok.ibm.com (northrelay03.pok.ibm.com [9.56.224.151])
+	by smtp.linux.ibm.com (Postfix) with ESMTP id 02E323FE06
+	for <haveblue@linux.ibm.com>; Tue,  8 Oct 2002 06:55:34 -0400 (EDT)
+Received: from e31.co.us.ibm.com (d03av01.boulder.ibm.com [9.17.193.81])
+	by northrelay03.pok.ibm.com (8.12.3/NCO/VER6.4) with ESMTP id g98AtVqY080584
+	for <haveblue@us.ibm.com>; Tue, 8 Oct 2002 06:55:32 -0400
+Received: from mx1.elte.hu (mx1.elte.hu [157.181.1.137])
+	by e31.co.us.ibm.com (8.12.2/8.12.2) with ESMTP id g98AtRAs034788
+	for <haveblue@us.ibm.com>; Tue, 8 Oct 2002 06:55:31 -0400
+Received: from chiara.elte.hu (chiara.elte.hu [157.181.150.200])
+	by mx1.elte.hu (Postfix) with ESMTP
+	id 08F0244732; Tue,  8 Oct 2002 12:55:11 +0200 (CEST)
+Received: by chiara.elte.hu (Postfix, from userid 17806)
+	id E70821FF1; Tue,  8 Oct 2002 12:54:44 +0200 (CEST)
+Date: Tue, 8 Oct 2002 13:05:40 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Sender: mingo@localhost.localdomain
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+   "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.40-mm2
+In-Reply-To: <3DA0A144.8070301@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0210081303090.29540-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Status: No, hits=-8.4 required=5.0
+	tests=IN_REP_TO,UNIFIED_PATCH
+	version=2.31
+X-Spam-Level: 
+X-Fetchmail-Warning: no recipient addresses matched declared local names
+
+
+On Sun, 6 Oct 2002, Dave Hansen wrote:
+
+> cc'ing Ingo, because I think this might be related to the timer bh
+> removal.
+
+could you try the attached patch against 2.5.41, does it help? It fixes
+the bugs found so far plus makes del_timer_sync() a bit more robust by
+re-checking timer pending-ness before exiting. There is one type of code
+that might have relied on this kind of behavior of the old timer code.
+
+	Ingo
+
+--- linux/kernel/timer.c.orig	2002-10-08 12:39:46.000000000 +0200
++++ linux/kernel/timer.c	2002-10-08 12:49:50.000000000 +0200
+@@ -266,29 +266,31 @@
+ int del_timer_sync(timer_t *timer)
  {
- 	int id;
-+	int retval;
- 	struct msg_queue *msq;
+ 	tvec_base_t *base = tvec_bases;
+-	int i, ret;
++	int i, ret = 0;
  
- 	msq  = (struct msg_queue *) kmalloc (sizeof (*msq), GFP_KERNEL);
-@@ -98,8 +100,16 @@
- 	msq->q_perm.mode = (msgflg & S_IRWXUGO);
- 	msq->q_perm.key = key;
+-	ret = del_timer(timer);
++del_again:
++	ret += del_timer(timer);
  
-+	msq->q_perm.security = NULL;
-+	retval = security_ops->msg_queue_alloc_security(msq);
-+	if (retval) {
-+		kfree(msq);
-+		return retval;
-+	}
-+
- 	id = ipc_addid(&msg_ids, &msq->q_perm, msg_ctlmni);
- 	if(id == -1) {
-+		security_ops->msg_queue_free_security(msq);
- 		kfree(msq);
- 		return -ENOSPC;
+-	for (i = 0; i < NR_CPUS; i++) {
++	for (i = 0; i < NR_CPUS; i++, base++) {
+ 		if (!cpu_online(i))
+ 			continue;
+ 		if (base->running_timer == timer) {
+ 			while (base->running_timer == timer) {
+ 				cpu_relax();
+-				preempt_disable();
+-				preempt_enable();
++				preempt_check_resched();
+ 			}
+ 			break;
+ 		}
+-		base++;
  	}
-@@ -271,6 +281,7 @@
- 		free_msg(msg);
++	if (timer_pending(timer))
++		goto del_again;
++
+ 	return ret;
+ }
+ #endif
+ 
+ 
+-static void cascade(tvec_base_t *base, tvec_t *tv)
++static int cascade(tvec_base_t *base, tvec_t *tv)
+ {
+ 	/* cascade all the timers from tv up one level */
+ 	struct list_head *head, *curr, *next;
+@@ -310,7 +312,8 @@
+ 		curr = next;
  	}
- 	atomic_sub(msq->q_cbytes, &msg_bytes);
-+	security_ops->msg_queue_free_security(msq);
- 	kfree(msq);
+ 	INIT_LIST_HEAD(head);
+-	tv->index = (tv->index + 1) & TVN_MASK;
++
++	return tv->index = (tv->index + 1) & TVN_MASK;
  }
  
-diff -Nru a/ipc/sem.c b/ipc/sem.c
---- a/ipc/sem.c	Tue Oct  8 15:51:15 2002
-+++ b/ipc/sem.c	Tue Oct  8 15:51:15 2002
-@@ -63,6 +63,7 @@
- #include <linux/init.h>
- #include <linux/proc_fs.h>
- #include <linux/smp_lock.h>
-+#include <linux/security.h>
- #include <asm/uaccess.h>
- #include "util.h"
- 
-@@ -115,6 +116,7 @@
- static int newary (key_t key, int nsems, int semflg)
+ /***
+@@ -322,26 +325,18 @@
+  */
+ static inline void __run_timers(tvec_base_t *base)
  {
- 	int id;
-+	int retval;
- 	struct sem_array *sma;
- 	int size;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&base->lock, flags);
++	spin_lock_irq(&base->lock);
+ 	while ((long)(jiffies - base->timer_jiffies) >= 0) {
+ 		struct list_head *head, *curr;
  
-@@ -133,8 +135,16 @@
- 	sma->sem_perm.mode = (semflg & S_IRWXUGO);
- 	sma->sem_perm.key = key;
- 
-+	sma->sem_perm.security = NULL;
-+	retval = security_ops->sem_alloc_security(sma);
-+	if (retval) {
-+		ipc_free(sma, size);
-+		return retval;
-+	}
-+
- 	id = ipc_addid(&sem_ids, &sma->sem_perm, sc_semmni);
- 	if(id == -1) {
-+		security_ops->sem_free_security(sma);
- 		ipc_free(sma, size);
- 		return -ENOSPC;
- 	}
-@@ -417,6 +427,7 @@
- 
- 	used_sems -= sma->sem_nsems;
- 	size = sizeof (*sma) + sma->sem_nsems * sizeof (struct sem);
-+	security_ops->sem_free_security(sma);
- 	ipc_free(sma, size);
+ 		/*
+ 		 * Cascade timers:
+ 		 */
+-		if (!base->tv1.index) {
+-			cascade(base, &base->tv2);
+-			if (base->tv2.index == 1) {
+-				cascade(base, &base->tv3);
+-				if (base->tv3.index == 1) {
+-					cascade(base, &base->tv4);
+-					if (base->tv4.index == 1)
+-						cascade(base, &base->tv5);
+-				}
+-			}
+-		}
++		if (!base->tv1.index &&
++			(cascade(base, &base->tv2) == 1) &&
++				(cascade(base, &base->tv3) == 1) &&
++					cascade(base, &base->tv4) == 1)
++			cascade(base, &base->tv5);
+ repeat:
+ 		head = base->tv1.vec + base->tv1.index;
+ 		curr = head->next;
+@@ -370,7 +365,7 @@
+ #if CONFIG_SMP
+ 	base->running_timer = NULL;
+ #endif
+-	spin_unlock_irqrestore(&base->lock, flags);
++	spin_unlock_irq(&base->lock);
  }
  
-diff -Nru a/ipc/shm.c b/ipc/shm.c
---- a/ipc/shm.c	Tue Oct  8 15:51:15 2002
-+++ b/ipc/shm.c	Tue Oct  8 15:51:15 2002
-@@ -24,6 +24,7 @@
- #include <linux/mman.h>
- #include <linux/proc_fs.h>
- #include <linux/shmem_fs.h>
-+#include <linux/security.h>
- #include <asm/uaccess.h>
- 
- #include "util.h"
-@@ -115,6 +116,7 @@
- 	shm_unlock(shp->id);
- 	shmem_lock(shp->shm_file, 0);
- 	fput (shp->shm_file);
-+	security_ops->shm_free_security(shp);
- 	kfree (shp);
- }
- 
-@@ -185,6 +187,13 @@
- 	shp->shm_perm.key = key;
- 	shp->shm_flags = (shmflg & S_IRWXUGO);
- 
-+	shp->shm_perm.security = NULL;
-+	error = security_ops->shm_alloc_security(shp);
-+	if (error) {
-+		kfree(shp);
-+		return error;
-+	}
-+
- 	sprintf (name, "SYSV%08x", key);
- 	file = shmem_file_setup(name, size, VM_ACCOUNT);
- 	error = PTR_ERR(file);
-@@ -213,6 +222,7 @@
- no_id:
- 	fput(file);
- no_file:
-+	security_ops->shm_free_security(shp);
- 	kfree(shp);
- 	return error;
- }
-diff -Nru a/ipc/util.c b/ipc/util.c
---- a/ipc/util.c	Tue Oct  8 15:51:15 2002
-+++ b/ipc/util.c	Tue Oct  8 15:51:15 2002
-@@ -19,6 +19,7 @@
- #include <linux/vmalloc.h>
- #include <linux/slab.h>
- #include <linux/highuid.h>
-+#include <linux/security.h>
- 
- #if defined(CONFIG_SYSVIPC)
- 
-@@ -263,7 +264,7 @@
- 	    !capable(CAP_IPC_OWNER))
- 		return -1;
- 
--	return 0;
-+	return security_ops->ipc_permission(ipcp, flag);
- }
- 
- /*
-diff -Nru a/security/capability.c b/security/capability.c
---- a/security/capability.c	Tue Oct  8 15:51:15 2002
-+++ b/security/capability.c	Tue Oct  8 15:51:15 2002
-@@ -679,6 +679,41 @@
- 	return;
- }
- 
-+static int cap_ipc_permission (struct kern_ipc_perm *ipcp, short flag)
-+{
-+	return 0;
-+}
-+
-+static int cap_msg_queue_alloc_security (struct msg_queue *msq)
-+{
-+	return 0;
-+}
-+
-+static void cap_msg_queue_free_security (struct msg_queue *msq)
-+{
-+	return;
-+}
-+
-+static int cap_shm_alloc_security (struct shmid_kernel *shp)
-+{
-+	return 0;
-+}
-+
-+static void cap_shm_free_security (struct shmid_kernel *shp)
-+{
-+	return;
-+}
-+
-+static int cap_sem_alloc_security (struct sem_array *sma)
-+{
-+	return 0;
-+}
-+
-+static void cap_sem_free_security (struct sem_array *sma)
-+{
-+	return;
-+}
-+
- static int cap_register (const char *name, struct security_operations *ops)
- {
- 	return -EINVAL;
-@@ -781,6 +816,17 @@
- 	.task_prctl =			cap_task_prctl,
- 	.task_kmod_set_label =		cap_task_kmod_set_label,
- 	.task_reparent_to_init =	cap_task_reparent_to_init,
-+
-+	.ipc_permission =		cap_ipc_permission,
-+
-+	.msg_queue_alloc_security =	cap_msg_queue_alloc_security,
-+	.msg_queue_free_security =	cap_msg_queue_free_security,
-+	
-+	.shm_alloc_security =		cap_shm_alloc_security,
-+	.shm_free_security =		cap_shm_free_security,
-+	
-+	.sem_alloc_security =		cap_sem_alloc_security,
-+	.sem_free_security =		cap_sem_free_security,
- 
- 	.register_security =		cap_register,
- 	.unregister_security =		cap_unregister,
-diff -Nru a/security/dummy.c b/security/dummy.c
---- a/security/dummy.c	Tue Oct  8 15:51:15 2002
-+++ b/security/dummy.c	Tue Oct  8 15:51:15 2002
-@@ -493,6 +493,42 @@
- 	return;
- }
- 
-+static int dummy_ipc_permission (struct kern_ipc_perm *ipcp, short flag)
-+{
-+	return 0;
-+}
-+
-+
-+static int dummy_msg_queue_alloc_security (struct msg_queue *msq)
-+{
-+	return 0;
-+}
-+
-+static void dummy_msg_queue_free_security (struct msg_queue *msq)
-+{
-+	return;
-+}
-+
-+static int dummy_shm_alloc_security (struct shmid_kernel *shp)
-+{
-+	return 0;
-+}
-+
-+static void dummy_shm_free_security (struct shmid_kernel *shp)
-+{
-+	return;
-+}
-+
-+static int dummy_sem_alloc_security (struct sem_array *sma)
-+{
-+	return 0;
-+}
-+
-+static void dummy_sem_free_security (struct sem_array *sma)
-+{
-+	return;
-+}
-+
- static int dummy_register (const char *name, struct security_operations *ops)
- {
- 	return -EINVAL;
-@@ -595,6 +631,17 @@
- 	.task_prctl =			dummy_task_prctl,
- 	.task_kmod_set_label =		dummy_task_kmod_set_label,
- 	.task_reparent_to_init =	dummy_task_reparent_to_init,
-+
-+	.ipc_permission =		dummy_ipc_permission,
-+	
-+	.msg_queue_alloc_security =	dummy_msg_queue_alloc_security,
-+	.msg_queue_free_security =	dummy_msg_queue_free_security,
-+	
-+	.shm_alloc_security =		dummy_shm_alloc_security,
-+	.shm_free_security =		dummy_shm_free_security,
-+	
-+	.sem_alloc_security =		dummy_sem_alloc_security,
-+	.sem_free_security =		dummy_sem_free_security,
- 
- 	.register_security =		dummy_register,
- 	.unregister_security =		dummy_unregister,
+ /******************************************************************/
+
+
+--------------090500090808080000060709--
+

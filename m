@@ -1,30 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284753AbRLRTCE>; Tue, 18 Dec 2001 14:02:04 -0500
+	id <S284704AbRLRSzn>; Tue, 18 Dec 2001 13:55:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284744AbRLRTAq>; Tue, 18 Dec 2001 14:00:46 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31760 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284604AbRLRTAC>; Tue, 18 Dec 2001 14:00:02 -0500
-Subject: Re: Turning off nagle algorithm in 2.2.x and 2.4.x kernels?
-To: Zameer.Ahmed@gs.com (Ahmed, Zameer)
-Date: Tue, 18 Dec 2001 19:10:02 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk ('Alan Cox'), Zameer.Ahmed@gs.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <FBC7494738B7D411BD7F00902798761908BFF19B@gsny49e.ny.fw.gs.com> from "Ahmed, Zameer" at Dec 18, 2001 12:05:33 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S284761AbRLRSyS>; Tue, 18 Dec 2001 13:54:18 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:2982 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S284711AbRLRSxX>;
+	Tue, 18 Dec 2001 13:53:23 -0500
+Date: Tue, 18 Dec 2001 13:53:21 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+cc: "'James A Sutherland'" <james@sutherland.net>,
+        "'otto.wyss@bluewin.ch'" <otto.wyss@bluewin.ch>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Booting a modular kernel through a multiple streams file
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C42D803@orsmsx111.jf.intel.com>
+Message-ID: <Pine.GSO.4.21.0112181346250.7996-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16GPco-0008MR-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The finicky nature of closed sourced sybase libraries that we are using in
-> the custom apps make me ask this question. Will turning off the Nagle
-> algorithm in the kernel on the fly, impact performance in any way? or Can we
-> have this feature in the kernel in some way?
 
-Turning it off generically risks extremely bad network behaviour on a 
-congested link. 
+
+On Tue, 18 Dec 2001, Grover, Andrew wrote:
+
+> 1) GRUB can already do this
+> 2) Each bootloader doesn't need to link, the kernel includes the linker.
+> (which after it does its job can be discarded and insmod used later on)
+> 3) Seeing how ugly everyone seems to think initrd is, this seems like a
+> worthwhile option to consider.
+
+Sigh...  You end up adding more code to kernel _and_ keeping initrd
+code in there.  And that's supposed to be an improvement?
+

@@ -1,107 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262634AbUBYGWS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 01:22:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbUBYGWS
+	id S262641AbUBYGzR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 01:55:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262639AbUBYGzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 01:22:18 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:30891 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S262634AbUBYGWH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 01:22:07 -0500
-Message-ID: <403C3F04.20601@colorfullife.com>
-Date: Wed, 25 Feb 2004 07:21:56 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Darren Williams <dsw@gelato.unsw.edu.au>
-CC: LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [BUG] 2.6.3 Slab corruption: errors are triggered when memory
- exceeds 2.5GB (correction)
-References: <403AF155.1080305@colorfullife.com> <20040223225659.4c58c880.akpm@osdl.org> <403B8C78.2020606@colorfullife.com> <20040225005804.GE18070@cse.unsw.EDU.AU>
-In-Reply-To: <20040225005804.GE18070@cse.unsw.EDU.AU>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Feb 2004 01:55:17 -0500
+Received: from cmail.srv.hcvlny.cv.net ([167.206.112.40]:52691 "EHLO
+	cmail.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S262641AbUBYGzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 01:55:10 -0500
+Date: Wed, 25 Feb 2004 01:55:09 -0500 (EST)
+From: Pavel Roskin <proski@gnu.org>
+Subject: Re: [PATCH] yenta: irq-routing for TI bridges - take 2
+In-reply-to: <200402250026.20708.daniel.ritz@gmx.ch>
+X-X-Sender: proski@portland.hansa.lan
+To: Daniel Ritz <daniel.ritz@gmx.ch>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       linux-pcmcia <linux-pcmcia@lists.infradead.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <Pine.LNX.4.58.0402250148080.2144@portland.hansa.lan>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <200402240033.31042.daniel.ritz@gmx.ch>
+ <20040224124011.A30975@flint.arm.linux.org.uk>
+ <200402241623.11569.daniel.ritz@alcatel.ch>
+ <200402250026.20708.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Darren Williams wrote:
+On Wed, 25 Feb 2004, Daniel Ritz wrote:
 
->Hi Manfred
+> hi
 >
->I have updated to the latest bk and new output can be found at:
->http://quasar.cse.unsw.edu.au/~dsw/public-files/lemon-debug/
->kern-log-bk
+> the last patch was bad...chaning stuff it shouldn't on TI125x, 145x...
 >
->Also I am quite confident that it is not a hardware problem.
->
->I took a look at alloc_skb(..) and there is a reference to
->an atomic_t token with this being the most suspect
->
->150> atomic_set(&(skb_shinfo(skb)->dataref), 1);
->  
->
-I don't think so:
-The allocation that generates the error is skb->head: The cache name is 
-"size-2048", thus the allocation is a kmalloc(1000-2000, probably 1536 
-for one eth frame). The skb itself is allocated from the skbuff_head_cache.
+> another try...comments?
+> couldn't find datasheets for 1210, 1220, 1250 so i'm not quite sure about them....
 
-I don't see a pattern in the virtual addresses:
- start=e000000101ee09a0, len=2048
- start=e000000101ee09a0, len=2048
- start=e000000101ee11b8, len=2048
- start=e000000101ee19d0, len=2048
- start=e000000101ee3218, len=2048
- start=e00000017eed1b90, len=2048
- start=e00000017eed23a8, len=2048
- start=e00000017eed2bc0, len=2048
- start=e00000017eed4308, len=2048
- start=e00000017eed5338, len=2048
- start=e00000017eed5338, len=2048
- start=e00000017eed5b50, len=2048
- start=e00000017eed5b50, len=2048
- start=e00000017eed6b80, len=2048
- start=e00000017eed82c8, len=2048
- start=e00000017eedc288, len=2048
- start=e00000017eedcaa0, len=2048
- start=e00000017eeddad0, len=2048
- start=e00000017eede2e8, len=2048
- start=e00000017eedeb00, len=2048
- start=e00000017ef60a60, len=2048
- start=e00000017ef61a90, len=2048
- start=e00000017ef622a8, len=2048
- start=e00000017ef62ac0, len=2048
- start=e00000017ef632d8, len=2048
- start=e00000017ef65a50, len=2048
- start=e00000017ef65a50, len=2048
- start=e00000017ef65a50, len=2048
- start=e00000017ef66a80, len=2048
+http://www.mit.edu/afs/sipb/contrib/doc/specs/ic/bridge/
 
-That virtually rules out a bad memory chip.
+> compile tested (my TI works, so no difference there)
 
-But the corrupted byte is always at offset 0x620 into the allocation:
- Slab corruption: start=e00000017ef65a50, len=2048
- 620: 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
---
- Slab corruption: start=e000000101ee19d0, len=2048
- 620: 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
---
- Slab corruption: start=e000000101ee3218, len=2048
- 620: 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
---
- Slab corruption: start=e00000017ef66a80, len=2048
- 620: 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
---
- Slab corruption: start=e000000101ee11b8, len=2048
- 620: 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Works for me.  yenta_socket is compiled into the kernel.  Two cards:  TI
+1221 with 2 slots (no fixup needed) and TI 1410 that needs it.
 
-0x620 (1568) is behind the end of the actual eth frame. Who could modify 
-that?
 
-Darren, which nic do you use? Could you try what happens if you reduce 
-the MTU?
+Yenta: CardBus bridge found at 0000:00:08.0 [133f:1233]
+Yenta: Enabling burst memory read transactions
+Yenta: Using CSCINT to route CSC interrupts to PCI
+Yenta: Routing CardBus interrupts to PCI
+Yenta TI: mfunc 0cc07d92, devctl 60
+Yenta: ISA IRQ mask 0x0000, PCI irq 5
+Socket status: 30000006
+Yenta: CardBus bridge found at 0000:00:08.1 [133f:1233]
+Yenta: Using CSCINT to route CSC interrupts to PCI
+Yenta: Routing CardBus interrupts to PCI
+Yenta TI: mfunc 0cc07d92, devctl 60
+Yenta: ISA IRQ mask 0x0000, PCI irq 5
+Socket status: 30000006
+Yenta: CardBus bridge found at 0000:00:0a.0 [0000:0000]
+Yenta: Enabling burst memory read transactions
+Yenta: Using CSCINT to route CSC interrupts to PCI
+Yenta: Routing CardBus interrupts to PCI
+Yenta TI: mfunc 00000000, devctl 66
+Yenta TI: changing mfunc to 00001000
+Yenta TI: falling back to PCI interrupts
+Yenta TI: changing mfunc to 00001002
+Yenta: ISA IRQ mask 0x0000, PCI irq 12
 
---
-    Manfred
+$ cat /proc/interrupts
+           CPU0
+  0:     664717          XT-PIC  timer
+  1:       1530          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  5:          3          XT-PIC  yenta, yenta, orinoco_cs
+  7:          0          XT-PIC  acpi
+  8:          4          XT-PIC  rtc
+ 10:       1502          XT-PIC  uhci_hcd, uhci_hcd
+ 11:         46          XT-PIC  eth0
+ 12:          3          XT-PIC  yenta, VIA686A, orinoco_cs
+ 14:      36354          XT-PIC  ide0
+ 15:         21          XT-PIC  ide1
+NMI:          0
+ERR:          0
 
+-- 
+Regards,
+Pavel Roskin

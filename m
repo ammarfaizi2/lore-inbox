@@ -1,52 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277165AbRJUXRK>; Sun, 21 Oct 2001 19:17:10 -0400
+	id <S277119AbRJUXVa>; Sun, 21 Oct 2001 19:21:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277161AbRJUXRA>; Sun, 21 Oct 2001 19:17:00 -0400
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:41151 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S277119AbRJUXQz>; Sun, 21 Oct 2001 19:16:55 -0400
-Message-ID: <3BD357B2.12AE9A5E@kegel.com>
-Date: Sun, 21 Oct 2001 16:18:10 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-2 i686)
-X-Accept-Language: en
+	id <S277161AbRJUXVV>; Sun, 21 Oct 2001 19:21:21 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47364 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277119AbRJUXVD>; Sun, 21 Oct 2001 19:21:03 -0400
+Subject: Re: /proc/sys/kernel/tainted does not seem to work as intended
+To: juhl@eisenstein.dk (Jesper Juhl)
+Date: Mon, 22 Oct 2001 00:28:01 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BD356BB.8FB3700D@eisenstein.dk> from "Jesper Juhl" at Oct 22, 2001 01:14:04 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: connect() to localhost non-blocking.
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15vS0f-0008Ks-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Patrick Mau <mau@oscar.prima.de> writes:
-> 
-> > I wrote a little test program to do some poll() benchmarks.
-> > I changed the host address to localhost and observed that
-> > connect() always returns EINPROGRESS when used with non-blocking
-> > sockets.
-> > 
-> > >From the man page:
-> > 
-> > EINPROGRESS
-> >  The socket is non-blocking and the connection cannot be completed
-> >  immediately. It is possible to select(2) or poll(2) for completion by
-> >  selecting the socket for writing.
-> > 
-> > So my question is:
-> > 
-> > What is meant by 'cannot be completed immediately' ?
-> > I thought that connections to localhost would complete
-> > without any delay when the application listens ?
-> 
-> Probably the accept()ing process hasn't been scheduled yet.
-> EINPROGRESS is a perfectly reasonable response in such a case. 
+> with X) and the nVidia drivers load as X is started, I check
+> /proc/sys/kernel/tainted and find that it is still 0. Since the nVidia
+> drivers are binary only and not GPL shouldn't /proc/sys/kernel/tainted
+> be 1 (or at least != 0) ???
 
-You have to be prepared to handle both immediate and delayed
-connection, especially if you want to be portable.  (Solaris behaves 
-a bit differently than Linux in this regard.)  See
-http://www.kegel.com/dkftpbench/dkftpbench-0.37/ftp_client_pipe.cc
-for an example of how to handle nonblocking connects more or less portably.
-(You have to wade through quite a bit of code, tabstops 4, to find
-all the connect-handling stuff -- sorry.)
-- Dan
+It depends if your modutils are current - the work is done in the modutils
+not the kernel

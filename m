@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261581AbSKKXH7>; Mon, 11 Nov 2002 18:07:59 -0500
+	id <S261550AbSKKXOn>; Mon, 11 Nov 2002 18:14:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261613AbSKKXH6>; Mon, 11 Nov 2002 18:07:58 -0500
-Received: from mail.hometree.net ([212.34.181.120]:52910 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S261581AbSKKXH5>; Mon, 11 Nov 2002 18:07:57 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: [PATCH] [2.4.20-rc1] compiler fix drivers/ide/pdc202xx.c
-Date: Mon, 11 Nov 2002 23:14:45 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <aqpdl5$kt6$1@forge.intermeta.de>
-References: <hps@intermeta.de> <200211111502.gABF2ajg031284@pincoya.inf.utfsm.cl>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1037056485 29977 212.34.181.4 (11 Nov 2002 23:14:45 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Mon, 11 Nov 2002 23:14:45 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S261555AbSKKXOn>; Mon, 11 Nov 2002 18:14:43 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:62136 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261550AbSKKXOl>;
+	Mon, 11 Nov 2002 18:14:41 -0500
+Date: Mon, 11 Nov 2002 15:19:29 -0800 (PST)
+Message-Id: <20021111.151929.31543489.davem@redhat.com>
+To: hugh@veritas.com
+Cc: akpm@digeo.com, dmccr@us.ibm.com, riel@conectiva.com.br,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] flush_cache_page while pte valid 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0211111808240.1236-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0211111808240.1236-100000@localhost.localdomain>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand <vonbrand@inf.utfsm.cl> writes:
+   From: Hugh Dickins <hugh@veritas.com>
+   Date: Mon, 11 Nov 2002 18:25:25 +0000 (GMT)
 
->"Henning P. Schmiedehausen" <hps@intermeta.de> said:
->> Daniel Mehrmann <daniel.mehrmann@gmx.de> writes:
->> 
->> >Hello Marcelo,
->> 
->> >i fix a compiler warning from pdc202xx.c.
->> >The "default:" value in the switch was empty. Gcc don`t like
->> >this. We don`t need this one. 
->> 
->> Correct solution is not to remove the "default:" but to add a "break;"
+   On some architectures (cachetlb.txt gives HyperSparc as an example)
+   it is essential to flush_cache_page while pte is still valid: the
+   rmap VM diverged from the base 2.4 VM before that fix was made,
+   so this error has crept back into 2.5.
+...   
+   (I wonder, what happens if userspace now modifies the page
+   after the flush_cache_page, before the pte is invalidated?)
 
->So people start wondering if somehow the content of the default case got
->deleted by mistake? Better not. Plus it is needless (source) code bloat.
+Thanks for catching this.
 
-So comment it:
-
-	default:
-		break;  /* Does nothing */
-
-A switch without a default case is simply asking for trouble in the
-long run.
-
-	Regards
-		Henning
-
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+On architectures that are affected (such as the mentioned HyperSPARC
+chips), the cpu will take a trap and OOPS the kernel if the PTE is
+invalidated before the cache flush is made.

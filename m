@@ -1,56 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265052AbTLCQOz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 11:14:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbTLCQOz
+	id S265048AbTLCQI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 11:08:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265049AbTLCQIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 11:14:55 -0500
-Received: from kiuru.kpnet.fi ([193.184.122.21]:59804 "EHLO kiuru.kpnet.fi")
-	by vger.kernel.org with ESMTP id S265052AbTLCQOy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 11:14:54 -0500
-Subject: Re: Nick's scheduler v19a
-From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <3FBDD790.5060401@cyberone.com.au>
-References: <3FB62608.4010708@cyberone.com.au>
-	 <1069361130.13479.12.camel@midux>  <3FBD4F6E.3030906@cyberone.com.au>
-	 <1069395102.16807.11.camel@midux>  <3FBDAE99.9050902@cyberone.com.au>
-	 <1069405566.18362.5.camel@midux>  <3FBDD790.5060401@cyberone.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-xkua3pM2iBt7WUQxo+FH"
-Message-Id: <1070468086.17208.4.camel@midux>
+	Wed, 3 Dec 2003 11:08:25 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:41695 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S265048AbTLCQIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 11:08:23 -0500
+Date: Wed, 3 Dec 2003 17:08:08 +0100
+To: Linux-Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Problem with USB disk
+Message-ID: <20031203160808.GA1974@feivel.fam-meskes.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 03 Dec 2003 18:14:46 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: michael@fam-meskes.de (Michael Meskes)
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:da5cff6069dd6897c77170232368d0ba
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[Please take my apologies if this is old news, I didn't find much about
+it on the net though.]
 
---=-xkua3pM2iBt7WUQxo+FH
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-Hi Nick,
-I noticed that v19a patch wont apply to 2.6.0-test11-bk1
+I used to run a crypted 120GB disk for some data storage without any problem
+so far. Now I got myself a notebook and tried connecting this disk via a
+USB adapter. This works okay for some time, but at some point errors
+out:
 
-Regards,
-Markus
---=20
-"Software is like sex, it's better when it's free."
-Markus H=E4stbacka <midian at ihme dot org>
+Dec  3 10:25:50 feivel kernel: SCSI device sda: 241254720 512-byte hdwr sectors (123522 MB)
+Dec  3 10:25:50 feivel kernel: sda: assuming drive cache: write through
+Dec  3 10:25:50 feivel kernel:  /dev/scsi/host2/bus0/target0/lun0: p1
+Dec  3 10:25:50 feivel kernel: Attached scsi disk sda at scsi2, channel 0, id 0, lun 0
+Dec  3 10:25:50 feivel kernel: WARNING: USB Mass Storage data integrity not assured
+Dec  3 10:25:50 feivel kernel: USB Mass Storage device found at 3
+Dec  3 10:28:15 feivel kernel: scsi: Device offlined - not ready after error recovery: host 2 channel 0 id 0 lun 0
+Dec  3 10:28:15 feivel kernel: SCSI error : <2 0 0 0> return code = 0x6070000
+Dec  3 10:28:15 feivel kernel: end_request: I/O error, dev sda, sector 191
+Dec  3 10:28:15 feivel kernel: Buffer I/O error on device loop1, logical block 64
+Dec  3 10:28:15 feivel kernel: Buffer I/O error on device loop1, logical block 65
+...
 
---=-xkua3pM2iBt7WUQxo+FH
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Actually this already happens when I just try to e2fsck the ext3
+filesystem on this disk. It always fails.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+I tried enabling verbose messages in USB but this doens't change much it
+seems:
 
-iD8DBQA/zgv23+NhIWS1JHARAvtaAJ9hY0RRTtHr6YFzbz8M6YIIzEhqEQCgtJiO
-VP35IdqG7N6gfGph+lX0t6o=
-=SahR
------END PGP SIGNATURE-----
+...
+Dec  3 13:36:33 feivel kernel: ehci_hcd 0000:00:1d.7: port 3 high speed
+Dec  3 13:36:33 feivel kernel: ehci_hcd 0000:00:1d.7: GetStatus port 3 status 001005 POWER sig=se0  PE CONNECT
+Dec  3 13:36:49 feivel kernel: scsi: Device offlined - not ready after error recovery: host 1 channel 0 id 0 lun 0
+Dec  3 13:36:49 feivel kernel: SCSI error : <1 0 0 0> return code = 0x6070000
+Dec  3 13:36:49 feivel kernel: end_request: I/O error, dev sda, sector 191
+Dec  3 13:36:49 feivel kernel: Buffer I/O error on device loop1, logical block 64
+...
 
---=-xkua3pM2iBt7WUQxo+FH--
+All this is kernel vesion 2.6.0-test11. I also tried test9 with the same
+results and 2.4.21, but that didn't work either.
 
+I'm not sure where to look now. Any ideas?
+
+Michael
+
+P.S.: Please CC me on replies.
+-- 
+Michael Meskes
+Email: Michael at Fam-Meskes dot De
+ICQ: 179140304, AIM/Yahoo: michaelmeskes, Jabber: meskes@jabber.org
+Go SF 49ers! Go Rhein Fire! Use Debian GNU/Linux! Use PostgreSQL!

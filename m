@@ -1,80 +1,137 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278086AbRJZJqB>; Fri, 26 Oct 2001 05:46:01 -0400
+	id <S278108AbRJZKEl>; Fri, 26 Oct 2001 06:04:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278087AbRJZJpv>; Fri, 26 Oct 2001 05:45:51 -0400
-Received: from inje.iskon.hr ([213.191.128.16]:23447 "EHLO inje.iskon.hr")
-	by vger.kernel.org with ESMTP id <S278086AbRJZJpc>;
-	Fri, 26 Oct 2001 05:45:32 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-mm@kvack.org>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: xmm2 - monitor Linux MM active/inactive lists graphically
-In-Reply-To: <Pine.LNX.4.31.0110250920270.2184-100000@cesium.transmeta.com>
-Reply-To: zlatko.calusic@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Date: 26 Oct 2001 11:45:55 +0200
-In-Reply-To: <Pine.LNX.4.31.0110250920270.2184-100000@cesium.transmeta.com> (Linus Torvalds's message of "Thu, 25 Oct 2001 09:31:12 -0700 (PDT)")
-Message-ID: <dnd73apwdo.fsf@magla.zg.iskon.hr>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Artificial Intelligence)
+	id <S278146AbRJZKEc>; Fri, 26 Oct 2001 06:04:32 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:40438 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S278108AbRJZKE1>; Fri, 26 Oct 2001 06:04:27 -0400
+Date: Fri, 26 Oct 2001 12:01:10 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Richard Henderson <rth@redhat.com>
+cc: torvalds@transmeta.com, alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: alpha 2.4.13: fix taso osf emulation
+In-Reply-To: <20011026013101.A1404@redhat.com>
+Message-ID: <Pine.GSO.3.96.1011026113847.14048A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+On Fri, 26 Oct 2001, Richard Henderson wrote:
 
-> On 25 Oct 2001, Zlatko Calusic wrote:
-> >
-> > Yes, I definitely have DMA turned ON. All parameters are OK. :)
-> 
-> I suspect it may just be that "queue_nr_requests"/"batch_count" is
-> different in -ac: what happens if you tweak them to the same values?
-> 
-> (See drivers/block/ll_rw_block.c)
-> 
-> I think -ac made the queues a bit deeper the regular kernel does 128
-> requests and a batch-count of 16, I _think_ -ac does something like "2
-> requests per megabyte" and batch_count=32, so if you have 512MB you should
-> try with
-> 
-> 	queue_nr_requests = 1024
-> 	batch_count = 32
-> 
-> Does that help?
-> 
+> Required to get a dynamicly linked osf taso application working.
+> Like netscape.  Which unfortunately still works better than mozilla
+> for many things.
 
-Unfortunately not. It makes a machine quite unresponsive while it's
-writing to disk, and vmstat 1 discovers strange "spiky"
-behaviour. Average throughput is ~ 8MB/s (disk is capable of ~ 13MB/s)
+ The following trivial patch reportedly fixes OSF/1 programs using 31-bit
+addressing.  It's already present in the -ac tree; I guess it just got
+lost during a merge.  It applies fine to 2.4.13. 
 
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 2  0  0      0   3840    528 441900   0   0     0 34816  188   594   2  34  64
- 0  1  0      0   3332    536 442384   0   0     4 10624  187   519   2   8  90
- 0  1  0      0   3324    536 442384   0   0     0     0  182   499   0   0 100
- 2  1  0      0   3300    536 442384   0   0     0     0  198   486   0   1  99
- 1  1  0      0   3304    536 442384   0   0     0     0  186   513   0   0 100
- 0  1  1      0   3304    536 442384   0   0     0     0  193   473   0   1  99
- 0  1  1      0   3304    536 442384   0   0     0     0  191   508   1   1  98
- 0  1  0      0   3884    536 441840   0   0     4 44672  189   590   4  40  56
- 0  1  0      0   3860    536 441840   0   0     0     0  186   526   0   1  99
- 0  1  0      0   3852    536 441840   0   0     0     0  191   500   0   0 100
- 0  1  0      0   3844    536 441840   0   0     0     0  193   482   1   0  99
- 0  1  0      0   3844    536 441840   0   0     0     0  187   511   0   1  99
- 0  2  1      0   3832    540 441844   0   0     4     0  305  1004   3   2  95
- 0  3  1      0   3824    544 441844   0   0     4     0  410  1340   2   2  96
- 0  3  0      0   3764    552 441916   0   0    12 47360  346   915   6  41  53
- 0  3  0      0   3764    552 441916   0   0     0     0  373   887   0   0 100
- 0  3  0      0   3764    552 441916   0   0     0     0  278   692   1   2  97
- 1  3  0      0   3764    552 441916   0   0     0     0  221   579   0   3  97
- 0  3  0      0   3764    552 441916   0   0     0     0  286   704   0   2  98
+> Thoughts on changing all ports such that a mmap with a non-zero,
+> non-MAP_FIXED address starts the vma search at that address, 
+> rather than looking for that exact address then checking the
+> regular unmapped base?
 
-I'll now test "batch_count = queue_nr_requests / 3", which I found in
-2.4.14-pre2, but with queue_nr_request still left at 1024. And report
-results after that.
+ It used to do so.  It breaks things such as dynamic linking of shared
+objects linked at high load address.  It breaks mmap() in principle, as it
+shouldn't fail when invoked with a non-zero, non-MAP_FIXED, invalid
+address if there is still address space available elsewhere. 
+
+ The following patch approximates the idea with no negative impact.
+
+ I cannot run an Alpha/Linux system anymore thus I can't immediately see
+if a patch gets missed, sorry.
+
 -- 
-Zlatko
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+
+diff -up --recursive --new-file linux-2.4.5-ac8.macro/arch/ia64/kernel/sys_ia64.c linux-2.4.5-ac8/arch/ia64/kernel/sys_ia64.c
+--- linux-2.4.5-ac8.macro/arch/ia64/kernel/sys_ia64.c	Tue Jun  5 14:22:10 2001
++++ linux-2.4.5-ac8/arch/ia64/kernel/sys_ia64.c	Tue Jun  5 14:46:14 2001
+@@ -39,11 +39,15 @@ arch_get_unmapped_area (struct file *fil
+ 		    rgn_offset(addr) + len <= RGN_MAP_LIMIT) &&
+ 		    (!vmm || addr + len <= vmm->vm_start))
+ 			return addr;
++		if (addr > TASK_UNMAPPED_BASE)
++			addr = 0;
++	}
++	if (!addr) {
++		if (flags & MAP_SHARED)
++			addr = COLOR_ALIGN(TASK_UNMAPPED_BASE);
++		else
++			addr = PAGE_ALIGN(TASK_UNMAPPED_BASE);
+ 	}
+-	if (flags & MAP_SHARED)
+-		addr = COLOR_ALIGN(TASK_UNMAPPED_BASE);
+-	else
+-		addr = PAGE_ALIGN(TASK_UNMAPPED_BASE);
+ 
+ 	for (vmm = find_vma(current->mm, addr); ; vmm = vmm->vm_next) {
+ 		/* At this point:  (!vmm || addr < vmm->vm_end). */
+diff -up --recursive --new-file linux-2.4.5-ac8.macro/arch/sparc/kernel/sys_sparc.c linux-2.4.5-ac8/arch/sparc/kernel/sys_sparc.c
+--- linux-2.4.5-ac8.macro/arch/sparc/kernel/sys_sparc.c	Tue Jun  5 14:22:10 2001
++++ linux-2.4.5-ac8/arch/sparc/kernel/sys_sparc.c	Tue Jun  5 14:39:49 2001
+@@ -69,11 +69,15 @@ unsigned long arch_get_unmapped_area(str
+ 		if (TASK_SIZE - PAGE_SIZE - len >= addr &&
+ 		    (!vmm || addr + len <= vmm->vm_start))
+ 			return addr;
++		if (addr > TASK_UNMAPPED_BASE)
++			addr = 0;
++	}
++	if (!addr) {
++		if (flags & MAP_SHARED)
++			addr = COLOUR_ALIGN(TASK_UNMAPPED_BASE);
++		else
++			addr = PAGE_ALIGN(TASK_UNMAPPED_BASE);
+ 	}
+-	if (flags & MAP_SHARED)
+-		addr = COLOUR_ALIGN(TASK_UNMAPPED_BASE);
+-	else
+-		addr = PAGE_ALIGN(TASK_UNMAPPED_BASE);
+ 
+ 	for (vmm = find_vma(current->mm, addr); ; vmm = vmm->vm_next) {
+ 		/* At this point:  (!vmm || addr < vmm->vm_end). */
+diff -up --recursive --new-file linux-2.4.5-ac8.macro/arch/sparc64/kernel/sys_sparc.c linux-2.4.5-ac8/arch/sparc64/kernel/sys_sparc.c
+--- linux-2.4.5-ac8.macro/arch/sparc64/kernel/sys_sparc.c	Tue Jun  5 14:22:10 2001
++++ linux-2.4.5-ac8/arch/sparc64/kernel/sys_sparc.c	Tue Jun  5 14:44:19 2001
+@@ -76,11 +76,15 @@ unsigned long arch_get_unmapped_area(str
+ 		if (task_size >= addr &&
+ 		    (!vmm || addr + len <= vmm->vm_start))
+ 			return addr;
++		if (addr > TASK_UNMAPPED_BASE)
++			addr = 0;
++	}
++	if (!addr) {
++		if (flags & MAP_SHARED)
++			addr = COLOUR_ALIGN(TASK_UNMAPPED_BASE);
++		else
++			addr = PAGE_ALIGN(TASK_UNMAPPED_BASE);
+ 	}
+-	if (flags & MAP_SHARED)
+-		addr = COLOUR_ALIGN(TASK_UNMAPPED_BASE);
+-	else
+-		addr = PAGE_ALIGN(TASK_UNMAPPED_BASE);
+ 
+ 	for (vmm = find_vma(current->mm, addr); ; vmm = vmm->vm_next) {
+ 		/* At this point:  (!vmm || addr < vmm->vm_end). */
+diff -up --recursive --new-file linux-2.4.5-ac8.macro/mm/mmap.c linux-2.4.5-ac8/mm/mmap.c
+--- linux-2.4.5-ac8.macro/mm/mmap.c	Tue Jun  5 14:22:29 2001
++++ linux-2.4.5-ac8/mm/mmap.c	Tue Jun  5 14:45:57 2001
+@@ -408,8 +408,11 @@ static inline unsigned long arch_get_unm
+ 		if (TASK_SIZE - len >= addr &&
+ 		    (!vma || addr + len <= vma->vm_start))
+ 			return addr;
++		if (addr > TASK_UNMAPPED_BASE)
++			addr = 0;
+ 	}
+-	addr = PAGE_ALIGN(TASK_UNMAPPED_BASE);
++	if (!addr)
++		addr = PAGE_ALIGN(TASK_UNMAPPED_BASE);
+ 
+ 	for (vma = find_vma(current->mm, addr); ; vma = vma->vm_next) {
+ 		/* At this point:  (!vma || addr < vma->vm_end). */
+

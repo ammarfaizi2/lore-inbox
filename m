@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283384AbRK2VEE>; Thu, 29 Nov 2001 16:04:04 -0500
+	id <S283394AbRK2VF1>; Thu, 29 Nov 2001 16:05:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283392AbRK2VDz>; Thu, 29 Nov 2001 16:03:55 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:30194
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S283384AbRK2VDs>; Thu, 29 Nov 2001 16:03:48 -0500
-Date: Thu, 29 Nov 2001 13:03:42 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Robert Love <rml@tech9.net>
-Cc: McEnroe <mcensamuel@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: interrupt ?
-Message-ID: <20011129130342.B496@mikef-linux.matchmail.com>
-Mail-Followup-To: Robert Love <rml@tech9.net>,
-	McEnroe <mcensamuel@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3C043B11.2FA17A19@pobox.com> <3C05B561.75F210C7@pobox.com> <001601c17873$c664ee00$8b64a8c0@PREM> <1007053658.813.17.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1007053658.813.17.camel@phantasy>
-User-Agent: Mutt/1.3.23i
+	id <S283395AbRK2VE0>; Thu, 29 Nov 2001 16:04:26 -0500
+Received: from ja.mac.ssi.bg ([212.95.166.194]:27909 "EHLO u.domain.uli")
+	by vger.kernel.org with ESMTP id <S283392AbRK2VEO>;
+	Thu, 29 Nov 2001 16:04:14 -0500
+Date: Thu, 29 Nov 2001 23:04:35 +0000 (GMT)
+From: Julian Anastasov <ja@ssi.bg>
+X-X-Sender: <ja@u.domain.uli>
+To: Christopher Friesen <cfriesen@nortelnetworks.com>
+cc: Rajasekhar Inguva <irajasek@in.ibm.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: ethernet links should remember routes the same as addresses
+Message-ID: <Pine.LNX.4.33.0111292259090.1390-100000@u.domain.uli>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 29, 2001 at 12:07:37PM -0500, Robert Love wrote:
-> On Wed, 2001-11-28 at 20:18, McEnroe wrote:
-> 
-> > what is fast and slow interrupt ?
-> > what is the difference between this ?
-> 
-> fast interrupts occur with interrupts disabled, and are expected to be
-> completed quickly -- they are performed by the interrupt handlers
-> themselves.
-> 
-> a slow interrupt occurs with interrupts enabled, such as bottom half
-> tasks.
-> 
 
-IIRC, bottom half is mostly used by network packet processing.
+	Hello,
+
+Christopher Friesen wrote:
+
+> the addresses are still visible associated with the link.  Then I run "ip link
+> set dev ethX up".  The route in the main routing table comes back, but none of
+> the other routes do.  Somehow, all of those additional routes must be re-added.
+
+	One solution is already implemented: static routes
+
+http://www.linuxvirtualserver.org/~julian/
+Static, Alternative Routes, Dead Gateway Detection, NAT
+
+Read about the motivation here:
+http://www.linuxvirtualserver.org/~julian/dgd-usage.txt
+
+More specific pathes:
+00_static_routes-2.2.19-4.diff
+00_static_routes-2.4.12-5.diff
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
+

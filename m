@@ -1,70 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVB1Xv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbVB1Xxq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbVB1Xv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 18:51:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVB1Xv6
+	id S261824AbVB1Xxq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 18:53:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVB1Xxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 18:51:58 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:28112 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261823AbVB1Xvz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 18:51:55 -0500
-Subject: Re: [RFC] PCI bridge driver rewrite
-From: Adam Belay <abelay@novell.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20050224100332.A26582@flint.arm.linux.org.uk>
-References: <1109226122.28403.44.camel@localhost.localdomain>
-	 <20050224100332.A26582@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Mon, 28 Feb 2005 18:50:38 -0500
-Message-Id: <1109634638.28403.101.camel@localhost.localdomain>
+	Mon, 28 Feb 2005 18:53:45 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:57027
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261825AbVB1Xxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 18:53:39 -0500
+Date: Mon, 28 Feb 2005 15:51:42 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: linux-kernel@vger.kernel.org, ultralinux@vger.kernel.org
+Subject: Re: SPARC64: Modular floppy?
+Message-Id: <20050228155142.12ae31a7.davem@davemloft.net>
+In-Reply-To: <200502282007.j1SK7hgE031074@laptop11.inf.utfsm.cl>
+References: <200502282007.j1SK7hgE031074@laptop11.inf.utfsm.cl>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-24 at 10:03 +0000, Russell King wrote:
-> On Thu, Feb 24, 2005 at 01:22:01AM -0500, Adam Belay wrote:
-> > 5.) write a bridge driver for Cardbus hardware
-> 
-> We have this already - it's called "yenta".
+On Mon, 28 Feb 2005 17:07:43 -0300
+Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
 
-Yes, I'm aware.  It should read:
+> So, either the dependencies have to get fixed so floppy can't be modular
+> for this architecture, or the relevant functions have to move from entry.S
+> to the module.
 
-5.) adapt the Yenta driver to the new PCI bus class
-
-:)
-
-> 
-> What you need to be aware of is that cardbus hardware is special - it
-> may change its resource requirements at any time, both in terms of the
-> number of BUS IDs it wishes to consume, and the number and size of
-> IO and memory resources.
-
-We can have default sizes allocated for these windows.  Maybe, we'll
-even have rebalancing at some point.
-
-As for BUS IDs, I'm not sure about the best behavior.  I don't really
-like reserving 4 positions like we do now.  It has a tendency to create
-conflicts, and seems to be unnecessary.  How common are PCI bridge
-devices that attach to cardbus controllers?  Does the BIOS ever
-preconfigure the cardbus bridge for this situation?  I think it's
-important that we get bus numbering correct.  Some hardware has problems
-now.
-
-> 
-> Note also that if a cardbus bridge isn't on the root bus (it happens on
-> some laptops) these resource changes may impact on upstream bridges and
-> devices.
-> 
-
-Yeah, also legacy resources can't pass through properly if the parent
-bridge isn't transparent.  Complex bus topologies make the problem much
-more difficult when legacy hardware is involved.
-
-Thanks,
-Adam
-
-
+I think the former is the best solution.  The assembler code really
+needs to get at floppy.c symbols.

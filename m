@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313506AbSDJSmw>; Wed, 10 Apr 2002 14:42:52 -0400
+	id <S313530AbSDJSoK>; Wed, 10 Apr 2002 14:44:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313530AbSDJSmv>; Wed, 10 Apr 2002 14:42:51 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:43156 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S313506AbSDJSmu>; Wed, 10 Apr 2002 14:42:50 -0400
-Message-ID: <3CB4876E.EAF4DA71@us.ibm.com>
-Date: Wed, 10 Apr 2002 11:41:50 -0700
-From: Larry Kessler <kessler@us.ibm.com>
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S313544AbSDJSoI>; Wed, 10 Apr 2002 14:44:08 -0400
+Received: from smtp-out-7.wanadoo.fr ([193.252.19.26]:43769 "EHLO
+	mel-rto7.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S313530AbSDJSnB>; Wed, 10 Apr 2002 14:43:01 -0400
+Message-ID: <3CB48782.9000409@wanadoo.fr>
+Date: Wed, 10 Apr 2002 20:42:10 +0200
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020407
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel mailing-list <linux-kernel@vger.kernel.org>
-CC: francois-xavier_kowalski@hp.com,
-        evlog-developers Mailing-List 
-	<evlog-developers@lists.sourceforge.net>,
-        michel.dagenais@polymtl.ca
-Subject: Re: [evlog-dev] Re: Event logging vs enhancing printk
-In-Reply-To: <3CB472BE.4030708@hp.com>
-Content-Type: text/plain; charset=us-ascii
+To: Robert Love <rml@tech9.net>
+CC: Duncan Sands <duncan.sands@math.u-psud.fr>,
+        Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.8-pre2: preempt: exits with preempt_count 1
+In-Reply-To: <E16vHbV-0000M5-00@baldrick> <1018463295.6681.18.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Robert Love wrote:
+> On Wed, 2002-04-10 at 08:53, Duncan Sands wrote:
+> 
+> 
+>>error: halt[411] exited with preempt_count 1
+>>
+>>This was after about 24 hours of up time.  What can I do to help
+>>track down this locking problem?
 
-Francois-Xavier Kowalski wrote:
+Duncan Sands wrote:
+ > UP x86 K6 system running 2.5.8-pre3 with preemption.
+ > Using usb-uhci.  I got the following bug when powering off:
 
-> I am currently working in the Telecom area (signalling), on systems that
-> usually process several tenths of thousands of telephone calls per
-> second, during years. So I am the kind of guy interrested in having
-> enhancements to the Linux logging sub-systems
+It looks like one problem, caused by some usb device driver not exiting 
+cleanly.
 
-You did not say what Linux distribution(s) you "favor", but MontaVista
-has announced that Event Logging, Linux Trace Toolkit, and some other
-features you probably want will be included in their Carrier Grade
-Edition,
-Version 2.1.  
+Pierre
+-- 
+------------------------------------------------
+  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------
 
-See http://www.mvista.com/dswp/MVLCGE.pdf for details.

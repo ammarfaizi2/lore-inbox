@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316431AbSEOQZe>; Wed, 15 May 2002 12:25:34 -0400
+	id <S316432AbSEOQ0H>; Wed, 15 May 2002 12:26:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316434AbSEOQZd>; Wed, 15 May 2002 12:25:33 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:35728 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S316431AbSEOQZc>;
-	Wed, 15 May 2002 12:25:32 -0400
-Date: Wed, 15 May 2002 18:25:32 +0200
+	id <S316433AbSEOQ0G>; Wed, 15 May 2002 12:26:06 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:36752 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S316432AbSEOQ0F>;
+	Wed, 15 May 2002 12:26:05 -0400
+Date: Wed, 15 May 2002 18:26:06 +0200
 From: bert hubert <ahu@ds9a.nl>
 To: Xavier Bestel <xavier.bestel@free.fr>
 Cc: Andre LeBlanc <ap.leblanc@shaw.ca>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: No Network after Compiling, 2.4.19-pre8 under Debian Woody (Long Message)
-Message-ID: <20020515162532.GA2810@outpost.ds9a.nl>
+Message-ID: <20020515162606.GB2810@outpost.ds9a.nl>
 Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
 	Xavier Bestel <xavier.bestel@free.fr>,
 	Andre LeBlanc <ap.leblanc@shaw.ca>,
@@ -34,11 +34,12 @@ On Wed, May 15, 2002 at 05:57:10PM +0200, Xavier Bestel wrote:
 > 
 > Same thing here. I'm really interested why.
 
-Can you check with tcpdump if the kernel *thinks* it is sending something?
+Oh, regarding tcpdump, make sure you use 'tcpdump -n', otherwise the reverse
+lookup might block your output!
 
 Regards,
 
-bert
+bert hubert
 
 -- 
 http://www.PowerDNS.com          Versatile DNS Software & Services

@@ -1,39 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262948AbVCWVyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVCWWBI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262948AbVCWVyv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 16:54:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262936AbVCWVyv
+	id S261431AbVCWWBI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 17:01:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVCWWBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 16:54:51 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:11452 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262950AbVCWVyo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 16:54:44 -0500
-Date: Wed, 23 Mar 2005 13:54:13 -0800
-From: Mike kravetz <kravetz@us.ibm.com>
-To: Michael Ellerman <michael@ellerman.id.au>
-Cc: Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
-       linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
-Subject: Re: [PATCH] ppc64: Add mem=X option, updated NUMA support
-Message-ID: <20050323215413.GF3986@w-mikek2.ibm.com>
-References: <200503232311.11113.michael@ellerman.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503232311.11113.michael@ellerman.id.au>
-User-Agent: Mutt/1.4.1i
+	Wed, 23 Mar 2005 17:01:08 -0500
+Received: from alog0098.analogic.com ([208.224.220.113]:20659 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261431AbVCWWBF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 17:01:05 -0500
+Date: Wed, 23 Mar 2005 17:00:44 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Arjan van de Ven <arjan@infradead.org>
+cc: sounak chakraborty <sounakrin@yahoo.co.in>, linux-kernel@vger.kernel.org
+Subject: Re: repeat a function after fixed time period
+In-Reply-To: <1111613230.12808.0.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.61.0503231654260.16973@chaos.analogic.com>
+References: <20050323194308.8459.qmail@web53307.mail.yahoo.com> 
+ <Pine.LNX.4.61.0503231522070.16567@chaos.analogic.com> 
+ <1111610935.6306.97.camel@laptopd505.fenrus.org> 
+ <Pine.LNX.4.61.0503231551570.16734@chaos.analogic.com>
+ <1111613230.12808.0.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 23, 2005 at 11:11:10PM +1100, Michael Ellerman wrote:
-> 
-> Can you test this on your 720 or whatever it was? And if anyone else
-> has an interesting NUMA machine they can test it on I'd love to hear
-> about it!
-> 
+On Wed, 23 Mar 2005, Arjan van de Ven wrote:
 
-I've tested this with various config options on my 720.  Appears to
-work well on all that I tested.
+> On Wed, 2005-03-23 at 15:56 -0500, linux-os wrote:
+>>>> static void start_timer(void)
+>>>> {
+>>>>      if(!atomic_read(&info->running))
+>>>>      {
+>>>>          atomic_inc(&info->running);
+>>>
+>>> same race.
+>>
+>> No such race at all.
+>
+> here there is one; you use add_timer() which isn't allowed on running
+> timers, only mod_timer() is. So yes there is a race.
+>
 
--- 
-Mike
+Well add_timer() is only executed after the timer has expired
+or hasn't started yet so the "isn't allowed" is pretty broad.
+If I should use mod_timer(), then there are a _lot_ of buggy
+drivers in the kernel because that's how a lot repeat the
+sequence. Will mod_timer() actually restart the timer???
+
+If so, I'll change it and thank you for the help.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261381AbTCGGfI>; Fri, 7 Mar 2003 01:35:08 -0500
+	id <S261393AbTCGGkn>; Fri, 7 Mar 2003 01:40:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261385AbTCGGfH>; Fri, 7 Mar 2003 01:35:07 -0500
-Received: from 205-158-62-95.outblaze.com ([205.158.62.95]:60353 "HELO
-	ws3-5.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S261381AbTCGGfG>; Fri, 7 Mar 2003 01:35:06 -0500
-Message-ID: <20030307064535.20769.qmail@email.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S261394AbTCGGkn>; Fri, 7 Mar 2003 01:40:43 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:17294 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S261393AbTCGGkm>;
+	Fri, 7 Mar 2003 01:40:42 -0500
+Date: Fri, 7 Mar 2003 07:50:59 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
+       Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+In-Reply-To: <20030307064552.GA21885@vitelus.com>
+Message-ID: <Pine.LNX.4.44.0303070748460.3794-100000@localhost.localdomain>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "dan carpenter" <error27@email.com>
-To: green@namesys.com
-Cc: linux-kernel@vger.kernel.org, smatch-discuss@lists.sf.net
-Date: Fri, 07 Mar 2003 01:45:35 -0500
-Subject: Re: smatch update / 2.5.64 / kbugs.org
-X-Originating-Ip: 66.127.101.73
-X-Originating-Server: ws3-5.us4.outblaze.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Oleg Drokin <green@namesys.com>
-> > The smatch bugs for kernel 2.5.64 are up.  The 
-> > new url for the smatch bug database is http://kbugs.org.  
+
+On Thu, 6 Mar 2003, Aaron Lehmann wrote:
+
+> > But it was definitely there. 3-5 second _pauses_. Not slowdowns.
 > 
-> Unfortunatelly the bug database does not work. I mean I cannot connect to it.
-> 
+> I can second this. Using Linux 2.5.5x, untarring a file while
+> compiling could cause X to freeze for several seconds at a time.
+> I haven't seen this problem recently, [...]
 
-Crap...  sorry about that, I screwed up.
+i believe this is rather due to IO scheduling / VM throttling. Andrew 
+added some nice improvements lately, so this should really not happen with 
+2.5.64 kernels.
 
-> This script can produce a lot less false positives with even more custom merge rules.
-> Here's the diff that if run on fs/ext3/super.c from current bk tree, produces
-> only one true bug. (your version from cvs produces one real bug and two false positives)
-> (8 less hits on my default build).
+> [...] though I do experience my share of XMMS skips.
 
-I have uploaded your modifications to CVS.  I'll use it 
-on the next kernel release.  The unfree.pl was just a few
-modifications to the deference_check.pl so your patch
-will cut down on the false positives with that also.
+okay, could you please test BK-curr, or 2.5.64+combo-patch? Do the skips
+still persist? Did they get worse perhaps? I guess it might take a few
+days of music listening while doing normal desktop activity, to get a good
+feel of it though.
 
-thanks,
-dan carpenter
-
-
--- 
-_______________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
-
-Meet Singles
-http://corp.mail.com/lavalife
+	Ingo
 

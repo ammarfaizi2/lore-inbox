@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310538AbSCGU7C>; Thu, 7 Mar 2002 15:59:02 -0500
+	id <S310540AbSCGU7Z>; Thu, 7 Mar 2002 15:59:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310535AbSCGU6x>; Thu, 7 Mar 2002 15:58:53 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49425 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310538AbSCGU6j>;
-	Thu, 7 Mar 2002 15:58:39 -0500
-Message-ID: <3C87D40C.603DE513@zip.com.au>
-Date: Thu, 07 Mar 2002 12:56:44 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Daniel Phillips <phillips@bonn-fries.net>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, yodaiken@fsmlabs.com,
-        Jeff Dike <jdike@karaya.com>, Benjamin LaHaise <bcrl@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Arch option to touch newly allocated pages
-In-Reply-To: <3C87BD22.BBBF4A86@zip.com.au> <Pine.LNX.4.44L.0203071709400.2181-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S310539AbSCGU7N>; Thu, 7 Mar 2002 15:59:13 -0500
+Received: from imo-m06.mx.aol.com ([64.12.136.161]:25078 "EHLO
+	imo-m06.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S310537AbSCGU7C>; Thu, 7 Mar 2002 15:59:02 -0500
+Date: Thu, 07 Mar 2002 15:58:43 -0500
+From: pelletierma@netscape.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: ACL support
+Message-ID: <3EA14851.578E6D9E.5016AB90@netscape.net>
+X-Mailer: Atlas Mailer 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Thu, 7 Mar 2002, Andrew Morton wrote:
-> > Daniel Phillips wrote:
-> > >
-> > > a GFP flag that says 'fail if this looks hard to get'.
-> >
-> > Something like that would provide a solution to the
-> > readahead thrashing problem.
-> 
-> Nope.  Readahead pages are clean and very easy to evict, so
-> it's still trivial to evict all the pages from another readahead
-> window because everybody's readahead window is too large.
-> 
+Hello.
 
-I was thinking an explicit GFP_READAHEAD and PG_readahead.
-Where a GFP_READAHEAD allocation would fail if it can't 
-find any non-readahead pages.  And it would fail if it
-had to perform I/O.
+In response to a number of email I have received, I wanted to make
+something clear:  I'm not out to compete with the bestbit implementation of 
+ACLs over extended file attributes.  :-)
 
-That's not nice - it'd result in large LRU walks.  But it'd
-be better than the 10x slowdown which readahead thrashing
-causes.
+What I am offering is an alternative implementation of ACL support at the
+VFS level, that remains independent of filesystem support for ACLs.  In
+fact, my patch provides filesystem support for ramfs only at this time
+(which was ideal for testing).
 
-Any clever ideas?
+The extenteded attribute system as implemented is very good (and in fact
+I am using it for a project of mine), and provide an excellent
+infrastructure for implementing ext2 and ext3 support for ACL...  only
+I beleive that providing an uniform interface and evaluation of ACLs that
+remains independent of the filesystem is the Right Thing(tm).
 
--
+Placing ACLs at the VFS level also allows subdivision of the traditional
+rwx semantics.  In fact, people emailed me after testing my patch have
+suggested additional subdivisions of access right that would be useful
+for some other non persistent filesystems (proc and devfs) such as
+giving a bit for ioctl()s.  And since my ACL system is based on VFS
+inodes, it can be extended to sockets as well, which would make useful
+connection and listen permissions, for instance.
+I have not touched implementation of ACL for ext2 and ext3 yet /exactly/
+because the bestbits extended attributes existed, and I felt the people
+working on that code would be in an excellent position to interface with
+my ACL support seamlessly.
+
+Both codebases can be viewed as orthogonal, not competing.  That's the
+way I chose to look at it, and I hope others can feel the same as well.
+
+Happy coding.  :-)
+
+-- Marc A. Pelletier
+
+-- 
+
+
+
+
+__________________________________________________________________
+Your favorite stores, helpful shopping tools and great gift ideas. Experience the convenience of buying online with Shop@Netscape! http://shopnow.netscape.com/
+
+Get your own FREE, personal Netscape Mail account today at http://webmail.netscape.com/
+

@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S382223AbUKBIDR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S289492AbUKBIB5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S382223AbUKBIDR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 03:03:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S450407AbUKBIDR
+	id S289492AbUKBIB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 03:01:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S450223AbUKBIB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 03:03:17 -0500
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:7591 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S382223AbUKBIDI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 03:03:08 -0500
-Message-ID: <41873F38.7030609@yahoo.com.au>
-Date: Tue, 02 Nov 2004 19:03:04 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Brad Campbell <brad@wasp.net.au>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10-rc1-bk page allocation failure. order:2, mode:0x20
-References: <41873452.8040804@wasp.net.au>
-In-Reply-To: <41873452.8040804@wasp.net.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Nov 2004 03:01:56 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:44172 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S289492AbUKBIBr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 03:01:47 -0500
+Date: Tue, 2 Nov 2004 09:02:36 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>, Lee Revell <rlrevell@joe-job.com>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
+       Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+Message-ID: <20041102080236.GA21359@elte.hu>
+References: <20041031200621.212ee044@mango.fruits.de> <20041101134235.GA18009@elte.hu> <20041101135358.GA19718@elte.hu> <20041101140630.GA20448@elte.hu> <1099324040.3337.32.camel@thomas> <20041101184615.GB32009@elte.hu> <20041101233037.314337c8@mango.fruits.de> <20041101224047.GA19186@nietzsche.lynx.com> <20041101235125.2ae638a4@mango.fruits.de> <20041101225906.GA19276@nietzsche.lynx.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041101225906.GA19276@nietzsche.lynx.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brad Campbell wrote:
-> G'day all,
-> 
-> I'm still getting quite a lot of these come up in the logs when the 
-> system is under mild load.
-> I suspect it might have something to do with running an MTU of 9000 on 
-> the main ethernet port which is directly feeding a workstation with an 
-> NFS root (and thus gets quite a high load at times)
-> 
-> It's not so much an issue but it does cause the workstation to stall for 
-> up to a second while it waits for data every time it occurs.
-> 
-> The loaded ethernet port is this one on an PCI card
-> 
-> 0000:00:0d.0 Ethernet controller: Marvell Technology Group Ltd. Yukon 
-> Gigabit Ethernet 10/100/1000Base-T Adapter (rev 12)
-> 
-> This started rearing its ugly head when I moved from 2.6.5 to 2.6.9-preX 
-> and persists with BK as of about 2 days ago.
-> 
 
-There are patches in the newest -mm kernels that should help the
-problem. If you're willing to test them, the feedback would be
-welcome.
+* Bill Huey <bhuey@lnxw.com> wrote:
 
-Thanks
-Nick
+> The lock chains aren't that deep in Linux so the algorithmic
+> complexity is not going to hit some crazy polynomial time unless
+> there's some seriously nasty contention at a certain point in the
+> kernel (billions of readers for example against a write aquire). But
+> when we start to see things like that under pressure is when we need
+> to start shortening the need for that/those lock(s) for that/those
+> critical section(s) in question.
+
+also note that in the -U series i removed the true 'read' logic from
+semaphores. What we have now are single writers only, plus readers
+emulated as a writer plus the ability to self-recurse. ('writers' are
+not allowed to self-recurse.) This is quite close to the semantic needs
+of Linux rwlocks and rwsems and it simplified both locking, deadlock
+detection and PI quite significantly.
+
+	Ingo

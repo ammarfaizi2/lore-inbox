@@ -1,97 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261982AbSI3JfK>; Mon, 30 Sep 2002 05:35:10 -0400
+	id <S261987AbSI3JjE>; Mon, 30 Sep 2002 05:39:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261985AbSI3JfK>; Mon, 30 Sep 2002 05:35:10 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:31837 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S261982AbSI3JfJ>; Mon, 30 Sep 2002 05:35:09 -0400
-Date: Mon, 30 Sep 2002 10:40:12 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Marek Michalkiewicz <marekm@amelek.gda.pl>
-Cc: serial24@macrolink.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] fix parport_serial / serial link order (for 2.4.20-pre8)
-Message-ID: <20020930094012.GC20605@redhat.com>
-References: <E17uesu-0002dE-00@mm.lan.amelek.gda.pl>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="56p9wBiXEyg+KhLM"
-Content-Disposition: inline
-In-Reply-To: <E17uesu-0002dE-00@mm.lan.amelek.gda.pl>
-User-Agent: Mutt/1.4i
+	id <S261989AbSI3JjE>; Mon, 30 Sep 2002 05:39:04 -0400
+Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:1920 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S261987AbSI3JjD> convert rfc822-to-8bit; Mon, 30 Sep 2002 05:39:03 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Con Kolivas <conman@kolivas.net>
+To: linux-kernel@vger.kernel.org
+Subject: [BENCHMARK] 2.5.39-mm1
+Date: Mon, 30 Sep 2002 19:41:37 +1000
+User-Agent: KMail/1.4.3
+Cc: Andrew Morton <akpm@digeo.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209301941.41627.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---56p9wBiXEyg+KhLM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Here follow the contest v0.41 (http://contest.kolivas.net) results for 
+2.5.39-mm1:
 
-On Thu, Sep 26, 2002 at 10:05:16PM +0200, Marek Michalkiewicz wrote:
+noload:
+Kernel                  Time            CPU             Ratio
+2.4.19                  67.71           98%             1.00
+2.5.38                  72.38           94%             1.07
+2.5.38-mm3              73.00           93%             1.08
+2.5.39                  73.17           93%             1.08
+2.5.39-mm1              72.97           94%             1.08
 
-> below is a patch that moves parport_serial.c from drivers/parport/
-> to drivers/char/ - this fixes the wrong link order when the drivers
-> are compiled into the kernel.
+process_load:
+Kernel                  Time            CPU             Ratio
+2.4.19                  110.75          57%             1.64
+2.5.38                  85.71           79%             1.27
+2.5.38-mm3              96.32           72%             1.42
+2.5.39                  88.9            75%             1.33*
+2.5.39-mm1              99.0            69%             1.45*
 
-What was wrong with the original, much smaller patch that you sent me
-previously (below)?
+io_load:
+Kernel                  Time            CPU             Ratio
+2.4.19                  216.05          33%             3.19
+2.5.38                  887.76          8%              13.11
+2.5.38-mm3              105.17          70%             1.55
+2.5.39                  229.4           34%             3.4
+2.5.39-mm1              239.5           33%             3.4
 
-I'm happy to accept whichever patch is the better.
+mem_load:
+Kernel                  Time            CPU             Ratio
+2.4.19                  105.40          70%             1.56
+2.5.38                  107.89          73%             1.59
+2.5.38-mm3              117.09          63%             1.73
+2.5.39                  103.72          72%             1.53
+2.5.39-mm1              104.61          73%             1.54
 
-Tim.
-*/
+process_load and io_load results are averages of 6 runs.
 
-2002-08-28  Marek Michalkiewicz <marekm@amelek.gda.pl> [sent 2002-08-28]
+Statistical significance in process_load performance (p=0.017), with mm1 
+slower. The other changes did not show statistical significance, with trends 
+as noted above.
 
-	* drivers/char/serial.c (register_serial): Call rs_init() if it
-	hasn't already been called.  For parport_serial.c.
+note: these were done with the temporary fix for the reiserfs breakage but as 
+far as I'm aware it shouldn't affect this test
 
---- linux/drivers/char/serial.c.init_order	2002-08-28 20:55:10.000000000 +0=
-100
-+++ linux/drivers/char/serial.c	2002-08-28 21:00:24.000000000 +0100
-@@ -254,6 +254,7 @@
-=20
- static struct tty_driver serial_driver, callout_driver;
- static int serial_refcount;
-+static int serial_initialized;
-=20
- static struct timer_list serial_timer;
-=20
-@@ -5385,6 +5386,10 @@
- 	int i;
- 	struct serial_state * state;
-=20
-+	if (serial_initialized)
-+		return;
-+	serial_initialized++;
-+
- 	init_bh(SERIAL_BH, do_serial_bh);
- 	init_timer(&serial_timer);
- 	serial_timer.function =3D rs_timer;
-@@ -5603,6 +5608,11 @@
- 	struct async_struct *info;
- 	unsigned long port;
-=20
-+	if (!serial_initialized) {
-+		printk("register_serial(): calling rs_init()\n");
-+		rs_init();
-+	}
-+
- 	port =3D req->port;
- 	if (HIGH_BITS_OFFSET)
- 		port +=3D (unsigned long) req->port_high << HIGH_BITS_OFFSET;
+Hardware: 1133MhzP3, 224Mb Ram, IDE-ATA100 5400rpm drive with io_load tested 
+on same disk, reiserFS. Preempt=N for all kernels.
 
---56p9wBiXEyg+KhLM
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
+Con
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.0.7 (GNU/Linux)
 
-iD8DBQE9mBv7tO8Ac4jnUq4RAghEAKCRwDknCdy1Rs/uHr/QbFMJPNXjjQCfQOaa
-VtD5XBwV1neS83TqHVp8BLw=
-=GfHI
+iD8DBQE9mBxUF6dfvkL3i1gRAr4kAJ47cICW0qIXLmswyBL9t1ZsiyxgVwCfaHCN
+bXOSrZtwTjJsSibiBm5KrRo=
+=XWpt
 -----END PGP SIGNATURE-----
-
---56p9wBiXEyg+KhLM--

@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261521AbSJ2DM5>; Mon, 28 Oct 2002 22:12:57 -0500
+	id <S261714AbSJ2DZm>; Mon, 28 Oct 2002 22:25:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261514AbSJ2DM5>; Mon, 28 Oct 2002 22:12:57 -0500
-Received: from web20008.mail.yahoo.com ([216.136.225.71]:57772 "HELO
-	web20008.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261521AbSJ2DM5>; Mon, 28 Oct 2002 22:12:57 -0500
-Message-ID: <20021029031918.43126.qmail@web20008.mail.yahoo.com>
-Date: Mon, 28 Oct 2002 19:19:18 -0800 (PST)
-From: Kenny Simpson <theonetruekenny@yahoo.com>
-Subject: overcommit-accounting
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261717AbSJ2DZm>; Mon, 28 Oct 2002 22:25:42 -0500
+Received: from alpha9.cc.monash.edu.au ([130.194.1.9]:58889 "EHLO
+	ALPHA9.CC.MONASH.EDU.AU") by vger.kernel.org with ESMTP
+	id <S261714AbSJ2DZk>; Mon, 28 Oct 2002 22:25:40 -0500
+Date: Tue, 29 Oct 2002 14:30:22 +1100 (EST)
+From: netdev-bounce@oss.sgi.com
+To: undisclosed-recipients:;
+Message-id: <20021029033022.1B454130071@splat.its.monash.edu.au>
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In linux/Documentation/vm/overcommit-accounting I see
-the following:
-"The Linux kernel supports four overcommit handling
-modes
+On Wednesday 23 October 2002 16:59, Nivedita Singhvi wrote:
+> bert hubert wrote:
+> > > ...adding the whole profile output - sorted by the first column this
+> > > time...
+> > >
+> > > 905182 total                                      0.4741
+> > > 121426 csum_partial_copy_generic                474.3203
+> > >  93633 default_idle                             1800.6346
+> > >  74665 do_wp_page                               111.1086
+> >
+> > Perhaps the 'copy' also entails grabbing the page from disk, leading to
+> > inflated csum_partial_copy_generic stats?
+>
+> I think this is strictly a copy from user space->kernel and vice versa.
+> This shouldnt include the disk access etc.
 
-0 - Heuristic ...
-1 - No overcommit ...
-2 - (NEW) strict overcommit...
-"
+hm
 
-Where is number 3 ?
+I'm doing O_DIRECT read (from disk), so it needs to be user -> kernel, then.
 
--Kenny
+any chance of using O_DIRECT to the socket?
+
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
+
+Computers are like air conditioners.
+They stop working when you open Windows.
 
 
 
-
-__________________________________________________
-Do you Yahoo!?
-HotJobs - Search new jobs daily now
-http://hotjobs.yahoo.com/

@@ -1,44 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316789AbSHVUgz>; Thu, 22 Aug 2002 16:36:55 -0400
+	id <S316971AbSHVUkU>; Thu, 22 Aug 2002 16:40:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316957AbSHVUgz>; Thu, 22 Aug 2002 16:36:55 -0400
-Received: from kweetal.tue.nl ([131.155.2.7]:28863 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S316789AbSHVUgz>;
-	Thu, 22 Aug 2002 16:36:55 -0400
-Date: Thu, 22 Aug 2002 22:39:42 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Dave Jones <davej@suse.de>,
-       James Simmons <jsimmons@transvirtual.com>, linux-kernel@vger.kernel.org
-Subject: Re: Patch for PC keyboard driver's autorepeat-rate handling
-Message-ID: <20020822203942.GA5471@win.tue.nl>
-References: <Pine.LNX.4.33L2.0208221153210.672-100000@ida.rowland.org> <1030037462.3090.1.camel@irongate.swansea.linux.org.uk> <20020822193743.GA5448@win.tue.nl> <1030047374.3161.60.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1030047374.3161.60.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.25i
+	id <S317066AbSHVUkU>; Thu, 22 Aug 2002 16:40:20 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:15316 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S316971AbSHVUkT>; Thu, 22 Aug 2002 16:40:19 -0400
+Message-ID: <3D654C8F.30400@us.ibm.com>
+Date: Thu, 22 Aug 2002 13:41:51 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+Organization: IBM LTC
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Martin Bligh <mjbligh@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] [patch] SImple Topology API v0.3 (1/2)
+References: <3D6537D3.3080905@us.ibm.com> <20020822202239.A30036@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 22, 2002 at 09:16:14PM +0100, Alan Cox wrote:
-> On Thu, 2002-08-22 at 20:37, Andries Brouwer wrote:
-> > What it does for KDKBDREP is conform the text of kd.h, and I think
-> > conform what m68k has done for years (but I've never seen the m68k patch).
-> > Alan Stern is entirely right that the current 2.4 kernels and the
-> > current kbdrate program have different ideas about what KDKBDREP does.
+The file asm/mmzone.h needs to be included in both the CONFIG_DISCONTIGMEM and 
+!CONFIG_DISCONTIGMEM cases (at least after my patch).  This just pulls the 
+#include out of the #ifdefs.
+
+Cheers!
+
+-Matt
+
+Christoph Hellwig wrote:
+> On Thu, Aug 22, 2002 at 12:13:23PM -0700, Matthew Dobson wrote:
 > 
-> XFree86 assumes the existing m68k behaviour from the base m68k tree
-
-A good pointer. And indeed,
-
-  xc/programs/Xserver/hw/xfree86/os-support/linux/lnx_io.c
-
-has code virtually identical to the kbdrate code (indeed, most likely
-taken from kbdrate). So, it seems the kernel has to change, and
-(although I have not checked it) Alan Stern's patch may be the right thing.
-
-Andries
+>>--- linux-2.5.27-vanilla/include/linux/mmzone.h	Sat Jul 20 12:11:05 2002
+>>+++ linux-2.5.27-api/include/linux/mmzone.h	Wed Jul 24 17:33:41 2002
+>>@@ -220,15 +20,15 @@
+>> #define NODE_MEM_MAP(nid)	mem_map
+>> #define MAX_NR_NODES		1
+>> 
+>>-#else /* !CONFIG_DISCONTIGMEM */
+>>-
+>>-#include <asm/mmzone.h>
+>>+#else /* CONFIG_DISCONTIGMEM */
+>> 
+>> /* page->zone is currently 8 bits ... */
+>> #define MAX_NR_NODES		(255 / MAX_NR_ZONES)
+>> 
+>> #endif /* !CONFIG_DISCONTIGMEM */
+>> 
+>>+#include <asm/mmzone.h>
+>>+
+> 
+> 
+> What is the exact purpose of this change?
+> 
+> 
+> 
+> -------------------------------------------------------
+> This sf.net email is sponsored by: OSDN - Tired of that same old
+> cell phone?  Get a new here for FREE!
+> https://www.inphonic.com/r.asp?r=sourceforge1&refcode1=vs3390
+> _______________________________________________
+> Lse-tech mailing list
+> Lse-tech@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/lse-tech
+> 
 
 

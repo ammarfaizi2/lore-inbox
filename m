@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262056AbVCQNIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262047AbVCQNQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262056AbVCQNIj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 08:08:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263055AbVCQNIj
+	id S262047AbVCQNQN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 08:16:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263054AbVCQNQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 08:08:39 -0500
-Received: from pastinakel.tue.nl ([131.155.2.7]:55311 "EHLO pastinakel.tue.nl")
-	by vger.kernel.org with ESMTP id S262056AbVCQNIh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 08:08:37 -0500
-Date: Thu, 17 Mar 2005 14:07:14 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Berkley Shands <berkley@cs.wustl.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Devices/Partitions over 2TB
-Message-ID: <20050317130714.GA5439@pclin040.win.tue.nl>
-References: <200503141644.j2EGiVh0000022634@mudpuddle.cs.wustl.edu>
+	Thu, 17 Mar 2005 08:16:12 -0500
+Received: from extgw-uk.mips.com ([62.254.210.129]:31003 "EHLO
+	mail.linux-mips.net") by vger.kernel.org with ESMTP id S262047AbVCQNQJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 08:16:09 -0500
+Date: Thu, 17 Mar 2005 13:14:55 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, yuasa@hh.iij4u.or.jp,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch][resend] convert a remaining verify_area to access_ok (was: Re: [PATCH 2.6.11-mm1] mips: more convert verify_area to access_ok) (fwd)
+Message-ID: <20050317131455.GB5204@linux-mips.org>
+References: <Pine.LNX.4.62.0503162227270.2558@dragon.hyggekrogen.localhost> <20050316145524.18787569.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200503141644.j2EGiVh0000022634@mudpuddle.cs.wustl.edu>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: : 
+In-Reply-To: <20050316145524.18787569.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 14, 2005 at 10:44:31AM -0600, Berkley Shands wrote:
+On Wed, Mar 16, 2005 at 02:55:24PM -0800, Andrew Morton wrote:
 
-> 	With a Broadcom BC4852 and suitable Sata drives, it is easy to create
-> functional devices with well in excess of 2TB raw space. This presents a severe
-> problem to partitioning tools, such as fdisk/cfdisk and the like as the
-> kernel partition structure has a 32 bit integer max for sector counts. Since
-> the read_int() function combined with cround() overflows, ...
+> Jesper Juhl <juhl-lkml@dif.dk> wrote:
+> >
+> > Around 2.6.11-mm1 Yoichi Yuasa found a user of verify_area that I had 
+> >  missed when converting everything to access_ok. The patch below still 
+> >  applies cleanly to 2.6.11-mm4.
+> >  Please apply (unless of course you already picked it up back then and 
+> >  have it in a queue somewhere :) .
+> 
+> That's tricky stuff you're playing with, so I'd prefer it came in via Ralf.
+> However I can queue it up locally so it doesn't get forgotten.
+> 
+> Ralf must have another two megabyte patch buffered up by now, btw?
 
-You should not read fdisk source but think about the DOS-type partition table.
-An entry in such a table describes partition start and end in CHS terms
-using 24 bits for start and end, and describes partition start and size
-in LBA terms using 32 bits for start and size. If you use sectors of size
-512, that limits the use of DOS-type partition tables to disks of at most
-2^41 bytes, that is, 2 TiB.
+Quite a bit less and much of the diff are patches that must be somewhere
+in Jeff's network driver queue.  But yes, hint taken, you'll get your
+patch easter egg ;-0
 
-What to do afterwards? Last year I made a hack, reserving type 88 hex for
-a Linux plaintext partition table. You must be able to find the kernel patch
-somewhere on Google, otherwise ask. No fdisk required, the partition table
-is just plaintext that you edit using emacs or vi.
-The idea here is to use an ordinary DOS-type partition table for the start
-of the disk, and let the type 88 partition describe the rest.
-
-There is also the EFI/GPT disk descriptor that is common on IA64, but not much
-used elsewhere. Maybe parted supports it.
-
-Andries
+  Ralf

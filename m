@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262111AbTLWSiw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 13:38:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbTLWSiw
+	id S262127AbTLWSkd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 13:40:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbTLWSkd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 13:38:52 -0500
-Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:21132 "HELO
-	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262111AbTLWSiv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 13:38:51 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Andres Salomon <dilinger@voxel.net>, linux-kernel@vger.kernel.org
-Subject: Re: synaptics mouse jitter in 2.6.0
-Date: Tue, 23 Dec 2003 13:37:14 -0500
-User-Agent: KMail/1.5.4
-References: <Pine.LNX.4.58.0312222127530.18261@localhost.localdomain> <200312230241.52168.dtor_core@ameritech.net> <pan.2003.12.23.08.37.38.378082@voxel.net>
-In-Reply-To: <pan.2003.12.23.08.37.38.378082@voxel.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 23 Dec 2003 13:40:33 -0500
+Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:58743 "EHLO
+	floyd.gotontheinter.net") by vger.kernel.org with ESMTP
+	id S262127AbTLWSka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 13:40:30 -0500
+Subject: Re: SCO's infringing files list
+From: Disconnect <lkml@sigkill.net>
+To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1072203269.11807.23.camel@harry>
+References: <1072125736.1286.170.camel@duergar>
+	 <200312221519.04677.tcfelker@mtco.com>
+	 <Pine.LNX.4.58.0312221337010.6868@home.osdl.org>
+	 <20031223002641.GD28269@pegasys.ws> <20031223092847.GA3169@deneb.enyo.de>
+	 <3FE811E3.6010708@debian.org>
+	 <Pine.LNX.4.58.0312230317450.12483@home.osdl.org> <3FE862E7.1@pixelized.ch>
+	 <20031223160425.GB45620@gaz.sfgoth.com>
+	 <20031223174454.GD45620@gaz.sfgoth.com>
+	 <Pine.LNX.4.58.0312230946010.14184@home.osdl.org>
+	 <1072203269.11807.23.camel@harry>
+Content-Type: text/plain
+Message-Id: <1072204828.11195.4.camel@slappy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 23 Dec 2003 13:40:28 -0500
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312231337.14082.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 23 December 2003 03:37 am, Andres Salomon wrote:
+On Tue, 2003-12-23 at 13:14, Harry McGregor wrote:
+> http://www.ibiblio.org/pub/Linux/libs/oldlibs/libc-2.2.2/
 
-> [...]
->
-> This works a lot better than both -mm1 and stock 2.6.0's mouse behavior
-> for me; 2.6.0 likes to drop packets inside the interrupt handler and
-> make the mouse jump to the edge of the screen, and 2.6.0-mm1 likes to
-> move the pointer between the time I take my finger off the touchpad and
-> hit the mouse button.  This appears to fix both issues; however, I
-> still see the following in logs:
->
-> Dec 23 03:33:53 spiral kernel: Synaptics driver lost sync at byte 4
-> Dec 23 03:33:53 spiral kernel: Synaptics driver lost sync at byte 1
-> Dec 23 03:33:53 spiral kernel: Synaptics driver resynced.
-> Dec 23 03:33:55 spiral kernel: Synaptics driver lost sync at byte 1
-> Dec 23 03:33:55 spiral last message repeated 4 times
-> Dec 23 03:33:55 spiral kernel: Synaptics driver resynced.
->
+Yep. Thats the binary he's talked repeatedly about already having.  Got
+sources?
 
-That is a known issue with ACPI and i8042 (you do use ACPI, don't you?)
-that we were not able to pinpoint yet. The solution that helps a bit is
-to poll battery state/tepmerature less frequently.
+-- 
+Disconnect <lkml@sigkill.net>
 
-Dmitry

@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263493AbTH0Pau (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 11:30:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263497AbTH0Pau
+	id S263437AbTH0P04 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 11:26:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263441AbTH0P04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 11:30:50 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:64672 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263493AbTH0Pas (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 11:30:48 -0400
-Subject: Re: [PATCH 2.6][TRIVIAL] Update ide.txt documentation to current
-	ide.c
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mlord@pobox.com,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <Pine.LNX.4.51.0308211225120.23765@dns.toxicfilms.tv>
-References: <Pine.LNX.4.51.0308211225120.23765@dns.toxicfilms.tv>
-Content-Type: text/plain
+	Wed, 27 Aug 2003 11:26:56 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:62699 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S263437AbTH0P0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 11:26:55 -0400
+Message-ID: <3F4CCB26.3020408@ccs.neu.edu>
+Date: Wed, 27 Aug 2003 11:15:50 -0400
+From: Stan Bubrouski <stan@ccs.neu.edu>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5b) Gecko/20030819
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jamie Lokier <jamie@shareable.org>
+CC: Jim Houston <jim.houston@comcast.net>, linux-kernel@vger.kernel.org,
+       jim.houston@ccur.com
+Subject: Re: [PATCH] Pentium Pro - sysenter - doublefault
+References: <1061498486.3072.308.camel@new.localdomain> <20030825040514.GA20529@mail.jlokier.co.uk> <20030826122621.GB3140@malvern.uk.w2k.superh.com> <20030827140121.GA1973@mail.jlokier.co.uk>
+In-Reply-To: <20030827140121.GA1973@mail.jlokier.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1061998172.22825.51.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 27 Aug 2003 16:29:33 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-08-21 at 11:30, Maciej Soltysiak wrote:
-> + "hdx=biostimings"	: driver will NOT attempt to tune interface speed
-> + 			  (DMA/PIO) but always honour BIOS timings.
-> +
+Jamie Lokier wrote:
 
-Please don't document this option except maybe as "Selecting this on
-most systems will destroy all your data"
+<SNIP>
 
->   "hdx=slow"		: insert a huge pause after each access to the data
->  			  port. Should be used only as a last resort.
+> I expect it to do the first of these which is applicable:
+> 
+> 	- raise SIGILL on Pentium and earlier Intel CPUs
+> 	- raise SIGILL on non-Intel CPUs which don't have the SEP capability
+> 	- raise SIGSEGV on Pentium Pro CPUs
+> 	- raise SIGSEGV on Pentium II CPUs with model == 3 and stepping < 3
+> 	- raise SIGSEGV on 2.4 kernels
+> 	- exit with status 0 on 2.6 kernels
+> 
+> Enjoy,
+> -- Jamie
 
-Should go - isnt supported any more
+As expected I get a SIGILL on P166 with 2.4.22
 
-> + "hdx=flash"		: allows for more than one ata_flash disk to be
-> + 			  registered. In most cases, only one device
-> + 			  will be present.
-
-Fixed properly in 2.4, dunno about 2.6
-
-> +
-> + "idex=biostimings"	: driver will NOT attempt to tune interface speed
-> +			  (DMA/PIO) but always honour BIOS timings.
-
-Replace with "generally randomizes your disk contents, do not ever use"
-
-> + "ide=reverse"		: formerly called to pci sub-system, but now local.
-> +
-
-Better if it said what it did ?
+-sb
+-----------------------------------------------
+The price of freedom? Ask your Senator how much
+the RIAA gave him for his Lexus.
 
 
-Rest looks ok
 

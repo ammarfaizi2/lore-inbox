@@ -1,52 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbULIGhC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbULIHSs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261459AbULIGhC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 01:37:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbULIGhC
+	id S261463AbULIHSs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 02:18:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbULIHSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 01:37:02 -0500
-Received: from THUNK.ORG ([69.25.196.29]:52101 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261459AbULIGg7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 01:36:59 -0500
-Date: Thu, 9 Dec 2004 01:36:54 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: David Lang <dlang@digitalinsight.com>
-Cc: Bernard Normier <bernard@zeroc.com>, linux-kernel@vger.kernel.org
-Subject: Re: Concurrent access to /dev/urandom
-Message-ID: <20041209063654.GA9324@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	David Lang <dlang@digitalinsight.com>,
-	Bernard Normier <bernard@zeroc.com>, linux-kernel@vger.kernel.org
-References: <006001c4d4c2$14470880$6400a8c0@centrino> <Pine.LNX.4.53.0411272154560.6045@yvahk01.tjqt.qr> <009501c4d4c6$40b4f270$6400a8c0@centrino> <Pine.LNX.4.53.0411272220530.26852@yvahk01.tjqt.qr> <02c001c4d58c$f6476bb0$6400a8c0@centrino> <06a501c4dcb6$3cb80cf0$6401a8c0@centrino> <20041208012802.GA6293@thunk.org> <079001c4dcc9$1bec3a60$6401a8c0@centrino> <Pine.LNX.4.60.0412081905140.17193@dlang.diginsite.com>
+	Thu, 9 Dec 2004 02:18:48 -0500
+Received: from mail.telpin.com.ar ([200.43.18.243]:26543 "EHLO
+	mail.telpin.com.ar") by vger.kernel.org with ESMTP id S261463AbULIHSp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 02:18:45 -0500
+Date: Thu, 9 Dec 2004 04:18:10 -0300
+From: Alberto Bertogli <albertogli@telpin.com.ar>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Export disk->policy to sysfs
+Message-ID: <20041209071621.GA8868@telpin.com.ar>
+Mail-Followup-To: Alberto Bertogli <albertogli@telpin.com.ar>,
+	axboe@suse.de, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="TakKZr9L6Hm6aLOc"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.60.0412081905140.17193@dlang.diginsite.com>
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 08, 2004 at 07:10:16PM -0800, David Lang wrote:
-> 
-> pulling data from /dev/random or /dev/urandom will not ensure that you 
-> don't have duplicates.
-> 
-> remember the birthday paradox. it says that if you get a group of 26 
-> people in a room you have about a 50% chance that two of these people have 
-> the same birthday.
-> 
-> now that's only with numbers in the range of 1-365 if you pull 16 bit 
-> numbers (1-65536) you will need a much larger group to see the problem, 
-> but if you pull enough you WILL see the problem eventually.
 
-Yes, but a UUID is 128 bits.  So the chance of a collision is 1 in
-2**62.  (There are 4 version/type bits, so there are 122 bits of
-randomness in a type-4, randomly generated UUID).  Assuming a
-correctly working random number generator, yes, it's possible that you
-could get a duplicate.  It's also possible that all of the oxygen
-molecules could suddenly randomly end up in the other part of the
-room, and you would suffocate.  But it's not very likely.  2**62 is a
-rather large number....
+--TakKZr9L6Hm6aLOc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-						- Ted
+
+Hi!
+
+This small patch against 2.6.10-rc3 exports the disk->policy variable to
+sysfs as /sys/block/DEVICE/read_only.
+
+It can be useful for people or scripts wanting to check the state of a
+device, specially now that USB storage has write protect detection.
+
+Thanks,
+		Alberto
+
+
+--TakKZr9L6Hm6aLOc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="sysfs-block_read_only.patch"
+
+--- linux-2.6.10-rc3/drivers/block/genhd.c.orig	2004-12-09 03:39:20.000000000 -0300
++++ linux-2.6.10-rc3/drivers/block/genhd.c	2004-12-09 03:48:44.000000000 -0300
+@@ -384,6 +384,10 @@
+ 		jiffies_to_msecs(disk_stat_read(disk, io_ticks)),
+ 		jiffies_to_msecs(disk_stat_read(disk, time_in_queue)));
+ }
++static ssize_t disk_read_only_read(struct gendisk * disk, char *page)
++{
++	return sprintf(page, "%d\n", disk->policy);
++}
+ static struct disk_attribute disk_attr_dev = {
+ 	.attr = {.name = "dev", .mode = S_IRUGO },
+ 	.show	= disk_dev_read
+@@ -404,6 +408,10 @@
+ 	.attr = {.name = "stat", .mode = S_IRUGO },
+ 	.show	= disk_stats_read
+ };
++static struct disk_attribute disk_attr_read_only = {
++	.attr = {.name = "read_only", .mode = S_IRUGO },
++	.show	= disk_read_only_read
++};
+ 
+ static struct attribute * default_attrs[] = {
+ 	&disk_attr_dev.attr,
+@@ -411,6 +419,7 @@
+ 	&disk_attr_removable.attr,
+ 	&disk_attr_size.attr,
+ 	&disk_attr_stat.attr,
++	&disk_attr_read_only.attr,
+ 	NULL,
+ };
+ 
+
+--TakKZr9L6Hm6aLOc--
+

@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVALPnu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVALPoc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261223AbVALPnu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 10:43:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVALPnt
+	id S261226AbVALPoc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 10:44:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVALPoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 10:43:49 -0500
-Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:43650 "HELO
-	server5.heliogroup.fr") by vger.kernel.org with SMTP
-	id S261223AbVALPns (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 10:43:48 -0500
-From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
+	Wed, 12 Jan 2005 10:44:32 -0500
+Received: from out003pub.verizon.net ([206.46.170.103]:758 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S261226AbVALPo1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 10:44:27 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None, usuallly detectable by casual observers
 To: linux-kernel@vger.kernel.org
-Subject: Re: [fuse-devel] Merging?
-Date: Wed, 12 Jan 2005 15:19:07 GMT
-Message-ID: <050LJVV12@server5.heliogroup.fr>
-X-Mailer: Pliant 93
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: Re: Linux 2.6.11-rc1
+Date: Wed, 12 Jan 2005 10:44:25 -0500
+User-Agent: KMail/1.7
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
+References: <Pine.LNX.4.58.0501112100250.2373@ppc970.osdl.org> <200501121824.44327.rathamahata@ehouse.ru> <Pine.LNX.4.58.0501120730490.2373@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0501120730490.2373@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501121044.25474.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.42.99] at Wed, 12 Jan 2005 09:44:26 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well, there doesn't seem to be a great rush to include FUSE in the
-> kernel. Maybe they just don't realize what they are missing out on ;)
+On Wednesday 12 January 2005 10:32, Linus Torvalds wrote:
+>On Wed, 12 Jan 2005, Sergey S. Kostyliov wrote:
+>> 2.6.10-rc1 hangs at boot stage for my dual opteron machine
+>
+>Oops, yes. There's some recent NUMA breakage - either disable
+> CONFIG_NUMA, or apply the patches that Andi Kleen just posted on
+> the mailing list (the second option much preferred, just to verify
+> that yes, that does fix it).
+>
+>  Linus
 
-Linux tree does not want zilion filesystems to be merged in, even if it's
-supposed to be an open system, and the reason is that it would be a nightmare
-to update all of them with each VFS, locking, etc changes.
+I also have a minor breakage, I've been using the forcedeth module for 
+my networking, and it apparently isn't being autoloaded with this 
+version.  However, once booted, I can insmod it, and 'service network 
+start' and it appears to be ok then.
 
-So, FUSE is a must because it enables all these strange filesystems for special
-purpose (Pliant http://pliant.cx/ can use it as an example to export part of
-it's internal VFS, and nobody cares about Pliant),
-to have minimal deal with Linux kernel internal details, and to not crash the
-all machine in case of small problem in the strange filesystem.
-
-The only serious objection to not using FUSE for strange filesystems is speed,
-so here are some numbers:
-On the test machine I found that using a native fisystem (EXT3) as the storage
-backend, I can server files at 200 MB/second (using loopback as the network layer),
-and using a user land over FUSE filesystem as the storage backend, I can serve
-files at 50 MB/second.
-
-If you read the second number, you discover that the speed penality is not
-serious except for very demanding servers or applications, because the nowdays
-disks throughoutput is also rougly 50 MB/second.
-So in my test, if I had not done the test on a small 100 MB file already loaded
-in the Linux cache, the effective speed would have been roughly the same.
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.31% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

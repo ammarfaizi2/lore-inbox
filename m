@@ -1,35 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268836AbTGTXLl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 19:11:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268893AbTGTXLl
+	id S268911AbTGTXOI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 19:14:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268894AbTGTXOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 19:11:41 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:64228
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S268836AbTGTXLl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 19:11:41 -0400
-Subject: Re: BUG in 2.4.21 ide-iops.c:1262
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Daniel Sobe <daniel.sobe@epost.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1058739880.1077.15.camel@localhost>
-References: <1058739880.1077.15.camel@localhost>
-Content-Type: text/plain
+	Sun, 20 Jul 2003 19:14:08 -0400
+Received: from [134.126.12.40] ([134.126.12.40]:37724 "EHLO mpdir1.jmu.edu")
+	by vger.kernel.org with ESMTP id S268911AbTGTXOG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 19:14:06 -0400
+Message-ID: <3F1B25C2.8010403@jmu.edu>
+Date: Sun, 20 Jul 2003 19:29:06 -0400
+From: "William M. Quarles" <quarlewm@jmu.edu>
+Organization: James Madison University
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [Fwd: Re: Kernel 2.4 CPU Arch issues]
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058743456.32464.2.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 21 Jul 2003 00:24:16 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-07-20 at 23:25, Daniel Sobe wrote:
-> This happens when my TRAXDATA cd writer cannot read a disc which I
-> either want to mount or play audio from. I do not know whether the
-> hardware is flawed or there is really a bug in the kernel. My other
-> drives do not produce this error.
 
-Should be fixed for your setup in the 2.4.22pre latest
+
+-------- Original Message --------
+Subject: Re: Kernel 2.4 CPU Arch issues
+Date: Sun, 20 Jul 2003 19:23:24 -0400
+From: William M. Quarles <quarlewm@jmu.edu>
+Organization: James Madison University
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+References: 
+<Pine.LNX.4.44.0307201920260.4900-100000@coffee.psychology.mcmaster.ca>
+
+Mark Hahn wrote:
+>>Something like this ?
+> 
+> 
+> is there any real point?  what post-p6 features would you expect
+> to make a difference?
+> 
+
+Well, you separated the Pentium and Pentium-MMX.  It's the exact same
+difference between Pentium Pro and Pentium-II: MMX technology.  That's
+the point.
+
+-- 
+William M. Quarles
+
+quarlewm@jmu.edu
+wquarles@bucknell.edu
+walrus@bellsouth.net
+
+
+-- 
+William M. Quarles
+
+quarlewm@jmu.edu
+wquarles@bucknell.edu
+walrus@bellsouth.net
 

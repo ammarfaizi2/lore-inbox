@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281857AbRKWBZo>; Thu, 22 Nov 2001 20:25:44 -0500
+	id <S281856AbRKWB3g>; Thu, 22 Nov 2001 20:29:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281856AbRKWBZe>; Thu, 22 Nov 2001 20:25:34 -0500
-Received: from ns01.netrox.net ([64.118.231.130]:61382 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S281854AbRKWBZZ>;
-	Thu, 22 Nov 2001 20:25:25 -0500
-Subject: Re: [patch] sched_[set|get]_affinity() syscall, 2.4.15-pre9
-From: Robert Love <rml@tech9.net>
-To: Andreas Dilger <adilger@turbolabs.com>
-Cc: Ryan Cumming <bodnar42@phalynx.dhs.org>, linux-kernel@vger.kernel.org,
-        mingo@elte.hu
-In-Reply-To: <20011122181125.S1308@lynx.no>
-In-Reply-To: <Pine.LNX.4.33.0111220951240.2446-300000@localhost.localdomain>
-	<1006472754.1336.0.camel@icbm> <E16744i-0004zQ-00@localhost>
-	<1006476685.1331.9.camel@icbm>  <20011122181125.S1308@lynx.no>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
-Date: 22 Nov 2001 20:16:45 -0500
-Message-Id: <1006478207.1632.16.camel@icbm>
-Mime-Version: 1.0
+	id <S281862AbRKWB30>; Thu, 22 Nov 2001 20:29:26 -0500
+Received: from mta04ps.bigpond.com ([144.135.25.136]:9196 "EHLO
+	mta04ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S281861AbRKWB3N>; Thu, 22 Nov 2001 20:29:13 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Christoph Hellwig <hch@ns.caldera.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Updated parameter and modules rewrite (2.4.14) 
+In-Reply-To: Your message of "Thu, 22 Nov 2001 11:08:28 BST."
+             <200111221008.fAMA8Sa04042@ns.caldera.de> 
+Date: Fri, 23 Nov 2001 12:28:17 +1100
+Message-Id: <E16758b-0001xO-00@wagner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-11-22 at 20:11, Andreas Dilger wrote:
+In message <200111221008.fAMA8Sa04042@ns.caldera.de> you write:
+> In article <E166p1R-0004ll-00@wagner> you wrote:
+> >    http://ftp.kernel.org/pub/linux/kernel/people/rusty
+> >
+> > 	Unified boot/module parameter and module loader rewrite
+> > updated to 2.4.14.  I'm off to Linux Kongress, so I'll be difficult to
+> > contact for 10 days or so.
+> 
+> I absolutly oppose to the cosmetic naming changes.
 
-> Rather use something else, like CAP_SYS_NICE.  It ties in with the idea
-> of scheduling, and doesn't further abuse the CAP_SYS_ADMIN capability.
-> CAP_SYS_ADMIN, while it has a good name, has become the catch-all of
-> capabilities, and if you have it, it is nearly the keys to the kingdom,
-> just like root.
+Hi Christoph!
 
-Ah, forgot about CAP_SYS_NICE ... indeed, a better idea.  I suppose if
-people want it a CAP_SYS_CPU_AFFINITY could do, but this is a simple and
-rare enough task that we are better off sticking it under something
-else.
+Um, me too.  I should have reposted my previous explanation, sorry!
 
-	Robert Love
+> Please let module be be initialized by module_init() and exited by
+> module_exit().  We had a hard enough time to get it everywhere, not
+> to mention the name makes a lot of sense.
 
+Unfortunately, removal needs to be done in two stages, to sanely make
+things like IPv6 modular (a deactivate, and a kill stage).  It turns
+out that this applies to loading as well, in case the loading fails
+part way through (there's also a number of modules at the moment which
+initialize in the wrong order, which can lead to an oops).
+
+> Also MODULE_PARAM should just stay, combined with Keith's proposal
+> to use it at boottime aswell (as KBUILD_OBJECT.<paramname>).
+
+Firstly, Keith and I agree on KBUILD_OBJECT[/.]paramname, BTW.  I'm
+not sure it was his proposal originally, though: it's a pretty simple
+and old idea.
+
+The previous module param stuff was prone to user bugs (no type
+checking), was not extensible, and required duplicated code for boot
+time.  It also did not have the option of appearing in /proc.
+
+It is possible to write macros mapping the NEW macros to the OLD, but
+not vice versa, otherwise I wouldn't change at all.
+
+Hope that clarifies,
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

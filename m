@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267755AbTBUVja>; Fri, 21 Feb 2003 16:39:30 -0500
+	id <S267714AbTBUVdW>; Fri, 21 Feb 2003 16:33:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267757AbTBUVja>; Fri, 21 Feb 2003 16:39:30 -0500
-Received: from ip64-48-93-2.z93-48-64.customer.algx.net ([64.48.93.2]:44439
-	"EHLO ns1.limegroup.com") by vger.kernel.org with ESMTP
-	id <S267755AbTBUVj3>; Fri, 21 Feb 2003 16:39:29 -0500
-Date: Fri, 21 Feb 2003 16:49:24 -0500 (EST)
-From: Ion Badulescu <ionut@badula.org>
-X-X-Sender: ion@guppy.limebrokerage.com
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-cc: Mikael Pettersson <mikpe@user.it.uu.se>, Jeff Garzik <jgarzik@pobox.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: UP local APIC is deadly on SMP Athlon
-In-Reply-To: <200302212241.23251.m.c.p@wolk-project.de>
-Message-ID: <Pine.LNX.4.44.0302211645380.17290-100000@guppy.limebrokerage.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267719AbTBUVdW>; Fri, 21 Feb 2003 16:33:22 -0500
+Received: from cs78149057.pp.htv.fi ([62.78.149.57]:43441 "EHLO
+	devil.pp.htv.fi") by vger.kernel.org with ESMTP id <S267714AbTBUVdU>;
+	Fri, 21 Feb 2003 16:33:20 -0500
+Subject: Re: RFC3168, section 6.1.1.1 - ECN and retransmit of SYN
+From: Mika Liljeberg <mika.liljeberg@welho.com>
+To: John Bradford <john@grabjohn.com>
+Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <200302212040.h1LKejY3001679@81-2-122-30.bradfords.org.uk>
+References: <200302212040.h1LKejY3001679@81-2-122-30.bradfords.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045863838.22625.121.camel@devil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 21 Feb 2003 23:43:58 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Feb 2003, Marc-Christian Petersen wrote:
+On Fri, 2003-02-21 at 22:40, John Bradford wrote:
+> > Supporting this would make using ECN a lot less painful - currently, if
+> > I want to use ECN by default, I get to turn it off anytime I find an
+> > ECN-hostile site that I'd like to communicate with.
+> 
+> Linux shouldn't encourage the use of equipment that violates RFCs, in
+> this case, RFC 739.
+> 
+> The correct way to deal with it, is to contact the maintainers of the
+> site, and ask them to fix the non conforming equipment.
 
-> Don't do this. I am pretty sure it will break all Intels. I still cannot 
-> understand why this fixes your AMD Athlon problem.
+That's right. Unfortunately, the way most people *will* deal with it is
+by turning ECN off permanently and forgetting about it. That won't help
+ECN become widely adopted.
 
-Oh, I don't doubt it -- it was just the result of my process of
-elimination, trying to find the change that broke it in 2.4.10-pre12.
-
-Somebody who understands the APIC stuff better than I do will have to draw 
-some conclusions from this little experiment...
-
-Thanks,
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+	MikaL
 

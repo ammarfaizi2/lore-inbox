@@ -1,79 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261697AbVADS62@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbVADTAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261697AbVADS62 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 13:58:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVADS62
+	id S261799AbVADTAP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 14:00:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbVADTAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 13:58:28 -0500
-Received: from mail.tmr.com ([216.238.38.203]:1807 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S261697AbVADS6G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 13:58:06 -0500
-Date: Tue, 4 Jan 2005 13:34:39 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jens Axboe <axboe@suse.de>
-cc: Adrian Bunk <bunk@stusta.de>, Diego Calleja <diegocg@teleline.es>,
-       Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com, aebr@win.tue.nl,
-       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-In-Reply-To: <20050104074617.GK2825@suse.de>
-Message-ID: <Pine.LNX.3.96.1050104132945.2324C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 4 Jan 2005 14:00:15 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:6309 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261799AbVADTAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 14:00:01 -0500
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+From: Lee Revell <rlrevell@joe-job.com>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <87u0pxhvn0.fsf@sulphur.joq.us>
+References: <1104374603.9732.32.camel@krustophenia.net>
+	 <20050103140359.GA19976@infradead.org>
+	 <1104862614.8255.1.camel@krustophenia.net>
+	 <20050104182010.GA15254@infradead.org>  <87u0pxhvn0.fsf@sulphur.joq.us>
+Content-Type: text/plain
+Date: Tue, 04 Jan 2005 13:59:57 -0500
+Message-Id: <1104865198.8346.8.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Jan 2005, Jens Axboe wrote:
+On Tue, 2005-01-04 at 12:55 -0600, Jack O'Quin wrote:
+> But, the lack of this feature has been a continual impediment for
+> years now.  It affects not just me, but most other serious Linux audio
+> developers and many of our users.  We need a simple way for users to
+> configure a Digital Audio Workstation without having to run large,
+> complex, insecure audio applications as `root'.  Our competition runs
+> on Windows and Mac systems where no such configuration is needed.
 
-> On Mon, Jan 03 2005, Bill Davidsen wrote:
-> > Jens Axboe wrote:
-> > >On Mon, Jan 03 2005, Bill Davidsen wrote:
-> > >
-> > >>SCSI command filtering - while I totally support the idea (and always
-> > >>have), I miss running cdrecord as a normal user. Multisession doesn't work
-> > >>as a normal user (at least if you follow the man page) because only root
-> > >>can use -msinfo. There's also some raw mode which got a permission denied,
-> > >>don't remember as I was trying something not doing production stuff.
-> > >
-> > >
-> > >So look at dmesg, the kernel will dump the failed command. Send the
-> > >result here and we can add that command, done deal. 2.6.10 will do this
-> > >by default.
-> > >
-> > 
-> > Is this enough? I'm building 2.6.10-bk6 on a spare machine to try this 
-> > on a system with a "scsi" CD interface via USB. The commands appear to 
-> > go through the same process, but I'll know in an hour or so.
-> > 
-> > I was going to look these up before suggesting that they were 
-> > trustworthy, but I'll take this as a offer to do that and accept! 
-> > Obviously security comes first, if these are not trustworthy I won't 
-> > argue for their inclusion.
-> > 
-> > kjournald starting.  Commit interval 5 seconds
-> > EXT3 FS on hdb1, internal journal
-> > EXT3-fs: mounted filesystem with ordered data mode.
-> > scsi: unknown opcode 0x01
-> > scsi: unknown opcode 0x55
-> > scsi: unknown opcode 0x1e
-> > scsi: unknown opcode 0x35
-> 
-> You don't have write permissions on the device.
+We could do it the was OSX (our real competition) does if that would
+make people happy.  They just let any user run RT tasks.  Oh wait, but
+that's a "broken design", everyone knows that OSX is a joke, no one
+would use *that* OS to mix a CD or score a movie.  :-)
 
-Nope, /dev/hdc is owned by davidsen, group disk, permissions 660. I am me
-and in group disk as well. And I can write single session CDs without
-error, it's only the use -msinfo which fails, the first burn works just
-fine.
+Lee
 
-I think all of that but the permissions stuff was in the original post...
-See the man page and/or README.multi if you don't use multisession,
--msinfo just returns the size of the initial session(s) already written.
-
-I can aslo write as me using growisofs, but it only works on DVD, kind of
-overkill for what I'm doing.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+ 
 

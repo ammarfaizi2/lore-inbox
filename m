@@ -1,391 +1,403 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275862AbRI1HJM>; Fri, 28 Sep 2001 03:09:12 -0400
+	id <S275853AbRI1HUx>; Fri, 28 Sep 2001 03:20:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275860AbRI1HJF>; Fri, 28 Sep 2001 03:09:05 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:24054 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S274966AbRI1HIu>; Fri, 28 Sep 2001 03:08:50 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Fri, 28 Sep 2001 01:08:19 -0600
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
-        linux-net@vger.kernel.org, netdev@oss.sgi.com,
-        jgarzik@mandrakesoft.com
-Subject: Re: [patch] netconsole-2.4.10-B1
-Message-ID: <20010928010819.A434@turbolinux.com>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-	netdev@oss.sgi.com, jgarzik@mandrakesoft.com
-In-Reply-To: <Pine.LNX.4.21.0109261635190.957-100000@freak.distro.conectiva> <Pine.LNX.4.33.0109270746150.1679-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109270746150.1679-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.22i
+	id <S275861AbRI1HUf>; Fri, 28 Sep 2001 03:20:35 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:38414 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S275853AbRI1HUT>;
+	Fri, 28 Sep 2001 03:20:19 -0400
+Date: Fri, 28 Sep 2001 09:18:17 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Ben LaHaise <bcrl@redhat.com>
+Subject: [patch] softirq-2.4.10-B2
+In-Reply-To: <20010928013106.W14277@athlon.random>
+Message-ID: <Pine.LNX.4.33.0109280716040.1569-200000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1338751583-1001661497=:1569"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 27, 2001  08:38 +0200, Ingo Molnar wrote:
-> the patch also includes Andrew Morton's suggestion to add the
-> HAVE_POLL_CONTROLLER define for easier network-driver integration. The
-> eepro100.c changes now use this define.
-> 
-> the new utilities-tarball is at:
-> 
-> http://redhat.com/~mingo/netconsole-patches/netconsole-client-20010927.tar.gz
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-A few minor changes to the code, after testing it a bit locally (note that I
-am using kernel patch C1):
+--8323328-1338751583-1001661497=:1569
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-First, a patch to change the MAC address kernel parameter to be in the
-standard XX:XX:XX:XX:XX:XX form, instead of separate bytes.  It also
-fixes the output of the IP addresses to be unsigned ints.  Isn't there
-a function in the kernel to format IP addresses for output already?
 
-Next, a patch to netconsole-server to use the target_mac parameter
-instead of the target_eth_byteX parameters.  I thought about keeping
-these around for compatibility, but since this is a relatively new
-tool there is no point in keeping the extra baggage.
+On Fri, 28 Sep 2001, Andrea Arcangeli wrote:
 
-TODO: figure out what "offset" is really supposed to be useful for.  Maybe
-      it should be aligned properly, and we add the message priority into
-      one of the free bytes?
+> some comment after reading your softirq-2.4.10-A7.
+>
+> >  - softirq handling can now be restarted N times within do_softirq(), if a
+> >    softirq gets reactivated while it's being handled.
+>
+> is this really necessary after introducing the unwakeup logic? What do
+> you get if you allow at max 1 softirq pass as before?
 
-Finally, a patch to netconsole-client.c which does a few things:
-- remove "offset" from output, it appears meaningless and screws formatting.
-- allow the client to receive messages from multiple servers, unless a
-  single server is specified.
-- log to syslog (this is a bit complex because of the desire to write full
-  lines into the syslog as opposed to chunks of the size sent by printk().
-- (minor) change parameters to use "--" long option names in preparation
-  for using getopt-long to do CLI parsing.
-- (minor) don't require the --port option (use 6666 as default)
-- (minor) don't require the --server option (accept all messages by default)
+yes, of course it's necessery. The reason is really simple: softirqs have
+a natural ordering, and if we are handling softirq #2, while softirq #1
+gets reactivated, nothing will process softirq #1 if we do only a single
+loop. I explained this in full detail during my previous softirq patch a
+few months ago. The unwakeup logic only reverts the wakeup of ksoftirqd,
+it will not magically process pending softirqs! I explained all these
+effects in detail when i wrote the first softirq-looping patch, and when
+you originally came up with ksoftirqd.
 
-TODO: don't require the --client option (get ipaddress from interface and/or
-      listen on all interfaces by default)
-TODO: add getopt_long parsing of options to avoid ordered option requirement
-TODO: make syslog and stdout logging optional (need one or the other obviously)
-TODO: print server IP/hostname in syslog/stdout output in case we are getting
-      messages from multiple servers
-TODO: figure out why LOG_KERN does not show up in kernel log, while klogd does
-TODO: add timeout for messages in syslog output buffer.
-TODO: allow client/server to be specified by both hostname/IP
-TODO: allow different client/server port numbers?  Do we care?
+(Even with just a single softirq activated, if we are just on the way out
+of handing softirqs (the first and last time) at the syscall level, and a
+hardirq comes in that activates this softirq, then there is nothing that
+will process the softirq: 1) the hardirq's own handling of softirqs is
+inhibed due to the softirq-atomic section within do_softirq() 2) this loop
+will not process the new work since it's on the way out.)
 
-As an added bonus, a patch for 8139too.c which adds poll support (Jeff CC'd).
+basically the problem is that there is a big 'gap' between the activation
+of softirqs, and the time when ksoftirqd starts running. There are a
+number of mechanisms within the networking stack that are quite
+timing-sensitive. And generally, if there is work A and work B that are
+related, and we've executed work A (the hardware interrupt), then it's
+almost always the best idea to execute work B as soon as possible. Any
+'delaying' of work B should only be done for non-performance reasons:
+eg. fairness in this case. Now it's MAX_SOFTIRQ_RESTART that balances
+performance against fairness. (in most kernel subsystems we almost always
+give preference to performance over fairness - without ignoring fairness
+of course.)
 
-Cheers, Andreas
-======================= netconsole-2.4.8-mac.diff =====================
---- linux/drivers/net/netconsole.c.orig	Thu Sep 27 10:11:27 2001
-+++ linux/drivers/net/netconsole.c	Thu Sep 27 17:13:24 2001
-@@ -219,20 +219,10 @@
- }
- 
- static char *dev;
--static int target_eth_byte0 = 255;
--static int target_eth_byte1 = 255;
--static int target_eth_byte2 = 255;
--static int target_eth_byte3 = 255;
--static int target_eth_byte4 = 255;
--static int target_eth_byte5 = 255;
-+static char *target_mac;
- 
- MODULE_PARM(target_ip, "i");
--MODULE_PARM(target_eth_byte0, "i");
--MODULE_PARM(target_eth_byte1, "i");
--MODULE_PARM(target_eth_byte2, "i");
--MODULE_PARM(target_eth_byte3, "i");
--MODULE_PARM(target_eth_byte4, "i");
--MODULE_PARM(target_eth_byte5, "i");
-+MODULE_PARM(target_mac, "s");
- MODULE_PARM(source_port, "h");
- MODULE_PARM(target_port, "h");
- MODULE_PARM(dev, "s");
-@@ -267,8 +257,8 @@
- 		printk(KERN_ERR "netconsole: network device %s has no local address, aborting.\n", dev);
- 		return -1;
- 	}
--#define IP(x) ((char *)&source_ip)[x]
--	printk(KERN_INFO "netconsole: using source IP %i.%i.%i.%i\n",
-+#define IP(x) ((unsigned char *)&source_ip)[x]
-+	printk(KERN_INFO "netconsole: using source IP %u.%u.%u.%u\n",
- 		IP(3), IP(2), IP(1), IP(0));
- #undef IP
- 	source_ip = htonl(source_ip);
-@@ -276,8 +266,8 @@
- 		printk(KERN_ERR "netconsole: target_ip parameter not specified, aborting.\n");
- 		return -1;
- 	}
--#define IP(x) ((char *)&target_ip)[x]
--	printk(KERN_INFO "netconsole: using target IP %i.%i.%i.%i\n",
-+#define IP(x) ((unsigned char *)&target_ip)[x]
-+	printk(KERN_INFO "netconsole: using target IP %u.%u.%u.%u\n",
- 		IP(3), IP(2), IP(1), IP(0));
- #undef IP
- 	target_ip = htonl(target_ip);
-@@ -294,18 +284,26 @@
- 	printk(KERN_INFO "netconsole: using target UDP port: %i\n", target_port);
- 	target_port = htons(target_port);
- 
--	daddr[0] = target_eth_byte0;
--	daddr[1] = target_eth_byte1;
--	daddr[2] = target_eth_byte2;
--	daddr[3] = target_eth_byte3;
--	daddr[4] = target_eth_byte4;
--	daddr[5] = target_eth_byte5;
--
--	if ((daddr[0] & daddr[1] & daddr[2] & daddr[3] & daddr[4] & daddr[5]) == 255)
--		printk(KERN_INFO "netconsole: using broadcast ethernet frames to send packets.\n");
--	else
--		printk(KERN_INFO "netconsole: using target ethernet address %02x:%02x:%02x:%02x:%02x:%02x.\n", daddr[0], daddr[1], daddr[2], daddr[3], daddr[4], daddr[5]);
--		
-+	if (target_mac) {
-+		char *ptr = target_mac;
-+		int i;
-+
-+		printk(KERN_INFO "netconsole: using target ethernet MAC: %s\n",
-+		       target_mac);
-+		for (i = 0; i < 6 && ptr; i++) {
-+			int val;
-+			char *sep;
-+			val = simple_strtoul(ptr, &sep, 16);
-+			if (sep != ptr) {
-+				daddr[i] = val;
-+				ptr = *sep ? sep + 1 : NULL;
-+			}
-+		}
-+	} else
-+		printk(KERN_INFO "netconsole: using broadcast ethernet MAC.\n");
-+
- 	netconsole_dev = ndev;
- #define STARTUP_MSG "[...network console startup...]\n"
- 	write_netconsole_msg(NULL, STARTUP_MSG, strlen(STARTUP_MSG));
-===================== netconsole-server.diff =============================
---- netconsole-client/netconsole-server.orig	Thu Sep 27 00:32:50 2001
-+++ netconsole-client/netconsole-server	Thu Sep 27 17:22:55 2001
-@@ -30,9 +30,11 @@
- 
- while [ $# -ge 1 ]; do case $1 in
- 	-b) NOMAC=1 ;;
--	-d) DEV=$2; shift ;;
--	-m) MAC=$2; shift ;;
--	-p) PORT=$2; shift ;;
-+	-d|--device) DEV=$2; shift ;;
-+	-m|--mac) MAC=$2; shift ;;
-+	-p|--port) PORT=$2; shift ;;
-+	--client) TGT=`echo $2| sed "s/:.*//"`;
-+		TPORT=`echo $2 | sed "s/.*://"`; shift ;;
- 	*:*) TGT=`echo $1 | sed "s/:.*//"`; TPORT=`echo $1 | sed "s/.*://"` ;;
- 	*) TGT=$1 ;;
- 	esac
-@@ -65,16 +67,9 @@
- 		echo "$prog: $DEV must be an ethernet interface" 1>&2 && usage
- 		
- 	IPHEX=`dquad_to_hex $IPADDR`
--	echo $MAC | sed "s/:/ /g" | { read M0 M1 M2 M3 M4 M5;
--		if [ -z "$NOMAC" ]; then
--			TGTMAC="target_eth_byte0=0x$M0 target_eth_byte1=0x$M1 \
--				target_eth_byte2=0x$M2 target_eth_byte3=0x$M3 \
--				target_eth_byte4=0x$M4 target_eth_byte5=0x$M5"
--		fi
--		echo dev=$DEV target_ip=$IPHEX \
--			source_port=$PORT target_port=$TPORT $TGTMAC
--		/sbin/insmod netconsole dev=$DEV target_ip=$IPHEX \
--			source_port=$PORT target_port=$TPORT $TGTMAC
--	}
-+	[ -z "$NOMAC" ] && TGTMAC="target_mac=$MAC"
-+	echo dev=$DEV target_ip=$IPHEX \
-+		source_port=$PORT target_port=$TPORT $TGTMAC
-+	insmod netconsole dev=$DEV target_ip=$IPHEX \
-+		source_port=$PORT target_port=$TPORT $TGTMAC
- }
--
-===================== netconsole-client.diff =============================
---- netconsole-client/netconsole-client.c.orig	Thu Sep 27 08:32:31 2001
-+++ netconsole-client/netconsole-client.c	Thu Sep 27 16:07:39 2001
-@@ -17,47 +17,59 @@
- #include <sys/socket.h>
- #include <netinet/in.h>
- #include <arpa/inet.h>
-+#include <syslog.h>
- 
- #define NETCONSOLE_VERSION 0x01
- 
- #define BUFLEN 10000
- 
-+#ifndef min
-+#define min(a,b) ((a) < (b) ? (a) : (b))
-+#endif
-+
- int main (int argc, char **argv)
- {
- 	struct sockaddr_in saddr, caddr;
- 	int udp_socket;
--	unsigned char buf[BUFLEN];
--	int len, port;
-+	unsigned char buf[BUFLEN], sysbuf[BUFLEN];
-+	unsigned int sysoff = 0;
-+	int len, port = 6666;
- 	struct sockaddr_in addr;
- 	int addr_len = sizeof(addr);
-+	int noserver = 1;
- 
- 	memset(&addr, 0, addr_len);
- 	memset(&saddr, 0, addr_len);
- 	memset(&caddr, 0, addr_len);
- 
--	if (argc != 7) {
--		fprintf(stderr, "usage: netconsole-client -server <IP> -client <IP> -port <port>\n");
-+	if (argc != 3 && argc != 5 && argc != 7) {
-+		fprintf(stderr, "usage: netconsole-client --client <IP> [--port <port> [--server <IP>]]\n");
- 		exit(-1);
- 	}
--	port = atol(argv[6]);
--	printf("displaying netconsole output from server %s, client %s, UDP port %d.\n", argv[2], argv[4], port);
-+	if (argc > 4)
-+		port = atol(argv[4]);
-+	printf("listening on interface %s:%d for server %s:%d.\n", argv[2], port, argc > 6 ? argv[6] : "ANY", port);
- 
- 
- 	udp_socket = socket(PF_INET, SOCK_DGRAM, 0);
- 
--	saddr.sin_family = AF_INET;
--	saddr.sin_port = htons(port);
--	saddr.sin_addr.s_addr = inet_addr(argv[2]);
--
- 	caddr.sin_family = AF_INET;
- 	caddr.sin_port = htons(port);
--	caddr.sin_addr.s_addr = inet_addr(argv[4]);
-+	caddr.sin_addr.s_addr = inet_addr(argv[2]);
-+
-+	if (argc > 5) {
-+		saddr.sin_family = AF_INET;
-+		saddr.sin_port = htons(port);
-+		saddr.sin_addr.s_addr = inet_addr(argv[6]);
-+		noserver = 0;
-+	}
- 
- 	if (bind(udp_socket, (struct sockaddr *)&caddr, sizeof(caddr))) {
- 		perror("could not bind UDP socket!\n");
- 		exit(-1);
- 	}
- 
-+	openlog("netconsole", 0, LOG_KERN);
- 	while (1) {
- 		len = recvfrom(udp_socket, buf, BUFLEN, 0, (struct sockaddr *)&addr, &addr_len);
- 		if (len <= 0) {
-@@ -65,10 +77,15 @@
- 			exit(-1);
- 		}
- 		buf[len] = 0;
--		if (!memcmp(&addr, &saddr, addr_len)) {
--			unsigned int offset;
-+		if (noserver || !memcmp(&addr, &saddr, addr_len)) {
-+			unsigned int offset, skip;
-+			unsigned int priority = LOG_WARNING, new_priority;
-+			unsigned char *nl;
-+
- 			if (buf[0] != NETCONSOLE_VERSION) {
--				printf("[netconsole server has version %d, client supports only version %d! exiting.]\n", buf[0], NETCONSOLE_VERSION);
-+				printf("[netconsole server has version %d, "
-+				       "client supports only version %d! "
-+				       "exiting.]\n", *buf, NETCONSOLE_VERSION);
- 				exit(-1);
- 			}
- 
-@@ -76,10 +93,42 @@
- 			offset = (offset << 8) | buf[2];
- 			offset = (offset << 8) | buf[3];
- 			offset = (offset << 8) | buf[4];
-+			skip = 5;
- 
--			printf("(%d): %s", offset, buf+5);
-+			printf("%s", buf + skip);
- 			fflush(stdout);
-+			if (sysoff == 0 &&
-+			    sscanf(buf + skip, "<%d>", &new_priority) == 1) {
-+				if (new_priority <= LOG_DEBUG) {
-+					priority = new_priority;
-+					skip += 3;
-+				}
-+			}
-+			while ((nl = strchr(buf + skip, '\n'))) {
-+				int used, left;
-+
-+				used = (nl - (buf + skip)) + 1;
-+				left = sizeof(sysbuf) - sysoff - 1;
-+
-+				strncat(sysbuf + sysoff, buf + skip,
-+					min(used, left));
-+				/* FIXME: need to print source hostname/IP */
-+				syslog(priority, "%s", sysbuf);
-+				sysbuf[(sysoff = 0)] = '\0';
-+				skip += min(used, left);
-+			}
-+			if (buf[skip]) {
-+				strncat(sysbuf + sysoff, buf + skip,
-+					 sizeof(sysbuf) - sysoff - 1);
-+				sysoff += strlen(buf + skip);
-+				if (sysoff >= sizeof(sysbuf)) {
-+					syslog(priority, "%s", sysbuf);
-+					sysbuf[(sysoff = 0)] = '\0';
-+				}
-+			}
-+
- 		}
- 	}
-+	closelog();
- 	return 0;
- }
-========================= 8139too-poll.diff ==============================
---- linux/drivers/net/8139too.c.orig	Tue Jul 31 15:15:28 2001
-+++ linux/drivers/net/8139too.c	Thu Sep 27 10:15:59 2001
-@@ -619,6 +619,9 @@
- static void rtl8139_init_ring (struct net_device *dev);
- static int rtl8139_start_xmit (struct sk_buff *skb,
- 			       struct net_device *dev);
-+#ifdef HAVE_POLL_CONTROLLER
-+static void rtl8139_poll (struct net_device *dev);
-+#endif
- static void rtl8139_interrupt (int irq, void *dev_instance,
- 			       struct pt_regs *regs);
- static int rtl8139_close (struct net_device *dev);
-@@ -965,6 +968,9 @@
- 	dev->get_stats = rtl8139_get_stats;
- 	dev->set_multicast_list = rtl8139_set_rx_mode;
- 	dev->do_ioctl = netdev_ioctl;
-+#ifdef HAVE_POLL_CONTROLLER
-+	dev->poll_controller = rtl8139_poll;
-+#endif
- 	dev->tx_timeout = rtl8139_tx_timeout;
- 	dev->watchdog_timeo = TX_TIMEOUT;
- 
-@@ -2201,6 +2207,20 @@
- 	return 0;
- }
- 
-+
-+#ifdef HAVE_POLL_CONTROLLER
-+/*
-+ * Polling 'interrupt' - used by things like netconsole to send skbs
-+ * without having to re-enable interrupts. It's not called while
-+ * the interrupt routine is executing.
-+ */
-+static void rtl8139_poll(struct net_device *dev)
-+{
-+	disable_irq(dev->irq);
-+	rtl8139_interrupt(dev->irq, dev, NULL);
-+	enable_irq(dev->irq);
-+}
-+#endif
- 
- static int netdev_ethtool_ioctl (struct net_device *dev, void *useraddr)
- {
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+there is also another bad side-effect of ksoftirqd as well: if it's
+relatively inactive for some time then it will 'collect' current->counter
+scheduler ticks, basically boosting its performance way above that of the
+intended ->nice = 19. It will then often 'suck' softirq handling to
+itself, due to its more agressive scheduling position. To combat this
+effect, i've modified ksoftirq to do:
 
+	if (current->counter > 1)
+		current->counter = 1;
+
+(this is a tiny bit racy wrt. the timer interrupt, but it's harmless.)
+
+the current form of softirqs were designed by Alexey and David for the
+purposes high-performance networking, as part of the 'softnet' effort.
+Networking remains the biggest user of softirqs - while there are a few
+cases of high-frequency tasklet uses, generally it's the network stack's
+TX_SOFTIRQ and RX_SOFTIRQ workload that we care about most - and tasklets.
+(see the tasklet fixes in the patch.) Via TX-completion-IRQ capable cards,
+there can be a constant and separate TX and RX softirq workload added.
+
+especially under high loads, the work done in the 'later' net-softirq,
+NET_RX_SOFTIRQ can mount up, and thus the amount of pending work within
+NET_TX_SOFTIRQ can mount up. Furthermore, there is a mechanizm within both
+the tx and rx softirq that can break out of softirq handling before all
+work has been handled: if a jiffy (10 msecs) has passed, or if we have
+processed more than netdev_max_backlog (default: 300) packets.
+
+there are a number of other options i experimented with:
+
+ - handling softirqs in schedule(), before runqueue_lock is taken, in a
+   softirq- and irq- atomic way, unless ->need_resched is set. This was
+   done in earlier kernels, and might be a good idea to do again =>
+   especially with unwakeup(). The downside is extra cost within
+   schedule().
+
+ - tuning the amount of work within the tx/rx handlers, both increasing
+   and decreasing the amount of packets. Decreasing the amount of work has
+   the effect of decreasing the latency of processing RX-triggered TX
+   events (such as ACK), and generally handling TX/RX events more
+   smoothly, but it also has the effect of increasing the cache footprint.
+
+ - exchanging the order of tx and rx softirqs.
+
+ - using jiffies within do_softirq() to make sure it does not execute for
+   more than 10-20 msecs.
+
+ - feeding back a 'work left' integer through the ->action functions to
+   do_softirq() - who can then do decisions which softirq to restart.
+   (basically a mini softirq scheduler.)
+
+this later one looked pretty powerful because it provides more information
+ot the generic layer - but it's something i think might be too intrusive
+for 2.4. For now, the simplest and most effective method of all was the
+looping.
+
+- i've done one more refinement to the current patch: do_softirq() now
+  checks current->need_resched and it will break out of softirq processing
+  if it's 1. Note that do_softirq() is a rare function which *must not* do
+  '!current->need_resched': poll_idle() uses need_resched == -1 as a
+  special value. (but normally irq-level code does not check
+  ->need_resched so this is a special case). This prevent irqs that hit
+  the idle-poll task to do normal softirq processing - and not break out
+  after one loop.
+
+i've attached the softirq-2.4.10-B2 that has your TASK_RUNNING suggestion,
+Oleg's fixes and this change included.
+
+	Ingo
+
+--8323328-1338751583-1001661497=:1569
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="softirq-2.4.10-B2"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0109280918170.1569@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename="softirq-2.4.10-B2"
+
+LS0tIGxpbnV4L2tlcm5lbC9rc3ltcy5jLm9yaWcJV2VkIFNlcCAyNiAxNzow
+NDo0MCAyMDAxDQorKysgbGludXgva2VybmVsL2tzeW1zLmMJV2VkIFNlcCAy
+NiAxNzowNDo0OCAyMDAxDQpAQCAtNTM4LDggKzUzOCw2IEBADQogRVhQT1JU
+X1NZTUJPTCh0YXNrbGV0X2tpbGwpOw0KIEVYUE9SVF9TWU1CT0woX19ydW5f
+dGFza19xdWV1ZSk7DQogRVhQT1JUX1NZTUJPTChkb19zb2Z0aXJxKTsNCi1F
+WFBPUlRfU1lNQk9MKHJhaXNlX3NvZnRpcnEpOw0KLUVYUE9SVF9TWU1CT0wo
+Y3B1X3JhaXNlX3NvZnRpcnEpOw0KIEVYUE9SVF9TWU1CT0woX190YXNrbGV0
+X3NjaGVkdWxlKTsNCiBFWFBPUlRfU1lNQk9MKF9fdGFza2xldF9oaV9zY2hl
+ZHVsZSk7DQogDQotLS0gbGludXgva2VybmVsL3NjaGVkLmMub3JpZwlXZWQg
+U2VwIDI2IDE3OjA0OjQwIDIwMDENCisrKyBsaW51eC9rZXJuZWwvc2NoZWQu
+YwlXZWQgU2VwIDI2IDE3OjA0OjQ4IDIwMDENCkBAIC0zNjYsNiArMzY2LDI4
+IEBADQogfQ0KIA0KIC8qKg0KKyAqIHVud2FrZXVwIC0gdW5kbyB3YWtldXAg
+aWYgcG9zc2libGUuDQorICogQHA6IHRhc2sNCisgKiBAc3RhdGU6IG5ldyB0
+YXNrIHN0YXRlDQorICoNCisgKiBVbmRvIGEgcHJldmlvdXMgd2FrZXVwIG9m
+IHRoZSBzcGVjaWZpZWQgdGFzayAtIGlmIHRoZSBwcm9jZXNzDQorICogaXMg
+bm90IHJ1bm5pbmcgYWxyZWFkeS4gVGhlIG1haW4gaW50ZXJmYWNlIHRvIGJl
+IHVzZWQgaXMNCisgKiB1bndha2V1cF9wcm9jZXNzKCksIGl0IHdpbGwgZG8g
+YSBsb2NrbGVzcyB0ZXN0IHdoZXRoZXIgdGhlIHRhc2sNCisgKiBpcyBvbiB0
+aGUgcnVucXVldWUuDQorICovDQordm9pZCBfX3Vud2FrZXVwX3Byb2Nlc3Mo
+c3RydWN0IHRhc2tfc3RydWN0ICogcCwgbG9uZyBzdGF0ZSkNCit7DQorCXVu
+c2lnbmVkIGxvbmcgZmxhZ3M7DQorDQorCXNwaW5fbG9ja19pcnFzYXZlKCZy
+dW5xdWV1ZV9sb2NrLCBmbGFncyk7DQorCWlmICghcC0+aGFzX2NwdSAmJiAo
+cCAhPSBjdXJyZW50KSAmJiB0YXNrX29uX3J1bnF1ZXVlKHApKSB7DQorCQlk
+ZWxfZnJvbV9ydW5xdWV1ZShwKTsNCisJCXAtPnN0YXRlID0gc3RhdGU7DQor
+CX0NCisJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmcnVucXVldWVfbG9jaywg
+ZmxhZ3MpOw0KK30NCisNCisvKioNCiAgKiBzY2hlZHVsZV90aW1lb3V0IC0g
+c2xlZXAgdW50aWwgdGltZW91dA0KICAqIEB0aW1lb3V0OiB0aW1lb3V0IHZh
+bHVlIGluIGppZmZpZXMNCiAgKg0KLS0tIGxpbnV4L2tlcm5lbC9zb2Z0aXJx
+LmMub3JpZwlXZWQgU2VwIDI2IDE3OjA0OjQwIDIwMDENCisrKyBsaW51eC9r
+ZXJuZWwvc29mdGlycS5jCUZyaSBTZXAgMjggMDg6NTY6MDggMjAwMQ0KQEAg
+LTU4LDEyICs1OCwzNSBAQA0KIAkJd2FrZV91cF9wcm9jZXNzKHRzayk7DQog
+fQ0KIA0KKy8qDQorICogSWYgYSBzb2Z0aXJxcyB3ZXJlIGZ1bGx5IGhhbmRs
+ZWQgYWZ0ZXIga3NvZnRpcnFkIHdhcyB3b2tlbg0KKyAqIHVwIHRoZW4gdHJ5
+IHRvIHVuZG8gdGhlIHdha2V1cC4NCisgKi8NCitzdGF0aWMgaW5saW5lIHZv
+aWQgdW53YWtldXBfc29mdGlycWQodW5zaWduZWQgY3B1KQ0KK3sNCisJc3Ry
+dWN0IHRhc2tfc3RydWN0ICogdHNrID0ga3NvZnRpcnFkX3Rhc2soY3B1KTsN
+CisNCisJaWYgKHRzaykNCisJCXVud2FrZXVwX3Byb2Nlc3ModHNrLCBUQVNL
+X0lOVEVSUlVQVElCTEUpOw0KK30NCisNCisvKg0KKyAqIFdlIHJlc3RhcnQg
+c29mdGlycSBwcm9jZXNzaW5nIE1BWF9TT0ZUSVJRX1JFU1RBUlQgdGltZXMs
+DQorICogYW5kIHdlIGZhbGwgYmFjayB0byBzb2Z0aXJxZCBhZnRlciB0aGF0
+Lg0KKyAqDQorICogVGhpcyBudW1iZXIgaGFzIGJlZW4gZXN0YWJsaXNoZWQg
+dmlhIGV4cGVyaW1lbnRhdGlvbi4NCisgKiBUaGUgdHdvIHRoaW5ncyB0byBi
+YWxhbmNlIGlzIGxhdGVuY3kgYWdhaW5zdCBmYWlybmVzcyAtDQorICogd2Ug
+d2FudCB0byBoYW5kbGUgc29mdGlycXMgYXMgc29vbiBhcyBwb3NzaWJsZSwg
+YnV0IHRoZXkNCisgKiBzaG91bGQgbm90IGJlIGFibGUgdG8gbG9jayB1cCB0
+aGUgYm94Lg0KKyAqLw0KKyNkZWZpbmUgTUFYX1NPRlRJUlFfUkVTVEFSVCAx
+MA0KKw0KIGFzbWxpbmthZ2Ugdm9pZCBkb19zb2Z0aXJxKCkNCiB7DQorCWlu
+dCBtYXhfcmVzdGFydCA9IE1BWF9TT0ZUSVJRX1JFU1RBUlQ7DQogCWludCBj
+cHUgPSBzbXBfcHJvY2Vzc29yX2lkKCk7DQogCV9fdTMyIHBlbmRpbmc7DQog
+CWxvbmcgZmxhZ3M7DQotCV9fdTMyIG1hc2s7DQogDQogCWlmIChpbl9pbnRl
+cnJ1cHQoKSkNCiAJCXJldHVybjsNCkBAIC03NSw3ICs5OCw2IEBADQogCWlm
+IChwZW5kaW5nKSB7DQogCQlzdHJ1Y3Qgc29mdGlycV9hY3Rpb24gKmg7DQog
+DQotCQltYXNrID0gfnBlbmRpbmc7DQogCQlsb2NhbF9iaF9kaXNhYmxlKCk7
+DQogcmVzdGFydDoNCiAJCS8qIFJlc2V0IHRoZSBwZW5kaW5nIGJpdG1hc2sg
+YmVmb3JlIGVuYWJsaW5nIGlycXMgKi8NCkBAIC05NSw1NSArMTE3LDM3IEBA
+DQogCQlsb2NhbF9pcnFfZGlzYWJsZSgpOw0KIA0KIAkJcGVuZGluZyA9IHNv
+ZnRpcnFfcGVuZGluZyhjcHUpOw0KLQkJaWYgKHBlbmRpbmcgJiBtYXNrKSB7
+DQotCQkJbWFzayAmPSB+cGVuZGluZzsNCisJCWlmIChwZW5kaW5nICYmIC0t
+bWF4X3Jlc3RhcnQgJiYgKGN1cnJlbnQtPm5lZWRfcmVzY2hlZCAhPSAxKSkN
+CiAJCQlnb3RvIHJlc3RhcnQ7DQotCQl9DQogCQlfX2xvY2FsX2JoX2VuYWJs
+ZSgpOw0KIA0KIAkJaWYgKHBlbmRpbmcpDQorCQkJLyoNCisJCQkgKiBJbiB0
+aGUgbm9ybWFsIGNhc2Uga3NvZnRpcnFkIGlzIHJhcmVseSBhY3RpdmF0ZWQs
+DQorCQkJICogaW5jcmVhc2VkIHNjaGVkdWxpbmcgaHVydHMgcGVyZm9ybWFu
+Y2UuDQorCQkJICogSXQncyBhIHNhZmV0eSBtZWFzdXJlOiBpZiBleHRlcm5h
+bCBsb2FkIHN0YXJ0cw0KKwkJCSAqIHRvIGZsb29kIHRoZSBzeXN0ZW0gd2l0
+aCBzb2Z0aXJxcyB0aGVuIHdlDQorCQkJICogd2lsbCBtaXRpZ2F0ZSBzb2Z0
+aXJxIHdvcmsgdG8gdGhlIHNvZnRpcnEgdGhyZWFkLg0KKwkJCSAqLw0KIAkJ
+CXdha2V1cF9zb2Z0aXJxZChjcHUpOw0KKwkJZWxzZQ0KKwkJCS8qDQorCQkJ
+ICogQWxsIHNvZnRpcnFzIGFyZSBoYW5kbGVkIC0gdW5kbyBhbnkgcG9zc2li
+bGUNCisJCQkgKiB3YWtldXAgb2Ygc29mdGlycWQuIFRoaXMgcmVkdWNlcyBj
+b250ZXh0IHN3aXRjaA0KKwkJCSAqIG92ZXJoZWFkLg0KKwkJCSAqLw0KKwkJ
+CXVud2FrZXVwX3NvZnRpcnFkKGNwdSk7DQogCX0NCiANCiAJbG9jYWxfaXJx
+X3Jlc3RvcmUoZmxhZ3MpOw0KIH0NCiANCi0vKg0KLSAqIFRoaXMgZnVuY3Rp
+b24gbXVzdCBydW4gd2l0aCBpcnEgZGlzYWJsZWQhDQotICovDQotaW5saW5l
+IHZvaWQgY3B1X3JhaXNlX3NvZnRpcnEodW5zaWduZWQgaW50IGNwdSwgdW5z
+aWduZWQgaW50IG5yKQ0KLXsNCi0JX19jcHVfcmFpc2Vfc29mdGlycShjcHUs
+IG5yKTsNCi0NCi0JLyoNCi0JICogSWYgd2UncmUgaW4gYW4gaW50ZXJydXB0
+IG9yIGJoLCB3ZSdyZSBkb25lDQotCSAqICh0aGlzIGFsc28gY2F0Y2hlcyBi
+aC1kaXNhYmxlZCBjb2RlKS4gV2Ugd2lsbA0KLQkgKiBhY3R1YWxseSBydW4g
+dGhlIHNvZnRpcnEgb25jZSB3ZSByZXR1cm4gZnJvbQ0KLQkgKiB0aGUgaXJx
+IG9yIGJoLg0KLQkgKg0KLQkgKiBPdGhlcndpc2Ugd2Ugd2FrZSB1cCBrc29m
+dGlycWQgdG8gbWFrZSBzdXJlIHdlDQotCSAqIHNjaGVkdWxlIHRoZSBzb2Z0
+aXJxIHNvb24uDQotCSAqLw0KLQlpZiAoIShsb2NhbF9pcnFfY291bnQoY3B1
+KSB8IGxvY2FsX2JoX2NvdW50KGNwdSkpKQ0KLQkJd2FrZXVwX3NvZnRpcnFk
+KGNwdSk7DQotfQ0KLQ0KLXZvaWQgcmFpc2Vfc29mdGlycSh1bnNpZ25lZCBp
+bnQgbnIpDQotew0KLQlsb25nIGZsYWdzOw0KLQ0KLQlsb2NhbF9pcnFfc2F2
+ZShmbGFncyk7DQotCWNwdV9yYWlzZV9zb2Z0aXJxKHNtcF9wcm9jZXNzb3Jf
+aWQoKSwgbnIpOw0KLQlsb2NhbF9pcnFfcmVzdG9yZShmbGFncyk7DQotfQ0K
+LQ0KIHZvaWQgb3Blbl9zb2Z0aXJxKGludCBuciwgdm9pZCAoKmFjdGlvbiko
+c3RydWN0IHNvZnRpcnFfYWN0aW9uKiksIHZvaWQgKmRhdGEpDQogew0KIAlz
+b2Z0aXJxX3ZlY1tucl0uZGF0YSA9IGRhdGE7DQogCXNvZnRpcnFfdmVjW25y
+XS5hY3Rpb24gPSBhY3Rpb247DQogfQ0KIA0KLQ0KIC8qIFRhc2tsZXRzICov
+DQogDQogc3RydWN0IHRhc2tsZXRfaGVhZCB0YXNrbGV0X3ZlY1tOUl9DUFVT
+XSBfX2NhY2hlbGluZV9hbGlnbmVkOw0KQEAgLTE1Nyw4ICsxNjEsOSBAQA0K
+IAlsb2NhbF9pcnFfc2F2ZShmbGFncyk7DQogCXQtPm5leHQgPSB0YXNrbGV0
+X3ZlY1tjcHVdLmxpc3Q7DQogCXRhc2tsZXRfdmVjW2NwdV0ubGlzdCA9IHQ7
+DQotCWNwdV9yYWlzZV9zb2Z0aXJxKGNwdSwgVEFTS0xFVF9TT0ZUSVJRKTsN
+CisJX19jcHVfcmFpc2Vfc29mdGlycShjcHUsIFRBU0tMRVRfU09GVElSUSk7
+DQogCWxvY2FsX2lycV9yZXN0b3JlKGZsYWdzKTsNCisJcmVydW5fc29mdGly
+cXMoY3B1KTsNCiB9DQogDQogdm9pZCBfX3Rhc2tsZXRfaGlfc2NoZWR1bGUo
+c3RydWN0IHRhc2tsZXRfc3RydWN0ICp0KQ0KQEAgLTE2OSw4ICsxNzQsOSBA
+QA0KIAlsb2NhbF9pcnFfc2F2ZShmbGFncyk7DQogCXQtPm5leHQgPSB0YXNr
+bGV0X2hpX3ZlY1tjcHVdLmxpc3Q7DQogCXRhc2tsZXRfaGlfdmVjW2NwdV0u
+bGlzdCA9IHQ7DQotCWNwdV9yYWlzZV9zb2Z0aXJxKGNwdSwgSElfU09GVElS
+USk7DQorCV9fY3B1X3JhaXNlX3NvZnRpcnEoY3B1LCBISV9TT0ZUSVJRKTsN
+CiAJbG9jYWxfaXJxX3Jlc3RvcmUoZmxhZ3MpOw0KKwlyZXJ1bl9zb2Z0aXJx
+cyhjcHUpOw0KIH0NCiANCiBzdGF0aWMgdm9pZCB0YXNrbGV0X2FjdGlvbihz
+dHJ1Y3Qgc29mdGlycV9hY3Rpb24gKmEpDQpAQCAtMjQxLDcgKzI0Nyw2IEBA
+DQogCX0NCiB9DQogDQotDQogdm9pZCB0YXNrbGV0X2luaXQoc3RydWN0IHRh
+c2tsZXRfc3RydWN0ICp0LA0KIAkJICB2b2lkICgqZnVuYykodW5zaWduZWQg
+bG9uZyksIHVuc2lnbmVkIGxvbmcgZGF0YSkNCiB7DQpAQCAtMjY4LDggKzI3
+Myw2IEBADQogCWNsZWFyX2JpdChUQVNLTEVUX1NUQVRFX1NDSEVELCAmdC0+
+c3RhdGUpOw0KIH0NCiANCi0NCi0NCiAvKiBPbGQgc3R5bGUgQkhzICovDQog
+DQogc3RhdGljIHZvaWQgKCpiaF9iYXNlWzMyXSkodm9pZCk7DQpAQCAtMzI1
+LDcgKzMyOCw3IEBADQogew0KIAlpbnQgaTsNCiANCi0JZm9yIChpPTA7IGk8
+MzI7IGkrKykNCisJZm9yIChpID0gMDsgaSA8IDMyOyBpKyspDQogCQl0YXNr
+bGV0X2luaXQoYmhfdGFza192ZWMraSwgYmhfYWN0aW9uLCBpKTsNCiANCiAJ
+b3Blbl9zb2Z0aXJxKFRBU0tMRVRfU09GVElSUSwgdGFza2xldF9hY3Rpb24s
+IE5VTEwpOw0KQEAgLTM2MSwzOCArMzY0LDQyIEBADQogDQogc3RhdGljIGlu
+dCBrc29mdGlycWQodm9pZCAqIF9fYmluZF9jcHUpDQogew0KLQlpbnQgYmlu
+ZF9jcHUgPSAqKGludCAqKSBfX2JpbmRfY3B1Ow0KLQlpbnQgY3B1ID0gY3B1
+X2xvZ2ljYWxfbWFwKGJpbmRfY3B1KTsNCisJaW50IGNwdSA9IGNwdV9sb2dp
+Y2FsX21hcCgoaW50KV9fYmluZF9jcHUpOw0KIA0KIAlkYWVtb25pemUoKTsN
+Ci0JY3VycmVudC0+bmljZSA9IDE5Ow0KKw0KIAlzaWdmaWxsc2V0KCZjdXJy
+ZW50LT5ibG9ja2VkKTsNCiANCiAJLyogTWlncmF0ZSB0byB0aGUgcmlnaHQg
+Q1BVICovDQotCWN1cnJlbnQtPmNwdXNfYWxsb3dlZCA9IDFVTCA8PCBjcHU7
+DQotCXdoaWxlIChzbXBfcHJvY2Vzc29yX2lkKCkgIT0gY3B1KQ0KLQkJc2No
+ZWR1bGUoKTsNCisJY3VycmVudC0+Y3B1c19hbGxvd2VkID0gMSA8PCBjcHU7
+DQogDQotCXNwcmludGYoY3VycmVudC0+Y29tbSwgImtzb2Z0aXJxZF9DUFUl
+ZCIsIGJpbmRfY3B1KTsNCi0NCi0JX19zZXRfY3VycmVudF9zdGF0ZShUQVNL
+X0lOVEVSUlVQVElCTEUpOw0KLQltYigpOw0KKyNpZiBDT05GSUdfU01QDQor
+CXNwcmludGYoY3VycmVudC0+Y29tbSwgImtzb2Z0aXJxZCBDUFUlZCIsIGNw
+dSk7DQorI2Vsc2UNCisJc3ByaW50ZihjdXJyZW50LT5jb21tLCAia3NvZnRp
+cnFkIik7DQorI2VuZGlmDQogDQorCWN1cnJlbnQtPm5pY2UgPSAxOTsNCisJ
+c2NoZWR1bGUoKTsNCiAJa3NvZnRpcnFkX3Rhc2soY3B1KSA9IGN1cnJlbnQ7
+DQogDQogCWZvciAoOzspIHsNCi0JCWlmICghc29mdGlycV9wZW5kaW5nKGNw
+dSkpDQotCQkJc2NoZWR1bGUoKTsNCi0NCi0JCV9fc2V0X2N1cnJlbnRfc3Rh
+dGUoVEFTS19SVU5OSU5HKTsNCi0NCiAJCXdoaWxlIChzb2Z0aXJxX3BlbmRp
+bmcoY3B1KSkgew0KIAkJCWRvX3NvZnRpcnEoKTsNCiAJCQlpZiAoY3VycmVu
+dC0+bmVlZF9yZXNjaGVkKQ0KLQkJCQlzY2hlZHVsZSgpOw0KKwkJCQlnb3Rv
+IHByZWVtcHQ7DQogCQl9DQogDQogCQlfX3NldF9jdXJyZW50X3N0YXRlKFRB
+U0tfSU5URVJSVVBUSUJMRSk7DQorCQkvKiBUaGlzIGhhcyB0byBiZSBoZXJl
+IHRvIG1ha2UgdGhlIHRlc3QgSVJRLWNvcnJlY3QuICovDQorCQliYXJyaWVy
+KCk7DQorCQlpZiAoIXNvZnRpcnFfcGVuZGluZyhjcHUpKSB7DQorcHJlZW1w
+dDoNCisJCQlpZiAoY3VycmVudC0+Y291bnRlciA+IDEpDQorCQkJCWN1cnJl
+bnQtPmNvdW50ZXIgPSAxOw0KKwkJCXNjaGVkdWxlKCk7DQorCQl9DQorCQlf
+X3NldF9jdXJyZW50X3N0YXRlKFRBU0tfUlVOTklORyk7DQogCX0NCiB9DQog
+DQpAQCAtNDAwLDE3ICs0MDcsMTAgQEANCiB7DQogCWludCBjcHU7DQogDQot
+CWZvciAoY3B1ID0gMDsgY3B1IDwgc21wX251bV9jcHVzOyBjcHUrKykgew0K
+LQkJaWYgKGtlcm5lbF90aHJlYWQoa3NvZnRpcnFkLCAodm9pZCAqKSAmY3B1
+LA0KKwlmb3IgKGNwdSA9IDA7IGNwdSA8IHNtcF9udW1fY3B1czsgY3B1Kysp
+DQorCQlpZiAoa2VybmVsX3RocmVhZChrc29mdGlycWQsICh2b2lkICopIGNw
+dSwNCiAJCQkJICBDTE9ORV9GUyB8IENMT05FX0ZJTEVTIHwgQ0xPTkVfU0lH
+TkFMKSA8IDApDQotCQkJcHJpbnRrKCJzcGF3bl9rc29mdGlycWQoKSBmYWls
+ZWQgZm9yIGNwdSAlZFxuIiwgY3B1KTsNCi0JCWVsc2Ugew0KLQkJCXdoaWxl
+ICgha3NvZnRpcnFkX3Rhc2soY3B1X2xvZ2ljYWxfbWFwKGNwdSkpKSB7DQot
+CQkJCWN1cnJlbnQtPnBvbGljeSB8PSBTQ0hFRF9ZSUVMRDsNCi0JCQkJc2No
+ZWR1bGUoKTsNCi0JCQl9DQotCQl9DQotCX0NCisJCQlCVUcoKTsNCiANCiAJ
+cmV0dXJuIDA7DQogfQ0KLS0tIGxpbnV4L2luY2x1ZGUvbGludXgvbmV0ZGV2
+aWNlLmgub3JpZwlXZWQgU2VwIDI2IDE3OjA0OjM2IDIwMDENCisrKyBsaW51
+eC9pbmNsdWRlL2xpbnV4L25ldGRldmljZS5oCUZyaSBTZXAgMjggMDc6NDQ6
+MDEgMjAwMQ0KQEAgLTQ4Niw4ICs0ODYsOSBAQA0KIAkJbG9jYWxfaXJxX3Nh
+dmUoZmxhZ3MpOw0KIAkJZGV2LT5uZXh0X3NjaGVkID0gc29mdG5ldF9kYXRh
+W2NwdV0ub3V0cHV0X3F1ZXVlOw0KIAkJc29mdG5ldF9kYXRhW2NwdV0ub3V0
+cHV0X3F1ZXVlID0gZGV2Ow0KLQkJY3B1X3JhaXNlX3NvZnRpcnEoY3B1LCBO
+RVRfVFhfU09GVElSUSk7DQorCQlfX2NwdV9yYWlzZV9zb2Z0aXJxKGNwdSwg
+TkVUX1RYX1NPRlRJUlEpOw0KIAkJbG9jYWxfaXJxX3Jlc3RvcmUoZmxhZ3Mp
+Ow0KKwkJcmVydW5fc29mdGlycXMoY3B1KTsNCiAJfQ0KIH0NCiANCkBAIC01
+MzUsOCArNTM2LDkgQEANCiAJCWxvY2FsX2lycV9zYXZlKGZsYWdzKTsNCiAJ
+CXNrYi0+bmV4dCA9IHNvZnRuZXRfZGF0YVtjcHVdLmNvbXBsZXRpb25fcXVl
+dWU7DQogCQlzb2Z0bmV0X2RhdGFbY3B1XS5jb21wbGV0aW9uX3F1ZXVlID0g
+c2tiOw0KLQkJY3B1X3JhaXNlX3NvZnRpcnEoY3B1LCBORVRfVFhfU09GVElS
+USk7DQorCQlfX2NwdV9yYWlzZV9zb2Z0aXJxKGNwdSwgTkVUX1RYX1NPRlRJ
+UlEpOw0KIAkJbG9jYWxfaXJxX3Jlc3RvcmUoZmxhZ3MpOw0KKwkJcmVydW5f
+c29mdGlycXMoY3B1KTsNCiAJfQ0KIH0NCiANCi0tLSBsaW51eC9pbmNsdWRl
+L2xpbnV4L2ludGVycnVwdC5oLm9yaWcJV2VkIFNlcCAyNiAxNzowNDo0MCAy
+MDAxDQorKysgbGludXgvaW5jbHVkZS9saW51eC9pbnRlcnJ1cHQuaAlGcmkg
+U2VwIDI4IDA3OjQ0OjAxIDIwMDENCkBAIC03NCw5ICs3NCwxNCBAQA0KIGFz
+bWxpbmthZ2Ugdm9pZCBkb19zb2Z0aXJxKHZvaWQpOw0KIGV4dGVybiB2b2lk
+IG9wZW5fc29mdGlycShpbnQgbnIsIHZvaWQgKCphY3Rpb24pKHN0cnVjdCBz
+b2Z0aXJxX2FjdGlvbiopLCB2b2lkICpkYXRhKTsNCiBleHRlcm4gdm9pZCBz
+b2Z0aXJxX2luaXQodm9pZCk7DQotI2RlZmluZSBfX2NwdV9yYWlzZV9zb2Z0
+aXJxKGNwdSwgbnIpIGRvIHsgc29mdGlycV9wZW5kaW5nKGNwdSkgfD0gMVVM
+IDw8IChucik7IH0gd2hpbGUgKDApDQotZXh0ZXJuIHZvaWQgRkFTVENBTEwo
+Y3B1X3JhaXNlX3NvZnRpcnEodW5zaWduZWQgaW50IGNwdSwgdW5zaWduZWQg
+aW50IG5yKSk7DQotZXh0ZXJuIHZvaWQgRkFTVENBTEwocmFpc2Vfc29mdGly
+cSh1bnNpZ25lZCBpbnQgbnIpKTsNCisjZGVmaW5lIF9fY3B1X3JhaXNlX3Nv
+ZnRpcnEoY3B1LCBucikgXA0KKwkJZG8geyBzb2Z0aXJxX3BlbmRpbmcoY3B1
+KSB8PSAxVUwgPDwgKG5yKTsgfSB3aGlsZSAoMCkNCisNCisjZGVmaW5lIHJl
+cnVuX3NvZnRpcnFzKGNwdSkgCQkJCQlcDQorZG8gewkJCQkJCQkJXA0KKwlp
+ZiAoIShsb2NhbF9pcnFfY291bnQoY3B1KSB8IGxvY2FsX2JoX2NvdW50KGNw
+dSkpKQlcDQorCQlkb19zb2Z0aXJxKCk7CQkJCQlcDQorfSB3aGlsZSAoMCk7
+DQogDQogDQogDQotLS0gbGludXgvaW5jbHVkZS9saW51eC9zY2hlZC5oLm9y
+aWcJV2VkIFNlcCAyNiAxNzowNDo0MCAyMDAxDQorKysgbGludXgvaW5jbHVk
+ZS9saW51eC9zY2hlZC5oCUZyaSBTZXAgMjggMDc6NDQ6MDEgMjAwMQ0KQEAg
+LTU1Niw2ICs1NTYsNyBAQA0KIA0KIGV4dGVybiB2b2lkIEZBU1RDQUxMKF9f
+d2FrZV91cCh3YWl0X3F1ZXVlX2hlYWRfdCAqcSwgdW5zaWduZWQgaW50IG1v
+ZGUsIGludCBucikpOw0KIGV4dGVybiB2b2lkIEZBU1RDQUxMKF9fd2FrZV91
+cF9zeW5jKHdhaXRfcXVldWVfaGVhZF90ICpxLCB1bnNpZ25lZCBpbnQgbW9k
+ZSwgaW50IG5yKSk7DQorZXh0ZXJuIHZvaWQgRkFTVENBTEwoX191bndha2V1
+cF9wcm9jZXNzKHN0cnVjdCB0YXNrX3N0cnVjdCAqIHAsIGxvbmcgc3RhdGUp
+KTsNCiBleHRlcm4gdm9pZCBGQVNUQ0FMTChzbGVlcF9vbih3YWl0X3F1ZXVl
+X2hlYWRfdCAqcSkpOw0KIGV4dGVybiBsb25nIEZBU1RDQUxMKHNsZWVwX29u
+X3RpbWVvdXQod2FpdF9xdWV1ZV9oZWFkX3QgKnEsDQogCQkJCSAgICAgIHNp
+Z25lZCBsb25nIHRpbWVvdXQpKTsNCkBAIC01NzQsNiArNTc1LDEzIEBADQog
+I2RlZmluZSB3YWtlX3VwX2ludGVycnVwdGlibGVfYWxsKHgpCV9fd2FrZV91
+cCgoeCksVEFTS19JTlRFUlJVUFRJQkxFLCAwKQ0KICNkZWZpbmUgd2FrZV91
+cF9pbnRlcnJ1cHRpYmxlX3N5bmMoeCkJX193YWtlX3VwX3N5bmMoKHgpLFRB
+U0tfSU5URVJSVVBUSUJMRSwgMSkNCiAjZGVmaW5lIHdha2VfdXBfaW50ZXJy
+dXB0aWJsZV9zeW5jX25yKHgpIF9fd2FrZV91cF9zeW5jKCh4KSxUQVNLX0lO
+VEVSUlVQVElCTEUsICBucikNCisNCisjZGVmaW5lIHVud2FrZXVwX3Byb2Nl
+c3ModHNrLHN0YXRlKQkJXA0KK2RvIHsJCQkJCQlcDQorCWlmICh0YXNrX29u
+X3J1bnF1ZXVlKHRzaykpCQlcDQorCQlfX3Vud2FrZXVwX3Byb2Nlc3ModHNr
+LHN0YXRlKTsJXA0KK30gd2hpbGUgKDApDQorDQogYXNtbGlua2FnZSBsb25n
+IHN5c193YWl0NChwaWRfdCBwaWQsdW5zaWduZWQgaW50ICogc3RhdF9hZGRy
+LCBpbnQgb3B0aW9ucywgc3RydWN0IHJ1c2FnZSAqIHJ1KTsNCiANCiBleHRl
+cm4gaW50IGluX2dyb3VwX3AoZ2lkX3QpOw0KLS0tIGxpbnV4L2luY2x1ZGUv
+YXNtLW1pcHMvc29mdGlycS5oLm9yaWcJV2VkIFNlcCAyNiAyMDo1ODowMCAy
+MDAxDQorKysgbGludXgvaW5jbHVkZS9hc20tbWlwcy9zb2Z0aXJxLmgJV2Vk
+IFNlcCAyNiAyMDo1ODowNyAyMDAxDQpAQCAtNDAsNiArNDAsNCBAQA0KIA0K
+ICNkZWZpbmUgaW5fc29mdGlycSgpIChsb2NhbF9iaF9jb3VudChzbXBfcHJv
+Y2Vzc29yX2lkKCkpICE9IDApDQogDQotI2RlZmluZSBfX2NwdV9yYWlzZV9z
+b2Z0aXJxKGNwdSwgbnIpCXNldF9iaXQobnIsICZzb2Z0aXJxX3BlbmRpbmco
+Y3B1KSkNCi0NCiAjZW5kaWYgLyogX0FTTV9TT0ZUSVJRX0ggKi8NCi0tLSBs
+aW51eC9pbmNsdWRlL2FzbS1taXBzNjQvc29mdGlycS5oLm9yaWcJV2VkIFNl
+cCAyNiAyMDo1ODoyMCAyMDAxDQorKysgbGludXgvaW5jbHVkZS9hc20tbWlw
+czY0L3NvZnRpcnEuaAlXZWQgU2VwIDI2IDIwOjU4OjI2IDIwMDENCkBAIC0z
+OSwxOSArMzksNCBAQA0KIA0KICNkZWZpbmUgaW5fc29mdGlycSgpIChsb2Nh
+bF9iaF9jb3VudChzbXBfcHJvY2Vzc29yX2lkKCkpICE9IDApDQogDQotZXh0
+ZXJuIGlubGluZSB2b2lkIF9fY3B1X3JhaXNlX3NvZnRpcnEoaW50IGNwdSwg
+aW50IG5yKQ0KLXsNCi0JdW5zaWduZWQgaW50ICptID0gKHVuc2lnbmVkIGlu
+dCAqKSAmc29mdGlycV9wZW5kaW5nKGNwdSk7DQotCXVuc2lnbmVkIGludCB0
+ZW1wOw0KLQ0KLQlfX2FzbV9fIF9fdm9sYXRpbGVfXygNCi0JCSIxOlx0bGxc
+dCUwLCAlMVx0XHRcdCMgX19jcHVfcmFpc2Vfc29mdGlycVxuXHQiDQotCQki
+b3JcdCUwLCAlMlxuXHQiDQotCQkic2NcdCUwLCAlMVxuXHQiDQotCQkiYmVx
+elx0JTAsIDFiIg0KLQkJOiAiPSZyIiAodGVtcCksICI9bSIgKCptKQ0KLQkJ
+OiAiaXIiICgxVUwgPDwgbnIpLCAibSIgKCptKQ0KLQkJOiAibWVtb3J5Iik7
+DQotfQ0KLQ0KICNlbmRpZiAvKiBfQVNNX1NPRlRJUlFfSCAqLw0KLS0tIGxp
+bnV4L25ldC9jb3JlL2Rldi5jLm9yaWcJV2VkIFNlcCAyNiAxNzowNDo0MSAy
+MDAxDQorKysgbGludXgvbmV0L2NvcmUvZGV2LmMJV2VkIFNlcCAyNiAxNzow
+NDo0OCAyMDAxDQpAQCAtMTIxOCw4ICsxMjE4LDkgQEANCiAJCQlkZXZfaG9s
+ZChza2ItPmRldik7DQogCQkJX19za2JfcXVldWVfdGFpbCgmcXVldWUtPmlu
+cHV0X3BrdF9xdWV1ZSxza2IpOw0KIAkJCS8qIFJ1bnMgZnJvbSBpcnFzIG9y
+IEJIJ3MsIG5vIG5lZWQgdG8gd2FrZSBCSCAqLw0KLQkJCWNwdV9yYWlzZV9z
+b2Z0aXJxKHRoaXNfY3B1LCBORVRfUlhfU09GVElSUSk7DQorCQkJX19jcHVf
+cmFpc2Vfc29mdGlycSh0aGlzX2NwdSwgTkVUX1JYX1NPRlRJUlEpOw0KIAkJ
+CWxvY2FsX2lycV9yZXN0b3JlKGZsYWdzKTsNCisJCQlyZXJ1bl9zb2Z0aXJx
+cyh0aGlzX2NwdSk7DQogI2lmbmRlZiBPRkZMSU5FX1NBTVBMRQ0KIAkJCWdl
+dF9zYW1wbGVfc3RhdHModGhpc19jcHUpOw0KICNlbmRpZg0KQEAgLTE1Mjks
+OCArMTUzMCw5IEBADQogCWxvY2FsX2lycV9kaXNhYmxlKCk7DQogCW5ldGRl
+dl9yeF9zdGF0W3RoaXNfY3B1XS50aW1lX3NxdWVlemUrKzsNCiAJLyogVGhp
+cyBhbHJlYWR5IHJ1bnMgaW4gQkggY29udGV4dCwgbm8gbmVlZCB0byB3YWtl
+IHVwIEJIJ3MgKi8NCi0JY3B1X3JhaXNlX3NvZnRpcnEodGhpc19jcHUsIE5F
+VF9SWF9TT0ZUSVJRKTsNCisJX19jcHVfcmFpc2Vfc29mdGlycSh0aGlzX2Nw
+dSwgTkVUX1JYX1NPRlRJUlEpOw0KIAlsb2NhbF9pcnFfZW5hYmxlKCk7DQor
+CXJlcnVuX3NvZnRpcnFzKHRoaXNfY3B1KTsNCiANCiAJTkVUX1BST0ZJTEVf
+TEVBVkUoc29mdG5ldF9wcm9jZXNzKTsNCiAJcmV0dXJuOw0K
+--8323328-1338751583-1001661497=:1569--

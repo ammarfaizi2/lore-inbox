@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273360AbRIWJeu>; Sun, 23 Sep 2001 05:34:50 -0400
+	id <S273324AbRIWJqm>; Sun, 23 Sep 2001 05:46:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273361AbRIWJeb>; Sun, 23 Sep 2001 05:34:31 -0400
-Received: from schmee.sfgoth.com ([63.205.85.133]:17931 "EHLO
-	schmee.sfgoth.com") by vger.kernel.org with ESMTP
-	id <S273360AbRIWJeY>; Sun, 23 Sep 2001 05:34:24 -0400
-Date: Sun, 23 Sep 2001 02:33:45 -0700
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: tip@prs.de, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        laughing@shared-source.org
-Subject: Re: [PATCH] 2.4.10-pre13: ATM drivers cause panic
-Message-ID: <20010923023345.C62864@sfgoth.com>
-In-Reply-To: <3BAC93D4.65E17AA6@internetwork-ag.de> <E15kpDk-0003Xu-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <E15kpDk-0003Xu-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Sep 22, 2001 at 05:01:36PM +0100
+	id <S273361AbRIWJqd>; Sun, 23 Sep 2001 05:46:33 -0400
+Received: from colorfullife.com ([216.156.138.34]:50954 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S273324AbRIWJqU>;
+	Sun, 23 Sep 2001 05:46:20 -0400
+X-Mozilla-Status: 0801
+Message-ID: <3BADAF6A.8090400@colorfullife.com>
+Date: Sun, 23 Sep 2001 11:46:18 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010725
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Benjamin LaHaise <bcrl@redhat.com>, Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10pre13aa1
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > Anyways, please find a (quick) patch below. It would be great if this patch or
-> > any other similar could make it into the next release!
-> > Thanks,
-> 
-> That patch cannot possibly be correct. alloc_atm_dev sleeps
+ >> with only the dirty bit set?  Does somebody know for sure? I can
+ >> imagine the cpu finding the tlb state writeable, and issuing
+ >> just a locked bit test and set in the pte without caring to
+ >> check if the pte is zero or not.
+ >>
+ >> If the cpu just set the bit this patch will avoid to lose a shared
+ >> mapping update. Otherwise it's a safe noop so I keep it applied
+ >> until this issue is sorted out
+ >
+ >I've tested this on all the machines I could get my hands on, and every
+ >single CPU will take a page fault if the pte is not present on dirtying
+ >the page.  If people are truely paranoid, then make it a boot time
+ > assertion.
+ >
 
-Actually there are a LOT of places that atm_dev_lock is held across sleeps -
-I've been meaning to deal with them for awhile.  Some of them are noted by
-the Stanford checker, others are outside its reach (like calls into the
-function pointers in atm_dev).  I've been meaning to fix it once and for all
-by turning that spinlock into a semaphore, but have not had a chance to
-audit the code and make sure that it will be safe in all circumstances.
-I need to trace all the interrupt paths and see what their locking needs
-are.
+I don't think that this is a valid argument:
+you are testing on i386 and make design decisions for the architecture
+independant part.
 
-I'm not at home tonight so I can't look at the code much right now, but
-I'll try to sort out what the best fix is and forward it on to you.
+I'd prefer ptep_get_and_clear_and_flush(), then the arch part can do
+what's needed to get the final pte value. (if a single page is modified,
+otherwise the arch can define a suitable mmu_gather)
 
--Mitch
+--
+     Manfred
+
+
+

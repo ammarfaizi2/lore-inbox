@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132779AbQLRDim>; Sun, 17 Dec 2000 22:38:42 -0500
+	id <S129210AbQLREHp>; Sun, 17 Dec 2000 23:07:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132886AbQLRDib>; Sun, 17 Dec 2000 22:38:31 -0500
-Received: from mtiwmhc26.worldnet.att.net ([204.127.131.51]:18888 "EHLO
-	mtiwmhc26.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S132779AbQLRDiP>; Sun, 17 Dec 2000 22:38:15 -0500
-Date: Sun, 17 Dec 2000 22:08:51 -0500
-From: khromy <khromy@lnuxlab.net>
+	id <S129226AbQLREHZ>; Sun, 17 Dec 2000 23:07:25 -0500
+Received: from proxy2.ba.best.com ([206.184.139.14]:40201 "EHLO
+	proxy2.ba.best.com") by vger.kernel.org with ESMTP
+	id <S129210AbQLREHR>; Sun, 17 Dec 2000 23:07:17 -0500
+Message-ID: <3A3D85FC.FF1708C4@best.com>
+Date: Sun, 17 Dec 2000 19:35:24 -0800
+From: Robert Lynch <rmlynch@best.com>
+Reply-To: rmlynch@best.com
+Organization: Redundant Contours
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: unresolved symbols pm_*register ad1848.o
-Message-ID: <20001217220851.A37686@lnuxlab.net>
-Mime-Version: 1.0
+Subject: test12 final, test13-pre3 freezing system
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.0-test13-pre3 unresolved symbols:
+I find that running these kernels (because of a netfilter modules
+compile error, didn't try test13-pre1 or 2) in X my entire system
+freezes, requiring a hard reboot.  With test12 final, suddenly
+the screen streaked, then froze.
 
-modprobe ad1848
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/sound/ad1848.o: unresolved symbol pm_unregister_Reccd1e64
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/sound/ad1848.o: unresolved symbol pm_register_R8dbab11c
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/sound/ad1848.o: insmod /lib/modules/2.4.0-test13-pre3/kernel/drivers/sound/ad1848.o failed
--- 
-L1:	khromy		;khromy(at)lnuxlab.net
+No oops, just the freeze.
+
+Been a while (when I used to run Windoze) since I saw a frozen
+screen complete with frozen mouse hour-glass. :)
+
+FWIW. Bob L.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

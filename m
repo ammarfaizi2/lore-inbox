@@ -1,71 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268123AbTBYMlf>; Tue, 25 Feb 2003 07:41:35 -0500
+	id <S268165AbTBYMnj>; Tue, 25 Feb 2003 07:43:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268129AbTBYMlf>; Tue, 25 Feb 2003 07:41:35 -0500
-Received: from gherkin.frus.com ([192.158.254.49]:9606 "EHLO gherkin.frus.com")
-	by vger.kernel.org with ESMTP id <S268123AbTBYMld>;
-	Tue, 25 Feb 2003 07:41:33 -0500
-Subject: [PATCH] 2.5.63: aicasm Makefile
-To: gibbs@scsiguy.com
-Date: Tue, 25 Feb 2003 06:51:47 -0600 (CST)
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary=ELM741935458-11570-0_
-Content-Transfer-Encoding: 7bit
-Message-Id: <20030225125147.CC4DA4F0B@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob Tracy)
+	id <S268164AbTBYMnj>; Tue, 25 Feb 2003 07:43:39 -0500
+Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:55474 "EHLO
+	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S268165AbTBYMnh>; Tue, 25 Feb 2003 07:43:37 -0500
+Date: Tue, 25 Feb 2003 07:59:42 -0500
+To: akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IO scheduler benchmarking
+Message-ID: <20030225125942.GA1657@rushmore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> Why does 2.5.62-mm2 have higher sequential
+>> write latency than 2.5.61-mm1?
 
---ELM741935458-11570-0_
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+> And there are various odd interactions in, at least, ext3.  You did not
+> specify which filesystem was used.
 
-The Makefile for aicasm has been broken since 2.5.48.  The order in
-which objects are specified on the linker command line *is* significant,
-and if "-ldb" is made part of AICASM_CFLAGS rather than appearing after
-the "-o $(PROG)", I get an undefined symbol error (__db185_open).
+ext2
 
-The attached patch is against 2.5.54-2.5.63 inclusive.  Original
-posting 1 December 2002.  Patch included in 2.5.62-ac1 (Thanks, Alan!),
-but didn't make it into 2.5.63.
+>>                     Thr  MB/sec   CPU%     avg lat      max latency
+>> 2.5.62-mm2-as         8   14.76   52.04%     6.14        4.5
+>> 2.5.62-mm2-dline      8    9.91   13.90%     9.41         .8
+>> 2.5.62-mm2            8    9.83   15.62%     7.38      408.9
+
+> Fishiness.  2.5.62-mm2 _is_ 2.5.62-mm2-as.  Why the 100x difference?
+
+Bad EXTRAVERSION naming on my part.  2.5.62-mm2 _was_ booted with 
+elevator=cfq.
+
+How it happened:
+2.5.61-mm1 tested
+2.5.61-mm1-cfq tested and elevator=cfq added to boot flags
+2.5.62-mm1 tested (elevator=cfq still in lilo boot boot flags)
+Then to test the other two schedulers I changed extraversion and boot
+flags.
+
+> That 408 seconds looks suspect.
+
+AFAICT, that's the one request in over 500,000 that took the longest.
+The numbers are fairly consistent.  How relevant they are is debatable.  
+
+> If you want to test write latency, do this:
+
+Your approach is more realistic than tiobench.  
+
+> There is a place in VFS where one writing task could accidentally hammer a
+> different one.  I cannot trigger that, but I'll fix it up in next -mm.
+
+2.5.62-mm3 or 2.5.63-mm1?  (-mm3 is running now)
 
 -- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
 
---ELM741935458-11570-0_
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: attachment; filename=patch63_aicasm
-
---- linux/drivers/scsi/aic7xxx/aicasm/Makefile~	2002-12-24 07:09:29.000000000 -0600
-+++ linux/drivers/scsi/aic7xxx/aicasm/Makefile	2003-01-07 16:47:01.000000000 -0600
-@@ -10,9 +10,10 @@
- GENSRCS=	$(YSRCS:.y=.c) $(LSRCS:.l=.c)
- 
- SRCS=	${CSRCS} ${GENSRCS}
-+LIBS=	-ldb
- CLEANFILES= ${GENSRCS} ${GENHDRS} $(YSRCS:.y=.output)
- # Override default kernel CFLAGS.  This is a userland app.
--AICASM_CFLAGS:= -I/usr/include -I. -ldb
-+AICASM_CFLAGS:= -I/usr/include -I.
- YFLAGS= -d
- 
- NOMAN=	noman
-@@ -30,7 +31,7 @@
- endif
- 
- $(PROG):  ${GENHDRS} $(SRCS)
--	$(AICASM_CC) $(AICASM_CFLAGS) $(SRCS) -o $(PROG)
-+	$(AICASM_CC) $(AICASM_CFLAGS) $(SRCS) -o $(PROG) $(LIBS)
- 
- aicdb.h:
- 	@if [ -e "/usr/include/db3/db_185.h" ]; then		\
-
---ELM741935458-11570-0_--

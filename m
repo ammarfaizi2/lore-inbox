@@ -1,33 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbVAGPon@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbVAGPtx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261469AbVAGPon (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 10:44:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbVAGPom
+	id S261472AbVAGPtx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 10:49:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbVAGPtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 10:44:42 -0500
-Received: from clem.clem-digital.net ([68.16.168.10]:19429 "EHLO
-	clem.clem-digital.net") by vger.kernel.org with ESMTP
-	id S261469AbVAGPny (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 10:43:54 -0500
-From: Pete Clements <clem@clem.clem-digital.net>
-Message-Id: <200501071543.j07FhrPt007757@clem.clem-digital.net>
-Subject: 2.6.10-bk10 fails compile -- kernel/sys.c
-To: linux-kernel@vger.kernel.org (linux-kernel)
-Date: Fri, 7 Jan 2005 10:43:53 -0500 (EST)
-X-Mailer: ELM [version 2.5 PL7]
+	Fri, 7 Jan 2005 10:49:53 -0500
+Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:1202 "EHLO
+	acheron.informatik.uni-muenchen.de") by vger.kernel.org with ESMTP
+	id S261472AbVAGPtj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 10:49:39 -0500
+Message-ID: <41DEAF8F.3030107@bio.ifi.lmu.de>
+Date: Fri, 07 Jan 2005 16:49:35 +0100
+From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Fix for new elf_loader bug?
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fyi:
+Hi,
 
-kernel/sys.c: In function `sys_setsid':
-kernel/sys.c:1078: `tty_sem' undeclared (first use in this function)
-kernel/sys.c:1078: (Each undeclared identifier is reported only once
-kernel/sys.c:1078: for each function it appears in.)
-make[1]: *** [kernel/sys.o] Error 1
+is there already a patch for the new problem with the elf loader, maybe
+in the bitkeeper tree?
 
+http://www.isec.pl/vulnerabilities/isec-0021-uselib.txt
+
+Thanks!
+cu,
+Frank
 -- 
-Pete Clements 
+Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
+Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
+LMU, Amalienstr. 17           Phone: +49 89 2180-4049
+80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+* Rekursion kann man erst verstehen, wenn man Rekursion verstanden hat. *

@@ -1,83 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUHGJ57@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUHGKSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbUHGJ57 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 05:57:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUHGJ57
+	id S261184AbUHGKSl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 06:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUHGKSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 05:57:59 -0400
-Received: from s-und-t-linnich.de ([217.160.180.132]:40941 "HELO
-	s-und-t-linnich.de") by vger.kernel.org with SMTP id S261169AbUHGJ55
+	Sat, 7 Aug 2004 06:18:41 -0400
+Received: from tarjoilu.luukku.com ([194.215.205.232]:5537 "EHLO
+	tarjoilu.luukku.com") by vger.kernel.org with ESMTP id S261184AbUHGKSj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 05:57:57 -0400
-Date: Sat, 7 Aug 2004 13:57:10 +0200
-From: Seabastian <admin@wodkahexe.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with OOMKiller 2.6.8-rc3
-Message-Id: <20040807135710.0a6475c4.admin@wodkahexe.de>
-In-Reply-To: <20040806220351.5e2b69b0.akpm@osdl.org>
-References: <20040806195709.160722fa.admin@wodkahexe.de>
-	<20040806220351.5e2b69b0.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 7 Aug 2004 06:18:39 -0400
+Message-ID: <4114AC9D.B63C00C0@users.sourceforge.net>
+Date: Sat, 07 Aug 2004 13:19:09 +0300
+From: Jari Ruusu <jariruusu@users.sourceforge.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Fruhwirth Clemens <clemens@endorphin.org>,
+       James Morris <jmorris@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: Linux 2.6.8-rc3 - BSD licensing
+References: <Xine.LNX.4.44.0408041156310.9291-100000@dhcp83-76.boston.redhat.com>
+		     <1091644663.21675.51.camel@ghanima> <Pine.LNX.4.58.0408041146070.24588@ppc970.osdl.org>
+		     <1091647612.24215.12.camel@ghanima> <Pine.LNX.4.58.0408041251060.24588@ppc970.osdl.org>
+		   <411228FF.485E4D07@users.sourceforge.net> <Pine.LNX.4.58.0408050941590.24588@ppc970.osdl.org>
+		 <411353B3.B8748556@users.sourceforge.net> <Pine.LNX.4.58.0408060918320.24588@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Aug 2004 22:03:51 -0700
-Andrew Morton <akpm@osdl.org> wrote:
-
-> "admin@wodkahexe.de" <admin@wodkahexe.de> wrote:
-> >
-> > today i tried to burn a cd (bin+cue image) that was located on an
-> >  nfs share.
-> > 
-> >  - boot 2.6.8-rc3
-> >  - startx
-> >  - start k3b
-> >  - burn image
-> > 
-> >  after ~50% of burning the mouse stopped moving over the screen. the
-> >  keyboard was dead.
+Linus Torvalds wrote:
+> On Fri, 6 Aug 2004, Jari Ruusu wrote:
+> > Linus, you are mixing two completely different rights here;
+> > re-distribution right and re-licensing right.
 > 
-> What sort of CD was it?  Audio?  Judging by k3b.org, I'd say it was.
+> Ehh.. You're wrong.
 
-it was an svcd
+Yep. I goofed.
 
-> 
-> >  the maschine was reachable via network, so i ssh'd and saw the
-> >  following in dmesg:
-> > 
-> >  laptop oom-killer: gfp_mask=0x1d2
-> >  laptop DMA per-cpu:
-> >  laptop cpu 0 hot: low 2, high 6, batch 1 
-> >  laptop cpu 0 cold: low 0, high 2, batch 1 
-> >  laptop Normal per-cpu:
-> >  laptop cpu 0 hot: low 32, high 96, batch 16
-> >  laptop cpu 0 cold: low 0, high 32, batch 16
-> >  laptop HighMem per-cpu: empty
-> >  laptop  
-> >  laptop Free pages:        2192kB (0kB HighMem)
-> >  laptop Active:2113 inactive:643 dirty:0 writeback:0 unstable:0 free:548 slab:2233 mapped:1518 pagetables:210
-> >  laptop DMA free:1376kB min:20kB low:40kB high:60kB active:0kB inactive:0kB present:16384kB
-> >  laptop protections[]: 10 354 354 
-> >  laptop Normal free:816kB min:688kB low:1376kB high:2064kB active:8452kB inactive:2572kB present:491456kB
-> 
-> All your memory seems to have gone away.  There's a memory leak associated
-> with audio writing which we haven't yet tracked down - it's probably that.
-> 
+> You haven't even read the GPL, have you?
 
-since it was an svcd, it may not be this one.
+I read it in 1995. Obviously too many years have passed since then.
 
-i tried to burn the image again, while not being on an nfs share.
-but i got the same problem again.
+> So when you claim that the code isn't GPL-compatible, and at the same time
+> claim that we can't re-license it under the GPL, you are very very
+> confused indeed. Either it is GPL-compatible, or it is not. And if it is
+> GPL-compatible, that ABSOLUTELY means that it can be relicensed under the
+> GPL.
 
-with 2.6.8-rc2 i can burn this image. (from nfs share or local)
--> no problem.
+Yep. I don't have any other choice here than to permit re-licencing the
+code. My 04-Aug-2004 18:04:46 +0300 posting where I denied re-licencing
+right was completely wrong. I'm sorry about that.
 
-so it may be 2.6.8-rc3 related.
+For loop-AES users I uploaded a patch here that updates licenses to be
+GPL-compatible:  http://loop-aes.sourceforge.net/updates/aes-GPL.diff
 
-thanks
-
-sebastian
+-- 
+Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD

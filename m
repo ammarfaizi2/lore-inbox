@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264098AbTDOV3j (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 17:29:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264099AbTDOV3j 
+	id S264094AbTDOV2L (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 17:28:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264099AbTDOV1P 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 17:29:39 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:44737
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264098AbTDOV3g (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 17:29:36 -0400
-Subject: Re: Problem: 2.4.20, 2.5.66 have different IDE channel order
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Chuck Ebbert <76306.1226@compuserve.com>
+	Tue, 15 Apr 2003 17:27:15 -0400
+Received: from c-97a870d5.037-69-73746f23.cust.bredbandsbolaget.se ([213.112.168.151]:56960
+	"EHLO zaphod.guide") by vger.kernel.org with ESMTP id S264098AbTDOV1M 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 17:27:12 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200304151436_MC3-1-3487-2162@compuserve.com>
-References: <200304151436_MC3-1-3487-2162@compuserve.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050439381.28591.15.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 15 Apr 2003 21:43:02 +0100
+Subject: Re: DMA transfers in 2.5.67
+References: <yw1x3ckjfs2v.fsf@zaphod.guide>
+	<1050438684.28586.8.camel@dhcp22.swansea.linux.org.uk>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 15 Apr 2003 23:38:14 +0200
+In-Reply-To: <1050438684.28586.8.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <yw1xy92be915.fsf@zaphod.guide>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-04-15 at 19:33, Chuck Ebbert wrote:
->   Well, that matches what 2.4 does:
-> 
-> 
-> 00:0d.1 IDE interface: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II]
-> 00:10.0 Unknown mass storage controller: Promise Technology, Inc. 20268 (rev 02)
-> 01:0b.0 Unknown mass storage controller: Triones Technologies, Inc. HPT366 / HPT370 (rev 03)
-> 
-> 
->   2.5 nonmodular seems to be doing it in BIOS order  -- the HPT370 BIOS
-> initializes before the Promise (and won't let it boot but I can deal
-> with that.)  I'll probably replace it with a PDC20262 before looking
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Im a bit puzzled by this because it does look like a bug. Our pci scan code hasnt changed
-that materially. I assume the promise and hpt are both plug in cards >
+> > What do I need to do in a driver before doing DMA transfers to a PCI
+> > card?  Using a driver that worked in 2.4 gives a throughput of only 10
+> > MB/s in 2.5.67.  Is there some magic initialization that I have
+> > missed?
+> 
+> Assuming your driver uses the new PCI api for DMA in 2.4/2.5 then there
+> isnt really anything to watch. Is this on a box with > 800Mb of memory
+> however ?
 
+It's an Alpha with 768 MB.  Is it the pci_alloc_* functions you are
+referring to?  I don't think they are used currently. How much memory
+can these allocate?  I need chunks of up to 1 MB, not necessarily
+phycically continuous.
+
+What do those functions do that normal memory allocation does not?
+Apart from setting up sg mappings, that is.
+
+-- 
+Måns Rullgård
+mru@users.sf.net

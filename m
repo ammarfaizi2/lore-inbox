@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262935AbTCSGgr>; Wed, 19 Mar 2003 01:36:47 -0500
+	id <S262936AbTCSGxp>; Wed, 19 Mar 2003 01:53:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262936AbTCSGgr>; Wed, 19 Mar 2003 01:36:47 -0500
-Received: from paperi.ton.tut.fi ([193.166.234.15]:21181 "EHLO
-	paperi.ton.tut.fi") by vger.kernel.org with ESMTP
-	id <S262935AbTCSGgq>; Wed, 19 Mar 2003 01:36:46 -0500
-Date: Wed, 19 Mar 2003 08:47:43 +0200
-From: Juha Poutiainen <pode@iki.fi>
-To: linux-kernel@vger.kernel.org
-Subject: L2 cache detection in Celeron 2GHz (P4 based)
-Message-ID: <20030319064743.GA1683@a28a>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Disposition: inline
+	id <S262937AbTCSGxp>; Wed, 19 Mar 2003 01:53:45 -0500
+Received: from pimout4-ext.prodigy.net ([207.115.63.103]:62629 "EHLO
+	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S262936AbTCSGxp>; Wed, 19 Mar 2003 01:53:45 -0500
+Message-Id: <200303190704.h2J74gWE193004@pimout4-ext.prodigy.net>
+Content-Type: text/plain; charset=US-ASCII
+From: dan carpenter <d_carpenter@sbcglobal.net>
+To: Eric Benson <eric_a_benson@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: ide-scsi failure on 2.5.65
+Date: Tue, 18 Mar 2003 14:44:07 +0100
+X-Mailer: KMail [version 1.3.2]
+References: <20030318231033.31663.qmail@web10105.mail.yahoo.com>
+In-Reply-To: <20030318231033.31663.qmail@web10105.mail.yahoo.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+On Wednesday 19 March 2003 12:10 am, Eric Benson wrote:
+> I installed Red Hat 8.0 on an IBM NetVista 2283-55U,
+> an all-in-one desktop 1.8ghz P4. I downloaded and
+> compiled the 2.5.65 kernel with ide-scsi emulation and
+> kernel debugging enabled.
+>
+...
+> 14:18:33 hdb: drive not ready for command
+> 14:18:33 ide-scsi: reset called for 0
+> 14:18:33 bad: scheduling while atomic!
 
-Kernel doesn't seem to detect L2 cache in 2GHz Pentium4 based Celeron. 
-Most likely it is working normally (BIOS detects it and no system speed 
-is ok), but it's not shown in dmesg or /proc/cpuinfo.
+This problem is known.  Try the driver from the -ac kernel.
 
-x86info shows that there is something with descriptor 0x3b, and 0x3c 
-seems to be 256K L2 cache. So I guess it is as simple as adding a line:
-
-          { 0x3B, LVL_2,      128 },
-
-in arch/i386/kernel/setup.c  after line 2204 (2.4.20) and
-in arch/i386/kernel/cpu/intel.c  after line 102 (2.5.65)
-
-I've tried both, they seems to report it fine, but I can't be sure if 
-that really is correct id of that cache. Celeron at issue has 128K L2 
-cache.
-
---
-pode
+thanks,
+dan carpenter

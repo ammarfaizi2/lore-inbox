@@ -1,76 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317426AbSGOKr4>; Mon, 15 Jul 2002 06:47:56 -0400
+	id <S317427AbSGOKxQ>; Mon, 15 Jul 2002 06:53:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317427AbSGOKrz>; Mon, 15 Jul 2002 06:47:55 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:29584 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S317426AbSGOKry>;
-	Mon, 15 Jul 2002 06:47:54 -0400
-Date: Mon, 15 Jul 2002 13:50:43 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Manik Raina <manik@cisco.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH, 2.5] : Adding counters to BSD process accounting
-Message-ID: <20020715135043.Q28720@mea-ext.zmailer.org>
-References: <Pine.GSO.4.44.0207151154460.23890-100000@cbin2-xdm1.cisco.com>
+	id <S317429AbSGOKxP>; Mon, 15 Jul 2002 06:53:15 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:44928 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S317427AbSGOKxP>;
+	Mon, 15 Jul 2002 06:53:15 -0400
+Date: Sun, 14 Jul 2002 14:29:12 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: oleg@tv-sign.ru, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched-2.5.24-D3, batch/idle priority scheduling, SCHED_BATCH
+Message-ID: <20020714122911.GA179@elf.ucw.cz>
+References: <Pine.LNX.4.44.0207102143400.16734-100000@localhost.localdomain> <Pine.LNX.4.44.0207110913030.4489-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.44.0207151154460.23890-100000@cbin2-xdm1.cisco.com>; from manik@cisco.com on Mon, Jul 15, 2002 at 11:57:39AM +0530
+In-Reply-To: <Pine.LNX.4.44.0207110913030.4489-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 15, 2002 at 11:57:39AM +0530, Manik Raina wrote:
-> This  patch  keeps account of the number of bytes read/written by a
-> process in it's lifetime.
+Hi!
+
+> > > > And users of __KERNEL_SYSCALLS__ and kernel_thread() should not
+> > > > have policy == SCHED_BATCH.
+> > 
+> > well, there's one security consequence here - module loading
+> > (request_module()), which spawns a kernel thread must not run as
+> > SCHED_BATCH. I think the right solution for that path is to set the
+> > policy to SCHED_OTHER upon entry, and restore it to the previous one
+> > afterwards - this way the helper thread has SCHED_OTHER priority.
 > 
-> This may be a  good estimate of how IO bound a process is.
-> This change is integrated with the BSD process accounting feature. Please
-> review the changes and if you're ok with it, please apply to the 2.5 tree.
+> i've solved this problem by making kernel_thread() spawned threads drop
+> back to SCHED_NORMAL:
 
-  Do have a deeper look into how the BSD ACCT works.
-
-  Throwing in couple 8-byte scalars isn't quite right thing.
-  The  pacct  file format (record size!) will change with this thing.
-
-  There exist already fields:
-
-        comp_t    ac_io;          /* Accounting Chars Transferred */
-        comp_t    ac_rw;          /* Accounting Blocks Read or Written */
-
-  Those are encoded with zero...
-
-
-  If you comp_t encode the read/write data, you will be able to
-  squeeze it into the reserved alignment bytes: ac_pad[].
-
-  Well, that encoding counts up to 16 GB, only, but is better than 
-  nothing.   The normal encoding routine handles "unsigned long"
-  input value, not  __u64,  thus you would need to write a new
-  encoder too.    Reading the existing  encode_comp_t()  shows,
-  that its coder has mixed up EXPSIZE and EXPBASE concepts.
-
-
-/* 
- *  comp_t is a 16-bit "floating" point number with a 3-bit base 8
- *  exponent and a 13-bit fraction. See linux/kernel/acct.c for the
- *  specific encoding system used.
- */
-
-typedef __u16   comp_t;
-
-
-  With 13 bits, the maximum fraction is thus  2^14 -1 = 16383
-  With 3 bits, and base  8 the maximum exponent is:  8^7 =   2M
-  With 3 bits, and base 16 the maximum exponent is: 16^7 = 256M
-
-  Combined:
-    Base8:  0 thru   16 GigaCounts  with 10-13 bit precission
-    Base16: 0 thru 4096 GigaCounts  with  9-13 bit precission
-
-
-> thanks,
-> Manik
-...
-
-/Matti Aarnio
+Does it mean that we now have working scheduler class that only
+schedules jobs when no other thread wants to run (as long as
+SCHED_BATCH task does not enter the kernel)?
+									Pavel
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129911AbQLQX36>; Sun, 17 Dec 2000 18:29:58 -0500
+	id <S130369AbQLQX6c>; Sun, 17 Dec 2000 18:58:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130369AbQLQX3t>; Sun, 17 Dec 2000 18:29:49 -0500
-Received: from cmb1-3.dial-up.arnes.si ([194.249.32.3]:7428 "EHLO
-	cmb1-3.dial-up.arnes.si") by vger.kernel.org with ESMTP
-	id <S129911AbQLQX3b>; Sun, 17 Dec 2000 18:29:31 -0500
-From: Igor Mozetic <igor.mozetic@uni-mb.si>
+	id <S130371AbQLQX6W>; Sun, 17 Dec 2000 18:58:22 -0500
+Received: from smtp1.jp.psi.net ([154.33.63.111]:8464 "EHLO smtp1.jp.psi.net")
+	by vger.kernel.org with ESMTP id <S130369AbQLQX6L>;
+	Sun, 17 Dec 2000 18:58:11 -0500
+From: "Rainer Mager" <rmager@vgkk.com>
+To: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Signal 11 - revisited
+Date: Mon, 18 Dec 2000 08:27:00 +0900
+Message-ID: <NEBBJBCAFMMNIHGDLFKGGELNCJAA.rmager@vgkk.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Message-ID: <14909.17707.4868.460585@cmb1-3.dial-up.arnes.si>
-Date: Sun, 17 Dec 2000 23:58:51 +0100
-To: linux-kernel@vger.kernel.org
-Subject: mount and 2.2.18
-X-Mailer: VM 6.85 under Emacs 20.7.2
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <NEBBJBCAFMMNIHGDLFKGGEDECJAA.rmager@vgkk.com>
+X-Mimeole: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After installing the latest 2.2.18 kernel on a Debian 2.2 
-box the following keeps appearing in kern.log:
+I was wondering if anyone had any new info/suggestions for the Signal 11
+problem.
 
-Dec 17 18:33:53 xxx kernel: nfs warning: mount version older than kernel
+I think I last reported that I had tried 2.4.0test12 w AGPGart and DRM
+turned off. This seemed a bit more stable but I did have X crash with
+Signall 11 after about 1.5 days.
 
-Is this harmless or do I need the latest mount?
-Currently I don't use kNFSv3, user-space v2 is fine.
+I'd really appreciate any advice on how to diagnose this.
 
--Igor Mozetic
+
+Thanks,
+
+--Rainer
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

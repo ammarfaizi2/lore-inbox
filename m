@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319538AbSIGW6e>; Sat, 7 Sep 2002 18:58:34 -0400
+	id <S319539AbSIGXE0>; Sat, 7 Sep 2002 19:04:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319539AbSIGW6e>; Sat, 7 Sep 2002 18:58:34 -0400
-Received: from holomorphy.com ([66.224.33.161]:8888 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S319538AbSIGW6d>;
-	Sat, 7 Sep 2002 18:58:33 -0400
-Date: Sat, 7 Sep 2002 16:01:01 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>, linux-kernel@vger.kernel.org
-Subject: Re: LMbench2.0 results
-Message-ID: <20020907230101.GJ888@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>,
-	Paolo Ciarrocchi <ciarrocchi@linuxmail.org>,
-	linux-kernel@vger.kernel.org
-References: <20020907121854.10290.qmail@linuxmail.org> <3D7A2768.E5C85EB@digeo.com> <20020907200334.GI888@holomorphy.com> <3D7A87F1.F3D0865C@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <3D7A87F1.F3D0865C@digeo.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S319540AbSIGXE0>; Sat, 7 Sep 2002 19:04:26 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:59889 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S319539AbSIGXEZ>; Sat, 7 Sep 2002 19:04:25 -0400
+Date: Sun, 8 Sep 2002 01:08:59 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Adam Johnson <adamj@valley.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Problem: kernel 2.5.33 won't compile
+In-Reply-To: <20020907093956.A1826@mars.ravnborg.org>
+Message-ID: <Pine.NEB.4.44.0209080103170.7218-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 07, 2002 at 09:20:56AM -0700, Andrew Morton wrote:
->>> The fork/exec/mmap slowdown is the rmap overhead.  I have some stuff
->>> which partialy improves it.
+On Sat, 7 Sep 2002, Sam Ravnborg wrote:
 
-William Lee Irwin III wrote:
->> Hmm, Where does it enter the mmap() path? PTE instantiation is only done
->> for the VM_LOCKED case IIRC. Otherwise it should be invisible.
+> On Fri, Sep 06, 2002 at 06:05:52PM -0400, Adam Johnson wrote:
+> >     I get this error message when I try to compile 2.5.33:
+> > drivers/built-in.o(.data+0x2d8d4): undefined reference to `local symbols
+> > in discarded section .text.exit'
+>
+> Try seaching ihttp://marc.theaimsgroup.com
+> Hint: binutils compatibility problem, time to upgrade.
 
-On Sat, Sep 07, 2002 at 04:12:49PM -0700, Andrew Morton wrote:
-> Oh, is that just the mmap() call itself?
+Your answer is 100% wrong:
 
-I'm not actually sure what lmbench is doing.
-
-
-William Lee Irwin III wrote:
->> Perhaps testing with overcommit on would be useful.
-
-On Sat, Sep 07, 2002 at 04:12:49PM -0700, Andrew Morton wrote:
-> Well yes - the new overcommit code was a significant hit on the 16ways
-> was it not?  You have some numbers on that?
-
-I don't remember the before/after numbers, but I can collect some.
+- You see this problem only with recent binutils, so a workaround would be
+  to _downgrade_ binutils.
+- These .text.exit errors are generally considered bugs in the kernel.
+  (Most of them are already fixed in recent kernels.)
+- I suspect CONFIG_DE2104X and/or CONFIG_DM9102 is set in the .config, and
+  then it's a well-known error.
 
 
-Cheers,
-Bill
+> 	Sam
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
+

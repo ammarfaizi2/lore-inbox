@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S381983AbUKBIRu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S277013AbUKBIZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S381983AbUKBIRu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 03:17:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S451497AbUKBIRt
+	id S277013AbUKBIZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 03:25:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S451863AbUKBIZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 03:17:49 -0500
-Received: from wasp.net.au ([203.190.192.17]:10419 "EHLO wasp.net.au")
-	by vger.kernel.org with ESMTP id S451036AbUKBIRa (ORCPT
+	Tue, 2 Nov 2004 03:25:26 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:11482 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S382771AbUKBIZM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 03:17:30 -0500
-Message-ID: <418742BE.4040200@wasp.net.au>
-Date: Tue, 02 Nov 2004 12:18:06 +0400
-From: Brad Campbell <brad@wasp.net.au>
-User-Agent: Mozilla Thunderbird 0.8+ (X11/20041029)
-X-Accept-Language: en-us, en
+	Tue, 2 Nov 2004 03:25:12 -0500
+Date: Tue, 2 Nov 2004 09:25:00 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 504] m68k: smp_lock.h: Avoid recursive include
+In-Reply-To: <200411020249_MC3-1-8DAD-7CF5@compuserve.com>
+Message-ID: <Pine.GSO.4.61.0411020923590.23843@waterleaf.sonytel.be>
+References: <200411020249_MC3-1-8DAD-7CF5@compuserve.com>
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10-rc1-bk page allocation failure. order:2, mode:0x20
-References: <41873452.8040804@wasp.net.au> <41873F38.7030609@yahoo.com.au>
-In-Reply-To: <41873F38.7030609@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Brad Campbell wrote:
+On Tue, 2 Nov 2004, Chuck Ebbert wrote:
+> Linus Torvalds wrote:
+> > This one is _totally_ broken. 
+> > 
+> > Not only is that include not recursive, but it immediately breaks any SMP 
+> > compile because that header file _needs_ the definition of "task_struct".
+> >
+> > On Sun, 31 Oct 2004, Geert Uytterhoeven wrote:
+> > > smp_lock.h: Avoid recursive include
+> > > 
+> > > --- linux-2.6.10-rc1/include/linux/smp_lock.h       2004-04-28 15:47:31.000000000 +0200
+> > > +++ linux-m68k-2.6.10-rc1/include/linux/smp_lock.h  2004-10-20 22:24:05.000000000 +0200
+> > > @@ -2,7 +2,6 @@
+> > >  #define __LINUX_SMPLOCK_H
+> > >  
+> > >  #include <linux/config.h>
+> > > -#include <linux/sched.h>
 > 
->> G'day all,
->>
->> I'm still getting quite a lot of these come up in the logs when the 
->> system is under mild load.
->> I suspect it might have something to do with running an MTU of 9000 on 
->> the main ethernet port which is directly feeding a workstation with an 
->> NFS root (and thus gets quite a high load at times)
->>
->> It's not so much an issue but it does cause the workstation to stall 
->> for up to a second while it waits for data every time it occurs.
->>
->> The loaded ethernet port is this one on an PCI card
->>
->> 0000:00:0d.0 Ethernet controller: Marvell Technology Group Ltd. Yukon 
->> Gigabit Ethernet 10/100/1000Base-T Adapter (rev 12)
->>
->> This started rearing its ugly head when I moved from 2.6.5 to 
->> 2.6.9-preX and persists with BK as of about 2 days ago.
->>
 > 
-> There are patches in the newest -mm kernels that should help the
-> problem. If you're willing to test them, the feedback would be
-> welcome.
+> Shouldn't you also revert cset 1.2405, also by Geert, which added
+> <linux/sched.h> to reiserfs_fs.h?  Looks like that was done to fix
+> breakage caused by this change.
 
-Always willing to test specific patches. Can I just grab the broken out patches, or pull some 
-specific csets from a bk tree? I'm not particularly keen on running an -mm kernel on this box if I 
-can avoid it (It's a server in 24hr use with 2.5TB of data where the backup media is 7,000km away).
+You can discuss about that: reiserfs_fs.h used current including sched.h.
 
-Regards,
-Brad
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

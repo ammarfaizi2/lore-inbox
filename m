@@ -1,73 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270562AbTGNICQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 04:02:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270563AbTGNICP
+	id S270566AbTGNIGU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 04:06:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270567AbTGNIGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 04:02:15 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:15514 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S270562AbTGNICL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 04:02:11 -0400
-Date: Mon, 14 Jul 2003 13:40:01 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [2.6.0-test1] vfsmount_lock-fix
-Message-ID: <20030714081001.GD1214@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
+	Mon, 14 Jul 2003 04:06:20 -0400
+Received: from [81.2.110.254] ([81.2.110.254]:12793 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S270566AbTGNIEz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 04:04:55 -0400
+Subject: RE: [Patch][RFC] epoll and half closed TCP connections
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: David Schwartz <davids@webmaster.com>, Jamie Lokier <jamie@shareable.org>,
+       Eric Varsanyi <e0206@foo21.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.55.0307131605480.15022@bigblue.dev.mcafeelabs.com>
+References: <MDEHLPKNGKAHNMBLJOLKEEFKEFAA.davids@webmaster.com>
+	 <Pine.LNX.4.55.0307131605480.15022@bigblue.dev.mcafeelabs.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058170455.561.30.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 Jul 2003 09:14:16 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Llu, 2003-07-14 at 00:09, Davide Libenzi wrote:
+> On Sun, 13 Jul 2003, David Schwartz wrote:
+> 
+> > 	It's not O(N) with 'poll' and 'select'. Twice as many file descriptors
+> > means twice as many active file descriptors which means twice as many
+> > discovered per call to 'poll'. If the calls to 'poll' are further apart
+> 
+> It is O(N), if N if the number of fds queried. The poll code does "at least"
+> 2 * N loops among the set (plus other stuff), and hence it is O(N). Even
+> if you do N "nop" in your implementation, this becomes O(N) from a
+> mathematical point of view.
 
-Please apply this patch for replacing dcache_lock with vfsmount_lock in 
-put_namespace(). This was one obvious thing for which I felt very bad to miss.
-Tested with CLONE_NEWNS flag also.
+You need to apply queue theory and use a model of the distribution of
+data arrival on the inputs/outputs to actually tell. The its O(N) claim
+is like most such claims and probably only useful if data arrives
+infinitely slowly and you have infinite ram and cache is not a factor.
 
-Thanks
-Maneesh
+For some loads poll/select are actually extremely efficient. X clients
+batch commands up and there is a cost to switching between tasks for
+different clients. Viewed as an entire system you actually get quite
+interesting little graphs, especially in the critical load cases where
+select/poll's batching effect makes throughput increase rapidly at 100%
+CPU load, even if it gets you there far too early. Ditto with
+webservers.
 
-
-- fix put_namespace() in namespace.h (replace dcache_lock with vfsmount_lock)
-
-
- include/linux/namespace.h |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
-
-diff -puN include/linux/namespace.h~vfsmount_lock-fix include/linux/namespace.h
---- linux-2.6.0-test1/include/linux/namespace.h~vfsmount_lock-fix	2003-07-14 12:24:33.000000000 +0530
-+++ linux-2.6.0-test1-maneesh/include/linux/namespace.h	2003-07-14 12:24:33.000000000 +0530
-@@ -2,7 +2,7 @@
- #define _NAMESPACE_H_
- #ifdef __KERNEL__
- 
--#include <linux/dcache.h>
-+#include <linux/mount.h>
- #include <linux/sched.h>
- 
- struct namespace {
-@@ -19,9 +19,9 @@ static inline void put_namespace(struct 
- {
- 	if (atomic_dec_and_test(&namespace->count)) {
- 		down_write(&namespace->sem);
--		spin_lock(&dcache_lock);
-+		spin_lock(&vfsmount_lock);
- 		umount_tree(namespace->root);
--		spin_unlock(&dcache_lock);
-+		spin_unlock(&vfsmount_lock);
- 		up_write(&namespace->sem);
- 		kfree(namespace);
- 	}
-
-_
--- 
-Maneesh Soni
-IBM Linux Technology Center, 
-IBM India Software Lab, Bangalore.
-Phone: +91-80-5044999 email: maneesh@in.ibm.com
-http://lse.sourceforge.net/

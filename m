@@ -1,112 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266063AbUAFFp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 00:45:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266065AbUAFFp4
+	id S265340AbUAFFmI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 00:42:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266063AbUAFFmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 00:45:56 -0500
-Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:25475
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S266063AbUAFFpx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 00:45:53 -0500
-Date: Tue, 6 Jan 2004 00:44:54 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Alexander Hoogerhuis <alexh@ihatent.com>
-cc: earny@net4u.de, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0 under vmware ?
-In-Reply-To: <87u13aaas7.fsf@lapper.ihatent.com>
-Message-ID: <Pine.LNX.4.58.0401060043450.3405@montezuma.fsmlabs.com>
-References: <1073297203.12550.30.camel@bip.parateam.prv> <200401051221.30398.earny@net4u.de>
- <87u13aaas7.fsf@lapper.ihatent.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 Jan 2004 00:42:08 -0500
+Received: from dp.samba.org ([66.70.73.150]:17828 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265340AbUAFFmB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 00:42:01 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: akpm@osdl.org, mingo@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Remove redundant code in workqueue.c
+Date: Tue, 06 Jan 2004 16:39:30 +1100
+Message-Id: <20040106054159.8DDAD2C061@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Jan 2004, Alexander Hoogerhuis wrote:
+Andrew, please chew.
 
-> Ernst Herzberg <earny@net4u.de> writes:
->
-> > On Montag, 5. Januar 2004 11:06, Xavier Bestel wrote:
-> > > Hi,
-> > >
-> > > I have problems running 2.6.0 under vmware (4.02 and 4.05). I did a
-> > > basic debian/sid install, then installed various 2.6.0 kernel images
-> > > (with or without initrd, from debian (-test9 and -test11) or self-made
-> > > (stock 2.6.0).
-> > > They all make /sbin/init (from sysvinit 2.85) segfault at a particular
-> > > address (I haven't yet recompiled it with -g to see where, but a
-> > > dissassembly shows it's a "ret").
-> > > I try booting to /bin/sh from the initrd, and there I can play with the
-> > > shell, mount the alternate root, play with commands there, and then exec
-> > > /sbin/init, but it segfaults at the same point.
-> > >
-> > > Has anyone managed to make a basic debian with 2.6 work under vmware ?
-> > > Has anyone managed to make another distro with 2.6 work under vmware ?
-> >
-> > Same problem here. Tried gentoo with 2.6.0 and 2.6.1-rc1: /sbin/init will
-> > segfault. Testet vmware on a Dual PIII 2.4.23-pre3 and a Athlon XP with
-> > 2.6.1-rc1.
-> >
->
-> Ack that, P4 with 2.6.0-mmX and 2.6.1-rc1-mmX :)
+As discovered some time back, workqueue.c never receives SIGCHLD,
+because it sets the signal handler to SIG_IGN.  From
+kernel/signal.c:do_notify_parent():
 
-Does the following make a difference for you? Please note that
-an updated VMWare 4 doesn't have this problem.
+	psig = tsk->parent->sighand;
+	spin_lock_irqsave(&psig->siglock, flags);
+	if (sig == SIGCHLD && tsk->state != TASK_STOPPED &&
+	    (psig->action[SIGCHLD-1].sa.sa_handler == SIG_IGN ||
+	     (psig->action[SIGCHLD-1].sa.sa_flags & SA_NOCLDWAIT))) {
+		/*
+		 * We are exiting and our parent doesn't care.  POSIX.1
+		 * defines special semantics for setting SIGCHLD to SIG_IGN
+		 * or setting the SA_NOCLDWAIT flag: we should be reaped
+		 * automatically and not left for our parent's wait4 call.
+		 * Rather than having the parent do it as a magic kind of
+		 * signal handler, we just set this to tell do_exit that we
+		 * can be cleaned up without becoming a zombie.  Note that
+		 * we still call __wake_up_parent in this case, because a
+		 * blocked sys_wait4 might now return -ECHILD.
+		 *
+		 * Whether we send SIGCHLD or not for SA_NOCLDWAIT
+		 * is implementation-defined: we do (if you don't want
+		 * it, just use SIG_IGN instead).
+		 */
+		tsk->exit_signal = -1;
+		if (psig->action[SIGCHLD-1].sa.sa_handler == SIG_IGN)
+			sig = 0;
+	}
+	if (sig > 0 && sig <= _NSIG)
+		__group_send_sig_info(sig, &info, tsk->parent);
 
-Index: linux-2.5.69-mm5/Documentation/kernel-parameters.txt
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.69/Documentation/kernel-parameters.txt,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 kernel-parameters.txt
---- linux-2.5.69-mm5/Documentation/kernel-parameters.txt	6 May 2003 12:21:18 -0000	1.1.1.1
-+++ linux-2.5.69-mm5/Documentation/kernel-parameters.txt	15 May 2003 15:14:23 -0000
-@@ -1063,6 +1063,10 @@ running once the system is up.
+Since it only wants to reap children, that's fine.  Simply remove the
+(never called) wait loop.
 
- 	sym53c8xx=	[HW,SCSI]
- 			See Documentation/scsi/ncr53c8xx.txt.
-+
-+	nosysenter	[IA-32]
-+			Disable SYSENTER for syscalls, does not clear the SEP
-+			capabilities bit.
+(I'm doing this now, because it also simplifies the patch to make
+workqueues use kthread).
 
- 	t128=		[HW,SCSI]
- 			See header of drivers/scsi/t128.c.
-Index: linux-2.5.69-mm5/arch/i386/kernel/sysenter.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.69/arch/i386/kernel/sysenter.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 sysenter.c
---- linux-2.5.69-mm5/arch/i386/kernel/sysenter.c	6 May 2003 12:20:51 -0000	1.1.1.1
-+++ linux-2.5.69-mm5/arch/i386/kernel/sysenter.c	15 May 2003 07:46:05 -0000
-@@ -20,6 +20,7 @@
- #include <asm/unistd.h>
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
- extern asmlinkage void sysenter_entry(void);
-+static int nosysenter __initdata;
+Name: Simplified Workqueue Child Reaping
+Author: Rusty Russell
+Status: Tested on 2.6.1-rc1-bk6
 
- /*
-  * Create a per-cpu fake "SEP thread" stack, so that we can
-@@ -51,6 +52,13 @@ void enable_sep_cpu(void *info)
- 	put_cpu();
- }
+D: It turns out that run_workqueue never has signal_pending(), since
+D: setting the handler to SIG_IGN means "don't make zombies, I'm ignoring
+D: them".  Fix the comment, don't allow the signal, and remove the unused
+D: waitpid loop.
+D: 
+D: This also allows simpler conversion of workueues to the kthread
+D: mechanism, which uses signals to indicate it's time to stop.
 
-+static int __init do_nosysenter(char *s)
-+{
-+	nosysenter = 1;
-+	return 1;
-+}
-+__setup("nosysenter", do_nosysenter);
-+
- /*
-  * These symbols are defined by vsyscall.o to mark the bounds
-  * of the ELF DSO images included therein.
-@@ -64,7 +72,7 @@ static int __init sysenter_setup(void)
-
- 	__set_fixmap(FIX_VSYSCALL, __pa(page), PAGE_READONLY);
-
--	if (!boot_cpu_has(X86_FEATURE_SEP)) {
-+	if (nosysenter || !boot_cpu_has(X86_FEATURE_SEP)) {
- 		memcpy((void *) page,
- 		       &vsyscall_int80_start,
- 		       &vsyscall_int80_end - &vsyscall_int80_start);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .32296-linux-2.6.1-rc1-bk6/kernel/workqueue.c .32296-linux-2.6.1-rc1-bk6.updated/kernel/workqueue.c
+--- .32296-linux-2.6.1-rc1-bk6/kernel/workqueue.c	2003-09-22 10:27:38.000000000 +1000
++++ .32296-linux-2.6.1-rc1-bk6.updated/kernel/workqueue.c	2004-01-06 15:25:39.000000000 +1100
+@@ -14,13 +14,10 @@
+  *   Theodore Ts'o <tytso@mit.edu>
+  */
+ 
+-#define __KERNEL_SYSCALLS__
+-
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+ #include <linux/init.h>
+-#include <linux/unistd.h>
+ #include <linux/signal.h>
+ #include <linux/completion.h>
+ #include <linux/workqueue.h>
+@@ -171,7 +168,6 @@ static int worker_thread(void *__startup
+ 	struct k_sigaction sa;
+ 
+ 	daemonize("%s/%d", startup->name, cpu);
+-	allow_signal(SIGCHLD);
+ 	current->flags |= PF_IOTHREAD;
+ 	cwq->thread = current;
+ 
+@@ -180,7 +176,7 @@ static int worker_thread(void *__startup
+ 
+ 	complete(&startup->done);
+ 
+-	/* Install a handler so SIGCLD is delivered */
++	/* SIG_IGN makes children autoreap: see do_notify_parent(). */
+ 	sa.sa.sa_handler = SIG_IGN;
+ 	sa.sa.sa_flags = 0;
+ 	siginitset(&sa.sa.sa_mask, sigmask(SIGCHLD));
+@@ -200,14 +196,6 @@ static int worker_thread(void *__startup
+ 
+ 		if (!list_empty(&cwq->worklist))
+ 			run_workqueue(cwq);
+-
+-		if (signal_pending(current)) {
+-			while (waitpid(-1, NULL, __WALL|WNOHANG) > 0)
+-				/* SIGCHLD - auto-reaping */ ;
+-
+-			/* zap all other signals */
+-			flush_signals(current);
+-		}
+ 	}
+ 	remove_wait_queue(&cwq->more_work, &wait);
+ 	complete(&cwq->exit);

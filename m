@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265219AbUFVS2U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265351AbUFVSxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265219AbUFVS2U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 14:28:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbUFVSTh
+	id S265351AbUFVSxL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 14:53:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265210AbUFVSwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 14:19:37 -0400
-Received: from webhosting.rdsbv.ro ([213.157.185.164]:38104 "EHLO
-	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S265092AbUFVRwP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 13:52:15 -0400
-Date: Tue, 22 Jun 2004 20:52:01 +0300 (EEST)
-From: Catalin BOIE <util@deuroconsult.ro>
-X-X-Sender: util@hosting.rdsbv.ro
-To: Stephen Hemminger <shemminger@osdl.org>
-cc: netdev@oss.sgi.com, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, lartc@mailman.ds9a.nl
-Subject: Re: [LARTC] [ANNOUNCE] sch_ooo - Out-of-order packet queue discipline
-In-Reply-To: <20040622084607.4996569f@dell_ss3.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.60.0406222051240.17140@hosting.rdsbv.ro>
-References: <Pine.LNX.4.58.0404021023140.18886@hosting.rdsbv.ro>
- <20040622084607.4996569f@dell_ss3.pdx.osdl.net>
+	Tue, 22 Jun 2004 14:52:04 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:11938 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S265244AbUFVSpS convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 14:45:18 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Question on using MSI in PCI driver
+Date: Tue, 22 Jun 2004 11:43:54 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E5024057E5215@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Question on using MSI in PCI driver
+Thread-Index: AcRYh9tXD7gkckhMQxa0kKqjgpDONQAAI6Rg
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Roland Dreier" <roland@topspin.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 22 Jun 2004 18:43:55.0572 (UTC) FILETIME=[DF246F40:01C45888]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Jun 2004, Stephen Hemminger wrote:
+On Tuesday, June 22 Roland Dreier wrote:
+> So I would suggest using a name of "MSI-X vector table" in the 
+> call to request_mem_region.
 
-> Maybe the delay and ooo scheduler should be merged, the both do sort of
-> the same thing.
+Good!
 
-Yes, it's true.
-I can work on a patch if you want.
+Thanks,
+Long
 
----
-Catalin(ux aka Dino) BOIE
-catab at deuroconsult.ro
-http://kernel.umbrella.ro/
+

@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274362AbRIYBf4>; Mon, 24 Sep 2001 21:35:56 -0400
+	id <S274368AbRIYBgG>; Mon, 24 Sep 2001 21:36:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274369AbRIYBfs>; Mon, 24 Sep 2001 21:35:48 -0400
-Received: from fep04-svc.mail.telepac.pt ([194.65.5.203]:37790 "EHLO
-	fep04-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
-	id <S274362AbRIYBfd>; Mon, 24 Sep 2001 21:35:33 -0400
-Message-ID: <3BAFDAA9.404@yahoo.com>
-Date: Tue, 25 Sep 2001 02:15:21 +0100
-From: Paulo da Silva <psdasilva@yahoo.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
+	id <S274369AbRIYBf5>; Mon, 24 Sep 2001 21:35:57 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:11012 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S274368AbRIYBfq>;
+	Mon, 24 Sep 2001 21:35:46 -0400
+Date: Mon, 24 Sep 2001 22:35:53 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10 much better than previous 2.4.x :-)
+In-Reply-To: <1001377785.1430.7.camel@gromit.house>
+Message-ID: <Pine.LNX.4.33L.0109242234410.19147-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.9 performance issue NO MORE
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This problem does NOT occur with 2.4.10.
-________________________________________
+On 24 Sep 2001, Michael Rothwell wrote:
 
-GOOD!!!
-------------------------------------------------------------------------
+> This is mainly a thank you for 2.4.10. It performs much better than
+> 2.4.7 (RedHat version), from which I upgraded. Interactive performance
+> for applications (Gnome, Evolution, Mozilla) is much improved,
 
+If you have the time, could you also test 2.4.9-ac15 ?
 
-Hi,
+(The -ac VM has basically branched off at 2.4.7 and has
+evolved quite a bit since ... last week I fixed a stupid
+page aging bug and things should be a lot better than
+before now)
 
-I used to listen mp3 files, using mpg123 -b 2048 -z (nice -15, for ex. -
-sometimes I forget this!), without any interruption, even with
-an relatively overloaded system! This was one
-of my arguments when advertising Linux performance.
+regards,
 
-Now I'm getting, from times to times, some interruptions,
-without any relevant workload.
-I have noticed that when this happens, the kswapd task is allways
-on the top of "top" program, CPU sorted.
+Rik
+-- 
+IA64: a worthy successor to i860.
 
-....
+http://www.surriel.com/		http://distro.conectiva.com/
 
-
-Best regards,
-Paulo da Silva
-
-
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

@@ -1,57 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130469AbQLIIIS>; Sat, 9 Dec 2000 03:08:18 -0500
+	id <S129604AbQLIINJ>; Sat, 9 Dec 2000 03:13:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130486AbQLIIII>; Sat, 9 Dec 2000 03:08:08 -0500
-Received: from cr722548-a.crdva1.bc.wave.home.com ([24.115.203.90]:15920 "EHLO
-	straylight.cyberhqz.com") by vger.kernel.org with ESMTP
-	id <S130469AbQLIIH7>; Sat, 9 Dec 2000 03:07:59 -0500
-From: Ryan Murray <rmurray@cyberhqz.com>
-Date: Fri, 8 Dec 2000 23:37:30 -0800
-To: linux-kernel@vger.kernel.org
-Cc: ricdude@toad.net, "John M. Flinchbaugh" <glynis@butterfly.hjsoft.com>
-Subject: Re: esound over tcp problem with linux-2.4.0-test[89]
-Message-ID: <20001208233730.D2002@cyberhqz.com>
-Mail-Followup-To: rmurray, linux-kernel@vger.kernel.org, ricdude@toad.net,
-	"John M. Flinchbaugh" <glynis@butterfly.hjsoft.com>
-In-Reply-To: <20001004120532.A32577@butterfly.hjsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001004120532.A32577@butterfly.hjsoft.com>; from glynis@butterfly.hjsoft.com on Wed, Oct 04, 2000 at 12:05:32PM -0400
+	id <S129742AbQLIIM7>; Sat, 9 Dec 2000 03:12:59 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:40966 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129604AbQLIIMt>; Sat, 9 Dec 2000 03:12:49 -0500
+Date: Fri, 8 Dec 2000 23:41:54 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+cc: rgooch@ras.ucalgary.ca, jgarzik@mandrakesoft.mandrakesoft.com,
+        dhinds@valinux.com, linux-kernel@vger.kernel.org
+Subject: Re: Serial cardbus code.... for testing, please.....
+In-Reply-To: <200012090541.AAA17863@tsx-prime.MIT.EDU>
+Message-ID: <Pine.LNX.4.10.10012082328260.2121-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 04, 2000 at 12:05:32PM -0400, John M. Flinchbaugh wrote:
-> basically, when i added ram to my linux-2.4.0-test8 box taking it from
-> 96M to 192M of ram. esd over tcpip started popping, hesitating,
-> distorting.  if i limit the memory at kernel boot to 127M (and no
 
-The popping and distorting are bugs of esound, which are fixed in the
-0.2.22-1 Debian package.
 
-The hesitating, however, seems like it may be a kernel problem:
+On Sat, 9 Dec 2000, Theodore Y. Ts'o wrote:
+> 
+>    I didn't have time to do more than just quickly apply the patch and leave
+>    in a hurry, but my Vaio certainly recognized the serial port on the combo
+>    cardbus card I have with this patch. Everything looked fine - I got a
+>    message saying it found a 16450 on ttyS4 when I plugged the card in.
+> 
+> When you have a chance, can you check and make sure that you actually
+> can talk to the modem?  That will make me feel much better.....
 
-esound on 2.2.x with localhost tcp sockets, or 2.4.x with unix domain
-sockets return 4096 bytes per read of a sound stream (such as that
-from an mp3 player).
+Done.
 
-esound on 2.4.x with localhost tcp sockets sometimes returns 4096 bytes,
-sometimes less, and sometimes stops sending data for a second or two, causing
-esd to "pause" and go to sleep, and stopping all audio output.  Forcing esound
-to not read any more data (with a horrible sleep(1) in the code) causes enough
-data to queue up on the socket that the hesitation vanishes.  If the stream
-stops and starts again (ie: switches songs in your mp3 player), the hesitation
-often comes back until esound sleeps for a second again.
+It works perfectly fine for me, with the following caveat:
 
-So my question is whether there may be a problem in localhost TCP sockets
-with streams of data like this?
+It crashes hard if I remove the card while the modem is in use, though (ie
+insert card, point minicom at it, sit at the minicom window while removing
+the card).
 
--- 
-Ryan Murray, (rmurray@cyberhqz.com, rmurray@debian.org, rmurray@stormix.com)
-Projects Manager, Stormix Technologies Inc., Debian Developer
-The opinions expressed here are my own.
+This is a problem that many drivers have: when the card is removed, the
+driver sees an interrupt (which happens to be the CardBus card removal
+interrupt, but the serial driver doesn't know that, and the way cardbus
+interrupts work it's always shared with the driver).
+
+So the serial driver reads the modem status byte, which is all ones, and
+decides that there is a ton of work to do. It then loops forever, because
+the status byte bits will obviously continue to be all ones. 
+
+Note how the "rs_interrupt()" routine _tries_ to avoid this by having a
+pass counter value, but that logic never triggers because we will loop
+forever in receive_chars(), so the rs_interrupt() counter never even gets
+to increment.
+
+> Once I fixed the /etc/pcmcia/config file, was able to start up the
+> epic100 driver with cardmgr.  I was also able to (with cardmgr not
+> running) load the epic100 module, and lo and behold it worked.
+
+You should also just test having it compiled in - I know some people love
+modules, but there is nothing quite as liberating as just having a kernel
+that finds the devices it needs and doesn't need anything else.
+
+> But then I ran into the second problem, which seems to afflict all
+> PCMCIA/CARDBUS serial devices which I've tried.  That problem is the one
+> which I alluded to in an eariler messages; it looks like some or all of
+> the I/O port window for the serial device isn't getting set up properly.
+
+I'm sitting here with a minicom session, talking to the modem. Maybe you
+have a device that is not a standard UART?
+
+> This makes me suspicious that the I/O windows for the serial drivers
+> aren't getting set correctly.  And whatever the problem, it's affecting
+> both PCMCIA devices (which still use serial_cs), as well as cardbus
+> drivers, which is just using serial.o.  And this is why I asked you
+> whether or not you can actually talk to the modem.
+
+I have the serial.c driver compiled into the kernel, and apart from the
+glitch I can _definitely_ talk to the modem just fine.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

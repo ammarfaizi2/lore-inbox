@@ -1,40 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264552AbTDYAAy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 20:00:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264551AbTDXX72
+	id S264525AbTDXXz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 19:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbTDXXuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 19:59:28 -0400
-Received: from A17-250-248-89.apple.com ([17.250.248.89]:23249 "EHLO
-	smtpout.mac.com") by vger.kernel.org with ESMTP id S264549AbTDXX6z
+	Thu, 24 Apr 2003 19:50:40 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:43439 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264549AbTDXXpH convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 19:58:55 -0400
-Date: Fri, 25 Apr 2003 10:11:33 +1000
-Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v552)
-Cc: linux-kernel@vger.kernel.org
-To: Florian Weimer <fw@deneb.enyo.de>
-From: Stewart Smith <stewartsmith@mac.com>
-In-Reply-To: <87lly6flrz.fsf@deneb.enyo.de>
-Message-Id: <791E70DC-76B2-11D7-BE62-00039346F142@mac.com>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.552)
+	Thu, 24 Apr 2003 19:45:07 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <10512287461640@kroah.com>
+Subject: Re: [PATCH] i2c driver changes for 2.5.68
+In-Reply-To: <10512287461373@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Thu, 24 Apr 2003 16:59:06 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, April 20, 2003, at 03:18  AM, Florian Weimer wrote:
-> IDE disks automatically remap defective sectors, so you won't see any
-> of them unless the disk is already quite broken.
+ChangeSet 1.1179.3.6, 2003/04/24 10:26:56-07:00, greg@kroah.com
 
-IIRC:
-A drive that has trouble reading a sector will remap it. If the sector 
-is dead and it can't read it at all, you're screwed and you don't get 
-your data. This is why you still see 'unreadable sector' error messages 
-from your drive.
-------------------------------
-Stewart Smith
-stewartsmith@mac.com
-Ph: +61 4 3884 4332
-ICQ: 6734154
+[PATCH] i2c: fix up it87.c check_region mess.
+
+
+ drivers/i2c/chips/it87.c |   38 ++++++++++++++++----------------------
+ 1 files changed, 16 insertions(+), 22 deletions(-)
+
+
+diff -Nru a/drivers/i2c/chips/it87.c b/drivers/i2c/chips/it87.c
+--- a/drivers/i2c/chips/it87.c	Thu Apr 24 16:46:54 2003
++++ b/drivers/i2c/chips/it87.c	Thu Apr 24 16:46:54 2003
+@@ -224,7 +224,6 @@
+    allocated. */
+ struct it87_data {
+ 	struct semaphore lock;
+-	int sysctl_id;
+ 	enum chips type;
+ 
+ 	struct semaphore update_lock;
+@@ -533,22 +532,21 @@
+ int it87_detect(struct i2c_adapter *adapter, int address, int kind)
+ {
+ 	int i;
+-	struct i2c_client *new_client;
++	struct i2c_client *new_client = NULL;
+ 	struct it87_data *data;
+ 	int err = 0;
+ 	const char *name = "";
+ 	const char *client_name = "";
+ 	int is_isa = i2c_is_isa_adapter(adapter);
+ 
+-	if (!is_isa
+-	    && !i2c_check_functionality(adapter,
+-					I2C_FUNC_SMBUS_BYTE_DATA)) goto
+-		    ERROR0;
++	if (!is_isa && 
++	    !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
++		goto ERROR0;
+ 
+-	if (is_isa) {
+-		if (check_region(address, IT87_EXTENT))
++	/* Reserve the ISA region */
++	if (is_isa)
++		if (!request_region(address, IT87_EXTENT, name))
+ 			goto ERROR0;
+-	}
+ 
+ 	/* Probe whether there is anything available on this address. Already
+ 	   done for SMBus clients */
+@@ -560,11 +558,11 @@
+ 			   if we read 'undefined' registers. */
+ 			i = inb_p(address + 1);
+ 			if (inb_p(address + 2) != i)
+-				goto ERROR0;
++				goto ERROR1;
+ 			if (inb_p(address + 3) != i)
+-				goto ERROR0;
++				goto ERROR1;
+ 			if (inb_p(address + 7) != i)
+-				goto ERROR0;
++				goto ERROR1;
+ #undef REALLY_SLOW_IO
+ 
+ 			/* Let's just hope nothing breaks here */
+@@ -585,7 +583,7 @@
+ 					sizeof(struct it87_data),
+ 					GFP_KERNEL))) {
+ 		err = -ENOMEM;
+-		goto ERROR0;
++		goto ERROR1;
+ 	}
+ 
+ 	data = (struct it87_data *) (new_client + 1);
+@@ -635,10 +633,6 @@
+ 		goto ERROR1;
+ 	}
+ 
+-	/* Reserve the ISA region */
+-	if (is_isa)
+-		request_region(address, IT87_EXTENT, name);
+-
+ 	/* Fill in the remaining client fields and put it into the global list */
+ 	strncpy(new_client->dev.name, name, DEVICE_NAME_SIZE);
+ 
+@@ -650,7 +644,7 @@
+ 
+ 	/* Tell the I2C layer a new client has arrived */
+ 	if ((err = i2c_attach_client(new_client)))
+-		goto ERROR2;
++		goto ERROR1;
+ 
+ 	/* register sysfs hooks */
+ 	device_create_file(&new_client->dev, &dev_attr_in_input0);
+@@ -689,12 +683,12 @@
+ 	it87_init_client(new_client);
+ 	return 0;
+ 
+-      ERROR2:
++ERROR1:
++	kfree(new_client);
++
+ 	if (is_isa)
+ 		release_region(address, IT87_EXTENT);
+-      ERROR1:
+-	kfree(new_client);
+-      ERROR0:
++ERROR0:
+ 	return err;
+ }
+ 
 

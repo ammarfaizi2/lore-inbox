@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261773AbVANBFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbVANBSQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbVANBFG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 20:05:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVANAwu
+	id S261753AbVANBSQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 20:18:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVANBFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 19:52:50 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50048 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261752AbVANAwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 19:52:30 -0500
-Date: Fri, 14 Jan 2005 00:52:17 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dave <dave.jiang@gmail.com>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, smaurer@teja.com, linux@arm.linux.org.uk,
-       dsaxena@plexity.net, drew.moseley@intel.com,
-       mporter@kernel.crashing.org
-Subject: Re: [PATCH 1/5] Convert resource to u64 from unsigned long
-Message-ID: <20050114005216.GM26051@parcelfarce.linux.theplanet.co.uk>
-References: <8746466a050113152636f49d18@mail.gmail.com> <20050113162309.2a125eb1.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050113162309.2a125eb1.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 13 Jan 2005 20:05:49 -0500
+Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:56548 "EHLO
+	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261843AbVANBCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 20:02:51 -0500
+Message-ID: <41E71A27.2020103@kolivas.org>
+Date: Fri, 14 Jan 2005 12:02:31 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christian Axelsson <smiler@lanil.mine.nu>
+Cc: linux <linux-kernel@vger.kernel.org>, CK Kernel <ck@vds.kolivas.org>
+Subject: Re: 2.6.10-ck4
+References: <41E680A2.3010000@kolivas.org> <41E6FC6D.8010909@lanil.mine.nu>
+In-Reply-To: <41E6FC6D.8010909@lanil.mine.nu>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig576791D19F35AEFEB6EFE3BB"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 13, 2005 at 04:23:09PM -0800, Andrew Morton wrote:
-> +#if BITS_PER_LONG == 64			
-> 	return (void __iomem *)pci_resource_start(pdev, PCI_ROM_RESOURCE);
-> +#else
-> +	return (void __iomem *)(u32)pci_resource_start(pdev, PCI_ROM_RESOURCE);
-> +#endif
-> 
-> We really should find a way of avoiding this.  Even if it is
-> 
-> #if BITS_PER_LONG == 64
-> #define resource_to_ptr(r) ((void *)(r))
-> #else
-> #define resource_to_ptr(r) ((void *)((u32)r))
-> #endif
-> 
-> in a header file somewhere.  Open-coding the decision all over the place is
-> unsightly.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig576791D19F35AEFEB6EFE3BB
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This is wrong anyway - ioremap() on these will give you __iomem pointers,
-but cast like that looks very bogus.
+Christian Axelsson wrote:
+> Are there any plans on putting back reiser4 in -ck?
+> Im looking for a patchet that has reiser4 and that is more friendly 
+> towards ati-drivers and other 3rd-party modules (no massive api-changes).
+
+The -cko and -nitro patches use -ck as their base and add reiser4. Wait 
+till they sync up with the latest ck and use those (the url is available 
+from my web page).
+
+Cheers,
+Con
+
+--------------enig576791D19F35AEFEB6EFE3BB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB5xonZUg7+tp6mRURAmCfAJ4mgUkQWFi++/4iiLnoEpOm0pwFnQCfQuhQ
+eRf92Cv4XNepZyxB0XMatsg=
+=fhUl
+-----END PGP SIGNATURE-----
+
+--------------enig576791D19F35AEFEB6EFE3BB--

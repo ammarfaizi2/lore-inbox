@@ -1,63 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271117AbTG1W1t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 18:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271120AbTG1W1t
+	id S271089AbTG1WGo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 18:06:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271140AbTG1WGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 18:27:49 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:49335 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S271117AbTG1W1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 18:27:46 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Tue, 29 Jul 2003 00:27:37 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: rickh@capaccess.org, linux-kernel@vger.kernel.org,
-       linux-assembly@vger.kernel.org
-Subject: Re: The Well-Factored 386
-Message-Id: <20030729002737.111bc3ad.skraw@ithnet.com>
-In-Reply-To: <20030728133300.2ef96cf4.davem@redhat.com>
-References: <fc.0010c7b2009ebbbf0010c7b2009ebbbf.9ebbc6@capaccess.org>
-	<20030728070658.343ed2b0.davem@redhat.com>
-	<fc.0010c7b2009ecdef0010c7b2009ebbbf.9ecdfd@capaccess.org>
-	<20030728133300.2ef96cf4.davem@redhat.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 28 Jul 2003 18:06:43 -0400
+Received: from niobium.golden.net ([199.166.210.90]:19164 "EHLO
+	niobium.golden.net") by vger.kernel.org with ESMTP id S271089AbTG1WE7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 18:04:59 -0400
+Date: Mon, 28 Jul 2003 18:04:40 -0400
+From: Paul Mundt <lethal@linux-sh.org>
+To: Thomas Themel <themel-lkml@iwoars.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: rivafb still broken in 2.6.0-test2?
+Message-ID: <20030728220440.GB29466@linux-sh.org>
+Mail-Followup-To: Thomas Themel <themel-lkml@iwoars.net>,
+	linux-kernel@vger.kernel.org
+References: <20030728182822.GG391@iwoars.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="GRPZ8SYKNexpdSJ7"
+Content-Disposition: inline
+In-Reply-To: <20030728182822.GG391@iwoars.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jul 2003 13:33:00 -0700
-"David S. Miller" <davem@redhat.com> wrote:
 
-> On Mon, 28 Jul 2003 16:33:58 -0400
-> "Rick A. Hohensee" <rickh@capaccess.org> wrote:
-> 
-> > Rick Hohensee   July 2003
-> > 
-> > Why, Rick? WHY?
-> 
-> Rick, I wish you luck finding another machine with lists to
-> infiltrate.
-> 
-> Because you're not going to do it on vger.kernel.org any more.
-> Bye bye.
+--GRPZ8SYKNexpdSJ7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Dave, I have to tell you I don't like your attitude shown in this case. Surely
-you can argue Rick does not really stay on a specific topic, but on the other
-hand he does not really flood the list, does he? I mean, compared to (name
-deleted)s' PR bubbles he is really low volume.
-Besides I have not read any complaints (1 pro) - only yours. Which leads me to
-think you kill him only because you don't like the man - and not really because
-of his writing - and because you _can_. This does not feel alright for me.
-Don't get me wrong, I am no Rick-fan, I don't know him and have no idea why he
-is really talking about his favourite topics. But I honour his right to speak
-up just like anybody else, even if it looks more like a "brainstorming" than
-constructive talking.
+On Mon, Jul 28, 2003 at 08:28:22PM +0200, Thomas Themel wrote:
+> The original problem was encountered on a UP kernel running ACPI, local
+> APIC and MTRR support, but removing these features didn't help.
+>=20
+> This is what rivafb has to say:
+>=20
+> rivafb: nVidia device/chipset 10DE0171
+> rivafb: Detected CRTC controller 0 being used
+> rivafb: PCI nVidia NV20 framebuffer ver 0.9.5b (nVidiaGeForce4-M, 64MB @ =
+0xD0000000)
+> Console: switching to colour frame buffer device 80x30
+>=20
+> with MTRR enabled, it's:
+>=20
+> rivafb: nVidia device/chipset 10DE0171
+> rivafb: Detected CRTC controller 0 being used
+> rivafb: RIVA MTRR set to ON
+> rivafb: PCI nVidia NV20 framebuffer ver 0.9.5b (nVidiaGeForce4-M, 64MB @ =
+0xD0000000)
+> Console: switching to colour frame buffer device 80x30
+>=20
+> but gives the same result. Is this supposed to work?=20
+>=20
+Not sure about the GeForce4's, but I can attest that rivafb works fine under
+-test1 and -test2 on my GeForce2:
 
-Regards,
-Stephan
+rivafb: nVidia device/chipset 10DE0150
+rivafb: RIVA MTRR set to ON
+rivafb: PCI nVidia NV10 framebuffer ver 0.9.5b (nVidiaGeForce2-G, 32MB @ 0x=
+E8000000)
+Console: switching to colour frame buffer device 128x48
 
+I'm running on SMP, and don't have ACPI enabled. MTRR support also works fi=
+ne
+for me.
+
+The problem you have seems isolated to your board/chip.
+
+
+--GRPZ8SYKNexpdSJ7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE/JZ331K+teJFxZ9wRAlaNAJ9gfqV8d22dmccBfRwzNuOXLxWFdACeK1NI
+fvIlXEg+jQpAW8yitos2juE=
+=mMKp
+-----END PGP SIGNATURE-----
+
+--GRPZ8SYKNexpdSJ7--

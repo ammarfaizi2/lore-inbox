@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265609AbUATRK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 12:10:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265610AbUATRK1
+	id S265603AbUATRIu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 12:08:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265605AbUATRIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 12:10:27 -0500
-Received: from fw.osdl.org ([65.172.181.6]:40633 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265609AbUATRKT (ORCPT
+	Tue, 20 Jan 2004 12:08:50 -0500
+Received: from mail0-96.ewetel.de ([212.6.122.96]:35495 "EHLO mail0.ewetel.de")
+	by vger.kernel.org with ESMTP id S265603AbUATRIr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 12:10:19 -0500
-Date: Tue, 20 Jan 2004 09:10:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] -mm5 has no i2c on amd64
-Message-Id: <20040120091035.0fb7b3ee.akpm@osdl.org>
-In-Reply-To: <20040120124626.GA20023@bytesex.org>
-References: <20040120124626.GA20023@bytesex.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jan 2004 12:08:47 -0500
+Date: Tue, 20 Jan 2004 18:08:44 +0100 (CET)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Jens Axboe <axboe@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix for ide-scsi crash
+Message-ID: <Pine.LNX.4.44.0401201801190.1508-100000@neptune.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr <kraxel@bytesex.org> wrote:
->
->   Hi,
-> 
-> trivial fix ...
-> 
->   Gerd
-> 
-> ==============================[ cut here ]==============================
-> --- linux-mm5-2.6.1/arch/x86_64/Kconfig.i2c	2004-01-20 13:14:42.000000000 +0100
-> +++ linux-mm5-2.6.1/arch/x86_64/Kconfig	2004-01-20 13:15:10.000000000 +0100
-> @@ -429,6 +429,8 @@
->  
->  source "drivers/char/Kconfig"
->  
-> +source "drivers/i2c/Kconfig"
-> +
->  source "drivers/misc/Kconfig"
->  
 
-Ah-hah!  That's why the ppc64 kbuild system is whining about undefined but
-used i2c symbols:
+>> Agree, it's a bug. Pascal, care to take a stab at fixing it? You're the
+>> most avid ide-cd non-2kb block size user at the moment :)
 
-drivers/ieee1394/Kconfig:60:warning: enable is only allowed with boolean and tristate symbols
-drivers/media/video/Kconfig:13:warning: enable is only allowed with boolean and tristate symbols
+> There's a lot of macros related to sector sizes in ide-cd.h. I suppose
+> all that would need to be changed to depend on the real hardware sector
+> size?
 
-So this change needs to be propagated to other architectures as well.
+I've actually looked at the code now and it seems that it might be
+quite easy to fix this, after all.
+
+I have a question about cdrom_start_read_continuation:
+
+Variables called nframes and frames are computed but never used. Only
+nskip actually gets factored into the request:
+
+	rq->current_nr_sectors += nskip;
+
+The others are local vars and never get assigned to anything more
+global. So I conclude they are meaningless? I ask because this
+is one of the places that uses SECTORS_PER_FRAME and it doesn't make
+sense to me.
+
+Unrelated question:
+
+Later on, the code decides to use DMA only for requests aligned
+on a SECTORS_PER_FRAME boundary. Where does this limitation come from?
+Does it come from the drive, so that alignment to 512 byte would be
+enough on a drive with 512 byte sectors?
+
+I've actually ordered some 512 byte sector MO discs today and will try
+to get them working with ide-cd once they arrive here.
+
+-- 
+Ciao,
+Pascal
+

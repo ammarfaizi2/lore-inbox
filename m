@@ -1,59 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268831AbRG0KsF>; Fri, 27 Jul 2001 06:48:05 -0400
+	id <S268824AbRG0KsZ>; Fri, 27 Jul 2001 06:48:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268827AbRG0Kr4>; Fri, 27 Jul 2001 06:47:56 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:20930 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S268824AbRG0Kro>; Fri, 27 Jul 2001 06:47:44 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Thomas Foerster <puckwork@madz.net>
-Date: Fri, 27 Jul 2001 20:30:53 +1000 (EST)
+	id <S268827AbRG0KsQ>; Fri, 27 Jul 2001 06:48:16 -0400
+Received: from [194.102.102.3] ([194.102.102.3]:60678 "EHLO ns1.Aniela.EU.ORG")
+	by vger.kernel.org with ESMTP id <S268824AbRG0KsF>;
+	Fri, 27 Jul 2001 06:48:05 -0400
+Date: Fri, 27 Jul 2001 13:49:32 +0300 (EEST)
+From: <lk@Aniela.EU.ORG>
+To: Miloslaw Smyk <thorgal@amiga.com.pl>
+Cc: "Mike A. Harris" <mharris@opensourceadvocate.org>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Hard disk problem:
+In-Reply-To: <3B613041.C1330757@amiga.com.pl>
+Message-ID: <Pine.LNX.4.33.0107271349080.21369-100000@ns1.Aniela.EU.ORG>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15201.17117.641766.521810@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linx Kernel Source tree and metrics
-In-Reply-To: message from Thomas Foerster on Friday July 27
-In-Reply-To: <20010727095757Z268814-721+5010@vger.kernel.org>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Friday July 27, puckwork@madz.net wrote:
-> Hi,
-> 
-> > "Paul G. Allen" wrote:
-> 
-> >> > > The URL is:
-> >> >
-> >> > > http://24.5.14.144:3000/linux-kernel
-> >> >
-> >> > [...]
-> >> >
-> >> > It's forwarded to "127.0.0.1:3000", so no one can connect?! ;-)
-> >> >
-> 
-> > OK, try it now. (I really need another external IP/connection so I can
-> > try these things out myself first :-)
-> 
-> http://keroon.dmz.dreampark.com:3000/linux-kernel/
-> 
-> Can't be found (DNS-Error)
-> 
 
-Just add a slash.  Then the webserver wont ahve to do it for you:
+do you know if the ones made in thailand have the same problem ?
 
-http://24.5.14.144:3000/linux-kernel/
 
-> Thomas
+
+On Fri, 27 Jul 2001, Miloslaw Smyk wrote:
+
+> "Mike A. Harris" wrote:
+> >
+> > Is this a hardware or software problem, or could it be either?
+> >
+> > Jul 26 23:51:59 asdf kernel: hda: dma_intr: status=0x51
+> > { DriveReady SeekComplete Error }
+> > Jul 26 23:51:59 asdf kernel: hda: dma_intr: error=0x40
+> > { UncorrectableError }, LBAsect=8545004, sector=62608
+> > Jul 26 23:51:59 asdf kernel: end_request: I/O error, dev 03:05
+> > (hda), sector 62608
+> >
+> > Just got it opening up a mail folder.  Drive made a bit of noise
+> > and then PINE had to be killed.
+> >
+> > 2 root@asdf:~# hdparm -i /dev/hda
+> >
+> > /dev/hda:
+> >
+> >  Model=IBM-DTLA-307030, FwRev=TX4OA50C, SerialNo=YKDYKGF1437
+>
+> Ah, one of these excellent Hungarian DTLA drives? :) AFAIK, the entire batch
+> was broken, although there are people who insist that there was no single
+> working hard drive leaving that factory! I personally have seen 7 out of 7
+> failing...
+>
+> Take it back to where you bought it and demand a replacement for something
+> NOT bearing "MADE IN HUNGARY" sign.
+>
+> cheers,
+> Milek
+> --
+> mailto:thorgal@amiga.com.pl   |  "Man in the Moon and other weird things" -
+> http://wfmh.org.pl/~thorgal/  |  see it at http://wfmh.org.pl/~thorgal/Moon/
+>          Fight for the good cause: http://www.laubzega.com/dvd/
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
+>
+

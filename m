@@ -1,78 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262340AbUKDR51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbUKDSIw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262340AbUKDR51 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 12:57:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbUKDRzo
+	id S262328AbUKDSIw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 13:08:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbUKDSIn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 12:55:44 -0500
-Received: from mail.kroah.org ([69.55.234.183]:7577 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262279AbUKDRxo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 12:53:44 -0500
-Date: Thu, 4 Nov 2004 09:53:19 -0800
-From: Greg KH <greg@kroah.com>
-To: Tejun Heo <tj@home-tj.org>
-Cc: rusty@rustcorp.com.au, mochel@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.10-rc1 0/4] driver-model: manual device attach
-Message-ID: <20041104175318.GH16389@kroah.com>
-References: <20041104074330.GG25567@home-tj.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041104074330.GG25567@home-tj.org>
-User-Agent: Mutt/1.5.6i
+	Thu, 4 Nov 2004 13:08:43 -0500
+Received: from dfw-gate2.raytheon.com ([199.46.199.231]:22117 "EHLO
+	dfw-gate2.raytheon.com") by vger.kernel.org with ESMTP
+	id S262350AbUKDSCj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 13:02:39 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF21951A86.850E776A-ON86256F42.00610EF0@raytheon.com>
+From: Mark_H_Johnson@raytheon.com
+Date: Thu, 4 Nov 2004 11:52:22 -0600
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 11/04/2004 11:52:28 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04, 2004 at 04:43:30PM +0900, Tejun Heo wrote:
->  Hello, again. :-)
-> 
->  These are the manual device attach patches I was talking about in the
-> previous posting.  These patches need devparam patches to be applied
-> first.  It's composed of two parts.
-> 
->  1. sysctl node dev.autoattach
-> 
->  dev.autoattach is read/write integer sysctl node which controls
-> driver-model's behavior regarding device - driver association.
+>Perhaps "should be fine" but the test I just ran indicates otherwise.
+>The kernel is -V0.7.7 plus the patch you just sent me.
+>All IRQ and /# tasks were set to RT priority 99.
 
-Ick, no new sysctls please.  Make this a per-bus attribute that gets
-written to in sysfs.  Much nicer and much finer control then.
+A follow up to my previous message since the test just completed
+with the following results:
 
->  0: autoattach disabled.  devices are not associated with drivers
->     automatically.  i.e. insmod'ing e100.ko won't cause it to attach to the
->     actual e100 devices.
->  1: autoattach enabled.  The default value.  This is the same as the
->     current driver model behavior.  Driver model automatically associates
->     devices to drivers.
->  2: rescan command.  If this value is written, bus_rescan_devices() is
->     invoked for all the registered bus types; thus attaching all
->     devices to available drivers.  After rescan is complete, the
->      autoattach value is set to 1.
+2.6.10-rc1-mm2-RT-V0.7.7
+181 packets lost (5%)
+0.343, 2525.872, 213979, 21685 (min, average, max, deviation)
+elapsed time was 3090 seconds
 
-Make this a different sysfs file.  "rescan" would be good.
+There was a burst of lost packets between seq 1777 and 1959,
+that appears to cover all the lost ones. There was also a big
+delay (up to 27305 msec) at seq 1665 through 1699 but no lost
+packets. If I throw out those data points, the max drops to
+something like 1800 msec and the average is in the 0.4 to 0.5
+msec range.
 
-Look at how pci can handle adding new devices to their drivers from
-sysfs.  If we can move that kind of functionality to the driver core, so
-that all busses get it (it will require a new per-bus callback though,
-se the other patches recently posted to lkml for an example of this),
-that would be what I would like to see happen.
+The display lockup on the top test was a little odd. The window
+that should have shown top appeared blank, stayed on the screen
+for several seconds and then disappeared by itself. Apparently
+top didn't even get enough CPU time to display the first cycle
+before its time ran out. The audio test continued to run a while
+after than & then stopped itself when the script noticed that top
+was done.
 
->  2. per-device attach and detach sysfs node.
-> 
->  Two files named attach and detach are created under each device's
-> sysfs directory.  Reading attach node shows the name of applicable
-> drivers.
+The display lockups on the other tests (network and disk I/O)
+were much less severe though still present at times.
 
-How does a device know what drivers could be bound to it?  It's the
-other way around, drivers know what kind of devices they can bind to.
-Let's add the ability to add more devices to a driver through sysfs,
-again, like PCI does.
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
 
-> Writing a driver name attaches the device to the driver.
-
-No, do it the other way, attach a driver to a device.
-
-thanks,
-
-greg k-h

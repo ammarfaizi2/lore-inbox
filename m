@@ -1,48 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267491AbTGaTdG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 15:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269036AbTGaTdG
+	id S267724AbTGaThn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 15:37:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269036AbTGaThn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 15:33:06 -0400
-Received: from www.casdn.neu.edu ([155.33.251.101]:26629 "EHLO
-	www.casdn.neu.edu") by vger.kernel.org with ESMTP id S267491AbTGaTdD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 15:33:03 -0400
-From: "Andrew Scott" <A.J.Scott@casdn.neu.edu>
-Organization: Northeastern University
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Date: Thu, 31 Jul 2003 15:32:47 -0400
-MIME-Version: 1.0
-Subject: Re: 2.4 -> 2.2 differences?
-Reply-to: A.J.Scott@casdn.neu.edu
-Message-ID: <3F29369E.22567.478F39A@localhost>
-In-reply-to: <20030725142434.GS32585@rdlg.net>
-X-mailer: Pegasus Mail for Windows (v4.12a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	Thu, 31 Jul 2003 15:37:43 -0400
+Received: from imap.gmx.net ([213.165.64.20]:45779 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267724AbTGaThm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 15:37:42 -0400
+Date: Fri, 1 Aug 2003 01:07:41 +0530
+From: Apurva Mehta <apurva@gmx.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test2-mm2
+Message-ID: <20030731193741.GA1618@home.woodlands>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030730223810.613755b4.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030730223810.613755b4.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 Jul 2003 at 10:24, Robert L. Harris wrote:
-
+* Andrew Morton <akpm@osdl.org> [31-07-2003 14:52]:
 > 
 > 
-> With all the SCO fun going on I have people asking me what functionality
-> we would loose if we rolled from 2.4.21 kernel to the last known stable
-> 2.2 kernel.
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test2/2.6.0-test2-mm2/
 > 
-> Yes, weathering the lawsuit mess and all is a good plan but I'm still
-> being asked for this information.  Does anyone have a link listing what
->  kind of functionality would be lost, performance impact (p3 and athalon
-> machines), etc?
+> . CPU scheduler changes
+> 
+> . Several changes to the synaptics and PS/2 drivers.  People who have had
+>   problems with keyboards and mice, please test and report.
+> 
+> . Lots of other things, mainly bugfixes.
 
-The only reason I'm still using 2.2 is that my binary of realserver won't 
-run on 2.4.x.
+I have noticed that while the system remains responsive when there is 
+heavy CPU load alone, the unresponsiveness comes when there is heavy disk
+i/o. In light of this, I subjected my system to the following tests :
 
-                      _
-                     / \   / ascott@casdn.neu.edu
-                    / \ \ /
-                   /   \_/
+1) Untarred linux-2.6.0-test2.tar.bz2 (To create a stream of  writes)
+2) did a `find / -name "foobar" -print` as root (To create a stream of reads)
+3) bzip2'ed a 30 MB file to 3.2 MB ( this ensures 100 % CPU usage).
 
+All the above were working on the same disk.
+
+As the above three things were going on, I was browsing, playing music
+on xmms, reading a pdf file in acrobat and generally switching between
+windows.
+
+I did the above test on both 2.6.0-test2-mm1 + O11int + O11.1int ( no
+O11.2 int) and on 2.6.0-test2-mm2. I find that mm1 + O11 patches are
+better than mm2. The music never skipped on mm1, while it did on
+mm2. Also, overall resposiveness of the various windows was better on
+mm1.
+
+However, when I did a `rpm --rebuilddb` on mm1 + O11int patches, I
+still got quite severe skipping toward the end of the 8 min process. I
+could not repeat the skipping again, even on the same kernel, because
+I guess there was not much rebuilding to do again..
+
+If there are tools which I can use to produce helpful numbers, please
+let me know. I will post the required numbers ASAP. 
+
+Also, if you have any other tests which I could perform to create
+heavy disk I/O, please let me know about that too.
+
+Regards,
+
+  - Apurva

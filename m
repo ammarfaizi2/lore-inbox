@@ -1,73 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263497AbTK1WYO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 17:24:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263513AbTK1WYO
+	id S263523AbTK1WrR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 17:47:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263539AbTK1WrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 17:24:14 -0500
-Received: from ivoti.terra.com.br ([200.176.3.20]:62922 "EHLO
-	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S263497AbTK1WYE
+	Fri, 28 Nov 2003 17:47:17 -0500
+Received: from smtp2.clear.net.nz ([203.97.37.27]:29683 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S263523AbTK1WrQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 17:24:04 -0500
-From: Lucas Correia Villa Real <lucasvr@gobolinux.org>
-To: Lista da disciplina de Sistemas Operacionais III 
-	<sisopiii-l@cscience.org>,
-       Ricardo Nabinger Sanchez <rnsanchez@terra.com.br>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>
-Subject: Re: [SisopIII-l] Re: [PATCH] fix #endif misplacement
-Date: Fri, 28 Nov 2003 20:24:05 -0200
-User-Agent: KMail/1.5.1
-Cc: Andrew Morton <akpm@osdl.org>, sisopiii-l@cscience.org,
-       linux-kernel@vger.kernel.org
-References: <20031128141927.5ff1f35a.rnsanchez@terra.com.br> <Pine.LNX.4.53.0311281732100.21904@gockel.physik3.uni-rostock.de> <20031128193541.448d2893.rnsanchez@terra.com.br>
-In-Reply-To: <20031128193541.448d2893.rnsanchez@terra.com.br>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311282024.06096.lucasvr@gobolinux.org>
+	Fri, 28 Nov 2003 17:47:16 -0500
+Date: Sat, 29 Nov 2003 11:27:17 +1300
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: APM Suspend Problem
+In-reply-to: <20031128215031.GC8039@holomorphy.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Misha Nasledov <misha@nasledov.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1070058437.2380.43.camel@laptop-linux>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <20031127062057.GA31974@nasledov.com>
+ <20031128212853.GB8039@holomorphy.com> <20031128215008.GA2541@nasledov.com>
+ <20031128215031.GC8039@holomorphy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 November 2003 19:35, Ricardo Nabinger Sanchez wrote:
-> Quoting  Tim Schmielau <tim@physik3.uni-rostock.de>
-> Sent on  Fri, 28 Nov 2003 17:34:49 +0100 (CET)
->
-> > > This patch fixes an #endif misplacement, which leads to dead code in
-> > > sched_clock() in arch/i386/kernel/timers/timer_tsc.c, due to a return
-> > > outside the ifdef/endif.
-> >
-> > No, this is exactly what is intended: don't use the TSC on NUMA, use
-> > jiffies instead.
-> > Look at the comment just above those lines.
->
-> I'm breaking things.  Sorry.
->
-> I think I understood it now: the #ifndef protects only the check for TSC
-> availability on non-NUMA archs.  If it's available, and not under NUMA (so
-> the ifndef), use it (jump to the rdtscll()), otherwise return the
-> expression result.
->
-> The strange thing to me is that I'm getting 1/10 of the expected value when
-> measuring tasks timeslices.  Instead of getting ~100ms for tasks which just
-> burn CPU, I'm getting 10ms.
->
-> I measure timeslices inside schedule(), updating the average timeslice for
-> the leaving process, using (now - prev->timestamp).
->
-> Any clue of what am I doing wrong?
+Howdy.
 
-Hi,
+Dunno if I'm an expert, but I might be able to help. None of the Linux
+based suspends (2.4 or 2.6) will get started unless something like acpid
+pushes them. If a laptop suspends without running acpid or similar, it
+must be doing it from the BIOS.
 
-It could it be possible that TSC isn't being enabled on your processor due to 
-a buggy TSC. You can try to trace the code on init_tsc(), in 
-arch/i386/kernel/timers/timer_tsc.c to realize what's going on.
+Regards,
 
-You can also try to check whether you're using HPET or not (when enabled and 
-supported it makes use of TSC) in your .config . In the case you're not using 
-it, the code that calibrates and dictates how to deal with the stamp counter 
-is calibrate_tsc(), in arch/i386/kernel/timers/common.c.
+Nigel
 
-Hope this helps,
-Lucas
+On Sat, 2003-11-29 at 10:50, William Lee Irwin III wrote:
+> On Fri, Nov 28, 2003 at 01:50:08PM -0800, Misha Nasledov wrote:
+> > It would be really annoying if my laptop suspended when I closed the lid; I
+> > disabled this feature in the BIOS. I will test if it suspends with
+> > this feature enabled, but it doesn't change the fact that there is
+> > something broken with APM. Running 'apm --suspend' doesn't work either.
+> 
+> That sounds h0rked; we might need to drag in suspend experts for this...
+> 
+> 
+> -- wli
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
+
+Evolution (n): A hypothetical process whereby infinitely improbable events occur 
+with alarming frequency, order arises from chaos, and no one is given credit.
+

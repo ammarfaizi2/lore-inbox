@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261753AbTJRTAP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 15:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbTJRTAP
+	id S261768AbTJRTKI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 15:10:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbTJRTKI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 15:00:15 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:11420 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S261753AbTJRTAN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 15:00:13 -0400
-Message-ID: <003b01c395a8$22dbf270$fb457dc0@tgasterix>
-Reply-To: "Thomas Giese" <Thomas.Giese@gmx.de>
-From: "Thomas Giese" <Thomas.Giese@gmx.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: X crashes under linux-2.6.0-test7-mm1
-Date: Sat, 18 Oct 2003 20:46:26 +0200
+	Sat, 18 Oct 2003 15:10:08 -0400
+Received: from mail.gmx.de ([213.165.64.20]:63403 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261768AbTJRTKF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 15:10:05 -0400
+Date: Sat, 18 Oct 2003 21:10:04 +0200 (MEST)
+From: "Svetoslav Slavtchev" <svetljo@gmx.de>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Seen: false
-X-ID: XHnaYQZJweFQNU1erz7yHMfZoFE5UunRF0+EbueTIdAlhoXhrPqs0T@t-dialin.net
+Subject: initrd and 2.6.0-test8
+X-Priority: 3 (Normal)
+X-Authenticated: #20183004
+Message-ID: <22900.1066504204@www30.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+me had  the same problems,
+with devfs enabled
 
-changed the kernel from 2.4.4 to 2.6.0-test7-mm1 i got the following
-messages after starting X11:  http://www.tgsoftware.de/xfree.txt
+could it be this (from Documentation/initrd)
 
-any ideas ?
+Note that changing the root directory does not involve unmounting it.
+    the "normal" root file system is mounted. initrd data can be read
+  root=/dev/ram0   (without devfs)
+  root=/dev/rd/0   (with devfs)
+    initrd is mounted as root, and the normal boot procedure is followed,
+    with the RAM disk still mounted as root.
 
-thanks
+the patch doesn't mention anything about /dev/rd/0 , but does for /dev/ram0
 
-Thomas
+svetljo
 
+-- 
+NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
+Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
+
+Jetzt kostenlos anmelden unter http://www.gmx.net
+
++++ GMX - die erste Adresse für Mail, Message, More! +++
 

@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbUKQShq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262504AbUKQSm0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbUKQShq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 13:37:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbUKQShi
+	id S262504AbUKQSm0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 13:42:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUKQSkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 13:37:38 -0500
-Received: from colino.net ([213.41.131.56]:46575 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S262339AbUKQSfl (ORCPT
+	Wed, 17 Nov 2004 13:40:12 -0500
+Received: from rproxy.gmail.com ([64.233.170.197]:50186 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262491AbUKQSh7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 13:35:41 -0500
-Date: Wed, 17 Nov 2004 19:34:16 +0100
-From: Colin Leroy <colin.lkml@colino.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Switch therm_adt746x to new module_param
-Message-ID: <20041117193416.52a86d03.colin.lkml@colino.net>
-X-Mailer: Sylpheed-Claws 0.9.12cvs142.2 (GTK+ 2.4.9; powerpc-unknown-linux-gnu)
+	Wed, 17 Nov 2004 13:37:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=n2AZDs8vps+qE31hlkoiNzi5sjb7Cy2PQ26Diy47y9soRy0CzTNJ/UkQZRlcj/JSXbY/ZNUg2FAs/M4BEXA78TOLfe+1cDs9kvUbzumLA7PD3AExpkG60jCYtV8ptX+JdY+rB99b14xF8bkzDlKYmlrX4YBnFhYDVWWAxaRhb/I=
+Message-ID: <cc61bb420411171037369a930e@mail.gmail.com>
+Date: Wed, 17 Nov 2004 13:37:58 -0500
+From: Robert Harris <robert.l.harris@gmail.com>
+Reply-To: Robert Harris <robert.l.harris@gmail.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Date/Time problems on an IBM Desktop ? (P4-2.8ghz)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+I'm testing the 2.4.27 kernel on an IBM ThinkCentre A30 Desktop.  The
+system has a P4 2.8Ghz processor, 512 Megs of ram and IDE disk.  The
+clock on the system is very much off.  Using the "/bin/date" command
+it seems to actually count 1 second for every 10 or so.  Under load
+this can be even slower.  I've reproduced this on 3 separate pieces of
+hardware.
 
-this patch replaces MODULE_PARM to module_param for adt746x.
+Has anyone run into this or have an idea?  My next step is to try an
+older kernel with the same config but that may take a bit to get built
+and tested.
 
-Signed-off-by: Colin Leroy <colin@colino.net>
---- a/drivers/macintosh/therm_adt746x.c	2004-11-17 19:26:16.908413504 +0100
-+++ b/drivers/macintosh/therm_adt746x.c	2004-11-17 19:28:01.193559752 +0100
-@@ -23,6 +23,8 @@
- #include <linux/smp_lock.h>
- #include <linux/wait.h>
- #include <linux/suspend.h>
-+#include <linux/kthread.h>
-+#include <linux/moduleparam.h>
- 
- #include <asm/prom.h>
- #include <asm/machdep.h>
-@@ -30,7 +32,6 @@
- #include <asm/system.h>
- #include <asm/sections.h>
- #include <asm/of_device.h>
--#include <linux/kthread.h>
- 
- #undef DEBUG
- 
-@@ -56,11 +57,11 @@
- 		   "Powerbook G4 Alu");
- MODULE_LICENSE("GPL");
- 
--MODULE_PARM(limit_adjust,"i");
-+module_param(limit_adjust, int, 0);
- MODULE_PARM_DESC(limit_adjust,"Adjust maximum temperatures (50 cpu, 70 gpu) "
- 		 "by N degrees.");
- 
--MODULE_PARM(fan_speed,"i");
-+module_param(fan_speed, int, 64);
- MODULE_PARM_DESC(fan_speed,"Specify starting fan speed (0-255) "
- 		 "(default 64)");
- 
+Robert
+-- 
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris
+
+DISCLAIMER:
+      These are MY OPINIONS             With Dreams To Be A King,
+       ALONE.  I speak for              First One Should Be A Man
+       no-one else.                       - Manowar

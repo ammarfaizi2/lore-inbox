@@ -1,64 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313267AbSDDRNF>; Thu, 4 Apr 2002 12:13:05 -0500
+	id <S313270AbSDDRRP>; Thu, 4 Apr 2002 12:17:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313270AbSDDRMz>; Thu, 4 Apr 2002 12:12:55 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:18821 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S313267AbSDDRMs>; Thu, 4 Apr 2002 12:12:48 -0500
-Date: Thu, 4 Apr 2002 19:12:23 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Justin Carlson <justincarlson@cmu.edu>
-cc: Abdij Bhat <Abdij.Bhat@kshema.com>, linux-kernel@vger.kernel.org
-Subject: Re: error compiling kernel for mips
-In-Reply-To: <1017861846.1133.285.camel@gs256.sp.cs.cmu.edu>
-Message-ID: <Pine.GSO.3.96.1020404190340.27231A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S313272AbSDDRRF>; Thu, 4 Apr 2002 12:17:05 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:33351 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S313271AbSDDRRC>; Thu, 4 Apr 2002 12:17:02 -0500
+Date: Thu, 4 Apr 2002 12:16:37 -0500 (EST)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Arjan van de Ven <arjanv@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+        Stelian Pop <stelian.pop@fr.alcove.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+In-Reply-To: <20020404184405.C32431@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0204041151550.17895-100000@devserv.devel.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 Apr 2002, Justin Carlson wrote:
 
-> Check out this line in the base level makefile:
-> 
-> ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e
-> s/arm.*/arm/ -e s/sa110/arm/)
-> 
-> This actually looks broken for cross-compile, but I haven't been
-> following the changes particularly closely...try using this instead:
-> 
-> ARCH := mips
+On Thu, 4 Apr 2002, Andrea Arcangeli wrote:
 
- Or shortly:
+> adding export symbol here and there it's the same thing you did in the
+> redhat kernel and in your tux patches here:
 
-$ make "ARCH=<arch>" "CROSS_COMPILE=<prefix>" <whatever>
+it was done by first *asking* all maintainers/authors involved, including
+the network folks and Linus. Plus at the time it was done no _GPL way to
+signal internal components existed, i'd otherwise have used it to document
+that this is an internal export only, for the fully GPL-ed TUX subsystem.
+But i'd have no problem with making TUX a fully statically linked thing
+either. [it's just so convenient to demand-link TUX as a part of the
+kernel.]
 
-Here <arch> is "mips" and <prefix> is whatever prefix is is used for your
-cross-compiling toolchain (e.g. "mips-linux-" or "mipsel-linux-", etc.).
+> There is no difference at all with what you did above and with my
+> removal of the _GPL tag from the vmalloc_to_page [...]
 
-> Really, though if you're compiling for mips you should probably grab the
-> mips-linux CVS sources here:
-> 
->  cvs -d :pserver:cvs@oss.sgi.com:/cvs login
->    (Only needed the first time you use anonymous CVS, the password is
-> "cvs")
->    cvs -d :pserver:cvs@oss.sgi.com:/cvs co <repository>
-> 
-> There's a 2.4 tagged branch that's probably closer to what you want. You
-> can ask for mips-specific on linux-mips@oss.sgi.com, and you'll be much
-> more likely to get a prompt and useful answer.
+(lets stop this vmalloc_to_page() thing, as i said i agree with providing
+it as a published export. It's a small-enough function to be a non-issue.)
 
- Actually 2.4.19 should contain most bits from the current linux_2_4
-branch from oss.  Just grab the current "-pre" version.
+> Now if my understanding is wrong, I'd like to know of course, I'm not
+> expert here, but the only logical thing I'm sure about is that if it's
+> illegal for me to export my GPL wrapper then I've just the right to make
+> all non GPL drivers illegal, that is the only logical sure thing that
+> can be deducted. And yes, I'd be really happy if I'd that right.
 
- Getting a CVS snapshot from oss is certainly a solution as well, but the
-server seems to be broken for the last few days (including its CVS server,
-its mailing list server and its web server).
+while i'm not a lawyer either, i think the question here is intent, like
+in most matters of law/contract. If your intent is to make something that
+is a derivative look like something that is not a derivative, you are on
+the bad side. Eg. the GPL also uses intent in a form - eg. 'source code'
+is not some arbitrary language or format, 'source code' is the preferred
+form intended for development. In this sense it's not a GPL-conform
+publication of source code to provide hex-encoded objects within C files,
+even though C code matches the technical definition of 'source code'.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+the other problem is that i think we really want to cooperate with people
+who'd like to interface with the kernel in kernel-space, without making
+their code a derivative of the kernel, along a well-defined API, even if
+those people do not want to GPL their code for whatever reasons. But like
+Alex mentioned it, Linux never had a 'well defined module API'. There was
+no guarantee, no nothing, it's not an API in the GPL sense i think.
+
+	Ingo
 

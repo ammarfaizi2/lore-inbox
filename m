@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318240AbSGWWzw>; Tue, 23 Jul 2002 18:55:52 -0400
+	id <S318230AbSGWWyO>; Tue, 23 Jul 2002 18:54:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318244AbSGWWzv>; Tue, 23 Jul 2002 18:55:51 -0400
-Received: from pool-129-44-58-21.ny325.east.verizon.net ([129.44.58.21]:60680
-	"EHLO arizona.localdomain") by vger.kernel.org with ESMTP
-	id <S318240AbSGWWzs>; Tue, 23 Jul 2002 18:55:48 -0400
-Date: Tue, 23 Jul 2002 18:58:52 -0400
-From: "Kevin O'Connor" <kevin@koconnor.net>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: type safe(r) list_entry repacement: generic_out_cast
-Message-ID: <20020723185852.A12295@arizona.localdomain>
-References: <15677.15834.295020.89244@notabene.cse.unsw.edu.au>
+	id <S318232AbSGWWyO>; Tue, 23 Jul 2002 18:54:14 -0400
+Received: from natwar.webmailer.de ([192.67.198.70]:45617 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S318230AbSGWWyN>; Tue, 23 Jul 2002 18:54:13 -0400
+Date: Wed, 24 Jul 2002 00:55:19 +0200
+From: Dominik Brodowski <devel@brodo.de>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: davej@suse.de, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] resolve ACPI oops on boot
+Message-ID: <20020724005518.A837@brodo.de>
+References: <20020718231509.A539@brodo.de> <Pine.LNX.3.96.1020723165428.2194A-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <15677.15834.295020.89244@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Tue, Jul 23, 2002 at 09:28:26PM +1000
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <Pine.LNX.3.96.1020723165428.2194A-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Tue, Jul 23, 2002 at 05:20:57PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 23, 2002 at 09:28:26PM +1000, Neil Brown wrote:
-> However it doesn't do any type checking on the pointer, and you can 
-> give it a pointer to something else... just as I did in line 850 of
-> md/md.c :-(
-
-Hi Neil,
-
-I've experienced the same problem with some of my own code.  I came up with
-the following macro to help solve the problem:
-
-/* Given a pointer to a member of a struct, return a pointer to the struct
-   itself. */
-#define BackPtr(ptr, type, member) ({                                         \
-        typeof( ((type *)0)->member ) *__mptr = (ptr);                        \
-        ((type *)( (char *)__mptr - (unsigned long)(&((type *)0)->member) ));})
-
-> So I thought I would add some type checking to list_entry so that
-> you have to pass it a "struct list_head *", but I then discovered that
-> lots of places are using list_entry to do creative casting on
-> all sorts of other things like inodes embedded in bigger structures
-> and so on.
+On Tue, Jul 23, 2002 at 05:20:57PM -0400, Bill Davidsen wrote:
+> On Thu, 18 Jul 2002, Dominik Brodowski wrote:
 > 
-> So... I have created "generic_out_cast" which is like the old
-> list_entry but with an extra type arguement.
+> > An u8 was casted into an u32, then all 32 bits were set to zero, this
+> > causing another variable - in my case, processor flags - to be corrupted. 
+> > 
+> > Dominik
+> 
+> But that's not what's happening here, the pointer is being cast, if the
+> object of the pointer is not u32, then casting the pointer doesn't fix the
+> real problem. If the "data" pointer points to a u8, then no casting will
+> make it work right when you save 32 bits into an 8 bit space. If this
+> changes the problem it's because of alignment, perhaps.
+There is the argument "size" to acpi_hw_low_level_read which makes sure that
+only the right data is being read. Problem is that a sort of
+"segmentation fault" occurs when such a cast allows writing in different
+memory than allocated for the value.
+ 
+> You give neither the kernel version nor the architecture
+kernel version 2.5.2[5,6] or 2.4.-kernels with acpi-patch 20020709, 
+architecture: all architectures that implement Embedded Controllers.
 
-I don't think this is necessary.  The compiler can get this information
-from the type/member parameters and the typeof() call.
+> I think the cast is just to avoid the compiler whining about types, the
+> version I have is actually type "(acpi_generic_address*)" not (u32*), I
+> would think the compiler would still complain, but maybe only with
+> -pedantic or whatever.
+The casts were probably introduced for that reason. Per se, they are not
+critical - but if there is any assumption later on that the data structure
+is indeed of the large size, there is a problem.
 
-> Why "out_cast"???
-
-Ugh..  I had a similar naming dilemma - I choose BackPtr (because the
-macro causes a negative pointer offset).
-
--Kevin
-
--- 
- ------------------------------------------------------------------------
- | Kevin O'Connor                     "BTW, IMHO we need a FAQ for      |
- | kevin@koconnor.net                  'IMHO', 'FAQ', 'BTW', etc. !"    |
- ------------------------------------------------------------------------
+Dominik

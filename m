@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318816AbSHRDrw>; Sat, 17 Aug 2002 23:47:52 -0400
+	id <S318815AbSHRDoq>; Sat, 17 Aug 2002 23:44:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318818AbSHRDrw>; Sat, 17 Aug 2002 23:47:52 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:28176
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S318816AbSHRDrv>; Sat, 17 Aug 2002 23:47:51 -0400
-Subject: Re: [PATCH] (0/4) Entropy accounting fixes
-From: Robert Love <rml@tech9.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Oliver Xymoron <oxymoron@waste.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0208172001530.1491-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0208172001530.1491-100000@home.transmeta.com>
+	id <S318816AbSHRDop>; Sat, 17 Aug 2002 23:44:45 -0400
+Received: from 209-221-203-149.dsl.qnet.com ([209.221.203.149]:7433 "HELO
+	divino.rinspin.com") by vger.kernel.org with SMTP
+	id <S318815AbSHRDop>; Sat, 17 Aug 2002 23:44:45 -0400
+Subject: Re: IDE?  IDE-TNG driver
+From: Scott Bronson <bronson@rinspin.com>
+To: Scott Bronson <bronson@rinspin.com>
+Cc: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1029630519.1541.11.camel@emma>
+References: <Pine.LNX.4.44.0208172353330.3111-100000@sharra.ivimey.org> 
+	<1029630519.1541.11.camel@emma>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 17 Aug 2002 23:51:52 -0400
-Message-Id: <1029642713.863.2.camel@phantasy>
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 17 Aug 2002 20:47:30 -0700
+Message-Id: <1029642451.1599.2.camel@emma>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-08-17 at 23:05, Linus Torvalds wrote:
+> Everyone I've heard advocating a moduleless kernel uses an argument that
+> boils down to "it's slightly more secure."  Does anybody have a GOOD
+> reason for not using modules?  Obsolete or embedded hardware arguments
+> don't count.
 
-> This is particularly true on things like embedded routers, where the 
-> machine usually doesn't actually _run_ much user-level software, but is 
-> just shuffling packets back and forth. Your logic seems to make it not add 
-> any entropy from those packets, which can be _deadly_ if then the router 
-> is also used for occasionally generating some random numbers for other 
-> things.
+Someone replied off-list saying that initrds are too hard to create.
 
-Agreed.  Further, embedded routers - since they are headless/diskless -
-have problems even with the _current_ /dev/random code.  They simply do
-not generate enough entropy to fulfill sshd requests [1].
+That's true.  They are.  One day, hopefully that will change.
 
-Saying "use /dev/urandom" in this case means we may as well not have a
-/dev/random.  There is a difference between incorrect accounting (which
-it seems you have identified) and just too strict gathering behavior.
+Any other reasons?
 
-	Robert Love
+    - Scott
 
-[1] this is why I wrote my netdev-random patches.  some machines just
-    have to take the entropy from the network card... there is nothing
-    else.
+
+
 

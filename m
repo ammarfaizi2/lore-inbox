@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261346AbRELXge>; Sat, 12 May 2001 19:36:34 -0400
+	id <S261351AbRELXeO>; Sat, 12 May 2001 19:34:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261348AbRELXgY>; Sat, 12 May 2001 19:36:24 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29203 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261346AbRELXgQ>; Sat, 12 May 2001 19:36:16 -0400
+	id <S261346AbRELXeE>; Sat, 12 May 2001 19:34:04 -0400
+Received: from mail.inf.elte.hu ([157.181.161.6]:8404 "HELO mail.inf.elte.hu")
+	by vger.kernel.org with SMTP id <S261348AbRELXdu>;
+	Sat, 12 May 2001 19:33:50 -0400
+Date: Sun, 13 May 2001 01:33:48 +0200 (CEST)
+From: BERECZ Szabolcs <szabi@inf.elte.hu>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: mount /dev/hdb2 /usr; swapon /dev/hdb2  keeps flooding
-To: viro@math.psu.edu (Alexander Viro)
-Date: Sun, 13 May 2001 00:32:20 +0100 (BST)
-Cc: szabi@inf.elte.hu (BERECZ Szabolcs), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0105121921550.11973-100000@weyl.math.psu.edu> from "Alexander Viro" at May 12, 2001 07:23:38 PM
-X-Mailer: ELM [version 2.5 PL3]
+In-Reply-To: <Pine.GSO.4.21.0105121921550.11973-100000@weyl.math.psu.edu>
+Message-ID: <Pine.A41.4.31.0105130130060.19270-100000@pandora.inf.elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14yis0-0004c9-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > root@kama3:/home/szabi# cat /proc/mounts
-> > /dev/hdb2 /usr ext2 rw 0 0
-> > root@kama3:/home/szabi# swapon /dev/hdb2
-> 
+On Sat, 12 May 2001, Alexander Viro wrote:
+
 > - Doctor, it hurts when I do it!
 > - Don't do it, then.
-> 
+>
 > Just what behaviour had you expected?
+maybe that I don't have to shutdown?
+I think it's a *bad* behaviour
 
-EBUSY would be somewhat nicer.
+
+Bye,
+Szabi
+
+

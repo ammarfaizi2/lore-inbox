@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264085AbTFYBMe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 21:12:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTFYBKy
+	id S264186AbTFYBNP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 21:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264088AbTFYBMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 24 Jun 2003 21:12:46 -0400
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:62862 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S263631AbTFYBKy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 24 Jun 2003 21:10:54 -0400
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:54184 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S263462AbTFYBKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 21:10:41 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [RFC] My research agenda for 2.7
-Date: Wed, 25 Jun 2003 03:25:47 +0200
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <200306250111.01498.phillips@arcor.de> <200306250307.18291.phillips@arcor.de> <20030625011031.GP26348@holomorphy.com>
-In-Reply-To: <20030625011031.GP26348@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Date: Tue, 24 Jun 2003 20:59:57 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PnP Fixes for 2.5.73
+Message-ID: <20030624205957.GD14945@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	linux-kernel@vger.kernel.org
+References: <20030624205918.GC14945@neo.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306250325.47529.phillips@arcor.de>
+In-Reply-To: <20030624205918.GC14945@neo.rr.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 25 June 2003 03:10, William Lee Irwin III wrote:
-> On Wednesday 25 June 2003 02:47, William Lee Irwin III wrote:
-> >> Per struct address_space? This is an unnecessary limitation.
->
-> On Wed, Jun 25, 2003 at 03:07:18AM +0200, Daniel Phillips wrote:
-> > It's a sensible limitation, it keeps the radix tree lookup simple.
->
-> It severely limits its usefulness. Dropping in a more flexible data
-> structure should be fine.
-
-Eventually it could well make sense to do that, e.g., the radix tree 
-eventually ought to evolve into a btree of extents (probably).  But making 
-things so complex in the first version, thus losing much of the incremental 
-development advantage, would not be smart.  With a single size of page per 
-address_space,  changes to the radix tree code are limited to a couple of 
-lines, for example.
-
-But perhaps you'd like to supply some examples where more than one size of 
-page in the same address space really matters?
-
-> On Wednesday 25 June 2003 02:47, William Lee Irwin III wrote:
-> >> This gives me the same data structure proliferation chills as bh's.
->
-> On Wed, Jun 25, 2003 at 03:07:18AM +0200, Daniel Phillips wrote:
-> > It's not nearly as bad.  There is no distinction between subpage and base
-> > struct page for almost all page operations, e.g., locking, IO, data
-> > access.
->
-> But those are code sanitation issues. You need to make sure this
-> doesn't explode on PAE.
-
-Indeed, that is important.  Good night, see you tomorrow.
-
-Daniel
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1387  -> 1.1388 
+#	drivers/pnp/manager.c	1.8     -> 1.9    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/06/24	ambx1@neo.rr.com	1.1388
+# [PNP] Locking Fixes
+# 
+# The semaphore in pnp_init_resource_table is not needed and, in some
+# cases, can cause resource management lockups.  This patch removes the
+# improperly placed semaphore.
+# --------------------------------------------
+#
+diff -Nru a/drivers/pnp/manager.c b/drivers/pnp/manager.c
+--- a/drivers/pnp/manager.c	Tue Jun 24 20:34:17 2003
++++ b/drivers/pnp/manager.c	Tue Jun 24 20:34:17 2003
+@@ -193,7 +193,6 @@
+ void pnp_init_resource_table(struct pnp_resource_table *table)
+ {
+ 	int idx;
+-	down(&pnp_res_mutex);
+ 	for (idx = 0; idx < PNP_MAX_IRQ; idx++) {
+ 		table->irq_resource[idx].name = NULL;
+ 		table->irq_resource[idx].start = -1;
+@@ -218,7 +217,6 @@
+ 		table->mem_resource[idx].end = 0;
+ 		table->mem_resource[idx].flags = IORESOURCE_AUTO;
+ 	}
+-	up(&pnp_res_mutex);
+ }
+ 
+ /**

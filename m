@@ -1,86 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266647AbRGTGSm>; Fri, 20 Jul 2001 02:18:42 -0400
+	id <S266599AbRGTGRW>; Fri, 20 Jul 2001 02:17:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266629AbRGTGSX>; Fri, 20 Jul 2001 02:18:23 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:30221 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S266620AbRGTGST>;
-	Fri, 20 Jul 2001 02:18:19 -0400
-Date: Fri, 20 Jul 2001 10:18:21 +0400
-From: Andrey Panin <pazke@orbita1.ru>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] PnP BIOS: io range length bugfix
-Message-ID: <20010720101821.A23419@orbita1.ru>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="v9Ux+11Zm5mwPlX6"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Uptime: 10:03am  up 3 days, 39 min,  1 user,  load average: 0.15, 0.05, 0.01
-X-Uname: Linux orbita1.ru 2.2.20pre2-acl 
+	id <S266620AbRGTGRN>; Fri, 20 Jul 2001 02:17:13 -0400
+Received: from fe000.worldonline.dk ([212.54.64.194]:54796 "HELO
+	fe000.worldonline.dk") by vger.kernel.org with SMTP
+	id <S266599AbRGTGRE>; Fri, 20 Jul 2001 02:17:04 -0400
+Date: Fri, 20 Jul 2001 08:16:04 +0200 (CEST)
+From: Niels Kristian Bech Jensen <nkbj@image.dk>
+X-X-Sender: <nkbj@hafnium.nkbj.dk>
+To: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Oops in 2.4.7-pre9.
+Message-ID: <Pine.LNX.4.33.0107200815230.858-100000@hafnium.nkbj.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+I get this oops while booting 2.4.7-pre9:
 
---v9Ux+11Zm5mwPlX6
-Content-Type: multipart/mixed; boundary="a8Wt8u1KmwUX3Y2C"
-Content-Disposition: inline
+Jul 20 08:01:52 hafnium kernel: Unable to handle kernel NULL pointer dereference at virtual address 0000007c
+Jul 20 08:01:52 hafnium kernel: c01467e3
+Jul 20 08:01:52 hafnium kernel: *pde = 00000000
+Jul 20 08:01:52 hafnium kernel: Oops: 0000
+Jul 20 08:01:52 hafnium kernel: CPU:    0
+Jul 20 08:01:52 hafnium kernel: EIP:    0010:[proc_pid_make_inode+131/176]
+Jul 20 08:01:52 hafnium kernel: EIP:    0010:[<c01467e3>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+Jul 20 08:01:52 hafnium kernel: EFLAGS: 00010206
+Jul 20 08:01:52 hafnium kernel: eax: 00000000   ebx: c11ba000   ecx: c48c89c0   edx: c104b578
+Jul 20 08:01:52 hafnium kernel: esi: c11ed000   edi: 0000000b   ebp: c01e0ca0   esp: c493de68
+Jul 20 08:01:52 hafnium kernel: ds: 0018   es: 0018   ss: 0018
+Jul 20 08:01:52 hafnium kernel: Process pidof (pid: 177, stackpage=c493d000)
+Jul 20 08:01:52 hafnium kernel: Stack: c11ba000 0000000b c01bf0aa c0146a3a c11ed000 c11ba000 0000000b c11ba000
+Jul 20 08:01:52 hafnium kernel:        ffffffea fffffff4 c01406a8 c1157e08 000000f0 c4b6c9a0 fffffff4 c48c87e0
+Jul 20 08:01:52 hafnium kernel:        c4b6c920 c01388cf c48c87e0 c4b6c9a0 c493df00 c4b6c920 c4b6c920 c4fee00c
+Jul 20 08:01:52 hafnium kernel: Call Trace: [proc_base_lookup+138/544] [d_alloc+24/368] [real_lookup+79/192] [path_walk+1409/2000] [destroy_inode+48/64] [open_namei+124/1360] [filp_open+52/96]
+Jul 20 08:01:52 hafnium kernel: Call Trace: [<c0146a3a>] [<c01406a8>] [<c01388cf>] [<c0138fd1>] [<c0141050>] [<c013972c>] [<c012e334>]
+Jul 20 08:01:52 hafnium kernel:        [<c013861f>] [<c012e636>] [<c0106cf3>]
+Jul 20 08:01:52 hafnium kernel: Code: f6 40 7c 01 74 12 8b 83 24 01 00 00 89 41 30 8b 83 34 01 00
+
+>>EIP; c01467e3 <proc_pid_make_inode+83/b0>   <=====
+Trace; c0146a3a <proc_base_lookup+8a/220>
+Trace; c01406a8 <d_alloc+18/170>
+Trace; c01388cf <real_lookup+4f/c0>
+Trace; c0138fd1 <path_walk+581/7d0>
+Trace; c0141050 <destroy_inode+30/40>
+Trace; c013972c <open_namei+7c/550>
+Trace; c012e334 <filp_open+34/60>
+Trace; c013861f <getname+5f/a0>
+Trace; c012e636 <sys_open+36/b0>
+Trace; c0106cf3 <system_call+33/40>
+Code;  c01467e3 <proc_pid_make_inode+83/b0>
+00000000 <_EIP>:
+Code;  c01467e3 <proc_pid_make_inode+83/b0>   <=====
+   0:   f6 40 7c 01               testb  $0x1,0x7c(%eax)   <=====
+Code;  c01467e7 <proc_pid_make_inode+87/b0>
+   4:   74 12                     je     18 <_EIP+0x18> c01467fb <proc_pid_make_inode+9b/b0>
+Code;  c01467e9 <proc_pid_make_inode+89/b0>
+   6:   8b 83 24 01 00 00         mov    0x124(%ebx),%eax
+Code;  c01467ef <proc_pid_make_inode+8f/b0>
+   c:   89 41 30                  mov    %eax,0x30(%ecx)
+Code;  c01467f2 <proc_pid_make_inode+92/b0>
+   f:   8b 83 34 01 00 00         mov    0x134(%ebx),%eax
 
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hi all,
+-- 
+Niels Kristian Bech Jensen -- nkbj@image.dk -- http://www.image.dk/~nkbj/
 
-this patch fixes bug in pnpbios_rawdata_2_pci_dev() - miscalculated length =
-of
-ioport range. This function uses word at offset 6 in I/O Port Descriptor,=
-=20
-but according to ISA PnP specification ioport range length is a byte at off=
-set 7
-and byte 6 is base alignment.
+----------->>  Stop software piracy --- use free software!  <<-----------
 
-BTW will it usefull to implement PnP device naming function ?
-
-Best regards.
-
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
-.asc
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-pnpBIOS-2
-
-diff -urN -X /usr/dontdiff /linux.vanilla/drivers/pnp/pnp_bios.c /linux/drivers/pnp/pnp_bios.c
---- /linux.vanilla/drivers/pnp/pnp_bios.c	Tue Jul 17 23:11:14 2001
-+++ /linux/drivers/pnp/pnp_bios.c	Sat Jul 21 00:08:38 2001
-@@ -669,7 +669,7 @@
-                         break;
-                 case 0x08: // io
- 			io= p[2] + p[3] *256;
--			len= p[6] + p[7] *256;
-+			len = p[7];
- 			i=0;
-                         while(pci_dev->resource[i].start && i<DEVICE_COUNT_RESOURCE)
-                                 i++;
-
---a8Wt8u1KmwUX3Y2C--
-
---v9Ux+11Zm5mwPlX6
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7V80tBm4rlNOo3YgRAiYsAJ9z8GNT5YFRoWH+q2J+luZ9wEVJ7gCeI9sZ
-L8glTQ0hhQn8cALyAifq1hQ=
-=Rs1I
------END PGP SIGNATURE-----
-
---v9Ux+11Zm5mwPlX6--

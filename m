@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291354AbSBGWMh>; Thu, 7 Feb 2002 17:12:37 -0500
+	id <S288153AbSBGWOR>; Thu, 7 Feb 2002 17:14:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288153AbSBGWM2>; Thu, 7 Feb 2002 17:12:28 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:13830 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S291354AbSBGWMT>;
-	Thu, 7 Feb 2002 17:12:19 -0500
-Date: Thu, 7 Feb 2002 20:12:13 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Louis Garcia <louisg00@bellsouth.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with rmap-12c
-In-Reply-To: <1013114437.1619.22.camel@tiger>
-Message-ID: <Pine.LNX.4.33L.0202072006010.17850-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291386AbSBGWOD>; Thu, 7 Feb 2002 17:14:03 -0500
+Received: from barbados.bluemug.com ([63.195.182.101]:25866 "EHLO
+	barbados.bluemug.com") by vger.kernel.org with ESMTP
+	id <S288153AbSBGWNm>; Thu, 7 Feb 2002 17:13:42 -0500
+Date: Thu, 7 Feb 2002 14:13:36 -0800
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: "H. Peter Anvin" <hpa@zytor.com>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: How to check the kernel compile options ?
+Message-ID: <20020207221336.GD27645@bluemug.com>
+Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <a3mjhc$qba$1@cesium.transmeta.com> <E16Yvmf-00015n-00@starship.berlin> <20020207214145.GA27645@bluemug.com> <E16Ywj7-00016Y-00@starship.berlin>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16Ywj7-00016Y-00@starship.berlin>
+X-PGP-ID: 5C09BB33
+X-PGP-Fingerprint: C518 67A5 F5C5 C784 A196  B480 5C97 3BBD 5C09 BB33
+From: Mike Touloumtzis <miket@bluemug.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 Feb 2002, Louis Garcia wrote:
+On Thu, Feb 07, 2002 at 11:09:09PM +0100, Daniel Phillips wrote:
+> On February 7, 2002 10:41 pm, Mike Touloumtzis wrote:
+> > Adding configuration information to the kernel is a change to the status
+> > quo, and has a cost.  The cost is small, but I'm unsympathetic to that
+> > argument because many small convenience features, each with a small cost,
+> > add up to a large cost.
+> 
+> The cost is *zero* if you don't enable the option, is this concept difficult
+> for you?
 
-> I tried rmap-12c and had lots of swap usage. I when back to 12a and
-> everything calmed down. Is their a known problem with 12c?
+That argument can be used to justify almost anything.  But it's not
+zero maintenance cost or code complexity cost.  No one wants the kernel
+to be an unmaintainable nest of CONFIG_FOO and #ifdef BAR because of
+"zero cost" options.
 
-Nope, but the RSS limit enforcing stuff is a possible
-suspect.
-
-It turns out I used a "struct pte_t" in over_rss_limit(),
-which turned into a compiler warning, for which I didn't
-spot the cause ;)
-
-A fix for the bug was sent by Roger Larsson, who spotted
-the fact that "pte_t" already has a "struct" inside it.
-
-Maybe page aging isn't working in rmap-12c because of this
-stupid mistake ... but it's a long shot.  Maybe I should
-release rmap 12d tonight ? ;)
-
-regards,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+miket

@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284788AbRLEWu6>; Wed, 5 Dec 2001 17:50:58 -0500
+	id <S284794AbRLEWyS>; Wed, 5 Dec 2001 17:54:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284789AbRLEWut>; Wed, 5 Dec 2001 17:50:49 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:49074 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S284788AbRLEWuk>; Wed, 5 Dec 2001 17:50:40 -0500
-Date: Wed, 5 Dec 2001 17:50:17 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Michael Clark <michael@metaparadigm.com>
-Cc: Rob Myers <rob.myers@gtri.gatech.edu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] - 2.4.16 ns83820 optical support (Netgear GA621)
-Message-ID: <20011205175017.B25214@redhat.com>
-In-Reply-To: <3C0CED3B.7030409@metaparadigm.com> <1007501048.14051.28.camel@ransom> <3C0D7CEA.2050307@metaparadigm.com>
+	id <S284792AbRLEWyI>; Wed, 5 Dec 2001 17:54:08 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:49455 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S284794AbRLEWxs>; Wed, 5 Dec 2001 17:53:48 -0500
+Date: Thu, 6 Dec 2001 00:53:42 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Anthony DeRobertis <asd@suespammers.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HPT370 (KT7A-RAID) *corrupts* data - SAMSUNG SV8004H does it as well
+Message-ID: <20011206005342.D12063@niksula.cs.hut.fi>
+In-Reply-To: <20011201115803.B10839@viasys.com> <8519E629-E905-11D5-828E-00039355CFA6@suespammers.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C0D7CEA.2050307@metaparadigm.com>; from michael@metaparadigm.com on Wed, Dec 05, 2001 at 09:48:26AM +0800
+In-Reply-To: <8519E629-E905-11D5-828E-00039355CFA6@suespammers.org>; from asd@suespammers.org on Tue, Dec 04, 2001 at 05:23:19PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 05, 2001 at 09:48:26AM +0800, Michael Clark wrote:
-> The code reads a 64bit detect flag from the ns chip - so I guess it
-> must be bogus with some motherboards. Mine is okay. Ben??
+On Tue, Dec 04, 2001 at 05:23:19PM -0500, you [Anthony DeRobertis] claimed:
+> Setup here is:
+> 
+> hde: WDC WD200EB-00BHF0, ATA DISK drive
+> hdg: WDC WD200EB-00BHF0, ATA DISK drive
+> 
+> hde: 39102336 sectors (20020 MB) w/2048KiB Cache, 
+> CHS=38792/16/63, UDMA(100)
+> hdg: 39102336 sectors (20020 MB) w/2048KiB Cache, 
+> CHS=38792/16/63, UDMA(100)
+> 
+> 5GB of each in RAID0 on /dev/md/2
+> 
+> cat /dev/md/2 | md5sum now done its fourth run; all OK. 
+> 920b175a519b578dcd7862b720eb9efb, if you care ;-)
 
-Actually, it's 64 bit addressing that it detects.  I'll change the 
-message to reflect this.
+I do care (not of the sum, but of the fact your sums are consistent). Thank
+you for testing!
+ 
+> This is 2.4.6, on a KT7-RAID board.
 
-> Okay, so i'll move the register_netdev call earlier on in the
-> initialisation and add any necessary unregister call for failures.
+So it is KT7-RAID, not KT7A-RAID like mine... Could that have something to
+do with it...
 
-Thanks for the patch -- I've now just got to add subsystem id support to 
-catch an odd 83820 on a motherboard setup that has different polarity for 
-the duplex + speed inputs.  Why do hardware vendors have to be different?
 
-		-ben
+-- v --
+
+v@iki.fi

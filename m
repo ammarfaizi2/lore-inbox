@@ -1,37 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266995AbSL3QMB>; Mon, 30 Dec 2002 11:12:01 -0500
+	id <S266994AbSL3QVc>; Mon, 30 Dec 2002 11:21:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266996AbSL3QMB>; Mon, 30 Dec 2002 11:12:01 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:28545
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266995AbSL3QMA>; Mon, 30 Dec 2002 11:12:00 -0500
-Subject: Re: APIC with SIS
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021230170822.1b79ebb3.skraw@ithnet.com>
-References: <20021230170822.1b79ebb3.skraw@ithnet.com>
-Content-Type: text/plain
+	id <S266996AbSL3QVb>; Mon, 30 Dec 2002 11:21:31 -0500
+Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:39331 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S266994AbSL3QVb>; Mon, 30 Dec 2002 11:21:31 -0500
+Message-ID: <20021230162948.15812.qmail@mail.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 30 Dec 2002 17:02:03 +0000
-Message-Id: <1041267723.13956.24.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Luca z" <luca22@mail.com>
+To: linux-kernel@vger.kernel.org
+Date: Mon, 30 Dec 2002 11:29:48 -0500
+X-Originating-Ip: 151.29.249.112
+X-Originating-Server: ws1-11.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-12-30 at 16:08, Stephan von Krawczynski wrote:
-> Hello,
-> 
-> can any kind soul tell me the chances for implementation of:
-> 
-> <6>PCI: Using IRQ router SIS [1039/0008] at 00:01.0
-> <6>SiS pirq: advanced IDE/ACPI/DAQ mapping not yet implemented
-> 
-> in 2.4 ?
-> This message shows up if enabling APIC on boards with SIS630 chipset.
+Hello,
 
-You need some kernel patches, updated ACPI and ACPI enabled to use the
-SIS APIC in this setup
+I have this CD burner: Vendor: ARTEC Model: WRR-4848,
+ide-scsi is loaded and it burns CDs fine, but it can't blank
+them.
+
+I do cdrecord -blank=<foo> dev=x,y,z
+and i got this in the log, it repeats every second:
+
+Dec 30 16:19:46 koala kernel: scsi : aborting command due to timeout
+: pid 5233
+8, scsi0, channel 0, id 1, lun 0 Read (10) 00 00 13 80 dd 00 00 01 00 
+Dec 30 16:19:46 koala kernel: SCSI host 0 abort (pid 52338) timed out
+- resetti
+ng
+
+after a while:
+Dec 30 16:32:47 koala kernel: SCSI bus is being reset for host 0
+channel 0.
+Dec 30 16:32:48 koala kernel: scsi : aborting command due to timeout
+: pid 5234
+0, scsi0, channel 0, id 0, lun 0 Test Unit Ready 00 00 00 00 00 
+Dec 30 16:32:48 koala kernel: SCSI host 0 abort (pid 52340) timed out
+- resetti
+ng
+
+and after some time it hard freezes, nothing responds, i can't switch
+numlock
+off and i can't change to console (i am in XWindow).
+
+I can reproduce it every time, the kernel is from the
+kernel-image-2.4.18-686 debian package (sid).
+
+I can provide more informations if you want.
+-- 
+__________________________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
+
+Meet Singles
+http://corp.mail.com/lavalife
 

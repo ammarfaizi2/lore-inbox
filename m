@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284972AbRLFEhc>; Wed, 5 Dec 2001 23:37:32 -0500
+	id <S285000AbRLFF5c>; Thu, 6 Dec 2001 00:57:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284973AbRLFEhX>; Wed, 5 Dec 2001 23:37:23 -0500
-Received: from [12.36.112.226] ([12.36.112.226]:28656 "EHLO golux.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S284972AbRLFEhO>;
-	Wed, 5 Dec 2001 23:37:14 -0500
-Date: Wed, 5 Dec 2001 19:37:29 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Rob Landley <landley@trommello.org>
-Cc: =?iso-8859-1?Q?Ra=FAlN=FA=F1ez_de_Arenas_Coronado?= 
-	<raul@viadomus.com>,
-        esr@snark.thyrsus.com, linux-kernel@vger.kernel.org
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011205193729.A31515@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Rob Landley <landley@trommello.org>,
-	=?iso-8859-1?Q?Ra=FAlN=FA=F1ez_de_Arenas_Coronado?= <raul@viadomus.com>,
-	esr@snark.thyrsus.com, linux-kernel@vger.kernel.org
-In-Reply-To: <E16BKL5-0001yJ-00@DervishD.viadomus.com> <20011206001610.OQGR485.femail3.sdc1.sfba.home.com@there>
+	id <S284826AbRLFF5W>; Thu, 6 Dec 2001 00:57:22 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:60178 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S283938AbRLFF5H>; Thu, 6 Dec 2001 00:57:07 -0500
+Date: Fri, 30 Nov 2001 22:04:29 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Rolf Fokkens <fokkensr@linux06.vertis.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] vanilla 2.4.15 iptables/REDIRECT kernel oops
+Message-Id: <20011130220429.18d5303d.rusty@rustcorp.com.au>
+In-Reply-To: <200111271143.MAA11403@linux06.vertis.nl>
+In-Reply-To: <200111271143.MAA11403@linux06.vertis.nl>
+X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011206001610.OQGR485.femail3.sdc1.sfba.home.com@there>; from landley@trommello.org on Wed, Dec 05, 2001 at 11:14:16AM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley <landley@trommello.org>:
-> Eric's stated that there's a net reduction in the number of dispirate tools 
-> needed to configure the kernel.  There's certainly less in terms of lines of 
-> code...
+On Tue, 27 Nov 2001 12:43:09 +0100
+Rolf Fokkens <fokkensr@linux06.vertis.nl> wrote:
 
-Actually, I haven't.  I have stated that I *know how* to get a net reduction, 
-but that I haven't done that work yet.  After CML2 drops in I will do that 
-work.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+> I got another kernel oops related to iptables/REDIRECT, this time it's a plain vanilla kernel 2.4.15
 
-The real point of audits is to instill fear, not to extract revenue;
-the IRS aims at winning through intimidation and (thereby) getting
-maximum voluntary compliance
-	-- Paul Strassel, former IRS Headquarters Agent Wall St. Journal 1980
+Hi Rolf!
+
+	This bug does not exist in the final 2.4.15: it was my mistake in
+the pre- kernels, and was removed for 2.4.15.  Please check again.
+
+Hope that helps,
+Rusty.
+

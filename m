@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278810AbRJZSCF>; Fri, 26 Oct 2001 14:02:05 -0400
+	id <S278763AbRJZRMk>; Fri, 26 Oct 2001 13:12:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278818AbRJZSBv>; Fri, 26 Oct 2001 14:01:51 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:41737 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S278815AbRJZSBm>;
-	Fri, 26 Oct 2001 14:01:42 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Sebastian Heidl <heidl@zib.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: kbuild-2.5-2.4.11-pre5-1 on 2.4.13 -- failure 
-In-Reply-To: Your message of "Fri, 26 Oct 2001 16:55:31 +0200."
-             <20011026165531.R19509@csr-pc1.zib.de> 
+	id <S278759AbRJZRMa>; Fri, 26 Oct 2001 13:12:30 -0400
+Received: from t2.redhat.com ([199.183.24.243]:61175 "EHLO dot.cygnus.com")
+	by vger.kernel.org with ESMTP id <S278746AbRJZRM0>;
+	Fri, 26 Oct 2001 13:12:26 -0400
+Date: Fri, 26 Oct 2001 10:11:45 -0700
+From: Richard Henderson <rth@redhat.com>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, torvalds@transmeta.com,
+        alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: alpha 2.4.13: fix taso osf emulation
+Message-ID: <20011026101145.D1663@redhat.com>
+In-Reply-To: <20011026013101.A1404@redhat.com> <Pine.GSO.3.96.1011026113847.14048A-100000@delta.ds2.pg.gda.pl> <20011026144522.B18880@jurassic.park.msu.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 27 Oct 2001 04:02:07 +1000
-Message-ID: <10033.1004119327@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011026144522.B18880@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Fri, Oct 26, 2001 at 02:45:22PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Oct 2001 16:55:31 +0200, 
-Sebastian Heidl <heidl@zib.de> wrote:
->Rereading input trees to get new config timestamps
->  phase 2 (evaluate selections)
->pp_makefile2: Cannot find source for target fs/ext2/acl.o
->make: *** [/usr/src/kernel/linux-2.4.13/.tmp_targets] Error 1
+On Fri, Oct 26, 2001 at 02:45:22PM +0400, Ivan Kokshaysky wrote:
+>  find_vma() only after VM wraparound, which is extremely rare;
+>  keeps osf /sbin/loader happy, so no need for alpha-specific routine.
 
-fs/ext/acl.c has been deleted since 2.4.11-pre5, fs/ext/Makefile.in is
-for 2.4.11-pre5 so it still refers to acl.o.  To use a kbuild 2.5 patch
-against a newer kernel you have to identify all Makefile changes since
-the kernel that kbuild 2.5 was issued against and make the
-corresponding changes to the Makefile.in files.
+Yes there is, since TASO applications need to wrap at 1<<31, 
+not TASK_SIZE.  Note that TASK_SIZE should _not_ be changed
+for TASO applications, since they can explicitly map memory
+above 4G.  An example here is em86, in which the low 4G is
+reserved for the emulated program, and the emulator lives in
+high memory.
 
+> Patch appended, comments?
+
+I think you're working too hard to make this "efficient", and
+in the process making the code hard to read.  A subroutine
+containing a simple search-forward loop is just as effective.
+
+
+r~

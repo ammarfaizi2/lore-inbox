@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269387AbRHaV2i>; Fri, 31 Aug 2001 17:28:38 -0400
+	id <S269404AbRHaVtv>; Fri, 31 Aug 2001 17:49:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269390AbRHaV23>; Fri, 31 Aug 2001 17:28:29 -0400
-Received: from e22.nc.us.ibm.com ([32.97.136.228]:19876 "EHLO
-	e22.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S269387AbRHaV2N>; Fri, 31 Aug 2001 17:28:13 -0400
-Subject: Announcing Journaled File System (JFS)  release 1.0.4 available
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF1FB25572.4B2FACA2-ON85256AB9.007597A0@raleigh.ibm.com>
-From: "Steve Best" <sbest@us.ibm.com>
-Date: Fri, 31 Aug 2001 16:27:14 -0500
-X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
- 08/31/2001 05:27:14 PM
+	id <S269417AbRHaVtm>; Fri, 31 Aug 2001 17:49:42 -0400
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:36291 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S269404AbRHaVtb>; Fri, 31 Aug 2001 17:49:31 -0400
+Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDE0DB@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Russell Coker'" <russell@coker.com.au>,
+        "Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: lilo vs other OS bootloaders was: FreeBSD makes progress
+Date: Fri, 31 Aug 2001 14:49:04 -0700
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 1.0.4 of JFS was made available today.
+OK, sounds like enhancing LILO to load modules beyond the kernel is
+unworkable.
 
-Drop 42 on August 31, 2001 (jfs-2.2-1.0.4-patch.tar.gz
-or jfs-2.4-1.0.4-patch.tar.gz) includes fixes to the
-file system and utilities.
+Just for discussion's sake, I would like to point out that other OSs do have
+loaders that can load boot drivers, and they can use this to increase the
+modularity of their kernel. FreeBSD's and Win2k's bootloaders are examples.
+Win2K even abstracts all SMP/UP code into a module (the HAL) and loads this
+at boot, thus using the same kernel for both.
 
-Function and Fixes in release 1.0.4
+So of course I realize this wouldn't happen any time soon, but has any
+discussion taken place regarding enhancing the bootloader (grub? Steal
+FreeBSD's?) to load modular drivers very early, and possibly abstracting
+SMP/UP from the kernel proper? Wouldn't this be a better solution than
+initrd?
 
-- Fixed typecast problem causing intermittent fsck failures on
-  64 bit hardware (jitterbug 159)
-- Fixed pointer calculation problem causing intermittent fsck
-  failures on 64 bit hardware
-- Fixed compiler warnings on s/390 and IA64
-- Fixed structure size mismatch between file system and utilities
-  causing fsck problems when large numbers of inodes are used
-- Fixed seg fault in fsck when logging path lengths greater than
-  512 characters
-- Fixed fsck printf format errors
-- Fixed compiler warnings in the FS when building on 64 bits systems
-- Fixed deadlock where jfsCommit hung in hold_metapage
-- Fixed problems with remount
-- Reserve metapages for jfsCommit thread
-- Get rid of buggy invalidate_metapage & use discard_metapage
-- Don't hand metapages to jfsIOthread (too many context switches)
-  (jitterbug 125, bugzilla 238)
-- Fix error message in jfs_strtoUCS
+Just curious -- Andy
 
 
-For more details about JFS, please see the README or changelog.jfs.
-
-Steve
-JFS for Linux http://oss.software.ibm.com/jfs
-
+> From: Russell Coker [mailto:russell@coker.com.au]
+> > It would be really cool if lilo or grub could pull this 
+> trick, too. Without
+> > it, we're left with compiling ACPI into the kernel, or 
+> doing some initrd
+> > trick, both of which have disadvantages.
+> 
+> LILO is architecturally incapable of doing such things 
+> without a huge degree 
+> of hacking.  LILO has no support for .b files that set state. 
+>  Having a .b 
+> file that loads one of two other files depending on what it 
+> detects would be 
+> possible (but a gross hack).
+> 
+> Then if LILO determined that ACPI hardware was present how 
+> would it tell the 
+> kernel to load a module?
+> 
+> Having a statically linked program on an initrd which will 
+> run "modprobe 
+> acpi" if it detects appropriate hardware is very easy to do 
+> for an install or 
+> rescue disk.
+> 
+> For a running system the scripts that make the initrd image 
+> can check for the 
+> presence of ACPI to determine whether the ACPI module belongs 
+> in the initrd.

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267685AbUG3OGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267687AbUG3OM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267685AbUG3OGv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 10:06:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267684AbUG3OGu
+	id S267687AbUG3OM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 10:12:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267688AbUG3OM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 10:06:50 -0400
-Received: from mail1.slu.se ([130.238.96.11]:967 "EHLO mail1.slu.se")
-	by vger.kernel.org with ESMTP id S267682AbUG3OGJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 10:06:09 -0400
+	Fri, 30 Jul 2004 10:12:57 -0400
+Received: from mail1.slu.se ([130.238.96.11]:50632 "EHLO mail1.slu.se")
+	by vger.kernel.org with ESMTP id S267687AbUG3OMw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 10:12:52 -0400
 From: Robert Olsson <Robert.Olsson@data.slu.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16650.21955.869485.332365@robur.slu.se>
-Date: Fri, 30 Jul 2004 16:05:55 +0200
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-ID: <16650.22357.261909.257155@robur.slu.se>
+Date: Fri, 30 Jul 2004 16:12:37 +0200
 To: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
 Cc: Robert Olsson <Robert.Olsson@data.slu.se>,
        Francois Romieu <romieu@fr.zoreil.com>,
@@ -33,17 +33,10 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Pasi Sjoholm writes:
 
- > I don't remember if I have said this but when the ksoftirqd has started to 
- > take all the cpu-time there is no way to stop it excluding booting 
- > computer. You can kill or stop all the processes which are taking your 
- > cpu-time (ie. source compiling) but network wont start to work or neither 
- > there is no free cpu-time for use because ksoftirqd won't stop eating it.
+ > I can do that after couple of days.. I have to get married tomorrow and 
+ > spend some time with my wife. =)
 
- No you didn't then it seems you are hit by some bug. Have the bug happen.
- Kill userland processes like as you did. Try find out what's running. I would 
- look in /proc/interrupt /proc/net/softnet_stat /proc/net/dev or maybe best to 
- take a profile if possible or Magic SysRq to find out what's looping. Also try
- ifconfig down.
+ Gratulerar! 
+ Jag höll på missa det. No hurry for me I have a couple of days off.
 
- Cheers.
 						--ro

@@ -1,17 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290841AbSBLJIT>; Tue, 12 Feb 2002 04:08:19 -0500
+	id <S290845AbSBLJJR>; Tue, 12 Feb 2002 04:09:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290845AbSBLJIJ>; Tue, 12 Feb 2002 04:08:09 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:38153 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S290839AbSBLJIA>;
-	Tue, 12 Feb 2002 04:08:00 -0500
-Date: Mon, 11 Feb 2002 21:48:11 +0100
+	id <S290839AbSBLJIW>; Tue, 12 Feb 2002 04:08:22 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:59145 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S290850AbSBLJIN>;
+	Tue, 12 Feb 2002 04:08:13 -0500
+Date: Mon, 11 Feb 2002 23:11:03 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-        Patrick Mochel <mochel@osdl.org>
-Subject: Small notes about /proc/driver
-Message-ID: <20020211204811.GA131@elf.ucw.cz>
+To: Jens Axboe <axboe@suse.de>, kernel list <linux-kernel@vger.kernel.org>
+Subject: another IDE cleanup: kill duplicated code
+Message-ID: <20020211221102.GA131@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,18 +21,91 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-root@amd:/proc/driver/root/pci0/00:02.0# cat irq
-11root@amd:/proc/driver/root/pci0/00:02.0#
-root@amd:/proc/driver/root/pci0/00:02.0# cat power
-0
-root@amd:/proc/driver/root/pci0/00:02.0# cat resources
+This is slightly longer but also simple cleanup. It kills code
+duplication and removes unneccessary assignments/casts. Please apply,
 
--> irq does not include newline while power does. Probably irq should
-add a newline for consistency.
+								Pavel
 
-I briefly tested usb support in driver. You really should figure out
-some name ;-).
-									Pavel
+--- clean-pre3/drivers/ide/ide-disk.c	Sat Feb  9 23:00:02 2002
++++ linux-dm-pre3/drivers/ide/ide-disk.c	Sun Feb 10 00:06:31 2002
+@@ -172,6 +167,16 @@
+ 		return WIN_NOP;
+ }
+ 
++static void fill_args (ide_task_t *args, struct hd_drive_task_hdr *taskfile, struct hd_drive_hob_hdr *hobfile)
++{
++	memcpy(args->tfRegister, taskfile, sizeof(struct hd_drive_task_hdr));
++	memcpy(args->hobRegister, hobfile, sizeof(struct hd_drive_hob_hdr));
++	args->command_type	= ide_cmd_type_parser(args);
++	args->prehandler	= ide_pre_handler_parser(taskfile, hobfile);
++	args->handler		= ide_handler_parser(taskfile, hobfile);
++	args->posthandler	= NULL;
++}
++
+ static ide_startstop_t chs_rw_disk (ide_drive_t *drive, struct request *rq, unsigned long block)
+ {
+ 	struct hd_drive_task_hdr	taskfile;
+@@ -210,16 +215,10 @@
+ 	printk("buffer=0x%08lx\n", (unsigned long) rq->buffer);
+ #endif
+ 
+-	memcpy(args.tfRegister, &taskfile, sizeof(struct hd_drive_task_hdr));
+-	memcpy(args.hobRegister, &hobfile, sizeof(struct hd_drive_hob_hdr));
+-	args.command_type	= ide_cmd_type_parser(&args);
+-	args.prehandler		= ide_pre_handler_parser(&taskfile, &hobfile);
+-	args.handler		= ide_handler_parser(&taskfile, &hobfile);
+-	args.posthandler	= NULL;
+-	args.rq			= (struct request *) rq;
++	fill_args(&args, &taskfile, &hobfile);
++	args.rq			= rq;
+ 	args.block		= block;
+-	rq->special		= NULL;
+-	rq->special		= (ide_task_t *)&args;
++	rq->special		= &args;
+ 
+ 	return do_rw_taskfile(drive, &args);
+ }
+@@ -257,16 +255,10 @@
+ 	printk("buffer=0x%08lx\n", (unsigned long) rq->buffer);
+ #endif
+ 
+-	memcpy(args.tfRegister, &taskfile, sizeof(struct hd_drive_task_hdr));
+-	memcpy(args.hobRegister, &hobfile, sizeof(struct hd_drive_hob_hdr));
+-	args.command_type	= ide_cmd_type_parser(&args);
+-	args.prehandler		= ide_pre_handler_parser(&taskfile, &hobfile);
+-	args.handler		= ide_handler_parser(&taskfile, &hobfile);
+-	args.posthandler	= NULL;
+-	args.rq			= (struct request *) rq;
++	fill_args(&args, &taskfile, &hobfile);
++	args.rq			= rq;
+ 	args.block		= block;
+-	rq->special		= NULL;
+-	rq->special		= (ide_task_t *)&args;
++	rq->special		= &args;
+ 
+ 	return do_rw_taskfile(drive, &args);
+ }
+@@ -321,16 +313,10 @@
+ 	printk("buffer=0x%08lx\n", (unsigned long) rq->buffer);
+ #endif
+ 
+-	memcpy(args.tfRegister, &taskfile, sizeof(struct hd_drive_task_hdr));
+-	memcpy(args.hobRegister, &hobfile, sizeof(struct hd_drive_hob_hdr));
+-	args.command_type	= ide_cmd_type_parser(&args);
+-	args.prehandler		= ide_pre_handler_parser(&taskfile, &hobfile);
+-	args.handler		= ide_handler_parser(&taskfile, &hobfile);
+-	args.posthandler	= NULL;
+-	args.rq			= (struct request *) rq;
++	fill_args(&args, &taskfile, &hobfile);
++	args.rq			= rq;
+ 	args.block		= block;
+-	rq->special		= NULL;
+-	rq->special		= (ide_task_t *)&args;
++	rq->special		= &args;
+ 
+ 	return do_rw_taskfile(drive, &args);
+ }
+
 -- 
 (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
 no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

@@ -1,66 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129104AbRBPBnu>; Thu, 15 Feb 2001 20:43:50 -0500
+	id <S129107AbRBPCZC>; Thu, 15 Feb 2001 21:25:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129321AbRBPBnl>; Thu, 15 Feb 2001 20:43:41 -0500
-Received: from mail.valinux.com ([198.186.202.175]:54289 "EHLO
-	mail.valinux.com") by vger.kernel.org with ESMTP id <S129104AbRBPBnW>;
-	Thu, 15 Feb 2001 20:43:22 -0500
-Message-ID: <3A8C85B9.610D0C06@valinux.com>
-Date: Thu, 15 Feb 2001 17:43:21 -0800
-From: Samuel Flory <sflory@valinux.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre11-va1.7smp i686)
-X-Accept-Language: en
+	id <S129138AbRBPCYx>; Thu, 15 Feb 2001 21:24:53 -0500
+Received: from HSE-Montreal-ppp103309.qc.sympatico.ca ([64.230.176.130]:11027
+	"EHLO mx1.lcis.net") by vger.kernel.org with ESMTP
+	id <S129107AbRBPCYg>; Thu, 15 Feb 2001 21:24:36 -0500
+Date: Thu, 15 Feb 2001 21:24:10 -0500 (EST)
+From: "Gord R. Lamb" <glamb@lcis.dyndns.org>
+X-X-Sender: <glamb@localhost.localdomain>
+To: Tom Sightler <ttsig@tuxyturvy.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Samba performance / zero-copy network I/O
+In-Reply-To: <982190431.3a8b095f4b3c4@eargle.com>
+Message-ID: <Pine.LNX.4.32.0102152111210.1074-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: "tytso@valinux.com" <tytso@valinux.com>
-Subject: mke2fs and kernel VM issues
-In-Reply-To: <Pine.LNX.4.30.0102151634380.16783-100000@ns-01.hislinuxbox.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  What is believed to be the current status of the typical mke2fs
-crashes/hangs due to vm issues?  I can reliably reproduce the issue on a
-heavily modifed VA kernel based on 2.2.18.  Is there a kernel which is
-believed to be a known good kernel?  (both 2.2.x and 2.4.x)
+On Wed, 14 Feb 2001, Tom Sightler wrote:
 
-Failure pattern:
+> Quoting "Gord R. Lamb" <glamb@lcis.dyndns.org>:
+>
+> > On Wed, 14 Feb 2001, Jeremy Jackson wrote:
+> >
+> > > "Gord R. Lamb" wrote:
+> > > > in etherchannel bond, running
+> > linux-2.4.1+smptimers+zero-copy+lowlatency)
+>
+> Not related to network, but why would you have lowlatency patches on
+> this box?
 
-System:
-mylex raid 5 array 8 x 9G drives  (not really all that big)
->=512M of RAM (1G of RAM works)
-no swap  (Not sure if this makes a difference.)
+Well, I figured it might reduce deadweight time between the different
+operations (disk reads, cache operations, network I/O) at the expense of a
+little throughput.  It was just a hunch and I don't fully understand the
+internals (of any of this, really).  Since I wasn't saturating the disk or
+network controller, I thought the gain from quicker response time (for
+packet acknowledgement, etc.) would outweigh the loss of individual
+throughputs.  Again, I could be misunderstanding this completely. :)
 
-The system is attempting to create a single partition containing the
-most of the entire RAID array.
+> My testing showed that the lowlatency patches abosolutely destroy a
+> system thoughput under heavy disk IO.  Sure, the box stays nice and
+> responsive, but something has to give.  On a file server I'll trade
+> console responsivness for IO performance any day (might choose the
+> opposite on my laptop).
 
-errors:
-buffy: Installing with LIVE AMMO
-Creating partitions...
-Initializing filesystems...
-Out of Memory: Killed process 106 (portmap), saved process 2165
-(mke2fs).<3>Out
-of Memory: Killed process 2123 (buffy), saved process 2165
-(mke2fs).willow: LOAD
- FAILED
-<3>Out of Memory: Killed process 195 (sisyphus_upload), saved process
-2165 (mke2
-fs).<3>Out of Memory: Killed process 2165 (mke2fs).
+Well, I backed out that particular patch, and it didn't seem to make much
+of a difference either way.  I'll look at it in more detail tomorrow
+though.
 
-(Note that most of the above proccesses were dialog interfaces waiting
-for user input or perl scripts waiting for mke2fs or buffy to exit.)
+Cya.
 
+> My testing wasn't very complete, but heavy dbench and multiple
+> simultaneous file copies both showed significantly lower performance
+> with lowlatency enabled, and returned to normal when disabled.
+>
+> Of course you may have had lowlatency disabled via sysctl but I was
+> mainly curious if your results were different.
+>
+> Later,
+> Tom
+>
 
-PS- Conversations with various VA empolyees indicates that others within
-VA, and at least one vendor are seeing hangs while creating really large
-filesystems on RAID arrays. (mostly 1/4 TB or larger)  These issues
-appear to come and go, and are endemic to the 2.2.x kernel line.  Both
-lnz and tytso seem to believe the issues to be vm entirely related.
-
--- 
-Solving people's computer problems always
-requires more hardware be given to you.
-(The Second Rule of Hardware Acquisition)
-Samuel J. Flory  <sam@valinux.com>

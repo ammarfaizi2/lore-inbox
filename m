@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263933AbUCZFHs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 00:07:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263941AbUCZFHs
+	id S263949AbUCZFKt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 00:10:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263950AbUCZFKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 00:07:48 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:41855 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263933AbUCZFHr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 00:07:47 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>, colpatch@us.ibm.com,
-       linux-kernel@vger.kernel.org, mbligh@aracnet.com, akpm@osdl.org,
-       haveblue@us.ibm.com
-Subject: Re: [PATCH] nodemask_t x86_64 changes [5/7] 
-In-reply-to: Your message of "Tue, 23 Mar 2004 20:11:01 -0800."
-             <20040323201101.3427494c.pj@sgi.com> 
+	Fri, 26 Mar 2004 00:10:49 -0500
+Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:8463
+	"EHLO muru.com") by vger.kernel.org with ESMTP id S263949AbUCZFKq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 00:10:46 -0500
+Date: Thu, 25 Mar 2004 21:10:36 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Chris Cheney <ccheney@cheney.cx>
+Cc: Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org,
+       acpi-devel-request@lists.sourceforge.net, patches@x86-64.org,
+       Andi Kleen <ak@suse.de>, pavel@ucw.cz
+Subject: Re: [PATCH] x86_64 VIA chipset IOAPIC fix
+Message-ID: <20040326051036.GG8058@atomide.com>
+References: <20040325033434.GB8139@atomide.com> <20040326030458.GZ9248@cheney.cx> <20040326033536.GA8057@atomide.com> <1080274911.748.130.camel@dhcppc4> <20040326043447.GD9248@cheney.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 26 Mar 2004 16:06:34 +1100
-Message-ID: <6562.1080277594@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+In-Reply-To: <20040326043447.GD9248@cheney.cx>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Mar 2004 20:11:01 -0800, 
-Paul Jackson <pj@sgi.com> wrote:
->I still don't know how I will fix the CPU_MASK_ALL static initializor in
->the multi-word case - since I can't put runtime code in it.
+* Chris Cheney <ccheney@cheney.cx> [040325 20:35]:
+> On Thu, Mar 25, 2004 at 11:21:51PM -0500, Len Brown wrote:
+> > >  The power button still turns off the machine immedieately too with
+> > > ACPI on.
+> > 
+> > Then ACPI is not on.  what does dmesg show?
+> 
+> This seems similiar to what I saw with my machine and mentioned in
+> #2090, when I hit the power button just right, for lack of a better
+> description, it would dump acpi_ev_dispatch errors, otherwise it
+> would immediately shut off. It certainly didn't take the usual ~ 4s hold
+> down time to shut off.
 
-#define NR_CPUS_WORDS ((NR_CPUS+BITS_PER_LONG-1)/BITS_PER_LONG)
-#define NR_CPUS_UNDEF (NR_CPUS_WORDS*BITS_PER_LONG-NR_CPUS)
+Yeah, same here. ACPI works for the battery thogh. I've uploaded my dmesg
+to ACPI bug 2090 at:
 
-#if NR_CPUS_UNDEF == 0
-#define CPU_MASK_ALL { [0 ... NR_CPUS_WORDS-1] = ~0UL }
-#else
-#define CPU_MASK_ALL { [0 ... NR_CPUS_WORDS-2] = ~0UL, ~0UL << NR_CPUS_UNDEF }
-#endif
+http://bugme.osdl.org/show_bug.cgi?id=2090
+
+Tony
 

@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132130AbRDJPMQ>; Tue, 10 Apr 2001 11:12:16 -0400
+	id <S132186AbRDJPUt>; Tue, 10 Apr 2001 11:20:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132186AbRDJPMI>; Tue, 10 Apr 2001 11:12:08 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:53522 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S132130AbRDJPLy>; Tue, 10 Apr 2001 11:11:54 -0400
-Message-Id: <200104101511.f3AFBks31940@aslan.scsiguy.com>
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Seems to be a lot of confusion about aic7xxx in linux 2.4.3 
-In-Reply-To: Your message of "Fri, 06 Apr 2001 08:09:36 PDT."
-             <Pine.LNX.4.33.0104060803450.12216-100000@heat.gghcwest.com> 
-Date: Tue, 10 Apr 2001 09:11:46 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S132224AbRDJPUk>; Tue, 10 Apr 2001 11:20:40 -0400
+Received: from pilsener.srv.ualberta.ca ([129.128.5.19]:16576 "EHLO
+	pilsener.srv.ualberta.ca") by vger.kernel.org with ESMTP
+	id <S132186AbRDJPUd>; Tue, 10 Apr 2001 11:20:33 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: i2o & Promise SuperTrak100
+In-Reply-To: <E14mwEf-00042b-00@the-village.bc.nu>
+Reply-to: Chris Bayly <chris.bayly@ualberta.ca>
+From: Chris <cb@speedbump.ucs.ualberta.ca>
+Date: 10 Apr 2001 09:19:23 -0600
+In-Reply-To: <E14mwEf-00042b-00@the-village.bc.nu>
+Message-ID: <5066gcu6is.fsf@speedbump.ucs.ualberta.ca>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I've been seeing a lot of complaints about aic7xxx in the 2.4.3 kernel.  I
->think that people are missing the crucial point: aic7xxx won't compile if
->you patch up from 2.4.2, but if you download the complete 2.4.3 tarball,
->it compiles fine.
->
->So, I conclude that the patch was created incorrectly, or that something
->changed between cutting the patch and the tarball.
->
->-jwb
+>>>>> "AC" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Actually, the issue has to do with how the firmware is generated and
-the dependencies between generated and source files.  The tar file
-touched all files whereas the patch touched only a few.  This is why
-the tar file worked and the patch did not.
+    >> I tried talking to Promise recently to get a sample SuperTrak
+    >> to make this work, but no such luck. So bother Promise and ask
+    >> what they intend to do about it.
 
-Newer versions of the driver completely avoid this issue by only attempting
-to re-build the firmware if you explicitly configure your kernel this way.
+    AC> I've been talking constructively to promise about the i2o on
+    AC> the supertrak not working straight off with the kernel i2o
+    AC> driver. Currently it looks promising
 
---
-Justin
+Pun intended? :)   Anyways, I too am interested hearing how this
+goes.  If it isn't going to work out, I'm going to figure out how snip
+the PCI line ID'ing it as a RAID.  If Promise comes through, then I
+don't have to mutilate the card. :)
+
+-- 
+Chris Bayly
+
+Email:  Chris.Bayly@UAlberta.CA         | CNS, UNIX Support
+                                        | 151 General Services Building
+                                        | University of Alberta
+Web:    http://www.ualberta.ca/~cbayly/ | Edmonton, Alberta 
+                                        | Canada T6G 2S7

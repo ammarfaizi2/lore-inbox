@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263962AbUHMWCp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267603AbUHMWE0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263962AbUHMWCp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 18:02:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267602AbUHMWCp
+	id S267603AbUHMWE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 18:04:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267602AbUHMWE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 18:02:45 -0400
-Received: from zmamail05.zma.compaq.com ([161.114.64.105]:24582 "EHLO
-	zmamail05.zma.compaq.com") by vger.kernel.org with ESMTP
-	id S263962AbUHMWCn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 18:02:43 -0400
-Date: Fri, 13 Aug 2004 17:02:00 -0500
+	Fri, 13 Aug 2004 18:04:26 -0400
+Received: from mailout.zma.compaq.com ([161.114.64.104]:57094 "EHLO
+	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
+	id S267603AbUHMWEU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 18:04:20 -0400
+Date: Fri, 13 Aug 2004 17:03:40 -0500
 From: mikem <mikem@beardog.cca.cpqcorp.net>
 To: marcelo.tosatti@cyclades.com, axboe@suse.de
 Cc: linux-kernel@vger.kernel.org
-Subject: cciss update [1/5] PCI ID fix for cciss SATA hba
-Message-ID: <20040813220200.GA1016@beardog.cca.cpqcorp.net>
+Subject: cciss update [2/5] fix for 32/64-bit conversions
+Message-ID: <20040813220340.GB1016@beardog.cca.cpqcorp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,34 +22,33 @@ User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch 1 of 5.
-This patch fixes the PCI ID for our cciss based SATA controller
-due out later this year. Also adds the new PCI ID to pci_ids.h.
-Applies to 2.4.27.
+Patch 2 of 5.
+This patch fixes our usage of copy_to_user in our 32/64-bit
+conversions. We were passing in the size of the address
+rather than the size of the struct.
+Applies to 2.4.27. Please consider this for inclusion.
 
 Thanks,
 mikem
 -------------------------------------------------------------------------------
-diff -burNp lx2427.orig/drivers/block/cciss.c lx2427/drivers/block/cciss.c
---- lx2427.orig/drivers/block/cciss.c	2004-08-07 18:26:04.000000000 -0500
-+++ lx2427/drivers/block/cciss.c	2004-08-13 15:38:30.808314376 -0500
-@@ -80,7 +80,7 @@ const struct pci_device_id cciss_pci_dev
-                         0x0E11, 0x4091, 0, 0, 0},
- 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
-                         0x0E11, 0x409E, 0, 0, 0},
--	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
-+	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISS,
-                         0x103C, 0x3211, 0, 0, 0},
- 	{0,}
- };
-diff -burNp lx2427.orig/include/linux/pci_ids.h lx2427/include/linux/pci_ids.h
---- lx2427.orig/include/linux/pci_ids.h	2004-08-07 18:26:06.000000000 -0500
-+++ lx2427/include/linux/pci_ids.h	2004-08-13 15:40:01.304556856 -0500
-@@ -606,6 +606,7 @@
- #define PCI_DEVICE_ID_HP_ZX1_IOC	0x122a
- #define PCI_DEVICE_ID_HP_PCIX_LBA	0x122e
- #define PCI_DEVICE_ID_HP_SX1000_IOC	0x127c
-+#define PCI_DEVICE_ID_HP_CISS		0x3210
- 
- #define PCI_VENDOR_ID_PCTECH		0x1042
- #define PCI_DEVICE_ID_PCTECH_RZ1000	0x1000
+diff -burNp lx2427-p001/drivers/block/cciss.c lx2427/drivers/block/cciss.c
+--- lx2427-p001/drivers/block/cciss.c	2004-08-13 15:38:30.808314000 -0500
++++ lx2427/drivers/block/cciss.c	2004-08-13 15:45:07.640986640 -0500
+@@ -592,7 +592,7 @@ int cciss_ioctl32_passthru(unsigned int 
+ 	set_fs(old_fs);
+ 	if (err)
+ 		return err;
+-	err |= copy_to_user(&arg32->error_info, &arg64.error_info, sizeof(&arg32->error_info));
++	err |= copy_to_user(&arg32->error_info, &arg64.error_info, sizeof(arg32->error_info));
+ 	if (err) 
+ 		return -EFAULT; 
+ 	return err;
+@@ -620,7 +620,7 @@ int cciss_ioctl32_big_passthru(unsigned 
+ 	set_fs(old_fs);
+ 	if (err)
+ 		return err;
+-	err |= copy_to_user(&arg32->error_info, &arg64.error_info, sizeof(&arg32->error_info));
++	err |= copy_to_user(&arg32->error_info, &arg64.error_info, sizeof(arg32->error_info));
+ 	if (err) 
+ 		return -EFAULT; 
+ 	return err;

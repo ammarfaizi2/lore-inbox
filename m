@@ -1,99 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267770AbUHETIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267893AbUHESlb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267770AbUHETIf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 15:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267917AbUHETHp
+	id S267893AbUHESlb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 14:41:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267919AbUHESf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 15:07:45 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:18848 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S267929AbUHETF2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 15:05:28 -0400
-Message-ID: <411283D0.8030800@comcast.net>
-Date: Thu, 05 Aug 2004 12:00:32 -0700
-From: "Amit D. Chaudhary" <amit_c@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
+	Thu, 5 Aug 2004 14:35:57 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:44233 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S267877AbUHESZU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 14:25:20 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: dsaxena@plexity.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: MAX_DMA_ADDRESS in include/asm/asm-i386/dma.h (2.6.x and 2.4.x)
-References: <40F84A87.5050403@comcast.net> <20040716214721.GA20741@plexity.net> <40F852AE.8060703@comcast.net> <20040716222859.GA21647@plexity.net> <40F86677.2070607@comcast.net>
-In-Reply-To: <40F86677.2070607@comcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
+Date: Thu, 5 Aug 2004 11:22:26 -0700
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A011F93C4@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
+Thread-Index: AcR67KSkq2pUMRq9QeihuSVc82SjGgALABLA
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: <linux-kernel@vger.kernel.org>, <robustmutexes@lists.osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Ulrich Drepper" <drepper@redhat.com>
+X-OriginalArrivalTime: 05 Aug 2004 18:23:11.0172 (UTC) FILETIME=[43991040:01C47B19]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Deepak,
 
-Thanks a lot for the inputs. kmalloc with GFP_DMA is not to be used for 
-pci DMA.
-I continued trying it and it does work, there was some alignment for the 
-header which was incorrect and that I limited the size to 128k.
 
-Amit
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault)
 
-Amit D. Chaudhary wrote:
+
+> -----Original Message-----
+> From: Ingo Molnar [mailto:mingo@elte.hu]
+> Sent: Thursday, August 05, 2004 3:59 AM
+> To: Perez-Gonzalez, Inaky
+> Cc: linux-kernel@vger.kernel.org; robustmutexes@lists.osdl.org; Andrew Morton; Ulrich Drepper
+> Subject: Re: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
 > 
 > 
-> Deepak Saxena wrote:
+> * Ingo Molnar <mingo@elte.hu> wrote:
 > 
->> On Jul 16 2004, at 15:11, Amit D. Chaudhary was caught saying:
->>
->>> Deepak,
->>>
->>> I am missing what you are directing me to.
->>>
->>> If it is,
->>> pci_alloc_consistent(), linux-2.4.25/arch/i386/kernel/pci-dma.c
->>> dma_alloc_coherent(), linux-2.6.8-rc1/arch/i386/kernel/pci-dma.c
->>>
->>> They internally seem to __get_free_pages()
->>
->>
->>
->> Correct, but take a second look at the code (2.6):
->>
->>         void *ret;
->>         /* ignore region specifiers */
->>         gfp &= ~(__GFP_DMA | __GFP_HIGHMEM);
->>
->>         if (dev == NULL || (dev->coherent_dma_mask < 0xffffffff))
->>                 gfp |= GFP_DMA;
->>
->>         ret = (void *)__get_free_pages(gfp, get_order(size));
->>
->> It uses GFP_DMA iff your coherent_dma_mask is != 0xffffffff.  Assuming
->> your device can address a the full 32-bit PCI address space, you
->> need to set the coherent_dma_mask appropriately and you will get
->> buffers from all addressable lowmem. I don't do much x86, so not
->> sure how you go about allocating highmem DMA buffers.
+> > but, couldnt there be more sharing between futex.c and fusyn.c? In
+> > particular on the API side, why arent all these ops done as an
+> > extension to sys_futex()? That would keep the glibc part much simpler
+> > (and more compatible) as well. [...]
 > 
-> Thanks, noted and verified.
-> 
-> This chip cannot DMA with a memory buffer returned by kmalloc without a 
-> GFP_DMA flag, that is memory addresses like 0xf67e0000, it works with 
-> 0xcxxx xxxx.
-> 
-> I verified it by modifying the code and trying it out.
-> 
->>> The memory need not be page size, as a matter of fact, using a large 
->>> consecutive block, for example using alloc_bootmem_low() during 
->>> kernel bootup, will simplify the data transfer and result in no 
->>> internal fragmentation, it does introduce inflexibility in changing 
->>> the size and other issues.
->>
->>
->>
->> If you are using alloc_bootmem_low(), all you should have to do after
->> allocating the memory is call pci_dma_map_single()/map_sg() to get 
->> PCI-DMA addresses. You still should have no reason to touch 
->> MAX_DMA_ADDRESS.
-> 
-> This was a backup approach, I mentioned to provide details about the 
-> memory being allocated. I would like to avoid this approach. See reasons 
-> above.
-> 
-> Amit
-> 
+> i believe the key to integration of this feature is to try to make it
+> used by normal (non-RT) apps as much as possible. I.e. try to make
+> current futexes a subset of fusyn.c and to merge the two APIs if
+> possible (essentially renaming your fusyn.c to futex.c and implementing
+> the futex API). Is this possible without noticeable performance overhead
+> (and without too many special-cases)?
+
+I mentioned it in some other answer...I think. Nevermind. One of the fusyn
+layers (ufuqueue) can emulate futexes completely [except for a few extra 
+errno codes and the scheduling policy based wakeup and the missing requeue
+[easy to do] and FUTEX_FD -- only NGPT uses it, afaik]. 
+
+The interface is now through a three system calls (sys_ufuqueue_{wait,wake,ctl}), 
+but it should be easy to redirect sys_futex().
+
+> such an approach would ensure that key portions of the code would be
+> triggered by everyday apps. Developers wouldnt break the feature every
+> other day, etc. Deadlock detection and priority boosting might not be
+> tested this way, but the basic locking/waking/VM-keying mechanism sure
+> could be.
+
+That makes sense. Performance overhead wise would be related only to the
+extra spinlocks we take...I'll work on that redirection layer--I am going
+on vacation tonight, but it should be ready in a couple of days as soon
+as I come back.

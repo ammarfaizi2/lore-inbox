@@ -1,93 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288697AbSAIBwh>; Tue, 8 Jan 2002 20:52:37 -0500
+	id <S288703AbSAIB56>; Tue, 8 Jan 2002 20:57:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288698AbSAIBw2>; Tue, 8 Jan 2002 20:52:28 -0500
-Received: from unknown-1-11.wrs.com ([147.11.1.11]:22710 "EHLO mail.wrs.com")
-	by vger.kernel.org with ESMTP id <S288697AbSAIBwI>;
-	Tue, 8 Jan 2002 20:52:08 -0500
-From: mike stump <mrs@windriver.com>
-Date: Tue, 8 Jan 2002 17:51:18 -0800 (PST)
-Message-Id: <200201090151.RAA04843@kankakee.wrs.com>
-To: dewar@gnat.com, paulus@samba.org
-Subject: Re: [PATCH] C undefined behavior fix
-Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
-        velco@fadata.bg
+	id <S288701AbSAIB5j>; Tue, 8 Jan 2002 20:57:39 -0500
+Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:52890 "EHLO
+	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S288702AbSAIB5a>; Tue, 8 Jan 2002 20:57:30 -0500
+Message-Id: <5.1.0.14.2.20020109014922.04c93e40@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 09 Jan 2002 01:57:46 +0000
+To: linux-kernel@vger.kernel.org
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: [PATCH] IDE patches for 2.4.18-pre2
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: dewar@gnat.com
-> To: dewar@gnat.com, mrs@windriver.com, paulus@samba.org
-> Date: Tue,  8 Jan 2002 19:51:35 -0500 (EST)
+Hi LKML,
 
-I noticed you failed to answer my question.  Why's that?  The answer
-is, the standard is not a formal document.  If it were, you would be
-able to point at the line that had the requirement that said it would
-not scribble all over memory.  It is just that simple.
+I have rediffed Andre's IDE patch (ide.2.4.16.12102001.patch) against 
+2.4.18-pre2 and the result is available here:
 
-The intent is to not.  We (they people that write the standard) expect
-you to just know.  Personally, I find it rather obvious.  I suspect
-most all people do, at least for the scribbling case.
+         http://www-stu.christs.cam.ac.uk/~aia21/linux/ide.2.4.18-pre2.12102001.patch
 
-> OK, but where do you find this intent?
+The original patch no longer applies cleanly hence this rediff. There was 
+only one chunk which failed but was trivially fixable.
 
-The C standard is set in a historical context, and in the context of
-existing implementations, and existing expectations.  A setting with
-experts that know what the intent is to some varying degree.  A
-setting with an installed base of users, and an installed base of
-code.  Using all that as a backdrop, some types of experts I think can
-discern the intent fairly well.  Somethings are contentious.
-Somethings are so trivially true that even a beginner could know
-you're violating the intent.
+My file server is running with this patch now. Fingers crossed the ide 
+subsystem which hosts multiple IDE RAID-0 arrays will survive longer than 
+the less than 24hrs which it usually survives without the patch...
 
-Some things hinge on specific choices an implementor might make.  For,
-for example, on UNIX, with separate compilation without the compilers
-ability to talk across the boundary, on a byte addressable machine, if
-we have three translation units:
+Best regards,
 
-unit 1:
-
-volatile char c1;
-
-void foo1() {
-     c1 = 1;
-}
-
-unit 2:
-
-volatile char c2;
-
-void foo2() {
-     c2 = 2;
-}
-
-unit 3:
-
-volatile char c3;
-
-void foo3() {
-     c3 = 3;
-}
-
-and we load each one into our app, and place c1, c2 and c3 immediately
-next to each other, and then run foo1, then foo2, then foo3, and then
-check the side effects, c1, c2 and c3, I would claim we _must_ get
-write 1 c1, write 2 c2, write 3 c3, and at the end, c1, c2 c3 should
-be 1,2,3.  I find it obvious.
-
-One cure, is a completely formal language.  Do you know of any real
-languages that are?  By real, I mean a real language that is used to
-code real programs and used in the real world.  I don't.
-
-So yes, sometimes, from time to time, people might have to be told
-what the intent is, if they don't get it.
-
-In part, it is because gcc has adopted this model of independent
-translation units, that makes it a hard requirement in the case above,
-for the accesses to be byte based.  Because if it had not, gcc would
-not be able to implement the intended required semantics of each of
-the units.  The requirements of the standard forced this because of
-the implementation choice.
+Anton
 
 
-Welcome to the world of programming.
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

@@ -1,43 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132178AbRAWGhi>; Tue, 23 Jan 2001 01:37:38 -0500
+	id <S135790AbRAWGiS>; Tue, 23 Jan 2001 01:38:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135790AbRAWGh2>; Tue, 23 Jan 2001 01:37:28 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:18705 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S132178AbRAWGhM>;
-	Tue, 23 Jan 2001 01:37:12 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Werner.Almesberger@epfl.ch (Werner Almesberger),
-        david_luyer@pacific.net.au (David Luyer), alan@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: PATCH: "Pass module parameters" to built-in drivers 
-In-Reply-To: Your message of "Mon, 22 Jan 2001 21:55:23 -0000."
-             <200101222155.f0MLtNe01781@flint.arm.linux.org.uk> 
+	id <S136239AbRAWGiM>; Tue, 23 Jan 2001 01:38:12 -0500
+Received: from fluent1.pyramid.net ([206.100.220.212]:50483 "EHLO
+	fluent1.pyramid.net") by vger.kernel.org with ESMTP
+	id <S135790AbRAWGiA>; Tue, 23 Jan 2001 01:38:00 -0500
+Message-Id: <4.3.2.7.2.20010122222130.00b1b780@mail.fluent-access.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Mon, 22 Jan 2001 22:37:48 -0800
+To: Anton Altaparmakov <aia21@cam.ac.uk>,
+        Mark I Manning IV <mark4@purplecoder.com>
+From: Stephen Satchell <satch@fluent-access.com>
+Subject: Re: [OT?] Coding Style
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5.0.2.1.2.20010122233742.00ae5e40@pop.cus.cam.ac.uk>
+In-Reply-To: <3A6C630E.C2CB784C@purplecoder.com>
+ <4.3.2.7.2.20010122130852.00b92a80@mail.fluent-access.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 23 Jan 2001 17:37:02 +1100
-Message-ID: <22446.980231822@ocs3.ocs-net>
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Jan 2001 21:55:23 +0000 (GMT), 
-Russell King <rmk@arm.linux.org.uk> wrote:
->Hmm, don't we already have all that __setup() stuff laying around?  Ok,
->it might not be built into the .o for modules, but it could be.  Could
->we not do something along the lines of:
+At 11:56 PM 1/22/01 +0000, Anton Altaparmakov wrote:
+>At 16:42 22/01/2001, Mark I Manning IV wrote:
+>>Stephen Satchell wrote:
+>> >                                              I got in the habit of using
+>> >  structures to minimize the number of symbols I exposed. It also
+>> > disambiguates local variables and parameters from file- and program-global
+>> > variables.
+>>
+>>explain this one to me, i think it might be usefull...
 >
->1. User passes parameters on the kernel command line.
->2. modprobe reads the kernel command line and sorts out those that
->   correspond to the __setup() stuff in the module being loaded.
->3. modprobe combines in any extra settings from /etc/modules.conf
->
->IIRC, this would satisfy the original posters intentions, presumably
->without too much hastle?
+>What might be meant is that instead of declaring variables my_module_var1, 
+>my_module_var2, my_module_var3, etc. you declare a struct my_module { 
+>var1; var2; var3; etc. }. Obviously in glorious technicolour formatting... (-;
+>That's my interpretation anyway...
 
-Apart from the fact that it is completely backwards from the original
-intent.  The problem is objects that have MODULE_PARM but no __setup.
+The first sentence is right on the money.  In addition to module variables, 
+I define a global structure as:
+
+      extern struct G {
+          /* the real globals */
+          } g;
+
+and then in the main program I define the instance as "struct G g;"  This 
+is more for apps than operating systems.
+
+Further to the avoidance of pollution of the external global namespace, I 
+define local functions as static.  Indeed, in one parser I had over 1400 
+very small functions, none of them with external scope.  Instead, I defined 
+a structure of function pointers and exposed one name to the rest of the 
+world.  Sound stupid?  Well, that stupidity had its place:  the "opcode" in 
+the pseudo-instruction stream was the offset into this structure of 
+pointers to the pointer of interest, which made the main loop for the 
+parser about five lines long, and not a switch statement to be seen.  Three 
+of those lines were to handle unknown-opcodes...
+
+I also am partial to arrays of function pointers when appropriate.  Ever 
+think how easy it would be to implement a TCP stack that would handle the 
+"lamp-test packet" as a single special case?  Granted, it results in a 
+small amount of code bloat over the traditional in-line test method, but it 
+does make you think about EVERY SINGLE ONE OF THE 64 COMBINATIONS of 
+Urg/Ack/Psh/Rst/Syn/Fin (to use the labels from the 1985 version of RFC 
+793) and what they really mean.  Especially the combination with all bits set.
+
+Satch
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

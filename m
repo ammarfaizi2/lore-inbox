@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263835AbUC3TMb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 14:12:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263833AbUC3TMb
+	id S263833AbUC3TNI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 14:13:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263865AbUC3TNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 14:12:31 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:23229
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263846AbUC3TMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 14:12:20 -0500
-Date: Tue, 30 Mar 2004 21:12:18 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: mapped pages being truncated [was Re: 2.6.5-rc2-aa5]
-Message-ID: <20040330191218.GE3808@dualathlon.random>
-References: <20040330190102.GD3808@dualathlon.random> <Pine.LNX.4.44.0403302002090.23584-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403302002090.23584-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Tue, 30 Mar 2004 14:13:08 -0500
+Received: from 201008050033.user.veloxzone.com.br ([201.8.50.33]:55748 "EHLO
+	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
+	id S263833AbUC3TM6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 14:12:58 -0500
+Date: Tue, 30 Mar 2004 16:12:56 -0300 (BRT)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: rmmod deadlocks with 2.6.5-rc[2,3]
+In-Reply-To: <406996C2.4030204@reactivated.net>
+Message-ID: <Pine.LNX.4.58.0403301606180.352@pervalidus.dyndns.org>
+References: <Pine.LNX.4.58.0403301529590.1233@pervalidus.dyndns.org>
+ <406996C2.4030204@reactivated.net>
+X-Archive: encrypt
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 30, 2004 at 08:06:42PM +0100, Hugh Dickins wrote:
-> On Tue, 30 Mar 2004, Andrea Arcangeli wrote:
-> > On Tue, Mar 30, 2004 at 07:48:42PM +0100, Hugh Dickins wrote:
-> > > 
-> > > Do you have enough evidence that it's the very same bug?
-> > 
-> > yes, see the two stack traces, they trigger in the same place and it's
-> > the very same workload. Andrew just noticed that xfs indeed calls
-> > truncate_inode_pages before vmtruncate. It will trigger with your
-> > patches too.
-> 
-> Yes, Andrew has got it (and I agree XFS is wrong to be doing that).
+On Tue, 30 Mar 2004, Daniel Drake wrote:
 
-indeed.
+> Frédéric L. W. Meunier wrote:
+> > If I boot with 2.6.5-rc[2,3] and use rmmod snd_via82xx or rmmod
+> > ohci_hcd (it doesn't happen with all modules), rmmod deadlocks.
+> > 2.6.4 works fine.
+>
+> The ohci_hcd problem should be temporarily fixed by a recent
+> patch to this list, from Greg KH (subject: [PATCH] USB:
+> Eliminate wait following interface unregistration). This
+> worked for me.
 
-> > Ok I see what you mean, this should fix it, agreed?
-> 
-> Yes, that's exactly the fix (for when COWing a reserved page).
+I forgot to report that I don't need OHCI. It's hotplug which
+loads it for some reason under 2.6, but not under 2.4.
 
-thanks, great spotting!
+> As for the snd_ modules, this is a different problem, which I
+> am still experiencing. I have had it with both snd_emu10k1
+> and snd_intel8x0 - but it does not happen every time. I have
+> experienced it on 2.6.5-rc2 and -rc3 (plus their -mm
+> patches). rmmod hangs and doesnt respond to kill -9.
+
+I used ALSA from CVS.
+
+> Is there any output I can capture to diagnose this?
+
+Here nothing gets printed. Maybe strace can help. But I'll
+wait.
+
+It also happened removing i2c_isa when I went through removing
+all modules. Nothing wrong with joydev, adi, gameport, it87...
+
+-- 
+http://www.pervalidus.net/contact.html

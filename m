@@ -1,72 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261458AbUCDF1b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 00:27:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbUCDF10
+	id S261370AbUCDF02 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 00:26:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbUCDF02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 00:27:26 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:22285
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261459AbUCDF1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 00:27:13 -0500
-Date: Thu, 4 Mar 2004 06:27:53 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: peter@mysql.com, riel@redhat.com, mbligh@aracnet.com,
+	Thu, 4 Mar 2004 00:26:28 -0500
+Received: from [196.25.168.8] ([196.25.168.8]:15596 "EHLO lbsd.net")
+	by vger.kernel.org with ESMTP id S261370AbUCDF00 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 00:26:26 -0500
+Date: Thu, 4 Mar 2004 07:25:26 +0200
+From: Nigel Kukard <nkukard@lbsd.net>
+To: Chris Wright <chrisw@osdl.org>
+Cc: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
-Message-ID: <20040304052753.GJ4922@dualathlon.random>
-References: <20040228072926.GR8834@dualathlon.random> <Pine.LNX.4.44.0402280950500.1747-100000@chimarrao.boston.redhat.com> <20040229014357.GW8834@dualathlon.random> <1078370073.3403.759.camel@abyss.local> <20040303193343.52226603.akpm@osdl.org> <1078371876.3403.810.camel@abyss.local> <20040303200704.17d81bda.akpm@osdl.org> <20040304045212.GG4922@dualathlon.random> <20040303211042.33cd15ce.akpm@osdl.org>
+Subject: Re: [2.6.3] Sysfs breakage - tun.ko
+Message-ID: <20040304052526.GT21950@lbsd.net>
+References: <4043938C.9090504@lbsd.net> <40439B03.4000505@backtobasicsmgmt.com> <20040302060251.GG21950@lbsd.net> <20040302182834.R22989@build.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7Ha3rcGc4ZVRbLT1"
 Content-Disposition: inline
-In-Reply-To: <20040303211042.33cd15ce.akpm@osdl.org>
+In-Reply-To: <20040302182834.R22989@build.pdx.osdl.net>
 User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-PHP-Key: http://www.lbsd.net/~nkukard/keys/gpg_public.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 03, 2004 at 09:10:42PM -0800, Andrew Morton wrote:
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> >
-> > On Wed, Mar 03, 2004 at 08:07:04PM -0800, Andrew Morton wrote:
-> >  > That's a larger difference than I expected.  But then, everyone has been
-> > 
-> >  mysql is threaded
-> 
-> There is a patch in -mm's 4g/4g implementation
-> (4g4g-locked-userspace-copy.patch) which causes all kernel<->userspace
-> copies to happen under page_table_lock.  In some threaded apps on SMP this
-> is likely to cause utterly foul performance.
 
-I see, I wasn't aware about this issue with the copy-user code, thanks
-for the info, I definitely agree having a profiling of the run would be
-nice since it maybe part of the overhead is due this lock (though I
-doubt it's most the overhead), so we can see if it was that spinlock
-generating part of the slowdown.
+--7Ha3rcGc4ZVRbLT1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> That's why I'm keeping it as a separate patch.  The problem which it fixes
-> is very obscure indeed and I suspect most implementors will simply drop it
-> after they'e had a two-second peek at the profile results.
+Thanks bud!
 
-I doubt one can ship without it without feeling a bit like cheating, the
-garbage collectors sometime depends on mprotect to generate protection
-faults, it's not like nothing is using mprotect in racy ways against
-other threads.
+Hopefully it'll get included in 2.6.4  ;)
 
-> It is a judgement call.  Personally, I wouldn't ship a production kernel
-> with this patch.  People need to be aware of the tradeoff and to think and
-> test very carefully.
+On Tue, Mar 02, 2004 at 06:28:34PM -0800, Chris Wright wrote:
+> * Nigel Kukard (nkukard@lbsd.net) wrote:
+> >=20
+> > Nothing said solves the problem, the problem has got nothing to do with
+> > devfs (only for compat reasons), the problem is that "net/tun" breaks
+> > sysfs.
+>=20
+> Yes, why does this not work?  Keeps devfs legacy name, works fine with
+> udev, and makes proper dir in sysfs.
+>=20
+> thanks,
+> -chris
+>=20
+> =3D=3D=3D=3D=3D drivers/net/tun.c 1.29 vs edited =3D=3D=3D=3D=3D
+> --- 1.29/drivers/net/tun.c	Sat Jan 10 16:09:09 2004
+> +++ edited/drivers/net/tun.c	Tue Mar  2 12:05:30 2004
+> @@ -602,7 +602,8 @@
+> =20
+>  static struct miscdevice tun_miscdev =3D {
+>  	.minor =3D TUN_MINOR,
+> -	.name =3D "net/tun",
+> +	.name =3D "tun",
+> +	.devfs_name =3D "net/tun",
+>  	.fops =3D &tun_fops
+>  };
+> =20
 
-test what? there's no way to know what soft of proprietary software
-people will run on the thing.
+--7Ha3rcGc4ZVRbLT1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Personally I wouldn't feel safe to ship a kernel with a known race
-condition add-on. I mean, if you don't know about it and it's an
-implementation bug you know nobody is perfect and you try to fix it if
-it happens, but if you know about it and you don't apply it, that's
-pretty bad if something goes wrong.  Especially because it's a race,
-even you test it, it may still happen only a long time later during
-production. I would never trade performance for safety, if something I'd
-try to find a more complex way to serialize against the vmas or similar.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFARr3GKoUGSidwLE4RAqkvAJ9Ja6ftN2hVFYhEBr7EM0Mor4MyBQCfbCD8
+p5Aan1W03bVj/qbp407EJ7Y=
+=vDE9
+-----END PGP SIGNATURE-----
+
+--7Ha3rcGc4ZVRbLT1--

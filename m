@@ -1,245 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271072AbUJVDLF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271063AbUJVDLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271072AbUJVDLF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 23:11:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271056AbUJVDJ0
+	id S271063AbUJVDLE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 23:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271058AbUJVDIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 23:09:26 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:47064 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S271072AbUJUWqQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 18:46:16 -0400
-Subject: [patch 1/1] dm: fix printk errors about whether %lu/%Lu is right for sector_t - revised
-To: akpm@osdl.org
-Cc: agk@redhat.com, neilb@cse.unsw.edu.au, linux-kernel@vger.kernel.org,
-       blaisorblade_spam@yahoo.it
-From: blaisorblade_spam@yahoo.it
-Date: Fri, 22 Oct 2004 00:45:54 +0200
-Message-Id: <20041021224554.402233F37@zion.localdomain>
+	Thu, 21 Oct 2004 23:08:19 -0400
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:29559 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S271043AbUJVDCe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 23:02:34 -0400
+Message-ID: <41787840.3060807@yahoo.com.au>
+Date: Fri, 22 Oct 2004 13:02:24 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@novell.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: ZONE_PADDING wastes 4 bytes of the new cacheline
+References: <20041021011714.GQ24619@dualathlon.random> <417728B0.3070006@yahoo.com.au> <20041020213622.77afdd4a.akpm@osdl.org> <417837A7.8010908@yahoo.com.au> <20041021224533.GB8756@dualathlon.random> <41785585.6030809@yahoo.com.au> <20041022011057.GC14325@dualathlon.random>
+In-Reply-To: <20041022011057.GC14325@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrea Arcangeli wrote:
+> On Fri, Oct 22, 2004 at 10:34:13AM +1000, Nick Piggin wrote:
+> 
+>>Andrea Arcangeli wrote:
+>>
+>>
+>>>looks reasonable. only cons is that this rejects on my tree ;), pages_*
+>>>and protection is gone in my tree, replaced by watermarks[] using the
+>>>very same optimal and proven algo of 2.4 (enabled by default of course).
+>>>I'll reevaluate the false sharing later on.
+>>>
+>>
+>>May I again ask what you think is wrong with ->protection[] apart from
+>>it being turned off by default? (I don't think our previous conversation
+>>ever reached a conclusion...)
+> 
+> 
+> the API is flawed, how can set it up by default? if somebody tweaks
+> pages_min it get screwed.
+> 
 
-The Device Manager code barfs when sector_t is 64bit wide (i.e. an u64) and
-CONFIG_LBD is off. This happens on printk(), resulting in wrong memory
-accesses, but also on sscanf(), resulting in overflows (because it uses %lu
-for a long long in this case). And region_t, chunk_t are typedefs for
-sector_t, so we have warnings for these, too.
+The setup code leaves a bit to be desired, but for the purpose of
+kswapd and the page allocator they are fine.
 
-Andrew Morton suggested simply using "%llu" and casting sector_t to unsigned
-long long; but he missed the sscanf()'s, which cannot be fixed this way.
+> plus it's worthless to have pages_min/low/high and protection[] when you
+> can combine the two things together. those pages_min/low/high and
+> protection combined when protection itself is calculated in function of
+> pages_min/low/high just creates confusion. I believe this comments
+> explains it well enough:
+> 
 
-I've used %llu instead of %Lu for standards conformance, as suggested by 
+I don't agree, there are times when you need to know the bare pages_xxx
+watermark, and times when you need to know the whole ->protection thing.
 
-The problem is this code in drivers/md/dm.h:
-/*
- * FIXME: I think this should be with the definition of sector_t
- * in types.h.
- */
-#ifdef CONFIG_LBD
-#define SECTOR_FORMAT "%Lu"
-#else
-#define SECTOR_FORMAT "%lu"
-#endif
+> /*
+>  * setup_per_zone_protection - called whenver min_free_kbytes or
+>  *	sysctl_lower_zone_protection changes.  Ensures that each zone
+>  *	has a correct pages_protected value, so an adequate number of
+>  *	pages are left in the zone after a successful __alloc_pages().
+>  *
+>  *	This algorithm is way confusing.  I tries to keep the same
+> 	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  *	behavior
+>  *	as we had with the incremental min iterative algorithm.
+>  */
+> 
+> I've to agree with the comment, if I've to start doing math on top of
+> this algorithm, it's almost faster to replace it with the 2.4 one that
+> has clear semantics.
+> 
+> Example of the runtime behavaiour of the very well understood
+> lowmem_reserve from 2.4, it's easier to make an example than to explain
+> it with words:
+> 
+> 	1G machine -> (16M dma, 800M-16M normal, 1G-800M high)
+> 	1G machine -> (16M dma, 784M normal, 224M high)
+> 
+> sysctl defaults are:
+> 
+> int sysctl_lower_zone_reserve_ratio[MAX_NR_ZONES-1] = { 256, 32 };
+> 
+> the results will be:
+> 
+> 1) NORMAL allocation will leave 784M/256 of ram reserved in the ZONE_DMA
+> 
+> 2) HIGHMEM allocation will leave 224M/32 of ram reserved in ZONE_NORMAL
+> 
+> 3) HIGHMEM allocation will (224M+784M)/256 of ram reserved in ZONE_DMA
+> 
+> I invented this algorithm to scale in all machines and to make the
+> memory reservation not noticeable and only beneficial. With this API is
+> trivial to tune and to understand what will happen, the default value
+> looks good and they're proven by years of production in 2.4. Most
+> important: it's only in function of the sizes of the zones, the
+> pages_min levels have nothing to do with it.
+> 
 
-So we must fix the FIXME. However, having sector_t defined by the arch is
-wrong in all current cases, and we fix these: we can simply decide this in
-linux/types.h following CONFIG_LBD.
+OK I dont disagree that your setup calculations are much nicer, and
+the current ones are pretty broken...
 
-So, I have also removed HAVE_SECTOR_T; you can readd it, but it has no users.
+> I'm still unsure if the 2.6 lower_zone_protection completely mimics the
+> 2.4 lowmem_zone_reserve algorithm if tuned by reversing the pages_min
+> settings accordingly, but I believe it's easier to drop it and replace
+> with a clear understandable API that as well drops the pages_min levels
+> that have no reason to exists anymore, than to leave it in its current
+> state and to start reversing pages_min algorithm to tune it from
+> userspace (in the hope nobody could ever tweak pages_min calculation in
+> the kernel, to avoid breaking the userspace that would require
+> kernel-internal knowledge to have a chance to tune lowmem_protection
+> from a rc.d script).
+> 
 
-All 64-bit arch use a 64-bit wide long for sector_t; almost all 32-bit archs
-use a long long only if CONFIG_LBD is on. The only exception is h8300: for
-that case, we add CONFIG_LBD = y and we are again in the general case.
-And x86_64 does not need to define sector_t on its own.
-
-Sample warnings (from both 2.6.8.1 and 2.6.9-rc2):
-drivers/md/dm-raid1.c: In function `get_mirror':
-drivers/md/dm-raid1.c:930: warning: long unsigned int format, sector_t arg (arg 3)
-drivers/md/dm-raid1.c: In function `mirror_status':
-drivers/md/dm-raid1.c:1200: warning: long unsigned int format, region_t arg (arg 4)
-drivers/md/dm-raid1.c:1200: warning: long unsigned int format, region_t arg (arg 5)
-drivers/md/dm-raid1.c:1206: warning: long unsigned int format, sector_t arg (arg 5)
-drivers/md/dm-raid1.c:1212: warning: long unsigned int format, sector_t arg (arg 5)
-
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
-
- linux-2.6.9-current-paolo/arch/h8300/Kconfig         |    4 ++++
- linux-2.6.9-current-paolo/drivers/md/dm.h            |   10 ----------
- linux-2.6.9-current-paolo/include/asm-h8300/types.h  |    3 ---
- linux-2.6.9-current-paolo/include/asm-i386/types.h   |    5 -----
- linux-2.6.9-current-paolo/include/asm-mips/types.h   |    5 -----
- linux-2.6.9-current-paolo/include/asm-ppc/types.h    |    5 -----
- linux-2.6.9-current-paolo/include/asm-s390/types.h   |    5 -----
- linux-2.6.9-current-paolo/include/asm-sh/types.h     |    5 -----
- linux-2.6.9-current-paolo/include/asm-x86_64/types.h |    3 ---
- linux-2.6.9-current-paolo/include/linux/types.h      |   17 ++++++++++++++---
- 10 files changed, 18 insertions(+), 44 deletions(-)
-
-diff -puN drivers/md/dm.h~fix-dm-warnings drivers/md/dm.h
---- linux-2.6.9-current/drivers/md/dm.h~fix-dm-warnings	2004-10-16 21:58:29.912802872 +0200
-+++ linux-2.6.9-current-paolo/drivers/md/dm.h	2004-10-16 21:58:29.954796488 +0200
-@@ -22,16 +22,6 @@
- #define DMEMIT(x...) sz += ((sz >= maxlen) ? \
- 			  0 : scnprintf(result + sz, maxlen - sz, x))
- 
--/*
-- * FIXME: I think this should be with the definition of sector_t
-- * in types.h.
-- */
--#ifdef CONFIG_LBD
--#define SECTOR_FORMAT "%Lu"
--#else
--#define SECTOR_FORMAT "%lu"
--#endif
--
- #define SECTOR_SHIFT 9
- 
- /*
-diff -puN include/asm-h8300/types.h~fix-dm-warnings include/asm-h8300/types.h
---- linux-2.6.9-current/include/asm-h8300/types.h~fix-dm-warnings	2004-10-16 21:58:29.913802720 +0200
-+++ linux-2.6.9-current-paolo/include/asm-h8300/types.h	2004-10-16 21:58:29.954796488 +0200
-@@ -55,9 +55,6 @@ typedef unsigned long long u64;
- 
- typedef u32 dma_addr_t;
- 
--#define HAVE_SECTOR_T
--typedef u64 sector_t;
--
- typedef unsigned int kmem_bufctl_t;
- 
- #endif /* __KERNEL__ */
-diff -puN include/asm-i386/types.h~fix-dm-warnings include/asm-i386/types.h
---- linux-2.6.9-current/include/asm-i386/types.h~fix-dm-warnings	2004-10-16 21:58:29.914802568 +0200
-+++ linux-2.6.9-current-paolo/include/asm-i386/types.h	2004-10-16 21:58:29.955796336 +0200
-@@ -58,11 +58,6 @@ typedef u32 dma_addr_t;
- #endif
- typedef u64 dma64_addr_t;
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
- typedef unsigned short kmem_bufctl_t;
- 
- #endif /* __ASSEMBLY__ */
-diff -puN include/asm-mips/types.h~fix-dm-warnings include/asm-mips/types.h
---- linux-2.6.9-current/include/asm-mips/types.h~fix-dm-warnings	2004-10-16 21:58:29.915802416 +0200
-+++ linux-2.6.9-current-paolo/include/asm-mips/types.h	2004-10-16 21:58:29.955796336 +0200
-@@ -94,11 +94,6 @@ typedef unsigned long long phys_t;
- typedef unsigned long phys_t;
- #endif
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
- typedef unsigned short kmem_bufctl_t;
- 
- #endif /* __ASSEMBLY__ */
-diff -puN include/asm-ppc/types.h~fix-dm-warnings include/asm-ppc/types.h
---- linux-2.6.9-current/include/asm-ppc/types.h~fix-dm-warnings	2004-10-16 21:58:29.916802264 +0200
-+++ linux-2.6.9-current-paolo/include/asm-ppc/types.h	2004-10-16 21:58:29.955796336 +0200
-@@ -57,11 +57,6 @@ typedef __vector128 vector128;
- typedef u32 dma_addr_t;
- typedef u64 dma64_addr_t;
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
- typedef unsigned int kmem_bufctl_t;
- 
- #endif /* __ASSEMBLY__ */
-diff -puN include/asm-s390/types.h~fix-dm-warnings include/asm-s390/types.h
---- linux-2.6.9-current/include/asm-s390/types.h~fix-dm-warnings	2004-10-16 21:58:29.917802112 +0200
-+++ linux-2.6.9-current-paolo/include/asm-s390/types.h	2004-10-16 21:58:29.955796336 +0200
-@@ -90,11 +90,6 @@ typedef union {
- 	} subreg;
- } register_pair;
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
- #endif /* ! __s390x__   */
- #endif /* __ASSEMBLY__  */
- #endif /* __KERNEL__    */
-diff -puN include/asm-sh/types.h~fix-dm-warnings include/asm-sh/types.h
---- linux-2.6.9-current/include/asm-sh/types.h~fix-dm-warnings	2004-10-16 21:58:29.918801960 +0200
-+++ linux-2.6.9-current-paolo/include/asm-sh/types.h	2004-10-16 21:58:29.956796184 +0200
-@@ -53,11 +53,6 @@ typedef unsigned long long u64;
- 
- typedef u32 dma_addr_t;
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
- typedef unsigned int kmem_bufctl_t;
- 
- #endif /* __ASSEMBLY__ */
-diff -puN include/asm-x86_64/types.h~fix-dm-warnings include/asm-x86_64/types.h
---- linux-2.6.9-current/include/asm-x86_64/types.h~fix-dm-warnings	2004-10-16 21:58:29.919801808 +0200
-+++ linux-2.6.9-current-paolo/include/asm-x86_64/types.h	2004-10-16 21:58:29.956796184 +0200
-@@ -48,9 +48,6 @@ typedef unsigned long long u64;
- typedef u64 dma64_addr_t;
- typedef u64 dma_addr_t;
- 
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--
- typedef unsigned short kmem_bufctl_t;
- 
- #endif /* __ASSEMBLY__ */
-diff -puN include/linux/types.h~fix-dm-warnings include/linux/types.h
---- linux-2.6.9-current/include/linux/types.h~fix-dm-warnings	2004-10-16 21:58:29.951796944 +0200
-+++ linux-2.6.9-current-paolo/include/linux/types.h	2004-10-16 21:58:29.956796184 +0200
-@@ -125,12 +125,23 @@ typedef		__s64		int64_t;
- 
- /*
-  * The type used for indexing onto a disc or disc partition.
-- * If required, asm/types.h can override it and define
-- * HAVE_SECTOR_T
-+ * You cannot override it any more in asm- includes; define CONFIG_LBD
-+ * to turn it inside a long long (only on 32-bit archs).
-+ * The DM code must also scanf sector_t's, so here we define SECTOR_FORMAT
-+ * for them.
-  */
--#ifndef HAVE_SECTOR_T
-+
-+#ifndef CONFIG_LBD
- typedef unsigned long sector_t;
-+#define SECTOR_FORMAT "%lu"
-+#else /* CONFIG_LBD */
-+#if BITS_PER_LONG == 64
-+#error Cannot define CONFIG_LBD on 64-bit archs.
-+#else
-+typedef unsigned long long sector_t;
-+#define SECTOR_FORMAT "%llu"
- #endif
-+#endif /* CONFIG_LBD */
- 
- /*
-  * The type of an index into the pagecache.  Use a #define so asm/types.h
-diff -puN arch/h8300/Kconfig~fix-dm-warnings arch/h8300/Kconfig
---- linux-2.6.9-current/arch/h8300/Kconfig~fix-dm-warnings	2004-10-16 21:58:29.952796792 +0200
-+++ linux-2.6.9-current-paolo/arch/h8300/Kconfig	2004-10-16 21:58:29.956796184 +0200
-@@ -25,6 +25,10 @@ config UID16
- 	bool
- 	default y
- 
-+config LBD
-+	bool
-+	default y
-+
- config RWSEM_GENERIC_SPINLOCK
- 	bool
- 	default y
-_
+But please no wholesale replacement of the ->pages_xxx / ->protection
+thing unless you really show it is needed (which I'm pretty sure it
+isn't). alloc_pages is very nice right now ;)

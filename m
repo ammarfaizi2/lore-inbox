@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbUCCVvH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 16:51:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbUCCVvH
+	id S261171AbUCCVzI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 16:55:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbUCCVzI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 16:51:07 -0500
-Received: from mail.kroah.org ([65.200.24.183]:60875 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261162AbUCCVvE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 16:51:04 -0500
-Date: Wed, 3 Mar 2004 13:44:31 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about (or bug in?) the kobject implementation
-Message-ID: <20040303214431.GC32489@kroah.com>
-References: <Pine.LNX.4.44L0.0402272233330.4063-100000@netrider.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0402272233330.4063-100000@netrider.rowland.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 3 Mar 2004 16:55:08 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:37935 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S261171AbUCCVzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 16:55:04 -0500
+Message-ID: <40465460.1050600@myrealbox.com>
+Date: Wed, 03 Mar 2004 13:55:44 -0800
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040301
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       Martin Schlemmer <azarah@gentoo.org>, greg@kroah.com
+Subject: udev versus parallel-port Zip drive
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 27, 2004 at 11:02:34PM -0500, Alan Stern wrote:
-> On Fri, 27 Feb 2004, Greg KH wrote:
-> 
-> > Seriously, once kobject_del() is called, you can't safely call
-> > kobject_get() anymore on that object.
-> > 
-> > If you can think of a way we can implement this in the code to prevent
-> > people from doing this, please send a patch.  We've been getting by
-> > without such a "safeguard" so far...
-> 
-> The problem is unsolvable.  Let me explain...
-> 
-> We're actually discussing two different questions here.
-> 
->     A.	Is it okay to call kobject_add() after calling kobject_del() -- 
-> 	this was my original question.
+I've been fiddling with Zip-drive support -- both USB and
+parallel-port.
 
-No, this is not ok.  It might happen to work, but it is not valid.
+When I compile everything as modules I find that the
+parallel-port driver for Zip drives (ppa) does not load
+automatically.  To make the parallel Zip drive work I
+need to do a 'modprobe ppa' manually, after which everything
+works as expected.
 
->     B.	Can we prevent people from doing kobject_get() after the kobject's
-> 	refcount has dropped to 0?
+I can only imagine the complexity involved in figuring out
+what is attached to the parallel port at boot-time -- there
+must be thousands of possibilities to sort through.
 
-By saying, "you can not call kobject_get() on a object that you know is
-released with kobject_del()".  If you already have a valid reference,
-you can always call kobject_get().  But once you call kobject_del() that
-pointer you passed should not be passed to kobject_get() as it may now
-be gone.
+My question, I suppose, is:  what are the chances that a
+parallel-port device can be automatically detected by udev
+and the appropriate module loaded?  Is this a pipe-dream?
+Or maybe it should already work and I'm just omitting some
+important steps?
 
-Does that help?
+Any thoughts or suggestions?
 
-thanks,
 
-greg k-h

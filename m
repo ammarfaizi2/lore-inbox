@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265793AbRF2JQM>; Fri, 29 Jun 2001 05:16:12 -0400
+	id <S265810AbRF2JTc>; Fri, 29 Jun 2001 05:19:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265797AbRF2JQD>; Fri, 29 Jun 2001 05:16:03 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4868 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265793AbRF2JPn>; Fri, 29 Jun 2001 05:15:43 -0400
-Subject: Re: =?utf-8?B?UkU6IFBST0JMRU06SWxsZWdhbCBpbnN0cnVjdGlvbiB3aGVuIG1v?=
-To: FrankZhu@viatech.com.cn (=?utf-8?B?RnJhbmsgWmh1IChTaGFuZ2hhaSk=?=)
-Date: Fri, 29 Jun 2001 10:14:34 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (=?utf-8?B?J0FsYW4gQ294Jw==?=), mikpe@csd.uu.se,
-        bernds@redhat.com,
-        FrankZhu@viatech.com.cn (=?utf-8?B?RnJhbmsgWmh1IChTaGFuZ2hhaSk=?=),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <61F2703C314FD5118C0300010250D52E0580C0@exchsh01.viatech.com.cn> from "=?utf-8?B?RnJhbmsgWmh1IChTaGFuZ2hhaSk=?=" at Jun 29, 2001 10:52:45 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S265802AbRF2JTW>; Fri, 29 Jun 2001 05:19:22 -0400
+Received: from fw-cam.cambridge.arm.com ([193.131.176.3]:20357 "EHLO
+	fw-cam.cambridge.arm.com") by vger.kernel.org with ESMTP
+	id <S265797AbRF2JTD>; Fri, 29 Jun 2001 05:19:03 -0400
+Date: Fri, 29 Jun 2001 10:18:18 +0100
+From: Edmund GRIMLEY EVANS <edmundo@rano.org>
+To: linux-kernel@vger.kernel.org
+Subject: directory order of files
+Message-ID: <20010629101818.A13817@rano.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15FuME-0008MK-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2)the server 192.168.0.254 (netboot) ,client 192.168.0.3
-> there are /usr ,/usr/local/ ,/home, /lib, /bin ....... on the server
-> on the client
-> A: mount -t nfs netboot:/usr  /usr
->     mount -t nfs netboot:/lib /lib
->     mount -t nfs netboot:/bin /bin
->     mount -t nfs netboot:/sbin /sbin
-> Illegal instruction (core dumped)
+With Linux ext2, and some other systems, when you create files in a
+new directory, the file system remembers their order:
 
-You have i686 cmov using packages on the server, once you replaced the libraries
-and some binaries with i686 only ones the inevitable occurred.
+$ mkdir new
+$ cd new
+$ touch one two three four
+$ ls -U
+one  two  three  four
 
-If you are sharing your /lib /bin etc you need i586 or lower optimisation 
-packages on the server
+(1) Is there any standard that says a system should behave this way?
+Is there any software that depends on this behaviour?
 
+(2) Are there Linux file systems that don't work this way? Maybe
+someone with a mounted writable reiserfs could do a quick check.
+
+Please copy replies to me as I am not subscribed. Thanks.
+
+Edmund

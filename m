@@ -1,60 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266758AbUITQ0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266805AbUITQ2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266758AbUITQ0p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 12:26:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266807AbUITQ0o
+	id S266805AbUITQ2f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 12:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266807AbUITQ2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 12:26:44 -0400
-Received: from pyxis.pixelized.ch ([213.239.200.113]:32160 "EHLO
-	pyxis.pixelized.ch") by vger.kernel.org with ESMTP id S266758AbUITQ0a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 12:26:30 -0400
-Message-ID: <414F02AB.4080208@debian.org>
-Date: Mon, 20 Sep 2004 18:17:47 +0200
-From: "Giacomo A. Catenazzi" <cate@debian.org>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
+	Mon, 20 Sep 2004 12:28:35 -0400
+Received: from [81.23.229.73] ([81.23.229.73]:12417 "EHLO mail.eduonline.nl")
+	by vger.kernel.org with ESMTP id S266805AbUITQ2a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 12:28:30 -0400
+From: Norbert van Nobelen <Norbert@edusupport.nl>
+Organization: EduSupport
+To: linux-kernel@vger.kernel.org
+Subject: Machine crashes after disk failure and use of software raid options with 2.4.18 kernel
+Date: Mon, 20 Sep 2004 18:28:29 +0200
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: udev is too slow creating devices
-References: <414C9003.9070707@softhome.net> <1095568704.6545.17.camel@gaston> <414D42F6.5010609@softhome.net> <20040919140034.2257b342.Ballarin.Marc@gmx.de> <414D96EF.6030302@softhome.net> <20040919171456.0c749cf8.Ballarin.Marc@gmx.de> <cikaf1$e60$1@sea.gmane.org> <20040919173035.GA2345@kroah.com> <cilf99$ams$1@sea.gmane.org>
-In-Reply-To: <cilf99$ams$1@sea.gmane.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409201828.29539.Norbert@edusupport.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+One of my machines just crashed while it should not do that at disk failure. 
+Can someone hint me if the data is still intact before I start with the 
+recover?
 
-
-Alexander E. Patrakov wrote:
- >
-> Implementation of various logical primitives. E.g., I use GPRS and want 
-> to start pppd during the boot process (i.e., an always-on link), but 
-> after the following things:
-> 
-> 1) /dev/ttyS0 has been created
-> 2) /dev/ppp has been created
-> 3) modules for line disciplines and PPP compression have been preloaded 
-> (e.g. by grepping modules.alias for tty-ldisc and ppp-compress) and are 
-> ready for use by pppd
-> 4) firewall rules have been applied
-> 
-> How to "AND" these things together in a /etc/dev.d scriptlet?
-and
-
-5) /tmp is read-write
-6) /var is mounted
-7) log daemon is already running
-
-but I think they can implemented with a waiting queue or other
-user-space implementation.
-Hmm wait, we will miss the event between udev loaded and
-/var mounted and dev.d started!
-
-ciao
-	cate
-
-PS: I hope this discussion will start project of re-thinking the
-boot/init.d method.
-
+The disks (4) are configured in raid5 configuration using software raid only. 
+Disk setup:
+Per disk: 1 GB system, 1 GB swap, 70GB raid space
+Only one system disk (I think that is exactly the disk which gave up, so the 
+machine won't boot), installed on it: Suse 8.2 professional, standard kernel 
+without changes to it.
+I don't have any further information than this :-(

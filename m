@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131152AbQLZEoO>; Mon, 25 Dec 2000 23:44:14 -0500
+	id <S131120AbQLZFVp>; Tue, 26 Dec 2000 00:21:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131172AbQLZEoE>; Mon, 25 Dec 2000 23:44:04 -0500
-Received: from natmail2.webmailer.de ([192.67.198.65]:27027 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S131152AbQLZEnx>; Mon, 25 Dec 2000 23:43:53 -0500
-From: Stefan Hoffmeister <Stefan.Hoffmeister@Econos.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 8139too driver broken? (2.4-test12) - Was: Re: rtl8139 driver broken? (2.2.16)
-Date: Tue, 26 Dec 2000 05:14:13 +0100
-Organization: Econos
-Message-ID: <g75g4tso13gl70pjbodc3mjcp9puua0q8u@4ax.com>
-In-Reply-To: <vb074t8d27bdedg6m7pv4c4qqu1f8324cq@4ax.com> <E149X1l-00051k-00@the-village.bc.nu> <6kn94tohu3v901eeod2nf94ish0ct33cci@4ax.com>
-In-Reply-To: <6kn94tohu3v901eeod2nf94ish0ct33cci@4ax.com>
-X-Mailer: Forte Agent 1.8/32.548
-MIME-Version: 1.0
+	id <S131172AbQLZFVg>; Tue, 26 Dec 2000 00:21:36 -0500
+Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:14855
+	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S131120AbQLZFV0>; Tue, 26 Dec 2000 00:21:26 -0500
+Date: Tue, 26 Dec 2000 17:50:57 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Marco d'Itri" <md@Linux.IT>, Alexander Viro <viro@math.psu.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: innd mmap bug in 2.4.0-test12
+Message-ID: <20001226175057.A12275@metastasis.f00f.org>
+In-Reply-To: <Pine.LNX.4.10.10012250049400.5242-100000@penguin.transmeta.com> <Pine.LNX.4.10.10012250131370.5340-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10012250131370.5340-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Dec 25, 2000 at 01:42:33AM -0800
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-: On Sat, 23 Dec 2000 18:50:53 +0100, Stefan Hoffmeister wrote:
+On Mon, Dec 25, 2000 at 01:42:33AM -0800, Linus Torvalds wrote:
 
->The rather major problem that
->remains is performance.
+    We just don't write them out. Because right now the only thing
+    that writes out dirty pages is memory pressure. "sync()",
+    "fsync()" and "fdatasync()" will happily ignore dirty pages
+    completely. The thing that made me overlook that simple thing in
+    testing was that I was testing the new VM stuff under heavy VM
+    load - to shake out any bugs.
 
-In case someone is interested...
+Does this mean anyone using test13-pre4 should also expect to see
+data not being flushed on shutdown? 
 
-Windows 2000 SP1 now has the Realtek 8139 (Celeron 433, 192 MB, pure
-SCSI); drivers as shipped with W2K. Using a 40 MB test file over FTP, I
-get
+I'm not seeing data loss (or it's not obvious if I am) but wonder if
+I should make a application to run before halt to allocate and walk
+all available memory as an interim?
 
-  Realtek card sends with 3.5 MB/s
-  Realtek card receives with 5 MB/s
 
-The system that previously contained the 8139 card now has a (10 MBit)
-8029 card - transfer rates with that card are about 850 KB/s, compared to
-the 400KB/s to 530 KB/s with the (100 MBit) 8139 card.
 
-This makes me conclude that there is some pretty serious problem left in
-the 8139too driver.
+  --cw
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

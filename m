@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273087AbRIIWtu>; Sun, 9 Sep 2001 18:49:50 -0400
+	id <S273089AbRIIWxJ>; Sun, 9 Sep 2001 18:53:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273089AbRIIWtj>; Sun, 9 Sep 2001 18:49:39 -0400
-Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:57068 "EHLO
-	swan.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S273087AbRIIWt1>; Sun, 9 Sep 2001 18:49:27 -0400
-Message-ID: <066701c13981$b9e91830$1125a8c0@wednesday>
-From: "J. Dow" <jdow@earthlink.net>
-To: <tegeran@home.com>, "Carsten Leonhardt" <leo@debian.org>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <87g09w70o4.fsf@cymoril.oche.de> <01090915115400.00173@c779218-a> <063301c1397e$0efa6d00$1125a8c0@wednesday> <01090915292502.00173@c779218-a>
-Subject: Re: Athlon/K7-Opimisation problems
-Date: Sun, 9 Sep 2001 15:49:46 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S273090AbRIIWw7>; Sun, 9 Sep 2001 18:52:59 -0400
+Received: from blount.mail.mindspring.net ([207.69.200.226]:47926 "EHLO
+	blount.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S273089AbRIIWwq>; Sun, 9 Sep 2001 18:52:46 -0400
+Subject: Re: New SCSI subsystem in 2.4, and scsi idle patch
+From: Robert Love <rml@tech9.net>
+To: psusi@cfl.rr.com
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+X-Mailer: Evolution/0.13.99+cvs.2001.09.08.07.08 (Preview Release)
+Date: 09 Sep 2001 18:53:34 -0400
+Message-Id: <1000076015.18039.1.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Nicholas Knight" <tegeran@home.com>
+On Sun, 2001-09-09 at 14:21, Phillip Susi wrote:
+> P.S.  I'd like to use a user mode daemon to detect disk idle, and issue the 
+> existing ioctl code to spin the disk down, and rely on the kernel to spin it 
+> back up as needed.  Isn't there somewhere in /proc that keeps IO counters on 
+> the disk I can monitor?  Also, is there a way I could ask the kernel to not 
+> flush dirty pages to disk unless it gets a whole lot of them so the disk 
+> won't be spun up all the time just to write a few KB?
 
-> > What about the power supply. If it is at all marginal the power
-> > consumption boost going to 1.4G is likely a killer.
-> 
-> Well, he didn't mention the amperage outputs, but he said 431W Enermax, 
-> from what I hear Enermax PSU's are good.
-> I still have trouble dealing with the idea that the optimizations cause 
-> power consumption like this, but then, I have trouble with my own idea 
-> that it causes sufficient heat increase in the chipset that soon after 
-> boot.
-> 
-> Do most people that experience this problem also experience after a 
-> cold-boot where the system had been off for at least 10-15 minutes? And 
-> has ANYONE sucsesfully cured this problem by changing power supplies?
+You can change the behavior of how dirty pages are flushed using
+/proc/bdflush.
 
-Don't forget that there are two regulators involved. First there is the
-primary power supply's regulator down to either 3.3 or 5 volts. Then there
-is the motherboard regulator down to the 1.7 volt range. If THAT one is
-not up to handling the required oompf during certain CPU loads that is a
-sure way to glitch the machine.
+[18:41:55]rml@phantasy:/proc/sys/vm# cat bdflush 
+30	64	64	256	500	3000	60	0	0
 
-{^_^}
+Of these 9 parameters, you probably care about the first and sixth.  The
+first is percent of buffer full before bdflush kicks in and starts
+flushing.  Setting this to 60% is fine, and will work towards your aim.
+
+Note that, Documentation/sysctl/vm.txt is outdated (I will send a patch
+off...) this is the correct values of the fields on bdflush:
+
+union bdflush_param {
+	struct {
+		int nfract;	/* Percentage of buffer cache dirty to 
+				   activate bdflush */
+		int dummy1;	/* old "ndirty" */
+		int dummy2;	/* old "nrefill" */
+		int dummy3;	/* unused */
+		int interval;	/* jiffies delay between kupdate flushes */
+		int age_buffer;	/* Time for normal buffer to age before we flush it */
+		int nfract_sync;/* Percentage of buffer cache dirty to 
+				   activate bdflush synchronously */
+		int dummy4;	/* unused */
+		int dummy5;	/* unused */
+	} b_un;
+	unsigned int data[N_PARAM];
+} bdf_prm = {{30, 64, 64, 256, 5*HZ, 30*HZ, 60, 0, 0}};
+
+Finally, I like your idea.  I have an all SCSI system and would like my
+disks to spin down. Good luck.
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 

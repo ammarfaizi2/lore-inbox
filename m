@@ -1,42 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132427AbRDCTbU>; Tue, 3 Apr 2001 15:31:20 -0400
+	id <S132589AbRDCTkL>; Tue, 3 Apr 2001 15:40:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131236AbRDCTbL>; Tue, 3 Apr 2001 15:31:11 -0400
-Received: from phoenix.nanospace.com ([209.213.199.121]:5906 "HELO
-	phoenix.nanospace.com") by vger.kernel.org with SMTP
-	id <S132427AbRDCTay>; Tue, 3 Apr 2001 15:30:54 -0400
-Date: Tue, 3 Apr 2001 12:30:14 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: /proc/config idea
-Message-ID: <20010403123014.A17132@thune.yy.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3AC91800.22D66B24@mandrakesoft.com> <Pine.LNX.4.33.0104021734400.30128-100000@dlang.diginsite.com> <20010403161322.A8174@werewolf.able.es> <3ACA1A91.70401@kalifornia.com> <20010403211218.A2387@werewolf.able.es>
-Mime-Version: 1.0
+	id <S132557AbRDCTkC>; Tue, 3 Apr 2001 15:40:02 -0400
+Received: from mail.occamnetworks.com ([216.64.159.194]:57095 "EHLO
+	occamnetworks.com") by vger.kernel.org with ESMTP
+	id <S131236AbRDCTjq>; Tue, 3 Apr 2001 15:39:46 -0400
+Message-ID: <3ACA2697.ACC4EDD7@occamnetworks.com>
+Date: Tue, 03 Apr 2001 12:37:59 -0700
+From: Koral Ilgun <koral@occamnetworks.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ivan Passos <lists@cyclades.com>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Linux PPP List <linux-ppp@vger.kernel.org>
+Subject: Re: MLPPP in kernels 2.2.x w/ PPP v2.4.1
+In-Reply-To: <Pine.LNX.4.30.0104031042540.25537-100000@intra.cyclades.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.6i
-In-Reply-To: <20010403211218.A2387@werewolf.able.es>; from jamagallon@able.es on Tue, Apr 03, 2001 at 09:12:18PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 03, 2001 at 09:12:18PM +0200, J . A . Magallon wrote:
-> Just like the Alan Cox for 2.4 or Andrea Arcangeli for 2.2. Lets say you
-> have 2.4.2-ac27. For each of your compiles, set EXTRAVERSION to -ac27-bf1,
-> -ac27-bf2, etc. Your files will be:
+These are excerpts from ppp 2.4.1 README.linux file:
 
-Some patches, such as the RAID patches, sets up EXTRAVERSION to a specific
-value.
 
-I do with the make file also had a USERVERSION that would be hands off for
-anyone but the builder.
+...
 
-mrc
+The Linux PPP implementation includes both kernel and user-level
+parts.  This package contains the user-level part, which consists of
+the PPP daemon (pppd) and associated utilities.  In the past this
+package has contained updated kernel drivers.  This is no longer
+necessary, as the current 2.2 and 2.4 kernel sources contain
+up-to-date drivers.               
+
+...
+
+2.1 Kernel driver
+
+Assuming you are running a recent 2.2 or 2.4 (or later) series kernel,
+the kernel source code will contain an up-to-date kernel PPP driver.
+If the PPP driver was included in your kernel configuration when your
+kernel was built, then you only need to install the user-level
+programs.  Otherwise you will need to get the source tree for your
+kernel version, configure it with PPP included, and recompile.  Most
+Linux distribution vendors ship kernels with PPP included in the
+configuration.                       
+
+...
+
+Hope this helps,
+
+Koral
+
+
+
+Ivan Passos wrote:
+> 
+> Hello, everyone,
+> 
+> The quick question: if I install PPP 2.4.1 in a Linux box w/ kernel 2.2.x,
+> will I have support to MLPPP??
+> 
+> Now, the explanation for my doubt. I've seen several (actually 3)
+> different MLPPP implementations for older versions of PPP/pppd (namely
+> 2.3.5 and 2.3.11). I'd like to know if once I install PPP 2.4.1 in a
+> system w/ kernel 2.2.x, I kill my need for these kind of patches in order
+> to support MLPPP. Or would I still need some kind of patch, even for PPP
+> 2.4.1, to have MLPPP support in kernels 2.2.x??
+> 
+> I know that for kernels 2.4.x these patches are not needed.
+> 
+> Thanks in advance for your help!
+> 
+> Later,
+> Ivan
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-ppp" in
+> the body of a message to majordomo@vger.kernel.org
+
 -- 
-       Mike Castle       Life is like a clock:  You can work constantly
-  dalgoda@ix.netcom.com  and be right all the time, or not work at all
-www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
+Koral Ilgun
+Software Engineer
+Occam Networks, Inc.

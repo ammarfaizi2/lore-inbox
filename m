@@ -1,79 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRB1XOS>; Wed, 28 Feb 2001 18:14:18 -0500
+	id <S129354AbRB1XTp>; Wed, 28 Feb 2001 18:19:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129381AbRB1XLu>; Wed, 28 Feb 2001 18:11:50 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:44980 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129339AbRB1XLY>; Wed, 28 Feb 2001 18:11:24 -0500
-Message-ID: <3A9D857C.CF9EF272@uow.edu.au>
-Date: Wed, 28 Feb 2001 23:10:52 +0000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.1-pre10 i686)
+	id <S129359AbRB1XT0>; Wed, 28 Feb 2001 18:19:26 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:14758 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S129354AbRB1XTX>;
+	Wed, 28 Feb 2001 18:19:23 -0500
+Message-ID: <3A9D8779.BC475CFC@mandrakesoft.com>
+Date: Wed, 28 Feb 2001 18:19:21 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: David Priban <david2@maincube.net>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: i2o & Promise SuperTrak100
-In-Reply-To: <MPBBILLJAONHMANIJOPDOEFNFMAA.david2@maincube.net>
+To: whitney@math.berkeley.edu
+Cc: LKML <linux-kernel@vger.kernel.org>,
+        "William A. Stein" <was@math.harvard.edu>
+Subject: Re: via 686a audio driver rate locked at 48Khz
+In-Reply-To: <Pine.LNX.4.30.0102280937520.6854-100000@mf1.private>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Priban wrote:
-> 
-> > > Kernel panic: Aiee, killing interrupt handler !
-> > > In interrupt handler - not syncing
-> >
-> > Run it through ksymoops and I might be able to guess what went wrong.
-> >
-> > In theory however i2o is a standard and all i2o works alike. In
-> > practice i2o
-> > is a pseudo standard and nobody seems to interpret the spec the
-> > same way, the
-> > implementations all tend to have bugs and the hardware sometimes does too.
-> >
-> Alan,
-> This is what ksymoops gave me. One thing I didn't mention before:
-> kernel panics when I hit Ctrl-Alt-Del after it hangs telling me this:
-> 
+Wayne Whitney wrote:
+> I have a system with an MSI-6321 motherboard with the Via 686a
+> southbridge, and I'm having a little trouble with the via82cxxx_audio
+> sound driver.  The stock 2.4.2 driver produces only a rhythmic a buzzing
+> sound.  I saw a patch here a week or two ago for 'rate locking', so I
+> tried that (it didn't apply cleanly to 2.4.2, but I think I applied it by
+> hand correctly).
 
-This untested patch should fix the scheduling-in-interrupt
-thing.
+FYI I sent that change to Linus just now, and posted a quick update on
+the Web site:  http://sourceforge.net/projects/gkernel/
+
+> That patch makes some things work fine (e.g. playing a .wav file), but
+> others sound lousy (e.g. playing a 44.1KHz mp3 with xmms).  Am I correct
+> in thinking that it sounds lousy because of the translation from 44.1KHz
+> sampling to 48KHz sampling?
+
+Probably..  If you are locked at 48 Khz, -something- has to upsample to
+48 Khz if your audio samples are at a different frequency.  Of course
+you might also be needing more CPU cycles or memory due to the required
+upsampling.
+
+> If so, is there any hope of supporting
+> Variable Rate on this hardware?
+
+To be honest I don't know yet.  I haven't fully assured myself that the
+driver is doing things 100% correctly to set up variable rate.  There
+-are- codecs locked at 48 Khz, so users with those codecs are stuck at
+48 Khz..
 
 
---- kernel/sys.c.orig	Thu Mar  1 10:06:14 2001
-+++ kernel/sys.c	Thu Mar  1 10:07:43 2001
-@@ -330,6 +330,12 @@
- 	return 0;
- }
- 
-+static void deferred_cad(void *dummy)
-+{
-+	notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
-+	machine_restart(NULL);
-+}
-+
- /*
-  * This function gets called by ctrl-alt-del - ie the keyboard interrupt.
-  * As it's called within an interrupt, it may NOT sync: the only choice
-@@ -337,10 +343,13 @@
-  */
- void ctrl_alt_del(void)
- {
--	if (C_A_D) {
--		notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
--		machine_restart(NULL);
--	} else
-+	static struct tq_struct cad_tq = {
-+		routine: deferred_cad,
-+	};
-+
-+	if (C_A_D)
-+		schedule_task(&cad_tq);
-+	else
- 		kill_proc(1, SIGINT, 1);
- }
- 	
--
+> Below is copious debugging output, although not the output of
+> via-audio-diag, as I could not find it on sourceforge (and the gtf.org URL
+> is gone).
+
+It's in the tarball in the download section of
+http://sourceforge.net/projects/gkernel/
+
+	Jeff
+
+
+-- 
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie

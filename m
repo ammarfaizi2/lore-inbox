@@ -1,101 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262915AbTHUVkE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 17:40:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbTHUVkE
+	id S262914AbTHUVkq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 17:40:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262921AbTHUVkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 17:40:04 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:44225 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S262915AbTHUVj6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 17:39:58 -0400
-Subject: Re: [PATCH] Call security hook from pid*_revalidate
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       Chris Wright <chrisw@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1061498191.25855.77.camel@moss-spartans.epoch.ncsc.mil>
-References: <20030819013834.1fa487dc.akpm@osdl.org>
-	 <1061327958.28439.62.camel@moss-spartans.epoch.ncsc.mil>
-	 <20030819142234.64433bad.akpm@osdl.org>
-	 <87wud8pecx.fsf@devron.myhome.or.jp>
-	 <1061498191.25855.77.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1061501984.25855.110.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 21 Aug 2003 17:39:44 -0400
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Aug 2003 17:40:46 -0400
+Received: from corky.net ([212.150.53.130]:5566 "EHLO marcellos.corky.net")
+	by vger.kernel.org with ESMTP id S262914AbTHUVkm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 17:40:42 -0400
+Date: Fri, 22 Aug 2003 00:40:38 +0300 (IDT)
+From: Yoav Weiss <ml-lkml@unpatched.org>
+X-X-Sender: yoavw@marcellos.corky.net
+To: linux-kernel@vger.kernel.org
+Subject: Bug in drivers/block/ll_rw_blk.c ?
+Message-ID: <Pine.LNX.4.44.0308220030420.27026-100000@marcellos.corky.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A slightly updated version of the same patch against 2.6.0-test3-mm3 is
-below.  Avoid clearing the i_uid and i_gid in revalidate unless those
-are truly the right values, and don't bother testing for PROC_PID_INO in
-pid_fd_revalidate.  Of course, these changes only ensure proper updating
-when revalidate is called, so already opened files can still be read
-under the old attributes until the file is looked up again...
+A few days ago I posted the report attached below.  After some more
+research, I'm starting to think I've hit a bug in ll_rw_blk.c.
 
-diff -X /home/sds/dontdiff -ru linux-2.6.0-test3-mm3/fs/proc/base.c linux-2.6.0-test3-mm3-sds/fs/proc/base.c
---- linux-2.6.0-test3-mm3/fs/proc/base.c	2003-08-21 16:24:17.000000000 -0400
-+++ linux-2.6.0-test3-mm3-sds/fs/proc/base.c	2003-08-21 17:23:29.764522205 -0400
-@@ -870,11 +870,18 @@
-  */
- static int pid_revalidate(struct dentry *dentry, struct nameidata *nd)
- {
--	if (pid_alive(proc_task(dentry->d_inode))) {
--		struct task_struct *task = proc_task(dentry->d_inode);
--
--		dentry->d_inode->i_uid = task->euid;
--		dentry->d_inode->i_gid = task->egid;
-+	struct inode *inode = dentry->d_inode;
-+	struct task_struct *task = proc_task(inode);
-+	if (pid_alive(task)) {
-+		int ino = inode->i_ino & 0xffff;
-+		if (ino == PROC_PID_INO || task_dumpable(task)) {
-+			inode->i_uid = task->euid;
-+			inode->i_gid = task->egid;
-+		} else {
-+			inode->i_uid = 0;
-+			inode->i_gid = 0;
-+		}
-+		security_task_to_inode(task, inode);
- 		return 1;
- 	}
- 	d_drop(dentry);
-@@ -883,8 +890,9 @@
- 
- static int pid_fd_revalidate(struct dentry *dentry, struct nameidata *nd)
- {
--	struct task_struct *task = proc_task(dentry->d_inode);
--	int fd = proc_type(dentry->d_inode) - PROC_PID_FD_DIR;
-+	struct inode *inode = dentry->d_inode;
-+	struct task_struct *task = proc_task(inode);
-+	int fd = proc_type(inode) - PROC_PID_FD_DIR;
- 	struct files_struct *files;
- 
- 	task_lock(task);
-@@ -897,8 +905,14 @@
- 		if (fcheck_files(files, fd)) {
- 			spin_unlock(&files->file_lock);
- 			put_files_struct(files);
--			dentry->d_inode->i_uid = task->euid;
--			dentry->d_inode->i_gid = task->egid;
-+			if (task_dumpable(task)) {
-+				inode->i_uid = task->euid;
-+				inode->i_gid = task->egid;
-+			} else {
-+				inode->i_uid = 0;
-+				inode->i_gid = 0;
-+			}
-+			security_task_to_inode(task, inode);
- 			return 1;
- 		}
- 		spin_unlock(&files->file_lock);
+If the maintainer of the block dev subsystem happens to be reading
+this, please contact me on the list or by mail.
+
+Thanks,
+	Yoav Weiss
+
+---------- Forwarded message ----------
+Date: Tue, 19 Aug 2003 22:34:42 +0300 (IDT)
+From: Yoav Weiss <ml-lkml@unpatched.org>
+To: linux-kernel@vger.kernel.org
+Subject: disk stalls - request disappears until kicked
+
+While researching stalls of a cloop device under recent 2.4.x kernels,
+I ran across what seems to be a bug in the request handling initiated by
+do_generic_file_read().
+
+The cloop (compressed loop) code I'm debugging is this one:
+
+http://developer.linuxtag.net/knoppix/sources/cloop_1.0-2.tar.gz
+
+I'm testing with kernel 2.4.22-rc2.
+
+The code uses do_generic_file_read() in a similar manner to loop.o.
+Under stress-testing, reading processes stall on TASK_UNINTERRUPTIBLE and
+remain in that state until another process accesses some non-cached file
+on the underlying filesystem.  As soon as such access occurs, the stalled
+processes resume.
+
+The stalled process waits on a page in mm/filemap.c:1505:
+
+/* Again, try some read-ahead while waiting for the page to finish.. */
+	generic_file_readahead(reada_ok, filp, inode, page);
+------> wait_on_page(page);
 
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+I found who wakes it up in calls that don't stall:
+unlock_page(), called from
+drivers/block/ll_rw_blk.c:end_that_request_first().
+bh->b_end_io(bh, uptodate) seems to do it.
+
+Tracking end_that_request_first()'s callers leads all the way back to the
+IDE code, and none of it seem to be called on the stalled request until
+its kicked by having another process perform some access that causes a
+wakeup of the stalled request.
+
+Seems like some request queue doesn't get fully consumed under stress but
+so far I've been unable to find what causes it.  I'm not even sure if the
+request hasn't been passed to the hardware or the hardware handled it and
+the BH somehow mishandled it.
+
+Having traced this to the IDE code, I tried the same with a USB disk
+instead.  It withstood the same stress-testing much longer than the IDE
+did, although eventually it stalled in a similar manner.  I'm not sure
+whether the problem is in ll_rw_blk.c/filemap.c or happens to be shared by
+ide and usb-storage/sd.
+
+Curiously, the problem seems to happen when the underlying filesystem is
+ext3, but doesn't happen when its vfat as far as I can tell.  Could be
+related to the fact that ext3 uses generic_file_read and vfat doesn't.
+
+Anyone else experiencing similar stalls ?  Suggestions ?
+
+	Yoav Weiss
+
+
 

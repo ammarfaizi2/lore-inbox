@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262185AbTELOpd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 10:45:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbTELOpd
+	id S262155AbTELOrG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 10:47:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbTELOrG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 10:45:33 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:50126 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S262185AbTELOp1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 10:45:27 -0400
-Date: Mon, 12 May 2003 05:43:50 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: bug on shutdown from 68-mm4 (machine_power_off returning causes problems)
-Message-ID: <22080000.1052743429@[10.10.2.4]>
-In-Reply-To: <m11xz45lqk.fsf@frodo.biederman.org>
-References: <8570000.1052623548@[10.10.2.4]><20030510224421.3347ea78.akpm@digeo.com><8880000.1052624174@[10.10.2.4]><20030510231120.580243be.akpm@digeo.com><12530000.1052664451@[10.10.2.4]><m17k8x72ir.fsf_-_@frodo.biederman.org><19660000.1052710226@[10.10.2.4]> <m11xz45lqk.fsf@frodo.biederman.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Mon, 12 May 2003 10:47:06 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:50949 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S262155AbTELOrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 10:47:05 -0400
+Date: Tue, 13 May 2003 00:59:19 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Frank Cusack <fcusack@fcusack.com>
+cc: linux-kernel@vger.kernel.org, <paulus@samba.org>
+Subject: Re: MPPE in kernel?
+In-Reply-To: <20030512045929.C29781@google.com>
+Message-ID: <Mutt.LNX.4.44.0305130038300.3377-100000@excalibur.intercode.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >> Yup, backing out kexec fixes it.
->> > 
->> > 
->> > Ok.  Thinking it through the differences is that I have machine_power_off
->> > call stop_apics (which is roughly equivalent to the old smp_send_stop).
->> 
->> Mmmm. Not sure NUMA-Q will like disconnect_bsp_APIC() much, but I guess
->> that's my problem, not yours ;-) I can't do init 6 at the moment, so I'm
->> walking on thin ice as is ... if I have to fix a couple of things up for
->> NUMA-Q, that's no problem.
+On Mon, 12 May 2003, Frank Cusack wrote:
+
+> What are the chances of getting MPPE (PPP encryption) into the 2.4.21
+> and/or 2.5.x kernels?
 > 
-> Ah ok.  This could explain some of your problems with kexec if you
-> can't even reboot the box....
+> For 2.4.21, sha1 and arcfour code needs to be added, so I don't have
+> too much hope :-) even though the code is trivial to integrate.
+> 
+> For 2.5.x, just the arcfour code is needed (since sha1 is already there).
+> I've written a public domain implementation, which I'd be willing to
+> relicense under GPL (although I don't see the point), but in any case
+> the algorithm is easy and could be written by anyone.
 
-Well, yes ... but I'm not trying to use kexec, just doing an init 0 ;-)
-That worked fine before. Perhaps you want to take this code out of the
-power down path, and just have it in the reboot path? Seems odd to change
-the power down path if you don't need to.
+One issue is that there is no support in the crypto API yet for stream 
+ciphers.
 
-> I have sent the fixed patches to Andrew and CC'd the list so we will
-> see what develops.
 
-Thanks, will try them sometime soon-ish ;-)
-
-M.
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 

@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281017AbRKGWJh>; Wed, 7 Nov 2001 17:09:37 -0500
+	id <S281006AbRKGWLr>; Wed, 7 Nov 2001 17:11:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281018AbRKGWJ3>; Wed, 7 Nov 2001 17:09:29 -0500
-Received: from vega.ipal.net ([206.97.148.120]:38856 "HELO vega.ipal.net")
-	by vger.kernel.org with SMTP id <S280997AbRKGWJN>;
-	Wed, 7 Nov 2001 17:09:13 -0500
-Subject: Re: "ps ax" shows init [
+	id <S281024AbRKGWLd>; Wed, 7 Nov 2001 17:11:33 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:57138 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S281006AbRKGWLJ>; Wed, 7 Nov 2001 17:11:09 -0500
+Date: Wed, 7 Nov 2001 17:11:10 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
 To: linux-kernel@vger.kernel.org
-Date: Wed, 7 Nov 2001 16:09:12 -0600 (CST)
-In-Reply-To: <9sbmcs$t4t$1@ncc1701.cistron.net> from "Miquel van Smoorenburg" at Nov 07, 2001 04:10:04 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+Cc: zaitcev@redhat.com
+Subject: Patch for kernel.real-root-dev on s390
+Message-ID: <20011107171110.B27100@devserv.devel.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20011107220912.48029240@vega.ipal.net>
-From: phil-linux-kernel@ipal.net (Phil Howard)
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miquel van Smoorenburg wrote:
+Hello,
 
-> In article <Pine.LNX.4.10.10111071747430.31120-100000@ares.sot.com>,
-> Yaroslav Popovitch  <yp@sot.com> wrote:
-> >doing "ps ax" get such msg for kernel-2.4.9:
-> >That is the same for kernel-2.4.12.Sometimes it is shown as it should be.
-> >Is this a bug of kernel? It seems to be..
-> >
-> >  PID TTY      STAT   TIME COMMAND
-> >    1 ?        S      0:06 init [    
-> 
-> It's because init doesn't have enough space in argv[] to change it's
-> process title. There are a number of causes for this, one indirect
-> one is pressing 'enter' at the 'LILO boot: ' prompt.
+what do you think about the attached patch. Without it,
+a sysctl to kernel.real-root-dev corrupts adjacent memory.
+Anyone cares to comment?
 
-Perhaps a way around this frequent problem is to make execve() always
-reserve a certain minimum amount of space in argv[] even if it is not
-filled in with anything.  Then instead a "brick wall" being set at
-the end of the space originally used, it can be set at max(space used,
-minimum reserved).  This is still userland space, right?  What would
-be a reasonable figure for minimum reserved?  Or does ld-linux go
-grabbing space right after the end of argv[]?
+-- Pete
 
--- 
------------------------------------------------------------------
-| Phil Howard - KA9WGN |   Dallas   | http://linuxhomepage.com/ |
-| phil-nospam@ipal.net | Texas, USA | http://phil.ipal.org/     |
------------------------------------------------------------------
+diff -ur -X dontdiff linux-2.4.9-13.1/drivers/block/rd.c linux-2.4.9-13.1pt1/drivers/block/rd.c
+--- linux-2.4.9-13.1/drivers/block/rd.c	Tue Nov  6 19:19:21 2001
++++ linux-2.4.9-13.1pt1/drivers/block/rd.c	Tue Nov  6 23:43:49 2001
+@@ -704,9 +704,6 @@
+ 
+ static void __init rd_load_disk(int n)
+ {
+-#ifdef CONFIG_BLK_DEV_INITRD
+-	extern kdev_t real_root_dev;
+-#endif
+ 
+ 	if (rd_doload == 0)
+ 		return;
+diff -ur -X dontdiff linux-2.4.9-13.1/include/linux/fs.h linux-2.4.9-13.1pt1/include/linux/fs.h
+--- linux-2.4.9-13.1/include/linux/fs.h	Tue Nov  6 19:19:10 2001
++++ linux-2.4.9-13.1pt1/include/linux/fs.h	Tue Nov  6 23:46:44 2001
+@@ -1471,7 +1471,7 @@
+ extern void mount_root(void);
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+-extern kdev_t real_root_dev;
++extern unsigned int real_root_dev;
+ extern int change_root(kdev_t, const char *);
+ #endif
+ 
+diff -ur -X dontdiff linux-2.4.9-13.1/init/main.c linux-2.4.9-13.1pt1/init/main.c
+--- linux-2.4.9-13.1/init/main.c	Tue Nov  6 19:19:19 2001
++++ linux-2.4.9-13.1pt1/init/main.c	Tue Nov  6 23:46:12 2001
+@@ -126,7 +126,7 @@
+ int rows, cols;
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+-kdev_t real_root_dev;
++unsigned int real_root_dev;	/* do_proc_dointvec cannot handle kdev_t */
+ #endif
+ 
+ int root_mountflags = MS_RDONLY;

@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263596AbRFNSE1>; Thu, 14 Jun 2001 14:04:27 -0400
+	id <S263584AbRFNSIT>; Thu, 14 Jun 2001 14:08:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263595AbRFNSES>; Thu, 14 Jun 2001 14:04:18 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:35085 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263574AbRFNSEF>; Thu, 14 Jun 2001 14:04:05 -0400
-Subject: Re: Linux-2.4.6-pre3
-To: kaos@ocs.com.au (Keith Owens)
-Date: Thu, 14 Jun 2001 19:02:23 +0100 (BST)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <26832.992400011@ocs4.ocs-net> from "Keith Owens" at Jun 13, 2001 12:40:11 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263595AbRFNSII>; Thu, 14 Jun 2001 14:08:08 -0400
+Received: from zmsvr04.tais.net ([12.106.80.12]:53256 "EHLO zmsvr04.tais.net")
+	by vger.kernel.org with ESMTP id <S263584AbRFNSIB>;
+	Thu, 14 Jun 2001 14:08:01 -0400
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Subject: Buddy System bitmaps
+To: <linux-kernel@vger.kernel.org>
+Message-ID: <OFD8310C9F.0457C896-ON88256A6B.0061E161@tais.net>
+From: Ramil.Santamaria@tais.toshiba.com
+Date: Thu, 14 Jun 2001 11:09:20 -0700
+X-MIMETrack: Serialize by Router on zmsvr04/tais_external(Release 5.0.6a |January 17, 2001) at
+ 06/14/2001 11:08:01 AM
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15AbRo-00053O-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, 12 Jun 2001 18:42:45 -0700 (PDT), 
-> Linus Torvalds <torvalds@transmeta.com> wrote:
-> >-pre3:
-> > - Jeff Garzik: network driver updates
-> 
-> tulip_core.c:1756: warning: initialization from incompatible pointer type
-> tulip_core.c:1757: warning: initialization from incompatible pointer type
+Hi,
 
-Use pre2. Linus applied a patch that changed the PCI power management stuff
-and broke all the drivers. In fact you were lucky you noticed this - it'll
-compile with warnings and most users will never realise its totally broken,
-or that every third party non kernel 2.4 driver using PM just broke too.
+For this scenario consider a set of 4 page frames.
+Frames 0 and 2 are used while frames 1 and 3 are free.
 
+The question is would the bitmap for order 1 be a 1 or 0 for this scenario.
+
+I am not on the list so please cc me on your response.
+
+Thanks in advance.
+
+Ramil J.Santamaria
+Toshiba America Information Systems
+(949) 461-4379
+(949) 206-3439 - fax
+ramil.santamaria@tais.toshiba.com
 

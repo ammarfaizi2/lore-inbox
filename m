@@ -1,53 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266703AbUGQL6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266533AbUGQMNg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266703AbUGQL6I (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 07:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266704AbUGQL6I
+	id S266533AbUGQMNg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 08:13:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266566AbUGQMNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 07:58:08 -0400
-Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:60816 "HELO
-	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266703AbUGQL6F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 07:58:05 -0400
-Message-ID: <40F9144A.9010107@yahoo.com.au>
-Date: Sat, 17 Jul 2004 21:58:02 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
-X-Accept-Language: en
+	Sat, 17 Jul 2004 08:13:36 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:60141 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S266533AbUGQMNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jul 2004 08:13:32 -0400
+Message-ID: <40F917E7.2010406@t-online.de>
+Date: Sat, 17 Jul 2004 14:13:27 +0200
+From: "Harald Dunkel" <harald.dunkel@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040717
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Daniel Blueman <daniel.blueman@gmx.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.7, e1000] large MTU allocation failure...
-References: <25348.1090062249@www11.gmx.net>
-In-Reply-To: <25348.1090062249@www11.gmx.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Firmware updates using Linux?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-ID: ECXf7ZZHQeoT+AGX94-WnqQ20NvJ8l-XhKMG-5qtu10ESqoV6AW-Zt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Blueman wrote:
-> When I try to enable jumbo frames, and increase the MTU size to 9000 octets
-> [1], I see allocation failures in the kernel logs [2].
-> 
-> Is there another way of enabling jumbo frames and use a large MTU?
-> 
-> Kernel is stock 2.6.7, IA32.
-> 
-> --- [1]
-> 
-> # ifconfig eth0 mtu 9000
-> 
-> --- [2]
-> 
-> Intel(R) PRO/1000 Network Driver - version 5.2.52-k4
-> Copyright (c) 1999-2004 Intel Corporation.
-> e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network
-> Connection
-> e1000: eth0: e1000_watchdog: NIC Link is Up 1000 Mbps
-> Full Duplex
-> ifconfig: page allocation failure. order:3, mode:0x20
+Hi folks,
 
-Order 3 GFP_ATOMIC allocation failures aren't really surprising.
+I've got a DVD drive, which seems to have some problems.
+There is a new firmware available, but (as usual) it requires
+Windows to install. An update via DOS is not supported. But
+I would like to keep my PC Windows-free.
 
-I wonder if things can be improved in the network system. If not,
-I have a possible workaround for the problem.
+Before I step on the toes of my vendor: Would it be possible
+to do a firmware update (IDE, SCSI, USB) within Linux?
+
+
+Regards
+
+Harri

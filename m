@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265457AbTF1XFM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 19:05:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265456AbTF1XFM
+	id S265458AbTF1XG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 19:06:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265460AbTF1XG5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 19:05:12 -0400
-Received: from host09.ipowerweb.com ([12.129.206.109]:39915 "EHLO
-	host09.ipowerweb.com") by vger.kernel.org with ESMTP
-	id S265460AbTF1XEt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 19:04:49 -0400
-Message-ID: <3EFE2231.2050707@libero.it>
-Date: Sun, 29 Jun 2003 01:18:09 +0200
-From: "Luca T." <luca-t@libero.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: /dev/random broken?
-X-Enigmail-Version: 0.73.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 28 Jun 2003 19:06:57 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:20107
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S265458AbTF1XGZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 19:06:25 -0400
+Subject: Re: Linux 2.4.22-pre2 and AthlonMP
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Edward Tandi <ed@efix.biz>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1056840603.30264.45.camel@wires.home.biz>
+References: <1056833424.30265.39.camel@wires.home.biz>
+	 <1056837060.6778.2.camel@dhcp22.swansea.linux.org.uk>
+	 <1056840603.30264.45.camel@wires.home.biz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host09.ipowerweb.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
-X-AntiAbuse: Sender Address Domain - libero.it
+Organization: 
+Message-Id: <1056842271.6753.19.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 29 Jun 2003 00:17:51 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-i am not sure if this is a kernel/module problem but so it seems to me.
-My computer is an AMD 2000+ with an ABIT motherboard, my kernel version 
-is 2.4.21-0.13mdk (but i tried it with 2.4.21-0.18mdk too and it doesn't 
-work either).
+On Sad, 2003-06-28 at 23:50, Edward Tandi wrote:
+> > > using option 'pci=noacpi' or even 'acpi=off'
+> > > Jun 28 18:27:46 machine kernel: BIOS failed to enable PCI standards
+> > > compliance, fixing this error.
+> > 
+> > Start by upgrading to their current BIOS
+> 
+> Believe or not, it _is_ the latest bios for that board
+> (Tyan S2460 BIOS v1.05, 2nd Jan 2003).
 
-If i give this command:
-  dd if=/dev/zero of=./xxx bs=1024 count=100
-it will work perfectly. But if i try to do the same reading from 
-/dev/random with this command:
-  dd if=/dev/random of=./xxx bs=1024 count=100
-it will just sit there and stare at me until i move the mouse... and 
-then the program will exit without any error message (i checked in 
-/var/log/messages too and there is no message there either about this).
+Then I guess you have a problem. We try and fix up BIOS problems but there
+is a limit to what we can do, and if it has problems like the one that is
+logged I'd be worried what else it might do - eg I suspect Nvidia 4x AGP cards
+aren't too solid on it.
 
-Is this a bug? If yes... do you have any idea that would help me fix it?
-
-Thank you,
-     Luca
+The APIC errors also suggest something isn't happy at all at the hardware
+layer. Are you using MP processors ?
 

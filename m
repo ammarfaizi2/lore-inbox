@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263424AbTIWTKT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 15:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbTIWTJ2
+	id S263473AbTIWTRp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 15:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbTIWTOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 15:09:28 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:17167 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262197AbTIWTI0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 15:08:26 -0400
-Date: Tue, 23 Sep 2003 20:08:24 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Subject: Re: [PATCH] i2c driver fixes for 2.6.0-test5
-Message-ID: <20030923200824.A24300@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-	sensors@stimpy.netroedge.com
-References: <10642734271572@kroah.com> <1064273428551@kroah.com> <20030923091617.B10818@infradead.org> <20030923161929.GB4402@kroah.com> <20030923172258.B19880@infradead.org> <20030923190440.GA5205@kroah.com>
+	Tue, 23 Sep 2003 15:14:38 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:20444 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263453AbTIWTOK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 15:14:10 -0400
+Date: Tue, 23 Sep 2003 12:01:10 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Andreas Schwab <schwab@suse.de>
+Cc: bcrl@kvack.org, tony.luck@intel.com, davidm@hpl.hp.com,
+       davidm@napali.hpl.hp.com, peter@chubb.wattle.id.au, ak@suse.de,
+       iod00d@hp.com, peterc@gelato.unsw.edu.au, linux-ns83820@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
+Message-Id: <20030923120110.4a039808.davem@redhat.com>
+In-Reply-To: <je4qz3724k.fsf@sykes.suse.de>
+References: <DD755978BA8283409FB0087C39132BD101B01194@fmsmsx404.fm.intel.com>
+	<20030923142925.A16490@kvack.org>
+	<jehe3372th.fsf@sykes.suse.de>
+	<20030923115200.1f5b44df.davem@redhat.com>
+	<je4qz3724k.fsf@sykes.suse.de>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030923190440.GA5205@kroah.com>; from greg@kroah.com on Tue, Sep 23, 2003 at 12:04:40PM -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 23, 2003 at 12:04:40PM -0700, Greg KH wrote:
-> Heh, good point.  Ok, I dug out a box that uses a isa i2c adapter and
-> tested the patch below.  As the chip drivers are using request_region
-> properly, taking this check out of i2c-sensor.c makes sense.
+On Tue, 23 Sep 2003 21:09:47 +0200
+Andreas Schwab <schwab@suse.de> wrote:
 
-Looks better already, but I really wonder WTF this i2c_check_addr
-thing is.  It looks at least as racy as check_region..
+> The compiler is allowed to take advantage that there are no unaligned
+> accesses.  You need to use compiler extensions (like attribute packed) to
+> stop it from doing this.
+
+That's correct, and if the address is misaligned the cpu "traps"
+and the kernel fixes up the load/store access to fix it up.
+
+This unaligned trap handling is required for a port of Linux to
+a given cpu architecture.
+
+That's what we're talking about here.

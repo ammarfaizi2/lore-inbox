@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVADJqR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVADJsy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261587AbVADJqR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 04:46:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261591AbVADJqR
+	id S261591AbVADJsy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 04:48:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbVADJsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 04:46:17 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:1698 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261587AbVADJqM (ORCPT
+	Tue, 4 Jan 2005 04:48:54 -0500
+Received: from mproxy.gmail.com ([216.239.56.240]:11672 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261591AbVADJsw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 04:46:12 -0500
-Date: Tue, 4 Jan 2005 10:45:18 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Bill Huey <bhuey@lnxw.com>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: [patch] Real-Time Preemption, -RT-2.6.10-mm1-V0.7.34-00
-Message-ID: <20050104094518.GA13868@elte.hu>
-References: <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu> <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu> <20041214132834.GA32390@elte.hu> <20050104064013.GA19528@nietzsche.lynx.com>
+	Tue, 4 Jan 2005 04:48:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=fL5BaSwXnwvisJZIrg/GbXcJdXIwXzj8poGakmu1qqm7OZqEO3aymqbBZ0G11DF8p4qLsGeQjghmoLMw1jcDdzyYd82LUcdqWQTkPc9mvowCw1PG+B3SRXIPiNH3PvkiHQ4ksI9MFPQIEYduIuZ1dlF26rOTtti6uAyLjpEtwHM=
+Message-ID: <21d7e99705010401482669e789@mail.gmail.com>
+Date: Tue, 4 Jan 2005 20:48:52 +1100
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Miles Bader <miles@gnu.org>
+Subject: Re: [patch] maintainers: remove moderated arm list
+Cc: Adrian Bunk <bunk@stusta.de>, Domen Puncer <domen@coderock.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <buosm5hwn5u.fsf@mctpc71.ucom.lsi.nec.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050104064013.GA19528@nietzsche.lynx.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20041225170825.GA31577@nd47.coderock.org>
+	 <20041225172155.A26504@flint.arm.linux.org.uk>
+	 <20050103175438.GL2980@stusta.de>
+	 <buosm5hwn5u.fsf@mctpc71.ucom.lsi.nec.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 
+> Are there actually any lists out there where this mechanism works properly?
 
-* Bill Huey <bhuey@lnxw.com> wrote:
+the dri-devel list moderators seem to get it right, I haven't put my
+address in the moderator e-mail, and we still get things like Adrians
+patches through to the list....
 
-> You'll have to apply Ingo's patch so that it gets rejects and then
-> apply this patch on top of it so that it resolves those issues. It's a
-> bit sloppy, but this'll at least be somewhat workable until Ingo comes
-> back and pounds us with patches. :)
-
-i've uploaded my port:
-
-    http://redhat.com/~mingo/realtime-preempt/
-
-this is mainly a straight port from 2.6.10-rc3-mm1 to 2.6.10-mm1, plus i
-picked up a post-2.6.10-mm1 audio-driver buildsystem fix-patch. Please
-(re-)report any new or old regressions.
-
-to create a -V0.7.34-00 tree from scratch, the patching order is:
-
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.10.tar.bz2
-  http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10/2.6.10-mm1/2.6.10-mm1.bz2
-  http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.10-mm1-V0.7.34-00
-
-	Ingo
+Dave.

@@ -1,68 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263419AbUD2GFc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263581AbUD2GLM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263419AbUD2GFc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 02:05:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbUD2GFc
+	id S263581AbUD2GLM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 02:11:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263589AbUD2GLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 02:05:32 -0400
-Received: from [194.95.168.2] ([194.95.168.2]:56784 "EHLO
-	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S263419AbUD2GFZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 02:05:25 -0400
-Subject: 2.6.6-rc3 still oops on unplugging usb bluetooth bcm203x dongle
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: linux-usb-devel@lists.sourceforge.net
-Content-Type: text/plain
-Message-Id: <1083218706.3942.5.camel@localhost>
-Mime-Version: 1.0
-Date: Thu, 29 Apr 2004 08:05:09 +0200
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Apr 2004 02:11:12 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:3046 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S263581AbUD2GLH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 02:11:07 -0400
+Date: Thu, 29 Apr 2004 07:10:59 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       Russell King <rmk@arm.linux.org.uk>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] rmap 18 i_mmap_nonlinear
+In-Reply-To: <20040428234448.GB737@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0404290621470.3719-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi...
+On Wed, 28 Apr 2004, William Lee Irwin III wrote:
+> On Wed, Apr 28, 2004 at 07:11:18PM -0400, Rik van Riel wrote:
+> > ... do we still need both i_mmap and i_mmap_shared?
+> > Is there a place left where we're using both trees in
+> > a different way, or are we just walking both trees
+> > anyway in all places where they're referenced ?
 
-I still get:
+Good point from Rik.  I very nearly combined them in this patchset
+(and was trying to avoid adding i_mmap_nonlinear on top, but Rajesh
+gently persuaded me that would be a little foolish, the nonlinear
+processing too different).
 
-usb 2-1: USB disconnect, address 3
-Oops: kernel access of bad area, sig: 11 [#1]
-NIP: C02134B4 LR: F205D414 SP: EFE87DD0 REGS: efe87d20 TRAP: 0600    Not tainted
-MSR: 00009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
-DAR: 6B6B6BB7, DSISR: 00000120
-TASK = effa4030[5] 'khubd' THREAD: efe86000Last syscall: -1 
-GPR00: FFFF0001 EFE87DD0 EFFA4030 EE77C828 6B6B6B6B 00000000 EB8EE83C 00000000 
-GPR08: 00001388 EF0EE858 00010C00 C0213480 82008022 00000000 00000000 00000000 
-GPR16: 00000000 00000000 00000000 00000000 00000000 00220000 00230000 00000000 
-GPR24: 00000000 C0400000 00000001 6B6B6B6B 6B6B6BB7 EF07B8A0 EE77C828 EE77C6FC 
-NIP [c02134b4] class_device_del+0x34/0x140
-LR [f205d414] hci_unregister_sysfs+0x14/0x24 [bluetooth]
-Call trace:
- [f205d414] hci_unregister_sysfs+0x14/0x24 [bluetooth]
- [f205876c] hci_unregister_dev+0x18/0xb0 [bluetooth]
- [f204cd94] hci_usb_disconnect+0x48/0x90 [hci_usb]
- [c0277a24] usb_unbind_interface+0x88/0x8c
- [c02125a4] device_release_driver+0x84/0x88
- [c0212744] bus_remove_device+0x74/0xd0
- [c0211120] device_del+0xa8/0x114
- [c02111a4] device_unregister+0x18/0x30
- [c027e248] usb_disable_device+0x9c/0xd8
- [c0278768] usb_disconnect+0x9c/0x134
- [c027ab14] hub_port_connect_change+0x294/0x298
- [c027adec] hub_events+0x2d4/0x354
- [c027aea8] hub_thread+0x3c/0xf0
- [c00090b0] kernel_thread+0x44/0x60
+I'm sure i_mmap and i_mmap_shared can and should be combined (with
+addition of a count of shared writable mappings, for those places
+which need to know if there were any at all); but in the end decided
+to leave that for later, consult the architectures affected first.
 
-Sometimes it helps to hciconfig hci0 down the bluetooth dongle + stop
-all programs + rmmod them... However also the
-rmmod hci_usb rfcomm bluetooth firmware_class bcm203x l2cap
+Another change to contemplate: we should be able to add page_mapped
+checks to cut down on the flushing, this stuff was written before
+there was any such count.  But it's not straightforward: maybe some
+of the flush_dcache_page calls come just before the rmap is added,
+yet would be relying on it to be counted in?
 
-is very likely to cause the same oops...
+> I believe the flush_dcache_page() implementations touching
+> ->i_mmap_shared care about this distinction.
 
-Yes, this is on powerpc but quite a number of people have the same issue
-on x86 (with 2.6.5 at least... and thats around the time this oops on
-unplugging appeared).
+That's right, arm and parisc do handle them differently: currently
+arm ignores i_mmap (and I think rmk was wondering a few months ago
+whether that's actually correct, given that MAP_SHARED mappings
+which can never become writable go in there - and that surprise is
+itself a very good reason for combining them), and parisc... ah,
+what it does in Linus' tree at present is about the same for both,
+but there are some changes on the way.
 
-Any ideas ?
-Soeren
+The differences are not going to be enough to deserve two separate
+prio_tree_roots in every struct address_space, we can check vm_flags
+for any differences if necessary.
+
+Something else I should have commented on, in that patch comment or
+the next: although we now have the separate i_mmap_nonlinear list,
+no attempt to search it for nonlinear pages in flush_dcache_page.
+
+It looks like parisc has no sys_remap_file_pages syscall anyway,
+and arm only flushes current active_mm, so should be okay so long
+as people don't mix linear and nonlinear maps of same pages (hmm,
+and don't map same page twice in a nonlinear: more likely) in same
+mm: anyway, I think any problems there have to be a "Don't do that",
+searching page tables in flush_dcache_page would be too too painful.
+
+Hugh
 

@@ -1,64 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262424AbUCCK1f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 05:27:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbUCCK1e
+	id S262423AbUCCK0I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 05:26:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbUCCK0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 05:27:34 -0500
-Received: from gprs40-155.eurotel.cz ([160.218.40.155]:34188 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262427AbUCCK1A (ORCPT
+	Wed, 3 Mar 2004 05:26:08 -0500
+Received: from tolkor.sgi.com ([198.149.18.6]:58598 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S262423AbUCCK0F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 05:27:00 -0500
-Date: Wed, 3 Mar 2004 00:35:12 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: George Anzinger <george@mvista.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kgdb-bugreport@lists.sourceforge.net,
-       "Amit S. Kale" <amitkale@emsyssoft.com>
-Subject: Re: [Kgdb-bugreport] [PATCH] Kill kgdb_serial
-Message-ID: <20040302233512.GJ1225@elf.ucw.cz>
-References: <20040302213901.GF20227@smtp.west.cox.net> <40450468.2090700@mvista.com> <20040302221106.GH20227@smtp.west.cox.net> <20040302223143.GE1225@elf.ucw.cz> <20040302230018.GL20227@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040302230018.GL20227@smtp.west.cox.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Wed, 3 Mar 2004 05:26:05 -0500
+From: "Mike Gigante" <mg@sgi.com>
+To: "Robin Rosenberg" <robin.rosenberg.lists@dewire.com>,
+       "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
+Cc: "David Weinehall" <david@southpole.se>,
+       "Andrew Ho" <andrewho@animezone.org>, "Dax Kelson" <dax@gurulabs.com>,
+       "Peter Nelson" <pnelson@andrew.cmu.edu>,
+       "Hans Reiser" <reiser@namesys.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       <ext2-devel@lists.sourceforge.net>, <ext3-users@redhat.com>,
+       <jfs-discussion@www-124.southbury.usf.ibm.com>,
+       <reiserfs-list@namesys.com>, <linux-xfs@oss.sgi.com>
+Subject: RE: Desktop Filesystem Benchmarks in 2.6.3
+Date: Wed, 3 Mar 2004 21:24:10 +1100
+Message-ID: <KHEHKKKAAILFJGJCHDCAAEFFEKAA.mg@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <200403031059.26483.robin.rosenberg.lists@dewire.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Út 02-03-04 16:00:18, Tom Rini wrote:
-> On Tue, Mar 02, 2004 at 11:31:43PM +0100, Pavel Machek wrote:
-> 
-> > Hi!
-> > 
-> > > > Tom Rini wrote:
-> > > > >Hello.  The following interdiff kills kgdb_serial in favor of function
-> > > > >names.  This only adds a weak function for kgdb_flush_io, and documents
-> > > > >when it would need to be provided.
-> > > > 
-> > > > It looks like you are also dumping any notion of building a kernel that can 
-> > > > choose which method of communication to use for kgdb at run time.  Is this 
-> > > > so?
-> > > 
-> > > Yes, as this is how Andrew suggested we do it.  It becomes quite ugly if
-> > > you try and allow for any 2 of 3 methods.
-> > 
-> > I do not think that having kgdb_serial is so ugly. Are there any other
-> > uglyness associated with that?
-> 
-> More precisely:
-> http://lkml.org/lkml/2004/2/11/224
 
-Well, that just says Andrew does not care too much. I think that
-having both serial and ethernet support *is* good idea after all... I
-have few machines here, some of them do not have serial, and some of
-them do not have supported ethernet. It would be nice to use same
-kernel on all of them. Also distribution wants to have "debugging
-kernel", but does _not_ want to have 10 of them.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+On Wednesday 03 March 2004 10:43, Felipe Alfaro Solana wrote:
+> But XFS easily breaks down due to media defects. Once ago I used XFS,
+> but I lost all data on one of my volumes due to a bad block on my hard
+> disk. XFS was unable to recover from the error, and the XFS recovery
+> tools were unable to deal with the error.
+
+A single bad-block rendered the entire filesystem non-recoverable 
+for XFS? Sounds difficult to believe since there is redundancy such
+as multiple copies of the superblock etc.
+
+I can believe you lost *some* data, but "lost all my data"??? -- I 
+believe that you'd have to had had *considerably* more than 
+"a bad block" :-)
+
+Mike
+

@@ -1,111 +1,452 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264956AbSKAMgS>; Fri, 1 Nov 2002 07:36:18 -0500
+	id <S264978AbSKAMlw>; Fri, 1 Nov 2002 07:41:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264978AbSKAMgS>; Fri, 1 Nov 2002 07:36:18 -0500
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:37002 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S264956AbSKAMgR>; Fri, 1 Nov 2002 07:36:17 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: might_sleep() in copy_{from,to}_user and friends?
-Date: Fri, 1 Nov 2002 15:42:09 +0100
-User-Agent: KMail/1.4.3
-Cc: kernel-janitor-discuss@lists.sourceforge.net,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <200211011302.05461.arnd@bergmann-dalldorf.de> <3DC25CA5.B15848E0@digeo.com>
-In-Reply-To: <3DC25CA5.B15848E0@digeo.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211011542.09097.arnd@bergmann-dalldorf.de>
+	id <S264980AbSKAMlw>; Fri, 1 Nov 2002 07:41:52 -0500
+Received: from skunk.directfb.org ([212.84.236.169]:61323 "EHLO
+	skunk.directfb.org") by vger.kernel.org with ESMTP
+	id <S264978AbSKAMlq>; Fri, 1 Nov 2002 07:41:46 -0500
+Date: Fri, 1 Nov 2002 13:48:03 +0100
+From: Denis Oliver Kropp <dok@directfb.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH-2.5] neofb 0.4.1
+Message-ID: <20021101124803.GA25848@skunk.convergence.de>
+Reply-To: Denis Oliver Kropp <dok@directfb.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="fUYQa+Pmc3FrFX/N"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 November 2002 11:51, Andrew Morton wrote:
 
-> I don't think we need to add the check to anything other than
-> ia32.  That will pick up the great bulk of any problems, and
-> arch-specific code won't be doing these copies much anyway.
->
-> So if you could prepare a patch which adds these checks for
-> ia32 it would be muchly appreciated.
+--fUYQa+Pmc3FrFX/N
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 
-Ok. This is the patch I was using, forward ported to
-today's bitkeeper version.
+Hi,
 
-	Arnd <><
+this patch replaces the neofb 0.4 patch and additionally
+includes code style changes requested by Arnaldo Carvalho de Melo.
 
-===== arch/i386/lib/usercopy.c 1.8 vs edited =====
---- 1.8/arch/i386/lib/usercopy.c	Tue Oct 29 22:10:51 2002
-+++ edited/arch/i386/lib/usercopy.c	Fri Nov  1 15:09:23 2002
-@@ -25,6 +25,7 @@
- #define __do_strncpy_from_user(dst,src,count,res)			   \
- do {									   \
- 	int __d0, __d1, __d2;						   \
-+	might_sleep();							   \
- 	__asm__ __volatile__(						   \
- 		"	testl %1,%1\n"					   \
- 		"	jz 2f\n"					   \
-@@ -75,7 +76,8 @@
- #define __do_clear_user(addr,size)					\
- do {									\
- 	int __d0;							\
--  	__asm__ __volatile__(						\
-+	might_sleep();							\
-+	__asm__ __volatile__(						\
- 		"0:	rep; stosl\n"					\
- 		"	movl %2,%0\n"					\
- 		"1:	rep; stosb\n"					\
-@@ -119,6 +121,7 @@
- 	unsigned long mask = -__addr_ok(s);
- 	unsigned long res, tmp;
- 
-+	might_sleep();
- 	__asm__ __volatile__(
- 		"	testl %0, %0\n"
- 		"	jz 3f\n"
-@@ -419,6 +422,7 @@
- 
- unsigned long __copy_to_user(void *to, const void *from, unsigned long n)
+-- 
+Best regards,
+  Denis Oliver Kropp
+
+.------------------------------------------.
+| DirectFB - Hardware accelerated graphics |
+| http://www.directfb.org/                 |
+"------------------------------------------"
+
+                            Convergence GmbH
+
+--fUYQa+Pmc3FrFX/N
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: attachment; filename="linux-2.5.44-neofb-0.4.1.patch"
+
+diff -Naur linux-2.5.44/drivers/char/toshiba.c linux-2.5.44-neofb-0.4.1/drivers/char/toshiba.c
+--- linux-2.5.44/drivers/char/toshiba.c	2002-10-19 06:02:31.000000000 +0200
++++ linux-2.5.44-neofb-0.4.1/drivers/char/toshiba.c	2002-10-30 17:03:24.000000000 +0100
+@@ -210,7 +210,7 @@
+ /*
+  * Put the laptop into System Management Mode
+  */
+-static int tosh_smm(SMMRegisters *regs)
++int tosh_smm(SMMRegisters *regs)
  {
-+	might_sleep();
- 	if (movsl_is_ok(to, from, n))
- 		__copy_user(to, from, n);
- 	else
-@@ -428,6 +432,7 @@
+ 	int eax;
  
- unsigned long __copy_from_user(void *to, const void *from, unsigned long n)
- {
-+	might_sleep();
- 	if (movsl_is_ok(to, from, n))
- 		__copy_user_zeroing(to, from, n);
- 	else
-===== include/asm-i386/uaccess.h 1.12 vs edited =====
---- 1.12/include/asm-i386/uaccess.h	Sat Oct 12 12:18:15 2002
-+++ edited/include/asm-i386/uaccess.h	Fri Nov  1 14:44:32 2002
-@@ -123,6 +123,7 @@
- /* Careful: we have to cast the result to the type of the pointer for sign reasons */
- #define get_user(x,ptr)							\
- ({	int __ret_gu,__val_gu;						\
-+	might_sleep();							\
- 	switch(sizeof (*(ptr))) {					\
- 	case 1:  __get_user_x(1,__ret_gu,__val_gu,ptr); break;		\
- 	case 2:  __get_user_x(2,__ret_gu,__val_gu,ptr); break;		\
-@@ -185,6 +186,7 @@
- #define __put_user_size(x,ptr,size,retval)				\
- do {									\
- 	retval = 0;							\
-+	might_sleep();							\
- 	switch (size) {							\
- 	  case 1: __put_user_asm(x,ptr,retval,"b","b","iq"); break;	\
- 	  case 2: __put_user_asm(x,ptr,retval,"w","w","ir"); break;	\
-@@ -231,6 +233,7 @@
- #define __get_user_size(x,ptr,size,retval)				\
- do {									\
- 	retval = 0;							\
-+	might_sleep();							\
- 	switch (size) {							\
- 	  case 1: __get_user_asm(x,ptr,retval,"b","b","=q"); break;	\
- 	  case 2: __get_user_asm(x,ptr,retval,"w","w","=r"); break;	\
+diff -Naur linux-2.5.44/drivers/video/neofb.c linux-2.5.44-neofb-0.4.1/drivers/video/neofb.c
+--- linux-2.5.44/drivers/video/neofb.c	2002-10-19 06:02:00.000000000 +0200
++++ linux-2.5.44-neofb-0.4.1/drivers/video/neofb.c	2002-11-01 12:57:56.000000000 +0100
+@@ -1,7 +1,7 @@
+ /*
+  * linux/drivers/video/neofb.c -- NeoMagic Framebuffer Driver
+  *
+- * Copyright (c) 2001  Denis Oliver Kropp <dok@convergence.de>
++ * Copyright (c) 2001-2002  Denis Oliver Kropp <dok@directfb.org>
+  *
+  *
+  * Card specific code is based on XFree86's neomagic driver.
+@@ -11,6 +11,16 @@
+  * Public License.  See the file COPYING in the main directory of this
+  * archive for more details.
+  *
++ *
++ * 0.4.1
++ *  - Cosmetic changes (dok)
++ *
++ * 0.4
++ *  - Toshiba Libretto support, allow modes larger than LCD size if
++ *    LCD is disabled, keep BIOS settings if internal/external display
++ *    haven't been enabled explicitly
++ *                          (Thomas J. Moore <dark@mama.indstate.edu>)
++ *
+  * 0.3.3
+  *  - Porting over to new fbdev api. (jsimmons)
+  *  
+@@ -56,6 +66,10 @@
+ #include <linux/fb.h>
+ #include <linux/pci.h>
+ #include <linux/init.h>
++#ifdef CONFIG_TOSHIBA
++#include <linux/toshiba.h>
++extern int tosh_smm(SMMRegisters *regs);
++#endif
+ 
+ #include <asm/io.h>
+ #include <asm/irq.h>
+@@ -70,17 +84,18 @@
+ #include <video/fbcon.h>
+ #include <video/neomagic.h>
+ 
+-#define NEOFB_VERSION "0.3.3"
++#define NEOFB_VERSION "0.4"
+ 
+ struct neofb_par default_par;
+ 
+ /* --------------------------------------------------------------------- */
+ 
+-static int disabled = 0;
+-static int internal = 0;
+-static int external = 0;
+-static int nostretch = 0;
+-static int nopciburst = 0;
++static int disabled;
++static int internal;
++static int external;
++static int libretto;
++static int nostretch;
++static int nopciburst;
+ 
+ 
+ #ifdef MODULE
+@@ -94,6 +109,8 @@
+ MODULE_PARM_DESC(internal, "Enable output on internal LCD Display.");
+ MODULE_PARM(external, "i");
+ MODULE_PARM_DESC(external, "Enable output on external CRT.");
++MODULE_PARM(libretto, "i");
++MODULE_PARM_DESC(libretto, "Force Libretto 100/110 800x480 LCD.");
+ MODULE_PARM(nostretch, "i");
+ MODULE_PARM_DESC(nostretch,
+ 		 "Disable stretching of modes smaller than LCD.");
+@@ -551,8 +568,9 @@
+ 	timings.sync = var->sync;
+ 
+ 	/* Is the mode larger than the LCD panel? */
+-	if ((var->xres > par->NeoPanelWidth) ||
+-	    (var->yres > par->NeoPanelHeight)) {
++	if (par->internal_display &&
++            ((var->xres > par->NeoPanelWidth) ||
++	     (var->yres > par->NeoPanelHeight))) {
+ 		printk(KERN_INFO
+ 		       "Mode (%dx%d) larger than the LCD panel (%dx%d)\n",
+ 		       var->xres, var->yres, par->NeoPanelWidth,
+@@ -561,23 +579,27 @@
+ 	}
+ 
+ 	/* Is the mode one of the acceptable sizes? */
+-	switch (var->xres) {
+-	case 1280:
+-		if (var->yres == 1024)
+-			mode_ok = 1;
+-		break;
+-	case 1024:
+-		if (var->yres == 768)
+-			mode_ok = 1;
+-		break;
+-	case 800:
+-		if (var->yres == 600)
+-			mode_ok = 1;
+-		break;
+-	case 640:
+-		if (var->yres == 480)
+-			mode_ok = 1;
+-		break;
++	if (!par->internal_display)
++		mode_ok = 1;
++	else {
++		switch (var->xres) {
++		case 1280:
++			if (var->yres == 1024)
++				mode_ok = 1;
++			break;
++		case 1024:
++			if (var->yres == 768)
++				mode_ok = 1;
++			break;
++		case 800:
++			if (var->yres == (par->libretto ? 480 : 600))
++				mode_ok = 1;
++			break;
++		case 640:
++			if (var->yres == 480)
++				mode_ok = 1;
++			break;
++		}
+ 	}
+ 
+ 	if (!mode_ok) {
+@@ -1261,6 +1283,17 @@
+ 
+ 	switch (blank) {
+ 	case 4:		/* powerdown - both sync lines down */
++#ifdef CONFIG_TOSHIBA
++		/* attempt to turn off backlight on toshiba; also turns off external */
++		{
++			SMMRegisters regs;
++
++			regs.eax = 0xff00; /* HCI_SET */
++			regs.ebx = 0x0002; /* HCI_BACKLIGHT */
++			regs.ecx = 0x0000; /* HCI_DISABLE */
++			tosh_smm(&regs);
++		}
++#endif
+ 		break;
+ 	case 3:		/* hsync off */
+ 		break;
+@@ -1269,6 +1302,17 @@
+ 	case 1:		/* just software blanking of screen */
+ 		break;
+ 	default:		/* case 0, or anything else: unblank */
++#ifdef CONFIG_TOSHIBA
++		/* attempt to re-enable backlight/external on toshiba */
++		{
++			SMMRegisters regs;
++
++			regs.eax = 0xff00; /* HCI_SET */
++			regs.ebx = 0x0002; /* HCI_BACKLIGHT */
++			regs.ecx = 0x0001; /* HCI_ENABLE */
++			tosh_smm(&regs);
++		}
++#endif
+ 		break;
+ 	}
+ 	return 0;
+@@ -1403,75 +1447,93 @@
+ /* --------------------------------------------------------------------- */
+ 
+ static struct fb_var_screeninfo __devinitdata neofb_var640x480x8 = {
+-	accel_flags:	FB_ACCELF_TEXT,
+-	xres:		640,
+-	yres:		480,
+-	xres_virtual:	640,
+-	yres_virtual:	30000,
+-	bits_per_pixel:	8,
+-	pixclock:	39722,
+-	left_margin:	48,
+-	right_margin:	16,
+-	upper_margin:	33,
+-	lower_margin:	10,
+-	hsync_len:	96,
+-	vsync_len:	2,
+-	vmode:		FB_VMODE_NONINTERLACED
++	.accel_flags    = FB_ACCELF_TEXT,
++	.xres           = 640,
++	.yres           = 480,
++	.xres_virtual   = 640,
++	.yres_virtual   = 30000,
++	.bits_per_pixel = 8,
++	.pixclock       = 39722,
++	.left_margin    = 48,
++	.right_margin   = 16,
++	.upper_margin   = 33,
++	.lower_margin   = 10,
++	.hsync_len      = 96,
++	.vsync_len      = 2,
++	.vmode          = FB_VMODE_NONINTERLACED
+ };
+ 
+ static struct fb_var_screeninfo __devinitdata neofb_var800x600x8 = {
+-	accel_flags:	FB_ACCELF_TEXT,
+-	xres:		800,
+-	yres:		600,
+-	xres_virtual:	800,
+-	yres_virtual:	30000,
+-	bits_per_pixel:	8,
+-	pixclock:	25000,
+-	left_margin:	88,
+-	right_margin:	40,
+-	upper_margin:	23,
+-	lower_margin:	1,
+-	hsync_len:	128,
+-	vsync_len:	4,
+-	sync:		FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
+-	vmode:		FB_VMODE_NONINTERLACED
++	.accel_flags    = FB_ACCELF_TEXT,
++	.xres           = 800,
++	.yres           = 600,
++	.xres_virtual   = 800,
++	.yres_virtual   = 30000,
++	.bits_per_pixel = 8,
++	.pixclock       = 25000,
++	.left_margin    = 88,
++	.right_margin   = 40,
++	.upper_margin   = 23,
++	.lower_margin   = 1,
++	.hsync_len      = 128,
++	.vsync_len      = 4,
++	.sync           = FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
++	.vmode          = FB_VMODE_NONINTERLACED
++};
++
++static struct fb_var_screeninfo __devinitdata neofb_var800x480x8 = {
++	.accel_flags    = FB_ACCELF_TEXT,
++	.xres           = 800,
++	.yres           = 480,
++	.xres_virtual   = 800,
++	.yres_virtual   = 30000,
++	.bits_per_pixel = 8,
++	.pixclock       = 25000,
++	.left_margin    = 88,
++	.right_margin   = 40,
++	.upper_margin   = 23,
++	.lower_margin   = 1,
++	.hsync_len      = 128,
++	.vsync_len      = 4,
++	.sync           = FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
++	.vmode          = FB_VMODE_NONINTERLACED
+ };
+ 
+ static struct fb_var_screeninfo __devinitdata neofb_var1024x768x8 = {
+-	accel_flags:	FB_ACCELF_TEXT,
+-	xres:		1024,
+-	yres:		768,
+-	xres_virtual:	1024,
+-	yres_virtual:	30000,
+-	bits_per_pixel:	8,
+-	pixclock:	15385,
+-	left_margin:	160,
+-	right_margin:	24,
+-	upper_margin:	29,
+-	lower_margin:	3,
+-	hsync_len:	136,
+-	vsync_len:	6,
+-	sync:		FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
+-	vmode:		FB_VMODE_NONINTERLACED
++	.accel_flags    = FB_ACCELF_TEXT,
++	.xres           = 1024,
++	.yres           = 768,
++	.xres_virtual   = 1024,
++	.yres_virtual   = 30000,
++	.bits_per_pixel = 8,
++	.pixclock       = 15385,
++	.left_margin    = 160,
++	.right_margin   = 24,
++	.upper_margin   = 29,
++	.lower_margin   = 3,
++	.hsync_len      = 136,
++	.vsync_len      = 6,
++	.sync           = FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
++	.vmode          = FB_VMODE_NONINTERLACED
+ };
+ 
+ #ifdef NOT_DONE
+ static struct fb_var_screeninfo __devinitdata neofb_var1280x1024x8 = {
+-	accel_flags:	FB_ACCELF_TEXT,
+-	xres:		1280,
+-	yres:		1024,
+-	xres_virtual:	1280,
+-	yres_virtual:	30000,
+-	bits_per_pixel:	8,
+-	pixclock:	9260,
+-	left_margin:	248,
+-	right_margin:	48,
+-	upper_margin:	38,
+-	lower_margin:	1,
+-	hsync_len:	112,
+-	vsync_len:	3,
+-	sync:		FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
+-	vmode:		FB_VMODE_NONINTERLACED
++	.accel_flags    = FB_ACCELF_TEXT,
++	.xres           = 1280,
++	.yres           = 1024,
++	.xres_virtual   = 1280,
++	.yres_virtual   = 30000,
++	.bits_per_pixel = 8,
++	.pixclock       = 9260,
++	.left_margin    = 248,
++	.right_margin   = 48,
++	.upper_margin   = 38,
++	.lower_margin   = 1,
++	.hsync_len      = 112,
++	.vsync_len      = 3,
++	.sync           = FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
++	.vmode          = FB_VMODE_NONINTERLACED
+ };
+ #endif
+ 
+@@ -1609,6 +1671,13 @@
+ 	VGAwGR(0x09, 0x26);
+ 	type = VGArGR(0x21);
+ 	display = VGArGR(0x20);
++	if (!par->internal_display && !par->external_display) {
++		par->internal_display = display & 2 || !(display & 3) ? 1 : 0;
++		par->external_display = display & 1;
++		printk (KERN_INFO "Autodetected %s display\n",
++			par->internal_display && par->external_display ? "simultaneous" :
++			par->internal_display ? "internal" : "external");
++	}
+ 
+ 	/* Determine panel width -- used in NeoValidMode. */
+ 	w = VGArGR(0x20);
+@@ -1621,8 +1690,8 @@
+ 		break;
+ 	case 0x01:
+ 		par->NeoPanelWidth = 800;
+-		par->NeoPanelHeight = 600;
+-		neofb_var = &neofb_var800x600x8;
++		par->NeoPanelHeight = par->libretto ? 480 : 600;
++		neofb_var = par->libretto ? &neofb_var800x480x8 : &neofb_var800x600x8;
+ 		break;
+ 	case 0x02:
+ 		par->NeoPanelWidth = 1024;
+@@ -1638,7 +1707,7 @@
+ 		break;
+ #else
+ 		printk(KERN_ERR
+-		       "neofb: Only 640x480, 800x600 and 1024x768 panels are currently supported\n");
++		       "neofb: Only 640x480, 800x600/480 and 1024x768 panels are currently supported\n");
+ 		return -1;
+ #endif
+ 	default:
+@@ -1766,14 +1835,10 @@
+ 
+ 	par->pci_burst = !nopciburst;
+ 	par->lcd_stretch = !nostretch;
++	par->libretto = libretto;
+ 
+-	if (!internal && !external) {
+-		par->internal_display = 1;
+-		par->external_display = 0;
+-	} else {
+-		par->internal_display = internal;
+-		par->external_display = external;
+-	}
++	par->internal_display = internal;
++	par->external_display = external;
+ 
+ 	switch (info->fix.accel) {
+ 	case FB_ACCEL_NEOMAGIC_NM2070:
+@@ -2036,6 +2101,8 @@
+ 			nostretch = 1;
+ 		if (!strncmp(this_opt, "nopciburst", 10))
+ 			nopciburst = 1;
++		if (!strncmp(this_opt, "libretto", 8))
++			libretto = 1;
+ 	}
+ 
+ 	return 0;
+diff -Naur linux-2.5.44/include/video/neomagic.h linux-2.5.44-neofb-0.4.1/include/video/neomagic.h
+--- linux-2.5.44/include/video/neomagic.h	2002-10-19 06:01:48.000000000 +0200
++++ linux-2.5.44-neofb-0.4.1/include/video/neomagic.h	2002-10-30 17:50:44.000000000 +0100
+@@ -176,6 +176,7 @@
+   int lcd_stretch;
+   int internal_display;
+   int external_display;
++  int libretto;
+ };
+ 
+ typedef struct {
 
+--fUYQa+Pmc3FrFX/N--

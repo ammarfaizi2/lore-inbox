@@ -1,89 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265287AbTLGCeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 21:34:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265288AbTLGCeZ
+	id S265288AbTLGCok (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 21:44:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265291AbTLGCok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 21:34:25 -0500
-Received: from web11506.mail.yahoo.com ([216.136.172.38]:10861 "HELO
-	web11506.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265287AbTLGCeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 21:34:23 -0500
-Message-ID: <20031207023422.86164.qmail@web11506.mail.yahoo.com>
-Date: Sat, 6 Dec 2003 18:34:22 -0800 (PST)
-From: gary ng <garyng2000@yahoo.com>
-Subject: Re: Linux GPL and binary module exception clause?
-To: linux-kernel@vger.kernel.org
+	Sat, 6 Dec 2003 21:44:40 -0500
+Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:34058
+	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S265288AbTLGCoj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 21:44:39 -0500
+Message-ID: <3FD24E34.3050300@rogers.com>
+Date: Sat, 06 Dec 2003 21:46:28 +0000
+From: pZa1x <pZa1x@rogers.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: APM Suspend Problem
+References: <3FC7F031.5060502@rogers.com> <3FC7F2E3.8080109@rogers.com> <20031129082200.A30476@flint.arm.linux.org.uk> <3FC88277.4090304@rogers.com> <20031201210739.C13621@flint.arm.linux.org.uk>
+In-Reply-To: <20031201210739.C13621@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep02-mail.bloor.is.net.cable.rogers.com from [24.157.208.226] using ID <dw2price@rogers.com> at Sat, 6 Dec 2003 21:43:30 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well said, which was my response to Linus yesterday
-but you said it 100x better. Interfacing linux(which
-is what a driver essentially does, may be file system
-too) shouldn't be by default considered a derived
-work. Using kernel header is a bit more iffy, as that
-may accidentally 'copy' some linux code. A driver
-writer must be careful in these situations. But the
-burden of proof should still be on the linux
-community, not the other way round.
+Please let me know if there's anything I can do to help.
 
-regards
-
-gary
-
-On Sat, Dec 06, 2003 at 04:19:00PM -0500, Theodore
-Ts'o wrote:
-> But that aside, does the Open Source community
-really want to push for
-> the legal principal that just because you write an
-independent program
-> which uses a particular API, the license infects
-across the interface?
-> That's essentially interface copyrights, and if say
-the FSF were to
-> file an amicus curiae brief support that particular
-legal principle in
-> an kernel modules case, it's worthwhile to think
-about how Microsoft
-> and Apple could use that case law to f*ck us over
-very badly.  
+Russell King wrote:
+> On Sat, Nov 29, 2003 at 11:26:47AM +0000, pZa1x wrote:
 > 
-> It would mean that we would not be able to use
-Microsoft DLL's in
-> programs like xine.  It would mean that programs
-like Crossover office
-> wouldn't work.  It would mean that Apple could
-legally prohibit people
-> from writing enhancements to MacOS (for example, how
-do all of the
-> various extensions in Mac OS 9 work?  They link into
-the operating
-> system and modify its behaviour.  If they are
-therefore a derived work
-> of MacOS, then Apple could screw over all of the
-people who write
-> system extensions of MacOS.)  
+>>(a) with yenta kernel 2.6
+>>(b) without yenta kernel 2.6
 > 
-> Be careful of what you wish for, before you get it. 
-The ramifications
-> of the statement that just because a device driver
-is written for
-> Linux, that it is presumptively a derived work of
-Linux unless proven
-> otherwise, is amazingly scary.  Fortunately, we can
-hope that the law
-> professor I talked to was right, and that such a
-claim would be
-> laughed out of court.  But if it isn't, look to
-Microsoft and other
-> unsavory companies to use that kind of case law to
-completely screw us
-> to the wall.....
+> 
+> Ok, so there aren't any differences between the PCI config space with
+> the module loaded and unloaded.  I guess we need to start looking at
+> the devices memory space registers for differences.
+> 
+> (This will require a little more work, so there'll be a slight delay.)
+> 
 
 
-__________________________________
-Do you Yahoo!?
-New Yahoo! Photos - easier uploading and sharing.
-http://photos.yahoo.com/

@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270414AbTGMVuX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 17:50:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270415AbTGMVuX
+	id S270404AbTGMVU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 17:20:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270413AbTGMVU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 17:50:23 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:8586 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S270414AbTGMVuU (ORCPT
+	Sun, 13 Jul 2003 17:20:28 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:8849 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S270404AbTGMVUU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 17:50:20 -0400
-Date: Mon, 14 Jul 2003 00:05:00 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [announce, patch] 4G/4G split on x86, 64 GB RAM (and more) support
-Message-ID: <20030713220500.GB7494@vana.vc.cvut.cz>
-References: <Pine.LNX.4.44.0307082332450.17252-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0307082332450.17252-100000@localhost.localdomain>
-User-Agent: Mutt/1.5.4i
+	Sun, 13 Jul 2003 17:20:20 -0400
+Date: Sun, 13 Jul 2003 23:34:46 +0200 (MEST)
+Message-Id: <200307132134.h6DLYkJC019846@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: perfctr-devel@lists.sourceforge.net
+Subject: perfctr-2.6.0-pre2 released
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 09, 2003 at 12:45:52AM +0200, Ingo Molnar wrote:
-> 
-> i'm pleased to announce the first public release of the "4GB/4GB VM split"
-> patch, for the 2.5.74 Linux kernel:
-> 
->    http://redhat.com/~mingo/4g-patches/4g-2.5.74-F8
+Version 2.6.0-pre2 of perfctr, the Linux/x86 performance
+monitoring counters driver, is now available at the usual
+place: http://www.csd.uu.se/~mikpe/linux/perfctr/
 
-FYI, VMware's vmmon/vmnet I maintain for 2.5.x kernels at 
-http://platan.vc.cvut.cz/ftp/pub/vmware (currently 
-.../vmware-any-any-update37.tar.gz) were updated to work correctly
-with 4G/4G kernel configuration.
-						Best regards,
-							Petr Vandrovec
-							vandrove@vc.cvut.cz
+Although this release makes the mmap()ed counter state compatible
+between x86 and x86-64, there are still several unresolved ABI
+compatibility problems (not just x86 on x86-64 but also protection
+for future drivers versions). I have the choice of either doing
+ad-hoc solutions for each data relevant structure (info, counter sums,
+counter control), or go with a generic sparse marshalling approach.
+The latter has been prototyped and _will_ work, but it's a radical
+departure from conventional kernel/user-space APIs.
+
+Version 2.6.0-pre2, 2003-07-13
+- Per-process perfctrs API fixes: control data is retrieved using
+  new READ_CONTROL operation, mmap()ed state no longer exposes the
+  control data, the SAMPLE operation is renamed to READ_SUM and
+  now updates a given user-space buffer, non-write operations are
+  permitted on dead perfctrs.
+  Retrieving control explicitly makes the user-visible mmap()ed
+  state binary compatible between x86 and x86-64. The other changes
+  simplify the user-space library and allow perfex to replace raw
+  mmap() accesses with higher-level operations.
+- Driver cleanups, including eliminating many #ifdefs and
+  removing some unnecessary P4-specific driver procedures.
+- Fixes for macro redefinition warnings in the 2.4.22-pre3 kernel.
+- Perfctr library RPM spec file updates from Bryan O'Sullivan.
+
+/ Mikael Pettersson

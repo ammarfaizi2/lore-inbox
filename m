@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262269AbRE2EYN>; Tue, 29 May 2001 00:24:13 -0400
+	id <S262308AbRE2E0d>; Tue, 29 May 2001 00:26:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262304AbRE2EYD>; Tue, 29 May 2001 00:24:03 -0400
-Received: from beaker.bluetopia.net ([63.219.235.110]:5904 "EHLO
-	beaker.bluetopia.net") by vger.kernel.org with ESMTP
-	id <S262269AbRE2EXx>; Tue, 29 May 2001 00:23:53 -0400
-Date: Tue, 29 May 2001 00:23:26 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetopia.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.5] buz.c won't compile
-In-Reply-To: <E154UFq-0003XG-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.04.10105290022051.1601-100000@beaker.bluetopia.net>
+	id <S262347AbRE2E0X>; Tue, 29 May 2001 00:26:23 -0400
+Received: from mail08.voicenet.com ([207.103.0.34]:11648 "HELO
+	mail08.voicenet.com") by vger.kernel.org with SMTP
+	id <S262308AbRE2E0R>; Tue, 29 May 2001 00:26:17 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: safemode <safemode@voicenet.com>
+To: Jakob =?iso-8859-1?q?=D8stergaard?= <jakob@unthought.net>,
+        "G. Hugh Song" <ghsong@kjist.ac.kr>
+Subject: Re: Plain 2.4.5 VM...
+Date: Tue, 29 May 2001 00:26:08 -0400
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200105290232.f4T2W9m00876@bellini.kjist.ac.kr> <20010529061039.D29962@unthought.net>
+In-Reply-To: <20010529061039.D29962@unthought.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01052900260800.29037@psuedomode>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 May 2001, Alan Cox wrote:
->> Actually, it broke at 2.4.3.  Go look at the first change to buz.c from
->> that patch.
->
->buz was broken before 2.4.0
+On Tuesday 29 May 2001 00:10, Jakob Østergaard wrote:
 
-Where "broke" is defined as "no longer compiles".
+> > > Mem: 381608K av, 248504K used, 133104K free, 0K shrd, 192K
+> > > buff
+> > > Swap: 255608K av, 255608K used, 0K free 215744K
+> > > cached
+> > >
+> > > Vanilla 2.4.5 VM.
 
-(I'm one of those nuts that compiles everything.)
+> It's not a bug.  It's a feature.  It only breaks systems that are run with
+> "too little" swap, and the only difference from 2.2 till now is, that the
+> definition of "too little" changed.
 
---Ricky
 
-
+Sorry but if ~250MB is too little ... it _is_ a bug.   I think everyone would 
+agree that 250MB of swap in use is far far far too much.  If this is a 
+feature, it is one nobody would want.  

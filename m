@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262569AbTKNNdF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 08:33:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262570AbTKNNdF
+	id S262564AbTKNNpv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 08:45:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbTKNNpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 08:33:05 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:57028 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262569AbTKNNdC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 08:33:02 -0500
-Date: Fri, 14 Nov 2003 16:32:59 +0300
-From: Alex Zarochentsev <zam@namesys.com>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-Cc: Gianni Tedesco <gianni@scaramanga.co.uk>, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: new reiser4 snapshot is available
-Message-ID: <20031114133258.GL1278@backtop.namesys.com>
-References: <20031113143438.GD1278@backtop.namesys.com> <20031114094217.GH1278@backtop.namesys.com> <1068807864.2883.1520.camel@lemsip> <20031114112027.GJ1278@backtop.namesys.com> <20031114131637.GK1278@backtop.namesys.com> <3FB4D841.5000700@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FB4D841.5000700@gmx.net>
-User-Agent: Mutt/1.4i
+	Fri, 14 Nov 2003 08:45:51 -0500
+Received: from main.gmane.org ([80.91.224.249]:21198 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262564AbTKNNpu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 08:45:50 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Patrick Beard" <patrick@scotcomms.co.uk>
+Subject: Re: 2.6.0-test9 VFAT problem
+Date: Fri, 14 Nov 2003 13:46:51 -0000
+Message-ID: <bp2mab$sts$1@sea.gmane.org>
+References: <20031114113224.GR21265@home.bofhlet.net>
+X-Complaints-To: usenet@sea.gmane.org
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 14, 2003 at 02:27:29PM +0100, Carl-Daniel Hailfinger wrote:
-> Alex Zarochentsev wrote:
-> > I made a cleanup for reiser4 patches (by removing UML-specific changes),
-> > you can see result here: 
-> > 
-> > http://namesys.com/snapshots/2003.11.17/cleaned-up/
-> 
-> That directory doesn't exist.
+>> FAT: Bogus number of reserved sectors
+>> VFS: Can't find a valid FAT filesystem on dev sda
 
-http://namesys.com/snapshots/2003.11.12/cleaned-up/
+>Oh, no, not again... :(
 
-> 
-> 
-> Carl-Daniel
-> 
+>We had the same problem few weeks ago... a patch is in the archives, it
+>worked for me.
 
--- 
-Alex.
+I did apply Andries's 'Relax FAT checking' patch last night but the only
+difference I noticed was my belkin reader changed it's error to 'no media
+found' the camera still gave 'wrong fs...'
+
+After advice from Philippe and Andries and the following I found on a
+website;
+"The problem is that Linux only looks at the disk geometry the first time
+the camera is plugged in. So when you unplug the camera and change the
+memory card Linux does not check to see if the geometry has changed."
+
+I really hope I've not chased my tail by hitting the following combination
+'up-patched inode.c' + 'trying to use sda after a deja search' and finally
+'Linux only checking the geometry once'. I'd like to put this thread on hold
+until I take stock of the steps I've taken just to make sure I've not been a
+right 'plum'.
+
+--
+Patrick
+
+
+

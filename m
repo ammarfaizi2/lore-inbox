@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129181AbQKBCnG>; Wed, 1 Nov 2000 21:43:06 -0500
+	id <S131710AbQKBCra>; Wed, 1 Nov 2000 21:47:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129435AbQKBCm4>; Wed, 1 Nov 2000 21:42:56 -0500
-Received: from p3EE0A7CB.dip.t-dialin.net ([62.224.167.203]:31221 "EHLO
-	cerebro") by vger.kernel.org with ESMTP id <S129181AbQKBCmn>;
-	Wed, 1 Nov 2000 21:42:43 -0500
-Date: Thu, 2 Nov 2000 03:42:33 +0100
-From: Marc Lehmann <pcg@goof.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S131579AbQKBCrT>; Wed, 1 Nov 2000 21:47:19 -0500
+Received: from jalon.able.es ([212.97.163.2]:28849 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129435AbQKBCrK>;
+	Wed, 1 Nov 2000 21:47:10 -0500
+Date: Thu, 2 Nov 2000 03:47:03 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Where did kgcc go in 2.4.0-test10 ?
-Message-ID: <20001102034232.C10806@cerebro.laendle>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20001101234058.B1598@werewolf.able.es> <20001101235734.D10585@garloff.etpnet.phys.tue.nl> <200011012247.OAA19546@pizda.ninka.net> <20001101163752.B2616@fsmlabs.com> <200011012329.PAA19890@pizda.ninka.net> <20001101165418.B3444@hq.fsmlabs.com> <200011012345.PAA20284@pizda.ninka.net>
+Message-ID: <20001102034703.B766@werewolf.able.es>
+In-Reply-To: <E13r6lL-0000w4-00@the-village.bc.nu> <3A00BF7F.5C7CB1D7@mandrakesoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200011012345.PAA20284@pizda.ninka.net>; from davem@redhat.com on Wed, Nov 01, 2000 at 03:45:24PM -0800
-X-Operating-System: Linux version 2.2.17 (root@cerebro) (gcc version pgcc-2.95.2 19991024 (release)) 
-X-Copyright: copyright 2000 Marc Alexander Lehmann - all rights reserved
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3A00BF7F.5C7CB1D7@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Thu, Nov 02, 2000 at 02:12:31 +0100
+X-Mailer: Balsa 1.0.pre2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2000 at 03:45:24PM -0800, "David S. Miller" <davem@redhat.com> wrote:
->    explain why RedHat includes a compiler that doesn't work with the
+
+On Thu, 02 Nov 2000 02:12:31 Jeff Garzik wrote:
+>> 
+> You're not changing 2.4.x to use kgcc, are you?  It seems to be working
+> fine under gcc 2.95.2+fixes...
 > 
-> Because the kernel is buggy (the specifics of this has been discussed
 
-But redhat's compiler is much, much buggier, as has been discussed here
-as well. Actually, redhat's gcc branch fails to compile a large amount of
-userspace applications that aren't buggy.
+What means "using kgcc" ?. I think it should be done even before.
+It is not using "egcs" as you seem to be thinking. You cant put your
+preferred compiler in kgcc.
+Even I think it could include some general options for all the kernel build.
 
-I thought redhat already agreed that they made a bad decision in many
-regards and the real reason for having the compiler was mere policy of not
-switching the compiler duing a major release, and rehdat wanted to have a
-newer compiler in any case.
-
-...
-
-> they did XXX" I would expect you to defend your employer as well if I
-> misrepresented them due to incorrect statements.  Right?  :-)
-
-Sometimes one just keeps quiet, and that's o.k.
+Think of packages like ALSA drivers grepping or analizing the kernel Makefile
+to find that options are -fomit-frame-pointer -malign=xxxx and so on.
+And that options can change from version to version of gcc. 
+Simpler: build a script (what kgcc is). An external module package, use kgcc.
 
 -- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@opengroup.org |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
+Juan Antonio Magallon Lacarta                          mailto:jamagallon@able.es
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

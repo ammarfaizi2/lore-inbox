@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266554AbUBGDGH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 22:06:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266557AbUBGDGH
+	id S266544AbUBGDSz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 22:18:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266558AbUBGDSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 22:06:07 -0500
-Received: from mail.shareable.org ([81.29.64.88]:30416 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S266554AbUBGDGB
+	Fri, 6 Feb 2004 22:18:55 -0500
+Received: from mail.shareable.org ([81.29.64.88]:32720 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S266544AbUBGDSy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 22:06:01 -0500
-Date: Sat, 7 Feb 2004 03:05:29 +0000
+	Fri, 6 Feb 2004 22:18:54 -0500
+Date: Sat, 7 Feb 2004 03:18:40 +0000
 From: Jamie Lokier <jamie@shareable.org>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>, Valdis.Kletnieks@vt.edu,
-       Roland Dreier <roland@topspin.com>,
-       "Hefty, Sean" <sean.hefty@intel.com>,
-       Troy Benjegerdes <hozer@hozed.org>,
-       infiniband-general@lists.sourceforge.net,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
-Message-ID: <20040207030529.GK12503@mail.shareable.org>
-References: <C1B7430B33A4B14F80D29B5126C5E9470326258C@orsmsx401.jf.intel.com> <Pine.LNX.4.53.0402061150100.3862@chaos> <52smhounpn.fsf@topspin.com> <Pine.LNX.4.53.0402061258110.4045@chaos> <200402061822.i16IMdHJ013686@turing-police.cc.vt.edu> <Pine.LNX.4.53.0402061336120.4238@chaos> <20040206191107.GA6340@vana.vc.cvut.cz>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Ulrich Drepper <drepper@redhat.com>,
+       Chris McDermott <lcm@us.ibm.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Joel Becker <Joel.Becker@oracle.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [RFC][PATCH] linux-2.6.2_vsyscall-gtod_B2.patch
+Message-ID: <20040207031840.GL12503@mail.shareable.org>
+References: <1076037045.757.21.camel@cog.beaverton.ibm.com> <20040206040123.GN31926@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040206191107.GA6340@vana.vc.cvut.cz>
+In-Reply-To: <20040206040123.GN31926@dualathlon.random>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
-> Yes, because Linux programmers are only one who care about quality. 
-> Microsoft happilly offers (W2k DDK,inc/ddk/ntddk.h)
+Andrea Arcangeli wrote:
+> On Thu, Feb 05, 2004 at 07:10:46PM -0800, john stultz wrote:
+> > @@ -6,6 +9,8 @@
+> >  	.globl __kernel_vsyscall
+> >  	.type __kernel_vsyscall,@function
+> >  __kernel_vsyscall:
+> > +	cmp $__NR_gettimeofday, %eax
+> > +	je .Lvgettimeofday
+> >  .LSTART_vsyscall:
 > 
-> /* PLIST_ENTRY RemoveHeadList(PLIST_ENTRY ListHead) */
+> this is the sort of slowdown that could be avoided with the fixed
+> address.
 > 
-> #define RemoveHeadList(ListHead) \
-> 	(ListHead)->Flink;\
-> 	{RemoveEntryList((ListHead)->Flink)}
-> 
-> and they do not care that you cannot use it in an expression, or
-> after if () statement, or anywhere else, except directly in an
-> assignment which is not in if/while body. So you must know that
-> RemoveHeadList() is macro, even that it is macro built from two
-> statements, and that you cannot use it as a function at all, as
-> it has a value only from left side - from right side it is
-> void :-( And of course it evaluates ListHead two times.
+> ... the worst part is that not
+> only it makes gettimeofday slower, it makes _all_ the syscall slower
 
+Andrea, please keep this argument separate from the argument about
+varying vdso addresses.
 
-Oh, it is much worse than that.
+The Glibc method of calling syscalls is already sub-optimal: the two
+instructions in the above patch are nothing, time wise, compared with
+the segment-prefixed indirect jump in Glibc and the branches which
+check for and toggle POSIX asynchronous cancellations.
 
-You _can_ use it after an if() statement.  Your program compiles just
-fine.  The only problem is it has a serious bug which is invisible and
-may not be noticed for years.
-
-I have seen code shipped with this exact bug, and watched someone
-spend days debugging a program that contained it, until they brought
-the problem to me.  Then we found it quickly - because I already
-know why that macro kind is bad, thanks to the GNU CPP manual.
-
-In short, any programmer managed by me who wrote a macro like that
-would be educated why it is not acceptable.  If they still wrote code
-like that afterwards, they wouldn't remain with me for long.
+Other libcs might be more direct about the syscalls, and then it is
+nice to imagine the optimal vdso for them.  But other libcs don't have
+to enter the vdso at all, they can just copy the initial instructions
+of the vdso and optimise away the path not taken (checking at run time
+whether they match the current kernel's vdso of course).  Thus an
+optimal vdso isn't strictly required for those of us who are into
+hard core binary optimisation.
 
 -- Jamie

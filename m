@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285032AbRLKPB4>; Tue, 11 Dec 2001 10:01:56 -0500
+	id <S285046AbRLKPHg>; Tue, 11 Dec 2001 10:07:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285046AbRLKPBg>; Tue, 11 Dec 2001 10:01:36 -0500
-Received: from mailgate.bodgit-n-scarper.com ([62.49.233.146]:58630 "HELO
-	mould.bodgit-n-scarper.com") by vger.kernel.org with SMTP
-	id <S285032AbRLKPB0>; Tue, 11 Dec 2001 10:01:26 -0500
-Date: Tue, 11 Dec 2001 15:07:17 +0000
-From: Matt <matt@bodgit-n-scarper.com>
-To: linux-kernel@vger.kernel.org
-Subject: aacraid success with 2.4.17-pre8. Intentional?
-Message-ID: <20011211150717.A20308@mould.bodgit-n-scarper.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S285056AbRLKPH1>; Tue, 11 Dec 2001 10:07:27 -0500
+Received: from demokritos.cytanet.com.cy ([195.14.133.252]:3085 "EHLO
+	demokritos.cytanet.com.cy") by vger.kernel.org with ESMTP
+	id <S285054AbRLKPHO>; Tue, 11 Dec 2001 10:07:14 -0500
+From: Sinisa Milivojevic <sinisa@mysql.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 on i686 SMP (mould)
+Content-Transfer-Encoding: 7bit
+Message-ID: <15382.8806.167316.426217@sinisa.nasamreza.org>
+Date: Tue, 11 Dec 2001 17:12:38 +0200
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.16 and gcc 3.0.2
+X-Mailer: VM 6.96 under 21.4 (patch 4) "Artificial Intelligence" XEmacs Lucid
+Reply-To: sinisa@mysql.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been trying to set up an HP NetRaid 4M controller, (aacraid), and I got
-the familiar fsck hang with both the latest drivers provided by Matt Domsch,
-and Alan Cox, under kernel 2.4.16.
 
-I've just tried the latest 2.4.17-pre8 kernel, and it works, in that
-it gets passed the fsck'ing. I couldn't see anything in the changelog that
-screamed "Fix fsck hang with aacraid", so I was wondering if my working
-setup is intentional or not? I haven't followed the development of this
-driver too closely, I just had the card and downloaded the latest "stable"
-release and went from there...
+Sorry to bother you again and please CC: the answer directly to me.
 
-Searching the archives, I couldn't see anyone reporting a success with this
-kernel and card combination, which worried me slightly. Have I got something
-that will fall over if I sneeze near it? :-)
+I have built 2.4.16 with 3.0.2 and when kernel reboots, it gets
+segmentation violation at this command in init file:
 
-Cheers
+swapon -a
 
-Matt
+I have used latest util-linux and rebuilt all programs, but to no
+avail.
+
+Should I comment out that line ??
+
+Many thanks in advance.
+
 -- 
-"Phase plasma rifle in a forty-watt range?"
-"Only what you see on the shelves, buddy"
+Regards,
+   __  ___     ___ ____  __
+  /  |/  /_ __/ __/ __ \/ /    Mr. Sinisa Milivojevic <sinisa@mysql.com>
+ / /|_/ / // /\ \/ /_/ / /__   MySQL AB, Fulltime Developer
+/_/  /_/\_, /___/\___\_\___/   Larnaca, Cyprus
+       <___/   www.mysql.com
+

@@ -1,27 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262083AbSJZK0t>; Sat, 26 Oct 2002 06:26:49 -0400
+	id <S261907AbSJZKXK>; Sat, 26 Oct 2002 06:23:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262042AbSJZK0a>; Sat, 26 Oct 2002 06:26:30 -0400
-Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:34828 "EHLO
+	id <S262038AbSJZKXK>; Sat, 26 Oct 2002 06:23:10 -0400
+Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:18444 "EHLO
 	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S262070AbSJZKYy>; Sat, 26 Oct 2002 06:24:54 -0400
+	id <S261907AbSJZKXK>; Sat, 26 Oct 2002 06:23:10 -0400
 X-Envelope-From: pavel@bug.ucw.cz
-Date: Thu, 24 Oct 2002 13:24:12 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andi Kleen <ak@muc.de>
-Cc: Jeff Dike <jdike@karaya.com>, john stultz <johnstul@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>, andrea <andrea@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>,
-       george anzinger <george@mvista.com>,
-       Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [PATCH] linux-2.5.43_vsyscall_A0
-Message-ID: <20021024112411.GA783@elf.ucw.cz>
-References: <1034981832.4042.58.camel@cog> <200210190352.WAA05769@ccure.karaya.com> <20021019031002.GA16404@averell>
+Date: Sun, 20 Oct 2002 16:16:47 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Posix capabilities
+Message-ID: <20021020141647.GB6280@elf.ucw.cz>
+References: <20021016154459.GA982@TK150122.tuwien.teleweb.at> <20021017032619.GA11954@think.thunk.org> <20021017120526.GC6014@TK150122.tuwien.teleweb.at> <20021017122056.GB13573@think.thunk.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021019031002.GA16404@averell>
+In-Reply-To: <20021017122056.GB13573@think.thunk.org>
 User-Agent: Mutt/1.4i
 X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
@@ -29,30 +24,17 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > Since no one really brought up any issues with the code itself
-> > > (correct me if I'm wrong), here is the i386 vsyscall gettimeofday port
-> > > I sent last night, synced up and ready for integration.
-> > 
-> > This vsyscall implementation breaks UML.  Any app that's run inside UML
-> > that uses vsyscalls will get the host's vsyscalls rather than the UML
-> > vsyscalls.
+> > Ah, ok... I thought that things work like this: the capabilities support
+> > already is in the kernel, and to give an app a particular capability,
+> > one has to add a particalar extended attribute to the application
+> > executable. So I'm wrong here it seems?
 > 
-> Ugh.
-> 
-> Guess you'll have some problems then with UML on x86-64, which always uses
-> vgettimeofday. But it's only used for gettimeofday() currently, perhaps it's 
-> not that bad when the UML child runs with the host's time.
+> First of all, you can't use a standard user extended attribute, since
+> anyone with write access to the file will be allowed to set the
+> extended attribute.  This isn't good if you're going to be granting
 
-Well, if you want to use UML for time shifting (pretty common use,
-AFAICS)...
-
-> I guess it would be possible to add some support for UML
-> to map own code over the vsyscall reserved locations. UML would need
-> to use the syscalls then. But it'll be likely ugly.
-
-I guess this is the right solution. [Or UML could simply unmap that
-area and handle the faults...].
-								Pavel
+What are extended attributes good for, then?
+									Pavel
 -- 
 Worst form of spam? Adding advertisment signatures ala sourceforge.net.
 What goes next? Inserting advertisment *into* email?

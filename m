@@ -1,72 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbUDOA3R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 20:29:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbUDOA3R
+	id S263338AbUDOAaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 20:30:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbUDOAaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 20:29:17 -0400
-Received: from ns.suse.de ([195.135.220.2]:47261 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261221AbUDOA3K (ORCPT
+	Wed, 14 Apr 2004 20:30:15 -0400
+Received: from legolas.restena.lu ([158.64.1.34]:47235 "EHLO smtp.restena.lu")
+	by vger.kernel.org with ESMTP id S263338AbUDOAaF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 20:29:10 -0400
-Subject: Re: [PATCH] reiserfs v3 fixes and features
-From: Chris Mason <mason@suse.com>
-To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-In-Reply-To: <1081274618.30828.30.camel@watt.suse.com>
-References: <1081274618.30828.30.camel@watt.suse.com>
-Content-Type: text/plain
-Message-Id: <1081989006.27614.110.camel@watt.suse.com>
+	Wed, 14 Apr 2004 20:30:05 -0400
+Subject: Re: IO-APIC on nforce2 [PATCH]
+From: Craig Bradney <cbradney@zip.com.au>
+To: Peter Clifton <pcjc2@cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org, Len Brown <len.brown@intel.com>,
+       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, ross@datscreative.com.au
+In-Reply-To: <1081989304.7831.8.camel@pcjc2>
+References: <200404142301.33153.christian.kroener@tu-harburg.de>
+	 <1081989304.7831.8.camel@pcjc2>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-lwlAsNuPrzaxnBFd/5rn"
+Message-Id: <1081988997.4724.2.camel@amilo.bradney.info>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 14 Apr 2004 20:30:06 -0400
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 15 Apr 2004 02:29:57 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
 
-I've uploaded some new code to:
+--=-lwlAsNuPrzaxnBFd/5rn
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-ftp.suse.com/pub/people/mason/patches/reiserfs/2.6.5-mm5
+On Thu, 2004-04-15 at 02:35, Peter Clifton wrote:
+> Sorry Christian, meant to send to the list rather than just you.
+>=20
+> I'm watching this thread with interest, I've got an ASUS A7N8X board,
+> and have had annoying lockups with most kernels I've compiled myself
+> from 2.4 upwards. Some luck caused me to try turning APIC off, and the
+> system hasn't crashed since.
+>=20
+> Is there any reason why turning APIC off reduces performance?
+>=20
+> I'd be happy to provide another person to test patches (with the proviso
+> that if you want detailed debugging information, you'd have to suggest
+> how to obtain it, since when it locks up, it tends to lock good!)
+>=20
+> I'm currently running 2.6.3-gentoo-r1 (Although I can't see a list of
+> what patches they have already applied).
+>=20
+> I'd be happy to try a vanilla kernel with whatever patches if that would
+> help out solving the problem.
 
-series.linus tells you which patches are needed for 2.6.5.  If you're
-working off a recent pull of bitkeeper, or the mm trees, use series.mm,
-since data=ordered patches were recently applied.
+Peter, I have 2.6.3gentoo r1 on my box with a A7N8X Deluxe v2 with Ross
+Dicksons 2.6.3 idlec1halt patches and its as stable as a rock. I've left
+it on that kernel as there are still many discussions recently posted re
+2.6.5. My 3 other PCs are on gentoo dev source 2.6.5 and are solid, but
+I've left the Athlon on 2.6.3 due to the fact its working just fine now
 
-(note, I haven't tested 2.6.5 with this patch set yet, -mm is my target
-right now)
+Craig
 
-reiserfs-group-alloc-8 and reiserfs-search_reada-5 are still
-experimental, and are only for the brave.
+--=-lwlAsNuPrzaxnBFd/5rn
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Most of the changes were to reiserfs-group-alloc-8, which tries to
-improve the reiserfs allocator to reduce fragmentation.  The mount
-options to enable the new code haven't changed, but I switched to using
-the existing in-core bitmap book keeping to decide if a given packing
-locality is full.  This is much more accurate, I'm not sure why I didn't
-think of it before.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Also mount -o alloc=dirid_groups:skip_busy now tries to get metadata
-into the same bitmap as the data blocks.  This really cuts down on
-fragmentation among the leaf nodes.  More details are in the docs at the
-top of the patch.
+iD8DBQBAfdeEi+pIEYrr7mQRAlgIAJ92H9MxNQieDr73TZkPwzDyy+rdvQCgjtaP
+A1onBMu50137YPl9sqJpUFs=
+=No5E
+-----END PGP SIGNATURE-----
 
-My goal is to make -o alloc=dirid_groups:skip_busy,packing_groups the
-new default, it is working nicely here.  Testers and benchmarkers would
-be appreciated.
-
-Other new patches:
-reiserfs-search_reada-5 -  it should make deletes and directory reads
-faster by doing some metadata readahead.
-
-reiserfs-delayed-work - a huge performance boost to synchronous
-workloads that trigger transaction commits.
-
-reiserfs-no-sleep-on - removes the last sleep_on user in reiserfs.
-
-I'll submit these last two to Andrew after the whole thing passes some
-more tests.
-
--chris
-
+--=-lwlAsNuPrzaxnBFd/5rn--
 

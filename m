@@ -1,72 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293203AbSDBLqy>; Tue, 2 Apr 2002 06:46:54 -0500
+	id <S311582AbSDBMGR>; Tue, 2 Apr 2002 07:06:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311424AbSDBLqo>; Tue, 2 Apr 2002 06:46:44 -0500
-Received: from lego.zianet.com ([204.134.124.54]:50696 "EHLO lego.zianet.com")
-	by vger.kernel.org with ESMTP id <S293203AbSDBLq2>;
-	Tue, 2 Apr 2002 06:46:28 -0500
-Message-ID: <3CA995A8.1080604@zianet.com>
-Date: Tue, 02 Apr 2002 04:27:36 -0700
-From: kwijibo@zianet.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020329
-X-Accept-Language: en-us, en
+	id <S311587AbSDBMGL>; Tue, 2 Apr 2002 07:06:11 -0500
+Received: from kim.it.uu.se ([130.238.12.178]:28404 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S311582AbSDBMGC>;
+	Tue, 2 Apr 2002 07:06:02 -0500
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
-To: marcelo@conectiva.com.br
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] Small cosmetic fix for agpgart
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15529.40615.727233.96629@kim.it.uu.se>
+Date: Tue, 2 Apr 2002 14:05:59 +0200
+To: linux-kernel@vger.kernel.org
+Subject: early PCI detection?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+There is a known incompatibility between AMD 76x northbridges and
+VIA southbridges which makes IO-APIC mode unreliable.
+(See AMD's errata sheets for details.)
 
-I didn't see any maintainer listed for agpgart, should this be
-jhartmann@precisioninsight.com?
+The question is: can the Linux kernel run PCI detection before
+IO-APIC initialisation, so as to prevent IO-APIC mode on mainboards
+using this configuration?
 
-Anyway, just a cosmetic fix that always bugged me.  
-The AMD 760 MP chipset was identified twice as AMD
-like so:
+Alternatively we could list known problem boards in the DMI blacklist
+table, but this is clearly an inferior solution.
 
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 816M
-agpgart: Detected AMD AMD 760MP chipset
-                              ^^^^^^^^^^
-
-This tiny patch will fix it so it appears as:
-
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 816M
-agpgart: Detected AMD 760MP chipset
-
-Patch is against 2.4.18.
-
-Thanks,
-Steven Spence
-
-
---- agpgart_be_original.c       Tue Apr  2 03:38:39 2002
-+++ agpgart_be.c        Tue Apr  2 03:39:08 2002
-@@ -3597,7 +3597,7 @@
-                PCI_VENDOR_ID_AMD,
-                AMD_IRONGATE,
-                "AMD",
--               "AMD 760MP",
-+               "760MP",
-                amd_irongate_setup },
-        { PCI_DEVICE_ID_AMD_761_0,
-                PCI_VENDOR_ID_AMD,
-@@ -3609,7 +3609,7 @@
-                PCI_VENDOR_ID_AMD,
-                AMD_762,
-                "AMD",
--               "AMD 760MP",
-+               "760MP",
-                amd_irongate_setup },
-        { 0,
-                PCI_VENDOR_ID_AMD,
-
-
-
-
+/Mikael

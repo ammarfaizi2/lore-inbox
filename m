@@ -1,69 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287382AbRL3LCH>; Sun, 30 Dec 2001 06:02:07 -0500
+	id <S287381AbRL3L25>; Sun, 30 Dec 2001 06:28:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287381AbRL3LB5>; Sun, 30 Dec 2001 06:01:57 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:31497 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S287385AbRL3LBp>;
-	Sun, 30 Dec 2001 06:01:45 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: kbuild-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Announce: Kernel Build for 2.5, Release 1.12 is available 
-In-Reply-To: Your message of "Sat, 29 Dec 2001 19:27:51 +1100."
-             <10706.1009614471@ocs3.intra.ocs.com.au> 
-Date: Sun, 30 Dec 2001 22:01:31 +1100
-Message-ID: <25851.1009710091@ocs3.intra.ocs.com.au>
+	id <S287383AbRL3L2r>; Sun, 30 Dec 2001 06:28:47 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:2059 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S287381AbRL3L2i>;
+	Sun, 30 Dec 2001 06:28:38 -0500
+Date: Sun, 30 Dec 2001 12:27:56 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Peter Osterlund <petero2@telia.com>
+Cc: Greg KH <greg@kroah.com>, mdharm-usb@one-eyed-alien.net,
+        linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: "sr: unaligned transfer" in 2.5.2-pre1
+Message-ID: <20011230122756.L1821@suse.de>
+In-Reply-To: <m2vgexzv90.fsf@ppro.localdomain> <20011223112249.B4493@kroah.com> <m23d1trr4w.fsf@pengo.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m23d1trr4w.fsf@pengo.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, Dec 30 2001, Peter Osterlund wrote:
+> Greg KH <greg@kroah.com> writes:
+> 
+> > On Sun, Dec 23, 2001 at 06:44:43PM +0100, Peter Osterlund wrote:
+> > > 
+> > > So, what changes are needed to make CD support work?
+> > 
+> > The usb-storage driver needs some changes to get it to work properly in
+> > the 2.5.1 kernel due to the changes in the SCSI and bio layer.  I've
+> > gotten a few other reports of problems, so you aren't alone :)
+> > 
+> > As for when the changes will be done, any volunteers?
+> 
+> This patch seems to work for me. I hope it is correct. The ide-scsi
+> driver is basically doing the same thing already.
+> 
+> --- linux-2.5-packet/drivers/usb/storage/scsiglue.c.old	Sun Dec 30 02:10:01 2001
+> +++ linux-2.5-packet/drivers/usb/storage/scsiglue.c	Sun Dec 30 02:09:05 2001
+> @@ -145,9 +145,19 @@
+>  static int queuecommand( Scsi_Cmnd *srb , void (*done)(Scsi_Cmnd *))
+>  {
+>  	struct us_data *us = (struct us_data *)srb->host->hostdata[0];
+> +	struct scatterlist *sg;
+> +	int i;
+>  
+>  	US_DEBUGP("queuecommand() called\n");
+>  	srb->host_scribble = (unsigned char *)us;
+> +
+> +	/* Set up address field in the scatterlist. HighMem pages have
+> +	 * already been bounced at this point. */
+> +	sg = (struct scatterlist *) srb->request_buffer;
+> +	for (i = 0; i < srb->use_sg; i++) {
+> +		BUG_ON(PageHighMem(sg[i].page));
+> +		sg[i].address = page_address(sg[i].page) + sg[i].offset;
+> +	}
+>  
+>  	/* get exclusive access to the structures we want */
+>  	down(&(us->queue_exclusion));
 
-Content-Type: text/plain; charset=us-ascii
+That's not right, you shouldn't be using .address at all.
 
-On Fri, 28 Dec 2001 13:31:42 +1100, 
-Keith Owens <kaos@ocs.com.au> wrote:
->This announcement is for the base kbuild 2.5 code, i386 against 2.4.16.
->Patches for other architectures and kernels will be out later today, it
->takes time to generate and test patches for 6 architectures against 3
->different kernel trees.
-
-http://sourceforge.net/project/showfiles.php?group_id=18813
-Release 1.12.
-
-Updated ppc patches from Tom Rini.  kbuild-2.5-2.4.16-ppc-1 had
-incorrect filenames in the patch, it has been replaced with -2.
-
-If you don't see your arch then nobody has sent me a patch yet.
-
-kbuild-2.5-2.4.16-3		Base code and i386.  Use this patch for
-				2.5.0 as well.
-kbuild-2.5-2.4.17-1		From 2.4.16 to 2.4.17.
-kbuild-2.5-2.4.18-pre1-1	From 2.4.17 to 2.4.18-pre1.
-kbuild-2.5-2.5.1-1		From 2.4.16 (2.5.0) to 2.5.1.
-kbuild-2.5-2.5.2-pre3-1		From 2.5.1 to 2.5.2-pre3.
-
-kbuild-2.5-2.4.16-alpha-1	Add on for alpha by Ghozlane Toumi.
-kbuild-2.5-2.4.16-ppc-2		Add on for ppc by Tom Rini.
-kbuild-2.5-2.4.18-pre1-ppc-1	ppc changes from 2.4.16 to 2.4.18-pre1.
-kbuild-2.5-2.4.17-ia64-011226-1	Add on for ia64-011226, only for 2.4.17.
-kbuild-2.5-2.4.16-sparc32-2	Add on for sparc32, Ben Collins, Keith Owens.
-kbuild-2.5-2.4.16-sparc64-2	Add on for sparc64, Ben Collins, Keith Owens.
-
-Everybody needs kbuild-2.5-2.4.16-3.  Fetch the other patches if you
-want other kernels or architectures.
-
-Alpha and PPC do not have CML2 support yet, everything else has CML2
-support.  PPC does not have bzImage support yet.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE8LvQKi4UHNye0ZOoRAlkfAJ9WwZhB4GVa1eK8K/PlGigI/70kMQCfeutO
-/fhOuSmgb/fDriFxGEdEU1Q=
-=v0S8
------END PGP SIGNATURE-----
+-- 
+Jens Axboe
 

@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264574AbRFPACj>; Fri, 15 Jun 2001 20:02:39 -0400
+	id <S264576AbRFPAE3>; Fri, 15 Jun 2001 20:04:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264573AbRFPAC3>; Fri, 15 Jun 2001 20:02:29 -0400
-Received: from armitage.toyota.com ([63.87.74.3]:25872 "EHLO
-	armitage.toyota.com") by vger.kernel.org with ESMTP
-	id <S264574AbRFPACQ>; Fri, 15 Jun 2001 20:02:16 -0400
-Message-ID: <3B2AA1FD.4F7EAD49@lexus.com>
-Date: Fri, 15 Jun 2001 17:02:05 -0700
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S264575AbRFPAET>; Fri, 15 Jun 2001 20:04:19 -0400
+Received: from dsl-45-169.muscanet.com ([208.164.45.169]:37645 "EHLO
+	dink.joshs.apt") by vger.kernel.org with ESMTP id <S264578AbRFPAEG>;
+	Fri, 15 Jun 2001 20:04:06 -0400
+Date: Fri, 15 Jun 2001 19:03:56 -0500 (CDT)
+From: Josh Myer <jbm@joshisanerd.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, Leon Breedt <ljb@devco.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] nonblinking VGA block cursor
+In-Reply-To: <0106160144400D.00879@starship>
+Message-ID: <Pine.LNX.4.21.0106151854070.1755-100000@dignity.joshisanerd.com>
 MIME-Version: 1.0
-To: Tobias Ringstrom <tori@unhappy.mine.nu>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [OT] Re: Snowhite and the Seven Dwarfs - The REAL story!
-In-Reply-To: <Pine.LNX.4.33.0106160127050.10814-100000@boris.prodako.se>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tobias Ringstrom wrote:
+On Sat, 16 Jun 2001, Daniel Phillips wrote:
 
-> Ah... the joy of reading mail using non-MS software, on a non-MS OS...
->
-> Hahaha, indeed!
+> Ask the original poster if he's willing to take the risk of going with an xor 
+> cursor.  We are talking text mode, right?  No way to get rid of that blinking 
+> text cursor, ever.  Tell me, do you like having the colon blink on your alarm 
+> clock too?  Personally, I opened the thing up and put a piece of tape over it.
+> 
 
-Indeed, since:
+Aha! A software weenie! A real hardware hacker would have snipped and
+soldered it to VCC to get a constant (or add a switch for solid/blink =).
 
-Jun 15 15:39:03 mirai sendmail[21499]: f5FMd2t21499:
-from=<linux-kernel-owner@vger.kernel.org>, size=33547, class=-60, nrcpts=1,
-msgid=<0GEZ00CP7TBG20@iris.services.ou.edu>, bodytype=7BIT, proto=ESMTP, daemon=MTA,
-relay=freeside.toyota.com [63.87.74.7]
-Jun 15 15:39:03 mirai scanmails[21501]: execution started
-Jun 15 15:39:04 mirai scanmails[21501]: FOUND VIRUS IN MAIL from
-linux-kernel-owner@vger.kernel.org to jjs
 
-cu
+In any case, this strikes me as a matter of policy. I don't care one way
+or the other, but if people want a solid cursor, it's not something that 
+we can really deny them that (unless it's a binary-only driver for the
+cursor, of course).
 
-jjs
+Anyway, this is a silly discusson in general, i figured i would throw in
+my $0.02 (strong US cents!)
 
+> IBM had lots of ideas about how computers should work.  Remember the keyboard 
+> keys that when CLACK CLACK CLACK.  Thank god they turned out to be too 
+> expensive to clone - nobody misses them now.
+> 
+
+  *CLACK CLACK CLACK* 
+(posted with a Model M)
+--
+/jbm, but you can call me Josh. Really, you can.
+ "When lasers are outlawed, only outlaws will have lasers"
+  -- from http://www.altair.org/CO2laser.htm
 

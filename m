@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291787AbSCDGXG>; Mon, 4 Mar 2002 01:23:06 -0500
+	id <S291863AbSCDGfS>; Mon, 4 Mar 2002 01:35:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291809AbSCDGW5>; Mon, 4 Mar 2002 01:22:57 -0500
-Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:9460 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S291787AbSCDGWu>;
-	Mon, 4 Mar 2002 01:22:50 -0500
-Date: Sun, 3 Mar 2002 23:18:51 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, Andrew Morton <akpm@zip.com.au>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] delayed disk block allocation
-Message-ID: <20020303231851.N4188@lynx.adilger.int>
-Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Andrew Morton <akpm@zip.com.au>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C7F3B4A.41DB7754@zip.com.au> <E16hhuI-0000S6-00@starship.berlin> <20020304050450.GF353@matchmail.com> <20020303223103.J4188@lynx.adilger.int> <3C8308FE.FC4FA42@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C8308FE.FC4FA42@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Mar 04, 2002 at 12:41:18AM -0500
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S291878AbSCDGfJ>; Mon, 4 Mar 2002 01:35:09 -0500
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:5819 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S291863AbSCDGex>; Mon, 4 Mar 2002 01:34:53 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Kittur Sameer <kssameer@attbi.com>
+Reply-To: kssameer@attbi.com
+To: sridharv@ufl.edu, linux-kernel@vger.kernel.org
+Subject: Re: interrupt - spin lock question
+Date: Sun, 3 Mar 2002 22:32:37 -0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <1015219129.3c8303b9e87a7@webmail.health.ufl.edu>
+In-Reply-To: <1015219129.3c8303b9e87a7@webmail.health.ufl.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020304063447.THGI2951.rwcrmhc53.attbi.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 04, 2002  00:41 -0500, Jeff Garzik wrote:
-> Andreas Dilger wrote:
-> > Actually, there are a whole bunch of performance issues with 1kB block
-> > ext2 filesystems.  For very small files, you are probably better off
-> > to have tails in EAs stored with the inode, or with other tails/EAs in
-> > a shared block.  We discussed this on ext2-devel a few months ago, and
-> > while the current ext2 EA design is totally unsuitable for that, it
-> > isn't impossible to fix.
-> 
-> IMO the ext2 filesystem design is on it's last legs ;-)   I tend to
-> think that a new filesystem efficiently handling these features is far
-> better than dragging ext2 kicking and screaming into the 2002's :)
+On Sunday 03 March 2002 09:18 pm, sridharv@ufl.edu wrote:
+> I have a question related to spin locking on UP systems.Before that I would
+> like to point out my understanding of the background stuff
+> 1. spinlocks shud be used in intr handlers
 
-That's why we have ext3 ;-).  Given that reiserfs just barely has an
-fsck that finally works most of the time, and they are about to re-do
-the entire filesystem for reiser-v4 in 6 months, I'd rather stick with
-glueing features onto an ext2 core than rebuilding everything from
-scratch each time.
+It should be used in the interrupt handler, if you need to prevent any  race 
+conditions with other interrupt/non-interrupt  context code that may be 
+executing on some other CPU on an SMP system. Thus spinlocks need to be held 
+for as short a duration as possible. You would need to use the 
+spin_lock_irqsave/spin_unlock_irqrestore variant pair to prevent your 
+interrupt handler from running on the same processor while holding the lock. 
+This may be  needed if the interrupt handler may try to acquire the same lock 
+thus causing a deadlock.
 
-Given that ext3, and htree, and all of the other ext2 'hacks' seem to
-do very well, I think it will continue to improve for some time to come.
-A wise man once said "I'm not dead yet".
+> 2. interrupts can preempt kernel code
+> 3. spinlocks are turned to empty when kernel is compiled without SMP
+> support.
+>
+> If a particular driver is running( not the intr handler part) and at this
+> time an interrupt occurs. The handler has to be invoked now. Won't the
+> preemption cause race conditions/inconsistencies? Is any other mechanism
+> used? Pl correct me if I have not understood any part of this correctly
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+On a UP kernel the spin_lock_irqsave/spin_unlock_irqrestore pair expand to 
+save_flags(flag); cli()/restore_flags(flag).
 
+The masking of interrupts on the processor between spin_lock_irqsave and 
+spin_unlock_irqrestore  pair prevent the user context code from being 
+preempted by the interrupt handler.
+
+
+Sameer.

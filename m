@@ -1,80 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265249AbUGQTCI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUGQTTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265249AbUGQTCI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 15:02:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUGQTCH
+	id S261169AbUGQTTO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 15:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUGQTTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 15:02:07 -0400
-Received: from c-67-171-146-69.client.comcast.net ([67.171.146.69]:30606 "EHLO
-	kryten.internal.splhi.com") by vger.kernel.org with ESMTP
-	id S265249AbUGQTBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 15:01:51 -0400
-Subject: Re: [PATCH] was: [RFC] removal of sync in panic
-From: Tim Wright <timw@splhi.com>
-To: Christian Borntraeger <linux-kernel@borntraeger.net>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>, lmb@suse.de
-In-Reply-To: <200407150658.54925.linux-kernel@borntraeger.net>
-References: <200407141745.47107.linux-kernel@borntraeger.net>
-	 <200407141939.52316.linux-kernel@borntraeger.net>
-	 <20040714143112.1d8d1892.akpm@osdl.org>
-	 <200407150658.54925.linux-kernel@borntraeger.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Splhi
-Message-Id: <1090090902.14032.15.camel@kryten.internal.splhi.com>
+	Sat, 17 Jul 2004 15:19:14 -0400
+Received: from dhcp160179209.columbus.rr.com ([24.160.179.209]:2315 "EHLO
+	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
+	id S261169AbUGQTTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jul 2004 15:19:08 -0400
+Date: Sat, 17 Jul 2004 15:19:03 -0400
+To: Paul Mackerras <paulus@samba.org>
+Cc: Andrew Morton <akpm@osdl.org>, Joseph Fannin <jhf@rivenstone.net>,
+       linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Subject: Re: 2.6.7-mm7
+Message-ID: <20040717191903.GA1801@zion.rivenstone.net>
+Mail-Followup-To: Paul Mackerras <paulus@samba.org>,
+	Andrew Morton <akpm@osdl.org>, Joseph Fannin <jhf@rivenstone.net>,
+	linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+References: <20040708235025.5f8436b7.akpm@osdl.org> <20040709203852.GA1997@samarkand.rivenstone.net> <20040709141103.592c4655.akpm@osdl.org> <16633.20767.128875.570852@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 17 Jul 2004 12:01:42 -0700
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
+Content-Disposition: inline
+In-Reply-To: <16633.20767.128875.570852@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.5.6+20040523i
+From: jhf@rivenstone.net (Joseph Fannin)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I've seen this multiple times.
-I also agree that it seems a sensible patch. I have one dumb question.
-Given that we're panicing and we know things are "bad", is there any
-reason not to call smp_send_stop() as early as possible, rather than as
-the last thing which we currently do? As you say, the other cpus are
-happily continuing, potentially destroying data, and it seems that
-stopping this as quickly as possible would be desirable.
 
-Tim
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2004-07-14 at 21:58, Christian Borntraeger wrote:
-> Andrew Morton wrote:
-> > I agree with the patch in principle, but I'd be interested in what
-> > observed problem motivated it?
-> 
-> see the first posting.
-> 
-> -----------snip--------------
-> I have seen panic failing two times lately on an SMP system. The box 
-> panic'ed but was running happily on the other cpus. The culprit of this 
-> failure is the fact, that these panics have been caused by a block device 
-> or a filesystem (e.g. using errors=panic). In these cases the  likelihood 
-> of a failure/hang of  sys_sync() is high. This is exactly what happened in 
-> both cases I have seen. Meanwhile the other cpus are happily continuing  
-> destroying data as the kernel has a severe problem but its not aware of 
-> that as smp_send_stop happens after sys_sync.
-> 
-> I can imagine several changes but I am not sure if this is a problem which 
-> must be fixed and which fix is the best.
-> Here are my alternatives:
-> 
-> 1. remove sys_sync completely: syslogd and klogd use fsync. No need to help 
-> them. Furthermore we have a severe problem which is worth a panic, so we 
-> better dont do any I/O.
-> 2. move smp_send_stop before sys_sync. This at least prevents other cpus of 
-> doing harm if sys_sync hangs. Here I am not sure if this is really working.
-> 3. Add an 
->         if (doing_io())
->                 printk(KERN_EMERG "In I/O routine - not syncing\n");
-> check like in_interrupt check. Unfortunately I have no clue how this can be 
-> achieved and it looks quite ugly.
-> ---------------------
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Tim Wright <timw@splhi.com>
-Splhi
+On Sun, Jul 18, 2004 at 02:17:35AM +1000, Paul Mackerras wrote:
+> Andrew Morton writes:
+>=20
+> > hm, OK.  It could be that the debug patch is a bit too aggressive, or t=
+hat
+> > ppc got lucky and happens to always be in state TASK_RUNNING when these
+> > calls to schedule() occur.
+> >=20
+> > Maybe this task incorrectly has _TIF_NEED_RESCHED set?
+>=20
+> Is CONFIG_PREEMPT enabled?
+
+    These traces are with preempt enabled, but I tried turning it off
+and the messages are still there (there seem to be a lot less of them,
+though.)
+
+    I would be glad to produce a dmesg with preempt off if it makes
+things clearer (tonight, or tommorrow, or I'd just do it now.)
+=20
+> > Anyway, ppc guys: please take a look at the results from
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6=
+=2E7-mm7/broken-out/detect-too-early-schedule-attempts.patch
+> > and check that the kernel really should be calling schedule() at this t=
+ime
+> > and place, let us know?
+> >=20
+> > Thanks.
+> >=20
+> > >  The first one looks like:
+> > >
+> > > Calibrating delay loop... 1064.96 BogoMIPS
+> > > Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+> > > Badness in schedule at kernel/sched.c:2153
+> > > Call trace:
+> > >  [c00099e4] dump_stack+0x18/0x28
+> > >  [c0006bac] check_bug_trap+0x84/0xac
+> > >  [c0006d38] ProgramCheckException+0x164/0x1a4
+> > >  [c0006240] ret_from_except_full+0x0/0x4c
+> > >  [c02021bc] schedule+0x24/0x684
+> > >  [c0005e80] syscall_exit_work+0x108/0x10c
+> > >  [c02e0ad0] proc_root_init+0x14c/0x158
+> > >  [00000000] 0x0
+> > >  [c02ce5a0] start_kernel+0x158/0x184
+> > >  [000035fc] 0x35fc
+>=20
+> This looks like CONFIG_PREEMPT is enabled and _TIF_NEED_RESCHED is set
+> at the end of handling a system call.  AFAICS i386 will also call
+> schedule in these circumstances.  Does this mean we shouldn't do
+> system calls until the scheduler is running?
+>=20
+> Paul.
+>=20
+
+--=20
+Joseph Fannin
+jhf@rivenstone.net
+
+--Q68bSM7Ycu6FN28Q
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA+XunWv4KsgKfSVgRAsk9AJ9APxj1f0n5afbmDw6//qcprTpx+ACeO+7m
+23KwkPYVQ2U/WCRYCSYePoM=
+=n2+2
+-----END PGP SIGNATURE-----
+
+--Q68bSM7Ycu6FN28Q--

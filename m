@@ -1,72 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266373AbTGJPQP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 11:16:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269296AbTGJPQO
+	id S268836AbTGJPZp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 11:25:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269334AbTGJPZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 11:16:14 -0400
-Received: from imhotep.hursley.ibm.com ([194.196.110.14]:38684 "EHLO
-	tor.trudheim.com") by vger.kernel.org with ESMTP id S266373AbTGJPQN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 11:16:13 -0400
-Subject: Re: 2.4.22-pre3 and reiserfs boot problem
-From: Anders Karlsson <anders@trudheim.com>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>,
+	Thu, 10 Jul 2003 11:25:45 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:30100 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S268836AbTGJPZj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 11:25:39 -0400
+Date: Thu, 10 Jul 2003 10:12:14 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Larry McVoy <lm@work.bitmover.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Adrian Bunk <bunk@fs.tum.de>, Larry McVoy <lm@bitmover.com>,
        Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Oleg Drokin <green@namesys.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F0D761E.2050702@gmx.net>
-References: <3F0D761E.2050702@gmx.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qvJ0F9BWLZ05xjo/+1HD"
-Organization: Trudheim Technology Limited
-Message-Id: <1057851052.7753.6.camel@tor.trudheim.com>
+       linux-kernel@vger.kernel.org, Wayne Scott <wscott@work.bitmover.com>
+Subject: Re: Linux 2.4.22-pre3
+Message-ID: <20030710141213.GH439@phunnypharm.org>
+References: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva> <20030706134156.GG502@phunnypharm.org> <Pine.LNX.4.55L.0307062157300.30827@freak.distro.conectiva> <20030707010527.GA30154@work.bitmover.com> <20030708180520.GJ6848@fs.tum.de> <20030708191817.GB17115@gtf.org> <20030710151507.GA27605@work.bitmover.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 Rubber Turnip www.usr-local-bin.org 
-Date: 10 Jul 2003 16:30:52 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030710151507.GA27605@work.bitmover.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 10, 2003 at 08:15:07AM -0700, Larry McVoy wrote:
+> On Tue, Jul 08, 2003 at 03:18:17PM -0400, Jeff Garzik wrote:
+> > On Tue, Jul 08, 2003 at 08:05:21PM +0200, Adrian Bunk wrote:
+> > > On Sun, Jul 06, 2003 at 06:05:27PM -0700, Larry McVoy wrote:
+> > > > On Sun, Jul 06, 2003 at 10:00:34PM -0300, Marcelo Tosatti wrote:
+> > > > > On Sun, 6 Jul 2003, Ben Collins wrote:
+> > > > > > Any chance you could be consistent in tagging the -pre's? Neither pre2,
+> > > > > > nor pre3 is tagged in BK, and thus, not tagged in CVS/SVN either.
+> > > > > 
+> > > > > I guess I have tagged -pre2 and -pre3:
+> > > > > 
+> > > > > Maybe I'm missing something?
+> > > > 
+> > > > Hmm.   Ben, look again in the CVS tree and make sure that the tags aren't
+> > > > there.  Maybe the converter screwed up?  
+> > > 
+> > > -pre2 and -pre3 are also missing at
+> > >   http://ftp.kernel.org/pub/linux/kernel/v2.4/testing/cset/
+> > 
+> > hrm.  Well, it's definitely tagged correctly in Marcelo's main 2.4 BK
+> > repo.
+> 
+> I think I've found the bug - it's in the code that collapses multiple 
+> changesets into one CVS checkin.  It looks like we are picking up 
+> tags only if the tag was on the last changeset in the sequence instead
+> of any changeset in the sequence.  We're fixing it.
 
---=-qvJ0F9BWLZ05xjo/+1HD
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Thanks.
 
-Hi,
-
-Apologies for chipping in, but I saw something similar to what was
-described in the thread. I'm running 2.4.22-pre3-ac1 with the FreeS/WAN
-2.0.1 patches and noticed last night that when booting this kernel, if
-an ext3 filesystem had exceeded its mount count and required checking,
-the e2fsck process would hang sometime during the fsck and the system
-would become unresponsive, but SysRq would still work. Alt-SysRq-P would
-show e2fsck and some register details. I did not note them down, but
-booting 2.4.21-rc7-ac1 and letting that kernel check the filesystem
-would work. Booting back into 2.4.22-pre3-ac1 would then also work.
-
-This might or might not be related to the original problem. I do use
-nmi_watchdog=3D1, NMI count is 1 presently, so I guess that works. The ram
-is memtested, so that is not an issue, heavy filesystem usage works
-normally, it was just e2fsck that would not work. I have not tried -pre2
-or -pre4 yet, but that is on the cards.
-
-If there is anything I can try, let me know.
-
---=20
-Anders Karlsson <anders@trudheim.com>
-Trudheim Technology Limited
-
---=-qvJ0F9BWLZ05xjo/+1HD
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
-
-iD8DBQA/DYasLYywqksgYBoRAkjmAJ0S1G2QdXHwSVGX0wz+GZmtKAXWQwCguQYp
-iHpMB3qAIVbErZquSnW+6Q8=
-=pD56
------END PGP SIGNATURE-----
-
---=-qvJ0F9BWLZ05xjo/+1HD--
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

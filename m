@@ -1,139 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266509AbUHaEor@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266569AbUHaEuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266509AbUHaEor (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 00:44:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUHaEor
+	id S266569AbUHaEuo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 00:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266543AbUHaEuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 00:44:47 -0400
-Received: from mail1.speakeasy.net ([216.254.0.201]:49375 "EHLO
-	mail1.speakeasy.net") by vger.kernel.org with ESMTP id S266509AbUHaEol
+	Tue, 31 Aug 2004 00:50:44 -0400
+Received: from mail4.speakeasy.net ([216.254.0.204]:12687 "EHLO
+	mail4.speakeasy.net") by vger.kernel.org with ESMTP id S266569AbUHaEub
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 00:44:41 -0400
-Date: Mon, 30 Aug 2004 21:44:38 -0700
-Message-Id: <200408310444.i7V4icex001871@magilla.sf.frob.com>
+	Tue, 31 Aug 2004 00:50:31 -0400
+Date: Mon, 30 Aug 2004 21:50:28 -0700
+Message-Id: <200408310450.i7V4oSoS001901@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cleanup ptrace stops and remove notify_parent
+In-Reply-To: Linus Torvalds's message of  Monday, 30 August 2004 21:27:54 -0700 <Pine.LNX.4.58.0408302119110.2295@ppc970.osdl.org>
 X-Fcc: ~/Mail/linus
-Cc: Andrew Cagney <cagney@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] make single-step into signal delivery stop in handler
-Emacs: because one operating system isn't enough.
+X-Windows: ignorance is our most important resource.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On x86 and x86-64, setting up to run a signal handler clears the
-single-step bit (TF) in the processor flags before starting the handler.
-This makes sense when a process is handling its own SIGTRAPs.
+> I _looks_ pretty safe, and it's hopefully much less likely to have subtle
+> bugs and races than our old approach had, but I have a hard time judging. 
+> I assume you ran all your gdb tests on the result? What's your gut feel?
 
-But when TF is set because PTRACE_SINGLESTEP was used, and that call
-specified a handled signal so the handler setup is happening, it doesn't
-make so much sense.  When the debugger stops to show you a signal about to
-be delivered, and that signal should be handled, and then you do step or
-stepi, you expect to see the signal handler code.  In fact, the signal
-handler runs to completion and then you see the single-step trap at the
-resumed code instead of seeing the handler.  
-
-This patch changes signal handler setup so that when TF is set and the
-thread is under ptrace control, it synthesizes a single-step trap after
-setting up the PC and registers to start the handler.  This makes that
-PTRACE_SINGLESTEP not strictly a "step", since it actually runs no user
-instructions at all.  But it is definitely what a debugger user wants, so
-that single-stepping always stops and shows each and every instruction
-before it gets executed.
-
+My gut feel is that it's pretty safe.  I did run all the LTP ptrace
+programs, and the gdb test suite.  (The gdb test suite has failures because
+of gdb's own issues and perhaps the state of my gdb build, so I can't be
+totally certain that it has zero new complaints, but I am pretty sure it
+didn't change the results.)
 
 
 Thanks,
 Roland
-
-Signed-off-by: Roland McGrath <roland@redhat.com>
-
---- vanilla-linux-2.6/arch/i386/kernel/signal.c	2004-08-30 20:48:24.132472094 -0700
-+++ linux-2.6-ptracefix/arch/i386/kernel/signal.c	2004-08-30 20:47:30.000000000 -0700
-@@ -19,6 +19,7 @@
- #include <linux/stddef.h>
- #include <linux/personality.h>
- #include <linux/suspend.h>
-+#include <linux/ptrace.h>
- #include <linux/elf.h>
- #include <asm/processor.h>
- #include <asm/ucontext.h>
-@@ -401,7 +402,13 @@ static void setup_frame(int sig, struct 
- 	regs->xes = __USER_DS;
- 	regs->xss = __USER_DS;
- 	regs->xcs = __USER_CS;
--	regs->eflags &= ~TF_MASK;
-+	if (regs->eflags & TF_MASK) {
-+		if (current->ptrace & PT_PTRACED) {
-+			ptrace_notify(SIGTRAP);
-+		} else {
-+			regs->eflags &= ~TF_MASK;
-+		}
-+	}
- 
- #if DEBUG_SIG
- 	printk("SIG deliver (%s:%d): sp=%p pc=%p ra=%p\n",
-@@ -480,7 +487,13 @@ static void setup_rt_frame(int sig, stru
- 	regs->xes = __USER_DS;
- 	regs->xss = __USER_DS;
- 	regs->xcs = __USER_CS;
--	regs->eflags &= ~TF_MASK;
-+	if (regs->eflags & TF_MASK) {
-+		if (current->ptrace & PT_PTRACED) {
-+			ptrace_notify(SIGTRAP);
-+		} else {
-+			regs->eflags &= ~TF_MASK;
-+		}
-+	}
- 
- #if DEBUG_SIG
- 	printk("SIG deliver (%s:%d): sp=%p pc=%p ra=%p\n",
---- vanilla-linux-2.6/arch/x86_64/ia32/ia32_signal.c	2004-08-30 20:48:24.160468505 -0700
-+++ linux-2.6-ptracefix/arch/x86_64/ia32/ia32_signal.c	2004-08-30 20:47:46.000000000 -0700
-@@ -489,7 +491,13 @@ void ia32_setup_frame(int sig, struct k_
- 	regs->ss = __USER32_DS; 
- 
- 	set_fs(USER_DS);
--	regs->eflags &= ~TF_MASK;
-+	if (regs->eflags & TF_MASK) {
-+		if (current->ptrace & PT_PTRACED) {
-+			ptrace_notify(SIGTRAP);
-+		} else {
-+			regs->eflags &= ~TF_MASK;
-+		}
-+	}
- 
- #if DEBUG_SIG
- 	printk("SIG deliver (%s:%d): sp=%p pc=%p ra=%p\n",
-@@ -583,7 +591,13 @@ void ia32_setup_rt_frame(int sig, struct
- 	regs->ss = __USER32_DS; 
- 
- 	set_fs(USER_DS);
--	regs->eflags &= ~TF_MASK;
-+	if (regs->eflags & TF_MASK) {
-+		if (current->ptrace & PT_PTRACED) {
-+			ptrace_notify(SIGTRAP);
-+		} else {
-+			regs->eflags &= ~TF_MASK;
-+		}
-+	}
- 
- #if DEBUG_SIG
- 	printk("SIG deliver (%s:%d): sp=%p pc=%p ra=%p\n",
---- vanilla-linux-2.6/arch/x86_64/kernel/signal.c	2004-08-30 20:48:24.186465171 -0700
-+++ linux-2.6-ptracefix/arch/x86_64/kernel/signal.c	2004-08-30 20:47:58.000000000 -0700
-@@ -319,7 +319,13 @@ static void setup_rt_frame(int sig, stru
- 	regs->rsp = (unsigned long)frame;
- 
- 	set_fs(USER_DS);
--	regs->eflags &= ~TF_MASK;
-+	if (regs->eflags & TF_MASK) {
-+		if (current->ptrace & PT_PTRACED) {
-+			ptrace_notify(SIGTRAP);
-+		} else {
-+			regs->eflags &= ~TF_MASK;
-+		}
-+	}
- 
- #ifdef DEBUG_SIG
- 	printk("SIG deliver (%s:%d): sp=%p pc=%p ra=%p\n",

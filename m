@@ -1,53 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263301AbUE3MWs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263389AbUE3M2p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263301AbUE3MWs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 08:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263340AbUE3MWs
+	id S263389AbUE3M2p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 08:28:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbUE3M2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 08:22:48 -0400
-Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:29162 "EHLO
-	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
-	id S263301AbUE3MWa convert rfc822-to-8bit (ORCPT
+	Sun, 30 May 2004 08:28:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9639 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263389AbUE3M2m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 08:22:30 -0400
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Giuseppe Bilotta <bilotta78@hotpop.com>,
-       linux-kernel@vger.kernel.org, Tuukka Toivonen <tuukkat@ee.oulu.fi>
-Subject: Re: keyboard problem with 2.6.6
-References: <MPG.1b2111558bc2d299896a2@news.gmane.org>
-	<20040530101914.GA1226@ucw.cz>
-	<xb765aeb1i3.fsf@savona.informatik.uni-freiburg.de>
-	<200405301401.20196.oliver@neukum.org>
-From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Date: 30 May 2004 14:22:28 +0200
-In-Reply-To: <200405301401.20196.oliver@neukum.org>
-Message-ID: <xb7isee9kaj.fsf@savona.informatik.uni-freiburg.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 8BIT
-Organization: Universitaet Freiburg, Institut fuer Informatik
+	Sun, 30 May 2004 08:28:42 -0400
+Subject: Re: [PATCH] ppc32: reorg DMA API, add coherent alloc in irq
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: akpm@osdl.org, torvalds@osdl.org, mporter@kernel.crashing.org
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200405291908.i4TJ8a5l011479@hera.kernel.org>
+References: <200405291908.i4TJ8a5l011479@hera.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6119RzQ9kNXxG2xNMS05"
+Organization: Red Hat UK
+Message-Id: <1085920115.6882.1.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 30 May 2004 14:28:35 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Oliver" == Oliver Neukum <oliver@neukum.org> writes:
 
-    >> Where it is now possible to move it out of kernel space WITHOUT
-    >> performance problems, why not move it out?
+--=-6119RzQ9kNXxG2xNMS05
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-    Oliver> Two reasons: security and robustness.
+On Sat, 2004-05-29 at 19:56, Linux Kernel Mailing List wrote:
+> ChangeSet 1.1770, 2004/05/29 10:56:14-07:00, akpm@osdl.org
+>=20
+> 	[PATCH] ppc32: reorg DMA API, add coherent alloc in irq
+> =09
+> 	From: Matt Porter <mporter@kernel.crashing.org>
 
-    Oliver> 1. sysreq must work, always work. Ideally you even do the
-    Oliver> dump in hard irq. USB has been modified to support this.
+this breaks the acenic driver:
 
-It  doesn't  always work.   Try  to  compile  'i8042' and  'atkbd'  as
-modules.  rmmod one of them, and voila: SysRq doesn't work anymore.
+In file included from drivers/net/acenic.c:186:
+drivers/net/acenic.h:598: error: syntax error before
+"DECLARE_PCI_UNMAP_ADDR"
+drivers/net/acenic.h:598: warning: no semicolon at end of struct or
+union
+drivers/net/acenic.h:609: error: syntax error before
+"DECLARE_PCI_UNMAP_ADDR"
+drivers/net/acenic.h:609: warning: no semicolon at end of struct or
+union
+drivers/net/acenic.h:621: error: field `tx_skbuff' has incomplete type
+drivers/net/acenic.h:622: error: field `rx_std_skbuff' has incomplete
+type
+drivers/net/acenic.h:623: error: field `rx_mini_skbuff' has incomplete
+type
+drivers/net/acenic.h:624: error: field `rx_jumbo_skbuff' has incomplete
+type
+drivers/net/acenic.c: In function `acenic_remove_one':
+drivers/net/acenic.c:667: warning: implicit declaration of function
+`pci_unmap_addr'
+drivers/net/acenic.c: In function `ace_load_std_rx_ring':
+drivers/net/acenic.c:1704: warning: implicit declaration of function
+`pci_unmap_addr_set'
+drivers/net/acenic.c: In function `ace_rx_int':
+drivers/net/acenic.c:2036: error: dereferencing pointer to incomplete
+type
+drivers/net/acenic.c:2037: error: dereferencing pointer to incomplete
+type
+drivers/net/acenic.c:2039: error: `mapping' undeclared (first use in
+this function)
+drivers/net/acenic.c:2039: error: (Each undeclared identifier is
+reported only once
+drivers/net/acenic.c:2039: error: for each function it appears in.)
+drivers/net/acenic.c: In function `ace_tx_int':
 
 
+... etc ...
 
--- 
-Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
+--=-6119RzQ9kNXxG2xNMS05
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-E-mail: danlee@informatik.uni-freiburg.de
-Home page: http://www.informatik.uni-freiburg.de/~danlee
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAudNyxULwo51rQBIRAm/5AJ44t3IPJNP3LREZrstmCuVOQ/sq6gCaAo5S
+twPVSgTuSqhg7g7axU4cMFY=
+=w/Qu
+-----END PGP SIGNATURE-----
+
+--=-6119RzQ9kNXxG2xNMS05--
 

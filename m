@@ -1,72 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbVAYUnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbVAYUq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262133AbVAYUnP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 15:43:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbVAYUmr
+	id S262124AbVAYUq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 15:46:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbVAYUqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 15:42:47 -0500
-Received: from waste.org ([216.27.176.166]:35200 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262124AbVAYUlJ (ORCPT
+	Tue, 25 Jan 2005 15:46:55 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:46568 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S262124AbVAYUqI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 15:41:09 -0500
-Date: Tue, 25 Jan 2005 12:40:56 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11-rc2-mm1 Random related problems
-Message-ID: <20050125204056.GL12076@waste.org>
-References: <Pine.LNX.4.61.0501242134390.3010@montezuma.fsmlabs.com>
+	Tue, 25 Jan 2005 15:46:08 -0500
+Date: Wed, 26 Jan 2005 00:08:18 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1
+Message-ID: <20050126000818.041ec09d@zanzibar.2ka.mipt.ru>
+In-Reply-To: <41F66799.5050004@grupopie.com>
+References: <20050124021516.5d1ee686.akpm@osdl.org>
+	<20050125125323.GA19055@infradead.org>
+	<1106662284.5257.53.camel@uganda>
+	<20050125142356.GA20206@infradead.org>
+	<1106666690.5257.97.camel@uganda>
+	<41F66799.5050004@grupopie.com>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501242134390.3010@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 09:36:37PM -0700, Zwane Mwaikambo wrote:
-> I'm having trouble booting here, were those random-* patches tested?
+On Tue, 25 Jan 2005 15:36:57 +0000
+Paulo Marques <pmarques@grupopie.com> wrote:
+
+> Evgeniy Polyakov wrote:
+> > [...]
+> > No, it is not called lock order reversal.
+> > 
+> > There are no places like
+> > lock a
+> > lock b
+> > unlock a
+> > unlock b
 > 
-> EIP is at __add_entropy_words+0xc5/0x1c0
-> eax: 0000002d   ebx: 0000000f   ecx: 0000007b   edx: f5e50000
-> esi: c0810980   edi: 0000000f   ebp: f5e4fea4   esp: f5e4fe5c
-> ds: 007b   es: 007b   ss: 0068
-> Process dd (pid: 2255, threadinfo=f5e4e000 task=ebdd7ac0)
-> Stack: 00000010 78000000 c07043e0 00000286 0000007b 0000001f 00000001 00000007
->        0000000e 00000014 0000001a 00000000 0000002d f5e50000 c07043c0 00000080
->        c0704340 c07043c0 f5e4ff40 c037a4e0 00000000 00000010 2cda69d0 f7b9f75e
-> Call Trace:
->  [<c010403a>] show_stack+0x7a/0x90
->  [<c01041c6>] show_registers+0x156/0x1c0
->  [<c01043e0>] die+0x100/0x190
->  [<c0116d59>] do_page_fault+0x349/0x63f
->  [<c0103cc7>] error_code+0x2b/0x30
->  [<c037a4e0>] xfer_secondary_pool+0xb0/0xe0
+> This would be perfectly fine. The order of unlocking doesn't really 
+> matter. It is the actual locking that must be carried out on the same 
+> order everywhere to guarantee that there are no deadlocks.
 
-This oops is add_entropy_words running off the top of the stack
-reading its input. The overrun is harmless until it causes a page
-fault. After much staring:
+It is bad style, and since unlocking changes the order someone
+may pass wrong locking.
 
-This should fix Zwane's oops. Looks like I introduced this bug in Aug
-2003, but it was hard to trigger until the recent changes. But it
-ought to make it to mainline soonish.
+> > and if they are, then I'm completely wrong.
+> > 
+> > What you see is only following:
+> > 
+> > place 1:
+> > lock a
+> > lock b
+> > unlock b
+> > lock c
+> > unlock c
+> > unlock a
+> > 
+> > place 2:
+> > lock b
+> > lock a
+> > unlock a
+> > lock c
+> > unlock c
+> > unlock b
+> 
+> I haven't look at the code yet, but this is a deadlock waiting to 
+> happen. "place 1" gets "lock a", then is interrupted and "place 2" gets 
+> "lock b". "place 2" waits forever for "lock a" and "place 1" waits 
+> forever for "lock b". Deadlock.
 
-Signed-off-by: Matt Mackall <mpm@selenic.com>
+As I said, that pathes are mutually exclusive - common pathes are guarded
+by one lock always.
 
-Index: rc2mm1/drivers/char/random.c
-===================================================================
---- rc2mm1.orig/drivers/char/random.c	2005-01-25 12:27:00.000000000 -0800
-+++ rc2mm1/drivers/char/random.c	2005-01-25 12:27:36.000000000 -0800
-@@ -701,7 +701,7 @@
- 
- 		bytes=extract_entropy(r->pull, tmp, bytes,
- 				      random_read_wakeup_thresh / 8, rsvd);
--		add_entropy_words(r, tmp, bytes);
-+		add_entropy_words(r, tmp, (bytes + 3) / 4);
- 		credit_entropy_store(r, bytes*8);
- 	}
- }
+> -- 
+> Paulo Marques - www.grupopie.com
+> 
+> "A journey of a thousand miles begins with a single step."
+> Lao-tzu, The Way of Lao-tzu
 
 
--- 
-Mathematics is the supreme nostalgia of our time.
+	Evgeniy Polyakov
+
+Only failure makes us experts. -- Theo de Raadt

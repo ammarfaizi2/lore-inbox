@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263120AbSJFCNK>; Sat, 5 Oct 2002 22:13:10 -0400
+	id <S263189AbSJFCaC>; Sat, 5 Oct 2002 22:30:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263192AbSJFCNF>; Sat, 5 Oct 2002 22:13:05 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:19210 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S263189AbSJFCMc>; Sat, 5 Oct 2002 22:12:32 -0400
-Date: Sat, 5 Oct 2002 19:18:02 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Unable to kill processes in D-state
-Message-ID: <20021006021802.GA31878@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <20021005090705.GA18475@stud.ntnu.no> <1033841462.1247.3716.camel@phantasy> <20021005182740.GC16200@vagabond> <20021005235614.GC25827@stud.ntnu.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	id <S263192AbSJFCaC>; Sat, 5 Oct 2002 22:30:02 -0400
+Received: from paloma15.e0k.nbg-hannover.de ([62.181.130.15]:6100 "HELO
+	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S263189AbSJFCaC> convert rfc822-to-8bit; Sat, 5 Oct 2002 22:30:02 -0400
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: 2.5.40 (-ac4): IDE as modules anyone?
+Date: Sun, 6 Oct 2002 04:35:28 +0200
+User-Agent: KMail/1.4.7
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20021005235614.GC25827@stud.ntnu.no>
-User-Agent: Mutt/1.3.27i
+Message-Id: <200210060435.28245.Dieter.Nuetzel@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 06, 2002 at 01:56:14AM +0200, Thomas Langås wrote:
-> Jan Hudec:
-> > On the other hand it's a bug if a process stays in D-state for time of
-> > order of seconds or more. Unfortunately it's impossible to avoid this
-> > in networking filesystems with current state of VFS (in 2.4). Even there
-> > though, it's a bug if it's indefinite.
-> 
-> Well, it's NFS-related (we use autofs to mount our nfs-shares), and the
-> processes are staying forever when they have gotten to the D-state.
-> 
-> > These problems were already discussed on LKML, you might want to search
-> > the archive. IIRC this is a known problem of OpenAFS (not in standart
-> > kernel). It was reported with various drivers for some 2.4.x kernels
-> > too.
-> 
-> As you see, we've got this problem with NFS as the filesystem, and 
-> the processes won't die or return, they just hang there setting
-> the load-number up in the roof.
+make[2]: Entering directory `/usr/src/linux-2.5.40-ac4/drivers/ide'
+  gcc -Wp,-MD,./.ide.o.d -D__KERNEL__ -I/usr/src/linux-2.5.40-ac4/include 
+-Wall -Wstrict-prototypes -Wno-trigraphs -O -fomit-frame-pointer 
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -mcpu=k6 
+-march=i686 -malign-functions=4 -fschedule-insns2 -fexpensive-optimizations  
+-I/usr/src/linux-2.5.40-ac4/arch/i386/mach-generic -nostdinc -iwithprefix 
+include -DMODULE -include 
+/usr/src/linux-2.5.40-ac4/include/linux/modversions.h   -DKBUILD_BASENAME=ide 
+-DEXPORT_SYMTAB  -c -o ide.o ide.c
+ide.c:3575: redefinition of `init_module'
+ide.c:3553: `init_module' previously defined here
+ide.c: In function `cleanup_module':
+ide.c:3598: warning: implicit declaration of function `bus_unregister'
+{standard input}: Assembler messages:
+{standard input}:9163: Error: symbol `init_module' is already defined
 
-They shouldn't be affecting the load average because they
-aren't on the runqueue.
+Have a nice Sunday.
 
-It sounds like you have a problem with your NFS server.  Be
-sure you set the automounter's mount options to include 'intr'
-That will allow you to interrupt your processes if the server goes
-offline.
-
+-Dieter
 -- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+Dieter Nützel
+Graduate Student, Computer Science
 
-		Remember Cernan and Schmitt
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel at hamburg.de (replace at with @)
+

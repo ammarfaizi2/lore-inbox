@@ -1,88 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261300AbSJYH5n>; Fri, 25 Oct 2002 03:57:43 -0400
+	id <S261302AbSJYIJj>; Fri, 25 Oct 2002 04:09:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261302AbSJYH5n>; Fri, 25 Oct 2002 03:57:43 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:33551 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S261300AbSJYH5m>;
-	Fri, 25 Oct 2002 03:57:42 -0400
-Date: Fri, 25 Oct 2002 12:01:57 +0400
-From: Andrey Panin <pazke@orbita1.ru>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+	id <S261305AbSJYIJj>; Fri, 25 Oct 2002 04:09:39 -0400
+Received: from ophelia.ess.nec.de ([193.141.139.8]:46767 "EHLO
+	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
+	id <S261302AbSJYIJi> convert rfc822-to-8bit; Fri, 25 Oct 2002 04:09:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Erich Focht <efocht@ess.nec.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>, landley@trommello.org
+Subject: Re: Crunch time -- the musical.  (2.5 merge candidate list 1.5)
+Date: Fri, 25 Oct 2002 10:15:46 +0200
+User-Agent: KMail/1.4.1
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [miniPATCH][RFC] Compilation fixes in the 2.5.44
-Message-ID: <20021025080157.GA311@pazke.ipt>
-Mail-Followup-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	linux-kernel@vger.kernel.org
-References: <20021025062809.GA7522@hazard.jcu.cz> <200210250651.g9P6pnp14035@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5mCyUwZo2JvN/JJP"
-Content-Disposition: inline
-In-Reply-To: <200210250651.g9P6pnp14035@Port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.4i
-X-Uname: Linux pazke 2.5.25 
+References: <200210242351.56719.efocht@ess.nec.de> <2862423467.1035473915@[10.10.2.3]>
+In-Reply-To: <2862423467.1035473915@[10.10.2.3]>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210251015.46388.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 25 October 2002 00:38, Martin J. Bligh wrote:
+> > The situation is really funny: Everybody seems to agree that the design
+> > ideas in my NUMA aproach are sane and exactly what we want to have on
+> > a NUMA platform in the end. But instead of concentrating on tuning the
+> > parameters for the many different NUMA platforms and reshaping this
+> > aproach to make it acceptable, IBM concentrates on a very much stripped
+> > down aproach.
+>
+> From my point of view, the reason for focussing on this was that
+> your scheduler degraded the performance on my machine, rather than
+> boosting it. Half of that was the more complex stuff you added on
+> top ... it's a lot easier to start with something simple that works
+> and build on it, than fix something that's complex and doesn't work
+> well.
 
---5mCyUwZo2JvN/JJP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You're talking about one of the first 2.5 versions of the patch. It
+changed a lot since then, thanks to your feedback, too.
 
-On Fri, Oct 25, 2002 at 09:44:21AM -0200, Denis Vlasenko wrote:
-> On 25 October 2002 04:28, Jan Marek wrote:
-> > Hallo l-k,
-> >
-> > I'm beginner in the kernel hacking (or fixing ;-))).
-> >
-> > I have small patch, which is fixing some compilation errors (I'm
-> > using gcc-2.95.4-17 from Debian sid).
-> >
-> > The first chunk fixed this warning:
-> >
-> > arch/i386/kernel/irq.c: In function `do_IRQ':
-> > arch/i386/kernel/irq.c:331: warning: unused variable `esp'
-> >
-> > I move declaration of variable esp to the #ifdef blok, where it is
-> > using...
->=20
->=20
->         unsigned int status;
-> -       long esp;
-> =20
->         irq_enter();
-> =20
->  #ifdef CONFIG_DEBUG_STACKOVERFLOW
->         /* Debugging check for stack overflow: is there less than 1KB fre=
-e? */
-> +       long esp;
->=20
-> Most C compilers don't allow you to mix declarations and code.
-> This is allowed only in new C standards. But GCC 3 seems to cope,
-> so it's probably fine for new kernels.
+> I still haven't been able to get your scheduler to boot for about
+> the last month without crashing the system. Andrew says he has it
+> booting somehow on 2.5.44-mm4, so I'll steal his kernel tommorow and
+> see how it looks. If the numbers look good for doing boring things
+> like kernel compile, SDET, etc, I'm happy.
 
-This fragment must be fixed, look at Documentation/Changes:
+I thought this problem is well understood! For some reasons independent of
+my patch you have to boot your machines with the "notsc" option. This
+leaves the cache_decay_ticks variable initialized to zero which my patch
+doesn't like. I'm trying to deal with this inside the patch but there is
+still a small window when the variable is zero. In my opinion this needs
+to be fixed somewhere in arch/i386/kernel/smpboot.c. Booting a machine
+with cache_decay_ticks=0 is pure nonsense, as it switches off cache
+affinity which you absolutely need! So even if "notsc" is a legal option,
+it should be fixed such that it doesn't leave your machine without cache
+affinity. That would anyway give you a falsified behavior of the O(1)
+scheduler.
 
-"The recommended compiler for the kernel is gcc 2.95.x (x >=3D 3)"
+Erich
 
-Best regards.
-=20
---=20
-Andrey Panin            | Embedded systems software developer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
---5mCyUwZo2JvN/JJP
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9uPp1Bm4rlNOo3YgRAv3gAJ9fmAbsJ/yN9/l6Mu4YWNMQyE3hvgCcC1xv
-bAhvJBRGeguxLI8byI4iqCQ=
-=3xP5
------END PGP SIGNATURE-----
-
---5mCyUwZo2JvN/JJP--

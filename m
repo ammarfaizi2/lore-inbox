@@ -1,110 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbVC3SDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbVC3SJr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbVC3SDo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 13:03:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbVC3SDn
+	id S262370AbVC3SJr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 13:09:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbVC3SJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 13:03:43 -0500
-Received: from 64-30-195-78.dsl.linkline.com ([64.30.195.78]:61642 "EHLO
-	jg555.com") by vger.kernel.org with ESMTP id S262373AbVC3SDi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 13:03:38 -0500
-Message-ID: <424AE9E0.8040601@jg555.com>
-Date: Wed, 30 Mar 2005 10:03:12 -0800
-From: Jim Gifford <maillist@jg555.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 64bit build of tulip driver
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Mar 2005 13:09:47 -0500
+Received: from bay10-f13.bay10.hotmail.com ([64.4.37.13]:28960 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262370AbVC3SJf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 13:09:35 -0500
+Message-ID: <BAY10-F131BE888B1B9501BEB344DD9460@phx.gbl>
+X-Originating-IP: [146.229.160.228]
+X-Originating-Email: [getarunsri@hotmail.com]
+From: "Arun Srinivas" <getarunsri@hotmail.com>
+To: rostedt@goodmis.org
+Subject: Re: sched_setscheduler() and usage issues ....please help
+Date: Wed, 30 Mar 2005 23:39:33 +0530
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 30 Mar 2005 18:09:34.0276 (UTC) FILETIME=[A0976040:01C53553]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Under 32bit the tulip driver works fine, but under 64 bit it gives me a 
-lot if problems. I updated the tulip
-to what is in the current repository, and the issue still exists. Any 
-suggestions.
+When I schedule my process with SCHED_FIFO policy (using 
+sched_setscheduler()) , is there any means to verify that it is indeed being 
+scheduled with the same priority?
 
-First off it continually sends data out the network interface and never 
-negotiates is speed and duplex.
-Second in the log files all I see is an uninformative message 
-0000:00:07.0: tulip_stop_rxtx() failed
+thanks
+arun
+>From: Steven Rostedt <rostedt@goodmis.org>
+>To: Arun Srinivas <getarunsri@hotmail.com>
+>Subject: Re: sched_setscheduler() and usage issues ....please help
+>Date: Tue, 29 Mar 2005 06:31:43 -0500
+>
+>On Tue, 2005-03-29 at 13:25 +0530, Arun Srinivas wrote:
+> > thanks.gcc says "could not find strutils.h". I am using kernel 2.6.x 
+>with
+> > gcc 3.3.4. Where can I find the file?
+>
+>Oops! Sorry, I gave you a modified version of my actual program. I have
+>my own usage wrapper, that I use in all my tools. I took it out, but
+>forgot about my header. That is a custom header, just take it out and it
+>will compile.
+>
+>OK, just to be clean, I've attached it here.
+>
+>-- Steve
+>
+><< setscheduler.c >>
 
-Here is all the bootup information differences I can find on the driver
-64 bit
-Dec 31 16:01:29 lfs tulip0: ***WARNING***: No MII transceiver found!
-Dec 31 16:01:29 lfs tulip1: ***WARNING***: No MII transceiver found!
-32 bit
-Dec 31 16:01:16 lfs tulip0:  MII transceiver #1 config 1000 status 7809 
-advertising 01e1
-Dec 31 16:01:16 lfs tulip1:  MII transceiver #1 config 1000 status 7809 
-advertising 01e1.
-
-Complete boot log - yes I know the date and time are off.
-Under a 64 bit compile
-Dec 31 16:01:29 lfs Linux Tulip driver version 1.1.13 (May 11, 2002)
-Dec 31 16:01:29 lfs PCI: Enabling device 0000:00:07.0 (0045 -> 0047)
-Dec 31 16:01:29 lfs tulip0: Old format EEPROM on 'Cobalt Microserver' 
-board.  Using substitute media control info.
-Dec 31 16:01:29 lfs tulip0:  EEPROM default media type Autosense.
-Dec 31 16:01:29 lfs tulip0:  Index #0 - Media MII (#11) described by a 
-21142 MII PHY (3) block.
-Dec 31 16:01:29 lfs tulip0: ***WARNING***: No MII transceiver found!
-Dec 31 16:01:29 lfs eth0: Digital DS21143 Tulip rev 65 at 
-ffffffffb0001400, 00:10:E0:00:32:DE, IRQ 19.
-Dec 31 16:01:29 lfs PCI: Enabling device 0000:00:0c.0 (0005 -> 0007)
-Dec 31 16:01:29 lfs tulip1: Old format EEPROM on 'Cobalt Microserver' 
-board.  Using substitute media control info.
-Dec 31 16:01:29 lfs tulip1:  EEPROM default media type Autosense.
-Dec 31 16:01:29 lfs tulip1:  Index #0 - Media MII (#11) described by a 
-21142 MII PHY (3) block.
-Dec 31 16:01:29 lfs tulip1: ***WARNING***: No MII transceiver found!
-Dec 31 16:01:29 lfs eth1: Digital DS21143 Tulip rev 65 at 
-ffffffffb0001480, 00:10:E0:00:32:DF, IRQ 20.
-Dec 31 16:01:29 lfs bootlog:  Bringing up the eth0 interface...[  OK  ]
-Dec 31 16:01:30 lfs bootlog:  Adding IPv4 address 172.16.0.99 to the 
-eth0 interface...[  OK  ]
-Dec 31 16:01:31 lfs bootlog:  Setting up default gateway...[  OK  ]
-Dec 31 16:01:32 lfs 0000:00:07.0: tulip_stop_rxtx() failed
-Dec 31 16:01:38 lfs 0000:00:07.0: tulip_stop_rxtx() failed
-Dec 31 16:01:44 lfs 0000:00:07.0: tulip_stop_rxtx() failed
-Dec 31 16:01:50 lfs 0000:00:07.0: tulip_stop_rxtx() failed
-Dec 31 16:01:56 lfs 0000:00:07.0: tulip_stop_rxtx() failed
-Dec 31 16:02:02 lfs 0000:00:07.0: tulip_stop_rxtx() failed
-Dec 31 16:02:08 lfs 0000:00:07.0: tulip_stop_rxtx() failed
-
-Under 32 bit
-Dec 31 16:01:16 lfs Linux Tulip driver version 1.1.13 (May 11, 2002)
-Dec 31 16:01:16 lfs PCI: Enabling device 0000:00:07.0 (0045 -> 0047)
-Dec 31 16:01:16 lfs tulip0: Old format EEPROM on 'Cobalt Microserver' 
-board.  Using substitute media control info.
-Dec 31 16:01:16 lfs tulip0:  EEPROM default media type Autosense.
-Dec 31 16:01:16 lfs tulip0:  Index #0 - Media MII (#11) described by a 
-21142 MII PHY (3) block.
-Dec 31 16:01:16 lfs tulip0:  MII transceiver #1 config 1000 status 7809 
-advertising 01e1.
-Dec 31 16:01:16 lfs eth0: Digital DS21143 Tulip rev 65 at b0001400, 
-00:10:E0:00:32:DE, IRQ 19.
-Dec 31 16:01:16 lfs tulip1: Old format EEPROM on 'Cobalt Microserver' 
-board.  Using substitute media control info.
-Dec 31 16:01:16 lfs tulip1:  EEPROM default media type Autosense.
-Dec 31 16:01:16 lfs tulip1:  Index #0 - Media MII (#11) described by a 
-21142 MII PHY (3) block.
-Dec 31 16:01:16 lfs tulip1:  MII transceiver #1 config 1000 status 7809 
-advertising 01e1.
-Dec 31 16:01:16 lfs eth1: Digital DS21143 Tulip rev 65 at b0001480, 
-00:10:E0:00:32:DF, IRQ 20.
-Dec 31 16:01:17 lfs bootlog:  Bringing up the eth0 interface...[  OK  ]
-Dec 31 16:01:17 lfs bootlog:  Adding IPv4 address 172.16.0.99 to the 
-eth0 interface...[  OK  ]
-Dec 31 16:01:18 lfs bootlog:  Setting up default gateway...[  OK  ]
-Dec 31 16:01:20 lfs eth0: Setting full-duplex based on MII#1 link 
-partner capability of 45e1.
-
--- 
-----
-Jim Gifford
-maillist@jg555.com
+_________________________________________________________________
+Get the job you always wanted. 
+http://www.naukri.com/tieups/tieups.php?othersrcp=736 Its simple, post your 
+CV on Naukri.com
 

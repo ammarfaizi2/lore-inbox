@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129450AbQKKE6N>; Fri, 10 Nov 2000 23:58:13 -0500
+	id <S129732AbQKKFRu>; Sat, 11 Nov 2000 00:17:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129669AbQKKE6D>; Fri, 10 Nov 2000 23:58:03 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:519 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129450AbQKKE5v>;
-	Fri, 10 Nov 2000 23:57:51 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Matt D. Robinson" <yakker@alacritech.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI) 
-In-Reply-To: Your message of "Fri, 10 Nov 2000 19:29:26 -0800."
-             <3A0CBD16.5A07D189@alacritech.com> 
+	id <S129675AbQKKFRl>; Sat, 11 Nov 2000 00:17:41 -0500
+Received: from munchkin.spectacle-pond.org ([209.192.197.45]:261 "EHLO
+	munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
+	id <S129655AbQKKFR3>; Sat, 11 Nov 2000 00:17:29 -0500
+Date: Sat, 11 Nov 2000 00:17:04 -0500
+From: Michael Meissner <meissner@spectacle-pond.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Where is it written?
+Message-ID: <20001111001704.B2766@munchkin.spectacle-pond.org>
+In-Reply-To: <8ui698$c2q$1@cesium.transmeta.com> <11198.973906134@ocs3.ocs-net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 11 Nov 2000 15:57:45 +1100
-Message-ID: <12004.973918665@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <11198.973906134@ocs3.ocs-net>; from kaos@ocs.com.au on Sat, Nov 11, 2000 at 12:28:54PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Nov 2000 19:29:26 -0800, 
-"Matt D. Robinson" <yakker@alacritech.com> wrote:
->We're removing lcrash from
->the kernel, putting it into its own RPM, and adding patches to the
->kernel for LKCD that build in crash dump functionality and make a new
->"Kernsyms" file so that we can dynamically read the symbol table of
->major parts of the kernel and give you memory dumps, stack traces,
->and even dump out entire structures dynamically.
+On Sat, Nov 11, 2000 at 12:28:54PM +1100, Keith Owens wrote:
+> On 10 Nov 2000 17:10:00 -0800, 
+> "H. Peter Anvin" <hpa@zytor.com> wrote:
+> >We can mess with the ABI, but it requires a wholescale rev of the
+> >entire system.
+> 
+> AFAICT, there is nothing stopping us from redoing the kernel ABI to
+> pass the first few parameters between kernel functions in registers.
+> As long as the syscall interface is unchanged, that ABI change will
+> only break binary modules (care_factor == 0).  The ABI type would need
+> to be added to the symbol version prefix, trivial.
 
-kallsyms goes a long way towards solving the symbol table problem for
-debugging.  It really only has three deficiencies, it does not detail
-structure fields, it does not handle automatic variables and it does
-not have source line numbers.  All of those need the sort of detail
-provided by gcc -g, but the amount of data that generates is
-prohibitively large, 40+ megabytes is a bit much to load into kernel
-space.  I reluctantly decided that printing global addresses and
-offsets was the best I could do, given the space constraints.
+Other than the minor little fact that -mregparm=n exposes several latent
+compiler bugs, that since it is not part of the ABI, it isn't on anybody's
+radar screen as needing to be fixed.  This is of course the downside of free
+software, that volunteers tend to have their own ideas of what to work on.
 
-Instead of inventing your own kernsyms file, take a look at kallsyms.
-It handles modules as well as the kernel.  Let me know if you want any
-additional data in kallsyms.
+Also note, that for -mregpar=n, it is important that variable argument
+functions be declared properly in all callers, since they need to use the
+standard calling sequence.
 
+-- 
+Michael Meissner, Red Hat, Inc.
+PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
+Work:	  meissner@redhat.com		phone: +1 978-486-9304
+Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129413AbRAVIya>; Mon, 22 Jan 2001 03:54:30 -0500
+	id <S130154AbRAVJty>; Mon, 22 Jan 2001 04:49:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129846AbRAVIyU>; Mon, 22 Jan 2001 03:54:20 -0500
-Received: from [195.92.70.201] ([195.92.70.201]:16388 "EHLO
-	blacklight.gweep.org.uk") by vger.kernel.org with ESMTP
-	id <S129532AbRAVIyG>; Mon, 22 Jan 2001 03:54:06 -0500
-Date: Mon, 22 Jan 2001 08:54:18 +0000
-From: Howard Johnson <merlin@mwob.org.uk>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: "John O'Donnell" <johnod@voicefx.com>,
-        Matthew Fredrickson <lists@frednet.dyndns.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: VIA chipset discussion
-Message-ID: <20010122085418.A11886@mwob.org.uk>
-In-Reply-To: <Pine.LNX.4.21.0101171358020.1171-100000@ns-01.hislinuxbox.com> <20010118020408.A4713@iname.com> <20010118121356.A28529@frednet.dyndns.org> <3A677D17.8000701@voicefx.com> <20010118234225.A7210@www.mwob.org.uk> <20010119155333.A2050@suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010119155333.A2050@suse.cz>; from vojtech@suse.cz on Fri, Jan 19, 2001 at 03:53:33PM +0100
+	id <S130792AbRAVJto>; Mon, 22 Jan 2001 04:49:44 -0500
+Received: from www.lahn.de ([213.61.112.58]:10876 "EHLO serv02.lahn.de")
+	by vger.kernel.org with ESMTP id <S130154AbRAVJtd>;
+	Mon, 22 Jan 2001 04:49:33 -0500
+Date: Mon, 22 Jan 2001 10:46:03 +0100 (CET)
+From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+Reply-To: pmhahn@titan.lahn.de
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Firewall netlink question...
+In-Reply-To: <20010122073343.A3839@lemsip.lan>
+Message-ID: <Pine.LNX.4.21.0101221045380.25503-100000@titan.lahn.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 19, 2001 at 03:53:33PM +0100, Vojtech Pavlik wrote:
-> On Thu, Jan 18, 2001 at 11:42:25PM +0000, Howard Johnson wrote:
-> > On Thu, Jan 18, 2001 at 06:32:39PM -0500, John O'Donnell wrote:
-> > > Matthew Fredrickson wrote:
+On Mon, 22 Jan 2001, Scaramanga wrote:
+
+> Under Linux 2.2.x I used to be able to use ipchains to send packet to a
+> netlink socket so that my userspace application could further analyze
+> the packet data.
 > 
-> My bet is ACPI/powermanagement messing with it ...
+> Since kernel 2.4 and iptables, I have not enjoyed the same functionality,
+> has it been deprecated in favour of a better method, if so, what? I ask 
+> because I just spent my last few hours writing an iptables plugin, and 
+> netfilter target kernel module, in order to replace the old functionality 
+> exactly, to the end that my application works with zero modifications.
+You might take a look at
 
-Ah, APM. So often blamed. So often the cause. ;-)
+$ man iptables
+...
+TARGETS
+...
+QUEUE means to pass the packet to userspace (if supported by the kernel).
 
-Yep, pulling APM support out of my kernel seems to have fixed the problem. I'll
-start playing with APM settings, then.
+$ sed -n -e '1874,1876p' /usr/src/linux-2.4.0/Documentation/Configure.help
+CONFIG_IP_NF_QUEUE
+  Netfilter has the ability to queue packets to user space: the
+  netlink device can be used to access them using this driver.
 
-Cheers.
+$ lynx /usr/share/doc/iptables/html/packet-filtering-HOWTO-7.html
 
+BYtE   
+Philipp
 -- 
-Howard Johnson
-merlin@mwob.org.uk
+  / /  (_)__  __ ____  __ Philipp Hahn
+ / /__/ / _ \/ // /\ \/ /
+/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

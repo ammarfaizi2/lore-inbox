@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270299AbRH1S5b>; Tue, 28 Aug 2001 14:57:31 -0400
+	id <S271283AbRH1TFB>; Tue, 28 Aug 2001 15:05:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271283AbRH1S5V>; Tue, 28 Aug 2001 14:57:21 -0400
-Received: from pat.uio.no ([129.240.130.16]:60853 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S270299AbRH1S5K>;
-	Tue, 28 Aug 2001 14:57:10 -0400
-To: Oliver Paukstadt <oliver@paukstadt.de>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NFS Client and SMP
-In-Reply-To: <Pine.LNX.4.05.10108281806180.20438-100000@lara.stud.fh-heilbronn.de>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 28 Aug 2001 20:57:22 +0200
-In-Reply-To: Oliver Paukstadt's message of "Tue, 28 Aug 2001 18:16:34 +0200 (CEST)"
-Message-ID: <shsitf82est.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
+	id <S271611AbRH1TEw>; Tue, 28 Aug 2001 15:04:52 -0400
+Received: from pa42.warszawa.sdi.tpnet.pl ([213.25.213.42]:4612 "HELO
+	pa42.warszawa.sdi.tpnet.pl") by vger.kernel.org with SMTP
+	id <S271283AbRH1TEj>; Tue, 28 Aug 2001 15:04:39 -0400
+Date: Tue, 28 Aug 2001 21:04:26 +0200
+From: Piotrek Kaczmarek <kaczorek@msg.beta.pl>
+To: linux-kernel@vger.kernel.org
+Subject: VIA VT82C416MV support
+Message-ID: <20010828210426.A278@msg.beta.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+I use 2.4.10-pre1-xfs series kernel (cvs checkout 2001-08-28)
+on a P133 based on a motherboard (don't remeber the manufacturer) 
+with some VIA IDE controller, which seems to be
+PCI_IDE: unknown IDE controller on PCI bus 00 device 08, VID=1106, DID=1571
+for IDE driver....
+VIA_82CXXX suport is compiled in kernel
 
-     > HY HY I have massive problems using client nfs on SMP boxes.  I
-     > can reproduce it 2.4.[0-7] on s390 and s390x and with 2.4.[0-8]
-     > on IA32.
+Unfortunately i was unable to use UDMA33 mode with my
+FUJITSU MPF3204AT, ATA DISK drive (20496MB w/512KiB Cache)
+Aug 22 22:32:49 vigo kernel: ide0: unexpected interrupt, status=0x58, count=2
+Aug 22 22:33:03 vigo kernel: ide0: unexpected interrupt, status=0x58, count=3
+Aug 22 22:33:12 vigo kernel: ide0: unexpected interrupt, status=0x58, count=4
+Aug 22 22:33:22 vigo kernel: ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
+Aug 22 22:33:22 vigo kernel: hda: lost interrupt
+Aug 22 22:33:22 vigo kernel: hda: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
+Aug 22 22:33:22 vigo kernel: hda: status timeout: status=0xd0 { Busy }
+Aug 22 22:33:22 vigo kernel: hda: DMA disabled
+Aug 22 22:33:22 vigo kernel: ide0: unexpected interrupt, status=0xd0, count=5
+Aug 22 22:33:22 vigo kernel: hda: drive not ready for command
+Aug 22 22:33:22 vigo kernel: ide0: reset: success
 
-What do you mean by 'hang' in this context? Does the entire machine
-die, or is it just the nfs mount?
+Here's my lspci -vvv output
+00:01.0 IDE interface: VIA Technologies, Inc. VT82C416MV (rev 04) (prog-if 8a [Master SecP PriP])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32
+        Region 4: I/O ports at 6000 [size=16]
+Is that controller supported in 2.4 kernels ? or maybe i am missing something?
 
-Also, can you reproduce it with the patch
-
-  http://www.fys.uio.no/~trondmy/src/2.4.9/linux-2.4.9-rpc_smpfixes.dif
-
-(the same patch applies fine to 2.4.[678] if you for some reason don't
-like 2.4.9)
+I'd be appreciated for any response
 
 Cheers,
-  Trond
+kaczorek
+
+P.S.
+sorry for my terrible english
+please CC, i'm not subscribing l-k
+
+-- 
+kaczorek

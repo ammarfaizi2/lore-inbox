@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290785AbSAYSs2>; Fri, 25 Jan 2002 13:48:28 -0500
+	id <S290783AbSAYSs2>; Fri, 25 Jan 2002 13:48:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290779AbSAYSsZ>; Fri, 25 Jan 2002 13:48:25 -0500
-Received: from ns.suse.de ([213.95.15.193]:51461 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S290786AbSAYSsD>;
-	Fri, 25 Jan 2002 13:48:03 -0500
-Date: Fri, 25 Jan 2002 19:48:02 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Dana Lacoste <dana.lacoste@peregrine.com>
-Cc: "'Stephan von Krawczynski'" <skraw@ithnet.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: Machine Check Exception ?
-In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2AEC@ottonexc1.ottawa.loran.com>
-Message-ID: <Pine.LNX.4.33.0201251946290.31702-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290792AbSAYSsW>; Fri, 25 Jan 2002 13:48:22 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:13585 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S290785AbSAYSrt>; Fri, 25 Jan 2002 13:47:49 -0500
+Date: Fri, 25 Jan 2002 19:47:48 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Rasmus B?g Hansen <moffe@amagerkollegiet.dk>
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ACPI trouble (Was: Re: [patch] amd athlon cooling on kt266/266a chipset)
+Message-ID: <20020125184748.GA9932@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020124184011.GA23785@vana.vc.cvut.cz> <Pine.LNX.4.44.0201251044210.1519-100000@grignard.amagerkollegiet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0201251044210.1519-100000@grignard.amagerkollegiet.dk>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Jan 2002, Dana Lacoste wrote:
+Hi!
 
-> I don't get them any more after doing this :
-> 1 - switched from IDE to SCSI
-> 2 - changed RAM vendors (yes, this was unpleasant)
-> and, most significantly :
-> 3 - made sure the BIOS had the correct microcode update
->     for the CPU.  the one it had was out of date, and
->     changing to the latest from Intel solved a LOT of
->     instability issues....
+> > > In mailing-lists.linux-kernel, Rasmus B?g Hansen wrote:
+> > > 
+> > > > When running /sbin/poweroff from runlevel 3 or 5, 'halt -i -d -p' is
+> > > > again the last command run, follwing this from the kernel: 
+> > > >   Power down.  
+> > > >   hwsleep-0178 [02] Acpi_enable_sleep_state: Entering S5 
+> > > > And again my system hangs.
+> > > 
+> > > I have an ASUS A7V motherboard, similar to your ASUS A7V133.  I find
+> > > that stock kernel (2.4.18-pre7) APM powers off the machine, but stock
+> > > kernel ACPI does not.  However, the Intel ACPI patch, available from
+> > > http://developer.intel.com/technology/IAPC/acpi/downloads.htm against
+> > > kernel 2.4.16, does power down my machine.  I was able to forward port
+> > > this to 2.4.18-pre7 without too much trouble by starting with 2.4.16,
+> > > applying the Intel ACPI patch first, and then applying kernel
+> > > patch-2.4.17 and kernel patch-2.4.18-pre7.
+> > 
+> > I still have this in my tree. I have no idea who is wrong, whether parser
+> > or BIOS.
+> 
+> Your patch might work on the A7V, but it does not on my A7V133-C. If I 
+> modify the OEM string in the patch, it works. It may also be modified to 
+> [...] "A7V-133", 7)[...] but then it probably won't work on a A7V...
 
-Flaky RAM tends to be one of the more popular triggers
-of these exceptions, so (2) above was more than likely your
-cause as opposed to (3). (1) seems incredibly unlikely
-unless it had adverse change on power drain.
+This should be done properly by DMI blacklist.
+
+> As said in another post, the patch from the intel site also solves the 
+> problem.
+
+Which patch?
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270835AbTHARyP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 13:54:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270845AbTHARyP
+	id S270845AbTHARzL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 13:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270850AbTHARzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 13:54:15 -0400
-Received: from bay7-f15.bay7.hotmail.com ([64.4.11.15]:19717 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S270835AbTHARyO (ORCPT
+	Fri, 1 Aug 2003 13:55:11 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:9857 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S270845AbTHARzJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 13:54:14 -0400
-X-Originating-IP: [62.98.206.48]
-X-Originating-Email: [kernel_286@hotmail.com]
-From: "jorge kernel" <kernel_286@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: VFS: Cannot open root device "304" or hda4
-Date: Fri, 01 Aug 2003 19:54:13 +0200
+	Fri, 1 Aug 2003 13:55:09 -0400
+Date: Fri, 1 Aug 2003 18:55:00 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Robert Love <rml@tech9.net>, "J.A. Magallon" <jamagallon@able.es>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: [PATCH] protect migration/%d etc from sched_setaffinity
+Message-ID: <20030801175500.GA13501@mail.jlokier.co.uk>
+References: <20030731224604.GA24887@tsunami.ccur.com> <1059692548.931.329.camel@localhost> <20030731230635.GA7852@rudolph.ccur.com> <1059693499.786.1.camel@localhost> <20030731231850.GC7378@werewolf.able.es> <1059694637.786.11.camel@localhost> <m1u191ws6r.fsf@frodo.biederman.org> <20030801161529.GB12501@mail.jlokier.co.uk> <m1ptjpwagw.fsf@frodo.biederman.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Message-ID: <BAY7-F15n2AI3F5Y0Zw00011242@hotmail.com>
-X-OriginalArrivalTime: 01 Aug 2003 17:54:13.0376 (UTC) FILETIME=[EAF2F000:01C35855]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1ptjpwagw.fsf@frodo.biederman.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Burton Windle <bwindle@fint.org>
->To: kernel_286@hotmail.com
->Subject: Re: VFS: Cannot open root device "304" or hda4
->Date: Fri, 1 Aug 2003 11:36:01 -0400 (EDT)
+Eric W. Biederman wrote:
+> So bringing this back on topic.  Given that plurals are gender
+> neutral, and that there are gender neutral words like person and
+> people.  When doing kernel documentation please do it in a gender
+> neutral way.
 
-Hi Burton,
+Agreed.
 
->Are you sure that you compiled in support for your IDE controller and file
->system type?
-
-Mmm..
-My hardware config consists in an Acer 272Xv with sis chipset 650 (I read it 
-in 2.4.21 and previous dmesg).
-I think that config file is OK because when 2.6 starts, I can see something 
-about "SIS961 chipset MUTIOL", and in the .config file I've set 
-CONFIG_BLK_DEV_SIS5513=y that I always used for previous kernels.
-
-						Mario
->
->--
->Burton Windle                           burton@fint.org
->Linux: the "grim reaper of innocent orphaned children."
->           from /usr/src/linux-2.4.18/init/main.c:461
->
-
-_________________________________________________________________
-Nuovo MSN Messenger 6.0 con sfondi e giochi! http://messenger.msn.it/ 
-Provalo subito!
-
+-- Jamie

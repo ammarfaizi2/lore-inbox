@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129211AbRBVXkx>; Thu, 22 Feb 2001 18:40:53 -0500
+	id <S129219AbRBVXxi>; Thu, 22 Feb 2001 18:53:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129310AbRBVXko>; Thu, 22 Feb 2001 18:40:44 -0500
-Received: from mail.valinux.com ([198.186.202.175]:20755 "EHLO
-	mail.valinux.com") by vger.kernel.org with ESMTP id <S129211AbRBVXkg>;
-	Thu, 22 Feb 2001 18:40:36 -0500
-To: adilger@turbolinux.com
-CC: phillips@innominate.de, Linux-kernel@vger.kernel.org,
-        adilger@turbolinux.com, hch@ns.caldera.de,
-        ext2-devel@lists.sourceforge.net, viro@math.psu.edu
-In-Reply-To: <200102221816.f1MIGWt04170@webber.adilger.net> (message from
-	Andreas Dilger on Thu, 22 Feb 2001 11:16:32 -0700 (MST))
-Subject: Re: [Ext2-devel] [rfc] Near-constant time directory index for Ext2
-From: tytso@valinux.com
-Phone: (781) 391-3464
-In-Reply-To: <200102221816.f1MIGWt04170@webber.adilger.net>
-Message-Id: <E14W5La-0008Bc-00@beefcake.hdqt.valinux.com>
-Date: Thu, 22 Feb 2001 15:40:30 -0800
+	id <S129290AbRBVXx2>; Thu, 22 Feb 2001 18:53:28 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:22066 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129219AbRBVXxR>; Thu, 22 Feb 2001 18:53:17 -0500
+Date: Fri, 23 Feb 2001 00:54:04 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <axboe@suse.de>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: ll_rw_block/submit_bh and request limits
+Message-ID: <20010223005404.E30330@athlon.random>
+In-Reply-To: <20010222235700.B30330@athlon.random> <Pine.LNX.4.21.0102221915370.2435-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0102221915370.2435-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Thu, Feb 22, 2001 at 07:44:11PM -0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andreas Dilger <adilger@turbolinux.com>
-   Date: Thu, 22 Feb 2001 11:16:32 -0700 (MST)
+On Thu, Feb 22, 2001 at 07:44:11PM -0200, Marcelo Tosatti wrote:
+> The global limit on top of the per-queue limit sounds good. 
 
-   One important question as to the disk format is whether the "." and ".."
-   interception by VFS is a new phenomenon in 2.4 or if this also happened
-   in 2.2?  If so, then having these entries on disk will be important
-   for 2.2 compatibility, and you don't want to have different on-disk formats
-   between 2.2 and 2.4.
+Probably.
 
-Well, you need to have the '.' and '..' there for compatibility if you
-for the full backwards compatibility.   That's clear.
+> Since you're talking about the "total_ram / 3" hardcoded value... it
+> should be /proc tunable IMO. (Andi Kleen already suggested this)
 
-If you don't care about backwards compatibility, it's important that
-there be a way to find the parent directory, but there doesn't have to
-be explicit '.' and '..'  entries.
+Yes, IIRC Andi also proposed that a few weeks ago.
 
-So if Daniel is going to try implementing it both ways then that's one
-place where the #ifdef's might get a bit more complicated.  After it's
-done, we should do some benchmarks comparing it both ways; if the
-difference is negligible, I'd argue for simply always providing
-backwards compatibility.  One of the key advantages of ext2/ext3 is its
-backwards compatibility, and so if it's not too costly to preserve it
-(as I suspect will be the case), we should try to do so.
-
-						- Ted
+Andrea

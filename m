@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263927AbUAHIsO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 03:48:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263963AbUAHIsO
+	id S263903AbUAHJgt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 04:36:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263937AbUAHJgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 03:48:14 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:29709 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S263927AbUAHIsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 03:48:10 -0500
-Date: Thu, 8 Jan 2004 09:47:58 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Ben Greear <greearb@candelatech.com>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org
-Subject: Re: Problem with 2.4.24 e1000 and keepalived
-Message-ID: <20040108084758.GB9050@alpha.home.local>
-References: <20040107200556.0d553c40.skraw@ithnet.com> <20040107210255.GA545@alpha.home.local> <3FFCC430.4060804@candelatech.com> <20040108091441.3ff81b53.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040108091441.3ff81b53.skraw@ithnet.com>
-User-Agent: Mutt/1.4i
+	Thu, 8 Jan 2004 04:36:49 -0500
+Received: from [193.138.115.2] ([193.138.115.2]:24845 "HELO
+	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
+	id S263903AbUAHJgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 04:36:48 -0500
+Date: Thu, 8 Jan 2004 10:33:24 +0100 (CET)
+From: Jesper Juhl <juhl@dif.dk>
+To: Joe Perches <joe@perches.com>
+cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org,
+       Mark Hemment <markhe@nextd.demon.co.uk>,
+       Andrea Arcangeli <andrea@e-mind.com>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: [PATCH] mm/slab.c remove impossible <0 check - size_t is not
+ signed - patch is against 2.6.1-rc1-mm2
+In-Reply-To: <1073531294.2304.18.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.56.0401081032590.10083@jju_lnx.backbone.dif.dk>
+References: <Pine.LNX.4.56.0401080204060.9700@jju_lnx.backbone.dif.dk>
+ <1073531294.2304.18.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 08, 2004 at 09:14:41AM +0100, Stephan von Krawczynski wrote:
-> the situation is like this (exactly this works flawlessly with tulip):
-> 
-> - unplug all interfaces from the switches
-> - reboot box
-> - plug in _one_ interface 
-> - log into the box (yes, network works flawlessly)
-> - start keepalived
-> - now plug in rest of the interfaces
-> - watch keepalived do _nothing_ (seems no UP event shows up)
 
-I agree with this description, and would add :
-  - mii-diag ethX or ethtool ethX report link down
+On Wed, 7 Jan 2004, Joe Perches wrote:
 
-Willy
+> On Wed, 2004-01-07 at 17:20, Jesper Juhl wrote:
+> > size_t is an unsigned datatype in all archs.
+>
+> There are literally hundreds of these in the code.
+>
+> Compile with -W -Wall and see for yourself.
+>
+
+Well, anything wrong in cleaning them up?
+
+
+-- Jesper Juhl
 

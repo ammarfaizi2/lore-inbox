@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267399AbUHXKMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267633AbUHXKQP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267399AbUHXKMc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 06:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267404AbUHXKMc
+	id S267633AbUHXKQP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 06:16:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267433AbUHXKPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 06:12:32 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:21401 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S267394AbUHXKMN (ORCPT
+	Tue, 24 Aug 2004 06:15:45 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:43679 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S267394AbUHXKPZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 06:12:13 -0400
-Date: Tue, 24 Aug 2004 11:11:42 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: rusty@rustcorp.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops modprobing i830 with 2.6.8.1
-Message-ID: <Pine.LNX.4.58.0408241101390.26950@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Aug 2004 06:15:25 -0400
+Date: Tue, 24 Aug 2004 12:13:53 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Karl Vogel <karl.vogel@seagha.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: Kernel 2.6.8.1: swap storm of death - CFQ scheduler=culprit
+Message-ID: <20040824101352.GJ2355@suse.de>
+References: <6DED3619289CD311BCEB00508B8E133601A68B13@nt-server2.antwerp.seagha.com> <20040824100342.GI2355@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040824100342.GI2355@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 24 2004, Jens Axboe wrote:
+> On Mon, Aug 23 2004, Karl Vogel wrote:
+> > > > Jens, is this huge amount of bio/biovec's allocations 
+> > > expected with CFQ? Its really really bad.
+> > > 
+> > > Nope, it's not by design :-)
+> > > 
+> > > A test case would be nice, then I'll fix it as soon as possible. But
+> > > please retest with 2.6.8.1 marcelo, 2.6.8-rc4 is missing an important
+> > > fix to ll_rw_blk that can easily cause this. The first report is for
+> > > 2.6.8.1, so I'm more puzzled on that.
+> > 
+> > I tried with 2.6.8.1 and 2.6.8.1-mm4, both had the problem. If there 
+> > is anything extra I need to try/record, just shoot!
+> > 
+> > Original post with testcase + stats:
+> >   http://article.gmane.org/gmane.linux.kernel/228156
+> 
+> 2.6.8.1-mm4 clean does not reproduce the problem. Marcelo, your
+> 2.6.8-rc4 report is not valid due to the fixed problem related to that
+> in CFQ already. I'd still like for you to retest with 2.6.8.1.
+> 
+> So I'm trying 2.6.8.1 with voluntary preempt applied now, the bug could
+> be related to that.
 
-Just spotted this thread on reading the archives (I don't have the time
-currently to subscribe to lk).. sorry for messing up the msg ids..
-
-Rusty, I'm going to work something like your patch into the DRM at some
-stage soon (I'm not confident it won't break things that don't need
-AGP)... also the stub sharing stuff is needed to make /proc and all that
-work at the moment, when we start moving the code to a core library and
-modules (like AGP) the hope is most of this stuff will just go away..
-the ground work for the library conversion is in CVS and I'll be pushing
-it to Linus as soon as he decides on my current changesets,
-
-Just for everyone else, we do have a plan for the DRM now for once, and
-I'm taking all the suggestions on board as I go, the reason things make
-take a while to make it into the kernel is I put into DRM CVS where it
-gets tested on most of the cards we support first...
-
-I'm also trying to get the development cycle from
-me->CVS->BK->Andrew->Linus a bit shorter, but at the moment the DRM works
-for most values of x, I don't want it to regress because we haven't tested
-the patches enough...
-
-Dave.
+Oh, and please do also do a sysrq-t from a hung box and save the output.
 
 -- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+Jens Axboe
 

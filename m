@@ -1,243 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264052AbTEWMoe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 08:44:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264053AbTEWMod
+	id S264063AbTEWMsa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 08:48:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264067AbTEWMsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 08:44:33 -0400
-Received: from pat.uio.no ([129.240.130.16]:25541 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S264052AbTEWMoE (ORCPT
+	Fri, 23 May 2003 08:48:30 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:7105 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S264063AbTEWMs1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 08:44:04 -0400
+	Fri, 23 May 2003 08:48:27 -0400
+From: Christian Klose <christian.klose@freenet.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: I/O problems in 2.4.19/2.4.20/2.4.21-rc3
+Date: Fri, 23 May 2003 15:00:57 +0200
+User-Agent: KMail/1.5.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Message-Id: <200305231405.54599.christian.klose@freenet.de>
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16078.6164.953953.259773@charged.uio.no>
-Date: Fri, 23 May 2003 14:46:12 +0200
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux FSdevel <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       NFS maillist <nfs@lists.sourceforge.net>
-Subject: [PATCH 4/4] Optimize NFS open() calls by means of 'intents'...
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: Please contact postmaster@uio.no for more information
-X-UiO-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello all :-)
 
-Do close-to-open data revalidation inside the i_op->lookup() and
-d_op->d_revalidate() routines by using intents to discover whether or
-not this is an open().
+I have a problem since Linux Kernel 2.4.19. Copying huge amount of data gives 
+me pauses where pauses are disk io pauses, keyboard does not accept input and 
+mouse won't move. This depends, sometimes those pauses are 1 to 2 seconds, 
+sometimes even more up to 15 seconds where I can not do anything with my 
+linux but waiting :-(
 
-Implement open(O_EXCL) by means of the i_op->create() intents.
+For the past weeks I've searched google alot and found almost the same reports 
+there but with imho no real fixes. I've tried many different kernel patches 
+I've found while searching google (2.4-aa, 2.4-ck, 2.4-wolk, 2.4-rmap) but 
+none of them fixes the problem I've experienced. The kernel patches 2.4-ck 
+and 2.4-wolk are very good, those pauses are almost gone, but also the 
+throughput is horribly decreased. Yesterday, mcp from #kernelnewbies told me, 
+that this is the decrease of nr_requests to 32 (or maybe 4? I don't remember 
+exactly). I've also tried 2.4-aa patch because I've read about his lowlatency 
+elevator which should fix these pauses. Unfortunately the pauses are still 
+there and also a decrease in throughput :-(
 
-Cheers,
- Trond
+I've switched my desktop machine back from 2.4.20 to 2.4.18 because these 
+pauses are really annoying me. I wonder what changes were made to 2.4.19 
+causing these pauses. Please don't get me wrong but it seems so that the Linux 
+Kernel is not ready for desktop yet, and I even wonder about guaranteed io 
+throughput for serverusage (please read down below)
+
+This is also not a problem of my hardware. I've tried the same scenario on 
+almost 20 different machines in my company, starting with a small 500mhz cpu 
+and udma 100 intel controller up to a Pentium 4 with 2,4 GHz with an Adaptec 
+U160 scsi controller and u160 scsi disks with software raid-0 and raid-1.
+
+Carl-Daniel Hailfinger has been very helpfull yesterday on #kernelnewbies 
+trying to track this behaviour down. He advised me to use SysRq-T and to 
+press this key combination while there are io pauses. Maybe he will find out 
+what's going on there :-)
 
 
-diff -u --recursive --new-file linux-2.5.69-03-creat/fs/nfs/dir.c linux-2.5.69-04-cto_excl/fs/nfs/dir.c
---- linux-2.5.69-03-creat/fs/nfs/dir.c	2003-05-23 00:13:37.000000000 +0200
-+++ linux-2.5.69-04-cto_excl/fs/nfs/dir.c	2003-05-23 01:17:20.000000000 +0200
-@@ -31,6 +31,7 @@
- #include <linux/pagemap.h>
- #include <linux/smp_lock.h>
- #include <linux/namei.h>
-+#include <linux/open.h>
- 
- #define NFS_PARANOIA 1
- /* #define NFS_DEBUG_VERBOSE 1 */
-@@ -78,16 +79,11 @@
- static int
- nfs_opendir(struct inode *inode, struct file *filp)
- {
--	struct nfs_server *server = NFS_SERVER(inode);
--	int res = 0;
-+	int res;
- 
- 	lock_kernel();
--	/* Do cto revalidation */
--	if (!(server->flags & NFS_MOUNT_NOCTO))
--		res = __nfs_revalidate_inode(server, inode);
- 	/* Call generic open code in order to cache credentials */
--	if (!res)
--		res = nfs_open(inode, filp);
-+	res = nfs_open(inode, filp);
- 	unlock_kernel();
- 	return res;
- }
-@@ -466,11 +462,17 @@
-  * and may need to be looked up again.
-  */
- static inline
--int nfs_check_verifier(struct inode *dir, struct dentry *dentry)
-+int nfs_check_verifier(struct inode *dir, struct dentry *dentry, struct vfsintent *intent)
- {
-+	struct nfs_server *server = NFS_SERVER(dir);
- 	if (IS_ROOT(dentry))
- 		return 1;
--	if (nfs_revalidate_inode(NFS_SERVER(dir), dir))
-+	/* If we're doing an open(), then observe the 'cto' flag */
-+	if (intent && intent->type == OPEN_INTENT
-+			&& !(server->flags & NFS_MOUNT_NOCTO)) {
-+		if (__nfs_revalidate_inode(server, dir))
-+			return 0;
-+	} else if (nfs_revalidate_inode(server, dir))
- 		return 0;
- 	return time_after(dentry->d_time, NFS_MTIME_UPDATE(dir));
- }
-@@ -485,9 +487,15 @@
- }
- 
- static inline
--int nfs_lookup_verify_inode(struct inode *inode)
-+int nfs_lookup_verify_inode(struct inode *inode, struct vfsintent *intent)
- {
--	return nfs_revalidate_inode(NFS_SERVER(inode), inode);
-+	struct nfs_server *server = NFS_SERVER(inode);
-+
-+	/* If we're doing an open(), then observe the 'cto' flag */
-+	if (intent && intent->type == OPEN_INTENT
-+			&& !(server->flags & NFS_MOUNT_NOCTO))
-+		return __nfs_revalidate_inode(server, inode);
-+	return nfs_revalidate_inode(server, inode);
- }
- 
- /*
-@@ -497,9 +505,11 @@
-  * If parent mtime has changed, we revalidate, else we wait for a
-  * period corresponding to the parent's attribute cache timeout value.
-  */
--static inline int nfs_neg_need_reval(struct inode *dir, struct dentry *dentry)
-+static inline
-+int nfs_neg_need_reval(struct inode *dir, struct dentry *dentry,
-+		struct vfsintent *intent)
- {
--	if (!nfs_check_verifier(dir, dentry))
-+	if (!nfs_check_verifier(dir, dentry, intent))
- 		return 1;
- 	return time_after(jiffies, dentry->d_time + NFS_ATTRTIMEO(dir));
- }
-@@ -530,7 +540,7 @@
- 	inode = dentry->d_inode;
- 
- 	if (!inode) {
--		if (nfs_neg_need_reval(dir, dentry))
-+		if (nfs_neg_need_reval(dir, dentry, intent))
- 			goto out_bad;
- 		goto out_valid;
- 	}
-@@ -542,8 +552,8 @@
- 	}
- 
- 	/* Force a full look up iff the parent directory has changed */
--	if (nfs_check_verifier(dir, dentry)) {
--		if (nfs_lookup_verify_inode(inode))
-+	if (nfs_check_verifier(dir, dentry, intent)) {
-+		if (nfs_lookup_verify_inode(inode, intent))
- 			goto out_bad;
- 		goto out_valid;
- 	}
-@@ -552,7 +562,7 @@
- 	if (!error) {
- 		if (memcmp(NFS_FH(inode), &fhandle, sizeof(struct nfs_fh))!= 0)
- 			goto out_bad;
--		if (nfs_lookup_verify_inode(inode))
-+		if (nfs_lookup_verify_inode(inode, intent))
- 			goto out_bad;
- 		goto out_valid_renew;
- 	}
-@@ -632,6 +642,7 @@
- 
- static struct dentry *nfs_lookup(struct inode *dir, struct dentry * dentry, struct vfsintent *intent)
- {
-+	struct nfs_server *server = NFS_SERVER(dir);
- 	struct inode *inode = NULL;
- 	int error;
- 	struct nfs_fh fhandle;
-@@ -641,23 +652,29 @@
- 		dentry->d_parent->d_name.name, dentry->d_name.name);
- 
- 	error = -ENAMETOOLONG;
--	if (dentry->d_name.len > NFS_SERVER(dir)->namelen)
-+	if (dentry->d_name.len > server->namelen)
- 		goto out;
- 
- 	error = -ENOMEM;
- 	dentry->d_op = &nfs_dentry_operations;
- 
- 	lock_kernel();
--	error = nfs_cached_lookup(dir, dentry, &fhandle, &fattr);
--	if (!error) {
--		error = -EACCES;
--		inode = nfs_fhget(dentry, &fhandle, &fattr);
--		if (inode) {
--			d_add(dentry, inode);
--			nfs_renew_times(dentry);
--			error = 0;
-+	/* If we're not doing an open(), or we are 'nocto', then
-+	 * we may use the readdirplus cache
-+	 */
-+	if (!intent || intent->type != OPEN_INTENT ||
-+			(server->flags & NFS_MOUNT_NOCTO)) {
-+		error = nfs_cached_lookup(dir, dentry, &fhandle, &fattr);
-+		if (!error) {
-+			error = -EACCES;
-+			inode = nfs_fhget(dentry, &fhandle, &fattr);
-+			if (inode) {
-+				d_add(dentry, inode);
-+				nfs_renew_times(dentry);
-+				error = 0;
-+			}
-+			goto out_unlock;
- 		}
--		goto out_unlock;
- 	}
- 
- 	error = NFS_PROTO(dir)->lookup(dir, &dentry->d_name, &fhandle, &fattr);
-@@ -793,6 +810,7 @@
- 	struct iattr attr;
- 	struct nfs_fattr fattr;
- 	struct nfs_fh fhandle;
-+	int flags = 0;
- 	int error;
- 
- 	dfprintk(VFS, "NFS: create(%s/%ld, %s\n", dir->i_sb->s_id, 
-@@ -801,16 +819,15 @@
- 	attr.ia_mode = mode;
- 	attr.ia_valid = ATTR_MODE;
- 
--	/*
--	 * The 0 argument passed into the create function should one day
--	 * contain the O_EXCL flag if requested. This allows NFSv3 to
--	 * select the appropriate create strategy. Currently open_namei
--	 * does not pass the create flags.
--	 */
-+	if (intent && intent->type == OPEN_INTENT) {
-+		struct opendata *opendata;
-+		opendata = container_of(intent, struct opendata, intent);
-+		flags = opendata->flag;
-+	}
- 	lock_kernel();
- 	nfs_zap_caches(dir);
- 	error = NFS_PROTO(dir)->create(dir, &dentry->d_name,
--					 &attr, 0, &fhandle, &fattr);
-+					 &attr, flags, &fhandle, &fattr);
- 	if (!error)
- 		error = nfs_instantiate(dentry, &fhandle, &fattr);
- 	else
-diff -u --recursive --new-file linux-2.5.69-03-creat/fs/nfs/file.c linux-2.5.69-04-cto_excl/fs/nfs/file.c
---- linux-2.5.69-03-creat/fs/nfs/file.c	2003-05-07 12:34:41.000000000 +0200
-+++ linux-2.5.69-04-cto_excl/fs/nfs/file.c	2003-05-23 00:50:27.000000000 +0200
-@@ -82,9 +82,6 @@
- 	/* Do NFSv4 open() call */
- 	if ((open = server->rpc_ops->file_open) != NULL)
- 		res = open(inode, filp);
--	/* Do cto revalidation */
--	else if (!(server->flags & NFS_MOUNT_NOCTO))
--		res = __nfs_revalidate_inode(server, inode);
- 	/* Call generic open code in order to cache credentials */
- 	if (!res)
- 		res = nfs_open(inode, filp);
+
+Beside that, I've also noticed that there is no guaranteed io throughput while 
+copying data in 2.4.18 up to 2.4.21-rc3. My machine has 512MB of memory and 
+512MB swap. Right after bootup of linux, there is guaranteed io throughput 
+until the memory is almost completely used (with buffers or cache? ... 
+/proc/meminfo tells me so) and linux starts to swap. After this, copying data 
+starts up with 30mb per second and goes down real fast to 1mb per second and 
+even more worse down to ~250kb per second, goes up to 10mb per second and so 
+on, so this varies alot.
+
+
+Anyway, I've also read about kernel 2.5 and that this kernel should fix all of 
+the above I've mentioned. So by reading all these great oppinions about 
+kernel 2.5 I've tried it out last week and I just have to say that I cannot 
+see any advantages, at least not for these 2 cases I've mentioned :-(((
+
+Is it just me or are there many others noticing this too?
+
+
+Please excuse my bad english but I hope everyone understands me :-)
+
+
+PS: Should I CC this to Marcello Tosatti and Linus Torvalds too? I haven't 
+done this yet but maybe it may help because both are the maintainers of 2.4/ 
+2.5 (at least that's what I've found in google). Sorry, I am using Linux 
+since ~ 1 1/2 years now and my knowledge about the Linux Kernel is not that 
+big.
+
+
+Thank you so much and have a nice weekend :-)
+
+bye, Chris
+
+

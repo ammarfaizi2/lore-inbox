@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130667AbQKLMYI>; Sun, 12 Nov 2000 07:24:08 -0500
+	id <S129105AbQKLNEw>; Sun, 12 Nov 2000 08:04:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130648AbQKLMX6>; Sun, 12 Nov 2000 07:23:58 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:22884 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129947AbQKLMXo>; Sun, 12 Nov 2000 07:23:44 -0500
-Date: Sun, 12 Nov 2000 13:23:28 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: Michael Meissner <meissner@spectacle-pond.org>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        George Anzinger <george@mvista.com>,
-        "linux-kernel@vger.redhat.com" <linux-kernel@vger.kernel.org>
-Subject: Re: Where is it written?
-Message-ID: <20001112132328.C2366@athlon.random>
-In-Reply-To: <20001110184031.A2704@munchkin.spectacle-pond.org> <200011110011.eAB0BbF244111@saturn.cs.uml.edu> <20001110192751.A2766@munchkin.spectacle-pond.org> <20001111163204.B6367@inspiron.suse.de> <20001111171749.A32100@wire.cadcamlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001111171749.A32100@wire.cadcamlab.org>; from peter@cadcamlab.org on Sat, Nov 11, 2000 at 05:17:49PM -0600
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S129936AbQKLNEm>; Sun, 12 Nov 2000 08:04:42 -0500
+Received: from s340-modem1553.dial.xs4all.nl ([194.109.166.17]:4224 "HELO
+	sjoerd.sjoerdnet") by vger.kernel.org with SMTP id <S129105AbQKLNEc>;
+	Sun, 12 Nov 2000 08:04:32 -0500
+Date: Sun, 12 Nov 2000 14:03:27 +0100 (CET)
+From: Arjan Filius <arjan@sjoerd.sjoerdnet>
+Reply-To: Arjan Filius <iafilius@xs4all.nl>
+To: f5ibh <f5ibh@db0bm.ampr.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] net/ax25/sysctl_net_ax25.c Re: 2.4.0-test11-pre3 doesn't
+ compile
+In-Reply-To: <200011121149.MAA22970@db0bm.ampr.org>
+Message-ID: <Pine.LNX.4.21.0011121400450.1799-100000@sjoerd.sjoerdnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 11, 2000 at 05:17:49PM -0600, Peter Samuelson wrote:
-> I'd say go for it -- set up a mailing list and flesh out a better x86
-> ABI. [..]
+Hello,
 
-I think it doesn't worth to break binary compatilibity at this late stage.
+On Sun, 12 Nov 2000, f5ibh wrote:
 
-> design such.)  One issue: ideally you want to use 64-bit regs on AMD
-> Hammer for long longs, but then you leave out all legacy x68s. :(
+> 
+> Hi!
+> 
+> here is the message :
+> 
+> gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
+> -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2
+> -march=i586 -DMODULE   -c -o sysctl_net_ax25.o sysctl_net_ax25.c
+> sysctl_net_ax25.c: In function `ax25_register_sysctl':
+> sysctl_net_ax25.c:117: warning: left-hand operand of comma expression has no
+> effect
+> sysctl_net_ax25.c:117: parse error before `;'
 
-We can't in compatibilty mode because the rex regs are available _only_ in
-64bit mode and even assuming the hardware would support that I would not
-recommend that since as you said that binary would not run anymore on any other
-x86 so causing pain.  Recompiling a program with native x86-64 gcc 64bit (that
-uses the 64bit ABI) is the right way to go in that case (64bit mode uses 1
-64bit register for long long as all other 64bit architectures of course).
+The folowing patch did fix this for me:
+--- ./net/ax25/sysctl_net_ax25.c~	Sun Nov 12 09:31:39 2000
++++ ./net/ax25/sysctl_net_ax25.c	Sun Nov 12 13:45:11 2000
+@@ -114,7 +114,7 @@
+ 	memset(ax25_table, 0x00, ax25_table_size);
+ 
+ 	for (n = 0, ax25_dev = ax25_dev_list; ax25_dev != NULL; ax25_dev = ax25_dev->next) {
+-		ctl_table *child = kmalloc(sizeof(ax25_param_table, GFP_ATOMIC);
++		ctl_table *child = kmalloc(sizeof(ax25_param_table), GFP_ATOMIC);
+ 		if (!child) {
+ 			while (n--)
+ 				kfree(ax25_table[n].child);
 
-> AIUI gcc can cope OK with multiple ABIs to be chosen at runtime, am I
-> right?  IRIX, HP-UX and AIX all have both 32-bit and 64-bit ABIs.
 
-Yes as in other systems, 32bit mode and 64bit mode needs different ABI and they
-will coexist in the same system.
+Arjan Filius
+mailto:iafilius@xs4all.nl
 
-Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

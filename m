@@ -1,33 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVAMC4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbVAMDBR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVAMC4a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 21:56:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbVAMC4a
+	id S261414AbVAMDBR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 22:01:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbVAMDBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 21:56:30 -0500
-Received: from mail.kroah.org ([69.55.234.183]:57992 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261366AbVAMC4Q (ORCPT
+	Wed, 12 Jan 2005 22:01:17 -0500
+Received: from fw.osdl.org ([65.172.181.6]:43998 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261414AbVAMDBK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 21:56:16 -0500
-Date: Wed, 12 Jan 2005 18:56:06 -0800
-From: Greg KH <greg@kroah.com>
+	Wed, 12 Jan 2005 22:01:10 -0500
+Date: Wed, 12 Jan 2005 19:01:09 -0800
+From: Chris Wright <chrisw@osdl.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, davej@redhat.com,
-       marcelo.tosatti@cyclades.com, chrisw@osdl.org, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
+       marcelo.tosatti@cyclades.com, greg@kroah.com, chrisw@osdl.org,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
 Subject: Re: thoughts on kernel security issues
-Message-ID: <20050113025606.GB16910@kroah.com>
+Message-ID: <20050112190109.X469@build.pdx.osdl.net>
 References: <20050112094807.K24171@build.pdx.osdl.net> <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com> <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112205350.GM24518@redhat.com> <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org> <20050112182838.2aa7eec2.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050112182838.2aa7eec2.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050112182838.2aa7eec2.akpm@osdl.org>; from akpm@osdl.org on Wed, Jan 12, 2005 at 06:28:38PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 12, 2005 at 06:28:38PM -0800, Andrew Morton wrote:
-> 
+* Andrew Morton (akpm@osdl.org) wrote:
+> AFAIUI, the vendor requirement is that they have time to have an upgraded
+> kernel package on their servers when the bug becomes public knowledge.
+
+Yup.
+
+> If correct and reasonable, then what is the best way in which we can
+> support them in this while promptly upgrading the kernel.org kernel?
+
+Most projects inform vendors with enough heads-up time to let them get
+their stuff together and out the door.
+
 > IMO, local DoS holes are important mainly because buggy userspace
 > applications allow remote users to get in and exploit them, and for that
 > reason we of course need to fix them up.  Even though such an attacker
@@ -39,18 +49,12 @@ On Wed, Jan 12, 2005 at 06:28:38PM -0800, Andrew Morton wrote:
 > 
 > Or am I missing something?
 
-So, a "classification" of the severity of the bug would cause different
-type of disclosures?  That's a good idea in theory, but trying to nail
-down specific for bug classifications tends to be difficult.
-
-Although I think both Red Hat and SuSE have a classification system in
-place already that might help out here.
-
-Anyway, if so, I like it.  I think that would be a good thing to have,
-if for no other reason that I don't want to see security announcements
-for every single driver bug that's patched that had caused a user
-created oops.
+No, that's pretty similar to CVE allocation.  At one time, there was
+little effort even put into allocating CVE entries for local DoS holes.
+It's not that they aren't important, but less critical than remote DoS
+issues, and way less so than anything priv escalation related.
 
 thanks,
-
-greg k-h
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

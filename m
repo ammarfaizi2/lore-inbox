@@ -1,88 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268817AbUJKLe1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268803AbUJKLea@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268817AbUJKLe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 07:34:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268812AbUJKLe1
+	id S268803AbUJKLea (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 07:34:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268812AbUJKLea
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 11 Oct 2004 07:34:30 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:13223 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S268803AbUJKLe1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 11 Oct 2004 07:34:27 -0400
-Received: from linaeum.absolutedigital.net ([63.87.232.45]:18087 "EHLO
-	linaeum.absolutedigital.net") by vger.kernel.org with ESMTP
-	id S268803AbUJKLeJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 07:34:09 -0400
-Date: Mon, 11 Oct 2004 07:34:00 -0400 (EDT)
-From: Cal Peake <cp@absolutedigital.net>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: NetDev Mailing List <netdev@oss.sgi.com>, proski@gnu.org,
-       hermes@gibson.dropbear.id.au
-Subject: [PATCH] Fix readw/writew warnings in drivers/net/wireless/hermes.h
-Message-ID: <Pine.LNX.4.61.0410110702590.7899@linaeum.absolutedigital.net>
+Date: Mon, 11 Oct 2004 13:33:58 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Dave Jones <davej@redhat.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: __init dependencies (was: Re: [PATCH] find_isa_irq_pin can't be
+ )__init
+In-Reply-To: <20041010225717.GA27705@redhat.com>
+Message-ID: <Pine.GSO.4.61.0410111333260.19312@waterleaf.sonytel.be>
+References: <20041010225717.GA27705@redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 10 Oct 2004, Dave Jones wrote:
+> As spotted by one of our Fedora users, we sometimes
+> oops during shutdown (http://www.roberthancock.com/kerneloops.png)
+> because disable_IO_APIC() wants to call find_isa_irq_pin(),
+> which we threw away during init.
 
-This patch fixes several dozen warnings spit out when compiling the hermes 
-wireless driver.
+I guess it's about time for a tool to autodetect __init dependencies?
 
-In file included from drivers/net/wireless/orinoco.c:448:
-drivers/net/wireless/hermes.h: In function `hermes_present':
-drivers/net/wireless/hermes.h:398: warning: passing arg 1 of `readw' makes pointer from integer without a cast
-drivers/net/wireless/hermes.h: In function `hermes_set_irqmask':
-drivers/net/wireless/hermes.h:404: warning: passing arg 2 of `writew' makes pointer from integer without a cast
-...
+Gr{oetje,eeting}s,
 
-thanks,
+						Geert
 
--- Cal
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-
-Signed-off-by: Cal Peake <cp@absolutedigital.net>
-
-
-diff -Nru linux-2.6.9-rc4/drivers/net/wireless/hermes.h linux-2.6.9-rc4-1/drivers/net/wireless/hermes.h
---- linux-2.6.9-rc4/drivers/net/wireless/hermes.h	2004-10-11 02:38:38.000000000 -0400
-+++ linux-2.6.9-rc4-1/drivers/net/wireless/hermes.h	2004-10-11 06:56:01.000000000 -0400
-@@ -364,12 +364,12 @@
- /* Register access convenience macros */
- #define hermes_read_reg(hw, off) ((hw)->io_space ? \
- 	inw((hw)->iobase + ( (off) << (hw)->reg_spacing )) : \
--	readw((hw)->iobase + ( (off) << (hw)->reg_spacing )))
-+	readw((void __iomem *)(hw)->iobase + ( (off) << (hw)->reg_spacing )))
- #define hermes_write_reg(hw, off, val) do { \
- 	if ((hw)->io_space) \
- 		outw_p((val), (hw)->iobase + ((off) << (hw)->reg_spacing)); \
- 	else \
--		writew((val), (hw)->iobase + ((off) << (hw)->reg_spacing)); \
-+		writew((val), (void __iomem *)(hw)->iobase + ((off) << (hw)->reg_spacing)); \
- 	} while (0)
- #define hermes_read_regn(hw, name) hermes_read_reg((hw), HERMES_##name)
- #define hermes_write_regn(hw, name, val) hermes_write_reg((hw), HERMES_##name, (val))
-@@ -442,7 +442,7 @@
- 		 * gcc is smart enough to fold away the two swaps on
- 		 * big-endian platforms. */
- 		for (i = 0, p = buf; i < count; i++) {
--			*p++ = cpu_to_le16(readw(hw->iobase + off));
-+			*p++ = cpu_to_le16(readw((void __iomem *)hw->iobase + off));
- 		}
- 	}
- }
-@@ -462,7 +462,7 @@
- 		 * hope gcc is smart enough to fold away the two swaps
- 		 * on big-endian platforms. */
- 		for (i = 0, p = buf; i < count; i++) {
--			writew(le16_to_cpu(*p++), hw->iobase + off);
-+			writew(le16_to_cpu(*p++), (void __iomem *)hw->iobase + off);
- 		}
- 	}
- }
-@@ -478,7 +478,7 @@
- 			outw(0, hw->iobase + off);
- 	} else {
- 		for (i = 0; i < count; i++)
--			writew(0, hw->iobase + off);
-+			writew(0, (void __iomem *)hw->iobase + off);
- 	}
- }
- 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

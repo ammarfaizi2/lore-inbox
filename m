@@ -1,35 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267354AbTAVGbv>; Wed, 22 Jan 2003 01:31:51 -0500
+	id <S267355AbTAVGqO>; Wed, 22 Jan 2003 01:46:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267355AbTAVGbv>; Wed, 22 Jan 2003 01:31:51 -0500
-Received: from stingr.net ([212.193.32.15]:13185 "EHLO hq.stingr.net")
-	by vger.kernel.org with ESMTP id <S267354AbTAVGbu>;
-	Wed, 22 Jan 2003 01:31:50 -0500
-Date: Wed, 22 Jan 2003 09:40:55 +0300
-From: Paul P Komkoff Jr <i@stingr.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Is 2.4.20 + AC patches safe to use with SMP
-Message-ID: <20030122064055.GA9257@stingr.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <02d301c2c1dc$4184bfe0$64070786@synack>
+	id <S267356AbTAVGqO>; Wed, 22 Jan 2003 01:46:14 -0500
+Received: from 84e5e703.math.leidenuniv.nl ([132.229.231.3]:59566 "EHLO
+	zada.math.leidenuniv.nl") by vger.kernel.org with ESMTP
+	id <S267355AbTAVGqN>; Wed, 22 Jan 2003 01:46:13 -0500
+Date: Wed, 22 Jan 2003 07:55:02 +0100
+From: Lennert Buytenhek <buytenh@math.leidenuniv.nl>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: {sys_,/dev/}epoll waiting timeout
+Message-ID: <20030122065502.GA23790@math.leidenuniv.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <02d301c2c1dc$4184bfe0$64070786@synack>
-User-Agent: Agent Darien Fawkes
-X-Mailer: Intel Ultra ATA Storage Driver
-X-RealName: Stingray Greatest Jr
-Organization: Department of Fish & Wildlife
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replying to David Shirley:
-> Have the SMP problems been resolved with the ac patches
-> for 2.4.20?
+Hi!
 
-As for me, it always worked, but it may depend on your hardware/setup
+Both /dev/epoll EP_POLL and sys_epoll_wait, when converting the passed
+timeout value in msec to jiffies, round down instead of up.  This
+occasionally causes these functions to return without any active fd's
+before the given timeout period has passed.
 
--- 
-Paul P 'Stingray' Komkoff Jr /// (icq)23200764 /// (http)stingr.net
- This message represents the official view of the voices in my head
+This can cause fun situations like these:
+	epoll_wait(epfd, events, maxevents, timeout_until_next_timer_expiry)
+		[ returns too early ]
+
+	gettimeofday(&now, NULL)
+		[ notice that the first timer has not yet expired, do nothing ]
+
+	epoll_wait(epfd, events, maxevents, random_small_value_less_than_jiffy)
+		[ returns immediately ]
+
+	gettimeofday(&now, NULL)
+		[ notice that first timer still didn't expire yet, do nothing ]
+
+	etc.
+
+Effectively causing busy-wait loops of on average half a jiffy.
+
+
+nanosleep(2) always rounds timeout values up (I think it is required to do
+so by some specification which says that this call should sleep _at_least_
+the given amount of time), and this approach to me makes sense for
+{sys_,/dev/}epoll also.  See <linux/time.h>:timespec_to_jiffies and
+kernel/time.c:sys_nanosleep.
+
+Will you accept a patch to do this?
+
+
+cheers,
+Lennert

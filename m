@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314514AbSGYNjA>; Thu, 25 Jul 2002 09:39:00 -0400
+	id <S314551AbSGYNlw>; Thu, 25 Jul 2002 09:41:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314083AbSGYNhz>; Thu, 25 Jul 2002 09:37:55 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:7165 "EHLO
+	id <S313687AbSGYNlD>; Thu, 25 Jul 2002 09:41:03 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:9725 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S313687AbSGYNhf>; Thu, 25 Jul 2002 09:37:35 -0400
+	id <S314551AbSGYNkE>; Thu, 25 Jul 2002 09:40:04 -0400
 From: Alan Cox <alan@irongate.swansea.linux.org.uk>
-Message-Id: <200207251454.g6PEslAc010520@irongate.swansea.linux.org.uk>
-Subject: PATCH: 2.5.28 Make the tulip compile again
+Message-Id: <200207251457.g6PEvBE9010565@irongate.swansea.linux.org.uk>
+Subject: PATH: 2.5.28 (resend #1) Handle dunord pci decode problem
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Thu, 25 Jul 2002 15:54:47 +0100 (BST)
+Date: Thu, 25 Jul 2002 15:57:11 +0100 (BST)
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -18,48 +18,46 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/drivers/net/tulip/de2104x.c linux-2.5.28-ac1/drivers/net/tulip/de2104x.c
---- linux-2.5.28/drivers/net/tulip/de2104x.c	Thu Jul 25 11:09:41 2002
-+++ linux-2.5.28-ac1/drivers/net/tulip/de2104x.c	Thu Jul 25 12:15:28 2002
-@@ -2178,7 +2178,7 @@
- 		/* Update the error counts. */
- 		__de_get_stats(de);
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/drivers/pci/quirks.c linux-2.5.28-ac1/drivers/pci/quirks.c
+--- linux-2.5.28/drivers/pci/quirks.c	Thu Jul 25 10:49:20 2002
++++ linux-2.5.28-ac1/drivers/pci/quirks.c	Sun Jul 21 19:43:26 2002
+@@ -457,10 +457,26 @@
+ }
  
--		synchronize_irq();
-+		synchronize_irq(dev->irq);
- 		de_clean_rings(de);
- 
- 		de_adapter_sleep(de);
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/drivers/net/tulip/de4x5.c linux-2.5.28-ac1/drivers/net/tulip/de4x5.c
---- linux-2.5.28/drivers/net/tulip/de4x5.c	Thu Jul 25 10:48:25 2002
-+++ linux-2.5.28-ac1/drivers/net/tulip/de4x5.c	Thu Jul 25 12:19:02 2002
-@@ -1522,7 +1522,7 @@
-     outl(omr|OMR_ST, DE4X5_OMR);
- 
-     /* Poll for setup frame completion (adapter interrupts are disabled now) */
--    sti();                                       /* Ensure timer interrupts */
+ /*
++ *	DreamWorks provided workaround for Dunord I-3000 problem
++ *
++ *	This card decodes and responds to addresses not apparently
++ *	assigned to it. We force a larger allocation to ensure that
++ *	nothing gets put too close to it.
++ */
 +
-     for (j=0, i=0;(i<500) && (j==0);i++) {       /* Upto 500ms delay */
- 	mdelay(1);
- 	if ((s32)le32_to_cpu(lp->tx_ring[lp->tx_new].status) >= 0) j=1;
-@@ -1644,7 +1644,7 @@
-     if (test_and_set_bit(MASK_INTERRUPTS, (void*) &lp->interrupt))
- 	printk("%s: Re-entering the interrupt handler.\n", dev->name);
++static void __init quirk_dunord ( struct pci_dev * dev )
++{
++	struct resource * r = & dev -> resource [ 1 ];
++	r -> start = 0;
++	r -> end = 0xffffff;
++}
++
++/*
+  *  The main table of quirks.
+  */
  
--    synchronize_irq();
-+    synchronize_irq(dev->irq);
- 	
-     for (limit=0; limit<8; limit++) {
- 	sts = inl(DE4X5_STS);            /* Read IRQ status */
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/drivers/net/tulip/winbond-840.c linux-2.5.28-ac1/drivers/net/tulip/winbond-840.c
---- linux-2.5.28/drivers/net/tulip/winbond-840.c	Thu Jul 25 10:48:25 2002
-+++ linux-2.5.28-ac1/drivers/net/tulip/winbond-840.c	Thu Jul 25 12:19:16 2002
-@@ -1674,7 +1674,7 @@
- 		spin_unlock_irq(&np->lock);
+ static struct pci_fixup pci_fixups[] __initdata = {
++	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_DUNORD,	PCI_DEVICE_ID_DUNORD_I3000,	quirk_dunord },
+ 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82441,	quirk_passive_release },
+ 	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82441,	quirk_passive_release },
+ 	/*
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/include/linux/pci_ids.h linux-2.5.28-ac1/include/linux/pci_ids.h
+--- linux-2.5.28/include/linux/pci_ids.h	Thu Jul 25 11:09:41 2002
++++ linux-2.5.28-ac1/include/linux/pci_ids.h	Thu Jul 25 11:10:31 2002
+@@ -1612,6 +1612,9 @@
+ #define PCI_DEVICE_ID_DCI_PCCOM4	0x0001
+ #define PCI_DEVICE_ID_DCI_PCCOM8	0x0002
  
- 		spin_unlock_wait(&dev->xmit_lock);
--		synchronize_irq();
-+		synchronize_irq(dev->irq);
- 	
- 		np->stats.rx_missed_errors += readl(ioaddr + RxMissed) & 0xffff;
++#define PCI_VENDOR_ID_DUNORD		0x5544
++#define PCI_DEVICE_ID_DUNORD_I3000	0x0001
++
+ #define PCI_VENDOR_ID_GENROCO		0x5555
+ #define PCI_DEVICE_ID_GENROCO_HFP832	0x0003
  

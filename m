@@ -1,66 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131990AbRDCCUm>; Mon, 2 Apr 2001 22:20:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132224AbRDCCUd>; Mon, 2 Apr 2001 22:20:33 -0400
-Received: from chromium11.wia.com ([207.66.214.139]:24082 "EHLO neptune.kirkland.local") by vger.kernel.org with ESMTP id <S131990AbRDCCU0>; Mon, 2 Apr 2001 22:20:26 -0400
-Message-ID: <3AC93417.7B7814FC@chromium.com>
-Date: Mon, 02 Apr 2001 19:23:19 -0700
-From: Fabio Riccardi <fabio@chromium.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: a quest for a better scheduler
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132413AbRDFVOb>; Fri, 6 Apr 2001 17:14:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132416AbRDFVOW>; Fri, 6 Apr 2001 17:14:22 -0400
+Received: from smtp1.mx.pitdc1.stargate.net ([206.210.69.141]:709 "HELO smtp1.mx.pitdc1.stargate.net") by vger.kernel.org with SMTP id <S132407AbRDFVOH>; Fri, 6 Apr 2001 17:14:07 -0400
+From: Bernard Hartken <erie@unitedairtemp.com>
+To: licensing@ins.state.ny.us
+Subject: Attn: Sales Manager
+Reply-To: erie@unitedairtemp.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <20010406211418Z132407-406+8791@vger.kernel.org>
+Date: Fri, 6 Apr 2001 17:14:07 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I sent a message a few days ago about some limitations I found in the
-linux scheduler.
+Attn: Sales Manager
+ 
+If you are outsourcing or need to expand your sales force for the short term or long term contract, TeleXpand 
+will create a tailored campaign to guarantee you and your product success.
 
-In servers like Apache where a large (> 1000) number of processes can be
-running at the same time and where many of them are runnable at the same
-time, the default Linux scheduler just starts trashing and the machine
-becomes very rapidly unusable.
+We are an established, full service call center with a completely trained staff of 70 plus salespeople with a 
+proven track record to close sales for your product or service.
 
-Performance degradations are quite noticeable on a two-way SMP machine
-(20-30% of the CPU gets lost) and are even more glaring on a multi-cpu
-machine. As an example, an 8-way Compaq Proliant just crawls with linux.
+We currently market over $1 million dollars per month in closed sales for one of the largest companies in the 
+Washington D.C. area,  scheduling approximately 300 appointments per week...again, these are closed sales! 
 
->From the feedback I received I realized that there are at least two
-possible solutions to the problem:
+We service ALL industries who would be interested in a telemarketing campaign of any size! 
+Our prices are very competitive. 
 
-    http://lse.sourceforge.net/scheduling/
+Let's talk... 
 
-    http://resourcemanagement.unixsolutions.hp.com/WaRM/schedpolicy.html
+Bernard Hartken
+General Manager
+814.459.8238
 
-Indeed I've tried the patches available on the sites for the multi-queue
-scheduler and I was amazed by the performance improvement that I got.
-Both patches allow me to get to a 100% real CPU utilization on a two way
-machine running ~1500 processes.
-
-What those patches do is quite simple, instead of having the single
-global process queue present in the normal Linux scheduler, they add
-multiple queues (one per CPU). In this way the scheduling decision can
-be greatly simplified and almost made local to each CPU. No hotspots, no
-global locks (well, almost).
-
-Although some scalability problems are still there (there still is a
-global decision to make), the performance improvement obtained and the
-simplicity of the solution are remarkable.
-
-The HP patch is probably the most interesting, since it consists of
-really a few lines of code and it gets (for what I could measure) the
-same kind of performance improvement of the more elaborate (but still
-quite simple) sourceforge patch.
-
-Is there any special reason why any of those patches didn't make it to
-the mainstream kernel code?
-
-TIA, ciao,
-
- - Fabio
-
-
+Visit us at http://www.telexpand.bigstep.com

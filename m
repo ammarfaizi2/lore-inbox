@@ -1,66 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbUCPLlV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 06:41:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbUCPLlV
+	id S261187AbUCPLs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 06:48:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbUCPLs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 06:41:21 -0500
-Received: from news.indigo-avs.com ([194.200.210.131]:58527 "EHLO
-	oban.indigo-avs.com") by vger.kernel.org with ESMTP id S261453AbUCPLlS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 06:41:18 -0500
-Date: Tue, 16 Mar 2004 11:41:10 +0000
-From: Yves Rutschle <y.rutschle@indigovision.com>
-To: "Andrey V. Savochkin" <saw@saw.sw.com.sg>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] eepro100.c alignment
-Message-ID: <20040316114110.GA32157@localhost>
+	Tue, 16 Mar 2004 06:48:26 -0500
+Received: from ns.suse.de ([195.135.220.2]:1701 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261187AbUCPLsX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 06:48:23 -0500
+Date: Tue, 16 Mar 2004 12:48:20 +0100
+From: Kurt Garloff <garloff@suse.de>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: bonus inheritance
+Message-ID: <20040316114820.GM4452@tpkurt.garloff.de>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Nick Piggin <piggin@cyberone.com.au>,
+	Con Kolivas <kernel@kolivas.org>,
+	Linux kernel list <linux-kernel@vger.kernel.org>
+References: <20040315225459.GY4452@tpkurt.garloff.de> <405696A9.3060304@cyberone.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6JKsAUbrJhuSllgx"
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <405696A9.3060304@cyberone.com.au>
+X-Operating-System: Linux 2.6.4-1-KG i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: SUSE/Novell
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Two small changes to the eepro100 driver; the first one uses
-the proper rx_align function instead of aligning by hand, so
-one can change the alignment of packets consistently
-throughout the driver in one place only.
+--6JKsAUbrJhuSllgx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The second is more questionable: rx_align in 2.6.4 seems to
-deliberately align everything on half-words, at least on
-ARM. Ideally I gues we'd want to detect the best alignment
-value to use.
+Hi Nick,
 
-Cheers,
-Y.
-PS. CC me to answers, I'm not subscribed to lkml.
+On Tue, Mar 16, 2004 at 04:54:49PM +1100, Nick Piggin wrote:
+> Does it help any actual interactivity problem? Unfortunately
+> practically any you make to the scheduler is bound to make
+> things worse for at least one person, so it is difficult to
+> just test things out.
 
+Well, the interactivity problems existed with O(1) in 2.4.
+The 50% penalty hurt freshly started processes a lot.
 
---- linux-2.6.2.orig/drivers/net/eepro100.c     Wed Feb  4 03:44:04 2004
-+++ linux-2.6.4/drivers/net/eepro100.c  Mon Mar 15 15:46:37 2004
-@@ -1828,7 +1857,7 @@ speedo_rx(struct net_device *dev)
-                        if (pkt_len < rx_copybreak
-                                && (skb = dev_alloc_skb(pkt_len + 2)) != 0) {
-                                skb->dev = dev;
--                               skb_reserve(skb, 2);    /* Align IP on 16 byte boundaries */
-+                               rx_align(skb);  /* Align IP on 16 byte boundaries */
-                                /* 'skb_put()' points to the start of sk_buff data area. */
-                                pci_dma_sync_single(sp->pdev, sp->rx_ring_dma[entry],
-                                        sizeof(struct RxFD) + pkt_len, PCI_DMA_FROMDEVICE);
+To fix this, the penalty has been set to 95 (5% penalty)
+in 2.6.
+I believe it's cleaner to draw the bonus towards the average=20
+and inherit a percentage, and thus I set a inheritance percentage=20
+of 50 in 2.4.
 
+It was successful in 2.4. In a measurable way.
 
---- linux-2.6.2.orig/drivers/net/eepro100.c     Wed Feb  4 03:44:04 2004
-+++ linux-2.6.4/drivers/net/eepro100.c  Mon Mar 15 15:46:37 2004
-@@ -44,7 +44,7 @@ static int rxdmacount /* = 0 */;
- #if defined(__ia64__) || defined(__alpha__) || defined(__sparc__) || defined(__mips__) || \
-        defined(__arm__)
-   /* align rx buffers to 2 bytes so that IP header is aligned */
--# define rx_align(skb)         skb_reserve((skb), 2)
-+# define rx_align(skb)         skb_reserve((skb), 0)
- # define RxFD_ALIGNMENT                __attribute__ ((aligned (2), packed))
- #else
- # define rx_align(skb)
+In 2.6, it likely will not make a big difference as with giving=20
+95% of the bonus, you don't change much ...
 
+So it's more a question of have the concept in there which is
+clearer. More a theoretical thing. Assuming that with 95% chance
+your child has the same character w.r.t. to interactiveness is
+rather high.
+
+It will be very hard to measure 80% inheritance to 95% penalty=20
+as for the most important case (starting a process from a shell),=20
+the results are almost the same.
+
+The fact that we are more likely to start new processes towards=20
+the center in our bonus scale certainly makes it faster for the
+scheduler to put them in the right category, so there should be
+some benefit w.r.t. interactiveness. However, those are not easy=20
+to measure :-(
+
+I'll see whether we can get some benchmarks anyway.
+
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                            Cologne, DE=20
+SUSE LINUX AG, Nuernberg, DE                          SUSE Labs (Head)
+
+--6JKsAUbrJhuSllgx
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAVumExmLh6hyYd04RAmePAJ0StpcH+fcq8FrJvTyCSicAHzrclwCeIxz2
+iRH66W03td0RD9xVkrVMBaM=
+=WnZr
+-----END PGP SIGNATURE-----
+
+--6JKsAUbrJhuSllgx--

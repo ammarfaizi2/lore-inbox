@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263228AbSLBBZd>; Sun, 1 Dec 2002 20:25:33 -0500
+	id <S263188AbSLBBWm>; Sun, 1 Dec 2002 20:22:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263246AbSLBBYJ>; Sun, 1 Dec 2002 20:24:09 -0500
-Received: from dp.samba.org ([66.70.73.150]:17043 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S263256AbSLBBXh>;
-	Sun, 1 Dec 2002 20:23:37 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Don't sort kallsyms symbols twice
-Date: Mon, 02 Dec 2002 12:26:22 +1100
-Message-Id: <20021202013103.1E00B2C083@lists.samba.org>
+	id <S263204AbSLBBWm>; Sun, 1 Dec 2002 20:22:42 -0500
+Received: from web14505.mail.yahoo.com ([216.136.224.68]:3344 "HELO
+	web14505.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S263188AbSLBBWk>; Sun, 1 Dec 2002 20:22:40 -0500
+Message-ID: <20021202013005.11343.qmail@web14505.mail.yahoo.com>
+Date: Sun, 1 Dec 2002 17:30:05 -0800 (PST)
+From: Arun Prasad Velu <arun_linux@yahoo.com>
+Subject: Allocating huge memeory in loadable kernel module
+To: linux-kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.
+Hello,
 
-	Trivial optimization from Andrew Morton.
+I need 200 to 500 32k buffers in my device driver,
+which is a lodable kernel module.
+get_free_pages failing to allocate these many buffers.
+My requirement is the all these 32k buffers should be
+contiguous physical memory and I need a minimum of 200
+such buffers.
+I'd like to know how to get get these many buffers
+(physically contigous) for a loadable kernel module.
 
-Name: Don't sort kallsyms symbols twice
-Author: Andrew Morton
-Status: Trivial
-
-D:  scripts/kallsyms |    2 +-
-D: 1 files changed, 1 insertion(+), 1 deletion(-)
-
---- 25/scripts/kallsyms~b	Tue Nov 19 21:54:27 2002
-+++ 25-akpm/scripts/kallsyms	Tue Nov 19 21:54:34 2002
-@@ -31,7 +31,7 @@ encode_symbols()
- }
- 
- # FIXME: Use System.map as input, and regenerate each time in Makefile.
--$NM $1 | grep -v '\(compiled\)\|\(\.o$$\)\|\( [aUw] \)\|\(\.\.ng$$\)\|\(LASH[RL]DI\)' | sort > kallsyms.map
-+$NM -n $1 | grep -v '\(compiled\)\|\(\.o$$\)\|\( [aUw] \)\|\(\.\.ng$$\)\|\(LASH[RL]DI\)' | sort > kallsyms.map
- 
- encode_symbols kallsyms.map > kallsyms.c
- $CC $CFLAGS -c -o $2 kallsyms.c
-
-_
+Have a nice time.
+Regards
+Arun
 
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
+http://mailplus.yahoo.com

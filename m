@@ -1,51 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132834AbRDPCAp>; Sun, 15 Apr 2001 22:00:45 -0400
+	id <S132832AbRDPCCz>; Sun, 15 Apr 2001 22:02:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132832AbRDPCAg>; Sun, 15 Apr 2001 22:00:36 -0400
-Received: from lange.hostnamen.sind-doof.de ([212.15.192.219]:16657 "HELO
-	xena.sind-doof.de") by vger.kernel.org with SMTP id <S132834AbRDPCA0>;
-	Sun, 15 Apr 2001 22:00:26 -0400
-Date: Mon, 16 Apr 2001 03:54:56 +0200
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: rgooch@atnf.csiro.au
-Cc: linux-kernel@vger.kernel.org
-Subject: devfs weirdnesses in 2.4.3 (-ac5)
-Message-ID: <20010416035456.A29398@kallisto.sind-doof.de>
-Mail-Followup-To: rgooch@atnf.csiro.au, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S132835AbRDPCCp>; Sun, 15 Apr 2001 22:02:45 -0400
+Received: from mail2.rdc2.ab.home.com ([24.64.2.49]:12762 "EHLO
+	mail2.rdc2.ab.home.com") by vger.kernel.org with ESMTP
+	id <S132832AbRDPCCk>; Sun, 15 Apr 2001 22:02:40 -0400
+Message-ID: <3ADA51A9.C3028950@home.com>
+Date: Sun, 15 Apr 2001 19:58:01 -0600
+From: swds.mlowe@home.com
+X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: IP Acounting Idea for 2.5
+In-Reply-To: <Pine.LNX.4.33.0104152048250.17111-100000@asdf.capslock.lan>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Debian GNU/Linux (Linux 2.4.3-ac5-int1-nf20010413-dc1 i686)
-X-Disclaimer: Are you really taking me serious?
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+No, one rule would be MUCH faster. What's do you think would be faster of the two:
 
-I recently noticed some weird behaviour in devfs.
+if ((ipaddr>=3232235521)&&(ipaddr<=3232235774))
+    return 1;
+else
+    return 0;
 
-- some symlinks not showing up in directory listings, although they
-  are surely existing. I noticed this with symlinks created by devfsd
-  for IDE devices (/dev/hda{9,10,11} showing in normal ls, other hda
-  entries are hidden). If I explicitly give the name of one of the
-  hidden symlinks (for example "ls -l /dev/hda"), it shows the
-  symlink, and I can see that the symlink is absolutely correct (as
-  far as ls output goes...). Sadly I'm not able to reproduce this
-  behaviour now, but read on.
-- same thing with ippp*. Some ippp symlinks are now hidden. If I do a
-  "rm ippp*" in /dev, the visible symlinks are removed, and
-  the hidden entries become visible. With a second "rm ippp*", the
-  originally hidden symlinks are also removed.
+or
 
-The kernel version used is 2.4.3-ac5, but as the ac patches only
-change one line in devfs code, related to devfsd notification, I think
-the problem should exist in non-ac kernel also.
+for (a=0;a<(3232235774-3232235521);a++)
+    if (ipaddr==a)
+        return 1;
+return 0;
 
-Andreas
--- 
-Our missions are peaceful -- not for conquest.  When we do battle, it
-is only because we have no choice.
-		-- Kirk, "The Squire of Gothos", stardate 2124.5
+Obviously it compares the 192.168.0.1 - 192.168.0.255 range, but I think we both
+know which one will be faster. Not to mention countless other redundant checks
+will be added in on both, but on the second one the time of the checks is
+multiplied by the number of times you have too loop.
+
+But, I'm just a newbie so I don't really know :P Just taking up bandwith :(
+
+L8ers,
+Matt
+
+"Mike A. Harris" wrote:
+
+> On Tue, 17 Apr 2001, David Findlay wrote:
+>
+> >> Perhaps I misunderstand what it is exactly you are trying to do,
+> >> but I would think that this could be done entirely in userland by
+> >> software that just adds rules for you instead of you having to do
+> >> it manually.
+> >
+> >I suppose, but it would be so much easier if the kernel did it automatically.
+> >Having a rule to go through for each IP address to be logged would be slower
+> >than implementing one rule that would log all of them. Doing this in the
+> >kernel would improve preformance.
+>
+> I don't think it would, but then only benchmarking it both ways
+> would know for sure.  Even with incredibly large rulesets,
+> ipchains &&/|| netfilter works admirably well.  Rusty?
+>
+> ----------------------------------------------------------------------
+>     Mike A. Harris  -  Linux advocate  -  Free Software advocate
+>           This message is copyright 2001, all rights reserved.
+>   Views expressed are my own, not necessarily shared by my employer.
+> ----------------------------------------------------------------------
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

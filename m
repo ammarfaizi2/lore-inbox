@@ -1,63 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbUGIBYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUGIBlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbUGIBYz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 21:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbUGIBYz
+	id S262406AbUGIBlt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 21:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUGIBlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 21:24:55 -0400
-Received: from sunumail.sn ([213.154.64.11]:21897 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S262356AbUGIBYv (ORCPT
+	Thu, 8 Jul 2004 21:41:49 -0400
+Received: from 234.69-93-232.reverse.theplanet.com ([69.93.232.234]:61598 "EHLO
+	urbanisp01.urban-isp.net") by vger.kernel.org with ESMTP
+	id S262406AbUGIBln convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 21:24:51 -0400
-Message-ID: <1345.216.139.180.12.1089334435.sunumail@www.sunumail.sn>
-Date: Fri, 9 Jul 2004 00:53:55 -0000 (GMT)
-Subject: IT'S  ME  YOUR  FRIEND
-From: nelson_rufus@sunumail.sn
-To: nelson_rufus@sunumail.sn
-User-Agent: SUNUMAIL/1.4.2
+	Thu, 8 Jul 2004 21:41:43 -0400
+From: "Shai Fultheim" <shai@scalex86.org>
+To: "'Andrew Morton'" <akpm@osdl.org>
+Cc: "'Linux Kernel ML'" <linux-kernel@vger.kernel.org>,
+       "'Martin Hicks'" <mort@wildopensource.com>,
+       "'Jes Sorensen'" <jes@wildopensource.com>
+Subject: [PATCH] PER_CPU [1/4] - PER_CPU-cpu_tlbstate
+Date: Thu, 8 Jul 2004 18:41:37 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2142
+Thread-Index: AcRlVd/EV8lVEkJjTMWBOazRmQmZyg==
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - urbanisp01.urban-isp.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+Message-Id: <S262406AbUGIBln/20040709014143Z+3836@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DEAR PARTTNER,
+Andrew,
 
- MY NAME IS MR. NELSON RUFUS. I AM WRITING IN RESPECT OF FOREIGN CUSTOMER
-OF MY BANK WHO DIED IN A PLANE CRASH (ALASKA AIRLINES FLIGHT 261) WHICH
-CRASHED ON JANUARY 31 2000, INCLUDING HIS WIFE AND ONLY DAUGHTER SINCE
-THE DEATH OF THIS CUSTOMER, I PERSONALLY HAVE WATCHED WITH KEEN INTEREST
-TO SEE THE NEXT OF KIN BUT ALL HAS PROVED ABORTIVE AS NO ONE HAS COME TO
-CLAIM HIS FUNDS OF US$10.5M (TEN MILLION, FIVE HUNDRED THOUSAND UNITED
-STATES DOLLARS) WHICH HAS BEEN WITH MY BANK FOR A VERY LONG TIME.ON THIS
-NOTE I DECIDED TO SEEK FOR WHOSE NAME SHALL BE USED AS THE NEXT OF KIN AS
-NO ONE HAS COME UP TO BE THE NEXT OF KIN. IN VIEW OF THIS I GOT YOUR
-CONTACT THROUGH MY COUNTRY`S FOREIGN TRADE MISSION AFTER I WAS CONVINCED
-BY PROVIDENCE THAT YOU COULD BE USED AS THE NEXT OF KIN. THE REQUEST OF
-THE FOREIGNER AS A NEXT OF KIN IN THIS BUSINESS IS OCCASIONED BY THE FACT
-THAT THE CUSTOMER WAS A FOREIGNER AND A NIGERIAN CANNOT STAND AS THE NEXT
-OF KIN TO FOREIGNER.
+Please find below one out of collection of patched that move NR_CPU array variables to the per-cpu area.  Please consider applying,
+any comment will highly appreciated.
 
-I AGREED THAT 30% OF THIS MONEY WILL BE FOR YOU AS A FOREIGN PARTNER
-,WHILE THE REST WILL BE FOR ME, THERE AFTER,I WILL VISIT YOUR COUNTRY FOR
-DISBURSEMENT AS I AM ALMOST DUE FOR RETIREMENT.THEREFORE, TO FACILITATE
-THE IMMEDIATE TRANSFER OF THIS FUND TO YOUR ACCOUNT AS ARRANGED, YOU MUST
-APPLY FIRST TO THE BANK AS A RELATION TO THE DECEASED INDICATING YOUR
-PRIVATE TELEPHONE NUMBER, AND FAX NUMBER FOR EASY COMMUNICATION AND
-LOCATION WHERE THE MONEY WILL BE REMITTED.UPON THE RECEIPT OF YOUR REPLY,
-I WILL SEND YOU BY FAX OR E-MAIL THE NEXT STEP TO TAKE.
+1/4. PER_CPU-cpu_tlbstate
+2/4. PER_CPU-irq_stat
+3/4. PER_CPU-init_tss
+4/4. PER_CPU-cpu_gdt_table
 
- I WILL NOT FAIL TO BRING TO YOUR NOTICE THAT THIS BUSINESS IS HITCH-FREE
-AND THAT YOU SHOULD NOT ENTERTAIN ANY FEAR AS THE WHOLE REQUIRED
-ARRANGEMENT HAS BEEN MADE FOR THE TRANSFER.
+PER_CPU-cpu_tlbstate:
+ arch/i386/kernel/smp.c         |   12 ++++++------
+ include/asm-i386/mmu_context.h |   12 ++++++------
+ include/asm-i386/tlbflush.h    |    2 +-
+ 3 files changed, 13 insertions(+), 13 deletions(-)
 
-YOU SHOULD CONTACT ME THROUGH THIS EMAIL (nelsonruf@graffiti.net )
-IMMEDIATELY AS SOON AS YOU RECEIVE THIS LETTER
+Signed-off-by: Martin Hicks <mort@wildopensource.com>
+Signed-off-by: Shai Fultheim <shai@scalex86.org>
 
-TRUSTING TO HEAR FROM YOU.
+=================================================================================
+diff -Nru a/arch/i386/kernel/smp.c b/arch/i386/kernel/smp.c
+--- a/arch/i386/kernel/smp.c	2004-07-08 14:43:17 -07:00
++++ b/arch/i386/kernel/smp.c	2004-07-08 14:43:17 -07:00
+@@ -105,7 +105,7 @@
+  *	about nothing of note with C stepping upwards.
+  */
+ 
+-struct tlb_state cpu_tlbstate[NR_CPUS] __cacheline_aligned = {[0 ... NR_CPUS-1] = { &init_mm, 0, }};
++DEFINE_PER_CPU(struct tlb_state, cpu_tlbstate) = { &init_mm, 0, };
+ 
+ /*
+  * the following functions deal with sending IPIs between CPUs.
+@@ -256,9 +256,9 @@
+  */
+ static inline void leave_mm (unsigned long cpu)
+ {
+-	if (cpu_tlbstate[cpu].state == TLBSTATE_OK)
++	if (per_cpu(cpu_tlbstate, cpu).state == TLBSTATE_OK)
+ 		BUG();
+-	cpu_clear(cpu, cpu_tlbstate[cpu].active_mm->cpu_vm_mask);
++	cpu_clear(cpu, per_cpu(cpu_tlbstate, cpu).active_mm->cpu_vm_mask);
+ 	load_cr3(swapper_pg_dir);
+ }
+ 
+@@ -325,8 +325,8 @@
+ 		 * BUG();
+ 		 */
+ 		 
+-	if (flush_mm == cpu_tlbstate[cpu].active_mm) {
+-		if (cpu_tlbstate[cpu].state == TLBSTATE_OK) {
++	if (flush_mm == per_cpu(cpu_tlbstate, cpu).active_mm) {
++		if (per_cpu(cpu_tlbstate, cpu).state == TLBSTATE_OK) {
+ 			if (flush_va == FLUSH_ALL)
+ 				local_flush_tlb();
+ 			else
+@@ -458,7 +458,7 @@
+ 	unsigned long cpu = smp_processor_id();
+ 
+ 	__flush_tlb_all();
+-	if (cpu_tlbstate[cpu].state == TLBSTATE_LAZY)
++	if (per_cpu(cpu_tlbstate, cpu).state == TLBSTATE_LAZY)
+ 		leave_mm(cpu);
+ }
+ 
+diff -Nru a/include/asm-i386/mmu_context.h b/include/asm-i386/mmu_context.h
+--- a/include/asm-i386/mmu_context.h	2004-07-08 14:43:17 -07:00
++++ b/include/asm-i386/mmu_context.h	2004-07-08 14:43:17 -07:00
+@@ -18,8 +18,8 @@
+ {
+ #ifdef CONFIG_SMP
+ 	unsigned cpu = smp_processor_id();
+-	if (cpu_tlbstate[cpu].state == TLBSTATE_OK)
+-		cpu_tlbstate[cpu].state = TLBSTATE_LAZY;	
++	if (per_cpu(cpu_tlbstate, cpu).state == TLBSTATE_OK)
++		per_cpu(cpu_tlbstate, cpu).state = TLBSTATE_LAZY;	
+ #endif
+ }
+ 
+@@ -33,8 +33,8 @@
+ 		/* stop flush ipis for the previous mm */
+ 		cpu_clear(cpu, prev->cpu_vm_mask);
+ #ifdef CONFIG_SMP
+-		cpu_tlbstate[cpu].state = TLBSTATE_OK;
+-		cpu_tlbstate[cpu].active_mm = next;
++		per_cpu(cpu_tlbstate, cpu).state = TLBSTATE_OK;
++		per_cpu(cpu_tlbstate, cpu).active_mm = next;
+ #endif
+ 		cpu_set(cpu, next->cpu_vm_mask);
+ 
+@@ -49,8 +49,8 @@
+ 	}
+ #ifdef CONFIG_SMP
+ 	else {
+-		cpu_tlbstate[cpu].state = TLBSTATE_OK;
+-		BUG_ON(cpu_tlbstate[cpu].active_mm != next);
++		per_cpu(cpu_tlbstate, cpu).state = TLBSTATE_OK;
++		BUG_ON(per_cpu(cpu_tlbstate, cpu).active_mm != next);
+ 
+ 		if (!cpu_test_and_set(cpu, next->cpu_vm_mask)) {
+ 			/* We were in lazy tlb mode and leave_mm disabled 
+diff -Nru a/include/asm-i386/tlbflush.h b/include/asm-i386/tlbflush.h
+--- a/include/asm-i386/tlbflush.h	2004-07-08 14:43:17 -07:00
++++ b/include/asm-i386/tlbflush.h	2004-07-08 14:43:17 -07:00
+@@ -131,7 +131,7 @@
+ 	int state;
+ 	char __cacheline_padding[L1_CACHE_BYTES-8];
+ };
+-extern struct tlb_state cpu_tlbstate[NR_CPUS];
++DECLARE_PER_CPU(struct tlb_state, cpu_tlbstate);
+ 
+ 
+ #endif
+=================================================================================
 
-YOUR RESPECTFULLY,
+ 
+-----------------
+Shai Fultheim
+Scalex86.org
 
- MR. NELSON RUFUS
+
+
+ 
+-----------------
+Shai Fultheim
+Scalex86.org
+
+
+

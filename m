@@ -1,62 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264880AbTLCPR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 10:17:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbTLCPR2
+	id S264589AbTLCPTz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 10:19:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264909AbTLCPTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 10:17:28 -0500
-Received: from h1ab.lcom.net ([216.51.237.171]:38793 "EHLO digitasaru.net")
-	by vger.kernel.org with ESMTP id S264880AbTLCPQT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 10:16:19 -0500
-Date: Wed, 3 Dec 2003 09:16:12 -0600
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: wes schreiner <wes@infosink.com>
-Cc: Takashi Iwai <tiwai@suse.de>, Adam Belay <ambx1@neo.rr.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: vanilla 2.6.0-test11 and CS4236 card
-Message-ID: <20031203151611.GE27034@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: wes schreiner <wes@infosink.com>,
-	Takashi Iwai <tiwai@suse.de>, Adam Belay <ambx1@neo.rr.com>,
-	linux-kernel@vger.kernel.org
-References: <20031202170637.GD5475@digitasaru.net> <s5hsmk3ceia.wl@alsa2.suse.de> <20031202234432.GA14730@neo.rr.com> <s5hekvmcfi8.wl@alsa2.suse.de> <3FCDFA77.9090705@infosink.com>
-Mime-Version: 1.0
+	Wed, 3 Dec 2003 10:19:54 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:43273 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S264589AbTLCPTI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 10:19:08 -0500
+To: lkml-031128@amos.mailshell.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.6test11 kernel panic on "head -1 /proc/net/tcp"
+References: <20031128170138.9513.qmail@mailshell.com>
+	<87d6bc2yvq.fsf@devron.myhome.or.jp>
+	<20031129170034.10522.qmail@mailshell.com>
+	<1070242158.1110.150.camel@buffy> <3FCBAE6F.1090405@myrealbox.com>
+	<20031201213624.18232.qmail@mailshell.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Thu, 04 Dec 2003 00:18:52 +0900
+In-Reply-To: <20031201213624.18232.qmail@mailshell.com>
+Message-ID: <871xrmudyb.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FCDFA77.9090705@infosink.com>
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From wes schreiner on Wednesday, 03 December, 2003:
->I tested a combination of Takashi's version of the patch to 
->drivers/pnp/card.c and Adam's patch to sound/isa/cs423x/cs4236.c applied 
->to 2.6.0-test11 and report success. This is on a Dell Precision 
->Workstation 410 which doesn't have a MPU device. The card has always 
->been detected fine by ISAPNP and now when I modpobe snd-cs4236 the 
->modules load just like they should. PCM output and input work fine. I 
->exercised the audio system by running, at various times, xmms, aplay, 
->alsamixer, and audacity and everything worked OK. No kernel-tainting 
->modules were loaded. I would be happy to test the final version of these 
->patches.
+lkml-031128@amos.mailshell.com writes:
 
-Sweet.  Stupid NVidia drivers.  Thanks for the help (I have exactly the
-  same system).  I'll report back when I've recovered from NVidia driver's
-  mess.  :)
+> After I added Ogawa's line, "head -1 /proc/net/tcp" stopped
+> freezing my machine but PPP failed to work.
+> 
+> Also after adding Ogawa's line, PPP works fine (as it is now, as
+> I write this message) as long as I don't try "head -1 /proc/net/tcp"
+> after boot. If I'll try "head -1 /proc/net/tcp" now PPP will stop
+> working.
 
--Joseph
+Can you reproduce the fail of PPP? I couldn't reproduce it.
+What reason is the fail of PPP? (the "debug" option of pppd may be helpful)
+
+Of course, the following message is easy reproducible. But it's
+debugging message, not the real problem. And probably it's unrelated
+to the fail of PPP.
+
+> >>> Badness in local_bh_enable at kernel/softirq.c:121
+> >>> Call Trace:
+> >>>  [<c011df25>] local_bh_enable+0x85/0x90
+> >>>  [<c02315e2>] ppp_async_push+0xa2/0x180
+> >>>  [<c0230efd>] ppp_asynctty_wakeup+0x2d/0x60
+> >>>  [<c0202638>] pty_unthrottle+0x58/0x60
+> >>>  [<c01ff0fd>] check_unthrottle+0x3d/0x40
+> >>>  [<c01ff1a3>] n_tty_flush_buffer+0x13/0x60
+> >>>  [<c0202a47>] pty_flush_buffer+0x67/0x70
+> >>>  [<c01fba41>] do_tty_hangup+0x3f1/0x460
 -- 
-Joseph===============================================trelane@digitasaru.net
-"Asked by CollabNet CTO Brian Behlendorf whether Microsoft will enforce its
- patents against open source projects, Mundie replied, 'Yes, absolutely.'
- An audience member pointed out that many open source projects aren't
- funded and so can't afford legal representation to rival Microsoft's. 'Oh
- well,' said Mundie. 'Get your money, and let's go to court.' 
-Microsoft's patents only defensive? http://swpat.ffii.org/players/microsoft
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVC2Veo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVC2Vg7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261483AbVC2Veo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 16:34:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVC2VdI
+	id S261451AbVC2Vg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 16:36:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVC2VfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 29 Mar 2005 16:35:00 -0500
+Received: from rproxy.gmail.com ([64.233.170.207]:53634 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261471AbVC2VdI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 29 Mar 2005 16:33:08 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:37560 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261461AbVC2Vcm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 16:32:42 -0500
-Date: Tue, 29 Mar 2005 22:32:29 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "David S. Miller" <davem@davemloft.net>
-cc: David Howells <dhowells@redhat.com>, Ian Molton <spyro@f2s.com>,
-       nickpiggin@yahoo.com.au, akpm@osdl.org, tony.luck@intel.com,
-       benh@kernel.crashing.org, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/6] freepgt: free_pgtables use vma list
-In-Reply-To: <20050325162926.6d28448b.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.61.0503292223090.18131@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> 
-    <Pine.LNX.4.61.0503231710310.15274@goblin.wat.veritas.com> 
-    <4243A257.8070805@yahoo.com.au> 
-    <20050325092312.4ae2bd32.davem@davemloft.net> 
-    <20050325162926.6d28448b.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=tKDLIjpCiFfs5jvTkrSskTK1Xps1l3GAdCos4lSM4TiyIeTcQX2xUh7ppUiQ5v3+HaYLNT3aE18Mj6fLXm8WiPBGHVdX7v5/3C0NvVNkyr501Mh//K97lO71mlwhUQk4eaoYdPrEFIJx18iezDcUHt49w++aO++sXyNk2j35F7A=
+Message-ID: <d120d50005032913331be39802@mail.gmail.com>
+Date: Tue, 29 Mar 2005 16:33:04 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
+Cc: Stefan Seyfried <seife@suse.de>, Andy Isaacson <adi@hexapodia.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+In-Reply-To: <20050329211239.GG8125@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <4243252D.6090206@suse.de> <4243D854.2010506@suse.de>
+	 <d120d50005032908183b2f622e@mail.gmail.com>
+	 <20050329181831.GB8125@elf.ucw.cz>
+	 <d120d50005032911114fd2ea32@mail.gmail.com>
+	 <20050329192339.GE8125@elf.ucw.cz>
+	 <d120d50005032912051fee6e91@mail.gmail.com>
+	 <20050329205225.GF8125@elf.ucw.cz>
+	 <d120d500050329130714e1daaf@mail.gmail.com>
+	 <20050329211239.GG8125@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Mar 2005, David S. Miller wrote:
-
-[ of flush_tlb_pgtables ]
-
-> Since sparc64 is the only user of this thing...
-
-Not quite.  sparc64 is the only user which makes any use of the
-addresses passed to it, but frv does a little assembler with it,
-and arm26 does a printk - eh? I'd take that to mean that it never
-gets called there, but I don't see what prevents it, before or now.
-Ian, does current -mm give you "flush_tlb_pgtables" printks?
-
-> Let's make it so that the flush can be queued up
-> at pmd_clear() time, as that's what we really want.
+On Tue, 29 Mar 2005 23:12:39 +0200, Pavel Machek <pavel@suse.cz> wrote:
+> >
+> > I am leaning towards calling disable_usermodehelper (not writtent yet)
+> > after swsusp completes snapshotting memory. We really don't care about
+> > hotplug events in this case and this will allow keeping "normal"
+> > resume in drivers as is. What do you think?
 > 
-> Something like:
+> That would certianly do the trick.
 > 
-> 	pmd_clear(mm, vaddr, pmdp);
+> [Or perhaps in_suspend() is slightly nicer solution? People wanted it
+> for other stuff (sanity checking, like BUG_ON(in_suspend())), too....]
 > 
-> I'll try to play with something like this later.
 
-Depends really on what DavidH wants there, not clear to me.
-I suspect Ian can live without his printk!
+We might want having both... Hmm... in_suspend - is it only for swsusp
+(in_swsusp) or for suspend-to-ram as well? For suspend to ram we might
+need slightly different rules, I don't know. A separate call will
+allow more fine-grained control and will explicitely tell reader what
+is happening.
 
-Hugh
+I do not have a strong preference though.
+
+-- 
+Dmitry

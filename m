@@ -1,43 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263590AbTI2P3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 11:29:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263591AbTI2P3Q
+	id S263541AbTI2PQt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 11:16:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263542AbTI2PQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 11:29:16 -0400
-Received: from fed1mtao05.cox.net ([68.6.19.126]:26536 "EHLO
-	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S263590AbTI2P3N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 11:29:13 -0400
-Message-ID: <3F784FC3.5090301@backtobasicsmgmt.com>
-Date: Mon, 29 Sep 2003 08:29:07 -0700
-From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Organization: Back to Basics Network Management
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-CC: Michal Kochanowicz <michal@michal.waw.pl>, linux-kernel@vger.kernel.org
-Subject: Re: What to use with 2.6.x instead of iproute2?
-References: <20030927151935.GD5956@wieszak.lan> <3F784CFC.30103@nortelnetworks.com>
-In-Reply-To: <3F784CFC.30103@nortelnetworks.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Sep 2003 11:16:49 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:22958 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263541AbTI2PQq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 11:16:46 -0400
+Date: Mon, 29 Sep 2003 17:16:43 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: keyboard repeat / sound [was Re: Linux 2.6.0-test6]
+Message-ID: <20030929151643.GA15992@ucw.cz>
+References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org> <20030928085902.GA3742@k3.hellgate.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030928085902.GA3742@k3.hellgate.ch>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen wrote:
+On Sun, Sep 28, 2003 at 10:59:02AM +0200, Roger Luethi wrote:
 
-> Is Alexey still the iproute2 maintainer?  Has anyone sent him a patch 
-> for 2.6?
-> 
+> With test6, keyboard repeat takes very noticably longer to kick in after X
+> has been started (for both X and console). In test5, starting X makes no
+> difference.
 
-There are no patches to iproute2 required to get it to compile against 
-2.6 headers; the only patch required was to linux/netdevice.h, which 
-has been included in 2.6.0-test6.
+Bug in repeat rate setting code. Thanks for reporting, this should fix
+it:
 
-However, it would be wonderful if someone knowledgeable could take 
-over maintainership of iproute2 if Alexey can no longer do it. It's in 
-a sorry state at the moment, and most distros ship significantly 
-patched versions.
+diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+--- a/drivers/input/keyboard/atkbd.c	Mon Sep 29 17:16:17 2003
++++ b/drivers/input/keyboard/atkbd.c	Mon Sep 29 17:16:17 2003
+@@ -370,10 +370,11 @@
+ static int atkbd_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
+ {
+ 	struct atkbd *atkbd = dev->private;
+-	struct { int p; u8 v; } period[] =	
+-		{ {30, 0x00}, {25, 0x02}, {20, 0x04}, {15, 0x08}, {10, 0x0c}, {7, 0x10}, {5, 0x14}, {0, 0x14} };
+-	struct { int d; u8 v; } delay[] =
+-        	{ {1000, 0x60}, {750, 0x40}, {500, 0x20}, {250, 0x00}, {0, 0x00} };
++	const short period[32] =
++		{ 33,  37,  42,  46,  50,  54,  58,  63,  67,  75,  83,  92, 100, 109, 116, 125,
++		 133, 149, 167, 182, 200, 217, 232, 250, 270, 303, 333, 370, 400, 435, 470, 500 };
++	const short delay[4] =
++		{ 250, 500, 750, 1000 };
+ 	char param[2];
+ 	int i, j;
+ 
+@@ -407,11 +408,11 @@
+ 			if (atkbd_softrepeat) return 0;
+ 
+ 			i = j = 0;
+-			while (period[i].p > dev->rep[REP_PERIOD]) i++;
+-			while (delay[j].d > dev->rep[REP_DELAY]) j++;
+-			dev->rep[REP_PERIOD] = period[i].p;
+-			dev->rep[REP_DELAY] = delay[j].d;
+-			param[0] = period[i].v | delay[j].v;
++			while (i < 32 && period[i] < dev->rep[REP_PERIOD]) i++;
++			while (j < 4 && delay[j] < dev->rep[REP_DELAY]) j++;
++			dev->rep[REP_PERIOD] = period[i];
++			dev->rep[REP_DELAY] = delay[j];
++			param[0] = i | (j << 5);
+ 			atkbd_command(atkbd, param, ATKBD_CMD_SETREP);
+ 
+ 			return 0;
 
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

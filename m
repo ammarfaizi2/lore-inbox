@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261541AbSKRGox>; Mon, 18 Nov 2002 01:44:53 -0500
+	id <S261550AbSKRGwo>; Mon, 18 Nov 2002 01:52:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261550AbSKRGox>; Mon, 18 Nov 2002 01:44:53 -0500
-Received: from c3p0.cc.swin.edu.au ([136.186.1.10]:59652 "EHLO
-	net.cc.swin.edu.au") by vger.kernel.org with ESMTP
-	id <S261541AbSKRGox>; Mon, 18 Nov 2002 01:44:53 -0500
-From: Tim Connors <tconnors@astro.swin.edu.au>
-To: linux-kernel@vger.kernel.org, Mike Galbraith <efault@gmx.de>
-Subject: Re: 2.5.47 scheduler problems?
-In-Reply-To: <5.1.1.6.2.20021118070215.00cb8f98@wen-online.de>
-References: <5.1.1.6.2.20021118070215.00cb8f98@wen-online.de>
-X-Face: "/6m>=uJ8[yh+S{nuW'%UG"H-:QZ$'XRk^sOJ/XE{d/7^|mGK<-"*e>]JDh/b[aqj)MSsV`X1*pA~Uk8C:el[*2TT]O/eVz!(BQ8fp9aZ&RM=Ym&8@.dGBW}KDT]MtT"<e(`rn*-w$3tF&:%]KHf"{~`X*i]=gqAi,ScRRkbv&U;7Aw4WvC
-X-Face-Author: David Bonde mailto:i97_bed@i.kth.se.REMOVE.THIS.TO.REPLY -- If you want to use it please also use this Authorline.
-Message-ID: <slrn-0.9.7.4-16621-21084-200211181750-j.$random.luser@swin.edu.au>
-Date: Mon, 18 Nov 2002 17:51:51 +1100
+	id <S261561AbSKRGwo>; Mon, 18 Nov 2002 01:52:44 -0500
+Received: from holomorphy.com ([66.224.33.161]:38109 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261550AbSKRGwn>;
+	Mon, 18 Nov 2002 01:52:43 -0500
+Date: Sun, 17 Nov 2002 22:57:05 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.48
+Message-ID: <20021118065705.GG11776@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0211172036590.32717-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211172036590.32717-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In linux.kernel, you wrote:
-> Greetings,
-> 
-> For testing swap throughput, I like to run make -j30 bzImage on my 500Mhz 
-> PIII w. 128Mb ram.  For testing interactivity, I fire up KDE, start a 
-> smaller make -j, grab a window, and wave it around.
-> 
-> With 2.4.20rc2+rc1aa1, running a -j10 build (not swapping) is very very 
-> bad.  However, if I set all tasks in the system to SCHED_FIFO or SCHED_RR 
-> prior to this light make -j, I have a ~pretty smooth system.
-> 
-> If I do the same in 2.5.47, I have no control of my box.  Setting all tasks 
-> to SCHED_FIFO or SCHED_RR prior to starting make -j10 bzImage, I can regain 
-> control, but interactivity under load is basically not present.
+On Sun, Nov 17, 2002 at 08:41:05PM -0800, Linus Torvalds wrote:
+> Hmm.. All over the place, best you see the changelog. Lots of small 
+> cleanups (remove unnecessary header files etc), but a few more fundamental 
+> changes too. Times in nsecs in stat64(), for example, and the 
+> oft-discussed kernel module loader changes..
 
-Funny that.
+This oopses on NUMA-Q sometime prior to TSC synch and then hangs in TSC
+synch because not all cpus are responding where 2.5.47-mm3 (which
+included some intermediate bk stuff) did not. This is because AP's are
+taking timer interrupts before they are prepared to do so. Please apply
+the following patch from Martin Bligh which resolves this issue:
 
-> I used to be able to wave a window poorly at make -j25 (swapping heftily), 
-> fairly smoothly at make -j20, and smoothly at make -j15 or below.  This 
-> with no SCHED_RR/SCHED_FIFO.  (I haven't done much testing like this in 
-> quite a while though)
 
-Perhaps you should consider buying an extra 29 CPU's for you desktop?
+Thanks,
+Bill
 
--- 
-TimC -- http://astronomy.swin.edu.au/staff/tconnors/
 
-A Chemist who falls in acid is absorbed in work.
-
+diff -purN -X /home/mbligh/.diff.exclude virgin/arch/i386/kernel/smpboot.c noearlyirq/arch/i386/kernel/smpboot.c
+--- virgin/arch/i386/kernel/smpboot.c	Mon Nov  4 14:30:27 2002
++++ noearlyirq/arch/i386/kernel/smpboot.c	Wed Nov  6 15:22:12 2002
+@@ -419,6 +419,7 @@ void __init smp_callin(void)
+  	smp_store_cpu_info(cpuid);
+ 
+ 	disable_APIC_timer();
++	local_irq_disable();
+ 	/*
+ 	 * Allow the master to continue.
+ 	 */
+@@ -1186,6 +1187,7 @@ int __devinit __cpu_up(unsigned int cpu)
+ 	if (!test_bit(cpu, &cpu_callin_map))
+ 		return -EIO;
+ 
++	local_irq_enable();
+ 	/* Unleash the CPU! */
+ 	set_bit(cpu, &smp_commenced_mask);
+ 	while (!test_bit(cpu, &cpu_online_map))

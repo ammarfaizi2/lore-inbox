@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130425AbQKJVAX>; Fri, 10 Nov 2000 16:00:23 -0500
+	id <S131419AbQKJVKg>; Fri, 10 Nov 2000 16:10:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131405AbQKJVAD>; Fri, 10 Nov 2000 16:00:03 -0500
-Received: from natted.Sendmail.COM ([63.211.143.38]:45108 "EHLO
-	wiz.Sendmail.COM") by vger.kernel.org with ESMTP id <S130425AbQKJU77>;
-	Fri, 10 Nov 2000 15:59:59 -0500
-Date: Fri, 10 Nov 2000 12:59:02 -0800
-From: Claus Assmann <sendmail+ca@sendmail.org>
+	id <S131450AbQKJVK0>; Fri, 10 Nov 2000 16:10:26 -0500
+Received: from ryouko.dgim.crc.ca ([142.92.39.75]:50609 "EHLO
+	ryouko.dgim.crc.ca") by vger.kernel.org with ESMTP
+	id <S131419AbQKJVKO>; Fri, 10 Nov 2000 16:10:14 -0500
+Date: Fri, 10 Nov 2000 16:09:11 -0500 (EST)
+From: "William F. Maton" <wmaton@ryouko.dgim.crc.ca>
+Reply-To: wmaton@ryouko.dgim.crc.ca
 To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Cc: root@chaos.analogic.com, Andrea Arcangeli <andrea@suse.de>,
-        linux-kernel@vger.kernel.org, sendmail-bugs@sendmail.org
-Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in /var/spool/mqueue]
-Message-ID: <20001110125902.A16027@sendmail.com>
-Reply-To: sendmail-bugs@sendmail.org
-In-Reply-To: <Pine.LNX.3.95.1001110153916.6334A-100000@chaos.analogic.com> <3A0C5EDC.3F30BE9C@timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <3A0C5EDC.3F30BE9C@timpanogas.org>
+cc: Andrea Arcangeli <andrea@suse.de>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in  /var/spool/mqueue]
+In-Reply-To: <3A0C5A41.16EEAE78@timpanogas.org>
+Message-ID: <Pine.GSO.3.96LJ1.1b7.1001110160719.514B-100000@ryouko.dgim.crc.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 10, 2000, Jeff V. Merkey wrote:
+On Fri, 10 Nov 2000, Jeff V. Merkey wrote:
 
-> "Richard B. Johnson" wrote:
+> Andrea Arcangeli wrote:
+> > 
+> > On Fri, Nov 10, 2000 at 03:07:46PM -0500, Richard B. Johnson wrote:
+> > > It isn't a TCP/IP stack problem. It may be a memory problem. Every time
+> > > sendmail spawns a child to send the file data, it crashes.  That's
+> > > why the file never gets sent!
+> > 
+> > Sure that could be the case. You should be able to verify the kernel kills the
+> > task with `dmesg`.
+> > 
+> > However Jeff said the problem happens over 400K and a 500K attachment shouldn't
+> > really run any machine out of memory, so maybe this wasn't his same problem?
+> 
+> I think it is.  So it looks like sendmail is bombing when it attempts to
+> send large files. 
 
-> > It ran out of memory. The file got sent fine after I got rid of
-> > all the memory-consumers. Looks like a sendmail bug where they
-> > expect to load a whole file into memory all at once before sending
-> > it. I always thought you could read from a file, then write to
+Not to use the 'S-word', but we're receiving/sending biggish attachments
+(7MB-9MB) under Solaris 2.6.  Could sendmail be triggering a linux bug, or
+could something specific to linux be triggering a sendmail bug?
 
-On which evidence do you base this idea?
+> Jeff 
 
-> > a socket. Maybe I'm old fashioned.
-
-Yeah, just like us.
-
-Please provide some proof to your claims.
-
-
-> Looks like your bug.  As an FYI, sendmail.rpms in Suse, RedHat, and
-> OpenLinux all exhibit this behavior, which means they're all broken. 
-
-Sorry, this is plain wrong. sendmail does NOT read the entire
-file into memory.
-
-> Reading an entire file into memory must be a BSD feature.  I have
-> enabled an SSH account for you, so you can come in and debug.  Richard
-> also can get in and will be helping.
-
-What's the machine name and what's the account?
+wfms
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

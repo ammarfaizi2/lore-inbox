@@ -1,65 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265867AbTGACAU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 22:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265876AbTGACAU
+	id S265876AbTGACLk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 22:11:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265882AbTGACLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 22:00:20 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:42618 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S265867AbTGACAR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 22:00:17 -0400
-Date: Mon, 30 Jun 2003 19:14:56 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.73-mm2
-Message-Id: <20030630191456.1aef22e0.akpm@digeo.com>
-In-Reply-To: <20030701003958.GB20413@holomorphy.com>
-References: <20030627202130.066c183b.akpm@digeo.com>
-	<20030701003958.GB20413@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 30 Jun 2003 22:11:32 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:36052
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S265876AbTGACLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 22:11:19 -0400
+Date: Tue, 1 Jul 2003 04:25:16 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: What to expect with the 2.6 VM
+Message-ID: <20030701022516.GL3040@dualathlon.random>
+References: <Pine.LNX.4.53.0307010238210.22576@skynet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Jul 2003 02:14:38.0767 (UTC) FILETIME=[864203F0:01C33F76]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0307010238210.22576@skynet>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
->  @@ -217,9 +217,9 @@ void out_of_memory(void)
->   	unsigned long now, since;
->   
->   	/*
->  -	 * Enough swap space left?  Not OOM.
->  +	 * Enough swap space and ZONE_NORMAL left?  Not OOM.
->   	 */
->  -	if (nr_swap_pages > 0)
->  +	if (nr_swap_pages > 0 && nr_free_buffer_pages() + nr_used_low_pages() > 0)
->   		return;
+On Tue, Jul 01, 2003 at 02:39:47AM +0100, Mel Gorman wrote:
+>    Reverse Page Table Mapping
+>    ==========================
+> 
+>    One of the most important introductions in the 2.6 kernel is Reverse
+>    Mapping commonly referred to as rmap. In 2.4, there is a one way mapping
+>    from a PTE to a struct page which is sufficient for process addressing.
+>    However, this presents a problem for the page replacement algorithm when
+>    dealing with shared pages are used as there is no way in 2.4 to acquire a
+>    list of PTEs which map a particular struct page without traversing the
+>    page tables for every running process in the system.
+> 
+>    In 2.6, a new field is introduced to the struct page called union pte.
+>    When a page is shared between two or more processes, a PTE chain is
+>    created and linked to this field. PTE chain elements are managed by the
+>    slab allocator and each node is able to locate up to NRPTE number of PTEs
+>    where NRPTE is related to the L1 cache size of the target architecture.
+>    Once NRPTE PTEs have been mapped, a new node is added to the PTE chain.
+> 
+>    Using these chains, it is possible for all PTEs mapping a struct page to
+>    be located and swapped out to backing storage. This means that it is now
+>    unnecessary for whole processes to be swapped out when memory is tight and
+>    most pages in the LRU lists are shared as was the case with 2.4. The 2.6
+>    VM is able to make much better page replacement decisions as the LRU list
+>    ordering is obeyed.
 
-a) if someone is trying to allocate some ZONE_DMA pages and there are
-   still swappable or free ZONE_NORMAL pages, nobody gets killed.
+you mention only the positive things, and never the fact that's the most
+hurting piece of kernel code in terms of performance and smp scalability
+until you actually have to swapout or pageout.
 
-b) If there are free ZONE_NORMAL pages then why on earth did we call
-   out_of_memory()?  Does nr_free_buffer_pages() ever return non-zero in
-   here?  It will do so for a ZONE_DMA allocation, but you're not doing
-   them...
+>    Non-Linear Populating of Virtual Areas
+>    ======================================
+> 
+>    In 2.4, a VMA backed by a file would be populated in a linear fashion.
+>    This can be optionally changed in 2.6 with the introduction of the
+>    MAP_POPULATE flag to mmap() and the new system call remap_file_pages().
+>    This system call allows arbitrary pages in an existing VMA to be remapped
+>    to an arbitrary location on the backing file. This is mainly of interest
+>    to database servers which previously simulated this behavior by the
+>    creation of many VMAs.
+> 
+>    On page-out, the non-linear address for the file is encoded within the PTE
+>    so that it can be installed again correctly on page fault. How it is
+>    encoded is architecture specific so two macros are defined called
+>    pgoff_to_pte() and pte_to_pgoff() for the task.
 
-Generally, I'm thinking that this test should just be removed.  It is
-the responsibility of try_to_free_pages() to work out whether the
-allocation can succeed.
+and it was used to break truncate, furthmore the API doesn't look good
+to me, the vma should have a special VM_NONLINEAR created with a
+MAP_NONLINEAR so the vm will skip it enterely and it should be possible
+to put multiple files in the same vma IMHO. If these areas are
+vmtruncated the VM_NONLINEAR will keep vmtruncate out of them and the
+pages will become anonymous, which is perfectly fine since they're
+created with a special MAP_NONLINEAR that can have different semantics.
 
-If try_to_free_pages() calls out_of_memory() when there are still
-swappable, reclaimable or free pages in the relevant zones then
-try_to_free_pages() goofed, and needs mending.  out_of_memory()
-shouldn't be cleaning up after try_to_free_pages()'s mistakes.
+Also this feature is mainly useful only in kernels with rmap while using
+the VLM, to workaround the otherwise overkill cpu and memory overhead
+generated by rmap. It is discouraged to use it as a default API unless
+you fall into those special corner cases. the object of this API is to
+bypass the VM so you would lose security and the VM advantages. if you
+want the same features you have w/o nonlinaer w/ nonlinear, then you
+invalidate the whole point of nonlinear.
 
-I have a bad feeling that it _will_ goof.  A long time ago I looked
-at the amount of scanning we're doing in there and decided that it
-was way overkill and reduced it by a lot.  I may have gone overboard.  
+The other very corner cases are emulators, they also could benefit from
+a VM bypass like remap_file_pags provides.
 
-So how's about I and thy take that test out, see how things get along?
+Pinning ram from multiple files plus a sysctl or a sudo wrapper would be
+an optimal API and it would avoid the VM to even look at the pagetables
+of those areas.
 
+Last but not the least, remap_file_pages is nearly useless (again modulo
+emulators) w/o bigpages support backing it (not yet the case in 2.5 as
+far as I can see so it's unusable compared to 2.4-aa [but 2.5 -
+remap_file_pages is even less usable than 2.5 + remap_file_pages due
+rmap that wouldn't only run slow but it wouldn't run at all]). objrmap
+fixes that despites it introduces some complex algorithm.
 
+the only significant cost is the tlb flushing and pagetable walking at
+32G of working set in cache with a 30-31bit window on the cache. 
+
+>    the flags are implemented in many different parts of the kernel.
+>    The
+>    NOFAIL flag requires teh VM to constantly retry an allocation until it
+
+described this way it sounds like NOFAIL imply a deadlock condition. We
+already have very longstanding design deadlock since the first linux
+I've seen in the callers, moving it down to the VM doesn't sound any
+good as if something it would encourage this deadlock prone usages.
+
+The idea of an allocation non failing is broken in the first place and
+it should not get propagated, every allocation visible to the VM users
+must be allowed to fail. If you can't avoid writing buggy code, then
+loop in the caller not in the VM.
+
+>    Delayed Coalescing
+>    ==================
+> 
+>    2.6 extends the buddy algorithm to resemble a lazy buddy algorithm [BL89]
+>    which delays the splitting and coalescing of buddies until it is
+>    necessary. The delay is implemented only for 0 order allocations with the
+
+desribed this way it sounds like it's not O(1) anymore for order > 0
+allocations. Though it would be a nice feature for all the common cases.
+And of course it's still O(1) if one assumes the number of orders
+limited (and it's fixed at compile time).
+
+as for the per-zone lists, sure they increase scalability, but it loses
+aging information, the worst case will be reproducible on a 1.6G box,
+some day even 2.3 had per-zone lists, I backed it out to avoid losing
+information which is an order of magnitude more interesting than
+the pure smp scalability for normal users (i.e. 2-way systems with 1-2G
+of ram, of course the scalability numbers that people cares about on the
+8-way with 32G of ram will be much better with the per-zone lru).
+
+Just trying not to forget the other side too ;) Not every improvement on
+one side cames for free on all other sides.
+
+Andrea

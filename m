@@ -1,12 +1,12 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262082AbSIYTmq>; Wed, 25 Sep 2002 15:42:46 -0400
+	id <S262090AbSIYTw5>; Wed, 25 Sep 2002 15:52:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262087AbSIYTmp>; Wed, 25 Sep 2002 15:42:45 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:56714 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S262082AbSIYTmY>;
-	Wed, 25 Sep 2002 15:42:24 -0400
-Date: Wed, 25 Sep 2002 21:56:22 +0200 (CEST)
+	id <S262091AbSIYTw5>; Wed, 25 Sep 2002 15:52:57 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:52875 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S262090AbSIYTwp>;
+	Wed, 25 Sep 2002 15:52:45 -0400
+Date: Wed, 25 Sep 2002 22:04:42 +0200 (CEST)
 From: Ingo Molnar <mingo@elte.hu>
 Reply-To: Ingo Molnar <mingo@elte.hu>
 To: Linus Torvalds <torvalds@transmeta.com>
@@ -14,34 +14,19 @@ Cc: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
        <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>,
        Arjan van de Ven <arjanv@redhat.com>
 Subject: Re: [ANNOUNCE] [patch] kksymoops, in-kernel symbolic oopser, 2.5.38-B0
-In-Reply-To: <Pine.LNX.4.33.0209251245070.2836-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0209252155210.18747-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0209251250150.2836-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0209252159090.19020-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-okay, here is the new oops output:
+one config variant (no-modules, no-kksymoops) did not compile due to
+linux/errno.h not being included in linux/module.h, the attached patch
+does this properly.
 
-------------[ cut here ]------------
-kernel BUG at time.c:99!
-invalid operand: 0000
-CPU:    1
-EIP:    0060:[<c011bd14>]    Not tainted
-EFLAGS: 00010246
-EIP is at sys_gettimeofday+0x84/0x90
-eax: 0000004e   ebx: cef9e000   ecx: 00000000   edx: 00000068
-esi: 00000000   edi: 00000000   ebp: bffffad8   esp: cef9ffa0
-ds: 0068   es: 0068   ss: 0068
-Process gettimeofday (pid: 549, threadinfo=cef9e000 task=cf84d860)
-Stack: 4001695c bffff414 40156154 00000004 c0112a40 cef9e000 400168e4 bffffb44
-       c0107973 00000000 00000000 40156154 400168e4 bffffb44 bffffad8 0000004e
-       0000002b 0000002b 0000004e 400cecc1 00000023 00000246 bffffacc 0000002b
-Call Trace: [<c0112a40>] do_page_fault+0x0/0x4a2
-[<c0107973>] syscall_call+0x7/0xb
-
-and the patch, against BK-curr:
+	Ingo
 
 --- linux/arch/i386/kernel/head.S.orig	Fri Sep 20 17:20:16 2002
 +++ linux/arch/i386/kernel/head.S	Wed Sep 25 21:46:56 2002
@@ -338,8 +323,16 @@ and the patch, against BK-curr:
 +
 +#endif /* kallsyms.h */
 --- linux/include/linux/module.h.orig	Fri Sep 20 17:20:32 2002
-+++ linux/include/linux/module.h	Wed Sep 25 21:46:56 2002
-@@ -316,8 +316,6 @@
++++ linux/include/linux/module.h	Wed Sep 25 22:01:19 2002
+@@ -10,6 +10,7 @@
+ #include <linux/config.h>
+ #include <linux/spinlock.h>
+ #include <linux/list.h>
++#include <linux/errno.h>
+ 
+ #include <asm/atomic.h>
+ 
+@@ -316,8 +317,6 @@
  #define MOD_DEC_USE_COUNT	do { } while (0)
  #define MOD_IN_USE		1
  
@@ -348,7 +341,7 @@ and the patch, against BK-curr:
  #endif /* !__GENKSYMS__ */
  
  #endif /* MODULE */
-@@ -504,6 +502,30 @@
+@@ -504,6 +503,30 @@
  #define SET_MODULE_OWNER(some_struct) do { (some_struct)->owner = THIS_MODULE; } while (0)
  #else
  #define SET_MODULE_OWNER(some_struct) do { } while (0)

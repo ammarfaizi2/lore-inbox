@@ -1,50 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbUK2JmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbUK2Jni@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261643AbUK2JmN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 04:42:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbUK2JmM
+	id S261639AbUK2Jni (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 04:43:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUK2Jnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 04:42:12 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:58506 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261643AbUK2JmF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 04:42:05 -0500
-Date: Mon, 29 Nov 2004 10:41:52 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Manfred Spraul <manfred@colorfullife.com>, roland@redhat.com,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use pid_alive in proc_pid_status
-Message-ID: <20041129094152.GB7868@elte.hu>
-References: <41A9B589.1090005@colorfullife.com> <20041128222151.4d53fd14.akpm@osdl.org>
+	Mon, 29 Nov 2004 04:43:37 -0500
+Received: from baythorne.infradead.org ([81.187.226.107]:64906 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S261647AbUK2JnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 04:43:18 -0500
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+From: David Woodhouse <dwmw2@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
+       Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
+       hch@infradead.org, aoliva@redhat.com, linux-kernel@vger.kernel.org,
+       libc-hacker@sources.redhat.com
+In-Reply-To: <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org>
+References: <19865.1101395592@redhat.com>
+	 <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
+	 <1101406661.8191.9390.camel@hades.cambridge.redhat.com>
+	 <20041127032403.GB10536@kroah.com>
+	 <16810.24893.747522.656073@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1101721336.21273.6138.camel@baythorne.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041128222151.4d53fd14.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Mon, 29 Nov 2004 09:42:16 +0000
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2004-11-28 at 17:28 -0800, Linus Torvalds wrote:
+> In particular, any re-organization that breaks _existing_ uses is totally
+> pointless. If you break existing uses, you might as well _not_ re-
+> organize, since if you consider kernel headers to be purely kernel-
+> internal (like they should be, but hey, reality trumps any wishes we might 
+> have), then the current organization is perfectly fine.
 
-* Andrew Morton <akpm@osdl.org> wrote:
+Agreed, with the proviso that the inclusion of bitops.h, spinlock.h, and
+other kernel-private stuff like that should not be considered 'existing
+uses'. It's _already_ broken. It won't compile on some architectures,
+and will silently do the wrong thing on others. Causing the compile to
+fail consistently would be a _feature_.
 
-> >  +int pid_alive(struct task_struct *p)
-> >  +{
-> >  +	return p->pids[PIDTYPE_PID].nr != 0;
-> >  +}
-> 
-> Can we not simply test p->exit_state?  That's already done in quite a
-> few places and making things consistent would be nice.
+> So I think this whole discussion has been largely pointless. We undeniably
+> have existing users of kernel headers. That's just a fact.  If we break
+> them, it doesn't _matter_ how the kernel headers look, and then "existing
+> practice" is about as good an organization as anything, and breaking
+> things just to break things is not something I'm in the least interested
+> in. "Beauty"  comes secondary to "usefulness".
 
-as long as it's accessed from under the tasklist_lock, it ought to be
-fine to check for p->exit_state != EXIT_DEAD and dereference
-p->group_leader afterwards.
+Usefulness is what we're after. Preventing the naïve user from including
+spinlock.h and thinking that it'll give useful spinlocks would be
+useful.
 
-	Ingo
+I've lost track of the number of times things have broken because of
+incorrect use of kernel headers from userspace. That's what we're trying
+to fix -- by putting only the bits which are _supposed_ to be visible
+into files which userspace sees, where we know they define part of the
+userspace API and hence we can be extremely careful when editing them. 
+
+I don't think it makes sense at this point for us to bury our collective
+heads in the sand and pretend there isn't a problem here that's worth
+fixing.
+
+I agree that it should be obviously correct though -- and that's why
+we're trying to end up with a structure that in the first pass would
+give us in userspace essentially what we already have in the various
+glibc-kernheaders packages, but without the constant and unnecessary
+need for some poor sod to keep those up to date by hand.
+
+-- 
+dwmw2
+
+

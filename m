@@ -1,143 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272927AbTHKRw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 13:52:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272973AbTHKRuJ
+	id S272943AbTHKR7P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 13:59:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273031AbTHKR66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 13:50:09 -0400
-Received: from ip144-173-busy.ott.istop.com ([66.11.173.144]:45833 "EHLO
-	worf.vpn") by vger.kernel.org with ESMTP id S272974AbTHKRtk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 13:49:40 -0400
-Date: Mon, 11 Aug 2003 13:49:34 -0400
-From: Christian Mautner <linux@mautner.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4: Allocation of >1GB in one chunk
-Message-ID: <20030811174934.GA7569@mautner.ca>
+	Mon, 11 Aug 2003 13:58:58 -0400
+Received: from mail.convergence.de ([212.84.236.4]:21454 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S272963AbTHKR4p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 13:56:45 -0400
+Date: Mon, 11 Aug 2003 19:56:42 +0200
+From: Johannes Stezenbach <js@convergence.de>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: Flameeyes <dgp85@users.sourceforge.net>, Pavel Machek <pavel@suse.cz>,
+       Christoph Bartelmus <columbus@hit.handshake.de>,
+       LIRC list <lirc-list@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802
+Message-ID: <20030811175642.GC2053@convergence.de>
+Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
+	Gerd Knorr <kraxel@bytesex.org>,
+	Flameeyes <dgp85@users.sourceforge.net>,
+	Pavel Machek <pavel@suse.cz>,
+	Christoph Bartelmus <columbus@hit.handshake.de>,
+	LIRC list <lirc-list@lists.sourceforge.net>,
+	LKML <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+References: <1060616931.8472.22.camel@defiant.flameeyes> <20030811163913.GA16568@bytesex.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030811163913.GA16568@bytesex.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Gerd Knorr wrote:
+> 
+> > We can drop /dev/lirc*, and use input events with received codes, but I
+> > think that lircd is still needed to translate them into userland
+> > commands...
+> 
+> That translation isn't done by lircd, but by the lirc_client library.
+> This is no reason for keeping lircd as event dispatcher, the input layer
+> would do equally well (with liblirc_client picking up events from
+> /dev/input/event<x> instead of lircd).
 
-please forgive me to ask this (perhaps newbie?) question here on
-l-k, but I'm desperate. This is my problem:
+IMHO there's one problem:
 
-I am running various kinds of EDA software on 32-bit Linux, and they
-need substantial amounts of memory. I am running 2.4.21 with with
-PAGE_OFFSET at 0xc0000000, so I can run processes just over 3GB. The
-machine (a dual Xeon) has 4GB memory and 4GB swap.
+If a remote control has e.g. a "1" key this doesn't mean that a user
+wants a "1" to be written into your editor while editing source code.
+The "1" key on a remote control simply has a differnt _meaning_ than
+the "1" key on your keyboard -- depending of course on what the user
+thinks this key should mean.
 
-But there is this one program now that dies because it's out of
-memory. No surprise, as this happens frequently with tasks that would
-need 4GB or more.
+- users should be able to prevent remote keys from being fed into
+  the normal keyboard input queue; non lirc aware programs should
+  not recieve these events
+  (OTOH, if you use an IR keyboard...)
+- IR events should reach the applications independant of X keyboard
+  focus (well, maybe; the user should be able to decide)
 
-But this one needs less than 3GB. But what it does need (I strace'ed
-this), is 1.3GB in one whole chunk.
-
-I wrote a test program to mimic this:
-
-The attached program allocates argv[1] MB in 1MB chunks and argv[2] MB
-in one big chunk. (The original version also touched every page, but
-this makes no difference here.)
-
-[chm@trex7:~/C] ./foo 2500 500
-Will allocate 2621440000 bytes in 1MB chunks...
-Will allocate 524288000 bytes in one chunk...
-Succeeded.
-
-[chm@trex7:~/C] ./foo 1500 1000
-Will allocate 1572864000 bytes in 1MB chunks...
-Will allocate 1048576000 bytes in one chunk...
-malloc: Cannot allocate memory
-Out of memory.
-
-The first call allocated 3GB and succeeds, the second one only 2.5GB
-but fails!
-
-The thing that comes to my mind is memory fragmentation, but how could
-that be, with virtual memory? 
-
-rlimit is also unlimited (and it happens for root as well).
-
-Skimming through the kernel sources shows too many places where memory
-allocation could fail, unfortunately I don't know _where_ it fails. The
-machine is used for production, I cannot simply take it down and run a
-debugging kernel on it.
-
-I have played with /proc/sys/vm/overcommit_memory, to no avail.
-
-I have watched /proc/slabinfo, and /proc/sys/vm/* while
-allocating. Still no idea.
-
-Is there anything I can do to make this work?
-
-Grateful for any help or pointers,
-chm.
-
-PS: Will the behaviour be different in 2.6?
-
-----------------------------------------------------------------------
-This is my test program (the sleep(60) is there to be able to peek
-around in /proc after the memory has been allocated):
-
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-int main(int argc, char **argv)
-{
-  unsigned int i;
-  unsigned long n1=0;
-  unsigned long n2=0;
-  char * p;
-
-  if ( argc >= 2 )
-    {
-      n1=strtol(argv[1], 0, 10)*1024*1024;
-    }
-
-  if ( argc >= 3 )
-    {
-      n2=strtol(argv[2], 0, 10)*1024*1024;
-    }
-
-  fprintf(stderr, "Will allocate %lu bytes in 1MB chunks...\n", n1);
-
-  for(i=0; i<n1; i+=1024*1024)
-    {
-      p=(char*)malloc(1024*1024);
-      if ( p == 0 )
-        {
-          perror("malloc");
-          fprintf(stderr, "Out of memory (%d).\n", i);
-          sleep(60);
-          exit(1);
-        }
-    }      
-
-  fprintf(stderr, "Will allocate %lu bytes in one chunk...\n", n2);
-
-  p=(char*)malloc(n2);
-    
-  if ( p == 0 )
-    {
-        perror("malloc");
-        fprintf(stderr, "Out of memory.\n");
-        sleep(60);
-        exit(1);
-    }
-  
-  fprintf(stderr, "Succeeded.\n");
-
-  sleep(60);
-        
-  return 0;
-} 
+With the current input subsystem, the only possiblity is lircd
+grabbing the remote events with EVIOCGRAB, and passing them
+on to the applications.
 
 
--- 
-christian mautner -- chm bei istop punkt com -- ottawa, canada
+Johannes

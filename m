@@ -1,94 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261306AbTCTCnH>; Wed, 19 Mar 2003 21:43:07 -0500
+	id <S261307AbTCTCui>; Wed, 19 Mar 2003 21:50:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261307AbTCTCnG>; Wed, 19 Mar 2003 21:43:06 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:6107 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S261306AbTCTCnF> convert rfc822-to-8bit; Wed, 19 Mar 2003 21:43:05 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: P4 3.06Ghz Hyperthreading with 2.4.20?
-Date: Wed, 19 Mar 2003 18:53:54 -0800
-Message-ID: <3014AAAC8E0930438FD38EBF6DCEB564013393B7@fmsmsx407.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: P4 3.06Ghz Hyperthreading with 2.4.20?
-Thread-Index: AcLugQjl5Np7ACULRcykNlsSf8zmeQACW37wAABYeoA=
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "James Wright" <james@jigsawdezign.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 20 Mar 2003 02:53:54.0409 (UTC) FILETIME=[F1C83590:01C2EE8B]
+	id <S263184AbTCTCui>; Wed, 19 Mar 2003 21:50:38 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:24845 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id <S261307AbTCTCug>; Wed, 19 Mar 2003 21:50:36 -0500
+Date: Thu, 20 Mar 2003 12:01:36 +0900 (JST)
+Message-Id: <20030320.120136.108400165.yoshfuji@wide.ad.jp>
+To: davem@redhat.com
+Cc: dlstevens@us.ibm.com, kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [PATCH] anycast support for IPv6, updated to 2.5.44 
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@wide.ad.jp>
+In-Reply-To: <20030319.163105.44963500.davem@redhat.com>
+References: <OFC909BFEE.F581E26E-ON88256C60.0072A662@boulder.ibm.com>
+	<20030319.163105.44963500.davem@redhat.com>
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for the typo. APIC -> ACPI.
+In article <20030319.163105.44963500.davem@redhat.com> (at Wed, 19 Mar 2003 16:31:05 -0800 (PST)), "David S. Miller" <davem@redhat.com> says:
 
-> -----Original Message-----
-> From: Nakajima, Jun
-> Sent: Wednesday, March 19, 2003 6:51 PM
-> To: James Wright; linux-kernel@vger.kernel.org
-> Subject: RE: P4 3.06Ghz Hyperthreading with 2.4.20?
+>    From: "David Stevens" <dlstevens@us.ibm.com>
+>    Date: Mon, 28 Oct 2002 14:06:00 -0700
+>    
+>    Below is a patch to add anycast support for IPv6. It's the same patch as
+>    I've posted previously, but updated with comments from Chris Hellwig and
+>    for kernel version 2.5.44.
 > 
-> You need to apply the ACPI patch: http://sourceforge.net/projects/acpi and
-> *configure* APIC.
-> 
-> The 2.4 kernel depends on the MPS table for all but logical processors. If
-> MPS table is not present, it will fall back to UP.
-> 
-> Thanks,
-> Jun
-> 
-> > -----Original Message-----
-> > From: James Wright [mailto:james@jigsawdezign.com]
-> > Sent: Wednesday, March 19, 2003 5:34 PM
-> > To: linux-kernel@vger.kernel.org
-> > Subject: P4 3.06Ghz Hyperthreading with 2.4.20?
-> >
-> > Hello,
-> >
-> >    I have kernel 2.4.20 with a single P4 3.06Ghz CPU and Asus P4G8X
-> > motherboard
-> > (with the Intel E7205) Chipset. I have enabled Hyperthreading in the
-> BIOS
-> > options,
-> > compiled in SMP & ACPI support, and also tried adding "acpismp=force" to
-> > my lilo
-> > kernel cmdline, but it just doesn't seem to detect the second Logical
-> CPU.
-> > My
-> > current theory is that this is bcos Linux expects the motherboard to be
-> an
-> > SMP
-> > item (as with the Xeon boards) but this board is a Single processor
-> board,
-> > ansd
-> > doesn't have an MP table, but the cpu info is held in the ACPI
-> tables.?!?
-> >
-> > I have tried installing 2.5.65 but can't get past the compile due to
-> > compile-time
-> > errors... Is this a known problem? SHall i just disable Hyperthreading
-> > until a new
-> > kernel release?
-> >
-> >
-> > Thanks,
-> > James
-> >
-> >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> I'm going to apply this, with the small change that dev_getany() is
+> renamed to dev_get_by_flags() which more accurately describes
+> what the routine does.
+
+Again: I don't like API at all.
+
+Anycast address management itself in that patch would be ok.
+However, JOIN/LEAVE is NOT useful and userland application will be 
+incompatible with other implementation. (sigh...)
+I think linux likes unicast model (assign address like unicast address), too.
+
+And, we see __constant_{hton,ntoh}{l,h}() again...
+
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

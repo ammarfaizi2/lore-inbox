@@ -1,75 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbUKWDuX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262239AbUKVS4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262297AbUKWDuX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 22:50:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262243AbUKVS4T
+	id S262239AbUKVS4A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 13:56:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262243AbUKVSyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 13:56:19 -0500
-Received: from gw02.applegatebroadband.net ([207.55.227.2]:40431 "EHLO
-	data.mvista.com") by vger.kernel.org with ESMTP id S262297AbUKVSzt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 13:55:49 -0500
-Message-ID: <41A235E0.8050405@mvista.com>
-Date: Mon, 22 Nov 2004 10:54:24 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: Li Shaohua <shaohua.li@intel.com>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH]time run too fast after S3
-References: <1101114923.14572.8.camel@sli10-desk.sh.intel.com> <1101148405.6735.107.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1101148405.6735.107.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Nov 2004 13:54:05 -0500
+Received: from main.gmane.org ([80.91.229.2]:7863 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262158AbUKVSwn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 13:52:43 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: Kernel thoughts of a Linux user
+Date: Mon, 22 Nov 2004 19:52:33 +0100
+Message-ID: <yw1xhdnhyavi.fsf@ford.inprovide.com>
+References: <200411201131.12987.gjwucherpfennig@gmx.net> <20041121182952.GA26874@kroah.com>
+ <200411222233.45709.gjwucherpfennig@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:mZHFo19Y8gAynDgAnXAS+viztJM=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> On Mon, 2004-11-22 at 01:15, Li Shaohua wrote:
-> 
->>after resume from S3, 'date' shows time run too fast. Here is a patch.
-> 
-> [snip]
-> 
->>diff -puN arch/i386/kernel/time.c~wall_jiffies arch/i386/kernel/time.c
->>--- 2.6/arch/i386/kernel/time.c~wall_jiffies	2004-11-22 17:04:42.720038352 +0800
->>+++ 2.6-root/arch/i386/kernel/time.c	2004-11-22 17:06:21.373040816 +0800
->>@@ -343,12 +343,13 @@ static int timer_resume(struct sys_devic
->> 		hpet_reenable();
->> #endif
->> 	sec = get_cmos_time() + clock_cmos_diff;
->>-	sleep_length = get_cmos_time() - sleep_start;
->>+	sleep_length = (get_cmos_time() - sleep_start) * HZ;
->> 	write_seqlock_irqsave(&xtime_lock, flags);
->> 	xtime.tv_sec = sec;
->> 	xtime.tv_nsec = 0;
->> 	write_sequnlock_irqrestore(&xtime_lock, flags);
->>-	jiffies += sleep_length * HZ;
->>+	jiffies += sleep_length;
->>+	wall_jiffies += sleep_length;
->> 	return 0;
->> }
-> 
-> 
-> I'm not all that familiar w/ the suspend code, but yea, this looks like
-> an improvement.  The previous code was wrong because they are setting
-> xtime themselves, and then updating only jiffies. At the next timer
-> interrupt, the difference between jiffies and wall_jiffies would then be
-> added to xtime again. 
-> 
-> Why they don't just use do_settimeofday() for all of this is a mystery
-> to me. Are we wanting to pretend timer ticks arrived while we were
-> suspended?
+"Gerold J. Wucherpfennig" <gjwucherpfennig@gmx.net> writes:
 
-I think that this way the uptime and start times of init and friends will be 
-much more correct.  settimeofday() would move those around.  So, the short 
-answer is, yes.
+> I'm a stupid idiot, but I'm sure that the sysfs and hal thing still has to
+> mature for a few years. Just imagine such things like listing all
+> available modem devices. Listing /sys/class/tty/*/dev without
+> the virtual consoles just isn't enough.
+
+How would you know what's connected to a serial port?  There's
+absolutely no way to tell whether it's a modem or something else, at
+least no way that should be attempted inside the kernel.  Manually
+checking if there's a modem can be as simple as sending some harmless
+AT commands, and check for reasonable replies.  The problem is that
+nobody knows what these commands might do to some other device.
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Måns Rullgård
+mru@inprovide.com
 

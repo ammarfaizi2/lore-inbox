@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264731AbUFPUUx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264728AbUFPUUZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264731AbUFPUUx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 16:20:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264733AbUFPUUx
+	id S264728AbUFPUUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 16:20:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264731AbUFPUUZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 16:20:53 -0400
-Received: from web60906.mail.yahoo.com ([216.155.196.82]:25991 "HELO
-	web60906.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264731AbUFPUUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 16:20:50 -0400
-Message-ID: <20040616202050.37641.qmail@web60906.mail.yahoo.com>
-Date: Wed, 16 Jun 2004 13:20:50 -0700 (PDT)
-From: Brian Gao <bgaolinux@yahoo.com>
-Subject: Kernel 32 group limitation
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Wed, 16 Jun 2004 16:20:25 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:11935 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S264728AbUFPUUY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 16:20:24 -0400
+Date: Wed, 16 Jun 2004 21:20:23 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Dirk Jagdmann <doj@cubic.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE Auto-Geometry Resizing support missing in 2.6.7?
+Message-ID: <20040616202023.GA19123@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Dirk Jagdmann <doj@cubic.org>, linux-kernel@vger.kernel.org
+References: <40D0AA07.7010806@cubic.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40D0AA07.7010806@cubic.org>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Jun 16, 2004 at 10:13:59PM +0200, Dirk Jagdmann wrote:
+> Hello Kernel Developers,
+> 
+> I have just updated from 2.6.6 to 2.6.7. I need to use the IDE 
+> Auto-Geometry Resizing support on my system (CONFIG_IDEDISK_STROKE). The 
+> corresponding configuration option however was removed in 2.6.7 along 
+> with the define in the .config file. Thus when booting my hard disks are 
+> not properly detected (only with the clipped capacity).
+> 
+> Was the removal of this option intentional? Was the option renamed or moved?
 
-We are runing Redhat Enterprise Linux AS 2.1 ( kernel
-2.4.9-e.40) on a 
-Dell 2650 box. There is a need in our application for
-a user to belong 
-to more than 32 groups. Is there a way to recompile
-the kernel to 
-support more than 32 supplementary groups ? 
- 
-I'm not a subscriber of the mailing list. Please CC me
-your 
-answers/comments posted to the list. Any help would be
-greatly appreciated.
- 
-Brian Gao 
+You need to boot with hdX=stroke now.  I had a patch first that allowed both
+run- an compiletime selection but Bart wanted the option to be removed.
 
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

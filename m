@@ -1,68 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136494AbREDUFs>; Fri, 4 May 2001 16:05:48 -0400
+	id <S136497AbREDUJi>; Fri, 4 May 2001 16:09:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136497AbREDUFi>; Fri, 4 May 2001 16:05:38 -0400
-Received: from [136.159.55.21] ([136.159.55.21]:23941 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S136494AbREDUF3>; Fri, 4 May 2001 16:05:29 -0400
-Date: Fri, 4 May 2001 14:04:20 -0600
-Message-Id: <200105042004.f44K4KB12214@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, volodya@mindspring.com,
-        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-In-Reply-To: <Pine.GSO.4.21.0105041539360.21896-100000@weyl.math.psu.edu>
-In-Reply-To: <200105041936.f44JaVY11944@vindaloo.ras.ucalgary.ca>
-	<Pine.GSO.4.21.0105041539360.21896-100000@weyl.math.psu.edu>
+	id <S136499AbREDUJ2>; Fri, 4 May 2001 16:09:28 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:45318
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S136497AbREDUJP>; Fri, 4 May 2001 16:09:15 -0400
+Date: Fri, 04 May 2001 16:08:22 -0400
+From: Chris Mason <mason@suse.com>
+To: Andreas Dilger <adilger@turbolinux.com>
+cc: Linux kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Maximum files per Directory
+Message-ID: <392230000.989006902@tiny>
+In-Reply-To: <200105041915.f44JFNeM024068@webber.adilger.int>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> 
-> 
-> On Fri, 4 May 2001, Richard Gooch wrote:
-> 
-> > I don't bother splitting /usr off /. I gave up doing that when disc
-> > became cheap. There's no point anymore. And since I have a lightweight
-> 
-> Yes, there is. Locality. Resistance to fs fuckups. Resistance to
-> disk fuckups. Easier to restore from tape. Different tunefs optimum
-> (higher inodes/blocks ratio, for one thing). Ability to keep /usr
-> read-only.  Enough?
 
-The correct solution to avoiding fs fuckups is to keep /tmp, /var and
-/home separate. Basically, anything that gets written to for reasons
-other than sysadmin/upgrades.
 
-However, my point is not that it's always a bad idea to split /usr,
-simply that the converse is not true. IOW, it is not true to say that
-/usr *should* be split off. For a generic workstation, splitting /usr
-is not useful. Importantly, it is most certainly entirely valid to
-keep /usr on /.
+On Friday, May 04, 2001 01:15:22 PM -0600 Andreas Dilger
+<adilger@turbolinux.com> wrote:
 
-> > distribution (500 MiB and I get X, LaTeX, emacs, compilers, netscrap
-> > and a pile of other things), it makes even less sense to split /usr
-> > off. Sorry, I don't have those fancy desktops. Don't need 'em. I spend
-> > most of my day in emacs and xterm.
+> Chris writes:
+>> On Tuesday, May 01, 2001 04:57:02 PM -0600 Andreas Dilger
+>> <adilger@turbolinux.com> wrote:
+>> > I see that reiserfs plays some tricks with the directory i_nlink count.
+>> > If you exceed 64536 links in a directory, it reverts to "1" and no
+>> > longer tracks the link count.
+>> 
+>> Correct.  The link count isn't used at all when deciding if the directory
+>> is empty (we use the size instead), so we can just lie to VFS if someone
+>> tries to make tons of subdirs.
 > 
-> What desktops? None of that crap on my boxen either. EMACS? What EMACS?
-> LaTeX is unfortunately needed (I prefer troff and AMSTeX on the TeX side).
-> Netrape? No chance in hell. bash <spit> is there, but I prefer to use
-> rc.
+> For that matter, ext2 doesn't use the link count on directories to
+> determine if they are empty either, so it shouldn't be too hard to do the
+> same with the ext2 indexed-directory code.  Is there a reason that
+> reiserfs chose to have "large number of directories" represented by "1"
+> and not "LINK_MAX+1"?
 > 
-> I don't see what does it have to keeping root on a separate
-> filesystem, though - the reasons have nothing to bloat in /usr/bin.
 
-In any case, my point is that splitting /usr wouldn't help, because
-I'd want to preload stuff from there as well. Splitting /usr doesn't
-address the problem.
+find and a few others consider a link count of 1 to mean there is no link
+count tracking being done.
 
-				Regards,
+-chris
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

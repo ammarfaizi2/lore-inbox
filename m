@@ -1,30 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263101AbSJBOoS>; Wed, 2 Oct 2002 10:44:18 -0400
+	id <S263090AbSJBOiS>; Wed, 2 Oct 2002 10:38:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263105AbSJBOoR>; Wed, 2 Oct 2002 10:44:17 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:59077 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S263101AbSJBOoR>; Wed, 2 Oct 2002 10:44:17 -0400
-Date: Wed, 2 Oct 2002 10:49:41 -0400 (EDT)
-From: Bill Davidsen <bill@tmr.com>
-Reply-To: <davidsen@tmr.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [BUG] 2.5.40 - aha142x won't build as module
-Message-ID: <Pine.LNX.4.33.0210021043570.1333-100000@iccarus.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263101AbSJBOiS>; Wed, 2 Oct 2002 10:38:18 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:62199 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S263090AbSJBOiR>;
+	Wed, 2 Oct 2002 10:38:17 -0400
+Subject: [Trivial 2.5 patch] ips.c remove tqueue.h
+From: Paul Larson <plars@linuxtestproject.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 02 Oct 2002 09:39:45 -0500
+Message-Id: <1033569586.28106.3.camel@plars>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also "make menuconfig" has errors and won't change the module to built-in.
-And got missing symbols in ipt_owner with no aha152x support in the
-kernel.
+The ips.c driver wasn't compiling and broke my nightly run last night. 
+It doesn't look like they were even using task queues though, so
+removing the include fixed it.  Tested that it compiles and boots with
+this.
 
-Also tried -mm1, same problems.
+Please apply.
 
-I barely have time to test kernels this fall when they will compile, so
-don't expect any quick fixes from me, I just got 2.5.38-mm2 to boot.
--- 
-bill on a temporary machine... <davidsen@tmr.com>
+-Paul Larson
+
+--- linux-2.5/drivers/scsi/ips.c	Thu Aug 22 12:02:43 2002
++++ linux-ipswq/drivers/scsi/ips.c	Wed Oct  2 10:00:50 2002
+@@ -164,7 +164,6 @@
+ #include <linux/pci.h>
+ #include <linux/proc_fs.h>
+ #include <linux/reboot.h>
+-#include <linux/tqueue.h>
+ #include <linux/interrupt.h>
+ 
+ #include <linux/blk.h>
+
+
 

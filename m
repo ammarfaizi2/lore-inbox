@@ -1,49 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268909AbRG0RoL>; Fri, 27 Jul 2001 13:44:11 -0400
+	id <S268893AbRG0Rrj>; Fri, 27 Jul 2001 13:47:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268912AbRG0Rn7>; Fri, 27 Jul 2001 13:43:59 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:5871 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S268909AbRG0Rn4>; Fri, 27 Jul 2001 13:43:56 -0400
-Date: Fri, 27 Jul 2001 20:43:50 +0300
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Kip Macy <kmacy@netapp.com>, kernel <linux-kernel@vger.kernel.org>
+	id <S268912AbRG0Rr3>; Fri, 27 Jul 2001 13:47:29 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:46086 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S268893AbRG0RrZ>; Fri, 27 Jul 2001 13:47:25 -0400
+Message-ID: <3B61A8A3.72EC132F@namesys.com>
+Date: Fri, 27 Jul 2001 21:45:07 +0400
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, ru
+MIME-Version: 1.0
+To: Andrew Morton <akpm@zip.com.au>
+CC: Joshua Schmidlkofer <menion@srci.iwpsd.org>,
+        kernel <linux-kernel@vger.kernel.org>, Chris Mason <mason@suse.com>,
+        "Gryaznova E." <grev@namesys.botik.ru>,
+        "Vladimir V. Saveliev" <monstr@namesys.com>
 Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-Message-ID: <20010727204350.L1419@niksula.cs.hut.fi>
-In-Reply-To: <20010727202950.I1503@niksula.cs.hut.fi> <E15QBbE-00068M-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15QBbE-00068M-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jul 27, 2001 at 06:40:32PM +0100
+In-Reply-To: <Pine.LNX.4.33.0107271515200.10139-100000@devel.blackstar.nl>,
+						<Pine.LNX.4.33.0107271515200.10139-100000@devel.blackstar.nl> <0107270818120A.06707@widmers.oce.srci.oce.int> <3B619956.6AA072F9@zip.com.au> <3B619D63.9989F9F@namesys.com> <3B61A4A5.41E7B891@zip.com.au>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Fri, Jul 27, 2001 at 06:40:32PM +0100, you [Alan Cox] claimed:
-> > After fresh boot to the default RH71 kernel (2.4.2-2 or whatever it is) on
-> > console (no X running):
-> > 
-> > > diff -Naur /usr/src/linux.rh-default /usr/src/linux-2.4.4 > diff
-> > zsh: killed diff
-> > 
-> > > dmesg | tail
-> > kernel: out of memory, killed process n (xfs)
-> > kernel: out of memory, killed process n (diff)
-> > 
-> > Phew.
+Andrew Morton wrote:
 > 
-> No argument on that one. I'm still seeing it in vanilla 2.4.6 as well but
-> 2.4.7 is looking a lot better. 
+> Hans Reiser wrote:
+> >
+> > Andrew, can you do this such that there is no disruption of our
+> > disk format, and make a mount option
+> > out of it, and probably we should use this patch....
+> 
+> I'll defer to Chris :)
 
-I wasn't able to easily reproduce that on 2.4.4ac5 (that I upgraded into
-almost immediately). It may be that the OOM rambo wasn't fully sane on that
-one either, but at least it seemed to handle the silly "someone filled the
-cache - gee, we must be oom" case rather better...
+Yes, I'll let him think carefully through the details of how it affects ordering of the writes.
 
 
--- v --
+> 
+> There's no disruption to disk format - it just simulates
+> the user typing `sync' at the right time.  I think the
+> concept is sound, and I'm sure Chris can find a more efficient
+> way...
 
-v@iki.fi
+Oops, sorry, you changed the in-ram not the on-disk sb....
+
+> 
+> > After you make a mount option out of it, grev will benchmark
+> > it for us using the usual suite of benchmarks.
+> >
+> 
+> Ordered-data is a funny thing.  Under heavy loads it tends
+> to make a significant throughput difference - on ext3 it
+> almost halves throughput wrt writeback mode.
+> 
+> But this by no means indicates that writes are half as slow;
+> what happens is that metadata-intensive workloads fill the
+> journal up quickly, so the `sync' happens more frequently.
+> Under normal workloads, or less metadata-intense workloads
+> the difference is very small.
+> 
+> During testing of that little patch I noted that the
+> disk went crunch every thirty seconds or so, which is good.
+> Presumably the reiserfs journal is larger, or more space-efficient.
+> 
+> -
+
+Thanks Andrew

@@ -1,62 +1,131 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129184AbRBUQsp>; Wed, 21 Feb 2001 11:48:45 -0500
+	id <S129453AbRBUQsQ>; Wed, 21 Feb 2001 11:48:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129691AbRBUQsh>; Wed, 21 Feb 2001 11:48:37 -0500
-Received: from [200.43.18.234] ([200.43.18.234]:8452 "EHLO
-	radius.telpin.com.ar") by vger.kernel.org with ESMTP
-	id <S129184AbRBUQsU>; Wed, 21 Feb 2001 11:48:20 -0500
-To: Brian Gerst <bgerst@didntduck.org>
-Subject: Re: "Unable to handle kernel paging request" x 3
-Message-ID: <982774041.3a93f1191add3@webmail.telpin.com.ar>
-Date: Wed, 21 Feb 2001 13:47:21 -0300 (ARST)
-From: Alberto Bertogli <albertogli@telpin.com.ar>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <982763791.3a93c90f0c35c@webmail.telpin.com.ar> <3A93E2E6.F6FD4602@didntduck.org>
-In-Reply-To: <3A93E2E6.F6FD4602@didntduck.org>
+	id <S129691AbRBUQsF>; Wed, 21 Feb 2001 11:48:05 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:24416 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129184AbRBUQrx>; Wed, 21 Feb 2001 11:47:53 -0500
+Date: Wed, 21 Feb 2001 10:47:51 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+cc: Zeljko Stevanovic <zsteva@kernel.net>,
+        root <Andrew.Price@pricea.madasafish.com>,
+        Martin Braun <braun@itwm.fhg.de>, Martin Greco <msgreco@sinectis.com>,
+        Jon Noble <jon.noble@euskalnet.net>,
+        Gerriet Backer <backer@informatik.uni-hamburg.de>,
+        kgroombr@users.sourceforge.net, Rick Kennell <kennell@ecn.purdue.edu>
+Subject: PATCH: Via audio rate lock, for testing
+Message-ID: <Pine.LNX.3.96.1010221104452.13788P-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Brian Gerst <bgerst@didntduck.org>:
+Can you guys test this patch, and let me know if it fixes Via audio
+problems on your kernel?
 
-> 
-> This one just looks really odd.  I can't figure out where the faulting
-> address (0x00009fac) is coming from.  It's not from the ret
-> instruction,
-> which should be getting a valid return address off the stack.  Do you
-> still have the raw oops message (before sending it through ksymoops)?
-> 
+It should apply against 2.4.1 or 2.4.1-acXX kernels.  Note that it
+should be applied with "patch -p0" while in the linux kernel source
+directory, not applied with "patch -p1".
 
-Yes, this is the original oops, copied by hand.
-The virtual address is very different from the other two.. I'll see tomorrow if 
-there is a 4th oops.
+Regards,
 
-Unable to handle kernel paging request at virtual address 00009fac
-*pde = 00000000
-CPU:    1
-EIP:    0010:[<c01071ec>]
-EFLAGS: 00010246
-eax: 00000000  ebx: c01071c0  ecx: c1228000  edx: c1228000
-esi: c1228000  edi: c01071c0  ebp: 00000000  esp: c1229bf0
-ds: 0018  es: 0018 ss: 0018
-Process swapper (pid: 0, stackpage=c1229000)
-Stack: c010724e 00000000 00000000 00000000 c037d886 0000002b 00000000 c024126d
-       00000000 00000006 00000007 00000000 00000000 c03e8a40 0000c000 c01e771e
-       c1223000 00000001 00000000 00000000
-Call trace: [<c010724e>] [<c024126d>] [<c01e771e>]
+	Jeff
 
-Code: c3 8d 76 00 fb c3 89 f6 fb ba 00 e0 ff ff 21 e2 b8 ff ff ff
-Kernel panic: Attemped to kill the idle task!
-In idle task - not syncing
 
-This last line doesn't appear on the ksymoops report, i really dont know why it 
-insists on cutting it.
 
-Thanks a lot,
-        Alberto
 
+Index: drivers/sound/via82cxxx_audio.c
+===================================================================
+RCS file: /cvsroot/gkernel/linux_2_4/drivers/sound/via82cxxx_audio.c,v
+retrieving revision 1.1.1.13.22.1
+diff -u -r1.1.1.13.22.1 via82cxxx_audio.c
+--- drivers/sound/via82cxxx_audio.c	2001/02/18 23:58:28	1.1.1.13.22.1
++++ drivers/sound/via82cxxx_audio.c	2001/02/21 16:36:23
+@@ -281,6 +281,8 @@
+ 
+ 	int dev_dsp;		/* /dev/dsp index from register_sound_dsp() */
+ 
++	int locked_rate : 1;
++
+ 	struct semaphore syscall_sem;
+ 	struct semaphore open_sem;
+ 
+@@ -503,10 +505,16 @@
+ static int via_set_rate (struct ac97_codec *ac97,
+ 			 struct via_channel *chan, unsigned rate)
+ {
++	struct via_info *card = ac97->private_data;
+ 	int rate_reg;
+ 
+ 	DPRINTK ("ENTER, rate = %d\n", rate);
+ 
++	if (card->locked_rate) {
++		chan->rate = 48000;
++		goto out;
++	}
++
+ 	if (rate > 48000)		rate = 48000;
+ 	if (rate < 4000) 		rate = 4000;
+ 
+@@ -530,6 +538,13 @@
+ 	 */
+ 	chan->rate = via_ac97_read_reg (ac97, rate_reg);
+ 
++	if (chan->rate == 0) {
++		card->locked_rate = 1;
++		chan->rate = 48000;
++		printk (KERN_WARNING PFX "Codec rate locked at 48Khz\n");
++	}
++
++out:
+ 	DPRINTK ("EXIT, returning rate %d Hz\n", chan->rate);
+ 	return chan->rate;
+ }
+@@ -1438,7 +1453,7 @@
+  *	via_ac97_reset - Reset Via AC97 hardware
+  *	@card: Private info for specified board
+  *
+- *	Reset Via AC97 hardware.
++ *	Reset Via AC97 codec, controller, and hardware.
+  */
+ 
+ static int __init via_ac97_reset (struct via_info *card)
+@@ -1512,8 +1527,8 @@
+ 	 */
+ 
+ 	/* enable variable rate, variable rate MIC ADC */
+-	tmp16 = via_ac97_read_reg (&card->ac97, 0x2A);
+-	via_ac97_write_reg (&card->ac97, 0x2A, tmp16 | (1<<0));
++	tmp16 = via_ac97_read_reg (&card->ac97, AC97_EXTENDED_STATUS);
++	via_ac97_write_reg (&card->ac97, AC97_EXTENDED_STATUS, tmp16 | 1);
+ 
+ 	pci_read_config_byte (pdev, VIA_ACLINK_CTRL, &tmp8);
+ 	if ((tmp8 & (VIA_CR41_AC97_ENABLE | VIA_CR41_AC97_RESET)) == 0) {
+@@ -1588,8 +1603,22 @@
+ 	}
+ 
+ 	/* enable variable rate, variable rate MIC ADC */
+-	tmp16 = via_ac97_read_reg (&card->ac97, 0x2A);
+-	via_ac97_write_reg (&card->ac97, 0x2A, tmp16 | (1<<0));
++	tmp16 = via_ac97_read_reg (&card->ac97, AC97_EXTENDED_STATUS);
++	via_ac97_write_reg (&card->ac97, AC97_EXTENDED_STATUS, tmp16 | 1);
++
++	/*
++	 * If we cannot enable VRA, we have a locked-rate codec.
++	 * We try again to enable VRA before assuming so, however.
++	 */
++	tmp16 = via_ac97_read_reg (&card->ac97, AC97_EXTENDED_STATUS);
++	if ((tmp16 & 1) == 0) {
++		via_ac97_write_reg (&card->ac97, AC97_EXTENDED_STATUS, tmp16 | 1);
++		tmp16 = via_ac97_read_reg (&card->ac97, AC97_EXTENDED_STATUS);
++		if ((tmp16 & 1) == 0) {
++			card->locked_rate = 1;
++			printk (KERN_WARNING PFX "Codec rate locked at 48Khz\n");
++		}
++	}
+ 
+ 	DPRINTK ("EXIT, returning 0\n");
+ 	return 0;
 

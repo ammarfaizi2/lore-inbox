@@ -1,203 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282198AbRK1Xsx>; Wed, 28 Nov 2001 18:48:53 -0500
+	id <S282206AbRK1Xvx>; Wed, 28 Nov 2001 18:51:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282199AbRK1Xsn>; Wed, 28 Nov 2001 18:48:43 -0500
-Received: from zero.tech9.net ([209.61.188.187]:47370 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S282198AbRK1Xs2>;
-	Wed, 28 Nov 2001 18:48:28 -0500
-Subject: Re: Linux 2.4.17-pre1
+	id <S282205AbRK1Xvq>; Wed, 28 Nov 2001 18:51:46 -0500
+Received: from zero.tech9.net ([209.61.188.187]:48394 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S282192AbRK1Xui>;
+	Wed, 28 Nov 2001 18:50:38 -0500
+Subject: Re: [PATCH] remove BKL from drivers' release functions
 From: Robert Love <rml@tech9.net>
-To: marcelo@conectiva.com.br, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
-In-Reply-To: <E169EIY-0006UI-00@the-village.bc.nu>
-In-Reply-To: <E169EIY-0006UI-00@the-village.bc.nu>
+To: "David C. Hansen" <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C05767F.7050304@us.ibm.com>
+In-Reply-To: <200111282305.fASN5ap02626@localhost.localdomain>
+	<3C057358.95C181A5@zip.com.au>  <3C05767F.7050304@us.ibm.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 28 Nov 2001 18:48:13 -0500
-Message-Id: <1006991294.813.0.camel@phantasy>
+Date: 28 Nov 2001 18:50:41 -0500
+Message-Id: <1006991442.817.4.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-11-28 at 18:39, Alan Cox wrote:
-> > use "BSD without advertising clause", which causes the kernel to be
-> > tainted. Shouldn't fs/nls/*.c use "Dual BSD/GPL" or "GPL" instead?
-> 
-> Dual BSD/GPL is the correct one.  Not a big issue. Since the GPL allows
-> stuff to be freer than GPL but still GPL its arguably correct too I
-> suspect
+On Wed, 2001-11-28 at 18:42, David C. Hansen wrote:
 
-I was waiting for confirmation about the license status...without
-getting into what license is correct and legal, the current
-MODULE_LICENSE value taints the kernel.  The attached patch switches to
-Dual BSD/GPL.
+> Whoops.   Here's another patch to throw on top of the first one.
 
-Marcelo, please apply.
+You guys still looking to make global spinlocks static (i.e. not moving
+to finer-grained locking but just making sure local locks are properly
+static) ?
+
+My tree has some work to this effect, perhaps I can toss you a patch ...
 
 	Robert Love
 
-diff -urN linux-2.4.17-pre1/fs/nls/nls_cp1251.c linux/fs/nls/nls_cp1251.c
---- linux-2.4.17-pre1/fs/nls/nls_cp1251.c	Wed Nov 28 15:15:10 2001
-+++ linux/fs/nls/nls_cp1251.c	Wed Nov 28 18:41:14 2001
-@@ -315,4 +315,4 @@
-  * c-continued-brace-offset: 0
-  * End:
-  */
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
-diff -urN linux-2.4.17-pre1/fs/nls/nls_cp1255.c linux/fs/nls/nls_cp1255.c
---- linux-2.4.17-pre1/fs/nls/nls_cp1255.c	Wed Nov 28 15:15:10 2001
-+++ linux/fs/nls/nls_cp1255.c	Wed Nov 28 18:41:29 2001
-@@ -396,4 +396,4 @@
-  * c-continued-brace-offset: 0
-  * End:
-  */
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
-diff -urN linux-2.4.17-pre1/fs/nls/nls_cp437.c linux/fs/nls/nls_cp437.c
---- linux-2.4.17-pre1/fs/nls/nls_cp437.c	Wed Nov 28 15:15:09 2001
-+++ linux/fs/nls/nls_cp437.c	Wed Nov 28 18:41:40 2001
-@@ -401,4 +401,4 @@
-  * c-continued-brace-offset: 0
-  * End:
-  */
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
-diff -urN linux-2.4.17-pre1/fs/nls/nls_cp737.c linux/fs/nls/nls_cp737.c
---- linux-2.4.17-pre1/fs/nls/nls_cp737.c	Wed Nov 28 15:15:09 2001
-+++ linux/fs/nls/nls_cp737.c	Wed Nov 28 18:41:50 2001
-@@ -364,4 +364,4 @@
-  * c-continued-brace-offset: 0
-  * End:
-  */
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
-diff -urN linux-2.4.17-pre1/fs/nls/nls_cp775.c linux/fs/nls/nls_cp775.c
---- linux-2.4.17-pre1/fs/nls/nls_cp775.c	Wed Nov 28 15:15:09 2001
-+++ linux/fs/nls/nls_cp775.c	Wed Nov 28 18:42:00 2001
-@@ -333,4 +333,4 @@
-  * c-continued-brace-offset: 0
-  * End:
-  */
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
-diff -urN linux-2.4.17-pre1/fs/nls/nls_cp850.c linux/fs/nls/nls_cp850.c
---- linux-2.4.17-pre1/fs/nls/nls_cp850.c	Wed Nov 28 15:15:09 2001
-+++ linux/fs/nls/nls_cp850.c	Wed Nov 28 18:42:10 2001
-@@ -329,4 +329,4 @@
-  * c-continued-brace-offset: 0
-  * End:
-  */
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
-diff -urN linux-2.4.17-pre1/fs/nls/nls_cp852.c linux/fs/nls/nls_cp852.c
---- linux-2.4.17-pre1/fs/nls/nls_cp852.c	Wed Nov 28 15:15:09 2001
-+++ linux/fs/nls/nls_cp852.c	Wed Nov 28 18:42:22 2001
-@@ -351,4 +351,4 @@
-  * c-continued-brace-offset: 0
-  * End:
-  */
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
-diff -urN linux-2.4.17-pre1/fs/nls/nls_cp855.c linux/fs/nls/nls_cp855.c
---- linux-2.4.17-pre1/fs/nls/nls_cp855.c	Wed Nov 28 15:15:09 2001
-+++ linux/fs/nls/nls_cp855.c	Wed Nov 28 18:42:34 2001
-@@ -313,4 +313,4 @@
-  * c-continued-brace-offset: 0
-  * End:
-  */
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
-diff -urN linux-2.4.17-pre1/fs/nls/nls_cp857.c linux/fs/nls/nls_cp857.c
---- linux-2.4.17-pre1/fs/nls/nls_cp857.c	Wed Nov 28 15:15:09 2001
-+++ linux/fs/nls/nls_cp857.c	Wed Nov 28 18:43:07 2001
-@@ -315,4 +315,4 @@
-  * c-continued-brace-offset: 0
-  * End:
-  */
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
-diff -urN linux-2.4.17-pre1/fs/nls/nls_cp860.c linux/fs/nls/nls_cp860.c
---- linux-2.4.17-pre1/fs/nls/nls_cp860.c	Wed Nov 28 15:15:09 2001
-+++ linux/fs/nls/nls_cp860.c	Wed Nov 28 18:45:14 2001
-@@ -378,4 +378,4 @@
-  * c-continued-brace-offset: 0
-  * End:
-  */
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
-diff -urN linux-2.4.17-pre1/fs/nls/nls_cp861.c linux/fs/nls/nls_cp861.c
---- linux-2.4.17-pre1/fs/nls/nls_cp861.c	Wed Nov 28 15:15:09 2001
-+++ linux/fs/nls/nls_cp861.c	Wed Nov 28 18:43:42 2001
-@@ -401,4 +401,4 @@
-  * c-continued-brace-offset: 0
-  * End:
-  */
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
-diff -urN linux-2.4.17-pre1/fs/nls/nls_cp862.c linux/fs/nls/nls_cp862.c
---- linux-2.4.17-pre1/fs/nls/nls_cp862.c	Wed Nov 28 15:15:09 2001
-+++ linux/fs/nls/nls_cp862.c	Wed Nov 28 18:43:50 2001
-@@ -435,4 +435,4 @@
-  * c-continued-brace-offset: 0
-  * End:
-  */
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
-diff -urN linux-2.4.17-pre1/fs/nls/nls_cp863.c linux/fs/nls/nls_cp863.c
---- linux-2.4.17-pre1/fs/nls/nls_cp863.c	Wed Nov 28 15:15:09 2001
-+++ linux/fs/nls/nls_cp863.c	Wed Nov 28 18:43:59 2001
-@@ -395,4 +395,4 @@
-  * c-continued-brace-offset: 0
-  * End:
-  */
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
-diff -urN linux-2.4.17-pre1/fs/nls/nls_cp864.c linux/fs/nls/nls_cp864.c
---- linux-2.4.17-pre1/fs/nls/nls_cp864.c	Wed Nov 28 15:15:09 2001
-+++ linux/fs/nls/nls_cp864.c	Wed Nov 28 18:44:07 2001
-@@ -421,4 +421,4 @@
-  * c-continued-brace-offset: 0
-  * End:
-  */
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
-diff -urN linux-2.4.17-pre1/fs/nls/nls_cp865.c linux/fs/nls/nls_cp865.c
---- linux-2.4.17-pre1/fs/nls/nls_cp865.c	Wed Nov 28 15:15:09 2001
-+++ linux/fs/nls/nls_cp865.c	Wed Nov 28 18:44:16 2001
-@@ -401,4 +401,4 @@
-  * c-continued-brace-offset: 0
-  * End:
-  */
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
-diff -urN linux-2.4.17-pre1/fs/nls/nls_cp866.c linux/fs/nls/nls_cp866.c
---- linux-2.4.17-pre1/fs/nls/nls_cp866.c	Wed Nov 28 15:15:09 2001
-+++ linux/fs/nls/nls_cp866.c	Wed Nov 28 18:44:36 2001
-@@ -319,4 +319,4 @@
-  * c-continued-brace-offset: 0
-  * End:
-  */
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
-diff -urN linux-2.4.17-pre1/fs/nls/nls_cp869.c linux/fs/nls/nls_cp869.c
---- linux-2.4.17-pre1/fs/nls/nls_cp869.c	Wed Nov 28 15:15:09 2001
-+++ linux/fs/nls/nls_cp869.c	Wed Nov 28 18:44:43 2001
-@@ -329,4 +329,4 @@
-  * c-continued-brace-offset: 0
-  * End:
-  */
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
-diff -urN linux-2.4.17-pre1/fs/nls/nls_cp874.c linux/fs/nls/nls_cp874.c
---- linux-2.4.17-pre1/fs/nls/nls_cp874.c	Wed Nov 28 15:15:09 2001
-+++ linux/fs/nls/nls_cp874.c	Wed Nov 28 18:44:51 2001
-@@ -287,4 +287,4 @@
-  * c-continued-brace-offset: 0
-  * End:
-  */
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
+
 

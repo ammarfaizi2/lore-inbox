@@ -1,101 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbULAF0F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbULAFbi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbULAF0F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 00:26:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbULAF0E
+	id S261189AbULAFbi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 00:31:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbULAFbi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 00:26:04 -0500
-Received: from ozlabs.org ([203.10.76.45]:1445 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261183AbULAFZ2 (ORCPT
+	Wed, 1 Dec 2004 00:31:38 -0500
+Received: from ems.hclinsys.com ([203.90.70.242]:64527 "EHLO ems.hclinsys.com")
+	by vger.kernel.org with ESMTP id S261189AbULAFbh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 00:25:28 -0500
-Subject: [PATCH] Remove netfilter warnings on copy_to_user
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Netfilter development mailing list 
-	<netfilter-devel@lists.netfilter.org>
+	Wed, 1 Dec 2004 00:31:37 -0500
+Subject: Query regarding current macro
+From: Jagadeesh Bhaskar P <jbhaskar@hclinsys.com>
+To: LKML <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Wed, 01 Dec 2004 16:25:16 +1100
-Message-Id: <1101878716.11835.20.camel@localhost.localdomain>
+Message-Id: <1101879238.7423.13.camel@myLinux>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 01 Dec 2004 11:03:58 +0530
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Name: Remove copy_to_user Warnings in Netfilter
-Status: Trivial
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Hi all,
+	I was going through the explanation of the current macro, and found out
+that it was got by masking 13-bits LSB the esp register. So is it that
+always the process descriptor will start at a location with the last 13
+bits are 0??
 
-After changing firewall rules, we try to return the counters to
-userspace.  We didn't fail at that point if the copy failed, but it
-doesn't really matter.  Someone added a warn_unused_result attribute
-to copy_to_user, so we get bogus warnings.
+	I have read that both the kernel stack and process descriptor of a
+process is stored in together in an 8KB page. Now the offsets in the
+page should start from all bits 0, rite? So then why masking only the 13
+bits LSB?? What is the significance of keeping that length at 13??
 
-Index: linux-2.6.10-rc2-bk13-Netfilter/net/ipv4/netfilter/ip_tables.c
-===================================================================
---- linux-2.6.10-rc2-bk13-Netfilter.orig/net/ipv4/netfilter/ip_tables.c	2004-11-30 12:45:23.000000000 +1100
-+++ linux-2.6.10-rc2-bk13-Netfilter/net/ipv4/netfilter/ip_tables.c	2004-12-01 15:49:35.000000000 +1100
-@@ -1141,12 +1141,12 @@
- 	/* Decrease module usage counts and free resource */
- 	IPT_ENTRY_ITERATE(oldinfo->entries, oldinfo->size, cleanup_entry,NULL);
- 	vfree(oldinfo);
--	/* Silent error: too late now. */
--	copy_to_user(tmp.counters, counters,
--		     sizeof(struct ipt_counters) * tmp.num_counters);
-+	if (copy_to_user(tmp.counters, counters,
-+			 sizeof(struct ipt_counters) * tmp.num_counters) != 0)
-+		ret = -EFAULT;
- 	vfree(counters);
- 	up(&ipt_mutex);
--	return 0;
-+	return ret;
- 
-  put_module:
- 	module_put(t->me);
-Index: linux-2.6.10-rc2-bk13-Netfilter/net/ipv6/netfilter/ip6_tables.c
-===================================================================
---- linux-2.6.10-rc2-bk13-Netfilter.orig/net/ipv6/netfilter/ip6_tables.c	2004-11-16 15:30:12.000000000 +1100
-+++ linux-2.6.10-rc2-bk13-Netfilter/net/ipv6/netfilter/ip6_tables.c	2004-12-01 15:50:28.000000000 +1100
-@@ -1222,11 +1222,12 @@
- 	IP6T_ENTRY_ITERATE(oldinfo->entries, oldinfo->size, cleanup_entry,NULL);
- 	vfree(oldinfo);
- 	/* Silent error: too late now. */
--	copy_to_user(tmp.counters, counters,
--		     sizeof(struct ip6t_counters) * tmp.num_counters);
-+	if (copy_to_user(tmp.counters, counters,
-+			 sizeof(struct ip6t_counters) * tmp.num_counters) != 0)
-+		ret = -EFAULT;
- 	vfree(counters);
- 	up(&ip6t_mutex);
--	return 0;
-+	return ret;
- 
-  put_module:
- 	module_put(t->me);
-Index: linux-2.6.10-rc2-bk13-Netfilter/net/ipv4/netfilter/arp_tables.c
-===================================================================
---- linux-2.6.10-rc2-bk13-Netfilter.orig/net/ipv4/netfilter/arp_tables.c	2004-11-16 15:30:12.000000000 +1100
-+++ linux-2.6.10-rc2-bk13-Netfilter/net/ipv4/netfilter/arp_tables.c	2004-12-01 15:49:54.000000000 +1100
-@@ -948,12 +948,12 @@
- 	/* Decrease module usage counts and free resource */
- 	ARPT_ENTRY_ITERATE(oldinfo->entries, oldinfo->size, cleanup_entry,NULL);
- 	vfree(oldinfo);
--	/* Silent error: too late now. */
--	copy_to_user(tmp.counters, counters,
--		     sizeof(struct arpt_counters) * tmp.num_counters);
-+	if (copy_to_user(tmp.counters, counters,
-+			 sizeof(struct arpt_counters) * tmp.num_counters) != 0)
-+		ret = -EFAULT;
- 	vfree(counters);
- 	up(&arpt_mutex);
--	return 0;
-+	return ret;
- 
-  put_module:
- 	module_put(t->me);
+Please do help!!
 
+TIA
 -- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
+With regards,
+
+Jagadeesh Bhaskar P
 

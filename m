@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315568AbSENJ2u>; Tue, 14 May 2002 05:28:50 -0400
+	id <S315570AbSENJ3K>; Tue, 14 May 2002 05:29:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315570AbSENJ2t>; Tue, 14 May 2002 05:28:49 -0400
-Received: from [195.137.26.28] ([195.137.26.28]:52945 "EHLO
-	shami.gointernet.co.uk") by vger.kernel.org with ESMTP
-	id <S315568AbSENJ2s>; Tue, 14 May 2002 05:28:48 -0400
-Message-ID: <3CE0D8C4.50509@gointernet.co.uk>
-Date: Tue, 14 May 2002 10:28:36 +0100
-From: Eugenio Mastroviti <eugeniom@gointernet.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Oleg Drokin <green@namesys.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Reiserfs has killed my root FS!?!
-In-Reply-To: <Pine.LNX.4.44.0205121613430.4369-100000@hawkeye.luckynet.adm> <Pine.GSO.4.21.0205121838230.27629-100000@weyl.math.psu.edu> <20020512225623.GG1020@louise.pinerecords.com> <3CDF1F1B.1090302@mindspring.com> <20020513104615.A10664@namesys.com> <3CDFE8DC.1090803@gointernet.co.uk> <20020513230500.A1897@namesys.com> <3CE0CDC8.1080000@gointernet.co.uk> <20020514130153.A817@namesys.com>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315572AbSENJ3J>; Tue, 14 May 2002 05:29:09 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59917 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315570AbSENJ3I>; Tue, 14 May 2002 05:29:08 -0400
+Date: Tue, 14 May 2002 10:29:01 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: rpm <rajendra.mishra@timesys.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: ADS GCP reboots when running the application!
+Message-ID: <20020514102901.A17054@flint.arm.linux.org.uk>
+In-Reply-To: <200205131138.g4DBcU526690@localhost.localdomain> <20020513173714.F6024@flint.arm.linux.org.uk> <200205140911.g4E9B7624219@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Drokin wrote:
+On Tue, May 14, 2002 at 02:41:06PM +0530, rpm wrote:
+> On Monday 13 May 2002 10:07 pm, Russell King wrote:
+> > No such thing on ARMs.  If you take a fault while handling one, you
+> > re-enter the fault handler - you don't reboot.
+>   
+> What if the fault handler does a fault  ( like seg fault in seg fault handler 
+> )  , cause in i386, i remember such a situation causes a processor reboot as  
+> it becomes a infinite loop !
 
-> First of all make sure that your raid array same up fully.
-> This is very important! Check all the partitions if they are of correct size.
+You're right in the x86 case, but wrong in the ARM case - you just take a
+fault after fault after fault (and you'll either end up overwriting the
+kernel or something else of that nature).
 
-Already done. I booted with the rescue system from the installation CD 
-and I rewrote /etc/raidtab. The partition table seems OK, the partitions 
-  have the correct sizes and the correct types.
-The raid array starts fine and /proc/mdstat reports everything OK
+> so i conclude that the system crashes in brk() sys call !
 
+strace would print 'brk(' on entry to the syscall though.
 
-> Then do rebild-sb and choose more correct superblock version (if asked).
-> If you are not asked for the fs version, that's bad. Let us know then.
+> If you can point out  the cases where the kernel reboots without showing
+> any message ,   then it will be easier to debug for me!
 
-Just done that.
-It's asked me the fs type and I've entered the one you told me. It 
-seemed to work. I ran --rebuild-tree after that and it started replaying 
-the journal - which it had not done before - but then it still died with 
-"wrong superblock". The exact message is:
+Well, if I knew of any, they'd get removed/fixed pretty damned fast.
 
-init_source_bitmap: bitmap 0 (of 6450048 bits) is wrong - make all 
-blocks [0-32768] as used
-
-init_control_bitmap: wrong super block
-
-I guess I made things worse with my initial attempt as rebuilding the 
-superblock.
-
-BTW - I tried, as I have nothing to lose at this point :) - to re-do 
---rebuild-sb and now it doesn't ask for the version
-
-> Thanks for your report.
-
-Thanks very much for your help
-
-Eugenio
-
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263341AbTIWKkx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 06:40:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbTIWKkx
+	id S261939AbTIWKvL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 06:51:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbTIWKvL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 06:40:53 -0400
-Received: from mail014.syd.optusnet.com.au ([211.29.132.160]:35464 "EHLO
-	mail014.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261868AbTIWKkv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 06:40:51 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16240.8965.91289.460763@wombat.chubb.wattle.id.au>
-Date: Tue, 23 Sep 2003 20:40:05 +1000
-To: "David S. Miller" <davem@redhat.com>
-Cc: Benjamin LaHaise <bcrl@kvack.org>, peter@chubb.wattle.id.au, ak@suse.de,
-       iod00d@hp.com, peterc@gelato.unsw.edu.au, linux-ns83820@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
-In-Reply-To: <20030922232237.28a5ac4a.davem@redhat.com>
-References: <16234.33565.64383.838490@wombat.disy.cse.unsw.edu.au>
-	<20030919043847.GA2996@cup.hp.com>
-	<20030919044315.GC7666@wotan.suse.de>
-	<16234.36238.848366.753588@wombat.chubb.wattle.id.au>
-	<20030919055304.GE16928@wotan.suse.de>
-	<20030919064922.B3783@kvack.org>
-	<16239.38154.969505.748461@wombat.chubb.wattle.id.au>
-	<20030922203629.B21836@kvack.org>
-	<20030922232237.28a5ac4a.davem@redhat.com>
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+	Tue, 23 Sep 2003 06:51:11 -0400
+Received: from csl2.consultronics.on.ca ([204.138.93.2]:43933 "EHLO
+	csl2.consultronics.on.ca") by vger.kernel.org with ESMTP
+	id S261939AbTIWKvK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 06:51:10 -0400
+Date: Tue, 23 Sep 2003 06:51:08 -0400
+From: Greg Louis <glouis@dynamicro.on.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Keyboard oddness.
+Message-ID: <20030923105107.GA1280@athame.dynamicro.on.ca>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200309201633.22414.rob@landley.net> <200309221506.08331.rob@landley.net> <20030923000647.A1128@pclin040.win.tue.nl> <200309221923.28519.rob@landley.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <200309221923.28519.rob@landley.net>
+Organization: Dynamicro Consulting Limited
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David S Miller <davem@redhat.com> writes:
+On 20030922 (Mon) at 1923:28 -0500, Rob Landley wrote:
+> On Monday 22 September 2003 17:06, Andries Brouwer wrote:
+> > On Mon, Sep 22, 2003 at 03:06:08PM -0500, Rob Landley wrote:
+> 
+> > > Any clues?  (This happens to me at least once an hour...)
+> >
+> > Some people have been reporting missing key releases (maybe also you),
+> > but these are all missing key presses. It is easiest to blame the
+> > keyboard, even though I could imagine ways to blame the kernel.
+> >
+> > What about 2.4?
+> 
+> 2.4 worked for me when I used it.  I haven't booted 2.4 in weeks
 
-David> On Mon, 22 Sep 2003 20:36:29 -0400 Benjamin LaHaise
-David> <bcrl@kvack.org> wrote:
+I've been missing keypresses for at least six weeks; at first I too
+thought the keyboard was the culprit, but I've anecdotal grumblings in
+email from several 2.4 users who thought the same of their own machines.
+Not very likely to be a keyboard-infesting virus out there... 
+Frequency seems to be of the order of 0.001 on average.
 
->> Denied.  Dave, please explain.
+It might not be only keyboard interrupts that are being missed, but I
+have no hard data -- just a gut feeling that occasional ethernet
+packets are going astray too for no known good reason.  Hasn't been
+enough of a problem to trigger serious investigation.
 
-David> Why should I have anything to explain? :-)
-
-David> The fact that ia64 is doing a printk for an unaligned kernel
-David> load or store is what you should be asking questions about :)
-
-How expensive is it to take the trap and do a fix up, compared to
-making an aligned copy?  As it involves raising and handling a fault
-disassembling the instruction that caused the fault, etc., I'd be
-surprised if it's much less than 1000 cycles, even without the printk,
-although I haven't measured it yet, and can't find enough info in the
-architecture manuals to know what it is.
-
-Even if it's only 500 cycles, you can copy and realign a large packet
-in that time. 
-
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-You are lost in a maze of BitKeeper repositories,   all slightly different.
+-- 
+| G r e g  L o u i s         | gpg public key: 0x400B1AA86D9E3E64 |
+|  http://www.bgl.nu/~glouis |   (on my website or any keyserver) |
+|  http://wecanstopspam.org in signatures helps fight junk email. |

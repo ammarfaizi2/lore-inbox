@@ -1,86 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131497AbRDYTht>; Wed, 25 Apr 2001 15:37:49 -0400
+	id <S131480AbRDYTiK>; Wed, 25 Apr 2001 15:38:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131481AbRDYThk>; Wed, 25 Apr 2001 15:37:40 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:22954 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S131480AbRDYTh3>; Wed, 25 Apr 2001 15:37:29 -0400
-Date: Wed, 25 Apr 2001 14:37:06 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200104251937.OAA27702@tomcat.admin.navo.hpc.mil>
-To: tim@tjansen.de, Dan Kegel <dank@kegel.com>
-Subject: Re: /proc format (was Device Registry (DevReg) Patch 0.2.0)
-In-Reply-To: <01042520555600.00849@cookie>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: [XMailTool v3.1.2b]
+	id <S131481AbRDYTiA>; Wed, 25 Apr 2001 15:38:00 -0400
+Received: from smtp8.xs4all.nl ([194.109.127.134]:52469 "EHLO smtp8.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S131480AbRDYThq>;
+	Wed, 25 Apr 2001 15:37:46 -0400
+From: thunder7@xs4all.nl
+Date: Wed, 25 Apr 2001 21:27:38 +0200
+To: linux-kernel@vger.kernel.org
+Cc: alan@lxorguk.ukuu.org.uk
+Subject: pcnet32.c: PCI posting bug prevents 2.4.3-ac14 compilation
+Message-ID: <20010425212738.A7594@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------  Received message begins Here  ---------
+This one is new - 2.4.3-ac12 built without problems.
 
-> 
-> On Wednesday 25 April 2001 19:10, you wrote:
-> > The command
-> >   more foo/* foo/*/*
-> > will display the values in the foo subtree nicely, I think.
-> 
-> Unfortunately it displays only the values. Dumping numbers and strings 
-> without knowing their meaning (and probably not even the order) is not very 
-> useful.
-> 
-> > Better to factor the XML part out to a userspace library...
-> 
-> But the one-value per file approach is MORE work. It would be less work to 
-> create XML and factor out the directory structure in user-space :)
-> Devreg collects its data from the drivers, each driver should contribute the 
-> information that it can provide about the device.
-> Printing a few values in XML format using the functions from xmlprocfs is as 
-> easy as writing
-> proc_printf(fragment, "<usb:topology port=\"%d\" portnum=\"%d\"/>\n",
->                 get_portnum(usbdev), usbdev->maxchild);
-> 
-> Extending the devreg output with driver-specific data means registering a 
-> callback function that prints the driver's data. The driver should use its 
-> own XML namespace, so whatever the driver adds will not break any 
-> (well-written) user-space applications. The data is created on-demand, so the 
-> values can be dynamic and do not waste any space when devreg is not used. 
-> 
-> The code is easy to read and not larger than a solution that creates static 
-> /proc entries, and holding the data completely static would take much more 
-> memory. And it takes less code than a solution that would create the values 
-> in /proc dynamically because this would mean one callback per file or a 
-> complicated way to specify several values with a single callback. 
+make[3]: Entering directory `/usr/src/linux-2.4.3-ac14/drivers/net'
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.3-ac14/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -m
+preferred-stack-boundary=2 -march=i686    -c -o pcnet32.o pcnet32.c
+pcnet32.c:1385: warning: #warning "PCI posting bug"
+pcnet32.c:327: pcnet32_pci_tbl causes a section type conflict
+make[3]: *** [pcnet32.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.3-ac14/drivers/net'
 
-Personally, I think
+I must confess, that the meaning of the warning isn't clear to me, but
+that's a warning. The session-type conflict is even more vague. Reading
+the patch I don't see any obvious hints.
 
-	proc_printf(fragment, "%d %d",get_portnum(usbdev), usbdev->maxchild);
+I'm using
 
-(or the string "dddd ddd" with d representing a digit)
+Reading specs from /usr/local/lib/gcc-lib/i686-pc-linux-gnu/2.95.3/specs
+gcc version 2.95.3 20010315 (release)
 
-is shorter (and faster) to parse with
+on a SuSE 7.1 base system.
 
-	fscanf(input,"%d %d",&usbdev,&maxchild);
+Thanks!
 
-Than it would be to try parsing
-
-	<usb:topology port="ddddd" portnum="dddd">
-
-with an XML parser.
-
-Sorry - XML is good for some things. It is not designed to be a
-interface language between a kernel and user space.
-
-I am NOT in favor of "one file per value", but structured data needs
-to be written in a reasonable, concise manner. XML is intended for
-communication between disparate systems in an exreemly precise manner
-to allow some self documentation to be included when the communication
-fails.
-
-Even Lisp S expressions are easier :-)
-
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.
+Jurriaan
+-- 
+If something was not wrong things would not be right.
+        Sergeant Ortega - Zorro
+GNU/Linux 2.4.3-ac12 SMP/ReiserFS 2x1743 bogomips load av: 0.13 0.03 0.01

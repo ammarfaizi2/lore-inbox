@@ -1,93 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262152AbVATPZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262153AbVATPY5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262152AbVATPZw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 10:25:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbVATPZa
+	id S262153AbVATPY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 10:24:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbVATPY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 10:25:30 -0500
-Received: from users.linvision.com ([62.58.92.114]:20634 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S262152AbVATPW6 (ORCPT
+	Thu, 20 Jan 2005 10:24:57 -0500
+Received: from az33egw02.freescale.net ([192.88.158.103]:4082 "EHLO
+	az33egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S262153AbVATPYP convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 10:22:58 -0500
-Date: Thu, 20 Jan 2005 16:22:56 +0100
-From: Rogier Wolff <R.E.Wolff@harddisk-recovery.nl>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, bryder@sgi.com, kuba@mareimbrium.org,
-       ftdi-usb-sio-devel@lists.sourceforge.net, edwin@harddisk-recovery.nl
-Subject: Re: Bug when using custom baud rates....
-Message-ID: <20050120152256.GA3614@bitwizard.nl>
-References: <20050120145422.GB18037@bitwizard.nl> <20050120150857.GH13036@kroah.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="BXVAT5kNtrzKuDFl"
-Content-Disposition: inline
-In-Reply-To: <20050120150857.GH13036@kroah.com>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.nl
+	Thu, 20 Jan 2005 10:24:15 -0500
+In-Reply-To: <20050120114328.A3110@flint.arm.linux.org.uk>
+References: <20050120114328.A3110@flint.arm.linux.org.uk>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-Id: <4D4277A8-6AF7-11D9-A0BF-000393DBC2E8@freescale.com>
+Content-Transfer-Encoding: 8BIT
+Cc: "Linux Kernel list" <linux-kernel@vger.kernel.org>
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: Re: serial8250_init and platform_device
+Date: Thu, 20 Jan 2005 09:23:56 -0600
+To: "Russell King" <rmk+lkml@arm.linux.org.uk>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm trying to convert some PPC embedded code from using the old "ISA 
+compat" style with SERIAL_PORT_DFNS to using platform_device.
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> On Thu, Jan 20, 2005 at 01:14:49AM -0600, Kumar Gala wrote:
+>  > I dont get how it is you dont have more platform_devices register 
+> than
+> > you should based on how serial8250_init works if you have additional
+> > code registering a serial8250 device.  For example,
+> > arch/arm/mach-s3c2410/mach-vr1000.c will register one serial8250
+> > device, and it appears to me that serial8250_init will register a 
+> 2nd. 
+> > Is this the expected behavior or am I missing something?
+>
+> I don't understand what you're saying, sorry.
 
-On Thu, Jan 20, 2005 at 07:08:58AM -0800, Greg KH wrote:
-> On Thu, Jan 20, 2005 at 03:54:22PM +0100, Rogier Wolff wrote:
-> > Hi,
-> > 
-> > When using custom baud rates, the code does: 
-> > 
-> > 
-> >        if ((new_serial.baud_base != priv->baud_base) ||
-> >             (new_serial.baud_base < 9600))
-> >                 return -EINVAL;
-> > 
-> > Which translates to english as: 
-> > 
-> > 	If you changed the baud-base, OR the new one is
-> > 	invalid, return invalid. 
-> > 
-> > but it should be:
-> > 
-> > 	If you changed the baud-base, OR the new one is
-> > 	invalid, return invalid. 
-> 
-> You mean AND, not OR here, right?  :)
+No problem, let me try to clarify.  I'm trying to figure out in the ARM 
+case if there are 2 platform_devices that are registered and if this is 
+the desired behavior (and if so why?).
 
-:-) Sorry. Too noisy here. 
+> serial8250_init() registers an "ISA compatibility" 8250 device for 
+> those
+>  architectures which haven't converted themselves to the new scheme.
+>
+> It then creates all the 8250 ports from 0..UART_NR.  In the case of an
+>  architecture which doesn't have any SERIAL_PORT_DFNS defined (eg, ARM)
+>  these are just dummy placeholder registrations.
 
-> > Patch attached. 
-> 
-> Have a 2.6 patch?
+In serial8250_init() we call platform_device_register_simple(), this 
+will be one registration of a serial8250 device.  In my example of 
+vr1000, arch/arm/mach-s3c2410/cpu.c:s3c_arch_init() calls 
+platform_device_register, the 2nd time a serial8250 device is 
+registered.
 
-Patch told me: 
-   patching file drivers/usb/serial/ftdi_sio.c
-   Hunk #1 succeeded at 1137 (offset 156 lines).
+> We then register the device driver, which allows us to pick up on the
+>  platform devices.  This causes the placeholder registrations to be
+>  reassigned to the platform devices on a first come first served basis
+>  via the standard registration call serial8250_register_port().
 
-but the resulting patch is attached. 
+I'm not following you here, its not clear if you mean we have 2 
+platform devices registered in the system, but only one actually has 
+serial ports that are registered.  If you are using SERIAL_PORT_DFNS, 
+it will be the platform_device created in serial8250_init(), if you are 
+not it will be the platform_device created elsewhere?
 
-		Roger. 
+> While you can have both the "ISA compatibility" scheme and the
+>  "platform device" scheme contain the same port description, you'll
+>  only end up with just the one port registered in the end.  That just
+>  happens to be correct and desired behaviour.
 
--- 
-+-- Rogier Wolff -- www.harddisk-recovery.nl -- 0800 220 20 20 --
-| Files foetsie, bestanden kwijt, alle data weg?!
-| Blijf kalm en neem contact op met Harddisk-recovery.nl!
+- kumar
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ftdi_2.6fix"
-
-diff -ur linux-2.6.11-r1-clean/drivers/usb/serial/ftdi_sio.c linux-2.6.11-r1-ftdio_fix/drivers/usb/serial/ftdi_sio.c
---- linux-2.6.11-r1-panoramix/drivers/usb/serial/ftdi_sio.c	Wed Jan 12 09:19:32 2005
-+++ linux-2.6.11-r1-ftdio_fix/drivers/usb/serial/ftdi_sio.c	Thu Jan 20 16:20:24 2005
-@@ -1137,7 +1137,7 @@
- 		goto check_and_exit;
- 	}
- 
--	if ((new_serial.baud_base != priv->baud_base) ||
-+	if ((new_serial.baud_base != priv->baud_base) &&
- 	    (new_serial.baud_base < 9600))
- 		return -EINVAL;
- 
-
---BXVAT5kNtrzKuDFl--

@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265247AbRFUVm0>; Thu, 21 Jun 2001 17:42:26 -0400
+	id <S265248AbRFUVnq>; Thu, 21 Jun 2001 17:43:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265248AbRFUVmQ>; Thu, 21 Jun 2001 17:42:16 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:6024 "HELO
-	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S265247AbRFUVmJ>; Thu, 21 Jun 2001 17:42:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@webofficenow.com>
-Reply-To: landley@webofficenow.com
-To: hps@intermeta.de, "Henning P. Schmiedehausen" <mailgate@hometree.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: The latest Microsoft FUD. This time from BillG, himself.
-Date: Thu, 21 Jun 2001 12:41:01 -0400
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <Pine.LNX.4.33.0106201833000.1376-100000@duckman.distro.conectiva> <0106201553250F.00776@localhost.localdomain> <9gsch3$ksc$1@forge.intermeta.de>
-In-Reply-To: <9gsch3$ksc$1@forge.intermeta.de>
-MIME-Version: 1.0
-Message-Id: <0106211241010A.00845@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S265254AbRFUVnh>; Thu, 21 Jun 2001 17:43:37 -0400
+Received: from isimail.interactivesi.com ([207.8.4.3]:40966 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S265248AbRFUVnU>; Thu, 21 Jun 2001 17:43:20 -0400
+Date: Thu, 21 Jun 2001 16:43:11 -0500
+From: Timur Tabi <ttabi@interactivesi.com>
+To: Linux Kernel Mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Controversy over dynamic linking -- how to end the panic
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-ID: <aiLYb.A.GGG.xpmM7@dinero.interactivesi.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 21 June 2001 04:50, Henning P. Schmiedehausen wrote:
-> Rob Landley <landley@webofficenow.com> writes:
-> >Ooh, do I get to say "I told you so"?  (LinuxToday buried my submission
-> > way back under a blurb about caldera, but still...)
->
-> And the quote of "stealing the TCP stack from BSD" is still wrong.
+** Reply to message from Andrew Pimlott <andrew@pimlott.ne.mediaone.net> on
+Thu, 21 Jun 2001 17:30:06 -0400
 
-Everybody took the BSD tcp stack, including VMS and OS/2.  It was the first 
-major lump of code they separated when AT&T started making legal threats 
-around 1983.
 
-Did I say stealing?  The berkeley people gave it away for free...
+> I'm not sure whether you are right or wrong--but such a conclusion
+> would be grossly unfair.  I think a strong case would be made that
+> existing practice wrt Linux is independent of existing practice wrt
+> GNU, and that everyone involved knows that Linus's GPL is not the
+> FSF's GPL.  And I think that the FSF (and their lawyers) would
+> advance this claim vigorously.
 
-> And the web browser they have today derives from NCSA Mosaic as
-> prominently displayed in the "About" box of every single IE version
-> out. No TBL here.
+Well, that's a can of worms we DON'T want to open.  What's to stop Microsoft
+from claiming their own interpretaion of the GPL?  The whole point behind the
+GPL (and any license) is that it cannot be vaguely interpreted by various
+individuals and companies.
 
-You take microsoft's word for things?
+> (Besides, it's really in nobody's best interest to take the GPL
+> before a judge, so I think that rough consensus and community
+> dynamics will continue to drive the interpretation of the GPL.)
 
-Read this:
+Well, what if one company create a Linux application and used the "Linus GPL"
+instead of the "FSF GPL" to defend its practices?  I think there's some
+situation going on right now about an company that released a non-GPL Linux
+media player (or something like that) that links in someone else's GPL code.
 
-http://www.businessweek.com/bwdaily/dnflash/january/new0122d.htm
+Besides, isn't the "Linus GPL" somewhere between the "FSF GPL" and the LGPL?
 
-Various other coverage:
 
-http://www.zdnet.com/eweek/news/0120/22aspy.html
-http://www4.zdnet.com/anchordesk/story/story_587.html
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
 
-And two years later, spyglass still hadn't learned their lesson:
 
-http://www.zdnet.com/eweek/stories/general/0,11011,1014310,00.html
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
 
-Rob

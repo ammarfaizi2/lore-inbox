@@ -1,80 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264177AbTEGXCE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 19:02:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264338AbTEGXCE
+	id S264355AbTEGXGb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 19:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264328AbTEGXFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 19:02:04 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:48889 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264177AbTEGXB7 convert rfc822-to-8bit
+	Wed, 7 May 2003 19:05:31 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:47598 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264332AbTEGXCC convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 19:01:59 -0400
+	Wed, 7 May 2003 19:02:02 -0400
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <1052349386555@kroah.com>
+Message-Id: <10523493883163@kroah.com>
 Subject: Re: [PATCH] TTY changes for 2.5.69
-In-Reply-To: <10523493861534@kroah.com>
+In-Reply-To: <10523493883143@kroah.com>
 From: Greg KH <greg@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 7 May 2003 16:16:26 -0700
+Date: Wed, 7 May 2003 16:16:28 -0700
 Content-Transfer-Encoding: 7BIT
 To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1091, 2003/05/07 14:58:22-07:00, hannal@us.ibm.com
+ChangeSet 1.1117, 2003/05/07 15:52:51-07:00, greg@kroah.com
 
-[PATCH] specialix tty_driver add .owner field remove MOD_INC/DEC_USE_COUNT
-
-
- drivers/char/specialix.c |    8 ++------
- 1 files changed, 2 insertions(+), 6 deletions(-)
+TTY: remove usb-serial sysfs dev file as it is now redundant.
 
 
-diff -Nru a/drivers/char/specialix.c b/drivers/char/specialix.c
---- a/drivers/char/specialix.c	Wed May  7 16:01:49 2003
-+++ b/drivers/char/specialix.c	Wed May  7 16:01:49 2003
-@@ -833,9 +833,7 @@
- #ifdef SPECIALIX_DEBUG
- 			printk ( "Sending HUP.\n");
- #endif
--			MOD_INC_USE_COUNT;
--			if (schedule_task(&port->tqueue_hangup) == 0)
--				MOD_DEC_USE_COUNT;
-+			schedule_task(&port->tqueue_hangup);
- 		} else {
- #ifdef SPECIALIX_DEBUG
- 			printk ( "Don't need to send HUP.\n");
-@@ -980,7 +978,6 @@
- 	turn_ints_on (bp);
- 	bp->flags |= SX_BOARD_ACTIVE;
+ drivers/usb/serial/bus.c |   17 +----------------
+ 1 files changed, 1 insertion(+), 16 deletions(-)
+
+
+diff -Nru a/drivers/usb/serial/bus.c b/drivers/usb/serial/bus.c
+--- a/drivers/usb/serial/bus.c	Wed May  7 15:59:54 2003
++++ b/drivers/usb/serial/bus.c	Wed May  7 15:59:54 2003
+@@ -23,18 +23,6 @@
  
--	MOD_INC_USE_COUNT;
- 	return 0;
- }
+ #include "usb-serial.h"
  
-@@ -1000,7 +997,6 @@
+-static ssize_t show_dev (struct device *dev, char *buf)
+-{
+-	struct usb_serial_port *port= to_usb_serial_port(dev);
+-	dev_t base;
+-
+-	port = to_usb_serial_port(dev);
+-
+-	base = MKDEV(SERIAL_TTY_MAJOR, port->number);
+-	return sprintf(buf, "%04x\n", base);
+-}
+-static DEVICE_ATTR(dev, S_IRUGO, show_dev, NULL);
+-
+ static int usb_serial_device_match (struct device *dev, struct device_driver *drv)
+ {
+ 	struct usb_serial_device_type *driver;
+@@ -88,10 +76,7 @@
+ 	}
  
- 	turn_ints_off (bp);
- 
--	MOD_DEC_USE_COUNT;
- }
- 
- 
-@@ -2150,7 +2146,6 @@
- 	tty = port->tty;
- 	if (tty)
- 		tty_hangup(tty);	/* FIXME: module removal race here */
--	MOD_DEC_USE_COUNT;
- }
- 
- 
-@@ -2233,6 +2228,7 @@
- 	init_bh(SPECIALIX_BH, do_specialix_bh);
- 	memset(&specialix_driver, 0, sizeof(specialix_driver));
- 	specialix_driver.magic = TTY_DRIVER_MAGIC;
-+	specialix_driver.owner = THIS_MODULE;
- 	specialix_driver.name = "ttyW";
- 	specialix_driver.major = SPECIALIX_NORMAL_MAJOR;
- 	specialix_driver.num = SX_NBOARD * SX_NPORT;
+ 	minor = port->number;
+-
+-	tty_register_device (&usb_serial_tty_driver, minor);
+-	device_create_file (dev, &dev_attr_dev);
+-
++	tty_register_device (&usb_serial_tty_driver, minor, dev);
+ 	dev_info(&port->serial->dev->dev, 
+ 		 "%s converter now attached to ttyUSB%d (or usb/tts/%d for devfs)\n",
+ 		 driver->name, minor, minor);
 

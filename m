@@ -1,69 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287307AbSBKGbb>; Mon, 11 Feb 2002 01:31:31 -0500
+	id <S287289AbSBKGip>; Mon, 11 Feb 2002 01:38:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287303AbSBKGbW>; Mon, 11 Feb 2002 01:31:22 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27148 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287289AbSBKGbQ>;
-	Mon, 11 Feb 2002 01:31:16 -0500
-Message-ID: <3C6764E6.DB1E8F8D@zip.com.au>
-Date: Sun, 10 Feb 2002 22:29:58 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9 i686)
-X-Accept-Language: en
+	id <S287337AbSBKGif>; Mon, 11 Feb 2002 01:38:35 -0500
+Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:8896 "EHLO
+	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S287289AbSBKGiT>; Mon, 11 Feb 2002 01:38:19 -0500
+Message-ID: <3C67666B.2060507@nyc.rr.com>
+Date: Mon, 11 Feb 2002 01:36:27 -0500
+From: John Weber <weber@nyc.rr.com>
+Organization: WorldWideWeber
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: John Weber <weber@nyc.rr.com>
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+To: Robert Love <rml@tech9.net>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: 2.5.4 Compile Error
-In-Reply-To: <3C674CFA.2030107@nyc.rr.com> <3C6750CD.46575DAA@mandrakesoft.com> <3C675E6B.4010605@nyc.rr.com>
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <3C674CFA.2030107@nyc.rr.com>	<3C6750CD.46575DAA@mandrakesoft.com>  <3C675E6B.4010605@nyc.rr.com> <1013408447.806.409.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Weber wrote:
+Robert Love wrote:
+> On Mon, 2002-02-11 at 01:02, John Weber wrote:
 > 
-> I don't know what the problem is, but un-inlining this function isn't
-> correcting it.
 > 
+>>The function thread_saved_pc() is a mystery to me.  It is declared with 
+>>a return type of unsigned long, and yet return this:
+>>
+>>((unsigned long *)tsk->thread->esp)[3]
+>>
+>>This is confusing to me in many ways:
+>>- the "thread" member of task struct is not a pointer
+>>- esp is of type unsigned long, so I don't understand the cast, and
+>>I certainly don't understand the [3] here.
+>>
+>>Can anyone explain this code to me?
+>>
+> 
+> The problem is an interdependency between processor.h and sched.h.
+> 
+> The old code was the same, except it did
+> 
+> 	t->esp
+> 
+> where t was a thread_struct, instead of what we do now
+> 
+> 	t->thread->esp
+> 
+> where t is a task_struct.  And thus whereby before we passed
+> 
+> 	p->thread
+>
 
-Try this:
+I understand all this, but thread is not a pointer.
+So shouldn't it be t->thread.esp ?
 
---- linux-2.5.4/include/asm-i386/processor.h	Sun Feb 10 22:00:29 2002
-+++ 25/include/asm-i386/processor.h	Sun Feb 10 22:21:53 2002
-@@ -435,14 +435,7 @@ extern int kernel_thread(int (*fn)(void 
- /* Copy and release all segment info associated with a VM */
- extern void copy_segments(struct task_struct *p, struct mm_struct * mm);
- extern void release_segments(struct mm_struct * mm);
--
--/*
-- * Return saved PC of a blocked thread.
-- */
--static inline unsigned long thread_saved_pc(struct task_struct *tsk)
--{
--	return ((unsigned long *)tsk->thread->esp)[3];
--}
-+extern unsigned long thread_saved_pc(struct task_struct *tsk);
- 
- unsigned long get_wchan(struct task_struct *p);
- #define KSTK_EIP(tsk)	(((unsigned long *)(4096+(unsigned long)(tsk)->thread_info))[1019])
---- linux-2.5.4/arch/i386/kernel/process.c	Sun Feb 10 22:00:28 2002
-+++ 25/arch/i386/kernel/process.c	Sun Feb 10 22:26:35 2002
-@@ -55,6 +55,14 @@ asmlinkage void ret_from_fork(void) __as
- int hlt_counter;
- 
- /*
-+ * Return saved PC of a blocked thread.
-+ */
-+unsigned long thread_saved_pc(struct task_struct *tsk)
-+{
-+	return ((unsigned long *)tsk->thread.esp)[3];
-+}
-+
-+/*
-  * Powermanagement idle function, if any..
-  */
- void (*pm_idle)(void);
+> as the argument, now you pass just `p'.  I.e., its the same net-affect. 
+> The error is because the function needs access to both task_struct (in
+> sched.h) and thread_struct (in processor.h) but the two are interrelated
+> so we can't include them in each other.
+
+Hmm... OK.
+
+> The contents of esp is a memory address, so typecasting it to (unsigned
+> long *) is OK.
+> 
+> As for the [3], p[3] is the same as
+> 	*(p+3)
+> ie,
+> 	*(p+sizeof(p))
+> so that is legal.
+
+*(p + (3*sizeof(p))) ?
+
+I understand the syntax, but I don't understand why one would want to 
+return the address of something 3 longs away.  What is this function
+supposed to be doing?
 
 
--
+

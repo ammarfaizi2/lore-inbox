@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281363AbRKEVeN>; Mon, 5 Nov 2001 16:34:13 -0500
+	id <S281361AbRKEVph>; Mon, 5 Nov 2001 16:45:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281362AbRKEVeE>; Mon, 5 Nov 2001 16:34:04 -0500
-Received: from postfix1-2.free.fr ([213.228.0.130]:31961 "HELO
-	postfix1-2.free.fr") by vger.kernel.org with SMTP
-	id <S281360AbRKEVdr> convert rfc822-to-8bit; Mon, 5 Nov 2001 16:33:47 -0500
-Date: Mon, 5 Nov 2001 19:48:44 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Jens Axboe <axboe@suse.de>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
-Subject: Re: SYM-2 patches against latest kernels available
-In-Reply-To: <20011105082150.H2580@suse.de>
-Message-ID: <20011105193609.S1943-100000@gerard>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S281362AbRKEVp2>; Mon, 5 Nov 2001 16:45:28 -0500
+Received: from taltos.codesourcery.com ([66.92.14.85]:7300 "EHLO
+	taltos.codesourcery.com") by vger.kernel.org with ESMTP
+	id <S281361AbRKEVpM>; Mon, 5 Nov 2001 16:45:12 -0500
+Date: Mon, 5 Nov 2001 13:45:08 -0800
+From: Zack Weinberg <zack@codesourcery.com>
+To: Stefan Smietanowski <stesmi@stesmi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.2.20a and gcc 3.0 ?
+Message-ID: <20011105134508.O267@codesourcery.com>
+In-Reply-To: <20011104192024.H267@codesourcery.com> <3BE68F75.3010300@stesmi.com> <20011105120143.M267@codesourcery.com> <3BE6FE99.8020400@stesmi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BE6FE99.8020400@stesmi.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 05, 2001 at 10:03:21PM +0100, Stefan Smietanowski wrote:
+> Hi!
+> 
+> 
+> >>I know how it's done, it's just that in my eyes a stable release is the 
+> >>one where you know there's only 1 .... A 2.95.4 package built on 
+> >>different days (from CVS) will differ. A 2.95.4 package built on 
+> >>different ways from a .tar.gz marked as 'release' will not differ.
+> >>
+> >>For instance chasing a kernel bug is difficult when 1 person might use 1 
+> >>version of a compiler and another uses a different version when both 
+> >>says 2.95.4, no matter how miniscule the difference.
+> >>
+> >
+> >Since patches are being applied to the 2.95 branch at a rate of about
+> >one a month, I think the date stamp in the version number should be
+> >quite sufficient to avoid any problems along these lines.
+> 
+> If it's tested and rock stable, why isn't it released?
 
+It would be silly to generate a new 2.95.x point release every time we
+fix a bug - most of them are minor, affect very few people, and the
+fixes will get picked up by the distros anyway.
 
-On Mon, 5 Nov 2001, Jens Axboe wrote:
+There probably will be a 2.95.4 official release at some point,
+but again I'm not aware of any current plans.
 
-> IA64 and Alpha is fine, the problem with the non-sg request is just
-> 32-bit archs with highmem support. For that we need to pass in
-> page/offset values instead of a virtual address.
-
-So, all targetted platforms should be just fine. :)
-
-I donnot like a lot highmem things, but I would want those ones to be fine
-too with 64 bit DMA, at least in theory. Will try to understand the
-related stuff from kernel 2.4.13.
-
-Thanks a lot for the clarification.
-
-  Gérard.
-
-
+zw

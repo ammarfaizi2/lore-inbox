@@ -1,52 +1,164 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136001AbREANnF>; Tue, 1 May 2001 09:43:05 -0400
+	id <S136611AbREANpF>; Tue, 1 May 2001 09:45:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136611AbREANmz>; Tue, 1 May 2001 09:42:55 -0400
-Received: from mons.uio.no ([129.240.130.14]:3762 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S136001AbREANml>;
-	Tue, 1 May 2001 09:42:41 -0400
-MIME-Version: 1.0
-Message-ID: <15086.48447.264388.289216@charged.uio.no>
-Date: Tue, 1 May 2001 15:42:23 +0200
-To: Ion Badulescu <ionut@cs.columbia.edu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrea Arcangeli <andrea@suse.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.19 locks up on SMP
-In-Reply-To: <Pine.LNX.4.33.0105010514340.14530-100000@age.cs.columbia.edu>
-In-Reply-To: <15086.42872.321353.67228@charged.uio.no>
-	<Pine.LNX.4.33.0105010514340.14530-100000@age.cs.columbia.edu>
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
- =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
- Valley) (i386-redhat-linux)
-Content-Type: text/plain; charset=US-ASCII
+	id <S136613AbREANo4>; Tue, 1 May 2001 09:44:56 -0400
+Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.86]:21854 "HELO
+	lunchbox.oisec.net") by vger.kernel.org with SMTP
+	id <S136611AbREANoo>; Tue, 1 May 2001 09:44:44 -0400
+Date: Tue, 1 May 2001 15:44:37 +0200
+From: Cliff Albert <cliff@oisec.net>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: 2.4.4, 2.4.4-ac1, 2.4.4-ac2, neighbour discovery bug (ipv6)
+Message-ID: <20010501154437.A23200@oisec.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Ion Badulescu <ionut@cs.columbia.edu> writes:
 
-     > On Tue, 1 May 2001, Trond Myklebust wrote:
-    >> Did you apply the following patch which I put out on the lists
-    >> a couple of weeks ago?
+When i traceroute6 my 2.4.4 box on my local lan, the 2.4.4 box panic's after about 10 seconds. The traceroute6 completes on the other box.
 
-     > No, I was testing with 2.2.19 and then I started going back
-     > into the 2.2.19pre series until I found the culprit.
+2.4.3-ac14 doesn't experience these problems. Only 2.4.4 (with or without ac{1,2}) panics
 
-     > I'll give your patch a spin tomorrow, after I catch some
-     > zzz's. :-)
+---- traceroute6 output ----
+traceroute to neve.oisec.net (3ffe:8114:2000:0:250:bfff:fe21:629a) from 3ffe:8114:2000:0:210:4bff:feb3:1fb4, 30 hops max, 16 byte packets
+ 1  neve.oisec.net (3ffe:8114:2000:0:250:bfff:fe21:629a)  0.583 ms  0.278 ms  0.233 ms
 
-Right you are.
 
-FYI I've now put up those patches of which I am aware against 2.2.19
-on
+wait 10 seconds and the following appears (unfortunately no stack dumps :()
 
-  http://www.fys.uio.no/~trondmy/src/2.2.19
+---- panic info 2.4.4-ac2 ----
+CPU	0
+EIP	0010:[<c0217314>]
+EFLAGS  00010206
+eax: c13c2060
+ebx: fffffffd
+ecx: 00000000
+edx: ca65b1dc
+esi: 00000000
+edi: 00000018
+ebp: cbf72000
+esp: c029feb0
+ds:  0018
+es:  0018
+ss:  0018
+Process swapper (pid: 0, stackpage=c029f000)
 
-I'll try to keep that area updated with a brief explanation for each
-patch...
+Call Trace:
 
-Cheers,
-  Trond
+ c021e828 [ndisc_send_ns]
+ c01e912c [deliver_to_old_ones]
+ c021ecfd [ndisc_error_report]
+ c01efd2b [ip_route_input_slow]
+ c01eb7ab [neigh_timer_handler]
+ c01eb664 [neigh_timer_handler]
+ c0119f12 [timer_bh]
+ c010b2db [timer_interrupt]
+ c0116e5f [bh_action]
+ c0116d98 [tasklet_hi_action]
+ c0116c9f [do_softirq]
+ c0107e41 [do_IRQ]
+ c0105120 [default_idle]
+ c0105120 [default_idle]
+ c0106b14 [ret_from_intr]
+ c0105120 [default_idle]
+ c0105120 [default_idle]
+ c0100018 [startup_32]
+ c0105143 [default_idle]
+ c01051a9 [cpu_idle]
+ c0105000 [init]
+ c0100197 [L6]
+
+---- panic info 2.4.4-ac1 ----
+CPU	0
+EIP	0010:[<c0217354>]
+EFLAGS  00010206
+eax: c13c2060
+ebx: fffffffd
+ecx: 00000000
+edx: cb73e35c
+esi: 00000000
+edi: 00000018
+ebp: cbf72000
+esp: c029feb0
+ds:  0018
+es:  0018
+ss:  0018
+Process swapper (pid: 0, stackpage=c029f000)
+
+Call Trace:
+
+ c021e868 [ndisc_send_ns]
+ c01e916c [deliver_to_old_ones]
+ c021ed3d [ndisc_error_report]
+ c01e5d6b [ip_route_input_slow]
+ c01eb7eb [neigh_timer_handler]
+ c01eb6a4 [neigh_timer_handler]
+ c0119f02 [timer_bh]
+ c010b2db [timer_interrupt]
+ c0116e4f [bh_action]
+ c0116d88 [tasklet_hi_action]
+ c0116c8f [do_softirq]
+ c0107e41 [do_IRQ]
+ c0105120 [default_idle]
+ c0105120 [default_idle]
+ c0106b14 [ret_from_intr]
+ c0105120 [default_idle]
+ c0105120 [default_idle]
+ c0100018 [startup_32]
+ c0105143 [default_idle]
+ c01051a9 [cpu_idle]
+ c0105000 [init]
+ c0100197 [L6]
+
+---- panic info 2.4.4 ----
+
+CPU	0
+EIP	0010:[<c021aa64>]
+EFLAGS  00010206
+eax: c13e3060
+ebx: fffffffd
+ecx: 00000000
+edx: c80ef3dc
+esi: 00000000
+edi: 00000018
+ebp: cbf7ac00
+esp: c02b9eb0
+ds:  0018
+es:  0018
+ss:  0018
+Process swapper (pid: 0, stackpage=c02b9000)
+
+Call Trace:
+
+ c0221fe8 [ndisc_send_ns]
+ c01ec2bc [deliver_to_old_ones]
+ c02224ed [ndisc_error_report]
+ c01e8d0b [ip_route_input_slow]
+ c01ee93b [neigh_timer_handler]
+ c01ee7f4 [neigh_timer_handler]
+ c0119402 [timer_bh]
+ c010aa3c [timer_interrupt]
+ c011634f [bh_action]
+ c0116288 [tasklet_hi_action]
+ c011618f [do_softirq]
+ c0107ec1 [do_IRQ]
+ c0105120 [default_idle]
+ c0105120 [default_idle]
+ c0106b24 [ret_from_intr]
+ c0105120 [default_idle]
+ c0105120 [default_idle]
+ c0100018 [startup_32]
+ c0105143 [default_idle]
+ c01051a9 [cpu_idle]
+ c0105000 [init]
+ c0100197 [L6]
+
+
+-- 
+Cliff Albert		| IRCNet:    #linux.nl, #ne2000, #linux, #freebsd.nl
+cliff@oisec.net		| 	     #openbsd, #ipv6, #cu2.nl
+-[ICQ: 18461740]--------| 6BONE:     CA2-6BONE       RIPE:     CA3348-RIPE

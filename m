@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbUKJIg7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbUKJIky@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbUKJIg7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 03:36:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbUKJIg7
+	id S261293AbUKJIky (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 03:40:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbUKJIky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 03:36:59 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51728 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261358AbUKJIgk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 03:36:40 -0500
-Date: Wed, 10 Nov 2004 08:36:30 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Driver Core patches for 2.6.10-rc1
-Message-ID: <20041110083629.A17555@flint.arm.linux.org.uk>
-Mail-Followup-To: Paul Mackerras <paulus@samba.org>,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <1099346276148@kroah.com> <10993462773570@kroah.com> <20041102223229.A10969@flint.arm.linux.org.uk> <20041107152805.B4009@flint.arm.linux.org.uk> <20041110013700.GF9496@kroah.com> <16785.33677.704803.889900@cargo.ozlabs.ibm.com>
+	Wed, 10 Nov 2004 03:40:54 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:41857 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261293AbUKJIkw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 03:40:52 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Wed, 10 Nov 2004 09:24:07 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Markus Trippelsdorf <markus@trippelsdorf.de>
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, video4linux-list@redhat.com
+Subject: Re: [patch] 2.6.10-rc1-mm4: bttv-driver.c compile error
+Message-ID: <20041110082407.GA23090@bytesex>
+References: <20041109074909.3f287966.akpm@osdl.org> <1100018489.7011.4.camel@lb.loomes.de> <20041109211107.GB5892@stusta.de> <1100037358.1519.6.camel@lb.loomes.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <16785.33677.704803.889900@cargo.ozlabs.ibm.com>; from paulus@samba.org on Wed, Nov 10, 2004 at 01:57:17PM +1100
+In-Reply-To: <1100037358.1519.6.camel@lb.loomes.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 10, 2004 at 01:57:17PM +1100, Paul Mackerras wrote:
-> So we can get a driver's probe method called concurrently with its
-> bus's suspend or resume method.
+> kobject_register failed for <NULL> (-17)
 
-If correct, we probably have rather a lot of buggy drivers, because
-I certainly was not aware that this could happen.  I suspect the
-average driver writer also would not be aware of that.
+IIRC there was a bug in the driver base and a patch from Gred fixing
+that floating around, maybe that one helps?  If not, the please
+build with KALLSYMS enabled, so this blob here ...
+
+> Call Trace:[<ffffffff80208fa6>] [<ffffffff80277a9b>]
+> [<ffffffff80278002>] 
+>        [<ffffffff802f8930>] [<ffffffff8010b0e8>] [<ffffffff8010ea03>] 
+>        [<ffffffff8010b050>] [<ffffffff8010e9fb>] 
+
+... will be translated into something readable.
+
+> warning: many lost ticks.
+> Your time source seems to be instable or some driver is hogging
+> interupts
+
+Hmm, bttv shouldn't generate IRQs when unused.
+Anything suspious in /proc/interrupts?
+
+  Gerd
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+#define printk(args...) fprintf(stderr, ## args)

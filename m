@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265305AbTBOVrA>; Sat, 15 Feb 2003 16:47:00 -0500
+	id <S265306AbTBOWAP>; Sat, 15 Feb 2003 17:00:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265306AbTBOVrA>; Sat, 15 Feb 2003 16:47:00 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:34958 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S265305AbTBOVq7>; Sat, 15 Feb 2003 16:46:59 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sat, 15 Feb 2003 14:04:08 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Larry McVoy <lm@bitmover.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: openbkweb-0.0
-In-Reply-To: <20030215215259.GA22512@work.bitmover.com>
-Message-ID: <Pine.LNX.4.50.0302151402070.1891-100000@blue1.dev.mcafeelabs.com>
-References: <20030214235724.GA24139@work.bitmover.com>
- <Pine.LNX.4.44.0302151207390.13273-100000@xanadu.home>
- <20030215181211.GA12315@work.bitmover.com>
- <Pine.LNX.4.50.0302151353180.1891-100000@blue1.dev.mcafeelabs.com>
- <20030215215259.GA22512@work.bitmover.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265320AbTBOWAP>; Sat, 15 Feb 2003 17:00:15 -0500
+Received: from quechua.inka.de ([193.197.184.2]:49797 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S265306AbTBOWAO>;
+	Sat, 15 Feb 2003 17:00:14 -0500
+X-Mailbox-Line: From aj@dungeon.inka.de  Sat Feb 15 23:01:34 2003
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.61/usb: ioctl control transfer
+Date: Sat, 15 Feb 2003 23:01:22 +0100
+Message-Id: <20030215220122.B536020D1F@dungeon.inka.de>
+From: aj@dungeon.inka.de (Andreas Jellinghaus)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Feb 2003, Larry McVoy wrote:
+I'm using the devfs from a userspace application.
+the ioctl USBDEVFS_CONTROL is supposed to return
+the number of bytes actualy read from a control
+transfer.
 
-> On Sat, Feb 15, 2003 at 01:56:02PM -0800, Davide Libenzi wrote:
-> > Larry, I already said this and maybe you missed it ( or maybe not ).
-> > What about having a GPLed ( or whatever other license ), read-only BK
-> > available for the ones that simply need to fetch stuff from BK
-> > repositories ? You don't have to maintain another repository for
-> > compatibility, and also you enforce BK usage.
->
-> We're not going to expose the network protocol.  For two reasons:
->     - it works really well (we're proud of this)
->     - it is really ugly (we're not proud of this :)
->
-> A read only client isn't read only, it has to be read/write to update the
-> out of date copy.
+but the return code i get is always what i specified
+as length of the buffer.
 
-I was meaning read-only for the repository point of view. Ok, you don't
-need to give away the protocol. You don't even have to give away source
-code. Why don't you choose a binary license that removes things that ppl
-are against of here ?
+since i'm using the same usb control transfers
+as the windows drivers and get the same result
+back (but return code is always wLength),
+i wonder if there is a bug in the kernel. Anyone
+has similiar problems?
 
+Regards, Andreas
+(userspace code ...)
+        syslog(LOG_DEBUG, "usb xmit %02hx %02hx %02hx %02hx 00 00 %02hx %02hx\n"
+,
+                type, req, value >> 8, value&0xff, size >> 8, size &
+0xff);
 
+        if (! (type & 0x80)) debug_hexdump("Sending:", buf, size);
 
+        rc = ioctl(fd, USBDEVFS_CONTROL, &ctrl);
+        if (rc == -1) {
+                syslog(LOG_ERR, "usb ioctl control transfer failed:%s\n",
+                       strerror(errno));
+        }
+        syslog(LOG_DEBUG, "ioctl rc %hx size %hx length %hx",
+                        rc, size, ctrl.length);
+        if (type & 0x80) debug_hexdump("Received:", buf, size);
 
-- Davide
 

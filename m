@@ -1,70 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262993AbUCLVw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 16:52:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262994AbUCLVw1
+	id S262996AbUCLWAw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 17:00:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262995AbUCLWAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 16:52:27 -0500
-Received: from 162.100.172.209.cust.nextweb.net ([209.172.100.162]:53457 "EHLO
-	jlundell.local") by vger.kernel.org with ESMTP id S262993AbUCLVwP
+	Fri, 12 Mar 2004 17:00:52 -0500
+Received: from dh132.citi.umich.edu ([141.211.133.132]:18051 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S262997AbUCLWAt convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 16:52:15 -0500
+	Fri, 12 Mar 2004 17:00:49 -0500
+Subject: Re: calling flush_scheduled_work()
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Tim Hockin <thockin@Sun.COM>
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040312205814.GY1333@sun.com>
+References: <20040312205814.GY1333@sun.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1079128848.3166.44.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Message-Id: <p06100330bc77e10e4915@[192.168.0.3]>
-In-Reply-To: <16464.18916.155063.971896@alkaid.it.uu.se>
-References: <p0610038abc75b353d82c@[192.168.0.3]>
- <16464.18916.155063.971896@alkaid.it.uu.se>
-Date: Fri, 12 Mar 2004 13:52:09 -0800
-To: linux-kernel@vger.kernel.org
-From: Jonathan Lundell <linux@lundell-bros.com>
-Subject: Re: nmi oddity
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 12 Mar 2004 17:00:48 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:13 PM +0100 3/11/04, Mikael Pettersson wrote:
->Jonathan Lundell writes:
->  > Running smp 2.4.9 (don't ask) with updated nmi logic on a Dell 650
->  > (UP P4), I notice that NMI is running at about 1.08 Hz. Per the
->  > kernel logic, it should be running at HZ (100) Hz.
->  >
->  > I'm using NMI_LOCAL_APIC. check_nmi_watchdog() never gets called in
->  > this mode in an smp kernel, near as I can tell, so nmi_hz never gets
->  > set to 1.
->  >
->  > What's going on? Or does anyone else see it?
->
->This is a normal. The NMIs are generated from an in-CPU performance
->counter configured to increment once per CPU core clock cycle.
->(There is no wallclock-like event available, alas.)
->
->Whenever the kernel is idle, "hlt" is normally executed which
->stops the CPU until the next external interrupt (typically the
->timer). Hence, an idle machine will see a much lower NMI frequence
->than a non-idle one.
+På fr , 12/03/2004 klokka 15:58, skreiv Tim Hockin:
+> We've recently bumped into an issue, and I'm not sure which is the real bug.
+> 
+> In short we have a case where mntput() is called from the kevetd workqueue.
+> When that mntput() hit an NFS mount, we got a deadlock.  It turns out that
+> deep in the RPC code, someone calls flush_scheduled_work().  Deadlock.
+> 
+> So what is the real bug?
+> 
+> Is it verboten to call mntput() from keventd?  What other things might lead
+> to a flush_scheduled_work() and must therefore be avoided?
+> 
+> Should callers of flush_scheduled_work() be changed to use private
+> workqueues?  There are 31 calls that I got from grep.  25 are in drivers/, 1
+> in ncpfs, 3 in nfs4, 2 in sunrpc.  The drivers/ are *probably* ok. Should
+> those other 6 be changed?
 
-That's exactly what's happening; thanks.
+It would be dead easy to change RPC+NFS to use their own, workqueue. In
+fact I've already considered that several times in the places where the
+NFSv4 state stuff gets hairy. ... but it might be nice not to have to
+set up all these (mostly) idle threads for exclusive use by NFS just in
+order to catch a corner case.
 
-If I run a compute-intensive task in the background (eg cat 
-/dev/zero > /dev/null), the nmi frequency jumps up to 100 Hz.
+Could we therefore perhaps consider setting up one or more global
+workqueues that would be alternatives to keventd?
 
-Switching to NMI_IO_APIC is the best solution for me.
-
-It makes NMI_LOCAL_APIC a v. questionable choice for a watchdog....
-
->This behaviour is not universal. Server Tualatins seem to run at
->full speed all the time; perhaps they ignore hlt?
->
->If you want NMI_LOCAL_APIC to be clock-like, upgrade your cooling
->solution and disable hlt.
->
->/Mikael
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
-
--- 
-/Jonathan Lundell.
+Cheers,
+  Trond

@@ -1,77 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbUK3NVL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbUK3NYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbUK3NVL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 08:21:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbUK3NVK
+	id S262071AbUK3NYk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 08:24:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbUK3NYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 08:21:10 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:57773 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262070AbUK3NUx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 08:20:53 -0500
-Date: Tue, 30 Nov 2004 14:19:56 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-7
-Message-ID: <20041130131956.GA23451@elte.hu>
-References: <36536.195.245.190.93.1101471176.squirrel@195.245.190.93> <20041129111634.GB10123@elte.hu> <41358.195.245.190.93.1101734020.squirrel@195.245.190.93> <20041129143316.GA3746@elte.hu> <20041129152344.GA9938@elte.hu> <48590.195.245.190.94.1101810584.squirrel@195.245.190.94>
+	Tue, 30 Nov 2004 08:24:40 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:148 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262071AbUK3NYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 08:24:35 -0500
+Date: Tue, 30 Nov 2004 14:07:46 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Rob Landley <rob@landley.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend 2 merge: 49/51: Checksumming
+Message-ID: <20041130130745.GB4670@openzaurus.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams> <200411290455.10318.rob@landley.net> <1101767472.4343.439.camel@desktop.cunninghams> <200411291830.33885.rob@landley.net> <1101775792.4329.23.camel@desktop.cunninghams>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <48590.195.245.190.94.1101810584.squirrel@195.245.190.94>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <1101775792.4329.23.camel@desktop.cunninghams>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+> > > If I recall correctly, someone replied that even a read only mount under
+> > > one filesystem (XFS? Not sure), would replay the journal, so it wasn't a
+> > > goer.
+> > 
+> > You could always special case the broken one until they fix it... :)
+> 
+> Mmm. I wonder how much code that would require us to add. I do like the
+> idea of not interacting where the answer is obvious :>. I still think,
+> however, that interacting when the answer isn't obvious is the right
+> thing to do. Take for example the case where we find an image, but the
+> device numbers look like they belong to 2.4 and we're a 2.6 kernel. We
+> can't read the header (we can't be sure that this is the cause). The
+> user - or their cat - might have selected the wrong boot image
+> unintentionally. Why shouldn't we give them the opportunity to reboot
+> and get the right one?
 
->     xruntrace1-2.6.10-rc2-mm3-RT-V0.7.31-13-*.trc.gz
->         - the captured traces, as dumped with xruntrace1_watch.sh script.
+Well, kernel depending on user feedback has some interesting issues...
+...like user not speaking english or user using speech output.
+Thats why pushing "Shall I reboot?" etc prompts into userland
+is good idea. (Distros probably will not get it right, either, but at least
+they get a chance.)
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 
-> Each trace shows only the first XRUN occurrence on a distinct jackd
-> session. Every other trace were triggered and captured after
-> restarting jackd.
-
-interesting - the trace shows only a latency of 20-40 usecs. Perhaps the
-tracing should be done over two periods?
-
-Could you try to hack alsa_driver.c to do the gettimeofday(1,1) call for
-only every second case. Something like this ought to be enough:
-
-	{
-		static count = 0;
-
-		if (!(count++ & 1))
-			gettimeofday(0,1);
-	}
-
-(only one thread accesses this particular variable so there are no
-threading issues.)
-
-with this variant there's a 50% chance that we get the trace of the last
-2 poll() instances. (and there's a 50% chance that we get only 1 period
-covered.)
-
-in any case, the scripts & approach seems to be almost there, i hope we
-only need the above change to see the true source of the xruns.
-
-	Ingo

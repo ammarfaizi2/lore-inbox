@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262369AbRERQAN>; Fri, 18 May 2001 12:00:13 -0400
+	id <S262370AbRERQAN>; Fri, 18 May 2001 12:00:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262370AbRERQAD>; Fri, 18 May 2001 12:00:03 -0400
-Received: from ns.caldera.de ([212.34.180.1]:49793 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S262369AbRERP75>;
-	Fri, 18 May 2001 11:59:57 -0400
-Date: Fri, 18 May 2001 17:58:43 +0200
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: John Cowan <jcowan@reutershealth.com>
-Cc: Jes Sorensen <jes@sunsite.dk>, esr@thyrsus.com,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+	id <S262371AbRERQAD>; Fri, 18 May 2001 12:00:03 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:59400 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S262370AbRERP76>;
+	Fri, 18 May 2001 11:59:58 -0400
+Date: Fri, 18 May 2001 11:58:39 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Keith Owens <kaos@ocs.com.au>, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
 Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
-Message-ID: <20010518175843.A9347@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch>,
-	John Cowan <jcowan@reutershealth.com>,
-	Jes Sorensen <jes@sunsite.dk>, esr@thyrsus.com,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010505192731.A2374@thyrsus.com> <d33da9tjjw.fsf@lxplus015.cern.ch> <20010513112543.A16121@thyrsus.com> <d3d79awdz3.fsf@lxplus015.cern.ch> <20010515173316.A8308@thyrsus.com> <d3wv7eptuz.fsf@lxplus015.cern.ch> <3B054500.2090408@reutershealth.com>
+Message-ID: <20010518115839.E14309@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <1694.990198581@ocs3.ocs-net> <E150mM9-0007Fg-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B054500.2090408@reutershealth.com>; from jcowan@reutershealth.com on Fri, May 18, 2001 at 11:51:28AM -0400
+In-Reply-To: <E150mM9-0007Fg-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, May 18, 2001 at 04:39:57PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 18, 2001 at 11:51:28AM -0400, John Cowan wrote:
-> Jes Sorensen wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> > In general this is the best option, if you create a non-standard
+> > configuration for machine foo then it is your problem, not everybody
+> > else's.
 > 
-> > Telling them to install an updated gcc for kernel compilation
-> > is a necessary evil, which can easily be done without disturbing the
-> > rest of the system. Updating the system's python installation is not a
-> > reasonable request.
-> 
-> 
-> Au contraire.  It is very reasonable to have both python and python2
-> installed.  Having two different gcc versions installed is a big pain
-> in the arse.
+> Which makes CML2 inferior to CML1 again. Now if it could parse CML1 rulesets
+> this whole discussion wouldn't be needed. 
 
-Fump. Some distributions do even come with two gcc's out of the box.
-With the whole egcs and gcc2.95 (dunno about 3.0) you can even share
-the compiler driver if you want.
+I think you're confusing a couple of different issues here, Alan.  Even 
+supposing CML2 could parse CML1 rulesets, the design question about how
+configuration *should* work (that is, what kind of user experience we 
+want to create and who we optimize ruleset design for) wouldn't go away.
 
-	Christoph
-
+I'm raising these questions now because CML2's capabilities invite 
+thinking about them.  But they're independent of the underlying language.
 -- 
-Of course it doesn't work. We've performed a software upgrade.
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+To stay young requires the unceasing cultivation of the ability to
+unlearn old falsehoods.
+	-- Lazarus Long 

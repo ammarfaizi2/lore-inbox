@@ -1,66 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbUAIO02 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 09:26:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbUAIO02
+	id S261731AbUAIOWP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 09:22:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbUAIOWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 09:26:28 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:4739
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S261881AbUAIO00
+	Fri, 9 Jan 2004 09:22:15 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:56514 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261731AbUAIOWO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 09:26:26 -0500
-Date: Fri, 9 Jan 2004 09:39:13 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: Strange lockup with 2.6.0
-Message-ID: <20040109093913.A6710@animx.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
+	Fri, 9 Jan 2004 09:22:14 -0500
+Date: Fri, 9 Jan 2004 15:21:58 +0100 (CET)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.1-mm1
+In-Reply-To: <Pine.LNX.4.58L.0401091550150.6458@alpha.zarz.agh.edu.pl>
+Message-ID: <Pine.GSO.4.58.0401091515190.5021@mion.elka.pw.edu.pl>
+References: <20040109014003.3d925e54.akpm@osdl.org>
+ <Pine.LNX.4.58L.0401091550150.6458@alpha.zarz.agh.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I usually do a backup of each filesystem simply using tar.  I attempted to
-backup a machine I had that's running 2.6.0 and it hard locked.
 
-The destination is over NFS to a server also running 2.6.0 (other machines
-have performed the backup to this server w/o problems).  This server is
-using KNFSD with v3 enabled.
+On Fri, 9 Jan 2004, Wojciech 'Sas' Cieciwa wrote:
 
-I first thought the problem could be ACPI or Preemt so I disabled both of
-these.  I thought it may be a module conflicting so I booted with
-init=/bin/sh.  In the kernel, I have IDE support (intel piix, no HDD support
-all ide devices are cds)  and aic7xxx.  My next thought was the NIC.  I was
-using a 3c990 card so I swapped it with a 3c905c card.  No change.  I
-thought it could be an over loaded power supply so I removed all drives
-from the power supply except the boot drive.  No change.  I removed all
-irrelevent hardware (leaving only the 3c905c nic and the aha39160 card).  I
-also swapped memory around (3 128mb sticks) leaving only 1 stick in the
-machine.  Still no change. (Only modules loaded was 3c59x, nfs, lockd, and
-sunrpc)  I have NFSv3 snabled in NFS, but not v4.
+> On Fri, 9 Jan 2004, Andrew Morton wrote:
+>
+> [...]
+> >
+> > - The PCI IDE drivers should work as modules now.
 
-I simply gave up trying to backup the machine to nfs.  I have a JAZ drive
-installed on this machine (external) and decided to backup to the JAZ.  I
-powered off the machine, booted with init=/bin/sh and performed the exact
-same steps (excluding configuring the NIC and mounting NFS) that caused the
-freeze.  This time it completed the entire backup.  No modules were loaded
-at this time.
+They always have worked as modules, it fixes case when PCI driver tried
+to overtake interfaces already controlled by generic IDE code.
 
-Hardware:
-MS6163 System board
-Pentium III 700mhz
-3 128mb sticks memory (2 are same brand 2 sided, other is different 1 sided)
-Adaptec 39160
-3com 3c905c (eth0)
-3com 3c990  (eth0, not installed at same time as 3c905c)
-3com 3c900  (eth1)
-Generic 56k ISA PNP modem
-Belkin USB2.0 5 port
-Ensonic ES1373 Sound card
-Matrox G400Max dual AGP (was a G200 AGP)
+> shouldn't ..
+> returned warnings like I've posted
 
+You are talking about IDE as module not PCI IDE modules.
 
-Relevent kernel config available upon request.
-
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+--bart

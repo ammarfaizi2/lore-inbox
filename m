@@ -1,140 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266112AbTLaEs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 23:48:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266114AbTLaEs5
+	id S266114AbTLaEzb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 23:55:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266115AbTLaEzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 23:48:57 -0500
-Received: from fw.osdl.org ([65.172.181.6]:63955 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266112AbTLaEsy (ORCPT
+	Tue, 30 Dec 2003 23:55:31 -0500
+Received: from dp.samba.org ([66.70.73.150]:40617 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266114AbTLaEza (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 23:48:54 -0500
-Date: Tue, 30 Dec 2003 20:49:10 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: torvalds@osdl.org, mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] kthread_create
-Message-Id: <20031230204910.0e767b50.akpm@osdl.org>
-In-Reply-To: <20031231042016.958DC2C04B@lists.samba.org>
-References: <20031231042016.958DC2C04B@lists.samba.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Dec 2003 23:55:30 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: akpm@osdl.org, Paul Jackson <pj@sgi.com>, anton@samba.org,
+       linux-kernel@vger.kernel.org, ioe-lkml@rameria.de,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [PATCH 1/2] Make for_each_cpu() Iterator More Friendly 
+In-reply-to: Your message of "Wed, 31 Dec 2003 01:54:10 -0000."
+             <20031231015410.A12194@infradead.org> 
+Date: Wed, 31 Dec 2003 15:53:36 +1100
+Message-Id: <20031231045528.4E0C22C0CA@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell <rusty@rustcorp.com.au> wrote:
->
-> Hi all,
+In message <20031231015410.A12194@infradead.org> you write:
+> On Wed, Dec 31, 2003 at 12:26:34PM +1100, Rusty Russell wrote:
+> > Please apply.  Applies against 2.6.0-mm2 and 2.6.0-bk3.  Yay!
+> > 
+> > Anton: breaks PPC64, as it needs cpu_possible_mask, but fix is already
+> > in Ameslab tree.
 > 
-> 	Ingo read through this before and liked it: this is the basis
-> of the Hotplug CPU patch, and as such has been stressed fairly well.
-> Tested stand-alone, and included here for wider review.
+> So what about including the fix in the patch?  I don't think a fix in some
+> obscure tree is a good excuse to break an architecture in a stable series..
 
-It would be nice to be able to see all the hotplug CPU patches in one
-place, to get a feel for their shape and size.  That way, we can decide
-whether we need to look at this patch ;)
+Because (1) they've done it already, in anticipation of this change,
+and tested it in their tree, and (2) it's a non-trivial patch, as they
+don't have a cpu_possible mask concept at all.
 
-> D: kthread_create(), kthread_start() and kthread_destroy().  These
+FYI, the Ameslab tree is the main PPC64 public tree.
 
-A few things:
-
-> +static struct kt_message ktm_receive(void)
-> +{
-> +	struct kt_message m;
-> +
-> +	for (;;) {
-> +		spin_lock(&ktm_lock);
-> +		if (ktm.to == current)
-> +			break;
-> +		current->state = TASK_INTERRUPTIBLE;
-> +		spin_unlock(&ktm_lock);
-> +		schedule();
-> +	}
-
-If the calling task has a signal pending, this could become a tight loop?
-
-> +
-> +static int kthread(void *data)
-> +{
-> +	/* Copy data: it's on keventd_init's stack */
-> +	struct kthread k = *(struct kthread *)data;
-> +	struct kt_message m;
-> +	int ret = 0;
-> +	sigset_t blocked;
-> +
-> +	strcpy(current->comm, k.name);
-> +
-> +	/* Block and flush all signals. */
-> +	sigfillset(&blocked);
-> +	sigprocmask(SIG_BLOCK, &blocked, NULL);
-> +	flush_signals(current);
-> +
-
-deamonize() was not suitable here?
-
-> +	/* Send to spawn_kthread, so it knows who we are. */
-> +	ktm_send(ktm.info, current);
-> +
-> +	/* Receive from kthread_start or kthread_destroy */
-> +	m = ktm_receive();
-> +	if (!m.info)
-> +		goto stop;
-> +	if (k.initfn && (ret = k.initfn(k.data)) < 0)
-> +		goto stop;
-> +	ktm_send(m.from, current);
-> +
-> +	for (;;) {
-> +		if (time_to_die(&m))
-> +			break;
-> +
-> +		/* If it fails, just wait until kthread_destroy. */
-> +		if (k.corefn && (ret = k.corefn(k.data)) < 0)
-> +			k.corefn = NULL;
-> +
-> +		if (time_to_die(&m))
-> +			break;
-> +
-> +		schedule();
-> +	}
-
-In what state is this schedule() called?  If it's TASK_RUNNING (or
-TASK_INTERRUPTIBLE with signal_pending()) and this task has rt priority
-higher than the thing it is waiting for we could have a problem?
-
-> +
-> +	current->state = TASK_RUNNING;
-> +stop:
-> +	ktm_send(m.from, ERR_PTR(ret));
-> +	return ret;
-> +}
-> +
-> +struct kthread_create
-> +{
-> +	struct task_struct *result;
-> +	struct kthread k;
-> +	struct completion done;
-> +};
-> +
-
-`kthread_create' sounds like the name of a function to me, not a structure.
-
-> +struct task_struct *kthread_create(int (*initfn)(void *data),
-
-I was right! ;)
-
-It would be nice to kerneldocify kthread_create(), kthread_start() and
-kthread_destroy() sometime.
-
-> +static void wait_for_death(struct task_struct *k)
-> +{
-> +	while (!(k->state & TASK_ZOMBIE) && !(k->state & TASK_DEAD))
-> +		yield();
-> +}
-> +
-
-If the calling task has higher rt priority than *k, could this not become a
-busy loop?  It would be preferable to use a real sleep/wait primitive here.
-
-
+Now, do you need me to explain anything else?
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

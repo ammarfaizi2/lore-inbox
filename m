@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbUANSaK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 13:30:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263388AbUANS2o
+	id S263606AbUANShT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 13:37:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbUANShT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 13:28:44 -0500
-Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:58884 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S263370AbUANS2j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 13:28:39 -0500
-Date: Wed, 14 Jan 2004 19:30:40 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Subject: Re: [PATCH 2.4] i2c cleanups, third wave
-Message-Id: <20040114193040.6606813f.khali@linux-fr.org>
-In-Reply-To: <20040112014840.GE17845@matchmail.com>
-References: <20040111144214.7a6a4e59.khali@linux-fr.org>
-	<20040112014840.GE17845@matchmail.com>
-Reply-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Jan 2004 13:37:19 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:38330 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S263606AbUANSgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 13:36:41 -0500
+Date: Wed, 14 Jan 2004 18:36:10 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Mark Hounschell <markh@compro.net>
+cc: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: VM_AREA size
+In-Reply-To: <4005524A.F0A7041C@compro.net>
+Message-ID: <Pine.LNX.4.44.0401141827330.1711-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How about some patches to add some more sensors to the 2.4 kernel,
-> like the ones already in 2.6?
+On Wed, 14 Jan 2004, Mark Hounschell wrote:
+> What would the ramifications be of increasing VM_AREA size in
+> include/asm-i386/page.h from 128mb to 256mb. What would be the proper way to
+> increase this if the above isn't? 
 
-The 2.4 kernel has reached a maintainance-only point so there is no way
-lm_sensors could be officially merged into it now, especially since the
-i2c layer itself would have to be significantly reworked before.
+I think you mean __VMALLOC_RESERVE?  For the most part it's straightforward
+to bump it up.  _However_, that breaks boot loader assumptions about where
+to load initrd, causing mayhem in that case (and initramfs?).  That's
+second hand info: if I'm wrong or out-of-date, Peter is the authority
+and will correct me; or try Google VMALLOC_RESERVE boot.
 
-So your options are either to patch your 2.4 tree using the i2c patch
-and additional drivers we provide, or to jump to Linux 2.6.
+Hugh
 
--- 
-Jean Delvare
-http://www.ensicaen.ismra.fr/~delvare/

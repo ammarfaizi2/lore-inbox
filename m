@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269100AbRHVAEd>; Tue, 21 Aug 2001 20:04:33 -0400
+	id <S271898AbRHVACx>; Tue, 21 Aug 2001 20:02:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271900AbRHVAEX>; Tue, 21 Aug 2001 20:04:23 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:54893 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S269100AbRHVAEO>; Tue, 21 Aug 2001 20:04:14 -0400
-Date: Tue, 21 Aug 2001 20:04:26 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200108220004.f7M04Qx01206@devserv.devel.redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: usb not working with 2.4.8-ac8
-In-Reply-To: <mailman.998431141.21252.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.998431141.21252.linux-kernel2news@redhat.com>
+	id <S269100AbRHVACn>; Tue, 21 Aug 2001 20:02:43 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:37328 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S271898AbRHVACb>; Tue, 21 Aug 2001 20:02:31 -0400
+Subject: Open Tray detection of ide-cdroms broken
+Date: 22 Aug 2001 01:54:52 +0200
+Organization: Chemnitz University of Technology
+Message-ID: <87y9od6kab.fsf@kosh.ultra.csn.tu-chemnitz.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
+To: linux-kernel@vger.kernel.org
+From: Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Looks like the change int he usb_start_wait_urb code is a problem. 
+Hello,
 
-Yes, something was not right with my change.
-I am trying to coax people into testing this (on top of -ac8):
+since early 2.4 kernels a
 
---- linux-2.4.8-ac8/drivers/usb/usb.c	Tue Aug 21 14:39:55 2001
-+++ linux-2.4.8-ac8-niph/drivers/usb/usb.c	Tue Aug 21 16:02:01 2001
-@@ -1080,10 +1080,17 @@
- 	current->state = TASK_RUNNING;
- 	remove_wait_queue(&awd.wqh, &wait);
- 
--	if (!timeout) {
--		printk("usb_control/bulk_msg: timeout\n");
--		usb_unlink_urb(urb);  // remove urb safely
--		status = -ETIMEDOUT;
-+	if (!awd.done) {
-+		if (urb->status != -EINPROGRESS) {	/* No callback?!! */
-+			printk(KERN_ERR "usb: raced timeout, "
-+			    "pipe 0x%x status %d time left %d\n",
-+			    urb->pipe, urb->status, timeout);
-+			status = urb->status;
-+		} else {
-+			printk("usb_control/bulk_msg: timeout\n");
-+			usb_unlink_urb(urb);  // remove urb safely
-+			status = -ETIMEDOUT;
-+		}
- 	} else
- 		status = urb->status;
- 
+| $ mount /mnt/cdrom
 
-> I suspect either you need to add wmb() and rmb() to stop misoptimisations
-> on done (along with making it (!timeout && !awd.done)
+on my opened ide-cdroms reports that there is no cdrom in the drive. Old
+2.2 kernels closed the tray first and succeeded then.
 
-Arjan said so too - I'll add them later just in case.
-About (!timeout && !awd.done) - it's not going to be enough,
-I think. I suspect that callback is not delivered at all
-in some circumstances, or something really screwy like that.
+Aeons ago this issue was discussed already[1], but the current
+ide_cdrom_drive_status() function in ide-cd.c contains still the
 
-> there is a signal related problem - if so  making it set the state
-> to TASK_UNINTERRUPTIBLE might cure it
+| if (sense.sense_key == NOT_READY) {
+|          if (sense.asc == 0x3a && (!sense.ascq||sense.ascq == 1))
+|                  return CDS_NO_DISC;
+|          else
+|                  return CDS_TRAY_OPEN;
+|  }
 
-I tried that first and it worked, but someone disagreed. Dunno...
+code returning CDS_NO_DISC on "normal" ide drives. Please see [1] for
+details.
 
--- Pete
+
+
+Enrico
+
+Footnotes: 
+[1]  http://boudicca.tux.org/hypermail/linux-kernel/2001week08/0076.html
+

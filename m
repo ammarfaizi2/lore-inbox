@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVDEO2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbVDEOgg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261759AbVDEO2r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 10:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVDEO2q
+	id S261745AbVDEOgg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 10:36:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVDEOgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 10:28:46 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:44989 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S261759AbVDEO2i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 10:28:38 -0400
-Date: Tue, 5 Apr 2005 10:28:36 -0400
-From: John M Flinchbaugh <john@hjsoft.com>
-To: linux-kernel@vger.kernel.org
-Subject: debug: sleeping function...slab.c:2090
-Message-ID: <20050405142836.GA25571@butterfly.hjsoft.com>
+	Tue, 5 Apr 2005 10:36:36 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:1683 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S261745AbVDEOge
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 10:36:34 -0400
+Subject: Re: [PATCH 00/04] Load keyspan firmware with hotplug
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Greg KH <greg@kroah.com>,
+       Sven Luther <sven.luther@wanadoo.fr>,
+       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
+       debian-kernel@lists.debian.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050405114543.GG10171@delft.aura.cs.cmu.edu>
+References: <20050404100929.GA23921@pegasos>
+	 <20050404191745.GB12141@kroah.com>
+	 <20050405042329.GA10171@delft.aura.cs.cmu.edu>
+	 <200504042351.22099.dtor_core@ameritech.net>
+	 <1112692926.8263.125.camel@pegasus>
+	 <20050405114543.GG10171@delft.aura.cs.cmu.edu>
+Content-Type: text/plain
+Date: Tue, 05 Apr 2005 16:36:31 +0200
+Message-Id: <1112711791.12406.26.camel@notepaq>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Jan,
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > I agree with Dmitry on this point. The IHEX parser should not be inside
+> > firmware_class.c. What about using keyspan_ihex.[ch] for it?
+> 
+> That's what I had originally, actually called firmware_ihex.ko, since
+> the IHEX format parser is not in any way keyspan specific and there are
+> several usb-serial converters that seem to use the same IHEX->.h trick
+> which could trivially be modified to use this loader.
+> 
+> But the compiled parser fairly small (< 2KB) and adding it to the
+> existing module didn't effectively add any size to the firmware_class
+> module since things are rounded to a page boundary anyways.
 
-I got the debug statement below during boot.
+so it seems that this is usb-serial specific at the moment. Then I would
+propose to add it to the core of the usb-serial driver. Unless no other
+driver in the kernel needs a IHEX parser, I think it is bad idea to mess
+it up at the moment. People are also working on a replacement for the
+current request_firmware(), because the needs are changing. Try to keep
+it close with the usb-serial for now.
 
-Environment:
-    Pentium M, Thinkpad R40
-    Debian unstable
-    Linux 2.6.12-rc2
-    Gnu C 3.3.5
-    binutils 2.15
+Regards
 
-Debug: sleeping function called from invalid context at mm/slab.c:2090
-in_atomic():1, irqs_disabled():0
- [<c0103707>] dump_stack+0x17/0x20
- [<c0114e6c>] __might_sleep+0xac/0xc0
- [<c014394e>] kmem_cache_alloc+0x5e/0x60
- [<c0142aa3>] kmem_cache_create+0xe3/0x570
- [<c0268d39>] proto_register+0x99/0xc0
- [<e0bea096>] inet6_init+0x16/0x1d0 [ipv6]
- [<c0132902>] sys_init_module+0x172/0x230
- [<c01030e5>] syscall_call+0x7/0xb
+Marcel
 
---=20
-John M Flinchbaugh
-john@hjsoft.com
 
---jRHKVT23PllUwdXP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCUqCUCGPRljI8080RAnhwAJ9jyPTAU2EBThFfc9ci2cuesJn5VwCdGYfi
-HGKXItQIWncfDeg5Z4pIuhs=
-=av18
------END PGP SIGNATURE-----
-
---jRHKVT23PllUwdXP--

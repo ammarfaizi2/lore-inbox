@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290591AbSARD6r>; Thu, 17 Jan 2002 22:58:47 -0500
+	id <S290594AbSAREc6>; Thu, 17 Jan 2002 23:32:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290592AbSARD6h>; Thu, 17 Jan 2002 22:58:37 -0500
-Received: from cx97923-a.phnx3.az.home.com ([24.1.197.194]:64478 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S290591AbSARD6Q>;
-	Thu, 17 Jan 2002 22:58:16 -0500
-Message-ID: <3C479D4E.1010908@candelatech.com>
-Date: Thu, 17 Jan 2002 20:58:06 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S290593AbSAREcs>; Thu, 17 Jan 2002 23:32:48 -0500
+Received: from falcon.etf.bg.ac.yu ([147.91.8.233]:42892 "EHLO
+	falcon.etf.bg.ac.yu") by vger.kernel.org with ESMTP
+	id <S290592AbSAREck>; Thu, 17 Jan 2002 23:32:40 -0500
+Date: Fri, 18 Jan 2002 05:30:33 +0100 (CET)
+From: Bosko Radivojevic <bole@falcon.etf.bg.ac.yu>
+To: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Rik spreading bullshit about VM
+In-Reply-To: <20020117000758.GL10175@arthur.ubicom.tudelft.nl>
+Message-ID: <Pine.LNX.4.33.0201180522020.19716-100000@falcon.etf.bg.ac.yu>
 MIME-Version: 1.0
-To: David Lang <david.lang@digitalinsight.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Tulip driver bug in 2.4.17 (fwd)
-In-Reply-To: <Pine.LNX.4.40.0201171733460.26448-100000@dlang.diginsite.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Thu, 17 Jan 2002, Erik Mouw wrote:
 
-David Lang wrote:
+> Some time ago Linus made the important observation that we shouldn't
+> tune the scheduler for SMP systems simply because 99.9% of the systems
+> in the world running linux have a single CPU. IMHO an equally well
+> observation would be that we shouldn't tune the VM for the 0.1% of the
+> systems in this world that run large DMBSes. The 99.9% majority is much
+> more important.
 
-> On Thu, 17 Jan 2002, Ben Greear wrote:
-> 
-> 
->>You're not using a PCI extender/riser card, are you?
->>
-> 
-> Yes, (it's in a 2u rackmount case). it's a low right-angle extender
+There is a way to fulfill both needs. If my systems are part of that 0.1%,
+I have to disagree with you. :)
 
+There is no way to make one good VM for all possible situations. But, you
+can tune/make one VM to work great on large DBMS (e.g.) and tune/make
+another one to work great on ordinary desktop systems (playing mp3s & co).
+So, add different VMs as kernel-config options. The 'default' one should
+be VM for 99.9% users. Everybody happy? :)
 
-You're screwed :)
-
-It seems to be a hardware/PCI problem.  I replaced 4-port NICS (the DFE-570-TX),
-motherboards, cpus, entire chassis...the problem followed the riser cards.
-
-To debug, take off the face-plates of your NICS and run them in your box
-w/out the riser..or take the MB completely out of the case.  I'll bet
-you a dozen realtec nics that that will fix your lockup problem! :)
-
-While you're doing that...order a $54 riser from adexelec.com.  Their
-riser fixed the problem for me.  If the riser isn't obvious on
-Adex's page, let me know and I'll find the version of the one I got.
-
-Btw, if you find a butter-fly riser for a 1U chassis that works, let
-me know..cause I see the same problem in my 1U servers...
-
-Enjoy,
-Ben
-
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Greetings
 
 

@@ -1,98 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVCHGww@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVCHGyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261834AbVCHGww (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 01:52:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVCHGwU
+	id S261841AbVCHGyS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 01:54:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVCHGxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 01:52:20 -0500
-Received: from waste.org ([216.27.176.166]:51376 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261830AbVCHGuH (ORCPT
+	Tue, 8 Mar 2005 01:53:13 -0500
+Received: from nabe.tequila.jp ([211.14.136.221]:52931 "HELO nabe.tequila.jp")
+	by vger.kernel.org with SMTP id S261841AbVCHGwn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 01:50:07 -0500
-Date: Mon, 7 Mar 2005 22:49:36 -0800
-From: Matt Mackall <mpm@selenic.com>
+	Tue, 8 Mar 2005 01:52:43 -0500
+Message-ID: <422D4BA7.8050200@tequila.co.jp>
+Date: Tue, 08 Mar 2005 15:52:23 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041220 Thunderbird/1.0 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Chris Wright <chrisw@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Paul Davis <paul@linuxaudiosystems.com>,
-       joq@io.com, cfriesen@nortelnetworks.com, hch@infradead.org,
-       rlrevell@joe-job.com, arjanv@redhat.com, mingo@elte.hu,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050308064936.GP3120@waste.org>
-References: <20050112185258.GG2940@waste.org> <200501122116.j0CLGK3K022477@localhost.localdomain> <20050307195020.510a1ceb.akpm@osdl.org> <20050308043349.GG3120@waste.org> <20050308064505.GJ5389@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050308064505.GJ5389@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.6+20040907i
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.11-ac1
+References: <1110231261.3116.90.camel@localhost.localdomain> <B0B9168A9B666B9CF980CB7C@[192.168.12.2]> <20050308064926.GV28536@shell0.pdx.osdl.net>
+In-Reply-To: <20050308064926.GV28536@shell0.pdx.osdl.net>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 07, 2005 at 10:45:05PM -0800, Chris Wright wrote:
-> * Matt Mackall (mpm@selenic.com) wrote:
-> > On Mon, Mar 07, 2005 at 07:50:20PM -0800, Andrew Morton wrote:
-> > > Consider this a prod in the direction of those who were pushing
-> > > alternatives ;)
-> > 
-> > I think Chris Wright's last rlimit patch is more sensible and ready to
-> > go. And I think I may have even convinced Ingo on this point before
-> > the conversation died last time around. So here's that patch again,
-> > updated to 2.6.11. Compiles cleanly. Chris, please add a signed-off-by.
-> 
-> Only very minor nits below.
-> 
-> > Add a pair of rlimits for allowing non-root tasks to raise nice and rt
-> > priorities. Defaults to traditional behavior. Originally written by
-> > Chris Wright.
-> > 
-> > Signed-off-by: Matt Mackall <mpm@selenic.com>
-> > 
-> > Index: rlimits/include/asm-generic/resource.h
-> > ===================================================================
-> > --- rlimits.orig/include/asm-generic/resource.h	2005-03-02 18:30:27.000000000 -0800
-> > +++ rlimits/include/asm-generic/resource.h	2005-03-07 20:21:04.000000000 -0800
-> > @@ -20,8 +20,10 @@
-> >  #define RLIMIT_LOCKS		10	/* maximum file locks held */
-> >  #define RLIMIT_SIGPENDING	11	/* max number of pending signals */
-> >  #define RLIMIT_MSGQUEUE		12	/* maximum bytes in POSIX mqueues */
-> > -
-> > -#define RLIM_NLIMITS		13
-> > +#define RLIMIT_NICE	13		/* max nice prio allowed to raise to
-> > +					   0-39 for nice level 19 .. -20 */
-> > +#define RLIMIT_RTPRIO	14		/* maximum realtime priority */
-> 
-> Needs one more tab to keep in line with rest.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-That's just tab damage from the patch.
- 
-> > +#define RLIM_NLIMITS		15
+On 03/08/2005 03:49 PM, Chris Wright wrote:
+> * Clemens Schwaighofer (cs@tequila.co.jp) wrote:
+> 
+>>>2.6.11-ac1
+>>>o	Fix jbd race in ext3				(Stephen Tweedie)
+>>
+>>will that patch actually appear in 2.6.11.2? At least it looks like a 
+>>candidate for me ...
 > 
 > 
-> >  #endif
-> >  
-> >  /*
-> > @@ -53,6 +55,8 @@
-> >  	[RLIMIT_LOCKS]		= { RLIM_INFINITY, RLIM_INFINITY },	\
-> >  	[RLIMIT_SIGPENDING]	= { MAX_SIGPENDING, MAX_SIGPENDING },	\
-> >  	[RLIMIT_MSGQUEUE]	= { MQ_BYTES_MAX, MQ_BYTES_MAX },	\
-> > +	[RLIMIT_NICE]		= { 0, 0 }, \
-> > +	[RLIMIT_RTPRIO]		= { 0, 0 }, \
-> 
-> Might as well fit in with rest of file on these too.
-> 
-> Also, missed alpha, sparc, sparc64, and mips.  BTW, where's that last
-> cleanup from Ingo to consolidate these?  Ah, just saw these are inflight
-> to Linus' tree, nevermind.
+> Yes, we are intending to pick up bits from -ac (you might have missed
+> that in another thread).
 
-Uhh, is that not what I've already done above?
- 
-> -#define RLIM_NLIMITS		13
-> +#define RLIMIT_NICE		13	/* max nice prio allowed to raise to
-> +					   0-39 for nice level 19 .. -20 */
-> +#define RLIMIT_RTPRIO		14	/* maximum realtime priority */
+Probably. I am sorry :) I sort of got lost in the tons of RFD, etc
+threads :)
 
-Heh.
+- --
+[ Clemens Schwaighofer                      -----=====:::::~ ]
+[ TBWA\ && TEQUILA\ Japan IT Group                           ]
+[                6-17-2 Ginza Chuo-ku, Tokyo 104-0061, JAPAN ]
+[ Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343 ]
+[ http://www.tequila.co.jp        http://www.tbwajapan.co.jp ]
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Anyway...
-
--- 
-Mathematics is the supreme nostalgia of our time.
+iD8DBQFCLUunjBz/yQjBxz8RArh2AJ4oMATN/P+9TPtFEDrGQhu2iox+MQCfZobG
+kc+hXDhfKyHhGK7UF6dKw2I=
+=CVCH
+-----END PGP SIGNATURE-----

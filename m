@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130618AbRCIRbT>; Fri, 9 Mar 2001 12:31:19 -0500
+	id <S130614AbRCIR3T>; Fri, 9 Mar 2001 12:29:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130619AbRCIRbK>; Fri, 9 Mar 2001 12:31:10 -0500
-Received: from twinlark.arctic.org ([204.107.140.52]:1293 "HELO
-	twinlark.arctic.org") by vger.kernel.org with SMTP
-	id <S130618AbRCIRa5>; Fri, 9 Mar 2001 12:30:57 -0500
-Date: Fri, 9 Mar 2001 09:30:17 -0800 (PST)
-From: Jauder Ho <jauderho@carumba.com>
-X-X-Sender: <jauderho@twinlark.arctic.org>
-To: Tigran Aivazian <tigran@veritas.com>
-cc: Tom Sightler <ttsig@tuxyturvy.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Questions about Enterprise Storage with Linux
-In-Reply-To: <Pine.LNX.4.21.0103090725030.699-100000@penguin.homenet>
-Message-ID: <Pine.LNX.4.33.0103090929320.17219-100000@twinlark.arctic.org>
-X-Mailer: UW Pine 4.21 + a bunch of schtuff
-X-There-Is-No-Hidden-Message-In-This-Email: There are no tyops either
+	id <S130617AbRCIR3J>; Fri, 9 Mar 2001 12:29:09 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:11958 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130614AbRCIR3F>;
+	Fri, 9 Mar 2001 12:29:05 -0500
+Date: Fri, 9 Mar 2001 12:28:18 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Chris Mason <mason@suse.com>
+cc: linux-kernel@vger.kernel.org, alan@redhat.com
+Subject: Re: 2.4.2-ac calls FS truncate w/o BKL
+In-Reply-To: <890000000.984152461@tiny>
+Message-ID: <Pine.GSO.4.21.0103091223560.14558-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Well, I stand corrected. Look forward to trying it out.
 
---Jauder
+On Fri, 9 Mar 2001, Chris Mason wrote:
 
-On Fri, 9 Mar 2001, Tigran Aivazian wrote:
+> 
+> The added vmtruncate calls in the ac series trigger calls to the FS
+> truncate without the BKL held.  Easy enough to fix on the reiserfs side,
+> but if other filesystems care we might want to change vmtruncate to grab
+> the lock before calling truncate (and update the Locking doc ;-)
 
-> Hi,
->
-> On Wed, 7 Mar 2001, Jauder Ho wrote:
-> > I am not sure what you intend this application for. If it is mission
-> > critical in any way shape or form, I would still recommend using something
-> > like Veritas (which unfortunately is not ported to Linux yet).
->        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->
-> What do you mean not ported? Of course it has been ported and everything
-> works nicely and has been so for ages. Ok, it is true that you can't buy
-> it just yet but should be able to sometime this year. By "it" I meant the
-> volume manager, vxfs journalling filesystem etc...
->
-> Regards,
-> Tigran
->
->
->
->
+Grr... Thanks for spotting - it's my fault. No, I don't think that
+we should move BKL into filesystems right now. Should move it into
+vmtruncate(), though...
+
+Alan, could you put lock_kernel()/unlock_kernel() around the call of
+->truncate() in vmtruncate()?
+							Thanks,
+								Al
 

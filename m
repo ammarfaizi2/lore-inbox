@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265756AbTGDDDd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 23:03:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265757AbTGDDDd
+	id S265662AbTGDDPn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 23:15:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265665AbTGDDPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 23:03:33 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:28129 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S265756AbTGDDDc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 23:03:32 -0400
-Message-ID: <3F04F56E.5060907@kegel.com>
-Date: Thu, 03 Jul 2003 20:33:02 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: de-de, en
+	Thu, 3 Jul 2003 23:15:43 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:8870 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S265662AbTGDDPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 23:15:42 -0400
+Date: Thu, 3 Jul 2003 23:30:09 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Brian Ristuccia <bristucc@sw.starentnetworks.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-rmap15j: sometimes processes stuck in state D, WCHAN
+ 'down'
+In-Reply-To: <20030703124813.GN24907@sw.starentnetworks.com>
+Message-ID: <Pine.LNX.4.44.0307032329190.8098-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-To: Dan Kegel <dank@kegel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: chroot bug if arg not absolute path?
-References: <3F04F403.2000809@kegel.com>
-In-Reply-To: <3F04F403.2000809@kegel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Kegel wrote:
-> On my Debian 3.0 system running the 2.4.18 kernel, I
-> ran into a funny problem: /usr/sbin/chroot, or the chroot()
-> system call followed by the chdir() system call,
-> seem to work if their argument is not an absolute path;
-> that is, scandir("/bin") can see the files in the jail,
-> but execlp("/bin/sh", "/bin/sh", 0) fails to find the /bin/sh
-> in the jail, and sets errno to ENOENT.
-> 
-> Is this a bug, or do I have a screw loose behind the wheel?
+On Thu, 3 Jul 2003, Brian Ristuccia wrote:
 
-The latter.  Ignore me.
-- Dan
+> Is anyone else seeing this problem with stock 2.4.21 or 2.4.21-rmap15j?
 
+I haven't heard of anything like this.  Could you please get
+a backtrace of all the stuck processes with alt+sysrq+t and
+decode the backtraces with ksymoops ?
 
+thanks,
+
+Rik
 -- 
-Dan Kegel
-http://www.kegel.com
-http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
+Great minds drink alike.
 

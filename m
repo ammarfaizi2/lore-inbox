@@ -1,31 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbTJJKwk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 06:52:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbTJJKwk
+	id S262009AbTJJKrg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 06:47:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTJJKrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 06:52:40 -0400
-Received: from math.ut.ee ([193.40.5.125]:30675 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S262040AbTJJKwj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 06:52:39 -0400
-Date: Fri, 10 Oct 2003 13:52:37 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: linux-kernel@vger.kernel.org
-Subject: megaraid2 compilation failure in 2.4
-Message-ID: <Pine.GSO.4.44.0310101351420.1585-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 10 Oct 2003 06:47:36 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:3082 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S262009AbTJJKrf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 06:47:35 -0400
+Date: Fri, 10 Oct 2003 14:47:10 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB and DMA on Alpha with 2.6.0-test7
+Message-ID: <20031010144710.A1396@jurassic.park.msu.ru>
+References: <yw1xu16hbg75.fsf@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <yw1xu16hbg75.fsf@users.sourceforge.net>; from mru@users.sourceforge.net on Fri, Oct 10, 2003 at 11:22:06AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cc -D__KERNEL__ -I/home/mroos/compile/linux-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include /home/mroos/compile/linux-2.4/include/linux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=megaraid2  -c -o megaraid2.o megaraid2.c
-megaraid2.c: In function `mega_find_card':
-megaraid2.c:403: error: structure has no member named `lock'
-megaraid2.c:618: warning: integer constant is too large for "long" type
+On Fri, Oct 10, 2003 at 11:22:06AM +0200, Måns Rullgård wrote:
+> Yesterday, I compiled 2.6.0-test7 for one of my Alpha boxes.  I have
+> an AX8817X based USB ethernet adaptor connected to it (it's short on
+> PCI slots), so I compiled the usbnet module.  When I loaded usbnet, I
+> got a BUG at include/asm-generic/dma-mapping.h:19.  Apparently, DMA
+> setup only works with PCI here.  How should this be fixed?  It worked
+> with -test4, albeit slowly, for other reasons.
 
-This is todays 2.4.23-pre7+BK.
+Well, the usage of dma_supported() in usbnet.c is wrong even for i386.
+USB device doesn't do DMA, it's USB controller what does. The driver should
+check dma_mask of the parent device instead, something like this:
 
--- 
-Meelis Roos (mroos@linux.ee)
+	// possible with some EHCI controllers
+	if (*udev->dev->parent->dma_mask == 0xffffffffffffffffULL)
+		net->features |= NETIF_F_HIGHDMA;
 
+Ivan.

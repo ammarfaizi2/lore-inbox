@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbUJaA2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbUJaAkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261447AbUJaA2M (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 20:28:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbUJaA2M
+	id S261448AbUJaAkP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 20:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbUJaAkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 20:28:12 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:44183 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261447AbUJaA16
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 20:27:58 -0400
-Subject: Re: BK kernel workflow
-From: Robert Love <rml@novell.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Xavier Bestel <xavier.bestel@free.fr>,
-       James Bruce <bruce@andrew.cmu.edu>, Linus Torvalds <torvalds@osdl.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Andrea Arcangeli <andrea@novell.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041030234619.GB24640@work.bitmover.com>
-References: <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org>
-	 <Pine.LNX.4.61.0410270223080.877@scrub.home>
-	 <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org>
-	 <4180B9E9.3070801@andrew.cmu.edu>
-	 <20041028135348.GA18099@work.bitmover.com>
-	 <1098972379.3109.24.camel@gonzales>
-	 <20041028151004.GA3934@work.bitmover.com> <20041028195947.GD3207@stusta.de>
-	 <20041028213534.GA29335@work.bitmover.com>
-	 <20041030065111.GF4374@stusta.de>
-	 <20041030234619.GB24640@work.bitmover.com>
-Content-Type: text/plain
-Date: Sat, 30 Oct 2004 20:28:32 -0400
-Message-Id: <1099182512.6034.147.camel@localhost>
+	Sat, 30 Oct 2004 20:40:15 -0400
+Received: from cantor.suse.de ([195.135.220.2]:20915 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261448AbUJaAkI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 20:40:08 -0400
+Date: Sun, 31 Oct 2004 02:39:34 +0200
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Semaphore assembly-code bug
+Message-ID: <20041031003934.GA19396@wotan.suse.de>
+References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel> <Pine.LNX.4.58.0410291133220.28839@ppc970.osdl.org.suse.lists.linux.kernel> <p73sm7xymvd.fsf@verdi.suse.de> <200410301228.42561.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.58.0410301040050.28839@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0410301040050.28839@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-30 at 16:46 -0700, Larry McVoy wrote:
+> I personally am a _huge_ believer in small code. 
+> 
+> The sequence
+> 
+> 	popl %eax
+> 	popl %ecx
+> 	popl %edx
+> 	popl %eax
+> 
+> is four bytes. In contrast, the three moves and an add is 15 bytes. That's 
+> almost 4 times as big.
 
-> If there are reasonable people out there who feel this way then let's
-> figure out some sort of public contract or something that makes it clear
-> that we have no designs on the Linux kernel.  That's just wacko but if
-> a lot of people think that then lets fix that.  By the way, with all
-> due respect, Andrea & Roman are not "reasonable" people in this context.
-> Let's find some reasonable people who are not BK users and make sure they
-> are comfortable with what is going on.  Alan Cox, Al Viro, who else?
-> I don't really care if it is non-BK users, BK users, or a combination,
-> I just care that there is some sanity in the discussion.
+Using the long stack setup code was found to be a significant
+win when enough registers were saved (several percent in real benchmarks) 
+on K8 gcc. It speed up all function calls considerably because it 
+eliminates several stalls for each function entry/exit.  The popls
+will all depend on each other because of their implicied reference
+to esp.  
 
-I am a non-BK user[1].  And I see this as a total non-issue.
+Yes, it bloats the code, but function calls happen so often that having them
+faster is really noticeable. 
 
-	Robert Love
+The K8 has quite big caches and is not decoding limited, so it 
+wasn't a too bad tradeoff there.
 
-[1] While I am no fan of the license, the real reason I don't use BK is
-because I don't think it currently makes sense for developers who are
-not also maintainers.  BK really shines when you have people above
-(Linus, Andrew) and below (other developers) you.  E.g., it makes sense
-for Greg K-H.  Not so much for me or, say, Ingo.  It is the push-pull
-relationship where BK shines.  Your comment that you were looking at
-improving workloads like Andrew's interests me.
+Ideally you would want to only do it on hot functions and optimize
+rarely called functions for code size, but that would require profile 
+feedback which is often not feasible (JITs have an advantage here) 
 
+Unfortunately I don't think it is practically feasible for the kernel because
+we rely on to be able to recreate the same vmlinuxs for debugging.
+[It's a pity actually because modern compilers do a lot better
+with profile feedback] 
+
+On P4 on the other hand it doesn't help at all and only makes
+the code bigger. I did it from hand in the x86-64 syscall
+code too (that was before there was EM64T, but I still think it was a 
+good idea). Perhaps AMD adds special hardware in some future CPU that
+also makes it unnecessary, but currently it's like this and it helps.
+
+-Andi
 

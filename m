@@ -1,76 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263329AbTJVCQo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 22:16:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263339AbTJVCQo
+	id S263365AbTJVCiF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 22:38:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263368AbTJVCiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 22:16:44 -0400
-Received: from 116.Red-81-38-199.pooles.rima-tde.net ([81.38.199.116]:53843
-	"EHLO falafell.ghetto") by vger.kernel.org with ESMTP
-	id S263329AbTJVCQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 22:16:43 -0400
-Date: Wed, 22 Oct 2003 04:10:28 +0200
-From: Pedro Larroy <piotr@member.fsf.org>
-To: linux-usb-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: aborts in usb-storage in branch 2.6
-Message-ID: <20031022021028.GA4454@81.38.200.176>
-Reply-To: piotr@member.fsf.org
+	Tue, 21 Oct 2003 22:38:05 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:16140 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S263365AbTJVCiD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 22:38:03 -0400
+Date: Tue, 21 Oct 2003 19:37:58 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Software RAID5 with 2.6.0-test
+Message-ID: <20031022023758.GG17713@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <20031018115049.GB760@gallifrey> <bn49pv$jbn$1@gatekeeper.tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <bn49pv$jbn$1@gatekeeper.tmr.com>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: Vulnerable email reader detected!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Tue, Oct 21, 2003 at 09:51:59PM +0000, bill davidsen wrote:
+> In article <20031018115049.GB760@gallifrey>,
+> Dr. David Alan Gilbert <gilbertd@treblig.org> wrote:
+> 
+> |   I'd love to see some real benchmarks to prove me wrong however!
+> 
+> Okay, I'm scheduled to build a system next month, give me the name of a
+> good controller which will do four drives and which can be used as a
+> dumb controller as well, and I'll grab six drives for the build and run
+> a test (baring a change in schedule, obviously).
 
+I'd try the 3ware.  AC and others have reported good
+throughput and, at least compared to SCSI, they aren't that
+expensive and claim to support JBOD.  I just checked on
+pricewatch and the 7506-4 can be had for about $250US and
+the eight port for about $375.  Older models can be had for
+less.  When the economy picks back up enough to improve my
+bank ballance i'm planning to buy a few.
 
-I experience aborts with external usb hd, that also pause all disk
-operations for some seconds.
-
-It doesn't happen with 2.4.21 kernel.
-
-Please tell me if I can do anything useful to debug the problem. I can use
-kgdb or other techniques.
-
-It's getting very annoying since the disk stays for more than 10 seconds
-without responding.
-
-
-usb-storage: usb_stor_control_msg: rq=01 rqtype=02 value=0000 index=88
-len=0
-usb-storage: usb_stor_clear_halt: result = 0
-usb-storage: Attempting to get CSW (2nd try)...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code -32; transferred 0/13
-usb-storage: clearing endpoint halt for pipe 0xc0040280
-usb-storage: usb_stor_control_msg: rq=01 rqtype=02 value=0000 index=88
-len=0
-usb-storage: usb_stor_clear_halt: result = 0
-usb-storage: Bulk status result = 2
-usb-storage: -- transport indicates error, resetting
-usb-storage: usb_stor_Bulk_reset called
-usb-storage: usb_stor_control_msg: rq=ff rqtype=21 value=0000 index=00
-len=0
-[ACPI Debug] String: ==Battery1 _BST==
-[ACPI Debug] String: ==Battery1 _BST==
-b-storage: scsi command aborted
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand called
-usb-storage: *** thread awakened.
-usb-storage: Command TEST_UNIT_READY (6 bytes)
-usb-storage:  00 00 00 00 00 00
-usb-storage: Bulk Command S 0x43425355 T 0x1162 L 0 F 0 Trg 0 LUN 0 CL 6
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-
-
-
-Regards.
+> I'll run as many RAID configs as make sense, whatever the hardware
+> supports. And also four way RAID-1 for a heavy read application, to see
+> if the software RAID does better than the controller, if it can do that
+> at all.
 
 -- 
-  Pedro Larroy Tovar  |  piotr%member.fsf.org 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-Software patents are a threat to innovation in Europe please check: 
-	http://www.eurolinux.org/     
+		Remember Cernan and Schmitt

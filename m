@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265946AbUGAPt1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265958AbUGAP4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265946AbUGAPt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 11:49:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265928AbUGAPt1
+	id S265958AbUGAP4z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 11:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265981AbUGAP4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 11:49:27 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13719 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265946AbUGAPt0 (ORCPT
+	Thu, 1 Jul 2004 11:56:55 -0400
+Received: from ida.rowland.org ([192.131.102.52]:9476 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S265958AbUGAP4y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 11:49:26 -0400
-Date: Thu, 1 Jul 2004 08:49:10 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Roland McGrath <roland@redhat.com>
-cc: Andrea Arcangeli <andrea@suse.de>, Andreas Schwab <schwab@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: zombie with CLONE_THREAD
-In-Reply-To: <200407010706.i6176pTa019793@magilla.sf.frob.com>
-Message-ID: <Pine.LNX.4.58.0407010843450.11212@ppc970.osdl.org>
-References: <200407010706.i6176pTa019793@magilla.sf.frob.com>
+	Thu, 1 Jul 2004 11:56:54 -0400
+Date: Thu, 1 Jul 2004 11:56:53 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Duncan Sands <baldrick@free.fr>
+cc: linux-usb-users@lists.sourceforge.net, janne <sniff@xxx.ath.cx>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-usb-users] linux 2.6.6, bttv and usb2 data corruption &
+ lockups & poor performance
+In-Reply-To: <200407011726.24592.baldrick@free.fr>
+Message-ID: <Pine.LNX.4.44L0.0407011153330.1083-100000@ida.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 1 Jul 2004, Duncan Sands wrote:
 
-
-On Thu, 1 Jul 2004, Roland McGrath wrote:
+> > Is it possible that you are exceeding the capacity of your PCI bus?
 > 
-> > .. since this information should be available anyway (we'll have woken up 
-> > the tracer, and the tracer will see that the child is gone by simply 
-> > seeing the ESRCH errorcode from ptrace).
-> 
-> When did you wake up the tracer?  I don't see how that happened.
+> I guess so, but that's no reason to hang...  Or is overloading the PCI
+> bus somehow problematic?
 
-exit_notify() will inform the tracer:
+Well it's certainly not good!  :-)
 
-        if (tsk->exit_signal != -1 && thread_group_empty(tsk)) {
-                int signal = tsk->parent == tsk->real_parent ? tsk->exit_signal : SIGCHLD;
-                do_notify_parent(tsk, signal);
-        } else if (tsk->ptrace) {
-***             do_notify_parent(tsk, SIGCHLD);   *****
-        }
+One of the failure modes that will cause an immediate shutdown of a USB 
+host controller is a PCI error.  If the controller isn't working lots of 
+bad things are likely to follow.  I can imagine that even if that doesn't 
+happen, PCI errors could mess up other drivers or hardware too.
 
-so this should catch it. It even gets the pid of the child in the siginfo 
-structure if it really wants to see that..
+Alan Stern
 
-		Linus

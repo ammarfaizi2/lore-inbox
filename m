@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261923AbULKJXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbULKJ5W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261923AbULKJXv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 04:23:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbULKJXv
+	id S261927AbULKJ5W (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 04:57:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbULKJ5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 04:23:51 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:46224 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261923AbULKJXr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 04:23:47 -0500
-Date: Sat, 11 Dec 2004 09:23:20 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: clameter@sgi.com, <torvalds@osdl.org>, <benh@kernel.crashing.org>,
-       <nickpiggin@yahoo.com.au>, <linux-mm@kvack.org>,
-       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: page fault scalability patch V12 [0/7]: Overview and performance
-    tests
-In-Reply-To: <20041210165745.38c1930e.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0412110914280.1535-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Sat, 11 Dec 2004 04:57:22 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:47080 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261927AbULKJ5U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 04:57:20 -0500
+Date: Sat, 11 Dec 2004 10:57:02 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, LKML <linux-kernel@vger.kernel.org>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
+       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>, emann@mrv.com,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-12
+Message-ID: <20041211095701.GA23813@elte.hu>
+References: <32788.192.168.1.5.1102541960.squirrel@192.168.1.5> <1102543904.25841.356.camel@localhost.localdomain> <20041209093211.GC14516@elte.hu> <20041209131317.GA31573@elte.hu> <1102602829.25841.393.camel@localhost.localdomain> <1102619992.3882.9.camel@localhost.localdomain> <20041209221021.GF14194@elte.hu> <1102659089.3236.11.camel@localhost.localdomain> <20041210111105.GB6855@elte.hu> <1102731973.3228.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1102731973.3228.8.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Dec 2004, Andrew Morton wrote:
-> Hugh Dickins <hugh@veritas.com> wrote:
-> > 
-> > My inclination would be simply to remove the mark_page_accessed
-> > from do_anonymous_page; but I have no numbers to back that hunch.
-> 
-> With the current implementation of page_referenced() the
-> software-referenced bit doesn't matter anyway, as long as the pte's
-> referenced bit got set.  So as long as the thing is on the active list, we
-> can simply remove the mark_page_accessed() call.
 
-Yes, you're right.  So we don't need numbers, can just delete that line.
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-> Except one day the VM might get smarter about pages which are both
-> software-referenced and pte-referenced.
+> Anyways, what is happening is that the io_apic code is mapping irqs to
+> vectors, and your code didn't account for it. So here's my patch.
 
-And on that day, we'd be making other changes, which might well
-involve restoring the mark_page_accessed to do_anonymous_page
-and adding it in the similar places which currently lack it.
+ah .. thanks, great debugging!
 
-But for now...
-
---- 2.6.10-rc3/mm/memory.c	2004-12-05 12:56:12.000000000 +0000
-+++ linux/mm/memory.c	2004-12-11 09:18:39.000000000 +0000
-@@ -1464,7 +1464,6 @@ do_anonymous_page(struct mm_struct *mm, 
- 							 vma->vm_page_prot)),
- 				      vma);
- 		lru_cache_add_active(page);
--		mark_page_accessed(page);
- 		page_add_anon_rmap(page, vma, addr);
- 	}
- 
-
+	Ingo

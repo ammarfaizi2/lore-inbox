@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261724AbSKITCo>; Sat, 9 Nov 2002 14:02:44 -0500
+	id <S262528AbSKITeb>; Sat, 9 Nov 2002 14:34:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262510AbSKITCo>; Sat, 9 Nov 2002 14:02:44 -0500
-Received: from fe6.rdc-kc.rr.com ([24.94.163.53]:59665 "EHLO mail6.kc.rr.com")
-	by vger.kernel.org with ESMTP id <S261724AbSKITCn>;
-	Sat, 9 Nov 2002 14:02:43 -0500
-Date: Sat, 9 Nov 2002 13:10:12 -0600 (CST)
-From: Ognen Duzlevski <ognen@kc.rr.com>
-X-X-Sender: ognen@gemelli.dyndns.org
-To: linux-kernel@vger.kernel.org
-Subject: parport question
-Message-ID: <Pine.LNX.4.44.0211091258440.1456-100000@gemelli.dyndns.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262576AbSKITeb>; Sat, 9 Nov 2002 14:34:31 -0500
+Received: from x101-201-88-dhcp.reshalls.umn.edu ([128.101.201.88]:20679 "EHLO
+	arashi.yi.org") by vger.kernel.org with ESMTP id <S262528AbSKITeb>;
+	Sat, 9 Nov 2002 14:34:31 -0500
+Date: Sat, 9 Nov 2002 13:40:59 -0600
+From: Matt Reppert <arashi@arashi.yi.org>
+To: Neilen Marais <brick@adept.co.za>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: aty128fb.c does not compile in linux 2.5.46
+Message-Id: <20021109134059.27e467a0.arashi@arashi.yi.org>
+In-Reply-To: <20021109190405.A17671@brickbox.egghead>
+References: <20021109190405.A17671@brickbox.egghead>
+Organization: Yomerashi
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-message-flag: : This mail sent from host minerva, please respond.
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 9 Nov 2002 19:04:05 +0200
+Neilen Marais <brick@adept.co.za> wrote:
 
-I have sent this question to the people listed in the parport
-kernel directory (the maintainers) but have yet not received a reply and
-I am not sure if this is exactly a linux-kernel question.
+> Hi.
+> 
+> I don't know if its currently considered important, but just for the 
+> record.
+> Please CC any replies to me, since I am not subscribed to the list.
+> 
+> I'm running an AMD Duron/Via kt133, with Debian testing.  Nothing 
+> unusual that
+> I am aware of.  If I choose to use the ATI Rage128 framebuffer console, 
+> I get
+> the following compile error:
 
-I have a printer that worked fine under linux (redhat/lexmark 3200) for a
-long time, then I switched over to 2.4.18 and debian and it stopped
-working. I compiled the parport support into the kernel, I did that with
-2.4.19, I did it also as modules, I tried 2.5.45, still won't work, not
-even a cat test.txt > /dev/lp0
+Yep. There was a recent fbdev API rewrite, not all of the drivers have
+been converted yet. (The radeonfb driver, eg, does this too.)
 
-The dmesg shows that the printer is recognized correctly:
+You can fix it by looking at the changesets from the PPC Bitkeeper tree
+at http://ppc.bkbits.net:8080/linuxppc-2.5 ... the changes are fairly
+straightforward, I did this and got radeonfb working under 2.5.45.
 
-Nov  9 13:06:32 gemelli kernel: parport0: PC-style at 0x378 (0x778)
-[PCSPP,TRISTATE]
-Nov  9 13:06:32 gemelli kernel: parport0: irq 5 detected
-Nov  9 13:06:34 gemelli kernel: parport0: Printer, Lexmark Lexmark 3200
-lp0: using parport0 (polling).
-lp0: console ready
-
-The BIOS has a ton of settings such as "auto" or "normal" - I have tried
-them all, tried forcing the DMA / IRQ from the BIOS and then feeding these
-values to parport_pc, still won't work. I have tried all combinations of
-Normal, ECP, ECP+EPP or EPP solely, won't work.
-
-I then installed vmware and windows nt as a guest OS, under the same
-kernels. I set up parport0 to be used by vmware and, it prints from
-Windows nt (so I know the printer is fully functional).
-
-Any ideas, help would be appreciated. Sorry if this is not the place to
-post the question but I have tried google, linux-printing.org, usenet to
-no avail.
-
-CHeers,
-Ognen
-
-
+Matt

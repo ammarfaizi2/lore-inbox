@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266213AbUGASyX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266226AbUGAS52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266213AbUGASyX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 14:54:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266224AbUGASyX
+	id S266226AbUGAS52 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 14:57:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266224AbUGAS52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 14:54:23 -0400
-Received: from madrid10.amenworld.com ([62.193.203.32]:16903 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S266213AbUGASyW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 14:54:22 -0400
-Date: Thu, 1 Jul 2004 20:55:27 +0200
-From: DervishD <raul@pleyades.net>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Voodoo3 2000 is eating my chars!
-Message-ID: <20040701185527.GB122@DervishD>
-Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
+	Thu, 1 Jul 2004 14:57:28 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:10903 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S266232AbUGASzn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 14:55:43 -0400
+Date: Thu, 1 Jul 2004 11:53:40 -0700
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Tom L Nguyen <tom.l.nguyen@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: MSI to memory?
+Message-ID: <20040701115339.A4265@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <200407011215.59723.bjorn.helgaas@hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.2.1i
-Organization: Pleyades
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200407011215.59723.bjorn.helgaas@hp.com>; from bjorn.helgaas@hp.com on Thu, Jul 01, 2004 at 12:15:59PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi all :)
+On Thu, Jul 01, 2004 at 12:15:59PM -0600, Bjorn Helgaas wrote:
+> The conventional use of MSI is for a PCI adapter to generate processor
+> interrupts by writing to a local APIC.  But I've seen some things
 
-    I recently put a Voodoo3 2000 (AGP) card to my home linux box,
-and now I have a problem in the console. When switching from X to the
-console, some chars dissappear, or appear cut, etc. I've googled for
-this, but with no success. Is this a known bug? Maybe an X bug?
+On Intel architecture at least, the MSI writes are targeted 
+to the chipset (north bridge), not directly to a local APIC.
+The chipset knows the special MSI address and data values 
+programmed into the PCI device and interprets the data written, 
+e.g.  for interrupt redirection hints.
 
-    Sorry if this seems offtopic, but since I haven't found any
-information in X forums, I think I may need some some think in the
-kernel configuration (maybe DRI, who knows, I'm really lost with all
-that graphics cards crap...).
+> If so, is that a useful capability that should be exposed through
+> the Linux MSI interface?
 
-    Raúl Núñez de Arenas Coronado
+With MSI, you get a single address/data pair. So MSI interrupts
+won't work unless this single entry is programmed to the 
+special interrupt specific values that the chipset expects. 
+With MSI-X, you get multiple address/data pairs but this is 
+presumably because the device thinks it can benefit from 
+multiple interrupts.
 
--- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+What type of usage model did you have in mind to have the 
+device write to memory instead of using MSI for interrupts?
+
+Rajesh
+

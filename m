@@ -1,75 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265373AbSLBXwc>; Mon, 2 Dec 2002 18:52:32 -0500
+	id <S265409AbSLBX4d>; Mon, 2 Dec 2002 18:56:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265380AbSLBXwc>; Mon, 2 Dec 2002 18:52:32 -0500
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:39873 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S265373AbSLBXwb> convert rfc822-to-8bit; Mon, 2 Dec 2002 18:52:31 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+	id <S265413AbSLBX4d>; Mon, 2 Dec 2002 18:56:33 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40196 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265409AbSLBX4c>; Mon, 2 Dec 2002 18:56:32 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: Exaggerated swap usage
-Date: Tue, 3 Dec 2002 00:59:32 +0100
-User-Agent: KMail/1.4.3
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: Andrea Arcangeli <andrea@suse.de>,
-       Andrew Clayton <andrew@sol-1.demon.co.uk>,
-       Javier Marcet <jmarcet@pobox.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Large block device patch, part 1 of 9
+Date: 2 Dec 2002 16:03:44 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <asgsd0$ovi$1@cesium.transmeta.com>
+References: <15732.34929.657481.777572@notabene.cse.unsw.edu.au> <Pine.LNX.4.44.0209030900410.1997-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200212030059.32018.m.c.p@wolk-project.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrea,
+Followup to:  <Pine.LNX.4.44.0209030900410.1997-100000@home.transmeta.com>
+By author:    Linus Torvalds <torvalds@transmeta.com>
+In newsgroup: linux.dev.kernel
+> 
+> I wonder if the right answer isn't to just make things like "__u64" be
+> "long long" even on 64-bit architectures (at least those on which it is 64
+> bit, of course. I _think_ that's true of all of them). And then just use 
+> "llu" for it all.
+> 
+> Of course, the really _best_ option would be to have gcc's printf string 
+> format be extensible and dynamic.
+> 
+> Davem, is sparc64 "long long" 64-bit?
+> 
 
-> > ok, now it's clear what the problem is. there are inuse-dirty inodes
-> > that triggers a deadlock in the schedule-capable
-> > try_to_sync_unused_inodes of 2.4.20rc2aa1 (that avoided me to backout an
-> > otherwise corrupt lowlatency fix). It can trigger only in UP,
-> > in SMP the other cpu can always run kupdate that will flush all dirty
-> > inodes, so it would lockup one cpu as worse for 2.5 sec, this is
-> > probably why I couldn't reproduce it, I assume all of you reproducing
-> > the deadlock were running on an UP machine (doesn't matter if the kernel
-> Correct (for me anyways). 
-ok, deadlock is gone, instead I have EXT3-fs corruption (non data=journal 
-mode, just ordered) like this:
+Some C libraries have "Ixx" as an extension meaning (u)intXX_t -- it's
+used in the same way as the other size modifiers, i.e. %I64x instead
+of %lx.  This might be a useful extension to mimic.
 
-
-Dec  3 00:25:39 codeman kernel: EXT3-fs error (device ide0(3,9)): 
-ext3_free_blocks: Freeing blocks not in datazone - block = 1530182
-, count = 1
-Dec  3 00:25:39 codeman kernel: Aborting journal on device ide0(3,9).
-Dec  3 00:25:39 codeman kernel: ext3_free_blocks: aborting transaction: 
-Journal has aborted in __ext3_journal_get_undo_access<2>EXT3
--fs error (device ide0(3,9)) in ext3_free_blocks: Journal has aborted
-Dec  3 00:25:39 codeman kernel: ext3_reserve_inode_write: aborting 
-transaction: Journal has aborted in __ext3_journal_get_write_acce
-ss<2>EXT3-fs error (device ide0(3,9)) in ext3_reserve_inode_write: Journal has 
-aborted
-Dec  3 00:25:39 codeman kernel: EXT3-fs error (device ide0(3,9)) in 
-ext3_truncate: Journal has aborted
-Dec  3 00:25:39 codeman kernel: ext3_reserve_inode_write: aborting 
-transaction: Journal has aborted in __ext3_journal_get_write_acce
-ss<2>EXT3-fs error (device ide0(3,9)) in ext3_reserve_inode_write: Journal has 
-aborted
-Dec  3 00:25:39 codeman kernel: EXT3-fs error (device ide0(3,9)) in 
-ext3_orphan_del: Journal has aborted
-Dec  3 00:25:39 codeman kernel: ext3_reserve_inode_write: aborting 
-transaction: Journal has aborted in __ext3_journal_get_write_acce
-ss<2>EXT3-fs error (device ide0(3,9)) in ext3_reserve_inode_write: Journal has 
-aborted
-Dec  3 00:25:39 codeman kernel: EXT3-fs error (device ide0(3,9)) in 
-ext3_delete_inode: Journal has aborted
-Dec  3 00:25:39 codeman kernel: ext3_abort called.
-Dec  3 00:25:39 codeman kernel: EXT3-fs abort (device ide0(3,9)): 
-ext3_journal_start: Detected aborted journal
-Dec  3 00:25:39 codeman kernel: Remounting filesystem read-only
-Dec  3 00:25:39 codeman kernel: EXT3-fs error (device ide0(3,9)) in 
-start_transaction: Journal has aborted
-
-BTW: UP, non-SMP.
-
-ciao, Marc
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,23 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263269AbTEMDEf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 23:04:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbTEMDDj
+	id S263173AbTEMC4y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 22:56:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbTEMC4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 23:03:39 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:36850 "EHLO
+	Mon, 12 May 2003 22:56:54 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:23793 "EHLO
 	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id S263233AbTEMDCx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 23:02:53 -0400
-Date: Mon, 12 May 2003 20:14:51 -0700
+	id S263173AbTEMC4v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 22:56:51 -0400
+Date: Mon, 12 May 2003 20:08:44 -0700
 From: Chris Wright <chris@wirex.com>
 To: linux-kernel@vger.kernel.org, hch@infradead.org, gregkh@kroah.com,
        linux-security-module@wirex.com
-Cc: davem@redhat.com
+Cc: bjornw@axis.com
 Subject: Re: [PATCH] Early init for security modules
-Message-ID: <20030512201451.W19432@figure1.int.wirex.com>
+Message-ID: <20030512200844.L19432@figure1.int.wirex.com>
 Mail-Followup-To: linux-kernel@vger.kernel.org, hch@infradead.org,
-	gregkh@kroah.com, linux-security-module@wirex.com, davem@redhat.com
+	gregkh@kroah.com, linux-security-module@wirex.com, bjornw@axis.com
 References: <20030512200309.C20068@figure1.int.wirex.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -36,30 +36,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > and various arch maintainers are copied on relevant bits of patch.
 
 This is just the arch specific linker bits for the early initialization
-for security modules patch.  Does this look sane for these arches?
+for security modules patch.  Does this look sane for this arch?
 
---- 1.18/arch/sparc64/vmlinux.lds.S	Wed Apr  2 00:42:56 2003
-+++ edited/arch/sparc64/vmlinux.lds.S	Mon May 12 16:17:00 2003
-@@ -68,6 +68,9 @@
-   __con_initcall_start = .;
-   .con_initcall.init : { *(.con_initcall.init) }
-   __con_initcall_end = .;
-+  __security_initcall_start = .;
-+  .security_initcall.init : { *(.security_initcall.init) }
-+  __security_initcall_end = .;
-   . = ALIGN(8192); 
-   __initramfs_start = .;
-   .init.ramfs : { *(.init.ramfs) }
-
---- 1.16/arch/sparc/vmlinux.lds.S	Wed Apr  2 00:42:56 2003
-+++ edited/arch/sparc/vmlinux.lds.S	Mon May 12 16:17:00 2003
-@@ -62,6 +62,9 @@
-   __con_initcall_start = .;
-   .con_initcall.init : { *(.con_initcall.init) }
-   __con_initcall_end = .;
-+  __security_initcall_start = .;
-+  .security_initcall.init : { *(.security_initcall.init) }
-+  __security_initcall_end = .;
-   . = ALIGN(4096);
-   __initramfs_start = .;
-   .init.ramfs : { *(.init.ramfs) }
+--- 1.16/arch/cris/vmlinux.lds.S	Fri Feb 14 14:37:05 2003
++++ edited/arch/cris/vmlinux.lds.S	Mon May 12 16:16:55 2003
+@@ -74,7 +74,12 @@
+ 		__con_initcall_start = .;
+ 		*(.con_initcall.init)
+ 		__con_initcall_end = .;
+-	
++	}
++	.security_initcall.init : {
++		__security_initcall_start = .;
++		*(.security_initcall.init)
++		__security_initcall_end = .;
++
+ 		/* We fill to the next page, so we can discard all init
+ 		   pages without needing to consider what payload might be
+ 		   appended to the kernel image.  */

@@ -1,101 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265051AbSLMQIg>; Fri, 13 Dec 2002 11:08:36 -0500
+	id <S265058AbSLMQJl>; Fri, 13 Dec 2002 11:09:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265058AbSLMQIg>; Fri, 13 Dec 2002 11:08:36 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:44239 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S265051AbSLMQIe>; Fri, 13 Dec 2002 11:08:34 -0500
-Date: Fri, 13 Dec 2002 11:16:17 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200212131616.gBDGGH302861@devserv.devel.redhat.com>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Symlink indirection
-In-Reply-To: <mailman.1039792562.8768.linux-kernel2news@redhat.com>
-References: <3DF9F780.1070300@walrond.org> <mailman.1039792562.8768.linux-kernel2news@redhat.com>
+	id <S265063AbSLMQJl>; Fri, 13 Dec 2002 11:09:41 -0500
+Received: from relay.muni.cz ([147.251.4.35]:38282 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id <S265058AbSLMQJk>;
+	Fri, 13 Dec 2002 11:09:40 -0500
+To: "Valdis.Kletnieks@vt.edu" <1039774224.1449.0.camel@laptop.fenrus.com>
+Cc: Alessandro Suardi <alessandro.suardi@oracle.com>,
+       Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.5[01]]: Xircom Cardbus broken (PCI resource collisions)
+References: <200212131345.gBDDjw27002677@turing-police.cc.vt.edu>
+X-URL: http://www.fi.muni.cz/~pekon/
+From: Petr Konecny <pekon@informatics.muni.cz>
+Date: 13 Dec 2002 17:17:14 +0100
+In-Reply-To: <200212131345.gBDDjw27002677@turing-police.cc.vt.edu>
+Message-ID: <qww65tx3ncl.fsf@decibel.fi.muni.cz>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Military Intelligence)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Is the number of allowed levels of symlink indirection (if that is the
->> right phrase; I mean symlink -> symlink -> ... -> file) dependant on the
->> kernel, or libc ? Where is it defined, and can it be changed?
-> 
-> fs/namei.c
-> 
->  if (current->link_count >= 5)
-> 
-> change to a higher value.
+ Arjan> interesting. BUT aren't we writing to the device 3 lines before
+ Arjan> where you add the pci_enable_device()? That sounds like a bad
+ Arjan> plan to me ;(
 
-This is vey, very misleading statement. The counter mentioned above
-is there to protect stacks from overflow, but our symlink resolution
-is largely non-recursive, and certainly not in case of a tail
-recursion within the same directory.
+ Valdis> I see why the if/continue was added - you don't want to be
+ Valdis> calling device_register()/pci_insert_device() if
+ Valdis> pci_enable_device() loses.  I don't see why 2.5.50 moved the
+ Valdis> code up after pci_setup_device(). There's an outside chance
+ Valdis> that the concept of moving the call was correct, but that it
+ Valdis> should have been moved to between the calls to
+ Valdis> pci_assign_resource() and pci_readb().  If that's the case,
+ Valdis> then you're correct as well....
+I can confirm that this indeed works. I moved the two lines before
+pci_readb and the card works (every character you now read went through
+it). Who shall submit a patch to Linus ?
 
-Also, consider this message from Al:
+Now I have to figure out, how to make it load without manual modprobe
+xircom_cb. Oh the joys of new module loader.
 
-----------------------------------------------------
-From: Alexander Viro <aviro@redhat.com>
-Date: Mon, 3 Jun 2002 13:01:16 -0400
+                                                Petr
+-- 
+Computers are like air conditioners.  Both stop working, if you open
+windows.
+        -- Adam Heath
 
-On Mon, Jun 03, 2002 at 12:21:59PM -0400, Matt Wilson wrote:
-> SUSv3:
->
-> http://www.opengroup.org/onlinepubs/007904975/basedefs/limits.h.html
->
-> {_POSIX_SYMLOOP_MAX} The number of symbolic links that can be
->     traversed in the resolution of a pathname in the absence of a
->     loop.  Value: 8
-
-... and that has nothing to said limit of 5.  What we do have limited
-is the number of nested symlinks.  4BSD and derived Unices limit the
-total amount of symlinks traveresed in pathname resolution.  Example:
-if you have
-
-/a -> b
-/b/a -> b
-/b/b/a -> b
-/b/b/b/a -> b
-/b/b/b/b/a -> b
-/b/b/b/b/b/a -> b
-/b/b/b/b/b/b/a -> b
-/b/b/b/b/b/b/b/a -> b
-/b/b/b/b/b/b/b/b/a -> b
- 
-the pathname
- 
-/a/a/a/a/a/a/a/a/a
- 
-will resolve to
- 
-/b/b/b/b/b/b/b/b/b
- 
-and there will be 9 symlink traversals done during the pathname resolution.
-However, the depth (i.e. the thing we do limit) is 1 in that case.  OTOH,
-with
-
-/1 -> 2/a
-/2 -> 3/a
-/3 -> 4/a
-/4 -> 5/a
-/5 -> 6/a
-/6 -> 7/a
-
-/1
-
-will resolve to
-
-/7/a/a/a/a/a/a
-
-with 6 symlink traversals and depth 6.  IOW, SuS limit is not an argument
-for changing the Linux one - they limit different things.  They are not
-independent, of course, since depth of recursion can't be greater than
-total amount of symlinks we had traversed, but that's a separate story.
-
-Frankly, all cases when I had seen the nested symlink farms of that
-depth would be better served by use of bindings - these are not subject
-to any limits on nesting and avoid a lot of PITA inherent to symlink
-farms.  To put it another way, nested symlink farms grow from attempts
-to work around the lack of bindings.  It's not that you need to replace
-all symlinks with bindings, of course - the crown of the tree is usually
-OK, it's the trunk that acts as source of pain.

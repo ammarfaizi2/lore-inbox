@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132575AbRCZT2X>; Mon, 26 Mar 2001 14:28:23 -0500
+	id <S132550AbRCZTXd>; Mon, 26 Mar 2001 14:23:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132572AbRCZT2P>; Mon, 26 Mar 2001 14:28:15 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:37436 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S132546AbRCZT1z>; Mon, 26 Mar 2001 14:27:55 -0500
-Date: Mon, 26 Mar 2001 13:26:50 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200103261926.NAA02298@tomcat.admin.navo.hpc.mil>
-To: matthew@wil.cx, LA Walsh <law@sgi.com>
-Subject: Re: 64-bit block sizes on 32-bit systems
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-X-Mailer: [XMailTool v3.1.2b]
+	id <S132555AbRCZTXX>; Mon, 26 Mar 2001 14:23:23 -0500
+Received: from f67.law14.hotmail.com ([64.4.21.67]:51974 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S132550AbRCZTXM>;
+	Mon, 26 Mar 2001 14:23:12 -0500
+X-Originating-IP: [12.44.186.158]
+From: "Dinesh Nagpure" <fatbrrain@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: hooking APIC timer doesnt work?
+Date: Mon, 26 Mar 2001 11:22:26 -0800
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F67E8NpqhNPPzQT456U0000bad6@hotmail.com>
+X-OriginalArrivalTime: 26 Mar 2001 19:22:26.0500 (UTC) FILETIME=[17781040:01C0B62A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------  Received message begins Here  ---------
+Hello all,
+I am trying to use the LAPIC timer to generate interrupt for some kernel 
+profiling work I am doing...but the timer ISR isnt invoking atall....here is 
+what I have done....
+1)Initialized a interrupt gate  modifying the trap_init function in traps.c 
+to use vector 0x32
+        set_intr_gate(0x32,&inthtooltimer);
 
-> 
-> On Mon, Mar 26, 2001 at 08:39:21AM -0800, LA Walsh wrote:
-> > I vaguely remember a discussion about this a few months back.
-> > If I remember, the reasoning was it would unnecessarily slow
-> > down smaller systems that would never have block devices in
-> > the 4-28T range attached.  
-> 
-> 4k page size * 2GB = 8TB.
-> 
-> i consider it much more likely on such systems that the page size will
-> be increased to maybe 16 or 64k which would give us 32TB or 128TB.
-> you keep on trying to increase the size of types without looking at
-> what gcc outputs in the way of code that manipulates 64-bit types.
-> seriously, why don't you just try it?  see what the performance is.
-> see what the code size is.  then come back with some numbers.  and i mean
-> numbers, not `it doesn't feel any slower'.
-> 
-> personally, i'm going to see what the situation looks like in 5 years time
-> and try to solve the problem then.  there're enough real problems with the
-> VFS today that i don't feel inclined to fix tomorrow's potential problems.
+2) Added a handler in entry.s
 
-I don't feel that it is that far away ... IBM has already released a 64 CPU
-intel based system (NUMA). We already have systems in that class (though
-64 bit based) that use 5 TB file systems. The need is coming, and appears
-to be coming fast. It should be resolved during the improvements to the
-VFS.
+ENTRY(inthtooltimer)
+        pushl %eax
+        SAVE_ALL
+        movl %esp,%edx
+        pushl $0
+        pushl %edx
+        call SYMBOL_NAME(do_inthtooltimer)
+        addl $8,%esp
+        RESTORE_ALL
 
-A second reason to include it in the VFS is that the low level filesystem
-implementation would NOT be required to use it. If the administrator
-CHOOSES to access a 16TB filesystem from a workstation, then it should
-be possible (likely something like the GFS, where the administrator is
-just monitoring things, would be reasonable for a 32 bit system to do).
+3) Added a high level C function do_inthtooltimer in traps.c with all proper 
+asmlinkage declerations and all
 
-As I see it, the VFS itself doesn't really care what the block size is,
-it just carries relatively opaque values that the filesystem implementation
-uses. Most of the overhead should just be copying an extra 4 bytes around.
+4) In my driver module I initialize the LAPIC timer register for
+ONE_SHOT, NOT_MASKED, VECTOR32 and SEND_PENDING as given in the intel 
+architecture manual and also set the divide config register to divide by 
+1....and the initial count register is also set...
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+Problem is my timer handler isnt getting called atall...
 
-Any opinions expressed are solely my own.
+I am disabling the SMP support and APIC support options in menuconfig
+
+I assume rest of the APIC initialization is done properly because I am 
+instrumenting the APIC Performance Counter interrupt also for delivery mode 
+NMI and it seems to be getting called properly as I see /proc/interrupts 
+showing increment in NMI count..
+
+Am i missing out something...
+Thanks
+Dinesh
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com
+

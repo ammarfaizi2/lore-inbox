@@ -1,318 +1,231 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263999AbTJFSJf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 14:09:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263087AbTJFSJf
+	id S264044AbTJFSCG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 14:02:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264045AbTJFSCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 14:09:35 -0400
-Received: from paiol.terra.com.br ([200.176.3.18]:31417 "EHLO
-	paiol.terra.com.br") by vger.kernel.org with ESMTP id S262395AbTJFSI7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 14:08:59 -0400
-Message-ID: <3F81B086.9050905@terra.com.br>
-Date: Mon, 06 Oct 2003 15:12:22 -0300
-From: Felipe W Damasio <felipewd@terra.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org, netdev@oss.sgi.com
-Subject: [PATCH]  finer-grained locking in wan/lmc driver
-Content-Type: multipart/mixed;
- boundary="------------070408090007040706060403"
+	Mon, 6 Oct 2003 14:02:05 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:27072 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S264044AbTJFSBm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 14:01:42 -0400
+Date: Mon, 6 Oct 2003 14:01:39 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: s390 test6 patches: descriptions.
+Message-ID: <20031006140139.C16665@devserv.devel.redhat.com>
+References: <mailman.1065432601.831.linux-kernel2news@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <mailman.1065432601.831.linux-kernel2news@redhat.com>; from schwidefsky@de.ibm.com on Mon, Oct 06, 2003 at 11:23:52AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070408090007040706060403
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+My unified sysrq patch is missing.
 
-	Hi Jeff,
+Also, why is the tub driver not being updated? This is an issue
+because passwords are visible on 3215 and there is NO WAY
+around it, except TERM CONMODE 3270 and then using tub.
+I seem to remember promises about New Super-Duper Improved
+and Clean tub, but it's nowhere to be seen, so meanwhile it
+should not be too hard to keep old tub operating. You don't
+even have to do anything. Just use your maintainer powers to
+refuse "cleaups" like the devstat removal unless they fix all
+in-tree drivers for related breakage. Then contributors will
+have to fix it.
 
-	Patch against 2.6-test6.
+-- Pete
 
-	- lmc_ioctl was calling copy_{from|to}_user with the device lock 
-held, replace it with finer-grained locking;
-
-	- Remove check_version usage;
-
-	- If copy_from_user fails, returns -EFAULT instead of -ENOMEM;
-
-	I didn't acquire the device lock before calling lmc_proto_ioctl, 
-which will call syncppp ioctls, which will might call 
-copy_{to|from}_user, but I think the locking shouldn't be done on that 
-layer of the driver. (maybe on lmc_proto_main?)
-
-	I'm not sure I locked everywhere I was suppose to lock, please review.
-
-	If it looks ok, please consider applying,
-
-	Thanks.
-
-Felipe
-
---------------070408090007040706060403
-Content-Type: text/plain;
- name="lmc-cleanup.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="lmc-cleanup.patch"
-
---- drivers/net/wan/lmc/lmc_main.c.orig	2003-10-06 13:24:01.000000000 -0300
-+++ drivers/net/wan/lmc/lmc_main.c	2003-10-06 14:46:56.000000000 -0300
-@@ -132,7 +132,6 @@
-     lmc_ctl_t ctl;
-     int ret;
-     u_int16_t regVal;
--    unsigned long flags;
- 
-     struct sppp *sp;
- 
-@@ -142,12 +141,6 @@
- 
-     lmc_trace(dev, "lmc_ioctl in");
- 
--    /*
--     * Most functions mess with the structure
--     * Disable interrupts while we do the polling
--     */
--    spin_lock_irqsave(&sc->lmc_lock, flags);
+diff -urN -X dontdiff linux-2.6.0-test6/arch/s390/kernel/s390_ksyms.c linux-2.6.0-test6-s390/arch/s390/kernel/s390_ksyms.c
+--- linux-2.6.0-test6/arch/s390/kernel/s390_ksyms.c	2003-07-13 20:35:15.000000000 -0700
++++ linux-2.6.0-test6-s390/arch/s390/kernel/s390_ksyms.c	2003-10-06 10:43:51.000000000 -0700
+@@ -13,6 +13,7 @@
+ #include <asm/delay.h>
+ #include <asm/pgalloc.h>
+ #include <asm/setup.h>
++#include <asm/ctrlchar.h>
+ #ifdef CONFIG_IP_MULTICAST
+ #include <net/arp.h>
+ #endif
+@@ -72,3 +73,4 @@
+ EXPORT_SYMBOL(console_device);
+ EXPORT_SYMBOL_NOVERS(do_call_softirq);
+ EXPORT_SYMBOL(sys_wait4);
++EXPORT_SYMBOL(ctrlchar_handle);
+diff -urN -X dontdiff linux-2.6.0-test6/drivers/s390/char/con3215.c linux-2.6.0-test6-s390/drivers/s390/char/con3215.c
+--- linux-2.6.0-test6/drivers/s390/char/con3215.c	2003-07-13 20:36:32.000000000 -0700
++++ linux-2.6.0-test6-s390/drivers/s390/char/con3215.c	2003-10-06 09:08:51.000000000 -0700
+@@ -32,8 +32,7 @@
+ #include <asm/delay.h>
+ #include <asm/cpcmd.h>
+ #include <asm/setup.h>
 -
-     switch (cmd) {
-         /*
-          * Return current driver state.  Since we keep this up
-@@ -173,7 +166,8 @@
+-#include "ctrlchar.h"
++#include <asm/ctrlchar.h>
  
-         if (copy_from_user(&ctl, ifr->ifr_data, sizeof (lmc_ctl_t)))
-             return -EFAULT;
--
-+	
-+	spin_lock_irq(&sc->lmc_lock);
-         sc->lmc_media->set_status (sc, &ctl);
+ #define NR_3215		    1
+ #define NR_3215_REQ	    (4*NR_3215)
+@@ -437,7 +436,7 @@
+ 			if (count >= TTY_FLIPBUF_SIZE - tty->flip.count)
+ 				count = TTY_FLIPBUF_SIZE - tty->flip.count - 1;
+ 			EBCASC(raw->inbuf, count);
+-			cchar = ctrlchar_handle(raw->inbuf, count, tty);
++			cchar = ctrlchar_handle(raw->inbuf, count, tty, 1);
+ 			switch (cchar & CTRLCHAR_MASK) {
+ 			case CTRLCHAR_SYSRQ:
+ 				break;
+diff -urN -X dontdiff linux-2.6.0-test6/drivers/s390/char/ctrlchar.c linux-2.6.0-test6-s390/drivers/s390/char/ctrlchar.c
+--- linux-2.6.0-test6/drivers/s390/char/ctrlchar.c	2003-07-13 20:39:23.000000000 -0700
++++ linux-2.6.0-test6-s390/drivers/s390/char/ctrlchar.c	2003-10-06 09:59:59.000000000 -0700
+@@ -13,9 +13,12 @@
+ #include <linux/sysrq.h>
+ #include <linux/ctype.h>
  
-         if(ctl.crc_length != sc->ictl.crc_length) {
-@@ -188,9 +182,11 @@
-             sp->pp_flags &= ~PP_KEEPALIVE;	/* Turn off */
-         else
-             sp->pp_flags |= PP_KEEPALIVE;	/* Turn on */
-+	
-+	spin_unlock_irq(&sc->lmc_lock);
+-#include "ctrlchar.h"
++#include <asm/ctrlchar.h>
  
-         ret = 0;
--        break;
-+	break;
- 
-     case LMCIOCIFTYPE: /*fold01*/
-         {
-@@ -204,14 +200,14 @@
- 
- 	    if (copy_from_user(&new_type, ifr->ifr_data, sizeof(u_int16_t)))
-                 return -EFAULT;
--
--            
-+     
- 	    if (new_type == old_type)
- 	    {
--		ret = 0 ;
-+		ret = 0;
- 		break;				/* no change */
-             }
--            
+ #ifdef CONFIG_MAGIC_SYSRQ
++#include <linux/workqueue.h>
++#include <linux/tty.h>
 +
-+	    spin_lock_irq(&sc->lmc_lock);
-             lmc_proto_close(sc);
-             lmc_proto_detach(sc);
+ static int ctrlchar_sysrq_key;
  
-@@ -219,12 +215,14 @@
- //            lmc_proto_init(sc);
-             lmc_proto_attach(sc);
-             lmc_proto_open(sc);
-+	    spin_unlock_irq(&sc->lmc_lock);
+ static void
+@@ -40,7 +43,8 @@
+  *         with CTRLCHAR_CTRL
+  */
+ unsigned int
+-ctrlchar_handle(const unsigned char *buf, int len, struct tty_struct *tty)
++ctrlchar_handle(const unsigned char *buf, int len, struct tty_struct *tty,
++    int is_console)
+ {
+ 	if ((len < 2) || (len > 3))
+ 		return CTRLCHAR_NONE;
+@@ -52,7 +56,7 @@
  
- 	    ret = 0 ;
- 	    break ;
- 	}
- 
-     case LMCIOCGETXINFO: /*fold01*/
-+	spin_lock_irq(&sc->lmc_lock);
-         sc->lmc_xinfo.Magic0 = 0xBEEFCAFE;
- 
-         sc->lmc_xinfo.PciCardType = sc->lmc_cardtype;
-@@ -240,6 +238,7 @@
- 
-         sc->lmc_xinfo.Magic1 = 0xDEADBEEF;
- 
-+	spin_unlock_irq(&sc->lmc_lock);
-         if (copy_to_user(ifr->ifr_data, &sc->lmc_xinfo,
-                          sizeof (struct lmc_xinfo)))
-             return -EFAULT;
-@@ -248,6 +247,7 @@
-         break;
- 
-     case LMCIOCGETLMCSTATS: /*fold01*/
-+	spin_lock_irq(&sc->lmc_lock);
-         if (sc->lmc_cardtype == LMC_CARDTYPE_T1){
-             lmc_mii_writereg (sc, 0, 17, T1FRAMER_FERR_LSB);
-             sc->stats.framingBitErrorCount +=
-@@ -271,6 +271,7 @@
-             sc->stats.severelyErroredFrameCount +=
-                 regVal & T1FRAMER_SEF_MASK;
-         }
-+	spin_unlock_irq(&sc->lmc_lock);
- 
-         if (copy_to_user(ifr->ifr_data, &sc->stats,
-                          sizeof (struct lmc_statistics)))
-@@ -285,11 +286,13 @@
-             break;
-         }
- 
-+	spin_lock_irq(&sc->lmc_lock);
-         memset (&sc->stats, 0, sizeof (struct lmc_statistics));
-         sc->stats.check = STATCHECK;
-         sc->stats.version_size = (DRIVER_VERSION << 16) +
-             sizeof (struct lmc_statistics);
-         sc->stats.lmc_cardtype = sc->lmc_cardtype;
-+	spin_unlock_irq(&sc->lmc_lock);
-         ret = 0;
-         break;
- 
-@@ -306,8 +309,11 @@
- 
-         if (copy_from_user(&ctl, ifr->ifr_data, sizeof (lmc_ctl_t)))
-             return -EFAULT;
--        sc->lmc_media->set_circuit_type(sc, ctl.circuit_type);
-+	
-+	spin_lock_irq(&sc->lmc_lock);
-+	sc->lmc_media->set_circuit_type(sc, ctl.circuit_type);
-         sc->ictl.circuit_type = ctl.circuit_type;
-+	spin_unlock_irq(&sc->lmc_lock);
-         ret = 0;
- 
-         break;
-@@ -319,9 +325,11 @@
-         }
- 
-         /* Reset driver and bring back to current state */
-+	spin_lock_irq(&sc->lmc_lock);
-         printk (" REG16 before reset +%04x\n", lmc_mii_readreg (sc, 0, 16));
-         lmc_running_reset (dev);
-         printk (" REG16 after reset +%04x\n", lmc_mii_readreg (sc, 0, 16));
-+	spin_unlock_irq(&sc->lmc_lock);
- 
-         LMC_EVENT_LOG(LMC_EVENT_FORCEDRESET, LMC_CSR_READ (sc, csr_status), lmc_mii_readreg (sc, 0, 16));
- 
-@@ -364,6 +372,8 @@
-             case lmc_xilinx_reset: /*fold02*/
-                 {
-                     u16 mii;
-+		    
-+		    spin_lock_irq(&sc->lmc_lock);
-                     mii = lmc_mii_readreg (sc, 0, 16);
- 
-                     /*
-@@ -422,11 +432,8 @@
-                             lmc_led_off(sc, LMC_DS3_LED2);
-                         }
-                     }
--                    
--                    
+ #ifdef CONFIG_MAGIC_SYSRQ
+ 	/* racy */
+-	if (len == 3 && buf[1] == '-') {
++	if (is_console && len == 3 && buf[1] == '-') {
+ 		ctrlchar_sysrq_key = buf[2];
+ 		ctrlchar_work.data = tty;
+ 		schedule_work(&ctrlchar_work);
+diff -urN -X dontdiff linux-2.6.0-test6/drivers/s390/char/ctrlchar.h linux-2.6.0-test6-s390/drivers/s390/char/ctrlchar.h
+--- linux-2.6.0-test6/drivers/s390/char/ctrlchar.h	2003-07-13 20:38:44.000000000 -0700
++++ linux-2.6.0-test6-s390/drivers/s390/char/ctrlchar.h	1969-12-31 16:00:00.000000000 -0800
+@@ -1,20 +0,0 @@
+-/*
+- *  drivers/s390/char/ctrlchar.c
+- *  Unified handling of special chars.
+- *
+- *    Copyright (C) 2001 IBM Deutschland Entwicklung GmbH, IBM Corporation
+- *    Author(s): Fritz Elfert <felfert@millenux.com> <elfert@de.ibm.com>
+- *
+- */
 -
-                     ret = 0x0;
+-#include <linux/tty.h>
 -
-+		    spin_unlock_irq(&sc->lmc_lock);
-                 }
- 
-                 break;
-@@ -434,6 +441,7 @@
-                 {
-                     u16 mii;
-                     int timeout = 500000;
-+		    spin_lock_irq(&sc->lmc_lock);
-                     mii = lmc_mii_readreg (sc, 0, 16);
- 
-                     /*
-@@ -476,12 +484,10 @@
-                      * stop driving Xilinx-related signals
-                      */
-                     lmc_gpio_mkinput(sc, 0xff);
+-extern unsigned int
+-ctrlchar_handle(const unsigned char *buf, int len, struct tty_struct *tty);
 -
-                     ret = 0x0;
--                    
- 
-+		    spin_unlock_irq(&sc->lmc_lock);
-                     break;
 -
-                 }
- 
-             case lmc_xilinx_load: /*fold02*/
-@@ -505,12 +511,13 @@
-                     if(copy_from_user(data, xc.data, xc.len))
-                     {
-                     	kfree(data);
--                    	ret = -ENOMEM;
-+                    	ret = -EFAULT;
-                     	break;
-                     }
- 
-                     printk("%s: Starting load of data Len: %d at 0x%p == 0x%p\n", dev->name, xc.len, xc.data, data);
- 
-+		    spin_lock_irq(&sc->lmc_lock);
-                     lmc_gpio_mkinput(sc, 0xff);
- 
-                     /*
-@@ -609,8 +616,8 @@
- 
-                     kfree(data);
-                     
-+		    spin_unlock_irq(&sc->lmc_lock);
-                     ret = 0;
--                    
-                     break;
-                 }
-             default: /*fold02*/
-@@ -619,7 +626,9 @@
-             }
- 
-             netif_wake_queue(dev);
--            sc->lmc_txfull = 0;
-+            spin_lock_irq(&sc->lmc_lock);
-+	    sc->lmc_txfull = 0;
-+            spin_unlock_irq(&sc->lmc_lock);
- 
-         }
-         break;
-@@ -629,8 +638,6 @@
-         break;
-     }
- 
--    spin_unlock_irqrestore(&sc->lmc_lock, flags); /*fold01*/
+-#define CTRLCHAR_NONE  (1 << 8)
+-#define CTRLCHAR_CTRL  (2 << 8)
+-#define CTRLCHAR_SYSRQ (3 << 8)
 -
-     lmc_trace(dev, "lmc_ioctl out");
+-#define CTRLCHAR_MASK (~0xffu)
+diff -urN -X dontdiff linux-2.6.0-test6/drivers/s390/char/sclp_tty.c linux-2.6.0-test6-s390/drivers/s390/char/sclp_tty.c
+--- linux-2.6.0-test6/drivers/s390/char/sclp_tty.c	2003-10-01 15:17:51.000000000 -0700
++++ linux-2.6.0-test6-s390/drivers/s390/char/sclp_tty.c	2003-10-06 09:08:51.000000000 -0700
+@@ -19,8 +19,8 @@
+ #include <linux/err.h>
+ #include <linux/init.h>
+ #include <asm/uaccess.h>
++#include <asm/ctrlchar.h>
  
-     return ret;
-@@ -930,7 +937,10 @@
-      * later on, no one else will take our card away from
-      * us.
-      */
--    request_region (ioaddr, LMC_REG_RANGE, dev->name);
-+    if (!request_region (ioaddr, LMC_REG_RANGE, dev->name)) {
-+	    printk (KERN_WARNING "io port %3lX is busy", ioaddr);
-+	    return NULL;
-+    }
+-#include "ctrlchar.h"
+ #include "sclp.h"
+ #include "sclp_rw.h"
+ #include "sclp_tty.h"
+@@ -483,7 +483,7 @@
+ 	 */
+ 	if (sclp_tty == NULL)
+ 		return;
+-	cchar = ctrlchar_handle(buf, count, sclp_tty);
++	cchar = ctrlchar_handle(buf, count, sclp_tty, 1);
+ 	switch (cchar & CTRLCHAR_MASK) {
+ 	case CTRLCHAR_SYSRQ:
+ 		break;
+diff -urN -X dontdiff linux-2.6.0-test6/drivers/s390/char/tubtty.c linux-2.6.0-test6-s390/drivers/s390/char/tubtty.c
+--- linux-2.6.0-test6/drivers/s390/char/tubtty.c	2003-07-13 20:37:17.000000000 -0700
++++ linux-2.6.0-test6-s390/drivers/s390/char/tubtty.c	2003-10-06 10:28:07.000000000 -0700
+@@ -10,6 +10,7 @@
+  *  Author:  Richard Hitt
+  */
+ #include <linux/config.h>
++#include <asm/ctrlchar.h>
+ #include "tubio.h"
  
-     sc->lmc_cardtype = LMC_CARDTYPE_UNKNOWN;
-     sc->lmc_timing = LMC_CTL_CLOCK_SOURCE_EXT;
-@@ -1060,8 +1070,7 @@
-          * Fix the two variables
-          *
-          */
--        if (!(check_region (pci_ioaddr, LMC_REG_RANGE)) &&
--            (vendor == CORRECT_VENDOR_ID) &&
-+        if ((vendor == CORRECT_VENDOR_ID) &&
-             (device == CORRECT_DEV_ID) &&
-             ((subvendor == PCI_VENDOR_LMC)  || (subdevice == PCI_VENDOR_LMC))){
-             struct net_device *cur, *prev = NULL;
-
---------------070408090007040706060403--
-
+ /* Initialization & uninitialization for tubtty */
+@@ -812,23 +813,22 @@
+ {
+ 	struct tty_struct *tty;
+ 	int func = -1;
++	int is_console = 0;
++	unsigned int cchar;
+ 
+ 	if ((tty = tubp->tty) == NULL)
+ 		return;
+ 	if (count < 0)
+ 		return;
+-	if (count == 2 && (cp[0] == '^' || cp[0] == '\252')) {
+-		switch(cp[1]) {
+-		case 'c':  case 'C':
+-			func = INTR_CHAR(tty);
+-			break;
+-		case 'd':  case 'D':
+-			func = EOF_CHAR(tty);
+-			break;
+-		case 'z':  case 'Z':
+-			func = SUSP_CHAR(tty);
+-			break;
+-		}
++#ifdef CONFIG_TN3270_CONSOLE
++	if (CONSOLE_IS_3270 && tub3270_con_tubp == tubp)
++		is_console = 1;
++#endif
++	cchar = ctrlchar_handle(cp, count, tty, is_console);
++	if ((cchar & CTRLCHAR_MASK) != CTRLCHAR_NONE) {
++		if ((cchar & CTRLCHAR_MASK) != CTRLCHAR_CTRL)
++			return;
++		func = cchar & 0xFF;
+ 	} else if (count == 2 && cp[0] == 0x1b) {        /* if ESC */
+ 		int inc = 0;
+ 		char buf[GEOM_INPLEN + 1];
+diff -urN -X dontdiff linux-2.6.0-test6/include/asm-s390/ctrlchar.h linux-2.6.0-test6-s390/include/asm-s390/ctrlchar.h
+--- linux-2.6.0-test6/include/asm-s390/ctrlchar.h	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.0-test6-s390/include/asm-s390/ctrlchar.h	2003-10-06 09:08:52.000000000 -0700
+@@ -0,0 +1,20 @@
++/*
++ *  Implemented in drivers/s390/char/ctrlchar.c
++ *  Unified handling of special chars.
++ *
++ *    Copyright (C) 2001 IBM Deutschland Entwicklung GmbH, IBM Corporation
++ *    Author(s): Fritz Elfert <felfert@millenux.com> <elfert@de.ibm.com>
++ *
++ */
++
++struct tty_struct;
++
++extern unsigned int ctrlchar_handle(const unsigned char *buf, int len,
++    struct tty_struct *tty, int is_console);
++extern void ctrlchar_init(void);
++
++#define CTRLCHAR_CTRL  (0 << 8)
++#define CTRLCHAR_NONE  (1 << 8)
++#define CTRLCHAR_SYSRQ (2 << 8)
++
++#define CTRLCHAR_MASK (~0xffu)

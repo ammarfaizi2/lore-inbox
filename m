@@ -1,65 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271904AbTHDQfO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 12:35:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271919AbTHDQfO
+	id S271919AbTHDQfu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 12:35:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271920AbTHDQfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 12:35:14 -0400
-Received: from dhcp-20-253.via-eth.ch ([192.33.101.253]:28133 "EHLO
-	spyro.moor.ws") by vger.kernel.org with ESMTP id S271904AbTHDQfI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 12:35:08 -0400
-Message-ID: <3F2E8B3B.3070003@netpeople.ch>
-Date: Mon, 04 Aug 2003 18:35:07 +0200
-From: Patrick Moor <pmoor@netpeople.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030728
-X-Accept-Language: en-us, en, de-ch, de, fr
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: time jumps (again)
-X-Enigmail-Version: 0.76.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Aug 2003 12:35:50 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:31683 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S271919AbTHDQfs convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 12:35:48 -0400
+X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Mon, 4 Aug 2003 18:35:45 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: herbert@13thfloor.at
+Cc: beepy@netapp.com, aebr@win.tue.nl, linux-kernel@vger.kernel.org
+Subject: Re: FS: hardlinks on directories
+Message-Id: <20030804183545.01b7a126.skraw@ithnet.com>
+In-Reply-To: <20030804161657.GA6292@www.13thfloor.at>
+References: <20030804134415.GA4454@win.tue.nl>
+	<200308041542.h74Fg9k26251@orbit-fe.eng.netapp.com>
+	<20030804175609.7301d075.skraw@ithnet.com>
+	<20030804161657.GA6292@www.13thfloor.at>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Mon, 4 Aug 2003 18:16:57 +0200
+Herbert Pötzl <herbert@13thfloor.at> wrote:
 
-Some days ago I started noticing strange time jumps on my Athlon system. 
-(Asus board, VIA chipset, AMD Athlon 650MHz processor). I haven't 
-noticed them before and I am pretty sure there weren't any for the last 
-few years! Uptime of the machine is now 218 days, and problems began 
-appearing after 215 days approximately.
+> on the other hand, if you want somebody to implement
+> this stuff for you, you'll have to provide convincing
+> arguments for it, I for example, would be glad if
+> hardlinks where removed from unix altogether ...
 
-What happens: when doing a
-  $ while true; do date; done
-I'm noticing time jumps _exactly_ at the beginning of a "new" second (or 
-at the end of an "old" one). the jump is exactly 4294 (4295) seconds 
-into the future. Example:
-...
-Mon Aug  4 18:11:06 CEST 2003
-Mon Aug  4 18:11:06 CEST 2003
-Mon Aug  4 19:22:41 CEST 2003
-Mon Aug  4 19:22:41 CEST 2003
-Mon Aug  4 19:22:41 CEST 2003
-Mon Aug  4 18:11:07 CEST 2003
-Mon Aug  4 18:11:07 CEST 2003
-...
+Huh, hard stuff!
 
-I've found some previous discussions about this about a year ago:
+Explain your solution for a very common problem:
 
-   http://www.ussg.iu.edu/hypermail/linux/kernel/0203.3/0557.html
-   http://www.ussg.iu.edu/hypermail/linux/kernel/0206.0/1505.html
+You have a _big_ fileserver, say some SAN or the like with Gigs.
+Your data on it is organized according to your basic user structure, because it
+is very handy to have all data from one user altogether in one directory.
+You have lots of hosts that use parts of the users' data for a wide range of
+purposes, lets say web, ftp, sql, name one.
+If you cannot re-structure and export your data according to the requirements
+of your external hosts (web-trees to webserver, sql-trees to sql-server,
+ftp-trees to ftp-server, name-it to cool-server) you will have to export the
+total user tree to all your (cluster-) nodes. Do you want that? NO! Of course
+you don't want that in times of hacked webservers and uncontrollable
+sql-servers. If anything blows up you likely loose all data at once. On the
+other hand, if you managed to link all web-data together in one directory and
+exported that to your webservers and they are hacked, you just blew up all your
+web-data but nothing more. This is a remarkable risk reduction.
+And now? Name your idea to export only the data needed to the servers that need
+it. And keep in mind, we are talking of Gigs and tenthousands of users. You
+definitely don't want one mount per user per service.
+Can you think of a more elegant way to solve such a problem than hardlinking
+all web in one single webtree, all sql in one single sql tree ... and then
+export this single tree (with its artificial structure) to the corresponding
+server?
+I am curiously listening...
 
-What seems strange to me is, that these jumps have never occured before. 
-The machine is running a plain 2.4.20 kernel.
-
-So my question is: will disabling the CONFIG_X86_TSC option and passing 
-"notsc" as boot parameter fix the problem? Or did I get something wrong 
-there?
-
-thanks
-  patrick
+Regards,
+Stephan
 
 

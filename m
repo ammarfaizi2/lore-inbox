@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263127AbUCPQvT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 11:51:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263246AbUCPQtL
+	id S263246AbUCPQ5o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 11:57:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263538AbUCPQy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 11:49:11 -0500
-Received: from mout2.freenet.de ([194.97.50.155]:31928 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S263124AbUCPQjN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 11:39:13 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: Timothy Miller <miller@techsource.com>
-Subject: Re: -O3.... again
-Date: Tue, 16 Mar 2004 17:38:57 +0100
-User-Agent: KMail/1.6.50
-References: <40572C09.5080208@techsource.com>
-In-Reply-To: <40572C09.5080208@techsource.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+	Tue, 16 Mar 2004 11:54:29 -0500
+Received: from ns.suse.de ([195.135.220.2]:65256 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263246AbUCPQve (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 11:51:34 -0500
+Date: Tue, 16 Mar 2004 17:51:27 +0100
+From: Andi Kleen <ak@suse.de>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: ak@suse.de, akpm@osdl.org, davej@redhat.com, hpa@zytor.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] let EDD work on x86-64 too
+Message-ID: <20040316165127.GB6145@wotan.suse.de>
+References: <20040316162344.GA20289@lists.us.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200403161739.08663.mbuesch@freenet.de>
+In-Reply-To: <20040316162344.GA20289@lists.us.dell.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Mar 16, 2004 at 10:23:44AM -0600, Matt Domsch wrote:
+> Andi, I'm proposing allowing my BIOS Enhanced Disk Drive (EDD) code to
+> work on x86-64 as it does on x86 today.  The patch below moves some
+> files around out of arch/i386/kernel and include/asm-i386 into more
+> generic locations, and allows EDD to work.  I've tested this against BK-current
+> (from my POV it's 2.6.4 plus the edd-legacychs patch Andrew forwarded
+> to Linus and is now in BK); I see there will be conflicts with the
+> empty_zero_page-cleanup.patch which is in -mm right now - they're just
+> comment conflicts, but I'll need to clean that up once it's in BK.
 
-On Tuesday 16 March 2004 17:32, you wrote:
-> Anyone experiment with this?  Any thoughts?
+I have no problems with the x86-64 changes (assuming they work).
 
-Some time ago I experimented with some crazy (tm)
-optimization values.
-http://marc.theaimsgroup.com/?l=linux-kernel&m=104655063413152&w=2
+But I won't push the i386 changes. I would suggest you get that into
+mainline first and when it's there send me a patch with just the x86-64
+bits.
 
-As you can see -O3 broke ide-scsi for me. I don't know
-the reason for it and I don't know if this applies to
-recent kernels, too.
-
-So it is possible to break stuff with -O3
-
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAVy2rFGK1OIvVOP4RAm9mAJ9zK3OiDsJmUXaaEygxikR034Rv9ACfXlaB
-cAQ/IoX7wzxUNaOB+1LtYxE=
-=0inF
------END PGP SIGNATURE-----
+-Andi

@@ -1,82 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135647AbRD1VWl>; Sat, 28 Apr 2001 17:22:41 -0400
+	id <S135650AbRD1VXv>; Sat, 28 Apr 2001 17:23:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133022AbRD1VWc>; Sat, 28 Apr 2001 17:22:32 -0400
-Received: from www.linux.org.uk ([195.92.249.252]:4107 "EHLO www.linux.org.uk")
-	by vger.kernel.org with ESMTP id <S131588AbRD1VWS>;
-	Sat, 28 Apr 2001 17:22:18 -0400
-Date: Sat, 28 Apr 2001 22:21:45 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IPv4 NAT doesn't compile in 2.4.4
-Message-ID: <20010428222145.I21792@flint.arm.linux.org.uk>
-Mail-Followup-To: Russell King <rmk@flint.arm.linux.org.uk>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010428172554.H21792@flint.arm.linux.org.uk> <15083.12585.159124.505983@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15083.12585.159124.505983@pizda.ninka.net>; from davem@redhat.com on Sat, Apr 28, 2001 at 02:07:53PM -0700
+	id <S133022AbRD1VXm>; Sat, 28 Apr 2001 17:23:42 -0400
+Received: from 13dyn184.delft.casema.net ([212.64.76.184]:56846 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S135652AbRD1VXY>; Sat, 28 Apr 2001 17:23:24 -0400
+Message-Id: <200104282123.XAA05735@cave.bitwizard.nl>
+Subject: Re: 2.4 and 2GB swap partition limit
+In-Reply-To: <200104281804.f3SI4ar368494@saturn.cs.uml.edu> from "Albert D. Cahalan"
+ at "Apr 28, 2001 02:04:35 pm"
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Date: Sat, 28 Apr 2001 23:23:15 +0200 (MEST)
+CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Wakko Warner <wakko@animx.eu.org>,
+        Xavier Bestel <xavier.bestel@free.fr>,
+        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
+        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
+        linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 28, 2001 at 02:07:53PM -0700, David S. Miller wrote:
-> Why would ip_nat_cleanup() be removed by the linker?
+Albert D. Cahalan wrote:
+> So that is a factor of 50 in price. It's what, a factor of 1000000
+> in access time?
 
-Because we explicitly tell the linker to drop all code marked as
-__exit:
+Actually it's only about 100000. 
 
-#define __exit          __attribute__ ((unused, __section__(".text.exit")))
+> > That disk space is just sitting there. Never to be used. I spent $400
+> > on the RAM, and I'm now reserving about $8 worth of disk space for
+> > swap. I think that the $8 is well worth it. It keeps my machine
+> > functional a while longer should something go haywire... As I said:
+> > If you don't want to see it that way: Fine with me. 
+> 
+> It is a disaster waiting to happen. Instead of having the offending
+> process get killed, your machine could suffer extreme thrashing.
+> 
+> Have enough swap for idle processes and no more.
 
+Right. Now there is some time where "extreme thrashing" will alert ME
+(a human, I think) to try and find/kill the offending process.
 
->From x86 vmlinux.lds:
+Otherwise I have to trust Rik's OOM killer. Now his OOM killer isn't
+all that bad. But it isn't human. Humans are better at actually
+finding the real CAUSE. An OOM killer might hit one or two innocent
+processes along the way. So far I've killed the right process ALL the
+time. I can't say the same for the OOM killer.
 
-  /* Sections to be discarded */
-  /DISCARD/ : {
-        *(.text.exit)
-        *(.data.exit)
-        *(.exitcall.exit)
-        }
+				Roger. 
 
->  All the "unused"
-> attribute should do is shut up gcc if the thing is marked static yet
-> not called.  The GCC manual even states "... means that the function
-> is meant to be possibly unused.  GNU CC will not produce a warning
-> for this function."  It makes no mention of any effect on the actual
-> code output, or that the linker will delete it.
-
-I quote from the ld info pages:
-
-   The special output section name `/DISCARD/' may be used to discard
-input sections.  Any input sections which are assigned to an output
-section named `/DISCARD/' are not included in the output file.
-
-> It doesn't remove the function on any platform I could test this on.
-
-Try x86.
-
-> If the linker removed it, why did it give a relocation truncation
-> error instead of a missing symbol error?  And more importantly, what
-> specifically was the reason that the linker removed the function on
-> ARM, what made this happen?
-
-Architecture independent linker behaviour.
-
-> Please explain this in detail so we don't have to guess as I have
-> seen no other report of this.
-
-The reason it shows up on ARM is because the relocation is not 32-bit
-long, and therefore the relocation it is trying to encode generates
-an error.
-
-(I'm presuming that it was allocating the symbol an address of zero,
-but I haven't checked this since trying to call a non-present section
-seems a bit stupid to start with).
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

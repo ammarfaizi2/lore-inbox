@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316900AbSEVJ1N>; Wed, 22 May 2002 05:27:13 -0400
+	id <S315491AbSEVJ3E>; Wed, 22 May 2002 05:29:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316904AbSEVJ1M>; Wed, 22 May 2002 05:27:12 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:45490 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S316900AbSEVJ1L> convert rfc822-to-8bit; Wed, 22 May 2002 05:27:11 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <mcp@linux-systeme.de>
-To: Takuya Satoh <tako0038@yahoo.com>
-Subject: Re: [PATCHSET] 2.4.19-pre8-jp13
-Date: Wed, 22 May 2002 11:26:38 +0200
-X-Mailer: KMail [version 1.4]
-Organization: Linux-Systeme GmbH
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200205221126.38338.mcp@linux-systeme.de>
+	id <S316904AbSEVJ3D>; Wed, 22 May 2002 05:29:03 -0400
+Received: from pluvier.ens-lyon.fr ([140.77.167.5]:41403 "EHLO pluvier")
+	by vger.kernel.org with ESMTP id <S315491AbSEVJ3C>;
+	Wed, 22 May 2002 05:29:02 -0400
+Date: Wed, 22 May 2002 11:31:40 +0200
+From: Eric Lemoine <Eric.Lemoine@ens-lyon.fr>
+To: linux-kernel@vger.kernel.org
+Subject: i8259 and IO-APIC
+Message-ID: <20020522093139.GA390@hookipa>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Warning: return path set from From: address
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Takuya,
+I already asked this question but did not get any responses. Please
+condider answering.
 
-> Errors again:
-> [ -SNIP- ]
+Using the old i8259 interrupts controller, my 1-way Linux2.4.16 box
+livelocks when receiving a high rate UDP flow (interrupt rate is so
+high that the NET_RX_SOFTIRQ never gets the chance to pull the
+packets off the backlog queue). However, the receive livelock
+phenomenom completely disappears when making use of the IO-APIC.
+Does anyone have an explanation for this?
 
-Please download the Patchset again. I send Joerg a wrong patch (untested) for 
-2.4.19, worked for 2.4.18, or remove patch number 72 and apply again.
-
-That will work! - Sorry for it!
-
+TIA
 -- 
-Kind regards
-        Marc-Christian Petersen
-
-http://sourceforge.net/projects/wolk
-
-PGP/GnuPG Key: 1024D/408B2D54947750EC
-Fingerprint: 8602 69E0 A9C2 A509 8661  2B0B 408B 2D54 9477 50EC
-Key available at wwwkeys.pgp.net.   Encrypted e-mail preferred.
+Eric

@@ -1,73 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264379AbRFHWAg>; Fri, 8 Jun 2001 18:00:36 -0400
+	id <S264380AbRFHWrh>; Fri, 8 Jun 2001 18:47:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264376AbRFHWA0>; Fri, 8 Jun 2001 18:00:26 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:7684 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264355AbRFHWAO>; Fri, 8 Jun 2001 18:00:14 -0400
-Subject: Re: [CHECKER] 15 probable security holes in 2.4.5-ac8
-To: engler@csl.Stanford.EDU (Dawson Engler)
-Date: Fri, 8 Jun 2001 22:58:11 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-In-Reply-To: <200106082134.OAA12792@csl.Stanford.EDU> from "Dawson Engler" at Jun 08, 2001 02:34:01 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S264381AbRFHWr1>; Fri, 8 Jun 2001 18:47:27 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:13579 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S264380AbRFHWrS>; Fri, 8 Jun 2001 18:47:18 -0400
+Date: Fri, 8 Jun 2001 18:11:55 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Bulent Abali <abali@us.ibm.com>
+Cc: Mike Galbraith <mikeg@wen-online.de>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Derek Glidden <dglidden@illusionary.com>,
+        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: Please test: workaround to help swapoff behaviour
+In-Reply-To: <OF4314E00C.5B8A0E4C-ON85256A64.006F54E0@pok.ibm.com>
+Message-ID: <Pine.LNX.4.21.0106081811180.3343-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E158UGh-0003Hl-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [BUG]  dataxferlen is never checked.
-> /u2/engler/mc/oses/linux/2.4.5-ac8/drivers/scsi/megaraid.c:4108:megadev_ioctl: ERROR:RANGE:3825:4108: Using user length "dataxferlen" as argument to "copy_from_user" [type=LOCAL] [state = any_check] set by 'copy_from_user':3825 [val=28300]
 
-Yep. Fixed - privileged ioctl fortunately
 
-> static int moxaload320b(int cardno, unsigned char * tmp, int len)
+On Thu, 7 Jun 2001, Bulent Abali wrote:
+
+> 
+> 
+> 
+> 
+> >This is for the people who has been experiencing the lockups while running
+> >swapoff.
+> >
+> >Please test. (against 2.4.6-pre1)
+> >
+> >
+> >--- linux.orig/mm/swapfile.c Wed Jun  6 18:16:45 2001
+> >+++ linux/mm/swapfile.c Thu Jun  7 16:06:11 2001
+> >@@ -345,6 +345,8 @@
+> >         /*
+> >          * Find a swap page in use and read it in.
+> >          */
+> >+        if (current->need_resched)
+> >+             schedule();
+> >         swap_device_lock(si);
+> >         for (i = 1; i < si->max ; i++) {
+> >              if (si->swap_map[i] > 0 && si->swap_map[i] != SWAP_MAP_BAD)
 > {
->         unsigned long baseAddr;
->         int i;
+> 
+> 
+> I tested your patch against 2.4.5.  It works.  No more lockups.  Without
+> the
+> patch it took 14 minutes 51 seconds to complete swapoff (this is to recover
+> 1.5GB of
+> swap space).  During this time the system was frozen.  No keyboard, no
+> screen, etc. Practically locked-up.
+> 
+> With the patch there are no more lockups. Swapoff kept running in the
+> background.
+> This is a winner.
+> 
+> But here is the caveat: swapoff keeps burning 100% of the cycles until it
+> completes.
+> This is not going to be a big deal during shutdowns.  Only when you enter
+> swapoff from
+> the command line it is going to be a problem.
+> 
+> I looked at try_to_unuse in swapfile.c.  I believe that the algorithm is
+> broken.
+> For each and every swap entry it is walking the entire process list
+> (for_each_task(p)).  It is also grabbing a whole bunch of locks
+> for each swap entry.  It might be worthwhile processing swap entries in
+> batches instead of one entry at a time.
+> 
+> In any case, I think having this patch is worthwhile as a quick and dirty
+> remedy.
 
-Fixed - privileged anyway
+Bulent, 
 
-> ---------------------------------------------------------
-> [BUG]  d.idx is an int: < 0 = bad news.
-> /u2/engler/mc/oses/linux/2.4.5-ac8/drivers/char/drm/i810_dma.c:1413:i810_copybuf: ERROR:RANGE:1409:1413: Using user length "idx"as an array index for "buflist" set by 'copy_from_user':1409 [val=400]
-> 	if(!_DRM_LOCK_IS_HELD(dev->lock.hw_lock->lock)) {
-> 		DRM_ERROR("i810_dma called without lock held\n");
+Could you please check if 2.4.6-pre2+the schedule patch has better
+swapoff behaviour for you? 
 
-Fixed - nasty
-
-> [BUG]  ouch.  (routine also uses it as an index)
-> /u2/engler/mc/oses/linux/2.4.5-ac8/drivers/usb/se401.c:1290:se401_ioctl: ERROR:RANGE:1286:1290: Using user length "frame"as an array index for "frame" set by 'copy_from_user':1286 [val=400]
-
-Uggh..
-
-> [BUG]  ouch x 2: no check either way.
-> /u2/engler/mc/oses/linux/2.4.5-ac8/drivers/char/drm/mga_state.c:835:mga_iload: ERROR:RANGE:827:835: Using user length "idx"as an array index for "buflist" set by 'copy_from_user':827 [val=800]
-
-Nasty - left for the X folks to fix
-
-> [BUG] (but i'm not sure whey we're missing the initial irq).
-> /u2/engler/mc/oses/linux/2.4.5-ac8/drivers/net/hamradio/scc.c:1772:scc_net_ioctl: ERROR:RANGE:1762:1772: Using user length "irq"as an array index for "Ivec" set by 'copy_from_user':1762 [val=1000]
-> 			if (!arg) return -EFAULT;
-
-Thats a real bug for other reaosns. the iRQ might be > 16 on APIC using hosts
-or non x86
-
-Both fixed
-
-> [BUG]  usbvideo_GetFrame can fail, but result is not checked before index.
-> /u2/engler/mc/oses/linux/2.4.5-ac8/drivers/usb/usbvideo.c:1596:usbvideo_v4l_ioctl: ERROR:RANGE:1572:1596: Using user length "frameNum"as an array index for "frame" set by 'copy_from_user':1572 [val=2400]
-> 		}
-
-Fixed
-
-> ---------------------------------------------------------
-> [BUG] pretty sure, though the code is convoluted.
-> /u2/engler/mc/oses/linux/2.4.5-ac8/drivers/media/video/zr36067.c:3505:do_zoran_ioctl: ERROR:RANGE:3435:3505: Using user length "norm"as an array index for "cardnorms" [val=7000]
-
-Done
+Thanks 
 

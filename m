@@ -1,86 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262490AbTEEQTj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 12:19:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTEEQTj
+	id S263274AbTEEQRm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 12:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbTEEQRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 12:19:39 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:5047 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S262490AbTEEQSh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 12:18:37 -0400
-Date: Mon, 05 May 2003 09:30:34 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 645] New: Not enough ptys
-Message-ID: <9410000.1052152234@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 5 May 2003 12:17:42 -0400
+Received: from mail.goshen.edu ([199.8.232.22]:44986 "EHLO mail.goshen.edu")
+	by vger.kernel.org with ESMTP id S263274AbTEEQRe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 12:17:34 -0400
+Subject: partitions in meta devices
+From: Ezra Nugroho <ezran@goshen.edu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9.7x.1) 
+Date: 05 May 2003 11:44:20 -0500
+Message-Id: <1052153060.29588.196.camel@ezran.goshen.edu>
+Mime-Version: 1.0
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am curious if partitioning meta devices is allowed or not.
 
-http://bugme.osdl.org/show_bug.cgi?id=645
+I just created a software raid array, md0 with 240G logical size.
+I want to partition that into two, 100G and the rest.
 
-           Summary: Not enough ptys
-    Kernel Version: 2.5.68
-            Status: NEW
-          Severity: normal
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: shawk@gmx.net
+I used fdisk to create the partitions, and it worked, result:
 
+bangalore exports # fdisk /dev/md0
 
-Distribution: Gentoo
-Hardware Environment: AMD 2700+, ECS K7VTA3 Rev5.0
-Software Environment: kernel 2.5.68, noapic passed to kernel, gcc 3.2.2,
-glibc 2.3.1, using /dev filesystem
+Command (m for help): p
 
-Problem Description: 
+Disk /dev/md0: 247.0 GB, 247044636672 bytes
+2 heads, 4 sectors/track, 60313632 cylinders
+Units = cylinders of 8 * 512 = 4096 bytes
 
-Using the kernel 2.5.68 I am unable to open any terminals or consoles when
-working with X, however no error message is given. They simply woun't load.
-Using the command "startx" results in "not enough ptys" and refuses to load.
-I checked the net and mailing lists, but none of the older topics like not
-having /dev/ptyd* /dev/ptys* or /dev/pts do apply. I found them all on my
-system. 
-
-I tested Kernels 2.5.63 and 2.5.67 and both work flawlessy there. I compiled
-both 2.5.68 and 2.5.67 with the same options, and only 2.5.68 showed this
-behavior.
-
-Kernel Settings concerning PTY :
-CONFIG_DEVPTS_FS=y (tried without this option, no change in behavior)
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
+    Device Boot    Start       End    Blocks   Id  System
+/dev/md0p1             1  24414064  97656254   83  Linux
+/dev/md0p2      24414065  60313632 143598272   83  Linux
 
 
-Diffing drivers/char/pty.c on both kernels results in the following output:
+however, I couldn't create any file system for them, or mount them.
+/dev/md0px just don't exist.
 
-# diff /usr/src/linux-2.4.67/drivers/char/pty.c
-/usr/src/linux-2.5.68/drivers/char/pty.c
-308d307
-< extern void tty_register_devfs (struct tty_driver *driver, unsigned int
-flags, unsigned minor);
-336,342d334
-<
-<       /*  Register a slave for the master  */
-<       if (tty->driver.major == PTY_MASTER_MAJOR)
-<               tty_register_devfs(&tty->link->driver,
-<                                  DEVFS_FL_CURRENT_OWNER | DEVFS_FL_WAIT,
-<                                  tty->link->driver.minor_start +
-<
-minor(tty->device)-tty->driver.minor_start);
+Do I need to partition the drives first before creating the raids?
+I use devfs instead of file based /dev
 
-Maybe its related to this?
-Simply copying the file from .67 into the .68 kernel will result in a break
-when trying to compile.
-
-If you need any more information please let me know.
-
-Steps to reproduce: simply compile 2.5.68 kernel on my PC
+Thanks, 
 
 

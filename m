@@ -1,108 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264970AbSJPI3j>; Wed, 16 Oct 2002 04:29:39 -0400
+	id <S264966AbSJPI03>; Wed, 16 Oct 2002 04:26:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264972AbSJPI3j>; Wed, 16 Oct 2002 04:29:39 -0400
-Received: from barclay.balt.net ([195.14.162.78]:62894 "EHLO barclay.balt.net")
-	by vger.kernel.org with ESMTP id <S264970AbSJPI3h>;
-	Wed, 16 Oct 2002 04:29:37 -0400
-Date: Wed, 16 Oct 2002 10:32:29 +0200
-From: Zilvinas Valinskas <zilvinas@gemtek.lt>
-To: linux-kernel@vger.kernel.org
-Subject: DRI oops 
-Message-ID: <20021016083229.GA393@gemtek.lt>
-Reply-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+	id <S264970AbSJPI03>; Wed, 16 Oct 2002 04:26:29 -0400
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:29144 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S264966AbSJPI00>; Wed, 16 Oct 2002 04:26:26 -0400
+Subject: 2.5.43 -- arch/i386/kernel/mpparse.c:74: `BAD_APICID' undeclared
+	here
+From: Miles Lane <miles.lane@attbi.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1034756835.3969.4.camel@turbulence.megapathdsl.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="M9NhX3UHpAaciwkO"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Attribution: Zilvinas
-X-Url: http://www.gemtek.lt/
+X-Mailer: Ximian Evolution 1.1.2.99 (Preview Release)
+Date: 16 Oct 2002 01:27:15 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+gcc -Wp,-MD,arch/i386/kernel/.mpparse.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstricraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+-pipe -mpreferrerch=athlon  -Iarch/i386/mach-generic -nostdinc
+-iwithprefix include    -DKBUILD_-o arch/i386/kernel/mpparse.o
+arch/i386/kernel/mpparse.c
+arch/i386/kernel/mpparse.c:74: `BAD_APICID' undeclared here (not in a
+function)
+arch/i386/kernel/mpparse.c:74: initializer element is not constant
+arch/i386/kernel/mpparse.c:74: (near initialization for
+`raw_phys_apicid[0]')
 
---M9NhX3UHpAaciwkO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+CONFIG_X86=y
+# CONFIG_SBUS is not set
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
 
-I have installed XFree 4.2.1 (Debian unstable), kernel 2.5.42.
-I get the same oops everytime X server is restarted or on shutdown.
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
 
---M9NhX3UHpAaciwkO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=logas
+#
+# General setup
+#
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
 
-ksymoops 2.4.6 on i686 2.5.41.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.5.41/ (default)
-     -m /boot/System.map-2.5.41 (default)
+CONFIG_MODULES=y
+# CONFIG_MODVERSIONS is not set
+CONFIG_KMOD=y
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+# CONFIG_MPENTIUMIII is not set
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+CONFIG_MK7=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+# CONFIG_HUGETLB_PAGE is not set
+# CONFIG_SMP is not set
+# CONFIG_PREEMPT is not set
+CONFIG_X86_UP_APIC=y
+# CONFIG_X86_UP_IOAPIC is not set
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_X86_MCE_P4THERMAL=y
+CONFIG_NOHIGHMEM=y
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM64G is not set
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=y
 
-e100: eth0: Intel(R) PRO/100 VE Network Connection
-e100: eth0 NIC Link is Up 100 Mbps Full duplex
-cs: IO port probe 0x0c00-0x0cff: clean.
-cs: IO port probe 0x0800-0x08ff: clean.
-cs: IO port probe 0x0100-0x04ff: excluding 0x4d0-0x4d7
-cs: IO port probe 0x0a00-0x0aff: clean.
-kernel BUG at mm/page_alloc.c:95!
-invalid operand: 0000
-CPU:    0
-EIP:    0060:[<c012e946>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00013202
-eax: 01000001   ebx: c11d2360   ecx: 00000000   edx: 00000001
-esi: cba7c000   edi: 00000000   ebp: 00000000   esp: cd047ea8
-ds: 0068   es: 0068   ss: 0068
-Stack: c11d2360 cba7c000 ce691800 00000000 ce691800 00000000 00003286 cba7d400 
-       d07d5000 ce691800 00000000 c0110a7f cba7d400 c012f401 c012f434 d0240301 
-       c11d2360 ce4de2a0 ce51a800 d0240347 ce691800 cba7c000 cd047f2c bffffc2c 
-Call Trace: [<c0110a7f>]  [<c012f401>]  [<c012f434>]  [<d0240301>]  [<d0240347>]  [<d024092f>]  [<d0240880>]  [<d023bfe6>]  [<c0147ee9>]  [<c010714d>]  [<c0106fcb>] 
-Code: 0f 0b 5f 00 ae 1d 28 c0 89 f6 8b 03 a8 40 74 0a 0f 0b 60 00 
+#
+# Power management options (ACPI, APM)
+#
+
+#
+# ACPI Support
+#
+CONFIG_ACPI=y
+# CONFIG_ACPI_HT_ONLY is not set
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BATTERY=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_DEBUG=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_PM=y
+
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+# CONFIG_SCx200 is not set
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+# CONFIG_EISA is not set
+# CONFIG_MCA is not set
+CONFIG_HOTPLUG=y
 
 
->>EIP; c012e946 <__free_pages_ok+66/2e8>   <=====
-
->>ebx; c11d2360 <_end+e56044/fdf5d44>
->>esi; cba7c000 <_end+b6ffce4/fdf5d44>
->>esp; cd047ea8 <_end+cccbb8c/fdf5d44>
-
-Trace; c0110a7f <iounmap+7f/90>
-Trace; c012f401 <__free_pages+29/2c>
-Trace; c012f434 <free_pages+30/34>
-Trace; d0240301 <[i830]i830_free_page+55/5c>
-Trace; d0240347 <[i830]i830_dma_cleanup+3f/a4>
-Trace; d024092f <[i830]i830_dma_init+af/cc>
-Trace; d0240880 <[i830]i830_dma_init+0/cc>
-Trace; d023bfe6 <[i830]i830_ioctl+da/e8>
-Trace; c0147ee9 <sys_ioctl+27d/2d4>
-Trace; c010714d <error_code+2d/38>
-Trace; c0106fcb <syscall_call+7/b>
-
-Code;  c012e946 <__free_pages_ok+66/2e8>
-00000000 <_EIP>:
-Code;  c012e946 <__free_pages_ok+66/2e8>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c012e948 <__free_pages_ok+68/2e8>
-   2:   5f                        pop    %edi
-Code;  c012e949 <__free_pages_ok+69/2e8>
-   3:   00 ae 1d 28 c0 89         add    %ch,0x89c0281d(%esi)
-Code;  c012e94f <__free_pages_ok+6f/2e8>
-   9:   f6 8b 03 a8 40 74         (bad)  0x7440a803(%ebx)
-Code;  c012e955 <__free_pages_ok+75/2e8>
-   f:   0a 0f                     or     (%edi),%cl
-Code;  c012e957 <__free_pages_ok+77/2e8>
-  11:   0b 60 00                  or     0x0(%eax),%esp
-
-
-1 warning issued.  Results may not be reliable.
-
---M9NhX3UHpAaciwkO--

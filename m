@@ -1,49 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264218AbUFFXBA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264225AbUFFXHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264218AbUFFXBA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 19:01:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264208AbUFFXA7
+	id S264225AbUFFXHA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 19:07:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264208AbUFFXHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 19:00:59 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:25313 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S264218AbUFFW7K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 18:59:10 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Date: Sun, 6 Jun 2004 15:57:12 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: [PATCH] Disable scheduler debugging
-In-Reply-To: <40C3452B.5010500@pobox.com>
-Message-ID: <Pine.LNX.4.60.0406061554370.11624@dlang.diginsite.com>
-References: <20040606033238.4e7d72fc.ak@suse.de> <20040606055336.GA15350@elte.hu>
- <40C3452B.5010500@pobox.com>
+	Sun, 6 Jun 2004 19:07:00 -0400
+Received: from mail014.syd.optusnet.com.au ([211.29.132.160]:36243 "EHLO
+	mail014.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264228AbUFFXG5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 19:06:57 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [OT] Who has record no. of  DriveReady SeekComplete DataRequest errors?
+Date: Mon, 7 Jun 2004 09:06:46 +1000
+User-Agent: KMail/1.6.1
+Cc: Pascal Schmidt <der.eremit@email.de>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+References: <200406060007.10150.kernel@kolivas.org> <Pine.LNX.4.58.0406061408090.202@neptune.local> <20040606203942.GA20267@suse.de>
+In-Reply-To: <20040606203942.GA20267@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406070906.46392.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Jun 2004, Jeff Garzik wrote:
-
+On Mon, 7 Jun 2004 06:39, Jens Axboe wrote:
+> I could easily imagine some vendors not setting the field, but setting
+> it to some "buggy" value is far less likely. But might as well add the
+> check.
 >
-> Unfortunately there are just, flat-out, way too many kernel messages at 
-> boot-up.  Making them KERN_DEBUG doesn't solve the fact that SMP boxes often 
-> overflow the printk buffer before you boot up to a useful userland that can 
-> record the dmesg.
->
-> The IO-APIC code is a _major_ offender in this area, but the CPU code is 
-> right up there as well.
->
-neither of these are nearly as bad as the crypto code, it takes a HUGE 
-kernel log to get any info from before that if you enable all the 
-encryption modes.
+> Con later confirmed that it was 2.6.2 that introduced the breakage, so
+> the patch isn't the culprit after all. There are a few seperate things
+> to look at there - Con, what are you doing when these messages trigger?
+> Is the drive permanently mounted, or does it happen on open?
 
-David Lang
+It only happens on boot and never again. During this part:
+ICH4: IDE controller at PCI slot 0000:00:1f.1
+ICH4: chipset revision 2
+ICH4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+hda: ST340014A, ATA DISK drive
+hdb: ST340014A, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hdc: JLMS XJ-HD165H, ATAPI CD/DVD-ROM drive
+hdd: RICOH CD-R/RW MP7163A, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: max request size: 1024KiB
+hda: 78165360 sectors (40020 MB) w/2048KiB Cache, CHS=16383/255/63, UDMA(100)
+ hda: hda1 hda2 < hda5 hda6 hda7 >
+hdb: max request size: 1024KiB
+hdb: 78165360 sectors (40020 MB) w/2048KiB Cache, CHS=16383/255/63, UDMA(100)
+ hdb: hdb2 < hdb5 hdb6 hdb7 >
+hdc: ATAPI 48X DVD-ROM drive, 512kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.20
+hdd: status error: status=0x59 { DriveReady SeekComplete DataRequest Error }
+hdd: status error: error=0x20LastFailedSense 0x02
+hdd: drive not ready for command
+hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdd: status error: error=0x00
+..etc
 
+I'll try that other patch when I get a chance later today.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Con

@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270456AbTGMX4a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 19:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270460AbTGMX4a
+	id S270445AbTGMXeW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 19:34:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270446AbTGMXeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 19:56:30 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:51145 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S270456AbTGMX43
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 19:56:29 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Daniel Phillips <phillips@arcor.de>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [RFC][PATCH] SCHED_ISO for interactivity
-Date: Mon, 14 Jul 2003 10:13:12 +1000
-User-Agent: KMail/1.5.2
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200307112053.55880.kernel@kolivas.org> <20030712154924.GC15452@holomorphy.com> <200307132203.55414.phillips@arcor.de>
-In-Reply-To: <200307132203.55414.phillips@arcor.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 13 Jul 2003 19:34:22 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:34246 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S270445AbTGMXeT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 19:34:19 -0400
+Date: Sun, 13 Jul 2003 16:40:03 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: roland@topspin.com, alan@storlinksemi.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: TCP IP Offloading Interface
+Message-Id: <20030713164003.21839eb4.davem@redhat.com>
+In-Reply-To: <20030713233503.GA31793@work.bitmover.com>
+References: <ODEIIOAOPGGCDIKEOPILCEMBCMAA.alan@storlinksemi.com>
+	<20030713004818.4f1895be.davem@redhat.com>
+	<52u19qwg53.fsf@topspin.com>
+	<20030713160200.571716cf.davem@redhat.com>
+	<20030713233503.GA31793@work.bitmover.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307141013.12202.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jul 2003 06:03, Daniel Phillips wrote:
-> On Saturday 12 July 2003 17:49, William Lee Irwin III wrote:
-> > On Fri, Jul 11, 2003 at 08:53:38PM +1000, Con Kolivas wrote:
-> > > Wli coined the term "isochronous" (greek for same time) for a real time
-> > > task that was limited in it's timeslice but still guaranteed to run.
-> > > I've decided to abuse this term and use it to name this new policy in
-> > > this patch. This is neither real time, nor guaranteed.
-> >
-> > I didn't coin it; I know of it from elsewhere.
->
-> Right, for example, USB has an isochronous transfer facility intended to
-> support media applications, e.g., cameras, that require realtime
-> bandwidth/latency guarantees.  The thing is, such guarantees have to be
-> end-to-end in the media pipeline.  Sound is just one of the applications
-> that needs the kind of realtime support we (or more properly, Davide) just
-> proposed.
+On Sun, 13 Jul 2003 16:35:03 -0700
+Larry McVoy <lm@bitmover.com> wrote:
 
-I'm not looking at creating a true realtime policy of any sort. Mine is more a 
-dynamic policy change to an interactive state that is sustained, which gives 
-no more capabilities to a normal user process than they can currently get on 
-SCHED_NORMAL tasks. Audio will definitely get priority... along with any 
-other interactive task, but not in a real time fashion. Basically they 
-effectively get a nice -5 unless they do the wrong thing.
+> On Sun, Jul 13, 2003 at 04:02:00PM -0700, David S. Miller wrote:
+> > On send this doesn't matter, on receive you use my clever receive
+> > buffer handling + flow cache idea to accumulate the data portion of
+> > packets into page sized chunks for the networking to flip.
+> 
+> Please don't.  I think page flipping was a bad idea.  I think you'd be 
+> better off to try and make the data flow up the stack in small enough 
+> windows that it all sits in the cache.
 
-Con
+At 10GB/sec nothing fits in the cache :-)
 
+> One thing SGI taught me (not that they wanted to do so) is that infinitely
+> large packets are infinitely stupid, for lots of reasons.  One is that
+> you have to buffer them somewhere and another is that the bigger they 
+> are the bigger your cache needs to be to go fast.
+
+The whole point is to not touch any of this data.
+
+The idea is to push the pages directly into the page cache
+of the filesystem.
+
+I'm not talking about doing this for userspace normal sys_recvmsg()
+type reads, that's an entirely different topic but if we ever did
+all agree to do something like that we'd have the network level
+infrastructure to do it already.

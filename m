@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129092AbRBLHFV>; Mon, 12 Feb 2001 02:05:21 -0500
+	id <S129119AbRBLHYK>; Mon, 12 Feb 2001 02:24:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129122AbRBLHFL>; Mon, 12 Feb 2001 02:05:11 -0500
-Received: from ns1.bmlv.gv.at ([193.171.152.34]:59407 "EHLO mail.bmlv.gv.at")
-	by vger.kernel.org with ESMTP id <S129092AbRBLHFE>;
-	Mon, 12 Feb 2001 02:05:04 -0500
-Message-Id: <3.0.6.32.20010212080459.0090ce80@pop3.bmlv.gv.at>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Mon, 12 Feb 2001 08:04:59 +0100
-To: linux-kernel@vger.kernel.org
-From: "Ph. Marek" <marek@mail.bmlv.gv.at>
-Subject: 2.4.[01] and duron - unresolved symbol _mmx_memcpy
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S129122AbRBLHYA>; Mon, 12 Feb 2001 02:24:00 -0500
+Received: from www.lahn.de ([213.61.112.58]:19816 "EHLO serv02.lahn.de")
+	by vger.kernel.org with ESMTP id <S129119AbRBLHXs>;
+	Mon, 12 Feb 2001 02:23:48 -0500
+Date: Sun, 11 Feb 2001 21:06:42 +0100 (CET)
+From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+Reply-To: <pmhahn@titan.lahn.de>
+To: Fredrik Falk <freddy@kurd.nu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Problems with irda (irlap, ircomm)
+In-Reply-To: <AOELJLLKKFKGHCDLJFOAAEHPCAAA.freddy@kurd.nu>
+Message-ID: <Pine.LNX.4.33.0102112104080.23666-100000@titan.lahn.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody,
+On Sat, 10 Feb 2001, Fredrik Falk wrote:
 
-Some time ago I tried 2.4.0 compiled with option for duron-processors,
-yesterday I tried 2.4.1; both give problems on insmod/modprobe with some
-modules, eg. tulip.
+> Version: "Linux version 2.4.2-pre2 (root@gozfand.ze) (gcc version 2.96
+                                ^^^^ Please update to pre3. There ware
+some irda-updated from Dag.
 
-The offending function is _mmx_memcpy, which can be found in the System.map
-(but, opposed to other functions, with an upper "T" instead of "t").
+> 20000731 (Red Hat Linux 7.0)) #1 SMP Sat Feb 10 02:26:51 CET 2001"
+  ^^^^^^^^ I hope it's the updated one.
 
-/proc/cpuinfo says that I have mmx, 3dnow and so on, but there seems to be
-a problem getting _mmx_memcpy it into the bzlilo-target.
+You might better ask on the IrDA-Mailinglist:
+http://www.pasta.cs.UiT.No/pipermail/linux-irda/
 
-I saw that CONFIG_X86_HAS_3DNOW is set in include/config/x86/use/3dnow.h,
-so I thought that the #defines should be ok. 
-
-
-So, is this already solved (couldn't find it on linux24.sourceforge.net),
-is it known? should I do some more investigation?
-
-
-Regards,
-
-Phil
+BYtE
+Philipp
+-- 
+  / /  (_)__  __ ____  __ Philipp Hahn
+ / /__/ / _ \/ // /\ \/ /
+/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

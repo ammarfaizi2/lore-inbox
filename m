@@ -1,81 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266473AbTCEWoS>; Wed, 5 Mar 2003 17:44:18 -0500
+	id <S266938AbTCEWp3>; Wed, 5 Mar 2003 17:45:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266540AbTCEWoS>; Wed, 5 Mar 2003 17:44:18 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:28649 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S266473AbTCEWoR>; Wed, 5 Mar 2003 17:44:17 -0500
-Date: Wed, 5 Mar 2003 23:54:41 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: davem@redhat.com, netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Chaotic structure of the net headers?
-Message-ID: <20030305225441.GO20423@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S266932AbTCEWp3>; Wed, 5 Mar 2003 17:45:29 -0500
+Received: from amdext2.amd.com ([163.181.251.1]:2490 "EHLO amdext2.amd.com")
+	by vger.kernel.org with ESMTP id <S266907AbTCEWp1>;
+	Wed, 5 Mar 2003 17:45:27 -0500
+From: ravikumar.chakaravarthy@amd.com
+X-Server-Uuid: 262C4BA7-64EE-471D-8B02-117625D613AB
+Message-ID: <99F2150714F93F448942F9A9F112634CA54B0F@txexmtae.amd.com>
+To: kai@tp1.ruhr-uni-bochum.de
+cc: mbligh@aracnet.com, linux-kernel@vger.kernel.org
+Subject: RE: Loading and executing kernel from a non-standard address
+ usin g SY SLINUX
+Date: Wed, 5 Mar 2003 16:55:39 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 12785FF92468738-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Yup,
+  Thanks I got that. The physical address is computed using (virtual address) - PAGE_OFFSET. So if my decompressed kernel is loaded at the physical address 0x200000 (I defined this address), I would need the linker to know it. Actually I went past that stage and now I got into start_kernel.. however it seems to be hanging somewhere after that. 
+Is there any other kernel changes I need to make to avoid this hanging for a normal boot.
 
-if all I'm describing is completely logical and I'm only too dumb to see 
-the logic please forgive me.  ;-)
+-Ravi
 
-In 2.5.64 there are networking headers both under include/linux/ and 
-include/net/. I don't understand whether there's a deeper logic why e.g. 
-the netfilter headers are under include/linux/.
+-----Original Message-----
+From: Kai Germaschewski [mailto:kai@tp1.ruhr-uni-bochum.de] 
+Sent: Wednesday, March 05, 2003 3:40 PM
+To: Chakaravarthy, Ravikumar
+Cc: mbligh@aracnet.com; linux-kernel@vger.kernel.org
+Subject: RE: Loading and executing kernel from a non-standard address usin g SY SLINUX
 
-There's some duplication, e.g. include/linux/in6.h contains
+On Tue, 4 Mar 2003 ravikumar.chakaravarthy@amd.com wrote:
 
-<--   snip  -->
+> Yes the kernel is uncompressed to the right location (0x200000), in my
+> case. When I try to uncompress it to a non standard address (other than
+> 0x100000), the address mapping is affected. Thats why I tried to change
+> the PAGE_OFFSET value to 0xc0100000, which should be the right value
+> corresponding to (0x200000).
 
-/*
- *      IPV6 extension headers
- */
-#define IPPROTO_HOPOPTS         0       /* IPv6 hop-by-hop options      */
-#define IPPROTO_ROUTING         43      /* IPv6 routing header          */
-#define IPPROTO_FRAGMENT        44      /* IPv6 fragmentation header    */
-#define IPPROTO_ICMPV6          58      /* ICMPv6                       */
-#define IPPROTO_NONE            59      /* IPv6 no next header          */
-#define IPPROTO_DSTOPTS         60      /* IPv6 destination options     */
+> So the problem now is that, when a function is invoked it is unable to
+> fetch the right physical address, since my address mapping (System.map)
+> does not change when I change the value of PAGE_OFFSET and recompile the
+> kernel.
 
-<--  snip  -->
+Well, this sounds very much like your vmlinux is relocated to the wrong 
+adresses, and then it's not surprising it doesn't work. You definitely 
+want to change arch/i386/vmlinux.lds.S. I'm not sure if you actually want 
+to change PAGE_OFFSET, but I don't see a fundamental reason why it should 
+be needed, so I think you should try as-is.
 
-and include/net/ipv6.h contains:
+--Kai
 
-<--  snip  -->
 
-/*
- *      NextHeader field of IPv6 header
- */
-
-#define NEXTHDR_HOP             0       /* Hop-by-hop option header. */
-#define NEXTHDR_TCP             6       /* TCP segment. */
-#define NEXTHDR_UDP             17      /* UDP message. */
-#define NEXTHDR_IPV6            41      /* IPv6 in IPv6 */
-#define NEXTHDR_ROUTING         43      /* Routing header. */
-#define NEXTHDR_FRAGMENT        44      /* Fragmentation/reassembly header. */
-#define NEXTHDR_ESP             50      /* Encapsulating security payload. */
-#define NEXTHDR_AUTH            51      /* Authentication header. */
-#define NEXTHDR_ICMP            58      /* ICMP for IPv6. */
-#define NEXTHDR_NONE            59      /* No next header */
-#define NEXTHDR_DEST            60      /* Destination options header. */
-
-<--  snip  -->
-
-Two different #define's for the same thing doesn't sound like a good 
-idea?
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

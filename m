@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135535AbRAUFvh>; Sun, 21 Jan 2001 00:51:37 -0500
+	id <S135458AbRAUF5S>; Sun, 21 Jan 2001 00:57:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135533AbRAUFv1>; Sun, 21 Jan 2001 00:51:27 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:62991 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S135460AbRAUFvO>; Sun, 21 Jan 2001 00:51:14 -0500
-From: Paul Mackerras <paulus@linuxcare.com.au>
+	id <S135460AbRAUF5J>; Sun, 21 Jan 2001 00:57:09 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:35600 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S135458AbRAUF45>; Sun, 21 Jan 2001 00:56:57 -0500
+Date: Sun, 21 Jan 2001 00:58:07 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: Admin Mailing Lists <mlist@intergrafix.net>
+cc: Ragnar Hojland Espinosa <ragnar_hojland@eresmas.com>,
+        <profmakx.fmp@gmx.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [OT?] Coding Style
+In-Reply-To: <Pine.LNX.4.10.10101210048360.17920-100000@athena.intergrafix.net>
+Message-ID: <Pine.LNX.4.32.0101210057110.7610-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14954.31040.647996.752037@gargle.gargle.HOWL>
-Date: Sun, 21 Jan 2001 16:53:04 +1100 (EST)
-To: linux-kernel@vger.kernel.org
-Subject: rwsemaphores and modules
-X-Mailer: VM 6.75 under Emacs 20.4.1
-Reply-To: paulus@linuxcare.com.au
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does anyone know why we have this code in include/linux/usbdevicefs.h?
-Is it still needed?
+On Sun, 21 Jan 2001, Admin Mailing Lists wrote:
 
-/*
- * sigh. rwsemaphores do not (yet) work from modules
- */
+>> And the lord spake, saying, "First shalt thou write thy holy code. Indenting
+>> shalt thou count to three, no more, no less.  Three shalt be the spaces thou
+>> shalt count, and the number of the counting shalt be three.  Four shalt thou
+>> not count, nor count thou two, excepting that thou then proceedeth to three.
+>> Eight is right out.  Once the number three, being the third number be
+>> reached, shalt thou move towards indenting thy next line ..
+>>
+>
+>now I know why I never read the bible.
+>
+>people jsut dont know how old cryptography really is ;-)
 
-#define rw_semaphore semaphore
-#define init_rwsem init_MUTEX
-#define down_read down
-#define down_write down
-#define up_read up
-#define up_write up
+If I'm not mistaken, the above is a parody on Monty Python's Holy
+Grail.  The Holy Hand Grenade of Antinoch if I'm correct.  It's
+been a while..
 
-Paul.
 
--- 
-Paul Mackerras, Open Source Research Fellow, Linuxcare, Inc.
-+61 2 6262 8990 tel, +61 2 6262 8991 fax
-paulus@linuxcare.com.au, http://www.linuxcare.com.au/
-Linuxcare.  Support for the revolution.
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Free Software advocate
+          This message is copyright 2001, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+The day Microsoft makes something that doesn't suck,
+is probably the day Microsoft starts making vacuum cleaners.
+  -- Ernst Jan Plugge
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

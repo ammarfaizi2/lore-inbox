@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268058AbUJJCbb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268074AbUJJChS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268058AbUJJCbb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 22:31:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268072AbUJJCbb
+	id S268074AbUJJChS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 22:37:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268076AbUJJChR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 22:31:31 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:2466 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S268058AbUJJCb2 (ORCPT
+	Sat, 9 Oct 2004 22:37:17 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:40343 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268074AbUJJChQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 22:31:28 -0400
-Date: Sun, 10 Oct 2004 03:31:26 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [patch] drm core internal versioning..
-In-Reply-To: <9e47339104100917527993026d@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0410100328080.11219@skynet>
-References: <Pine.LNX.4.58.0410100050160.6083@skynet>
- <9e47339104100917527993026d@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 9 Oct 2004 22:37:16 -0400
+Date: Sat, 9 Oct 2004 19:35:05 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Rick Lindsley <ricklind@us.ibm.com>
+Cc: mbligh@aracnet.com, Simon.Derr@bull.net, colpatch@us.ibm.com,
+       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-Id: <20041009193505.31fa1ed8.pj@sgi.com>
+In-Reply-To: <200410071918.i97JGlLC014534@owlet.beaverton.ibm.com>
+References: <20041007105425.02e26dd8.pj@sgi.com>
+	<200410071918.i97JGlLC014534@owlet.beaverton.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> The only thing it *can't* do is assure
+> exclusivity, today .. correct?
 
-> How strong of match requirement do we need? Note that this only
-> impacts distribution of binary personality modules, if you have source
-> there is no problem.
-
-Not really I'm thinking more of someone building a module against one core
-and insmodding it against another one.. so someone builds a kernel with
-core/personality, then builds just a personality module from CVS and tries
-to use it with the kernel core one...
-
-personally I think binary distributors have the money to keep up with the
-kernel releases....
-
-I don't want to re-implement kernel modversions which is what we are close
-to doing, you can't insmod a module built against a different kernel
-anyways so it doesn't matter, kernel version, preempt, smp, compiler are
-all checked on insmod in 2.6 if they don't match it doesn't load it is not
-possible to distrib a binarry kernel independent module.. without at least
-a portable stub source loader...
-
-Dave.
+No.  Could you look back to my other posts of this
+last week and let us know if I've answered your query
+in more detail already?  Thanks.
 
 -- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
-
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

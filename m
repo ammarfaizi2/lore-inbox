@@ -1,52 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135178AbQL3LG4>; Sat, 30 Dec 2000 06:06:56 -0500
+	id <S135179AbQL3LP4>; Sat, 30 Dec 2000 06:15:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135179AbQL3LGp>; Sat, 30 Dec 2000 06:06:45 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:38376 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S135178AbQL3LGd>; Sat, 30 Dec 2000 06:06:33 -0500
-Message-ID: <3A4DBC02.92C0FD9A@uow.edu.au>
-Date: Sat, 30 Dec 2000 21:42:10 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Repeatable 2.4.0-test13-pre4 nfsd Oops rears it head again
-In-Reply-To: <20001228161126.A982@lingas.basement.bogus> <200012282159.NAA00929@pizda.ninka.net> <20001228212116.A968@lingas.basement.bogus> <92ha5l$1qh$1@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S135193AbQL3LPr>; Sat, 30 Dec 2000 06:15:47 -0500
+Received: from [203.36.158.121] ([203.36.158.121]:50816 "HELO kabuki.eyep.net")
+	by vger.kernel.org with SMTP id <S135179AbQL3LP3>;
+	Sat, 30 Dec 2000 06:15:29 -0500
+To: Frank Davis <fdavis112@juno.com>
+cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] test13-pre6 net/atm/lec.c 
+In-Reply-To: Your message of "Sat, 30 Dec 2000 03:33:42 CDT."
+             <20001230.033349.-192941.1.fdavis112@juno.com> 
+In-Reply-To: <20001230.033349.-192941.1.fdavis112@juno.com> 
+Date: Sat, 30 Dec 2000 21:48:09 +1100
+From: Daniel Stone <daniel@kabuki.eyep.net>
+Message-Id: <20001230111540Z135179-439+7280@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Thanks, but if you ever send HTML email (MIME'd, no less), I'll dismember
+you.
+
+> This message is in MIME format.  Since your mail reader does not understand
+> this format, some or all of this message may not be legible.
 > 
-> I bet that others will have other recommendations, but so far I have at
-> least personally had good luck with the eepro100.
-
-The 3c905C is a well manufactured and very feature-rich NIC which at
-present appears to have fewer problem reports than eepro100, 8139 or tulip.
-
-Available in PCI, Cardbus, Mini-PCI.  A dual-interface PCI version has
-just been released (3c982), although we've yet to hear of anyone trying
-it with Linux.
-
-3com provide full specs without any NDA restrictions, plus a GPL'ed
-driver.
-
-Perhaps most significantly, the 905 has full scatter/gather support.
-This isn't used at present, but Alexey's zerocopy-sendfile patches
-do utilise it.  He currently has scatter-gather support for acenic,
-3c905 and sunhme.  I don't know what the plans are to support other
-100 mbps NICs.
-
-The in-kernel 3c59x.c isn't the world's fastest driver.  On the todo list
-for 2.5 is MMIO support, scatter-gather maintenance, optional use of DPD
-polling and implementation of the onboard multicast hash filter. And 
-implementation of the on-board VLAN support if 2.5 becomes VLAN-capable.
-
--
+> ----__JNP_000_5510.0696.1d1b
+> Content-Type: text/plain; charset=us-ascii  
+> Content-Transfer-Encoding: 7bit
+> 
+> Hello,
+>   The following patch appears to fix 2 of the 3 undefined references:
+> publish_netdev is still unresolved.
+> Regards,
+> Frank
+> --- net/atm/lec.c.old Sat Dec 30 03:08:14 2000
+> +++ net/atm/lec.c     Sat Dec 30 03:17:44 2000
+> @@ -772,10 +772,10 @@
+>                  size = sizeof(struct lec_priv);
+>  #ifdef CONFIG_TR
+>                  if (is_trdev)
+> -                        dev_lec[i] = prepare_trdev(NULL, size);
+> +                        dev_lec[i] = init_trdev(NULL, size);
+>                  else
+>  #endif
+> -                dev_lec[i] = prepare_etherdev(NULL, size);
+> +                dev_lec[i] = init_etherdev(NULL, size);
+>                  if (!dev_lec[i])
+>                          return -ENOMEM;
+>  
+> ----__JNP_000_5510.0696.1d1b
+> Content-Type: text/html; charset=us-ascii  
+> Content-Transfer-Encoding: quoted-printable
+> 
+> <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+> <HTML><HEAD>
+> <META content=3D"text/html; charset=3Dwindows-1252" http-equiv=3DContent-=
+> Type>
+> <META content=3D"MSHTML 5.00.2314.1000" name=3DGENERATOR></HEAD>
+> <BODY bottomMargin=3D0 leftMargin=3D3 rightMargin=3D3 topMargin=3D0>
+> <DIV>Hello,</DIV>
+> <DIV>&nbsp; The following patch appears to fix 2 of the 3 undefined =
+> references:=20
+> publish_netdev is still unresolved.</DIV>
+> <DIV>
+> <P class=3DMsoPlainText><SPAN=20
+> style=3D"mso-fareast-font-family: 'MS Mincho'">Regards,</SPAN></P>
+> <P class=3DMsoPlainText><SPAN=20
+> style=3D"mso-fareast-font-family: 'MS Mincho'">Frank</SPAN></P>
+> <P class=3DMsoPlainText><SPAN style=3D"mso-fareast-font-family: 'MS Mincho'=
+> ">---=20
+> net/atm/lec.c.old<SPAN style=3D"mso-tab-count: 1"> </SPAN>Sat Dec 30 03:08:=
+> 14=20
+> 2000<BR>+++ net/atm/lec.c<SPAN style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp=
+> ;&nbsp;=20
+> </SPAN>Sat Dec 30 03:17:44 2000<BR>@@ -772,10 +772,10 @@<BR><SPAN=20
+> style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+> </SPAN>size =3D sizeof(struct lec_priv);<BR><SPAN=20
+> style=3D"mso-spacerun: yes">&nbsp;</SPAN>#ifdef CONFIG_TR<BR><SPAN=20
+> style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+> </SPAN>if (is_trdev)<BR>-<SPAN=20
+> style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+> nbsp;&nbsp;&nbsp;=20
+> </SPAN>dev_lec[i] =3D prepare_trdev(NULL, size);<BR>+<SPAN=20
+> style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+> nbsp;&nbsp;&nbsp;=20
+> </SPAN>dev_lec[i] =3D init_trdev(NULL, size);<BR><SPAN=20
+> style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+> </SPAN>else<BR><SPAN style=3D"mso-spacerun: yes">&nbsp;</SPAN>#endif<BR>-<=
+> SPAN=20
+> style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+> </SPAN>dev_lec[i] =3D prepare_etherdev(NULL, size);<BR>+<SPAN=20
+> style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+> </SPAN>dev_lec[i] =3D init_etherdev(NULL, size);<BR><SPAN=20
+> style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+> </SPAN>if (!dev_lec[i])<BR><SPAN=20
+> style=3D"mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+> ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+> nbsp;&nbsp;&nbsp;&nbsp;=20
+> </SPAN>return -ENOMEM;<BR><SPAN=20
+> style=3D"mso-spacerun: yes">&nbsp;</SPAN><BR></P></SPAN></DIV></BODY></HTML>
+> 
+> ----__JNP_000_5510.0696.1d1b--
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

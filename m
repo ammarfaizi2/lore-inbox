@@ -1,153 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262072AbTJSILU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 04:11:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTJSILU
+	id S262076AbTJSIXu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 04:23:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTJSIXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 04:11:20 -0400
-Received: from smtp3.att.ne.jp ([165.76.15.139]:20160 "EHLO smtp3.att.ne.jp")
-	by vger.kernel.org with ESMTP id S262072AbTJSILP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 04:11:15 -0400
-Message-ID: <021501c39618$615619c0$24ee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: "Mudama, Eric" <eric_mudama@Maxtor.com>,
-       "'Hans Reiser '" <reiser@namesys.com>,
-       "'Wes Janzen '" <superchkn@sbcglobal.net>,
-       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
-       "'John Bradford '" <john@grabjohn.com>, <linux-kernel@vger.kernel.org>,
-       <nikita@namesys.com>, "'Pavel Machek '" <pavel@ucw.cz>,
-       "'Justin Cormack '" <justin@street-vision.com>,
-       "'Russell King '" <rmk+lkml@arm.linux.org.uk>,
-       "'Vitaly Fertman '" <vitaly@namesys.com>,
-       "'Krzysztof Halasa '" <khc@pm.waw.pl>
-References: <785F348679A4D5119A0C009027DE33C105CDB300@mcoexc04.mlm.maxtor.com>
+	Sun, 19 Oct 2003 04:23:50 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:23301
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S262076AbTJSIXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 04:23:48 -0400
+Date: Sun, 19 Oct 2003 01:19:09 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Paul <set@pobox.com>
+cc: Larry McVoy <lm@work.bitmover.com>,
+       Norman Diamond <ndiamond@wta.att.ne.jp>, linux-kernel@vger.kernel.org
 Subject: Re: Blockbusting news, results are in
-Date: Sun, 19 Oct 2003 17:09:36 +0900
+In-Reply-To: <20031019050019.GE13549@squish.home.loc>
+Message-ID: <Pine.LNX.4.10.10310190115360.15306-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Mudama replied to me:
+On Sun, 19 Oct 2003, Paul wrote:
 
-> > Does anyone need more?
->
-> Why don't you ask your friends at Toshiba whether that model supports
-> automatic reallocation, and if it does, how to enable it?
+> Larry McVoy <lm@bitmover.com>, on Sat Oct 18, 2003 [09:15:53 PM] said:
+> > On Sun, Oct 19, 2003 at 11:16:42AM +0900, Norman Diamond wrote:
+> > > We need those bad block lists.  They are as necessary as they ever were.
+> > 
+> > I'm not sure why this is a news flash.  When I was at Sun a 2GB drive
+> > cost us $4000.  I think we sold them for $6000.  You can't buy a 2GB
+> > drive today nor a 20GB drive.  A 200GB drive costs $160.  That's 100
+> > times bigger for 25 times less money, or a net increase of price/capacity
+> > of 2500.  In the same period of time, CPUs have not kept up though they
+> > are close.
+> > 
+> > You're suprised that drives are unreliable?  Please.  You are getting
+> > unbelievable value from those drives and you demanded it.  Price is the
+> > only way people make purchasing decisions, that's why DEC got out of the
+> > drive business, then HP did, and then IBM did.  They couldn't afford to
+> > compete with the cutrate junk that we call drives today.
+> > 
+> > I'm not blaming you, I'm as bad as the next guy, I buy based on price
+> > as well but I have no illusions that what I am buying is reliable.
+> > The drives we put into servers here go through a couple weeks of all bit
+> > patterns being changed and even then we don't depend on them, everything
+> > is backed up.
+> > 
+> > I've told you guys over and over that you need to CRC the data in user
+> > space, we do that in our backup scripts and it tells us when the drives
+> > are going bad.  So we don't get burned and you wouldn't either if you
+> > did the same thing.
+> > 
+> > Drives are amazingly cheap, it's a miracle that they work at all, don't
+> > be so suprised when they don't.
+> > -- 
+> > ---
+> > Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+>         Hi;
+> 
+>         I think you may be missing the point he is trying to make
+> in order to take your hobby horse for a spin;) He is trying to
+> claim, that he has a disk that is not dying, that has a bad
+> sector that he cant get remapped, and thus, there needs to be
+> support for bad blocks in the filesystem layer. (in the face
+> of the argument that modern disks make filesystem support of
+> bad blocks irrelevant.)
 
-1.  I didn't have to ask whether it does, because the S.M.A.R.T. logs
-already showed that it had done so.  The probelm is that it didn't do so to
-the block that was involved in this issue.
+First you have to make Linux have a direct path back to the application
+layer which owns the request.  Then you can attempt a filesystem remapping
+code war.
 
-2.  I did ask a different question, why that particular block wasn't getting
-reallocated, and my friends answered, and this answer was already reported
-in this thread a few days ago.
+Well basically there are ways to force invoke the remap but 99% of the
+people can not and will not go through the hassle.  So I am not going to
+spend time explaining each and every vendor mode.
 
-3.  If there were a way to enable reallocation in case of permanent errors,
-I think my friends would have said.  But they sure didn't say there were any
-user-settable options, they only said some approximations of how it was
-designed.  It does reallocations after temporary read errors but not after
-permanent read errors (where permanent means 255 failures in auto-retry).
-They think it does reallocations after temporary write errors, they weren't
-sure if it does reallocations after permanent write errors, now we know that
-it doesn't do reallocations after permanent write errors, and this is how it
-is designed, with no hint of options to toggle.
+That is what people in media forensics get paid to do.
 
-> > We do not know if Toshiba is the only maker whose firmware
-> > refuses to reallocate bad blocks when permanent errors are
-> > detected, because the makers aren't saying.
->
-> What would you like "us disk makers" to say?
-
-How to force reallocations even when data are lost, so that the block number
-can still be accessed even though the data will be random or zeroes until it
-gets written again.  How to force reallocations even when data are lost, to
-prevent a different problem (i.e. if the block is not reallocated and then a
-subsequent write appears to succeed, I don't really think that spot on the
-platter has really reliably recovered even if you think so, I think the new
-data might still get lost again in a few milliseconds or minutes).
-
-> If every other part of your computer is warrantied for 1 year, why should
-> disk drives alone in the cheapest OEM systems carry 3 year warranties?
-
-Why does RAM carry 6 year warranties?  (Maybe some don't but this is
-common.)
-
-> BTW, you're welcome to buy "premium" drives with 3-year or 5-year
-> warranties.  (3 on most vendor's high end ATA products, and 5 years on
-> most SCSI products)
-
-I haven't seen that, even on a SCSI product.
-
-Meanwhile, regarding ATA and warranties, here's a question for you.  I
-bought a Maxtor 80GB desktop hard drive at a time when it was a high end
-product.  The drive came with two sets of instructions, one in Japanese and
-one in English.  Which set of instructions do you think most customers read
-here in Japan?  And then which set of instructions do you think was more
-likely to have correct jumpering instructions?  I couldn't quite be sure
-which set of jumpering instructions to believe, because even though Maxtor's
-parent might be in the US (I'm not sure actually), I did buy this thing in
-the Japanese market with Japanese packaging and one of the two sets of
-instructions in Japanese.  So I sent e-mail to Maxtor to ask which
-instructions were correct, but Maxtor didn't answer.  I phoned Maxtor, and
-it turned out that the phone number was answered in Singapore, and the
-person didn't answer my question but gave a different e-mail address for me
-to send my question to.  So I sent e-mail to Maxtor's different e-mail
-address to ask again which instructions were correct and explain everything
-that had happened so far.  Maxtor still never answered.  Would you like to
-know why my level of trust in Maxtor drives is as low as it has been in IBM
-drives since a previous experience and has been in Toshiba drives for the
-past week?  This doesn't exactly reflect drive reliability unless I guess
-wrong which set of jumpering instructions to obey.  But still, suppose I
-guessed wrong, then would Maxtor provide a warranty?
-
-> In most cases these premium warranties will only cost you $5-$10.
-
-I've still never seen them on parts that way, not for 550 yen or 1,100 yen
-or any other amount.  I've occasionally seen it on entire computers, for
-example Dell, or a store warranty at Bic Camera, for around 5% of the price
-of the computer.
-
-> > If their disk drives start to develop bad blocks after two
-> > years, then customers don't discover how bad Toshiba's firmware
-> > is until two years have passed, and now they can't even make
-> > claims to get firmware fixed.
->
-> What do you want "fixed" in the firmware?
-
-Reallocate bad blocks when bad blocks are detected, even in situations when
-the badness is detected as permanent.  This answer hasn't been clear yet
-from this thread?????
-
-> I still don't understand why your Toshiba engineer friends couldn't help
-> you beyond listening to the drive bounce off the crash stop.
-
-They're not sure yet if they can.  Officially of course they can't, because
-of the warranty rules that have already been discussed.
-
-> (BTW, if the drive is clunking because it can't acquire at a certain
-> location, odds are that more than just the user data at that sector is a
-> problem.
-
-It didn't sound like clunking.  It sounded like repeated seeks.  It didn't
-sound like 255 repeated seeks, so I'm guessing it probably does something
-like try 15 retries without seeking, then seek again and try another 15
-times, etc.
-
-Meanwhile, the end result still holds.  In at least some cases, known
-defective firmware is refusing to do reallocations when reallocations are
-possible.  Other makers' firmware is less known.  We still need to keep
-lists of bad blocks known by the OS and filesystems and drivers, and we
-still need to keep those blocks away from ordinary file operations.  These
-lists remain as necessary as they ever were.  Unless we get some guarantees
-of good behavior by drives, if we don't make lists of bad blocks then we
-will have to say that Linux and disk drives shouldn't be used together in
-any computer.
+>         As a side note, I also have a 6gig disk, which a few
+> years ago was, ahem, bumped during a write. It now has a handful
+> of screwy sectors, that I cant get rid of, even after doing
+> the stuff Norman describes. I used the -c option to e2fsck,
+> and its been doing great ever since-- a few years of use without
+> more bad sectors.
+> 
+> Paul
+> set@pobox.com
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

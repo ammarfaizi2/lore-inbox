@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276022AbRI1Sai>; Fri, 28 Sep 2001 14:30:38 -0400
+	id <S276225AbRI1SbI>; Fri, 28 Sep 2001 14:31:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276225AbRI1SaU>; Fri, 28 Sep 2001 14:30:20 -0400
-Received: from balabit.bakats.tvnet.hu ([195.38.106.66]:16391 "EHLO
-	kuka.balabit") by vger.kernel.org with ESMTP id <S276021AbRI1SaK>;
-	Fri, 28 Sep 2001 14:30:10 -0400
-Date: Fri, 28 Sep 2001 20:30:19 +0200
-From: Balazs Scheidler <bazsi@balabit.hu>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reproducible bug in 2.2.19 & 2.4.x
-Message-ID: <20010928203019.A24999@balabit.hu>
-In-Reply-To: <20010928130138.A19532@balabit.hu> <Pine.LNX.4.10.10109281121590.6506-100000@coffee.psychology.mcmaster.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10109281121590.6506-100000@coffee.psychology.mcmaster.ca>; from hahn@physics.mcmaster.ca on Fri, Sep 28, 2001 at 11:22:45AM -0400
+	id <S276230AbRI1Sa7>; Fri, 28 Sep 2001 14:30:59 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:23820 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S276225AbRI1Sak>; Fri, 28 Sep 2001 14:30:40 -0400
+Date: Fri, 28 Sep 2001 14:31:08 -0400
+Message-Id: <200109281831.f8SIV8706610@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ide-scsi driver trouble in ac15
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <3BB469E1.9090205@juridicas.com>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 28, 2001 at 11:22:45AM -0400, Mark Hahn wrote:
-> >   - each thread logs messages using syslog (libc changes SIGPIPE settings
-> 
-> it does syslog from within the signal handler?  I doubt that's legal.
+In article <3BB469E1.9090205@juridicas.com> jnerin@juridicas.com wrote:
 
-you are right, but the problem is that the handler gets called at all.
+	[ ide-scsi problens ]
 
-the sigsegv doesn't happen within the signal handler, if you look at the
-backtrace, it happens during the write() syscall.
+>It also happened to me with ac10, ide-scsi, CD-RW is a Samsung 8x, and =
+>I=20
+>was writing a audio cd, when it finished writing the track 8 of 18 it=20
+>entered the loop, since then I couldn't eject the cd, neither eject=20
+>/dev/hdb, nor cdrecord -eject, nor the eject button, I had to reboot.
+>
+>My system is a 2x200mmx smp all ide.
+
+Don't see it on a P-II-400 (Dell Dimension 400). The Yamaha on-board
+sound doesn't work, but it never did, it just thinks it is, sound apps
+work fine but never produce output.
+
+I do note that the sound modules noted in modules.conf didn't load and
+need to be hand loaded...
 
 -- 
-Bazsi
-PGP info: KeyID 9AF8D0A9 Fingerprint CD27 CFB0 802C 0944 9CFD 804E C82C 8EB1
+bill davidsen <davidsen@tmr.com>
+ "If I were a diplomat, in the best case I'd go hungry.  In the worst
+  case, people would die."
+		-- Robert Lipe

@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265813AbUF2R2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265809AbUF2R2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265813AbUF2R2R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 13:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265814AbUF2R2R
+	id S265809AbUF2R2o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 13:28:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265814AbUF2R2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 13:28:17 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:63890 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S265813AbUF2R2P (ORCPT
+	Tue, 29 Jun 2004 13:28:44 -0400
+Received: from mx1.magmacom.com ([206.191.0.217]:30668 "EHLO mx1.magmacom.com")
+	by vger.kernel.org with ESMTP id S265809AbUF2R2l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 13:28:15 -0400
-Date: Tue, 29 Jun 2004 19:28:15 +0200
-From: bert hubert <ahu@ds9a.nl>
+	Tue, 29 Jun 2004 13:28:41 -0400
+Subject: Re: 2.6.7-mm1 - 2.6.7-mm4 weird http behavior
+From: Jesse Stockall <stockall@magma.ca>
 To: Debi Janos <debi.janos@freemail.hu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-mm1 - 2.6.7-mm4 weird http behavior
-Message-ID: <20040629172815.GA6625@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Debi Janos <debi.janos@freemail.hu>, linux-kernel@vger.kernel.org
-References: <20040629154551.GA6181@outpost.ds9a.nl> <freemail.20040529185706.6941@fm3.freemail.hu>
+In-Reply-To: <freemail.20040529152006.85505@fm4.freemail.hu>
+References: <freemail.20040529152006.85505@fm4.freemail.hu>
+Content-Type: text/plain
+Message-Id: <1088530069.8367.2.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <freemail.20040529185706.6941@fm3.freemail.hu>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 29 Jun 2004 13:27:49 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 29, 2004 at 06:57:06PM +0200, Debi Janos wrote:
+On Tue, 2004-06-29 at 09:20, Debi Janos wrote:
+> I am found an interesting (bug?) feature in kernels between
+> 2.6.7-mm1 and 2.6.7-mm4
+> 
+> Some web pages eg. 
+> 
+> http://www.hup.hu/
+> http://portal.fsn.hu/
+> http://wiki.hup.hu/
+> 
+> is unreachable with these kernels. If i try kernel versions
+> <= 2.6.7 everything is O.K. above-mentioned all web pages works.
+> 
 
-> http://packages.gentoo.org/
+I'm seeing the same thing after upgrading to 2.6.7-mm4, 2.6.7 vanilla
+does not exhibit the problem.
 
-Run
+Also Azureus (Java Bittorrent client) crashes when it tries to open a
+network socket to begin downloading. Again problem does not exist with
+2.6.7.
 
-tcpdump -i any -s 0 -w workingkernel host 198.63.211.232 
-and
-tcpdump -i any -s 0 -w brokenkernel host 198.63.211.232 
+I'm going to try a few other kernel versions to see if I can find when
+this started.
 
-While trying to connect with both a workingkernel and a brokenkernel.
-
-Then attach both these files in a message, either to me or to the list.
-
-This will allow us to see what is going on.
+Jesse
 
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Jesse Stockall <stockall@magma.ca>
+

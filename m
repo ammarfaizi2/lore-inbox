@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279305AbRKVNXY>; Thu, 22 Nov 2001 08:23:24 -0500
+	id <S279307AbRKVN3o>; Thu, 22 Nov 2001 08:29:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279201AbRKVNXO>; Thu, 22 Nov 2001 08:23:14 -0500
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:44016 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S279307AbRKVNXE>; Thu, 22 Nov 2001 08:23:04 -0500
-Message-Id: <5.1.0.14.2.20011122131259.00a87bc0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 22 Nov 2001 13:21:41 +0000
-To: Urban Widmark <urban@teststation.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Filesize limit on SMBFS
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BFCF740.1030009@century.cz>
-In-Reply-To: <Pine.LNX.4.30.0111221305520.4258-100000@cola.teststation.com>
+	id <S279313AbRKVN3e>; Thu, 22 Nov 2001 08:29:34 -0500
+Received: from c842c.nat.may.ka0.zugschlus.de ([212.126.200.66]:50185 "EHLO
+	torres.ka0.zugschlus.de") by vger.kernel.org with ESMTP
+	id <S279307AbRKVN3P>; Thu, 22 Nov 2001 08:29:15 -0500
+Date: Thu, 22 Nov 2001 14:29:14 +0100
+From: Marc Haber <mh+linux-kernel@zugschlus.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: xircom_cb and promiscious mode
+Message-ID: <20011122142914.F21563@torres.ka0.zugschlus.de>
+In-Reply-To: <20011101112628.A30743@torres.ka0.zugschlus.de> <200111011547.fA1Fl3B23182@buggy.badula.org> <20011101193437.B924@torres.ka0.zugschlus.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011101193437.B924@torres.ka0.zugschlus.de>; from mh+linux-kernel@zugschlus.de on Thu, Nov 01, 2001 at 07:34:37PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Urban Widmark wrote:
->On Thu, 22 Nov 2001, Petr Tite(ra wrote:
->>is maximum file size on SMBFS really 2GB? I cannot create file bigger 
->>than that.
->Yes.
->I have patches if you want to be my victim^Wtester.
+On Thu, Nov 01, 2001 at 07:34:37PM +0100, Marc Haber wrote:
+> On Thu, Nov 01, 2001 at 10:47:03AM -0500, Ion Badulescu wrote:
+> > On Thu, 1 Nov 2001 11:26:28 +0100, Marc Haber <mh+linux-kernel@zugschlus.de> wrote:
+> > > I am quite interested in the problems that arise with the xircom
+> > > cardbus ethernet cards, since I have difficulties with them as well.
+> > > However, my problems are not solved by setting promisc mode.
+> > 
+> > Indeed, this sounds like a very different problem.
+> 
+> :-(
 
-I am in a masochistic mood today so can I be your victim, too? (-;
+> I cannot rule out that my notebook is broken, Chicony has a history of
+> making abysmally bad hardware, and the machine is about two years old.
+> I don't have a reference notebook that has Linux installed and can do
+> Cardbus to cross-check, sorry.
 
-Seriously, I can test with all of w9x/NT/2k/XP as servers and I need the 
-2GB limit aleviated, too, so please email me the [gb]zipped patch (or a URL).
+I now have to confitm that my notebook is broken. The card works fine
+even with the stock kernel driver in an HP OmniBook, so it must be the
+notebook at fault :-(
 
->>Let me know which 2.4 kernel you are using.
+Thanks for your assistance and the good work regarding the Linux
+kernel, I really appreciate that.
 
-At the moment I am using 2.4.15-pre4 + NTFS TNG but I am happy to use any 
-2.4.x kernel. make bzImage on my athlon takes only 3 minutes...
-
-Cheers,
-
-Anton
-
+Greetings
+Marc
 
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+-----------------------------------------------------------------------------
+Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
+Karlsruhe, Germany |  lose things."    Winona Ryder | Fon: *49 721 966 32 15
+Nordisch by Nature |  How to make an American Quilt | Fax: *49 721 966 31 29

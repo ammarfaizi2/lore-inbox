@@ -1,103 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263045AbSJWJU1>; Wed, 23 Oct 2002 05:20:27 -0400
+	id <S263173AbSJWJ1i>; Wed, 23 Oct 2002 05:27:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263081AbSJWJU1>; Wed, 23 Oct 2002 05:20:27 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:60351 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263045AbSJWJUZ>;
-	Wed, 23 Oct 2002 05:20:25 -0400
-Date: Wed, 23 Oct 2002 11:26:28 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Osamu Tomita <tomita@cinet.co.jp>
-Cc: "'Vojtech Pavlik '" <vojtech@suse.cz>,
-       "'LKML '" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] add support for PC-9800 architecture (13/26) key board
-Message-ID: <20021023112628.F28139@ucw.cz>
-References: <E6D19EE98F00AB4DB465A44FCF3FA46903A30A@ns.cinet.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E6D19EE98F00AB4DB465A44FCF3FA46903A30A@ns.cinet.co.jp>; from tomita@cinet.co.jp on Wed, Oct 23, 2002 at 02:09:12PM +0900
+	id <S263207AbSJWJ1i>; Wed, 23 Oct 2002 05:27:38 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:62276 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S263173AbSJWJ1g>; Wed, 23 Oct 2002 05:27:36 -0400
+Date: Wed, 23 Oct 2002 02:42:04 -0700 (PDT)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: linux-kernel@vger.kernel.org
+cc: lkcd-devel@lists.sourceforge.net
+Subject: [ANNOUNCE] LKCD for 2.5.44 - full patch set (2002.10.23)
+Message-ID: <Pine.LNX.4.44.0210230241050.27315-100000@nakedeye.aparity.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 02:09:12PM +0900, Osamu Tomita wrote:
-> Thanks for comments.
-> 
-> -----Original Message-----
-> From: Vojtech Pavlik
-> To: Osamu Tomita
-> Cc: LKML; Linus Torvalds
-> Sent: 2002/10/22 19:43
-> Subject: Re: [PATCH][RFC] add support for PC-9800 architecture (13/26)
-> keyboard
-> 
-> > I won't merge this unless it's cleaned up, kana support either made
-> > generic or put into keymaps, and the below problems resolved.
-> 
-> > ... no way I'll add another default keymap when now we have unified
-> > keycodes. And we do support japanese keycodes/keymappings. 
-> Japanese keycodes/keymapping support! We are very happy. IMHO To realize
-> this, emulations include shift-state modifier are needed??
-> Please point me where is source code, and we don't touch defkeymaps.
+These are the latest LKCD patches for 2.5.44.  We have incorporated
+just about every fix (with a few exceptions) from all users who have
+made requests up through yesterday.  We ask that these be included
+in the kernel tree.  If they are incorporated, please copy me on the
+check-in.
 
-Tell me what exactly you need and if it cannot be done, I'll try to
-implement it in a generic way.
+In terms of what has changed since the last patch set:
 
-> >> diff -urN linux/drivers/char/keyboard.c
-> > Either there is a need for a special kanji mode changing function for
-> > japanese keyboards or there is not. Either way, it isn't PC-98 specific.
+- fixed DUMP_MODULE_NAME defintions
+- removed DUMP_PRINT{,N,F} calls
+- changed to C99 initializers
+- removed all typedefs from dump structures
+- fixed a few formatting problems
+- removed DUMP_DEBUG capabilities
+- removed casting problems
+- converted to atomic_t, then back to volatile (per Keith Owens,
+  which is the right thing to do) for various dump configurable
+  variables.
+- added option to turn off gzip (which turns off zlib) for
+  gzip dump compression
+- removed the last CONFIG_CRASH_DUMP{,_MODULE} definitions
+- removed LINUX_VERSION_CODE calls
+- cleaned up and added MODULE_AUTHOR() and MODULE_DESCRIPTION()
+- updated MAINTAINERS
+- corrected all applicable install.sh scripts
+- fixed a couple of kmap_atomic()/kunmap_atomic() problems
+- changed to u{16,32,64} types
+- added more static types for real static variables
+- cleaned up mbank code
+- cleaned up some extra ifdefs for DISCONTIGMEM and arch specific stuff
+- discontinued the use of mem_map, using pfn_to_page instead
+- bio initialization now done in dump_open() instead of dump_ioctl()
+- moved arch specific code (like page_is_ram) to arch files
+- removed DUMP_KIOBUF_NUMBER
+- added Config.help information
 
-> I think it's for emergency(or rescue) purpose. For example, system cannot
-> boot due to illegal kanji named file, input kenji to select one and change
-> it. We plan direct character code input. In kanji-mode, do convert from
-> hex numeric input to kanji. But not implemented yet.
+We have tested again on multiple kernels with various types of
+dumping devices.  The diffstat output is now at the top of each
+patch.  These patches have been well tested, and crash dumps can
+be generated pretty easily.  Feel free to give them a try.  Let
+us know if you have any problems.
 
-No problem, but this should be handled by a keymap (if possible). If
-not, the keymap code needs to be extended to be able to handle this.
+With all this said, please incorporate these patches into the
+kernel tree.  We feel that we've done what has been requested
+in as many ways as possible to get the code in line with what
+other kernel maintainers have asked.
 
-> >> +#ifndef CONFIG_PC9800
-> >>  #define KBD_DEFLEDS 0
-> >> +#else
-> >> +#define KBD_DEFLEDS (1 << VC_NUMLOCK)
-> >> +#endif
-> > You want numlock on by default?
+Thanks,
 
-> Yes. Desktop PC-9800 has Ten-key pad. But doesn't have NumLock key!
-> Perhaps BIOS initialize always NumLock ON.
-> Note book PC-9800 has NumLock key. But NumLock key never send scancode,
-> do change scancode internaly.
+--Matt
 
-Interesting.
+P.S.  The patches can be downloaded from the web at:
 
-> >>  static void fn_scroll_forw(struct vc_data *vc)
-> >>  {
-> >> +#ifndef CONFIG_PC9800
-> >>  	scrollfront(0);
-> >> +#else
-> >> +	scrollfront(3);
-> >> +#endif
-> >>  }
-> > Huh?
-> Due to our implementation of console driver. For old PC-9800, we use only
-> video ram. If don't, scrolling is _very_ slow. So our console can scroll
-> less than half lines of screen. If call with 0, screen doesn't scroll.
+      http://lkcd.sourceforge.net/download/latest
 
-I see. However, I believe this should be handled in your implementation
-of the scrolling, and not affecting keyboard.c code.
+The full diffstat for LKCD in 2.5.44 tree (the majority of the
+changes are the addition of the dump modules and headers):
 
-> >> diff -urN linux/include/linux/logibusmouse.h
-> linux98/include/linux/logibusmouse.h
-> >> --- linux/include/linux/logibusmouse.h	Tue Aug  3 01:54:29 1999
-> >> +++ linux98/include/linux/logibusmouse.h	Fri Aug 17 22:15:13 2001
-> > Hmm, this file isn't used at all in 2.5. Why patching it?
-> IMHO Those (pc_keyb.h too) are remaining to compile user mode application.
-> I think it's a very rare, but ....
+ Makefile                             |   15 
+ arch/i386/boot/Makefile              |    2 
+ arch/i386/boot/install.sh            |   24 
+ arch/i386/config.in                  |   11 
+ arch/i386/kernel/Makefile            |    2 
+ arch/i386/kernel/irq.c               |    5 
+ arch/i386/kernel/nmi.c               |    9 
+ arch/i386/kernel/smp.c               |   15 
+ arch/i386/kernel/traps.c             |   28 
+ arch/i386/mach-generic/irq_vectors.h |    1 
+ arch/i386/mm/Makefile                |    2 
+ arch/i386/mm/init.c                  |    5 
+ arch/s390/boot/install.sh            |   24 
+ arch/s390x/boot/install.sh           |   24 
+ drivers/Makefile                     |    1 
+ drivers/char/sysrq.c                 |   13 
+ include/asm-i386/smp.h               |    1 
+ include/linux/major.h                |    2 
+ include/linux/page-flags.h           |    5 
+ init/Makefile                        |    5 
+ init/kerntypes.c                     |   24 
+ init/main.c                          |   10 
+ kernel/Makefile                      |    2 
+ kernel/panic.c                       |   16 
+ kernel/sched.c                       |   30 
+ kernel/sys.c                         |   36 
+ lib/Config.in                        |    2 
+ mm/page_alloc.c                      |   22 
 
-pc_keyb.h maybe. logibusmouse.h definitely not, no application is
-supposed to use those defines.
+As far as new changes are concerned, the majority of changes to
+the release are contained in the dump driver code itself.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+ drivers/dump/Makefile                |   26 
+ drivers/dump/dump_base.c             | 1641 +++++++++++++++++++++++++++++++++++
+ drivers/dump/dump_blockdev.c         |  361 +++++++
+ drivers/dump/dump_gzip.c             |  119 ++
+ drivers/dump/dump_i386.c             |  322 ++++++
+ drivers/dump/dump_rle.c              |  176 +++
+ include/asm-i386/dump.h              |  101 ++
+ include/linux/dump.h                 |  349 +++++++
+
+ 36 files changed, 3398 insertions(+), 33 deletions(-) total.
+

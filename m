@@ -1,84 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbTKDW14 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 17:27:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbTKDW1z
+	id S261193AbTKDWbd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 17:31:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbTKDWbd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 17:27:55 -0500
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:37046 "HELO
-	develer.com") by vger.kernel.org with SMTP id S261226AbTKDW1r (ORCPT
+	Tue, 4 Nov 2003 17:31:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:61058 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261193AbTKDWb2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 17:27:47 -0500
-Message-ID: <3FA827D8.3000700@develer.com>
-Date: Tue, 04 Nov 2003 23:27:36 +0100
-From: Bernardo Innocenti <bernie@develer.com>
-Organization: Develer S.r.l.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en, en-us
+	Tue, 4 Nov 2003 17:31:28 -0500
+Date: Tue, 4 Nov 2003 14:31:18 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ulrich Drepper <drepper@redhat.com>
+cc: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       Paul Venezia <pvenezia@jpj.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 performance inconsistencies, 2.4/2.6
+In-Reply-To: <3FA82161.9000507@redhat.com>
+Message-ID: <Pine.LNX.4.44.0311041422580.20373-100000@home.osdl.org>
 MIME-Version: 1.0
-To: uclinux-dev <uclinux-dev@uclinux.org>
-CC: GCC Mailing List <gcc@gcc.gnu.org>,
-       CrossGCC Mailing List <crossgcc@sources.redhat.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: [ANNOUNCE] GCC 3.3.2/3.4 ColdFire toolchain for uClinux (20031103)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I've released a new snapshot of the uClinux/ColdFire toolchain
-based on GCC 3.3.2 and GCC 3.4-prerelease:
+On Tue, 4 Nov 2003, Ulrich Drepper wrote:
+> 
+> I don't see any verison numbers mentioned.  If you want to benchmark
+> NPTL use the recent code, e.g., from Fedora Core 1 or RHEL3.  Nothing
+> else makes any sense since there have mean countless changes since the
+> early releases.
 
-  http://www.uclinux.org/pub/uClinux/uclinux-elf-tools/gcc-3/
+This is actually _really_ trivial to see with a simple test program.
 
-This release incorporares quite a lot of updates and fixes
-since the last official announcement.
+This is Fedora Core test3:
 
-Changes in release 20031102:
+	#include <stdlib.h>
 
-    * Update GCC to 3.3.2 and 3.4-20031029;
-    * Update binutils to version 2.14.90.0.7;
-    * Finished integrating uClinux and ColdFire support in
-      official GCC and binutils. The 3.4 toolchain now builds
-      with no patches except for some pending GCC 3.4 bugfixes;
-    * Use self-extracting archives for all binary packages;
-    * Fix GCC 3.4 packaging problem (thanks to Frank Baumgart).
+	/* Change this to match your CPU */
+	#define NR (10*1000*1000)
 
-Changes in release 20031006:
+	int main(int argc, char **argv)
+	{
+	        int i;
+	        for (i = 0; i < NR; i++)
+	                putchar(0);
+	}
 
-    * Most ColdFire and uClinux patches are now incorporated
-      in the official GCC 3.4 snapshots.
-    * Update GDB to 6.0, with new BDM patches.
-    * Update uClibc to 0.9.21.
-    * Enable pthreads support in uClibc (lightly tested).
-    * Split binary distribution in three packages (base, C++ and GDB).
-    * Several bugfixes all over the build script and patches.
+and then just time it.
 
-Changes in release 20030811:
+I get:
 
-    * Upgraded GCC 3.3.1 to the official release;
-    * Update links for GCC 3.4 to really point at the 20030806
-      snapshot.
+	torvalds@home:~> time ./a.out > /dev/null 
 
-Changes in release 20030808:
+	real    0m1.305s
+	user    0m1.283s
+	sys     0m0.004s
 
-    * uClibc multilibs for -msep-data were being built as
-      shared libraries (reported by Chen Qi).
-    * Update elf2flt from uClinux CVS and drop all patches.
-    * Update GCC 3.4 snapshot to 20030806. Fixes problems with -MD,
-      builds kernel, breaks libstdc++ multilibs (still investigating).
-    * Apply small fixes to GCC 3.4 patchset.
-    * Integrate GDB 5.3 with BDM support
-    * Restore building GCC 3.3.1 (got broken in previous release)
-    * Test with GCC 2.95.3: surprisingly, it still builds fine...
+and
 
--- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
+	torvalds@home:~> time LD_ASSUME_KERNEL=2.4.1 ./a.out > /dev/null 
+	
+	real    0m0.321s
+	user    0m0.318s
+	sys     0m0.003s
 
-Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
+ie a factor of _four_ difference in the speed of "putchar()".
 
+Interestingly, if I compile the program statically, I don't see this 
+effect, and it's noticeably faster still:
 
+	torvalds@home:~> gcc -O2 -static test.c 
+	torvalds@home:~> time ./a.out > /dev/null 
+
+	real    0m0.193s
+	user    0m0.191s
+	sys     0m0.002s
+
+	torvalds@home:~> time LD_ASSUME_KERNEL=2.4.1 ./a.out > /dev/null 
+
+	real    0m0.194s
+	user    0m0.190s
+	sys     0m0.004s
+
+Is the TLS stuff done through an extra dynamically loaded indirection or
+something?
+
+		Linus
 

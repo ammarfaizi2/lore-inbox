@@ -1,113 +1,206 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270998AbTHBFzd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 01:55:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271006AbTHBFzb
+	id S271002AbTHBGiN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 02:38:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271007AbTHBGiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 01:55:31 -0400
-Received: from pool-141-155-151-209.ny5030.east.verizon.net ([141.155.151.209]:16363
-	"EHLO mail.blazebox.homeip.net") by vger.kernel.org with ESMTP
-	id S270998AbTHBFz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 01:55:28 -0400
-Date: Sat, 2 Aug 2003 01:57:16 -0400
-From: Diffie <diffie@blazebox.homeip.net>
-To: Mike Anderson <andmike@us.ibm.com>
+	Sat, 2 Aug 2003 02:38:13 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:17938 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S271002AbTHBGiE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 02:38:04 -0400
+Date: Sat, 2 Aug 2003 08:37:55 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Matthew Peters <matthew@greycloaklabs.ca>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Badness in device_release at drivers/base/core.c:84
-Message-ID: <20030802055716.GC3613@blazebox.homeip.net>
-References: <20030801182207.GA3759@blazebox.homeip.net> <20030801144455.450d8e52.akpm@osdl.org> <20030801232721.GA5249@beaverton.ibm.com>
+Subject: Re: PROBLEM: kswapd and toshiba libretto 50ct
+Message-ID: <20030802063755.GA679@alpha.home.local>
+References: <Pine.LNX.4.44.0308011716230.27679-200000@gateway.greycloaklabs.ca>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eHhjakXzOLJAF9wJ"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030801232721.GA5249@beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Slackware Linux 9.0
-X-Kernel-Version: Linux 2.6.0-test2-mm2
-X-Mailer: Mutt 1.4.1i http://www.mutt.org
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.14; AVE: 6.20.0.1; VDF: 6.20.0.55; host: blazebox.homeip.net)
+In-Reply-To: <Pine.LNX.4.44.0308011716230.27679-200000@gateway.greycloaklabs.ca>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matthew,
 
---eHhjakXzOLJAF9wJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+perhaps kernel 2.4 puts more stress on your _overclocked_ CPU than 2.2 did,
+rendering it unusable. BTW, you said you got a database corruption and you
+felt it was kernel 2.2's fault... I guess there are more people who get
+problems with excessive overclocking than those getting problems with kernel
+2.2 !
 
-On Fri, Aug 01, 2003 at 04:27:22PM -0700, Mike Anderson wrote:
-> Andrew Morton [akpm@osdl.org] wrote:
-> > This patch should fix the oops.
-> >=20
-> > As for why the proc reading code was unable to locate the HBA: dunno, b=
-ut
-> > this is a first step.
-> >=20
-> > Or maybe you don't have any adaptec controllers in the machine?
-> >=20
-> > (jejb, please apply..)
-> >=20
-> >=20
-> >  25-akpm/drivers/scsi/aic7xxx_old/aic7xxx_proc.c |    2 +-
-> >  1 files changed, 1 insertion(+), 1 deletion(-)
-> >=20
-> > diff -puN drivers/scsi/aic7xxx_old/aic7xxx_proc.c~aic7xxx_old-oops-fix =
-drivers/scsi/aic7xxx_old/aic7xxx_proc.c
-> > --- 25/drivers/scsi/aic7xxx_old/aic7xxx_proc.c~aic7xxx_old-oops-fix	Fri=
- Aug  1 14:41:14 2003
-> > +++ 25-akpm/drivers/scsi/aic7xxx_old/aic7xxx_proc.c	Fri Aug  1 14:41:20=
- 2003
-> > @@ -92,7 +92,7 @@ aic7xxx_proc_info ( struct Scsi_Host *HB
-> > =20
-> >    HBAptr =3D NULL;
-> > =20
-> > -  for(p=3Dfirst_aic7xxx; p->host !=3D HBAptr; p=3Dp->next)
-> > +  for(p=3Dfirst_aic7xxx; p && p->host !=3D HBAptr; p=3Dp->next)
-> >      ;
-> > =20
-> >    if (!p)
->=20
-> Is this really the right thing to add. The only purpose of these few lines
-> is a poor sanity check as down further in the code a pointer to the
-> structure is already present in hostdata.=20
->=20
-> Adding the "p" is an indication that this drivers list got corrupted some
-> where.
->=20
-> I agree it may be better than an oops, but what else is invalid?
->=20
-> You need to have adaptec controllers in the system to get a procfs node
-> to read / write, but this error could be related to the node not getting
-> cleaned up correctly on a remove which a patch has previously been
-> posted.
->=20
-> -andmike
-> --
-> Michael Anderson
-> andmike@us.ibm.com
->=20
->=20
+I _have_ already overclocked several pentiums 75 in the past, some of them
+could even run at 120 MHz. The least I could say is that this processor is the
+worst reliable overclocker because it _seems_ to work but you still get a few
+glitches in very specific applications. I had people tell me that they were
+used to set it back to 75 to run photoshop, but "everything else runs just
+fine" ! And it doesn't support aging very well, and must be set back to its
+original speed after several months (or you need to considerably raise the
+voltage).
 
-Mike,
+So I would say : please set this CPU to 75 MHz and test 2.4 again on it. IF
+you still have problems, THEN you can get back here to seek some help. But
+don't hope for much help under these stupid conditions.
 
-I do indeed have an AHA-2940U2W controller in the box...could you be
-kind and point me at the said patch? Thank you.
+Willy
 
-Regards,
+On Fri, Aug 01, 2003 at 05:50:47PM -0700, Matthew Peters wrote:
+> there are a few problems with 2.4 and 2.5 kernels that make them unusable
+> on a Toshiba Libretto. If i select a kernel made for Pentium Classic, it
+> unpacks the kernel, then just sits there. If i use a 386 kernel, it works
+> till it gets to kswapd. Now, i haven't accually checked with other kernels
+> on if this is in fact where it crashes, but i seem to remember it being
+> this.
+> 
+> the kernel version that this oops message came from was the 2.4.21 for 386
+> with debian patches. This is one of the kernel packages in unstable
+> debian. I also have the pcmcia package installed.
+> 
+> The hardware that i'm trying to get this to run on is a Toshiba Libretto
+> 50CT. This is a Pentium 75(over clocked to 100) with 16 megs of ram. The
+> sound chip is an OPL3-SA2, with a CT-65550 graphics chip. The hd is a
+> toshiba MK2018GAS(upgraded). It has non-cardbus PCMCIA.
+> 
+> The 2.2 kernels work fine, and i've been using them for a year or so... i
+> just had to re-install because of my package database getting corrupted,
+> and figured it was because of the 2.2 kernel... i have no proof of this.
+> 
+> It was not possible to use ksymoops on the libretto because it did not
+> compleate loading, so the info in the output might be incorrect.
+> 
+> Currently, the install is working on a P3 system.
+> 
+> i can go back to a 2.2 kernel and get the cpu info and any other info that
+> might be required.
+> 
+> Thanks in advance
+>     Matthew Peters
 
-Paul
+> ksymoops 2.4.8 on i686 2.4.21-3-386.  Options used
+>      -V (default)
+>      -k /proc/ksyms (default)
+>      -l /proc/modules (default)
+>      -o /lib/modules/2.4.21-3-386/ (default)
+>      -m /boot/System.map-2.4.21-3-386 (default)
+> 
+> Warning: You did not tell me where to find symbol information.  I will
+> assume that the log matches the kernel and modules that are running
+> right now and I'll use the default options above for symbol resolution.
+> If the current kernel and/or modules do not match the log, you can get
+> more accurate output by telling me the kernel version and where to find
+> map, modules, ksyms etc.  ksymoops -h explains the options.
+> 
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/fs/ext3/ext3.o for module ext3 has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/fs/jbd/jbd.o for module jbd has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/ide-probe-mod.o for module ide-probe-mod has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/via82cxxx.o for module via82cxxx has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/trm290.o for module trm290 has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/triflex.o for module triflex has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/slc90e66.o for module slc90e66 has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/sis5513.o for module sis5513 has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/siimage.o for module siimage has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/serverworks.o for module serverworks has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/sc1200.o for module sc1200 has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/rz1000.o for module rz1000 has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/piix.o for module piix has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/pdc202xx_old.o for module pdc202xx_old has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/opti621.o for module opti621 has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/ns87415.o for module ns87415 has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/hpt366.o for module hpt366 has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/ide-disk.o for module ide-disk has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/hpt34x.o for module hpt34x has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/generic.o for module generic has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/cy82c693.o for module cy82c693 has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/cs5530.o for module cs5530 has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/cmd64x.o for module cmd64x has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/cmd640.o for module cmd640 has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/amd74xx.o for module amd74xx has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/alim15x3.o for module alim15x3 has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/aec62xx.o for module aec62xx has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/adma100.o for module adma100 has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/pci/pdc202xx_new.o for module pdc202xx_new has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/drivers/ide/ide-mod.o for module ide-mod has changed since load
+> Warning (expand_objects): object /lib/modules/2.4.21-3-386/kernel/net/unix/unix.o for module unix has changed since load
+>  <1>Unable to handle kernel paging request at virtual address 61d707f0
+> c0125056
+> *pde = 00000000
+> Oops: 0000
+> CPU:    0
+> EIP:    0010:[<c0125056>]    Not tainted
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010086
+> eax: c002e0a8   ebx: c021c030   ecx: 00000020   edx: ffffffff
+> esi: 61d707f0   edi: 00000008   edp: 00000001   esp: c02b5eb8
+> Warning (Oops_set_regs): garbage 'edp: 00000001   esp: c02b5eb8' at end of register line ignored
+> ds: 0018  es: 0018  ss: 0018
+> Process kswapd (pid: 4, stackpage=c02b5000)
+> Stack: c0474570 c0dad850 c017ef3f c0474570 00000001 c0dad850 c2024af0 00000046
+>        00000001 c2045c14 c0dad850 00000001 c2024af0 c0dad850 00000008 00000000
+>        00000008 c204525f c2024af0 00000001 c0033160 c2024af0 00000002 c2024a40
+> Call Trace:    [<c017ef3f>] [<c2024af0>] [<c2045c15>] [<c2024af0>] [<c204525f>]
+>   [<c2024af0>] [<c2024af0>] [<c2024a40>] [<c201b036>] [<c2024af0>] [<c2045170>]
+>   [<c0109834>] [<c0109974>] [<c010bcc0>] [<c2024b00>] [<c017e074>] [<c01197c0>]
+>   [<c2024b00>] [<c2024b58>] [<c2024b58>] [<c012af3e>] [<c0105000>] [<c0106ff7>]
+>   [<c012ae9c>]
+> Code: 39 36 75 06 5b 5e c3 8d 76 00 5b 89 f0 31 c9 ba 03 00 00 00
+> 
+> 
+> >>EIP; c0125056 <unlock_page+56/70>   <=====
+> 
+> >>ebx; c021c030 <contig_page_data+b0/340>
+> 
+> Trace; c017ef3f <end_that_request_first+3b/bc>
+> Trace; c2024af0 <_end+1d835c4/1856bb34>
+> Trace; c2045c15 <_end+1da46e9/1856bb34>
+> Trace; c2024af0 <_end+1d835c4/1856bb34>
+> Trace; c204525f <_end+1da3d33/1856bb34>
+> Trace; c2024af0 <_end+1d835c4/1856bb34>
+> Trace; c2024af0 <_end+1d835c4/1856bb34>
+> Trace; c2024a40 <_end+1d83514/1856bb34>
+> Trace; c201b036 <_end+1d79b0a/1856bb34>
+> Trace; c2024af0 <_end+1d835c4/1856bb34>
+> Trace; c2045170 <_end+1da3c44/1856bb34>
+> Trace; c0109834 <handle_IRQ_event+34/60>
+> Trace; c0109974 <do_IRQ+54/8c>
+> Trace; c010bcc0 <call_do_IRQ+5/d>
+> Trace; c2024b00 <_end+1d835d4/1856bb34>
+> Trace; c017e074 <generic_unplug_device+1c/28>
+> Trace; c01197c0 <__run_task_queue+48/54>
+> Trace; c2024b00 <_end+1d835d4/1856bb34>
+> Trace; c2024b58 <_end+1d8362c/1856bb34>
+> Trace; c2024b58 <_end+1d8362c/1856bb34>
+> Trace; c012af3e <kswapd+a2/b0>
+> Trace; c0105000 <_stext+0/0>
+> Trace; c0106ff7 <arch_kernel_thread+23/30>
+> Trace; c012ae9c <kswapd+0/b0>
+> 
+> Code;  c0125056 <unlock_page+56/70>
+> 00000000 <_EIP>:
+> Code;  c0125056 <unlock_page+56/70>   <=====
+>    0:   39 36                     cmp    %esi,(%esi)   <=====
+> Code;  c0125058 <unlock_page+58/70>
+>    2:   75 06                     jne    a <_EIP+0xa>
+> Code;  c012505a <unlock_page+5a/70>
+>    4:   5b                        pop    %ebx
+> Code;  c012505b <unlock_page+5b/70>
+>    5:   5e                        pop    %esi
+> Code;  c012505c <unlock_page+5c/70>
+>    6:   c3                        ret    
+> Code;  c012505d <unlock_page+5d/70>
+>    7:   8d 76 00                  lea    0x0(%esi),%esi
+> Code;  c0125060 <unlock_page+60/70>
+>    a:   5b                        pop    %ebx
+> Code;  c0125061 <unlock_page+61/70>
+>    b:   89 f0                     mov    %esi,%eax
+> Code;  c0125063 <unlock_page+63/70>
+>    d:   31 c9                     xor    %ecx,%ecx
+> Code;  c0125065 <unlock_page+65/70>
+>    f:   ba 03 00 00 00            mov    $0x3,%edx
+> 
+>  <0>Kernel panic: Aiee, killing interrupt handler!
+> 
+> 33 warnings issued.  Results may not be reliable.
 
-
---eHhjakXzOLJAF9wJ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/K1K8IymMQsXoRDARAiAvAJ9C1g+J3mBPvDaEEcGbk+qZpLDI9ACfcmca
-hGtTfEbyWqF0FRSQkPIFpe4=
-=1R+8
------END PGP SIGNATURE-----
-
---eHhjakXzOLJAF9wJ--

@@ -1,106 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVAXRmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVAXRnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261532AbVAXRmz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 12:42:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVAXRmz
+	id S261534AbVAXRnh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 12:43:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVAXRnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 12:42:55 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:28826 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261532AbVAXRmu (ORCPT
+	Mon, 24 Jan 2005 12:43:37 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:2196 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261534AbVAXRn3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 12:42:50 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 24 Jan 2005 12:43:29 -0500
+Subject: Re: [Ext2-devel] [PATCH] JBD: fix against journal overflow
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Alex Tomas <alex@clusterfs.com>
+Cc: Stephen Tweedie <sct@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <m3r7khv3id.fsf@bzzz.home.net>
+References: <m3r7khv3id.fsf@bzzz.home.net>
+Content-Type: text/plain
+Message-Id: <1106588589.2103.116.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Mon, 24 Jan 2005 17:43:09 +0000
 Content-Transfer-Encoding: 7bit
-Message-ID: <16885.13185.849070.479328@alkaid.it.uu.se>
-Date: Mon, 24 Jan 2005 18:42:25 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: BUG: 2.6.11-rc2 and -rc1 hang during boot on PowerMacs
-In-Reply-To: <1106529935.5587.9.camel@gaston>
-References: <200501221723.j0MHN6eD000684@harpo.it.uu.se>
-	<1106441036.5387.41.camel@gaston>
-	<1106529935.5587.9.camel@gaston>
-X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt writes:
- > On Sun, 2005-01-23 at 11:43 +1100, Benjamin Herrenschmidt wrote:
- > 
- > > I know about this problem, I'm working on a proper fix. Thanks for your
- > > report.
- > 
- > Can you send me the PVR value for both of these CPUs
- > (cat /proc/cpuinfo) ? I can't find right now why they would lock up
- > unless the default idle loop is _not_ run properly, that is for some
- > reason, NAP or DOZE mode end up not beeing enabled. Can you send me
- > your .config as well ?
+Hi,
 
-=== cpuinfo.emac ===
-processor	: 0
-cpu		: 7447/7457, altivec supported
-clock		: 1249MHz
-revision	: 1.1 (pvr 8002 0101)
-bogomips	: 830.66
-machine		: PowerMac6,4
-motherboard	: PowerMac6,4 MacRISC3 Power Macintosh 
-detected as	: 287 (Unknown Intrepid-based)
-pmac flags	: 00000000
-L2 cache	: 512K unified
-memory		: 256MB
-pmac-generation	: NewWorld
+On Wed, 2005-01-19 at 15:32, Alex Tomas wrote:
 
-=== cpuinfo.beige-g3 ===
-processor	: 0
-cpu		: 7455, altivec supported (a Sonnet G4 upgrade processor)
-clock		: 66MHz <-- bogus, is 1.0GHz in reality
-revision	: 2.1 (pvr 8001 0201)
-bogomips	: 999.42
-machine		: Power Macintosh
-motherboard	: AAPL,Gossamer MacRISC
-detected as	: 48 (PowerMac G3 (Gossamer))
-pmac flags	: 00000000
-memory		: 768MB
-pmac-generation	: OldWorld
+> under some quite high load, jbd can hit J_ASSERT(journal->j_free > 1)
+> in journal_next_log_block(). The cause is the following:
+> 
+> journal_commit_transaction()
+> {
+>         struct buffer_head *wbuf[64];
+>                 /* If there's no more to do, or if the descriptor is full,
+>                    let the IO rip! */
+>                 if (bufs == ARRAY_SIZE(wbuf) ||
+>                     commit_transaction->t_buffers == NULL ||
+>                     space_left < sizeof(journal_block_tag_t) + 16) {
+> 
+> so, the real limit isn't size of journal descriptor, but wbuf.
 
-The .config files are a bit big, I'm sending them off-list.
+I don't see how that "limit" is relevant here.  wbuf is nothing but the
+size of the IO batches we pass to ll_rw_block() during that commit
+phase.  j_free affects the total size of space the *entire* commit has
+to run into, and (as akpm has commented with a big marker beside it)
+start_this_handle() reserves a *lot* of headroom for the extra space
+that may be needed for transaction metadata.
 
- > Finally, try that patch and tell me if it makes a difference. It makes
- > sure we re-enable interrupts in cpu_idle, and thus should only be a
- > workaround. I found _one_ actual code path where we fail to re-enable
- > them, and this is when neither DOZE nor NAP mode is enabled, which
- > should not happen on any G3 (they should all support DOZE mode), and
- > might happe non some G4s if the chipset doesn't support NAP or
- > powersave_nap is set to 0 in proc, but that shouldn't be the case of an
- > eMac neither...
- > 
- > --- linux-work.orig/arch/ppc/kernel/idle.c	2005-01-24 11:42:35.000000000 +1100
- > +++ linux-work/arch/ppc/kernel/idle.c	2005-01-24 12:19:41.114353760 +1100
- > @@ -39,17 +39,15 @@
- >  	powersave = ppc_md.power_save;
- >  
- >  	if (!need_resched()) {
- > +		local_irq_enable();
- >  		if (powersave != NULL)
- >  			powersave();
- >  		else {
- >  #ifdef CONFIG_SMP
- >  			set_thread_flag(TIF_POLLING_NRFLAG);
- > -			local_irq_enable();
- >  			while (!need_resched())
- >  				barrier();
- >  			clear_thread_flag(TIF_POLLING_NRFLAG);
- > -#else
- > -			local_irq_enable();
- >  #endif
- >  		}
- >  	}
+(The comment there about journal_extend() needing to match it looks
+correct, though --- that will need fixing.)
 
-Yes, this patch made the eMac boot Ok -- I can't test the Beige G3 until Friday.
+The only case I've ever seen the j_free > 1 assert fail on was the xattr
+test that tridge was triggering with AG's first-generation xattr sharing
+fix last December, and that was a journal_release_buffer() credits
+accounting problem.
 
-/Mikael
+So NAK --- the wbuf batch size just doesn't seem to be relevant to the
+problem being claimed.
+
+Have you really seen this patch make a difference in testing?
+
+Cheers,
+ Stephen
+
+

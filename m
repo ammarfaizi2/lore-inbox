@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292232AbSBBG3W>; Sat, 2 Feb 2002 01:29:22 -0500
+	id <S292239AbSBBGu2>; Sat, 2 Feb 2002 01:50:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292239AbSBBG3N>; Sat, 2 Feb 2002 01:29:13 -0500
-Received: from dsl-213-023-043-146.arcor-ip.net ([213.23.43.146]:10419 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S292232AbSBBG27>;
-	Sat, 2 Feb 2002 01:28:59 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 include file shakeup.
-Date: Sat, 2 Feb 2002 07:33:51 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020202002532.A7782@suse.de>
-In-Reply-To: <20020202002532.A7782@suse.de>
+	id <S292240AbSBBGuQ>; Sat, 2 Feb 2002 01:50:16 -0500
+Received: from mx1.fuse.net ([216.68.2.90]:21409 "EHLO mta01.fuse.net")
+	by vger.kernel.org with ESMTP id <S292239AbSBBGuC>;
+	Sat, 2 Feb 2002 01:50:02 -0500
+Message-ID: <3C5B8C0D.8090009@fuse.net>
+Date: Sat, 02 Feb 2002 01:49:49 -0500
+From: Nathan <wfilardo@fuse.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20020121
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16WtkG-0000ZR-00@starship.berlin>
+To: Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Issues with 2.5.3-dj1
+In-Reply-To: <3C5B5EC0.40503@fuse.net> <20020202055115.GA11359@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 2, 2002 01:25 am, Dave Jones wrote:
-> after yesterdays cleanup removing sched.h inclusion from fs/,
-> I looked at the dependancy graph for sched.h[1], and noticed that
-> even with the removal of the explicit #include <linux/fs.h>, it
-> was still being sucked in via <linux/capability.h>
-> 
-> Ripping this out meant breakage in various parts of the tree, who
-> until now were relying on xxx including sched.h including fs.h
-> these things are now including fs.h.
-> 
-> The next step is to split up fs.h some more, as some things are
-> including it for trivial bits, but sucking in things like the superblock
-> includes for every fs.  I've already started this by moving ERR_PTR and
-> friends into <linux/err.h>
+Greg KH wrote:
 
-Just checking - you realize that getting the super_block includes out of fs.h 
-is easy, right?  In fact I already did it in my Unbork fs.h (1..4) set of 
-patches last month, at least I set a pattern using ext2 as an example, which 
-is trivially extended for al filesystems.  Now, I'm just waiting for one of 
-two things to happen: Al to decide he's finished mucking around in there and 
-I can submit the patch to Linus, or Al will feel threatened again and submit 
-a similar patch to Linus.  Either way we win, because the kernel gets better 
-right?  (Except that the second scenerio creates considerably more friction 
-that necessary, as we saw last week.)
-
-> [...]
+>On Fri, Feb 01, 2002 at 10:36:32PM -0500, Nathan wrote:
 >
-> Is all this worth it ?
+>>System is a Sony VAIO R505JE, kernel 2.5.3-dj1 + preempt + acpi + acpi 
+>>pci irq routing.  Debian unstable, updated today.
+>>
+>>1: USB dies a very similar death in 2.5.3-dj1 as it did in 2.5.2-dj6 
+>>(OOPS below and in previous mail).  What else can I provide?
+>>
+>
+>What were you doing with USB at the time?  Unloading the drivers?  What
+>USB host controller, and USB drivers were you using?
+>
+>And the most important of all, does this also happen in 2.5.3?
+>
+>thanks,
+>
+>greg k-h
+>
+Yeah, this was at system shutdown (/etc/init.d/hotplug stop) - I have 
+USB compiled as modules, so I presume they auto-unloaded?  I've got no 
+USB devices attached, so that's easy, and I use the UHCI driver (not the 
+alternate driver - should I try that one or is this a lower level problem?).
 
-You bet it is, you are preaching to the choir.
+Alright... a 2.5.3 with no extras boots fine (with init=/bin/bash) and 
+can load and unload hotplug several times without OOPSing.  So it 
+appears to be something else.  Hope that helps.
 
-> Take a look at the updated dependancy graph after the cleanups[2],
+--Nathan
 
-Oh I know all about it, because I first did a version of this for myself
-almost a year ago, and the complilation speedup was *remarkable*.  That's not 
-even the biggest thing, I just find it much easier to work with and feel 
-better about it when the kernel doesn't doesn't have its thumb tied to its 
-nose.
+--Nathan
 
-;-)
 
--- 
-Daniel

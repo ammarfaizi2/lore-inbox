@@ -1,68 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274862AbRLUXIo>; Fri, 21 Dec 2001 18:08:44 -0500
+	id <S280126AbRLUXEO>; Fri, 21 Dec 2001 18:04:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282453AbRLUXIf>; Fri, 21 Dec 2001 18:08:35 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:32920
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S274862AbRLUXIU>; Fri, 21 Dec 2001 18:08:20 -0500
-Date: Fri, 21 Dec 2001 17:55:30 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Stephen Satchell <list@fluent2.pyramid.net>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        David Garfield <garfield@irving.iisd.sra.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S277294AbRLUXEE>; Fri, 21 Dec 2001 18:04:04 -0500
+Received: from team.iglou.com ([192.107.41.45]:56195 "EHLO iglou.com")
+	by vger.kernel.org with ESMTP id <S274862AbRLUXDz>;
+	Fri, 21 Dec 2001 18:03:55 -0500
+Date: Fri, 21 Dec 2001 18:03:55 -0500
+From: Jeff Mcadams <jeffm@iglou.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Configure.help editorial policy
-Message-ID: <20011221175530.A16568@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Stephen Satchell <list@fluent2.pyramid.net>,
-	Rik van Riel <riel@conectiva.com.br>,
-	David Garfield <garfield@irving.iisd.sra.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011221134034.B11147@thyrsus.com> <Pine.LNX.4.33L.0112211913360.28489-100000@duckman.distro.c onectiva> <4.3.2.7.2.20011221140707.00c0e290@10.1.1.42>
+Message-ID: <20011221180354.A10001@iglou.com>
+In-Reply-To: <20011221141847.E15926@redhat.com> <Pine.LNX.4.43.0112211357460.16844-100000@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <4.3.2.7.2.20011221140707.00c0e290@10.1.1.42>; from list@fluent2.pyramid.net on Fri, Dec 21, 2001 at 02:53:50PM -0800
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.43.0112211357460.16844-100000@waste.org>; from oxymoron@waste.org on Fri, Dec 21, 2001 at 02:09:48PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Satchell <list@fluent2.pyramid.net>:
-> What kills me is that people forget the origin of KB as a standard 
-> designation for "kilobyte" in the first place.  Does anyone remember the 
-> KSR-33 teletype, the early dot-matrix printers, and other output devices 
-> that output only upper-case characters?  Maybe you youngsters don't recall 
-> that lower-case character devices were EXPENSIVE -- I still have a TI 
-> Silent 700 terminal that did output lower-case when connected to systems 
-> that understood the full ASCII alphabet, but those systems were few and far 
-> between in business applications -- upper-case-only was "good enough."  How 
-> about tab machines that never did have lower-case, such as the 407 printing 
-> accounting machine?
+Also sprach Oliver Xymoron
+>Not true. Bandwidth is measured in metric.
 
-That's right, kids.  And furthermore, we had to walk to the computer
-center uphill.  Both ways.  In the snow.  Empty out the chad buckets
-twice a day.  And crimp backplane wires with our teeth, while the
-machine was *on*!
+If by this you mean that in networking, a megabit per second is equal to
+1000^2, or a gigabit per second is 1000^3, then my response consists of:
 
-> So here we are, campers, arguing about abbreviations when in fact there is 
-> no real NEED for abbreviations outside of the config symbol space.  Why not 
-> just take the few extra bytes (they are not a penny each anymore) to spell 
-> out what you really mean?
+Uhm, no.
 
-Alas, this is not a solution -- because expanding all the abbrevs would
-just get us into the argument over "kilobytes" vs.  "kibibytes".  And,
-while I can just barely make myself choke down "KiB" for the sake of
-clarity, "kibibytes" is beyond my tolerance.  Aaarrggghhh....
+If your response (I haven't followed this whole thread, so I'm not up on
+all of the discussion here) is concerning the capitalization and such
+used for it, then I really don't care which it is as the purpose is to
+communicate, and strict adherence to capitalization just isn't that
+important to communication.  *shrug*
+
+>Basically anything but RAM is measured in metric. RAM is the exception
+>because of its intimate relation to bus width and that's an obvious
+>anachronism. There's no reason anyone but a systems programmer should
+>give a damn about powers of two.
+
+This makes me think you're concerned about powers of 2 versus powers of
+10.  In which case, reference my response above.
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-All governments are more or less combinations against the
-people. . .and as rulers have no more virtue than the ruled. . .
-the power of government can only be kept within its constituted
-bounds by the display of a power equal to itself, the collected
-sentiment of the people.
-	-- Benjamin Franklin Bache, in a Phildelphia Aurora editorial 1794
+Jeff McAdams                            Email: jeffm@iglou.com
+Head Network Administrator              Voice: (502) 966-3848
+IgLou Internet Services                        (800) 436-4456

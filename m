@@ -1,44 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275379AbTHITpC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 15:45:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275388AbTHITpB
+	id S275376AbTHITrK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 15:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275392AbTHITrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 15:45:01 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:49796 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S275379AbTHITo7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 15:44:59 -0400
-Date: Sat, 9 Aug 2003 20:44:57 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Chip Salzenberg <chip@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: NULL.  Again.  (was Re: [PATCH] 2.4.22pre10: {,un}likely_p())
-Message-ID: <20030809194457.GB30204@mail.jlokier.co.uk>
-References: <1060087479.796.50.camel@cube> <20030809002117.GB26375@mail.jlokier.co.uk> <20030809081346.GC29616@alpha.home.local> <20030809015142.56190015.davem@redhat.com> <1060425774.4933.73.camel@dhcp22.swansea.linux.org.uk> <20030809162332.GB29647@mail.jlokier.co.uk> <20030809173001.GG24349@perlsupport.com>
+	Sat, 9 Aug 2003 15:47:10 -0400
+Received: from waste.org ([209.173.204.2]:16601 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S275376AbTHITqg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 15:46:36 -0400
+Date: Sat, 9 Aug 2003 14:46:27 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, jmorris@intercode.com.au
+Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
+Message-ID: <20030809194627.GV31810@waste.org>
+References: <20030809074459.GQ31810@waste.org> <20030809010418.3b01b2eb.davem@redhat.com> <20030809140542.GR31810@waste.org> <20030809103910.7e02037b.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030809173001.GG24349@perlsupport.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030809103910.7e02037b.davem@redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chip Salzenberg wrote:
-> According to Jamie Lokier:
-> > Not just K&R.  These are different because of varargs:
-> > 	printf ("%p", NULL);
-> > 	printf ("%p", 0);
+On Sat, Aug 09, 2003 at 10:39:10AM -0700, David S. Miller wrote:
+> On Sat, 9 Aug 2003 09:05:42 -0500
+> Matt Mackall <mpm@selenic.com> wrote:
 > 
-> *SIGH*  I thought incorrect folk wisdom about NULL and zero and pointer
-> conversions had long since died out.  More fool I.  Please, *please*,
-> _no_one_else_ argue about NULL/zero/false etc. until after reading this:
+> > All of which is a big waste of time if the answer to "is making
+> > cryptoapi mandatory ok?" is no. So before embarking on the hard part,
+> > I thought I'd ask the hard question.
 > 
->   ===[[  http://www.eskimo.com/~scs/C-faq/s5.html  ]]===
+> I'm personally OK with it, and in fact I talked about this with James
+> (converting random.c over to the crypto API and the implications)
+> early on while we were first working on the crypto kernel bits.
+> 
+> But I fear some embedded folks might bark.  Especially if the
+> resulting code size is significantly larger.
 
-Thanks Chip; I am much enlightened.  That is a fine URL.
+An alternate approach is:
 
-To onlookers: neither of those printf statements is portable :)
+- pull the minimum parts of SHA (and perhaps MD5) out of their
+  respective cryptoapi modules into the core
+- call that code directly from random, bypassing cryptoapi (and
+  avoiding all the dynamic allocation and potential sleeping stuff)
 
--- Jamie
+Combined with a patch that does non-unrolled SHA, this should be about
+the same as the present code.
 
+> We could make it a config option CONFIG_RANDOM_CRYPTOAPI.
+
+As the primary benefit here is elimination of duplicate code, I think
+that's a non-starter.
+ 
+> All of this analysis nearly requires a working implementation so
+> someone can do a code-size and performance comparison between
+> the two cases.  I know this is what you're trying to avoid, having
+> to code up what might be just thrown away :(
+
+Ok, can I export some more cryptoapi primitives?
+
+  __crypto_lookup_alg(const char *name);
+  __crypto_alg_tfm_size(const char *name);
+  __crypto_setup_tfm(struct crypto_alg *alg, char *buf, int size, int flags);
+  __crypto_exit_ops(...)
+  __crypto_alg_put(...);
+
+This would let me do alg lookup in my init and avoid the dynamic
+allocation sleeping and performance hits.
+
+Also, I posted to cryptoapi-devel that I need a way to disable the
+unconditional padding on the hash functions.
+
+-- 
+Matt Mackall : http://www.selenic.com : of or relating to the moon

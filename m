@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263089AbRGBKL7>; Mon, 2 Jul 2001 06:11:59 -0400
+	id <S262997AbRGBKP3>; Mon, 2 Jul 2001 06:15:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263031AbRGBKLs>; Mon, 2 Jul 2001 06:11:48 -0400
-Received: from smtp.mailbox.co.uk ([195.82.125.32]:10447 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S262997AbRGBKLm>; Mon, 2 Jul 2001 06:11:42 -0400
-Date: Mon, 2 Jul 2001 10:41:34 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Riley Williams <rhw@memalpha.cx>
-Cc: Keith Owens <kaos@ocs.com.au>, Adam J Richter <adam@yggdrasil.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S263031AbRGBKPT>; Mon, 2 Jul 2001 06:15:19 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:20232 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262997AbRGBKPD>; Mon, 2 Jul 2001 06:15:03 -0400
 Subject: Re: [PATCH] Re: 2.4.6p6: dep_{bool,tristate} $CONFIG_ARCH_xxx bugs
-Message-ID: <20010702104134.A28123@flint.arm.linux.org.uk>
-In-Reply-To: <26219.994058622@kao2.melbourne.sgi.com> <Pine.LNX.4.33.0107020827060.18977-101000@infradead.org>
-Mime-Version: 1.0
+To: adam@yggdrasil.com (Adam J. Richter)
+Date: Mon, 2 Jul 2001 11:14:01 +0100 (BST)
+Cc: kaos@ocs.com.au, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+        rhw@MemAlpha.CX, rmk@arm.linux.org.uk
+In-Reply-To: <200107020552.WAA02457@adam.yggdrasil.com> from "Adam J. Richter" at Jul 01, 2001 10:52:04 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0107020827060.18977-101000@infradead.org>; from rhw@MemAlpha.CX on Mon, Jul 02, 2001 at 09:25:50AM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15H0iP-0005hF-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 02, 2001 at 09:25:50AM +0100, Riley Williams wrote:
->  Q> dep_arch_tristate '  AM79C961A support' CONFIG_ARM_AM79C961A \
->  Q>	ACORN $CONFIG_NET_ETHERNET
+> appears to be indented (or at least the first statement in the block
+> is indented).  None of these three variables has the semantics that
+> I think you you described above.
 
-Before we go and create a patch for Linus to apply, please note that the
-above is totally bogus and is in fact 100% wrong.  Don't create a patch
-yourself.  Let me know how you propose to do it, and I will create the
-patch using the correct symbols.
+Ok so that just leaves fixing any Xconfig/menuconfig versions of the change
+and it can go in
 
-Also note that the majority of the machine-dependent symbols for StrongARM
-platforms (of which there are around 43) start CONFIG_SA1100_*, not
-CONFIG_ARCH_*.  Unfortunately, its far too late to get around this
-special case (I'm not too happy that we have this special case either,
-so don't whinge at me please).
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Excellent
 

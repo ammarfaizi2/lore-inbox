@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267444AbRGLHPM>; Thu, 12 Jul 2001 03:15:12 -0400
+	id <S267448AbRGLHUM>; Thu, 12 Jul 2001 03:20:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267445AbRGLHPC>; Thu, 12 Jul 2001 03:15:02 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:16914 "EHLO
-	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S267444AbRGLHOy>; Thu, 12 Jul 2001 03:14:54 -0400
-Date: 12 Jul 2001 08:58:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
+	id <S267449AbRGLHUC>; Thu, 12 Jul 2001 03:20:02 -0400
+Received: from mohawk.n-online.net ([195.30.220.100]:19213 "HELO
+	mohawk.n-online.net") by vger.kernel.org with SMTP
+	id <S267448AbRGLHTv> convert rfc822-to-8bit; Thu, 12 Jul 2001 03:19:51 -0400
+Date: Thu, 12 Jul 2001 09:15:51 +0200
+From: Thomas Foerster <puckwork@madz.net>
 To: linux-kernel@vger.kernel.org
-Message-ID: <84jaV$Qmw-B@khms.westfalen.de>
-In-Reply-To: <Pine.LNX.4.30.0107111858110.1811-100000@Appserv.suse.de>
-Subject: Re: [PATCH] Re: Discrepancies between /proc/cpuinfo and Dave J's  x86i
-X-Mailer: CrossPoint v3.12d.kh7 R/C435
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <p05100361b77232f67994@[207.213.214.37]> <Pine.LNX.4.30.0107111858110.1811-100000@Appserv.suse.de>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Subject: Again: Linux 2.4.x and AMD Athlon
+X-Mailer: Thomas Foerster's registered AK-Mail 3.11 [ger]
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20010712071955Z267448-720+1447@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-davej@suse.de (Dave Jones)  wrote on 11.07.01 in <Pine.LNX.4.30.0107111858110.1811-100000@Appserv.suse.de>:
+Hi folks,
 
-> Given the PR disaster that the P3 serial number brought about,
-> I'd be surprised if Intel were to revisit that chapter of history :)
+i've upgraded from an AMD Athlon 650 to this system :
 
-Though much of that has been bad PR handling, I think. It's not as if  
-Intel invented that feature - for example, every s390 system has one (and  
-so did the whole family at least since the /370, used for licenses, for  
-example), and everything living on ethernet is supposed to have a unique  
-MAC address. (Which *has* already been used in tracing authors of  
-malicious Windows software, I believe.)
+AMD Athlon 1,3 GHz, 266 FSB
+2*128 MB Kingston SDRAM PC133
+Epox 8KTA3+ (VIA KT133A, via686b Southbridge)
+Linux 2.4.5-ac27
 
-OTOH, ISTR that under VM, it's possible to simulate the /370 etc. cpuid of  
-someone else. Which I know has been used to circumvent license  
-restrictions.
+(Powersupply is 400 Watt, Video is handled by GeForce2 GTS 32 MB)
 
-Then again, the US custom of using the SSN as a generic index would be  
-rather illegal over here, so that might change peoples attitudes to the  
-mere existance of those numbers - it does make a difference how big a  
-stick you can wield.
+Compiling the kernel works great, fast and stable. Whenever there is high load
+on the systembus (e.g. compiling some source) the noise of my powersupply fans increase.
+(Not under Windows, so i think linux makes much more use of the power of AMD's CPUs)
 
-Not that any of this is important to Linux ...
+I ran memtest86 for hours without any problems, i couldn't crash the system or any process..
+until i start X 4.0.3.
 
-MfG Kai
+I've tested it with KDE2 and Gnome 1.2. After a (mostly) successful start of one of the 
+windowmanagers, most applications crush whenever i open them.
+Running console-applications in xterm or compiling the kernel in xterm works still stable, but
+working with X11 apps is no more fun ... crashes all over ... (segfaults, sig 11)
+
+This message is meant to be a better approach in solving the problem(s) with AMD Athlons/Durons.
+
+I didn't overclock anything. Compiling the kernel with K6-2 Support or PIII fixes the problems
+(and the noise of the power-fan stays constant, so i think the cpu-power isn't used to the max :) )
+
+I've monitored my system using lm_sensors and didn't get any unusual high or low values
+(cpu is about 42°)
+
+Seems to be the problem with the AMD optimazion in the kernel.
+
+Thomas
+

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261379AbSJCOL0>; Thu, 3 Oct 2002 10:11:26 -0400
+	id <S263280AbSJCOSv>; Thu, 3 Oct 2002 10:18:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261400AbSJCOL0>; Thu, 3 Oct 2002 10:11:26 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:34544 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261379AbSJCOL0>; Thu, 3 Oct 2002 10:11:26 -0400
-Subject: Re: Dual PPro timer stopping problem
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Howells <dhowells@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <14632.1033653828@warthog.cambridge.redhat.com>
-References: <14632.1033653828@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Oct 2002 15:24:36 +0100
-Message-Id: <1033655076.28007.22.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S263305AbSJCOSv>; Thu, 3 Oct 2002 10:18:51 -0400
+Received: from 200-171-183-235.dsl.telesp.net.br ([200.171.183.235]:48652 "EHLO
+	techlinux.com.br") by vger.kernel.org with ESMTP id <S263280AbSJCOSv>;
+	Thu, 3 Oct 2002 10:18:51 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Carlos E Gorges <carlos@techlinux.com.br>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.40 - fix apm (module) unresolved symbol 
+Date: Thu, 3 Oct 2002 11:24:23 -0300
+X-Mailer: KMail [version 1.4]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200210031124.23570.carlos@techlinux.com.br>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-03 at 15:03, David Howells wrote:
-> 
-> Hi,
-> 
-> I'm seeing a problem that's causing me someone may be able to shed some light
-> on.
-> 
-> I've been running late 2.5.x kernels on a dual PPro box here for testing
-> things. After a while (which can be anything from a few minutes to a couple of
-> days), the timer interrupts stop happening. Most other interrupt sources (such
-> as the network card, but not, apparently, the keyboard) continue to happen
-> though. I've tried changing the motherboard and CPU set, but to no avail.
 
-Does this happen with "noapic" ?
+--- linux-2.5.40/arch/i386/kernel/i386_ksyms.c	Tue Oct  1 04:06:59 2002
++++ linux-2.5/arch/i386/kernel/i386_ksyms.c	Thu Oct  3 10:46:03 2002
+@@ -38,6 +38,7 @@
+ EXPORT_SYMBOL(machine_real_restart);
+ extern void default_idle(void);
+ EXPORT_SYMBOL(default_idle);
++EXPORT_SYMBOL(cpu_gdt_table);
+ #endif
+ 
+ #ifdef CONFIG_SMP
+
+
+-- 
+	 _________________________
+	 Carlos E Gorges          
+	 (carlos@techlinux.com.br)
+	 Tech informática LTDA
+	 Brazil                   
+	 _________________________
+
 

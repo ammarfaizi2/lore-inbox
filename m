@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263483AbTDYRtc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 13:49:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263488AbTDYRtc
+	id S263580AbTDYR60 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 13:58:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263577AbTDYR60
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 13:49:32 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:29961 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263483AbTDYRta
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 13:49:30 -0400
-Date: Fri, 25 Apr 2003 13:56:31 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: Andrew Morton <akpm@digeo.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.68-mm2
-In-Reply-To: <20030424163334.A12180@redhat.com>
-Message-ID: <Pine.LNX.3.96.1030425135538.16623C-100000@gatekeeper.tmr.com>
+	Fri, 25 Apr 2003 13:58:26 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:35200 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263580AbTDYR6Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 13:58:25 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304251813.h3PIDSug001857@81-2-122-30.bradfords.org.uk>
+Subject: Re: versioned filesystems in linux (was Re: kernel support for
+To: root@chaos.analogic.com
+Date: Fri, 25 Apr 2003 19:13:28 +0100 (BST)
+Cc: john@grabjohn.com (John Bradford), msell@ontimesupport.com (Matthew Sell),
+       stewartsmith@mac.com (Stewart Smith),
+       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <Pine.LNX.4.53.0304251259300.6839@chaos> from "Richard B. Johnson" at Apr 25, 2003 01:06:18 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Apr 2003, Benjamin LaHaise wrote:
-
-> On Thu, Apr 24, 2003 at 04:24:56PM -0400, Bill Davidsen wrote:
-> > Of course reasonable way may mean that bash does some things a bit slower,
-> > but given that the whole thing works well in most cases anyway, I think
-> > the kernel handling the situation is preferable.
+> > Just wondering how difficult it would be to make a 9-track tape drive
+> > from scratch, and connect it up to the parallel port...  Do you think
+> > that old hard disk motors, from 5.25" MFM disks be powerful enough for
+> > the 120IPS tape transport?
 > 
-> Eh?  It makes bash _faster_ for all cases of starting up a child process.  
-> And it even works on 2.4 kernels.
+> The disk-drive motors, even for the 5.25 floppies were pancake motors
+> designed to directly turn the floppy, or run a belt with a small
+> ratio. You need a motor that runs at relatively high speed to turn the
+> capstan. If the capstan was 1 inch in circumference (about 0.2'' in
+> diameter), you need 120 revs/sec = 7200 r.p.m.  You won't do this with
+> a floppy motor.
 
-The point is that even if bash is fixed it's desirable to address the
-issue in the kernel, other applications may well misbehave as well.
+I was thinking of hard disk motors...  Actually, some of those would
+be 3600 r.p.m., so if we used a large capstan, we might be in with a
+chance :-).  (You'd really need to drive the actual reels as well,
+though, I can't see us starting and stopping the whole thing very
+quickly just using the capstan motor.)
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+John.

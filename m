@@ -1,73 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266208AbUFPHZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266207AbUFPHcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266208AbUFPHZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 03:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbUFPHZ4
+	id S266207AbUFPHcO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 03:32:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266209AbUFPHcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 03:25:56 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:49959 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S266207AbUFPHZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 03:25:38 -0400
-Subject: Re: PROBLEM: Heavy iowait on 2.6 kernels
-From: Guy Van Sanden <n.b@myrealbox.com>
-To: Clint Byrum <cbyrum@spamaps.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1087366549.1190.6.camel@lancelot>
-References: <1086942905.10540.69.camel@cronos.home.vsb>
-	 <1087366549.1190.6.camel@lancelot>
-Content-Type: text/plain
-Message-Id: <1087369893.11205.36.camel@cronos.home.vsb>
+	Wed, 16 Jun 2004 03:32:14 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:1959 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S266207AbUFPHcM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 03:32:12 -0400
+Date: Wed, 16 Jun 2004 09:02:40 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, kernel@kolivas.org,
+       linux-kernel@vger.kernel.org, piggin@cyberone.com.au, akpm@osdl.org,
+       wli@holomorphy.com, markw@osdl.org
+Subject: Re: [PATCH] Performance regression in 2.6.7-rc3
+Message-ID: <20040616070240.GA25910@elte.hu>
+References: <E1BaPwX-0007k0-00@gondolin.me.apana.org.au> <40CFB8FD.2010601@yahoo.com.au> <Pine.LNX.4.58.0406152009220.4142@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 16 Jun 2004 09:25:31 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0406152009220.4142@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My machine is heavily used for all kinds of file serving (mainly nfs),
-but also samba.
-Next to that, it is my home-server, so it runs apache2 (tuned to server
-only few clients), imap (cyrus), postfix, bugzilla (mysql) and distcc
-(used only a few times a week).
-It replaces a FreeBSD system (PII-333) running the same except distcc.
-Under 
 
-The disk system is just a regular IDE disk (udma5) (60GB) and one
-external drive over USB2 (160 GB).  The external drive is rather slow
-(20-30 MB/sec), so I disabled it during the tests.
+* Linus Torvalds <torvalds@osdl.org> wrote:
 
-The weird thing is that I see this problem too when only running bonnie.
-A friend of mine tried that too under 2.6.6, his iowait went up to
-0.15%, mine to 99%.
-
-
-
-
-On Wed, 2004-06-16 at 08:15, Clint Byrum wrote:
-> On Fri, 2004-06-11 at 01:35, Guy Van Sanden wrote:
-> > I recently discovered why my new Gentoo server slows to a crawl on a
-> > intermediate load on the 2.6 kernel series.  The reason seems to be an
-> > unusual amount of iowait.
+> I agree. However, I still think we should do my suggested
+> "wake_up_new(p,clone_flags)" thing, and then have the logic on whether
+> to try to care about threading or not be in schedule.c, not in
+> kernel/fork.c.
 > 
-> This appears similar to the problem both myself and Phy Prahbab reported
-> about 2.6 and hitting the disks too often. 
-> 
-> I'm wondering, what kind of workload does your machine see, and what
-> sort of disk system is in it?
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-______________________________________________________________________  
+> The fact is, fork.c shouldn't try to make scheduling decisions. But it
+> could inform the scheduler about the new process, and THAT can then
+> make the decisions.
 
-  Guy Van Sanden 
-  http://unixmafia.port5.com  
+agreed, and i did it in a similar way initially (by adding the clone
+flags to wake_up_process()) but went for the smaller patch. The only
+reason i pushed it into fork.c initially was to avoid having to change
+dozens of other files (most of them in various architectures) that use
+wake_up_process(). It wasnt (and still isnt) clear at all whether we
+want to do any fork/clone-time balancing.
 
-  Registered Linux user #249404 - September 1997
-______________________________________________________________________
-
+	Ingo

@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130044AbRBAEb4>; Wed, 31 Jan 2001 23:31:56 -0500
+	id <S129415AbRACIPU>; Wed, 3 Jan 2001 03:15:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129547AbRBAEbq>; Wed, 31 Jan 2001 23:31:46 -0500
-Received: from atl2ims.interland.net ([63.96.156.17]:44044 "HELO
-	atl2ims.corp.interland.net") by vger.kernel.org with SMTP
-	id <S130044AbRBAEbb>; Wed, 31 Jan 2001 23:31:31 -0500
-From: <sadosd@brainstorm.fr>
-To: <linux-kernel@vger.kernel.org>
-Date: Wed, 31 Jan 2001 19:50:45
-Message-Id: <101.630009.718089@mail.wpgsun.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S129507AbRACIPJ>; Wed, 3 Jan 2001 03:15:09 -0500
+Received: from sm10.texas.rr.com ([24.93.35.222]:27666 "EHLO sm10.texas.rr.com")
+	by vger.kernel.org with ESMTP id <S129415AbRACIPC>;
+	Wed, 3 Jan 2001 03:15:02 -0500
+Message-ID: <3A7BB6B1.ABF71834@austin.rr.com>
+Date: Sat, 03 Feb 2001 01:43:45 -0600
+From: Anwar Payyoorayil <anwar@austin.rr.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-prerelease i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.4.0-prerelease-ac4: i810_audio.c: Alternate VRA fix
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GET YOUR OWN 100 MEG WEBSITE FOR ONLY $11.95 PER MONTH TODAY!
+Alan -
 
-STOP PAYING $19.95 or more TODAY for your web site, WHEN YOU CAN 
-GET ONE FOR ONLY $11.95 PER MONTH!
+Based on your suggestion, I looked again, and found that even though the kernel
+sets VRA, the bit is lost when the driver unnecessarily resets the CODEC. The
+patch below removes the unnecessary resetting of the CODEC. Nothing seems to be
+lost by removing the resetting, and the driver in 2.2 series (where VRA works
+fine) does not do this reset.
 
-DO YOU ALREADY HAVE A WEBSITE? ALL YOU HAVE TO DO IS TRANSFER THE 
-DOMAIN TO OUR SERVERS AND UPLOAD YOUR DATA AND YOU ARE READY TO 
-GO! YOUR NEW WEB SPACE CAN BE CREATED INSTANTLY WITH JUST A 
-SIMPLE PHONE CALL TO  OUR OFFICE.
+If we find that somebody needs this reset, we can move the VRA enabling code
+after the codec reset code.
 
-YOU CAN CHANGE THE DESIGN OF YOUR SITE AS MUCH AS YOU WANT with 
-no extra charge!  UNLIMITED TRAFFIC -- no extra charge!
+Anwar.
 
-FRONT PAGE EXTENSIONS are FULLY SUPPORTED.
+Patch against 2.4.0-prerelease-ac4
 
-A SET UP FEE OF $40.00 APPLIES for FIRST TIME CUSTOMERS.
-
-ALL FEES PREPAID IN ADVANCE FOR THE YEAR PLUS A $40.00 SET UP 
-CHARGE.
-
-FOR DETAILS CALL 1 888 248 0765  if you are outside the USA,
-please fax 240 337 8325
-
-Webhosting International
-
+--- linux/drivers/sound/i810_audio.c.ac4        Sat Feb  3 01:26:31 2001
++++ linux/drivers/sound/i810_audio.c    Sat Feb  3 01:26:54 2001
+@@ -1898,11 +1898,6 @@
+        pci_dev->driver_data = card;
+        pci_dev->dma_mask = I810_DMA_MASK;
  
- 
- 
- 
- 
- 
+-//     printk("resetting codec?\n");
+-       outl(0, card->iobase + GLOB_CNT);
+-       udelay(500);
+-//     printk("bringing it back?\n");
+-       outl(1<<1, card->iobase + GLOB_CNT);
+        return 0;
+ }
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

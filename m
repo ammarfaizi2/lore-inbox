@@ -1,86 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268432AbRGXTPm>; Tue, 24 Jul 2001 15:15:42 -0400
+	id <S268440AbRGXTdO>; Tue, 24 Jul 2001 15:33:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268436AbRGXTPd>; Tue, 24 Jul 2001 15:15:33 -0400
-Received: from [217.12.160.2] ([217.12.160.2]:26980 "EHLO yepa.com")
-	by vger.kernel.org with ESMTP id <S268432AbRGXTPY>;
-	Tue, 24 Jul 2001 15:15:24 -0400
-Message-ID: <3B5DC959.7C3CCB8F@yepa.com>
-Date: Tue, 24 Jul 2001 21:15:37 +0200
-From: Luca Venturini <luca@yepa.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.12-20 i686)
-X-Accept-Language: Italian, it, en
+	id <S268439AbRGXTdF>; Tue, 24 Jul 2001 15:33:05 -0400
+Received: from jcwren-1.dsl.speakeasy.net ([216.254.53.52]:65015 "EHLO
+	jcwren.com") by vger.kernel.org with ESMTP id <S268440AbRGXTc6>;
+	Tue, 24 Jul 2001 15:32:58 -0400
+Reply-To: <jcwren@jcwren.com>
+From: "John Chris Wren" <jcwren@jcwren.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Question about termios parameters
+Date: Tue, 24 Jul 2001 15:32:57 -0400
+Message-ID: <NDBBKBJHGFJMEMHPOPEGOEAGCPAA.jcwren@jcwren.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: "mazzaro@inwind.it" <mazzaro@inwind.it>, alan.cox@linux.org
-Subject: Re: URGENT: Bug in ptrace()
-In-Reply-To: <GGZG1N$IUdIOnzYcrd2i0brgDIkl7XCtbAQK_Zw0pdyqLQY9plM@inwind.it>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.4.10.10107242047320.4963-100000@luxik.cdi.cz>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi all,
+	This may not be the best place to ask this, but I've done the research,
+can't come up with an answer, and don't know a better group of people to
+ask.
 
-I patched it for kernel 2.2.12 and 2.2.19:
+	I have an embedded Linux device (2.2.12 kernel, BlueCat distro) that uses a
+serial port for the console.  When the box comes up, rc.sysinit starts the
+application as a detached process (my_program&).  When the program spits out
+periodic status reports, the \n is not being mapped to CR-LF (i.e., I'm
+getting only linefeeds).
 
-just replace
+	Once you log on to the box (via login, into bash), the output becomes
+correctly cooked.
 
-                if ((!child->dumpable ||
-                    (current->uid != child->euid) ||
-                    (current->uid != child->suid) ||
-                    (current->uid != child->uid) ||
-                    (current->gid != child->egid) ||
-                    (current->gid != child->sgid) ||
+	I've tried twiddling termios parameters for OPOST and ONLCR, but it has no
+effect.  Trying to have the application run "stty -a" via a system() call
+reports an error regarding it can't get the parameters for stdin.
 
-with
+	What parameters are required to be set for a detached process started via
+init to correctly have it's output mapped from \n to CR-NL?
 
-                if ((!child->dumpable ||
-                    (child->suid == 0) ||
-                    (current->uid != child->euid) ||
-                    (current->uid != child->suid) ||
-                    (current->uid != child->uid) ||
-                    (current->gid != child->egid) ||
-                    (current->gid != child->sgid) ||
+	--John
 
-in /usr/src/linux/arch/i386/kernel/ptrace.c
 
-This way nobody can "ATTACH" with ptrace a setuited task.
-
-I do not know if this can be useful. Maybe the gurus in
-the list can say something about it.
-
-Is it even useful for new kernels?
-
-Thanks.
-
-Luca Venturini
-Yepa S.r.l.
-
-"mazzaro@inwind.it" wrote:
-> 
-> Hi all,
-> 
-> The exploit found on http://www.securiteam.com/exploits/5NP061P4AW.html
-> 
-> Still works on the latest 2.2 that's to say (I Think), 2.2.19
-> 
-> How can it be?
-> 
-> There are still a lot of machines on the net which use that ker.
-> 
-> Thank you for your attenction...
-> 
-> P.S.
-> The exploit works even on the latest kernel (of the 2.2 series, off course), found on
-> ftp://updates.redhat.com/6.2/en/
-> 
-> P.P.S.
-> I'm trying to follow the ML, but the traffic is too high for me...:-(
-> So, if you can... could you answer to my address?
-> 
-> Thank you,
-> 
-> Silvio Mazzaro

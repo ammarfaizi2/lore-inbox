@@ -1,75 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264765AbUDWIts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264766AbUDWJCl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264765AbUDWIts (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 04:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264766AbUDWItc
+	id S264766AbUDWJCl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 05:02:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264767AbUDWJCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 04:49:32 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:38905 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S264765AbUDWItY convert rfc822-to-8bit
+	Fri, 23 Apr 2004 05:02:41 -0400
+Received: from painless.aaisp.net.uk ([217.169.20.17]:3530 "EHLO
+	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S264766AbUDWJCh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 04:49:24 -0400
-Subject: Re: [PATCH] s390 (9/9): no timer interrupts in idle.
-To: ganzinger@mvista.com
-Cc: akpm@osdl.org, Arjan van de Ven <arjanv@redhat.com>,
-       linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
-Message-ID: <OF4961FAC3.DE4EDE65-ONC1256E7F.002F1D0B-C1256E7F.003069AA@de.ibm.com>
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Date: Fri, 23 Apr 2004 10:48:47 +0200
-X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.0.2CF2|July 23, 2003) at
- 23/04/2004 10:48:49
+	Fri, 23 Apr 2004 05:02:37 -0400
+Message-ID: <4088DDC0.8080701@rgadsdon2.giointernet.co.uk>
+Date: Fri, 23 Apr 2004 10:11:28 +0100
+From: Robert Gadsdon <robert@rgadsdon2.giointernet.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.7b) Gecko/20040320
+X-Accept-Language: en-gb, en, en-us
 MIME-Version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.6-rc2 - debug/trace messages
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The following 'debug' traces from 2.6.6-rc2:
 
+-------------------------------------------------------------------
+Debug: sleeping function called from invalid context at mm/slab.c:1954
+in_atomic():1, irqs_disabled():1
+Call Trace:
+  [<c011bf87>] __might_sleep+0xb7/0xe0
+  [<c014335f>] __kmalloc+0x9f/0xb0
+  [<f890dc84>] alloc_dma_rcv_ctx+0x64/0x3f0 [ohci1394]
+  [<c014b2a4>] do_no_page+0x204/0x3d0
+  [<f890b1ec>] ohci_devctl+0x3cc/0x640 [ohci1394]
+  [<c014b6a6>] handle_mm_fault+0x106/0x1b0
+  [<f89e8399>] hpsb_listen_channel+0x49/0x70 [ieee1394]
+  [<f8989dbf>] handle_iso_listen+0xcf/0x1a0 [raw1394]
+  [<f898ca56>] state_connected+0x116/0x2b0 [raw1394]
+  [<f898cc7d>] raw1394_write+0x8d/0xe0 [raw1394]
+  [<c015a678>] vfs_write+0xb8/0x130
+  [<c015a7a2>] sys_write+0x42/0x70
+  [<c0105dd9>] sysenter_past_esp+0x52/0x71
 
+Debug: sleeping function called from invalid context at 
+include/asm/semaphore.h:119
+in_atomic():1, irqs_disabled():1
+Call Trace:
+  [<c011bf87>] __might_sleep+0xb7/0xe0
+  [<c0269cf4>] dma_pool_destroy+0x24/0x140
+  [<f890dbcb>] free_dma_rcv_ctx+0xcb/0x120 [ohci1394]
+  [<f890b39e>] ohci_devctl+0x57e/0x640 [ohci1394]
+  [<c01336e7>] unqueue_me+0x67/0xd0
+  [<f89e83fc>] hpsb_unlisten_channel+0x3c/0x60 [ieee1394]
+  [<f8989e53>] handle_iso_listen+0x163/0x1a0 [raw1394]
+  [<f898ca56>] state_connected+0x116/0x2b0 [raw1394]
+  [<f898cc7d>] raw1394_write+0x8d/0xe0 [raw1394]
+  [<c015a678>] vfs_write+0xb8/0x130
+  [<c015a7a2>] sys_write+0x42/0x70
+  [<c0105dd9>] sysenter_past_esp+0x52/0x71
 
+Debug: sleeping function called from invalid context at 
+include/asm/semaphore.h:119
+in_atomic():1, irqs_disabled():1
+Call Trace:
+  [<c011bf87>] __might_sleep+0xb7/0xe0
+  [<c0269cf4>] dma_pool_destroy+0x24/0x140
+  [<f890dbcb>] free_dma_rcv_ctx+0xcb/0x120 [ohci1394]
+  [<f890b39e>] ohci_devctl+0x57e/0x640 [ohci1394]
+  [<c01336e7>] unqueue_me+0x67/0xd0
+  [<f89e83fc>] hpsb_unlisten_channel+0x3c/0x60 [ieee1394]
+  [<f8989e53>] handle_iso_listen+0x163/0x1a0 [raw1394]
+  [<f898ca56>] state_connected+0x116/0x2b0 [raw1394]
+  [<f898cc7d>] raw1394_write+0x8d/0xe0 [raw1394]
+  [<c015a678>] vfs_write+0xb8/0x130
+  [<c015a7a2>] sys_write+0x42/0x70
+  [<c0105dd9>] sysenter_past_esp+0x52/0x71
+--------------------------------------------------------
 
-> Here is where this thing falls down.  Some time ago I put together a tick
-less
-> system (which is what this amounts to).  The patch is still on
-sourceforge (see
-> the HRT URL in my signature).
+The recent usb_uhci patch had been applied (to make Clie/visor sync work)
 
-On the HRT sourceforge page you'll find the i386 version of the tick less system
-patch. The initial s390 patch can be found here:
-http://www10.software.ibm.com/developerworks/opensource/linux390/current2_4_x-august2001.shtml#timer20031205
+Apart from these debug/trace messages (which have not - so far - been 
+repeated), the system appears to be working fine...
 
-> On context switch the scheduler needs to figure the minimum time to the next
-> event for the new task.  This would be the minimum of the remaining slice,
-> profile timer, virtual time, and the cpu limit timer (at least).  It would then
-> do an add_timer for this time.  On the next context switch it would, most
-> likely, cancel the timer (most code does not run to the end of its slice which
-> is the most likely limit).  The computation to find the minimum time, with a bit
-> of hand waving, could be shortened to eliminate a few of the timers. On switch
-> out, all the tasks timers would need to be updated with the actual time the task
-> used.  The problem is that all this work is in the VERY lean and mean context
-> switch path.  In my tests a context switching could easily occur often enough
-> that the savings from not doing the tick interrupts was over whelmed by the
-> added context switch over head with a medium cpu load.  And it is down hill from
-> here.  I.e. the tick less system incurres accounting overhead in  direct
-> proportion to the number of context switches, while the ticking system has a
-> fixed accounting overhead.  AND the cross over point (where the tick less system
-> overhead is more that the ticked system overhead) occurs with a medium load.
-
-I do agree that is very likely a bad idea to do a tick less system for i386 and
-friends. I still haven't given up the idea for s390 though. I plan to use the
-cpu timer for all the process related stuff and the clock comparator for the
-wall clock. This adds just two instructions to the system call entry path:
-a store cpu timer "stpt" and a set cpu timer "spt" to switch from the process
-cpu timer to the system cpu timer. The overhead is 27 cycles and benefit is
-no more ticks and a much more accurate process accounting. This requires some
-major surgery in the common timer code. I'm going to have fun with this.
-
-blue skies,
-   Martin
-
-Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
-Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
-E-Mail: schwidefsky@de.ibm.com
-
-
+.............................
+Robert Gadsdon
+.............................

@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135822AbRAGFdR>; Sun, 7 Jan 2001 00:33:17 -0500
+	id <S135684AbRAGFyd>; Sun, 7 Jan 2001 00:54:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135839AbRAGFdH>; Sun, 7 Jan 2001 00:33:07 -0500
-Received: from mail.sun.ac.za ([146.232.128.1]:48399 "EHLO mail.sun.ac.za")
-	by vger.kernel.org with ESMTP id <S135822AbRAGFc6>;
-	Sun, 7 Jan 2001 00:32:58 -0500
-Date: Sun, 7 Jan 2001 07:32:50 +0200 (SAST)
-From: Hans Grobler <grobh@sun.ac.za>
-To: mull <mullein@mullein.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: SCSI hangs with aic7xxx in 2.4.0 SMP
-In-Reply-To: <20010106164303.A2834@mullein.org>
-Message-ID: <Pine.LNX.4.30.0101070727160.17598-100000@prime.sun.ac.za>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135680AbRAGFyW>; Sun, 7 Jan 2001 00:54:22 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:2452 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S135561AbRAGFyL>;
+	Sun, 7 Jan 2001 00:54:11 -0500
+Date: Sat, 6 Jan 2001 21:36:37 -0800
+Message-Id: <200101070536.VAA24632@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: greearb@candelatech.com
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+In-Reply-To: <3A57EB5E.966C91DA@candelatech.com> (message from Ben Greear on
+	Sat, 06 Jan 2001 21:06:54 -0700)
+Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission 
+ policy!)
+In-Reply-To: <3A578F27.D2A9DF52@candelatech.com> <200101062317.PAA13411@pizda.ninka.net> <3A57EB5E.966C91DA@candelatech.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 6 Jan 2001, mull wrote:
-> On Sat, Jan 06, 2001 at 09:26:55PM -0000, Craig Freeze wrote:
-> > [1.] One line summary of the problem:
-> > SCSI hangs with aic7xxx in 2.4.0 SMP
-> >
-> > [2.] Full description of the problem/report:
-> > SCSI device errors and bus resets observed in 2.4.0 that do not occur in
-> > 2.2.13.  Sysrq keys have no effect (ie hard reset required to recover)
-> >
-> I've noticed pretty much the same situation on my uniproc box, aic7xxx driver,
-> adaptec 2940uw card since going to 2.4.0-prerelease. haven't had to hard
-> reset, but have seen a LOT of scsi timeout errors. i did not notice this
-> on 2.4.0-test12 or test13pre2. when i'm at home i'll see if i can find
-> any pattern or more info, and also test with 2.4.0 final.
-> mullein
+   Date: Sat, 06 Jan 2001 21:06:54 -0700
+   From: Ben Greear <greearb@candelatech.com>
 
-I have not seen any such problems, even under very high loads. Would
-you please submit a detailed bug report (such as the previous poster)
-using the guidelines in REPORTING-BUGS.
+   "David S. Miller" wrote:
+   > 
+   > Unified diffs only please... Thanks.
 
-Thanks,
--- Hans
+   Hrm, here's one with a -u option, this what you're looking for?
 
+Yes, thanks a lot.
 
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

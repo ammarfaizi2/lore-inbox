@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129957AbQLTVO0>; Wed, 20 Dec 2000 16:14:26 -0500
+	id <S130017AbQLTVV6>; Wed, 20 Dec 2000 16:21:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130320AbQLTVOQ>; Wed, 20 Dec 2000 16:14:16 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50697 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129957AbQLTVOE>; Wed, 20 Dec 2000 16:14:04 -0500
-Subject: Re: iptables: "stateful inspection?"
-To: rothwell@holly-springs.nc.us (Michael Rothwell)
-Date: Wed, 20 Dec 2000 20:45:28 +0000 (GMT)
-Cc: mhw@wittsend.com (Michael H. Warfield), linux-kernel@vger.kernel.org
-In-Reply-To: <3A40DE97.96228B5E@holly-springs.nc.us> from "Michael Rothwell" at Dec 20, 2000 11:30:15 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130138AbQLTVVs>; Wed, 20 Dec 2000 16:21:48 -0500
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:7227 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S130017AbQLTVVk>; Wed, 20 Dec 2000 16:21:40 -0500
+Message-ID: <3A411BC2.1E302455@holly-springs.nc.us>
+Date: Wed, 20 Dec 2000 15:51:14 -0500
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "Michael H. Warfield" <mhw@wittsend.com>, linux-kernel@vger.kernel.org
+Subject: Re: iptables: "stateful inspection?"
+In-Reply-To: <E148q79-0001y2-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E148q79-0001y2-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> "Michael H. Warfield" wrote:
-> >         I think that's more than a little overstatement on your
-> > part.  It depends entirely on the application you intend to put
-> > it to.  
-> 
-> Fine. How do I make FTP work through it? How can I allow all outgoing
+Alan Cox wrote:
 
-Passive mode or a proxy. 
+> It does SYN checking. If you are running 'serious' security you wouldnt be
+> allowing outgoing connections anyway. One windows christmascard.exe virus that
+> connects back to an irc server to take input and you are hosed.
 
-> TCP connections without opening the network to inbound connections on
-> the ports of desired services?
+Thankfully, pine and mutt are, to date, immune to that kind of thing. :)
 
-It does SYN checking. If you are running 'serious' security you wouldnt be
-allowing outgoing connections anyway. One windows christmascard.exe virus that
-connects back to an irc server to take input and you are hosed.
-
-So its perfectly adequate for basic security, but if you want serious security
-and you don't have passwords on outgoing connections think again. If you are
-using ftp then be sure to also use other methods to verify a third party didnt
-change the file you up/downloaded too.
-
-Alan
-
+-M
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

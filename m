@@ -1,70 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135678AbRDXPL3>; Tue, 24 Apr 2001 11:11:29 -0400
+	id <S135672AbRDXPO3>; Tue, 24 Apr 2001 11:14:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135671AbRDXPLT>; Tue, 24 Apr 2001 11:11:19 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:24740 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S135678AbRDXPLI>; Tue, 24 Apr 2001 11:11:08 -0400
-Date: Tue, 24 Apr 2001 10:11:06 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200104241511.KAA22256@tomcat.admin.navo.hpc.mil>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OFFTOPIC] Re: [PATCH] Single user linux
-X-Mailer: [XMailTool v3.1.2b]
+	id <S135676AbRDXPOQ>; Tue, 24 Apr 2001 11:14:16 -0400
+Received: from relay1.pair.com ([209.68.1.20]:1550 "HELO relay1.pair.com")
+	by vger.kernel.org with SMTP id <S135672AbRDXPOA>;
+	Tue, 24 Apr 2001 11:14:00 -0400
+X-pair-Authenticated: 149.225.137.38
+Message-ID: <008801c0cccc$b58ec040$0801a8c0@nina>
+From: "Tom Beer" <tom@analogon.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: ncurses 2.4.3
+Date: Tue, 24 Apr 2001 16:41:34 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomas Telensky <ttel5535@ss1000.ms.mff.cuni.cz>
-> On Tue, 24 Apr 2001, Alexander Viro wrote:
-> > On Tue, 24 Apr 2001, Tomas Telensky wrote:
-> > 
-> > > of linux distributions the standard daemons (httpd, sendmail) are run as
-> > > root! Having multi-user system or not! Why? For only listening to a port
-> > > <1024? Is there any elegant solution?
-> > 
-> > Sendmail is old. Consider it as a remnant of times when network was
-> > more... friendly. Security considerations were mostly ignored - and
-> > not only by sendmail. It used to be choke-full of holes. They were
-> > essentially debugged out of it in late 90s. It seems to be more or
-> > less OK these days, but it's full of old cruft. And splitting the
-> > thing into reasonable parts and leaving them with minaml privileges
-> > they need is large and painful work.
+Hi,
 
-Actually, if you view sendmail as being an expert system it is very
-cutting edge :-) It can identify a user from very skimpy data if it
-is allowed to (fuzzy matching user names). It identifies local hosts
-(with FQDN or partial name, or only host name).
+I'm running 2.2.16-22 (Redhat Guiness) on a PC and
+wanna upgrade to 2.4.3. Unfourtunately I get Unable to
+open Ncurses libraries Error 1 if I make make menuconfig.
+I read around the web and found that I've to install the devel
+pack of ncurses too. No results, even if I do a make clean all
+in /usr/src/linux/scripts/lxdialog. If I make a make xconfig I get an
+tkpares.o not found error 127. Can anyone point me to a page
+or give me some hints how to fix this?
 
-> Thanks for the comment. And why not just let it listen to 25 and then
-> being run as uid=nobody, gid=mail?
+Thanks Tom
 
-Because then everybodys mail would be owned by user "nobody".
+please cc. me on all replys, cause' I'm not on the list at the moment.
 
-There are some ways to do this, but they are unreliable.
-
-   1. If the users mail is delivered to /var/mail/<username>; then the
-      file /var/mail/<username> must always exist.
-
-	This requires ALL MUAs to truncate the file.
-	Some MUAs use file existance to determine if there is new mail.
-	If it doesn't exist, then no new mail... ever.
-
-   2. sendmail will not be able to create the /var/mail/<username> mail box.
-
-   3. sendmail will not be able to process forwarding mail.
-	User nobody should not be able to read files in users home
-	directory... .forward files are private to the user...
-
-   4. sendmail will not be able to process user mail filters (same problem
-	as forwarding).
-
-	Note: these filters are applied on receipt of mail (saves time and
-	disk space since the filter can discard mail immediately or put it
-	in appropriate folders immediately).
-
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.

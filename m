@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266720AbSKURpd>; Thu, 21 Nov 2002 12:45:33 -0500
+	id <S266941AbSKURvA>; Thu, 21 Nov 2002 12:51:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266750AbSKURpd>; Thu, 21 Nov 2002 12:45:33 -0500
-Received: from borg.org ([208.218.135.231]:53689 "HELO borg.org")
-	by vger.kernel.org with SMTP id <S266720AbSKURpc>;
-	Thu, 21 Nov 2002 12:45:32 -0500
-Date: Thu, 21 Nov 2002 12:52:40 -0500
-From: Kent Borg <kentborg@borg.org>
-To: linux-kernel@vger.kernel.org
-Subject: Where is ext2/3 secure delete ("s") attribute?
-Message-ID: <20021121125240.K16336@borg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S266943AbSKURvA>; Thu, 21 Nov 2002 12:51:00 -0500
+Received: from imrelay-2.zambeel.com ([209.240.48.8]:55820 "EHLO
+	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
+	id <S266941AbSKURu7>; Thu, 21 Nov 2002 12:50:59 -0500
+Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB197C@xch-a.win.zambeel.com>
+From: Manish Lachwani <manish@Zambeel.com>
+To: "'Steven Timm'" <timm@fnal.gov>, Manish Lachwani <manish@Zambeel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: dt utility
+Date: Thu, 21 Nov 2002 09:57:55 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I happened upon the chattr command and was pleased to see that "s"
-means to write zeros (or is it random data?) to the blocks of deleted
-files.  Cool, except I can't see that it works.
+Steve,
 
-First, deleting a large file with the "s" attribute happens far too
-quickly.
+Search for data test (dt) on google and download ...
 
-Second, I can't see where any of this is implemented in the source
-code (as of Red Hat's 2.4.18-17.7.x and straight 2.4.19).  The file
-fs/ext2/CHANGES talks about how the zero writing was changed to
-writing random data--but nothing seems to implement this.
+thanks
+manish
 
-What happened to this feature?  Was it too slow or buggy?  Did the
-Federales force its removal?
-
-(Would this be best implemented as a background scrub and I am missing
-a daemon?)
+-----Original Message-----
+From: Steven Timm [mailto:timm@fnal.gov]
+Sent: Thursday, November 21, 2002 6:29 AM
+To: manish@Zambeel.com
+Subject: Re: dt utility
 
 
-Thanks,
 
--kb, the Kent who would like to have his notebook not be full of
-easily undeletable files.
+Manish.. one more question.. you mentioned the "dt" utility in an
+earlier post... where does one get that from?
+
+Steve Timm
+
+
+------------------------------------------------------------------
+Steven C. Timm (630) 840-8525  timm@fnal.gov  http://home.fnal.gov/~timm/
+Fermilab Computing Division/Operating Systems Support
+Scientific Computing Support Group--Computing Farms Operations

@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265238AbTBOWO1>; Sat, 15 Feb 2003 17:14:27 -0500
+	id <S265270AbTBOWVH>; Sat, 15 Feb 2003 17:21:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265246AbTBOWO1>; Sat, 15 Feb 2003 17:14:27 -0500
-Received: from packet.digeo.com ([12.110.80.53]:44207 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265238AbTBOWO0>;
-	Sat, 15 Feb 2003 17:14:26 -0500
-Date: Sat, 15 Feb 2003 14:24:55 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: John Bradford <john@grabjohn.com>
-Cc: lm@bitmover.com, linux-kernel@vger.kernel.org
-Subject: Re: openbkweb-0.0
-Message-Id: <20030215142455.7264ad36.akpm@digeo.com>
-In-Reply-To: <200302152211.h1FMBK6a001200@darkstar.example.net>
-References: <20030215215259.GA22512@work.bitmover.com>
-	<200302152211.h1FMBK6a001200@darkstar.example.net>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S265285AbTBOWVH>; Sat, 15 Feb 2003 17:21:07 -0500
+Received: from tux.rsn.bth.se ([194.47.143.135]:60800 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S265270AbTBOWVG>;
+	Sat, 15 Feb 2003 17:21:06 -0500
+Subject: [PATCH] fix for uninitialized timer in drm_drv.h
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Feb 2003 22:24:15.0498 (UTC) FILETIME=[F92E4EA0:01C2D540]
+Organization: 
+Message-Id: <1045348260.681.19.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 15 Feb 2003 23:31:01 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford <john@grabjohn.com> wrote:
->
-> Larry,
-> 
-> >From reading this thread, and the similar ones that have preceeded it,
-> it seems to me that most people are not exactly bothered about using
-> the SCM functionality of BitKeeper, but just want to get the
-> up-to-the-second changes to Linus' tree.
+Hi,
 
-Yup.
+Here's a fix for an uninitialized timer in drm_drv.h, for some reason it
+initilizes the timer when the device is opened, not at init.
+It moves the initilization for the waitqueue to init aswell.
 
-> I always thought that that is what the bk-commit mailing lists were
-> for?  I could be wrong about that, not having used BitKeeper - if so,
-> what are they for, and would it not be possible to simply have a
-> mailing list which got sent a diff every time Linus' updated his tree?
+I'm not sure these changes are 100% correct since the drm code is a
+mess. I've been running the patch here without any problems for a while.
 
-The latest diff against the last-released kernel is always available
-at http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/
 
-"Gzipped full patch from ..."
+--- linux-2.5.58/drivers/char/drm/drm_drv.h.orig	2003-01-16 20:39:47.000000000 +0100
++++ linux-2.5.58/drivers/char/drm/drm_drv.h	2003-01-16 20:49:22.000000000 +0100
+@@ -323,8 +323,6 @@
+ 	dev->last_context = 0;
+ 	dev->last_switch = 0;
+ 	dev->last_checked = 0;
+-	init_timer( &dev->timer );
+-	init_waitqueue_head( &dev->context_wait );
+ 
+ 	dev->ctx_start = 0;
+ 	dev->lck_start = 0;
+@@ -580,6 +578,8 @@
+ 		memset( (void *)dev, 0, sizeof(*dev) );
+ 		dev->count_lock = SPIN_LOCK_UNLOCKED;
+ 		sema_init( &dev->struct_sem, 1 );
++		init_timer( &dev->timer );
++		init_waitqueue_head( &dev->context_wait );
+ 
+ 		if ((DRM(minor)[i] = DRM(stub_register)(DRIVER_NAME, &DRM(fops),dev)) < 0)
+ 			return -EPERM;
+
+
+
+-- 
+/Martin
+
+Never argue with an idiot. They drag you down to their level, then beat you with experience.

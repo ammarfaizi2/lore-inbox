@@ -1,83 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbVASOMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVASOMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261729AbVASOMe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 09:12:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVASOMe
+	id S261728AbVASOMR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 09:12:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbVASOMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 09:12:34 -0500
-Received: from relay.snowman.net ([66.92.160.56]:19465 "EHLO relay.snowman.net")
-	by vger.kernel.org with ESMTP id S261729AbVASOM0 (ORCPT
+	Wed, 19 Jan 2005 09:12:17 -0500
+Received: from ns1.coraid.com ([65.14.39.133]:3404 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S261728AbVASOMK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 09:12:26 -0500
-Date: Wed, 19 Jan 2005 09:11:15 -0500
-From: Stephen Frost <sfrost@snowman.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@ucw.cz>,
-       George Anzinger <george@mvista.com>, john stultz <johnstul@us.ibm.com>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Con Kolivas <kernel@kolivas.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] dynamic tick patch
-Message-ID: <20050119141115.GI10437@ns.snowman.net>
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@ucw.cz>,
-	George Anzinger <george@mvista.com>,
-	john stultz <johnstul@us.ibm.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Con Kolivas <kernel@kolivas.org>,
-	Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <20050119000556.GB14749@atomide.com> <1106108467.4500.169.camel@gaston> <20050119050701.GA19542@atomide.com> <1106112525.4534.175.camel@gaston>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="S1TpPISuMFJtSn3D"
-Content-Disposition: inline
-In-Reply-To: <1106112525.4534.175.camel@gaston>
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snowman.net
-X-Operating-System: Linux/2.4.24ns.3.0 (i686)
-X-Uptime: 09:04:42 up 354 days,  9:00,  7 users,  load average: 0.10, 0.17, 0.13
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 19 Jan 2005 09:12:10 -0500
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] AOE: fix up the block device registration so that it
+ actually works now.
+References: <20050119000935.GA22454@kroah.com>
+From: Ed L Cashin <ecashin@coraid.com>
+Date: Wed, 19 Jan 2005 09:08:14 -0500
+Message-ID: <87llap5x69.fsf@coraid.com>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH <greg@kroah.com> writes:
 
---S1TpPISuMFJtSn3D
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Ed, I need the following patch against the latest -bk tree in order to
+> get the aoe code to load and work properly.  Does it look good to you?
 
-* Benjamin Herrenschmidt (benh@kernel.crashing.org) wrote:
-> Hrm... reading more of the patch & Martin's previous work, I'm not sure
-> I like the idea too much in the end... The main problem is that you are
-> just "replaying" the ticks afterward, which I see as a problem for
-> things like sched_clock() which returns the real current time, no ?
->=20
-> I'll toy a bit with my own implementation directly using Martin's work
-> and see what kind of improvement I really get on ppc laptops.
+I'm having trouble seeing what's in -bk.  I have a clone of
+bk://linux.bkbits.net/linux-2.5, but when I "bk pull" there it says
+"Nothing to pull."  And my clone doesn't have all the aoe patches I've
+seen get pushed to -bk.
 
-I don't know if this is the same thing, or the same issue, but I've
-noticed on my Windows machines that the longer my laptop sleeps the
-longer it takes for it to wake back up- my guess is that it's doing
-exactly this (replaying ticks).  It *really* sucks though because it can
-take quite a while for it to come back if it's been asleep for a while.
+...
+> -------------
+>
+> AOE: fix up the block device registration so that it actually works now.
+>
+> Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+>
+> diff -Nru a/drivers/block/aoe/aoeblk.c b/drivers/block/aoe/aoeblk.c
+> --- a/drivers/block/aoe/aoeblk.c	2005-01-18 16:06:57 -08:00
+> +++ b/drivers/block/aoe/aoeblk.c	2005-01-18 16:06:57 -08:00
+> @@ -249,6 +249,7 @@
+>  aoeblk_exit(void)
+>  {
+>  	kmem_cache_destroy(buf_pool_cache);
+> +	unregister_blkdev(AOE_MAJOR, DEVICE_NAME);
+>  }
 
-	Stephen
+The unregister_blkdev should already be in aoemain.c:aoe_exit.
 
---S1TpPISuMFJtSn3D
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+static void
+aoe_exit(void)
+{
+	discover_timer(TKILL);
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+	aoenet_exit();
+	unregister_blkdev(AOE_MAJOR, DEVICE_NAME);
+	aoechr_exit();
+	aoedev_exit();
+	aoeblk_exit();		/* free cache after de-allocating bufs */
+}
 
-iD8DBQFB7mqCrzgMPqB3kigRAvDJAJoCODq7uqyk+SFhAc64+mq8n6woEwCfZ06b
-nKXq1FAiXk+QKlK0QqPNWJA=
-=btXW
------END PGP SIGNATURE-----
 
---S1TpPISuMFJtSn3D--
+>  int __init
+> diff -Nru a/drivers/block/aoe/aoemain.c b/drivers/block/aoe/aoemain.c
+> --- a/drivers/block/aoe/aoemain.c	2005-01-18 16:06:57 -08:00
+> +++ b/drivers/block/aoe/aoemain.c	2005-01-18 16:06:57 -08:00
+> @@ -82,11 +82,6 @@
+>  	ret = aoenet_init();
+>  	if (ret)
+>  		goto net_fail;
+> -	ret = register_blkdev(AOE_MAJOR, DEVICE_NAME);
+> -	if (ret < 0) {
+> -		printk(KERN_ERR "aoe: aoeblk_init: can't register major\n");
+> -		goto blkreg_fail;
+> -	}
+>  
+>  	printk(KERN_INFO
+>  	       "aoe: aoe_init: AoE v2.6-%s initialised.\n",
+
+Hmm.  I'll try to send a patch against usb, since I can pull from
+there.
+
+-- 
+  Ed L Cashin <ecashin@coraid.com>
+

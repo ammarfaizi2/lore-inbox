@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264097AbUFXJeq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264103AbUFXJfs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264097AbUFXJeq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 05:34:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264103AbUFXJeq
+	id S264103AbUFXJfs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 05:35:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUFXJfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 05:34:46 -0400
-Received: from corpmail.outblaze.com ([203.86.166.82]:58545 "EHLO
-	corpmail.outblaze.com") by vger.kernel.org with ESMTP
-	id S264097AbUFXJeo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 05:34:44 -0400
-Date: Thu, 24 Jun 2004 17:34:40 +0800
-From: Yusuf Goolamabbas <yusufg@outblaze.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: finish_task_switch high in profiles in 2.6.7
-Message-ID: <20040624093440.GA8422@outblaze.com>
-References: <20040624091548.GA8264@outblaze.com> <40DA9E89.9020801@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 24 Jun 2004 05:35:48 -0400
+Received: from mailgate1.siemens.ch ([194.204.64.131]:38844 "EHLO
+	mailgate1.siemens.ch") by vger.kernel.org with ESMTP
+	id S264103AbUFXJfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 05:35:43 -0400
+From: Marc Waeckerlin <Marc.Waeckerlin@siemens.com>
+Organization: Siemens Schweiz AG
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: Continue: psmouse.c - synaptics touchpad driver sync problem
+Date: Thu, 24 Jun 2004 11:35:12 +0200
+User-Agent: KMail/1.6
+Cc: t.hirsch@web.de, laflipas@telefonica.net, linux-kernel@vger.kernel.org
+References: <20040623155944.96871.qmail@web81304.mail.yahoo.com>
+In-Reply-To: <20040623155944.96871.qmail@web81304.mail.yahoo.com>
+X-Face: 9PH_I\aV;CM))3#)Xntdr:6-OUC=?fH3fC:yieXSa%S_}iv1M{;Mbyt%g$Q0+&K=uD9w$8bsceC[_/u\VYz6sBz[ztAZkg9R\txq_7]J_WO7(cnD?s#c>i60S
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <40DA9E89.9020801@yahoo.com.au>
-User-Agent: Mutt/1.4.2i
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.2-5; VAE: 6.25.0.62; VDF: 6.25.0.109; host: corpmail.outblaze.com)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406241135.12966.Marc.Waeckerlin@siemens.com>
+X-OriginalArrivalTime: 24 Jun 2004 09:35:21.0226 (UTC) FILETIME=[917D4EA0:01C459CE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is it an SMP system? What sort of workload is it? Does it use threads?
-> Check vmstat to see how much context switching is going on with each
-> kernel.
+Am Mittwoch, 23. Juni 2004 17.59 schrieb Dmitry Torokhov unter "RE: Continue: 
+psmouse.c - synaptics touchpad driver sync problem":
+> Try passing i8042.nomux to the kernel and try using your touchpad/keyboard.
 
-Yes, It's an SMP (Dual P3-800). Workload is a busy mailserver (get lots
-of SMTP traffic, validate users against a remote database, reject a
-truckload of connections). CONFIG_4K_STACKS=y on the 2.6.7 box, e100
-driver with NAPI turned off. No threads 
+External mouse does not move anymore. External keyboard still works, so that's 
+not the solution...
 
-The 2.6.7 box shows this wrt context swithes
+Well, I can do a long-run test with the internal touchpad/keyboard only, to 
+see if at least this works now better. "Unfortunately" the problems with 
+internal keyboard/touchpad are less frequent and less reproducible.
 
-procs                      memory      swap          io     system cpu
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy wa id
- 3  0      0  73096  63000  78100    0    0     0   524 5571 14772 25 73 0  2
- 6  0      0  70932  63000  78100    0    0     0   448 5861 11368 34 65 0  1
- 7  0      0  72916  63008  78092    0    0     0    12 5838 14956 30 70 0  1
- 7  0      0  70852  63016  78084    0    0     0  1008 5551 13951 30 69 0  1
-22  0      0  65300  63016  78084    0    0     0     0 5989 16043 34 66 0  1
-19  0      0  66516  63020  78148    0    0     0  1252 6100 14653 31 69 0  0
-29  1      0  67620  63024  78212    0    0     0   992 6314 14747 31 69 0  0
 
-The 2.6.5 box shows this
+> If nomux does not help you may try to use 
+> psmouse.proto=bare
 
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
-166  0      0 137752  38148 188836    0    0     0  2424 5973 21695 30 70  0  0
-34  0      0 135928  38160 189028    0    0     0  2160 5923 22532 32 68 0  0
-28  1      0 136928  38184 189344    0    0     0  2904 6393 22098 31 69 0  0
-32  1      0 136672  38204 189324    0    0     0  3240 6412 21362 32 68 0  0
-33  0      0 135456  38216 189380    0    0     0  1708 6044 24735 28 72 0  0
-17  0      0 135372  38264 189536    0    0     0  3044 6305 22326 35 64 0  0
-229  0      0 135060  38272 189732    0    0     0  2340 6416 23697 33 67  0  0 32  0      0 134100  38288 189852    0    0     0  3068 6342 24016 33 67 0  0
-16  0      0 134292  38300 190044    0    0     0  2408 6451 24727 31 69 0  0
+No, does not help. :-(
+
+
+> or psmouse.proto=imps to disable Synaptics-specific 
+> extensions.
+
+Well, IMPS seems to be completely incompatible to normal PS/2, so as expected 
+things get worse, means now the internal mouse jumps around like crazy.
+
+Please note, that one of the external mice, the one I am actually testing, is 
+not a scroll mouse, but a normal PS/2 mouse.
+
+Regards
+Marc

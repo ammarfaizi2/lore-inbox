@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266042AbTFWOAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 10:00:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266047AbTFWOAI
+	id S266047AbTFWODf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 10:03:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266051AbTFWODf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 10:00:08 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:33677 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S266042AbTFWOAA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 10:00:00 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.72-mm3 O(1) interactivity enhancements
-Date: Tue, 24 Jun 2003 00:15:23 +1000
-User-Agent: KMail/1.5.2
-References: <1056368505.746.4.camel@teapot.felipe-alfaro.com>
-In-Reply-To: <1056368505.746.4.camel@teapot.felipe-alfaro.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Jun 2003 10:03:35 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:8722 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266047AbTFWODe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 10:03:34 -0400
+Date: Mon, 23 Jun 2003 15:17:40 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andries.Brouwer@cwi.nl
+Cc: hch@infradead.org, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] loop.c - part 1 of many
+Message-ID: <20030623151740.A25703@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
+	torvalds@transmeta.com
+References: <UTC200306230859.h5N8xZ811407.aeb@smtp.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306240015.23613.kernel@kolivas.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <UTC200306230859.h5N8xZ811407.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Mon, Jun 23, 2003 at 10:59:35AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Jun 2003 21:41, Felipe Alfaro Solana wrote:
-> Hi!
->
-> I have just cooked up a patch which mixes Mike Galbraith's excellent
-> monotonic clock O(1) scheduler changes with another patch I think that
-> came from Ingo Molnar and some scheduler parameter tweaks. This patch is
-> against 2.5.72-mm3, but applies cleanly on top of 2.5.73.
->
-> For me, it gives impressive interactive behavior. With it applied, I can
-> no longer make XMMS skips sound, moving windows on an X session is
-> perfectly smooth, even when moving them fastly enough for a very long
-> time.
+On Mon, Jun 23, 2003 at 10:59:35AM +0200, Andries.Brouwer@cwi.nl wrote:
+> >>> IMHO we should replace it with a by-name selection
+> 
+> >> That is what CryptoAPI does
+> 
+> > CryptoAPI did _not_ replace it but add another level of indirection
+> 
+> Right. That is backwards compatibility for you.
 
-Hi Felipe.
-
-For those who aren't familiar, you've utilised the secret desktop weapon:
-
-+		if (!(p->time_slice % MIN_TIMESLICE) &&
-
-This is not how Ingo intended it. This is my desktop bastardising of the 
-patch. It was originally about 50ms (timeslice granularity). This changes it 
-to 10ms which means all running tasks round robin every 10ms - this is what I 
-use in -ck and is great for a desktop but most probably of detriment 
-elsewhere. Having said that, it does nice things to desktops :-)
-
-Con
+The only backwards-compatiblity we care for in mainline is
+XOR and special-casing that is trivial, we don't even need to support
+anything else with the by magic number ioctl.  In fact I wonder
+whether we should care for X0R - I know of exactly one real-life use...
 

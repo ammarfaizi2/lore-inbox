@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316590AbSEUUhk>; Tue, 21 May 2002 16:37:40 -0400
+	id <S316597AbSEUUiq>; Tue, 21 May 2002 16:38:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316591AbSEUUhj>; Tue, 21 May 2002 16:37:39 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:64665 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316590AbSEUUhi>;
-	Tue, 21 May 2002 16:37:38 -0400
-Date: Fri, 17 May 2002 00:00:33 +0000
+	id <S316598AbSEUUip>; Tue, 21 May 2002 16:38:45 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:1178 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316597AbSEUUin>;
+	Tue, 21 May 2002 16:38:43 -0400
+Date: Thu, 16 May 2002 23:27:34 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Pete Zaitcev <zaitcev@redhat.com>,
+        linux-kernel@vger.kernel.org
 Subject: Re: AUDIT: copy_from_user is a deathtrap.
-Message-ID: <20020517000033.F116@toy.ucw.cz>
-In-Reply-To: <E179HWb-0000jY-00@wagner.rustcorp.com.au> <Pine.LNX.4.44.0205182210330.878-100000@home.transmeta.com>
+Message-ID: <20020516232734.B116@toy.ucw.cz>
+In-Reply-To: <E178sfK-0006dG-00@wagner.rustcorp.com.au> <E178uPV-0007iX-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
@@ -22,14 +22,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> However, that apparently flies in the face of UNIX history and apparently
-> some standard (whether it was POSIX or SuS or something else, I can't
-> remember, but that discussion came up earlier..)
+> > > and foolish to program without reading interface specifications
+> > > or the code. It did not occur to me to shift the blame onto
+> > > copy_from_user creators.
+> > 
+> > Please send me your mailing address.  I shall send you a copy of
+> > "Design of Everyday Things" (Donald A Norman).  You should not blame
+> > yourself for others' bad design.
+> 
+> By extrapolation perhaps you'd also care to reimplement it in terms of
+> exceptions, refcount the objects with an object based primitive to do the
+> transfers, garbage collect to remove memory leaks and implement strings and
+> variable size buffers as base objects.
 
-As far as I can remember, discussion was that standards *do* allow that.
-I actually ran my system with -EFAULT -> SIGSEGV [it is one-liner!] and
-it worked perfectly well.
-								Pavel
+Actually, no. 0 vs. -ERRNO is common in kernel, objects are not.
+									Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
 details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.

@@ -1,83 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265336AbRFVFUP>; Fri, 22 Jun 2001 01:20:15 -0400
+	id <S265337AbRFVFf1>; Fri, 22 Jun 2001 01:35:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265340AbRFVFT4>; Fri, 22 Jun 2001 01:19:56 -0400
-Received: from web11208.mail.yahoo.com ([216.136.131.190]:27909 "HELO
-	web11208.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S265336AbRFVFTq>; Fri, 22 Jun 2001 01:19:46 -0400
-Message-ID: <20010622051945.17358.qmail@web11208.mail.yahoo.com>
-Date: Thu, 21 Jun 2001 22:19:45 -0700 (PDT)
-From: Chester Lott <sjdevnull@yahoo.com>
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-To: linux-kernel@vger.kernel.org
-Cc: rok.papez@kiss.uni-lj.si
-MIME-Version: 1.0
+	id <S265338AbRFVFfS>; Fri, 22 Jun 2001 01:35:18 -0400
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:15108 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S265337AbRFVFfB>; Fri, 22 Jun 2001 01:35:01 -0400
+Date: Fri, 22 Jun 2001 17:34:59 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        netdev@oss.sgi.com, "David S. Miller" <davem@redhat.com>
+Subject: Re: PATCH: ethtool MII helpers
+Message-ID: <20010622173459.D2642@metastasis.f00f.org>
+In-Reply-To: <3B23AFC3.71CE2FD2@mandrakesoft.com> <20010622171037.D2576@metastasis.f00f.org> <3B32D694.CACF46D0@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B32D694.CACF46D0@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Jun 22, 2001 at 01:24:36AM -0400
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rok papez <rok.papez@kiss.uni-lj.si> wrote:
->On Tuesday 19 June 2001 18:09, Larry McVoy wrote:
->> "If you think you need threads then your processes are too fat"
->> ``Think of it this way: threads are like salt, not like pasta You
->> like salt, I like salt, we all like salt. But we eat more pasta.''
+On Fri, Jun 22, 2001 at 01:24:36AM -0400, Jeff Garzik wrote:
 
-> Here are more from the same basket you obviously got the first 
-> quote from:
-[SNIP]
-> Protected memory is a constant 10% CPU hog needed only by
-undisciplined
-> programmers who can't keep their memory writes in their own process
-space.
+    Sure, and that's planned.  Wanna send me a patch for it?  :)
 
-Now that's the primary reason to avoid threads, IMO.  People
-spent years trying to get protected memory; the only real
-difference between threads and processes is that you throw
-protected memory out the window.  Yes, the pthread API sucks;
-yes, there are times when threads are appropriate.
+Possibly, but I wonder if this is a kernel-space problem or not. Why
+not put all the smarts into userland for it?
 
-If only:
-1) Microsoft, Sun, and others didn't have such abysmal
-context switch numbers that people view threads vs. 
-processes as a performance argument;
-2) MS didn't conflate fork() and exec() into one 
-CreateProcess() call; and
-3) Java and others exposed rational event-driven APIs that
-didn't require multiple contexts of execution in weird places
-(1.4 is finally fixing this one anyway)
+    It will definitely fall back on the MII ioctls if ethtool media
+    support for the desired command doesn't exist.
 
-then people might be able to really see that:
-1) You usually don't need that many contexts of execution; and
-2) Processes should be considered the primary COEs and threads
-only used when you really need to share almost all of your
-memory.
+Well, that is more or less as much as needs to be done. That, and
+some kind of super-set API to be defined for all new stuff, having
+two slightly different APIs for the same things sucks.
 
-That's aside from all the arguments against multithreading
-just based on elegance and code correctness POVs.  Even if
-writing multithreaded code is marginally easier than writing
-poll()-based code, actually debugging it is a royal PITA.
-Coroutines (which aren't Alan's, Knuth had them long before
-Alan and even he was just rehashing old news) and state
-machines really are better in many cases.
 
-About the only criticism I have of Alan's statement that
-"threads are for people who can't program state machines" is
-the implication that threads are an easier API to get right.
-They aren't.  They seem that way, but by tossing protected
-memory and introducing multiple COEs you get into a whole
-world of non-obvious problems that are very difficult to
-debug and often nearly impossible to reproduce in 
-non-production environments.
 
-The salt quote I like; it allows for the sparing use of
-threads, but warns against their over(ab)use.
-
-Ah, well.
-
-  Sumner
-
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail
-http://personal.mail.yahoo.com/
+   --cw

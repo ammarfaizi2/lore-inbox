@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278160AbRJLVt6>; Fri, 12 Oct 2001 17:49:58 -0400
+	id <S278165AbRJLVwS>; Fri, 12 Oct 2001 17:52:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278162AbRJLVts>; Fri, 12 Oct 2001 17:49:48 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:24583 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S278160AbRJLVt2>;
-	Fri, 12 Oct 2001 17:49:28 -0400
-Date: Fri, 12 Oct 2001 14:42:00 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] dietHotplug 0.2 release
-Message-ID: <20011012144159.A21518@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.21i
-X-Operating-System: Linux 2.2.19 (i586)
+	id <S278164AbRJLVwI>; Fri, 12 Oct 2001 17:52:08 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:29188 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S278163AbRJLVvy>;
+	Fri, 12 Oct 2001 17:51:54 -0400
+Date: Fri, 12 Oct 2001 18:52:16 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: Alan Cox <laughing@shared-source.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.12-ac1
+In-Reply-To: <20011012232626.A1693@werewolf.able.es>
+Message-ID: <Pine.LNX.4.33L.0110121851360.2847-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just released a new version of the dietHotplug package.  It can be
-found at:
-	http://prdownloads.sourceforge.net/linux-hotplug/diethotplug-0.2.tar.gz
+On Fri, 12 Oct 2001, J . A . Magallon wrote:
+> On 20011012 Alan Cox wrote:
 
-Changes since the last release:
-	- added support for PCI hotplug.  This has been tested with my
-	  latest Hotplug PCI patch:
-	  	http://marc.theaimsgroup.com/?l=linux-kernel&m=100291212826608
+> >2.4.12-ac1
+> >o	Merge the majority of 2.4.11/12
+>
+> This does not include Rik's hog-stop patch ?
+> It still applies cleanly...
 
-	- greatly shrunk the executable size.  The sum of the
-	  modules.usbmap and modules.pcimap for my kernel is 65k.
-	  dietHotplug is only 13k, and that is self contained (no
-	  libraries needed, dietLibc is used.)  This version is also
-	  even smaller than the last one, which had no support for PCI
-	  hotplug.
+It's not in yet, and this is a good thing since you really
+want to be able to test changes one-by one ...
 
-thanks,
+regards,
 
-greg k-h
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266527AbSKORXk>; Fri, 15 Nov 2002 12:23:40 -0500
+	id <S266552AbSKOR01>; Fri, 15 Nov 2002 12:26:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266528AbSKORXk>; Fri, 15 Nov 2002 12:23:40 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:25263 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266527AbSKORXj>; Fri, 15 Nov 2002 12:23:39 -0500
-Subject: Re: CD IO error
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: alan@cotse.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <YWxhbg==.a513a46732330fd5f834894ae7200923@1037378527.cotse.net>
-References: <YWxhbg==.a513a46732330fd5f834894ae7200923@1037378527.cotse.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 15 Nov 2002 17:56:57 +0000
-Message-Id: <1037383017.19987.44.camel@irongate.swansea.linux.org.uk>
+	id <S266553AbSKOR01>; Fri, 15 Nov 2002 12:26:27 -0500
+Received: from to-velocet.redhat.com ([216.138.202.10]:21234 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S266552AbSKOR00>; Fri, 15 Nov 2002 12:26:26 -0500
+Date: Fri, 15 Nov 2002 12:33:22 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Kernel Janitors Project 
+	<kernel-janitor-discuss@lists.sourceforge.net>
+Subject: Re: [PATCH] use thread_info.h in uaccess.h
+Message-ID: <20021115123322.A7422@redhat.com>
+References: <20021115113223.GN18180@conectiva.com.br> <20021115164927.G20070@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021115164927.G20070@parcelfarce.linux.theplanet.co.uk>; from willy@debian.org on Fri, Nov 15, 2002 at 04:49:27PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-11-15 at 16:42, Alan Willis wrote:
+On Fri, Nov 15, 2002 at 04:49:27PM +0000, Matthew Wilcox wrote:
 > 
->   I've been getting these messages since about 2.5.45.  I can't mount any
-> cds at all.  Elvtune (util-linux-2.11r) also fails on /dev/hda which I'm
-> running on, and /dev/hdc, my cdrom.
+> While we're janitoring headers...
 > 
-> Any further info needed?
+> This patch removes all the wait_queue handling code from sched.h and puts
+> it in wait.h with the rest of the wait_queue handling code.  Note that
+> sched.h must continue to include wait.h for the wait_queue_head_t embedded
+> in struct task.  However there may be files which only need wait.h now.
 
-The log before the I/O error line
+Move the typedef into linux/types.h and that problem goes away.
 
->  HDIO_GET_MULTCOUNT failed: Inappropriate ioctl for device
-
-This is the right behaviour for a CD
-
->  HDIO_GETGEO failed: Inappropriate ioctl for device
-
-Ditto
-
-- so the hdparm is fine, but the I/O error probably isnt
-
-
+		-ben

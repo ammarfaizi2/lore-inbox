@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286864AbRLWLMW>; Sun, 23 Dec 2001 06:12:22 -0500
+	id <S286866AbRLWLSc>; Sun, 23 Dec 2001 06:18:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286865AbRLWLMM>; Sun, 23 Dec 2001 06:12:12 -0500
-Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:50436 "EHLO
-	boris.prodako.se") by vger.kernel.org with ESMTP id <S286864AbRLWLL5>;
-	Sun, 23 Dec 2001 06:11:57 -0500
-Date: Sun, 23 Dec 2001 12:11:38 +0100 (CET)
-From: Tobias Ringstrom <tori@ringstrom.mine.nu>
-X-X-Sender: <tori@boris.prodako.se>
-To: Vasil Kolev <lnxkrnl@mail.ludost.net>
-cc: Keith Owens <kaos@ocs.com.au>, Norbert Veber <nveber@pyre.virge.net>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17] net/network.o(.text.lock+0x1a88): undefined reference
- to `local symbols...
-In-Reply-To: <Pine.LNX.4.33.0112231226260.1032-100000@doom.bastun.net>
-Message-ID: <Pine.LNX.4.33.0112231206090.4356-100000@boris.prodako.se>
+	id <S286865AbRLWLSW>; Sun, 23 Dec 2001 06:18:22 -0500
+Received: from maile.telia.com ([194.22.190.16]:26365 "EHLO maile.telia.com")
+	by vger.kernel.org with ESMTP id <S286866AbRLWLSN>;
+	Sun, 23 Dec 2001 06:18:13 -0500
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Andre Hedrick <andre@linux-ide.org>,
+        Ben Fennema <bfennema@falcon.csc.calpoly.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+In-Reply-To: <87d71s7u6e.fsf@bitch.localnet>
+	<Pine.LNX.4.10.10112222312030.8976-100000@master.linux-ide.org>
+	<3C258D76.BE259944@zip.com.au>
+From: Peter Osterlund <petero2@telia.com>
+Date: 23 Dec 2001 12:18:01 +0100
+In-Reply-To: <3C258D76.BE259944@zip.com.au>
+Message-ID: <m2zo4ayyl2.fsf@ppro.localdomain>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Dec 2001, Vasil Kolev wrote:
+Andrew Morton <akpm@zip.com.au> writes:
 
-> # ./reference_discarded.pl
-> Finding objects, 538 objects, ignoring 0 module(s)
-> Finding conglomerates, ignoring 48 conglomerate(s)
-> Scanning objects
-> Error: ./drivers/net/dmfe.o .data refers to 00000514 R_386_32
-> .text.exit
-> Done
+> Andre Hedrick wrote:
+> > 
+> > Would it be great if Linux did not have such a lame design to handle the
+> > these problems?  Just imaging if we had a properly formed
+> > FS/BLOCK/MAIN-LOOP/LOW_LEVEL model; whereas, an error of this nature in a
+> > write to media failure could be passed back up the pathway to the FS and
+> > request the FS to re-issue the storing of data to a new location.
+> > 
+> > To bad the global design lacks this ablitity and I suspect that nobody
+> > gives a damn, or even worse ever thought of this idea.
+> 
+> For the filesystems with which I am familiar, this feature would
+> be quite difficult to implement.  Quite difficult indeed.  And given
+> that it only provides recovery for write errors, its value seems
+> questionable.
 
-Does this patch fix the problem?
+...
 
-/Tobias
+> What percentage of disk errors occur on writes, as opposed to reads?
+> If errors-on-writes preponderate then maybe you're on to something.
+> But I don't think they do?
 
---- dmfe.c.orig	Fri Nov 23 13:14:17 2001
-+++ dmfe.c	Sun Dec 23 12:09:25 2001
-@@ -527,7 +527,7 @@
- }
- 
- 
--static void __exit dmfe_remove_one (struct pci_dev *pdev)
-+static void __devexit dmfe_remove_one (struct pci_dev *pdev)
- {
- 	struct net_device *dev = pci_get_drvdata(pdev);
- 	struct dmfe_board_info *db = dev->priv;
-@@ -2059,7 +2059,7 @@
- 	name:		"dmfe",
- 	id_table:	dmfe_pci_tbl,
- 	probe:		dmfe_init_one,
--	remove:		dmfe_remove_one,
-+	remove:		__devexit_p(dmfe_remove_one),
- };
- 
- MODULE_AUTHOR("Sten Wang, sten_wang@davicom.com.tw");
+One case were write errors are probably much more common than read
+errors is packet writing on CDRW media. CDRW disks can only do a
+limited number of writes to a given sector, and being able to remap
+sectors on write errors can greatly increase the time a CDRW disk
+remains usable.
 
+The UDF filesystem has some code for bad block relocation
+(udf_relocate_blocks) and the packet writing block "device" (it's a
+layered device driver, somewhat like the loop device) has hooks for
+requesting block relocation on I/O errors. This code is not working
+yet though, and it seems quite complicated to get the relocation to
+work properly when the file system is operating in asynchronous mode.
 
+-- 
+Peter Österlund             petero2@telia.com
+Sköndalsvägen 35            http://w1.894.telia.com/~u89404340
+S-128 66 Sköndal            +46 8 942647
+Sweden

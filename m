@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267495AbTBUPHw>; Fri, 21 Feb 2003 10:07:52 -0500
+	id <S267487AbTBUPA7>; Fri, 21 Feb 2003 10:00:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267496AbTBUPHw>; Fri, 21 Feb 2003 10:07:52 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:46526 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267495AbTBUPHv>;
-	Fri, 21 Feb 2003 10:07:51 -0500
-Date: Fri, 21 Feb 2003 15:30:01 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: javaman <javaman@katamail.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S267488AbTBUPA7>; Fri, 21 Feb 2003 10:00:59 -0500
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:26812 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id <S267487AbTBUPAg>; Fri, 21 Feb 2003 10:00:36 -0500
+Date: Fri, 21 Feb 2003 10:10:38 -0500
+From: "Murray J. Root" <murrayr@brain.org>
+To: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 2.5.x, 2.4.x ...] very small
-Message-ID: <20030221153001.GF22285@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	javaman <javaman@katamail.com>, linux-kernel@vger.kernel.org,
-	torvalds@transmeta.com
+Message-ID: <20030221151038.GA1224@Master.Wizards>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 References: <20030221144448Z267481-29901+571@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20030221144448Z267481-29901+571@vger.kernel.org>
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Fri, Feb 21, 2003 at 03:25:17PM +0100, javaman wrote:
- > A very small patch (my first patch :-) for Documentation/spinlocks.txt:
- > it replace "IFF" with "IF" ;-)
+> A very small patch (my first patch :-) for Documentation/spinlocks.txt:
+> it replace "IFF" with "IF" ;-)
+> 
+> bye,
+> Paolo
+> 
+> --- Documentation/spinlocks.txt.orig	Fri Feb 21 15:02:01 2003
+> +++ Documentation/spinlocks.txt	Fri Feb 21 15:02:44 2003
+> @@ -136,7 +136,7 @@
+>  
+>  If you have a case where you have to protect a data structure across
+>  several CPU's and you want to use spinlocks you can potentially use
+> -cheaper versions of the spinlocks. IFF you know that the spinlocks are
+> +cheaper versions of the spinlocks. IF you know that the spinlocks are
+>  never used in interrupt handlers, you can use the non-irq versions:
+>  
+>  	spin_lock(&lock);
+> 
 
-IFF is "If and only if"
-
-I think its horrible too, but unfortunatly, its real..
-http://www.m-w.com/cgi-bin/dictionary?va=IFF
-
-		Dave
+IFF is usually an abbreviation for "If and only if", not a typo.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Murray J. Root
+

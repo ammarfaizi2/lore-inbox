@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268213AbUBRVsm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 16:48:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268214AbUBRVsm
+	id S267161AbUBRXW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 18:22:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267123AbUBRXWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 16:48:42 -0500
-Received: from herkules.viasys.com ([194.100.28.129]:16039 "HELO
-	mail.viasys.com") by vger.kernel.org with SMTP id S268213AbUBRVsl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 16:48:41 -0500
-Date: Wed, 18 Feb 2004 23:48:28 +0200
-From: Ville Herva <vherva@viasys.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Robert White <rwhite@casabyte.com>, tridge@samba.org,
-       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       "'Al Viro'" <viro@parcelfarce.linux.theplanet.co.uk>,
-       "'Neil Brown'" <neilb@cse.unsw.edu.au>
-Subject: Re: UTF-8 and case-insensitivity
-Message-ID: <20040218214828.GC3767@viasys.com>
-Reply-To: vherva@viasys.com
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAABSIByOpdrUqd8yc+ZmEhqQEAAAAA@casabyte.com> <Pine.LNX.4.58.0402171619010.2154@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 18 Feb 2004 18:22:06 -0500
+Received: from vsmtp14.tin.it ([212.216.176.118]:63954 "EHLO vsmtp14.tin.it")
+	by vger.kernel.org with ESMTP id S267161AbUBRXVb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 18:21:31 -0500
+From: Marco Gulino <rockman81@tin.it>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3: lilo warnings
+Date: Thu, 19 Feb 2004 00:21:19 +0100
+User-Agent: KMail/1.6
+References: <200402182353.41899.rockman81@tin.it> <4033F069.1050206@ihateaol.co.uk>
+In-Reply-To: <4033F069.1050206@ihateaol.co.uk>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402171619010.2154@home.osdl.org>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux herkules.viasys.com 2.4.25-rc2
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402190021.19022.rockman81@tin.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 17, 2004 at 04:20:26PM -0800, you [Linus Torvalds] wrote:
-> 
-> This is but one reason why I will _refuse_ to make case insensitivity
-> magically start happening on regular "open()" etc calls.
-> 
-> You'd literally have to use a _different_ system call to do a 
-> case-insensitive file open. 
+> I also upgraded from 2.6.2 to 2.6.3 on Slack 9.1 today and received no
+> such warnings. What's in your lilo.conf?
 
-Tongue-in-cheek:
-
-  int Open(const char *pathname, int flags); ?
-
-
-
-
--- v --
-
-v@iki.fi
+It's the default from liloconfig... i only modified labels and image names... 
+nothing else... and lilo too is the one installed with slack 9.1, i didn't 
+modified or upgraded it.
+Hi :-)

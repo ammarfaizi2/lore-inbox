@@ -1,58 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbUK1SWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbUK1SX6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbUK1SWF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 13:22:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbUK1SWF
+	id S261552AbUK1SX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 13:23:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbUK1SX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 13:22:05 -0500
-Received: from neopsis.com ([213.239.204.14]:47530 "EHLO
-	matterhorn.neopsis.com") by vger.kernel.org with ESMTP
-	id S261551AbUK1SVv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 13:21:51 -0500
-Message-ID: <41AA17A8.5040403@dbservice.com>
-Date: Sun, 28 Nov 2004 19:23:36 +0100
-From: Tomas Carnecky <tom@dbservice.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, ecki-news2004-05@lina.inka.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: Problem with ioctl command TCGETS
-References: <E1CYMI9-0005PL-00@calista.eckenfels.6bone.ka-ip.net> <E1CYN7z-0001bZ-00@dorka.pomaz.szeredi.hu> <20041128121800.GZ26051@parcelfarce.linux.theplanet.co.uk> <E1CYODw-0001jf-00@dorka.pomaz.szeredi.hu> <20041128124847.GA26051@parcelfarce.linux.theplanet.co.uk> <E1CYOXh-0001nn-00@dorka.pomaz.szeredi.hu> <20041128130319.GB26051@parcelfarce.linux.theplanet.co.uk> <41A9E0FB.8030001@dbservice.com> <20041128152756.GL26051@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20041128152756.GL26051@parcelfarce.linux.theplanet.co.uk>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 28 Nov 2004 13:23:57 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:4754 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261554AbUK1SXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 13:23:48 -0500
+Subject: Re: [IDE] Need assistance on a Silicon Image 680-based board
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Eric Brundick <kernel@spirilis.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041128150914.GA2556@riker.lan>
+References: <20041128150914.GA2556@riker.lan>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Neopsis-MailScanner-Information: Please contact the ISP for more information
-X-Neopsis-MailScanner: Found to be clean
-X-MailScanner-From: tom@dbservice.com
+Message-Id: <1101662427.16787.33.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 28 Nov 2004 17:20:29 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> On Sun, Nov 28, 2004 at 03:30:19PM +0100, Tomas Carnecky wrote:
+On Sul, 2004-11-28 at 15:09, Eric Brundick wrote:
+> Apparently the manufacturer used 0095 for the vendor ID, rather than 1095 as is listed for Silicon Image in
+> drivers/pci/pci.ids.  Hoping that's all it is, I modified drivers/pci/pci.ids and changed the PCI ID for
+> Silicon Image/CMD to 0095, and did the same in include/linux/pci_ids.h.
+> Rebuilt the kernel, building siimage as a module (siimage.ko)
 > 
->>You mean.. like nvidia?
->>/dev/nvidiactl
->>/dev/nvidia0
->>/dev/nvidia1
->>/dev/nvidia2
->>and do read/write on /dev/nvidiactl (instead on ioctl)?
-> 
-> 
-> Really depends on situation - in some cases that's the obvious clean
-> variant, in some you might want something more specific.
 
-The 'good' thing on ioctl is that _every_ device supports that. It
-doesn't matter which device you open, each one supports ioctl.
-Now if each driver cooks up it's own replacement.. and everyone
-knows that developers don't really like to document their code.. :/
-
-Was there ever a thread on lkml about a ioctl replacement? I'd
-really like to read about proposals, so far everyone talks only about
-replacing it... but no one wants to say how _exactly_.
-
-tom
+Remove the card, clean the connectors, reinsert the card. If that fails
+try a different slot, if that fails replace the card. You are losing
+bits in hardware somewhere.
 

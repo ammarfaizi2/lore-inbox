@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129156AbRBOSWV>; Thu, 15 Feb 2001 13:22:21 -0500
+	id <S129612AbRBOSXL>; Thu, 15 Feb 2001 13:23:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129267AbRBOSWL>; Thu, 15 Feb 2001 13:22:11 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:63250 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129156AbRBOSV4>;
-	Thu, 15 Feb 2001 13:21:56 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200102151821.VAA19711@ms2.inr.ac.ru>
-Subject: Re: MTU and 2.4.x kernel
-To: roger@kea.GRace.CRi.NZ
-Date: Thu, 15 Feb 2001 21:21:28 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200102142039.PAA07913@whio.grace.cri.nz> from "roger@kea.GRace.CRi.NZ" at Feb 14, 1 11:45:01 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S129618AbRBOSXB>; Thu, 15 Feb 2001 13:23:01 -0500
+Received: from oberon.gaumina.lt ([193.219.244.227]:20236 "HELO
+	oberon.gaumina.lt") by vger.kernel.org with SMTP id <S129612AbRBOSWp> convert rfc822-to-8bit;
+	Thu, 15 Feb 2001 13:22:45 -0500
+From: Andrius Adomaitis <charta@gaumina.lt>
+To: linux-kernel@vger.kernel.org
+Subject: strange tcp errors
+Date: Thu, 15 Feb 2001 20:21:37 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
+Message-Id: <0102152021370F.00312@castle.gaumina.lt>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> Kernel 2.4.x apparently disregards my ppp options MTU setting of 552
-> and sets mss=536 (=> MTU=576).
+Messages in my kernel log:
 
-Yes, default configuration is not allowed to advertise mss<536.
-The limit is controlled via /proc/sys/net/ipv4/route/min_adv_mss,
-you can change it to 256.
+node1 kernel: sending pkt_too_big to self
+node1 kernel: KERNEL: assertion (tp->lost_out == 0) failed at 
+tcp_input.c(1202):tcp_remove_reno_sacks
 
-Default of 536 is sadistic (and apaprently will be changed eventually
-to stop tears of poor people whose providers not only supply them
-with bogus mtu values sort of 552 or even 296, but also jailed them
-to some proxy or masquearding domain), but it is still right: IP
-with mtu lower 576 is not full functional.
+Kernel 2.4.1-ac13.
 
-Alexey
+Maybe someone want to say me what does it mean and how serious it is?
+Any fixes?
+
+Thanks.
+--
+Andrius
+charta@gaumina.lt

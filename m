@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269556AbTGJRk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 13:40:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269557AbTGJRk2
+	id S269518AbTGJR5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 13:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269447AbTGJR5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 13:40:28 -0400
-Received: from Mail1.kontent.de ([81.88.34.36]:64205 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S269556AbTGJRkV (ORCPT
+	Thu, 10 Jul 2003 13:57:24 -0400
+Received: from storm.he.net ([64.71.150.66]:48051 "HELO storm.he.net")
+	by vger.kernel.org with SMTP id S269518AbTGJR4v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 13:40:21 -0400
-Message-ID: <3F0DA7A6.6070606@triphoenix.de>
-Date: Thu, 10 Jul 2003 19:51:34 +0200
-From: Dennis Bliefernicht <itsme.nospam@triphoenix.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030627
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: finger.kernel.org
-References: <5cDp.1BP.3@gated-at.bofh.it> <5evr.3d0.1@gated-at.bofh.it> <7Frz.5le.3@gated-at.bofh.it> <7JES.d3.3@gated-at.bofh.it>
-In-Reply-To: <7JES.d3.3@gated-at.bofh.it>
-X-Enigmail-Version: 0.74.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Jul 2003 13:56:51 -0400
+Date: Thu, 10 Jul 2003 11:11:37 -0700
+From: Greg KH <greg@kroah.com>
+To: Michael Frank <mflt1@micrologica.com.hk>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.74-mm3 oops when registering USB serial console
+Message-ID: <20030710181136.GA12591@kroah.com>
+References: <200307110106.32132.mflt1@micrologica.com.hk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307110106.32132.mflt1@micrologica.com.hk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kurt Wall wrote:
- > Works over here (right now):
+On Fri, Jul 11, 2003 at 01:09:03AM +0800, Michael Frank wrote:
+> Thanks to Randy Dunlap for fixing the USB console config.
 
-Same here, not only kernel.org, but also finger.kernel.org:
+No, please do not apply his patch.
 
-triphoenix:~/root$ finger @kernel.org
-[kernel.org]
-The latest stable version of the Linux kernel is:           2.4.21
-The latest prepatch for the stable Linux kernel tree is:    2.4.22-pre4
-The latest snapshot for the stable Linux kernel tree is:    2.4.21-bk6
-The latest beta version of the Linux kernel is:             2.5.74
-The latest snapshot for the beta Linux kernel tree is:      2.5.74-bk8
-The latest 2.2 version of the Linux kernel is:              2.2.25
-The latest 2.0 version of the Linux kernel is:              2.0.39
-The latest prepatch for the 2.0 Linux kernel tree is:       2.0.40-rc6
-The latest -ac patch to the stable Linux kernels is:        2.4.22-pre3-ac1
-The latest -ac patch to the beta Linux kernels is:          2.5.69-ac1
-The latest -dj patch to the beta Linux kernels is:          2.5.69-dj1
-triphoenix:~/root$ finger @finger.kernel.org
-[zeus-pub.kernel.org]
-The latest stable version of the Linux kernel is:           2.4.21
-The latest prepatch for the stable Linux kernel tree is:    2.4.22-pre4
-The latest snapshot for the stable Linux kernel tree is:    2.4.21-bk6
-The latest beta version of the Linux kernel is:             2.5.74
-The latest snapshot for the beta Linux kernel tree is:      2.5.74-bk8
-The latest 2.2 version of the Linux kernel is:              2.2.25
-The latest 2.0 version of the Linux kernel is:              2.0.39
-The latest prepatch for the 2.0 Linux kernel tree is:       2.0.40-rc6
-The latest -ac patch to the stable Linux kernels is:        2.4.22-pre3-ac1
-The latest -ac patch to the beta Linux kernels is:          2.5.69-ac1
-The latest -dj patch to the beta Linux kernels is:          2.5.69-dj1
+> Sorry, this is like fighting dragons, cut off one head, get 2 more ;-)
 
+Without his patch, does this still happen?  If so, can you send your
+.config?
+
+thanks,
+
+greg k-h

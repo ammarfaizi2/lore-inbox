@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279449AbRJWOSW>; Tue, 23 Oct 2001 10:18:22 -0400
+	id <S279450AbRJWO3Q>; Tue, 23 Oct 2001 10:29:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279450AbRJWOSN>; Tue, 23 Oct 2001 10:18:13 -0400
-Received: from virtucon.warpcore.org ([216.81.249.22]:51845 "EHLO virtucon")
-	by vger.kernel.org with ESMTP id <S279449AbRJWOSB>;
-	Tue, 23 Oct 2001 10:18:01 -0400
-Date: Tue, 23 Oct 2001 09:18:58 -0500
-From: drevil@warpcore.org
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
-Message-ID: <20011023091858.A1515@virtucon.warpcore.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011022203159.A20411@virtucon.warpcore.org> <E15vwQs-00051C-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S279451AbRJWO3G>; Tue, 23 Oct 2001 10:29:06 -0400
+Received: from web13107.mail.yahoo.com ([216.136.174.152]:54542 "HELO
+	web13107.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S279450AbRJWO2t>; Tue, 23 Oct 2001 10:28:49 -0400
+Message-ID: <20011023142922.57681.qmail@web13107.mail.yahoo.com>
+Date: Tue, 23 Oct 2001 07:29:22 -0700 (PDT)
+From: szonyi calin <caszonyi@yahoo.com>
+Subject: Strange lilo behaviour with kernel 2.4.10/2.4.12 and devfs
+To: lkml <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15vwQs-00051C-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 23, 2001 at 08:57:06AM +0100, Alan Cox wrote:
-> If Nvidia would like to pay me as much as Microsoft is paid for driver
-> certification then I might be able to find the time
+Hi 
+I'm having a very strange problem with lilo.
+I run lilo it looks like it is writing the partition
+table but it's not.
+Problem begun in 2.4.10 and continued in 2.4.12
+I double checked: lilo.config is good running lilo -V
+shows that he is reading the config and writes the
+partition table as instructed in lilo.conf but after
+reboot nothing happens (i.e the new kernel )
+I tried different lilo versions (21.7.5 , 22.0.2) and
+the behaviour is unchanged
 
-Well this has certainly be an interesting discussion and it is nice to see that
-for the most part it was kept quite reasonable. People's viewpoints on this
-particular issue I think are going to come to the forefront as Linux slowly
-gains ground in the desktop market. These are obviously, as I stated before,
-opinions of a somewhat limited software development view. Thanks to all for your
-responses...
+If I boot kernel 2.4.5 surprise lilo is actually
+writing the partition table.
+
+Any idea ?
+
+Bye
+
+__________________________________________________
+Do You Yahoo!?
+Make a great connection at Yahoo! Personals.
+http://personals.yahoo.com

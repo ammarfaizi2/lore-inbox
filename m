@@ -1,90 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316695AbSGVKyV>; Mon, 22 Jul 2002 06:54:21 -0400
+	id <S316477AbSGVGXQ>; Mon, 22 Jul 2002 02:23:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316709AbSGVKyU>; Mon, 22 Jul 2002 06:54:20 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:25608 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S316695AbSGVKxp>; Mon, 22 Jul 2002 06:53:45 -0400
-Message-ID: <3D3BE3A9.4030704@evision.ag>
-Date: Mon, 22 Jul 2002 12:51:21 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020625
-X-Accept-Language: en-us, en, pl, ru
+	id <S316491AbSGVGXQ>; Mon, 22 Jul 2002 02:23:16 -0400
+Received: from [159.226.39.4] ([159.226.39.4]:30091 "HELO mail.ict.ac.cn")
+	by vger.kernel.org with SMTP id <S316477AbSGVGXP>;
+	Mon, 22 Jul 2002 02:23:15 -0400
+Message-ID: <3D3BA72E.9070806@ict.ac.cn>
+Date: Mon, 22 Jul 2002 14:33:18 +0800
+From: Zhang Fuxin <fxzhang@ict.ac.cn>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: zh-cn, en-us
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.27 wait
-References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com>
-Content-Type: multipart/mixed;
- boundary="------------070401060900010707070900"
+To: zhengchuanbo <zhengcb@netpower.com.cn>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: problem with eepro100 NAPI driver
+References: <200207202235471.SM00792@zhengcb>
+Content-Type: text/plain; charset=x-gbk; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070401060900010707070900
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+  I don't know which version you get.The ealier versions do have
+serious problems. The latest one(6.19) on NAPI website works
+well for me,but someone report problem of it too.Since i get no
+environment and time to investigate it,the problem is pending now.
+I will send you the latest patch in case you can't find it in other mail.
 
-- Struct initializers are in C now.
-- Remove unused add_wait_queue_cond() macro.
+zhengchuanbo wrote:
 
---------------070401060900010707070900
-Content-Type: text/plain;
- name="wait-2.5.27.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="wait-2.5.27.diff"
+>i tried ehe eepro100 NAPI driver on linux2.4.19. the kernel was compiled successfully. but when i tested the throughput of the system,i met some problem.
+>i tested the system with smartbits. when the frame size is 64bytes, in the beginning the system can receive and transmit packets. but after a while, the network card would not receive and transmit packets any more. 
+>then with frame size bigger than 128bytes, it worked well. the throughput was improved. (but sometimes it also has some problem just like 64bytes frames).
+>so what's the problem? is there something wrong with the driver?
+>please cc. thanks.
+>
+>
+>zhengchuanbo  
+>
+>
+>
 
-diff -urN linux-2.5.27/include/linux/wait.h linux/include/linux/wait.h
---- linux-2.5.27/include/linux/wait.h	2002-07-20 21:11:04.000000000 +0200
-+++ linux/include/linux/wait.h	2002-07-22 00:02:30.000000000 +0200
-@@ -43,16 +43,16 @@
-  */
- 
- #define __WAITQUEUE_INITIALIZER(name, tsk) {				\
--	task:		tsk,						\
--	func:		default_wake_function,				\
--	task_list:	{ NULL, NULL } }
-+	.task =		tsk,						\
-+	.func =		default_wake_function,				\
-+	.task_list =	{ NULL, NULL } }
- 
- #define DECLARE_WAITQUEUE(name, tsk)					\
- 	wait_queue_t name = __WAITQUEUE_INITIALIZER(name, tsk)
- 
- #define __WAIT_QUEUE_HEAD_INITIALIZER(name) {				\
--	lock:		SPIN_LOCK_UNLOCKED,				\
--	task_list:	{ &(name).task_list, &(name).task_list } }
-+	.lock =		SPIN_LOCK_UNLOCKED,				\
-+	.task_list =	{ &(name).task_list, &(name).task_list } }
- 
- #define DECLARE_WAIT_QUEUE_HEAD(name) \
- 	wait_queue_head_t name = __WAIT_QUEUE_HEAD_INITIALIZER(name)
-@@ -103,22 +103,6 @@
- 	list_del(&old->task_list);
- }
- 
--#define add_wait_queue_cond(q, wait, cond) \
--	({							\
--		unsigned long flags;				\
--		int _raced = 0;					\
--		spin_lock_irqsave(&(q)->lock, flags);	\
--		(wait)->flags = 0;				\
--		__add_wait_queue((q), (wait));			\
--		rmb();						\
--		if (!(cond)) {					\
--			_raced = 1;				\
--			__remove_wait_queue((q), (wait));	\
--		}						\
--		spin_lock_irqrestore(&(q)->lock, flags);	\
--		_raced;						\
--	})
--
- #endif /* __KERNEL__ */
- 
- #endif
-
---------------070401060900010707070900--
 

@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267601AbUJDMYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267356AbUJDMZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267601AbUJDMYa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 08:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267508AbUJDMYG
+	id S267356AbUJDMZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 08:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267504AbUJDMZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 08:24:06 -0400
-Received: from rproxy.gmail.com ([64.233.170.204]:60201 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267504AbUJDMXa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 08:23:30 -0400
-Message-ID: <4d8e3fd304100405236f425dd7@mail.gmail.com>
-Date: Mon, 4 Oct 2004 14:23:29 +0200
-From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-To: Jari Ruusu <jariruusu@users.sourceforge.net>
-Subject: Re: [PATCH] AES x86-64-asm impl.
-Cc: Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@osdl.org>,
-       Florian Bohrer <florian.bohrer@t-online.de>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org
-In-Reply-To: <4161401B.96BE2A44@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <2KWl4-wq-25@gated-at.bofh.it>
-	 <m3acv4zz5f.fsf@averell.firstfloor.org>
-	 <41613937.8BF0FE0D@users.sourceforge.net>
-	 <4d8e3fd3041004050927c42438@mail.gmail.com>
-	 <4161401B.96BE2A44@users.sourceforge.net>
+	Mon, 4 Oct 2004 08:25:57 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:4655 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S267356AbUJDMZl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 08:25:41 -0400
+Date: Mon, 4 Oct 2004 13:25:24 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: Steffen Klassert <klassert@mathematik.tu-chemnitz.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 3c59x: VORTEX select MII
+Message-ID: <Pine.LNX.4.44.0410041321470.2623-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 04 Oct 2004 15:20:43 +0300, Jari Ruusu
-<jariruusu@users.sourceforge.net> wrote:
-> Paolo Ciarrocchi wrote:
-> > On Mon, 04 Oct 2004 14:51:19 +0300, Jari Ruusu
-> > > Linus promised that he will not merge my code, and I am quite happy with my
-> > > code not being anywhere near mainline linux cryptoapi.
-> > >
-> > > Linus, please consider dropping this.
-> >
-> > I guess Linus will do so,
-> > but may I ask you why don't you want to see your code merged in mainline ?
-> 
-> I don't want my name associated with mainline linux cryptoapi or cryptoloop
-> or their developers.
+3c59x now uses generic_mii_ioctl, so VORTEX should select MII.
 
-I understand that, I still don't understand the reaseon.
-But hey, feel free to ignore my question ;)
--- 
-Paolo
-Personal home page: www.ciarrocchi.tk
-See my photos: http://paolociarrocchi.fotopic.net/
-Buy cool stuff here: http://www.cafepress.com/paoloc
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+
+--- 2.6.9-rc3-mm2/drivers/net/Kconfig	2004-10-04 11:59:59.000000000 +0100
++++ linux/drivers/net/Kconfig	2004-10-04 13:10:05.000000000 +0100
+@@ -691,6 +691,7 @@ config ELMC_II
+ config VORTEX
+ 	tristate "3c590/3c900 series (592/595/597) \"Vortex/Boomerang\" support"
+ 	depends on NET_VENDOR_3COM && (PCI || EISA)
++	select MII
+ 	---help---
+ 	  This option enables driver support for a large number of 10mbps and
+ 	  10/100mbps EISA, PCI and PCMCIA 3Com network cards:
+

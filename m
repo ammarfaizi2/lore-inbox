@@ -1,58 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316677AbSHXUYx>; Sat, 24 Aug 2002 16:24:53 -0400
+	id <S316675AbSHXU0n>; Sat, 24 Aug 2002 16:26:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316682AbSHXUYx>; Sat, 24 Aug 2002 16:24:53 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:26378
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S316677AbSHXUYw>; Sat, 24 Aug 2002 16:24:52 -0400
-Date: Sat, 24 Aug 2002 13:22:36 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: M?ns Rullg?rd <mru@users.sourceforge.net>, barrie_spence@agilent.com,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.19 - Promise TX2 Ultra133 (pdc20269) sticks at UDMA33
-In-Reply-To: <20020824094847.GV14278@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.10.10208241322160.20141-100000@master.linux-ide.org>
+	id <S316695AbSHXU0n>; Sat, 24 Aug 2002 16:26:43 -0400
+Received: from AMarseille-201-1-2-125.abo.wanadoo.fr ([193.253.217.125]:9584
+	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S316675AbSHXU0l>; Sat, 24 Aug 2002 16:26:41 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: IDE janitoring comments
+Date: Sun, 25 Aug 2002 00:28:29 +0200
+Message-Id: <20020824222830.14052@192.168.4.1>
+In-Reply-To: <1030220051.3196.5.camel@irongate.swansea.linux.org.uk>
+References: <1030220051.3196.5.camel@irongate.swansea.linux.org.uk>
+X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>  - Do we really want to keep all those _P versions around ?
+>> A quick grep showed _only_ by the non-portable x86 specific
+>> recovery timer stuff that taps ISA timers (well, I think ports
+>> 0x40 and 0x43 and an ISA timer). I would strongly suggest to
+>
+>I'd like to keep them around for the moment. They should be using
+>udelay() but thats a general issue with _p inb/outb etc.
 
-Not ignore just overloaded with trying to keep up w/ Alan.
+I don't think we need them at all in hwif (see below)
 
-On Sat, 24 Aug 2002, Tomas Szepe wrote:
+>> After much thinking about the above, I came to the conslusion
+>> we probably want to just kill all the IN_BYTE, OUT_BYTE, etc.
+>
+>Agreed entirely
+>
+>
+>> Also, getting rid of the _P version would make things a lot
+>> easier as well here too.
+>
+>What currently uses the _P versions ?
 
-> > > I'm running 2.4.19 with a Promise TX2 Ultra133, but even though the
-> > > card BIOS reports UDMA mode 5/6 on the drives, they are reported as
-> > > UDMA33 by the kernel.
-> > > 
-> > > Trying hdparm -X69 after boot gives the message "Speed warnings UDMA
-> > > 3/4/5 is not functional."
-> > 
-> > I was waiting for this.  As I have pointed out several times before,
-> > there needs to be added a line
-> > 
-> >     hwif->udma_four = 1;
-> > 
-> > at the appropriate place in pdc202xx.c.  I don't know where it should
-> > be, so I can't write a patch.
-> 
-> Andre Hedrick pretty much ignored both of my posts on the issue.
-> 
-> Anyway, how does ide_init_pdc202xx() look to you (line 1141 in 2.4.20-pre4)?
-> There's this "switch (hwif->pci_dev->device)" which would seem to me to be the
-> proper place.
-> 
-> T.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Ok, I looked and found out that those are used by 
 
-Andre Hedrick
-LAD Storage Consulting Group
+ - some weird stuff in ide.c tapping IO ports at 0x40 and 0x43 that
+I assume is a timer. (Can someone make sure that code don't get used
+on anything but legacy x86 ?).
+
+ - a couple of interface drivers like cmd640 tapping the PCI config
+IO stuffs for probing.
+
+In all cases, I firmly beleive those are way outside of the domain
+of application of the hwif-> abstraction. Those are code that knows
+it's tapping legacy stuff on a IO port, and can/should directly use
+the in/out_p function. I don't think those have anything to do in
+hwif. All that should be in hwif is what is needed by the generic
+code to tap the IDE registers themselves.
+
+Do you agree ? (I'd love to get rid of them :)
+
+If you agree, I'll send you a patch tomorrow along with the fixing
+of ide-pmac that will do
+
+ - Remove the _P versions from hwif->iops
+ - slightly change ide-iops to define both sets of iops, one set
+   providing PIO ops using directly in/outx & int/outsx, and one
+   set providing MMIO ops using directly read/writex
+
+Anybody that need different routines for the generic IDE code to
+tap the taskfile (or eventually DMA) registers (typically cris
+arch) will provide it's own set of routines to hwif. I can probably
+fix cris (though I don't know anything about that arch, but the
+code seem obvious enough), and i'll rely on you to fix m86k :)
+
+
+Ben.
+
 

@@ -1,173 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265008AbTGBOBr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 10:01:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265009AbTGBOBr
+	id S265012AbTGBOIS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 10:08:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265015AbTGBOIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 10:01:47 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:48873 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S265008AbTGBOBm (ORCPT
+	Wed, 2 Jul 2003 10:08:18 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:44489 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265012AbTGBOIQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 10:01:42 -0400
-Date: Wed, 2 Jul 2003 16:15:51 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: david nicol <whatever@davidnicol.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: build from RO source tree?
-In-Reply-To: <1057139553.5088.20.camel@plaza.davidnicol.com>
-Message-ID: <Pine.GSO.4.21.0307021615150.15047-100000@vervain.sonytel.be>
+	Wed, 2 Jul 2003 10:08:16 -0400
+From: Kevin Corry <kevcorry@us.ibm.com>
+To: dm-devel@sistina.com, Joe Thornber <thornber@sistina.com>
+Subject: Re: [dm-devel] Re: [RFC 3/3] dm: v4 ioctl interface
+Date: Wed, 2 Jul 2003 09:17:12 -0500
+User-Agent: KMail/1.5
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
+References: <20030701145812.GA1596@fib011235813.fsnet.co.uk> <20030702085951.GB410@fib011235813.fsnet.co.uk> <20030702110044.GE6243@fib011235813.fsnet.co.uk>
+In-Reply-To: <20030702110044.GE6243@fib011235813.fsnet.co.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307020917.12337.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2 Jul 2003, david nicol wrote:
-> Is there a make option for building from a read-only kernel source,
-> possibly by doing a pre-pass to create a mess of symlinks?
-> 
-> Something like
-> 
-> 	(chdir $readonly_sourceroot && find . -type d ) \
-> 	| xargs -n5 mkdir
-> 	(chdir $readonly_sourceroot && find . -type f ) \
-> 	| xargs -i ln -s $readonly_sourceroot/{} {}
-> 	make
-> 
-> 
-> but as a configure option of some kind.
+This definitely seems to make more sense.
 
->From geert@linux-m68k.org Wed Jul  2 15:22:08 2003
-Date: Fri, 23 May 2003 15:49:45 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] touchless dependencies for 2.4.x
+On Wednesday 02 July 2003 06:00, Joe Thornber wrote:
+> dm_swap_table() will now fail for a table with no targets.
+> --- diff/drivers/md/dm.c	2003-07-01 15:36:42.000000000 +0100
+> +++ source/drivers/md/dm.c	2003-07-02 11:53:22.000000000 +0100
+> @@ -664,10 +664,10 @@
+>  	md->map = t;
+>
+>  	size = dm_table_get_size(t);
+> -	set_capacity(md->disk, size);
+> -	if (size == 0)
+> -		return 0;
+> +	if (!size)
+> +		return -EINVAL;
+>
+> +	set_capacity(md->disk, size);
+>  	dm_table_event_callback(md->map, event_callback, md);
+>
+>  	dm_table_get(t);
+> @@ -759,8 +759,10 @@
+>
+>  	__unbind(md);
+>  	r = __bind(md, table);
+> -	if (r)
+> +	if (r) {
+> +		up_write(&md->lock);
+>  		return r;
+> +	}
+>
+>  	up_write(&md->lock);
+>  	return 0;
+>
 
-	Hi,
-
-The 2.4.x dependency system depends on being able to `touch' include files in
-case of recursive dependencies.  This fails when using a revision control
-system (e.g. ClearCase) where non-checked out files are read-only and cannot be
-touch'ed.
-
-The patch below solves this by making object files depend on (recursive) lists,
-containing the list of dependencies for each header file.
-
-Example:
-  - Dependencies:
-      o file.c includes header.h
-      o header.h includes header2.h
-
-  - Old way:
-
-      o .depend:
-
-	    file.o:	file.c header.h
-
-      o .hdepend:
-
-	    header.h:	header2.h
-			touch header.h
-
-  - New way:
-
-      o .depend:
-
-	    file.o:	file.c header.h $(dep_header.h)
-
-      o .hdepend:
-
-	    dep_header.h += header2.h $(dep_header2.h)
-
-Is this OK? So far I didn't notice any regressions.
-    
---- linux-2.4.x/scripts/mkdep.c.orig	Tue Apr  1 17:04:24 2003
-+++ linux-2.4.x/scripts/mkdep.c	Wed Apr  2 17:39:59 2003
-@@ -45,8 +45,7 @@
- 
- 
- 
--char __depname[512] = "\n\t@touch ";
--#define depname (__depname+9)
-+char depname[512];
- int hasdep;
- 
- struct path_struct {
-@@ -75,9 +74,14 @@
- {
- 	if (!hasdep) {
- 		hasdep = 1;
--		printf("%s:", depname);
--		if (g_filename)
-+		if (g_filename) {
-+			/* Source file (*.[cS]) */
-+			printf("%s:", depname);
- 			printf(" %s", g_filename);
-+		} else {
-+			/* header file (*.h) */
-+			printf("dep_%s +=", depname);
-+		}
- 	}
- }
- 
-@@ -203,7 +207,8 @@
- 		path->buffer[path->len+len] = '\0';
- 		if (access(path->buffer, F_OK) == 0) {
- 			do_depname();
--			printf(" \\\n   %s", path->buffer);
-+			printf(" \\\n   %s $(dep_%s)", path->buffer,
-+			       path->buffer);
- 			return;
- 		}
- 	}
-@@ -520,7 +525,7 @@
- /*
-  * Generate dependencies for one file.
-  */
--void do_depend(const char * filename, const char * command)
-+void do_depend(const char * filename)
- {
- 	int mapsize;
- 	int pagesizem1 = getpagesize()-1;
-@@ -559,9 +564,7 @@
- 	clear_config();
- 	state_machine(map, map+st.st_size);
- 	if (hasdep) {
--		puts(command);
--		if (*command)
--			define_precious(filename);
-+		puts("");
- 	}
- 
- 	munmap(map, mapsize);
-@@ -607,7 +610,6 @@
- 
- 	while (--argc > 0) {
- 		const char * filename = *++argv;
--		const char * command  = __depname;
- 		g_filename = 0;
- 		len = strlen(filename);
- 		memcpy(depname, filename, len+1);
-@@ -615,10 +617,9 @@
- 			if (filename[len-1] == 'c' || filename[len-1] == 'S') {
- 			    depname[len-1] = 'o';
- 			    g_filename = filename;
--			    command = "";
- 			}
- 		}
--		do_depend(filename, command);
-+		do_depend(filename);
- 	}
- 	if (len_precious) {
- 		*(str_precious+len_precious) = '\0';
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Kevin Corry
+kevcorry@us.ibm.com
+http://evms.sourceforge.net/
 

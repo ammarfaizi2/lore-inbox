@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132056AbRARQxu>; Thu, 18 Jan 2001 11:53:50 -0500
+	id <S130330AbRARQ4k>; Thu, 18 Jan 2001 11:56:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132294AbRARQxk>; Thu, 18 Jan 2001 11:53:40 -0500
-Received: from mail.crc.dk ([130.226.184.8]:44294 "EHLO mail.crc.dk")
-	by vger.kernel.org with ESMTP id <S132056AbRARQxa>;
-	Thu, 18 Jan 2001 11:53:30 -0500
-Message-ID: <3A671F45.292A9270@crc.dk>
-Date: Thu, 18 Jan 2001 17:52:21 +0100
-From: Mogens Kjaer <mk@crc.dk>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: da, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: nfs client problem in kernel 2.4.0
-In-Reply-To: <3A6466E3.AB55716@crc.dk> <shsy9wb334a.fsf@charged.uio.no> <shsu26z32lg.fsf@charged.uio.no> <3A66E248.8A1E6A85@crc.dk> <shsg0igvo19.fsf@charged.uio.no>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131202AbRARQ4a>; Thu, 18 Jan 2001 11:56:30 -0500
+Received: from rcum.uni-mb.si ([164.8.2.10]:12037 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S132530AbRARQ4N>;
+	Thu, 18 Jan 2001 11:56:13 -0500
+Date: Thu, 18 Jan 2001 17:55:49 +0100
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Re: Linux not adhering to BIOS Drive boot order?
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>
+Message-id: <3A672015.B69F7E90@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.75 [en] (WinNT; U)
+Content-type: text/plain; charset=iso-8859-2
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+Matti Aarnio (matti.aarnio@zmailer.org) wrote :
 
-> It comes from the SGI. The NFS client just considers it all a cookie,
-> and passes it on to glibc. We probably shouldn't do that, as indeed
-> the cookie is not guaranteed to be 32-bit signed, but it's what we
-> always did for 2.2.x.
+>   On Wed, Jan 17, 2001 at 08:22:22PM +0100, Werner Almesberger wrote:
+>    > The only cases when you really need to know the name of a disk is when 
+>    > - doing disk-level management, e.g. partitioning or creating file   
+>    > systems (*) 
+>    > - adding a swap partition (sigh) 
+>    > - telling your boot loader where to put its boot sector 
+>        
+>      2.4.0 with devfs mounted at boot time into /dev/
+> 
+>      Only thing missing is that here /dev/scsi/host0/ propably should be
+>      a symlink to something like /dev/bus/pci/BB/II.F ...
+>      Or perhaps /dev/scsi/BUS/BB/II.F/busN/targetT/lunL/partP
+>      but mixing in ISA-bus controllers is somewhat tough..
+> 
+>    $ mount
+>    /dev/scsi/host0/bus0/target0/lun0/part3 on / type ext2 (rw)
+>    /dev/scsi/host0/bus0/target2/lun0/part2 on /home type ext2 (rw)
+>    /dev/scsi/host0/bus0/target0/lun0/part4 on /usr type ext2 (rw)
+>    /dev/scsi/host0/bus0/target2/lun0/part1 on /usr/src type ext2 (rw)
+>    /dev/scsi/host0/bus0/target0/lun0/part1 on /boot type ext2 (rw)
+>     I do, of course, use mounting with LABEL=
+>                             
+>      This new style (which contains, hopefully, physical PCI location)
+>      mount device paths will failry easily handle question about which
+>      is where... And the partitions are PHYSICAL partition numbers,
+>      not some logical ones. That is true with /dev/sdXP case as well
+>      as with /dev/hdXP case.
 
-So what do I do to get it to work?
+What is the difference between physical and logical partitions ?
+How does this solve the "I deleted hda5 and now the old hda6 became
+hda5"
+problem ?
 
-I could patch glibc so that it treats the -1/4294967295 as a special
-case, but...
-
-(I actually did this, but updating /lib/libc.so on a running system
-turned out to be a really, Really, REALLY bad idea :-(( ).
-
-Before ruining my machine it worked by prepending LD_LIBRARY_PATH to
-the test program, so the idea works.
-
-Mogens
 -- 
-Mogens Kjaer, Carlsberg Laboratory, Dept. of Chemistry
-Gamle Carlsberg Vej 10, DK-2500 Valby, Denmark
-Phone: +45 33 27 53 25, Fax: +45 33 27 47 08
-Email: mk@crc.dk Homepage: http://www.crc.dk
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

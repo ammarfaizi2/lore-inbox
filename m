@@ -1,55 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263419AbUDPQ4W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 12:56:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263425AbUDPQ4W
+	id S263563AbUDPQ5a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 12:57:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263557AbUDPQ51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 12:56:22 -0400
-Received: from web13910.mail.yahoo.com ([216.136.172.95]:44925 "HELO
-	web13910.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263419AbUDPQ4S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 12:56:18 -0400
-Message-ID: <20040416165617.82005.qmail@web13910.mail.yahoo.com>
-X-RocketYMMF: knobi.rm
-Date: Fri, 16 Apr 2004 09:56:17 -0700 (PDT)
-From: Martin Knoblauch <knobi@knobisoft.de>
-Reply-To: knobi@knobisoft.de
-Subject: Re: NFS_ALL patchsets updated for Linux-2.4.26...
-To: linux-kernel@vger.kernel.org
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>
+	Fri, 16 Apr 2004 12:57:27 -0400
+Received: from smtp.rol.ru ([194.67.21.9]:49467 "EHLO smtp.rol.ru")
+	by vger.kernel.org with ESMTP id S263425AbUDPQ5I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 12:57:08 -0400
+From: Konstantin Sobolev <kos@supportwizard.com>
+Reply-To: kos@supportwizard.com
+Organization: SupportWizard
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: poor sata performance on 2.6
+Date: Fri, 16 Apr 2004 20:59:44 +0400
+User-Agent: KMail/1.6.1
+Cc: Jeff Garzik <jgarzik@pobox.com>, Justin Cormack <justin@street-vision.com>,
+       Ryan Geoffrey Bourgeois <rgb005@latech.edu>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+References: <200404150236.05894.kos@supportwizard.com> <407F315E.2000809@pobox.com> <200404161748.38958.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200404161748.38958.vda@port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200404162059.44465.kos@supportwizard.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> thanks for doing that update. Short qquestion: what happened to the
->> following two patches from the 2.4.23-rc1 set?
->>
->> 02-fix_commit - Patch is not marked "R", but all hunks fail.
+On Friday 16 April 2004 18:48, Denis Vlasenko wrote:
+> > When you mount a filesystem, it changes the default block size (512 or
+> > 1024) to the filesystem block size, normally 4096.  This would certainly
+> > increase the throughput.
 >
->See the 2.4.26 changelog. This patch is already in the main tree.
-
- seems my quick check for patch inclusion (just do a "patch --dry-run"
-and look for reverted warnings) failed  here. Good to here that this is
-in.
-
->> 06-fix_unlink - still applies (with offset) to 2.4.26
+> Yes, this works.
 >
->Whoops. I missed that one... I thought I'd sent it in too, but
->apparently not.
+> But if one uses unpartitioned disk, why does (s)he need to
+> do some blocksize tricks before hdparm starts to measure good performance?
+> I think that in this case block layer can coalesce small read requests
+> into large ones regardless of block size.
 >
->I'll update the NFS_ALL...
+> Konstantin, does dd give you the same behaviour as hdparm?
 
- Happy to help.
+Sorry, I already partitioned it and put lots of data there.
+But situation is reproducible by removing all /dev/sda entries from fstab and rebooting. Here are results of my experiments with dd:
 
-Cheers
-Martin
+kos root # bash -c "sleep 10 && killall -3 dd &" && LANG=C time dd if=/dev/sda of=/dev/null ibs=512 obs=512
+537152+0 records in
+537152+0 records out
+Command terminated by signal 3
+0.23user 3.73system 0:10.07elapsed 39%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+121minor)pagefaults 0swaps
 
-PS: Did I tell you to check your "DEC Links" on your home page :-)
+kos root # hdparm -t /dev/sda
 
+/dev/sda:
+ Timing buffered disk reads:   84 MB in  3.07 seconds =  27.37 MB/sec
+kos root # bash -c "sleep 10 && killall -3 dd &" && LANG=C time dd if=/dev/sda of=/dev/null ibs=4096 obs=4096
+71691+0 records in
+71691+0 records out
+Command terminated by signal 3
+0.07user 3.83system 0:10.08elapsed 38%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+122minor)pagefaults 0swaps
 
-=====
-------------------------------------------------------
-Martin Knoblauch
-email: k n o b i AT knobisoft DOT de
-www:   http://www.knobisoft.de
+kos root # mount /dev/sda2 /wd
+kos root # hdparm -t /dev/sda
+
+/dev/sda:
+ Timing buffered disk reads:   84 MB in  3.07 seconds =  27.38 MB/sec
+
+kos root # hdparm -t /dev/sda
+
+/dev/sda:
+ Timing buffered disk reads:  206 MB in  3.02 seconds =  68.13 MB/sec
+
+kos root # bash -c "sleep 10 && killall -3 dd &" && LANG=C time dd if=/dev/sda of=/dev/null ibs=512 obs=512
+1402384+0 records in
+1402384+0 records out
+Command terminated by signal 3
+0.54user 2.57system 0:10.02elapsed 31%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+121minor)pagefaults 0swaps
+
+kos root # bash -c "sleep 10 && killall -3 dd &" && LANG=C time dd if=/dev/sda of=/dev/null ibs=4096 obs=4096
+329705+0 records in
+329705+0 records out
+Command terminated by signal 3
+0.32user 2.43system 0:10.13elapsed 27%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+122minor)pagefaults 0swaps
+
+It looks like dd behaves similarly to hdparm
+
+-- 
+/KoS
+* yas eh d'tahW.	ÀÀmih raeh uoy diD				      

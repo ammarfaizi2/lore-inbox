@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbUK0RZo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbUK0ReD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbUK0RZo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 12:25:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbUK0RXt
+	id S261272AbUK0ReD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 12:34:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbUK0ReD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 12:23:49 -0500
-Received: from gprs214-89.eurotel.cz ([160.218.214.89]:57729 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261279AbUK0RWZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 12:22:25 -0500
-Date: Sat, 27 Nov 2004 18:22:05 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Jan Rychter <jan@rychter.com>
+	Sat, 27 Nov 2004 12:34:03 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:44185 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261272AbUK0ReA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 12:34:00 -0500
+Date: Sat, 27 Nov 2004 18:37:21 +0100
+From: DervishD <lkml@dervishd.net>
+To: Norbert van Nobelen <norbert-kernel@edusupport.nl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Suspend 2 merge: 35/51: Code always built in to the kernel.
-Message-ID: <20041127172205.GB1330@elf.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams> <1101298112.5805.330.camel@desktop.cunninghams> <20041125233243.GB2909@elf.ucw.cz> <1101427035.27250.161.camel@desktop.cunninghams> <m2fz2vfyyc.fsf@tnuctip.rychter.com>
+Subject: Re: Is something wrong with the list?? Not receiving any messages since 10:55 GMT-1
+Message-ID: <20041127173721.GA11577@DervishD>
+Mail-Followup-To: Norbert van Nobelen <norbert-kernel@edusupport.nl>,
+	linux-kernel@vger.kernel.org
+References: <200411260731.29192.norbert-kernel@edusupport.nl> <20041127091918.GB9862@DervishD> <200411271708.54666.norbert-kernel@edusupport.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <m2fz2vfyyc.fsf@tnuctip.rychter.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200411271708.54666.norbert-kernel@edusupport.nl>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On So 27-11-04 01:00:59, Jan Rychter wrote:
-> >>>>> "Nigel" == Nigel Cunningham <ncunningham@linuxmail.org>:
->  Nigel> Hi.
->  Nigel> On Fri, 2004-11-26 at 10:32, Pavel Machek wrote:
-> [...]
->  >> Plus kernel now actually expects user interaction to solve problems
->  >> during boot. No, no.
-> 
->  Nigel> You want your cake and to eat it too? :> We don't want to warn
->  Nigel> the user before they shoot themselves in the foot, but not
->  Nigel> loudly enough that they can't help notice and choose to do
->  Nigel> something before the damage is done?
-> 
-> You're forgetting that Pavel's idea of user interaction is via BUG_ON()
-> and panic(). That's obviously "cleaner", "less ugly", and "smaller".
+    Hi Norbert :)
 
-If you have a "can't happen" condition, it is just plain wrong to
-return 0 and succeed. If you can't understand that, well, that's your
-problem, not mine.
+ * Norbert van Nobelen <norbert-kernel@edusupport.nl> dixit:
+> >     In fact, I thought I was unsubscribed due to a bounce, and tried
+> > to resubscribe: Majordomo didn't answered until this morning, almost
+> > 24 hours after I requested it.
+> One bounce and you are off. Hum, tougher than US justice system with 3 times 
+> and you are out (They watch to much baseball for this one (-: )
 
-Now, if you want kernel that asks user "really mount ext3 on /dev/hda3
-filesystem to /, WARNING: you should run fsck first, press f to do
-that", that's your option, feel free to start your own kernel fork.
+    Well, I don't really know if a bounce is enough to be kicked off
+the list O:))) I've been kicked off a couple of times due to my old
+ISP and their POOR mail handling, and I suspect that my address
+suffered *lots* of bounces. Better ask the admins ;)
 
-								Pavel 
+    Raúl Núñez de Arenas Coronado
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Linux Registered User 88736
+http://www.dervishd.net & http://www.pleyades.net/

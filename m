@@ -1,63 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVCGQi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVCGQlc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbVCGQi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 11:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbVCGQi1
+	id S261849AbVCGQlc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 11:41:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbVCGQlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 11:38:27 -0500
-Received: from ns9.hostinglmi.net ([213.194.149.146]:63717 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261847AbVCGQhy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 11:37:54 -0500
-Date: Mon, 7 Mar 2005 17:39:33 +0100
-From: DervishD <lkml@dervishd.net>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: IProute2 questions
-Message-ID: <20050307163933.GA15928@DervishD>
-Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
+	Mon, 7 Mar 2005 11:41:32 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:57304 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261849AbVCGQlK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 11:41:10 -0500
+Subject: Re: [RFC] ext3/jbd race: releasing in-use journal_heads
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20050304160451.4c33919c.akpm@osdl.org>
+References: <1109966084.5309.3.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <20050304160451.4c33919c.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1110213656.15117.193.camel@sisko.sctweedie.blueyonder.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Mon, 07 Mar 2005 16:40:56 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi :))
+Hi,
 
-    I want to upgrade my iproute2 package, in my do-it-yourself linux
-box. I'm currently using iproute2-ss010824.
+On Sat, 2005-03-05 at 00:04, Andrew Morton wrote:
 
-    I've gone to the distribution sites and I find a lot of iproute2
-flavors... Namely:
+> Perhaps we could also fix this by elevating b_jcount whenever the jh is
+> being moved between lists?
 
-    - 2.2.4 'ss' version
-    - 2.4.7 'now-ss' version
-    - 2.6.10 version
-    - 2.6.10 'ss' version
+Possible.  But jcount isn't atomic, and it requires the bh_journal_head
+lock to modify.  Taking and dropping the lock twice around the
+__unfile/__refile pair, once to inc jcount and once again to drop it, is
+probably unnecessarily expensive.  We can probably do with just holding
+the bh_journal_head lock alone in most cases.
 
-    All versions have a datestamp, too. My question is very simple:
-which flavor do I have to use? I'm going to use it under 2.4.x
-kernels, but the last 2.4.x version of iproute2 has a date of
-2002-01-16, pretty old it seems... Can I use the 2.6 series of
-iproute or are they intended for 2.6.x kernels? What does 'ss' mean?
-does it refer to the 'ss' (socket-status or something like that)
-binary? Why is the 'ss' missing from some 2.6.10 versions?
+The specific case we're stumbling on here is the t_locked_list.  The
+problem manifests itself when we walk that list, but we think it is
+actually caused when we first add it to the list:
 
-    Thanks a lot in advance :)))
+			__journal_unfile_buffer(jh);
+			__journal_file_buffer(jh, commit_transaction,
+						BJ_Locked);
 
-    Raúl Núñez de Arenas Coronado
+__journal_unfile_buffer does no locking of its own.  We're calling this
+point with the buffer locked, j_list_lock held and the bh_state lock
+held.
 
--- 
-Linux Registered User 88736
-http://www.dervishd.net & http://www.pleyades.net/
-It's my PC and I'll cry if I want to...
+Trouble is, that's not enough; journal_put_journal_head() can nuke the
+buffer with merely the bh_journal_head lock held.  In the code above it
+would be enough to take the journal_head_lock over the unfile/file pair.
+
+Andrew, can you remember why we ended up with both of those locks in the
+first place?  If we can do it, the efficient way out here is to abandon
+the journal_head_lock and use the bh_state_lock for both.  We already
+hold that over many of the key refile spots, and this would avoid the
+need to take yet another lock in those paths.
+
+--Stephen
+

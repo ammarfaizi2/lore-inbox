@@ -1,33 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290253AbSAXEYa>; Wed, 23 Jan 2002 23:24:30 -0500
+	id <S290254AbSAXFUN>; Thu, 24 Jan 2002 00:20:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290254AbSAXEYU>; Wed, 23 Jan 2002 23:24:20 -0500
-Received: from zero.tech9.net ([209.61.188.187]:34057 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S290253AbSAXEYP>;
-	Wed, 23 Jan 2002 23:24:15 -0500
-Subject: Re: Low latency for recent kernels
-From: Robert Love <rml@tech9.net>
-To: Glendon Gross <gross@xinetd.com>
-Cc: Dan Maas <dmaas@dcine.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0201232020150.432-100000@mail.xinetd.com>
-In-Reply-To: <Pine.LNX.4.21.0201232020150.432-100000@mail.xinetd.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 23 Jan 2002 23:28:57 -0500
-Message-Id: <1011846537.855.71.camel@phantasy>
+	id <S290257AbSAXFUE>; Thu, 24 Jan 2002 00:20:04 -0500
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:58757 "EHLO
+	snipe.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S290254AbSAXFTy>; Thu, 24 Jan 2002 00:19:54 -0500
+Date: Thu, 24 Jan 2002 00:23:42 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18pre4aa1
+Message-ID: <20020124002342.A630@earthlink.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-01-23 at 23:20, Glendon Gross wrote:
- 
-> Is this patch available for 2.5.2 ? or is it already part of the tree?
+Changelog with history at:
+http://home.earthlink.net/~rwhron/kernel/2.4.18pre4aa1.html
 
-No, its not in 2.5 at the moment.  2.5.2 patch is available at:
-
-	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/v2.5
-
-	Robert Love
+Benchmarks on 2.4.18pre4aa1 and lots of other kernels at:
+http://home.earthlink.net/~rwhron/kernel/k6-2-475.html
+-- 
+Randy Hron
 

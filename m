@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267458AbTBDVnv>; Tue, 4 Feb 2003 16:43:51 -0500
+	id <S267472AbTBDVqe>; Tue, 4 Feb 2003 16:46:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267467AbTBDVnv>; Tue, 4 Feb 2003 16:43:51 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17679 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267458AbTBDVnu>; Tue, 4 Feb 2003 16:43:50 -0500
-Message-ID: <3E403635.9050303@zytor.com>
-Date: Tue, 04 Feb 2003 13:52:53 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: isofs hardlink bug (inode numbers different)
-References: <20030126235556.GA5560@paradise.net.nz> <b1nd5m$rhp$1@cesium.transmeta.com> <20030204212812.GA32465@iapetus.localdomain>
-Content-Type: text/plain; charset=us-ascii
+	id <S267478AbTBDVqe>; Tue, 4 Feb 2003 16:46:34 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:13975
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267472AbTBDVqb>; Tue, 4 Feb 2003 16:46:31 -0500
+Subject: Re: Help with promise sx6000 card
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Cuenta de la lista de linux <user_linux@citma.cu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030204213903.A21554@ucw.cz>
+References: <20030203221923.M79151@webmail.citma.cu>
+	 <20030204213903.A21554@ucw.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1044399167.29825.12.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 04 Feb 2003 22:52:48 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank van Maarseveen wrote:
-> 
-> Suppose that the root of a iso9660 has entries such as '/', '.' and '..'
-> all with inode 2 and maybe that there are  some other indications that
-> the creator applied UNIX style inode numbering, wouldn't it be reasonable
-> to assume that inode numbers should be trusted?
-> 
+On Tue, 2003-02-04 at 20:39, Vojtech Pavlik wrote:
+> 1) Make sure the card BIOS is enabled.
+> 2) In the BIOS of the card, set it to "Other OS', not Linux
 
-The thing is, RockRidge attributes are a file-by-file thing.  You can
-have it on half the files if you want.
+Both should work. "Other OS" changes how the promise cards I have map
+the IDE controllers and whether the I2O asks the OS for space or not.
+Does your BIOS also change the PCI class or pci idents ?
 
-Of course, since Linux isn't dependent on the inode numbers to find the
-directory entries anymore (since we now have dentries), one could
-rewrite the iso9660 filesystem so that it doesn't matter.  This is a
-major rewrite, however.  It wouldn't be unwelcome; the current code is
-pretty awful.
+> 3) Disable support for Promise cards in Linux
 
-	-hpa
+Shouldnt be needed now days
+
+> 4) Enable I2O and I2O block devices
+
+Use 2.4.19 or later. The promise stuff freaks if you do clever cache
+hints and older kernels don't know about that
+
+> 6) With luck, it'll work. Anyway, SX6000's are DAMN SLOW.
+
+7) Sell the promise card to someone who doesnt know better and buy
+a 3ware. Certainly under Linux the 3ware is way faster
+
+> Now to get a SX4000 working, that's a much more interesting task ...
+
+SX4000 is i2o or something stranger ?
+
 

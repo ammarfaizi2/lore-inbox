@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263810AbTJORoa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 13:44:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263812AbTJORoa
+	id S263811AbTJORpt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 13:45:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263812AbTJORps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 13:44:30 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:60649 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id S263810AbTJORo0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 13:44:26 -0400
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: josh@temp123.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20031015105655.C1593@schatzie.adilger.int>
-References: <1066163449.4286.4.camel@Borogove>
-	 <1066235105.14783.1602.camel@hades.cambridge.redhat.com>
-	 <20031015105655.C1593@schatzie.adilger.int>
-Message-Id: <1066239856.18189.13.camel@imladris.demon.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-3.dwmw2.1) 
-Date: Wed, 15 Oct 2003 18:44:16 +0100
-X-SA-Exim-Mail-From: dwmw2@infradead.org
-Subject: Re: Transparent compression in the FS
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
+	Wed, 15 Oct 2003 13:45:48 -0400
+Received: from windsormachine.com ([206.48.122.28]:9947 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id S263811AbTJORpo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 13:45:44 -0400
+Date: Wed, 15 Oct 2003 13:45:41 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: mem=16MB laptop testing
+In-Reply-To: <200310151738.55113.schlicht@uni-mannheim.de>
+Message-ID: <Pine.LNX.4.56.0310151342550.12914@router.windsormachine.com>
+References: <20031014105514.GH765@holomorphy.com> <20031015132824.GS16158@holomorphy.com>
+ <3F8D52CD.2000909@katana-technology.com> <200310151738.55113.schlicht@uni-mannheim.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.12.3 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-10-15 at 10:56 -0600, Andreas Dilger wrote:
-> Actually, reiserfs also supports ext2-compatible SETFLAGS/GETFLAGS ioctls.
-> This allows us to use the same tools for lsattr and chattr instead of using
-> lsattr.reiserfs, etc.  Our Lustre distributed filesystem does the same.
+On Wed, 15 Oct 2003, Thomas Schlichter wrote:
 
-Yeah - I probably will too if I ever get round to letting people
-actually disable the compression :)
+> I had one report of a person using mem= to reduce memory size for
+> a broken i386 chipset thaty only supports 64MB cached and the rest
+> as mtd/slram device for swap.  I got broken as the boundaries changed.
 
--- 
-dwmw2
+The 430FX, HX, VX, and TX ones?
 
+There's also some VIA/Ali/etc chipsets of that same era that have cache
+ram limits as well.
 
+Found a good page listing all the limits while looking up info
+yesterday, from when PC Chips was pirating BIOS code, for a discussion
+going on over at one of the storagereview.com forums
+
+Mike

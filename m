@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129142AbRBINaK>; Fri, 9 Feb 2001 08:30:10 -0500
+	id <S129104AbRBINbu>; Fri, 9 Feb 2001 08:31:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129216AbRBINaA>; Fri, 9 Feb 2001 08:30:00 -0500
-Received: from [172.16.18.67] ([172.16.18.67]:13696 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S129204AbRBIN3o>; Fri, 9 Feb 2001 08:29:44 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <E14RDWx-0006ly-00@the-village.bc.nu> 
-In-Reply-To: <E14RDWx-0006ly-00@the-village.bc.nu> 
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: alan@clueserver.org (Alan Olsen), VANDROVE@vc.cvut.cz (Petr Vandrovec),
-        adeucher@UU.NET (Alex Deucher), linux-kernel@vger.kernel.org,
-        jhartmann@valinux.com
-Subject: Re: [OT] Re: 2.4.x, drm, g400 and pci_set_master 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 09 Feb 2001 13:28:50 +0000
-Message-ID: <22241.981725330@redhat.com>
+	id <S129258AbRBINbk>; Fri, 9 Feb 2001 08:31:40 -0500
+Received: from mail008.syd.optusnet.com.au ([203.2.75.232]:15059 "EHLO
+	mail008.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S129104AbRBINbW>; Fri, 9 Feb 2001 08:31:22 -0500
+Message-Id: <200102091331.f19DVEU26302@mail008.syd.optusnet.com.au>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+From: "bart11" <bart11@dingoblue.net.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: BUG in 2.4.1 (dcache.c)
+X-Mailer: Pronto v2.2.3 On linux/mysql
+Date: 09 Feb 2001 21:32:13 WST
+Reply-To: "bart11" <bart11@dingoblue.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-alan@lxorguk.ukuu.org.uk said:
->  If open source people knew how it worked they might do horrible evil
-> things like TV-out with the macrovision turned off. Thats basically
-> the root of all this - yet again its the US movie industry 
+I have then same problem no my box, Pentium2 233 64 meg ram RedHat 7.0 and
+Linux 2.4.1
 
-Er... have you tried recording from the G400 TV out with matroxfb? 
+Very strange
 
-Try it. You might like it.
+BaRT
 
---
-dwmw2
+> Hi all,
+> After 1 day of running, 2.4.1 produced 'kernel BUG at dcache.c:134!' and
+> Oops
+> during regular RedHat cron job
+> (tmpwatch + slocate):
 
+> Feb 1 04:27:21 cs865114-a kernel: kernel BUG at dcache.c:134!
+> Feb 1 04:27:21 cs865114-a kernel: invalid operand: 0000
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

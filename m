@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285380AbRLGCiG>; Thu, 6 Dec 2001 21:38:06 -0500
+	id <S285379AbRLGCfQ>; Thu, 6 Dec 2001 21:35:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285381AbRLGCh4>; Thu, 6 Dec 2001 21:37:56 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:26497 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S285380AbRLGChk>;
-	Thu, 6 Dec 2001 21:37:40 -0500
-Date: Thu, 06 Dec 2001 18:37:09 -0800 (PST)
-Message-Id: <20011206.183709.71088955.davem@redhat.com>
-To: lm@bitmover.com
-Cc: alan@lxorguk.ukuu.org.uk, phillips@bonn-fries.net, davidel@xmailserver.org,
+	id <S285380AbRLGCfG>; Thu, 6 Dec 2001 21:35:06 -0500
+Received: from bitmover.com ([192.132.92.2]:63367 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S285379AbRLGCew>;
+	Thu, 6 Dec 2001 21:34:52 -0500
+Date: Thu, 6 Dec 2001 18:34:51 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
+        phillips@bonn-fries.net, davidel@xmailserver.org,
         rusty@rustcorp.com.au, Martin.Bligh@us.ibm.com, riel@conectiva.com.br,
         lars.spam@nocrew.org, hps@intermeta.de, linux-kernel@vger.kernel.org
 Subject: Re: SMP/cc Cluster description
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011206161744.V27589@work.bitmover.com>
-In-Reply-To: <20011206153257.T27589@work.bitmover.com>
-	<20011206.154735.71088809.davem@redhat.com>
-	<20011206161744.V27589@work.bitmover.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Message-ID: <20011206183451.A4235@work.bitmover.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
+	phillips@bonn-fries.net, davidel@xmailserver.org,
+	rusty@rustcorp.com.au, Martin.Bligh@us.ibm.com,
+	riel@conectiva.com.br, lars.spam@nocrew.org, hps@intermeta.de,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011206143516.P27589@work.bitmover.com> <E16C7P1-0003Ou-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E16C7P1-0003Ou-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Dec 06, 2001 at 10:54:03PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Larry McVoy <lm@bitmover.com>
-   Date: Thu, 6 Dec 2001 16:17:44 -0800
-   
-   There are /gproc, /gtmp, and /gdev
-   which are in the global namespace and do for the cluster what /<xxx>
-   does for a regular machine.
-   
-And /getc, which is where my /getc/passwd is going to be.
+On Thu, Dec 06, 2001 at 10:54:03PM +0000, Alan Cox wrote:
+> > That's a red herring, there are not 64 routers in either picture, there
+> > are 64 ethernet interfaces in both pictures.  So let me rephrase the
+> > question: given 64 ethernets, 64 CPUs, on one machine, what's easier,
+> > 1 multithreaded networking stack or 64 independent networking stacks?
+> 
+> I think you miss the point. If I have to program the system as 64
+> independant stacks from the app level I'm going to go slowly mad
 
-   We can go around and around on this and the end result will be that
-   I will have narrowed the locking problem down to the point that
-   only the processes which are actually using the resource have to
-   participate in the locking.  In a traditional SMP OS, all processes
-   have to participate.
+Well, that depends.  Suppose the application is a webserver.  Not your
+simple static page web server, that one is on a shared nothing cluster
+already.  It's a webserver that has a big honkin' database, with lots
+of data being updated all time, the classic sort of thing that a big
+SMP can handle but a cluster could not.  Fair enough?
 
-We can split up name spaces today with Al Viro's namespace
-infrastructure.
+Now imagine that the system is a collection of little OS images, each
+with their own file system, etc.  Except /home/httpd is mounted on 
+a globally shared file system.  Each os image has its own set of 
+interfaces, one or more, and its own http server.  Which updates 
+data in /home/httpd.
 
-But frankly for the cases where scalability matters, like a http
-server, they are all going at the same files in a global file
-space.
+Can you see that this is a non-issue?  For this application, the ccCluster
+model works great.  The data is all in a shared file system, nice and 
+coherent, the apps don't actually know there is another OS banging on the 
+data, it all just works.
 
-I still think ccClusters don't solve any new problems in the
-locking space.  "I get rid of it by putting people on different
-filesystems" is not an answer which is unique to ccClusters, current
-systems can do that.
+Wait, I'll admit this means that the apps have to be thread safe, but that's
+true for the traditional SMP as well.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

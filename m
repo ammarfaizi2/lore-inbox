@@ -1,43 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281818AbRK1A3a>; Tue, 27 Nov 2001 19:29:30 -0500
+	id <S281826AbRK1Adi>; Tue, 27 Nov 2001 19:33:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281826AbRK1A3R>; Tue, 27 Nov 2001 19:29:17 -0500
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:37567 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S281818AbRK1A26>; Tue, 27 Nov 2001 19:28:58 -0500
-Date: Wed, 28 Nov 2001 01:01:45 +0100 (CET)
-From: eduard.epi@t-online.de (Peter Bornemann)
-To: Alex Davis <alex14641@yahoo.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 'spurious 8259A interrupt: IRQ7'
-In-Reply-To: <20011127170644.123.qmail@web9203.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.33.0111280054110.1609-100000@eduard.t-online.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S281836AbRK1Ada>; Tue, 27 Nov 2001 19:33:30 -0500
+Received: from f115.law4.hotmail.com ([216.33.149.115]:7172 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S281824AbRK1AdL>;
+	Tue, 27 Nov 2001 19:33:11 -0500
+X-Originating-IP: [205.231.90.227]
+From: "victor1 torres" <camel_3@hotmail.com>
+To: jmerkey@vger.timpanogas.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kdb v1.9 patch fails in main.c 1 of 3 hunks no applied
+Date: Wed, 28 Nov 2001 00:33:05 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F115k4i8YRbQTMkm7Cq0002163f@hotmail.com>
+X-OriginalArrivalTime: 28 Nov 2001 00:33:05.0338 (UTC) FILETIME=[3EB389A0:01C177A4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Nov 2001, Alex Davis wrote:
+The reason for that is because patch-2.5.1-pre1 is just basicly the inode 
+fix and some other things well and the version number change from 2.5.0 to 
+2.5.1-pre1.
+The 2.5.0 is just the same as 2.4.15 except for the version numbers. And one 
+more thing 2.5.1-pre2 mite have already fixed something in main.c that it 
+can not go back and change for the kdb patch.
 
-> I think we should compile a list of boards
-> that have the problem
-
-If You are collecting examples:
-I am seeing it on a regular base during boot-up, sometimes also later on.
-I have an  Athlon 700 on an Asus K7V Mobo with VIA Apollo chipset and 512
-MB RAM. Otherwise, the box is  rock solid.
-
-Hope this helps
-
-Peter B
-
-          .         .
-          |\_-^^^-_/|
-          / (|)_(|) \
-         ( === X === )
-          \  ._|_.  /
-           ^-_   _-^
-              °°°
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
 

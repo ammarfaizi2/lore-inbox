@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267675AbTASR1e>; Sun, 19 Jan 2003 12:27:34 -0500
+	id <S267677AbTASRfv>; Sun, 19 Jan 2003 12:35:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267677AbTASR1e>; Sun, 19 Jan 2003 12:27:34 -0500
-Received: from ulima.unil.ch ([130.223.144.143]:35776 "EHLO ulima.unil.ch")
-	by vger.kernel.org with ESMTP id <S267675AbTASR1d>;
-	Sun, 19 Jan 2003 12:27:33 -0500
-Date: Sun, 19 Jan 2003 18:36:35 +0100
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: Rudmer van Dijk <rudmer@legolas.dynup.net>
-Cc: "Paul E. Erkkila" <pee@erkkila.org>, linux-kernel@vger.kernel.org
-Subject: Re: Status of ide-cdrom writing?
-Message-ID: <20030119173635.GD28354@ulima.unil.ch>
-References: <20030119130049.GA15941@ulima.unil.ch> <3E2ABD9C.9040903@erkkila.org> <20030119152458.GA28354@ulima.unil.ch> <200301191810.3533@gandalf>
+	id <S267678AbTASRfv>; Sun, 19 Jan 2003 12:35:51 -0500
+Received: from mnh-1-25.mv.com ([207.22.10.57]:23557 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S267677AbTASRfv>;
+	Sun, 19 Jan 2003 12:35:51 -0500
+Message-Id: <200301191738.MAA02298@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: uml-patch-2.5.59-1
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200301191810.3533@gandalf>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 19 Jan 2003 12:38:28 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 19, 2003 at 06:15:10PM +0100, Rudmer van Dijk wrote:
+This patch updates UML to 2.5.59 and also merges in my 2.4 changes, bringing
+2.5 in sync with 2.4.  
 
-> > Is there anybody which has success with DVD-writer under 2.5.59 without
-> > ide-scsi?
-> 
-> yep:
-> ...
-> Identifikation : 'CD-RW GCE-8240B '
+Also, SMP works again.
 
-I doubt you could write a DVD-R with such an unit, or am I wrong?
-And I should also add with DAO/SAO ;-)
+The 2.5.59-1 UML patch is available at
+        http://uml-pub.ists.dartmouth.edu/uml/uml-patch-2.5.59-1.bz2
+ 
+For the other UML mirrors and other downloads, see 
+        http://user-mode-linux.sourceforge.net/dl-sf.html
+ 
+Other links of interest:
+ 
+        The UML project home page : http://user-mode-linux.sourceforge.net
+        The UML Community site : http://usermodelinux.org
 
-Thank you very much,
+				Jeff
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

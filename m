@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130348AbRBBWmB>; Fri, 2 Feb 2001 17:42:01 -0500
+	id <S130396AbRBBWmv>; Fri, 2 Feb 2001 17:42:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130445AbRBBWlv>; Fri, 2 Feb 2001 17:41:51 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3593 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130348AbRBBWli>; Fri, 2 Feb 2001 17:41:38 -0500
-Subject: Re: PROBLEM: 2.2.19pre7 opps on low mem machine
-To: peter@runestig.com (Peter 'Luna' Runestig)
-Date: Fri, 2 Feb 2001 22:42:31 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing list)
-In-Reply-To: <003e01c08d68$fd5b53f0$0201010a@runestig.com> from "Peter 'Luna' Runestig" at Feb 02, 2001 11:39:22 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130404AbRBBWml>; Fri, 2 Feb 2001 17:42:41 -0500
+Received: from cs.columbia.edu ([128.59.16.20]:39897 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S130396AbRBBWmf>;
+	Fri, 2 Feb 2001 17:42:35 -0500
+Date: Fri, 2 Feb 2001 14:42:29 -0800 (PST)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Hans Reiser <reiser@namesys.com>, <linux-kernel@vger.kernel.org>,
+        <reiserfs-list@namesys.com>, Jan Kasprzak <kas@informatics.muni.cz>
+Subject: Re: [reiserfs-list] ReiserFS Oops (2.4.1, deterministic, symlink
+ related)
+In-Reply-To: <E14OoD8-0007GI-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0102021438320.9097-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14OouX-0007LG-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> OK, following the reiserfs/compiler thread, I can see now that my bug report
-> may have been ignored since I was using a non-kosher compiler (although I
-> have used it since late October -99 without any problems). Or, it might not
-> have been ignored, just nobody told me he/she wasted some time on it. Since
-> it seems to be hardware related; that oops wasn't the only one, and after
-> some more strange behaviour, I moved the hard drive to another, almost
-> identical, PC, with even less memory, 16 MB (but this one I have the chips
-> to run 48 MB, but I wanted to stress it). And it's been running for a week
-> now, like a clock.
+On Fri, 2 Feb 2001, Alan Cox wrote:
 
-Thanks for the info. I dont ignore gcc 2.95 stuff with 2.2 nowdays since Im
-pretty sure 2.2 + gcc 2.95 is solid
+> Oh I can see why Hans wants to cut down his bug reporting load. I can also
+> say from experience it wont work. If you put #error in then everyone will
+> mail him and complain it doesnt build, if you put #warning in nobody will
+> read it and if you dont put anything in you get the odd bug report anyway.
+>
+> Basically you can't win and unfortunately a shrink wrap forcing the user
+> to read the README file for the kernel violates the GPL ..
+
+Oh, don't get me wrong, I fully understand that it's a lose-lose
+situation. All I'm saying is that it was an incredibly bad idea to have
+two compilers, one broken and one ok, identify themselves as the same
+version.
+
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

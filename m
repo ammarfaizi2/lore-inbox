@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130067AbRARRFv>; Thu, 18 Jan 2001 12:05:51 -0500
+	id <S130073AbRARRLb>; Thu, 18 Jan 2001 12:11:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130073AbRARRFm>; Thu, 18 Jan 2001 12:05:42 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:18707 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S130067AbRARRFd>;
-	Thu, 18 Jan 2001 12:05:33 -0500
-Date: Thu, 18 Jan 2001 18:04:56 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rick Jones <raj@cup.hp.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-In-Reply-To: <Pine.LNX.4.10.10101180850290.18072-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.30.0101181801150.7062-100000@elte.hu>
+	id <S130335AbRARRLV>; Thu, 18 Jan 2001 12:11:21 -0500
+Received: from gate3.transcanada.com ([199.45.77.38]:64730 "EHLO
+	cal-maila.tcpl.ca") by vger.kernel.org with ESMTP
+	id <S130073AbRARRLE>; Thu, 18 Jan 2001 12:11:04 -0500
+Message-ID: <3A6724CF.BD35FAFA@cal.montage.ca>
+Date: Thu, 18 Jan 2001 10:15:59 -0700
+From: Terrence Martin <tmartin@cal.montage.ca>
+X-Mailer: Mozilla 4.76 [en]C-CCK-MCD cal-v4512  (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: File System Corruption with 2.2.18
+In-Reply-To: <3A65DB02.56451E45@cal.montage.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Just to follow up, on Vojtech's advice I installed kernel 2.4.0 instead(I
+also moved to 7.0 RH to accomplish this) and everything seems to be working
+fine(I did not apply your new patches Vojtech, as yet they have not proved
+necessary). I have not done any exhaustive testing, however the failure rate
+has gone from boot kernel, wait 10 mins, write to disk fail, to no failures
+at this point after installing many many RH7.0 updates etc...
 
-On Thu, 18 Jan 2001, Linus Torvalds wrote:
+Thanks for the assistance, and good work on the 2.4.0 kernel I am
+impressed..:)
 
-> Yeah, and how are you going to teach a perl CGI script that writes to
-> stdout to use it?
+Cheers,
 
-yep, correct. But you can have TCP_CORK behavior from user-space (by
-setting the cork flag in user-space and writing it for all network
-output), while you cannot have MSG_MORE in the TCP_CORK case. And a perl
-script will likely use none of these mechanizms, it's the webserver CGI
-host code that does the network send, perl CGI scripts do not send to the
-network directly, they send to a pipe so the CGI host code can have
-absolute control over eg. CGI-generated HTTP headers.
+Terrence Martin
 
-	Ingo
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

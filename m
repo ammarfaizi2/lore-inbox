@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129545AbQLKRhY>; Mon, 11 Dec 2000 12:37:24 -0500
+	id <S129460AbQLKRrT>; Mon, 11 Dec 2000 12:47:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129584AbQLKRhO>; Mon, 11 Dec 2000 12:37:14 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:11790 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129545AbQLKRhE>; Mon, 11 Dec 2000 12:37:04 -0500
-Subject: Re: NFS: set_bit on an 'int' variable OK for 64-bit?
-To: Ulrich.Weigand@de.ibm.com
-Date: Mon, 11 Dec 2000 17:08:45 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
-In-Reply-To: <C12569B2.005C9182.00@d12mta01.de.ibm.com> from "Ulrich.Weigand@de.ibm.com" at Dec 11, 2000 05:51:04 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129584AbQLKRrK>; Mon, 11 Dec 2000 12:47:10 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:18181 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129460AbQLKRqw>; Mon, 11 Dec 2000 12:46:52 -0500
+Date: Mon, 11 Dec 2000 11:11:41 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Dominik Kubla <dominik.kubla@uni-mainz.de>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18-25 DELL Laptop Video Problems
+Message-ID: <20001211111141.A3443@vger.timpanogas.org>
+In-Reply-To: <20001209160027.A15007@vger.timpanogas.org> <E144sZd-0005q5-00@the-village.bc.nu> <20001209181351.C15531@vger.timpanogas.org> <20001210174906.B2161@uni-mainz.de> <20001210155016.A19788@vger.timpanogas.org> <20001211082646.B4646@uni-mainz.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E145WRS-0008A3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20001211082646.B4646@uni-mainz.de>; from dominik.kubla@uni-mainz.de on Mon, Dec 11, 2000 at 08:26:46AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> since test11, the NFS code uses the set_bit and related routines
-> to manipulate the wb_flags member of the nfs_page struct (nfs_page.h).
-> Unfortunately, wb_flags has still data type 'int'.
+On Mon, Dec 11, 2000 at 08:26:46AM +0100, Dominik Kubla wrote:
+> On Sun, Dec 10, 2000 at 03:50:16PM -0700, Jeff V. Merkey wrote:
+> > 
+> > Can you enable both at the same time?  It's an installer issue with laptops
+> > and I need tobe able to detect whatever is running.
+> > 
+> 
+> IIRC you can choose at boot time using a kernel parameter.
 
-NFS is wrong. Rusty did a complete audit of the code and I've been feeding
-some stuff to Linus. That one may have been missed
+Then this is the vga=271 stuff?
 
-> What do you suggest we should do?   Fix nfs_page to use a 'long'
-> variable, or change our bitops macros to use ints?
+Jeff 
 
-Fix NFS
-
-
+> 
+> Dominik
+> -- 
+> Drug misuse is not  a disease, it is a decision, like  the decision to step
+> out in  front of a  moving car. You  would call that  not a disease  but an
+> error of judgment.  --Philip K. Dick. Author's Note, A SCANNER DARKLY, 1977
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

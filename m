@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263420AbTIHRYe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 13:24:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbTIHRYd
+	id S263088AbTIHRVP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 13:21:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263097AbTIHRVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 13:24:33 -0400
-Received: from havoc.gtf.org ([63.247.75.124]:29907 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S263420AbTIHRYa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 13:24:30 -0400
-Date: Mon, 8 Sep 2003 13:24:16 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Adrian Bunk <bunk@fs.tum.de>, Manfred Spraul <manfred@colorfullife.com>,
-       linux-kernel@vger.kernel.org, peter_daum@t-online.de
-Subject: Re: [2.4 patch] fix CONFIG_X86_L1_CACHE_SHIFT
-Message-ID: <20030908172416.GA21226@gtf.org>
-References: <3F5B96C3.1060706@colorfullife.com> <20030908142046.GA28062@fs.tum.de> <20030908170751.GB27097@mail.jlokier.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030908170751.GB27097@mail.jlokier.co.uk>
-User-Agent: Mutt/1.3.28i
+	Mon, 8 Sep 2003 13:21:15 -0400
+Received: from darkwing.uoregon.edu ([128.223.142.13]:4273 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id S263088AbTIHRVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 13:21:14 -0400
+Date: Mon, 8 Sep 2003 10:20:16 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Nick Urbanik <nicku@vtc.edu.hk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Single P4, many IDE PCI cards == trouble??
+In-Reply-To: <20030908061333.GI19041@matchmail.com>
+Message-ID: <Pine.LNX.4.44.0309081019180.32739-100000@twin.uoregon.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 08, 2003 at 06:07:51PM +0100, Jamie Lokier wrote:
-> Adrian Bunk wrote:
-> > > Why requires? On x86, the cpu caches are fully coherent. A too small L1 
-> > > cache shift results in false sharing on SMP, but it shouldn't cause the 
-> > > described problems.
-> > >...
-> > 
-> > Thanks for the correction, I falsely thought CONFIG_X86_L1_CACHE_SHIFT 
-> > does something different than it does.
+On Sun, 7 Sep 2003, Mike Fedyk wrote:
+
+> On Sat, Aug 30, 2003 at 11:46:27AM +0800, Nick Urbanik wrote:
+> > It's just that I am trying to set up servers that use cheap storage at the
+> > college and teach students to build them.  It looks like we still have to pay
+> > big bucks for SCSI and 3ware.  And that part of my teaching will be replaced
+> > with something else.  Until I understand the problem and how to solve it.
 > 
-> Were there any changes in the kernel to do with PCI MWI settings?
+> 3ware is IDE...
 
-Yes; I've lost the specific context of the thread, but I have been
-working on MWI/cacheline size issues along with IvanK for a while.
+nor is it terribly expensive in the realm of host-bus adapters.
 
-It's apparently the responsibility of the OS to fill in correct
-PCI_CACHE_LINE_SIZE values, which in the case of generic kernels must be
-filled in at runtime (pci_cache_line_size) not at compile-time
-(SMP_CACHE_BYTES, etc.)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-If you don't call pci_set_mwi() for a PCI device, which triggers the
-cacheline size fixups and other checks, then using
-Memory-Write-Invalidate (MWI) is definitely wrong.  Or on an older
-kernel, without the latest MWI changes, you could wind up programming
-cacheline size to a value smaller than your current processor (again,
-due to generic kernels).
-
-If a feature/device/whatever can be programmed with cacheline size at
-runtime, that will always be the preference.  With a compile-time
-constant for cacheline size, you are _guaranteed_ it will be wrong in
-some case.
-
-	Jeff
-
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu    
+GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
 
 

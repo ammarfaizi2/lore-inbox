@@ -1,54 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268033AbUH3N1v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268031AbUH3Nb7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268033AbUH3N1v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 09:27:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268037AbUH3N1v
+	id S268031AbUH3Nb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 09:31:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268040AbUH3Nb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 09:27:51 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:41133 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S268033AbUH3N1t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 09:27:49 -0400
-Date: Mon, 30 Aug 2004 15:29:25 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nathan Lynch <nathanl@austin.ibm.com>
-Cc: akpm@osdl.org, lkml <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] cpu hotplug fixes for dependent_sleeper and wake_sleeping_dependent
-Message-ID: <20040830132925.GA1531@elte.hu>
-References: <1093858876.11274.50.camel@biclops.private.network>
+	Mon, 30 Aug 2004 09:31:58 -0400
+Received: from clusterfw.beeline3G.net ([217.118.66.232]:9794 "EHLO
+	crimson.namesys.com") by vger.kernel.org with ESMTP id S268031AbUH3Nbx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 09:31:53 -0400
+Date: Mon, 30 Aug 2004 17:25:04 +0400
+From: Alex Zarochentsev <zam@namesys.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jamie Lokier <jamie@shareable.org>, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040830132504.GR5108@backtop.namesys.com>
+References: <20040825205149.GA17654@lst.de> <412DA2CF.2030204@namesys.com> <20040826124119.GA431@lst.de> <20040826134812.GB5733@mail.shareable.org> <20040826155744.GA4250@lst.de> <20040826160638.GJ5733@mail.shareable.org> <20040826161303.GA4716@lst.de> <Pine.LNX.4.58.0408260919380.2304@ppc970.osdl.org> <20040826172029.GP5733@mail.shareable.org> <Pine.LNX.4.58.0408261021250.2304@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1093858876.11274.50.camel@biclops.private.network>
+In-Reply-To: <Pine.LNX.4.58.0408261021250.2304@ppc970.osdl.org>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Nathan Lynch <nathanl@austin.ibm.com> wrote:
-
-> To recap, offlining a cpu with current bk results in the "Aiee,
-> killing interrupt handler!" panic from do_exit().  This seems to be
-> triggered only with CONFIG_PREEMPT and CONFIG_SCHED_SMT both enabled. 
-> I believe the problem is that when do_stop() calls schedule(),
-> dependent_sleeper() drops the "offline" cpu's rq->lock and never
-> reacquires it.
+On Thu, Aug 26, 2004 at 10:29:45AM -0700, Linus Torvalds wrote:
 > 
-> The following seems to work (tested on ppc64).  Is there a better way?
+> 
+> On Thu, 26 Aug 2004, Jamie Lokier wrote:
+> >
+> >     run_setuid_program
+> > 
+> >         -> calls pwd
+> >            pwd opens("."), (".."), ("../..") etc.
+> 
+> Ehh.. Not only does pwd not do that..
+> 
+> (hint: there's a getcwd() system call)
+> 
+> >         -> the setuid program thus ends up opening a device or fifo,
+> >            when it does pwd's path walk.  Yes it could use the getcwd
+> >            syscall, but some programs do their own path walk.
+> 
+> .. but even if it did that, it should use O_DIRECTORY when it did so. If 
+> it doesn't, it's broken.
+> 
+> So no, it would _not_ open the device or fifo when it did so.
+> 
+> The fact is, anything that expects to open a directory should already be 
+> opening it with O_DIRECTORY.
 
-> -	if (!(sd->flags & SD_SHARE_CPUPOWER))
-> +	if (!(sd->flags & SD_SHARE_CPUPOWER) || cpu_is_offline(this_cpu))
+reiser4 files-as-dirs do not depend on that.
 
-> +	if (!(sd->flags & SD_SHARE_CPUPOWER) || cpu_is_offline(this_cpu))
+A file behaves as directory if one calls i_op->lookup() or f_op->readdir().  I
+am not sure that O_DIRECTORY should be a switch. 
 
-it would really be nice to do this without any runtime overhead. Rusty?
+> That said, ".." and "." are special already inside the kernel, and it 
+> migth be worth making them automatically imply O_DIRECTORY, since nothing 
+> else makes sense anyway. That would fix the case where somebody uses ".." 
+> _without_ using O_DIRECTORY. 
+> 
+> > It also fits the container idea very well:
+> > 
+> >         /dev/hda/part1/ <- the filesystem inside partition 1
+> 
+> I don't think you can do that. The kernel has no idea how to mount the
+> filesystem.
+> 
+> If it's already mounted somewhere else, that's a different issue.  
+> Although it might be mounted in several places (as a bind mount) with
+> different writability, I guess, so even then it might be "interesting".
+> 
+> 		Linus
 
-	Ingo
+-- 
+Alex.

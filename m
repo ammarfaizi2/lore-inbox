@@ -1,70 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132742AbRDOSTV>; Sun, 15 Apr 2001 14:19:21 -0400
+	id <S132777AbRDOS0w>; Sun, 15 Apr 2001 14:26:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132776AbRDOSTL>; Sun, 15 Apr 2001 14:19:11 -0400
-Received: from linas.org ([207.170.121.1]:35062 "HELO backlot.linas.org")
-	by vger.kernel.org with SMTP id <S132742AbRDOSTD>;
-	Sun, 15 Apr 2001 14:19:03 -0400
-To: jakob@ostenfeld.dk, linux-kernel@vger.kernel.org, miku@iki.fi,
-        neilb@cse.unsw.edu.au
-Subject: fsck, raid reconstruction & bad bad 2.4.3
-Message-Id: <20010415181825.40FBB1BA03@backlot.linas.org>
-Date: Sun, 15 Apr 2001 13:18:25 -0500 (CDT)
-From: linas@backlot.linas.org (Linas Vepstas)
+	id <S132784AbRDOS0c>; Sun, 15 Apr 2001 14:26:32 -0400
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:27800 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S132777AbRDOS01>; Sun, 15 Apr 2001 14:26:27 -0400
+Date: Sun, 15 Apr 2001 14:26:22 -0400 (EDT)
+From: Scott Murray <scott@spiteful.org>
+X-X-Sender: <scottm@godzilla.spiteful.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Can't free the ramdisk (initrd, pivot_root)
+In-Reply-To: <9bbfib$qu4$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0104151251500.4284-100000@godzilla.spiteful.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 14 Apr 2001, H. Peter Anvin wrote:
 
-Hi,
-I want to report a trio of raid-related problems.  The third one is 
-very serious, and effectively prevents 2.4.3 from being usable (by me).
+> Hello friends,
+>
+> I am trying the following setup, and it works beautifully, *except*
+> that I don't seem to be able to free the ramdisk memory at the end.
 
-First problem:  In kernel-2.4.2 and earlier, if the machine is not cleanly
-shut down, then upon reboot, RAID reconstruction is automatically started.
-(For RAID-1, this more-or-less ammounts to copying the entire contents
-of one disk partition on one disk to another).   The reconstruction
-code seems to be clever: it will try to use the full bandwidth when
-the system is idle, and it will throttle back when busy.  It will
-only throttle back so far: it tries to maintain at least a minimum amount
-of work going, in order to gaurentee forward progress even on a busy system.
+Heh, sounds familiar, I was in exactly the same situation a month ago.
+I meant to post something about it, but kept forgetting.
 
-The problem:  this dramatically slows fsck after an unclean shut-down.
-You can hear the drives machine-gunning.  I haven't stop-watch timed it,
-but its on the order of 5x slower to fsck a raid partition when there's
-reconstruction going on, then when the raid thinks its clean.  This
-makes unclean reboots quite painful.
+> This successfully runs init, and I can umount /initrd in the new
+> setup, but I cannot then destroy the ramdisk contents by calling
+> ioctl([/dev/ram0], BLKFLSBUF, 0) -- it always returns EBUSY.  What is
+> holding this ramdisk busy, especially since I could successfully
+> umount the filesystem?  Seems like a bug to me.
 
-(There is no config file to disable/alter this .. no work-around that I
-know of ..)
+Indeed it is.  This fix for drivers/block/rd.c (excerpted from 2.4.3-ac6):
 
---------
-The second problem: oparallelizing fsck doesn't realize that different
-/dev/md raid volumes are on the same physical disks, and thus tries
-to parallelize .... again slowing things down.   There is a work-around,
-modify /etc/fstab to set the rder of fsck's. However, I doubt the HOWTO
-really gets into this ....  it would be nice to get fsck to 'do the
-right thing'.
+@@ -690,6 +690,7 @@
+ done:
+        if (infile.f_op->release)
+                infile.f_op->release(inode, &infile);
++       blkdev_put(out_inode->i_bdev, BDEV_FILE);
+        set_fs(fs);
+        return;
+ free_inodes: /* free inodes on error */
 
-----------
+has been in Alan's tree since some time in November (it first appeared
+in the 2.4.0test11ac1 Change Log).
 
-Third problem:
+Another ramdisk gotcha that also still exists is that cramfs still seems to
+be hosing the ramdisk superblock if it's compiled into the kernel.  I had to
+not only switch to romfs for my initrd, but also compile cramfs support out
+of the kernel.  There was a big discussion about this exact problem back in
+January, but none of the suggested fixes seem to have been incorporated.
 
-I just tried boot 2.4.3 today.  (after an unclean shutdown)  fsck runs 
-at a crawl on my RAID-1 volume.  It would take all day (!! literally) 
-to fsck.  The disk-drive activity light flashes about once a second,
-maybe once every two seconds.  (with a corresponding click from the
-drive).    
-
-On 2.4.2 kernels, the disk activity light is constantly on... and the
-fsck proceeds apace. 
-
-Whatever it is that changed in 2.4.3, it makes unclean reboots
-impossible ...
+Scott
 
 
---linas
-
-
+-- 
+=============================================================================
+Scott Murray                                        email: scott@spiteful.org
+http://www.spiteful.org (coming soon)                 ICQ: 10602428
+-----------------------------------------------------------------------------
+     "Good, bad ... I'm the guy with the gun." - Ash, "Army of Darkness"
 
 

@@ -1,99 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbUKPGHo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbUKPGPj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261924AbUKPGHo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 01:07:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbUKPGHo
+	id S261906AbUKPGPj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 01:15:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbUKPGPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 01:07:44 -0500
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:64593 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261924AbUKPGGv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 01:06:51 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: ambx1@neo.rr.com (Adam Belay)
-Subject: Re: [PATCH] PNP support for i8042 driver
-Date: Tue, 16 Nov 2004 01:06:46 -0500
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, matthieu castet <castet.matthieu@free.fr>,
-       bjorn.helgaas@hp.com, vojtech@suse.cz,
-       "Brown, Len" <len.brown@intel.com>, greg@kroah.com
-References: <41960AE9.8090409@free.fr> <200411140148.02811.dtor_core@ameritech.net> <20041116053741.GD29574@neo.rr.com>
-In-Reply-To: <20041116053741.GD29574@neo.rr.com>
-MIME-Version: 1.0
+	Tue, 16 Nov 2004 01:15:39 -0500
+Received: from HELIOUS.MIT.EDU ([18.238.1.151]:26791 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S261906AbUKPGP2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 01:15:28 -0500
+Date: Tue, 16 Nov 2004 01:13:15 -0500
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+       Tejun Heo <tj@home-tj.org>, Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: [RFC] [PATCH] driver core: allow userspace to unbind drivers from devices.
+Message-ID: <20041116061315.GG29574@neo.rr.com>
+Mail-Followup-To: ambx1@neo.rr.com,
+	Dmitry Torokhov <dtor_core@ameritech.net>,
+	linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+	Tejun Heo <tj@home-tj.org>,
+	Patrick Mochel <mochel@digitalimplant.org>
+References: <20041109223729.GB7416@kroah.com> <d120d5000411091536115ac91b@mail.gmail.com> <20041110003323.GA8672@kroah.com> <200411092249.44561.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200411160106.46673.dtor_core@ameritech.net>
+In-Reply-To: <200411092249.44561.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6+20040722i
+From: ambx1@neo.rr.com (Adam Belay)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 November 2004 12:37 am, Adam Belay wrote:
-> On Sun, Nov 14, 2004 at 01:48:00AM -0500, Dmitry Torokhov wrote:
-> > On Saturday 13 November 2004 08:23 am, matthieu castet wrote:
-> > > Hi,
-> > > this patch add PNP support for the i8042 driver in 2.6.10-rc1-mm5. Acpi 
-> > > is try before the pnp driver so if you don't disable ACPI or apply 
-> > > others pnpacpi patches, it won't change anything.
-> > > 
-> > > Please review it and apply if possible
-> > > 
-> > > thanks,
-> > > 
-> > > Matthieu CASTET
-> > > 
-> > > Signed-Off-By: Matthieu Castet <castet.matthieu@free.fr>
-> > > 
+On Tue, Nov 09, 2004 at 10:49:43PM -0500, Dmitry Torokhov wrote:
+> On Tuesday 09 November 2004 07:33 pm, Greg KH wrote:
+> > All we have to do is rework that rwsem lock.  It's been staring at us
+> > since the beginning of the driver core work, and we knew it would have
+> > to be fixed eventually.  So might as well do it now.
 > > 
-> > Hi,
+> ...
 > > 
-> > Do we really need to keep those drivers loaded - i8042 will not
-> > be hotplugged and ports are reserved anyway. We are only interested
-> > in presence of the keyboard and mouse ports. Can we unregister
-> > the drivers (both ACPI and PNP) right after registering and mark
-> > all that stuff as __init/__initdata as in the patch below?
-> > I also adjusted init logic so ACPI/PNP can be enabled/disabled
-> > independently of each other.
+> > So, off to rework this mess...
 > > 
-> > -- 
-> > Dmitry
 > 
-> As a general convention, I think we do.  This should apply to every bus and
-> driver.  Every hardware component should have a driver bound to it.
-> Otherwise, we can't take full advantage of sysfs.  We really need a driver to
-> link the physical device to logical "class" abstractions . Futhermore, as we
-> extend the functionality of the driver core (ex. manual binding and unbinding)
-> _init will cause many headaches.  Also, unloading the driver is not good for
-> power management.  This case may not apply to every device, but in most cases
-> we need to have a driver loaded before suspending a piece of hardware, as only
-> that driver can be sure of how to handle the device correctly.
+> Do you have any ideas here? For me it seems that the semaphore has a dual
+> role - protecting bus's lists and ensuring that probe/remove routines are
+> serialized across bus...
 > 
-> It may not always be the most efficient solution for legacy hardware, but, at
-> least, if we require legacy drivers to behave like any other driver, then we
-> can ensure a minimum level of functionalily and flexability.  This set of
-> standards will help ensure that legacy hardware can coexist nicely with more
-> modern solutions.  That's really one of the main advantages of a layered
-> design like the driver model.
+> In the meantime, can I please have bind_mode patch applied? I believe
+> it is useful regardless of which bind/unbind solution will be adopted
+> and having them will allow me clean up serio bus implementaion quite a
+> bit.
+> 
+> Pretty please...
 > 
 
-Adam,
+I'm not sure what your bind_mode patch includes, but I would like to start a
+general discussion on the bind/unbind issue.
 
-I agree with your point that every device in the system should have a
-driver attached. And i8042 does have one bound to it. It is i8042 platform
-driver that does power management and ensures proper integration into driver
-model.
+I appreciate the effort, and I agree that this feature is important.  However,
+I would like to discuss a few issues.
 
-There is no need to keep secondary "drivers" around, their sole purpose is
-to provide information about avalilable resources. It would be ok if the
-code was shared among several devices on a bus but for most (all?) legacy
-devices it has to be programmed explicitely and will not be reused.
+1.) I don't think we should merge a patch that supports driver "unbind"
+without also supporting driver "bind".
 
-Also i8042 should not rely on either ACPI or PNP simply because the driver/
-chip works on boxes other than x86/ia64 so we can't make ACPI or PNP drivers
-"main" ones. 
+They're really very interelated, and we don't want to break userspace by
+changing everything around when we discover a cleaner solution.
 
-As far as binding/rebinding goes I guess sysdevs and platform devices will
-just disable this functionality.
+2.) I don't like having an "unbind" file.
 
---
-Dmitry
+This implies that we will have at least three seperate files controlling
+driver binding when we really need only one or two at the most.  Consider
+"bind", "unbind", and the link to the driver that is bound.
+
+
+An Alternative Solution
+=======================
+
+Why not have a file named "bind".  We can write the name of the driver we want
+bound to the device.  When we want to unbind the driver we could do something
+like this:
+
+# echo "" > bind
+or
+# echo 0 > bind
+
+At least then we only have the link and the "bind" file to worry about.  I've
+also been considering more inventive solutions (like deleting the symlink will
+cause the driver to unbind).  But it could get complex very quickly.  Really,
+we need to discuss this more.
+
+I look forward to any comments.
+
+Thanks,
+Adam

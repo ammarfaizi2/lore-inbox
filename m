@@ -1,64 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313653AbSDJWtO>; Wed, 10 Apr 2002 18:49:14 -0400
+	id <S313919AbSDJWv4>; Wed, 10 Apr 2002 18:51:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313919AbSDJWtN>; Wed, 10 Apr 2002 18:49:13 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:59523 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S313653AbSDJWtN>; Wed, 10 Apr 2002 18:49:13 -0400
-Date: Wed, 10 Apr 2002 16:49:06 -0600
-Message-Id: <200204102249.g3AMn6u02921@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: Re: RAID superblock confusion
-In-Reply-To: <20020410220939.GF23513@matchmail.com>
+	id <S313922AbSDJWvz>; Wed, 10 Apr 2002 18:51:55 -0400
+Received: from ucsu.Colorado.EDU ([128.138.129.83]:26873 "EHLO
+	ucsu.colorado.edu") by vger.kernel.org with ESMTP
+	id <S313919AbSDJWvx>; Wed, 10 Apr 2002 18:51:53 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: "Ivan G." <ivangurdiev@yahoo.com>
+Reply-To: ivangurdiev@yahoo.com
+Organization: ( )
+To: Urban Widmark <urban@teststation.com>
+Subject: Re: Via-Rhine stalls - transmit errors
+Date: Wed, 10 Apr 2002 16:46:07 -0600
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.LNX.4.33.0204101809010.7762-100000@cola.teststation.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Message-Id: <02041016460700.28352@cobra.linux>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk writes:
-> On Wed, Apr 10, 2002 at 03:39:09PM -0600, Richard Gooch wrote:
-> > Mike Fedyk writes:
-> > > On Wed, Apr 10, 2002 at 02:37:48PM -0600, Richard Gooch wrote:
-> > > > 
-> > > > The device is set up (i.e. SCSI host driver is loaded) long before I
-> > > > do raidstart /dev/md/0
-> > > 
-> > > But kernel auto-detection doesn't depend on the raidstart command.  If
-> > > things are setup correctly, you can remove that from your init scripts.
-> > 
-> > I'm not (explicitely) using auto-detection. When I insmod the raid0
-> > module, there are no messages about finding devices. All I get is:
-> > md: raid0 personality registered as nr 2
-> > 
-> > Only when I run raidstart do I get kernel messages about the devices.
-> > 
-> > In any case, I should be able to move my devices around (especially
-> > if /etc/raidtab is still correct), whether or not autostart is
-> > running. The behaviour I'm observing is a bug (I assume it's not a
-> > mis-feature, since the raidstart man page tells me that moving devices
-> > around should be safe).
-> 
-> Ehh, I ran into this a while ago.  When you compile raid as modules
-> it doesn't use the raid superblocks for anything except for
-> verification.  I took a quick glance at the source and the
-> auto-detect code is ifdefed out if you compiled as a module.
 
-Exactly where is this? A scan with find and grep don't reveal this.
+> Which frame-1 fix?
 
-> Ever since I have had raid compiled into my kernels.
+This one -> I reduced the frame by one for correct debug mssg.
+Not important - I just happened to mention it.
 
-This is my relevant .config:
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_LINEAR=m
-CONFIG_MD_RAID0=m
-CONFIG_MD_RAID1=m
-CONFIG_MD_RAID5=m
-CONFIG_MD_MULTIPATH=m
+ /*CHANGE*/
+  if (debug > 4) { printk(KERN_DEBUG "%s: Transmit frame #%d queued in slot 
+%d.\n", dev->name, np->cur_tx-1, entry); }
 
-				Regards,
+This was included in this message:
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0204.0/0722.html
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+You must not have read that one.
+it contains lots of stuff about small changes in the code
+and also link related issues.
+
+
+> The addr points to the data to transmit. The next_desc simply makes the
+> entries form a ring. I think you can assume that they are ok. But
+> otherwise check what is written in via_rhine_start_tx.
+
+I'll assume those are fine - they seem to form a ring.
+
+> It is intentional that one interrupt can remove more than one used buffer.
+> via_rhine_tx has a loop that tries to clean up all "dirty" tx descriptors.
+> I think that one is ok.
+>
+> I wonder about the one that removes zero. Why that interrupt happened.
+> Maybe it just happened while the previous interrupt was being handled.
+
+Ok, this is actually my fault. i misinterpreted the logs
+since I made them too complicated - they precede the interrupt instead of 
+follow. That means you were not seing 2 bits removed, then 0, but 
+1 bit removed - normal interrupt, then 2 bits removed with 1 interrupt.
+So the second case is not an issue.
+However, you say that 2 bits with 1 interrupt is fine...
+The logs show all timeouts occur after 1 interrupt clears 2 ownership bits,
+transmit stops and the queue fills up. What could possibly be causing this?
+
+> You don't print cur_tx and dirty_tx, but the slots they point to are
+> strange. You should check what they point to after the tx_timeout routine
+> has completed, they should both be 0 by then.
+
+strange? why?
+cur_tx points to the next free slot without ownership bit
+dirty_tx points to the first slot with ownership bit set 
+I checked both after timeout, they point to 0.
+
+/-----------------------/
+I'll provide whatever other logs are necessary.
+However, I am not sure what to look for.
+Additionally, my version of the driver has some stuff that's not in the 
+kernel driver. That's why I had listed it all in a previous message
+(see link above) to see what to keep and what to get rid of
+and then be able to debug an identical driver to the kernel.
+
+Particularly the abort code from the linuxfet driver
+seems to make my card stall a lot less or not at all
+when transfer is initiated from the same computer.
+The logs I generated last message showed a transfer
+initiated from the opposite end.
+
+
+
+

@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261520AbSJMNZN>; Sun, 13 Oct 2002 09:25:13 -0400
+	id <S261551AbSJMPh3>; Sun, 13 Oct 2002 11:37:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261521AbSJMNZN>; Sun, 13 Oct 2002 09:25:13 -0400
-Received: from inet-mail4.oracle.com ([148.87.2.204]:43736 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id <S261520AbSJMNZN>; Sun, 13 Oct 2002 09:25:13 -0400
-Message-ID: <7034136.1034515639605.JavaMail.nobody@web11.us.oracle.com>
-Date: Sun, 13 Oct 2002 05:27:19 -0800 (GMT-08:00)
-From: "ALESSANDRO.SUARDI" <ALESSANDRO.SUARDI@oracle.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.42: IrDA issues
-Cc: jt@hpl.hp.com
+	id <S261552AbSJMPh2>; Sun, 13 Oct 2002 11:37:28 -0400
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:6882 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S261551AbSJMPh2>; Sun, 13 Oct 2002 11:37:28 -0400
+Date: Sun, 13 Oct 2002 17:43:16 +0200
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BUG] Sleeping in illegal context
+Message-Id: <20021013174316.732c4298.us15@os.inf.tu-dresden.de>
+Organization: Disorganized
+X-Mailer: Sylpheed version 0.8.5claws (GTK+ 1.2.10; )
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-Mailer: Oracle Webmail Client
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.hlI?Wzlo4gFjdF"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a PPP over IrDA connection to my Nokia phone; under 2.4.20-preX I have no
- problem keeping the link up, while in 2.5.4x it fails in a very short time like this:
-
-Oct 13 01:13:13 dolphin kernel: IrLAP, no activity on link!
-Oct 13 01:13:11 dolphin kernel: NETDEV WATCHDOG: irda0: transmit timed out
-Oct 13 01:13:11 dolphin kernel: irda0: transmit timed out
-Oct 13 01:13:13 dolphin kernel: IrLAP, no activity on link!
-Oct 13 01:13:13 dolphin kernel: NETDEV WATCHDOG: irda0: transmit timed out
-Oct 13 01:13:13 dolphin kernel: irda0: transmit timed out
-Oct 13 01:13:13 dolphin pppd[5378]: Modem hangup
-Oct 13 01:13:13 dolphin pppd[5378]: Connection terminated.
-Oct 13 01:13:13 dolphin pppd[5378]: Connect time 1.8 minutes.
-Oct 13 01:13:13 dolphin pppd[5378]: Sent 19541 bytes, received 35933 bytes.
-Oct 13 01:13:13 dolphin pppd[5378]: Exit.
-
-I also get the transmit timed out spam (why one with WATCHDOG and one without ?)
- in 2.4.20-pre but the IrLAP line isn't there. And the GPRS link stays up...
+--=.hlI?Wzlo4gFjdF
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
 
-Thanks in advance for any insight,
+Hello,
 
---alessandro
+This turned up in 2.5.42-ac1.
+
+Debug: sleeping function called from illegal context at include/asm/semaphore.h:119
+Call Trace:
+ [<c02ad282>] usb_hub_events+0x72/0x3b0
+ [<c01155b3>] schedule+0x183/0x300
+ [<c011a864>] reparent_to_init+0xe4/0x180
+ [<c02ad5f5>] usb_hub_thread+0x35/0xf0
+ [<c0115790>] default_wake_function+0x0/0x40
+ [<c02ad5c0>] usb_hub_thread+0x0/0xf0
+ [<c0105601>] kernel_thread_helper+0x5/0x14
+
+Regards,
+-Udo.
+
+--=.hlI?Wzlo4gFjdF
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9qZSWnhRzXSM7nSkRAmL7AJ4+EGN5lDF31NMPRWtAjxTJ0a1RWgCfcI+x
+GeRP81gyy8Frdcdu5/wye0A=
+=GuIf
+-----END PGP SIGNATURE-----
+
+--=.hlI?Wzlo4gFjdF--

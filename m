@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129671AbRBFRwq>; Tue, 6 Feb 2001 12:52:46 -0500
+	id <S129586AbRBFRv4>; Tue, 6 Feb 2001 12:51:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129706AbRBFRwg>; Tue, 6 Feb 2001 12:52:36 -0500
-Received: from dsl-45-165.muscanet.com ([208.164.45.165]:53172 "EHLO grace")
-	by vger.kernel.org with ESMTP id <S129671AbRBFRwS>;
-	Tue, 6 Feb 2001 12:52:18 -0500
-Date: Tue, 6 Feb 2001 11:51:15 -0600 (CST)
-From: Josh Myer <jbm@joshisanerd.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: sync & asyck i/o
-In-Reply-To: <E14Q9U2-0005gX-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0102061147590.27615-100000@grace>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129671AbRBFRvq>; Tue, 6 Feb 2001 12:51:46 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:6660 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129586AbRBFRvd>;
+	Tue, 6 Feb 2001 12:51:33 -0500
+Message-ID: <20010206164049.L1412@bug.ucw.cz>
+Date: Tue, 6 Feb 2001 16:40:49 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: andrew.grover@intel.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Better battery info/status files
+In-Reply-To: <20010202155341.A149@bug.ucw.cz> <200102032322.f13NMZp438329@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <200102032322.f13NMZp438329@saturn.cs.uml.edu>; from Albert D. Cahalan on Sat, Feb 03, 2001 at 06:22:34PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi!
 
-On Tue, 6 Feb 2001, Alan Cox wrote:
-
-[snip]
-
-> In theory for a journalling file system it means the change is committed to the
-> log and the log to the media, and for other fs that the change is committed
-> to the final disk and recoverable by fsck worst case
+> > This fixes units, and makes format tag: value. Please apply.
 > 
-> In practice some IDE disks do write merging and small amounts of write
-> caching in the drive firmware so you cannot trust it 100%. In addition some
-> higher end controllers will store to battery backed memory caches which is
-> normally just fine since the reboot will play through the ram cache.
+> The units seem to vary. I suggest using fundamental SI units.
+> That would be meters, kilograms, seconds, and maybe a very
+> few others -- my memory fails me on this.
 > 
+> Power meter applets will be eternally buggy if you force them
+> to deal with units that change. In fact there is no reason to
+> print the units if you always use the fundamental units.
 
-Does this imply that in order to ensure my data hits the drives, i should
-do a warm reboot and then shut down from the lilo: prompt or similiar?
+Problem is that _hardware_ wants to talk us two different units.
 
-apologies to bug you with a simple question, but i can see other people
-worrying about data loss here too.
+Sometimes it wants to tell us watts.
 
---
-/jbm
+Sometimes hw wants to tell us volts and ampers.
 
+I believe kernel should not do any translation. [It is _not_ trivial
+-- if battery voltage changes with time.]
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,61 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280960AbRLIBJz>; Sat, 8 Dec 2001 20:09:55 -0500
+	id <S280978AbRLIBKZ>; Sat, 8 Dec 2001 20:10:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280961AbRLIBJh>; Sat, 8 Dec 2001 20:09:37 -0500
-Received: from web10001.mail.yahoo.com ([216.136.130.37]:16472 "HELO
-	web10001.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S280970AbRLIBJe>; Sat, 8 Dec 2001 20:09:34 -0500
-Message-ID: <20011209010933.64484.qmail@web10001.mail.yahoo.com>
-Date: Sun, 9 Dec 2001 01:09:33 +0000 (GMT)
-From: "=?iso-8859-1?q?Quim=20K.=20Holland?=" <qkholland@yahoo.com>
-Subject: Required Swap for recent 2.4 kernels?
-To: linux-kernel@vger.kernel.org
+	id <S280970AbRLIBKQ>; Sat, 8 Dec 2001 20:10:16 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:40203 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280961AbRLIBKH>; Sat, 8 Dec 2001 20:10:07 -0500
+Subject: Re: [PATCH] 2.4.16 kernel/printk.c (per processorinitializationcheck)
+To: davidm@hpl.hp.com
+Date: Sun, 9 Dec 2001 01:15:25 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        marcelo@conectiva.com.br (Marcelo Tosatti),
+        akpm@zip.com.au (Andrew Morton), j-nomura@ce.jp.nec.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <15378.46887.160213.680268@napali.hpl.hp.com> from "David Mosberger" at Dec 08, 2001 04:58:15 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16CsYv-0003QO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems that in early days of 2.4.x, the total
-usable VM used to be not close to sum of the
-physical RAM and swap.  Is this still true for
-post 2.4.10 kernels?
+>   Alan> So we make sure our initial console code doesnt need udelay(),
+>   Alan> or set an initial safe default like 25MHz
+> 
+> So someone is going to maintain a list of what a console driver can
+> and cannot do for all 12+ ports in existence?
+> 
+> The alternative is to do:
 
-Back in January 2001, in response to a question
-about ``recommended swap for 2.4.x'', Rik van Riel
-answered (quotes '>' are from the messagey by
-alex@foogod.com):
-
-   It has. We now leave dirty pages swapcached,
-   which means that for certain workloads Linux
-   2.4 eats up much more swap space than Linux
-   2.2.
-
-   On the other hand, if you almost never used
-   swap under Linux 2.2, you probably won't be
-   using it under 2.4 either.
-
-   > 2) Subtract the amount of RAM you have
-   >    (believe it or not, the more RAM you have,
-   >    the less swap you need.  Imagine that).
-
-   For Linux 2.4, it may be better to substract a
-   bit less, because of the issue above.
-
-   If you have a very swap-intensive workload, you
-   may end up with 90% of your memory being
-   "duplicated" in swap, in which case this rule
-   doesn't work.
-
-My understanding is that this answer is not
-applicable to post 2.4.10 kernels, but if so then
-would the total usable VM be <physical RAM> +
-<swap> - <kernel itself> - <kernel overhead that
-is not proportional to the VM workload>?
-
-
-________________________________________________________________
-Nokia 5510 looks weird sounds great. 
-Go to http://uk.promotions.yahoo.com/nokia/ discover and win it! 
-The competition ends 16 th of December 2001.
+And break the ability for non broken setups to debug SMP boot up. Lets do
+the job properly.

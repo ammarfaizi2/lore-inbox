@@ -1,73 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264855AbTFCJSt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 05:18:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264858AbTFCJSt
+	id S264843AbTFCJWH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 05:22:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264846AbTFCJWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 05:18:49 -0400
-Received: from ftp-xb.sasken.com ([164.164.56.3]:54723 "EHLO
-	sandesha.sasken.com") by vger.kernel.org with ESMTP id S264855AbTFCJSs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 05:18:48 -0400
-Date: Tue, 3 Jun 2003 15:06:42 +0530 (IST)
-From: Madhavi <madhavis@sasken.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: problem with VLAN tagged ICMP
-Message-ID: <Pine.LNX.4.33.0306031459280.10611-100000@pcz-madhavis.sasken.com>
-MIME-Version: 1.0
-Content-type: multipart/mixed; boundary="=_IS_MIME_Boundary"
+	Tue, 3 Jun 2003 05:22:07 -0400
+Received: from pangsit.kjoe.net ([145.98.147.119]:37761 "EHLO pangsit.kjoe.net")
+	by vger.kernel.org with ESMTP id S264843AbTFCJWG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 05:22:06 -0400
+Date: Tue, 3 Jun 2003 11:35:28 +0200
+To: Arne Koewing <ark@gmx.net>
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: Re: [patch] Synaptics touchpad with Trackpoint needs ps/2 reset
+Message-ID: <20030603093528.GI1214@surfnet.nl>
+References: <87r88uv7hf.fsf@localhost.i-did-not-set--mail-host-address--so-tickle-me> <20030326092018.GA6733@pangsit>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030326092018.GA6733@pangsit>
+X-Mailer: Mutt on Debian GNU/Linux sid
+X-Editor: vim
+X-Organisation: SURFnet bv
+X-Address: Radboudburcht, P.O. Box 19035, 3501 DA Utrecht, NL
+X-Phone: +31 302 305 305
+X-Telefax: +31 302 305 329
+User-Agent: Mutt/1.5.4i
+From: Niels den Otter <otter@surfnet.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=_IS_MIME_Boundary
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Hi Arne,
+
+On Wednesday, 26 March 2003, Niels den Otter wrote:
+> On Tuesday, 25 March 2003, Arne Koewing wrote:
+> > I recently posted this to linux-kernel (with a different subject) I
+> > had included a wrong ptch there, i think this one is ok.
+> > 
+> > As some people before I had the 'Dell trackpoint does not work'
+> > problem after upgrading to 2.5.XX:
+> > That was:
+> >      
+> > the trackpoint of your dell won't work until:
+> >     - hibernate and wake up the system again
+> >     - plug in an external mouse (you may remove it immediately)
+> > 
+> > it seems that dells hardware is disabling the trackpoint if you probed
+> > for the touchpad.  A device reset after probing does help, but I've no
+> > idea how this would affect other synaptics touchpad devices although I
+> > think most devices will not complain about one extra reset.
+> 
+> Thanks for making this patch available! It works really great for me
+> on my Dell Latitude C400. After a fresh boot of the Linux kernel both
+> the trackpoint and the touchpad now both work.
+
+I found that your patch has not found it's way to the 2.5 tree yet. Do
+you know the status of this? I still patch all my new kernels with your
+patch.
 
 
-Hi
+Kind regards,
 
-I am writing a device driver that can send VLAN Tagged packets on
-linux-2.4.19. I have written a function mydev_hard_header() and assigned
-dev->hard_header to mydev_hard_header.
-
-The function mydev_hard_header() creates ethernet header + VLAN header, if
-the packet is not already tagged.
-
-When I tried ping on this device, I am seeing that the first 6-7 packets
-are tagged and later, they are all going untagged. mydev_hard_header()
-function is also not being called for these packets. I have also confirmed
-that the control is not going to mydev_rebuild_hard_header() function.
-
-ARP packets are always getting tagged. This problem is seen only with ICMP.
-
-Any guesses why this could be happening? Could there be any cache-related
-issues?
-
-Thanks & regards
-Madhavi.
-
-Madhavi Suram
-Software Engineer
-Customer Delivery / Networks
-Sasken Communication Technologies Limited
-139/25, Ring Road, Domlur
-Bangalore - 560071 India
-Email: madhavis@sasken.com
-Tel: + 91 80 5355501 Extn: 8062
-Fax: + 91 80 5351133
-URL: www.sasken.com
-
-
---=_IS_MIME_Boundary
-Content-Type: text/plain;charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-************************************************************************
-
-SASKEN BUSINESS DISCLAIMER
-
-This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email.
-
-***********************************************************************
-
---=_IS_MIME_Boundary--
+Niels

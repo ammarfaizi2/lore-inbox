@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268086AbUJLXi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268089AbUJLXnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268086AbUJLXi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 19:38:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268089AbUJLXi0
+	id S268089AbUJLXnE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 19:43:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268092AbUJLXnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 19:38:26 -0400
-Received: from gw02.applegatebroadband.net ([207.55.227.2]:37879 "EHLO
-	data.mvista.com") by vger.kernel.org with ESMTP id S268086AbUJLXfZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 19:35:25 -0400
-Message-ID: <416C6A33.6030202@mvista.com>
-Date: Tue, 12 Oct 2004 16:35:15 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: question about linux time change
-References: <4165AFBC.8010605@nortelnetworks.com>
-In-Reply-To: <4165AFBC.8010605@nortelnetworks.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 12 Oct 2004 19:43:04 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:15783 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268089AbUJLXnB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 19:43:01 -0400
+Subject: Re: [Ext-rt-dev] Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+From: Lee Revell <rlrevell@joe-job.com>
+To: Adam Heath <doogie@debian.org>
+Cc: Bill Huey <bhuey@lnxw.com>, Sven Dietrich <sdietrich@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, dwalker@mvista.com,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       amakarov@ru.mvista.com, ext-rt-dev@mvista.com,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0410121815420.1211@gradall.private.brainfood.com>
+References: <20041012211201.GA28590@nietzsche.lynx.com>
+	 <EOEGJOIIAIGENMKBPIAEGEJGDKAA.sdietrich@mvista.com>
+	 <20041012225706.GC30966@nietzsche.lynx.com>
+	 <Pine.LNX.4.58.0410121815420.1211@gradall.private.brainfood.com>
+Content-Type: text/plain
+Message-Id: <1097624193.1553.112.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 12 Oct 2004 19:36:34 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen wrote:
+On Tue, 2004-10-12 at 19:17, Adam Heath wrote:
+> This is because companies and inviduals still think that developing things
+> privately is the correct way to go.  Doing things this way will leave
+> open the possibility that someone else will do the same bit of work, and
+> the final output will clash.
 > 
-> I have been asked to add the ability to notify userspace when the time 
-> of day changes.  The actual notification is the easy part.  I'm having 
-> issues with where exactly the time is really changed.
+> Remember, release early, release often.
 
-Just what sort of time changes do you want to notify on?  The ntp code "drifts" 
-time a lot.  Do you want to know about this?  If it is only cases where there is 
-a jump in time, you might do well to look at "clock_was_set()".  It is in 
-kernel/posix-timers.c and is called when ever do_settimeofday() is called AND on 
-leap second calls.
+Except that none of the parties involved claim to have solved all the
+priority inheritance issues etc.  "Releasing early" if it doesn't work
+yet just makes you look bad.  There are perfectly valid reasons to do
+kernel development privately.  MontaVista was doing just that and they
+saw that some of their work may be duplicated so they released it.  I
+don't see how this conflicts with the open source development process at
+all.
 
-You will even find code in there to push the ladder out of the softirq context.
-> 
-> do_settimeofday() is pretty straightforward.  No problems there.
-> adjtimex() with ADJ_OFFSET_SINGLESHOT mode seems reasonable as well.
-> 
-> adjtimex() with ADJ_OFFSET is a bit harder to follow.  Can you give me 
-> any pointers on what's going on with ADJ_OFFSET?
-
-> 
-> Thanks,
-> 
-> Chris
-> 
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+Lee
 

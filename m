@@ -1,108 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262702AbUCJQxV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 11:53:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262698AbUCJQxU
+	id S262716AbUCJQ4a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 11:56:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbUCJQ4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 11:53:20 -0500
-Received: from knight-linux.rlknight.com ([64.165.88.6]:35332 "EHLO
-	knight-linux.rlknight.com") by vger.kernel.org with ESMTP
-	id S262706AbUCJQxR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 11:53:17 -0500
-Message-ID: <404F4805.4060108@rlknight.com>
-Date: Wed, 10 Mar 2004 08:53:25 -0800
-From: Rick Knight <rick@rlknight.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Dummy network device
-References: <20040309162552.0d7f1ca0.rddunlap@osdl.org> <20040309212221.766479dc.rddunlap@osdl.org>
-In-Reply-To: <20040309212221.766479dc.rddunlap@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Mar 2004 11:56:30 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:10255 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262721AbUCJQ4W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 11:56:22 -0500
+Date: Wed, 10 Mar 2004 16:55:48 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: jt@hpl.hp.com
+Cc: "David S. Miller" <davem@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       netdev@oss.sgi.com,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6] Intersil Prism54 wireless driver
+Message-ID: <20040310165548.A24693@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, jt@hpl.hp.com,
+	"David S. Miller" <davem@redhat.com>,
+	Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20040304023524.GA19453@bougret.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040304023524.GA19453@bougret.hpl.hp.com>; from jt@bougret.hpl.hp.com on Wed, Mar 03, 2004 at 06:35:24PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
+On Wed, Mar 03, 2004 at 06:35:24PM -0800, Jean Tourrilhes wrote:
+> 	Hi Dave & Jeff,
+> 
+> 	The attached .bz2 file is a patch for 2.6.3 adding the
+> Intersil Prism54 wireless driver. Sorry for the attachement, the file
+> is rather big, if you want inline+plaintext, I'll send that personal
+> to you.
+> 	I've been using this driver with great success on 2.6.3 and
+> 2.6.4-rc1 (SMP). This driver support various popular CardBus and PCI
+> 802.11g cards (54 Mb/s) based on the Intersil PrismGT/PrismDuette
+> chipset.
+> 	I would like this driver to go into 2.6.X. However, I
+> understand that it's lot's of code to review.
 
->| From: Rick Knight
->| 
->| David S. Miller wrote:
->| 
->| >On Tue, 09 Mar 2004 15:11:48 -0800
->| >Rick Knight <rick@rlknight.com> wrote:
->| >
->| >  
->| >
->| >>I found the answer. From the archive. Decided to look at dummy.c and 
->| >>numdummies=1, changed it to numdummies=3 and rebuilt that module. Works 
->| >>like a charm.
->| >>
->| >>Question/Suggestion, couldn't this be made an option at configuration? 
->| >>Kind of like number_of_ptys=256.
->| >>    
->| >>
->| >
->| >Specify "numdummies=3" on the module load command line.
->| >  
->| >
->| >It's supposed to be changeable at module load time, without
->| >rebuilding it.  Try this e.g.:
->| >
->| >modprobe dummy numdummies=4
->| >
->| >--
->| >~Randy
->| >  
->| >
->| Randy, David,
->| 
->| Thanks for the replies.
->| 
->| I did try 'modprobe dummy numdummies=3', however, I didn't quote 
->| numdummies=3. Are the quote required? Is there a modprobe.conf option? 
->| Probably "options dummy "numdummies=3".
->
->No, the quotes are not required.  This works for me:
->modprobe dummy numdummies=3
->
->Using /etc/modprobe.conf also works, as you suggested, but without
->the quotation marks:
->options dummy numdummies=3
->
->Either way shows this in /proc/net/dev:
->
->dummy0:       0       0    0    0    0     0          0         0        0
-> 0    0    0    0     0       0          0
->dummy1:       0       0    0    0    0     0          0         0        0
-> 0    0    0    0     0       0          0
->dummy2:       0       0    0    0    0     0          0         0        0
-> 0    0    0    0     0       0          0
->
->
->HTH.
->--
->~Randy
->  
->
-Randy,
+Here's a few things I found.  It's not exactly a full review, there's
+too much new snow to spend lots of time in front of a computer here :)
 
-I did try 'modprobe dummy numdummies=3' and I didn't work. I got an 
-error and the following showed up in /var/log/messages...
+diff -Naur -X /home/mcgrof/lib/dontdiff linux-2.6.3/drivers/net/wireless/prism54/Makefile linux-2.6.3-prism54/drivers/net/wireless/prism54/Makefile
+--- linux-2.6.3/drivers/net/wireless/prism54/Makefile	Thu Jan  1 00:00:00 1970
++++ linux-2.6.3-prism54/drivers/net/wireless/prism54/Makefile	Thu Mar  4 02:00:01 2004
+@@ -0,0 +1,10 @@
++# $Id: Makefile.k26,v 1.7 2004/01/30 16:24:00 ajfa Exp $
++
++prism54-objs := islpci_eth.o islpci_mgt.o \
++                isl_38xx.o isl_ioctl.o islpci_dev.o \
++		islpci_hotplug.o isl_wds.o oid_mgt.o
 
-Mar  9 14:42:33 l43w2k021 modprobe: FATAL: Error inserting dummy 
-(/lib/modules/2.6.3/kernel/drivers/net/dummy.ko): Unknown symbol in 
-module, or unknown parameter (see dmesg)
+	please use foo-y for new drivers.
 
-Now it works and I get no error message. I tried numdummies= on another 
-similarly configured machine and it worked first time. So maybe the 
-error message above was caused by a typo when I tried it the first time
++
++obj-$(CONFIG_PRISM54) += prism54.o
++
++EXTRA_CFLAGS = -I$(PWD) #-DCONFIG_PRISM54_WDS
 
-Anyway, numdummies= does work as you said.
+	This is bogus, especially with srcdir != objdir.
+	please fixup the includes instead
 
-Thanks,
-Rick Knight
-(rick@rlknight.com)
++#define __KERNEL_SYSCALLS__
+
+	this shouldn't be used anymore.
+
++
++#include <linux/version.h>
++#include <linux/module.h>
++#include <linux/types.h>
++#include <linux/delay.h>
++
++#include "isl_38xx.h"
++#include <linux/firmware.h>
++
++#include <asm/uaccess.h>
++#include <asm/io.h>
+
+	Please include headers in the following order <linux/*.h>,
+	<asm/*.h>, driver-specific.
+
++#if (LINUX_VERSION_CODE > KERNEL_VERSION(2,5,75))
++#include <linux/device.h>
++# define _REQ_FW_DEV_T struct device *
++#else
++# define _REQ_FW_DEV_T char *
++#endif
+
+	Eeek, why don't you simply pass the pci_dev down?
+
+
++typedef struct isl38xx_cb isl38xx_control_block;
+
+	No useless typedefs please.
+
++MODULE_PARM(init_mode, "i");
++MODULE_PARM_DESC(init_mode,
++		 "Set card mode:\n0: Auto\n1: Ad-Hoc\n2: Managed Client (Default)\n3: Master / Access Point\n4: Repeater (Not supported yet)\n5: Secondary (Not supported yet)\n6: Monitor");
+
+	Please use module_param
+
+diff -Naur -X /home/mcgrof/lib/dontdiff linux-2.6.3/drivers/net/wireless/prism54/isl_wds.c linux-2.6.3-prism54/drivers/net/wireless/prism54/isl_wds.c
+--- linux-2.6.3/drivers/net/wireless/prism54/isl_wds.c	Thu Jan  1 00:00:00 1970
++++ linux-2.6.3-prism54/drivers/net/wireless/prism54/isl_wds.c	Thu Mar  4 02:00:01 2004
+
+	WDS doesn't belong into a driver but in higher-level code.
 

@@ -1,54 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261829AbULCArM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262463AbULCAw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261829AbULCArM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 19:47:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbULCArM
+	id S262463AbULCAw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 19:52:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbULCAw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 19:47:12 -0500
-Received: from fw.osdl.org ([65.172.181.6]:28558 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261829AbULCAqD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 19:46:03 -0500
-Date: Thu, 2 Dec 2004 16:45:59 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Zoltan NAGY <nagyz@nefty.hu>
-Cc: linux-kernel@vger.kernel.org, bridge@osdl.org
-Subject: Re: IPv6 bridging
-Message-Id: <20041202164559.429d90e8@dxpl.pdx.osdl.net>
-In-Reply-To: <41AF57D7.10608@nefty.hu>
-References: <41AF57D7.10608@nefty.hu>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; x86_64-suse-linux)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Dec 2004 19:52:58 -0500
+Received: from mta10.srv.hcvlny.cv.net ([167.206.5.85]:64254 "EHLO
+	mta10.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S262317AbULCAwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 19:52:51 -0500
+Date: Thu, 02 Dec 2004 19:52:50 -0500
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: [Patch 2.6] Use proper documentation path
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: trivial@rustcorp.com.au, akpm@osdl.org, axboe@suse.de,
+       piggin@cyberone.com.au
+Message-id: <20041203005250.GA9185@optonline.net>
+MIME-version: 1.0
+Content-type: multipart/signed; boundary="tThc/1wpZn/ma/RB";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+Content-disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 02 Dec 2004 18:58:47 +0100
-Zoltan NAGY <nagyz@nefty.hu> wrote:
 
-> Hello!
-> 
-> Is it possible to bridge ip tunnels (IPv6 in IPv4)? brctl gives me an 
-> error "Invalid argument",
-> and from strace it seems it misses some ioctls from kernel...
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-That is because the bridge code works at the Ethernet level.
-It is an 802 Ethernet bridge, not an IP tunnel.
+Use proper documentation path
+
+Signed-off-by: Josef "Jeff" Sipek <jeffpc@optonline.net>
 
 
-> any ideas?
-> 
-> I need it to be able to give my UMLs a public ipv6 address.
-> 
-> Regrads,
-> 
-> Zoltan NAGY,
-> Software Engineer
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+diff -Nru a/drivers/block/as-iosched.c b/drivers/block/as-iosched.c
+--- a/drivers/block/as-iosched.c	2004-12-02 19:45:45 -05:00
++++ b/drivers/block/as-iosched.c	2004-12-02 19:45:45 -05:00
+@@ -25,7 +25,7 @@
+ #define REQ_ASYNC	0
+=20
+ /*
+- * See Documentation/as-iosched.txt
++ * See Documentation/block/as-iosched.txt
+  */
+=20
+ /*
+diff -Nru a/drivers/block/deadline-iosched.c b/drivers/block/deadline-iosch=
+ed.c
+--- a/drivers/block/deadline-iosched.c	2004-12-02 19:45:45 -05:00
++++ b/drivers/block/deadline-iosched.c	2004-12-02 19:45:45 -05:00
+@@ -19,7 +19,7 @@
+ #include <linux/rbtree.h>
+=20
+ /*
+- * See Documentation/deadline-iosched.txt
++ * See Documentation/block/deadline-iosched.txt
+  */
+ static int read_expire =3D HZ / 2;  /* max time before a read is submitted=
+=2E */
+ static int write_expire =3D 5 * HZ; /* ditto for writes, these limits are =
+SOFT! */
+
+
+--tThc/1wpZn/ma/RB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBr7jiwFP0+seVj/4RAj4CAJwI/bwWdNwGmVQLqeZd123csovrNwCgjx6Z
+CYyr7SfsCTNoUm86744NjBU=
+=pUBM
+-----END PGP SIGNATURE-----
+
+--tThc/1wpZn/ma/RB--

@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265878AbUFDQEC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263975AbUFDQIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265878AbUFDQEC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 12:04:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265875AbUFDQEB
+	id S263975AbUFDQIa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 12:08:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265848AbUFDQI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 12:04:01 -0400
-Received: from fw.osdl.org ([65.172.181.6]:57230 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265874AbUFDQCn (ORCPT
+	Fri, 4 Jun 2004 12:08:29 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:1700 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263975AbUFDQFU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 12:02:43 -0400
-Date: Fri, 4 Jun 2004 09:02:26 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: Andy Lutomirski <luto@myrealbox.com>, Ingo Molnar <mingo@elte.hu>,
-       Andi Kleen <ak@suse.de>,
+	Fri, 4 Jun 2004 12:05:20 -0400
+Date: Fri, 4 Jun 2004 18:06:28 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andy Lutomirski <luto@myrealbox.com>, Andi Kleen <ak@suse.de>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, suresh.b.siddha@intel.com,
-       jun.nakajima@intel.com
+       Andrew Morton <akpm@osdl.org>, arjanv@redhat.com,
+       suresh.b.siddha@intel.com, jun.nakajima@intel.com
 Subject: Re: [announce] [patch] NX (No eXecute) support for x86,   2.6.7-rc2-bk2
-In-Reply-To: <20040604155138.GG16897@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.58.0406040856100.7010@ppc970.osdl.org>
-References: <20040602205025.GA21555@elte.hu> <20040603230834.GF868@wotan.suse.de>
- <20040604092552.GA11034@elte.hu> <200406040826.15427.luto@myrealbox.com>
- <Pine.LNX.4.58.0406040830200.7010@ppc970.osdl.org>
- <20040604154142.GF16897@devserv.devel.redhat.com>
- <Pine.LNX.4.58.0406040843240.7010@ppc970.osdl.org>
- <20040604155138.GG16897@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20040604160628.GA32375@elte.hu>
+References: <20040602205025.GA21555@elte.hu> <20040603230834.GF868@wotan.suse.de> <20040604092552.GA11034@elte.hu> <200406040826.15427.luto@myrealbox.com> <Pine.LNX.4.58.0406040830200.7010@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0406040830200.7010@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+* Linus Torvalds <torvalds@osdl.org> wrote:
 
-On Fri, 4 Jun 2004, Arjan van de Ven wrote:
-> 
-> I know that in a FC1 full install there are less than 5 binaries that don't
-> run with NX. (one uses nested functions in C and passes function pointers to
-> the inner function around which causes gcc to emit a stack trampoline, and
-> gcc then marks the binary as non-NX, the others have asm in them that we
-> didn't fix in time to be properly marked).
+> I think we should just look at the executable itself, not whether it
+> is suid. If the executable says it is "NX-approved", then it's
+> NX-approved.  End of story - just try to make sure that as many
+> executables as possible get compiled with the newer compiler suite
+> that enables it.
 
-If things are really that good, why are we even worrying about this?
+right now the 'x' bit in the PT_GNU_STACK ELF program header has the
+narrow meaning of specifcing the stack's executability. How should we
+handle the brk area's executability? A good portion of recent attacks
+came over heap overflows.
 
-It sounds like we should just have NX on by default even for executables
-that don't have any NX info records, and have some way of marking the
-(very few) executables that don't want it. Maybe have the NX fault print a
-warning when it happens for an executable that defaulted to NX on.
+we could use the following 3 values:
 
-I think most people have seen the security disaster that causes most of
-the emails on the net to be spam. So this should be _trivial_ to explain
-to people when they complain about default behaviour breaking their
-strange legacy app. Especially if there's a trivial tool to add an elf
-section to make it work again.
+ PT_GNU_STACK not present: legacy app, stack and heap executable
+ PT_GNU_STACK present but !X: heap non-executable, stack executable
+ PT_GNU_STACK present and X: both heap and stack are executable.
 
-So instead of having complex things to try to turn NX on for suid, we 
-should aim to turn ot on as widely as possible, _even_if_ that means that 
-people who upgrade hardware might have to do some trivial MIS stuff.
+this method is what is used in Fedora and it works pretty well.
 
-Make a kernel bootup option to default to legacy mode if somebody
-literally has trouble booting and fixing their thing due to "init" or
-similar being one of the problematic cases. Together with a printk() that 
-says which executable triggered, it should be trivial to clean up a 
-system.
+(in fact Fedora also does VM-layout changes to get more brk/mmap space
+on x86 and to put executable code close to each other - this too is
+turned off if PT_GNU_STACK is not present.)
 
-No?
-
-		Linus
+	Ingo

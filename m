@@ -1,87 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265251AbUAJQ6g (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 11:58:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbUAJQ6g
+	id S265265AbUAJRAx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 12:00:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbUAJRAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 11:58:36 -0500
-Received: from gprs214-70.eurotel.cz ([160.218.214.70]:55168 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265251AbUAJQ6d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 11:58:33 -0500
-Date: Sat, 10 Jan 2004 17:59:31 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, perex@suse.cz,
-       alsa-devel@alsa-project.org
-Subject: 2.6.1 sound oops
-Message-ID: <20040110165754.GB367@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Sat, 10 Jan 2004 12:00:51 -0500
+Received: from 217-162-71-11.dclient.hispeed.ch ([217.162.71.11]:33665 "EHLO
+	steudten.com") by vger.kernel.org with ESMTP id S265256AbUAJRAe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 12:00:34 -0500
+Message-ID: <40002F69.9020302@steudten.com>
+Date: Sat, 10 Jan 2004 17:59:21 +0100
+From: Thomas Steudten <alpha@steudten.com>
+Organization: STEUDTEN ENGINEERING
+MIME-Version: 1.0
+To: Thomas Steudten <alpha@steudten.com>
+CC: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>,
+       Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, linux-alpha@vger.kernel.org, akpm@osdl.org
+Subject: BUG: Kernel Panic: kernel-2.6.1 for alpha in scsi context ll_rw_blk.c
+References: <3FB92938.8040906@steudten.com> <87r806d6n6.fsf@student.uni-tuebingen.de> <3FB93EF6.807@steudten.com> <87islid5tq.fsf@student.uni-tuebingen.de> <20031118021922.A7816@den.park.msu.ru> <3FBA8F20.3050701@steudten.com>
+In-Reply-To: <3FBA8F20.3050701@steudten.com>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mailer
+X-Authenticated-Sender: user thomas from 192.168.1.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello
 
-I got following when trying to play video on 2.6.1... I remmber
-similar oops in past. Any ideas?
+I test the new 2.6.1 kernel and run in the same problem as before.
+The reason is, that the patch from Ivan isn´t there in the kernel
+source tree.
 
-Jan 10 17:50:37 amd kernel: Unable to handle kernel paging request at virtual address d1917000
-Jan 10 17:50:37 amd kernel:  printing eip:
-Jan 10 17:50:37 amd kernel: c03497ff
-Jan 10 17:50:37 amd kernel: *pde = 0fdf1067
-Jan 10 17:50:37 amd kernel: *pte = 00000000
-Jan 10 17:50:37 amd kernel: Oops: 0000 [#1]
-Jan 10 17:50:37 amd kernel: CPU:    0
-Jan 10 17:50:37 amd kernel: EIP:    0060:[<c03497ff>]    Not tainted
-Jan 10 17:50:37 amd kernel: EFLAGS: 00210202
-Jan 10 17:50:37 amd kernel: EIP is at resample_expand+0x2ff/0x340
-Jan 10 17:50:37 amd kernel: eax: c03497ff   ebx: 00000000   ecx: d1919166   edx: 00000000
-Jan 10 17:50:37 amd kernel: esi: c6a0cef0   edi: c6a0cf10   ebp: d1916ffe   esp: c3497e74
-Jan 10 17:50:37 amd kernel: ds: 007b   es: 007b   ss: 0068
-Jan 10 17:50:37 amd kernel: Process vlc (pid: 1024, threadinfo=c3496000 task=c477ccc0)
-Jan 10 17:50:37 amd kernel: Stack: c3490000 00000002 c54c2c00 ffffffff c0349771 c03497ff 00000000 00000004
-Jan 10 17:50:37 amd kernel:        00000004 00000001 00000000 000003ee 0000045a 00000400 c6a0ce80 cf9822c0
-Jan 10 17:50:37 amd kernel:        c0349d00 c6a0ce80 cf9824c0 cf9822c0 00000400 0000045a c6a0ce80 cf9824c0
-Jan 10 17:50:37 amd kernel: Call Trace:
-Jan 10 17:50:37 amd kernel:  [<c0349771>] resample_expand+0x271/0x340
-Jan 10 17:50:37 amd kernel:  [<c03497ff>] resample_expand+0x2ff/0x340
-Jan 10 17:50:37 amd kernel:  [<c0349d00>] rate_transfer+0x40/0x50
-Jan 10 17:50:37 amd kernel:  [<c0347151>] snd_pcm_plug_write_transfer+0x81/0xf0
-Jan 10 17:50:37 amd kernel:  [<c0342e67>] snd_pcm_oss_write2+0xc7/0x130
-Jan 10 17:50:37 amd kernel:  [<c03430b8>] snd_pcm_oss_write1+0x1e8/0x220
-Jan 10 17:50:37 amd kernel:  [<c0345217>] snd_pcm_oss_write+0x37/0x70
-Jan 10 17:50:37 amd kernel:  [<c014edbc>] vfs_write+0x9c/0x100
-Jan 10 17:50:37 amd kernel:  [<c014ee9d>] sys_write+0x2d/0x50
-Jan 10 17:50:37 amd kernel:  [<c0109047>] syscall_call+0x7/0xb
-Jan 10 17:50:37 amd kernel:
-Jan 10 17:50:37 amd kernel: Code: 8b 45 00 e9 76 fe ff ff 8a 45 00 83 f0 80 89 c2 c1 e2 08 eb
+Please add the patch to the mainline.
 
-pavel@amd:~$ lspci
-00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 3188 (rev 01)
-00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device b188
-00:0a.0 CardBus bridge: ENE Technology Inc CB1410 Cardbus Controller
-00:0c.0 Network controller: Broadcom Corporation BCM94306 802.11g (rev 02)
-00:10.0 USB Controller: VIA Technologies, Inc. USB (rev 80)
-00:10.1 USB Controller: VIA Technologies, Inc. USB (rev 80)
-00:10.2 USB Controller: VIA Technologies, Inc. USB (rev 80)
-00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
-00:11.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06)
-00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235 AC97 Audio Controller (rev 50)
-00:11.6 Communication controller: VIA Technologies, Inc. Intel 537 [AC97 Modem] (rev 80)
-00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 74)
-00:13.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 80)
-00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-01:00.0 VGA compatible controller: ATI Technologies Inc Radeon R250 Lf [Radeon Mobility 9000 M9] (rev 02)
+Tom
 
+Thomas Steudten wrote:
 
-						Pavel
+> Hi
+> 
+> With the patch from Ivan, the prefetch problem is gone.
+> Please add this patch to the mainline for 2.6.0 for alpha.
+> 
+> Regards
+> Tom
+> 
+>> We shouldn't prefetch the spinlocks on UP.
+>>
+>> Ivan.
+>>
+>> --- 2.6/include/asm-alpha/processor.h    Sat Oct 25 22:44:54 2003
+>> +++ linux/include/asm-alpha/processor.h    Tue Nov 18 01:48:39 2003
+>> @@ -78,6 +78,11 @@ unsigned long get_wchan(struct task_stru
+>>  #define ARCH_HAS_PREFETCHW
+>>  #define ARCH_HAS_SPINLOCK_PREFETCH
+>>  
+>> +#ifndef CONFIG_SMP
+>> +/* Nothing to prefetch. */
+>> +#define spin_lock_prefetch(lock)      do { } while (0)
+>> +#endif
+>> +
+>>  #if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1)
+>>  extern inline void prefetch(const void *ptr)   { @@ -89,10 +94,13 @@ 
+>> extern inline void prefetchw(const void      __builtin_prefetch(ptr, 
+>> 1, 3);
+>>  }
+>>  
+>> +#ifdef CONFIG_SMP
+>>  extern inline void spin_lock_prefetch(const void *ptr)   {
+>>      __builtin_prefetch(ptr, 1, 3);
+>>  }
+>> +#endif
+>> +
+>>  #else
+>>  extern inline void prefetch(const void *ptr)   { @@ -104,10 +112,13 
+>> @@ extern inline void prefetchw(const void      __asm__ ("ldq $31,%0" 
+>> : : "m"(*(char *)ptr));  }
+>>  
+>> +#ifdef CONFIG_SMP
+>>  extern inline void spin_lock_prefetch(const void *ptr)   {
+>>      __asm__ ("ldq $31,%0" : : "m"(*(char *)ptr));  }
+>> +#endif
+>> +
+>>  #endif /* GCC 3.1 */
+>>  
+>>  #endif /* __ASM_ALPHA_PROCESSOR_H */
+> 
+> 
+
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Tom
+
+LINUX user since kernel 0.99.x 1994.
+RPM Alpha packages at http://alpha.steudten.com/packages
+Want to know what S.u.S.E 1995 cdrom-set contains?
+
+

@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292958AbSCAM4M>; Fri, 1 Mar 2002 07:56:12 -0500
+	id <S293226AbSCANIr>; Fri, 1 Mar 2002 08:08:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293226AbSCAM4C>; Fri, 1 Mar 2002 07:56:02 -0500
-Received: from ns.suse.de ([213.95.15.193]:54791 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S293214AbSCAMzt>;
-	Fri, 1 Mar 2002 07:55:49 -0500
-Date: Fri, 1 Mar 2002 13:55:48 +0100
-From: Dave Jones <davej@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, Paul Gortmaker <p_gortmaker@yahoo.com>,
-        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bluesmoke/MCE support optional
-Message-ID: <20020301135547.F7662@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Mike Fedyk <mfedyk@matchmail.com>,
-	Paul Gortmaker <p_gortmaker@yahoo.com>, marcelo@conectiva.com.br,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020301024710.GF2711@matchmail.com> <E16gmBy-0003V5-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16gmBy-0003V5-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Mar 01, 2002 at 12:31:18PM +0000
+	id <S293214AbSCANI2>; Fri, 1 Mar 2002 08:08:28 -0500
+Received: from www.ms-itti.com.pl ([217.8.167.50]:17157 "HELO
+	smtp.ms-itti.com.pl") by vger.kernel.org with SMTP
+	id <S292988AbSCANIU>; Fri, 1 Mar 2002 08:08:20 -0500
+From: Marcin Gogolewski <marcing@ms-itti.com.pl>
+Organization: Mobile Solutions -ITTI
+To: linux-kernel@vger.kernel.org
+Subject: Ops in Sched
+Date: Fri, 1 Mar 2002 14:08:38 +0100
+X-Mailer: KMail [version 1.3.2]
+X-Sun-Data-Name: text
+X-Sun-Data-Description: text
+X-Sun-Data-Type: postscript-file
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_EUPAZ8K68WUJKHR7FXXS"
+Message-Id: <20020301130827Z292988-889+115853@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 01, 2002 at 12:31:18PM +0000, Alan Cox wrote:
- > > > +  ranging from a warning message on the console, to halting the machine.
- > > > +  Your processor must be a Pentium or newer to support this - check the 
- > > > +  flags in /proc/cpuinfo for mce.  Note that some older Pentium systems
- > > > +  have a design flaw which leads to false MCE events - for these and
- > > > +  old non-MCE processors (386, 486), say N.  Otherwise say Y.
- > 
- > Its not necessary to say N. On a pentium box with the newer MCE setup code
- > you must force MCE on. On non MCE capable CPU's we just dont set it up.
 
- The help text should probably document the nomce boot option too.
+--------------Boundary-00=_EUPAZ8K68WUJKHR7FXXS
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8bit
 
- btw, anyone else posting in this thread getting crap like..
- http://www.codemonkey.org.uk/duhhh.txt  ?
- I've got them from two different threads now, which is starting
- to get annoying.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+I hav to send it as attachement because of virus alert.
+			Marcin
+--------------Boundary-00=_EUPAZ8K68WUJKHR7FXXS
+Content-Type: application/x-gzip;
+  name="ops.txt.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="ops.txt.gz"
+
+H4sICPJ8fzwAA29wcy50eHQAZVNdb9owFH33r7h9mAYSRc4nqdchdahro3YbEu1ThSZjO8Ui2Fls
+Wtiv33WCWNdJeTi5H+ce2/eQEtb8RcHi4T6GLRdrbdQIdAUlCLttdK1go1qjahjE43QcFUN41X4N
+V7N5iTXP1jPyNB6PlzBAJtso8GvtAL8fdyMseG21V6A9SPtqoGrtFrbWaG9b+HQ+hCEJRAxmtkUN
+u5U7OK+28KJap62Bp5jSKKJRsSQLsVZyV2vzDNrg51Xb7hpPjuq+PN4A9+CwiGV5fka0eeG1loCS
+Wm4kmc0fGSXX5ZwhJWVPlwKZJ1maT5fw3XrwPHBKcv31/upmwYCGsrjIieJ7/NtHOahVhygosWeC
+xjKe5CkouUdKSuO0oEQ5zapKVikGMKOP9auGQTWRVVZJbHAN638uBCHSBUEFRsNMBK4PkHlrhXIO
+Ns5WXre/fuIJ6KDRkiUjcJ6LTcOf1eeOCacNySLEGKCwi6hQcTgBqkryHgRB7wAOEzSJOxBoOtF4
+LXGU55Scik+pnjB9Q3hK/Vtz4hE8+svT3WgVUnEUJRUXb4uTjCJB6KLZJM/f8axWlMx4XcNDy4Xq
+H69TOV0eMU464q7/FMfO6ZLMrFSMVkBXkOWQKSgQZPiOAaQcIgQZiAuYFJBgNoJEAk2hSCGJUQK5
+pFO46zet4UYLBldaoVE2uj6u5HEf0U1G1qo9I6X5PwrnYHDX3MEI7OqNQ4Kf7M73lvJrhU7Qznz0
+wM0BmtauarUdvXEdrv8gFGqzGUJGP4RlaL0bE/LtAL2BGE73qLVzddcZ7+dlWUIEN7e/gy8FN6CM
+qK1TIBUuf+1gUItG6BEoL8bDPyuilisZBAAA
+
+--------------Boundary-00=_EUPAZ8K68WUJKHR7FXXS--

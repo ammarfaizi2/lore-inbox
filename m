@@ -1,49 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263340AbUFKBGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263375AbUFKBH6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263340AbUFKBGf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 21:06:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263366AbUFKBGf
+	id S263375AbUFKBH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 21:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbUFKBH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 21:06:35 -0400
-Received: from holomorphy.com ([207.189.100.168]:61837 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263340AbUFKBGe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 21:06:34 -0400
-Date: Thu, 10 Jun 2004 18:05:58 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: long <tlnguyen@snoqualmie.dp.intel.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, tom.l.nguyen@intel.com
-Subject: Re: [PATCH]Re:2.6.7-rc3-mm1
-Message-ID: <20040611010558.GC1444@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	long <tlnguyen@snoqualmie.dp.intel.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, tom.l.nguyen@intel.com
-References: <200406102045.i5AKjDJo017156@snoqualmie.dp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406102045.i5AKjDJo017156@snoqualmie.dp.intel.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 10 Jun 2004 21:07:58 -0400
+Received: from smtp-out3.blueyonder.co.uk ([195.188.213.6]:24630 "EHLO
+	smtp-out3.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S263375AbUFKBHt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 21:07:49 -0400
+Message-ID: <40C905E3.6060200@blueyonder.co.uk>
+Date: Fri, 11 Jun 2004 02:07:47 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Reply-To: sboyce@blueyonder.co.uk
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+CC: Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc2-mm1 (nforce2 lockup)
+References: <A6974D8E5F98D511BB910002A50A6647615FD33E@hdsmsx403.hd.intel.com> <200406050937.29163.bjorn.helgaas@hp.com> <40C2444B.4080403@blueyonder.co.uk> <200406101651.23895.bjorn.helgaas@hp.com>
+In-Reply-To: <200406101651.23895.bjorn.helgaas@hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Jun 2004 01:07:52.0422 (UTC) FILETIME=[8537C860:01C44F50]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed. June 09, 2004 William Lee Irwin III wrote:
->> The MSI writers have a lot to answer for. Could you test this?
+Thanks, I shall start it cooking overnight and test tomorrow.
+Regards
+Sid.
 
-On Thu, Jun 10, 2004 at 01:45:13PM -0700, long wrote:
-> The MSI patch has existed in the kernel since 2.6.3 and has been
-> validated in both UP and SMP environments. It appears another patch 
-> (don't know which one) redefined the value of TARGET_CPU, which is 
-> used by the function msi_address_init() to configure logical
-> target CPU. The redefinition of TARGET_CPU without checking its 
-> usage by other kernel code broke the build.
-> Your patch fixes the build but breaks the devices using MSI in 
-> different architectures supported by the function msi_address_init().
-> I have attached a patch that fixes the build and maintains cross
-> architecture support for MSI.
+Bjorn Helgaas wrote:
 
-I didn't know it was a logical APIC ID that was supposed to go in there.
-Well, that ought to fix bugs with MSI and clustered hierarchical DFR too.
+>Hi Sid,
+>
+>Can you try the attached patch, please?  I reproduced the problem on
+>my Proliant DL360, and this patch fixes it for me.
+>
+>The problem was that drivers/serial/8250_acpi.c found COM1 in the
+>ACPI namespace and called acpi_register_gsi() to set up its IRQ.
+>ACPI tells us that the COM1 IRQ is edge triggered, active high,
+>but acpi_register_gsi() was ignoring the edge_level argument,
+>so it blindly set the COM1 IRQ to be level-triggered.
+>
+>This is against 2.6.7-rc3-mm1.
+>
+>diff -u -Nur linux-2.6.7-rc3-mm1.orig/arch/i386/kernel/acpi/boot.c linux-2.6.7-rc3-mm1/arch/i386/kernel/acpi/boot.c
+>--- linux-2.6.7-rc3-mm1.orig/arch/i386/kernel/acpi/boot.c	2004-06-10 16:26:55.000000000 -0600
+>+++ linux-2.6.7-rc3-mm1/arch/i386/kernel/acpi/boot.c	2004-06-10 16:30:22.000000000 -0600
+>@@ -451,10 +451,12 @@
+> 		static u16 irq_mask;
+> 		extern void eisa_set_level_irq(unsigned int irq);
+> 
+>-		if ((gsi < 16) && !((1 << gsi) & irq_mask)) {
+>-			Dprintk(KERN_DEBUG PREFIX "Setting GSI %u as level-triggered\n", gsi);
+>-			irq_mask |= (1 << gsi);
+>-			eisa_set_level_irq(gsi);
+>+		if (edge_level == ACPI_LEVEL_SENSITIVE) {
+>+			if ((gsi < 16) && !((1 << gsi) & irq_mask)) {
+>+				Dprintk(KERN_DEBUG PREFIX "Setting GSI %u as level-triggered\n", gsi);
+>+				irq_mask |= (1 << gsi);
+>+				eisa_set_level_irq(gsi);
+>+			}
+> 		}
+> 	}
+> #endif
+>
+>
+>
+>  
+>
 
 
--- wli
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+===== LINUX ONLY USED HERE =====
+

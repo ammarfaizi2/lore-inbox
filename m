@@ -1,44 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264484AbUEaAmW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264499AbUEaBcE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264484AbUEaAmW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 20:42:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264488AbUEaAmW
+	id S264499AbUEaBcE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 21:32:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUEaBcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 20:42:22 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:8672 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264484AbUEaAmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 20:42:21 -0400
-Date: Mon, 31 May 2004 02:42:18 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "Heilmann, Oliver" <Oliver.Heilmann@drkw.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, davej@redhat.com,
-       benh@kernel.crashing.org
-Subject: Re: Crash in 2.6.6-rc3-mm1 (SiS/Radeon)
-Message-ID: <20040531004217.GM13111@fs.tum.de>
-References: <20040426082159.90513.qmail@web10102.mail.yahoo.com> <1082971956.24569.2.camel@pandora> <1083063853.24569.88.camel@pandora> <20040501120843.GG2541@fs.tum.de> <1083660105.9822.186.camel@pandora>
+	Sun, 30 May 2004 21:32:04 -0400
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:48762 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S264499AbUEaBcB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 21:32:01 -0400
+Date: Mon, 31 May 2004 11:31:41 +1000
+From: Tim Shimmin <tes@sgi.com>
+To: Ricky Beam <jfbeam@bluetronic.net>
+Cc: Steve Lord <lord@xfs.org>,
+       Linux Kernel Mail List <linux-kernel@vger.kernel.org>,
+       XFS List <linux-xfs@oss.sgi.com>
+Subject: Re: xfs partition refuses to mount
+Message-ID: <20040531113141.A1116544@boing.melbourne.sgi.com>
+References: <40B8D24A.4080703@xfs.org> <Pine.GSO.4.33.0405291528450.14297-100000@sweetums.bluetronic.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1083660105.9822.186.camel@pandora>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.33.0405291528450.14297-100000@sweetums.bluetronic.net>; from jfbeam@bluetronic.net on Sat, May 29, 2004 at 03:35:34PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Oliver,
+Hi Ricky,
 
-first of all sorry for my very late answer.
+On Sat, May 29, 2004 at 03:35:34PM -0400, Ricky Beam wrote:
+> (I've had the journal become spooge on a sparc64 box a few times.)
+> 
+Until May 20 (just over a week ago) recovery on sparc64 (and big endian
+64) did not work. A fix went into xfs_bit.c thanks to Nicolas
+Boullis. (Our XFS qa tests are routinely run on intel cpus)
 
-It seems the crash I experienced was caused by something else, and not 
-by your AGP patch.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--Tim

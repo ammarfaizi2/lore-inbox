@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315202AbSFIVE2>; Sun, 9 Jun 2002 17:04:28 -0400
+	id <S315204AbSFIVEo>; Sun, 9 Jun 2002 17:04:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315204AbSFIVE1>; Sun, 9 Jun 2002 17:04:27 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:59406 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S315202AbSFIVE1>;
-	Sun, 9 Jun 2002 17:04:27 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200206092104.g59L4JD448386@saturn.cs.uml.edu>
-Subject: Re: [patch] fat/msdos/vfat crud removal
-To: thunder@ngforever.de (Thunder from the hill)
-Date: Sun, 9 Jun 2002 17:04:18 -0400 (EDT)
-Cc: ebiederm@xmission.com (Eric W. Biederman), davej@suse.de (Dave Jones),
-        acahalan@cs.uml.edu (Albert D. Cahalan),
-        hirofumi@mail.parknet.co.jp (OGAWA Hirofumi),
-        linux-kernel@vger.kernel.org, chaffee@cs.berkeley.edu
-In-Reply-To: <Pine.LNX.4.44.0206091257340.8715-100000@hawkeye.luckynet.adm> from "Thunder from the hill" at Jun 09, 2002 01:00:05 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S315210AbSFIVEn>; Sun, 9 Jun 2002 17:04:43 -0400
+Received: from mail.libertysurf.net ([213.36.80.91]:4385 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S315204AbSFIVEm>; Sun, 9 Jun 2002 17:04:42 -0400
+Date: Sun, 9 Jun 2002 23:03:56 +0200 (CEST)
+From: Rui Sousa <rui.sousa@laposte.net>
+X-X-Sender: rsousa@localhost.localdomain
+To: Thunder from the hill <thunder@ngforever.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: About new list commands and emu10k1
+In-Reply-To: <Pine.LNX.4.44.0206091315290.8715-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.4.44.0206092301550.9249-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thunder from the h writes:
-> On 9 Jun 2002, Eric W. Biederman wrote:
+On Sun, 9 Jun 2002, Thunder from the hill wrote:
 
->> #include <linux/*>
->> and 
->> #include <asm/*>
->> are no longer supported.
 
-Try "are no longer supplied by raw kernel source" instead.
-They damn well better exist, cleaned up for non-kernel use.
+> Hi,
+> 
+> I couldn't reach the emu10k1 guys for some obscure reason.
 
-> Stop! The reason for _some_ includes there is actually to keep some 
-> definitions in sync with the kernel, e.g. errno values! Stopping them 
-> altogether is a Really Bad Thing[tm], IMO, since it means users will have 
-> to get a new glibc with almost every kernel they have (don't tell me we 
-> don't change much!).
->
-> I'm against it.
+The maintainer file for OSS emu10k1 needs to be updated (as well as the 
+driver)... However _this_ emu10k1 driver is from ALSA.
 
-Too late. You're WAY too late. This is on a Debian box:
+Rui Sousa
 
-$ /bin/ls -ldog /usr/include/linux
-drwxr-xr-x   11 root        28672 Jun  4 19:41 /usr/include/linux
+> I had a patch
+> which sounded like this:
+> 
+> --- linus-2.5/sound/pci/emu10k1/memory.c	Sun Jun  9 04:18:03 2002
+> +++ thunder-2.5/sound/pci/emu10k1/memory.c	Sun Jun  9 07:47:37 2002
+> @@ -259,8 +259,7 @@
+>  	spin_lock_irqsave(&emu->memblk_lock, flags);
+>  	if (blk->mapped_page >= 0) {
+>  		/* update order link */
+> -		list_del(&blk->mapped_order_link);
+> -		list_add_tail(&blk->mapped_order_link, &emu->mapped_order_link_head);
+> +		list_move_tail(&blk->mapped_order_link, &emu->mapped_order_link_head);
+>  		spin_unlock_irqrestore(&emu->memblk_lock, flags);
+>  		return 0;
+>  	}
+> 
+> Regards,
+> Thunder
+> 
 
-As you can see, a kernel upgrade would do nothing to
-change the headers in /usr/include/linux.

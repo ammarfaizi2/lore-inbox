@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267533AbTGHTF4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 15:05:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267541AbTGHTF4
+	id S267260AbTGHTDo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 15:03:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267521AbTGHTDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 15:05:56 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:59536 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S267533AbTGHTFw
+	Tue, 8 Jul 2003 15:03:44 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:55188
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S267260AbTGHTDm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 15:05:52 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 8 Jul 2003 12:12:52 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Daniel Phillips <phillips@arcor.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.74-mm1
-In-Reply-To: <Pine.LNX.4.55.0307080846520.4544@bigblue.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.4.55.0307081211340.4792@bigblue.dev.mcafeelabs.com>
-References: <20030703023714.55d13934.akpm@osdl.org> <200307080307.18018.phillips@arcor.de>
- <Pine.LNX.4.55.0307072314490.3597@bigblue.dev.mcafeelabs.com>
- <200307081309.30651.phillips@arcor.de> <Pine.LNX.4.55.0307080846520.4544@bigblue.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 8 Jul 2003 15:03:42 -0400
+Date: Tue, 8 Jul 2003 15:18:17 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Larry McVoy <lm@work.bitmover.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Ben Collins <bcollins@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.22-pre3
+Message-ID: <20030708191817.GB17115@gtf.org>
+References: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva> <20030706134156.GG502@phunnypharm.org> <Pine.LNX.4.55L.0307062157300.30827@freak.distro.conectiva> <20030707010527.GA30154@work.bitmover.com> <20030708180520.GJ6848@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030708180520.GJ6848@fs.tum.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Jul 2003, Davide Libenzi wrote:
+On Tue, Jul 08, 2003 at 08:05:21PM +0200, Adrian Bunk wrote:
+> On Sun, Jul 06, 2003 at 06:05:27PM -0700, Larry McVoy wrote:
+> > On Sun, Jul 06, 2003 at 10:00:34PM -0300, Marcelo Tosatti wrote:
+> > > On Sun, 6 Jul 2003, Ben Collins wrote:
+> > > > Any chance you could be consistent in tagging the -pre's? Neither pre2,
+> > > > nor pre3 is tagged in BK, and thus, not tagged in CVS/SVN either.
+> > > 
+> > > I guess I have tagged -pre2 and -pre3:
+> > > 
+> > > Maybe I'm missing something?
+> > 
+> > Hmm.   Ben, look again in the CVS tree and make sure that the tags aren't
+> > there.  Maybe the converter screwed up?  
+> 
+> -pre2 and -pre3 are also missing at
+>   http://ftp.kernel.org/pub/linux/kernel/v2.4/testing/cset/
 
-> If you seek to meet the dead under any load, there's no patch that uses
+hrm.  Well, it's definitely tagged correctly in Marcelo's main 2.4 BK
+repo.
 
-Sorry, it is clearly 's/dead/deadline/'. There was no life threat here :)
+	Jeff
 
 
-
-- Davide
 

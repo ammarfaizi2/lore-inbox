@@ -1,46 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270161AbTGPF6M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 01:58:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270164AbTGPF6M
+	id S270160AbTGPGCF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 02:02:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270165AbTGPGCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 01:58:12 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:47378 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S270161AbTGPF6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 01:58:09 -0400
-Date: Wed, 16 Jul 2003 02:01:38 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: bcollins@debian.org
-Subject: [PATCH][2.6] Fix warning in iee1394 dma.c
-Message-ID: <Pine.LNX.4.53.0307160156480.32541@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Jul 2003 02:02:04 -0400
+Received: from adsl-67-124-159-170.dsl.pltn13.pacbell.net ([67.124.159.170]:6624
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S270160AbTGPGBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 02:01:51 -0400
+Date: Tue, 15 Jul 2003 23:16:42 -0700
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+Subject: Re: 2.6.0-test1-mm1
+Message-ID: <20030716061642.GA4032@triplehelix.org>
+References: <20030715225608.0d3bff77.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
+Content-Disposition: inline
+In-Reply-To: <20030715225608.0d3bff77.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I also removed the panic, the BUG should shaft things bad enough.
 
-drivers/ieee1394/dma.c: In function `dma_region_find':
-drivers/ieee1394/dma.c:161: warning: control reaches end of non-void function
+--1yeeQ81UyVL57Vl7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Index: linux-2.5/drivers/ieee1394/dma.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/drivers/ieee1394/dma.c,v
-retrieving revision 1.5
-diff -u -p -B -r1.5 dma.c
---- linux-2.5/drivers/ieee1394/dma.c	27 Jun 2003 04:49:52 -0000	1.5
-+++ linux-2.5/drivers/ieee1394/dma.c	16 Jul 2003 03:46:10 -0000
-@@ -157,7 +157,9 @@ static inline int dma_region_find(struct
- 		off -= sg_dma_len(&dma->sglist[i]);
- 	}
- 
--	panic("dma_region_find: offset %lu beyond end of DMA mapping\n", offset);
-+	printk("dma_region_find: offset %lu beyond end of DMA mapping\n", offset);
-+	BUG();
-+	return -ENOENT;
- }
- 
- dma_addr_t dma_region_offset_to_bus(struct dma_region *dma, unsigned long offset)
+On Tue, Jul 15, 2003 at 10:56:08PM -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test1=
+/2.6.0-test1-mm1/
+
+There are a mountain of warnings when compiling, and I've traced it to
+asm-i386/irq.h, i THINK... for example:
+
+In file included from include/asm/thread_info.h:13,
+                 from include/linux/thread_info.h:21,
+                 from include/linux/spinlock.h:12,
+                 from include/linux/irq.h:17,
+                 from arch/i386/kernel/cpu/mcheck/winchip.c:8:
+include/asm/processor.h:66: warning: padding struct size to alignment bound=
+ary
+include/asm/processor.h:339: warning: padding struct to align `info'
+include/asm/processor.h:401: warning: padding struct to align `i387'
+In file included from include/linux/sem.h:4,
+                 from include/linux/sched.h:24,
+                 from include/asm/irq.h:14,
+                 from include/linux/irq.h:20,
+                 from arch/i386/kernel/cpu/mcheck/winchip.c:8:
+include/linux/ipc.h:67: warning: padding struct to align `seq'
+In file included from include/linux/sched.h:24,
+                 from include/asm/irq.h:14,
+                 from include/linux/irq.h:20,
+                 from arch/i386/kernel/cpu/mcheck/winchip.c:8:
+include/linux/sem.h:33: warning: padding struct size to alignment boundary
+In file included from include/linux/sched.h:183,
+                 from include/asm/irq.h:14,
+                 from include/linux/irq.h:20,
+                 from arch/i386/kernel/cpu/mcheck/winchip.c:8:
+include/linux/aio.h:68: warning: padding struct to align `ki_nbytes'
+In file included from include/asm/irq.h:14,
+                 from include/linux/irq.h:20,
+                 from arch/i386/kernel/cpu/mcheck/winchip.c:8:
+include/linux/sched.h:215: warning: padding struct to align `context'
+include/linux/sched.h:363: warning: padding struct to align `pid'
+include/linux/sched.h:405: warning: padding struct to align `user'
+include/linux/sched.h:411: warning: padding struct to align `link_count'
+include/linux/sched.h:470: warning: padding struct size to alignment bounda=
+ry
+
+on and on and on, several pages for each file compiled.
+
+I don't know what is going on. This is way out of my league..
+
+-Josh
+
+--=20
+"Notice that, written there, rather legibly, in the Baroque style common=20
+to New York subway wall writers, was, uhm... was the old familiar=20
+suggestion. And rather beautifully illustrated, as well..."
+
+       -- Art Garfunkel on the inspiration for "A Poem On The Underground W=
+all"
+
+--1yeeQ81UyVL57Vl7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/FO3KT2bz5yevw+4RArrTAJ42WEZSKwjuEFcj/STrm/x6LWVDFwCfUiX8
+21wpVUrDGWZUSknrQ4BI+eg=
+=S+lH
+-----END PGP SIGNATURE-----
+
+--1yeeQ81UyVL57Vl7--

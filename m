@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265858AbVBFBpb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264063AbVBFBsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265858AbVBFBpb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 20:45:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265826AbVBFBpb
+	id S264063AbVBFBsw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 20:48:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264032AbVBFBsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 20:45:31 -0500
-Received: from rproxy.gmail.com ([64.233.170.192]:42045 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263696AbVBFBpT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 20:45:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=aG7ijGm69c291FS1PC1X7zcC31D4n5ZN+9KBKel44mDx8Wl7LhImj2q/677OwkfS1AUgm+UXLna5lO8V0BaJAjotDdD5cn71dbgY2qei03GyrPQNFL6aCEp+YpvZdbsCS1ZYOWSN2Ai6XxrFzcJ5JT+4kwyjYFwyeNfrOYQFgo8=
-Message-ID: <9e4733910502051745c25d6f@mail.gmail.com>
-Date: Sat, 5 Feb 2005 20:45:19 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Intel AGP support attaching to wrong PCI IDs
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Feb 2005 20:48:51 -0500
+Received: from av3-2-sn1.fre.skanova.net ([81.228.11.110]:40357 "EHLO
+	av3-2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S272647AbVBFBsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 20:48:10 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: Laurent Riffard <laurent.riffard@free.fr>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.11-rc3-mm1 : mount UDF CDRW stuck in D state
+References: <4204F91B.5040302@free.fr> <m3vf96r017.fsf@telia.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 06 Feb 2005 02:48:07 +0100
+In-Reply-To: <m3vf96r017.fsf@telia.com>
+Message-ID: <m3sm4apig8.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an i875 chipset with these two devices:
+Peter Osterlund <petero2@telia.com> writes:
 
-8086:2578 - 00:00.0 Host bridge: Intel Corp. 82875P/E7210 Memory
-Controller Hub (rev 02)
-8086:2579 - 00:01.0 PCI bridge: Intel Corp. 82875P Processor to AGP
-Controller (rev 02)
+> Laurent Riffard <laurent.riffard@free.fr> writes:
+> 
+> > This is kernel 2.6.11-rc3-mm1. I can't mount an UDF-formatted cdrw
+> > in packet-writing mode. Mount process gets stuck in D state.
+> > 
+> > Mounting and writing this media in packet-writing mode works fine
+> > with kernel 2.6.11-rc2-mm2.
+> 
+> I tried to repeat the problem, but I didn't get far, because I get a
+> kernel panic right after init is started:
 
-In the legacy io space thread we are talking about making a device
-driver for host bridges.  The Intel AGP drivers (in my case
-agpgart-intel-mch) are attaching to the PCI IDs of the host bus device
-instead of the AGP bridge. This blocks us from making a host bridge
-driver.
-PCI_DEVICE_ID_INTEL_82875_HB 0x2578
+I got around that by disabling preempt, radeon framebuffer, HPET
+timer, APIC. Don't know which one caused the panic, will track it down
+later.
 
-Shouldn't they be attaching to device 0x2579? It looks like all of the
-drivers have this problem and are attaching to the host bus PCI IDs
-instead of the AGP bridge ID.
-
-[root@jonsmirl pci]# cat devices
-0000    80862578        0       ec000008        00000000       
-00000000        00000000        00000000        00000000       
-00000000      04000000 00000000        00000000        00000000       
-00000000        00000000        00000000        agpgart-intel-mch
-0008    80862579        0       00000000        00000000       
-00000000        00000000        00000000        00000000       
-00000000      00000000 00000000        00000000        00000000       
-00000000        00000000        00000000
-
-Am I correct in thinking that in all cases there has to be two PCI
-IDs, one for the host bridge and one for the APG bridge?
+Anyway, mount hangs for me too if I use an IDE drive, both with native
+ide and ide-scsi emulation. It doesn't hang with a USB drive though. I
+verified that 2.6.11-rc3 does not have this problem. Reverting
+bk-ide-dev does *not* fix the problem.
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

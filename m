@@ -1,105 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313565AbSDLM4s>; Fri, 12 Apr 2002 08:56:48 -0400
+	id <S313313AbSDLM5z>; Fri, 12 Apr 2002 08:57:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313313AbSDLM4r>; Fri, 12 Apr 2002 08:56:47 -0400
-Received: from mail.2d3d.co.za ([196.14.185.200]:27332 "HELO mail.2d3d.co.za")
-	by vger.kernel.org with SMTP id <S313565AbSDLM4q>;
-	Fri, 12 Apr 2002 08:56:46 -0400
-Date: Fri, 12 Apr 2002 14:57:08 +0200
-From: Abraham vd Merwe <abraham@2d3d.co.za>
-To: Josh Fryman <fryman@cc.gatech.edu>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Stolen Memory <- i830M video chip
-Message-ID: <20020412145708.A19195@crystal.2d3d.co.za>
-Mail-Followup-To: Josh Fryman <fryman@cc.gatech.edu>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0204112244480.4745-100000@LiSa> <20020412094323.B8997@crystal.2d3d.co.za> <20020412073136.53e533ed.fryman@cc.gatech.edu> <20020412143909.A17660@crystal.2d3d.co.za> <20020412085204.2202df0e.fryman@cc.gatech.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: 2d3D, Inc.
-X-Operating-System: Debian GNU/Linux crystal 2.4.17-pre4 i686
-X-GPG-Public-Key: http://oasis.blio.net/pgpkeys/keys/2d3d.gpg
-X-Uptime: 2:53pm  up 16 days,  5:09, 14 users,  load average: 0.81, 0.51, 0.29
-X-Edited-With-Muttmode: muttmail.sl - 2001-06-06
+	id <S313566AbSDLM5y>; Fri, 12 Apr 2002 08:57:54 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:25349 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S313313AbSDLM5w>; Fri, 12 Apr 2002 08:57:52 -0400
+Message-ID: <3CB6CB47.8090409@evision-ventures.com>
+Date: Fri, 12 Apr 2002 13:55:51 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][CFT] IDE TCQ #3 for 2.5.8-pre3
+In-Reply-To: <20020412114745.GE5285@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens Axboe wrote:
+> Hi,
+> 
+> The third version is ready, lots of changes since last version.
+> 
+> General IDE changes (not directly related to TCQ)
+> 
+> - ata_request_t -> struct ata_request (was actually done before Martin
+>   posted his first merge, better conform to current ide style)
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Well I don't do much things for no reasons. So please allow me to
+write down my reasoning. My general coding style guidiance is the following:
 
-Hi Josh!
+1. First and for most: NO INVENTION FOR THE SAKE OF IT.
 
-> i've cut the key bits out for back-reference.  (btw, your .sig is kinda
-> hefty :)
->=20
-> > > so if it's a BIOS problem that can only be fixed by Dell, how were th=
-ese guys
-> > > able to do the fix?  and why can't the open source guys (XFree or Lin=
-ux kernel)=20
-> > > seem to do the same?
-> >=20
-> > I've told people before: If you want it to work, write a non-BIOS setmo=
-de.
-> > I'll even give you tips if you try, but that is all I can do.=20
->=20
-> ok, let me see if i'm following what you're saying.  the XFree86 drivers =
-don't
-> use the BIOS or anything else - they rely on the kernel.  the kernel, how=
-ever,=20
-> is relying on the BIOS to tell it what's going on.  when the I8x0 video i=
-nterface
-> activates, it asks the BIOS which lies through its teeth.
+typedef on a struct is  most of the time just adding syntactical shugar,
+and  *deleting* the information that we deal with a struct in case of it's
+usage.
 
-No, the X Server is using the BIOS to set video modes. Since the video
-chipset doesn't have any onboard memory, it needs to "steal" some of your
-system memory. The BIOS does that for you (hence the term stolen memory).
-However, if your BIOS steals only 1mb memory, it isn't enough to support
-high resolution modes.
+This is the kind of code obfuscation which I *hate* even more in C++ or Java.
 
-This isn't a problem since we allocate more memory by stealing some memory
-in the kernel and then populating the card's page table with those pages.
-The problem is that the BIOS don't know about those extra pages and when you
-do a setmode, it checks whether there is enough memory, sees only 1mb and
-then refuses to set the mode...
+Many programming language "designers" out there think that making data types
+look opaque in usage is a nice thing and a sign of good taste/style. Trust me
+they are misguided (read: *idiots*). It is taking valuable information
+away (well actually hiding it elswere) for the person looking at the
+functional code. I mean the preson looking at the fsck-ing procedural
+code which actually *does something*...
 
---=20
+2. typedefs for function signature capturing are fine, since there is no other
+way to express them sanely.
 
-Regards
- Abraham
+This is what they where inventid for - just as back doors for things
+which couldn't be expressed otherwise. But avoid them where possible,
+due to the same reasons as above.
 
-I give you the man who -- the man who -- uh, I forgets the man who?
-		-- Beauregard Bugleboy
+3. typedefs for variable integral entities, which serve a dedicated
+puspose are fine, since they:
 
-__________________________________________________________
- Abraham vd Merwe - 2d3D, Inc.
+- Acutally add information to the code where they are used.
 
- Device Driver Development, Outsourcing, Embedded Systems
+- Don't obfuscate the structure of the object in question if you follow rules
+1. and 2.
 
-  Cell: +27 82 565 4451         Snailmail:
-   Tel: +27 21 761 7549            Block C, Aintree Park
-   Fax: +27 21 761 7648            Doncaster Road
- Email: abraham@2d3d.co.za         Kenilworth, 7700
-  Http: http://www.2d3d.com        South Africa
+- Allow for differentiation where there are portability issues. size_t is one 
+example of justified proper usage in this context.
 
-
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8ttmkzNXhP0RCUqMRAnloAJ9oF5IOw1h4cWgNmkqCeDNo1N4kpACfU43W
-48QvGOlyuBat5XPqzMvL/rA=
-=y/Y0
------END PGP SIGNATURE-----
-
---tThc/1wpZn/ma/RB--

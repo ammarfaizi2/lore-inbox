@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291449AbSBUKWK>; Thu, 21 Feb 2002 05:22:10 -0500
+	id <S292315AbSBUKVa>; Thu, 21 Feb 2002 05:21:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292320AbSBUKWB>; Thu, 21 Feb 2002 05:22:01 -0500
-Received: from ns.suk.net ([195.126.239.3]:28838 "HELO vger.kernel.org")
-	by vger.kernel.org with SMTP id <S291449AbSBUKVv>;
-	Thu, 21 Feb 2002 05:21:51 -0500
-From: <mw@suk.net>
-Subject: more detailed information about the AMD 1.6+ GHz MP smp-problem with latest kernel
-Message-Id: <20020221102156Z291449-889+4453@vger.kernel.org>
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
-Date: Thu, 21 Feb 2002 05:21:51 -0500
+	id <S292324AbSBUKVU>; Thu, 21 Feb 2002 05:21:20 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:55196 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S292315AbSBUKVI>; Thu, 21 Feb 2002 05:21:08 -0500
+Date: Thu, 21 Feb 2002 12:10:23 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [DRIVER][RFC] SC1200 Watchdog driver
+In-Reply-To: <3C74C8C7.25D7BCD@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.44.0202211209050.7649-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear list members,
+On Thu, 21 Feb 2002, Jeff Garzik wrote:
 
-As I've posted a message before not including detailed information about the system, I'm now
-posting with very detailed information looking for help to get everythign fixed ;-)
+> Zwane Mwaikambo wrote:
+> > Thanks, but i think i wasted my time on this one, there is a driver for
+> > most of the SC1200 bits (including watchdog) at http://www.nano-system.com/scx200
+> 
+> I just looked at their watchdog driver -- yours might be better...  They
+> don't use semaphores in _open, they don't use request_region, etc.
+> 
+> Of course, OTOH their include list is smaller and they don't use
+> MOD_{INC,DEC}_USE_COUNT ;-)
 
-Motherboard: ASUS A7M266-D, AMD-760MPX
-CPU: AMD Athlon 1600+ 266 FSB
-RAM: DDRAM, 512 MB, PC266 ECC registered
+Well those other minors are now taken care of, but they also have the 
+added advantage of having real hardware to test it out on ;)
+
+Cheers,
+	Zwane Mwaikambo
 
 
-The system is a RedHat 7.2 linux installation ... I've first attempted with the included SMP-kernel
-which didn't work. Then updated the system with the latest RedHat-build kernel ... rebooted,
-SMP-kernel still didn't work. So I saw the last chance in building my own kernel, included some
-multi-cpu stuff. The system hang after detecting the 2nd CPU ...
-
-Anybody can provide help to make the 2 CPU's work? ;-)
-
-
-Cu,
-mw

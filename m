@@ -1,30 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265234AbUJRJj6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266009AbUJRJj6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265234AbUJRJj6 (ORCPT <rfc822;willy@w.ods.org>);
+	id S266009AbUJRJj6 (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 18 Oct 2004 05:39:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUJRJjD
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265800AbUJRJjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 05:39:03 -0400
-Received: from out005pub.verizon.net ([206.46.170.143]:35495 "EHLO
-	out005.verizon.net") by vger.kernel.org with ESMTP id S265395AbUJRJh2
+	Mon, 18 Oct 2004 05:39:14 -0400
+Received: from out011pub.verizon.net ([206.46.170.135]:31742 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S265234AbUJRJhH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 05:37:28 -0400
-Message-ID: <41738ED7.9090400@verizon.net>
-Date: Mon, 18 Oct 2004 05:37:27 -0400
+	Mon, 18 Oct 2004 05:37:07 -0400
+Message-ID: <41738EC1.1080707@verizon.net>
+Date: Mon, 18 Oct 2004 05:37:05 -0400
 From: Jim Nelson <james4765@verizon.net>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Patch to drivers/video/Kconfig [3 of 4]
+Subject: Patch to drivers/video/Kconfig [2 of 4]
 Content-Type: multipart/mixed;
- boundary="------------090205010504080403010702"
-X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [209.158.211.53] at Mon, 18 Oct 2004 04:37:27 -0500
+ boundary="------------000203010900070402010603"
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [209.158.211.53] at Mon, 18 Oct 2004 04:37:06 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------090205010504080403010702
+--------------000203010900070402010603
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
@@ -36,37 +36,30 @@ Apply against 2.6.9-rc4.
 diff -u drivers/video/Kconfig.orig drivers/video/Kconfig
 
 
---------------090205010504080403010702
+--------------000203010900070402010603
 Content-Type: text/x-patch;
- name="drivers_video_kconfig-fix-radeon-dependency.patch"
+ name="drivers_video_kconfig-fix-matrox-dependency.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="drivers_video_kconfig-fix-radeon-dependency.patch"
+ filename="drivers_video_kconfig-fix-matrox-dependency.patch"
 
 --- drivers/video/Kconfig.orig	2004-10-16 11:58:32.738491881 -0400
-+++ drivers/video/Kconfig	2004-10-16 13:07:09.222883919 -0400
-@@ -667,8 +667,6 @@
- config FB_RADEON
- 	tristate "ATI Radeon display support"
- 	depends on FB && PCI
--	select I2C_ALGOBIT if FB_RADEON_I2C
--	select I2C if FB_RADEON_I2C
- 	select FB_MODE_HELPERS
- 	help
- 	  Choose this option if you want to use an ATI Radeon graphics card as
-@@ -685,9 +683,12 @@
- 	  There is a product page at
- 	  <http://www.ati.com/na/pages/products/pc/radeon32/index.html>.
- 
-+comment "Enable I2C and I2C_ALGOBIT to enable ATI Radeon DDC/I2C support."
-+	depends on FB_RADEON && !(I2C && I2C_ALGOBIT)
-+
- config FB_RADEON_I2C
- 	bool "DDC/I2C for ATI Radeon support"
--	depends on FB_RADEON
-+	depends on FB_RADEON && I2C && I2C_ALGOBIT
++++ drivers/video/Kconfig	2004-10-16 12:55:51.225105213 -0400
+@@ -586,10 +586,12 @@
+ 	depends on FB_MATROX && (FB_MATROX_G450 || FB_MATROX_G100A)
  	default y
- 	help
- 	  Say Y here if you want DDC/I2C support for your Radeon board. 
+ 
++comment "Enable I2C and I2C_ALGOBIT to enable Matrox I2C support."
++	depends on FB_MATROX && !(I2C && I2C_ALGOBIT)
++
+ config FB_MATROX_I2C
+ 	tristate "Matrox I2C support"
+-	depends on FB_MATROX && I2C
+-	select I2C_ALGOBIT
++	depends on FB_MATROX && I2C && I2C_ALGOBIT
+ 	---help---
+ 	  This drivers creates I2C buses which are needed for accessing the
+ 	  DDC (I2C) bus present on all Matroxes, an I2C bus which
 
---------------090205010504080403010702--
+
+--------------000203010900070402010603--

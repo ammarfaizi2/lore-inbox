@@ -1,55 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVCORbB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVCORdH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbVCORbB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 12:31:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbVCOR3L
+	id S261671AbVCORdH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 12:33:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbVCORbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 12:29:11 -0500
-Received: from fire.osdl.org ([65.172.181.4]:26522 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261563AbVCOR2Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 12:28:24 -0500
-Message-ID: <42371B00.7040204@osdl.org>
-Date: Tue, 15 Mar 2005 09:27:28 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: linux-kernel@vger.kernel.org, Fruhwirth Clemens <clemens@endorphin.org>,
-       Herbert Xu <herbert@gondor.apana.org.au>, cryptoapi@lists.logix.cz,
-       James Morris <jmorris@redhat.com>, David Miller <davem@davemloft.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [16/many] acrypto: crypto_user.h
-References: <11102278551459@2ka.mipt.ru>
-In-Reply-To: <11102278551459@2ka.mipt.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 15 Mar 2005 12:31:22 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:32275 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261610AbVCORab (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 12:30:31 -0500
+Message-Id: <200503151730.j2FHUT3k018541@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Giuseppe Bilotta <bilotta78@hotpop.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] I8K driver facelift 
+In-Reply-To: Your message of "Tue, 15 Mar 2005 11:59:22 +0100."
+             <MPG.1ca0de763cbc3456989715@news.gmane.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <200502240110.16521.dtor_core@ameritech.net> <4233B65A.4030302@tuxrocks.com> <200503150812.j2F8CABo004744@turing-police.cc.vt.edu>
+            <MPG.1ca0de763cbc3456989715@news.gmane.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1110907828_4720P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 15 Mar 2005 12:30:29 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> --- /tmp/empty/crypto_user.h	1970-01-01 03:00:00.000000000 +0300
-> +++ ./acrypto/crypto_user.h	2005-03-07 20:35:36.000000000 +0300
-> @@ -0,0 +1,52 @@
-> +/*
-> + * 	crypto_user.h
-> + *
-> + * Copyright (c) 2004 Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-> + * 
-> + */
-> +
-> +#ifndef __CRYPTO_USER_H
-> +#define __CRYPTO_USER_H
-> +
-> +#define MAX_DATA_SIZE	3
-> +#define ALIGN_DATA_SIZE(size)	((size + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1))
+--==_Exmh_1110907828_4720P
+Content-Type: text/plain; charset=us-ascii
 
-ISTM that we need a generic round_up() function or macro in kernel.h.
+On Tue, 15 Mar 2005 11:59:22 +0100, Giuseppe Bilotta said:
+> > According to your patch, the C840 has 2 temp sensors. I'll have to figure
+> > out what the second one is (prob either the GPU or the disk drive?)
+> 
+> If it runs over 40 C easily it's probably the GPU :)
 
-a.out.h, reiserfs_fs.h, and ufs_fs.h all have their own round-up
-macros.
+Well, (a) the next rev of the patch will hopefully provide more access to the
+second thermal probe than just detecting its existence (it still doesn't do
+the sysfs or whatever magic to make the actual value accessible), and (b) the
+probe I *know* about is on the CPU, and runs over 40C easily as well (it's sitting
+at 49C right now).  Remember we're talking about a laptop here, there's not
+a lot of room for a big heat sink in there.. ;)
 
--- 
-~Randy
+--==_Exmh_1110907828_4720P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCNxu0cC3lWbTT17ARAgj4AJ9QWk3vICNtWpGDK+mnZ1QispQzswCfWTQA
+zR32c6Z8TAZr3E05Kpd+VO4=
+=6zp1
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1110907828_4720P--

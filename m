@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264097AbUHEV4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267916AbUHEV6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264097AbUHEV4p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 17:56:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267581AbUHEVyB
+	id S267916AbUHEV6S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 17:58:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267581AbUHEV47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 17:54:01 -0400
-Received: from ms003msg.fastwebnet.it ([213.140.2.42]:30393 "EHLO
-	ms003msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S264097AbUHEVxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 17:53:37 -0400
-From: Alessandro Amici <alexamici@fastwebnet.it>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cputime (1/6): move call to update_process_times.
-Date: Thu, 5 Aug 2004 23:54:44 +0200
-User-Agent: KMail/1.6.2
-Cc: Arnd Bergmann <arnd@arndb.de>, linux-390@vm.marist.edu, arjanv@redhat.com,
-       tim.bird@am.sony.com, mulix@mulix.org, alan@redhat.com,
-       jan.glauber@de.ibm.com
-References: <20040805180335.GB9240@mschwid3.boeblingen.de.ibm.com> <200408052157.47603.alexamici@fastwebnet.it> <200408052254.20715.arnd@arndb.de>
-In-Reply-To: <200408052254.20715.arnd@arndb.de>
+	Thu, 5 Aug 2004 17:56:59 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52650 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267900AbUHEVyw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 17:54:52 -0400
+Message-ID: <4112AC4B.9010702@pobox.com>
+Date: Thu, 05 Aug 2004 17:53:15 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Andrew Chew <achew@nvidia.com>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: [PATCH 2.6.8-rc2] sata_nv.c
+References: <DBFABB80F7FD3143A911F9E6CFD477B03F9620@hqemmail02.nvidia.com>
+In-Reply-To: <DBFABB80F7FD3143A911F9E6CFD477B03F9620@hqemmail02.nvidia.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408052354.44748.alexamici@fastwebnet.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Chew wrote:
+> Attached is a patch to the sata_nv driver that accounts for a few
+> differences between the nForce3 and CK804/MCP04 SATA controllers.
+> 
+> A minor change to libata-core.c needs to accompany this patch.  This is
+> in regards to the function ata_pci_remove_one(), where the
+> host_set->ops->host_stop(host_set) needs to occur before the
+> iounmap(host_set->mmio_base).  This is because sata_nv's host_stop
+> callback needs access to the iomapped region.
 
-Arnd,
+Do you want to send a separate patch for this?  I don't see that change 
+in the attached patch.
 
-On Thursday 05 August 2004 22:54, Arnd Bergmann wrote:
-> void update_process_times(int user_tick);
-> static inline void update_process_times_nonsmp(int user_tick)
-> {
-> #ifndef CONFIG_SMP
-> 	update_process_times(user_tick);
-> #endif
-> }
+	Jeff
 
-I'm sure you mean 'update_process_times_up' 8-)
+

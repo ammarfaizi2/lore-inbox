@@ -1,71 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbTI3Xmr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 19:42:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbTI3Xmr
+	id S261760AbTI3Vm0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 17:42:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbTI3Vm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 19:42:47 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:43470 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261817AbTI3Xmo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 19:42:44 -0400
-Message-ID: <3F795001.9020104@mvista.com>
-Date: Tue, 30 Sep 2003 04:42:25 -0500
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.3.1) Gecko/20030428
-X-Accept-Language: en-us, en
+	Tue, 30 Sep 2003 17:42:26 -0400
+Received: from mta07-svc.ntlworld.com ([62.253.162.47]:3471 "EHLO
+	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S261760AbTI3VmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 17:42:21 -0400
+Message-ID: <3F79F8BB.2080905@yahoo.com>
+Date: Tue, 30 Sep 2003 22:42:19 +0100
+From: Chris Rankin <rankincj@yahoo.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.4) Gecko/20030624
+X-Accept-Language: en-gb, en-us
 MIME-Version: 1.0
-To: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test6: more __init bugs
-References: <1064955628.5734.229.camel@dooby.cs.berkeley.edu>
-In-Reply-To: <1064955628.5734.229.camel@dooby.cs.berkeley.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: APIC error on SMP machine
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert T. Johnson wrote:
+Linux-2.4.22-SMP, 1 GB RAM, devfs, gcc-3.2.3.
 
->Here are some cases where __init code or data is referenced by 
->non-__init code.
->
->Questions:
->- Is init_module allowed, required or forbidden to be __init?
->- Ditto for Scsi_Host_Template.detect()?
->- Ditto for net_device->set_config()?
->
->Thanks for looking at these potential bugs, and sorry if I've made 
->any mistakes.
->
->Best,
->Rob
->
->P.S. All these bugs were found with Cqual, the bug-finding tool
->developed by Jeff Foster, John Kodumal, and many others, and available
->at http://www.cs.umd.edu/~jfoster/cqual/, although the currently
->released version of cqual only has primitive support for 
->__init bug-finding.
->
->
->** Possible bug:
->** drivers/char/ipmi/ipmi_msghandler.c:ipmi_init_msghandler()         (__init)
->     called by numerous non-__init functions
->Note: ipmi_init_msghandler() is an alias for init_module
->Fix: declare ipmi_init_msghandler non-__init.
->
->  
->
-This is not actually a bug, but it may be bad style (and thus could lead 
-to a bug).  It is possible that something that uses IPMI can do some 
-IPMI things before IPMI is initialized.  This can only happen during 
-initialization, though.  Thus the check; once IPMI is initialized the 
-function will never be called.
+Hi,
 
-What's the opinion on this?  Should I just force IPMI users to 
-initialize after IPMI?
+Today, my dual PIII (Coppermine) refused to boot, and wrote a large number of 
+these messages to the serial console instead:
 
-Thanks,
+APIC error on CPU1: 04(04)
+APIC error on CPU1: 04(04)
+APIC error on CPU1: 04(04)
+APIC error on CPU1: 04(04)
+APIC error on CPU1: 04(04)
+APIC error on CPU1: 04(04)
+APIC error on CPU1: 04(04)
+APIC error on CPU1: 04(04)
+APIC error on CPU1: 04(04)
+APIC error on CPU1: 04(04)
+APIC error on CPU1: 04(04)
+APIC error on CPU1: 04(04)
+APIC error on CPU1: 04(04)
+APIC error on CPU1: 04(04)
+APIC error on CPU1: 04(04)
 
--Corey
+Can anyone tell me what these might mean, please? The kernel source implies that 
+it's a "Send accept error", but this doesn't help me in an "Ah, I can fix that!" 
+sense.
+
+Does this APIC error just mean that the CPU is unhappy in this slot, and is 
+refusing to listen to the motherboard? Or is the motherboard refusing to listen 
+to the CPU?
+
+Background:
+This machine has been misbehaving for a while. I thought I had worked around the 
+problem by underclocking the FSB from 133 MHz to 100 MHz, but that now looks 
+like it was just a "reprieve". I have tried running "nosmp", "pci=noacpi" and 
+"noapic pci=noacpi" without success, and have resorted to yanking the CPU out of 
+this slot entirely. (I suspect that the CPU is fine, however.) I have also 
+restored the FSB to 133 MHz, so I am currently running the SMP kernel on a 
+single 933 MHz PIII.
+
+Cheers,
+Chris
 

@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267692AbSLGBd7>; Fri, 6 Dec 2002 20:33:59 -0500
+	id <S267697AbSLGBg5>; Fri, 6 Dec 2002 20:36:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267693AbSLGBd7>; Fri, 6 Dec 2002 20:33:59 -0500
-Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:44211 "EHLO
+	id <S267698AbSLGBg5>; Fri, 6 Dec 2002 20:36:57 -0500
+Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:46515 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267692AbSLGBd6>; Fri, 6 Dec 2002 20:33:58 -0500
-Subject: Re: Proposed ACPI Licensing change
+	id <S267697AbSLGBg4>; Fri, 6 Dec 2002 20:36:56 -0500
+Subject: Re: Maybe a VM bug in 2.4.18-18 from RH 8.0?
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: acpi-devel@sourceforge.net,
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Andrew Morton <akpm@digeo.com>, Andrea Arcangeli <andrea@suse.de>,
+       Norman Gaywood <norm@turing.une.edu.au>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <EDC461A30AC4D511ADE10002A5072CAD04C7A57F@orsmsx119.jf.intel.com>
-References: <EDC461A30AC4D511ADE10002A5072CAD04C7A57F@orsmsx119.jf.intel.com>
+In-Reply-To: <20021207002133.GT9882@holomorphy.com>
+References: <3DEFF69F.481AB823@digeo.com>
+	<20021206011733.GF1567@dualathlon.random> <3DEFFEAA.6B386051@digeo.com>
+	<20021206014429.GI1567@dualathlon.random>
+	<20021206021559.GK9882@holomorphy.com>
+	<20021206022853.GJ1567@dualathlon.random>
+	<20021206024140.GL9882@holomorphy.com>
+	<20021206222852.GF4335@dualathlon.random>
+	<20021206232125.GR9882@holomorphy.com> <3DF13A54.927C04C1@digeo.com> 
+	<20021207002133.GT9882@holomorphy.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 07 Dec 2002 02:16:53 +0000
-Message-Id: <1039227413.25062.6.camel@irongate.swansea.linux.org.uk>
+Date: 07 Dec 2002 02:19:49 +0000
+Message-Id: <1039227589.25062.10.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-12-07 at 00:10, Grover, Andrew wrote:
-> In order to solve this, we are considering releasing the Linux version of
-> the interpreter under a dual license. This would allow direct incorporation
-> of changes. Any patches submitted against the ACPI core code would
-> implicitly be allowed to be used by us in a non-GPL context. This is already
-> done elsewhere in the Linux kernel source by the PCMCIA code, for example.
+On Sat, 2002-12-07 at 00:21, William Lee Irwin III wrote:
+> 16K is reasonable; after that one might as well go all the way.
+> About the only way to cope is amortizing it by cacheing zeroed pages,
+> and that has other downsides.
 
-I think this is an extremely good idea. I certainly would have no
-problem contributing cleanup/fixes to the project under those terms. And
-if I did something large and mega cool with ACPI I can still GPL it only
-and you can still ignore it 8)
-
-There is a tradition of contributing patches back under the license the
-project you are contributing to used (and ACPI is certainly big enough
-to be 'a project' not just a patch) 
-
-Suits me fine
-
-Alan
+Some of the lower end CPU's only have about 12-16K of L1. I don't think
+thats a big problem since those aren't going to be highmem or large
+memory users 
 

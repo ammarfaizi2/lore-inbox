@@ -1,61 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263226AbUJ2Ku4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263233AbUJ2Kwu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263226AbUJ2Ku4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 06:50:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263233AbUJ2Kuz
+	id S263233AbUJ2Kwu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 06:52:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263236AbUJ2Kwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 06:50:55 -0400
-Received: from pils.linux-kernel.at ([62.116.87.200]:50581 "EHLO
-	pils.linux-kernel.at") by vger.kernel.org with ESMTP
-	id S263226AbUJ2Kuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 06:50:50 -0400
-Message-Id: <200410291050.i9TAo7Y7025791@pils.linux-kernel.at>
-From: "Oliver Falk" <oliver@linux-kernel.at>
-To: "'Jesper Juhl'" <juhl-lkml@dif.dk>, "'Andrew Morton'" <akpm@osdl.org>
-Cc: <dan@fullmotions.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: SSH and 2.6.9
-Date: Fri, 29 Oct 2004 12:52:32 +0200
-Organization: linux-kernel.at
+	Fri, 29 Oct 2004 06:52:50 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:59118 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263233AbUJ2Kwg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 06:52:36 -0400
+Message-ID: <418220C5.2030004@in.ibm.com>
+Date: Fri, 29 Oct 2004 16:21:49 +0530
+From: Hariprasad Nellitheertha <hari@in.ibm.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, ebiederm@xmission.com, varap@us.ibm.com,
+       fastboot@osdl.org
+Subject: Re: Compile error on 2.6.10-rc1-mm1
+References: <41820F72.5020203@in.ibm.com> <20041029024305.7bd9778c.akpm@osdl.org>
+In-Reply-To: <20041029024305.7bd9778c.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcS9pK23R0G9A5t9QP6CZZ6MeDf+ygAAG7lg
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-In-Reply-To: <Pine.LNX.4.61.0410291234530.22050@jjulnx.backbone.dif.dk>
-X-Authenticated-Sender: user oliver from 172.16.1.213
-X-lkernAT-MailScanner-Information: Please contact the ISP for more information
-X-lkernAT-MailScanner: Found to be clean
-X-lkernAT-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.599,
-	required 5, autolearn=not spam, ALL_TRUSTED -3.30, AWL -1.30,
-	BAYES_50 0.00)
-X-MailScanner-From: oliver@linux-kernel.at
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Jesper Juhl <juhl-lkml@dif.dk> wrote:
-> > >
-> > > Now I guess we just need for someone to find out why LEGACY_PTYS 
-> > > breaks  ssh (and other apps?) with kernels >= 2.6.9,
-> > 
-> > Works OK here, witht he latest of everything.  Please send 
-> > the faulty .config.
-> > 
-> > If you could generate the `strace -f' output from good and bad 
-> > sessions and identify where things went wrong, that would help.
-> > 
+Andrew Morton wrote:
+> Hariprasad Nellitheertha <hari@in.ibm.com> wrote:
 > 
-> I have no problem here, and I can't reproduce it by enabling 
-> LEGACY_PTYS either, so you'll have to get the .config and 
-> strace etc from Danny Brow.
+>>The compile time error that few people have been seeing with 
+>> the last couple of -mm releases are due to the changes 
+>> introduced to arch/i386/kernel/vmlinux.lds.S to enable kexec 
+>> based crashdumps.
+>>...
+>> --- linux-2.6.10-rc1/arch/i386/kernel/vmlinux.lds.S~kdump-fix-bss-compile-error	2004-10-28 15:15:43.000000000 +0530
+>> +++ linux-2.6.10-rc1-hari/arch/i386/kernel/vmlinux.lds.S	2004-10-28 15:18:04.000000000 +0530
+>> @@ -117,8 +117,9 @@ SECTIONS
+>>    /* freed after init ends here */
+>>  	
+>>    __bss_start = .;		/* BSS */
+>> +  .bss.page_aligned  : AT(ADDR(.bss.page_aligned) - LOAD_OFFSET) {
+>> +	*(.bss.page_aligned) }
+>>    .bss : AT(ADDR(.bss) - LOAD_OFFSET) {
+>> -	*(.bss.page_aligned)
+>>  	*(.bss)
+>>    }
+>>    . = ALIGN(4);
+> 
+> 
+> It's hard to see how that could go wrong.  Did you compare the before- and
+> after- output from `objdump -h vmlinux'?
+> 
 
-Similar problem occured at my box, but it's not kernel 2.6.9 which breaks
-SSH. At leat for me...
-If you are running FC3T3, then try to remount /dev. Since some version of
-udev obsoletes the dev package and afterwards no /dev/pts/* exists, since
-dev is no longer there and udev 'overmounted' /dev...
+The output of objdump for the bss related sections are as below..
 
-Best,
- Oliver
+Without patch - machine with newer binutils
 
+  24 .bss          0002cf38  c03df000  003df000  002df000  2**12
+                   ALLOC
+
+With patch - machine with newer binutils
+
+  24 .bss.page_aligned 00002000  c03df000  c03df000  002df000  2**2
+
+  25 .bss          0002af38  c03e1000  003e1000  002df000  2**12
+                   ALLOC
+
+With patch - machine with old binutils
+
+  24 .bss.page_aligned 00002000  c03df000  c03df000  002df000  2**2
+                   CONTENTS
+  25 .bss          0002af38  c03e1000  003e1000  002df000  2**12
+                   ALLOC
+
+Regards, Hari

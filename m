@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbVANNSI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261980AbVANNca@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261981AbVANNSI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 08:18:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVANNSH
+	id S261980AbVANNca (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 08:32:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbVANNca
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 08:18:07 -0500
-Received: from mail.outpost24.com ([212.214.12.146]:46294 "EHLO
-	klippan.outpost24.com") by vger.kernel.org with ESMTP
-	id S261981AbVANNSA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 08:18:00 -0500
-Message-ID: <41E7E308.2080504@outpost24.com>
-Date: Fri, 14 Jan 2005 16:19:36 +0100
-From: David Jacoby <dj@outpost24.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
+	Fri, 14 Jan 2005 08:32:30 -0500
+Received: from ppsw-8.csi.cam.ac.uk ([131.111.8.138]:38801 "EHLO
+	ppsw-8.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261980AbVANNcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 08:32:25 -0500
+Date: Fri, 14 Jan 2005 13:32:18 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Miklos Szeredi <miklos@szeredi.hu>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] FUSE - remove mount_max and user_allow_other module
+ parameters
+In-Reply-To: <E1CpQvu-0000WV-00@dorka.pomaz.szeredi.hu>
+Message-ID: <Pine.LNX.4.60.0501141327450.18572@hermes-1.csi.cam.ac.uk>
+References: <E1CpQvu-0000WV-00@dorka.pomaz.szeredi.hu>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux kernel 2.4.20-18.7smp bug
-References: <200501140901.j0E91Lk07957@adf141.allyes.com>	 <1105695993.6080.25.camel@laptopd505.fenrus.org>	 <41E7E008.7040603@outpost24.com> <1105708214.6042.12.camel@laptopd505.fenrus.org>
-In-Reply-To: <1105708214.6042.12.camel@laptopd505.fenrus.org>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well sorry for not making me clear, i forgot to say that
-im not using 2.4.20 or any other default kernel. Im using
-2.6.10 from kernel.org.
-
-the "vulnerability" im talking about is the following:
-
-http://www.isec.pl/vulnerabilities/isec-0022-pagefault.txt
-
-
-Best regards
-David Jacoby
-
-
-Arjan van de Ven wrote:
-
->On Fri, 2005-01-14 at 16:06 +0100, David Jacoby wrote:
+On Fri, 14 Jan 2005, Miklos Szeredi wrote:
+> This patch removes checks for zero uid (spotted by you).  These cannot
+> be replaced with checking for capable(CAP_SYS_ADMIN), since for mount
+> this capability will always be set.  Better aproach seems to be to
+> move the checks to fusermount (the mount utility provided with the
+> FUSE library).
+>
+> Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+> diff -rup linux-2.6.11-rc1-mm1/fs/fuse/inode.c linux-2.6.11-rc1-mm1-fuse/fs/fuse/inode.c
+> --- linux-2.6.11-rc1-mm1/fs/fuse/inode.c	2005-01-14 12:30:07.000000000 +0100
+> +++ linux-2.6.11-rc1-mm1-fuse/fs/fuse/inode.c	2005-01-14 12:44:36.000000000 +0100
+[snip]
+> @@ -534,11 +512,6 @@ static int fuse_fill_super(struct super_
+>  	if (!parse_fuse_opt((char *) data, &d))
+>  		return -EINVAL;
 >  
->
->>Hi everyone...
->>
->>Does anyknow know if there is  patch for this vulnerability?
->>    
->>
->
->"vulnerability" ???
->
->You first need to go to far far more recent kernel (the fedora-legacy
->project keeps providing kernel updates for the otherwise End Of Life
->RHL7.x series), and the kernel is tainted by a binary module so you want
->to try without that first as well.
->
->
->  
->
+> -	if (!user_allow_other &&
+> -	    (d.flags & (FUSE_ALLOW_OTHER | FUSE_ALLOW_ROOT)) &&
+> -	    current->uid != 0)
+> -		return -EPERM;
+> -
+>  	sb->s_blocksize = PAGE_CACHE_SIZE;
+>  	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
+>  	sb->s_magic = FUSE_SUPER_MAGIC;
+[snip]
 
+Are you sure you want to do this?  Placing security checks inside a 
+userspace utility and allowing everyone to do it in the kernel means that 
+any user/hacker could compile their own version of fusermount without the 
+check and bypass your security...  So if you really do not want users to 
+be able to do this you must do it inside the kernel.
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

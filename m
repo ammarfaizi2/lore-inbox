@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283932AbRLEKR5>; Wed, 5 Dec 2001 05:17:57 -0500
+	id <S283946AbRLEKSh>; Wed, 5 Dec 2001 05:18:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283942AbRLEKRr>; Wed, 5 Dec 2001 05:17:47 -0500
-Received: from ASYNC8-CS2.NET.CS.CMU.EDU ([128.2.188.152]:15634 "EHLO
-	mentor.odyssey.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S283932AbRLEKRd>; Wed, 5 Dec 2001 05:17:33 -0500
-Date: Wed, 5 Dec 2001 05:17:34 -0500
-To: "Eric S. Raymond" <esr@thyrsus.com>, Cameron Simpson <cs@zip.com.au>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        Christoph Hellwig <hch@caldera.de>, Keith Owens <kaos@ocs.com.au>,
-        kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
-Subject: CML2 with python1
-Message-ID: <20011205051734.A22345@cs.cmu.edu>
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Cameron Simpson <cs@zip.com.au>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-	Christoph Hellwig <hch@caldera.de>, Keith Owens <kaos@ocs.com.au>,
-	kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
-In-Reply-To: <20011204120305.A16578@thyrsus.com> <E16BJcB-0002o7-00@the-village.bc.nu> <20011205125938.A21170@zapff.research.canon.com.au> <20011205032954.B4836@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011205032954.B4836@thyrsus.com>
-User-Agent: Mutt/1.3.23i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+	id <S283942AbRLEKS2>; Wed, 5 Dec 2001 05:18:28 -0500
+Received: from gra-lx1.iram.es ([150.214.224.41]:33541 "EHLO gra-lx1.iram.es")
+	by vger.kernel.org with ESMTP id <S283945AbRLEKSP>;
+	Wed, 5 Dec 2001 05:18:15 -0500
+Date: Wed, 5 Dec 2001 11:17:35 +0100 (CET)
+From: Gabriel Paubert <paubert@iram.es>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: <linux-kernel@vger.kernel.org>, <sailer@ife.ee.ethz.ch>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: USB audio w/ "D" state
+In-Reply-To: <200112050728.fB57SDO230728@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.4.33.0112051112001.19602-100000@gra-lx1.iram.es>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 05, 2001 at 03:29:54AM -0500, Eric S. Raymond wrote:
-> Cameron Simpson <cs@zip.com.au>:
-> > ESR, is it practical to have CML2 transcribe a CML1 config file?
-> 
-> No, alas.
 
-But it _is_ entirely practical to run CML2 with a bog-standard python
-1.5 interpreter. I just did a search/replace for the python2-ism's like
 
- <x> += <y>           =>  <x> = <x> + <y>, and
- <string>.<op>(<arg>) => string.<op>(<string>, <arg>)
+On Wed, 5 Dec 2001, Albert D. Cahalan wrote:
 
-Worked around some missing functionality in the older shlex and curses
-modules and I can now use oldconfig, menuconfig, xconfig, and cmladvent
-with CML2 and a python1 interpreter. It also still works fine with
-python2 as well.
+>
+> I did "cat /bin/sh >> /dev/audio" and hit ^C to stop the noise.
+> The "cat" process gets stuck in "D" state with the WCHAN indicating
+> that the process is stuck 1/3 the way through the usbout_stop()
+> function.
+>
+> hardware:  Mac Cube and the normal spherical speakers
+> kernel:    plain 2.4.16 from www.kernel.org
+> compiler:  gcc version 2.95.4 20011006 (Debian prerelease)
+>
+> In case PPC assembly is useful to somebody, I've marked the instruction
+> where the process gets stuck. The surrounding "bl" instructions look
+> like infinite loops to me, but maybe I'm reading this wrong. The assembly
+> is from:   objdump -dl --start-address=0x1728 audio.o
 
-	http://ravel.coda.cs.cmu.edu/cml2-1.9.4-python1.patch (36K)
+Please add --reloc to this kind of dump, it makes the code much easier to
+follow in case you hit a compiler bug (this happens). Or directly
+disassemble vmlinux if it's not a module.
 
-36K might sound like a lot, but given the fact that the CML python
-sources totals about 280KB, it is a pretty small diff, and the whole
-"but python2 isn't standard in distributions and the license is bad"
-argument can be dropped and we can get on with life.
+[snipped]
+>     1790:       38 60 00 01     li      r3,1
+>     1794:       48 00 00 01     bl      1794 <usbout_stop+0x6c>
+                     ^^^^^^^^
+these bytes (and the 2 LSB  of the first byte) will be modified by the
+linker or module loader.
 
-Jan
+> --> 1798:       7f a3 eb 78     mr      r3,r29
+>     179c:       48 00 00 01     bl      179c <usbout_stop+0x74>
+>     17a0:       48 00 00 01     bl      17a0 <usbout_stop+0x78>
+
+	Regards,
+	Gabriel.
+
 

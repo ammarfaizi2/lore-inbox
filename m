@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267554AbTBGEBM>; Thu, 6 Feb 2003 23:01:12 -0500
+	id <S267696AbTBGEK4>; Thu, 6 Feb 2003 23:10:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267573AbTBGEBM>; Thu, 6 Feb 2003 23:01:12 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:13331 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267554AbTBGEBL>;
-	Thu, 6 Feb 2003 23:01:11 -0500
-Date: Thu, 6 Feb 2003 20:06:06 -0800
-From: Greg KH <greg@kroah.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [PATCH] Restore module support.
-Message-ID: <20030207040606.GA30337@kroah.com>
-References: <20030204233310.AD6AF2C04E@lists.samba.org> <Pine.LNX.4.44.0302062358140.32518-100000@serv> <20030206232515.GA29093@kroah.com> <Pine.LNX.4.44.0302070037230.32518-100000@serv>
+	id <S267690AbTBGEKz>; Thu, 6 Feb 2003 23:10:55 -0500
+Received: from dp.samba.org ([66.70.73.150]:61383 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267638AbTBGEKx>;
+	Thu, 6 Feb 2003 23:10:53 -0500
+Date: Fri, 7 Feb 2003 15:19:36 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Patrick Mansfield <patmans@us.ibm.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       James Bottomley <James.Bottomley@steeleye.com>, mikeand@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Cc: andmike@us.ibm.com
+Subject: Re: Broken SCSI code in the BK tree (was: 2.5.59-mm8)
+Message-ID: <20030207041936.GA26189@krispykreme>
+References: <211570000.1044508407@[10.10.2.4]> <265170000.1044564655@[10.10.2.4]> <275930000.1044570608@[10.10.2.4]> <1044573927.2332.100.camel@mulgrave> <20030206172434.A15559@beaverton.ibm.com> <293060000.1044583265@[10.10.2.4]> <20030206182502.A16364@beaverton.ibm.com> <20030206230544.E19868@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302070037230.32518-100000@serv>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030206230544.E19868@redhat.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 07, 2003 at 01:01:01AM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Thu, 6 Feb 2003, Greg KH wrote:
-> 
-> > But what are the modutils numbers? :)
-> 
-> There should be no real difference as I'd like to integrate Kai's patch too.
+ 
+Hi,
 
-Ok, I'm confused, you're advocating putting back the old modutils
-interface, but somehow not using the old modutils code?  I don't
-understand.
+> If I understand correctly, Matthew Jacob's latest isp driver set drives
+> *all* qlogic hardware (or at least all the older stuff like the qlogicisp
+> driver drives).  I would much prefer that people simply test out Matthew's
+> driver and use it instead.  In fact, if it's ready for 2.5 kernel use, I
+> would strongly recommend that it be considered as a possible replacement
+> in the linux kernel for the default driver on all qlogic cards not handled
+> by the new qla2x00 driver version 6 (DaveM may have objections to that 
+> related to sparc if Matthew's driver isn't sparc friendly, but I don't 
+> know of any other reason not to switch over).
 
+I had a bunch of problems with the in kernel and vendor qlogic drivers
+on my ppc64 box. Matt Jacob's driver worked out of the box. Davem
+sounded positive last time I asked him about it.
 
-> > Come on, what Rusty did was the "right thing to do" and has made life
-> > easier for all of the arch maintainers (or so says the ones that I've
-> > talked to), and has made my life easier with regards to
-> > MODULE_DEVICE_TABLE() logic, which will enable the /sbin/hotplug
-> > scripts/binary to shrink a _lot_.
-> 
-> What was the "right thing to do"?
-> There were certainly a few interesting changes, but I'd like discuss them 
-> first. For example there is more than one solution to improve the 
-> MODULE_DEVICE_TABLE() logic (*), so how is Rusty's better?
+I did a quick forward port to 2.5 a month or two ago, sounds like we
+should work to get it in the kernel. There are some rough edges but
+Mike kindly offered to lend a hand here.
 
-Neither one of those proposals, no any others, were backed with working
-examples.  Rusty had the only working example of getting rid of the
-userspace knowledge of the kernel data structures that I know of so far.
-
-thanks,
-
-greg k-h
+Anton

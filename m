@@ -1,73 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261496AbTCTOsi>; Thu, 20 Mar 2003 09:48:38 -0500
+	id <S261486AbTCTOvH>; Thu, 20 Mar 2003 09:51:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261499AbTCTOsh>; Thu, 20 Mar 2003 09:48:37 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:43514 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S261496AbTCTOse>; Thu, 20 Mar 2003 09:48:34 -0500
-Date: Thu, 20 Mar 2003 15:59:28 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Greg Ungerer <gerg@snapgear.com>, David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.56: undefined reference to `_ebss' from drivers/mtd/maps/uclinux.c
-Message-ID: <20030320145927.GF11659@fs.tum.de>
-References: <20030112095559.GT21826@fs.tum.de> <3E226969.5080406@snapgear.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E226969.5080406@snapgear.com>
-User-Agent: Mutt/1.4i
+	id <S261489AbTCTOvH>; Thu, 20 Mar 2003 09:51:07 -0500
+Received: from dial-ctb03146.webone.com.au ([210.9.243.146]:36873 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id <S261486AbTCTOvF>;
+	Thu, 20 Mar 2003 09:51:05 -0500
+Message-ID: <3E79D7CF.2020406@cyberone.com.au>
+Date: Fri, 21 Mar 2003 02:01:35 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Andrew Morton <akpm@digeo.com>, Joel.Becker@oracle.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: WimMark I report for 2.5.65-mm2
+References: <20030319232812.GJ2835@ca-server1.us.oracle.com> <20030319175726.59d08fba.akpm@digeo.com> <20030320003858.GM2835@ca-server1.us.oracle.com> <20030320080449.GL4990@suse.de> <20030320002050.44f13857.akpm@digeo.com> <20030320082947.GM4990@suse.de>
+In-Reply-To: <20030320082947.GM4990@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 13, 2003 at 05:23:21PM +1000, Greg Ungerer wrote:
-> Hi Adrian,
-> 
-> Adrian Bunk wrote:
-> >trying to compile 2.5.56 with CONFIG_MTD_UCLINUX fails on i386 with
-> >  undefined reference to `_ebss'
-> >at the final linking.
-> >
-> >It seems _ebss is only defined on the architectures m68knommu and v850?
-> 
-> Hmm, currently that is correct. There doesn't appear to be a
-> "standard" symbol name applied to the immediate end of the bss
-> section. Different architectures are using different names:
-> 
->   _ebss        -- m68knommu, v850
->   __bss_stop   -- i386, alpha, ppc, s390
->   __bss_end    -- x86_64
->   _end         -- mips, parisc, sparc, (actually most have this)
-> 
-> Actually it looks like _end is probably closer, it seems to
-> almost always fall strait after the bss, on just about every
-> architecture that has it.
-> 
-> Come to think of it _end is probably more appropriate anyway.
-> Since that code is trying to find the location of something
-> concatenated to the end of the kernel image.
+Jens Axboe wrote:
 
-
-This problem (undefined reference to `_ebss') is still present in 
-2.5.65.
-
-It might not be a solution for the whole issue, but is it intentionally
-that it's possible to enable CONFIG_MTD_UCLINUX on non-uClinux 
-architectures or should an appropriate dependency be added to the 
-Kconfig file?
-
-
-> Regards
-> Greg
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+>On Thu, Mar 20 2003, Andrew Morton wrote:
+>
+>>Jens Axboe <axboe@suse.de> wrote:
+>>
+>>>Besides, deadline is still the most solid choice.
+>>>
+>>Deadline will always be the best choice for OLTP workloads.  Or CFQ - it
+>>should perform the same.
+>>
+>>All this workload does is seeks all over the disk doing teeny synchronous
+>>I/O's.  It is the worst-case for AS.
+>>
+>>What we are trying to do at present is to make AS not _too_ bad for these
+>>workloads so that people with mixed workloads or who are not familiar with
+>>kernel arcanery don't accidentally end up with something which is
+>>significantly slower than it should be.
+>>
+>>It is an interesting test case.
+>>
+>
+>I understand that. A deadline run is still interesting if there are
+>regressions from -mm2 to -mm3, for example. If deadline shows the same
+>regression, it's likely not a newly introduced AS bug.
+>
+You are quite right of course, Jens. I did tell Joel not to worry
+about the other schedulers for a while just while I was trying to
+get AS even close to their performance. I thought it would take a
+bit longer to get there. It appears to be now, so yes, deadline
+runs will be nice.
 

@@ -1,87 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261472AbTCTO3t>; Thu, 20 Mar 2003 09:29:49 -0500
+	id <S261396AbTCTOfA>; Thu, 20 Mar 2003 09:35:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261484AbTCTO3t>; Thu, 20 Mar 2003 09:29:49 -0500
-Received: from mailrelay1.lanl.gov ([128.165.4.101]:41654 "EHLO
-	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
-	id <S261472AbTCTO3p>; Thu, 20 Mar 2003 09:29:45 -0500
-Subject: Re: 2.5.65-mm2
-From: Steven Cole <elenstev@mesatop.com>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-In-Reply-To: <200303192327.45883.tomlins@cam.org>
-References: <20030319012115.466970fd.akpm@digeo.com>
-	<20030319163337.602160d8.akpm@digeo.com>
-	<1048117516.1602.6.camel@spc1.esa.lanl.gov> 
-	<200303192327.45883.tomlins@cam.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 20 Mar 2003 07:36:12 -0700
-Message-Id: <1048170972.4302.119.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
+	id <S261488AbTCTOfA>; Thu, 20 Mar 2003 09:35:00 -0500
+Received: from mail.mtroyal.ab.ca ([142.109.10.24]:19082 "EHLO
+	brynhild.mtroyal.ab.ca") by vger.kernel.org with ESMTP
+	id <S261396AbTCTOe7>; Thu, 20 Mar 2003 09:34:59 -0500
+Date: Thu, 20 Mar 2003 07:45:58 -0700 (MST)
+From: James Bourne <jbourne@mtroyal.ab.ca>
+To: Christoph Baumann <cb@sorcus.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ptrace patch
+In-Reply-To: <001d01c2eeeb$02112b00$2265a8c0@dirtyentw>
+Message-ID: <Pine.LNX.4.51.0303200743050.25830@skuld.mtroyal.ab.ca>
+References: <001d01c2eeeb$02112b00$2265a8c0@dirtyentw>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.12.2 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-19 at 21:27, Ed Tomlinson wrote:
-> On March 19, 2003 06:45 pm, Steven P. Cole wrote:
-> > On Wed, 2003-03-19 at 17:33, Andrew Morton wrote:
-> > > "Steven P. Cole" <elenstev@mesatop.com> wrote:
-> > > > > Summary: using ext3, the simple window shake and scrollbar wiggle
-> > > > > tests were much improved, but really using Evolution left much to be
-> > > > > desired.
-> > > >
-> > > > Replying to myself for a followup,
-> > > >
-> > > > I repeated the tests with 2.5.65-mm2 elevator=deadline and the
-> > > > situation was similar to elevator=as.  Running dbench on ext3, the
-> > > > response to desktop switches and window wiggles was improved over
-> > > > running dbench on reiserfs, but typing in Evolution was subject to long
-> > > > delays with dbench clients greater than 16.
-> > >
-> > > OK, final question before I get off my butt and find a way to reproduce
-> > > this:
-> > >
-> > > Does reverting
-> > >
-> > > http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.65/2.5.65-mm2/broken-ou
-> > >t/sched-2.5.64-D3.patch
-> > >
-> > > help?
-> >
-> > Sorry, didn't have much time for a lot of testing, but no miracles
-> > occurred.  With 5 minutes of testing 2.5.65-mm2 and dbench 24 on ext3
-> > and that patch reverted (first hunk had to be manually fixed), I don't
-> > see any improvement.  Still the same long long delays in trying to use
-> > Evolution.
+On Thu, 20 Mar 2003, Christoph Baumann wrote:
+
+> FYI:
+> The ptrace patch at
+> http://www.hardrock.org/kernel/2.4.20/linux-2.4.20-ptrace.patch does not
+> seem to work.
+> I tried the exploit at http://sinuspl.net/ptrace/isec-ptrace-kmod-exploit.c
+> on a machine running the patched kernel and it still brought up a root
+> shell.
+
+Hi,
+Here is a test:
+
+bash$ md5sum isec-ptrace-kmod-exploit.c 
+f3a5c17bf8d207d3f4828020d1bcfa0a  isec-ptrace-kmod-exploit.c
+bash$ make isec-ptrace-kmod-exploit   
+cc     isec-ptrace-kmod-exploit.c   -o isec-ptrace-kmod-exploit
+bash$ ./isec-ptrace-kmod-exploit 
+[-] Unable to attach: Operation not permitted
+Killed
+bash$ id
+uid=151(myusername)
+gid=151(myusername)
+groups=151(mygrpname)
+bash$ uname -a
+Linux myhostname 2.4.20-9-PE2650-6650 #1 SMP Mon Mar 17 11:22:15 MST 2003 i686 unknown
+bash$ 
+
+Thankfully it does work.
+
+Check your binary for suid root.
+
+Regards,
+James Bourne
+
 > 
-> Steven,
 > 
-> Do things improve with the patch below applied?  You have to backout the 
-> schedule-tuneables patch before appling it.
+> Mit freundlichen Gruessen / Best regards
+> Dipl.-Phys. Christoph Baumann
+> ---
+> SORCUS Computer GmbH
+> Im Breitspiel 11 c
+> D-69126 Heidelberg
 > 
-> Ed Tomlinson
+> Tel.: +49(0)6221/3206-0
+> Fax: +49(0)6221/3206-66
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-[patch snipped]
+-- 
+James Bourne, Supervisor Data Centre Operations
+Mount Royal College, Calgary, AB, CA
+www.mtroyal.ab.ca
 
-I tried that patch, and the bad behavior with the Evolution "Compose a
-Message" window remains.  With a load of dbench 12, I had stalls of many
-seconds before I could type something.  Also, here is an additional
-symptom.  If I move the Evolution "Compose" window around rapidly, it
-leaves a smear of itself on the screen under itself.  With all -mm2
-variants, this smear stays for an intolerably long time (tens of
-seconds) while that window does not record keyboard strokes.  2.5.65-bk
-on the other hand exhibits much more benign behavior.  Under similar
-load, the smear disappears in a few seconds and the window starts
-responding to keyboard events.  I just now rebooted 2.5-bk to verify,
-and it is still responsive at dbench client loads which would make
-Evolution unusable with 2.5.65-mm2.  Mozilla, on the other hand, still
-works OK under load with -mm2.  This was all with dbench running on
-ext3.
+******************************************************************************
+This communication is intended for the use of the recipient to which it is
+addressed, and may contain confidential, personal, and or privileged
+information. Please contact the sender immediately if you are not the
+intended recipient of this communication, and do not copy, distribute, or
+take action relying on it. Any communication received in error, or
+subsequent reply, should be deleted or destroyed.
+******************************************************************************
 
-I won't be able to do any more testing for several hours, so have fun!
 
-Steven
+"There are only 10 types of people in this world: those who
+understand binary and those who don't."
 

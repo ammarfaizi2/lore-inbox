@@ -1,67 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262951AbUDPL6N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 07:58:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262936AbUDPL6N
+	id S262909AbUDPMFz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 08:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262952AbUDPMFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 07:58:13 -0400
-Received: from [202.28.93.1] ([202.28.93.1]:47117 "EHLO gear.kku.ac.th")
-	by vger.kernel.org with ESMTP id S262951AbUDPL6L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 07:58:11 -0400
-Date: Fri, 16 Apr 2004 18:25:18 +0700
-From: Kitt Tientanopajai <kitt@gear.kku.ac.th>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: daniel.ritz@gmx.ch, daniel.ritz@alcatel.ch, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH] fix Acer TravelMate 360 interrupt routing
-Message-Id: <20040416182518.46dd736c.kitt@gear.kku.ac.th>
-In-Reply-To: <29AC424F54821A4FB5D7CBE081922E401F8579@hdsmsx403.hd.intel.com>
-References: <29AC424F54821A4FB5D7CBE081922E401F8579@hdsmsx403.hd.intel.com>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 16 Apr 2004 08:05:55 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:51984 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262909AbUDPMFw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 08:05:52 -0400
+Date: Fri, 16 Apr 2004 13:05:48 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Bob Tracy <rct@gherkin.frus.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] sym53c500_cs PCMCIA SCSI driver (new)
+Message-ID: <20040416130548.B5080@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Bob Tracy <rct@gherkin.frus.com>, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org
+References: <20040410021703.946A9DBE3@gherkin.frus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040410021703.946A9DBE3@gherkin.frus.com>; from rct@gherkin.frus.com on Fri, Apr 09, 2004 at 09:17:03PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
- 
-> >Linux version 2.6.5-mm4 (root@peorth.kitty.in.th) (gcc version 
-> >3.3.2 20031022 (Red Hat Linux 3.3.2-1)) #1 Sun Apr 11 11:46:57 ICT 2004
-> ...
-> >Acer TravelMate 36x Laptop detected - fixing broken IRQ routing
-> >Acer TravelMate 36x Laptop detected: force use of pci=noacpi
+On Fri, Apr 09, 2004 at 09:17:03PM -0500, Bob Tracy wrote:
+> The attached patch set implements a PCMCIA SCSI driver for host adapters
+> based on the Symbios 53c500 chip.  The original driver for this chip was
+> written by Thomas Corner and available only as an add-on to the
+> pcmcia-cs package.  I've been maintaining the add-on driver on an
+> infrequent basis for the past several years, and the release of the 2.6
+> kernel "forced" a long overdue update.
 > 
-> Kitt,
-> The patch is a platform specific workaround that forces "pci=noacpi"
-> for this specific machine -- as if you supplied it on the cmdline.
-
-ah.. I see :)
- 
-> The idea is to run the kernel w/o this patch and see
-> If we can fix the root cause, thus possibly helping other
-> systems which have the same problem.
-
-Umm, I've tried almost, if not all, vanilla kernel 2.4.2x and 2.6.x, none of them could make the cardbus work. (For 2.4, I can to disable kernel pcmcia and use pcmcia-cs to make it works). I usually use "acpi=on pci=noacpi" for kernels that include ACPI. I also tried other boot param when I tested them, but the cardbus never work. lspci always reports irq 11 for the cardbus controllers.
-
-> If we fail to find/fix the root cause, or discover that
-> the platform has an issue that we simply can't fix
-> in the kernel, then it makes sense to add this automatic
-> workaround, but not before.
-
-It's better to fix them if we could. :) 
-
-rgds,
-kitt
-
-> >> > So for the ACPI mode part, I encourage you to file a bug here
-> >> >
-> >> > http://bugzilla.kernel.org/enter_bug.cgi?product=ACPI
-> >> > Component Config-Interrupts
-> >> > and assign it to me.  Or if a bug is open already,
-> >> > please direct me to it.
-> >> >
-> >> > thanks,
-> >> > -Len
+> The only host adapter I'm aware of that uses the sym53c500 controller
+> chip is the "new" version of the New Media Bus Toaster (circa 1996),
+> and the attached driver has been tested using this particular adapter
+> on a 2.6.4 kernel.  The patch set applies cleanly to 2.6.4 and 2.6.5.
 > 
+> Comments / feedback / cheers / jeers accepted...
+
+I've given it a short spin and here's a bunch of comments:
+
+ - the split into three source files is supserflous, one file should do it
+ - please don't use host.h or scsi.h from drivers/scsi/.  The defintions
+   not present in include/scsi/ are deprecated and shall not be used (the
+   most prominent example in your driver are the Scsi_<Foo> typedefs that
+   have been replaced by struct scsi_foo
+ - the driver doesn't even try to deal with multiple HBAs
+ - your detection logic could be streamlined a little, e.g. the request/release
+   resource mess
+

@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263554AbTHXMVB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 08:21:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263555AbTHXMVB
+	id S263477AbTHXMP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 08:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263485AbTHXMP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 08:21:01 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:15109 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263554AbTHXMU7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 08:20:59 -0400
-Date: Sun, 24 Aug 2003 13:20:58 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] macide (was: Re: Linux 2.6.0-test4)
-Message-ID: <20030824132058.A16763@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0308221732170.4677-100000@home.osdl.org> <Pine.GSO.4.21.0308241342190.14814-100000@waterleaf.sonytel.be>
+	Sun, 24 Aug 2003 08:15:29 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:64940 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263477AbTHXMPX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 08:15:23 -0400
+Date: Sun, 24 Aug 2003 14:10:09 +0200
+From: Vojtech Pavlik <vojtech@ucw.cz>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+Subject: Re: 2.6.0-test3-bk6: hang at i8042.c when booting with no PS/2 mouse attached
+Message-ID: <20030824121009.GB30316@ucw.cz>
+References: <20030824120605.23981.qmail@linuxmail.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0308241342190.14814-100000@waterleaf.sonytel.be>; from geert@linux-m68k.org on Sun, Aug 24, 2003 at 01:51:20PM +0200
+In-Reply-To: <20030824120605.23981.qmail@linuxmail.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 24, 2003 at 01:51:20PM +0200, Geert Uytterhoeven wrote:
-> On Fri, 22 Aug 2003, Linus Torvalds wrote:
-> > Bartlomiej Zolnierkiewicz:
-> >   o ide: disk geometry/capacity cleanups
-> >   o ide: always store disk capacity in u64
-> 
-> You forgot to update the Macintosh IDE driver:
+On Sun, Aug 24, 2003 at 01:06:05PM +0100, Felipe Alfaro Solana wrote:
+> ----- Original Message ----- 
+> From: Vojtech Pavlik <vojtech@ucw.cz> 
+> Date: Sun, 24 Aug 2003 12:46:15 +0200 
+> To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> 
+> Subject: Re: 2.6.0-test3-bk6: hang at i8042.c when booting with no PS/2 mouse attached 
+>  
+> > On Mon, Aug 18, 2003 at 09:09:16PM +0200, Felipe Alfaro Solana wrote: 
+> >  
+> > > If I try to boot my P4 box (i845DE motherboard) with no PS/2 mouse 
+> > > plugged into the PS/2 port, the kernel hangs while checking the AUX 
+> > > ports in function i8042_check_aux(). The i8042_check_aux() function is 
+> > > trying to request IRQ #12, but the call to request_irq() causes the 
+> > > hang. The kernel hangs exactly at: 
+> > >  
+> > >         if (request_irq(values->irq, i8042_interrupt, SA_SHIRQ, 
+> > >                                 "i8042", i8042_request_irq_cookie)) 
+> >  
+> > What happens if you remove the SA_SHIRQ and replace with 0? 
+>  
+> It does nothing: the kernel still hangs there. It seems to be a problem with the new ACPI code 
+> changes cause the kernel boots fine with "pci=noacpi". 
 
-Btw, what's the state of mac68k (and the other m68k subarches) on
-2.6?
+Most likely something with the polarity of interrupts.
 
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

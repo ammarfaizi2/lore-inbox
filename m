@@ -1,21 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132163AbQLQDhX>; Sat, 16 Dec 2000 22:37:23 -0500
+	id <S132297AbQLQDlo>; Sat, 16 Dec 2000 22:41:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132257AbQLQDhN>; Sat, 16 Dec 2000 22:37:13 -0500
-Received: from ferret.phonewave.net ([208.138.51.183]:55058 "EHLO
-	tarot.mentasm.org") by vger.kernel.org with ESMTP
-	id <S132163AbQLQDhI>; Sat, 16 Dec 2000 22:37:08 -0500
-Date: Sat, 16 Dec 2000 19:05:39 -0800 (PST)
-From: ferret@phonewave.net
-To: Peter Samuelson <peter@cadcamlab.org>
-cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-        Dana Lacoste <dana.lacoste@peregrine.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Linus's include file strategy redux
-In-Reply-To: <20001216174351.N3199@cadcamlab.org>
-Message-ID: <Pine.LNX.3.96.1001216190142.25257A-100000@tarot.mentasm.org>
+	id <S132303AbQLQDle>; Sat, 16 Dec 2000 22:41:34 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:13328 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S132297AbQLQDlU>; Sat, 16 Dec 2000 22:41:20 -0500
+Date: Sat, 16 Dec 2000 19:09:56 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test13-pre1 lockup: run_task_queue or tty_io are wrong
+In-Reply-To: <20001217034928.A410@ppc.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.10.10012161859340.23256-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,37 +20,66 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sat, 16 Dec 2000, Peter Samuelson wrote:
+On Sun, 17 Dec 2000, Petr Vandrovec wrote:
+>   my 2.4.0-test13-pre1 just stopped answering to my keystrokes.
+> I've found that it is looping in tqueue_bh and flush_to_ldisc
+> still again and again.
 
-> 
-> [ferret@phonewave.net]
-> > Do you have an alternative reccomendation? I've shown where the
-> > symlink method WILL fail. You disagree that having the configured
-> > headers copied is a workable idea. What else is there?
-> 
-> 4.5 more megabytes, per kernel, on my root filesystem.  (That's *after*
-> pruning the extra include/asm-*/'s.)  Thanks but no thanks.
+Thanks, I think you found the big problem with test12.
 
-Yep. Did not occur to me at the time I asked. Someone else pointed this
-out to me also. VERY good point, but still needed to be explicitely
-mentioned.
+> Is current run_task_queue() behavior intentional, or is it
+> only bug introduced by changing task queue to list based
+> implementation?
 
-> Symlinks fail only if you move or delete your tree.  By doing that, you
-> have proven that you actually know what and where your kernel sources
-> are, which in turn is strong evidence that you are not in need of those
-> "External Module Compiling for Dummies" scripts.
+It's a bug.
 
-I have not moved or deleted a tree. I do not HAVE a kernel tree in the
-first place. Therefore, nothing for the symlink to point to when I install
-the kernel.
+Ho humm. I'll have to check what the proper fix is. Right now the rule is
+that nobody can _ever_ remove himself from a task queue, although there is
+one bad user that does exactly that, and that means that it should be ok
+to just cache the "next" pointer in run_task_queue(), and make it look
+something like
 
-> Conversely, by actually trusting a random script to compile an external
-> module unaided, the user is all but declaring himself incapable of
-> messing around with the /usr/src/linux that came pre-installed.
+	static void run_task_queue(task_queue *list)
+	{
+		if (!list_empty(list)) {
+			unsigned long flags;
+			struct list_head *next;
 
-You are assuming there is a /usr/src/linux that came pre-installed. This
-is not a valid assumption.
+			spin_lock_irqsave(&tqueue_lock, flags);
+			next = list->next;
+			while (next != list) {
+				struct list_head *curr;
+				void *arg;
+				void (*f) (void *);  
+				struct tq_struct *p;
 
+				curr = next;
+				next = next->next;
+				list_del(curr);
+
+				p = list_entry(curr, struct tq_struct, list);
+				arg = p->data;
+				f = p->routine;
+				p->sync = 0;
+				spin_unlock_irqrestore(&tqueue_lock, flags);
+
+				if (f)
+					f(arg);
+
+				spin_lock_irq(&tqueue_lock);
+			}
+			spin_unlock_irqrestore(&tqueue_lock, flags);
+		}
+	}
+				
+which basically will never re-start at the head if a tq re-inserts iself
+(side note: new entires are inserted at the end, but if it was already the
+last entry then re-inserting it will not re-execute it, should this should
+avoid your problem).
+
+Does this fix the problem for you?
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

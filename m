@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbUKQMf3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbUKQMk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262298AbUKQMf3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 07:35:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbUKQMf3
+	id S262287AbUKQMk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 07:40:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbUKQMk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 07:35:29 -0500
-Received: from mail.sf-mail.de ([62.27.20.61]:9667 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S262295AbUKQMe5 (ORCPT
+	Wed, 17 Nov 2004 07:40:28 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:57264 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262287AbUKQMkZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 07:34:57 -0500
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Documentation/pci.txt inconsistency
-Date: Wed, 17 Nov 2004 13:34:56 +0100
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Nov 2004 07:40:25 -0500
+Date: Wed, 17 Nov 2004 14:41:50 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: john cooper <john.cooper@timesys.com>, "K.R. Foley" <kr@cybsft.com>,
+       Mark_H_Johnson@raytheon.com, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Stefan Schweizer <sschweizer@gmail.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.27-3
+Message-ID: <20041117134150.GA29754@elte.hu>
+References: <20041116223243.43feddf4@mango.fruits.de> <20041116224257.GB27550@elte.hu> <20041116230443.452497b9@mango.fruits.de> <20041116231145.GC31529@elte.hu> <20041116235535.6867290d@mango.fruits.de> <20041117002926.32a4b26f@mango.fruits.de> <419A961A.2070005@timesys.com> <20041117122318.479805fa@mango.fruits.de> <20041117130236.GA28240@elte.hu> <20041117131400.0c1dbe95@mango.fruits.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411171334.56492@bilbo.math.uni-mannheim.de>
+In-Reply-To: <20041117131400.0c1dbe95@mango.fruits.de>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The examples in section 2 of Documentation/pci.txt use pci_get_*. Some lines
-later there is this funny little paragraph:
 
-> Note that these functions are not hotplug-safe.  Their hotplug-safe
-> replacements are pci_get_device(), pci_get_class() and pci_get_subsys().
-> They increment the reference count on the pci_dev that they return.
-> You must eventually (possibly at module unload) decrement the reference
-> count on these devices by calling pci_dev_put().
+* Florian Schmidt <mista.tapas@gmx.net> wrote:
 
-How about this:
+> > could you send me the latest .config you are using on this box?
+> 
+> sure. attached. 
 
-These functions are hotplug-safe. They increment the reference count on the
-pci_dev that they return. You must eventually (possibly at module unload)
-decrement the reference count on these devices by calling pci_dev_put().
+> what else would be interesting for you?
 
-Eike
+have you kicked the latency tracer by clearing preempt_max_latency, or
+is it at the default (off) value?
+
+	Ingo

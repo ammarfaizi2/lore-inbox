@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262491AbSKCVt6>; Sun, 3 Nov 2002 16:49:58 -0500
+	id <S262357AbSKCV6b>; Sun, 3 Nov 2002 16:58:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264624AbSKCVt6>; Sun, 3 Nov 2002 16:49:58 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:43015 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262491AbSKCVt6>; Sun, 3 Nov 2002 16:49:58 -0500
-Date: Sun, 3 Nov 2002 22:55:55 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Sam Ravnborg <sam@ravnborg.org>,
-       Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5: troubles with piping make output
-In-Reply-To: <20021103213920.H5589@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0211032252000.13258-100000@serv>
-References: <200211031122.gA3BMbp27805@Port.imtp.ilyichevsk.odessa.ua>
- <20021103182805.GA1057@mars.ravnborg.org> <200211031946.gA3JkIp29186@Port.imtp.ilyichevsk.odessa.ua>
- <Pine.LNX.4.44.0211032106010.6949-100000@serv> <20021103202446.F5589@flint.arm.linux.org.uk>
- <Pine.LNX.4.44.0211032146240.6949-100000@serv> <20021103212435.G5589@flint.arm.linux.org.uk>
- <Pine.LNX.4.44.0211032227100.6949-100000@serv> <20021103213920.H5589@flint.arm.linux.org.uk>
+	id <S262363AbSKCV6b>; Sun, 3 Nov 2002 16:58:31 -0500
+Received: from schroeder.cs.wisc.edu ([128.105.6.11]:40455 "EHLO
+	schroeder.cs.wisc.edu") by vger.kernel.org with ESMTP
+	id <S262357AbSKCV63>; Sun, 3 Nov 2002 16:58:29 -0500
+Message-Id: <200211032204.gA3M4vI24773@schroeder.cs.wisc.edu>
+Content-Type: text/plain; charset=US-ASCII
+From: Nick LeRoy <nleroy@cs.wisc.edu>
+To: Jos Hulzink <josh@stack.nl>, Vojtech Pavlik <vojtech@suse.cz>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Petition against kernel configuration options madness...
+Date: Sun, 3 Nov 2002 16:04:56 -0600
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <200211031809.45079.josh@stack.nl> <20021103200704.A8377@ucw.cz> <200211032239.10843.josh@stack.nl>
+In-Reply-To: <200211032239.10843.josh@stack.nl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sunday 03 November 2002 03:39 pm, Jos Hulzink wrote:
+> On Sunday 03 November 2002 20:07, Vojtech Pavlik wrote:
+> > On Sun, Nov 03, 2002 at 12:52:48PM -0500, Jeff Garzik wrote:
+> > > Unfortunately I don't have any concrete suggestions for Vojtech (input
+> > > subsystem maintainer), just a request that it becomes easier and more
+> > > obvious how to configure the keyboard and mouse that is found on > 90%
+> > > of all Linux users computers [IMO]...
+> >
+> > Too bad you don't have any suggestions. I completely agree this should
+> > be simplified, while I wouldn't be happy to lose the possibility of not
+> > compiling AT keyboard support in.
+>
+> Something I have been thinking about for a while is a quick-config option
+> (that sets some defaults that hold for 90% of the systems), or an expert
+> mode that shows extra options. Though I understand that this is hard to do,
+> and much hardware differs, I think it can be done for some basics like
+> keyboard, mouse, USB and stuff.
 
-On Sun, 3 Nov 2002, Russell King wrote:
+I like this idea!
 
-> > As I already said, oldconfig still works as before. Maybe you should have 
-> > tried it first?
-> 
-> I have.  However, I thought you were about to change the oldconfig
-> behaviour.  My bad.
+> Yes, this will cause your kernel to be bigger than optimal, for some
+> drivers will be compiled in that are not used on your system. But if you
+> want you can optimize things away after clicking <set defaults for standard
+> IBM PC>.
 
-Why should I? The original problem was with 'make | tee', which might run 
-a silent version of oldconfig.
+How about running the "quick config", which I can then use a base to 
+customize?
 
-> The patch is still required, though, to make sure stdout is flushed to
-> the user before asking a question, which doesn't happen in the case I
-> highlighted.
+> If this idea is not blown away immediately, I'm willing to work this idea
+> out a little, though I can understand that people call me an idiot...
 
-Will add. Thanks.
+Not at all!
 
-bye, Roman
-
+-Nick

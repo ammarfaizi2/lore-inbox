@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVBWAlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbVBWAs5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbVBWAlr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 19:41:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVBWAlr
+	id S261370AbVBWAs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 19:48:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVBWAs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 19:41:47 -0500
-Received: from rproxy.gmail.com ([64.233.170.201]:61924 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261366AbVBWAlo (ORCPT
+	Tue, 22 Feb 2005 19:48:57 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:46734 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261368AbVBWAsx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 19:41:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=H/JvfLfk2S8CyT0c/jbcJn0IUNRkLU65SJ16fw6UCa7bDXFKhmXspmk+baeQr33sBzyYYqw4Ym3F2wMNgXbsxtO7Y1CyJhs+w9aFvbOyGOs/YGMjvs1JGbauK+gUMraXp+udZBJryqz2FBiG6+5eWGEA4pJRqH293rc01s+kYuo=
-Message-ID: <876ef97a050222164140968e15@mail.gmail.com>
-Date: Tue, 22 Feb 2005 19:41:41 -0500
-From: Tobias DiPasquale <codeslinger@gmail.com>
-Reply-To: Tobias DiPasquale <codeslinger@gmail.com>
-To: "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] TCP-Hybla proposal
-Cc: John Heffner <jheffner@psc.edu>, shemminger@osdl.org,
-       mlists@danielinux.net, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, ccaini@deis.unibo.it,
-       rfirrincieli@arces.unibo.it
-In-Reply-To: <20050222101447.68a02c12.davem@davemloft.net>
+	Tue, 22 Feb 2005 19:48:53 -0500
+Subject: Re: [patch -mm series] ia64 specific /dev/mem handlers
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Jes Sorensen <jes@wildopensource.com>
+Cc: Andrew Morton <akpm@osdl.org>, Matthew Wilcox <matthew@wil.cx>,
+       linux-ia64@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <yq0650kl1gd.fsf@jaguar.mkp.net>
+References: <16923.193.128608.607599@jaguar.mkp.net>
+	 <20050222020309.4289504c.akpm@osdl.org> <yq0ekf8lksf.fsf@jaguar.mkp.net>
+	 <20050222175225.GK28741@parcelfarce.linux.theplanet.co.uk>
+	 <20050222112513.4162860d.akpm@osdl.org>
+	 <1109100938.25666.44.camel@localhost>  <yq0650kl1gd.fsf@jaguar.mkp.net>
+Content-Type: text/plain
+Date: Tue, 22 Feb 2005 16:48:44 -0800
+Message-Id: <1109119724.7277.25.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-References: <200502221534.42948.mlists@danielinux.net>
-	 <20050222094219.0a8efbe1@dxpl.pdx.osdl.net>
-	 <Pine.LNX.4.58.0502221247130.22393@dexter.psc.edu>
-	 <20050222101447.68a02c12.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Feb 2005 10:14:47 -0800, David S. Miller <davem@davemloft.net> wrote:
-> On Tue, 22 Feb 2005 13:03:11 -0500 (EST)
-> John Heffner <jheffner@psc.edu> wrote:
+On Tue, 2005-02-22 at 16:38 -0500, Jes Sorensen wrote:
+> >>>>> "Dave" == Dave Hansen <haveblue@us.ibm.com> writes:
 > 
-> > An idea I've been toying with for a while now is completely abstracting
-> > congestion control.  Then you could have congestion control loadable
-> > modules, which would avoid this mess of experimental algorithms inside the
-> > main-line kernel.  If done right, they might be able to work seamlessly
-> > with SCTP, too.  The tricky part is making sure the interface is complete
-> > enough.
+> Dave> I was talking with Nigel Cunningham about doing something a
+> Dave> little different from the classic page flag bits when the number
+> Dave> of users is restricted and performance isn't ultra-critical.
+> Dave> Would something like this work for you, instead of using a real
+> Dave> page->flags bit for PG_cached?
 > 
-> The symbols exported to allow this would need to be EXPORT_SYMBOL_GPL().
+> Just took a quick look at this and it looks a bit heavy for our
+> use. We are only looking at a small number of pages. However I could
+> imagine future cases where performance may be more critical.
 
-Why's that?
+If it's a quite small number (or range) of pages, perhaps a short
+list_head list would suffice.  It would sure beat consuming a page flag.
 
--- 
-[ Tobias DiPasquale ]
-0x636f6465736c696e67657240676d61696c2e636f6d
+-- Dave
+

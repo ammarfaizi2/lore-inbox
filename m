@@ -1,147 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264359AbTLVGaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 01:30:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbTLVGZA
+	id S264387AbTLVGdw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 01:33:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbTLVGdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 01:25:00 -0500
-Received: from zero.voxel.net ([209.123.232.253]:37019 "EHLO zero.voxel.net")
-	by vger.kernel.org with ESMTP id S264333AbTLVGWc (ORCPT
+	Mon, 22 Dec 2003 01:33:51 -0500
+Received: from fw.osdl.org ([65.172.181.6]:33930 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264387AbTLVGdm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 01:22:32 -0500
-Subject: [PATCH 6/10] CardServices() removal from pcmcia net drivers
-From: Andres Salomon <dilinger@voxel.net>
-To: linux-kernel@vger.kernel.org
-Cc: dahinds@users.sourceforge.net, akpm@osdl.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-8rjkRmSsGFlPi144V45D"
-Message-Id: <1072073124.27831.33.camel@spiral.internal>
+	Mon, 22 Dec 2003 01:33:42 -0500
+Date: Sun, 21 Dec 2003 22:33:32 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ben Slusky <sluskyb@paranoiacs.org>
+Cc: linux-kernel@vger.kernel.org, jariruusu@users.sourceforge.net
+Subject: Re: [PATCH] loop.c patches, take two
+Message-Id: <20031221223332.5c625592.akpm@osdl.org>
+In-Reply-To: <20031221195534.GA4721@fukurou.paranoiacs.org>
+References: <20031030134137.GD12147@fukurou.paranoiacs.org>
+	<3FA15506.B9B76A5D@users.sourceforge.net>
+	<20031030133000.6a04febf.akpm@osdl.org>
+	<20031031005246.GE12147@fukurou.paranoiacs.org>
+	<20031031015500.44a94f88.akpm@osdl.org>
+	<20031101002650.GA7397@fukurou.paranoiacs.org>
+	<20031102204624.GA5740@fukurou.paranoiacs.org>
+	<20031221195534.GA4721@fukurou.paranoiacs.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 22 Dec 2003 01:16:08 -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ben Slusky <sluskyb@paranoiacs.org> wrote:
+>
+> Well, it appears that neither my loop.c patches nor Andrew's were merged
+>  into 2.6.0... I'd request that my patches be merged into mainline,
+>  since Jari Ruusu has pointed out that Andrew's patch (which removes the
+>  separate code path for block-backed loop devices) will break journaling
+>  filesystems on loop devices. Right now, journaling FS's on file-backed
+>  loop devices are kinda iffy (they will work only if the underlying FS is
+>  also journaled, with the correct journal options) but journaling FS's
+>  on block-backed loop devices work perfectly. Andrew's patches would
+>  break this.
 
---=-8rjkRmSsGFlPi144V45D
-Content-Type: multipart/mixed; boundary="=-/hwco8NIsuYJyPtTFOLY"
+I'm not sure how important this is?
 
-
---=-/hwco8NIsuYJyPtTFOLY
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Part 6 of 10.
-
---=-/hwco8NIsuYJyPtTFOLY
-Content-Disposition: attachment; filename=006-cs_remove.patch
-Content-Type: text/x-patch; name=006-cs_remove.patch; charset=us-ascii
-Content-Transfer-Encoding: base64
-
-UmV2aXNpb246IGxpbnV4LS1tYWlubGluZS0tMi42LS1wYXRjaC0xOQ0KQXJjaGl2ZTogZGlsaW5n
-ZXJAdm94ZWwubmV0LS0yMDAzLXNwaXJhbA0KQ3JlYXRvcjogQW5kcmVzIFNhbG9tb24gPGRpbGlu
-Z2VyQHZveGVsLm5ldD4NCkRhdGU6IFN1biBEZWMgMjEgMjE6Mjc6NDUgRVNUIDIwMDMNClN0YW5k
-YXJkLWRhdGU6IDIwMDMtMTItMjIgMDI6Mjc6NDUgR01UDQpNb2RpZmllZC1maWxlczogZHJpdmVy
-cy9uZXQvcGNtY2lhLzNjNTg5X2NzLmMNCk5ldy1wYXRjaGVzOiBkaWxpbmdlckB2b3hlbC5uZXQt
-LTIwMDMtc3BpcmFsL2xpbnV4LS1tYWlubGluZS0tMi42LS1wYXRjaC0xOQ0KU3VtbWFyeTogQ2Fy
-ZFNlcnZpY2VzKCkgcmVtb3ZhbCwgcHQuIDYNCktleXdvcmRzOiANCg0KUmVtb3ZlIGNhbGxzIHRv
-IENhcmRTZXJ2aWNlcygpLCBwYXJ0IDY7IDNjNTg5X2NzLmMuDQoNCiogYWRkZWQgZmlsZXMNCg0K
-ICAgIHthcmNofS9saW51eC9saW51eC0tbWFpbmxpbmUvbGludXgtLW1haW5saW5lLS0yLjYvZGls
-aW5nZXJAdm94ZWwubmV0LS0yMDAzLXNwaXJhbC9wYXRjaC1sb2cvcGF0Y2gtMTkNCg0KKiBtb2Rp
-ZmllZCBmaWxlcw0KDQotLS0gb3JpZy9kcml2ZXJzL25ldC9wY21jaWEvM2M1ODlfY3MuYw0KKysr
-IG1vZC9kcml2ZXJzL25ldC9wY21jaWEvM2M1ODlfY3MuYw0KQEAgLTI0NCw3ICsyNDQsNyBAQA0K
-ICAgICBjbGllbnRfcmVnLmV2ZW50X2hhbmRsZXIgPSAmdGM1ODlfZXZlbnQ7DQogICAgIGNsaWVu
-dF9yZWcuVmVyc2lvbiA9IDB4MDIxMDsNCiAgICAgY2xpZW50X3JlZy5ldmVudF9jYWxsYmFja19h
-cmdzLmNsaWVudF9kYXRhID0gbGluazsNCi0gICAgcmV0ID0gQ2FyZFNlcnZpY2VzKFJlZ2lzdGVy
-Q2xpZW50LCAmbGluay0+aGFuZGxlLCAmY2xpZW50X3JlZyk7DQorICAgIHJldCA9IHBjbWNpYV9y
-ZWdpc3Rlcl9jbGllbnQoJmxpbmstPmhhbmRsZSwgJmNsaWVudF9yZWcpOw0KICAgICBpZiAocmV0
-ICE9IDApIHsNCiAJY3NfZXJyb3IobGluay0+aGFuZGxlLCBSZWdpc3RlckNsaWVudCwgcmV0KTsN
-CiAJdGM1ODlfZGV0YWNoKGxpbmspOw0KQEAgLTI4Myw3ICsyODMsNyBAQA0KICAgICB9DQogICAg
-IA0KICAgICBpZiAobGluay0+aGFuZGxlKQ0KLQlDYXJkU2VydmljZXMoRGVyZWdpc3RlckNsaWVu
-dCwgbGluay0+aGFuZGxlKTsNCisJcGNtY2lhX2RlcmVnaXN0ZXJfY2xpZW50KGxpbmstPmhhbmRs
-ZSk7DQogICAgIA0KICAgICAvKiBVbmxpbmsgZGV2aWNlIHN0cnVjdHVyZSwgZnJlZSBiaXRzICov
-DQogICAgICpsaW5rcCA9IGxpbmstPm5leHQ7DQpAQCAtMzAzLDggKzMwMyw4IEBADQogICAgIA0K
-ID09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT0qLw0KIA0KLSNkZWZpbmUgQ1NfQ0hFQ0soZm4sIGFyZ3MuLi4pIFwNCi13
-aGlsZSAoKGxhc3RfcmV0PUNhcmRTZXJ2aWNlcyhsYXN0X2ZuPShmbiksIGFyZ3MpKSE9MCkgZ290
-byBjc19mYWlsZWQNCisjZGVmaW5lIENTX0NIRUNLKGZuLCByZXQpIFwNCitkbyB7IGxhc3RfZm4g
-PSAoZm4pOyBpZiAoKGxhc3RfcmV0ID0gKHJldCkpICE9IDApIGdvdG8gY3NfZmFpbGVkOyB9IHdo
-aWxlICgwKQ0KIA0KIHN0YXRpYyB2b2lkIHRjNTg5X2NvbmZpZyhkZXZfbGlua190ICpsaW5rKQ0K
-IHsNCkBAIC0zMjMsMjAgKzMyMywyMCBAQA0KICAgICBwaHlzX2FkZHIgPSAodTE2ICopZGV2LT5k
-ZXZfYWRkcjsNCiAgICAgdHVwbGUuQXR0cmlidXRlcyA9IDA7DQogICAgIHR1cGxlLkRlc2lyZWRU
-dXBsZSA9IENJU1RQTF9DT05GSUc7DQotICAgIENTX0NIRUNLKEdldEZpcnN0VHVwbGUsIGhhbmRs
-ZSwgJnR1cGxlKTsNCisgICAgQ1NfQ0hFQ0soR2V0Rmlyc3RUdXBsZSwgcGNtY2lhX2dldF9maXJz
-dF90dXBsZShoYW5kbGUsICZ0dXBsZSkpOw0KICAgICB0dXBsZS5UdXBsZURhdGEgPSAoY2lzZGF0
-YV90ICopYnVmOw0KICAgICB0dXBsZS5UdXBsZURhdGFNYXggPSBzaXplb2YoYnVmKTsNCiAgICAg
-dHVwbGUuVHVwbGVPZmZzZXQgPSAwOw0KLSAgICBDU19DSEVDSyhHZXRUdXBsZURhdGEsIGhhbmRs
-ZSwgJnR1cGxlKTsNCi0gICAgQ1NfQ0hFQ0soUGFyc2VUdXBsZSwgaGFuZGxlLCAmdHVwbGUsICZw
-YXJzZSk7DQorICAgIENTX0NIRUNLKEdldFR1cGxlRGF0YSwgcGNtY2lhX2dldF90dXBsZV9kYXRh
-KGhhbmRsZSwgJnR1cGxlKSk7DQorICAgIENTX0NIRUNLKFBhcnNlVHVwbGUsIHBjbWNpYV9wYXJz
-ZV90dXBsZShoYW5kbGUsICZ0dXBsZSwgJnBhcnNlKSk7DQogICAgIGxpbmstPmNvbmYuQ29uZmln
-QmFzZSA9IHBhcnNlLmNvbmZpZy5iYXNlOw0KICAgICBsaW5rLT5jb25mLlByZXNlbnQgPSBwYXJz
-ZS5jb25maWcucm1hc2tbMF07DQogICAgIA0KICAgICAvKiBJcyB0aGlzIGEgM2M1NjI/ICovDQog
-ICAgIHR1cGxlLkRlc2lyZWRUdXBsZSA9IENJU1RQTF9NQU5GSUQ7DQogICAgIHR1cGxlLkF0dHJp
-YnV0ZXMgPSBUVVBMRV9SRVRVUk5fQ09NTU9OOw0KLSAgICBpZiAoKENhcmRTZXJ2aWNlcyhHZXRG
-aXJzdFR1cGxlLCBoYW5kbGUsICZ0dXBsZSkgPT0gQ1NfU1VDQ0VTUykgJiYNCi0JKENhcmRTZXJ2
-aWNlcyhHZXRUdXBsZURhdGEsIGhhbmRsZSwgJnR1cGxlKSA9PSBDU19TVUNDRVNTKSkgew0KKyAg
-ICBpZiAoKHBjbWNpYV9nZXRfZmlyc3RfdHVwbGUoaGFuZGxlLCAmdHVwbGUpID09IENTX1NVQ0NF
-U1MpICYmDQorCShwY21jaWFfZ2V0X3R1cGxlX2RhdGEoaGFuZGxlLCAmdHVwbGUpID09IENTX1NV
-Q0NFU1MpKSB7DQogCWlmIChsZTE2X3RvX2NwdShidWZbMF0pICE9IE1BTkZJRF8zQ09NKQ0KIAkg
-ICAgcHJpbnRrKEtFUk5fSU5GTyAiM2M1ODlfY3M6IGhtbW0sIGlzIHRoaXMgcmVhbGx5IGEgIg0K
-IAkJICAgIjNDb20gY2FyZD8/XG4iKTsNCkBAIC0zNTEsMTUgKzM1MSwxNSBAQA0KICAgICBmb3Ig
-KGkgPSBqID0gMDsgaiA8IDB4NDAwOyBqICs9IDB4MTApIHsNCiAJaWYgKG11bHRpICYmIChqICYg
-MHg4MCkpIGNvbnRpbnVlOw0KIAlsaW5rLT5pby5CYXNlUG9ydDEgPSBqIF4gMHgzMDA7DQotCWkg
-PSBDYXJkU2VydmljZXMoUmVxdWVzdElPLCBsaW5rLT5oYW5kbGUsICZsaW5rLT5pbyk7DQorCWkg
-PSBwY21jaWFfcmVxdWVzdF9pbyhsaW5rLT5oYW5kbGUsICZsaW5rLT5pbyk7DQogCWlmIChpID09
-IENTX1NVQ0NFU1MpIGJyZWFrOw0KICAgICB9DQogICAgIGlmIChpICE9IENTX1NVQ0NFU1MpIHsN
-CiAJY3NfZXJyb3IobGluay0+aGFuZGxlLCBSZXF1ZXN0SU8sIGkpOw0KIAlnb3RvIGZhaWxlZDsN
-CiAgICAgfQ0KLSAgICBDU19DSEVDSyhSZXF1ZXN0SVJRLCBsaW5rLT5oYW5kbGUsICZsaW5rLT5p
-cnEpOw0KLSAgICBDU19DSEVDSyhSZXF1ZXN0Q29uZmlndXJhdGlvbiwgbGluay0+aGFuZGxlLCAm
-bGluay0+Y29uZik7DQorICAgIENTX0NIRUNLKFJlcXVlc3RJUlEsIHBjbWNpYV9yZXF1ZXN0X2ly
-cShsaW5rLT5oYW5kbGUsICZsaW5rLT5pcnEpKTsNCisgICAgQ1NfQ0hFQ0soUmVxdWVzdENvbmZp
-Z3VyYXRpb24sIHBjbWNpYV9yZXF1ZXN0X2NvbmZpZ3VyYXRpb24obGluay0+aGFuZGxlLCAmbGlu
-ay0+Y29uZikpOw0KIAkNCiAgICAgZGV2LT5pcnEgPSBsaW5rLT5pcnEuQXNzaWduZWRJUlE7DQog
-ICAgIGRldi0+YmFzZV9hZGRyID0gbGluay0+aW8uQmFzZVBvcnQxOw0KQEAgLTM3NCw4ICszNzQs
-OCBAQA0KICAgICAvKiBUaGUgM2M1ODkgaGFzIGFuIGV4dHJhIEVFUFJPTSBmb3IgY29uZmlndXJh
-dGlvbiBpbmZvLCBpbmNsdWRpbmcNCiAgICAgICAgdGhlIGhhcmR3YXJlIGFkZHJlc3MuICBUaGUg
-M2M1NjIgcHV0cyB0aGUgYWRkcmVzcyBpbiB0aGUgQ0lTLiAqLw0KICAgICB0dXBsZS5EZXNpcmVk
-VHVwbGUgPSAweDg4Ow0KLSAgICBpZiAoQ2FyZFNlcnZpY2VzKEdldEZpcnN0VHVwbGUsIGhhbmRs
-ZSwgJnR1cGxlKSA9PSBDU19TVUNDRVNTKSB7DQotCUNhcmRTZXJ2aWNlcyhHZXRUdXBsZURhdGEs
-IGhhbmRsZSwgJnR1cGxlKTsNCisgICAgaWYgKHBjbWNpYV9nZXRfZmlyc3RfdHVwbGUoaGFuZGxl
-LCAmdHVwbGUpID09IENTX1NVQ0NFU1MpIHsNCisJcGNtY2lhX2dldF90dXBsZV9kYXRhKGhhbmRs
-ZSwgJnR1cGxlKTsNCiAJZm9yIChpID0gMDsgaSA8IDM7IGkrKykNCiAJICAgIHBoeXNfYWRkcltp
-XSA9IGh0b25zKGJ1ZltpXSk7DQogICAgIH0gZWxzZSB7DQpAQCAtNDQwLDkgKzQ0MCw5IEBADQog
-CXJldHVybjsNCiAgICAgfQ0KICAgICANCi0gICAgQ2FyZFNlcnZpY2VzKFJlbGVhc2VDb25maWd1
-cmF0aW9uLCBsaW5rLT5oYW5kbGUpOw0KLSAgICBDYXJkU2VydmljZXMoUmVsZWFzZUlPLCBsaW5r
-LT5oYW5kbGUsICZsaW5rLT5pbyk7DQotICAgIENhcmRTZXJ2aWNlcyhSZWxlYXNlSVJRLCBsaW5r
-LT5oYW5kbGUsICZsaW5rLT5pcnEpOw0KKyAgICBwY21jaWFfcmVsZWFzZV9jb25maWd1cmF0aW9u
-KGxpbmstPmhhbmRsZSk7DQorICAgIHBjbWNpYV9yZWxlYXNlX2lvKGxpbmstPmhhbmRsZSwgJmxp
-bmstPmlvKTsNCisgICAgcGNtY2lhX3JlbGVhc2VfaXJxKGxpbmstPmhhbmRsZSwgJmxpbmstPmly
-cSk7DQogICAgIA0KICAgICBsaW5rLT5zdGF0ZSAmPSB+REVWX0NPTkZJRzsNCiANCkBAIC00ODYs
-NyArNDg2LDcgQEANCiAJaWYgKGxpbmstPnN0YXRlICYgREVWX0NPTkZJRykgew0KIAkgICAgaWYg
-KGxpbmstPm9wZW4pDQogCQluZXRpZl9kZXZpY2VfZGV0YWNoKGRldik7DQotCSAgICBDYXJkU2Vy
-dmljZXMoUmVsZWFzZUNvbmZpZ3VyYXRpb24sIGxpbmstPmhhbmRsZSk7DQorCSAgICBwY21jaWFf
-cmVsZWFzZV9jb25maWd1cmF0aW9uKGxpbmstPmhhbmRsZSk7DQogCX0NCiAJYnJlYWs7DQogICAg
-IGNhc2UgQ1NfRVZFTlRfUE1fUkVTVU1FOg0KQEAgLTQ5NCw3ICs0OTQsNyBAQA0KIAkvKiBGYWxs
-IHRocm91Z2guLi4gKi8NCiAgICAgY2FzZSBDU19FVkVOVF9DQVJEX1JFU0VUOg0KIAlpZiAobGlu
-ay0+c3RhdGUgJiBERVZfQ09ORklHKSB7DQotCSAgICBDYXJkU2VydmljZXMoUmVxdWVzdENvbmZp
-Z3VyYXRpb24sIGxpbmstPmhhbmRsZSwgJmxpbmstPmNvbmYpOw0KKwkgICAgcGNtY2lhX3JlcXVl
-c3RfY29uZmlndXJhdGlvbihsaW5rLT5oYW5kbGUsICZsaW5rLT5jb25mKTsNCiAJICAgIGlmIChs
-aW5rLT5vcGVuKSB7DQogCQl0YzU4OV9yZXNldChkZXYpOw0KIAkJbmV0aWZfZGV2aWNlX2F0dGFj
-aChkZXYpOw0KDQoNCg0K
-
---=-/hwco8NIsuYJyPtTFOLY--
-
---=-8rjkRmSsGFlPi144V45D
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/5omj78o9R9NraMQRAgP0AJ9YY/oLW83wG2qy2sNGxb5eWdhF/wCaA3l1
-hP6HnqLMZ8rXkh0rd3YMx5U=
-=om6J
------END PGP SIGNATURE-----
-
---=-8rjkRmSsGFlPi144V45D--
+Remember that one of the reasons for dropping the block-backed special case
+was that it ran like crap under heavy load.  It locked up, iirc.  Has that
+been fixed here?
 

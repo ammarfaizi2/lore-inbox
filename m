@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263738AbTFYBTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 21:19:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbTFYBTI
+	id S263637AbTFYBMe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 21:12:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbTFYBKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 21:19:08 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:50851 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263738AbTFYBS7
+	Tue, 24 Jun 2003 21:10:48 -0400
+Received: from user-vc8fdp3.biz.mindspring.com ([216.135.183.35]:23557 "EHLO
+	mail.nateng.com") by vger.kernel.org with ESMTP id S263451AbTFYBKg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 21:18:59 -0400
-Date: Tue, 24 Jun 2003 18:33:02 -0700
-From: Larry McVoy <lm@bitmover.com>
+	Tue, 24 Jun 2003 21:10:36 -0400
+X-RAV-AntiVirus: This e-mail has been scanned for viruses on host: mail.nateng.com
+Date: Tue, 24 Jun 2003 18:24:20 -0700 (PDT)
+From: Sir Ace <chandler@nateng.com>
+X-X-Sender: chandler@jordan.eng.nateng.com
 To: linux-kernel@vger.kernel.org
-Subject: Re: bkbits.net is down
-Message-ID: <20030625013302.GB2525@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <20030621135812.GE14404@work.bitmover.com> <20030621190944.GA13396@work.bitmover.com> <20030622002614.GA16225@work.bitmover.com> <20030623053713.GA6715@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030623053713.GA6715@work.bitmover.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+Subject: i2c BUG  easy fix?
+Message-ID: <Pine.LNX.4.53.0306241821230.596@jordan.eng.nateng.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And the saga continues (I really want to be a real CEO.  I've done some
-research and I've found that golf isn't the only answer, fly fishing is
-cool now too.  I already know how to do that, I'm even good at it, so
-I should go close some deals :)
 
-Anyway, we put 2.5.70 on bkbits.net which is a Tyan dual PII motherboard
-w/ serverworks IDE and we started getting data corruption.  So I just
-installed 2.4.21 and we'll see if that works better.  
+I have 5 vidcapture cards, all of which show up in /proc/pci
+Only the first 4 show up in /proc/bus/i2c*
 
-Things are going to be a little slow for a while I run through integrity
-checks on all the repos, there are 4.5 million files here so it takes a
-while (you guys do generate a pile of data, I'll give you that).
+I tried this on 2 completely unidentical systems, and both 2.4.21, and
+2.4.20
 
-More status as I have, bkbits is up now and you should be able to use it.
-If you hit problems in specific repos let me know, I already know about
-the ppc problems.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+I verified that all 5 cards are actually good... {before people start
+pointing fingers}
+
+Where do I need to start looking to fix it?

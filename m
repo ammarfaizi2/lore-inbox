@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262628AbVBCIjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262767AbVBCImT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262628AbVBCIjB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 03:39:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbVBCIjB
+	id S262767AbVBCImT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 03:42:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbVBCImS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 03:39:01 -0500
-Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:53474 "EHLO
-	cenedra.walrond.org") by vger.kernel.org with ESMTP id S262831AbVBCIh1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 03:37:27 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: i386 HPET code
-Date: Thu, 3 Feb 2005 08:37:09 +0000
-User-Agent: KMail/1.7.2
-Cc: john stultz <johnstul@us.ibm.com>,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       Andi Kleen <ak@suse.de>, keith maanthey <kmannth@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>
-References: <1107396306.2040.237.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1107396306.2040.237.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 3 Feb 2005 03:42:18 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:64007 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262860AbVBCIlG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 03:41:06 -0500
+Subject: Re: Please open sysfs symbols to proprietary modules
+From: Arjan van de Ven <arjan@infradead.org>
+To: Pavel Roskin <proski@gnu.org>
+Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <greg@kroah.com>,
+       Patrick Mochel <mochel@digitalimplant.org>
+In-Reply-To: <Pine.LNX.4.62.0502021723280.5515@localhost.localdomain>
+References: <Pine.LNX.4.62.0502021723280.5515@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 03 Feb 2005 09:41:00 +0100
+Message-Id: <1107420060.4278.88.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502030837.09331.andrew@walrond.org>
-X-Spam-Score: -2.8 (--)
+X-Spam-Score: 0.3 (/)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (0.3 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 February 2005 02:05, john stultz wrote:
-> Hey Venkatesh,
->  I've been looking into a bug where i386 2.6 kernels do not boot on IBM
-> e325s if HPET_TIMER is enabled (hpet=disable works around the issue).
-> When running x86-64 kernels, the issue isn't seen. It appears that after
+On Wed, 2005-02-02 at 17:56 -0500, Pavel Roskin wrote:
+> Hello!
+> 
+> I'm writing a module under a proprietary license.  I decided to use sysfs 
+> to do the configuration.  Unfortunately, all sysfs exports are available 
+> to GPL modules only because they are exported by EXPORT_SYMBOL_GPL.
 
-FWIW The problem is not limited to the IBM e325. I cannot boot a HPET_TIMER 
-enabled x86 kernel on any of the various Tyan and MSI opteron boards I have 
-here without hpet=disable. x86_64 kernels work fine.
+I suggest you talk to a lawyer and review the general comments about
+binary modules with him (http://people.redhat.com/arjanv/COPYING.modules
+for example). You are writing an addition to linux from scratch, and it
+is generally not considered OK to do that in binary form (I certainly do
+not consider it OK).
 
-Andrew Walrond
+
+

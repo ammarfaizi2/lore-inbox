@@ -1,80 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264391AbUBRK0p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 05:26:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264291AbUBRK0p
+	id S264163AbUBRKqh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 05:46:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264313AbUBRKqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 05:26:45 -0500
-Received: from ln33.neoplus.adsl.tpnet.pl ([83.30.25.33]:5892 "EHLO
-	uran.kolkowski.no-ip.org") by vger.kernel.org with ESMTP
-	id S264391AbUBRK0n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 05:26:43 -0500
-Date: Wed, 18 Feb 2004 11:26:13 +0100
-From: Damian Kolkowski <damian@kolkowski.no-ip.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Kronos <kronos@kronoz.cjb.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
-Subject: Re: Radeonfb problem
-Message-ID: <20040218102613.ALLYOURBASEAREBELONGTOUS.A2246@kolkowski.no-ip.org>
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Kronos <kronos@kronoz.cjb.net>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>,
-	Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
-References: <200402172008.39887.vergata@stud.fbi.fh-darmstadt.de> <20040217203604.GA19110@dreamland.darkstar.lan> <20040217211120.ALLYOURBASEAREBELONGTOUS.A8392@kolkowski.no-ip.org> <20040217213441.GA22103@dreamland.darkstar.lan> <20040217215738.ALLYOURBASEAREBELONGTOUS.B9706@kolkowski.no-ip.org> <1077056532.1076.27.camel@gaston>
+	Wed, 18 Feb 2004 05:46:37 -0500
+Received: from nimbus19.internetters.co.uk ([209.61.216.65]:12488 "HELO
+	nimbus19.internetters.co.uk") by vger.kernel.org with SMTP
+	id S264163AbUBRKqd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 05:46:33 -0500
+Subject: Re: Any guides for adding new IDE chipset drivers?
+From: Alex Bennee <kernel-hacker@bennee.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+In-Reply-To: <200402172010.34114.bzolnier@elka.pw.edu.pl>
+References: <1077028026.31892.153.camel@cambridge.braddahead.com>
+	 <200402172010.34114.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain
+Organization: Hackers Inc
+Message-Id: <1077100866.31859.164.camel@cambridge.braddahead.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1077056532.1076.27.camel@gaston>
-X-GPG-Key: 0xB2C5DE03 (http://kolkowski.no-ip.org/damian.asc x-hkp://wwwkeys.eu.pgp.net)
-X-Girl: 1 will be enough!
-X-Age: 24 (1980.09.27 - libra)
-X-IM: JID:damian@kolkowski.no-ip.org ICQ:59367544 GG:88988
-X-Operating-System: Slackware GNU/Linux, kernel 2.6.3-mm1, up 1 min
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.4-8mdk 
+Date: Wed, 18 Feb 2004 10:41:06 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Benjamin Herrenschmidt <benh@kernel.crashing.org> [2004-02-18 00:02]:
-> Ugh ? Send me a dmesg log at boot please without any command
-> line. radeonfb should set your display to the native panel size
-> by default
+On Tue, 2004-02-17 at 19:10, Bartlomiej Zolnierkiewicz wrote:
+> On Tuesday 17 of February 2004 15:27, Alex Bennee wrote:
+> >
+> > Thanks. I'll base my driver on this one as it does seem quite easy
+> > to follow. However I'm wondering what the point of the begin/end functions
+> > are. The dma_read/write functions just seem to call dma_count which starts
+> > the dma requests going.
+> 
+> hwif->ide_dma_count() is gone in 2.6.3-rc4.
 
-Now I compiled 2.6.3-mm1 with new radeonfb. Clean boot without radeonfb append
-sets 640x480 in 60 Hz, ok thats fine.
+Ok that makes sense. However I'm working with 2.4 as I'm not ready to
+make the jump in versions yet. However the rest of your notes make
+things clearer.
 
-But..,
+> ATAPI drivers (ie. ide-cd.c) and TCQ code (ide-tcq.c)
+> use ->ide_dma_begin() and ->ide_dma_end() directly.
+> 
+> DMA timeout recovery functions also call ->ide_dma_end().
 
-if I use fbset like this:
+I take it the dma_test_irq() function is called from the ide layer can
+just test to see if the DMA engine has finished its transfer?
 
-	fbset -fb /dev/fb0 -a -depth 32 1024x768-100
+> > Am I missing something here? Is all that required from the higher level a
+> > single call to dma_read/write or should I be expecting a series of calls to
+> > setup a transfer?
+> 
+> To setup a DMA transfer:
+> 
+> ATA: ->ide_dma_{read,write}() (they call ->ide_dma_begin()) or
+>      __ide_dma_queued_{read,write}() (they may call ->ide_dma_begin())
+> 
+> ATAPI: ->ide_dma_{read,write}() + ->ide_dma_begin()
+> 
+> Hope this helps.
 
-my CRT monitor MAG 786FD looks like ths:
-
-|------------|
-|     |      |
-|  a  |      |
-|     |      |
-|-----|      |
-|       b    |
-|            |
-|------------|
-
-Where "a" is the visual screan after using fbset and "b" is my monitor.
-
-So something is worng, besides when using higher resolution "a" fieald is
-smaller then "b".
-
-P.S. Using video=radeon:1024x768-32@100 in append is _NOT_ working for my
-rv250if (radeon 9000 pro).
-
-PP.S. Cursor is working fine on text terminal, but in graphics it's hangs when
-protocol option is set to auto :-) Using "IMPS/2" works, but xterm is not
-starting :-)
-
-PPP.S. Ben please if you know tell me if fglrx works with new radeonfb without
-hanging text terminal as it was in old radeonfb.
+It does thanks :-)
 
 -- 
-# Damian *dEiMoS* Ko³kowski # http://kolkowski.no-ip.org/ #
+Alex, homepage: http://www.bennee.com/~alex/
+Leela: "Well, it's a type M planet, so it should at least have
+Roddenberries." 
+

@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261845AbTCHAzD>; Fri, 7 Mar 2003 19:55:03 -0500
+	id <S261789AbTCHBDN>; Fri, 7 Mar 2003 20:03:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261583AbTCHAxj>; Fri, 7 Mar 2003 19:53:39 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:39180 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261576AbTCHAw7>;
-	Fri, 7 Mar 2003 19:52:59 -0500
-Date: Fri, 7 Mar 2003 16:53:33 -0800
+	id <S261897AbTCHBDM>; Fri, 7 Mar 2003 20:03:12 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:42252 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261789AbTCHBDL>;
+	Fri, 7 Mar 2003 20:03:11 -0500
+Date: Fri, 7 Mar 2003 17:03:46 -0800
 From: Greg KH <greg@kroah.com>
-To: Andries.Brouwer@cwi.nl
-Cc: alan@lxorguk.ukuu.org.uk, akpm@digeo.com, hch@infradead.org,
+To: Andrew Morton <akpm@digeo.com>
+Cc: alan@lxorguk.ukuu.org.uk, hch@infradead.org, Andries.Brouwer@cwi.nl,
        linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Subject: Re: [PATCH] register_blkdev
-Message-ID: <20030308005333.GF23071@kroah.com>
-References: <UTC200303080057.h280v0o28591.aeb@smtp.cwi.nl>
+Message-ID: <20030308010346.GH23071@kroah.com>
+References: <UTC200303071932.h27JW1o11962.aeb@smtp.cwi.nl> <20030307193644.A14196@infradead.org> <20030307123029.2bc91426.akpm@digeo.com> <20030307221217.GB21315@kroah.com> <20030307143319.2413d1df.akpm@digeo.com> <20030307234541.GG21315@kroah.com> <1047086062.24215.14.camel@irongate.swansea.linux.org.uk> <20030308005018.GE23071@kroah.com> <20030307170520.5e38c3c9.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <UTC200303080057.h280v0o28591.aeb@smtp.cwi.nl>
+In-Reply-To: <20030307170520.5e38c3c9.akpm@digeo.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 08, 2003 at 01:57:00AM +0100, Andries.Brouwer@cwi.nl wrote:
-> So my first job is to make sure that no bad minor is ever used
-> as array index. Fortunately registration is not by major but
-> by dev_t interval, so things tend to be correct automatically.
+On Fri, Mar 07, 2003 at 05:05:20PM -0800, Andrew Morton wrote:
+> 
+> Some time back Linus expressed a preference for a 2^20 major / 2^12 minor split.
 
-But register_chrdev() only allocates based on a major.  If a character
-driver asks for a major, today it only thinks it has 256 minors, so that
-number is usually hard coded in an array.  If a open() happens on a
-minor outside that range, the driver will die a horrible death, right?
+I remember that too. That's still increasing the number of minors, hence
+my original reservation about auditing drivers.
 
 thanks,
 

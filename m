@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUIIMgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUIIMjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbUIIMgz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 08:36:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUIIMgz
+	id S261875AbUIIMjk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 08:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUIIMjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 08:36:55 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:15097 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S261724AbUIIMgx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 08:36:53 -0400
-Date: Thu, 9 Sep 2004 08:41:23 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Matt Mackall <mpm@selenic.com>, Anton Blanchard <anton@samba.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [PATCH][5/8] Arch agnostic completely out of line locks / ppc64
-In-Reply-To: <16703.60725.153052.169532@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.53.0409090810550.15087@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com>
- <16703.60725.153052.169532@cargo.ozlabs.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 9 Sep 2004 08:39:40 -0400
+Received: from gate.crashing.org ([63.228.1.57]:64199 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261875AbUIIMji (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 08:39:38 -0400
+Subject: Re: vDSO for ppc64 : Preliminary release #3
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc64-dev <linuxppc64-dev@lists.linuxppc.org>,
+       Ulrich Drepper <drepper@redhat.com>
+In-Reply-To: <20040909121504.GZ31909@devserv.devel.redhat.com>
+References: <1094719382.2543.62.camel@gaston>
+	 <20040909091208.GY31909@devserv.devel.redhat.com>
+	 <16704.15604.289019.476483@cargo.ozlabs.ibm.com>
+	 <20040909121504.GZ31909@devserv.devel.redhat.com>
+Content-Type: text/plain
+Message-Id: <1094733490.2664.81.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 09 Sep 2004 22:38:10 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Paul,
 
-On Thu, 9 Sep 2004, Paul Mackerras wrote:
+> > with some toolchain or ld.so magic or something).  But the descriptors
+> > are in the data section rather than the text, of course.
+> 
+> None of the assembly routines seem to use toc register, so if the functions
+> exported from the library have special calling conventions (glibc would use
+> them from inline assembly wrappers anyway), you can get away without .opd.
+> vDSO is not in global search scope anyway, so applications can't call
+> symbols from it anyway unless doing lots of magic.
 
-> Just got a chance to look at the new out-of-line spinlock stuff
-> (better late than never :).  I see a couple of problems there.  First,
-> we now go two levels deep on SMP && PREEMPT: spin_lock is _spin_lock,
-> which is out of line in kernel/sched.c.  That calls
-> __preempt_spin_lock, which is out of line in kernel/sched.c, and isn't
-> in the .text.lock section.  So if we get a timer interrupt in there,
-> we won't attribute the profile tick to the original caller.
+Ok. I'm linking to the vdso directly from test apps at the moment but
+that will die as soon as glibc has been adapted. Just let me know what
+you prefer. I can keep the descriptors as-is and glibc would take care
+of offset'ing properly when calling them, or I could try to find some
+way to export different symbols like Ulrich suggested... whatever you
+prefer for the glibc side.
 
-I think that bit is actually intentional since __preempt_spin_lock is also 
-marked __sched so that it'll get charged as a scheduling function.
+Ben.
 
-> The second problem is that __preempt_spin_lock doesn't do the yield to
-> the hypervisor which we need to do on shared processor systems.  This
-> is actually a long-standing problem, not one you have just introduced,
-> but I have only just noticed it.  I can't make cpu_relax do the yield
-> because the yield is a directed yield to a specific other virtual cpu
-> (it says "give the rest of my timeslice to that guy over there") and I
-> need the value in the lock variable in order to know who is holding
-> the lock.
 
-I think cpu_relax() (or some other primitive) should actually take a 
-parameter, this will allow for us to use monitor/mwait on i386 too so 
-that in cases where we're spinning waiting on memory modify we could do 
-something akin to the following;
-
-while (spin_is_locked(lock))
-	cpu_relax(lock);
-
-Although there are wakeup latencies when using monitor/mwait for such, 
-some cases such as above should be ok (although there are implementation 
-details such as the cost of a monitor operation on things like spin 
-unlock paths). I believe such an API modification would be beneficiel for 
-you too. What do others think?
-
-Thanks,
-	Zwane

@@ -1,74 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267219AbUG1PTn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267214AbUG1PVr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267219AbUG1PTn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 11:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267214AbUG1PTn
+	id S267214AbUG1PVr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 11:21:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267223AbUG1PVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 11:19:43 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:27107 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S267219AbUG1PTh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 11:19:37 -0400
-Date: Wed, 28 Jul 2004 17:18:47 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Olaf Hering <olh@suse.de>
-cc: Andrew Morton <akpm@osdl.org>, Tom Rini <trini@kernel.crashing.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: [PATCH] fix zlib debug in ppc boot header
-In-Reply-To: <20040728112222.GA7670@suse.de>
-Message-ID: <Pine.GSO.4.58.0407281717120.20097@waterleaf.sonytel.be>
-References: <20040728112222.GA7670@suse.de>
+	Wed, 28 Jul 2004 11:21:47 -0400
+Received: from jade.spiritone.com ([216.99.193.136]:56030 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S267214AbUG1PVn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 11:21:43 -0400
+Date: Wed, 28 Jul 2004 08:21:26 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: suparna@in.ibm.com, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrew Morton <akpm@osdl.org>, fastboot@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
+Message-ID: <120130000.1091028085@[10.10.2.4]>
+In-Reply-To: <1091023585.30740.7.camel@localhost.localdomain>
+References: <16734.1090513167@ocs3.ocs.com.au> <20040725235705.57b804cc.akpm@osdl.org> <m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com> <20040728105455.GA11282@in.ibm.com> <1091011565.30404.0.camel@localhost.localdomain> <35040000.1091025526@[10.10.2.4]> <1091023585.30740.7.camel@localhost.localdomain>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jul 2004, Olaf Hering wrote:
-> @@ -85,16 +89,16 @@ extern char *z_errmsg[]; /* indexed by 1
->
->  /* Diagnostic functions */
->  #ifdef DEBUG_ZLIB
-> -#  include <stdio.h>
-> +#  include <nonstdio.h>
->  #  ifndef verbose
->  #    define verbose 0
->  #  endif
-> -#  define Assert(cond,msg) {if(!(cond)) z_error(msg);}
-> -#  define Trace(x) fprintf x
-> -#  define Tracev(x) {if (verbose) fprintf x ;}
-> -#  define Tracevv(x) {if (verbose>1) fprintf x ;}
-> -#  define Tracec(c,x) {if (verbose && (c)) fprintf x ;}
-> -#  define Tracecv(c,x) {if (verbose>1 && (c)) fprintf x ;}
-> +#  define Assert(cond,msg) {if(!(cond)) printf(msg);}
-> +#  define Trace(x) printf x
-> +#  define Tracev(x) {if (verbose) printf x ;}
-> +#  define Tracevv(x) {if (verbose>1) printf x ;}
-> +#  define Tracec(c,x) {if (verbose && (c)) printf x ;}
-> +#  define Tracecv(c,x) {if (verbose>1 && (c)) printf x ;}
->  #else
->  #  define Assert(cond,msg)
->  #  define Trace(x)
-> @@ -311,7 +315,7 @@ int inflateReset(
->    z->msg = Z_NULL;
->    z->state->mode = z->state->nowrap ? BLOCKS : METHOD;
->    inflate_blocks_reset(z->state->blocks, z, &c);
-> -  Trace((stderr, "inflate: reset\n"));
-> +  Trace(("inflate: reset\n"));
->    return Z_OK;
->  }
->
+--Alan Cox <alan@lxorguk.ukuu.org.uk> wrote (on Wednesday, July 28, 2004 15:06:27 +0100):
 
-Why don't you just define a fprintf() that throws away its first argument and
-calls printf(), so you don't need to modify every caller of Trace*()?
+> On Mer, 2004-07-28 at 15:38, Martin J. Bligh wrote:
+>> After kexec, we shouldn't need such things, do we? Before it, Linus won't 
+>> take the patch, as he said he doesn't like systems in unstable states doing
+>> crashdumps to disk ...
+> 
+> And what does kexec do.. it accesses the disk. A SHA signed standalone
+> dumper is as safe as anything else if not safer.
 
-Gr{oetje,eeting}s,
+But it's reading, not writing ... personally I'm happier with that bit ;-)
 
-						Geert
+M.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

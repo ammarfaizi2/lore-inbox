@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbUKWPSh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbUKWPt6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261302AbUKWPSh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 10:18:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbUKWPSh
+	id S261291AbUKWPt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 10:49:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbUKWPt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 10:18:37 -0500
-Received: from mail.kroah.org ([69.55.234.183]:56246 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261302AbUKWPSK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 10:18:10 -0500
-Date: Tue, 23 Nov 2004 07:17:47 -0800
-From: Greg KH <greg@kroah.com>
-To: Roland Dreier <roland@topspin.com>
+	Tue, 23 Nov 2004 10:49:57 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:30841 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261291AbUKWPUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 10:20:44 -0500
+To: Arnd Bergmann <arnd@arndb.de>
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH][RFC/v1][9/12] Add InfiniBand userspace MAD support
-Message-ID: <20041123151747.GA26986@kroah.com>
-References: <20041122714.nKCPmH9LMhT0X7WE@topspin.com> <20041122714.9zlcKGKvXlpga8EP@topspin.com> <20041122225033.GD15634@kroah.com> <52ekil9v1m.fsf@topspin.com> <20041123063045.GA22493@kroah.com> <52llct83o1.fsf@topspin.com> <20041123074337.GB23194@kroah.com> <523bz08v1c.fsf@topspin.com>
-Mime-Version: 1.0
+X-Message-Flag: Warning: May contain useful information
+References: <20041122713.Nh0zRPbm8qA0VBxj@topspin.com>
+	<200411231313.57758.arnd@arndb.de>
+From: Roland Dreier <roland@topspin.com>
+Date: Tue, 23 Nov 2004 07:20:35 -0800
+In-Reply-To: <200411231313.57758.arnd@arndb.de> (Arnd Bergmann's message of
+ "Tue, 23 Nov 2004 13:13:57 +0100")
+Message-ID: <52vfbw7fss.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: Re: [PATCH][RFC/v1][0/12] Initial submission of InfiniBand patches
+ for review
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <523bz08v1c.fsf@topspin.com>
-User-Agent: Mutt/1.5.6i
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 23 Nov 2004 15:20:41.0074 (UTC) FILETIME=[FE453520:01C4D16F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 23, 2004 at 07:06:07AM -0800, Roland Dreier wrote:
->     Greg> Yes, it probably should be.  Hm, no, we don't allow you to
->     Greg> put class specific files if you use the class_simple API,
->     Greg> sorry I misread your question.  You can just handle the
->     Greg> class yourself and use the CLASS_ATTR() macro to define your
->     Greg> api version function.
-> 
-> Ugh, then we end up duplicating the class_simple code.  Would you
-> accept a patch that adds class_simple_create_file()/class_simple_remove_file()?
+    Arnd> Patches 1, 3 and 5 didn't make it to lkml. Did you hit the
+    Arnd> 100kb size limit for mails?
 
-Ick, ok, sure.  Just make sure to mark them as EXPORT_SYMBOL_GPL() :)
+Ah, that must be what happened.  I was confused because gmane.org did
+pick them up, but I think that's because gmane is also subscribed to
+openib-general (which is cc'ed).
 
-thanks,
+I'll reroll the patches, splitting the too-large pieces, and send
+soon.
 
-greg k-h
+Thanks,
+  Roland
+

@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285552AbRLGVKD>; Fri, 7 Dec 2001 16:10:03 -0500
+	id <S285548AbRLGVLx>; Fri, 7 Dec 2001 16:11:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285554AbRLGVJr>; Fri, 7 Dec 2001 16:09:47 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:19104 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S285552AbRLGVJ3>;
-	Fri, 7 Dec 2001 16:09:29 -0500
-Date: Fri, 07 Dec 2001 21:09:25 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: arjanv@redhat.com, Ravikiran G Thirumalai <kiran@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: [Lse-tech] [RFC] [PATCH] Scalable Statistics Counters
-Message-ID: <951177670.1007759364@[195.224.237.69]>
-In-Reply-To: <3C0F6D99.8CF24014@redhat.com>
-In-Reply-To: <3C0F6D99.8CF24014@redhat.com>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S285551AbRLGVLr>; Fri, 7 Dec 2001 16:11:47 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:42250 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S285548AbRLGVLb>; Fri, 7 Dec 2001 16:11:31 -0500
+Message-ID: <3C11303B.5070404@namesys.com>
+Date: Sat, 08 Dec 2001 00:10:19 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Ragnar =?ISO-8859-1?Q?Kj=F8rstad?= <reiserfs@ragnark.vestdata.no>,
+        linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: [reiserfs-dev] Re: Ext2 directory index: ALS paper and benchmarks
+In-Reply-To: <E16BjYc-0000hS-00@starship.berlin> <E16CP0X-0000uE-00@starship.berlin> <20011207190301.C6640@vestdata.no> <E16CPaA-0000uj-00@starship.berlin>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Phillips wrote:
+
+>On December 7, 2001 07:03 pm, Ragnar Kjørstad wrote:
+>
+>>>With ReiserFS we see slowdown due to random access even with small 
+>>>directories.  I don't think this is a cache effect.
+>>>
+>>I can't see why the benefit from read-ahead on the file-data should be
+>>affected by the directory-size?
+>>
+>>I forgot to mention another important effect of hash-ordering:
+>>If you mostly add new files to the directory it is far less work if you
+>>almost always can add the new entry at the end rather than insert it in
+>>the middle. Well, it depends on your implementation of course, but this
+>>effect is quite noticable on reiserfs. When untaring a big directory of
+>>maildir the performance difference between the tea hash and a special
+>>maildir hash was approxemately 20%. The choice of hash should not affect
+>>the performance on writing the data itself, so it has to be related to
+>>the cost of the insert operation.
+>>
+>
+>Yes, I think you're on the right track.  HTree on the other hand is optimized 
+>for inserting in arbitrary places, it takes no advantage at all of sequential 
+>insertion.  (And doesn't suffer from this, because it all happens in cache 
+>anyway - a million-file indexed directory is around 30 meg.)
+>
+>--
+>Daniel
+>
+>
+And how large is the dcache and all the inodes?  I believe large 
+directory plus small file performance is heavily affected by the 
+enormous size of struct inode and all the other per file data.  
 
 
---On Thursday, 06 December, 2001 1:07 PM +0000 Arjan van de Ven 
-<arjanv@redhat.com> wrote:
+Hans
 
-> Would you care to point out a statistic in the kernel that is
-> incremented
-> more than 10.000 times/second ? (I'm giving you a a factor of 100 of
-> playroom
-> here) [One that isn't per-cpu yet of course]
 
-cat /proc/net/dev
-
-80,000 increments a second here on at least 4 counters
-
---
-Alex Bligh

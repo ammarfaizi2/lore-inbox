@@ -1,58 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266211AbUFPHqD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266212AbUFPIHc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266211AbUFPHqD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 03:46:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266213AbUFPHqD
+	id S266212AbUFPIHc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 04:07:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266214AbUFPIHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 03:46:03 -0400
-Received: from smtp100.mail.sc5.yahoo.com ([216.136.174.138]:24433 "HELO
-	smtp100.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266211AbUFPHp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 03:45:58 -0400
-Message-ID: <40CFFAAF.7070905@yahoo.com.au>
-Date: Wed, 16 Jun 2004 17:45:51 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Guy Van Sanden <n.b@myrealbox.com>
-CC: Clint Byrum <cbyrum@spamaps.org>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Heavy iowait on 2.6 kernels
-References: <1086942905.10540.69.camel@cronos.home.vsb>	 <1087366549.1190.6.camel@lancelot> <1087369893.11205.36.camel@cronos.home.vsb>
-In-Reply-To: <1087369893.11205.36.camel@cronos.home.vsb>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Jun 2004 04:07:32 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:459 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S266212AbUFPIHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 04:07:30 -0400
+Date: Wed, 16 Jun 2004 10:07:40 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Dave Kleikamp <shaggy@austin.ibm.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: JFS compilation fix [was Re: Linux 2.6.7]
+Message-ID: <20040616080740.GC23998@louise.pinerecords.com>
+References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guy Van Sanden wrote:
-> My machine is heavily used for all kinds of file serving (mainly nfs),
-> but also samba.
-> Next to that, it is my home-server, so it runs apache2 (tuned to server
-> only few clients), imap (cyrus), postfix, bugzilla (mysql) and distcc
-> (used only a few times a week).
-> It replaces a FreeBSD system (PII-333) running the same except distcc.
-> Under 
-> 
-> The disk system is just a regular IDE disk (udma5) (60GB) and one
-> external drive over USB2 (160 GB).  The external drive is rather slow
-> (20-30 MB/sec), so I disabled it during the tests.
-> 
-> The weird thing is that I see this problem too when only running bonnie.
-> A friend of mine tried that too under 2.6.6, his iowait went up to
-> 0.15%, mine to 99%.
-> 
+On Jun-15 2004, Tue, 22:56 -0700
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-The CPU can very easily max out the disks of course. If bonnie is
-doing IO to files much larger than memory, it wouldn't be surprising
-for io-wait to get close to 100%. Possibly your friend was doing all
-IO out of cache?
+> Summary of changes from v2.6.7-rc3 to v2.6.7
+[snip]
 
-If you definitely have a performance problem, set "Kernel Debugging"
-on in the "Kernel Hacking" menu, then set "Magic SysRq key" on. When
-your system hits this iowait problem, press Alt+SysRq+T a couple of
-times over a few seconds.
+Here's a trivial patch to fix JFS compilation in 2.6.7.  The error
+only happens in specific configs -- one such config can be found here:
+http://www.pinerecords.com/kala/_nonpub/.config.louise26
 
-Then post the output of `dmesg -s 1000000`.
+I don't have the time to narrow the problem down to the config
+entry that gets jfs_dtree.c to include jfs_dtree.h (jfs_dtree.c
+itself doesn't have any relevat ifdefs).
 
-We'll see what is waiting where.
+-- 
+Tomas Szepe <szepe@pinerecords.com>
+
+
+diff -urN a/fs/jfs/jfs_dtree.c b/fs/jfs/jfs_dtree.c
+--- a/fs/jfs/jfs_dtree.c	2004-06-16 09:29:58.000000000 +0200
++++ b/fs/jfs/jfs_dtree.c	2004-06-16 09:56:23.000000000 +0200
+@@ -108,6 +108,7 @@
+ #include "jfs_dmap.h"
+ #include "jfs_unicode.h"
+ #include "jfs_debug.h"
++#include "jfs_dtree.h"
+ 
+ /* dtree split parameter */
+ struct dtsplit {
+@@ -374,6 +375,8 @@
+ 		return index;
+ 	}
+ 	if (index == (MAX_INLINE_DIRTABLE_ENTRY + 1)) {
++		struct dir_table_slot temp_table[12];
++
+ 		/*
+ 		 * It's time to move the inline table to an external
+ 		 * page and begin to build the xtree
+@@ -385,7 +388,6 @@
+ 		 * Save the table, we're going to overwrite it with the
+ 		 * xtree root
+ 		 */
+-		struct dir_table_slot temp_table[12];
+ 		memcpy(temp_table, &jfs_ip->i_dirtable, sizeof(temp_table));
+ 
+ 		/*

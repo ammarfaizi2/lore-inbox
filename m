@@ -1,72 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131158AbRDKEJM>; Wed, 11 Apr 2001 00:09:12 -0400
+	id <S131157AbRDKEV5>; Wed, 11 Apr 2001 00:21:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131157AbRDKEJD>; Wed, 11 Apr 2001 00:09:03 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:15325 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S131158AbRDKEIr>; Wed, 11 Apr 2001 00:08:47 -0400
-Subject: Re: [Lse-tech] Re: [PATCH for 2.5] preemptible kernel
-To: nigel@nrg.org
-Cc: ak@suse.de, Dipankar Sarma <dipankar.sarma@in.ibm.com>,
-        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-        Suparna Bhattacharya <bsuparna@in.ibm.com>
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OFC444FA4A.28BB0BC6-ON88256A2B.0016B71E@LocalDomain>
-From: "Paul McKenney" <Paul.McKenney@us.ibm.com>
-Date: Tue, 10 Apr 2001 21:08:16 -0700
-X-MIMETrack: Serialize by Router on D03NM045/03/M/IBM(Release 5.0.6 |December 14, 2000) at
- 04/10/2001 10:08:40 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S131205AbRDKEVq>; Wed, 11 Apr 2001 00:21:46 -0400
+Received: from odin.sinectis.com.ar ([216.244.192.158]:51717 "EHLO
+	mail.sinectis.com.ar") by vger.kernel.org with ESMTP
+	id <S131157AbRDKEVf> convert rfc822-to-8bit; Wed, 11 Apr 2001 00:21:35 -0400
+Date: Wed, 11 Apr 2001 01:23:54 -0300
+From: John R Lenton <john@grulic.org.ar>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Let init know user wants to shutdown
+Message-ID: <20010411012354.E4214@grulic.org.ar>
+Mail-Followup-To: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E8905DE817@orsmsx35.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E8905DE817@orsmsx35.jf.intel.com>; from andrew.grover@intel.com on Tue, Apr 10, 2001 at 10:05:13AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 10, 2001 at 10:05:13AM -0700, Grover, Andrew wrote:
+> This is not correct, because we want the power button to be configurable.
+> The user should be able to redefine the power button's action, perhaps to
+> only sleep the system. We currently surface button events to acpid, which
+> then can do the right thing, including a shutdown -h now (which I assume
+> notifies init).
 
-> On Tue, 10 Apr 2001, Paul McKenney wrote:
-> > The algorithms we have been looking at need to have absolute guarantees
-> > that earlier activity has completed.  The most straightforward way to
-> > guarantee this is to have the critical-section activity run with
-preemption
-> > disabled.  Most of these code segments either take out locks or run
-> > with interrupts disabled anyway, so there is little or no degradation
-of
-> > latency in this case.  In fact, in many cases, latency would actually
-be
-> > improved due to removal of explicit locking primitives.
-> >
-> > I believe that one of the issues that pushes in this direction is the
-> > discovery that "synchronize_kernel()" could not be a nop in a UP kernel
-> > unless the read-side critical sections disable preemption (either in
-> > the natural course of events, or artificially if need be).  Andi or
-> > Rusty can correct me if I missed something in the previous exchange...
-> >
-> > The read-side code segments are almost always quite short, and, again,
-> > they would almost always otherwise need to be protected by a lock of
-> > some sort, which would disable preemption in any event.
-> >
-> > Thoughts?
->
-> Disabling preemption is a possible solution if the critical section is
-short
-> - less than 100us - otherwise preemption latencies become a problem.
+Just today a friend saw my box shutdown via the powerbutton and
+wondered if he coudln't set his up to trigger a different event
+(actually two: he wanted his sister - the guilty party - zapped,
+and a webcam shot of her face to prove it)...
 
-Seems like a reasonable restriction.  Of course, this same limit applies
-to locks and interrupt disabling, right?
-
-> The implementation of synchronize_kernel() that Rusty and I discussed
-> earlier in this thread would work in other cases, such as module
-> unloading, where there was a concern that it was not practical to have
-> any sort of lock in the read-side code path and the write side was not
-> time critical.
-
-True, but only if the synchronize_kernel() implementation is applied to UP
-kernels, also.
-
-                    Thanx, Paul
-
-> Nigel Gamble                                    nigel@nrg.org
-> Mountain View, CA, USA.                         http://www.nrg.org/
->
-> MontaVista Software                             nigel@mvista.com
-
+-- 
+John Lenton (john@grulic.org.ar) -- Random fortune:
+¿Como meterán los cacahuetes dentro de la cáscara?

@@ -1,76 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284954AbRLRTwp>; Tue, 18 Dec 2001 14:52:45 -0500
+	id <S284868AbRLRTwq>; Tue, 18 Dec 2001 14:52:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284935AbRLRTvU>; Tue, 18 Dec 2001 14:51:20 -0500
-Received: from pc3-stoc4-0-cust138.mid.cable.ntl.com ([213.107.175.138]:45572
-	"EHLO buzz.ichilton.co.uk") by vger.kernel.org with ESMTP
-	id <S284887AbRLRTum>; Tue, 18 Dec 2001 14:50:42 -0500
-From: "Ian Chilton" <ian@ichilton.co.uk>
-To: "'Tony 'Nicoya' Mantler'" <nicoya@apia.dhs.org>,
-        "'David S. Miller'" <davem@redhat.com>
-Cc: <sparclinux@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: 2.4.17-rc1 wont do nfs root on Javastation
-Date: Tue, 18 Dec 2001 19:50:34 -0000
-Message-ID: <000001c187fd$41f2ee80$0a01a8c0@dipsy>
+	id <S284944AbRLRTvZ>; Tue, 18 Dec 2001 14:51:25 -0500
+Received: from fmfdns01.fm.intel.com ([132.233.247.10]:63211 "EHLO
+	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S284916AbRLRTuw>; Tue, 18 Dec 2001 14:50:52 -0500
+Message-ID: <59885C5E3098D511AD690002A5072D3C42D804@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Alexander Viro'" <viro@math.psu.edu>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'otto.wyss@bluewin.ch'" <otto.wyss@bluewin.ch>
+Subject: RE: Booting a modular kernel through a multiple streams file
+Date: Tue, 18 Dec 2001 11:50:47 -0800
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-Importance: Normal
-In-Reply-To: <v04003a11b84549aa834a@[24.70.162.28]>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> From: Alexander Viro [mailto:viro@math.psu.edu]
+> On Tue, 18 Dec 2001, Grover, Andrew wrote:
+> > GRUB 0.90 does this today.
+> ... and I'm quite sure that EMACS could do it easily.  Let's not talk
+> about GNU bloatware, OK?
 
-Thanks for the reply!
+I don't think this is bloatware, especially considering there really isn't
+any cost for having a full-featured bootloader - all its footprint gets
+reclaimed, after all. I respect lilo and its cousins, but they make things
+harder than they have to be. Why maintain a reduced level of functionality
+(software emaciation?) when better alternatives are available?
 
-> IP Autoconfig won't be enabled unless you pass ip=auto in the
-commandline,
-> or twiddle with the source to make it default to on.
+> Except that in this case it doesn't make anything simpler.
 
-Ah, of course.
+Implicit in the use of initrd is that you have to *make a ramdisk image*,
+and then tell your bootloader to load it. If you have a bootloader that can
+load multiple images (i.e. the modules themselves) you can skip the first
+step.
 
-I did try this already, but it was before I realised that PROLL was
-eating anything I passed to the kernel.
+> BTW, we don't need a special device to handle initrd after that.  Just
+> have your initrd image (gzipped, whatever) in the archive 
+> under /initrd.
+> After that /init will have the contents in that file (regular file, at
+> that) and can do whatever it bloody wants.
 
-I just modified my little hack to make it hard code: nfs=root ip=auto
-and now the IP-Config stuff is happening and it's showing the
-bootserver/rootserver right but for some strange reason it's getting the
-IP as 67.0.0.0.
+Again, even the new scheme will still involve the creation of an initrd. I'm
+saying, as a user, it would be easier for me to not do this, and just modify
+a .conf file to have the driver loaded early-on.
 
-It should be 192.168.0.21 and the server config should be right as I can
-still boot 2.4.1 fine...
+I'm not arguing that the new initrd won't be better than the old initrd
+(because obviously you are right) I'm arguing that no matter how whizzy
+initrd is, it's still an unnecessary step, and it's one that other OSs (e.g.
+FreeBSD) omit in favor of the approach I'm advocating.
 
-I'll have a check around later, but if there is a reason for this
-happening, maybe you could let me know...
+> IOW, we are backwards compatible with old
+> loaders.
 
-Is 67.0.0.0 some sort of default?
+No progress will ever be made if we cater to the lowest common denominator.
 
-
-Thanks!
-
-
-Bye for Now,
-
-Ian
-
-
-                                  \|||/
-                                  (o o)
- /-----------------------------ooO-(_)-Ooo----------------------------\
- |  Ian Chilton                    E-Mail: ian@ichilton.co.uk         |
- |  IRC Nick: GadgetMan            Backup: ian@linuxfromscratch.org   |
- |  ICQ: 16007717 & 106532995      Web   : http://www.ichilton.co.uk  |
- |--------------------------------------------------------------------|
- |          Your mouse has moved. Windows must be restarted           |
- |         for the change to take effect.  Reboot now? [ OK ]         |
- \--------------------------------------------------------------------/
- 
-
-
+Regards -- Andy

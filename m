@@ -1,63 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136748AbREIQ7W>; Wed, 9 May 2001 12:59:22 -0400
+	id <S136750AbREIRBw>; Wed, 9 May 2001 13:01:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136679AbREIQ7P>; Wed, 9 May 2001 12:59:15 -0400
-Received: from cr481834-a.ktchnr1.on.wave.home.com ([24.102.89.11]:15094 "HELO
-	scotch.homeip.net") by vger.kernel.org with SMTP id <S136742AbREIQ7A>;
-	Wed, 9 May 2001 12:59:00 -0400
-Date: Wed, 9 May 2001 12:58:54 -0400 (EDT)
-From: God <atm@sdk.ca>
-To: Pekka Savola <pekkas@netcore.fi>
-cc: Matthew Geier <matthew@sleeper.apana.org.au>, linux-kernel@vger.kernel.org,
-        linux-net@vger.rutgers.edu, Sally Floyd <floyd@aciri.org>
-Subject: Re: ECN: Volunteers needed
-In-Reply-To: <Pine.LNX.4.33.0105091559260.27312-100000@netcore.fi>
-Message-ID: <Pine.LNX.4.21.0105091249520.23642-100000@scotch.homeip.net>
+	id <S136679AbREIRBk>; Wed, 9 May 2001 13:01:40 -0400
+Received: from mailgw.prontomail.com ([216.163.180.10]:21268 "EHLO
+	c0mailgw09.prontomail.com") by vger.kernel.org with ESMTP
+	id <S136747AbREIRA6>; Wed, 9 May 2001 13:00:58 -0400
+Message-ID: <3AF97773.80DAFFC0@mvista.com>
+Date: Wed, 09 May 2001 09:59:31 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: root@chaos.analogic.com, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 
+In-Reply-To: <E14xUfi-0002PB-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 May 2001, Pekka Savola wrote:
-
-> To: Matthew Geier <matthew@sleeper.apana.org.au>
+Alan Cox wrote:
 > 
-> On Wed, 9 May 2001, Matthew Geier wrote:
-
-> > > Help is needed to contact these site owners and politely using a standard
-> > > email ask them that their site was non-conformant.
-
-[snip]
-
-> >
-> >
-> >  I tried to get my local bank to fix their internet banking service about a
-> > month ago. I ran into a 'brick wall'. They only support Windows and MacOS,
-> > since neither currently implement ECN, they don't have a problem :-(
-
-[snip]
+> >     while(!!time_before(jiffies, timer))
+> >     {
+> >         if(!!(*event & mask))
+> >         {
+> >             stat = 0;
+> >             break;
+> >         }
+> >         schedule();
 > 
-> There are a couple of ways to deal with these:
+> You want to yield as well otherwise you may just spin anyway
 > 
-> Try to get in touch with someone who is a network admin; 
+> > Both of these procedures schedule() while waiting for something to
+> > happen. The wait can be very long (1 second) so I don't want to
+> > just spin eating CPU cycles. I have to give the CPU to somebody.
+> 
+> So use a timer
+> 
+> void tick_tick_boom(unsigned long l)
+> {
+>         struct my_device *d = (struct my_device *)l;
+> 
+>         if(its_still_busy(d))
+>         {
+>                 d->timer_count--;
+>                 if(d->timer_count)
+>                 {
+>                         /* Try again until timer_count hits zero */
+>                         add_timer(&t->timer, jiffies+1);
+>                         return;
+>                 }
+>                 else
+>                 {
+>                         /* Lose some .. */
+>                         d->event_status = TIMEOUT;
+>                 }
+>         }
+>         else
+>         {
+>                 /* Win some .. */
+>                 d->event_status = OK;
+>         }
+>         /* Wake up the invoker */
+>         wake_up(&d->timer_wait);
+> }
 
-[snip]
+To clarify this a bit, the above code invokes itself with the timer and
+thus runs under the timer interrupt.  The first call to it would be made
+from your driver which would then sleep waiting for the wake_up, which
+will come either on success or when the timer_count has expired.  This
+code will poll each jiffie.
 
-In most cases, good luck.  Though as you pointed out, checking RIPE might
-help.
+The key here is to use the wake_up/ sleep combination to pass control
+from the interrupt back to the driver.  This is not unlike what you must
+already be doing for interrupt completion.
 
-I mentioned in here (kernel list) about dogpile.com not supporting
-it.  I've tried to contact their administrators with no luck.
+Do pay attention to getting the timer (&t->timer above) properly set up
+(see my first response or most any usage in the kernel).
 
-> .. Let's not start a huge thread (especially with this big Cc: list; there
-> should be a smaller forum to discuss this if necessary) on this though.
+Have I got this right Alan?
 
-
-Agreed.  For now ECN has been disabled here.  I got tired of so many sites
-not supporting it that I gave up.  Maybe by 2.8.x kernels it will be worth
-turning back on.  Thats not to say however that I don't like what the ECN
-people are trying to do, rather its causing me more grief with it on, then
-the grief I get with it off.
-
-
+George

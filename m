@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263123AbUCSWSh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 17:18:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbUCSWSc
+	id S263130AbUCSWRk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 17:17:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbUCSWRk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 17:18:32 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:22215 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S263123AbUCSWSZ (ORCPT
+	Fri, 19 Mar 2004 17:17:40 -0500
+Received: from mail.kroah.org ([65.200.24.183]:5292 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263127AbUCSWRi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 17:18:25 -0500
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E57033BC49E@exa-atlanta.se.lsil.com>
-From: "Mukker, Atul" <Atulm@lsil.com>
-To: "'Matthew Wilcox'" <willy@debian.org>, "Mukker, Atul" <Atulm@lsil.com>
-Cc: "'Arjan van de Ven'" <arjanv@redhat.com>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'matt_domsch@dell.com'" <matt_domsch@dell.com>,
-       "'Paul Wagland'" <paul@wagland.net>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
-Subject: RE: [SUBJECT CHANGE]: megaraid unified driver version 2.20.0.0-al
-	pha1
-Date: Fri, 19 Mar 2004 17:17:35 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Fri, 19 Mar 2004 17:17:38 -0500
+Date: Fri, 19 Mar 2004 14:13:19 -0800
+From: Greg KH <greg@kroah.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>,
+       David Mosberger <davidm@hpl.hp.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [0/3] Make pci resources show up in iomem/ioport on ia64
+Message-ID: <20040319221319.GB14128@kroah.com>
+References: <20040318235024.GH25059@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040318235024.GH25059@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 18, 2004 at 11:50:24PM +0000, Matthew Wilcox wrote:
+> 
+> I decided to do one simple little thing -- make PCI device resources show
+> up in /proc/iomem and /proc/ioport on ia64 just like they do on i386.
+> Of course, I found two bugs in the process so we have three logically
+> separate patches that I shall be sending in reply to this message.
 
-> that you don't do things like
-> 
-> #if defined(__x86_64__) || defined(__ia64__)
-> #endif
-> 
-> when you really mean
-> 
-> #ifdef CONFIG_COMPAT
-> #endif
-What does CONFIG_COMPAT do anyway? We could not find much information about
-it's usage
+I've applied all 3 of these patches, thanks.
+
+greg k-h

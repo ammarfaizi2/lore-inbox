@@ -1,100 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAIP0x>; Tue, 9 Jan 2001 10:26:53 -0500
+	id <S130092AbRAIP2N>; Tue, 9 Jan 2001 10:28:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131464AbRAIP0o>; Tue, 9 Jan 2001 10:26:44 -0500
-Received: from ns.snowman.net ([63.80.4.34]:30477 "EHLO ns.snowman.net")
-	by vger.kernel.org with ESMTP id <S129903AbRAIP0c>;
-	Tue, 9 Jan 2001 10:26:32 -0500
-Date: Tue, 9 Jan 2001 10:25:25 -0500
-From: Stephen Frost <sfrost@snowman.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "David S. Miller" <davem@redhat.com>, hch@caldera.de,
-        netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+	id <S131464AbRAIP2D>; Tue, 9 Jan 2001 10:28:03 -0500
+Received: from mons.uio.no ([129.240.130.14]:53672 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S130092AbRAIP14>;
+	Tue, 9 Jan 2001 10:27:56 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14939.11765.649805.239618@charged.uio.no>
+Date: Tue, 9 Jan 2001 16:27:49 +0100 (CET)
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
 Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-Message-ID: <20010109102525.Q26953@ns>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	"Stephen C. Tweedie" <sct@redhat.com>,
-	Rik van Riel <riel@conectiva.com.br>,
-	"David S. Miller" <davem@redhat.com>, hch@caldera.de,
-	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010109141806.F4284@redhat.com> <Pine.LNX.4.30.0101091532150.4368-100000@e2>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="loVroY/sZgZp7srB"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0101091532150.4368-100000@e2>; from mingo@elte.hu on Tue, Jan 09, 2001 at 03:40:56PM +0100
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snowman.net
-X-Operating-System: Linux/2.2.16 (i686)
-X-Uptime: 10:19am  up 145 days, 14:06,  6 users,  load average: 2.00, 2.00, 2.00
+In-Reply-To: <200101091342.FAA02414@pizda.ninka.net>
+In-Reply-To: <200101080124.RAA08134@pizda.ninka.net>
+	<shs4rz8vnmf.fsf@charged.uio.no>
+	<200101091342.FAA02414@pizda.ninka.net>
+X-Mailer: VM 6.72 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> David S Miller <davem@redhat.com> writes:
 
---loVroY/sZgZp7srB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+     >    I would have thought one of the main interests of doing
+     >    something like this would be to allow us to speed up large
+     >    writes to the socket for ncpfs/knfsd/nfs/smbfs/...
 
-* Ingo Molnar (mingo@elte.hu) wrote:
->=20
-> On Tue, 9 Jan 2001, Stephen C. Tweedie wrote:
->=20
-> > but it just doesn't apply when you look at some other applications,
-> > such as streaming out video data or performing fileserving in a
-> > high-performance compute cluster where you are serving bulk data.
-> > The multimedia and HPC worlds typically operate on datasets which are
-> > far too large to cache, so you want to keep them in memory as little
-> > as possible when you ship them over the wire.
->=20
-> i'd love to first see these kinds of applications (under Linux) before
-> designing for them. Eg. if an IO operation (eg. streaming video webcast)
-> does a DMA from a camera card to an outgoing networking card, would it be
-> possible to access the packet data in case of a TCP retransmit? Basically
-> these applications are limited enough in scope to justify even temporary
-> 'hacks' that enable them - and once we *see* things in action, we could
-> design for them. Not the other way around.
+     > This is what TCP_CORK/MSG_MORE et al. are all for, things get
+     > coalesced perfectly.  Sending in a vector of pages seems nice,
+     > but none of the page cache infrastructure works like this, all
+     > of the core routines work on a page at a time.  It actually
+     > simplifies a lot.
 
-	Well, I know I for one use a system that you might have heard
-of called 'MOSIX'.  It's a (kinda large) kernel patch with some user-space
-tools but allows for migration of processes between machines without
-modifying any code.  There are some limitations (threaded applications and
-shared memory and whatnot) but it works very well for the rendering work
-we use it for.  We use radiance which in general has pretty little inter-
-process communication and what it has is done through the filesystem.
+     > The writepage interface optimizes large file writes to a socket
+     > just fine.
 
-	Now, the interesting bit here is that the processes can grow to be
-pretty large (200M+, up as high as 500M, higher if we let it ;) ) and what
-happens with MOSIX is that entire processes get sent over the wire to=20
-other machines for work.  MOSIX will also attempt to rebalance the load on
-all of the machines in the cluster and whatnot so it can often be moving
-processes back and forth.
+OK, but can you eventually generalize it to non-stream protocols
+(i.e. UDP)?
+After all, it doesn't make sense to differentiate between zero-copy on
+stream and non-stream sockets, and Linux NFS, at least, remains
+heavily UDP-oriented...
 
-	So, anyhow, this is just an fyi if you weren't aware of it that I
-believe more than a few people are using MOSIX these days for similar
-appliactions and that it's availible at http://www.mosix.org if you're
-curious.
-
-		Stephen
-
---loVroY/sZgZp7srB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6Wy1lrzgMPqB3kigRAhHzAKCBurTvc8elEFpftqVZDuCVLq7OdgCggFdL
-AvU9yTd3BetBFnqTUnKxH1U=
-=J92I
------END PGP SIGNATURE-----
-
---loVroY/sZgZp7srB--
+Cheers,
+  Trond
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

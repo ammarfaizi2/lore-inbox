@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275845AbRJBH2i>; Tue, 2 Oct 2001 03:28:38 -0400
+	id <S275848AbRJBHVQ>; Tue, 2 Oct 2001 03:21:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275852AbRJBH22>; Tue, 2 Oct 2001 03:28:28 -0400
-Received: from f29.pav1.hotmail.com ([64.4.31.29]:18958 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S275845AbRJBH2L>;
-	Tue, 2 Oct 2001 03:28:11 -0400
-X-Originating-IP: [210.18.48.39]
-From: "sayamindu dasgupta" <unmadindu@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ext3 0.9.10 for Alan's tree
-Date: Tue, 02 Oct 2001 07:28:34 +0000
+	id <S275845AbRJBHVG>; Tue, 2 Oct 2001 03:21:06 -0400
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:9678 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S275848AbRJBHUy>; Tue, 2 Oct 2001 03:20:54 -0400
+Date: Tue, 2 Oct 2001 08:21:17 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Rob Landley <landley@trommello.org>
+Cc: Mike Fedyk <mfedyk@matchmail.com>,
+        Chris Howells <chris@chrishowells.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: linux-kernel-announce?
+Message-ID: <20011002082116.B13650@flint.arm.linux.org.uk>
+In-Reply-To: <20011001164720Z275269-761+14414@vger.kernel.org> <20011001124811.D25387@mikef-linux.matchmail.com> <01100121011009.09156@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F295R5VX9q2TwOk6AIe0000f57a@hotmail.com>
-X-OriginalArrivalTime: 02 Oct 2001 07:28:34.0888 (UTC) FILETIME=[D8533C80:01C14B13]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01100121011009.09156@localhost.localdomain>; from landley@trommello.org on Mon, Oct 01, 2001 at 09:01:10PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frédéric L. W. Meunier wrote:
+On Mon, Oct 01, 2001 at 09:01:10PM -0400, Rob Landley wrote:
+> Now Alan Cox not only does a pretty good job of ac-release logs, but he has a 
+> diary as well (http://www.linux.org.uk/diary).  I'm unaware of being able to 
+> get Alan's release announcements as read-only a mailing list, but I suppose 
+> if somebody suggested the idea to him he might not be too opposed to it.  
 
->Andrew Morton wrote:
->
->
->>We prefer to test a lot before releasing, and the one time I
->>skipped that step was for 2.4.10, and it was the one which is
->>broken. Sigh.
->>
->
->How broken ? I ask because I'm worried since I use it. Or
->it's just the compilation problem with CONFIG_BUFFER_DEBUG
->and nothing serious ?
->
->PS: I don't see any other reports on ext3-users.
+I did setup a list for this purpose on zenII, aka www.linux.org.uk.
+See:
 
-hello
-i've been using it for a few weeks and i don't get any probs
-cheers
-Sayamindu
-Support the SETI AT HOME project at http://setiathome.berkeley.edu/
+	http://www.linux.org.uk/mailman/listinfo/patching-time
 
+(the name was suggested by Alan).
 
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+All it needs are some subscribers and Alan to post release announcements
+there.  It is setup as a read-only list in as far as Alan is the only
+person who is allowed to post to the list.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

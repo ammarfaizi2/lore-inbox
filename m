@@ -1,77 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbUKDKYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262158AbUKDK27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262157AbUKDKYc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 05:24:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbUKDKYc
+	id S262158AbUKDK27 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 05:28:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbUKDK27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 05:24:32 -0500
-Received: from ns9.hostinglmi.net ([213.194.149.146]:37249 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S262157AbUKDKYY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 05:24:24 -0500
-Date: Thu, 4 Nov 2004 11:26:55 +0100
-From: DervishD <lkml@dervishd.net>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Gene Heskett <gheskett@wdtv.com>, linux-kernel@vger.kernel.org,
-       Valdis.Kletnieks@vt.edu,
-       =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: is killing zombies possible w/o a reboot?
-Message-ID: <20041104102655.GB23673@DervishD>
-Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
-	Gene Heskett <gheskett@wdtv.com>, linux-kernel@vger.kernel.org,
-	Valdis.Kletnieks@vt.edu,
-	=?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-References: <20041103194226.GA23379@DervishD> <418965E0.8070508@tmr.com>
+	Thu, 4 Nov 2004 05:28:59 -0500
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:13718 "EHLO
+	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S262158AbUKDK24 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 05:28:56 -0500
+Date: Thu, 4 Nov 2004 11:27:52 +0100
+From: Martin Waitz <tali@admingilde.org>
+To: Tejun Heo <tj@home-tj.org>
+Cc: rusty@rustcorp.com.au, mochel@osdl.org, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.10-rc1 0/4] driver-model: manual device attach
+Message-ID: <20041104102752.GW3618@admingilde.org>
+Mail-Followup-To: Tejun Heo <tj@home-tj.org>, rusty@rustcorp.com.au,
+	mochel@osdl.org, greg@kroah.com, linux-kernel@vger.kernel.org
+References: <20041104074330.GG25567@home-tj.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="MUnXZt0Uv08c1hBe"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <418965E0.8070508@tmr.com>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <20041104074330.GG25567@home-tj.org>
+User-Agent: Mutt/1.3.28i
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Bill :)
 
- * Bill Davidsen <davidsen@tmr.com> dixit:
-> >    I think that the parent (which is whatever process did the fork
-> >when you clicked your mouse) is still alive and forgetting to do the
-> >'wait()' for its children.
-> It would be good to know what the PPID is, from ps or similar. Things 
-> from X are a pain, the parent is often something you don't want to kill. 
-> Sometimes you can reparent from command line, "bash -c foo&" or similar, 
-> so the parent can be killed without logging out.
+--MUnXZt0Uv08c1hBe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-    Just use ps to reveal the family tree. Is not that hard ;)
- 
-> I would swear that the parent *is* init in some cases, which is puzzling 
-> since they should be reaped.
+hoi :)
 
-    But that's OK :))) When a parent dies without waiting for its
-children, the zombies are reparented to init. That's correct. Then
-init will wait for them. The problem is that sometimes the signals
-doesn't arrive or the like. Then the zombies are laying around a bit,
-until a timer in 'init' reaps them. That's correct too: init can only
-wait for children when it receives SIGCHLD or periodically, using a
-timer. I've written a init program and that's the way I do it, just
-in case some signal gets lost.
+On Thu, Nov 04, 2004 at 04:43:30PM +0900, Tejun Heo wrote:
+>  Two files named attach and detach are created under each device's
+> sysfs directory.  Reading attach node shows the name of applicable
+> drivers.  Writing a driver name attaches the device to the driver.
+> Also, per-device parameters can be specified when writing to an attach
+> node.  Writing anything to the write-only detach node detaches the
+> driver from the currently associated driver.
 
-    If init is the parent, all works ok, just wait a bit and all
-those zombies will really die ;)
+perhaps it'll be simpler with only the attach file and using a special
+magic value ("", "none", "detach", whatever) to manually detach a device
+from the driver.
 
-    Raúl Núñez de Arenas Coronado
+Is it possible (and worthwhile) to reattach a manually detached device
+to the default driver? Perhaps using a magic value "auto" for attach.
+Something like your dev.autoattach=3D2 rescan method, but for one
+device only. (What is the use case to rescan all busses, anyway?)
 
--- 
-Linux Registered User 88736
-http://www.dervishd.net & http://www.pleyades.net/
+--=20
+Martin Waitz
+
+--MUnXZt0Uv08c1hBe
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBie+6j/Eaxd/oD7IRAhCsAJ0UHzcASkUu43jZGv5jgvQUOf1iYACeP7qV
+c0m3BzVHlUS+ESfHO3qny1k=
+=CZkt
+-----END PGP SIGNATURE-----
+
+--MUnXZt0Uv08c1hBe--

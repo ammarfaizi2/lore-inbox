@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318495AbSGSJ2p>; Fri, 19 Jul 2002 05:28:45 -0400
+	id <S318483AbSGSJ3i>; Fri, 19 Jul 2002 05:29:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318496AbSGSJ2p>; Fri, 19 Jul 2002 05:28:45 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:7434 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S318495AbSGSJ2o>; Fri, 19 Jul 2002 05:28:44 -0400
-Date: Fri, 19 Jul 2002 11:31:24 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] new module format
-In-Reply-To: <20020719184211.4440e6cb.rusty@rustcorp.com.au>
-Message-ID: <Pine.LNX.4.44.0207191128030.28515-100000@serv>
+	id <S318485AbSGSJ3i>; Fri, 19 Jul 2002 05:29:38 -0400
+Received: from loke.as.arizona.edu ([128.196.209.61]:36484 "EHLO
+	loke.as.arizona.edu") by vger.kernel.org with ESMTP
+	id <S318483AbSGSJ3f>; Fri, 19 Jul 2002 05:29:35 -0400
+Date: Fri, 19 Jul 2002 02:30:27 -0700 (MST)
+From: Craig Kulesa <ckulesa@as.arizona.edu>
+To: linux-kernel@vger.kernel.org
+cc: linux-mm@kvack.org
+Subject: [PATCH 6/6] VM statistics for full rmap
+Message-ID: <Pine.LNX.4.44.0207190154390.4647-100000@loke.as.arizona.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Fri, 19 Jul 2002, Rusty Russell wrote:
 
-> 	I've started updating my in-kernel module loader patches for 2.5.26.
-> I'll send you a mail when it's done.
+This adopts Rik van Riel's recent extended VM statistics patch for the 
+'armed-to-the-gills-kitchen-sink rmap' against 2.5.26.  The aim, in 
+combination with a meaningful benchmark suite, is to be able to have the 
+statistical ammunition to fine tune the VM properly, rather than twiddling 
+all knobs at once hoping to make things better. 
 
-The more I think about it, the more I like the idea to go into the other
-direction. Most of the module information (e.g. symbols, dependencies)
-stored in the kernel can be as well managed in userspace.
+Get the patch series here: 
+	http://loke.as.arizona.edu/~ckulesa/kernel/rmap-vm/2.5.26/
 
-bye, Roman
+Rik's original announcement is here:
+	http://mail.nl.linux.org/linux-mm/2002-07/msg00172.html
+
+and I have added Bill Irwin's alterations to the patch, described here:
+	http://www.cs.helsinki.fi/linux/linux-kernel/2002-28/1287.html
+
+Given the late hour, I have almost certainly forgotten some hooks in 
+vmscan, so count it as a first, harmless cut at the problem.  Feedback 
+and fixes welcome! :)
+
+For 2.5.27, I'll make sure this patch is incremental to Rik's stats patch, 
+and not a replacement for it.  Sorry 'bout that...
+
+Craig Kulesa
+Steward Observatory
+Univ. of Arizona
 

@@ -1,73 +1,77 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317566AbSFMJiN>; Thu, 13 Jun 2002 05:38:13 -0400
+	id <S317565AbSFMJh4>; Thu, 13 Jun 2002 05:37:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317568AbSFMJiM>; Thu, 13 Jun 2002 05:38:12 -0400
-Received: from h-64-105-136-45.SNVACAID.covad.net ([64.105.136.45]:57059 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S317566AbSFMJiL>; Thu, 13 Jun 2002 05:38:11 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Thu, 13 Jun 2002 02:37:55 -0700
-Message-Id: <200206130937.CAA23202@adam.yggdrasil.com>
-To: martin@dalecki.de
-Subject: Patch: linux-2.5.21/drivers/ide-disk.c crashed at shutdown
-Cc: linux-kernel@vger.kernel.org
+	id <S317566AbSFMJhz>; Thu, 13 Jun 2002 05:37:55 -0400
+Received: from mta5.snfc21.pbi.net ([206.13.28.241]:22913 "EHLO
+	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S317565AbSFMJhy>; Thu, 13 Jun 2002 05:37:54 -0400
+Date: Wed, 12 Jun 2002 22:13:17 -0700
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: PCI DMA to small buffers on cache-incoherent arch
+To: "David S. Miller" <davem@redhat.com>
+Cc: roland@topspin.com, benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Message-id: <3D0829ED.1020809@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+In-Reply-To: <3D075739.7010506@pacbell.net> <52zny049r7.fsf@topspin.com>
+ <3D079D44.4000701@pacbell.net> <20020612.154628.65960832.davem@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	There are two reasons why ide-disk crashes at system shutdown.
+David S. Miller wrote:
+>    From: David Brownell <david-b@pacbell.net>
+>    Date: Wed, 12 Jun 2002 12:13:08 -0700
+> 
+>    > The current USB driver design seems pretty reasonable: only the HCD
+>    > drivers need to know about DMA mappings, and other USB drivers just
+>    > pass buffer addresses.  I don't think you would get much support for
+>    > forcing every driver to handle its own DMA mapping.
+>    
+>    Me either.  But I suspect that it'd be good to have that as an option;
+>    maybe just add a transfer_dma field to the URB, and have the HCD use
+>    that, instead of creating a mapping, when transfer_buffer is null.
+>    That'd certainly be a better approach for supporting sglist in the
+>    usb-storage code than the alternatives I've heard so far.
+> 
+> Another solution for the "small chunks" issue is to in fact keep all
+> of the real DMA buffers in the host controller driver.  Ie. a pool
+> of tiny consitent DMA memory bounce buffers.  That is an idea for 
+> discussion, I have no particular preference.
 
-1. idedisk_devdrv.lock is not initialized (RW_LOCK_UNLOCKED is not all
-    zeroes on x86).
-
-2. The ide-disk module "manually" sets device->driver, but
-   drivers/base/core.c assumes that if device->driver != NULL then
-   a bunch of other fields also have valid data (driver->driver_list,
-   for example).  In this patch, I just clear drive->device.driver
-   before calling put_device as a first step.  Eventually, I would
-   like to use {driver,device}_register than their generic
-   matching facility, but that might take a day to get right and
-   I would like to get this first step into the kernel tree and
-   get your input on this idea.
-
-	In my patch, I also reindented the fields for idedisk_devdrv.
-It's just a suggestion.
-
-	I'll cc this to linux-kernel since others have reported
-this kernel BUG().
-
-	By the way, with this patch I now get a crash at about
-the same time in usbdevfs, but I believe that is not part of
-this problem.
+Interesting idea.  I'd rather have the "hcd framework" layer
+manage such stuff than have each of N host controller drivers
+trying to do the same thing though ... less likely to turn
+into bug heaven.
 
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+> This could actually improve performance for things like the input
+> layer USB drivers.  On several systems multiple cache lines are
+> fetched when a keyboard key is typed, and this is because we use
+> streaming buffers instead of consistent ones for these transfers.
 
---- linux-2.5.21/drivers/ide/ide-disk.c 2002-06-08 22:26:29.000000000 -0700
-+++ linux/drivers/ide/ide-disk.c        2002-06-13 02:08:46.000000000 -0700
-@@ -822,8 +822,9 @@
-  */
- 
- static struct device_driver idedisk_devdrv = {
--       suspend: idedisk_suspend,
--       resume: idedisk_resume,
-+       suspend:        idedisk_suspend,
-+       resume:         idedisk_resume,
-+       lock:           RW_LOCK_UNLOCKED,
- };
- 
- /*
-@@ -1196,6 +1197,9 @@
-        if (!drive)
-            return 0;
- 
-+       /* Kludge: we never registered with device_attach, so prevent
-+          put_device from trying to remove us from device->driver_list */
-+       drive->device.driver = NULL;
-        put_device(&drive->device);
-        if ((drive->id->cfs_enable_2 & 0x3000) && drive->wcache)
-                if (idedisk_flushcache(drive))
+And that's exactly the problem scenario, since it uses the "automagic
+resubmit" model with interrupt transfers.  Each of the HCDs needs to
+handle that differently -- different behaviors, different bugs, yeech.
+I won't go into it now, but a queued transfer model would work a lot
+better.
+
+
+> We have two problems we want to solve, the DMA alignment stuff and
+> using consistent memory for these small buffers.  Therefore moving to
+> consistent memory (by whatever mechanism the USB desires to implement
+> this) is the way to go.
+
+Right, the alignment stuff is a correctness issue, the consistent
+memory issue is a performance concern.  I like to think that 2.5
+will have a lot less correctness issues in the USB stack, so it
+can start to pay more attention to performance concerns.
+
+- Dave
+
+
+
 

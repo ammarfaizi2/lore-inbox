@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262359AbTD3TPt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 15:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262357AbTD3TPt
+	id S262335AbTD3T0t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 15:26:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbTD3T0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 15:15:49 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:26802 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S262341AbTD3TPs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 15:15:48 -0400
-Date: Wed, 30 Apr 2003 21:28:09 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: P?l Halvorsen <paalh@ifi.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sendfile
-Message-ID: <20030430192809.GA8961@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	P?l Halvorsen <paalh@ifi.uio.no>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.51.0304301604330.12087@sondrio.ifi.uio.no> <20030430165103.GA3060@outpost.ds9a.nl> <Pine.SOL.4.51.0304302102300.12387@ellifu.ifi.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.51.0304302102300.12387@ellifu.ifi.uio.no>
-User-Agent: Mutt/1.3.28i
+	Wed, 30 Apr 2003 15:26:49 -0400
+Received: from watch.techsource.com ([209.208.48.130]:13703 "EHLO
+	techsource.com") by vger.kernel.org with ESMTP id S262335AbTD3T0s
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 15:26:48 -0400
+Message-ID: <3EB026D8.2070508@techsource.com>
+Date: Wed, 30 Apr 2003 15:41:12 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+References: <170EBA504C3AD511A3FE00508BB89A9202032941@exnanycmbx4.ipc.com> <20030430152041.GA22038@work.bitmover.com>            <3EB013A1.9030301@techsource.com> <200304301920.h3UJKE5J007310@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 30, 2003 at 09:12:17PM +0200, P?l Halvorsen wrote:
-
-> It could be useful for applications like streaming video where other
-> protocols on top provide additional functionality or in a multicast
-> session where TCP migth not be appropriate.
-
-sendfile on UDP would try to send gigabits per second over ppp0...
-
-> But should not the 2.4.X kernels have support for chained sk_buffs (like
-> the BSD mbufs) meaning that support for scatter-gatter I/O from the NIC
-> should be unneccessary to support zero-copy (i.e., NO in-memory data
-> copy operations)?
-
-No clue what you mean over here. Zero copy means different things to
-different people. Sendfile eliminates the 'read(to buffer);write(buffer to
-network);' copy. 
-
-Some network drivers again may eliminate the 'copy_with_checksum()' step,
-allowing minus-one-copy, in zerocopy reference frame.
-
-Regards,
-
-bert
 
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Valdis.Kletnieks@vt.edu wrote:
+> On Wed, 30 Apr 2003 14:19:13 EDT, Timothy Miller said:
+> 
+> 
+>>I mean, when will Sun, IBM, or Compaq ever start shipping tcsh or bash 
+>>as the default shell?  Don't they realize that people make typos and 
+>>would like to reedit the line they just typed?  Why are they still in 
+>>the dark ages?
+> 
+> 
+> Odd.. I use the vendor-provided 'ksh' on Solaris, AIX, and Tru64 (now an HP
+> product), and they all have supported re-editing the line just typed for
+> *years* (I can't prove it's over a decade, but I'm fairly sure it is).
+> 
+> Remember that a major reason for 'bash' being created was because of licensing
+> issues with the 'ksh' source.
+
+
+I am vaguely familiar with that.  It uses vi-like editing commands? 
+Sounds great.  Why isn't THAT the default shell?  Why are these 
+usability perks not a priority to commercial vendors?  Why are they a 
+priority for open source developers?
+

@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264706AbTFATPB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 15:15:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264709AbTFATPB
+	id S264709AbTFATSW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 15:18:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264710AbTFATSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 15:15:01 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:37796 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S264706AbTFATPA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 15:15:00 -0400
-Date: Sun, 1 Jun 2003 21:28:05 +0200 (MEST)
-Message-Id: <200306011928.h51JS5k2026999@harpo.it.uu.se>
-From: mikpe@csd.uu.se
-To: perfctr-devel@lists.sourceforge.net
-Subject: perfctr-2.5.4 released
-Cc: linux-kernel@vger.kernel.org
+	Sun, 1 Jun 2003 15:18:22 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:51718 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S264709AbTFATSV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 15:18:21 -0400
+Subject: Re: warning: process 'update' used the obsolete bdflush...
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Stewart Smith <stewartsmith@mac.com>
+Cc: Paul Rolland <rol@witbe.net>, LKML <linux-kernel@vger.kernel.org>,
+       rol@as2917.net
+In-Reply-To: <1B8F41EC-934B-11D7-B416-00039346F142@mac.com>
+References: <1B8F41EC-934B-11D7-B416-00039346F142@mac.com>
+Content-Type: text/plain
+Message-Id: <1054495899.943.2.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
+Date: 01 Jun 2003 21:31:40 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 2.5.4 of perfctr, the Linux/x86 performance
-monitoring counters driver, is now available at the usual
-place: http://www.csd.uu.se/~mikpe/linux/perfctr/
+On Sat, 2003-05-31 at 11:34, Stewart Smith wrote:
+> On Saturday, May 31, 2003, at 07:04  PM, Paul Rolland wrote:
+> > When switching from 2.4.20 to 2.5.x (x being recent), I have this
+> > message...
+> >
+> > What does this mean ?
+> > 1 - I have no process named update running,
+> > 2 - I can't find anything name update in /etc/rc.d/* recursively.
+> 
+> from fs/buffer.c:
+> /*
+>   * There are no bdflush tunables left.  But distributions are
+>   * still running obsolete flush daemons, so we terminate them here.
+>   *
+>   * Use of bdflush() is deprecated and will be removed in a future 
+> kernel.
+>   * The `pdflush' kernel threads fully replace bdflush daemons and this 
+> call.
+>   */
+> 
+> I'd upgrade whatever package update comes from. I can't seem to find 
+> that binary around on some of my systems, what distribution and version 
+> are you running? Maybe it's time to upgrade.
+> 
+> Someone else might know specifics :)
 
-Version 2.5.4, 2003-06-01
-- Corrected the driver's handling of OVF_PMI+FORCE_OVF counters
-  on Pentium 4. This configuration didn't work at all, and
-  lead to various BUG messages from the driver.
-  These restrictions apply to OVF_PMI+FORCE_OVF counters:
-  * The ireset value must be -1.
-  * Once the counter has interrupted once, it will continue
-    to interrupt when the faulting instruction is restarted,
-    causing it to never complete. This problem also occurs
-    for non-FORCE_OVF interrupt-mode counters if the ireset
-    value is of too small magnitude, like -1.
-    This appears to be a P4 hardware quirk. Don't restart
-    FORCE_OVF interrupt-mode counters, and don't use ireset
-    values too small to allow instructions to complete.
-- Updated library's K8 event descriptions to match current
-  documentation. Corrected several omissions and errors.
-- Patch kit updated for kernels 2.5.70 and 2.4.21-rc6.
+"update" is not a program, but a kernel daemon that was superseded by
+pdflush in 2.5 kernels. I just can't remember right know what caused
+that warning, but it's similar to the SO_BSDCOMPAT warning that is
+triggered when running bind.
 
-/ Mikael Pettersson

@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262927AbUFVMF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbUFVMMG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262927AbUFVMF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 08:05:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbUFVMF0
+	id S263003AbUFVMMG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 08:12:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbUFVMMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 08:05:26 -0400
-Received: from web13906.mail.yahoo.com ([216.136.175.69]:2061 "HELO
-	web13906.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262927AbUFVMFR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 08:05:17 -0400
-Message-ID: <20040622120515.28636.qmail@web13906.mail.yahoo.com>
-X-RocketYMMF: knobi.rm
-Date: Tue, 22 Jun 2004 05:05:15 -0700 (PDT)
-From: Martin Knoblauch <knobi@knobisoft.de>
-Reply-To: knobi@knobisoft.de
-Subject: Re: Problems with 2.6.7-mm1 on HP Omnibook 6100
-To: linux-kernel@vger.kernel.org
-Cc: Len Brown <len.brown@intel.com>
-MIME-Version: 1.0
+	Tue, 22 Jun 2004 08:12:06 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:36996 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263003AbUFVMMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 08:12:02 -0400
+Date: Tue, 22 Jun 2004 13:12:01 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Takao Indoh <indou.takao@soft.fujitsu.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/4]Diskdump Update
+Message-ID: <20040622121201.GA1820@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Takao Indoh <indou.takao@soft.fujitsu.com>,
+	linux-kernel@vger.kernel.org
+References: <20040617133906.GA32219@infradead.org> <E3C45850AF4E78indou.takao@soft.fujitsu.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E3C45850AF4E78indou.takao@soft.fujitsu.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hi,
->
->after going from 2.6.6-mm5 to 2.6.7-mm1, I see the following problems.
->
->a) System hangs at boot. Local APIC related. This is a known problem
-on
->the OB, but could be avoided by specifying "nolapic" in 2.6.6-mm5.
-With
->2.6.7-mm1 I have to specify "acpi=off", or apply the following patch
->from Len:
+On Tue, Jun 22, 2004 at 09:01:43PM +0900, Takao Indoh wrote:
+> On Thu, 17 Jun 2004 14:39:06 +0100, Christoph Hellwig wrote:
+> 
+> >> >please make it not a module of it's own but part of the
+> >> >scsi code, 
+> >> 
+> >> Do you mean scsi_dump module should be merged with sd_mod.o or scsi_mod.o?
+> >
+> >scsi_mod.o.
+> 
+> It is difficult because disk_dump and scsi_dump try to check checksum of
+> itself using check_crc_module so as to confirm whether module is
+> compromised or not.
 
- just out of curiosity I checked out 2.6.7 vanilla. The problem does
-not exist. Giving "nolapic" on the boot line is equivalent to Len's
-patch.
 
->b) The system does not shut down (or reboot) any more. The last output
->is:
->
->ISDN-subsystem unloaded
->
->Sometimes CTRL-ALT-DEL helps to bring the system down, sometimes I
->just have to reset it.
+> Therefore, scsi_dump need to be always compiled as independent module.
+> If scsi_dump is merged with scsi_mod, scsi_mod is not able to be
+> compiled statically.
 
- this also does not happen on vanilla 2.6.7.
-
-Cheers
-Martin
-
-=====
-------------------------------------------------------
-Martin Knoblauch
-email: k n o b i AT knobisoft DOT de
-www:   http://www.knobisoft.de
+So check if it's a module and otherwise not.

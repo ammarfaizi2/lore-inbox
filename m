@@ -1,76 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbTJNRMr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 13:12:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbTJNRMr
+	id S262598AbTJNREn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 13:04:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbTJNREn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 13:12:47 -0400
-Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:48788
-	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
-	id S262374AbTJNRMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 13:12:45 -0400
-From: John Mock <kd6pag@qsl.net>
+	Tue, 14 Oct 2003 13:04:43 -0400
+Received: from mail5.bluewin.ch ([195.186.1.207]:32921 "EHLO mail5.bluewin.ch")
+	by vger.kernel.org with ESMTP id S262598AbTJNREl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 13:04:41 -0400
+Date: Tue, 14 Oct 2003 19:04:38 +0200
+Message-ID: <3F710B1D00077369@mssbzhh-int.msg.bluewin.ch>
+From: marc.kalberer@bluewin.ch
+Subject: linux 2.6.0-test7 broadcom driver b44
 To: linux-kernel@vger.kernel.org
-Subject: parport_pc not releasing all ioports on 2.6.0-test7-bk3
-Message-Id: <E1A9Siy-0001gV-00@penngrove.fdns.net>
-Date: Tue, 14 Oct 2003 10:12:44 -0700
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Bluewin WebMail / BlueMail
+X-Originating-IP: 172.21.1.219
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If 'parport_pc' is compile as a module, it fails to properly return certain
-ioport resources after being removed.
+Hello,
+After about 30 recompiling of the kernel and svevral research on the net
+I came to the result :
+the Broadcom driver bcm4400 (b44) has a problem
 
-    Debian GNU/Linux testing/unstable tvr-vaio tty1
+log:
+- Kernel: b44.c:v0.9 (july 2003)
+- link is down 
+- flow control is off for tx and off for rx
 
-    tvr-vaio login: root
-    Password:
-    Last login: Tue Oct 14 08:26:30 2003 on tty1
-    Linux tvr-vaio 2.6.0-test7-bk3 #23 Sun Oct 12 15:42:38 PDT 2003 i686 GNU/Linux
-    You have new mail.
-    tvr-vaio:~# cat /proc/ioports > /tmp/ioports1
-    tvr-vaio:~# modprobe parport_pc
-    parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE]
-    parport0: irq 7 detected
-    tvr-vaio:~# cat /proc/ioports > /tmp/ioports2
-    tvr-vaio:~# rmmod parport_pc
-    tvr-vaio:~# cat /proc/ioports > /tmp/ioports3
-    tvr-vaio:~# diff /tmp/ioports{1,2}
-    12a13,14
-    > 0378-037a : parport0
-    > 037b-037f : parport0
-    tvr-vaio:~# diff /tmp/ioports{2,3}
-    13,14c13
-    < 0378-037a : parport0
-    < 037b-037f : parport0
-    ---
-    > 037b-037f : kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk&#65533;q&#65533;,Z$S&#65533;&#65533;&#65533;&#65533;$K6&#65533;{
-    tvr-vaio:~# cat > /tmp/console.log
+First I wasn't able to do a ifup: it gave me a siocsifflags not implemented
+error,
+but it disapear when I enable the acpi (??? Strange how those 2 things are
+related ??)
 
-Additional details on http://bugzilla.kernel.org/show_bug.cgi?id=1356 :
+Then I tried the patch solution provided by http://twibble.org/dist/bcm4400/
+No better result !
+I used gcc 3.2.2
 
-    'dmesg'	    http://bugzilla.kernel.org/attachment.cgi?id=1056
-    .config	    http://bugzilla.kernel.org/attachment.cgi?id=1057
-    /tmp/ioports2   http://bugzilla.kernel.org/attachment.cgi?id=1058
+I got an other feed back from somebody who installed the 2.4.22, with the
+b44 driver and who get a failure on bringing up the network at boot time
+but ..... network is strangely working correctly !
 
-Please write if you would like additional information.
+I don't know where to find more logs on this specific problem, if you need
+some more info, contact me
 
-			       -- JM
+Marc Kalberer
 
-P.S.  Does the following patch fix this properly??
--------------------------------------------------------------------------------
---- drivers/parport/parport_pc.c.orig	2003-10-08 12:24:51.000000000 -0700
-+++ drivers/parport/parport_pc.c	2003-10-14 10:05:25.000000000 -0700
-@@ -2358,7 +2358,11 @@
- 		release_region(base_hi, 3);
- 		ECR_res = NULL;
- 	}
--
-+	/* Likewise for EEP ports */
-+	if (EPP_res && (p->modes & PARPORT_MODE_EPP) == 0) {
-+		release_region(base+3, 5);
-+		EPP_res = NULL;
-+	}
- 	if (p->irq != PARPORT_IRQ_NONE) {
- 		if (request_irq (p->irq, parport_pc_interrupt,
- 				 0, p->name, p)) {
-===============================================================================
+
+marc.kalberer@programmers.ch
+

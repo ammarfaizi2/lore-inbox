@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261855AbUB1Ok3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 09:40:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbUB1Ok3
+	id S261851AbUB1Ons (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 09:43:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbUB1Ons
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 09:40:29 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:20715 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S261855AbUB1Ok2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 09:40:28 -0500
-Subject: Re: Where does this load come from?
-From: Christophe Saout <christophe@saout.de>
-To: Jurgen Kramer <gtm.kramer@inter.nl.net>
+	Sat, 28 Feb 2004 09:43:48 -0500
+Received: from bristol.phunnypharm.org ([65.207.35.130]:48613 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S261851AbUB1Onr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 09:43:47 -0500
+Date: Sat, 28 Feb 2004 09:41:34 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Subodh Shrivastava <subodh@btopenworld.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1077971267.10257.24.camel@paragon.slim>
-References: <1077971267.10257.24.camel@paragon.slim>
-Content-Type: text/plain
-Message-Id: <1077979223.11348.2.camel@leto.cs.pocnet.net>
+Subject: Re: sbp2 module not initialising external hdd connected on firewire port.
+Message-ID: <20040228144134.GC1152@phunnypharm.org>
+References: <40409D0A.8040903@btopenworld.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 28 Feb 2004 15:40:23 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40409D0A.8040903@btopenworld.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sa, den 28.02.2004 schrieb Jurgen Kramer um 13:27:
+On Sat, Feb 28, 2004 at 01:52:10PM +0000, Subodh Shrivastava wrote:
+> Hi Ben,
+> 
+> I am trying to connect my external HDD on firewire port. Linux is not 
+> recognising this disk. Same disk is recognised in windows, also its 
+> recognised in linux when connected on USB port. Attached here is my 
+> .config file, lspci output, dmesg output.
+> 
+> uname -a:
+> Linux subbu 2.6.3-mm2 #9 Sat Feb 28 13:11:28 GMT 2004 i686 Intel(R) 
+> Pentium(R) M processor 1300MHz GenuineIntel GNU/Linux
 
-> I am seeing some strange load figures on my P4 Celeron based system
-> which I cannot explain. There always seem to be some load while there
-> are no real apps running. Stopping all daemons doesn't seem to effect
-> things at all.
+Can you do "ls -l /sys/bus/ieee1394/devices/" ?
 
-I've posted something like this before. It seems the load calculator
-takes the io_wait "cpu usage" (which isn't really a cpu usage, it just
-categorizes processes waiting in io_schedule here instead of the idle
-time) into account. While doing heavy disk I/O my webserver showed a
-load of over 40 but the cpu was idle. I don't like this either.
-
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

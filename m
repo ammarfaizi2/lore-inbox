@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266363AbTADHiR>; Sat, 4 Jan 2003 02:38:17 -0500
+	id <S266411AbTADHxI>; Sat, 4 Jan 2003 02:53:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266408AbTADHiR>; Sat, 4 Jan 2003 02:38:17 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:12552
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S266363AbTADHiQ>; Sat, 4 Jan 2003 02:38:16 -0500
-Date: Fri, 3 Jan 2003 23:45:35 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Mark Mielke <mark@mark.mielke.cc>
-cc: Werner Almesberger <wa@almesberger.net>,
-       "Shane R. Stixrud" <shane@stixrud.org>, Larry McVoy <lm@bitmover.com>,
-       Richard Stallman <rms@gnu.org>, billh@gnuppy.monkey.org, paul@clubi.ie,
-       riel@conectiva.com.br, Hell.Surfers@cwctv.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
-In-Reply-To: <20030104073430.GA7518@mark.mielke.cc>
-Message-ID: <Pine.LNX.4.10.10301032340321.421-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266431AbTADHxI>; Sat, 4 Jan 2003 02:53:08 -0500
+Received: from sullivan.realtime.net ([205.238.132.76]:34310 "EHLO
+	sullivan.realtime.net") by vger.kernel.org with ESMTP
+	id <S266411AbTADHxG>; Sat, 4 Jan 2003 02:53:06 -0500
+Date: Sat, 4 Jan 2003 02:01:38 -0600 (CST)
+Message-Id: <200301040801.h0481cf00212@sullivan.realtime.net>
+To: linux-kernel@vger.kernel.org
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, Andrew Morton <akpm@digeo.com>
+Subject: [PATCH] fix CONFIG_DEVFS=y root=<number>
+From: Milton Miller <miltonm@bga.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Jan 2003, Mark Mielke wrote:
+Based on a patch by Adam J. Richter <adam@yggdrasil.com> [1], this fixes
+the problem since 2.5.47 with mounting a devfs=y system with root=<number>
 
-> On Sat, Jan 04, 2003 at 03:00:07AM -0300, Werner Almesberger wrote:
-> > Shane R. Stixrud wrote:
-> > > I see a possible future where software development is seen much like
-> > > getting your roof repaired, or adding a new room on to your house.
-> > > It's labor+materials.
-> > Exactly. Whenever somebody figures out a way to make some work
-> > process more efficient, invariably a group of people will predict
-> > imminent doom if this model catches on, and they will have plenty
-> > of compelling reasons why the old way is vastly superior.
-> 
-> If only it were that simple. Instead, the roof repair man repairs one
-> house, the fix is propagated to all other houses via the Internet, the
-> roof repair man puts *himself* out of a job, and the only people that
-> make money are the Internet service providers. The roof repair man
-> starves to death and finally ends up on (un)employment insurance.
+sys_get_dents64 returns -EINVAL if there is not space for an entry, so
+we need to activate the loop code to expand the buffer.  
 
-You mean like today with everyone in the great dot-bomb failure, because
-giving it all way is what happened a few years back, and they are now
-gone.
+[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=103762980207529&w=2
+Tested with 2.5.53-um2
 
-> Continually comparing software development to traditional forms of
-> labour is misleading and evidence that the issue is *not* being
-> properly understood. A closer comparison would be to compare the design
-> of software to the design of a building. But then - architects don't
-> give their blueprints away for free - that would be suicidal...
 
-Careful, the arguement will shift to, this is a public building and thus
-the blueprints will be placed in a public record, in time.
-
-Please keep up the good work of teaching, I am impressed you have the
-ability to not shread people after you have explained it six ways from
-sunday and they still do not get it.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+diff -Nru a/init/do_mounts.c b/init/do_mounts.c
+--- a/init/do_mounts.c	Sat Jan  4 00:14:34 2003
++++ b/init/do_mounts.c	Sat Jan  4 00:14:34 2003
+@@ -333,7 +333,7 @@
+ 	for (bytes = 0, p = buf; bytes < len; bytes += n, p+=n) {
+ 		n = sys_getdents64(fd, p, len - bytes);
+ 		if (n < 0)
+-			return -1;
++			return n;
+ 		if (n == 0)
+ 			return bytes;
+ 	}
+@@ -361,7 +361,7 @@
+ 			return p;
+ 		}
+ 		kfree(p);
+-		if (n < 0)
++		if (n < 0 && n != -EINVAL)
+ 			break;
+ 	}
+ 	close(fd);

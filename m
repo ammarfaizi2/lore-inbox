@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290378AbSAPHHs>; Wed, 16 Jan 2002 02:07:48 -0500
+	id <S290375AbSAPHKU>; Wed, 16 Jan 2002 02:10:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290375AbSAPHHj>; Wed, 16 Jan 2002 02:07:39 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:39653 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S290379AbSAPHHY>; Wed, 16 Jan 2002 02:07:24 -0500
-Date: Wed, 16 Jan 2002 09:07:11 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Cc: Nicholas Lee <nj.lee@plumtree.co.nz>, linux-kernel@vger.kernel.org
-Subject: Re: Disk corruption - Abit KT7, 2.2.19+ide patches
-Message-ID: <20020116070710.GT51774@niksula.cs.hut.fi>
-In-Reply-To: <20020115202302.GA598@inktiger.kiwa.co.nz> <20020115205116.GH51648@niksula.cs.hut.fi> <20020115211032.GC598@inktiger.kiwa.co.nz> <20020115214049.GI51648@niksula.cs.hut.fi> <20020115220211.GE598@inktiger.kiwa.co.nz> <000f01c19e18$469a3700$0501a8c0@psuedogod>
+	id <S290379AbSAPHJ7>; Wed, 16 Jan 2002 02:09:59 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:21776 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S290375AbSAPHJ5>;
+	Wed, 16 Jan 2002 02:09:57 -0500
+Date: Wed, 16 Jan 2002 08:09:48 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linuxdiskcert.org>
+Cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: block completion races
+Message-ID: <20020116080948.G3805@suse.de>
+In-Reply-To: <3C44DC7B.D960D15D@zip.com.au> <Pine.LNX.4.10.10201152001400.26467-100000@master.linux-ide.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <000f01c19e18$469a3700$0501a8c0@psuedogod>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <Pine.LNX.4.10.10201152001400.26467-100000@master.linux-ide.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 05:59:19PM -0500, you [Ed Sweetman] claimed:
+On Tue, Jan 15 2002, Andre Hedrick wrote:
 > 
-> sounds like you're using the shared irq slot, might want to verify that with
-> lspci -vvv to see if anything else is using an irq at the time that's the
-> same as the card in that slot.  Also some places will do various special
-> things to one of the last pci slots, you should be able to find out by
-> looking in the manual.  Some cards just dont play nicely with shared irqs.
+> We have a more interesting problem!
+> This does not show up in 2.5.1 which is patch base for 2.5.3-pre1.
+> It does show up in 2.5.2-pre10 but I have not walked the patch through
+> 2.5.2preX series.
+> 
+> We have a very bad queue race that is PIO specific but really the whole
+> darn driver before the patch was applied.  ACB only tighten the driver's
+> alignment to the NCITS standards.  One should note the direct access via
+> the ioctl does not lock the driver.  Only coming down from BLOCK will this
+> event occur.
+> 
+> Repeatable test "hdparm -d0 -t /dev/hdx"
+> 
+> If you apply the acb-io patch to 2.5.1 this does not happen.
+> 
+> In the introduction of BIO, there were no "q->queue_lock" applied to
+> protecting the queue.
+> 
+>         /*
+>          * Is meant to protect the queue in the future instead of
+>          * io_request_lock
+>          */
+>         spinlock_t              queue_lock;
+> 
+> Well we pulled "io_request_lock" but did we forgot to insert or add
+> q->queue_lock spinlocks?
+> 
+> It is going to be a LONG LONG NIGHT :-(
 
-Oh, I check some time ago. Sorry for baing vague, but as I said, we expect
-to post more info in a couple of days. 
+ide_lock == q->queue_lock
 
-The card was in a slot that shares an IQR with something called "serial bus
-controller" (and USB gadget, I gather.) It's _not_ in the slot that shares
-the IRQ with (both) HPT370 controllers.
+ide-probe.c:ide_init_queue():	blk_init_queue(q, do_ide_request, &ide_lock);
 
-USB is disabled in BIOS and in kernel config. Ansolutely no USB devices
-attached.
+-- 
+Jens Axboe
 
-> describing.   I'm not really sure how this is a linux problem though since
-> you mention it's occuring only in a certain physical slot.
-
-No. I'm pretty positive this is a case of Via PCI being flaky.
-
-
--- v --
-
-v@iki.fi

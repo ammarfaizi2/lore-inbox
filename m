@@ -1,57 +1,177 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278805AbRJZR7y>; Fri, 26 Oct 2001 13:59:54 -0400
+	id <S278755AbRJZQ6r>; Fri, 26 Oct 2001 12:58:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278810AbRJZR7l>; Fri, 26 Oct 2001 13:59:41 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:38947 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S278805AbRJZR7a>; Fri, 26 Oct 2001 13:59:30 -0400
-Date: Fri, 26 Oct 2001 20:00:02 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Christopher S. Swingley" <cswingle@iarc.uaf.edu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.13-ac1
-Message-ID: <20011026200002.N30905@athlon.random>
-In-Reply-To: <20011026194301.M30905@athlon.random> <E15xBBA-0000pp-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <E15xBBA-0000pp-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Oct 26, 2001 at 06:54:00PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S278758AbRJZQ6h>; Fri, 26 Oct 2001 12:58:37 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4100 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278755AbRJZQ6T>; Fri, 26 Oct 2001 12:58:19 -0400
+Date: Fri, 26 Oct 2001 09:57:02 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Zlatko Calusic <zlatko.calusic@iskon.hr>
+cc: Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+        <linux-mm@kvack.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: xmm2 - monitor Linux MM active/inactive lists graphically
+In-Reply-To: <dnpu7asb37.fsf@magla.zg.iskon.hr>
+Message-ID: <Pine.LNX.4.33.0110260949300.2939-200000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="168447515-392138068-1004115422=:2939"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 26, 2001 at 06:54:00PM +0100, Alan Cox wrote:
-> > simply because the <2.4.10 buffer cache layer wasn't able to do proper
-> > readahead on the blkdev. Now we do readahead properly and so in turn
-> > the the lack of media-change trust of the vfs shows up. So as far I can
-> > tell the right fix have no influence on the blkdev in pagecache, but it
-> > only consists in resurrecting the media-change detection with a
-> > per-device bitflag whitelist. I cannot see other source of stalls across
-> > a close/open cycle.
-> 
-> I'm not currently sure if the impact is from the cost of the page cache
-> flushing or the invalidate/re-read it triggers. There probably are two or
-> three seeks on the DVD if the data is invalidated so that would make sense.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-plus we also need to wait completion of the readahead synchronously in
-the cache flushing at close, the larger the readahead, the larger the
-stall.
+--168447515-392138068-1004115422=:2939
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-I doubt the cpu cost of truncate_inode_pages as originally suspected
-is the culprit, more likely the fact we have to wait for a larger I/O to
-complete plus the disk seek due the fact we throw away the readahead,
-infact invalidate_buffers in-cpu-core cost in -ac could be lot worse
-considering it has to walk a list that contains all kind of buffers not
-only belonging to the interesting device to flush.
 
-But anyways the media change detection will avoid to throw away the
-readahead and in turn it will avoid the seek, it will avoid the
-synchronous I/O completion wait in truncate_inode_pages, and it will
-avoid the truncate_inode_pages in-cpu-core cost cost as well, so it
-should most certainly fix the problem.
+On 26 Oct 2001, Zlatko Calusic wrote:
+>
+> When I find some time, I'll dig around that code. It is very
+> interesting part of the kernel, I'm sure, I just didn't have enough
+> time so far, to spend hacking on that part.
 
-Andrea
+Attached is a very untested patch (but hey, it compiles, so it must work,
+right?) against 2.4.14-pre2, that makes the batching be a high/low
+watermark thing instead. It actually simplified the code, but that is, of
+course, assuming that it works at all ;)
+
+(If I got the comparisons wrong, of if I update the counts wrong, your IO
+queue will probably stop cold. So be careful. The code is obvious
+enough, but typos and thinkos happen).
+
+		Linus
+
+--168447515-392138068-1004115422=:2939
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=p2p3
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0110260957020.2939@penguin.transmeta.com>
+Content-Description: 
+Content-Disposition: attachment; filename=p2p3
+
+ZGlmZiAtdSAtLXJlY3Vyc2l2ZSBwcmUyL2xpbnV4L2RyaXZlcnMvYmxvY2sv
+bGxfcndfYmxrLmMgbGludXgvZHJpdmVycy9ibG9jay9sbF9yd19ibGsuYw0K
+LS0tIHByZTIvbGludXgvZHJpdmVycy9ibG9jay9sbF9yd19ibGsuYwlGcmkg
+T2N0IDI2IDA5OjQ4OjI1IDIwMDENCisrKyBsaW51eC9kcml2ZXJzL2Jsb2Nr
+L2xsX3J3X2Jsay5jCUZyaSBPY3QgMjYgMDk6NTM6NTQgMjAwMQ0KQEAgLTE0
+MCwyMSArMTQwLDIzIEBADQogCQlyZXR1cm4gJmJsa19kZXZbTUFKT1IoZGV2
+KV0ucmVxdWVzdF9xdWV1ZTsNCiB9DQogDQotc3RhdGljIGludCBfX2Jsa19j
+bGVhbnVwX3F1ZXVlKHN0cnVjdCBsaXN0X2hlYWQgKmhlYWQpDQorc3RhdGlj
+IGludCBfX2Jsa19jbGVhbnVwX3F1ZXVlKHN0cnVjdCByZXF1ZXN0X2xpc3Qg
+Kmxpc3QpDQogew0KKwlzdHJ1Y3QgbGlzdF9oZWFkICpoZWFkID0gJmxpc3Qt
+PmZyZWU7DQogCXN0cnVjdCByZXF1ZXN0ICpycTsNCiAJaW50IGkgPSAwOw0K
+IA0KLQlpZiAobGlzdF9lbXB0eShoZWFkKSkNCi0JCXJldHVybiAwOw0KLQ0K
+LQlkbyB7DQorCXdoaWxlICghbGlzdF9lbXB0eShoZWFkKSkgew0KIAkJcnEg
+PSBsaXN0X2VudHJ5KGhlYWQtPm5leHQsIHN0cnVjdCByZXF1ZXN0LCBxdWV1
+ZSk7DQogCQlsaXN0X2RlbCgmcnEtPnF1ZXVlKTsNCiAJCWttZW1fY2FjaGVf
+ZnJlZShyZXF1ZXN0X2NhY2hlcCwgcnEpOw0KIAkJaSsrOw0KLQl9IHdoaWxl
+ICghbGlzdF9lbXB0eShoZWFkKSk7DQorCX07DQogDQorCWlmIChpICE9IGxp
+c3QtPmNvdW50KQ0KKwkJcHJpbnRrKCJyZXF1ZXN0IGxpc3QgbGVhayFcbiIp
+Ow0KKw0KKwlsaXN0LT5jb3VudCA9IDA7DQogCXJldHVybiBpOw0KIH0NCiAN
+CkBAIC0xNzYsMTAgKzE3OCw4IEBADQogew0KIAlpbnQgY291bnQgPSBxdWV1
+ZV9ucl9yZXF1ZXN0czsNCiANCi0JY291bnQgLT0gX19ibGtfY2xlYW51cF9x
+dWV1ZSgmcS0+cmVxdWVzdF9mcmVlbGlzdFtSRUFEXSk7DQotCWNvdW50IC09
+IF9fYmxrX2NsZWFudXBfcXVldWUoJnEtPnJlcXVlc3RfZnJlZWxpc3RbV1JJ
+VEVdKTsNCi0JY291bnQgLT0gX19ibGtfY2xlYW51cF9xdWV1ZSgmcS0+cGVu
+ZGluZ19mcmVlbGlzdFtSRUFEXSk7DQotCWNvdW50IC09IF9fYmxrX2NsZWFu
+dXBfcXVldWUoJnEtPnBlbmRpbmdfZnJlZWxpc3RbV1JJVEVdKTsNCisJY291
+bnQgLT0gX19ibGtfY2xlYW51cF9xdWV1ZSgmcS0+cnFbUkVBRF0pOw0KKwlj
+b3VudCAtPSBfX2Jsa19jbGVhbnVwX3F1ZXVlKCZxLT5ycVtXUklURV0pOw0K
+IA0KIAlpZiAoY291bnQpDQogCQlwcmludGsoImJsa19jbGVhbnVwX3F1ZXVl
+OiBsZWFrZWQgcmVxdWVzdHMgKCVkKVxuIiwgY291bnQpOw0KQEAgLTMzMSwx
+MSArMzMxLDEwIEBADQogCXN0cnVjdCByZXF1ZXN0ICpycTsNCiAJaW50IGk7
+DQogDQotCUlOSVRfTElTVF9IRUFEKCZxLT5yZXF1ZXN0X2ZyZWVsaXN0W1JF
+QURdKTsNCi0JSU5JVF9MSVNUX0hFQUQoJnEtPnJlcXVlc3RfZnJlZWxpc3Rb
+V1JJVEVdKTsNCi0JSU5JVF9MSVNUX0hFQUQoJnEtPnBlbmRpbmdfZnJlZWxp
+c3RbUkVBRF0pOw0KLQlJTklUX0xJU1RfSEVBRCgmcS0+cGVuZGluZ19mcmVl
+bGlzdFtXUklURV0pOw0KLQlxLT5wZW5kaW5nX2ZyZWVbUkVBRF0gPSBxLT5w
+ZW5kaW5nX2ZyZWVbV1JJVEVdID0gMDsNCisJSU5JVF9MSVNUX0hFQUQoJnEt
+PnJxW1JFQURdLmZyZWUpOw0KKwlJTklUX0xJU1RfSEVBRCgmcS0+cnFbV1JJ
+VEVdLmZyZWUpOw0KKwlxLT5ycVtSRUFEXS5jb3VudCA9IDA7DQorCXEtPnJx
+W1dSSVRFXS5jb3VudCA9IDA7DQogDQogCS8qDQogCSAqIERpdmlkZSByZXF1
+ZXN0cyBpbiBoYWxmIGJldHdlZW4gcmVhZCBhbmQgd3JpdGUNCkBAIC0zNDks
+NyArMzQ4LDggQEANCiAJCX0NCiAJCW1lbXNldChycSwgMCwgc2l6ZW9mKHN0
+cnVjdCByZXF1ZXN0KSk7DQogCQlycS0+cnFfc3RhdHVzID0gUlFfSU5BQ1RJ
+VkU7DQotCQlsaXN0X2FkZCgmcnEtPnF1ZXVlLCAmcS0+cmVxdWVzdF9mcmVl
+bGlzdFtpICYgMV0pOw0KKwkJbGlzdF9hZGQoJnJxLT5xdWV1ZSwgJnEtPnJx
+W2kmMV0uZnJlZSk7DQorCQlxLT5ycVtpJjFdLmNvdW50Kys7DQogCX0NCiAN
+CiAJaW5pdF93YWl0cXVldWVfaGVhZCgmcS0+d2FpdF9mb3JfcmVxdWVzdCk7
+DQpAQCAtNDIzLDEwICs0MjMsMTIgQEANCiBzdGF0aWMgaW5saW5lIHN0cnVj
+dCByZXF1ZXN0ICpnZXRfcmVxdWVzdChyZXF1ZXN0X3F1ZXVlX3QgKnEsIGlu
+dCBydykNCiB7DQogCXN0cnVjdCByZXF1ZXN0ICpycSA9IE5VTEw7DQorCXN0
+cnVjdCByZXF1ZXN0X2xpc3QgKnJsID0gcS0+cnEgKyBydzsNCiANCi0JaWYg
+KCFsaXN0X2VtcHR5KCZxLT5yZXF1ZXN0X2ZyZWVsaXN0W3J3XSkpIHsNCi0J
+CXJxID0gYmxrZGV2X2ZyZWVfcnEoJnEtPnJlcXVlc3RfZnJlZWxpc3Rbcndd
+KTsNCisJaWYgKCFsaXN0X2VtcHR5KCZybC0+ZnJlZSkpIHsNCisJCXJxID0g
+YmxrZGV2X2ZyZWVfcnEoJnJsLT5mcmVlKTsNCiAJCWxpc3RfZGVsKCZycS0+
+cXVldWUpOw0KKwkJcmwtPmNvdW50LS07DQogCQlycS0+cnFfc3RhdHVzID0g
+UlFfQUNUSVZFOw0KIAkJcnEtPnNwZWNpYWwgPSBOVUxMOw0KIAkJcnEtPnEg
+PSBxOw0KQEAgLTQ0MywxNyArNDQ1LDEzIEBADQogCXJlZ2lzdGVyIHN0cnVj
+dCByZXF1ZXN0ICpycTsNCiAJREVDTEFSRV9XQUlUUVVFVUUod2FpdCwgY3Vy
+cmVudCk7DQogDQorCWdlbmVyaWNfdW5wbHVnX2RldmljZShxKTsNCiAJYWRk
+X3dhaXRfcXVldWVfZXhjbHVzaXZlKCZxLT53YWl0X2Zvcl9yZXF1ZXN0LCAm
+d2FpdCk7DQotCWZvciAoOzspIHsNCi0JCV9fc2V0X2N1cnJlbnRfc3RhdGUo
+VEFTS19VTklOVEVSUlVQVElCTEUpOw0KLQkJc3Bpbl9sb2NrX2lycSgmaW9f
+cmVxdWVzdF9sb2NrKTsNCi0JCXJxID0gZ2V0X3JlcXVlc3QocSwgcncpOw0K
+LQkJc3Bpbl91bmxvY2tfaXJxKCZpb19yZXF1ZXN0X2xvY2spOw0KLQkJaWYg
+KHJxKQ0KLQkJCWJyZWFrOw0KLQkJZ2VuZXJpY191bnBsdWdfZGV2aWNlKHEp
+Ow0KLQkJc2NoZWR1bGUoKTsNCi0JfQ0KKwlkbyB7DQorCQlzZXRfY3VycmVu
+dF9zdGF0ZShUQVNLX1VOSU5URVJSVVBUSUJMRSk7DQorCQlpZiAocS0+cnFb
+cnddLmNvdW50IDwgYmF0Y2hfcmVxdWVzdHMpDQorCQkJc2NoZWR1bGUoKTsN
+CisJfSB3aGlsZSAoKHJxID0gZ2V0X3JlcXVlc3QocSxydykpID09IE5VTEwp
+Ow0KIAlyZW1vdmVfd2FpdF9xdWV1ZSgmcS0+d2FpdF9mb3JfcmVxdWVzdCwg
+JndhaXQpOw0KIAljdXJyZW50LT5zdGF0ZSA9IFRBU0tfUlVOTklORzsNCiAJ
+cmV0dXJuIHJxOw0KQEAgLTU0MiwxNSArNTQwLDYgQEANCiAJbGlzdF9hZGQo
+JnJlcS0+cXVldWUsIGluc2VydF9oZXJlKTsNCiB9DQogDQotaW5saW5lIHZv
+aWQgYmxrX3JlZmlsbF9mcmVlbGlzdChyZXF1ZXN0X3F1ZXVlX3QgKnEsIGlu
+dCBydykNCi17DQotCWlmIChxLT5wZW5kaW5nX2ZyZWVbcnddKSB7DQotCQls
+aXN0X3NwbGljZSgmcS0+cGVuZGluZ19mcmVlbGlzdFtyd10sICZxLT5yZXF1
+ZXN0X2ZyZWVsaXN0W3J3XSk7DQotCQlJTklUX0xJU1RfSEVBRCgmcS0+cGVu
+ZGluZ19mcmVlbGlzdFtyd10pOw0KLQkJcS0+cGVuZGluZ19mcmVlW3J3XSA9
+IDA7DQotCX0NCi19DQotDQogLyoNCiAgKiBNdXN0IGJlIGNhbGxlZCB3aXRo
+IGlvX3JlcXVlc3RfbG9jayBoZWxkIGFuZCBpbnRlcnJ1cHRzIGRpc2FibGVk
+DQogICovDQpAQCAtNTY0LDI4ICs1NTMsMTIgQEANCiANCiAJLyoNCiAJICog
+UmVxdWVzdCBtYXkgbm90IGhhdmUgb3JpZ2luYXRlZCBmcm9tIGxsX3J3X2Js
+ay4gaWYgbm90LA0KLQkgKiBhc3VtbWUgaXQgaGFzIGZyZWUgYnVmZmVycyBh
+bmQgY2hlY2sgd2FpdGVycw0KKwkgKiBhc3N1bWUgaXQgaGFzIGZyZWUgYnVm
+ZmVycyBhbmQgY2hlY2sgd2FpdGVycw0KIAkgKi8NCiAJaWYgKHEpIHsNCi0J
+CS8qDQotCQkgKiBJZiBub2JvZHkgaXMgd2FpdGluZyBmb3IgcmVxdWVzdHMs
+IGRvbid0IGJvdGhlcg0KLQkJICogYmF0Y2hpbmcgdXAuDQotCQkgKi8NCi0J
+CWlmICghbGlzdF9lbXB0eSgmcS0+cmVxdWVzdF9mcmVlbGlzdFtyd10pKSB7
+DQotCQkJbGlzdF9hZGQoJnJlcS0+cXVldWUsICZxLT5yZXF1ZXN0X2ZyZWVs
+aXN0W3J3XSk7DQotCQkJcmV0dXJuOw0KLQkJfQ0KLQ0KLQkJLyoNCi0JCSAq
+IEFkZCB0byBwZW5kaW5nIGZyZWUgbGlzdCBhbmQgYmF0Y2ggd2FrZXVwcw0K
+LQkJICovDQotCQlsaXN0X2FkZCgmcmVxLT5xdWV1ZSwgJnEtPnBlbmRpbmdf
+ZnJlZWxpc3RbcnddKTsNCi0NCi0JCWlmICgrK3EtPnBlbmRpbmdfZnJlZVty
+d10gPj0gYmF0Y2hfcmVxdWVzdHMpIHsNCi0JCQlpbnQgd2FrZV91cCA9IHEt
+PnBlbmRpbmdfZnJlZVtyd107DQotCQkJYmxrX3JlZmlsbF9mcmVlbGlzdChx
+LCBydyk7DQotCQkJd2FrZV91cF9ucigmcS0+d2FpdF9mb3JfcmVxdWVzdCwg
+d2FrZV91cCk7DQotCQl9DQorCQlsaXN0X2FkZCgmcmVxLT5xdWV1ZSwgJnEt
+PnJxW3J3XS5mcmVlKTsNCisJCWlmICgrK3EtPnJxW3J3XS5jb3VudCA+PSBi
+YXRjaF9yZXF1ZXN0cyAmJiB3YWl0cXVldWVfYWN0aXZlKCZxLT53YWl0X2Zv
+cl9yZXF1ZXN0KSkNCisJCQl3YWtlX3VwKCZxLT53YWl0X2Zvcl9yZXF1ZXN0
+KTsNCiAJfQ0KIH0NCiANCkBAIC0xMTQ0LDcgKzExMTcsNyBAQA0KIAkvKg0K
+IAkgKiBCYXRjaCBmcmVlcyBhY2NvcmRpbmcgdG8gcXVldWUgbGVuZ3RoDQog
+CSAqLw0KLQliYXRjaF9yZXF1ZXN0cyA9IHF1ZXVlX25yX3JlcXVlc3RzLzM7
+DQorCWJhdGNoX3JlcXVlc3RzID0gcXVldWVfbnJfcmVxdWVzdHMvNDsNCiAJ
+cHJpbnRrKCJibG9jazogJWQgc2xvdHMgcGVyIHF1ZXVlLCBiYXRjaD0lZFxu
+IiwgcXVldWVfbnJfcmVxdWVzdHMsIGJhdGNoX3JlcXVlc3RzKTsNCiANCiAj
+aWZkZWYgQ09ORklHX0FNSUdBX1oyUkFNDQpkaWZmIC11IC0tcmVjdXJzaXZl
+IHByZTIvbGludXgvaW5jbHVkZS9saW51eC9ibGtkZXYuaCBsaW51eC9pbmNs
+dWRlL2xpbnV4L2Jsa2Rldi5oDQotLS0gcHJlMi9saW51eC9pbmNsdWRlL2xp
+bnV4L2Jsa2Rldi5oCVR1ZSBPY3QgMjMgMjI6MDE6MDEgMjAwMQ0KKysrIGxp
+bnV4L2luY2x1ZGUvbGludXgvYmxrZGV2LmgJRnJpIE9jdCAyNiAwOTozNjo0
+MSAyMDAxDQpAQCAtNjYsMTQgKzY2LDE3IEBADQogICovDQogI2RlZmluZSBR
+VUVVRV9OUl9SRVFVRVNUUwk4MTkyDQogDQorc3RydWN0IHJlcXVlc3RfbGlz
+dCB7DQorCXVuc2lnbmVkIGludCBjb3VudDsNCisJc3RydWN0IGxpc3RfaGVh
+ZCBmcmVlOw0KK307DQorDQogc3RydWN0IHJlcXVlc3RfcXVldWUNCiB7DQog
+CS8qDQogCSAqIHRoZSBxdWV1ZSByZXF1ZXN0IGZyZWVsaXN0LCBvbmUgZm9y
+IHJlYWRzIGFuZCBvbmUgZm9yIHdyaXRlcw0KIAkgKi8NCi0Jc3RydWN0IGxp
+c3RfaGVhZAlyZXF1ZXN0X2ZyZWVsaXN0WzJdOw0KLQlzdHJ1Y3QgbGlzdF9o
+ZWFkCXBlbmRpbmdfZnJlZWxpc3RbMl07DQotCWludAkJCXBlbmRpbmdfZnJl
+ZVsyXTsNCisJc3RydWN0IHJlcXVlc3RfbGlzdAlycVsyXTsNCiANCiAJLyoN
+CiAJICogVG9nZXRoZXIgd2l0aCBxdWV1ZV9oZWFkIGZvciBjYWNoZWxpbmUg
+c2hhcmluZw0K
+--168447515-392138068-1004115422=:2939--

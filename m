@@ -1,75 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131133AbRCJTLP>; Sat, 10 Mar 2001 14:11:15 -0500
+	id <S131139AbRCJT0g>; Sat, 10 Mar 2001 14:26:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131134AbRCJTLH>; Sat, 10 Mar 2001 14:11:07 -0500
-Received: from duck.doc.ic.ac.uk ([146.169.1.46]:41476 "EHLO duck.doc.ic.ac.uk")
-	by vger.kernel.org with ESMTP id <S131133AbRCJTK7>;
-	Sat, 10 Mar 2001 14:10:59 -0500
-To: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-Cc: Helge Hafting <helgehaf@idb.hist.no>, Manoj Sontakke <manojs@sasken.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: quicksort for linked list
-In-Reply-To: <200103091152.MAA31645@cave.bitwizard.nl>
-From: David Wragg <dpw@doc.ic.ac.uk>
-Date: 10 Mar 2001 19:09:46 +0000
-Message-ID: <y7r7l1xl9tx.fsf@sytry.doc.ic.ac.uk>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+	id <S131092AbRCJT00>; Sat, 10 Mar 2001 14:26:26 -0500
+Received: from river.it.gvsu.edu ([148.61.1.16]:12501 "EHLO river.it.gvsu.edu")
+	by vger.kernel.org with ESMTP id <S131139AbRCJT0G>;
+	Sat, 10 Mar 2001 14:26:06 -0500
+Message-ID: <3AAA7FA2.2000803@lycosmail.com>
+Date: Sat, 10 Mar 2001 14:25:22 -0500
+From: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-ac17 i686; en-US; 0.8) Gecko/20010215
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: VMware 2.0.3 & Kernel 2.4.2-ac17
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-R.E.Wolff@BitWizard.nl (Rogier Wolff) writes:
-> Quicksort however is an algorithm that is recursive. This means that
-> it can use unbounded amounts of stack -> This is not for the kernel.
+While compiling the vmnet module, there is a warning
 
-The implementation of Quicksort for arrays demands a recursive
-implementation, but for doubly-linked lists there is a trick that
-leads to an iterative implementation.  You can implement Quicksort
-recursively for singly linked lists, so in a doubly-linked list you
-have a spare link in each node while you are doing the sort.  You can
-hide the stack in those links, so the implementation doesn't need to
-be explicitly recursive.  At the end of the sort, the "next" links are
-correct, so you have to go through and fix up the "prev" links.
+make: Entering directory `/tmp/vmware-config2/vmnet-only'
+bridge.c: In function `VNetBridgeReceiveFromDev':
+bridge.c:788: warning: implicit declaration of function `skb_datarefp'
 
-> Quicksort however is an algorithm that is good for large numbers of
-> elements to be sorted: the overhead of a small set of items to sort is
-> very large. Is the "normal" case indeed "large sets"?
+and while inserting the module
 
-Good implementations of Quicksort actually give up on Quicksort when
-the list is short, and use an algorithm that is faster for that case
-(measurements are required to find out where the boundary between a
-short list and a long list lies).  If the full list to be sorted is
-short, Quicksort will never be involved.  If that happens to be the
-common case, then fine.
+/tmp/vmware-config2/vmnet.o: unresolved symbol skb_datarefp
 
-> Quicksort has a very bad "worst case": quadratic sort-time. Are you
-> sure this won't happen?
+I have traced this back to 2.4.2-ac4 by looking for where this function 
+was removed.
 
-Introsort avoids this by modifying quicksort to resort to a mergesort
-when the recursion gets too deep.
+yes, technically this probably is OT, and properly belong on the VMware 
+list, but I can't access their nntp server.
 
-For modern machines, I'm not sure that quicksort on a linked list is
-typically much cheaper than mergesort on a linked list.  The majority
-of the potential cost is likely to be in the pointer chasing involved
-in bringing the lists into cache, and that will be the same for both.
-Once the list is in cache, how much pointer fiddling you do isn't so
-important.  For lists that don't fit into cache, the advantages of
-mergesort should become even greater if the literature on tape and
-disk sorts applies (though multiway merges rather than simple binary
-merges would be needed to minimize the impact of memory latency).
+basically, why was this function removed, what did it do, what can be 
+done to make VMware run again?
 
-Given this, mergesort might be generally preferable to quicksort for
-linked lists.  But I haven't investigated this idea thoroughly.  (The
-trick described above for avoiding an explicit stack also works for
-mergesort.)
-
-> Isn't it easier to do "insertion sort": Keep the lists sorted, and
-> insert the item at the right place when you get the new item.
-
-Easier?  Yes.  Slower?  Yes.  Does its being slow matter?  Depends on
-the context.
-
-
-David Wragg

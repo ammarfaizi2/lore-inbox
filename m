@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbTLAMkh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 07:40:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263506AbTLAMkh
+	id S261735AbTLANpW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 08:45:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbTLANpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 07:40:37 -0500
-Received: from sklave3.rackland.de ([213.133.101.23]:27112 "EHLO
-	sklave3.rackland.de") by vger.kernel.org with ESMTP id S263014AbTLAMkg
+	Mon, 1 Dec 2003 08:45:22 -0500
+Received: from core.kaist.ac.kr ([143.248.147.118]:46238 "EHLO
+	core.kaist.ac.kr") by vger.kernel.org with ESMTP id S261735AbTLANpR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 07:40:36 -0500
-From: hadmut@danisch.de
-Date: Mon, 1 Dec 2003 13:40:34 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Partitions on a loopback block device?
-Message-ID: <20031201124034.GA32127@danisch.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Mon, 1 Dec 2003 08:45:17 -0500
+Message-ID: <00ce01c3b811$475ba8d0$a5a5f88f@coreit5ezqhgk2>
+From: "Cho, joon-woo" <jwc@core.kaist.ac.kr>
+To: <linux-kernel@vger.kernel.org>
+Subject: [Q] I have a DMA question.
+Date: Mon, 1 Dec 2003 22:44:44 +0900
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="ks_c_5601-1987"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4927.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello.
 
-I'm currently trying to do hard disk backups of some machines 
-with different operating systems using a bootable Linux CD.
+I want to DMA copy data from Host computer's memory to 
 
-Backing up every single partition is fine, but overhead and
-requires additional backup of the partition table in order
-to be able to play it back. 
+PCI device's memory.(PCI device is IXP1200 Evaluation Board).
 
-What I would like to do is to have a full backup with
+Of course, IXP1200 DMA unit can initiate DMA operation.
 
-dd if=/dev/hda of=somewhere
+So I tried to use that unit, but finally I failed to use.
 
-and to mount the partitions of this file with the loopback block
-driver.
+So I want to use host computer(or linux kernel)'s DMA mechanism
 
-A simple approach would be to use losetup with the offset function for
-every single parttion (while I'm not sure whether this works through 
-the CHS geometry).
+to copy data from Host computer's memory to
 
-Would it be possible to have a loopback blockdevice recognize
-partition tables and to provide partitions as any other block device?
+PCi device's memory.
 
-Obviously, naming is not very elegant, but /dev/loopa0 would be a nice
-analogon to /dev/hda0 and /dev/sda0
+How can I do that? function? simple instruction?
 
-regards
-Hadmut
+Please give any advice.
+
+And if above this is complicated, 
+
+please give me method of fast data copy between 2 memories.
+
+
+Thanks!
+

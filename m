@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276695AbRJBVTy>; Tue, 2 Oct 2001 17:19:54 -0400
+	id <S276697AbRJBV1O>; Tue, 2 Oct 2001 17:27:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276693AbRJBVTo>; Tue, 2 Oct 2001 17:19:44 -0400
-Received: from embolism.psychosis.com ([216.242.103.100]:13324 "EHLO
-	embolism.psychosis.com") by vger.kernel.org with ESMTP
-	id <S276695AbRJBVTg>; Tue, 2 Oct 2001 17:19:36 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Cinege <dcinege@psychosis.com>
-Reply-To: dcinege@psychosis.com
-To: "Pascal" <pascal@claude-bernard.net>
-Subject: Re: [LRP] initrd-dyn for 2.4.10 kernel ?
-Date: Tue, 2 Oct 2001 17:21:41 -0400
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <20011002185803.19697.qmail@claude-bernard.net>
-In-Reply-To: <20011002185803.19697.qmail@claude-bernard.net>
-Cc: LRP <linux-router@linuxrouter.org>,
-        LRPD <linux-router-devel@linuxrouter.org>,
-        linux-kernel@vger.kernel.org
+	id <S276698AbRJBV1E>; Tue, 2 Oct 2001 17:27:04 -0400
+Received: from waste.org ([209.173.204.2]:25421 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S276697AbRJBV1A>;
+	Tue, 2 Oct 2001 17:27:00 -0400
+Date: Tue, 2 Oct 2001 16:29:38 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Andreas Dilger <adilger@turbolabs.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        "Theodore Y. Ts'o" <tytso@MIT.EDU>
+Subject: Re: /dev/random entropy calculations broken?
+In-Reply-To: <20011002150233.M8954@turbolinux.com>
+Message-ID: <Pine.LNX.4.30.0110021613480.19213-100000@waste.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15oWww-0006rw-00@schizo.psychosis.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 October 2001 14:58, you wrote:
-> I understand that substantial changes were made in 2.4.10 initrd and init .
-> Therefore the 2.4.9  initrd-dyn patch does not work on a 2.4.10 kernel. Has
-> any one worked that out ?
-> Pascal
+On Tue, 2 Oct 2001, Andreas Dilger wrote:
 
-Ain't it a bitch the next kernel released breaks this patch? (Note the patch 
-has been good since 2.4.2 and the code base supports 2.0 and 2.2 as well)
+> > While we're on words/bytes/bits confusion, add_entropy_words() seems to
+> > get called with number of bytes rather than words.
+>
+> Makes it that much more random, doesn't it ;-).  OK, here is a new version
+> of the patch.  It clears up the parameters to the functions, and makes sure
+> that we pass the right values to each.
 
-I took a look at it and I'm not sure what the problem is, but I'm pretty 
-confident it's a bug in the Linux changes and not Initrd Dynamic.
+Cool. Not sure if I like the introduction of poolbits. My personal
+preference would be to s/poolwords/words/ and just use ->words*32, since
+foo->foomember is a throwback to pre-ANSI compilers with a flat namespace
+for structure members. Note that we don't bother prefixing tap*.
 
-When the initrd_dyn code calls 
-	infile.f_op->release(inode, &infile);
-the kernel reports "Freeing initrd memory: " then panics.
+If not, at least put poolbits in the structure first...
 
-This code closes the initrd memory space 'file'. This is at the END
-of the initrd_dyn, after all mkfs and untar has been done successfully.
-WTF this would cause a panic, I have no clue except that somebody has been
-playing around much too much with the init and intird memory handling.
+>  static struct poolinfo {
+>  	int	poolwords;
+> +	int	poolbits;	/* poolwords * 32 */
+>  	int	tap1, tap2, tap3, tap4, tap5;
+>  } poolinfo_table[] = {
+>  	/* x^2048 + x^1638 + x^1231 + x^819 + x^411 + x + 1  -- 115 */
+> -	{ 2048,	1638,	1231,	819, 	411,	1 },
+> +	{ 2048,	65536,	1638,	1231,	819,	411,	1 },
+                ^^^^^
+...because it's not as confusing comparing the polynomial in the comment
+to the initializer.
 
-Other people have been complaining of problems with invalidatebuffers
-which is most likely related to this problem. I'm hopeful an 'ac' or 'pre' 
-kernel will fix this soon. (Anyone willing to try them, send me feedback.)
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
-In any event 2.4.10 appears to be a pretty screwed up kernel, with 2.4.9 not 
-too far behind. I recommend people stick with 2.4.8. Unfortunatly .10
-has many reiserfs improvments and can handle several nice new iptables 
-features. (Via patch o matic) : <
-
-Dave
-
--- 
-The time is now 22:19 (Totalitarian)  -  http://www.ccops.org/clock.html

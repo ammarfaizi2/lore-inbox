@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266189AbUITKM5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266193AbUITKXq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266189AbUITKM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 06:12:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUITKM5
+	id S266193AbUITKXq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 06:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266195AbUITKXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 06:12:57 -0400
-Received: from cantor.suse.de ([195.135.220.2]:64454 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266189AbUITKM4 (ORCPT
+	Mon, 20 Sep 2004 06:23:45 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:58279 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S266193AbUITKXo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 06:12:56 -0400
+	Mon, 20 Sep 2004 06:23:44 -0400
+Date: Mon, 20 Sep 2004 12:23:30 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
 To: Olaf Hering <olh@suse.de>
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
 Subject: Re: OOM & [OT] util-linux-2.12e
-References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl>
-	<20040920094602.GA24466@suse.de>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: Are we live or on tape?
-Date: Mon, 20 Sep 2004 12:12:02 +0200
-In-Reply-To: <20040920094602.GA24466@suse.de> (Olaf Hering's message of
- "Mon, 20 Sep 2004 11:46:02 +0200")
-Message-ID: <jeoek1xn9p.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+In-Reply-To: <20040920094602.GA24466@suse.de>
+Message-ID: <Pine.LNX.4.61.0409201220200.3460@scrub.home>
+References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl> <20040920094602.GA24466@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering <olh@suse.de> writes:
+Hi,
 
-> - fix all broken apps that still rely on mtab. like GNU df(1)
+On Mon, 20 Sep 2004, Olaf Hering wrote:
 
-df does not rely on /etc/mtab.  It relies on getmntent.
+>  On Mon, Sep 20, Andries.Brouwer@cwi.nl wrote:
+> 
+> > then /etc/mtab can die. Comments? Better solutions?
+> 
+> Andries, /etc/mtab is obsolete since the day when /proc/self/mounts was
+> introduced. So, kill it today from your mount binary! TODAY. ...
 
-Andreas.
+How do you distinguish between manual and automatic loop device setup?
+How do you filter /proc/mounts for chroot environments?
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+bye, Roman

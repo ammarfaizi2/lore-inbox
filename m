@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261404AbSJDA1M>; Thu, 3 Oct 2002 20:27:12 -0400
+	id <S261433AbSJDAjB>; Thu, 3 Oct 2002 20:39:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261405AbSJDA1H>; Thu, 3 Oct 2002 20:27:07 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:21165 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S261404AbSJDA1E>; Thu, 3 Oct 2002 20:27:04 -0400
-Date: Thu, 3 Oct 2002 21:32:17 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Greg Ungerer <gerg@snapgear.com>
-cc: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@redhat.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.40-ac1
-In-Reply-To: <3D9CD647.7000806@snapgear.com>
-Message-ID: <Pine.LNX.4.44L.0210032129570.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S261434AbSJDAjA>; Thu, 3 Oct 2002 20:39:00 -0400
+Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:8292
+	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
+	id <S261433AbSJDAjA>; Thu, 3 Oct 2002 20:39:00 -0400
+Message-ID: <3D9CE615.7040606@rackable.com>
+Date: Thu, 03 Oct 2002 17:51:33 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Avinash Gowda <Avinash@UltraBac.com>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: where do I find kernel-2.4.9-31
+References: <6DD0D32DC28A874A868FDA9E1C41B0DC564337@scooby.ultrabac.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Oct 2002 00:44:32.0283 (UTC) FILETIME=[343586B0:01C26B3F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Oct 2002, Greg Ungerer wrote:
-> Rik van Riel wrote:
+Avinash Gowda wrote:
 
-> Easy done. Would it bother anyone having a few files
-> named XYZ-nommu.c in there?
+>I am looking for kernel-2.4.9-31 downloads and I was wondering if I can get some pointers or links from the list. I would really appreciate any help in this regard.
+>
+>
+>  
+>
+   That looks like a kernel from a distibution.  Official linux kernels 
+don't have - in their names.  You'd be best off looking on a mirror of 
+your distributions web site.
 
-Excellent.
 
-> Although the sticking point may be the common files that
-> still contain a lot of ifdefs.
+PS- I'm fairly sure it's a Red Hat 7.2 errata kernel.
+http://rhn.redhat.com/errata/RHSA-2002-028.html
+http://www.redhat.com/download/mirror.html
 
-That's ok initially. We can probably split up functions
-somewhat or do other tricks to reduce the number of
-ifdefs later on.
-
-Alternatively, we could do the splitting first and the
-nommu merge later. I don't really care about the order
-as long as things don't happen simultaneously in patch
-that's too big to check ;)
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
+PPS-  Good luck find a Red Hat mirror.  Everyone and their uncle is 
+downloading 8.0.
 

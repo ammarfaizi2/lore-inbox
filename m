@@ -1,56 +1,180 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263711AbTCUScn>; Fri, 21 Mar 2003 13:32:43 -0500
+	id <S263701AbTCUSPB>; Fri, 21 Mar 2003 13:15:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263713AbTCUSbf>; Fri, 21 Mar 2003 13:31:35 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:59300 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S262595AbTCUSaZ>; Fri, 21 Mar 2003 13:30:25 -0500
-Date: Fri, 21 Mar 2003 18:41:20 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: PATCH: __NO_VERSION__ and remove a bogomacro from drm
-Message-ID: <20030321184119.GC17494@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-	torvalds@transmeta.com
-References: <200303211920.h2LJKpoF025699@hraefn.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200303211920.h2LJKpoF025699@hraefn.swansea.linux.org.uk>
-User-Agent: Mutt/1.5.4i
+	id <S263697AbTCUSNk>; Fri, 21 Mar 2003 13:13:40 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:43651
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263693AbTCUSNJ>; Fri, 21 Mar 2003 13:13:09 -0500
+Date: Fri, 21 Mar 2003 19:28:24 GMT
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200303211928.h2LJSOkl025789@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: PATCH: clean up ht6560 legacy ide driver
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 21, 2003 at 07:20:51PM +0000, Alan Cox wrote:
-
- > @@ -40,12 +39,6 @@
- >  #include <linux/interrupt.h>	/* For task queue support */
- >  #include <linux/delay.h>
- >  
- > -#ifdef DO_MUNMAP_4_ARGS
- > -#define DO_MUNMAP(m, a, l)	do_munmap(m, a, l, 1)
- > -#else
- > -#define DO_MUNMAP(m, a, l)	do_munmap(m, a, l)
- > -#endif
- > -
- >  #define I830_BUF_FREE		2
- >  #define I830_BUF_CLIENT		1
- >  #define I830_BUF_HARDWARE      	0
- > @@ -230,7 +223,7 @@
- >  		return -EINVAL;
- >  
- >  	down_write(&current->mm->mmap_sem);
- > -	retcode = DO_MUNMAP(current->mm,
- > +	retcode = do_munmap(current->mm,
- >  			    (unsigned long)buf_priv->virtual,
- >  			    (size_t) buf->total);
- >  	up_write(&current->mm->mmap_sem);
- > -
-
-already applied in -bk
-
-		Dave
-
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/ide/legacy/ht6560b.c linux-2.5.65-ac2/drivers/ide/legacy/ht6560b.c
+--- linux-2.5.65/drivers/ide/legacy/ht6560b.c	2003-03-03 19:20:09.000000000 +0000
++++ linux-2.5.65-ac2/drivers/ide/legacy/ht6560b.c	2003-03-20 18:23:19.000000000 +0000
+@@ -312,42 +312,7 @@
+ #endif
+ }
+ 
+-void __init probe_ht6560b (void)
+-{
+-	int t;
+-	
+-	request_region(HT_CONFIG_PORT, 1, ide_hwifs[0].name);
+-	ide_hwifs[0].chipset = ide_ht6560b;
+-	ide_hwifs[1].chipset = ide_ht6560b;
+-	ide_hwifs[0].selectproc = &ht6560b_selectproc;
+-	ide_hwifs[1].selectproc = &ht6560b_selectproc;
+-	ide_hwifs[0].tuneproc = &tune_ht6560b;
+-	ide_hwifs[1].tuneproc = &tune_ht6560b;
+-	ide_hwifs[0].serialized = 1;  /* is this needed? */
+-	ide_hwifs[1].serialized = 1;  /* is this needed? */
+-	ide_hwifs[0].mate = &ide_hwifs[1];
+-	ide_hwifs[1].mate = &ide_hwifs[0];
+-	ide_hwifs[1].channel = 1;
+-			
+-	/*
+-	 * Setting default configurations for drives
+-	 */
+-	t = (HT_CONFIG_DEFAULT << 8);
+-	t |= HT_TIMING_DEFAULT;
+-	ide_hwifs[0].drives[0].drive_data = t;
+-	ide_hwifs[0].drives[1].drive_data = t;
+-	t |= (HT_SECONDARY_IF << 8);
+-	ide_hwifs[1].drives[0].drive_data = t;
+-	ide_hwifs[1].drives[1].drive_data = t;
+-
+-#ifndef HWIF_PROBE_CLASSIC_METHOD
+-	probe_hwif_init(&ide_hwifs[0]);
+-	probe_hwif_init(&ide_hwifs[1]);
+-#endif /* HWIF_PROBE_CLASSIC_METHOD */
+-
+-}
+-
+-void __init ht6560b_release (void)
++void ht6560b_release (void)
+ {
+ 	if (ide_hwifs[0].chipset != ide_ht6560b &&
+ 	    ide_hwifs[1].chipset != ide_ht6560b)
+@@ -371,60 +336,80 @@
+ 	release_region(HT_CONFIG_PORT, 1);
+ }
+ 
+-#ifndef MODULE
+-/*
+- * init_ht6560b:
+- *
+- * called by ide.c when parsing command line
+- */
+-
+-void __init init_ht6560b (void)
++int __init ht6560b_mod_init(void)
+ {
+-	if (check_region(HT_CONFIG_PORT,1)) {
++	int t;
++
++	if (!request_region(HT_CONFIG_PORT, 1, ide_hwifs[0].name)) {
+ 		printk(KERN_NOTICE "%s: HT_CONFIG_PORT not found\n",
+ 			__FUNCTION__);
+-		return;
++		return -ENODEV;
+ 	}
++
+ 	if (!try_to_init_ht6560b()) {
+-                printk(KERN_NOTICE "%s: HBA not found\n", __FUNCTION__);
+-		return;
++		printk(KERN_NOTICE "%s: HBA not found\n", __FUNCTION__);
++		goto release_region;
+ 	}
+-	probe_ht6560b();
+-}
+ 
+-#else
++	ide_hwifs[0].chipset = ide_ht6560b;
++	ide_hwifs[1].chipset = ide_ht6560b;
++	ide_hwifs[0].selectproc = &ht6560b_selectproc;
++	ide_hwifs[1].selectproc = &ht6560b_selectproc;
++	ide_hwifs[0].tuneproc = &tune_ht6560b;
++	ide_hwifs[1].tuneproc = &tune_ht6560b;
++	ide_hwifs[0].serialized = 1;  /* is this needed? */
++	ide_hwifs[1].serialized = 1;  /* is this needed? */
++	ide_hwifs[0].mate = &ide_hwifs[1];
++	ide_hwifs[1].mate = &ide_hwifs[0];
++	ide_hwifs[1].channel = 1;
+ 
+-MODULE_AUTHOR("See Local File");
+-MODULE_DESCRIPTION("HT-6560B EIDE-controller support");
+-MODULE_LICENSE("GPL");
++	/*
++	 * Setting default configurations for drives
++	 */
++	t = (HT_CONFIG_DEFAULT << 8);
++	t |= HT_TIMING_DEFAULT;
++	ide_hwifs[0].drives[0].drive_data = t;
++	ide_hwifs[0].drives[1].drive_data = t;
++	t |= (HT_SECONDARY_IF << 8);
++	ide_hwifs[1].drives[0].drive_data = t;
++	ide_hwifs[1].drives[1].drive_data = t;
+ 
+-int __init ht6560b_mod_init(void)
+-{
+-	if (check_region(HT_CONFIG_PORT,1)) {
+-		printk(KERN_NOTICE "%s: HT_CONFIG_PORT not found\n",
+-			__FUNCTION__);
+-		return -ENODEV;
+-	}
++	probe_hwif_init(&ide_hwifs[0]);
++	probe_hwif_init(&ide_hwifs[1]);
+ 
+-	if (!try_to_init_ht6560b()) {
+-		printk(KERN_NOTICE "%s: HBA not found\n", __FUNCTION__);
++#ifdef MODULE
++	if (ide_hwifs[0].chipset != ide_ht6560b &&
++	    ide_hwifs[1].chipset != ide_ht6560b) {
++		ht6560b_release();
+ 		return -ENODEV;
+ 	}
++#endif
+ 
+-	probe_ht6560b();
+-        if (ide_hwifs[0].chipset != ide_ht6560b &&
+-            ide_hwifs[1].chipset != ide_ht6560b) {
+-                ht6560b_release();
+-                return -ENODEV;
+-        }
+-        return 0;
++	return 0;
++
++release_region:
++	release_region(HT_CONFIG_PORT, 1);
++	return -ENODEV;
+ }
+-module_init(ht6560b_mod_init);
+ 
++MODULE_AUTHOR("See Local File");
++MODULE_DESCRIPTION("HT-6560B EIDE-controller support");
++MODULE_LICENSE("GPL");
++
++#ifdef MODULE
+ void __init ht6560b_mod_exit(void)
+ {
+         ht6560b_release();
+ }
++
++module_init(ht6560b_mod_init);
+ module_exit(ht6560b_mod_exit);
++#else
++/*
++ * called by ide.c when parsing command line
++ */
++void __init init_ht6560b (void)
++{
++	ht6560b_mod_init();	/* ignore return value */
++}
+ #endif
+-

@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129345AbQLNQzl>; Thu, 14 Dec 2000 11:55:41 -0500
+	id <S129260AbQLNRHB>; Thu, 14 Dec 2000 12:07:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129383AbQLNQza>; Thu, 14 Dec 2000 11:55:30 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:25348 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S129345AbQLNQzS>; Thu, 14 Dec 2000 11:55:18 -0500
-Message-Id: <200012141624.eBEGOls50132@aslan.scsiguy.com>
-To: Christoph Hellwig <hch@ns.caldera.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Adaptec AIC7XXX v 6.0.6 BETA Released 
-In-Reply-To: Your message of "Thu, 14 Dec 2000 16:48:41 +0100."
-             <200012141548.QAA22537@ns.caldera.de> 
-Date: Thu, 14 Dec 2000 09:24:47 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S129267AbQLNRGw>; Thu, 14 Dec 2000 12:06:52 -0500
+Received: from pcep-jamie.cern.ch ([137.138.38.126]:39440 "EHLO
+	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
+	id <S129260AbQLNRGd>; Thu, 14 Dec 2000 12:06:33 -0500
+Date: Thu, 14 Dec 2000 17:34:56 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Chris Lattner <sabre@nondot.org>, "Mohammad A. Haque" <mhaque@haque.net>,
+        Ben Ford <ben@kalifornia.com>, linux-kernel@vger.kernel.org,
+        orbit-list@gnome.org, korbit-cvs@lists.sourceforge.net
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+Message-ID: <20001214173456.A7639@pcep-jamie.cern.ch>
+In-Reply-To: <Pine.LNX.4.21.0012131755030.24165-100000@www.nondot.org> <Pine.GSO.4.21.0012132050140.6300-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0012132050140.6300-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Dec 13, 2000 at 09:06:54PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->In article <200012132215.eBDMFas35908@aslan.scsiguy.com> you wrote:
->> For those
->> of you building the driver as a module, take note that the module
->> name is now "aic7xxx_mod" rather than "aic7xxx".
->
->Could you please undo that change?
->Postfixing a module name with _mod does not make sense.
->Yes, some modules use it - but that's just because they have older source
->files that are called like the multi-object module.
+Alexander Viro wrote:
+> > Err... how about this:  Give me two or three kORBit syscalls and I can get
+> > rid of all the other 100+ syscalls!  :) 
+> 
+> Like it ioctl() does it? Number of entry points is _not_ an issue. Diversity
+> of the API is. Technically, kernel has 1 (_o_n_e_) entry point as far as
+> userland is concerned. int 0x80 on x86. Can't beat that, can you?
 
-It will change today assuming I can get the build to work consistently.
-The change occurred because the driver now is composed of multiple
-objects.
+If there's one thing that could be nicer, ioctl() would be it.
+ioctl() works ok in C and terribly in everything else.
+CORBA works well in scripting languages and Java, and sucks in C
+compared with a simple ioctl().
 
---
-Justin
+Is there a way to marry the best sides of each?
+
+Is 9P that way (I don't know much about it)?
+
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

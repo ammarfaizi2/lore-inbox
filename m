@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314280AbSDVRUv>; Mon, 22 Apr 2002 13:20:51 -0400
+	id <S314291AbSDVRZA>; Mon, 22 Apr 2002 13:25:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314292AbSDVRUv>; Mon, 22 Apr 2002 13:20:51 -0400
-Received: from otter.mbay.net ([206.55.237.2]:47364 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S314280AbSDVRUt>;
-	Mon, 22 Apr 2002 13:20:49 -0400
-Date: Mon, 22 Apr 2002 10:20:39 -0700 (PDT)
-From: John Alvord <jalvo@mbay.net>
+	id <S314294AbSDVRY7>; Mon, 22 Apr 2002 13:24:59 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:1481 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S314291AbSDVRY5>;
+	Mon, 22 Apr 2002 13:24:57 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15556.18277.792115.379471@napali.hpl.hp.com>
+Date: Mon, 22 Apr 2002 10:24:53 -0700
 To: Pavel Machek <pavel@suse.cz>
-cc: davidm@hpl.hp.com, Davide Libenzi <davidel@xmailserver.org>,
+Cc: davidm@hpl.hp.com, Davide Libenzi <davidel@xmailserver.org>,
         Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 Subject: Re: Why HZ on i386 is 100 ?
 In-Reply-To: <20020421180021.A155@toy.ucw.cz>
-Message-ID: <Pine.LNX.4.20.0204221019280.20972-100000@otter.mbay.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: VM 7.03 under Emacs 21.1.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Apr 2002, Pavel Machek wrote:
+>>>>> On Sun, 21 Apr 2002 18:00:22 +0000, Pavel Machek <pavel@suse.cz> said:
 
-> Hi!
-> 
-> >   Davide> i still have pieces of paper on my desk about tests done on
-> >   Davide> my dual piii where by hacking HZ to 1000 the kernel build
-> >   Davide> time went from an average of 2min:30sec to an average
-> >   Davide> 2min:43sec. that is pretty close to 10%
-> > 
-> > The last time I measured timer tick overhead on ia64 it was well below
-> > 1% of overhead.  I don't really like using kernel builds as a
-> > benchmark, because there are far too many variables for the results to
-> > have any long-term or cross-platform value.  But since it's popular, I
-> > did measure it quickly on a relatively slow (old) Itanium box: with
-> > 100Hz, the kernel compile was about 0.6% faster than with 1024Hz
-> > (2.4.18 UP kernel).
-> 
-> .5% still looks like a lot to me. Good compiler optimization is .5% on 
-> average...
-> 
-> And think what it does with old 386sx.. Maybe time for those "tick on demand"
-> patches?
+  Pavel> .5% still looks like a lot to me. Good compiler optimization
+  Pavel> is .5% on average...
 
-Doesn't IBM have a tickless patch.. useful when demonstrating 10,000
-virtual linux machines on a single system.
+Umh, but those optimizations are interesting only if they're
+cumulative, i.e., once you've got 10 of them and they make a *total*
+difference of 5% (actually, I'm doubtful anyone really notices
+differences of 20-30% other than for benchmarking purposes... ;-).
 
-john alvord
+For me, 1% is the magic threshold.  If we find real apps that get a
+higher penalty than that, I'd either lower the HZ or see if we can
+tune the timer tick to be within a safe margin.
 
+No matter what, though, higher tick rate clearly incurs somewhat
+higher overhead.  The benefit is lower application-level response time
+and finer-granularity timeouts.  I assume Robert has all the
+benchmarks to show that. ;-)
+
+	--david

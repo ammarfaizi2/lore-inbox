@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263908AbUDUBkX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264271AbUDUCKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263908AbUDUBkX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 21:40:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbUDUBkX
+	id S264271AbUDUCKa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 22:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbUDUCKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 21:40:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62424 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263908AbUDUBjm (ORCPT
+	Tue, 20 Apr 2004 22:10:30 -0400
+Received: from mail.shareable.org ([81.29.64.88]:7333 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S264271AbUDUCKY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 21:39:42 -0400
-Date: Tue, 20 Apr 2004 18:39:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Roland Dreier <roland@topspin.com>
-Cc: agl@us.ibm.com, mlxk@mellanox.co.il, linux-kernel@vger.kernel.org
-Subject: Re: stack dumps, CONFIG_FRAME_POINTER and i386 (was Re: sysrq shows
- impossible call stack)
-Message-Id: <20040420183915.4eee560c.akpm@osdl.org>
-In-Reply-To: <52llkqw5me.fsf@topspin.com>
-References: <408545AA.6030807@mellanox.co.il>
-	<52ekqizkd2.fsf@topspin.com>
-	<40855F95.7080003@mellanox.co.il>
-	<5265buzgfn.fsf_-_@topspin.com>
-	<1082492730.716.76.camel@agtpad>
-	<52llkqw5me.fsf@topspin.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 20 Apr 2004 22:10:24 -0400
+Date: Wed, 21 Apr 2004 03:10:10 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ulrich Drepper <drepper@redhat.com>
+Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
+Message-ID: <20040421021010.GC23621@mail.shareable.org>
+References: <1080771361.1991.73.camel@sisko.scot.redhat.com> <20040416223548.GA27540@mail.shareable.org> <1082411657.2237.128.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1082411657.2237.128.camel@sisko.scot.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier <roland@topspin.com> wrote:
->
->     Adam> This problem was annoying me a few months ago so I coded up
->     Adam> a stack trace patch that actually uses the frame pointer.
->     Adam> It is currently maintained in -mjb but I have pasted below.
->     Adam> Hope this helps.
+Stephen C. Tweedie wrote:
+> > If so, what was the change?
 > 
-> Thanks, that looks really useful.  What is the chance of this moving
-> from -mjb to mainline?
+> 2.4.9 behaved like current 2.6 --- on MS_ASYNC, it did a
+> set_page_dirty() which means the page will get picked up by the next
+> 5-second bdflush pass.  But later 2.4 kernels were changed so that they
+> started MS_ASYNC IO immediately with filemap_fdatasync() (which is
+> asynchronous regarding the new IO, but which blocks synchronously if
+> there is already old IO in flight on the page.)
+> 
+> That was reverted back to the earlier, 2.4.9 behaviour in the 2.5
+> series.
 
-Good, but it needs to be updated to do the right thing with 4k stacks when
-called from interrupt context.
+It was 2.5.68.
 
-See how the the current version of show_trace() does this.
+Thanks, that's very helpful.
+
+msync(0) has always had behaviour consistent with the <=2.4.9 and
+>=2.5.68 MS_ASYNC behaviour, is that right?
+
+If so, programs may as well "#define MS_ASYNC 0" on Linux, to get well
+defined and consistent behaviour.  It would be nice to change the
+definition in libc to zero, but I don't think it's possible because
+msync(MS_SYNC|MS_ASYNC) needs to fail.
+
+-- Jamie

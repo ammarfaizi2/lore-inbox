@@ -1,66 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267466AbUJIVjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267446AbUJIVlT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267466AbUJIVjO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 17:39:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267449AbUJIVjG
+	id S267446AbUJIVlT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 17:41:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267450AbUJIVj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 17:39:06 -0400
-Received: from gw.anda.ru ([212.57.164.72]:39434 "EHLO mail.ward.six")
-	by vger.kernel.org with ESMTP id S267450AbUJIVif (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 17:38:35 -0400
-Date: Sun, 10 Oct 2004 03:38:20 +0600
-From: Denis Zaitsev <zzz@anda.ru>
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG][2.6.8.1] Something wrong with ISAPnP and serial driver
-Message-ID: <20041010033820.B30047@natasha.ward.six>
-Mail-Followup-To: Rene Herman <rene.herman@keyaccess.nl>,
-	linux-kernel@vger.kernel.org
-References: <20041010015206.A30047@natasha.ward.six> <4168479C.5080306@keyaccess.nl>
+	Sat, 9 Oct 2004 17:39:26 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:50849 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267446AbUJIViA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 17:38:00 -0400
+Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+From: Lee Revell <rlrevell@joe-job.com>
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <yw1xis9ja82z.fsf@mru.ath.cx>
+References: <41677E4D.1030403@mvista.com> <yw1xk6u0hw2m.fsf@mru.ath.cx>
+	 <1097356829.1363.7.camel@krustophenia.net>  <yw1xis9ja82z.fsf@mru.ath.cx>
+Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <1097357878.1363.15.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4168479C.5080306@keyaccess.nl>; from rene.herman@keyaccess.nl on Sat, Oct 09, 2004 at 10:18:36PM +0200
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 09 Oct 2004 17:37:59 -0400
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 09, 2004 at 10:18:36PM +0200, Rene Herman wrote:
-> Denis Zaitsev wrote:
+On Sat, 2004-10-09 at 17:35, Måns Rullgård wrote:
+
+> I did notice one improvement compared to vanilla 2.6.8.1.  The sound
+> didn't skip when I switched from X to a text console.  However, my
+> keyboard no longer worked in X, but that seems to be due to some
+> recent changes to the input subsystem.
 > 
-> > 1) The 2.6 kernel doesn't activate the ISA PnP modem at the boot,
-> >    while the 2.4 one always does.
-> 
-> 2.4 used to scan the ISA PnP device ID string for some common substrings 
-> indicating a modem given a completely unknown ISA PnP device (the code 
-> is still present -- see drivers/serial/8250_pnp.c:check_name()) while 
-> 2.6 really needs your modem's PnP ID to be listed.
-> 
-> > 2) The 8250 driver finds the PnP card's port, while the 8250_pnp finds
-> >    the non-PnP ports.
-> 
-> 8250_pnp not finding it is therefore very likely a simple matter of it 
-> not knowing that it should be driving it. Try seeing if your modem's PnP 
-> ID (/sys/bus/pnp/devices/?/id) is listed in drivers/serial/8250_pnp.c 
-> and if not add it (and send as a patch to Russel King).
+> Did you build it with our without my patch, BTW?
 
-Ok, it isn't listed (USR0009).  I'll send a patch.  BTW, there is some
-other ID - /sys/devices/pnp1/01:01/card_id - and it contains USR0101.
-What's this?
+With.  Most of the modules did not work without your patch.
 
-> 8250 itself finding it was no doubt due to you enabling the port 
-> yourself so that from its standpoint, it was just another serial port 
-> already present.
+Lee
 
-But why doesn't it find the two standard mb-embedded ports?  And why
-they are found by 8250_pnp?  Is it a normal behaviour?
-
-> With your modem's ID added, 8250_pnp should find and activate the
-> mdem itself without you needing to do anything other than "modprobe
-> 8250_pnp"
-
-Ok.  I' trying.  The kernel is compiling...
-
-> Hope that helps.
-
-Thanks.  But what about the incorrect info in /proc/tty/driver/serial?

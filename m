@@ -1,156 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267550AbUHJQm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267541AbUHJQmy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267550AbUHJQm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 12:42:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267553AbUHJQli
+	id S267541AbUHJQmy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 12:42:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267520AbUHJQls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 12:41:38 -0400
-Received: from dsl-64-30-195-78.lcinet.net ([64.30.195.78]:13497 "EHLO
-	jg555.com") by vger.kernel.org with ESMTP id S267550AbUHJQYf (ORCPT
+	Tue, 10 Aug 2004 12:41:48 -0400
+Received: from fw.osdl.org ([65.172.181.6]:49346 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267541AbUHJQJn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 12:24:35 -0400
-Message-ID: <4118F6AC.7080903@jg555.com>
-Date: Tue, 10 Aug 2004 09:24:12 -0700
-From: Jim Gifford <maillist@jg555.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (Windows/20040803)
-X-Accept-Language: en-us, en
+	Tue, 10 Aug 2004 12:09:43 -0400
+Date: Tue, 10 Aug 2004 09:07:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: eric.valette@free.fr
+Cc: len.brown@intel.com, linux-kernel@vger.kernel.org, sziwan@hell.org.pl
+Subject: Re: 2.6.8-rc4-mm1 : Hard freeze due to ACPI
+Message-Id: <20040810090743.3fa75a74.akpm@osdl.org>
+In-Reply-To: <4118A500.1080306@free.fr>
+References: <41189098.4000400@free.fr>
+	<4118A500.1080306@free.fr>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_server-5150-1092155051-0001-2"
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-CC: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel bug report (includes fix)
-References: <200408101234.i7ACYdwP013901@burner.fokus.fraunhofer.de>
-In-Reply-To: <200408101234.i7ACYdwP013901@burner.fokus.fraunhofer.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+Eric Valette <eric.valette@free.fr> wrote:
+>
+> Eric Valette wrote:
+>  > I tried 2.6.8-rc4-mm1 on my ASUS L3800C laptop (radeon 7500), defined 
+>  > CONFIG_FB_MODE_HELPERS and I have got a hard freeze when starting X and 
+>  > framebuffer console with a lot of yellow dot on the bottom screen. 
+>  > Suddently I hear the fan meaning the machine is dead
+> 
+>  OK I've reverted the most suspect change 
+>  (remove-unconditional-pci-acpi-irq-routing.patch) and it did not fix the 
+>  problem. As Karol Kozimor suspected ACPI, I then tried with acpi=off and 
+>  then it boot but I will burn my CPU as fans are ACPI controlled...
 
---=_server-5150-1092155051-0001-2
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-There is a simple fix to your problem, I have sent this patch to you a 
-few times, but never got an answer.
-
-I bet eveyone here will agree, this is the proper way to fix the issue
-
-diff -Naur cdrtools-2.01.orig/DEFAULTS/Defaults.gnu 
-cdrtools-2.01/DEFAULTS/Defaults.gnu
---- cdrtools-2.01.orig/DEFAULTS/Defaults.gnu    2003-02-16 
-00:01:47.000000000 +0000
-+++ cdrtools-2.01/DEFAULTS/Defaults.gnu    2004-05-07 00:52:58.111410726 
-+0000
-@@ -18,7 +18,7 @@
- ###########################################################################
- CWARNOPTS=
- 
--DEFINCDIRS=    $(SRCROOT)/include /usr/src/linux/include
-+DEFINCDIRS=    $(SRCROOT)/include
- LDPATH=        -L/opt/schily/lib
- RUNPATH=    -R $(INS_BASE)/lib -R /opt/schily/lib -R $(OLIBSDIR)
- 
-diff -Naur cdrtools-2.01.orig/DEFAULTS/Defaults.linux 
-cdrtools-2.01/DEFAULTS/Defaults.linux
---- cdrtools-2.01.orig/DEFAULTS/Defaults.linux    2003-02-16 
-00:01:48.000000000 +0000
-+++ cdrtools-2.01/DEFAULTS/Defaults.linux    2004-05-07 
-00:53:05.850026970 +0000
-@@ -18,7 +18,7 @@
- ###########################################################################
- CWARNOPTS=
- 
--DEFINCDIRS=    $(SRCROOT)/include /usr/src/linux/include
-+DEFINCDIRS=    $(SRCROOT)/include
- LDPATH=        -L/opt/schily/lib
- RUNPATH=    -R $(INS_BASE)/lib -R /opt/schily/lib -R $(OLIBSDIR)
- 
-diff -Naur cdrtools-2.01.orig/libscg/scsi-linux-sg.c 
-cdrtools-2.01/libscg/scsi-linux-sg.c
---- cdrtools-2.01.orig/libscg/scsi-linux-sg.c    2004-04-18 
-10:26:44.000000000 +0000
-+++ cdrtools-2.01/libscg/scsi-linux-sg.c    2004-05-07 
-00:52:47.953227014 +0000
-@@ -65,6 +65,14 @@
- 
- #if LINUX_VERSION_CODE >= 0x01031a /* <linux/scsi.h> introduced in 
-1.3.26 */
- #if LINUX_VERSION_CODE >= 0x020000 /* <scsi/scsi.h> introduced 
-somewhere. */
-+
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
-+    #define __KERNEL__
-+    #include <asm/types.h>
-+    #include <asm/byteorder.h>
-+    #undef __KERNEL__
-+#endif
-+
- /* Need to fine tune the ifdef so we get the transition point right. */
- #include <scsi/scsi.h>
- #else
-
--- 
-----
-Jim Gifford
-maillist@jg555.com
-
-
---=_server-5150-1092155051-0001-2
-Content-Type: text/x-patch; name="cdrtools-2.01-kernel_2.6-3[1].patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cdrtools-2.01-kernel_2.6-3[1].patch"
-
-Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
-Date: 2004-05-06
-Initial Package Version: 2.01
-Origin: Jim Gifford and http://kerneltrap.org/node/view/879
-Upstream Status: Sent
-Description: Fixes CDRTools Compile with the 2.6 Kernel
- 
- 
-diff -Naur cdrtools-2.01.orig/DEFAULTS/Defaults.gnu cdrtools-2.01/DEFAULTS/Defaults.gnu
---- cdrtools-2.01.orig/DEFAULTS/Defaults.gnu	2003-02-16 00:01:47.000000000 +0000
-+++ cdrtools-2.01/DEFAULTS/Defaults.gnu	2004-05-07 00:52:58.111410726 +0000
-@@ -18,7 +18,7 @@
- ###########################################################################
- CWARNOPTS=
- 
--DEFINCDIRS=	$(SRCROOT)/include /usr/src/linux/include
-+DEFINCDIRS=	$(SRCROOT)/include
- LDPATH=		-L/opt/schily/lib
- RUNPATH=	-R $(INS_BASE)/lib -R /opt/schily/lib -R $(OLIBSDIR)
- 
-diff -Naur cdrtools-2.01.orig/DEFAULTS/Defaults.linux cdrtools-2.01/DEFAULTS/Defaults.linux
---- cdrtools-2.01.orig/DEFAULTS/Defaults.linux	2003-02-16 00:01:48.000000000 +0000
-+++ cdrtools-2.01/DEFAULTS/Defaults.linux	2004-05-07 00:53:05.850026970 +0000
-@@ -18,7 +18,7 @@
- ###########################################################################
- CWARNOPTS=
- 
--DEFINCDIRS=	$(SRCROOT)/include /usr/src/linux/include
-+DEFINCDIRS=	$(SRCROOT)/include
- LDPATH=		-L/opt/schily/lib
- RUNPATH=	-R $(INS_BASE)/lib -R /opt/schily/lib -R $(OLIBSDIR)
- 
-diff -Naur cdrtools-2.01.orig/libscg/scsi-linux-sg.c cdrtools-2.01/libscg/scsi-linux-sg.c
---- cdrtools-2.01.orig/libscg/scsi-linux-sg.c	2004-04-18 10:26:44.000000000 +0000
-+++ cdrtools-2.01/libscg/scsi-linux-sg.c	2004-05-07 00:52:47.953227014 +0000
-@@ -65,6 +65,14 @@
- 
- #if LINUX_VERSION_CODE >= 0x01031a /* <linux/scsi.h> introduced in 1.3.26 */
- #if LINUX_VERSION_CODE >= 0x020000 /* <scsi/scsi.h> introduced somewhere. */
-+
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 0)
-+	#define __KERNEL__
-+	#include <asm/types.h>
-+	#include <asm/byteorder.h>
-+	#undef __KERNEL__
-+#endif
-+
- /* Need to fine tune the ifdef so we get the transition point right. */
- #include <scsi/scsi.h>
- #else
-
---=_server-5150-1092155051-0001-2--
+Are you sure that the problem is due to ACPI?  I'd have been suspecting the
+video mode database rewrite (video-mode-handling-*.patch).

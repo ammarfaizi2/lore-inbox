@@ -1,28 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264843AbRF1XNp>; Thu, 28 Jun 2001 19:13:45 -0400
+	id <S264848AbRF1XMx>; Thu, 28 Jun 2001 19:12:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264945AbRF1XNE>; Thu, 28 Jun 2001 19:13:04 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19218 "EHLO
+	id <S264843AbRF1XMn>; Thu, 28 Jun 2001 19:12:43 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18194 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264843AbRF1XNA>; Thu, 28 Jun 2001 19:13:00 -0400
-Subject: Re: AGP Question
-To: alan@clueserver.org
-Date: Fri, 29 Jun 2001 00:12:54 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010629000227.4750C6E42@clueserver.org> from "Alan" at Jun 28, 2001 02:50:33 PM
+	id <S264848AbRF1XMc>; Thu, 28 Jun 2001 19:12:32 -0400
+Subject: Re: PROBLEM:Illegal instruction when mount nfs file systems using
+To: mikpe@csd.uu.se (Mikael Pettersson)
+Date: Fri, 29 Jun 2001 00:11:52 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk, bernds@redhat.com, FrankZhu@viatech.com.cn,
+        linux-kernel@vger.kernel.org, mikpe@csd.uu.se
+In-Reply-To: <200106282305.BAA17845@harpo.it.uu.se> from "Mikael Pettersson" at Jun 29, 2001 01:05:06 AM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15Fkxy-0007pz-00@the-village.bc.nu>
+Message-Id: <E15Fkwy-0007ps-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 4002b000-4002c000 rw-s ec681000 03:01 181386     /dev/mem
-> 4002c000-4002d000 rw-s 40000000 03:01 185562     /dev/nvidia0
+> Here I have to disagree with you Alan. When you pass "-march=i686" to
+> gcc, you are _not_ saying "generate code for a CPUID family 6 CPU".
+> "-march=i686" actually means "target an Intel P6 family chip, given
+> what we currently know about them". The gcc info pages don't talk
 
-I'd suggest you talk to your proprietary driver and application provider. Who
-knows what their driver does
+Which is fine. The Pentium Pro manual explicitly states that cmov may go
+away. So it is not based on what we know about the CPU, its based on not
+reading the documentation. 
+
+It's a bug. -march=i6868 does not 'target an Intel P6 family chip, ...'
+It happens to work because the error in reading the docs was never triggered
+by intel removing cmov from a cpu as the reserved the right to do
+
+Alan
+
 

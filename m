@@ -1,42 +1,32 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S160068AbQGaWAp>; Mon, 31 Jul 2000 18:00:45 -0400
-Received: by vger.rutgers.edu id <S160133AbQGaV6k>; Mon, 31 Jul 2000 17:58:40 -0400
-Received: from [209.10.217.66] ([209.10.217.66]:2430 "EHLO neon-gw.transmeta.com") by vger.rutgers.edu with ESMTP id <S160123AbQGaVyF>; Mon, 31 Jul 2000 17:54:05 -0400
-To: linux-kernel@vger.rutgers.edu
-From: "H. Peter Anvin" <hpa@zytor.com>
+Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S157636AbQHAAeS>; Mon, 31 Jul 2000 20:34:18 -0400
+Received: by vger.rutgers.edu id <S160020AbQHAAdu>; Mon, 31 Jul 2000 20:33:50 -0400
+Received: from hog.ctrl-c.liu.se ([130.236.252.129]:4695 "HELO t1.ctrl-c.liu.se") by vger.rutgers.edu with SMTP id <S160004AbQHAAcA>; Mon, 31 Jul 2000 20:32:00 -0400
+Date: 1 Aug 2000 00:43:44 -0000
+Message-ID: <20000801004344.22321.qmail@t1.ctrl-c.liu.se>
+From: wingel@t1.ctrl-c.liu.se
+To: hpa@zytor.com
+Cc: linux-kernel@vger.rutgers.edu
 Subject: Re: RLIM_INFINITY inconsistency between archs
-Date: 31 Jul 2000 15:13:55 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8m4tn3$cri$1@cesium.transmeta.com>
-References: <7iw6kYsXw-B@khms.westfalen.de> <Pine.LNX.3.95.1000731132321.529A-100000@chaos.analogic.com> <8m4q9v$871$1@enterprise.cistron.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+Newsgroups: linux.kernel
+In-Reply-To: <8m54u3$dh0$1@cesium.transmeta.com>
+References: <7iw6kYsXw-B@khms.westfalen.de> <8m4q9v$871$1@enterprise.cistron.net> <8m4tn3$cri$1@cesium.transmeta.com> <8m4uri$d9e$1@enterprise.cistron.net>
+Organization: 
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Followup to:  <8m4q9v$871$1@enterprise.cistron.net>
-By author:    miquels@cistron.nl (Miquel van Smoorenburg)
-In newsgroup: linux.dev.kernel
-> 
-> No. Even Linus himself has been saying for years (and recently even
-> in this thread) that /usr/include/linux and /usr/include/asm should
-> NOT EVER be symlinks to /usr/src/linux
-> 
-> Everything in /usr/include belongs to and depends on glibc, not
-> the currently running kernel.
-> 
+In article <8m54u3$dh0$1@cesium.transmeta.com> you hpa@zytor.com wrote:
+>Let's get this straight: #include <linux/*> and #include <asm/*> are
+>*expected* to be the kernel headers.  This is a completely different
+>issue from the fact that glibc headers shouldn't #include these
+>headers like libc5 did.
 
-Unfortunately that doesn't work very well.  For user-space daemons
-which talk to Linux-specific kernel interfaces, such as automount, you
-need both the glibc and the Linux kernel headers.
+And IMHO to be able to do this, one should have to provide an explicit
+-I/usr/src/my-kernel/linux/include, it should not be the default.
 
-	-hpa
+    /Christer
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+"Just how much can I get away with and still go to heaven?"
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

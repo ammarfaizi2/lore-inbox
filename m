@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267516AbTACMnU>; Fri, 3 Jan 2003 07:43:20 -0500
+	id <S267503AbTACMmE>; Fri, 3 Jan 2003 07:42:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267515AbTACMnU>; Fri, 3 Jan 2003 07:43:20 -0500
-Received: from falcon.vispa.uk.net ([62.24.228.11]:36612 "EHLO
-	falcon.vispa.com") by vger.kernel.org with ESMTP id <S267516AbTACMnU>;
-	Fri, 3 Jan 2003 07:43:20 -0500
-Message-ID: <3E158738.4050003@walrond.org>
-Date: Fri, 03 Jan 2003 12:51:04 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
+	id <S267510AbTACMmE>; Fri, 3 Jan 2003 07:42:04 -0500
+Received: from services.cam.org ([198.73.180.252]:12114 "EHLO mail.cam.org")
+	by vger.kernel.org with ESMTP id <S267503AbTACMmD> convert rfc822-to-8bit;
+	Fri, 3 Jan 2003 07:42:03 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH,RFC] fix o(1) handling of threads
+Date: Fri, 3 Jan 2003 07:50:26 -0500
+User-Agent: KMail/1.4.3
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@tech9.net>
+References: <Pine.LNX.4.44.0301030120410.2226-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0301030120410.2226-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Marco Monteiro <masm@acm.org>, linux-kernel@vger.kernel.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-References: <Pine.LNX.4.10.10301022110580.421-100000@master.linux-ide.org> <1041596161.1157.34.camel@fly>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-Id: <200301030750.27040.tomlins@cam.org>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes but....
+On January 2, 2003 07:22 pm, Ingo Molnar wrote:
+> On Wed, 1 Jan 2003, Ed Tomlinson wrote:
+> > Here is the scheduler-tunables patch updated to include USER_PENALTY and
+> > THREAD_PENANTY.  This on top of ptg_B0.
+>
+> there's no way we'll make the scheduler internal constants tunable in such
+> a wide range. Such a patch has been submitted a couple of months ago
+> already. I do use something like that to test tunings, but it's definitely
+> not something we want to make tunable directly in the stock kernel.
 
-I develop computer games. The last one I did took a team of 35 people 2 
-years and cost $X million to develop.
+Nor would I advocate doing so.  I added two 'constants' I wanted to
+be able to test them so I updated Robert's patch...  Two questions
+for you.
 
-Please explain how I could do this as free software, while still feeding 
-my people? Am I a bad person charging for my work?
+1. Do you have any comments/suggestsion on the ptg_B0 patch?
 
-Really - I want to understand so I too can join this merry band of happy 
-people giving everything away for free!
+2. I have been playing with using user and thread penalties together.
+- they often interact badly.  Using just one works very well.  This
+can be fixed - but gets messy.  Alternately, I am thinking about 
+implementing per user policies.  ie.
 
-Andrew
+	a. govern thread groups
+	b. govern all threads, ignoring groups, for a user
+	c. govern processes for a user
 
+This can be done cleanly.  Would something along the lines of sys_nice
+be the way to implement the kernel side of the user interface to this?
+
+TIA,
+Ed Tomlinson

@@ -1,49 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266054AbTHOQi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 12:38:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270013AbTHOQf1
+	id S267952AbTHOQoq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 12:44:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270605AbTHOQoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 12:35:27 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:35013
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S266054AbTHOQbr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 12:31:47 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Timothy Miller <miller@techsource.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [PATCH] O12.2int for interactivity
-Date: Sat, 16 Aug 2003 02:38:05 +1000
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <20030804195058.GA8267@cray.fish.zetnet.co.uk> <20030814070119.GN32488@holomorphy.com> <3F3BEA65.8080907@techsource.com>
-In-Reply-To: <3F3BEA65.8080907@techsource.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Aug 2003 12:44:39 -0400
+Received: from adsl-67-121-155-84.dsl.pltn13.pacbell.net ([67.121.155.84]:42158
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S270082AbTHOQnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 12:43:02 -0400
+Date: Fri, 15 Aug 2003 09:43:00 -0700
+To: Norman Diamond <ndiamond@wta.att.ne.jp>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Trying to run 2.6.0-test3
+Message-ID: <20030815164300.GA31121@triplehelix.org>
+References: <0a5b01c36305$4dec8b80$1aee4ca5@DIAMONDLX60> <20030815111442.A12422@flint.arm.linux.org.uk> <0d7c01c3632a$668da140$1aee4ca5@DIAMONDLX60>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
 Content-Disposition: inline
-Message-Id: <200308160238.05185.kernel@kolivas.org>
+In-Reply-To: <0d7c01c3632a$668da140$1aee4ca5@DIAMONDLX60>
+User-Agent: Mutt/1.5.4i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Aug 2003 06:00, Timothy Miller wrote:
-> If my guess from my previous email was correct (that is pri 5 gets
-> shorter timeslide than pri 6), then that means that tasks of higher
-> static priority have are penalized more than lower pri tasks for expiring.
->
-> Say a task has to run for 15ms.  If it's at a priority that gives it a
-> 10ms timeslice, then it'll expire and get demoted.  If it's at a
-> priority that gives it a 20ms timeslice, then it'll not expire and
-> therefore get promoted.
->
-> Is that fair?
 
-Yes, it's a simple cutoff at the end of the timeslice. If you use up the 
-timeslice allocated to you, then you have to pass a test to see if you can go 
-onto the active array or get expired. Since higher static priority (lower 
-nice) tasks get longer timeslices, they are less likely to expire unless they 
-are purely cpu bound and never sleep.
+--5vNYLRcllDrimb99
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Con
+On Fri, Aug 15, 2003 at 09:39:07PM +0900, Norman Diamond wrote:
+> I will do that in my next build.  For some reason I wasn't sure if yenta
+> would handle 16-bit cards.  But this turns out not to be necessary.  Also
+> the PCMCIA suggestions which Felipe Alfaro Solana suggested (the suggesti=
+ons
+> which I intended to try) turned out not to be necessary.  The winner is t=
+he
+> next one:
 
+Note that if you don't already have CONFIG_ISA enabled, 16-bit CardBus
+devices will refuse to work.
+
+--=20
+Joshua Kwan
+
+--5vNYLRcllDrimb99
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iQIVAwUBPz0Nk6OILr94RG8mAQJsQA//a20gnaWUrIp/jqJuyjOwd1mLjPhoUML8
+LkLcWhjd3VgzYkah7E7hAhyKvJW+efXIoNR8AfcmUqO6MtaMP1K4tJ0ccZxxK3Nu
+gpyFwnV2YsYTCSyUebWm6ZtYcXIKGRtr3/X8Wtlhrr2SG+2EEYTI14aVSL+etW/k
+JuMwE8cUetS0Q5gNwFhyQiphgSBX4fidybJHZcftLNNwgzGBlwcPX9tBGq46Noqi
+/fsjHOj2AQbC0NEeQV7ZzZBDsaRwZxdvwgOYTz2cpdyKYEA1Vwoy053Y0VwRCOxt
+Qat1GHStB6uM2AOmxKzSuD7glvoS3Z9v428xeheC2oBgMBeRZlTiI5B8PelQzDwH
+4AR6+rXG+LKHMWQzce+5IATB2eB+3uUevLD10SsvH3pmJTHoIRMSpgEwXZFI6HTJ
+RoP+0fNvIv/rthP04BnOH0m1+z+UiU0Ajhzru9LO08QIsA16FWimp4pHYLnWbXHs
+0ziPYrQaPqcAoCl3qDPOY7cj9zOdymggYIWQ9MIv63+L9Jbp0t++VMST0g8gK+5D
+yzkY1VhmoGe3frZio3/bE3x8ve6N6kdlWHus2b4kPnsJ+U78DnneWBq8eg3ZkzRx
+BeR5K2uR1fnI9v/0XpKuNydNzKiP6xBjia3WtoQ4jsNYg0ytBqWzSE1ootJm2rCN
+ppkxA9ogMs0=
+=0cmk
+-----END PGP SIGNATURE-----
+
+--5vNYLRcllDrimb99--

@@ -1,51 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271738AbRHQWtU>; Fri, 17 Aug 2001 18:49:20 -0400
+	id <S271742AbRHQWzA>; Fri, 17 Aug 2001 18:55:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271736AbRHQWtL>; Fri, 17 Aug 2001 18:49:11 -0400
-Received: from tahallah.demon.co.uk ([158.152.175.193]:56558 "EHLO
-	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S271738AbRHQWtB>; Fri, 17 Aug 2001 18:49:01 -0400
-Date: Fri, 17 Aug 2001 23:48:29 +0100 (BST)
-From: Alex Buell <alex.buell@tahallah.demon.co.uk>
-X-X-Sender: <alex@tahallah.demon.co.uk>
-Reply-To: <alex.buell@tahallah.demon.co.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <alex.buell@tahallah.demon.co.uk>,
-        =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 'make dep' produces lots of errors with this .config
-In-Reply-To: <E15Xs2d-0008EK-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0108172344000.14197-100000@tahallah.demon.co.uk>
+	id <S271746AbRHQWyv>; Fri, 17 Aug 2001 18:54:51 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:18065 "EHLO
+	mailhost.idcomm.com") by vger.kernel.org with ESMTP
+	id <S271745AbRHQWyq>; Fri, 17 Aug 2001 18:54:46 -0400
+Message-ID: <3B7DA103.1B29FACE@idcomm.com>
+Date: Fri, 17 Aug 2001 16:56:03 -0600
+From: "D. Stimits" <stimits@idcomm.com>
+Reply-To: stimits@idcomm.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Optionally let Net Devices feed Entropy
+In-Reply-To: <20010816190255.A17095@se1.cogenit.fr>
+		<212453020.997993720@[169.254.45.213]>  <3B7C2AED.F8882B5A@idcomm.com> <998009263.660.65.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Aug 2001, Alan Cox wrote:
+Robert Love wrote:
+> 
+> On 16 Aug 2001 14:19:57 -0600, D. Stimits wrote:
+> > It would be interesting if an option were possible for entropy pool via
+> > loopback traffic.
+> 
+> is that humor? :)
 
-> Actually thats one of my presents. The ports are expected to provide
-> their definition for struct kbd_repeat and a kbd_rate function. If the
-> facility is not available then it can be defined as NULL
->
-> So the sparc asm/keyboard.h if it supports no keyboard rate stuff would be
->
->
-> /*
->  *	Sparc32 lacks the standard keyboard rate ioctls
->  */
->
-> #define kbd_rate	NULL
->
-> and it'll error out with -EINVAL
+To a large degree, yes (but now that I think about it, not
+entirely...speculation is dangerous to one's sanity).
 
-That won't fix the PCI references which seems to get compiled in if
-asm/keyboard.h is included. Taking a look at it, hmm. asm-sparc/keyboard.h
-seems to be for the Ultra/PCI stuff, oughtn't this be in asm-sparc64, as
-sparc32 doesn't use PCI at all, unless there's something I don't know.
+> 
+> it can certainly generate a large amount of entropy if you let it.
+> 
+> but the general mechanism for grabbing entropy from char/net devices is
+> measuring values from their interrupt timings.  this is done via a flag
+> value in request_irq.
+> 
+> loopback has no interrupts thus no request_irq
 
--- 
-A pancake! I've photocopied a pancake!
+After hearing about all of the possible ways of sniffing keyboards, I
+have to wonder how hard it would be to create an irq sniffing device to
+aid monitoring (like the keyboard device, planted directly in the
+computer being monitored, though I suppose once you have the keystrokes
+it is a moot point). Then there are also all those wireless mice and
+keyboards, which could possibly broadcast useful information about irq
+(although knowing the exact time between irq's can only be estimated
+without actually tapping straight into the motherboard hardware); there
+is no reason to stop at simply monitoring keystrokes (would remote
+monitoring of wireless devices offer *useful* info on irq timings?).
 
-http://www.tahallah.demon.co.uk
+I noticed add_timer_randomness depends on time between events, and that
+it isn't necessarily irq that matters; but irq is most likely the least
+predictable event to use, and nobody has bothered to implement any other
+random timing source to feed the function. Something else might be used
+as a substitute, e.g., perhaps the temperature monitor on a cpu could be
+used to modify a moving snapshot of loopback traffic. I don't know if
+the raw data from cpu temperature monitoring is available with
+sufficient precision (without regard to the accuracy of the value) to
+count on it as a source of "environment noise" that in turn, during
+change, can be used to trigger the equivalent of random timing. Some of
+the hardware crypto devices seem to use diode noise (which can make a
+nice microwave generator as well), perhaps temperature monitoring could
+be used for a lower quality version; instead of simply passing the
+timing of rising and falling peaks/valleys (since it wouldn't be as
+rapid or random as a diode noise generator), one could use that timing
+in conjunction with a hash on a sliding window of loopback traffic bytes
+(or even to act as a coefficient, and not just a timing trigger).
 
+The general weakness with irq seems to be that (a) it isn't always
+occurring at a sufficient rate in systems without mouse/keyboard (and
+worse on diskless sytems), and (b) there is some very minor possibility
+that outside monitoring or influence can sway the pool or provide help
+to crackers (the tech to do this usefully doesn't seem to exist right
+now, but I wouldn't bet on it staying that way). Loopback is probably
+one of the largest sources of byte traffic, is not subject to irq
+monitoring, and does not fall down on the job for
+mouseless/keyboardless/headless/diskless stations. What it lacks is a
+truly random way of using the traffic; supposing something like
+temperature monitoring could be found as an alternate timing device (in
+place of irq), loopback could be used (or if any event that occurs in
+relation to loopback is random in the way that irq is, some other
+alternate timing event could be used). Does anyone happen to know
+exactly how much "noise" could be extracted from hardware temperature
+monitors (would it be practical)?
+
+D. Stimits, stimits@idcomm.com
+
+> 
+> --
+> Robert M. Love
+> rml at ufl.edu
+> rml at tech9.net

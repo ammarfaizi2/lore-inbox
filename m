@@ -1,46 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267607AbUJVXJh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268283AbUJVXNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267607AbUJVXJh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 19:09:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268710AbUJVXHs
+	id S268283AbUJVXNF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 19:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268278AbUJVXMC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 19:07:48 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:64242 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S268040AbUJVXEn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 19:04:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=liJ/Lmd7csJnWtmORX5MIXpLoKK2dzOdKdU34iXTF+hetLpd8UyMi87UFrVg1Asyp7OK+mZHasLux8OYGda7eP1YTtupV59pf3n4bhXU9ptf/RYsz1CEG2tYGq90sMuhjwpqqvIn1bR6zIKcaHEyATmZGQd6/RNM5l2ItqKhWtY=
-Message-ID: <35fb2e5904102216038257cb1@mail.gmail.com>
-Date: Sat, 23 Oct 2004 00:03:02 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: "Jeff V. Merkey" <jmerkey@drdos.com>
-Subject: Re: Linux v2.6.9 and GPL Buyout
-Cc: brian wheeler <bdwheele@indiana.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <41797B49.5020809@drdos.com>
+	Fri, 22 Oct 2004 19:12:02 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59655 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S268040AbUJVXIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 19:08:07 -0400
+Date: Sat, 23 Oct 2004 00:07:55 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, linux-net@vger.kernel.org,
+       prism54-private@prism54.org, netdev@oss.sgi.com
+Subject: Re: 2.6.9-mm1: pc_debug multiple definitions
+Message-ID: <20041023000755.E3459@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	jgarzik@pobox.com, linux-net@vger.kernel.org,
+	prism54-private@prism54.org, netdev@oss.sgi.com
+References: <20041022032039.730eb226.akpm@osdl.org> <20041022133929.GA2831@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1098480691.8033.8.camel@wombat.educ.indiana.edu>
-	 <41797B49.5020809@drdos.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041022133929.GA2831@stusta.de>; from bunk@stusta.de on Fri, Oct 22, 2004 at 03:39:29PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Oct 2004 15:27:37 -0600, Jeff V. Merkey <jmerkey@drdos.com> wrote:
+On Fri, Oct 22, 2004 at 03:39:29PM +0200, Adrian Bunk wrote:
+> 
+> The following compile error comes from Linus' tree:
+> 
+> 
+> <--  snip  -->
+> 
+> ...
+>   LD      drivers/built-in.o
+> drivers/pcmcia/built-in.o(.bss+0xf20): multiple definition of `pc_debug'
+> drivers/net/built-in.o(.data+0x24ae0): first defined here
+> make[1]: *** [drivers/built-in.o] Error 1
+> 
+> <--  snip  -->
+> 
+> 
+> The pc_debug in drivers/pcmcia/ds.c was made non-static in Linus' tree,
+> but the global definition of a global variable with such a generic name 
+> in drivers/net/wireless/prism54/islpci_mgt.c seems to be equally wrong.
 
-> I'll post the entire listing with line numbers of the files SCO
-> [alleges] were taken from UNIX by IBM and others.
+I've forwarded it to Dominik to sort out with suggested solutions.
+Hopefully Dominik will forward a fix soon.
 
-Jeff,
+(PS, I dropped David Hinds from the CC list - David doesn't maintain
+2.6 PCMCIA.)
 
-Could you please digitally sign this mail that you are planning to
-send or otherwise provide notorisation that confirms you definately
-mean this?
-
-I'd love for you to accept liability for this so we can pass all SCO
-enquiries on to you.
-
-Jon.
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbQKDBx0>; Fri, 3 Nov 2000 20:53:26 -0500
+	id <S129033AbQKDB6I>; Fri, 3 Nov 2000 20:58:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129066AbQKDBxQ>; Fri, 3 Nov 2000 20:53:16 -0500
-Received: from ha2.rdc2.mi.home.com ([24.2.68.69]:36000 "EHLO
-	mail.rdc2.mi.home.com") by vger.kernel.org with ESMTP
-	id <S129033AbQKDBxF>; Fri, 3 Nov 2000 20:53:05 -0500
-Message-ID: <3A037A2B.41D6AAA@didntduck.org>
-Date: Fri, 03 Nov 2000 21:53:31 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-3 i586)
-X-Accept-Language: en
+	id <S129617AbQKDB56>; Fri, 3 Nov 2000 20:57:58 -0500
+Received: from gateway-490.mvista.com ([63.192.220.206]:6134 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S129066AbQKDB5s>; Fri, 3 Nov 2000 20:57:48 -0500
+Date: Fri, 3 Nov 2000 17:57:45 -0800 (PST)
+From: Nigel Gamble <nigel@mvista.com>
+Reply-To: nigel@mvista.com
+To: jeremy@goop.org
+cc: linux-kernel@vger.kernel.org
+Subject: Locking problem in autofs4_expire(), 2.4.0-test10
+Message-ID: <Pine.LNX.4.21.0011031752150.14843-100000@pegasus.mvista.com>
 MIME-Version: 1.0
-To: davej@suse.de
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86 boot time check for cpu features
-In-Reply-To: <Pine.LNX.4.21.0011040101090.6163-100000@neo.local>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-davej@suse.de wrote:
-> 
-> Brian Gerst wrote...
-> >> I believe the MII always has CPUID enabled. It was the older Cyrixes
-> >> that did not. DaveJ is the guru..
-> > Well, according to comments in bugs.h, some broken BIOSes disable cpuid.
-> 
-> That bug fix is for the earlier Cyrix 6x86 if I'm not mistaken.
-> The MII is a different monster.
+dput() is called with dcache_lock already held, resulting in deadlock.
 
-According to the docs on VIA's site, the MII's cpuid can still be turned
-off, but it is on by default at reset.  I wouldn't trust the BIOS to not
-screw it up.
+Here is a suggested fix:
 
---
+===== expire.c 1.3 vs edited =====
+--- 1.3/linux/fs/autofs4/expire.c       Tue Oct 31 15:14:06 2000
++++ edited/expire.c     Fri Nov  3 17:47:47 2000
+@@ -223,8 +223,10 @@
+                        mntput(p);
+                        return dentry;
+                }
++               spin_unlock(&dcache_lock);
+                dput(d);
+                mntput(p);
++               spin_lock(&dcache_lock);
+        }
+        spin_unlock(&dcache_lock);
 
-					Brian Gerst
+Nigel Gamble
+MontaVista Software
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

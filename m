@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbTDKUCa (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 16:02:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbTDKUCa (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 16:02:30 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:45255 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261706AbTDKUC3 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 16:02:29 -0400
-Date: Fri, 11 Apr 2003 13:16:29 -0700
-From: Greg KH <greg@kroah.com>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: USB optical mouse on laptop causes bk12 boot to hang
-Message-ID: <20030411201629.GR1821@kroah.com>
-References: <20030407155858.GA2553@kroah.com> <Pine.LNX.4.44.0304101727410.1369-100000@localhost.localdomain>
+	id S261727AbTDKUDq (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 16:03:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbTDKUDq (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 16:03:46 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:10500 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261719AbTDKUDB (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 16:03:01 -0400
+Subject: Re: [patch for playing] Patch to support 4000 disks and maintain
+	backward compatibility
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Andries.Brouwer@cwi.nl
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>, pbadari@us.ibm.com
+In-Reply-To: <UTC200304111945.h3BJjU409008.aeb@smtp.cwi.nl>
+References: <UTC200304111945.h3BJjU409008.aeb@smtp.cwi.nl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 11 Apr 2003 15:14:32 -0500
+Message-Id: <1050092073.2078.219.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0304101727410.1369-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 10, 2003 at 05:35:34PM -0400, Robert P. J. Day wrote:
->   i have full module support selected in kernel configuration,
-> but it seems that the required modules just aren't being loaded
-> on demand.
-> 
->   i just tested and "modprobe" seems to work, but i don't
-> understand why none of this stuff is being loaded at boot
-> time.
+On Fri, 2003-04-11 at 14:45, Andries.Brouwer@cwi.nl wrote:
+> I think compatibility is very important.
+> Linux does not arbitrarily break old systems. The aim must be
+> to have all combinations of (old/new) kernel with (old/new) glibc
+> to work well in all situations where old kernel + old glibc worked.
 
-You probably need to tweak your initscripts to get this to happen.  I
-know Red Hat needs this due to some changes in the way modules are used,
-and the way modprobe has changed.
+Well, if you're going to do this, at least make it possible to tie all
+the sd devices to a single major (i.e. the numeric compatibility layer
+simply maps to the new single major scheme internally).  It would also
+be nice for numeric compatibility to be a compile time option too...
 
->   i'm still running under the new kernel, so i'm willing to
-> entertain things i can check, but i have no X session (nvidia,
-> which i haven't even *tried* to set up under 2.5.67).
+It's also possible that SCSI may not be the only consumer of such a
+compatibility layer (IDE also has multiple majors), so it may be
+worthwhile putting it somewhere more globally useful (like
+fs/block_dev.c)
 
-So if you load the usb core, and then plug in your usb device, does it
-all work after the machine has booted?
+James
 
-You don't have USB BIOS emulation support enabled in your BIOS do you?
 
-And do you have this same problem on 2.4 kernels?
-
-thanks,
-
-greg k-h

@@ -1,253 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbTERD4n (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 23:56:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbTERD4n
+	id S261950AbTERDx2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 23:53:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbTERDx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 23:56:43 -0400
-Received: from trained-monkey.org ([209.217.122.11]:12039 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP id S261956AbTERD4a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 23:56:30 -0400
-From: Jes Sorensen <jes@wildopensource.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16071.1892.811622.257847@trained-monkey.org>
-Date: Sun, 18 May 2003 00:09:08 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: "David S. Miller" <davem@redhat.com>, James.Bottomley@steeleye.com,
-       Grant Grundler <grundler@dsl2.external.hp.com>,
-       Colin Ngam <cngam@sgi.com>, Jeremy Higdon <jeremy@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org, wildos@sgi.com
-Subject: [patch] support 64 bit pci_alloc_consistent
-X-Mailer: VM 7.13 under Emacs 20.7.1
+	Sat, 17 May 2003 23:53:28 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:12548 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S261950AbTERDx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 May 2003 23:53:26 -0400
+Date: Sun, 18 May 2003 14:04:11 +1000
+To: James Morris <jmorris@intercode.com.au>
+Cc: davem@redhat.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Added missing dependencies on CRYPTO_HMAC
+Message-ID: <20030518040411.GA7062@gondor.apana.org.au>
+References: <20030518031546.GA4943@gondor.apana.org.au> <Mutt.LNX.4.44.0305181334280.21675-100000@excalibur.intercode.com.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="wac7ysb48OaltWcw"
+Content-Disposition: inline
+In-Reply-To: <Mutt.LNX.4.44.0305181334280.21675-100000@excalibur.intercode.com.au>
+User-Agent: Mutt/1.5.4i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
 
-This is patch which provides support for 64 bit address allocations from
-pci_alloc_consistent(), based on the address mask set through
-pci_set_consistent_dma_mask(). This is necessary on some platforms which
-are unable to provide physical memory in the lower 4GB block and do not
-provide IOMMU support for cards operating in certain bus modes, such as
-PCI-X on the SGI SN2.
+--wac7ysb48OaltWcw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The default mask for pci_alloc_consistent() is still 32 bit as there are
-64 bit capable hardware out there that doesn't support 64 bit addresses
-for descripters etc. Likewise, platforms which provide IOMMU support in
-all bus modes can ignore struct pci_dev->consistent_dma_mask and just
-return a 32 bit address as before.
+On Sun, May 18, 2003 at 01:40:28PM +1000, James Morris wrote:
+> 
+> How would users know what the minimally required set of algorithms are?  
+> Would they then know to go _back_ to the networking menu to enable the
+> protocols?
 
-The patch also includes changes to tg3.c to make it use the new api as
-well as a documentation update. I have done my best on the documentation
-part, if anyone feel the can make my scribbles clearer, please do.
+Good point.  What about this patch then?
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
-Thanks to Dave Miller, Grant Grundler, James Bottomley, Colin Ngam, and
-Jeremy Higdon for input and code/documentation portions.
+--wac7ysb48OaltWcw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
 
-This patch should apply cleanly to 2.5.69-bk12.
+Index: net/ipv4/Kconfig
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/net/ipv4/Kconfig,v
+retrieving revision 1.1.1.4
+retrieving revision 1.3
+diff -u -r1.1.1.4 -r1.3
+--- net/ipv4/Kconfig	4 May 2003 23:53:36 -0000	1.1.1.4
++++ net/ipv4/Kconfig	18 May 2003 04:02:20 -0000	1.3
+@@ -348,8 +348,12 @@
+ 
+ 	  If unsure, say N.
+ 
++comment "Cryptographic HMAC support is needed for IPv4 AH or ESP support"
++	depends on INET && CRYPTO_HMAC=n
++
+ config INET_AH
+ 	tristate "IP: AH transformation"
++	depends on INET && CRYPTO_HMAC
+ 	---help---
+ 	  Support for IPsec AH.
+ 
+@@ -357,6 +361,7 @@
+ 
+ config INET_ESP
+ 	tristate "IP: ESP transformation"
++	depends on INET && CRYPTO_HMAC
+ 	---help---
+ 	  Support for IPsec ESP.
+ 
+@@ -364,6 +369,7 @@
+ 
+ config INET_IPCOMP
+ 	tristate "IP: IPComp transformation"
++	depends on INET
+ 	---help---
+ 	  Support for IP Paylod Compression (RFC3173), typically needed
+ 	  for IPsec.
+Index: net/ipv6/Kconfig
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/net/ipv6/Kconfig,v
+retrieving revision 1.1.1.3
+retrieving revision 1.3
+diff -u -r1.1.1.3 -r1.3
+--- net/ipv6/Kconfig	24 Mar 2003 22:00:39 -0000	1.1.1.3
++++ net/ipv6/Kconfig	18 May 2003 04:02:20 -0000	1.3
+@@ -17,9 +17,12 @@
+ 
+ 	  See <file:Documentation/networking/ip-sysctl.txt> for details.
+ 
++comment "Cryptographic HMAC support is needed for IPv6 AH or ESP support"
++	depends on IPV6 && CRYPTO_HMAC=n
++
+ config INET6_AH
+ 	tristate "IPv6: AH transformation"
+-	depends on IPV6
++	depends on IPV6 && CRYPTO_HMAC
+ 	---help---
+ 	  Support for IPsec AH.
+ 
+@@ -27,7 +30,7 @@
+ 
+ config INET6_ESP
+ 	tristate "IPv6: ESP transformation"
+-	depends on IPV6
++	depends on IPV6 && CRYPTO_HMAC
+ 	---help---
+ 	  Support for IPsec ESP.
+ 
 
-Thanks,
-Jes
-
-diff -urN -X /home/jes/exclude-linux linux-2.5.69-030509-vanilla/Documentation/DMA-mapping.txt linux-2.5.69-pci/Documentation/DMA-mapping.txt
---- linux-2.5.69-030509-vanilla/Documentation/DMA-mapping.txt	Sun May  4 19:53:31 2003
-+++ linux-2.5.69-pci/Documentation/DMA-mapping.txt	Sat May 17 23:32:16 2003
-@@ -83,6 +83,15 @@
- to be increased.  And for a device with limitations, as discussed in
- the previous paragraph, it needs to be decreased.
- 
-+pci_alloc_consistent() by default will return 32-bit DMA addresses.
-+PCI-X specification requires PCI-X devices to support 64-bit
-+addressing (DAC) for all transactions. And at least one platform (SGI
-+SN2) requires 64-bit consistent allocations to operate correctly when
-+the IO bus is in PCI-X mode. Therefore, like with pci_set_dma_mask(),
-+it's good practice to call pci_set_consistent_dma_mask() to set the
-+appropriate mask even if your device only supports 32-bit DMA
-+(default) and especially if it's a PCI-X device.
-+
- For correct operation, you must interrogate the PCI layer in your
- device probe routine to see if the PCI controller on the machine can
- properly support the DMA addressing limitation your device has.  It is
-@@ -94,6 +103,11 @@
- 
- 	int pci_set_dma_mask(struct pci_dev *pdev, u64 device_mask);
- 
-+The query for consistent allocations is performed via a a call to
-+pci_set_consistent_dma_mask():
-+
-+	int pci_set_consistent_dma_mask(struct pci_dev *pdev, u64 device_mask);
-+
- Here, pdev is a pointer to the PCI device struct of your device, and
- device_mask is a bit mask describing which bits of a PCI address your
- device supports.  It returns zero if your card can perform DMA
-@@ -133,7 +147,7 @@
- Sparc64 is one platform which behaves in this way.
- 
- Here is how you would handle a 64-bit capable device which can drive
--all 64-bits during a DAC cycle:
-+all 64-bits when accessing streaming DMA:
- 
- 	int using_dac;
- 
-@@ -147,6 +161,30 @@
- 		goto ignore_this_device;
- 	}
- 
-+If a card is capable of using 64-bit consistent allocations as well,
-+the case would look like this:
-+
-+	int using_dac, consistent_using_dac;
-+
-+	if (!pci_set_dma_mask(pdev, 0xffffffffffffffff)) {
-+		using_dac = 1;
-+	   	consistent_using_dac = 1;
-+		pci_set_consistent_dma_mask(pdev, 0xffffffffffffffff)
-+	} else if (!pci_set_dma_mask(pdev, 0xffffffff)) {
-+		using_dac = 0;
-+		consistent_using_dac = 0;
-+		pci_set_consistent_dma_mask(pdev, 0xffffffff)
-+	} else {
-+		printk(KERN_WARNING
-+		       "mydev: No suitable DMA available.\n");
-+		goto ignore_this_device;
-+	}
-+
-+pci_set_consistent_dma_mask() will always be able to set the same or a
-+smaller mask as pci_set_dma_mask(). However for the rare case that a
-+device driver only uses consistent allocations, one would have to
-+check the return value from pci_set_consistent().
-+
- If your 64-bit device is going to be an enormous consumer of DMA
- mappings, this can be problematic since the DMA mappings are a
- finite resource on many platforms.  Please see the "DAC Addressing
-@@ -215,9 +253,10 @@
- 
-   Think of "consistent" as "synchronous" or "coherent".
- 
--  Consistent DMA mappings are always SAC addressable.  That is
--  to say, consistent DMA addresses given to the driver will always
--  be in the low 32-bits of the PCI bus space.
-+  The current default is to return consistent memory in the low 32
-+  bits of the PCI bus space.  However, for future compatibility you
-+  should set the consistent mask even if this default is fine for your
-+  driver.
- 
-   Good examples of what to use consistent mappings for are:
- 
-@@ -287,15 +326,14 @@
- driver needs regions sized smaller than a page, you may prefer using
- the pci_pool interface, described below.
- 
--The consistent DMA mapping interfaces, for non-NULL dev, will always
--return a DMA address which is SAC (Single Address Cycle) addressable.
--Even if the device indicates (via PCI dma mask) that it may address
--the upper 32-bits and thus perform DAC cycles, consistent allocation
--will still only return 32-bit PCI addresses for DMA.  This is true
--of the pci_pool interface as well.
--
--In fact, as mentioned above, all consistent memory provided by the
--kernel DMA APIs are always SAC addressable.
-+The consistent DMA mapping interfaces, for non-NULL dev, will by
-+default return a DMA address which is SAC (Single Address Cycle)
-+addressable.  Even if the device indicates (via PCI dma mask) that it
-+may address the upper 32-bits and thus perform DAC cycles, consistent
-+allocation will only return > 32-bit PCI addresses for DMA if the
-+consistent dma mask has been explicitly changed via
-+pci_set_consistent_dma_mask().  This is true of the pci_pool interface
-+as well.
- 
- pci_alloc_consistent returns two values: the virtual address which you
- can use to access it from the CPU and dma_handle which you pass to the
-diff -urN -X /home/jes/exclude-linux linux-2.5.69-030509-vanilla/drivers/net/tg3.c linux-2.5.69-pci/drivers/net/tg3.c
---- linux-2.5.69-030509-vanilla/drivers/net/tg3.c	Sun May  4 19:53:31 2003
-+++ linux-2.5.69-pci/drivers/net/tg3.c	Sat May 17 11:49:43 2003
-@@ -6400,8 +6400,7 @@
- 	tw32(BUFMGR_MODE, 0);
- 	tw32(FTQ_RESET, 0);
- 
--	/* pci_alloc_consistent gives only non-DAC addresses */
--	test_desc.addr_hi = 0;
-+	test_desc.addr_hi = ((u64) buf_dma) >> 32;
- 	test_desc.addr_lo = buf_dma & 0xffffffff;
- 	test_desc.nic_mbuf = 0x00002100;
- 	test_desc.len = size;
-@@ -6743,6 +6742,12 @@
- 	/* Configure DMA attributes. */
- 	if (!pci_set_dma_mask(pdev, (u64) 0xffffffffffffffff)) {
- 		pci_using_dac = 1;
-+		if (pci_set_consistent_dma_mask(pdev,
-+						(u64) 0xffffffffffffffff)) {
-+			printk(KERN_ERR PFX "Unable to obtain 64 bit DMA "
-+			       "for consistent allocations\n");
-+			goto err_out_free_res;
-+		}
- 	} else {
- 		err = pci_set_dma_mask(pdev, (u64) 0xffffffff);
- 		if (err) {
-diff -urN -X /home/jes/exclude-linux linux-2.5.69-030509-vanilla/drivers/pci/pci.c linux-2.5.69-pci/drivers/pci/pci.c
---- linux-2.5.69-030509-vanilla/drivers/pci/pci.c	Sun May  4 19:53:08 2003
-+++ linux-2.5.69-pci/drivers/pci/pci.c	Fri May 16 15:43:44 2003
-@@ -701,6 +701,17 @@
- 	return 0;
- }
- 
-+int
-+pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask)
-+{
-+	if (!pci_dma_supported(dev, mask))
-+		return -EIO;
-+
-+	dev->consistent_dma_mask = mask;
-+
-+	return 0;
-+}
-+     
- static int __devinit pci_init(void)
- {
- 	struct pci_dev *dev;
-@@ -751,6 +762,7 @@
- EXPORT_SYMBOL(pci_clear_mwi);
- EXPORT_SYMBOL(pci_set_dma_mask);
- EXPORT_SYMBOL(pci_dac_set_dma_mask);
-+EXPORT_SYMBOL(pci_set_consistent_dma_mask);
- EXPORT_SYMBOL(pci_assign_resource);
- EXPORT_SYMBOL(pci_find_parent_resource);
- 
-diff -urN -X /home/jes/exclude-linux linux-2.5.69-030509-vanilla/drivers/pci/probe.c linux-2.5.69-pci/drivers/pci/probe.c
---- linux-2.5.69-030509-vanilla/drivers/pci/probe.c	Sun May  4 19:53:35 2003
-+++ linux-2.5.69-pci/drivers/pci/probe.c	Fri May 16 15:44:40 2003
-@@ -502,6 +502,7 @@
- 	/* Assume 32-bit PCI; let 64-bit PCI cards (which are far rarer)
- 	   set this higher, assuming the system even supports it.  */
- 	dev->dma_mask = 0xffffffff;
-+	dev->consistent_dma_mask = 0xffffffff;
- 	if (pci_setup_device(dev) < 0) {
- 		kfree(dev);
- 		return NULL;
-diff -urN -X /home/jes/exclude-linux linux-2.5.69-030509-vanilla/include/linux/pci.h linux-2.5.69-pci/include/linux/pci.h
---- linux-2.5.69-030509-vanilla/include/linux/pci.h	Sun May  4 19:53:14 2003
-+++ linux-2.5.69-pci/include/linux/pci.h	Fri May 16 15:42:55 2003
-@@ -390,6 +390,11 @@
- 					   or supports 64-bit transfers.  */
- 	struct list_head pools;		/* pci_pools tied to this device */
- 
-+	u64		consistent_dma_mask;/* Like dma_mask, but for
-+					       pci_alloc_consistent mappings as
-+					       not all hardware supports
-+					       64 bit addresses for consistent
-+					       allocations such descriptors. */
- 	u32             current_state;  /* Current operating state. In ACPI-speak,
- 					   this is D0-D3, D0 being fully functional,
- 					   and D3 being off. */
-@@ -614,6 +619,7 @@
- void pci_clear_mwi(struct pci_dev *dev);
- int pci_set_dma_mask(struct pci_dev *dev, u64 mask);
- int pci_dac_set_dma_mask(struct pci_dev *dev, u64 mask);
-+int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask);
- int pci_assign_resource(struct pci_dev *dev, int i);
- 
- /* Power management related routines */
-
+--wac7ysb48OaltWcw--

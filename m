@@ -1,27 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129408AbRDBOHN>; Mon, 2 Apr 2001 10:07:13 -0400
+	id <S129486AbRDBOe2>; Mon, 2 Apr 2001 10:34:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129443AbRDBOHE>; Mon, 2 Apr 2001 10:07:04 -0400
-Received: from [195.180.174.223] ([195.180.174.223]:12160 "EHLO
-	idun.neukum.org") by vger.kernel.org with ESMTP id <S129408AbRDBOG5>;
-	Mon, 2 Apr 2001 10:06:57 -0400
-From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+	id <S129618AbRDBOeT>; Mon, 2 Apr 2001 10:34:19 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:37126 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S129486AbRDBOeC>; Mon, 2 Apr 2001 10:34:02 -0400
+Date: Mon, 2 Apr 2001 11:32:00 -0300
+From: Gustavo Niemeyer <niemeyer@conectiva.com>
 To: linux-kernel@vger.kernel.org
-Subject: how to let all others run
-Date: Mon, 2 Apr 2001 16:05:34 +0200
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-MIME-Version: 1.0
-Message-Id: <01040216053401.01575@idun>
-Content-Transfer-Encoding: 7BIT
+Subject: Re: pthreads & fork & execve
+Message-ID: <20010402113200.D15554@tux.distro.conectiva>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <01033016225700.00409@dennis> <Pine.LNX.4.21.0104021338320.8447-100000@bellatrix.tat.physik.uni-tuebingen.de> <20010402095425.A15554@tux.distro.conectiva> <20010402153354.A15933@indexdata.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.14i
+In-Reply-To: <20010402153354.A15933@indexdata.dk>; from adam@indexdata.dk on Mon, Apr 02, 2001 at 03:33:54PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> People making Apache 1.3.X modules have a problem too. They have to
+> rebuilt Apache and add -lpthread if any modules uses threads.
 
-is there a way to let all other runable tasks run until they block or return 
-to user space, before the task wishing to do so is run again ?
+It seems to be the same case here.
 
-	TIA
-		Oliver
+> The following small program illustrates this. The program, main-wot,
+> crashes  - the other, main-wt, doesn't.
+[...]
+
+Both work here... am I doing something wrong (or right :-)??
+
+I've tried to reduce to a testcase like this before, and it has worked
+as well. I don't understand what this limitation is about.
+
+-- 
+Gustavo Niemeyer
+
+[ 2AAC 7928 0FBF 0299 5EB5  60E2 2253 B29A 6664 3A0C ]

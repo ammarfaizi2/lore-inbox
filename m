@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311885AbSFNRXJ>; Fri, 14 Jun 2002 13:23:09 -0400
+	id <S312619AbSFNR1p>; Fri, 14 Jun 2002 13:27:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313060AbSFNRXI>; Fri, 14 Jun 2002 13:23:08 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:24591 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S311885AbSFNRXI> convert rfc822-to-8bit; Fri, 14 Jun 2002 13:23:08 -0400
-Message-ID: <3D0A2677.9060107@evision-ventures.com>
-Date: Fri, 14 Jun 2002 19:23:03 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
-X-Accept-Language: pl, en-us
-MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: Benjamin LaHaise <bcrl@redhat.com>, Jens Axboe <axboe@suse.de>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.21 IDE 91
-In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com> <3D09F769.8090704@evision-ventures.com> <20020614151703.GB1120@suse.de> <20020614115634.B22888@redhat.com> <20020614180451.R16772@suse.de>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S312973AbSFNR1p>; Fri, 14 Jun 2002 13:27:45 -0400
+Received: from home.linuxhacker.ru ([194.67.236.68]:65410 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id <S312619AbSFNR1o>;
+	Fri, 14 Jun 2002 13:27:44 -0400
+Date: Fri, 14 Jun 2002 21:27:43 +0400
+From: Oleg Drokin <green@linuxhacker.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Slight inefficiency in fs/buffer.c::__block_prepare_write() ?
+Message-ID: <20020614212743.A8884@linuxhacker.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Dave Jones napisa³:
-> On Fri, Jun 14, 2002 at 11:56:34AM -0400, Benjamin LaHaise wrote:
-> 
->  > Add my voice to these concerns.  At the very least the code should have 
->  > been moved into a second tree to allow people to work with the old stable 
->  > driver as needed.
-> 
-> *nod*, with periodic known-good _tested_ bits getting merged to
-> mainline, to avoid the need for an IDE merge flag day as has been
-> the norm in the past.
+Hello!
 
-And they where the best way to basically halt the whole thing.
-Right now the only thing you would achieve would be to kick out
-the other people with wich I work *together*.
-Oh perhaps noone of them would have got involved...
-I simply don't like to idea of lonely developement on a separate
-small iland called a "dedicated mailing list". And I don't see any
-need for it - the traffic on LKML isn't that high if one
-learn how to use mozillas filtering facilities.
+   It seems there is slight inefficiency in __block_prepare_write() function
+   in fs/buffer.c
+   It seems ennecessary READ request might be scheduled when all useful info
+   in page was rewritten anyway.
+   Offending code is this:
+                if (!buffer_uptodate(bh) &&
+                     (block_start < from || block_end > to)) {
+                        ll_rw_block(READ, 1, &bh);
+                        *wait_bh++=bh;
+                }
 
+   Suppose we have a 4k page with underlying buffer of 4k size (for simplicity)
+   filled with 500 bytes.
+   Now if we write 550 bytes to that page right from the start, 
+   READ request would be scheduled, though it is totally pointless.
+   Such a code exists both in 2.4 and 2.5 kernels.
 
+   Am I overlooking something or is patch like below needed?
 
+Bye,
+    Oleg
+
+===== buffer.c 1.66 vs edited =====
+--- 1.66/fs/buffer.c	Sun May 12 04:26:20 2002
++++ edited/buffer.c	Fri Jun 14 21:16:32 2002
+@@ -1591,7 +1591,8 @@
+ 			continue; 
+ 		}
+ 		if (!buffer_uptodate(bh) &&
+-		     (block_start < from || block_end > to)) {
++		     (block_start < from || block_end > to) &&
++		     !(from == block_start && to > inode -> i_size)) {
+ 			ll_rw_block(READ, 1, &bh);
+ 			*wait_bh++=bh;
+ 		}

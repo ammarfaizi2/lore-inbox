@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbTIPPoq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 11:44:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbTIPPop
+	id S261950AbTIPP6h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 11:58:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbTIPP6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 11:44:45 -0400
-Received: from pat.uio.no ([129.240.130.16]:46562 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261968AbTIPPoo (ORCPT
+	Tue, 16 Sep 2003 11:58:37 -0400
+Received: from fw.osdl.org ([65.172.181.6]:55736 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261950AbTIPP6e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 11:44:44 -0400
-To: Meelis Roos <mroos@linux.ee>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: df hangs on nfs automounter in 2.6.0-current
-References: <Pine.GSO.4.44.0309161732480.19310-100000@math.ut.ee>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 16 Sep 2003 11:44:40 -0400
-In-Reply-To: <Pine.GSO.4.44.0309161732480.19310-100000@math.ut.ee>
-Message-ID: <shsznh4d9g7.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	Tue, 16 Sep 2003 11:58:34 -0400
+Date: Tue, 16 Sep 2003 08:55:32 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Nicolae Mihalache <mache@abcpages.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6-test4 problems: suspend and touchpad
+In-Reply-To: <3F662322.9060205@abcpages.com>
+Message-ID: <Pine.LNX.4.33.0309160853290.958-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Meelis Roos <mroos@linux.ee> writes:
 
-     > Current 2.6.0 (2.6.0-test5+BK as of 16.09) hangs on df when the
-     > am_utils automounter is in use. It displays hda* partitions and
-     > next by mountpoint list is amd but then df hangs, wchan is
-     > rpc_execu*
+> Yes, removing and readding the module does the trick.
+> Unfortunately I've seen that something else does not work after resume: 
+> my USB mouse.
 
-Please reproduce using ordinary 'mount'...
+> Now, how can I help to solve these problems? Is somebody working to 
+> solve these problems or should I try to solve them myself (at least with 
+> the Broadcom 4400 driver) ?
 
-Cheers,
-  Trond
+AFAIK, there is no one working on either of these issues. I would
+recommende contacting the maintainers about what it would take to
+implement suspend/resume. They should hopefully have an idea of how to go 
+about it, if not able to do it themselves.
+
+Thanks,
+
+
+	Pat
+

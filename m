@@ -1,76 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268278AbUH2TMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268277AbUH2TRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268278AbUH2TMK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 15:12:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268276AbUH2TMK
+	id S268277AbUH2TRR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 15:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268279AbUH2TRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 15:12:10 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:3473 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S268253AbUH2TMC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 15:12:02 -0400
-Date: Sun, 29 Aug 2004 21:10:44 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Spam <spam@tnonline.net>, Andrew Morton <akpm@osdl.org>, wichert@wiggy.net,
-       jra@samba.org, torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040829191044.GA10090@thundrix.ch>
-References: <1453776111.20040826131547@tnonline.net> <200408272358.i7RNweGh002703@localhost.localdomain>
+	Sun, 29 Aug 2004 15:17:17 -0400
+Received: from holomorphy.com ([207.189.100.168]:41391 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268277AbUH2TRP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 15:17:15 -0400
+Date: Sun, 29 Aug 2004 12:17:07 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: rl@hellgate.ch, linux-kernel@vger.kernel.org, albert@users.sourceforge.net
+Subject: Re: [BENCHMARK] nproc: netlink access to /proc information
+Message-ID: <20040829191707.GU5492@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Paul Jackson <pj@sgi.com>, rl@hellgate.ch,
+	linux-kernel@vger.kernel.org, albert@users.sourceforge.net
+References: <20040827122412.GA20052@k3.hellgate.ch> <20040827162308.GP2793@holomorphy.com> <20040828194546.GA25523@k3.hellgate.ch> <20040828195647.GP5492@holomorphy.com> <20040828201435.GB25523@k3.hellgate.ch> <20040829160542.GF5492@holomorphy.com> <20040829170247.GA9841@k3.hellgate.ch> <20040829172022.GL5492@holomorphy.com> <20040829120733.455f0c82.pj@sgi.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408272358.i7RNweGh002703@localhost.localdomain>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+In-Reply-To: <20040829120733.455f0c82.pj@sgi.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At some point in the past, I wrote:
+>> get_tgid_list() is a sad story I don't have time to go into in depth.
+>> The short version is that larger systems are extremely sensitive to
 
---wRRV7LY7NUeQGEoC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sun, Aug 29, 2004 at 12:07:33PM -0700, Paul Jackson wrote:
+> Thanks, Roger and William, for your good work here.  I'm sure that SGI's
+> big bertha's will benefit.
+> In glancing at the get_tgid_list() I see it is careful to only pick off
+> 20 (PROC_MAXPIDS) slots at a time.  But elsewhere in the kernel, I see
+> several uses of "do_each_thread()" which rip through the entire task
+> list in a single shot.
+> Is there a simple explanation for why it is ok in one place to take on
+> the entire task list in a single sweep, but in another it is important
+> to drop the lock every 20 slots?
 
-Salut,
+PROC_MAXPIDS is the size of the buffer used to temporarily store the
+pid's while doing user copies, so that potentially blocking operations
+may be done to transmit the pid's to userspace.
 
-On Fri, Aug 27, 2004 at 07:58:40PM -0400, Horst von Brand wrote:
-> >   Also,  you  are thinking _very_ narrowly now. There are thousands of
-> >   file  formats.  Implementing  the  support  for  meta-data/ streams/
-> >   attributes  in  the  kernel  will  make  it  possible  to  use  this
-> >   generically for all files.
->=20
-> So the _kernel_ has to know about thousands of formats, just in case it
-> some blue day it comes across a strange file? Better leave that to the
-> applications.
-
-I'd  do  that  quite  differently:  Collect metadata  about  files  in
-extended attributes (which are  rather universally useable), and do it
-=66rom  an userspace daemon/application/file  manager plugin  which uses
-dynamically   loadable   plugins   for   the  different   file   types
-differentiated by libmagic.
-
-This has nothing to do in the kernel.
-
-			    Tonnerre
+Introducing another whole-tasklist scan, even if feasible, is probably
+not a good idea.
 
 
---wRRV7LY7NUeQGEoC
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+On Sun, Aug 29, 2004 at 12:07:33PM -0700, Paul Jackson wrote:
+> From the code and nice comments, I see that:
+>   (1) the work that had to be done by proc_pid_readdir(), the caller of
+>       get_tgid_list(), required dropping the task list lock, and
+>   (2) so the harvested tgid's had to be stashed in a temp buffer.
+> So perhaps the reason for not doing this in a single pass is:
+>   (3) it was not doable or not desirable (which one?) to size that temp
+>       buffer large enough to hold all the harvested tgid's in one pass.
+> But my understanding is losing the scent of the trail at this point.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
+Using a larger, dynamically-allocated buffer may be better. e.g.
+allocating a page to buffer pid's with.
 
-iD8DBQFBMio0/4bL7ovhw40RApOOAJ47ZDBdx50JTQ01PLD/kyxc53UacwCgmDxF
-GjOjLO50MeUI0HKv9T/biWw=
-=pwyS
------END PGP SIGNATURE-----
+A solution to the problem of the quadratic algorithm I wrote long ago
+restructured the tasklist as an rbtree so that the position in the
+tasklist could be recovered in O(lg(n)) time. Unfortunately, this
+increases the write hold time of tasklist_lock.
 
---wRRV7LY7NUeQGEoC--
+
+-- wli

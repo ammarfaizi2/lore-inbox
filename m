@@ -1,71 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbUKTW1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263177AbUKTWck@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261407AbUKTW1r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 17:27:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263177AbUKTW1r
+	id S263177AbUKTWck (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 17:32:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbUKTWck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 17:27:47 -0500
-Received: from gate.crashing.org ([63.228.1.57]:1946 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261407AbUKTW1o (ORCPT
+	Sat, 20 Nov 2004 17:32:40 -0500
+Received: from gate.crashing.org ([63.228.1.57]:5018 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263177AbUKTWch (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 17:27:44 -0500
-Subject: Re: pci-resume patch from 2.6.7-rc2 breakes S3 resume on some
-	machines
+	Sat, 20 Nov 2004 17:32:37 -0500
+Subject: Re: [PATCH 1/2] pci: Block config access during BIST
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Matthias Hentges <mailinglisten@hentges.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1100937706.3497.11.camel@mhcln03>
-References: <1100811950.3470.23.camel@mhcln03>
-	 <20041119115507.GB1030@elf.ucw.cz> <1100872578.3692.7.camel@mhcln03>
-	 <1100872578.3692.7.camel@mhcln03> <1100905563.3812.59.camel@gaston>
-	 <E1CVLDU-0005jG-00@chiark.greenend.org.uk>
-	 <1100921760.3561.1.camel@mhcln03>  <1100936059.5238.3.camel@gaston>
-	 <1100937706.3497.11.camel@mhcln03>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: brking@us.ibm.com, Greg KH <greg@kroah.com>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1100954543.11822.8.camel@localhost.localdomain>
+References: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>
+	 <1100917635.9398.12.camel@localhost.localdomain>
+	 <1100934567.3669.12.camel@gaston>
+	 <1100954543.11822.8.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Sun, 21 Nov 2004 09:27:17 +1100
-Message-Id: <1100989638.3796.9.camel@gaston>
+Date: Sun, 21 Nov 2004 09:32:01 +1100
+Message-Id: <1100989921.3795.15.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-11-20 at 09:01 +0100, Matthias Hentges wrote:
-> Am Samstag, den 20.11.2004, 18:34 +1100 schrieb Benjamin Herrenschmidt:
-> > On Sat, 2004-11-20 at 04:36 +0100, Matthias Hentges wrote:
-> > > Am Samstag, den 20.11.2004, 02:43 +0000 schrieb Matthew Garrett:
-> > > > Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> > > > 
+On Sat, 2004-11-20 at 12:42 +0000, Alan Cox wrote:
+> On Sad, 2004-11-20 at 07:09, Benjamin Herrenschmidt wrote:
+> > Unfortunately, Alan, the cases where it matters aren't a driver with bad
+> > locking or some something that can be fixed at the driver level. There
+> > are already 2 uses of the above:
 > 
-> [...]
-> 
-> > > Trying to resume with radeonfb or X (DRI or fglrx) causes the machine
-> > > to freeze upon a resume.
-> > 
-> > At what point does it freeze ? Is the display back before the freeze ?
-> 
-> Sadly the video *never* comes back and stays dark no matter what I try:
-> - boot-radeon (int10 POST call) doesn't work. Either it segfaults or 
->   it hangs the machine
-> - Any combination of radeontool light on|off doesn't help (no freeze,
-> sometimes it 
->   can't read the cards mem address??)
-> - The int10 radeon patch for X11 doesn't help (freeze)
-> - radeonfb and / or X (either patched w/ int10 or not) freeze the
-> machine
-> 
-> I'm running out of ideas with this darn thing.
-> Since the serial port doesn't come back from S3 either, even a serial
-> console is of no help.
-> 
-> I have attached the output of lspci -vvv before and after resuming from
-> S3
-> The latter shows lots of "[disabled]" entries. Is that of any use?
+> That doesn't mean it is the right implementation. Most devices don't
+> need
+> this check so might as well have a fast path. You can at least reduce
+> the cost by setting a flag on devices that potentially have this problem
+> (or a PCI_ANY PCI_ANY quirk for platforms with it globally)
 
-Difficult to say at this point, the [disabled] thing are easy fixed with
-a pci_enable_device(). Unfortunately, on some machines, the firmware
-sort-of expects the kenrel driver to reboot the card from scratch...
+Oh, that's I agree (about the implentation beeing maybe sub-optimal),
+especially the possibility to avoid the lock...
+
+> >  - The device he's working on, which sometimes need to trigger a BIST
+> > (built-in self test). During this operation, the device stops responding
+> > on the PCI bus, which can be sort-of fatal if anything (userland playing
+> > with /sys/bus/pci/* for example) touches the config space.
+> 
+> That will be fun given some laptop SMM touches config space.
+
+None of the affected setups has something as broken-by-design as SMM
+BIOSes :)
+
+> > I would add: Config space accesses are slow anyways. They are even
+> > horribly slow. They are worse than IO accesses. I _VERY_MUCH_ doubt that
+> > a test of a variable member of pci_dev like the above would have any
+> > noticeable impact here.
+> 
+> Some of the Intel CPU's are very bad at lock handling so it is an issue.
+
+Yah, we alraedy have a lock in the config space code, so I think the
+solution here is to avoid the double locks by doing things a bit
+differently.
+
+> Also most PCI config accesses nowdays go to onboard devices whose
+> behaviour may well be quite different to PCI anyway. PCI has become a
+> device management API.
+> 
+> I dislike the "Hey it sucks, lets make it suck more" approach when it
+> seems easy to do the job well.
+
+I don't understand your statements above.
 
 Ben.
-
 

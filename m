@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277533AbRKNUzu>; Wed, 14 Nov 2001 15:55:50 -0500
+	id <S277541AbRKNU5a>; Wed, 14 Nov 2001 15:57:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277541AbRKNUzl>; Wed, 14 Nov 2001 15:55:41 -0500
-Received: from lol1122.lss.emc.com ([168.159.27.122]:52352 "EHLO
-	lol1122.lss.emc.com") by vger.kernel.org with ESMTP
-	id <S277533AbRKNUzb>; Wed, 14 Nov 2001 15:55:31 -0500
-Date: Wed, 14 Nov 2001 15:55:26 -0500
-Message-Id: <200111142055.fAEKtQY30336@lol1122.lss.emc.com>
-To: linux-kernel@vger.kernel.org
-From: Preston Crow <pc-lkml141101@crowcastle.net>
-Subject: Compile failed on fs.o for 2.4.15-pre4
+	id <S277653AbRKNU5U>; Wed, 14 Nov 2001 15:57:20 -0500
+Received: from cerebus.wirex.com ([65.102.14.138]:11762 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S277541AbRKNU5I>; Wed, 14 Nov 2001 15:57:08 -0500
+Date: Wed, 14 Nov 2001 12:50:48 -0800
+From: Chris Wright <chris@wirex.com>
+To: Terje Eggestad <terje.eggestad@scali.no>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: O_DIRECT broken in stock 2.4.13
+Message-ID: <20011114125048.A32600@figure1.int.wirex.com>
+Mail-Followup-To: Terje Eggestad <terje.eggestad@scali.no>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1005747508.1310.3.camel@pc-16.office.scali.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1005747508.1310.3.camel@pc-16.office.scali.no>; from terje.eggestad@scali.no on Wed, Nov 14, 2001 at 03:18:28PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After making the patch to setup.c so that it would compile, I ran into a
-linking error.  I have a fairly standard uniprocessor PIII system.  I can
-make my config file available to anyone that thinks it will help.
+* Terje Eggestad (terje.eggestad@scali.no) wrote:
+> Hi 
+> 
+> open( , O_DIRECT) succeds, fcntl set and unset of the O_DIRECT flag is
+> ok, but I get buffered writes anyway. 
+> 
+> This works in 2.4.10 
 
+iirc, this was disabled shortly after 2.4.10 (like 2.4.11-pre1 or 2).
+i believe the flag is still valid, however, i think the direct_io internals 
+were removed.
 
-make[1]: Leaving directory `/usr/src/linux/arch/i386/lib'
-ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o drivers/net/fc/fc.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/pnp/pnp.o drivers/video/video.o \
-        net/network.o \
-        /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a /usr/src/linux/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-fs/fs.o: In function `dput':
-fs/fs.o(.text+0x10fb8): undefined reference to `atomic_dec_and_lock'
-make: *** [vmlinux] Error 1
-
-[Please CC responses to me]
-
---PC
+cheers,
+-chris

@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263215AbUC3ACD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 19:02:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263210AbUC3ACD
+	id S263213AbUC3ABx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 19:01:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263210AbUC3ABx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 19:02:03 -0500
-Received: from mail.kroah.org ([65.200.24.183]:60837 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263215AbUC3AB6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 19:01:58 -0500
-Date: Mon, 29 Mar 2004 16:01:29 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: stern@rowland.harvard.edu, david-b@pacbell.net, viro@math.psu.edu,
-       maneesh@in.ibm.com, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Unregistering interfaces
-Message-ID: <20040330000129.GA31667@kroah.com>
-References: <20040328063711.GA6387@kroah.com> <Pine.LNX.4.44L0.0403281057100.17150-100000@netrider.rowland.org> <20040328123857.55f04527.akpm@osdl.org> <20040329210219.GA16735@kroah.com> <20040329132551.23e12144.akpm@osdl.org> <20040329231604.GA29494@kroah.com> <20040329153117.558c3263.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040329153117.558c3263.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+	Mon, 29 Mar 2004 19:01:53 -0500
+Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:13441 "HELO
+	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263213AbUC3ABu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 19:01:50 -0500
+Message-ID: <4068B8E8.2030407@yahoo.com.au>
+Date: Tue, 30 Mar 2004 10:01:44 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rick Lindsley <ricklind@us.ibm.com>
+CC: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
+       jun.nakajima@intel.com, piggin@cyberone.com.au,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
+       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net,
+       mbligh@aracnet.com
+Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
+References: <200403291730.i2THUBo27915@owlet.beaverton.ibm.com>
+In-Reply-To: <200403291730.i2THUBo27915@owlet.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 29, 2004 at 03:31:17PM -0800, Andrew Morton wrote:
-> Greg KH <greg@kroah.com> wrote:
-> >
-> > > The module should remain in memory, "unhashed", until the final kobject
-> > > reference falls to zero.  Destruction of that kobject causes the refcount
-> > > on the module to fall to zero which causes the entire module to be
-> > > released.
-> > > 
-> > > (hmm, the existence of a kobject doesn't appear to contribute to its
-> > > module's refcount.  Why not?)
-> > 
-> > It does, if a file for that kobject is opened.  In this case, there was
-> > no file opened, so the module refcount isn't incremented.
+Rick Lindsley wrote:
+>     Rick Lindsley wrote:
+>     > I've got a web page up now on my home machine which shows data from
+>     > schedstats across the various flavors of 2.6.4 and 2.6.5-rc2 under
+>     > load from kernbench, SPECjbb, and SPECdet.
+>     > 
+>     >     http://eaglet.rain.com/rick/linux/sched-domain/index.html
+>     > 
+>     
+>     I can't see it
 > 
-> hm, surprised.  Shouldn't the existence of a kobject contribute to its
-> module's refcount?
+> Ack, sorry, wrong path.  Hazards of typing at 3am .. should've used cut 'n'
+> paste ...
+> 
+>     http://eaglet.rain.com/rick/linux/results/sched-domain/index.html
+> 
 
-No, a kobject by itself knows nothing about a module.  Only the
-attribute files do (and they are the things that contain the struct
-module *), as they are what user space can grab references to.
+Hi Rick,
+This looks very cool. Very comprehensive. Have you got any
+plans to intergrate it with sched_domains (so for example,
+you can see stats for each domain)?
 
-I never thought that the kobject would care, as it is only a directory,
-and I didn't think that anything could grab directory references on
-their own.  But then Maneesh's patch wasn't in the kernel at that time
-:)
+I will have to have a look at the code, it should be useful
+for testing.
 
-thanks,
-
-greg k-h
+Thanks
+Nick

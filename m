@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292974AbSBVTsx>; Fri, 22 Feb 2002 14:48:53 -0500
+	id <S292977AbSBVTwE>; Fri, 22 Feb 2002 14:52:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292970AbSBVTsl>; Fri, 22 Feb 2002 14:48:41 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40712 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292973AbSBVTro>;
-	Fri, 22 Feb 2002 14:47:44 -0500
-Message-ID: <3C76A053.55A32E77@mandrakesoft.com>
-Date: Fri, 22 Feb 2002 14:47:31 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
-X-Accept-Language: en
+	id <S292970AbSBVTvw>; Fri, 22 Feb 2002 14:51:52 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:32019
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S292986AbSBVTvE>; Fri, 22 Feb 2002 14:51:04 -0500
+Date: Fri, 22 Feb 2002 11:38:43 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Flash Back -- kernel 2.1.111
+In-Reply-To: <E16eLng-0002uy-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10202221134180.2519-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
-CC: Vojtech Pavlik <vojtech@suse.cz>, Arjan van de Ven <arjanv@redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
-In-Reply-To: <20020221213342.T1547-100000@gerard>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gérard Roudier wrote:
-> On Fri, 22 Feb 2002, Jeff Garzik wrote:
-> > Only 1-2 SCSI drivers do PCI probing "the right way"...  IIRC aic7xxx is
-> > one of them.
+On Fri, 22 Feb 2002, Alan Cox wrote:
+
+> > Does forcing a command to bypass the contents in the cache meaning
+> > anything.  This is not a cache sync like SCSI.  It is a cache bypass and
+> > will violate the journal on the down/commit block.
 > 
-> Could you, please, not mix PCI probing and SCSI probing.
+> Thats a really useful option for a whole load of operations. Database folk
+> in paticular may well benefit as will O_DIRECT stuff
 > 
-> Average user does not care about PCI probing. But it does care on booting
-> the expected kernel image and mounting the expected partitions.
-> It also doesn't care of code aesthetical issue even with free software
-> since average user is not a kernel hacker.
 
-Most SCSI drivers are not using the 2.4 PCI API, which has been
-documented and stable for a while now.
+I agree that command mode has a proper use but the goal was to add in
+write ordering barrier operations w/ a setfeature to modify the behavior
+of the command.
 
-This is need for transparented support for cardbus and hotplug PCI, not
-some pie-in-the-sky code asthetic.  This will become further important
-as 2.5.x transitions more and more to Mochel's driver model work, which
-will among other things provide a sane power management model.
+Cheers,
 
-To tangent, IDE and SCSI hotplug issues are interesting, because a lot
-of people forget or mix up the two types of hotplug, board (host)
-hotplug and drive hotplug.
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
 
-	Jeff
-
-
--- 
-Jeff Garzik      | "UNIX enhancements aren't."
-Building 1024    |           -- says /usr/games/fortune
-MandrakeSoft     |

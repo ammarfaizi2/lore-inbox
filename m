@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262032AbTFHPTw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 11:19:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbTFHPTw
+	id S261895AbTFHPXL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 11:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbTFHPXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 11:19:52 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:6674 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S262032AbTFHPTv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 11:19:51 -0400
-Date: Sun, 8 Jun 2003 12:34:48 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "David S. Miller" <davem@redhat.com>
-Cc: azarah@gentoo.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.5] compile fixes for recent changes to include/net/sock.h
-Message-ID: <20030608153447.GH11552@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"David S. Miller" <davem@redhat.com>, azarah@gentoo.org,
-	linux-kernel@vger.kernel.org
-References: <1055007025.6805.19.camel@nosferatu.lan> <20030607210338.GE10340@conectiva.com.br> <20030608.021129.115917085.davem@redhat.com>
-Mime-Version: 1.0
+	Sun, 8 Jun 2003 11:23:11 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:58813 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S261895AbTFHPXK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 11:23:10 -0400
+Date: Sun, 08 Jun 2003 08:36:46 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 787] New: Errors with feral driver
+Message-ID: <25710000.1055086606@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030608.021129.115917085.davem@redhat.com>
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sun, Jun 08, 2003 at 02:11:29AM -0700, David S. Miller escreveu:
->    From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
->    Date: Sat, 7 Jun 2003 18:03:38 -0300
->    
->    Question: it is marked as OBSOLETE, should we ditch it now?
-> 
-> Unfortunately I have no idea how widely used ethertap is these
-> days, and more importantly if most people have switched over
-> to tun/tap for those kinds of applications.
+           Summary: Errors with feral driver
+    Kernel Version: 2.5.70 + feral driver
+            Status: NEW
+          Severity: normal
+             Owner: andmike@us.ibm.com
+         Submitter: mbligh@aracnet.com
 
-I see, ok, it is already marked OBSOLETE, so we can ditch it in 2.8/3.0.
 
-- Arnaldo
+Distribution: Debian sid
+Hardware Environment: NUMA-Q, isp1040 card + qlogic 2300 f/c card
+
+I get lots of these errors on bootup with the feral driver
+
+handlers:
+[<c01d22f4>] (isplinux_intr+0x0/0x394)
+irq event 19: bogus retval mask 292
+Call Trace:
+ [<c010af04>] handle_IRQ_event+0x94/0xf0
+ [<c010b100>] do_IRQ+0x90/0xfc
+ [<c0105000>] _stext+0x0/0x48
+ [<c010965e>] common_interrupt+0x42/0x58
+
+

@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264132AbTKMMU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 07:20:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264145AbTKMMU6
+	id S263934AbTKMMan (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 07:30:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263998AbTKMMan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 07:20:58 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:10426 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264132AbTKMMU5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 07:20:57 -0500
-Date: Thu, 13 Nov 2003 13:20:39 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Pascal Schmidt <der.eremit@email.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-Message-ID: <20031113122039.GJ4441@suse.de>
-References: <Pine.LNX.4.44.0311111706530.1694-100000@home.osdl.org> <Pine.LNX.3.96.1031113064731.23748A-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 13 Nov 2003 07:30:43 -0500
+Received: from out004pub.verizon.net ([206.46.170.142]:4015 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP id S263934AbTKMMam
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 07:30:42 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: idle processes maybe?
+Date: Thu, 13 Nov 2003 07:30:38 -0500
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1031113064731.23748A-100000@gatekeeper.tmr.com>
+Message-Id: <200311130730.38036.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.12.17] at Thu, 13 Nov 2003 06:30:38 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 13 2003, Bill Davidsen wrote:
-> On Tue, 11 Nov 2003, Linus Torvalds wrote:
-> 
-> > 
-> > On Wed, 12 Nov 2003, Pascal Schmidt wrote:
-> > > 
-> > > My guess would be that an MO drive needs a different way to find out
-> > > the capacity than a CD-ROM. After all, when using ide-scsi, it is the
-> > > sd driver and not sr that handles the drive. The rest of the problems
-> > > could be due to the wrong capacity information?
-> > 
-> > Yes. That would explain a lot. 
-> > 
-> > The ide-scsi thing never uses "cdrom_get_last_written" crud. It just uses
-> > the regular READ_CAPACITY command (0x25).
-> > 
-> > Which is what ide-cd.c will fall back to as well ("cdrom_read_capacity()")
-> > but I think it should _start_ with that rather than fall back on it.
-> > That's the simple case, after all.
-> 
-> Are there any cases when the last_written size is really what's wanted,
-> rather than the capacity? Such as unclosed multi-session iso9660, ufs, or
-> whatever else I'm ignoring?
+Just a comment about 2.6.0-test9-mm2, using elevator=deadline
 
-Yes, for packet written media.
+So far, almost everything is working very very well, thanks guys.  
+I've been running test9-mm2 for most of its life.  But mm3 is 
+building right now, thanks Andrew.
+
+One minor thing.  Playing some music I'd just ripped to ogg's, using 
+xmms, about 1 in 20 refused to play, like the ogg player didn't 
+start.  Quitting and restarting xmms moved the no-play to another 
+song or songs.  Nothing reported in the logs.  I also realise this 
+isn't anywhere near enough info, more of a trivia detail, to be 
+recalled if someone else reports something similar.
 
 -- 
-Jens Axboe
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

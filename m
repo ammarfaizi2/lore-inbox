@@ -1,119 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262184AbTCMGzK>; Thu, 13 Mar 2003 01:55:10 -0500
+	id <S262186AbTCMHDK>; Thu, 13 Mar 2003 02:03:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262186AbTCMGzK>; Thu, 13 Mar 2003 01:55:10 -0500
-Received: from lns-th2-1-62-147-67-92.adsl.proxad.net ([62.147.67.92]:899 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S262184AbTCMGzI>; Thu, 13 Mar 2003 01:55:08 -0500
-Message-ID: <3E702DCC.9030503@ruault.com>
-Date: Thu, 13 Mar 2003 08:05:48 +0100
-From: Charles-Edouard Ruault <ce@ruault.com>
-Reply-To: Charles-Edouard Ruault <kernel@ruault.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
+	id <S262187AbTCMHDK>; Thu, 13 Mar 2003 02:03:10 -0500
+Received: from 101.24.177.216.inaddr.g4.Net ([216.177.24.101]:3214 "EHLO
+	sparrow.stearns.org") by vger.kernel.org with ESMTP
+	id <S262186AbTCMHDI>; Thu, 13 Mar 2003 02:03:08 -0500
+Date: Thu, 13 Mar 2003 02:13:45 -0500 (EST)
+From: William Stearns <wstearns@pobox.com>
+X-X-Sender: wstearns@sparrow
+Reply-To: "M. Soltysiak" <msoltysiak@hotmail.com>
+To: ML-linux-kernel <linux-kernel@vger.kernel.org>
+cc: "M. Soltysiak" <msoltysiak@hotmail.com>,
+       William Stearns <wstearns@pobox.com>
+Subject: Re: Linux BUG: Memory Leak
+In-Reply-To: <Pine.LNX.4.44.0303120213370.3104-100000@sparrow>
+Message-ID: <Pine.LNX.4.44.0303130209400.3104-100000@sparrow>
 MIME-Version: 1.0
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [kernel 2.4.21-pre5 : process stuck in D state
-References: <3E6F199E.5000001@ruault.com> <200303121241.41914.m.c.p@wolk-project.de>
-In-Reply-To: <200303121241.41914.m.c.p@wolk-project.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc-Christian Petersen wrote:
-> On Wednesday 12 March 2003 12:27, Charles-Edouard Ruault wrote:
-> 
-> Hi Charles-Edouard,
-> 
-> 
->>i've been running kernel 2.4.21-preX series for a while on my ASUS A7V8X
->>motherboard ( with an athlon XP 2400+ )  and i've noticed the following
->>annoying problem.
->>Very often, mozilla ( 1.2.1 ) dies and is stuck in D state, waiting on a
->>semaphore, here's the output of ps :
->>
->>ps -elf | grep mozill
->>000 S userX 2615  1462  0  69   0    -   972 wait4  00:50 ?
->>00:00:00 /bin/sh /usr/local/mozilla/run-mozilla.sh
->>/usr/local/mozilla/mozilla-bin
->>000 D userX   2621  2615  0  69   0    - 13623 down   00:50 ?
->>00:00:02 /usr/local/mozilla/mozilla-bin
->>
->>Has anyone noticed the same behaviour ? Is this a well known problem ?
->>Thanks for your help.
-> 
-> There is a patch from Andrea for a long long time now. You may try it.
-> 
-> ciao, Marc
-> 
-
-Hi Marc-Christian,
-
-i applied the patch over 2.4.21-pre5 and did some more testing.
-I'm still having a problem but a different one ( i strongly suspect it's 
-due to the patch since i never had this before and this occured when i 
-tried to reproduce my previous problem ).
-Here's a exerpt of the logs:
-
-Mar 12 10:19:38 localhost kernel: hda: dma_timer_expiry: dma status == 
-0x21
-Mar 12 10:21:19 localhost kernel: hda: timeout waiting for DMA
-Mar 12 10:21:19 localhost kernel: hda: timeout waiting for DMA 
-
-Mar 12 10:21:19 localhost kernel: hda: (__ide_dma_test_irq) called while 
-not waiting
-Mar 12 10:21:19 localhost kernel: hda: status error: status=0x51 { 
-DriveReady SeekComplete Error }
-  Mar 12 10:21:19 localhost kernel: hda: status error: error=0x04 { 
-DriveStatusError }
-Mar 12 10:21:19 localhost kernel: hda: no DRQ after issuing MULTWRITE 
-
-Mar 12 10:21:19 localhost kernel: hda: status error: status=0x51 { 
-DriveReady SeekComplete Error }
-Mar 12 10:21:19 localhost kernel: hda: status error: error=0x04 { 
-DriveStatusError }
-Mar 12 10:21:19 localhost kernel: hda: no DRQ after issuing MULTWRITE
-Mar 12 10:21:19 localhost kernel: hda: status error: status=0x51 { 
-DriveReady SeekComplete Error }
-Mar 12 10:21:19 localhost kernel: hda: status error: error=0x04 { 
-DriveStatusError }
-Mar 12 10:21:19 localhost kernel: hda: no DRQ after issuing MULTWRITE 
-
-Mar 12 10:21:19 localhost kernel: hda: status error: status=0x51 { 
-DriveReady SeekComplete Error }
-Mar 12 10:21:19 localhost kernel: hda: status error: error=0x04 { 
-DriveStatusError }
-  Mar 12 10:21:19 localhost kernel: hda: no DRQ after issuing WRITE
-Mar 12 10:21:19 localhost kernel: ide0: reset: success 
-
-Mar 12 10:21:19 localhost kernel: hda: dma_timer_expiry: dma status == 0x21
-Mar 12 10:21:19 localhost kernel: hda: timeout waiting for DMA 
-
-Mar 12 10:21:19 localhost kernel: hda: timeout waiting for DMA
-Mar 12 10:21:19 localhost kernel: hda: (__ide_dma_test_irq) called while 
-not waiting
-Mar 12 10:21:19 localhost kernel: hda: status error: status=0x58 { 
-DriveReady SeekComplete DataRequest } 
-
-Mar 12 10:21:19 localhost kernel: hda: drive not ready for command
-Mar 12 10:21:19 localhost kernel: hda: status timeout: status=0xd0 { 
-Busy }
-Mar 12 10:21:19 localhost kernel: hda: drive not ready for command 
-
-Mar 12 10:21:19 localhost kernel: ide0: reset: success
-Mar 12 10:21:19 localhost kernel: hda: dma_timer_expiry: dma status == 0x21
+	(Response sent to me, bounced back to the list where brighter 
+minds may be able to offer useful suggestions)
 
 
-and basically the whole machine locked up ... reset was the only way out :-(
-I have an ASUS A7V8X motherboard with a VIA Technologies, Inc. VT82C586B 
-PIPC Bus Master IDE (rev 06)and a Maxtor 6Y080L0 hard drive.
-Any other idea/hint to solve this ?
-Thanks again for your help
+> Please don't start the post with a negative tone; focus on a
+problem in software rather than > on insulting the people from whom you
+want.
 
--- 
-Charles-Edouard Ruault
-PGP Key ID 4370AF2D
+Sorry.  And, no, I'm not insulting people.  But I do encourage good
+programming practices.  Don't you? :)
+
+>you tell us what kernel version you're using, what modules are
+loaded,
+
+Sorry.  I forgot--2.4.20.  Modules: ne2000 network driver, pci; via-rhine,
+pci; emu10k1, pci; usbcore, uhci, usb mouse; all iptables modules--all of
+them.
+
+>want to mention what Linux distribution you're using.
+
+Sorry.  Slackware 8.1.  Won't help.
+
+>kernel yourself.
+
+I compiled the kernel myself.  Memory leak located in kernel.
+
+> Does the system pass a night's worth of memtest86 successfully?
+
+Kernel memory leak.
+
+>If we can rule out hardware, that narrows the problem space down
+some.
+
+cards: emu10k1, via-rhine, pci; ne2000, pci; usb standard, intel.  Via
+chipset, unknown - on another computer right now.  but that's *not* the
+problem.
+
+> Again, it sounds like you're taking an insulting tone. :-)
+
+I am sorry.  I'm usually direct.  I will try to look for the bug this
+weekend, but i have a few things to do.  Sigh.
+
+> "Acts dead" - what does that mean? Sluggish?
+
+Dead.  It's a DOSS over the system.  All I did was install this game,
+hoping to play it, after a few weaks.  Anyway, the systems installs,
+X11-KDE running (140 Megs total by X11 and KDE); Linux installs it, then
+it gets slower and slower, etc.  Finally dead.  Even the interrupts
+die--only keyboards, usb mouse; but the network still works (slowly)).
+
+>seconds, then returns to normal? Swapping madly? For how long?
+
+Swap space will become full.  Then the duel-1Ghz with 1 MByte system will
+die - hardware -- except network - interrupts die.
+
+>lockup, no keys do anything? Does the caps lock key change the
+state of the caps lock led? Do the caps/scroll/numlock lights flash on and
+off without keypresses? Does anything show up in the logs on next boot?
+Can you kill X11 with Ctrl-Alt-Backspace? Can you reboot the box with
+Ctrl-Alt-Del? Does Sysrq-S force disk activity? Can you ssh in from
+
+>another box when it "acts dead"?
+
+Interrupts are dead on the keyboard and mouse, except for the harddisk and
+network.
+
+> What are the last few lines from "vmstat 1" when the system
+freezes?
+
+Ah, i did not use that.  not on my box now.  sorry.  but the ram is 0
+free, system is working, but interrupts are crippled.
+
+> Can you make the problem occur with fewer programs, say, just
+with Mozilla, or just with > Unreal?
+
+Yes.  Xine - movie player.  I watch a few movies (not completely) and
+Linux keeps using memory until it acts dead.  In other words, I watch Lord
+of the Rings: Two Towers.  Then the system will play the movie slower,
+slower, until the frames' speed record becomes about 5 to 10 fps.  Then i
+will just stand still - frozen - and some hardware interrupts (keyboard,
+usb-mouse) will not respond.
+
+ >show up? Minutes, hours, days?
+
+This occurs in about 2 hours or less.  Not time-dependent, sort of like
+Stationary states in quantum mechanics.
+
+> If you'd prefer, feel free.
+
+I will try.  Fibre optics and school do take time.
+
+>You do remember that the people from whom you're asking help
+have day jobs too, right? >*grin*
+
+Yea.  Why are you working on Linux again?
+
+Don't get offended to anything. I respect those who write for Linux.  But
+I do believe, that If one will write open source software as major as
+linux, one should not write software if they're not serious -- that is,
+good at relative, but-free programming -- toward it.  Just a thought.
+
+M.C.S
+
+
+________________________________________________________________________
+Help STOP SPAM with the new MSN 8 and get 2 months FREE*
+
 

@@ -1,180 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282156AbRK1PpG>; Wed, 28 Nov 2001 10:45:06 -0500
+	id <S283072AbRK1Pt0>; Wed, 28 Nov 2001 10:49:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283062AbRK1Pot>; Wed, 28 Nov 2001 10:44:49 -0500
-Received: from cx97923-a.phnx3.az.home.com ([24.1.197.194]:56264 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S282156AbRK1Pof>;
-	Wed, 28 Nov 2001 10:44:35 -0500
-Message-ID: <3C05065D.7050308@candelatech.com>
-Date: Wed, 28 Nov 2001 08:44:29 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S283075AbRK1PtU>; Wed, 28 Nov 2001 10:49:20 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:1165 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S283072AbRK1PtH>; Wed, 28 Nov 2001 10:49:07 -0500
+Date: Wed, 28 Nov 2001 10:48:56 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Eric Weigle <ehw@lanl.gov>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Magic Lantern
+In-Reply-To: <20011128081305.I22767@lanl.gov>
+Message-ID: <Pine.LNX.3.95.1011128102906.15350A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: vlan@Scry.WANfear.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] VLAN 1.6 against 2.4.16
-In-Reply-To: <3C0491DA.9040602@candelatech.com> <20011127.233925.66707993.davem@redhat.com>
-Content-Type: multipart/mixed;
- boundary="------------020809070104090500040508"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020809070104090500040508
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, 28 Nov 2001, Eric Weigle wrote:
 
-It's attached this time, hopefully that will cause less problems for
-people.
-
-
-David S. Miller wrote:
-
->    From: Ben Greear <greearb@candelatech.com>
->    Date: Wed, 28 Nov 2001 00:27:22 -0700
+> > > "Richard B. Johnson" <root@chaos.analogic.com> writes:
+> > > > Are there currently any kernel hooks to support Magic Lantern?
+> > > > Basically, a "tee" to capture all network packets and pass them
+> > > > on to a filtering task without affecting normal network activity.
+> > > > It's like `tcpdump`, but allows packets to be inserted into the
+> > > > output queue as well without affecting normal network activity.
+> > > 
+> > > The af_packet module can read and write raw ethernet frames.
+> The af_packet module may also be fairly inefficient. If you need performance
+> over, say, a gigabit link, you may have trouble. I last used it one of the
+> earlier 2.4 series (2.4.8 I think) with the Acenic Tigon II gigE copper
+> cards to implement a network flooder; At that time a simple unoptimized loop
+> sending raw ethernet packets maxed out at at around 80Mbps, while the same loop
+> sending UDP packets maxed out at around 400. This may have been fixed by now,
+> I don't know... Just a warning.
 > 
->    +        struct vlan_group* nextgroup;
->    + 
->    for (grp = p802_1Q_vlan_list; (grp != NULL);) {
-> 
-> Your mail agent wraps lines, this patch isn't going to apply
-> for anyone.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+> -Eric
 
+Okay. I don't think that performance will be a problem in the near
+future. As you no doubt know, the DOJ is "requiring" that these
+taps be inserted into Operating Systems so that they can access
+computers, of course always in direct correspondence with a
+wiretap order (if you believe that, I've got a bridge to sell).
 
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Information is that part of M$ agreement with DOJ was to insert
+these taps into their OS. In due course, we will have to counter
+this by emulation, i.e., always return a nice new, never touched
+distribution disk when queried for a directory <grin>, but
+presently, if there are "hooks" for "future enhancements", the
+DOJ can't refuse to allow the sale or distribution of an OS
+as is now proposed.
 
+Once the DOJ actually reads the Constitution, this problem may
+go away altogether, but presently the knee-jerk reaction from 9/11
+is to violate everybody's computers!
 
---------------020809070104090500040508
-Content-Type: text/plain;
- name="patch.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch.txt"
+Cheers,
+Dick Johnson
 
-diff -u -r -N -X /home/greear/exclude.list linux/net/8021q/vlan.c linux.dev/net/8021q/vlan.c
---- linux/net/8021q/vlan.c	Tue Oct 30 16:08:12 2001
-+++ linux.dev/net/8021q/vlan.c	Tue Nov 27 21:34:11 2001
-@@ -1,11 +1,10 @@
- /*
-- * INET		An implementation of the TCP/IP protocol suite for the LINUX
-- *		operating system.  INET is implemented using the  BSD Socket
-- *		interface as the means of communication with the user level.
-- *
-+ * INET		802.1Q VLAN
-  *		Ethernet-type device handling.
-  *
-- * Authors:	Ben Greear <greearb@candelatech.com>, <greearb@agcs.com>
-+ * Authors:	Ben Greear <greearb@candelatech.com>
-+ *              Please send support related email to: vlan@scry.wanfear.com
-+ *              VLAN Home Page: http://www.candelatech.com/~greear/vlan.html
-  * 
-  * Fixes:
-  *              Fix for packet capture - Nick Eggleston <nick@dccinc.com>;
-@@ -42,7 +41,7 @@
- 
- static char vlan_fullname[] = "802.1Q VLAN Support";
- static unsigned int vlan_version = 1;
--static unsigned int vlan_release = 5;
-+static unsigned int vlan_release = 6;
- static char vlan_copyright[] = " Ben Greear <greearb@candelatech.com>";
- 
- static int vlan_device_event(struct notifier_block *, unsigned long, void *);
-@@ -105,6 +104,24 @@
- 	return 0;
- }
- 
-+
-+/*
-+ * Cleanup of groups before exit
-+ */
-+
-+static void vlan_group_cleanup(void)
-+{
-+	struct vlan_group* grp = NULL;
-+        struct vlan_group* nextgroup;
-+	for (grp = p802_1Q_vlan_list; (grp != NULL);) {
-+		nextgroup = grp->next;
-+		kfree(grp);
-+		grp = nextgroup;
-+	}
-+        p802_1Q_vlan_list = NULL;
-+}/* vlan_group_cleanup */
-+
-+
- /*
-  *     Module 'remove' entry point.
-  *     o delete /proc/net/router directory and static entries.
-@@ -116,7 +133,7 @@
- 
- 	dev_remove_pack(&vlan_packet_type);
- 	vlan_proc_cleanup();
--
-+        vlan_group_cleanup();
- 	vlan_ioctl_hook = NULL;
- }
- 
-diff -u -r -N -X /home/greear/exclude.list linux/net/8021q/vlan_dev.c linux.dev/net/8021q/vlan_dev.c
---- linux/net/8021q/vlan_dev.c	Tue Oct 30 16:08:12 2001
-+++ linux.dev/net/8021q/vlan_dev.c	Tue Nov 27 21:28:34 2001
-@@ -1,11 +1,10 @@
- /*
-- * INET		An implementation of the TCP/IP protocol suite for the LINUX
-- *		operating system.  INET is implemented using the  BSD Socket
-- *		interface as the means of communication with the user level.
-- *
-+ * INET		802.1Q VLAN
-  *		Ethernet-type device handling.
-  *
-- * Authors:	Ben Greear <greearb@candelatech.com>, <greearb@agcs.com>
-+ * Authors:	Ben Greear <greearb@candelatech.com>
-+ *              Please send support related email to: vlan@scry.wanfear.com
-+ *              VLAN Home Page: http://www.candelatech.com/~greear/vlan.html
-  * 
-  * Fixes:       Mar 22 2001: Martin Bokaemper <mbokaemper@unispherenetworks.com>
-  *                - reset skb->pkt_type on incoming packets when MAC was changed
-diff -u -r -N -X /home/greear/exclude.list linux/net/8021q/vlanproc.c linux.dev/net/8021q/vlanproc.c
---- linux/net/8021q/vlanproc.c	Tue Nov 13 10:19:41 2001
-+++ linux.dev/net/8021q/vlanproc.c	Tue Nov 27 16:32:30 2001
-@@ -116,7 +116,7 @@
-  *	Clean up /proc/net/vlan entries
-  */
- 
--void __exit vlan_proc_cleanup(void)
-+void vlan_proc_cleanup(void)
- {
- 	if (proc_vlan_conf)
- 		remove_proc_entry(name_conf, proc_vlan_dir);
-@@ -462,7 +462,7 @@
- 	return 0;
- }
- 
--void __exit vlan_proc_cleanup(void)
-+void vlan_proc_cleanup(void)
- {
- 	return;
- }
-diff -u -r -N -X /home/greear/exclude.list linux/net/README linux.dev/net/README
---- linux/net/README	Mon Jun 11 19:15:27 2001
-+++ linux.dev/net/README	Tue Nov 27 21:30:35 2001
-@@ -23,4 +23,4 @@
- unix			alan@lxorguk.ukuu.org.uk
- x25			g4klx@g4klx.demon.co.uk
- bluetooth		maxk@qualcomm.com
--
-+8021q                   greearb@candelatech.com, vlan@scry.wanfear.com
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
---------------020809070104090500040508--
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

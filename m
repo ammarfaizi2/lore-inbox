@@ -1,218 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbVCVSEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVCVSGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261504AbVCVSEW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 13:04:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVCVSDC
+	id S261553AbVCVSGX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 13:06:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVCVSE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 13:03:02 -0500
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:28348 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S261504AbVCVR4o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 12:56:44 -0500
-Subject: [patch 1/1] uml: fix "cond. expr. as lvalues" warning
-To: jdike@addtoit.com
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
-       blaisorblade@yahoo.it
+	Tue, 22 Mar 2005 13:04:59 -0500
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:35497 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S261553AbVCVR4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 12:56:50 -0500
+Subject: [patch 11/12] uml: real fix for __gcov_init symbols
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
+       aia21@cam.ac.uk
 From: blaisorblade@yahoo.it
-Date: Tue, 22 Mar 2005 16:51:42 +0100
-Message-Id: <20050322155145.3632A647B@zion>
+Date: Tue, 22 Mar 2005 17:21:45 +0100
+Message-Id: <20050322162145.98B97D5EA8@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+CC: Anton Altaparmakov <aia21@cam.ac.uk>
 
-Gcc 3.4.3 (and probably any 3.4) emits some "deprecation" warnings currently
-about usages of CHOOSE_MODE, since the below syntax has been deprecated:
+Correctly export __gcov_init for cases where it's needed, by adding a weak
+definition for the case when GCC does not define this symbol and letting it
+being overriden by the real definition when GCC defines it (recent ones).
 
-(a ? foo: bar) = foobar;
-which often results from expansion of:
-CHOOSE_MODE(foo, bar) = foobar;
+Can't be implemented as a test on GCC version because SuSE has a crippled GCC,
+declared as 3.3.4 but having a lot of backported features.
 
-So add an additional __CHOOSE_MODE syntax for users which need to get a
-lvalue, which uses (a ? &foo : &bar) inside a function, casts the result to
-the correct type and dereference the pointer, and use it where needed (i.e.
-in <sysdep/ptrace.h>)
-
-The patch builds and runs correctly (this has been tested on i386 only, not on
-x86_64), and removes all the warnings.
+Also, since gcc 3.4.3 requires profiling options even during linking, add
+profiling options to final link stage.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.11-paolo/arch/um/include/choose-mode.h          |    7 +
- linux-2.6.11-paolo/arch/um/include/sysdep-i386/ptrace.h   |   36 ++++----
- linux-2.6.11-paolo/arch/um/include/sysdep-x86_64/ptrace.h |   58 +++++++-------
- 3 files changed, 54 insertions(+), 47 deletions(-)
+ linux-2.6.11-paolo/arch/um/Makefile-skas      |   10 ++++++----
+ linux-2.6.11-paolo/arch/um/kernel/gmon_syms.c |   20 ++++++++++++++------
+ 2 files changed, 20 insertions(+), 10 deletions(-)
 
-diff -puN arch/um/include/choose-mode.h~uml-fix-cond-expr-as-lvalues arch/um/include/choose-mode.h
---- linux-2.6.11/arch/um/include/choose-mode.h~uml-fix-cond-expr-as-lvalues	2005-03-22 16:24:29.000000000 +0100
-+++ linux-2.6.11-paolo/arch/um/include/choose-mode.h	2005-03-22 16:24:29.000000000 +0100
-@@ -21,6 +21,13 @@
- #define CHOOSE_MODE_PROC(tt, skas, args...) \
- 	CHOOSE_MODE(tt(args), skas(args))
+diff -puN arch/um/kernel/gmon_syms.c~uml-real-fix-gcov-symbols arch/um/kernel/gmon_syms.c
+--- linux-2.6.11/arch/um/kernel/gmon_syms.c~uml-real-fix-gcov-symbols	2005-03-22 11:06:13.000000000 +0100
++++ linux-2.6.11-paolo/arch/um/kernel/gmon_syms.c	2005-03-22 11:06:13.000000000 +0100
+@@ -5,14 +5,22 @@
  
-+extern int mode_tt;
-+static inline void *__choose_mode(void *tt, void *skas) {
-+	return mode_tt ? tt : skas;
-+}
+ #include "linux/module.h"
+ 
+-#if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 3) || \
+-	(__GNUC__ == 3 && __GNUC_MINOR__ == 3 && __GNUC_PATCHLEVEL__ >= 4)
+-extern void __gcov_init(void *);
+-EXPORT_SYMBOL(__gcov_init);
+-#else
+ extern void __bb_init_func(void *);
+ EXPORT_SYMBOL(__bb_init_func);
+-#endif
 +
-+#define __CHOOSE_MODE(tt, skas) (*( (typeof(tt) *) __choose_mode(&(tt), &(skas))))
++/* This is defined (and referred to in profiling stub code) only by some GCC
++ * versions in libgcov.
++ *
++ * Since SuSE backported the fix, we cannot handle it depending on GCC version.
++ * So, unconditinally export it. But also give it a weak declaration, which will
++ * be overriden by any other one.
++ */
 +
- #endif
++extern void __gcov_init(void *) __attribute__((weak));
++EXPORT_SYMBOL(__gcov_init);
++
++extern void __gcov_merge_add(void *) __attribute__((weak));
++EXPORT_SYMBOL(__gcov_merge_add);
  
  /*
-diff -puN arch/um/include/sysdep-i386/ptrace.h~uml-fix-cond-expr-as-lvalues arch/um/include/sysdep-i386/ptrace.h
---- linux-2.6.11/arch/um/include/sysdep-i386/ptrace.h~uml-fix-cond-expr-as-lvalues	2005-03-22 16:25:12.000000000 +0100
-+++ linux-2.6.11-paolo/arch/um/include/sysdep-i386/ptrace.h	2005-03-22 16:28:39.000000000 +0100
-@@ -93,39 +93,39 @@ extern int mode_tt;
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+diff -puN arch/um/Makefile-skas~uml-real-fix-gcov-symbols arch/um/Makefile-skas
+--- linux-2.6.11/arch/um/Makefile-skas~uml-real-fix-gcov-symbols	2005-03-22 11:06:13.000000000 +0100
++++ linux-2.6.11-paolo/arch/um/Makefile-skas	2005-03-22 11:06:13.000000000 +0100
+@@ -3,10 +3,12 @@
+ # Licensed under the GPL
+ #
  
- #define UPT_SC(r) ((r)->tt.sc)
- #define UPT_IP(r) \
--	CHOOSE_MODE(SC_IP(UPT_SC(r)), REGS_IP((r)->skas.regs))
-+	__CHOOSE_MODE(SC_IP(UPT_SC(r)), REGS_IP((r)->skas.regs))
- #define UPT_SP(r) \
--	CHOOSE_MODE(SC_SP(UPT_SC(r)), REGS_SP((r)->skas.regs))
-+	__CHOOSE_MODE(SC_SP(UPT_SC(r)), REGS_SP((r)->skas.regs))
- #define UPT_EFLAGS(r) \
--	CHOOSE_MODE(SC_EFLAGS(UPT_SC(r)), REGS_EFLAGS((r)->skas.regs))
-+	__CHOOSE_MODE(SC_EFLAGS(UPT_SC(r)), REGS_EFLAGS((r)->skas.regs))
- #define UPT_EAX(r) \
--	CHOOSE_MODE(SC_EAX(UPT_SC(r)), REGS_EAX((r)->skas.regs))
-+	__CHOOSE_MODE(SC_EAX(UPT_SC(r)), REGS_EAX((r)->skas.regs))
- #define UPT_EBX(r) \
--	CHOOSE_MODE(SC_EBX(UPT_SC(r)), REGS_EBX((r)->skas.regs))
-+	__CHOOSE_MODE(SC_EBX(UPT_SC(r)), REGS_EBX((r)->skas.regs))
- #define UPT_ECX(r) \
--	CHOOSE_MODE(SC_ECX(UPT_SC(r)), REGS_ECX((r)->skas.regs))
-+	__CHOOSE_MODE(SC_ECX(UPT_SC(r)), REGS_ECX((r)->skas.regs))
- #define UPT_EDX(r) \
--	CHOOSE_MODE(SC_EDX(UPT_SC(r)), REGS_EDX((r)->skas.regs))
-+	__CHOOSE_MODE(SC_EDX(UPT_SC(r)), REGS_EDX((r)->skas.regs))
- #define UPT_ESI(r) \
--	CHOOSE_MODE(SC_ESI(UPT_SC(r)), REGS_ESI((r)->skas.regs))
-+	__CHOOSE_MODE(SC_ESI(UPT_SC(r)), REGS_ESI((r)->skas.regs))
- #define UPT_EDI(r) \
--	CHOOSE_MODE(SC_EDI(UPT_SC(r)), REGS_EDI((r)->skas.regs))
-+	__CHOOSE_MODE(SC_EDI(UPT_SC(r)), REGS_EDI((r)->skas.regs))
- #define UPT_EBP(r) \
--	CHOOSE_MODE(SC_EBP(UPT_SC(r)), REGS_EBP((r)->skas.regs))
-+	__CHOOSE_MODE(SC_EBP(UPT_SC(r)), REGS_EBP((r)->skas.regs))
- #define UPT_ORIG_EAX(r) \
--	CHOOSE_MODE((r)->tt.syscall, (r)->skas.syscall)
-+	__CHOOSE_MODE((r)->tt.syscall, (r)->skas.syscall)
- #define UPT_CS(r) \
--	CHOOSE_MODE(SC_CS(UPT_SC(r)), REGS_CS((r)->skas.regs))
-+	__CHOOSE_MODE(SC_CS(UPT_SC(r)), REGS_CS((r)->skas.regs))
- #define UPT_SS(r) \
--	CHOOSE_MODE(SC_SS(UPT_SC(r)), REGS_SS((r)->skas.regs))
-+	__CHOOSE_MODE(SC_SS(UPT_SC(r)), REGS_SS((r)->skas.regs))
- #define UPT_DS(r) \
--	CHOOSE_MODE(SC_DS(UPT_SC(r)), REGS_DS((r)->skas.regs))
-+	__CHOOSE_MODE(SC_DS(UPT_SC(r)), REGS_DS((r)->skas.regs))
- #define UPT_ES(r) \
--	CHOOSE_MODE(SC_ES(UPT_SC(r)), REGS_ES((r)->skas.regs))
-+	__CHOOSE_MODE(SC_ES(UPT_SC(r)), REGS_ES((r)->skas.regs))
- #define UPT_FS(r) \
--	CHOOSE_MODE(SC_FS(UPT_SC(r)), REGS_FS((r)->skas.regs))
-+	__CHOOSE_MODE(SC_FS(UPT_SC(r)), REGS_FS((r)->skas.regs))
- #define UPT_GS(r) \
--	CHOOSE_MODE(SC_GS(UPT_SC(r)), REGS_GS((r)->skas.regs))
-+	__CHOOSE_MODE(SC_GS(UPT_SC(r)), REGS_GS((r)->skas.regs))
+-PROFILE += -pg
++GPROF_OPT += -pg
++GCOV_OPT += -fprofile-arcs -ftest-coverage
  
- #define UPT_SYSCALL_ARG1(r) UPT_EBX(r)
- #define UPT_SYSCALL_ARG2(r) UPT_ECX(r)
-@@ -222,7 +222,7 @@ struct syscall_args {
-                     REGS_SEGV_IS_FIXABLE(&r->skas))
+-CFLAGS-$(CONFIG_GCOV) += -fprofile-arcs -ftest-coverage
+-CFLAGS-$(CONFIG_GPROF) += $(PROFILE)
+-LINK-$(CONFIG_GPROF) += $(PROFILE)
++CFLAGS-$(CONFIG_GCOV) += $(GCOV_OPT)
++CFLAGS-$(CONFIG_GPROF) += $(GPROF_OPT)
++LINK-$(CONFIG_GCOV) += $(GCOV_OPT)
++LINK-$(CONFIG_GPROF) += $(GPROF_OPT)
  
- #define UPT_FAULT_ADDR(r) \
--	CHOOSE_MODE(SC_FAULT_ADDR(UPT_SC(r)), REGS_FAULT_ADDR(&r->skas))
-+	__CHOOSE_MODE(SC_FAULT_ADDR(UPT_SC(r)), REGS_FAULT_ADDR(&r->skas))
- 
- #define UPT_FAULT_WRITE(r) \
- 	CHOOSE_MODE(SC_FAULT_WRITE(UPT_SC(r)), REGS_FAULT_WRITE(&r->skas))
-diff -puN arch/um/include/sysdep-x86_64/ptrace.h~uml-fix-cond-expr-as-lvalues arch/um/include/sysdep-x86_64/ptrace.h
---- linux-2.6.11/arch/um/include/sysdep-x86_64/ptrace.h~uml-fix-cond-expr-as-lvalues	2005-03-22 16:48:29.000000000 +0100
-+++ linux-2.6.11-paolo/arch/um/include/sysdep-x86_64/ptrace.h	2005-03-22 16:48:34.000000000 +0100
-@@ -104,37 +104,37 @@ union uml_pt_regs {
- /* XXX */
- extern int mode_tt;
- 
--#define UPT_RBX(r) CHOOSE_MODE(SC_RBX(UPT_SC(r)), REGS_RBX((r)->skas.regs))
--#define UPT_RCX(r) CHOOSE_MODE(SC_RCX(UPT_SC(r)), REGS_RCX((r)->skas.regs))
--#define UPT_RDX(r) CHOOSE_MODE(SC_RDX(UPT_SC(r)), REGS_RDX((r)->skas.regs))
--#define UPT_RSI(r) CHOOSE_MODE(SC_RSI(UPT_SC(r)), REGS_RSI((r)->skas.regs))
--#define UPT_RDI(r) CHOOSE_MODE(SC_RDI(UPT_SC(r)), REGS_RDI((r)->skas.regs))
--#define UPT_RBP(r) CHOOSE_MODE(SC_RBP(UPT_SC(r)), REGS_RBP((r)->skas.regs))
--#define UPT_RAX(r) CHOOSE_MODE(SC_RAX(UPT_SC(r)), REGS_RAX((r)->skas.regs))
--#define UPT_R8(r) CHOOSE_MODE(SC_R8(UPT_SC(r)), REGS_R8((r)->skas.regs))
--#define UPT_R9(r) CHOOSE_MODE(SC_R9(UPT_SC(r)), REGS_R9((r)->skas.regs))
--#define UPT_R10(r) CHOOSE_MODE(SC_R10(UPT_SC(r)), REGS_R10((r)->skas.regs))
--#define UPT_R11(r) CHOOSE_MODE(SC_R11(UPT_SC(r)), REGS_R11((r)->skas.regs))
--#define UPT_R12(r) CHOOSE_MODE(SC_R12(UPT_SC(r)), REGS_R12((r)->skas.regs))
--#define UPT_R13(r) CHOOSE_MODE(SC_R13(UPT_SC(r)), REGS_R13((r)->skas.regs))
--#define UPT_R14(r) CHOOSE_MODE(SC_R14(UPT_SC(r)), REGS_R14((r)->skas.regs))
--#define UPT_R15(r) CHOOSE_MODE(SC_R15(UPT_SC(r)), REGS_R15((r)->skas.regs))
--#define UPT_CS(r) CHOOSE_MODE(SC_CS(UPT_SC(r)), REGS_CS((r)->skas.regs))
--#define UPT_FS(r) CHOOSE_MODE(SC_FS(UPT_SC(r)), REGS_FS((r)->skas.regs))
--#define UPT_GS(r) CHOOSE_MODE(SC_GS(UPT_SC(r)), REGS_GS((r)->skas.regs))
--#define UPT_DS(r) CHOOSE_MODE(SC_DS(UPT_SC(r)), REGS_DS((r)->skas.regs))
--#define UPT_ES(r) CHOOSE_MODE(SC_ES(UPT_SC(r)), REGS_ES((r)->skas.regs))
--#define UPT_CS(r) CHOOSE_MODE(SC_CS(UPT_SC(r)), REGS_CS((r)->skas.regs))
-+#define UPT_RBX(r) __CHOOSE_MODE(SC_RBX(UPT_SC(r)), REGS_RBX((r)->skas.regs))
-+#define UPT_RCX(r) __CHOOSE_MODE(SC_RCX(UPT_SC(r)), REGS_RCX((r)->skas.regs))
-+#define UPT_RDX(r) __CHOOSE_MODE(SC_RDX(UPT_SC(r)), REGS_RDX((r)->skas.regs))
-+#define UPT_RSI(r) __CHOOSE_MODE(SC_RSI(UPT_SC(r)), REGS_RSI((r)->skas.regs))
-+#define UPT_RDI(r) __CHOOSE_MODE(SC_RDI(UPT_SC(r)), REGS_RDI((r)->skas.regs))
-+#define UPT_RBP(r) __CHOOSE_MODE(SC_RBP(UPT_SC(r)), REGS_RBP((r)->skas.regs))
-+#define UPT_RAX(r) __CHOOSE_MODE(SC_RAX(UPT_SC(r)), REGS_RAX((r)->skas.regs))
-+#define UPT_R8(r) __CHOOSE_MODE(SC_R8(UPT_SC(r)), REGS_R8((r)->skas.regs))
-+#define UPT_R9(r) __CHOOSE_MODE(SC_R9(UPT_SC(r)), REGS_R9((r)->skas.regs))
-+#define UPT_R10(r) __CHOOSE_MODE(SC_R10(UPT_SC(r)), REGS_R10((r)->skas.regs))
-+#define UPT_R11(r) __CHOOSE_MODE(SC_R11(UPT_SC(r)), REGS_R11((r)->skas.regs))
-+#define UPT_R12(r) __CHOOSE_MODE(SC_R12(UPT_SC(r)), REGS_R12((r)->skas.regs))
-+#define UPT_R13(r) __CHOOSE_MODE(SC_R13(UPT_SC(r)), REGS_R13((r)->skas.regs))
-+#define UPT_R14(r) __CHOOSE_MODE(SC_R14(UPT_SC(r)), REGS_R14((r)->skas.regs))
-+#define UPT_R15(r) __CHOOSE_MODE(SC_R15(UPT_SC(r)), REGS_R15((r)->skas.regs))
-+#define UPT_CS(r) __CHOOSE_MODE(SC_CS(UPT_SC(r)), REGS_CS((r)->skas.regs))
-+#define UPT_FS(r) __CHOOSE_MODE(SC_FS(UPT_SC(r)), REGS_FS((r)->skas.regs))
-+#define UPT_GS(r) __CHOOSE_MODE(SC_GS(UPT_SC(r)), REGS_GS((r)->skas.regs))
-+#define UPT_DS(r) __CHOOSE_MODE(SC_DS(UPT_SC(r)), REGS_DS((r)->skas.regs))
-+#define UPT_ES(r) __CHOOSE_MODE(SC_ES(UPT_SC(r)), REGS_ES((r)->skas.regs))
-+#define UPT_CS(r) __CHOOSE_MODE(SC_CS(UPT_SC(r)), REGS_CS((r)->skas.regs))
- #define UPT_ORIG_RAX(r) \
--	CHOOSE_MODE((r)->tt.orig_rax, REGS_ORIG_RAX((r)->skas.regs))
-+	__CHOOSE_MODE((r)->tt.orig_rax, REGS_ORIG_RAX((r)->skas.regs))
- 
--#define UPT_IP(r) CHOOSE_MODE(SC_IP(UPT_SC(r)), REGS_IP((r)->skas.regs))
--#define UPT_SP(r) CHOOSE_MODE(SC_SP(UPT_SC(r)), REGS_SP((r)->skas.regs))
-+#define UPT_IP(r) __CHOOSE_MODE(SC_IP(UPT_SC(r)), REGS_IP((r)->skas.regs))
-+#define UPT_SP(r) __CHOOSE_MODE(SC_SP(UPT_SC(r)), REGS_SP((r)->skas.regs))
- 
- #define UPT_EFLAGS(r) \
--	CHOOSE_MODE(SC_EFLAGS(UPT_SC(r)), REGS_EFLAGS((r)->skas.regs))
-+	__CHOOSE_MODE(SC_EFLAGS(UPT_SC(r)), REGS_EFLAGS((r)->skas.regs))
- #define UPT_SC(r) ((r)->tt.sc)
--#define UPT_SYSCALL_NR(r) CHOOSE_MODE((r)->tt.syscall, (r)->skas.syscall)
-+#define UPT_SYSCALL_NR(r) __CHOOSE_MODE((r)->tt.syscall, (r)->skas.syscall)
- 
- extern int user_context(unsigned long sp);
- 
-@@ -242,13 +242,13 @@ struct syscall_args {
-                     REGS_SEGV_IS_FIXABLE(&r->skas))
- 
- #define UPT_FAULT_ADDR(r) \
--	CHOOSE_MODE(SC_FAULT_ADDR(UPT_SC(r)), REGS_FAULT_ADDR(&r->skas))
-+	__CHOOSE_MODE(SC_FAULT_ADDR(UPT_SC(r)), REGS_FAULT_ADDR(&r->skas))
- 
- #define UPT_FAULT_WRITE(r) \
- 	CHOOSE_MODE(SC_FAULT_WRITE(UPT_SC(r)), REGS_FAULT_WRITE(&r->skas))
- 
--#define UPT_TRAP(r) CHOOSE_MODE(SC_TRAP_TYPE(UPT_SC(r)), REGS_TRAP(&r->skas))
--#define UPT_ERR(r) CHOOSE_MODE(SC_FAULT_TYPE(UPT_SC(r)), REGS_ERR(&r->skas))
-+#define UPT_TRAP(r) __CHOOSE_MODE(SC_TRAP_TYPE(UPT_SC(r)), REGS_TRAP(&r->skas))
-+#define UPT_ERR(r) __CHOOSE_MODE(SC_FAULT_TYPE(UPT_SC(r)), REGS_ERR(&r->skas))
- 
- #endif
- 
+ GEN_HEADERS += $(ARCH_DIR)/include/skas_ptregs.h
 _

@@ -1,45 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271846AbRHVCju>; Tue, 21 Aug 2001 22:39:50 -0400
+	id <S271917AbRHVCtU>; Tue, 21 Aug 2001 22:49:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271917AbRHVCjb>; Tue, 21 Aug 2001 22:39:31 -0400
-Received: from sub.sonic.net ([208.201.224.8]:11828 "EHLO sub.sonic.net")
-	by vger.kernel.org with ESMTP id <S271846AbRHVCjX>;
-	Tue, 21 Aug 2001 22:39:23 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Tue, 21 Aug 2001 19:39:37 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.9 build fails on Mandrake 8.0 ( make modules_install 'isdn')
-Message-ID: <20010821193937.A26871@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S271918AbRHVCtK>; Tue, 21 Aug 2001 22:49:10 -0400
+Received: from femail46.sdc1.sfba.home.com ([24.254.60.40]:49545 "EHLO
+	femail46.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S271917AbRHVCsx>; Tue, 21 Aug 2001 22:48:53 -0400
+Message-ID: <3B831CDF.4CC930A7@didntduck.org>
+Date: Tue, 21 Aug 2001 22:45:51 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Paul <set@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] repeatable 2.4.8-ac7, 2.4.7-ac6 just run xdos
+In-Reply-To: <20010819004703.A226@squish.home.loc>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010821092020.B968@thune.mrc-home.com>
-User-Agent: Mutt/1.3.18i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 21, 2001 at 09:20:20AM -0700, Mike Castle wrote:
-> On Tue, Aug 21, 2001 at 05:47:01PM +0200, Kai Germaschewski wrote:
-> > Well, I said should ;-) Maybe I should have tried...
-> > 
-> > Next try: (still untested)
+Paul wrote:
 > 
-> Closer.
+> * Kernel oops, and locks up when I run xdos (dosemu)
 > 
-> Had to add #include <linux/types.h> to the header file too.
+> * Occuring in both 2.4.7-ac6 and 2.4.8-ac7. Run 'xdos' in X, and
+>   machine locks hard, only output to console is oops. (no sysrq)
+>   Tried once with strace, but no oops. (didnt wait long, though)
+>   Some oops before window is placed, some a little while after.
+>   (mouse movement?) Repeatable.
+> 
+> * Kernels are virgin linus patched with ac. AMD-K6(tm) 3D
+>   processor
+> 
+> * If anyone wants any more info or for me to do anything, just
+>   ask.
+> 
+> Paul
+> set@pobox.com
+> 
+> (2.4.7-ac6 -- two captured, identitcal, first shown)
+> 
+> ksymoops 2.4.1 on i586 2.4.7-ac6.  Options used
+>      -V (default)
+>      -k /proc/ksyms (default)
+>      -l /proc/modules (default)
+>      -o /lib/modules/2.4.7-ac6/ (default)
+>      -m /boot/System.map-2.4.7-ac6 (specified)
+> 
+> CPU:    0
+> EIP:    0010:[<c0180a18>]
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010002
+> eax: 00001000   ebx: c4562368   ecx: 00000000   edx: 00000001
+> esi: c4562368   edi: c4a954d4   ebp: 00000001   esp: c6887d88
+> ds: 008   es: 0000   ss: 0018
+                ^^^^
+Here is your problem.  %es is set to the null segment.  I had my
+suspicions about the segment reload optimisation in the -ac kernels, and
+this proves it.  Try backing out the changes to arch/i386/kernel/entry.S
+and include/asm-i386/hw_irq.h and see if that fixes the problem.
 
-
-That finally worked.
-
-Yay.
-
-mrc
 -- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+
+						Brian Gerst

@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267869AbUJRUJy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267507AbUJRUNY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267869AbUJRUJy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 16:09:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267576AbUJRTfo
+	id S267507AbUJRUNY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 16:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267502AbUJRUKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 15:35:44 -0400
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:44305 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S267661AbUJRTfB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 15:35:01 -0400
-Date: Mon, 18 Oct 2004 12:34:49 -0700
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
-Message-ID: <20041018193449.GB15313@nietzsche.lynx.com>
-References: <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041018193251.GA15313@nietzsche.lynx.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041018193251.GA15313@nietzsche.lynx.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+	Mon, 18 Oct 2004 16:10:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:17582 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267700AbUJRTfc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 15:35:32 -0400
+Date: Mon, 18 Oct 2004 15:35:16 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Matt Domsch <Matt_Domsch@dell.com>
+cc: davem@davemloft.net, <linux-kernel@vger.kernel.org>,
+       Oleg Makarenko <mole@quadra.ru>
+Subject: Re: using crypto_digest() on non-kmalloc'd memory failures
+In-Reply-To: <20041018192952.GB8607@lists.us.dell.com>
+Message-ID: <Xine.LNX.4.44.0410181534180.24062-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 18, 2004 at 12:32:51PM -0700, Bill Huey wrote:
-> On Mon, Oct 18, 2004 at 04:50:08PM +0200, Ingo Molnar wrote:
-> > i have released the -U5 Real-Time Preemption patch:
-> > 
-> >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U5
+On Mon, 18 Oct 2004, Matt Domsch wrote:
+
+> James, David,
 > 
->   CC      arch/i386/kernel/traps.o
-> arch/i386/kernel/traps.c: In function `do_debug':
-> arch/i386/kernel/traps.c:786: error: `sysenter_past_esp' undeclared (first use in this function)
-> arch/i386/kernel/traps.c:786: error: (Each undeclared identifier is reported only once
-> arch/i386/kernel/traps.c:786: error: for each function it appears in.)
-> make[1]: *** [arch/i386/kernel/traps.o] Error 1
-> make: *** [arch/i386/kernel] Error 2
+> Oleg noted that when we call crypto_digest() on memory allocated as a
+> static array in a module, rather than kmalloc(GFP_KERNEL), it returns
+> incorrect data, and with other functions, a kernel panic.
+> 
+> Thoughts as to why this may be?  Oleg's test patch appended.
 
-bah, let me handle this, CONFIG_KGDB was turned on and I'm workin on
-this now...
+I don't recall the exact details, but it's related to using kmap in the 
+core crypto code.
 
-bill
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
 

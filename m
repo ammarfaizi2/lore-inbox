@@ -1,95 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130800AbRCFASd>; Mon, 5 Mar 2001 19:18:33 -0500
+	id <S130797AbRCFAZx>; Mon, 5 Mar 2001 19:25:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130797AbRCFASY>; Mon, 5 Mar 2001 19:18:24 -0500
-Received: from gear.torque.net ([204.138.244.1]:12552 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S130793AbRCFASM>;
-	Mon, 5 Mar 2001 19:18:12 -0500
-Message-ID: <3AA42B45.C315FACB@torque.net>
-Date: Mon, 05 Mar 2001 19:11:49 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.2 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        mysql@lists.mysql.com
-Subject: Re: scsi vs ide performance on fsync's
-In-Reply-To: <Pine.LNX.4.33L2.0103021033190.6176-200000@srv2.ecropolis.com> <054201c0a33d$55ee5870$e1de11cc@csihq.com> <3AA2A120.49509A11@torque.net>
+	id <S130799AbRCFAZo>; Mon, 5 Mar 2001 19:25:44 -0500
+Received: from [199.183.24.200] ([199.183.24.200]:39449 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S130797AbRCFAZ3>; Mon, 5 Mar 2001 19:25:29 -0500
+Date: Mon, 5 Mar 2001 19:25:24 -0500
+From: Peter Zaitcev <zaitcev@redhat.com>
+To: alan@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Patch to ymfpci from ALSA 0.99
+Message-ID: <20010305192524.A19811@devserv.devel.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since the intention of fsync and fdatasync seems to be
-to write dirty fs buffers to persistent storage (i.e.
-the "oxide") then the best time is not necessarily
-the objective. Given the IDE times that people have 
-been reporting, it is very unlikely that any of those
-IDE disks were really doing 2000 discrete IO operations
-involving waiting for the those buffers to be written
-to the "oxide". [Reason: it should take at least 2000 
-revolutions of the disk to do it, since most of the
-4KB writes are going to the same disk address as the
-prior write.]
+Hello:
 
-As it stands, the Linux SCSI subsystem has no mechanism 
-to force a disk cache write through. The SCSI WRITE(10)
-command has a Force Unit Access bit (FUA) to do exactly
-that, but we don't use it. Do the fs/block layers flag
-they wish buffers written to the oxide?? 
-The measurements that showed SCSI disks were taking a lot 
-longer with the "xlog" test were more luck than good 
-management.
+the patch does not fix the buzzing, but it does not hurt either.
+And the way we loaded the microcode before was seriously wrong.
+Please look.
 
-Here are some tests that show an IDE versus SCSI "xlog"
-comparison are very similar between FreeBSD 4.2 and
-lk 2.4.2 on the same hardware: 
+-- Pete
 
-# IBM DCHS04U SCSI disk 7200 rpm  <<FreeBSD 4.2>>
-[root@free /var]# time /root/xlog tst.txt
-real    0m0.043s
-[root@free /var]# time /root/xlog tst.txt fsync
-real    0m33.131s
-
-# Quantum Fireball ST3.2A IDE disk 3600 rpm  <<FreeBSD 4.2>>
-[root@free dos]# time /root/xlog tst.txt
-real    0m0.034s
-[root@free dos]# time /root/xlog tst.txt fsync
-real    0m5.737s
-
-
-# IBM DCHS04U SCSI disk 7200 rpm  <<lk 2.4.2>>
-[root@tvilling extra]# time /root/xlog tst.txt
-0:00.00elapsed 125%CPU
-[root@tvilling spare]# time /root/xlog tst.txt fsync
-0:33.15elapsed 0%CPU
-
-# Quantum Fireball ST3.2A IDE disk 3600 rpm  <<lk 2.4.2>>
-[root@tvilling /root]# time /root/xlog tst.txt
-0:00.02elapsed 43%CPU
-[root@tvilling /root]# time /root/xlog tst.txt fsync
-0:05.99elapsed 69%CPU
-
-
-Notes: FreeBSD doesn't have fdatasync() so I changed xlog 
-to use fsync(). Linux timings were the same with fsync() 
-and fdatasync(). The xlog program crashed immediately in
-FreeBSD; it needed some sanity checks on its arguments.
-
-One further note: I wrote:
-> [snip] 
-> So writing more data to the SCSI disk speeds it up!
-> I suspect the critical point in the "20*200" test is
-> that the same sequence of 8 512 byte sectors are being
-> written to disk 200 times. BTW That disk spins at
-> 15K rpm so one rotation takes 4 ms and it has a
-> 4 MB cache.
-
-A clarification: by "same sequence" I meant written
-to the same disk address. If the 4 KB lies on the same
-track, then a delay of one disk revolution would be
-expected before you could write the next 4 KB to the 
-"oxide" at the same address.
-
-Doug Gilbert
+diff -ur -X dontdiff linux-2.4.2/drivers/sound/ymfpci.c linux-2.4.2-p3/drivers/sound/ymfpci.c
+--- linux-2.4.2/drivers/sound/ymfpci.c	Fri Feb 16 16:02:37 2001
++++ linux-2.4.2-p3/drivers/sound/ymfpci.c	Mon Feb 26 23:56:53 2001
+@@ -2185,8 +2149,8 @@
+ 	ymfpci_writew(codec, YDSXGR_GLOBALCTRL, ctrl & ~0x0007);
+ 
+ 	/* setup DSP instruction code */
+-	for (i = 0; i < YDSXG_DSPLENGTH; i++)
+-		ymfpci_writel(codec, YDSXGR_DSPINSTRAM + i, DspInst[i >> 2]);
++	for (i = 0; i < YDSXG_DSPLENGTH / 4; i++)
++		ymfpci_writel(codec, YDSXGR_DSPINSTRAM + (i << 2), DspInst[i]);
+ 
+ 	switch (codec->pci->device) {
+ 	case PCI_DEVICE_ID_YAMAHA_724F:
+@@ -2201,11 +2165,11 @@
+ 
+ 	if (ver_1e) {
+ 		/* setup control instruction code */
+-		for (i = 0; i < YDSXG_CTRLLENGTH; i++)
+-			ymfpci_writel(codec, YDSXGR_CTRLINSTRAM + i, CntrlInst1E[i >> 2]);
++		for (i = 0; i < YDSXG_CTRLLENGTH / 4; i++)
++			ymfpci_writel(codec, YDSXGR_CTRLINSTRAM + (i << 2), CntrlInst1E[i]);
+ 	} else {
+-		for (i = 0; i < YDSXG_CTRLLENGTH; i++)
+-			ymfpci_writel(codec, YDSXGR_CTRLINSTRAM + i, CntrlInst[i >> 2]);
++		for (i = 0; i < YDSXG_CTRLLENGTH / 4; i++)
++			ymfpci_writel(codec, YDSXGR_CTRLINSTRAM + (i << 2), CntrlInst[i]);
+ 	}
+ 
+ 	ymfpci_enable_dsp(codec);
+diff -ur -X dontdiff linux-2.4.2/drivers/sound/ymfpci_image.h linux-2.4.2-p3/drivers/sound/ymfpci_image.h
+--- linux-2.4.2/drivers/sound/ymfpci_image.h	Sun Dec  3 23:58:10 2000
++++ linux-2.4.2-p3/drivers/sound/ymfpci_image.h	Mon Feb 26 23:44:52 2001
+@@ -1,7 +1,7 @@
+ #ifndef _HWMCODE_
+ #define _HWMCODE_
+ 
+-static unsigned long int	DspInst[] = {
++static unsigned long DspInst[YDSXG_DSPLENGTH / 4] = {
+ 	0x00000081, 0x000001a4, 0x0000000a, 0x0000002f,
+ 	0x00080253, 0x01800317, 0x0000407b, 0x0000843f,
+ 	0x0001483c, 0x0001943c, 0x0005d83c, 0x00001c3c,
+@@ -12,7 +12,7 @@
+ 	0x00000000, 0x00000000, 0x00000000, 0x00000000
+ };
+ 
+-static unsigned long int	CntrlInst[] = {
++static unsigned long CntrlInst[YDSXG_CTRLLENGTH / 4] = {
+ 	0x000007, 0x240007, 0x0C0007, 0x1C0007,
+ 	0x060007, 0x700002, 0x000020, 0x030040,
+ 	0x007104, 0x004286, 0x030040, 0x000F0D,
+@@ -791,7 +791,7 @@
+ // 04/09  creat
+ // 04/12  stop nise fix
+ // 06/21  WorkingOff timming
+-static unsigned long int	CntrlInst1E[] = {
++static unsigned long CntrlInst1E[YDSXG_CTRLLENGTH / 4] = {
+ 	0x000007, 0x240007, 0x0C0007, 0x1C0007,
+ 	0x060007, 0x700002, 0x000020, 0x030040,
+ 	0x007104, 0x004286, 0x030040, 0x000F0D,

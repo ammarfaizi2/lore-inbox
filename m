@@ -1,65 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315119AbSF3MmW>; Sun, 30 Jun 2002 08:42:22 -0400
+	id <S315162AbSF3Mvq>; Sun, 30 Jun 2002 08:51:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315120AbSF3MmW>; Sun, 30 Jun 2002 08:42:22 -0400
-Received: from babel.spoiled.org ([217.13.197.48]:40088 "HELO a.mx.spoiled.org")
-	by vger.kernel.org with SMTP id <S315119AbSF3MmV>;
-	Sun, 30 Jun 2002 08:42:21 -0400
+	id <S315167AbSF3Mvp>; Sun, 30 Jun 2002 08:51:45 -0400
+Received: from sto-vo-kor.koschikode.com ([213.61.61.142]:12819 "EHLO
+	sto-vo-kor.koschikode.com") by vger.kernel.org with ESMTP
+	id <S315162AbSF3Mvp>; Sun, 30 Jun 2002 08:51:45 -0400
+Message-ID: <3D1EFF5C.6010405@koschikode.com>
+Date: Sun, 30 Jun 2002 14:53:48 +0200
 From: Juri Haberland <juri@koschikode.com>
-To: roy@karlsbakk.net (Roy Sigurd Karlsbakk)
+Organization: totally unorganized
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
+X-Accept-Language: de-DE, en
+MIME-Version: 1.0
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Can't boot from /dev/md0 (RAID-1)
-X-Newsgroups: spoiled.linux.kernel
-In-Reply-To: <200206301419.26254.roy@karlsbakk.net>
-User-Agent: tin/1.4.5-20010409 ("One More Nightmare") (UNIX) (OpenBSD/2.9 (i386))
-Message-Id: <20020630124445.6E95B11979@a.mx.spoiled.org>
-Date: Sun, 30 Jun 2002 14:44:45 +0200 (CEST)
+References: <20020630124445.6E95B11979@a.mx.spoiled.org> <200206301449.51190.roy@karlsbakk.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200206301419.26254.roy@karlsbakk.net> you wrote:
-> hi
+Roy Sigurd Karlsbakk wrote:
+>> Hi,
+>> I had this once and resolved it with adding a "default" line to the
+>> lilo.conf:
+>> default = LinuxRaid
+>>
+>> Also have boot=/dev/md0, not boot=/dev/hda.
 > 
-> I hope this is not OT - didn't find any LILO mailing list. after trying 
-> virtually everything - can anyone help me with a tip?
+> hm
 > 
-> Running 2.4.19-pre10-ac2, RedHat 7.3 (LILO version 21.4-4), I have root on 
-> /dev/md0 on RAID-1 on /dev/hda1 and /dev/hdb1. I've tried the howto at 
-> http://www.tldp.org/HOWTO/mini/Boot+Root+Raid+LILO-3.html#ss3.1, but it still 
-> doesn't help me. lilo just tells me "L 99 99 99 99 ..." some half a page, and 
-> then stops.I'm trying. All the time it prints this, it seems to be searching 
-> the floppy for some reason.
+> I keep getting this one..
 > 
-> The lilo.conf suggested by the above HOWTO, is this
+> [root@jumbo root]# lilo
+> boot = /dev/hda, map = /boot/map.0301
+> Added linux2419rc1 *
+> Added linux2418
+> Added linux-orig
+> Fatal: Duplicate geometry definition for /dev/md0
 > 
-> # lilo.conf.hda - primary ide master
-> disk=/dev/md0
-> bios=0x80
-> sectors=63
-> heads=16
-> cylinders=39770
-> partition=/dev/md1
-> start=63
-> boot=/dev/hda
-> map=/boot/map
-> install=/boot/boot.b
-> 
-> image=/boot/bzImage
->         root=/dev/md0
->         read-only
->         label=LinuxRaid
+> Any ideas?
 
-Hi,
-I had this once and resolved it with adding a "default" line to the
-lilo.conf:
-default = LinuxRaid
+Hm, I'm no lilo nor raid expert, but I'd suggest to strip down the
+lilo.conf to the defaults. E.g. I have:
+prompt
+timeout=50
+default=linux
+boot=/dev/md2
+map=/boot/map
+install=/boot/boot.b
+message=/boot/message
 
-Also have boot=/dev/md0, not boot=/dev/hda.
+image=/boot/vmlinuz
+        label=linux
+        read-only
+        root=/dev/md0
 
-Cheers,
-Juri
 
--- 
-Juri Haberland  <juri@koschikode.com> 
 

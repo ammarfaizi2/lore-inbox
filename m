@@ -1,78 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132808AbRBRL2L>; Sun, 18 Feb 2001 06:28:11 -0500
+	id <S132787AbRBRL2L>; Sun, 18 Feb 2001 06:28:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132787AbRBRL2A>; Sun, 18 Feb 2001 06:28:00 -0500
+	id <S132807AbRBRL2B>; Sun, 18 Feb 2001 06:28:01 -0500
 Received: from limes.hometree.net ([194.231.17.49]:13417 "EHLO
 	limes.hometree.net") by vger.kernel.org with ESMTP
-	id <S132807AbRBRL14>; Sun, 18 Feb 2001 06:27:56 -0500
+	id <S132788AbRBRL1z>; Sun, 18 Feb 2001 06:27:55 -0500
 To: linux-kernel@vger.kernel.org
-Date: Sun, 18 Feb 2001 11:25:38 +0000 (UTC)
+Date: Sun, 18 Feb 2001 11:16:16 +0000 (UTC)
 From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
-Message-ID: <96obfi$j8p$1@forge.intermeta.de>
+Message-ID: <96oau0$j6q$1@forge.intermeta.de>
 Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-In-Reply-To: <3A8CF1FE.16672.10105D@localhost>, <20010217152814.G26627@alcove.wittsend.com>
+In-Reply-To: <4461B4112BDB2A4FB5635DE199587432022423@mail0.myrio.com>
 Reply-To: hps@tanstaafl.de
-Subject: Re: Linux stifles innovation... [way O.T.]
+Subject: Re: Linux stifles innovation...
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mhw@wittsend.com (Michael H. Warfield) writes:
+torrey.hoffman@myrio.com (Torrey Hoffman) writes:
 
-> Excuse me?  A 1 billion dolar investment in Linux is not
->supporting it?
+[...]
+>Some things to consider, in no particular order:
+[...]
 
-On their own hardware.
+Uniform support from most of the hard- and software vendors on this
+planet. Support for 50.000+ different hardware expansions with all
+their features from grabber cards to color printers and network cards
+to 3D graphics accelerators for their whole product line.
 
-> Setting up tier 1 and tier 2 support services for a half a dozen
->distributions is not supporting it?  
+That's not innovation, you're correct. But that's 99% of what users
+care about.
 
-For their own hardware.
+I still have no really well working Linux driver for the modem in my
+notebook. And it is not even a WinModem. I have a 95% working
+closed-source, binary only driver patched to my kernel version, which
+at least for me is better than nothing.
 
-> Porting their AIX file systems and applications is not supporting
-> it?
+>- Innovative new hardware devices are more likely to be based on
+>Linux than any Microsoft OS. For example, the TiVO, the coolest 
+>improvement to television since the VCR.
 
-Keeping their legacy customer base on their products. Showing a
-migration path that stays on their products and does not move to M$ or
-another vendor.
-
-> Porting it to the 390 is not supporting it?
-
-Their own hardware.
-
->  You bet'cha they are taking advantage of the fact that people want
-> it.  They would be damn fools in business if they didn't take
-> advantage of that.
-
-They want to stay in business. They don't want to lose their
-customers. I remember an interview with an IBM exec which went along
-the lines "We're supporting 25 different OS. Linux is OS #26. So, no
-news for us here".
-
-> And that means supporting it.  It's to their advantage to support it
-> and they see it.  You must have a really bizzare idea of what
-> support means...
-
-It means "keep my customer base happy with me, so they give me more
-bucks".
-
-I'm sure, that their business plan with Linux says "we get two bucks
-for every every one that we spend". IBM is an iron vendor. They have a
-strong software product line but their first target is selling "IBM
-software on an IBM supported OS on IBM hardware". And if the "IBM
-supported OS" is not M$ Windows, which they have to pay a license fee
-for but a "license-free OS" which is even developed for them, it's
-good for them. And they get "community recognition" and a good press
-thrown in for free.
-
-It's "win - win" for them. And, BTW, for us and Linux too, which is a
-good thing.
+Because it is cheaper to use. Linux has no license fee. That's what
+the TiVO vendor cares about.
 
 	Regards
 		Henning
-
-P.S.: Oh, look a me. Living in an environment where IBM are the good
-guys. The horrors. The horrors. ;-)
 
 -- 
 Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer

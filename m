@@ -1,114 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266775AbUIITj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbUIITjd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266775AbUIITj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 15:39:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbUIITid
+	id S261602AbUIITjd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 15:39:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266805AbUIITgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 15:38:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:42124 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266854AbUIIT3N (ORCPT
+	Thu, 9 Sep 2004 15:36:55 -0400
+Received: from fw.osdl.org ([65.172.181.6]:7297 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266775AbUIITKn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 15:29:13 -0400
-Date: Thu, 9 Sep 2004 12:29:06 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: BlaisorBlade <blaisorblade_spam@yahoo.it>
-Cc: Chris Wright <chrisw@osdl.org>,
-       user-mode-linux-devel@lists.sourceforge.net, akpm@osdl.org,
-       jdike@addtoit.com, linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] Re: [patch 1/1] uml:fix ubd deadlock on SMP
-Message-ID: <20040909122906.N1973@build.pdx.osdl.net>
-References: <20040908172503.384144933@zion.localdomain> <200409092002.19134.blaisorblade_spam@yahoo.it> <20040909113228.M1973@build.pdx.osdl.net> <200409092044.54512.blaisorblade_spam@yahoo.it>
+	Thu, 9 Sep 2004 15:10:43 -0400
+Date: Thu, 9 Sep 2004 12:08:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: torvalds@osdl.org, dev@sw.ru, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] adding per sb inode list to make invalidate_inodes()
+ faster
+Message-Id: <20040909120818.7f127d14.akpm@osdl.org>
+In-Reply-To: <20040909181818.GF3106@holomorphy.com>
+References: <4140791F.8050207@sw.ru>
+	<Pine.LNX.4.58.0409090844410.5912@ppc970.osdl.org>
+	<20040909171927.GU3106@holomorphy.com>
+	<20040909110622.78028ae6.akpm@osdl.org>
+	<20040909181818.GF3106@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200409092044.54512.blaisorblade_spam@yahoo.it>; from blaisorblade_spam@yahoo.it on Thu, Sep 09, 2004 at 08:44:54PM +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* BlaisorBlade (blaisorblade_spam@yahoo.it) wrote:
-> Yes, thanks a lot for your help.
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>
+> On Thu, Sep 09, 2004 at 11:06:22AM -0700, Andrew Morton wrote:
+>  > Yes.
+>  > I have not merged it up because it seems rather dopey to add eight bytes to
+>  > the inode to speed up something as rare as umount.
+>  > Is there a convincing reason for proceeding with the change?
+> 
+>  The only motive I'm aware of is for latency in the presence of things
+>  such as autofs. It's also worth noting that in the presence of things
+>  such as removable media umount is also much more common. I personally
+>  find this sufficiently compelling. Kirill may have additional ammunition.
 
-Rename ubd_finish() to __ubd_finsh() and remove ubd_io_lock from it.
-Add wrapper, ubd_finish(), which grabs lock before calling __ubd_finish().
-Update do_ubd_request to use the lock free __ubd_finish() to avoid
-deadlock.  Also, apparently prepare_request is called with ubd_io_lock
-held, so remove locks there.
+Well.  That's why I'm keeping the patch alive-but-unmerged.  Waiting to see
+who wants it.
 
-Signed-off-by: Chris Wright <chrisw@osdl.org>
+There are people who have large machines which are automounting hundreds of
+different NFS servers.  I'd certainly expect such a machine to experience
+ongoing umount glitches.  But no reports have yet been sighted by this
+little black duck.
 
-===== arch/um/drivers/ubd_kern.c 1.38 vs edited =====
---- 1.38/arch/um/drivers/ubd_kern.c	2004-09-07 23:33:13 -07:00
-+++ edited/arch/um/drivers/ubd_kern.c	2004-09-09 12:18:01 -07:00
-@@ -396,14 +396,20 @@
-  */
- int intr_count = 0;
- 
--static void ubd_finish(struct request *req, int error)
-+static inline void ubd_finish(struct request *req, int error)
-+{
-+ 	spin_lock(&ubd_io_lock);
-+	__ubd_finish(req, error);
-+	spin_unlock(&ubd_io_lock);
-+}
-+
-+/* call ubd_finish if you need to serialize */
-+static void __ubd_finish(struct request *req, int error)
- {
- 	int nsect;
- 
- 	if(error){
-- 		spin_lock(&ubd_io_lock);
- 		end_request(req, 0);
-- 		spin_unlock(&ubd_io_lock);
- 		return;
- 	}
- 	nsect = req->current_nr_sectors;
-@@ -412,11 +418,10 @@
- 	req->errors = 0;
- 	req->nr_sectors -= nsect;
- 	req->current_nr_sectors = 0;
--	spin_lock(&ubd_io_lock);
- 	end_request(req, 1);
--	spin_unlock(&ubd_io_lock);
- }
- 
-+/* Called without ubd_io_lock held */
- static void ubd_handler(void)
- {
- 	struct io_thread_req req;
-@@ -965,6 +970,7 @@
- 	return(0);
- }
- 
-+/* Called with ubd_io_lock held */
- static int prepare_request(struct request *req, struct io_thread_req *io_req)
- {
- 	struct gendisk *disk = req->rq_disk;
-@@ -977,9 +983,7 @@
- 	if((rq_data_dir(req) == WRITE) && !dev->openflags.w){
- 		printk("Write attempted on readonly ubd device %s\n", 
- 		       disk->disk_name);
-- 		spin_lock(&ubd_io_lock);
- 		end_request(req, 0);
-- 		spin_unlock(&ubd_io_lock);
- 		return(1);
- 	}
- 
-@@ -1029,6 +1033,7 @@
- 	return(0);
- }
- 
-+/* Called with ubd_io_lock held */
- static void do_ubd_request(request_queue_t *q)
- {
- 	struct io_thread_req io_req;
-@@ -1040,7 +1045,7 @@
- 			err = prepare_request(req, &io_req);
- 			if(!err){
- 				do_io(&io_req);
--				ubd_finish(req, io_req.error);
-+				__ubd_finish(req, io_req.error);
- 			}
- 		}
- 	}
+>  Also, the additional sizeof(struct list_head) is only a requirement
+>  while the global inode LRU is maintained. I believed it would have
+>  been beneficial to have localized the LRU to the sb also, which would
+>  have maintained sizeof(struct inode0 at parity with current mainline.
+
+Could be.  We would give each superblock its own shrinker callback and
+everything should balance out nicely (hah).

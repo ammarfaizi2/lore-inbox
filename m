@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264315AbTIITrl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 15:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264318AbTIITrl
+	id S264362AbTIITuT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 15:50:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264399AbTIITuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 15:47:41 -0400
-Received: from waste.org ([209.173.204.2]:63186 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S264315AbTIITrb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 15:47:31 -0400
-Date: Tue, 9 Sep 2003 14:47:27 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Samuel Flory <sflory@rackable.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sleeping function called from invalid context
-Message-ID: <20030909194727.GI31897@waste.org>
-References: <3F5DEBA5.9060607@rackable.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F5DEBA5.9060607@rackable.com>
-User-Agent: Mutt/1.3.28i
+	Tue, 9 Sep 2003 15:50:15 -0400
+Received: from ivoti.terra.com.br ([200.176.3.20]:39142 "EHLO
+	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S264362AbTIITtt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 15:49:49 -0400
+Message-ID: <3F5E14D7.9030809@terra.com.br>
+Date: Tue, 09 Sep 2003 14:58:47 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+MIME-Version: 1.0
+To: davem@redhat.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Missing memory barrier on net/core/dev.c
+Content-Type: multipart/mixed;
+ boundary="------------040506090002070600070902"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 09, 2003 at 08:03:01AM -0700, Samuel Flory wrote:
->  I'm seeing this on arjanv's 2.6.0-0.test4.1.33 kernel.
+This is a multi-part message in MIME format.
+--------------040506090002070600070902
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Debug: sleeping function called from invalid context at 
-> include/asm/uaccess.h:473
-> Call Trace:
-> [<c011b7dd>] __might_sleep+0x5d/0x70
-> [<c010d0ea>] save_v86_state+0x6a/0x200
+	Hi Dave,
 
-It's a warning about the possibility of hitting a very old but rarely
-hit bug, system should work the same as it always has despite the
-warning. I'm working on this, but it's ugly. Hope to post a patch in
-the next week or so.
+	I *think* net/core/dev.c is missing a mb() before calling 
+schedule_timoeut.
 
--- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+	Feel free to prove me wrong, though ;)
+
+	Patch against 2.6.0-test5.
+
+	Please review.
+
+	Cheers,
+
+Felipe
+
+--------------040506090002070600070902
+Content-Type: text/plain;
+ name="net-core-current_state.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="net-core-current_state.patch"
+
+--- linux-2.6.0-test5/net/core/dev.c	Mon Sep  8 16:50:06 2003
++++ linux-2.6.0-test5-fwd/net/core/dev.c	Tue Sep  9 14:52:48 2003
+@@ -2753,9 +2753,9 @@
+ 			rebroadcast_time = jiffies;
+ 		}
+ 
+-		current->state = TASK_INTERRUPTIBLE;
++		set_current_state(TASK_INTERRUPTIBLE);
+ 		schedule_timeout(HZ / 4);
+-		current->state = TASK_RUNNING;
++		__set_current_state(TASK_RUNNING);
+ 
+ 		if (time_after(jiffies, warning_time + 10 * HZ)) {
+ 			printk(KERN_EMERG "unregister_netdevice: "
+
+--------------040506090002070600070902--
+

@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316673AbSGQUYA>; Wed, 17 Jul 2002 16:24:00 -0400
+	id <S316668AbSGQU2J>; Wed, 17 Jul 2002 16:28:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316667AbSGQUYA>; Wed, 17 Jul 2002 16:24:00 -0400
-Received: from [195.137.34.203] ([195.137.34.203]:37808 "HELO sam.home.net")
-	by vger.kernel.org with SMTP id <S316673AbSGQUX6>;
-	Wed, 17 Jul 2002 16:23:58 -0400
-Date: Wed, 17 Jul 2002 21:39:29 +0100
-From: Sam Mason <mason@f2s.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: shreenivasa H V <shreenihv@usa.net>, linux-kernel@vger.kernel.org
-Subject: Re: Gang Scheduling in linux
-Message-ID: <20020717203929.GA9633@sam.home.net>
-References: <20020717201417.GA9546@sam.home.net> <Pine.LNX.4.44.0207182206280.6752-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207182206280.6752-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
+	id <S316672AbSGQU2I>; Wed, 17 Jul 2002 16:28:08 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:29313 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S316668AbSGQU2F> convert rfc822-to-8bit; Wed, 17 Jul 2002 16:28:05 -0400
+Date: Wed, 17 Jul 2002 16:31:55 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Daniel Phillips <phillips@arcor.de>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: HZ, preferably as small as possible
+In-Reply-To: <E17UuXr-0004PH-00@starship>
+Message-ID: <Pine.LNX.3.95.1020717162206.12592A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 18, 2002 at 10:08:13PM +0200, Ingo Molnar wrote:
->On Wed, 17 Jul 2002, Sam Mason wrote:
->> It's mainly used for programs that needs lots of processing power
->> chucked at a specific problem, the problem is first broken down into
->> several small pieces and each part is sent off to a different processor.
->> When each piece has been processed, they are all recombined and the rest
->> of the calculation is continued.  The problem with this is that if any
->> one of the pieces is delayed, all the processors will be idle waiting
->> for the interrupted piece to be processed, before they can process the
->> next set of pieces.
->well, how does gang scheduling solve this problem? Even gang-scheduled
->tasks might be interrupted anytime on any CPU, by higher-priority tasks,
->thus causing a delay.
+On Wed, 17 Jul 2002, Daniel Phillips wrote:
 
-The important thing to remember is that this isn't a normal scheduling
-method, it's used for VERY specialised software which is assumed to
-have (almost) complete control of the machine.  Gang scheduled
-processes would have the highest priority possible and would get
-executed before any other processes.  This works because the software
-knows what it's doing and assumes that the user only ran one bit of
-gang scheduled software, if all of these are valid assumptions
-everything should work nicely.
+> On Monday 15 July 2002 07:06, Linus Torvalds wrote:
+> > There is, of course, the option to do variable frequency (and make it
+> > integer multiples of the exposed "constant HZ" so that kernel code
+> > doesn't actually need to _care_ about the variability). There are
+> > patches to play with things like that.
+> 
+> We don't have to feel restricted to integer multiples.  I'll paste in my 
+> earlier post, for your convenience:
+> 
+> > ...If somebody wants a cruder scheduling interval than the raw timer
+> > interrupt, that's child's play, just step the interval down.  The
+> > only slightly challenging thing is do that without restricting
+> > choice of rate for the raw timer and scheduler, respectively.  Here,
+> > a novel application of Bresenham's algorithm (the line drawing
+> > algorithm) works nicely: at each raw interrupt, subtract the period
+> > of the raw interrupt from an accumulator; if the result is less
+> > than zero, add the period of the scheduler to the accumlator and
+> > drop into the scheduler's part of the timer interrupt.
+> 
+> [which just increments the timer variable I believe]
+> 
+> > This Bresenham trick works for arbitrary collections of interrupt
+> > rates, all with different periods.  It has the property that,
+> > over time, the total number of invocations at each rate remains
+> > *exactly* correct, and so long as the raw interrupt runs at a
+> > reasonably high rate, displacement isn't that bad either.
+> 
+> This technique is scarcely less efficient than the cruder method.
 
-Thinking about it, if a process just sets itself to be the highest
-priority and constrains it's self to appropriate processors then it
-wouldn't surprise me if this was just what you want to do gang
-scheduled.
+It is hardly novel and I can't imagine how Bresenham or whomever
+could make such a claim to the obvious. Even the DOS writer(s) used
+this technique to get one-second time intervals from the 18.206
+ticks/per second. This is simply division by subtraction, but you
+don't throw away the remainder. Therefore, in the limit, there is
+no remainder. However, at any instant, the time can be off by as
+much as the divisor -1. FYI, you make digital filters using this
+same method, it's hardly novel.
 
+Cheers,
+Dick Johnson
 
-  Sam
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

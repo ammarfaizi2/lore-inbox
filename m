@@ -1,55 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbTGBHUS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 03:20:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbTGBHUR
+	id S261797AbTGBHkW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 03:40:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbTGBHkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 03:20:17 -0400
-Received: from ns.mock.com ([209.157.146.194]:13513 "EHLO mail.mock.com")
-	by vger.kernel.org with ESMTP id S261365AbTGBHUO (ORCPT
+	Wed, 2 Jul 2003 03:40:21 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:9651 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id S261797AbTGBHkQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 03:20:14 -0400
-Message-Id: <5.1.0.14.2.20030702002400.060d8658@mail.mock.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 02 Jul 2003 00:34:35 -0700
-To: Jeff Garzik <jgarzik@pobox.com>
-From: Jeff Mock <jeff-ml@mock.com>
-Subject: Re: PROBLEM: 2.4.21 ICH5 SATA related hang during boot
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3F01DA62.9080707@pobox.com>
-References: <5.1.0.14.2.20030701114153.060dd098@mail.mock.com>
- <5.1.0.14.2.20030630101734.03daddc0@mail.mock.com>
- <5.1.0.14.2.20030630101734.03daddc0@mail.mock.com>
- <5.1.0.14.2.20030701114153.060dd098@mail.mock.com>
+	Wed, 2 Jul 2003 03:40:16 -0400
+Date: Wed, 2 Jul 2003 10:54:38 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Bernardo Innocenti <bernie@develer.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Kill div64.h dupes, parenthesize do_div() macro params
+Message-ID: <20030702075438.GO28900@mea-ext.zmailer.org>
+References: <Pine.LNX.4.44.0307012206530.2047-100000@home.osdl.org> <200307020902.05522.bernie@develer.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-DCC-meer-Metrics: wobble.mock.com 1035; Body=2 Fuz1=2 Fuz2=2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307020902.05522.bernie@develer.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 03:00 PM 7/1/2003 -0400, Jeff Garzik wrote:
->Jeff Mock wrote:
->>With this new change does the BIOS (on an Intel 875P / ICH5
->>motherboard) still need the drives to be set to legacy mode, or can
->>it be set to enhanced mode to access the full complement of SATA
->>and PATA devices?
->
->Yep, you can enable enhanced (also called native) mode for SATA, to get 
->the full spread of 6 devices normally possible (4 pata + 2 sata).
->
->         Jeff
+On Wed, Jul 02, 2003 at 09:02:05AM +0200, Bernardo Innocenti wrote:
+> On Wednesday 02 July 2003 07:09, Linus Torvalds wrote:
+>  > > Why 64-bit divides in particular were victimised in this manner is a
+>  > > matter for speculation ;)
+>  >
+>  > Because gcc historically _cannot_ generate an efficient 64/32->64
+>  > divide. It ends up doing a full 64/64 divide thing.
+> 
+>  You're right here. I've been too quick in putting my faith in gcc ;-)
+> 
+>  Shouldn't we complain to the gcc people? The 64/32 division is a
+> rather common operation in many applications besides the kernel, so
+> you'd expect gcc to get it right without polluting every single
+> project with reimplementations of do_div().
 
-Wow, that's great, it works really well.  I'm doing a software raid-0
-across the two sata drives, I've been stressing it all afternoon with
-no problems.
+The thinking behind there has been:
+ a) arbitrary 64/32 division is _rare_, and shall be used only
+    in places that are non-critical to system speed
+ b) all places in filesystems, etc. should handle things by
+    doing these things with  >>  operators, which of course,
+    requires divisor to be power of two, and given as log2()
+    of the divisor.
+ c) to see usage of sub-optimal speed things, linkage against
+    libgcc is expressly forbidden in kernel.
 
-To see the CONFIG_SCSI_ATA_* options during configuration I had to set
-CONFIG_SCSI=y  (I had it set to CONFIG_SCSI=m previously.)  Also, if
-you want to boot from the SATA drives you should also set
-CONFIG_BLK_DEV_SD=y, or maybe load the module from initrd.
+Thus when you see that  _divxyz3()  can not be linked in, the
+bug is in its _need_, and thus the code, not in lack of library
+to supply it!   The  do_div64()  is there to supply those non-
+speed-critical rare uses.
 
-I enjoy having the drives called /dev/sd[ab], it makes me feel like I
-paid more money for them.
+At some platforms there is no way around this rule, but Linux's
+primary platform is i386, and there those enforcements are shown.
 
-jeff
+To an extent, for example  Alpha  platform got several libgcc
+functions copied in its arch library, to solve some unavoidable
+builtin function needs, while still not blindly linking with
+libgcc.
 
+> -- 
+>   // Bernardo Innocenti - Develer S.r.l., R&D dept.
+> \X/  http://www.develer.com/
+
+/Matti Aarnio

@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbULPQ1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbULPQhM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261266AbULPQ1P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 11:27:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbULPQ1P
+	id S261431AbULPQhM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 11:37:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbULPQhM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 11:27:15 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:36575 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261183AbULPQ05 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 11:26:57 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] add legacy I/O and memory access routines to /proc/bus/pci API
-Date: Thu, 16 Dec 2004 08:26:31 -0800
-User-Agent: KMail/1.7.1
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-ia64@vger.kernel.org,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <200412140941.56116.jbarnes@engr.sgi.com> <200412150900.18890.jbarnes@engr.sgi.com> <1103208922.25262.10.camel@gaston>
-In-Reply-To: <1103208922.25262.10.camel@gaston>
+	Thu, 16 Dec 2004 11:37:12 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:55680 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261431AbULPQhE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 11:37:04 -0500
+Message-ID: <41C1B9A8.2020003@nortelnetworks.com>
+Date: Thu, 16 Dec 2004 10:36:56 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Chris Ross <chris@tebibyte.org>
+CC: Linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: slow OOM killing with 2.6.9?
+References: <41C065A2.4040504@nortelnetworks.com> <41C1777A.3080105@tebibyte.org>
+In-Reply-To: <41C1777A.3080105@tebibyte.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412160826.32315.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, December 16, 2004 6:55 am, Benjamin Herrenschmidt wrote:
-> On Wed, 2004-12-15 at 09:00 -0800, Jesse Barnes wrote:
-> > Good, because that's exactly what it does.  The arch is responsible for
-> > returning the legacy I/O port or legacy ISA memory base address given a
-> > pci_dev, which is used as a base for the page offset passed into mmap. 
-> > So e.g. mmap(..., 0xa0000) after doing ioctl(fd,
-> > PCIIOC_MMAP_IS_LEGACY_MEM, ...) would get you the VGA framebuffer for the
-> > device corresponding to 'fd'.
->
-> Sounds good... The only thing is a pci_dev may not be available if you
-> have a PCI->ISA bridge, tho you may just use the pci_dev of the
-> bridge...
+Chris Ross wrote:
+> 
+> Chris Friesen escreveu:
+> 
+>> I've got a ppc box with 2GB of ram, running 2.6.9.
+>>
+>> If I run a few instances of memory chewing programs, eventually the 
+>> OOM-killer kicks in.  At that point, the machine locks up for about 10 
+>> seconds while deciding what to kill.
+> 
+> 
+> OOM killing is known to be broken in 2.6.9, specifically it kills things 
+> even when the machine isn't out of memeory and/or kills the "wrong" 
+> things when it is. See threads assim for more details.
+> 
+> The OOM Killer is working properly again in 2.6.10-rc2-mm4. Could you 
+> try that kernel and report whether it fixed your problems too?
 
-Well, you'll have to have a fake one at least.  Remember the fds used in the 
-above example come from fd = open("/proc/bus/pci/BB/SS.F", O_RDWR)...
+Hmm...downloaded 2.6.9, patched to 2.6.10-rc2, patched to 2.6.10-rc2-mm4.  Tried 
+building and got the following error:
 
-Jesse
+[cfriesen@hsdbsk204-83-218-112 linux-2.6.10-rc2-mm4]$ make
+   CHK     include/linux/version.h
+make[1]: `arch/ppc/kernel/asm-offsets.s' is up to date.
+   CHK     include/linux/compile.h
+   CHK     usr/initramfs_list
+   GEN     .version
+   CHK     include/linux/compile.h
+   UPD     include/linux/compile.h
+   CC      init/version.o
+   LD      init/built-in.o
+   LD      .tmp_vmlinux1
+arch/ppc/mm/built-in.o(.init.text+0x5f4): In function `paging_init':
+: undefined reference to `pgd_offset_is_obsolete'
+make: *** [.tmp_vmlinux1] Error 1
+
+Any ideas?
+
+Chris

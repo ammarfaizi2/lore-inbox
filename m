@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137181AbREKRSx>; Fri, 11 May 2001 13:18:53 -0400
+	id <S137183AbREKRVy>; Fri, 11 May 2001 13:21:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137182AbREKRSo>; Fri, 11 May 2001 13:18:44 -0400
-Received: from Huntington-Beach.blue-labs.org ([208.179.59.198]:64078 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S137181AbREKRSZ>; Fri, 11 May 2001 13:18:25 -0400
-Message-ID: <3AFC1EC7.7020805@blue-labs.org>
-Date: Fri, 11 May 2001 10:17:59 -0700
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5-pre1 i686; en-US; rv:0.9) Gecko/20010505
+	id <S137185AbREKRVo>; Fri, 11 May 2001 13:21:44 -0400
+Received: from idiom.com ([216.240.32.1]:5139 "EHLO idiom.com")
+	by vger.kernel.org with ESMTP id <S137183AbREKRVe>;
+	Fri, 11 May 2001 13:21:34 -0400
+Message-ID: <3AFBBD16.7AC1019C@namesys.com>
+Date: Fri, 11 May 2001 03:21:10 -0700
+From: Hans Reiser <reiser@namesys.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14cl i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Holger Lubitz <h.lubitz@internet-factory.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ECN: Volunteers needed
-In-Reply-To: <Pine.LNX.4.33.0105091559260.27312-100000@netcore.fi> <Pine.LNX.4.21.0105091249520.23642-100000@scotch.homeip.net> <9dbvh7$amg$1@cesium.transmeta.com> <3AFA8FD7.4B7C14A0@internet-factory.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: hps@intermeta.de, linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: reiserfs, xfs, ext2, ext3
+In-Reply-To: <E14yFOk-0001GQ-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I simply crontab an ECN off period for five minutes every hour and flush 
-the mail queue.
+Alan Cox wrote:
 
-David.
-
-Holger Lubitz wrote:
-
->"H. Peter Anvin" wrote:
+> > I think with the growing acceptance of ReiserFS in the Linux
+> > community, it is tiresome to have to apply a patch again and again
+> > just to get working NFS. 2.2 NFS horrors all over again.
 >
->>I suspect that the main way to get this thing fixed is to make sure
->>ECN is enabled on the server side; for example, we have turned on ECN
->>on kernel.org.  If a user is using a broken software stack, it's their
->>loss, not ours.
->>
+> The zero copy patches were basically self contained and tested for 6 months.
+> The reiserfs NFS hacks are ugly as hell and dont belong in the base kernel.
+> There is a difference.
 >
->This is what we do here, too. The only exceptions: Our mail server
->(needs to deliver mail, even to broken sites) and our web proxy server
->(also needs to connect to broken sites sometimes). Everything else is
->ECN enabled. And this is the approach I'd suggest to anybody running 2.4
->servers.
+> Alan
 >
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
+Are you referring to Neil Brown's nfs operations patch as being as ugly as
+hell, or something else?  Just want to understand what you are saying before
+arguing.....
+
+NFS is ugly as hell, and we just try to conform to whatever is the latest trend
+expected to be accepted since I really don't care so long as it works and
+doesn't uglify ReiserFS more than necessary.  If you have another approach, one
+that is less ugly, please let us know.  This is the first I have heard someone
+complain, I thought his patch was liked by Linus architecturally and that it
+would be going in sometime real soon now (which is why we coded for it).  Can
+you articulate why you dislike it in more detail?
+
+Hans
 

@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262094AbVCRXZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbVCRX2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262094AbVCRXZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 18:25:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbVCRXYq
+	id S262104AbVCRX2r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 18:28:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbVCRX1A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 18:24:46 -0500
-Received: from fire.osdl.org ([65.172.181.4]:20706 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262082AbVCRXVr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 18:21:47 -0500
-Date: Fri, 18 Mar 2005 15:21:22 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: romano@dea.icai.upco.es
-Cc: romanol@upco.es, len.brown@intel.com, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [BKPATCH] ACPI for 2.6.12-rc1
-Message-Id: <20050318152122.7994965b.akpm@osdl.org>
-In-Reply-To: <20050318150129.GB22887@pern.dea.icai.upco.es>
-References: <1111127024.9332.157.camel@d845pe>
-	<20050318150129.GB22887@pern.dea.icai.upco.es>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 18 Mar 2005 18:27:00 -0500
+Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:15207 "HELO
+	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262096AbVCRXZt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 18:25:49 -0500
+Message-ID: <423B6373.8030107@yahoo.com.au>
+Date: Sat, 19 Mar 2005 10:25:39 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Matthew Dobson <colpatch@us.ibm.com>
+CC: linux-kernel@vger.kernel.org, Linux Memory Management <linux-mm@kvack.org>,
+       "Bligh, Martin J." <mbligh@aracnet.com>
+Subject: Re: Bug in __alloc_pages()?
+References: <4238D1DC.8070004@us.ibm.com> <4238D8C1.3080805@yahoo.com.au> <423B52FE.6030101@us.ibm.com>
+In-Reply-To: <423B52FE.6030101@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Romano Giannetti <romanol@upco.es> wrote:
->
-> Could I humble advocating pushing the patch 
->  http://bugme.osdl.org/attachment.cgi?id=4516&action=view ,please? It fixed a
->  very bad regression in hotkey event from 2.6.9...
+Matthew Dobson wrote:
 
-It seems to not be in ACPI bk yet.  What bug number is that actually
-attached to?  There seems to be no way to go backwards from the URL.
+> 
+> Agreed.  It seems unlikely, but not entirely impossible.  All it would 
+> take is one sloppily coded driver, right?  How about this patch instead?
+> 
+
+Sure that would be fine with me. It kind of makes the logic
+explicit, as Martin said.
+
+Nick
 

@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315737AbSEJAdi>; Thu, 9 May 2002 20:33:38 -0400
+	id <S315742AbSEJAoI>; Thu, 9 May 2002 20:44:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315738AbSEJAdh>; Thu, 9 May 2002 20:33:37 -0400
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:54227 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S315737AbSEJAdh>; Thu, 9 May 2002 20:33:37 -0400
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.14 IDE 56
-In-Reply-To: <3CD9E8A7.D524671D@zip.com.au> <5.1.0.14.2.20020509193347.02ff6dc8@mira-sjcm-3.cisco.com> <3CDAC4EB.FC4FE5CF@zip.com.au>
-From: Andi Kleen <ak@muc.de>
-Date: 10 May 2002 02:33:19 +0200
-Message-ID: <m31yck9700.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.070095 (Pterodactyl Gnus v0.95) Emacs/20.7
+	id <S315746AbSEJAoH>; Thu, 9 May 2002 20:44:07 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:27380 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S315742AbSEJAoH>;
+	Thu, 9 May 2002 20:44:07 -0400
+Date: Thu, 9 May 2002 20:44:06 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Post, Mark K" <mark.post@eds.com>
+cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+        "'Andries.Brouwer@cwi.nl'" <Andries.Brouwer@cwi.nl>,
+        "'linux390@ibm.de'" <linux390@ibm.de>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: kernel mount of initrd fails unless mke2fs uses 1024 byte
+  blocks
+In-Reply-To: <564DE4477544D411AD2C00508BDF0B6A0C9DD3C2@usahm018.exmi01.exch.eds.com>
+Message-ID: <Pine.GSO.4.21.0205092042590.14806-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@zip.com.au> writes:
 
-> For bulk read() and write() I/O the best sized buffer is 8 kbytes.  4k is
-> pretty good, too.  Anything larger blows the user-side buffer out of L1.
-> This is for x86.
 
-Modern x86 support prefetch hints for the CPU to tell it to not 
-pollute the caches with "streaming data". I bet using them would
-be a big win. The rep ; movsl loop used in copy*user isn't 
-very good on modern x86 anyways (it is ok on PPro, but loses on Athlon
-and P4) 
+On Thu, 9 May 2002, Post, Mark K wrote:
 
-I'm (slowly) working on such functions for x86-64, it should be eventually
-possible to backport them to i386.
+> Alan, Andries, IBMers,
+> 
+> Here are the documentation patches that relate to the initrd problem I
+> reported previously.  (The mke2fs command had to specify -b 1024, or it
+> couldn't be mounted at boot time by the kernel.)  This submission is against
+> the 2.4.18 kernel.  If they're acceptable, I'll do another one for the
+> 2.2.20 version.
 
--Andi
+ramdisk_blocksize=<desired block size>
+
+and yes, it's a kludge.
+

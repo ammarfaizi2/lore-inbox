@@ -1,119 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316023AbSFDAiK>; Mon, 3 Jun 2002 20:38:10 -0400
+	id <S315547AbSFDAnB>; Mon, 3 Jun 2002 20:43:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316047AbSFDAiK>; Mon, 3 Jun 2002 20:38:10 -0400
-Received: from jalon.able.es ([212.97.163.2]:6878 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S316023AbSFDAiJ>;
-	Mon, 3 Jun 2002 20:38:09 -0400
-Date: Tue, 4 Jun 2002 02:38:03 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCHSET] Linux 2.4.19-pre9-jam1
-Message-ID: <20020604003803.GA1705@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.6
+	id <S315718AbSFDAnA>; Mon, 3 Jun 2002 20:43:00 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39429 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315547AbSFDAm7>;
+	Mon, 3 Jun 2002 20:42:59 -0400
+Message-ID: <3CFC0CC2.D69F2C57@zip.com.au>
+Date: Mon, 03 Jun 2002 17:41:40 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Kees Bakker <kees.bakker@xs4all.nl>, Patrick Mochel <mochel@osdl.org>,
+        Anton Altaparmakov <aia21@cantab.net>,
+        Anton Blanchard <anton@samba.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: [patch] PCI device matching fix
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+The new pci_device_probe() is always passing the zeroeth
+entry in the id_table to the device's probe method.  It
+needs to scan that table for the correct ID first.
 
-Some changes in this release...
-Andrea has merged the O1 scheduler, even with some updates, so half
-the reason for may tree (updated VM and O1-sched) is gone (what is
-good). So instead of cloning half of Andrea's tree, now -jam applies
-on -aa. In fact, you even do not need to get -aa separately, it is
-included as patch 00-aa-xxx.
-
-You will notice that the ide-convert.10 patch has been dropped. The
-highmem support in -aa IDE code made me to heasitate... And there are
-new e100/e1000 drivers from 2.5.20.
-
-Get it at:
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre9-jam1.tar.gz
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre9-jam1/
-
-and enjoy (or burn your box).
+This fixes the recent 3c59x strangenesses.
 
 
-Contents:
+--- 2.5.20/drivers/pci/pci-driver.c~pci-scan	Mon Jun  3 17:37:59 2002
++++ 2.5.20-akpm/drivers/pci/pci-driver.c	Mon Jun  3 17:38:03 2002
+@@ -38,12 +38,19 @@ pci_match_device(const struct pci_device
+ static int pci_device_probe(struct device * dev)
+ {
+ 	int error = 0;
++	struct pci_driver *drv;
++	struct pci_dev *pci_dev;
+ 
+-	struct pci_driver * drv = list_entry(dev->driver,struct pci_driver,driver);
+-	struct pci_dev * pci_dev = list_entry(dev,struct pci_dev,dev);
++	drv = list_entry(dev->driver, struct pci_driver, driver);
++	pci_dev = list_entry(dev, struct pci_dev, dev);
+ 
+-	if (drv->probe)
+-		error = drv->probe(pci_dev,drv->id_table);
++	if (drv->probe) {
++		const struct pci_device_id *id;
++
++		id = pci_match_device(drv->id_table, pci_dev);
++		if (id)
++			error = drv->probe(pci_dev, id);
++	}
+ 	return error > 0 ? 0 : -ENODEV;
+ }
+ 
 
-00-aa-pre9aa2.bz2
-	-aa tree patch. You can omit this if you already have the matching
-	tree.
-
-01-version.bz2
-	EXTRAVERSION
-
-10-lowlatency-mini-rest.bz2
-	Bits from mini-low-latency missing from aa tree. Still to decide
-	if they are good or bad...
-	Author: Andrew Morton <akpm@zip.com.au>
-	URL: http://www.zip.com.au/~akpm/linux/schedlat.html#downloads
-
-11-read-latency-2.bz2
-	Minimal low-latency + read-latency changes.
-	Author: Andrew Morton <akpm@zip.com.au>
-	URL: http://www.zip.com.au/~akpm/linux/schedlat.html#downloads
-
-12-irqbalance-B1.bz2
-	Balance interrupts between cpus when APIC does not, especially
-	in some P4 Xeon motherboards.
-	Author: Ingo Molnar <mingo@elte.hu>
-
-13-irqrate-A1.bz2
-	IRQ-rate-limiting. Adds the dynamic hard-IRQ-limiting feature and fixes
-	softirq performance.
-	Author: Ingo Molnar <mingo@elte.hu>
-	URL: http://redhat.com/~mingo/irqrate-patches/
-
-14-smptimers-A0.bz2
-    Scalable timer implementation. Lock per-CPU instead of global.
-	Author: Ingo Molnar <mingo@elte.hu>
-	URL: http://redhat.com/~mingo/scalable-timers-patches/
-
-20-ext3-0.9.18.bz2
-	Update to latest ext3.
-
-30-shared-zlib.bz2
-	Use only one copy of zlib for whole kernel.
-	Authonr: David Woodhouse <dwmw2@infradead.org>
-	URL: ftp://ftp.kernel.org/pub/linux/kernel/people/dwmw2/linux-2.4.19-shared-zlib.bz2
-
-45-e100-2.0.30-k1.bz2
-46-e1000-4.2.17-k1.bz2
-	Intel drivers for 100 and 1000 Intel cards.
-	Backported from 2.5.20.
-
-70-i2c-2.6.4-cvs.bz2
-71-sensors-2.6.4-cvs.bz2
-	LM-Sensors update to 2.6.4-cvs tree.
-	URL: http://www.netroedge.com/~lm78/
-
-80-bproc-3.1.10.bz2
-	Beowulf bproc SSI patches+pid allocation race fix.
-	Author: Erik Arjan Hendriks <erik@hendriks.cx>
-	URL: http://sourceforge.net/projects/bproc
-
-81-export-task_nice.bz2
-	Export task_nice() function for bproc.
-
-90-make.bz2
-	Makes INSTALL_PATH=/boot and default VGA mode = 6.
-
-91-x86-model.bz2
-	Split PII from PPro in processor selection.
-
-92-gcc3-march.bz2
-	Add support for gcc3 code generation flags for specific processors
-
-
-
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre9-jam1 #1 SMP lun jun 3 19:59:12 CEST 2002 i686
+-

@@ -1,71 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264396AbUAEOFL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 09:05:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264494AbUAEOFK
+	id S264450AbUAEONP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 09:13:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264454AbUAEONP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 09:05:10 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:43697 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264396AbUAEOFD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 09:05:03 -0500
-Date: Mon, 5 Jan 2004 15:04:47 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: David Mueller <d.mueller@elsoft.ch>, Tom Rini <trini@kernel.crashing.org>
-cc: Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: PPC32: Fix the floppy driver, on CONFIG_NOT_COHERENT_CACHE.
-In-Reply-To: <200401032002.i03K25Y9024335@hera.kernel.org>
-Message-ID: <Pine.GSO.4.58.0401051504050.3740@waterleaf.sonytel.be>
-References: <200401032002.i03K25Y9024335@hera.kernel.org>
+	Mon, 5 Jan 2004 09:13:15 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:52120 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264450AbUAEONK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 09:13:10 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Davin McCall <davmac@ozonline.com.au>
+Subject: Re: [PATCH] fix issues with loading PCI ide drivers as modules (linux 2.6.0)
+Date: Mon, 5 Jan 2004 15:16:03 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+References: <20040103152802.6e27f5c5.davmac@ozonline.com.au> <200401041547.52615.bzolnier@elka.pw.edu.pl> <20040105130939.3cca1648.davmac@ozonline.com.au>
+In-Reply-To: <20040105130939.3cca1648.davmac@ozonline.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401051516.03364.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Jan 2004, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1356.1.2, 2004/01/02 08:51:54-07:00, trini@kernel.crashing.org
+On Monday 05 of January 2004 03:09, Davin McCall wrote:
+> Sure, the current code doesn't cause a crash - but it's very, very ugly. It
+> generates some confusing error messages, and it makes it look like the
+> module has taken control of the IDE interfaces but really the drives
+> haven't been re-probed etc.
 >
-> 	PPC32: Fix the floppy driver, on CONFIG_NOT_COHERENT_CACHE.
-> 	From David Mueller <d.mueller@elsoft.ch>.
->
->
-> # This patch includes the following deltas:
-> #	           ChangeSet	1.1356.1.1 -> 1.1356.1.2
-> #	include/asm-ppc/floppy.h	1.5     -> 1.6
-> #
->
->  floppy.h |    6 +++++-
->  1 files changed, 5 insertions(+), 1 deletion(-)
->
->
-> diff -Nru a/include/asm-ppc/floppy.h b/include/asm-ppc/floppy.h
-> --- a/include/asm-ppc/floppy.h	Sat Jan  3 12:02:06 2004
-> +++ b/include/asm-ppc/floppy.h	Sat Jan  3 12:02:06 2004
-> @@ -12,7 +12,7 @@
->  #define __ASM_PPC_FLOPPY_H
->
->  #define fd_inb(port)			inb_p(port)
-> -#define fd_outb(port,value)		outb_p(port,value)
-> +#define fd_outb(value,port)		outb_p(value,port)
->
->  #define fd_enable_dma()         enable_dma(FLOPPY_DMA)
->  #define fd_disable_dma()        disable_dma(FLOPPY_DMA)
-> @@ -24,7 +24,11 @@
->  #define fd_set_dma_count(count) set_dma_count(FLOPPY_DMA,count)
->  #define fd_enable_irq()         enable_irq(FLOPPY_IRQ)
->  #define fd_disable_irq()        disable_irq(FLOPPY_IRQ)
-> +#if CONFIG_NOT_COHERENT_CACHE
-   ^^^
-Shouldn't this be #ifdef?
+> Is this not worth fixing?
 
-Gr{oetje,eeting}s,
+You are right.  Thanks for very good explanation.
 
-						Geert
+> > Ehh, more hwif->chipset crap.
+>
+> Alright, this newer patch below mostly avoids the "hwif->chipset crap" (it
+> doesn't introduce any new chipset types). But it has to export the
+> "initializing" variable from ide.c (I changed its name to
+> "ide_initializing").
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+You don't need to export "initializing" variable from ide.c,
+just use "pre_init" variable from setup-pci.c :-).
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+> Plus, everything works as before - including "idex=..." parameters.
+
+Except when using them for IDE PCI modules with non default ports:
+- hwif->chipset is set to ide_generic during boot
+- main IDE driver initialization
+- module load fails (because hwif->chipset == ide_generic && !initializing)
+
+You can fix it by replacing all current occurrences of ide_generic by some
+new type (ide_forced).  It will also clear confusion about ide_generic name.
+
+> @@ -1343,6 +1343,7 @@
+>  			int unit;
+>  			if (!hwif->present)
+>  				continue;
+> +			if (hwif->chipset == ide_unknown) hwif->chipset = ide_generic;
+
+very minor nitpick:
+
+if (hwif->chipset == ide_unknown)
+	hwif->chipset = ide_generic;
+
+Please correct patch and I will merge it.
+
+cheers,
+--bart
+

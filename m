@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263886AbUDPWMe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 18:12:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263846AbUDPWDX
+	id S263887AbUDPWfA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 18:35:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263900AbUDPWc0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 18:03:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31158 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263887AbUDPWBo (ORCPT
+	Fri, 16 Apr 2004 18:32:26 -0400
+Received: from fw.osdl.org ([65.172.181.6]:22471 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263909AbUDPW2s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 18:01:44 -0400
-Date: Fri, 16 Apr 2004 15:01:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Dave Jones <davej@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>, mingo@redhat.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: fix __exit_mm() dereference before check.
-In-Reply-To: <20040416210828.GK20937@redhat.com>
-Message-ID: <Pine.LNX.4.58.0404161458510.3947@ppc970.osdl.org>
-References: <20040416210828.GK20937@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 16 Apr 2004 18:28:48 -0400
+Date: Fri, 16 Apr 2004 15:23:32 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: help not functional in make menuconfig kernel 2.6.3
+Message-Id: <20040416152332.3882ed64.rddunlap@osdl.org>
+In-Reply-To: <20040416131307.GB6879@atrey.karlin.mff.cuni.cz>
+References: <20040416131307.GB6879@atrey.karlin.mff.cuni.cz>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 16 Apr 2004 15:13:07 +0200 Karel Kulhavy wrote:
 
+| Hello
+| 
+| linux kernel 2.6.3
+| Device Drivers -> Character devices
+| the following entries have non-functional Help. Symptoms: after
+| placing the cursor on < Help > and pressing enter the screen is cleared
+| and redrawn again. No help is displayed at all.
+| 
+| Parallel printer support
+| Support for user-space parallel port device drivers
+| Texas instruments parallel link cable support
+| QIC-02 tape support
 
-On Fri, 16 Apr 2004, Dave Jones wrote:
->
-> From a quick look, it appears passing NULL mm's down to mm_release()
-> isn't a good idea.
+I'm using 2.6.5...
 
-Hmm.. Where's the dereference? I don't disagree with the patch per se, but 
-I don't see any real problem.
+All of these config entries have help text and they all work
+for me.  Please try a newer kernel.  After all, 2.6.3 is about
+2 months old now.
 
-The mm->mm_users check is protected by "tsk->clear_child_tid", and that 
-will have been cleared already if we ever happen to call __exit_mm() 
-twice, so that one is safe.
-
-So this patch might be a cleanup, but not a "fix" per se.
-
-			Linus
-
-> --- linux-2.6.5/kernel/exit.c~	2004-04-16 22:06:00.000000000 +0100
-> +++ linux-2.6.5/kernel/exit.c	2004-04-16 22:06:51.000000000 +0100
-> @@ -482,9 +482,10 @@
->  {
->  	struct mm_struct *mm = tsk->mm;
->  
-> -	mm_release(tsk, mm);
->  	if (!mm)
->  		return;
-> +	mm_release(tsk, mm);
-> +
->  	/*
->  	 * Serialize with any possible pending coredump.
->  	 * We must hold mmap_sem around checking core_waiters
-> 
+--
+~Randy

@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263053AbTI2VNX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 17:13:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263051AbTI2VNC
+	id S263012AbTI2VM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 17:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263051AbTI2VM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 17:13:02 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17797 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263011AbTI2VLs
+	Mon, 29 Sep 2003 17:12:57 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:44305 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263012AbTI2VMH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 17:11:48 -0400
-Message-ID: <3F78A007.9090006@pobox.com>
-Date: Mon, 29 Sep 2003 17:11:35 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: arjanv@redhat.com
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ULL fixes for qlogicfc
-References: <E1A41Rq-0000NJ-00@hardwired> <20030929172329.GD6526@gtf.org>	 <bla4fg$pbp$1@cesium.transmeta.com> <1064867628.5033.1.camel@laptop.fenrus.com>
-In-Reply-To: <1064867628.5033.1.camel@laptop.fenrus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Sep 2003 17:12:07 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [PATCH] Athlon Prefetch workaround for 2.6.0test6
+Date: 29 Sep 2003 21:02:39 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bla6lf$3ul$1@gatekeeper.tmr.com>
+References: <20030929125629.GA1746@averell>
+X-Trace: gatekeeper.tmr.com 1064869359 4053 192.168.12.62 (29 Sep 2003 21:02:39 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> even dumbe question, why don't we provide ONE #define
-> PCI_DMA_MASK_64BIT that does it right.... 
-> and use that in all needed places
-> (of course we need a _32BIT one too)
+In article <20030929125629.GA1746@averell>, Andi Kleen  <ak@muc.de> wrote:
 
-It's been suggested before, and I have no objection.
+| It removes the previous dumb in kernel workaround for this and shrinks the 
+| kernel by >10k.
+| 
+| Small behaviour change is that a SIGBUS fault for a *_user access will
+| cause an EFAULT now, no SIGBUS.
+| 
+| This version addresses all criticism that I got for previous versions.
+| 
+| - Only checks on AMD K7+ CPUs. 
+| - Computes linear address for VM86 mode or code segments
+| with non zero base.
+| - Some cleanup
+| - No pointer comparisons
+| - More comments
 
-Wanna cook up the patch?  ;-)
+I have to try this on a P4 and K7, but WRT "Only checks on AMD K7+ CPUs"
+I hope you meant "only generates code if AMD CPU is target" and not that
+the code size penalty is still there for CPUs which don't need it.
 
-	Jeff
-
-
-
+Will check Wednesday, life is very busy right now.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

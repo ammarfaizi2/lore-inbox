@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262912AbTFOWNK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 18:13:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262918AbTFOWNK
+	id S262918AbTFOWQF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 18:16:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbTFOWQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 18:13:10 -0400
-Received: from 12-234-128-127.client.attbi.com ([12.234.128.127]:19414 "EHLO
-	andrei.myip.org") by vger.kernel.org with ESMTP id S262912AbTFOWNI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 18:13:08 -0400
-Subject: Re: generic method to assign IRQs
-From: Florin Andrei <florin@andrei.myip.org>
-Reply-To: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0306140035560.29854-100000@router.windsormachine.com>
-References: <Pine.LNX.4.33.0306140035560.29854-100000@router.windsormachine.com>
-Content-Type: text/plain
-Message-Id: <1055716016.2808.33.camel@rivendell.home.local>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-1) 
-Date: 15 Jun 2003 15:26:56 -0700
-Content-Transfer-Encoding: 7bit
+	Sun, 15 Jun 2003 18:16:05 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:62411 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S262918AbTFOWQE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 18:16:04 -0400
+Date: Mon, 16 Jun 2003 00:29:36 +0200 (MEST)
+Message-Id: <200306152229.h5FMTa93026063@harpo.it.uu.se>
+From: mikpe@csd.uu.se
+To: perfctr-devel@lists.sourceforge.net
+Subject: perfctr-2.5.5 released
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-06-13 at 21:37, Mike Dresser wrote:
-> On 13 Jun 2003, Florin Andrei wrote:
-> 
-> > This issue may not matter much on "normal" systems, but it matters a
-> > whole bunch on multimedia machines. Not being able to untangle like five
-> > or six devices assigned to the same IRQ may render an otherwise powerful
-> > system totally unusable for any decent media purpose (i'm talking here
-> > about simple tasks such as watching movies, not necessarily of
-> > professional stuff, which is even more demanding).
-> 
-> Some of the problem is that motherboard manufacturers setup their hardware
-> so that slots HAVE to share IRQ's no matter what you do.  I've seen
-> motherboards that have shared IRQ's even if there are no cards plugged in.
+Version 2.5.5 of perfctr, the Linux/x86 performance
+monitoring counters driver, is now available at the usual
+place: http://www.csd.uu.se/~mikpe/linux/perfctr/
 
-I think i see what you mean.
+x86-64 users please note that the 2.5.71 kernel won't
+compile on x86-64 due to incomplete 'driver model' changes.
+A patch to fix this and two other x86-64 bugs is in the
+patch-x86_64-2.5.71 file in perfctr's download directory.
 
-Still, then what's the explanation for this thing: if i run a non-APIC
-kernel, lots of devices are on the same IRQ. Just enable APIC in the
-kernel, and change nothing else, and the busy IRQ becomes less busy.
-In either case, there are tons of spare IRQs, which just sit there idle,
-unused.
+Version 2.5.5, 2003-06-15
+- Updates for driver model changes in kernel 2.5.71.
+- Minor updates to the library's event descriptions for Pentium 4.
+- Now supports SuSE's 2.4.19.SuSE-206 kernel for SLES 8 users.
+  Autodetection of SuSE kernel versions is not yet implemented:
+  pass "--patch=2.4.19.SuSE-206" to perfctr's update-kernel script
+  to ensure that the correct patch is applied.
+- Patch kit updates for 2.4.21 final and 2.4.20-18 RH kernels.
 
-If the problem would be entirely in hardware, i would say APIC shouldn't
-make a big difference.
-
-Do i miss something?
-
--- 
-Florin Andrei
-
-http://florin.myip.org/
-
+/ Mikael Pettersson

@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270952AbTGPRIb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 13:08:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270961AbTGPRHe
+	id S270957AbTGPRIc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 13:08:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270982AbTGPRH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 13:07:34 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:50189 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S270952AbTGPRFH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 13:05:07 -0400
-Date: Wed, 16 Jul 2003 18:19:56 +0100
-From: John Levon <levon@movementarian.org>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>
-Subject: Re: [PATCH] Use of Performance Monitoring Counters based on Model number
-Message-ID: <20030716171956.GC19910@compsoc.man.ac.uk>
-References: <C8C38546F90ABF408A5961FC01FDBF1902C7D0F9@fmsmsx405.fm.intel.com>
-Mime-Version: 1.0
+	Wed, 16 Jul 2003 13:07:29 -0400
+Received: from moutng.kundenserver.de ([212.227.126.183]:10957 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S270957AbTGPRFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 13:05:54 -0400
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PS2 mouse going nuts during cdparanoia session.
+X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
+ Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
+References: <20030716165701.GA21896@suse.de> <20030716170352.GJ833@suse.de>
+	<20030716170911.GB21896@suse.de>
+From: Markus Plail <linux-kernel@gitteundmarkus.de>
+Date: Wed, 16 Jul 2003 19:21:23 +0200
+In-Reply-To: <20030716170911.GB21896@suse.de> (Dave Jones's message of "Wed,
+ 16 Jul 2003 18:09:11 +0100")
+Message-ID: <87d6ga8k18.fsf@gitteundmarkus.de>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <C8C38546F90ABF408A5961FC01FDBF1902C7D0F9@fmsmsx405.fm.intel.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: King of Woolworths - L'Illustration Musicale
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19cpwa-0005zT-KW*Md2Y1s3tIlg*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 10:07:49AM -0700, Pallipadi, Venkatesh wrote:
+On Wed, 16 Jul 2003, Dave Jones wrote:
+> Ah right, I thought cdparanoia was still ripper de jour..  What's
+> recommended these days?
 
-> Attached is a small patch to make Linux kernel use of performance
-> monitoring MSRs based on known processor models. Future processor
-> implementation models may not support the same MSR layout.
-
-If you're going to do this you should fix up arch/i386/oprofile/ to
-error out similarly at least
+I'd say readcd. It also has a paranoia mode.
 
 regards
-john
+Markus
+

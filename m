@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265500AbUATNpP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 08:45:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265505AbUATNpP
+	id S265506AbUATNqn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 08:46:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265511AbUATNqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 08:45:15 -0500
-Received: from zork.zork.net ([64.81.246.102]:29117 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S265500AbUATNpN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 08:45:13 -0500
-To: Andrew Morton <akpm@osdl.org>, vojtech@suse.cz
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH] missing space in printk message (was Re: 2.6.1-mm5)
-References: <20040120000535.7fb8e683.akpm@osdl.org>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, vojtech@suse.cz,
- linux-kernel@vger.kernel.org,  linux-mm@kvack.org
-Date: Tue, 20 Jan 2004 13:45:01 +0000
-In-Reply-To: <20040120000535.7fb8e683.akpm@osdl.org> (Andrew Morton's
- message of "Tue, 20 Jan 2004 00:05:35 -0800")
-Message-ID: <6ur7xuzqci.fsf@zork.zork.net>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 20 Jan 2004 08:46:43 -0500
+Received: from pentafluge.infradead.org ([213.86.99.235]:38855 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265506AbUATNql (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 08:46:41 -0500
+Subject: Re: [PATCH] some more fixes for inode.c
+From: David Woodhouse <dwmw2@infradead.org>
+To: Rik van Riel <riel@redhat.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0401200803150.15071-100000@chimarrao.boston.redhat.com>
+References: <Pine.LNX.4.44.0401200803150.15071-100000@chimarrao.boston.redhat.com>
+Content-Type: text/plain
+Message-Id: <1074606396.29472.6.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.2) 
+Date: Tue, 20 Jan 2004 13:46:37 +0000
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Against 2.6.1-mm5.
+On Tue, 2004-01-20 at 08:06 -0500, Rik van Riel wrote:
+> The first chunk refiles the inode on the inode_unused_pagecache
+> list if needed, 
 
+Looks sane.
 
---- S1-mm5/drivers/input/keyboard/atkbd.c~	2004-01-20 13:36:13.000000000 +0000
-+++ S1-mm5/drivers/input/keyboard/atkbd.c	2004-01-20 13:36:24.000000000 +0000
-@@ -279,7 +279,7 @@
- 				atkbd->translated ? "translated" : "raw", 
- 				atkbd->set, code, serio->phys);
- 			if (atkbd->translated && atkbd->set == 2 && code == 0x7a)
--				printk(KERN_WARNING "atkbd.c: This is an XFree86 bug. It shouldn't access"
-+				printk(KERN_WARNING "atkbd.c: This is an XFree86 bug. It shouldn't access "
- 					"hardware directly.\n");
- 			else
- 				printk(KERN_WARNING "atkbd.c: Use 'setkeycodes %s%02x <keycode>' to make it known.\n",						code & 0x80 ? "e0" : "", code & 0x7f);
+> but I'm not 100% sure we need that change, since
+> maybe only completely unused inodes can end up here. David ?
+
+No, I don't see any reason why that should be the case; you can get
+iput() called for an inode which happens to have data in the page cache.
+This part of the patch is needed.
+
+-- 
+dwmw2
+

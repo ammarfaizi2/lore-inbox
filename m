@@ -1,54 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263107AbTCMXNm>; Thu, 13 Mar 2003 18:13:42 -0500
+	id <S262594AbTCMXPW>; Thu, 13 Mar 2003 18:15:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263112AbTCMXNm>; Thu, 13 Mar 2003 18:13:42 -0500
-Received: from packet.digeo.com ([12.110.80.53]:60128 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S263107AbTCMXNk>;
-	Thu, 13 Mar 2003 18:13:40 -0500
-Date: Thu, 13 Mar 2003 15:10:38 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: bzzz@tmi.comex.ru, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH] concurrent block allocation for ext2 against 2.5.64
-Message-Id: <20030313151038.221f0360.akpm@digeo.com>
-In-Reply-To: <20030313160334.G12806@schatzie.adilger.int>
-References: <m3el5bmyrf.fsf@lexa.home.net>
-	<20030313015840.1df1593c.akpm@digeo.com>
-	<m3of4fgjob.fsf@lexa.home.net>
-	<20030313142512.69f82864.akpm@digeo.com>
-	<20030313160334.G12806@schatzie.adilger.int>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Mar 2003 23:15:50.0813 (UTC) FILETIME=[7CDF64D0:01C2E9B6]
+	id <S262600AbTCMXPW>; Thu, 13 Mar 2003 18:15:22 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64520 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262594AbTCMXPR>; Thu, 13 Mar 2003 18:15:17 -0500
+Date: Thu, 13 Mar 2003 15:24:04 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63)) 
+In-Reply-To: <200303132107.h2DL7DAK005848@eeyore.valparaiso.cl>
+Message-ID: <Pine.LNX.4.44.0303131522390.23207-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger <adilger@clusterfs.com> wrote:
+
+On Thu, 13 Mar 2003, Horst von Brand wrote:
 >
-> >    I think it's probably better to just lump all the root-reserved blocks
-> >    into as few blockgroups as possible.
-> 
-> I might disagree here.  One of the reasons for having the reserved blocks
-> is to prevent fragmentation, and not necessarily to reserve space for root.
-> For the lots of small files cases it makes more sense to leave free space
-> in each group to prevent fragmentation at the group level.
+> No need. Just dump some bytes before EIP raw, plus raw bytes + decoded
+> after EIP. Could be of some help.
 
-Alex's approach effectively makes every blockgroup a little bit smaller.  I
-don't expect it will improve fragmentation effects.  Not sure...
+Alpha does this. Of course, there you don't have any of the partial 
+instruction issues.
 
-> ...
-> We could also say that for the purpose of allocating new files in a directory,
-> anything more than 95% full is "full" and the inode should be allocated in
-> a different group regardless of where the parent is.  It may be that the
-> Orlov allocator already has such a heuristic, but I think that is a different
-> discussion.
-
-Yes, both find_group_other() and find_group_orlov() do things like that.
-
-But only in 2.5, or in 2.4 with Ted's backport patches.  find_group_other()
-in 2.4 forgets to look at the free block count, which is rather sad.
+		Linus
 

@@ -1,53 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317582AbSHYV3p>; Sun, 25 Aug 2002 17:29:45 -0400
+	id <S317590AbSHYVhB>; Sun, 25 Aug 2002 17:37:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317590AbSHYV3p>; Sun, 25 Aug 2002 17:29:45 -0400
-Received: from mail.hometree.net ([212.34.181.120]:62397 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S317582AbSHYV3o>; Sun, 25 Aug 2002 17:29:44 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Linux 2.4.20-pre4-ac1
-Date: Sun, 25 Aug 2002 21:33:59 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <akbig7$69v$1@forge.intermeta.de>
-References: <20020825110156.GB1107@louise.pinerecords.com> <Pine.LNX.4.44.0208250508280.3234-100000@hawkeye.luckynet.adm>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1030311239 16749 212.34.181.4 (25 Aug 2002 21:33:59 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sun, 25 Aug 2002 21:33:59 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S317592AbSHYVhB>; Sun, 25 Aug 2002 17:37:01 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:38237 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S317590AbSHYVhA>;
+	Sun, 25 Aug 2002 17:37:00 -0400
+From: <Hell.Surfers@cwctv.net>
+To: thunder@lightweight.ods.org, linux-kernel@vger.kernel.org
+Date: Sun, 25 Aug 2002 22:40:45 +0100
+Subject: Low Price Cigarettes AKA the spam problem.
+MIME-Version: 1.0
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1030311645401"
+Message-ID: <09f4a5039211982DTVMAIL8@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thunder from the hill <thunder@lightweight.ods.org> writes:
 
->"Warning: The speed was limited because the 80-conductor cable wasn't used 
->(and got annoyed for that reason)."?
->"Warning: 80-conductor cable wasn't, so it must have been the speed 
->which got used to reducing itself."
+--1030311645401
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Warning: Cable not suitable for higher ATA speeds.
+Well the spam problem is non existant... I was wrong... Hey now its 127 million upfor grabs...
 
-Warning: 40-conductor cable detected. Reducing speed.
 
-Don't tell what's _not_ there. Tell what is there. First rule of error 
-messages.
 
-[ Warning: All your higher ATA levels are belong to us ]
+On 	Sun, 25 Aug 2002 14:27:47 -0600 (MDT) 	Thunder from the hill <thunder@lightweight.ods.org> wrote:
 
-	Regards
-		Henning
+--1030311645401
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
+Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Sun, 25 Aug 2002 21:27:57 +0100
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S317506AbSHYUXh>; Sun, 25 Aug 2002 16:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S317508AbSHYUXh>; Sun, 25 Aug 2002 16:23:37 -0400
+Received: from pD9E236A6.dip.t-dialin.net ([217.226.54.166]:8364 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317506AbSHYUXg>; Sun, 25 Aug 2002 16:23:36 -0400
+Received: from hawkeye.luckynet.adm (hawkeye.luckynet.adm [192.168.1.1])
+	by hawkeye.luckynet.adm (8.12.1/8.12.1) with ESMTP id g7PKRqnO031312
+	for <linux-kernel@vger.kernel.org>; Sun, 25 Aug 2002 14:27:53 -0600
+Date: Sun, 25 Aug 2002 14:27:47 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Low Price Cigarettes
+In-Reply-To: <20020825201935Z317498-685+36897@vger.kernel.org>
+Message-ID: <Pine.LNX.4.44.0208251427100.3234-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam-Babelsberg; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
+
+Hi,
+
+On Sun, 25 Aug 2002, Sales Department wrote:
+> If you are fed up of being 'ripped off' by the British government every
+> time you buy your tobacco, then you should visit our website, where you
+> can now buy 4 cartons of cigarettes, or 40 pouches of rolling tobacco
+> from as little as 170 Euros (approx 105 pounds), inclusive of delivery
+> by registered air mail from our office in Spain.
+
+This list doesn't have a nationality, neither does it smoke. Thanks.
+
+			Thunder
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+..- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--1030311645401--
+
+

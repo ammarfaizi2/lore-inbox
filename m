@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262364AbUKKSuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262293AbUKKTDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262364AbUKKSuG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 13:50:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbUKKSsL
+	id S262293AbUKKTDy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 14:03:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbUKKTDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 13:48:11 -0500
-Received: from nevyn.them.org ([66.93.172.17]:23224 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S262347AbUKKSpr (ORCPT
+	Thu, 11 Nov 2004 14:03:54 -0500
+Received: from mail.epost.de ([193.28.100.151]:63644 "EHLO mail.epost.de")
+	by vger.kernel.org with ESMTP id S262293AbUKKTDx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 13:45:47 -0500
-Date: Thu, 11 Nov 2004 13:45:23 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Christophe Saout <christophe@saout.de>
-Cc: Blaisorblade <blaisorblade_spam@yahoo.it>, Chris Wedgwood <cw@f00f.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Fixing UML against NPTL (was: Re: [uml-devel] [PATCH] UML: Use PTRACE_KILL instead of SIGKILL to kill host-OS processes (take #2))
-Message-ID: <20041111184523.GA11578@nevyn.them.org>
-Mail-Followup-To: Christophe Saout <christophe@saout.de>,
-	Blaisorblade <blaisorblade_spam@yahoo.it>,
-	Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>
-References: <20041103113736.GA23041@taniwha.stupidest.org> <200411040113.27747.blaisorblade_spam@yahoo.it> <20041104003943.GB17467@taniwha.stupidest.org> <200411040531.29596.blaisorblade_spam@yahoo.it> <20041111174512.GA27809@nevyn.them.org> <1100197911.11951.1.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 11 Nov 2004 14:03:53 -0500
+From: Gregor Jasny <Gregor.Jasny@epost.de>
+To: linux-kernel@vger.kernel.org
+Subject: USB-1.1 fails with USB 2.0 Hub [was: Re: USB-Serial fails with USB 2.0 Hub]
+Date: Thu, 11 Nov 2004 20:03:43 +0100
+User-Agent: KMail/1.7
+References: <6.1.1.1.0.20041108074026.01dead50@ptg1.spd.analog.com>
+In-Reply-To: <6.1.1.1.0.20041108074026.01dead50@ptg1.spd.analog.com>
+Cc: Robin Getz <rgetz@blackfin.uclinux.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1100197911.11951.1.camel@leto.cs.pocnet.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200411112003.43598.Gregor.Jasny@epost.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 11, 2004 at 07:31:51PM +0100, Christophe Saout wrote:
-> Am Donnerstag, den 11.11.2004, 12:45 -0500 schrieb Daniel Jacobowitz:
-> 
-> > Glibc caches the PID.  If you're going to use clone directly, use the
-> > gettid/getpid syscall directly.  It's kind of rude that glibc breaks
-> > getpid in this way; I recommend filing a bug in the glibc bugzilla at
-> > sources.redhat.com.
+On Monday 08 November 2004 16:49, you wrote:
+> Two problems with kernel 2.6.4 (SuSe 9.1):
+>
+> 1) When I use a Belkin F5U409 usb-serial converter:
+>      - when plugged directly into chipset (Intel ICH5), works great.
+>      - when plugged in through a USB 1.0 hub, works great
+>      - when plugged in throught USB 2.0 Hub (Belkin F5U237), fails.
+>        Failure mechanism is: Tx works, Rx does not.
 
-... but, thinking about it, they'll probably close it as INVALID.
+Just a simple me, too. I've got the problem with a TerraCAM USB Pro. Plugged 
+into my Apple Keyboard it works (with a warning about high power 
+consumption). But if I plug it into my Belkin F5U237 the driver complains 
+with: "drivers/usb/media/ov511.c: init isoc: usb_submit_urb(0) ret -38".
 
-> If glibc insists on caching the pid, it could also simply invalidate the
-> pid cache in the clone function.
+Have you already tried another USBv2 hub?
 
-It currently does this for vfork, but not clone.  Basically, you can't
-call into glibc at all if you use clone.  If you aren't using POSIX
-threads, then the POSIX-compliant library is going to fall to pieces
-around you.  For instance, all the file locking will break, and
-anything else that, like the PID cache, relies on either global or
-per-_thread_ data.
+Cheers,
+-Gregor
 
--- 
-Daniel Jacobowitz
+PS: I'm using a ASUS P4C800deluxe and Linux 2.6.9

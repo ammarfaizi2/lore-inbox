@@ -1,72 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUCEVnH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 16:43:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbUCEVnF
+	id S261262AbUCEVlA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 16:41:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbUCEVlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 16:43:05 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:53265 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261202AbUCEVmr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 16:42:47 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: initrd does not boot in 2.6.3, working in 2.4.25
-Date: Fri, 5 Mar 2004 23:28:01 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-References: <200403051238.53470.vda@port.imtp.ilyichevsk.odessa.ua> <200403051831.31271.vda@port.imtp.ilyichevsk.odessa.ua> <20040305170619.GX655@holomorphy.com>
-In-Reply-To: <20040305170619.GX655@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Mar 2004 16:41:00 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:15261 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261262AbUCEVk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 16:40:58 -0500
+From: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
+Date: Fri, 5 Mar 2004 16:40:54 -0500
+To: Jason Munro <jason@stdbev.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ACPI battery info failure after some period of time, 2.6.3-x and up
+Message-ID: <20040305214054.GA983@butterfly.hjsoft.com>
+References: <4047756D.2050402@blue-labs.org> <200403051520.40341.sgy-lkml@amc.com.au> <4048015D.6070308@blue-labs.org> <200403051543.04300.sgy-lkml@amc.com.au> <Pine.LNX.4.58.0403051259480.387@boston.corp.fedex.com> <950c9d8cf6fbb225c867dff9a4284d0c@stdbev.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
 Content-Disposition: inline
-Message-Id: <200403052328.01720.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <950c9d8cf6fbb225c867dff9a4284d0c@stdbev.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 05 March 2004 19:06, William Lee Irwin III wrote:
-> On Friday 05 March 2004 13:04, William Lee Irwin III wrote:
-> >> nfsroot works in 2.6.3 and above here. I'm not sure you need it per se
-> >> for initrd's; I think the way it's intended to work with that is for
-> >> the scripts to configure network interfaces, mount the nfsroot, and then
-> >> pivot_root(). Can you try without initrd?
-> >> Also, try passing ip= for these things.
->
-> On Fri, Mar 05, 2004 at 06:31:31PM +0200, Denis Vlasenko wrote:
-> > I run these things everyday.
-> > nfsroot and ip=.... works, no question about that.
-> > Just imagine all-modular kernel which needs to load ethernet driver
-> > first, *then* mount nfs root and pivot_root. Or nfsroot-over-wireless :)
-> > --
-> > vda
->
-> For this, you should probably script the initrd to do the IP
-> configuration and mount the nfsroot before pivot_root().
 
-Exactly. For now I don't really need it, but decided to
-try it just in case I'll need it later. I stuffed
-udhcp and nfs tools into initrd, played with it a bit,
-and finally managed to make it work under 2.4.25.
+--a8Wt8u1KmwUX3Y2C
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Then I tried 2.6.3 with the _same_ initrd and same
-bootloader.
+> > have you tried applying patch from ...
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release
+> > /2.6.4/
+> > acpi-20040220-2.6.4.diff.bz2
 
-2.6.3 refuses to recognize my initrd as root fs.
-It even mounts it on / but then suddenly acts
-as if I specified root=/dev/nfs. I _didn't_.
-I said root=/dev/ram, then tried root=/dev/ram0,
-root=/dev/ram/0, root=/dev/rd/0.
-All to no avail:
+this patch did not help on my dell inspiron 3800.  the battery
+status worked with 2.6.0, but it's been broken in the past
+couple versions.  same as others were seeing:
+ACPI-0279: *** Error: Looking up [BST0] in namespace, AE_ALREADY_EXISTS
+ACPI-1120: *** Error: Method execution failed [\_SB_.BAT0._BST]
+(Node d7fc7ba0), AE_ALREADY_EXISTS
 
-VFS: Mounted root (ext2 filesystem)  <-- mounts initrd on /
-Mounted devfs on /dev
+i'm trying 2.6.4-rc2 with this acpi patch.
+--=20
+____________________}John Flinchbaugh{______________________
+| glynis@hjsoft.com         http://www.hjsoft.com/~glynis/ |
+~~Powered by Linux: Reboots are for hardware upgrades only~~
 
-(here 2.4.25 would say "Freed unused kernel mem..." and happily exec init)
+--a8Wt8u1KmwUX3Y2C
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Root-NFS: No NFS server available, giving up
-VFS: Unable to mount root fs via NFS, t
---
-vda
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQFASPPmCGPRljI8080RAj52AJ4mU9JHAbrhcOnnL8RQCw2jAaV4UgCgks/d
+20E0Da5LofpY0J9ngiub2Y4=
+=0ImI
+-----END PGP SIGNATURE-----
+
+--a8Wt8u1KmwUX3Y2C--

@@ -1,36 +1,23 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283469AbRK3CZs>; Thu, 29 Nov 2001 21:25:48 -0500
+	id <S283470AbRK3C1i>; Thu, 29 Nov 2001 21:27:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283470AbRK3CZi>; Thu, 29 Nov 2001 21:25:38 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:5899 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S283469AbRK3CZc>;
-	Thu, 29 Nov 2001 21:25:32 -0500
-Date: Thu, 29 Nov 2001 18:39:33 +0100
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Add note about moved pre-patches ?
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-id: <3C0672D5.BF3A4292@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S283471AbRK3C12>; Thu, 29 Nov 2001 21:27:28 -0500
+Received: from [211.155.253.66] ([211.155.253.66]:60556 "EHLO
+	mail.dawning.com.cn") by vger.kernel.org with ESMTP
+	id <S283470AbRK3C1V>; Thu, 29 Nov 2001 21:27:21 -0500
+Message-ID: <3C06EDA6.4020700@263.net>
+Date: Fri, 30 Nov 2001 10:23:34 +0800
+From: Isaac Claymore <claymore@263.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: test(NULL, sorry guys)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-Last time I looked for pre-patches and couldn't find any ( because they moved).
-Can someone please put a note in ...kernel.org/pub/linux/kernel/testing/ that
-the pre-patches have been moved ?
 
-It won't help _me_ , but other lost souls might find it useful.
-
-Regards,
-david
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill S. Preston, Esq., & "Ted" Theodore Logan
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

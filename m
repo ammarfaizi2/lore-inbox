@@ -1,64 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbTD2JJI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 05:09:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbTD2JJI
+	id S261294AbTD2JQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 05:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbTD2JQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 05:09:08 -0400
-Received: from main.gmane.org ([80.91.224.249]:31669 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261292AbTD2JJH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 05:09:07 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Thomas Backlund <tmb@iki.fi>
-Subject: Re: 2.4.21-rc1-ac2 Promise IDE DMA won't work
-Date: Tue, 29 Apr 2003 12:21:19 +0300
-Message-ID: <b8lg4a$dhk$1@main.gmane.org>
-References: <Pine.LNX.4.10.10304281855540.20264-100000@master.linux-ide.org> <200304282234.59745.tabris@sbcglobal.net>
+	Tue, 29 Apr 2003 05:16:28 -0400
+Received: from 237.oncolt.com ([213.86.99.237]:63968 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id S261294AbTD2JQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 05:16:27 -0400
+Subject: [PATCH]  Fix V.110 on HiSax HFC_PCI.
+From: David Woodhouse <dwmw2@infradead.org>
+To: marcelo@conectiva.com.br
+Cc: kkeil@suse.de, kai.germaschewski@gmx.de, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1051608519.18316.118.camel@passion.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: KNode/0.7.2
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
+Date: Tue, 29 Apr 2003 10:28:40 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tabris wrote:
+This patch fixes V.110 dialin to HFC_PCI ISDN adapters, which weren't
+sending V.110 idle frames correctly before due to missing wakeups from
+the low-level driver.
 
-> On Monday 28 April 2003 09:58 pm, Andre Hedrick wrote:
->> NO ATAPI DMA!
->>
->> I will not write the driver core to attempt to support the various
->> combinations.  The ATAPI DMA engine space is used support 48bit.
->> Use the onboard controller for ATAPI.
->> Andre Hedrick
->> LAD Storage Consulting Group
-> 
-> Can I object that it came built onto the board? okok... i'll take that
-> as a no for now...
-> 
-> Tho i'm still not quite sure how it makes a diff to be honest, unless
-> you mean that the Promise and HPT will never be supported for DMA?
-> 
-> and the only other thing i should say is that altho i'm not exactly a
-> n00b, the average user WILL expect it to work.
-> 
-> can i expect this to be fixed by 2.6? (yeah, i know... 2.4-ac-ide code
-> is similar to 2.5-ide code)
-> --
-> tabris
+This is for 2.4 only -- 2.5 with ISDN doesn't even boot for me at the moment.
 
-The point is that you should put your ATAPI device (in this case the cd-rom)
-on the VIA controllers, and place the hdd's on the promise controller,
-since dma is supported for hdd's...
-
-This is also their intended primary functions by the manufacturers...,
-for example the HPT370 controller with bios version >1.1.x.xxx does
-not have ATAPI support (atleast officially, I haven't tried it)
+--- drivers/isdn/hisax/hfc_pci.c.orig	2003-04-26 00:19:36.000000000 +0100
++++ drivers/isdn/hisax/hfc_pci.c	2003-04-26 00:19:43.000000000 +0100
+@@ -687,6 +687,10 @@
+ 				debugl1(cs, "hfcpci_fill_fifo_trans %d frame length %d discarded",
+ 					bcs->channel, bcs->tx_skb->len);
+ 
++			if (bcs->st->lli.l1writewakeup &&
++                           (PACKET_NOACK != bcs->tx_skb->pkt_type))
++				bcs->st->lli.l1writewakeup(bcs->st, bcs->tx_skb->len);
++
+ 			dev_kfree_skb_any(bcs->tx_skb);
+ 			cli();
+ 			bcs->tx_skb = skb_dequeue(&bcs->squeue);	/* fetch next data */
 
 
-Thomas
 
 
+
+
+
+
+-- 
+dwmw2
 

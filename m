@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVDCIu3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVDCI45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbVDCIu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 04:50:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVDCIu3
+	id S261617AbVDCI45 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 04:56:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVDCI45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 04:50:29 -0400
-Received: from 213-0-213-243.dialup.nuria.telefonica-data.net ([213.0.213.243]:55708
-	"EHLO dardhal.24x7linux.com") by vger.kernel.org with ESMTP
-	id S261617AbVDCItw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 04:49:52 -0400
-Date: Sun, 3 Apr 2005 10:49:57 +0200
-From: Jose Luis Domingo Lopez <video4linux@24x7linux.com>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       video4linux-list@redhat.com
-Subject: Re: [2.6.11.6] Oops trying to remove module "bttv"
-Message-ID: <20050403084957.GA5055@localhost>
-Mail-Followup-To: Jesper Juhl <juhl-lkml@dif.dk>,
-	Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>,
-	video4linux-list@redhat.com
-References: <20050402231737.GA4773@localhost> <Pine.LNX.4.62.0504030127420.2525@dragon.hyggekrogen.localhost>
+	Sun, 3 Apr 2005 04:56:57 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:56038 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261617AbVDCI4z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 04:56:55 -0400
+Date: Sun, 3 Apr 2005 14:26:50 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, shemminger@osdl.org,
+       manfred@colorfullife.com, bunk@stusta.de
+Subject: Re: [RFC,PATCH 2/4] Deprecate synchronize_kernel, GPL replacement
+Message-ID: <20050403085650.GA4563@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20050403062149.GA1656@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0504030127420.2525@dragon.hyggekrogen.localhost>
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <20050403062149.GA1656@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Sunday, 03 April 2005, at 01:31:30 +0200,
-Jesper Juhl wrote:
-
-> Have you tried 2.6.12-rc1-bk5 or 2.6.12-rc1-mm4 to see if the bug has 
-> already been fixed ?
+On Sat, Apr 02, 2005 at 10:21:50PM -0800, Paul E. McKenney wrote:
+> The synchronize_kernel() primitive is used for quite a few different
+> purposes: waiting for RCU readers, waiting for NMIs, waiting for interrupts,
+> and so on.  This makes RCU code harder to read, since synchronize_kernel()
+> might or might not have matching rcu_read_lock()s.  This patch creates
+> a new synchronize_rcu() that is to be used for RCU readers and a new
+> synchronize_sched() that is used for the rest.  These two new primitives
+> currently have the same implementation, but this is might well change
+> with additional real-time support.  Both new primitives are GPL-only,
+> the old primitive is deprecated.
 > 
-Just tried 2.6.12-rc1-bk5, and it works OK. Sorry for the noise.
+> Signed-off-by: <paulmck@us.ibm.com>
+> ---
+> Depends on earlier "Add deprecated_for_modules" patch.
+> 
+> +/*
+> + * Deprecated, use synchronize_rcu() or synchronize_sched() instead.
+> + */
+> +void synchronize_kernel(void)
+> +{
+> +	synchronize_rcu();
+> +}
+> +
 
-Greetings,
+We should probably mark it deprecated - 
 
-- -- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Sid (Linux 2.6.12-rc1-bk5)
+void __deprecated synchronize_kernel(void)
+{
+	synchronize_rcu();
+}
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCT641ao1/w/yPYI0RAkfWAJ4xk4+n4VhIfCza+QUFH49u5HewNwCfebxR
-o7upS2+7eI9DkJ9E5spjEbA=
-=Ez+Q
------END PGP SIGNATURE-----
+Thanks
+Dipankar

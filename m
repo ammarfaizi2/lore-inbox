@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S144431AbRA1XHd>; Sun, 28 Jan 2001 18:07:33 -0500
+	id <S144480AbRA1XW1>; Sun, 28 Jan 2001 18:22:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144446AbRA1XHY>; Sun, 28 Jan 2001 18:07:24 -0500
-Received: from smtp-server.maine.rr.com ([204.210.65.66]:11497 "HELO
-	smtp-server.maine.rr.com") by vger.kernel.org with SMTP
-	id <S144431AbRA1XHN>; Sun, 28 Jan 2001 18:07:13 -0500
-Message-ID: <000e01c0897d$bb822600$b001a8c0@caesar>
-From: "paradox3" <paradox3@maine.rr.com>
-To: "Trevor Hemsley" <Trevor-Hemsley@dial.pipex.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Poor SCSI drive performance on SMP machine, 2.2.16
-Date: Sun, 28 Jan 2001 17:57:47 -0500
+	id <S144455AbRA1XWS>; Sun, 28 Jan 2001 18:22:18 -0500
+Received: from femail3.rdc1.on.home.com ([24.2.9.90]:32157 "EHLO
+	femail3.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S144491AbRA1XWF>; Sun, 28 Jan 2001 18:22:05 -0500
+Message-ID: <3A74A981.51B1E382@Home.net>
+Date: Sun, 28 Jan 2001 18:21:37 -0500
+From: Shawn Starr <Shawn.Starr@Home.net>
+Organization: Visualnet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10a i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.4.1pre11 - Compile bug - Function prototype change?
+Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It sounds to me like you have a SCSI bus problem. Have you checked
-> termination? Cable quality? Cable lengths?
+in include/linux/mm.h:
 
-Forgive me, I'm rather ignorant of SCSI hardware.....All that I have is a
-cable (appears
-to be good quality, came with motherboard) about 60 centimeters long going
-from the
-motherboard to my hard drive. There is an unused/empty port in between.
+-extern void zap_page_range(struct mm_struct *mm, unsigned long address,
+unsigned long size, int actions);
++extern void zap_page_range(struct mm_struct *mm, unsigned long address,
+unsigned long size)
 
->
-> Do you have tagged queuing enabled for aic7xxx? It's a config option
-> and you can adjust the maximum queue depth. You can see the current
-> settings by cat /proc/scsi/aic7xxx/0
->
-/proc/scsi only contains a single file named "scsi" with brief info about
-the drive
-According to my last save kernel config, tagged command queueing is not
-enabled by default.
-Could this be the problem?
+The function has changed and breaks memory.c ?
 
+memory.c:352: conflicting types for `zap_page_range'
+/usr/src/linux/include/linux/mm.h:396: previous declaration of
+`zap_page_range'
+make[2]: *** [memory.o] Error 1
+make[2]: Leaving directory `/usr/src/linux/mm'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/usr/src/linux/mm'
+make: *** [_dir_mm] Error 2
 
-> Do you have write caching enabled on the drive? scsiinfo -c /dev/sdx
-> will tell you if you do.
-I don't seem to have scsiinfo.
-
->
-> As a data point, I copied a 650MB file to another file on the same
-> 10krpm disk and sync'ed in about the same time it takes you to write
-> 100MB. I've also copied it from a slower 7200rpm disk to my 10krpm IBM
-> drive and sync'ed in 1 min 19 secs which is about the read speed of
-> the slower disk.
->
-> --
-> Trevor Hemsley, Brighton, UK.
-> Trevor-Hemsley@dial.pipex.com
->
+Shawn.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

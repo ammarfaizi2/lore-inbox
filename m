@@ -1,591 +1,598 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261356AbSJ1XRw>; Mon, 28 Oct 2002 18:17:52 -0500
+	id <S261746AbSJ1XIS>; Mon, 28 Oct 2002 18:08:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261440AbSJ1XRv>; Mon, 28 Oct 2002 18:17:51 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:41644 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261356AbSJ1XRn>;
-	Mon, 28 Oct 2002 18:17:43 -0500
-Message-ID: <3DBDC5C4.3010807@us.ibm.com>
-Date: Mon, 28 Oct 2002 15:18:28 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Martin Bligh <mjbligh@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [rfc][patch] MAX_NR_NODES vs. MAX_NUMNODES
-References: <3DB8927E.5090909@us.ibm.com> <20021025100028.A19335@flint.arm.linux.org.uk> <3DBD9434.5050601@us.ibm.com> <20021028213700.D11734@flint.arm.linux.org.uk>
-Content-Type: multipart/mixed;
- boundary="------------030407020609020905070404"
+	id <S261340AbSJ1XIS>; Mon, 28 Oct 2002 18:08:18 -0500
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:45324 "EHLO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S261746AbSJ1XHd>; Mon, 28 Oct 2002 18:07:33 -0500
+Date: Mon, 28 Oct 2002 17:10:16 -0600
+From: Stephen Cameron <steve.cameron@hp.com>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.44-ac3, cciss, more scatter gather elements
+Message-ID: <20021028171016.A903@zuul.cca.cpqcorp.net>
+Reply-To: steve.cameron@hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030407020609020905070404
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Russell King wrote:
-> On Mon, Oct 28, 2002 at 11:47:00AM -0800, Matthew Dobson wrote:
->>>It would be better if it remained in mmzone.h for non-arm, and the
->>>memory.h files for arm.  I really never understood why numnodes.h was
->>>created when mmzone.h has works adequately well since 2.3.
->>
->>As mentioned in the original post, I was trying 
->>to kill a bunch of (seemingly) unnecessary .h files (the numnodes.h's 
->>specifically), and remove the MAX_[NUM|NR_]NODES duality.  If that can't 
->>be accomplished, then all this would do is move the confusion around, 
->>and I don't want that...
+Jens Axboe wrote:
+[...]
+> It's not a kernel limit. If you queue limits are all beyond 64 entries,
+> what you typically see is that you just hit what mpage will fill in for
+> you. One thing that should give you max number of sg entries is plain
+> and simple:
 > 
-> I'm in agreement with you here.
+> 	dd if=/dev/zero of=some_file bs=4096k
 
-I knew we must have some motivation in common! ;)
+What about 
 
->>If you feel param.h is the wrong place, I originally had the #define's 
->>in asm/topology.h.
-> 
-> This seems like a good solution - linux/mmzone.h already includes this
-> file, so it wouldn't be adding all that much to the #include hell.
-> Also, asm-generic/topology.h contains stuff to do with numa/discontig
-> already, so it seems perfect.
+	dd if=/dev/cciss/c0d1p1 of=/dev/null bs=4096k
 
-Ok... I've revised the patch to put the #define's in topology.h.  Please 
-have a look and make sure I still haven't butchered things for arm.  I 
-think that <asm/topology.h> is a particularly reasonable place to define 
-MAX_NR_NODES and other topology things! :)  We'll see if this piques 
-anyone's interest.
+Should be similar, right?  When I had tried that, I still got a max 
+of 64 SG's coming down.   Tried lots of other block sizes too...
+Maybe it's something to do with disk performance.  A raid 1 volume of two
+disks seems to give me 64 SGs, but a raid-0 set (1 disk) gets me
+just 32.  Maybe adding more disks in a stripe-set would get me more.
+I haven't experimented enough to see if that behavior is consistent.
 
- >>max_numnodes_fix.patch
+[...]
+> Besides, if you put 8kb on the stack you are already seriously in
+> trouble. 
 
-Collapse the use of MAX_NUMNODES throughout the kernel into the already 
-existing, far less used, yet far more appropriately named MAX_NR_NODES.
+That is what I thought, but I could't remember where I learned it.
+Anyway, here is a new cciss patch to work with your ll_rw_blk.c patch
+to use more than 31 scatter gather entries.
+-- steve
 
-[mcd@arrakis src]$ diffstat ~/patches/max_numnodes_fix-2.5.44.patch
-  arch/alpha/mm/numa.c                   |    6 +++---
-  arch/arm/mm/discontig.c                |    6 +++---
-  arch/arm/mm/init.c                     |   12 +++---------
-  arch/i386/kernel/numaq.c               |   10 ++++++----
-  arch/i386/mm/discontig.c               |   11 +++++------
-  arch/ppc64/mm/init.c                   |    2 +-
-  arch/ppc64/mm/numa.c                   |   10 +++++-----
-  include/asm-alpha/numnodes.h           |   12 ------------
-  include/asm-alpha/topology.h           |   10 ++++++++++
-  include/asm-arm/arch-clps711x/memory.h |    2 --
-  include/asm-arm/arch-sa1100/memory.h   |    2 --
-  include/asm-arm/memory.h               |    5 +++--
-  include/asm-arm/numnodes.h             |   17 -----------------
-  include/asm-arm/topology.h             |    4 ++++
-  include/asm-generic/topology.h         |    4 ++++
-  include/asm-i386/numaq.h               |    5 ++---
-  include/asm-i386/numnodes.h            |   12 ------------
-  include/asm-i386/topology.h            |    4 ++++
-  include/asm-ppc64/numnodes.h           |    6 ------
-  include/asm-ppc64/topology.h           |    6 ++++++
-  include/linux/mmzone.h                 |   19 +++++++------------
-  21 files changed, 66 insertions(+), 99 deletions(-)
+ drivers/block/Config.help  |   16 +++
+ drivers/block/Config.in    |    3 
+ drivers/block/cciss.c      |  216 +++++++++++++++++++++++++++++++++++----------
+ drivers/block/cciss.h      |   10 ++
+ drivers/block/cciss_cmd.h  |   13 ++
+ drivers/block/cciss_scsi.c |   26 +++++
+ 6 files changed, 237 insertions, 47 deletions
 
-Kills 33 lines of code, and also kills 4 files.  With (apparently) no 
-change in functionality and possibly even a positive change in readability.
-
-Cheers!
-
--Matt
-
---------------030407020609020905070404
-Content-Type: text/plain;
- name="max_numnodes_fix-2.5.44.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="max_numnodes_fix-2.5.44.patch"
-
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/arch/alpha/mm/numa.c linux-2.5.44-max_numnodes_fix/arch/alpha/mm/numa.c
---- linux-2.5.44-vanilla/arch/alpha/mm/numa.c	Fri Oct 18 21:01:08 2002
-+++ linux-2.5.44-max_numnodes_fix/arch/alpha/mm/numa.c	Mon Oct 28 14:24:18 2002
-@@ -19,8 +19,8 @@
- #include <asm/hwrpb.h>
- #include <asm/pgalloc.h>
+--- lx2544ac3/drivers/block/cciss.c~sgc3	Mon Oct 28 15:18:44 2002
++++ lx2544ac3-root/drivers/block/cciss.c	Mon Oct 28 16:02:07 2002
+@@ -37,6 +37,7 @@
+ #include <linux/init.h> 
+ #include <linux/hdreg.h>
+ #include <linux/spinlock.h>
++#include <linux/completion.h>
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
  
--plat_pg_data_t *plat_node_data[MAX_NUMNODES];
--bootmem_data_t plat_node_bdata[MAX_NUMNODES];
-+plat_pg_data_t *plat_node_data[MAX_NR_NODES];
-+bootmem_data_t plat_node_bdata[MAX_NR_NODES];
+@@ -164,7 +165,7 @@ static int cciss_proc_get_info(char *buf
+                 "       Current Q depth: %d\n"
+                 "       Max Q depth since init: %d\n"
+ 		"       Max # commands on controller since init: %d\n"
+-		"       Max SG entries since init: %d\n\n",
++		"       Max SG entries since init: %d/%d\n\n",
+                 h->devname,
+                 h->product_name,
+                 (unsigned long)h->board_id,
+@@ -173,7 +174,8 @@ static int cciss_proc_get_info(char *buf
+                 (unsigned int)h->intr,
+                 h->num_luns, 
+                 h->highest_lun, 
+-                h->Qdepth, h->maxQsinceinit, h->max_outstanding, h->maxSG);
++                h->Qdepth, h->maxQsinceinit, h->max_outstanding, h->maxSG,
++		h->sg_limit);
  
- #undef DEBUG_DISCONTIG
- #ifdef DEBUG_DISCONTIG
-@@ -243,7 +243,7 @@
- 	show_mem_layout();
+         pos += size; len += size;
+ 	cciss_proc_tape_report(ctlr, buffer, &pos, &len);
+@@ -248,6 +250,44 @@ static void __init cciss_procinit(int i)
+ }
+ #endif /* CONFIG_PROC_FS */
  
- 	numnodes = 0;
--	for (nid = 0; nid < MAX_NUMNODES; nid++)
-+	for (nid = 0; nid < MAX_NR_NODES; nid++)
- 		setup_memory_node(nid, kernel_end);
- 
- #ifdef CONFIG_BLK_DEV_INITRD
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/arch/arm/mm/discontig.c linux-2.5.44-max_numnodes_fix/arch/arm/mm/discontig.c
---- linux-2.5.44-vanilla/arch/arm/mm/discontig.c	Fri Oct 18 21:02:29 2002
-+++ linux-2.5.44-max_numnodes_fix/arch/arm/mm/discontig.c	Mon Oct 28 14:24:18 2002
-@@ -15,7 +15,7 @@
- #include <linux/init.h>
- #include <linux/bootmem.h>
- 
--#if NR_NODES != 4
-+#if MAX_NR_NODES != 4
- #error Fix Me Please
- #endif
- 
-@@ -23,9 +23,9 @@
-  * Our node_data structure for discontigous memory.
-  */
- 
--static bootmem_data_t node_bootmem_data[NR_NODES];
-+static bootmem_data_t node_bootmem_data[MAX_NR_NODES];
- 
--pg_data_t discontig_node_data[NR_NODES] = {
-+pg_data_t discontig_node_data[MAX_NR_NODES] = {
-   { bdata: &node_bootmem_data[0] },
-   { bdata: &node_bootmem_data[1] },
-   { bdata: &node_bootmem_data[2] },
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/arch/arm/mm/init.c linux-2.5.44-max_numnodes_fix/arch/arm/mm/init.c
---- linux-2.5.44-vanilla/arch/arm/mm/init.c	Fri Oct 18 21:01:09 2002
-+++ linux-2.5.44-max_numnodes_fix/arch/arm/mm/init.c	Mon Oct 28 14:24:18 2002
-@@ -34,12 +34,6 @@
- #include <asm/mach/arch.h>
- #include <asm/mach/map.h>
- 
--#ifndef CONFIG_DISCONTIGMEM
--#define NR_NODES	1
--#else
--#define NR_NODES	4
--#endif
--
- #ifdef CONFIG_CPU_32
- #define TABLE_OFFSET	(PTRS_PER_PTE)
- #else
-@@ -179,7 +173,7 @@
++static int supports_sg_chaining(ctlr_info_t *h)
++{
++	int fw_ver =	(h->firm_ver[0] - '0') * 100 + /* [1] == '.', skip */
++			(h->firm_ver[2] - '0') * 10 +
++			(h->firm_ver[3] - '0');
++	/* 1st generation controllers need >= 2.32 firmware */
++	if (h->pdev->device == PCI_DEVICE_ID_COMPAQ_CISS)
++		return (fw_ver >= 232);
++	/* 2nd generation controllers need >= 1.78 firmware */
++	if (h->pdev->device == PCI_DEVICE_ID_COMPAQ_CISSB)
++		return (fw_ver >= 178);
++	/* All controllers >= 3rd generation (will) support this. */
++	return 1;
++}
++
++static void cciss_allocate_extra_sg_pages(int ctlr)
++{
++	/* Allocate extra SG list pages if supported and requested */
++	if (supports_sg_chaining(hba[ctlr]) && CONFIG_CISS_MAX_SG_PAGES > 1) {
++		hba[ctlr]->sglist_pool = (SGDescriptor_struct *)
++		pci_alloc_consistent(hba[ctlr]->pdev,
++			(CONFIG_CISS_MAX_SG_PAGES-1) * MAXSGENTRIES *
++				NR_CMDS * sizeof(SGDescriptor_struct),
++			&(hba[ctlr]->sglist_pool_dhandle));
++		if (hba[ctlr]->sglist_pool == NULL)
++			printk(KERN_WARNING "cciss%d: Scatter-gather list "
++				"chaining not enabled.", ctlr);
++	}
++}
++
++static inline int figure_sg_limit(int i)
++{
++	/* figure out how many SGs we want to support for this board. */
++	if (supports_sg_chaining(hba[i]) && hba[i]->sglist_pool != NULL)
++		return CONFIG_CISS_MAX_SG_PAGES * (MAXSGENTRIES-1);
++	return MAXSGENTRIES; /* no SG list chaining. */
++}
++
+ /* 
+  * For operations that cannot sleep, a command block is allocated at init, 
+  * and managed by cmd_alloc() and cmd_free() using a simple bitmap to track
+@@ -258,7 +298,7 @@ static void __init cciss_procinit(int i)
+ static CommandList_struct * cmd_alloc(ctlr_info_t *h, int get_from_pool)
  {
- 	unsigned int i, bootmem_pages = 0, memend_pfn = 0;
+ 	CommandList_struct *c;
+-	int i; 
++	int i, j;
+ 	u64bit temp64;
+ 	dma_addr_t cmd_dma_handle, err_dma_handle;
  
--	for (i = 0; i < NR_NODES; i++) {
-+	for (i = 0; i < MAX_NR_NODES; i++) {
- 		np[i].start = -1U;
- 		np[i].end = 0;
- 		np[i].bootmap_pages = 0;
-@@ -208,7 +202,7 @@
- 			 * we have, we're in trouble.  (maybe we ought to
- 			 * limit, instead of bugging?)
- 			 */
--			if (numnodes > NR_NODES)
-+			if (numnodes > MAX_NR_NODES)
- 				BUG();
+@@ -273,14 +313,40 @@ static CommandList_struct * cmd_alloc(ct
+ 		c->err_info = (ErrorInfo_struct *)pci_alloc_consistent(
+ 					h->pdev, sizeof(ErrorInfo_struct), 
+ 					&err_dma_handle);
+-	
+-		if (c->err_info == NULL)
+-		{
++
++		if (c->err_info == NULL) {
+ 			pci_free_consistent(h->pdev, 
+ 				sizeof(CommandList_struct), c, cmd_dma_handle);
+ 			return NULL;
  		}
- 
-@@ -366,7 +360,7 @@
-  */
- void __init bootmem_init(struct meminfo *mi)
- {
--	struct node_info node_info[NR_NODES], *np = node_info;
-+	struct node_info node_info[MAX_NR_NODES], *np = node_info;
- 	unsigned int bootmap_pages, bootmap_pfn, map_pg;
- 	int node, initrd_node;
- 
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/arch/i386/kernel/numaq.c linux-2.5.44-max_numnodes_fix/arch/i386/kernel/numaq.c
---- linux-2.5.44-vanilla/arch/i386/kernel/numaq.c	Fri Oct 18 21:01:17 2002
-+++ linux-2.5.44-max_numnodes_fix/arch/i386/kernel/numaq.c	Mon Oct 28 14:27:49 2002
-@@ -26,12 +26,11 @@
- #include <linux/config.h>
- #include <linux/mm.h>
- #include <linux/bootmem.h>
--#include <linux/mmzone.h>
- #include <asm/numaq.h>
- 
- /* These are needed before the pgdat's are created */
--unsigned long node_start_pfn[MAX_NUMNODES];
--unsigned long node_end_pfn[MAX_NUMNODES];
-+unsigned long node_start_pfn[MAX_NR_NODES];
-+unsigned long node_end_pfn[MAX_NR_NODES];
- 
- #define	MB_TO_PAGES(addr) ((addr) << (20 - PAGE_SHIFT))
- 
-@@ -50,7 +49,10 @@
- 		(struct sys_cfg_data *)__va(SYS_CFG_DATA_PRIV_ADDR);
- 
- 	numnodes = 0;
--	for(node = 0; node < MAX_NUMNODES; node++) {
-+	/* FIXME:  This loop is doing bitwise operations with a 32
-+	 * bit field, but the bounds are not being checked.
-+	 */
-+	for(node = 0; node < MAX_NR_NODES; node++) {
- 		if(scd->quads_present31_0 & (1 << node)) {
- 			numnodes++;
- 			eq = &scd->eq[node];
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/arch/i386/mm/discontig.c linux-2.5.44-max_numnodes_fix/arch/i386/mm/discontig.c
---- linux-2.5.44-vanilla/arch/i386/mm/discontig.c	Fri Oct 18 21:01:56 2002
-+++ linux-2.5.44-max_numnodes_fix/arch/i386/mm/discontig.c	Mon Oct 28 14:28:10 2002
-@@ -25,7 +25,6 @@
- #include <linux/config.h>
- #include <linux/mm.h>
- #include <linux/bootmem.h>
--#include <linux/mmzone.h>
- #include <linux/highmem.h>
- #ifdef CONFIG_BLK_DEV_RAM
- #include <linux/blk.h>
-@@ -33,7 +32,7 @@
- #include <asm/e820.h>
- #include <asm/setup.h>
- 
--struct pglist_data *node_data[MAX_NUMNODES];
-+struct pglist_data *node_data[MAX_NR_NODES];
- bootmem_data_t node0_bdata;
- 
- extern unsigned long find_max_low_pfn(void);
-@@ -115,10 +114,10 @@
- 
- #define LARGE_PAGE_BYTES (PTRS_PER_PTE * PAGE_SIZE)
- 
--unsigned long node_remap_start_pfn[MAX_NUMNODES];
--unsigned long node_remap_size[MAX_NUMNODES];
--unsigned long node_remap_offset[MAX_NUMNODES];
--void *node_remap_start_vaddr[MAX_NUMNODES];
-+unsigned long node_remap_start_pfn[MAX_NR_NODES];
-+unsigned long node_remap_size[MAX_NR_NODES];
-+unsigned long node_remap_offset[MAX_NR_NODES];
-+void *node_remap_start_vaddr[MAX_NR_NODES];
- extern void set_pmd_pfn(unsigned long vaddr, unsigned long pfn, pgprot_t flags);
- 
- void __init remap_numa_kva(void)
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/arch/ppc64/mm/init.c linux-2.5.44-max_numnodes_fix/arch/ppc64/mm/init.c
---- linux-2.5.44-vanilla/arch/ppc64/mm/init.c	Fri Oct 18 21:01:58 2002
-+++ linux-2.5.44-max_numnodes_fix/arch/ppc64/mm/init.c	Mon Oct 28 14:24:18 2002
-@@ -522,7 +522,7 @@
- {
- 	int nid;
- 
--        for (nid = 0; nid < MAX_NUMNODES; nid++) {
-+        for (nid = 0; nid < MAX_NR_NODES; nid++) {
- 		if (numa_node_exists[nid]) {
- 			printk("freeing bootmem node %x\n", nid);
- 			totalram_pages +=
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/arch/ppc64/mm/numa.c linux-2.5.44-max_numnodes_fix/arch/ppc64/mm/numa.c
---- linux-2.5.44-vanilla/arch/ppc64/mm/numa.c	Fri Oct 18 21:02:26 2002
-+++ linux-2.5.44-max_numnodes_fix/arch/ppc64/mm/numa.c	Mon Oct 28 14:24:18 2002
-@@ -24,10 +24,10 @@
- int numa_cpu_lookup_table[NR_CPUS] = { [ 0 ... (NR_CPUS - 1)] = -1};
- int numa_memory_lookup_table[MAX_MEMORY >> MEMORY_INCREMENT_SHIFT] =
- 	{ [ 0 ... ((MAX_MEMORY >> MEMORY_INCREMENT_SHIFT) - 1)] = -1};
--int numa_node_exists[MAX_NUMNODES];
-+int numa_node_exists[MAX_NR_NODES];
- 
--struct pglist_data node_data[MAX_NUMNODES];
--bootmem_data_t plat_node_bdata[MAX_NUMNODES];
-+struct pglist_data node_data[MAX_NR_NODES];
-+bootmem_data_t plat_node_bdata[MAX_NR_NODES];
- 
- static int __init parse_numa_properties(void)
- {
-@@ -45,7 +45,7 @@
- 	if (parse_numa_properties())
- 		BUG();
- 
--	for (nid = 0; nid < MAX_NUMNODES; nid++) {
-+	for (nid = 0; nid < MAX_NR_NODES; nid++) {
- 		unsigned long start, end;
- 		unsigned long start_paddr, end_paddr;
- 		int i;
-@@ -152,7 +152,7 @@
- 	for (i = 1; i < MAX_NR_ZONES; i++)
- 		zones_size[i] = 0;
- 
--	for (nid = 0; nid < MAX_NUMNODES; nid++) {
-+	for (nid = 0; nid < MAX_NR_NODES; nid++) {
- 		unsigned long start_pfn;
- 		unsigned long end_pfn;
- 
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/include/asm-alpha/numnodes.h linux-2.5.44-max_numnodes_fix/include/asm-alpha/numnodes.h
---- linux-2.5.44-vanilla/include/asm-alpha/numnodes.h	Fri Oct 18 21:01:12 2002
-+++ linux-2.5.44-max_numnodes_fix/include/asm-alpha/numnodes.h	Wed Dec 31 16:00:00 1969
-@@ -1,12 +0,0 @@
--#ifndef _ASM_MAX_NUMNODES_H
--#define _ASM_MAX_NUMNODES_H
--
--/*
-- * Currently the Wildfire is the only discontigmem/NUMA capable Alpha core.
-- */
--#if defined(CONFIG_ALPHA_WILDFIRE) || defined(CONFIG_ALPHA_GENERIC)
--# include <asm/core_wildfire.h>
--# define MAX_NUMNODES		WILDFIRE_MAX_QBB
--#endif
--
--#endif /* _ASM_MAX_NUMNODES_H */
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/include/asm-alpha/topology.h linux-2.5.44-max_numnodes_fix/include/asm-alpha/topology.h
---- linux-2.5.44-vanilla/include/asm-alpha/topology.h	Fri Oct 18 21:01:18 2002
-+++ linux-2.5.44-max_numnodes_fix/include/asm-alpha/topology.h	Mon Oct 28 14:52:26 2002
-@@ -1,6 +1,16 @@
- #ifndef _ASM_ALPHA_TOPOLOGY_H
- #define _ASM_ALPHA_TOPOLOGY_H
- 
-+/*
-+ * Currently the Wildfire is the only discontigmem/NUMA capable Alpha core.
-+ */
-+#if defined(CONFIG_ALPHA_WILDFIRE) || defined(CONFIG_ALPHA_GENERIC)
-+# include <asm/core_wildfire.h>
-+# define MAX_NR_NODES	WILDFIRE_MAX_QBB
-+#else
-+# define MAX_NR_NODES	1
-+#endif
++		c->sgdlist[0].sgd = c->SG;
++		c->sgdlist[0].dma = cmd_dma_handle +
++			((void *) c->SG - (void *) c);
+ 		memset(c->err_info, 0, sizeof(ErrorInfo_struct));
 +
- #ifdef CONFIG_NUMA
- #ifdef CONFIG_ALPHA_WILDFIRE
- /* With wildfire assume 4 CPUs per node */
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/include/asm-arm/arch-clps711x/memory.h linux-2.5.44-max_numnodes_fix/include/asm-arm/arch-clps711x/memory.h
---- linux-2.5.44-vanilla/include/asm-arm/arch-clps711x/memory.h	Fri Oct 18 21:01:08 2002
-+++ linux-2.5.44-max_numnodes_fix/include/asm-arm/arch-clps711x/memory.h	Mon Oct 28 14:24:18 2002
-@@ -109,8 +109,6 @@
-  * 	node 3:  0xd8000000 - 0xdfffffff
-  */
- 
--#define NR_NODES	4
--
- /*
-  * Given a kernel address, find the home node of the underlying memory.
-  */
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/include/asm-arm/arch-sa1100/memory.h linux-2.5.44-max_numnodes_fix/include/asm-arm/arch-sa1100/memory.h
---- linux-2.5.44-vanilla/include/asm-arm/arch-sa1100/memory.h	Fri Oct 18 21:01:08 2002
-+++ linux-2.5.44-max_numnodes_fix/include/asm-arm/arch-sa1100/memory.h	Mon Oct 28 14:24:18 2002
-@@ -74,8 +74,6 @@
-  * 	node 3:  0xd8000000 - 0xdfffffff
-  */
- 
--#define NR_NODES	4
--
- /*
-  * Given a kernel address, find the home node of the underlying memory.
-  */
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/include/asm-arm/memory.h linux-2.5.44-max_numnodes_fix/include/asm-arm/memory.h
---- linux-2.5.44-vanilla/include/asm-arm/memory.h	Fri Oct 18 21:02:30 2002
-+++ linux-2.5.44-max_numnodes_fix/include/asm-arm/memory.h	Mon Oct 28 14:37:52 2002
-@@ -14,6 +14,7 @@
- 
- #include <linux/config.h>
- #include <asm/arch/memory.h>
-+#include <asm/topology.h>
- 
- /*
-  * PFNs are used to describe any physical page; this means
-@@ -88,12 +89,12 @@
- #define pfn_to_page(pfn)					\
- 	(PFN_TO_MAPBASE(pfn) + LOCAL_MAP_NR((pfn) << PAGE_SHIFT))
- 
--#define pfn_valid(pfn)		(PFN_TO_NID(pfn) < NR_NODES)
-+#define pfn_valid(pfn)		(PFN_TO_NID(pfn) < MAX_NR_NODES)
- 
- #define virt_to_page(kaddr)					\
- 	(ADDR_TO_MAPBASE(kaddr) + LOCAL_MAP_NR(kaddr))
- 
--#define virt_addr_valid(kaddr)	(KVADDR_TO_NID(kaddr) < NR_NODES)
-+#define virt_addr_valid(kaddr)	(KVADDR_TO_NID(kaddr) < MAX_NR_NODES)
- 
- /*
-  * Common discontigmem stuff.
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/include/asm-arm/numnodes.h linux-2.5.44-max_numnodes_fix/include/asm-arm/numnodes.h
---- linux-2.5.44-vanilla/include/asm-arm/numnodes.h	Fri Oct 18 21:01:48 2002
-+++ linux-2.5.44-max_numnodes_fix/include/asm-arm/numnodes.h	Wed Dec 31 16:00:00 1969
-@@ -1,17 +0,0 @@
--/*
-- *  linux/include/asm-arm/numnodes.h
-- *
-- *  Copyright (C) 2002 Russell King
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
-- */
--#ifndef __ASM_ARM_NUMNODES_H
--#define __ASM_ARM_NUMNODES_H
--
--#include <asm/memory.h>
--
--#define MAX_NUMNODES	NR_NODES
--
--#endif
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/include/asm-arm/topology.h linux-2.5.44-max_numnodes_fix/include/asm-arm/topology.h
---- linux-2.5.44-vanilla/include/asm-arm/topology.h	Fri Oct 18 21:01:07 2002
-+++ linux-2.5.44-max_numnodes_fix/include/asm-arm/topology.h	Mon Oct 28 14:40:27 2002
-@@ -1,6 +1,10 @@
- #ifndef _ASM_ARM_TOPOLOGY_H
- #define _ASM_ARM_TOPOLOGY_H
- 
-+#if defined(CONFIG_DISCONTIGMEM) || defined(CONFIG_ARCH_SA1100) || defined(CONFIG_ARCH_CLPS711X)
-+#define MAX_NR_NODES	4
-+#endif
++		if (h->sglist_pool != NULL) {
++			c->sgdlist[1].sgd = (SGDescriptor_struct *)
++				pci_alloc_consistent(h->pdev, SGD_SIZE *
++					(CONFIG_CISS_MAX_SG_PAGES - 1),
++					&c->sgdlist[0].dma);
 +
- #include <asm-generic/topology.h>
++			if (c->sgdlist[1].sgd == NULL) {
++				pci_free_consistent(h->pdev,
++					sizeof(ErrorInfo_struct), c->err_info,
++					err_dma_handle);
++				pci_free_consistent(h->pdev,
++					sizeof(CommandList_struct), c,
++					cmd_dma_handle);
++				return NULL;
++			}
++			memset(&c->sgdlist[0].sgd[0], 0, SGD_SIZE);
++			for (j=1;j<CONFIG_CISS_MAX_SG_PAGES-1; j++) {
++				c->sgdlist[j+1].sgd =
++					(void *)c->sgdlist[j].sgd+j*SGD_SIZE;
++				c->sgdlist[j+1].dma =
++					c->sgdlist[j].dma + j * SGD_SIZE;
++			}
++		}
+ 	} else /* get it out of the controllers pool */ 
+ 	{
+ 	     	do {
+@@ -300,6 +366,20 @@ static CommandList_struct * cmd_alloc(ct
+ 		err_dma_handle = h->errinfo_pool_dhandle 
+ 					+ i*sizeof(ErrorInfo_struct);
+                 h->nr_allocs++;
++		c->sgdlist[0].sgd = c->SG;
++		c->sgdlist[0].dma = cmd_dma_handle +
++			((void *) c->SG - (void *) c);
++		if (h->sglist_pool != NULL)
++			for (j=0; j < CONFIG_CISS_MAX_SG_PAGES-1 ; j++) {
++				c->sgdlist[j+1].sgd =
++					(void *) h->sglist_pool +
++					SGD_SIZE *
++					(i * (CONFIG_CISS_MAX_SG_PAGES - 1)+j);
++				c->sgdlist[j+1].dma =
++					h->sglist_pool_dhandle +
++					SGD_SIZE *
++					(i * (CONFIG_CISS_MAX_SG_PAGES - 1)+j);
++			}
+         }
  
- #endif /* _ASM_ARM_TOPOLOGY_H */
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/include/asm-generic/topology.h linux-2.5.44-max_numnodes_fix/include/asm-generic/topology.h
---- linux-2.5.44-vanilla/include/asm-generic/topology.h	Fri Oct 18 21:01:11 2002
-+++ linux-2.5.44-max_numnodes_fix/include/asm-generic/topology.h	Mon Oct 28 14:48:13 2002
-@@ -27,6 +27,10 @@
- #ifndef _ASM_GENERIC_TOPOLOGY_H
- #define _ASM_GENERIC_TOPOLOGY_H
+ 	c->busaddr = (__u32) cmd_dma_handle;
+@@ -307,11 +387,8 @@ static CommandList_struct * cmd_alloc(ct
+ 	c->ErrDesc.Addr.lower = temp64.val32.lower;
+ 	c->ErrDesc.Addr.upper = temp64.val32.upper;
+ 	c->ErrDesc.Len = sizeof(ErrorInfo_struct);
+-	
+ 	c->ctlr = h->ctlr;
+-        return c;
+-
+-
++	return c;
+ }
  
-+#ifndef MAX_NR_NODES
-+#define MAX_NR_NODES	1
-+#endif
-+
- /* Other architectures wishing to use this simple topology API should fill
-    in the below functions as appropriate in their own <asm/topology.h> file. */
- #ifndef __cpu_to_node
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/include/asm-i386/numaq.h linux-2.5.44-max_numnodes_fix/include/asm-i386/numaq.h
---- linux-2.5.44-vanilla/include/asm-i386/numaq.h	Fri Oct 18 21:01:56 2002
-+++ linux-2.5.44-max_numnodes_fix/include/asm-i386/numaq.h	Mon Oct 28 14:44:01 2002
-@@ -28,7 +28,7 @@
- 
- #ifdef CONFIG_X86_NUMAQ
- 
--#include <asm/smpboot.h>
-+#include <asm/topology.h>
- 
- /*
-  * for now assume that 64Gb is max amount of RAM for whole system
-@@ -40,7 +40,6 @@
- 
- #define pfn_to_pgdat(pfn) NODE_DATA(pfn_to_nid(pfn))
- #define PHYSADDR_TO_NID(pa) pfn_to_nid(pa >> PAGE_SHIFT)
--#define MAX_NUMNODES		8
- extern int pfn_to_nid(unsigned long);
- extern void get_memcfg_numaq(void);
- #define get_memcfg_numa() get_memcfg_numaq()
-@@ -167,7 +166,7 @@
- 	/*
- 	 *	memory configuration area for each quad
- 	 */
--        struct	eachquadmem eq[MAX_NUMNODES];	/* indexed by quad id */
-+        struct	eachquadmem eq[MAX_NR_NODES];	/* indexed by quad id */
+ /* 
+@@ -326,6 +403,9 @@ static void cmd_free(ctlr_info_t *h, Com
+ 	{ 
+ 		temp64.val32.lower = c->ErrDesc.Addr.lower;
+ 		temp64.val32.upper = c->ErrDesc.Addr.upper;
++		pci_free_consistent(h->pdev, SGD_SIZE *
++			CONFIG_CISS_MAX_SG_PAGES,
++			c->sgdlist[0].sgd, c->sgdlist[0].dma);
+ 		pci_free_consistent(h->pdev, sizeof(ErrorInfo_struct), 
+ 			c->err_info, (dma_addr_t) temp64.val);
+ 		pci_free_consistent(h->pdev, sizeof(CommandList_struct), 
+@@ -1771,6 +1851,8 @@ static inline void complete_command( ctl
+ struct cciss_map_state {
+ 	CommandList_struct *command;
+ 	int data_dir;
++	int sgelem;
++	int sgpage; 
  };
  
- #endif /* CONFIG_X86_NUMAQ */
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/include/asm-i386/numnodes.h linux-2.5.44-max_numnodes_fix/include/asm-i386/numnodes.h
---- linux-2.5.44-vanilla/include/asm-i386/numnodes.h	Fri Oct 18 21:01:16 2002
-+++ linux-2.5.44-max_numnodes_fix/include/asm-i386/numnodes.h	Wed Dec 31 16:00:00 1969
-@@ -1,12 +0,0 @@
--#ifndef _ASM_MAX_NUMNODES_H
--#define _ASM_MAX_NUMNODES_H
--
--#include <linux/config.h>
--
--#ifdef CONFIG_X86_NUMAQ
--#include <asm/numaq.h>
--#else
--#define MAX_NUMNODES	1
--#endif /* CONFIG_X86_NUMAQ */
--
--#endif /* _ASM_MAX_NUMNODES_H */
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/include/asm-i386/topology.h linux-2.5.44-max_numnodes_fix/include/asm-i386/topology.h
---- linux-2.5.44-vanilla/include/asm-i386/topology.h	Fri Oct 18 21:01:16 2002
-+++ linux-2.5.44-max_numnodes_fix/include/asm-i386/topology.h	Mon Oct 28 15:03:53 2002
-@@ -27,6 +27,10 @@
- #ifndef _ASM_I386_TOPOLOGY_H
- #define _ASM_I386_TOPOLOGY_H
+ static void cciss_map_sg(request_queue_t *q, struct scatterlist *sg, int nseg,
+@@ -1778,16 +1860,32 @@ static void cciss_map_sg(request_queue_t
+ {
+ 	struct cciss_map_state *s = cookie;
+ 	CommandList_struct *c = s->command;
++	SGDescriptor_struct *sgd;
+ 	ctlr_info_t *h= q->queuedata;
+ 	u64bit temp64;
  
-+#ifdef CONFIG_NUMA
-+#define MAX_NR_NODES	16
-+#endif
+-	c->SG[nseg].Len = sg->length;
+-	temp64.val = (__u64) pci_map_page(h->pdev, sg->page, sg->offset,
+-					  sg->length, s->data_dir);
++	sgd = &c->sgdlist[s->sgpage].sgd[s->sgelem];
+ 
+-	c->SG[nseg].Addr.lower = temp64.val32.lower;
+-	c->SG[nseg].Addr.upper = temp64.val32.upper;
+-	c->SG[nseg].Ext = 0;  // we are not chaining
++	/* if we hit end of SG page, then chain to new SG page, if we can */
++	if (s->sgelem == MAXSGENTRIES-1 && h->sglist_pool) {
++		s->sgpage++;
++		/* Set this SG elem to point to dma-able addr of next SG page */
++		temp64.val = (__u64) c->sgdlist[s->sgpage].dma;
++		sgd->Addr.lower = temp64.val32.lower;
++		sgd->Addr.upper = temp64.val32.upper;
++		sgd->Ext = CISS_SG_CHAIN;
++		sgd->Len = SGD_SIZE;	/* total no. of bytes in a SG page. */
++					/* (wrong for last page.) */
++		sgd = &c->sgdlist[s->sgpage].sgd[0];
++		s->sgelem = 0;	/* Start at SG zero on the new SG page */
++	}
++	temp64.val = (__u64) pci_map_page(h->pdev, sg->page, sg->offset,
++				sg->length, s->data_dir);
++	sgd->Addr.lower = temp64.val32.lower;
++	sgd->Addr.upper = temp64.val32.upper;
++	sgd->Len = sg->length;
++	sgd->Ext = 0;
++	s->sgelem++;
+ }
+ 
+ /* 
+@@ -1810,7 +1908,7 @@ queue:
+ 		goto startio;
+ 
+ 	creq = elv_next_request(q);
+-	if (creq->nr_phys_segments > MAXSGENTRIES)
++	if (creq->nr_phys_segments > h->sg_limit)
+                 BUG();
+ 
+ 	if (( c = cmd_alloc(h, 1)) == NULL)
+@@ -1849,8 +1947,11 @@ queue:
+ 		map_state.data_dir = PCI_DMA_TODEVICE;
+ 
+ 	map_state.command = c;
++	map_state.sgelem = 0;
++	map_state.sgpage = 0;
+ 
+ 	seg = blk_rq_map_consume(q, creq, cciss_map_sg, &map_state);
++	seg += map_state.sgpage;
+ 
+ 	/* track how many SG entries we are using */ 
+ 	if( seg > h->maxSG)
+@@ -1860,7 +1961,16 @@ queue:
+ 	printk(KERN_DEBUG "cciss: Submitting %d sectors in %d segments\n", creq->nr_sectors, seg);
+ #endif /* CCISS_DEBUG */
+ 
+-	c->Header.SGList = c->Header.SGTotal = seg;
++ 	if (seg > MAXSGENTRIES) {
++ 		c->Header.SGList = MAXSGENTRIES;
++ 		/* fixup last chained sg page length, probably not SGD_SIZE. */
++ 		c->sgdlist[map_state.sgpage-1].sgd[MAXSGENTRIES-1].Len =
++ 			map_state.sgelem * sizeof(SGDescriptor_struct);
++ 	} else
++ 		c->Header.SGList = seg;
++ 
++ 	c->Header.SGTotal = seg;
++	
+ 	c->Request.CDB[1]= 0;
+ 	c->Request.CDB[2]= (start_blk >> 24) & 0xff;	//MSB
+ 	c->Request.CDB[3]= (start_blk >> 16) & 0xff;
+@@ -2328,6 +2438,33 @@ static void free_hba(int i)
+ 	kfree(p);
+ }
+ 
 +
- #ifdef CONFIG_X86_NUMAQ
- 
- #include <asm/smpboot.h>
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/include/asm-ppc64/numnodes.h linux-2.5.44-max_numnodes_fix/include/asm-ppc64/numnodes.h
---- linux-2.5.44-vanilla/include/asm-ppc64/numnodes.h	Fri Oct 18 21:02:28 2002
-+++ linux-2.5.44-max_numnodes_fix/include/asm-ppc64/numnodes.h	Wed Dec 31 16:00:00 1969
-@@ -1,6 +0,0 @@
--#ifndef _ASM_MAX_NUMNODES_H
--#define _ASM_MAX_NUMNODES_H
--
--#define MAX_NUMNODES 16
--
--#endif /* _ASM_MAX_NUMNODES_H */
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/include/asm-ppc64/topology.h linux-2.5.44-max_numnodes_fix/include/asm-ppc64/topology.h
---- linux-2.5.44-vanilla/include/asm-ppc64/topology.h	Fri Oct 18 21:01:52 2002
-+++ linux-2.5.44-max_numnodes_fix/include/asm-ppc64/topology.h	Mon Oct 28 14:46:27 2002
-@@ -3,6 +3,12 @@
- 
- #include <asm/mmzone.h>
- 
-+#ifdef CONFIG_DISCONTIGMEM
-+#define MAX_NR_NODES	16
-+#else
-+#define MAX_NR_NODES	1
-+#endif
-+
- #ifdef CONFIG_NUMA
- 
- static inline int __cpu_to_node(int cpu)
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-vanilla/include/linux/mmzone.h linux-2.5.44-max_numnodes_fix/include/linux/mmzone.h
---- linux-2.5.44-vanilla/include/linux/mmzone.h	Fri Oct 18 21:01:08 2002
-+++ linux-2.5.44-max_numnodes_fix/include/linux/mmzone.h	Mon Oct 28 15:10:17 2002
-@@ -10,12 +10,7 @@
- #include <linux/wait.h>
- #include <linux/cache.h>
- #include <asm/atomic.h>
--#ifdef CONFIG_DISCONTIGMEM
--#include <asm/numnodes.h>
--#endif
--#ifndef MAX_NUMNODES
--#define MAX_NUMNODES 1
--#endif
-+#include <asm/topology.h>
- 
- /* Free memory management - zoned buddy allocator.  */
- #ifndef CONFIG_FORCE_MAX_ZONEORDER
-@@ -128,6 +123,11 @@
- #define ZONE_HIGHMEM		2
- #define MAX_NR_ZONES		3
- 
-+/* page->zone is currently 8 bits ... */
-+#if MAX_NR_NODES > (255 / MAX_NR_ZONES)
-+#error "MAX_NR_NODES too large!!"
-+#endif
++static void bail_out(int i)
++{
++	if(hba[i]->cmd_pool_bits)
++		kfree(hba[i]->cmd_pool_bits);
++	if(hba[i]->cmd_pool)
++		pci_free_consistent(hba[i]->pdev,
++			NR_CMDS * sizeof(CommandList_struct),
++			hba[i]->cmd_pool, hba[i]->cmd_pool_dhandle);
++	if(hba[i]->errinfo_pool)
++		pci_free_consistent(hba[i]->pdev,
++			NR_CMDS * sizeof( ErrorInfo_struct),
++			hba[i]->errinfo_pool,
++			hba[i]->errinfo_pool_dhandle);
++	if (hba[i]->sglist_pool != NULL)
++		pci_free_consistent(hba[i]->pdev,
++			(CONFIG_CISS_MAX_SG_PAGES-1) * MAXSGENTRIES *
++				NR_CMDS * sizeof(SGDescriptor_struct),
++			hba[i]->sglist_pool,
++			hba[i]->sglist_pool_dhandle);
++	free_irq(hba[i]->intr, hba[i]);
++	unregister_blkdev(MAJOR_NR+i, hba[i]->devname);
++	release_io_mem(hba[i]);
++	free_hba(i);
++	printk( KERN_ERR "cciss: out of memory");
++}
 +
  /*
-  * One allocation request operates on a zonelist. A zonelist
-  * is a list of zones, the first one is the 'goal' of the
-@@ -140,7 +140,7 @@
-  * footprint of this construct is very small.
-  */
- struct zonelist {
--	struct zone *zones[MAX_NUMNODES * MAX_NR_ZONES + 1]; // NULL delimited
-+	struct zone *zones[MAX_NR_NODES * MAX_NR_ZONES + 1]; // NULL delimited
- };
+  *  This is it.  Find all the controllers and register them.  I really hate
+  *  stealing all these major device numbers.
+@@ -2376,6 +2513,11 @@ static int __init cciss_init_one(struct 
+ 		free_hba(i);
+ 		return(-1);
+ 	}
++	/* Assume we can't do SG page chaining until we know otherwise */
++	hba[i]->sglist_pool = NULL;
++	hba[i]->sglist_pool_dhandle = (dma_addr_t) NULL;
++	hba[i]->sg_limit = MAXSGENTRIES;
++
+ 	/* make sure the board interrupts are off */
+ 	hba[i]->access.set_intr_mask(hba[i], CCISS_INTR_OFF);
+ 	if( request_irq(hba[i]->intr, do_cciss_intr, 
+@@ -2398,24 +2540,8 @@ static int __init cciss_init_one(struct 
+ 		&(hba[i]->errinfo_pool_dhandle));
+ 	if((hba[i]->cmd_pool_bits == NULL) 
+ 		|| (hba[i]->cmd_pool == NULL)
+-		|| (hba[i]->errinfo_pool == NULL))
+-        {
+-		if(hba[i]->cmd_pool_bits)
+-                	kfree(hba[i]->cmd_pool_bits);
+-                if(hba[i]->cmd_pool)
+-                	pci_free_consistent(hba[i]->pdev,  
+-				NR_CMDS * sizeof(CommandList_struct), 
+-				hba[i]->cmd_pool, hba[i]->cmd_pool_dhandle);	
+-		if(hba[i]->errinfo_pool)
+-			pci_free_consistent(hba[i]->pdev,
+-				NR_CMDS * sizeof( ErrorInfo_struct),
+-				hba[i]->errinfo_pool, 
+-				hba[i]->errinfo_pool_dhandle);
+-                free_irq(hba[i]->intr, hba[i]);
+-                unregister_blkdev(MAJOR_NR+i, hba[i]->devname);
+-		release_io_mem(hba[i]);
+-		free_hba(i);
+-                printk( KERN_ERR "cciss: out of memory");
++		|| (hba[i]->errinfo_pool == NULL)) {
++		bail_out(i);
+ 		return(-1);
+ 	}
  
- #define GFP_ZONEMASK	0x0f
-@@ -244,7 +244,6 @@
- #define MAX_NR_MEMBLKS	1
- #endif /* CONFIG_NUMA */
+@@ -2431,7 +2557,7 @@ static int __init cciss_init_one(struct 
+ #endif /* CCISS_DEBUG */
  
--#include <asm/topology.h>
- /* Returns the number of the current Node. */
- #define numa_node_id()		(__cpu_to_node(smp_processor_id()))
- 
-@@ -252,13 +251,9 @@
- extern struct pglist_data contig_page_data;
- #define NODE_DATA(nid)		(&contig_page_data)
- #define NODE_MEM_MAP(nid)	mem_map
--#define MAX_NR_NODES		1
- #else /* CONFIG_DISCONTIGMEM */
+ 	cciss_getgeometry(i);
 -
- #include <asm/mmzone.h>
++	cciss_allocate_extra_sg_pages(i);
+ 	cciss_scsi_setup(i);
  
--/* page->zone is currently 8 bits ... */
--#define MAX_NR_NODES		(255 / MAX_NR_ZONES)
+ 	/* Turn the interrupts on so we can service requests */
+@@ -2439,21 +2565,16 @@ static int __init cciss_init_one(struct 
  
- #endif /* !CONFIG_DISCONTIGMEM */
+ 	cciss_procinit(i);
  
++	hba[i]->sg_limit = figure_sg_limit(i);
+ 	q = &hba[i]->queue;
+         q->queuedata = hba[i];
+ 	spin_lock_init(&hba[i]->lock);
+         blk_init_queue(q, do_cciss_request, &hba[i]->lock);
+ 	blk_queue_bounce_limit(q, hba[i]->pdev->dma_mask);
+-
+-	/* This is a hardware imposed limit. */
+-	blk_queue_max_hw_segments(q, MAXSGENTRIES);
+-
+-	/* This is a limit in the driver and could be eliminated. */
+-	blk_queue_max_phys_segments(q, MAXSGENTRIES);
+-
++	blk_queue_max_hw_segments(q, hba[i]->sg_limit);
++	blk_queue_max_phys_segments(q, hba[i]->sg_limit);
+ 	blk_queue_max_sectors(q, 512);
+ 
+-
+ 	for(j=0; j<NWD; j++) {
+ 		drive_info_struct *drv = &(hba[i]->drv[j]);
+ 		struct gendisk *disk = hba[i]->gendisk[j];
+@@ -2521,6 +2642,11 @@ static void __devexit cciss_remove_one (
+ 			    hba[i]->cmd_pool, hba[i]->cmd_pool_dhandle);
+ 	pci_free_consistent(hba[i]->pdev, NR_CMDS * sizeof( ErrorInfo_struct),
+ 		hba[i]->errinfo_pool, hba[i]->errinfo_pool_dhandle);
++	if (hba[i]->sglist_pool != NULL)
++		pci_free_consistent(hba[i]->pdev,
++			(CONFIG_CISS_MAX_SG_PAGES-1) * MAXSGENTRIES *
++				NR_CMDS * sizeof(SGDescriptor_struct),
++			hba[i]->sglist_pool, hba[i]->sglist_pool_dhandle);
+ 	kfree(hba[i]->cmd_pool_bits);
+  	release_io_mem(hba[i]);
+ 	free_hba(i);
+--- lx2544ac3/drivers/block/cciss_cmd.h~sgc3	Mon Oct 28 15:18:44 2002
++++ lx2544ac3-root/drivers/block/cciss_cmd.h	Mon Oct 28 15:42:13 2002
+@@ -7,6 +7,10 @@
+ 
+ //general boundary defintions
+ #define SENSEINFOBYTES          32//note that this value may vary between host implementations
++
++/* MAXSGENTRIES is the max scatter gather entries per SG page,
++   some adapters support chaining SG pages, using the last SG
++   entry to point to the next SG page. */
+ #define MAXSGENTRIES            31
+ #define MAXREPLYQS              256
+ 
+@@ -195,8 +199,11 @@ typedef struct _SGDescriptor_struct {
+   QWORD  Addr;
+   DWORD  Len;
+   DWORD  Ext;
++#define CISS_SG_CHAIN 0x80000000
+ } SGDescriptor_struct;
+ 
++#define SGD_SIZE (sizeof(SGDescriptor_struct) * MAXSGENTRIES)
++
+ typedef union _MoreErrInfo_struct{
+   struct {
+     BYTE  Reserved[3];
+@@ -226,6 +233,11 @@ typedef struct _ErrorInfo_struct {
+ #define CMD_MSG_DONE	0x04
+ #define CMD_MSG_TIMEOUT 0x05
+ 
++struct sgd_list_t {
++	SGDescriptor_struct *sgd;
++	dma_addr_t dma;
++};
++
+ typedef struct _CommandList_struct {
+   CommandListHeader_struct Header;
+   RequestBlock_struct      Request;
+@@ -241,6 +253,7 @@ typedef struct _CommandList_struct {
+   struct request *	   rq;
+   struct completion *waiting;
+   int	 retry_count;
++  struct sgd_list_t sgdlist[CONFIG_CISS_MAX_SG_PAGES];
+ #ifdef CONFIG_CISS_SCSI_TAPE
+   void * scsi_cmd;
+ #endif
+--- lx2544ac3/drivers/block/cciss.h~sgc3	Mon Oct 28 15:18:44 2002
++++ lx2544ac3-root/drivers/block/cciss.h	Mon Oct 28 15:18:44 2002
+@@ -36,6 +36,13 @@ typedef struct _drive_info_struct
+ 	int 	cylinders;
+ } drive_info_struct;
+ 
++#if CONFIG_CISS_MAX_SG_PAGES < 1
++#error "CONFIG_CISS_MAX_SG_PAGES must be greater than 0 and less than 9"
++#elif CONFIG_CISS_MAX_SG_PAGES > 8
++/* eight is rather arbitrary...no real limit here. */
++#error "CONFIG_CISS_MAX_SG_PAGES must be greater than 0 and less than 9"
++#endif
++
+ struct ctlr_info 
+ {
+ 	int	ctlr;
+@@ -77,9 +84,12 @@ struct ctlr_info 
+ 	dma_addr_t		cmd_pool_dhandle; 
+ 	ErrorInfo_struct 	*errinfo_pool;
+ 	dma_addr_t		errinfo_pool_dhandle; 
++	SGDescriptor_struct	*sglist_pool;
++	dma_addr_t		sglist_pool_dhandle;
+         unsigned long  		*cmd_pool_bits;
+ 	int			nr_allocs;
+ 	int			nr_frees; 
++	int			sg_limit;
+ 
+ 	// Disk structures we need to pass back
+ 	struct gendisk   *gendisk[NWD];
+--- lx2544ac3/drivers/block/cciss_scsi.c~sgc3	Mon Oct 28 15:18:44 2002
++++ lx2544ac3-root/drivers/block/cciss_scsi.c	Mon Oct 28 15:18:44 2002
+@@ -257,7 +257,7 @@ scsi_cmd_stack_free(int ctlr)
+ 	"Unknown" : scsi_device_types[n]
+ 
+ #if 0
+-static int xmargin=8;
++static int xmargin=24;
+ static int amargin=60;
+ 
+ static void
+@@ -297,6 +297,10 @@ print_bytes (unsigned char *c, int len, 
+ static void
+ print_cmd(CommandList_struct *cp)
+ {
++	int i;
++	int sg, sgp;
++	SGDescriptor_struct *sgd;
++
+ 	printk("queue:%d\n", cp->Header.ReplyQueue);
+ 	printk("sglist:%d\n", cp->Header.SGList);
+ 	printk("sgtot:%d\n", cp->Header.SGTotal);
+@@ -329,7 +333,25 @@ print_cmd(CommandList_struct *cp)
+ 	printk("edesc.Addr: 0x%08x/0%08x, Len  = %d\n", 
+ 		cp->ErrDesc.Addr.upper, cp->ErrDesc.Addr.lower, 
+ 			cp->ErrDesc.Len);
+-	printk("sgs..........Errorinfo:\n");
++	printk("SGS:\n");
++	sgp = 0; sg = 0;
++	sgd = cp->sgdlist[sgp].sgd;
++	for (i=0;i<cp->Header.SGTotal;i++) {
++		printk("0x%08x%08x : %d: %d %s\n", sgd[sg].Addr.upper,
++			sgd[sg].Addr.lower, sgd[sg].Len,
++			sgd[sg].Ext, sg >= MAXSGENTRIES-1 ? " chain" : "");
++
++		if (sg == MAXSGENTRIES-1 && ! sgd[sg].Ext &&
++			cp->Header.SGTotal != cp->Header.SGList)
++			printk("Extended SG bit expected, but not set!\n");
++		sg++;
++		if (sg >= MAXSGENTRIES) {
++			sg = 0;
++			sgp++;
++			sgd = cp->sgdlist[sgp].sgd;
++		}
++	}
++	printk("Errorinfo:\n");
+ 	printk("scsistatus:%d\n", cp->err_info->ScsiStatus);
+ 	printk("senselen:%d\n", cp->err_info->SenseLen);
+ 	printk("cmd status:%d\n", cp->err_info->CommandStatus);
+--- lx2544ac3/drivers/block/Config.help~sgc3	Mon Oct 28 15:18:44 2002
++++ lx2544ac3-root/drivers/block/Config.help	Mon Oct 28 15:18:44 2002
+@@ -196,6 +196,22 @@ CONFIG_BLK_CPQ_CISS_DA
+   boards supported by this driver, and for further information
+   on the use of this driver.
+ 
++CONFIG_CISS_MAX_SG_PAGES
++  This is the number of scatter gather pages to pre-allocate
++  for each command block.  Each page for each command can hold
++  up to 31 scatter gather elements.  Values greater than 1 may
++  yield better performance at the cost of memory usage.  The 
++  minumum value is 1, which is also likely to be a reasonable 
++  value.  You may observe the values reported in 
++  /proc/driver/cciss/cciss* for "Max SG entries since init X/Y".  
++  There are two values, X/Y, where X is the maximum number of SG 
++  elements used by any one command so far, and Y is the total 
++  number of scatter gather elements available for each command.  
++  If X == Y, then at least once, some command used up all its 
++  available scatter gather elements.  If X remains less than Y 
++  after some period of running a typical load, then there is no 
++  benefit in increasing this parameter.
++
+ CONFIG_CISS_SCSI_TAPE
+   When enabled (Y), this option allows SCSI tape drives and SCSI medium
+   changers (tape robots) to be accessed via a Compaq 5xxx array 
+--- lx2544ac3/drivers/block/Config.in~sgc3	Mon Oct 28 15:18:44 2002
++++ lx2544ac3-root/drivers/block/Config.in	Mon Oct 28 15:18:44 2002
+@@ -35,6 +35,9 @@ if [ "$CONFIG_PARIDE" = "y" -o "$CONFIG_
+ fi
+ dep_tristate 'Compaq SMART2 support' CONFIG_BLK_CPQ_DA $CONFIG_PCI
+ dep_tristate 'Compaq Smart Array 5xxx support' CONFIG_BLK_CPQ_CISS_DA $CONFIG_PCI 
++if [ "$CONFIG_BLK_CPQ_CISS_DA" = "y" -o "$CONFIG_BLK_CPQ_CISS_DA" = "m" ]; then
++	int '       Maximum scatter gather pages per command' CONFIG_CISS_MAX_SG_PAGES 1
++fi
+ dep_mbool '       SCSI tape drive support for Smart Array 5xxx' CONFIG_CISS_SCSI_TAPE $CONFIG_BLK_CPQ_CISS_DA $CONFIG_SCSI
+ dep_tristate 'Mylex DAC960/DAC1100 PCI RAID Controller support' CONFIG_BLK_DEV_DAC960 $CONFIG_PCI
+ dep_tristate 'Micro Memory MM5415 Battery Backed RAM support (EXPERIMENTAL)' CONFIG_BLK_DEV_UMEM $CONFIG_PCI $CONFIG_EXPERIMENTAL
 
---------------030407020609020905070404--
-
+.

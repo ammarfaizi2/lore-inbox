@@ -1,74 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262562AbVCJMmv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262571AbVCJMoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262562AbVCJMmv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 07:42:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbVCJMmv
+	id S262571AbVCJMoN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 07:44:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262578AbVCJMoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 07:42:51 -0500
-Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:906 "EHLO
-	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S262564AbVCJMmq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 07:42:46 -0500
-Subject: Re: [0/many] Acrypto - asynchronous crypto layer for linux kernel
-	2.6
-From: Christophe Saout <christophe@saout.de>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, James Morris <jmorris@redhat.com>,
-       linux-kernel@vger.kernel.org, cryptoapi@lists.logix.cz,
-       David Miller <davem@davemloft.net>,
-       Herbert Xu <herbert@gondor.apana.org.au>, Andrew Morton <akpm@osdl.org>,
-       Fruhwirth Clemens <clemens@endorphin.org>
-In-Reply-To: <1FA9E37C-8F90-11D9-A2CF-000393ACC76E@mac.com>
-References: <11102278521318@2ka.mipt.ru>
-	 <1FA9E37C-8F90-11D9-A2CF-000393ACC76E@mac.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-H0wXgYv5Qcf8Fpp1/6+t"
-Date: Thu, 10 Mar 2005 13:42:33 +0100
-Message-Id: <1110458553.4087.10.camel@server.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Thu, 10 Mar 2005 07:44:13 -0500
+Received: from vms044pub.verizon.net ([206.46.252.44]:25258 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S262571AbVCJMnq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 07:43:46 -0500
+Date: Thu, 10 Mar 2005 07:43:43 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: 2.6.11-mm2 vs audio for kino and tvtime
+In-reply-to: <XO42l8mC.1110444770.5508140.khali@localhost>
+To: linux-kernel@vger.kernel.org
+Cc: "Jean Delvare" <khali@linux-fr.org>, "Andrew Morton" <akpm@osdl.org>,
+       linux1394-devel@lists.sourceforge.net, video4linux-list@redhat.com,
+       sensors@stimpy.netroedge.com
+Reply-to: gene.heskett@verizon.net
+Message-id: <200503100743.44283.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <XO42l8mC.1110444770.5508140.khali@localhost>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 10 March 2005 03:52, Jean Delvare wrote:
+>Hi Gene,
+>
+>> > I've dropped the "id" member of struct i2c_client, as it were
+>> > useless. Third-party driver authors now need to do the same.
+>>
+>> Aha!  As in just 'dd' any line containing the .id in vim?
+>
+>Exactly. Don't kill all lines with .id though, only the i2c_client
+> id was dropped, and there are plenty of other ids in the
+> media/video drivers.
 
---=-H0wXgYv5Qcf8Fpp1/6+t
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I found the patch location, it was off by about -30 lines after the 
+other patches, and applied them.  It builds now, but still doesn't 
+work, very slow screen updates and no video in tvtime.  It works 
+properly with 2.6.11, 2.6.11.1, and 2.6.11.2.  As I didn't have the 
+card until 2.6.11 was out, I should back up to the last rc4-RT, and 
+see if this card will work with that. At least that will narrow the 
+guilty patchset down a wee bit.  I'll try that later today if the 
+honeydo's don't get in the way.
 
-Am Dienstag, den 08.03.2005, 00:08 -0500 schrieb Kyle Moffett:
+I noted last night too, that while my scanner worked, it was gawdawful 
+slow at retrieving the data over the usb when running at a measly 
+300dpi, 3 to 4 minutes for an 8.5x11, 23 MB of data (according to 
+xsane) scan.  IIRC Its been only 45-50 seconds in past times.  So 
+that may indicate a usb slowdown too, in the read path only.  The usb 
+printer in 1440x1440 color was about its usual speed, needing a 
+surveyer to measure page ejection progress. :)
 
-> Did you include support for the new key/keyring infrastructure=20
-> introduced
-> a couple versions ago by David Howells?  It allows userspace to create=20
-> and
-> manage various sorts of "keys" in kernelspace.  If you create and=20
-> register
-> a few keytypes for various symmetric and asymmetric ciphers, you could=20
-> then
-> take advantage of its support for securely passing keys around in and=20
-> out
-> of userspace.
+That printer does very very nice indeed color work, but in those 
+modes, theres no way to convince the frogs that an Epson C82 is 
+faster than watching paint dry.  10 to 20 minutes a page depending on 
+content.
 
-I've written a dm-crypt patch some weeks ago that does what you
-describe. The crypto information (cipher and key) is added to a keyring
-and then the device is constructed using a reference to this key.
+OTOH, my output, after tweaking a few things, was a hell of a lot more 
+brilliant than the page I scanned in!  (Plus the award recipients 
+name is now spelled correctly, the reason for that little 3 hour 
+exersize, ain't the gimp wunnerful?)
 
-I had some issues with the keyring code (mainly a deadlock problem with
-crypto module autoloading): http://lkml.org/lkml/2005/2/4/113
+>> > THRM is most likely a temperature you get from
+>> > /proc/acpi/thermal_zone, and isn't related with the w83627hf
+>> > driver.
+>>
+>> Humm, it is the highest temp reported, as is temp2 in gkrellm, so
+>> I had assumed it was somehow a dup of the diode in the cpu, or of
+>> the thermistor against the bottom of it inside the socket.  Wrong
+>> assumption?
+>
+>Not necessarily wrong. It is possible that the same diode
+> temperature is read from the W83627HF chip by both the ACPI
+> subsystem and by the w83627hf driver. But if this is the case, I
+> would be worried by concurrent I/O accesses to the chip, which
+> could possibly cause trouble.
 
-I would also like to switch dm-crypt to acrypto once it's accepted into
-the kernel.
+I don't believe I'm seeing any evidence of that here.  OTOH, I don't 
+run sensors very often when gkrellm is running.  Or are there other 
+processes accessing through that bus that wouldn't play well?
 
+>--
+>Jean Delvare
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
---=-H0wXgYv5Qcf8Fpp1/6+t
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCMEC5ZCYBcts5dM0RAnkJAJ93ViuWshfAJo6SQoqalNcP0OywFgCdH2bd
-51GZcAvpj384hZJHe2pxmDE=
-=LoSh
------END PGP SIGNATURE-----
-
---=-H0wXgYv5Qcf8Fpp1/6+t--
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

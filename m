@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268710AbTGLXCl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 19:02:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269992AbTGLXCl
+	id S268685AbTGLXJq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 19:09:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269995AbTGLXJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 19:02:41 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:916 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268710AbTGLXCk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 19:02:40 -0400
-Message-ID: <3F1096EE.7010601@pobox.com>
-Date: Sat, 12 Jul 2003 19:17:02 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Sat, 12 Jul 2003 19:09:46 -0400
+Received: from mithril.c-zone.net ([63.172.74.235]:19210 "EHLO mail.c-zone.net")
+	by vger.kernel.org with ESMTP id S268685AbTGLXJp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 19:09:45 -0400
+Message-ID: <3F1098D1.3030706@c-zone.net>
+Date: Sat, 12 Jul 2003 16:25:05 -0700
+From: jiho@c-zone.net
+Organization: Kidding of Course
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.75
-References: <200307121920.h6CJKFZY004864@eeyore.valparaiso.cl>
-In-Reply-To: <200307121920.h6CJKFZY004864@eeyore.valparaiso.cl>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Who's minding the IDE driver?!?
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
-> Arjan van de Ven <arjanv@redhat.com> said:
-> 
-> [...]
-> 
-> 
->>fwiw there are rpms of 2.5.75 that fit in Red Hat Linux 9 (plus updated
->>modutils, initscripts and mkinitrd from rawhide) on
->>http://people.redhat.com/arjanv/2.5
->>for people to play with.
-> 
-> 
-> Where are the non-kernel files? A kernel RPM on itself is not enough... and
-> for me at least ((semi-)regular bk-kernel tester) the least useful.
+I've had no response to my earlier post (Subject:  IDE driver:  CBLID 
+revisited).
+
+In comparing the driver to docs I have, I've noticed some things and 
+have more to say about the VIA support, but I'm not much for sending 
+e-mail to myself....
+
+I posted to this list to begin with because I found nowhere else to take 
+the issue.  It seems impossible to determine who's supposed to be 
+maintaining the IDE driver these days.
 
 
-rawhide, like arjan said :)
-
-Pick your favorite rawhide mirror.
-
-	Jeff
-
-
+-- Jim Howard  <jiho@c-zone.net>
 

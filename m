@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317285AbSFCGCy>; Mon, 3 Jun 2002 02:02:54 -0400
+	id <S317286AbSFCGD2>; Mon, 3 Jun 2002 02:03:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317286AbSFCGCx>; Mon, 3 Jun 2002 02:02:53 -0400
-Received: from adsl-66-136-199-111.dsl.austtx.swbell.net ([66.136.199.111]:65156
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S317285AbSFCGCw>; Mon, 3 Jun 2002 02:02:52 -0400
-Subject: Re: P4 hyperthreading
-From: Austin Gonyou <austin@digitalroadkill.net>
-To: Gilad Ben-Yossef <gilad@benyossef.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-        Louis Garcia <louisg00@bellsouth.net>,
-        William Lee Irwin III <wli@holomorphy.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1023006775.12708.2.camel@sake>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: http://www.digitalroadkill.net
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 03 Jun 2002 01:02:20 -0500
-Message-Id: <1023084140.17062.1.camel@UberGeek>
+	id <S317287AbSFCGD1>; Mon, 3 Jun 2002 02:03:27 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:24285 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S317286AbSFCGDW>;
+	Mon, 3 Jun 2002 02:03:22 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Paul P Komkoff Jr <i@stingr.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] kbuild 2.5 ports for -pre9 and -pre9-ac1 
+In-Reply-To: Your message of "Thu, 30 May 2002 23:55:44 +0400."
+             <20020530195544.GC355@stingr.net> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 03 Jun 2002 16:03:01 +1000
+Message-ID: <31456.1023084181@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After reading that doc, I've found it's certainly a good explanation of
-what HT is and how it (*mostly*?) works. Should be interesting to see
-when the 6650 gets here what happens then. 
+On Thu, 30 May 2002 23:55:44 +0400, 
+Paul P Komkoff Jr <i@stingr.net> wrote:
+>I'm here to announce updates of kbuild 2.5 patch to apply on 2.4.19-pre9 and
+>2.4.19-pre9-ac1
 
+Thanks for this, it shows that other people can do kbuild 2.5 work.
 
+However there are no plans to replace the kernel build method in 2.4
+kernels, it is too big a change for a stable kernel.  I have already
+extracted several bugs fixes from kbuild 2.5 and fed them to Marcelo or
+Alan Cox.
 
-On Sun, 2002-06-02 at 03:32, Gilad Ben-Yossef wrote:
-> On Sun, 2002-06-02 at 08:12, Austin Gonyou wrote:
-> > Does anyone know if the P4 Xeon's use HT as well, or is it mainly for UP
-> > DP boxes?
-> 
-> As per the link quoted below, HT was first intriduced on the Xeon line.
-> 
-> > > http://www.intel.com/technology/itj/2002/volume06issue01/art01_hyper/vol6iss1_art01.pdf
-> 
-> -- 
-> Gilad Ben-Yossef <gilad@benyossef.com>
-> Code mangler, senior coffee drinker and VP SIGSEGV
-> Qlusters ltd.
-> 
-> "A billion flies _can_ be wrong - I'd rather eat lamb chops than shit."
-> 	-- Linus Torvalds on lkml
-> 
-> 
-> 
-> 
+There is a limited amount that can be fixed in the 2.4 kernel build
+without a large impact on users.  Anything that forces an upgrade past
+make 3.77.1 (the currently required version on 2.4 kernels) is
+unacceptable.
+

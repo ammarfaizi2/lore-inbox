@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268850AbRG0NcH>; Fri, 27 Jul 2001 09:32:07 -0400
+	id <S267946AbRG0Nf4>; Fri, 27 Jul 2001 09:35:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268848AbRG0Nb5>; Fri, 27 Jul 2001 09:31:57 -0400
-Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:59473 "EHLO
-	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id <S267946AbRG0Nbo>; Fri, 27 Jul 2001 09:31:44 -0400
-Date: Fri, 27 Jul 2001 15:28:51 +0200 (CEST)
-From: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
-To: Khalid Aziz <khalid@fc.hp.com>
-cc: <linux-kernel@vger.kernel.org>, <acpi@phobos.fachschaften.tu-muenchen.de>
-Subject: Re: Support for serial console on legacy free machines
-In-Reply-To: <3B60880E.9FBAA76B@fc.hp.com>
-Message-Id: <Pine.LNX.4.31.0107271525220.3001-100000@phobos.fachschaften.tu-muenchen.de>
+	id <S267950AbRG0Nfq>; Fri, 27 Jul 2001 09:35:46 -0400
+Received: from d122251.upc-d.chello.nl ([213.46.122.251]:62731 "EHLO
+	arnhem.blackstar.nl") by vger.kernel.org with ESMTP
+	id <S267946AbRG0Nfg>; Fri, 27 Jul 2001 09:35:36 -0400
+From: bvermeul@devel.blackstar.nl
+Date: Fri, 27 Jul 2001 15:38:24 +0200 (CEST)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Hans Reiser <reiser@namesys.com>, Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>,
+        Steve Kieu <haiquy@yahoo.com>,
+        Sam Thompson <samuelt@cervantes.dabney.caltech.edu>,
+        kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+In-Reply-To: <E15Q7eW-0005cP-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0107271533330.10602-100000@devel.blackstar.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, 26 Jul 2001, Khalid Aziz wrote:
+On Fri, 27 Jul 2001, Alan Cox wrote:
 
-> The bummer is this table was designed by Microsoft and
-> Microsoft owns the copyright on it.
+> > > and when that hangs the kernel it will also screw up all files touched
+> > > just before it in a edit-make-install-try cycle. Which can be rather
+> > > annoying, because you can start all over again (this effect randomly
+> > > distributes the last touched sectors to the last touched files. Very nice
+> > > effect, but not something I expect from a journalled filesystem).
+> > >
+> > Do you think it is reasonable to ask that a filesystem be designed to
+> > work well with bad drivers?
+>
+> Its certainly a good idea. But it sounds to me like he is describing the
+> normal effect of metadata only logging.
+>
+> Putting a sync just before the insmod when developing new drivers is a good
+> idea btw
 
-This is an interface definition IMHO, so you cannot copyright it. But
-IANAL.
+I've been doing that most of the time. But I sometimes forget that.
+But as I said, it's not something I expected from a journalled filesystem.
 
-   Simon
+Regards,
+
+Bas Vermeulen
 
 -- 
-GPG public key available from http://phobos.fs.tum.de/pgp/Simon.Richter.asc
- Fingerprint: DC26 EB8D 1F35 4F44 2934  7583 DBB6 F98D 9198 3292
-Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!
+"God, root, what is difference?"
+	-- Pitr, User Friendly
+
+"God is more forgiving."
+	-- Dave Aronson
 

@@ -1,110 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262323AbSJNVQs>; Mon, 14 Oct 2002 17:16:48 -0400
+	id <S262304AbSJNVOV>; Mon, 14 Oct 2002 17:14:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262336AbSJNVQs>; Mon, 14 Oct 2002 17:16:48 -0400
-Received: from inrete-46-20.inrete.it ([81.92.46.20]:52871 "EHLO
-	pdamail1-pdamail.inrete.it") by vger.kernel.org with ESMTP
-	id <S262323AbSJNVQp>; Mon, 14 Oct 2002 17:16:45 -0400
-Message-ID: <3DAB3592.E19150C6@inrete.it>
-Date: Mon, 14 Oct 2002 23:22:26 +0200
-From: Daniele Lugli <genlogic@inrete.it>
-Organization: General Logic srl
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rthal5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root@chaos.analogic.com, linux-kernel@vger.kernel.org
-Subject: Re: unhappy with current.h
-References: <Pine.LNX.3.95.1021014162539.16867B-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262323AbSJNVOV>; Mon, 14 Oct 2002 17:14:21 -0400
+Received: from verlaine.noos.net ([212.198.2.73]:43036 "EHLO smtp.noos.fr")
+	by vger.kernel.org with ESMTP id <S262304AbSJNVOQ>;
+	Mon, 14 Oct 2002 17:14:16 -0400
+Date: Mon, 14 Oct 2002 23:20:00 +0200
+From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
+To: David Brownell <david-b@pacbell.net>
+Cc: greg@kroah.com, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] 2.5.42-ac1, 2.5.42, 2.5.41 boot hang with CONFIG_USB_DEBUG=n
+Message-ID: <20021014212000.GA1002@rousalka.noos.fr>
+References: <20021013172557.GA890@rousalka.noos.fr> <3DAAF67F.1080504@pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3DAAF67F.1080504@pacbell.net>; from david-b@pacbell.net on lun, oct 14, 2002 at 18:53:19 +0200
+X-Mailer: Balsa 2.0.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
+On 2002.10.14 18:53 David Brownell wrote:
+>> Now it turns out I didn't do such a piss-poor of configuring my 2.5 
+>> kernel, since the only option I could find that make a difference 
+>> was CONFIG_USB_DEBUG. When I accept flooding my system logs with 
+>> obscure usb incantations the system boots:(.   ...
+>> 
+>>     Can an helpful soul help me bring my system some relief  ? I'd 
+>> really like not to boot in debug mode.
 > 
-> On Mon, 14 Oct 2002, Daniele Lugli wrote:
+> That's a new failure mode!   Can you help narrow this down?
 > 
-> > I recently wrote a kernel module which gave me some mysterious problems.
-> > After too many days spent in blood, sweat and tears, I found the cause:
-> >
-> > *** one of my data structures has a field named 'current'. ***
-> >
-> > Pretty common word, isn't it? Would you think it can cause such a
-> > trouble? But in some of my files I happen to indirectly include
-> > <asm/current.h> (kernel 2.4.18 for i386), containing the following line:
-> >
-> > #define current get_current()
-> >
-> > so that my structure becomes the owner of a function it has never asked
-> > for, while it looses a data member. gcc has nothing to complain about
-> > that.
-> >
-> 
-> This cannot be the reason for your problem. The name of a structure
-> member has no connection whatsoever with the name of any function or
-> definition.
-> 
-> The following code will correctly write "Hello world!" to the screen
-> even though the text initializes a member of a structure called "current"
-> while "current" has been defined to be a function called puts.
-> 
-> #include <stdio.h>
-> #define current puts
-> struct foo {
->     char *current;
->     int foo;
->     } bar;
-> main()
-> {
->     bar.current = "Hello world!";
->     current(bar.current);
->     return 0;
-> }
-> 
-> For your code to get "confused", you really have something else
-> wrong. That said, some name-space polution may make it difficult
-> to find the problem. For instance, a structure member is expected
-> to have a ";" after it. It's possible for some previous definition
-> to make a syntax error invisible.
-> 
-> Cheers,
-> Dick Johnson
+> You're using the OHCI driver, so you can just tweak the lines at the
+> top of drivers/usb/host/ohci-hcd.c that can #define DEBUG.  If you
+> comment out that #define, and leave CONFIG_USB_DEBUG on (and then
+> rebuild and re-init with the new OHCI driver), does that work or not?
 
-Try the following instead:
+As requested, I changed the defines in this file to :
 
-// file shade1.cpp
+/*#ifdef CONFIG_USB_DEBUG
+#       define DEBUG
+#else*/
+#       undef DEBUG
+/*#endif*/
 
-// excerpt from common.h
+rebuild a kernel, and started rebooting like mad.
 
-#define current get_current()
+Procedure was following :
+1. reboot the computer (software reboot if ok kernel, else reset)
+2. go through bios (long initiation with memory testing)
+3. when the bootloader shows up (might hang just before, my disks 
+really do not like being stopped before reboot) / when the system 
+hangs, press reset
+4. go through bios initialization (bis)
+5. when grub shows up, play a bit in the menus (up-down...) then choose 
+a kernel
 
-// my stuff
+With this protocol I got a 100% boot rate on the original kernel and an 
+almost-always hang with the kernel where debuging was undefed in 
+drivers/usb/host/ohci-hcd.c. It did boot two times (out of maybe 10-15 
+tries) but that doesn't count since both times the keyboard was dead. 
+Since I can't do a lost of things with only the mouse, I clicked reboot 
+in gdm these two times.
 
-struct {
-  int any;
-  int current[1000];
-} mine;
+> If that works, it'd be time to see which OHCI printk()s morph init (?)
+> timing enough to matter to your K7 box.   Looked to me like they were
+> all either before or after the timing-critical bits (chip init), so
+> disabling just the OHCI messages "should" not change your failure 
+> mode.
 
+No such luck. It really looks like ohci is the culprit:(
+I guess I'm lucky it's got a maintainer as responsive as you:)
 
-// file shade2.cpp
+Any other ideas ?
 
-#include <stdio.h>
+Regards,
 
-// my stuff
+P.S.
 
-extern struct {
-  int any;
-  int current[1000];
-} mine;
+	I don't know if it's important, but I had to enable usb 
+keyboard legacy mode in the bios to have keyboard support in the 
+bootloader stage. I had a bad feeling about the option though, a good 
+bios is a lean bios.
 
-int main () {
-  mine.current[999] = 1;
-  printf ("%d\n", mine.current[999]);
-}
-
-g++ shade1.cpp shade2.cpp
-
-./a.out => segmentation fault
-
-Regards, Daniele
+--
+Nicolas Mailhot

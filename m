@@ -1,34 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317531AbSGESQB>; Fri, 5 Jul 2002 14:16:01 -0400
+	id <S317522AbSGESN0>; Fri, 5 Jul 2002 14:13:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317528AbSGESQA>; Fri, 5 Jul 2002 14:16:00 -0400
-Received: from h186n1fls24o900.telia.com ([213.66.143.186]:23786 "EHLO
-	oden.fish.net") by vger.kernel.org with ESMTP id <S317533AbSGESP6>;
-	Fri, 5 Jul 2002 14:15:58 -0400
-Date: Fri, 5 Jul 2002 20:19:59 +0200
-From: Voluspa <voluspa@bigfoot.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IBM Desktar disk problem?
-Message-Id: <20020705201959.5e43279e.voluspa@bigfoot.com>
-In-Reply-To: <Pine.SOL.4.30.0207052004560.24991-100000@mion.elka.pw.edu.pl>
-References: <20020705200113.21be185f.voluspa@bigfoot.com>
-	<Pine.SOL.4.30.0207052004560.24991-100000@mion.elka.pw.edu.pl>
-Organization: The Foggy One
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
+	id <S317525AbSGESNZ>; Fri, 5 Jul 2002 14:13:25 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49419 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317522AbSGESNY>; Fri, 5 Jul 2002 14:13:24 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: prevent breaking a chroot() jail?
+Date: 5 Jul 2002 11:15:39 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <ag4nob$sgq$1@cesium.transmeta.com>
+References: <1025877004.11004.59.camel@zaphod>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jul 2002 20:05:23 +0200 (MET DST)
-Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
+Followup to:  <1025877004.11004.59.camel@zaphod>
+By author:    Shaya Potter <spotter@cs.columbia.edu>
+In newsgroup: linux.dev.kernel
+>
+> I'm trying to develop a way to ensure that one can't break out of a
+> chroot() jail, even as root.  I'm willing to change the way the syscalls
+> work (most likely only for a subset of processes, i.e. processes that
+> are run in the jail end up getting a marker which is passed down to all
+> their children that causes the syscalls to behave differently).
+> 
+> What should I be aware of?  I figure devices (no need to run mknod in
+> this jail) and chroot (as per man page), is there any other way of
+> breaking the chroot jail (at a syscall level or otherwise)?
+> 
+> or is this 100% impossible?
+> 
 
-> Overheating?
+This sounds like a job for [dum de dum dum] capabilities... remember,
+on Linux root hasn't been almighty for a very long time, it's just a
+matter of which capabilities you retain.  Of course, if you really
+want to be safe, you might end up with a rather castrated root inside
+the chroot shell.
 
-Yes. First one was like a frying pan on the surface. But the second had a moderate temp. Inside temp of the box, no problem.
+If you really want to jail something, use UML.
 
-Regards,
-Mats Johannesson
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

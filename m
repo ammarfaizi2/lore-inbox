@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262450AbUJ0OOk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbUJ0OPh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262450AbUJ0OOk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 10:14:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbUJ0OOk
+	id S262453AbUJ0OPh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 10:15:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262452AbUJ0OPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 10:14:40 -0400
-Received: from serena.fsr.ku.dk ([130.225.215.194]:3014 "EHLO serena.fsr.ku.dk")
-	by vger.kernel.org with ESMTP id S262450AbUJ0OOh (ORCPT
+	Wed, 27 Oct 2004 10:15:31 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:8580 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262451AbUJ0OPU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 10:14:37 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: /proc/net/tcp not updated fast enough?
-References: <2TTnT-7q3-31@gated-at.bofh.it> <2TV6i-i1-5@gated-at.bofh.it>
-From: Henrik Christian Grove <grove@fsr.ku.dk>
-Organization: Forenede =?iso-8859-1?q?Studenterr=E5d?= ved
-  =?iso-8859-1?q?K=F8benhavns?= Universitet
-Date: 27 Oct 2004 16:14:35 +0200
-In-Reply-To: <2TV6i-i1-5@gated-at.bofh.it>
-Message-ID: <7g7jpcp7sk.fsf@serena.fsr.ku.dk>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Wed, 27 Oct 2004 10:15:20 -0400
+Message-ID: <417FAED5.7070603@sgi.com>
+Date: Wed, 27 Oct 2004 09:21:09 -0500
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Hugepages demand paging V2 [0/8]: Discussion and overview
+References: <B05667366EE6204181EABE9C1B1C0EB504BFA47C@scsmsx401.amr.corp.intel.com> <Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com> <20041027064851.GW15367@holomorphy.com>
+In-Reply-To: <20041027064851.GW15367@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu <herbert@gondor.apana.org.au> writes:
-
-> Henrik Christian Grove <grove@fsr.ku.dk> wrote:
->  
-> > I have it running on 11[1] machines and since midnight (it's 11:47 here
-> > now) I have 2397 succesfull connections, but in 31 cases (that's 1,29%
-> > of the connections - and thus not totally ignorable) I had to read
-> > through /proc/net/tcp twice to find the uid. Does that sound plausible,
-> > or more like I'm doing something wrong?
+William Lee Irwin III wrote:
+> On Mon, Oct 25, 2004 at 06:26:42PM -0700, Christoph Lameter wrote:
 > 
-> /proc/net/tcp in 2.4 is inherently unreliable since it doesn't use
-> the seqfile interface.  Your best bet is to use the tcp_diag interface
-> instead.  You can either do that by using the ss command from the
-> iproute2 suite, or you can query tcp_diag directly from C through
-> netlink.
+>>Hugetlb demand paging has been part of SuSE SLES 9 for awhile now and
+>>this patchset is intended to help hugetlb demand paging also get into
+>>the official Linux kernel. Huge pages are referred to as "compound"
+>>pages in terms of "struct page" in the Linux kernel. The term
+> 
+> "compund page" may be used alternatively to huge page.
+> 
+> This may very well explain why SLES9 is triplefaulting when Oracle
+> tries to use hugetlb on it on x86-64.
+> 
+> Since all this is clearly malfunctioning and not done anywhere near
+> carefully enough, can I at least get *some* sanction to do any of this
+> differently?
+> 
+> 
+> -- wli
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Thank you for the quick reply. Would you (or anyone else reading this)
-happen to have any hints on what to do in Perl? (I know I can call ss,
-but maybe there's a module with a nice interface?)
-
-.Henrik
+How differently?  What do you have in mind?
 
 -- 
-"Det er fundamentalt noget humanistisk vås, at der er noget, 
- der hedder blød matematik."
-   --- citat Henrik Jeppesen, dekan for det naturvidenskabelige fakultet
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------

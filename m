@@ -1,87 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbVCIOcC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVCIOi5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261634AbVCIOcC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 09:32:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVCIOcC
+	id S261708AbVCIOi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 09:38:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVCIOi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 09:32:02 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:35978 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261634AbVCIObu (ORCPT
+	Wed, 9 Mar 2005 09:38:56 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:46224 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S261648AbVCIOiu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 09:31:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=e5R75eo6JaJTWV5TDRy2H02iC40F8HBHvx5JCo0BeOA4gBlHvxJ8iEki8dvK+cJG7oYB/E/8J704IyC3DJsEMWAHzW4MQFTnITZ2nvt5m94HaqVMD7jtJPG9obxqVS0GZaIuwlK6V+d+FfcOswqMvmAAmgII/IucoXQJE5GnWaY=
-Message-ID: <875fe4a505030906315ef7a16b@mail.gmail.com>
-Date: Wed, 9 Mar 2005 14:31:50 +0000
-From: Francesco Oppedisano <francesco.oppedisano@gmail.com>
-Reply-To: Francesco Oppedisano <francesco.oppedisano@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: about interrupt latency
-In-Reply-To: <Pine.LNX.4.61.0503081345080.12268@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <875fe4a50503081039328ffede@mail.gmail.com>
-	 <Pine.LNX.4.61.0503081345080.12268@chaos.analogic.com>
+	Wed, 9 Mar 2005 09:38:50 -0500
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230CC1B@exa-atlanta>
+From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+To: "'Adrian Bunk'" <bunk@stusta.de>
+Cc: "'Arjan van de Ven'" <arjan@infradead.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
+       Andrew Morton <akpm@osdl.org>,
+       "'Christoph Hellwig'" <hch@infradead.org>
+Subject: RE: [ANNOUNCE][PATCH 2.6.11 1/3] megaraid_sas: Announcing new mod
+	 ule  for LSI Logic's SAS based MegaRAID controllers
+Date: Wed, 9 Mar 2005 09:30:22 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Mar 2005 14:03:21 -0500 (EST), linux-os 
-> You can't measure interrupt latency that way even
-> though you may get the "correct" answer!
+>> >
+>> >>  source "drivers/scsi/megaraid/Kconfig.megaraid"
+>> >> +source "drivers/scsi/megaraid/Kconfig.megaraid_sas"
+>> >>  
+>> >
+>> >why a fully separate file and not add your ONE config option to
+>> >Kconfig.megaraid instead ??
+>> >
+>> 
+>> Arjan, I didn't want to needlessly couple megaraid and megaraid_sas.
+>> Since they are in the same directory, I couldn't avoid having single
+>> Makefile. I thought at least these two should be separate to 
+>be consistent
+>> with their independent nature.
+>> 
+>> If this is not a good enough reason, I will merge these two files.
+>
+>Please merge them.
+>
+>Whether they are in the same Kconfig file or not does not in any way 
+>imply any relation between them.
+>
+>E.g. drivers/scsi/Kconfig contains many drivers that are not 
+>in any way 
+>coupled to each other.
+>
 
-Why do you think the technique is not valid?
+Understood. I will merge them.
 
-> Make a simple module that uses IRQ7, the printer-port
-> interrupt. Inside your ISR, you toggle one of the
-> printer-port bits. Program the printer port to
-> generate the interrupt when its control bit
-> is triggered.
-> 
-> Now, connect a function generator to toggle the
-> printer control bit. Also use this transition to
-> trigger an oscilloscope while looking at its trace
-> on one channel. Connect the other channel to the
-> bit that's being toggled in your ISR.
-> 
-> Observe the time between the trigger-trace and
-> the toggle-trace. That, minus the few nanoseconds
-> necessary to execute your ISR code, is the
-> interrupt latency when using that specific interrupt
-> source. PCI/Bus devices have lower latencies.
+>
+>BTW: Why does the text say "(New Driver)"?
+>
 
-I do not have such an instrumentation :-(
+I thought I saw some new modules being labeled as such. I will remove
+it in the next update if it not correct.
 
-> 
-> The CPU speed seems to have little to do with interrupt
-> latency now that we have fast CPUs. The limiting action
-> is the memory speed (front-side bus). You can seldom
-> count on having your ISR code inside the cache, so it
-> needs to be fetched. It also takes more cache-flushes
-> to switch from user-mode to a kernel stack, set up
-> new segments, etc. That's the reason why you must
-> MEASURE the latency if it is important. Guessing that
-> an interrupt occurred when a timer went to zero, then
-> measuring the residual in that same ISR will give you
-> the wrong answers, altough in this case, it's probably
-> close.
-> 
-Sorry but i cannot understand this:
-i'm trying to estimate interrupt latency (i need only the order of
-magnitude) by measuring the interrupt latency of the timer interrupt.
-So when the 8254 counter reaches zero it issues an interrupt so i'm
-sure that the time when the interrupt has been issued was when the
-counter was to zero. From that time the counter returns to a value of
-19832 (or something else) and at that time the countdown restarts.
-When i reach the ISR i read the counter and obtain the
-latency...what's wrong in this simple strategy?
-Probably  i'm guessing  that the latency experienced by a timer
-interrupt is the same as e.g the latency experienced by a NIC
-interrupt, but remember that i need only a coarse measure.
+>-- 
+>
+>       "Is there not promise of rain?" Ling Tan asked suddenly out
+>        of the darkness. There had been need of rain for many days.
+>       "Only a promise," Lao Er said.
+>                                       Pearl S. Buck - Dragon Seed
+>
+There is a 30% chance of rain here today.
 
-Nevertheless, the information about the ISR in cache is very
-interesting, probably it's what i was looking for....thank u.
-
-Francesco Oppedisano
+Thanks,
+Sreenivas
+LSI Logic Corporation

@@ -1,63 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314872AbSECRb0>; Fri, 3 May 2002 13:31:26 -0400
+	id <S314801AbSECRq2>; Fri, 3 May 2002 13:46:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314885AbSECRbZ>; Fri, 3 May 2002 13:31:25 -0400
-Received: from mail.gmx.de ([213.165.64.20]:38693 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S314843AbSECRbY>;
-	Fri, 3 May 2002 13:31:24 -0400
-Date: Fri, 3 May 2002 19:30:06 +0200
-From: Sebastian Droege <sebastian.droege@gmx.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: dalecki@evision-ventures.com, linux-kernel@vger.kernel.org,
-        linux-ide@vger.kernel.org
-Subject: Re: [PATCH] IDE TCQ #2
-Message-Id: <20020503193006.6b4b9094.sebastian.droege@gmx.de>
-In-Reply-To: <20020503170118.GV839@suse.de>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="L/SW+93r,gHJ?=.W"
+	id <S314885AbSECRq1>; Fri, 3 May 2002 13:46:27 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:12809 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S314801AbSECRq1>; Fri, 3 May 2002 13:46:27 -0400
+Message-Id: <200205031743.g43HhkX10360@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: [prepatch] address_space-based writeback
+Date: Fri, 3 May 2002 20:47:48 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <9595.1020174038@ocs3.intra.ocs.com.au> <200205030931.g439VEX09418@Port.imtp.ilyichevsk.odessa.ua> <3CD2875C.439AC914@aitel.hist.no>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---L/SW+93r,gHJ?=.W
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On 3 May 2002 10:49, Helge Hafting wrote:
+> > > Yes, edit /etc/fstab. My file server has loads of partitions and it
+> > > exports them all and /etc/fstab on all clients just mounts them all.
+> > > Problem being?
+> >
+> > Problem is that I have to modify /etc/fstab on every workstation.
+>
+> So _automate_ that then.  If you have so many workstations, make...
 
-On Fri, 3 May 2002 19:01:18 +0200
-Jens Axboe <axboe@suse.de> wrote:
+Yes I can do that easily. I meant that it is somewhat silly that clients
+have to be tweaked when normal directory on server become a mount point.
+It should be invisible from client.
 
-> > > > ide_tcq_intr_timeout: timeout waiting for interrupt...
-> > > > ide_tcq_intr_timeout: hwgroup not busy
-> > > 
-> > > We timed out waiting for an interrupt for service or dma completion.
-> > > Damn, I forgot to print which one. Please change that printk in
-> > > drivers/ide/ide-tcq.c:ide_tcq_intr_timeout() to:
-> > > 
-> > > 	printk("ide_tcq_intr_timeout: timeout waiting for %s interrupt...\n",
-> > > 		hwgroup->rq ? "completion" : "service");
-> > > 
-> > > and reproduce!
-> > Is this printk enough or should I handcopy the oops again? ;)
-> 
-> The oops is pretty irrelevant here, the fact that it triggers is enough
-> to know. I already know the backtrace :-)
+(Before we start: I know about nohide)
 
-It's a service interrupt....
-I'm currently recompiling without preempt
-Bye
+> > It seems to me like the Bad Thing which is too old and traditional to
+> > change. :-(
+>
+> Most ways have their own disadvantages.  Can you invent a better concept
+> than the inode that works as well in every existing way, and better for
+> this case?  Your new syscall isn't it, as Pavel Machek demonstrated.
 
---L/SW+93r,gHJ?=.W
-Content-Type: application/pgp-signature
+Pavel presented a corner case (tarring up thousands of files, all with
+exactly *same size*). It's like making pathological cases for VM behavior.
+I don't take that seriously, sorry. Another example?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
+> Changing unix is doable _if_ you can show a significant benefit.
+> The more utilities you want to break, the more benefit you need to show.
+> I don't think you can send the inode to the land of
+> "8-char limited passwords" by pushing "simpler management of fstabs"
+> though.
 
-iD8DBQE80skge9FFpVVDScsRAhzVAKDwTJUvw1GzwwWoqkJ7Wk8bwbmQkwCg9gh5
-Jp6bjCwXyCohQ7LIA+62jSs=
-=ceUR
------END PGP SIGNATURE-----
+I'm afraid I can't present benefits big enough.
 
---L/SW+93r,gHJ?=.W--
-
+I was thinking of fs driver (NFS,reiser,NTFS,FAT,...) developers'
+pain, not about my /etc/fstab editing.
+--
+vda

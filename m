@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265111AbUASOUB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 09:20:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265117AbUASOUB
+	id S265119AbUASOVF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 09:21:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265118AbUASOVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 09:20:01 -0500
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:6783 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265111AbUASOUA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 09:20:00 -0500
-Date: Mon, 19 Jan 2004 08:19:49 -0600 (CST)
-From: Ryan Reich <ryanr@uchicago.edu>
-Reply-To: Ryan Reich <ryanr@uchicago.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Overlapping MTRRs in 2.6.1
-In-Reply-To: <20040119095003.GB8621@redhat.com>
-Message-ID: <Pine.LNX.4.58.0401190818450.1003@ryanr.aptchi.homelinux.org>
-References: <Pine.LNX.4.58.0401181458080.2194@ryanr.aptchi.homelinux.org>
- <20040119095003.GB8621@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 19 Jan 2004 09:21:05 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.135.30]:65036 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S265119AbUASOVA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 09:21:00 -0500
+Date: Mon, 19 Jan 2004 23:21:31 +0900 (JST)
+Message-Id: <20040119.232131.03582632.yoshfuji@linux-ipv6.org>
+To: marcel@holtmann.org
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: Problem with CONFIG_SYSCTL disabled
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <1074521369.6070.99.camel@pegasus>
+References: <1074519043.6070.93.camel@pegasus>
+	<20040119.224603.71004956.yoshfuji@linux-ipv6.org>
+	<1074521369.6070.99.camel@pegasus>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jan 2004, Dave Jones wrote:
+In article <1074521369.6070.99.camel@pegasus> (at Mon, 19 Jan 2004 15:09:29 +0100), Marcel Holtmann <marcel@holtmann.org> says:
 
-> On Sun, Jan 18, 2004 at 03:11:27PM -0600, Ryan Reich wrote:
->
->  > (WW) RADEON(0): [agp] AGP not available
->  >
->  > and finally,
->  >
->  > (II) RADEON(0): Direct rendering disabled
->
-> Make sure you're loading both the agpgart module, *AND* the
-> relevant chipset driver for your board, ie via-agp, intel-agp or the like.
+> so it is not needed to wrap the inclusion of linux/sysctl.h around
+> #ifdef's, but why is it done so many times?
+> 
+> 	net/core/neighbour.c
+> 	net/ipv4/devinet.c
+> 	net/ipv4/arp.c
+> 	net/ipv4/route.c
+> 	net/ipv4/netfilter/ip_conntrack_standalone.c
+> 	net/ipv6/route.c
+> 	net/ipv6/addrconf.c
+> 	net/ipv6/ndisc.c
+> 	net/ipv6/icmp.c
+> 	net/appletalk/sysctl_net_atalk.c
+> 	net/bridge/br_netfilter.c
 
-Thanks, that's what I was doing.  I didn't notice that the system had changed
-from 2.4.
+Compilation time?
 
--- 
-Ryan Reich
-ryanr@uchicago.edu
+If one does not require linux/sysctl.h without CONFIG_SYSCTL,
+you don't need to include it.
+
+--yoshfuji
+

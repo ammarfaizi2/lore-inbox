@@ -1,81 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265687AbSJXWQf>; Thu, 24 Oct 2002 18:16:35 -0400
+	id <S265699AbSJXWZO>; Thu, 24 Oct 2002 18:25:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265688AbSJXWQf>; Thu, 24 Oct 2002 18:16:35 -0400
-Received: from [63.204.6.12] ([63.204.6.12]:33690 "EHLO mail.somanetworks.com")
-	by vger.kernel.org with ESMTP id <S265687AbSJXWQe>;
-	Thu, 24 Oct 2002 18:16:34 -0400
-Date: Thu, 24 Oct 2002 18:22:44 -0400 (EDT)
-From: "Scott Murray" <scottm@somanetworks.com>
-X-X-Sender: <scottm@rancor.yyz.somanetworks.com>
-To: Greg KH <greg@kroah.com>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       KOCHI Takayoshi <t-kouchi@mvf.biglobe.ne.jp>, <jung-ik.lee@intel.com>,
-       <tony.luck@intel.com>,
-       pcihpd-discuss <pcihpd-discuss@lists.sourceforge.net>,
-       <linux-ia64@linuxia64.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Pcihpd-discuss] Re: PCI Hotplug Drivers for 2.5
-In-Reply-To: <20021024214952.GK25159@kroah.com>
-Message-ID: <Pine.LNX.4.33.0210241803420.10937-100000@rancor.yyz.somanetworks.com>
+	id <S265696AbSJXWZO>; Thu, 24 Oct 2002 18:25:14 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:45190 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265694AbSJXWZM>; Thu, 24 Oct 2002 18:25:12 -0400
+Date: Thu, 24 Oct 2002 15:25:19 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+cc: Hanna Linder <hannal@us.ibm.com>, tmolina@cox.net, haveblue@us.ibm.com
+Subject: more aic7xxx boot failure
+Message-ID: <8800000.1035498319@w-hlinder>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Oct 2002, Greg KH wrote:
 
-> On Thu, Oct 24, 2002 at 01:44:06PM -0400, Scott Murray wrote:
-> >
-> > I don't know if you looked at my cPCI driver patch in detail, but it uses
-> > the setup-*.c code for all of its resource management.
->
-> I'm sorry, but I only glanced at it and missed this point.
-
-No problemo, I kind of vanished off the face of the earth after my last
-mention of releasing a 2.5 patch, which was over a month and a half ago.
-Now that we've got our new hardware platform up and running here at SOMA,
-I'm back in a position to work on hotplug stuff again.
-
-> > The only things that were really missing in 2.4.x were:
-> >
-> > - exports of a few things, most notably pci_scan_bridge
-> > - code to update the resource windows of a newly added bridge (recursively)
-> > - a pci_write_bridge_bases
-> > - PCI resource reservation to allow hot insertion on dumb cPCI hardware
-> > - on x86, the smarts to work back to the root PCI bus to figure out the
-> >   IRQ pin to use when looking in the pirq table
->
-> All of these seem like things that should belong in the setup-*.c files
-> for others to use.
-
-I think Ivan's new code in setup-bus.c (pbus_size_bridges and friends)
-removes the need for a pci_write_bridge_bases and my code to update the
-bridge resource windows.  I hope so, since I've changed my driver to use
-it! ;)
-
-> > Since I've been swamped with other stuff, I just started finally porting
-> > my cPCI stuff to 2.5 yesterday. :(  I think I can get it up and running
-> > relatively quickly, but figuring out Ivan's newer hotplug helper code
-> > and how to take advantage of it might take me a couple of days.
->
-> Nice, I was wondering what happened.  I'll go dig up your older patch
-> and take a closer look at it.
-
-I hopefully will have something working against 2.5.44 tomorrow.  I think
-the only potentially contentious piece that I'd like to get reviewed and
-maybe integrated before the feature freeze is the resource reservation
-stuff.  There seemed to be no serious objections to the 2.4.x version I
-posted a while back, so maybe this won't be a big deal.  Everything else
-is either __devinit/export tweaks or driver code.
-
-Scott
+>                                2.5 Kernel Problem Reports as of 22 Oct
+>    Status                 Discussion  Problem Title
+> 
+>    open                   04 Oct 2002 AIC7XXX boot failure
+>    1. http://marc.theaimsgroup.com/?l=linux-kernel&m=103356254615324&w=2
+> 
 
 
--- 
-Scott Murray
-SOMA Networks, Inc.
-Toronto, Ontario
-e-mail: scottm@somanetworks.com
+This may be a different problem but it is related to the aic7xxx
+driver. My system is a 2-way PIII 500MHz 2.5GB RAM box. It boots
+if I remove the aic7xxx driver. This is on 2.5.44 btw. Works fine
+on 2.4.x.
+
+Here is the output from lspci -v -v:
+
+
+00:06.0 SCSI storage controller: Adaptec AHA-2940U/UW / AHA-39xx / AIC-7895 (rev 04)
+	Subsystem: Adaptec AHA-2940U/2940UW Dual AHA-394xAU/AUW/AUWD AIC-7895B
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr+ Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 80 (2000ns min, 2000ns max)
+	Interrupt: pin A routed to IRQ 15
+	Region 0: I/O ports at 2200 [disabled] [size=256]
+	Region 1: Memory at febfe000 (32-bit, non-prefetchable) [size=4K]
+	Expansion ROM at <unassigned> [disabled] [size=64K]
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:06.1 SCSI storage controller: Adaptec AHA-2940U/UW / AHA-39xx / AIC-7895 (rev 04)
+	Subsystem: Adaptec AHA-2940U/2940UW Dual AHA-394xAU/AUW/AUWD AIC-7895B
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr+ Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 80 (2000ns min, 2000ns max)
+	Interrupt: pin B routed to IRQ 10
+	Region 0: I/O ports at 2300 [disabled] [size=256]
+	Region 1: Memory at febfd000 (32-bit, non-prefetchable) [size=4K]
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+
 

@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263306AbSJHT2S>; Tue, 8 Oct 2002 15:28:18 -0400
+	id <S263292AbSJHT04>; Tue, 8 Oct 2002 15:26:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263305AbSJHT1C>; Tue, 8 Oct 2002 15:27:02 -0400
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:8860 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
-	id <S263301AbSJHTZw>; Tue, 8 Oct 2002 15:25:52 -0400
-Date: Tue, 08 Oct 2002 12:30:40 -0700
-From: Iain McClatchie <iain@truecircuits.com>
-Subject: SMP ACPI S3 support in 2.4 series?
-To: linux-kernel@vger.kernel.org
-Message-id: <3DA33260.BE383232@truecircuits.com>
-Organization: True Circuits
-MIME-version: 1.0
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.18pre15 i686)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
+	id <S263304AbSJHT0D>; Tue, 8 Oct 2002 15:26:03 -0400
+Received: from packet.digeo.com ([12.110.80.53]:58087 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S263292AbSJHTYt>;
+	Tue, 8 Oct 2002 15:24:49 -0400
+Message-ID: <3DA33250.FB61BAAE@digeo.com>
+Date: Tue, 08 Oct 2002 12:30:24 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
 X-Accept-Language: en
+MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+CC: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org,
+       riel@conectiva.com.br
+Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
+References: <20021008190513.GA4728@tapu.f00f.org> <1034104637.29468.1483.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Oct 2002 19:30:24.0410 (UTC) FILETIME=[261117A0:01C26F01]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm buying a number of SMP servers.  These machines will go
-idle for days at a time, and we'd like to send them into a
-suspend-to-RAM (ACPI state S3) while they are unused.
+Robert Love wrote:
+> 
+> ...
+> 
+> Andrew, any experience on one vs. the other?
 
-I want to know if this is even possible with the Linux 2.4
-series kernels, and if so, which hardware and kernel combinations
-support it.  I'd also like to know if anyone really has this
-working right now.
+I'd say that if you were designing a new application which
+streams large amount of data then yes, you would design it
+to use O_DIRECT.  You would instantiate a separate IO worker
+thread and a message passing mechanism so that thread would
+pump your data for you, and would peform your readahead, etc.
 
-As dual Athlon systems appear to be the best performance/$ for
-my application, I'm especially interested in getting those to
-sleep, but I'll take any pointers I can get.
+If your filesystem supports O_DIRECT, of course.  Not all do.
 
--Iain McClatchie                       iain-3@truecircuits.com
-                                       650-691-7604 voice
-True Circuits, Inc.                    650-691-7606 FAX
-                                       650-703-2095 cell
+The strength of O_STREAMING is that you can take an existing,
+working, megahuge application and make it play better with the
+VM by changing a single line of code.  No big redesign needed.

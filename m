@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266141AbUGTTQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266134AbUGTTQU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266141AbUGTTQV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 15:16:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266139AbUGTTOi
+	id S266134AbUGTTQU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 15:16:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266141AbUGTTOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 15:14:38 -0400
-Received: from nl-ams-slo-l4-01-pip-8.chellonetwork.com ([213.46.243.27]:46136
-	"EHLO amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S266158AbUGTSjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 14:39:52 -0400
+	Tue, 20 Jul 2004 15:14:46 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:56882 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S266157AbUGTSju (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 14:39:50 -0400
 Date: Tue, 20 Jul 2004 20:39:49 +0200
-Message-Id: <200407201839.i6KIdnMb015545@anakin.of.borg>
+Message-Id: <200407201839.i6KIdn4R015540@anakin.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       jt@hpl.hp.com
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] depends on PCI DMA API: Cisco/Aironet 34X/35X/4500/4800
+       irda-users@lists.sourceforge.net,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] depends on PCI: Toshiba and VIA FIR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cisco/Aironet 34X/35X/4500/4800 unconditionally depends on the PCI DMA API, so
-mark it broken if !PCI
+Toshiba and VIA FIR unconditionally depend on PCI
 
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
---- linux-2.6.8-rc2/drivers/net/wireless/Kconfig	2004-07-18 15:55:25.000000000 +0200
-+++ linux-m68k-2.6.8-rc2/drivers/net/wireless/Kconfig	2004-07-19 23:15:51.000000000 +0200
-@@ -139,7 +139,7 @@
+--- linux-2.6.8-rc2/drivers/net/irda/Kconfig	2004-07-15 23:14:24.000000000 +0200
++++ linux-m68k-2.6.8-rc2/drivers/net/irda/Kconfig	2004-07-19 18:28:34.000000000 +0200
+@@ -333,7 +333,7 @@
  
- config AIRO
- 	tristate "Cisco/Aironet 34X/35X/4500/4800 ISA and PCI cards"
--	depends on NET_RADIO && (ISA || PCI)
-+	depends on NET_RADIO && ISA && (PCI || BROKEN)
- 	---help---
- 	  This is the standard Linux driver to support Cisco/Aironet ISA and
- 	  PCI 802.11 wireless cards.
+ config TOSHIBA_FIR
+ 	tristate "Toshiba Type-O IR Port"
+-	depends on IRDA && !64BIT
++	depends on IRDA && PCI && !64BIT
+ 	help
+ 	  Say Y here if you want to build support for the Toshiba Type-O IR
+ 	  and Donau oboe chipsets. These chipsets are used by the Toshiba
+@@ -385,7 +385,7 @@
+ 
+ config VIA_FIR
+ 	tristate "VIA VT8231/VT1211 SIR/MIR/FIR"
+-	depends on IRDA && ISA
++	depends on IRDA && ISA && PCI
+ 	help
+ 	  Say Y here if you want to build support for the VIA VT8231
+ 	  and VIA VT1211 IrDA controllers, found on the motherboards using
 
 Gr{oetje,eeting}s,
 

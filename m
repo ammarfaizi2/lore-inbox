@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262115AbTFIVYE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 17:24:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbTFIVYD
+	id S262145AbTFIV0k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 17:26:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbTFIVZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 17:24:03 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:52203 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262115AbTFIVX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 17:23:57 -0400
-Date: Mon, 9 Jun 2003 23:37:30 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Frank Cusack <fcusack@fcusack.com>
-Cc: David Schwartz <davids@webmaster.com>, public@mikl.as,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linksys WRT54G and the GPL
-Message-ID: <20030609213730.GQ16164@fs.tum.de>
-References: <200306072241.23725.public@mikl.as> <MDEHLPKNGKAHNMBLJOLKIEHHDIAA.davids@webmaster.com> <20030608224727.D9097@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 Jun 2003 17:25:43 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:42375 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262135AbTFIVZ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 17:25:28 -0400
+From: Daniel Phillips <dphillips@sistina.com>
+Reply-To: dphillips@sistina.com
+Organization: Sistina
+To: dm-devel@sistina.com, Greg KH <greg@kroah.com>
+Subject: Re: [dm-devel] Re: [RFC] device-mapper ioctl interface
+Date: Mon, 9 Jun 2003 23:39:38 +0200
+User-Agent: KMail/1.5.2
+Cc: dm-devel@sistina.com, Joe Thornber <thornber@sistina.com>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+References: <20030605093943.GD434@fib011235813.fsnet.co.uk> <200306092203.50024.dphillips@sistina.com> <20030609203954.GA8021@kroah.com>
+In-Reply-To: <20030609203954.GA8021@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030608224727.D9097@google.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200306092339.38441.dphillips@sistina.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 08, 2003 at 10:47:27PM -0700, Frank Cusack wrote:
-> On Sun, Jun 08, 2003 at 10:32:52PM -0700, David Schwartz wrote:
-> > Including the source with the product would be insufficient to meet the GPL
-> > requirements. They would have to offer the source (or a written offer to
-> > obtain the source for no more than the cost of physically copying it) to
-> > everyone who downloaded their software from their web site. The GPL is quite
-> > clear that the source code offer must be made to anyone to whom the object
-> > code is distributed. (The program must be accompanied by the offer.)
-> 
-> No, a source code *offer* must be made to anyone, period.
+On Monday 09 June 2003 22:39, Greg KH wrote:
+> On Mon, Jun 09, 2003 at 10:03:50PM +0200, Daniel Phillips wrote:
+> > On Friday 06 June 2003 19:17, Greg KH wrote:
+> > > On Thu, Jun 05, 2003 at 10:39:43AM +0100, Joe Thornber wrote:
+> > > > Here's the header file for the the proposed new ioctl interface for
+> > > > dm.  We've tried to change as little as possible to minimise code
+> > > > changes in LVM2 and EVMS.
+> > >
+> > > Minor comment:
+> > > 	- please do not use uint_32t types in kernel header files.  Use
+> > > 	  the proper __u32 type which is guarenteed to be the proper
+> > > 	  size across the user/kernel boundry.
+> >
+> > We even have a flavor without the __'s:
+> >
+> >    http://lxr.linux.no/source/include/asm-i386/types.h?v=2.5.56#L47
+> >
+> > A little easier on the eyes, imho.
+>
+> But they are not the same.
+>  - "__" means this variable will be the same size across the
+>    kernel/userspace boundry.
+>  - without the "__" means this variable will only be this size within
+>    the kernel.
+>
+> Use "__" for variables being seen by userspace.  Otherwise use the
+> types without "__".
 
-Wrong.
+Indeed, and (to restate the obvious) ioctl interfaces will need the __ form.
 
-> Section 3(b) of GPLv2 says "Accompany it with a written offer ...  to give
-> any third party ... [the] source code".
->...
+On the other hand, a quick tour through the current tree shows the __ form 
+being used in a lot more places than it's strictly needed.  Although there's 
+no entry in the style guide for this, perhaps we should consider one.
 
-If you read section 3 from the beginning you notice that 3b is only one 
-of three choices.
+Regards,
 
-> /fc
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Daniel
 

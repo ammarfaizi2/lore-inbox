@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264198AbUFCSUr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264131AbUFCST7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264198AbUFCSUr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 14:20:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264212AbUFCSUr
+	id S264131AbUFCST7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 14:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264212AbUFCST7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 14:20:47 -0400
-Received: from cantor.suse.de ([195.135.220.2]:33200 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264198AbUFCSUo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 14:20:44 -0400
-Subject: Re: ext3_orphan_del may double-decrement bh->b_count
-From: Chris Mason <mason@suse.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jeffm@suse.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20040602194330.1a04badc.akpm@osdl.org>
-References: <40BE3235.5060906@suse.com>
-	 <20040602150614.005e939f.akpm@osdl.org>
-	 <1086219035.22636.3524.camel@watt.suse.com>
-	 <20040602180032.6c96268c.akpm@osdl.org>
-	 <1086229128.22636.3540.camel@watt.suse.com>
-	 <20040602194330.1a04badc.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1086286864.22636.3567.camel@watt.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 03 Jun 2004 14:21:04 -0400
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Jun 2004 14:19:59 -0400
+Received: from adsl-67-118-43-14.dsl.renocs.pacbell.net ([67.118.43.14]:44675
+	"EHLO mail.clouddancer.com") by vger.kernel.org with ESMTP
+	id S264131AbUFCST5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 14:19:57 -0400
+From: Klink <colonel@clouddancer.com>
+To: WebMonster@idsa.ch
+Cc: linux-kernel@vger.kernel.org
+In-reply-to: <s0bf4d74.020@idfw.idsa.ch> (WebMonster@idsa.ch)
+Subject: Re: .config question
+Reply-To: colonel@clouddancer.com
+References: <s0bf4d74.020@idfw.idsa.ch>
+Message-Id: <20040603181956.A4B3A229E08@phoenix.clouddancer.com>
+Date: Thu,  3 Jun 2004 11:19:56 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-06-02 at 22:43, Andrew Morton wrote:
-> Chris Mason <mason@suse.com> wrote:
-> >
-> > > You need the buffer-tracing patch.  This is against 2.6.7-rc2.  It should
-> >  > spit a nice trace when you hit the problem.  It'll tell us how that buffer
-> >  > got itself not uptodate.
-> > 
-> >  Thanks.  jeffm had worked out something similar that stored the EIP of
-> >  each bit operation, the uptodate bit seems to have turned off all on its
-> >  own.  Once we can reproduce reliably on local boxes, we'll start
-> >  layering on the debugging code.  
-> 
-> buffer-trace code is what you need - it records the bh's internal state in
-> its trace buffer too, replays it all when you hit an assertion failure.
-> 
-I think the buffers are just victims of slab corruption.  With slab
-poisoning on I managed to get proof that 128 byte slabs are getting
-stomped on.  I'm still searching for a reliable trigger though, tests
-after that haven't failed at all.
 
-> >  No triggers yet, I might have to grab a bigger machine in the morning.
-> 
-> Is direct-io involved?  I just discovered that clean_blockdev_aliases() is
-> invalidating too many blocks.  It tends to munch those indirect blocks. 
-> (What does bonnie++'s -f option do?)
-> 
-skips the per char test.  There's no O_DIRECT.  Thanks for the patch
-though ;-)
+   Date:	Thu, 03 Jun 2004 16:10:09 +0200
+   From: "Francois Pernet" <WebMonster@idsa.ch>
 
--chris
+   Hi,
+   Sorry to not be part of the mailing list and ask question. Please,
+   could you post any answer (CC) to this question, if relevant ? Many
+   TIA.
 
+Probably show up on the list, otherwise likely to be a silent fix RSN.
+I was surprised that it hadn't been posted, spent time making sure
+that I could repeat it....but it could still be something in my setup.
+
+
+   I've got a kernel already installed in my machine (SuSe Pro 9). I would
+   like to modify something and recompile the kernel. Since it has been
+   installed from rpm, there is no .config in /usr/src/linux. Is there any
+   way to create this file from the image and modules, so i do not need to
+   verify all my config prior to change something ?
+
+There is an option in 2.6 to determine the .config that built the
+kernel somehow.  I've just noticed it while reading 'make xconfig',
+but never use it (I don't lose track of my .config files, been doing
+that tooo long).  Try reading the source for how this is supposed to
+work.  You might look around a bit, such as in /boot, as many distros
+include the config someplace.
 

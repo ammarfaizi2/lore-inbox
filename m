@@ -1,41 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264281AbTKZSkj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 13:40:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264283AbTKZSki
+	id S264285AbTKZSpx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 13:45:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264287AbTKZSpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 13:40:38 -0500
-Received: from mail.jlokier.co.uk ([81.29.64.88]:12929 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S264281AbTKZSkh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 13:40:37 -0500
-Date: Wed, 26 Nov 2003 18:40:31 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Kai Bankett <kbankett@aol.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] irq_balance does not make sense with HT but single physical CPU
-Message-ID: <20031126184031.GC14383@mail.shareable.org>
-References: <3FC4B5C8.6020405@aol.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3FC4B5C8.6020405@aol.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 26 Nov 2003 13:45:52 -0500
+Received: from fw.osdl.org ([65.172.181.6]:36060 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264285AbTKZSpv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 13:45:51 -0500
+Date: Wed, 26 Nov 2003 10:45:41 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Bruce Perens <bruce@perens.com>
+cc: Ulrich Drepper <drepper@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Never mind. Re: Signal left blocked after signal handler.
+In-Reply-To: <3FC4F248.8060307@perens.com>
+Message-ID: <Pine.LNX.4.58.0311261037370.1524@home.osdl.org>
+References: <20031126173953.GA3534@perens.com> <Pine.LNX.4.58.0311260945030.1524@home.osdl.org>
+ <3FC4ED5F.4090901@perens.com> <3FC4EF24.9040307@perens.com>
+ <3FC4F248.8060307@perens.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Bankett wrote:
-> this patch should disable irq_balance threat in case of only one 
-> installed physical cpu thats running in HyperThreading-mode (so reported 
-> as 2 cpus).
-> I think it should make no sense to run irq_blanance in that special case 
-> - please correct me if i´m wrong.
 
-Does it makes no sense?
 
-If you had two tasks both running continuously, one per sibling, then
-not IRQ balancing will penalise the task on the sibling which is
-getting most interrupts.
+On Wed, 26 Nov 2003, Bruce Perens wrote:
+>
+> The test code works on 2.4, but the electric fence confidence test does
+> not. Maybe something odd with SIGSEGV, which is
+> what that confidence test is catching. I will go back and see why.
 
--- Jamie
+One difference in 2.4.x and 2.6.x is the signal blocking wrt blocked
+signals that are _forced_ (ie anything that is thread-synchronous, like a
+SIGSEGV/SIGTRAP/SIGBUS that happens as a result of a fault):
+
+ - in 2.4.x they will just punch through the block
+ - in 2.6.x they will refuse to punch through a blocked signal, but
+   since they can't be delivered they will cause the process to be
+   killed.
+
+Trivial test program:
+
+	#include <signal.h>
+	#include <stdlib.h>
+
+	void sigsegv(int sig)
+	{
+		*(int *)0=0;
+	}
+
+	int main(int argc, char **argv)
+	{
+		struct sigaction sa = { .sa_handler = sigsegv };
+
+		sigaction(SIGSEGV, &sa, NULL);
+		*(int *)0 = 0;
+	}
+
+and in 2.4.x this will cause infinte SIGSEGV's (well, they'll be caught by
+the stack size eventually, but you see the problem: do a "strace" to see
+what's going on). In 2.6.x the second SIGSEGV will just kill the program
+immediately.
+
+If you _want_ the recursive behaviour, you should add
+
+	.sa_flags = SA_NODEFER
+
+to the sigaction initializer.
+
+I don't understand why your test-program works differently on 2.4.x,
+though, since a "kill()" system call is _not_ thread-synchronous, and
+should never punch through anything. Not even on 2.4.x.
+
+		Linus

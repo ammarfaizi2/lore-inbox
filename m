@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316871AbSEVG2e>; Wed, 22 May 2002 02:28:34 -0400
+	id <S316872AbSEVGbN>; Wed, 22 May 2002 02:31:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316872AbSEVG2d>; Wed, 22 May 2002 02:28:33 -0400
-Received: from web14204.mail.yahoo.com ([216.136.172.146]:23439 "HELO
-	web14204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S316871AbSEVG2c>; Wed, 22 May 2002 02:28:32 -0400
-Message-ID: <20020522062832.34936.qmail@web14204.mail.yahoo.com>
-Date: Tue, 21 May 2002 23:28:32 -0700 (PDT)
-From: Erik McKee <camhanaich99@yahoo.com>
-Subject: Re: Kernel BUG 2.4.19-pre8-ac1 + preempt
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1022027112.967.86.camel@sinai>
-MIME-Version: 1.0
+	id <S316873AbSEVGbM>; Wed, 22 May 2002 02:31:12 -0400
+Received: from mail025.syd.optusnet.com.au ([210.49.20.147]:11202 "EHLO
+	mail025.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S316872AbSEVGbL>; Wed, 22 May 2002 02:31:11 -0400
+Date: Wed, 22 May 2002 16:34:08 +1000
+From: Andrew Pam <xanni@glasswings.com.au>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Initialisation bug in IDE patch
+Message-ID: <20020522163408.H2437@kira.glasswings.com.au>
+In-Reply-To: <20020522161144.G2437@kira.glasswings.com.au> <Pine.LNX.4.10.10205212313160.19403-100000@master.linux-ide.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well here are the results of trying 2.4.19-pre8-ac5 with no preempt.  I have to
-throw a lot of processes in kde at it to to get it to become unresponsive. 
-Preformance becomes more sluggish as the number of processes and htus the load
-is ramped up.  Eventially, I get down to 8k swap free, at which point system
-becomes unresponsive.  Sendmail doesn't send, becuase of load avg near 40
-something.  Clock on konsole doesn't move anywhere and the oom killer tries
-again to kill stuff.  However, as far as i can see, no oops.  The first one was
-only in dmesg and not log, so this one might have not made it through to syslog
-(if it happened).  changing to vc is a no go at this point.  alt-sysrq-s seems
-to work.  Tried alt-sysrq-k with no obvious effect.  At one point it seemed as
-if i was really out of x and at a vc, however the x display stayed on he screen
-and subsequent alt-sysrq-k's only caused the screen to move around, which could
-be fixed by alt-ctrl-f2 to recenter the screen.  At this point the hd light had
-finally gone out, perhaps as the result of previous alt-sysrq-k's, althouhg no
-mention of them is found in the logs.  After a reboot and a resync of the raid
-array, life seems bak to normal again...  Well, pretty much....  I did find
-some corruption on the partition which is my boot partition.... a file missing,
-e2fsck replayed the ext3 journal and foudn some errors, and tried copying the
-file over, cp i/o error can't stat the file....  Alas, can't unmount the
-partition, otherwise would reformat it, and reinstall lilo and my kernel images
-on it.  SO off to try this via floppy rebooting ;)
-
-JUst to dispell bad harddrive ?'s on this one, rformatting it definately worked
-;)
-
---- Robert Love <rml@tech9.net> wrote:
-> I don't think this has anything to do with preempt.  The current task
-> was not preemptible (hence the error notice on exit - is that why you
-> blame preempt?).  There is also no preempt_schedule call in your back
-> trace.
+On Tue, May 21, 2002 at 11:18:56PM -0700, Andre Hedrick wrote:
+> Now you have me puzzled........
+> If "ide_setup" which parses the passed settings calls "init_ide_data"
+> which initalizes all "hwif" groups and sets a cookie to prevent "ide_init"
+> from re-initalizing thus purging the contents place in by "ide_setup", how
+> are you getting a "BAD -- OPTION"?
 > 
-> Looks to me like you died coming off an IDE interrupt and a resulting
-> read - you ran out of free pages and bit the dust there.  Dunno why,
-> though.  I don't have an mm_inline.h:78 in my tree, but I do have a
-> DEBUG_LRU near it ...
-> 
-> 	Robert Love
-> 
+> Would please post what you are attempting to pass ?
 
+"ide0=qd6580"
 
-__________________________________________________
-Do You Yahoo!?
-LAUNCH - Your Yahoo! Music Experience
-http://launch.yahoo.com
+Don't tell me, you're going to want me to put all my printk debugging
+back in and show exactly where the data remains uninitialised...
+
+Cheers,
+	Andrew Pam
+-- 
+mailto:xanni@xanadu.net                         Andrew Pam
+http://www.xanadu.com.au/                       Chief Scientist, Xanadu
+http://www.glasswings.com.au/                   Technology Manager, Glass Wings
+http://www.sericyb.com.au/                      Manager, Serious Cybernetics
+http://two-cents-worth.com/?105347&EG		Donate two cents to our work!
+P.O. Box 477, Blackburn VIC 3130 Australia	Phone +61 401 258 915

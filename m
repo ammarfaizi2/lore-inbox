@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281448AbRKFDkq>; Mon, 5 Nov 2001 22:40:46 -0500
+	id <S281449AbRKFDtq>; Mon, 5 Nov 2001 22:49:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281449AbRKFDkg>; Mon, 5 Nov 2001 22:40:36 -0500
-Received: from cc192618-b.oakrdg1.tn.home.com ([65.8.221.188]:14242 "EHLO
-	rdb.linux-help.org") by vger.kernel.org with ESMTP
-	id <S281448AbRKFDkd>; Mon, 5 Nov 2001 22:40:33 -0500
-Date: Mon, 5 Nov 2001 22:43:26 -0500
-From: R Dicaire <rdicaire@ardynet.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.14 loop.o module problem
-Message-Id: <20011105224326.730aa3c7.rdicaire@ardynet.com>
-X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S281453AbRKFDth>; Mon, 5 Nov 2001 22:49:37 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:40597 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S281449AbRKFDte>;
+	Mon, 5 Nov 2001 22:49:34 -0500
+Date: Mon, 5 Nov 2001 22:49:32 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] disk throughput
+In-Reply-To: <Pine.LNX.4.33.0111051748250.1710-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0111052236001.27713-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Errors compiling 2.4.14...
-
-While compiling the modules:
-
-loop.c: In function `lo_send':
-loop.c:210: warning: implicit declaration of function `deactivate_page'
 
 
-While installing the modules:
+On Mon, 5 Nov 2001, Linus Torvalds wrote:
 
-find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.14; fi
-depmod: *** Unresolved symbols in /lib/modules/2.4.14/kernel/drivers/block/loop.o
-depmod:         deactivate_page
+> One such improvement has already been put on the table: remove the
+> algorithm, and make it purely greedy.
 
-gcc 2.95.3
+OK, some digging had brought another one:
 
-GNU binutils-2.11.90.0.19
+a) if it's first-level directory - get it the fsck out of root's cylinder
+group.
+b) if we just keep creating directories in a cylinder group and do not
+create any files there - stop, it's no good (i.e. there's a limit on
+number of back-to-back directory creations in the same group).
+c) try putting it into the parent's CG, but reserve some number of inodes
+and data blocks in it.  If we can't - tough, get the fsck out of there.
 
-Please respond to this email address, I'm not on the list, thanks.
+>From the first reading of the code (aside of general yuck wrt style,
+but that's actually more about the older code in there) it seems to
+be reasonable.  It should solve the problem with fast-growth scenario
+and it puts some effort to avoid nastiness with slow-growth one.
+

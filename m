@@ -1,61 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264891AbUEKRaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264917AbUEKRbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264891AbUEKRaq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 13:30:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264909AbUEKRap
+	id S264917AbUEKRbm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 13:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264914AbUEKRbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 13:30:45 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:25034 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264886AbUEKR3E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 13:29:04 -0400
-Date: Tue, 11 May 2004 19:27:54 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Kurt Garloff <garloff@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>,
-       Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Format Unit can take many hours
-Message-ID: <20040511172753.GY1906@suse.de>
-References: <20040511114936.GI4828@tpkurt.garloff.de> <20040511122037.GG1906@suse.de> <40A0FAE9.90900@pobox.com> <20040511161427.GW1906@suse.de> <20040511162638.GU4828@tpkurt.garloff.de>
+	Tue, 11 May 2004 13:31:05 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:3199 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264885AbUEKR2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 13:28:45 -0400
+Subject: Re: [patch] really-ptrace-single-step
+From: Fabiano Ramos <ramos_fabiano@yahoo.com.br>
+To: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0405111007440.25232@bigblue.dev.mdolabs.com>
+References: <Pine.LNX.4.58.0405111007440.25232@bigblue.dev.mdolabs.com>
+Content-Type: text/plain
+Message-Id: <1084296680.2912.8.camel@slack.domain.invalid>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040511162638.GU4828@tpkurt.garloff.de>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 11 May 2004 14:31:20 -0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 11 2004, Kurt Garloff wrote:
-> Hi,
-> 
-> On Tue, May 11, 2004 at 06:14:27PM +0200, Jens Axboe wrote:
-> > On Tue, May 11 2004, Jeff Garzik wrote:
-> > > Jens Axboe wrote:
-> > > >block/scsi_ioctl.c should likely receive similar treatment then.
-> > > 
-> > > This timeout is dependent on media size, I should think...
-> > > 
-> > > Is there any reason to think that this timeout will _not_ be continually 
-> > > patched in the future, as larger and larger sizes are used?
-> 
-> The disks gets faster as well.
-> 
-> But if we have to touch it every three years, I don't see this as a 
-> huge problem either. If you want some more room, you can set it to 
-> 24hrs now ...
+Still not getting the desired result.
+Which kernel is the patch based on?
 
-Precisely. No need to over-engineer.
+On Tue, 2004-05-11 at 14:12, Davide Libenzi wrote:
+> This patch lets a ptrace process on x86 to "see" the instruction 
+> following the INT #80h op.
 > 
-> > I think the timeout is only used for ancient programs that use the old
-> > sg interface. Newer programs should pass in the timeout themselves, or
-> > set IMMED as somebody else in this thread noted.
 > 
-> If you do use the sg interface, you can specify the timeout.
-> If you use SCSI_IOCTL_SEND_COMMAND, there's no way to do it and
-> the value from scsi_ioctl.c applies.
-
-Even the oldest sg interface? SCSI_IOCTL_SEND_COMMAND should have been
-put to rest at least 5 years ago :)
-
--- 
-Jens Axboe
+> 
+> - Davide
+> 
+> 
+> arch/i386/kernel/entry.S       |    2 +-
+> include/asm-i386/thread_info.h |    2 +-
+> 2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> 
+> 
+> 
+> Index: arch/i386/kernel/entry.S
+> ===================================================================
+> RCS file: /usr/src/bkcvs/linux-2.5/arch/i386/kernel/entry.S,v
+> retrieving revision 1.83
+> diff -u -r1.83 entry.S
+> --- arch/i386/kernel/entry.S	12 Apr 2004 20:29:12 -0000	1.83
+> +++ arch/i386/kernel/entry.S	11 May 2004 06:35:29 -0000
+> @@ -354,7 +354,7 @@
+>  	# perform syscall exit tracing
+>  	ALIGN
+>  syscall_exit_work:
+> -	testb $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT), %cl
+> +	testb $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SINGLESTEP), %cl
+>  	jz work_pending
+>  	sti				# could let do_syscall_trace() call
+>  					# schedule() instead
+> Index: include/asm-i386/thread_info.h
+> ===================================================================
+> RCS file: /usr/src/bkcvs/linux-2.5/include/asm-i386/thread_info.h,v
+> retrieving revision 1.19
+> diff -u -r1.19 thread_info.h
+> --- include/asm-i386/thread_info.h	12 Apr 2004 20:29:12 -0000	1.19
+> +++ include/asm-i386/thread_info.h	11 May 2004 06:34:47 -0000
+> @@ -165,7 +165,7 @@
+>  
+>  /* work to do on interrupt/exception return */
+>  #define _TIF_WORK_MASK \
+> -  (0x0000FFFF & ~(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT))
+> +  (0x0000FFFF & ~(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SINGLESTEP))
+>  #define _TIF_ALLWORK_MASK	0x0000FFFF	/* work to do on any return to u-space */
+>  
+>  /*
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

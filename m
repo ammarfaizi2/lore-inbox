@@ -1,50 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129226AbQLDUuX>; Mon, 4 Dec 2000 15:50:23 -0500
+	id <S129183AbQLDVE3>; Mon, 4 Dec 2000 16:04:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129314AbQLDUuN>; Mon, 4 Dec 2000 15:50:13 -0500
-Received: from sirocco.CC.McGill.CA ([132.206.27.12]:59872 "EHLO
-	sirocco.cc.mcgill.ca") by vger.kernel.org with ESMTP
-	id <S129183AbQLDUuD>; Mon, 4 Dec 2000 15:50:03 -0500
-Date: Mon, 4 Dec 2000 15:18:09 -0500 (EST)
-From: Felix Braun <fbraun@atdot.org>
-Reply-To: fbraun@atdot.org
+	id <S129226AbQLDVET>; Mon, 4 Dec 2000 16:04:19 -0500
+Received: from 213.237.11.204.adsl.vbr.worldonline.dk ([213.237.11.204]:12601
+	"HELO 213.237.11.204.adsl.vbr.worldonline.dk") by vger.kernel.org
+	with SMTP id <S129183AbQLDVER>; Mon, 4 Dec 2000 16:04:17 -0500
+Date: Mon, 4 Dec 2000 21:33:48 +0100
+From: Henrik Størner <henrik@storner.dk>
 To: linux-kernel@vger.kernel.org
-Subject: autoloading of lowlevel modules broken (devfs-related?)
-Message-ID: <Pine.LNX.4.21.0012041505560.566-100000@eressea.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: 2.4.0-test12pre4: parport / lp problems
+Message-ID: <20001204213348.A932@storner.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+I discovered yesterday that printing does not work in 2.4.0-test12-pre4.
 
-I've had some strange problems with autoloading of some modules in the
-latest versions of the kernel (up to test12-pre4). I'm using devfs and
-modutils 2.3.21. Most of the modules autoload fine however ppp_async and
-parport_pc don't autoload anymore. /etc/modules.conf has the following
-aliases:
-alias char-major-108 ppp_generic
-alias tty-ldisc-3    ppp_async
-alias parport_lowlevel parport_pc
+This is a pretty stock PC system with a printer on the parallel port.
+Both parport and lp is compiled into the kernel - and the parport
+appears to be detected OK, but the lp driver for some reason refuses
+to use it:
 
-Everything worked fine with that setup until 2.4.0-test8. If I insmod the
-modules by hand things continue to run smoothly.
+[snip /var/log/dmesg]
+Starting kswapd v1.8
+parport0: PC-style at 0x378 [PCSPP]
+parport0: irq 7 detected
+[later]
+pty: 256 Unix98 ptys configured
+parport0: no more devices allowed
+lp: driver loaded but no devices found
 
-Is there an obvious problem that I have missed? Does anybody else have
-these problems? Can anybody help me?
+In lilo, I have tried different configuration parameters. The current
+setup has no parport or lp settings, but I have also tried
+  "parport=0x378,7 lp=parport0"
+with no apparent effect. This setting used to work in earlier 2.4
+configurations (cannot say exactly which worked and which didn't).
 
-Thanks a lot in advance... Felix
 
-PS: please cc me directly
+Kernel config:
 
---
-Felix Braun
-1910 rue Wellington
-Montreal PQ
-Canada H3K 1W3
-Tel: ++1-514-933 60 58
+#
+# Parallel port support
+#
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_FIFO=y
+# CONFIG_PARPORT_PC_SUPERIO is not set
+# CONFIG_PARPORT_AMIGA is not set
+# CONFIG_PARPORT_MFC3 is not set
+# CONFIG_PARPORT_ATARI is not set
+# CONFIG_PARPORT_SUNBPP is not set
+# CONFIG_PARPORT_OTHER is not set
+# CONFIG_PARPORT_1284 is not set
+[snip]
+CONFIG_PRINTER=y
+# CONFIG_LP_CONSOLE is not set
+# CONFIG_PPDEV is not set
 
+
+Suggestions ?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbULECwq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbULEC5A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbULECwq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 21:52:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbULECwq
+	id S261234AbULEC5A (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 21:57:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbULEC5A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 21:52:46 -0500
-Received: from holomorphy.com ([207.189.100.168]:39111 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261233AbULECwp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 21:52:45 -0500
-Date: Sat, 4 Dec 2004 18:52:36 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: tglx@linutronix.de
-Cc: akpm@osdl.org, andrea@suse.de, marcelo.tosatti@cyclades.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] oom killer (Core)
-Message-ID: <20041205025236.GN2714@holomorphy.com>
-References: <20041201104820.1.patchmail@tglx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041201104820.1.patchmail@tglx>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Sat, 4 Dec 2004 21:57:00 -0500
+Received: from chiark.greenend.org.uk ([193.201.200.170]:40329 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S261234AbULEC46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Dec 2004 21:56:58 -0500
+To: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: wakeup_pmode_return jmp failing?
+In-Reply-To: <41B09D4B.3090906@tmr.com>
+References: <41B084B4.1050402@sun.com> <41B084B4.1050402@sun.com> <41B09D4B.3090906@tmr.com>
+Date: Sun, 5 Dec 2004 02:56:57 +0000
+Message-Id: <E1Cama1-0002Ad-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 01, 2004 at 10:49:03AM +0100, tglx@linutronix.de wrote:
-> The oom killer has currently some strange effects when triggered.
-> It gets invoked multiple times and the selection of the task to kill
-> does not take processes into account which fork a lot of child processes.
-> The patch solves this by
-> - Preventing reentrancy
-> - Checking for memory threshold before selection and kill.
-> - Taking child processes into account when selecting the process to kill
+Bill Davidsen <davidsen@tmr.com> wrote:
 
-Hmm, this thread seems to be serious. I'll audit the policy adjustments
-for issues with the mechanisms (e.g. killing kernel threads, races with
-timeouts).
+> That's serious, I have an IBM, Tecra, Dell, and Acer, and 5-6 friends 
+> running Linux on laptops. Every one (other than the Acer) works with 
+> "apm -s" and recovers. Some work with "apm -S". The Acer never had a 2.4 
+> kernel, and I haven't rebuilt with apm on 2.6 (or even looked to see if 
+> it was supported). All of these suspend fine with ACPI, none ever wakes up.
 
+Most modern hardware doesn't have APM support any more. Tracking these
+bugs down is important, otherwise we'll never be able to support
+anything that people can actually buy.
 
--- wli
+For what it's worth, ACPI suspend/resume seems to work on most machines
+as of 2.6.9 - the major sticking point is restoring video state, and the
+small number of pieces of hardware that still have basic suspend/resume
+issues (a lot of VIA-based hardware, at least one HP device). Based on
+my tests so far, around 70% of machines ought to have a semi-reasonable
+chance of working ACPI S3 nowadays.
+
+-- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266461AbUGVElT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264860AbUGVErG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266461AbUGVElT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 00:41:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266692AbUGVElT
+	id S264860AbUGVErG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 00:47:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266692AbUGVErG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 00:41:19 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:28880 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S266461AbUGVElS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 00:41:18 -0400
-Message-ID: <40FF4563.5070407@comcast.net>
-Date: Thu, 22 Jul 2004 00:41:07 -0400
-From: Ed Sweetman <safemode@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Jens Axboe <axboe@suse.de>
-Subject: Re: audio cd writing causes massive swap and crash
-References: <40F9854D.2000408@comcast.net> <20040718071830.GA29753@suse.de> <40FBBAAE.5060405@comcast.net> <40FC2E60.2030101@comcast.net>
-In-Reply-To: <40FC2E60.2030101@comcast.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jul 2004 00:47:06 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:50950 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S264860AbUGVErE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 00:47:04 -0400
+Date: Thu, 22 Jul 2004 06:44:17 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Stelian Pop <stelian@popies.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [PATCH 2.6] new sony_acpi driver
+Message-ID: <20040722044417.GE1545@alpha.home.local>
+References: <20040721150008.GF3560@crusoe.alcove-fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040721150008.GF3560@crusoe.alcove-fr>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've had other people test writing.  It appears that scsi-emu is not 
-effected by this memory leak when writing audio cds.  So it would appear 
-that ide-cd along with any of the dependent ide source files is the 
-culprit. But I cannot find anywhere in ide-cd that is apparent to being 
-a mem leak.  There are various conditions in ide_do_drive_cmd that state 
-that the cdrom driver has to be very careful about handling but without 
-intimate knowledge of the driver, I can't be sure that it's sufficiently 
-handling those situations.  
+Hi Stelian,
 
-Surprisingly, it's very hard to find anyone who's used the native atapi 
-mode to write an audio cd in 2.6.  Which is partly why this problem 
-hasn't generated more mail traffic here I would guess. 
+On Wed, Jul 21, 2004 at 05:00:09PM +0200, Stelian Pop wrote:
+ 
+> The screen is one of the most important power consumers in a laptop,
+> so being able to set its brightness is very important for many users, 
+> making this driver useful even if it does only that.
+
+It's more than welcome, but too late for me. My vaio's backlight finally
+died after 18 months of daily use at full brightness. Anyway, I strongly
+recommend to all vaio users to try your code at least to protect their
+eyes (backlight is too intensive) and their display.
+
+Regards
+Willy
+

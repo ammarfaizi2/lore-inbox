@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267483AbUJLSXs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267445AbUJLSZ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267483AbUJLSXs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 14:23:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267360AbUJLSOj
+	id S267445AbUJLSZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 14:25:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUJLSZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 14:14:39 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:14556 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266572AbUJLSMz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 14:12:55 -0400
-Subject: Re: CD/DVD burn failed from non root user
-From: Lee Revell <rlrevell@joe-job.com>
-To: viaprog@lic1.vsi.ru
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, superpunk <unixuser@mail.ru>,
-       Sergey Kondratiev <serkon@box.vsi.ru>, semen@basdesign.ru
-In-Reply-To: <1097548634.1440.6.camel@krustophenia.net>
-References: <416B4004.7050309@lic1.vsi.ru>
-	 <1097548634.1440.6.camel@krustophenia.net>
-Content-Type: text/plain
-Message-Id: <1097604288.1553.53.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 12 Oct 2004 14:04:49 -0400
+	Tue, 12 Oct 2004 14:25:44 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8099 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266572AbUJLSZ2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 14:25:28 -0400
+Message-ID: <416C2189.4080302@pobox.com>
+Date: Tue, 12 Oct 2004 14:25:13 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mark Lord <lkml@rtr.ca>
+CC: James Bottomley <James.Bottomley@SteelEye.com>,
+       Christoph Hellwig <hch@infradead.org>, Mark Lord <lsml@rtr.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: driver hacking tips (was Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3)
+References: <4161A06D.8010601@rtr.ca>	<416547B6.5080505@rtr.ca>	<20041007150709.B12688@i			nfradead.org>	<4165624C.5060405@rtr.ca>	<416565DB.4050006@pobox.com>	<4165	A	4	5D.2090200@rtr.ca>	<4165A766.1040104@pobox.com>	<4165A85D.7080704@rtr.ca	>		<4	165AB1B.8000204@pobox.com>	<4165ACF8.8060208@rtr.ca>		<20041007221537.	A17	712@infradead.org>	<1097241583.2412.15.camel@mulgrave>		<4166AF2F.607090	4@rtr.ca> <1097249266.1678.40.camel@mulgrave>		<4166B48E.3020006@rtr.ca>	<1097250465.2412.49.camel@mulgrave> 	<416C0D55.1020603@rtr.ca>	<1097601478.2044.103.camel@mulgrave>  <416C12CC.1050301@rtr.ca> <1097602220.2044.119.camel@mulgrave> <416C157A.6030400@rtr.ca> <416C177B.6030504@pobox.com> <416C19B9.7000806@rtr.ca>
+In-Reply-To: <416C19B9.7000806@rtr.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-11 at 22:37, Lee Revell wrote:
-> On Mon, 2004-10-11 at 22:23, Igor A. Valcov wrote:
-> > And in general it would be quite good to solve this problem in a 
-> > civilized way :)
-> 
-> Also, this is hard to do when your mail server blocks me with "553 5.3.0
-> REJECT Spam not accepted".  Please fix your filter, I am not running a
-> spamhaus here.
-> 
+[subject changed as this knowledge can benefit others as well]
 
-Here is my reply.  Your spam filter is STILL bouncing my mail.
+In addition to agreeing with James' most recently assessment of 
+qs_process_sff_entry(), I wanted to interject a bit of more general 
+discussion...
 
---
+Two main, but unrelated, driver-writing points:
 
-Are you saying DCANet is a spamhaus?  That is crazy, we are an ISP with
-15,000 customers, of course you have received spam from them once or
-twice.  All we can do when we catch a customer spamming (usually due to
-a hacked machine) is terminate their access.  We cannot go back in time
-and un-send the spam.
+1) Putting almost all your in-irq code into a tasklet can be quite 
+convenient, if your situation is amenable to that.  The benefits are
 
-I have never had anyone on LKML bounce mail from DCANet.  So, the
-problem is at YOUR END.
+a) your irq handler is tiny,
 
-If you are accusing DCANet of being a spamhaus then please forward me
-one shred of evidence that DCANet has ever spammed you.
+	ack irqs
+	tasklet_schedule()
 
---
+b) data can be synchronized without a lock, if the data is only used in 
+the tasklet or in between tasklet_disable/tasklet_enable pairs.
 
-Anyway, just to keep this thread from being a completely OT waste of
-time, the code that your patch removes was put there for a reason.  It
-fixes a security hole.  There was a long thread about it on LKML last
-month.  Posting a patch that just rips this code out is not productive.
+c) you can "call" your in-irq code from places other than your irq 
+handler, and let the tasklet subsystem synchronize the tasklet schedule. 
+  no worries about disabling interrupts, they will just do (a) as 
+described above.
 
-Lee 
+
+2) You want to avoid a model (like qs_process_sff_entry, alas) where you 
+have one single, huge "event completion" path, called from various 
+points in the driver.  Instead, do your best to make sure event/action 
+as fine-grained as possible.
+
+Storage drivers that want to handle long-running events, or events that 
+need process context, typically want to either fire off events 
+_asynchronously_ via schedule_work(), or have a long-running thread that 
+does nothing but processes an internal driver event queue.  It's really 
+programmer's preference at that point, as having a single (or per-host) 
+event queue thread can sometimes be more simple than async work queue code.
+
+	Jeff
+
+
 

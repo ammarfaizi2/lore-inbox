@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129825AbRAINyP>; Tue, 9 Jan 2001 08:54:15 -0500
+	id <S129226AbRAINye>; Tue, 9 Jan 2001 08:54:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130032AbRAINxz>; Tue, 9 Jan 2001 08:53:55 -0500
-Received: from mons.uio.no ([129.240.130.14]:48290 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S130485AbRAINwt>;
-	Tue, 9 Jan 2001 08:52:49 -0500
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <200101080124.RAA08134@pizda.ninka.net>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 09 Jan 2001 14:52:40 +0100
-In-Reply-To: "David S. Miller"'s message of "Sun, 7 Jan 2001 17:24:24 -0800"
-Message-ID: <shs4rz8vnmf.fsf@charged.uio.no>
-X-Mailer: Gnus v5.6.45/XEmacs 21.1 - "Channel Islands"
+	id <S130032AbRAINyR>; Tue, 9 Jan 2001 08:54:17 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:65225 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129226AbRAINyE>;
+	Tue, 9 Jan 2001 08:54:04 -0500
+Date: Tue, 9 Jan 2001 13:52:26 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
+        Stephen Tweedie <sct@redhat.com>
+Subject: Re: `rmdir .` doesn't work in 2.4
+Message-ID: <20010109135226.B4284@redhat.com>
+In-Reply-To: <20010108180857.A26776@athlon.random> <Pine.GSO.4.21.0101081236440.4061-100000@weyl.math.psu.edu> <20010108212833.S27646@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010108212833.S27646@athlon.random>; from andrea@suse.de on Mon, Jan 08, 2001 at 09:28:33PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == David S Miller <davem@redhat.com> writes:
+Hi,
 
-     > I've put a patch up for testing on the kernel.org mirrors:
+On Mon, Jan 08, 2001 at 09:28:33PM +0100, Andrea Arcangeli wrote:
+> On Mon, Jan 08, 2001 at 12:58:20PM -0500, Alexander Viro wrote:
+> > It's a hell of a pain wrt locking. You need to lock the parent, but it can
+> 
+> This is a no-brainer and bad implementation, but shows it's obviously right
+> wrt locking. (pseudocode, I ignored the uaccess details and all the other not
+> relevant things)
+> 
+> 		err = sys_getcwd(buf, PAGE_SIZE)
+> 		if (!memcmp(path, ".", 2))
+> 			path = buf
+> 		err = 2_4_0_sys_rmdir(path)
 
-     > /pub/linux/kernel/people/davem/zerocopy-2.4.0-1.diff.gz
+> Could you enlight me on where's the locking pain?
 
-.....
+Do the above while another process is renaming one of your parents and
+watch an innocent directory get shot down in flames, or prepare for an
+incorrect ENOENT.
 
-     > Finally, regardless of networking card, there should be a
-     > measurable performance boost for NFS clients with this patch
-     > due to the delayed fragment coalescing.  KNFSD does not take
-     > full advantage of this facility yet.
-
-Hi David,
-
-I don't really want to be chiming in with another 'make it a kiobuf',
-but given that you already have written 'do_tcp_sendpages()' why did
-you make sock->ops->sendpage() take the single page as an argument
-rather than just have it take the 'struct page **'?
-
-I would have thought one of the main interests of doing something like
-this would be to allow us to speed up large writes to the socket for
-ncpfs/knfsd/nfs/smbfs/...
-After all, in both the case of the client WRITE requests and the
-server READ responses, we end up with a set of several pages that just
-need to be pushed down the network without further ado. Unless I
-misunderstood the code, it seems that do_tcp_sendpages() fits the bill
-nicely...
-
-Cheers,
-  Trond
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

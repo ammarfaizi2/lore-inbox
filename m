@@ -1,43 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265695AbUADPem (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 10:34:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265699AbUADPem
+	id S265742AbUADPmW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 10:42:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265744AbUADPmW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 10:34:42 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56335 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265695AbUADPel (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 10:34:41 -0500
-Date: Sun, 4 Jan 2004 15:34:38 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Mr Amit Mehrotra <mehrotraamit@yahoo.co.in>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: PCMCIA in 2.6.0 and 2.4.23 not detecting card inserts.
-Message-ID: <20040104153438.B22480@flint.arm.linux.org.uk>
-Mail-Followup-To: Mr Amit Mehrotra <mehrotraamit@yahoo.co.in>,
-	linux-kernel@vger.kernel.org
-References: <20040104143755.6022.qmail@web8203.mail.in.yahoo.com>
+	Sun, 4 Jan 2004 10:42:22 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:57531 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265742AbUADPmU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 10:42:20 -0500
+Date: Sun, 4 Jan 2004 16:39:28 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org, akpm@osdl.org, davej@redhat.com
+Subject: 2.6.1-rc1 arch/i386/kernel/setup.c   wrong parameter order to request resources ?
+Message-ID: <20040104153928.GB2416@devserv.devel.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jq0ap7NbKX2Kqbes"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040104143755.6022.qmail@web8203.mail.in.yahoo.com>; from mehrotraamit@yahoo.co.in on Sun, Jan 04, 2004 at 02:37:55PM +0000
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 04, 2004 at 02:37:55PM +0000, Mr Amit Mehrotra wrote:
-> Kernel command line: root=/dev/hda5 ro mem=1048512K
-                                         ^^^^^^^^^^^^
 
-actually, I think this is your problem - you're overriding the E820
-memory map, and telling the kernel that anything above 1048512K is
-available for use.  Plainly this is not the case.
+--jq0ap7NbKX2Kqbes
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Please try booting without this argument.
+Hi,
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+in setup.c  the kernel tries to reserve ram resources for system ram etc
+etc. However it seems it's done with the parameters to request_resource in
+the wrong order (it certainly is opposite order from other neighboring
+code). Can someone confirm I'm not overlooking something?
+
+Greetings,
+   Arjan van de Ven
+
+--- linux-2.6.0/arch/i386/kernel/setup.c~	2004-01-04 16:37:34.622450000 +01=
+00
++++ linux-2.6.0/arch/i386/kernel/setup.c	2004-01-04 16:37:34.622450000 +0100
+@@ -834,8 +834,8 @@
+ 			 *  so we try it repeatedly and let the resource manager
+ 			 *  test it.
+ 			 */
+-			request_resource(res, &code_resource);
+-			request_resource(res, &data_resource);
++			request_resource(&code_resource, res);
++			request_resource(&data_resource, res);
+ 		}
+ 	}
+=20
+
+--jq0ap7NbKX2Kqbes
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/+DOvxULwo51rQBIRAkvVAJ42rjeQxxT13DooNSTfWQFdeFscIwCcCZYT
+T5TA0krvvQ1TwdJ+3t+jhxc=
+=Ysj1
+-----END PGP SIGNATURE-----
+
+--jq0ap7NbKX2Kqbes--

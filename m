@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316611AbSGBEu4>; Tue, 2 Jul 2002 00:50:56 -0400
+	id <S316621AbSGBFNJ>; Tue, 2 Jul 2002 01:13:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316615AbSGBEuz>; Tue, 2 Jul 2002 00:50:55 -0400
-Received: from rj.SGI.COM ([192.82.208.96]:19151 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S316611AbSGBEuz>;
-	Tue, 2 Jul 2002 00:50:55 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OKS] Module removal 
-In-reply-to: Your message of "Tue, 02 Jul 2002 00:08:55 -0400."
-             <3D212757.5040709@quark.didntduck.org> 
-Mime-Version: 1.0
+	id <S316623AbSGBFNI>; Tue, 2 Jul 2002 01:13:08 -0400
+Received: from relay1.pair.com ([209.68.1.20]:46097 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S316621AbSGBFNH>;
+	Tue, 2 Jul 2002 01:13:07 -0400
+X-pair-Authenticated: 24.126.73.164
+Message-ID: <3D2137C0.E8884BF9@kegel.com>
+Date: Mon, 01 Jul 2002 22:18:56 -0700
+From: dank@kegel.com
+Reply-To: dank@kegel.com
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: re: missing BK architectures?
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 02 Jul 2002 14:53:15 +1000
-Message-ID: <32193.1025585595@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 02 Jul 2002 00:08:55 -0400, 
-Brian Gerst <bgerst@quark.didntduck.org> wrote:
->Keith Owens wrote:
->> 1) Do the reference counting outside the module, before it is entered.
->>    Not only does this pollute all structures that contain function
->>    pointers, it introduces overhead on every function dereference.  All
->>    of this just to cope with the relatively low possibility that a
->>    module will be removed.
->
->Only "first use" (ie. ->open) functions need gaurding against unloads. 
->Any subsequent functions are guaranteed to have a reference to the 
->module, and don't need to bother with the refcount.  I have a few ideas 
->to optimize the refcounting better than it is now.
+Larry McVoy <lm@bitmover.com> wrote:
+> At OLS I got a number of requests for a PARISC BK release. ...
+> Anyway, kudos to the HP guys aside, are there other architectures for
+> which someone wants a Linux port of BK?  I know we need to release a 
+> zseries version, that's in the works (noone is donating a zseries and
+> I'm pretty sure we couldn't afford the power bill anyway, but I have
+> an account on their public server), but what about other archs?  Are
+> we missing any you care about?
 
-Also the close routine, otherwise there is a window where the use count
-is 0 but code is still executing in the module.
+I hear someone's porting glibc to TOPS-20...
+- Dan
 
-Network operations such as SIOCGIFHWADDR take an interface name and do
-not call any 'open' routine.  The only lock I can see around dev_ifsioc
-is dev_base_lock, AFAICT that will not protect against a module being
-unloaded while SIOCGIFHWADDR is running.  If dev_base_lock does protect
-against module unload, it is not clear that it does so.
-
-For netfilter, the use count reflects the number of packets being
-processed.  Complex and potentially high overhead.
-
-All of this requires that the module information be passed in multiple
-structures and assumes that all code is careful about reference
-counting the code it is about to execute.  There has to be a better
-way!
-
+(who's still using SourceSafe under Wine at work, goddammit)

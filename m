@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132835AbRDQTdy>; Tue, 17 Apr 2001 15:33:54 -0400
+	id <S132846AbRDQTdw>; Tue, 17 Apr 2001 15:33:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132838AbRDQTdP>; Tue, 17 Apr 2001 15:33:15 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:143 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S132844AbRDQTch>; Tue, 17 Apr 2001 15:32:37 -0400
-Message-ID: <3ADC989F.CDC380B5@uow.edu.au>
-Date: Tue, 17 Apr 2001 12:25:19 -0700
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tim Hockin <thockin@isunix.it.ilstu.edu>
-CC: Rusty Russell <rusty@rustcorp.com.au>, npollitt@engr.sgi.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Process pinning
-In-Reply-To: <m14nIRX-001RovC@mozart> from "Rusty Russell" at Apr 11, 2001 09:05:47 PM <200104171617.LAA06660@isunix.it.ilstu.edu>
+	id <S132835AbRDQT3r>; Tue, 17 Apr 2001 15:29:47 -0400
+Received: from stanis.onastick.net ([207.96.1.49]:14093 "EHLO
+	stanis.onastick.net") by vger.kernel.org with ESMTP
+	id <S132837AbRDQT1u>; Tue, 17 Apr 2001 15:27:50 -0400
+Date: Tue, 17 Apr 2001 15:27:48 -0400
+From: Disconnect <lkml@sigkill.net>
+To: Dave Zarzycki <dave@zarzycki.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Your response is requested
+Message-ID: <20010417152748.J11536@sigkill.net>
+In-Reply-To: <20010417190405.PTFU6564.tomts8-srv.bellnexxia.net@mail.vger.kernel.org> <Pine.LNX.4.33.0104171212520.960-100000@batman.zarzycki.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0104171212520.960-100000@batman.zarzycki.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Hockin wrote:
-> 
-> > disallowed CPU on which it is already running.  And even a non-RT
-> > process will stick on its disallowed CPU as long as nothing else runs
-> > there.
-> 
-> are we going to keep the cpus_allowed API?  If we want the (IMHO) more
-> flexible sysmp() API - I'll finish the 2.4 port.  If we are going to keep
-> cpus_allowed - I'll just abandon pset and sysmp.
-> 
-> Personally, I like sysmp() and the pset tools better, perhaps with a /proc
-> extension to it.
+(Sending to LKML just so nobody else flips out)
 
-http://www.uow.edu.au/~andrewm/linux/cpus_allowed.patch
+OK it wasn't just us.  Lemme reassure the admins I just forwarded it to ;)
+
+It seems to list the hostname of whoever receives it (neat trick).
+
+On Tue, 17 Apr 2001, Dave Zarzycki did have cause to say:
+
+> On Tue, 17 Apr 2001 J.I.@thor.sbay.org wrote:
+>                     ^^^^^^^^^^^^^^^^^^
+> 
+> Arrggg!!! Mumble... grumble... F*cking spammer using my hostname as the
+> from address for sending spam...
+> 
+---
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1 [www.ebb.org/ungeek]
+GIT/CC/CM/AT d--(-)@ s+:-- a-->? C++++$ ULBS*++++$ P+>+++ L++++>+++++ 
+E--- W+++ N+@ o+>$ K? w--->+++++ O- M V-- PS+() PE Y+@ PGP++() t 5--- 
+X-- R tv+@ b++++>$ DI++++ D++(+++) G++ e* h(-)* r++ y++
+------END GEEK CODE BLOCK------

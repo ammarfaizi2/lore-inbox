@@ -1,71 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbULBQFC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbULBQFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbULBQFC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 11:05:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbULBQCd
+	id S261667AbULBQFa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 11:05:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbULBQFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 11:02:33 -0500
-Received: from c7ns3.center7.com ([216.250.142.14]:30689 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S261676AbULBQAn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 11:00:43 -0500
-Message-ID: <41AF3EC3.7060807@devicelogics.com>
-Date: Thu, 02 Dec 2004 09:11:47 -0700
-From: "Jeff V. Merkey" <jmerkey@devicelogics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: krishna <krishna.c@globaledgesoft.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How to understand flow of kernel code
-References: <41AE9E3E.9020307@globaledgesoft.com>
-In-Reply-To: <41AE9E3E.9020307@globaledgesoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 2 Dec 2004 11:05:20 -0500
+Received: from sarvega.com ([161.58.151.164]:27917 "EHLO sarvega.com")
+	by vger.kernel.org with ESMTP id S261663AbULBQDJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 11:03:09 -0500
+Date: Thu, 2 Dec 2004 10:03:04 -0600
+From: John Lash <jkl@sarvega.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] sata_sil.c: blacklist seagate ST380013AS
+Message-ID: <20041202100304.4e8a9145@homer.sarvega.com>
+X-Mailer: Sylpheed-Claws 0.9.12cvs102 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff,
 
-Hare Krishna, Hare Krishna, Krishna, Krishna, Hare, Hare,
-Hare Rama, Hare Rama, Rama, Rama, Hare, Hare.
+here's a patch to add seagate ST380013AS to the sata_sil.c blacklist. and a
+pointer to the relevant thread on lkml.
 
-Start at entry.S and head.S in /arch/i386/kernel and trace the 
-initialization. It's a good place
-to start for understanding how the kernel boots and follow the code 
-through init. Check out
-the userspace interaction as well. It will at least start you with the 
-basics.
+http://www.ussg.iu.edu/hypermail/linux/kernel/0412.0/0120.html
 
-You may want to offer a leaf, fruit, flower, and water to Lord Chaitanya 
-and Lord Krishna
-and chant the mantras in between to ask for guidance and understanding 
-(I'm serious).
+--john
 
-Interesting trivia. Krishna in hindi means "all attractive". The Greeks 
-took the word and
-over time it was corrupted into the word "Christ" which was later used 
-for Jesus of Nazereth.
-I lot of people probably don't know his last name actually came from the 
-Vedic culture.
-
-Hare Krishna,
-
-Jeff
-
-krishna wrote:
-
-> Hi,
->
-> Can Anyone tell me the tips/tricks/techniques/practices followed in 
-> understanding flow of Linux kernel code?
->
-> Regards,
-> Krishna Chaitanya
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at http://www.tux.org/lkml/
->
-
+--- linux-2.6.10-rc2-bk13.orig/drivers/scsi/sata_sil.c  2004-12-01
+22:39:34.000000000 -0600+++ linux-2.6.10-rc2-bk13/drivers/scsi/sata_sil.c      
+2004-12-01 10:22:59.000000000 -0600@@ -84,6 +84,7 @@ struct sil_drivelist {
+        { "ST330013AS",         SIL_QUIRK_MOD15WRITE },
+        { "ST340017AS",         SIL_QUIRK_MOD15WRITE },
+        { "ST360015AS",         SIL_QUIRK_MOD15WRITE },
++       { "ST380013AS",         SIL_QUIRK_MOD15WRITE },
+        { "ST380023AS",         SIL_QUIRK_MOD15WRITE },
+        { "ST3120023AS",        SIL_QUIRK_MOD15WRITE },
+        { "ST3160023AS",        SIL_QUIRK_MOD15WRITE },

@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316021AbSEQM75>; Fri, 17 May 2002 08:59:57 -0400
+	id <S315440AbSEQNLM>; Fri, 17 May 2002 09:11:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316216AbSEQM74>; Fri, 17 May 2002 08:59:56 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:129 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S316021AbSEQM7z>; Fri, 17 May 2002 08:59:55 -0400
-Date: Fri, 17 May 2002 09:01:01 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Halil Demirezen <halild@bilmuh.ege.edu.tr>
-cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Just an offer
-In-Reply-To: <20020517122946.18213.qmail@bilmuh.ege.edu.tr>
-Message-ID: <Pine.LNX.3.95.1020517085300.4551A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315441AbSEQNLL>; Fri, 17 May 2002 09:11:11 -0400
+Received: from ns.suse.de ([213.95.15.193]:16145 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S315440AbSEQNLL>;
+	Fri, 17 May 2002 09:11:11 -0400
+Date: Fri, 17 May 2002 15:11:10 +0200
+From: Dave Jones <davej@suse.de>
+To: Miles Lane <miles@megapathdsl.net>
+Cc: Tomas Szepe <szepe@pinerecords.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
+Message-ID: <20020517151110.A4712@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Miles Lane <miles@megapathdsl.net>,
+	Tomas Szepe <szepe@pinerecords.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <3038.1021588938@ocs3.intra.ocs.com.au> <Pine.LNX.4.44.0205162003360.4117-100000@xanadu.home> <20020517033056.GB4595@louise.pinerecords.com> <1021624966.10049.780.camel@turbulence.megapathdsl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 May 2002, Halil Demirezen wrote:
+On Fri, May 17, 2002 at 01:42:44AM -0700, Miles Lane wrote:
+ > Along the same lines, we have James Bottomly attempting to 
+ > get support for the NCR Voyager architecture added to the
+ > kernel.  His original submission post was sent 2001-12-23:
+ > http://marc.theaimsgroup.com/?l=linux-kernel&m=100913508007485&w=2
+ > The latest submission attempt was sent 2002-05-11:
+ > http://marc.theaimsgroup.com/?l=linux-kernel&m=102115570805131&w=2
 
-> 
-> I wonder if there is a way of making the kernel decide
-> whether it can boot successfully or not. For example, lets
-> think of that i am compiling an update kernel not on the local
-> machine but on any other pc using telnet or ssh emulators. And
-> eventually it is time to reboot the machine and and run on the new
-> kernel. However there has been an error during the compiling. - such
-> as misconfiguration. Normally the machine will not boot and halt. So,
-> is not there any way to reboot itself from the previous kernel
-> after
-> some time that it realizes it cannot boot properly. Maybe there is
-> such
-> a way. But, if not, this is an imaginary. Because i usually see these
-> kind of problems ;)
-> 
->    Bye.
+The best solution for niche x86 architectures is to get x86-subarch
+support merged first (See how arch/arm is laid out for an example)
+James also has patches to do this, but there are a few other bits
+pending in this area right now, such as Patrick Mochels work to split
+up some of the larger parts. The bigger chunk of this is in my tree,
+and has proven to be ok, so I'm pushing that to Linus sometime real
+soon.
 
+With that out of the way, the only remaining work in that area
+is of small enough scale (apart from ACPI perhaps) that merging
+the subarch support should be a logical progression.
+And with that merged, things like Voyager, NUMAQ, and other weirdo
+x86en can follow on without disrupting any of the common x86 code
+that 99.9% of people will be running.
 
-Initially, I thought this was an dumb question, but it's not! If you
-are doing a lot of work on kernels remotely, it just might be a
-good reason to configure your remote machine(s) to boot off the network.
+So it's not being ignored, it's just that trying to fit together
+a puzzle whilst all the players want to put a piece in the same
+place needs an element of coordination.
 
-Then, since the kernel you are booting is local to your machine,
-the boot-server, you can change it at will until you get it right.
+    Dave.
 
-The remaining problem is how one trips a reboot if the remote machine
-doesn't come up correctly. That problem can be handled by temporarily
-changing panic() to a hard reset.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

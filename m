@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317445AbSFCSK5>; Mon, 3 Jun 2002 14:10:57 -0400
+	id <S314325AbSFCSMH>; Mon, 3 Jun 2002 14:12:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317446AbSFCSK4>; Mon, 3 Jun 2002 14:10:56 -0400
-Received: from pg-fw.paradigmgeo.com ([192.117.235.33]:43061 "EHLO
-	ntserver2.geodepth.com") by vger.kernel.org with ESMTP
-	id <S317445AbSFCSKz>; Mon, 3 Jun 2002 14:10:55 -0400
-Message-ID: <EE83E551E08D1D43AD52D50B9F5110927E7A15@ntserver2>
-From: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
-To: linux-kernel@vger.kernel.org
-Subject: RE: Atomic operations
-Date: Mon, 3 Jun 2002 21:09:22 +0200 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S314485AbSFCSMG>; Mon, 3 Jun 2002 14:12:06 -0400
+Received: from AMontpellier-201-1-3-85.abo.wanadoo.fr ([193.252.1.85]:474 "EHLO
+	awak") by vger.kernel.org with ESMTP id <S314325AbSFCSMF> convert rfc822-to-8bit;
+	Mon, 3 Jun 2002 14:12:05 -0400
+Subject: Re: Support for keyboards with special scancodes
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Andre Bonin <kernel@bonin.ca>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, bonin@bonin.ca
+In-Reply-To: <3CFBACC8.6010002@bonin.ca>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 03 Jun 2002 20:11:44 +0200
+Message-Id: <1023127906.6924.30.camel@bip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter,
+Le lun 03/06/2002 à 19:52, Andre Bonin a écrit :
+> I have an Logitech Internet Navigator keyboard that has nice little 
+> 'play', 'pause', 'e-mail' buttons of all kinds (As many of us do, i 
+> believe).  I couldn't find any specialised keyboard drivers in the 
+> kernel.  Only different locales.
 
-Thanks a lot for your help. 
+Yes, and there's an app called "hotkeys" which assigns actions to these
+keys (e.g. launch Evolution or KMail on a press of the "mail" key)
 
-> atomic_t test_then_add (int i, atomic_t* v)
-> {
->    atomic_t old = *v;
->    v->counter += i;
->    return old;
-> }
-> There is no way to do this (without waiting and trying again type
-> code) that I know of on i386.  However, you can test for zeroness of
-> the result, or for <= 0, or a few other options.
+	Xav
 
-Could you, please, clarify what you meant saying that there was no way of
-doing so. I admit, I'm no expert in i386 assembly, but this operation seems
-so simple to me...
 
-Could you, please, suggest some other implementation (with waiting and
-trying again - whatever this means)?
-
-test_and_set and test_then_add functions are coming from code written for
-IRIX. Solaris has similar functionality. Windows NT also provides these
-primitives in Win32 API (possibly implemented not in the most effective way,
-according to what you say). The only OS where they are missing is Linux. 
-
-Unfortunately, these primitives became an integral part of our code, which
-makes it very painful to change their behavior.
-
-Thanks in advance.
-Giga

@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284538AbRLMSOa>; Thu, 13 Dec 2001 13:14:30 -0500
+	id <S284537AbRLMSTk>; Thu, 13 Dec 2001 13:19:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282967AbRLMSOT>; Thu, 13 Dec 2001 13:14:19 -0500
-Received: from vsat-148-63-243-254.c3.sb4.mrt.starband.net ([148.63.243.254]:260
-	"HELO ns1.ltc.com") by vger.kernel.org with SMTP id <S284540AbRLMSOD>;
-	Thu, 13 Dec 2001 13:14:03 -0500
-Message-ID: <07cd01c18401$fa397db0$5601010a@prefect>
-From: "Bradley D. LaRonde" <brad@ltc.com>
-To: <root@chaos.analogic.com>
-Cc: "Thomas Capricelli" <orzel@kde.org>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.95.1011213125015.444A-100000@chaos.analogic.com>
-Subject: Re: Mounting a in-ROM filesystem efficiently
-Date: Thu, 13 Dec 2001 13:14:16 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S284518AbRLMSTU>; Thu, 13 Dec 2001 13:19:20 -0500
+Received: from cti06.citenet.net ([206.123.38.70]:54793 "EHLO
+	cti06.citenet.net") by vger.kernel.org with ESMTP
+	id <S282967AbRLMSTO>; Thu, 13 Dec 2001 13:19:14 -0500
+From: Jacques Gelinas <jack@solucorp.qc.ca>
+Date: Thu, 13 Dec 2001 11:02:15 -0500
+To: linux-kernel@vger.kernel.org
+Subject: re: User-manageable sub-ids proposals
+X-mailer: tlmpmail 0.1
+Message-ID: <20011213110215.bfcc4bfa0b14@remtk.solucorp.qc.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-To: "Bradley D. LaRonde" <brad@ltc.com>
-Cc: "Thomas Capricelli" <orzel@kde.org>; <linux-kernel@vger.kernel.org>
-Sent: Thursday, December 13, 2001 1:02 PM
-Subject: Re: Mounting a in-ROM filesystem efficiently
+On Thu, 13 Dec 2001 11:36:16 -0500, Romano Giannetti wrote
+> Good morning to everyone.
+>
+> I was thinking about the idea of sub-ids to enable users to run "untrusted"
+> binary or "dangerous" one without risk for their files/privacy.
 
+I have another solution, which is almost completed. I am combining
+two project. One is the vserver project (see the url in my signature) and the
+other is the AclFS component of the virtualfs project
+(http://www.solucorp.qc.ca/virtualfs).
 
-> Generally, ROM based stuff is compressed before being written to
-> NVRAM. It's uncompressed into a RAM-Disk and the RAM-Disk is mounted.
-> 
-> That way, you can use, say, 2 megabytes of NVRAM to get a 10 to 20
-> megabyte root file-system. This also allows /tmp and /var/log to be
-> writable, which is a great help because the development environment 
-> closely approximates the run-time environment.
+Using the chcontext utility from the vserver project, you can isolate a process
+from the rest of the system, including the other user processes
 
-That's perfect if you have plenty of RAM to spare.
+For example, as a normal user, you can do
 
-> FYI, generally NVRAM access is sooooo slow. I don't think you'd
-> like to use it directly as a file-system and access-time will be
-> a problem unless you modify the kernel. 
+	xterm &
+	/usr/sbin/chcontext /bin/sh
+	ps ax
+	killall xterm
 
-Modify the kernel how?
+and you only see your new shell, the ps command and init. The killall fails
+finding no xterm to kill.
 
-Regards,
-Brad
+Another part of the vserver project is the capability ceiling, which is a way to
+turn off some capabilities for a process and its children, even setuid child.
 
+I was thinking about introducing a new capability CAP_OPEN. This capability
+would prevent any open system call from succeeding. Wow. Now that's secure :-)
+
+The acslfs daemon works using a unix domain socket. Using a preload object
+the client does various system call request to aclfsd, including open, socket
+and so on. If aclfsd grant the access, it opens the file and pass back the
+file handle using the socket. So the client does not need to open the file
+itself.
+
+So the CAP_OPEN is there to force the client to use aclfsd. Even if using aclfsd
+is transparent to normal clients, some client might do a direct call to the OS.
+All those calls would fail.
+
+Not also that aclfsd does not need any privilege. A normal user may start
+it with its own configurations (access privileges).
+
+Ultimatly, one goal of this would be to run your favorite browser in a security
+box and allow fine grain access to your own file. Then one could do the so
+cool thing windows user do all the time: They visit a site, select a plugin
+and run it. Unlike windows, you would not get all the virus though :-)
+
+Anyway, the vserver and virtual projects are used for different purpose today
+but could be combined to achieve this kind of result.
+
+---------------------------------------------------------
+Jacques Gelinas <jack@solucorp.qc.ca>
+vserver: run general purpose virtual servers on one box, full speed!
+http://www.solucorp.qc.ca/miscprj/s_context.hc

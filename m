@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261166AbTETUrf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 16:47:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbTETUrf
+	id S261192AbTETU6x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 16:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbTETU6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 16:47:35 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:61151 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S261166AbTETUre convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 16:47:34 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [Patch] e100 driver patch for 2.5 - option to restore old behavio r
-Date: Tue, 20 May 2003 14:00:30 -0700
-Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E010107D723@orsmsx402.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Patch] e100 driver patch for 2.5 - option to restore old behavio r
-Thread-Index: AcMe+Ilda5jKCTMcQZ+Ewm/pxVke6gAF2u0g
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: "Downing, Thomas" <Thomas.Downing@ipc.com>, <linux-kernel@vger.kernel.org>
-Cc: <jgarzik@mandrakesoft.com>, <akpm@digeo.com>, <davej@suse.de>,
-       "Linux NICS" <linuxnics@mailbox.cps.intel.com>
-X-OriginalArrivalTime: 20 May 2003 21:00:31.0285 (UTC) FILETIME=[D958BE50:01C31F12]
+	Tue, 20 May 2003 16:58:53 -0400
+Received: from dodge.jordet.nu ([217.13.8.142]:8602 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id S261192AbTETU6w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 16:58:52 -0400
+Subject: Re: aic7(censored) compile error
+From: Stian Jordet <liste@jordet.nu>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1053463220.3107.1.camel@chevrolet.hybel>
+References: <1053463220.3107.1.camel@chevrolet.hybel>
+Content-Type: text/plain
+Message-Id: <1053465144.3102.8.camel@chevrolet.hybel>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
+Date: 20 May 2003 23:12:25 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> These patches add a module parameter to restore older
-> EEPROM behavior to the Intel e100 NIC driver.
+tir, 20.05.2003 kl. 22.40 skrev Stian Jordet:
+> Hello,
+> 
+> Am I just blind, or haven't this been reported? Haven't been able to
+> compile 2.5.69 since bk4, I think. This is with gcc-3.3.
 
-We want the check to fail to detect mis-programmed eeproms.  The
-checksum test isn't conclusive, but it does provide an indication
-something is wrong.
+Hmm. I fixed this with changing line 767 to:
 
-> We have lots of boxen that for some reason always fail the 
-> checksum, but the E100 NIC operates just fine. Others might 
-> have the same issue.
+next_len = 0x100000000LL - (addr & 0xFFFFFFFF);
 
-The assumption is that the eeprom was programmed correctly in
-manufacturing, so your nics were 1) mis-programmed during manufacturing,
-or 2) modified later using some tool.  Follow-up with
-linux.nics@intel.com to make sure 1) isn't the case.
+Don't know if this is the right fix, but it works :)
 
--scott
+> make -f scripts/Makefile.build obj=drivers/scsi/aic7xxx
+>   gcc -Wp,-MD,drivers/scsi/aic7xxx/.aic7xxx_osm.o.d -D__KERNEL__
+> -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2
+> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+> -march=pentium3 -Iinclude/asm-i386/mach-default -fomit-frame-pointer
+> -nostdinc -iwithprefix include  -Idrivers/scsi -Werror 
+> -DKBUILD_BASENAME=aic7xxx_osm -DKBUILD_MODNAME=aic7xxx -c -o
+> drivers/scsi/aic7xxx/aic7xxx_osm.o drivers/scsi/aic7xxx/aic7xxx_osm.c
+> drivers/scsi/aic7xxx/aic7xxx_osm.c: In function `ahc_linux_map_seg':
+> drivers/scsi/aic7xxx/aic7xxx_osm.c:767: warning: integer constant is too
+> large for "long" type
+> make[3]: *** [drivers/scsi/aic7xxx/aic7xxx_osm.o] Error 1
+> make[2]: *** [drivers/scsi/aic7xxx] Error 2
+> make[1]: *** [drivers/scsi] Error 2
+> make: *** [drivers] Error 2
+
+Best regards,
+Stian
+

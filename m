@@ -1,29 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265981AbUFDWDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266022AbUFDWEa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265981AbUFDWDj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 18:03:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266023AbUFDWDj
+	id S266022AbUFDWEa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 18:04:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266023AbUFDWEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 18:03:39 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:55236 "HELO
+	Fri, 4 Jun 2004 18:04:30 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:56260 "HELO
 	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S265981AbUFDWCY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 18:02:24 -0400
+	id S266022AbUFDWC1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 18:02:27 -0400
 From: "R. J. Wysocki" <rjwysocki@sisk.pl>
 Organization: SiSK
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.7-rc2: serial console affects local keyboard on a dual Opteron system
-Date: Fri, 4 Jun 2004 23:57:28 +0200
+Subject: [BUG] 2.6.7-rc2-mm2: system reboot at kernel init on a dual Opteron
+Date: Sat, 5 Jun 2004 00:00:07 +0200
 User-Agent: KMail/1.5
 MIME-Version: 1.0
-Message-Id: <200406042355.50562.rjwysocki@sisk.pl>
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_IBPwA/aY3MyZz8o"
+  boundary="Boundary-00=_nDPwA+zAOyeYz7I"
+Message-Id: <200406050000.07302.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-00=_IBPwA/aY3MyZz8o
+--Boundary-00=_nDPwA+zAOyeYz7I
 Content-Type: text/plain;
   charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
@@ -31,365 +31,14 @@ Content-Disposition: inline
 
 Hi,
 
-Testing the 2.6.7-rc2 kernel I observed that on my dual Opteron system the 
-local keyboard is effectively broken (ie. the keys are apparently not 
-registered or they are repreated excessively by the kernel) when the serial 
-console is connected (ie. it suffices to unplug the cable from the computer 
-serial port to prevent this).
-
-Attached are: the serial console log, hardware environment info, software 
-environment info.
+The 2.6.7-rc2-mm2 reboots my dual Opteron system as soon as it's loaded.  
+There's no any serial console output available, and the hardware environment 
+log is attached.
 
 Yours,
 rjw
 
-
---Boundary-00=_IBPwA/aY3MyZz8o
-Content-Type: text/x-log;
-  charset="iso-8859-2";
-  name="2.6.7-rc2-serial-console.log"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="2.6.7-rc2-serial-console.log"
-
-Bootdata ok (command line is root=/dev/sdb3 vga=792 console=ttyS0,115200 console=tty0 hdc=ide-scsi )
-Linux version 2.6.7-rc2 (rafael@chimera) (gcc version 3.4.1 20040508 (prerelease) (SuSE Linux)) #1 SMP Sun May 30 23:34
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000003fff0000 (usable)
- BIOS-e820: 000000003fff0000 - 000000003ffff000 (ACPI data)
- BIOS-e820: 000000003ffff000 - 0000000040000000 (ACPI NVS)
- BIOS-e820: 00000000ff7c0000 - 0000000100000000 (reserved)
-Scanning NUMA topology in Northbridge 24
-Number of nodes 2 (10010)
-Node 0 MemBase 0000000000000000 Limit 000000001fffffff
-Node 1 MemBase 0000000020000000 Limit 000000003fff0000
-Using node hash shift of 24
-Bootmem setup node 0 0000000000000000-000000001fffffff
-Bootmem setup node 1 0000000020000000-000000003fff0000
-No mptable found.
-No mptable found.
-setting up node 0 0-1ffff
-On node 0 totalpages: 131071
-  DMA zone: 4096 pages, LIFO batch:1
-  Normal zone: 126975 pages, LIFO batch:16
-  HighMem zone: 0 pages, LIFO batch:1
-setting up node 1 20000-3fff0
-On node 1 totalpages: 131056
-  DMA zone: 0 pages, LIFO batch:1
-  Normal zone: 131056 pages, LIFO batch:16
-  HighMem zone: 0 pages, LIFO batch:1
-ACPI: RSDP (v000 ACPIAM                                    ) @ 0x00000000000f66f0
-ACPI: RSDT (v001 A M I  OEMRSDT  0x10000302 MSFT 0x00000097) @ 0x000000003fff0000
-ACPI: FADT (v001 A M I  OEMFACP  0x10000302 MSFT 0x00000097) @ 0x000000003fff0200
-ACPI: MADT (v001 A M I  OEMAPIC  0x10000302 MSFT 0x00000097) @ 0x000000003fff0380
-ACPI: OEMB (v001 A M I  OEMBIOS  0x10000302 MSFT 0x00000097) @ 0x000000003ffff040
-ACPI: SRAT (v001 A M I  OEMSRAT  0x10000302 MSFT 0x00000097) @ 0x000000003fff39f0
-ACPI: ASF! (v001 AMIASF AMDSTRET 0x00000001 INTL 0x02002026) @ 0x000000003fff3ae0
-ACPI: DSDT (v001  0ABCF 0ABCF007 0x00000007 INTL 0x02002026) @ 0x0000000000000000
-ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
-Processor #0 15:5 APIC version 16
-ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01] enabled)
-Processor #1 15:5 APIC version 16
-ACPI: IOAPIC (id[0x02] address[0xfec00000] global_irq_base[0x0])
-IOAPIC[0]: Assigned apic_id 2
-IOAPIC[0]: apic_id 2, version 17, address 0xfec00000, GSI 0-23
-ACPI: IOAPIC (id[0x03] address[0xfc9fe000] global_irq_base[0x18])
-IOAPIC[1]: Assigned apic_id 3
-IOAPIC[1]: apic_id 3, version 17, address 0xfc9fe000, GSI 24-27
-ACPI: IOAPIC (id[0x04] address[0xfc9ff000] global_irq_base[0x1c])
-IOAPIC[2]: Assigned apic_id 4
-IOAPIC[2]: apic_id 4, version 17, address 0xfc9ff000, GSI 28-31
-ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
-Using ACPI (MADT) for SMP configuration information
-Checking aperture...
-CPU 0: aperture @ f0000000 size 128 MB
-CPU 1: aperture @ f0000000 size 128 MB
-Built 2 zonelists
-Kernel command line: root=/dev/sdb3 vga=792 console=ttyS0,115200 console=tty0 hdc=ide-scsi
-ide_setup: hdc=ide-scsi
-Initializing CPU#0
-PID hash table entries: 16 (order 4: 256 bytes)
-time.c: Using 1.193182 MHz PIT timer.
-time.c: Detected 1386.692 MHz processor.
-Console: colour dummy device 80x25
-Memory: 1029084k/1048512k available (2126k kernel code, 0k reserved, 1090k data, 180k init)
-Calibrating delay loop... 2727.93 BogoMIPS
-Security Scaffold v1.0.0 initialized
-SELinux:  Initializing.
-SELinux:  Starting in permissive mode
-There is already a security framework initialized, register_security failed.
-selinux_register_security:  Registering secondary module capability
-Capability LSM initialized as secondary
-Dentry cache hash table entries: 131072 (order: 8, 1048576 bytes)
-Inode-cache hash table entries: 65536 (order: 7, 524288 bytes)
-Mount-cache hash table entries: 256 (order: 0, 4096 bytes)
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-Using local APIC NMI watchdog using perfctr0
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU0: AMD Opteron(tm) Processor 240 stepping 01
-per-CPU timeslice cutoff: 1024.36 usecs.
-task migration cache decay timeout: 2 msecs.
-Booting processor 1/1 rip 6000 rsp 1003ff93f58
-Initializing CPU#1
-Calibrating delay loop... 2768.89 BogoMIPS
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-AMD Opteron(tm) Processor 240 stepping 01
-Total of 2 processors activated (5496.83 BogoMIPS).
-ENABLING IO-APIC IRQs
-..TIMER: vector=0x31 pin1=2 pin2=-1
-Using local APIC timer interrupts.
-Detected 12.381 MHz APIC timer.
-checking TSC synchronization across 2 CPUs: passed.
-time.c: Using PIT/TSC based timekeeping.
-Brought up 2 CPUs
-NET: Registered protocol family 16
-PCI: Using configuration type 1
-mtrr: v2.0 (20020519)
-ACPI: Subsystem revision 20040326
-ACPI: Interpreter enabled
-ACPI: Using IOAPIC for interrupt routing
-ACPI: PCI Root Bridge [PCI0] (00:00)
-PCI: Probing PCI hardware (bus 00)
-ACPI: PCI Root Bridge [PCIB] (00:04)
-PCI: Probing PCI hardware (bus 04)
-ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
-ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 9 *10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 *5 6 7 9 10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 *9 10 11 12 14 15)
-SCSI subsystem initialized
-testing the IO APIC.......................
-
-
-
-.................................... done.
-PCI: Using ACPI for IRQ routing
-agpgart: Detected AMD 8151 AGP Bridge rev B2
-agpgart: Maximum main memory to use for agp memory: 941M
-agpgart: AGP aperture is 128M @ 0xf0000000
-PCI-DMA: Disabling IOMMU.
-vesafb: framebuffer at 0xe0000000, mapped to 0xffffff000004f000, size 6144k
-vesafb: mode is 1024x768x32, linelength=4096, pages=1
-vesafb: scrolling: redraw
-vesafb: directcolor: size=8:8:8:8, shift=24:16:8:0
-fb0: VESA VGA frame buffer device
-IA32 emulation $Id: sys_ia32.c,v 1.32 2002/03/24 13:02:28 ak Exp $
-audit: initializing netlink socket (disabled)
-audit(1086385112.855:0): initialized
-Total HugeTLB memory allocated, 0
-VFS: Disk quotas dquot_6.5.1
-Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
-SELinux:  Registering netfilter hooks
-Initializing Cryptographic API
-ACPI: Power Button (FF) [PWRF]
-ACPI: Processor [CPU1] (supports C1, 8 throttling states)
-ACPI: Processor [CPU2] (supports C1)
-Console: switching to colour frame buffer device 128x48
-Real Time Clock Driver v1.12
-hw_random: AMD768 system management I/O registers at 0x5000.
-hw_random hardware driver 1.0.0 loaded
-Linux agpgart interface v0.100 (c) Dave Jones
-Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing enabled
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-loop: loaded (max 8 devices)
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-AMD8111: IDE controller at PCI slot 0000:00:07.1
-AMD8111: chipset revision 3
-AMD8111: not 100% native mode: will probe irqs later
-AMD8111: 0000:00:07.1 (rev 03) UDMA133 controller
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-hda: JLMS XJ-HD166S, ATAPI CD/DVD-ROM drive
-Using anticipatory io scheduler
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: LITE-ON DVDRW LDW-851S, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-sym0: <1010-66> rev 0x1 at pci 0000:02:07.0 irq 26
-sym0: using 64 bit DMA addressing
-sym0: Symbios NVRAM, ID 7, Fast-80, LVD, parity checking
-sym0: open drain IRQ line driver, using on-chip SRAM
-sym0: using LOAD/STORE-based firmware.
-sym0: handling phase mismatch from SCRIPTS.
-sym0: SCSI BUS has been reset.
-scsi0 : sym-2.1.18j
-sym0:0: FAST-40 WIDE SCSI 80.0 MB/s ST (25.0 ns, offset 31)
-  Vendor: IBM       Model: DDYS-T36950N      Rev: S96H
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-sym0:0:0: tagged command queuing enabled, command queue depth 16.
-scsi(0:0:0:0): Beginning Domain Validation
-sym0:0: asynchronous.
-sym0:0: wide asynchronous.
-sym0:0: FAST-80 WIDE SCSI 160.0 MB/s DT (12.5 ns, offset 62)
-scsi(0:0:0:0): Ending Domain Validation
-  Vendor: IBM       Model: IC35L018UWD210-0  Rev: S5BS
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-sym0:10:0: tagged command queuing enabled, command queue depth 16.
-scsi(0:0:10:0): Beginning Domain Validation
-sym0:10: wide asynchronous.
-sym0:10: FAST-80 WIDE SCSI 160.0 MB/s DT (12.5 ns, offset 62)
-scsi(0:0:10:0): Ending Domain Validation
-3ware Storage Controller device driver for Linux v1.26.00.039.
-scsi1 : Found a 3ware Storage Controller at 0x8c00, IRQ: 27, P-chip: 1.3
-scsi1 : 3ware Storage Controller
-  Vendor: 3ware     Model: Logical Disk 0    Rev: 1.2
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-ata1: SATA max UDMA/100 cmd 0xFFFFFF0000655C80 ctl 0xFFFFFF0000655C8A bmdma 0xFFFFFF0000655C00 irq 17
-ata2: SATA max UDMA/100 cmd 0xFFFFFF0000655CC0 ctl 0xFFFFFF0000655CCA bmdma 0xFFFFFF0000655C08 irq 17
-ata3: SATA max UDMA/100 cmd 0xFFFFFF0000655E80 ctl 0xFFFFFF0000655E8A bmdma 0xFFFFFF0000655E00 irq 17
-ata4: SATA max UDMA/100 cmd 0xFFFFFF0000655EC0 ctl 0xFFFFFF0000655ECA bmdma 0xFFFFFF0000655E08 irq 17
-ata1: no device found (phy stat 00000000)
-scsi2 : sata_sil
-ata2: no device found (phy stat 00000000)
-scsi3 : sata_sil
-ata3: no device found (phy stat 00000000)
-scsi4 : sata_sil
-ata4: no device found (phy stat 00000000)
-scsi5 : sata_sil
-SCSI device sda: 71687340 512-byte hdwr sectors (36704 MB)
-SCSI device sda: drive cache: write back
- sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 sda8 >
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-SCSI device sdb: 35843670 512-byte hdwr sectors (18352 MB)
-SCSI device sdb: drive cache: write back
- sdb: sdb1 sdb2 sdb3 sdb4 < sdb5 sdb6 sdb7 sdb8 >
-Attached scsi disk sdb at scsi0, channel 0, id 10, lun 0
-SCSI device sdc: 156365968 512-byte hdwr sectors (80059 MB)
-SCSI device sdc: drive cache: write back
- sdc: sdc1 sdc2 sdc3 sdc4 < sdc5 sdc6 sdc7 sdc8 >
-Attached scsi disk sdc at scsi1, channel 0, id 0, lun 0
-mice: PS/2 mouse device common for all mice
-serio: i8042 AUX port at 0x60,0x64 irq 12
-input: ImExPS/2 Logitech Explorer Mouse on isa0060/serio1
-serio: i8042 KBD port at 0x60,0x64 irq 1
-input: AT Translated Set 2 keyboard on isa0060/serio0
-md: raid1 personality registered as nr 3
-md: raid5 personality registered as nr 4
-raid5: measuring checksumming speed
-   generic_sse:  4204.000 MB/sec
-raid5: using function: generic_sse (4204.000 MB/sec)
-md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
-NET: Registered protocol family 2
-IP: routing cache hash table of 4096 buckets, 64Kbytes
-TCP: Hash tables configured (established 131072 bind 65536)
-ip_conntrack version 2.1 (4095 buckets, 32760 max) - 440 bytes per conntrack
-NET: Registered protocol family 1
-NET: Registered protocol family 15
-md: Autodetecting RAID arrays.
-md: autorun ...
-md: ... autorun DONE.
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: mounted filesystem with ordered data mode.
-VFS: Mounted root (ext3 filesystem) readonly.
-Freeing unused kernel memory: 180k freed
-md: raidstart(pid 651) used deprecated START_ARRAY ioctl. This will not be supported beyond 2.6
-md: invalid raid superblock magic on sdc7
-md: sdc7 has invalid sb, not importing!
-md: could not import sdc7!
-md: autostart unknown-block(0,2087) failed!
-md: Autodetecting RAID arrays.
-md: autorun ...
-md: ... autorun DONE.
-EXT3 FS on sdb3, internal journal
-EXT3 FS on sdb3, internal journal
-Adding 1001464k swap on /dev/sda2.  Priority:42 extents:1
-Adding 525304k swap on /dev/sdb2.  Priority:42 extents:1
-EXT3 FS on sdb3, internal journal
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on sda8, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on sdb1, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on sdb5, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on sdb6, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on sdb7, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on sdb8, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on sdc1, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on sdc7, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on sdc8, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS on sda7, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-ide-scsi is deprecated for cd burning! Use ide-cd and give dev=/dev/hdX as device
-scsi6 : SCSI host adapter emulation for IDE ATAPI devices
-  Vendor: JLMS      Model: XJ-HD166S         Rev: DS18
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-scsi7 : SCSI host adapter emulation for IDE ATAPI devices
-  Vendor: LITE-ON   Model: DVDRW LDW-851S    Rev: GS08
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-sr0: scsi3-mmc drive: 48x/48x cd/rw xa/form2 cdda tray
-Uniform CD-ROM driver Revision: 3.20
-sr1: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
-Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
-Attached scsi generic sg1 at scsi0, channel 0, id 10, lun 0,  type 0
-Attached scsi generic sg2 at scsi1, channel 0, id 0, lun 0,  type 0
-Attached scsi generic sg3 at scsi6, channel 0, id 0, lun 0,  type 5
-Attached scsi generic sg4 at scsi7, channel 0, id 0, lun 0,  type 5
-inserting floppy driver for 2.6.7-rc2
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-ip_tables: (C) 2000-2002 Netfilter core team
-tg3.c:v3.5 (May 25, 2004)
-eth0: Tigon3 [partno(BCM95703A30) rev 1002 PHY(5703)] (PCI:66MHz:64-bit) 10/100/1000BaseT Ethernet 00:e0:81:27:a0:bf
-eth0: HostTXDS[0] RXcsums[1] LinkChgREG[0] MIirq[0] ASF[0] Split[0] WireSpeed[1] TSOcap[1]
-ohci1394: $Rev: 1203 $ Ben Collins <bcollins@debian.org>
-ohci1394: fw-host0: OHCI-1394 1.1 (PCI): IRQ=[19]  MMIO=[fc8ff000-fc8ff7ff]  Max Packet=[2048]
-ieee1394: raw1394: /dev/raw1394 device initialized
-tg3: eth0: Link is up at 100 Mbps, full duplex.
-tg3: eth0: Flow control is on for TX and on for RX.
-usbcore: registered new driver usbfs
-usbcore: registered new driver hub
-ehci_hcd 0000:03:0a.2: NEC Corporation USB 2.0
-ehci_hcd 0000:03:0a.2: irq 18, pci mem ffffff0000757800
-ehci_hcd 0000:03:0a.2: new USB bus registered, assigned bus number 1
-ehci_hcd 0000:03:0a.2: USB 2.0 enabled, EHCI 0.95, driver 2004-May-10
-hub 1-0:1.0: USB hub found
-hub 1-0:1.0: 5 ports detected
-ohci_hcd 0000:03:00.0: Advanced Micro Devices [AMD] AMD-8111 USB
-ohci_hcd 0000:03:00.0: irq 19, pci mem ffffff000076f000
-ohci_hcd 0000:03:00.0: new USB bus registered, assigned bus number 2
-hub 2-0:1.0: USB hub found
-hub 2-0:1.0: 3 ports detected
-ohci_hcd 0000:03:00.1: Advanced Micro Devices [AMD] AMD-8111 USB (#2)
-ohci_hcd 0000:03:00.1: irq 19, pci mem ffffff0000771000
-ohci_hcd 0000:03:00.1: new USB bus registered, assigned bus number 3
-hub 3-0:1.0: USB hub found
-hub 3-0:1.0: 3 ports detected
-ohci_hcd 0000:03:0a.0: NEC Corporation USB
-ohci_hcd 0000:03:0a.0: irq 16, pci mem ffffff0000773000
-ohci_hcd 0000:03:0a.0: new USB bus registered, assigned bus number 4
-hub 4-0:1.0: USB hub found
-hub 4-0:1.0: 3 ports detected
-ohci_hcd 0000:03:0a.1: NEC Corporation USB (#2)
-ohci_hcd 0000:03:0a.1: irq 17, pci mem ffffff0000775000
-ohci_hcd 0000:03:0a.1: new USB bus registered, assigned bus number 5
-hub 5-0:1.0: USB hub found
-hub 5-0:1.0: 2 ports detected
-usbcore: registered new driver usblp
-drivers/usb/class/usblp.c: v0.13: USB Printer Device Class driver
-
-
---Boundary-00=_IBPwA/aY3MyZz8o
+--Boundary-00=_nDPwA+zAOyeYz7I
 Content-Type: text/x-log;
   charset="iso-8859-2";
   name="hardware.log"
@@ -882,44 +531,5 @@ Host: scsi7 Channel: 00 Id: 00 Lun: 00
 chimera:~ #
 
 
---Boundary-00=_IBPwA/aY3MyZz8o
-Content-Type: text/x-log;
-  charset="iso-8859-2";
-  name="software-2.6.7-rc2.log"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="software-2.6.7-rc2.log"
-
-chimera:~ # cat /proc/version
-Linux version 2.6.7-rc2 (rafael@chimera) (gcc version 3.4.1 20040508 (prerelease) (SuSE Linux)) #1 SMP Sun May 30 23:31:13 CEST 2004
-chimera:~ # /local/src/rc/linux-2.6.7-rc2/scripts/ver_linux
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
-
-Linux chimera 2.6.7-rc2 #1 SMP Sun May 30 23:31:13 CEST 2004 x86_64 x86_64 x86_64 GNU/Linux
-
-Gnu C                  3.3.1
-Gnu make               3.80
-binutils               2.14.90.0.5
-util-linux             2.11z
-mount                  2.11z
-module-init-tools      0.9.14-pre2
-e2fsprogs              1.34
-jfsutils               1.1.2
-xfsprogs               2.5.6
-quota-tools            3.10-pre1.
-PPP                    2.4.1
-nfs-utils              1.0.6
-Linux C Library        x    1 root     root      1534814 Sep 23  2003 /lib64/libc.so.6
-Dynamic linker (ldd)   2.3.2
-Linux C++ Library      5.0.5
-Procps                 3.1.11
-Net-tools              1.60
-Kbd                    1.08
-Sh-utils               5.0
-Modules Loaded         snd_seq ipt_TCPMSS ipt_TOS usbserial ipt_MASQUERADE ipt_LOG ipt_state parport_pc lp parport ppp_generic slhc snd_pcm_oss snd_mixer_oss snd_ioctl32 snd_intel8x0 snd_ac97_codec snd_pcm snd_timer snd_page_alloc gameport snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore eth1394 usblp ohci_hcd ehci_hcd usbcore raw1394 ohci1394 ieee1394 tg3 ipt_REJECT iptable_mangle iptable_filter ip_nat_ftp iptable_nat ip_tables floppy sg sr_mod cdrom ide_scsi
-chimera:~ #
-
-
---Boundary-00=_IBPwA/aY3MyZz8o--
-
+--Boundary-00=_nDPwA+zAOyeYz7I--
 

@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131619AbRCSUVx>; Mon, 19 Mar 2001 15:21:53 -0500
+	id <S131577AbRCSUeD>; Mon, 19 Mar 2001 15:34:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131627AbRCSUVo>; Mon, 19 Mar 2001 15:21:44 -0500
-Received: from c266492-a.lakwod1.co.home.com ([24.1.8.253]:43784 "EHLO
-	benatar.snurgle.org") by vger.kernel.org with ESMTP
-	id <S131619AbRCSUVY>; Mon, 19 Mar 2001 15:21:24 -0500
-Date: Mon, 19 Mar 2001 15:19:37 -0500 (EST)
-From: William T Wilson <fluffy@snurgle.org>
-To: Otto Wyss <otto.wyss@bluewin.ch>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux should better cope with power failure
-In-Reply-To: <3AB66233.B85881C7@bluewin.ch>
-Message-ID: <Pine.LNX.4.21.0103191513000.22425-100000@benatar.snurgle.org>
+	id <S131578AbRCSUdo>; Mon, 19 Mar 2001 15:33:44 -0500
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:22898 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S131577AbRCSUdh>; Mon, 19 Mar 2001 15:33:37 -0500
+Date: Mon, 19 Mar 2001 15:32:31 -0500 (EST)
+From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Re: UDMA 100 / PIIX4 question
+In-Reply-To: <3AB65F14.26628BEF@coplanar.net>
+Message-ID: <Pine.LNX.4.10.10103191448010.5246-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Mar 2001, Otto Wyss wrote:
+> > > I have an IBM DTLA 307030 (ATA 100 / UDMA 5) on an 815e board (Asus CUSL2), which has a PIIX4 controller.
+> > > ...
+> > > My problem is that (according to hdparm -t), I never get a better transfer rate than approximately 15.8 Mb/sec....
+> >
+> > 15MB/s for hdparm is about right.
 
-> inactivity. From the impression I got during the following startup, I
-> assume Linux (2.4.2, EXT2-filesystem) is not very suited to any power
-> failiure or manually switching it off. Not even if there wasn't any
-> activity going on.
+it's definitely not right: this disk sustains around 35 MB/s.
 
-What data, if any, did you lose?
+> Yes, since hdparm -t measures *SUSTAINED* transfers... the actual "head rate" of data reads from
+> disk surface.  Only if you read *only* data that is alread in harddrive's cache will you get a speed
+> close to the UDMA mode of the drive/controller.  The cache is around 1Mbyte, so for a split-second
+> re-read of some data....
 
-While fsck complains loudly when the system comes back up, 9 times in 10
-no data is actually lost during a power loss.  e2fsck is really good at
-recovering damaged filesystems.
+nonsequitur: the controller and disk are both quite capable of 
+sustaining 20-35 MB/s (depending on zone.)  here's hdparm output
+for a disk of the same rpm and density as the DTLA's:
 
-> How could this be accomplished:
-> 1. Flush any dirty cache pages as soon as possible. There may not be any
-> dirty cache after a certain amount of idle time.
+ Timing buffer-cache reads:   128 MB in  1.07 seconds =119.63 MB/sec
+ Timing buffered disk reads:  64 MB in  2.02 seconds = 31.68 MB/sec
 
-Mount the filesystem synchronously to accomplish this.  It will prevent
-the kernel from using a write cache basically.  It will ensure that if a
-write operation completes, then the data will be physically on the disk
-afterward.
-
-> 2. Keep open files in a state where it doesn't matter if they where
-> improperly closed (if possible).
-
-The way to do this is to use a highly reliable filesystem, such as ext3fs,
-Tux or ReiserFS.  These filesystems guarantee that metadata is consistent
-at all times.
-
-> 3. Swap may not contain anything which can't be discarded. Otherwise
-> swap has to be treated as ordinary disk space.
-
-I can't think of a case where the contents of swap matter in any way for
-recovering from a power failure.
+(maxtor dm+45, hpt366 controller)
+regards, mark hahn.
 

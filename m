@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbUK0Xgm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbUK0Xjz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261364AbUK0Xgm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 18:36:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbUK0Xgm
+	id S261365AbUK0Xjz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 18:39:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbUK0Xjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 18:36:42 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:57863 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261364AbUK0Xgk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 18:36:40 -0500
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-From: David Woodhouse <dwmw2@infradead.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Matthew Wilcox <matthew@wil.cx>,
-       Tonnerre <tonnerre@thundrix.ch>, dhowells <dhowells@redhat.com>,
-       torvalds@osdl.org, hch@infradead.org, aoliva@redhat.com,
-       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
-In-Reply-To: <41A90D66.4020204@osdl.org>
-References: <19865.1101395592@redhat.com> <41A8AF8F.8060005@osdl.org>
-	 <1101575782.21273.5347.camel@baythorne.infradead.org>
-	 <200411272353.54056.arnd@arndb.de>  <41A90D66.4020204@osdl.org>
-Content-Type: text/plain
-Date: Sat, 27 Nov 2004 23:32:28 +0000
-Message-Id: <1101598348.5278.8.camel@localhost.localdomain>
+	Sat, 27 Nov 2004 18:39:55 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:29192 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S261365AbUK0Xjy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 18:39:54 -0500
+Date: Sat, 27 Nov 2004 23:39:52 +0000
+From: John Levon <levon@movementarian.org>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document kfree and vfree NULL usage
+Message-ID: <20041127233952.GA5891@compsoc.man.ac.uk>
+References: <1101565560.9988.20.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1101565560.9988.20.camel@localhost>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Graham Coxon - Happiness in Magazines
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CYCAS-000GZv-Sj*Pv7aHRx8tvE*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-11-27 at 15:27 -0800, Randy.Dunlap wrote:
-> That's addressing a different problem.  I agree with
-> David W. that we need to clean the kernel headers up.
-> Let libc or libxyz provide the missing functionality.
-> The borken programs were stealing something that wasn't
-> promised to them AFAIK.
+On Sat, Nov 27, 2004 at 04:26:00PM +0200, Pekka Enberg wrote:
 
-Not only wasn't it promised; it wasn't even working on some
-architectures anyway.
+> This patch adds comments for kfree() and vfree() stating that both accept
+> NULL pointers.  I audited vfree() callers and there seems to be lots of
+> confusion over this in the kernel.
 
--- 
-dwmw2
+Erm, are you sure about this? Somebody had to patch OProfile because
+vfree() didn't like NULL value being passed in. When did this change?
 
+john

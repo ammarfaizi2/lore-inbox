@@ -1,137 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263837AbSKMXiS>; Wed, 13 Nov 2002 18:38:18 -0500
+	id <S264630AbSKMXqt>; Wed, 13 Nov 2002 18:46:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264622AbSKMXiS>; Wed, 13 Nov 2002 18:38:18 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:27874 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S263837AbSKMXiQ>; Wed, 13 Nov 2002 18:38:16 -0500
-Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CAC93A@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Falk Hueffner'" <falk.hueffner@student.uni-tuebingen.de>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: RE: [PATCH] include/asm-ARCH/page.h:get_order() Reorganize and op
-	timize
-Date: Wed, 13 Nov 2002 15:44:58 -0800
+	id <S264637AbSKMXqt>; Wed, 13 Nov 2002 18:46:49 -0500
+Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:211
+	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id <S264630AbSKMXqr>; Wed, 13 Nov 2002 18:46:47 -0500
+Message-ID: <3DD2E5F9.A5594DCB@splentec.com>
+Date: Wed, 13 Nov 2002 18:53:29 -0500
+From: Luben Tuikov <luben@splentec.com>
+Organization: Splentec Ltd.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C28B6E.ACC2B4A0"
+To: Adam Radford <aradford@3WARE.com>
+CC: linux-scsi <linux-scsi@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 3w-xxxx: additional ata->sense codes, avoid driver lockup
+References: <A1964EDB64C8094DA12D2271C04B812672C86A@tabby>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep02-mail.bloor.is.net.cable.rogers.com from [24.43.247.56] using ID <tluben@rogers.com> at Wed, 13 Nov 2002 18:53:33 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
-
-------_=_NextPart_000_01C28B6E.ACC2B4A0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-
-
-
-> >     s = --s >> PAGE_SHIFT;
+Adam Radford wrote:
 > 
-> This code has undefined behaviour.
- 
-Do you mean that this:
-
-s = (s-1) >> PAGE_SHIFT
-
-is more deterministic? If so, I agree -- if you mean
-something else, I am kind of lost.
-
-> >     if (likely (s) < s)
+> While there may need to be a fix so you don't loop on status=c1,flags=0x11,
+> you should know that:
+>
+> command_packet->status is not a scsi or ATA register value at all.
 > 
-> What is that supposed to do?
+> (0xC1 == BSY|DRDY|ERR).
+> ^^^^^^^^^^^^^^^^^^^^^^^^ this is not true.
 
-This is doing the "you are looking at the obvious 
-and not noticing" [I mean me, not you]. I started with 
-another algorithm, crappier, that required this in order
-to work properly, and I never took it out; not to mention 
-it is wrong - it should read 'if (likely ((1 << exp) < s))' 
-... McFly, anybody home?
+Really? Last time I checked the ATA spec, C1h comes
+out to BSY=80h | DRDY=40h | ERR=1h.
 
-I also realized I was not calling get_order() -the old version-
-statically in the test case, so that slowed it down ... in any
-case, it does not seem to affect much [probably because of the
-tight loop].
- 
-> BTW, I just noticed
-> 
-> #define likely(x)       __builtin_expect((x),1)
-> 
-> I think this should rather be
-> 
-> #define likely(x)       __builtin_expect((x)!=0,1)
- 
-Yep, for NGPT what I did was to cast it to unsigned long,
-although your way might be more elegant. Care to submit that?
+I was *merely* trying to fix the loop on status=C1h, flags=11h.
 
-Okay, so now I got it fixed, I will be submitting a new patch 
-right now with the whole thing against 2.5.47. The changes versus
-the previous one are:
+By the use of flags (error register) and status's bits, I concluded
+that while status is not *the* ATA status register, it's bits
+are pretty close. For this reason I used the C1h *mask* to make
+everyone happy.
 
---- page.h	13 Nov 2002 00:49:22 -0000	1.1.2.1
-+++ page.h	13 Nov 2002 22:58:51 -0000	1.1.2.2
-@@ -10,17 +10,10 @@
- static __inline__
- int generic_get_order (unsigned long s)
- {
--        int exp;
--
--        s = --s >> PAGE_SHIFT;
-+        s = (s - 1) >> PAGE_SHIFT;
-         if (s == 0)
-                 return 0;
--    
--        exp = fls (s);
--        s = 1 << exp;
--        if (likely (s) < s)
--                exp++;
--        return exp;
-+        return fls (s);
- }
- 
- #endif _GENERIC_PAGE_H
+Yes, I did assume that it is massaged by the controller,
+but with a closed hardware spec and a bug, I had to start
+somewhere.
 
-Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
-fault]
-
-
-
-------_=_NextPart_000_01C28B6E.ACC2B4A0
-Content-Type: text/plain;
-	name="tt.txt"
-Content-Disposition: attachment;
-	filename="tt.txt"
-
-Index: page.h
-===================================================================
-RCS file: /home/CVS/src/linux/kernel/linux/include/asm-generic/Attic/page.h,v
-retrieving revision 1.1.2.1
-retrieving revision 1.1.2.2
-diff -u -r1.1.2.1 -r1.1.2.2
---- page.h	13 Nov 2002 00:49:22 -0000	1.1.2.1
-+++ page.h	13 Nov 2002 22:58:51 -0000	1.1.2.2
-@@ -10,17 +10,10 @@
- static __inline__
- int generic_get_order (unsigned long s)
- {
--        int exp;
--
--        s = --s >> PAGE_SHIFT;
-+        s = (s - 1) >> PAGE_SHIFT;
-         if (s == 0)
-                 return 0;
--    
--        exp = fls (s);
--        s = 1 << exp;
--        if (likely (s) < s)
--                exp++;
--        return exp;
-+        return fls (s);
- }
- 
- #endif _GENERIC_PAGE_H
-
-------_=_NextPart_000_01C28B6E.ACC2B4A0--
+-- 
+Luben

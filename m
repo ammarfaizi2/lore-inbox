@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbTKZF1N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 00:27:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbTKZF1N
+	id S262123AbTKZF2O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 00:28:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbTKZF2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 00:27:13 -0500
-Received: from 5.86.35.65.cfl.rr.com ([65.35.86.5]:33665 "EHLO
-	drunkencodepoets.com") by vger.kernel.org with ESMTP
-	id S262119AbTKZF1L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 00:27:11 -0500
-Date: Wed, 26 Nov 2003 00:27:13 -0500
-From: Pat Erley <paterley@mail.drunkencodepoets.com>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] trivial change in kernel/sched.c in 2.6.0-test9+
-Message-Id: <20031126002713.1f8707f8.paterley@mail.drunkencodepoets.com>
-Organization: drunkencodepoets.com
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 26 Nov 2003 00:28:14 -0500
+Received: from waste.org ([209.173.204.2]:915 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262123AbTKZF2L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 00:28:11 -0500
+Date: Tue, 25 Nov 2003 23:27:50 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jesse Barnes <jbarnes@sgi.com>, steiner@sgi.com, jes@trained-monkey.org,
+       viro@math.psu.edu, wli@holomorphy.com, linux-kernel@vger.kernel.org
+Subject: Re: hash table sizes
+Message-ID: <20031126052750.GW22139@waste.org>
+References: <16323.23221.835676.999857@gargle.gargle.HOWL> <20031125204814.GA19397@sgi.com> <20031125130741.108bf57c.akpm@osdl.org> <20031125211424.GA32636@sgi.com> <20031125132439.3c3254ff.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031125132439.3c3254ff.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this ends up saving a few math operations any time a child
-process exits. ( calling sched_exit(task_t * p) )
+On Tue, Nov 25, 2003 at 01:24:39PM -0800, Andrew Morton wrote:
+> jbarnes@sgi.com (Jesse Barnes) wrote:
+> >
+> > On Tue, Nov 25, 2003 at 01:07:41PM -0800, Andrew Morton wrote:
+> > > the size of these tables dependent upon the number of dentries/inodes/etc
+> > > which the system is likely to support.  And that does depend upon the
+> > > amount of direct-addressible memory.
+> > > 
+> > > 
+> > > So hum.  As a starting point, what happens if we do:
+> > > 
+> > > -	vfs_caches_init(num_physpages);
+> > > +	vfs_caches_init(min(num_physpages, pages_in_ZONE_NORMAL));
+> > > 
+> > > ?
+> > 
+> > Something like that might be ok, but on our system, all memory is in
+> > ZONE_DMA...
+> > 
+> 
+> Well yes, we'd want
+> 
+> 	vfs_caches_init(min(num_physpages, some_platform_limit()));
+> 
+> which on ia32 would evaluate to nr_free_buffer_pages() and on ia64 would
+> evaluate to the size of one of those zones.
 
-here's my exact comment on the contents of the patch (left
-out of the actual patch)
+I actually just added this to the tree I'm working on:
 
-    /*
-     * the funcion below was origionally this, for anyone
-     * wondering what I changed.  I mearly used some algebra
-     * to factor out a 1 / (EXIT_WEIGHT + 1)
-     *
-     *      p->parent->sleep_avg = p->parent->sleep_avg /
-     *      (EXIT_WEIGHT + 1) * EXIT_WEIGHT + p->sleep_avg /
-     *      (EXIT_WEIGHT + 1);
-     *
-     * the only possible effects I see this having are:
-     *
-     *    1. less math operations for each child process exiting
-     *    2. higher accuracy in the value of p->parent->sleep_avg
-     *       due to using only 1 division over 2
-     *
-     */
++       vfs_caches_init(min(1000, num_physpages-16000));
 
-patches clean(a little offset, but no fuzz) on test9, test9-mms, 
-test10, test10-mm1
-
-Pat Erley
-
-/*************** patch follows ******************/
-
-
---- linux-2.6.0-test9/kernel/sched.c    2003-11-23 02:33:34.000000000 -0500
-+++ linux/kernel/sched.c        2003-11-23 02:47:29.730649061 -0500
-@@ -720,8 +720,8 @@
-         * the sleep_avg of the parent as well.
-         */
-        if (p->sleep_avg < p->parent->sleep_avg)
--               p->parent->sleep_avg = p->parent->sleep_avg /
--               (EXIT_WEIGHT + 1) * EXIT_WEIGHT + p->sleep_avg /
-+               p->parent->sleep_avg = ( p->parent->sleep_avg *
-+               EXIT_WEIGHT + p->sleep_avg ) /
-                (EXIT_WEIGHT + 1);
- }
-
+Caches are too expensive on the low end of the scale as well, when the
+kernel is taking up most of RAM.
 
 -- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

@@ -1,47 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbUKGR21@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261669AbUKGRb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261659AbUKGR21 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 12:28:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbUKGR2P
+	id S261669AbUKGRb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 12:31:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUKGRbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 12:28:15 -0500
-Received: from smtp104.rog.mail.re2.yahoo.com ([206.190.36.82]:6282 "HELO
-	smtp104.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S261654AbUKGR1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 12:27:13 -0500
-From: Shawn Starr <shawn.starr@rogers.com>
-Organization: sh0n.net
-To: linux-kernel@vger.kernel.org
-Subject: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox + code
-Date: Sun, 7 Nov 2004 12:27:42 -0500
-User-Agent: KMail/1.7
-Cc: license-violation@gnu.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 7 Nov 2004 12:31:55 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:14 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261669AbUKGRaE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 12:30:04 -0500
+Date: Sun, 7 Nov 2004 18:29:29 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, vojtech@suse.cz,
+       linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] small input cleanup
+Message-ID: <20041107172929.GM14308@stusta.de>
+References: <20041107031256.GD14308@stusta.de> <200411062249.54887.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200411071227.43058.shawn.starr@rogers.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200411062249.54887.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I dont know if this has been brought up but, a company called sveasoft is 
-blatently violating the GPL by not releasing any code:
+On Sat, Nov 06, 2004 at 10:49:54PM -0500, Dmitry Torokhov wrote:
 
-case in point:
+> Hi,
 
-' Talisman activation will be very simple. Just enter your Sveasoft account 
-password once and it will pop up working. This even survives a full reset. 
- 
- This is a bummer but we have a group of folks that are not satisfied with our 
-public, no-cost firmware and want to end this project so we need to adapt in 
-order to survive and continue our work. I've tried to make this as simple and 
-unobtrusive as possible. '
+Hi Dmitry,
 
-Its time for the GPL authors Linux kernel, busybox and others to notify this 
-'company' that they are violating the GPL. You cannot revoke existing GPL 
-code with a different license. 
+> On Saturday 06 November 2004 10:12 pm, Adrian Bunk wrote:
+> > The patch below does the following cleanups under drivers/input/ :
+> > - make some needlessly global code static
+> > - remove the completely unused EXPORT_SYMBOL'ed function gameport_rescan
+> 
+> It will be used (but in some transformed) once I finish gameport sysfs
+> support, but it probably need not be exported.
+>  
+> > - make the EXPORT_SYMBOL'ed function ps2_sendbyte static since it isn't
+> >   used outside the file where it's defined
+> 
+> libps2 is a library for communicating with standard PS/2 device and while
+> the function is not currently used it is part of the interface. I would
+> like to leave the function as is.
 
-If Linksys had to release the code Sveasoft must follow suit.
+my personal opinions:
+- if gameport_rescan will not be needed in it's current form, there's
+  no need for it (you can always add the "real" function when it's 
+  required
+- could ps2_sendbyte be #ifdef 0'ed until it's required?
+  this way, it wouldn't make the kernel bigger today
 
-Shawn.
+> Dmitry
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVCJE3x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbVCJEvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbVCJE3x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 23:29:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbVCIXLR
+	id S261848AbVCJEvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 23:51:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbVCJEt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 18:11:17 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:2700 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262424AbVCIWlD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 17:41:03 -0500
-Subject: Re: Linux 2.6.11-ac1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: CaT <cat@zip.com.au>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050309222232.GH1811@zip.com.au>
-References: <1110231261.3116.90.camel@localhost.localdomain>
-	 <20050309072646.GG1811@zip.com.au>
-	 <58cb370e05030908267f0fadbe@mail.gmail.com>
-	 <1110386321.3116.196.camel@localhost.localdomain>
-	 <58cb370e050309084374f93a71@mail.gmail.com>
-	 <20050309222232.GH1811@zip.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1110407945.3072.272.camel@localhost.localdomain>
+	Wed, 9 Mar 2005 23:49:58 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:48295 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262197AbVCJEsu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 23:48:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=knEzqGslR3Dld1aPazci8kkkIBu9cJM1cm7N/aXrw6dsZPTnYfVagJzrOyZpKsIPzcB1TuYWHzPswHPXfGVxFCgpWlRHjhiPeBQgat5mifbGuc2tKiXpS3ZoQrDpoxXWEInXWP4CDq2tUSmLFjHgxx2oPuHS3YWLmNIOWyA8uZM=
+Message-ID: <111a57ba050309204831b6047c@mail.gmail.com>
+Date: Wed, 9 Mar 2005 23:48:44 -0500
+From: John Yau <jyau.linux@gmail.com>
+Reply-To: John Yau <jyau.linux@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: sata_sil & Seagate HD solution
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 09 Mar 2005 22:39:06 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-03-09 at 22:22, CaT wrote:
-> Argh! Ok. I guess I shouldn't've just bought the card based on this
-> driver then so that I could better debug my problems with my promise
-> cards. 8(
+Hi all,
 
-Its good hardware. It does lots of neat things providing you run -ac
-anyway. The raid1 performance is very good and it can do hotplug IDE
-transparently in hardware raid modes. Its a good solid little
-controller. 
+I recently bought a computer with a Silicon Image 3512 SATA chipset
+and a 200GB Seagate ST320082 hard drive without knowledge that these
+two pieces of hardware don't play nicely.  However, I called Seagate
+tech support and they told me that upgrading my bios would fix the
+problem.  Fortunately my motherboard's manufacturer posted an upgrade
+2-3 days after I learned of the fix.
 
-Alan
+I upgraded my motherboard's bios which updated the Silicon Image RAID
+bios to 4.3.53.  That seems to have solved the incompatibility
+problem.  I've had yet to have a crash during intense drive usage
+while running with the MOD15 bug blacklist off.
 
+Those poor souls that have a hard disk in the sata_sil blacklist, if
+you're willing to risk it, try upgrading your bios, comment out your
+hard drive from the black list and see if you're able to run at full
+speed without the drive hanging.
+
+
+John Yau

@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbTDKOrW (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 10:47:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264378AbTDKOrW (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 10:47:22 -0400
-Received: from c3p0.cc.swin.edu.au ([136.186.1.10]:56332 "EHLO
-	net.cc.swin.edu.au") by vger.kernel.org with ESMTP id S264377AbTDKOrV (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 10:47:21 -0400
-From: Tim Connors <tconnors@astro.swin.edu.au>
-Message-Id: <200304111459.h3BEx2g14879@tellurium.ssi.swin.edu.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: bytesex.org -> censored (Was Re: 2.4.21-pre7: error compiling aic7(censored)/aicasm/aicasm.c)
-In-Reply-To: <20030411141010$0fe4@gated-at.bofh.it>
-References: <20030411105008$69fd@gated-at.bofh.it> <20030411105008$13d4@gated-at.bofh.it> <20030411105008$6b67@gated-at.bofh.it> <20030411141010$0fe4@gated-at.bofh.it>
-Date: Sat, 12 Apr 2003 00:59:02 +1000
+	id S262100AbTDKOts (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 10:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264235AbTDKOtr (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 10:49:47 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:6530 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S262100AbTDKOtq (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 10:49:46 -0400
+Date: Fri, 11 Apr 2003 17:01:14 +0200 (MEST)
+Message-Id: <200304111501.h3BF1EQj013871@harpo.it.uu.se>
+From: mikpe@csd.uu.se
+To: benh@kernel.crashing.org
+Subject: Re: gcc-2.95 broken on PPC?
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In linux.kernel, you wrote:
-> Tim Connors <tconnors@astro.swin.edu.au> writes:
+On 10 Apr 2003 16:20:55 +0200, Benjamin Herrenschmidt wrote:
+> On Thu, 2003-04-10 at 14:56, mikpe@csd.uu.se wrote:
 > 
->> Speaking of s/xxx/censored/, some moron decided at uni to block all
->> domains with sex in them. Any idea how to download v4l drivers of
->> www.bytesex.org?
+> > However, bugs #1 (zlib.c) and #3 (div64.h) disappear if I compile
+> > my kernels with gcc-3.2.2 instead of 2.95.4, which is a strong
+> > indication that 2.95.4 is broken on PPC. Is this something that's
+> > well-known to PPC people?
+> > 
+> > The patches are included below for reference.
 > 
-> How about asking the moron who blocked it, showing him with that
-> example that it is utterly stupid to block stuff that way?
+> It would be interesting to see the section dumps of the resulting
+> coff image and compare the version that works and the one that
+> doesn't. I still suspect some alignement crap, seeing this may
+> eventually show it.
 
-University beurocracy. I have been told not to bother asking them to
-change things, because it would never happen.
+That's certainly possible. I was rebuilding 2.4.21-pre7 with both
+compilers, and suddenly the gcc-2.95.4-built vmlinux.coff succeeded
+to boot. I didn't expect that, since I've been fighting these boot
+problems for weeks now.
 
-> PS: I've created a symlink.
->     http://www.strusel007.de/fun-with-stupid-filters/
+I managed to reproduce the problem with 2.4.20 vanilla + only the
+one patch to ld.script to fix the CLAIM error on "loading .data":
+the kernel compiled with gcc-3.2.2 boots, the one compiled with
+gcc-2.95.4 fails at the "clearing .bss" step. The images, vmlinux
+and vmlinux.coff for both compiler versions, and .config are in
+<http://www.csd.uu.se/~mikpe/linux/powerpc/> in case anyone wants
+to check what's wrong with the 2.95.4 build.
 
-Thanks for that.
-
--- 
-TimC -- http://astronomy.swin.edu.au/staff/tconnors/
-
-cat ~/.signature
-Electromagnetic pulse received (core dumped)
+/Mikael

@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286197AbRLJI04>; Mon, 10 Dec 2001 03:26:56 -0500
+	id <S286194AbRLJIaG>; Mon, 10 Dec 2001 03:30:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286196AbRLJI0q>; Mon, 10 Dec 2001 03:26:46 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:36617 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S286193AbRLJI0h>; Mon, 10 Dec 2001 03:26:37 -0500
-Message-ID: <3C13C8B8.9050805@namesys.com>
-Date: Sun, 09 Dec 2001 23:25:28 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
+	id <S286196AbRLJI34>; Mon, 10 Dec 2001 03:29:56 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15622 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286194AbRLJI3r>; Mon, 10 Dec 2001 03:29:47 -0500
+Subject: Re: question on select:  How big can the empty buffer space be before select returns ready-to-write?
+To: chris@wirex.com (Chris Wright)
+Date: Mon, 10 Dec 2001 08:38:18 +0000 (GMT)
+Cc: greearb@candelatech.com (Ben Greear),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <20011209233349.C27109@figure1.int.wirex.com> from "Chris Wright" at Dec 09, 2001 11:33:49 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-CC: Daniel Phillips <phillips@bonn-fries.net>, Quinn Harris <quinn@nmt.edu>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: File copy system call proposal
-In-Reply-To: <200112100544.fBA5isV223458@saturn.cs.uml.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16DLx4-0001Ds-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We'll have functionality resembling this in reiser4().  It is a little 
-too early to get into the details on it though.  Quinn/Albert are right.
+> 
+> * Ben Greear (greearb@candelatech.com) wrote:
+> > For instance, it appears that select will return that a socket is
+> > writable when there is, say 8k of buffer space in it.  However, if
+> > I'm sending 32k UDP packets, this still causes me to drop packets
+> > due to a lack of resources...
+> 
+> udp has a fixed 8k max payload. did you try breaking up your packets?
 
-Hans
+UDP has a 64K - headers max payload. 
 

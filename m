@@ -1,103 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267090AbSKSF3F>; Tue, 19 Nov 2002 00:29:05 -0500
+	id <S267091AbSKSFhB>; Tue, 19 Nov 2002 00:37:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267091AbSKSF3F>; Tue, 19 Nov 2002 00:29:05 -0500
-Received: from pop.gmx.de ([213.165.65.60]:48406 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S267090AbSKSF3E>;
-	Tue, 19 Nov 2002 00:29:04 -0500
-Message-ID: <3DD9CDB2.2075CCB4@gmx.de>
-Date: Tue, 19 Nov 2002 06:35:46 +0100
-From: Edgar Toernig <froese@gmx.de>
+	id <S267092AbSKSFhB>; Tue, 19 Nov 2002 00:37:01 -0500
+Received: from CPE3236333432363339.cpe.net.cable.rogers.com ([24.114.185.204]:24836
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S267091AbSKSFhA>; Tue, 19 Nov 2002 00:37:00 -0500
+From: Shawn Starr <spstarr@sh0n.net>
+Organization: sh0n.net
+To: linux-kernel@vger.kernel.org
+Subject: [PANIC]: 2.5.4x -> .48: Radeon driver sync problem
+Date: Tue, 19 Nov 2002 00:44:01 -0500
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] epoll interface change and glibc bits ...
-References: <Pine.LNX.4.44.0211182000590.979-100000@blue1.dev.mcafeelabs.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200211190044.01726.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> 
-> On Tue, 19 Nov 2002, Edgar Toernig wrote:
-> > What about adding an fd twice to the epoll-set?  Do you get an
-> > error, will it override the previous settings for that fd, will
-> > it be ignored, or is it registered twice and you get two results
-> > for that fd?
-> 
-> You get EEXIST
-> Well, there's the remote possibility, trying very badly from two threads,
-> to add the same fd twice. It is an harmless condition though.
+When loading the radeon driver into pre-release X:
 
-Just IMHO: I would prefer a different behaviour:
+XFree86 Version 4.2.99.2 / X Window System
+(protocol Version 11, revision 0, vendor release 6600)
+Release Date: 14 November 2002
 
-	int epoll_ctl(int epfd, int fd, int events)
+Monitor fails to sync and console is lost. I can still get into the machine 
+fine via SSH, is this known? 
 
-which registers interest for "events" on "fd" and retuns previous
-registered events for that fd (implies that the fd is removed when
-"events" is 0) or -1 for error.
 
-If you don't like it, at least an EP_CTL_GET should be added though.
+>From syslog (cleaned up) (what is PCI GART?)
 
-Btw, what errno for an invalid fd (not epfd)?
+[drm] AGP 0.99 on Unknown @ 0xf0000000 128MB
+[drm] Initialized radeon 1.7.0 20020828 on minor 0
+[drm:radeon_do_init_cp] *ERROR* PCI GART not yet supported for Radeon!
+[drm:radeon_ati_pcigart_cleanup] *ERROR* no scatter/gather memory!
+[drm:radeon_do_cleanup_cp] *ERROR* failed to cleanup PCI GART!
+     Unable to handle kernel NULL pointer dereference at virtual address 
+0000001c
+printing eip
+e08d6035
+*pde = 1e422067
+*pte = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0060:[<e08d6035>]    Not tainted
+EFLAGS: 00013246
+eax: 00000001   ebx: 00000000   ecx: 00000001   edx: fffffff2
+esi: 00000000   edi: df1b6180   ebp: e08d77a0   esp: deedbf30
+ds: 0068   es: 0068   ss: 0068
+Process X (pid: 147, threadinfo=deeda000 task=df0d2140)
+Stack: deedbf58 bffffb40 00000008 df12e000 00000000 df12e000 e08d7854 00000000
+            bffffb40 00000008 00000001 00000001 df12e000 e08e3618 e08d120c 
+de258cfc
+            df3b0640 40086442 bffffb40 deeda000 40546440 df3b0640 ffffffe7 
+40086442
+Call Trace: [<e08d7854>]  [<e08e3618>]  [<e08d120c>][sys_ioctl+234/592]  
+[syscall_call+7/11]
+Code: 8b 43 1c 83 f8 18 0f 86 b7 00 00 00 8b 13 8b 4b 14 83 e8 18
 
-> > Is the epoll-fd itself poll/epoll/selectable?
-> 
-> Yes.
+Can't use ksymoops (busted compile with binutils 2.13.90.0.10 20021010 and  
+GCC 3.2.1 20021118 (prerelease))
 
-Fine.  I guess, only POLLIN/readable is generated.
+Can't use kksymoops as its commented out in Kconfig (i386 arch) ;-) and it 
+doesnt seem to work uncommented ;(
 
-> 
-> > Can I build cluster of epoll-sets?
-> 
-> Uh ?!
+Shawn.
 
-The previous "yes" already answers this ;-)  What I meant, ie three
-fd-sets - low, normal, high priority fds - and a fourth set consisting
-of the three epfds for these sets.
-
-> > What happens if the epollfd is put into its own fd set?
-> 
-> You might find your machine a little bit frozen :)
-> Either 1) I remove the read lock from poll() or 2) I check the condition
-> at insetion time to avoid it. I very much prefer 2)
-
-Hehe, sure.  But could become tricky: someone may build a circular chain
-of epoll-fd-sets.
-
-> > Can I send the epoll-fd over a unix-socket to another
-> > process?
-> 
-> I'd say yes. SCM_RIGHTS should simply do an in-kernel file* to remote task
-> descriptor mapping.
-
-And what happens then?  Will the set refers to the fds from the sender
-process or of fds of the receiving process (which may not even have
-all those fds open)?
-
-Another btw, what happens on close of an fd?  Will it get removed from all
-epoll-fd-sets automatically?
-
-> > Then, please add more details of how events are generated.  You
-> > say, that an inactive-to-active transition causes an event.  What
-> > is the starting point of the collection?  (I guess, all transitions
-> 
-> The starting point are the bits found at insertion time.
-
-... and then after each epoll_wait call, I assume?
-
-> > Does an operation on an fd effect the already collected but not yet
-> > reported events?
-> 
-> You can do two operations on an existing fd. Remove is meaninless for this
-> case. Modify will re-read available bits.
-
-Huh, sorry.  I meant read/write/poll style of operations.
-
-Anyway, thanks for the information.  I hope they will find their way
-into the man-pages ;-)   (Ok, they may become more like the posix docs
-but IMHO new interfaces should be well documented.)
-
-Ciao, ET.

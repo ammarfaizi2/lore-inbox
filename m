@@ -1,40 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUIHMNh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUIHMSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbUIHMNh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 08:13:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268382AbUIHMNH
+	id S261375AbUIHMSk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 08:18:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbUIHMSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 08:13:07 -0400
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:1733 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S269146AbUIHMHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 08:07:35 -0400
-Date: Wed, 8 Sep 2004 14:07:30 +0200
-From: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: NFS hangs in 2.4.27
-Message-Id: <20040908140730.1a3b77c7.Christoph.Pleger@uni-dortmund.de>
-Organization: Universitaet Dortmund
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; sparc-sun-solaris2.6)
+	Wed, 8 Sep 2004 08:18:10 -0400
+Received: from ltgp.iram.es ([150.214.224.138]:37509 "EHLO ltgp.iram.es")
+	by vger.kernel.org with ESMTP id S261239AbUIHMP6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 08:15:58 -0400
+From: Gabriel Paubert <paubert@iram.es>
+Date: Wed, 8 Sep 2004 14:12:36 +0200
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Zachary Amsden <zach@vmware.com>, linux-kernel@vger.kernel.org,
+       davej@codemonkey.org.uk, hpa@zytor.com, bgerst@didntduck.org,
+       Riley@Williams.Name
+Subject: Re: PROBLEM: x86 alignment check bug
+Message-ID: <20040908121236.GA5283@iram.es>
+References: <413E498D.4020807@vmware.com> <20040907170807.2e8bba1d.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040907170807.2e8bba1d.davem@davemloft.net>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Sep 07, 2004 at 05:08:07PM -0700, David S. Miller wrote:
+> On Tue, 07 Sep 2004 16:51:41 -0700
+> Zachary Amsden <zach@vmware.com> wrote:
+> 
+> > Clearly, this is not correct.  Considering how difficult the fix is (the 
+> > kernel must disassemble the faulting instruction and use register 
+> > information to determine the faulting address),
+> 
+> While it is more difficult to disassemble x86 opcodes,
+> what you describe is exactly how we handle this on
+> sparc64.  In fact we do opcode decoding for most fault
+> types.
 
-Since a few days I have great NFS problems on six Linux machines. The
-execution of "ps aux" shows that processes are hanging for they are
-waiting for the completion of uninterruptable NFS I/O and the system
-utilization becomes very high.
+For page faults, cr2 gives you the linear address, i.e., after
+adding the base of the segment, which you can only find
+by looking up the GDT and/or LDT for the correct segment.
 
-The hangs occurred since the installation of Kernel 2.4.27 (used 2.4.26
-before), so I guess that Kernel 2.4.27 introduces the problems with NFS.
-I am not sure about that, but since I reinstalled the old 2.4.26-Kernel
-on one of the six computers, that machine works fine.
+Of course, the address decoding depends also of the size
+attributes of the code segment (16 or 32 bits for i386, 
+64 bits for x86_64) which needs also a lookup of CS in the
+segment tables, and of a possible address prefix which 
+affects the decoding. Of course this is fraught with race
+if another thread modifies the LDT at the same time.
 
-Has someone else experienced NFS hangs under 2.4.27 so far?
+Then most instructions use a standard memory address
+encoding, but there are a few exceptions which implicitly
+use ESI and/or EDI. For the ones that use two memory 
+addresses (movs/cmps), you'd have to even compute both 
+addresses and decide which one is the unaligned one. 
 
-Kind regards
-  Christoph Pleger
+I somehow suspect that Sparc is somewhat simpler to decode
+than i386/x86_64 ;-)
+
+Don't bloat the kernel with decoding this mess, please.
+A helper library in user space, why not?
+
+	Regards,
+	Gabriel

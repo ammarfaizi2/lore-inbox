@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268059AbUIKAtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268060AbUIKAvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268059AbUIKAtI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 20:49:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268060AbUIKAtI
+	id S268060AbUIKAvP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 20:51:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268069AbUIKAvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 20:49:08 -0400
-Received: from mail.kroah.org ([69.55.234.183]:2180 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268059AbUIKAsz (ORCPT
+	Fri, 10 Sep 2004 20:51:15 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:45037 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S268060AbUIKAuo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 20:48:55 -0400
-Date: Fri, 10 Sep 2004 17:48:27 -0700
-From: Greg KH <greg@kroah.com>
-To: Tim Hockin <thockin@hockin.org>
-Cc: Kay Sievers <kay.sievers@vrfy.org>, Robert Love <rml@ximian.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel sysfs events layer
-Message-ID: <20040911004827.GA8139@kroah.com>
-References: <20040831150645.4aa8fd27.akpm@osdl.org> <1093989924.4815.56.camel@betsy.boston.ximian.com> <20040902083407.GC3191@kroah.com> <1094142321.2284.12.camel@betsy.boston.ximian.com> <20040904005433.GA18229@kroah.com> <1094353088.2591.19.camel@localhost> <20040905121814.GA1855@vrfy.org> <20040906020601.GA3199@vrfy.org> <20040910235409.GA32424@kroah.com> <20040911001849.GA321@hockin.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040911001849.GA321@hockin.org>
-User-Agent: Mutt/1.5.6i
+	Fri, 10 Sep 2004 20:50:44 -0400
+Date: Sat, 11 Sep 2004 01:50:03 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jon Smirl <jonsmirl@gmail.com>,
+       Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: radeon-pre-2
+In-Reply-To: <1094853588.18235.12.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0409110137590.26651@skynet>
+References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de> 
+ <Pine.LNX.4.58.0409100209100.32064@skynet>  <9e47339104090919015b5b5a4d@mail.gmail.com>
+  <20040910153135.4310c13a.felix@trabant>  <9e47339104091008115b821912@mail.gmail.com>
+  <1094829278.17801.18.camel@localhost.localdomain>  <9e4733910409100937126dc0e7@mail.gmail.com>
+  <1094832031.17883.1.camel@localhost.localdomain>  <9e47339104091010221f03ec06@mail.gmail.com>
+  <1094835846.17932.11.camel@localhost.localdomain>  <9e47339104091011402e8341d0@mail.gmail.com>
+  <Pine.LNX.4.58.0409102254250.13921@skynet> <1094853588.18235.12.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 10, 2004 at 05:18:49PM -0700, Tim Hockin wrote:
-> On Fri, Sep 10, 2004 at 04:54:09PM -0700, Greg KH wrote:
-> > To send an event, the user needs to pass the kobject, a optional
-> > sysfs-attribute and the signal string to the following function:
-> >   
-> >   kobject_uevent(const char *signal,
-> >                  struct kobject *kobj,
-> >                  struct attribute *attr)
-> 
-> Sorry I missed the flare up of this topic.  What about events for which
-> there is no associated kobject?
+>
+> We've addressed this before. Zillions of drivers provide multiple
+> functions to multiple higher level subsystems. They don't all have to
+> be compiled together to make it work.
+>
+> 2D and 3D _are_ to most intents and purposes different functions. They
+> are as different as IDE CD and IDE disk if not more so.
 
-Tough, no event for them :)
+So the IDE-CD driver and IDE-disk drivers both program registers on the
+IDE controller directly.. oh no the ide driver seems to do that.. this is
+FUD, a graphics card is a device, singular one device, it requires one
+device driver, the device driver should provide control over the device
+and be the only one to program its registers.. it can provide services to
+who ever wants services, be it a 2D console driver or a 3D client or a 4D
+super-time-travelling application,
 
-> why is the kobject argument not first?  Seems weird..
+I can't write a user space IDE driver and still expect the kernel one to
+be happy, I can't write a second IDE driver for a chipset for formatting
+disks and expect the normal kernel driver to stay working with it, why do
+people think graphics driver are meant to be different..
 
-Yeah, it is a bit "odd", but it follows my old kobject_hotplug() way.
+Alan, I agree with how you want to proceed with this, and keep things
+stable, but anything short of a single card-specific driver looking after
+the registers and DMA queueing and locking is going to have deficiencies
+and the DRM has a better basis than the fb drivers,
 
-> What happened to a formatted string argument?  The signal argument can 
-> become the pre-formatted string, and someone can provide a wrapper
-> that takes a printf() like format and args.
-> 	kobject_uevent_printf(kobj, "something bad: 0x%08x", err);
+Dave.
 
-Use an attribute, and have userspace read that formatted argument if
-need be.  This keeps the kernel interface much simpler, and doesn't
-allow you to abuse it for things it is not intended for (like error
-reporting stuff...)
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 
-thanks,
-
-greg k-h

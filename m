@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267182AbSLRG2p>; Wed, 18 Dec 2002 01:28:45 -0500
+	id <S267208AbSLRGsH>; Wed, 18 Dec 2002 01:48:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267183AbSLRG2p>; Wed, 18 Dec 2002 01:28:45 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:53007 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267182AbSLRG2p>;
-	Wed, 18 Dec 2002 01:28:45 -0500
-Date: Tue, 17 Dec 2002 22:34:05 -0800
-From: Greg KH <greg@kroah.com>
-To: "Feldman, Scott" <scott.feldman@intel.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       LOSTeam <losteam@intel.com>
-Subject: Re: [ANNOUNCE] Intel PRO/100 software developer manual released
-Message-ID: <20021218063405.GP28629@kroah.com>
-References: <288F9BF66CD9D5118DF400508B68C44604758F6C@orsmsx113.jf.intel.com>
+	id <S267207AbSLRGsH>; Wed, 18 Dec 2002 01:48:07 -0500
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:33296 "EHLO
+	ns.higherplane.net") by vger.kernel.org with ESMTP
+	id <S267208AbSLRGsG>; Wed, 18 Dec 2002 01:48:06 -0500
+Date: Wed, 18 Dec 2002 17:55:14 +1100
+From: john slee <indigoid@higherplane.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: bk-current __secpath_destroy link error
+Message-ID: <20021218065514.GB18508@higherplane.net>
+References: <20021218065154.GA18508@higherplane.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <288F9BF66CD9D5118DF400508B68C44604758F6C@orsmsx113.jf.intel.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20021218065154.GA18508@higherplane.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 17, 2002 at 02:03:50PM -0800, Feldman, Scott wrote:
-> 
-> Available at https://sourceforge.net/projects/e1000.
+On Wed, Dec 18, 2002 at 05:51:54PM +1100, john slee wrote:
+> some lines obviously wrapped.  .config attached.
 
-Yeah!  Thank you for doing this, I know it must not have been an easy
-thing to accomplish.  Hopefully, Linux will be better off because of it.
+apologies, seems i didn't search archives enough before posting :-(
 
-thanks,
+lesson learned,
 
-greg k-h
+j.
+
+-- 
+toyota power: http://indigoid.net/

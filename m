@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbTIYLZS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 07:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTIYLZS
+	id S261799AbTIYLd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 07:33:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbTIYLd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 07:25:18 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:62892 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261801AbTIYLZQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 07:25:16 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Thu, 25 Sep 2003 13:25:07 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Ronald Bultje <rbultje@ronald.bitfreak.net>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       video4linux-list@redhat.com
-Subject: Re: linux/time.h annoyance
-Message-ID: <20030925112507.GA6212@bytesex.org>
-References: <1064483200.6405.442.camel@shrek.bitfreak.net> <20030925105436.A8809@infradead.org> <1064485031.2220.468.camel@shrek.bitfreak.net> <20030925112326.A9412@infradead.org> <1064487333.2228.475.camel@shrek.bitfreak.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1064487333.2228.475.camel@shrek.bitfreak.net>
-User-Agent: Mutt/1.5.3i
+	Thu, 25 Sep 2003 07:33:58 -0400
+Received: from moutng.kundenserver.de ([212.227.126.189]:53744 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261799AbTIYLd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 07:33:56 -0400
+Date: Thu, 25 Sep 2003 13:33:53 +0200 (MEST)
+From: Armin Schindler <armin@melware.de>
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: <isdn4linux@listserv.isdn4linux.de>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Re: 2.6 eicon/ and hardware/eicon/ drivers using the same
+ symbols
+In-Reply-To: <20030925101541.GH15696@fs.tum.de>
+Message-ID: <Pine.LNX.4.31.0309251331150.21651-100000@phoenix.one.melware.de>
+Organization: Cytronics & Melware
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > If you ask Gerd nicely he might even include that change in the kernel
-> > version so don't have to keep a delta.
-> 
-> Hm, makes sense... Gerd, could you please remove linux/time.h from
-> linux/videodev2.h?
+On Thu, 25 Sep 2003, Adrian Bunk wrote:
+> I got the link error below in 2.6.0-test5-mm4 (but it doesn't seem to be
+> specific to -mm).
+>
+> It seems some drivers under eicon/ and hardware/eicon/ use the same
+> symbols. Either some symbols should be renamed or Kconfig dependencies
+> should ensure that you can't build two such drivers statically into the
+> kernel at the same time.
 
-I can't remove it, it will break in kernel space then.  But my latest
-version has it #ifdef'ed already (patches at bytesex.org/patches, as
-usual ...).
+The legacy eicon driver in drivers/isdn/eicon is the old one and will be
+removed as soon as all features went to the new driver.
+Anyway this old driver was never meant to be non-module.
 
-  Gerd
+This patch should do it.
 
--- 
-You have a new virus in /var/mail/kraxel
+Armin
+
+
+
+--- linux-2.5/drivers/isdn/eicon/Kconfig.orig	Thu Sep 25 13:28:07 2003
++++ linux-2.5/drivers/isdn/eicon/Kconfig	Thu Sep 25 13:27:01 2003
+@@ -13,7 +13,7 @@
+ choice
+ 	prompt "Eicon active card support"
+ 	optional
+-	depends on ISDN_DRV_EICON && ISDN
++	depends on ISDN_DRV_EICON && ISDN && m
+
+ config ISDN_DRV_EICON_DIVAS
+ 	tristate "Eicon driver"
+

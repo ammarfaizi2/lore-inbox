@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316667AbSGLQtK>; Fri, 12 Jul 2002 12:49:10 -0400
+	id <S316672AbSGLRAz>; Fri, 12 Jul 2002 13:00:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316668AbSGLQtJ>; Fri, 12 Jul 2002 12:49:09 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:38922
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S316667AbSGLQru>; Fri, 12 Jul 2002 12:47:50 -0400
-Date: Fri, 12 Jul 2002 09:47:50 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "Kevin P. Fleming" <kpfleming@cox.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-In-Reply-To: <3D2EEF88.2070609@cox.net>
-Message-ID: <Pine.LNX.4.10.10207120941060.20499-100000@master.linux-ide.org>
+	id <S316673AbSGLRAy>; Fri, 12 Jul 2002 13:00:54 -0400
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:16069
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S316672AbSGLRAx>; Fri, 12 Jul 2002 13:00:53 -0400
+Date: Fri, 12 Jul 2002 13:03:19 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Kirk Reiser <kirk@braille.uwo.ca>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Advice saught on math functions
+In-Reply-To: <x7d6tsewoe.fsf@speech.braille.uwo.ca>
+Message-ID: <Pine.LNX.4.44.0207121253120.25178-100000@xanadu.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jul 2002, Kevin P. Fleming wrote:
+On 12 Jul 2002, Kirk Reiser wrote:
 
-> I have had plans for a while to add Media Status Notification to the 
-> ide-floppy driver, so it can do more intelligent media change 
-> management. To do so requires ATA (NOT ATAPI) commands to be issued to 
-> the drive(s). How would this work if ide-scsi is being used to talk to 
-> the drives? Would ide-scsi have to be taught about removable media and 
-> Media Status Notification?
+> Nicolas Pitre <nico@cam.org> writes:
+> 
+> > Of course!  The maintenance cost of a kernel space solution is simply too
+> > high for the single benefit of actually having speech output while the
+> > kernel is in the process of booting.  And yet with an initial ramdisk
+> > (initrd) containing all the user space daemon for speech I'm pretty sure we
+> > can have the kernel reach the init process (or the /linuxrc process for that
+> > matter) without failing in 99.9% of the cases.  This gives you virtually the
+> > same result as a kernel space solution.
+> 
+> I don't understand this statement.  Why would the maintanance cost of
+> providing speech output be any higher than serial or video or disk
+> filing or anything else for that matter?
 
-You load up and bloat the SCSI layer the special function to do the
-taskfile iops, however since the exported ioctl to permit outside the
-driver to grant access has been deleted, you have to add more bloat in
-scsi.
+Kernel speech support maintenance is not hier than serial or disk, it's just
+hier than necessary.  Better do it in user space when you get the same
+functionalities.
 
-The result is having to stagger scsi's queuing layer to deal with
-overlap protocols that differ enough to cause major headaches.  But this
-is 2.5 so bring out the wrecking balls and give SCSI equal time.
+That's also exactly what x window is doing i.e. providing video output from
+user space.
+
+That's just much, so much easier to maintain user space solutions when it's
+possible to do so.  You then have the freedom to use whatever facility and
+libraries available to user space as you wish.
 
 
-Andre Hedrick
-LAD Storage Consulting Group
+Nicolas
 

@@ -1,91 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbTIOTof (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 15:44:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbTIOTof
+	id S261306AbTIOTmx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 15:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbTIOTmx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 15:44:35 -0400
-Received: from keetweej.xs4all.nl ([213.84.46.114]:5311 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S261485AbTIOTod (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 15:44:33 -0400
-From: Folkert van Heusden <folkert@vanheusden.com>
-Reply-To: folkert@vanheusden.com
-Organization: vanheusdendotcom
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0test-1 error while writing files to loopback UDF filesystem UDF-fs DEBUG fs/udf/balloc.c:192:udf_ still with 2.6.0-test4!
-Date: Mon, 15 Sep 2003 21:44:31 +0200
-User-Agent: KMail/1.5.3
-References: <200309140032.15116.folkert@vanheusden.com>
-In-Reply-To: <200309140032.15116.folkert@vanheusden.com>
-WebSite: http://www.vanheusden.com/
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 15 Sep 2003 15:42:53 -0400
+Received: from fw.osdl.org ([65.172.181.6]:14987 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261306AbTIOTmv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 15:42:51 -0400
+Date: Mon, 15 Sep 2003 12:24:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: grendel@caudium.net
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-acpi@intel.com
+Subject: Re: 2.6.0-test5-mm2
+Message-Id: <20030915122412.02d3c5eb.akpm@osdl.org>
+In-Reply-To: <20030915192629.GA4472@thanes.org>
+References: <20030914234843.20cea5b3.akpm@osdl.org>
+	<20030915192629.GA4472@thanes.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309152144.31238.folkert@vanheusden.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Marek Habersack <grendel@caudium.net> wrote:
+>
+> Hello,
+> 
+>  There's a problem with both 2.6.0-test5-{mm1,mm2} on my MaxData M1000T
+> notebook. Details are in the attached dmesg output - in a word, via-rhine
+> times out on the transfer rendering the network inaccessible:
+> 
+> NETDEV WATCHDOG: eth0: transmit timed out
+> eth0: Transmit timed out, status 1003, PHY status 786d, resetting...
+> NETDEV WATCHDOG: eth0: transmit timed out
+> eth0: Transmit timed out, status 0003, PHY status 786d, resetting...
+> 
+> and USB HCD reports an unhandled IRQ and throws a call trace:
+> 
+> drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface driver
+> v2.1
+> uhci-hcd 0000:00:11.2: UHCI Host Controller
+> irq 9: nobody cared!
+> Call Trace:
+>  [<c010c71a>] __report_bad_irq+0x2a/0x90
+>  [<c010c810>] note_interrupt+0x70/0xa0
+>  [<c010caa0>] do_IRQ+0x120/0x130
+>  [<c0432800>] common_interrupt+0x18/0x20
+>  [<c0121f00>] do_softirq+0x40/0xa0
+>  [<c010ca7c>] do_IRQ+0xfc/0x130
+>  [<c0432800>] common_interrupt+0x18/0x20
+>  [<c0267b91>] pci_bus_write_config_word+0x61/0x90
+>  [<c03326cf>] uhci_reset+0x3f/0x60
+>  [<c0324ff5>] usb_hcd_pci_probe+0x195/0x4a0
+>  [<c026b952>] pci_device_probe_static+0x52/0x70
+>  [<c026b9ab>] __pci_device_probe+0x3b/0x50
+>  [<c026b9ec>] pci_device_probe+0x2c/0x50
+>  [<c02afc2f>] bus_match+0x3f/0x70
+>  [<c02afd7f>] driver_attach+0x6f/0xa0
+>  [<c02b001d>] bus_add_driver+0x8d/0xa0
+>  [<c02b045f>] driver_register+0x2f/0x40
+>  [<c026bbdf>] pci_register_driver+0x5f/0x90
+>  [<c0545684>] uhci_hcd_init+0xc4/0x140
+>  [<c053270b>] do_initcalls+0x2b/0xa0
+>  [<c012db3f>] init_workqueues+0xf/0x50
+>  [<c01070cd>] init+0x2d/0x160
+>  [<c01070a0>] init+0x0/0x160
+>  [<c0109089>] kernel_thread_helper+0x5/0xc
+> 
+> handlers:
+> [<c026eefb>] (acpi_irq+0x0/0x16)
+> Disabling IRQ #9
+> 
+> Vanilla test5 works fine.
+> 
 
-Just retested it with 2.6.0-test4.
-This time, the kernel did *NOT* log any of the messages as it did with test1,
-BUT: if I compare the original with the new file, I get differences all over
-the place.
-
-So what I did was (just in case):
-
-# create backup image
-truncate /data2/backup.udf 4294967296
-mkudffs /data2/backup.udf
-
-# mount it & copy data
-mount -o loop -t udf /data2/backup.udf /mnt
-(cd /data/backup/Backup ; tar cf - *) | (cd /mnt ; tar xvf -)
-umount /mnt
-
-# verify things
-mount -o loop -t udf /data2/backup.udf /mnt
-cd /mnt
-find . -type f |xargs -n 1 ./docmp
-
-docmp is:
---------
-echo $1
-cmp -l /mnt/$1 /data/backup/Backup/$1
-
-On Sunday 14 September 2003 00:32, Folkert van Heusden wrote:
-> Hi,
-> I created an UDF filesystem (dd of=file if=... && mkudffs file && mount -o
-> loop -t udf /mnt) and then added some files to it (tar cf - * | (cd /mnt ;
-> tar xvpf -)).
-> That went well for a while, but after aprox 2GB (beware: no file was longer
-> then +/- 1GB), I got these errors in syslog:
-> Sep 14 00:04:38 boemboem kernel: UDF-fs DEBUG fs/udf/balloc.c:192:udf_
-> bitmap_free_blocks: bit 3125 already set
-> Sep 14 00:04:38 boemboem kernel: UDF-fs DEBUG fs/udf/balloc.c:193:udf_
-> bitmap_free_blocks: byte=20
-> Sep 14 00:04:38 boemboem kernel: UDF-fs DEBUG fs/udf/balloc.c:192:udf_
-> bitmap_free_blocks: bit 3125 already set
-> Sep 14 00:04:38 boemboem kernel: UDF-fs DEBUG fs/udf/balloc.c:193:udf_
-> bitmap_free_blocks: byte=60
-> etc.
-> I then did a compare (cmp -l) and found that the copied file was different
-> from the original one, so it seems something is going wrong while writing
-> to the UDF filesystem.
-> As I wrote in the subjectline, I'm using 2.6.0-test1.
+Looks like ACPI broke.  Here is the procedure for reporting
+ACPI problems:
 
 
-Folkert van Heusden
+Please file a bug at http://bugzilla.kernel.org/
+Category: Power Management
+Componenet: ACPI
 
-p.s.: truncate is an utility which is available on most BSD systems (not mac
-      os x which is a BSD). I wrote a version for linux: 
-      http://vanheusden.com/Linux/truncate-0.1.tgz (64bit safe)
+Please attach the output from dmidecide, available in /usr/sbin/, or
+here: 
+http://www.nongnu.org/dmidecode/
 
-+--------------------------------------------------------------------------+
-| UNIX sysop? Then give MultiTail ( http://www.vanheusden.com/multitail/ ) |
-| a try, it brings monitoring logfiles (and such) to a different level!    |
-+---------------------------------------------------= www.vanheusden.com =-+
+Please attach the output from acpidmp, available in /usr/sbin/, or in
+here
+http://www.intel.com/technology/iapc/acpi/downloads/pmtools-20010730.tar.gz
 
+Please attach /proc/interrupts and the dmesg output showing the failure,
+if possible.  Send to linux-acpi@intel.com

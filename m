@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264288AbTDKCA4 (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 22:00:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbTDKCA4 (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 22:00:56 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:4518
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264288AbTDKCA4 (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 22:00:56 -0400
-Subject: Re: Painlessly shrinking kernel messages (Re: kernel support for
-	non-english user messages)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Timothy Miller <miller@techsource.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E960536.5010900@techsource.com>
-References: <3E95EB6D.4020004@techsource.com>
-	 <1050010963.12494.132.camel@dhcp22.swansea.linux.org.uk>
-	 <3E960536.5010900@techsource.com>
-Content-Type: text/plain
+	id S264253AbTDKB5r (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 21:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264287AbTDKB5r (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 21:57:47 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:44791 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264253AbTDKB5q (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 21:57:46 -0400
+Message-ID: <3E9623AE.6050509@us.ibm.com>
+Date: Thu, 10 Apr 2003 19:08:46 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hanna Linder <hannal@us.ibm.com>
+CC: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: [Lockmeter 2.5] BKL with 51ms hold time, prove me wrong
+References: <46950000.1050023701@w-hlinder>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050023659.13456.2.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 Apr 2003 02:14:20 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-04-11 at 00:58, Timothy Miller wrote:
-> My google search for '5pack' didn't come up with anything relevant. 
->  Things that come to mind include converting to a character set which 
+Hanna Linder wrote:
+> My original purpose was to verify my lockmeter port is producing 
+> valid data so I was comparing to readprofile results. However, I saw 
+> these high hold times and wanted to show them to you. Here is the 
+> whole lockmeter output file: 
+> http://prdownloads.sourceforge.net/lse/lockmeter.rmapm
+> 
+> Below is a snippet of lockmeter data from running Andrew Morton's
+> rmap-test -m -i 10 -n 50 -s 600 -t 100 foo
+> on a 2-way PIII 256MB RAM 500MHz System
+> 
+> If my port of the lockmeter tool is correct then this high hold
+> time is a bad thing. If the lockmeter tool is incorrect please let 
+> me know. Here is the link to a lockmeter patch (originally written 
+> by John Hawkes, I simply ported it): 
+> http://prdownloads.sourceforge.net/lse/lockmeter1.5-2.5.64-1.diff
 
-Its a thing from the old 8bit gaming world.  You code in 5bit chunks
-with a leading length marker. 5bits is enough for a-z and some bits
-of punctuation, plus capital implying space and 'escape' for an 8bit
-sequence block.
+This isn't much of a surprise, nor is is likely a problem in your
+lockmeter port.  The offender is ext3_delete_inode.  The BKL was only
+taken here twice out of the 126172 lock_kernel() which were profiled.
+The 51ms happened once and the other time, the lock was released much
+more quickly.
 
-Gets you a bit under 40% compression with real life data and takes about
-200 bytes to decode
+  SPINLOCKS     HOLD        WAIT
+  UTIL  CON  MEAN( MAX ) MEAN( MAX)(% CPU) TOTAL NOWAIT SPIN RJECT
+ 0.02%    0% 26ms( 51ms)  0us                  2   100%    0%    0%
 
+The odds are that the 22ms wait in ext3_writepage and the 20ms wait in
+schedule were due to this single hold.  Actually, the schedule one could
+very well be caused by the reacquisiton after ext3_delete_inode() hit
+something that made it sleep with the BKL held.
+
+I've thought that it would be helpful to have lockmeter special-case the
+reacquire_kernel() in schedule, to properly attribute the time to the
+original offender.
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

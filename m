@@ -1,104 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261938AbREQPnA>; Thu, 17 May 2001 11:43:00 -0400
+	id <S261949AbREQPwu>; Thu, 17 May 2001 11:52:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261946AbREQPmk>; Thu, 17 May 2001 11:42:40 -0400
-Received: from mail.muc.eurocyber.net ([195.143.108.5]:42702 "EHLO
-	mail.muc.eurocyber.net") by vger.kernel.org with ESMTP
-	id <S261938AbREQPmb>; Thu, 17 May 2001 11:42:31 -0400
-Message-ID: <3B03EE1E.5A050E1B@TeraPort.de>
-Date: Thu, 17 May 2001 17:28:30 +0200
-From: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac9 i686)
-X-Accept-Language: en, de
+	id <S261953AbREQPwl>; Thu, 17 May 2001 11:52:41 -0400
+Received: from ams8uucp0.ams.ops.eu.uu.net ([212.153.111.69]:62343 "EHLO
+	ams8uucp0.ams.ops.eu.uu.net") by vger.kernel.org with ESMTP
+	id <S261949AbREQPwb>; Thu, 17 May 2001 11:52:31 -0400
+Date: Thu, 17 May 2001 17:50:44 +0200 (CEST)
+From: kees <kees@schoen.nl>
+To: "Andrea Dell'Amico" <adellam@link.it>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: smp hangs with 2.2.19 kernel
+In-Reply-To: <990095136.29185.5.camel@altrove>
+Message-ID: <Pine.LNX.4.21.0105171748120.2572-100000@schoen3.schoen.nl>
 MIME-Version: 1.0
-To: Bjorn Wesen <bjorn@sparta.lu.se>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: make menuconfig - cosmetic question
-In-Reply-To: <Pine.LNX.3.96.1010517151441.14658A-100000@medusa.sparta.lu.se>
-Content-Type: multipart/mixed;
- boundary="------------B1A6F03F4A93850C2548DEA5"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------B1A6F03F4A93850C2548DEA5
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hi,
 
-Bjorn Wesen wrote:
+I'm too chasing this one. I have only one IDE drive and an SCSI controller
+which is mostly idle but sometimes used for a scanner. At first I thought
+is was hardware but I'm going to believe it is a software problem. 
+I replaced most of the hardware even the motherboard.
+2.2.19 with PIII-667 Mhz/128MB MSI 594D mobo.
+
+Kees
+
+On 17 May 2001, Andrea Dell'Amico wrote:
+
 > 
-> While we're on cosmetics... how about imprisonment for the person who
-> chose yellow on light grey for the first letters in each option...
+> Hallo, I have a problem with a dual processor machine. With Red Hat
+> 2.2.19 kernel, but with every 2.2.1x kernel, from Red Hat or self
+> compiled, the machine hangs with lot of processes in D state:
 > 
-> /Bjorn
+> vmstat output is
 > 
-> On Thu, 17 May 2001, Martin.Knoblauch wrote:
-> >  this is most likely just a small issue. If I knew where to look, I
-> > would try to fix it and submit a patch :-)
-> >
-> >  When I diff config files pocessed by "make [old]config" and "make
-> > menueconfig", it seems that menuconfig is not writing out some of the
-> > "comments" that the other versions do write. This is of course nothing
-> > serious, but it ticks me off. Any idea where to look for this glitch?
-
- Now, changing that color is simple. Just change the value of TAG_KEY_FG
-in scripts/lxdialog/colors.h. Unfortunatelly, this is not a question of
-cosmetics, but taste. And I do not want to go into that :-)
-
- After some browsing around the Menuconfig script and not really
-understanding how it works :-), I found the line to change. At least now
-the config files look identical when processed with menuconfig (except
-the fisrt comment, of course):
-
---- linux/Scripts/Menuconfig.orig     Thu May 17 17:19:21 2001
-+++ linux/scripts/Menuconfig  Thu May 17 17:17:25 2001
-@@ -1250,7 +1250,7 @@
-        function comment () {
-                if [ "$comment_is_option" ]
-                then
--                       comment_is_option=
-+                       comment_is_option=TRUE
-                        echo        >>$CONFIG
-                        echo "#"    >>$CONFIG
-                        echo "# $1" >>$CONFIG
-
- Not sure whether this is worth to put into the next release - maybe
-someone can spend two minutes to crosscheck.
-
-Martin
-PS: Sorry for the MIME. Should not have happend :-( Hope it is better
-now.
--- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-IT Services              |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
---------------B1A6F03F4A93850C2548DEA5
-Content-Type: text/x-vcard; charset=us-ascii;
- name="Martin.Knoblauch.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for Martin.Knoblauch
-Content-Disposition: attachment;
- filename="Martin.Knoblauch.vcf"
-
-begin:vcard 
-n:Knoblauch;Martin
-tel;cell:+49-170-4904759
-tel;fax:+49-89-510857-111
-tel;work:+49-89-510857-309
-x-mozilla-html:FALSE
-url:http://www.teraport.de
-org:TeraPort GmbH;IT-Services
-adr:;;Garmischer Straße 4;München;Bayern;D-80339;Germany
-version:2.1
-email;internet:Martin.Knoblauch@TeraPort.de
-title:Senior System Engineer
-x-mozilla-cpt:;32160
-fn:Martin Knoblauch
-end:vcard
-
---------------B1A6F03F4A93850C2548DEA5--
+> procs       memory    swap          io     system         cpu
+>  r  b  w swpd free  buff cache si  so    bi    bo   in    cs  us  sy  id
+>  1 225 2   0  10632  10936  16456   0   0  6   3   14     9   6   3  14
+> 
+> 
+> The memory situation:
+> 
+> [root@petra petra]# free
+>              total       used       free     shared    buffers
+> cached
+> Mem:        523800     504688      19112          0      10620
+> 31352
+> -/+ buffers/cache:     462716      61084
+> Swap:      2097136      35164    2061972
+> 
+> 
+> The box has 5 scsi disks with a aic7xxx controller. 4 disks are in RAID
+> 1, the fifth is only used for the swap partition (2 GB).
+> 
+> When the machine hangs there are no logs.
+> 
+> Is there a way I can debug the cause? 
+> 
+> Thanks in advance,
+> andrea
+> 
+> 
+> -- 
+> Andrea Dell'Amico
+> <adellam@link.it> - Link s.r.l. <http://www.link.it>
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

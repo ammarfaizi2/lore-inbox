@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271590AbRHPQeN>; Thu, 16 Aug 2001 12:34:13 -0400
+	id <S271591AbRHPRBR>; Thu, 16 Aug 2001 13:01:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271591AbRHPQeD>; Thu, 16 Aug 2001 12:34:03 -0400
-Received: from bt-207-238.bta.net.cn ([202.106.207.238]:32384 "HELO localhost")
-	by vger.kernel.org with SMTP id <S271590AbRHPQd4>;
-	Thu, 16 Aug 2001 12:33:56 -0400
-Date: Fri, 17 Aug 2001 00:33:58 +0800
-From: hugang <linuxbest@soul.com.cn>
-To: "Randy.Dunlap" <rddunlap@osdlab.org>
-Cc: bart@jukie.net, linux-kernel@vger.kernel.org
-Subject: Re: apm, swsuspend.
-Message-Id: <20010817003358.64128986.linuxbest@soul.com.cn>
-In-Reply-To: <3B798977.AB3E1EE3@osdlab.org>
-In-Reply-To: <20010814160812.I29740@jukie.net>
-	<3B798977.AB3E1EE3@osdlab.org>
-Organization: soul
-X-Mailer: Sylpheed version 0.5.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 8bit
+	id <S271593AbRHPRBG>; Thu, 16 Aug 2001 13:01:06 -0400
+Received: from bgm-24-95-140-16.stny.rr.com ([24.95.140.16]:55030 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S271591AbRHPRAy>; Thu, 16 Aug 2001 13:00:54 -0400
+Date: Thu, 16 Aug 2001 13:05:42 -0400 (EDT)
+From: Steven Rostedt <rostedt@stny.rr.com>
+X-X-Sender: <rostedt@localhost.localdomain>
+Reply-To: Steven Rostedt <srostedt@stny.rr.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: gcc 3.0 Warnings
+Message-ID: <Pine.LNX.4.33.0108161147560.12810-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Aug 2001 13:26:31 -0700
-"Randy.Dunlap" <rddunlap@osdlab.org> wrote:
+Hi,
 
+The work I do for my company requires modifying the kernel.
+I now use gcc 3.0 with warnings as errors (-Werror). Every time I get a
+new kernel, I need to fix include/asm/checksum.h for i386 and arm, I don't
+know about the other architectures since I have only used 3.0 on these
+two.
 
-Can swsusp support in 2.4.x?
+The problem is that I now get the warning:
 
-Thanks
--- 
-Best Regard!
-礼！
-----------------------------------------------------
-hugang : 胡刚 	GNU/Linux User
-email  : gang_hu@soul.com.cn linuxbest@soul.com.cn
-Tel    : +861068425741/2/3/4
-Web    : http://www.soul.com.cn
+"warning: multi-line string literals are deprecated"
 
-	Beijing Soul technology Co.Ltd.
-	   北京众志和达科技有限公司
-----------------------------------------------------
+which is due to the inline assembly that uses strings that don't end on a
+single line and causes my compile to end there. Now I know that this is just
+my problem, since I changed the KERNEL_CFLAGS to be -Werror, but wouldn't
+it be cleaner to have no warnings with the new compiler?
+
+I don't know if this has been brought up before, but I'm willing to clean
+up the latest version of the kernel so that these warnings go away. But
+I've never submitted a kernel patch before, and I'm only willing to do
+this to the clean kernel if it will be accepted. The only changes I would
+make would be to clean up the warnings that gcc 3.0 gives.
+
+Is this worth the effort? What do you think.
+
+-- Steven Rostedt
+

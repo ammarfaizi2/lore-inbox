@@ -1,84 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262263AbTEIAmd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 20:42:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbTEIAmd
+	id S262134AbTEIA61 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 20:58:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbTEIA61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 20:42:33 -0400
-Received: from mrt-aod.iram.es ([150.214.224.146]:21255 "EHLO mrt-lx16.iram.es")
-	by vger.kernel.org with ESMTP id S262263AbTEIAm2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 20:42:28 -0400
-Date: Fri, 9 May 2003 00:42:01 +0000
-From: paubert <paubert@iram.es>
+	Thu, 8 May 2003 20:58:27 -0400
+Received: from inet-mail4.oracle.com ([148.87.2.204]:60572 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id S262134AbTEIA6Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 20:58:25 -0400
+Date: Thu, 8 May 2003 18:08:26 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
 To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andi Kleen <ak@suse.de>,
-       David Mosberger <davidm@hpl.hp.com>
-Subject: [PATCH] Mask mxcsr according to cpu features.
-Message-ID: <20030509004200.A22795@mrt-lx16.iram.es>
+Subject: WimMark I report for 2.5.69-mm3
+Message-ID: <20030509010825.GG3989@ca-server1.us.oracle.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+WimMark I report for 2.5.69-mm3
 
-[CC'ed to x86_64 and ia64 maintainers because they might have the 
-same issues. For existing x86_64 processors, s/0xffbf/0xffff/ in 
-arch/x86-64/ia32/{fpu32,ptrace32}.c might be sufficient]
+Runs (deadline):  1693.54 1648.45 1262.19
+Runs (antic):  1034.82 831.78 931.18
 
-With SSE2, mxcsr bit 6 is defined as controlling whether
-denormals should be treated as zeroes or not. Setting it
-no more causes an exception, but with the current code it 
-would be cleared at every signal return which is a bit harsh.
+	WimMark I is a rough benchmark we have been running
+here at Oracle against various kernels.  Each run tests an OLTP
+workload on the Oracle database with somewhat restrictive memory
+conditions.  This reduces in-memory buffering of data, allowing for
+more I/O.  The I/O is read and sync write, random and seek-laden.  The
+runs all do ramp-up work to populate caches and the like.
+	The benchmark is called "WimMark I" because it has no
+official standing and is only a relative benchmark useful for comparing
+kernel changes.  The benchmark is normalized an arbitrary kernel, which
+scores 1000.0.  All other numbers are relative to this.  A bigger number
+is a better number.  All things being equal, a delta <50 is close to
+unimportant, and a delta < 20 is very identical.
+	This benchmark is sensitive to random system events.  I run
+three runs because of this.  If two runs are nearly identical and the
+remaining run is way off, that run should probably be ignored (it is
+often a low number, signifying that something on the system impacted
+the benchmark).
+	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
+of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
+10K RPM U2W SCSI of similar vintage.  The data files are living on an
+ext3 filesystem.  Unless mentioned, all runs are
+on this machine (variation in hardware would indeed change the
+benchmark).
+	WimMark I run results are archived at
+http://oss.oracle.com/~jlbec/wimmark/wimmark_I.html
 
-The following patch fixes this (2.5, but easily ported to 2.4).
 
-===== arch/i386/kernel/i387.c 1.16 vs edited =====
---- 1.16/arch/i386/kernel/i387.c	Wed Apr  9 05:45:37 2003
-+++ edited/arch/i386/kernel/i387.c	Thu May  8 23:30:23 2003
-@@ -25,6 +25,12 @@
- #define HAVE_HWFP 1
- #endif
- 
-+/* mxcsr bits 31-16 must be zero for security reasons,
-+ * bit 6 depends on cpu features.
-+ */
-+#define MXCSR_MASK (cpu_has_sse2 ? 0xffff : 0xffbf)
-+
-+
- /*
-  * The _current_ task is using the FPU for the first time
-  * so initialize it and set the mxcsr to its default
-@@ -208,7 +214,7 @@
- void set_fpu_mxcsr( struct task_struct *tsk, unsigned short mxcsr )
- {
- 	if ( cpu_has_xmm ) {
--		tsk->thread.i387.fxsave.mxcsr = (mxcsr & 0xffbf);
-+		tsk->thread.i387.fxsave.mxcsr = (mxcsr & MXCSR_MASK);
- 	}
- }
- 
-@@ -356,8 +362,7 @@
- 	clear_fpu( tsk );
- 	err = __copy_from_user( &tsk->thread.i387.fxsave, &buf->_fxsr_env[0],
- 				sizeof(struct i387_fxsave_struct) );
--	/* mxcsr bit 6 and 31-16 must be zero for security reasons */
--	tsk->thread.i387.fxsave.mxcsr &= 0xffbf;
-+	tsk->thread.i387.fxsave.mxcsr &= MXCSR_MASK;
- 	return err ? 1 : convert_fxsr_from_user( &tsk->thread.i387.fxsave, buf );
- }
- 
-@@ -455,8 +460,7 @@
- 	if ( cpu_has_fxsr ) {
- 		__copy_from_user( &tsk->thread.i387.fxsave, buf,
- 				  sizeof(struct user_fxsr_struct) );
--		/* mxcsr bit 6 and 31-16 must be zero for security reasons */
--		tsk->thread.i387.fxsave.mxcsr &= 0xffbf;
-+		tsk->thread.i387.fxsave.mxcsr &= MXCSR_MASK;
- 		return 0;
- 	} else {
- 		return -EIO;
+-- 
 
-	Gabriel
+"Heav'n hath no rage like love to hatred turn'd, nor Hell a fury,
+ like a woman scorn'd."
+        - William Congreve
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

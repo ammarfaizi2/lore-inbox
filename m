@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbTHYD3G (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 23:29:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbTHYD3G
+	id S261428AbTHYD1h (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 23:27:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbTHYD1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 23:29:06 -0400
-Received: from co239024-a.almel1.ov.home.nl ([217.120.226.100]:64405 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261445AbTHYD2M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 23:28:12 -0400
-Date: Mon, 25 Aug 2003 04:55:58 +0200 (CEST)
-From: Aschwin Marsman <aschwin@marsman.org>
-X-X-Sender: marsman@localhost.localdomain
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test3+bk: ACPI does not switch off the computer (retry)
-Message-ID: <Pine.LNX.4.44.0308250455140.1837-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 24 Aug 2003 23:27:37 -0400
+Received: from [208.49.116.17] ([208.49.116.17]:51362 "EHLO diesel.grid4.com")
+	by vger.kernel.org with ESMTP id S261428AbTHYD1g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 23:27:36 -0400
+Date: Sun, 24 Aug 2003 23:27:12 -0400
+From: Paul <set@pobox.com>
+To: linux-kernel@vger.kernel.org
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Andrew Morton <akpm@digeo.com>
+Subject: [patch 2.6] 3c509.c Fix printed dev id.
+Message-ID: <20030825032712.GA2062@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>, linux-kernel@vger.kernel.org,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Andrew Morton <akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Retry, the mail I sent yesterday didn't appear on the list.
+	Hi;
 
-On Fri, 22 Aug 2003, Alex Riesen wrote:
+	Callers of el3_common_init() immeadiately then call
+register_netdev() and check it for error, and on error
+call release_region() on the io addr, and follow an error
+path.
+	As it stands, the detection prink in el3_common_init()
+prints out something like:
+eth%d: 3c5x9 at 0x280, BNC port, address  00 20 af 2f d4 81, IRQ 5.
+   ^^
+	Because the %d is filled out by register_netdev(), called
+after the printk.
+	This patch just moves all the register_netdev(), and the
+release_region() (on error) inside of el3_common_init(), and
+gives that function a return value. Now the prink will identify
+the device name assigned. Behaviour on error should be
+functionally unchanged.
 
-> Actually it started happening from -test3.
-> The last I see on screen is "Power down." and the system is halted.
-> CAD reboots it.
-
-The latest acpi disables acpi for all bioses before Januari 1st 2001,
-I have the same problem with 2.4.22-rc3. It was "solved" by adding:
-acpi=force
-to my kernel boot parameters. In /var/log/messages this hint is
-given if that's the case.
- 
-> -alex
- 
-Have fun,
- 
-Aschwin Marsman
- 
---
-aschwin@marsman.org              http://www.marsman.org
-
-
+Paul
+set@pobox.com

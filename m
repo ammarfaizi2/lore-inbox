@@ -1,183 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S381745AbUKAX0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S290020AbUKAX3L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S381745AbUKAX0R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 18:26:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S381669AbUKAXZP
+	id S290020AbUKAX3L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 18:29:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267155AbUKAX3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 18:25:15 -0500
-Received: from mail.kroah.org ([69.55.234.183]:14756 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S323732AbUKAV73 convert rfc822-to-8bit
+	Mon, 1 Nov 2004 18:29:10 -0500
+Received: from alog0023.analogic.com ([208.224.220.38]:7552 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S376349AbUKAWYX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 16:59:29 -0500
-X-Donotread: and you are reading this why?
-Subject: Re: [PATCH] Driver Core patches for 2.6.10-rc1
-In-Reply-To: <10993462772266@kroah.com>
-X-Patch: quite boring stuff, it's just source code...
-Date: Mon, 1 Nov 2004 13:57:57 -0800
-Message-Id: <10993462772836@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Mon, 1 Nov 2004 17:24:23 -0500
+Date: Mon, 1 Nov 2004 17:22:27 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+cc: Linus Torvalds <torvalds@osdl.org>, Andreas Steinmetz <ast@domdv.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Richard Henderson <rth@redhat.com>, Andi Kleen <ak@muc.de>,
+       Andrew Morton <akpm@osdl.org>, Jan Hubicka <jh@suse.cz>
+Subject: Re: Semaphore assembly-code bug
+In-Reply-To: <Pine.LNX.4.61.0411011311520.8483@twinlark.arctic.org>
+Message-ID: <Pine.LNX.4.61.0411011718001.26520@chaos.analogic.com>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> 
+ <417550FB.8020404@drdos.com>  <1098218286.8675.82.camel@mentorng.gurulabs.com>
+  <41757478.4090402@drdos.com>  <20041020034524.GD10638@michonline.com> 
+ <1098245904.23628.84.camel@krustophenia.net> <1098247307.23628.91.camel@krustophenia.net>
+ <Pine.LNX.4.61.0410200744310.10521@chaos.analogic.com>
+ <Pine.LNX.4.61.0410290805570.11823@chaos.analogic.com>
+ <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org> <41826A7E.6020801@domdv.de>
+ <Pine.LNX.4.61.0410291255400.17270@chaos.analogic.com>
+ <Pine.LNX.4.58.0410291103000.28839@ppc970.osdl.org>
+ <Pine.LNX.4.61.0410291424180.4870@chaos.analogic.com>
+ <Pine.LNX.4.58.0410291209170.28839@ppc970.osdl.org>
+ <Pine.LNX.4.61.0410312024150.19538@chaos.analogic.com>
+ <Pine.LNX.4.61.0411011219200.8483@twinlark.arctic.org>
+ <Pine.LNX.4.61.0411011542430.24533@chaos.analogic.com>
+ <Pine.LNX.4.61.0411011311520.8483@twinlark.arctic.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2452, 2004/11/01 13:06:49-08:00, kay.sievers@vrfy.org
+On Mon, 1 Nov 2004, dean gaudet wrote:
 
-[PATCH] take me home, hotplug_path[]
+> On Mon, 1 Nov 2004, linux-os wrote:
+>
+>> On Mon, 1 Nov 2004, dean gaudet wrote:
+>>
+>>> On Sun, 31 Oct 2004, linux-os wrote:
+>>>
+>>>> Timer overhead = 88 CPU clocks
+>>>> push 3, pop 3 = 12 CPU clocks
+>>>> push 3, pop 2 = 12 CPU clocks
+>>>> push 3, pop 1 = 12 CPU clocks
+>>>> push 3, pop none using ADD = 8 CPU clocks
+>>>> push 3, pop none using LEA = 8 CPU clocks
+>>>> push 3, pop into same register = 12 CPU clocks
+>>>
+>>> your microbenchmark makes assumptions about rdtsc which haven't been valid
+>>> since the days of the 486.  rdtsc has serializing aspects and overhead that
+>>> you can't just eliminate by running it in a tight loop and subtracting out
+>>> that "overhead".
+>>>
+>>
+>> Wrong.
+>
+> if you were correct then i should be able to measure 1 cycle differences
+> in sequences such as the following:
+[SNIPPED...]
 
-Move hotplug_path[] out of kmod.[ch] to kobject_uevent.[ch] where
-it belongs now. At some time in the future we should fix the remaining bad
-hotplug calls (no SEQNUM, no netlink uevent):
+Who said? The resolution isn't even specified. Experimental
+results with several different processors seem to show that
+the resolution is about 4 cycles.
 
-  ./drivers/input/input.c (no DEVPATH on some hotplug events!)
-  ./drivers/pnp/pnpbios/core.c
-  ./drivers/s390/crypto/z90main.c
-
-Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+Script started on Mon 01 Nov 2004 04:48:04 PM EST
+# ./tester
+Timer overhead = 88 CPU clocks
 
 
- drivers/input/input.c          |    2 +-
- drivers/pnp/pnpbios/core.c     |    2 +-
- drivers/s390/crypto/z90main.c  |    1 +
- include/linux/kmod.h           |    4 ----
- include/linux/kobject_uevent.h |    5 +++++
- kernel/cpu.c                   |    1 -
- kernel/kmod.c                  |   23 -----------------------
- kernel/sysctl.c                |    2 +-
- lib/kobject_uevent.c           |    1 +
- 9 files changed, 10 insertions(+), 31 deletions(-)
+1 nop = 4 CPU clocks
+2 nops = 4 CPU clocks
+3 nops = 4 CPU clocks
+4 nops = 8 CPU clocks
+5 nops = 8 CPU clocks
+6 nops = 8 CPU clocks
+7 nops = 8 CPU clocks
+8 nops = 12 CPU clocks
+# exit
+Script done on Mon 01 Nov 2004 04:48:34 PM EST
+
+Assembly :
 
 
-diff -Nru a/drivers/input/input.c b/drivers/input/input.c
---- a/drivers/input/input.c	2004-11-01 13:35:57 -08:00
-+++ b/drivers/input/input.c	2004-11-01 13:35:57 -08:00
-@@ -19,7 +19,7 @@
- #include <linux/major.h>
- #include <linux/pm.h>
- #include <linux/proc_fs.h>
--#include <linux/kmod.h>
-+#include <linux/kobject_uevent.h>
- #include <linux/interrupt.h>
- #include <linux/poll.h>
- #include <linux/device.h>
-diff -Nru a/drivers/pnp/pnpbios/core.c b/drivers/pnp/pnpbios/core.c
---- a/drivers/pnp/pnpbios/core.c	2004-11-01 13:35:57 -08:00
-+++ b/drivers/pnp/pnpbios/core.c	2004-11-01 13:35:57 -08:00
-@@ -56,7 +56,7 @@
- #include <linux/mm.h>
- #include <linux/smp.h>
- #include <linux/slab.h>
--#include <linux/kmod.h>
-+#include <linux/kobject_uevent.h>
- #include <linux/completion.h>
- #include <linux/spinlock.h>
- #include <linux/dmi.h>
-diff -Nru a/drivers/s390/crypto/z90main.c b/drivers/s390/crypto/z90main.c
---- a/drivers/s390/crypto/z90main.c	2004-11-01 13:35:57 -08:00
-+++ b/drivers/s390/crypto/z90main.c	2004-11-01 13:35:57 -08:00
-@@ -33,6 +33,7 @@
- #include <linux/ioctl32.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
-+#include <linux/kobject_uevent.h>
- #include <linux/proc_fs.h>
- #include <linux/syscalls.h>
- #include <linux/version.h>
-diff -Nru a/include/linux/kmod.h b/include/linux/kmod.h
---- a/include/linux/kmod.h	2004-11-01 13:35:57 -08:00
-+++ b/include/linux/kmod.h	2004-11-01 13:35:57 -08:00
-@@ -37,8 +37,4 @@
- extern int call_usermodehelper(char *path, char *argv[], char *envp[], int wait);
- extern void usermodehelper_init(void);
- 
--#ifdef CONFIG_HOTPLUG
--extern char hotplug_path [];
--#endif
--
- #endif /* __LINUX_KMOD_H__ */
-diff -Nru a/include/linux/kobject_uevent.h b/include/linux/kobject_uevent.h
---- a/include/linux/kobject_uevent.h	2004-11-01 13:35:57 -08:00
-+++ b/include/linux/kobject_uevent.h	2004-11-01 13:35:57 -08:00
-@@ -11,6 +11,11 @@
- #ifndef _KOBJECT_EVENT_H_
- #define _KOBJECT_EVENT_H_
- 
-+#define HOTPLUG_PATH_LEN	256
-+
-+/* path to the hotplug userspace helper executed on an event */
-+extern char hotplug_path[];
-+
- /*
-  * If you add an action here, you must also add the proper string to the
-  * lib/kobject_uevent.c file.
-diff -Nru a/kernel/cpu.c b/kernel/cpu.c
---- a/kernel/cpu.c	2004-11-01 13:35:57 -08:00
-+++ b/kernel/cpu.c	2004-11-01 13:35:57 -08:00
-@@ -11,7 +11,6 @@
- #include <linux/unistd.h>
- #include <linux/cpu.h>
- #include <linux/module.h>
--#include <linux/kmod.h>		/* for hotplug_path */
- #include <linux/kthread.h>
- #include <linux/stop_machine.h>
- #include <asm/semaphore.h>
-diff -Nru a/kernel/kmod.c b/kernel/kmod.c
---- a/kernel/kmod.c	2004-11-01 13:35:57 -08:00
-+++ b/kernel/kmod.c	2004-11-01 13:35:57 -08:00
-@@ -115,29 +115,6 @@
- EXPORT_SYMBOL(request_module);
- #endif /* CONFIG_KMOD */
- 
--#ifdef CONFIG_HOTPLUG
--/*
--	hotplug path is set via /proc/sys
--	invoked by hotplug-aware bus drivers,
--	with call_usermodehelper
--
--	argv [0] = hotplug_path;
--	argv [1] = "usb", "scsi", "pci", "network", etc;
--	... plus optional type-specific parameters
--	argv [n] = 0;
--
--	envp [*] = HOME, PATH; optional type-specific parameters
--
--	a hotplug bus should invoke this for device add/remove
--	events.  the command is expected to load drivers when
--	necessary, and may perform additional system setup.
--*/
--char hotplug_path[KMOD_PATH_LEN] = "/sbin/hotplug";
--
--EXPORT_SYMBOL(hotplug_path);
--
--#endif /* CONFIG_HOTPLUG */
--
- struct subprocess_info {
- 	struct completion *complete;
- 	char *path;
-diff -Nru a/kernel/sysctl.c b/kernel/sysctl.c
---- a/kernel/sysctl.c	2004-11-01 13:35:57 -08:00
-+++ b/kernel/sysctl.c	2004-11-01 13:35:57 -08:00
-@@ -394,7 +394,7 @@
- 		.ctl_name	= KERN_HOTPLUG,
- 		.procname	= "hotplug",
- 		.data		= &hotplug_path,
--		.maxlen		= KMOD_PATH_LEN,
-+		.maxlen		= HOTPLUG_PATH_LEN,
- 		.mode		= 0644,
- 		.proc_handler	= &proc_dostring,
- 		.strategy	= &sysctl_string,
-diff -Nru a/lib/kobject_uevent.c b/lib/kobject_uevent.c
---- a/lib/kobject_uevent.c	2004-11-01 13:35:57 -08:00
-+++ b/lib/kobject_uevent.c	2004-11-01 13:35:57 -08:00
-@@ -177,6 +177,7 @@
- 
- 
- #ifdef CONFIG_HOTPLUG
-+char hotplug_path[HOTPLUG_PATH_LEN] = "/sbin/hotplug";
- u64 hotplug_seqnum;
- static spinlock_t sequence_lock = SPIN_LOCK_UNLOCKED;
- 
+nop8:	nop
+nop7:	nop
+nop6:	nop
+nop5:	nop
+nop4:	nop
+nop3:	nop
+nop2:	nop
+nop1:	nop
+ 	ret
 
+.global	nop1
+.global	nop2
+.global	nop3
+.global	nop4
+.global	nop5
+.global	nop6
+.global	nop7
+.global	nop8
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by John Ashcroft.
+                  98.36% of all statistics are fiction.

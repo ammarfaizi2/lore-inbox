@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132767AbRC2QWX>; Thu, 29 Mar 2001 11:22:23 -0500
+	id <S132765AbRC2QVE>; Thu, 29 Mar 2001 11:21:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132770AbRC2QWN>; Thu, 29 Mar 2001 11:22:13 -0500
-Received: from mailhub2.shef.ac.uk ([143.167.2.154]:30200 "EHLO
-	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
-	id <S132767AbRC2QWF>; Thu, 29 Mar 2001 11:22:05 -0500
-Date: Thu, 29 Mar 2001 17:17:34 +0100 (BST)
-From: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
-To: George Wright <wrightg@edgegrove.herts.sch.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Newbie to Kernel Development
-In-Reply-To: <3ABC229A@swan.rmplc.co.uk>
-Message-ID: <Pine.LNX.4.21.0103291714380.9305-100000@erdos.shef.ac.uk>
+	id <S132767AbRC2QUy>; Thu, 29 Mar 2001 11:20:54 -0500
+Received: from dfmail.f-secure.com ([194.252.6.39]:48646 "HELO
+	dfmail.f-secure.com") by vger.kernel.org with SMTP
+	id <S132765AbRC2QUp>; Thu, 29 Mar 2001 11:20:45 -0500
+Date: Thu, 29 Mar 2001 18:29:50 +0200 (MET DST)
+From: Szabolcs Szakacsits <szaka@f-secure.com>
+To: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>
+cc: Andreas Dilger <adilger@turbolinux.com>,
+   Martin Dalecki <dalecki@evision-ventures.com>,
+   Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+   Jonathan Morton <chromi@cyberspace.org>,
+   Rogier Wolff <R.E.Wolff@bitwizard.nl>, <linux-kernel@vger.kernel.org>
+Subject: Re: OOM killer???
+In-Reply-To: <Pine.A32.3.95.1010329160740.63156B-100000@werner.exp-math.uni-essen.de>
+Message-ID: <Pine.LNX.4.30.0103291753220.21682-100000@fs131-224.f-secure.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Mar 2001, George Wright wrote:
 
-> Hi all,
-> 
-> I am a newbie to Linux Kernel Development, with a very basic knowledge of C, 
+On Thu, 29 Mar 2001, Dr. Michael Weller wrote:
+> On Thu, 29 Mar 2001, Szabolcs Szakacsits wrote:
+> > The point is AIX *can* guarantee [even for an ordinary process] that
+> > your signal handler will be executed, Linux can *not*. It doesn't matter
+> No it can't... and the reason is...
 
-...and there is a kernel-newbies mailing list:
-kernelnewbies@humbolt.nl.linux.org
+So AIX is buggy in eager mode not reserving a couple of extra pages [per
+process] to be able to run the handler. What AIX version(s) you use?
+Anyway, as you probably noticed at present I'm not a big supporter of
+introducing SIGDANGER, too many things can be messed up for little
+or no gain.
 
-> Kernelnewbies: Help each other learn about the Linux kernel.
-> Archive:       http://mail.nl.linux.org/
-> IRC Channel:   irc.openprojects.net / #kernelnewbies
-> Web Page:      http://www.surriel.com/kernelnewbies.shtml
+> Note that there are nasty users like me, which provide a no_op function
+> as SIGDANGER handler.
 
+For example this.
 
-___
+> Joe blow user can code a SIGDANGER exploiting prog that will kill the
+> whole concept by allocating memory in SIGDANGER.
 
-Dr. Guennadi V. Liakhovetski
-Department of Applied Mathematics
-University of Sheffield, U.K.
-email: G.Liakhovetski@sheffield.ac.uk
+And this. Moreover it shouldn't be malicious, people write happily
+sighandlers that would blowup thing even without they realise ...
 
+And admin still have no control over the things ;) Sure it could be
+worked around these but I feel it just doesn't worth for the added
+complexity.
+
+> About this early alloction myths: Did you actually read the page?
+> The fact its controlled by a silly environment variable shows it
+> is a mere user space issue.
+
+This is my question as well ;) Although I didn't read the AIX source but
+guessed kernel sets a bit in the task structure for eager mode during
+the exec() syscall and takes care about everything, at least this is
+what the document suggests ;) [see the bottom of the page]
+
+	Szaka
 

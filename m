@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264191AbRFSMLF>; Tue, 19 Jun 2001 08:11:05 -0400
+	id <S264209AbRFSMiF>; Tue, 19 Jun 2001 08:38:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264194AbRFSMK4>; Tue, 19 Jun 2001 08:10:56 -0400
-Received: from ns.suse.de ([213.95.15.193]:29966 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S264191AbRFSMKl>;
-	Tue, 19 Jun 2001 08:10:41 -0400
-To: Ralph Jones <ralph.jones@altavista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pivot_root from non-interactive script
-In-Reply-To: <20010619095834.8228.cpmta@c012.sfo.cp.net>
-X-Yow: ..  I don't know why but, suddenly, I want to discuss declining I.Q.
- LEVELS with a blue ribbon SENATE SUB-COMMITTEE!
-From: Andreas Schwab <schwab@suse.de>
-Date: 19 Jun 2001 14:10:39 +0200
-In-Reply-To: <20010619095834.8228.cpmta@c012.sfo.cp.net> (Ralph Jones's message of "19 Jun 2001 02:58:34 -0700")
-Message-ID: <jeofrk656o.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.103
+	id <S264213AbRFSMhz>; Tue, 19 Jun 2001 08:37:55 -0400
+Received: from inway98.cdi.cz ([213.151.81.98]:57070 "EHLO luxik.cdi.cz")
+	by vger.kernel.org with ESMTP id <S264209AbRFSMhn>;
+	Tue, 19 Jun 2001 08:37:43 -0400
+Posted-Date: Tue, 19 Jun 2001 14:37:33 +0200
+Date: Tue, 19 Jun 2001 14:37:33 +0200 (CEST)
+From: Martin Devera <devik@cdi.cz>
+To: linux-kernel@vger.kernel.org
+Subject: possible deadlock in 2.4.4 sys_getdents ?
+Message-ID: <Pine.LNX.4.10.10106191420300.9068-100000@luxik.cdi.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralph Jones <ralph.jones@altavista.com> writes:
+Hello all,
 
-|> Thanks.  Yes it looks as if this might be the case.  Do you have any ideas how I might get around this?  Or do I have to use a different shell?
+after weeks of uptime, 2.4.4 kernel freezed several of
+my processes. It seems like deadlock.
+I typed "whereis perl" and system got frozen. After quick
+look I found that I typed the command while "makedb" script
+was running. All processes are on down:
+budha:~# ps -A -o pid,cmd,eip,wchan|grep down
+ 1131 find / /dev/pts  400cd923 down
+ 5740 ls --color /usr/ 400bb923 down
+ 5738 whereis perl     400bb79e down
 
-The latter is probably the easiest.  Or fix /bin/ash to set FD_CLOEXEC on
-the file descriptor.
+budha:~# ls /proc/1131/fd -l
+total 0
+lr-x------    1 root     root         64 Jun 19 14:37 0 -> /dev/null
+l-wx------    1 root     root         64 Jun 19 14:37 1 -> pipe:[2577]
+l-wx------    1 root     root         64 Jun 19 14:37 2 -> pipe:[2558]
+lr-x------    1 root     root         64 Jun 19 14:37 3 -> /
+lr-x------    1 root     root         64 Jun 19 14:37 4 -> /usr/share/man/man1
 
-Andreas.
+Now see strace output of whereis:
+5738  getdents(5, /* 0 entries */, 3933) = 0
+5738  close(5)                          = 0
+5738  stat("/usr/share/man/man1", {st_mode=S_IFDIR|0755, st_size=22528,
+...}) = 
+0
+5738  open("/usr/share/man/man1", O_RDONLY|O_NONBLOCK|0x10000) = 5
+5738  fstat(5, {st_mode=S_IFDIR|0755, st_size=22528, ...}) = 0
+5738  fcntl(5, F_SETFD, FD_CLOEXEC)     = 0
+5738  getdents(5, 
 
--- 
-Andreas Schwab                                  "And now for something
-SuSE Labs                                        completely different."
-Andreas.Schwab@suse.de
-SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+It stops at getdents. I don't know how to trace it further down ..
+I have to reboot machine and probably will not be able to simulate
+it again. Only it is evident that it is possible to hang it up 
+and kill -9 doesn't work (uninteruptible sleep).
+
+I hope this helps improve stability.
+devik
+

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267578AbTBLU1Y>; Wed, 12 Feb 2003 15:27:24 -0500
+	id <S267613AbTBLUZg>; Wed, 12 Feb 2003 15:25:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267623AbTBLU1Y>; Wed, 12 Feb 2003 15:27:24 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:63250 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267578AbTBLU1X>; Wed, 12 Feb 2003 15:27:23 -0500
-Date: Wed, 12 Feb 2003 20:37:09 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: New logo code (fwd)
-In-Reply-To: <20030205141418.B20077@infradead.org>
-Message-ID: <Pine.LNX.4.44.0302122026550.31435-100000@phoenix.infradead.org>
+	id <S267623AbTBLUZg>; Wed, 12 Feb 2003 15:25:36 -0500
+Received: from mail.dir.bg ([194.145.63.28]:25768 "EHLO dir.bg")
+	by vger.kernel.org with ESMTP id <S267613AbTBLUZf>;
+	Wed, 12 Feb 2003 15:25:35 -0500
+Date: Wed, 12 Feb 2003 23:32:20 +0300
+From: "Andrey V. Ignatov" <mef@dir.bg>
+X-Mailer: The Bat! (v1.61) Business
+Reply-To: "Andrey V. Ignatov" <mef@dir.bg>
+X-Priority: 3 (Normal)
+Message-ID: <164518946245.20030212233220@dir.bg>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: SMP lock ups on Intel SCB2 (2.4.19-2.4.21-pre4)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I tried linux kernels from 2.4.19 to 2.4.21-pre4 and all of them lock
+up my server under heavy CPU load if i enable SMP. And after lookup i
+have If i disable SMP
+all works fine.
+I tried win2K & winXP too and under this OSes both processors worked
+fine under heavy load, but i like linux very much and hate win on
+servers.
+Please help me.
+My hardware:
+Intel SCB2 board with latest BIOS
+Two PIII-1266MHz stepping 01
+kernel lock ups after 10-30 minutes of heavy load with no messages on
+console or in logs :(
+But BIOS event log before lock up contain a lot of messages: Critical
+interrupt #07.
+Maybe it's hardware problem? But why windows still working fine for
+more than 48h under heavy load ? :(
 
-> > > All comments are welcomed! Thanks!
-> > 
-> > Come on, is there really no one to comment on this??
-> 
-> Except a question why it's not merged yet? :)
+Please CC to me because i am not list subscriber
+  
 
-Looking for work has keot me busy. I merged it. One change I did do was 
-changed the CONFIG_FB_LOGO_* to CONFIG_LOGO_. In theory any one can use 
-the logo (i.e newport console). It is a much welcomed improvement. I 
-removed the hgafb logo code in the latest tree. It should use the standard 
-logo code. Also how should we go about for personal logos. Companies might 
-want to throw in there own thing which I have no issue with.
+-- 
+Best regards,
+ Andrey                          mailto:mef@dir.bg
 
 

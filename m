@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263658AbUDTRna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263126AbUDTRvL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263658AbUDTRna (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 13:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263141AbUDTRna
+	id S263126AbUDTRvL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 13:51:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263688AbUDTRvL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 13:43:30 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:50066 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263658AbUDTRn2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 13:43:28 -0400
-Subject: sched_domains and Stream benchmark
-From: Darren Hart <dvhltc@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: ak@suse.de
-Content-Type: text/plain
-Message-Id: <1082482996.2711.17.camel@farah>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 20 Apr 2004 10:43:17 -0700
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Apr 2004 13:51:11 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:31903 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S263126AbUDTRvK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 13:51:10 -0400
+To: Eli Cohen <mlxk@mellanox.co.il>
+Cc: linux-kernel@vger.kernel.org
+Subject: stack dumps, CONFIG_FRAME_POINTER and i386 (was Re: sysrq shows impossible call stack)
+References: <408545AA.6030807@mellanox.co.il> <52ekqizkd2.fsf@topspin.com>
+	<40855F95.7080003@mellanox.co.il>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 20 Apr 2004 10:51:08 -0700
+In-Reply-To: <40855F95.7080003@mellanox.co.il>
+Message-ID: <5265buzgfn.fsf_-_@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 20 Apr 2004 17:51:09.0246 (UTC) FILETIME=[0FD72DE0:01C42700]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
+Your question prompted me to look at show_trace() in
+arch/i386/kernel/traps.c.  I see that even in kernels as new as 2.6.5,
+there is no attempt to use frame pointers for stack dumps even when
+CONFIG_FRAME_POINTER is set.  I seem to remember some patches to do
+this floating around a while ago.  How did that discussion end up?
 
-You have mentioned the stream benchmark when reporting on the
-performance of the Opteron NUMA sched-domains scheduler.  I am trying to
-reproduce your results and am struggling with the benchmark.  Can you
-rpovide the details of the tests you ran.  Namely your compiler
-settings, compile command line, and your value of N.  Also I didn't see
-how to specify the number of threads to run, how did you specify that? 
-I have a 4 way 1.4 GHz 1MB cache opteron machine with 7 GB of RAM.
-
-When I ran the steeam_omp benchmark with N=4000000 I got nearly
-identical results (within statistical noise) from 2.6.5, 2.6.5-mm5, and
-2.6.5-mm5-with_flat_domains (the patch I sent earlier).  Clearly not
-what is expected, so I assume I am not running or building the benchmark
-correctly.  I found the projects build system (none) and docs (minimal)
-to be lacking.
-
-You mentioned your problem was fixed by some of "Ingo's tweaks".  Which
-patches are these tweaks in and are they in the mm tree yet?
+(Red Hat seems to have something to do this in the source for the
+version of 2.4.21 that they ship in RHEL 3, but none of their shipped
+kernels turn on CONFIG_FRAME_POINTER).
 
 Thanks,
-
-Darren
-
+  Roland

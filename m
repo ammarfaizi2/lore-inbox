@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268445AbUIBQBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268449AbUIBQGA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268445AbUIBQBo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 12:01:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268442AbUIBQBn
+	id S268449AbUIBQGA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 12:06:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268442AbUIBQGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 12:01:43 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:21647 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268445AbUIBQBm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 12:01:42 -0400
-Subject: Re: Driver retries disk errors.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Stoffel <stoffel@lucent.com>
-Cc: Rogier Wolff <R.E.Wolff@bitwizard.nl>,
-       Romano Giannetti <romano@dea.icai.upco.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <16695.11922.71461.528204@gargle.gargle.HOWL>
-References: <20040830163931.GA4295@bitwizard.nl>
-	 <1093952715.32684.12.camel@localhost.localdomain>
-	 <20040831135403.GB2854@bitwizard.nl>
-	 <1093961570.597.2.camel@localhost.localdomain>
-	 <20040831155653.GD17261@harddisk-recovery.com>
-	 <1093965233.599.8.camel@localhost.localdomain>
-	 <20040831170016.GF17261@harddisk-recovery.com>
-	 <1093968767.597.14.camel@localhost.localdomain>
-	 <20040901152817.GA4375@pern.dea.icai.upco.es>
-	 <1094049877.2787.1.camel@localhost.localdomain>
-	 <20040901231434.GD28809@bitwizard.nl>
-	 <1094117369.4852.15.camel@localhost.localdomain>
-	 <16695.11922.71461.528204@gargle.gargle.HOWL>
-Content-Type: text/plain
+	Thu, 2 Sep 2004 12:06:00 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:10368 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S268449AbUIBQFr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 12:05:47 -0400
+Message-ID: <4137447E.9000708@rtr.ca>
+Date: Thu, 02 Sep 2004 12:04:14 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: bzolnier@milosz.na.pl, Lee Revell <rlrevell@joe-job.com>,
+       Greg Stark <gsstark@mit.edu>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Todd Poynor <tpoynor@mvista.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       tim.bird@am.sony.com, dsingleton@mvista.com
+Subject: Re: [PATCH] Configure IDE probe delays
+References: <20040730191100.GA22201@slurryseal.ddns.mvista.com>	 <200408272005.08407.bzolnier@elka.pw.edu.pl>	 <1093630121.837.39.camel@krustophenia.net>	 <200408272059.51779.bzolnier@elka.pw.edu.pl>  <4135CC9E.5060905@rtr.ca> <1094051215.2777.15.camel@localhost.localdomain>
+In-Reply-To: <1094051215.2777.15.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1094137165.5486.0.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 02 Sep 2004 15:59:25 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-09-02 at 15:30, John Stoffel wrote:
-> I really think that we need some way to keep such deadlocks from
-> happening.  I really dislike having a device lockup a user application
-> so hard that it can't be exited.  There's no real reason we should be
-> doing this any more.  If we have to, let the user kill it and just
-> have the kernel make it into a zombie, but at least let the user kill
-> it off.
+I agree that  >256 sectors will be a win, worth the
+extra overhead because it will save subsequent overheads
+of extra commands.
 
-If you had to reboot file a bug, none of the block error recovery code
-or below should ever hang indefinitely.
+Which is why my original text (quoted by Alan) said:
 
+On Mer, 2004-09-01 at 14:20, Mark Lord wrote:
+
+ >> LBA48 is only needed when (1) the sector count is greater than 256,
+ >> and/or (2) the ending sector number >= (1<<28).
+
+
+Cheers
+-- 
+Mark Lord
+(hdparm keeper & the original "Linux IDE Guy")

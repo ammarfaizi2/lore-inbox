@@ -1,47 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbUCNRut (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 12:50:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbUCNRut
+	id S261920AbUCNSOd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 13:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbUCNSOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 12:50:49 -0500
-Received: from imf22aec.mail.bellsouth.net ([205.152.59.70]:61837 "EHLO
-	imf22aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S261463AbUCNRur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 12:50:47 -0500
-Date: Sun, 14 Mar 2004 12:49:41 -0500 (EST)
-From: Richard A Nelson <kenpocowboy@bellsouth.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6 IPSEC and NAT issue
-Message-ID: <Pine.LNX.4.58.0403141240510.1855@onpx40.onqynaqf.bet>
-X-No-Markup: yes
-x-No-ProductLinks: yes
-x-No-Archive: yes
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 14 Mar 2004 13:14:33 -0500
+Received: from mill.mtholyoke.edu ([138.110.30.76]:13191 "EHLO
+	mill.mtholyoke.edu") by vger.kernel.org with ESMTP id S261920AbUCNSO1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 13:14:27 -0500
+From: Ron Peterson <rpeterso@mtholyoke.edu>
+Date: Sun, 14 Mar 2004 13:13:50 -0500
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: network/performance problem
+Message-ID: <20040314181350.GB28180@mtholyoke.edu>
+References: <20040311152728.GA11472@mtholyoke.edu> <20040311151559.72706624.akpm@osdl.org> <20040311233525.GA14065@mtholyoke.edu> <20040312164704.GA17969@mtholyoke.edu> <20040312225606.GA19722@mtholyoke.edu> <20040313223349.3dcbfb61.davem@redhat.com> <20040314132339.GA27540@mtholyoke.edu> <20040314093358.26147c5f.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040314093358.26147c5f.davem@redhat.com>
+User-Agent: Mutt/1.3.28i
+Organization: Mount Holyoke College
+X-Operating-System: Debian GNU/Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Mar 14, 2004 at 09:33:58AM -0800, David S. Miller wrote:
+> On Sun, 14 Mar 2004 08:23:40 -0500
+> Ron Peterson <rpeterso@mtholyoke.edu> wrote:
+> 
+> > Don't think so.  If I revert to 2.4.20 from 2.4.21, and change nothing
+> > else, this problem goes away.
+> 
+> That's right because a netfilter change during that time period
+> makes certain auto-rule adding setups go berzerk and it's a bug
+> in the netfilter userland bits not the kernel.
 
-An odd difference betwixt 2.4/Freeswan and 2.6/IPSEC has been driving
-me nuts - can anyone help ?
+I may indeed be completely dense.  That's not unheard of around these
+parts.  I'd certainly accept an explanation of my denseness in lieue of
+any other explanation, as long as I can make this stop happening.
 
-I've got a box on the local lan (192.168.1.0/24) that creates a tunnel
-to a VPN server via ipsec.
-	* On 2.4/Freeswan, lan traffic is eth0 and tunnel is ipsec0
-	* On 2.6.4/IPSEC, both lan and tunnel is through eth0
+What is the nature of the auto-rule adding setups going berzerk problem?
 
-I need to be able to NAT lan traffic across the VPN.  On 2.4/Freeswan
-this was trivial with
-	iptables -t nat -o eth0 -s 192.168.1.0/24 -j MASQUERADE
-	and, of course, allowing forwarding betwixt the interfaces
+Below are my current iptables rules on 'sam' (the only machine not
+currently running 2.4.20).  There are no jumps to user defined chains.
+I have not installed any scripts that dynamically add/alter iptables
+rules.  I can't imagine what package I may have installed that might do
+such a thing either.  Even if there were such a script somehow, since
+nothing below ever jumps anywhere else, it wouldn't be getting called,
+right?
 
-On 2.6/IPSEC, this setup doesn't seem to be working at all (no changes
-have been done to the iptables rules) - traffic comming in eth0 is
-either not NAT'd (haven't been able to check upstream traffic yet),
-but in anycase I see no response to lan traffic that should've gone
-out the tunnel
+If I flush and expunge my rules as follows, the problem goes away.  If
+this was because a jump to user defined chain was being deleted, then I'd
+understand.  But there are no jumps out of INPUT, OUTPUT, FORWARD,
+PREROUTING, or POSTROUTING, so I'm confused.
+
+$IPTABLES -F
+$IPTABLES -t nat -F
+$IPTABLES -X
+$IPTABLES -P INPUT ACCEPT
+$IPTABLES -P OUTPUT ACCEPT
+$IPTABLES -P FORWARD ACCEPT
+
+FWIW, I compiled the latest 'iptables' code against my current running
+2.4.21 kernel also..
+
+1052# iptables -V
+iptables v1.2.9
+
+1045# iptables -L
+Chain INPUT (policy DROP)
+target     prot opt source               destination
+ACCEPT     all  --  anywhere             anywhere            state RELATED,ESTABLISHED
+ACCEPT     icmp --  138.110.0.0/16       anywhere            icmp echo-request
+ACCEPT     tcp  --  anywhere             anywhere            tcp dpt:ssh
+ACCEPT     tcp  --  anywhere             anywhere            tcp dpt:https
+ACCEPT     all  --  anywhere             localhost
+
+Chain FORWARD (policy DROP)
+target     prot opt source               destination
+
+Chain OUTPUT (policy DROP)
+target     prot opt source               destination
+ACCEPT     all  --  anywhere             anywhere            state NEW,RELATED,ESTABLISHED
+
+Sun Mar 14 12:57:25 root@sam /usr/src
+1046# iptables -L -t nat
+Chain PREROUTING (policy ACCEPT)
+target     prot opt source               destination
+
+Chain POSTROUTING (policy ACCEPT)
+target     prot opt source               destination
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+
 -- 
-Rick Nelson
-Life'll kill ya                         -- Warren Zevon
-Then you'll be dead                     -- Life'll kill ya
+Ron Peterson
+Network & Systems Manager
+Mount Holyoke College
+http://www.mtholyoke.edu/~rpeterso

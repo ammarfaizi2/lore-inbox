@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281181AbRKYWuw>; Sun, 25 Nov 2001 17:50:52 -0500
+	id <S281183AbRKYWvc>; Sun, 25 Nov 2001 17:51:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281183AbRKYWuc>; Sun, 25 Nov 2001 17:50:32 -0500
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:29705 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S281181AbRKYWu0>;
-	Sun, 25 Nov 2001 17:50:26 -0500
-Message-Id: <200111252250.fAPMo7wM012678@sleipnir.valparaiso.cl>
-To: Tom Eastep <teastep@shorewall.net>
-cc: Hartmut Holz <hartmut.holz@arcormail.de>, linux-kernel@vger.kernel.org
-Subject: Re: Input/output error 
-In-Reply-To: Your message of "Fri, 23 Nov 2001 11:10:25 -0800."
-             <20011123191025.D74BDAD02@mail.shorewall.net> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Sun, 25 Nov 2001 19:50:06 -0300
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S281185AbRKYWvX>; Sun, 25 Nov 2001 17:51:23 -0500
+Received: from [213.96.124.18] ([213.96.124.18]:22767 "HELO dardhal")
+	by vger.kernel.org with SMTP id <S281183AbRKYWvG>;
+	Sun, 25 Nov 2001 17:51:06 -0500
+Date: Sun, 25 Nov 2001 23:50:58 +0100
+From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
+	<jdomingo@internautas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Idea for next kernels stables
+Message-ID: <20011125235058.B1250@dardhal.mired.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.42.0111251928240.3571-100000@ids.big.univali.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.42.0111251928240.3571-100000@ids.big.univali.br>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Eastep <teastep@shorewall.net> said:
+On Sunday, 25 November 2001, at 19:44:55 -0200,
+Marcus Grando wrote:
 
-[...]
+> 
+> Hi,
+> 
+> I have an idea for next kernels stables.
+> 
+> Before pre´s releases a release -rc it would have the paper of final test, 
+> not to have problem of a stable version to leave with problems.
+> 
+That is something has been proposed several times in past months. As now
+the 2.4.x kernel series maintainer is Marcelo Tosatti, we can expect a
+different approach to kernel releases to that of what Linus Torvalds has
+been doing in the past (himself said he is not a good maintainer because
+"he gets bored and releases the code soon").
 
-> A "me too" here (2.4.15 final) -- ran fsck on the /var partition and saw 
-> output similar to that below.
-> >
-> > e2fsck output:
-> > --------------
-> > Pass 1: Checking inodes, blocks, and sizes
-> > Pass 2: Checking directory structure
-> > Entry 'kudzu' in /lock/subsys (30001) has deleted/unused inode 30005.
-> > Clear? yes
-> >
-> > Entry 'network' in /lock/subsys (30001) has deleted/unused inode 30006.
-> >   Clear? yes
-
-[Ad nauseam]
-
-Saw this with 2.4.15pre[89]
 -- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+José Luis Domingo López
+Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
+ 
+jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
+jdomingo AT internautas DOT   org  => Spam at your own risk
+

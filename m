@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262776AbTCSALl>; Tue, 18 Mar 2003 19:11:41 -0500
+	id <S262872AbTCSAQf>; Tue, 18 Mar 2003 19:16:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262826AbTCSALk>; Tue, 18 Mar 2003 19:11:40 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:30861 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S262776AbTCSALj>;
-	Tue, 18 Mar 2003 19:11:39 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Wed, 19 Mar 2003 01:22:35 +0100 (MET)
-Message-Id: <UTC200303190022.h2J0MZu08990.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, greg@kroah.com
-Subject: Re: [PATCH] dev_t [2/3]
+	id <S262875AbTCSAQe>; Tue, 18 Mar 2003 19:16:34 -0500
+Received: from smtp08.iddeo.es ([62.81.186.18]:12250 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id <S262872AbTCSAQd>;
+	Tue, 18 Mar 2003 19:16:33 -0500
+Date: Wed, 19 Mar 2003 01:27:28 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: micklweiss@gmx.net
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux on 16-bit processors
+Message-ID: <20030319002728.GC4278@werewolf.able.es>
+References: <17232.1048031207@www59.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <17232.1048031207@www59.gmx.net>; from micklweiss@gmx.net on Wed, Mar 19, 2003 at 00:46:47 +0100
+X-Mailer: Balsa 2.0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    This is nice, thanks.  We don't have to touch the char drivers now.
 
-    Ah, I wish we could change that function to be:
-    int register_chrdev_region(major, num_minors, name, fops)
-    if it wasn't for the tty drivers wanting to start their minor at 64.
+On 03.19, micklweiss@gmx.net wrote:
+> I'm interested on running Linux on some less powerful, cheaper 16 bit
+> systems. I would like to know if there is a slimmed down version of the kernel (any
+> version 2.2+) that can run on 16-bit CPUs. I know that linux "requires" a
+> 32-bit CPU, but I know that it has run on less. I'm interested in any arch -
+> really. 
 
-    Hm, wait, why can't we just do it that way and not change the tty core
-    to use the register_chrdev_region() call?  It should still all work
-    properly, right?  The tty core would ask for 256 minors, and split them
-    off the same way it currently does.
+http://www.uclinux.org/
 
-# cat /proc/devices | head
-Character devices:
-  1 mem
-  2 pty
-  3 ttyp
-  4 vc/0
-  4 vc/%d
-  4 ttyS%d
-  5 tty
-  5 console
-  5 ptmx
-#
+It doesn't need an mmu, boots on a Palm. ;) Look  in 'uClinux Ports'
 
-The routine tty_register_driver() already finds major, minor_start,
-nr_of_minors in its struct tty_driver, so this is the natural,
-or at least the easiest, interface to use.
+Or http://www.linux.org/projects/ports.html, look for m68k ports, don't know
+if any of them work on cpus below 68020.
 
-"The tty core would ask for 256 minors" - this doesnt work
-very well. One of the problems is that ttyS comes from a
-serial module, while vc is virtual console stuff, unrelated.
-If opening a device must load the module, then at registration time
-we have to tell what minors belong to what module.
 
-Andries
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.21-pre5-jam0 (gcc 3.2.2 (Mandrake Linux 9.1 3.2.2-3mdk))

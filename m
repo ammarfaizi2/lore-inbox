@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319354AbSIKVfF>; Wed, 11 Sep 2002 17:35:05 -0400
+	id <S319359AbSIKVks>; Wed, 11 Sep 2002 17:40:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319355AbSIKVfF>; Wed, 11 Sep 2002 17:35:05 -0400
-Received: from [208.34.239.54] ([208.34.239.54]:28865 "EHLO
-	babylon5.babcom.com") by vger.kernel.org with ESMTP
-	id <S319354AbSIKVfB>; Wed, 11 Sep 2002 17:35:01 -0400
-Date: Wed, 11 Sep 2002 17:39:46 -0400
-From: Phil Stracchino <alaric@babcom.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: CDROM driver does not support Linux partition tables
-Message-ID: <20020911213946.GC31724@babylon5.babcom.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20020904181952.GA1158@babylon5.babcom.com> <1031182512.3017.139.camel@irongate.swansea.linux.org.uk> <20020911211959.GA31724@babylon5.babcom.com> <yw1xr8g0kyd2.fsf@gladiusit.e.kth.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yw1xr8g0kyd2.fsf@gladiusit.e.kth.se>
-User-Agent: Mutt/1.4i
-X-ICBM: 35.6880N 77.4375W
-X-PGP-Fingerprint: 2105 C6FC 945D 2A7A 0738  9BB8 D037 CE8E EFA1 3249
-X-PGP-Key-FTP-URL: ftp://ftp.babcom.com/pub/pgpkeys/alaric.asc
-X-PGP-Key-HTTP-URL: http://www.babcom.com/alaric/pgp.html
-X-UCE-Policy: No unsolicited commercial email is accepted at this site.  All senders of UCE will be immediately and permanently blocked.
+	id <S319361AbSIKVks>; Wed, 11 Sep 2002 17:40:48 -0400
+Received: from dsl-213-023-021-043.arcor-ip.net ([213.23.21.43]:9965 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319359AbSIKVkr>;
+	Wed, 11 Sep 2002 17:40:47 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Subject: Re: [RFC] Raceless module interface
+Date: Wed, 11 Sep 2002 23:47:45 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Oliver Neukum <oliver@neukum.name>, Roman Zippel <zippel@linux-m68k.org>,
+       Alexander Viro <viro@math.psu.edu>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0209101201280.8911-100000@serv> <E17pEpj-0007Up-00@starship> <20020911222614.A12614@kushida.apsleyroad.org>
+In-Reply-To: <20020911222614.A12614@kushida.apsleyroad.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17pFKr-0007V7-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 11, 2002 at 11:30:49PM +0200, M?ns Rullg?rd wrote:
-> Phil Stracchino <alaric@babcom.com> writes:
-> > Even on a kernel configured with support for UFS and Sun partition
-> > tables, it doesn't appear to be possible to mount any but the first
-> > slice of a Sun CDROM containing multiple slices.  Essentially, it seems
-> > that Solaris partition table support doesn't trickle down to the CDROM
-> > driver.
+On Wednesday 11 September 2002 23:26, Jamie Lokier wrote:
+> Daniel Phillips wrote:
+> > Really, that's not so, there are limits.  30 seconds?  Whatever.  
+> > Remember, during this time the service provided by the module is
+> > unavailable, so this is denial-of-service land.  You could of
+> > course put in extra code to abort the unload process on demand,
+> > but, hmm, it probably wouldn't work ;-)
 > 
-> Can the disk be copied to a file or hard disk and mounted there?
+> If you're going to do it right, you should fix that denial-of-service by
+> waiting until the module has finished unloading and then demand-loading
+> the module again.
 
-Copied with dd?  I don't know, but it's a thought.  I suspect the
-ide-scsi route Alan suggested is more promising.
+That doesn't make the DoS go away, it just makes it a little
+harder to trigger.  Anyway, one thing we could do if the rest
+of the module mechanism is up to it, is know that somebody is
+trying to reactivate a module that has just returned from
+module_cleanup(), and immediately reactivate it instead of
+freeing it, hoping to save some disk activity - if this turns
+out to be a real problem, that is.  The null solution is likely
+the winner here.
 
+> Ideally, those periodic "rmmod -a" calls should _never_ cause a
+> denial-of-service.
 
+Goodness no.  By the way, nobody has asked me how rmmod -a is
+to be implemented.  Oh well.
 
 -- 
- *********  Fight Back!  It may not be just YOUR life at risk.  *********
- :phil stracchino : unix ronin : renaissance man : mystic zen biker geek:
- : alaric@babcom.com   :::   alaric@geeksnet.com   :::    phil@latt.net :
- :  2000 CBR929RR, 1991 VFR750F3 (foully murdered), 1986 VF500F (sold)  :
- :    Linux Now! ...because friends don't let friends use Microsoft.    :
+Daniel

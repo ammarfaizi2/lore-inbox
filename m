@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291732AbSBHSzq>; Fri, 8 Feb 2002 13:55:46 -0500
+	id <S291733AbSBHS4y>; Fri, 8 Feb 2002 13:56:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291733AbSBHSze>; Fri, 8 Feb 2002 13:55:34 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50950 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291732AbSBHSzQ>;
-	Fri, 8 Feb 2002 13:55:16 -0500
-Message-ID: <3C641EE9.9F31612E@zip.com.au>
-Date: Fri, 08 Feb 2002 10:54:33 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9 i686)
-X-Accept-Language: en
+	id <S291736AbSBHS4s>; Fri, 8 Feb 2002 13:56:48 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:44201 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S291733AbSBHS4h>;
+	Fri, 8 Feb 2002 13:56:37 -0500
+Date: Fri, 8 Feb 2002 21:54:24 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Tigran Aivazian <tigran@veritas.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] larger kernel stack (8k->16k) per task
+In-Reply-To: <Pine.LNX.3.95.1020208123843.1974A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.33.0202082150040.15826-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Martin Wirth <Martin.Wirth@dlr.de>, Robert Love <rml@tech9.net>,
-        linux-kernel@vger.kernel.org, mingo@elte.hu, haveblue@us.ibm.com
-Subject: Re: [RFC] New locking primitive for 2.5
-In-Reply-To: <3C641511.9555ED47@dlr.de> <Pine.LNX.4.33.0202081201540.10896-100000@athlon>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Fri, 8 Feb 2002, Martin Wirth wrote:
-> >
-> > There are currently several attempts discussed to push out the
-> > BKL and replace it by a semaphore e.g. the next step Robert Love
-> > planned for his ll_seek patch (replace the BKL by inode i_sem).
-> 
-> But that won't have any contention anyway, so it's a non-issue.
-> 
 
-Yesterday, Ingo said:
+On Fri, 8 Feb 2002, Richard B. Johnson wrote:
 
-> i think one example *could* be to turn inode->i_sem into a combi-lock. Eg.
-> generic_file_llseek() could use the spin variant.
->
-> this is a real performance problem, i've seen scheduling storms in
-> dbench-type runs due to llseek taking the inode semaphore.
+> Could someone please tell me why you should make a function call to
+> allocate, and then later on free, some temporary space for variables
+> when allocation on the stack involves simply subtracting a value,
+> calculated by the compiler at compile-time, from the stack-pointer?
 
--
+because if you need that much stack space then you shouldnt care about
+kmalloc() overhead anymore.
+
+> This takes 42 clocks, not including the thousands used up by kmalloc
+> and kfree.
+
+kmalloc()+kfree() is not thousands. At least on SMP it has a nice frontend
+cache and batch allocator component, which makes it much cheaper.
+
+32 bytes you can allocate on the stack no problem. If you need to allocat
+and *fill* 2K then kmalloc() overhead will not matter to you.
+
+> If the kernel does not provide sufficient stack-space for small
+> buffers and structures, it is a kernel problem, not a driver-coding
+> problem. [...]
+
+we will not add significant overhead to *every part* of the kernel just to
+keep a ridiculously large stack around for those few drivers who should
+use kmalloc() to begin with. And believe me, some people will then want to
+do recursion on the stack and would complain even about a 1MB stack. There
+is a limit to draw, and on Linux it's 'no bigger than a few hundred bytes,
+allocate dynamically otherwise'.
+
+	Ingo
+

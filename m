@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVA1O4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbVA1OzS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261441AbVA1O4i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 09:56:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVA1O4h
+	id S261440AbVA1OzS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 09:55:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVA1OzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 09:56:37 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:4008 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261441AbVA1O4U (ORCPT
+	Fri, 28 Jan 2005 09:55:18 -0500
+Received: from ns.suse.de ([195.135.220.2]:44996 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261440AbVA1OzM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 09:56:20 -0500
-Message-Id: <200501281456.j0SEuI12020454@d01av01.pok.ibm.com>
-Subject: [PATCH 1/2] pci: Arch hook to determine config space size
-To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org, brking@us.ibm.com
-From: brking@us.ibm.com
-Date: Fri, 28 Jan 2005 08:56:17 -0600
+	Fri, 28 Jan 2005 09:55:12 -0500
+Date: Fri, 28 Jan 2005 15:55:11 +0100
+From: Olaf Hering <olh@suse.de>
+To: dtor_core@ameritech.net
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+Subject: Re: atkbd_init lockup with 2.6.11-rc1
+Message-ID: <20050128145511.GA29340@suse.de>
+References: <20050128132202.GA27323@suse.de> <20050128135827.GA28784@suse.de> <d120d50005012806435a17fe98@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <d120d50005012806435a17fe98@mail.gmail.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ On Fri, Jan 28, Dmitry Torokhov wrote:
 
-When working with a PCI-X Mode 2 adapter on a PCI-X Mode 1 PPC64
-system, the current code used to determine the config space size
-of a device results in a PCI Master abort and an EEH error, resulting
-in the device being taken offline. This patch adds the ability for
-arch specific code to override part of the config space size
-determination to fix this.
+> On Fri, 28 Jan 2005 14:58:27 +0100, Olaf Hering <olh@suse.de> wrote:
+> > On Fri, Jan 28, Olaf Hering wrote:
+> > 
+> > >
+> > > My IBM RS/6000 B50 locks up with 2.6.11rc1, it dies in atkbd_init():
+> > 
+> > It fails also on PReP, not only on CHRP. 2.6.10 looks like this:
+> > 
+> > Calling initcall 0xc03bc430: atkbd_init+0x0/0x2c()
+> > atkbd.c: keyboard reset failed on isa0060/serio1
+> > atkbd.c: keyboard reset failed on isa0060/serio0
+> >
+> 
+> So it could not reset it even before, but it was not getting stuch
+> tough... What about passing atkbd.reset=0?
 
-Signed-off-by: Brian King <brking@us.ibm.com>
----
-
- linux-2.6.11-rc2-bk5-bjking1/drivers/pci/probe.c |    4 ++++
- 1 files changed, 4 insertions(+)
-
-diff -puN drivers/pci/probe.c~pci_arch_cfg_space_size drivers/pci/probe.c
---- linux-2.6.11-rc2-bk5/drivers/pci/probe.c~pci_arch_cfg_space_size	2005-01-27 16:56:46.000000000 -0600
-+++ linux-2.6.11-rc2-bk5-bjking1/drivers/pci/probe.c	2005-01-27 16:56:46.000000000 -0600
-@@ -627,6 +627,8 @@ static void pci_release_dev(struct devic
- 	kfree(pci_dev);
- }
- 
-+int __attribute__ ((weak)) pcibios_exp_cfg_space(struct pci_dev *dev) { return 1; }
-+
- /**
-  * pci_cfg_space_size - get the configuration space size of the PCI device.
-  *
-@@ -653,6 +655,8 @@ static int pci_cfg_space_size(struct pci
- 			goto fail;
- 	}
- 
-+	if (!pcibios_exp_cfg_space(dev))
-+		goto fail;
- 	if (pci_read_config_dword(dev, 256, &status) != PCIBIOS_SUCCESSFUL)
- 		goto fail;
- 	if (status == 0xffffffff)
-_
+I will try that.
+Adding a printk after the outb() fixes it as well. 
+Do you have a version of that i8042 delay patch for 2.6.11-rc2-bk6?
+Maybe it will help.

@@ -1,37 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVCHED4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVCHESH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261223AbVCHED4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 23:03:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261224AbVCHEDz
+	id S261304AbVCHESH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 23:18:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVCHESH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 23:03:55 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:13496 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261223AbVCHEDs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 23:03:48 -0500
-Date: Mon, 7 Mar 2005 20:03:39 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Darren Williams <dsw@gelato.unsw.edu.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Page fault scalability patch V18: Overview
-In-Reply-To: <20050307033209.GE19053@cse.unsw.EDU.AU>
-Message-ID: <Pine.LNX.4.58.0503072002400.13522@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
- <20050304021847.GF28102@cse.unsw.EDU.AU> <20050304024704.GG28102@cse.unsw.EDU.AU>
- <Pine.LNX.4.58.0503040814220.17378@schroedinger.engr.sgi.com>
- <20050306214902.GC19053@cse.unsw.EDU.AU> <Pine.LNX.4.58.0503061557220.3152@schroedinger.engr.sgi.com>
- <20050307033209.GE19053@cse.unsw.EDU.AU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 7 Mar 2005 23:18:07 -0500
+Received: from fire.osdl.org ([65.172.181.4]:52708 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261316AbVCHERm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 23:17:42 -0500
+Date: Mon, 7 Mar 2005 20:16:46 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: paul@linuxaudiosystems.com, mpm@selenic.com, joq@io.com,
+       cfriesen@nortelnetworks.com, chrisw@osdl.org, hch@infradead.org,
+       rlrevell@joe-job.com, arjanv@redhat.com, mingo@elte.hu,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-Id: <20050307201646.512a2471.akpm@osdl.org>
+In-Reply-To: <20050308035503.GA31704@infradead.org>
+References: <20050112185258.GG2940@waste.org>
+	<200501122116.j0CLGK3K022477@localhost.localdomain>
+	<20050307195020.510a1ceb.akpm@osdl.org>
+	<20050308035503.GA31704@infradead.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Mar 2005, Darren Williams wrote:
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+> On Mon, Mar 07, 2005 at 07:50:20PM -0800, Andrew Morton wrote:
+> > 
+> > So I still have the rt-lsm patch floating about, saying "merge me, merge
+> > me!".  I'm not sure that the world would end were I to do so.
+> > 
+> > Consider this a prod in the direction of those who were pushing
+> > alternatives ;)
+> 
+> It's still a really bad idea.
 
-> Pid: 362, CPU 0, comm:             kscrubd0
-> psr : 0000121008022038 ifs : 8000000000000308 ip  : [<a0000001000cf821>]    Not tainted
-> ip is at scrubd_rmpage+0x61/0x140
+It solves a real problem and is well encapsulated.  The world won't end if
+we merge it.
 
-Would you try the new version on oss.sgi.com please.
+Still.  My point is: we're still awaiting anything better and thei is just
+hanging around and hanging around.
+
+>  You let the magic gid for oracle hugetlb
+> patch go in with that reasonsing
+
+Which continues to cause zero problems.
+
+> now ew have relatime-lsm,
+
+Not yet.
+
+> next we
+> $CAPABILITY for $FOO and we're headed straight to interface-hell.
+
+"interface hell"?  Wow.
+
+Still.  It seems to be what we deserve if all that fancy stuff we have
+cannot address this very simple and very real-world problem.
 

@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261284AbSJLQfX>; Sat, 12 Oct 2002 12:35:23 -0400
+	id <S261283AbSJLQgz>; Sat, 12 Oct 2002 12:36:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261286AbSJLQfX>; Sat, 12 Oct 2002 12:35:23 -0400
-Received: from MAILGW01.bang-olufsen.dk ([193.89.221.116]:6919 "EHLO
-	mailgw01.bang-olufsen.dk") by vger.kernel.org with ESMTP
-	id <S261284AbSJLQfQ>; Sat, 12 Oct 2002 12:35:16 -0400
-To: "Murray J. Root" <murrayr@brain.org>
+	id <S261286AbSJLQgz>; Sat, 12 Oct 2002 12:36:55 -0400
+Received: from 62-190-217-29.pdu.pipex.net ([62.190.217.29]:30987 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S261283AbSJLQgx>; Sat, 12 Oct 2002 12:36:53 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200210121651.g9CGpdXM010784@darkstar.example.net>
+Subject: Re: 2.5 Problem Report Status
+To: tmolina@cox.net (Thomas Molina)
+Date: Sat, 12 Oct 2002 17:51:38 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.42 ieee1394 won't build
-References: <20021012090040.GA11816@Master.Wizards>
-From: Kristian Hogsberg <hogsberg@users.sf.net>
-Date: 12 Oct 2002 18:40:59 +0200
-In-Reply-To: <20021012090040.GA11816@Master.Wizards>
-Message-ID: <m3zntj8vac.fsf@DK300KRH.bang-olufsen.dk>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+In-Reply-To: <Pine.LNX.4.44.0210120758420.4532-100000@dad.molina> from "Thomas Molina" at Oct 12, 2002 10:38:21 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on BeoSmtp/Bang & Olufsen/DK(Release 5.0.9 |November
- 16, 2001) at 12-10-2002 18:40:59,
-	Serialize by Router on dzln11/Bang & Olufsen/DK(Release 5.0.9 |November 16, 2001) at
- 12-10-2002 18:41:06,
-	Serialize complete at 12-10-2002 18:41:06
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Murray J. Root" <murrayr@brain.org> writes:
+>                                2.5 Kernel Problem Reports as of 12 Oct
+> 
+>    Status                 Discussion  Problem Title
+> --------------------------------------------------------------------------
+>    open                   05 Oct 2002 2.5.x and 8250 UART problems
+> 
+>   22. http://marc.theaimsgroup.com/?l=linux-kernel&m=103383019409525&w=2
+> 
+> --------------------------------------------------------------------------
 
-> make -f drivers/ieee1394/Makefile 
-[... errors]
+2.5.41 didn't boot on the test machine.
+2.5.42 does boot on the test machine, and exhibits the same problems
 
-This is because of the workqueue cleanup.  There's a fix in the
-ieee1394 SVN repository which haven't been synced with Linus yet.  You
-can get a tar.gz of the latest drivers from www.linux1394.org.
+Typical scenario:
 
-Kristian
+MMX-200 with plenty of RAM (128 MB), and a 16550A UART running 2.5.40
 
+doing a 9600 bps Z-Modem transfer to
 
+486 SX-20 with 4 MB RAM, and a 8250 UART, running 2.5.42
+
+>From time to time, (every 4-8K or so), the Z-Modem protocol will
+detect an error, and re-send blocks.
+
+This does not occur with 2.2.13 or 2.2.21 on the 486.
+
+Usually the errors occur at the same time as hard disk accesses, but
+turning on IRQ unmasking does not prevent them.  Also, sometimes the
+hard disk is accessed, and no error occurs.
+
+John.

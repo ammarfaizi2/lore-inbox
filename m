@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129319AbQLOVLE>; Fri, 15 Dec 2000 16:11:04 -0500
+	id <S129319AbQLOVXk>; Fri, 15 Dec 2000 16:23:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129485AbQLOVKy>; Fri, 15 Dec 2000 16:10:54 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:27659 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S129319AbQLOVKi>; Fri, 15 Dec 2000 16:10:38 -0500
-Date: Fri, 15 Dec 2000 21:37:27 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Pavel Machek <pavel@suse.cz>
-cc: Chris Lattner <sabre@nondot.org>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <20001215212601.A26758@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.3.96.1001215212408.16023A-100000@artax.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129340AbQLOVXa>; Fri, 15 Dec 2000 16:23:30 -0500
+Received: from gateway.sequent.com ([192.148.1.10]:60242 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S129319AbQLOVXT>; Fri, 15 Dec 2000 16:23:19 -0500
+Date: Fri, 15 Dec 2000 12:52:39 -0800
+From: Mike Kravetz <mkravetz@sequent.com>
+To: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Scheduling Scalability Update
+Message-ID: <20001215125239.A26407@w-mikek.des.sequent.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > For one of our demos, we ran a file server on a remote linux box (that we 
-> > > > just had a user account on), mounted it on a kORBit'ized box, and ran
-> > > > programs on SPARC Solaris that accessed the kORBit'ized linux box's file
-> > > > syscalls.  If nothing else, it's pretty nifty what you can do in little
-> > > > code...
-> > > 
-> > > Cool!
-> > > 
-> > > However, can you do one test for me? Do _heavy_ writes on kORBit-ized
-> > > box. That might show you some problems.
-> > 
-> > I guess that when you mmap large files over nfs and write to them, you get
-> > similar problems.
-> > 
-> > > Oh, and try to eat atomic memory by ping -f kORBit-ized box.
-> > 
-> > When linux is out of atomic memory, it will die anyway.
-> 
-> Why should it die?
+The following new items have been added to the Scheduling
+Scalability project on SourceForge:
 
-Because it is written badly :-(
+- Description of a priority queue scheduler implementation.
+- Description of a multi-queue scheduler implementation.
+- Prototype code for the above implementations.
+- Preliminary benchmark results.
 
-> It is quite easy to make machine run out of atomic
-> memory: just bomb it with lots of packets. It should recover, eventually
+The Scheduling Scalability page is at:
 
-Mikulas
+http://lse.sourceforge.net/scheduling/
 
+If you are interested in this work, please join the lse-tech
+mailing list at:
+
+http://sourceforge.net/projects/lse
+
+-- 
+Mike Kravetz                                 mkravetz@sequent.com
+IBM Linux Technology Center
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263129AbTFGLow (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 07:44:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263150AbTFGLow
+	id S263195AbTFGLsd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 07:48:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263187AbTFGLsd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 07:44:52 -0400
-Received: from dp.samba.org ([66.70.73.150]:26857 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263129AbTFGLov convert rfc822-to-8bit
+	Sat, 7 Jun 2003 07:48:33 -0400
+Received: from u212-239-162-144.adsl.pi.be ([212.239.162.144]:15118 "EHLO
+	italy.lashout.net") by vger.kernel.org with ESMTP id S263183AbTFGLsZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 07:44:51 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-ID: <16097.53169.687777.155890@argo.ozlabs.ibm.com>
-Date: Sat, 7 Jun 2003 21:42:41 +1000
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] 2.5.70-bk11 zlib merge #4 pure magic
-In-Reply-To: <20030607100217.GB24694@wohnheim.fh-wedel.de>
-References: <20030606183126.GA10487@wohnheim.fh-wedel.de>
-	<20030606183247.GB10487@wohnheim.fh-wedel.de>
-	<20030606183920.GC10487@wohnheim.fh-wedel.de>
-	<20030606185210.GE10487@wohnheim.fh-wedel.de>
-	<20030606192325.GG10487@wohnheim.fh-wedel.de>
-	<20030606192814.GH10487@wohnheim.fh-wedel.de>
-	<20030606200051.GI10487@wohnheim.fh-wedel.de>
-	<20030606201306.GJ10487@wohnheim.fh-wedel.de>
-	<16097.45833.384548.319399@argo.ozlabs.ibm.com>
-	<20030607100217.GB24694@wohnheim.fh-wedel.de>
-X-Mailer: VM 7.16 under Emacs 21.3.2
+	Sat, 7 Jun 2003 07:48:25 -0400
+Subject: Re: Using SATA in PATA compatible mode?
+From: Adriaan Peeters <apeeters@lashout.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jurgen Kramer <gtm.kramer@inter.nl.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1054947612.17190.32.camel@dhcp22.swansea.linux.org.uk>
+References: <1054932405.2156.5.camel@paragon.slim>
+	 <1054947612.17190.32.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054987313.495.19.camel@bari.lashout.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 07 Jun 2003 14:01:53 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel writes:
+On Sat, 2003-06-07 at 03:00, Alan Cox wrote:
 
-> On Sat, 7 June 2003 19:40:25 +1000, Paul Mackerras wrote:
-> > 
-> > Your change won't affect PPP, since pppd already refuses to use
-> > windowBits == 8 (as a workaround for this bug).
+> 	Promise 20376 - Promise have a GPL driver but there are integration
+> things to resolve (mostly our end not theirs)
+
+Oh, this would be very good news. As there was no GPL'ed driver for this
+chipset, I bought one with a SiI3112 chipset.
+Where can this driver be found ? As when I mailed promise about a week
+ago, they stated:
+
+> The source code for the SATA chips will not be released, due to
+competitive
+> reasons. We support the linux distributions of Suse and Redhat mainly.
 > 
-> Seems like I have misread the ppp code then.  In that case, please
-> remove the ppp part from the previous patch or use this one instead,
-> Linus.
+> A partial open source code will become available in due time, but we do not
+> expect that this year.
 
-I meant that pppd (i.e. the user-level part of PPP) would refuse to
-negotiate windowBits == 8 with the peer, so from that point of view it
-doesn't matter if the kernel driver accepts it or not, since it will
-never be asked to accept it (by pppd).  It is better on the whole if
-the kernel driver doesn't accept it since that is one less exploitable
-thing in the kernel (although you would have to be root to exploit
-it).  But if the zlib code also refuses to use windowBits == 8, it
-then doesn't matter whether the ppp_deflate code accepts it, from
-either point of view.
+I hope they changed course :)
 
-On the whole I would say that the change to ppp-comp.h should go in,
-for now at least.
+It would be nice to have a reference to the drivers in the lkml
+archives.
 
-Paul.
+-- 
+Adriaan Peeters <apeeters@lashout.net>
+

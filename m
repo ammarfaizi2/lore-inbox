@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315517AbSFYOup>; Tue, 25 Jun 2002 10:50:45 -0400
+	id <S315513AbSFYOtV>; Tue, 25 Jun 2002 10:49:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315525AbSFYOuo>; Tue, 25 Jun 2002 10:50:44 -0400
-Received: from realimage.realnet.co.sz ([196.28.7.3]:64727 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S315517AbSFYOun>; Tue, 25 Jun 2002 10:50:43 -0400
-Date: Tue, 25 Jun 2002 16:21:07 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] IDE locking #2
-In-Reply-To: <874rfrlibx.fsf@devron.myhome.or.jp>
-Message-ID: <Pine.LNX.4.44.0206251619560.29391-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315517AbSFYOtV>; Tue, 25 Jun 2002 10:49:21 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:52962 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S315513AbSFYOtU>; Tue, 25 Jun 2002 10:49:20 -0400
+Date: Tue, 25 Jun 2002 16:49:18 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Question concerning PCI device driver
+Message-ID: <20020625144918.GA22794@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	"Bloch, Jack" <Jack.Bloch@icn.siemens.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <180577A42806D61189D30008C7E632E8793954@boca213a.boca.ssc.siemens.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <180577A42806D61189D30008C7E632E8793954@boca213a.boca.ssc.siemens.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jun 2002, OGAWA Hirofumi wrote:
+On Tue, Jun 25, 2002 at 09:21:46AM -0400, Bloch, Jack wrote:
 
-> > +	BUG_ON(!spin_is_locked(ch->lock));
-> 
-> spin_is_locked() returns 0 always on the UP system.
-> Instead, the following macro may be useful. 
-> 
-> #ifdef CONFIG_SMP
-> #define assert_spin_is_locked(lock)	BUG_ON(!spin_is_locked(lock))
-> #else
-> #define assert_spin_is_locked(lock)	do {} while(0)
-> #endif
+> I am now porting this driver to a 2.4 Kernel and in the Linux device driver
+> book it talks about using pci_module_init. How do I get the major number to
+> allow for IOCTL commands? 
 
-Oh my =) thanks i'll change that.
+Just do it in the same way, only the pci management functions changed:
+you will now need to register your chrdev in the pci_probe callback
+instead of the module_init() function.
 
-Cheers,
-	Zwane
+You should look at the existing drivers in the kernel tree, under
+drivers/char, and you'll find many drivers which work that way...
+
+Stelian.
 -- 
-http://function.linuxpower.ca
-		
-
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

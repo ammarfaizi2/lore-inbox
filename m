@@ -1,93 +1,177 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbTLJRnx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 12:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbTLJRnx
+	id S263788AbTLJRsn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 12:48:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbTLJRsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 12:43:53 -0500
-Received: from fw.osdl.org ([65.172.181.6]:24448 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263777AbTLJRnu (ORCPT
+	Wed, 10 Dec 2003 12:48:43 -0500
+Received: from holomorphy.com ([199.26.172.102]:4067 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263788AbTLJRsf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 12:43:50 -0500
-Date: Wed, 10 Dec 2003 09:42:55 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Hua Zhong <hzhong@cisco.com>
-cc: "'Andre Hedrick'" <andre@linux-ide.org>,
-       "'Arjan van de Ven'" <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
-       "'Kendall Bennett'" <KendallB@scitechsoft.com>,
-       linux-kernel@vger.kernel.org
-Subject: RE: Linux GPL and binary module exception clause?
-In-Reply-To: <00af01c3bf41$2db12770$d43147ab@amer.cisco.com>
-Message-ID: <Pine.LNX.4.58.0312100923370.29676@home.osdl.org>
-References: <00af01c3bf41$2db12770$d43147ab@amer.cisco.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 10 Dec 2003 12:48:35 -0500
+Date: Wed, 10 Dec 2003 09:47:57 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: rl@hellgate.ch, Con Kolivas <kernel@kolivas.org>,
+       Chris Vine <chris@cvine.freeserve.co.uk>,
+       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
+Message-ID: <20031210174757.GK19856@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	rl@hellgate.ch, Con Kolivas <kernel@kolivas.org>,
+	Chris Vine <chris@cvine.freeserve.co.uk>,
+	Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+	"Martin J. Bligh" <mbligh@aracnet.com>
+References: <200311032113.14462.chris@cvine.freeserve.co.uk> <200311041355.08731.kernel@kolivas.org> <20031208135225.GT19856@holomorphy.com> <20031208194930.GA8667@k3.hellgate.ch> <20031208204817.GA19856@holomorphy.com> <20031209002745.GB8667@k3.hellgate.ch> <20031209040501.GE19856@holomorphy.com> <20031209151103.GA4837@k3.hellgate.ch> <20031209193801.GF19856@holomorphy.com> <20031210135829.GA18370@k3.hellgate.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031210135829.GA18370@k3.hellgate.ch>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 10, 2003 at 02:58:29PM +0100, Roger Luethi wrote:
+> Actually, I'm rather well on my way wrapping things up. I documented
+> in detail how much 2.6 sucks in this area and where the potential for
+> improvements would have likely been, but now I've got a deadline to
+> meet and other things on my plate.
+
+Well, it'd be nice to see the code, then.
 
 
-On Wed, 10 Dec 2003, Hua Zhong wrote:
->
-> > What has meaning for "derived work" is whether it stands on its own or
-> > not, and how tightly integrated it is. If something works
-> > with just one particular version of the kernel - or depends on things like
-> > whether the kernel was compiled with certain options etc - then it pretty
-> > clearly is very tightly integrated.
->
-> Many userspace programs fall into this category too.
+On Wed, Dec 10, 2003 at 02:58:29PM +0100, Roger Luethi wrote:
+> For me this discussion just confirmed that my approach fails to draw much
+> interest, either because there are better alternatives or because heavy
+> paging and medium thrashing are generally not considered interesting
+> problems.
 
-Absolutely.
+They're worthwhile; I didn't even realize there were such problems until
+you pointed them out. I had presumed it was due to physical scanning.
 
-Trust me, REAL LAWYERS WERE WORRIED about this. It wasn't just random tech
-people discussing issues on a technical (or, right now, not-so-technical)
-mailing list.
 
-There's a reason for those lines at the top of the COPYING file saying
-that user space is not covered, and there are literally lawyers who say it
-would hold up in a court of law.
+On Tue, 09 Dec 2003 11:38:01 -0800, William Lee Irwin III wrote:
+>> This assessment is inaccurate. The performance metrics are not entirely
+>> useless, and it's rather trivial to recover data useful for modern
+>> scenarios based on them. The driving notion from the iron age (I guess
 
-Exactly because you _can_ argue that user-space might be covered. It's an
-argument that almost certainly would fail very quickly due to "documented
-interfaces" and ABI issues, but it is an argument that lawyers have made,
-and it's that argument that makes the disclaimer in COPYING be worth it.
+On Wed, Dec 10, 2003 at 02:58:29PM +0100, Roger Luethi wrote:
+> I said _strategies_ rather than papers or research because I realize
+> that the metrics can be an important part of the modern picture. It's
+> just the ancient recipes that once solved the problem that are useless
+> for typical modern usage patterns.
 
-In other words: even without that disclaimer of derivation, user space
-would almost certainly (with a very high probability indeed) be safe from
-a copyright infringement suit. Such a suit would most likely be thrown out
-very early, exactly because the UNIX system call interface is clearly
-extensively documented, and the Linux implementation of it has strived to
-be a stable ABI for a long time.
+Hmm. There were a wide variety of algorithms.
 
-In fact, a user program written in 1991 is actually still likely to run,
-if it doesn't do a lot of special things. So user programs really are a
-hell of a lot more insulated than kernel modules, which have been known to
-break weekly.
 
-Similarly, things like /proc etc are clearly intended to be ways to
-interface to the kernel in user space, so there's a clear intent there
-that nobody can reasonably deny (again, that intent is made _clearer_ by
-the COPYING disclaimer, but it would be hard to argue against even in the
-absense of that).
+On Tue, 09 Dec 2003 11:38:01 -0800, William Lee Irwin III wrote:
+>> The above explains how and why they are relevant.
+>> It's also not difficult to understand why it goes wrong: the operation
+>> is too expensive.
 
-But even DESPITE these strong arguments that user-space clearly isn't a
-derived work, and real lawyers worried, and felt much happier with the
-explicit disclaimer in the COPYING file.
+On Wed, Dec 10, 2003 at 02:58:29PM +0100, Roger Luethi wrote:
+> What goes wrong is that once you start suspending tasks, you have a
+> hard time telling the interactive tasks apart from the batch load.
+> This may not be much of a problem on a 10x overcommit system, because
+> that's presumably quite unresponsive anyway, but it does matter a lot if
+> you have an interactive system that just crossed the border to thrashing.
 
-That should tell you something. In particular, it should tell you to be
-careful: some courts have made so broad "derivative work" judgements that
-it's scary - think about the "Gone With the Wind" parody (I think the
-ruling was eventually overturned on First Amendment grounds, but the
-point is that you should be very careful, and while source code has
-the potential for First Amendment protection, binary modules sure as hell
-do not).
+It's effectively a form of longer-term process scheduling.
 
-And please note that I am _not_ arguing for those overly broad judgements:
-I'm just pointing out that you should not assume that "derivative" is
-something simple. If an author claims your work is derivative, you should
-step very very lightly.
 
-And I claim that binary-only kernel modules ARE derivative "by default",
-by virtue of having no meaning without the kernel.
+On Wed, Dec 10, 2003 at 02:58:29PM +0100, Roger Luethi wrote:
+> Our apparent differences come from the fact that we try to solve
+> different problems as you correctly noted: You are concerned with
+> extreme overcommit, while I am concerned that 2.6 takes several times
+> longer than 2.4 to complete a task under slight overcommit.
 
-		Linus
+Yes, my focus is pushing back the point of true thrashing as opposed to
+the interior points of the range.
+
+
+On Wed, Dec 10, 2003 at 02:58:29PM +0100, Roger Luethi wrote:
+> I have no reason to doubt that load control will help you solve your
+> problem. It may help with medium thrashing and it might even keep
+> latency within reasonable bounds. I do think, however, that we should
+> investigate _first_ how we lost over 50% of the performance we had in
+> 2.5.40 for both compile benchmarks.
+
+Perfectly reasonable.
+
+
+On Tue, 09 Dec 2003 11:38:01 -0800, William Lee Irwin III wrote:
+>> Well, I guess I might as well help with your paper. If the demotion
+>> criteria you're using are anything like what you posted, they risk
+>> invalidating the results, since they're apparently based on something
+>> worse than random.
+
+On Wed, Dec 10, 2003 at 02:58:29PM +0100, Roger Luethi wrote:
+> Worse than random may still improve throughput, though, compared to
+> doing nothing, right? And I did measure improvements.
+
+I didn't see any of the methods compared to no load control, so I don't
+have any information on that.
+
+
+On Wed, Dec 10, 2003 at 02:58:29PM +0100, Roger Luethi wrote:
+> There are variables other than the demotion criteria that I found can
+> be important, to name a few:
+> - Trigger: Under which circumstances is suspending any processes
+>   considered? How often?
+
+This is generally part of the load control algorithm, but it
+essentially just tries to detect levels of overcommitment that would
+degrade performance so it can resolve them.
+
+
+On Wed, Dec 10, 2003 at 02:58:29PM +0100, Roger Luethi wrote:
+> - Eviction: Does regular pageout take care of the memory of a suspended
+>   process, or are pages marked old or even unmapped upon stunning?
+
+This is generally unmapping and evicting upon suspension. The effect
+isn't immediate anyway, since io is required, and batching the work for
+io contiguity etc. is a fair amount of savings, so there's little or no
+incentive to delay this apart from keeping io rates down to where user
+io and VM io aren't in competition.
+
+
+On Wed, Dec 10, 2003 at 02:58:29PM +0100, Roger Luethi wrote:
+> - Release: Is the stunning queue a simple FIFO? How long do the
+>   processes stay there? Does a process get a bonus after it's woken up
+>   again -- bigger quantum, chunk of free memory, prepaged working set
+>   before stunning?
+
+It's a form of process scheduling. Memory scheduling policies are not
+discussed very much in the sources I can get at, so some synthesis may
+be required unless material can be found on that, but in general this
+isn't a very interesting problem (at least not since the 70's or earlier).
+
+FreeBSD has an implementation of some of this we can all look at,
+though it doesn't illustrate a number of the concepts.
+
+
+On Wed, Dec 10, 2003 at 02:58:29PM +0100, Roger Luethi wrote:
+> There's quite a bit of complexity involved and many variables will depend
+> on the scenario. Sort of like interactivity, except lots of people were
+> affected by the interactivity tuning and only few will notice and test
+> load control.
+
+It's basically just process scheduling, so I don't see an issue there.
+
+
+On Wed, Dec 10, 2003 at 02:58:29PM +0100, Roger Luethi wrote:
+> The key question with regards to load control remains: How do you keep a
+> load controled system responsive? Cleverly detect interactive processes
+> and spare them, or wake them up again quickly enough? How? Or is the
+> plan to use load control where responsiveness doesn't matter anyway?
+
+It's more in the interest of graceful degradation and relative
+improvement than meeting absolute response time requirements. i.e.
+making the best of a bad situation. Interactivity heuristics would
+presumably be part of a memory scheduling policy as they are for a cpu
+scheduling policy, but there is some missing information there. I
+suppose that's where synthesis is required.
+
+
+-- wli

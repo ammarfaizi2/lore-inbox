@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278823AbRJVOLE>; Mon, 22 Oct 2001 10:11:04 -0400
+	id <S278821AbRJVONO>; Mon, 22 Oct 2001 10:13:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278822AbRJVOKo>; Mon, 22 Oct 2001 10:10:44 -0400
-Received: from uucp.cistron.nl ([195.64.68.38]:25617 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S278819AbRJVOKn>;
-	Mon, 22 Oct 2001 10:10:43 -0400
-From: dth@trinity.hoho.nl (Danny ter Haar)
-Subject: Re: Linux 2.2.20pre10
-Date: Mon, 22 Oct 2001 14:11:23 +0000 (UTC)
-Organization: Holland Hosting
-Message-ID: <9r19eb$ush$1@voyager.cistron.net>
-In-Reply-To: <20011022140844.A15243@outpost.ds9a.nl> <E15veDQ-0001nl-00@the-village.bc.nu>
-X-Trace: voyager.cistron.net 1003759883 31633 195.64.82.84 (22 Oct 2001 14:11:23 GMT)
-X-Complaints-To: abuse@cistron.nl
-To: linux-kernel@vger.kernel.org
+	id <S278825AbRJVONE>; Mon, 22 Oct 2001 10:13:04 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:31755 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S278821AbRJVOMz>;
+	Mon, 22 Oct 2001 10:12:55 -0400
+Date: Mon, 22 Oct 2001 16:13:13 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Dave Jones <davej@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB module ov511 dies after about 30 minutes
+Message-Id: <20011022161313.358f278e.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.30.0110221547290.11628-100000@Appserv.suse.de>
+In-Reply-To: <20011022154537.53c54bf3.skraw@ithnet.com>
+	<Pine.LNX.4.30.0110221547290.11628-100000@Appserv.suse.de>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
->US kernel developers cannot be told. Period.
+On Mon, 22 Oct 2001 15:50:08 +0200 (CEST) Dave Jones <davej@suse.de> wrote:
 
-Are you looking for non-us webspace ?
-I'm willing to letyou have full access to www.bzimage.org if 
-needed.
+> On Mon, 22 Oct 2001, Stephan von Krawczynski wrote:
+> 
+> > > > about 30 minutes the module ov511 cannot be unloaded anymore, stopped
+> > > > working
+> > Sorry, tested but does not work either. It even hangs the system sometimes.
+Of
+> > course it did with former kernels. Any other ideas?
+> 
+> Remind me, what kernel version was this ? Until 2.4.12 iirc usb-uhci had
+> problems with ov511. Using the alternative uhci driver may also be
+> something worth trying. Other than that, I'm out of ideas. USB gurus ?
 
-Let me know.
+Kernel is 2.4.13-pre5, will test pre6 this evening.
 
-Danny
-
+Regards,
+Stephan
 

@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267079AbTA0ASC>; Sun, 26 Jan 2003 19:18:02 -0500
+	id <S267085AbTA0Acu>; Sun, 26 Jan 2003 19:32:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267080AbTA0ASC>; Sun, 26 Jan 2003 19:18:02 -0500
-Received: from out003pub.verizon.net ([206.46.170.103]:1988 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP
-	id <S267079AbTA0ASB>; Sun, 26 Jan 2003 19:18:01 -0500
-Message-ID: <3E347C84.8854075A@verizon.net>
-Date: Sun, 26 Jan 2003 16:25:40 -0800
-From: "Randy.Dunlap" <randy.dunlap@verizon.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.54 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: restructuring of filesystems config menu
-References: <Pine.LNX.4.44.0301260503040.27173-100000@dell>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [4.64.238.61] at Sun, 26 Jan 2003 18:27:13 -0600
+	id <S267089AbTA0Acu>; Sun, 26 Jan 2003 19:32:50 -0500
+Received: from gen3-newburypark5-192.vnnyca.adelphia.net ([207.175.226.192]:762
+	"EHLO dave.home") by vger.kernel.org with ESMTP id <S267085AbTA0Act>;
+	Sun, 26 Jan 2003 19:32:49 -0500
+Date: Sun, 26 Jan 2003 16:42:10 -0800
+From: David Ashley <dash@xdr.com>
+Message-Id: <200301270042.h0R0gAd00829@dave.home>
+To: aebr@win.tue.nl
+Subject: Re: Serious filesystem bug in linux [nevermind]
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Robert P. J. Day" wrote:
-> 
-> On Sat, 25 Jan 2003, Randy.Dunlap wrote:
-> 
-> > Hi,
-> >
-> > > Date: Sun, 12 Jan 2003 07:57:33 -0500 (EST)
-> > > From: Robert P. J. Day <rpjday@mindspring.com>
-> > > Subject: restructuring of filesystems config menu
-> > >
-> > >   i've attached a gzipped patch against 2.5.56 for reorganizing
-> > > the filesystem menu under "make xconfig", and i'm certainly
-> > > open to feedback/comments/criticism/large sums of money.
-> >
-> > I finally looked at this on 2.5.59.  The fs menu certainly
-> > needs some help/work, so I'd like to see you keep plugging away
-> > at this.  I didn't see much feedback -- was there feedback?
-> > Maybe on a different subject/thread?  A newer version that I
-> > missed?
-> 
-> nope, didn't get much feedback.  i sent the patch directly to
-> linus but it hasn't yet been added.  perhaps in 2.5.60?
+>On Sun, Jan 26, 2003 at 03:18:49PM -0800, David Ashley wrote:
+>
+>> -rw-r--r--    1 root     root     1965107636224 Jan 26 14:59 output1.iso
+>
+>You know about the Unix concept of files with holes?
 
-It doesn't apply cleanly to 2.5.59 or later, so it won't be
-applied.
+No, but I can look into it. There is definitely some bug in my program
+but I wouldn't expect this behaviour. So if I seek way the hell out
+to nowhere, do a write, I'll have a file of the total amount I've skipped
+over?
 
-> > I expected to just see the filesystems listed in alpha order,
-> > but I don't have a problem with the groupings that you
-> > have made for them.
-> 
-> i thought about alphabetical order, but i settled on the more
-> common options at the top, and the more obscure ones further
-> down.
-> 
-> if i don't see a patch incorporated in a subsequent release, am
-> i supposed to submit it again?  what's the proper protocol?
+I just wrote a test program and it did exactly this. Thanks!
 
-Get feedback (as much as possible), act on feedback -> make
-changes, re-re-re-submit...
+Here is the program
+#define _LARGEFILE64_SOURCE
+#include <fcntl.h>
+#include <unistd.h>
 
-~Randy
+main()
+{
+int fd;
+char buff[32];
+	fd=open("/tmp/crazybigfile",O_RDWR|O_CREAT|O_TRUNC|O_LARGEFILE,0644);
+	lseek64(fd,1000000000000ll,SEEK_SET);
+	write(fd,buff,32);
+	close(fd);
+
+}
+
+Live and learn. Sorry for the alarm!
+
+-Dave

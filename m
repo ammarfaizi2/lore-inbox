@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313797AbSDPSAP>; Tue, 16 Apr 2002 14:00:15 -0400
+	id <S313798AbSDPSCw>; Tue, 16 Apr 2002 14:02:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313798AbSDPSAO>; Tue, 16 Apr 2002 14:00:14 -0400
-Received: from dragon.flightlab.com ([206.169.119.102]:13064 "EHLO
-	dragon.flightlab.com") by vger.kernel.org with ESMTP
-	id <S313797AbSDPSAN>; Tue, 16 Apr 2002 14:00:13 -0400
-Message-Id: <200204161800.g3GI06f22193@dragon.flightlab.com>
-To: linux-kernel@vger.kernel.org
-Subject: MODULE_LICENSE string for LGPL drivers?
-Date: Tue, 16 Apr 2002 11:00:06 -0700
-From: Joe English <jenglish@flightlab.com>
+	id <S313799AbSDPSCv>; Tue, 16 Apr 2002 14:02:51 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:31383 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S313798AbSDPSCr>; Tue, 16 Apr 2002 14:02:47 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 16 Apr 2002 11:10:09 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: davidm@hpl.hp.com
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why HZ on i386 is 100 ?
+In-Reply-To: <15548.25819.487824.338429@napali.hpl.hp.com>
+Message-ID: <Pine.LNX.4.44.0204161106030.1460-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 16 Apr 2002, David Mosberger wrote:
 
-Hello all,
+> >>>>> On Tue, 16 Apr 2002 10:18:18 -0700 (PDT), Davide Libenzi <davidel@xmailserver.org> said:
+>
+>   Davide> i still have pieces of paper on my desk about tests done on
+>   Davide> my dual piii where by hacking HZ to 1000 the kernel build
+>   Davide> time went from an average of 2min:30sec to an average
+>   Davide> 2min:43sec. that is pretty close to 10%
+>
+> Did you keep the timeslice roughly constant?
 
-What should I use for the MODULE_LICENSE() string in a driver
-that is distributed under the LGPL?  "LGPL" isn't listed in
-include/linux/module.h as an "untainted" license, so should I
-use "GPL and additional rights" instead?
-
-I don't *think* I'm running into problems with EXPORT_SYMBOL_GPL --
-the driver has been working fine under 2.4 kernels
-and I only recently found out about MODULE_LICENSE and
-*that* whole mess -- but am not sure, since I've also
-got an older version of modutils which probably isn't
-performing the taint check.
-
-Unfortunately switching to the GPL is not an option;
-the driver was written for a third party and must be
-distributed with firmware (proprietary, binary-only)
-and client libraries (source available but still proprietary)
-over whose license terms I have no control.
-
-Alternately, I could just let it taint the kernel.
+it was 2.5.1 time and it was still ruled by TICK_SCALE that made the
+timeslice to drop from 60ms ( 100HZ ) to 21ms ( 1000HZ ).
 
 
-Thanks for any advice.  Cc:'s to jenglish@flightlab.com
-will be appreciated; I am not subscribed to this list, but
-will try to keep up via the web archives.
 
 
---Joe English
+- Davide
 
-  jenglish@flightlab.com
+

@@ -1,66 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270386AbTGRUyv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 16:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270375AbTGRUye
+	id S271949AbTGRVIs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 17:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271873AbTGRVHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 16:54:34 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:65459 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S271852AbTGRUxi
+	Fri, 18 Jul 2003 17:07:17 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:45554 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S271951AbTGRVGk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 16:53:38 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Larry McVoy" <lm@bitmover.com>, "Richard Stallman" <rms@gnu.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Bitkeeper
-Date: Fri, 18 Jul 2003 14:08:32 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKOEIFEHAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20030718204405.GA658@work.bitmover.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	Fri, 18 Jul 2003 17:06:40 -0400
+Subject: Re: Linux 2.6.0-test1 Ext3 Ooops. Reboot needed.
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ricardo Galli <gallir@uib.es>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030718140019.4f6667bd.akpm@osdl.org>
+References: <200307181228.40142.gallir@uib.es>
+	 <20030718140019.4f6667bd.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4JsKzipLD8HMEeuJ4zQa"
+Organization: Red Hat, Inc.
+Message-Id: <1058563289.5948.5.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 18 Jul 2003 23:21:29 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Our license states that you can't use BK if you are developing a similar
-> system, i.e., a clone.  Without using BK it's impossible to reverse
-> engineer BK to create the clone.  So your message seems to be saying
-> "it would be appropriate at this point to violate the BitKeeper license
-> in order to write a free client which talks with BitKeeper".
+--=-4JsKzipLD8HMEeuJ4zQa
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> Larry McVoy              lm at bitmover.com
+On Fri, 2003-07-18 at 23:00, Andrew Morton wrote:
+> Ricardo Galli <gallir@uib.es> wrote:
+> >
+> >  Unable to handle kernel paging request at virtual address e9000018
+> > EIP is at find_inode_fast+0x20/0x70
+> > Call Trace:
+> >  [<c0168e42>] iget_locked+0x52/0xc0
+> >  [<c018a54b>] ext3_lookup+0x6b/0xd0
+> >  [<c015cd92>] real_lookup+0xd2/0x100
+>=20
+> What is "famd"?  File access monitor daemon? =20
+it's probably the SGI thing that dnotify()s directories for one of the
+GUI filemanagers out there...=20
 
-	My understanding of the relevant case law in the United States is that
-these types of restrictions are not allowed under copyright law itself.
-They've only been upheld when they're part of a sale contract. You can
-certainly argue that a click to an 'I Agree' link constitutes acceptance of
-a sale contract. But if someone sits down at a friend's computer that
-happens to have BK on it, or finds a copy of BK on a CD someone left at the
-lab, you would have a hard time arguing that they agreed to this contract.
+--=-4JsKzipLD8HMEeuJ4zQa
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-	See, for example, ProCD v. Zeidenberg:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-"Copyright law forbids duplication, public performance, and so on, unless
-the person wishing to copy or perform the work gets permission; silence
-means a ban on copying. A copyright is a right against the world. Contracts,
-by contrast, generally affect only their parties; strangers may do as they
-please, so contracts do not create "exclusive rights." Someone who found a
-copy of SelectPhone(TM) on the street would not be affected by the
-shrinkwrap license - though the federal copyright laws of their own force
-would limit the finder's ability to copy or transmit the application
-program."
+iD8DBQA/GGTZxULwo51rQBIRAtt3AJwKb01Fkmu1m0Oh03/cf26Vva4nFwCeOqRB
+oYVptsevqEl/woN+BSie/10=
+=w7e0
+-----END PGP SIGNATURE-----
 
-	IANAL, and in any event, I don't think any court would look fondly on
-someone who deliberately contrived a method to claim they're not subject to
-the license.
-
-	DS
-
-
+--=-4JsKzipLD8HMEeuJ4zQa--

@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318345AbSG3QkO>; Tue, 30 Jul 2002 12:40:14 -0400
+	id <S318348AbSG3QxW>; Tue, 30 Jul 2002 12:53:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318347AbSG3QkN>; Tue, 30 Jul 2002 12:40:13 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:41224 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S318345AbSG3QkM>; Tue, 30 Jul 2002 12:40:12 -0400
-Date: Tue, 30 Jul 2002 13:43:19 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: memory leak?
-In-Reply-To: <Pine.LNX.3.96.1020730120438.4042H-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44L.0207301343030.8815-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S318350AbSG3QxW>; Tue, 30 Jul 2002 12:53:22 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:29312 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S318348AbSG3QxV>; Tue, 30 Jul 2002 12:53:21 -0400
+Date: Tue, 30 Jul 2002 12:56:36 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Russell Lewis <spamhole-2001-07-16@deming-os.org>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-ia64@linuxia64.org'" <linux-ia64@linuxia64.org>
+Subject: Re: [Linux-ia64] Linux kernel deadlock caused by spinlock bug
+In-Reply-To: <3D46B7C2.2010905@deming-os.org>
+Message-ID: <Pine.LNX.3.95.1020730124325.5378A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Jul 2002, Bill Davidsen wrote:
+On Tue, 30 Jul 2002, Russell Lewis wrote:
 
-> What? The kernel is putting the data in /proc, it seems as easy to put
-> all cached memory in the cache bin as anywhere else. It's no more work
-> to do it right. No one is asking for new functionality, just the current
-> functionality being correct.
+> IDEA: Implement a read/write "bias" field that can show if a lock has 
+> been gained many  times in succession for either read or write.  When 
+> locks of the opposite type are attempting (and failing) to get the lock, 
+> back off the other users until starvation is relieved.
+> 
 
-Oh well ... send in those patches.
+You need to gain a lock just to read the bias field. You can't read
+something that somebody else will change while you are deciding
+upon what you read. It just can't work.
 
-Rik
--- 
-	http://www.linuxsymposium.org/2002/
-"You're one of those condescending OLS attendants"
-"Here's a nickle kid.  Go buy yourself a real t-shirt"
+If we presume that it did work. What problem are you attempting
+to fix?  FYI, there are no known 'lock-hogs'. Unlike a wait on
+a semaphore, where a task waiting will sleep (give up the CPU), a
+deadlock on a spin-lock isn't possible. A task will eventually
+get the resource. Because of the well-known phenomena of "locality",
+every possible 'attack' on the spin-lock variable will become
+ordered and the code waiting on the locked resource will get
+it in a first-come-first-served basis. This, of course, assumes
+that the code isn't broken by attempts to change the natural
+order.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

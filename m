@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279533AbRJXLPk>; Wed, 24 Oct 2001 07:15:40 -0400
+	id <S279542AbRJXL1p>; Wed, 24 Oct 2001 07:27:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279535AbRJXLPU>; Wed, 24 Oct 2001 07:15:20 -0400
-Received: from cibs10.sns.it ([192.167.206.30]:56841 "EHLO cibs10.sns.it")
-	by vger.kernel.org with ESMTP id <S279533AbRJXLPR>;
-	Wed, 24 Oct 2001 07:15:17 -0400
-Date: Wed, 24 Oct 2001 13:15:00 +0200 (CEST)
-From: Elena HARTUNG <hartung@cibslogin.sns.it>
+	id <S279543AbRJXL1f>; Wed, 24 Oct 2001 07:27:35 -0400
+Received: from bosmxmp02.nww.com ([198.3.122.43]:15109 "EHLO bosmxmp02.nww.com")
+	by vger.kernel.org with ESMTP id <S279542AbRJXL1U>;
+	Wed, 24 Oct 2001 07:27:20 -0400
+Message-ID: <397D96BE2284D411BAEF00508B692AFF012C4937@bosmxmp02.nww.com>
+From: Deni Connor <DConnor@nww.com>
 To: linux-kernel@vger.kernel.org
-Subject: Zur Hand von Giovanni DiLorenzo, re ELENA HARTUNG 
-Message-ID: <Pine.LNX.4.10.10110241313410.10419-100000@cibs10.sns.it>
+Subject: Reporter's Inquiry on EMC Symmetrix
+Date: Wed, 24 Oct 2001 07:19:27 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andre Margis --
 
-Sehr verehrter Herr DiLorenzo,
+I saw your name in a usenet group and have several questions about EMC. I am
+writing a story for Network World and would appreciate your responses.
 
-Ich schreibe Ihnen auf Bitte von Fr. Doktor Elena
-Hartung.  Ich kenne sie seit einigen Jahren und stehe
-mit ihr in regelmaessigem Kontakt.  Sie moechte Ihnen
-mitteilen, dass sie sich jetzt in schwieriger Lage
-befindet, und dringend um Ihre Hilfe bittet.
+On Monday EMC is announcing a new storage management platform that will
+ultimately be able to manage other storage and Fibre Channel devices than
+Symmetrix' and Celerra. It will be able to monitor and manage HP XP256/512,
+IBM Sharks, any Compaq StorageWorks array, Hitachi Freedom and Sun StorEdge.
+They will also ship a middleware layer that will let users and ISVs link
+their software to the EMC platform.
 
-Frau Doktor Hartung berichtet mir telephonisch, dass
-sie zwangsweise in ein Krankenhaus in Goldsboro, North
-Carolina gebracht worden ist.  Seit 8 Tagen bleibt sie
-gegen ihren Willen dort interniert, obwohl, laut
-Gesetzes, muesste sie bereits enlassen sein.  Seit
-diesen 8 Tagen sind ihr gegen ihren Willen
-verschiedenartige Medikamente gegeben worden.
-Waehrend der 8 Tage hat sie keine Moeglichkeit gehabt,
-Kontakt mit der deutschen Botschaft, noch mit
-irgendeiner anderen Botschaft, aufzunehmen.
-Selbstverstaendlich hat sie keinen Zugang zu einem
-Computer.
+1. Do you have other storage than EMC? If so what?
+2. Is it important that you be able to manage and monitor that storage from
+the same management interface? Why?
+3. Are you cutting back on IT spending?
+4. Would you possibly develop applications that you would want to tie to
+this EMC management product?
+5. What storage management packages do you have?
+6. Is it important that they be able to be integrated into the EMC offering?
+7. What is your title? Who do you work for? Where are they located?
 
-Sie moechte dringend bitten, dass Sie in Kontakt mit
-dem Spital kommen, um ihr zu helfen.  Die Anstalt
-heisst Cherry Hospital. Der Direktor ist Dr. Edwards.
-Seine Telephonnummer: 919/731-3204.
-
-Die Adresse der Anstalt: 200 Stevens Mill Road/
-Goldsboro, North Carolina, 27530/ U.S.A.
-
-Sie koennen Elena Hartung dort erreichen bei:
-919/734-9983.
-
-Hoffentlich koennen Sie etwas fuer sie tun koennen,
-die jetzige Lage ist schlecht, und sie braucht
-dringend Hilfe.
-
-Mit bestem Dank, Ihr
-Barry Salwen
+Thanking you in advance for your answers.
 
 
+Deni Connor
+Network World, The Leader in Network Knowledge
+Tele: 512-345-3850
+Fax: 512-345-3860
+8815 Mountain Path Circle
+Austin, Texas 78759
+Covering Storage, Novell, Linux and open source
+For Networking News & Info: www.nwfusion.com
+Find out more about Network World, Inc.: www.networkworld.com
 
 

@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265800AbUIIXhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265051AbUIIXlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265800AbUIIXhH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 19:37:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbUIIXhG
+	id S265051AbUIIXlV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 19:41:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUIIXlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 19:37:06 -0400
-Received: from ozlabs.org ([203.10.76.45]:56777 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S266880AbUIIXgl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 19:36:41 -0400
-MIME-Version: 1.0
+	Thu, 9 Sep 2004 19:41:19 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57224 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265051AbUIIXhn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 19:37:43 -0400
+Date: Thu, 9 Sep 2004 19:12:38 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cacheline align pagevec structure
+Message-ID: <20040909221238.GA6182@logos.cnet>
+References: <20040909163929.GA4484@logos.cnet> <20040909155226.714dc704.akpm@osdl.org> <20040909230905.GO3106@holomorphy.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16704.59668.899674.868174@cargo.ozlabs.ibm.com>
-Date: Fri, 10 Sep 2004 09:36:52 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Anton Blanchard <anton@samba.org>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Matt Mackall <mpm@selenic.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [PATCH][5/8] Arch agnostic completely out of line locks / ppc64
-In-Reply-To: <20040909220040.GM3106@holomorphy.com>
-References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com>
-	<16703.60725.153052.169532@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.53.0409090810550.15087@montezuma.fsmlabs.com>
-	<20040909154259.GE11358@krispykreme>
-	<20040909171954.GW3106@holomorphy.com>
-	<16704.52551.846184.630652@cargo.ozlabs.ibm.com>
-	<20040909220040.GM3106@holomorphy.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Disposition: inline
+In-Reply-To: <20040909230905.GO3106@holomorphy.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III writes:
+On Thu, Sep 09, 2004 at 04:09:05PM -0700, William Lee Irwin III wrote:
+> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+> >> I do not see a problem with changing pagevec to "15" page pointers either, 
+> >> Andrew, is there a special reason for that "16"? Is intentional to align
+> >> to 64 kbytes (IO device alignment)? I dont think that matters much because
+> >> of the elevator which sorts and merges requests anyway?
+> 
+> On Thu, Sep 09, 2004 at 03:52:26PM -0700, Andrew Morton wrote:
+> > No, it was just a randomly-chosen batching factor.
+> > The tradeoff here is between
+> > a) lock acquisition frequency versus lock hold time (increasing the size
+> >    helps).
+> > b) icache misses versus dcache misses. (increasing the size probably hurts).
+> > I suspect that some benefit would be seen from making the size very small
+> > (say, 4). And on some machines, making it larger might help.
+> 
+> Reducing arrival rates by an Omega(NR_CPUS) factor would probably help,
+> though that may blow the stack on e.g. larger Altixen. Perhaps
+> O(lg(NR_CPUS)), e.g. NR_CPUS > 1 ? 4*lg(NR_CPUS) : 4 etc., will suffice,
+> though we may have debates about how to evaluate lg(n) at compile-time...
+> Would be nice if calls to sufficiently simple __attribute__((pure))
+> functions with constant args were considered constant expressions by gcc.
 
-> The semantics of profile_pc() have never included backtracing through
-> scheduling primitives, so I'd say just report __preempt_spin_lock().
-
-I disagree that __preempt_spin_lock is a scheduling primitive, or at
-least I disagree that it is primarily a scheduling primitive.  We
-don't spend vast amounts of time spinning in any of the other
-scheduling primitives; if we have to wait we call schedule().
-
-Paul.
+Let me see if I get you right - basically what you're suggesting is 
+to depend PAGEVEC_SIZE on NR_CPUS?

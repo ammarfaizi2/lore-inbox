@@ -1,63 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129170AbQKHPdj>; Wed, 8 Nov 2000 10:33:39 -0500
+	id <S129079AbQKHP5T>; Wed, 8 Nov 2000 10:57:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129209AbQKHPd3>; Wed, 8 Nov 2000 10:33:29 -0500
-Received: from carbon.btinternet.com ([194.73.73.92]:52188 "EHLO
-	carbon.btinternet.com") by vger.kernel.org with ESMTP
-	id <S129170AbQKHPdS>; Wed, 8 Nov 2000 10:33:18 -0500
-From: davej@suse.de
-Date: Wed, 8 Nov 2000 15:10:17 +0000 (GMT)
-To: Bruce_Holzrichter@infinium.com
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Installing kernel 2.4
-In-Reply-To: <OFE1DF3190.2EF12079-ON85256991.004BD0EB@infinium.com>
-Message-ID: <Pine.LNX.4.21.0011081508580.10475-100000@neo.local>
+	id <S129132AbQKHP5K>; Wed, 8 Nov 2000 10:57:10 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:48650 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129079AbQKHP5B>;
+	Wed, 8 Nov 2000 10:57:01 -0500
+Message-ID: <3A0977A7.53641C52@mandrakesoft.com>
+Date: Wed, 08 Nov 2000 10:56:23 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Richard Henderson <rth@twiddle.net>
+CC: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, axp-list@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: PCI-PCI bridges mess in 2.4.x
+In-Reply-To: <20001101153420.A2823@jurassic.park.msu.ru> <20001101093319.A18144@twiddle.net> <20001103111647.A8079@jurassic.park.msu.ru> <20001103011640.A20494@twiddle.net> <20001106192930.A837@jurassic.park.msu.ru> <20001108013931.A26972@twiddle.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Nov 2000 Bruce_Holzrichter@infinium.com wrote:
+Setting bit 1 in dev->resource[x].start, below, seems incorrect.  Should
+you be programming the PCI BAR directly, instead?
 
-> > On Wed, Nov 08, 2000 at 03:25:56AM +0000, davej@suse.de wrote:
-> > > On Tue, 7 Nov 2000, Jeff V. Merkey wrote:
-> > > > If the compiler always aligned all functions and data on 16 byte
-> > > > boundries (NetWare)  for all i386 code, it would run a lot faster.
-> > >
-> > > Except on architectures where 16 byte alignment isn't optimal.
-> > >
-> > > > Cache line alignment could be an option in the loader .... after all,
-> > > > it's hte loader that locates data in memory.  If Linux were PE based,
-> > > > relocation logic would be a snap with this model (like NT).
-> > >
-> > > Are you suggesting multiple files of differing alignments packed into
-> > > a single kernel image, and have the loader select the correct one at
-> > > runtime ? I really hope I've misinterpreted your intention.
-> >
-> > Or more practically, a smart loader than could select a kernel image
-> > based on arch and auto-detect to load the correct image. I don't really
-> > think it matters much what mechanism is used.
-> >
-> > What makes more sense is to pack multiple segments for different
-> > processor architecures into a single executable package, and have the
-> > loader pick the right one (the NT model).  It could be used for
-> > SMP and non-SMP images, though, as well as i386, i586, i686, etc.
+> +static void __init
+> +quirk_cypress_ide_ports(struct pci_dev *dev)
+> +{
+> +       if (dev->class >> 8 != PCI_CLASS_STORAGE_IDE)
+> +               return;
+> +       dev->resource[1].start |= 2;
+> +       dev->resource[1].end = dev->resource[1].start;
+> +       pci_claim_resource(dev, 0);
+> +       pci_claim_resource(dev, 1);
+> +}
 
-> And this would fit on my 1.4bm floppy so I can boot my hard driveless
-> firewalling system, correct?
 
-Your mailer is misattributing people. I didn't say that, my comments were
-the ones you've attributed to Jeff.
+I wonder about this code:
 
-regards,
+> +               /* ??? Reserve some resources for CardBus */
+> +               if (dev->class >> 8 == PCI_CLASS_BRIDGE_CARDBUS) {
+> +                       io_reserved += 8*1024;
+> +                       mem_reserved += 32*1024*1024;
+> +                       continue;
+> +               }
 
-davej.
+
+I think "pdev_enable_device" is a poorly-chosen name, since "pdev_" is
+not a common prefix, and we already have pci_enable_device.
+
+Also, should we be setting PCI_CACHE_LINE_SIZE for PCI devices as well
+as bridges?
+
+	Jeff
+
 
 -- 
-| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
-| SuSE Labs
-
+Jeff Garzik             | "When I do this, my computer freezes."
+Building 1024           |          -user
+MandrakeSoft            | "Don't do that."
+                        |          -level 1
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

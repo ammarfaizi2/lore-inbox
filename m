@@ -1,19 +1,21 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314514AbSECQFt>; Fri, 3 May 2002 12:05:49 -0400
+	id <S314477AbSECQLK>; Fri, 3 May 2002 12:11:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314552AbSECQFs>; Fri, 3 May 2002 12:05:48 -0400
-Received: from mail3.aracnet.com ([216.99.193.38]:38372 "EHLO
+	id <S314480AbSECQLJ>; Fri, 3 May 2002 12:11:09 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:56811 "EHLO
 	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S314514AbSECQFq>; Fri, 3 May 2002 12:05:46 -0400
-Date: Fri, 03 May 2002 09:05:05 -0700
+	id <S314477AbSECQLI>; Fri, 3 May 2002 12:11:08 -0400
+Date: Fri, 03 May 2002 09:10:46 -0700
 From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
 Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Leandro Tavares Carneiro <leandro@ep.petrobras.com.br>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: High Memory Address Space
-Message-ID: <4058141609.1020416704@[10.10.2.3]>
-In-Reply-To: <1020437001.2951.45.camel@linux60>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Virtual address space exhaustion (was  Discontigmem virt_to_page() )
+Message-ID: <4058482389.1020417045@[10.10.2.3]>
+In-Reply-To: <20020503175819.A14505@dualathlon.random>
 X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,20 +24,24 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How is the maximum memory address space, per process or for all process,
-> using High Memory Suport to 64Gb? 
+> Another interesting problem is that 'struct page *' will be as best a
+> cookie, not a valid pointer anymore, not sure what's the best way to
+> handle that. Working with pfn would be cleaner rather than working with
+> a cookie (somebody could dereference the cookie by mistake thinking it's
+> a page structure old style), but if __alloc_pages returns a pfn a whole
+> lot of kernel code will break.
 
-Roughly speaking, the high memory (above 896MB phys) is mapped directly 
-into user address spaces, mapped a page at a time into the kernel 
-virtual address space via kmap and friends into a small window.
+Yup, a physical address pfn would probably be best.
 
-> Is possible to alocate more than 3GB for one process? 
+(such as tlb size, which is something stupid like 4 pages, IIRC)
 
-Not really, you could shift the boundary to 3.5Gb or so in theory,
-and eek out a little more, but in practice that just makes you
-run out of kernel address space instead if you have enough memory
-to make it worthwhile (unless you wanted the users pages swapped
-out). 
+> it has 8 pages for data and 2 for instructions, that's 16M data and 4M
+> of instructions with PAE
+
+What is "it", a P4? I think the sizes are dependant on which chip you're
+using. The x440 has the P4 chips, but the NUMA-Q is is P2 or P3 (even
+PPro for the oldest ones, but those don't work at the moment with Linux
+on multiquad).
 
 M.
 

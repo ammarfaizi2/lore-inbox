@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267123AbUBMRSg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 12:18:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267128AbUBMRSg
+	id S267128AbUBMR1P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 12:27:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267131AbUBMR1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 12:18:36 -0500
-Received: from stewie.egr.unlv.edu ([131.216.22.9]:25482 "EHLO
-	mail.egr.unlv.edu") by vger.kernel.org with ESMTP id S267123AbUBMRSd
+	Fri, 13 Feb 2004 12:27:15 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:45962 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267128AbUBMR1N
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 12:18:33 -0500
-Subject: fh_verify: no root_squashed access hundreds of times a second again
-From: Andrew Gray <grayaw@egr.unlv.edu>
-To: linux-kernel@vger.kernel.org
-Organization: University of Nevada Las Vegas - College of Engineering
-Message-Id: <1076692518.15751.5.camel@blargh>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 13 Feb 2004 12:27:13 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: (was Re: [RFC] IDE 80-core cable detect - chipset-specific code to over-ride eighty_ninty_three())
+Date: Fri, 13 Feb 2004 18:33:03 +0100
+User-Agent: KMail/1.5.3
+References: <200402122106.41947.bzolnier@elka.pw.edu.pl> <c0goeh$hs4$1@news.cistron.nl>
+In-Reply-To: <c0goeh$hs4$1@news.cistron.nl>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 13 Feb 2004 09:18:32 -0800
+Content-Disposition: inline
+Message-Id: <200402131833.03660.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not subscribed to the linux-kernel list, I would appreciate a CC on
-any replies, but I will be watching the list as well.  I'm reposting
-this message in the hope someone will answer - neither I nor the mailing
-list got any replies last time.
+On Thursday 12 of February 2004 21:41, Miquel van Smoorenburg wrote:
+> In article <200402122106.41947.bzolnier@elka.pw.edu.pl>,
+>
+> Bartlomiej Zolnierkiewicz  <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
+> >Hi,
+> >
+> >word93 of drive identify is:
+> >
+> >0x603b for IC35L120AVV207-0
+> >0x3469 for QUANTUM FIREBALLlct20 30
+> >
+> >and eighty_ninty_three() checks for bit 0x4000, so...
+> >
+> >Willy, it seems you are hitting some other problem.
+> >Have you already tried booting with "ide0=ata66"?
+>
+> That reminds me, there is currenly no way to boot with
+> ide0=ata33, right ?
 
-I am using kernel 2.4.24 on a heavily-used NFS server. I am receiving
-hundreds of messages like:
+Right.
 
-"kernel: fh_verify: no root_squashed access at sessions/lastsession."
+> I have a tyan motherboard with a serverworks chipset, and the
+> (2.5" system-) disk is connected with a 40 pins cable. However
+> the serverworks chipset doesn't detect this, and tries to run
+> it in UDMA<lots> mode. That results in lots of nasty messages
+> before it falls back to UDMA33 mode.
 
-in my messages log, usually accompanied by a "last message repeated 6497
-times" a minute or so later. I'm gathering it is just reporting it is
-denying root access to a share, which is fine and exactly what I asked
-for. Is there anyway to shut this logging off without just wiping the
-line from fs/nfsd/nfsfh.c? I really can't afford to be rebooting the box
-to install a new kernel right now. I've searched google, linux-kernel,
-and other resources, and while I've found others with the same problem,
-no solutions have been posted.
+It sounds like driver or BIOS bug.  Can I get dmesg from this system?
 
--- 
-Andrew Gray
-Systems Administrator
-College of Engineering
-University of Nevada, Las Vegas
+> Could you put a way to force it into UDMA33 (UDMA2) mode on the
+> wishlist, please ?
 
+Yep.
 

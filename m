@@ -1,88 +1,185 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288799AbSAEMsI>; Sat, 5 Jan 2002 07:48:08 -0500
+	id <S288803AbSAEMx3>; Sat, 5 Jan 2002 07:53:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288802AbSAEMr6>; Sat, 5 Jan 2002 07:47:58 -0500
-Received: from mpdr0.detroit.mi.ameritech.net ([206.141.239.206]:33243 "EHLO
-	mailhost.det.ameritech.net") by vger.kernel.org with ESMTP
-	id <S288799AbSAEMrn>; Sat, 5 Jan 2002 07:47:43 -0500
-Date: Sat, 5 Jan 2002 07:46:20 -0500 (EST)
-From: Vladimir Dergachev <volodya@mindspring.com>
-Reply-To: Vladimir Dergachev <volodya@mindspring.com>
-To: Rui Sousa <rui.p.m.sousa@clix.pt>
-cc: linux-kernel@vger.kernel.org, emu10k1-devel@opensource.creative.com
-Subject: Re: HIGHMEM and DMA (emu10k1 related)
-In-Reply-To: <Pine.LNX.4.33.0201050313200.2199-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.20.0201050730180.17212-100000@node2.localnet.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288804AbSAEMxV>; Sat, 5 Jan 2002 07:53:21 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:22249 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S288803AbSAEMxM>; Sat, 5 Jan 2002 07:53:12 -0500
+Date: Sat, 5 Jan 2002 04:53:11 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: braam@clusterfs.com, linux-kernel@vger.kernel.org
+Subject: Patch: linux-2.5.2-pre8/fs/intermezzo kdev_t compilation fixes
+Message-ID: <20020105045311.A24785@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="3MwIy2ne0vdjdPXF"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This might not be immediately relevant but I saw a similar issue with
-Radeon DMA engine. What was happenning is that the card has an internal
-memory controller which was misconfigured. So it was not "seeing" certain
-physical pages. The problem manifested in pages of data filled with 0's.
-Also it was often that it worked fine right after boot but became slowly
-screwed up as memory was getting more fragmented.
+--3MwIy2ne0vdjdPXF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-So I think what happens is that your cards idea of pci addressable memory
-goes awry with the pages you get from kernel. Try printing out the
-addresses and checking whether there is any pattern. Also (probably you
-did that already) check linux/Documentation/  for new PCI functions..
+	The following patch enables linux-2.5.2-pre8/fs/intermezzo
+to compile, adjusting it to the new kdev_t scheme.  I have not
+tested it.  I only know that it compiles.
 
-                             Vladimir Dergachev
+	In the long term, the Intermezzo team may want to look into
+whether kdev_t will reliably not use the most significant bit of
+an int (the sign bit), which seems to be the assumption in some of
+the error handling code.  I don't think that problem is imminent,
+however, as I think the currently planned kdev_t expansion is only
+to twenty bits.
 
-On Sat, 5 Jan 2002, Rui Sousa wrote:
+-- 
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 
-> 
-> Hi,
-> 
-> Lately, there have been reports of problems when using
-> the emu10k1 driver and a kernel compiled with HIGHMEM support.
-> I finally managed to observe the problem myself and basically this 
-> e-mail is a request for help to try and solve this.
-> 
-> 1. The problem is only observed when using a kernel compiled with 
-> HIGHMEM support, even if actual RAM available is less than 1GiB 
-> (192MiB in my case).
-> 
-> 2. The emu10k1 uses DMA to get sound data from host memory.
-> 
-> 3. DMA memory is allocated with pci_alloc_consistent (in 
-> PAGE_SIZE blocks).
-> 
-> 4. The emu10k1 reads some bytes from host memory and caches them 
-> locally (up to 128 bytes). These can then be read back through PCI IO 
-> registers (using inl()).
-> 
-> 5. When I compare the values in host memory to the ones read by the card
-> _some times_ they are different (all of the 128 bytes read). The values
-> read by the card are usually zero when this happens.
-> 
-> 6. Once the problem starts if I start/stop the same sound application
-> (freeing and then allocating the same DMA memory pages) the problem
-> persists. If I stop the application, start another one (with a 
-> different buffer usually allocating more memory), stop it, go
-> back to the initial one, the problem is gone.
-> 
-> 
-> At the hardware level what is the difference between a kernel with 
-> HIGHMEM support and one without? I see that the physical/virtual 
-> addresses of the pages obtained with pci_alloc_consistent are within
-> the same range... 
-> 
-> If it's a bug in the driver why would it only show up some times and
-> only if HIGHMEM support is enabled?
-> 
-> Thanks for any help,
-> Rui Sousa
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+--3MwIy2ne0vdjdPXF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="intermezzo.diffs"
 
+Only in linux/fs/intermezzo: CVS
+diff -u -r linux-2.5.2-pre8/fs/intermezzo/cache.c linux/fs/intermezzo/cache.c
+--- linux-2.5.2-pre8/fs/intermezzo/cache.c	Sun Nov 11 10:20:21 2001
++++ linux/fs/intermezzo/cache.c	Sat Jan  5 04:49:07 2002
+@@ -46,7 +46,7 @@
+ 
+ static inline int presto_cache_hash(kdev_t dev)
+ {
+-        return (CACHES_MASK) & ((0x000F & (dev)) + ((0x0F00 & (dev)) >>8));
++	return (CACHES_MASK) & ((0x000F & minor(dev)) + (0x000F & major(dev)));
+ }
+ 
+ inline void presto_cache_add(struct presto_cache *cache, kdev_t dev)
+@@ -73,7 +73,7 @@
+         lh = tmp = &(presto_caches[presto_cache_hash(dev)]);
+         while ( (tmp = lh->next) != lh ) {
+                 cache = list_entry(tmp, struct presto_cache, cache_chain);
+-                if ( cache->cache_dev == dev ) {
++                if ( kdev_same(cache->cache_dev, dev) ) {
+                         return cache;
+                 }
+         }
+@@ -89,8 +89,8 @@
+         /* find the correct presto_cache here, based on the device */
+         cache = presto_find_cache(inode->i_dev);
+         if ( !cache ) {
+-                printk("WARNING: no presto cache for dev %x, ino %ld\n",
+-                       inode->i_dev, inode->i_ino);
++                printk("WARNING: no presto cache for dev %x:%x, ino %ld\n",
++                       major(inode->i_dev), minor(inode->i_dev), inode->i_ino);
+                 EXIT;
+                 return NULL;
+         }
+@@ -174,7 +174,7 @@
+         cache = presto_get_cache(inode);
+         if ( !cache )
+                 return 0;
+-        return (inode->i_dev == cache->cache_dev);
++        return kdev_same(inode->i_dev, cache->cache_dev);
+ }
+ 
+ /* setup a cache structure when we need one */
+diff -u -r linux-2.5.2-pre8/fs/intermezzo/psdev.c linux/fs/intermezzo/psdev.c
+--- linux-2.5.2-pre8/fs/intermezzo/psdev.c	Fri Jan  4 19:40:37 2002
++++ linux/fs/intermezzo/psdev.c	Sat Jan  5 04:49:07 2002
+@@ -290,7 +290,7 @@
+                 }
+ 
+                 len = readmount.io_len;
+-                minor = MINOR(dev);
++                minor = minor(dev);
+                 PRESTO_ALLOC(tmp, char *, len);
+                 if (!tmp) {
+                         EXIT;
+@@ -627,7 +627,7 @@
+                         EXIT;
+                         return error;
+                 }
+-                minor = MINOR(dev);
++                minor = minor(dev);
+                 if (cmd == PRESTO_SETOPT)
+                         error = dosetopt(minor, &kopt);
+ 
+diff -u -r linux-2.5.2-pre8/fs/intermezzo/sysctl.c linux/fs/intermezzo/sysctl.c
+--- linux-2.5.2-pre8/fs/intermezzo/sysctl.c	Fri Jan  4 19:40:37 2002
++++ linux/fs/intermezzo/sysctl.c	Sat Jan  5 04:49:07 2002
+@@ -162,14 +162,15 @@
+ 		 */
+ 		int errorval = upc_comms[minor].uc_errorval;
+ 		if (errorval < 0) {
++			kdev_t dev = to_kdev_t(-errorval);
+ 			if (newval == 0)
+-				set_device_ro(-errorval, 0);
++				set_device_ro(dev, 0);
+ 			else
+ 				printk("device %s already read only\n",
+-				       kdevname(-errorval));
++				       kdevname(dev));
+ 		} else {
+ 			if (newval < 0)
+-				set_device_ro(-newval, 1);
++				set_device_ro(to_kdev_t(-newval), 1);
+ 			upc_comms[minor].uc_errorval = newval;
+ 			CDEBUG(D_PSDEV, "setting errorval to %d\n", newval);
+ 		}
+@@ -224,9 +225,10 @@
+ #ifdef PSDEV_DEBUG
+ 	case PSDEV_ERRORVAL: {
+ 		int errorval = upc_comms[minor].uc_errorval;
+-		if (errorval < 0 && is_read_only(-errorval))
++		kdev_t dev = to_kdev_t(-errorval);
++		if (errorval < 0 && is_read_only(dev))
+ 			printk(KERN_INFO "device %s has been set read-only\n",
+-			       kdevname(-errorval));
++			       kdevname(dev));
+ 		opt->optval = upc_comms[minor].uc_errorval;
+ 		break;
+ 	}
+diff -u -r linux-2.5.2-pre8/fs/intermezzo/vfs.c linux/fs/intermezzo/vfs.c
+--- linux-2.5.2-pre8/fs/intermezzo/vfs.c	Tue Nov 13 09:20:56 2001
++++ linux/fs/intermezzo/vfs.c	Sat Jan  5 04:49:07 2002
+@@ -136,7 +136,7 @@
+         if (errorval && errorval == (long)value && !is_read_only(dev)) {
+                 CDEBUG(D_SUPER, "setting device %s read only\n", kdevname(dev));
+                 BLKDEV_FAIL(dev, 1);
+-                upc_comms[minor].uc_errorval = -dev;
++                upc_comms[minor].uc_errorval = -kdev_t_to_nr(dev);
+         }
+ }
+ #else
+@@ -602,7 +602,7 @@
+                 goto exit_lock;
+ 
+         error = -EXDEV;
+-        if (dir->d_inode->i_dev != inode->i_dev)
++        if (!kdev_same(dir->d_inode->i_dev, inode->i_dev))
+                 goto exit_lock;
+ 
+         /*
+@@ -1609,7 +1609,7 @@
+         if (error)
+                 return error;
+ 
+-        if (new_dir->i_dev != old_dir->i_dev)
++        if (!kdev_same(new_dir->i_dev, old_dir->i_dev))
+                 return -EXDEV;
+ 
+         if (!new_dentry->d_inode)
+@@ -1690,7 +1690,7 @@
+         if (error)
+                 return error;
+ 
+-        if (new_dir->i_dev != old_dir->i_dev)
++        if (!kdev_same(new_dir->i_dev, old_dir->i_dev))
+                 return -EXDEV;
+ 
+         if (!new_dentry->d_inode)
+
+--3MwIy2ne0vdjdPXF--

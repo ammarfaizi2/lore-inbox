@@ -1,66 +1,161 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262083AbUCOAXM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 19:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbUCOAXM
+	id S262129AbUCOAi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 19:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbUCOAi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 19:23:12 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:384 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262083AbUCOAXJ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 19:23:09 -0500
-Message-Id: <200403130515.i2D5F7DG009253@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Adam Jones <adam@yggdrasl.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NVIDIA and 2.6.4? 
-In-Reply-To: Your message of "Fri, 12 Mar 2004 18:24:01 GMT."
-             <adam.20040312182401$5015%samael.haus@yggdrasl.demon.co.uk> 
-From: Valdis.Kletnieks@vt.edu
-References: <405082A2.5040304@blueyonder.co.uk> <200403111326.08055.maxvalde@fis.unam.mx> <405112DD.2020009@blueyonder.co.uk>
-            <adam.20040312182401$5015%samael.haus@yggdrasl.demon.co.uk>
+	Sun, 14 Mar 2004 19:38:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49858 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262129AbUCOAiW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 19:38:22 -0500
+Date: Sun, 14 Mar 2004 16:33:27 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: benh@kernel.crashing.org, davem@redhat.com
+Subject: [patch/RFC] networking menus
+Message-Id: <20040314163327.53102f46.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_811765798P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Sat, 13 Mar 2004 00:15:07 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_811765798P
-Content-Type: text/plain; charset=us-ascii
 
-On Fri, 12 Mar 2004 18:24:01 GMT, Adam Jones <adam@yggdrasl.demon.co.uk>  said:
-> In a futile gesture against entropy, Sid Boyce wrote:
-> > Max Valdez wrote:
-> 
-> > >Been using nvidia modules for quite a few 2.6.x kernels, most of them mmX.
+BenH mentioned last week that the networking menus need some help.
+They are too twisted or confusing or something.
+
+I was already looking into this.  Roman suggested s/config/menuconfig/,
+which is helpful.
+
+This is just a first pass/RFC.  It moves "Networking support" out of
+the "Device Drivers" menu, which seems helpful to me.  However,
+ISTM that it should really just be the "Networking options" here
+and not include Amateur Radio, IrDA, and Bluetooth support.
+I.e., I think that those latter 3 should fall under Device Drivers.
+Does that make sense to anyone else?
+
+Other comments?
+
+Does this need to be discussed on netdev (also)?
+
+Thanks,
+--
+~Randy
+
+
+
+// Linux 2.6.4
+// Rearrange networking menus so that Networking support/options
+// isn't buried inside Device Drivers.
+
+diffstat:=
+ drivers/Kconfig       |    4 +++-
+ init/Kconfig          |    0
+ net/Kconfig           |    6 ++----
+ net/ax25/Kconfig      |    7 ++-----
+ net/bluetooth/Kconfig |    4 +---
+ net/irda/Kconfig      |    6 ++----
+ 6 files changed, 10 insertions(+), 17 deletions(-)
+
+
+diff -Naurp ./drivers/Kconfig~net_config ./drivers/Kconfig
+--- ./drivers/Kconfig~net_config	2004-03-10 18:55:44.000000000 -0800
++++ ./drivers/Kconfig	2004-03-12 15:20:39.000000000 -0800
+@@ -1,5 +1,7 @@
+ # drivers/Kconfig
  
-> > >without problems
-> 
-> I'm using it here with 2.6.4, no problems as yet.
-> 
-> > Something strange happened, I shall try 2.6.4-mm1 shortly to see if it 
-> > is still the same. I reckon though that I've suffered a filesystem 
-> > corruption.
-> 
-> A quick thought - have you got CONFIG_REGPARM enabled in the kernel
-> config?  If so, disable it and try again.  (It's almost certain to
-> cause crashes with binary modules.)
-
-Also, the NVidia driver uses a bit of kernel stack, so it's incompatible
-with the CONFIG_4KSTACKS option in recent -mm kernels...
-
---==_Exmh_811765798P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAUpjacC3lWbTT17ARAkl1AJ9+3XIG/F33yJAOj8qGfOwzxyoC3QCg+FA4
-iXkWC2lW+qGkpIdRvZ/TqAo=
-=ZNhI
------END PGP SIGNATURE-----
-
---==_Exmh_811765798P--
++source "net/Kconfig"
++
+ menu "Device Drivers"
+ 
+ source "drivers/base/Kconfig"
+@@ -28,7 +30,7 @@ source "drivers/message/i2o/Kconfig"
+ 
+ source "drivers/macintosh/Kconfig"
+ 
+-source "net/Kconfig"
++source "drivers/net/Kconfig"
+ 
+ source "drivers/isdn/Kconfig"
+ 
+diff -Naurp ./net/bluetooth/Kconfig~net_config ./net/bluetooth/Kconfig
+--- ./net/bluetooth/Kconfig~net_config	2004-03-10 18:55:43.000000000 -0800
++++ ./net/bluetooth/Kconfig	2004-03-12 15:41:42.000000000 -0800
+@@ -2,10 +2,8 @@
+ # Bluetooth subsystem configuration
+ #
+ 
+-menu "Bluetooth support"
++menuconfig BT
+ 	depends on NET
+-
+-config BT
+ 	tristate "Bluetooth subsystem support"
+ 	help
+ 	  Bluetooth is low-cost, low-power, short-range wireless technology.
+diff -Naurp ./net/irda/Kconfig~net_config ./net/irda/Kconfig
+--- ./net/irda/Kconfig~net_config	2004-03-10 18:55:27.000000000 -0800
++++ ./net/irda/Kconfig	2004-03-12 15:39:39.000000000 -0800
+@@ -2,11 +2,9 @@
+ # IrDA protocol configuration
+ #
+ 
+-menu "IrDA (infrared) support"
++menuconfig IRDA
+ 	depends on NET
+-
+-config IRDA
+-	tristate "IrDA subsystem support"
++	tristate "IrDA (infrared) subsystem support"
+ 	---help---
+ 	  Say Y here if you want to build support for the IrDA (TM) protocols.
+ 	  The Infrared Data Associations (tm) specifies standards for wireless
+diff -Naurp ./net/ax25/Kconfig~net_config ./net/ax25/Kconfig
+--- ./net/ax25/Kconfig~net_config	2004-03-10 18:55:44.000000000 -0800
++++ ./net/ax25/Kconfig	2004-03-12 15:40:01.000000000 -0800
+@@ -6,9 +6,8 @@
+ #		Joerg Reuter DL1BKE <jreuter@yaina.de>
+ # 19980129	Moved to net/ax25/Config.in, sourcing device drivers.
+ 
+-menu "Amateur Radio support"
+-
+-config HAMRADIO
++menuconfig HAMRADIO
++	depends on NET
+ 	bool "Amateur Radio support"
+ 	help
+ 	  If you want to connect your Linux box to an amateur radio, answer Y
+@@ -109,5 +108,3 @@ source "drivers/net/hamradio/Kconfig"
+ 
+ endmenu
+ 
+-endmenu
+-
+diff -Naurp ./net/Kconfig~net_config ./net/Kconfig
+--- ./net/Kconfig~net_config	2004-03-10 18:55:21.000000000 -0800
++++ ./net/Kconfig	2004-03-12 15:24:30.000000000 -0800
+@@ -2,9 +2,9 @@
+ # Network configuration
+ #
+ 
+-menu "Networking support"
++###menu "Networking support"
+ 
+-config NET
++menuconfig NET
+ 	bool "Networking support"
+ 	---help---
+ 	  Unless you really know what you are doing, you should say Y here.
+@@ -650,8 +650,6 @@ endmenu
+ 
+ endmenu
+ 
+-source "drivers/net/Kconfig"
+-
+ source "net/ax25/Kconfig"
+ 
+ source "net/irda/Kconfig"
+diff -Naurp ./init/Kconfig~net_config ./init/Kconfig

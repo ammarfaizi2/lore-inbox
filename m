@@ -1,68 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261764AbSJHOsZ>; Tue, 8 Oct 2002 10:48:25 -0400
+	id <S263217AbSJHOzp>; Tue, 8 Oct 2002 10:55:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262676AbSJHOsZ>; Tue, 8 Oct 2002 10:48:25 -0400
-Received: from aneto.able.es ([212.97.163.22]:33664 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id <S261764AbSJHOsY>;
-	Tue, 8 Oct 2002 10:48:24 -0400
-Date: Tue, 8 Oct 2002 16:53:40 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: procps-list@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] procps 2.0.10
-Message-ID: <20021008145340.GE1560@werewolf.able.es>
-References: <Pine.LNX.4.44L.0210081135290.1909-100000@duckman.distro.conectiva>
+	id <S263223AbSJHOzp>; Tue, 8 Oct 2002 10:55:45 -0400
+Received: from host194.steeleye.com ([66.206.164.34]:2312 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S263217AbSJHOzn>; Tue, 8 Oct 2002 10:55:43 -0400
+Message-Id: <200210081501.g98F1DR02225@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Alan Cox <alan@redhat.com>, James.Bottomley@HansenPartnership.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.41-ac1 
+In-Reply-To: Message from Adrian Bunk <bunk@fs.tum.de> 
+   of "Tue, 08 Oct 2002 13:56:00 +0200." <Pine.NEB.4.44.0210081352470.8340-100000@mimas.fachschaften.tu-muenchen.de> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.44L.0210081135290.1909-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Tue, Oct 08, 2002 at 16:38:36 +0200
-X-Mailer: Balsa 1.4.1
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 08 Oct 2002 11:01:13 -0400
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+bunk@fs.tum.de said:
+> make[1]: *** No rule to make target `arch/i386/mach-voyager/
+> trampoline.o', needed by `arch/i386/mach-voyager/built-in.o'.  Stop.
+> make: *** [arch/i386/mach-voyager] Error 2 
 
-On 2002.10.08 Rik van Riel wrote:
->On Tue, 8 Oct 2002, J.A. Magallon wrote:
->
->> It also kills the 'states' part, things are beginning to spread past 80
->> columns...is it very important ?
->
->Yes, things should stay within 80 lines.
->
->> I am gettin also strange outputs sometimes, with a ton of digits in
->> decimal parts.
->
->Wait... I remember fixing that bug.  On 2.4 kernels iowait
->should always be 0.0% and it always is 0.0% here.
->
->I have no idea why it's displaying a wrong value on your
->system, unless you somehow managed to run against a wrong
->libproc.so (shouldn't happen).
->
+That one's pulled in from ../kernel by the vpath in mach-voyager (or should 
+be).  It builds for me, so it could be the version of make you are using?
 
-It looks like the 2 first screenshots show buggy data:
+James
 
-First:
-CPU0:   0,1% user   0,1% system   0,0% nice  99,18% iowait   0,103% idle
-CPU1:   0,0% user   0,4% system   0,0% nice  99,18% iowait   0,101% idle
 
-Second:
-CPU0:   0,15% user   0,4% system   0,0% nice   4,1070639% iowait   0,434% idle
-CPU1:   0,13% user   0,7% system   0,0% nice   4,1070639% iowait   0,433% idle
-
-Third:
-CPU0:   3,1% user   2,3% system   0,0% nice   0,0% iowait  94,0% idle
-CPU1:   3,3% user   2,0% system   0,0% nice   0,0% iowait  94,1% idle
-
-Always the same, does not depend on interval. Samples above were taken with
-top -d100.
-
-Hope this helps.
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.0 (dolphin) for i586
-Linux 2.4.20-pre9-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-1mdk))

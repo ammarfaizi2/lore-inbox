@@ -1,44 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262808AbUCJUKK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 15:10:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262776AbUCJUKK
+	id S262801AbUCJUNH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 15:13:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262803AbUCJUNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 15:10:10 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:40843 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S262807AbUCJUJ7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 15:09:59 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Wed, 10 Mar 2004 15:13:07 -0500
+Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:22789 "EHLO
+	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
+	id S262801AbUCJUM6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 15:12:58 -0500
+Message-ID: <404F77F3.9070106@kolumbus.fi>
+Date: Wed, 10 Mar 2004 22:17:55 +0200
+From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: /dev/root: which approach ? [PATCH]
+References: <20040310162003.GA25688@cistron.nl>
+In-Reply-To: <20040310162003.GA25688@cistron.nl>
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
+ 18, 2001) at 10.03.2004 22:15:19,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
+ 22, 2002) at 10.03.2004 22:14:23,
+	Serialize complete at 10.03.2004 22:14:23
 Content-Transfer-Encoding: 7bit
-Message-ID: <16463.30226.948230.439549@napali.hpl.hp.com>
-Date: Wed, 10 Mar 2004 12:09:54 -0800
-To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix PCI interrupt setting for ia64
-In-Reply-To: <MDEEKOKJPMPMKGHIFAMAKECGDGAA.kaneshige.kenji@jp.fujitsu.com>
-References: <MDEEKOKJPMPMKGHIFAMAKECGDGAA.kaneshige.kenji@jp.fujitsu.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kenji,
 
-Sorry, I lost track of the status of this patch.  Has it been checked
-out OK with respect to interrupt probing?
+>My question to the FS hackers: which one is the preferred approach?
+>
+>
+>dev_root_alias.patch
+>
+>--- linux-2.6.4-rc2-mm1.orig/fs/block_dev.c	2004-03-09 17:14:32.000000000 +0100
+>+++ linux-2.6.4-rc2-mm1/fs/block_dev.c	2004-03-10 16:39:30.000000000 +0100
+>@@ -338,6 +338,16 @@ struct block_device *bdget(dev_t dev)
+> {
+> 	struct block_device *bdev;
+> 	struct inode *inode;
+>+	struct vfsmount *mnt;
+>+
+>+	/* See if device is the /dev/root alias. */
+>+	if (dev == MKDEV(4, 1)) {
+>+		read_lock(&current->fs->lock);
+>+		mnt = mntget(current->fs->rootmnt);
+>+		dev = mnt->mnt_sb->s_dev;
+>+		mntput(mnt);
+>+		read_unlock(&current->fs->lock);
+>+	}
+> 
+> 	inode = iget5_locked(bd_mnt->mnt_sb, hash(dev),
+> 			bdev_test, bdev_set, &dev);
+>  
+>
+what is this 4,1, a tty???
 
-	--david
+--Mika
 
->>>>> On Mon, 08 Mar 2004 11:49:10 +0900, Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com> said:
 
-  Kenji> Hi, In ia64 kernel, IOSAPIC's RTEs for PCI interrupts are
-  Kenji> unmasked at the boot time before installing device drivers. I
-  Kenji> think it is very dangerous.  If some PCI devices without
-  Kenji> device driver generate interrupts, interrupts are generated
-  Kenji> repeatedly because these interrupt requests are never
-  Kenji> cleared. I think RTEs for PCI interrupts should be unmasked
-  Kenji> by device driver.

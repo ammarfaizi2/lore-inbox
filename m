@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263235AbTJ0Oat (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 09:30:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263203AbTJ0Oat
+	id S263229AbTJ0OqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 09:46:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263255AbTJ0OqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 09:30:49 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:30658 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263235AbTJ0Oas
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 09:30:48 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Stefan Talpalaru <stefantalpalaru@yahoo.com>, andre@linux-ide.org
-Subject: Re: CMD640 ide driver made to work
-Date: Mon, 27 Oct 2003 15:35:35 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <20031027122652.29090.qmail@web20605.mail.yahoo.com>
-In-Reply-To: <20031027122652.29090.qmail@web20605.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Mon, 27 Oct 2003 09:46:09 -0500
+Received: from pentafluge.infradead.org ([213.86.99.235]:23982 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263229AbTJ0OqH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 09:46:07 -0500
+Subject: Re: [PATCH] USB: add W996[87]CF driver.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Luca Risolia <luca_ing@libero.it>, marcelo@cyclades.de
+In-Reply-To: <200310252102.h9PL2H6C018450@hera.kernel.org>
+References: <200310252102.h9PL2H6C018450@hera.kernel.org>
+Content-Type: text/plain
+Message-Id: <1067265963.15551.373.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
+Date: Mon, 27 Oct 2003 14:46:03 +0000
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310271535.35762.bzolnier@elka.pw.edu.pl>
+X-SA-Exim-Mail-From: dwmw2@infradead.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+X-Pentafluge-Mail-From: <dwmw2@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-10-08 at 19:04 +0000, Linux Kernel Mailing List wrote:
+> +/* URB error codes: */
+> +static struct w9968cf_symbolic_list urb_errlist[] = {
+> +	{ -ENOMEM,    "No memory for allocation of internal structures" },
+> +	{ -ENOSPC,    "The host controller's bandwidth is already consumed" },
+> +	{ -ENOENT,    "URB was canceled by unlink_urb" },
+> +	{ -EXDEV,     "ISO transfer only partially completed" },
+> +	{ -EAGAIN,    "Too match scheduled for the future" },
+> +	{ -ENXIO,     "URB already queued" },
+> +	{ -EFBIG,     "Too much ISO frames requested" },
+> +	{ -ENOSR,     "Buffer error (overrun)" },
+> +	{ -EPIPE,     "Specified endpoint is stalled (device not responding)"},
+> +	{ -EOVERFLOW, "Babble (bad cable?)" },
+> +	{ -EPROTO,    "Bit-stuff error (bad cable?)" },
+> +	{ -EILSEQ,    "CRC/Timeout" },
+> +	{ -ETIMEDOUT, "NAK (device does not respond)" },
+> +	{ -1, NULL }
+> +};
 
-Hi,
+Urgh. Do we have to?
 
-Can you please drop all code-style changes (such as foo() -> foo ())
-from your patch and describe what real changes you've done?
-Also please fix your mailer, it breaks lines.
-
-BTW Andre is no longer maintaing IDE, cc: me instead, thanks.
-
-cheers,
---bartlomiej
-
-On Monday 27 of October 2003 13:26, Stefan Talpalaru wrote:
-> Hi Andre!
->
->   I own an old 486 box with a CMD640 chipset on it. It works just fine under
-> the 2.2.x kernel, but not under the 2.4.x series. I modified the "cmd640"
-> driver so it works and I have tested it on my hardware.
->   This patch is for the 2.4.22 kernel.
+-- 
+dwmw2
 

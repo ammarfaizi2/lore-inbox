@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268045AbUJGU2k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268049AbUJGUu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268045AbUJGU2k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 16:28:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267890AbUJGU12
+	id S268049AbUJGUu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 16:50:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268086AbUJGUhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 16:27:28 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:44777 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S268045AbUJGU0r (ORCPT
+	Thu, 7 Oct 2004 16:37:13 -0400
+Received: from mail3.utc.com ([192.249.46.192]:58003 "EHLO mail3.utc.com")
+	by vger.kernel.org with ESMTP id S268089AbUJGUaj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 16:26:47 -0400
-Date: Thu, 7 Oct 2004 13:24:28 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Roland McGrath <roland@redhat.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ulrich Drepper <drepper@redhat.com>, jbarnes@sgi.com
-Subject: Re: [PATCH] CPU time clock support in clock_* syscalls
-In-Reply-To: <200410071945.i97Jj8lV016039@magilla.sf.frob.com>
-Message-ID: <Pine.LNX.4.58.0410071318060.24477@schroedinger.engr.sgi.com>
-References: <200410071945.i97Jj8lV016039@magilla.sf.frob.com>
+	Thu, 7 Oct 2004 16:30:39 -0400
+Message-ID: <4165A729.5060402@cybsft.com>
+Date: Thu, 07 Oct 2004 15:29:29 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "K.R. Foley" <kr@cybsft.com>
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Florian Schmidt <mista.tapas@gmx.net>, Mark_H_Johnson@raytheon.com,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm3-T3
+References: <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu> <20041007105230.GA17411@elte.hu> <4165832E.1010401@cybsft.com>
+In-Reply-To: <4165832E.1010401@cybsft.com>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Oct 2004, Roland McGrath wrote:
+K.R. Foley wrote:
+> Ingo Molnar wrote:
+> 
+>> i've released the -T3 VP patch:
+>>
+>>   
+>> http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm3-T3 
+>>
+>>
+> 
+> For me, this one wants to panic on boot when trying to find the root 
+> filesystem. Acts like either the aic7xxx module is missing (which I 
+> don't think is the case) or hosed, or it's having trouble with the label 
+> for the root partition (Fedora system). Will investigate further when I 
+> get home tonight, unless something jumps out at anyone.
+> 
+> kr
 
-> All glibc users need is one definition of the most accurate CPU time clock
-> available, and that will be provided through the POSIX interfaces
-> (CLOCK_THREAD_CPUTIME_ID, CLOCK_PROCESS_CPUTIME_ID, clock_getcpuclockid,
-> and pthread_getcpuclockid).  We have no intention of providing detailed
-> access to different kinds of hardware clocks in a glibc interface.  If you
-> want that, write your own separate interface.  Users I know about are
-> interested in the most accurate CPU time tracking that is available on the
-> system they are using in a given instance.  This is what they get by
-> letting the kernel implementation, configuration, and hardware detection
-> choose the optimal way to implement sched_clock, which is what they now get.
+For clarification: This appears to be a problem in 2.6.9-rc3-mm3 also.
 
-CLOCK_*_CPUTIME_ID are not clocks in a real sense. The user should
-never choose those for real time. The most accurate time is provided by
-CLOCK_REALTIME by the kernel.
-
-> By contrast, your patch provides a new way to access the
-> least-common-denominator low-resolution information already available by
-> other means, and nothing more.
-
-Yes the information is available also through the /proc filesystem. But it
-should also be available through clock_gettime and friends. The patch
-makes these calls posix compliant nothing more. Increasing the accuracy
-of the timers better be done with the revision of the time handling
-proposed by John Stultz.
-
-> I'm sorry that you do not see it.  "My context" is that the actual
-> problems, some of which you've talked about and some of which you seem to
-> have misunderstood, are indeed solved by the work I've done, and I've
-> explained more than once how that is the case.  I'm glad that you are not
-> unhappy continuing to discuss the issue.  I don't mind continuing any
-> discussion that is making any progress.  I hope you also don't have a
-> problem foregoing the ten repetitions of your understanding of the
-> situation, which I believe you have already communicated successfully so I
-> understand what you think about it, and addressing yourself instead to any
-> concrete concerns that remain given a clear understanding of what the new
-> situation will in fact be given my kernel implementation and appropriate
-> glibc support tailored for it.
-
-I am happy that you are at least discussing the issue.
-
-I did not see a clean implementation of CLOCK_*_CPUTIME_ID,
-nor that the issue of providing additional clocks via clock_gettime
-was addressed.
-
-
+kr

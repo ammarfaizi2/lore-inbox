@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268711AbTCCSxb>; Mon, 3 Mar 2003 13:53:31 -0500
+	id <S268709AbTCCSoS>; Mon, 3 Mar 2003 13:44:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268712AbTCCSxb>; Mon, 3 Mar 2003 13:53:31 -0500
-Received: from to-wiznet.redhat.com ([216.129.200.2]:51965 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S268711AbTCCSxa>; Mon, 3 Mar 2003 13:53:30 -0500
-Date: Mon, 3 Mar 2003 14:03:56 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Horrible L2 cache effects from kernel compile
-Message-ID: <20030303140356.G15363@redhat.com>
-References: <3E5BB7EE.5090301@colorfullife.com> <b3gq31$2h8$1@penguin.transmeta.com>
+	id <S268710AbTCCSoS>; Mon, 3 Mar 2003 13:44:18 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:2058 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S268709AbTCCSnM>; Mon, 3 Mar 2003 13:43:12 -0500
+Date: Mon, 3 Mar 2003 18:53:37 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5-bk menuconfig format problem
+Message-ID: <20030303185337.A30585@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Tomas Szepe <szepe@pinerecords.com>,
+	Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
+References: <3E637196.8030708@walrond.org> <20030303175844.A29121@infradead.org> <20030303184906.GF6946@louise.pinerecords.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <b3gq31$2h8$1@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Feb 25, 2003 at 10:18:09PM +0000
+In-Reply-To: <20030303184906.GF6946@louise.pinerecords.com>; from szepe@pinerecords.com on Mon, Mar 03, 2003 at 07:49:06PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 25, 2003 at 10:18:09PM +0000, Linus Torvalds wrote:
-> Right now the "child" list is just a simple linked list, and changing
-> that to something more complex might make it possible to get rid of the
-> hash entirely. But increasing the size of individual dentries is a bad
-> idea, so it would have to be something fairly smart.
+On Mon, Mar 03, 2003 at 07:49:06PM +0100, Tomas Szepe wrote:
+> > On Mon, Mar 03, 2003 at 03:15:34PM +0000, Andrew Walrond wrote:
+> > > Just done a pull and now the first entry of make menuconfig is:
+> > > 
+> > >   [*] Support for paging of anonymous memory
+> > > 
+> > > It shouldn't really be there, should it?
+> > 
+> > Why not?  Even if you never want to use a swapless kernel there's still
+> > plenty use for it.
+> 
+> Andrew probably means the problem is in _where_ the entry shows up in
+> menuconfig (and he's right).  I believe he didn't mean to question the
+> existence of the option.
 
-Part of it is that some of the dentry is simply just too bloated.  At 
-160 bytes, there must be something we can prune:
+Ah, okay :)  I newer use either menuconfig nor xconfig so I can't comment
+on it's placements.  If people who actually do use if feel that it's placed
+wrongly feel free to submit a patch to fix it.
 
-	qstr.len	- if anyone cares about 4GB long dentries, they 
-			  probably have other problems. could be a short
-	d_lock		- 1 bit out of 4 bytes
-	d_vfs_flags	- 2 bits out of 4 bytes
-	d_flags		- 3 bits out of 4 bytes
-	d_move_count	- rcu -- is it ever used on UP?
-	d_time		- only used by network filesystems
-	*d_sb		- rarely used, accessible via inode
-	*d_fsdata	- mostly used by exotic/network filesystems
-	*d_cookie	- only used when o_profile is active
-
-In short, almost a third can be configured out of existence for some 
-setups, and others are candidates for being moved into filesystem specific 
-data.
-
-		-ben
--- 
-Junk email?  <a href=mailto:"aart@kvack.org">aart@kvack.org</a>

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129589AbRCBVkg>; Fri, 2 Mar 2001 16:40:36 -0500
+	id <S129509AbRCBVjQ>; Fri, 2 Mar 2001 16:39:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129718AbRCBVk0>; Fri, 2 Mar 2001 16:40:26 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:5640
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129589AbRCBVkL>; Fri, 2 Mar 2001 16:40:11 -0500
-Date: Fri, 2 Mar 2001 13:39:47 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Wakko Warner <wakko@animx.eu.org>
-cc: Eduard Hasenleithner <eduardh@aon.at>, linux-kernel@vger.kernel.org
-Subject: Re: How to set hdparms for ide-scsi devices on devfs?
-In-Reply-To: <20010302070827.A5772@animx.eu.org>
-Message-ID: <Pine.LNX.4.10.10103021339200.4006-100000@master.linux-ide.org>
+	id <S129529AbRCBVjG>; Fri, 2 Mar 2001 16:39:06 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:11222 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S129509AbRCBVjB>; Fri, 2 Mar 2001 16:39:01 -0500
+Date: Fri, 2 Mar 2001 21:39:18 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
+Subject: [PATCH] CS89x0 demands too many pages
+In-Reply-To: <E14YteS-00020L-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0103022137310.1440-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The CS89x0 driver wants a 16KB or 64KB dma_buff (if use_dma and
+ANY_ISA_DMA), thinks it's asking __get_dma_pages() for 4 or 16
+pages, but actually it's demanding order 4 or order 16 buffer.
+Patch below against 2.4.2-ac9 or 2.4.2, offset against 2.4.[01].
 
-There are mystert ATAPI harddrives in the world!
+Hugh
 
-On Fri, 2 Mar 2001, Wakko Warner wrote:
-
-> > PS: Is there still a possibility for setting the IDE-sleep timeout
-> > 	for a ide-scsi harddisk?  (I know, this doesnt make sense)
-> 
-> I didn't know you could use ide-scsi emulation for hard drives.
-> 
-> -- 
->  Lab tests show that use of micro$oft causes cancer in lab animals
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
+--- 2.4.2-ac9/drivers/net/cs89x0.c	Tue Feb 13 21:15:05 2001
++++ linux/drivers/net/cs89x0.c	Fri Mar  2 18:23:42 2001
+@@ -1075,7 +1075,7 @@
+ 		if (lp->isa_config & ANY_ISA_DMA) {
+ 			unsigned long flags;
+ 			lp->dma_buff = (unsigned char *)__get_dma_pages(GFP_KERNEL,
+-							(lp->dmasize * 1024) / PAGE_SIZE);
++							get_order(lp->dmasize * 1024));
+ 
+ 			if (!lp->dma_buff) {
+ 				printk(KERN_ERR "%s: cannot get %dK memory for DMA\n", dev->name, lp->dmasize);
+@@ -1456,7 +1456,7 @@
+ static void release_dma_buff(struct net_local *lp)
+ {
+ 	if (lp->dma_buff) {
+-		free_pages((unsigned long)(lp->dma_buff), (lp->dmasize * 1024) / PAGE_SIZE);
++		free_pages((unsigned long)(lp->dma_buff), get_order(lp->dmasize * 1024));
+ 		lp->dma_buff = 0;
+ 	}
+ }
 

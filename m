@@ -1,67 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263137AbTLIGU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 01:20:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263142AbTLIGU3
+	id S263166AbTLIGaS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 01:30:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbTLIGaS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 01:20:29 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:33920 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S263137AbTLIGU2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 01:20:28 -0500
-Message-ID: <000701c3be1c$8a3cfbc0$0301a8c0@comcast.net>
-From: "Paul Zimmerman" <zimmerman.paul@comcast.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux GPL and binary module exception clause?
-Date: Mon, 8 Dec 2003 22:20:27 -0800
+	Tue, 9 Dec 2003 01:30:18 -0500
+Received: from ns0.asml.nl ([194.105.121.194]:19159 "EHLO nlvdhx10.asml.nl")
+	by vger.kernel.org with ESMTP id S263166AbTLIGaM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 01:30:12 -0500
+From: Tim Timmerman <Tim.Timmerman@asml.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2720.3000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <16341.27623.254399.958389@asml.com>
+Date: Tue, 9 Dec 2003 07:29:59 +0100
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Tim Timmerman <Tim.Timmerman@asml.com>, Mark Symonds <mark@symonds.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.23 hard lock, 100% reproducible.
+In-Reply-To: <Pine.LNX.4.44.0312080845120.30140-100000@logos.cnet>
+References: <16340.9329.913657.900605@asml.com>
+	<Pine.LNX.4.44.0312080845120.30140-100000@logos.cnet>
+X-Mailer: VM 7.15 under Emacs 21.3.2
+X-NAIMIME-Disclaimer: 1
+X-NAIMIME-Modified: 1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Date:  Sometime in the near future. ]
+>>>>> "Marcelo" == Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
 
-[ Scene:  Exterior of a Federal courthouse in a large city in the US.  Among
-the cars parked in the lot are several dozen stretch limos, a Saab 9000
-Turbo with a penguin bobble-head doll on the dashboard, and a '67 VW van
-covered with "peace" symbols and sporting a bumper sticker that reads "Code
-free or die!" ]
+Marcelo> On Mon, 8 Dec 2003, Tim Timmerman wrote:
+>> Let me just add a me-too here. 
+>> 
+>> Haven't got the oops on my desk, here, but from what I could
+>> see, the error occurred in find_appropriate_src, somewhere in
+>> ipchains.  
+>> 
+>> Further, possibly irrelevant datapoint: ABIT BP6, ne2k-pci and
+>> 3Com590 network cards. When the oops occurs, everything locks,
+>> capslock and scrolllock are lit. 
+>> 
+>> I can reproduce the error by letting a second system ping the
+>> first, on the internal network. Sometimes it doesn't even
+>> complete a full boot. 
+>> 
+>> I'll try and capture more detail tonight. 
 
-[ Scene:  Interior of said courthouse.  Seated at the plaintiff's table are
-a gaggle of expensive-looking lawyers in expensive-looking suits.  Seated at
-the defendant's table are Linus T, Alan C, Jeff G, Andrew M, David M, Al V,
-Richard S, plus a host of other people whose names we might recognize.  And
-one very nervous-looking, pimply-faced young lawyer who looks like he might
-have graduated from law school sometime last week. ]
+Marcelo> Tim,
 
-[ Lawyer for NVidia: ]  "... And in conclusion, Your Honor, we have
-established that for many years our company sold graphics cards to users of
-the Windows, Mac, and Linux operating systems, in each case providing a
-binary graphics driver to make our card work with that OS. Then, without
-warning, the defendants" [ angrily points his finger at the defendant's
-table ] "conspired to arrange so that our drivers would no longer work with
-the Linux OS. We have already demonstrated that, around the same time, our
-company's revenues began to decline, caused in large part, we believe, by
-the defendants' actions.  We ask for $1 billion in damages."
+Marcelo> Please try the updated 2.4 BK tree (you can use -bk5, 
+Marcelo> http://www.kernel.org/pub/linux/kernel/v2.4/snapshots/patch-2.4.23-bk5.bz2).
 
-[ Judge - banging gavel: ]  "You've convinced me.  I order a summary
-judgement for the amount requested, plus $2 billion punitive damages."
+Marcelo> It contains a fix for a known bug in the netfilter which
+Marcelo> might what you're hitting.
 
-[ Cut to:  Bedroom of a comfortable house in the suburbs.  Nighttime. ]
+   Marcello,
 
-[ Linus - suddenly sits bolt upright in the bed, a horrified expression on
-his face: ]  "AAAAiiiiiiieeeeeeeeaaaaaaarrrrrrgggggghhhhhh!!!!"
+	Thanks ! I can confirm that this seems to fix the bug: system
+	has been running the patched kernel for the past 12 hours, and
+	is stable, even under load.
 
-[ Wife - shaking Linus' shoulder: ]  "Honey, wake up, wake up!  I think
-you're having that horrible nightmare again!"
+	TimT
 
-And that is why binary drivers will always be allowed under Linux.
+-- 
+tim.timmerman@asml.nl                              040-2683613
+timt@timt.org   Voodoo Programmer/Keeper of the Rubber Chicken
+Do Lipton employees take coffee breaks?
 
--p
+
+
+-- 
+The information contained in this communication and any attachments is confidential and may be privileged, and is for the sole use of the intended recipient(s). Any unauthorized review, use, disclosure or distribution is prohibited. If you are not the intended recipient, please notify the sender immediately by replying to this message and destroy all copies of this message and any attachments. ASML is neither liable for the proper and complete transmission of the information contained in this communication, nor for any delay in its receipt.
 

@@ -1,45 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130702AbRCEWIH>; Mon, 5 Mar 2001 17:08:07 -0500
+	id <S130705AbRCEWJR>; Mon, 5 Mar 2001 17:09:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130705AbRCEWH5>; Mon, 5 Mar 2001 17:07:57 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:40177 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130702AbRCEWHk>; Mon, 5 Mar 2001 17:07:40 -0500
-Date: Mon, 5 Mar 2001 19:04:00 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: <henning@mail.intermeta.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: anti-spam regexps
-In-Reply-To: <200103052131.f25LVBP09293@forge.intermeta.de>
-Message-ID: <Pine.LNX.4.33.0103051846200.1409-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130707AbRCEWI6>; Mon, 5 Mar 2001 17:08:58 -0500
+Received: from stm.lbl.gov ([131.243.16.51]:23826 "EHLO stm.lbl.gov")
+	by vger.kernel.org with ESMTP id <S130706AbRCEWIx>;
+	Mon, 5 Mar 2001 17:08:53 -0500
+Date: Mon, 5 Mar 2001 14:08:18 -0800
+From: David Schleef <ds@schleef.org>
+To: Padraig Brady <Padraig@AnteFacto.com>
+Cc: William Stearns <wstearns@pobox.com>,
+        ML-linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OFFTOPIC] Hardlink utility - reclaim drive space
+Message-ID: <20010305140818.A31372@stm.lbl.gov>
+Reply-To: David Schleef <ds@schleef.org>
+In-Reply-To: <Pine.LNX.4.30.0102191626090.29121-100000@sparrow.websense.net> <3AA3E63E.80101@AnteFacto.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="Q68bSM7Ycu6FN28Q"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AA3E63E.80101@AnteFacto.com>; from Padraig@AnteFacto.com on Mon, Mar 05, 2001 at 07:17:18PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Mar 2001 henning@mail.intermeta.de wrote:
 
-> >I think I could even setup something where we keep the
-> >anti-spam regexps in a publicly accessible CVS tree (with
-> >of course a nice script to automatically generate the
-> >majordomo.cf).
->
-> Cool. Sooner or later, some fun-loving script-kiddie will put suse.de
-> or redhat.com or debian.org in this automatically generated thing.
->
-> Ah, the fun of automatisms. ;-)
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Of course anonymous CVS access will be read-only ...
+On Mon, Mar 05, 2001 at 07:17:18PM +0000, Padraig Brady wrote:
+> Hmm.. useful until you actually want to modify a linked file,
+> but then your modifying the file in all "merged" trees.
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+Use emacs, because you can configure it to do something
+appropriate with linked files.  But for those of us addicted
+to vi, the attached wrapper script is pretty cool, too.
 
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
 
+
+
+dave...
+
+
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=cow-wrapper
+
+#!/bin/bash
+#
+# copy-on-write wrapper for hard linked files
+# Copyright 2000 David A. Schleef <ds@schleef.org>
+#
+# Please send me any improvments you make to this script.  I just
+# wrote it as a quick and dirty hack.
+
+
+linkedfiles=
+
+for each in $*
+do
+	case $each in
+	-*)
+		# ignore
+		;;
+	*)
+		if [ -f "$each" ];then
+			nlinks=$(stat $each|grep Links|sed 's/.*Links: \(.*\)\{1\}/\1/')
+			if [ $nlinks -gt 1 ];then
+				#echo unlinking $each
+				linkedfiles="$linkedfiles $each"
+				mv $each $each.orig
+				cp $each.orig $each
+			fi
+		fi
+		;;
+	esac
+done
+
+/usr/bin/vim $*
+
+for each in $linkedfiles
+do
+	if cmp $each $each.orig &>/dev/null
+	then
+		#echo relinking $each
+		rm $each
+		mv $each.orig $each
+	fi
+done
+
+
+--Q68bSM7Ycu6FN28Q--

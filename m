@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264129AbTKJV6s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 16:58:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264128AbTKJV6s
+	id S263203AbTKJWNm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 17:13:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264130AbTKJWNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 16:58:48 -0500
-Received: from tolkor.sgi.com ([198.149.18.6]:52177 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id S264129AbTKJV6q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 16:58:46 -0500
-Date: Mon, 10 Nov 2003 15:58:44 -0600
-From: Jack Steiner <steiner@sgi.com>
-To: linux-kernel@vger.kernel.org
-Subject: hot cache line due to note_interrupt()
-Message-ID: <20031110215844.GC21632@sgi.com>
-Mime-Version: 1.0
+	Mon, 10 Nov 2003 17:13:42 -0500
+Received: from web11904.mail.yahoo.com ([216.136.172.188]:19719 "HELO
+	web11904.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263203AbTKJWNl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 17:13:41 -0500
+Message-ID: <20031110221340.76741.qmail@web11904.mail.yahoo.com>
+Date: Mon, 10 Nov 2003 14:13:40 -0800 (PST)
+From: Mike Mestnik <cheako911@yahoo.com>
+Subject: Re: [Dri-devel] Problems with the radeon 1.9.0 driver in 2.6.0-test9-mm2
+To: "lists.sourceforge.net dri-devel" <dri-devel@lists.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1068466480.9513.27.camel@thor.asgaard.local>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I dont know the background on note_interrupt() in arch/ia64/kernel/irq.c, 
-but I had to disable the function on our large systems (IA64).
+--- Michel Dänzer <michel@daenzer.net> wrote:
+> On Fri, 2003-11-07 at 23:05, Andrew Morton wrote: 
+> > 
+> > Has anyone actually tested the functionality which this patch is supposed
+> > to provide?  That loading the DRM module magically triggers a load of AGP? 
+> 
+> Haven't tried it, but I doubt it does looking at the code for symbol_get
+> and friends... try_then_request_module() might do the trick instead?
+> 
+> Either way, it won't help the fact that loading agpgart is no longer
+> enough, the chipset specific AGP module needs to be loaded.
+> 
+This is what aliases are for :)
+I think modprobe can be made to handel everything, if modules advertise what aliases thay provide.
+ Depmod can list aliases depending on device IDs depending on the real module in it's database,
+then when modprobe is assked to load (an alias) it can make a match and load the right mod(s if
+there is more than one).  It would brakdown like this.  There would be several mods with the same
+name, modprobe would try to satisfy the dependencys of each one, failing if the device IDs are not
+present.
 
-The function updates a counter in the irq_desc_t table. An entry in this table
-is shared by all cpus that take a specific interrupt #. For most interrupt #'s,
-this is a problem but it is prohibitive for the timer tick on big systems.
+indicate on your message that you wish to be personally CC'ed the answers/comments posted to the
+list in response to your posting.
 
-Updating the counter causes a cache line to be bounced between
-cpus at a rate of at least HZ*active_cpus. (The number of bus transactions
-is at least 2X higher because the line is first obtained for
-shared usage, then upgraded to modified. In addition, multiple references
-are made to the line for each interrupt. On a big system, it is unlikely that
-a cpu can hold the line for entire time that the interrupt is being
-serviced).
-
-On a 500p system, the system was VERY slowly making forward progres during boot,
-but I didnt have the patience to wait for it finish. After I disabled
-note_interrupt(), I had no problem booting.
-
-Certainly, the problem is much less severe on smaller systems. However, even
-moderate sized systems may see some degradation due to this hot cache line.
-
-
-
-I also verified on a system simulator that the counter in note_interrupt() is the
-only line that is bounced between cpus at a HZ rate on an idle system.
-
-The IPI & reschedule interrupts have a similar problem but at a lower rate.
-
-
-(initialially sent to linux-ia64@vger.kernel.org)
-
--- 
-Thanks
-
-Jack Steiner (steiner@sgi.com)          651-683-5302
-Principal Engineer                      SGI - Silicon Graphics, Inc.
+> > Or is it the other way around?
+> 
+> Only really makes sense this way around. :)
+> 
+How about we put the AGP module name in the XF86Config and have X load everything.  I personaly
+HATE this idea, IMHO X(and other programs for that matter) should not alter loaded modules nor
+should it alter device nodes exept to change the owner like login dose for ttys.
 
 
+__________________________________
+Do you Yahoo!?
+Protect your identity with Yahoo! Mail AddressGuard
+http://antispam.yahoo.com/whatsnewfree

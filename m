@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130397AbQKIS0b>; Thu, 9 Nov 2000 13:26:31 -0500
+	id <S130790AbQKIS2L>; Thu, 9 Nov 2000 13:28:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130450AbQKIS0V>; Thu, 9 Nov 2000 13:26:21 -0500
-Received: from gw.chygwyn.com ([62.172.158.50]:14857 "EHLO gw.chygwyn.com")
-	by vger.kernel.org with ESMTP id <S130397AbQKIS0K>;
-	Thu, 9 Nov 2000 13:26:10 -0500
-From: Steve Whitehouse <steve@gw.chygwyn.com>
-Message-Id: <200011091801.SAA19861@gw.chygwyn.com>
-Subject: Re: [patch] NE2000
-To: kuznet@ms2.inr.ac.ru
-Date: Thu, 9 Nov 2000 18:01:36 +0000 (GMT)
-Cc: davem@redhat.com (David S. Miller), morton@nortelnetworks.com,
-        andrewm@uow.edu.au, linux-kernel@vger.kernel.org
-In-Reply-To: <200011091803.VAA05245@ms2.inr.ac.ru> from "kuznet@ms2.inr.ac.ru" at Nov 09, 2000 09:03:51 PM
-Organization: ChyGywn Limited
-X-RegisteredOffice: 7, New Yatt Road, Witney, Oxfordshire. OX8 6NU England
-X-RegisteredNumber: 03887683
-Reply-To: Steve Whitehouse <Steve@ChyGwyn.com>
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130811AbQKIS2B>; Thu, 9 Nov 2000 13:28:01 -0500
+Received: from puce.csi.cam.ac.uk ([131.111.8.40]:55229 "EHLO
+	puce.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S130798AbQKIS1y>; Thu, 9 Nov 2000 13:27:54 -0500
+From: "James A. Sutherland" <jas88@cam.ac.uk>
+To: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: Installing kernel 2.4
+Date: Thu, 9 Nov 2000 18:24:36 +0000
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: George Anzinger <george@mvista.com>,
+        Horst von Brand <vonbrand@inf.utfsm.cl>,
+        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <00110822033500.04252@dax.joh.cam.ac.uk> <3A09B856.EC897A92@mvista.com> <12370.973776350@redhat.com>
+In-Reply-To: <12370.973776350@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <00110918264401.06239@dax.joh.cam.ac.uk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 09 Nov 2000, David Woodhouse wrote:
+> jas88@cam.ac.uk said:
+> >  I think a default whereby the kernel built will run on any
+> > Linux-capable machine of that architecture would be sensible - so if I
+> > grab the 2.4.0t10 tarball and build it now, with no changes, I'll be
+> > able to boot the kernel on any x86 machine.
+> 
+> I have four machines on my desk at the moment. The workstation is a dual 
+> P-III. I suppose I agree that it might be nice if the kernel for that also 
+> worked on the embedded 386 board. But it'd also be nice if it worked on the 
+> Alpha and the SH boards which are also on my desk. How about putting the 
+> whole lot into a single kernel image? It's the logical extension of what's 
+> being suggested.
 
-I have to own up and say that it was me :-) you'll see that DECnet is the
-only protocol to use these macros at the moment. I'm sure though that I
-only copied what IPv4 was doing at the time, along with the hints I had
-from yourself and Dave,
+No. In the x86 case, it is a question of "do we deliberately restrict this
+kernel to running only on a Pentium II in order to make it x% faster". My
+suggestion does not duplicate any code, or (with a few exceptions) include any
+redundant code for any platform (maths emulation, e.g., would be an exception).
+Yours duplicates code, rather than just not optimising it as aggressively.
 
-Steve.
 
-> 
-> Hello!
-> 
-> > Alexey!  Even someone understood all this already, look
-> > to include/net/sock.h SOCK_SLEEP_{PRE,POST} macros :-)
-> > 
-> > I will compose a patch to fix all this.
-> 
-> O! But who was this wiseman? 8)
-> 
-> Alexey
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
-
+James.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

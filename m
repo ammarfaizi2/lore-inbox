@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263636AbTL2Pc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 10:32:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTL2Pc7
+	id S263472AbTL2PuB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 10:50:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbTL2PuB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 10:32:59 -0500
-Received: from www.jubileegroup.co.uk ([212.22.195.7]:6026 "EHLO
-	www2.jubileegroup.co.uk") by vger.kernel.org with ESMTP
-	id S263636AbTL2Pc6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 10:32:58 -0500
-Date: Mon, 29 Dec 2003 15:32:54 +0000 (GMT)
-From: Ged Haywood <ged@www2.jubileegroup.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: All filesystems hang under long periods of heavy load (read and
- write) on a filesystem
-In-Reply-To: <Pine.LNX.4.21.0312231544250.20325-100000@www2.jubileegroup.co.uk>
-Message-ID: <Pine.LNX.4.21.0312291516140.10965-100000@www2.jubileegroup.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 29 Dec 2003 10:50:01 -0500
+Received: from frankvm.xs4all.nl ([80.126.170.174]:58759 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S263472AbTL2Pt7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 10:49:59 -0500
+Date: Mon, 29 Dec 2003 16:54:33 +0100
+From: Frank van Maarseveen <frankvm@xs4all.nl>
+To: Rob Love <rml@ximian.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23 can run with HZ==0!
+Message-ID: <20031229155433.GA4475@janus>
+Mail-Followup-To: Frank van Maarseveen <frankvm@xs4all.nl>,
+	Rob Love <rml@ximian.com>, Arjan van de Ven <arjanv@redhat.com>,
+	linux-kernel@vger.kernel.org
+References: <20031228230522.GA1876@janus> <1072691126.5223.5.camel@laptop.fenrus.com> <20031229125240.GA4055@janus> <1072711585.4294.8.camel@fur>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1072711585.4294.8.camel@fur>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again all,
-
-On Tue, 23 Dec 2003, Ged Haywood wrote:
-[snip,snip]
-> On Tue, 04 Nov 2003 Randy Dunlap wrote:
-> > 
-> > Can you try a recent kernel, like 2.4.23-pre8 or -pre9?
+On Mon, Dec 29, 2003 at 10:26:25AM -0500, Rob Love wrote:
+> On Mon, 2003-12-29 at 07:52, Frank van Maarseveen wrote:
 > 
-> Copying large files from the smaller IDE drive to the larger trashed
-> the filesystem on the partition being written to.
+> > Can you give me an example?
+> 
+> Sure, as this has already been done:
+> 
+> 	http://www.kernel.org/pub/linux/kernel/people/rml/variable-HZ/v2.4/
 
-It seems that this boils down to using PIO mode, after enabling DMA I am
-able to write 1.7G files with no trouble - of course it's early days yet,
-the fault might not be fixed, it might just be less obvious...
+That looks more complete and its cleaner. When I needed the HZ patch I
+deliberately didn't care about #ifdef __KERNEL__ in the header files. It
+was a tmp hack anyway.
 
-Enabling DMA hadn't been top priority until I spoke to the 'hdparm'
-maintainer at Debian.  The driver for the CMD Technology Inc CMD680 is
-cunningly hidden under "Silicon Image chipset support" in the 2.4.23
-config menus but was fairly easy to find once I started digging.  :)
+it doesn't contain the #if HZ==1000 fix in timer.c. I'm not sure if it
+is that important and this one is broke since it fixes yet another HZ
+value instead of all.
 
-Apparently the problem might still be present in 2.6.0 - see for example
+> 
+> As you see, that has a ton of fixups, primarily to ensure that
+> user-space is always exported jiffies in terms of USER_HZ==100.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/must-fix/should-fix-7.txt
+I missed a two or three cases. Hoever, no sign of the tenfold size increase
+or any fixes inside SCSI ioctls or firewall rules (netfilter code I presume).
 
-Anyway I'm thinking I'll put together an identical machine in the next
-few weeks so I'll be able to reproduce the fault at will.  Would anyone
-be interested in playing with it?
+Arjan, are you sure?
 
-73,
-Ged.
-
-PS: Not subscribed, please CC me if you're interested.
-
-PPS: Keeping the same subject line, but maybe this deserves a new one?
-
+-- 
+Frank

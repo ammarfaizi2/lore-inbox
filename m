@@ -1,17 +1,182 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129939AbRAaQWl>; Wed, 31 Jan 2001 11:22:41 -0500
+	id <S129805AbRAaQXl>; Wed, 31 Jan 2001 11:23:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130874AbRAaQWb>; Wed, 31 Jan 2001 11:22:31 -0500
-Received: from blackdog.wirespeed.com ([208.170.106.25]:53007 "EHLO
-	blackdog.wirespeed.com") by vger.kernel.org with ESMTP
-	id <S129939AbRAaQWQ>; Wed, 31 Jan 2001 11:22:16 -0500
-Date: Wed, 31 Jan 2001 10:19:37 -0600
-From: jadb@redhat.com
-Message-Id: <200101311619.KAA24311@blackdog.wirespeed.com>
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+	id <S132166AbRAaQXV>; Wed, 31 Jan 2001 11:23:21 -0500
+Received: from smtpe.casema.net ([195.96.96.172]:33037 "HELO smtpe.casema.net")
+	by vger.kernel.org with SMTP id <S130874AbRAaQXQ>;
+	Wed, 31 Jan 2001 11:23:16 -0500
+From: "Ruurd A. Reitsma" <R.A.Reitsma@wbmt.tudelft.nl>
+To: "Keith Owens" <kaos@ocs.com.au>, "Miles Lane" <miles@megapath.net>
+Cc: <linux-kernel@vger.kernel.org>, "Norberto Pellicci" <pellicci@home.com>,
+        <Robert.Siemer@gmx.de>, <Markus.Kuhn@cl.cam.ac.uk>
+Subject: RE: 2.4.1 -- Unresolved symbols in radio-miropcm20.o
+Date: Wed, 31 Jan 2001 17:22:32 +0100
+Message-ID: <NCBBIEBKAIAPGJDGPNCJOENCCFAA.R.A.Reitsma@wbmt.tudelft.nl>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0009_01C08BAA.65852660"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <4987.980895146@ocs3.ocs-net>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0009_01C08BAA.65852660
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+>-----Original Message-----
+>From: Keith Owens [mailto:kaos@ocs.com.au]
+>Sent: dinsdag 30 januari 2001 23:52
+>To: Miles Lane
+>Cc: linux-kernel@vger.kernel.org; Ruurd Reitsma; Norberto Pellicci
+>Subject: Re: 2.4.1 -- Unresolved symbols in radio-miropcm20.o
+>
+>
+>On Tue, 30 Jan 2001 13:08:12 -0800,
+>Miles Lane <miles@megapath.net> wrote:
+>>depmod: *** Unresolved symbols in
+>>/lib/modules/2.4.1/kernel/drivers/media/radio/radio-miropcm20.o
+>>depmod: 	aci_write_cmd
+>>depmod: 	aci_indexed_cmd
+>>depmod: 	aci_write_cmd_d
+>
+>Those symbols are defined in drivers/sound/aci.c but are not exported
+>for other modules to use.  The aci and miropcm20 code needs to be
+>changed to support use as modules.  Also the config.in files need
+
+They are being exported, otherwise miropcm20.o won't work, would it? I've
+just been too lazy to change the Config.in properly. It is however mentioned
+in the radio-miropcm20 helpfile.
+
+>fixing for these files, it is possible to select combinations of aci
+>and miropcm20 that will fail to link (miropcm20 built in, aci not
+>selected or selected as a module) or fail to load (miropcm20 selected
+>as a module, aci not selected).
+>
+
+appearently Robert Siemer's patch didn't make it to the actual kernel. He
+did change the config.in and made some changes to aci.c to support his
+version of the firmware. He'll probably be happy to maintain the driver
+since I threw out the pmc20 card.
+
+--Ruurd
+
+------=_NextPart_000_0009_01C08BAA.65852660
+Content-Type: application/octet-stream;
+	name="aci.patch.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="aci.patch.bz2"
+
+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
+yRThQkMRyyxQ
+
+------=_NextPart_000_0009_01C08BAA.65852660--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316838AbSEVDLV>; Tue, 21 May 2002 23:11:21 -0400
+	id <S316844AbSEVDzD>; Tue, 21 May 2002 23:55:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316840AbSEVDLU>; Tue, 21 May 2002 23:11:20 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:61136 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316838AbSEVDLT>;
-	Tue, 21 May 2002 23:11:19 -0400
-Date: Tue, 21 May 2002 19:57:16 -0700 (PDT)
-Message-Id: <20020521.195716.84584338.davem@redhat.com>
-To: torvalds@transmeta.com
-Cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.5.17
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0205211933490.989-100000@home.transmeta.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316845AbSEVDzC>; Tue, 21 May 2002 23:55:02 -0400
+Received: from dsl-213-023-040-073.arcor-ip.net ([213.23.40.73]:46246 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S316844AbSEVDzC>;
+	Tue, 21 May 2002 23:55:02 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrew Morton <akpm@zip.com.au>, Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] buffermem_pages removal (5/5)
+Date: Wed, 22 May 2002 05:53:33 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020521141015.E15796@infradead.org> <20020521185340.A694@infradead.org> <3CEA9193.10F45174@zip.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17ANBv-0001sA-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Linus Torvalds <torvalds@transmeta.com>
-   Date: Tue, 21 May 2002 19:40:08 -0700 (PDT)
-   
-   The early switch would at least on x86 be likely to result in the minimal
-   amount of TLB flushing theoretically possible. Which I kind of like (if
-   you can _prove_ that you cannot do better, you're in a good position ;).
-   
-Probably on sparc64 too.  The simplest way to kill off a TLB context
-on sparc64 at exit_mmap() is to just mark it invalid (this means just
-clearing the cpu_vm_mask of the mm_struct using that context PID).
+On Tuesday 21 May 2002 20:27, Andrew Morton wrote:
+> Christoph Hellwig wrote:
+> > 
+> > Yho sais all blockdev mapping have to stay ZONE_NORMAL?
+> 
+> Three trillion filesystems for which we don't have a mkfs which
+> access bh->b_data all over the place :(
 
-It is even simpler than that, at exit_mmap() time we are destroying
-the mm_struct anyways, nobody references it, and thus destroy_context
-does all of the work.
+It's time to change all the bh->b_data to bh_data(bh) and b_data
+to _b_data /* don't use */
 
-Unfortunately, today mmdrop() (which is where destroy_context is
-invoked) happens after exit_mmap().
-
-Maybe some kind of "switch_from_dead_context()" type of thing?
-
+-- 
+Daniel

@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbTKUXAx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 18:00:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbTKUXAw
+	id S261731AbTKUXJI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 18:09:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbTKUXJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 18:00:52 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:6878 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261563AbTKUXAw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 18:00:52 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: dick.streefland@xs4all.nl (Dick Streefland)
-Subject: Re: IDE lockup after floppy access
-Date: Sat, 22 Nov 2003 00:01:47 +0100
-User-Agent: KMail/1.5.4
-References: <2535.3fbe9484.4f0e6@altium.nl>
-In-Reply-To: <2535.3fbe9484.4f0e6@altium.nl>
-Cc: spam@streefland.xs4all.nl (Dick Streefland), linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Nov 2003 18:09:08 -0500
+Received: from 217-124-7-166.dialup.nuria.telefonica-data.net ([217.124.7.166]:1152
+	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
+	id S261731AbTKUXJG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Nov 2003 18:09:06 -0500
+Date: Sat, 22 Nov 2003 00:08:57 +0100
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       Voicu Liviu <pacman@mscc.huji.ac.il>, kerin@recruit2recruit.net
+Subject: Re: 2.6.0-test9-mm4 (only) and vmware
+Message-ID: <20031121230857.GA6202@localhost>
+Mail-Followup-To: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, Voicu Liviu <pacman@mscc.huji.ac.il>,
+	kerin@recruit2recruit.net
+References: <20031120225629.GN22764@holomorphy.com> <20031121201019.GA5848@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311220001.47992.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20031121201019.GA5848@localhost>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday, 21 November 2003, at 21:10:19 +0100,
+Jose Luis Domingo Lopez wrote:
 
-Does disabling CONFIG_PREEMPT cure the problem?
+> Otherwise, everything is as it was yesterday. Booted the program,
+> started the same guest operating system as ever, and now the BUG is gone
+> and everything works OK.
+> 
+Just for the record, the recently released 2.6.0-test9-mm5 has the fix 
+for mm/memory.c so VMware works OK again.
 
---bart
+Greetings.
 
-On Friday 21 of November 2003 23:41, Dick Streefland wrote:
-> After accessing a floppy disk, the kernel blocks on the first harddisk
-> access. After a couple of seconds, the following messages appear:
->
->   hda: dma_time_expiry: dma status = 0x61
->   hda: DMA timeout error
->
-> I can only reset at this point. This is reproducible. I'm running
-> kernel 2.6.0-test9 on an SMP system, but the problem doesn't go away
-> when I boot with "nosmp". The kernel was built with CONFIG_PREEMPT.
-
+-- 
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test9-mm5)

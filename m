@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263056AbTEVSXY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 14:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTEVSXY
+	id S263084AbTEVS0c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 14:26:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263103AbTEVS0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 14:23:24 -0400
-Received: from holomorphy.com ([66.224.33.161]:48269 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263056AbTEVSXQ (ORCPT
+	Thu, 22 May 2003 14:26:31 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:57017 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S263084AbTEVS03 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 14:23:16 -0400
-Date: Thu, 22 May 2003 11:36:08 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: mikpe@csd.uu.se
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: arch/i386/kernel/mpparse.c warning fixes
-Message-ID: <20030522183608.GV8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	mikpe@csd.uu.se, akpm@digeo.com, linux-kernel@vger.kernel.org
-References: <20030522155320.GP29926@holomorphy.com> <16076.62927.525714.113342@gargle.gargle.HOWL> <20030522162305.GT8978@holomorphy.com> <16077.5909.155004.502440@gargle.gargle.HOWL>
-Mime-Version: 1.0
+	Thu, 22 May 2003 14:26:29 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16077.5909.155004.502440@gargle.gargle.HOWL>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16077.6500.502815.97688@napali.hpl.hp.com>
+Date: Thu, 22 May 2003 11:39:32 -0700
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@digeo.com>, Ravikiran G Thirumalai <kiran@in.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>, linux-kernel@vger.kernel.org,
+       David Mosberger-Tang <davidm@hpl.hp.com>
+Subject: Re: [PATCH] per-cpu support inside modules (minimal)
+In-Reply-To: <20030522100511.751E02C0F1@lists.samba.org>
+References: <20030522100511.751E02C0F1@lists.samba.org>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III writes:
->> m->mpc_apicid is an 8-bit type; MAX_APICS can be 256. The above fix
->> properly compares two integral expressions of equal width.
 
-On Thu, May 22, 2003 at 08:29:41PM +0200, mikpe@csd.uu.se wrote:
-> In the original "_>_", the 8-bit mpc_apicid is implicitly converted to int
-> before the comparison, as part of the "integer promotions" in the "usual
-> arithmetic conversions" (C standard lingo). The same happens in your "_-_<=0".
-> So what's the benefit of the rewrite?
+  Rusty> OK, this does the *minimum* required to support
+  Rusty> DEFINE_PER_CPU inside modules.  If we decide to change
+  Rusty> kmalloc_percpu later, great, we can turf this out.
 
-It removes a warning about comparisons being always true or false by
-virtue of the limited range of a type.
+  Rusty> Basically, overallocates the amount of per-cpu data at boot
+  Rusty> to at least PERCPU_ENOUGH_ROOM if CONFIG_MODULES=y
+  Rusty> (arch-specific by default 16k: I have only 5700 bytes of
+  Rusty> percpu data in my kernel here, so makes sense), and a special
+  Rusty> allocator in module.c dishes it out.
 
+  Rusty> Comments welcome!
 
-William Lee Irwin III writes:
->> Also, as MAX_APICS-1 is reserved for the broadcast physical APIC ID
->> (it's 0xF for serial APIC and 0xFF for xAPIC) the small semantic change
->> here is correct.
+Looks good to me.  For ia64, I guess I'll want to add a
 
-On Thu, May 22, 2003 at 08:29:41PM +0200, mikpe@csd.uu.se wrote:
-> No argument there, except that ">=" gets the job done in a cleaner way.
+	#define PERCPU_ENOUGH_ROOM	PERCPU_PAGE_SIZE
 
-This is actually massively confused anyway. It gets physical APIC ID
-checks wrong for sparse xAPIC's on mach-default. But that's another
-issue.
+somewhere, but that doesn't sound so hard. ;-)
 
+Thanks!
 
--- wli
+	--david

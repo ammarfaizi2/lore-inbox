@@ -1,156 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269696AbUIRXef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269698AbUIRXh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269696AbUIRXef (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 19:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269688AbUIRXdu
+	id S269698AbUIRXh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 19:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269682AbUIRXex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 19:33:50 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:27092 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S269671AbUIRXaP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 19:30:15 -0400
-Date: Sat, 18 Sep 2004 16:29:47 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: akpm@osdl.org
-cc: "David S. Miller" <davem@davemloft.net>, benh@kernel.crashing.org,
-       wli@holomorphy.com, davem@redhat.com, raybry@sgi.com, ak@muc.de,
-       manfred@colorfullife.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, vrajesh@umich.edu, hugh@veritas.com
-Subject: page fault scalability patch V8: [5/7] atomic pte operations for
- i386
-In-Reply-To: <B6E8046E1E28D34EB815A11AC8CA312902CD3243@mtv-atc-605e--n.corp.sgi.com>
-Message-ID: <Pine.LNX.4.58.0409181628560.24054@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com>
- <20040816143903.GY11200@holomorphy.com>
- <B6E8046E1E28D34EB815A11AC8CA3129027B679F@mtv-atc-605e--n.corp.sgi.com>
- <B6E8046E1E28D34EB815A11AC8CA3129027B67A9@mtv-atc-605e--n.corp.sgi.com>
- <B6E8046E1E28D34EB815A11AC8CA3129027B67B4@mtv-atc-605e--n.corp.sgi.com>
- <Pine.LNX.4.58.0408271616001.14712@schroedinger.engr.sgi.com>
- <1094012689.6538.330.camel@gaston> <Pine.LNX.4.58.0409010938200.9907@schroedinger.engr.sgi.com>
- <1094080164.4025.17.camel@gaston> <Pine.LNX.4.58.0409012140440.23186@schroedinger.engr.sgi.com>
- <20040901215741.3538bbf4.davem@davemloft.net>
- <Pine.LNX.4.58.0409020920570.26893@schroedinger.engr.sgi.com>
- <20040902131057.0341e337.davem@davemloft.net>
- <Pine.LNX.4.58.0409021358540.28182@schroedinger.engr.sgi.com>
- <20040902140759.5f1003d5.davem@davemloft.net>
- <B6E8046E1E28D34EB815A11AC8CA312902CD3243@mtv-atc-605e--n.corp.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 18 Sep 2004 19:34:53 -0400
+Received: from [63.227.221.253] ([63.227.221.253]:15237 "EHLO home.keithp.com")
+	by vger.kernel.org with ESMTP id S269690AbUIRXeb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 19:34:31 -0400
+X-Mailer: exmh version 2.3.1 11/28/2001 with nmh-1.1
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Mike Mestnik <cheako911@yahoo.com>,
+       dri-devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Keith Packard <keithp@keithp.com>
+Subject: Re: Design for setting video modes, ownership of sysfs attributes 
+From: Keith Packard <keithp@keithp.com>
+In-Reply-To: Your message of "Sat, 18 Sep 2004 18:12:17 EDT."
+             <9e47339104091815125ef78738@mail.gmail.com> 
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_80760304P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 18 Sep 2004 16:33:54 -0700
+Message-Id: <E1C8oiI-0001xU-UG@evo.keithp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changelog
-	* Atomic pte operations for i386
-	* Needs the general cmpxchg patch for i386
+--==_Exmh_80760304P
+Content-Type: text/plain; charset=us-ascii
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linus/include/asm-i386/pgtable.h
-===================================================================
---- linus.orig/include/asm-i386/pgtable.h	2004-09-18 14:25:23.000000000 -0700
-+++ linus/include/asm-i386/pgtable.h	2004-09-18 15:41:52.000000000 -0700
-@@ -412,6 +412,7 @@
- #define __HAVE_ARCH_PTEP_SET_WRPROTECT
- #define __HAVE_ARCH_PTEP_MKDIRTY
- #define __HAVE_ARCH_PTE_SAME
-+#define __HAVE_ARCH_ATOMIC_TABLE_OPS
- #include <asm-generic/pgtable.h>
+Around 18 o'clock on Sep 18, Jon Smirl wrote:
 
- #endif /* _I386_PGTABLE_H */
-Index: linus/include/asm-i386/pgtable-3level.h
-===================================================================
---- linus.orig/include/asm-i386/pgtable-3level.h	2004-09-18 14:25:23.000000000 -0700
-+++ linus/include/asm-i386/pgtable-3level.h	2004-09-18 15:41:52.000000000 -0700
-@@ -6,7 +6,8 @@
-  * tables on PPro+ CPUs.
-  *
-  * Copyright (C) 1999 Ingo Molnar <mingo@redhat.com>
-- */
-+ * August 26, 2004 added ptep_cmpxchg and ptep_xchg <christoph@lameter.com>
-+*/
+> The sysfs scheme has the advantage that there is no special user
+> command required. You just use echo or cp to set the mode.
 
- #define pte_ERROR(e) \
- 	printk("%s:%d: bad pte %p(%08lx%08lx).\n", __FILE__, __LINE__, &(e), (e).pte_high, (e).pte_low)
-@@ -141,4 +142,26 @@
- #define __pte_to_swp_entry(pte)		((swp_entry_t){ (pte).pte_high })
- #define __swp_entry_to_pte(x)		((pte_t){ 0, (x).val })
+But it makes it difficult to associate the sysfs entry with the particular 
+session.  Seems like permitting multiple opens of /dev/fb0 with mode 
+setting done on that file pointer will be easier to keep straight
 
-+/* Atomic PTE operations */
-+static inline pte_t ptep_xchg(struct mm_struct *mm, pte_t *ptep, pte_t newval)
-+{
-+	pte_t res;
-+
-+	/* xchg acts as a barrier before the setting of the high bits.
-+	 * (But we also have a cmpxchg8b. Why not use that? (cl))
-+	  */
-+	res.pte_low = xchg(&ptep->pte_low, newval.pte_low);
-+	res.pte_high = ptep->pte_high;
-+	ptep->pte_high = newval.pte_high;
-+
-+	return res;
-+}
-+
-+
-+static inline int ptep_cmpxchg(struct mm_struct *mm, unsigned long address, pte_t *ptep, pte_t oldval, pte_t newval)
-+{
-+	return cmpxchg(ptep, pte_val(oldval), pte_val(newval)) == pte_val(oldval);
-+}
-+
-+
- #endif /* _I386_PGTABLE_3LEVEL_H */
-Index: linus/include/asm-i386/pgtable-2level.h
-===================================================================
---- linus.orig/include/asm-i386/pgtable-2level.h	2004-09-18 14:25:23.000000000 -0700
-+++ linus/include/asm-i386/pgtable-2level.h	2004-09-18 15:41:52.000000000 -0700
-@@ -82,4 +82,8 @@
- #define __pte_to_swp_entry(pte)		((swp_entry_t) { (pte).pte_low })
- #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
 
-+/* Atomic PTE operations */
-+#define ptep_xchg(mm,xp,a)       __pte(xchg(&(xp)->pte_low, (a).pte_low))
-+#define ptep_cmpxchg(mm,a,xp,oldpte,newpte) (cmpxchg(&(xp)->pte_low, (oldpte).pte_low, (newpte).pte_low)==(oldpte).pte_low)
-+
- #endif /* _I386_PGTABLE_2LEVEL_H */
-Index: linus/include/asm-i386/pgalloc.h
-===================================================================
---- linus.orig/include/asm-i386/pgalloc.h	2004-09-18 14:25:23.000000000 -0700
-+++ linus/include/asm-i386/pgalloc.h	2004-09-18 15:41:52.000000000 -0700
-@@ -7,6 +7,8 @@
- #include <linux/threads.h>
- #include <linux/mm.h>		/* for struct page */
 
-+#define PMD_NONE 0L
-+
- #define pmd_populate_kernel(mm, pmd, pte) \
- 		set_pmd(pmd, __pmd(_PAGE_TABLE + __pa(pte)))
+--==_Exmh_80760304P
+Content-Type: application/pgp-signature
 
-@@ -16,6 +18,19 @@
- 		((unsigned long long)page_to_pfn(pte) <<
- 			(unsigned long long) PAGE_SHIFT)));
- }
-+
-+/* Atomic version */
-+static inline int pmd_test_and_populate(struct mm_struct *mm, pmd_t *pmd, struct page *pte)
-+{
-+#ifdef CONFIG_X86_PAE
-+	return cmpxchg8b( ((unsigned long long *)pmd), PMD_NONE, _PAGE_TABLE +
-+		((unsigned long long)page_to_pfn(pte) <<
-+			(unsigned long long) PAGE_SHIFT) ) == PMD_NONE;
-+#else
-+	return cmpxchg( (unsigned long *)pmd, PMD_NONE, _PAGE_TABLE + (page_to_pfn(pte) << PAGE_SHIFT)) == PMD_NONE;
-+#endif
-+}
-+
- /*
-  * Allocate and free page tables.
-  */
-@@ -49,6 +64,7 @@
- #define pmd_free(x)			do { } while (0)
- #define __pmd_free_tlb(tlb,x)		do { } while (0)
- #define pgd_populate(mm, pmd, pte)	BUG()
-+#define pgd_test_and_populate(mm, pmd, pte)	({ BUG(); 1; })
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Exmh version 2.3.1 11/28/2001
 
- #define check_pgt_cache()	do { } while (0)
+iD8DBQFBTMXiQp8BWwlsTdMRAtWYAJ4+kF5fwJeEMohpFuApbpYeHErj7gCfZJMm
+LVLtoJ/py7g03vVZOOPGyZo=
+=t/TL
+-----END PGP SIGNATURE-----
 
+--==_Exmh_80760304P--

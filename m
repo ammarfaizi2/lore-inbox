@@ -1,114 +1,186 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261571AbTIXVgb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 17:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbTIXVgb
+	id S261581AbTIXVrY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 17:47:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbTIXVrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 17:36:31 -0400
-Received: from dsta-ac134.pivot.net ([66.186.182.134]:30957 "EHLO keimel.com")
-	by vger.kernel.org with ESMTP id S261571AbTIXVg2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 17:36:28 -0400
-Date: Wed, 24 Sep 2003 17:36:27 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Oops from 2.4.22-grsec
-Message-ID: <20030924213627.GB11225@keimel.com>
+	Wed, 24 Sep 2003 17:47:24 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17382 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261581AbTIXVrP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 17:47:15 -0400
+Date: Wed, 24 Sep 2003 22:47:14 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>, olof@austin.ibm.com
+Subject: Re: [PATCH] [2.4] Re: /proc/ioports overrun patch
+Message-ID: <20030924214713.GA7665@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.55L.0308291025340.21063@freak.distro.conectiva> <Pine.A41.4.44.0309241437330.22232-100000@forte.austin.ibm.com> <20030924195133.GY7665@parcelfarce.linux.theplanet.co.uk> <20030924195926.GZ7665@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Fcc: /home/john/mail/sent-mail
-From: john@keimel.com (John Keimel)
+In-Reply-To: <20030924195926.GZ7665@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apologies if this is poorly directed, but Documentation/oops-tracing.txt
-said email this address ;) 
+> Hey - it's already there.  That makes life very easy - ->next() should
+> do the following:
+> 	if (resource->child)
+> 		return resource->child;
+> 	while (!resource->sibling) {
+> 		resource = resource->parent;
+> 		if (!resource)
+> 			return NULL;
+> 	}
+> 	return resource->sibling;
+> 
+> AFAICS that should be it - walks the tree in right order.  Depth can be
+> trivially found by ->show(), so there's no problems either...
 
-Here's my output from ksymoops. I am not running any modules, so I ran
-with -K . I am running with grsec patch. 
+OK, here's the 2.6 variant; it should also apply on top of 2.4 backport,
+AFAICS.  Works here...
 
-If the formatting is poor, the text is available at
-http://www.keimel.com/oops-923-output.txt . 
+It replaces iterator of /proc/io{ports,mem} with normal tree traversal and
+cleans the thing up a bit.
 
-I assume this is going to the kernel list, of which I am not a member.
-Please cc: if you can. Thanks. 
-
-
-
-Output follows:
-
-john@computer:~$ ksymoops -K < oops-923 
-ksymoops 2.4.5 on i686 2.4.22-grsec.  Options used
-     -V (default)
-     -K (specified)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.22-grsec/ (default)
-     -m /boot/System.map-2.4.22-grsec (default)
-
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Unable to handle kernel NULL pointer dereference at virtual address
-00000000 printing eip:
-c01d1058
-*pde = 00000000
-Oops: 0000
-CPU:    1
-EIP:    0010:[<c01d1058>]     Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010082
-eax: f6dca054   ebx: d4e8a000   ecx: 00000000   edx:0000001a
-esi: d8304000   edi: 00000001   ebp: f7c75fac   esp:f7c75f80
-ds: 0018    es: 0018    ss:0018
-Process kjournald (pid: 14650, stackpage=f7c75000)
-Stack: 00000286 f7ecc468 f7ecc400 f5d839e0 00000020 00000004 f7ecc46c
-00000026
-       00000001 f7c74000 c011ae40 f7c75fcc c01d171e f7ecc400 f7ecc450
-00000000
-              f7c74000 f7ecc46c f7ecc46c 00000000 c02295a9 00000700
-f7ca3de0 00000000
-              Call Trace:    [<c01d171e>] [<c02295a9>] [<c02293c0>]
-[<c01c4244>]
-              Code: 8b 01 0f 18 00 81 f9 c0 22 10 c0 75 8c 83 7d f0 00
-75 65 c6
-
-
->>EIP; c01d1058 <schedule+1f0/520>   <=====
-
->>eax; f6dca054 <END_OF_CODE+36a7d084/????>
->>ebx; d4e8a000 <END_OF_CODE+14b3d030/????>
->>esi; d8304000 <END_OF_CODE+17fb7030/????>
->>ebp; f7c75fac <END_OF_CODE+37928fdc/????>
->>esp; f7c75f80 <END_OF_CODE+37928fb0/????>
-
-Trace; c01d171e <interruptible_sleep_on+4a/78>
-Trace; c02295a9 <kjournald+1d9/32c>
-Trace; c02293c0 <commit_timeout+0/c>
-Trace; c01c4244 <arch_kernel_thread+28/38>
-
-Code;  c01d1058 <schedule+1f0/520>
-00000000 <_EIP>:
-Code;  c01d1058 <schedule+1f0/520>   <=====
-   0:   8b 01                     mov    (%ecx),%eax   <=====
-Code;  c01d105a <schedule+1f2/520>
-   2:   0f 18 00                  prefetchnta (%eax)
-Code;  c01d105d <schedule+1f5/520>
-   5:   81 f9 c0 22 10 c0         cmp    $0xc01022c0,%ecx
-Code;  c01d1063 <schedule+1fb/520>
-   b:   75 8c                     jne    ffffff99 <_EIP+0xffffff99>
-c01d0ff1 <schedule+189/520>
-Code;  c01d1065 <schedule+1fd/520>
-   d:   83 7d f0 00               cmpl   $0x0,0xfffffff0(%ebp)
-Code;  c01d1069 <schedule+201/520>
-  11:   75 65                     jne    78 <_EIP+0x78> c01d10d0
-<schedule+268/520>
-Code;  c01d106b <schedule+203/520>
-  13:   c6 00 00                  movb   $0x0,(%eax)
-
--- 
-
-==================================================
-+ It's simply not       | John Keimel            +
-+ RFC1149 compliant!    | john@keimel.com        +
-+                       | http://www.keimel.com  +
-==================================================
+diff -urN B5-09241809/kernel/resource.c B5-current/kernel/resource.c
+--- B5-09241809/kernel/resource.c	Sat Aug  9 02:21:03 2003
++++ B5-current/kernel/resource.c	Wed Sep 24 17:28:22 2003
+@@ -38,75 +38,91 @@
+ 
+ #ifdef CONFIG_PROC_FS
+ 
+-#define MAX_IORES_LEVEL		5
++enum { MAX_IORES_LEVEL = 5 };
+ 
+-/*
+- * do_resource_list():
+- * for reports of /proc/ioports and /proc/iomem;
+- * do current entry, then children, then siblings;
+- */
+-static int do_resource_list(struct seq_file *m, struct resource *res, const char *fmt, int level)
+-{
+-	while (res) {
+-		const char *name;
+-
+-		name = res->name ? res->name : "<BAD>";
+-		if (level > MAX_IORES_LEVEL)
+-			level = MAX_IORES_LEVEL;
+-		seq_printf (m, fmt + 2 * MAX_IORES_LEVEL - 2 * level,
+-				res->start, res->end, name);
+-
+-		if (res->child)
+-			do_resource_list(m, res->child, fmt, level + 1);
+-
+-		res = res->sibling;
+-	}
+-
+-	return 0;
++static void *r_next(struct seq_file *m, void *v, loff_t *pos)
++{
++	struct resource *p = v;
++	(*pos)++;
++	if (p->child)
++		return p->child;
++	while (!p->sibling && p->parent)
++		p = p->parent;
++	return p->sibling;
+ }
+ 
+-static int ioresources_show(struct seq_file *m, void *v)
++static void *r_start(struct seq_file *m, loff_t *pos)
+ {
+-	struct resource *root = m->private;
+-	char *fmt;
+-	int retval;
+-
+-	fmt = root->end < 0x10000
+-		? "          %04lx-%04lx : %s\n"
+-		: "          %08lx-%08lx : %s\n";
++	struct resource *p = m->private;
++	loff_t l = 0;
+ 	read_lock(&resource_lock);
+-	retval = do_resource_list(m, root->child, fmt, 0);
++	for (p = p->child; p && l < *pos; p = r_next(m, p, &l))
++		;
++	return p;
++}
++
++static void r_stop(struct seq_file *m, void *v)
++{
+ 	read_unlock(&resource_lock);
+-	return retval;
+ }
+ 
+-static int ioresources_open(struct file *file, struct resource *root)
++static int r_show(struct seq_file *m, void *v)
+ {
+-	return single_open(file, ioresources_show, root);
++	struct resource *root = m->private;
++	struct resource *r = v, *p;
++	int width = root->end < 0x10000 ? 4 : 8;
++	int depth;
++
++	for (depth = 0, p = r; depth < MAX_IORES_LEVEL; depth++, p = p->parent)
++		if (p->parent == root)
++			break;
++	seq_printf(m, "%*s%0*lx-%0*lx : %s\n",
++			depth * 2, "",
++			width, r->start,
++			width, r->end,
++			r->name ? r->name : "<BAD>");
++	return 0;
+ }
+ 
++struct seq_operations resource_op = {
++	.start	= r_start,
++	.next	= r_next,
++	.stop	= r_stop,
++	.show	= r_show,
++};
++
+ static int ioports_open(struct inode *inode, struct file *file)
+ {
+-	return ioresources_open(file, &ioport_resource);
++	int res = seq_open(file, &resource_op);
++	if (!res) {
++		struct seq_file *m = file->private_data;
++		m->private = &ioport_resource;
++	}
++	return res;
++}
++
++static int iomem_open(struct inode *inode, struct file *file)
++{
++	int res = seq_open(file, &resource_op);
++	if (!res) {
++		struct seq_file *m = file->private_data;
++		m->private = &iomem_resource;
++	}
++	return res;
+ }
+ 
+ static struct file_operations proc_ioports_operations = {
+ 	.open		= ioports_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+-	.release	= single_release,
++	.release	= seq_release,
+ };
+ 
+-static int iomem_open(struct inode *inode, struct file *file)
+-{
+-	return ioresources_open(file, &iomem_resource);
+-}
+-
+ static struct file_operations proc_iomem_operations = {
+ 	.open		= iomem_open,
+ 	.read		= seq_read,
+ 	.llseek		= seq_lseek,
+-	.release	= single_release,
++	.release	= seq_release,
+ };
+ 
+ static int __init ioresources_init(void)

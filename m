@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVDCIQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVDCIW1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbVDCIQH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 04:16:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVDCIQH
+	id S261614AbVDCIW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 04:22:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVDCIW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 04:16:07 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:56705 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261604AbVDCIQD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 04:16:03 -0400
-Date: Sun, 3 Apr 2005 00:15:20 -0800
-From: Paul Jackson <pj@engr.sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: kenneth.w.chen@intel.com, torvalds@osdl.org, nickpiggin@yahoo.com.au,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db
- benchmark result on recent 2.6 kernels]
-Message-Id: <20050403001520.4da24909.pj@engr.sgi.com>
-In-Reply-To: <20050403070415.GA18893@elte.hu>
-References: <200504020100.j3210fg04870@unix-os.sc.intel.com>
-	<20050402145351.GA11601@elte.hu>
-	<20050402215332.79ff56cc.pj@engr.sgi.com>
-	<20050403070415.GA18893@elte.hu>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 3 Apr 2005 04:22:26 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:7627 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261614AbVDCIWQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 04:22:16 -0400
+Message-ID: <424FA7B4.6050008@yandex.ru>
+Date: Sun, 03 Apr 2005 12:22:12 +0400
+From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en, ru, en-us
+MIME-Version: 1.0
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "Artem B. Bityuckiy" <dedekind@infradead.org>, dwmw2@infradead.org,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
+Subject: Re: [RFC] CryptoAPI & Compression
+References: <E1DGxa7-0000GH-00@gondolin.me.apana.org.au> <Pine.LNX.4.58.0504011534460.9305@phoenix.infradead.org> <20050401152325.GB4150@gondor.apana.org.au> <Pine.LNX.4.58.0504011640340.9305@phoenix.infradead.org> <20050401221303.GA6557@gondor.apana.org.au>
+In-Reply-To: <20050401221303.GA6557@gondor.apana.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> the default on ia64 (32MB) was way too large
-
-Agreed.  It took about 9 minutes to search the first pair of cpus
-(cpu 0 to cpu 1) from a size of 67107840 down to a size of 62906,
-based on some prints I added since my last message.
 
 
-> it seems the screen blanking timer hit
+Herbert Xu wrote:
+> The question is what happens when you compress 1 1GiB input buffer into
+> a 1GiB output buffer.
+If user provides 1 GB output buffer then either we successfully compress 
+all the 1 GB input or we compress just a part of it.
 
-Ah - yes.  That makes sense.
+In the former case user may provide a second output buffer and 
+crypto_comp_pcompress() will compress the rest of the input to it. And 
+the user will have two independently de-compressible buffers.
 
+The latter case is possible if the input isn't compressible and it is up 
+to user to detect that handle this situation properly (i.e., just not to 
+compress this). So, IMO, there are no problems here at least for the 
+crypto_comp_pcompress() function.
 
-> do a search from 10MB downwards. This
->   should speed up the search.
+In case of crypto_comp_pcompress() if the input isn't compressible, 
+error will be returned.
 
-That will help (I'm guessing not enough - will see shortly.)
+If somebody needs a more flexible compression interface, he may think 
+about implementing an deflate-like Crypto API interface. Or something 
+else like crypto_comp_compress() which saves its internal state between 
+calls and may be called several times with more input/output. I didn't 
+think on it but we might as well.
 
-
-> verbose printouts 
-
-I will put them to good use.
-
-Thanks.
+> It'd be a good idea to use /dev/urandom as your input.
+Yes, this is what I think about. I'm going to extend the tcrypt.ko test.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.

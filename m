@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268063AbTBNXuQ>; Fri, 14 Feb 2003 18:50:16 -0500
+	id <S268465AbTBNXrl>; Fri, 14 Feb 2003 18:47:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268471AbTBNXt6>; Fri, 14 Feb 2003 18:49:58 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:26757 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S268237AbTBNXrx>; Fri, 14 Feb 2003 18:47:53 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 14 Feb 2003 16:04:53 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Jamie Lokier <jamie@shareable.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Synchronous signal delivery..
-In-Reply-To: <20030214024046.GA18214@bjl1.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.50.0302141603220.988-100000@blue1.dev.mcafeelabs.com>
-References: <Pine.LNX.4.44.0302131120280.2076-100000@home.transmeta.com>
- <20030214024046.GA18214@bjl1.jlokier.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268063AbTBNXrW>; Fri, 14 Feb 2003 18:47:22 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:25216 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S268488AbTBNXqb>;
+	Fri, 14 Feb 2003 18:46:31 -0500
+Date: Fri, 14 Feb 2003 15:56:19 -0800
+From: Bob Miller <rem@osdl.org>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.5.60 7/9] Update the GSC-Bus parallel port driver for new module API.
+Message-ID: <20030214235619.GJ13336@doc.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Feb 2003, Jamie Lokier wrote:
+The patch below updates the GSC-Bus parallel port driver to use the new module
+interfaces.  This hasn't been test (sorry no hardware).
 
-> And when that's done you have some nice bonuses:
->
-> 	- All event types are reported equally fast, and in a single
-> 	  system call (read()).
->
-> 	- The order in which events occurred is preserved.
-> 	  (This is lost when you have to scan multiple queues).
->
-> 	- Hierarchies of event sets of any kind are possible.
-> 	  (epoll has solved the logical problems of this already).
->
-> 	- Less code duplicated.
->
-> 	- Adding new kinds of kernel events becomes _very_ simple.
-
-Hmm ... using read() you'll lose the timeout capability, that IMHO is
-pretty nice.
+-- 
+Bob Miller					Email: rem@osdl.org
+Open Source Development Lab			Phone: 503.626.2455 Ext. 17
 
 
-
-
-- Davide
-
+diff -Nru a/drivers/parport/parport_gsc.c b/drivers/parport/parport_gsc.c
+--- a/drivers/parport/parport_gsc.c	Fri Feb 14 09:50:44 2003
++++ b/drivers/parport/parport_gsc.c	Fri Feb 14 09:50:44 2003
+@@ -190,14 +190,14 @@
+ 	parport_writeb (s->u.pc.ctr, CONTROL (p));
+ }
+ 
+-void parport_gsc_inc_use_count(void)
++int parport_gsc_inc_use_count(void)
+ {
+-	MOD_INC_USE_COUNT;
++	return try_module_get(THIS_MODULE);
+ }
+ 
+ void parport_gsc_dec_use_count(void)
+ {
+-	MOD_DEC_USE_COUNT;
++	module_put(THIS_MODULE);
+ }

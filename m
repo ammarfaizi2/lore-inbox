@@ -1,68 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267760AbUIAWhU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268141AbUIAVgY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267760AbUIAWhU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 18:37:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267443AbUIAWfL
+	id S268141AbUIAVgY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 17:36:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267951AbUIAVH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 18:35:11 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:28556 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267520AbUIAWaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 18:30:21 -0400
-Subject: Re: MMC block major dev
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040901225503.A26520@flint.arm.linux.org.uk>
-References: <4134CDF0.7070600@drzeus.cx>
-	 <20040831201556.B11053@flint.arm.linux.org.uk> <4134D5EF.9080903@drzeus.cx>
-	 <1094040990.2399.56.camel@localhost.localdomain>
-	 <20040901225503.A26520@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094074082.3100.18.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 01 Sep 2004 22:28:04 +0100
+	Wed, 1 Sep 2004 17:07:59 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:34694 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S267935AbUIAU4R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 16:56:17 -0400
+Subject: [patch 07/25]  drivers/char/pcxx.c MIN/MAX removal
+To: linux-kernel@vger.kernel.org
+Cc: akpm@digeo.com, janitor@sternwelten.at
+From: janitor@sternwelten.at
+Date: Wed, 01 Sep 2004 22:56:16 +0200
+Message-ID: <E1C2c9R-0007K9-7M@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-09-01 at 22:55, Russell King wrote:
-> Surely the same arguments also apply to character drivers as well?
 
-Beats me but I had this argument before 1.0 was out and lost.
 
-> >From what you're saying, any use of these dynamic majors what so
-> ever is buggy.  So WTF do we have this facility in the kernel in
-> the first place?
+Patch (against 2.6.7) removes unnecessary min/max macros and changes
+calls to use kernel.h macros instead.
 
-It makes sense if you have something truely managing your device space
-like devfs or udev. 
+Feedback is always welcome
+Michael
 
-> I suggest that someone submits a patch to rip out this apparantly
-> buggy and useless feature, or at least make the kernel print a
-> warning when its used such that people are aware of its dangerous
-> nature.
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 
-Once everyone is using udev its useful. It also works out for devices
-you never "give" to a user. The problem with MMC slots is they are the
-kind of thing you want to hand out to a user on the console of a machine
-in many situations.
 
-> Of course, if you do rip out dynamic majors then you _will_ need
-> to have an assigned major number for PCMCIA driver services, and
-> probably a bunch of other stuff.
 
-PCMCIA is very careful to create and remove its nodes and make sure they
-don't ever become non root only.
+---
 
-> I also seem to remember hearing that we will only be using dynamically
-> assigned device numbers in the new expanded device space.
+ linux-2.6.9-rc1-bk7-max/drivers/char/pcxx.c |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
 
-If and when everyone has udev happy then yes - although LANANA is still
-needed for name assignment between vendors. That or we give it to the
-LSB, and personally I'd rather LANANA did it 8)
+diff -puN drivers/char/pcxx.c~min-max-char_pcxx drivers/char/pcxx.c
+--- linux-2.6.9-rc1-bk7/drivers/char/pcxx.c~min-max-char_pcxx	2004-09-01 19:33:55.000000000 +0200
++++ linux-2.6.9-rc1-bk7-max/drivers/char/pcxx.c	2004-09-01 19:33:55.000000000 +0200
+@@ -130,7 +130,6 @@ static struct channel    *digi_channels;
+ int pcxx_ncook=sizeof(pcxx_cook);
+ int pcxx_nbios=sizeof(pcxx_bios);
+ 
+-#define MIN(a,b)	((a) < (b) ? (a) : (b))
+ #define pcxxassert(x, msg)  if(!(x)) pcxx_error(__LINE__, msg)
+ 
+ #define FEPTIMEOUT 200000  
+@@ -626,7 +625,7 @@ static int pcxe_write(struct tty_struct 
+ 		
+ 		tail &= (size - 1);
+ 		stlen = (head >= tail) ? (size - (head - tail) - 1) : (tail - head - 1);
+-		count = MIN(stlen, count);
++		count = min(stlen, count);
+ 		memoff(ch);
+ 		restore_flags(flags);
+ 
+@@ -658,11 +657,11 @@ static int pcxe_write(struct tty_struct 
+ 		remain = tail - head - 1;
+ 		stlen = remain;
+ 	}
+-	count = MIN(remain, count);
++	count = min(remain, count);
+ 
+ 	txwinon(ch);
+ 	while (count > 0) {
+-		stlen = MIN(count, stlen);
++		stlen = min(count, stlen);
+ 		memcpy(ch->txptr + head, buf, stlen);
+ 		buf += stlen;
+ 		count -= stlen;
 
-Alan
-
+_

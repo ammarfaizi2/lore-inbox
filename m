@@ -1,84 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267388AbSLEUiC>; Thu, 5 Dec 2002 15:38:02 -0500
+	id <S267382AbSLEUns>; Thu, 5 Dec 2002 15:43:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267389AbSLEUiC>; Thu, 5 Dec 2002 15:38:02 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:40939 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S267388AbSLEUiA>; Thu, 5 Dec 2002 15:38:00 -0500
-Date: Thu, 5 Dec 2002 21:07:57 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: jpiszcz <jpiszcz@lucidpixels.com>
-Cc: netfilter-devel@lists.netfilter.org,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [Fwd: Question with printk warnings in ip_conntrack with 2.4.20.]
-Message-ID: <20021205200756.GB11068@naboo.club.berlin.ccc.de>
-References: <1038618763.22065.1.camel@rth.ninka.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XF85m9dhOBO43t/C"
-Content-Disposition: inline
-In-Reply-To: <1038618763.22065.1.camel@rth.ninka.net>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux naboo 2.4.19-pre4-ben0
-X-Date: Today is Prickle-Prickle, the 47th day of The Aftermath in the YOLD 3168
+	id <S267385AbSLEUns>; Thu, 5 Dec 2002 15:43:48 -0500
+Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:11524
+	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
+	id <S267382AbSLEUnr>; Thu, 5 Dec 2002 15:43:47 -0500
+Message-ID: <3DEFBB57.3050709@rackable.com>
+Date: Thu, 05 Dec 2002 12:47:19 -0800
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Cerberus maintaince release
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 Dec 2002 20:51:19.0216 (UTC) FILETIME=[0FB73300:01C29CA0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  I'm releasing the 1st maintaince release for Cerberus.  I'll be taking 
+primary responsibilty I'm releasing the 1st maintenance release for 
+Cerberus.  I'll be taking primary responsibility for keeping ctcs 
+update, and collecting bug fixes.   As the current code meets 99% my 
+needs .  I won't be doing much more than refining the existing tests, 
+and fixing bugs.  
 
---XF85m9dhOBO43t/C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+   Patches are welcome.  Be sure to CC Jason Collins on any patch that 
+makes major changes.
 
-> Nov 29 03:29:26 lucidpixels kernel: ip_conntrack: max number of expected=
-=20
-> connections 1 of ftp reached for 192.168.xxx.xxx->129.128.5.191, reusing
-> Nov 29 03:29:30 lucidpixels kernel: ip_conntrack: max number of expected=
-=20
-> connections 1 of ftp reached for 192.168.xxx.xxx->129.132.7.170, reusing
-> Nov 29 03:29:36 lucidpixels kernel: ip_conntrack: max number of expected=
-=20
-> connections 1 of ftp reached for 192.168.xxx.xxx->195.113.31.123, reusing
->=20
-> These fill up my logs (kern.info) which I use for logging iptables=20
-> blocked packets.
+Currently Supported Platforms*:
+-Red Hat 7.2 x86
+-Red Hat 8.0 x86
 
-the issue is that somebody is doing something very strange to your ftp
-server.  Inside an FTP session, there's always only one expectation,
-since there is only one unestablished data session per control session
-at any given point in time.
+Future Supported Platforms*:
+-Yellow Dog 2.3 PPC
+-Red Hat 7.2 ia64
+-Red Hat 8.0 x86 /w 2.5.x kernel
 
-> Is there anyway to turn this feature off dynamically or should one just=
-=20
-> comment out line #970 in=20
-> /usr/src/linux/net/ipv4/netfilter/ip_conntrack_core.c ?
 
-feel free to remove the comment.  but in normal ftp protocol behaviour,
-the lines above should never be printed.
+*Note- The there is not any reason ctcs shouldn't run on any linux 
+distro.  These are merely the intended test platforms.
 
---=20
-Live long and prosper
-- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M-=
-=20
-V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)
+http://sourceforge.net/projects/va-ctcs/
+http://sourceforge.net/project/showfiles.php?group_id=5317
 
---XF85m9dhOBO43t/C
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE977IcXaXGVTD0i/8RAtvtAJ9nLCvbzdrkrNaIRldtBNqwVA8NygCfSKbX
-iM8HHSXBZptNcwpsw/EAUMc=
-=edML
------END PGP SIGNATURE-----
-
---XF85m9dhOBO43t/C--

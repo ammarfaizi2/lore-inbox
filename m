@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315210AbSFTRe2>; Thu, 20 Jun 2002 13:34:28 -0400
+	id <S315287AbSFTRn1>; Thu, 20 Jun 2002 13:43:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315287AbSFTRe1>; Thu, 20 Jun 2002 13:34:27 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:41175 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S315210AbSFTRe0>;
-	Thu, 20 Jun 2002 13:34:26 -0400
-Date: Thu, 20 Jun 2002 19:31:18 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] scheduler bits from 2.5.23-dj1
-In-Reply-To: <20020620172059.GW22961@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0206201929310.9805-100000@e2>
+	id <S315300AbSFTRn0>; Thu, 20 Jun 2002 13:43:26 -0400
+Received: from schroeder.cs.wisc.edu ([128.105.6.11]:52484 "EHLO
+	schroeder.cs.wisc.edu") by vger.kernel.org with ESMTP
+	id <S315287AbSFTRn0>; Thu, 20 Jun 2002 13:43:26 -0400
+Message-Id: <200206201743.g5KHhPu31957@schroeder.cs.wisc.edu>
+Content-Type: text/plain; charset=US-ASCII
+From: Nick LeRoy <nleroy@cs.wisc.edu>
+Organization: UW Condor
+To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>, pashley@storm.ca,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: McVoy's Clusters (was Re: latest linus-2.5 BK broken)
+Date: Thu, 20 Jun 2002 12:43:37 -0500
+X-Mailer: KMail [version 1.3.2]
+References: <200206201723.MAA04517@tomcat.admin.navo.hpc.mil>
+In-Reply-To: <200206201723.MAA04517@tomcat.admin.navo.hpc.mil>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 20 June 2002 12:23 pm, Jesse Pollard wrote:
+<snip>
+> You don't use compute servers much? The problems we are currently running
+> require the cluster (IBM SP) to have 100% uptime for a single job. that
+> job may run for several days. If a detected problem is reported (not yet
+> catastrophic) it is desired/demanded to checkpoint the users process.
+>
+> Currently, we can't - but should be able to by this fall.
+>
+> Having the users job checkpoint midway in it's computations will allow us
+> to remove a node from active service, substitute a different node, and
+> resume the users process without losing many hours of computation (we have
+> a maximum of 300 nodes for computation, another 30 for I/O and front end).
 
-On Thu, 20 Jun 2002, William Lee Irwin III wrote:
+Have you tried Condor?  Condor is a "high throughput computing" package, 
+specifically targetted at such applications, with the ability to checkpoint & 
+migrate jobs, etc.  Condor is free as in beer, but currently not as in speech 
+(sorry), and is developed by the University of Wisconsin.  
+http://www.condorproject.org is the URL to learn more.  Version 6.4.0 is in 
+the process of being released and should be available within the next couple 
+of days.
 
-> On Thu, Jun 20, 2002 at 01:47:29AM +0200, Dave Jones wrote:
-> > I'll take a look at this tomorrow, unless William "no sleep `til 2.6" Irwin
-> > beats me to it 8-)  (he did this part of the patch iirc).
-> 
-> How does this look? (compiles, boots, & runs on UP i386)
+Condor runs on Linux (x86 & Alpha), Solaris, IRIX, HPUX, Digital Unix, and 
+NT, although the NT usually lags the Unix releases.
 
-looks good to me - what do you think about my other pidhash suggestion:
-
-> And i'm not quite sure whether it's needed to expose the pidhash to the
-> rest of the kernel - it would be much simpler to have it in
-> kernel/fork.c locally, and find_task_by_pid() would be a function
-> instead of an inline. (it has a ~49 bytes footprint on x86, it's rather
-> heavy i think.)
-
-	Ingo
-
-
-
+-Nick
+Academic Staff at UW on the Condor Team

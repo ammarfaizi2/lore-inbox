@@ -1,76 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263183AbTFGMct (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 08:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTFGMct
+	id S263185AbTFGNJl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 09:09:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263187AbTFGNJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 08:32:49 -0400
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:33178 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S263183AbTFGMcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 08:32:47 -0400
-Date: Sat, 7 Jun 2003 14:32:19 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: __user annotations
-Message-ID: <20030607143219.U626@nightmaster.csn.tu-chemnitz.de>
-References: <7369DBDA-983E-11D7-8338-000A95A0560C@us.ibm.com> <Pine.LNX.4.44.0306061016250.20324-100000@home.transmeta.com>
+	Sat, 7 Jun 2003 09:09:41 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:60687 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263185AbTFGNJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 09:09:40 -0400
+Date: Sat, 7 Jun 2003 14:23:05 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: rmk@arm.linux.org.uk, davidm@hpl.hp.com, manfred@colorfullife.com,
+       axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: problem with blk_queue_bounce_limit()
+Message-ID: <20030607142305.A27242@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"David S. Miller" <davem@redhat.com>, rmk@arm.linux.org.uk,
+	davidm@hpl.hp.com, manfred@colorfullife.com, axboe@suse.de,
+	linux-kernel@vger.kernel.org
+References: <20030606.234401.104035537.davem@redhat.com> <16097.37454.827982.278024@napali.hpl.hp.com> <20030607104434.B22665@flint.arm.linux.org.uk> <20030607.024704.13764413.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.44.0306061016250.20324-100000@home.transmeta.com>; from torvalds@transmeta.com on Fri, Jun 06, 2003 at 10:28:22AM -0700
-X-Spam-Score: -5.0 (-----)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19Od5S-0003BN-00*xrNTcLgyxac*
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030607.024704.13764413.davem@redhat.com>; from davem@redhat.com on Sat, Jun 07, 2003 at 02:47:04AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Sat, Jun 07, 2003 at 02:47:04AM -0700, David S. Miller wrote:
+> I agree, the idea at the time that Jens and myself did this
+> work was that the generic device layer would provide interfaces
+> by which we could test this given a struct device.
 
-On Fri, Jun 06, 2003 at 10:28:22AM -0700, Linus Torvalds wrote:
-> HOWEVER, usually it's very obvious to fix the whole chain, unless some
-> type is sometimes used for kernel addresses and sometimes for user 
-> addresses (which networking does with iovec's, for example).
- 
-Then it's not very useful for me. I usally define the ABI between
-user space and kernel space trough IOCTL like that:
+Wouldn't that be the dma_is_phys(dev) call I mentioned earlier in
+this thread that you didn't like? :)
 
-/* These structures are usally bigger and nested deeper */
-struct in_foo_ioctl_name {
-   int bla;
-}
-
-struct out_foo_ioctl_name {
-   char blubb;
-}
-
-union foo_ioctl_name {
-   struct in_foo_ioctl_name in;
-   struct out_foo_ioctl_name out;
-}
-
-#define SUBSYS_IOCTL 0xee
-
-#define SUBSYS_FOO _IOWR(SUBSYS_IOCTL, 0x1, union foo_ioctl_name)
-
-Now I do in principle
-
-   union foo_ioctl_name k, *u = (union foo_ioctl_name *)arg;
-
-   if (copy_from_user(&k.in, &u, sizeof(k.in)) return -EFAULT;
-   if (handle_foo(&k)) return -EINVAL;
-   if (copy_to_user(&u, &k.out, sizeof(k.out)) return -EFAULT;
-   
-which I consider very clean (our project provides both: The
-only ABI provider and the only ABI user) and works from 2.0
-trough 2.5 so far.
-
-This will NOT work anymore with __user annotations, right?
-
-That's a big pity. How do I workaround this? I would like to
-help resolving this issues, if you are interested.
-
-Regards
-
-Ingo Oeser

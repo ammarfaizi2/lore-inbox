@@ -1,43 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263179AbTFPAqW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 20:46:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbTFPAqV
+	id S263183AbTFPAuk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 20:50:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTFPAuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 20:46:21 -0400
-Received: from server0011.freedom2surf.net ([194.106.56.14]:57478 "EHLO
-	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S263179AbTFPAqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 20:46:21 -0400
-Date: Mon, 16 Jun 2003 02:00:12 +0100
-From: Ian Molton <spyro@f2s.com>
-To: linux-kernel@vger.kernel.org
-Subject: FRAMEBUFFER policy
-Message-Id: <20030616020012.3f2d27dd.spyro@f2s.com>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 15 Jun 2003 20:50:40 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:269 "EHLO auth22.inet.co.th")
+	by vger.kernel.org with ESMTP id S263183AbTFPAuj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 20:50:39 -0400
+From: Michael Frank <mflt1@micrologica.com.hk>
+To: Jakob Oestergaard <jakob@unthought.net>
+Subject: Re: NFS io errors on transfer from system running 2.4 to system running 2.5
+Date: Mon, 16 Jun 2003 08:56:37 +0800
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
+References: <200306031912.53569.mflt1@micrologica.com.hk> <200306032101.27215.mflt1@micrologica.com.hk> <20030603132609.GE14947@unthought.net>
+In-Reply-To: <20030603132609.GE14947@unthought.net>
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200306160018.49652.mflt1@micrologica.com.hk>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Tuesday 03 June 2003 21:26, Jakob Oestergaard wrote:
+> On Tue, Jun 03, 2003 at 09:01:27PM +0800, Michael Frank wrote:
+> > On Tuesday 03 June 2003 20:52, Jakob Oestergaard wrote:
+> > > I always use hard,intr so that I can manually interrupt hanging jobs,
+> > > but also know that they do not randomly fail just because a few packets
+> > > get dropped on my network.  This seems to be the common setup, as far
+> > > as I know.
+> >
+> > Thank you,
+> >
+> > I will try hard, intr
+>
+> no prob.
+>
+> Please let the list know if it solves your problem or not - I'm sure
+> there are people who want to know if it doesn't, and if it does then the
+> solution will be in the archives for the next to find.
+>
+> After all, I could be mistaken...  naaahh...   ;)
+>
 
-What is the policy as regards linux framebuffer drivers when presented
-with a mode they cannot handle.
+If have tested mounting nfs partitions mode hard,intr and transfered 
+kernel bitkeeper repos between systems running combinations of recent 
+2.4 and 2.5 kernels, and also did bk resync and bk resolve via the network.
 
-eg, suppose a driver can only handle even numbers of pixels and a
-request is made for a mode with 639 pixels - should it allocate a 640
-pixel wide mode?
+It is working dependably and I won't touch soft mounting mode again ...
 
-or should it extend the height of a mode to allow hardware scrolling in
-multiples of the font height?
-
-Thanks.
+Regards
+Michael
 
 -- 
-Spyros lair: http://www.mnementh.co.uk/   ||||   Maintainer: arm26 linux
+Powered by linux-2.5.70-mm3, compiled with gcc-2.95-3 because it's rock solid
 
-Do not meddle in the affairs of Dragons, for you are tasty and good with
-ketchup.
+My current linux related activities in rough order of priority:
+- Testing of Swsusp for 2.4
+- Learning 2.5 kernel debugging with kgdb - it's in the -mm tree
+- Studying 2.5 serial and ide drivers, ACPI, S3
+
+The 2.5 kernel could use your usage. More info on setting up 2.5 kernel at 
+http://www.codemonkey.org.uk/post-halloween-2.5.txt
+
+

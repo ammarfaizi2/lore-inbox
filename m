@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261308AbTDCQIT>; Thu, 3 Apr 2003 11:08:19 -0500
+	id <S261313AbTDCQKF>; Thu, 3 Apr 2003 11:10:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261309AbTDCQIT>; Thu, 3 Apr 2003 11:08:19 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:43671 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S261308AbTDCQIS>; Thu, 3 Apr 2003 11:08:18 -0500
-Date: Thu, 3 Apr 2003 11:22:01 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Message-ID: <Pine.LNX.4.53.0304031113490.5422@chaos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261314AbTDCQKF>; Thu, 3 Apr 2003 11:10:05 -0500
+Received: from smtp3.wanadoo.fr ([193.252.22.27]:28056 "EHLO
+	mwinf0402.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S261313AbTDCQKD>; Thu, 3 Apr 2003 11:10:03 -0500
+Date: Thu, 3 Apr 2003 18:21:23 +0200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Sven Luther <luther@dpt-info.u-strasbg.fr>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       James Simmons <jsimmons@infradead.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] [PATCH]: EDID parser
+Message-ID: <20030403162123.GA17123@iliana>
+References: <4E5C514B42@vcnet.vc.cvut.cz> <20030403141530.GA8858@iliana> <1049383273.11742.0.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1049383273.11742.0.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.5.4i
+From: Sven Luther <luther@dpt-info.u-strasbg.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 03, 2003 at 04:21:14PM +0100, Alan Cox wrote:
+> On Iau, 2003-04-03 at 15:15, Sven Luther wrote:
+> > > Read is not enough. If you have connected one /dev/fbx to two monitors,
+> > > you must find highest common denominator for them, and use this one.
+> > 
+> > Err, i don't understand this ? Do you mean you are outputing to two
+> > monitors at the same time ?
+> 
+> I think you mean lowest common denominator.
+> 
+> > If that is so maybe you mean, speaking in graphic card terminology, and
+> > not in fbdev one, that you are sharing one common framebuffer between
+> > two outputs, right, possibly doing mirroring tricks or something such ?
+> 
+> Classic example is a SiS 6326 driving monitor and TV. You need to keep
+> the display to TV acceptable ranges.
 
-FYI vger rejects mail sent from yahoo.com, claims that it
-has a HTML subpart and considers it spam or Outlook Virus.
+You mean, driving both display with the same ramdac ?
 
-FYI any mail sent from yahoo will end up using the yahoo tools
-(qmail). This will put an empty HTML section in all mail. It
-is not a good thing to reject this because that means you reject
-all mail from yahoo.
+Friendly,
 
-I have gotten several messages of this kind by persons who are
-not bold enough to report problems on their own. The last rejection
-of which I speak was rejected from N26835@yahoo.com on april 2
-at 19:38:00
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+Sven Luther

@@ -1,56 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273364AbRKDTAX>; Sun, 4 Nov 2001 14:00:23 -0500
+	id <S273854AbRKDTCn>; Sun, 4 Nov 2001 14:02:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273255AbRKDTAO>; Sun, 4 Nov 2001 14:00:14 -0500
-Received: from unthought.net ([212.97.129.24]:52952 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S273364AbRKDS77>;
-	Sun, 4 Nov 2001 13:59:59 -0500
-Date: Sun, 4 Nov 2001 19:59:55 +0100
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Tim Jansen <tim@tjansen.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Message-ID: <20011104195955.K14001@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Tim Jansen <tim@tjansen.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <E15zF9H-0000NL-00@wagner> <160QM5-1HAz5sC@fmrl00.sul.t-online.com> <20011104184839.F14001@unthought.net> <160S2o-1JXpD6C@fmrl05.sul.t-online.com>
+	id <S273796AbRKDTCd>; Sun, 4 Nov 2001 14:02:33 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:46351 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S273261AbRKDTCa>;
+	Sun, 4 Nov 2001 14:02:30 -0500
+Date: Sun, 4 Nov 2001 20:02:26 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel@vger.kernel.org, groudier@club-internet.fr
+Subject: Re: Adaptec vs Symbios performance
+Message-Id: <20011104200226.3fcd974c.skraw@ithnet.com>
+In-Reply-To: <200111041810.fA4IAQY68511@aslan.scsiguy.com>
+In-Reply-To: <20011104151726.06193c01.skraw@ithnet.com>
+	<200111041810.fA4IAQY68511@aslan.scsiguy.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <160S2o-1JXpD6C@fmrl05.sul.t-online.com>; from tim@tjansen.de on Sun, Nov 04, 2001 at 07:34:00PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 04, 2001 at 07:34:00PM +0100, Tim Jansen wrote:
-> On Sunday 04 November 2001 18:48, you wrote:
-> > > Is there is a way to implement a filesystem in user-space? What you could
-> > You're proposing a replacement of /proc ?
+On Sun, 04 Nov 2001 11:10:26 -0700 "Justin T. Gibbs" <gibbs@scsiguy.com> wrote:
+
+> >Nope.
+> >I know the stuff :-) I already took tcq down to 8 (as in old driver) back at
+> >the times I compared old an new driver.
 > 
-> I was asking whether there is a way to do compatibility stuff and human 
-> readable interfaces in user space. 
+> Then you will have to find some other reason for the difference in
+> performance.  Internal queuing is not a factor with any reasonable
+> modern drive when the depth is set at 8.
 
-Probably.
+Hm, obviously we could start right from the beginning and ask people with aic
+controllers and symbios controllers for some comparison figures. Hopefully some
+people are interested.
 
-I'm just trying to:
-1)  Supplement an unstable "API sort-of-thing" with something
-    that's stable and can last.
-2)  Come up with a realistic idea that can be implemented, tested,
-    and deemed "obviously correct" and "good" in finite time
-3)  Not break stuff more than it already is, and allow for a gradual
-    transition to something that won't break mysteriously every ten
-    kernel releases.
+Here we go:
+Hello out there :-)
+we need your help. If you own a scsi-controller from adaptec or one with
+ncr/symbios chipset can you please do the following:
+reboot your box. Start xcdroast and read in a data cd. Tell us: brand of your
+cdrom, how much RAM you have, processor type, throughput as measured by
+xcdroast. Nice would be if you try several times.
+We are not really interested in the hard figures, but want to extract some
+"global" tendency.
 
-The idea is that if the userland application does it's parsing wrong, it should
-either not compile at all, or abort loudly at run-time, instead of getting bad
-values "sometimes".
+Thank you for your cooperation, 
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+Stephan
+
+PS: my values are (I obviously have both controllers):
+
+Adaptec:
+
+Drive TEAC-CD-532S (30x), 1 GB RAM, 2 x PIII 1GHz
+test 1: 2998,9 kB/s
+test 2: 2968,4 kB/s
+test 3: 3168,2 kB/s
+
+Tekram (symbios)
+
+Drive TEAC-CD-532S (30x), 1 GB RAM, 2 X PIII 1GHz
+test 1: 3619,3 kB/s
+test 2: 3611,1 kB/s
+test 3: 3620,2 kB/s
+

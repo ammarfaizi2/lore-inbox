@@ -1,150 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265506AbSKWAIF>; Fri, 22 Nov 2002 19:08:05 -0500
+	id <S266240AbSKWAVE>; Fri, 22 Nov 2002 19:21:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265543AbSKWAIF>; Fri, 22 Nov 2002 19:08:05 -0500
-Received: from imrelay-2.zambeel.com ([209.240.48.8]:2828 "EHLO
-	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
-	id <S265506AbSKWAID>; Fri, 22 Nov 2002 19:08:03 -0500
-Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB199C@xch-a.win.zambeel.com>
-From: Manish Lachwani <manish@Zambeel.com>
-To: "'Rod.VanMeter@nokia.com'" <Rod.VanMeter@nokia.com>,
-       Manish Lachwani <manish@Zambeel.com>, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: RE: Early determinition of bad sectors and correcting them ...
-Date: Fri, 22 Nov 2002 16:14:58 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S266236AbSKWAVE>; Fri, 22 Nov 2002 19:21:04 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:45973 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S266223AbSKWAVD> convert rfc822-to-8bit; Fri, 22 Nov 2002 19:21:03 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <lk@tantalophile.demon.co.uk>
+CC: <gianni@ecsc.co.uk>, <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Fri, 22 Nov 2002 16:28:10 -0800
+In-Reply-To: <20021123000616.GB19162@bjl1.asuk.net>
+Subject: Re: TCP memory pressure question
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20021123002812.AAA5286@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, you are right abt taking different factors into account especially
-queuing before making a decision abt the threshold. However, I was actually
-referring to disks only. 
 
-I have actually written a scrubber that traverses the disk and if it
-encounters a problem with the medium, it tries to get the sector remapped.
-However, the problem with the scrubber is that it will have to traverse all
-the disks in a subsystem. The amount of time it takes to traverse each disk
-is long depending on the size of the disk. We also have to make sure that
-the scrubber process does not take too much CPU when running. 
+On Sat, 23 Nov 2002 00:06:17 +0000, Jamie Lokier wrote:
 
-Hence if the scrubber traverses accross the disk, it is possible that a
-problem occurs on a sector that the scrubber passed. Then we will have to
-wait for the scrubber to restart the read. 
+>David Schwartz wrote:
 
-Most of the disks support an operating temperature of 60C. However, if we
-are operating at higher temperatures that result in long reads (due to shaky
-medium at higher temperatures), this facility is good. 
+>>So this would be a case where 'poll' or 'select' would return
+>>a write hit for a socket but 'write' would return -1 and set errno
+>>to EAGAIN.
 
------Original Message-----
-From: Rod.VanMeter@nokia.com [mailto:Rod.VanMeter@nokia.com]
-Sent: Friday, November 22, 2002 3:54 PM
-To: manish@zambeel.com; linux-kernel@vger.kernel.org;
-alan@lxorguk.ukuu.org.uk
-Subject: RE: Early determinition of bad sectors and correcting them ...
+>Is this really true?  It would livelock several servers I've worked on...
+>
+>-- Jamie
+
+	We're now getting close to my motivation for asking this question.
+
+	If it does in fact return EAGAIN, then a poll/select loop program that is 
+trying to write could get into trouble if another process was responsible for 
+large receive queues. It would spin uselessly burning its timeslice as more 
+data comes in and it delays the execution of the other process that might be 
+able to drain receive queues.
+
+	On the other hand, if send blocked, there would be a disaster if a 
+select/poll loop process were the only TCP user on the box. In this case, it 
+would deadlock. The process is blocked waiting for memory but the only way to 
+get that memory is for the process to get around to reading from other 
+connections, which it can't do because it's blocked.
+
+	My motivation in assessing what happens is to develop a sane application 
+strategy to detect and handle this condition. If we could detect it, we could 
+try not to do TCP writes and try to do reads to relieve the memory problem.
+
+	Some strategies I was considering were this:
+
+	1) For applications that probably aren't using most of the TCP memory: In 
+the select/poll loop, we keep track of whether we were able to do any work. 
+If we never successfully wrote or read, but did get a hit on at least one 
+socket, we sleep for a few milliseconds. (We hope that while we sleep other 
+applications can free up more memory for us by draining their receive 
+queues.)
+
+	2) For applications that probably are using all or a significant fraction of 
+the TCP memory: If a 'write' for a socket that we got a write hit on returns 
+EAGAIN, for the rest of this poll/select cycle, we do not attempt any writes, 
+only reads. (We hope that this will relieve the memory pressure scenario and 
+allow the system to function normally as quickly as possible.)
+
+	3) For applications that have control over how much load they take: If 
+writes begin returning EAGAIN under suspicious circumstances, treat this as 
+an overload condition and trigger your handling logic. Refuse expensive 
+commands or refuse to handle new connections.
+
+	Any comments or suggestions are appreciated. I've found that when we hit TCP 
+memory pressure, many applications become very badly behaved.
+
+	DS
 
 
-I won't comment on the code, but I'll note that there
-are legitimate reasons why a read can take a long time:
-drive spin-up (if it has been spun down), queued commands
-(if the device supports them), slow devices (e.g., some
-removable media), very large commands, the occasional
-thermal recalibration all come to mind immediately.
-
-It would be great if we had this functionality, and even
-better if we had it for all devices.
-
-On at least some SCSI devices, it's possible to set a
-parameter in the device that sets a threshold for how
-severe an error to report (ECC errors are not a one-
-dimensional thing).  Unfortunately, it's pretty device
-dependent.  I would be nice, when you care about your
-data, to set the threshold very sensitive.  Then when
-an error occurs, you get notified, and you can retry
-or rewrite the block.
-
-A slightly different approach is an idle scrubber, that
-reads all of your blocks when the system is idle, looking
-for errors and rewriting as necessary.
-
-Note that in either case, it doesn't come for free and
-doesn't really guarantee your data; a power loss or
-other problem in the middle of the bad-block-rewrite
-can cause problems, and writes fail more often than
-reads.
-
-		--Rod
-
-> -----Original Message-----
-> From: ext Manish Lachwani [mailto:manish@Zambeel.com]
-> Sent: Friday, November 22, 2002 11:33 AM
-> To: linux-kernel@vger.kernel.org; 'Alan Cox'
-> Cc: Manish Lachwani
-> Subject: Early determinition of bad sectors and correcting them ...
-> 
-> 
-> I had thought abt this earlier and tried to implemented it.
-> 
-> Everytime there is an ECC error (0x40), there is a pending 
-> set of sectors
-> that the drive needs to remap. The drive can map the sectors 
-> as part of its
-> house keeping function or the drive can remap it when an 
-> explicit write is
-> made to that sector. Once an ECC error occurs, the remapping 
-> process is
-> manual or we have to wait till an write operation takes place to that
-> sector. 
-> 
-> If a READ gives an ECC error, the amount of time it takes to 
-> read is usually
-> higher as compared to READ operations accross sectors that 
-> are good. Even
-> for a sector or a region of sectors that are degrading over 
-> time, the READ
-> time is a good indication that the sector is deteriorating. A 
-> write to that
-> sector will fix the problem.
-> 
-> Based on the above, I modified the ide driver to implement this simple
-> change. I created a sysctl entry called 
-> ide_disk_delay_threshold which is
-> initially set to 250 ms. In ide-dma.c, I measure the amount 
-> of time it takes
-> to complete a READ request:
-> 
-> 	drive->service_time = jiffies - drive->service_start;
-> 	if (rq->cmd == READ && (ide_disk_delay_threshold > 0) &&
->             ( (drive->service_time*10) > ide_disk_delay_threshold) ) {
->         printk("%s: re-write, ", drive->name);
->         printk("READ took %d ms \n", drive->service_time*10);
->         /*
->          * Set the command to write
->          */
->         rq->cmd = WRITE;
->         return ide_stopped;
->        }
-> 
-> I have tested the above and I have found that everytime I get 
-> accross an ECC
-> error (0x40), the driver immediately writes to that location 
-> remapping that
-> sector. This way, I get away with the bad sectors. The 
-> threshold 250 ms can
-> be changed depending on the application or requirement. But, 
-> it seems to be
-> a good indicator for early prediction of bad sectors ...
-> 
-> Thanks
-> -Manish
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 

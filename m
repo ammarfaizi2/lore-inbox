@@ -1,95 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286373AbRLTUuE>; Thu, 20 Dec 2001 15:50:04 -0500
+	id <S286371AbRLTU6Q>; Thu, 20 Dec 2001 15:58:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286372AbRLTUtq>; Thu, 20 Dec 2001 15:49:46 -0500
-Received: from verlaine.noos.net ([212.198.2.73]:16426 "EHLO smtp.noos.fr")
-	by vger.kernel.org with ESMTP id <S286368AbRLTUtY>;
-	Thu, 20 Dec 2001 15:49:24 -0500
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Roskin <proski@gnu.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Making TI bridges work with kernel PCMCIA
-Date: Thu, 20 Dec 2001 21:49:11 +0100
-Message-Id: <20011220204911.25097@smtp.noos.fr>
-In-Reply-To: <Pine.LNX.4.33.0112191617370.2705-100000@marabou.research.att.com>
-In-Reply-To: <Pine.LNX.4.33.0112191617370.2705-100000@marabou.research.att.com>
-X-Mailer: CTM PowerMail 3.0.9 carbon <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S286368AbRLTU6G>; Thu, 20 Dec 2001 15:58:06 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:56592 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S286399AbRLTU5x>; Thu, 20 Dec 2001 15:57:53 -0500
+Date: Thu, 20 Dec 2001 21:57:51 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: m.luca@iname.com
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Alan Cox <alan@redhat.com>
+Subject: Re: [PATCH] Trident 4DWave DX/NX joystick support
+Message-ID: <20011220215751.A31836@suse.cz>
+In-Reply-To: <3C21229F.A6864423@iname.com> <20011220153855.C30746@suse.cz> <3C220C45.FD0D1CB2@teamfab.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C220C45.FD0D1CB2@teamfab.it>; from luca.montecchiani@teamfab.it on Thu, Dec 20, 2001 at 05:05:25PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hello!
->
->The driver for Cardbus/PCMCIA bridges (yenta_socket) doesn't initialize 
->the irqmux register of TI bridges.  In fact, the driver doesn't even 
->access that register.
->
->My experience shows that relying in the initial values of that register is
->not a good idea.  It is set to use ISA interrupts, but they don't work
->with either of two motherboards I tested the bridge with.
->
->Bridge:
->CardBus bridge: Texas Instruments PCI1410 PC card Cardbus Controller (rev 01)
->
->Fisrt system:
->Athlon 1GHz, motherboard AOpen KT-133.
->
->Second system:
->Compaq AP500, 2 x Pentium II, motherboard with Intel 440BX chipset.
->
->This patch makes the same thing as "irq_mode=0" does in the standalone
->PCMCIA driver (i82365).  It means that PCMCIA cards inserted to the socket
->have their interrupt redirected to the same PCI interrupt that is used for
->the Card Status Change (csc) notification.  I believe that's the safest
->behavior, as it avoids probing ISA interupts.
->
->Since the patch changes ti_open(), it affects all TI bridges.  This should 
->be the right thing to do according to the pcmcia-cs sources.  I'm a bit 
->surprized that the driver doesn't access those registers at all except 
->some old TI113x models.
->
->The code with TI122X_SCR_INTRTIE has been copied from pcmcia-cs without
->changes.  It should only affect two-socket bridges.
->
->The patch is against 2.4.17-rc2.
+On Thu, Dec 20, 2001 at 05:05:25PM +0100, Luca Montecchiani wrote:
 
-I have to use a similar workaround on pmac laptops. However, I do that
-in the platform specific quirks.
-
-Ben.
-
->=========================
->--- linux.orig/drivers/pcmcia/ti113x.h
->+++ linux/drivers/pcmcia/ti113x.h
->@@ -150,11 +150,27 @@
->  */
-> static int ti_open(pci_socket_t *socket)
-> {
->+	u32 irqmux;
->+	u8 devctl, sysctl;
-> 	u8 new, reg = exca_readb(socket, I365_INTCTL);
+> > I must say I don't like the patch much. 
 > 
-> 	new = reg & ~I365_INTR_ENA;
-> 	if (new != reg)
-> 		exca_writeb(socket, I365_INTCTL, new);
->+
->+	/* Disable ISA interrupt routing ... */
->+	devctl = config_readb(socket, TI113X_DEVICE_CONTROL);
->+	devctl &= ~TI113X_DCR_IMODE_MASK;
->+	config_writeb(socket, TI113X_DEVICE_CONTROL, devctl);
->+	/* ... and enable PCI routing instead */
->+	sysctl = config_readb(socket, TI113X_SYSTEM_CONTROL);
->+	irqmux = config_readl(socket, TI122X_IRQMUX);
->+	irqmux = (irqmux & ~0x0f) | 0x02; /* route INTA */
->+	if (!(sysctl & TI122X_SCR_INTRTIE)) {
->+		irqmux = (irqmux & ~0xf0) | 0x20; /* route INTB */
->+	}
->+	config_writel(socket, TI122X_IRQMUX, irqmux);
->+
-> 	return 0;
-> }
+> There are couples of other pci cards that do the same
+> and right now is the only way to make joystick works with
+> trident sound card.
+> I hope to help some users around here.
+> 
+> > If there is anything going to be added to trident.c 
+> > in regards to enabling the joystick, I think most of
+> > the pcigame.c code should be moved in there.
+> 
+> Not necessary, 2.2.19 joy-pci code works fine, no conflict
+> no oops, what about comparing against 2.4.x pcigame ?
+> 
+> Unfortunately I don't know how do that, but I can help you
+> testing patch, etc...
+> 
+> I hope to provide you the oops I've got insmodding analog
+> tomorrow.
 
+If you'll be able to get me the decoded oops, I'll be very grateful,
+because I've got some reports about analog oopsing and I haven't been
+able to reproduce that.
 
+> > That way, there won't be
+> > resource conflicts and we won't lose any functionality.
+> 
+> I don't understand where the problem came from, with
+> 2.2.19 everything work fine, I can use the joy-pci with
+> the trident module up and running, with the 2.4.17rc2
+> trident and pcigame are mutually exclusive.
+> Because of the 2.4.x pci changes ? Let's see.
+
+-- 
+Vojtech Pavlik
+SuSE Labs

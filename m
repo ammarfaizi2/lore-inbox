@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265040AbUFRIFa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265047AbUFRILR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265040AbUFRIFa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 04:05:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265037AbUFRIFa
+	id S265047AbUFRILR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 04:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUFRILR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 04:05:30 -0400
-Received: from [61.49.235.7] ([61.49.235.7]:5625 "EHLO adam.yggdrasil.com")
-	by vger.kernel.org with ESMTP id S265040AbUFRIFX (ORCPT
+	Fri, 18 Jun 2004 04:11:17 -0400
+Received: from smtp2.cwidc.net ([154.33.63.112]:30718 "EHLO smtp2.cwidc.net")
+	by vger.kernel.org with ESMTP id S265047AbUFRILP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 04:05:23 -0400
-Date: Thu, 17 Jun 2004 23:56:39 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Message-Id: <200406180656.i5I6udn14886@adam.yggdrasil.com>
-To: mdpoole@troilus.org
-Subject: Re: more files with licenses that aren't GPL-compatible
-Cc: greg@kroah.com, hch@lst.de, linux-kernel@vger.kernel.org
+	Fri, 18 Jun 2004 04:11:15 -0400
+Message-ID: <40D2A393.4060005@tequila.co.jp>
+Date: Fri, 18 Jun 2004 17:10:59 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\ Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040308
+X-Accept-Language: en-us, en, ja
+MIME-Version: 1.0
+To: 4Front Technologies <dev@opensound.com>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: Stop the Linux kernel madness
+References: <40D232AD.4020708@opensound.com>
+In-Reply-To: <40D232AD.4020708@opensound.com>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 17, 2004 at 04:22:42PM -0400, mdpoole@troilus.org wrote:
-> http://www.ipwatchdog.com/equitable_estoppel.html discusses equitable
-> estoppel vis-a-vis patent rights (which are treated similarly to
-> copyrights by many courts).  When you contributed your changes to the
-> USB maintainers, they -- and later redistributors -- inferred that you
-> would not allege copyright infringement by applying your changes to
-> the kernel that existed then.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-	From my reading of that web page, it does not seem to me
-that one would have a case of either equitable estoppel or implied
-license (for example, "silence alone is generally not sufficient
-affirmative conduct to give rise to estoppel").  I've made my
-opposition to the illegal drivers clear from the time that I've
-been aware of them.
+4Front Technologies wrote:
+| Hi Folks,
 
-	If you are not fabricating claims about inferences
-by "the USB maintainers [...] and later distributors", I would
-be interested in your citing some historical examples of the
-"USB mainatiners" stating this inference and not being corrected.
+file a bug against suse 9.1 and work with them. Its not the Kernels
+Developers fault or problem what kind of patches distributions use.
 
-	Also, I apologize in advance if I'm unable to justify
-prioritizing time to respond to you further.  It does not mean
-that I necessarily agree with anything you've said.
+please stop your whining.
 
--- 
-                    __     ______________
-Adam J. Richter        \ /
-adam@yggdrasil.com      | g g d r a s i l
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.co.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA0qOTjBz/yQjBxz8RApKPAJ9mkZqZYqOeYWZA8qlq1IvBEQ4kvwCgsB++
+D/atmDIOkhXgAn8wgwp8Pxo=
+=+/zK
+-----END PGP SIGNATURE-----

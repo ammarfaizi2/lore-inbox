@@ -1,31 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269421AbRHGUlk>; Tue, 7 Aug 2001 16:41:40 -0400
+	id <S269431AbRHGUpa>; Tue, 7 Aug 2001 16:45:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269423AbRHGUla>; Tue, 7 Aug 2001 16:41:30 -0400
-Received: from data.wipol.uni-bonn.de ([131.220.47.161]:13320 "HELO
-	mail.wipol.uni-bonn.de") by vger.kernel.org with SMTP
-	id <S269421AbRHGUlX>; Tue, 7 Aug 2001 16:41:23 -0400
-Date: Tue, 7 Aug 2001 22:41:27 +0200 (CEST)
-From: Noel Koethe <noel@koethe.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.x IP aliase max eth0:16 (16 aliases), where to change?
-Message-ID: <Pine.LNX.4.21.0108072238160.20904-100000@data.wipol.uni-bonn.de>
+	id <S269428AbRHGUpU>; Tue, 7 Aug 2001 16:45:20 -0400
+Received: from jdi.jdimedia.nl ([212.204.192.51]:40592 "EHLO jdi.jdimedia.nl")
+	by vger.kernel.org with ESMTP id <S269431AbRHGUpI>;
+	Tue, 7 Aug 2001 16:45:08 -0400
+Date: Tue, 7 Aug 2001 22:44:33 +0200 (CEST)
+From: Igmar Palsenberg <maillist@jdimedia.nl>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.x VM problems thread
+Message-ID: <Pine.LNX.4.33.0108072240300.3714-200000@jdi.jdimedia.nl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="-858508352-1474323123-997217073=:3714"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-The maximum aliases I can configure with a 2.4.x kernel is 16, right?
+---858508352-1474323123-997217073=:3714
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Where I can change this? I want to use more aliases.
-linux/Documentation/networking/alias.txt tells nothing about this limit
-and how to change it.
 
-Thank you.
+Hi,
 
--- 
-	Noel
+I've followed the 2.4.x VM thread stuff. Someone mentioned he will
+wite a test program. Attached program kills all boxen within 1 minute,
+it's not hard to see what it does.
 
+I'm willing to test experimental stuff if needed.
+
+	Regards,
+
+
+		Igmar
+
+
+---858508352-1474323123-997217073=:3714
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="killvm.c"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0108072244330.3714@jdi.jdimedia.nl>
+Content-Description: 
+Content-Disposition: attachment; filename="killvm.c"
+
+I2luY2x1ZGUgPHN0ZGlvLmg+DQojaW5jbHVkZSA8c3RkbGliLmg+DQojaW5j
+bHVkZSA8bWFsbG9jLmg+DQojaW5jbHVkZSA8dW5pc3RkLmg+DQojaW5jbHVk
+ZSA8c3lzL21tYW4uaD4NCiNpbmNsdWRlIDxlcnJuby5oPg0KDQppbnQgbWFp
+bihpbnQgYXJnYywgY2hhciAqKiBhcmd2KQ0Kew0KCXZvaWQgKiB0bXA7DQoJ
+cGlkX3QgcGlkOw0KDQoJZm9yICg7Oykgew0KCQlwaWQgPSBmb3JrKCk7DQoJ
+CXN3aXRjaCAocGlkKSB7DQoJCQljYXNlIDA6IGJyZWFrOw0KCQkJCXRtcCA9
+IG1tYXAoMCwgNjQgKiA0MDk2LCBQUk9UX0VYRUMsIE1BUF9TSEFSRUQgfCBN
+QVBfQU5PTllNT1VTLCAtMSwgMCk7DQoJCQkJaWYgKHRtcCA9PSBNQVBfRkFJ
+TEVEKQ0KCQkJCQlmcHJpbnRmKHN0ZGVyciwgIm1tYXAoKSBmYWlsZWQgOiAl
+c1xuIiwgc3RyZXJyb3IoZXJybm8pKTsNCgkJCWNhc2UgLTE6IGJyZWFrOw0K
+CQkJZGVmYXVsdDogYnJlYWs7DQoJCX0NCgl9DQoNCglyZXR1cm4gMDsNCn0N
+Cg==
+---858508352-1474323123-997217073=:3714--

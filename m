@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262152AbUJZEMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbUJZCED@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262152AbUJZEMV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 00:12:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbUJZEDC
+	id S261900AbUJZCED (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 22:04:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbUJZCC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 00:03:02 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:9915 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262152AbUJZD6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 23:58:19 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
-From: Lee Revell <rlrevell@joe-job.com>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, Ingo Molnar <mingo@elte.hu>,
-       Florian Schmidt <mista.tapas@gmx.net>, linux-kernel@vger.kernel.org,
-       mark_h_johnson@raytheon.com, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>
-In-Reply-To: <417DC046.1020806@cybsft.com>
-References: <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu>
-	 <20041025104023.GA1960@elte.hu> <417CDE90.6040201@cybsft.com>
-	 <20041025111046.GA3630@elte.hu> <20041025121210.GA6555@elte.hu>
-	 <20041025152458.3e62120a@mango.fruits.de> <20041025132605.GA9516@elte.hu>
-	 <20041025160330.394e9071@mango.fruits.de> <20041025141008.GA13512@elte.hu>
-	 <20041025141628.GA14282@elte.hu>
-	 <33313.192.168.1.5.1098733224.squirrel@192.168.1.5>
-	 <1098759671.9166.10.camel@krustophenia.net>  <417DC046.1020806@cybsft.com>
-Content-Type: text/plain
-Date: Mon, 25 Oct 2004 23:58:12 -0400
-Message-Id: <1098763092.9166.17.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Oct 2004 22:02:29 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:11152 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261900AbUJZBbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 21:31:53 -0400
+Date: Mon, 25 Oct 2004 18:31:13 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Hugepages demand paging V2 [7/8]: sh64 arch modifications
+In-Reply-To: <Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0410251830370.12962@schroedinger.engr.sgi.com>
+References: <B05667366EE6204181EABE9C1B1C0EB504BFA47C@scsmsx401.amr.corp.intel.com>
+ <Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-25 at 22:11 -0500, K.R. Foley wrote:
->  
-> Not being familiar with jack, does it use rtc?
-> 
+Changelog
+	* Provide huge_update_mmu_cache through update_mmu_cache (which is just counting
+	  the number of calls)
+	* Extend flush_dcache_page to handle compound pages
+	* Not build and not tested
 
-No it normally uses the soundcard for timing.  For testing there is a
-dummy backend that just usleep()s.  This makes a pretty useful latency
-tester.
 
-Lee
+Index: linux-2.6.9/include/asm-sh64/pgtable.h
+===================================================================
+--- linux-2.6.9.orig/include/asm-sh64/pgtable.h	2004-10-21 12:01:24.000000000 -0700
++++ linux-2.6.9/include/asm-sh64/pgtable.h	2004-10-25 14:55:29.000000000 -0700
+@@ -462,6 +462,7 @@
+
+ extern void update_mmu_cache(struct vm_area_struct * vma,
+ 			     unsigned long address, pte_t pte);
++#define huge_update_mmu_cache update_mmu_cache
+
+ /* Encode and decode a swap entry */
+ #define __swp_type(x)			(((x).val & 3) + (((x).val >> 1) & 0x3c))
+Index: linux-2.6.9/arch/sh64/mm/cache.c
+===================================================================
+--- linux-2.6.9.orig/arch/sh64/mm/cache.c	2004-10-25 15:02:58.000000000 -0700
++++ linux-2.6.9/arch/sh64/mm/cache.c	2004-10-25 15:03:16.000000000 -0700
+@@ -990,7 +990,16 @@
+
+ void flush_dcache_page(struct page *page)
+ {
+-	sh64_dcache_purge_phy_page(page_to_phys(page));
++	if (likely(!PageCompound))
++		sh64_dcache_purge_phy_page(page_to_phys(page));
++	else {
++		int nr;
++
++		page = page->private;
++		nr = 1 << page[1].index;
++		while (nr--)
++			sh64_dcache_purge_phy_page(page_to_phys(page++));
++	}
+ 	wmb();
+ }
+
 

@@ -1,49 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132587AbRDUNBF>; Sat, 21 Apr 2001 09:01:05 -0400
+	id <S132586AbRDUM6f>; Sat, 21 Apr 2001 08:58:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132590AbRDUNAz>; Sat, 21 Apr 2001 09:00:55 -0400
-Received: from www.nobugconsulting.ro ([212.93.142.140]:44806 "EHLO
-	nobugconsulting.ro") by vger.kernel.org with ESMTP
-	id <S132587AbRDUNAs>; Sat, 21 Apr 2001 09:00:48 -0400
-X-RAV-AntiVirus: This e-mail has been scanned for viruses
-Date: Sat, 21 Apr 2001 15:59:18 +0300 (EEST)
-From: <lk@aniela.eu.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: A question about MMX.
-In-Reply-To: <E14qw2g-0003WD-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0104211558380.18561-100000@ns1.aniela.eu.org>
+	id <S132587AbRDUM6Z>; Sat, 21 Apr 2001 08:58:25 -0400
+Received: from supelec.supelec.fr ([160.228.120.192]:61457 "EHLO
+	supelec.supelec.fr") by vger.kernel.org with ESMTP
+	id <S132586AbRDUM6L>; Sat, 21 Apr 2001 08:58:11 -0400
+Message-ID: <3AE183B7.1DD88174@supelec.fr>
+Date: Sat, 21 Apr 2001 14:57:27 +0200
+From: Francois Cami <francois.cami@supelec.fr>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <andrewm@uow.edu.au>
+CC: Vibol Hou <vhou@khmer.cc>, Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [3C905x e401]
+In-Reply-To: <NDBBKKONDOBLNCIOPCGHIEHBGDAA.vhou@khmer.cc> <3ADFA34D.80D8BEE9@supelec.fr> <3AE0E1B5.2C8318A7@uow.edu.au>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you all who have responded my question.
 
-Have a nice day!
+okay, testing will begin monday (when it's under load).
+any advice on which value i begin with ? (20 ?)
 
-/me
+François Cami
 
 
-On Sat, 21 Apr 2001, Alan Cox wrote:
-
-> > I have a Intel Pentium MMX machine and it acts as a mailserver, webserver,
-> > ftp and I use X on it. I would like to know if the MMX instructions are
-> > used by the kernel in this operations or not (networking, X etc.).
+Andrew Morton wrote:
 > 
-> In almost all cases - no. The MMX instructions are mostly not useful. A few
-> graphics operations benefit from them such as mpeg players but that is about
-> it.
+> Francois Cami wrote:
+> >
+> > Vibol Hou wrote:
+> > ...
+> >
+> > > Apr 17 16:10:12 omega kernel: eth0: Too much work in interrupt, status e401.
+> >
+> > I got that one too, PC is ASUS P2B-DS with two PII-350, 384MB RAM,
+> > 3C905B.
 > 
-> On the AMD and Cyrix machines 3Dnow is used extensively by Mesa (3D) and by
-> many of the mp3 players. The winchip and athlon kernels also use mmx for
-> block copies but this isnt a win in the pentium case.
+> If you were getting this message occasionally, and if increasing the
+> max_interrupt_work module parm makes it stop, and everything
+> is always working fine, then it's an OK thing to do.
+> 
+> Question is: why is it happening?  We're failing to get out
+> of the interrupt loop after 32 loops.  Each loop can reap
+> up to 16 transmitted packets and 32 received packets.
+> That's a lot.
+> 
+> My suspicion is that something else in the system is
+> causing the NIC interrupt routine to get held up for long
+> periods of time.  It has to be another interrupt.
+> 
+> All reporters of this problem (ie: both of them) were using
+> aic7xx SCSI.  I wonder if that driver can sometimes spend a
+> long time in its interrupt routine.  Many times.  Rapidly.
+> 
+> Very odd.
+> 
+> Ah.  SMP.  Perhaps the other CPU is generating the transmit
+> load, some other interrupt source is slowing down *this*
+> CPU.
+> 
+> Could you test something for me?  Try *decreasing* the
+> value of max_interrupt_work.  See if that increases
+> the frequency of the message.  Then, it if does, try to
+> correlate the occurence of the message with some other
+> form of system activity (especially disk I/O).
+> 
+> Thanks.
 > 
 > -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-

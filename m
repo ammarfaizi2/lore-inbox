@@ -1,40 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271831AbRIEH7Z>; Wed, 5 Sep 2001 03:59:25 -0400
+	id <S271842AbRIEIEh>; Wed, 5 Sep 2001 04:04:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271827AbRIEH7E>; Wed, 5 Sep 2001 03:59:04 -0400
-Received: from smtp.mediascape.net ([212.105.192.20]:13060 "EHLO
-	smtp.mediascape.net") by vger.kernel.org with ESMTP
-	id <S271822AbRIEH66>; Wed, 5 Sep 2001 03:58:58 -0400
-Message-ID: <3B95DB22.866EDCA3@mediascape.de>
-Date: Wed, 05 Sep 2001 09:58:26 +0200
-From: Olaf Zaplinski <o.zaplinski@mediascape.de>
-X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.9-ac6 i686)
-X-Accept-Language: de, en
+	id <S271827AbRIEIE1>; Wed, 5 Sep 2001 04:04:27 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:43524 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S271822AbRIEIES>; Wed, 5 Sep 2001 04:04:18 -0400
+Message-ID: <3B95DC37.A7FF9966@idb.hist.no>
+Date: Wed, 05 Sep 2001 10:03:03 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.10-pre4 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
-To: joe.mathewson@btinternet.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx errors
-In-Reply-To: <200109050621.f856LAK00824@ambassador.mathewson.int>
+To: "Grover, Andrew" <andrew.grover@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: lilo vs other OS bootloaders was: FreeBSD makes progress
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0E2@orsmsx35.jf.intel.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joseph Mathewson wrote:
+"Grover, Andrew" wrote:
 > 
-> I've just woken up this morning to find my internet gateway machine only
-> responding to pings, and on giving it a keyboard & monitor, a load of
+> > >  ANdreas Dilger wrote:
+> > > > Win2K even abstracts all SMP/UP code into a module (the
+> > HAL) and loads this
+> > > > at boot, thus using the same kernel for both.
+> >
+> > >     the only possibility of this shows how ugly is SMP in win2k...
+> >
+> > Not necessarily. More likely the difference between SMP and
+> > UP is marketing-only and both have the overhead of SMP
+> > locking, etc..
 > 
-> scsi0:0:1:0: Attempting to queue an ABORT message
-> scsi0:0:1:0: Cmd aborted from QINFIFO
-> aic7xxx_abort returns 8194
+> No, they don't do this by running an SMP kernel on UP, they do it by
+> abstracting functions that care about SMP into another module.
 > 
-> errors.
-[...]
+> Here's Linux:
+> 
+> Drivers (SMP agnostic)
+> Kernel (SMP/UP specific)
+> 
+Linux modules are not agnostic, they too are SMP specific.
+Because a module may use spinlocks.
 
-/me too. I had this while booting 2.4.9 with a fresh installed SCSI card
-(AHA2940) + harddisk. What worked for me was to compile the kernel with the
-old Adaptec driver, so it's a driver issue.
+Modules should really be compiled with the kernel.  They are an
+intersting way to save some memory, they are not a way of
+distributing drivers or anything like that.
 
-Olaf
+> I'm not advocating anything similar for Linux, I'm just saying it's an
+> interesting thought experiment - what if the SMP-ness of a machine was
+> abstracted from the kernel proper? How much of the kernel really cares, or
+> really *should* care about SMP/UP?
+> 
+> For one thing, it would get rid of the hundreds of "#ifdef CONFIG_SMP"s in
+> the kernel. ;-)
+
+You would also get rid of performance.  The agnostic kernel would be
+slower than simply running the SMP kernel on UP.
+
+Here's why:
+You can easily make an "agnostic kernel & modules" by changing the
+spinlocks to function calls.  Then you'll provide a null stub call site
+for running UP, and the real spinlock code for running SMP.
+
+Unfortunately, this gives the overhead of a function call, both for SMP
+and for UP.  This overhead is usually _bigger_ than the overhead of a
+inlined spinlock.
+
+So if you aim for a simple distribution - go for SMP.  The loss on UP is
+small. I have haerd of cases when the SMP setup code fails on UP
+when smp hardware is missing.  You could of course work to eliminate
+that.
+
+Helge Hafting

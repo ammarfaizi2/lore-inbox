@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVBRMZj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVBRM0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261350AbVBRMZj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 07:25:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVBRMZi
+	id S261348AbVBRM0g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 07:26:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVBRM0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 07:25:38 -0500
-Received: from gprs214-36.eurotel.cz ([160.218.214.36]:47273 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261336AbVBRMZe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 07:25:34 -0500
-Date: Fri, 18 Feb 2005 13:22:17 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: James Simmons <jsimmons@www.infradead.org>, Adrian Bunk <bunk@stusta.de>,
-       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6: drivers/input/power.c is never built
-Message-ID: <20050218122217.GA1523@elf.ucw.cz>
-References: <20050213004729.GA3256@stusta.de> <Pine.LNX.4.56.0502141756220.7398@pentafluge.infradead.org> <20050214193438.GB7763@ucw.cz>
+	Fri, 18 Feb 2005 07:26:36 -0500
+Received: from oracle.bridgewayconsulting.com.au ([203.56.14.38]:14256 "EHLO
+	oracle.bridgewayconsulting.com.au") by vger.kernel.org with ESMTP
+	id S261336AbVBRM0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 07:26:33 -0500
+Date: Fri, 18 Feb 2005 20:26:52 +0800
+From: Bernard Blackham <bernard@blackham.com.au>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: dtor_core@ameritech.net, John M Flinchbaugh <john@hjsoft.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Swsusp, resume and kernel versions
+Message-ID: <20050218122652.GF30342@blackham.com.au>
+References: <200502162346.26143.dtor_core@ameritech.net> <20050217110731.GE1353@elf.ucw.cz> <20050217162847.GA32488@butterfly.hjsoft.com> <d120d5000502170930ccc3e9e@mail.gmail.com> <20050217195651.GB5963@openzaurus.ucw.cz> <20050218020220.GD30342@blackham.com.au> <20050218112409.GB1341@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050214193438.GB7763@ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <20050218112409.GB1341@elf.ucw.cz>
+Organization: Dagobah Systems
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Feb 18, 2005 at 12:24:09PM +0100, Pavel Machek wrote:
+> If you want to be 100% safe, add support to LILO/GRUB: just do not
+> allow selecting wrong kernel if last action was suspend. Bootloader
+> knows, it seen the command lines.
 
-> > > In 2.6, drivers/input/power.c would only have been built if 
-> > > CONFIG_INPUT_POWER was enabled - but it is nowhere possible to enable 
-> > > this option.
-> > 
-> > That was written a long time ago before the new power management went in. 
-> > On PDA's there is a power button and suspend button. So this was a hook 
-> > so that the input layer could detect the power/suspend button being 
-> > presses and then power down or turn off the device. Now that the new power
-> > management is in what should we do?
->  
-> Change power.c to generate power events like ACPI does, most likely.
+That's a very good point/solution indeed. The hibernate script
+available from the Software Suspend 2 homepage already has options
+to reconfigure LILO/GRUB upon suspending. I'd forgotten about them!
 
-Actually I believe you want to fix ACPI to use inputs. You hardly want
-/proc/acpi/events on PDA, right?
-								Pavel
+Bernard.
 
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+ Bernard Blackham <bernard at blackham dot com dot au>

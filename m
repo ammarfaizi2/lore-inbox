@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262702AbVAFByP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262704AbVAFBy4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262702AbVAFByP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 20:54:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262704AbVAFByP
+	id S262704AbVAFBy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 20:54:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbVAFBy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 20:54:15 -0500
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:42455 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262702AbVAFByL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 20:54:11 -0500
-Date: Thu, 6 Jan 2005 02:58:52 +0100 (CET)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Nicholas Miell <nmiell@comcast.net>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re:  Re: [PATCH] get/set FAT filesystem attribute bits
-In-Reply-To: <1104970545.3810.0.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0501060242130.6323@be1.lrz>
-References: <fa.i537e7s.1d6m90c@ifi.uio.no> <fa.ihdqkec.1i5umji@ifi.uio.no>
-  <E1CmLBc-0001ZU-00@be1.7eggert.dyndns.org> <1104970545.3810.0.camel@localhost.localdomain>
+	Wed, 5 Jan 2005 20:54:56 -0500
+Received: from sv1.valinux.co.jp ([210.128.90.2]:62176 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S262704AbVAFBys (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 20:54:48 -0500
+Date: Thu, 06 Jan 2005 10:54:47 +0900
+From: Itsuro Oda <oda@valinux.co.jp>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [Fastboot] Yet another crash dump tool
+Cc: linux-kernel@vger.kernel.org, fastboot@osdl.org
+In-Reply-To: <m1sm5xusxk.fsf@ebiederm.dsl.xmission.com>
+References: <20041014074718.26E6.ODA@valinux.co.jp> <m1sm5xusxk.fsf@ebiederm.dsl.xmission.com>
+Message-Id: <20050106093723.6C35.ODA@valinux.co.jp>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.10.04 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jan 2005, Nicholas Miell wrote:
-> On Thu, 2005-01-06 at 01:07 +0100, Bodo Eggert wrote:
-> > H. Peter Anvin wrote:
-> > > By author:    Bodo Eggert <7eggert@gmx.de>
+Hi,
 
-> > >> > a = archive
-> > >> 
-> > >> Should be the "dump" attribute
-> > 
-> > > What dump attribute?
-> > 
-> > The one described in man chattr.
-> 
-> You mean "no dump (d)", the attribute that says this file should never
-> be backed up and is in no way related to the Archive bit, which says
-> that this file has been modified since the last time the Archive bit was
-> cleared?
+On 23 Dec 2004 04:59:03 -0700
+ebiederm@xmission.com (Eric W. Biederman) wrote:
 
-It seems I misread the manpage. Dump will by default backup 'no dump'
-files if it's not creating an incremental backup, so I asumed it would set
-the flag on backup.
+> developed right now.  Would you be willing to work on the kexec system
+> call so we can get a infrastructure that reliably does what is needed
+> for everyone? 
+
+We concentrate on the fault analysis. We think the original aim of the
+kexec (== fastboot) differ from the caputuring dump. However,
+since we apply the effort of the kexec project to mkdump, we are happy
+to return something to the kexec project. 
+
+> Reading your documentation it seems to indicate that you have
+> successfully avoid using any memory that the crashing kernel used.
+> Is that correct?
+
+No. If the code or the data structures running from crash occur to the
+mini kernel start (although it is very short) is damaged, starting the 
+mini kernel will fail.
+What we done (and will do partialy) is that the logical possibility of 
+the deadlock/hang condition is eliminated from the code running from 
+crash occur to the mini kernel start.
+
+> And just for a little active feedback.  While you safely tuck
+> your kernel away in your reserved area of memory it does not appear
+> you tuck away the data structures necessary to get there.  Which
+> makes me just a little nervous.
+
+What do you mean "the data structures necessary to get there" ?
+The necessary information to run the mini kernel and to caputure dump 
+is stored in the reserved area at the same time of loading the mini kernel
+(during the kernel is normal).
+
+> Eric
+
+Thanks.
+-- 
+Itsuro ODA <oda@valinux.co.jp>
 

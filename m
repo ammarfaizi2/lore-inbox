@@ -1,34 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbTLVTiX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 14:38:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263751AbTLVTiX
+	id S264487AbTLVTaU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 14:30:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264488AbTLVTaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 14:38:23 -0500
-Received: from fep03-mail.bloor.is.net.cable.rogers.com ([66.185.86.73]:44726
-	"EHLO fep03-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S261190AbTLVTiW (ORCPT
+	Mon, 22 Dec 2003 14:30:20 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:205 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S264487AbTLVTaP convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 14:38:22 -0500
-Message-ID: <3FE702A2.2090701@rogers.com>
-Date: Mon, 22 Dec 2003 14:41:38 +0000
-From: pZa1x <pZa1x@rogers.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Mon, 22 Dec 2003 14:30:15 -0500
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.0 release + ALSA + suspend = not work
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep03-mail.bloor.is.net.cable.rogers.com from [24.157.208.226] using ID <dw2price@rogers.com> at Mon, 22 Dec 2003 14:37:56 -0500
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: minor e1000 bug
+Date: Mon, 22 Dec 2003 11:30:09 -0800
+Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E0102CBDD75@orsmsx402.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: minor e1000 bug
+Thread-Index: AcPIoCuk7afa+el2Qo+vFvElPWMdJwAIcDoQ
+From: "Feldman, Scott" <scott.feldman@intel.com>
+To: "Ethan Weinstein" <lists@stinkfoot.org>
+Cc: "Hans-Peter Jansen" <hpj@urpla.net>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 22 Dec 2003 19:30:09.0970 (UTC) FILETIME=[0337B920:01C3C8C2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ALSA stops producing sound after any time I suspend my Thinkpad T20 
-notebook. I am using 2.6.0 release and the snd-cs46xx driver.
+> This modification appears to somewhat remedy the problem, however, 
+> bandwidth measurement seems to be much more accurate with many other 
+> cards.  By what method does, say, the 3c59x card export its 
+> statistics 
+> to /proc/net/dev that makes it easier to measure?
 
-I have to log out of Gnome and remove the sound card module and re 
-modprobe it then restart Gnome to get sound back.
+e100 and e1000 both query h/w for stats on a timer (2 seconds) and cache
+the results.  A call into the driver's get_stats function just returns
+these cached values.  With e100, there is a problem in that issuing the
+command to dump stats doesn't return right away, so rather than blocking
+in the driver by waiting for the command to complete, the driver just
+reads the results of the dump command 2 seconds prior, and then reissues
+a new dump command.  So e100 stats are delayed by ~2 seconds.
 
-No problems with 2.4.20 with OSS drivers.
+3c59x (and others) query the h/w for stats in the driver's get_stats
+function directly.  This gives up-to-date stats.  We could do this with
+e1000, but it'll take a little bit of surgery because there is some
+other code in the driver that is dependent on stats collected over 2
+second period.  Nothing that can't be fixed.
 
+-scott

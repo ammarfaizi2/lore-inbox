@@ -1,61 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbULCHor@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbULCIoM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262080AbULCHor (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 02:44:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbULCHoq
+	id S261409AbULCIoM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 03:44:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbULCIoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 02:44:46 -0500
-Received: from 70-56-133-193.albq.qwest.net ([70.56.133.193]:8849 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S262080AbULCHno (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 02:43:44 -0500
-Date: Fri, 3 Dec 2004 00:43:07 -0700 (MST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: piotr@larroy.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][BUG] Badness in smp_call_function at arch/i386/kernel/smp.c:552
-In-Reply-To: <20041202233611.256fcf3f.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0412030040071.21568@montezuma.fsmlabs.com>
-References: <20041202210340.GA19140@larroy.com>
- <Pine.LNX.4.61.0412022152480.21568@montezuma.fsmlabs.com>
- <20041202230106.14bb42f5.akpm@osdl.org> <Pine.LNX.4.61.0412030005070.21568@montezuma.fsmlabs.com>
- <20041202233611.256fcf3f.akpm@osdl.org>
+	Fri, 3 Dec 2004 03:44:12 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:1271 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261409AbULCIoE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 03:44:04 -0500
+Message-ID: <41B02749.70900@mvista.com>
+Date: Fri, 03 Dec 2004 00:43:53 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: john stultz <johnstul@us.ibm.com>
+CC: Herbert Poetzl <herbert@13thfloor.at>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: do_posix_clock_monotonic_gettime() returns negative nsec
+References: <20041203020357.GA28468@mail.13thfloor.at> <1102042850.13294.43.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1102042850.13294.43.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Dec 2004, Andrew Morton wrote:
-
-> >  > However enabling interrupts as you've done menas that theoretically we
-> >  > could deadlock on sysrq_key_table_lock if another sysrq happens at the
-> >  > wrong time.
-> >  > 
-> >  > Which deadlock opportunity would you prefer? ;)
-> > 
-> >  Agreed, there is actually a higher chance of the smp_call_function 
-> >  deadlock occuring since the __handle_sysrq one relies on another sysrq 
-> >  event occuring via a different IRQ line interrupt handler, so 
-> >  we would have to do sysrq via serial and then sysrq via keyboard to cause 
-> >  the deadlock. Perhaps just make it a spin_trylock?
+john stultz wrote:
+> On Thu, 2004-12-02 at 18:03, Herbert Poetzl wrote:
 > 
-> Well yeah, but it's so much fuss for such a silly problem.
+>>recent kernels (tested 2.6.10-rc2 and 2.6.10-rc2-bk15)
+>>produce funny output in /proc/uptime like this:
+>>
+>>	# cat /proc/uptime
+>>	  12.4294967218 9.05
+>>	# cat /proc/uptime
+>>	  13.4294967251 10.33
+>>	# cat /proc/uptime
+>>	  14.4294967295 11.73
+>>
+>>a short investigation of the issue, ended at
+>>do_posix_clock_monotonic_gettime() which can (and 
+>>often does) return negative nsec values (within
+>>one second), so while the actual 'time' returned
+>>is correct, some parts of the kernel assume that
+>>those part is within the range (0 - NSEC_PER_SEC)
+>>
+>>        len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
+>>                        (unsigned long) uptime.tv_sec,
+>>                        (uptime.tv_nsec / (NSEC_PER_SEC / 100)),
+>>
+>>as the function itself corrects overflows, it would
+>>make sense to me to correct underflows too, for 
+>>example with the following patch:
+>>
+>>--- ./kernel/posix-timers.c.orig	2004-11-19 21:11:05.000000000 +0100
+>>+++ ./kernel/posix-timers.c	2004-12-03 02:23:56.000000000 +0100
+>>@@ -1208,7 +1208,10 @@ int do_posix_clock_monotonic_gettime(str
+>> 	tp->tv_sec += wall_to_mono.tv_sec;
+>> 	tp->tv_nsec += wall_to_mono.tv_nsec;
+>> 
+>>-	if ((tp->tv_nsec - NSEC_PER_SEC) > 0) {
+>>+	if (tp->tv_nsec < 0) {
+>>+		tp->tv_nsec += NSEC_PER_SEC;
+>>+		tp->tv_sec--;
+>>+	} else if ((tp->tv_nsec - NSEC_PER_SEC) > 0) {
+>> 		tp->tv_nsec -= NSEC_PER_SEC;
+>> 		tp->tv_sec++;
+>> 	}
 > 
-> How about a local_irq_enable() in sysrq_handle_reboot()?
+> 
+> Sounds like its a good fix to me. 
+> 
+> George: You have any comment?
 
-That should be fine too, i prefer it to local_irq_enable in 
-machine_shutdown() too.
+Two, in fact.  First, the result here is the sum of wall_to_monotonic and 
+getnstimeofday().  If nsec < 0, one or more of these must be also.  Both of 
+these values are SUPPOSED to be normalized.
 
-Signed-off-by: Zwane Mwaikambo <zwane@holomorphy.com>
+Second, I would rather see:
+	set_normalized_timespec(tp, tp->tv_sec + wall_to_mono.tv_sec, 		
+				tp->tv_nsec + wall_to_mono.tv_nsec);
 
-===== drivers/char/sysrq.c 1.32 vs edited =====
---- 1.32/drivers/char/sysrq.c	2004-11-07 19:13:54 -07:00
-+++ edited/drivers/char/sysrq.c	2004-12-03 00:42:29 -07:00
-@@ -98,6 +98,7 @@ static struct sysrq_key_op sysrq_unraw_o
- static void sysrq_handle_reboot(int key, struct pt_regs *pt_regs,
- 				struct tty_struct *tty) 
- {
-+	local_irq_enable();
- 	machine_restart(NULL);
- }
- 
+Still, doing this paves over the first issue....
+
+> 
+> thanks
+> -john
+> 
+> 
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+

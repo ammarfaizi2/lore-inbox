@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316210AbSEKDoe>; Fri, 10 May 2002 23:44:34 -0400
+	id <S314417AbSEKEPr>; Sat, 11 May 2002 00:15:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316221AbSEKDod>; Fri, 10 May 2002 23:44:33 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:27869 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S316210AbSEKDod>;
-	Fri, 10 May 2002 23:44:33 -0400
-Date: Fri, 10 May 2002 23:44:23 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-cc: linux-kernel@vger.kernel.org, kaos@ocs.com.au
-Subject: Re: [PATCH] iget-locked [2/6]
-In-Reply-To: <20020511030437.GA29392@ravel.coda.cs.cmu.edu>
-Message-ID: <Pine.GSO.4.21.0205102317410.20383-100000@weyl.math.psu.edu>
+	id <S314499AbSEKEPq>; Sat, 11 May 2002 00:15:46 -0400
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:44481 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
+	id <S314417AbSEKEPq>; Sat, 11 May 2002 00:15:46 -0400
+Message-ID: <3CDC9BDC.F96F7C36@attbi.com>
+Date: Sat, 11 May 2002 00:19:40 -0400
+From: Jim Houston <jim.houston@attbi.com>
+Reply-To: jim.houston@attbi.com
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: 64-bit jiffies, a better solution
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+First what problem are you trying to solve?
+Why not have both variables and if they happen
+to endup in the same cache line you probably 
+need years worth of jiffies to notice how
+long one more add takes.  E.g.
 
-On Fri, 10 May 2002, Jan Harkes wrote:
+	jiffies_64++;
+	jiffies++;
 
-> On Sat, May 11, 2002 at 12:48:46PM +1000, Keith Owens wrote:
-> > On Fri, 10 May 2002 21:21:16 -0500 (CDT), 
-> > Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> wrote:
-> > >This is not true anymore in 2.5, this limitation was removed when ALSA 
-> > >went in.
-> > 
-> > True, but if the iget change goes into 2.5 it will probably be
-> > backported to 2.4 later, 2.4 still has the restriction.
-> > 
-> > As for modversions on 2.5, well you know my opinion ;).
-> 
-> A backport is not that likely. The patch removes iget4 and as a result
-> breaks compatibility for binary-only kernel modules that use iget and/or
-> iget4. So, I don't believe this patch is appropriate for a stable series.
+To round out the list of options, how about a few lines of 
+inline asm?  Maybe something like:
 
-It will need decent testing + backport of knfsd changes to 2.4 to become
-a candidate for merge.
+   extern unsigned long long jiffie_64;
+   extern unsigned int jiffie;
+   __asm__ (" \
+        .data
+        .align  8
+        .global jiffie
+        .global jiffie_64
+        .type   jiffie,@object
+        .size   jiffie,4
+        .type   jiffie_64,@object
+        .size   jiffie_64,8
+   jiffie_64:
+   jiffie:
+        .long   0, 0
+   ");
 
-As for the binary compatibility... as long as we are source-compatible
-(i.e. keep ->read_inode2 and provide a compatible iget4()) - compatibility
-is not a problem.  Anyone who ships binary-only modules is playing in the
-traffic and if they become a roadkill - it's Not Our Problem(tm).  Think
-of it as evolution in action...
+Adding the obvious ifdef of course.  Aside for broken
+binutils this might be portable code :-)
 
+Jim Houston - Concurrent Computer
+Corp.

@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262305AbVAZOJS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262306AbVAZOKx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262305AbVAZOJS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 09:09:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbVAZOJS
+	id S262306AbVAZOKx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 09:10:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbVAZOKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 09:09:18 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:21976 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262305AbVAZOJI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 09:09:08 -0500
-To: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
-Cc: "Barry K. Nathan" <barryn@pobox.com>, linux-kernel@vger.kernel.org,
-       Len Brown <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
-       fastboot@lists.osdl.org, Dave Jones <davej@redhat.com>
-Subject: Re: [PATCH 4/29] x86-i8259-shutdown
-References: <x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com>
-	<1106623970.2399.205.camel@d845pe> <20050125035930.GG13394@redhat.com>
-	<m1sm4phpor.fsf@ebiederm.dsl.xmission.com>
-	<20050125094350.GA6372@ip68-4-98-123.oc.oc.cox.net>
-	<m1brbdhl3l.fsf@ebiederm.dsl.xmission.com>
-	<20050125104904.GB5906@ip68-4-98-123.oc.oc.cox.net>
-	<m13bwphflw.fsf@ebiederm.dsl.xmission.com>
-	<20050125220229.GB5726@ip68-4-98-123.oc.oc.cox.net>
-	<m1651lupjj.fsf@ebiederm.dsl.xmission.com>
-	<20050126132741.GA23182@speedy.student.utwente.nl>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 26 Jan 2005 07:06:50 -0700
-In-Reply-To: <20050126132741.GA23182@speedy.student.utwente.nl>
-Message-ID: <m1pszsffnp.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	Wed, 26 Jan 2005 09:10:52 -0500
+Received: from lists.us.dell.com ([143.166.224.162]:45240 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S262306AbVAZOKJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 09:10:09 -0500
+Date: Wed, 26 Jan 2005 08:09:35 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: rusty@rustcorp.com.au, Greg KH <greg@kroah.com>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.11-rc2] modules: add version and srcversion to sysfs
+Message-ID: <20050126140935.GA27641@lists.us.dell.com>
+References: <20050119171357.GA16136@lst.de> <20050119234219.GA6294@kroah.com> <20050126060541.GA16017@lists.us.dell.com> <200501261022.30292.agruen@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501261022.30292.agruen@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sytse Wielinga <s.b.wielinga@student.utwente.nl> writes:
-
-> On my box this patch breaks shutdown instead, while it was working without it
-> on -rc2-mm1.
+On Wed, Jan 26, 2005 at 10:22:29AM +0100, Andreas Gruenbacher wrote:
+> On Wednesday 26 January 2005 07:05, Matt Domsch wrote:
+> > Module:  Add module version and srcversion to the sysfs tree
 > 
-> I have an Asus A7V8X motherboard with a VIA VT8377 (KT400) north bridge and a
-> VT8235 south bridge (according to lspci). The IO-APIC is used for interrupt
-> routing.
+> why do you need this?
 
-Hmm.  The patch had a couple of hard coded assumptions about the
-configuration (using ACPI etc), but I don't think it was significant
-enough to break anything.  You have a UP board and a K7 processor
-so my removal of set_cpus_allowed that should not affect anything.
+a) Tools like DKMS, which deal with changing out individual kernel
+modules without replacing the whole kernel, can behave smarter if they
+can tell the version of a given module.  The autoinstaller feature,
+for example, which determines if your system has a "good" version of a
+driver (i.e. if the one provided by DKMS has a newer verson than that
+provided by the kernel package installed), and to automatically
+compile and install a newer version if DKMS has it but your kernel
+doesn't yet have that version.
 
-But you are using an SMP kernel or at least the apic support.
+b) Because tools like DKMS can switch out modules, you can't count on
+'modinfo foo.ko', which looks at
+/lib/modules/${kernelver}/... actually matching what is loaded into
+the kernel already.  Hence asking sysfs for this.
 
-Are you using ACPI poweroff?
+c) as the unbind-driver-from-device work takes shape, it will be
+possible to rebind a driver that's built-in (no .ko to modinfo for the
+version) to a newly loaded module.  sysfs will have the
+currently-built-in version info, for comparison.
 
-How does the kernel shutdown fail?
+d) tech support scripts can then easily grab the version info for
+what's running presently - a question I get often.
 
-Eric
+Thanks,
+Matt
+
+
+-- 
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

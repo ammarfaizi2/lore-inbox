@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291620AbSBHPwN>; Fri, 8 Feb 2002 10:52:13 -0500
+	id <S291621AbSBHPwn>; Fri, 8 Feb 2002 10:52:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291621AbSBHPwD>; Fri, 8 Feb 2002 10:52:03 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:34949 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S291620AbSBHPvs>;
-	Fri, 8 Feb 2002 10:51:48 -0500
-Date: Fri, 08 Feb 2002 07:48:57 -0800 (PST)
-Message-Id: <20020208.074857.88474129.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: davej@suse.de, eike@bilbo.math.uni-mannheim.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: [2.5.4-pre3] link error in drivers/video/video.o
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E16ZDNA-00045D-00@the-village.bc.nu>
-In-Reply-To: <20020208155733.F32413@suse.de>
-	<E16ZDNA-00045D-00@the-village.bc.nu>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S291623AbSBHPwe>; Fri, 8 Feb 2002 10:52:34 -0500
+Received: from mail2.panix.com ([166.84.0.213]:32745 "HELO mail2.panix.com")
+	by vger.kernel.org with SMTP id <S291621AbSBHPw0>;
+	Fri, 8 Feb 2002 10:52:26 -0500
+Date: Sat, 9 Feb 2002 00:49:46 +0900
+From: Jeff Lightfoot <jeffml@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18-pre9
+Message-Id: <20020209004946.729052eb.jeffml@pobox.com>
+In-Reply-To: <3C633608.2D0CDC51@mandrakesoft.com>
+In-Reply-To: <Pine.LNX.4.21.0202071646550.17201-100000@freak.distro.conectiva>
+	<002001c1b045$631ad760$030ba8c0@mistral>
+	<3C633608.2D0CDC51@mandrakesoft.com>
+X-Mailer: Sylpheed version 0.7.0claws52 (GTK+ 1.2.10; i386-debian-linux-gnu)
+X-Operating-System: Debian GNU/Linux 3.0;kernel 2.4.17
+X-Face: 'u<#Qt^/)qW:&(>J[MA.~}578d+Wz3jc?f>yFwasPspU]Aq]z>~^7mt+~<Qi.>\+mlk.)8F LB,8#1B.a@vkU-P>GO7Jv'!a~5<!1TB{ba1P]/wSF+D2O.slxdmvp\6
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: Fri, 8 Feb 2002 15:55:35 +0000 (GMT)
-   
-   That is incorrect. The warning occurs because someone made bogus changes to
-   the vesa driver without understanding what was going on. The vesa frame
-   buffer returned by the BIOS is a physical cpu address not a bus address
-   and nothing to do with magic PCI mappings.
+On Thu, 07 Feb 2002 21:20:56 -0500
+Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
 
-There were no changes made, in fact the VESA driver by your own
-definition was buggy before my changes went in. :-) It was using
-bus_to_virt and virt_to_bus all along Alan.
+> > Can you tell me if the final 2.4.18 will solve the problems with
+> > recent binutils?  Or is the onus on the binutils maintainer to fix
+> > this?
+> 
+> What driver are you having problems with?
+
+Hope this was an invitation for others also.
+
+If more info is needed, let me know.
+
+binutils: 2.11.92.0.12.3
+kernel: 2.4.18-pre9
+
+drivers/media/media.o: In function `bttv_probe':
+drivers/media/media.o(.text.init+0x15cb): undefined reference to `local
+symbols in discarded section .text.exit'
+

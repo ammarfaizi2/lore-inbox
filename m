@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288977AbSANThN>; Mon, 14 Jan 2002 14:37:13 -0500
+	id <S288867AbSANS5F>; Mon, 14 Jan 2002 13:57:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288960AbSANTgH>; Mon, 14 Jan 2002 14:36:07 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:58498
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S288974AbSANTfZ>; Mon, 14 Jan 2002 14:35:25 -0500
-Date: Mon, 14 Jan 2002 12:34:36 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: esr@thyrsus.com, Eli Carter <eli.carter@inet.com>,
-        "\"Michael Lazarou (ETL)\"" <Michael.Lazarou@etl.ericsson.se>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-Message-ID: <20020114193436.GB3298@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <20020114134426.C17522@thyrsus.com> <E16QCZ7-0002b4-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16QCZ7-0002b4-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.25i
+	id <S288902AbSANS4K>; Mon, 14 Jan 2002 13:56:10 -0500
+Received: from ns1.system-techniques.com ([199.33.245.254]:43139 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S288867AbSANSyi>; Mon, 14 Jan 2002 13:54:38 -0500
+Date: Mon, 14 Jan 2002 13:54:31 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Hardwired drivers are going away?
+In-Reply-To: <20020114131050.E14747@thyrsus.com>
+Message-ID: <Pine.LNX.4.44.0201141353500.3238-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 14, 2002 at 07:14:40PM +0000, Alan Cox wrote:
-> > > it did last week". Random mechanics hating car owners don't do engine tuning
-> > > jobs or fit turbochargers.
-> > 
-> > No...but they do change their own oil and antifreeze.  Upgrading your
-> > kernel should be as simple as changing your oil.
-> 
-> Yeah. I go to the garage versus I click "up 2 date". I don't mix custom
-> oils.
 
-And people that do change their own oil usually know something about
-their cars too. 
+	Hello All ,  And on that day linux will loose one small person .
+		Taf ,  JimL
 
-To carry this anaology out a bit further, the people who change their
-own oil  know about as much about their car(s) as the people who go and
-recompile their own kernel, but don't claim to know much about the
-kernel internals. 
+On Mon, 14 Jan 2002, Eric S. Raymond wrote:
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+> Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> > For 2.5 if things go to plan there will be no such thing as a "compiled in"
+> > driver. They simply are not needed with initramfs holding what were once the
+> > "compiled in" modules.
+>
+> This is something of a bombshell.  Not necessarily a bad one, but...
+>
+> Alan, do you have *any* *freakin'* *idea* how much more complicated
+> the CML2 deduction engine had to be because the basic logical entity
+> was a tristate rather than a bool?  If this plan goes through, I'm
+> going to be able to drop out at least 20% of the code, with most of
+> that 20% being in the nasty complicated bits where the maintainability
+> improvement will be greatest.  And I can get rid of the nasty "vitality"
+> flag, which probably the worst wart on the language.
+>
+> Yowza...so how soon is this supposed to happen?
+> --
+> 		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+>
+> Government should be weak, amateurish and ridiculous. At present, it
+> fulfills only a third of the role.	-- Edward Abbey
+>
+
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
+

@@ -1,143 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289826AbSBKPrX>; Mon, 11 Feb 2002 10:47:23 -0500
+	id <S289832AbSBKQAE>; Mon, 11 Feb 2002 11:00:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289829AbSBKPrO>; Mon, 11 Feb 2002 10:47:14 -0500
-Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:65003 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S289826AbSBKPrG>; Mon, 11 Feb 2002 10:47:06 -0500
-Importance: Normal
-Subject: [PATCH] linux-2.417 devfs 64bit portablility issue
-To: linux-kernel@vger.kernel.org, rgooch@ras.ucalgary.ca
-X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
-Message-ID: <OFA3A51DAC.14854039-ONC1256B5D.0045F62F@de.ibm.com>
-From: "Carsten Otte" <COTTE@de.ibm.com>
-Date: Mon, 11 Feb 2002 14:00:06 +0100
-X-MIMETrack: Serialize by Router on D12ML033/12/M/IBM(Release 5.0.8 |June 18, 2001) at
- 11/02/2002 16:48:12
-MIME-Version: 1.0
-Content-type: multipart/mixed; 
-	Boundary="0__=C1256B5D0045F62F8f9e8a93df938690918cC1256B5D0045F62F"
-Content-Disposition: inline
+	id <S289834AbSBKP75>; Mon, 11 Feb 2002 10:59:57 -0500
+Received: from h108-129-61.datawire.net ([207.61.129.108]:3855 "HELO
+	mail.datawire.net") by vger.kernel.org with SMTP id <S289832AbSBKP7q>;
+	Mon, 11 Feb 2002 10:59:46 -0500
+Subject: Re: IBM ThinkPad - Redundant entry in serial pci_table
+From: Shawn Starr <shawn.starr@datawire.net>
+To: Andrey Panin <pazke@orbita1.ru>
+Cc: Linux <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020211125453.GA429@pazke.ipt>
+In-Reply-To: <1013029931.15007.2.camel@unaropia>
+	<20020208103353.GA741@pazke.ipt> <1013178614.369.7.camel@unaropia> 
+	<20020211125453.GA429@pazke.ipt>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1.99 (Preview Release)
+Date: 11 Feb 2002 11:02:49 -0500
+Message-Id: <1013443369.19792.155.camel@unaropia>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0__=C1256B5D0045F62F8f9e8a93df938690918cC1256B5D0045F62F
-Content-type: text/plain; charset=us-ascii
+I'll, try this out. Thanks.
 
-Hi Richard, Hi List-Readers!
+On Mon, 2002-02-11 at 07:54, Andrey Panin wrote:
+> Hi Shawn,
+> 
+> can you try the attached patch ?
+> 
+> Best regards.
+> 
+> -- 
+> Andrey Panin            | Embedded systems software engineer
+> pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+> ----
+> 
 
-In linux-2.4.17/fs/devfs/util.c, I found the following code:
-struct major_list
-{
-    spinlock_t lock;
-    __u32 bits[8];
-};
-
-/*  Block majors already assigned:
-    0-3, 7-9, 11-63, 65-99, 101-113, 120-127, 199, 201, 240-255
-    Total free: 122
-*/
-static struct major_list block_major_list =
-{SPIN_LOCK_UNLOCKED,
-    {0xfffffb8f,  /*  Majors 0   to 31   */
-     0xffffffff,  /*  Majors 32  to 63   */
-     0xfffffffe,  /*  Majors 64  to 95   */
-     0xff03ffef,  /*  Majors 96  to 127  */
-     0x00000000,  /*  Majors 128 to 159  */
-     0x00000000,  /*  Majors 160 to 191  */
-     0x00000280,  /*  Majors 192 to 223  */
-     0xffff0000}  /*  Majors 224 to 255  */
-};
-
-Afterwards, the block_major_list.bits is processed using
-find_first_zero_bit & set_bit out of asm/bitops.h.
-Since bitops are only defined for the datatype long, this does
-only work on 32-bit architectures (on 64 bit data gets
-incorrectly alligned -not on 8byte boundary & the ordering of
-the data is incorrect).
-I attached a patch that should fix it for all architectures.
-(See attached file: linux-2.4.17-devfs_fixup.diff)
-
-with kind regards
-Carsten Otte
---0__=C1256B5D0045F62F8f9e8a93df938690918cC1256B5D0045F62F
-Content-type: application/octet-stream; 
-	name="linux-2.4.17-devfs_fixup.diff"
-Content-Disposition: attachment; filename="linux-2.4.17-devfs_fixup.diff"
-Content-transfer-encoding: base64
-
-ZGlmZiAtcnVOIGxpbnV4LTIuNC4xNy9mcy9kZXZmcy9iYXNlLmMgbGludXgtMi40LjE3LWZpeHVw
-L2ZzL2RldmZzL2Jhc2UuYwotLS0gbGludXgtMi40LjE3L2ZzL2RldmZzL2Jhc2UuYwlUaHUgRGVj
-IDI3IDE5OjUzOjA1IDIwMDEKKysrIGxpbnV4LTIuNC4xNy1maXh1cC9mcy9kZXZmcy9iYXNlLmMJ
-V2VkIEZlYiAgNiAxNzo0OTowMCAyMDAyCkBAIC0yMzE4LDYgKzIzMTgsNyBAQAogCWlmICgqc3Ry
-ICE9ICcsJykgcmV0dXJuIDA7ICAvKiAgTm8gbW9yZSBvcHRpb25zICAqLwogCSsrc3RyOwogICAg
-IH0KKyAgICBkZXZmc19pbml0X21ham9yX2xpc3RzKCk7CiAgICAgcmV0dXJuIDE7CiB9ICAgLyog
-IEVuZCBGdW5jdGlvbiBkZXZmc19zZXR1cCAgKi8KIApkaWZmIC1ydU4gbGludXgtMi40LjE3L2Zz
-L2RldmZzL3V0aWwuYyBsaW51eC0yLjQuMTctZml4dXAvZnMvZGV2ZnMvdXRpbC5jCi0tLSBsaW51
-eC0yLjQuMTcvZnMvZGV2ZnMvdXRpbC5jCUZyaSBPY3QgMjYgMjA6MDA6NTIgMjAwMQorKysgbGlu
-dXgtMi40LjE3LWZpeHVwL2ZzL2RldmZzL3V0aWwuYwlXZWQgRmViICA2IDE4OjAyOjI5IDIwMDIK
-QEAgLTE4NSw0MiArMTg1LDg4IEBACiAKIHN0cnVjdCBtYWpvcl9saXN0CiB7Ci0gICAgc3Bpbmxv
-Y2tfdCBsb2NrOwotICAgIF9fdTMyIGJpdHNbOF07CisJc3BpbmxvY2tfdCBsb2NrOworCWxvbmcg
-Yml0c1szMi9zaXplb2YobG9uZyldOwogfTsKIAordHlwZWRlZiBzdHJ1Y3QgX21ham9yX3ByZWFs
-bG9jYXRlZF9lbnRyeQoreworCWludCBmaXJzdF9tYWpvcjsKKwlpbnQgbGFzdF9tYWpvcjsKK30g
-bWFqb3JfcHJlYWxsb2NhdGVkX2VudHJ5X3Q7CisKIC8qICBCbG9jayBtYWpvcnMgYWxyZWFkeSBh
-c3NpZ25lZDoKICAgICAwLTMsIDctOSwgMTEtNjMsIDY1LTk5LCAxMDEtMTEzLCAxMjAtMTI3LCAx
-OTksIDIwMSwgMjQwLTI1NQogICAgIFRvdGFsIGZyZWU6IDEyMgogKi8KKworc3RhdGljIG1ham9y
-X3ByZWFsbG9jYXRlZF9lbnRyeV90IGJsb2NrX21ham9yX3ByZWFzc2lnbmVkX2xpc3RbXT0KK3sK
-Kwl7MCwzfSwKKwl7Nyw5fSwKKwl7MTEsNjN9LAorCXs2NSw5OX0sCisgICAgICAgIHsxMDEsMTEz
-fSwKKyAgICAgICAgezEyMCwxMjd9LAorICAgICAgICB7MTk5LDE5OX0sCisgICAgICAgIHsyMDEs
-MjAxfSwKKyAgICAgICAgezI0MCwyNTV9LAorCXstMSwtMX0gLyogZW5kIG9mIGxpc3QgbWFya2Vy
-ICovCit9OworCisKIHN0YXRpYyBzdHJ1Y3QgbWFqb3JfbGlzdCBibG9ja19tYWpvcl9saXN0ID0K
-LXtTUElOX0xPQ0tfVU5MT0NLRUQsCi0gICAgezB4ZmZmZmZiOGYsICAvKiAgTWFqb3JzIDAgICB0
-byAzMSAgICovCi0gICAgIDB4ZmZmZmZmZmYsICAvKiAgTWFqb3JzIDMyICB0byA2MyAgICovCi0g
-ICAgIDB4ZmZmZmZmZmUsICAvKiAgTWFqb3JzIDY0ICB0byA5NSAgICovCi0gICAgIDB4ZmYwM2Zm
-ZWYsICAvKiAgTWFqb3JzIDk2ICB0byAxMjcgICovCi0gICAgIDB4MDAwMDAwMDAsICAvKiAgTWFq
-b3JzIDEyOCB0byAxNTkgICovCi0gICAgIDB4MDAwMDAwMDAsICAvKiAgTWFqb3JzIDE2MCB0byAx
-OTEgICovCi0gICAgIDB4MDAwMDAyODAsICAvKiAgTWFqb3JzIDE5MiB0byAyMjMgICovCi0gICAg
-IDB4ZmZmZjAwMDB9ICAvKiAgTWFqb3JzIDIyNCB0byAyNTUgICovCit7U1BJTl9MT0NLX1VOTE9D
-S0VELCAKIH07CiAKIC8qICBDaGFyIG1ham9ycyBhbHJlYWR5IGFzc2lnbmVkOgogICAgIDAtNywg
-OS0xNTEsIDE1NC0xNTgsIDE2MC0yMTEsIDIxNi0yMjEsIDIyNC0yMzAsIDI0MC0yNTUKICAgICBU
-b3RhbCBmcmVlOiAxOQogKi8KKworc3RhdGljIG1ham9yX3ByZWFsbG9jYXRlZF9lbnRyeV90IGNo
-YXJfbWFqb3JfcHJlYXNzaWduZWRfbGlzdFtdPQoreworCXswLDd9LAorCXs5LDE1MX0sCisgICAg
-ICAgIHsxNTQsMTU4fSwKKyAgICAgICAgezE2MCwyMTF9LAorICAgICAgICB7MjI0LDIzMH0sCisg
-ICAgICAgIHsyNDAsMjU1fSwKKwl7LTEsLTF9IC8qIGVuZCBvZiBsaXN0IG1hcmtlciAqLworfTsK
-Kwogc3RhdGljIHN0cnVjdCBtYWpvcl9saXN0IGNoYXJfbWFqb3JfbGlzdCA9CiB7U1BJTl9MT0NL
-X1VOTE9DS0VELAotICAgIHsweGZmZmZmZWZmLCAgLyogIE1ham9ycyAwICAgdG8gMzEgICAqLwot
-ICAgICAweGZmZmZmZmZmLCAgLyogIE1ham9ycyAzMiAgdG8gNjMgICAqLwotICAgICAweGZmZmZm
-ZmZmLCAgLyogIE1ham9ycyA2NCAgdG8gOTUgICAqLwotICAgICAweGZmZmZmZmZmLCAgLyogIE1h
-am9ycyA5NiAgdG8gMTI3ICAqLwotICAgICAweDdjZmZmZmZmLCAgLyogIE1ham9ycyAxMjggdG8g
-MTU5ICAqLwotICAgICAweGZmZmZmZmZmLCAgLyogIE1ham9ycyAxNjAgdG8gMTkxICAqLwotICAg
-ICAweDNmMGZmZmZmLCAgLyogIE1ham9ycyAxOTIgdG8gMjIzICAqLwotICAgICAweGZmZmYwMDdm
-fSAgLyogIE1ham9ycyAyMjQgdG8gMjU1ICAqLwogfTsKIAorLyoqCisgKiAgICAgICBkZXZmc19p
-bml0X21ham9yX2xpc3RzIC0gSW5pdGlhbGl6ZSBtYWpvciB1c2VkIGJpdG1hcHMKKyAqCisgKi8K
-K3ZvaWQgZGV2ZnNfaW5pdF9tYWpvcl9saXN0cyAodm9pZCkgCit7CisJaW50IGk7CisJbWFqb3Jf
-cHJlYWxsb2NhdGVkX2VudHJ5X3QqIGVudHJ5OworCS8vIGNsZWFyIGFsbCBiaXRzCisJZm9yIChp
-PTA7IGk8KDMyL3NpemVvZihsb25nKSkgOyBpKyspIHsKKwkJYmxvY2tfbWFqb3JfbGlzdC5iaXRz
-W2ldID0gMDsKKwkJY2hhcl9tYWpvcl9saXN0LmJpdHNbaV0gPSAwOworCX0KKwkvLyBzZXQgYml0
-cyBpbiBibG9ja19tYWpvcl9saXN0IGFuZCBjaGFyX21ham9yX2xpc3Qgb2YgcHJlYXNzaWduZWQg
-bWFqb3JzCisJZm9yIChlbnRyeT0mY2hhcl9tYWpvcl9wcmVhc3NpZ25lZF9saXN0WzBdOyAKKwkg
-ICAgIChlbnRyeS0+Zmlyc3RfbWFqb3IhPS0xKSAmJiAoZW50cnktPmxhc3RfbWFqb3IhPS0xKTsK
-KwkgICAgIGVudHJ5KyspIHsKKwkJZm9yIChpPWVudHJ5LT5maXJzdF9tYWpvcjsgaTw9ZW50cnkt
-Pmxhc3RfbWFqb3I7IGkrKykgCisJCQlfX3NldF9iaXQgKGksIGNoYXJfbWFqb3JfbGlzdC5iaXRz
-KTsKKwl9CisJLy8gc2V0IGJpdHMgaW4gYmxvY2tfbWFqb3JfbGlzdCBhbmQgY2hhcl9tYWpvcl9s
-aXN0IG9mIHByZWFzc2lnbmVkIG1ham9ycworCWZvciAoZW50cnk9JmJsb2NrX21ham9yX3ByZWFz
-c2lnbmVkX2xpc3RbMF07IAorCSAgICAgKGVudHJ5LT5maXJzdF9tYWpvciE9LTEpICYmIChlbnRy
-eS0+bGFzdF9tYWpvciE9LTEpOworCSAgICAgZW50cnkrKykgeworCQlmb3IgKGk9ZW50cnktPmZp
-cnN0X21ham9yOyBpPD1lbnRyeS0+bGFzdF9tYWpvcjsgaSsrKSAKKwkJCV9fc2V0X2JpdCAoaSwg
-YmxvY2tfbWFqb3JfbGlzdC5iaXRzKTsKKwl9Cit9CiAKIC8qKgogICoJZGV2ZnNfYWxsb2NfbWFq
-b3IgLSBBbGxvY2F0ZSBhIG1ham9yIG51bWJlci4KZGlmZiAtcnVOIGxpbnV4LTIuNC4xNy9pbmNs
-dWRlL2xpbnV4L2RldmZzX2ZzX2tlcm5lbC5oIGxpbnV4LTIuNC4xNy1maXh1cC9pbmNsdWRlL2xp
-bnV4L2RldmZzX2ZzX2tlcm5lbC5oCi0tLSBsaW51eC0yLjQuMTcvaW5jbHVkZS9saW51eC9kZXZm
-c19mc19rZXJuZWwuaAlUaHUgRGVjIDI3IDE5OjUzOjA3IDIwMDEKKysrIGxpbnV4LTIuNC4xNy1m
-aXh1cC9pbmNsdWRlL2xpbnV4L2RldmZzX2ZzX2tlcm5lbC5oCVRodSBGZWIgIDcgMTU6NTg6MDAg
-MjAwMgpAQCAtMTE1LDYgKzExNSw3IEBACiAJCQkJICAgdW5zaWduZWQgaW50IGZsYWdzLCB1bnNp
-Z25lZCBpbnQgbWFqb3IsCiAJCQkJICAgdW5zaWduZWQgaW50IG1pbm9yX3N0YXJ0LAogCQkJCSAg
-IHVtb2RlX3QgbW9kZSwgdm9pZCAqb3BzLCB2b2lkICppbmZvKTsKK2V4dGVybiB2b2lkIGRldmZz
-X2luaXRfbWFqb3JfbGlzdHMgKHZvaWQpOwogZXh0ZXJuIGludCBkZXZmc19hbGxvY19tYWpvciAo
-Y2hhciB0eXBlKTsKIGV4dGVybiB2b2lkIGRldmZzX2RlYWxsb2NfbWFqb3IgKGNoYXIgdHlwZSwg
-aW50IG1ham9yKTsKIGV4dGVybiBrZGV2X3QgZGV2ZnNfYWxsb2NfZGV2bnVtIChjaGFyIHR5cGUp
-Owo=
-
---0__=C1256B5D0045F62F8f9e8a93df938690918cC1256B5D0045F62F--
+> diff -urN -X /usr/dontdiff /linux.vanilla/drivers/char/serial.c /linux/drivers/char/serial.c
+> --- /linux.vanilla/drivers/char/serial.c	Sat Feb  9 19:24:23 2002
+> +++ /linux/drivers/char/serial.c	Sun Feb 10 17:00:21 2002
+> @@ -4852,6 +4859,10 @@
+>  
+>  	/* Xircom Cardbus/Ethernet combos */
+>  	{	PCI_VENDOR_ID_XIRCOM, PCI_DEVICE_ID_XIRCOM_X3201_MDM,
+> +		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+> +		pbn_xircom_combo },
+> +
+> +	{	PCI_VENDOR_ID_XIRCOM, 0x000c,
+>  		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+>  		pbn_xircom_combo },
+>  
+-- 
+Shawn Starr
+Developer Support Engineer
+Datawire Communication Networks Inc.
+10 Carlson Court, Suite 300
+Toronto, ON, M9W 6L2
+T: 416-213-2001 ext 179  F: 416-213-2008
 

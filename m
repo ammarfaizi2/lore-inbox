@@ -1,74 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262623AbULPGpr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262624AbULPH2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262623AbULPGpr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 01:45:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbULPGpq
+	id S262624AbULPH2E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 02:28:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbULPH2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 01:45:46 -0500
-Received: from web53305.mail.yahoo.com ([206.190.39.234]:21637 "HELO
-	web53305.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262623AbULPGpi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 01:45:38 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=cONyJpuQR5iOowKp33LaqPoZhyvZlLE5KKOra4+38Qh6/+MN82oPAnE21zDoMGsdzkQwEsnh3MkMlfzXbJIRdWbwRpxujLJwZGxSN0Wji/imTrlqLDEYTCKgXT48cXvrLW3GTMSVB7FGGxpXstWbPXgVPIveqwQtUu6Nyg1bPVY=  ;
-Message-ID: <20041216064538.93385.qmail@web53305.mail.yahoo.com>
-Date: Wed, 15 Dec 2004 22:45:38 -0800 (PST)
-From: firnnauriel <rinoa012000@yahoo.com>
-Subject: bcopy's performance on 2.4.20 (Redhat) and 2.40.20-8um (UML)
-To: linux-kernel@vger.kernel.org
+	Thu, 16 Dec 2004 02:28:04 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:61904 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262624AbULPH2B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 02:28:01 -0500
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Anticipatory prefaulting in the page fault handler V2
+References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain.suse.lists.linux.kernel>
+	<156610000.1102546207@flay.suse.lists.linux.kernel>
+	<Pine.LNX.4.58.0412091130160.796@schroedinger.engr.sgi.com.suse.lists.linux.kernel>
+	<200412132330.23893.amgta@yacht.ocn.ne.jp.suse.lists.linux.kernel>
+	<Pine.LNX.4.58.0412130905140.360@schroedinger.engr.sgi.com.suse.lists.linux.kernel>
+	<8880000.1102976179@flay.suse.lists.linux.kernel>
+	<Pine.LNX.4.58.0412131730410.817@schroedinger.engr.sgi.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 16 Dec 2004 08:27:59 +0100
+In-Reply-To: <Pine.LNX.4.58.0412131730410.817@schroedinger.engr.sgi.com.suse.lists.linux.kernel>
+Message-ID: <p73hdmmog74.fsf@bragg.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings to all! I would like to ask for your advice
-regarding this question:
- "In general, is the memcpy"s performance on UML (User
- Mode Linux) environment better than the host OS? If
- that is the case, can you give the reason behind it
- (ex. UML"s architecture)?"
- 
- Here"s the evironment:
- HOST
- OS: Redhat 9 (kernel 2.4.20-8)
- Brand/Model: Dell PowerEdge 2600
- CPU: Intel Xeon 2.4 GHz
- Memory: 2 GB
- Disk Space: 73 GB
- 
- UML
- Kernel version    : 2.40.20-lsm1-8um 
- Allocated Mem     : 256MB
- 
- I used lmbench-2.0.4 for the bandwith and latency
- testing. here"s the result:
- 
- host
- memcpy     : 597.1  MB/s (higher is better)
- page fault : 2.00000     (smaller is better)
- 
- uml
- memcpy     : 668.4
- page fault : 48.0
- 
- The result in page fault might be because of low
- memory allocated in UML. But the question is, why is
- the memcpy on UML (668.4 MB/s) performs faster that
- the host OS?
- 
- I already asked the developer of lmbench, and he
- adviced me to ask this question to the linux kernel
- mailing list.
- 
- I would really appreciate any inputs and advice.
-Thank
- you!
+Christoph Lameter <clameter@sgi.com> writes:
+> 
+> If a fault occurred for page x and is then followed by page x+1 then it may
+> be reasonable to expect another page fault at x+2 in the future. If page
+> table entries for x+1 and x+2 would be prepared in the fault handling for
+> page x+1 then the overhead of taking a fault for x+2 is avoided. However
+> page x+2 may never be used and thus we may have increased the rss
+> of an application unnecessarily. The swapper will take care of removing
+> that page if memory should get tight.
 
+I would be very careful with this. Windows does something like this
+by default and one application that I know needs twice as much swap+memory
+on Windows than on Linux because of this. Since it uses a lot of memory
+it would be a bad regression.
 
-		
-__________________________________ 
-Do you Yahoo!? 
-Jazz up your holiday email with celebrity designs. Learn more. 
-http://celebrity.mail.yahoo.com
+When you add it there should be at least some easy way for an application
+to turn it off (madvise and probably sysctl?) and make the heuristic very 
+conservative.
+
+-Andi

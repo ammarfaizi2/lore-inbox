@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbUL0BKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbUL0BZ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261586AbUL0BKs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 20:10:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbUL0BKs
+	id S261605AbUL0BZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 20:25:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUL0BZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 20:10:48 -0500
-Received: from mail.dif.dk ([193.138.115.101]:38562 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261586AbUL0BKj (ORCPT
+	Sun, 26 Dec 2004 20:25:56 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:34065 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S261605AbUL0BZw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 20:10:39 -0500
-Date: Mon, 27 Dec 2004 02:21:36 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, Steve French <sfrench@samba.org>,
-       Steve French <sfrench@us.ibm.com>,
-       samba-technical <samba-technical@lists.samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] copy_to_user check and whitespace cleanups in fs/cifs/file.c
-In-Reply-To: <1104104286.16545.7.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0412270218560.3552@dragon.hygekrogen.localhost>
-References: <Pine.LNX.4.61.0412270019370.3552@dragon.hygekrogen.localhost>
- <1104104286.16545.7.camel@localhost.localdomain>
+	Sun, 26 Dec 2004 20:25:52 -0500
+Message-ID: <41CF649E.20409@domdv.de>
+Date: Mon, 27 Dec 2004 02:25:50 +0100
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.10-ac1
+References: <1104103881.16545.2.camel@localhost.localdomain> <58cb370e04122616577e1bd33@mail.gmail.com>
+In-Reply-To: <58cb370e04122616577e1bd33@mail.gmail.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Dec 2004, Alan Cox wrote:
+Bartlomiej Zolnierkiewicz wrote:
+> What do you need 'serialize' option for?
 
-> On Sul, 2004-12-26 at 23:24, Jesper Juhl wrote:
-> > Hi,
-> > 
-> > Patch below adds a check for the copy_to_user return value and makes a few 
-> > whitespace cleanups in  fs/cifs/file.c::cifs_user_read()
-> > I hope bundling two different things together in one patch is OK when the 
-> > change is as small as this, but if you want it spplit in two patches, then 
-> > just say so.
-> 
-> Corrupts the stats
-> Fails to free smb_read_data where in some cases it was freed before
-> 
-Whoops, I'll take care of that - thanks for pointing that out.
+I didn't check if the problem is gone with 2.6.10 but there's boards 
+like my tyan 2885 which do need the serialize option to work properly 
+for add-on ide controllers.
 
-> I'm not sure the stats matter but I think you need something more like
-> 
-> 
-> residue = copy_to_user(....)
-> if(smb_read_data) {
->    cifs_buf_release(...)
->   ...
-> }
-> 
-> Then
-> 
-> if(residue) {
->     total_read += bytes_read - residue;
->     FreeXid(xid);
->     return total_read ? total_read: -EFAULT;
-> }
-> 
-> 
+ From the X86-64 patch release notes of Andi Kleen:
 
-I take that to mean that if we do manage to read something before we run 
-into the fault it's better to return what we have read than the fact that 
-we ran into a fault... that makes sense. Sure, I'll cook up a patch to do 
-that instead (tomorrow - I need some sleep).
+Reports that dual Tyan S2885 and S2880 can lock up when multiple IDE 
+channels are stressed in parallel. "noapic" or "ideX=serialize" seems to 
+work around it. Andre Hedrick thinks it's a generic bug/race in the IDE 
+code.
 
-
+Do you want to force people to disable the io-apic just because of 
+option removal? In my case the serialized devices are a disk and a 
+dvd-rw which is rarely used, so disabling the io-apic is a bad solution.
 -- 
-Jesper Juhl
-
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

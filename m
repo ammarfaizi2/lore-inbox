@@ -1,66 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268052AbUJGVLW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267779AbUJGVLV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268052AbUJGVLW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 17:11:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268083AbUJGVJu
+	id S267779AbUJGVLV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 17:11:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268052AbUJGVJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 17:09:50 -0400
-Received: from mail4.utc.com ([192.249.46.193]:64195 "EHLO mail4.utc.com")
-	by vger.kernel.org with ESMTP id S269646AbUJGUuF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 16:50:05 -0400
-Message-ID: <4165ABE3.8000504@cybsft.com>
-Date: Thu, 07 Oct 2004 15:49:39 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Thu, 7 Oct 2004 17:09:40 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:4480 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S268301AbUJGUsr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 16:48:47 -0400
+Date: Thu, 7 Oct 2004 16:48:42 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Stephen Hemminger <shemminger@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Probable module bug in linux-2.6.5-1.358
+In-Reply-To: <1097175596.31547.111.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0410071640250.3287@chaos.analogic.com>
+References: <Pine.LNX.4.61.0410061807030.4586@chaos.analogic.com> 
+ <1097175903.29576.12.camel@localhost.localdomain>
+ <1097175596.31547.111.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: 2.6.9-rc3-mm3 fails to detect aic7xxx
-References: <1097178019.24355.39.camel@localhost>	<4165A369.60306@cybsft.com> <20041007133956.39c2427e.akpm@osdl.org>
-In-Reply-To: <20041007133956.39c2427e.akpm@osdl.org>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> "K.R. Foley" <kr@cybsft.com> wrote:
-> 
->>Dave Hansen wrote:
->>
->>>I just booted 2.6.9-rc3-mm3 and got the good ol' 
->>>
->>>VFS: Cannot open root device "sda2" or unknown-block(0,0)
->>>Please append a correct "root=" boot option
->>>Kernel panic - not syncing: VFS: Unable to mount root fs on
->>>unknown-block(0,0)
->>>
->>>backing out bk-scsi.patch seems to fix it.  I believe this worked in
->>>2.6.9-rc3-mm2.
->>>
->>>-- Dave
->>
->>While I can't verify that backing out bk-scsi.patch fixes it for me yet, 
->>I can verify that I get the exact same error trying to boot this kernel. 
->>I too am using the aic7xxx.
->>
-> 
-> 
-> Were some earlier messages printed out, during the scsi bringup stage?
-> 
-> A full dmesg dump would be nice.
-> 
+On Thu, 7 Oct 2004, Alan Cox wrote:
 
-Yes it would. Unfortunately I am not near the machine right now. I do 
-know that there is not much info being displayed prior to the failure 
-message listed above and I don't have a serial console on this system 
-currently. I will be glad to try to dig into it further when I get home 
-in a few hours.
+> On Iau, 2004-10-07 at 20:05, Stephen Hemminger wrote:
+>> --------------
+>> /*
+>>  *   Since some in the Linux-kernel development group want to play
+>>  *   lawyer, and require that a GPL License exist for every kernel
+>>  *   module,  I provide the following:
+>>  *
+>>  *   Everything in this file (only) is released under the so-called
+>>  *   GNU Public License, incorporated herein by reference.
+>>  *
+>>  *   Now, we just link this with any proprietary code and everybody
+>>  *   but the lawyers are happy.
+>>  */
+>
+> What a fascinating object. I hope thats not reflective of OSDL policy 8)
+>
+> Is fascinating because my first thought was that if they sign the Induce
+> act it would be a criminal offence to have it in the USA since its
+> clearly an incitement and my second thought was that the Bernstein case
+> appears to argue its protected speech. Interesting times 8)
+>
+> More seriously the goal of MODULE_LICENSE has never been to -enforce-
+> GPL licensing. It provides help in understanding what symbols are
+> definitely off limits and it allows people to identify proprietary stuff
+> loaded into a system to filter bug reports.
+>
+> The law on derivative works and copyright in general, murkly alas as it
+> is, does the enforcing, and unfortunately it is becoming apparent that
+> the free software world is going to have to go out soon and crack down
+> hard on abusers, especially those simply shipping Linux binaries with no
+> source or GPL information.
+>
+> Alan
+>
 
-kr
+Naaah. I included it in my module as a joke. Steve didn't take
+it as a joke and forwarded it to you. It shows that the whole
+MODULE_LICENSE("Whatever") is a joke. Not only that, I can
+simply change /proc/sys/kernel/tainted to 0 before submitting
+a bug report. This whole GPL thing has taken a real stupid
+turn. I guess GNU has really taken over Linux. Stallman will
+be real proud of all the work you guys did for him on
+GNU/Linux .........
+
+And, yes, we still have free speech in the US, even though
+the current administration won't allow us to say anything
+bad about it (treason, you know)!
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.5-1.358-noreg on an i686 machine (5537.79 BogoMips).
+             Note 96.31% of all statistics are fiction.
+

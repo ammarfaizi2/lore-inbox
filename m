@@ -1,67 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262372AbRERQGN>; Fri, 18 May 2001 12:06:13 -0400
+	id <S262371AbRERQQn>; Fri, 18 May 2001 12:16:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262373AbRERQGD>; Fri, 18 May 2001 12:06:03 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:61704 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S262372AbRERQGC>;
-	Fri, 18 May 2001 12:06:02 -0400
-Date: Fri, 18 May 2001 12:04:34 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Tom Rini <trini@kernel.crashing.org>,
-        Michael Meissner <meissner@spectacle-pond.org>,
-        Keith Owens <kaos@ocs.com.au>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
+	id <S262373AbRERQQd>; Fri, 18 May 2001 12:16:33 -0400
+Received: from t2.redhat.com ([199.183.24.243]:13820 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S262371AbRERQQ1>; Fri, 18 May 2001 12:16:27 -0400
+Message-ID: <3B054AD6.7EB1582D@redhat.com>
+Date: Fri, 18 May 2001 17:16:22 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org
 Subject: Re: CML2 design philosophy heads-up
-Message-ID: <20010518120434.F14309@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Tom Rini <trini@kernel.crashing.org>,
-	Michael Meissner <meissner@spectacle-pond.org>,
-	Keith Owens <kaos@ocs.com.au>, CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010518105353.A13684@thyrsus.com> <E150mKO-0007FF-00@the-village.bc.nu>
-Mime-Version: 1.0
+In-Reply-To: <20010518034307.A10784@thyrsus.com> <E150fV9-0006q1-00@the-village.bc.nu> <20010518105353.A13684@thyrsus.com> <3B053B9B.23286E6C@redhat.com> <20010518112625.A14309@thyrsus.com> <20010518113726.A29617@devserv.devel.redhat.com> <20010518114922.C14309@thyrsus.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E150mKO-0007FF-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, May 18, 2001 at 04:38:08PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> > I don't want to do (a); it conflicts with my design objective of
-> > simplifying configuration enough that Aunt Tillie can do it.  I won't 
-> > do that unless I see a strong consensus that it's the only Right Thing.
+"Eric S. Raymond" wrote:
 > 
-> Its a good way of getting the defaults right. It may also be an appropriate
-> way of guiding presentation (eg putting the stuff the ruleset says you wont
-> have under a subcategory so you would see
+> Arjan van de Ven <arjanv@redhat.com>:
+> > Don't get me wrong. I'm NOT opposed to having a config tool everyone and
+> > their aunt can use. I'm opposed to that tool taking away the options expert
+> > users have to do what they know is right for them.
 > 
-> 
-> 		CPU type
-> 		Devices
-> 		blah
-> 		blah
-> 		Other Options
-> 			IDE disk
-> 			Cardbus
+> I'll take that as a vote for (b), to handle even perverse configurations
+> even if it means adding a lot of complexity to the ruleset.
 
-I want to understand what you're driving at here and I don't get it.  What's
-the referent of "Its"?  Are you saying you think Aunt Tillie's view of the
-world should guide the presentation of options?
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+In my opinion, no configuration that is actually physically possible
+is perverse. 
 
-Are we at last brought to such a humiliating and debasing degradation,
-that we cannot be trusted with arms for our own defence?  Where is the
-difference between having our arms in our own possession and under our
-own direction, and having them under the management of Congress?  If
-our defence be the *real* object of having those arms, in whose hands
-can they be trusted with more propriety, or equal safety to us, as in
-our own hands?
-        -- Patrick Henry, speech of June 9 1788
+So if you go for (a) you can take this as a vote of NOOOOOO PLEASE LINUS
+DON'T

@@ -1,60 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262812AbTDATq0>; Tue, 1 Apr 2003 14:46:26 -0500
+	id <S262810AbTDATxK>; Tue, 1 Apr 2003 14:53:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262810AbTDATqZ>; Tue, 1 Apr 2003 14:46:25 -0500
-Received: from B583e.pppool.de ([213.7.88.62]:49568 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S262812AbTDATqY>; Tue, 1 Apr 2003 14:46:24 -0500
-Subject: Re: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
-From: Daniel Egger <degger@fhm.edu>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Christoph Rohland <cr@sap.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0304012020290.1253-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0304012020290.1253-100000@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-8HbHInCRAP8OPoYPYfJc"
-Organization: 
-Message-Id: <1049227067.11985.5.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 01 Apr 2003 21:57:48 +0200
+	id <S262834AbTDATxK>; Tue, 1 Apr 2003 14:53:10 -0500
+Received: from customer79-114.iplannetworks.net ([200.68.70.114]:29827 "EHLO
+	nuada.toptech.com.ar") by vger.kernel.org with ESMTP
+	id <S262810AbTDATxJ>; Tue, 1 Apr 2003 14:53:09 -0500
+Message-ID: <3E89F0CA.3060007@zacarias.com.ar>
+Date: Tue, 01 Apr 2003 17:04:26 -0300
+From: Gustavo Zacarias <gustavo@zacarias.com.ar>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Accton network chipset -> bad tulip clone?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-8HbHInCRAP8OPoYPYfJc
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hi.
+Has anyone seen this happen?
+I'm getting TX packets as errors, looks like some swapped register in 
+the chip maybe?
+And yes, they are actually TXed correct, and i've also tried swapping 
+the NIC with another one from the same brand/model, and also into 
+another machine with the same results.
+The chip is physically branded as an "ADMtek AN983B", the board is an 
+"Xnet 3000ACM".
+PCI manufacturer ID looks quite phony, this is no Linksys board.
+Kernel is 2.4.20.
+Any ideas?
 
-Am Die, 2003-04-01 um 21.25 schrieb Hugh Dickins:
+----
+# ifconfig eth1
+eth1      Link encap:Ethernet  HWaddr 00:05:1C:0D:D9:E5
+           inet addr:192.168.1.254  Bcast:192.168.1.255 Mask:255.255.255.0
+           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+           RX packets:2989342 errors:0 dropped:0 overruns:0 frame:0
+           TX packets:0 errors:3448876 dropped:0 overruns:0 carrier:6778358
+           collisions:0 txqueuelen:100
+           RX bytes:839123376 (800.2 Mb)  TX bytes:0 (0.0 b)
+           Interrupt:9 Base address:0x1800
 
-> Simply because quite a lot of the tmpfs code is concerned with moving
-> pages between ram and swap: if you've limited ram and no swap, you may
-> not want to waste your ram on that code!  One day I might try applying
-> #ifdef CONFIG_SWAPs within mm/shmem.c; but I might well not, it could
-> get ugly, and looks rudimentary elsewhere - do we intend to get serious
-> about CONFIG_SWAP?
+# lspci -v -s 00:0f.0
+00:0f.0 Ethernet controller: Linksys Network Everywhere Fast Ethernet 
+10/100 model NC100 (rev 11)
+         Subsystem: Accton Technology Corporation: Unknown device 1216
+         Flags: bus master, medium devsel, latency 32, IRQ 9
+         I/O ports at f000 [size=256]
+         Memory at ffaef800 (32-bit, non-prefetchable) [size=1K]
+         Expansion ROM at ffac0000 [disabled] [size=128K]
+         Capabilities: [c0] Power Management version 2
 
-It would be more waste to have both ramfs and tmpfs in compiled form
-since the whole system is intended to run on embedded systems with CF as
-well as on faster machines with harddrive and swap.
+----
 
---=20
-Servus,
-       Daniel
 
---=-8HbHInCRAP8OPoYPYfJc
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+ie87chlzsq9KoIYRAneEAJ4q74+mL3ZgSkYzIGOJjW22gMsVAQCgw70T
-vdqvs/8b7zPjVsU9lSjzEWU=
-=rb0b
------END PGP SIGNATURE-----
-
---=-8HbHInCRAP8OPoYPYfJc--
 

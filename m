@@ -1,57 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261509AbTKHAa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 19:30:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbTKGWG0
+	id S262202AbTKHAdd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 19:33:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbTKGWGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:06:26 -0500
-Received: from dslb138.fsr.net ([12.7.7.138]:50064 "EHLO sandall.us")
-	by vger.kernel.org with ESMTP id S264611AbTKGTlM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 14:41:12 -0500
-Message-ID: <1068234006.3fabf5162fd7b@horde.sandall.us>
-Date: Fri,  7 Nov 2003 11:40:06 -0800
-From: Eric Sandall <eric@sandall.us>
-To: Samuel Kvasnica <samuel.kvasnica@tuwien.ac.at>
-Cc: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
-Subject: Re: nforce2 random lockups - still no solution ?
-References: <3F95748E.8020202@tuwien.ac.at> <200311060111.06729.vda@port.imtp.ilyichevsk.odessa.ua> <3FAA2653.9020002@tuwien.ac.at>
-In-Reply-To: <3FAA2653.9020002@tuwien.ac.at>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2
-X-Originating-IP: 134.121.40.89
+	Fri, 7 Nov 2003 17:06:04 -0500
+Received: from smtp2.clb.oleane.net ([213.56.31.18]:42467 "EHLO
+	smtp2.clb.oleane.net") by vger.kernel.org with ESMTP
+	id S263950AbTKGIvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 03:51:01 -0500
+Subject: Re: [Bug 1412] Copy from USB1 CF/SM reader stalls, no actual
+	content is read (only directory structure)
+From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
+To: Jens Axboe <axboe@suse.de>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20031107082439.GB504@suse.de>
+References: <20031105084002.GX1477@suse.de>
+	 <Pine.LNX.4.44L0.0311051013190.828-100000@ida.rowland.org>
+	 <20031107082439.GB504@suse.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-CbHSyOhnXxCmM/2GyR7a"
+Organization: Adresse personnelle
+Message-Id: <1068195038.21576.1.camel@ulysse.olympe.o2t>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 07 Nov 2003 09:50:39 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Samuel Kvasnica <samuel.kvasnica@tuwien.ac.at>:
-> It was local APIC ! After recompiling 2.4.22 without local apic 
-> everything works smoothly since several  weeks. I wonder when there'll 
-> be a kernel
-> patch that really solves these nforce2/amd issues.
-> Sam
 
-Disabling local APIC on 2.6.0-test9-mm2 also fixes this (I haven't tried on
-earlier kernels).
+--=-CbHSyOhnXxCmM/2GyR7a
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
 
--sandalle
+Le ven 07/11/2003 =E0 09:24, Jens Axboe a =E9crit :
+> On Wed, Nov 05 2003, Alan Stern wrote:
 
--- 
-PGP Key Fingerprint:  FCFF 26A1 BE21 08F4 BB91  FAED 1D7B 7D74 A8EF DD61
-http://search.keyserver.net:11371/pks/lookup?op=get&search=0xA8EFDD61
+> > In any case, it quite likely _does_ point to a driver bug.  But since
+> > sddr09_read_data() was handed this sg entry and didn't change it, if th=
+ere
+> > is such a bug it must lie in a higher-level driver.  Maybe the scsi lay=
+er,=20
+> > maybe the block layer, maybe the memory-management system, maybe the fi=
+le=20
+> > system.  That was my original point.
+>=20
+> Well, the sg entry looks perfectly valid. And that was my original
+> point :-). And that is why I said it looks like a driver bug, not in
+> upper layers. How much memory did the system that crashed have? If the
+> system has highmem, try testing with scsi_calculate_bounce_limit()
+> unconditionally returning BLK_BOUNCE_HIGH.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCS/E/IT$ d-- s++:+>: a-- C++(+++) BL++++VIS>$ P+(++) L+++ E-(---) W++ N+@ o?
-K? w++++>-- O M-@ V-- PS+(+++) PE(-) Y++(+) PGP++(+) t+() 5++ X(+) R+(++)
-tv(--)b++(+++) DI+@ D++(+++) G>+++ e>+++ h---(++) r++ y+
-------END GEEK CODE BLOCK------
+The system has 1 GiB of memory, ie just enough to make stuff like
+radeonfb fail
 
-Eric Sandall                     |  Source Mage GNU/Linux Developer
-eric@sandall.us                  |  http://www.sourcemage.org/
-http://eric.sandall.us/          |  SysAdmin @ Inst. Shock Physics @ WSU
-http://counter.li.org/  #196285  |  http://www.shock.wsu.edu/
+Cheers,
 
-----------------------------------------------------------------
-This message was sent using IMP, the Internet Messaging Program.
+--=20
+Nicolas Mailhot
+
+--=-CbHSyOhnXxCmM/2GyR7a
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e=2E?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/q1zdI2bVKDsp8g0RAjZ2AJ9hTmXjfxCk2rZM7gGaCDfdUvEQSQCfcHXg
+aegkZJ4Nu8yOdqbRSWJtAfk=
+=58fz
+-----END PGP SIGNATURE-----
+
+--=-CbHSyOhnXxCmM/2GyR7a--
+

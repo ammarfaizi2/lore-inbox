@@ -1,85 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317154AbSFFU5a>; Thu, 6 Jun 2002 16:57:30 -0400
+	id <S317165AbSFFU7q>; Thu, 6 Jun 2002 16:59:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317176AbSFFU53>; Thu, 6 Jun 2002 16:57:29 -0400
-Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:59566
-	"HELO dag.newtech.fi") by vger.kernel.org with SMTP
-	id <S317154AbSFFU51> convert rfc822-to-8bit; Thu, 6 Jun 2002 16:57:27 -0400
-Message-ID: <20020606205727.18760.qmail@dag.newtech.fi>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-0.27
+	id <S317181AbSFFU7o>; Thu, 6 Jun 2002 16:59:44 -0400
+Received: from mailgate5.cinetic.de ([217.72.192.165]:18585 "EHLO
+	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
+	id <S317165AbSFFU6U> convert rfc822-to-8bit; Thu, 6 Jun 2002 16:58:20 -0400
+Date: Thu, 6 Jun 2002 22:58:15 +0200
+Message-Id: <200206062058.g56KwFX11306@mailgate5.cinetic.de>
+MIME-Version: 1.0
+Organization: http://freemail.web.de/
+From: Johannes Niediek <j.niediek@web.de>
 To: linux-kernel@vger.kernel.org
-Subject: Devfs strangeness in 2.4.18
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Subject: IPX as module in kernel 2.4.18 has unresolved symbols
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
-Date: Thu, 06 Jun 2002 23:57:27 +0300
-From: Dag Nygren <dag@newtech.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi everybody!
 
-Hi,
-just installed a fresh Mandrake 8.2 here and am
-seeing devfs behaving very strangely.
-Here is some out put that shows the problems:
+I have some trouble with IPX and kernel 2.4.18. I compiled the kernel with IPX-Support as M, but loading the module is not possible and produces the following output:
 
-backup:dev 1004 % ls -ld sg*
-drwxr-xr-x    1 root     root            0 Jun  7  2002 sg
-lr-xr-xr-x    1 root     root           36 Jun  7  2002 sg0 -> 
-scsi/host0/bus0/target0/lun0/generic
-lr-xr-xr-x    1 root     root           36 Jun  7  2002 sg1 -> 
-scsi/host1/bus0/target1/lun0/generic
-lr-xr-xr-x    1 root     root           36 Jun  7  2002 sg2 -> 
-scsi/host1/bus0/target2/lun0/generic
-lr-xr-xr-x    1 root     root           36 Jun  7  2002 sg3 -> 
-scsi/host1/bus0/target3/lun0/generic
-lr-xr-xr-x    1 root     root           36 Jun  6 23:46 sg4 -> 
-scsi/host2/bus0/target2/lun0/generic
-backup:dev 1005 % cat /proc/scsi/scsi 
-Attached devices: 
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: IBM      Model: DDRS-39130D      Rev: DC1B
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: IBM      Model: DCAS-34330W      Rev: S65A
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi1 Channel: 00 Id: 01 Lun: 00
-  Vendor: ADIC     Model: VLS DLT          Rev: 0235
-  Type:   Medium Changer                   ANSI SCSI revision: 02
-Host: scsi1 Channel: 00 Id: 03 Lun: 00
-  Vendor: Quantum  Model: DLT4000          Rev: CD3C
-  Type:   Sequential-Access                ANSI SCSI revision: 02
-Host: scsi2 Channel: 00 Id: 02 Lun: 00
-  Vendor: WangDAT  Model: Model 3400DX     Rev: 1.4a
-  Type:   Sequential-Access                ANSI SCSI revision: 02
-backup:dev 1006 % ls -l /dev/st?
-lr-xr-xr-x    1 root     root           31 Jun  7  2002 /dev/st0 -> 
-scsi/host1/bus0/target2/lun0/mt
-lr-xr-xr-x    1 root     root           31 Jun  7  2002 /dev/st1 -> 
-scsi/host1/bus0/target3/lun0/mt
+#>modprobe ipx
+/lib/modules/2.4.18/kernel/net/ipx/ipx.o: unresolved symbol unregister_8022_client_R7acef15d
+/lib/modules/2.4.18/kernel/net/ipx/ipx.o: unresolved symbol register_snap_client_R5a0e17ac
+/lib/modules/2.4.18/kernel/net/ipx/ipx.o: unresolved symbol make_EII_client
+/lib/modules/2.4.18/kernel/net/ipx/ipx.o: unresolved symbol make_8023_client
+/lib/modules/2.4.18/kernel/net/ipx/ipx.o: unresolved symbol destroy_8023_client
+/lib/modules/2.4.18/kernel/net/ipx/ipx.o: unresolved symbol destroy_EII_client
+/lib/modules/2.4.18/kernel/net/ipx/ipx.o: unresolved symbol unregister_snap_client_R9abefc50
+/lib/modules/2.4.18/kernel/net/ipx/ipx.o: unresolved symbol register_8022_client_R1eaa06ea
+/lib/modules/2.4.18/kernel/net/ipx/ipx.o: insmod /lib/modules/2.4.18/kernel/net/ipx/ipx.o failed
+/lib/modules/2.4.18/kernel/net/ipx/ipx.o: insmod ipx failed
 
-The problems are tha the sg? links doesn't correspond to the real
-devices shown by /proc/scsi/scsi (Which matches the real situation)
-sg0 matches the first disk, OK
-sg1 matches the Medium changer, OK
-sg2 matches nothing...... There is no target 2 on host1 !!!
-sg3 matches the DLT tape drive
-sg4 matches the DAT tape drive
+I read all documentation on this topic I found, but what I did not find were any comparable entries, except from an email on the same problem without any replays.
 
-The other problem is the st? links.
-st0 is linked out into nothing ...
+I hope that this question is not off topic or misplaced (it's my first post to linux-kernel...).
 
-Seems like 3 host adapters is too much for devfs......
-Do I need an upgrade ?
+My .config can be made available at jniediek.schueler.cjd-braunschweig.de/config if neccessary.
 
-BRGDS
+Thank You,
 
--- 
-Dag Nygren                               email: dag@newtech.fi
-Oy Espoon NewTech Ab                     phone: +358 9 8024910
-Träsktorpet 3                              fax: +358 9 8024916
-02360 ESBO                              Mobile: +358 400 426312
-FINLAND
-
+Johannes Niediek
+______________________________________________________________________________
+All inclusive! 100 MB Speicher, SMS 50% günstiger, 32 MB Attachment-Größe, 
+Preisvorteile und mehr unter http://club.web.de/?mc=021104
 

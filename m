@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263027AbUEJXAA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263104AbUEJXDE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263027AbUEJXAA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 19:00:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263104AbUEJW6q
+	id S263104AbUEJXDE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 19:03:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263059AbUEJXCz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 18:58:46 -0400
-Received: from nevyn.them.org ([66.93.172.17]:61577 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S263041AbUEJW6d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 18:58:33 -0400
-Date: Mon, 10 May 2004 18:58:19 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Fabiano Ramos <ramos_fabiano@yahoo.com.br>, Andi Kleen <ak@muc.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ptrace in 2.6.5
-Message-ID: <20040510225818.GA24796@nevyn.them.org>
-Mail-Followup-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-	Fabiano Ramos <ramos_fabiano@yahoo.com.br>, Andi Kleen <ak@muc.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1UlcA-6lq-9@gated-at.bofh.it> <m365b4kth8.fsf@averell.firstfloor.org> <1084220684.1798.3.camel@slack.domain.invalid> <877jvkx88r.fsf@devron.myhome.or.jp> <873c67yk5v.fsf@devron.myhome.or.jp>
+	Mon, 10 May 2004 19:02:55 -0400
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:47323 "EHLO
+	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
+	id S261744AbUEJXB5 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 19:01:57 -0400
+Message-Id: <200405102301.i4AN1cYV023514@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Andrew Morton <akpm@osdl.org>
+Cc: hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm1 
+In-Reply-To: Your message of "Mon, 10 May 2004 15:48:00 PDT."
+             <20040510154800.5a5183ea.akpm@osdl.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040510024506.1a9023b6.akpm@osdl.org> <20040510223755.A7773@infradead.org> <20040510150203.3257ccac.akpm@osdl.org> <200405102227.i4AMRZH0005222@turing-police.cc.vt.edu>
+            <20040510154800.5a5183ea.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <873c67yk5v.fsf@devron.myhome.or.jp>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: multipart/signed; boundary="==_Exmh_1224233908P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 10 May 2004 19:01:38 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 11, 2004 at 07:47:08AM +0900, OGAWA Hirofumi wrote:
-> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> writes:
-> 
-> > So single-step exception happen *after* executed the "mov ...".
-> > Probably you need to use the breakpoint instead of single-step.
-> 
-> Ah, sorry. Just use PTRACE_SYSCALL instead of PTRACE_SINGLESTEP.
-> It's will stop before/after does syscall.
+--==_Exmh_1224233908P
+Content-Type: text/plain; charset=us-ascii
 
-Doing it this way is pretty lousy - you have to inspect the code after
-every step to see if it's an int $0x80.  Is there some reason not to
-report a trap on the syscall return path if single-stepping?
+On Mon, 10 May 2004 15:48:00 PDT, Andrew Morton said:
 
--- 
-Daniel Jacobowitz
+> You misread the code.  The sysctl, when non-zero, specifies the group which is
+> allowed to allocate hugetlb-backed shm segments.
+
+OK.. <mode="emily_litella">Nevermind</mode> :)
+
+Using a group ID for this is still somewhat ugly (having just been looking at
+similar weirdness in the grsecurity patch) - but at least groups are relatively
+cheap and it's there now (as opposed to an rlimit-based solution)...
+
+
+--==_Exmh_1224233908P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAoAnScC3lWbTT17ARApC8AKDRW6zb5ADn8dhG+Z36yy6a4xXtyQCgvhhu
+ZH+ZheUxnopI7D6JRO2/xzQ=
+=HR8r
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1224233908P--

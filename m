@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283708AbRK3Tfv>; Fri, 30 Nov 2001 14:35:51 -0500
+	id <S283705AbRK3Tjl>; Fri, 30 Nov 2001 14:39:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283705AbRK3Tfl>; Fri, 30 Nov 2001 14:35:41 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:53259 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S280994AbRK3TfY>;
-	Fri, 30 Nov 2001 14:35:24 -0500
-Date: Fri, 30 Nov 2001 20:35:00 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Udo A. Steinberg" <reality@delusion.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Correct PATCH] Re: Stuff that needs fixing in 2.5.1-pre4
-Message-ID: <20011130203500.B25987@suse.de>
-In-Reply-To: <3C06F3A5.D407607A@delusion.de> <20011130084015.H16796@suse.de> <3C078FA7.8E78488C@delusion.de> <3C0794FE.79621AE@delusion.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C0794FE.79621AE@delusion.de>
+	id <S280984AbRK3Tjb>; Fri, 30 Nov 2001 14:39:31 -0500
+Received: from cp1s4p1.dashmail.net ([216.36.32.37]:16400 "EHLO sr71.net")
+	by vger.kernel.org with ESMTP id <S280994AbRK3TjW>;
+	Fri, 30 Nov 2001 14:39:22 -0500
+Message-ID: <3C07E04A.7020301@sr71.net>
+Date: Fri, 30 Nov 2001 11:38:50 -0800
+From: "David C. Hansen" <dave@sr71.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011129
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        Rick Lindsley <ricklind@us.ibm.com>
+Subject: Re: [PATCH] remove BKL from drivers' release functions
+In-Reply-To: <Pine.GSO.4.21.0111300444180.13367-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 30 2001, Udo A. Steinberg wrote:
-> "Udo A. Steinberg" wrote:
-> > 
-> > Thanks for the tip. Here's a patch against 2.5.1-pre4 that fixes it.
-> 
-> I just noticed that my patch is reversed, so please apply it with -R or
-> alternatively try this fixed version.
+Alexander Viro wrote:
+ > ->release() is not serialized AT ALL.  It is serialized for given
+ > struct file, but call open(2) twice and you've got two struct file
+ > for the same device. close() both and you've got two calls of
+ > ->release(), quite possibly - simultaneous.
+OK, that clears some things up.  So, the file->fcount is only used in 
+cases where the file descriptor was dup'd, right?
 
-Looks good.
+As Rick Lindsley pointed out to me:
+ > In cases where we removed BKL from release() and left obvious locking
+ > issues as "an exercise to the reader", we MAY have broken things
+ > because the BKL (we now know) may have been serializing opens and
+ > closes.
+ > In cases where we replaced it with atomic locking or a spinlock, we've
+ > done nothing but replace one lock with another (unless there are
+ > subtleties
 
--- 
-Jens Axboe
+back to Alexander  Viro:
+ > In other words, patch is completely bogus.
+No, not completely.  In a lot of cases we just replaced some regular 
+arithmetic with atomic instructions of some sort.  These changes are 
+still completely valid.  But, in the cases where we added locking, we 
+need to reevaluate them for potential problem.  In the cases where we 
+just removed the BKL, we really need to check them to make sure that we 
+didn't introduce anything.
+Thanks for the feedback, Al!  This has been very helpful!
+
+--
+Dave Hansen
+dave@sr71.net
 

@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269570AbRHLXf3>; Sun, 12 Aug 2001 19:35:29 -0400
+	id <S269580AbRHLX7G>; Sun, 12 Aug 2001 19:59:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269571AbRHLXfT>; Sun, 12 Aug 2001 19:35:19 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55056 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269570AbRHLXfL>; Sun, 12 Aug 2001 19:35:11 -0400
-Subject: Re: Linux 2.4.8-ac2
-To: sgoethel@jausoft.com (Sven Goethel)
-Date: Mon, 13 Aug 2001 00:37:13 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "Sven Goethel" at Aug 13, 2001 01:30:40 AM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+	id <S269583AbRHLX65>; Sun, 12 Aug 2001 19:58:57 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:50187 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S269580AbRHLX6h>;
+	Sun, 12 Aug 2001 19:58:37 -0400
+Date: Sun, 12 Aug 2001 16:57:21 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Hotplug PCI driver for 2.4.8-ac2
+Message-ID: <20010812165721.A2501@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15W4nB-0006RQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> i just want to ask you (sorry for this consumer behavior)
-> if you intend to integrate the xfs filesystem in your ac-series
+Hi,
 
-I've discussed it with Martin Petersen a bit. Its not clear it makes
-sense, since they kind of do chunks of their own vm (partly because they
-had to) and other bits like acls that want to be out for the first one.
-Right no I don't know what will occur. I think in part it depends when
-Linus starts 2.5
+I've made a release of the Compaq Hotplug PCI driver against 2.4.8-ac2
+available at:
+	http://www.kroah.com/linux/hotplug/pci-hotplug-2.4.8-ac2.patch.gz
 
-> also .. do you know if it is planed to integrate the xfs fs
-> into the main branch of the kernel ?
+Changes since last release:
+	- forward ported to 2.4.8-ac2
+	- removed some Compaq server only code that talked directly to
+	  the BIOS and the pci address-space.  This should remove the
+	  last objection that people had for the acceptance of this
+	  driver.
 
-You'd have to ask Linus
+thanks,
 
+greg k-h

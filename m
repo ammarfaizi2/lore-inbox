@@ -1,78 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263614AbTJaVXT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 16:23:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263622AbTJaVXT
+	id S263568AbTJaVT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 16:19:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263581AbTJaVT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 16:23:19 -0500
-Received: from ip3e83a512.speed.planet.nl ([62.131.165.18]:27720 "EHLO
-	made0120.speed.planet.nl") by vger.kernel.org with ESMTP
-	id S263614AbTJaVXR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 16:23:17 -0500
-Message-ID: <3FA2D2C1.90303@planet.nl>
-Date: Fri, 31 Oct 2003 22:23:13 +0100
-From: Stef van der Made <svdmade@planet.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031025
-X-Accept-Language: en-us, en
+	Fri, 31 Oct 2003 16:19:58 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:14737 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263568AbTJaVT5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 16:19:57 -0500
+Date: Fri, 31 Oct 2003 16:23:02 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Herman <Herman@AerospaceSoftware.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Things that Longhorn seems to be doing right
+In-Reply-To: <200310311359.50893.Herman@AerospaceSoftware.com>
+Message-ID: <Pine.LNX.4.53.0310311607300.21072@chaos>
+References: <3F9F7F66.9060008@namesys.com> <20031031193016.GA1546@thunk.org>
+ <3FA2CA5E.3050308@namesys.com> <200310311359.50893.Herman@AerospaceSoftware.com>
 MIME-Version: 1.0
-To: Helge Hafting <helgehaf@aitel.hist.no>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Heavy disk activity without apperant reason (added more info)
-References: <3F9BC429.6060608@planet.nl> <3F9D0BBB.9080600@aitel.hist.no>
-In-Reply-To: <3F9D0BBB.9080600@aitel.hist.no>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 31 Oct 2003, Herman wrote:
 
-Dear All,
+> On Friday 31 October 2003 8:47 pm, Hans Reiser wrote:
+> > I can't get US bank accounts for my programmers working for me.  Why?
+> > Because every US bank without exception uses social security numbers as
+> > a primary key.  A person without a social security number cannot be
+> > coped with.  This is a weakness directly due to molding rather than
+> > matching structure in data.
+>
+> No, that is a legal requirement, not a weakness due to molding,
+> but I get your point.
+>
 
-Thanks for all the help. I reread all the emails sent and looked into 
-cron. The dug into the logs and found some interesting stuff in the 
-maillog and messages. Sendmail apperantly needed procmail to work 
-properly with the latest version. This solved my issue.
+Not a legal requirement in the United States. In fact, using a
+"social security" or "taxpayer identification number" for
+identification is contrary to federal law and a SS card contains
+the words; "Not for identification".
 
-Thanks everybody for your help. This again proves that I'm just a newbee 
-in the debuging of problems on Linux. OS/400 seems to be more my area of 
-expertise ;-)
+This is rigidly enforced by many federal agencies and completely
+ignored by others (go figure). Banks say they need to have a
+SS number for 1099 forms, even for accounts that earn no
+interest! It's just that their databases have an entry for
+SS numbers (if required by the kind of account), and the
+software is defective, requiring that field to be filled.
+The result being that many person's rights are violated because
+of defective software!
 
-Stef
+Incidentally, I recently obtained a so-called identification
+badge that is now required for me to have access to my airplane.
+I purposely left the SS# entry blank when I filled out the
+form. This raised a stink that likely went all the way to the
+state house. I got the badge. It seems that a State Government,
+that has no business regulating air commerce, also wants to
+keep my SS# on hand for surveillance. You need to keep putting
+those attempts down.
 
-Helge Hafting wrote:
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-> Stef van der Made wrote:
->
->>
->> On my AMD athlon system with 512MB memory I sometimes get a lot of 
->> disk activity the activity normaly lasts for about 10 seconds and 
->> after that the disk stays relativily quiet as expected with the load 
->> on the system. When I look into top I don't see any programs that 
->> could explain the disk activity. The system is in most cases not 
->> using any swap.
->>
-> Try finding out what is causing this.
-> Have a "vmstat 1" running.  Break it after this
-> disk activity starts.  You should be able to
-> see wether it is normal io or swap.
->
-> Also have a "top -d 1" running.  A normal
-> process issuing lots of io will probably
-> show up here too.  "ps aux" during
-> the activity might also be a good idea.
->
-> Note that such behaviour isn't necessarily unusual.
-> Perhaps cron started something that needed lots
-> of reads to start?  Perhaps you got a bunch of emails?
-> Email software often use synchronous writes, so they won't
-> loose any of your mail even in case of a crash.
-> This synchronous io makes for _lots_ of disk seeking.
-> Email filters (for spam and other purposes) may make this even worse, 
-> with email messages being written synchronously several times.
-> If you use "fetchmail" started by cron - see if these disk bursts
-> correspond with mail fetching.
->
-> Helge Hafting
->
->
 

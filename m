@@ -1,59 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVCCE7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVCCFDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261454AbVCCE7m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 23:59:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbVCCE7j
+	id S261446AbVCCFDv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 00:03:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVCCFBC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 23:59:39 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:52162
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261454AbVCCE6h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 23:58:37 -0500
-Date: Wed, 2 Mar 2005 20:58:26 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-Id: <20050302205826.523b9144.davem@davemloft.net>
-In-Reply-To: <4226969E.5020101@pobox.com>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-	<42264F6C.8030508@pobox.com>
-	<20050302162312.06e22e70.akpm@osdl.org>
-	<42265A6F.8030609@pobox.com>
-	<20050302165830.0a74b85c.davem@davemloft.net>
-	<422674A4.9080209@pobox.com>
-	<Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
-	<42268749.4010504@pobox.com>
-	<20050302200214.3e4f0015.davem@davemloft.net>
-	<42268F93.6060504@pobox.com>
-	<4226969E.5020101@pobox.com>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Thu, 3 Mar 2005 00:01:02 -0500
+Received: from fire.osdl.org ([65.172.181.4]:9918 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261342AbVCCE4f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 23:56:35 -0500
+Date: Wed, 2 Mar 2005 20:56:12 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
+Message-Id: <20050302205612.451d220b.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503022021150.3816@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>
+	<20050302174507.7991af94.akpm@osdl.org>
+	<Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com>
+	<20050302185508.4cd2f618.akpm@osdl.org>
+	<Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com>
+	<20050302201425.2b994195.akpm@osdl.org>
+	<Pine.LNX.4.58.0503022021150.3816@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 02 Mar 2005 23:46:22 -0500
-Jeff Garzik <jgarzik@pobox.com> wrote:
+Christoph Lameter <clameter@sgi.com> wrote:
+>
+> > > The cmpxchg will fail if that happens.
+> >
+> > How about if someone does remap_file_pages() against that virtual address
+> > and that syscalls happens to pick the same physical page?  We have the same
+> > physical page at the same pte slot with different contents, and the cmpxchg
+> > will succeed.
+> 
+> Any mmap changes requires the mmapsem.
 
-> If Linus/DaveM really don't like -pre/-rc naming, I think 2.6.x.y is 
-> preferable to even/odd.
+sys_remap_file_pages() will call install_page() under down_read(mmap_sem). 
+It relies upon page_table_lock for pte atomicity.
 
-All of these arguments are circular.  If people think that even/odd
-will devalue odd releases, guess what 2.6.x.y will do?  By that line
-of reasoning nobody will test 2.6.x just the same as they aren't
-testing 2.6.x-rc* right now.
+> > > http://marc.theaimsgroup.com/?l=linux-kernel&m=110272296503539&w=2
+> >
+> > Those are different cases.  I still don't see why the change is justified in
+> > do_swap_page().
+> 
+> Lets undo that then.
 
-I think they will test the odd releases, because as a real release
-they will get slashdot/lwn.net/etc. announcements.
+OK.
 
-That's one of the major things the -rc's don't get.  Maybe it gets
-a reference in lwn.net's weekly kernel article, but mostly kernel
-geeks read those and that's not who we want testing -rc's (such
-geeks already are doing so).
+> > > These architectures have the atomic pte's not enable.  It would require
+> > > them to submit a patch to activate atomic pte's for these architectures.
+> >
+> >
+> > But if the approach which these patches take is not suitable for these
+> > architectures then they have no solution to the scalability problem.  The
+> > machines will perform suboptimally and more (perhaps conflicting)
+> > development will be needed.
+> 
+> They can implement their own approach with the provided hooks. You could
+> for example use SSE / MMX for atomic 64 bit ops on i386 with PAE mode by
+> using the start/stop macros to deal with the floatingh point issues.
 
-It has to be a "real" release.  That does have an impact.  However,
-I am ambivalent about how to make them real.  Even/odd, 2.6.x.y,
-either is fine with me.
+Have the ppc64 and sparc64 people reviewed and acked the change?  (Not a
+facetious question - I just haven't been following the saga sufficiently
+closely to remember).
+
+> > > One
+> > > would have to check for the lock being active leading to significant code
+> > > changes.
+> >
+> > Why?
+> 
+> Because if a pte is locked it should not be used.
+
+Confused.  Why not just spin on the lock in the normal manner?
+
+> Look this is an endless discussion with new things brought up at every
+> corner and I have reworked the patches numerous times. Could you tell me
+> some step by step way that we can finally deal with this? Specify a
+> sequence of patches and I will submit them to you step by step.
+
+No, I couldn't do that - that's what the collective brain is for.
+
+Look, I'm sorry, but this patch is highly atypical.  Few have this much
+trouble.  I have queazy feeling about it (maybe too low-level locking,
+maybe inappropriate to other architectures, only addresses a subset of
+workloads on a tiny subset of machines, doesn't seem to address all uses of
+the lock, etc) and I know that others have had, and continue to have
+similar feelings.  But if we could think of anything better, we'd have said
+so :(   It's a diffucult problem.
+
+If the other relvant architecture people say "we can use this" then perhaps
+we should grin and bear it.  But one does wonder whether some more sweeping
+design change is needed.

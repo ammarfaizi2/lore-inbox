@@ -1,72 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262352AbTJXQXD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 12:23:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbTJXQXC
+	id S262288AbTJXQac (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 12:30:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbTJXQac
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 12:23:02 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:22401 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S262352AbTJXQW6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 12:22:58 -0400
-Message-Id: <0E3FA95632D6D047BA649F95DAB60E57035A9468@exa-atlanta.se.lsil.com>
-From: "Moore, Eric Dean" <emoore@lsil.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH]  2.4.23-pre8 driver udpate for MPT Fusion (2.05.10)
-Date: Fri, 24 Oct 2003 12:22:43 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Fri, 24 Oct 2003 12:30:32 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:43716 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S262288AbTJXQaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 12:30:30 -0400
+Date: Fri, 24 Oct 2003 18:29:59 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: davem@redhat.com
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, grof@dragon.cz
+Subject: possible bug in tcp_input.c
+Message-ID: <20031024162959.GB11154@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James: I'm clear on the policy, however the 2.05.00.03
-MPT driver in 2.6 kernel is *NOT* compatible with 
-what is shipping in 2.4 kernel which is 2.05.05+ driver.  
-The driver in 2.6 has had most of the backward compatibility
-stripped out, such as Old Error Handling, and many other changes
-to make it work with new kernel structures and functions, however
-doesn't make it backward compatible to 2.4 kernel.
+Hi David,
 
-Our focus has been 2.4 kernel version of the driver as that is what
-is shipping in all Linux distributions, and our customers have been
-asking for RPM driver updates to the latest driver fix bugs and  
-enhancements for their shipping systems out in the field.  One major
-OEM player has requested we update Kernel.org as to reduce their
-dependency on LSI for RPM driver updates. I wish that these updates
-make their way into the 2.4 kernel.  I will begin porting these 
-changes over the driver in 2.6 immediately.  Also one thing is 
-that there have been change on Maintainership of this
-driver from Pam Delaney to myself and Larry Stephens, so things
-are about getting back to normal.
+We came up with the attached patch during a hectic oops tracing session
+that got started by our sysadmin writing down an oops using the pen & paper
+method, no less.  The crashing machine has been a firewall running a very
+unusual NAT + QoS configuration, however we believe that we might have
+discovered a real bug in 2.4's tcp_input.c.  Since our insight into the
+internals of the tcp/ip stack is far from even basic, we are seeking your
+opinion on whether we are correct.
 
-Eric
+The static inline function skb_peek() as defined in include/linux/skbuff.h
+returns a pointer to a sk_buff, or NULL when its argument is an empty list
+or a pointer to the head element.  Since this is documented behavior, it is
+not surprising that all segments of code within tcp_input.c dealing with
+a return from skb_peek() take care not to dereference the returned pointer
+if it happens to be NULL.  There is an exception, though:
+
+/* tcp_input.c, line 1138 */
+static inline int tcp_head_timedout(struct sock *sk, struct tcp_opt *tp)
+{
+  return tp->packets_out && tcp_skb_timedout(tp, skb_peek(&sk->write_queue));
+}
+
+The passed NULL (and yes, this is where we are getting one) is dereferenced
+immediately in:
+
+/* tcp_input.c, line 1133 */
+static inline int tcp_skb_timedout(struct tcp_opt *tp, struct sk_buff *skb)
+{
+  return (tcp_time_stamp - TCP_SKB_CB(skb)->when > tp->rto);
+}
+
+with TCP_SKB_CB that is defined as
+
+/* tcp.h, line 1034 */
+#define TCP_SKB_CB(__skb)	((struct tcp_skb_cb *)&((__skb)->cb[0]))
+
+We are proposing to cure the problem by adding a simple check in
+tcp_head_timedout(), but are not sure whether this is the right
+thing to do, because as a friend put it, we seem to be fixing
+a leaking faucet in a god damn power plant.
+
+Thanks for any help,
+-- 
+Tomas Szepe <szepe@pinerecords.com>
 
 
-On Friday, October 24, 2003 9:21 AM, James Bottomley wrote:
-> 
-> On Fri, 2003-10-24 at 10:53, Moore, Eric Dean wrote:
-> > Here's a patch for 2.4.23-pre8 kernel for MPT Fusion 
-> driver, coming from LSI
-> > Logic.
-> > 
-> > This patch is large, so I have placed it on the LSI ftp site at:
-> > 
-> ftp://ftp.lsil.com/HostAdapterDrivers/linux/Fusion-MPT/2.05.10
-/mptlinux-2.05
-> .10.patch
-> 
-> A new email address is setup for directing any MPT Fusion questions:
-> mpt_linux_developer@lsil.com
-
-The policy for driver updates into 2.4 is that they should be backports
-from 2.6 (for things like mpt fusion that have similar drivers) so that
-the newer driver gets into 2.6 first.  If you want to send the 2.6
-patches, I can queue them up for when the "bugfix only" freeze is
-relaxed.
-
-James
-
+diff -urN a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+--- a/net/ipv4/tcp_input.c	2003-06-13 16:51:39 +0200
++++ b/net/ipv4/tcp_input.c	2003-10-24 17:41:19 +0200
+@@ -1138,7 +1138,11 @@
+ 
+ static inline int tcp_head_timedout(struct sock *sk, struct tcp_opt *tp)
+ {
+-	return tp->packets_out && tcp_skb_timedout(tp, skb_peek(&sk->write_queue));
++	struct sk_buff *skb = skb_peek(&sk->write_queue);
++	if (skb == NULL)
++		return 1;
++
++	return tp->packets_out && tcp_skb_timedout(tp, skb);
+ }
+ 
+ /* Linux NewReno/SACK/FACK/ECN state machine.

@@ -1,65 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266406AbSKLIiP>; Tue, 12 Nov 2002 03:38:15 -0500
+	id <S266286AbSKLIZ4>; Tue, 12 Nov 2002 03:25:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266399AbSKLIiO>; Tue, 12 Nov 2002 03:38:14 -0500
-Received: from pieck.student.uva.nl ([146.50.96.22]:5799 "EHLO
-	pieck.student.uva.nl") by vger.kernel.org with ESMTP
-	id <S266406AbSKLIiL>; Tue, 12 Nov 2002 03:38:11 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rudmer van Dijk <rudmer@legolas.dynup.net>
-Reply-To: rudmer@legolas.dynup.net
-To: "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: [RFC] devfs API
-Date: Tue, 12 Nov 2002 09:44:52 +0100
-X-Mailer: KMail [version 1.3.2]
-References: <20021112013244.GF1729@mythical.michonline.com> <Pine.GSO.4.21.0211112039430.29617-100000@steklov.math.psu.edu> <20021112080417.GA11660@think.thunk.org>
-In-Reply-To: <20021112080417.GA11660@think.thunk.org>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20021112083811Z266406-32598+5165@vger.kernel.org>
+	id <S261593AbSKLIZF>; Tue, 12 Nov 2002 03:25:05 -0500
+Received: from holomorphy.com ([66.224.33.161]:42681 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S266298AbSKLIYf>;
+	Tue, 12 Nov 2002 03:24:35 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [10/11] hugetlb: use radix trees instead of inodes
+Message-Id: <E18BWPm-0005KO-00@holomorphy>
+From: William Lee Irwin III <wli@holomorphy.com>
+Date: Tue, 12 Nov 2002 00:28:54 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 November 2002 09:04, Theodore Ts'o wrote:
-> On Mon, Nov 11, 2002 at 08:49:22PM -0500, Alexander Viro wrote:
-> > The only way I'll use devfs is
-> > 	* on a separate testbox devoid of network interfaces
-> > 	* with no users
-> > 	* with no data - disk periodically populated from image on CD.
-> > 
-> > And that's regardless of that cleanup - fixing the interface doesn't solve
-> > the internal races, so...
-> 
-> Hi Al,
-> 
-> It's good that you're trying to clean up the devfs code, but...
-> 
-> How many people are actually using devfs these days?  I don't like it
-> myself, and I've had to add a fair amount of hair to fsck's
-> mount-by-label/uuid code to deal with interesting cases such as
-> kernels where devfs is configured, but not actually mounted (it
-> changes what /proc/partitions exports).  So I'm one of those who have
-> never looked all that kindly on devfs, which shouldn't come as a
-> surprise to most folks.
+This patch, substitutes direct usage of radix trees for inodes, and
+removes the reviled custom-allocated inodes.
 
-well I like devfs, in the sense that it is really easy to see what you can 
-use in /dev. Before i used devfs it could be quite difficult since there were 
-so much nodes and symlinks in /dev and many have cryptic names... and 
-sometimes the entries i needed simply were not there so i had to find the 
-right major/minor numbers to create them...
+ hugetlbpage.c |   80 ++++++++++++++++++++++++----------------------------------
+ 1 files changed, 34 insertions(+), 46 deletions(-)
 
-from a user point of view it is better to keep it because it could really 
-simplify a users life except ide should be just in discs as hdX and not as 
-/dev/ide/hostN/busX/targetY/lunZ/disc ...
 
-> 
-> In any case, if there aren't all that many people using devfs, I can
-> think of a really easy way in which we could simplify and clean up its
-> API by slimming it down by 100%......
-
-if the code is really that horrible, then maybe that is the best solution but 
-again i like the concept.
-
-	Rudmer
+diff -urpN htlb-2.5.47-9/arch/i386/mm/hugetlbpage.c htlb-2.5.47-10/arch/i386/mm/hugetlbpage.c
+--- htlb-2.5.47-9/arch/i386/mm/hugetlbpage.c	2002-11-11 22:42:23.000000000 -0800
++++ htlb-2.5.47-10/arch/i386/mm/hugetlbpage.c	2002-11-11 23:10:20.000000000 -0800
+@@ -30,7 +30,7 @@ static spinlock_t htlbpage_lock = SPIN_L
+ #define MAX_ID 	32
+ 
+ struct hugetlb_key {
+-	struct inode *in;
++	struct radix_tree_root tree;
+ 	int key;
+ 	int busy;
+ 	uid_t uid;
+@@ -84,44 +84,28 @@ struct hugetlb_key *alloc_key(int key, u
+ 			else if (!(flag & IPC_CREAT))
+ 				hugetlb_key = ERR_PTR(-ENOENT);
+ 			else {
+-				struct inode *inode;
+-				inode = kmalloc(sizeof(struct inode), GFP_ATOMIC);
+-				if (!inode)
+-					inode = ERR_PTR(-ENOMEM);
+-				else {
+-					int i;
+-					for (i = 0; i < MAX_ID; ++i)
+-						if (!htlbpagek[i].key)
+-							break;
+-					if (i == MAX_ID) {
+-						kfree(inode);
+-						hugetlb_key = ERR_PTR(-ENOMEM);
+-					} else {
+-						hugetlb_key = &htlbpagek[i];
+-						inode_init_once(inode);
+-						mark_key_busy(hugetlb_key);
+-						inode->i_mapping = &inode->i_data;
+-						inode->i_mapping->host = inode;
+-						inode->i_ino = (unsigned long)key;
+-						hugetlb_key->key = key;
+-						hugetlb_key->in = inode;
+-						inode->i_uid = current->fsuid;
+-						inode->i_gid = current->fsgid;
+-						inode->i_mode = prot;
+-						inode->i_size = len;
+-						hugetlb_key->uid = current->fsuid;
+-						hugetlb_key->gid = current->fsgid;
+-						hugetlb_key->mode = prot;
+-						hugetlb_key->size = len;
+-						*new = 1;
+-					}
++				int i;
++				for (i = 0; i < MAX_ID; ++i)
++					if (!htlbpagek[i].key)
++						break;
++				if (i == MAX_ID) {
++					hugetlb_key = ERR_PTR(-ENOMEM);
++				} else {
++					hugetlb_key = &htlbpagek[i];
++					mark_key_busy(hugetlb_key);
++					hugetlb_key->key = key;
++					INIT_RADIX_TREE(&hugetlb_key->tree, GFP_ATOMIC);
++					hugetlb_key->uid = current->fsuid;
++					hugetlb_key->gid = current->fsgid;
++					hugetlb_key->mode = prot;
++					hugetlb_key->size = len;
++					*new = 1;
+ 				}
+ 			}
+ 		} else if (key_busy(hugetlb_key)) {
+ 			hugetlb_key = ERR_PTR(-EAGAIN);
+ 			spin_unlock(&htlbpage_lock);
+ 		} else if (check_size_prot(hugetlb_key, len, prot, flag) < 0) {
+-			kfree(hugetlb_key->in);
+ 			hugetlb_key->key = 0;
+ 			hugetlb_key = ERR_PTR(-EINVAL);
+ 		} else
+@@ -132,18 +116,16 @@ struct hugetlb_key *alloc_key(int key, u
+ 
+ static void release_key(struct hugetlb_key *key)
+ {
+-	int i;
+-	struct inode *inode = (struct inode *)key;;
+-
++	unsigned long index;
+ 	spin_lock(&htlbpage_lock);
+-	for(i = 0;i < MAX_ID; ++i)
+-		if (htlbpagek[i].key != inode->i_ino)
++	for (index = 0; index < key->size; ++index) {
++		struct page *page = radix_tree_lookup(&key->tree, index);
++		if (!page)
+ 			continue;
+-
+-	BUG_ON(i >= MAX_ID);
+-	htlbpagek[i].key = 0;
+-	htlbpagek[i].in = NULL;
+-	kfree(inode);
++		huge_page_release(page);
++	}
++	key->key = 0;
++	INIT_RADIX_TREE(&key->tree, GFP_ATOMIC);
+ 	spin_unlock(&htlbpage_lock);
+ }
+ 
+@@ -381,12 +363,18 @@ static int check_size_prot(struct hugetl
+ 
+ struct page *key_find_page(struct hugetlb_key *key, unsigned long index)
+ {
+-	return find_get_page(key->in->i_mapping, index);
++	struct page *page = radix_tree_lookup(&key->tree, index);
++	if (page)
++		get_page(page);
++	return page;
+ }
+ 
+-void key_add_page(struct page *page, struct hugetlb_key *key, unsigned long index)
++int key_add_page(struct page *page, struct hugetlb_key *key, unsigned long index)
+ {
+-	add_to_page_cache(page, key->in->i_mapping, index);
++	int error = radix_tree_insert(&key->tree, index, page);
++	if (!error)
++		get_page(page);
++	return error;
+ }
+ 
+ static int prefault_key(struct hugetlb_key *key, struct vm_area_struct *vma)

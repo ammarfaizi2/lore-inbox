@@ -1,33 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262638AbSI0Wcu>; Fri, 27 Sep 2002 18:32:50 -0400
+	id <S262635AbSI0Wn6>; Fri, 27 Sep 2002 18:43:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262639AbSI0Wcu>; Fri, 27 Sep 2002 18:32:50 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:58361 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262638AbSI0Wcs>; Fri, 27 Sep 2002 18:32:48 -0400
-Subject: Re: 2.5.38: modular IDE broken
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bob_Tracy <rct@gherkin.frus.com>
-Cc: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <m17v1rZ-0005khC@gherkin.frus.com>
-References: <m17v1rZ-0005khC@gherkin.frus.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 27 Sep 2002 23:41:36 +0100
-Message-Id: <1033166496.17717.0.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262634AbSI0Wn6>; Fri, 27 Sep 2002 18:43:58 -0400
+Received: from magic.adaptec.com ([208.236.45.80]:31483 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP
+	id <S262633AbSI0Wnz>; Fri, 27 Sep 2002 18:43:55 -0400
+Date: Fri, 27 Sep 2002 16:48:54 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Patrick Mansfield <patmans@us.ibm.com>
+cc: James Bottomley <James.Bottomley@steeleye.com>, Jens Axboe <axboe@suse.de>,
+       Matthew Jacob <mjacob@feral.com>,
+       "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
+       Mathieu Chouquet-Stringer <mathieu@newview.com>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Warning - running *really* short on DMA buffers while doing
+ file  transfers
+Message-ID: <2698376224.1033166934@aslan.btc.adaptec.com>
+In-Reply-To: <20020927152842.A18038@eng2.beaverton.ibm.com>
+References: <200209271721.g8RHLTn05231@localhost.localdomain>
+ <2628736224.1033160295@aslan.btc.adaptec.com>
+ <20020927143841.A17108@eng2.beaverton.ibm.com>
+ <2668366224.1033164502@aslan.btc.adaptec.com>
+ <20020927152842.A18038@eng2.beaverton.ibm.com>
+X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="==========3294902874=========="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-27 at 21:37, Bob_Tracy wrote:
-> Understood.  My position is simply that I noted something broken, and
-> I reported it during the development cycle.  Would you prefer that I
-> had waited until after 2.5.X became 2.6?  I didn't think so...  I was
-> not (and am not) presuming to dictate what any developer's priorities
-> should be.
+--==========3294902874==========
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Nod.. its just I've had lots of equally helpful reports 8)
+> I turned on the debug flags, there were a bunch of odd messages
+> in there, but otherwise it seems to be working fine. My .config
+> has the following AIC config options:
+
+<sigh>
+I always run with debugging turned on with the message flags enabled,
+so I missed this in my testing.  I just updated the tarfile.  The
+following patch is all you need to shut the driver up.
+
+--
+Justin
+
+--==========3294902874==========
+Content-Type: text/plain; charset=us-ascii; name=diff
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename=diff; size=1375
+
+Change 1419 by gibbs@bitkeeper-linux-2.5 on 2002/09/27 16:44:04
+
+	Add a missing pair of curly braces to a conditional debug
+	statement.  This ensures that debug code doesn't trigger if
+	it isn't enabled. <blush>
+
+Affected files ...
+
+... //depot/aic7xxx/aic7xxx/aic7xxx.c#80 edit
+
+Differences ...
+
+==== //depot/aic7xxx/aic7xxx/aic7xxx.c#80 (ktext) ====
+
+***************
+*** 37,43 ****
+   * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+   * POSSIBILITY OF SUCH DAMAGES.
+   *
+!  * $Id: //depot/aic7xxx/aic7xxx/aic7xxx.c#79 $
+   *
+   * $FreeBSD$
+   */
+--- 37,43 ----
+   * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+   * POSSIBILITY OF SUCH DAMAGES.
+   *
+!  * $Id: //depot/aic7xxx/aic7xxx/aic7xxx.c#80 $
+   *
+   * $FreeBSD$
+   */
+***************
+*** 2475,2483 ****
+  			panic("HOST_MSG_LOOP interrupt with no active message");
+  
+  #ifdef AHC_DEBUG
+! 		if ((ahc_debug & AHC_SHOW_MESSAGES) != 0)
+  			ahc_print_devinfo(ahc, &devinfo);
+  			printf("INITIATOR_MSG_OUT");
+  #endif
+  		phasemis = bus_phase != P_MESGOUT;
+  		if (phasemis) {
+--- 2475,2484 ----
+  			panic("HOST_MSG_LOOP interrupt with no active message");
+  
+  #ifdef AHC_DEBUG
+! 		if ((ahc_debug & AHC_SHOW_MESSAGES) != 0) {
+  			ahc_print_devinfo(ahc, &devinfo);
+  			printf("INITIATOR_MSG_OUT");
++ 		}
+  #endif
+  		phasemis = bus_phase != P_MESGOUT;
+  		if (phasemis) {
+
+--==========3294902874==========--
 

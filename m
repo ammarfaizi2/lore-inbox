@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbULTJmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbULTJnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbULTJmp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 04:42:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbULTJmp
+	id S261463AbULTJnR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 04:43:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbULTJnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 04:42:45 -0500
-Received: from piglet.wetlettuce.com ([82.68.149.69]:23936 "EHLO
-	piglet.wetlettuce.com") by vger.kernel.org with ESMTP
-	id S261336AbULTJmn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 04:42:43 -0500
-Message-ID: <36901.192.102.214.6.1103535728.squirrel@webmail.wetlettuce.com>
-Date: Mon, 20 Dec 2004 09:42:08 -0000 (GMT)
-Subject: Re: Lockup with 2.6.9-ac15 related to netconsole
-From: "Mark Broadbent" <markb@wetlettuce.com>
-To: <romieu@fr.zoreil.com>
-In-Reply-To: <20041217233524.GA11202@electric-eye.fr.zoreil.com>
-References: <59719.192.102.214.6.1103214002.squirrel@webmail.wetlettuce.com>
-        <20041216211024.GK2767@waste.org>
-        <34721.192.102.214.6.1103274614.squirrel@webmail.wetlettuce.com>
-        <20041217215752.GP2767@waste.org>
-        <20041217233524.GA11202@electric-eye.fr.zoreil.com>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Cc: <mpm@selenic.com>, <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
-Reply-To: markb@wetlettuce.com
-X-Mailer: SquirrelMail (version 1.2.6)
+	Mon, 20 Dec 2004 04:43:17 -0500
+Received: from boa.mtg-marinetechnik.de ([62.153.155.10]:65006 "EHLO
+	cascabel.mtg-marinetechnik.de") by vger.kernel.org with ESMTP
+	id S261366AbULTJnJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 04:43:09 -0500
+Message-ID: <41C69E98.2030807@mtg-marinetechnik.de>
+Date: Mon, 20 Dec 2004 10:42:48 +0100
+From: Richard Ems <richard.ems@mtg-marinetechnik.de>
+Organization: MTG Marinetechnik GmbH
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en, de, es
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MailScanner: Mail is clear of Viree
+To: Jon Mason <jdmason@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+References: <200412171100.16601.richard.ems@mtg-marinetechnik.de>	 <89245775041217090726eb2751@mail.gmail.com>	 <41C31421.7090102@mtg-marinetechnik.de>	 <8924577504121710054331bb54@mail.gmail.com> <8924577504121712527144a5cf@mail.gmail.com>
+In-Reply-To: <8924577504121712527144a5cf@mail.gmail.com>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Subject: Re: PROBLEM: Network hang: "eth0: Tx timed out (f0080), is buffer 
+  full?" (Plain) (Plain)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jon Mason wrote:
+> Richard,
+> Please give the patch below a try (I've also attached it for you
+> convienance), and send me the dmesg output from the next time you hit
+> the error.
 
-Francois Romieu said:
-> Matt Mackall <mpm@selenic.com> :
-> [...]
->> Please try the attached untested, uncompiled patch to add polling to
->> r8169:
-> [...]
->> @@ -1839,6 +1842,15 @@
->>  }
->>  #endif
->>
->> +#ifdef CONFIG_NET_POLL_CONTROLLER
->> +static void rtl8169_netpoll(struct net_device *dev)
->> +{
->> +	disable_irq(dev->irq);
->> +	rtl8169_interrupt(dev->irq, netdev, NULL);
->                                    ^^^^^^ -> should be "dev"
->
-> The r8169 driver in -mm offers netpoll. A patch which syncs the r8169
-> driver from 2.6.10-rc3 with current -mm is available at:
-> http://www.fr.zoreil.com/people/francois/misc/20041218-2.6.10-rc3-r8169.c-test.patch>
-> Please report success/failure. Cc: netdev@oss.sgi.com is welcome.
+Hi Jon,
+I applied your patch, but compiling the module fails.
 
-Exactly the same happens, I still get a 'NMI Watchdog detected LOCKUP'
-with the r8169 device using the above patch on top of 2.6.10-rc3-bk10.
-Thanks
-Mark
+drivers/net/dl2k.c: In function `rio_tx_timeout':
+drivers/net/dl2k.c:567: error: `np' undeclared (first use in this function)
+drivers/net/dl2k.c:567: error: (Each undeclared identifier is reported 
+only once
+drivers/net/dl2k.c:567: error: for each function it appears in.)
+drivers/net/dl2k.c: In function `rio_error':
+
+
+Thanks, Richard
 
 -- 
-Mark Broadbent <markb@wetlettuce.com>
-Web: http://www.wetlettuce.com
+Richard Ems
 
-
+MTG Marinetechnik GmbH
+Wandsbeker Königstr. 62
+22041 Hamburg
+Telefon: +49 40 65803 312
+TeleFax: +49 40 65803 392
+mail: richard.ems@mtg-marinetechnik.de
 

@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319282AbSIKSzn>; Wed, 11 Sep 2002 14:55:43 -0400
+	id <S319294AbSIKTHE>; Wed, 11 Sep 2002 15:07:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319283AbSIKSzn>; Wed, 11 Sep 2002 14:55:43 -0400
-Received: from tolkor.SGI.COM ([192.48.180.13]:51899 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S319282AbSIKSzm>;
-	Wed, 11 Sep 2002 14:55:42 -0400
-Subject: Re: XFS?
-From: Eric Sandeen <sandeen@sgi.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bill Davidsen <davidsen@tmr.com>, Andi Kleen <ak@suse.de>,
-       Thunder from the hill <thunder@lightweight.ods.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1031760229.2768.54.camel@irongate.swansea.linux.org.uk>
-References: <Pine.LNX.3.96.1020911110502.12605A-100000@gatekeeper.tmr.com> 
-	<1031760229.2768.54.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 11 Sep 2002 13:55:07 -0500
-Message-Id: <1031770508.9726.17.camel@stout.americas.sgi.com>
+	id <S319295AbSIKTHE>; Wed, 11 Sep 2002 15:07:04 -0400
+Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:28052 "EHLO
+	rrzs2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S319294AbSIKTHD>; Wed, 11 Sep 2002 15:07:03 -0400
+Date: Wed, 11 Sep 2002 21:11:06 +0200
+From: Christian Guggenberger 
+	<christian.guggenberger@physik.uni-regensburg.de>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org, hch@infradead.org
+Subject: Re: 2.4.20pre5aa2
+Message-ID: <20020911211106.G13655@pc9391.uni-regensburg.de>
+References: <20020911201602.A13655@pc9391.uni-regensburg.de> <20020911194447.A7073@infradead.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20020911194447.A7073@infradead.org>; from hch@infradead.org on Mit, Sep 11, 2002 at 20:44:47 +0200
+X-Mailer: Balsa 1.2.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-09-11 at 11:03, Alan Cox wrote:
-> Thats never been the big concern. The problem has always been that XFS
-> was very invasive code so it might break stuff for people who dont
-> choose to use experimental xfs stuff. Thats slowly improving
+Am 11 Sep 2002 20:44:47 schrieb(en) Christoph Hellwig:
+> Could you please try the following patch from Andrea?
+> 
+> --- 2.4.20pre5aa3/fs/xfs/pagebuf/page_buf.c.~1~	Wed Sep 11
+> 05:17:46 2002
+> +++ 2.4.20pre5aa3/fs/xfs/pagebuf/page_buf.c	Wed Sep 11 06:00:35
+> 2002
+> @@ -2055,9 +2055,9 @@ pagebuf_iodone_daemon(
+>  	spin_unlock_irq(&current->sigmask_lock);
+> 
+>  	/* Migrate to the right CPU */
+> -	current->cpus_allowed = 1UL << cpu;
+> -	while (smp_processor_id() != cpu)
+> -		schedule();
+> +	set_cpus_allowed(current, 1UL << cpu);
+> +	if (cpu() != cpu)
+> +		BUG();
+> 
+>  	sprintf(current->comm, "pagebuf_io_CPU%d", bind_cpu);
+>  	INIT_LIST_HEAD(&pagebuf_iodone_tq[cpu]);
+> 
+> 
 
-Alan - 
+andrea,
 
-The last patch Christoph posted against 2.5 is not the least bit 
-invasive.  Excluding documentation and configuration files, these are
-the changes:
+I applied your patch to page_buf.c (but not the ext3/reiserfs stuff, 
+because there's no need for me) and now everything seems to work fine!
 
-o 1 new process flag:   +#define PF_FSTRANS 0x00100000
-o 1 new CTL_VM name:    +       VM_PAGEBUF=18
-o 1 new CTL_FS name:    +       FS_XFS=17
-o 1 exported symbol:    +EXPORT_SYMBOL(mark_page_accessed);
-
-and of course an addition to fs/Makefile:
-+obj-$(CONFIG_XFS_FS)           += xfs/
-
-That's it.  The rest is under fs/xfs.
-
-(2.4 is more invasive, but this thread started out talking about XFS in
-2.5).
-
--Eric
--- 
-Eric Sandeen      XFS for Linux     http://oss.sgi.com/projects/xfs
-sandeen@sgi.com   SGI, Inc.         651-683-3102
-
+thank you!
+Christian
+ge

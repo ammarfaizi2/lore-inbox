@@ -1,87 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbUL3BgM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbUL3Brc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261496AbUL3BgM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 20:36:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbUL3BgM
+	id S261498AbUL3Brc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 20:47:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbUL3Brc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 20:36:12 -0500
-Received: from mail.dif.dk ([193.138.115.101]:11718 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261496AbUL3BgF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 20:36:05 -0500
-Date: Thu, 30 Dec 2004 02:47:10 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] add printing of udev version to scripts/ver_linux
-Message-ID: <Pine.LNX.4.61.0412300224080.3554@dragon.hygekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 29 Dec 2004 20:47:32 -0500
+Received: from gamma.sinetgy.com ([212.85.33.222]:29925 "EHLO
+	mailer.barrapunto.com") by vger.kernel.org with ESMTP
+	id S261498AbUL3Br2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 20:47:28 -0500
+Subject: [PATCH] USB storage: Make Pentax *ist DS works
+From: Miquel Vidal <miquel@barrapunto.com>
+To: Phil Dibowitz <phil@ipom.com>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1104371242.4557.53.camel@kusanagi>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 30 Dec 2004 02:47:23 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All,
 
-Since udev is starting to be used a lot of places and I've seen people get 
-asked about their udev version a few times on lkml I figured it was 
-perhaps time that scripts/ver_linux reported this info so it would get 
-into more bugreports by default.
+The change below in unusual_devs entries is needed to get the new Pentax
+SLR *ist DS camera working. 
 
-This patch adds printing of udev version to scripts/ver_linux
+BR.
+miquel
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -u linux-2.6.10-bk2-orig/scripts/ver_linux linux-2.6.10-bk2/scripts/ver_linux
---- linux-2.6.10-bk2-orig/scripts/ver_linux	2004-12-24 22:35:00.000000000 +0100
-+++ linux-2.6.10-bk2/scripts/ver_linux	2004-12-30 02:21:34.000000000 +0100
-@@ -87,6 +87,8 @@
- 
- expr --v 2>&1 | awk 'NR==1{print "Sh-utils              ", $NF}'
- 
-+udevinfo -V | awk '{print "udev                  ", $3}'
-+
- if [ -e /proc/modules ]; then
-     X=`cat /proc/modules | sed -e "s/ .*$//"`
-     echo "Modules Loaded         "$X
-
-
-
-I guess it would also make sense to also add a tiny bit of text about udev 
-to Documentation/Changes if the above goes in - if so there's a possible 
-patch to do that below.
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -u linux-2.6.10-bk2-orig/Documentation/Changes linux-2.6.10-bk2/Documentation/Changes
---- linux-2.6.10-bk2-orig/Documentation/Changes	2004-12-24 22:35:28.000000000 +0100
-+++ linux-2.6.10-bk2/Documentation/Changes	2004-12-30 02:42:10.000000000 +0100
-@@ -223,6 +223,11 @@
- version v0.99.0 or higher. Running old versions may cause problems
- with programs using shared memory.
- 
-+Udev
-+----
-+Udev is a userspace application for populating /dev dynamically with
-+only entries for devices actually present. Udev replaces devfs.
-+
- Networking
- ==========
- 
-@@ -368,6 +373,10 @@
- ----------
- o  <http://powertweak.sourceforge.net/>
- 
-+Udev
-+----
-+o <http://www.kernel.org/pub/linux/utils/kernel/hotplug/>
-+
- Networking
- **********
- 
-@@ -399,4 +408,3 @@
- ---------
- o  <http://nfs.sourceforge.net/>
- 
+--- linux-2.6.10/drivers/usb/storage/unusual_devs.h.orig       
+2004-12-30 02:26:25.000000000 +0100
++++ linux-2.6.10/drivers/usb/storage/unusual_devs.h     2004-12-30
+02:26:18.000000000 +0100
+@@ -775,7 +775,16 @@ UNUSUAL_DEV( 0x0a17, 0x006, 0x0000, 0xff
+                 "Optio S/S4",
+                 US_SC_DEVICE, US_PR_DEVICE, NULL,
+                 US_FL_FIX_INQUIRY ),
 -
-
++
++
++/* Submitted by Miquel Vidal <miquel@barrapunto.com> */
++UNUSUAL_DEV( 0x0a17, 0x0021, 0x0100, 0x0200,
++                "Pentax",
++                "*ist DS",
++                US_SC_DEVICE, US_PR_DEVICE, NULL,
++                US_FL_FIX_INQUIRY ),
++
++
+ #ifdef CONFIG_USB_STORAGE_ISD200
+ UNUSUAL_DEV(  0x0bf6, 0xa001, 0x0100, 0x0110,
+                "ATI",
 
 
 

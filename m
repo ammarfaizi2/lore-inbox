@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129166AbRDJRMi>; Tue, 10 Apr 2001 13:12:38 -0400
+	id <S129292AbRDJRP6>; Tue, 10 Apr 2001 13:15:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129292AbRDJRMY>; Tue, 10 Apr 2001 13:12:24 -0400
-Received: from jffdns01.or.intel.com ([134.134.248.3]:31756 "EHLO
-	ganymede.or.intel.com") by vger.kernel.org with ESMTP
-	id <S129166AbRDJRLf>; Tue, 10 Apr 2001 13:11:35 -0400
-Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE818@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Pavel Machek'" <pavel@suse.cz>,
-        kernel list <linux-kernel@vger.kernel.org>
-Cc: "Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>
-Subject: RE: Serious bug in ACPI enumeration
-Date: Tue, 10 Apr 2001 10:11:13 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S129408AbRDJRPs>; Tue, 10 Apr 2001 13:15:48 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:11022 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129292AbRDJRPg>;
+	Tue, 10 Apr 2001 13:15:36 -0400
+Date: Tue, 10 Apr 2001 19:15:28 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: David Schleef <ds@schleef.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Mark Salisbury <mbs@mc.com>, Jeff Dike <jdike@karaya.com>,
+        schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: No 100 HZ timer !
+Message-ID: <20010410191528.B21024@pcep-jamie.cern.ch>
+In-Reply-To: <20010410053105.B4144@stm.lbl.gov> <Pine.LNX.3.96.1010410155723.28395A-100000@artax.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.96.1010410155723.28395A-100000@artax.karlin.mff.cuni.cz>; from mikulas@artax.karlin.mff.cuni.cz on Tue, Apr 10, 2001 at 04:10:28PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is because at this stage of ACPI development, we want to be as strict
-as possible w.r.t. AML, to expose bugs in the software.
+Mikulas Patocka wrote:
+> Timers more precise than 100HZ aren't probably needed - as MIN_RTO is 0.2s
+> and MIN_DELACK is 0.04s, TCP would hardly benefit from them.
 
-That said, maybe it's better to just emit a warning here, instead of
-failing. I'll bring it up with the team.
+Indeed, using precise timers for TCP would probably degrade performance
+-- you should process a group of timer events together, when resolution
+is not that important.
 
-Regards -- Andy
+There are plenty of apps that need higher resolution.  Software modem
+comes to mind (guess why ;), though the device driver supplies the high
+resolution timed interrupts in that case.
 
-> From: Pavel Machek [mailto:pavel@suse.cz]
-> 
-> Hi!
-> 
-> My "toshiba workaround" was not toshiba specific: you stopped scanning
-> at first device that was not present. That's bad, you have to continue
-> scanning. Here's fix.
-> 
-> 								Pavel
-> 
-> --- clean/drivers/acpi/namespace/nsxfobj.c	Sun Apr  1 00:23:00 2001
-> +++ linux/drivers/acpi/namespace/nsxfobj.c	Thu Apr  5 22:49:18 2001
-> @@ -592,7 +595,7 @@
->  
->  	status = acpi_cm_execute_STA (node, &flags);
->  	if (ACPI_FAILURE (status)) {
-> -		return (status);
-> +		return AE_OK;
->  	}
->  
->  	if (!(flags & 0x01)) {
-> 
-> 
-> -- 
-> I'm pavel@ucw.cz. "In my country we have almost anarchy and I 
-> don't care."
-> Panos Katsaloulis describing me w.r.t. patents at 
-> discuss@linmodems.org
-> 
+Games would like to be able to page flip at vertical refresh time --
+<1ms accuracy please.  Network traffic shaping benefits from better than
+1ms timing.  Video players want to display their frames preferably
+without 10ms jitter.
 
+Even that old classic game "snake" benefits from decent timing.  I
+worked on an X multiplayer snake implementation which was very
+unpleasant and jerky at first.  1. Disable nagle for X connection :-)
+Better but still jerky.  2. Write delay loop like this:
+
+     calculate next_event_time
+     select (0, 0, 0, next_event_time - 20ms)
+     while (gettimeofday() < next_event_time)
+       /* Busy loop for last 20ms. */
+
+It's no coincidence that I've had to write another very similar event
+loop recently.  You can see, this sort of thing is a real waste of CPU.
+
+-- Jamie

@@ -1,163 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267382AbTA1QcL>; Tue, 28 Jan 2003 11:32:11 -0500
+	id <S267415AbTA1QgS>; Tue, 28 Jan 2003 11:36:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267389AbTA1QcL>; Tue, 28 Jan 2003 11:32:11 -0500
-Received: from [65.193.106.66] ([65.193.106.66]:56336 "EHLO
-	xchangeserver2.storigen.com") by vger.kernel.org with ESMTP
-	id <S267382AbTA1QcH> convert rfc822-to-8bit; Tue, 28 Jan 2003 11:32:07 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
+	id <S267417AbTA1QgS>; Tue, 28 Jan 2003 11:36:18 -0500
+Received: from asplinux.ru ([195.133.213.194]:39694 "EHLO relay.asplinux.ru")
+	by vger.kernel.org with ESMTP id <S267415AbTA1QgP>;
+	Tue, 28 Jan 2003 11:36:15 -0500
+From: "Denis V. Lunev" <den@asplinux.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: 2.4.21-pre3 kernel crash
-Date: Tue, 28 Jan 2003 11:41:21 -0500
-Message-ID: <7BFCE5F1EF28D64198522688F5449D5A03C0FA@xchangeserver2.storigen.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.4.21-pre3 kernel crash
-Thread-Index: AcLGW57lTKVtMtjzSpe32dTwQEo/XgAj87Wg
-From: "Larry Sendlosky" <Larry.Sendlosky@storigen.com>
-To: "Jens Axboe" <axboe@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15926.45962.729604.789545@artemis.asplinux.ru>
+Date: Tue, 28 Jan 2003 19:44:58 +0300
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] 100% reproducable OOPS in 2.4.20 on ext3 after swapon
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was glad to see the physical page support in 2.4.20.
-(and also noticed that the current BK tree clobbered it
-on a patch set from Alan).
+Hello!
 
-One question, 
+Recently I have found a serious problem in sys_swapon/ext3 code.
+The host configuration is the following
+[root@ts3 root]# mount  
+/dev/sda2 on / type ext2 (rw)
+/dev/sdd1 on /vz type ext3 (rw)
+[root@ts3 root]#
 
-+		lastdataend = bh_phys(bh) + bh->b_size;
+if one executes
+[root@ts3 root]# strace swapon /dev/sdd1
+......skipped.....
+stat64("/dev/sdd1", {st_mode=S_IFBLK|0660, st_rdev=makedev(8, 49), ...}) = 0
+swapon("/dev/sdd1")                     = -1 EINVAL (Invalid argument)
 
-bh_phys(x) uses bh->b_page. Does it make a difference
-if bh->b_page is zero? What if someone combines virt and phys
-buffer addresses in bh list?
+OOPS will occure after some time (kjournald, unmapped buffer in
+__make_request), see the letter end. The shit was caused by the
+following trace
+		 discard_buffer
+Trace; c0140d94 <discard_bh_page+44/80>
+Trace; c012e208 <do_flushpage+28/30>
+Trace; c012e224 <truncate_complete_page+14/50>
+Trace; c012e3e6 <truncate_list_pages+186/1f0>
+Trace; c012e49a <truncate_inode_pages+4a/80>
+Trace; c0144770 <kill_bdev+20/30>
+Trace; c0144866 <set_blocksize+e6/100>
+Trace; c0138bc0 <sys_swapon+1d0/7f0>
+Trace; c0106fd2 <system_call+32/38>
 
-thanks
-larry
+which discards buffer held in the journal->j_sb_buffer :(((
 
+I do not see the obvious way to fix the problem right now. Please
+note, that this partition is already mounted and swapon fails, but the
+journal becomes corrupted :(
 
------Original Message-----
-From: Jens Axboe [mailto:axboe@suse.de]
-Sent: Monday, January 27, 2003 6:24 PM
-To: J.A. Magallon
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre3 kernel crash
+Regards,
+	Denis V. Lunev
 
+P.S. OOPS decoded
 
-On Tue, Jan 28 2003, J.A. Magallon wrote:
-> 
-> On 2003.01.27 Jens Axboe wrote:
-> > On Mon, Jan 27 2003, Martin MOKREJ? wrote:
-> > > On Mon, 27 Jan 2003, Ross Biro wrote:
-> > > 
-> > > > This looks like the same problem I ran into with IDE and highmem not
-> > > > getting along.  Try compiling your kernel with out highmem enabled and
-> > > > see what happenes.
-> > > 
-> > > Yes, that "fixes" it. Any "better solution"? ;-)
-> > > 
-> > > > >Trace; c024dfc1 <ide_build_sglist+181/1a0>
-> > > > >Trace; c024e1b4 <ide_build_dmatable+54/1a0>
-> > > > >Trace; c024e6df <__ide_dma_read+3f/150>
-> > 
-> > Someone completely lost the highmem capable scatterlist setup, *boggle*.
-> > This should fix it.
-> > 
-> 
-> Applied on top of 2.4.21-pre3-aa (no highmem), it makes my box hang on drive
-> detection:
-> 
-> PIIX4: IDE controller at PCI slot 00:07.1
-> PIIX4: chipset revision 1
-> PIIX4: not 100% native mode: will probe irqs later
->     ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:DMA
->     ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-> hda: 
-> 
-> <hangs here>
-> 
-> normal startup says:
-> 
-> hda: Conner Peripherals 1080MB - CFS1081A, ATA DISK drive
-> hdb: TOSHIBA DVD-ROM SD-M1712, ATAPI CD/DVD-ROM drive
-> blk: queue 403386e0, I/O limit 4095Mb (mask 0xffffffff)
-> hdc: YAMAHA CRW8424E, ATAPI CD/DVD-ROM drive
-> hdd: IOMEGA ZIP 250 ATAPI, ATAPI FLOPPY drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> ide1 at 0x170-0x177,0x376 on irq 15
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> hda: 2114180 sectors (1082 MB), CHS=524/64/63, DMA
+root@ts3 root]# dmesg | tail -17 | ksymoops -VKLO -m
+/boot/System.map-2.4.20-smp
+ksymoops 2.4.4 on i686 2.4.20-smp.  Options used
+     -V (specified)
+     -K (specified)
+     -L (specified)
+     -O (specified)
+     -m /boot/System.map-2.4.20-smp (specified)
 
-Reviewing the patch, it did have a nasty bug, didn't iterate
-buffer_heads at all so a clustered request will fail. Attached version
-should work.
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c01bd46d>]    Tainted: P
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: 00004000   ebx: 00000002   ecx: 00000831   edx: 00000002
+esi: f3373440   edi: 00000001   ebp: 0222e3d7   esp: f3367d6c
+ds: 0018   es: 0018   ss: 0018
+Process kjournald (pid: 140, stackpage=f3367000)
+Stack: 00004000 f3ab9bf8 db6db6db 6db6db6d 00000000 00000000 00000002 00000934
+       db6db6db 6db6db6d db6db6db 6db6db6d db6db6db 6db6db6d db6db6db 6db6db6d
+       db6db6db 6db6db6d db6db6db 6db6db6d db6db6db 00000002 f3373440 00000934
+Call Trace: [<c01bdb1f>] [<c0140703>] [<c01bdb7d>] [<c01bdd17>] [<c0140703>]
+   [<c01723a3>] [<c016e465>] [<c0114c1a>] [<c0171490>] [<c01712d0>] [<c0105626>]
+   [<c01712f0>]
+Code: 0f 0b 56 57 e8 0a e9 f7 ff 5b 89 c6 0f b7 4e 14 5d 89 c8 c1
 
-===== drivers/ide/ide-dma.c 1.7 vs edited =====
---- 1.7/drivers/ide/ide-dma.c	Wed Nov 20 18:46:24 2002
-+++ edited/drivers/ide/ide-dma.c	Tue Jan 28 00:23:45 2003
-@@ -249,6 +249,7 @@
- {
- 	struct buffer_head *bh;
- 	struct scatterlist *sg = hwif->sg_table;
-+	unsigned long lastdataend = ~0UL;
- 	int nents = 0;
- 
- 	if (hwif->sg_dma_active)
-@@ -256,24 +257,30 @@
- 
- 	bh = rq->bh;
- 	do {
--		unsigned char *virt_addr = bh->b_data;
--		unsigned int size = bh->b_size;
-+		if (bh_phys(bh) == lastdataend) {
-+			sg[nents - 1].length += bh->b_size;
-+			lastdataend += bh->b_size;
-+			continue;
-+		}
- 
- 		if (nents >= PRD_ENTRIES)
- 			return 0;
- 
--		while ((bh = bh->b_reqnext) != NULL) {
--			if ((virt_addr + size) != (unsigned char *) bh->b_data)
--				break;
--			size += bh->b_size;
--		}
- 		memset(&sg[nents], 0, sizeof(*sg));
--		sg[nents].address = virt_addr;
--		sg[nents].length = size;
--		if(size == 0)
--			BUG();
-+		if (bh->b_page) {
-+			sg[nents].page = bh->b_page;
-+			sg[nents].offset = bh_offset(bh);
-+		} else {
-+			if (((unsigned long) bh->b_data) < PAGE_SIZE)
-+				BUG();
-+
-+			sg[nents].address = bh->b_data;
-+		}
-+
-+		sg[nents].length = bh->b_size;
-+		lastdataend = bh_phys(bh) + bh->b_size;
- 		nents++;
--	} while (bh != NULL);
-+	} while ((bh = bh->b_reqnext) != NULL);
- 
- 	if(nents == 0)
- 		BUG();
+>>EIP; c01bd46d <__make_request+7d/620> <=====
+Trace; c01bdb1f <generic_make_request+10f/130>
+Trace; c0140703 <__refile_buffer+53/60>
+Trace; c01bdb7d <submit_bh+3d/60>
+Trace; c01bdd17 <ll_rw_block+177/1c0>
+Trace; c0140703 <__refile_buffer+53/60>
+Trace; c01723a3 <journal_update_superblock+83/c0>
+Trace; c016e465 <journal_commit_transaction+1f5/1230>
+Trace; c0114c1a <schedule+5aa/660>
+Trace; c0171490 <kjournald+1a0/2f0>
+Trace; c01712d0 <commit_timeout+0/10>
+Trace; c0105626 <kernel_thread+26/30>
+Trace; c01712f0 <kjournald+0/2f0>
+Code;  c01bd46d <__make_request+7d/620>
+00000000 <_EIP>:
+Code;  c01bd46d <__make_request+7d/620> <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c01bd46f <__make_request+7f/620>
+2:   56                        push   %esi
+Code;  c01bd470 <__make_request+80/620>
+3:   57                        push   %edi
+Code;  c01bd471 <__make_request+81/620>
+4:   e8 0a e9 f7 ff            call   fff7e913 <_EIP+0xfff7e913> c013bd80
+<create_bounce+0/150>
+Code;  c01bd476 <__make_request+86/620>
+9:   5b                        pop    %ebx
+Code;  c01bd477 <__make_request+87/620>
+a:   89 c6                     mov    %eax,%esi
+Code;  c01bd479 <__make_request+89/620>
+c:   0f b7 4e 14               movzwl 0x14(%esi),%ecx
+Code;  c01bd47d <__make_request+8d/620>
+10:   5d                        pop    %ebp
+Code;  c01bd47e <__make_request+8e/620>
+11:   89 c8                     mov    %ecx,%eax
+Code;  c01bd480 <__make_request+90/620>
+13:   c1 00 00                  roll   $0x0,(%eax)
 
--- 
-Jens Axboe
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+[root@ts3 root]#
 

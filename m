@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262296AbREUBEI>; Sun, 20 May 2001 21:04:08 -0400
+	id <S262300AbREUBHi>; Sun, 20 May 2001 21:07:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262293AbREUBD6>; Sun, 20 May 2001 21:03:58 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:59037 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262292AbREUBDr>;
-	Sun, 20 May 2001 21:03:47 -0400
+	id <S262301AbREUBH2>; Sun, 20 May 2001 21:07:28 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:63389 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262300AbREUBHV>;
+	Sun, 20 May 2001 21:07:21 -0400
 From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15112.26992.591864.905111@pizda.ninka.net>
-Date: Sun, 20 May 2001 18:03:44 -0700 (PDT)
+Message-ID: <15112.27206.4123.40450@pizda.ninka.net>
+Date: Sun, 20 May 2001 18:07:17 -0700 (PDT)
 To: Andrea Arcangeli <andrea@suse.de>
 Cc: Andrew Morton <andrewm@uow.edu.au>,
         Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
         Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
 Subject: Re: alpha iommu fixes
-In-Reply-To: <20010520181803.I18119@athlon.random>
-In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru>
-	<20010519155502.A16482@athlon.random>
-	<20010519231131.A2840@jurassic.park.msu.ru>
+In-Reply-To: <20010520191206.A30738@athlon.random>
+In-Reply-To: <20010519231131.A2840@jurassic.park.msu.ru>
 	<20010520044013.A18119@athlon.random>
 	<3B07AF49.5A85205F@uow.edu.au>
 	<20010520154958.E18119@athlon.random>
 	<20010520181803.I18119@athlon.random>
+	<3B07EEFE.43DDBA5C@uow.edu.au>
+	<20010520184411.K18119@athlon.random>
+	<3B07F6B8.4EAB0142@uow.edu.au>
+	<20010520191206.A30738@athlon.random>
 X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 Andrea Arcangeli writes:
- > On Sun, May 20, 2001 at 03:49:58PM +0200, Andrea Arcangeli wrote:
- > > they returned zero. You either have to drop the skb or to try again later
- > > if they returns zero.
+ > > [..]  Even sparc64's fancy
+ > > iommu-based pci_map_single() always succeeds.
  > 
- > BTW, pci_map_single is not a nice interface, it cannot return bus
- > address 0, so once we start the fixage it is probably better to change
- > the interface as well to get either the error or the bus address via a
- > pointer passed to the function.
+ > Whatever sparc64 does to hide the driver bugs you can break it if you
+ > pci_map 4G+1 bytes of phyical memory.
 
-No, pci_map_single is a fine interface.  What is lacking is a
-"INVALID_DMA_ADDR" define for each platform, and I've known about
-this for some time.
+Which is an utterly stupid thing to do.
 
-But for the time being, everyone assumes address zero is not valid and
-it shouldn't be too painful to reserve the first page of DMA space
-until we fix this issue.
+Please construct a plausable situation where this would occur legally
+and not be a driver bug, given the maximum number of PCI busses and
+slots found on sparc64 and the maximum _concurrent_ usage of PCI dma
+space for any given driver (which isn't doing something stupid).
 
 Later,
 David S. Miller

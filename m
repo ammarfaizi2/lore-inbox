@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291462AbSBAApT>; Thu, 31 Jan 2002 19:45:19 -0500
+	id <S291463AbSBAAqr>; Thu, 31 Jan 2002 19:46:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291463AbSBAApH>; Thu, 31 Jan 2002 19:45:07 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:13587 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S291462AbSBAAox>; Thu, 31 Jan 2002 19:44:53 -0500
-Date: Thu, 31 Jan 2002 16:43:53 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Wartan Hachaturow <wart@softhome.net>
-cc: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-Subject: Re: Console driver behaviour?
-In-Reply-To: <20020130235702.A23358@penguin.aktivist.ru>
-Message-ID: <Pine.LNX.4.10.10201311641470.6830-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291464AbSBAAqh>; Thu, 31 Jan 2002 19:46:37 -0500
+Received: from rj.sgi.com ([204.94.215.100]:6638 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S291463AbSBAAqT>;
+	Thu, 31 Jan 2002 19:46:19 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS 
+In-Reply-To: Your message of "31 Jan 2002 16:36:27 PDT."
+             <m1elk6t7no.fsf@frodo.biederman.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 01 Feb 2002 11:46:09 +1100
+Message-ID: <22967.1012524369@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 31 Jan 2002 16:36:27 -0700, 
+ebiederm@xmission.com (Eric W. Biederman) wrote:
+>"Erik A. Hendriks" <hendriks@lanl.gov> writes:
+>Sort of.  The assumptions change per architecture.  But I haven't
+>heard of an architecture where some addresses are not safe.
 
-> > > any way to catch the situation? I've thought that open should
-> > > return ENODEV in these cases, but it doesn't..
-> > 
-> > screen, perhaps?  this is most definitely not a linux-kernel question.
-> 
-> This is most probably a console driver question, which is
-> kernel-specific ;)
-> I wonder what should console driver say when it doesn't have a real physical
-> console behind it. IMO, this should be a ENODEV case, or some other way
-> to determine programmatically that this situation takes place.
+NUMA boxes with discontiguous physical memory.  You may not boot off
+node 0.  Whichever node you boot from may not be able to see all of
+physical memory yet, the cross node directrories may not be set up.
+The boot node may not even have physical address 0.  I don't say that
+these boxes exist yet but they are possible with discontiguous memory
+architectures.
 
-That should not happen. Especially since int init/main.c we have:
+>Dynamic linking with relocation is nasty.  
 
-if (open("/dev/console", O_RDWR, 0) < 0)
-                printk("Warning: unable to open an initial console.\n");
-
-(void) dup(0);
-(void) dup(0);
-
-which causes alot of problems. 
-
-> So, I am trying to find someone familar with console driver on
-> linux-kernel (since this driver doesn't have a specific maintainer).
-
-That would be me :-/
+I have some code in insmod that you can use ...  Nasty is an
+understatement.
 

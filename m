@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265742AbUBPPoO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 10:44:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265757AbUBPPoO
+	id S265507AbUBPPzk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 10:55:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265641AbUBPPzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 10:44:14 -0500
-Received: from [212.28.208.94] ([212.28.208.94]:28677 "HELO dewire.com")
-	by vger.kernel.org with SMTP id S265742AbUBPPoL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 10:44:11 -0500
-From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-To: Eduard Bloch <edi@gmx.de>
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
-Date: Mon, 16 Feb 2004 16:44:08 +0100
-User-Agent: KMail/1.6.1
-Cc: Jamie Lokier <jamie@shareable.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-References: <20040209115852.GB877@schottelius.org> <20040215010150.GA3611@mail.shareable.org> <20040216140338.GA2927@zombie.inka.de>
-In-Reply-To: <20040216140338.GA2927@zombie.inka.de>
-MIME-Version: 1.0
+	Mon, 16 Feb 2004 10:55:40 -0500
+Received: from mail.shareable.org ([81.29.64.88]:14980 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S265507AbUBPPzi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 10:55:38 -0500
+Date: Mon, 16 Feb 2004 15:55:34 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
+Subject: Re: JFS default behavior
+Message-ID: <20040216155534.GA17323@mail.shareable.org>
+References: <1076886183.18571.14.camel@m222.net81-64-248.noos.fr> <20040216062152.GB5192@pegasys.ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402161644.08957.robin.rosenberg.lists@dewire.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040216062152.GB5192@pegasys.ws>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 February 2004 15.03, Eduard Bloch wrote:
-> I know what you mean and that is why I already proposed a radical
-> solution. Let me repeat it:
-> 
->  - convert all files from the previous charset to UTF-8 overnight
->    if the previous charset was unknown, first make sure that you can
->    guess it for all users and contact users that have files with
->    suspicous filenames (eg. not convertable from Latin1). Or look trough
->    their shell/X config files (*)
+jw schultz wrote:
+> If you have a filesystem with filenames that don't conform
+> to your policy write userspace tools to detect and/or fix
+> them.  If you have programs creating non-conforming
+> filenames, fix or rm those programs.
 
-Thankfully isolatin-1 (and all other encodings in use AFAIK) can be converted to UTF-8.
-IsoLatin1 is also extremly simpe to convert-
+You do understand that GNU coreutils, bash etc. are among those
+programs, right?  As in "touch zöe.txt" creates a non-conforming
+filename...
 
--- robin
+> OK.  The questions have been asked and answered.
+> Asking again and again and again won't change the answer.
+
+The question of what a program like this should do has not been
+answered:
+
+   perl -e 'for (glob "*") { rename $_, "ņi-".$_ or die "rename: $!\n"; }'
+
+   (NB: The prefix string is N WITH CEDILLA followed by "i-").
+
+Hint: it mangles perfectly fine non-ASCII file names, instead of just
+prefixing the prefix string.  If you change the program to correctly
+prepend the prefix string, then it mangles non-UTF-8 names, which is
+arguably correct, but can result in you losing some files.
+
+This _is_ a userspace problem, but it is a genuine problem for which
+no good answer is yet apparent.
+
+-- Jamie

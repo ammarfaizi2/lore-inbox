@@ -1,73 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265161AbUHMMzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265212AbUHMM6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbUHMMzz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 08:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265212AbUHMMzz
+	id S265212AbUHMM6n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 08:58:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265222AbUHMM6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 08:55:55 -0400
-Received: from mail.bencastricum.nl ([213.84.203.196]:51975 "EHLO
-	gateway.bencastricum.nl") by vger.kernel.org with ESMTP
-	id S265161AbUHMMzw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 08:55:52 -0400
-Message-ID: <001d01c48135$a0741b30$0502a8c0@tragebak>
-From: "Ben Castricum" <lk@bencastricum.nl>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.6.8-rc doesn't detect USB modem/weird SSH problem
-Date: Fri, 13 Aug 2004 14:59:32 +0200
+	Fri, 13 Aug 2004 08:58:43 -0400
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:19586 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S265212AbUHMM6h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 08:58:37 -0400
+Message-ID: <411CBADE.6060402@eidetix.com>
+Date: Fri, 13 Aug 2004 14:58:06 +0200
+From: "David N. Welton" <davidw@eidetix.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: Sascha Wilde <wilde@sha-bang.de>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6 kernel won't reboot on AMD system - 8042 problem?
+References: <20040811141408.17933.qmail@web81304.mail.yahoo.com> <20040811175613.GA829@kenny.sha-bang.local> <411BA214.2060306@eidetix.com> <20040812201344.GA270@ucw.cz> <411C944A.3040907@eidetix.com> <20040813120357.GA907@ucw.cz>
+In-Reply-To: <20040813120357.GA907@ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-bencastricum-MailScanner-Information: Please contact the ISP for more information
-X-bencastricum-MailScanner: Found to be clean
-X-MailScanner-From: lk@bencastricum.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vojtech Pavlik wrote:
 
-There are 2 issues I have since 2.6.8-rc1 (2.6.7 is fine). One is that my
-Tornado SFM56.0 USB modem isn't detected anymory and the other is that I
-can't seem te login with SSH.
+> Now I think the problem lies in that that on your i8042 issuing a
+> command doesn't clear the AUXDATA bit. It's only cleared by data from
+> the keyboard.
 
-This is from a "diff -u bootmessages-2.6.7 bootmessages-2.6.8-rc1":
+> This is likely a bug in you i8042 firmware (or hw, if it's just an
+> ASIC).
 
-@@ -159,13 +161,14 @@
- drivers/usb/class/cdc-acm.c: v0.23:USB Abstract Control Model driver for
-USB modems and ISDN adapters
- hw_random hardware driver 1.0.0 loaded
- usb 1-2: new full speed USB device using address 2
--cdc_acm 1-2:1.0: ttyACM0: USB ACM device
- 8139too Fast Ethernet driver 0.9.27
- PCI: Enabling device 0000:01:08.0 (0004 -> 0007)
--eth0: RealTek RTL8139 at 0xc887e000, 00:50:fc:85:89:e0, IRQ 12
+Well, that has always seemed likely to me, given that rebooting without 
+a keyboard is something that works on pretty much everyone else's 
+machines!  But to some degree the bug ought to be worked around.
 
-My modem has the following info in /proc/bus/usb:
+> I suppose we can get rid of the checking of data source and negation and
+> be done with it.
 
-T:  Bus=01 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  2 Spd=12  MxCh= 0
-D:  Ver= 1.00 Cls=02(comm.) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=069f ProdID=0011 Rev= 1.00
-S:  Manufacturer=Allied Data
-S:  Product=Tornado SFM56.0-USB
-C:* #Ifs= 2 Cfg#= 1 Atr=a0 MxPwr=400mA
-I:  If#= 1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_acm
-E:  Ad=81(I) Atr=02(Bulk) MxPS=  16 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS=  16 Ivl=0ms
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=02 Prot=01 Driver=cdc_acm
-E:  Ad=82(I) Atr=03(Int.) MxPS=   8 Ivl=128ms
+That helps, but there are still situation(s?) where it's not a complete 
+solution.  It's good enough for what I need, though.
 
+Starting with no keyboard, plug one in:
 
-The SSH problem is a bit stranger. I know this is a user space application
-but since 2.6.7 has no problems I thought I mention it just in case. If I
-strace the daemon and compare a working with a non-working session the
-non-working sessions fails on this:
-open("/dev/ptmx", O_RDWR)         = -1 EIO (Input/output error)
+$ drivers/input/serio/i8042.c: aa <- i8042 (interrupt, aux, 0) [161928] 
 
-Any suggestions?
+drivers/input/serio/i8042.c: 60 -> i8042 (command) [162009] 
+
+drivers/input/serio/i8042.c: 46 -> i8042 (parameter) [162009] 
+
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [162151] 
+
+drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [162151] 
+
+drivers/input/serio/i8042.c: fe <- i8042 (interrupt, aux, 0) [162343] 
+
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [162424] 
+
+drivers/input/serio/i8042.c: ed -> i8042 (parameter) [162424] 
+
+drivers/input/serio/i8042.c: fe <- i8042 (interrupt, aux, 0) [162616] 
+
+drivers/input/serio/i8042.c: 60 -> i8042 (command) [162697] 
+
+drivers/input/serio/i8042.c: 44 -> i8042 (parameter) [162697] 
+
+drivers/input/serio/i8042.c: aa <- i8042 (interrupt, aux, 0) [162989] 
+
+drivers/input/serio/i8042.c: 60 -> i8042 (command) [163070] 
+
+drivers/input/serio/i8042.c: 46 -> i8042 (parameter) [163070] 
+
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [163212] 
+
+drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [163212] 
+
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 0) [163404] 
+
+drivers/input/serio/i8042.c: ab <- i8042 (interrupt, kbd, 0) [163485] 
+
+drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, kbd, 0) [163566] 
+
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [163792] 
+
+drivers/input/serio/i8042.c: ed -> i8042 (parameter) [163792] 
+
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 0) [163983] 
+
+drivers/input/serio/i8042.c: 60 -> i8042 (command) [164209] 
+
+drivers/input/serio/i8042.c: 44 -> i8042 (parameter) [164209]
+
+Oops, it doesn't respond to anything... We unplug it and plug it back in 
+again.  This time it's ok:
+
+$ drivers/input/serio/i8042.c: aa <- i8042 (interrupt, kbd, 0) [191951] 
+
+drivers/input/serio/i8042.c: 60 -> i8042 (command) [192032] 
+
+drivers/input/serio/i8042.c: 45 -> i8042 (parameter) [192032] 
+
+drivers/input/serio/i8042.c: f2 -> i8042 (kbd-data) [192174] 
+
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [192247] 
+
+drivers/input/serio/i8042.c: ab <- i8042 (interrupt, kbd, 1) [192329] 
+
+drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, kbd, 1) [192410] 
+
+drivers/input/serio/i8042.c: ed -> i8042 (kbd-data) [192491] 
+
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [192565] 
+
+drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [192646] 
+
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [192719] 
+
+drivers/input/serio/i8042.c: f3 -> i8042 (kbd-data) [192801] 
+
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [192874] 
+
+drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [192956] 
+
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [193029] 
+
+drivers/input/serio/i8042.c: f4 -> i8042 (kbd-data) [193110] 
+
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [193184] 
+
+input: AT Translated Set 2 keyboard on isa0060/serio0
+
+This, because it checks in i8042_interrupt to see if the nefarious 
+STR_AUXDATA is set, which it is...  According to your hypothesis, 
+plugging the keyboard in and hitting a few keys would have cleared the 
+AUXDATA bit, so the next time around it works fine.
 
 Thanks,
-Ben
-
+-- 
+David N. Welton
+davidw@eidetix.com

@@ -1,69 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264546AbUFJJqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264569AbUFJJsj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264546AbUFJJqE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 05:46:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266013AbUFJJqE
+	id S264569AbUFJJsj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 05:48:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264551AbUFJJqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 05:46:04 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:22153 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S264562AbUFJJIK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 05:08:10 -0400
-Subject: Re: [STACK] >3k call path in reiserfs
-From: Vladimir Saveliev <vs@namesys.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Chris Mason <mason@suse.com>,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <40C75273.7020508@namesys.com>
-References: <20040609122226.GE21168@wohnheim.fh-wedel.de>
-	 <1086784264.10973.236.camel@watt.suse.com>
-	 <1086800028.10973.258.camel@watt.suse.com> <40C74388.20301@namesys.com>
-	 <20040609172843.GB2950@wohnheim.fh-wedel.de> <40C75273.7020508@namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Message-Id: <1086858488.25768.30.camel@tribesman.namesys.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 10 Jun 2004 13:08:09 +0400
-Content-Transfer-Encoding: 8bit
+	Thu, 10 Jun 2004 05:46:30 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:38629 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S264569AbUFJJRq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 05:17:46 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16584.9947.222378.506457@alkaid.it.uu.se>
+Date: Thu, 10 Jun 2004 11:16:11 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Paul Jackson <pj@sgi.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6.7-rc3-mm1] perfctr cpumask cleanup
+In-Reply-To: <20040609154750.241df741.pj@sgi.com>
+References: <200406092050.i59KoWoa000621@alkaid.it.uu.se>
+	<20040609154750.241df741.pj@sgi.com>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Paul Jackson writes:
+ > > Clean up perfctr/virtual by using the new cpus_andnot() operation
+ > 
+ > Neat.
+ > 
+ > Do you still need "tmp" ?  Perhaps you could further add the
+ > following patch (untested, unbuilt, ...).
+ > 
+ > This saves copies and stack space for one cpumask (that's
+ > 512 bits on my SN2 systems).
+ > 
+ > Signed-off-by: Paul Jackson <pj@sgi.com>
+ > 
+ > Index: 2.6.7-rc3-mm1/drivers/perfctr/virtual.c
+ > ===================================================================
+ > --- 2.6.7-rc3-mm1.orig/drivers/perfctr/virtual.c	2004-06-09 15:34:34.000000000 -0700
+ > +++ 2.6.7-rc3-mm1/drivers/perfctr/virtual.c	2004-06-09 15:38:32.000000000 -0700
+ > @@ -403,11 +403,10 @@
+ >  		return -EFAULT;
+ >  
+ >  	if (control.cpu_control.nractrs || control.cpu_control.nrictrs) {
+ > -		cpumask_t tmp, old_mask, new_mask;
+ > +		cpumask_t old_mask, new_mask;
+ >  
+ > -		tmp = perfctr_cpus_forbidden_mask;
+ >  		old_mask = tsk->cpus_allowed;
+ > -		cpus_andnot(new_mask, old_mask, tmp);
+ > +		cpus_andnot(new_mask, old_mask, perfctr_cpus_forbidden_mask);
 
-On Wed, 2004-06-09 at 22:09, Hans Reiser wrote:
-> Jörn Engel wrote:
-> 
-> >On Wed, 9 June 2004 10:06:16 -0700, Hans Reiser wrote:
-> >  
-> >
-> >>Can you give me some background on whether this is causing real problems 
-> >>for real users?
-> >>    
-> >>
-> >
-> >It's not [yet].  This was done with statical analysis and keeping a
-> >little extra room for safety.  If you prefer to wait for real bug
-> >reports, go ahead...
-> >
-> >...but note that my signature ai has proven it's merits once again...
-> >  
-> >
-> what is your signature ai?
-> 
-> >Jörn
-> >
-> >  
-> >
-> Unless it is really necessary, or a small code change, I would prefer to 
-> spend our cycles worrying about this in reiser4, 
+Doesn't work because cpus_andnot() requires all three parameters
+to be lvalues. In UP and PowerPC builds, perfctr_cpus_forbidden_mask
+is #define:d to CPU_MASK_NONE to allow client-side optimisations.
 
-it will not be easy to make reiser4 to work with 4k stack
+Making it always be a variable will slow down UP and PowerPC with
+unoptimisable cpumask tests; alternatively I'll have to wrap my
+cpumask uses with optimisation macros and/or #ifdefs.
 
-> because code changes in 
-> V3 are to be avoided if possible.
-> 
-> I am open to arguments that it is really necessary.
-> 
-
+/Mikael

@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261964AbSJIUhM>; Wed, 9 Oct 2002 16:37:12 -0400
+	id <S261930AbSJIUgQ>; Wed, 9 Oct 2002 16:36:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262000AbSJIUhL>; Wed, 9 Oct 2002 16:37:11 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:1108 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S261964AbSJIUhJ>;
-	Wed, 9 Oct 2002 16:37:09 -0400
-Date: Wed, 9 Oct 2002 22:42:48 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Patrick Mochel <mochel@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [bk/patch] driver model update: device_unregister()
-Message-ID: <20021009204248.GA22001@win.tue.nl>
-References: <Pine.LNX.4.44.0210091050330.7355-100000@home.transmeta.com> <Pine.GSO.4.21.0210091358100.8980-100000@weyl.math.psu.edu>
+	id <S261956AbSJIUgQ>; Wed, 9 Oct 2002 16:36:16 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:45050 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S261930AbSJIUgQ>; Wed, 9 Oct 2002 16:36:16 -0400
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3DA4882A.8000909@pobox.com> 
+References: <3DA4882A.8000909@pobox.com>  <20021009144414.GZ26771@phunnypharm.org> <20021009.045845.87764065.davem@redhat.com> <18079.1034115320@passion.cambridge.redhat.com> <20021008.175153.20269215.davem@redhat.com> <200210091149.g99BnWQ5000628@pool-141-150-241-241.delv.east.verizon.net> <7908.1034165878@passion.cambridge.redhat.com> <3DA4392B.8070204@pobox.com> <27367.1034175300@passion.cambridge.redhat.com> 
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Ben Collins <bcollins@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: BK kernel commits list 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0210091358100.8980-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.3.25i
+Date: Wed, 09 Oct 2002 21:41:55 +0100
+Message-ID: <18069.1034196115@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 09, 2002 at 02:00:05PM -0400, Alexander Viro wrote:
 
-> OK, call me dense, but what things are associated with partition aside of the
-> fact that it exists?
+jgarzik@pobox.com said:
+>  Actually, after subscribing to bk-commits-* and seeing the output, I
+> really think the only addition needed is to pipe the output through
+> diffstat.
 
-A partition has an underlying device, a start and a length.
-It may have a label or volume id.
-It has a partition number (the 7 of hda7) that can be assigned.
-It may have substructure on the partition level, like a
-DOS-type partition (BSD slice) with BSD subpartitions.
+Er, I did that last time you asked. Maybe it'll work better if I cvs update 
+on hera after committing the change? :)
 
-Andries
+
+--
+dwmw2
+
+

@@ -1,93 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263612AbTJOQuu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 12:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263614AbTJOQut
+	id S263650AbTJOQ7A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 12:59:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263654AbTJOQ7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 12:50:49 -0400
-Received: from tog-wakko4.prognet.com ([207.188.29.244]:46977 "EHLO virago")
-	by vger.kernel.org with ESMTP id S263612AbTJOQur (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 12:50:47 -0400
-Date: Wed, 15 Oct 2003 09:50:16 -0700
-From: Tom Marshall <tmarshall@real.com>
-To: George Anzinger <george@mvista.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: missed itimer signals in 2.6
-Message-ID: <20031015165016.GA2167@real.com>
-References: <20031013163411.37423e4e.akpm@osdl.org> <3F8C8692.5010108@mvista.com> <20031014235213.GC860@real.com> <3F8D63AA.9000509@mvista.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OXfL5xGRrasGEqWY"
+	Wed, 15 Oct 2003 12:59:00 -0400
+Received: from mail-2.tiscali.it ([195.130.225.148]:32951 "EHLO
+	mail-2.tiscali.it") by vger.kernel.org with ESMTP id S263650AbTJOQ6w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 12:58:52 -0400
+From: Lorenzo Allegrucci <l.allegrucci@tiscali.it>
+Organization: -ENOENT
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [OOPS] 2.6.0-test7-bk7 CONFIG_PREEMPT=y
+Date: Wed, 15 Oct 2003 18:58:34 +0000
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3F8D63AA.9000509@mvista.com>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200310151858.34475.l.allegrucci@tiscali.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---OXfL5xGRrasGEqWY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Could not reproduce on a plain 2.6.0-test7-bk7
+(CONFIG_PREEMPT=n)
 
-> >I understand what happens and why.  I admit that I'm not familiar with t=
-he
-> >POSIX standard on this issue.  Questions:
-> >
-> > * I've heard that the kernel's timer resolution has increased from 10ms=
- to
-> >   1ms in 2.6.  Why does the itimer have such a large granularity?  I
-> >   expected it to be highly accurate in this range.
->=20
-> I think it is.  The missing understanding is, I think, that you expect th=
-e=20
-> resolution to be exactly 1/HZ or 1ms.  It is actually not exactly that=20
-> because the PIC can not generate 1ms interrupts (close but not close enou=
-gh=20
-> for NTP). So the kernel figures out what the true PIC rate is and sets up=
-=20
-> the resolution for that.  This results in a resolution of ~999,849=20
-> nanoseconds (i.e. instead of 1,000,000 nano seconds per tick).  Now there=
-=20
-> is some errors in converting this to micro seconds..., but the actual mat=
-h=20
-> is done with more precision with the conversion after (which is why the=
-=20
-> various times the program tries don't come out being exact multiples of=
-=20
-> each other, or of anything expressed as only microseconds).
 
-I expect there are at least a few applications that will misbehave because
-the developers did not expect a timer to behave this way (regardless of
-whether it's proper according to the spec).
+Oct 15 18:46:57 odyssey kernel: ------------[ cut here ]------------
+Oct 15 18:46:57 odyssey kernel: kernel BUG at kernel/exit.c:758!
+Oct 15 18:46:57 odyssey kernel: invalid operand: 0000 [#1]
+Oct 15 18:46:57 odyssey kernel: CPU:    0
+Oct 15 18:46:57 odyssey kernel: EIP:    0060:[do_exit+529/1040]    Not tainted
+Oct 15 18:46:57 odyssey kernel: EFLAGS: 00010286
+Oct 15 18:46:57 odyssey kernel: EIP is at do_exit+0x211/0x410
+Oct 15 18:46:57 odyssey kernel: eax: 00000004   ebx: dffeeaa0   ecx: db4d32a0   edx: da99c000
+Oct 15 18:46:57 odyssey kernel: esi: 00000000   edi: db006cc0   ebp: da99ded0   esp: da99deb4
+Oct 15 18:46:57 odyssey kernel: ds: 007b   es: 007b   ss: 0068
+Oct 15 18:46:57 odyssey kernel: Process bomb.sh (pid: 9670, threadinfo=da99c000 task=db006cc0)
+Oct 15 18:46:57 odyssey kernel: Stack: db006cc0 dc9cefc0 da99df24 db007284 da99c000 00000009 00000009 da99dee4
+Oct 15 18:46:57 odyssey kernel:        c011ee0a 00000009 da99c000 db006cc0 da99df0c c0127be1 00000009 db007284
+Oct 15 18:46:57 odyssey kernel:        da99df24 da99c000 db007284 da99dfc4 db007284 da99c000 da99dfb0 c0109196
+Oct 15 18:46:57 odyssey kernel: Call Trace:
+Oct 15 18:46:57 odyssey kernel:  [do_group_exit+58/176] do_group_exit+0x3a/0xb0
+Oct 15 18:46:57 odyssey kernel:  [get_signal_to_deliver+593/864] get_signal_to_deliver+0x251/0x360
+Oct 15 18:46:57 odyssey kernel:  [do_signal+102/224] do_signal+0x66/0xe0
+Oct 15 18:46:57 odyssey kernel:  [exit_notify+553/1920] exit_notify+0x229/0x780
+Oct 15 18:46:57 odyssey kernel:  [do_exit+529/1040] do_exit+0x211/0x410
+Oct 15 18:46:57 odyssey kernel:  [sys_sigreturn+184/208] sys_sigreturn+0xb8/0xd0
+Oct 15 18:46:57 odyssey kernel:  [do_notify_resume+59/64] do_notify_resume+0x3b/0x40
+Oct 15 18:46:57 odyssey kernel:  [work_notifysig+19/21] work_notifysig+0x13/0x15
+Oct 15 18:46:57 odyssey kernel:
+Oct 15 18:46:57 odyssey kernel: Code: 0f 0b f6 02 3d 9d 34 c0 8d b4 26 00 00 00 00 eb fe 8b 77 10
+Oct 15 18:46:57 odyssey kernel:  <6>note: bomb.sh[9670] exited with preempt_count 1
 
-Is it possible to choose a timer resolution that errs on the high side of
-1ms instead of the low side? [*]  It seems to me that would result in the
-application getting very close to the expected number of alarm signals.  I
-am not at all familiar with the kernel design so I don't know if this would
-be feasible or not.
-
-[*] If this is the 8254 timer, using 1192 as a divisor should result in a
-resolution of ~1,000,686 nanoseconds.
-
---=20
-I mean, if 10 years from now, when you are doing something quick and dirty,
-you suddenly visualize that I am looking over your shoulders and say to
-yourself, "Dijkstra would not have liked this", well that would be enough
-immortality for me.
-
---OXfL5xGRrasGEqWY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/jXrIqznSmcYu2m8RAhLOAJ4iEMUvVilYlQzVuBAatHwKmBPYxwCfXaKr
-h+YbpXU+tS8UgmIAyaFD1Tc=
-=woIj
------END PGP SIGNATURE-----
-
---OXfL5xGRrasGEqWY--

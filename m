@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262876AbREVWrb>; Tue, 22 May 2001 18:47:31 -0400
+	id <S262879AbREVW6L>; Tue, 22 May 2001 18:58:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262877AbREVWrV>; Tue, 22 May 2001 18:47:21 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:44813 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S262876AbREVWrK>; Tue, 22 May 2001 18:47:10 -0400
-Date: Wed, 23 May 2001 00:47:07 +0200 (CEST)
-From: Tomas Telensky <ttel5535@ss1000.ms.mff.cuni.cz>
-Reply-To: ttel5535@artax.karlin.mff.cuni.cz
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: linux-kernel@vger.kernel.org,
-        "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
-Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
-In-Reply-To: <9ebbg2$m62$1@tazenda.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0105230032440.31122-100000@artax.karlin.mff.cuni.cz>
+	id <S262880AbREVW6C>; Tue, 22 May 2001 18:58:02 -0400
+Received: from pC19F5836.dip.t-dialin.net ([193.159.88.54]:20485 "EHLO
+	router.abc") by vger.kernel.org with ESMTP id <S262879AbREVW5x> convert rfc822-to-8bit;
+	Tue, 22 May 2001 18:57:53 -0400
+Message-ID: <3B0AEEEA.225A0940@baldauf.org>
+Date: Wed, 23 May 2001 00:57:47 +0200
+From: Xuan Baldauf <xuan--lkml@baldauf.org>
+X-Mailer: Mozilla 4.77 [en] (Win98; U)
+X-Accept-Language: de-DE,en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Urban Widmark <urban@teststation.com>
+CC: linux-kernel@vger.kernel.org, "James H. Puttick" <james.puttick@kvs.com>
+Subject: Re: [PATCH][RFT] smbfs bugfixes for 2.4.4
+In-Reply-To: <Pine.LNX.4.30.0105230009160.23340-100000@cola.teststation.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On 21 May 2001, H. Peter Anvin wrote:
+Urban Widmark wrote:
 
-> Followup to:  <3B090C81.53F163C3@TeraPort.de>
-> By author:    "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
-> In newsgroup: linux.dev.kernel
+> On Mon, 21 May 2001, Xuan Baldauf wrote:
+>
+> > That is annoying, because it heavily slows down bulk transfers of small
+> > writes, like automatically unzipping a new mozilla build from the linux box to
+> > the windows box. Every write of say 100 bytes is implemented as
 > >
-> > Hi,
-> > 
-> >  while trying to enhance a small hardware inventory script, I found that
-> > cpuinfo is missing the details of L1, L2 and L3 size, although they may
-> > be available at boot time. One could of cource grep them from "dmesg"
-> > output, but that may scroll away on long lived systems.
-> > 
-> 
-> Any particular reason this needs to be done in the kernel, as opposed
+> > send write req
+> > recv write ack
+> > send flush req
+> > sync to disk (on the windows machine)
+> > recv flush ack
+>
+> The only other way I have found so far to get it to return the right file
+> size is to do a "seek-to-end". That still means an extra SMB but it avoids
+> the very painful "sync to disk".
+>
+> Fortunately the seek is only necessary when refreshing inode info, on a
+> "win95" server, on a file that is open and that we have written to.
 
-It is already done in kernel, because it's displaying :)
-So, once evaluated, why not to give it to /proc/cpuinfo. I think it makes
-sense and gives it things in order.
+Maybe it is also a workaround for the problem where changes on the windows side are not reflected?
 
-	Tomas
+>
+>
+> This should be significantly better, but still works with my testcases.
+> patch vs 2.4.5-pre4, please test.
+>
+> /Urban
+>
 
-> to having your script read /dev/cpu/*/cpuid?
+[...patch...]
+
+Is it possible to resend the patch in mime format or publish it somewhere accessible by an URL? Netscape Messenger
+creates spaces everywhere where tabs should be :-(
+
+Xuân.
 
 

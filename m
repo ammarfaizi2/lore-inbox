@@ -1,51 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271257AbRHOQMR>; Wed, 15 Aug 2001 12:12:17 -0400
+	id <S271267AbRHOQT1>; Wed, 15 Aug 2001 12:19:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271256AbRHOQMH>; Wed, 15 Aug 2001 12:12:07 -0400
-Received: from shad0w.dial.nildram.co.uk ([195.112.18.51]:52746 "EHLO
-	mail.shad0w.org.uk") by vger.kernel.org with ESMTP
-	id <S271257AbRHOQL4> convert rfc822-to-8bit; Wed, 15 Aug 2001 12:11:56 -0400
-Date: Wed, 15 Aug 2001 17:14:21 +0100 (BST)
-From: Chris Crowther <chrisc@shad0w.org.uk>
-To: Lincoln Dale <ltd@cisco.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] CDP handler for linux
-In-Reply-To: <4.3.2.7.2.20010814155831.04b31220@mira-sjcm-3.cisco.com>
-Message-ID: <Pine.LNX.4.33.0108151707540.19732-100000@monolith.shad0w.org.uk>
+	id <S271265AbRHOQTR>; Wed, 15 Aug 2001 12:19:17 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:44039 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S271267AbRHOQTG>; Wed, 15 Aug 2001 12:19:06 -0400
+Date: Wed, 15 Aug 2001 11:50:29 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: ll_rw_blk.c changes from 2.4.8 not in -ac
+Message-ID: <Pine.LNX.4.21.0108151147520.26259-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Aug 2001, Lincoln Dale wrote:
 
-> netlink so as to allow user-space to receive the whole packet and avoid any
-> processing in the kernel.
+Alan/Jens, 
 
-	Hmm, there's an idea.
+Why 2.4.8-ac does not contain 2.4.8's ll_rw_blk.c changes ? (the ones
+which remove the "queued_sectors" logic)
 
-> you may want to consider the same.  at least for cisco products, there are
-[...]
-> most of those kinds of policies are probably outside the scope of what
-> logic you would expect in the kernel.
-
-	I'm looking at doing something like you're doing, just need to
-figure out which netlink family to use - ethertap seems overkill, is
-adding a new family for CDP even more overkill?
-
-> my $0.02 worth,
-
-	Oooh, £0.20 at least :)
-
-> cheers,
-
-	Thanks for the ideas.  Don't 'spose you know anything about CDP v2
-that someone mentioned? :)
-
--- 
-Chris "_Shad0w_" Crowther
-chrisc@shad0w.org.uk
-http://www.shad0w.org.uk/
+Those changes improve IO latency a lot.
 

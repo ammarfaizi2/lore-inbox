@@ -1,88 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVARMdE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVARMec@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261280AbVARMdE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 07:33:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVARMdE
+	id S261284AbVARMec (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 07:34:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVARMec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 07:33:04 -0500
-Received: from frankvm.xs4all.nl ([80.126.170.174]:10402 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S261280AbVARMcy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 07:32:54 -0500
-Date: Tue, 18 Jan 2005 13:32:53 +0100
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.28 Oops in fs/locks.c:time_out_leases()
-Message-ID: <20050118123253.GA31499@janus>
+	Tue, 18 Jan 2005 07:34:32 -0500
+Received: from colin2.muc.de ([193.149.48.15]:1042 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261284AbVARMdn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 07:33:43 -0500
+Date: 18 Jan 2005 13:33:40 +0100
+Date: Tue, 18 Jan 2005 13:33:40 +0100
+From: Andi Kleen <ak@muc.de>
+To: thomas@winischhofer.net, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Convert sis fb driver to compat_ioctl
+Message-ID: <20050118123340.GC68224@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-got an Oops the same time for 9 days, at the same EIP:
+Convert the sis framebuffer driver to compat ioctl.
 
-ksymoops 2.4.9 on i686 2.4.28-x97.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.28-x97/ (default)
-     -m /boot/System.map-2.4.28-x97 (default)
+Requires generic framebuffer compat_ioctl patch I posted
+earlier on l-k.
 
-kernel:  <1>Unable to handle kernel NULL pointer dereference at virtual address 0000003c
-kernel: c0153cb8
-kernel: *pde = 00000000
-kernel: Oops: 0000
-kernel: CPU:    0
-kernel: EIP:    0010:[time_out_leases+24/128]    Not tainted
-kernel: EFLAGS: 00010202
-kernel: eax: c1b42a14   ebx: 00000010   ecx: 00000000   edx: c349139c
-kernel: esi: c1b42ad0   edi: c06f6000   ebp: c06f7f0c   esp: c06f7f04
-kernel: ds: 0018   es: 0018   ss: 0018
-kernel: Process find (pid: 17476, stackpage=c06f7000)
-kernel: Stack: c1b42a14 00018801 c06f7f38 c0153d79 c1b42a14 00000000 00000000 c06f7f38 
-kernel:        00000000 c349139c ffffffff 00018801 c1b42a14 c06f7f64 c014d8c7 c1b42a14 
-kernel:        00018801 00000000 00000000 00000004 c2f51898 00018800 c160f000 080665cb 
-kernel: Call Trace:    [__get_lease+89/640] [open_namei+487/1376] [filp_open+47/80] [sys_open+61/160] [system_call+51/64]
-kernel: Code: f6 43 2c 20 74 23 f6 43 2d 10 74 1d 8b 53 50 85 d2 75 1d 89 
-Using defaults from ksymoops -t elf32-i386 -a i386
+Signed-off-by: Andi Kleen <ak@muc.de>
 
-
->>eax; c1b42a14 <_end+164147c/4347ac8>
->>edx; c349139c <_end+2f8fe04/4347ac8>
->>esi; c1b42ad0 <_end+1641538/4347ac8>
->>edi; c06f6000 <_end+1f4a68/4347ac8>
->>ebp; c06f7f0c <_end+1f6974/4347ac8>
->>esp; c06f7f04 <_end+1f696c/4347ac8>
-
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   f6 43 2c 20               testb  $0x20,0x2c(%ebx)
-Code;  00000004 Before first symbol
-   4:   74 23                     je     29 <_EIP+0x29>
-Code;  00000006 Before first symbol
-   6:   f6 43 2d 10               testb  $0x10,0x2d(%ebx)
-Code;  0000000a Before first symbol
-   a:   74 1d                     je     29 <_EIP+0x29>
-Code;  0000000c Before first symbol
-   c:   8b 53 50                  mov    0x50(%ebx),%edx
-Code;  0000000f Before first symbol
-   f:   85 d2                     test   %edx,%edx
-Code;  00000011 Before first symbol
-  11:   75 1d                     jne    30 <_EIP+0x30>
-Code;  00000013 Before first symbol
-  13:   89 00                     mov    %eax,(%eax)
-
-
-Details:
--	compiled with gcc version 3.3.4 (Debian 1:3.3.4-3)
--	only ext3 and NFSv3 mounts (and automounter). 
--	The "find" causing the oops appears to be started from cron.daily
-	and only touches local filesystems.
--	SMP kernel running on UP (pentium II)
-
--- 
-Frank
+diff -u linux-2.6.11-rc1-bk4/drivers/video/sis/sis.h-o linux-2.6.11-rc1-bk4/drivers/video/sis/sis.h
+--- linux-2.6.11-rc1-bk4/drivers/video/sis/sis.h-o	2005-01-14 10:12:22.000000000 +0100
++++ linux-2.6.11-rc1-bk4/drivers/video/sis/sis.h	2005-01-17 11:27:41.000000000 +0100
+@@ -527,10 +527,6 @@
+ 	int  		newrom;
+ 	int  		registered;
+ 	int		warncount;
+-#ifdef SIS_CONFIG_COMPAT
+-	int		ioctl32registered;
+-	int		ioctl32vblankregistered;
+-#endif
+ 
+ 	int 		sisvga_engine;
+ 	int 		hwcursor_size;
+diff -u linux-2.6.11-rc1-bk4/drivers/video/sis/sis_main.c-o linux-2.6.11-rc1-bk4/drivers/video/sis/sis_main.c
+--- linux-2.6.11-rc1-bk4/drivers/video/sis/sis_main.c-o	2005-01-14 10:12:22.000000000 +0100
++++ linux-2.6.11-rc1-bk4/drivers/video/sis/sis_main.c	2005-01-18 05:27:29.000000000 +0100
+@@ -2192,11 +2192,22 @@
+ 		break;
+ 
+ 	   default:
+-		return -EINVAL;
++		return -ENOIOCTLCMD;
+ 	}
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_COMPAT
++static long sisfb_compat_ioctl(struct file *f, unsigned cmd, unsigned long arg, struct fb_info *info)
++{
++	int ret;
++	lock_kernel();
++	ret = sisfb_ioctl(NULL, f, cmd, arg, info);
++	unlock_kernel();
++	return ret;
++}
++#endif
++
+ static int
+ sisfb_get_fix(struct fb_fix_screeninfo *fix, int con, struct fb_info *info)
+ {
+@@ -2258,7 +2269,10 @@
+ 	.fb_imageblit   = cfb_imageblit,
+ 	.fb_cursor      = soft_cursor,
+ 	.fb_sync        = fbcon_sis_sync,
+-	.fb_ioctl       = sisfb_ioctl
++	.fb_ioctl       = sisfb_ioctl,
++#ifdef CONFIG_COMPAT
++	.fb_compat_ioctl = sisfb_compat_ioctl,
++#endif
+ };
+ #endif
+ 
+@@ -4791,10 +4805,6 @@
+ 	ivideo->pcifunc = PCI_FUNC(pdev->devfn);
+ 	ivideo->subsysvendor = pdev->subsystem_vendor;
+ 	ivideo->subsysdevice = pdev->subsystem_device;
+-#ifdef SIS_CONFIG_COMPAT
+-	ivideo->ioctl32registered = 0;
+-	ivideo->ioctl32vblankregistered = 0;
+-#endif
+ 
+ #ifndef MODULE
+ 	if(sisfb_mode_idx == -1) {
+@@ -5594,30 +5604,6 @@
+ 		ivideo->next = card_list;
+ 		card_list = ivideo;
+ 
+-#ifdef SIS_CONFIG_COMPAT
+-		{
+-		int ret;
+-		/* Our ioctls are all "32/64bit compatible" */
+-		if(register_ioctl32_conversion(FBIOGET_VBLANK, NULL)) {
+-		   printk(KERN_ERR "sisfb: Error registering FBIOGET_VBLANK ioctl32 translation\n");
+-		} else {
+-		   ivideo->ioctl32vblankregistered = 1;
+-		}
+-		ret =  register_ioctl32_conversion(FBIO_ALLOC,             NULL);
+-		ret |= register_ioctl32_conversion(FBIO_FREE,              NULL);
+-		ret |= register_ioctl32_conversion(SISFB_GET_INFO_SIZE,    NULL);
+-		ret |= register_ioctl32_conversion(SISFB_GET_INFO,         NULL);
+-		ret |= register_ioctl32_conversion(SISFB_GET_TVPOSOFFSET,  NULL);
+-		ret |= register_ioctl32_conversion(SISFB_SET_TVPOSOFFSET,  NULL);
+-		ret |= register_ioctl32_conversion(SISFB_SET_LOCK,         NULL);
+-		ret |= register_ioctl32_conversion(SISFB_GET_VBRSTATUS,    NULL);
+-		ret |= register_ioctl32_conversion(SISFB_GET_AUTOMAXIMIZE, NULL);
+-		ret |= register_ioctl32_conversion(SISFB_SET_AUTOMAXIMIZE, NULL);
+-		if(ret)	printk(KERN_ERR "sisfb: Error registering ioctl32 translations\n");
+-		else    ivideo->ioctl32registered = 1;
+-		}
+-#endif
+-
+ 		printk(KERN_INFO "sisfb: 2D acceleration is %s, y-panning %s\n",
+ 		     ivideo->sisfb_accel ? "enabled" : "disabled",
+ 		     ivideo->sisfb_ypan  ?
+@@ -5649,28 +5635,6 @@
+ 	struct fb_info        *sis_fb_info = ivideo->memyselfandi;
+ 	int                   registered = ivideo->registered;
+ 
+-#ifdef SIS_CONFIG_COMPAT
+-	if(ivideo->ioctl32vblankregistered) {
+-		if(unregister_ioctl32_conversion(FBIOGET_VBLANK)) {
+-			printk(KERN_ERR "sisfb: Error unregistering FBIOGET_VBLANK ioctl32 translation\n");
+-		}
+-	}
+-	if(ivideo->ioctl32registered) {
+-		int ret;
+-		ret =  unregister_ioctl32_conversion(FBIO_ALLOC);
+-		ret |= unregister_ioctl32_conversion(FBIO_FREE);
+-		ret |= unregister_ioctl32_conversion(SISFB_GET_INFO_SIZE);
+-		ret |= unregister_ioctl32_conversion(SISFB_GET_INFO);
+-		ret |= unregister_ioctl32_conversion(SISFB_GET_TVPOSOFFSET);
+-		ret |= unregister_ioctl32_conversion(SISFB_SET_TVPOSOFFSET);
+-		ret |= unregister_ioctl32_conversion(SISFB_SET_LOCK);
+-		ret |= unregister_ioctl32_conversion(SISFB_GET_VBRSTATUS);
+-		ret |= unregister_ioctl32_conversion(SISFB_GET_AUTOMAXIMIZE);
+-		ret |= unregister_ioctl32_conversion(SISFB_SET_AUTOMAXIMIZE);
+-		if(ret)	printk(KERN_ERR "sisfb: Error unregistering ioctl32 translations\n");
+-	}
+-#endif
+-
+ 	/* Unmap */
+ 	iounmap(ivideo->video_vbase);
+ 	iounmap(ivideo->mmio_vbase);

@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315778AbSEDG3G>; Sat, 4 May 2002 02:29:06 -0400
+	id <S315780AbSEDGb4>; Sat, 4 May 2002 02:31:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315779AbSEDG3F>; Sat, 4 May 2002 02:29:05 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:29700 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S315778AbSEDG3E>; Sat, 4 May 2002 02:29:04 -0400
-Date: Sat, 4 May 2002 07:28:49 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: Guest section DW <dwguest@win.tue.nl>, Jeff Dike <jdike@karaya.com>,
-        linux-kernel@vger.kernel.org,
-        user-mode-linux-devel@lists.sourceforge.net,
-        user-mode-linux-user@lists.sourceforge.net
-Subject: Re: UML is now self-hosting!
-Message-ID: <20020504072849.B2295@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Gerrit Huizenga <gh@us.ibm.com>,
-	Guest section DW <dwguest@win.tue.nl>, Jeff Dike <jdike@karaya.com>,
-	linux-kernel@vger.kernel.org,
-	user-mode-linux-devel@lists.sourceforge.net,
-	user-mode-linux-user@lists.sourceforge.net
-In-Reply-To: <20020503215102.GA24653@win.tue.nl> <E173lX2-0001k3-00@w-gerrit2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S315781AbSEDGbz>; Sat, 4 May 2002 02:31:55 -0400
+Received: from web8103.in.yahoo.com ([203.199.70.30]:4882 "HELO
+	web8103.in.yahoo.com") by vger.kernel.org with SMTP
+	id <S315780AbSEDGbz>; Sat, 4 May 2002 02:31:55 -0400
+Message-ID: <20020504063150.79973.qmail@web8103.in.yahoo.com>
+Date: Sat, 4 May 2002 07:31:50 +0100 (BST)
+From: =?iso-8859-1?q?nimeesh=20patel?= <nimeesh_divi@yahoo.co.in>
+Subject: strange ARP request
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 03, 2002 at 03:28:03PM -0700, Gerrit Huizenga wrote:
-> PTX could *almost* run VMWare (might be able to run Win4Lin or Boochs...)
+hi
+i'm using redhat7.0.
+In that i found that this system is sending ARP
+request after some interval which is point to point
+instead of broadcast...
+Is this bcoz' of any daemon or is it bug on my system
+or it is common behaviour of linux system...
+Generally i observed that is sends 3 packets in one
+minute which are point to point to that system and not
+normal broadcast...
+One problem i found is nameserver entry was wrong in
+resolv.conf ,after changing it it just reduced the not
+of packet sends...
 
-Umm, you have ported the VMWare and Win4Lin kernel modules?
-For Win4Lin I could almost image it as it is ported UnixWare code..
 
+
+________________________________________________________________________
+For live cricket scores download  Yahoo! Score Tracker
+ at: http://in.sports.yahoo.com/cricket/tracker.html

@@ -1,98 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132142AbRDPVSj>; Mon, 16 Apr 2001 17:18:39 -0400
+	id <S132125AbRDPVRj>; Mon, 16 Apr 2001 17:17:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132137AbRDPVSa>; Mon, 16 Apr 2001 17:18:30 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:1540 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S132127AbRDPVSO>;
-	Mon, 16 Apr 2001 17:18:14 -0400
-Date: Mon, 16 Apr 2001 15:37:58 +0000
+	id <S132130AbRDPVR3>; Mon, 16 Apr 2001 17:17:29 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:772 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S131408AbRDPVRT>;
+	Mon, 16 Apr 2001 17:17:19 -0400
+Date: Mon, 16 Apr 2001 15:29:29 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Chad Hogan <Chad.Hogan@inphinity.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: system call logging in userspace
-Message-ID: <20010416153757.D40@(none)>
-In-Reply-To: <0104121732070D.51519@usul.inphinity.com>
+To: SodaPop <soda@xirr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oscillations in disk write compaction, poor interactive performance
+Message-ID: <20010416152928.B40@(none)>
+In-Reply-To: <200104122134.QAA24106@xirr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <0104121732070D.51519@usul.inphinity.com>; from Chad.Hogan@inphinity.com on Thu, Apr 12, 2001 at 05:32:07PM -0700
+In-Reply-To: <200104122134.QAA24106@xirr.com>; from soda@xirr.com on Thu, Apr 12, 2001 at 04:34:32PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Man strace, or http://subterfugue.org
+Hi!
 
-> Hello,
-> 
-> I'm not very experienced with dealing directly with the kernel, so I was 
-> hoping for a little advice...
-> 
-> I'd like to implement some sort of rudimentary (file)system-call logging.  
-> Specifically, I'd like information about write, open, creat, unlink, and 
-> maybe a few others to be pushed into userspace.  Mostly, I'd just like to 
-> know what files are being created, modified, and deleted as it happens.
-> 
-> It seems quite easy to me -- I was thinking of doing this with a module.  
-> I'll just grab the pointer from sys_call_table[__NR_open] and replace it with 
-> my own little wrapper that does nothing but call the original function, and 
-> then log the call in some manner.
-> 
-> ================
-> 
-> asmlinkage int my_sys_open(const char *fname, int flags, int mode)
-> {
->          [preliminary stuff]
-> 
->          returnval = real_sys_open(fname, flags, mode);
-> 
->          [log information based on returnval, fname, whatever];
-> 
->          return returnval;
-> }
-> 
-> 
-> int init_module()
-> {
->          [other stuff]
-> 
->          real_sys_open = sys_call_table[__NR_open];
->          sys_call_table[__NR_open] = my_sys_open;
->          return 0;
-> }
-> 
-> init cleanup_module()
-> {
->          sys_call_table[__NR_open] = real_sys_open;
-> }
-> 
-> ===========
-> 
-> The simplicity of the whole thing is what scares me a little bit.  Am I being 
-> horribly naive about something here?  It seems like an obviously useful 
-> module to have around, and yet I've never seen it and I couldn't find anyone 
-> who had done it already.  Is there a much better way to accomplish this than 
-> loading in a module?  Am I risking serious fs corruption?
-> 
-> It occurs to me that I may have some problems if something else changes the 
-> sys_call_table[__NR_open] and the two modules don't cooperate...
-> 
-> Thanks.
-> - -- 
-> Chad Hogan                                 chad.hogan@inphinity.com
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.0.4 (FreeBSD)
-> Comment: For info see http://www.gnupg.org
-> 
-> iD8DBQE61kkHiSF5tViVwg0RAkMOAJ4rMTC/xvvknmiSf512Y5d06ezdpgCfZH+s
-> rEQ6ltXalr2SVqFg7lhIFYc=
-> =iBPm
-> -----END PGP SIGNATURE-----
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> It also seems that in the 2.4 kernels, we can get into a sort of
+> oscillation mode, where we can have long periods of disk activity
+> where nothing can get done - the low points, where only 2-3 writes
+> per second can occur, so completely screw up the interactive
+> performance that you simply have to take your hands off the
+> keyboard and go get coffee until the disk writes complete.  I know
+> we get better performance overall this way, but it can be
+> frustrating when this occurs in the middle of video capture.
+
+I see oscilation even in 2.2.X case....
+
+Can you try running while true; do sync; sleep 1; done? It should help.
+
+If it helps, try playing with bdflush/kupdate or how is it called/ parameters.
 
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

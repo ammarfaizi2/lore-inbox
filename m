@@ -1,62 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263434AbTIWWfq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 18:35:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263439AbTIWWfp
+	id S263388AbTIWWez (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 18:34:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263434AbTIWWez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 18:35:45 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:38563 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S263434AbTIWWfl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 18:35:41 -0400
-Date: Tue, 23 Sep 2003 15:35:40 -0700
-From: Grant Grundler <iod00d@hp.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: bcrl@kvack.org, tony.luck@intel.com, davidm@hpl.hp.com,
-       davidm@napali.hpl.hp.com, peter@chubb.wattle.id.au, ak@suse.de,
-       peterc@gelato.unsw.edu.au, linux-ns83820@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
-Message-ID: <20030923223540.GA10490@cup.hp.com>
-References: <DD755978BA8283409FB0087C39132BD101B01194@fmsmsx404.fm.intel.com> <20030923142925.A16490@kvack.org> <20030923185104.GA8477@cup.hp.com> <20030923115122.41b7178f.davem@redhat.com> <20030923203819.GB8477@cup.hp.com> <20030923134529.7ea79952.davem@redhat.com>
+	Tue, 23 Sep 2003 18:34:55 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:56976
+	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
+	id S263388AbTIWWey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 18:34:54 -0400
+Date: Wed, 24 Sep 2003 00:34:57 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: log-buf-len dynamic
+Message-ID: <20030923223457.GA16314@velociraptor.random>
+References: <20030922194833.GA2732@velociraptor.random> <20030923042855.GF589@alpha.home.local> <20030923124951.GB23111@velociraptor.random> <20030923140647.GB3113@alpha.home.local> <20030923144435.GC23111@velociraptor.random> <3F706046.1000306@euronext.nl> <20030923160600.GA4161@alpha.home.local> <20030923162319.GA1269@velociraptor.random> <20030923190219.GA5997@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030923134529.7ea79952.davem@redhat.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030923190219.GA5997@alpha.home.local>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 23, 2003 at 01:45:29PM -0700, David S. Miller wrote:
-> Intel actually optimizes this on the P4, what is your
-> response to that?  Is Intel wasting they time? :-)
+On Tue, Sep 23, 2003 at 09:02:19PM +0200, Willy Tarreau wrote:
+> > My API is good for everyone, yours is not
+> 
+> I'm impressed that you know so many people. I know that mine at least
+> satisfies a few collegues, customers, and I. So I deduced that it might be
+> useful to others too. Even Marcelo thought the same a time ago.
 
-nono...but Intel doesn't have a choice on x86.
-They have to optimize for the binaries that are out there.
-Compatibility is everything in that market space.
+I know your patch was just very good for many people, but not for
+everyone. I really didn't want to say your patch didn't make any good,
+I acknowledge it was just very good.
 
-And someone at Intel obviously agrees the newer architectures
-should support misaligned access in SW since ever RISC chip
-they've built (starting with i860, ~1989) does it that way.
+Here I need an argument from you that explains me why should I work
+further on the current code to make the config option still usable. I
+see no reason to spend time in that effort because the config option
+will provide no benefit compared to the kernel parameter.
 
-> It's needed on every access to every TCP and IP header portion
-> for the case we're talking about in this thread, where the network
-> device driver gives the networking a packet that ends up with
-> unaligned IP and TCP headers.
+If you can explain me _why_ you don't want to pass the kernel parameter
+than you will convince me, if it's just that "you don't want it" then I
+can't buy that. Give me a valid argument and I will have a reason to
+retain the config option.
 
-Yeah, I don't use most LAN features (PPPoE, VLAN, Appletalk, etc).
-I naively thought there must be a subset everyone uses...but defining
-that subset sounds like a rat hole I shouldn't go near.
+I definitely agree my patch (btw, I posted the last one that had a few
+bugs too) needs fixing to release the 64k of ram, and to allow a smaller
+bufsize too (the latter will happen automatically while addressing the
+former)
 
-> I once considered adding some get_unaligned() uses to the TCP option
-> parsing code, guess who rejected that patch?  It wasn't me, it was
-> Linus himself and I came to learn that he's right on this one.
+The fact you don't want to touch the lilo.conf doesn't sound to me.
+Especially with lilo (not grub) you've to run lilo anyways every time
+you replace the kernel, so a simple script adding the parameter in every
+lilo.conf sounds very easy to provide (you can add it in all kernels,
+the old ones will ignore it).
 
-I'm not totally comfortable with that. The NICs I care about seem to
-"bias the buffer address" to compensate for some "common case".
-Seems like those cases would be cheaper (and more portable) to add
-the get_unaligned() calls in the networking stack....I don't know
-though really.
-
-thanks,
-grant
+Andrea - If you prefer relying on open source software, check these links:
+	    rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
+	    http://www.cobite.com/cvsps/
+	    svn://svn.kernel.org/linux-2.[46]/trunk

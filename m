@@ -1,76 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261834AbREPIuy>; Wed, 16 May 2001 04:50:54 -0400
+	id <S261843AbREPI6Z>; Wed, 16 May 2001 04:58:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261837AbREPIuo>; Wed, 16 May 2001 04:50:44 -0400
-Received: from sanrafael.dti2.net ([195.57.112.5]:18439 "EHLO dti2.net")
-	by vger.kernel.org with ESMTP id <S261834AbREPIue>;
-	Wed, 16 May 2001 04:50:34 -0400
-Message-ID: <008401c0dde5$4234a6d0$061010ac@dti2.net>
-From: "Jorge Boncompte [DTI2]" <jorge@dti2.net>
-To: "Anuradha Ratnaweera" <anuradha@bee.lk>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0105151953150.302-100000@presario>
-Subject: Re: 2.4.2 - Locked keyboard
-Date: Wed, 16 May 2001 10:50:29 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S261844AbREPI6P>; Wed, 16 May 2001 04:58:15 -0400
+Received: from www.topmail.de ([212.255.16.226]:11197 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S261843AbREPI6E>;
+	Wed, 16 May 2001 04:58:04 -0400
+From: <eccesys@topmail.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: trailing "cd" (rgooch) and i18n (ac)
+Message-Id: <20010516085331.EA982A5A8F5@www.topmail.de>
+Date: Wed, 16 May 2001 10:53:31 +0200 (MET DST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Yes, I did... I checked NumLock and CapsLock too, but any of this turn
-seems to work (the leds doesn't change the state).
+> Actually, no, because it's guaranteed that a trailing "/cd" is a
+> CD-ROM. That's the standard.
 
- "cat /proc/interrupts" shows that IRQ1 doesn't trigger anymore. Although
-all services in the machine are working...(weird, isnt't it?)
+I don't know what a cabbage dicer is (has it to do with dices?),
+but if it is guaranteed that cd is a cd, how are the arabican
+device names (extend for klinzhai, chinese, japanese etc.)
+supposed to be?
+There should really kind of *call (maybe IOGETTYPE or so) which
+can be used to get back a bitmapped set of properties of a given
+device (bit0= bit1= etc.)
 
-    Regards.
+I remember, when I wrote a DOS Ramdisk driver, I had to set a 16bit
+driver flag, too.
 
-    -Jorge
-
-==============================================================
-Jorge Boncompte - Técnico de sistemas
-DTI2 - Desarrollo de la Tecnología de las Comunicaciones
---------------------------------------------------------------
-C/ Abogado Enriquez Barrios, 5   14004 CORDOBA (SPAIN)
-Tlf: +34 957 761395 / FAX: +34 957 450380
---------------------------------------------------------------
-jorge@dti2.net _-_-_-_-_-_-_-_-_-_-_-_-_-_ http://www.dti2.net
-==============================================================
-- Sin pistachos no hay Rock & Roll...
-- Without wicker a basket cannot be done.
-==============================================================
-
------ Original Message -----
-From: "Anuradha Ratnaweera" <anuradha@bee.lk>
-To: "Jorge Boncompte [DTI2]" <jorge@dti2.net>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, May 15, 2001 3:55 PM
-Subject: Re: 2.4.2 - Locked keyboard
-
-
->
-> On Thu, 10 May 2001, Jorge Boncompte [DTI2] wrote:
->
-> > After the reboot, the keyboard was working 5 minutes and then it
-> > locked. The console was working. I rebooted the machine again and has
-> > been working for 2 days, that the keyboard gets locked again.
->
-> Just to make sure...
->
-> Did you check scoll lock? :)
->
-> Anuradha
->
->
-> ----------------------------------------------------------
-> <a href="http://www.bee.lk/people/anuradha/">home page</a>
->
->
-
+-mirabilos
+-- 
+by telnet

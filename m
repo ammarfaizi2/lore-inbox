@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262764AbTCYQcd>; Tue, 25 Mar 2003 11:32:33 -0500
+	id <S262853AbTCYQlF>; Tue, 25 Mar 2003 11:41:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262768AbTCYQcd>; Tue, 25 Mar 2003 11:32:33 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:55489 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S262764AbTCYQcc>; Tue, 25 Mar 2003 11:32:32 -0500
-Date: Tue, 25 Mar 2003 16:43:25 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: cacheline size detection code in 2.5.66
-Message-ID: <20030325164317.GA4019@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Andi Kleen <ak@muc.de>,
-	linux-kernel@vger.kernel.org
-References: <20030325071532.GA19217@averell> <20030325143310.A3487@jurassic.park.msu.ru> <20030325121527.GA29965@averell> <20030325124333.GB28451@suse.de> <20030325133525.GA30321@averell> <20030325173937.A21821@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030325173937.A21821@jurassic.park.msu.ru>
-User-Agent: Mutt/1.5.4i
+	id <S262884AbTCYQlF>; Tue, 25 Mar 2003 11:41:05 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18437 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S262853AbTCYQlE>; Tue, 25 Mar 2003 11:41:04 -0500
+Date: Tue, 25 Mar 2003 11:47:45 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Alan Cox <alan@redhat.com>
+cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.65-ac3
+In-Reply-To: <200303230044.h2N0i9r32560@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.3.96.1030325111656.1437E-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 25, 2003 at 05:39:37PM +0300, Ivan Kokshaysky wrote:
- > On Tue, Mar 25, 2003 at 02:35:25PM +0100, Andi Kleen wrote:
- > > Ivan confused me.  Either he read the application note wrong or it is wrong.
- > 
- > Ok, it's available at
- > http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/20734.pdf
- 
-For info, that is a reliable[*] way to detect XP/MP Athlons.
-It's used in the kernel for SMP tainting, and x86info has also been
-using it for some time.
+On Sat, 22 Mar 2003, Alan Cox wrote:
 
-		Dave
+> > Once your tty and ide bits are merged, what's left on the plate (in your 
+> > opinion) before 2.6.0-test1?
+> 
+> 32bit dev_t is a showstopper
+> 
+> then 
+> 
+> Debugging, debugging, and more debugging
+> Driver porting
+> Driver resyncs with 2.4
+> Finding the remaining scsi bugs
+> A ton more IDE work before I am happy
+> Fixing the pci api hotplug races
+> DRM 4.3 cleaned up and working
+> 
+> 
+> I think the dev_t one is the only stopper now before we go into
+> stop futzing with core code and fix bugs mode
 
-[*] AMD screwed up one stepping of XPs and enabled the MP bit even though
-    they weren't actually MPs.
+I think there is still a need for futzing with a few things. The elevator
+code has several modes, all of which seem to have at least one "jackpot
+case" where performance suddenly gets very bad. That's ture of the
+scheduler as well.
+
+Since both have improved vastly in the past few months, I think it's worth
+giving a little more time to diddle the algorithms in those areas. The
+usual people are hard at work, both issues are getting better in recent
+versions, and I hope the last bit of touch-up is considered bug fix even
+on such core code.
+
+It would be nice if someone could get the older SCSI adaptors to compile
+and work, aha152x and 1542 are my personal issues, I have them in some
+machine embedded. And I have several machines with a non-functional
+parallel port, which works fine under 2.4.18 (and is detected at least by
+2.4.20). I see it detected but there's "no /dev/lp0" later. I stopped
+posting about it because there are more important things, but a functional
+printer would be nice.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

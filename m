@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315278AbSHVRxW>; Thu, 22 Aug 2002 13:53:22 -0400
+	id <S315267AbSHVRzB>; Thu, 22 Aug 2002 13:55:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315337AbSHVRxV>; Thu, 22 Aug 2002 13:53:21 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:54515 "EHLO
+	id <S315198AbSHVRzB>; Thu, 22 Aug 2002 13:55:01 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:56563 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315278AbSHVRxV>; Thu, 22 Aug 2002 13:53:21 -0400
+	id <S315267AbSHVRzA>; Thu, 22 Aug 2002 13:55:00 -0400
 Subject: Re: ServerWorks OSB4 in impossible state
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
-Cc: Andre Hedrick <andre@linux-ide.org>,
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>,
+       Andre Hedrick <andre@linux-ide.org>,
        Gonzalo Servat <gonzalo@unixpac.com.au>,
        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1030017756.9866.74.camel@biker.pdb.fsc.net>
-References: <Pine.LNX.4.10.10208220143440.11626-100000@master.linux-ide.org> 
-	<1030017756.9866.74.camel@biker.pdb.fsc.net>
+In-Reply-To: <20020822164527.GA11488@louise.pinerecords.com>
+References: <Pine.LNX.4.10.10208220143440.11626-100000@master.linux-ide.org>
+	<1030017756.9866.74.camel@biker.pdb.fsc.net> 
+	<20020822164527.GA11488@louise.pinerecords.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 22 Aug 2002 18:58:07 +0100
-Message-Id: <1030039087.3161.27.camel@irongate.swansea.linux.org.uk>
+Date: 22 Aug 2002 18:59:30 +0100
+Message-Id: <1030039170.3151.29.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-22 at 13:02, Martin Wilck wrote:
-> 1) The "4 byte shift" issue does not affect the CSB5 series.
+On Thu, 2002-08-22 at 17:45, Tomas Szepe wrote:
+> AFAIK 2.4.18 as well as 2.4.19-preEARLY seemed to work flawlessly w/ OSB4
+> even in DMA modes. How's the code there then? Is it dangerous to use?
 
-True (not a rule the -ac tree knows about right now) but one that the
-next tree will subject to time constraints.
+Most of them work all the time (most OSB4, all CSB5. all CSB6)
+All of them work all the time with most drives
+Some of them do horrible things in UDMA with some drives (timing
+patterns I guess)
 
-> 2) The tested condition inb(dma_base+0x02)&1 is valid if the
->    device doing the DMA reported an error status. Only if the
->    device reports success is there an indication of the "4 byte shift".
-
-True
-
-> 3) The "4 byte shift" problem matters not for read-only devices like
->    CD-ROMS; at least it is no reason to stall the computer if it occurs
->    because data corruption is not an issue.
-
-True (-ac knows about this)
-
-
+All of the OSB4 do MWDMA fine.

@@ -1,73 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267303AbUHPAPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267301AbUHPASX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267303AbUHPAPn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 20:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267311AbUHPAPW
+	id S267301AbUHPASX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 20:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267312AbUHPAP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 20:15:22 -0400
-Received: from smtp1.cwidc.net ([154.33.63.111]:25838 "EHLO smtp1.cwidc.net")
-	by vger.kernel.org with ESMTP id S267298AbUHPAOD (ORCPT
+	Sun, 15 Aug 2004 20:15:56 -0400
+Received: from pop.gmx.net ([213.165.64.20]:41697 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267298AbUHPAPX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 20:14:03 -0400
-Message-ID: <411FFC3B.9050808@tequila.co.jp>
-Date: Mon, 16 Aug 2004 09:13:47 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: TEQUILA\Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040724
-X-Accept-Language: en-us, en, ja
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Radeon FB slightly broken in 2.6.8.x
-References: <411F5F7F.9050403@tequila.co.jp> <1092608961.9529.23.camel@gaston>
-In-Reply-To: <1092608961.9529.23.camel@gaston>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Sun, 15 Aug 2004 20:15:23 -0400
+X-Authenticated: #4399952
+Date: Mon, 16 Aug 2004 02:25:54 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P0
+Message-Id: <20040816022554.16c3c84a@mango.fruits.de>
+In-Reply-To: <20040815115649.GA26259@elte.hu>
+References: <20040726204720.GA26561@elte.hu>
+	<20040729222657.GA10449@elte.hu>
+	<20040801193043.GA20277@elte.hu>
+	<20040809104649.GA13299@elte.hu>
+	<20040810132654.GA28915@elte.hu>
+	<20040812235116.GA27838@elte.hu>
+	<1092382825.3450.19.camel@mindpipe>
+	<20040813104817.GI8135@elte.hu>
+	<1092432929.3450.78.camel@mindpipe>
+	<20040814072009.GA6535@elte.hu>
+	<20040815115649.GA26259@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, 15 Aug 2004 13:56:49 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
-Benjamin Herrenschmidt wrote:
-| On Sun, 2004-08-15 at 23:05, Clemens Schwaighofer wrote:
-|
-|>-----BEGIN PGP SIGNED MESSAGE-----
-|>Hash: SHA1
-|>
-|>Hi,
-|>
-|>I am a forced owner of a Radeon 7500 in my Sony Laptop. with 2.6.7 the
-|>framebuffer works perfectly fine, but with 2.6.8.x I get strange
-|>colerful ascii garbage on the bottom of the screen during booten and
-|>then good 10 or more lines are sort of "hidden" outside of the screen.
-|>It seems like the screen is not positioned to the end of the output.
-|>Kinda strange, cause I first thought it stopped loading exim4 for some
-|>reason and not until after I pressed enter a lot I saw that I had a
-|>login screen just very far outside of my visual area :)
-|>
-|>Config attached, but it hasn't chagned to 2.6.7 in the FB area.
-|
-|
-| Does it get back to normal at the end of boot ?
+> 
+> i've uploaded the -P0 patch:
+> 
+>  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P0
 
-The "colorful" ascii disappear as they are only ~10 lines and they
-scroll up. But even after login, the actual cursor is ~10-15 lines
-outside of the visible area.
+I haven't tried this patch yet, but i have a question regarding the
+mlockall issue:
 
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.co.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Jackd also uses IPC mechnisms for remote procedure calls [i think,
+please correct me] and makes heavy use of shared memory. Might
+mlock(all) have influence of this? is jackd maybe producing xruns
+because some IPC stuff blocks when mlockall is used?
 
-iD8DBQFBH/w6jBz/yQjBxz8RAnCSAJ9bhdf4eppcFqEM0RTreRSwjjyD0gCg2ah/
-ZFcqSMs+SegwlPSp6LBMamk=
-=P1oP
------END PGP SIGNATURE-----
+I'm just guessing wildly and uneducatedly..
+
+-- 
+Palimm Palimm!
+http://affenbande.org/~tapas/
+

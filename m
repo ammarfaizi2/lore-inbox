@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUK3POJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262115AbUK3PQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbUK3POJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 10:14:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbUK3POJ
+	id S262115AbUK3PQd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 10:16:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbUK3PQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 10:14:09 -0500
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:19347 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S262114AbUK3PJ0
+	Tue, 30 Nov 2004 10:16:32 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:43234 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S262117AbUK3PJ7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 10:09:26 -0500
-Date: Tue, 30 Nov 2004 16:09:24 +0100
+	Tue, 30 Nov 2004 10:09:59 -0500
+Date: Tue, 30 Nov 2004 16:09:58 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [patch 3/6] s390: dcss segments.
-Message-ID: <20041130150924.GD4758@mschwid3.boeblingen.de.ibm.com>
+Subject: [patch 5/6] s390: z/VM monitor stream.
+Message-ID: <20041130150958.GF4758@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,478 +21,190 @@ User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 3/6] s390: dcss segments.
+[patch 5/6] s390: z/VM monitor stream.
 
-From: Carsten Otte <cotte@de.ibm.com>
+From: Gerald Schaefer <geraldsc@de.ibm.com>
 
-dcss segment interface changes:
- - Add check when loading segments to avoid out of range mappings.
- - Add code to check for segment_load returning -ERANGE.
- - Rename segment_info to segment_type.
- - Restore previous segment state if reload fails.
- - Add segment_modify_shared() to change shared attributes of a dcss
-   segment and use it in the dcss block device driver.
- - Add support for contiguous EW/EN multipart segments.
+z/VM monitor stream changes:
+ - Add monitor control element to deal with end-of-frame records.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
 diffstat:
- arch/s390/mm/extmem.c         |  159 +++++++++++++++++++++++++++++++++++++-----
- drivers/s390/block/dcssblk.c  |   69 ++++++++----------
- drivers/s390/char/monreader.c |    8 +-
- include/asm-s390/extmem.h     |    4 -
- 4 files changed, 183 insertions(+), 57 deletions(-)
+ Documentation/s390/monreader.txt |   56 +++++++++++++++++++++++++++------------
+ drivers/s390/char/monreader.c    |   31 ++++++++++++++++++---
+ 2 files changed, 65 insertions(+), 22 deletions(-)
 
-diff -urN linux-2.6/arch/s390/mm/extmem.c linux-2.6-patched/arch/s390/mm/extmem.c
---- linux-2.6/arch/s390/mm/extmem.c	2004-11-30 14:03:01.000000000 +0100
-+++ linux-2.6-patched/arch/s390/mm/extmem.c	2004-11-30 14:03:19.000000000 +0100
-@@ -40,14 +40,19 @@
- #define DCSS_FINDSEG    0x0c
- #define DCSS_LOADNOLY   0x10
- #define DCSS_SEGEXT     0x18
--#define DCSS_QACTV      0x0c
-+#define DCSS_FINDSEGA   0x0c
+diff -urN linux-2.6/Documentation/s390/monreader.txt linux-2.6-patched/Documentation/s390/monreader.txt
+--- linux-2.6/Documentation/s390/monreader.txt	2004-11-30 14:02:59.000000000 +0100
++++ linux-2.6-patched/Documentation/s390/monreader.txt	2004-11-30 14:03:22.000000000 +0100
+@@ -1,5 +1,5 @@
+ 
+-Date  : 2004-Nov-04
++Date  : 2004-Nov-26
+ Author: Gerald Schaefer (geraldsc@de.ibm.com)
+ 
+ 
+@@ -72,7 +72,8 @@
+ of the monitor DCSS, if already defined, and the users connected to the
+ *MONITOR service.
+ Refer to the "z/VM Performance" book (SC24-6109-00) on how to create a monitor
+-DCSS, you need Class E privileges to define and save a DCSS.
++DCSS if your z/VM doesn't have one already, you need Class E privileges to
++define and save a DCSS.
+ 
+ Example:
+ --------
+@@ -121,20 +122,41 @@
+ 
+ Read:
+ -----
+-Reading from the device provides a set of one or more contiguous monitor
+-records, there is no control data (unlike the CMS MONWRITE utility output).
+-The monitor record layout can be found here (z/VM 5.1):
+-http://www.vm.ibm.com/pubs/mon510/index.html
+-
+-Each set of records is exclusively composed of either event records or sample
+-records. The end of such a set of records is indicated by a successful read
+-with a return value of 0 (0-Byte read).
+-Any received data must be considered invalid until a complete record set was
+-read successfully, including the closing 0-Byte read. Therefore you should
++Reading from the device provides a 12 Byte monitor control element (MCE),
++followed by a set of one or more contiguous monitor records (similar to the
++output of the CMS utility MONWRITE without the 4K control blocks). The MCE
++contains information on the type of the following record set (sample/event
++data), the monitor domains contained within it and the start and end address
++of the record set in the monitor DCSS. The start and end address can be used
++to determine the size of the record set, the end address is the address of the
++last byte of data. The start address is needed to handle "end-of-frame" records
++correctly (domain 1, record 13), i.e. it can be used to determine the record
++start offset relative to a 4K page (frame) boundary.
 +
-+struct qrange {
-+	unsigned int  start; // 3byte start address, 1 byte type
-+	unsigned int  end;   // 3byte end address, 1 byte reserved
-+};
- 
- struct qout64 {
- 	int segstart;
- 	int segend;
- 	int segcnt;
- 	int segrcnt;
--	char segout[8][6];
-+	struct qrange range[6];
- };
- 
- struct qin64 {
-@@ -67,12 +72,15 @@
- 	unsigned long end;
- 	atomic_t ref_count;
- 	int do_nonshared;
--	int vm_segtype;
-+	unsigned int vm_segtype;
-+	struct qrange range[6];
-+	int segcnt;
- };
- 
- static spinlock_t dcss_lock = SPIN_LOCK_UNLOCKED;
- static struct list_head dcss_list = LIST_HEAD_INIT(dcss_list);
--static char *segtype_string[7] = { "SW", "EW", "SR", "ER", "SN", "EN", "SC" };
-+static char *segtype_string[] = { "SW", "EW", "SR", "ER", "SN", "EN", "SC",
-+					"EW/EN-MIXED" };
- 
- extern struct {
- 	unsigned long addr, size, type;
-@@ -162,12 +170,12 @@
-  * fills start_address, end and vm_segtype fields
-  */
- static int
--query_segment_info (struct dcss_segment *seg)
-+query_segment_type (struct dcss_segment *seg)
- {
- 	struct qin64  *qin = kmalloc (sizeof(struct qin64), GFP_DMA);
- 	struct qout64 *qout = kmalloc (sizeof(struct qout64), GFP_DMA);
- 
--	int diag_cc, rc;
-+	int diag_cc, rc, i;
- 	unsigned long dummy, vmrc;
- 
- 	if ((qin == NULL) || (qout == NULL)) {
-@@ -176,7 +184,7 @@
- 	}
- 
- 	/* initialize diag input parameters */
--	qin->qopcode = DCSS_QACTV;
-+	qin->qopcode = DCSS_FINDSEGA;
- 	qin->qoutptr = (unsigned long) qout;
- 	qin->qoutlen = sizeof(struct qout64);
- 	memcpy (qin->qname, seg->dcss_name, 8);
-@@ -188,16 +196,40 @@
- 		goto out_free;
- 	}
- 
--	if (qout->segcnt > 1) {
-+	if (qout->segcnt > 6) {
- 		rc = -ENOTSUPP;
- 		goto out_free;
- 	}
- 
-+	if (qout->segcnt == 1) {
-+		seg->vm_segtype = qout->range[0].start & 0xff;
-+	} else {
-+		/* multi-part segment. only one type supported here:
-+		    - all parts are contiguous
-+		    - all parts are either EW or EN type
-+		    - maximum 6 parts allowed */
-+		unsigned long start = qout->segstart >> PAGE_SHIFT;
-+		for (i=0; i<qout->segcnt; i++) {
-+			if (((qout->range[i].start & 0xff) != SEG_TYPE_EW) &&
-+			    ((qout->range[i].start & 0xff) != SEG_TYPE_EN)) {
-+				rc = -ENOTSUPP;
-+				goto out_free;
-+			}
-+			if (start != qout->range[i].start >> PAGE_SHIFT) {
-+				rc = -ENOTSUPP;
-+				goto out_free;
-+			}
-+			start = (qout->range[i].end >> PAGE_SHIFT) + 1;
-+		}
-+		seg->vm_segtype = SEG_TYPE_EWEN;
-+	}
++See "Appendix A: *MONITOR" in the "z/VM Performance" document for a description
++of the monitor control element layout. The layout of the monitor records can
++be found here (z/VM 5.1): http://www.vm.ibm.com/pubs/mon510/index.html
 +
- 	/* analyze diag output and update seg */
- 	seg->start_addr = qout->segstart;
- 	seg->end = qout->segend;
- 
--	seg->vm_segtype = qout->segout[0][3];
-+	memcpy (seg->range, qout->range, 6*sizeof(struct qrange));
-+	seg->segcnt = qout->segcnt;
- 
- 	rc = 0;
- 
-@@ -254,6 +286,19 @@
- }
- 
- /*
-+ * check if segment exceeds the kernel mapping range (detected or set via mem=)
-+ * returns 1 if this is the case, 0 if segment fits into the range
-+ */
-+static inline int
-+segment_exceeds_range (struct dcss_segment *seg)
-+{
-+	int seg_last_pfn = (seg->end) >> PAGE_SHIFT;
-+	if (seg_last_pfn > max_pfn)
-+		return 1;
-+	return 0;
-+}
++The layout of the data stream provided by the monreader device is as follows:
++...
++<0 byte read>
++<first MCE>              \
++<first set of records>    |
++...                       |- data set
++<last MCE>                |
++<last set of records>    /
++<0 byte read>
++...
 +
-+/*
-  * get info about a segment
-  * possible return values:
-  * -ENOSYS  : we are not running on VM
-@@ -265,7 +310,7 @@
-  * 0 .. 6   : type of segment as defined in include/asm-s390/extmem.h
-  */
- int
--segment_info (char* name)
-+segment_type (char* name)
- {
- 	int rc;
- 	struct dcss_segment seg;
-@@ -274,7 +319,7 @@
- 		return -ENOSYS;
++There may be more than one combination of MCE and corresponding record set
++within one data set and the end of each data set is indicated by a successful
++read with a return value of 0 (0 byte read).
++Any received data must be considered invalid until a complete set was
++read successfully, including the closing 0 byte read. Therefore you should
+ always read the complete set into a buffer before processing the data.
  
- 	dcss_mkname(name, seg.dcss_name);
--	rc = query_segment_info (&seg);
-+	rc = query_segment_type (&seg);
- 	if (rc < 0)
- 		return rc;
- 	return seg.vm_segtype;
-@@ -295,9 +340,15 @@
- 		goto out;
- 	}
- 	dcss_mkname (name, seg->dcss_name);
--	rc = query_segment_info (seg);
-+	rc = query_segment_type (seg);
- 	if (rc < 0)
- 		goto out_free;
-+	if (segment_exceeds_range(seg)) {
-+		PRINT_WARN ("segment_load: not loading segment %s - exceeds"
-+				" kernel mapping range\n",name);
-+		rc = -ERANGE;
-+		goto out_free;
-+	}
- 	if (segment_overlaps_storage(seg)) {
- 		PRINT_WARN ("segment_load: not loading segment %s - overlaps"
- 				" storage\n",name);
-@@ -362,6 +413,7 @@
-  * -ENOTSUPP: multi-part segment cannot be used with linux
-  * -ENOSPC  : segment cannot be used (overlaps with storage)
-  * -EBUSY   : segment can temporarily not be used (overlaps with dcss)
-+ * -ERANGE  : segment cannot be used (exceeds kernel mapping range)
-  * -EPERM   : segment is currently loaded with incompatible permissions
-  * -ENOMEM  : out of memory
-  * 0 .. 6   : type of segment as defined in include/asm-s390/extmem.h
-@@ -396,6 +448,70 @@
- }
+-The maximum size of a set of records can be as large as the size of the
+-monitor DCSS, so design the buffer adequately or use dynamic memory allocation
++The maximum size of a data set can be as large as the size of the
++monitor DCSS, so design the buffer adequately or use dynamic memory allocation.
+ The size of the monitor DCSS will be printed into syslog after loading the
+ module. You can also use the (Class E privileged) CP command Q NSS MAP to
+ list all available segments and information about them.
+@@ -155,7 +177,7 @@
  
- /*
-+ * this function modifies the shared state of a DCSS segment. note that
-+ * name         : name of the DCSS
-+ * do_nonshared : 0 indicates that the dcss should be shared with other linux images
-+ *                1 indicates that the dcss should be exclusive for this linux image
-+ * return values:
-+ * -EIO     : could not perform load diagnose (segment gone!)
-+ * -ENOENT  : no such segment (segment gone!)
-+ * -EAGAIN  : segment is in use by other exploiters, try later
-+ * -EINVAL  : no segment with the given name is currently loaded - name invalid
-+ * 0	    : operation succeeded
-+ */
-+int
-+segment_modify_shared (char *name, int do_nonshared)
-+{
-+	struct dcss_segment *seg;
-+	unsigned long dummy;
-+	int dcss_command, rc, diag_cc;
-+
-+	spin_lock (&dcss_lock);
-+	seg = segment_by_name (name);
-+	if (seg == NULL) {
-+		rc = -EINVAL;
-+		goto out_unlock;
-+	}
-+	if (do_nonshared == seg->do_nonshared) {
-+		PRINT_INFO ("segment_modify_shared: not reloading segment %s"
-+				" - already in requested mode\n",name);
-+		rc = 0;
-+		goto out_unlock;
-+	}
-+	if (atomic_read (&seg->ref_count) != 1) {
-+		PRINT_WARN ("segment_modify_shared: not reloading segment %s - "
-+				"segment is in use by other driver(s)\n",name);
-+		rc = -EAGAIN;
-+		goto out_unlock;
-+	}
-+	dcss_diag(DCSS_PURGESEG, seg->dcss_name,
-+		  &dummy, &dummy);
-+	if (do_nonshared)
-+		dcss_command = DCSS_LOADNSR;
-+	else
-+	dcss_command = DCSS_LOADNOLY;
-+	diag_cc = dcss_diag(dcss_command, seg->dcss_name,
-+			&seg->start_addr, &seg->end);
-+	if (diag_cc > 1) {
-+		PRINT_WARN ("segment_modify_shared: could not reload segment %s"
-+				" - diag returned error (%ld)\n",name,seg->end);
-+		rc = dcss_diag_translate_rc (seg->end);
-+		goto out_del;
-+	}
-+	seg->do_nonshared = do_nonshared;
-+	rc = 0;
-+	goto out_unlock;
-+ out_del:
-+	list_del(&seg->list);
-+	dcss_diag(DCSS_PURGESEG, seg->dcss_name,
-+		  &dummy, &dummy);
-+	kfree (seg);
-+ out_unlock:
-+	spin_unlock(&dcss_lock);
-+	return rc;
-+}
-+
-+/*
-  * Decrease the use count of a DCSS segment and remove
-  * it from the address space if nobody is using it
-  * any longer.
-@@ -434,8 +550,9 @@
- 	struct dcss_segment *seg;
- 	int startpfn = 0;
- 	int endpfn = 0;
--	char cmd1[80];
-+	char cmd1[160];
- 	char cmd2[80];
-+	int i;
+ In the last case (EOVERFLOW) there may be missing data, in the first two cases
+ (EIO, EFAULT) there will be missing data. It's up to the application if it will
+-continue reading subsequent records or rather exit.
++continue reading subsequent data or rather exit.
  
- 	if (!MACHINE_IS_VM)
- 		return;
-@@ -448,10 +565,15 @@
- 		return;
- 	}
+ Open:
+ -----
+@@ -163,8 +185,8 @@
+ open function will fail (return a negative value) and set errno to EBUSY.
+ The open function may also fail if an IUCV connection to the *MONITOR service
+ cannot be established. In this case errno will be set to EIO and an error
+-message with an IPUSER SEVER code will be printed into syslog.
+-The IPUSER SEVER codes are described in the "z/VM Performance" book.
++message with an IPUSER SEVER code will be printed into syslog. The IPUSER SEVER
++codes are described in the "z/VM Performance" book, Appendix A.
  
--	startpfn = seg->start_addr >> 12;
--	endpfn = (seg->end) >> 12;
--	sprintf(cmd1, "DEFSEG %s %X-%X %s", name, startpfn, endpfn,
--			segtype_string[seg->vm_segtype]);
-+	startpfn = seg->start_addr >> PAGE_SHIFT;
-+	endpfn = (seg->end) >> PAGE_SHIFT;
-+	sprintf(cmd1, "DEFSEG %s", name);
-+	for (i=0; i<seg->segcnt; i++) {
-+		sprintf(cmd1+strlen(cmd1), " %X-%X %s",
-+			seg->range[i].start >> PAGE_SHIFT,
-+			seg->range[i].end >> PAGE_SHIFT,
-+			segtype_string[seg->range[i].start & 0xff]);
-+	}
- 	sprintf(cmd2, "SAVESEG %s", name);
- 	cpcmd(cmd1, NULL, 80);
- 	cpcmd(cmd2, NULL, 80);
-@@ -461,4 +583,5 @@
- EXPORT_SYMBOL(segment_load);
- EXPORT_SYMBOL(segment_unload);
- EXPORT_SYMBOL(segment_save);
--EXPORT_SYMBOL(segment_info);
-+EXPORT_SYMBOL(segment_type);
-+EXPORT_SYMBOL(segment_modify_shared);
-diff -urN linux-2.6/drivers/s390/block/dcssblk.c linux-2.6-patched/drivers/s390/block/dcssblk.c
---- linux-2.6/drivers/s390/block/dcssblk.c	2004-11-30 14:03:04.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/block/dcssblk.c	2004-11-30 14:03:19.000000000 +0100
-@@ -140,7 +140,7 @@
- }
- 
- /*
-- * print appropriate error message for segment_load()/segment_info()
-+ * print appropriate error message for segment_load()/segment_type()
-  * return code
-  */
- static void
-@@ -179,6 +179,10 @@
- 		PRINT_WARN("cannot load/query segment %s, out of memory\n",
- 			   seg_name);
- 		break;
-+	case -ERANGE:
-+		PRINT_WARN("cannot load/query segment %s, exceeds kernel "
-+			   "mapping range\n", seg_name);
-+		break;
- 	default:
- 		PRINT_WARN("cannot load/query segment %s, return value %i\n",
- 			   seg_name, rc);
-@@ -214,57 +218,50 @@
- 	if (atomic_read(&dev_info->use_count)) {
- 		PRINT_ERR("share: segment %s is busy!\n",
- 			  dev_info->segment_name);
--		up_write(&dcssblk_devices_sem);
--		return -EBUSY;
--	}
--	if ((inbuf[0] == '1') && (dev_info->is_shared == 1)) {
--		PRINT_WARN("Segment %s already loaded in shared mode!\n",
--			   dev_info->segment_name);
--		up_write(&dcssblk_devices_sem);
--		return count;
--	}
--	if ((inbuf[0] == '0') && (dev_info->is_shared == 0)) {
--		PRINT_WARN("Segment %s already loaded in exclusive mode!\n",
--			   dev_info->segment_name);
--		up_write(&dcssblk_devices_sem);
--		return count;
-+		rc = -EBUSY;
-+		goto out;
- 	}
- 	if (inbuf[0] == '1') {
- 		// reload segment in shared mode
--		segment_unload(dev_info->segment_name);
--		rc = segment_load(dev_info->segment_name, SEGMENT_SHARED,
--					&dev_info->start, &dev_info->end);
-+		rc = segment_modify_shared(dev_info->segment_name,
-+					   SEGMENT_SHARED);
- 		if (rc < 0) {
--			dcssblk_segment_warn(rc, dev_info->segment_name);
--			goto removeseg;
-+			BUG_ON(rc == -EINVAL);
-+			if (rc == -EIO || rc == -ENOENT)
-+				goto removeseg;
-+		} else {
-+			dev_info->is_shared = 1;
-+			switch (dev_info->segment_type) {
-+				case SEG_TYPE_SR:
-+				case SEG_TYPE_ER:
-+				case SEG_TYPE_SC:
-+					set_disk_ro(dev_info->gd,1);
-+			}
- 		}
--		dev_info->is_shared = 1;
--		if (rc == SEG_TYPE_SR || rc == SEG_TYPE_ER || rc == SEG_TYPE_SC)
--			set_disk_ro(dev_info->gd, 1);
- 	} else if (inbuf[0] == '0') {
- 		// reload segment in exclusive mode
- 		if (dev_info->segment_type == SEG_TYPE_SC) {
- 			PRINT_ERR("Segment type SC (%s) cannot be loaded in "
- 				  "non-shared mode\n", dev_info->segment_name);
--			up_write(&dcssblk_devices_sem);
--			return -EINVAL;
-+			rc = -EINVAL;
-+			goto out;
- 		}
--		segment_unload(dev_info->segment_name);
--		rc = segment_load(dev_info->segment_name, SEGMENT_EXCLUSIVE,
--					&dev_info->start, &dev_info->end);
-+		rc = segment_modify_shared(dev_info->segment_name,
-+					   SEGMENT_EXCLUSIVE);
- 		if (rc < 0) {
--			dcssblk_segment_warn(rc, dev_info->segment_name);
--			goto removeseg;
-+			BUG_ON(rc == -EINVAL);
-+			if (rc == -EIO || rc == -ENOENT)
-+				goto removeseg;
-+		} else {
-+			dev_info->is_shared = 0;
-+			set_disk_ro(dev_info->gd, 0);
- 		}
--		dev_info->is_shared = 0;
--		set_disk_ro(dev_info->gd, 0);
- 	} else {
--		up_write(&dcssblk_devices_sem);
- 		PRINT_WARN("Invalid value, must be 0 or 1\n");
--		return -EINVAL;
-+		rc = -EINVAL;
-+		goto out;
- 	}
- 	rc = count;
--	up_write(&dcssblk_devices_sem);
- 	goto out;
- 
- removeseg:
-@@ -278,8 +275,8 @@
- 	put_disk(dev_info->gd);
- 	device_unregister(dev);
- 	put_device(dev);
--	up_write(&dcssblk_devices_sem);
- out:
-+	up_write(&dcssblk_devices_sem);
- 	return rc;
- }
- 
+ NOTE:
+ -----
 diff -urN linux-2.6/drivers/s390/char/monreader.c linux-2.6-patched/drivers/s390/char/monreader.c
---- linux-2.6/drivers/s390/char/monreader.c	2004-11-30 14:03:04.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/char/monreader.c	2004-11-30 14:03:19.000000000 +0100
-@@ -116,7 +116,7 @@
- }
+--- linux-2.6/drivers/s390/char/monreader.c	2004-11-30 14:03:20.000000000 +0100
++++ linux-2.6-patched/drivers/s390/char/monreader.c	2004-11-30 14:03:22.000000000 +0100
+@@ -238,6 +238,7 @@
+ 	atomic_dec(&monpriv->msglim_count);
+ 	if (likely(!monmsg->msglim_reached)) {
+ 		monmsg->pos = 0;
++		monmsg->mca_offset = 0;
+ 		monpriv->read_index = (monpriv->read_index + 1) %
+ 				      MON_MSGLIM;
+ 		atomic_dec(&monpriv->read_ready);
+@@ -329,6 +330,7 @@
+ 		monmsg->replied_msglim = 0;
+ 		monmsg->msglim_reached = 0;
+ 		monmsg->pos = 0;
++		monmsg->mca_offset = 0;
+ 		P_WARNING("read, message limit reached\n");
+ 		monpriv->read_index = (monpriv->read_index + 1) %
+ 				      MON_MSGLIM;
+@@ -501,6 +503,7 @@
+ 	struct mon_private *monpriv = filp->private_data;
+ 	struct mon_msg *monmsg;
+ 	int ret;
++	u32 mce_start;
  
- /*
-- * print appropriate error message for segment_load()/segment_info()
-+ * print appropriate error message for segment_load()/segment_type()
-  * return code
-  */
- static void
-@@ -155,6 +155,10 @@
- 		P_WARNING("cannot load/query segment %s, out of memory\n",
- 			  seg_name);
- 		break;
-+	case -ERANGE:
-+		P_WARNING("cannot load/query segment %s, exceeds kernel "
-+			  "mapping range\n", seg_name);
-+		break;
- 	default:
- 		P_WARNING("cannot load/query segment %s, return value %i\n",
- 			  seg_name, rc);
-@@ -581,7 +585,7 @@
- 		return -ENODEV;
+ 	monmsg = mon_next_message(monpriv);
+ 	if (IS_ERR(monmsg))
+@@ -520,13 +523,28 @@
  	}
  
--	rc = segment_info(mon_dcss_name);
-+	rc = segment_type(mon_dcss_name);
- 	if (rc < 0) {
- 		mon_segment_warn(rc, mon_dcss_name);
- 		return rc;
-diff -urN linux-2.6/include/asm-s390/extmem.h linux-2.6-patched/include/asm-s390/extmem.h
---- linux-2.6/include/asm-s390/extmem.h	2004-11-30 14:03:08.000000000 +0100
-+++ linux-2.6-patched/include/asm-s390/extmem.h	2004-11-30 14:03:19.000000000 +0100
-@@ -17,6 +17,7 @@
- #define SEG_TYPE_SN 4
- #define SEG_TYPE_EN 5
- #define SEG_TYPE_SC 6
-+#define SEG_TYPE_EWEN 7
+ 	if (!monmsg->pos) {
+-		monmsg->pos = mon_rec_start(monmsg);
++		monmsg->pos = mon_mca_start(monmsg) + monmsg->mca_offset;
+ 		mon_read_debug(monmsg, monpriv);
+ 	}
+ 	if (mon_check_mca(monmsg))
+ 		goto reply;
  
- #define SEGMENT_SHARED 0
- #define SEGMENT_EXCLUSIVE 1
-@@ -24,7 +25,8 @@
- extern int segment_load (char *name,int segtype,unsigned long *addr,unsigned long *length);
- extern void segment_unload(char *name);
- extern void segment_save(char *name);
--extern int segment_info (char* name);
-+extern int segment_type (char* name);
-+extern int segment_modify_shared (char *name, int do_nonshared);
+-	if (mon_rec_end(monmsg) > monmsg->pos) {
++	/* read monitor control element (12 bytes) first */
++	mce_start = mon_mca_start(monmsg) + monmsg->mca_offset;
++	if ((monmsg->pos >= mce_start) && (monmsg->pos < mce_start + 12)) {
++		count = min(count, (size_t) mce_start + 12 - monmsg->pos);
++		ret = copy_to_user(data, (void *) (unsigned long) monmsg->pos,
++				   count);
++		if (ret)
++			return -EFAULT;
++		monmsg->pos += count;
++		if (monmsg->pos == mce_start + 12)
++			monmsg->pos = mon_rec_start(monmsg);
++		goto out_copy;
++	}
++
++	/* read records */
++	if (monmsg->pos <= mon_rec_end(monmsg)) {
+ 		count = min(count, (size_t) mon_rec_end(monmsg) - monmsg->pos
+ 					    + 1);
+ 		ret = copy_to_user(data, (void *) (unsigned long) monmsg->pos,
+@@ -534,14 +552,17 @@
+ 		if (ret)
+ 			return -EFAULT;
+ 		monmsg->pos += count;
+-		*ppos += count;
+-		if (mon_rec_end(monmsg) == monmsg->pos)
++		if (monmsg->pos > mon_rec_end(monmsg))
+ 			mon_next_mca(monmsg);
+-		return count;
++		goto out_copy;
+ 	}
+ reply:
+ 	ret = mon_send_reply(monmsg, monpriv);
+ 	return ret;
++
++out_copy:
++	*ppos += count;
++	return count;
+ }
  
- #endif
- #endif
+ static unsigned int

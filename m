@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135240AbRECVYP>; Thu, 3 May 2001 17:24:15 -0400
+	id <S135246AbRECVvM>; Thu, 3 May 2001 17:51:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135249AbRECVYF>; Thu, 3 May 2001 17:24:05 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:46319 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S135245AbRECVXz>; Thu, 3 May 2001 17:23:55 -0400
-Date: Thu, 3 May 2001 22:24:42 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Ken Brownfield <brownfld@irridia.com>,
-        "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-        linux-kernel@vger.kernel.org
+	id <S135251AbRECVvC>; Thu, 3 May 2001 17:51:02 -0400
+Received: from asooo.flowerfire.com ([63.104.96.247]:23522 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S135246AbRECVuv>; Thu, 3 May 2001 17:50:51 -0400
+Message-Id: <200105032150.QAA11098@asooo.flowerfire.com>
+Date: Thu, 3 May 2001 14:50:48 -0700
+Content-Type: text/plain;
+	format=flowed;
+	charset=us-ascii
+X-Mailer: Apple Mail (2.388)
+From: Ken Brownfield <brownfld@irridia.com>
+To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0 (Apple Message framework v388)
+In-Reply-To: <Pine.LNX.4.10.10105031614270.4386-100000@coffee.psychology.mcmaster.ca>
 Subject: Re: 2.4.4 Kernel - ASUS CUV4X-DLS Question
-In-Reply-To: <E14vPq2-0006B1-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0105032206260.3039-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 May 2001, Alan Cox wrote on APIC problems in 2.4:
-> There are five cases I am seeing
-> 1.	Serverworks total APIC hose ups.
-> 	Fix: remove OSB4 or use -ac tree
-> 2.	440BX and similar boards losing interrupts on some drivers
-> 	Fix: use -ac
-> 3.	APIC errors notably checksum errors. 
-> 	Fix: buy properly manufactured hardware
-> 4.	Hangs on boot with the CUV4XD and a couple of other boards.
-> 	Still a mystery
-> 5.	Incorrect PCI IRQ routing
-> 	Fix: Mostly get a board with a correct BIOS. There are a couple of 
-> 	cases people are looking at - some are fixed in 2.4.4 and -ac
-> 	where magic IRQ lines are not visible directly in PCI space
+The failure mode I'm seeing is that the timer interrupt disappears.  
+Hard to schedule processes at that point.  I'm not seeing the IRQ issues 
+personally.
 
-Doesn't 2.4.1-ac1 onwards contain:
+HP's LP1000r machine uses ServerWorks, but still shows the problem.  I 
+only have access to HP SMP hardware currently, but they all have the 
+same issue.  I've heard of Tyan and Asus issues (not just the one 
+recently posted), though I have an LX machine that has been okay with 
+2.4.
 
-o	Workaround code for APIC problems with ne2k	(Maciej Rozycki)
-	| this will break original 82489DX devices for now
-	| ie _very_ early dual pentium boards
+I've seen the VIA issues, but they aren't related from what I can tell.
+--
+Ken.
 
-Got good reviews at the time, and I thought it was more general than
-ne2k.  I don't remember it going forward to Linus (but I've not looked).
+On Thursday, May 3, 2001, at 01:17 PM, Mark Hahn wrote:
 
-Hugh
-
+>> I just wanted to throw in my two cents and say that there appear to be
+>> widespread issues with the APIC code in 2.4.x.  I'm tempted to stick my
+>
+> are there any known problems on non-VIA boards?  BX seems to work fine,
+> and I haven't heard of any problems from serverworks people.
+>
+> I'm guessing (wag) that there's some VIA-specific thing that needs
+> to be done to get the PIT timer working with io-apic.  no real problem
+> with apic/ioapic, just some little divergence on VIA's part.
+>
+>> from APICitis.  I realize there are different failure modes and I 
+>> assume
+>> different issues are involved within the APIC code.
+>
+> are there?  I haven't heard anything except "hangs on boot except with
+> noapic".

@@ -1,75 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286953AbRL1SDL>; Fri, 28 Dec 2001 13:03:11 -0500
+	id <S286962AbRL1SFB>; Fri, 28 Dec 2001 13:05:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286952AbRL1SDC>; Fri, 28 Dec 2001 13:03:02 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:36110 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S286948AbRL1SCv>; Fri, 28 Dec 2001 13:02:51 -0500
-Date: Fri, 28 Dec 2001 10:06:35 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: "Jeffrey W. Baker" <jwb@saturn5.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.17 absurd number of context switches
-In-Reply-To: <Pine.LNX.4.33.0112280940060.23655-100000@windmill.gghcwest.com>
-Message-ID: <Pine.LNX.4.40.0112280959280.1466-100000@blue1.dev.mcafeelabs.com>
+	id <S286956AbRL1SEv>; Fri, 28 Dec 2001 13:04:51 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38150 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S286948AbRL1SEi>; Fri, 28 Dec 2001 13:04:38 -0500
+Date: Fri, 28 Dec 2001 10:02:01 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Legacy Fishtank <garzik@havoc.gtf.org>
+cc: Dave Jones <davej@suse.de>, "Eric S. Raymond" <esr@snark.thyrsus.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
+Subject: Re: State of the new config & build system
+In-Reply-To: <20011228042648.A7943@havoc.gtf.org>
+Message-ID: <Pine.LNX.4.33.0112280948450.23339-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Dec 2001, Jeffrey W. Baker wrote:
 
->
->
-> On Fri, 28 Dec 2001, Alan Cox wrote:
->
-> > > Check out those figures for context switches!  30,000 switches per second
-> > > with only three runnable processes and practically no block I/O seems
-> > > quite high to me.  You can also see that the system is spending half its
-> > ..
-> > > Is this a scheduler worst-case, something to be expected, or something I
-> > > can work around?
-> >
-> > The scheduler is _good_ at the three process case. Run some straces it looks
-> > more like postgres is doing wacky yield based locks.
->
-> All I see in strace is semop forever
->
-> [pid 10076]      0.000054 semop(1179648, 0xbfffe6e8, 1 <unfinished ...>
-> [pid 10077]      0.000224 <... semop resumed> ) = 0
-> [pid 10077]      0.000077 semop(1179648, 0xbfffe1e8, 1) = 0
-> [pid 10077]      0.000057 semop(1179648, 0xbfffe0f8, 1 <unfinished ...>
-> [pid 10076]      0.000128 <... semop resumed> ) = 0
-> [pid 10076]      0.000035 semop(1179648, 0xbfffe6a8, 1) = 0
-> [pid 10076]      0.000127 semop(1179648, 0xbfffe758, 1 <unfinished ...>
-> [pid 10077]      0.000085 <... semop resumed> ) = 0
-> [pid 10077]      0.000075 semop(1179648, 0xbfffe0f8, 1) = 0
-> [pid 10077]      0.000155 semop(1179648, 0xbfffdfb8, 1 <unfinished ...>
-> [pid 10076]      0.000401 <... semop resumed> ) = 0
-> [pid 10076]      0.000034 semop(1179648, 0xbfffe758, 1) = 0
-> [pid 10076]      0.000046 semop(1179648, 0xbfffe758, 1 <unfinished ...>
-> [pid 10077]      0.000113 <... semop resumed> ) = 0
-> [pid 10077]      0.000040 semop(1179648, 0xbfffdf78, 1) = 0
-> [pid 10077]      0.000051 semop(1179648, 0xbfffdfc8, 1 <unfinished ...>
-> [pid 10076]      0.000317 <... semop resumed> ) = 0
-> [pid 10076]      0.000055 semop(1179648, 0xbfffe718, 1) = 0
-> [pid 10076]      0.000083 semop(1179648, 0xbfffe8d8, 1 <unfinished ...>
-> [pid 10077]      0.000217 <... semop resumed> ) = 0
-> [pid 10077]      0.000091 semop(1179648, 0xbfffdfc8, 1) = 0
-> [pid 10077]      0.000057 semop(1179648, 0xbfffdfa8, 1 <unfinished ...>
-> [pid 10076]      0.000191 <... semop resumed> ) = 0
-> [pid 10076]      0.000037 semop(1179648, 0xbfffe898, 1) = 0
-> [pid 10076]      0.000054 semop(1179648, 0xbfffe928, 1 <unfinished ...>
-> [pid 10077]      0.000056 <... semop resumed> ) = 0
-> [pid 10077]      0.000034 semop(1179648, 0xbfffdf68, 1) = 0
+[ Btw, Jeff, any reason why you changed your name to "Legacy Fishtank"? It
+  took a few mails before I noticed that it also said "garzik" in the
+  fine print;]
 
-It's not the a sys_sched_yield() problem. probably and IPC_NOWAIT issue
+One thing that this big flame-war has brought up is that different people
+like different things. There may be a simpler solution to this: have the
+core dependency files generated from some other file format.
 
+My pet peeve is "centralized knowledge". I absolutely detested the first
+versions of cml2 for having a single config file, and quite frankly I
+don't think Eric has even _yet_ separated things out enough - why does the
+main "rules.cml" file have architecture-specific info, for example?
 
+That's a big step backwards as far as I'm concerned - we didn't use to
+have those stupid global files, and each architecture could do it's own
+config rules. Eric never got the point that to me, modularity is _the_
+most important thing for maintenance.
 
+Something I also asked for the config system at least a year ago was to
+have Configure.help split up. Never happened. It's still one large ugly
+file. Driver or architecture maintainers still can't just change _their_
+small fragment, they have to touch a global file that they don't "own".
 
-- Davide
+So if somebody really wants to help this, make scripts that generate
+config files AND Configure.help files from a distributed set. And once you
+do that, you could even imagine creating the old-style config files
+(without the automatic checking and losing some information) from the
+information.
 
+		Linus
 

@@ -1,58 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131040AbQL1Fhp>; Thu, 28 Dec 2000 00:37:45 -0500
+	id <S131245AbQL1FpY>; Thu, 28 Dec 2000 00:45:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132362AbQL1Fhe>; Thu, 28 Dec 2000 00:37:34 -0500
-Received: from SMTP2.ANDREW.CMU.EDU ([128.2.10.82]:5522 "EHLO
-	smtp2.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id <S131040AbQL1FhW>; Thu, 28 Dec 2000 00:37:22 -0500
-Date: Thu, 28 Dec 2000 00:06:47 -0500 (EST)
-From: Ari Heitner <aheitner@andrew.cmu.edu>
-To: Chris Wedgwood <cw@f00f.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: innd mmap bug in 2.4.0-test12
-In-Reply-To: <20001228160005.B14479@metastasis.f00f.org>
-Message-ID: <Pine.SOL.3.96L.1001228000150.3482A-100000@unix13.andrew.cmu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132368AbQL1FpP>; Thu, 28 Dec 2000 00:45:15 -0500
+Received: from tantalophile.demon.co.uk ([193.237.65.219]:57093 "EHLO
+	thefinal.cern.ch") by vger.kernel.org with ESMTP id <S131245AbQL1FpG>;
+	Thu, 28 Dec 2000 00:45:06 -0500
+Date: Thu, 28 Dec 2000 06:15:46 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Steve Grubb <ddata@gate.net>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] performance enhancement for simple_strtoul
+Message-ID: <20001228061546.A4578@thefinal.cern.ch>
+In-Reply-To: <000e01c06a8e$6945db60$bc1a24cf@master> <20001220100446.A1249@inetnebr.com> <001401c06ab4$ac8615e0$7d1a24cf@master> <20001221010935.A22817@pcep-jamie.cern.ch> <20001221210637.C1545@bug.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001221210637.C1545@bug.ucw.cz>; from pavel@suse.cz on Thu, Dec 21, 2000 at 09:06:37PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek wrote:
+> > [about strtoul]
+> > Perhaps I am mistaken but I'd expect it to be called what, ten times at
+> > boot time, and a couple of times when X loads the MTRRs?
+> 
+> On second thought, ps -auxl maybe stresses simple_strtoul a little
+> bit. Not sure.
 
-On Thu, 28 Dec 2000, Chris Wedgwood wrote:
+Nah.  proc_pid_lookup does its own conversion from string to number, and
+the rest are conversions from numbers to strings in sprintf.
 
-> (cc' list trimmed)
-[further]
-> I use ramfs for /tmp on my laptop -- it's very handy because it
-> extends the amount of the the disk had spent spun down and therefore
-> battery life; but writing large files into /tmp can blow away the
-> system or at the very least eat away at otherwise usable ram. Not
-> terribly desirable.
-
-mph.
-
-does anyone other than me think that the pm code is *way* too agressive about
-spinning down the hard drive? my 256mb laptop (2.2.16) will only spin down the
-disk for about 30 seconds before it decides it's got something else it feels
-like writing out, and spins back up. Spinnup has got to be more wasteful than
-just leaving the drive spinning...
-
-unless the vfs code is cleaning dirty pages to disk when there's no activity,
-then any time the vfs writes to disk, it's got something that's really hot and
-shouldn't stay in ram ... if that's the case, and the frequency of such
-occurrences is so high, perhaps the pm code should wait a couple of times as
-long as it does before it spins down. basically, if there's still code doing
-stuff, the drive should be spinning. only spindown when we're sure the user has
-walked away for good :)
-
-
-
-
-
-ari
-
-
-
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

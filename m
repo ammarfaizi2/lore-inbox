@@ -1,88 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262485AbRFHEil>; Fri, 8 Jun 2001 00:38:41 -0400
+	id <S263753AbRFHE6O>; Fri, 8 Jun 2001 00:58:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262550AbRFHEib>; Fri, 8 Jun 2001 00:38:31 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:54685 "EHLO
-	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S262485AbRFHEiU>; Fri, 8 Jun 2001 00:38:20 -0400
-Message-ID: <3B2056DC.EBC00D80@idcomm.com>
-Date: Thu, 07 Jun 2001 22:38:52 -0600
-From: "D. Stimits" <stimits@idcomm.com>
-Reply-To: stimits@idcomm.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: missing sysrq
-In-Reply-To: <Pine.LNX.4.33.0106072239570.26171-100000@asdf.capslock.lan>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S263834AbRFHE6F>; Fri, 8 Jun 2001 00:58:05 -0400
+Received: from [213.22.25.8] ([213.22.25.8]:24584 "EHLO vega.net.dhis.org")
+	by vger.kernel.org with ESMTP id <S263753AbRFHE5n>;
+	Fri, 8 Jun 2001 00:57:43 -0400
+Date: Fri, 8 Jun 2001 05:56:01 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: Break 2.4 VM in five easy steps
+Message-ID: <20010608055601.A6609@vega.net.dhis.org>
+In-Reply-To: <Pine.LNX.4.10.10106060651200.7508-100000@innerfire.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10106060651200.7508-100000@innerfire.net>
+User-Agent: Mutt/1.3.18i
+From: "C. Martins" <mart@vega.net.dhis.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Mike A. Harris" wrote:
-> 
-> On Fri, 1 Jun 2001, Dieter Nützel wrote:
-> 
-> >> > In article <3B15EF16.89B18D@idcomm.com> you wrote:
-> >> > > However, if I go to /proc/sys/kernel/sysrq does not exist.
-> >> >
-> >> > It is a compile time option, so the person who compiled your kernel
-> >> > left it out.
-> >>
-> >> I compiled it, and the sysrq is definitely in the config. No doubt at
-> >> all. I also use make mrproper and config again before dep and actual
-> >> compile. Maybe it is just a quirk/oddball.
-> >>
-> >> D. Stimits, stimits@idcomm.com
-> >
-> >Have you tried "echo 1 > /proc/sys/kernel/sysrq"?
-> >You need both, compiled in and activation.
 
-Since then I've completely removed that kernel source and kernel, only
-the config file remains (and it had it activated if the config followed
-it). All kernels before worked, and those since then also work, so I
-know it isn't the keyboard. I also always run make mrproper and config
-it again between compiles (I keep a list of config history), so I don't
-know what was wrong, but replacing the kernel fixed it, and is no longer
-an issue. I will, however, keep the showkey suggestion handy in case it
-ever does it again.
+  In my everyday desktop workstation (PII 350) I have 64MB of RAM and use 300MB of swap, 150MB on 
+each hard disk. After upgrading to 2.4, and maintaining the same set of applications (KDE, Netscape
+& friends), the machine performance is _definitely_ much worse, in terms of responsiveness and 
+throughput. Most of applications just take much longer to load, and once you've made something
+that required more memory for a while (like compiling a kernel, opening a large JPEG in gimp, etc)
+it takes lots of time to come back to normal. Strangely, with 2.4 the workstation just feels that
+someone stole the 64MB DIMM and put in a 16MB one!!
+  One thing I find strange is that with 2.4 if you run top or something similar you notice that
+memory allocated for cache is almost always using more than half total RAM. I don't remember seeing
+this with 2.2 kernel series...
 
-D. Stimits, stimits@idcomm.com
+  Anyway I think there is something really broken with respect to 2.4 VM. It is just NOT acceptable
+that when running the same set of apps and type of work and you upgrade your kernel, your hardware
+no longer is up to the job, when it fited perfectly right before. This is just MS way of solving
+problems here.
 
+  Best regards
+
+ Claudio Martins 
+
+
+On Wed, Jun 06, 2001 at 06:58:39AM -0700, Gerhard Mack wrote:
 > 
-> If you *know* it is compiled into your kernel, and you *know* it
-> is enabled via the above, and it still does not work, do the
-> following:
+> I have several boxes with 2x ram as swap and performance still sucks
+> compared to 2.2.17.  
 > 
-> Run:
-> 
-> showkey -s
-> 
-> Then press LALT quickly followed by SYSRQ, and keep holding both
-> down, and you should see:
-> 
-> 0x38
-> 0x54
-> 
-> You might see a bunch of extra 0x38's which is ok.
-> 
-> If however when you press ALT-SYSRQ you see:
-> 
-> 0x38 0x54 0xd4
-> 
-> and are still holding both keys down, then your keyboard is
-> broken and incompatible with the kernel SYSRQ feature.
-> 
-> A proper keyboard will only show "0x38 0x54".  I have written a
-> patch for SYSRQ to allow it to be used with broken keyboards that
-> send the make+break code for the SYSRQ sequence simultaneously.
-> 
-> If you need it, let me know and I'll send it to you.
-> 
-> ----------------------------------------------------------------------
->     Mike A. Harris  -  Linux advocate  -  Open Source advocate
->        Opinions and viewpoints expressed are solely my own.
-> ----------------------------------------------------------------------

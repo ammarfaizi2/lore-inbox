@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264412AbTKMUtU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 15:49:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264420AbTKMUtU
+	id S264420AbTKMU54 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 15:57:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264421AbTKMU54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 15:49:20 -0500
-Received: from mail3.bluewin.ch ([195.186.1.75]:34452 "EHLO mail3.bluewin.ch")
-	by vger.kernel.org with ESMTP id S264412AbTKMUtU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 15:49:20 -0500
-Date: Thu, 13 Nov 2003 21:49:09 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: xkernel@o2.pl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problem with DFE-530TX
-Message-ID: <20031113204909.GA5074@k3.hellgate.ch>
-Mail-Followup-To: xkernel@o2.pl, linux-kernel@vger.kernel.org
-References: <20031113180649.5D48DD0BCC@rekin.go2.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 13 Nov 2003 15:57:56 -0500
+Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:7068 "HELO
+	cenedra.office") by vger.kernel.org with SMTP id S264420AbTKMU5z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 15:57:55 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel.bkbits.net off the air
+Date: Thu, 13 Nov 2003 20:57:53 +0000
+User-Agent: KMail/1.5.4
+References: <fa.eto0cvm.1v20528@ifi.uio.no> <200311131917.11773.andrew@walrond.org> <20031113192839.GA13330@work.bitmover.com>
+In-Reply-To: <20031113192839.GA13330@work.bitmover.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031113180649.5D48DD0BCC@rekin.go2.pl>
-X-Operating-System: Linux 2.6.0-test9 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.4i
+Message-Id: <200311132057.53026.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Nov 2003 19:06:49 +0100, xkernel@o2.pl wrote:
-> I have a problem with VIA-RHINE driver using two D-LINK DFE-530TX cards.
-> Problem occurs when I'v got compiled in kernel driver with enabled option
-> "use MMIO". Kernel recognizes both cards assigns eth0, eth1 but when I
-> try to set IP on eth1 it errors with message "device or resource busy".
+On Thursday 13 Nov 2003 7:28 pm, Larry McVoy wrote:
 
-Does the MMIO setting matter? Also, does disabling APIC and ACPI help?
+You're getting to be a cynical old git ;)
 
-Roger
+> What am I missing?
+
+The point. You got one major o/s project hosted on bk when you ought to have 
+them all. Loads more developers using bk at home means loads more demanding 
+it at work.
+
+And all it would take is a lobotomised, redistributable, license free client 
+so anyone can pull o/s software from bk repos.
+
+And, for the record, you'd be a hungry fool if you GPLed bk.
+

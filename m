@@ -1,61 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292852AbSCOQRv>; Fri, 15 Mar 2002 11:17:51 -0500
+	id <S292870AbSCOQVM>; Fri, 15 Mar 2002 11:21:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292858AbSCOQRc>; Fri, 15 Mar 2002 11:17:32 -0500
-Received: from ns1.advfn.com ([212.161.99.144]:53010 "EHLO mail.advfn.com")
-	by vger.kernel.org with ESMTP id <S292852AbSCOQRW>;
-	Fri, 15 Mar 2002 11:17:22 -0500
-Message-Id: <200203151617.g2FGHKs28765@mail.advfn.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Kay <timk@advfn.com>
-Reply-To: timk@advfn.com
-Organization: Advfn.com
-To: Matt_Domsch@Dell.com
-Subject: Re: Advanced Programmable Interrupt Controller (APIC)?
-Date: Fri, 15 Mar 2002 16:18:58 +0000
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <71714C04806CD51193520090272892170452B462@ausxmrr502.us.dell.com>
-In-Reply-To: <71714C04806CD51193520090272892170452B462@ausxmrr502.us.dell.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S292881AbSCOQVC>; Fri, 15 Mar 2002 11:21:02 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:64785 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S292870AbSCOQUw>; Fri, 15 Mar 2002 11:20:52 -0500
+Message-Id: <200203151720.g2FHKTgg014925@pincoya.inf.utfsm.cl>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: linux-kernel@vger.kernel.org, hch@infradead.org
+Subject: Re: 2.4.19pre2aa1 
+In-Reply-To: Message from Andrea Arcangeli <andrea@suse.de> 
+   of "Tue, 12 Mar 2002 15:25:34 +0100." <20020312152534.U25226@dualathlon.random> 
+Date: Fri, 15 Mar 2002 13:20:29 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt,
-	I'll repeat this here too:
+Andrea Arcangeli <andrea@suse.de> said:
 
+[...]
 
-IO APIC - APIC_IO: Testing 8254 interrupt delivery
-APIC_IO: Broken MP table detected: 8254 is not connected to IOAPIC #0 intpin 
-2 
-APIC_IO: routing 8254 via 8259 and IOAPIC #0 intpin 0 
+> AFIK my current hashfn is never been tested in precendence on this kind
+> of random input of the wait_table pages.
 
-The above is a diagnostic from a FreeBSD box bootup, this would seem to 
-suggest that the motherboard rather than Linux is at fault....
-
-Tim
-
-On Friday 15 Mar 2002 16:06, Matt_Domsch@Dell.com wrote:
-> > Now I've
-> > also heard that DELL does not properly setup the APIC chip in
-> > the bios because MS os's don't use it. Have no idea if this
-> > is true or not.
->
-> To the best of my knowledge, BIOS and Linux work together to set up the
-> APICs properly on the PowerEdge 6400 (and all our other servers too).  If
-> someone has proof that we don't, and what should be done instead, please
-> let me know.
->
-> Thanks,
-> Matt
-
+If the input is really random, anything will do. I.e., just chopping off a
+few not guaranteed-zero bits (probably better low-end) and using that would
+be enough.
 -- 
-----------------
-Tim Kay
-systems administrator
-Advfn.com Plc - http://www.advfn.com/
-timk@advfn.com
-Tel: 020 7070 0941
-Fax: 020 7070 0959
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

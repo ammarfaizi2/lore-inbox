@@ -1,107 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264872AbTFLQE4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 12:04:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264873AbTFLQE4
+	id S264873AbTFLQIr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 12:08:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264876AbTFLQIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 12:04:56 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40968 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S264872AbTFLQEw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 12:04:52 -0400
-Date: Thu, 12 Jun 2003 09:18:11 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-cc: John M Flinchbaugh <glynis@butterfly.hjsoft.com>,
-       <linux-kernel@vger.kernel.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@digeo.com>
-Subject: Re: 2.5.70-bk16: nfs crash
-In-Reply-To: <Pine.LNX.4.44.0306120847540.2742-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0306120915190.2742-100000@home.transmeta.com>
+	Thu, 12 Jun 2003 12:08:47 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:32195 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S264873AbTFLQIp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 12:08:45 -0400
+Message-ID: <3EE8AB18.2060109@free.fr>
+Date: Thu, 12 Jun 2003 18:32:24 +0200
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+Organization: HOME
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22 timeline was RE: 2.4.21-rc7 ACPI broken
+References: <3EE66C86.8090708@free.fr>	<20030611211506.GD16164@fs.tum.de> <20030612160552.770bd15e.skraw@ithnet.com>
+In-Reply-To: <20030612160552.770bd15e.skraw@ithnet.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 12 Jun 2003, Linus Torvalds wrote:
+Stephan von Krawczynski wrote:
+> On Wed, 11 Jun 2003 23:15:06 +0200
+> Adrian Bunk <bunk@fs.tum.de> wrote:
 > 
-> If you depend on not re-initializing the pointers, you should not use the 
-> "xxx_del()" function, and you should document it.
+> 
+>>[...]
+>>The important thing is that this is inside a stable kernel series and an 
+>>update that makes things better for 100 people but makes things worse 
+>>for one person is IMHO bad since it's a regression for one person.
+> 
+> 
+> You cannot fulfill that in reality. Looking at the broad variety of software
+> out there you simply cannot know all the implications a simple bug fix may
+> have. There may well be boxes that rely on a broken code you just fixed. Only
+> god knows. So you sometimes simply have to do "the right thing"(tm) knowing
+> there will always be people who shoot you for it.
 
-Besides, the code doesn't actually depend on not re-initializing the 
-pointers, it depends on the _forward_ pointers still being walkable in 
-case some other CPU is traversing the list just as we remove the entry.
 
-Which means that I think the proper patch is to (a) document this and also
-(b) poison the back pointer.
+Just to go a little bit more in that direction, I already have seen an 
+obvious one-line patch that caused a deadlock in another OS because due 
+to code location change and probably an additionnal cache miss on 
+specific part of the code, an existing synchronisation bug that was 
+never triggered started to effectively happen...
 
-A patch like the attached, in short.
+Besides, if you please 1000 users and cause problem to 2 of them because 
+they have broken hardware, I think you are going into the right direction.
 
-		Linus
+ >The important sections are more likely (ordered by priority):
+ > - bug fixes (e.g. aic7xxx)
+ > - support for additional hardware (e.g. ACPI update)
+ > - new features (e.g. XFS)
 
----
-===== include/linux/dcache.h 1.32 vs edited =====
---- 1.32/include/linux/dcache.h	Tue Jun 10 14:56:43 2003
-+++ edited/include/linux/dcache.h	Thu Jun 12 09:12:27 2003
-@@ -174,8 +174,10 @@
- 
- static inline void __d_drop(struct dentry *dentry)
- {
--	dentry->d_vfs_flags |= DCACHE_UNHASHED;
--	hlist_del_rcu_init(&dentry->d_hash);
-+	if (!(dentry->d_vfs_flags & DCACHE_UNHASHED)) {
-+		dentry->d_vfs_flags |= DCACHE_UNHASHED;
-+		hlist_del_rcu(&dentry->d_hash);
-+	}
- }
- 
- static inline void d_drop(struct dentry *dentry)
-===== include/linux/list.h 1.32 vs edited =====
---- 1.32/include/linux/list.h	Tue Jun 10 15:46:31 2003
-+++ edited/include/linux/list.h	Thu Jun 12 08:59:31 2003
-@@ -152,14 +152,17 @@
- /**
-  * list_del_rcu - deletes entry from list without re-initialization
-  * @entry: the element to delete from the list.
-+ *
-  * Note: list_empty on entry does not return true after this, 
-  * the entry is in an undefined state. It is useful for RCU based
-  * lockfree traversal.
-+ *
-+ * In particular, it means that we can not poison the forward 
-+ * pointers that may still be used for path walking.
-  */
- static inline void list_del_rcu(struct list_head *entry)
- {
- 	__list_del(entry->prev, entry->next);
--	entry->next = LIST_POISON1;
- 	entry->prev = LIST_POISON2;
- }
- 
-@@ -431,7 +434,22 @@
- 	n->pprev = LIST_POISON2;
- }
- 
--#define hlist_del_rcu hlist_del  /* list_del_rcu is identical too? */
-+/**
-+ * hlist_del_rcu - deletes entry from hash list without re-initialization
-+ * @entry: the element to delete from the list.
-+ *
-+ * Note: list_empty on entry does not return true after this, 
-+ * the entry is in an undefined state. It is useful for RCU based
-+ * lockfree traversal.
-+ *
-+ * In particular, it means that we can not poison the forward
-+ * pointers that may still be used for path walking.
-+ */
-+static inline void hlist_del_rcu(struct hlist_node *n)
-+{
-+	__hlist_del(n);
-+	n->pprev = LIST_POISON2;
-+}
- 
- static __inline__ void hlist_del_init(struct hlist_node *n) 
- {
+
+Bug fixes are meant to make the 2.4 kernel more useable right? So I do 
+not reallly see the utimate difference with other things in your 
+category. What I was asking is a rationnal way of chosing the 
+priorities. You gave me yours without real explanation.
+
+The purpose of the original mail was to ask for discussion/clarification 
+on 2.4 development priorities (e.g something like the 2.6 todo list) and 
+a proposal to set up the priorities using generic targetted hardware 
+(server, laptop, desktop) as hint for requirement selection.
+
+-- 
+    __
+   /  `                   	Eric Valette
+  /--   __  o _.          	6 rue Paul Le Flem
+(___, / (_(_(__         	35740 Pace
+
+Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
+E-mail: eric.valette@free.fr
 

@@ -1,70 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264602AbUAIWGX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 17:06:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264605AbUAIWGX
+	id S264890AbUAIWMq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 17:12:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbUAIWMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 17:06:23 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:6797 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S264602AbUAIWGV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 17:06:21 -0500
-Message-ID: <3FFF25DC.4070206@comcast.net>
-Date: Fri, 09 Jan 2004 16:06:20 -0600
-From: Ian Pilcher <i.pilcher@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sysctl equivalent of "idle=poll"
-References: <3FFBA98D.1080901@comcast.net> <20040109133518.59c44790.rddunlap@osdl.org>
-In-Reply-To: <20040109133518.59c44790.rddunlap@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jan 2004 17:12:46 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:43533 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S264890AbUAIWMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 17:12:45 -0500
+Date: Sat, 10 Jan 2004 01:12:03 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Grant Grundler <grundler@parisc-linux.org>
+Cc: Jochen Friedrich <jochen@scram.de>, Jesse Barnes <jbarnes@sgi.com>,
+       linux-kernel@vger.kernel.org, jeremy@sgi.com,
+       linux-pci@atrey.karlin.mff.cuni.cz, Jame.Bottomley@steeleye.com
+Subject: Re: [RFC] Relaxed PIO read vs. DMA write ordering
+Message-ID: <20040110011203.A629@den.park.msu.ru>
+References: <20040107175801.GA4642@sgi.com> <20040107190206.GK17182@parcelfarce.linux.theplanet.co.uk> <20040107222142.GB14951@colo.lackof.org> <20040107230712.GB6837@sgi.com> <20040108063829.GC22317@colo.lackof.org> <20040108173655.GA11168@sgi.com> <Pine.LNX.4.58.0401090833480.4454@localhost> <20040109202718.GB14165@colo.lackof.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040109202718.GB14165@colo.lackof.org>; from grundler@parisc-linux.org on Fri, Jan 09, 2004 at 01:27:18PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> I don't see any problems with this patch itself, other than its
-> justification.
-> 
-> Why is a sysctl needed instead of using idle=X as a boot parameter?
-> 
-> Does this fix a bug/oops that you were having?
-> Or does it cover up a bug somewhere?
+On Fri, Jan 09, 2004 at 01:27:18PM -0700, Grant Grundler wrote:
+> ia64, parisc, x86_64, sparc64, mips, (and a few others) also have IO MMUs.
 
-Using "idle=poll" allows me to boot 2.4.x on my Abit VP6 with ACPI
-turned on.  (Remember the "Plea for help" thread on acpi-devel?)  I
-need ACPI-based IRQ routing to get the built-in USB controllers working.
+Hmm, IOMMU *and* ISA slots? :-)
 
-Once the system is booted, however, I have no desire to cook my CPUs.
-This allows me to set polling back to regular mode.  (I just add an
-entry to /etc/sysctl.conf.)  I have no idea if any other hardware will
-benefit from this, but it's always possible.
-
-So that's why I'm interested in it.
-
-More generally, if people are booting with "idle=poll" for performance
-reasons, many of them probably don't need it turned on all the time.
-This would allow a simple user-level program to turn on idle polling
-when the load is high and turn it off the rest of the time, saving
-power and possibly extending the life of the hardware.
-
-So if there's value in having it as a boot parameter, I think there's
-value in having it tunable at runtime.
-
-BTW, although I don't need "idle=poll" to boot 2.6 with ACPI, I will
-create a 2.6 version of this patch if its accepted into 2.4.
-
-> MOTD:  Always include version info.
-
-Should I have generated the patch differently?
-
-Thanks for the feedback!
-
--- 
-========================================================================
-Ian Pilcher                                        i.pilcher@comcast.net
-========================================================================
-
+Ivan.

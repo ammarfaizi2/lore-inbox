@@ -1,56 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbUBXRT4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 12:19:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbUBXRSb
+	id S262327AbUBXRZz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 12:25:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262325AbUBXRVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 12:18:31 -0500
-Received: from fw.osdl.org ([65.172.181.6]:9158 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262322AbUBXRR7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 12:17:59 -0500
-Date: Tue, 24 Feb 2004 09:10:14 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Carlos Silva" <r3pek@r3pek.homelinux.org>
+	Tue, 24 Feb 2004 12:21:51 -0500
+Received: from web13702.mail.yahoo.com ([216.136.175.135]:29459 "HELO
+	web13702.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262318AbUBXRUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 12:20:55 -0500
+Message-ID: <20040224172053.58512.qmail@web13702.mail.yahoo.com>
+Date: Tue, 24 Feb 2004 09:20:53 -0800 (PST)
+From: Martins Krikis <mkrikis@yahoo.com>
+Subject: Re: libata/iswraid DMA Timeout
+To: jabbera@student.umass.edu
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: kexec "problem"
-Message-Id: <20040224091014.4a605006.rddunlap@osdl.org>
-In-Reply-To: <28775.62.229.71.110.1077620541.squirrel@webmail.r3pek.homelinux.org>
-References: <20040224160341.GA11739@in.ibm.com>
-	<28775.62.229.71.110.1077620541.squirrel@webmail.r3pek.homelinux.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1077580276.403a91f4094fe@mail-www4.oit.umass.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Feb 2004 11:02:21 -0000 (WET) Carlos Silva wrote:
+--- jabbera@student.umass.edu wrote:
 
-| hi guys,
-| 
-| i have just compiled a kernel with the kexec patch. compiled kexec-tools
-| and when i try to load a kernel, it gives me this:
-| # ./do-kexec.sh /boot/bzImage-2.6.2-g
-| kexec_load failed: Invalid argument
-| entry       = 0x91764
-| nr_segments = 2
-| segment[0].buf   = 0x80b3480
-| segment[0].bufsz = 1880
-| segment[0].mem   = 0x90000
-| segment[0].memsz = 1880
-| segment[1].buf   = 0x40001008
-| segment[1].bufsz = 19795a
-| segment[1].mem   = 0x100000
-| segment[1].memsz = 19795a
-| 
-| anyone tried to run kexec and actually did it? i'm trying with kernel 2.6.3
+> Sorry never posted to this list so bear with me. 
+> I am currently using kernel version 2.4.25 i386 with libata and
+> iswraid. 
+> Note: iswraid is for 2.4.22, but it applied to 2.4.25 without issue. 
 
-I haven't updated for 2.6.3 yet, or even tested it...
-but I'll get to it soon.
+Please try the new iswraid that was posted to this list on
+Friday, Feb. 20th. It is completely redone and has a lot more
+features than what you were using, including /proc fs support,
+ICH6R support, updating RAID metadata on errors, ability to
+work with many volumes and various configurations of them,
+etc., etc. Yes, it's very new and new bugs could have been
+introduced but I think you'll be better off with the latest
+anyway.
+ 
+> I was using a php script to move a bunch of my files around the file
+> system 
+> when my system locks up and I see: 
+> ata1: DMA timeout, stat 0x21 
+> ATA: abnormal status 0x59 on port 0xC407 
 
---
-~Randy
+I had a bad SATA cable once and was seeing the same thing.
+I reported it to libata1 author via personal email.
+I don't think iswraid has anything to do with it as this
+is a lower level driver issue. Iswraid, both old and new,
+are fairly high level drivers that don't deal directly with
+the SATA controllers or their interrupts. In fact, iswraid
+would work with any SCSI disks that have the right metadata
+format on them.
+
+> I try to do an emegency sync but I fails, and I am forced to reboot.
+
+In my experience the system was still usable, except the userland
+application was hanging. Adding another SATA transaction (to any
+disk, I believe), was what made it hang completely. So I think
+we've seen the same problem.
+
+I certainly don't understand enough of libata1 to fix this,
+but you could perhaps start by changing your SATA cables or
+at least swapping them around to see whether the timeout follows
+the cable, perhaps, as it was in my case.
+
+Good luck, and please report back any iswraid bugs/wishes/questions.
+
+  Martins Krikis
+  Storage Components Division (SCD)
+  Intel Massachusetts
+
+
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail SpamGuard - Read only the mail you want.
+http://antispam.yahoo.com/tools

@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270256AbRHWUHS>; Thu, 23 Aug 2001 16:07:18 -0400
+	id <S270261AbRHWUL2>; Thu, 23 Aug 2001 16:11:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270195AbRHWUHI>; Thu, 23 Aug 2001 16:07:08 -0400
-Received: from stat8.steeleye.com ([63.113.59.41]:35845 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id <S270256AbRHWUGx>; Thu, 23 Aug 2001 16:06:53 -0400
-Message-ID: <3B8561E2.DE166AD8@SteelEye.com>
-Date: Thu, 23 Aug 2001 16:04:50 -0400
-From: Paul Clements <Paul.Clements@SteelEye.com>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.13 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: gcc bug causing problem in kernel builds
-In-Reply-To: <E15a0eY-0004U3-00@the-village.bc.nu>
+	id <S270258AbRHWULS>; Thu, 23 Aug 2001 16:11:18 -0400
+Received: from smtp.mailbox.net.uk ([195.82.125.32]:51890 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S270195AbRHWULI>; Thu, 23 Aug 2001 16:11:08 -0400
+Date: Thu, 23 Aug 2001 21:11:22 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: george anzinger <george@mvista.com>
+Cc: Victor Yodaiken <yodaiken@fsmlabs.com>,
+        =?iso-8859-1?Q?christophe_barb=E9?= <christophe.barbe@lineo.fr>,
+        linux-kernel@vger.kernel.org
+Subject: Re: How should nano_sleep be fixed (was: ptrace(), fork(), sleep(), exit(), SIGCHLD)
+Message-ID: <20010823211121.H24974@flint.arm.linux.org.uk>
+In-Reply-To: <20010817125727.A16475@hq2> <3B7D76EF.DA34EB23@mvista.com> <20010822194035.K18391@flint.arm.linux.org.uk> <3B8561B9.AC440835@mvista.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B8561B9.AC440835@mvista.com>; from george@mvista.com on Thu, Aug 23, 2001 at 01:04:09PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
- 
-> gcc 2.96-54 had plenty of bugs, 2.96-75+ should be perfectly fine for
-> all uses. 
+On Thu, Aug 23, 2001 at 01:04:09PM -0700, george anzinger wrote:
+> Sorry, but none of those system calls requires the registers which is
+> where the problem is.
 
-Uh oh... the gcc 2.96 I'm using is:
+/* Fork a new task - this creates a new program thread.
+ * This is called indirectly via a small wrapper
+ */
+asmlinkage int sys_fork(struct pt_regs *regs)
+                        ^^^^^^^^^^^^^^^^^^^^
+{
+        return do_fork(SIGCHLD, regs->ARM_sp, regs, 0);
+}
 
-# rpm -q gcc
-gcc-2.96-81
+/* sys_execve() executes a new program.
+ * This is called indirectly via a small wrapper
+ */
+asmlinkage int
+sys_execve(char *filenamei, char **argv, char **envp, struct pt_regs *regs)
+                                                     ^^^^^^^^^^^^^^^^^^^^^
+{
+        int error;
+        char * filename;
 
-> If you have a 2.96 RH problem please report it in Red Hat
-> bugzilla
+        filename = getname(filenamei);
+        error = PTR_ERR(filename);
+        if (IS_ERR(filename))
+                goto out;
+        error = do_execve(filename, argv, envp, regs);
+        putname(filename);
+out:
+        return error;
+}
 
-Will do.
+Certainly looks to me like they do.  See the highlighted arguments.
 
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Thanks,
-Paul
-
-Paul.Clements@SteelEye.com

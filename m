@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132032AbQKZQDZ>; Sun, 26 Nov 2000 11:03:25 -0500
+        id <S132279AbQKZQFF>; Sun, 26 Nov 2000 11:05:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130121AbQKZQDQ>; Sun, 26 Nov 2000 11:03:16 -0500
-Received: from [193.120.224.170] ([193.120.224.170]:57501 "EHLO
-        florence.itg.ie") by vger.kernel.org with ESMTP id <S132032AbQKZQDD>;
-        Sun, 26 Nov 2000 11:03:03 -0500
-Date: Sun, 26 Nov 2000 15:33:00 +0000 (GMT)
-From: Paul Jakma <paulj@itg.ie>
-To: <linux-kernel@vger.kernel.org>
-Subject: problem with hp C1537A tape drives
-Message-ID: <Pine.LNX.4.30.0011261520220.892-100000@rossi.itg.ie>
+        id <S132276AbQKZQEz>; Sun, 26 Nov 2000 11:04:55 -0500
+Received: from [213.182.136.121] ([213.182.136.121]:46863 "EHLO
+        tigram.bogus.local") by vger.kernel.org with ESMTP
+        id <S132161AbQKZQEq>; Sun, 26 Nov 2000 11:04:46 -0500
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: gcc-2.95.2-51 is buggy
+In-Reply-To: <Pine.LNX.4.21.0011251805340.8818-100000@duckman.distro.conectiva>
+From: Olaf Dietsche <olaf.dietsche@gmx.net>
+Date: 26 Nov 2000 16:33:25 +0100
+Message-ID: <87ofz2lpdm.fsf@tigram.bogus.local>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a problem with the aforementioned DDS-3 tape drives. I'm using
-one with amanda for backups. But every now and then the nightly backup
-fails with "I/O error" and i see the following in the system logs:
+Rik van Riel <riel@conectiva.com.br> writes:
 
-st0: Error with sense data: [valid=0] Info fld=0x0, Current st09:00:
-sense key Aborted Command
-Additional Sense indicates Data phase error
+> On Sat, 25 Nov 2000, Andries Brouwer wrote:
+> > On Sat, Nov 25, 2000 at 03:26:15PM -0200, Rik van Riel wrote:
+> > 
+> > > The gcc-2.95.2-6cl from Conectiva 6.0 is buggy too.
+> > 
+> > Yes. Probably you have seen it by now, but the difference between
+> > good and bad versions of gcc-2.95.2 did not lie in the applied patches,
+> > but was the difference between compilation for 686 or 386.
+> > It is not your (SuSE's, Debian's) fault. A fix already exists.
+> 
+> Indeed, this should be fixed soon.
+> 
+> I'm sure a simple 'apt-get upgrade' will install a new
+> gcc RPM on my workstation soon ;)
 
-I try various things to get the drive to work again -> mt rewind, mt
-retension, load and unload the tape. "scsi remove-single-device" ->
-power off drive -> power up -> "scsi add-single-device". (it's not the
-tape cause i've tried replacing tapes).
+A simple `gcc -march=i686' or `gcc -mpentiumpro' does fix it as
+well. So, if you configure your kernel with `CONFIG_M686=y' the problem
+should be gone.
 
-but nothing helps. now it mightn't be unreasonable to say the drive is
-faulty, so i replaced the drive with an identical C1537A. And... same
-thing happens again: after a couple of weeks of good backups i get the
-same problem again.
-
-Is there a known problem with SCSI tape drives? or with HP DDS-3
-drives? What does the kernel error message mean? (it's all 0's so not
-much i guess). What is a "Data Phase error"?
-
-thanks in advance,
-
-Paul Jakma.
-
+Regards, Olaf.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

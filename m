@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268024AbUIUTia@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268025AbUIUTmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268024AbUIUTia (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 15:38:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268019AbUIUTia
+	id S268025AbUIUTmH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 15:42:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268026AbUIUTmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 15:38:30 -0400
-Received: from mail3.utc.com ([192.249.46.192]:16077 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S268024AbUIUTi1 (ORCPT
+	Tue, 21 Sep 2004 15:42:06 -0400
+Received: from fw.osdl.org ([65.172.181.6]:27371 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268025AbUIUTmD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 15:38:27 -0400
-Message-ID: <41508311.6070606@cybsft.com>
-Date: Tue, 21 Sep 2004 14:37:53 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Tue, 21 Sep 2004 15:42:03 -0400
+Date: Tue, 21 Sep 2004 12:41:56 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Roland Dreier <roland@topspin.com>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>
+Subject: Re: [PATCH] ppc64: Fix __raw_* IO accessors
+In-Reply-To: <523c1bpghm.fsf@topspin.com>
+Message-ID: <Pine.LNX.4.58.0409211237510.25656@ppc970.osdl.org>
+References: <1095758630.3332.133.camel@gaston> <1095761113.30931.13.camel@localhost.localdomain>
+ <1095766919.3577.138.camel@gaston> <523c1bpghm.fsf@topspin.com>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Mark_H_Johnson@Raytheon.com
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S1
-References: <1094473527.13114.4.camel@boxen> <20040906122954.GA7720@elte.hu> <20040907092659.GA17677@elte.hu> <20040907115722.GA10373@elte.hu> <1094597988.16954.212.camel@krustophenia.net> <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net> <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu> <415071D4.9060601@cybsft.com> <20040921192143.GA1184@elte.hu>
-In-Reply-To: <20040921192143.GA1184@elte.hu>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * K.R. Foley <kr@cybsft.com> wrote:
-> 
-> 
->>Ingo Molnar wrote:
->>
->>>i've released the -S1 VP patch:
->>>
->>> http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm1-S1
->>>
->>
->>Two separate oopses this morning running that above patch. One appears
->>to happen in locks_delete_lock. [...]
-> 
-> 
-> i too got this one today. Seems to be related to the BKL changes -
-> locks.c is a heavy user of the BKL. You have an SMP system, right? Does
-> the oops happen if you boot with maxcpus=1?
-> 
-> 	Ingo
-> 
-This was on my SMP system. I can try the maxcpus=1. However, the trouble 
-may be reproducing the oops. This happened at ~5:35 this morning (~9 
-hrs. ago). Hadn't happened again as of an hour ago when I booted S2. I 
-will give it a try though.
 
-kr
+
+On Tue, 21 Sep 2004, Roland Dreier wrote:
+>
+> Is it possible to use __raw_*() in portable code?  I have some places
+> in my code where non-byte-swap IO functions would be useful, but on
+> ppc64, __raw_*() doesn't know about EEH.
+
+I don't think normal readb/writeb should know about EEH either. If you 
+want error handling, there's a separate interface being worked on, so that 
+normal accesses don't have to pay the cost..
+
+> Clearly I don't want to
+> teach portable code about IO_TOKEN_TO_ADDR etc. so it seems I'm out of
+> luck.  I end up doing the fairly insane:
+> 
+> 	writel(swab32(val), addr);
+
+Ok, so that _is_ insane. Mind telling what kind of insane hardware is BE 
+in this day and age?
+
+That said, I think
+
+> instead of what I really mean, which is:
+> 
+> 	__raw_writel(cpu_to_be32(val), addr);
+
+should work, and if you start using it, and the driver is relevant, I'm 
+sure other architectures will implement the __raw_ interfaces too. In the 
+meantime, please just make it conditional on the proper architectures.
+
+		Linus

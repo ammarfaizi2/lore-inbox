@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbUDXDQa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbUDXDYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbUDXDQa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 23:16:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbUDXDQa
+	id S261884AbUDXDYU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 23:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbUDXDYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 23:16:30 -0400
-Received: from fw.osdl.org ([65.172.181.6]:61569 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261862AbUDXDQ3 (ORCPT
+	Fri, 23 Apr 2004 23:24:20 -0400
+Received: from mail.kroah.org ([65.200.24.183]:7073 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261884AbUDXDYS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 23:16:29 -0400
-Date: Fri, 23 Apr 2004 20:15:36 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: James Simmons <jsimmons@infradead.org>
-Cc: alex@foogod.com, linux-fbdev-devel@lists.sourceforge.net,
-       geert@linux-m68k.org, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-fbdev-devel] [PATCH] neofb patches
-Message-Id: <20040423201536.6aefe7ad.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0404232241260.5826-100000@phoenix.infradead.org>
-References: <56202.64.139.3.221.1082702638.squirrel@www.foogod.com>
-	<Pine.LNX.4.44.0404232241260.5826-100000@phoenix.infradead.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 23 Apr 2004 23:24:18 -0400
+Date: Fri, 23 Apr 2004 17:30:13 -0700
+From: Greg KH <greg@kroah.com>
+To: "E. Oltmanns" <oltmanns@uni-bonn.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Oops during usb usage (2.6.5)
+Message-ID: <20040424003013.GA13631@kroah.com>
+References: <20040423205617.GA1798@local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040423205617.GA1798@local>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Apr 2004 00:00:23 +0100 (BST) James Simmons <jsimmons@infradead.org> wrote:
+On Fri, Apr 23, 2004 at 10:56:17PM +0200, E. Oltmanns wrote:
+> Hello everyone,
+> 
+> Summary:
+> Kernel Oops caused by multiple access requests to a single scanner
+> through libusb.
+> 
+> Detailed description:
+> The following script leads to an kernel oops on my System:
+> #!/bin/bash
+> scanimage > test &
+> scanimage -h
+> 
+> This is because scanimage -h tries to append a list of availlable
+> scanners to the help output and thus interferes with the first
+> scanimage process which is initializing the scanner at the same
+> moment.
 
-| 
-| > Ok, I've got everything except the blanking patch (which isn't finished
-| > anyway) converted to apply cleanly to James' patched driver source. 
-| > Everything works fine on my laptop as far as I can tell.  Additional
-| > feedback is welcome.
-| > 
-| > I've put up a web page for the patches.  They can be found at
-| > http://www.foogod.com/~alex/neofb/
-| 
-| Got it. I merged your patches. I also did a few fixes. The code had issues 
-| with non byte align images, i.e sparc 12x22 fonts. Now it works. I posted 
-| at
-| 
-| http://phoenix.infradead.org:~/jsimmons/neofb.diff.gz
-| 
-| This is against the latest kernel.
+Heh, then don't do that :)
 
-Hi James,
+Accesses by two different processes of the same device through usbfs is
+big trouble.  Don't do that.
 
-I think it would help a bit if someone could load
-http://phoenix.infradead.org/~jsimmons/ in a web browser
-and be able to see a list of files/patches/etc there
-instead of having to know an exact file name to grab.
+That being said, I have some usbfs locking patches that might help a bit
+here that will probably show up in the next -mm release if you want to
+see if that helps you out or not.
 
---
-~Randy
+thanks,
+
+greg k-h

@@ -1,81 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316578AbSHASyl>; Thu, 1 Aug 2002 14:54:41 -0400
+	id <S316614AbSHAS5A>; Thu, 1 Aug 2002 14:57:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316601AbSHASyl>; Thu, 1 Aug 2002 14:54:41 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:31502 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316578AbSHASyk>; Thu, 1 Aug 2002 14:54:40 -0400
-Date: Thu, 1 Aug 2002 14:52:16 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Ray Lee <ray-lk@madrabbit.org>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Guarantee APM power status change notifications
-In-Reply-To: <1028213816.1027.155.camel@orca>
-Message-ID: <Pine.LNX.3.96.1020801144525.15133D-100000@gatekeeper.tmr.com>
+	id <S316674AbSHAS5A>; Thu, 1 Aug 2002 14:57:00 -0400
+Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:7439 "EHLO
+	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S316614AbSHAS46>; Thu, 1 Aug 2002 14:56:58 -0400
+Date: Thu, 1 Aug 2002 21:00:13 +0200 (CEST)
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+To: Lars Schmitt <Lars.Schmitt@Physik.Tu-Muenchen.DE>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
+       <davem@redhat.com>
+Subject: Re: Kernel panic on Dual Athlon MP 
+In-Reply-To: <200208011224.g71COrW05657@pc02.e18.physik.tu-muenchen.de>
+Message-ID: <Pine.LNX.4.44.0208012031570.20284-100000@pc40.e18.physik.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1 Aug 2002, Ray Lee wrote:
+Hi!
 
-> [Trimmed the cc:]
-> On Wed, 2002-07-31 at 13:10, Bill Davidsen wrote:
-> > Actually there is one more case, where the BIOS unreliably tells you
-> > something has changed. I have an old Toshiba which I bought with Windows
-> > installed, and it always noticed pulling the plug and going line=>battery,
-> > but only sometimes noticed battery=>line. Of course this might be an o/s
-> > bug.
-> 
-> Well, that's just special. I wonder where the blame lies in that case.
-> 
-> > Can't test that any more, the battery failed and the transition is
-> > now line=>dead.
-> 
-> Heh.
-> 
-> > Anyway, if you are paranoid you could just ignore the "I knew that" cases
-> > and leave the workaround in place, unless that would generate other
-> > issues.
-> 
-> Hmm. I don't think that would cover everything. Taking your example
-> case, and assuming it's the BIOS being flaky, we'd have to just ignore
-> all transitions from the BIOS apm and just poll ourselves. Otherwise,
-> we'd have line->battery (signaled), battery->line (not signaled),
-> line->battery (signaled) and *then* we'd know to be paranoid. In the
-> meantime, we lost the second transition, which could have been hours
-> ago. The solution in that case would be to infrequently poll (say, twice
-> a minute) to verify what the BIOS told us. If it's out of sync, give it
-> a bit of a grace period, double-check, then take over the reins for
-> reporting.
+Because of his knowledge about this NIC I've included Dave Miller.
 
-Okay, I said "other issues" and that certainly is one.
- 
-> The bottom line is that I didn't want to incur an extra set of BIOS
-> calls on systems that don't need it, on general principle. <Shrug> Heck,
-> maybe it's fast and the overhead is unnoticeable, but I don't know (ISTR
-> some low-latency issues when doing BIOS calls). Considering the APM
-> thread is only getting invoked once a second, it's seems that it would
-> be unnoticeable and zero risk, but hey, what do I know.
+On Thu, 1 Aug 2002, Lars Schmitt wrote:
+
+> Hello,
 > 
-> Anyway, a patch to do double-checking would be fairly straight-forward,
-> but without any reports of hardware out there that fails like that...
-> dunno. I'll work up a patch when I'm back from my road trip and see if
-> it's as clean.
+> We are running a number of dual Athlon MP machines with Tyan Tiger MPX,
+> 3ware RAID controllers and 3COM 3C996T GigE. These machines have serious
+> stability problems and crash in particular when large file copies from 
+> the RAID to the network are initiated.
+> 
+> I have been trying the following RH kernels:
+> 
+> - 2.4.9-31 with the bcm5700 driver
+> - 2.4.18-3 with the tg3 driver
+> 
+> The result essentially is the same. It crashes with kernel panic -
+> see the message appended below.
+> 
+Some deeper investigation shows that both drivers suffer from the same 
+problem (terminology below is from tg3.c):
 
-Bear in mind that I was being pedantic to mention the other case, I would
-think that if this is worth doing at all (is it?) just an option to ignore
-the BIOS might be fine:
+hw_idx and sw_idx differ when entering tg3_tx(), but there is no skb in 
+the tx_buffer. In case of tg3 this triggers the BUG, part of which you 
+find below (the rest had scrolled off the screen); the bcm5700 driver 
+does not check this and fails upon pPacket->PacketStatus=0 in 
+LM_ServiceTxInterrupt(), pPacket being NULL.
 
-  modprobe apm my_bios_sucks=sad_but_true
+Is it possible that this is a hardware problem, possibly the NIC writing 
+bogus values to tp->hw_status? Or is it a locking problem somewhere else? 
+I'm not a kernel hacker, so I don't have the full picture. If there's 
+information missing I would happily supply it, e.g. if you need the full 
+dump of the hardware status or whatever; you would only have to tell me 
+how to get this out of the machine.
 
-or some such. If anyone was convinced there was such an issue they could
-do it. Again, it could have been the o/s just losing the int when running
-slow on battery. M$ losing ints? Nah, can't happen ;-)
+Now here's the (partial) BUG message (tg3.c, line 1510): {the .LC13 is an
+artifact, it's the address of the string "tg3.c" for do_BUG()}
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+EIP is at tg3_tx [tg3] 0x5e (2.4.18-3smp)
+eax: 0000001a  ebx: f7832410  ecx: c02eb840  edx: 00005226
+esi: 00000182  edi: 00000000  ebp: f2dc6560  esp: c0307f10
+ds: 0018  es: 0018  ss: 0018
+Stack: f8a531e4 000005e6 c0306000 00000186 c04e5000 f2dc6560 04000001 0000000b
+f8a4c533 f2dc6560 f2dc6560 c04e5000 f8a4c5b4 f2dc6560 f7e2b900 00000000
+c010a52e 0000000b f2dc6400 c0307f98 c0307f98 c0356ac0 0000000b 00000000
+CallTrace: [<f8a531e4>] .LC13 [tg3] 0x0
+[<f8a4c533>] tg3_interrupt_main_work [tg3] 0x53
+[<f8a4c5b4>] tg3_interrupt [tg3] 0x44
+[<c010a52e>] handle_IRQ_event [kernel] 0x5e
+[<c010a734>] do_IRQ [kernel] 0xa4
+[<c0106e70>] default_idle [kernel] 0x0
+[<c0105000>] stext [kernel] 0x0
+[<c0106e70>] default_idle [kernel] 0x0
+[<c0105000>] stext [kernel] 0x0
+[<c0106e9c>] default_idle [kernel] 0x2c
+[<c0106ef4>] cpu_idle [kernel] 0x24
+Code: 0f 0b 59 58 c7 03 00 00 00 00 8b 87 90 00 00 00 46 31 db eb
+<6>Aieee, killing interrupt handler
+In interrupt handler - not syncing
+
+Ciao,
+					Roland
+
++---------------------------+-------------------------+
+|    TU Muenchen            |                         |
+|    Physik-Department E18  |  Raum    3558           |
+|    James-Franck-Str.      |  Telefon 089/289-12592  |
+|    85747 Garching         |                         |
++---------------------------+-------------------------+
 

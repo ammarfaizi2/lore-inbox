@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267588AbUIUMAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267598AbUIUMJH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267588AbUIUMAX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 08:00:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267592AbUIUMAW
+	id S267598AbUIUMJH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 08:09:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267599AbUIUMJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 08:00:22 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:731 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267588AbUIUMAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 08:00:19 -0400
-Subject: Re: Implementation defined behaviour in read_write.c
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rainer Weikusat <rainer.weikusat@sncag.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org, akpm@osdl.org
-In-Reply-To: <878yb5ey11.fsf@farside.sncag.com>
-References: <878yb5ey11.fsf@farside.sncag.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1095764243.30748.55.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 21 Sep 2004 11:57:48 +0100
+	Tue, 21 Sep 2004 08:09:00 -0400
+Received: from smtp2k.poczta.onet.pl ([213.180.130.34]:62173 "EHLO
+	smtp2k.poczta.onet.pl") by vger.kernel.org with ESMTP
+	id S267598AbUIUMI6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 08:08:58 -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+MIME-Version: 1.0
+Date: Tue, 21 Sep 2004 14:08:41 +0200
+From: porterzy@op.pl
+To: =?ISO-8859-2?Q?lkml=A0?= <linux-kernel@vger.kernel.org>
+Subject: problem with porting 2.6.8 kernel to ppc 405CR
+X-Priority: 3
+X-Mailer: onet.poczta
+Message-Id: <20040921120848Z141960-28297+196544@kps2.test.onet.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-09-20 at 16:54, Rainer Weikusat wrote:
-> The following code is in the function do_readv_writev in the file
-> fs/read_write.c (2.6.8.1):
+Hello,
 
-The 2.4.x kernel has part of this fixed. In particular it does the
-overflow check differently because gcc 3.x in some forms did appear to
-be making use of the undefined nature of the test and that was a
-potential security hole. ("its undefined lets say its always false..")
+I have problem with booting the kernel. Bootup stops after message "Now booting the kernel.. Done". I traced that execution doesn't return from function __alloc_bootmem_core (mm/bootmem.c). Depending on crosstool versions I used it stops on different lines (marked ->)
 
-The initial cast and test should be fine. The overflow problem was fixed
-in the 2.4 tree and is handled by keeping tot_len unsigned so that the
-overflow is a defined operation and then checking versus 0x7FFFFFFF or
-0x7FFFFFFFFFFFFFFFUL according to BITS_PER_LONG. I guess the 2.4 code
-should be merged into 2.6, perhaps using limits.h instead ?
+->	offset = 0;
+	if (align &&
+	    (bdata->node_boot_start & (align - 1UL)) != 0)
+		offset = (align - (bdata->node_boot_start & (align - 1UL)));
+	offset >>= PAGE_SHIFT;
 
-Alan
+	/*
+	 * We try to allocate bootmem pages above 'goal'
+	 * first, then we try to allocate lower pages.
+	 */
+	if (goal && (goal >= bdata->node_boot_start) && 
+	    ((goal >> PAGE_SHIFT) < bdata->node_low_pfn)) {
+		preferred = goal - bdata->node_boot_start;
 
+		if (bdata->last_success >= preferred)
+			preferred = bdata->last_success;
+	} else
+		preferred = 0;
+
+	preferred = ((preferred + align - 1) & ~(align - 1)) >> PAGE_SHIFT;
+	preferred += offset;
+->	areasize = (size+PAGE_SIZE-1)/PAGE_SIZE;
+->	incr = align >> PAGE_SHIFT ? : 1;
+
+This looks very strange. Can someone explain what may be the reason?
+Regards,
+W.B. Lach

@@ -1,81 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317649AbSHCSil>; Sat, 3 Aug 2002 14:38:41 -0400
+	id <S317662AbSHCSlU>; Sat, 3 Aug 2002 14:41:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317714AbSHCSil>; Sat, 3 Aug 2002 14:38:41 -0400
-Received: from dsl-213-023-022-101.arcor-ip.net ([213.23.22.101]:43451 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317649AbSHCSik>;
-	Sat, 3 Aug 2002 14:38:40 -0400
+	id <S317698AbSHCSlU>; Sat, 3 Aug 2002 14:41:20 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:35721 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S317662AbSHCSlU>; Sat, 3 Aug 2002 14:41:20 -0400
 Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: [PATCH] Rmap speedup
-Date: Sat, 3 Aug 2002 20:43:34 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <E17aiJv-0007cr-00@starship> <E17aptH-0008DR-00@starship> <3D4B692B.46817AD0@zip.com.au>
-In-Reply-To: <3D4B692B.46817AD0@zip.com.au>
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: davidm@hpl.hp.com, David Mosberger <davidm@napali.hpl.hp.com>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: large page patch (fwd) (fwd)
+Date: Sat, 3 Aug 2002 14:41:29 -0400
+User-Agent: KMail/1.4.1
+Cc: davidm@hpl.hp.com, Gerrit Huizenga <gh@us.ibm.com>,
+       <Martin.Bligh@us.ibm.com>, <wli@holomorpy.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <15691.22889.22452.194180@napali.hpl.hp.com> <Pine.LNX.4.44.0208022125040.2694-100000@home.transmeta.com> <15691.24200.512998.875390@napali.hpl.hp.com>
+In-Reply-To: <15691.24200.512998.875390@napali.hpl.hp.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E17b3sE-0001T4-00@starship>
+Message-Id: <200208031441.29353.frankeh@watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 03 August 2002 07:24, Andrew Morton wrote:
-> - page_add_rmap has vanished
-> - page_remove_rmap has halved (80% of the remaining is the
->   list walk)
-> - we've moved the cost into the new locking site, zap_pte_range
->   and copy_page_range.
-
-> So rmap locking is still a 15% slowdown on my soggy quad, which generally
-> seems relatively immune to locking costs.
-
-What is it about your quad?  I'm getting the expected results here on my two 
-way.  I just checked that the lock hashing is doing what it's supposed to.  
-It is: if I drop all the locks into a single bucket, the speedup drops by 
-half.
-
-It seems odd that you're seeing effectively no change at all.  Is it possible 
-we lost something in translation?  What happens if you just run with the 
-copy_page_range side, and no changes to zap_page_range?
-
-> PPC will like the change
-> because spinlocks are better than bitops.   ia32 should have liked it
-> for the same reason but, as I say, this machine doesn't seem to have
-> the bandwidth*latency to be affected much by these things.
+On Saturday 03 August 2002 12:39 am, David Mosberger wrote:
+> >>>>> On Fri, 2 Aug 2002 21:26:52 -0700 (PDT), Linus Torvalds
+> >>>>> <torvalds@transmeta.com> said:
+>   >>
+>   >> I wasn't disagreeing with your case for separate large page
+>   >> syscalls.  Those syscalls certainly simplify implementation and,
+>   >> as you point out, it well may be the case that a transparent
+>   >> superpage scheme never will be able to replace the former.
 >
-> On more modern machines and other architectures this remains
-> a significant problem for rmap, I expect.
+>   Linus> Somebody already had patches for the transparent superpage
+>   Linus> thing for alpha, which supports it. I remember seeing numbers
+>   Linus> implying that helped noticeably.
+>
+> Yes, I saw those.  I still like the Rice work a _lot_ better.  It's
+> just a thing of beauty, from a design point of view (disclaimer: I
+> haven't seen the implementation, so there may be ugly things
+> lurking...).
+>
 
-My 2X 1GHz PIII definitely likes it.
+I agree, the Rice solution is ellegant in the promotion and demotion.
 
-> Guess we should instrument it up and make sure that the hashing
-> and index thing is getting the right locality.  I saw UML-for-2.5.30
-> whizz past, if you have time ;)
+>   Linus> But yes, that definitely doesn't work for humongous pages (or
+>   Linus> whatever we should call the multi-megabyte-special-case-thing
+>   Linus> ;).
+>
+> Yes, you're probably right.  2MB was reported to be fine in the Rice
+> experiments, but I doubt 256MB (and much less 4GB, as supported by
+> some CPUs) would fly.
+>
+> 	--david
 
-I've got intrumentation for that all ready to go.  I'll break it out and send 
-it along.  The bucket distribution can definitely be improved, by xoring some 
-higher bits of the lock number with a value specific to each mapping.  The 
-anon page locality is poor with the simple increment-a-counter approach; we 
-can do much better.
+As if the page coloring, it certainly helps.
+But I'd like to point out that superpages are there to reduce the number of
+TLB misses by providing larger coverage. Simply providing page coloring
+will not get you there. 
 
-But before we start on the micro-optimization we need to know why your quad 
-is so unaffected by the big change.  Are you sure the slab cache batching of 
-pte chain allocation performs as well as my simpleminded inline batching?   
-(I batched the pte chain allocation lock quite nicely.)  What about the bit 
-test/set for the direct rmap pointer, how is performance affected by dropping 
-the direct lookup optimization?  Note that you are holding the rmap lock 
-considerably longer than I was, by holding it across __page_add_rmap instead 
-of just across the few instructions where pointers are actually updated.  I'm 
-also wondering if gcc is optimizing your cached_rmap_lock inline as well as 
-you think it is.
-
-I really need to be running on 2.5 so I can crosscheck your results.  I'll 
-return to the matter of getting the dac960 running now.
-
-Miscellaneous question: we are apparently adding rmaps to reserved pages, why 
-is that?
 
 -- 
-Daniel
+-- Hubertus Franke  (frankeh@watson.ibm.com)

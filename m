@@ -1,49 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269408AbRGaSic>; Tue, 31 Jul 2001 14:38:32 -0400
+	id <S269413AbRGaSeu>; Tue, 31 Jul 2001 14:34:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269411AbRGaSiU>; Tue, 31 Jul 2001 14:38:20 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:11 "EHLO neon-gw.transmeta.com")
-	by vger.kernel.org with ESMTP id <S269408AbRGaSiJ>;
-	Tue, 31 Jul 2001 14:38:09 -0400
-Date: Tue, 31 Jul 2001 09:41:16 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: ext3-2.4-0.9.4
-In-Reply-To: <20010731032104.O2650@mea-ext.zmailer.org>
-Message-ID: <Pine.LNX.4.33.0107310923010.1188-100000@penguin.transmeta.com>
+	id <S269417AbRGaSel>; Tue, 31 Jul 2001 14:34:41 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:18960 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S269413AbRGaSe0>;
+	Tue, 31 Jul 2001 14:34:26 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200107311833.WAA09598@ms2.inr.ac.ru>
+Subject: Re: missing icmp errors for udp packets
+To: pekkas@netcore.fi (Pekka Savola)
+Date: Tue, 31 Jul 2001 22:33:56 +0400 (MSK DST)
+Cc: therapy@endorphin.org, netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+        davem@redhat.com
+In-Reply-To: <Pine.LNX.4.33.0107301552230.10196-100000@netcore.fi> from "Pekka Savola" at Jul 30, 1 04:03:40 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Hello!
 
-On Tue, 31 Jul 2001, Matti Aarnio wrote:
-> >
-> > Logical, isn't it?
->
->   No.  I don't see why I should opendir() a directory, fsync()
-> that handle, and closedir() the handle.  I would definitely prefer:
->
->        lsync(dirpath)
+> If you reboot the computer, the _first_ ping/scan attempt will not return
+> icmp dest unreachable.
 
-Btw, you don't have to do opendir() - that just wastes time. Just do
-something like
+Hmm... how fast after reboot?
 
-	int lsync(char *path)
-	{
-	        int err, fd;
-	        fd = open(path, 0);
-	        if (fd >= 0) {
-	                err = fsync(fd);
-	                close(fd);
-	        }
-	        return err;
-	}
-
-and you're done. But it won't do the symlink thing...
-
-		Linus
-
+Alexey

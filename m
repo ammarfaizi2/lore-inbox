@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263834AbUE1TvR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263847AbUE1Txr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263834AbUE1TvR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 15:51:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263826AbUE1TvR
+	id S263847AbUE1Txr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 15:53:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263826AbUE1Txr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 15:51:17 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21918 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263847AbUE1TsT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 15:48:19 -0400
-Message-ID: <40B79774.50405@pobox.com>
-Date: Fri, 28 May 2004 15:48:04 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Patrick Finnegan <pat@computer-refuge.org>, linux-kernel@vger.kernel.org,
-       rth@twiddle.net
-Subject: Re: [PATCH] Alpha compile error on 2.6.7-rc1
-References: <200405281405.30638.pat@computer-refuge.org> <20040528191104.GA2370@holomorphy.com>
-In-Reply-To: <20040528191104.GA2370@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 28 May 2004 15:53:47 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47773 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263868AbUE1TxK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 15:53:10 -0400
+Date: Fri, 28 May 2004 12:42:28 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Roland Dreier <roland@topspin.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Proposal] DEBUG_SLAB should select DEBUG_SPINLOCK
+Message-Id: <20040528124228.105ebcbb.rddunlap@osdl.org>
+In-Reply-To: <528yfc72u8.fsf@topspin.com>
+References: <528yfc72u8.fsf@topspin.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Fri, May 28, 2004 at 02:05:30PM -0500, Patrick Finnegan wrote:
-> 
->>Machine is a 21164A Alpha (164LX motherboard).  The error is:
->>  CC      arch/alpha/mm/init.o
->>arch/alpha/mm/init.c: In function `show_mem':
->>arch/alpha/mm/init.c:120: structure has no member named `count'
->>make[1]: *** [arch/alpha/mm/init.o] Error 1
->>make: *** [arch/alpha/mm] Error 2
->>Patch is below.
->>Alpha: Fixup arch/alpha/mm/init.c to match struct page changes 
-> 
-> 
-> Might be a better idea to use page_count(&mem_map[i]).
+On 28 May 2004 12:45:35 -0700 Roland Dreier wrote:
 
-which is what current -BK does...
+| I recently had a rather amusing debugging session.  I developed some
+| code that worked fine on my test kernel, which had CONFIG_DEBUG_SLAB
+| turned on.  However, as soon as I moved to a kernel without slab
+| debugging to do some benchmarks, I started getting lockups.  It turns
+| out that I had a spinlock in my data structure that I forgot to
+| initialize but the poisoning from slab debugging had taken care of
+| initializing it for me.  I didn't catch this during development
+| because I had left CONFIG_DEBUG_SPINLOCK off.
+| 
+| Fortunately (for my sanity) I was able to diagnose this pretty quickly
+| with the help of the NMI oopser.  However, for other developers' sake,
+| I think it might make sense to add
+| 
+| 	select DEBUG_SPINLOCK
+| 
+| to the DEBUG_SLAB stanza of Kconfig.
+| 
+| I'm not posting a patch because I wanted to find out the status of
+| Randy Dunlap's patch that consolidates the debugging options.  Is that
+| patch going to be merged, in someone's tree somewhere, dropped, or what?
 
-	Jeff
+Andrew asked me to delay it until 2.6.6, which I did.
+Sent that, but not merged.
+
+I will be rediffing it and resending it again for 2.6.7 and
+probably some intermediate kernels if that's what it takes.
+
+| If the consensus is that we don't want to do this anyway, that's
+| fine.  I mostly wanted to share this bug, which amused me.
 
 
 
+--
+~Randy

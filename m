@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265024AbTIJPlM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 11:41:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265033AbTIJPlM
+	id S265002AbTIJPcG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 11:32:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264998AbTIJPcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 11:41:12 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:26887
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S265024AbTIJPlJ (ORCPT
+	Wed, 10 Sep 2003 11:32:05 -0400
+Received: from [63.205.85.133] ([63.205.85.133]:33526 "EHLO gaz.sfgoth.com")
+	by vger.kernel.org with ESMTP id S265002AbTIJPaI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 11:41:09 -0400
-Subject: Re: How reliable is SLAB_HWCACHE_ALIGN?
-From: Robert Love <rml@tech9.net>
-To: Ravikiran G Thirumalai <kiran@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030910081654.GA1129@llm08.in.ibm.com>
-References: <20030910081654.GA1129@llm08.in.ibm.com>
-Content-Type: text/plain
-Message-Id: <1063208464.700.35.camel@localhost>
+	Wed, 10 Sep 2003 11:30:08 -0400
+Date: Wed, 10 Sep 2003 08:38:16 -0700
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Marc Zyngier <mzyngier@freesurf.fr>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Move EISA_bus
+Message-ID: <20030910153816.GA84652@gaz.sfgoth.com>
+References: <20030909222937.GH18654@parcelfarce.linux.theplanet.co.uk> <wrpbrttyztg.fsf@hina.wild-wind.fr.eu.org> <20030910114749.GR18654@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Wed, 10 Sep 2003 11:41:04 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030910114749.GR18654@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-09-10 at 04:16, Ravikiran G Thirumalai wrote:
+Matthew Wilcox wrote:
+> On Wed, Sep 10, 2003 at 07:31:23AM +0200, Marc Zyngier wrote:
+> > While we're at it, why not setting EISA_bus as 'deprecated', so people
+> > will know they'd better move the driver to the EISA probing API ?
+> 
+> I'd rather not.  It'll cause warnings in arch code that's making
+> perfectly legitimate use of it, eg arch/i386/kernel/traps.c that sets
+> it or arch/parisc/kernel/pci.c that keys off EISA_bus to know whether
+> to direct port access to the EISA or PCI bus adapters.
 
-> Am I missing something or can there really be two objects on the same 
-> cacheline even when SLAB_HWCACHE_ALIGN is specified?
+Perhaps put the "depreciated" tag inside an "#ifdef MODULE" so the warnings
+will show up in allmodconfig at least.  Or are there any modules that have
+a legitimate use for EISA_bus?
 
-No, you are right.
-
-If your object _must_ be cache aligned, use SLAB_MUST_HWCACHE_ALIGN.
-
-But note that this will result in cache aligning objects even if it ends
-of wasting a _lot_ of space, such as when debugging is turned on.
-
-I think we only use it for the task_struct_cachep.
-
-	Robert Love
-
-
+-Mitch

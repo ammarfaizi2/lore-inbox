@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263931AbTJOS1d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 14:27:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263929AbTJOS1W
+	id S263934AbTJOS0T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 14:26:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263933AbTJOS0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 14:27:22 -0400
-Received: from mail.kroah.org ([65.200.24.183]:53681 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263930AbTJOS0L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 14:26:11 -0400
-Date: Wed, 15 Oct 2003 11:10:05 -0700
+	Wed, 15 Oct 2003 14:26:18 -0400
+Received: from mail.kroah.org ([65.200.24.183]:50353 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263927AbTJOS0G convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 14:26:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <1066242289283@kroah.com>
+Subject: Re: [PATCH] PCI fixes for 2.6.0-test7
+In-Reply-To: <10662422891492@kroah.com>
 From: Greg KH <greg@kroah.com>
-To: "Daheriya, Adarsh" <Adarsh.Daheriya@fci.com>
-Cc: "Murray, Scott" <scott_murray@stream.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Hot Swap - Resource Allocation Problem.
-Message-ID: <20031015181005.GA22159@kroah.com>
-References: <903E17B6FF22A24C96B4E28C2C0214D70104BDD7@sr-bng-exc01.int.tsbu.net>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 15 Oct 2003 11:24:49 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <903E17B6FF22A24C96B4E28C2C0214D70104BDD7@sr-bng-exc01.int.tsbu.net>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 15, 2003 at 09:37:35AM +0530, Daheriya, Adarsh wrote:
-> hi Greg,
-> 
-> thanks for the reply.
-> 
-> i do reserve pci resources at boot time with kernel option as
-> "pci_hp_reserve=8,16,16" without quotes.
-> but still i am getting this problem.
-> 
-> is this problem coming because of mishandling of resources?
+ChangeSet 1.1347.1.2, 2003/10/13 11:06:38-07:00, greg@kroah.com
 
-I have no idea.
+PCI: fix up probe functions for synclink drivers
+  
+Can not be marked __init, must be marked __devinit or not at all.
+If it is marked __init, then oops can happen by a user writing to the
+"new_id" file from sysfs.
+
+
+ drivers/char/synclink.c   |    4 ++--
+ drivers/char/synclinkmp.c |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+
+diff -Nru a/drivers/char/synclink.c b/drivers/char/synclink.c
+--- a/drivers/char/synclink.c	Wed Oct 15 11:18:47 2003
++++ b/drivers/char/synclink.c	Wed Oct 15 11:18:47 2003
+@@ -8020,8 +8020,8 @@
+ 
+ #endif /* ifdef CONFIG_SYNCLINK_SYNCPPP */
+ 
+-static int __init synclink_init_one (struct pci_dev *dev,
+-				     const struct pci_device_id *ent)
++static int __devinit synclink_init_one (struct pci_dev *dev,
++					const struct pci_device_id *ent)
+ {
+ 	struct mgsl_struct *info;
+ 
+diff -Nru a/drivers/char/synclinkmp.c b/drivers/char/synclinkmp.c
+--- a/drivers/char/synclinkmp.c	Wed Oct 15 11:18:47 2003
++++ b/drivers/char/synclinkmp.c	Wed Oct 15 11:18:47 2003
+@@ -5451,8 +5451,8 @@
+ }
+ 
+ 
+-static int __init synclinkmp_init_one (struct pci_dev *dev,
+-				       const struct pci_device_id *ent)
++static int __devinit synclinkmp_init_one (struct pci_dev *dev,
++					  const struct pci_device_id *ent)
+ {
+ 	if (pci_enable_device(dev)) {
+ 		printk("error enabling pci device %p\n", dev);
+

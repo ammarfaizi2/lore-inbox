@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280570AbRKJSUq>; Sat, 10 Nov 2001 13:20:46 -0500
+	id <S280601AbRKJSsp>; Sat, 10 Nov 2001 13:48:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280583AbRKJSUh>; Sat, 10 Nov 2001 13:20:37 -0500
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:63331 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S280570AbRKJSU0>; Sat, 10 Nov 2001 13:20:26 -0500
-Date: Sat, 10 Nov 2001 05:25:54 +0000
-From: Stephen Tweedie <sct@redhat.com>
-To: Robert Lowery <Robert.Lowery@colorbus.com.au>
-Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: Assertion failure wth ext3 on standard Redhat 7.2 kernel
-Message-ID: <20011110052554.A21643@redhat.com>
-In-Reply-To: <370747DEFD89D2119AFD00C0F017E66150B29A@cbus613-server4.colorbus.com.au>
-Mime-Version: 1.0
+	id <S280594AbRKJSsf>; Sat, 10 Nov 2001 13:48:35 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:2692 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S280585AbRKJSsR>;
+	Sat, 10 Nov 2001 13:48:17 -0500
+Message-ID: <3BED766B.BEBA6EB0@pobox.com>
+Date: Sat, 10 Nov 2001 10:48:11 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Sven Vermeulen <sven.vermeulen@rug.ac.be>
+CC: Linux-Kernel Development Mailinglist 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: Networking: repeatable oops in 2.4.15-pre2
+In-Reply-To: <20011110132139.A872@Zenith.starcenter>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <370747DEFD89D2119AFD00C0F017E66150B29A@cbus613-server4.colorbus.com.au>; from Robert.Lowery@colorbus.com.au on Fri, Nov 09, 2001 at 05:20:58PM +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Sven Vermeulen wrote:
 
-On Fri, Nov 09, 2001 at 05:20:58PM +1100, Robert Lowery wrote:
- 
-> The last error I get is
-> Assertion failure in __journal_file_buffer() at transaction.c:1953:
+> J Sloan (jjs@pobox.com) wrote:
+> > I have been running the 2.4.15-pre kernels and
+> > have found an interesting oops. I can reproduce
+> > it immediately, and reliably, just by issuing an ssh
+> > command (as a normal user).
+>
+> I'm currently running Linux 2.4.15-pre2 and have no troubles with ssh. I can
+> safely login onto other hosts, or issuing commands like
+>         ssh -l someuser@somehost mutt
+> or copy files
+>         scp somefile someuser@somehost:
+>
+> I'm not using OpenSSH 3.0 yet (2.9p2). I'm not running any firewall or
+> transparent proxying.
 
-It's usually the _first_, not the last, error which is most revealing.
-Did /var/log/messages capture anything more about the earlier errors?
+Thanks for the info, this is what I suspected -
 
-Cheers,
- Stephen
+only people running iptables appear to be
+seeing this problem.
+
+cu
+
+jjs
+
+
+

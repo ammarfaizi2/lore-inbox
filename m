@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315198AbSHVRzp>; Thu, 22 Aug 2002 13:55:45 -0400
+	id <S315337AbSHVRzu>; Thu, 22 Aug 2002 13:55:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315337AbSHVRzo>; Thu, 22 Aug 2002 13:55:44 -0400
-Received: from www.telenet.net ([204.97.152.225]:7942 "EHLO telenet.net")
-	by vger.kernel.org with ESMTP id <S315198AbSHVRzk>;
-	Thu, 22 Aug 2002 13:55:40 -0400
-Date: Thu, 22 Aug 2002 13:59:45 -0400
-From: Rob Speer <rob@twcny.rr.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20-pre2-ac4 IDE is slow
-Message-ID: <20020822175945.GA743@twcny.rr.com>
-Reply-To: rob@twcny.rr.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Is-It-Not-Nifty: www.sluggy.com
+	id <S315374AbSHVRzt>; Thu, 22 Aug 2002 13:55:49 -0400
+Received: from AMarseille-201-1-2-125.abo.wanadoo.fr ([193.253.217.125]:32880
+	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S315337AbSHVRzq>; Thu, 22 Aug 2002 13:55:46 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Dominik Brodowski <devel@brodo.de>
+Cc: Gabriel Paubert <paubert@iram.es>,
+       Yoann Vandoorselaere <yoann@prelude-ids.org>,
+       <cpufreq@lists.arm.linux.org.uk>, <cpufreq@www.linux.org.uk>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]: fix 32bits integer overflow in loops_per_jiffy
+ calculation
+Date: Thu, 22 Aug 2002 22:00:16 +0200
+Message-Id: <20020822200016.12303@192.168.4.1>
+In-Reply-To: <20020822194655.C2016@brodo.de>
+References: <20020822194655.C2016@brodo.de>
+X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think I remember someone else bringing up this same issue, in which
-case I'm sorry to have to ask again, but I can't find the message.
+>> In this specific case, we were talking about PPC since the problem
+>> occured when I implemented cpufreq support to switch the speed
+>> of the latest powerbooks between 667 and 800Mhz
+>
+>And the patch from Yoann solves this? Then it might be easiest to use this
+>for the time being, and switch to George Anzinger's sc_math.h once 
+>high-res-timer is merged.
 
-I'm going from 2.4.19 to 2.4.20-pre2-ac4 and the hard drive is noticably
-slower in the new version. (It doesn't use DMA in either version - I
-wish it did in ac4, but that's a separate problem.)
+Provided Yoann patch doesn't break other machines, that's what I would
+do, yes.
 
-What I seem to remember from the other message is that there's some
-parameter that can be changed to bring the speed back up. Could someone
-tell me what it is?
+Ben.
 
-
-If it helps: output of hdparm /dev/hda
-
-/dev/hda:
- multcount    =  0 (off)
- IO_support   =  0 (default 16-bit)
- unmaskirq    =  0 (off)
- using_dma    =  0 (off)
- keepsettings =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 77557/16/63, sectors = 78177792, start = 0
-
--- 
-Rob Speer
 

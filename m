@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265306AbUBFCSA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 21:18:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265329AbUBFCR7
+	id S265285AbUBFCNu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 21:13:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265316AbUBFCNu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 21:17:59 -0500
-Received: from mail-06.iinet.net.au ([203.59.3.38]:23985 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S265306AbUBFCRx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 21:17:53 -0500
-Message-ID: <4022F94C.30605@cyberone.com.au>
-Date: Fri, 06 Feb 2004 13:17:48 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Thu, 5 Feb 2004 21:13:50 -0500
+Received: from bhhdoa.org.au ([216.17.101.199]:60681 "EHLO bhhdoa.org.au")
+	by vger.kernel.org with ESMTP id S265285AbUBFCNt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 21:13:49 -0500
+Message-ID: <1076034783.4022fcdfd4669@vds.kolivas.org>
+Date: Fri,  6 Feb 2004 13:33:03 +1100
+From: Con Kolivas <kernel@kolivas.org>
+To: Ryan Reich <ryanr@uchicago.edu>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       apt-drink@telefonica.net
+Subject: Re: 2.6.2-ck1
+References: <200402052109.24122.kernel@kolivas.org> <200402060943.40973.kernel@kolivas.org> <Pine.LNX.4.58.0402051650320.14714@ryanr.aptchi.homelinux.org> <200402060953.38015.kernel@kolivas.org> <Pine.LNX.4.58.0402051948410.1732@ryanr.aptchi.homelinux.org>
+In-Reply-To: <Pine.LNX.4.58.0402051948410.1732@ryanr.aptchi.homelinux.org>
 MIME-Version: 1.0
-To: Mattias Wadenstein <maswan@acc.umu.se>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Performance issue with 2.6 md raid0
-References: <Pine.A41.4.58.0402051304410.28218@lenin.acc.umu.se> <402263E7.6010903@cyberone.com.au> <Pine.A41.4.58.0402051647460.28218@lenin.acc.umu.se>
-In-Reply-To: <Pine.A41.4.58.0402051647460.28218@lenin.acc.umu.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoting Ryan Reich <ryanr@uchicago.edu>:
 
+> Yes, of course I should have done that.  It does seem to be the bootsplash,
+> though Rafael Rodriguez disagrees.  Probably a .config difference.
 
-Mattias Wadenstein wrote:
+Ok good. A different framebuffer driver or something could be enough to account
+for it working on one config and not another. Sorry but i'm unable to debug the
+bootsplash bug for you though.
 
->On Fri, 6 Feb 2004, Nick Piggin wrote:
->
->
->>Mattias Wadenstein wrote:
->>
->>
->>>Greetings.
->>>
->>>While testing a file server to store a couple of TB in resonably large
->>>files (>1G), I noticed an odd performance behaviour with the md raid0 in a
->>>pristine 2.6.2 kernel as compared to a 2.4.24 kernel.
->>>
->>>When striping two md raid5:s, instead of going from about 160-200MB/s for
->>>a single raid5 to 300M/s for the raid0 in 2.4.24, the 2.6.2 kernel gave
->>>135M/s in single stream read performance.
->>>
->>Can you try booting with elevator=deadline please?
->>
->
->Ok, then I get 253267 kB/s write and 153187 kB/s read from the raid0. A
->bit better, but still nowhere near the 2.4.24 numbers.
->
->For a single raid5, 158028 kB/s write and 162944 kB/s read.
->
->
+Con
 
-Any idea what is holding back performance? Is it IO or CPU bound?
-Can you get a profile of each kernel while doing a read please?
+> On Fri, 6 Feb 2004, Con Kolivas wrote:
+> 
+> > On Fri, 6 Feb 2004 09:51, Ryan Reich wrote:
+> > > I have only your patch and the 2.6.0-test9 (the latest on bootsplash.org
+> > > thus far) bootsplash patch.  I'll send you my .config separately.
+> >
+> > Ok well the obvious thing to ask is can you try without the bootsplash
+> patch
 

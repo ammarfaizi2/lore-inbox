@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318741AbSHBHUm>; Fri, 2 Aug 2002 03:20:42 -0400
+	id <S318746AbSHBH2V>; Fri, 2 Aug 2002 03:28:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318746AbSHBHUm>; Fri, 2 Aug 2002 03:20:42 -0400
-Received: from ds217-115-144-18.dedicated.hosteurope.de ([217.115.144.18]:60938
-	"EHLO mail.crapoud.com") by vger.kernel.org with ESMTP
-	id <S318741AbSHBHUl>; Fri, 2 Aug 2002 03:20:41 -0400
-Message-ID: <3D4A3396.9000500@crapoud.com>
-Date: Fri, 02 Aug 2002 09:24:06 +0200
-From: "Hartwig. Thomas" <t.hartwig@crapoud.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020606
-X-Accept-Language: de-de, en-us, en
+	id <S318748AbSHBH2V>; Fri, 2 Aug 2002 03:28:21 -0400
+Received: from denise.shiny.it ([194.20.232.1]:17866 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S318746AbSHBH2V>;
+	Fri, 2 Aug 2002 03:28:21 -0400
+Message-ID: <XFMail.20020802093146.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: gettimeofday clock jump bug
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.44.0208020009490.28515-100000@serv>
+Date: Fri, 02 Aug 2002 09:31:46 +0200 (CEST)
+From: Giuliano Pochini <pochini@shiny.it>
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: manipulating sigmask from filesystems and drivers
+Cc: linux-kernel@vger.kernel.org, alan@redhat.com,
+       David Howells <dhowells@redhat.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Linus Torvalds <torvalds@transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was referenced to a gettimeofday problem spoken of in the kernel 
-discussion summary:
-http://kt.zork.net/kernel-traffic/kt20020708_174.html#1
 
-There is spoken of .01% reproducibility and less of this problem.
+>> Stop arguing about this. It's a FACT.
+>
+> Linus, it's not that I don't want to believe you, but e.g. the SUS doesn't
+> make that special exception.
+> Installing signal handlers and not expecting EINTR _is_ sloppy
+> programming.
 
-I got to this problem here running a version of GNU wget (1.8.2) and 
-following kernel: Linux version 2.4.18 (gcc version 2.96 20000731 (Red 
-Hat Linux 7.3 2.96-110)) #4 Sun Jul 28 09:01:06 CEST 2002
+Linus is right. It's impossible to change default rw semantics
+without breaking things. Anyway, we can add another non-standard
+file flag (that's likely to remain mostly unused).
 
-In this configuration I get the error even more times. In 2300 calls I 
-get 319 failures, this is something about 0.07% not too much, but 
-significant.
 
-However it is not my skill to analyze nor get to deep in wget and the 
-kernel. It's just a note and a offer of some further tests if you need.
-
-Greetings
-Thomas
-
-PS: I'm sorry this message is out of the thread index. I got to late on 
-the list.
-
+Bye.
 

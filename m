@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261190AbRFFJTF>; Wed, 6 Jun 2001 05:19:05 -0400
+	id <S261385AbRFFJVZ>; Wed, 6 Jun 2001 05:21:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261297AbRFFJS4>; Wed, 6 Jun 2001 05:18:56 -0400
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:10057 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S261190AbRFFJSv>; Wed, 6 Jun 2001 05:18:51 -0400
-Message-ID: <001f01c0ee5c$40d3fb10$3303a8c0@einstein>
-From: =?iso-8859-1?Q?Christian_Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-To: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E157KV1-00077L-00@the-village.bc.nu> <3B1DD68A.17C8FD52@TeraPort.de>
-Subject: Re: 2.4.5 VM
-Date: Wed, 6 Jun 2001 09:42:32 +0200
+	id <S261473AbRFFJVP>; Wed, 6 Jun 2001 05:21:15 -0400
+Received: from mail.scs.ch ([212.254.229.5]:7944 "EHLO mail.scs.ch")
+	by vger.kernel.org with ESMTP id <S261385AbRFFJVC>;
+	Wed, 6 Jun 2001 05:21:02 -0400
+Message-ID: <3B1DF4BC.6A8C5CBC@scs.ch>
+Date: Wed, 06 Jun 2001 11:15:40 +0200
+From: Thomas Sailer <sailer@scs.ch>
+Reply-To: t.sailer@alumni.ethz.ch
+Organization: SCS
+X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Alan Cox <laughing@shared-source.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.5-ac9
+In-Reply-To: <20010605234928.A28971@lightning.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  On a side question: does Linux support swap-files in addition to
-> sawp-partitions? Even if that has a performance penalty, when the system
-> is swapping performance is dead anyway.
+Alan Cox schrieb:
 
+> 2.4.5-ac9
+> o       Add es1371 sound driver locking                 (Frank Davis)
 
-Yes.
-A possible solution could be:
+Looks bogus. Independent processes can open the same device
+once for reading and once for writing, now you are serializing
+needlessly these processes. Please revert.
 
-> dd if=/dev/zero of=/swap bs=1M count=<whatever you like in MB>
-> mkswap /swap
-> swapon /swap
-
-Works fine for me.
-
+Tom

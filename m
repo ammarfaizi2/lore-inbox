@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbVCCHDq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbVCCGzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261488AbVCCHDq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 02:03:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVCCHAt
+	id S261464AbVCCGzj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 01:55:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVCCGxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 02:00:49 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:38995 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S261179AbVCCG4G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 01:56:06 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="3.90,132,1107734400"; 
-   d="scan'208"; a="230976334:sNHT21442634"
-Message-Id: <200503030655.AWY08157@mira-sjc5-e.cisco.com>
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "'Linus Torvalds'" <torvalds@osdl.org>,
-       "'Jeff Garzik'" <jgarzik@pobox.com>
-Cc: "'David S. Miller'" <davem@davemloft.net>, <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: RFD: Kernel release numbering
-Date: Wed, 2 Mar 2005 22:55:53 -0800
-Organization: Cisco Systems
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4939.300
-Thread-Index: AcUfo4+kAcfxmD6aSum8b3HwKxDfuQAAzHwg
+	Thu, 3 Mar 2005 01:53:55 -0500
+Received: from rev.193.226.232.215.euroweb.hu ([193.226.232.215]:48049 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261464AbVCCGl4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 01:41:56 -0500
+To: hch@infradead.org
+CC: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+In-reply-to: <20050302221901.GA26008@infradead.org> (message from Christoph
+	Hellwig on Wed, 2 Mar 2005 22:19:01 +0000)
+Subject: Re: [request for inclusion] Filesystem in Userspace
+References: <E1D6YPJ-0000Jv-00@dorka.pomaz.szeredi.hu> <20050302221901.GA26008@infradead.org>
+Message-Id: <E1D6k1O-0001ME-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 03 Mar 2005 07:41:18 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And the reason it does _not_ work is that all the people we 
-> want testing sure as _hell_ won't be testing -rc versions.
+> > Do you have any objections to merging FUSE in mainline kernel?
+> > 
+> > It's been in -mm for the 2.6.11 cycle, and the same code was released
+> > a month ago as FUSE-2.2.  So it should have received a fair amount of
+> > testing, with no problems found so far.
+> > 
+> > The one originally merged into -mm already addressed all major issues
+> > that people found (most importantly the OOM deadlock thing), and
+> > though there were some minor changes in the interface since then, I
+> > feel that the current kernel interface will stand up to the test of
+> > time.
+> 
+> 
+> Please give me or some other filesystem person some time to look over
+> it, there were a few things that looked really fishy.
 
-At least they still test "real" releases..
+Please do.  Although I think the most complex part of FUSE is the
+device handling, which is not really "filesystem" code.  The
+filesystem part is mostly really straightforward.
 
-So instead of making sure rc is really "release-candidate", we want to trick
-people to test -pre as "real release", soon people will realize it and just
-stop testing even real releases. The trick won't last. What other names will
-we try then? Seriously, this is silly and the focus is wrong, and will
-accomplish nothing but confusing people one more time.
+Still the more people look at it, the better.
 
-Let's start by making rc really "release-candidate", not something with
-last-minute unpredictable random changes. Why should I test rc when I know
-the final release will be much different anyway? What is worse is that we
-actually _complain_ about the fact that people do not take rc seriously,
-while the release management doesn't take it seriously itself.
+> And apologies for not having time to look at it earlier, but I'm a little
+> bit too busy right now.
 
-Hua
+Take your time, I don't want to hurry merging into mainline, but
+things went very quiet lately on the bug front.
+
+Thanks,
+Miklos

@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263349AbTJQJM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 05:12:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263351AbTJQJM6
+	id S263342AbTJQJHn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 05:07:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263344AbTJQJHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 05:12:58 -0400
-Received: from ny03.mtek.chalmers.se ([129.16.60.203]:18446 "HELO
-	ny03.mtek.chalmers.se") by vger.kernel.org with SMTP
-	id S263349AbTJQJM4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 05:12:56 -0400
-Subject: Re: Hard lock with recent 2.6.0-test kernels
-From: Thomas Svedberg <Thomas.Svedberg@me.chalmers.se>
-To: Thomas Svedberg <thsv@am.chalmers.se>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, jgarzik@pobox.com,
-       netdev@oss.sgi.com
-In-Reply-To: <1063272933.26472.16.camel@ampc545.am.chalmers.se>
-References: <1063272933.26472.16.camel@ampc545.am.chalmers.se>
-Content-Type: text/plain; charset=ISO-8859-1
-Message-Id: <1066310622.1483.2.camel@thsvlap.swenox.net>
+	Fri, 17 Oct 2003 05:07:42 -0400
+Received: from holomorphy.com ([66.224.33.161]:8583 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263342AbTJQJHm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 05:07:42 -0400
+Date: Fri, 17 Oct 2003 02:10:42 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test7-mm1
+Message-ID: <20031017091042.GE25291@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20031015013649.4aebc910.akpm@osdl.org> <1066232576.25102.1.camel@telecentrolivre> <20031015165508.GA723@holomorphy.com> <200310171258.11519.dev@sw.ru>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 17 Oct 2003 11:12:26 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310171258.11519.dev@sw.ru>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have tried a lot more of the recent kernels, and still have these
-lockups.
-The box is, however, completely stable if i switch from running 8139cp
-to 8139too.
-I am willing to test patches.
+At some point in the past, akpm wrote:
+>> Yup.  The "invalidate_inodes-speedup-fixes" and "invalidate_inodes-speedup"
+>> patches were not so great and need to be reverted.
 
-tor 2003-09-11 klockan 11.35 skrev Thomas Svedberg:
-> I first experienced total lockup with 2.6.0-test4-mm5 and have now tried
-> a few different ones. -test4-mm4 works, test4-bk2 works, test4-mm5
-> locks, test4-bk3 locks, test5-mm1 locks.
-> Nothing shows in the logs, and the lock occurs while doing random things
-> but only after a few seconds - minutes after i logged in to X.
-> sysrq don't work either.
-> It is an Compaq Evo 1020v and configs etc. can be found at:
-> http://www.am.chalmers.se/~thsv/laptop/  
--- 
-/ Thomas
-.......................................................................
- Thomas Svedberg
- Department of Applied Mechanics 
- Chalmers University of Technology 
+On Fri, Oct 17, 2003 at 12:58:11PM +0400, Kirill Korotaev wrote:
+> I found another bug in invalidate_inodes-speedup.patch
+> introduced by WLI when doing forward porting:
+> -			list_del(&inode->i_list);
+> +			list_del(&inode->i_sb_list);
+> first list_del should be kept!!!
+> Patch fixing this issue and hugetlbfs is attached.
 
- Address: SE-412 96 Göteborg, SWEDEN 
- E-mail : thsv@am.chalmers.se, thsv@bigfoot.com
- Phone  : +46 31 772 1522
- Fax    : +46 31 772 3827
-.......................................................................
+Aha! Thanks for cleaning up after, I've had *ahem* distractions the
+past few days and haven't really been able to do much more than punt.
 
 
+-- wli

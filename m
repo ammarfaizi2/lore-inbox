@@ -1,85 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264367AbUFVOsI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264223AbUFVOsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264367AbUFVOsI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 10:48:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264206AbUFVOrV
+	id S264223AbUFVOsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 10:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbUFVOrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 10:47:21 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:28870 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S264444AbUFVOhV (ORCPT
+	Tue, 22 Jun 2004 10:47:08 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:30168 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S264223AbUFVOiZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 10:37:21 -0400
-Date: Tue, 22 Jun 2004 12:19:14 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nobuhiro Tachino <ntachino@redhat.com>
-Cc: Takao Indoh <indou.takao@soft.fujitsu.com>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@muc.de>
-Subject: Re: [3/4] [PATCH]Diskdump - yet another crash dump function
-Message-ID: <20040622101914.GA20623@elte.hu>
-References: <20040617121356.GA24338@elte.hu> <D3C4552C24A60Aindou.takao@soft.fujitsu.com> <40D747B1.9030406@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40D747B1.9030406@redhat.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 22 Jun 2004 10:38:25 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Andrea Arcangeli <andrea@suse.de>
+Date: Tue, 22 Jun 2004 16:38:15 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Stop the Linux kernel madness
+Cc: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <A095D7F069C@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 22 Jun 04 at 4:06, Andrea Arcangeli wrote:
 
-* Nobuhiro Tachino <ntachino@redhat.com> wrote:
+> To make the last recent example we had to break the source API with the
+> drivers to fix the release_pages race that Andrew found and fixed in
+> mainline too. That changes page->count into page->_count and quite some
+> drivers broke even outside the kernel. I had the choice of not breaking
 
-> Your new dump_run_timers() calls __run_timers() directly. I think
-> that's the reason of unstability. __run_timers() calls
-> spin_unlock_irq() and enables IRQ, but diskdump expects everything
-> runs with IRQ disabled.
+FYI, vmware modules broke during your change because 2.4.20-xx kernels from 
+RedHat moved page_count() from linux/mm.h to linux/mm_inline.h, and made 
+it unavailable for non-GPL modules. So we had to do
 
-indeed!
+#ifndef page_count
+#define page_count(p) (p)->count
+#endif
 
-luckily we can solve this in the upstream kernel without too much fuss,
-see the patch below. All callers of __run_timers() run with irqs
-enabled.
+and this #ifndef test was broken by making page_count inline function.
 
-(NOTE: we unconditionally disable interrupts after having run the timer
-fn - this solves the problem of a timer fn keeping irqs disabled.)
+But I'd like to publicly thank you for your effort, I really appreciate
+it.
+                                                Best regards,
+                                                    Petr Vandrovec
 
-does this patch stabilize diskdump?
-
-	Ingo
-
---- linux/kernel/timer.c.orig
-+++ linux/kernel/timer.c
-@@ -423,8 +423,9 @@ static int cascade(tvec_base_t *base, tv
- static inline void __run_timers(tvec_base_t *base)
- {
- 	struct timer_list *timer;
-+	unsigned long flags;
- 
--	spin_lock_irq(&base->lock);
-+	spin_lock_irqsave(&base->lock, flags);
- 	while (time_after_eq(jiffies, base->timer_jiffies)) {
- 		struct list_head work_list = LIST_HEAD_INIT(work_list);
- 		struct list_head *head = &work_list;
-@@ -453,14 +454,14 @@ repeat:
- 			set_running_timer(base, timer);
- 			smp_wmb();
- 			timer->base = NULL;
--			spin_unlock_irq(&base->lock);
-+			spin_unlock_irqrestore(&base->lock, flags);
- 			fn(data);
- 			spin_lock_irq(&base->lock);
- 			goto repeat;
- 		}
- 	}
- 	set_running_timer(base, NULL);
--	spin_unlock_irq(&base->lock);
-+	spin_unlock_irqrestore(&base->lock, flags);
- }
- 
- #ifdef CONFIG_NO_IDLE_HZ

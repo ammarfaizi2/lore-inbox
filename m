@@ -1,52 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129391AbQLRVBX>; Mon, 18 Dec 2000 16:01:23 -0500
+	id <S129477AbQLRVBX>; Mon, 18 Dec 2000 16:01:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130642AbQLRVBO>; Mon, 18 Dec 2000 16:01:14 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:2573 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S129391AbQLRVAw>; Mon, 18 Dec 2000 16:00:52 -0500
-From: Steven Cole <scole@lanl.gov>
-Reply-To: scole@lanl.gov
-Date: Mon, 18 Dec 2000 13:30:17 -0700
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="iso-8859-1"
-To: linux-kernel@vger.kernel.org
-Subject: ReiserFS now works with 2.4.0-test12 and test13-pre1,2,3
+	id <S129391AbQLRVBP>; Mon, 18 Dec 2000 16:01:15 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:4342 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129477AbQLRVA7>; Mon, 18 Dec 2000 16:00:59 -0500
+Date: Mon, 18 Dec 2000 18:29:24 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@suse.cz>,
+        Chris Lattner <sabre@nondot.org>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+In-Reply-To: <Pine.LNX.3.96.1001216000116.27376A-100000@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.21.0012181825180.2595-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Message-Id: <00121813301601.00924@spc.esa.lanl.gov>
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For the benefit of those who want to run 2.4.0-test12 and
-2.4.0-test13-preX kernels with ReiserFS and who are not actively
-monitoring the reiserfs-list, the following information may be
-of interest.
+On Sat, 16 Dec 2000, Mikulas Patocka wrote:
 
-Reiserfs version 3.6.22 (only) now works with these latest kernels, but
-two additional patches for 2.4.0-test12 and a third patch for test13-preX are 
-necessary.
+> > Not unless your driver is broken.
+> 
+> ok_to_allocate:
+> 		******* INTERRUPT ********
+>         spin_lock_irqsave(&page_alloc_lock, flags);
+>         /* if it's not a dma request, try non-dma first */
+>         if (!(gfp_mask & __GFP_DMA))
+>                 RMQUEUE_TYPE(order, 0);
+>         RMQUEUE_TYPE(order, 1);
+>         spin_unlock_irqrestore(&page_alloc_lock, flags);
+> 
+> nopage:
+>         return 0;
+> }
 
-Reiserfs-3.6.22 is available at:
-ftp://ftp.namesys.com/pub/2.4/linux-2.4.0-test10-reiserfs-3.6.22-patch.gz
+Now read the code carefully and see how allocations can
+end up here ... and when they can't...
 
-The first two additional patches are available here:
-ftp://ftp.reiserfs.org/pub/2.4/beta/reiserfs-test12-patches.tar.gz
+> When interrupt comes here and eats page just freed by try_to_free_pages(),
+> GFP_KERNEL allocation will fail => The kernel goes crazy, shoots
+> processes, returns -ENOMEM to calls, maybe damages its structures. 
+> Deadlock in getblk, if memory is full of dirty file mapped pages. 
 
-This tar contains:
-readpage-uptodate.diff    Linus's version (Test12 ll_rw_block thread)
-reiserfs-3622-test12.diff
+Wrong. Getblk won't deadlock, it will just sleep and another
+thread will continue later on. Killing processes will (in 2.4)
+only happen when you run out of swap ... 2.4 will simply have
+its processes loop in alloc_pages() until memory is available.
 
-For 2.4.0-test13-pre1,2,3, the following Makefile patch is needed:
-ftp://ftp.reiserfs.org/pub/2.4/beta/test13-preX/reiserfs-Makefile-patch
+The "maybe damages its structures" is a sure indication of
+you having a very vivid imagination ;)
 
-If you apply these patches in this order, you shouldn't get any rejects.
-(Apply the test13-preX patch first).
+> You actually do not need network flood to kill your box. Just imagine that
+> kpiod is swapping files out too slowly, free memory is going lower and
+> lower, every process screaming with "VM: do_try_to_free_pages failed" and
+> the system is aproaching instant death.
 
-Have fun,
-Steven
+Umm?  Can you explain how this could happen?
+
+> Besides, __get_free_pages just encourages people to write broken
+> drivers because it tries to hide allocation bugs. If there would
+> be something like
+> 
+> if (current->flags & PF_MEMALLOC && !in_interrupt())
+> panic("swapper fscked up!");
+
+We have something a little bit like this in 2.4, though
+it's just a printk and it doesn't print a backtrace. Now
+that you mention it, though, printing a backtrace may be
+a nice debugging option for missed higher-order allocations ;)
+
+(but only useful if you get unreasonable amounts of them)
+
+regards,
+
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

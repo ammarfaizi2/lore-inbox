@@ -1,40 +1,192 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVCLWeC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVCLWcu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbVCLWeC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 17:34:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVCLWdD
+	id S261206AbVCLWcu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 17:32:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVCLWaz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 17:33:03 -0500
-Received: from fire.osdl.org ([65.172.181.4]:49297 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262244AbVCLWcm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 17:32:42 -0500
-Date: Sat, 12 Mar 2005 14:34:27 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-cc: Paul Mackerras <paulus@samba.org>, Dave Jones <davej@redhat.com>,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: AGP bogosities
-In-Reply-To: <877jkcmrfr.fsf@devron.myhome.or.jp>
-Message-ID: <Pine.LNX.4.58.0503121433520.2822@ppc970.osdl.org>
-References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
- <20050311021248.GA20697@redhat.com> <16944.65532.632559.277927@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.58.0503101839530.2530@ppc970.osdl.org> <87vf7xg72s.fsf@devron.myhome.or.jp>
- <Pine.LNX.4.58.0503120906020.2398@ppc970.osdl.org> <877jkcmrfr.fsf@devron.myhome.or.jp>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 12 Mar 2005 17:30:55 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:22035 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261863AbVCLW1O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 17:27:14 -0500
+Date: Sat, 12 Mar 2005 23:27:12 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/net/smc-mca.c: cleanups
+Message-ID: <20050312222712.GL3814@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch contains the following cleanups:
+- make a needlessly global function static
+- make three needlessly global structs static const
+
+Since after moving the now-static stucts to smc-mca.c the file smc-mca.h 
+was empty except for two #define's, I've also killed the rest of 
+smc-mca.h .
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+This patch was already sent on:
+- 21 Feb 2005
+
+ drivers/net/smc-mca.c |   60 +++++++++++++++++++++++++++++++++++++++--
+ drivers/net/smc-mca.h |   61 ------------------------------------------
+ 2 files changed, 58 insertions(+), 63 deletions(-)
+
+--- linux-2.6.11-rc3-mm2-full/drivers/net/smc-mca.h	2004-12-24 22:35:23.000000000 +0100
++++ /dev/null	2004-11-25 03:16:25.000000000 +0100
+@@ -1,61 +0,0 @@
+-/*
+- * djweis weisd3458@uni.edu
+- * most of this file was taken from ps2esdi.h
+- */
+-
+-struct {
+-  unsigned int base_addr;
+-} addr_table[] = {
+-    { 0x0800 },
+-    { 0x1800 },
+-    { 0x2800 },
+-    { 0x3800 },
+-    { 0x4800 },
+-    { 0x5800 },
+-    { 0x6800 },
+-    { 0x7800 },
+-    { 0x8800 },
+-    { 0x9800 },
+-    { 0xa800 },
+-    { 0xb800 },
+-    { 0xc800 },
+-    { 0xd800 },
+-    { 0xe800 },
+-    { 0xf800 }
+-};
+-
+-#define MEM_MASK 64
+-
+-struct {
+-  unsigned char mem_index;
+-  unsigned long mem_start;
+-  unsigned char num_pages;
+-} mem_table[] = {
+-    { 16, 0x0c0000, 40 },
+-    { 18, 0x0c4000, 40 },
+-    { 20, 0x0c8000, 40 },
+-    { 22, 0x0cc000, 40 },
+-    { 24, 0x0d0000, 40 },
+-    { 26, 0x0d4000, 40 },
+-    { 28, 0x0d8000, 40 },
+-    { 30, 0x0dc000, 40 },
+-    {144, 0xfc0000, 40 },
+-    {148, 0xfc8000, 40 },
+-    {154, 0xfd0000, 40 },
+-    {156, 0xfd8000, 40 },
+-    {  0, 0x0c0000, 20 },
+-    {  1, 0x0c2000, 20 },
+-    {  2, 0x0c4000, 20 },
+-    {  3, 0x0c6000, 20 }
+-};
+-
+-#define IRQ_MASK 243
+-struct {
+-   unsigned char new_irq;
+-   unsigned char old_irq;
+-} irq_table[] = {
+-   {  3,  3 },
+-   {  4,  4 },
+-   { 10, 10 },
+-   { 14, 15 }
+-};
+--- linux-2.6.11-rc3-mm2-full/drivers/net/smc-mca.c.old	2005-02-16 18:44:29.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/smc-mca.c	2005-02-16 18:47:24.000000000 +0100
+@@ -49,7 +49,6 @@
+ #include <asm/system.h>
+ 
+ #include "8390.h"
+-#include "smc-mca.h"
+ 
+ #define DRV_NAME "smc-mca"
+ 
+@@ -100,6 +99,63 @@
+ MODULE_PARM_DESC(ultra_io, "SMC Ultra/EtherEZ MCA I/O base address(es)");
+ MODULE_PARM_DESC(ultra_irq, "SMC Ultra/EtherEZ MCA IRQ number(s)");
+ 
++static const struct {
++  unsigned int base_addr;
++} addr_table[] = {
++    { 0x0800 },
++    { 0x1800 },
++    { 0x2800 },
++    { 0x3800 },
++    { 0x4800 },
++    { 0x5800 },
++    { 0x6800 },
++    { 0x7800 },
++    { 0x8800 },
++    { 0x9800 },
++    { 0xa800 },
++    { 0xb800 },
++    { 0xc800 },
++    { 0xd800 },
++    { 0xe800 },
++    { 0xf800 }
++};
++
++#define MEM_MASK 64
++
++static const struct {
++  unsigned char mem_index;
++  unsigned long mem_start;
++  unsigned char num_pages;
++} mem_table[] = {
++    { 16, 0x0c0000, 40 },
++    { 18, 0x0c4000, 40 },
++    { 20, 0x0c8000, 40 },
++    { 22, 0x0cc000, 40 },
++    { 24, 0x0d0000, 40 },
++    { 26, 0x0d4000, 40 },
++    { 28, 0x0d8000, 40 },
++    { 30, 0x0dc000, 40 },
++    {144, 0xfc0000, 40 },
++    {148, 0xfc8000, 40 },
++    {154, 0xfd0000, 40 },
++    {156, 0xfd8000, 40 },
++    {  0, 0x0c0000, 20 },
++    {  1, 0x0c2000, 20 },
++    {  2, 0x0c4000, 20 },
++    {  3, 0x0c6000, 20 }
++};
++
++#define IRQ_MASK 243
++static const struct {
++   unsigned char new_irq;
++   unsigned char old_irq;
++} irq_table[] = {
++   {  3,  3 },
++   {  4,  4 },
++   { 10, 10 },
++   { 14, 15 }
++};
++
+ static short smc_mca_adapter_ids[] __initdata = {
+ 	0x61c8,
+ 	0x61c9,
+@@ -126,7 +182,7 @@
+ 
+ static int ultra_found = 0;
+ 
+-int __init ultramca_probe(struct device *gen_dev)
++static int __init ultramca_probe(struct device *gen_dev)
+ {
+ 	unsigned short ioaddr;
+ 	struct net_device *dev;
 
 
-On Sun, 13 Mar 2005, OGAWA Hirofumi wrote:
-> 
-> However, inode->i_writecount and some stuffs seems to be already using
-> the negative values (or sparc was used the signed 24 bits value).
-> 
-> Anyway, unfortunately inode->i_writecount triggered in atomic_dec().
-
-Ahh, you're right. Thanks for testing it out,
-
-		Linus

@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262196AbTJNEZC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 00:25:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbTJNEZC
+	id S262176AbTJNEVy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 00:21:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbTJNEVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 00:25:02 -0400
-Received: from fw.osdl.org ([65.172.181.6]:53175 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262196AbTJNEY6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 00:24:58 -0400
-Date: Mon, 13 Oct 2003 21:24:48 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Manfred Spraul <manfred@colorfullife.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] SMP races in the timer code, timer-fix-2.6.0-test7-A0
-In-Reply-To: <Pine.LNX.4.56.0310111833550.11661@earth>
-Message-ID: <Pine.LNX.4.44.0310132122160.2156-100000@home.osdl.org>
+	Tue, 14 Oct 2003 00:21:54 -0400
+Received: from [217.78.73.173] ([217.78.73.173]:23825 "HELO 2mails2975.com")
+	by vger.kernel.org with SMTP id S262176AbTJNEVx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 00:21:53 -0400
+From: "Mrs. Fatima Abdul Azad" <fatimazad@libero.it>
+Reply-To: fatimazad@libero.it
+To: linux-kernel@vger.kernel.org
+Date: Mon, 13 Oct 2003 21:21:47 -0700
+Subject: Please be My Investor Trustee.
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <S262176AbTJNEVx/20031014042153Z+13612@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>From Fatima Abdul Azad
 
-On Sat, 11 Oct 2003, Ingo Molnar wrote:
-> 
-> i've implemented the timer->running field, and it's quite straightforward
-> and solves all 3 types of races. It also simplifies del_timer_sync() quite
-> visibly, and it's probably a fair del_timer_sync() speedup as well. I
-> tested the attached patch on SMP and UP x86 as well, works fine for me.
+Dear Sir,
 
-This one is also buggy.
+Please be My Investor Trustee.
 
-It is _not_ ok to do this:
+I wish to write you pleading with you to be my Investor trustee over $12.5million. My late Husband was a rich oil Contractor in South Africa, But before  his death in July 29th 1999. He deposited the sum of ($12,500,000.00) USD in a safe keeping company in Europe.
 
->  			list_del(&timer->entry);
->  			timer->base = NULL;
-> -			set_running_timer(base, timer);
->  			spin_unlock_irq(&base->lock);
->  			fn(data);
->  			spin_lock_irq(&base->lock);
-> +#ifdef CONFIG_SMP
-> +			timer->running = 0;
-> +#endif
+The money which he made from oil contract and he left an instruction with the Safe Keeping Company to release the money to me his wife and his son Ali who at that time was studying, that an Investor  should accompany us before the $12.5Million will be released to us for proper investment, and also for the welfare of the children which he left behind for me.
 
-since the timer may not even _exist_ any more - the act of running the 
-timer may well have free'd the timer structure, and you're now zeroing 
-memory that may have been re-allocated for something else.
+I plead with you to accept to help me and act as my investor trustee to manage the $12.5Million for me. We can both arrange on how to invest  this money into your company. We have agreed to give you 20% of the $12.5Million for your own assistance.
 
-This is exactly why we load all the timer data into local variables before 
-we run the timer function, and we don't touch "timer" afterwards.
+All the relevant documents shall be forwarded to you upon your  indications  to assist me in this project. May the Almighty God bless you, if you will of trust and faithful to  assist  me. Please contact me on the above e-mail address or my son Ali on his email address (aliabdul_2003@yahoo.com).
 
-In short, you really need to re-visit this whole thing.
+Looking forward to hearing from you.
 
-		Linus
+Sincerely Yours,
+
+Mrs. Fatima Abdul Azad
+
 

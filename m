@@ -1,90 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264601AbTFIRmA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 13:42:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264611AbTFIRmA
+	id S261188AbTFIRxC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 13:53:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbTFIRxC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 13:42:00 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:41141 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S264601AbTFIRl6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 13:41:58 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Krzysztof Halasa" <khc@pm.waw.pl>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: select for UNIX sockets?
-Date: Mon, 9 Jun 2003 10:55:35 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKOEKFDIAA.davids@webmaster.com>
+	Mon, 9 Jun 2003 13:53:02 -0400
+Received: from yankee.rb.xcalibre.co.uk ([217.8.240.35]:44195 "EHLO
+	yankee.rb.xcalibre.co.uk") by vger.kernel.org with ESMTP
+	id S261188AbTFIRxA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 13:53:00 -0400
+Envelope-to: linux-kernel@vger.kernel.org
+From: Alistair J Strachan <alistair@devzero.co.uk>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>, Andrew Morton <akpm@digeo.com>
+Subject: Re: 2.5.70-mm6
+Date: Mon, 9 Jun 2003 19:06:34 +0100
+User-Agent: KMail/1.5.9
+References: <20030607151440.6982d8c6.akpm@digeo.com> <Pine.LNX.4.51.0306091943580.23392@dns.toxicfilms.tv>
+In-Reply-To: <Pine.LNX.4.51.0306091943580.23392@dns.toxicfilms.tv>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <m3znkr41bd.fsf@defiant.pm.waw.pl>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Message-Id: <200306091906.34155.alistair@devzero.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 09 June 2003 18:45, Maciej Soltysiak wrote:
+> > . -mm kernels will be running at HZ=100 for a while.  This is because
+> >   the anticipatory scheduler's behaviour may be altered by the lower
+> >   resolution.  Some architectures continue to use 100Hz and we need the
+> >   testing coverage which x86 provides.
+>
+> The interactivity seems to have dropped. Again, with common desktop
+> applications: xmms playing with ALSA, when choosing navigating through
+> evolution options or browsing with opera, music skipps.
+> X is running with nice -10, but with mm5 it ran smoothly.
 
-> "David Schwartz" <davids@webmaster.com> writes:
+[alistair] 07:02 PM [~] uname -r
+2.5.70-mm6
 
-> > 	It really doesn't matter. UDP applications have to control
-> > the transmit
-> > pacing at application level. There is absolutely no way for the
-> > kernel to
-> > know whether the path to the recipient is congested or not.
+For what it's worth, I'm running an LFS base system with very few packages 
+installed over the top. X is as packaged, it is not reniced. I am, however, 
+running setiathome constantly in the background, which seems to pound the 
+scheduler.
 
-> Because what? The kernel knows everything it has to know - i.e. complete
-> state of socket queue in question.
+As Maciej reported, this seems to be significantly better with -mm5 (HZ = 
+1000?). Amusingly, doing a renice -20 `pidof xmms` seems to make absolutely 
+no difference to the scheduler in 2.5-mm.
 
-	For the last time, there is no socket queue. You wouldn't want there to be
-one.
+This kernel does not have preempt enabled.
 
-	Consider a UDP application that is sending packets to two destinations, one
-over a 56Kbps serial link running PPP and one over gigabit Ethernet. If
-there were a socket send queue, the packets going over the 56Kbps serial
-link would block the packets going over the gigabit Ethernet.
-
-> But if select() on sockets is illegal, should we make it return -Esth
-> instead of success. Certainly, we should get rid of invalid kernel code,
-> right?
-
-	No, it is legal, you are just misusing it. If you don't want your socket
-operations to ever block, use non-blocking socket operations. If you use
-UDP, or another connectionless protocol, you should understand that *you*
-are responsible for transmit pacing.
-
-> > The kernel can't tell you when to send because that depends upon
-> > factors
-> > that are remote.
-
-> Such as?
-
-	Such as where the packet you send is actually *going*.
-
-> > Yes, it would be nice of the kernel helped more. But the application
-> > has to
-> > deal with remote packet loss as well.
-
-> Could you please show me a place in the kernel which could cause such
-> a loss on local datagram sockets?
-
-	I guess I'm not getting through. The fact is, you don't have the guarantee
-that you think you have. I'm giving you examples to show you why you don't
-have that guarantee. You argue that the examples don't apply to your
-specific case. I'm not saying they do. I'm saying that because there are
-unavoidable cases where what you're trying to do won't work, then what
-you're trying to do is not guaranteed to work in all cases and you shouldn't
-try to do it.
-
-	The kernel does not remember that you got a write hit on 'select' and use
-it to somehow ensure that your next 'write' doesn't block. A 'write' hit
-from 'select' is just a hint and not an absolute guarantee that whatever
-'write' operation you happen to choose to do won't block.
-
-	DS
-
-
+Cheers,
+Alistair.

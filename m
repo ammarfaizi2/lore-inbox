@@ -1,53 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbVCCLfq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVCCL2Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261622AbVCCLfq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 06:35:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbVCCLfp
+	id S261651AbVCCL2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 06:28:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbVCCL1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 06:35:45 -0500
-Received: from a26.t1.student.liu.se ([130.236.221.26]:26854 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261622AbVCCLdW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 06:33:22 -0500
-Message-ID: <4226F5FD.1050304@drzeus.cx>
-Date: Thu, 03 Mar 2005 12:33:17 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: krishna <krishna.c@globaledgesoft.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: problem between audio driver and mmc driver
-References: <4221E981.10004@globaledgesoft.com>
-In-Reply-To: <4221E981.10004@globaledgesoft.com>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 3 Mar 2005 06:27:18 -0500
+Received: from fire.osdl.org ([65.172.181.4]:36792 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261582AbVCCL0y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 06:26:54 -0500
+Date: Thu, 3 Mar 2005 03:26:20 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: ncunningham@cyclades.com
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, pavel@ucw.cz
+Subject: Re: [PATCH]: Speed freeing memory for suspend.
+Message-Id: <20050303032620.69add028.akpm@osdl.org>
+In-Reply-To: <1109848654.3733.34.camel@desktop.cunningham.myip.net.au>
+References: <1109848654.3733.34.camel@desktop.cunningham.myip.net.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-krishna wrote:
-> Hi All,
-> 
-> I have a strange problem.
-> The Audio driver is statically compiled into the kernel.
-> 
-> When I am loading my MMC driver, It is getting Audio Interrupts.
-> 
-> I browsed thru the web and found out it is a bug in the hardware.
-> 
-> The hardware bug is preventing Audio driver and MMC driver work 
-> simultaneously.
-> Does any one have a solution Or a Work around to make both the drivers 
-> work though the audio driver
-> is statically compiled into the kernel.
-> 
+Nigel Cunningham <ncunningham@cyclades.com> wrote:
+>
+> Here's a patch I've prepared which improves the speed at which memory is
+>  freed prior to suspend. It should be a big gain for swsusp.
 
-You should specify which hardware (audio and mmc) that is causing the 
-problem and also try to include the maintainers of each as cc.
-Also, it's helpful if you can include links to the websites you've found 
-concerning the problem.
+Patch is simple enough but, as always, please back up an optimization patch
+with quantitative test results.
 
-Rgds
-Pierre

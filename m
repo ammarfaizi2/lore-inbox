@@ -1,97 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315627AbSGYSDD>; Thu, 25 Jul 2002 14:03:03 -0400
+	id <S315690AbSGYSJy>; Thu, 25 Jul 2002 14:09:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316088AbSGYSDD>; Thu, 25 Jul 2002 14:03:03 -0400
-Received: from asie314yy33z9.bc.hsia.telus.net ([216.232.196.3]:7298 "EHLO
-	saurus.asaurus.invalid") by vger.kernel.org with ESMTP
-	id <S315627AbSGYSDB>; Thu, 25 Jul 2002 14:03:01 -0400
-To: Daniel Mose <imcol@unicyclist.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
-References: <200207190432.g6J4WD2366706@pimout5-int.prodigy.net> <20020725022454.A8711@unicyclist.com>
-From: Kevin Buhr <buhr@telus.net>
-In-Reply-To: <20020725022454.A8711@unicyclist.com>
-Date: 25 Jul 2002 11:06:11 -0700
-Message-ID: <87k7njsmwc.fsf@saurus.asaurus.invalid>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+	id <S315923AbSGYSJy>; Thu, 25 Jul 2002 14:09:54 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:32456 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S315690AbSGYSJx>;
+	Thu, 25 Jul 2002 14:09:53 -0400
+Date: Thu, 25 Jul 2002 11:13:04 -0700
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Linux-2.5.28
+Message-ID: <20020725111304.H14698@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Mose <imcol@unicyclist.com> writes:
+Linus wrote :
+> In article <20020724170752.A14089@bougret.hpl.hp.com>,
+> Jean Tourrilhes  <jt@bougret.hpl.hp.com> wrote:
+> >
+> >	IrDA is not going to get fixed soon. Over the time I've been
+> >fixing the IrDA stack, I've slowly fixed some of most dangerous
+> >locking problems, but fixing the remaining code will involve some
+> >serious re-work and is unfortunately not just about sprinking a few
+> >spinlocks there and there.
 > 
-> Someone pointed out earlier in this thread: 
-> "How Newbie can one get?" 
+> Actually, the way to emulate cli/sti behaviour is not to "sprinkle"
+> spinlocks, you can generally do it with _one_ spinlock per subsystem.
 
-*I* said that, and it should be noted that it was completely obvious
-from context that it was tongue in cheek:
+	Unfortunately, it won't work for IrDA. The reason is that you
+tend to have path like this :
+		IrLAP -> IrLMP -> IrTTP -> IrNET/IrCOMM/IrLAN/IrSock -> IrTTP -> IrLMP -> IrLAP
+	And I can't have one global spinlock for the IrDA stack,
+because the higher layers (IrNET/IrCOMM/IrLAN/IrSOCK) are totally
+independant and have their own locking (for example, I can guarantee
+you the IrNET is already safe).
+	I'm also especially nervous about keeping a spinlock and irq
+off while calling protocols higher layres, such as the various socket
+function (IrSOCK), or the PPP mux (IrNET), or the TTY layer (IrCOMM).
+	My feeling is that doing the _one_ spinlock properly would be
+as much work than fixing the root problem (the hasbins).
 
-| Boy, how newbie can you get?  Fortunately, you've got lots of people
-| setting you straight, and they've given you all those different
-| answers to choose from!  ;)
+> So the straightforward way to port away from cli/sti is to add one
+> spinlock which takes their place for that subsystem, and then get that
+> lock on entry to subsystem interrupts and timer events, and in all
+> places where there used to be a cli/sti. 
 
-(Get it?  The obvious, "newbie" question is answered by the experts in
-a dozen different ways.  HAW HAW.)
+	Been there, done that. I've been the one doing most the
+original SMP work in most Wireless LAN drivers (and the HP100 driver),
+and I'm still the one doing most testing.
+	So, I feel qualified to comment about the IrDA situation.
 
-Anyway, I hope you realized that.
+> It gets a bit more complicated partly because you could nest cli/sti,
+> and you can't nest spinlocks, but on the whole none of it is "rocket
+> science". 
 
-> I can easily cope with the Idea that the I in I-node stands for
-> whatever one likes it to be.  The I-node context makes very good 
-> sense to me when you put it to work in FS context. The name 
-> I-node is as I see it, close to semantic rape. (as I also find 
-> some of the K&R/ANSI C keywords to be ) 
+	No, here the problem is that the whole locking design is
+broken. I know perfectly that the hashbin locking is totally unsafe
+and it's a miracle that it work at all. And I'm not sure if I will
+ever get something 100% safe.
 
-Is "semantic rape" supposed to be good or bad?
-
-The name "inode" (or i-node or I-node or eye-node---haw haw) doesn't
-have to mean anything as long as it's conveniently short and
-immediately evocative to people who use the name.  On its face,
-calling something a "widget" isn't very descriptive either, yet its
-meaning is obvious enough in the context of GUI programming.  See also
-the Linux kernel's "dentry" and "skbuff".
-
-People don't invent these shared languages to alienate newcomers.
-They are invented to facilitate efficient communication and, just as
-importantly, to encapsulate big, complicated ideas in tiny,
-manipulable pretend-words.  They facilitate *thought* (and, so, the
-design process) as much as they facilitate communciation.
-
-That's good, right?
-
-> What bothers my self a bit more in the kernel context, and thus 
-> makes me an even more eager "Kernel alienate" than I believe Rob
-> to be, are the "atomic_" calls/functions and their semantic origin.
-
-This has been explained by others, but let me note that the Jargon
-File is an excellent resource for these types of questions:
-
-        http://www.tuxedo.org/~esr/jargon/
-
-It doesn't include "inode" (which falls a little outside its scope),
-but it has entries for "atomic", "foo", "bar", and "foobar".
-
-> Suppose that you do missunderstand your discussion partner frequently.
+> Of course, doing it _right_ (rather than try to just translate the
+> semantics of cli/sti fairly directly) can be a lot more work. But even a
+> straight translation improves on what used to be, since different
+> subsystems will now be independent, and since it is easier later on to
+> split the one lock up on a as-needed basis.
 > 
-> So you each type in some related patches and send them of to linus(?) 
-> linus (or whom-ever) sends them back, saying "half is buggy" So you're 
-> back discussing again. This time you have half the code bugfree so 
-> you only need to discuss the buggy half. You discuss it, missunder-
-> stand each others frequently again because of some "foos" and "bars" 
-> and thus send in another patch, which is refused as being 
-> "quarterly-buggy", and so on...
+> 			Linus
 
-By definition, "foo"s and "bar"s are ambiguous.  That's why they
-should be used sparingly.  Typically they're used in little examples
-of shell or C code where you need a *name*, but it's exact value and
-meaning aren't important, like so:
+	Unfortunately, with the current IrDA code, I don't have much
+choice but to do it somewhat right.
+	Now, it's a matter of priorities. The other IrDA developpers
+have been bitten by "nothing is wrong" IDE in 2.5.X, so the logical
+course of action is to shift to 2.4.X until I find time to get back to
+this issue and catch up.
+	But having IrDA not functional in 2.5.X for a few months is
+certainly not that painful compared to other problems in 2.5.X.
+	And as I was saying to Ingo, the good news is that I'll
+probably also no longer will need "deliver_to_old_one()" in the
+networking code.
 
->> Hey, there's a bug in the kernel!  Do "ln -s foo foo; mkdir foo"
->> and watch the fireworks.
+	Have fun...
 
-They're rarely used to talk about new data structures except at the
-earliest speculative design state.
-
--- 
-Kevin Buhr <buhr@telus.net>
+	Jean

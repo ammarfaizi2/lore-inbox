@@ -1,380 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275318AbRIZQq2>; Wed, 26 Sep 2001 12:46:28 -0400
+	id <S275320AbRIZQts>; Wed, 26 Sep 2001 12:49:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275319AbRIZQqJ>; Wed, 26 Sep 2001 12:46:09 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:1292 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S275318AbRIZQqG>;
-	Wed, 26 Sep 2001 12:46:06 -0400
-Date: Wed, 26 Sep 2001 18:44:03 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
+	id <S275322AbRIZQti>; Wed, 26 Sep 2001 12:49:38 -0400
+Received: from chunnel.redhat.com ([199.183.24.220]:48118 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S275320AbRIZQtb>; Wed, 26 Sep 2001 12:49:31 -0400
+Date: Wed, 26 Sep 2001 17:49:43 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Ben LaHaise <bcrl@redhat.com>,
-        Andrea Arcangeli <andrea@suse.de>
-Subject: [patch] softirq performance fixes, cleanups, 2.4.10.
-Message-ID: <Pine.LNX.4.33.0109261729570.5644-200000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-425934229-1001522643=:5892"
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+        Andrew Morton <andrewm@uow.edu.au>, Stephen Tweedie <sct@redhat.com>
+Subject: Re: Linux-2.4.10 + ext3
+Message-ID: <20010926174943.W3437@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com> <1001280620.3540.33.camel@gromit.house> <9om4ed$1hv$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <9om4ed$1hv$1@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Sep 24, 2001 at 02:06:05AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hi,
 
---8323328-425934229-1001522643=:5892
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+On Mon, Sep 24, 2001 at 02:06:05AM +0000, Linus Torvalds wrote:
+
+> We'll merge ext3 soon enough.. As RH seems to start using it more and
+> more, there's more reason to merge it into the standard kernel too.
+
+I was expecting to have to merge into 2.5 first and back-port if
+necessary, but either way, it's worthwhile talking about what is
+needed for the merge.
+
+The core ext3 code has basically two extensions to the core kernel;
+the rest is modular.  
+
+The first change is minor, but from a cleanliness point of view
+perhaps the one more open to debate: ext3 currently adds a task
+struct field to indicate if the task is already running an ext3
+transaction.  (It's a void * but I'll be cleaning that up to be a
+struct super_block *).
+
+ext3 needs to remain transactional even when making recursive calls
+into the filesystem, and ext3 implements quotas, which are quite
+capable of recursing into the fs if we end up hitting the VM at the
+wrong moment.  Such recursions have to be handled very, very
+carefully: a legal recursion within one filesystem is valid, but
+recursions between filesystems absolutely must be avoided, as this can
+lead to deadlock.  
+
+And there are recursions we just can't get rid of --- an inode delete
+ends up deallocating the inode on disk and updating the dquot (which
+does a dqput, which writes the quota entry using the normal VFS API),
+and we _have_ to make that quota-file write a nested transaction if we
+want quotas to be atomic with respect to journal recovery.  Short of
+adding a new context parameter to be passed all the way through the
+quota and VM layers wherever this sort of recursion is possible, we
+need to attach that context to the task.  (Without a task struct
+field, though, we can still hash outstanding transaction handles by
+pid for fast lookup.)
 
 
-the Linux softirq code still has a number of performance and latency
-problems as of 2.4.10.
+The second set of changes includes a couple of  places where the
+existing VFS isn't quite intelligent enough for ext3, and where we
+want to add a little extra processing.  Replacing the existing
+processing is possible, but ext3 still looks a lot like ext2 --- it
+has page->buffers, and those buffers can live on the normal writeback
+lists, for example --- so replacing the existing address_space ops
+wholesale ends up forcing ext3 to reproduce huge amounts of code, and
+we'd still be short of a few desired hooks.
 
-one issue is that there are still places in the kernel that disable/enable
-softirq processing, but do not restart softirqs. This creates softirq
-processing latencies, which can show up eg. as 'stuttering' packet
-processing. Longer latencies between hard interrupts and soft interrupt
-processing also decreases caching efficiency - if eg. a socket buffer was
-touched in a network driver, it might get dropped from the cache by the
-time the skb is processed by its softirq handler.
+Right now the areas trapped by ext3 include:
 
-another problem is increased scheduling and softirq handling overhead due
-to ksoftirqd, and related performance degradation in high-speed network
-environments. (Performance drops of more than 10% were reported with
-certain gigabit cards.) Under various multi-process networking loads
-ksoftirqd is very active.
+try_to_free_buffers: 
+	Replace with a generic try_to_release_page, which allows other
+	metadata associate with the page (or its buffers) to be
+	released, rather than being limited to page->buffers cleanup.
 
-the attached softirq-2.4.10-A5 patch solves these two main problems and
-also cleans up softirq.c.
+block_flushpage:
+	We might be trying to delete a page which was written in a
+	previous transaction, and which is still in the process of 
+	being written to disk as part of background commit.  We 
+	can't just throw away the buffer_heads if they are still
+	being written that way.
 
-main changes in softirq handling:
+(The other place ext3 used to add to the address_space code was to
+balance every prepare_write with a commit_write, but the current
+kernel does that for us anyway now.)
 
- - softirq handling can now be restarted N times within do_softirq(), if a
-   softirq gets reactivated while it's being handled.
+Both of these are used by ext3 because of its support for data
+journaling (in which all data writes are first written atomically to
+the journal), and data ordering (in which data writes get flushed to
+disk as normal, but must be pushed out before the transaction which
+wrote the data can commit).  The tying of data blocks to background
+commit means that we simply can't be as free about discarding buffers
+as the normal page->buffers management code would like to be.
 
- - implemented a new scheduler mechanizm, 'unwakeup()', to undo ksoftirqd
-   wakeups if softirqs happen to be fully handled before ksoftirqd runs.
-   (unwakeup() does not touch the runqueue lock if the task in question is
-   already running.)
 
- - cpu_raise_softirq() used to wake ksoftirqd up - instead of handling
-   softirqs immediately. All softirq users are using __cpu_raise_softirq()
-   now, and have to call rerun_softirqs() after the softirq-atomic section
-   has finished.
+ext3 also requires that we fix the problem we talked about before in
+which a page fault executing in parallel with a truncate can leave a
+stranded, anonymous page mapped into the mmap area.  This particular
+problem is much worse in ext3 than in ext2 precisely because of the
+block_flushpage change --- deleted pages often have to be left behind
+for further processing as part of a background commit, and the
+stranded-page scenario is much more likely to lead to a bug 
+if block_flushpage is unable to remove the page from the LRU lists,
+and some of the ext3 stress tests basically can't complete without
+that bug fixed.
 
-none of these changes results in any change of tasklet or bottom-half
-semantics.
-
-the HTTP load situation i tested shows the following changes in scheduling
-frequency:
-
-                         context switches per second
-                         (measured over a period of 10 seconds,
-                          repeated 10 times and averaged.)
-
- 2.4.10-vanilla:         39299
-
- 2.4.10-softirq-A6:      35552
-
-a 10.5% improvement. HTTP performance increased by 2%, but the system had
-idle time left. Kernels with the softirq-A6 patch applied show almost no
-ksoftirqd activity, while vanilla 2.4.10 shows frequent ksoftirqd
-activation.
-
-other fixes/cleanups to softirq.c:
-
- - removed 'mask' handling from do_softirq() - it's unnecessery due to the
-   restarts. this further simplifies the code.
-
- - tasklet_hi_schedule() and tasklet_lo_schedule() are now rerunning
-   softirqs, instead of just kicking ksoftirqd.
-
- - removed raise_softirq() and cpu_raise_softirq(), they are not used by
-   any other code anymore. unexported them.
-
- - simplified argument passing between spawn_ksoftirqd() and ksoftirqd(),
-   passing an argument by pointer and waiting for ksoftirqd tasks to start
-   up is unnecessery.
-
- - it's unnecessary to spin scheduling in ksoftirqd() startup, waiting for
-   the process to migrate - it's enough to call schedule() once, the
-   scheduler will not run the task on the wrong CPU.
-
- - '[ksoftirqd_CPU0]' is confusing on UP systems, changed it to
-   '[ksoftirqd]' instead.
-
- - simplified ksoftirqd()'s loop, it's both shorter and faster by a few
-   instructions now.
-
- - __netif_schedule() is using __cpu_raise_softirq(), instead of
-   cpu_raise_softirq() [which did not restart softirq handling, it only
-   woke ksoftirqd up].
-
- - dev_kfree_skb_irq() ditto. (although this function is mostly called
-   from IRQ contexts, where softirq restarts are not possible - but the
-   IRQ code will restart them nevertheless, on IRQ exit.)
-
- - the generic definition of __cpu_raise_softirq() used to override
-   any lowlevel definitions done in asm/softirq.h. It's now conditional so
-   the architecture definitions should actually be used.
-
-i've tested the patch both on UP and SMP systems, and saw no problems at
-all. The changes decrease the size of softirq object code by ~8%. Network
-packet handling appears to be smoother. (this is subjective, it's hard to
-measure it). Ben, does this patch fix gigabit performance in your test, or
-is still something else going on as well?
-
-(The patch also applies cleanly to the -ac tree.)
-
-	Ingo
-
---8323328-425934229-1001522643=:5892
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="softirq-2.4.10-A6"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0109261844031.5892@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename="softirq-2.4.10-A6"
-
-LS0tIGxpbnV4L2tlcm5lbC9rc3ltcy5jLm9yaWcJV2VkIFNlcCAyNiAxNzow
-NDo0MCAyMDAxDQorKysgbGludXgva2VybmVsL2tzeW1zLmMJV2VkIFNlcCAy
-NiAxNzowNDo0OCAyMDAxDQpAQCAtNTM4LDggKzUzOCw2IEBADQogRVhQT1JU
-X1NZTUJPTCh0YXNrbGV0X2tpbGwpOw0KIEVYUE9SVF9TWU1CT0woX19ydW5f
-dGFza19xdWV1ZSk7DQogRVhQT1JUX1NZTUJPTChkb19zb2Z0aXJxKTsNCi1F
-WFBPUlRfU1lNQk9MKHJhaXNlX3NvZnRpcnEpOw0KLUVYUE9SVF9TWU1CT0wo
-Y3B1X3JhaXNlX3NvZnRpcnEpOw0KIEVYUE9SVF9TWU1CT0woX190YXNrbGV0
-X3NjaGVkdWxlKTsNCiBFWFBPUlRfU1lNQk9MKF9fdGFza2xldF9oaV9zY2hl
-ZHVsZSk7DQogDQotLS0gbGludXgva2VybmVsL3NjaGVkLmMub3JpZwlXZWQg
-U2VwIDI2IDE3OjA0OjQwIDIwMDENCisrKyBsaW51eC9rZXJuZWwvc2NoZWQu
-YwlXZWQgU2VwIDI2IDE3OjA0OjQ4IDIwMDENCkBAIC0zNjYsNiArMzY2LDI4
-IEBADQogfQ0KIA0KIC8qKg0KKyAqIHVud2FrZXVwIC0gdW5kbyB3YWtldXAg
-aWYgcG9zc2libGUuDQorICogQHA6IHRhc2sNCisgKiBAc3RhdGU6IG5ldyB0
-YXNrIHN0YXRlDQorICoNCisgKiBVbmRvIGEgcHJldmlvdXMgd2FrZXVwIG9m
-IHRoZSBzcGVjaWZpZWQgdGFzayAtIGlmIHRoZSBwcm9jZXNzDQorICogaXMg
-bm90IHJ1bm5pbmcgYWxyZWFkeS4gVGhlIG1haW4gaW50ZXJmYWNlIHRvIGJl
-IHVzZWQgaXMNCisgKiB1bndha2V1cF9wcm9jZXNzKCksIGl0IHdpbGwgZG8g
-YSBsb2NrbGVzcyB0ZXN0IHdoZXRoZXIgdGhlIHRhc2sNCisgKiBpcyBvbiB0
-aGUgcnVucXVldWUuDQorICovDQordm9pZCBfX3Vud2FrZXVwX3Byb2Nlc3Mo
-c3RydWN0IHRhc2tfc3RydWN0ICogcCwgbG9uZyBzdGF0ZSkNCit7DQorCXVu
-c2lnbmVkIGxvbmcgZmxhZ3M7DQorDQorCXNwaW5fbG9ja19pcnFzYXZlKCZy
-dW5xdWV1ZV9sb2NrLCBmbGFncyk7DQorCWlmICghcC0+aGFzX2NwdSAmJiAo
-cCAhPSBjdXJyZW50KSAmJiB0YXNrX29uX3J1bnF1ZXVlKHApKSB7DQorCQlk
-ZWxfZnJvbV9ydW5xdWV1ZShwKTsNCisJCXAtPnN0YXRlID0gc3RhdGU7DQor
-CX0NCisJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmcnVucXVldWVfbG9jaywg
-ZmxhZ3MpOw0KK30NCisNCisvKioNCiAgKiBzY2hlZHVsZV90aW1lb3V0IC0g
-c2xlZXAgdW50aWwgdGltZW91dA0KICAqIEB0aW1lb3V0OiB0aW1lb3V0IHZh
-bHVlIGluIGppZmZpZXMNCiAgKg0KLS0tIGxpbnV4L2tlcm5lbC9zb2Z0aXJx
-LmMub3JpZwlXZWQgU2VwIDI2IDE3OjA0OjQwIDIwMDENCisrKyBsaW51eC9r
-ZXJuZWwvc29mdGlycS5jCVdlZCBTZXAgMjYgMTc6NDU6MDAgMjAwMQ0KQEAg
-LTU4LDEyICs1OCwzNSBAQA0KIAkJd2FrZV91cF9wcm9jZXNzKHRzayk7DQog
-fQ0KIA0KKy8qDQorICogSWYgYSBzb2Z0aXJxcyB3ZXJlIGZ1bGx5IGhhbmRs
-ZWQgYWZ0ZXIga3NvZnRpcnFkIHdhcyB3b2tlbg0KKyAqIHVwIHRoZW4gdHJ5
-IHRvIHVuZG8gdGhlIHdha2V1cC4NCisgKi8NCitzdGF0aWMgaW5saW5lIHZv
-aWQgdW53YWtldXBfc29mdGlycWQodW5zaWduZWQgY3B1KQ0KK3sNCisJc3Ry
-dWN0IHRhc2tfc3RydWN0ICogdHNrID0ga3NvZnRpcnFkX3Rhc2soY3B1KTsN
-CisNCisJaWYgKHRzaykNCisJCXVud2FrZXVwX3Byb2Nlc3ModHNrLCBUQVNL
-X0lOVEVSUlVQVElCTEUpOw0KK30NCisNCisvKg0KKyAqIFdlIHJlc3RhcnQg
-c29mdGlycSBwcm9jZXNzaW5nIE1BWF9TT0ZUSVJRX1JFU1RBUlQgdGltZXMs
-DQorICogYW5kIHdlIGZhbGwgYmFjayB0byBzb2Z0aXJxZCBhZnRlciB0aGF0
-Lg0KKyAqDQorICogVGhpcyBudW1iZXIgaGFzIGJlZW4gZXN0YWJsaXNoZWQg
-dmlhIGV4cGVyaW1lbnRhdGlvbi4NCisgKiBUaGUgdHdvIHRoaW5ncyB0byBi
-YWxhbmNlIGlzIGxhdGVuY3kgYWdhaW5zdCBmYWlybmVzcyAtDQorICogd2Ug
-d2FudCB0byBoYW5kbGUgc29mdGlycXMgYXMgc29vbiBhcyBwb3NzaWJsZSwg
-YnV0IHRoZXkNCisgKiBzaG91bGQgbm90IGJlIGFibGUgdG8gbG9jayB1cCB0
-aGUgYm94Lg0KKyAqLw0KKyNkZWZpbmUgTUFYX1NPRlRJUlFfUkVTVEFSVCAx
-MA0KKw0KIGFzbWxpbmthZ2Ugdm9pZCBkb19zb2Z0aXJxKCkNCiB7DQorCWlu
-dCBtYXhfcmVzdGFydCA9IE1BWF9TT0ZUSVJRX1JFU1RBUlQ7DQogCWludCBj
-cHUgPSBzbXBfcHJvY2Vzc29yX2lkKCk7DQotCV9fdTMyIHBlbmRpbmc7DQor
-CV9fdTMyIHBlbmRpbmcsIG1hc2s7DQogCWxvbmcgZmxhZ3M7DQotCV9fdTMy
-IG1hc2s7DQogDQogCWlmIChpbl9pbnRlcnJ1cHQoKSkNCiAJCXJldHVybjsN
-CkBAIC05NSw1NSArMTE4LDM3IEBADQogCQlsb2NhbF9pcnFfZGlzYWJsZSgp
-Ow0KIA0KIAkJcGVuZGluZyA9IHNvZnRpcnFfcGVuZGluZyhjcHUpOw0KLQkJ
-aWYgKHBlbmRpbmcgJiBtYXNrKSB7DQotCQkJbWFzayAmPSB+cGVuZGluZzsN
-CisJCWlmIChwZW5kaW5nICYmIC0tbWF4X3Jlc3RhcnQpDQogCQkJZ290byBy
-ZXN0YXJ0Ow0KLQkJfQ0KIAkJX19sb2NhbF9iaF9lbmFibGUoKTsNCiANCiAJ
-CWlmIChwZW5kaW5nKQ0KKwkJCS8qDQorCQkJICogSW4gdGhlIG5vcm1hbCBj
-YXNlIGtzb2Z0aXJxZCBpcyByYXJlbHkgYWN0aXZhdGVkLA0KKwkJCSAqIGlu
-Y3JlYXNlZCBzY2hlZHVsaW5nIGh1cnRzIHBlcmZvcm1hbmNlLg0KKwkJCSAq
-IEl0J3MgYSBzYWZldHkgbWVhc3VyZTogaWYgZXh0ZXJuYWwgbG9hZCBzdGFy
-dHMNCisJCQkgKiB0byBmbG9vZCB0aGUgc3lzdGVtIHdpdGggc29mdGlycXMg
-dGhlbiB3ZQ0KKwkJCSAqIHdpbGwgbWl0aWdhdGUgc29mdGlycSB3b3JrIHRv
-IHRoZSBzb2Z0aXJxIHRocmVhZC4NCisJCQkgKi8NCiAJCQl3YWtldXBfc29m
-dGlycWQoY3B1KTsNCisJCWVsc2UNCisJCQkvKg0KKwkJCSAqIEFsbCBzb2Z0
-aXJxcyBhcmUgaGFuZGxlZCAtIHVuZG8gYW55IHBvc3NpYmxlDQorCQkJICog
-d2FrZXVwIG9mIHNvZnRpcnFkLiBUaGlzIHJlZHVjZXMgY29udGV4dCBzd2l0
-Y2gNCisJCQkgKiBvdmVyaGVhZC4NCisJCQkgKi8NCisJCQl1bndha2V1cF9z
-b2Z0aXJxZChjcHUpOw0KIAl9DQogDQogCWxvY2FsX2lycV9yZXN0b3JlKGZs
-YWdzKTsNCiB9DQogDQotLyoNCi0gKiBUaGlzIGZ1bmN0aW9uIG11c3QgcnVu
-IHdpdGggaXJxIGRpc2FibGVkIQ0KLSAqLw0KLWlubGluZSB2b2lkIGNwdV9y
-YWlzZV9zb2Z0aXJxKHVuc2lnbmVkIGludCBjcHUsIHVuc2lnbmVkIGludCBu
-cikNCi17DQotCV9fY3B1X3JhaXNlX3NvZnRpcnEoY3B1LCBucik7DQotDQot
-CS8qDQotCSAqIElmIHdlJ3JlIGluIGFuIGludGVycnVwdCBvciBiaCwgd2Un
-cmUgZG9uZQ0KLQkgKiAodGhpcyBhbHNvIGNhdGNoZXMgYmgtZGlzYWJsZWQg
-Y29kZSkuIFdlIHdpbGwNCi0JICogYWN0dWFsbHkgcnVuIHRoZSBzb2Z0aXJx
-IG9uY2Ugd2UgcmV0dXJuIGZyb20NCi0JICogdGhlIGlycSBvciBiaC4NCi0J
-ICoNCi0JICogT3RoZXJ3aXNlIHdlIHdha2UgdXAga3NvZnRpcnFkIHRvIG1h
-a2Ugc3VyZSB3ZQ0KLQkgKiBzY2hlZHVsZSB0aGUgc29mdGlycSBzb29uLg0K
-LQkgKi8NCi0JaWYgKCEobG9jYWxfaXJxX2NvdW50KGNwdSkgfCBsb2NhbF9i
-aF9jb3VudChjcHUpKSkNCi0JCXdha2V1cF9zb2Z0aXJxZChjcHUpOw0KLX0N
-Ci0NCi12b2lkIHJhaXNlX3NvZnRpcnEodW5zaWduZWQgaW50IG5yKQ0KLXsN
-Ci0JbG9uZyBmbGFnczsNCi0NCi0JbG9jYWxfaXJxX3NhdmUoZmxhZ3MpOw0K
-LQljcHVfcmFpc2Vfc29mdGlycShzbXBfcHJvY2Vzc29yX2lkKCksIG5yKTsN
-Ci0JbG9jYWxfaXJxX3Jlc3RvcmUoZmxhZ3MpOw0KLX0NCi0NCiB2b2lkIG9w
-ZW5fc29mdGlycShpbnQgbnIsIHZvaWQgKCphY3Rpb24pKHN0cnVjdCBzb2Z0
-aXJxX2FjdGlvbiopLCB2b2lkICpkYXRhKQ0KIHsNCiAJc29mdGlycV92ZWNb
-bnJdLmRhdGEgPSBkYXRhOw0KIAlzb2Z0aXJxX3ZlY1tucl0uYWN0aW9uID0g
-YWN0aW9uOw0KIH0NCiANCi0NCiAvKiBUYXNrbGV0cyAqLw0KIA0KIHN0cnVj
-dCB0YXNrbGV0X2hlYWQgdGFza2xldF92ZWNbTlJfQ1BVU10gX19jYWNoZWxp
-bmVfYWxpZ25lZDsNCkBAIC0xNTcsOCArMTYyLDkgQEANCiAJbG9jYWxfaXJx
-X3NhdmUoZmxhZ3MpOw0KIAl0LT5uZXh0ID0gdGFza2xldF92ZWNbY3B1XS5s
-aXN0Ow0KIAl0YXNrbGV0X3ZlY1tjcHVdLmxpc3QgPSB0Ow0KLQljcHVfcmFp
-c2Vfc29mdGlycShjcHUsIFRBU0tMRVRfU09GVElSUSk7DQorCV9fY3B1X3Jh
-aXNlX3NvZnRpcnEoY3B1LCBUQVNLTEVUX1NPRlRJUlEpOw0KIAlsb2NhbF9p
-cnFfcmVzdG9yZShmbGFncyk7DQorCXJlcnVuX3NvZnRpcnFzKGNwdSk7DQog
-fQ0KIA0KIHZvaWQgX190YXNrbGV0X2hpX3NjaGVkdWxlKHN0cnVjdCB0YXNr
-bGV0X3N0cnVjdCAqdCkNCkBAIC0xNjksOCArMTc1LDkgQEANCiAJbG9jYWxf
-aXJxX3NhdmUoZmxhZ3MpOw0KIAl0LT5uZXh0ID0gdGFza2xldF9oaV92ZWNb
-Y3B1XS5saXN0Ow0KIAl0YXNrbGV0X2hpX3ZlY1tjcHVdLmxpc3QgPSB0Ow0K
-LQljcHVfcmFpc2Vfc29mdGlycShjcHUsIEhJX1NPRlRJUlEpOw0KKwlfX2Nw
-dV9yYWlzZV9zb2Z0aXJxKGNwdSwgSElfU09GVElSUSk7DQogCWxvY2FsX2ly
-cV9yZXN0b3JlKGZsYWdzKTsNCisJcmVydW5fc29mdGlycXMoY3B1KTsNCiB9
-DQogDQogc3RhdGljIHZvaWQgdGFza2xldF9hY3Rpb24oc3RydWN0IHNvZnRp
-cnFfYWN0aW9uICphKQ0KQEAgLTI0MSw3ICsyNDgsNiBAQA0KIAl9DQogfQ0K
-IA0KLQ0KIHZvaWQgdGFza2xldF9pbml0KHN0cnVjdCB0YXNrbGV0X3N0cnVj
-dCAqdCwNCiAJCSAgdm9pZCAoKmZ1bmMpKHVuc2lnbmVkIGxvbmcpLCB1bnNp
-Z25lZCBsb25nIGRhdGEpDQogew0KQEAgLTI2OCw4ICsyNzQsNiBAQA0KIAlj
-bGVhcl9iaXQoVEFTS0xFVF9TVEFURV9TQ0hFRCwgJnQtPnN0YXRlKTsNCiB9
-DQogDQotDQotDQogLyogT2xkIHN0eWxlIEJIcyAqLw0KIA0KIHN0YXRpYyB2
-b2lkICgqYmhfYmFzZVszMl0pKHZvaWQpOw0KQEAgLTMyNSw3ICszMjksNyBA
-QA0KIHsNCiAJaW50IGk7DQogDQotCWZvciAoaT0wOyBpPDMyOyBpKyspDQor
-CWZvciAoaSA9IDA7IGkgPCAzMjsgaSsrKQ0KIAkJdGFza2xldF9pbml0KGJo
-X3Rhc2tfdmVjK2ksIGJoX2FjdGlvbiwgaSk7DQogDQogCW9wZW5fc29mdGly
-cShUQVNLTEVUX1NPRlRJUlEsIHRhc2tsZXRfYWN0aW9uLCBOVUxMKTsNCkBA
-IC0zNjEsNTYgKzM2NSw1MiBAQA0KIA0KIHN0YXRpYyBpbnQga3NvZnRpcnFk
-KHZvaWQgKiBfX2JpbmRfY3B1KQ0KIHsNCi0JaW50IGJpbmRfY3B1ID0gKihp
-bnQgKikgX19iaW5kX2NwdTsNCi0JaW50IGNwdSA9IGNwdV9sb2dpY2FsX21h
-cChiaW5kX2NwdSk7DQorCWludCBjcHUgPSBjcHVfbG9naWNhbF9tYXAoKGlu
-dClfX2JpbmRfY3B1KTsNCiANCiAJZGFlbW9uaXplKCk7DQotCWN1cnJlbnQt
-Pm5pY2UgPSAxOTsNCisNCiAJc2lnZmlsbHNldCgmY3VycmVudC0+YmxvY2tl
-ZCk7DQogDQogCS8qIE1pZ3JhdGUgdG8gdGhlIHJpZ2h0IENQVSAqLw0KLQlj
-dXJyZW50LT5jcHVzX2FsbG93ZWQgPSAxVUwgPDwgY3B1Ow0KLQl3aGlsZSAo
-c21wX3Byb2Nlc3Nvcl9pZCgpICE9IGNwdSkNCi0JCXNjaGVkdWxlKCk7DQor
-CWN1cnJlbnQtPmNwdXNfYWxsb3dlZCA9IDEgPDwgY3B1Ow0KIA0KLQlzcHJp
-bnRmKGN1cnJlbnQtPmNvbW0sICJrc29mdGlycWRfQ1BVJWQiLCBiaW5kX2Nw
-dSk7DQorI2lmIENPTkZJR19TTVANCisJc3ByaW50ZihjdXJyZW50LT5jb21t
-LCAia3NvZnRpcnFkIENQVSVkIiwgY3B1KTsNCisjZWxzZQ0KKwlzcHJpbnRm
-KGN1cnJlbnQtPmNvbW0sICJrc29mdGlycWQiKTsNCisjZW5kaWYNCiANCisJ
-Y3VycmVudC0+bmljZSA9IDE5Ow0KKwlzY2hlZHVsZSgpOw0KIAlfX3NldF9j
-dXJyZW50X3N0YXRlKFRBU0tfSU5URVJSVVBUSUJMRSk7DQotCW1iKCk7DQot
-DQogCWtzb2Z0aXJxZF90YXNrKGNwdSkgPSBjdXJyZW50Ow0KIA0KIAlmb3Ig
-KDs7KSB7DQotCQlpZiAoIXNvZnRpcnFfcGVuZGluZyhjcHUpKQ0KLQkJCXNj
-aGVkdWxlKCk7DQotDQotCQlfX3NldF9jdXJyZW50X3N0YXRlKFRBU0tfUlVO
-TklORyk7DQotDQotCQl3aGlsZSAoc29mdGlycV9wZW5kaW5nKGNwdSkpIHsN
-CitiYWNrOg0KKwkJZG8gew0KIAkJCWRvX3NvZnRpcnEoKTsNCiAJCQlpZiAo
-Y3VycmVudC0+bmVlZF9yZXNjaGVkKQ0KLQkJCQlzY2hlZHVsZSgpOw0KLQkJ
-fQ0KLQ0KKwkJCQlnb3RvIHByZWVtcHQ7DQorCQl9IHdoaWxlIChzb2Z0aXJx
-X3BlbmRpbmcoY3B1KSk7DQorCQlzY2hlZHVsZSgpOw0KIAkJX19zZXRfY3Vy
-cmVudF9zdGF0ZShUQVNLX0lOVEVSUlVQVElCTEUpOw0KIAl9DQorDQorcHJl
-ZW1wdDoNCisJX19zZXRfY3VycmVudF9zdGF0ZShUQVNLX1JVTk5JTkcpOw0K
-KwlzY2hlZHVsZSgpOw0KKwlfX3NldF9jdXJyZW50X3N0YXRlKFRBU0tfSU5U
-RVJSVVBUSUJMRSk7DQorCWdvdG8gYmFjazsNCiB9DQogDQogc3RhdGljIF9f
-aW5pdCBpbnQgc3Bhd25fa3NvZnRpcnFkKHZvaWQpDQogew0KIAlpbnQgY3B1
-Ow0KIA0KLQlmb3IgKGNwdSA9IDA7IGNwdSA8IHNtcF9udW1fY3B1czsgY3B1
-KyspIHsNCi0JCWlmIChrZXJuZWxfdGhyZWFkKGtzb2Z0aXJxZCwgKHZvaWQg
-KikgJmNwdSwNCisJZm9yIChjcHUgPSAwOyBjcHUgPCBzbXBfbnVtX2NwdXM7
-IGNwdSsrKQ0KKwkJaWYgKGtlcm5lbF90aHJlYWQoa3NvZnRpcnFkLCAodm9p
-ZCAqKSBjcHUsDQogCQkJCSAgQ0xPTkVfRlMgfCBDTE9ORV9GSUxFUyB8IENM
-T05FX1NJR05BTCkgPCAwKQ0KLQkJCXByaW50aygic3Bhd25fa3NvZnRpcnFk
-KCkgZmFpbGVkIGZvciBjcHUgJWRcbiIsIGNwdSk7DQotCQllbHNlIHsNCi0J
-CQl3aGlsZSAoIWtzb2Z0aXJxZF90YXNrKGNwdV9sb2dpY2FsX21hcChjcHUp
-KSkgew0KLQkJCQljdXJyZW50LT5wb2xpY3kgfD0gU0NIRURfWUlFTEQ7DQot
-CQkJCXNjaGVkdWxlKCk7DQotCQkJfQ0KLQkJfQ0KLQl9DQorCQkJQlVHKCk7
-DQogDQogCXJldHVybiAwOw0KIH0NCi0tLSBsaW51eC9pbmNsdWRlL2xpbnV4
-L25ldGRldmljZS5oLm9yaWcJV2VkIFNlcCAyNiAxNzowNDozNiAyMDAxDQor
-KysgbGludXgvaW5jbHVkZS9saW51eC9uZXRkZXZpY2UuaAlXZWQgU2VwIDI2
-IDE3OjA4OjIwIDIwMDENCkBAIC00ODYsOCArNDg2LDkgQEANCiAJCWxvY2Fs
-X2lycV9zYXZlKGZsYWdzKTsNCiAJCWRldi0+bmV4dF9zY2hlZCA9IHNvZnRu
-ZXRfZGF0YVtjcHVdLm91dHB1dF9xdWV1ZTsNCiAJCXNvZnRuZXRfZGF0YVtj
-cHVdLm91dHB1dF9xdWV1ZSA9IGRldjsNCi0JCWNwdV9yYWlzZV9zb2Z0aXJx
-KGNwdSwgTkVUX1RYX1NPRlRJUlEpOw0KKwkJX19jcHVfcmFpc2Vfc29mdGly
-cShjcHUsIE5FVF9UWF9TT0ZUSVJRKTsNCiAJCWxvY2FsX2lycV9yZXN0b3Jl
-KGZsYWdzKTsNCisJCXJlcnVuX3NvZnRpcnFzKGNwdSk7DQogCX0NCiB9DQog
-DQpAQCAtNTM1LDggKzUzNiw5IEBADQogCQlsb2NhbF9pcnFfc2F2ZShmbGFn
-cyk7DQogCQlza2ItPm5leHQgPSBzb2Z0bmV0X2RhdGFbY3B1XS5jb21wbGV0
-aW9uX3F1ZXVlOw0KIAkJc29mdG5ldF9kYXRhW2NwdV0uY29tcGxldGlvbl9x
-dWV1ZSA9IHNrYjsNCi0JCWNwdV9yYWlzZV9zb2Z0aXJxKGNwdSwgTkVUX1RY
-X1NPRlRJUlEpOw0KKwkJX19jcHVfcmFpc2Vfc29mdGlycShjcHUsIE5FVF9U
-WF9TT0ZUSVJRKTsNCiAJCWxvY2FsX2lycV9yZXN0b3JlKGZsYWdzKTsNCisJ
-CXJlcnVuX3NvZnRpcnFzKGNwdSk7DQogCX0NCiB9DQogDQotLS0gbGludXgv
-aW5jbHVkZS9saW51eC9pbnRlcnJ1cHQuaC5vcmlnCVdlZCBTZXAgMjYgMTc6
-MDQ6NDAgMjAwMQ0KKysrIGxpbnV4L2luY2x1ZGUvbGludXgvaW50ZXJydXB0
-LmgJV2VkIFNlcCAyNiAxNzo0NToyMyAyMDAxDQpAQCAtNzQsOSArNzQsMTYg
-QEANCiBhc21saW5rYWdlIHZvaWQgZG9fc29mdGlycSh2b2lkKTsNCiBleHRl
-cm4gdm9pZCBvcGVuX3NvZnRpcnEoaW50IG5yLCB2b2lkICgqYWN0aW9uKShz
-dHJ1Y3Qgc29mdGlycV9hY3Rpb24qKSwgdm9pZCAqZGF0YSk7DQogZXh0ZXJu
-IHZvaWQgc29mdGlycV9pbml0KHZvaWQpOw0KLSNkZWZpbmUgX19jcHVfcmFp
-c2Vfc29mdGlycShjcHUsIG5yKSBkbyB7IHNvZnRpcnFfcGVuZGluZyhjcHUp
-IHw9IDFVTCA8PCAobnIpOyB9IHdoaWxlICgwKQ0KLWV4dGVybiB2b2lkIEZB
-U1RDQUxMKGNwdV9yYWlzZV9zb2Z0aXJxKHVuc2lnbmVkIGludCBjcHUsIHVu
-c2lnbmVkIGludCBucikpOw0KLWV4dGVybiB2b2lkIEZBU1RDQUxMKHJhaXNl
-X3NvZnRpcnEodW5zaWduZWQgaW50IG5yKSk7DQorI2lmbmRlZiBfX2NwdV9y
-YWlzZV9zb2Z0aXJxDQorI2RlZmluZSBfX2NwdV9yYWlzZV9zb2Z0aXJxKGNw
-dSwgbnIpIFwNCisJCWRvIHsgc29mdGlycV9wZW5kaW5nKGNwdSkgfD0gMVVM
-IDw8IChucik7IH0gd2hpbGUgKDApDQorI2VuZGlmDQorDQorI2RlZmluZSBy
-ZXJ1bl9zb2Z0aXJxcyhjcHUpIAkJCQkJXA0KK2RvIHsJCQkJCQkJCVwNCisJ
-aWYgKCEobG9jYWxfaXJxX2NvdW50KGNwdSkgfCBsb2NhbF9iaF9jb3VudChj
-cHUpKSkJXA0KKwkJZG9fc29mdGlycSgpOwkJCQkJXA0KK30gd2hpbGUgKDAp
-Ow0KIA0KIA0KIA0KLS0tIGxpbnV4L2luY2x1ZGUvbGludXgvc2NoZWQuaC5v
-cmlnCVdlZCBTZXAgMjYgMTc6MDQ6NDAgMjAwMQ0KKysrIGxpbnV4L2luY2x1
-ZGUvbGludXgvc2NoZWQuaAlXZWQgU2VwIDI2IDE3OjA4OjE2IDIwMDENCkBA
-IC01NTYsNiArNTU2LDcgQEANCiANCiBleHRlcm4gdm9pZCBGQVNUQ0FMTChf
-X3dha2VfdXAod2FpdF9xdWV1ZV9oZWFkX3QgKnEsIHVuc2lnbmVkIGludCBt
-b2RlLCBpbnQgbnIpKTsNCiBleHRlcm4gdm9pZCBGQVNUQ0FMTChfX3dha2Vf
-dXBfc3luYyh3YWl0X3F1ZXVlX2hlYWRfdCAqcSwgdW5zaWduZWQgaW50IG1v
-ZGUsIGludCBucikpOw0KK2V4dGVybiB2b2lkIEZBU1RDQUxMKF9fdW53YWtl
-dXBfcHJvY2VzcyhzdHJ1Y3QgdGFza19zdHJ1Y3QgKiBwLCBsb25nIHN0YXRl
-KSk7DQogZXh0ZXJuIHZvaWQgRkFTVENBTEwoc2xlZXBfb24od2FpdF9xdWV1
-ZV9oZWFkX3QgKnEpKTsNCiBleHRlcm4gbG9uZyBGQVNUQ0FMTChzbGVlcF9v
-bl90aW1lb3V0KHdhaXRfcXVldWVfaGVhZF90ICpxLA0KIAkJCQkgICAgICBz
-aWduZWQgbG9uZyB0aW1lb3V0KSk7DQpAQCAtNTc0LDYgKzU3NSwxMyBAQA0K
-ICNkZWZpbmUgd2FrZV91cF9pbnRlcnJ1cHRpYmxlX2FsbCh4KQlfX3dha2Vf
-dXAoKHgpLFRBU0tfSU5URVJSVVBUSUJMRSwgMCkNCiAjZGVmaW5lIHdha2Vf
-dXBfaW50ZXJydXB0aWJsZV9zeW5jKHgpCV9fd2FrZV91cF9zeW5jKCh4KSxU
-QVNLX0lOVEVSUlVQVElCTEUsIDEpDQogI2RlZmluZSB3YWtlX3VwX2ludGVy
-cnVwdGlibGVfc3luY19ucih4KSBfX3dha2VfdXBfc3luYygoeCksVEFTS19J
-TlRFUlJVUFRJQkxFLCAgbnIpDQorDQorI2RlZmluZSB1bndha2V1cF9wcm9j
-ZXNzKHRzayxzdGF0ZSkJCVwNCitkbyB7CQkJCQkJXA0KKwlpZiAodGFza19v
-bl9ydW5xdWV1ZSh0c2spKQkJXA0KKwkJX191bndha2V1cF9wcm9jZXNzKHRz
-ayxzdGF0ZSk7CVwNCit9IHdoaWxlICgwKQ0KKw0KIGFzbWxpbmthZ2UgbG9u
-ZyBzeXNfd2FpdDQocGlkX3QgcGlkLHVuc2lnbmVkIGludCAqIHN0YXRfYWRk
-ciwgaW50IG9wdGlvbnMsIHN0cnVjdCBydXNhZ2UgKiBydSk7DQogDQogZXh0
-ZXJuIGludCBpbl9ncm91cF9wKGdpZF90KTsNCi0tLSBsaW51eC9pbmNsdWRl
-L2FzbS1pMzg2L3NvZnRpcnEuaC5vcmlnCVdlZCBTZXAgMjYgMTc6MDQ6NDAg
-MjAwMQ0KKysrIGxpbnV4L2luY2x1ZGUvYXNtLWkzODYvc29mdGlycS5oCVdl
-ZCBTZXAgMjYgMTc6MDg6MTYgMjAwMQ0KQEAgLTQ1LDQgKzQ1LDkgQEANCiAJ
-CS8qIG5vIHJlZ2lzdGVycyBjbG9iYmVyZWQgKi8gKTsJCQkJXA0KIH0gd2hp
-bGUgKDApDQogDQorDQorLyogSXQncyB1c2luZyBfX3NldF9iaXQoKSBiZWNh
-dXNlIGl0IG9ubHkgbmVlZHMgdG8gYmUgSVJRLWF0b21pYy4gKi8NCisNCisj
-ZGVmaW5lIF9fY3B1X3JhaXNlX3NvZnRpcnEoY3B1LCBucikgX19zZXRfYml0
-KG5yLCAmc29mdGlycV9wZW5kaW5nKGNwdSkpDQorDQogI2VuZGlmCS8qIF9f
-QVNNX1NPRlRJUlFfSCAqLw0KLS0tIGxpbnV4L25ldC9jb3JlL2Rldi5jLm9y
-aWcJV2VkIFNlcCAyNiAxNzowNDo0MSAyMDAxDQorKysgbGludXgvbmV0L2Nv
-cmUvZGV2LmMJV2VkIFNlcCAyNiAxNzowNDo0OCAyMDAxDQpAQCAtMTIxOCw4
-ICsxMjE4LDkgQEANCiAJCQlkZXZfaG9sZChza2ItPmRldik7DQogCQkJX19z
-a2JfcXVldWVfdGFpbCgmcXVldWUtPmlucHV0X3BrdF9xdWV1ZSxza2IpOw0K
-IAkJCS8qIFJ1bnMgZnJvbSBpcnFzIG9yIEJIJ3MsIG5vIG5lZWQgdG8gd2Fr
-ZSBCSCAqLw0KLQkJCWNwdV9yYWlzZV9zb2Z0aXJxKHRoaXNfY3B1LCBORVRf
-UlhfU09GVElSUSk7DQorCQkJX19jcHVfcmFpc2Vfc29mdGlycSh0aGlzX2Nw
-dSwgTkVUX1JYX1NPRlRJUlEpOw0KIAkJCWxvY2FsX2lycV9yZXN0b3JlKGZs
-YWdzKTsNCisJCQlyZXJ1bl9zb2Z0aXJxcyh0aGlzX2NwdSk7DQogI2lmbmRl
-ZiBPRkZMSU5FX1NBTVBMRQ0KIAkJCWdldF9zYW1wbGVfc3RhdHModGhpc19j
-cHUpOw0KICNlbmRpZg0KQEAgLTE1MjksOCArMTUzMCw5IEBADQogCWxvY2Fs
-X2lycV9kaXNhYmxlKCk7DQogCW5ldGRldl9yeF9zdGF0W3RoaXNfY3B1XS50
-aW1lX3NxdWVlemUrKzsNCiAJLyogVGhpcyBhbHJlYWR5IHJ1bnMgaW4gQkgg
-Y29udGV4dCwgbm8gbmVlZCB0byB3YWtlIHVwIEJIJ3MgKi8NCi0JY3B1X3Jh
-aXNlX3NvZnRpcnEodGhpc19jcHUsIE5FVF9SWF9TT0ZUSVJRKTsNCisJX19j
-cHVfcmFpc2Vfc29mdGlycSh0aGlzX2NwdSwgTkVUX1JYX1NPRlRJUlEpOw0K
-IAlsb2NhbF9pcnFfZW5hYmxlKCk7DQorCXJlcnVuX3NvZnRpcnFzKHRoaXNf
-Y3B1KTsNCiANCiAJTkVUX1BST0ZJTEVfTEVBVkUoc29mdG5ldF9wcm9jZXNz
-KTsNCiAJcmV0dXJuOw0K
---8323328-425934229-1001522643=:5892--
+Cheers,
+ Stephen

@@ -1,72 +1,258 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266736AbSLPOd1>; Mon, 16 Dec 2002 09:33:27 -0500
+	id <S266228AbSLPOtJ>; Mon, 16 Dec 2002 09:49:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266761AbSLPOd1>; Mon, 16 Dec 2002 09:33:27 -0500
-Received: from ip67-93-141-186.z141-93-67.customer.algx.net ([67.93.141.186]:34452
-	"EHLO datapower.ducksong.com") by vger.kernel.org with ESMTP
-	id <S266736AbSLPOd0>; Mon, 16 Dec 2002 09:33:26 -0500
-Date: Mon, 16 Dec 2002 09:42:43 -0500
-From: "Patrick R. McManus" <mcmanus@ducksong.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Dual Xeon w/ HT: Kernel can't find second CPU
-Message-ID: <20021216144243.GA9352@ducksong.com>
-References: <233C89823A37714D95B1A891DE3BCE5202AB1AD5@xch-a.win.zambeel.com> <20021212162914.E28629@deltelco.com>
-Mime-Version: 1.0
+	id <S266270AbSLPOtJ>; Mon, 16 Dec 2002 09:49:09 -0500
+Received: from [213.171.53.133] ([213.171.53.133]:17678 "EHLO gulipin.miee.ru")
+	by vger.kernel.org with ESMTP id <S266228AbSLPOtA>;
+	Mon, 16 Dec 2002 09:49:00 -0500
+Date: Mon, 16 Dec 2002 17:57:50 +0300
+From: "Ruslan U. Zakirov" <cubic@wr.miee.ru>
+X-Mailer: The Bat! (v1.61)
+Reply-To: "Ruslan U. Zakirov" <cubic@wr.miee.ru>
+Organization: CITL MIEE
+X-Priority: 3 (Normal)
+Message-ID: <75339285737.20021216175750@wr.miee.ru>
+To: Dave Jones <davej@codemonkey.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re[2]: [Oops 2.5.51] PnPBIOS: cat /proc/bus/pnp/escd
+In-Reply-To: <20021216135813.GD11616@suse.de>
+References: <20021215230344.GE1432@squish.home.loc>
+ <20021216135813.GD11616@suse.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021212162914.E28629@deltelco.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Sent: Friday, December 06, 2002 6:57 PM
-> > To: linux-kernel@vger.kernel.org
-> > Subject: Re: Dual Xeon w/ HT: Kernel can't find second CPU
+DJ>  >      'cat /proc/bus/pnp/escd' consistantly produces this:
+DJ>  > EIP:    0088:[<00007b74>]    Not tainted
 
+DJ> You blew up in BIOS code. Your BIOS has a crap PNPBIOS implementation.
+DJ> Send the output of dmidecode[1] and it can get added to the blacklist.
+DJ> [1] http://people.redhat.com/arjanv/dmidecode.c
+DJ>                 Dave
 
-I have a similar (but different) problem that I was hoping for help
-with.
+Have we got any chance to solve this problem with BIOS update?
 
-I can't build a kernel for my dual xeon e7500 board, with
-hyperthreading enabled, that sees 4 logical processors. I can boot the
-redhat 8 kernel and that sees 4, but my build of  2.4.20-ac2 gets me
-'warning sibling not found' messages and just 2 cpus. 
+Here is results of DMI decode:
 
-It is built for P4 and has SMP on. Is there anything else I should
-have to do? acpismp=force doesn't help (not that it should on 2.4.20
-from what I read.)
+SMBIOS 2.3 present.
+DMI 2.3 present.
+29 structures occupying 978 bytes.
+DMI table at 0x000F04F0.
+Handle 0x0000
+        DMI type 0, 20 bytes.
+        BIOS Information Block
+                Vendor: American Megatrends Inc.
+                Version: 62710
+                Release: 06/01/2000
+                BIOS base: 0xF0000
+                ROM size: 192K
+                Capabilities:
+                        Flags: 0x000000007FCBDE90
+Handle 0x0001
+        DMI type 1, 25 bytes.
+        System Information Block
+                Vendor: Gigabyte Technology Co.
+                Product: 7IXE4
+                Version: 0000000
+                Serial Number: 00000000
+Handle 0x0002
+        DMI type 2, 8 bytes.
+        Board Information Block
+                Vendor: Gigabyte Technology Co., Ltd.
+                Product: 7IXE4
+                Version: 1.1
+                Serial Number: 00000000
+Handle 0x0003
+        DMI type 3, 17 bytes.
+        Chassis Information Block
+                Vendor:                                 
+                Chassis Type: Desktop
+                Version: 1.0
+                Serial Number: 0000000
+                Asset Tag:                                 
+Handle 0x0004
+        DMI type 4, 32 bytes.
+        Processor
+                Socket Designation: Socket-A
+                Processor Type: Central Processor
+                Processor Family: K5
+                Processor Manufacturer: AMD                             
+                Processor Version: Duron(tm)                       
+Handle 0x0005
+        DMI type 7, 19 bytes.
+        Cache
+                Socket: Internal
+                L1 Internal Cache: write-back
+                L1 Cache Size: 128K
+                L1 Cache Maximum: 128K
+                L1 Cache Type: Synchronous 
+Handle 0x0006
+        DMI type 7, 19 bytes.
+        Cache
+                Socket: Internal
+                L2 Internal Cache: disabled
+                L2 Cache Size: 512K
+                L2 Cache Maximum: 64K
+                L2 Cache Type: Synchronous 
+Handle 0x0007
+        DMI type 5, 22 bytes.
+        Memory Controller
+Handle 0x0008
+        DMI type 6, 12 bytes.
+        Memory Bank
+                Socket: DIMM3
+                Banks: 0 1
+                Type: UNKNOWN 
+                Installed Size: Not Installed
+                Enabled Size: Not Installed
+Handle 0x0009
+        DMI type 6, 12 bytes.
+        Memory Bank
+                Socket: DIMM2
+                Banks: 2 3
+                Type: UNKNOWN 
+                Installed Size: Not Installed
+                Enabled Size: Not Installed
+Handle 0x000A
+        DMI type 6, 12 bytes.
+        Memory Bank
+                Socket: DIMM1
+                Banks: 4 5
+                Speed: 15nS
+                Type: DIMM SDRAM 
+                Installed Size: 64Mbyte
+                Enabled Size: 64Mbyte
+Handle 0x000B
+        DMI type 9, 13 bytes.
+        Card Slot
+                Slot: PCI1
+                Type: 32bit PCI 
+                Status: In use.
+                Slot Features: 3.3v Shared 
+Handle 0x000C
+        DMI type 9, 13 bytes.
+        Card Slot
+                Slot: PCI2
+                Type: 32bit PCI 
+                Status: Available.
+                Slot Features: 3.3v Shared 
+Handle 0x000D
+        DMI type 9, 13 bytes.
+        Card Slot
+                Slot: PCI3
+                Type: 32bit PCI 
+                Status: Available.
+                Slot Features: 3.3v Shared 
+Handle 0x000E
+        DMI type 9, 13 bytes.
+        Card Slot
+                Slot: PCI4
+                Type: 32bit PCI 
+                Status: In use.
+                Slot Features: 3.3v Shared 
+Handle 0x000F
+        DMI type 9, 13 bytes.
+        Card Slot
+                Slot: PCI5
+                Type: 32bit PCI 
+                Status: Available.
+                Slot Features: 3.3v Shared 
+Handle 0x0010
+        DMI type 9, 13 bytes.
+        Card Slot
+                Slot: ISA1
+                Type: 16bit ISA 
+                Slot Features: 3.3v Shared 
+Handle 0x0011
+        DMI type 9, 13 bytes.
+        Card Slot
+                Slot: ISA2
+                Type: 16bit ISA 
+                Slot Features: 3.3v Shared 
+Handle 0x0012
+        DMI type 9, 13 bytes.
+        Card Slot
+                Slot: AGP
+                Type: 32bit AGP 4x 
+                Slot Features: 3.3v Shared 
+Handle 0x0013
+        DMI type 8, 9 bytes.
+        Port Connector
+                Internal Designator: COM Port
+                Internal Connector Type: None
+                External Designator: Serial Port A
+                External Connector Type: DB-9 pin male
+                Port Type: Serial Port 16650A Compatible
+Handle 0x0014
+        DMI type 8, 9 bytes.
+        Port Connector
+                Internal Designator: COM Port
+                Internal Connector Type: None
+                External Designator: Serial Port B
+                External Connector Type: DB-9 pin male
+                Port Type: Serial Port 16650A Compatible
+Handle 0x0015
+        DMI type 8, 9 bytes.
+        Port Connector
+                Internal Designator: LPT Port
+                Internal Connector Type: None
+                External Designator: Parallel Port
+                External Connector Type: DB-25 pin female
+                Port Type: Parallel Port ECP/EPP
+Handle 0x0016
+        DMI type 8, 9 bytes.
+        Port Connector
+                Internal Designator: Keyboard
+                Internal Connector Type: None
+                External Designator: Keyboard
+                External Connector Type: PS/2
+                Port Type: Keyboard Port
+Handle 0x0017
+        DMI type 8, 9 bytes.
+        Port Connector
+                Internal Designator: Mouse
+                Internal Connector Type: None
+                External Designator: PS/2 Mouse
+                External Connector Type: PS/2
+                Port Type: Mouse Port
+Handle 0x0018
+        DMI type 8, 9 bytes.
+        Port Connector
+                Internal Designator: Floppy
+                Internal Connector Type: On Board Floppy
+                External Designator: Floppy
+                External Connector Type: None
+                Port Type: None
+Handle 0x0019
+        DMI type 8, 9 bytes.
+        Port Connector
+                Internal Designator: Primary IDE
+                Internal Connector Type: On Board IDE
+                External Designator: IDE-1
+                External Connector Type: None
+                Port Type: None
+Handle 0x001A
+        DMI type 8, 9 bytes.
+        Port Connector
+                Internal Designator: Secondary IDE
+                Internal Connector Type: On Board IDE
+                External Designator: IDE-2
+                External Connector Type: None
+                Port Type: None
+Handle 0x001B
+        DMI type 8, 9 bytes.
+        Port Connector
+                Internal Designator: USB Port
+                Internal Connector Type: None
+                External Designator: USB
+                External Connector Type: Access Bus (USB)
+                Port Type: USB
+Handle 0x001C
+        DMI type 13, 22 bytes.
+        BIOS Language Information
+Best regards.
+             Ruslan.
 
-
-[..]
-CPU: Trace cache: 12K uops, L1 D cache: 8K
-CPU: L2 cache: 512K
-CPU: Physical Processor ID: 0
-Intel machine check reporting enabled on CPU#0.
-CPU:     After generic, caps: 3febfbff 00000000 00000000 00000000
-CPU:             Common caps: 3febfbff 00000000 00000000 00000000
-CPU0: Intel(R) XEON(TM) CPU 2.40GHz stepping 04
-per-CPU timeslice cutoff: 1462.99 usecs.
-task migration cache decay timeout: 10 msecs.
-enabled ExtINT on CPU#0
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-Booting processor 1/2 eip 2000
-Initializing CPU#1
-masked ExtINT on CPU#1
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-Calibrating delay loop... 4797.23 BogoMIPS
-CPU: Trace cache: 12K uops, L1 D cache: 8K
-CPU: L2 cache: 512K
-CPU: Physical Processor ID: 3
-Intel machine check reporting enabled on CPU#1.
-CPU:     After generic, caps: 3febfbff 00000000 00000000 00000000
-CPU:             Common caps: 3febfbff 00000000 00000000 00000000
-CPU1: Intel(R) XEON(TM) CPU 2.40GHz stepping 04
-Total of 2 processors activated (9581.36 BogoMIPS).
-WARNING: No sibling found for CPU 0.
-WARNING: No sibling found for CPU 1.
-[...]
-
--Patrick

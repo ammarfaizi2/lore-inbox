@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263008AbTCSNrs>; Wed, 19 Mar 2003 08:47:48 -0500
+	id <S263037AbTCSOCz>; Wed, 19 Mar 2003 09:02:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263037AbTCSNrr>; Wed, 19 Mar 2003 08:47:47 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:61576 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S263008AbTCSNrr>; Wed, 19 Mar 2003 08:47:47 -0500
-Date: Wed, 19 Mar 2003 13:58:41 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Paul Rolland <rol@as2917.net>
-Cc: "'Juha Poutiainen'" <pode@iki.fi>, linux-kernel@vger.kernel.org
-Subject: Re: L2 cache detection in Celeron 2GHz (P4 based)
-Message-ID: <20030319135841.GC28770@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Paul Rolland <rol@as2917.net>, 'Juha Poutiainen' <pode@iki.fi>,
-	linux-kernel@vger.kernel.org
-References: <20030319064743.GA1683@a28a> <00b801c2edf0$105d7750$6100a8c0@witbe>
-Mime-Version: 1.0
+	id <S263038AbTCSOCz>; Wed, 19 Mar 2003 09:02:55 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:23696 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id <S263037AbTCSOCx>;
+	Wed, 19 Mar 2003 09:02:53 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <00b801c2edf0$105d7750$6100a8c0@witbe>
-User-Agent: Mutt/1.5.3i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15992.31509.592442.463644@gargle.gargle.HOWL>
+Date: Wed, 19 Mar 2003 15:13:41 +0100
+From: mikpe@csd.uu.se
+To: Pavel Machek <pavel@ucw.cz>
+Cc: mikpe@csd.uu.se, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: apic-to-drivermodel conversion
+In-Reply-To: <20030319140610.GA1028@elf.ucw.cz>
+References: <20030318202858.GA154@elf.ucw.cz>
+	<20030318161852.41a703a4.akpm@digeo.com>
+	<15992.18243.605716.244572@gargle.gargle.HOWL>
+	<20030319140610.GA1028@elf.ucw.cz>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 19, 2003 at 09:18:04AM +0100, Paul Rolland wrote:
+Pavel Machek writes:
+ > > Try this patch instead. This is my merge of my and Pavel's earlier
+ > > patches, so it differs from Pavel's in some details.
+ > 
+ > I tried it... Oops at kobject_add, called from device_add,
+ > device_initialize, ..., init. This is on machine that does have
+ > lapic. I'll try to do clean build to see if it goes away.
+ > 
+ > No, it still dies after ds: no socket drivers.
 
- > You can also add that the L1 detection doesn't seem to be correct
- > either : 
- > 0K Instruction cache, and 8K data cache for L1... This is not much
- > for instruction, it seems it should be 12K...
+When does it die? At initial boot or at resume?
 
-That should be fixed in recent 2.4s (and not-so-recent 2.5s).
-What version are you seeing this problem on?
+I don't claim that every driver that's hooked into the driver
+model actually handles suspend/resume correctly, but this patch
+does migrate APM/apic.c/nmi.c from the old PM system to the
+driver model. I've tested it on plain P3 & P4 desktop machines.
 
-		Dave
+Try a minimal .config.
 
+/Mikael

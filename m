@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285732AbRLTArj>; Wed, 19 Dec 2001 19:47:39 -0500
+	id <S285719AbRLTAot>; Wed, 19 Dec 2001 19:44:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285720AbRLTAr3>; Wed, 19 Dec 2001 19:47:29 -0500
-Received: from c007-h012.c007.snv.cp.net ([209.228.33.219]:12464 "HELO
-	c007.snv.cp.net") by vger.kernel.org with SMTP id <S285724AbRLTArS>;
-	Wed, 19 Dec 2001 19:47:18 -0500
-X-Sent: 20 Dec 2001 00:47:11 GMT
-Message-ID: <3C21350F.64374FA4@bigfoot.com>
-Date: Wed, 19 Dec 2001 16:47:11 -0800
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20i i686)
-X-Accept-Language: en
+	id <S285720AbRLTAoa>; Wed, 19 Dec 2001 19:44:30 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:5901 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S285719AbRLTAo0>; Wed, 19 Dec 2001 19:44:26 -0500
+Date: Wed, 19 Dec 2001 16:47:18 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: "David S. Miller" <davem@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>, <linux-aio@kvack.org>
+Subject: Re: aio
+In-Reply-To: <20011219192136.F2034@redhat.com>
+Message-ID: <Pine.LNX.4.40.0112191631450.1529-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: Jean-Francois Levesque <jfl@jfworld.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: UDMA problem with Maxtor 7200rpm disk
-In-Reply-To: <20011219151636.50e930ac.jfl@jfworld.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have a problem regarding my new Asus A7V266 board with VIA KT266 chipset.  Byron Stanoszek told me to ask my problem to this list so here it is :
-> 
-> My hard drive is a Maxtor 5T030H3 ATA DISK drive (30 gig).  The problem is that I'm not able to read more than 7 MB/sec :
->
-> ...
->
-> I also have some idebus errors.
+On Wed, 19 Dec 2001, Benjamin LaHaise wrote:
 
-[dmesg output clipped]
+> What I'm saying is that for more people to play with it, it needs to be
+> more widely available.  The set of developers that read linux-kernel and
+> linux-aio aren't giving much feedback.  I do not expect the code to go
+> into 2.5 at this point in time.  All I need is a set of syscall numbers
+> that aren't going to change should this implementation stand up to the
+> test of time.
 
-1. Remove the AudioPCI card, recheck.
-2. Check jumpers on CD, s/b set to Master.
+It would be nice to have a cooperation between glibc and the kernel to
+have syscalls mapped by name, not by number.
+With name->number resolved by crtbegin.o reading a public kernel table
+or accessing a fixed-ID kernel map function and filling a map.
+So if internally ( at the application ) sys_getpid has index 0, the
+sysmap[0] will be filled with the id retrieved inside the kernel by
+looking up "sys_getpid".
+Eat too spicy today ?
 
-AudioPCI and some VIA chipsets don't play well together.
 
-rgds,
-tim.
 
---
+
+- Davide
+
+
+

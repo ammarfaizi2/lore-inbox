@@ -1,49 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314162AbSDMAdz>; Fri, 12 Apr 2002 20:33:55 -0400
+	id <S314136AbSDLSz5>; Fri, 12 Apr 2002 14:55:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314163AbSDMAdy>; Fri, 12 Apr 2002 20:33:54 -0400
-Received: from relay04.valueweb.net ([216.219.253.238]:23314 "EHLO
-	relay04.valueweb.net") by vger.kernel.org with ESMTP
-	id <S314162AbSDMAdx>; Fri, 12 Apr 2002 20:33:53 -0400
-Message-ID: <3CB77C73.3981374@opersys.com>
-Date: Fri, 12 Apr 2002 20:31:47 -0400
-From: Karim Yaghmour <karym@opersys.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16-TRACE i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
-MIME-Version: 1.0
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux Trace Toolkit ready for 2.5
-In-Reply-To: <3CB61523.89BE3422@opersys.com> <3CB76113.ABEAA49E@eyal.emu.id.au>
-Content-Type: text/plain; charset=us-ascii
+	id <S314137AbSDLSz5>; Fri, 12 Apr 2002 14:55:57 -0400
+Received: from h108-129-61.datawire.net ([207.61.129.108]:7433 "HELO
+	mail.datawire.net") by vger.kernel.org with SMTP id <S314136AbSDLSz4>;
+	Fri, 12 Apr 2002 14:55:56 -0400
+Subject: Re: Kernel panic 2.4.19-pre6 AND 2.4.19-pre5-ac3
+From: Shawn Starr <shawn.starr@datawire.net>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200204121751.g3CHpBX15117@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
+Date: 12 Apr 2002 10:01:29 -0400
+Message-Id: <1018620090.282.0.camel@unaropia.dw>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Yes It used to. I also posted the ksymoops info.
 
-Eyal Lebedinsky wrote:
-> > #define TRACE_SCHEDCHANGE(OUT, IN) \
-> >            do \
-> >            {\
-> >            trace_schedchange sched_event;\
-> >            sched_event.out       = OUT->pid;\
-> >            sched_event.in        = (uint32_t) IN;\
-> >            sched_event.out_state = OUT->state; \
-> >            trace_event(TRACE_EV_SCHEDCHANGE, &sched_event);\
-> >            } while(0);
+Shawn.
+
+
+On Fri, 2002-04-12 at 18:54, Denis Vlasenko wrote:
+> On 12 April 2002 11:33, Shawn Starr wrote:
+> > The same kernel panic is observed when using 2.4.19-pre6 or
+> > 2.4.19-pre5-ac3:
 > 
-> The macro body should not have the terminating semicolon. This is
-> the whole point of this trick, allowing it to be used safely in if
-> statements like a function.
+> [snip]
+> 
+> > call trace:
+> > [<c01b6996>][<c01ae406>][<c01b5a79>][<c013f81a>][<c01b6013>][<c01b65cf>][<c
+> >01055000>[<c010506f>][<c0105000>][<c0107316>][<c0105050>]
+> >
+> > Code: 8b 40 20 c7 40 24 00 00 00 00 a1 a0 3e 2d c0 59 89 15 c4 cf
+> 
+> Run this thru ksymoops
+> 
+> ======== Durning boot it stopped at:
+> >
+> > hdc: ATAPI 48X CD-ROM drive, 128kB Cache, UDMA(33)
+> > Uniform CD-ROM driver Revision: 3.12
+> > <NEVER GOT TO THIS BELOW>
+> > ===========================
+> > Partition check:
+> >  hda: hda1 hda2 hda3 hda4
+> > Floppy drive(s): fd0 is 1.44M
+> > FDC 0 is a post-1991 82077
+> > ===========================
+> 
+> I gather it used to reach "partition check" before.
+> With which kernel?
+> --
+> vda
+> 
+-- 
+Shawn Starr
+Developer Support Engineer
+Datawire Communication Networks Inc.
+10 Carlson Court, Suite 300
+Toronto, ON, M9W 6L2
+T: 416-213-2001 ext 179  F: 416-213-2008
 
-True. Although those trace statements have never been called upon to
-be in if statements, your observation is correct. Thanks.
-
-Karim
-
-===================================================
-                 Karim Yaghmour
-               karym@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================

@@ -1,83 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261386AbTIRO4r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 10:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbTIRO4r
+	id S261506AbTIRPEu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 11:04:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbTIRPEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 10:56:47 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:16261
-	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
-	id S261386AbTIRO4p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 10:56:45 -0400
-Date: Thu, 18 Sep 2003 16:56:42 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: marcelo.tosatti@cyclades.com.br, linux-kernel@vger.kernel.org
-Subject: Re: nr_free_buffer_pages 2.4.23pre4
-Message-ID: <20030918145642.GF1301@velociraptor.random>
-References: <200309181201.h8IC1hue002338@harpo.it.uu.se>
+	Thu, 18 Sep 2003 11:04:49 -0400
+Received: from holomorphy.com ([66.224.33.161]:13016 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261506AbTIRPEs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 11:04:48 -0400
+Date: Thu, 18 Sep 2003 08:05:18 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Olivier Galibert <galibert@limsi.fr>,
+       Stephan von Krawczynski <skraw@ithnet.com>, neilb@cse.unsw.edu.au,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: experiences beyond 4 GB RAM with 2.4.22
+Message-ID: <20030918150518.GZ4306@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Jens Axboe <axboe@suse.de>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Olivier Galibert <galibert@limsi.fr>,
+	Stephan von Krawczynski <skraw@ithnet.com>, neilb@cse.unsw.edu.au,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030917191946.GQ906@suse.de> <Pine.LNX.4.44.0309171629520.3994-100000@logos.cnet> <20030918070845.GS906@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200309181201.h8IC1hue002338@harpo.it.uu.se>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <20030918070845.GS906@suse.de>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 18, 2003 at 02:01:43PM +0200, Mikael Pettersson wrote:
-> On Thu, 18 Sep 2003 07:06:12 +0200, Andrea Arcangeli <andrea@suse.de> wrote:
-> > According to the kernel CVS you didn't merge this yet, so please merge
-> > the below too, it will remove a not necessary branch that also generates
-> > a gcc false positive (all harmless of course but it's more correct to
-> > remove it):
-> > 
-> > --- 2.4.23pre4/mm/page_alloc.c.~1~	2003-09-13 00:08:04.000000000 +0200
-> > +++ 2.4.23pre4/mm/page_alloc.c	2003-09-14 01:05:24.000000000 +0200
-> > @@ -258,8 +258,6 @@ static struct page * balance_classzone(z
-> >  	struct page * page = NULL;
-> >  	int __freed;
-> >  
-> > -	if (!(gfp_mask & __GFP_WAIT))
-> > -		goto out;
-> >  	if (in_interrupt())
-> >  		BUG();
-> 
-> Andrea,
-> 
-> This cleanup leaves the 'out' label unused, triggering
-> yet another gcc warning (though less scary than the previous).
-> Please apply this cleanup patch on top of the one above.
+On Wed, Sep 17 2003, Marcelo Tosatti wrote:
+>> IMO such GFP_DMA32 flag is a bit intrusive for 2.4, isnt it?
 
-yes, I recall I also cleaned up that bit in a later patch. And yes, it
-was harmless too ;)
+On Thu, Sep 18, 2003 at 09:08:45AM +0200, Jens Axboe wrote:
+> Not really, it's just an extra zone. Maybe I can dig such a patch up, I
+> had one for 2.4.2-pre something...
 
-> 
-> /Mikael
-> 
-> --- linux-2.4.23-pre4/mm/page_alloc.c.~1~	2003-09-18 13:43:41.753607800 +0200
-> +++ linux-2.4.23-pre4/mm/page_alloc.c	2003-09-18 13:55:46.785155159 +0200
-> @@ -317,7 +317,6 @@
->  		}
->  		current->nr_local_pages = 0;
->  	}
-> - out:
->  	*freed = __freed;
->  	return page;
->  }
+On Wed, Sep 17 2003, Marcelo Tosatti wrote:
+>> What has been done in 2.6 in respect to the excessive normal zone 
+>> pressure and bounce buffering problems? 
+
+On Thu, Sep 18, 2003 at 09:08:45AM +0200, Jens Axboe wrote:
+> Nothing, afaic. 2.6 isn't even completely deadlock free when it comes to
+> bounce buffering.
+
+It'd be great to have ZONE_DMA32 around for 2.6.
 
 
-Andrea
-
-/*
- * If you refuse to depend on closed software for a critical
- * part of your business, these links may be useful:
- *
- * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.5/
- * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.4/
- * http://www.cobite.com/cvsps/
- *
- * svn://svn.kernel.org/linux-2.6/trunk
- * svn://svn.kernel.org/linux-2.4/trunk
- */
+-- wli

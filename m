@@ -1,62 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268478AbTCCJfD>; Mon, 3 Mar 2003 04:35:03 -0500
+	id <S262289AbTCCJqf>; Mon, 3 Mar 2003 04:46:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268490AbTCCJfD>; Mon, 3 Mar 2003 04:35:03 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:41091 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S268478AbTCCJfC>; Mon, 3 Mar 2003 04:35:02 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
+	id <S262394AbTCCJqf>; Mon, 3 Mar 2003 04:46:35 -0500
+Received: from holomorphy.com ([66.224.33.161]:49810 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262289AbTCCJqe>;
+	Mon, 3 Mar 2003 04:46:34 -0500
+Date: Mon, 3 Mar 2003 01:56:43 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: John Levon <levon@movementarian.org>
+Cc: linux-kernel@vger.kernel.org, ambx1@neo.rr.com
+Subject: Re: [PATCH] Another bitop on boolean in pnpbios
+Message-ID: <20030303095643.GO1195@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	John Levon <levon@movementarian.org>, linux-kernel@vger.kernel.org,
+	ambx1@neo.rr.com
+References: <20030303054235.GA58427@compsoc.man.ac.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15971.9271.619893.597694@laputa.namesys.com>
-Date: Mon, 3 Mar 2003 12:45:27 +0300
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Andrew Morton <akpm@digeo.com>
-Cc: Dawson Engler <engler@csl.stanford.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] potential deadlocks
-In-Reply-To: <20030302221806.59836766.akpm@digeo.com>
-References: <20030302212500.72fe9b87.akpm@digeo.com>
-	<200303030605.h2365oK08706@csl.stanford.edu>
-	<20030302221806.59836766.akpm@digeo.com>
-X-Mailer: VM 7.07 under 21.5  (beta9) "brussels sprouts" XEmacs Lucid
-X-Drdoom-Fodder: root satan drdoom crash crypt CERT
+Content-Disposition: inline
+In-Reply-To: <20030303054235.GA58427@compsoc.man.ac.uk>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
- > Dawson Engler <engler@csl.stanford.edu> wrote:
- > >
- > > BTW, are there known deadlocks (harmless or otherwise)?  Debugging
- > > the checker is a bit hard since false negatives are silent...
- > 
- > Known deadlocks tend to get fixed.  But I am surprised that you did not
- > encounter more of them.
- > 
- > btw, the filesystem transaction operations can be treated as sleeping locks. 
- > So for ext3, journal_start()/journal_stop() may, for lock-ranking purposes,
- > be treated in the same way as taking and releasing a per-superblock
- > semaphore.  Other filesystems probably have similar restrictions.
- > 
+On Mon, Mar 03, 2003 at 05:42:35AM +0000, John Levon wrote:
+>  #define pnpbios_is_static(x) ((x)->flags & 0x0100) == 0x0000
+> -#define pnpbios_is_dynamic(x) (x)->flags & 0x0080
+> +#define pnpbios_is_dynamic(x) ((x)->flags & 0x0080)
 
-So are page-fault and memory allocation events, because thread
-blocks on them, and deadlocks involving servicing page fault or memory
-laundering have definitely been seen.
+pnpbios_is_static() could probably use the same treatment.
 
-We have (incomplete) description of kernel lock ordering, which is
-centered around reiser4 locks, but also includes some core kernel stuff.
 
-It is available at 
-
-http://www.namesys.com/v4/lock-ordering.dot  --- source for Bell-Labs' dot(1)
-http://www.namesys.com/v4/lock-ordering.ps   --- postscript output, produced from the .dot source
-
- > Other such "hidden" sleeping locks are lock_sock() and wait_on_inode().  The
- > latter is rather messy because there is no clear API function which sets
- > I_LOCK.
-
-Nikita.
-
+-- wli

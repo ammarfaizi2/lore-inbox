@@ -1,50 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266317AbUAVRLn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 12:11:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266319AbUAVRLn
+	id S266265AbUAVMI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 07:08:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266267AbUAVMI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 12:11:43 -0500
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:3478 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S266317AbUAVRLk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 12:11:40 -0500
-Message-ID: <4010040C.6020505@blue-labs.org>
-Date: Thu, 22 Jan 2004 12:10:36 -0500
-From: David Ford <david+hb@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040121
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Jes Sorensen <jes@wildopensource.com>, Zan Lynx <zlynx@acm.org>,
-       Andreas Jellinghaus <aj@dungeon.inka.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed
- to public posts
-References: <ecartis-01212004203954.14209.1@mail.convergence2.de>	 <20040121194315.GE9327@redhat.com>	 <Pine.LNX.4.58.0401211155300.2123@home.osdl.org>	 <1074717499.18964.9.camel@localhost.localdomain>	 <20040121211550.GK9327@redhat.com>	 <20040121213027.GN23765@srv-lnx2600.matchmail.com>	 <pan.2004.01.21.23.40.00.181984@dungeon.inka.de>	 <1074731162.25704.10.camel@localhost.localdomain>	 <yq0hdyo15gt.fsf@wildopensource.com>  <401000C1.9010901@blue-labs.org> <1074790901.2055.109.camel@nidelv.trondhjem.org>
-In-Reply-To: <1074790901.2055.109.camel@nidelv.trondhjem.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 22 Jan 2004 07:08:56 -0500
+Received: from hell.org.pl ([212.244.218.42]:52239 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S266265AbUAVMIy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 07:08:54 -0500
+Date: Thu, 22 Jan 2004 13:08:54 +0100
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: "Georg C. F. Greve" <greve@gnu.org>
+Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Martin Loschwitz <madkiss@madkiss.org>, linux-kernel@vger.kernel.org,
+       "Brown, Len" <len.brown@intel.com>, acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: PROBLEM: ACPI freezes 2.6.1 on boot
+Message-ID: <20040122120854.GB3534@hell.org.pl>
+Mail-Followup-To: "Georg C. F. Greve" <greve@gnu.org>,
+	"Nakajima, Jun" <jun.nakajima@intel.com>,
+	Martin Loschwitz <madkiss@madkiss.org>,
+	linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>,
+	acpi-devel@lists.sourceforge.net
+References: <7F740D512C7C1046AB53446D3720017361885C@scsmsx402.sc.intel.com> <m3u12pgfpr.fsf@reason.gnu-hamburg> <m3ptddgckg.fsf@reason.gnu-hamburg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+In-Reply-To: <m3ptddgckg.fsf@reason.gnu-hamburg>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unfortunately, 99% of emails that I have received in a foreign language 
-are spam.  Spam has no language boundaries.
+Thus wrote Georg C. F. Greve:
+> So the problem we've been seeing seems to be related to the
+> interaction between local APIC support and ACPI.
 
-Trond Myklebust wrote:
+We've definitely had those problems before (with ASUS L3800C), there's 
+even a patch fixing this issue (attached below) you might try.
+I guess that's another of those lost and forgotten bugzilla bugs :)
 
->På to , 22/01/2004 klokka 11:56, skreiv David Ford:
->  
->
->>Considering that Bayesian filters are useless against the new spam that 
->>is proliferating these days, that's laughable.  Spam now comes with a 
->>good 5-10K of random dictionary words.
->>    
->>
->
->The solution is obvious: learn a foreign language...
->
->Cheers,
->  Trond
->  
->
+-- 
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl
+
+
+diff -Bru linux-2.6.0-test8/arch/i386/kernel/apic.c patched/arch/i386/kernel/apic.c
+--- linux-2.6.0-test8/arch/i386/kernel/apic.c	2003-10-18 05:43:36.000000000 +0800
++++ patched/arch/i386/kernel/apic.c	2003-10-30 23:17:50.000000000 +0800
+@@ -836,8 +836,8 @@
+ {
+ 	unsigned int lvtt1_value, tmp_value;
+ 
+-	lvtt1_value = SET_APIC_TIMER_BASE(APIC_TIMER_BASE_DIV) |
+-			APIC_LVT_TIMER_PERIODIC | LOCAL_TIMER_VECTOR;
++	lvtt1_value = APIC_LVT_TIMER_PERIODIC | LOCAL_TIMER_VECTOR;
++
+ 	apic_write_around(APIC_LVTT, lvtt1_value);
+ 
+ 	/*
+diff -Bru linux-2.6.0-test8/drivers/acpi/bus.c patched/drivers/acpi/bus.c
+--- linux-2.6.0-test8/drivers/acpi/bus.c	2003-10-18 05:43:19.000000000 +0800
++++ patched/drivers/acpi/bus.c	2003-10-30 23:20:32.000000000 +0800
+@@ -589,6 +589,7 @@
+ 
+ 	ACPI_FUNCTION_TRACE("acpi_bus_init");
+ 
++	disable_APIC_timer();
+ 	status = acpi_initialize_subsystem();
+ 	if (ACPI_FAILURE(status)) {
+ 		printk(KERN_ERR PREFIX "Unable to initialize the ACPI Interpreter\n");
+@@ -643,6 +644,7 @@
+ 		goto error1;
+ 	}
+ 
++	enable_APIC_timer();
+ 	printk(KERN_INFO PREFIX "Interpreter enabled\n");
+ 
+ 	/*
+@@ -672,6 +674,7 @@
+ error1:
+ 	acpi_terminate();
+ error0:
++	enable_APIC_timer();
+ 	return_VALUE(-ENODEV);
+ }
+ 

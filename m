@@ -1,61 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288047AbSA2C3U>; Mon, 28 Jan 2002 21:29:20 -0500
+	id <S288422AbSA2CZj>; Mon, 28 Jan 2002 21:25:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288411AbSA2C3B>; Mon, 28 Jan 2002 21:29:01 -0500
-Received: from gw.lowendale.com.au ([203.26.242.120]:33568 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S288047AbSA2C2z>; Mon, 28 Jan 2002 21:28:55 -0500
-Date: Tue, 29 Jan 2002 13:55:18 +1100 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: Doug Ledford <dledford@redhat.com>
-cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
-Subject: Re: [PATCH] i810 driver update.
-In-Reply-To: <3C5603D9.3070608@redhat.com>
-Message-ID: <Pine.LNX.4.05.10201291348590.1513-100000@marina.lowendale.com.au>
+	id <S288531AbSA2CZa>; Mon, 28 Jan 2002 21:25:30 -0500
+Received: from nat.overture.com ([208.50.18.5]:29118 "EHLO
+	tiresias.corp.go2.com") by vger.kernel.org with ESMTP
+	id <S288422AbSA2CZP>; Mon, 28 Jan 2002 21:25:15 -0500
+Message-ID: <3C560804.C68BC6F4@overture.com>
+Date: Mon, 28 Jan 2002 18:25:08 -0800
+From: Xeno <xeno@overture.com>
+X-Mailer: Mozilla 4.7 [en] (X11; U; Linux 2.2.5-15 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: 2.4: NFS client kmapping across I/O
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jan 2002, Doug Ledford wrote:
+Trond, thanks for the excellent fattr race fix.  I'm sorry I haven't
+been able to give feedback until now, things got busy for a while.  I
+have not yet had a chance to run your fixes, but after studying them I
+believe that they will resolve the race nicely, especially with the use
+of nfs_inode_lock in the recent NFS_ALL experimental patches.  FWIW.
 
-[...]
-> > Are the fixes in this going to be applicable to 2.2 also (FWIW, 2.2's
-> > i810_audio #defines ``DRIVER_VERSION "0.17"'')?
-> 
-> 
-> I'm sure the fixes are relevant.  How well they may integrate into 2.2 is 
-> another question :-/
+Now I also have time to mention the other NFS client issue we ran into
+recently, I have not found mention of it on the mailing lists.  The NFS
+client is kmapping pages for the duration of reads from and writes to
+the server.  This creates a scaling limitation, especially under
+CONFIG_HIGHMEM64G and i386 where there are only 512 entries in the
+highmem kmap table.  Under I/O load, it is easy to fill up the table,
+hanging all processes that need to map highmem pages a substantial
+fraction of the time.
 
-Indeed ;-)  Alan?
-[...]
-> The best I can do it to make a diff between the 0.17 driver version I have 
-> here and the 0.21 driver version.  Maybe that incremental diff will apply to 
-> the 2.2 kernel's i810_audio.c and bring it up to date without any specific 
-> back port needed.  It's attached.
+Before 2.4.15, it is particularly bad, nfs_flushd locks up the kernel
+under I/O load.  My testcase was to copy 12 100M files from one NFS
+server to another, it was very reliable at producing the lockup right
+away.  nfs_flushd fills up the kmap table as it sends out requests, then
+blocks waiting for another kmap entry to free up.  But it is running in
+rpciod, so rpciod is blocked and cannot process any responses to the
+requests.  No kmap entries are ever freed once the table fills up.  In
+this state, the machine pings and responds to SysRq on the serial port,
+but just about everything else hangs.
 
-Thanks anyway, but it doesn't look too hopeful (patch complaints
-appended).  I suspect your "0.17" and 2.2's "0.17" may not be the same
-thing (in 2.2.21pre2 i810_audio.c is 51877 bytes and "sum (GNU textutils)  
-2.0" reports "44467 51"
+It looks like nfs_flushd was turned off in 2.4.15, that is the
+workaround I have applied to our machines.  I have also limited the
+number of requests across all NFS servers to LAST_PKMAP-64, to leave
+some kmap entries available for non-NFS use.  It is not an ideal
+workaround, though, it artificially limits I/O to multiple servers. 
+I've thought about bumping up LAST_PKMAP to increase the size of the
+highmem kmap table, but the table looks like it was designed to be
+small.
 
-Regards,
-Neale.
+I've also thought about pushing the kmaps and kunmaps down into the RPC
+layer, so the pages are only mapped while data is copied to or from
+them, not while waiting for the network.  That would be more work, but
+it looks doable, so I wanted to run the problem and the approach by you
+knowledgeable folks while I'm waiting for hardware to free up for kernel
+hacking.
 
-$ patch --dry-run < 2.2-i810.patch 
-patching file `i810_audio.c.17'
-Hunk #1 succeeded at 181 (offset -25 lines).
-Hunk #2 FAILED at 576.
-Hunk #3 FAILED at 653.
-Hunk #4 FAILED at 1107.
-Hunk #5 FAILED at 1117.
-Hunk #6 FAILED at 1138.
-Hunk #7 FAILED at 1169.
-Hunk #8 succeeded at 1127 with fuzz 1 (offset -248 lines).
-Hunk #9 FAILED at 1278.
-Hunk #10 FAILED at 1492.
-Hunk #11 FAILED at 2175.
-Hunk #12 FAILED at 2877.
-10 out of 12 hunks FAILED -- saving rejects to i810_audio.c.17.rej
-
+Thanks,
+Xeno

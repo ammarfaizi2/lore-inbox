@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261829AbULGPUN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbULGPXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261829AbULGPUN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 10:20:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbULGPUN
+	id S261834AbULGPXd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 10:23:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbULGPXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 10:20:13 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:52973 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261829AbULGPUG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 10:20:06 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 7 Dec 2004 16:03:52 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [patch] msp3400 quick fix
-Message-ID: <20041207150352.GA23945@bytesex>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Tue, 7 Dec 2004 10:23:33 -0500
+Received: from 70-56-133-193.albq.qwest.net ([70.56.133.193]:140 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261834AbULGPXb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 10:23:31 -0500
+Date: Tue, 7 Dec 2004 08:22:28 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+cc: Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>,
+       "Luck, Tony" <tony.luck@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: [PATCH] IRQ resource deallocation[0/2]
+In-Reply-To: <41B559DD.7040307@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.61.0412070820240.13396@montezuma.fsmlabs.com>
+References: <41B559DD.7040307@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The new "simpler" opmode added by the recent merge from ivtv breaks
-msp3400 support for other tv cards.  Not figured yet why.
+On Tue, 7 Dec 2004, Kenji Kaneshige wrote:
 
-This patch disables the "simpler" mode by default (can still be enabled
-by insmod option) as quick fix for 2.6.10.
+> I had posted the IRQ resource deallocation patch a couple of monthes
+> ago and I had incorporated all feedbacks from the mailing list
+> (http://marc.theaimsgroup.com/?l=linux-kernel&m=109688530703122&w=2).
+> But it doesn't seems to be included yet, so I would like to try again.
+> I hope my patch is included onto -mm tree since I want the patches
+> be tested by many people.
 
-Signed-off-by: Gerd Knorr <kraxel@bytesex.org>
----
- drivers/media/video/msp3400.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
+You should remove the config option and make it unconditional.
 
-diff -u linux-2.6.10/drivers/media/video/msp3400.c linux/drivers/media/video/msp3400.c
---- linux-2.6.10/drivers/media/video/msp3400.c	2004-12-07 14:16:53.000000000 +0100
-+++ linux/drivers/media/video/msp3400.c	2004-12-07 15:57:22.268877333 +0100
-@@ -1503,9 +1503,12 @@
- 
- 	msp->opmode = opmode;
- 	if (OPMODE_AUTO == msp->opmode) {
-+#if 0 /* seems to work for ivtv only, disable by default for now ... */
- 		if (HAVE_SIMPLER(msp))
- 			msp->opmode = OPMODE_SIMPLER;
--		else if (HAVE_SIMPLE(msp))
-+		else
-+#endif
-+		if (HAVE_SIMPLE(msp))
- 			msp->opmode = OPMODE_SIMPLE;
- 		else
- 			msp->opmode = OPMODE_MANUAL;
+Thanks,
+	Zwane
 
--- 
-#define printk(args...) fprintf(stderr, ## args)

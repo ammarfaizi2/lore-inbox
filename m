@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbULOI3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbULOIcb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbULOI3W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 03:29:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbULOI3W
+	id S261738AbULOIcb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 03:32:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbULOIcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 03:29:22 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:167 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261642AbULOI3S (ORCPT
+	Wed, 15 Dec 2004 03:32:31 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:22744 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261738AbULOIca (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 03:29:18 -0500
-Date: Wed, 15 Dec 2004 09:29:17 +0100
-From: Andi Kleen <ak@suse.de>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, pavel@suse.cz,
-       discuss@x86-64.org, gordon.jin@intel.com
-Subject: Re: unregister_ioctl32_conversion and modules. ioctl32 revisited.
-Message-ID: <20041215082917.GW27225@wotan.suse.de>
-References: <20041215065650.GM27225@wotan.suse.de> <20041215074635.GC11501@mellanox.co.il> <20041215080020.GT27225@wotan.suse.de> <20041215082128.GA11889@mellanox.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041215082128.GA11889@mellanox.co.il>
+	Wed, 15 Dec 2004 03:32:30 -0500
+Date: Wed, 15 Dec 2004 09:32:22 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: dynamic-hz
+In-Reply-To: <41BF7966.20009@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.61.0412150930410.11480@yvahk01.tjqt.qr>
+References: <20041211142317.GF16322@dualathlon.random>  <20041212163547.GB6286@elf.ucw.cz>
+  <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org> 
+ <Pine.LNX.4.61.0412130928350.2394@yvahk01.tjqt.qr> <1103064879.14699.75.camel@krustophenia.net>
+ <41BF7966.20009@nortelnetworks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 15, 2004 at 10:21:28AM +0200, Michael S. Tsirkin wrote:
-> > > 2. As noted by  Juergen Kreileder, the compat hash does not work
-> > >    for ioctls that encode additional information in the command, like this:
-> > > 
-> > > #define EVIOCGBIT(ev,len)  _IOC(_IOC_READ, 'E', 0x20 + ev, len)
-> > > 
-> > > I post the patch (updated for 2.6.10-rc2, boots) that I built for
-> > > Juergen, below. If there's interest, let me know.
-> > 
-> > Patch looks good to me, except for some messed up white space
-> > that is probably easily fixed.
-> 
-> I did try so .. Where? :)
+>> Ugh, because mplayer stupidly does disk i/o and AV playback and GUI in
+>> the same thread.  Insert Xine plug.
 
-Most of it actually. But perhaps your mailer just messed up the patch?
+There has been a real flame war on using threads in mplayer -- it ended in 
+a fork into mplayer-xp. Surprisingly, the problem is not mplayer. Using the 
+OSS kernel modules instead of ALSA, audio may drop, but it does not _skip_ it.
 
-Anyways, if there are no negative comments I would recommend you
-submit your patch (preferably in a non messed up form) to akpm@osdl.org
-for inclusion into -mm*. The other parts of the proposal (converting
-the existing users and deprecating register_ioctl32_conversion) could be 
-attacked then.
+> This is not a problem as long as all of them can be done totally async.  As
+> soon as anything blocks, then there's an issue.
 
-There is also some related work that could be done easily then,
-e.g. the network stack ioctls currently drop the BKL as first thing.
-With ioctl_native that could be probably done better. There may 
-be other such low hanging fruit areas too.
+Is there a way i can prioritize mplayer to get disk i/o done first?
 
--Andi
+
+
+Jan Engelhardt
+-- 
+ENOSPC

@@ -1,66 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263189AbTJ0Ohq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 09:37:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263203AbTJ0Ohp
+	id S263151AbTJ0Otp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 09:49:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263203AbTJ0Oto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 09:37:45 -0500
-Received: from smtprelay02.ispgateway.de ([62.67.200.157]:40641 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S263189AbTJ0Oho (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 09:37:44 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [Dri-devel] Re: [Linux-fbdev-devel] DRM and pci_driver conversion
-Date: Mon, 27 Oct 2003 16:37:30 +0200
-User-Agent: KMail/1.5.4
-Cc: Egbert Eich <eich@xfree86.org>, Jon Smirl <jonsmirl@yahoo.com>,
-       Eric Anholt <eta@lclark.edu>, kronos@kronoz.cjb.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fbdev-devel@lists.sourceforge.net,
-       dri-devel <dri-devel@lists.sourceforge.net>,
-       Linus Torvalds <torvalds@osdl.org>
-References: <Pine.LNX.4.44.0310251116140.4083-100000@home.osdl.org> <3F9ACC58.5010707@pobox.com>
-In-Reply-To: <3F9ACC58.5010707@pobox.com>
+	Mon, 27 Oct 2003 09:49:44 -0500
+Received: from mail.broadpark.no ([217.13.4.2]:6393 "EHLO mail.broadpark.no")
+	by vger.kernel.org with ESMTP id S263151AbTJ0Otn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 09:49:43 -0500
+Cc: jgarzik@pobox.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6t9 SATA slower than 2.4.20
+References: <3F9D196C.9080301@savages.net> <3F9D233D.6000409@pobox.com>
+Message-ID: <oprxph3ru9q1sf88@mail.broadpark.no>
+From: Arve Knudsen <aknuds-1@broadpark.no>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200310271537.30435.ioe-lkml@rameria.de>
+Content-Transfer-Encoding: 7BIT
+Date: Mon, 27 Oct 2003 15:48:53 +0100
+In-Reply-To: <3F9D233D.6000409@pobox.com>
+User-Agent: Opera7.21/Linux M2 build 480
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 25 October 2003 21:17, Jeff Garzik wrote:
-> Graphics processors are growing more general, too -- moving towards
-> generic vector/data processing engines.  I bet you'll see an optimal
-> model emerge where you have some sort of "JIT" for GPU microcode in
-> userspace.  Multiple apps pipeline X/GL/hardware commands into the JIT,
-> which in turn pipelines data and microcode commands to the GPU kernel
-> driver.
+On Mon, 27 Oct 2003 08:53:01 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
 
-These "JIT" is needed also for another reason: 
+> Shaun Savage wrote:
+>> I have just compiled and installed kernel 2.6t9 on my RH9 / Asus A7N8X 
+>> Deluxe.  I find the disk access is slower using the 2.6 kernel than the 
+>> 2.4.20 kernel.
+>>
+>> To get it to work for 2.4.20 kernel I have to use
+>> # hdparm -d1 -X88 /dev/hde
+>> then the buffered disk read goes from 1.5M to 55M
+>>
+>> On the 2.6 kernel the buffered disk read is only 16M
+>>
+>> What do I have to do to increase the disk speed for kernel 2.6t9?
+>
+>
+> Are you using CONFIG_SCSI_SATA in 2.6?
 
-	There are contraints for GPU commands and the pipelines need to
-	be modelled, like CPU piplines are modelled in a compiler. But
-	more like the pipelines of some early long instruction word
-	processors, where issuing to a used pipeline will cause random
-	behavior and crashes. So the JIT doesn't should also emit
-	synchronization points. 
-
-With this JIT in place, there need to be just some hardware description
-files (backends) and some API (GL, DirectX, X) description files
-(frontends).
-
-Now we just need some funding for that and the datasheets. Then it's
-doable.
-
-I see just one showstopper: Cheating in benchmarks isn't possible anymore.
-
-PS: That's basically the GGI approach taken further.
+Should this make a difference speedwise with SiI 3112? I have one Maxtor 
+120GB, and one Seagate 120GB each attached to the SiI controller (Mobo: 
+Asus A7N8X Deluxe). The Seagate (my main drive) is as slow as ever (since 
+DMA was turned on by default, ~13MB/s), although hdparm reports better 
+numbers for the Maxtor (~33MB/s).
 
 Regards
 
-Ingo Oeser
-
-
+Arve Knudsen

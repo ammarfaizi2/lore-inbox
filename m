@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288932AbSANTLC>; Mon, 14 Jan 2002 14:11:02 -0500
+	id <S288966AbSANTKy>; Mon, 14 Jan 2002 14:10:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288959AbSANTJt>; Mon, 14 Jan 2002 14:09:49 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48134 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288801AbSANTJR>; Mon, 14 Jan 2002 14:09:17 -0500
+	id <S288801AbSANTJw>; Mon, 14 Jan 2002 14:09:52 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:35797 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S288932AbSANTJS>;
+	Mon, 14 Jan 2002 14:09:18 -0500
+Date: Mon, 14 Jan 2002 14:09:16 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Mr. James W. Laferriere" <babydr@baby-dragons.com>,
+        Giacomo Catenazzi <cate@debian.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: Hardwired drivers are going away?
-To: david.lang@digitalinsight.com (David Lang)
-Date: Mon, 14 Jan 2002 19:21:01 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), esr@thyrsus.com,
-        babydr@baby-dragons.com, cate@debian.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.40.0201141055410.22904-100000@dlang.diginsite.com> from "David Lang" at Jan 14, 2002 10:57:19 AM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <20020114131050.E14747@thyrsus.com>
+Message-ID: <Pine.GSO.4.21.0201141337580.224-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16QCfF-0002c8-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Urban legend.
+
+
+On Mon, 14 Jan 2002, Eric S. Raymond wrote:
+
+> Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> > For 2.5 if things go to plan there will be no such thing as a "compiled in"
+> > driver. They simply are not needed with initramfs holding what were once the
+> > "compiled in" modules.
 > 
-> If this is the case then why do I get systemcall undefined error messages
-> when I make a mistake and attempt to load a module on a kernel without
-> modules enabled?
-
-Because you are using insmod. The guys who break into your computer probably 
-are not in their own language "that lame".
-
-> > I defy you to measure it on x86
+> This is something of a bombshell.  Not necessarily a bad one, but...
 > 
-> during the discussion a few weeks ago there were people pointing out cases
-> where this overhead would be a problem.
+> Alan, do you have *any* *freakin'* *idea* how much more complicated
+> the CML2 deduction engine had to be because the basic logical entity
+> was a tristate rather than a bool?  If this plan goes through, I'm
+> going to be able to drop out at least 20% of the code, with most of
+> that 20% being in the nasty complicated bits where the maintainability
+> improvement will be greatest.  And I can get rid of the nasty "vitality"
+> flag, which probably the worst wart on the language.
+> 
+> Yowza...so how soon is this supposed to happen?
 
-TLB miss overhead for kernel modules is very very hard to measure, at least
-on the x86 platform. It can be an issue in userspace as you address much
-larger objects and in certain cases like scanning an element in an array
-of objects hit a TLB reload each scan or two (think about vertical line draw
-unaccelerated in X11)
+Two technical obstacles:
+	a) on some architecures modular code is slower (IIRC, the problem is
+with medium-range calls being faster than far ones and usable only in the
+kernel proper).  We probaly want to leave a gap after the .text and remap
+.text of module in there - if I understand the problem that should be
+enough, but that's really a question to folks dealing with these ports (PPC64
+and Itanic?)
+	b) current differences between options parsing in case of built-in
+and modular drivers.
 
-> > tar or nfs mount; make modules_install.
-> >
-> not on my firewalls thank you.
+The rest is trivial and should be done in 2.5.4-pre* or so.
 
-If you are that worried just burn a new root file system on CD when you 
-upgrade your firewall. At least I hope if you are going to pretend to be 
-so secure that tar is a bad idea you have no writable file store on the
-machine ?
+But it still leaves you with tristate - instead of yes/module/no it's
+yes/yes, but don't put it on initramfs/no.  However, dependencies become
+simpler - all you need is "I want this, that and that on initramfs" and
+the rest can be found by depmod (i.e. configurator doesn't have to deal
+with "FOO goes on initramfs (== old Y), so BAR and BAZ must go there
+(== can't be M)").
 
-Alan

@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262579AbUBYJyu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 04:54:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262585AbUBYJyu
+	id S262582AbUBYJxw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 04:53:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbUBYJxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 04:54:50 -0500
-Received: from mx11.sac.fedex.com ([199.81.193.118]:16399 "EHLO
-	mx11.sac.fedex.com") by vger.kernel.org with ESMTP id S262579AbUBYJyp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 04:54:45 -0500
-Date: Wed, 25 Feb 2004 17:55:11 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: how to switch from apm to acpi on 2.6?
-Message-ID: <Pine.LNX.4.58.0402251751590.2869@boston.corp.fedex.com>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 02/25/2004
- 05:54:38 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 02/25/2004
- 05:54:40 PM,
-	Serialize complete at 02/25/2004 05:54:40 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 25 Feb 2004 04:53:52 -0500
+Received: from holomorphy.com ([199.26.172.102]:22545 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262582AbUBYJxv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 04:53:51 -0500
+Date: Wed, 25 Feb 2004 01:53:17 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: B.Zolnierkiewicz@elka.pw.edu.pl
+Cc: linux-kernel@vger.kernel.org
+Subject: PRD_ENTRIES is 256
+Message-ID: <20040225095317.GJ693@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-I just switched from apm to acpi on 2.6.3, and found that I can't
-"suspend" my notebook anymore.
-
-I've got acpid running, and it's running correctly, but I don't have the
-script to do the suspend. The sample program that came with acpid just
-simply do a "shutdown".
-
-With apmd, my machine suspends properly.
-
-Any good scripts to suspend/resume?
+PRD_ENTRIES is specified to be precisely 256; on platforms where
+PAGE_SIZE varies from 4KB the calculation in the current expression
+defining it is inaccurate, which may cause crashes. This patch changes
+it to the constant literal 256.
 
 
-Thanks,
-Jeff
-[ jchua@fedex.com ]
+-- wli
+
+
+===== include/linux/ide.h 1.88 vs edited =====
+--- 1.88/include/linux/ide.h	Tue Feb 10 07:35:39 2004
++++ edited/include/linux/ide.h	Wed Feb 25 01:46:45 2004
+@@ -224,7 +224,7 @@
+  * allowing each to have about 256 entries (8 bytes each) from this.
+  */
+ #define PRD_BYTES       8
+-#define PRD_ENTRIES     (PAGE_SIZE / (2 * PRD_BYTES))
++#define PRD_ENTRIES     256
+ 
+ /*
+  * Some more useful definitions

@@ -1,32 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282292AbRKWXuZ>; Fri, 23 Nov 2001 18:50:25 -0500
+	id <S282293AbRKWXyp>; Fri, 23 Nov 2001 18:54:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282287AbRKWXuP>; Fri, 23 Nov 2001 18:50:15 -0500
-Received: from outmail6.pacificnet.net ([207.171.0.134]:60723 "EHLO
-	outmail6.pacificnet.net") by vger.kernel.org with ESMTP
-	id <S282289AbRKWXuG>; Fri, 23 Nov 2001 18:50:06 -0500
-Message-ID: <013601c17479$933f0450$2b910404@Molybdenum>
-From: "Jahn Veach" <V64@Galaxy42.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <viro@math.psu.edu>
-Subject: Re: 2.4.15 + fs corruption.
-Date: Fri, 23 Nov 2001 17:50:03 -0600
+	id <S282297AbRKWXyg>; Fri, 23 Nov 2001 18:54:36 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45317 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S282289AbRKWXya> convert rfc822-to-8bit; Fri, 23 Nov 2001 18:54:30 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: copy to suer space
+Date: 23 Nov 2001 15:53:54 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9tmnii$8q4$1@cesium.transmeta.com>
+In-Reply-To: <5.1.0.14.2.20011120165440.00a745b0@pop.cus.cam.ac.uk> <200111211057.fALAvi288566@criticalsoftware.com> <m2ofltljcl.fsf@trasno.mitica> <200111231440.fANEeh213167@criticalsoftware.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: text/plain; charset=ISO-8859-1
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id fANNrwD03196
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Breakage happens when you umount filesystem (_any_ local filesystem, be
-> it ext2, reiserfs, whatever) that still has dirty inodes.
+Followup to:  <200111231440.fANEeh213167@criticalsoftware.com>
+By author:    =?iso-8859-1?q?Lu=EDs=20Henriques?= 
+	<lhenriques@criticalsoftware.com>
+In newsgroup: linux.dev.kernel
+> 
+> When I read the timestamp («rdtsc»), a value is returned to edx:eax. This 
+> code works just fine when I put it in the process stack. The problem is when 
+> I want to compare %edx instead of %eax, that is:
+> 
+> 	rdtsc
+> 	movl %edx, %ecx
+> 	addl $0x1, %ecx
+>    loop:
+> 	rdtsc
+> 	cmp %ecx, %edx
+> 	jb loop
+> 
+> This is supposed to take much more time than the other loop. When I write 
+> this code to the stack of my process, a segmentation fault occurs after some 
+> time. Why? I'm not changing the stack at any moment! (By the way, the stack 
+> pointer is pointing to the end of my code...)
+> 
 
-What kind of breakage are we looking at here? I had a system that ran 2.4.15
-and got shut down without a sync. What kind of corruption will occur and is
-it something a simple fsck will fix?
+Did you remember to restore all the registers, including %eax and
+%eflags, before you return?
 
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

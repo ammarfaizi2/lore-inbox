@@ -1,81 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264295AbUD2MN2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264335AbUD2MOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264295AbUD2MN2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 08:13:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264316AbUD2MN2
+	id S264335AbUD2MOG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 08:14:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264332AbUD2MOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 08:13:28 -0400
-Received: from ns.indranet.co.nz ([210.54.239.210]:17115 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id S264295AbUD2MN0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 08:13:26 -0400
-Date: Fri, 30 Apr 2004 00:12:06 +1200
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Vanja Hrustic <vanja@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: PCI problem with RICOH RL5C475 PCI/PCMCIA adapter, on 2.4.26
-Message-ID: <816034775.1083283926@T400>
-In-Reply-To: <20040428183325.2860bd95.vanja@pobox.com>
-References: <20040428183325.2860bd95.vanja@pobox.com>
-X-Mailer: Mulberry/3.1.0 (Win32)
+	Thu, 29 Apr 2004 08:14:05 -0400
+Received: from pD952C170.dip.t-dialin.net ([217.82.193.112]:28305 "EHLO
+	router.zodiac.dnsalias.org") by vger.kernel.org with ESMTP
+	id S264316AbUD2MN6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 08:13:58 -0400
+From: Alexander Gran <alex@zodiac.dnsalias.org>
+To: Martin Hermanowski <martin@mh57.de>
+Subject: Re: e1000 EEPROM wrong after suspending.
+Date: Thu, 29 Apr 2004 14:13:55 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <200404272353.27989@zodiac.zodiac.dnsalias.org> <20040428195429.GA11077@mh57.de>
+In-Reply-To: <20040428195429.GA11077@mh57.de>
+X-Ignorant-User: yes
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200404291413.56687@zodiac.zodiac.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-
---On Wednesday, 28 April 2004 6:33 p.m. +0200 Vanja Hrustic 
-<vanja@pobox.com> wrote:
-
-> I have PCI-PCMCIA adapter (Ricoh RL5C475 based) in a desktop machine.
+Am Mittwoch, 28. April 2004 21:54 schrieb Martin Hermanowski:
+> I am using the e1000 on the t41p with enabled local apic, and I got no
+> problem. But when I compiled the kernel (2.6.4-rc1-mm2) without local
+> apic (so the notebook would turn off), I got the same problem. This was,
+> besides a patch to the orinico driver, the only difference between the
+> two kernels.
 >
-> Initially, I had problems making it work, but managed to get help on
-> comp.os.linux.portable. Now, most of the cards work okay.
->
-> However, I still have one wireless PCMCIA card (Prism GT based) which
-> doesn't work, and was advised to post the problem here.
->
-> Dave (from comp.os.linux.portable) said:
->
-> "This part is a tricky one.  It is a bug in the kernel's PCI resource
-> allocation code.  It tries to allocate CardBus memory resources from
-> whatever memory ranges happened to be allocated for the bridge device
-> by the BIOS at power-up time; but in this case, those memory windows
-> are too small.  There isn't a simple fix for this and I don't have a
-> good suggestion for what to do about it; you can report it on the
-> linux-kernel mailing list."
+> The working one has these options set:
+> CONFIG_X86_UP_APIC=y
+> CONFIG_X86_UP_IOAPIC=y
+> CONFIG_X86_LOCAL_APIC=y
+> CONFIG_X86_IO_APIC=y
 
-Ok, so I see the same thing with a Ricoh PC104+ to Cardbus adaptor on a 
-little industrial PC, except I'm using an Atheros-based wireless card 
-instead.  I get this with 2.4.25:
+just tried 2.6.6-rc2-mm2 with local apic:
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
 
-01:00.0 Class 0200: 168c:0013 (rev 01)
-        Subsystem: 1186:3202
-        Control: I/O- Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
-Step
-ping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort
-- <MAbort- >SERR- <PERR-
-        Interrupt: pin A routed to IRQ 12
-        Region 0: [virtual] Memory at d5120000 (32-bit, non-prefetchable) 
-[size=
-8K]
-        Capabilities: [44] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot
--,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+but resuming stil doesn't work ;(
 
+- -- 
+Encrypted Mails welcome.
+PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-cs: cb_alloc(bus 1): vendor 0x168c, device 0x0013
-PCI: Failed to allocate resource 0(d5120000-d5121fff) for 01:00.0
-PCI: Enabling device 01:00.0 (0000 -> 0002)
-
-Again, any assistance greatly appreciated, and I'll test any proposed 
-patches.
-
-Andrew
-
+iD8DBQFAkPGD/aHb+2190pERAvlhAKCoBS8y7O9/3ute7biYqbaX673l+gCgmeJR
+XLUfQ5hfEgSorB5rSG4sqzI=
+=ALKx
+-----END PGP SIGNATURE-----

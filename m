@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288028AbSA3C10>; Tue, 29 Jan 2002 21:27:26 -0500
+	id <S288102AbSA3Ccf>; Tue, 29 Jan 2002 21:32:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288050AbSA3C1P>; Tue, 29 Jan 2002 21:27:15 -0500
-Received: from sombre.2ka.mipt.ru ([194.85.82.77]:28550 "EHLO
-	sombre.2ka.mipt.ru") by vger.kernel.org with ESMTP
-	id <S288028AbSA3C1J>; Tue, 29 Jan 2002 21:27:09 -0500
-Date: Wed, 30 Jan 2002 05:26:43 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Mingming cao <cmm@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, mingo@redhat.com, linux-raid@vger.kernel.org
-Subject: Re: Could not compile md/raid5.c and md/multipath.c in 2.5.3-pre3
-Message-Id: <20020130052643.5a0a8f61.johnpol@2ka.mipt.ru>
-In-Reply-To: <3C575435.C123186@us.ibm.com>
-In-Reply-To: <3C571DB2.4E0C0436@us.ibm.com>
-	<20020130042025.051ee424.johnpol@2ka.mipt.ru>
-	<3C575435.C123186@us.ibm.com>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S288092AbSA3Cc0>; Tue, 29 Jan 2002 21:32:26 -0500
+Received: from zero.tech9.net ([209.61.188.187]:26634 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S288083AbSA3CcK>;
+	Tue, 29 Jan 2002 21:32:10 -0500
+Subject: Re: [PATCH] 2.5: push BKL out of llseek
+From: Robert Love <rml@tech9.net>
+To: Dave Jones <davej@suse.de>
+Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
+        viro@math.psu.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <20020130032138.H16379@suse.de>
+In-Reply-To: <Pine.LNX.4.33.0201291602510.1747-100000@penguin.transmeta.com>,
+	<Pine.LNX.4.33.0201291602510.1747-100000@penguin.transmeta.com>
+	<1012351309.813.56.camel@phantasy> <3C574BD1.E5343312@zip.com.au>
+	<1012357211.817.67.camel@phantasy>  <20020130032138.H16379@suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 29 Jan 2002 21:37:57 -0500
+Message-Id: <1012358278.817.83.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jan 2002 18:02:29 -0800
-Mingming cao <cmm@us.ibm.com> wrote:
+On Tue, 2002-01-29 at 21:21, Dave Jones wrote:
 
-> I omitted similar compile errors in the last email.  raid5.c and
-> multipath.c referenced a lot data structures defined in
-> md_compatible.h,  besides the two you added in your fix......
+>  did you benchmark with anything other than dbench ?
 
-As you mention md_compatible.h does not exist, it was introduced in 2.5.2
-patch only in drivers/md/xor.c. But in at least pre5 all structures were
-correctly defined in various md_{p,u,k}.h files. I've tried to find others
-undefined symbols, but cann't. So i suggest you to upgrade a bit to pre6
-or pre5 kernel ;), apply my litle patch and remove mention of
-md_compatible.h in drivers/md/xor.c. And feel free to write all others
-erorrs, if they will appear again.
+No, and I really don't want to hear how dbench is a terrible benchmark. 
+I didn't craft the patch around dbench and I think, here at least,
+dbench is an OK benchmark.  I ran it numerous times over multiple client
+loads.
 
-> Thank you for your help.
+I think its clear there won't be a negative impact, because:
 
-Good luck.
+- acquiring the inode semaphore isn't any heavier (in the acquire
+  case) than the BKL
 
-> -- 
-> Mingming Cao
+- the lock contention on each inode semaphore is relatively
+  zero
 
+- besides just scaling badly with the using a global lock against
+  all inodes, we use the BKL which in such workloads is already
+  highly contested.
 
-	Evgeniy Polyakov ( s0mbre ).
+That said, I did do some lock profiling and latency tests.  Contention
+was near-zero, but I only did 2-way testing.  Under the preemptible
+kernel, while running dbench, scheduling latency improved 8.9%.
+
+	Robert Love
+

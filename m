@@ -1,60 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262725AbTLBSN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 13:13:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTLBSNx
+	id S262740AbTLBSHt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 13:07:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTLBSEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 13:13:53 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:4100 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262731AbTLBSL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 13:11:57 -0500
-Date: Tue, 2 Dec 2003 18:11:46 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Larry McVoy <lm@work.bitmover.com>,
-       Murthy Kambhampaty <murthy.kambhampaty@goeci.com>,
-       "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
-       Russell Cattelan <cattelan@xfs.org>, Nathan Scott <nathans@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: XFS for 2.4
-Message-ID: <20031202181146.A27567@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Larry McVoy <lm@work.bitmover.com>,
-	Murthy Kambhampaty <murthy.kambhampaty@goeci.com>,
-	'Marcelo Tosatti' <marcelo.tosatti@cyclades.com>,
-	Russell Cattelan <cattelan@xfs.org>, Nathan Scott <nathans@sgi.com>,
-	linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com,
-	Andrew Morton <akpm@osdl.org>
-References: <2D92FEBFD3BE1346A6C397223A8DD3FC0924C8@THOR.goeci.com> <20031202180251.GB17045@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031202180251.GB17045@work.bitmover.com>; from lm@bitmover.com on Tue, Dec 02, 2003 at 10:02:51AM -0800
+	Tue, 2 Dec 2003 13:04:52 -0500
+Received: from fw.osdl.org ([65.172.181.6]:45456 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262603AbTLBSE2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 13:04:28 -0500
+Date: Tue, 2 Dec 2003 10:04:24 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 future
+In-Reply-To: <20031202063912.GD16507@lug-owl.de>
+Message-ID: <Pine.LNX.4.58.0312020956120.1519@home.osdl.org>
+References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet>
+ <Pine.LNX.4.44.0312012302310.9674-100000@raven.themaw.net>
+ <20031201153316.B3879@infradead.org> <200312020223.55505.snpe@snpe.co.yu>
+ <20031202063912.GD16507@lug-owl.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 02, 2003 at 10:02:51AM -0800, Larry McVoy wrote:
-> Not your call, it's Marcelo's call.  And I and he have both suggested
-> that the way to get XFS in is to have someone with some clout in the file
-> system area agree that it is fine.  It's a perfectly reasonable request
-> and the longer it goes unanswered the less likely it is that XFS will get
-> integrated.  The fact that $XFS_USER wants it in is $XFS_USER's problem.
-> $VFS_MAINTAINER needs to say "hey, this looks good, what's the fuss about?"
-> and I suspect that Marcelo would be more interested.
 
-I think you're missing the point.  The patches have been review many
-times, they've been posted to lkml many time with the request for comment
-and they've been merged into 2.5 in almost exactly that form. 
+On Tue, 2 Dec 2003, Jan-Benedict Glaw wrote:
+>
+> On Tue, 2003-12-02 02:23:55 +0000, snpe <snpe@snpe.co.yu>
+> wrote in message <200312020223.55505.snpe@snpe.co.yu>:
+> > Is there linux-abi for 2.6 kernel ?
+>
+> Nobody really cares about ABI (at least, not enough to keep one stable)
+> while there's a good API. That requires sources, though, but that's a
+> good thing...
 
-> It is also not unreasonable to reject a set of changes right before
-> freezing 2.4.  2.4 is supposed to be dead.
+People care _deeply_ about the user-visible Linux ABI - I personally think
+backwards compatibility is absolutely _the_ most important issue for any
+kernel, and breaking user-land ABI's is simply not done.
 
-That's indeed a point and a very resonable one.  But a few of the patches
-Nathan has in that BK repo have been submited for more than year again
-and again, and Marcelo's reply (for those 10% of the cases that a reply
-existed at all) was something along the lines "let's postpone it after
-the next release".  In my opinion that's not the right attitude from
-a kernel maintainer to someone who wants to contribute major work.
+Sometimes we tweak user-visible stuff (for example, removing truly
+obsolete system calls), but even then we're very very careful. Like
+printing out warning messages for several _years_ before actually removing
+the functionality.
 
+The one exception tends to be "system management" ABI's, ie stuff that
+normal programs don't use. So kernel updates do sometimes require new
+utilities for doing things like firewall configuration, hardware setup
+(ethernet tools, ifconfig etc), or - in the case of 2.6 - module loading
+and unloading. Even that is frowned upon, and there has to be a good
+reason for it.
+
+At times, we've modified semantics of existing system behaviour subtly:
+either to conform to standards, or because of implementation issues. It
+doesn't happen often, and if it is found to break existing applications it
+is not done at all (and the thing is fixed by adding a new system call
+with the proper semantics, and leaving the old one broken).
+
+You are, however, correct when it comes to internal kernel interfaces: we
+care not at all about ABI's, and even API's are fluid and are freely
+changed if there is a real technical reason for it. But that is only true
+for the internal kernel stuff (where source is obviously a requirement
+anyway).
+
+		Linus

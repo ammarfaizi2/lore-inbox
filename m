@@ -1,83 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbUE1Jip@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUE1J5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262398AbUE1Jip (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 05:38:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbUE1JiV
+	id S261232AbUE1J5t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 05:57:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263045AbUE1J5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 05:38:21 -0400
-Received: from mail2.asahi-net.or.jp ([202.224.39.198]:30943 "EHLO
-	mail.asahi-net.or.jp") by vger.kernel.org with ESMTP
-	id S266023AbUE1JhQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 05:37:16 -0400
-Message-ID: <40B7077C.7050702@ThinRope.net>
-Date: Fri, 28 May 2004 18:33:48 +0900
-From: Kalin KOZHUHAROV <kalin@ThinRope.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
-X-Accept-Language: bg, en, ja, ru, de
+	Fri, 28 May 2004 05:57:48 -0400
+Received: from mail003.syd.optusnet.com.au ([211.29.132.144]:27860 "EHLO
+	mail003.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261232AbUE1J5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 05:57:47 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Peter Williams <peterw@aurema.com>
+Subject: Re: [RFC][PATCH][2.6.6] Replacing CPU scheduler active and expired with a single array
+Date: Fri, 28 May 2004 19:57:04 +1000
+User-Agent: KMail/1.6.1
+Cc: Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <40B6C571.3000103@aurema.com> <20040528090536.GA12933@elte.hu> <40B70542.2060006@aurema.com>
+In-Reply-To: <40B70542.2060006@aurema.com>
 MIME-Version: 1.0
-To: "David N. Welton" <davidw@eidetix.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: boot from usb flash - wake boot process when disk is ready?
-References: <40B700F2.80208@eidetix.com>
-In-Reply-To: <40B700F2.80208@eidetix.com>
-X-Enigmail-Version: 0.83.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405281957.04753.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David N. Welton wrote:
-> [ Please CC replies to me - thanks! ]
-> 
-> Hi,
-> 
-> We're toying around with the idea of booting an embedded system off of 
-> USB flash (pros, cons, and advice about this would be appreciated, by 
-> the way), and I had a look at several of the existing patches to do this 
-> without going through the process of creating an initrd image.  That 
-> adds complexity and time to the boot process that we would prefer to 
-> avoid, although it appears that the kernel folks in the first thread 
-> cited are in favor of initrd....
-> 
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0301.3/1182.html
-> 
-> This mentions a couple of patches, both the "keep looping until it 
-> works" one, which I couldn't get working with 2.6.6, and Willy Tarreu's 
-> "wait a given period of time before continuing" patch:
-> 
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0405.0/0224.html
-> 
-> I don't think either of those approaches are particularly elegant... 
-> although I'm sure my own efforts are good for a snort as well.
-I tried this with 2.6.6 and modified it a bit, but to no avail.
-It seems that the sd driver initializes the disk long before the wait
-and does not bother anymore.
+On Fri, 28 May 2004 19:24, Peter Williams wrote:
+> Ingo Molnar wrote:
+> > just try it - run a task that runs 95% of the time and sleeps 5% of the
+> > time, and run a (same prio) task that runs 100% of the time. With the
+> > current scheduler the slightly-sleeping task gets 45% of the CPU, the
+> > looping one gets 55% of the CPU. With your patch the slightly-sleeping
+> > process can easily monopolize 90% of the CPU!
 
-> In genhd.c I wake up a waitqueue when the disk comes on line.    The 
-> init process waits on this before going on with prepare_namespace(). 
-> Ideally, this would look and make sure it's the right disk, that 
-> selected for the root fs:-)  Not being very familiar with the 'lay of 
-> the land' in the kernel, I declared the wait queue as a global in 
-> genhd.c.  The thing I don't like about this approach is that it builds a 
-> connection between two bits of the kernel that seem separate... maybe 
-> (ok, quite probably) there is a better/cleaner way of doing this?
-> 
-> Patch is at: http://dedasys.com/freesoftware/files/usb-wakeup.patch
+> This does, of course, not take into account the interactive bonus.  If
+> the task doing the shorter CPU bursts manages to earn a larger
+> interactivity bonus than the other then it will get more CPU but isn't
+> that the intention of the interactivity bonus?
 
-Looks OK to me to try, but I am far from expert here.
-Unfortunately I cannot test it in the next few days :-(
-May be later.
+No. Ideally the interactivity bonus should decide what goes first every time 
+to decrease the latency of interactive tasks, but the cpu percentage should 
+remain close to the same for equal "nice" tasks. Interactive tasks need low 
+scheduling latency and short bursts of high cpu usage; not more cpu usage 
+overall. When the cpu percentage differs significantly from this the logic 
+has failed.
 
-I am in a search for non-initrd USB-booting as well...
-
-Keep the discussion on LKML as well.
-
-Kalin.
-
--- 
-||///_ o  *****************************
-||//'_/>     WWW: http://ThinRope.net/
-|||\/<" 
-|||\\ ' 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Con

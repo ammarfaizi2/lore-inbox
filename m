@@ -1,83 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264029AbUDFWGy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 18:06:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264036AbUDFWGd
+	id S264038AbUDFWGt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 18:06:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264034AbUDFWG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 18:06:33 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:2783 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264029AbUDFWFD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 18:05:03 -0400
-Subject: [PATCH] make ibmasm driver uart support depend on SERIAL_8250
-From: Max Asbock <masbock@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1081289097.6129.58.camel@DYN318100BLD.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 06 Apr 2004 15:04:57 -0700
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Apr 2004 18:06:26 -0400
+Received: from web40513.mail.yahoo.com ([66.218.78.130]:57421 "HELO
+	web40513.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264031AbUDFWFX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 18:05:23 -0400
+Message-ID: <20040406220521.56509.qmail@web40513.mail.yahoo.com>
+Date: Tue, 6 Apr 2004 15:05:21 -0700 (PDT)
+From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
+Subject: Re: kernel stack challenge
+To: Timothy Miller <miller@techsource.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <40731A02.5030502@techsource.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes serial line registration in the ibmasm 
-service processor driver depend on CONFIG_SERIAL_8250.
-Previously the driver wouldn't compile when serial driver
-support wasn't enabled.
 
-regards,
-max
+--- Timothy Miller <miller@techsource.com> wrote:
+> 
+> 
+> Horst von Brand wrote:
+> 
+> > OK, so you need the policy to be interpreted
+> in-kernel (dunno why a
+> > largeish high-level general purpose language is
+> needed for that, when a
+> > tiny interpreter for a specialized language will
+> do very well, and has been
+> > shown to work fine), and written in a "high level
+> language" so that your
+> > garden variety sysadmin _can_ write her own
+> policy, but it really doesn't
+> > matter because she'll never have to do so...
+> > 
+> > Completely lost me.
+> 
+> I was getting hung up on that one too, but I didn't
+> know how to say it. 
+>   You did a nice job.  :)
 
-diff -urN linux-2.6.5/drivers/misc/ibmasm/ibmasm.h linux-2.6.5-ibmasm/drivers/misc/ibmasm/ibmasm.h
---- linux-2.6.5/drivers/misc/ibmasm/ibmasm.h	2004-04-03 19:36:18.000000000 -0800
-+++ linux-2.6.5-ibmasm/drivers/misc/ibmasm/ibmasm.h	2004-04-06 10:56:31.000000000 -0700
-@@ -220,5 +220,10 @@
- extern void ibmasmfs_add_sp(struct service_processor *sp);
- 
- /* uart */
-+#ifdef CONFIG_SERIAL_8250
- extern void ibmasm_register_uart(struct service_processor *sp);
- extern void ibmasm_unregister_uart(struct service_processor *sp);
-+#else
-+#define ibmasm_register_uart(sp)	do { } while(0)
-+#define ibmasm_unregister_uart(sp)	do { } while(0)
-+#endif
-diff -urN linux-2.6.5/drivers/misc/ibmasm/Makefile linux-2.6.5-ibmasm/drivers/misc/ibmasm/Makefile
---- linux-2.6.5/drivers/misc/ibmasm/Makefile	2004-04-03 19:37:37.000000000 -0800
-+++ linux-2.6.5-ibmasm/drivers/misc/ibmasm/Makefile	2004-04-06 13:07:54.000000000 -0700
-@@ -1,7 +1,7 @@
- 
- obj-$(CONFIG_IBM_ASM) := ibmasm.o
- 
--ibmasm-objs :=	module.o      \
-+ibmasm-y :=	module.o      \
- 		ibmasmfs.o    \
- 		event.o       \
- 		command.o     \
-@@ -9,5 +9,7 @@
- 		heartbeat.o   \
- 		r_heartbeat.o \
- 		dot_command.o \
--		lowlevel.o    \
--		uart.o
-+		lowlevel.o
-+
-+ibmasm-$(CONFIG_SERIAL_8250) += uart.o
-+
-diff -urN linux-2.6.5/drivers/misc/Kconfig linux-2.6.5-ibmasm/drivers/misc/Kconfig
---- linux-2.6.5/drivers/misc/Kconfig	2004-04-03 19:36:26.000000000 -0800
-+++ linux-2.6.5-ibmasm/drivers/misc/Kconfig	2004-04-06 13:50:49.924254952 -0700
-@@ -16,7 +16,9 @@
- 	  processor. The driver is meant to be used in conjunction with
- 	  a user space API.
- 	  The ibmasm driver also enables the OS to use the UART on the
--          service processor board as a regular serial port.
-+	  service processor board as a regular serial port. To make use of
-+	  this feature serial driver support (CONFIG_SERIAL_8250) must be
-+	  enabled.
- 	  
- 
- 	  If unsure, say N.
+Can you guys be more specific? I don't see any
+technical objections. The only one is that performance
+would suffer because of use of higher level language
+than C or Assembler.
+
+There is a reason people use languages like PERL, Java
+and so on. I would prefer to spend less time writing
+actual code - this is what these high level languages
+for. If performance would be most important - people
+would do everything in Assembler, but they don't. I'd
+better write a small Assembler subroutine which will
+handle stack problems for me and benefit from using
+the high level language after that.
+
+There were times when userland projects were written
+in Assembler. Now people are using other languages,
+too. May be it's time to try something new in the
+kernel, too :-) Or we will not consider that because
+nobody did that before? Someone should be the first
+:-)
+
+Serge.
 
 
+__________________________________
+Do you Yahoo!?
+Yahoo! Small Business $15K Web Design Giveaway 
+http://promotions.yahoo.com/design_giveaway/

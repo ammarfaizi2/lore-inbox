@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266076AbUAVEdI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 23:33:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266077AbUAVEdI
+	id S263653AbUAVEZn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 23:25:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263679AbUAVEZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 23:33:08 -0500
-Received: from mallard.mail.pas.earthlink.net ([207.217.120.48]:39312 "EHLO
-	mallard.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S266076AbUAVEdG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 23:33:06 -0500
-Message-ID: <400F527B.3070505@earthlink.net>
-Date: Wed, 21 Jan 2004 23:32:59 -0500
-From: Stephen Clark <stephen.clark@earthlink.net>
-Reply-To: sclark46@earthlink.net
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.2-rc1
-X-Enigmail-Version: 0.76.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Jan 2004 23:25:43 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:34572 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S263653AbUAVEZm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 23:25:42 -0500
+Date: Thu, 22 Jan 2004 05:29:51 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: modular ide + fixed legacy/ppc doesn't work when non modular on ppc
+Message-ID: <20040122042951.GB2210@mars.ravnborg.org>
+Mail-Followup-To: Arkadiusz Miskiewicz <arekm@pld-linux.org>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	linux-kernel@vger.kernel.org
+References: <200401212354.45957.arekm@pld-linux.org> <200401220015.21827.bzolnier@elka.pw.edu.pl> <200401220025.07135.arekm@pld-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401220025.07135.arekm@pld-linux.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Jan 22, 2004 at 12:25:07AM +0100, Arkadiusz Miskiewicz wrote:
+> Dnia czw 22. stycznia 2004 00:15, Bartlomiej Zolnierkiewicz napisa?:
+> > Thanks, I have alternative fix.
+> >
+> > --- linux/drivers/ide/ppc/pmac.c.orig	2004-01-09 07:59:08.000000000 +0100
+> > +++ linux/drivers/ide/ppc/pmac.c	2004-01-22 00:10:11.550746088 +0100
+> > @@ -46,7 +46,7 @@
+> >  #include <asm/sections.h>
+> >  #include <asm/irq.h>
+> >
+> > -#include "ide-timing.h"
+> > +#include "../ide-timing.h"
 
-I am running RH9 with the latest kernel and get the following when I try 
-to use rpm:
-rpm -qa
-rpmdb: unable to join the environment
-error: db4 error(11) from dbenv->open: Resource temporarily unavailable
-error: cannot open Packages index using db3 - Resource temporarily 
-unavailable (11)
-error: cannot open Packages database in /var/lib/rpm
-no packages
+Please don't do that. It is much better to tell cc where to look,
+instead of this.
+So please use the solutin posted by Arkadiusz.
 
-any ideas?
+When using seperate output directory with kbuild the latter makes
+life much easier.
 
-Thanks,
-Steve
-
-
+	Sam

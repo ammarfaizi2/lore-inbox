@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317965AbSGLBYN>; Thu, 11 Jul 2002 21:24:13 -0400
+	id <S317967AbSGLB2s>; Thu, 11 Jul 2002 21:28:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317966AbSGLBYM>; Thu, 11 Jul 2002 21:24:12 -0400
-Received: from [209.237.59.50] ([209.237.59.50]:56992 "EHLO
-	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
-	id <S317965AbSGLBYK>; Thu, 11 Jul 2002 21:24:10 -0400
-To: george anzinger <george@mvista.com>
-Cc: Stevie O <oliver@klozoff.com>, lkml <linux-kernel@vger.kernel.org>
+	id <S317969AbSGLB2r>; Thu, 11 Jul 2002 21:28:47 -0400
+Received: from coffee.Psychology.McMaster.CA ([130.113.218.59]:12768 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S317967AbSGLB2q>; Thu, 11 Jul 2002 21:28:46 -0400
+Date: Thu, 11 Jul 2002 21:37:39 -0400 (EDT)
+From: Mark Hahn <hahn@physics.mcmaster.ca>
+X-X-Sender: <hahn@coffee.psychology.mcmaster.ca>
+To: <linux-kernel@vger.kernel.org>
 Subject: Re: HZ, preferably as small as possible
-References: <Pine.LNX.4.10.10207110847170.6183-100000@zeus.compusonic.fi>
-	<5.1.0.14.2.20020711201602.022387b0@whisper.qrpff.net>
-	<3D2E2C48.DCB509D7@mvista.com>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 11 Jul 2002 18:26:52 -0700
-In-Reply-To: <3D2E2C48.DCB509D7@mvista.com>
-Message-ID: <52adoxrb1f.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+In-Reply-To: <1026435320.1178.362.camel@sinai>
+Message-ID: <Pine.LNX.4.33.0207112107070.7158-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "george" == george anzinger <george@mvista.com> writes:
+> > > Why must HZ be the same as 'interrupts per second'?
+> > 
+> > s/interrupts/scheduler calls/
+> 
+> Uh, HZ is not scheduler calls per second.
+> 
+> Neither exactly is it interrupts per second, but _timer_ interrupts per
+> second.  It is the frequency of the timer interrupt.
 
-    george> Well, in truth it has nothing to do with interrupts.  It
-    george> is just that that is the way most systems keep time.  The
-    george> REAL definition of HZ is in its relationship to jiffies
-    george> and seconds.
+is there really code which uses HZ which is not merely fiddling with jiffies?
+that is, HZ is merely "jiffies per second".  there's no reason the timer
+(if any!) couldn't run faster than HZ, even at different ratios depending on
+power level.
 
-    george> I.e. jiffies * HZ = seconds, by definition.
+afaikt, jiffies has survived because there's a need for a
+moderately fast, strictly monotonically increasing clock.
+that doesn't imply that the periodic timer needs to run at HZ
+or even that such a clock exists (tickless).  
+just that the kernel promises to update jiffies at HZ,
+even if that means HZ is 1M, and goes by jumps of 10K.
 
-I'm sure you know the truth, but this isn't quite right.  Just to be
-pedantic and make sure the correct definition is out there:
-
-  jiffies / HZ = seconds
-
-For example if HZ is 100 then the jiffy counter is incremented 100
-times each second.
-
-Best,
-  Roland

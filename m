@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbTGAKaI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 06:30:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbTGAKaI
+	id S261989AbTGAKav (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 06:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbTGAKau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 06:30:08 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:51334 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S261874AbTGAKaF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 06:30:05 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Luis Miguel Garcia <ktech@wanadoo.es>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O1int 0307010922 for 2.5.73 interactivity
-Date: Tue, 1 Jul 2003 20:48:02 +1000
-User-Agent: KMail/1.5.2
-References: <20030701133241.58d17db0.ktech@wanadoo.es>
-In-Reply-To: <20030701133241.58d17db0.ktech@wanadoo.es>
+	Tue, 1 Jul 2003 06:30:50 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:54559 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id S261989AbTGAKat (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 06:30:49 -0400
+Date: Tue, 1 Jul 2003 11:46:34 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>
+Subject: Re: 2.5.73-mm2
+In-Reply-To: <20030701003958.GB20413@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0307011137001.1161-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307012048.02612.kernel@kolivas.org>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Jul 2003 21:32, Luis Miguel Garcia wrote:
-> Con, I want to give you Lots of Thanks for the work you're doing with the
-> O1int patches.
+On Mon, 30 Jun 2003, William Lee Irwin III wrote:
+> 
+> It was suggested during my last round of OOM killer fixes that one of
+> my patches, which just checked nr_free_buffer_pages() > 0, should also
+> consider userspace (i.e. reclaimable at will) memory free.
 
-Thanks. Hopefully it will all be worthwhile.
+If you pursued it, wouldn't your patch also need to change
+nr_free_buffer_pages() to do what you think it does, count
+the free lowmem pages?  It, and nr_free_pagecache_pages(),
+and nr_free_zone_pages(), are horribly badly named.  They
+count present_pages-pages_high, they don't count free pages:
+okay for initialization estimates, useless for anything dynamic.
 
-> Don't you think that we need an option in the kernel to select if we want a
-> Server Kernel or a Desktop Kernel?
->
-> With the first one, only throughput is important and in the second one, we
-> can take in all the stuff to improve the interactivity (preempt, 01int,
-> granularity) so we can give more agresive interactivity to the Desktop
-> Kernel.
+Hugh
 
-A properly tuned scheduler should work in all settings. The granularity patch 
-is the only one which would only benefit the desktop but I'm hoping to make 
-it unnecessary for this patch to be used.
-
-Con
+p.s. any chance of some more imaginative Subject lines :-?
 

@@ -1,165 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262355AbTLNUTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 15:19:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTLNUTQ
+	id S262375AbTLNUaq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 15:30:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbTLNUap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 15:19:16 -0500
-Received: from mx2.mail.ru ([194.67.23.22]:24076 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id S262355AbTLNUTH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 15:19:07 -0500
-Date: Sun, 14 Dec 2003 15:18:52 -0500
-From: Alexander & Tatiana Bogdashevsky <sanderb@mail.ru>
-To: linux-kernel@vger.kernel.org
-Cc: marcelo.tosatti@cyclades.com
-Subject: [PATCH] 2.4.24-pre1 amd76x_pm.c
-Message-Id: <20031214151852.6743b854.sanderb@mail.ru>
-X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Sun, 14 Dec 2003 15:30:45 -0500
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:54772 "EHLO
+	mail.kroptech.com") by vger.kernel.org with ESMTP id S262375AbTLNUao
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Dec 2003 15:30:44 -0500
+Date: Sun, 14 Dec 2003 15:35:04 -0500
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Nathan Fredrickson <8nrf@qlink.queensu.ca>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Nick Piggin <piggin@cyberone.com.au>, Ingo Molnar <mingo@elte.hu>,
+       sam@mars.ravnborg.org
+Subject: Re: HT schedulers' performance on single HT processor
+Message-ID: <20031214153504.A6795@mail.kroptech.com>
+References: <200312130157.36843.kernel@kolivas.org> <1071431363.19011.64.camel@rocky>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Sun__14_Dec_2003_15_18_52_-0500_6y8eNAfCLSaUChv8"
-X-Spam: Probable Spam
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1071431363.19011.64.camel@rocky>; from 8nrf@qlink.queensu.ca on Sun, Dec 14, 2003 at 02:49:24PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Sun__14_Dec_2003_15_18_52_-0500_6y8eNAfCLSaUChv8
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Sun, Dec 14, 2003 at 02:49:24PM -0500, Nathan Fredrickson wrote:
+> Same table as above normalized to the j=1 uniproc case to make
+> comparisons easier.  Lower is still better.
+> 
+>              j =  1     2     3     4     8
+> 1phys (uniproc)  1.00  1.00  1.00  1.00  1.00
+> 1phys w/HT       1.02  1.02  0.87  0.87  0.87
+> 1phys w/HT (w26) 1.02  1.02  0.87  0.87  0.88
+> 1phys w/HT (C1)  1.03  1.02  0.88  0.88  0.88
+> 2phys            1.00  1.00  0.53  0.53  0.53
+  ^^^^^                  ^^^^
 
-Hi,
+Ummm...
 
-I did not find who is the maintainer of this module now (after Alan Cox went
-studying), so I am sending the patch here.
+> 2phys w/HT       1.01  1.01  0.64  0.50  0.48
+> 2phys w/HT (w26) 1.02  1.01  0.55  0.49  0.47
+> 2phys w/HT (C1)  1.02  1.01  0.53  0.50  0.48
 
-There is a problem with amd76x_pm module in 2.4.23 and 2.4.24-pre1: it is
-trying to grab southbridge unconditionally and if some other process already
-did this, amd76x_pm just fails. As example: it is not compatible with
-lm-sensor 2.8 and up.
-This patch fixes this problem. It is based on Pasi Savolainen's patch for
-2.6.0-test9(southbridge related changes only). The patch was tested (I am
-using it on my ASUS A7M266-D with 2 Athlon MP 2000 CPUs without any problems).
+> There was not much benefit from either HT or SMP with j=2.  Maximum
+> speedup was not realized until j=3 for one physical processor and j=5
+> for 2 physical processors.
 
-With best regards,
-Alexander Bogdashevsky
--------------------- start of patch ------------------
-diff -ruN linux-2.4.24-pre1/drivers/char/amd76x_pm.c
-linux-2.4.24-pre1-amd76x_pm/drivers/char/amd76x_pm.c---
-linux-2.4.24-pre1/drivers/char/amd76x_pm.c	2003-11-28 13:26:20.000000000
--0500+++ linux-2.4.24-pre1-amd76x_pm/drivers/char/amd76x_pm.c	2003-12-08 22:56:24.000000000 -0500@@ -95,10 +95,6 @@
- static int __devinit amd_nb_init(struct pci_dev *pdev,
- 				 const struct pci_device_id *ent);
- static void amd_nb_remove(struct pci_dev *pdev);
--static int __devinit amd_sb_init(struct pci_dev *pdev,
--				 const struct pci_device_id *ent);
--static void amd_sb_remove(struct pci_dev *pdev);
--
- 
- static struct pci_dev *pdev_nb;
- static struct pci_dev *pdev_sb;
-@@ -141,14 +137,6 @@
- 	remove:__devexit_p(amd_nb_remove),
- };
- 
--static struct pci_driver amd_sb_driver = {
--	name:"amd76x_pm-sb",
--	id_table:amd_sb_tbl,
--	probe:amd_sb_init,
--	remove:__devexit_p(amd_sb_remove),
--};
--
--
- static int __devinit
- amd_nb_init(struct pci_dev *pdev, const struct pci_device_id *ent)
- {
-@@ -165,24 +153,6 @@
- {
- }
- 
--
--static int __devinit
--amd_sb_init(struct pci_dev *pdev, const struct pci_device_id *ent)
--{
--	pdev_sb = pdev;
--	printk(KERN_INFO "amd76x_pm: Initializing southbridge %s\n",
--	       pdev_sb->name);
--
--	return 0;
--}
--
--
--static void __devexit
--amd_sb_remove(struct pci_dev *pdev)
--{
--}
--
--
- /*
-  * Configures the AMD-762 northbridge to support PM calls
-  */
-@@ -576,6 +546,17 @@
- {
- 	int found;
- 
-+        /* Find southbridge */
-+        pdev_sb = NULL;
-+        while ((pdev_sb = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pdev_sb))
-!= NULL) {+                if (pci_match_device(amd_sb_tbl, pdev_sb) != NULL)
-+                        goto found_sb;
-+        }
-+        printk(KERN_ERR "amd76x_pm: Could not find southbridge\n");
-+        return -ENODEV;
-+
-+found_sb:
-+
- 	/* Find northbridge */
- 	found = pci_register_driver(&amd_nb_driver);
- 	if (found <= 0) {
-@@ -584,15 +565,6 @@
- 		return 1;
- 	}
- 
--	/* Find southbridge */
--	found = pci_register_driver(&amd_sb_driver);
--	if (found <= 0) {
--		printk(KERN_ERR "amd76x_pm: Could not find southbridge\n");
--		pci_unregister_driver(&amd_sb_driver);
--		pci_unregister_driver(&amd_nb_driver);
--		return 1;
--	}
--
- 	/* Init southbridge */
- 	switch (pdev_sb->device) {
- 	case PCI_DEVICE_ID_AMD_VIPER_7413:	/* AMD-765 or 766 */
-@@ -623,7 +595,6 @@
- 	if (!amd76x_pm_cfg.curr_idle) {
- 		printk(KERN_ERR "amd76x_pm: Idle function not changed\n");
- 		pci_unregister_driver(&amd_nb_driver);
--		pci_unregister_driver(&amd_sb_driver);
- 		return 1;
- 	}
- 
-@@ -683,8 +654,6 @@
- #endif
- 
- 	pci_unregister_driver(&amd_nb_driver);
--	pci_unregister_driver(&amd_sb_driver);
--
- }
- 
- 
+This is mighty suspicious. With -j2 did you check to see that there
+were indeed two parallel gcc's running? Since -test6 I've found that 
+-j2 only results in a single gcc instance. I've seen this on both an
+old hacked-up RH 7.3 installation and a brand new RH 9 + updates
+installation.
 
---Signature=_Sun__14_Dec_2003_15_18_52_-0500_6y8eNAfCLSaUChv8
-Content-Type: application/pgp-signature
+> This suggests that j should be set to at least the number of logical
+> processors + 1.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Since -test6 I've found this to be the case for kernel builds, yes. But
+I don't think it has anything to do with the scheduler or HT vs SMP
+platforms.
 
-iD8DBQE/3MW3kWRpnirqPNYRAudRAJ4hBwFYEZQBwQZ0g6ez/xQpOU0AbQCcCSpx
-Nv1IUBkiXpmNGjqlltb8S5I=
-=Pk0G
------END PGP SIGNATURE-----
+--Adam
 
---Signature=_Sun__14_Dec_2003_15_18_52_-0500_6y8eNAfCLSaUChv8--

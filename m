@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266169AbUBQNY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 08:24:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266171AbUBQNY1
+	id S266166AbUBQNf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 08:35:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266174AbUBQNf1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 08:24:27 -0500
-Received: from ns.schottelius.org ([213.146.113.242]:62110 "HELO
-	ns.schottelius.org") by vger.kernel.org with SMTP id S266169AbUBQNYZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 08:24:25 -0500
-Date: Tue, 17 Feb 2004 14:24:30 +0100
-From: Nico Schottelius <nico-kernel@schottelius.org>
-To: Nico Schottelius <nico-kernel@schottelius.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: usb issue in 2.6 or notebook defect?
-Message-ID: <20040217132430.GZ1881@schottelius.org>
-References: <20040217110840.GR1881@schottelius.org> <20040217110928.GS1881@schottelius.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040217110928.GS1881@schottelius.org>
-X-Linux-Info: http://linux.schottelius.org/
-X-Operating-System: Linux bruehe 2.6.1
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 17 Feb 2004 08:35:27 -0500
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:32615 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266166AbUBQNfY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 08:35:24 -0500
+Date: Tue, 17 Feb 2004 07:35:23 -0600 (CST)
+From: Ryan Reich <ryanr@uchicago.edu>
+Reply-To: Ryan Reich <ryanr@uchicago.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Speaker static, vanishes with APIC
+In-Reply-To: <Pine.LNX.4.58.0402150903010.1774@ryanr.aptchi.homelinux.org>
+Message-ID: <Pine.LNX.4.58.0402170734340.1559@ryanr.aptchi.homelinux.org>
+References: <Pine.LNX.4.58.0402150903010.1774@ryanr.aptchi.homelinux.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Still on it...
+On Sun, 15 Feb 2004, Ryan Reich wrote:
 
-I asked some other people who all could confirmed that after copying
-much data (>=1-2GB) to/from a usb disk, the copy/tar/ whatever will
-freeze and then you'll have to reconnect the device to use it again
-(in my case with devfs the old entries still exist and the second time
-it become sdb)
+> This is really trivial and I solved it anyway, but in all incarnations of 2.6 I
+> have had static coming from my speakers shortly after boot.  It only lasts a few
+> seconds and sounds as though someone were jiggling the plug in the sound card's
+> socket.  It only happens right after boot.  Since I enabled Local APIC and
+> IO-APIC it hasn't happened.
+>
+> Sound card module is snd-intel8x0, and my card is built into my Shuttle AN35N
+> motherboard.
 
-Is it really still a problem to use mass storage under Linux?
+Spoke too soon, it's still there.  Though it definitely wasn't there last time I
+booted.
 
-Greetings,
-
-Nico
+-- 
+Ryan Reich
+ryanr@uchicago.edu

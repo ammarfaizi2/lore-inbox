@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264881AbTLRAZV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 19:25:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264883AbTLRAZV
+	id S264884AbTLRAz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 19:55:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264886AbTLRAz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 19:25:21 -0500
-Received: from mail.kroah.org ([65.200.24.183]:12951 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264881AbTLRAZS (ORCPT
+	Wed, 17 Dec 2003 19:55:59 -0500
+Received: from mail.kroah.org ([65.200.24.183]:57760 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264884AbTLRAz6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 19:25:18 -0500
-Date: Wed, 17 Dec 2003 16:24:44 -0800
+	Wed, 17 Dec 2003 19:55:58 -0500
+Date: Wed, 17 Dec 2003 16:36:11 -0800
 From: Greg KH <greg@kroah.com>
-To: Matthew Wilcox <willy@debian.org>
-Cc: "David S. Miller" <davem@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pci_get_slot()
-Message-ID: <20031218002444.GI6258@kroah.com>
-References: <20031015183213.GG16535@parcelfarce.linux.theplanet.co.uk>
+To: Daniel Stekloff <dsteklof@us.ibm.com>
+Cc: azarah@gentoo.org,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: Re: scsi_id segfault with udev-009
+Message-ID: <20031218003611.GK6258@kroah.com>
+References: <1071682198.5067.17.camel@nosferatu.lan> <200312171017.28358.dsteklof@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031015183213.GG16535@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <200312171017.28358.dsteklof@us.ibm.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 15, 2003 at 07:32:13PM +0100, Matthew Wilcox wrote:
+On Wed, Dec 17, 2003 at 10:17:28AM -0800, Daniel Stekloff wrote:
 > 
-> Hi Linus.
-> 
-> tg3.c has a bug where it can find the wrong 5704 peer on a machine with
-> PCI domains.  The problem is that pci_find_slot() can't distinguish
-> whether it has the correct domain or not.
-> 
-> This patch fixes that problem by introducing pci_get_slot() and converts
-> tg3 to use it.  It also fixes another problem where tg3 wouldn't find
-> a peer on function 7 (0 to <8, not 0 to <7).
+> Please try this quick fix:
 
-I've applied the pci portions of this patch to my trees and will send it
-on after 2.6.0 is out.
-
-thanks,
+I've applied this, thanks.
 
 greg k-h

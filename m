@@ -1,103 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262222AbUCACyn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 21:54:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbUCACyn
+	id S262226AbUCADIH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 22:08:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbUCADIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 21:54:43 -0500
-Received: from alt.aurema.com ([203.217.18.57]:45472 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S262222AbUCACyj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 21:54:39 -0500
-Message-ID: <4042A5E8.9040706@aurema.com>
-Date: Mon, 01 Mar 2004 13:54:32 +1100
-From: Peter Williams <peterw@aurema.com>
-Organization: Aurema Pty Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andy Lutomirski <luto@myrealbox.com>
-CC: John Lee <johnl@aurema.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
-References: <fa.jgj0bdi.b3u6qk@ifi.uio.no> <404297D1.5010301@myrealbox.com>
-In-Reply-To: <404297D1.5010301@myrealbox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 29 Feb 2004 22:08:07 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:21632 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP id S262226AbUCADIE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 22:08:04 -0500
+Date: Sun, 29 Feb 2004 22:10:30 -0500
+From: Enrico Demarin <enricod@videotron.ca>
+Subject: Re: Ibm Serveraid Problem with 2.4.25
+In-reply-to: <20040301021014.GA1270@ait.ac.th>
+To: Alain Fauconnet <alain@ait.ac.th>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Jo Christian Buvarp <jcb@svorka.no>,
+       "Moore, Eric Dean" <Emoore@lsil.com>, linux-kernel@vger.kernel.org
+Message-id: <1078110630.4446.87.camel@localhost.localdomain>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7)
+Content-type: text/plain; CHARSET=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <403DB882.9000401@svorka.no>
+ <1077839333.4823.5.camel@localhost.localdomain>
+ <1077846502.4454.2.camel@localhost.localdomain>
+ <Pine.LNX.4.58L.0402270011140.2029@logos.cnet> <403EEEB9.5030408@svorka.no>
+ <Pine.LNX.4.58L.0402271133220.18055@logos.cnet>
+ <20040301021014.GA1270@ait.ac.th>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Lutomirski wrote:
-> How hard would it be to make shares hierarchial?  For example (quoted 
-> names are just descriptive):
-> 
->      "guaranteed" (10 shares)       "user" (5 shares)
->                |                          |
->       -----------------            -----------------
->       |               |            |               |
->  "root" (1)      "apache" (2)    "bob" (5)       "fred" (5)
->       |               |            |               |
-> (more groups?)    (web servers)   etc.            etc.
-> 
-> 
-> This way one user is prevented from taking unfair CPU time by launcing 
-> too many processes, apache gets enough time no matter what, etc.  In 
-> this scheme, numbers of shares would only be comparable if they are 
-> children of the same node.  Also, it now becomes safe to let users 
-> _increase_ priorities of their processes -- it doesn't affect anyone else.
-> 
-> Ignoring limts, this should be just an exercise in keeping track of 
-> shares and eliminating the 1/420 limit in precision.  It would take some 
-> thought to figure out what nice should do.
-> 
+Alain,
 
-As Peter Chubb has stated such control is possible and is available on 
-Tru64, Solaris and Windows with Aurema's (<http://www.aurema.com>) 
-ARMTech product.  The CKRM project also addresses this issue.
+so far Jo went through all the pre2.4.24 and 25 and the bug appeared
+in 2.4.24pre1. 
 
-> 
-> Also, could interactivity problems be solved something like this:
-> 
->   prio = (  (old EBS usage ratio) - 0.5  ) * i + 0.5
-> 
-> "i" would be a per-process interactivity factor (normally 1, but higher 
-> for interactive processes) which would only boost them when their CPU 
-> usage is low.  This makes interactive processes get their timeslices 
-> early (very high priority at low CPU consumption) but prevents abuse by 
-> preventing excessive CPU consumption.  This could even by set by the 
-> (untrusted) process itself.
-> 
+- Enrico
 
-Interactive processes do very well under EBS without any special treatment.
 
-Programs such as xmms aren't really interactive processes although they 
-usually have a very low CPU usage rate like interactive processes.  What 
-distinguishes them is their need for REGULAR access to the CPU.  It's 
-unlikely that such a modification would help with the need for regularity.
+On Sun, 2004-02-29 at 21:10, Alain Fauconnet wrote:
+> On Fri, Feb 27, 2004 at 11:36:51AM -0300, Marcelo Tosatti wrote:
+> > 
+> > 
+> > On Fri, 27 Feb 2004, Jo Christian Buvarp wrote:
+> > 
+> > > No, I only got IBM ServeRAID support
+> > 
+> > Eric, my mistake. Nevermind it :)
+> > 
+> > Jo, Enrico,
+> > 
+> > The error is harmless, although it is a bug.
+> > 
+> > I suspect the ext2 2.6 compat updates on 2.4.25 might be causing this.
+> > I'll send you a patch privately to revert those and confirm (or not).
 
-Once again I'll stress that in order to cause xmms to skip we had to (on 
-a single CPU machine) run a kernel build with -j 16 which causes a 
-system load well in excess of 10 and is NOT a normal load.  Under normal 
-loads xmms performs OK.
-
-> 
-> I imagine that these two together would nicely solve most interactivity 
-> and fairness issues -- the former prevents starvation by other users and 
-> the latter prevents latency caused by large numbers of CPU-light tasks.
-> 
-> 
-> Is this sane?
-
-Yes.  Fairness between users rather than between tasks is a sane desire 
-but beyond the current scope of EBS.
-
-> And does it break the O(1) promotion algorithm?
-
-No, it would not break the O(1) promotion algorithm.
-
-Peter
--- 
-Dr Peter Williams, Chief Scientist                peterw@aurema.com
-Aurema Pty Limited                                Tel:+61 2 9698 2322
-PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
-79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
 

@@ -1,70 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265751AbTIEUzo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 16:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265704AbTIEUza
+	id S265818AbTIEU6a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 16:58:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265822AbTIEU6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 16:55:30 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:49293 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S265723AbTIEUys
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 16:54:48 -0400
-Date: Fri, 5 Sep 2003 21:54:18 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Alternate futex non-page-pinning and COW fix
-Message-ID: <20030905205418.GA6019@mail.jlokier.co.uk>
-References: <20030904210007.GE31590@mail.jlokier.co.uk> <20030905052006.DCCB62C261@lists.samba.org>
+	Fri, 5 Sep 2003 16:58:30 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:14088
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S265818AbTIEU6Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 16:58:25 -0400
+Subject: Re: [PATCH] Nick's scheduler policy v12
+From: Robert Love <rml@tech9.net>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Nick Piggin <piggin@cyberone.com.au>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030905203903.GF19041@matchmail.com>
+References: <3F58CE6D.2040000@cyberone.com.au> <195560000.1062788044@flay>
+	 <20030905202232.GD19041@matchmail.com> <207340000.1062793164@flay>
+	 <20030905203903.GF19041@matchmail.com>
+Content-Type: text/plain
+Message-Id: <1062796123.1436.4.camel@boobies.awol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030905052006.DCCB62C261@lists.samba.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Fri, 05 Sep 2003 17:08:43 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> Now, if mremap doesn't move the memory, futexes aren't broken, even
-> without your patch, right?  If it does move, you've got a futex
-> sitting in invalid memory, no surprise if it doesn't work.
+On Fri, 2003-09-05 at 16:39, Mike Fedyk wrote:
 
-If the mremap doesn't move the memory it's fine.  No surprise :)
+> Exactly.  Because the larger time slices for lower nice values came from
+> O(1), not Con.
 
-If it's moved, then the program isn't broken - it knows it just did an
-mremap, and it sends the wakeup to the new address.
+The larger timeslices may not help, but one reason why renicing X hurts
+multimedia is that it gives a preference to the GUI over the multimedia
+thread(s).
 
-This makes sense if async futexes are used on an in-memory private
-database.  But such programs can just use MAP_ANON|MAP_SHARED if they
-want mremap to work.
+Look at it this way.  Assume renicing X does not _help_ whatever the
+problem is (simply because the problem, in this case, is not stemming
+from X).  Then giving X the higher priority and larger timeslice only
+adversely affects the problem.
 
-> OTOH, I'm interested in returning EFAULT on waiters when pages are
-> unmapped, because I realized that stale waiters could "match" live
-> futex wakeups (an mm_struct gets recycled), and steal the wakeup.  Bad
-> juju.  We could do some uid check or something for anon pages, but
-> cleaner to flush them at unmap.
+So, since the multimedia thread in (say) xmms is really unrelated to X
+(its a separate thread and not doing any Xlib calls), it just hurts it.
 
-Ah, you're right.  Not fixing that is a serious bug.
-It can happen when an async futex fd is passed to another process.
+> Linus added a patch to 2.5.65 or so that was supposed to allow nice 0 on X
+> without any detrament.
 
-Not only can the mm_struct be recycled, it might be recycled into an
-inode so it could match a file futex too.
+That is the backboost thing.  It was ripped out, due to regressions in
+SETI and elsewhere.
 
-This can be fixed more simply than the full do_unmap patch I posted
-earlier, by invalidating all the futexes in an mm when it is destroyed.
+Nick added a similar thing back in, but he just removed it.  Its a shame
+it cannot be made to work, because I like the idea.  I talked with Nick
+and OLS about the ability of a forward+back boost combination to solve
+our interactivity issues.  I really wish they panned out.
 
-Another fix would be to prevent futex fds of private mappings being
-passed to another process, somehow.
+	Robert Love
 
-It must be fixed somehow.
 
-Linus, which patch do you prefer?  Invalidate all futexes in an mm
-when it's destroyed, or invalidate ranges in do_munmap?
-
--- Jamie
-
-ps. There's another bug: shared waiters match inodes, which they don't
-hold a reference to.  Inodes can be recycled too.  Fix is easy: just
-need to take an inode reference.

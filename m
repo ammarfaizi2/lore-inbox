@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265232AbUAPB0v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 20:26:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265238AbUAPB0v
+	id S265238AbUAPBkq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 20:40:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUAPBkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 20:26:51 -0500
-Received: from mail.kroah.org ([65.200.24.183]:21968 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265232AbUAPB0t (ORCPT
+	Thu, 15 Jan 2004 20:40:45 -0500
+Received: from waste.org ([209.173.204.2]:15811 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S265238AbUAPBkn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 20:26:49 -0500
-Date: Thu, 15 Jan 2004 17:24:31 -0800
-From: Greg KH <greg@kroah.com>
-To: Kieran Morrissey <linux@mgpenguin.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.1: Update PCI Name database, fix gen-devlist.c for long device names.
-Message-ID: <20040116012431.GO23253@kroah.com>
-References: <5.1.0.14.2.20040115140515.00af1318@mail.mgpenguin.net>
+	Thu, 15 Jan 2004 20:40:43 -0500
+Date: Thu, 15 Jan 2004 19:40:37 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Clay Haapala <chaapala@cisco.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] Add CRC32C chksums to crypto routines
+Message-ID: <20040116014037.GN28521@waste.org>
+References: <yqujisje43q9.fsf@chaapala-lnx2.cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5.1.0.14.2.20040115140515.00af1318@mail.mgpenguin.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <yqujisje43q9.fsf@chaapala-lnx2.cisco.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 15, 2004 at 02:28:39PM +1100, Kieran Morrissey wrote:
-> Hi all and sundry..
+On Wed, Jan 14, 2004 at 03:31:10PM -0600, Clay Haapala wrote:
+> This patch against 2.6.1 adds CRC32C checksumming capabilities to the
+> crypto routines.  The structure of it is based wholly on the existing
+> digest (md5) routines, the main difference being that chksums are
+> often used in an "accumulator" fashion, effectively requiring one to
+> set the seed, and the digest algorithms don't do that.
 > 
-> Although /proc/pci and by extension the name database is allegedly legacy 
-> and therefore deprecated, some (including myself) still use it for things 
-> such as phpSysInfo, and the still-widespread usage of it is obvious in the 
-> regularity of slight patches to pci.ids. So, this is an all-inclusive patch 
-> to bring things up to date:
+> CRC32C is a 32-bit CRC variant used by the iSCSI protocol and in other
+> drivers.  iSCSI uses scatterlists, so it was strongly suggested by the
+> SCSI maintainers during reviews of Version 4 of the linux-iscsi driver
+> that the code be added to the crypto routines, which operate on
+> scatterlists.
 > 
-> * Updates pci.ids with a snapshot from http://pciids.sourceforge.net/ as at 
-> 14 Jan 04.
-> * Fixes gen-devlist.c to truncate long device names rather than reject the 
-> whole database
->   (previously the latest databases had some devices that were too long and 
-> caused a kernel with the latest db to fail to compile)
-
-Your patch is line-wrapped and can't be applied.
-
-Please try it again.
-
-> I've included the (minor) changes to gen-devlist.c in this email if anyone 
-> cares to discuss them, but since the pci database changes aren't really 
-> that worthy of discussion on the list and the patch is 83kb, THE COMPLETE 
-> PATCH has been posted on the web:
+> Test routines have been added to tcrypt.c.
 > 
-> http://digital.mgpenguin.net/linux/patch-2.6.1.pci-db/patch.2.6.1.pci-db.diff
+> The linux-iscsi project can be found on SourceForge:
+>   http://sourceforge.net/projects/linux-iscsi/
 
-Feel free to just send this patch to me, as it's much easier for me to
-apply this if I get an email with it in it (include the description
-please too.)
+Clay!
 
-thanks,
+The cryptoapi stuff seems sensible, but we've already got at least one
+copy of the core crc32c code in the kernel at net/sctp/crc32c.c. It'd
+be better to work with the sctp folks to push this into lib/crc32.c.
+Handling multiple polynomials shouldn't be too painful there.
 
-greg k-h
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

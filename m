@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135728AbRAJPDq>; Wed, 10 Jan 2001 10:03:46 -0500
+	id <S135729AbRAJPEQ>; Wed, 10 Jan 2001 10:04:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135731AbRAJPDg>; Wed, 10 Jan 2001 10:03:36 -0500
-Received: from smtp2.libero.it ([193.70.192.52]:14576 "EHLO smtp2.libero.it")
-	by vger.kernel.org with ESMTP id <S135728AbRAJPDX>;
-	Wed, 10 Jan 2001 10:03:23 -0500
-Date: Wed, 10 Jan 2001 18:03:22 +0100
-From: antirez <antirez@invece.org>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: antirez@invece.org, linux-kernel@vger.kernel.org
-Subject: Re: * 4 converted to << 2 for networking code
-Message-ID: <20010110180322.T7498@prosa.it>
-Reply-To: antirez@invece.org
-In-Reply-To: <20010110174859.R7498@prosa.it> <3A5C778C.CFB363F3@didntduck.org>
+	id <S135312AbRAJPD7>; Wed, 10 Jan 2001 10:03:59 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:52812 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S135729AbRAJPDy>; Wed, 10 Jan 2001 10:03:54 -0500
+Date: Wed, 10 Jan 2001 16:03:59 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
+        linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
+Subject: Re: `rmdir .` doesn't work in 2.4
+Message-ID: <20010110160359.E19503@athlon.random>
+In-Reply-To: <200101091341.HAA52016@tomcat.admin.navo.hpc.mil> <20010109150635.C8824@athlon.random> <20010110144735.E10633@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A5C778C.CFB363F3@didntduck.org>; from bgerst@didntduck.org on Wed, Jan 10, 2001 at 09:54:04AM -0500
+In-Reply-To: <20010110144735.E10633@redhat.com>; from sct@redhat.com on Wed, Jan 10, 2001 at 02:47:35PM +0000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 10, 2001 at 09:54:04AM -0500, Brian Gerst wrote:
-> This patch isn't really necessary, because GCC will automatically
-> convert multiplications and divisions by powers of two to use shifts.
+On Wed, Jan 10, 2001 at 02:47:35PM +0000, Stephen C. Tweedie wrote:
+> Hi,
+> 
+> On Tue, Jan 09, 2001 at 03:06:35PM +0100, Andrea Arcangeli wrote:
+> > On Tue, Jan 09, 2001 at 07:41:21AM -0600, Jesse Pollard wrote:
+> > > Not exactly valid, since a file could be created in that "pinned" directory
+> > > after the rmdir...
+> > 
+> > In 2.2.x no file can be created in the pinned directory after the rmdir.
+> 
+> In 2.2, at least some of that protection was in ext2 itself.  POSIX
+> mandates that a deleted directory has no dirents, so readdir() must
+> not return even "." or "..".  ext2 achieved this by truncating the dir
+> to size==0, and by refusing to add dirents to the resulting completely
+> empty directory.
+> 
+> Do we have enough protection to ensure this for other filesystems?
 
-Sure, but since many << 2 already exists in the net kernel code
-I feel it's better to use just a format, and it seems more appropriate
-to write << 2, just to reflect what we want.
-Also some piece of kernel code may be used with compilers that does not
-optimize power of two.
+Note that this has nothing to do with `rmdir .`. You will run into the
+mentioned issue just now with '''rmdir "`pwd`"'''. I've not checked
+the other fses but I would put such support into the VFS rather than in ext2
+(vfs can do that for you, if you do that the lowlevel fs will never get a
+readdir for a delete dentry).
 
-antirez
-(CC me)
-
--- 
-Salvatore Sanfilippo              |                      <antirez@invece.org>
-http://www.kyuzz.org/antirez      |      PGP: finger antirez@tella.alicom.com
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

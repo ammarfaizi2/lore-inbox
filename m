@@ -1,156 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263840AbTICOpp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 10:45:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263839AbTICOpp
+	id S263460AbTICOtx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 10:49:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263464AbTICOtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 10:45:45 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:59318
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S263840AbTICOpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 10:45:40 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH]O20int
-Date: Thu, 4 Sep 2003 00:53:10 +1000
-User-Agent: KMail/1.5.3
-Cc: Andrew Morton <akpm@osdl.org>
+	Wed, 3 Sep 2003 10:49:53 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:35209 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263460AbTICOtu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 10:49:50 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: [2.6 patch] fix warning with modular ide.c
+Date: Wed, 3 Sep 2003 16:50:25 +0200
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+References: <20030903141901.GZ23729@fs.tum.de>
+In-Reply-To: <20030903141901.GZ23729@fs.tum.de>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_WBgV/Xlb1thw4xB"
-Message-Id: <200309040053.22155.kernel@kolivas.org>
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309031650.25561.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 03 of September 2003 16:19, Adrian Bunk wrote:
+> Hi Bartlomiej,
+>
+> I got the following compile warning when trying to compile ide.c modular
+> in 2.6.0-tet4-mm5:
 
---Boundary-00=_WBgV/Xlb1thw4xB
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: clearsigned data
-Content-Disposition: inline
+Modular ide is broken in 2.6.0-test4, somebody fixed it in -mm5? Don't.
+It stays broken for purpose (I have patches fixing it) because I want to fix
+other stuff first and it will change the way modular ide works (currently
+its ugly and complicated) and not having to worry about breaking modular
+ide all the time (it stays broken) simplifies things :-).
 
-=2D----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Anyway thanks for report.
 
-=46ine tuning mainly.
+--bartlomiej
 
-Smaller timeslice granularity for most interactive tasks and larger for les=
-s=20
-interactive. Smaller for each extra cpu.
-
-Smaller bounds on interactive credit.
-
-Idle tasks can gain interactive credits; Idle tasks get more interactivity;=
-=20
-Uninterruptible sleep wakers are not seen as idle.
-
-Kernel threads participate in timeslice granularity requeuing.
-
-This patch is incremental on top of O19int which is included in=20
-2.6.0-test4-mm4. It will not apply onto mm5 which has all my stuff backed=20
-out. This patch and a full patch against 2.6.0-test4 can be found here:
-
-http://kernel.kolivas.org/2.5
-
-Con
-=2D----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/VgBaZUg7+tp6mRURAtvgAJoClT078T9wLLlEq8+pct3Yigrq3wCgja4P
-HjXKw3YJSey4DWpA2I+Tyi4=3D
-=3DnvCB
-=2D----END PGP SIGNATURE-----
-
---Boundary-00=_WBgV/Xlb1thw4xB
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="patch-O19-O20int"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline; filename="patch-O19-O20int"
-
---- linux-2.6.0-test4-mm4-O19/kernel/sched.c	2003-08-31 19:33:09.000000000 +1000
-+++ linux-2.6.0-test4-mm4/kernel/sched.c	2003-09-04 00:12:25.000000000 +1000
-@@ -76,7 +76,6 @@
-  */
- #define MIN_TIMESLICE		( 10 * HZ / 1000)
- #define MAX_TIMESLICE		(200 * HZ / 1000)
--#define TIMESLICE_GRANULARITY	(HZ/40 ?: 1)
- #define ON_RUNQUEUE_WEIGHT	30
- #define CHILD_PENALTY		95
- #define PARENT_PENALTY		100
-@@ -88,6 +87,7 @@
- #define STARVATION_LIMIT	(MAX_SLEEP_AVG)
- #define NS_MAX_SLEEP_AVG	(JIFFIES_TO_NS(MAX_SLEEP_AVG))
- #define NODE_THRESHOLD		125
-+#define CREDIT_LIMIT		100
- 
- /*
-  * If a task is 'interactive' then we reinsert it in the active
-@@ -121,6 +121,15 @@
- 	(NS_TO_JIFFIES((p)->sleep_avg) * MAX_BONUS / \
- 		MAX_SLEEP_AVG)
- 
-+#ifdef CONFIG_SMP
-+#define TIMESLICE_GRANULARITY(p) \
-+	(MIN_TIMESLICE * (1 << (MAX_BONUS - CURRENT_BONUS(p))) * \
-+		num_online_cpus())
-+#else
-+#define TIMESLICE_GRANULARITY(p) \
-+	(MIN_TIMESLICE * (1 << (MAX_BONUS - CURRENT_BONUS(p))))
-+#endif
-+
- #define SCALE(v1,v1_max,v2_max) \
- 	(v1) * (v2_max) / (v1_max)
- 
-@@ -136,10 +145,10 @@
- 		(MAX_BONUS / 2 + DELTA((p)) + 1) / MAX_BONUS - 1))
- 
- #define HIGH_CREDIT(p) \
--	((p)->interactive_credit > MAX_SLEEP_AVG)
-+	((p)->interactive_credit > CREDIT_LIMIT)
- 
- #define LOW_CREDIT(p) \
--	((p)->interactive_credit < -MAX_SLEEP_AVG)
-+	((p)->interactive_credit < -CREDIT_LIMIT)
- 
- #define TASK_PREEMPTS_CURR(p, rq) \
- 	((p)->prio < (rq)->curr->prio)
-@@ -383,9 +392,13 @@ static void recalc_task_prio(task_t *p, 
- 		 * prevent them suddenly becoming cpu hogs and starving
- 		 * other processes.
- 		 */
--		if (p->mm && sleep_time >JUST_INTERACTIVE_SLEEP(p))
--			p->sleep_avg = JUST_INTERACTIVE_SLEEP(p) + 1;
--		else {
-+		if (p->mm && p->activated != -1 &&
-+			sleep_time > JUST_INTERACTIVE_SLEEP(p)){
-+				p->sleep_avg = JIFFIES_TO_NS(MAX_SLEEP_AVG -
-+						AVG_TIMESLICE);
-+				if (!HIGH_CREDIT(p))
-+					p->interactive_credit++;
-+		} else {
- 			/*
- 			 * The lower the sleep avg a task has the more
- 			 * rapidly it will rise with sleep time.
-@@ -1411,12 +1424,12 @@ void scheduler_tick(int user_ticks, int 
- 		 * level, which is in essence a round-robin of tasks with
- 		 * equal priority.
- 		 *
--		 * This only applies to user tasks in the interactive
--		 * delta range with at least MIN_TIMESLICE left.
-+		 * This only applies to tasks in the interactive
-+		 * delta range with at least MIN_TIMESLICE to requeue.
- 		 */
--		if (p->mm && TASK_INTERACTIVE(p) && !((task_timeslice(p) -
--			p->time_slice) % TIMESLICE_GRANULARITY) &&
--			(p->time_slice > MIN_TIMESLICE) &&
-+		if (TASK_INTERACTIVE(p) && !((task_timeslice(p) -
-+			p->time_slice) % TIMESLICE_GRANULARITY(p)) &&
-+			(p->time_slice >= (MIN_TIMESLICE * 2)) &&
- 			(p->array == rq->active)) {
- 
- 			dequeue_task(p, rq->active);
-
---Boundary-00=_WBgV/Xlb1thw4xB--
+> <--  snip  -->
+>
+> ...
+>   CC [M]  drivers/ide/ide.o
+> drivers/ide/ide.c: In function `ide_unregister_subdriver':
+> drivers/ide/ide.c:2476: warning: implicit declaration of function
+> `pnpide_init'
+> ...
+>
+> <--  snip  -->
+>
+> I'd suggest the patch below (or something similar).
+>
+> cu
+> Adrian
+>
+> --- linux-2.6.0-test4-mm5-modular-no-smp/drivers/ide/ide.c.old	2003-09-03
+> 15:55:46.000000000 +0200 +++
+> linux-2.6.0-test4-mm5-modular-no-smp/drivers/ide/ide.c	2003-09-03
+> 15:59:46.000000000 +0200 @@ -214,6 +214,11 @@
+>  extern ide_driver_t idedefault_driver;
+>  static void setup_driver_defaults(ide_driver_t *driver);
+>
+> +#ifdef CONFIG_BLK_DEV_IDEPNP
+> +extern void pnpide_init(int enable);
+> +#endif
+> +
+> +
+>  /*
+>   * Do not even *think* about calling this!
+>   */
+> @@ -2288,7 +2293,6 @@
+>  #endif /* CONFIG_BLK_DEV_BUDDHA */
+>  #if defined(CONFIG_BLK_DEV_IDEPNP) && defined(CONFIG_PNP)
+>  	{
+> -		extern void pnpide_init(int enable);
+>  		pnpide_init(1);
+>  	}
+>  #endif /* CONFIG_BLK_DEV_IDEPNP */
 

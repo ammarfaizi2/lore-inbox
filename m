@@ -1,35 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262996AbTDNNNc (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 09:13:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbTDNNNc (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 09:13:32 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:41145
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262996AbTDNNNa (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 09:13:30 -0400
-Subject: Re: Linux on Unisys Aquanta HR/6 ?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.44.0304141114040.12734-100000@math.ut.ee>
-References: <Pine.GSO.4.44.0304141114040.12734-100000@math.ut.ee>
-Content-Type: text/plain
+	id S262993AbTDNNNU (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 09:13:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262996AbTDNNNU (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 09:13:20 -0400
+Received: from ms-smtp-03.tampabay.rr.com ([65.32.1.41]:65000 "EHLO
+	ms-smtp-03.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S262993AbTDNNNS (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 09:13:18 -0400
+Message-ID: <001301c3028a$25374f30$6801a8c0@epimetheus>
+From: "Timothy Miller" <tmiller10@cfl.rr.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <nicoya@apia.dhs.org>
+Subject: Re: Quick question about hyper-threading (also some NUMA stuff)
+Date: Mon, 14 Apr 2003 09:31:24 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050323228.25353.46.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 Apr 2003 13:27:09 +0100
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2720.3000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-04-14 at 09:20, Meelis Roos wrote:
-> Has anyone had any sucess running Linux on Unisys Aquanta HR/6 (or HR/6U
-> if that matters)? This is a up to 6-way PPro SMP machine,
-> http://www.unimetrix.com/hr6.html is the best description I have.
+From: Tony 'Nicoya' Mantler (nicoya@apia.dhs.org)
 
-I can't help thinking a single AMD duron would outrun it. 
 
-For Linux support the big thing you need to know is if the system
-is "Intel MP 1.1/1.4 compliant".  A lot of the ppro boxes were,
-but 6 ways can be a bit strange (the ALR 6x6 does work )
+
+> Perhaps the same effect could be obtained by preferentially scheduling
+processes
+> to execute on the "node" (a node being a single cpu in an SMP system, or
+an HT
+> virtual CPU pair, or a NUMA node) that they were last running on.
+
+
+> I think the ideal semantics would probably be something along the lines
+of:
+
+
+>  - a newly fork()ed thread executes on the same node as the creating
+thread
+>  - calling exec() sets a "feel free to shuffle me elsewhere" flag
+>  - threads are otherwise only shuffled to other nodes when a certain load
+ratio
+> is exceeded (current-node:idle-node)
+
+
+This sounds like the most sensible approach.  I like considering the
+extremes of performance, but sometimes, the time for math required for some
+optimization can be worse than any benefit you get out of it.  Your
+suggestion is simple.  It increases the likelihood (10% better for little
+extra effort is better than 10% worse) of related processes being run on the
+same node, while not impacting the system's ability to balance load.  This,
+as you say, is also very important for NUMA.
+
+
+
+Does the NUMA support migrate pages to the node which is running a process?
+Or would processes jump nodes often enough to make that not worth the
+effort?
+
+
+
+In order for page migration to be worth it, node affinity would have to be
+fairly strong.  It's particularly important when a process maps pages which
+belong to another node.  Is there any logic there to duplicate pages in
+cases where there is enough free memory for it?  We'd have to tag the pages
+as duplicates so the VM could reclaim them.
+
+
+
+
 

@@ -1,37 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314243AbSFEJgx>; Wed, 5 Jun 2002 05:36:53 -0400
+	id <S314085AbSFEJl3>; Wed, 5 Jun 2002 05:41:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314138AbSFEJgw>; Wed, 5 Jun 2002 05:36:52 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:11600 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S314082AbSFEJgv> convert rfc822-to-8bit;
-	Wed, 5 Jun 2002 05:36:51 -0400
-Message-Id: <200206050936.g559abS14499@mail.pronto.tv>
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: Pronto TV AS
-To: Kasper Dupont <kasperd@daimi.au.dk>, Pavel Machek <pavel@suse.cz>
-Subject: Re: RAID-6 support in kernel?
-Date: Wed, 5 Jun 2002 11:36:37 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Derek Vadala <derek@cynicism.com>,
-        linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
-        Tedd Hansen <tedd@konge.net>, Christian Vik <christian@konge.net>,
-        Lars Christian Nygaard <lars@snart.com>
-In-Reply-To: <Pine.LNX.4.33.0206031020290.30424-100000@mail.pronto.tv> <20020604154904.J36@toy.ucw.cz> <3CFD3EE5.DAE3E2C9@daimi.au.dk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S314138AbSFEJl2>; Wed, 5 Jun 2002 05:41:28 -0400
+Received: from natwar.webmailer.de ([192.67.198.70]:41095 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S314085AbSFEJl1>; Wed, 5 Jun 2002 05:41:27 -0400
+Subject: Capi config Patch for 2.4.20-dj2
+From: Carsten Rietzschel <cr@daRav.de>
+To: davej@suse.de
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-D/v0wRkJ7QocgT1QxqhT"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 05 Jun 2002 11:40:44 +0200
+Message-Id: <1023270045.1552.6.camel@rav-pc-linux>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> RAID-4 on top of RAID-4 is actually just a two-dimentional
-> parity. RAID-5 on top of RAID-5 is very similar.
 
-er. RAID-4 is as RAID-5, but with dedicated parity disk.
-RAID-6 is with two-dimentional parity
+--=-D/v0wRkJ7QocgT1QxqhT
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
+Hi,
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+this fixes the problem when configuring the ISDN-Section f.e. with make menuconfig.
+So Capi can be enabled and can be compiled.
+Without this patch 2.5.20-dj2 (and a few -dj-Patches before) won't compile Capi-Drivers.
+
+(Note: I don't know why DJ dropped these lines, but in the 2.4.20 they are)
+
+
+This patch is against 2.5.20-dj2 
+
+
+Carsten Rietzschel
+
+
+
+
+--=-D/v0wRkJ7QocgT1QxqhT
+Content-Disposition: attachment; filename=cr-capi-config-patch
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=cr-capi-config-patch; charset=ISO-8859-15
+
+--- drivers/isdn/Config.in	Tue Jun  4 23:31:51 2002
++++ drivers/isdn/Config.in.org2	Mon Jun  3 03:44:50 2002
+@@ -19,8 +19,11 @@
+=20
+       comment 'CAPI subsystem'
+=20
+-      source drivers/isdn/capi/Config.in
+-      source drivers/isdn/hardware/Config.in
++      tristate 'CAPI2.0 support' CONFIG_ISDN_CAPI
++      if [ "$CONFIG_ISDN_CAPI" !=3D "n" ]; then
++         source drivers/isdn/capi/Config.in
++         source drivers/isdn/hardware/Config.in
++      fi
+    fi
+ fi
+ endmenu
+
+--=-D/v0wRkJ7QocgT1QxqhT--
+

@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267329AbSKPS0k>; Sat, 16 Nov 2002 13:26:40 -0500
+	id <S267331AbSKPSgD>; Sat, 16 Nov 2002 13:36:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267331AbSKPS0k>; Sat, 16 Nov 2002 13:26:40 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56326 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267329AbSKPS0j>; Sat, 16 Nov 2002 13:26:39 -0500
-Date: Sat, 16 Nov 2002 10:33:57 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Oliver Xymoron <oxymoron@waste.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: lan based kgdb
-In-Reply-To: <20021116182454.GH19061@waste.org>
-Message-ID: <Pine.LNX.4.44.0211161025500.15838-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267332AbSKPSgD>; Sat, 16 Nov 2002 13:36:03 -0500
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:22429 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S267331AbSKPSgD>; Sat, 16 Nov 2002 13:36:03 -0500
+From: jordan.breeding@attbi.com
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] use of drm on pci radeons in 2.5.x
+Date: Sat, 16 Nov 2002 18:42:51 +0000
+X-Mailer: AT&T Message Center Version 1 (Nov  5 2002)
+X-Authenticated-Sender: am9yZGFuLmJyZWVkaW5nQGF0dGJpLmNvbQ==
+Message-Id: <20021116183603Z267331-32597+23304@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I noticed that ATI now has quite a few PCI based Radeons.  I also notcied 
+that 
+the current drm code in the kernel as well as the dri code in the CVS 
+Xfree86 
+tree has code like:
 
-On Sat, 16 Nov 2002, Oliver Xymoron wrote:
-> 
-> LAN latencies should be low enough that waiting on an ACK for each
-> packet will do just fine for error correction. If someone wants to do
-> remote debugging, they can ssh into a debugging machine on the same LAN.
+#if defined(__alpha__) || defined(__powerpc__)
+# define PCIGART_ENABLED
+#else
+# undef PCIGART_ENABLED
+#endif
 
-I agree in theory on a technical level, yet at the same time it's clearly
-advantageous _not_ to wait, since it would allow you to just universally
-enable the LAN as the console on all your machines when you maintain them,
-and then not have that LAN console be a maintenance problem.
+which could also be easily modified to allow for its use on x86, however in 
+drivers/char/drm/Kconfig we have this currently:
 
-Basically, I don't personally care too much for kgdb itself, but I see a
-asynchronous LAN console as a more generic tool for just doing not just
-kernel debugging, but management in general. syslogd is fine for when the
-machines work, but it tends to lose important information just when you
-need it the most, ie when a machine starts having serious problems.
+config DRM_RADEON
+    tristate "ATI Radeon"
+    depends on DRM && AGP
+    help
+  Choose this option if you have an ATI Radeon graphics card.  There
+  are both PCI and AGP versions.  You don't need to choose this to
+  run the Radeon in plain VGA mode.  There is a product page at
+  <http://www.ati.com/na/pages/products/pc/radeon32/index.html>.
+  If M is selected, the module will be called radeon.o.
 
-So if you see the LAN interface more as a simple console (that _also_ 
-gives you access to kgdb), then it's a whole lot more usable for much more 
-than just kernel hacking.
+My question is that if someone was running on PPC or Alpha or an x86 
+chipset 
+(and modifies the test mentioned above) with no AGP like the Intel E7500 
+and 
+was using a Radeon with PCI (like the PCI 7500) why should they have to 
+enable 
+AGP in Kconfig just to get the Radeon DRM driver, other drm drivers like 
+the Rage128 and the 3dfx don't require AGP to be configured first?  
+Thanks.
 
-A synchronous interface would make logging basically useless - it would 
-basically crash the machine if there are logger problems, and it would 
-make log output slow things down a lot.
-
-			Linus
-
+Jordan

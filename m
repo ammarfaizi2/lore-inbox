@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317846AbSGVWhC>; Mon, 22 Jul 2002 18:37:02 -0400
+	id <S317718AbSGVWft>; Mon, 22 Jul 2002 18:35:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317855AbSGVWhC>; Mon, 22 Jul 2002 18:37:02 -0400
-Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:46280 "EHLO
-	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S317846AbSGVWhB>; Mon, 22 Jul 2002 18:37:01 -0400
-Date: Mon, 22 Jul 2002 18:39:10 -0400
-To: niv@us.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [lmbench] tcp bandwidth on athlon
-Message-ID: <20020722223910.GA1072@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: rwhron@earthlink.net
+	id <S317842AbSGVWft>; Mon, 22 Jul 2002 18:35:49 -0400
+Received: from loke.as.arizona.edu ([128.196.209.61]:64901 "EHLO
+	loke.as.arizona.edu") by vger.kernel.org with ESMTP
+	id <S317718AbSGVWfs>; Mon, 22 Jul 2002 18:35:48 -0400
+Date: Mon, 22 Jul 2002 15:36:33 -0700 (MST)
+From: Craig Kulesa <ckulesa@as.arizona.edu>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Steven Cole <elenstev@mesatop.com>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>, Steven Cole <scole@lanl.gov>,
+       Ed Tomlinson <tomlins@cam.org>
+Subject: Re: [PATCH 2/2] move slab pages to the lru, for 2.5.27
+In-Reply-To: <20020722222150.GF919@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0207221520301.14311-100000@loke.as.arizona.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nivedita Singhvi wrote:
-> How did your Athlon perform in other tests relative
-> to these other procs?
 
-TCP bandwidth was the only strange really strange result.
-Side by side lmbench for three processors is at:
-http://home.earthlink.net/~rwhron/kernel/lmbench_comparison.html
+On Mon, 22 Jul 2002, William Lee Irwin III wrote:
 
-> I only see the bitkeeper version thats almost a year old, online,
-> where is the later version from?
+> The pte_chain mempool was ridiculously huge and the use of mempool for
+> this at all was in error.
 
-The earlier version of bw_tcp is from lmbench-2.0-patch1.tgz
-and the later version is from lmbench-2.0-patch2.tgz.
+That's what I thoguht too -- but Steven tried making the pool 1/4th the
+size and it still failed.  OTOH, he tried 2.5.27-rmap, which uses the
+*same mempool patch* and he had no problem with the monster 128KB 
+allocation.  Maybe it was all luck. :)  I can't yet see anything in the 
+slablru patch that has anything to do with it...
 
-> Also, any chance you have network stats before/after?
+On another note -- Steven did point out that the slablru patch has a
+patchbug with regards to dquot.c.  I think this error is also in Ed's 
+June 5th patch (at least as posted), and I didn't catch it.  
+I believe that:
 
-I only ran oprofile on the athlon using "localhost".  
-oprofile was to get an idea of the hot functions.
-oprofile wasn't executing for the lmbench runs in the
-link above.
+shrink_dqcache_memory(int priority, unsigned int gfp_mask)
+	needs to be 
+age_dqcache_memory(kmem_cache_t *cachep, int entries, int gfp_mask)
 
--- 
-Randy Hron
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
+in dquot.c.  It'll be tested and fixed on the next go. :)
+
+Best regards,
+Craig Kulesa
 

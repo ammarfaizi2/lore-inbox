@@ -1,37 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267415AbTAHNDh>; Wed, 8 Jan 2003 08:03:37 -0500
+	id <S267437AbTAHNLF>; Wed, 8 Jan 2003 08:11:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267434AbTAHNC7>; Wed, 8 Jan 2003 08:02:59 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:55689
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267415AbTAHNCp>; Wed, 8 Jan 2003 08:02:45 -0500
-Subject: Re: [PATCH][TRIVIAL] menuconfig color sanity
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: jeff gerard <jeff-lk@gerard.st>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030108104714.GM268@gage.org>
-References: <20030108104714.GM268@gage.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042034203.24099.6.camel@irongate.swansea.linux.org.uk>
+	id <S267436AbTAHNLF>; Wed, 8 Jan 2003 08:11:05 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:34176 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S267413AbTAHNLE>; Wed, 8 Jan 2003 08:11:04 -0500
+Date: Wed, 8 Jan 2003 14:19:37 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Question for Marcelo
+Message-ID: <20030108131937.GI823@louise.pinerecords.com>
+References: <3E1AFA70.4070200@mindspring.com> <3E1B8E2B.9060200@rackable.com> <1042034152.24099.4.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 08 Jan 2003 13:56:44 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1042034152.24099.4.camel@irongate.swansea.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-01-08 at 10:47, jeff gerard wrote:
-> hi,
+> [alan@lxorguk.ukuu.org.uk]
 > 
-> using yellow and green text with a "white" background in menuconfig works all
-> right on console, but it looks like crap under xterm, rxvt, etc. no
-> matter whose fault that is, the trivial patch below makes things more
-> readable without any major change in appearance. applies to 2.4 and 2.5.
-> 
-> now you can stop wondering about support for "lug and play", "mateur radio", 
-> and "elephony" in the linux kernel.
+> I've also dropped rmap out for now.
 
-Try that on a mono monitor before merging it
+Hmm, what for?
 
+-- 
+Tomas Szepe <szepe@pinerecords.com>

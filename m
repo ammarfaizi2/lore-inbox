@@ -1,83 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262673AbUKXQfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262719AbUKXQfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262673AbUKXQfP (ORCPT <rfc822;willy@w.ods.org>);
+	id S262719AbUKXQfP (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 24 Nov 2004 11:35:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262690AbUKXQd2
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbUKXQds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 11:33:28 -0500
-Received: from smtp-242.ig.com.br ([200.226.132.242]:7587 "EHLO
-	email-242.ig.com.br") by vger.kernel.org with ESMTP id S262673AbUKXQci
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 11:32:38 -0500
-Message-ID: <41A4B7AF.5030506@ig.com.br>
-Date: Wed, 24 Nov 2004 14:32:47 -0200
-From: "Olavo B D'Antonio" <olavobdantonio@ig.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: pt-br, en-us, en
+	Wed, 24 Nov 2004 11:33:48 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:63592 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262674AbUKXQbW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 11:31:22 -0500
+Date: Wed, 24 Nov 2004 16:30:59 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: "Zou, Nanhai" <nanhai.zou@intel.com>
+cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, "Luck, Tony" <tony.luck@intel.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>, Andi Kleen <ak@suse.de>,
+       <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
+Subject: RE: [PATCH 1/2] setup_arg_pages can insert overlapping vma
+In-Reply-To: <894E37DECA393E4D9374E0ACBBE7427013C9AB@pdsmsx402.ccr.corp.intel.com>
+Message-ID: <Pine.LNX.4.44.0411241558300.5064-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Audio problems on AMD64 with Via K8T800 chipset
-References: <E1CWyoi-00070L-00@mastermind.netrics.internal>
-In-Reply-To: <E1CWyoi-00070L-00@mastermind.netrics.internal>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-iGspam-global: Unsure, spamicity=0.688629 - pe=6.89e-01 - pf=0.688629 - pg=0.688629
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have the same problem...
+Thanks a lot for taking this further.
 
-My system is a AMD64 3200+, motherboard MSI K8T-Neo with on-board sound 
-VIA VT8237.
+On Wed, 24 Nov 2004, Zou, Nanhai wrote:
+> I think ia64 ia32
+> subsystem is not vulnerable to this kind of overlapping vm problem,
+> because it does not support a.out binary format, 
+> X84_64 is vulnerable to this. 
+> 
+> just do a 
+> perl -e'print"\x07\x01".("\x00"x10)."\x00\xe0\xff\xff".("\x00"x16)'>
+> evilaout
+> you will get it.
+>  
+> and IA64 is also vulnerable to this kind of bug in 64 bit elf support,
+> it just insert a vma of zero page without checking overlap, so user can
+> construct a elf with section begin from 0x0 to trigger this BUGON().I
+> attach a testcase to trigger this bug
+> I don't know what about s390. However, I think it's safe to check
+> overlap before we actually insert a vma into vma list.
 
-I'm running kernel 2.6.9.
+I expect you're right: I have neither machines nor expertise to say.
 
-Olavo D'Antonio
+> And I also feel check vma overlap everywhere is unnecessary, because
+> invert_vm_struct will check it again, so the check is duplicated. It's
+> better to have invert_vm_struct return a value then let caller check if
+> it successes.
+> Here is a patch against 2.6.10.rc2-mm3
+> I have tested it on i386, x86_64 and ia64 machines.
 
-Eric Sharkey wrote:
-> I've posted about this problem earlier on the Alsa lists, but
-> Takashi Iwai has suggested I post here, since he thinks this is
-> a kernel issue.
-> 
-> 
-> There seems to be a problem with Alsa when running on the AMD64
-> architecture on motherboards with the Via K8T800 chipset.  The sound
-> is highly irregular, with lots of drop-outs, but also speed-ups,
-> slow-downs and weird volume changes.
-> 
-> I've got this problem on an Asus K8V SE motherboard.  Rod Smith
-> has the same problem on an MSI Neo-FSR.
-> (http://groups.google.com/groups?q=%22asus+k8v%22+alsa&hl=en&lr=&c2coff=1&selm=1et59c-90v.ln%40speaker.rodsbooks.com&rnum=4)
-> 
-> In that post, Rod thought the problem was the Alsa driver for the
-> on-board sound (VIA VT8237), but this is not the case, as I've installed
-> a PCI Trident 4DWave NX, and it shows exactly the same behavior.
-> The problem appears not to be in the low level driver code.
-> 
-> The degree of the problem is highly sensitive to the load on the
-> CPU at the time.  Games like bumprace, which use multiple threads
-> and never sleep (giving load values around 8), sound awful.  Most
-> games like tuxkart, which keep the load under 1, sound perfectly fine.
-> 
-> And yet, some things sound bad even when the CPU isn't loaded.
-> timidity++ is a good example.
-> 
-> This happens with both 64 and 32 bit kernels, and no amount of
-> twiddling with kernel parameters (ACPI/CPU frequency scaling, apic,
-> preemption, etc.) seems to make any difference.
-> 
-> Can anyone here offer a suggestion?
-> 
-> (Currently, I'm running 2.6 series kernels.  I haven't yet tried
-> older versions.)
-> 
-> Eric
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+Yes, I agree, that's a welcome improvement.  I'm surprised if all
+those ia64_elf32_init checks are necessary, but better safe than sorry.
+
+Something crosses my mind, you'll know better than I: is it possible to
+construct ELFs or A.OUTs which would need the check in insert_vm_struct
+to be even more defensive?  That is, should it also be checking that
+vma->vm_end > vma->vm_start (vma being the one to be inserted)?
+Or that vma->vm_end <= TASK_SIZE?  If I remember rightly, a 0-length
+vma can cause confusion but survive quite well until exit_mmap's
+BUG_ON(mm->map_count).
+
+Hugh
 

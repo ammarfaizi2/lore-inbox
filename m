@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263053AbREWL6V>; Wed, 23 May 2001 07:58:21 -0400
+	id <S263057AbREWMDl>; Wed, 23 May 2001 08:03:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263057AbREWL6L>; Wed, 23 May 2001 07:58:11 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:12474 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S263053AbREWL6H>;
-	Wed, 23 May 2001 07:58:07 -0400
-Date: Wed, 23 May 2001 13:57:20 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200105231157.NAA80659.aeb@vlet.cwi.nl>
-To: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com
-Subject: Re: [PATCH] struct char_device
-Cc: Andries.Brouwer@cwi.nl, jgarzik@mandrakesoft.com,
-        linux-kernel@vger.kernel.org, viro@math.psu.edu
+	id <S263059AbREWMDb>; Wed, 23 May 2001 08:03:31 -0400
+Received: from [194.77.232.254] ([194.77.232.254]:61708 "EHLO
+	hugo10.ka.punkt.de") by vger.kernel.org with ESMTP
+	id <S263057AbREWMD1>; Wed, 23 May 2001 08:03:27 -0400
+Date: Wed, 23 May 2001 14:03:56 +0200
+From: Patric Mrawek <mrawek@punkt.de>
+To: linux-kernel@vger.kernel.org
+Subject: Boot Problem
+Message-ID: <20010523140356.A38056@punkt.de>
+Reply-To: Patric Mrawek <mrawek@punkt.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: WEB Internet Services Systemhaus GmbH
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan writes:
+Hi,
 
-    The current partitioning code consists of re-reading from disk. That is 
-    code that has to be present anyway even without an initrd since it is
-    needed for mounting other filesystems
+sometimes one of my servers doesn't boot correctly. Lilo reads the
+kernel-image, but doesn't decompress it. So the system won't
+continue booting.
 
-I am not quite sure what you are saying here.
-(For example, the "even" was unexpected.)
+Looks like:
+Loading linux...................
+(at this point the machine freezes)
 
-It is entirely possible to remove all partition table handling code
-from the kernel. User space can figure out where the partitions
-are supposed to be and tell the kernel.
-For the initial boot this user space can be in an initrd,
-or it could just be a boot parameter: rootdev=/dev/hda,
-rootpartition:offset=N,length=L, rootfstype=ext3.
+To be clear, most times it boots perfectly, but in 2 of 10 times it
+hangs.
+I tried different versions of Lilo (21.4.4-13 and 21.7-5) without success.
 
-mount does not need any partition reading code.
+The system is running Redhat 7.1 with the SGI XFS patches applied and
+the kernel is compressed with bzip.
 
-Andries
+[root@webtrends /root]# uname -a
+Linux webtrends 2.4.2-SGI_XFS_1.0 #8 SMP Die Mai 22 10:27:24
+CEST 2001 i686 unknown
 
+The Hardware is: Tyan Thunder LE 2510UANG, 2*PIII-933, 1GB of Ram,
+Mylex AccelRAID 352 configured for RAID 5
 
-[I conjecture that we'll want to start moving partition parsing
-out into userspace fairly soon. Indeed, soon we'll see EFI everywhere,
-and there is no good reason to build knowledge about that into the kernel.]
+Someone can give me a hint?
+
+Regards,
+Patric
+--
+Patric Mrawek, Networks & Security            fon : +49 721 9109 0
+WEB Internet Services Systemhaus GmbH         fax : +49 721 9109 100
+D-76135 Karlsruhe, Scheffelstr. 17a           http://www.punkt.de

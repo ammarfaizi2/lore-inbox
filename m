@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272420AbRIORTV>; Sat, 15 Sep 2001 13:19:21 -0400
+	id <S272422AbRIORkm>; Sat, 15 Sep 2001 13:40:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272421AbRIORTM>; Sat, 15 Sep 2001 13:19:12 -0400
-Received: from [208.48.139.185] ([208.48.139.185]:13703 "HELO
-	forty.greenhydrant.com") by vger.kernel.org with SMTP
-	id <S272420AbRIORS5>; Sat, 15 Sep 2001 13:18:57 -0400
-Date: Sat, 15 Sep 2001 10:19:14 -0700
-From: David Rees <dbr@greenhydrant.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ext2fs corruption again
-Message-ID: <20010915101914.A11845@greenhydrant.com>
-Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3BA3156C.9050704@korseby.net> <20010915144236.V26627@khan.acc.umu.se>
+	id <S272421AbRIORkc>; Sat, 15 Sep 2001 13:40:32 -0400
+Received: from ppp25.ts2-2.NewportNews.visi.net ([209.8.198.25]:50422 "EHLO
+	blimpo.internal.net") by vger.kernel.org with ESMTP
+	id <S272407AbRIORk1>; Sat, 15 Sep 2001 13:40:27 -0400
+Date: Sat, 15 Sep 2001 13:40:32 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Kristian Hogsberg <hogsberg@users.sourceforge.net>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org,
+        linux1394-devel@lists.sourceforge.net
+Subject: Re: [PATCH] modutils: ieee1394 device_id extraction
+Message-ID: <20010915134031.W8723@visi.net>
+In-Reply-To: <m38zfgmohp.fsf@dk20037170.bang-olufsen.dk> <20010915121233.U8723@visi.net> <m34rq4mnaa.fsf@dk20037170.bang-olufsen.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010915144236.V26627@khan.acc.umu.se>; from tao@acc.umu.se on Sat, Sep 15, 2001 at 02:42:36PM +0200
+In-Reply-To: <m34rq4mnaa.fsf@dk20037170.bang-olufsen.dk>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 15, 2001 at 02:42:36PM +0200, David Weinehall wrote:
-> On Sat, Sep 15, 2001 at 10:46:36AM +0200, Kristian wrote:
-> > Hello.
-> > 
-> > For about 3 weeks I sent a report that I've got very strange kernel
-> > error messages.
-> > 
-> > I changed my harddrive to IBM 75 GB because someone said that IBM's 40 GB 
-> > harddisks are not very stable.
+On Sat, Sep 15, 2001 at 06:28:13PM +0200, Kristian Hogsberg wrote:
+> Ben Collins <bcollins@debian.org> writes:
 > 
-> Just to get it out of the way, can you open your computer and check
-> what country the disk is manufactured in? There has been some complaints
-> on this list about IBM-disks fabricated in Hungary.
+> > On Sat, Sep 15, 2001 at 06:02:10PM +0200, Kristian Hogsberg wrote:
+> > > 
+> > > Hi,
+> > > 
+> > > I've been adding hotplug support to the ieee1394 subsystem, and the
+> > > ieee1394 stack in cvs now calls the usermode helper just like usb, pci
+> > > and the rest of them.  Next step is to extend depmod so it extracts
+> > > the device id tables from the 1394 device drivers, which is exactly
+> > > what the patch below does.
+> > > 
+> > > Keith, would you apply this to modutils?
+> > 
+> > Any ETA on converting the sbp2 driver to the hotplug/nodemgr interfaces?
+> > I can either sync the current CVS with Linus as-is, or wait till that is
+> > done, if you think it will be done soon.
+> 
+> I think you should merge it as-is.  The sbp2 driver will still work
+> with the hotplug system, it just does it's own probing now.  As for
+> the ETA, I'll be working on it this weekend, so I hope to have
+> something ready soon.
 
-It's not just the disks made in Hungary, I've had 3 IBM drives go bad on me
-in the last week after 3-4 months of operation 2 15GB 75GXPs made in
-Thailand (bad sectors), 1 40GB 40GV also made in Thailand (started making
-bad scratching noise, BIOS wouldn't detect it after that).  Still have a
-number of the 75GXPs in service, but I'm keeping my eye on them.
+Ok, I'll merge the current code then.
 
-Kristian's problem looks like it could be hardware problems of some sort
-leading to corruption.
-
--Dave
+-- 
+ .----------=======-=-======-=========-----------=====------------=-=-----.
+/  Ben Collins  --  ...on that fantastic voyage...  --  Debian GNU/Linux   \
+`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
+ `---=========------=======-------------=-=-----=-===-======-------=--=---'

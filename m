@@ -1,76 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbUCHJh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 04:37:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbUCHJh1
+	id S262341AbUCHJj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 04:39:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbUCHJj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 04:37:27 -0500
-Received: from 18-165-237-24-mvl.nwc.gci.net ([24.237.165.18]:16545 "EHLO
-	nevaeh-linux.org") by vger.kernel.org with ESMTP id S262328AbUCHJhZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 04:37:25 -0500
-Date: Mon, 8 Mar 2004 00:37:29 -0900 (AKST)
-From: Arthur Corliss <corliss@digitalmages.com>
-X-X-Sender: acorliss@bifrost.nevaeh-linux.org
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: 2.6.x BSD Process Accounting w/High UID
-In-Reply-To: <Pine.LNX.4.53.0403080921420.6609@gockel.physik3.uni-rostock.de>
-Message-ID: <Pine.LNX.4.58.0403080016290.15716@bifrost.nevaeh-linux.org>
-References: <Pine.LNX.4.44.0403041451360.20043-100000@chimarrao.boston.redhat.com>
- <Pine.LNX.4.58.0403041103500.24930@bifrost.nevaeh-linux.org>
- <Pine.LNX.4.53.0403042242190.29818@gockel.physik3.uni-rostock.de>
- <Pine.LNX.4.58.0403041324330.20616@bifrost.nevaeh-linux.org>
- <Pine.LNX.4.53.0403071820190.32060@gockel.physik3.uni-rostock.de>
- <Pine.LNX.4.58.0403071535290.1733@bifrost.nevaeh-linux.org>
- <Pine.LNX.4.53.0403080921420.6609@gockel.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 Mar 2004 04:39:26 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:61090 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262341AbUCHJjY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 04:39:24 -0500
+Date: Mon, 8 Mar 2004 10:39:21 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Justin Piszcz <jpiszcz@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.3 CD Burning Problems, Looks Kernel Realted
+Message-ID: <20040308093921.GR23525@suse.de>
+References: <Law10-F224x1h7AzQpq0004dd3c@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Law10-F224x1h7AzQpq0004dd3c@hotmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Mar 2004, Tim Schmielau wrote:
+On Sun, Mar 07 2004, Justin Piszcz wrote:
+> Not only cdrdao, but cdrecord as well only see's the SECOND IDE channel.
+> Why is this?
+> 
+> I have my main disk on a Promise board incase anyone wonders what that is 
+> (hde).
+> 
+> $ ./cdrecord dev=ATAPI --scanbus
+> Cdrecord-Clone 2.01a26 (i686-pc-linux-gnu) Copyright (C) 1995-2004 J?rg 
+> Schilling
+> scsidev: 'ATAPI'
+> devname: 'ATAPI'
+> scsibus: -2 target: -2 lun: -2
+> Warning: Using ATA Packet interface.
+> Warning: The related libscg interface code is in pre alpha.
+> Warning: There may be fatal problems.
+> Using libscg version 'schily-0.7'.
+> scsibus0:
+>        0,0,0     0) 'PLEXTOR ' 'CD-R   PX-W1210A' '1.10' Removable CD-ROM
+>        0,1,0     1) 'TOSHIBA ' 'DVD-ROM SD-M1712' '1004' Removable CD-ROM
+>        0,2,0     2) *
+>        0,3,0     3) *
+>        0,4,0     4) *
+>        0,5,0     5) *
+>        0,6,0     6) *
+>        0,7,0     7) *
 
-> Seems like I didn't get your point. What is broken on x86 other than high
-> UIDs?
+Why are you reporting it here and not to the maintainer of above tool?
+And why are you scanning the bus, when you know perfectly well where you
+devices are attached? dev=/dev/hdX and be done with it.
 
-I don't want to have us start talking in circles.  As someone else pointed out
-there's the time issues along with the uid/gid.  Both are admittedly only
-broken in corner cases not typically seen in the average server.
+-- 
+Jens Axboe
 
-> In which way are the BSD accounting tools broken? I'm unfamiliar with
-> them, but this might indeed allow us to estimate the user base.
-
-The 'last' tool seems to have, at a minimum, some formatting issues.  I don't
-think anyone would have noticed since most distros seem to use the one bundled
-with sysvinit, instead.  The dump-utmp utility seems to share the problem in
-that it doesn't print out completely useable/parseable output.
-
-> The chunk with the 64-bit comment actually is independent of the high UID
-> problem. It's there to prevent logging of wromng data on 64-bit arches,
-> and is completely optimized away by the compiler on 32 bit ones.
-> I could as well separate it into a different patch.
->
-> I'll do a new version of the patch anyways, as I missed to change another
-> comment.
-
-Gotcha.  I'll shut up, now.  ;-)
-
-> Yes, but how often do your users use more that 49 days of cputime?
-
-I'm just being pendantic.  I completely agree that a field with no predefined
-range has to be capped.  However, as a sys-admin I would say that I would
-still find such long windows useful if someone was complaining about an
-outtage for a service that basically only gets stopped/restarted during system
-reboots.  You could easily see what the history of interruptions would be for
-those services.
-
-> I'll wait a bit to see whether my other posting generates any feedback.
-
-I'll wait as well. I'm very eager to see (at least) the uid issue resolved so
-I don't have to keep hacking up kernel/glibc headers on new deployments.
-
-	--Arthur Corliss
-	  Bolverk's Lair -- http://arthur.corlissfamily.org/
-	  Digital Mages -- http://www.digitalmages.com/
-	  "Live Free or Die, the Only Way to Live" -- NH State Motto

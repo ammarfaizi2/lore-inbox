@@ -1,54 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318217AbSGXTng>; Wed, 24 Jul 2002 15:43:36 -0400
+	id <S318184AbSGXTmm>; Wed, 24 Jul 2002 15:42:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318253AbSGXTng>; Wed, 24 Jul 2002 15:43:36 -0400
-Received: from server1.mvpsoft.com ([64.105.236.213]:65221 "HELO
-	server1.mvpsoft.com") by vger.kernel.org with SMTP
-	id <S318217AbSGXTne>; Wed, 24 Jul 2002 15:43:34 -0400
-Message-ID: <3D3F037E.7010907@mvpsoft.com>
-Date: Wed, 24 Jul 2002 15:43:58 -0400
-From: Chris Snyder <csnyder@mvpsoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020713
-X-Accept-Language: en-us, en
+	id <S318191AbSGXTmm>; Wed, 24 Jul 2002 15:42:42 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:58564 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S318184AbSGXTml>;
+	Wed, 24 Jul 2002 15:42:41 -0400
+Date: Wed, 24 Jul 2002 14:40:15 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: linux-kernel@vger.kernel.org
+Subject: 2.5 Problem Reports Status 
+Message-ID: <Pine.LNX.4.44.0207241401570.26254-100000@dad.molina>
 MIME-Version: 1.0
-To: morten.helgesen@nextframe.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problems with Mylex DAC960P RAID controller
-References: <3D3ED215.3080900@mvpsoft.com> <20020724205019.A2356@sexything> <3D3EF5BD.5070901@mvpsoft.com> <20020724211625.B2356@sexything>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Morten Helgesen wrote:
->>>The DAC960 driver is quite verbose - this is what I`ve got :
->>>
->>>kernel: DAC960: ***** DAC960 RAID Driver Version 2.4.11 of 11 October 2001 
->>>*****
->>>kernel: DAC960: Copyright 1998-2001 by Leonard N. Zubkoff 
->>><lnz@dandelion.com>
->>
->>That's all the info it prints, then it hangs.  It seems to be that 
->>something's happening when it tries to detect the controller.
-> 
-> 
-> Yep - I see ... you haven`t got another linux box around (with a distro actually
-> installed :), do you ? I guess
-> it would be easier to debug this if you could move the controller to another
-> box and actually fiddle with the driver source ... debug printks can actually be
-> useful :)
-> 
-> I noticed that the return value from request_region() is not checked ...
+Here is a followup on a little project I've been playing around with for 
+the past few days.  This project is to track problem reports, oops, bugs, 
+etc for the devleopment kernel.  Hopefully it will prove useful.  Several 
+points about this:
 
-I tried putting the controller and drives into my main work machine 
-(running Gentoo Linux 1.2), and it also hangs, though it doesn't even 
-display the version info.  This leads me to believe that if I debugged 
-it on my machine, the results would be different than if I debugged it 
-on the server.
+- I'm NOT going to track the various typos, thinkos, and minor syntax 
+errors.  I'm aiming more for things such as the IDE problem, the broken 
+flock, and odd memory corruption problems which entail more extended 
+discussion than a simple one-line code fix.  It's going to be more of a 
+judgement call as to what is included and what isn't.
 
-Would there be any way for me to use this card as a normal SCSI card, 
-using a SCSI driver, and just not use the RAID functionality?  This 
-machine isn't going to be stressed very much, and software RAID should 
-be adequate.
+- In the extended discussions I plan on omitting various bits I consider 
+flamage not pertinent to the subject.  If anyone has a gripe with my 
+editing, please contact me off-list.
+
+- I received some feedback saying that I ought to merely point at archived 
+threads for fixes, etc.  I considered that, but it seems that an edited 
+discussion might be more useful.  This is especially evident in cases 
+where the flow of messages go from point to point.  In this case editing 
+out headers and superfluous attributions makes it look better to my eyes.
+
+- It was also suggested that I'm merely duplicating existing TODO lists 
+and other material.  Maybe.  One thing it has done was make me think more 
+than superficially about some issues I hadn't paid attention to before.  
+
+- To keep the list "clean" I plan on archiving previously fixed issues, 
+only brining forward to a new kernel release report those issues which 
+haven't been "closed."  An item's status can be open (discussion 
+continues, no generally agreed upon solution available), proposed fix (a 
+patch is available and is being tested and discussed),  tested fix 
+(generally agreed upon and in a major maintaners -- aa,ac,dj -- patchset 
+and ready for merging), and closed when it is integrated into the next 
+Linus-blessed version.
+
+The following list can be found at http://members.cox.net/tmolina
+
+Kernel Problem Reports as of 24 Jul 1900 Zulu
+
+Software Suspend Failure -- open
+big IRQ lock removal     -- proposed fix 
+CPU Detection            -- proposed fix
+Swapper oops             -- open
+Time jump/kernel freeze  -- open
+IDE problem              -- open
+RAID initialization      -- open
+free_pages_ok            -- proposed fix
+console lockup           -- open
+slab page problem        -- proposed fix 
+tcp_v6_get_port          -- proposed fix
+RAID shutdown            -- open
+Broken flock             -- proposed fix 
+odd memory corruption    -- proposed fix
+Broken Floppy            -- open
+
 

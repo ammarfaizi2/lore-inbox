@@ -1,48 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265206AbUGGPOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265033AbUGGPQl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265206AbUGGPOu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 11:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265210AbUGGPOu
+	id S265033AbUGGPQl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 11:16:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265203AbUGGPQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 11:14:50 -0400
-Received: from lucidpixels.com ([66.45.37.187]:40400 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S265207AbUGGPOr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 11:14:47 -0400
-Date: Wed, 7 Jul 2004 11:14:44 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
-To: linux-kernel@vger.kernel.org
-cc: justin.piszcz@mitretek.org
-Subject: Does Optimization Effect BogoMips Value?
-Message-ID: <Pine.LNX.4.60.0407071113400.24640@p500>
+	Wed, 7 Jul 2004 11:16:40 -0400
+Received: from mail005.syd.optusnet.com.au ([211.29.132.54]:42204 "EHLO
+	mail005.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265033AbUGGPQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 11:16:28 -0400
+Message-ID: <40EC13C5.2000101@kolivas.org>
+Date: Thu, 08 Jul 2004 01:16:21 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck kernel mailing list <ck@vds.kolivas.org>
+Subject: 2.6.7-ck5
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigCA89A3BF748FFBA6111DC75F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Three identical Virtual Machines with three different compiler flags to
-compile the entire distribution, in this case, Gentoo 2004.1.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigCA89A3BF748FFBA6111DC75F
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-However, why are the Bogomips values different (up to +82 points
-different)?
+Patchset update:
 
-Linux tux 2.6.7-gentoo-r6 #1 Wed Jun 30 05:56:57 EDT 2004 i686 Intel(R)
-Pentium(R) 4 CPU 2.60GHz GenuineIntel GNU/Linux
-Gentoo 2004.1 Compiled With: "-pipe -mcpu=i386": 1515MB FREE
-Calibrating delay loop... 4866.04 BogoMIPS
+These are patches designed to improve system responsiveness with 
+specific emphasis on the desktop, but suitable/configurable to any 
+workload. Read details and FAQ on my web page.
 
-Linux tux 2.6.7-gentoo-r6 #1 Wed Jun 30 14:01:09 Local time zone must be
-set--see zic manu i686 Intel(R) Pentium(R) 4 CPU 2.60GHz GenuineIntel
-GNU/Linux
-Gentoo 2004.1 Compiled With: "-Os -pipe -mcpu=i686": 1673MB FREE
-Calibrating delay loop... 4882.43 BogoMIPS
+http://kernel.kolivas.org
 
 
-Linux tux 2.6.7-gentoo-r6 #1 Wed Jun 30 13:58:50 Local time zone must be
-set--see zic manu i686 Intel(R) Pentium(R) 4 CPU 2.60GHz GenuineIntel
-GNU/Linux
-Gentoo 2004.1 Compiled With: "-O3 -pipe -mcpu=pentium4 -march=i686 -msse
--msse2 -fomit-frame-pointer -funroll-loops -ffast-math": 1635MB FREE
-Calibrating delay loop... 4800.51 BogoMIPS
+Added:
+cfq bugfix
+- cfq-bad-allocation.fix
+security updates
+- 1100_ip_tables.patch
+- 1105_CAN-2004-0497.patch
+- 1110_proc.patch
 
+
+Updated:
+Staircase cpu scheduler:
+- from_2.6.7_to_staircase7.9
+Batch (idle) scheduling:
+- schedbatch2.2.diff
+Isochronous (soft real time) scheduling:
+- schediso2.2.diff
+Graphical boot:
+- bootsplash-3.1.4-sp3-2.6.7.diff
+
+
+All patches:
+-from_2.6.7_to_staircase7.9
+-schedrange.diff
+-schedbatch2.2.diff
+-schediso2.2.diff
+-autoswap.diff
+-vm_autoregulate2.diff
+-supermount-ng204.diff
+-defaultcfq.diff
+-config_hz.diff
+-bootsplash-3.1.4-sp3-2.6.7.diff
+-cfq-bad-allocation.fix
+-1100_ip_tables.patch
+-1105_CAN-2004-0497.patch
+-1110_proc.patch
+-ck5version.diff
+
+
+Please feel free to send comments, queries, suggestions, patches.
+Con
+
+--------------enigCA89A3BF748FFBA6111DC75F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFA7BPFZUg7+tp6mRURAp6CAJwIxlxRxsdI3pY2sFkmW4/nZfGnuwCfW8of
+Mr+Y2D+xdfwU8+n7uox5zbE=
+=IPn/
+-----END PGP SIGNATURE-----
+
+--------------enigCA89A3BF748FFBA6111DC75F--

@@ -1,103 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267371AbUG2ARp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266466AbUG2AU2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267371AbUG2ARp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 20:17:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267369AbUG2ARo
+	id S266466AbUG2AU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 20:20:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266409AbUG2ASX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 20:17:44 -0400
-Received: from hqemgate02.nvidia.com ([216.228.112.145]:5896 "EHLO
-	hqemgate02.nvidia.com") by vger.kernel.org with ESMTP
-	id S267371AbUG2ANO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 20:13:14 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C47500.D12EB678"
-Subject: [PATCH 2.6.8-rc2] intel8x0.c to include CK804 audio support
-Date: Wed, 28 Jul 2004 17:13:04 -0700
-Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B03F9600@hqemmail02.nvidia.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.6.8-rc2] intel8x0.c to include CK804 audio support
-Thread-Index: AcR0yTYMRxawiVFBRo+WsJay75mgOQANsOXg
-From: "Andrew Chew" <achew@nvidia.com>
-To: "Takashi Iwai" <tiwai@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 29 Jul 2004 00:12:59.0179 (UTC) FILETIME=[CE1EC7B0:01C47500]
+	Wed, 28 Jul 2004 20:18:23 -0400
+Received: from holomorphy.com ([207.189.100.168]:6032 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267377AbUG2AOz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 20:14:55 -0400
+Date: Wed, 28 Jul 2004 17:14:44 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Albert Cahalan <albert@users.sf.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>, kaos@ocs.com.au,
+       chrisw@osdl.org, jbarnes@engr.sgi.com, kiran@in.ibm.com,
+       dipankar@in.ibm.com
+Subject: Re: [RFC] Lock free fd lookup
+Message-ID: <20040729001444.GL2334@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Albert Cahalan <albert@users.sf.net>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+	kaos@ocs.com.au, chrisw@osdl.org, jbarnes@engr.sgi.com,
+	kiran@in.ibm.com, dipankar@in.ibm.com
+References: <1090091875.1232.456.camel@cube>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1090091875.1232.456.camel@cube>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Keith Owens writes:
+>> Writer vs. writer starvation on NUMA is a lot harder.  I don't know
+>> of any algorithm that handles lists with lots of concurrent updates
+>> and also scales well on large cpus, unless the underlying hardware
+>> is fair in its handling of exclusive cache lines.
 
-------_=_NextPart_001_01C47500.D12EB678
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+On Sat, Jul 17, 2004 at 03:17:55PM -0400, Albert Cahalan wrote:
+> How about MCS (Mellor-Crummey and Scott) locks?
+> Linux code:
+> http://oss.software.ibm.com/linux/patches/?patch_id=218
+> Something supposedly better:
+> http://user.it.uu.se/~zoranr/rh_lock/
+> Scott's list of 11 scalable synchronization algorithms:
+> http://www.cs.rochester.edu/u/scott/synchronization/pseudocode/ss.html
+> Scott's collection of papers and so on:
+> http://www.cs.rochester.edu/u/scott/synchronization/
+> Simply asking Scott might be a wise move. He'd likely know of anything
+> else that might fit the requirements. That's scott at cs.rochester.edu
 
-I left out support for two other NVIDIA audio controllers in my previous
-patch.
+Did anyone follow up with Scott on this?
 
-Attached is a patch which adds audio support for MCP04 and MCP2S audio
-controllers for the intel8x0 audio driver.  This patch is to be applied
-on top of the one I had previously submitted (so in total, there should
-be CK804, MCP04, and MCP2S added to the intel8x0 driver as of
-2.6.8-rc2).
 
-------_=_NextPart_001_01C47500.D12EB678
-Content-Type: application/octet-stream;
-	name="intel8x0.diff2"
-Content-Transfer-Encoding: base64
-Content-Description: intel8x0.diff2
-Content-Disposition: attachment;
-	filename="intel8x0.diff2"
-
-ZGlmZiAtcnUgbGludXgtMi42LjctcmMyL2luY2x1ZGUvbGludXgvcGNpX2lkcy5oIGxpbnV4L2lu
-Y2x1ZGUvbGludXgvcGNpX2lkcy5oCi0tLSBsaW51eC0yLjYuNy1yYzIvaW5jbHVkZS9saW51eC9w
-Y2lfaWRzLmgJMjAwNC0wNy0yOCAxNjo1NjozNi4wMDAwMDAwMDAgLTA3MDAKKysrIGxpbnV4L2lu
-Y2x1ZGUvbGludXgvcGNpX2lkcy5oCTIwMDQtMDctMjggMTY6MzM6NTAuMDAwMDAwMDAwIC0wNzAw
-CkBAIC0xMDY1LDYgKzEwNjUsNyBAQAogI2RlZmluZSBQQ0lfREVWSUNFX0lEX05WSURJQV9ORk9S
-Q0VfTUNQMDRfU0FUQQkweDAwMzYKICNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfTlZFTkVU
-XzEwCQkweDAwMzcKICNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfTlZFTkVUXzExCQkweDAw
-MzgKKyNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfTUNQMDRfQVVESU8JMHgwMDNhCiAjZGVm
-aW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX05GT1JDRV9NQ1AwNF9TQVRBMgkweDAwM2UKICNkZWZp
-bmUgUENJX0RFVklDRV9JRF9OVklESUFfTkZPUkNFX0NLODA0X0lERQkweDAwNTMKICNkZWZpbmUg
-UENJX0RFVklDRV9JRF9OVklESUFfTkZPUkNFX0NLODA0X1NBVEEJMHgwMDU0CkBAIC0xMDc3LDYg
-KzEwNzgsNyBAQAogI2RlZmluZSBQQ0lfREVWSUNFX0lEX05WSURJQV9NQ1AyX0FVRElPCQkweDAw
-NmEKICNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfTkZPUkNFMlNfSURFCTB4MDA4NQogI2Rl
-ZmluZSBQQ0lfREVWSUNFX0lEX05WSURJQV9OVkVORVRfNAkJMHgwMDg2CisjZGVmaW5lIFBDSV9E
-RVZJQ0VfSURfTlZJRElBX01DUDJTX0FVRElPCTB4MDA4YQogI2RlZmluZSBQQ0lfREVWSUNFX0lE
-X05WSURJQV9OVkVORVRfNQkJMHgwMDhjCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX05G
-T1JDRTJTX1NBVEEJMHgwMDhlCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX0lUTlQyCQkw
-eDAwQTAKZGlmZiAtcnUgbGludXgtMi42LjctcmMyL3NvdW5kL3BjaS9pbnRlbDh4MC5jIGxpbnV4
-L3NvdW5kL3BjaS9pbnRlbDh4MC5jCi0tLSBsaW51eC0yLjYuNy1yYzIvc291bmQvcGNpL2ludGVs
-OHgwLmMJMjAwNC0wNy0yOCAxNjozMToyOC4wMDAwMDAwMDAgLTA3MDAKKysrIGxpbnV4L3NvdW5k
-L3BjaS9pbnRlbDh4MC5jCTIwMDQtMDctMjggMTY6MzQ6MjUuMDAwMDAwMDAwIC0wNzAwCkBAIC00
-NjYsOSArNDY2LDExIEBACiAJeyAweDEwMzksIDB4NzAxMiwgUENJX0FOWV9JRCwgUENJX0FOWV9J
-RCwgMCwgMCwgREVWSUNFX1NJUyB9LAkvKiBTSTcwMTIgKi8KIAl7IDB4MTBkZSwgMHgwMWIxLCBQ
-Q0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCBERVZJQ0VfTkZPUkNFIH0sCS8qIE5GT1JDRSAq
-LwogCXsgMHgxMGRlLCAweDAwNmEsIFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIDAsIDAsIERFVklD
-RV9ORk9SQ0UgfSwJLyogTkZPUkNFMiAqLworCXsgMHgxMGRlLCAweDAwOGEsIFBDSV9BTllfSUQs
-IFBDSV9BTllfSUQsIDAsIDAsIERFVklDRV9ORk9SQ0UgfSwJLyogTkZPUkNFMiAqLwogCXsgMHgx
-MGRlLCAweDAwZGEsIFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIDAsIDAsIERFVklDRV9ORk9SQ0Ug
-fSwJLyogTkZPUkNFMyAqLwogCXsgMHgxMGRlLCAweDAwZWEsIFBDSV9BTllfSUQsIFBDSV9BTllf
-SUQsIDAsIDAsIERFVklDRV9ORk9SQ0UgfSwJLyogQ0s4UyAqLwogCXsgMHgxMGRlLCAweDAwNTks
-IFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIDAsIDAsIERFVklDRV9ORk9SQ0UgfSwJLyogQ0s4MDQg
-Ki8KKwl7IDB4MTBkZSwgMHgwMDNhLCBQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCBERVZJ
-Q0VfTkZPUkNFIH0sCS8qIE1DUDA0ICovCiAJeyAweDEwMjIsIDB4NzQ2ZCwgUENJX0FOWV9JRCwg
-UENJX0FOWV9JRCwgMCwgMCwgREVWSUNFX0lOVEVMIH0sCS8qIEFNRDgxMTEgKi8KIAl7IDB4MTAy
-MiwgMHg3NDQ1LCBQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCBERVZJQ0VfSU5URUwgfSwJ
-LyogQU1ENzY4ICovCiAJeyAweDEwYjksIDB4NTQ1NSwgUENJX0FOWV9JRCwgUENJX0FOWV9JRCwg
-MCwgMCwgREVWSUNFX0FMSSB9LCAgIC8qIEFsaTU0NTUgKi8KQEAgLTI2MTYsOSArMjYxOCwxMSBA
-QAogCXsgUENJX0RFVklDRV9JRF9TSV83MDEyLCAiU2lTIFNJNzAxMiIgfSwKIAl7IFBDSV9ERVZJ
-Q0VfSURfTlZJRElBX01DUF9BVURJTywgIk5WaWRpYSBuRm9yY2UiIH0sCiAJeyBQQ0lfREVWSUNF
-X0lEX05WSURJQV9NQ1AyX0FVRElPLCAiTlZpZGlhIG5Gb3JjZTIiIH0sCisJeyBQQ0lfREVWSUNF
-X0lEX05WSURJQV9NQ1AyU19BVURJTywgIk5WaWRpYSBuRm9yY2UyIiB9LAogCXsgUENJX0RFVklD
-RV9JRF9OVklESUFfTUNQM19BVURJTywgIk5WaWRpYSBuRm9yY2UzIiB9LAogCXsgUENJX0RFVklD
-RV9JRF9OVklESUFfQ0s4U19BVURJTywgIk5WaWRpYSBDSzhTIiB9LAogCXsgUENJX0RFVklDRV9J
-RF9OVklESUFfQ0s4MDRfQVVESU8sICJOVmlkaWEgQ0s4MDQiIH0sCisJeyBQQ0lfREVWSUNFX0lE
-X05WSURJQV9NQ1AwNF9BVURJTywgIk5WaWRpYSBNQ1AwNCIgfSwKIAl7IDB4NzQ2ZCwgIkFNRCBB
-TUQ4MTExIiB9LAogCXsgMHg3NDQ1LCAiQU1EIEFNRDc2OCIgfSwKIAl7IDB4NTQ1NSwgIkFMaSBN
-NTQ1NSIgfSwK
-
-------_=_NextPart_001_01C47500.D12EB678--
+-- wli

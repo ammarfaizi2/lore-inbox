@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131075AbRAXRtr>; Wed, 24 Jan 2001 12:49:47 -0500
+	id <S131583AbRAXRu5>; Wed, 24 Jan 2001 12:50:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131113AbRAXRth>; Wed, 24 Jan 2001 12:49:37 -0500
-Received: from piglet.twiddle.net ([207.104.6.26]:29701 "EHLO
-	piglet.twiddle.net") by vger.kernel.org with ESMTP
-	id <S131075AbRAXRt1>; Wed, 24 Jan 2001 12:49:27 -0500
-Date: Wed, 24 Jan 2001 09:49:05 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Russell King <rmk@arm.linux.org.uk>, Hubert Mantel <mantel@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Compatibility issue with 2.2.19pre7
-Message-ID: <20010124094905.A15372@twiddle.net>
-In-Reply-To: <20010110163158.F19503@athlon.random> <200101102209.f0AM9N803486@flint.arm.linux.org.uk> <20010111005924.L29093@athlon.random> <20010123235115.A14786@twiddle.net> <20010124100240.A4526@athlon.random> <20010124015149.A14891@twiddle.net> <20010124132144.A13308@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <20010124132144.A13308@athlon.random>
+	id <S131576AbRAXRuh>; Wed, 24 Jan 2001 12:50:37 -0500
+Received: from femail1.rdc1.on.home.com ([24.2.9.88]:28381 "EHLO
+	femail1.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S131568AbRAXRua>; Wed, 24 Jan 2001 12:50:30 -0500
+Message-ID: <3A6F15CC.286D1F05@Home.net>
+Date: Wed, 24 Jan 2001 12:50:05 -0500
+From: Shawn Starr <Shawn.Starr@Home.net>
+Organization: Visualnet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@innominate.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at slab.c:1542!(2.4.1-pre9)
+In-Reply-To: <3A6C5058.C5AA7681@zaralinux.com> <3A6CB620.469A15A9@Home.net> <3A6ED16E.E8343678@innominate.de>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 24, 2001 at 01:21:44PM +0100, Andrea Arcangeli wrote:
-> For example you don't know if there's another object that will cast
-> the int pointer back to char pointer before dereferencing. That would
-> get a defined runtime behaviour on all archs.
+True, It's just odd that we're having the same problem with the X server, so its
+a double whammy ;)
+Daniel Phillips wrote:
 
-No.  The representation of "int*" and "char*" needn't be the same.
-And isn't on old word addressed machines.
+> Shawn Starr wrote:
+> > This is not a kernel bug, This is a bug in the XFree86 TrueType rendering
+> > extention. This has been discussed on the Xpert XFree86 mailing list. There
+> > is a fix in the works (depends on the TrueType fonts your using).
+>
+> A BUG is a BUG:
+>
+> > > kernel BUG at slab.c:1542!
+>
+> The kernel should never oops, no matter what user space does to it.
+>
+> --
+> Daniel
 
-
-r~
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

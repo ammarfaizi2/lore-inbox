@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135678AbREFNV6>; Sun, 6 May 2001 09:21:58 -0400
+	id <S135685AbREFNqX>; Sun, 6 May 2001 09:46:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135682AbREFNVr>; Sun, 6 May 2001 09:21:47 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:44805 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135678AbREFNVi>; Sun, 6 May 2001 09:21:38 -0400
-Subject: Re: O2Micro PCMCIA card support
-To: klaus@totalnet.ro (Claudiu Constantinescu)
-Date: Sun, 6 May 2001 14:25:27 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0105061304120.8055-100000@puzzlewell.totalnet.ro> from "Claudiu Constantinescu" at May 06, 2001 01:05:09 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135686AbREFNqO>; Sun, 6 May 2001 09:46:14 -0400
+Received: from smtprelay.abs.adelphia.net ([64.8.20.11]:44776 "EHLO
+	smtprelay2.abs.adelphia.net") by vger.kernel.org with ESMTP
+	id <S135685AbREFNqB>; Sun, 6 May 2001 09:46:01 -0400
+Message-ID: <3AF57F72.A075ADBC@adelphia.net>
+Date: Sun, 06 May 2001 09:44:34 -0700
+From: Stephen Wille Padnos <stephenwp@adelphia.net>
+Organization: Thoth Systems, Inc.
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: ptb@it.uc3m.es
+CC: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Interrupting select
+In-Reply-To: <200105022344.f42NiZ727894@oboe.it.uc3m.es>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14wOXS-00027T-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> it seems that it probes only the ISA bus?), but the yenta module (mistakenly?)
-> detects it as an yenta socket, but tries to load two memory_cs modules instead
-> of the appropriate card drivers. The output of lspci shows:
+"Peter T. Breuer" wrote:
+[snip]> um, shouldn't you be testing for res==-1, as well?
 
-Correctly I think. Its a full cardbus
+> > specifically that condition and errno==EINTR is how I'd expect
+> > signals to effect the loop...
 
-> 00:03.0 CardBus bridge: O2 Micro, Inc. 6836 (rev 62)
-> 00:03.1 CardBus bridge: O2 Micro, Inc. 6836 (rev 62)
-> 
-> 	Am I missing something or is the support for this card broken?
+[snip]
 
-The yenta stuff should be solid by now. Loading memory drivers tends to 
-indicate a timing problem is still there.
+> I assumed that "error" is something like trying to  watch for a
+> negative number or zero descriptors, or having a fd_set that doesn't
+> contain open fd's. The reason I assumed that is because EINTR is not
+> listed as a possible:
+>
+>
+> ERRORS
+>        EBADF   An invalid file descriptor was given in one of the
+>                sets.
+>        EINTR   A non blocked signal was caught.
 
-> 	One more thing: Is there any planned support for AX88190 cards? The
-> vendor distributed modified version of 8390 driver is available only
-> for pcmcia-cs, but sometimes freezes the whole system.
+umm ^^^^^^ - it looks like it's listed here :)
 
-The AX88190 is a very broken 8390 clone. It requires ugly hacks you dont want
-in a generic 8390 driver.
+>        EINVAL  n is negative.
+>        ENOMEM  select was unable to allocate memory for  internal
+>                tables.
+

@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129896AbRAJPsu>; Wed, 10 Jan 2001 10:48:50 -0500
+	id <S129778AbRAJPta>; Wed, 10 Jan 2001 10:49:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130110AbRAJPsl>; Wed, 10 Jan 2001 10:48:41 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27411 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129896AbRAJPsV>; Wed, 10 Jan 2001 10:48:21 -0500
-Subject: Re: Anybody got 2.4.0 running on a 386 ?
-To: rob@sysgo.de (Robert Kaiser)
-Date: Wed, 10 Jan 2001 15:49:34 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), richardj_moore@uk.ibm.com,
-        tleete@mountain.net (Tom Leete), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0101101559230.19382-100000@dagobert.svc.sysgo.de> from "Robert Kaiser" at Jan 10, 2001 04:04:34 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130110AbRAJPtV>; Wed, 10 Jan 2001 10:49:21 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:45836 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S129778AbRAJPtG>; Wed, 10 Jan 2001 10:49:06 -0500
+Date: Wed, 10 Jan 2001 10:48:57 -0500
+From: Chris Mason <mason@suse.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Marc Lehmann <pcg@goof.com>, reiserfs-list@namesys.com,
+        linux-kernel@vger.kernel.org, vs@namesys.botik.ru
+Subject: Re: [reiserfs-list] major security bug in reiserfs (may affect SuSE
+ Linux)
+Message-ID: <169460000.979141737@tiny>
+In-Reply-To: <Pine.GSO.4.21.0101092129380.11512-100000@weyl.math.psu.edu>
+X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14GNVJ-0000Sz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > So called 'sigma sigma' 386 and higher. Ie we dont support the 386 with the
-> > 32bit mul bugs.
-> 
-> Is this a new thing in 2.4.0 ? Could it possibly cause a crash as
-> early as pagetable_init() ?
 
-We've never supported pre sigmasigma cpus although someone posted a patch to
-Linux 1.2 once. You won't find many of the cpus before that. At the time 386
-was priced like a Xeon is now and most were recalled/pulled when the mul bug
-came out. 
+
+On Wednesday, January 10, 2001 12:47:17 AM -0500 Alexander Viro
+<viro@math.psu.edu> wrote:
+
+> However, actual code really looks like the end of filldir(). If that's the
+> case we are deep in it - argument of filldir() gets screwed. buf, that is.
+> Since it happens after we've already done dereferencing of buf in
+> filldir() and we don't trigger them... Fsck knows. copy_to_user() and
+> put_user() should not be able to screw the kernel stack.
+> 
+In filldir, I don't like the line where we ((char *)dirent += reclen ;  If
+reclen is much larger than the buffer sent from userspace, I don't see how
+we stay in bounds.
+
+-chris
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

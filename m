@@ -1,31 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317030AbSG1Sij>; Sun, 28 Jul 2002 14:38:39 -0400
+	id <S317012AbSG1Shn>; Sun, 28 Jul 2002 14:37:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317035AbSG1Sij>; Sun, 28 Jul 2002 14:38:39 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:17157 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S317030AbSG1Sih>; Sun, 28 Jul 2002 14:38:37 -0400
-Date: Sun, 28 Jul 2002 19:41:57 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 11/13] don't hold i_sem during O_DIRECT writes to blockdevs
-Message-ID: <20020728194157.A15466@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@zip.com.au>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <3D439E43.5F2DEE3D@zip.com.au> <20020728120611.A7332@infradead.org> <3D44302C.1082D6DC@zip.com.au> <20020728190544.A14314@infradead.org>
+	id <S317022AbSG1Shn>; Sun, 28 Jul 2002 14:37:43 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:50108 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S317012AbSG1Shm>;
+	Sun, 28 Jul 2002 14:37:42 -0400
+Date: Sun, 28 Jul 2002 20:40:51 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
+Subject: Re: keyboard ONLY functions in 2.5.27 with local APIC on for UP
+Message-ID: <20020728204051.A15238@ucw.cz>
+References: <20020720222905.GA15288@outpost.ds9a.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020728190544.A14314@infradead.org>; from hch@infradead.org on Sun, Jul 28, 2002 at 07:05:44PM +0100
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020720222905.GA15288@outpost.ds9a.nl>; from ahu@ds9a.nl on Sun, Jul 21, 2002 at 12:29:05AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 28, 2002 at 07:05:44PM +0100, Christoph Hellwig wrote:
-> And I think we can expect reasonable ulimits for root nowdays, although
-> I'm open for discussions on that one.
+On Sun, Jul 21, 2002 at 12:29:05AM +0200, bert hubert wrote:
+> Vojtech, list,
+> 
+> I find that my keyboard only works if I turn on the local APIC on UP on my
+> laptop. The only clue I see scrolling past is something about 'AT keyboard
+> timeout, not present?'. I don't have my nullmodem cable handy to check it
+> out further.
+> 
+> I do see it talking about interrupt 1 and IO 0x60. I've also compiled it
+> with the SERIO debugging setting and ATKBD debugging on, but I still don't
+> see anything useful.
+> 
+> Every once in a while it would say 'unknown scancode from keybord set 0,
+> 0x2' and then some more numbers. I feel bad that I can't be anymore specific
+> right now.
+> 
+> If you want me to do some more checking, let me know, and I'll hook up the
+> serial.
 
-Forget about this one - I remembered the code wrongly.
+Can you check with 2.5.29? Several bugs in the keyboard support were
+fixed.
 
+-- 
+Vojtech Pavlik
+SuSE Labs

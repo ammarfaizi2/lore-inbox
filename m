@@ -1,67 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293695AbSCHERA>; Thu, 7 Mar 2002 23:17:00 -0500
+	id <S310679AbSCHEgz>; Thu, 7 Mar 2002 23:36:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310679AbSCHEQu>; Thu, 7 Mar 2002 23:16:50 -0500
-Received: from mark.mielke.cc ([216.209.85.42]:5647 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S293695AbSCHEQh>;
-	Thu, 7 Mar 2002 23:16:37 -0500
-Date: Thu, 7 Mar 2002 23:12:11 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Larry McVoy <lm@work.bitmover.com>,
-        michael bernstein <bernstein.46@osu.edu>,
-        Larry McVoy <lm@bitmover.com>, Andrew Morton <akpm@zip.com.au>,
-        Troy Benjegerdes <hozer@drgw.net>, Pavel Machek <pavel@ucw.cz>,
-        Kent Borg <kentborg@borg.org>,
-        The Open Source Club at The Ohio State University 
-	<opensource-admin@cis.ohio-state.edu>,
-        linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
-Subject: Open Source should stand on its own two legs.
-Message-ID: <20020307231211.B6143@mark.mielke.cc>
-In-Reply-To: <20020307121509.I20271@work.bitmover.com> <10B32CBD-320F-11D6-BAF0-003065C60BC2@osu.edu> <20020307130751.D1657@work.bitmover.com>
+	id <S310680AbSCHEgp>; Thu, 7 Mar 2002 23:36:45 -0500
+Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:38906 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S310679AbSCHEg3>; Thu, 7 Mar 2002 23:36:29 -0500
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Thu, 7 Mar 2002 21:35:31 -0700
+To: Stephen Samuel <samuel@bcgreen.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
+Message-ID: <20020307213531.F1566@turbolinux.com>
+Mail-Followup-To: Stephen Samuel <samuel@bcgreen.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020305165233.A28212@fireball.zosima.org> <20020305154147.A6211@vger.timpanogas.org> <3C8554F4.9000403@bcgreen.com> <004301c1c4a6$ab218340$b0d3fea9@pcs686> <3C881649.2030000@bcgreen.com> <20020307203227.A10957@hq.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020307130751.D1657@work.bitmover.com>; from lm@bitmover.com on Thu, Mar 07, 2002 at 01:07:51PM -0800
+In-Reply-To: <20020307203227.A10957@hq.fsmlabs.com>
+User-Agent: Mutt/1.3.22i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 07, 2002 at 01:07:51PM -0800, Larry McVoy wrote:
-> > I'm a poor college student
-> And I have two kids on their way to college.  Grow up.
+On Thu, Mar 07, 2002 at 05:39:21PM -0800, Stephen Samuel wrote:
+> note: this solution DOES NOT PRECLUDE YOU (or anybody else) FROM
+> USING BITKEEPER (or any other proprietary solution) in the privacy of
+> your office and/or home -- even if you want to do Linux development
+> with it.  It's simply about what occurs in the OFFICIAL Linux kernel
+> code tree, which probably has a reasonably high proportion of people
+> who are both politically and financially sensitive to the idea of
+> being almost required to use an closed source product to work on
+> their open source 'baby'.
 
-Anybody who limits their ideology to (solely) how much (or little)
-something costs, has missed the point entirely.
+Do you even know what you are talking about?  It is clear you don't.
 
-As such, poor college students shouldn't assume that their new world
-religion regarding software should apply to everyone to the extreme
-that they feel it should apply to. The benefits of Open Source are
-*NOT* about money. The fact that Open Source projects tend to be free
-is one of the effects of the theoretically optimal path that Open
-Source ideology suggests is possible. It is not a *requirement*.
+1) You do NOT need to buy BK to use it on any open-source project,
+   as long as you are willing to have the changelogs posted on the
+   BK website.  Since most open-source projects host their entire
+   CVS repository on a public website, this isn't any additional
+   restriction.
 
-If Open Source, the Open Source being stouted, is so wonderful, how
-about letting it prove *itself*. If anybody needs to boycott superior
-products in order to allow Open Source products to compete, all that
-it being shown is that the Open Source movement may *not* be the
-answer. After all, if Open Source projects cannot compete with
-non-Open Source projects -- how can it be claimed that Open Source
-is a valid and practical ideology?
+2) Nobody is forcing anyone to use BK to contribute to the kernel.  The
+   kernel is still available as a tarball and incremental patches.  Linus
+   is still accepting patches in email just like he always did (or didn't,
+   as the case may be).
 
-Open Source fanatics: Let your ideology stand up for itself. Don't
-cheat.
-
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

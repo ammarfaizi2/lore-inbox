@@ -1,54 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRAFA6X>; Fri, 5 Jan 2001 19:58:23 -0500
+	id <S129324AbRAFBCd>; Fri, 5 Jan 2001 20:02:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129324AbRAFA6N>; Fri, 5 Jan 2001 19:58:13 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:64017 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129267AbRAFA6D>; Fri, 5 Jan 2001 19:58:03 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Linux 2.4.0-ac2
-Date: 5 Jan 2001 16:57:55 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <935qij$62d$1@cesium.transmeta.com>
-In-Reply-To: <E14Eale-000873-00@the-village.bc.nu> <20010105140246.A838@evaner.penguinpowered.com>
+	id <S131452AbRAFBCX>; Fri, 5 Jan 2001 20:02:23 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:33114 "EHLO
+	amsmta01-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S129324AbRAFBCN>; Fri, 5 Jan 2001 20:02:13 -0500
+Date: Sat, 6 Jan 2001 03:09:15 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: Tim Wright <timw@splhi.com>
+cc: Torrey Hoffman <torrey.hoffman@myrio.com>, Sven Koch <haegar@cut.de>,
+        Kernel devel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18 and Maxtor 96147H6 (61 GB)
+In-Reply-To: <20010105152345.A2100@scutter.sequent.com>
+Message-ID: <Pine.LNX.4.21.0101060306210.6317-100000@server.serve.me.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20010105140246.A838@evaner.penguinpowered.com>
-By author:    Evan Thompson <evaner@bigfoot.com>
-In newsgroup: linux.dev.kernel
->
-> Hmm...seems as though Alan released 2.4.0-ac2 1 year ago (check out
-> the time stamps on ftp.kernel.org/pub/linux/kernel/people/alan/2.4/)
->
 
-zeus 1 % ls -l /pub/linux/kernel/people/alan/2.4/
-total 4400
--rw-r--r--   1 korg     korg      1015191 Jan  4 17:44 patch-2.4.0-ac1.bz2
--rw-r--r--   1 korg     korg          248 Jan  4 17:44 patch-2.4.0-ac1.bz2.sign
--rw-r--r--   1 korg     korg      1211734 Jan  4 17:44 patch-2.4.0-ac1.gz
--rw-r--r--   1 korg     korg          248 Jan  4 17:44 patch-2.4.0-ac1.gz.sign
--rw-r--r--   1 korg     korg      1020542 Jan  5 09:21 patch-2.4.0-ac2.bz2
--rw-r--r--   1 korg     korg          248 Jan  5 09:21 patch-2.4.0-ac2.bz2.sign
--rw-r--r--   1 korg     korg      1219124 Jan  5 09:21 patch-2.4.0-ac2.gz
--rw-r--r--   1 korg     korg          248 Jan  5 09:21 patch-2.4.0-ac2.gz.sign
+> I had a similar situation except I was more interested in the performance
+> difference. Went from ~4MB/s with the 430HX controller to ~12.5MB/s with
+> the promise. This on an old Pentium system.
+
+The network is 10 mbit, so 4 MB/sec is no good in this case.
+I've got the thing running, with (ibm)setmax. Don't hang the disk in a
+machine that does handle > 32 GB, because it will screw the limit the
+setmax just set.
+
+> > > I solved the problem by getting a Promise Ultra 100 controller
+> > > and putting the drive on that. Works perfectly under Linux 
+> > > Mandrake 2.2.17-mdk-21 - it shows up as /dev/hde.  They are
+> > > cheap controllers if you don't get the RAID version.
+> > 
+> > Thanx.. Will try that. New machine costs more.
+> >  
+> 
+> Vanilla 2.2 kernels don't have this support (at least not as on 2.2.18).
+> If you're not running Mandrake, grab Andre Hedrick's excellent ide patch.
+
+Already installed :)
+
+> One thing you may like to know. If you want the drives attached to the new
+> controller to be /dev/hda..., then edit lilo.conf and add
+> 	append="pci=reverse"
+> to your patched kernel entry. Oh, and if you ever need to bootstrap one of
+> these puppies with a kernel that doesn't have the drivers, you can use
+> 	append="ide0=0xe000,0xd802 ide1=0xd400,0xd002"
+> to be able to access the drive attached to the Promise controller using the
+> standard ide driver.
+> 
+> Hope this helps.
+
+Thanx. If I get anymore problems I'll switch to a Promise controller. 2
+days to setup a plain Linux box is a bit much.. 
+
+Main problem I've had is that the software clipping bugs, or that my BIOS
+in teh newer machine screws things up.
+
+> Tim
+
+	Regards,
+
+		
+		Igmar
 
 
-This is why I hate FTP.  This ALWAYS happens to someone when their FTP
-client tries to be smart and convert dates incorrectly.
-
-       -hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271498AbRIPK01>; Sun, 16 Sep 2001 06:26:27 -0400
+	id <S271569AbRIPKwJ>; Sun, 16 Sep 2001 06:52:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271569AbRIPK0R>; Sun, 16 Sep 2001 06:26:17 -0400
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:7433 "HELO mail.pha.ha-vel.cz")
-	by vger.kernel.org with SMTP id <S271498AbRIPK0D>;
-	Sun, 16 Sep 2001 06:26:03 -0400
-Date: Sun, 16 Sep 2001 12:26:24 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux USB Mailinglist <linux-usb-devel@lists.sourceforge.net>,
-        torvalds@transmeta.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [BUG] hiddev.c 2.4.10-pre9
-Message-ID: <20010916122624.A1063@suse.cz>
-In-Reply-To: <Pine.LNX.4.33.0109161202490.30202-100000@titan.lahn.de>
-Mime-Version: 1.0
+	id <S271645AbRIPKv7>; Sun, 16 Sep 2001 06:51:59 -0400
+Received: from a10d14hel.dial.kolumbus.fi ([212.54.29.10]:17542 "EHLO
+	porkkala.jlaako.pp.fi") by vger.kernel.org with ESMTP
+	id <S271569AbRIPKvz>; Sun, 16 Sep 2001 06:51:55 -0400
+Message-ID: <3BA48452.653466D4@kolumbus.fi>
+Date: Sun, 16 Sep 2001 13:52:02 +0300
+From: Jussi Laako <jussi.laako@kolumbus.fi>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Nick Kurshev <nickols_k@mail.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.9-ac10
+In-Reply-To: <20010908005500.A11127@lightning.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0109161202490.30202-100000@titan.lahn.de>; from pmhahn@titan.lahn.de on Sun, Sep 16, 2001 at 12:09:40PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 16, 2001 at 12:09:40PM +0200, Philipp Matthias Hahn wrote:
-> Hello LKML, USB-ML, Vojtech!
-> 
-> The initialization order of hid.o and hiddev.o is wrong:
-> 
-> drivers/usb/hiddev.c:573 hiddev_connect() is called by
-> drivers/usb/hid-core.c:1225 hid_probe() before
-> drivers/usb/hiddev.c:665 hiddev_init() is called.
-> 
-> This results in hiddev_devfs_handle being NULL for each hid-device handled
-> by hiddev, so that all device-nodes are created as /dev/hiddev%d instead
-> of /dev/usb/hid/hiddev%d.
+Hello,
 
-And here goes the fix. It also fixes a problem with devices with HID
-type interface with no endpoints. Alan, Linus, please apply it. 
+Alan Cox wrote:
+> 
+> o       Recognize Radeon VE in radeonfb                 (Nick Kurshev)
 
---- linux-2.4.9-ac10/drivers/usb/hid-core.c	Mon Sep 10 10:10:16 2001
-+++ linux/drivers/usb/hid-core.c	Sun Sep 16 12:25:01 2001
-@@ -1281,10 +1281,10 @@
- 
- static int __init hid_init(void)
- {
--	usb_register(&hid_driver);
- #ifdef CONFIG_USB_HIDDEV
- 	hiddev_init();
- #endif
-+	usb_register(&hid_driver);
- 	info(DRIVER_VERSION " " DRIVER_AUTHOR);
- 
+This doesn't work for me. Now the video signal goes off (and stays) at boot.
+Kernel continues booting, but I can't see anything.
+
+This is probably the same software reset thing as with XFree86 driver.
+
+Best regards,
+
+	- Jussi Laako
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers

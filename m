@@ -1,45 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbUEKFYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbUEKFZw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbUEKFYb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 01:24:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbUEKFYb
+	id S261857AbUEKFZw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 01:25:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUEKFZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 01:24:31 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:40613 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263020AbUEKFY2 (ORCPT
+	Tue, 11 May 2004 01:25:52 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:34212 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261857AbUEKFZq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 01:24:28 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
-       randy.dunlap@osdl.org, Sam Ravnborg <sam@ravnborg.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Sort kallsyms in name order: kernel shrinks by 30k 
-In-reply-to: Your message of "Tue, 11 May 2004 15:08:55 +1000."
-             <1084252135.31802.312.camel@bach> 
+	Tue, 11 May 2004 01:25:46 -0400
+Date: Tue, 11 May 2004 10:56:58 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, dipankar@in.ibm.com,
+       manfred@colorfullife.com, torvalds@osdl.org, davej@redhat.com,
+       wli@holomorphy.com, linux-kernel@vger.kernel.org
+Subject: Re: dentry bloat.
+Message-ID: <20040511105658.F31521@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20040508031159.782d6a46.akpm@osdl.org> <Pine.LNX.4.58.0405081019000.3271@ppc970.osdl.org> <20040508120148.1be96d66.akpm@osdl.org> <Pine.LNX.4.58.0405081208330.3271@ppc970.osdl.org> <Pine.LNX.4.58.0405081216510.3271@ppc970.osdl.org> <20040508204239.GB6383@in.ibm.com> <409DDDAE.3090700@colorfullife.com> <20040509153316.GE4007@in.ibm.com> <20040509221712.GA17014@parcelfarce.linux.theplanet.co.uk> <20040509152720.039f759a.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 11 May 2004 15:23:28 +1000
-Message-ID: <22374.1084253008@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040509152720.039f759a.akpm@osdl.org>; from akpm@osdl.org on Sun, May 09, 2004 at 03:27:20PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 May 2004 15:08:55 +1000, 
-Rusty Russell <rusty@rustcorp.com.au> wrote:
->Admittedly, anyone who sets CONFIG_KALLSYMS doesn't care about space,
->it's a fairly trivial change.
->
->Name: Sort Kallsyms for Stem Compression
->Status: Booted on 2.6.6
->Depends: Misc/kallsyms-include-aliases.patch.gz
->
->Leaving the symbols sorted by name rather than address, so stem
->compression works more effectively.  Saves a little over 30k here.
+On Sun, May 09, 2004 at 03:27:20PM -0700, Andrew Morton wrote:
+> viro@parcelfarce.linux.theplanet.co.uk wrote:
+> >
+> > On Sun, May 09, 2004 at 09:03:16PM +0530, Dipankar Sarma wrote:
+> >  
+> > > Actually, what may happen is that since the dentries are added
+> > > in the front, a double move like that would result in hash chain
+> > > traversal looping. Timing dependent and unlikely, but d_move_count
+> > > avoided that theoritical possibility. It is not about skipping
+> > > dentries which is safe because a miss would result in a real_lookup()
+> > 
+> > Not really.  A miss could result in getting another dentry allocated
+> > for the same e.g. directory, which is *NOT* harmless at all.
+> 
+> The d_bucket logic does look a bit odd.
+> 
+> 		dentry = hlist_entry(node, struct dentry, d_hash);
+> 
+> 		/* if lookup ends up in a different bucket 
+> 		 * due to concurrent rename, fail it
+> 		 */
+> 		if (unlikely(dentry->d_bucket != head))
+> 			break;
+> 
+> 		/*
+> 		 * We must take a snapshot of d_move_count followed by
+> 		 * read memory barrier before any search key comparison 
+> 		 */
+> 		move_count = dentry->d_move_count;
+> 
+> There is a window between the d_bucket test and sampling of d_move_count. 
+> What happens if the dentry gets moved around in there?
+> 
+> Anyway, regardless of that, it is more efficient to test d_bucket _after_
+> performing the hash comparison.  And it seems saner to perform the d_bucket
+> check when things are pinned down by d_lock.
+> 
 
-Not sure this is a good idea.  proc_pid_wchan() calls kallsyms_lookup()
-and has been identified as a bottleneck on systems with a large number
-of processes.  top can consume a complete cpu out of 128 cpus, all
-because of this bottleneck.  I was toying with the idea of doing a
-binary chop on the address lookup, but this patch prevents that fix.
+This should be fine. Earlier d_bucket check was done before "continue" as the 
+lookup used to loop infinetly. The reason for infinite looping was that lookup 
+going to a different hash bucket due to concurrent d_move and not finding
+the list head from where it started.
 
+After introduction of hlist, there is less chance of lookup looping
+infinitely even if it is moved to a different hash bucket as hlist ends with 
+NULL.
+
+
+But I still see theoritical possibilty of increased looping. Double rename can 
+keep putting lookup back at the head of hash chain and hlist end is never seen.
+
+
+
+-- 
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5044999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/

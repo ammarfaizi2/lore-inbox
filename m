@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281308AbRKLIBO>; Mon, 12 Nov 2001 03:01:14 -0500
+	id <S281309AbRKLICo>; Mon, 12 Nov 2001 03:02:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281309AbRKLIBE>; Mon, 12 Nov 2001 03:01:04 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:41871 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S281308AbRKLIAr>;
-	Mon, 12 Nov 2001 03:00:47 -0500
-Date: Mon, 12 Nov 2001 00:00:34 -0800 (PST)
-Message-Id: <20011112.000034.102577112.davem@redhat.com>
-To: mathijs@knoware.nl
-Cc: velco@fadata.bg, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix loop with disabled tasklets
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.BSI.4.05L.10111120843291.9564-100000@utopia.knoware.nl>
-In-Reply-To: <87hes1qp21.fsf@fadata.bg>
-	<Pine.BSI.4.05L.10111120843291.9564-100000@utopia.knoware.nl>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S281312AbRKLIC1>; Mon, 12 Nov 2001 03:02:27 -0500
+Received: from mail.n-online.net ([195.30.220.100]:7941 "HELO
+	mohawk.n-online.net") by vger.kernel.org with SMTP
+	id <S281309AbRKLICL>; Mon, 12 Nov 2001 03:02:11 -0500
+Date: Mon, 12 Nov 2001 08:59:51 +0100
+From: Thomas Foerster <puckwork@madz.net>
+To: linux-kernel@vger.kernel.org
+Subject: =?ISO-8859-1?Q?Re:_Kernel_Module_/_Patch_with_implements_=22sshfs=22?=
+X-Mailer: Thomas Foerster's registered AK-Mail 3.11 [ger]
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20011112080214Z281309-17408+13481@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Mathijs Mohlmann <mathijs@knoware.nl>
-   Date: Mon, 12 Nov 2001 08:46:08 +0100 (CET)
+Hi,
 
-   On 11 Nov 2001, Momchil Velikov wrote:
-   > You may want to have a look at the following patches (tested by visual
-   > inspection):
-   
-   I like this one.
+> A simpler way is to use the kio_fish
+> And since it is KDE all KDE programs will be able to use it :-)
+> (To be sure I tried to create a file with advanced editor and save it
+>  remote - it worked! :-)
 
-I don't like these changes, just make DECLARE_TASKLET_DISABLED
-and long-term tasklet_disable()'s be illegal.
+Seems nice, but the problem is :
 
-There is only one abuser of this (keyboard), and it is easily cured.
+I'm not using X :)
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+What i want to do is :
+
+Mount our external Webserver from our internal Administration Server via 100MBit LAN
+connection.
+
+Thanx,
+  Thomas
+

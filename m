@@ -1,123 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272984AbTGaLPw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 07:15:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272985AbTGaLPw
+	id S272459AbTGaL0I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 07:26:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272982AbTGaL0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 07:15:52 -0400
-Received: from [213.69.232.58] ([213.69.232.58]:40712 "HELO schottelius.org")
-	by vger.kernel.org with SMTP id S272984AbTGaLPu (ORCPT
+	Thu, 31 Jul 2003 07:26:08 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:53644 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S272459AbTGaL0D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 07:15:50 -0400
-Date: Thu, 31 Jul 2003 13:14:18 +0200
-From: Nico Schottelius <nico-kernel@schottelius.org>
-To: Steve Lord <lord@sgi.com>
-Cc: Nico Schottelius <nico-kernel@schottelius.org>, scholz@wdt.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bug in 2.6.0test2
-Message-ID: <20030731111418.GJ264@schottelius.org>
-References: <20030728115902.GA18993@schottelius.org> <1059425249.6601.10.camel@jen.americas.sgi.com> <20030728222641.GE10741@schottelius.org> <1059478999.1749.18.camel@laptop.americas.sgi.com>
+	Thu, 31 Jul 2003 07:26:03 -0400
+Date: Thu, 31 Jul 2003 13:26:02 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Emulating i486+ insn on i386 (was: TSCs are a no-no on i386)
+Message-ID: <20030731112601.GT1873@lug-owl.de>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+References: <20030730135623.GA1873@lug-owl.de> <20030730181006.GB21734@fs.tum.de> <20030730183033.GA970@matchmail.com> <20030730184529.GE21734@fs.tum.de> <1059595260.10447.6.camel@dhcp22.swansea.linux.org.uk> <20030730203318.GH1873@lug-owl.de> <1059606259.10505.20.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.53.0307310709150.3917@chaos>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7AwgMNpd3VkAVXjS"
+	protocol="application/pgp-signature"; boundary="lQZUhpxrYmQgHmHV"
 Content-Disposition: inline
-In-Reply-To: <1059478999.1749.18.camel@laptop.americas.sgi.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux flapp 2.6.0-test2
-X-Free86: doesn't compile currently
-X-Replacement: please tell me some (working)
+In-Reply-To: <Pine.LNX.4.53.0307310709150.3917@chaos>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---7AwgMNpd3VkAVXjS
-Content-Type: text/plain; charset=us-ascii
+--lQZUhpxrYmQgHmHV
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Steve Lord [Tue, Jul 29, 2003 at 06:43:17AM -0500]:
-> On Mon, 2003-07-28 at 17:26, Nico Schottelius wrote:
-> > Steve Lord [Mon, Jul 28, 2003 at 03:47:30PM -0500]:
-> > >=20
-> > > Something else went wrong before you crashed:
-> > >=20
-> > > bio too big device loop0 (2 > 0)
-> > >=20
-> > > This means you cannot use any bio larger than zero to this device,
-> >=20
-> > assume i didn't understand very much you told me..what is a bio?
-> > how do I use it? and why is it too big here?
+On Thu, 2003-07-31 07:11:42 -0400, Richard B. Johnson <root@chaos.analogic.=
+com>
+wrote in message <Pine.LNX.4.53.0307310709150.3917@chaos>:
+> On Wed, 31 Jul 2003, Alan Cox wrote:
 >=20
-> It looks like the loop device may not be correctly initialized yet,
-> no I/O is possible to it yet.
-
-=2E..we tried and experiement some more, here the results:
-   - first we had old modutils (now: module-init-tools 0.9.13pre)
-   - all modules are able to load now (loaded: aes,loop,cryptoloop)
-   - losetup -e aes /dev/hda1 /dev/loop0=20
-      --> ioctl: LOOP_SET_FD: invalid argument
-   - mount /dev/hda1 / -o loop,encryption=3Daes
-      --> asks for pass, but doesn't unencrypt it
-         --> it fails to mount the xfs filesystem below
-            --> "mount: you must specify fs type..."
-
-the filesystem on hda1 is encrypted with a 128 bit key / aes.
-
-> > > which is probably why ext2 said this, since it caught the error when
-> > > building the bio.
-> >=20
-> > ext2? I am wondering..afai understood that, the root wasn't even
-> > decrypted, how can the kernel try to ext2-mount it?
-
-oh..btw, the ramdisk is ext2..
-
-> > > EXT2-fs: unable to read superblock
-> > >=20
-> > > XFS didn't catch the error building the bio and submitted it, at
-> > > which point the I/O tripped the BUG. I can fix this part, but
-> > > the original problem is something I know nothing about.
-> >=20
-> > ..or better why does it start mounting/before decrypt?
-> >=20
+> > On Mer, 2003-07-30 at 21:33, Jan-Benedict Glaw wrote:
+> > > Well... For sure, I can write a LD_PRELOAD lib dealing with SIGILL, b=
+ut
+> > > how do I enable it for the whole system. That is, I'd need to give
+> > > LD_PRELOAD=3Dxxx at the kernel's boot prompt to have it as en environ=
+ment
+> > > variable for each and every process?
+> >
+> > /etc/ld.preload
+> >
+> > > That sounds a tad inelegant to me. Really, I'd prefer to see libstdc++
+> > > be compiled for i386 ...
 >=20
-> I have never used a crypto loop device, so I cannot what is really
-> going on. Some initialization step may be missing in the loop device
-> which means it is not usable,
+> What is a runtime library doing with a TSC? That's the basic problem.
+> These things are for operating systems and, last time I checked, the
+> 'C' runtime libraries weren't (but maybe GNU changed that definition, no?)
 
-looks like the losetup is the problem...
+Oh, sorry:) One problem is that TSCs may be enabled on i386. They crash
+upon boot-up. While I sent the patch, I ranted about i486 optimized
+libstdc++5 Debian is shipping, which (also, but in a different way)
+break i386. A thread has started about the later issue. Maybe someone
+should have switched subject, though...
 
-> the mount it happening because the
-> kernel was told to mount it. If you are not specifying a filesystem
-> type, then possibly what is happening is it is attempting to open
-> the device as different filesystems, these all fail, until xfs
-> which does not detect the underlying error on the loop device,
-> and issues the IO which causes the BUG.
-
-=2E.which you are gonna fix ? :)
-
-> So, we caused the crash, but you were on your way to one anyway,
-> eventually it would have failed to find a root device and given
-> up that way.
-
-hopefully we'll get it soon..
-my co-worker has to switch between 2.4 and 2.6 daily now..
-
-Nico
+MfG, JBG
 
 --=20
-echo God bless America | sed 's/.*\(A.*$\)/Why \1?/'
-pgp: new id: 0x8D0E27A4 | ftp.schottelius.org/pub/familiy/nico/pgp-key.new
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
 
---7AwgMNpd3VkAVXjS
+--lQZUhpxrYmQgHmHV
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE/KPoKtnlUggLJsX0RAg7oAJ9FAFc1ZlqezNs2qxt0oYJgI3SqDwCfXnms
-42O2IGVTP4M7N6IuZaXhcQU=
-=mZuk
+iD8DBQE/KPzJHb1edYOZ4bsRAqRqAJ0WTuFirMdkAYNGXD1ivm86Neu4rACffm47
+OanKfb3FopoDyUfVwy75ymw=
+=MjQY
 -----END PGP SIGNATURE-----
 
---7AwgMNpd3VkAVXjS--
+--lQZUhpxrYmQgHmHV--

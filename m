@@ -1,92 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267323AbTGTQMf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 12:12:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267341AbTGTQMf
+	id S267419AbTGTQb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 12:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267425AbTGTQbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 12:12:35 -0400
-Received: from quake.mweb.co.za ([196.2.45.76]:23469 "EHLO quake.mweb.co.za")
-	by vger.kernel.org with ESMTP id S267323AbTGTQMc (ORCPT
+	Sun, 20 Jul 2003 12:31:25 -0400
+Received: from pasky.ji.cz ([213.226.226.138]:24563 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S267419AbTGTQbL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 12:12:32 -0400
-Subject: Re: devfsd/2.6.0-test1
-From: Martin Schlemmer <azarah@gentoo.org>
-Reply-To: azarah@gentoo.org
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Mark Watts <m.watts@eris.qinetiq.com>, KML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1030717183139.17023B-100000@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1030717183139.17023B-100000@gatekeeper.tmr.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-7Lt6k6a+JkixQBaZzKBJ"
-Message-Id: <1058718448.19817.5.camel@nosferatu.lan>
+	Sun, 20 Jul 2003 12:31:11 -0400
+Date: Sun, 20 Jul 2003 18:46:09 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: "David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk,
+       greearb@candelatech.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Re: networking bugs and bugme.osdl.org
+Message-ID: <20030720164609.GH12132@pasky.ji.cz>
+Mail-Followup-To: "Martin J. Bligh" <mbligh@aracnet.com>,
+	"David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk,
+	greearb@candelatech.com, linux-kernel@vger.kernel.org,
+	linux-net@vger.kernel.org, netdev@oss.sgi.com
+References: <20030629.151302.28804993.davem@redhat.com> <17280000.1056940541@[10.10.2.4]>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 20 Jul 2003 18:27:28 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17280000.1056940541@[10.10.2.4]>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear diary, on Mon, Jun 30, 2003 at 04:35:44AM CEST, I got a letter,
+where "Martin J. Bligh" <mbligh@aracnet.com> told me, that...
+> --"David S. Miller" <davem@redhat.com> wrote (on Sunday, June 29, 2003 15:13:02 -0700):
+..snip..
+> > The greatest tools in the world aren't useful if people don't want
+> > to use them.
+> > 
+> > Nobody wants to use tools unless it melds easily into their existing
+> > daily routine.  This means it must be email based and it must somehow
+> > work via the existing mailing lists.  It sounds a lot like what I'm
+> > advocating except that there's some robot monitoring the list
+> > postings.
+> 
+> Agreed, the interface could be better - we're working on it. It won't
+> be totally change free, but it could be better integrated. Feedback is
+> very useful, though it helps a lot of you can pinpoint what's the 
+> underlying issue rather than "this is crap". Better email integration
+> is top of the list, starting with sending stuff out to multiple people
+> when filed, not a single bottleneck point.
 
---=-7Lt6k6a+JkixQBaZzKBJ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Actually, it's not difficult to make Bugzilla to do things like sending out ALL
+bugs updates emails to certain email adress(es), on a global basis or
+per-module. Also, it is relatively easy to make Bugzilla _accept_ bugs updates
+through email, from additional comments (+ attachments) to
+status/priority/target/... changes.
 
-On Fri, 2003-07-18 at 00:39, Bill Davidsen wrote:
-> On 17 Jul 2003, Martin Schlemmer wrote:
->=20
-> > On Thu, 2003-07-17 at 11:17, Mark Watts wrote:
->=20
-> > > I'm running devfs on a 2.6.0-test1 box (Mandrake 9.1 with the new ker=
-nel)
-> > >=20
-> > > Every time I boot, it complains that I don't have an /etc/modprobe.de=
-vfs.
-> > > If I symlink modules.devfs, I get a wad of errors about 'probeall'.
-> > > What should a modprobe.devfs look like for a 2.5/6 kernel?
-> > >=20
-> >=20
-> > The module-init-tools tarball should include one.
->=20
-> Agreed, it should. However, the last version I pulled had zero support fo=
-r
-> probeall, and more importantly for probe, which is somewhat harder to do
-> cleanly without having to rewrite the config file for each kernel you
-> boot.
->=20
+It works quite nicely for us (ELinks) and it took just few hours to set up
+properly (we had to touch the BZ sources, but just a little, the rest are
+external support scripts). What is missing is some email interface for querying
+the database (shouldn't be difficult to do, though), but if you just want to
+file/update bugs, all you need is to:
 
-Well, it implements probeall in another fashion.  Also, you might
-try /sbin/generate-modprobe.conf to convert a modules.conf to
-modprobe.conf syntax.
+* have the new bugs posted on the mailing list
+* keep bugzilla in the cc list through the whole thread, as long as it's
+relevant at least ;-)
+* don't remove [Bug 12345] from the subject
 
-> I assume someone will need to write a functional config parser which
-> handles these features before 2.6 is seriously ready for production.
-> Giving up the ability to find the working module for a device would be a
-> step back, and is needed to allow booting with changing configurations,
-> such as docked or not laptops, PCMCIA cards inserted, various hardware
-> such as printers and scanners attached, etc.
+If Martin would like some know-how about how to set things up, I could share
+what we've done with him.
 
-Also, read the threads on the list about udev/hotplug - apparently
-devfsd is going out ...
+Kind regards,
 
-
-Regards,
-
---=20
-
-Martin Schlemmer
-
-
-
-
---=-7Lt6k6a+JkixQBaZzKBJ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD4DBQA/GsLsqburzKaJYLYRAkJiAJMFjVBLSe7R1nhbfu2iyyrx1vClAJ9RFosg
-TgQB50QD1bIBiKHo2A7xbA==
-=5Vgy
------END PGP SIGNATURE-----
-
---=-7Lt6k6a+JkixQBaZzKBJ--
-
+-- 
+ 
+				Petr "Pasky" Baudis
+.
+Perfection is reached, not when there is no longer anything to add, but when
+there is no longer anything to take away.
+	-- Antoine de Saint-Exupery
+.
+Stuff: http://pasky.ji.cz/

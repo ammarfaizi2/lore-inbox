@@ -1,46 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266877AbUFYWHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266883AbUFYWLX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266877AbUFYWHT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 18:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266337AbUFYWHS
+	id S266883AbUFYWLX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 18:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266337AbUFYWLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 18:07:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16328 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266877AbUFYWF7 (ORCPT
+	Fri, 25 Jun 2004 18:11:23 -0400
+Received: from smtp07.auna.com ([62.81.186.17]:41090 "EHLO smtp07.retemail.es")
+	by vger.kernel.org with ESMTP id S266881AbUFYWKo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 18:05:59 -0400
-Date: Fri, 25 Jun 2004 15:05:32 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: saiprathap <saiprathap@cc.usu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TCP-RST Vulnerability - Doubt
-Message-Id: <20040625150532.1a6d6e60.davem@redhat.com>
-In-Reply-To: <40DC9B00@webster.usu.edu>
-References: <40DC9B00@webster.usu.edu>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Fri, 25 Jun 2004 18:10:44 -0400
+Date: Sat, 26 Jun 2004 00:10:42 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Scheduler: -mm vs -staircase
+Message-ID: <20040625221042.GA4453@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=PGP-SHA1;
+	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
+Content-Disposition: inline
+X-Mailer: Balsa 2.0.17
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Jun 2004 15:20:50 -0600
-saiprathap <saiprathap@cc.usu.edu> wrote:
 
-> I am a graduate research student majoring in the field of
-> Computer Networking.As part of my research I have sorted out what FreeBSD has 
-> done to overcome the TCP-RST vulnerability (by modifying the stack to accept 
-> the RST packets only with the current + 1 sequence number and ignoring the 
-> rest, even if their sequence numbers fall within the receiving window).
-> 
-> Could you kindly share your views regarding what Linux has done to its stack 
-> to overcome this vulnerability as it will be of great help to my research.
+--LZvS9be/3tNcYl/X
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-We have done nothing, and there are no plans to implement any workaround
-for this problem.
+Hi all...
 
-RFC2385 MD5 hashing support is going in soon, and for the application where
-the vulnerability actually matters (BGP sessions between backbone routers)
-MD5 clears that problem right up and they're all using MD5 protection already
-anyways.
+Just a comment about a weird thing I have noticed wrt scheduling in latest
+kernels.
+
+My last two tests are 2.6.7-mm2 and 2.6.7-mm2+staircase-7.4 (plus a couple
+other things, like aic updated driver). I use GLMatrix as screensaver,
+running with nVidia drivers (yup, tainted kernels, but both are tainted ;)).
+What I have noticed:
+- With standard -mm, as GLMatrix runs, the framerate drops even to something
+  like a frame every couple seconds
+- With staircase, it keeps running smoothly at 25fps.
+
+Something is strange in -mm. It keeps stoling cycles to the screensaver.
+Is this expected ?
+
+TIA
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandrakelinux release 10.1 (Cooker) for i586
+Linux 2.6.7-jam5 (gcc 3.4.1 (Mandrakelinux (Cooker) 3.4.1-0.3mdk)) #1
+
+--LZvS9be/3tNcYl/X
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA3KLiRlIHNEGnKMMRAtiBAJ9XcbNecIsw5hEaOjaWu0/DYkOWuQCgodJ1
+gy48qMkIjrXGSLr16VRFLAM=
+=OJNh
+-----END PGP SIGNATURE-----
+
+--LZvS9be/3tNcYl/X--

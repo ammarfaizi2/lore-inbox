@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291620AbSCOMF4>; Fri, 15 Mar 2002 07:05:56 -0500
+	id <S291753AbSCOMHg>; Fri, 15 Mar 2002 07:07:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291753AbSCOMFq>; Fri, 15 Mar 2002 07:05:46 -0500
-Received: from angband.namesys.com ([212.16.7.85]:64129 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S291620AbSCOMFh>; Fri, 15 Mar 2002 07:05:37 -0500
-Date: Fri, 15 Mar 2002 15:05:36 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Sean Neakums <sneakums@zork.net>, linux-kernel@vger.kernel.org,
-        trond.myklebust@fys.uio.no
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-Message-ID: <20020315150536.A2279@namesys.com>
-In-Reply-To: <200203110018.BAA11921@webserver.ithnet.com> <15499.64058.442959.241470@charged.uio.no> <20020311091458.A24600@namesys.com> <20020311114654.2901890f.skraw@ithnet.com> <20020311135256.A856@namesys.com> <20020311155937.A1474@namesys.com> <20020315141328.A1879@namesys.com> <20020315123008.14237953.skraw@ithnet.com> <6uofhq12rl.fsf@zork.zork.net> <20020315130338.539c1118.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020315130338.539c1118.skraw@ithnet.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S292087AbSCOMH0>; Fri, 15 Mar 2002 07:07:26 -0500
+Received: from smtp.comcast.net ([24.153.64.2]:39131 "EHLO smtp.comcast.net")
+	by vger.kernel.org with ESMTP id <S291753AbSCOMHJ>;
+	Fri, 15 Mar 2002 07:07:09 -0500
+Date: Fri, 15 Mar 2002 07:07:25 -0500
+From: Jerry McBride <mcbrides9@comcast.net>
+Subject: xconfig fails when compiling 2.56 or 2.57-pre1
+To: linux-kernel@vger.kernel.org
+Message-id: <20020315070725.4afd21fa.mcbrides9@comcast.net>
+Organization: TEAM LINUX
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.7.2claws (GTK+ 1.2.8; i586-pc-linux-gnu)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+X-message-flag: Join the Wave and install Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-On Fri, Mar 15, 2002 at 01:03:38PM +0100, Stephan von Krawczynski wrote:
+ I find that during a compile of either 2.5.6 or 2.5.7-pre1 I get the
+following error:
 
-> Sorry, weekend in sight ;-)
-> admin:/p2/backup on /backup type nfs (rw,noexec,nosuid,nodev,timeo=20,rsize=8192,wsize=8192,addr=192.168.1.2)
-> admin:/p3/suse/6.4 on /var/adm/mount type nfs (ro,intr,addr=192.168.1.2)
-> BTW: another fs mounted from a different server on the same client is not affected at all from this troubles.
-> Are there any userspace tools with problems involved? mount ? maybe I should replace something ...
+Compiling kernel-2.5.7-pre1
 
-Do not know about the tools, can you run reiserfsck on all exported volumes just
-in case?
+make clean...
+OK
 
-Bye,
-    Oleg
+make distclean...
+OK
+
+make mrproper...
+OK
+
+make xconfig...
+sound/core/Config.in: 4: can't handle dep_bool/dep_mbool/dep_tristate
+condition make[1]: *** [kconfig.tk] Error 1
+make: *** [xconfig] Error 2
+NOT OK
+
+-- 
+
+*************************************************************************
+*****                     Registered Linux User Number 185956
+          http://groups.google.com/groups?hl=en&safe=off&group=linux
+      7:03am  up 2 days, 13:25,  1 user,  load average: 0.05, 0.07, 0.08

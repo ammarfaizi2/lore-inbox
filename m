@@ -1,74 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264889AbSLLRpx>; Thu, 12 Dec 2002 12:45:53 -0500
+	id <S264886AbSLLRqX>; Thu, 12 Dec 2002 12:46:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264901AbSLLRpx>; Thu, 12 Dec 2002 12:45:53 -0500
-Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:44947 "EHLO
-	swan.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S264889AbSLLRpw>; Thu, 12 Dec 2002 12:45:52 -0500
-Date: Thu, 12 Dec 2002 10:45:20 -0800 (PST)
-From: James Simmons <jsimmons@infradead.org>
-X-X-Sender: <jsimmons@maxwell.earthlink.net>
-To: Antonino Daplas <adaplas@pol.net>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
+	id <S264901AbSLLRqW>; Thu, 12 Dec 2002 12:46:22 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:21186 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S264886AbSLLRqT>;
+	Thu, 12 Dec 2002 12:46:19 -0500
+Subject: Re: [PATCH] Notifier for significant events on i386
+From: Stephen Hemminger <shemminger@osdl.org>
+To: vamsi@in.ibm.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, John Levon <levon@movementarian.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [FBDEV]: Framebuffer driver for Intel 810/815 chipsets
-In-Reply-To: <1039603490.1147.80.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0212121045060.32196-100000@maxwell.earthlink.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <20021212130406.A20253@in.ibm.com>
+References: <1039471369.1055.161.camel@dell_ss3.pdx.osdl.net>
+	 <20021211165153.A17546@in.ibm.com> <20021211111639.GJ9882@holomorphy.com>
+	 <20021211171337.A17600@in.ibm.com>
+	 <20021211202727.GF20735@compsoc.man.ac.uk>
+	 <1039641336.18587.30.camel@irongate.swansea.linux.org.uk>
+	 <1039652384.1649.17.camel@dell_ss3.pdx.osdl.net>
+	 <20021212130406.A20253@in.ibm.com>
+Content-Type: text/plain
+Organization: Open Source Devlopment Lab
+Message-Id: <1039715615.1649.80.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 12 Dec 2002 09:53:35 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2002-12-11 at 23:34, Vamsi Krishna S . wrote:
+> On Thu, Dec 12, 2002 at 12:25:47AM +0000, Stephen Hemminger wrote:
+> > 
+> > This patch changes notifier to use RCU.  No interface change, just a little
+> > more memory in each notifier_block. Also some formatting cleanup.
+> > Please review and give comments.
+> > 
+> > <snip patch>
+> 
+> This looks good. I have a few of comments:
+> 
+> - add read_lock_rcu() / read_unlock_rcu() around the loop in
+>   notifier_call_chain() to be preempt-safe.
+> 
+> - I would suggest using struct list_head in the notifier_block
+>   and use the RCU list routines from include/linux/list.h
+>   instead of spreading subtle RCU memory-barrier black magic.
 
-Applied !!!!
+That would be good for a new interface, but the existing code depends on
+the single linked behavior. Many initializer's are pre-C99 style, and
+more importantly there is no distinction between a list element and a
+list head.  To work with list macros the head has to be initialized
+correctly.  It is better not to worry about changing the interface and
+avoid having to change all the calling code.
 
-MS: (n) 1. A debilitating and surprisingly widespread affliction that
-renders the sufferer barely able to perform the simplest task. 2. A disease.
+The only advantage to the doubly-linked list (besides std macros) is
+that it is possible to unregister without knowing the head. There was a
+patch several months ago to do singly-linked list macros but it looks
+like it never got accepted.  If the obscurity of the macro's is desired
+then maybe the way to go is creating a slist.h with RCU extensions. 
 
-James Simmons  [jsimmons@users.sf.net] 	                ____/|
-fbdev/console/gfx developer                             \ o.O|
-http://www.linux-fbdev.org                               =(_)=
-http://linuxgfx.sourceforge.net                            U
-http://linuxconsole.sourceforge.net
 
-On 11 Dec 2002, Antonino Daplas wrote:
+> - Even though RCU list reading is lockless, premption needs to
+>   be disabled while reading as mentioned above. So, we do
+>   need an __notifier_call_chain() version for those handlers
+>   that could sleep inside the handler: they will have to
+>   handle the required locking themselves.
 
-> James,
->
-> It seems the fbdev framework is stable enough, and already in the
-> development tree.  So, I'm submitting a driver for the Intel 810/815 for
-> review and perhaps inclusion to your tree (to get more testing), and
-> hopefully merge with Linus's tree.
->
-> The patch is against linux-2.5.51, but will not work yet because of 2
-> reasons:
->
-> 1. agpgart is not working for the i810
-> 2. support for early agp initialization needs to be added.
->
-> Once #1 is fixed, the driver should work as a module.  And once #2 gets
-> included, the driver can be compiled statically.  Dave Jones (thanks for
-> the help, by the way) has already #2 in his tree (tested and works), and
-> is currently working on #1 (I have a hacked version at home).
->
-> The driver should be compliant with fbdev-2.5, and should support most
-> if not all features that are to be expected (modularity, state saving
-> and restoring, full hardware support, etc).  One thing also that's very
-> important for many people is that the driver will work with XFree86 with
-> its native i810 drivers without further modification, and quite stably
-> too.
->
-> The patch is at
-> http://i810fb.sourceforge.net/linux-2.5.51-i810fb.diff.gz
->
-> Thanks,
->
-> Tony
->
->
->
->
->
+The use of notifier today is limited to things that can't sleep. As far
+as I can tell, it is intended for system events like reboot, panic;
+where sleeping doesn't make sense.  I think that is why the original
+notifier_call_chain did not grab the read_lock.
+
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+Open Source Devlopment Lab
 

@@ -1,37 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262980AbVCXCgG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262986AbVCXCn1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262980AbVCXCgG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 21:36:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbVCXCgG
+	id S262986AbVCXCn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 21:43:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbVCXCn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 21:36:06 -0500
-Received: from fire.osdl.org ([65.172.181.4]:59048 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262980AbVCXCgF (ORCPT
+	Wed, 23 Mar 2005 21:43:26 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:26265 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S262986AbVCXCnW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 21:36:05 -0500
-Date: Wed, 23 Mar 2005 18:35:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Hirokazu Takata <takata@linux-m32r.org>
-Cc: linux-kernel@vger.kernel.org, sugai@isl.melco.co.jp,
-       ysato@users.sourceforge.jp, inaoka.kazuhiro@renesas.com,
-       fujiwara@linux-m32r.org, takata@linux-m32r.org
-Subject: Re: [PATCH 2.6.12-rc1] m32r: Update MMU-less support (0/3)
-Message-Id: <20050323183535.658d4faf.akpm@osdl.org>
-In-Reply-To: <20050324.104815.304093279.takata.hirokazu@renesas.com>
-References: <20050324.104815.304093279.takata.hirokazu@renesas.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 23 Mar 2005 21:43:22 -0500
+Date: Thu, 24 Mar 2005 13:43:16 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: "Shawn Smith" <shawn.smith@myrealbox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: apm poweroff bug
+Message-Id: <20050324134316.30c1ba67.sfr@canb.auug.org.au>
+In-Reply-To: <1111628774.8c93a03cshawn.smith@myrealbox.com>
+References: <1111628774.8c93a03cshawn.smith@myrealbox.com>
+X-Mailer: Sylpheed version 1.0.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Thu__24_Mar_2005_13_43_16_+1100_na_VIUEas7lhk27u"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hirokazu Takata <takata@linux-m32r.org> wrote:
+--Signature=_Thu__24_Mar_2005_13_43_16_+1100_na_VIUEas7lhk27u
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, 23 Mar 2005 17:46:14 -0800 "Shawn Smith" <shawn.smith@myrealbox.com=
+> wrote:
 >
-> Here is a patchset to update m32r's MMU-less support.
+> After giving a halt command, the system is normal until it gives the
+> powerdown message, and then there is a dump of error messages. =20
 
-I'd prefer it if you could avoid sending multiple patches with the same
-title in future, please.  It mucks up my patch naming and tracking system,
-and surely all three patches weren't doing the same thing?
+You have a broken BIOS, please use the "apm=3Drealmode_power_off" kernel
+command line switch.
 
-More at http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt, thanks.
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+--Signature=_Thu__24_Mar_2005_13_43_16_+1100_na_VIUEas7lhk27u
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCQilE4CJfqux9a+8RAp8bAJ99cUo1/I06TE4/WYqEHtmee92zpgCfd7r4
+AAJZeCfbWsbhCFGe8OQ37aQ=
+=6piP
+-----END PGP SIGNATURE-----
+
+--Signature=_Thu__24_Mar_2005_13_43_16_+1100_na_VIUEas7lhk27u--

@@ -1,73 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264326AbUAMOXw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 09:23:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbUAMOXw
+	id S264313AbUAMOTs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 09:19:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264326AbUAMOTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 09:23:52 -0500
-Received: from [211.167.76.68] ([211.167.76.68]:34199 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S264326AbUAMOXu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 09:23:50 -0500
-Date: Tue, 13 Jan 2004 22:21:17 +0800
-From: Hugang <hugang@soulinfo.com>
-To: Bart Samwel <bart@samwel.tk>
-Cc: Jens Axboe <axboe@suse.de>, Jan De Luyck <lkml@kcore.org>,
-       Kiko Piris <kernel@pirispons.net>, linux-kernel@vger.kernel.org,
-       Dax Kelson <dax@gurulabs.com>, Bartek Kania <mrbk@gnarf.org>,
-       Simon Mackinlay <smackinlay@mail.com>
-Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
-Message-Id: <20040113222117.21d1ac0b@localhost>
-In-Reply-To: <4003E8BE.3000402@samwel.tk>
-References: <3FFFD61C.7070706@samwel.tk>
-	<200401121409.44187.lkml@kcore.org>
-	<20040112140238.GG24638@suse.de>
-	<200401131200.16025.lkml@kcore.org>
-	<20040113110110.GA6711@suse.de>
-	<4003E8BE.3000402@samwel.tk>
-Organization: Beijing Soul
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+	Tue, 13 Jan 2004 09:19:47 -0500
+Received: from linux.us.dell.com ([143.166.224.162]:26861 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S264313AbUAMOTo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 09:19:44 -0500
+Date: Tue, 13 Jan 2004 08:19:32 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Scott Long <scott_long@adaptec.com>
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Proposed Enhancements to MD
+Message-ID: <20040113081932.A721@lists.us.dell.com>
+References: <40036902.8080403@adaptec.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <40036902.8080403@adaptec.com>; from scott_long@adaptec.com on Mon, Jan 12, 2004 at 08:41:54PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jan 2004 13:46:54 +0100
-Bart Samwel <bart@samwel.tk> wrote:
+On Mon, Jan 12, 2004 at 08:41:54PM -0700, Scott Long wrote:
+> - DDF Metadata support: Future products will use the 'DDF' on-disk
+>    metadata scheme.  These products will be bootable by the BIOS, but
+>    must have DDF support in the OS.  This will plug into the abstraction
+>    mentioned above.
 
-> The reiserfs patch for "commit=" was included in Linux 2.6.1. I really 
-> don't know if it works with laptop mode, haven't tested it -- I don't 
-> use reiserfs. So, let's ask the world: is there anyone out there who is 
-> running laptop mode *successfully* with reiserfs?
-Yes, I'm use reiserfs in 2.6.1 with laptop_mode patch. It works fine for me, I use cpudyn daemon to let spin download harddisk. In cpudyn.conf
-I changed TIMEOUT from 120 to 10. When i reading email/web, the harddisk can spin down for very long time (>3min). 
+For those unfamiliar with DDF (Disk Data Format), it is a Storage
+Networking Industry Association (SNIA) project ("Common RAID DDF
+TWG"), designed to provide a single metadata format to be used by all
+the RAID vendors (hardware and software alike).  It removes vendor
+lock-in by having a metadata format that all can use, thus in theory
+you could move disks from an Adaptec hardware RAID controller to an
+LSI software RAID solution without reformatting the disks or touching
+your file systems in any way.  Dell has been championing the DDF
+concept for quite a while, and is driving vendors from which we
+purchase RAID solutions to use DDF instead of their own individual
+metadata formats.
 
-So you can try cpudynd.
+I haven't seen the spec yet myself, but I'm lead to believe that
+DDF allows for multiple logical drives to be created across a single
+set of disks (e.g. a 10GB RAID1 LD and a 140GB RAID0 LD together on
+two 80GB spindles), as well as whole disks be used.  It has a
+mechanism to support reconstruction checkpointing, so you don't have
+to restart a reconstruct from the beginning after a reboot, but from
+where you left off.  And other useful features too that you'd expect
+in a common RAID solution.  
 
-# TIMEOUT=120
-TIMEOUT=10
+DDF is quickly becoming important to RAID and system vendors, and I
+welcome Adaptec's work to implement DDF support on Linux.
 
-# 
-# Specified disks to spindown (comma separated devices)
-#
-
-# DISKS=/dev/hda,/dev/hdb
-DISKS=/dev/hda
-
-For now, I switch to 2.6.1-mm2, it looks fine, not need any patch.
-
-$mount
-/dev/hda13 on / type ext3 (rw,noatime,errors=remount-ro,commit=600)
-proc on /proc type proc (rw)
-devpts on /dev/pts type devpts (rw,gid=5,mode=620)
-/dev/vg00/opt on /opt type reiserfs (rw,noatime,commit=600)
-/dev/vg00/hugang on /home/hugang type reiserfs (rw,noatime,commit=600)
-/dev/vg00/scm on /scm type reiserfs (rw,noatime,commit=600)
-/dev/vg00/build on /build type reiserfs (rw,noatime,commit=600)
-none on /sys type sysfs (rw)
+Thanks,
+Matt
 
 -- 
-Hu Gang / Steve
-RLU#          : 204016 [1999] (Registered Linux user)
-GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

@@ -1,36 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278625AbRKSMv4>; Mon, 19 Nov 2001 07:51:56 -0500
+	id <S278701AbRKSNSN>; Mon, 19 Nov 2001 08:18:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278630AbRKSMvq>; Mon, 19 Nov 2001 07:51:46 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:3847 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S278625AbRKSMvm>;
-	Mon, 19 Nov 2001 07:51:42 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: brett@bad-sports.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: oops 1 of 2, try_to_release_page, 2.4.9-13 
-In-Reply-To: Your message of "Mon, 19 Nov 2001 21:53:44 +1100."
-             <Pine.LNX.4.40.0111192151580.14019-100000@bad-sports.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 19 Nov 2001 23:51:31 +1100
-Message-ID: <5710.1006174291@ocs3.intra.ocs.com.au>
+	id <S278714AbRKSNSD>; Mon, 19 Nov 2001 08:18:03 -0500
+Received: from ns.suse.de ([213.95.15.193]:41999 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S278701AbRKSNRt>;
+	Mon, 19 Nov 2001 08:17:49 -0500
+Date: Mon, 19 Nov 2001 14:17:48 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] K6-2 Write allocate bug.
+Message-ID: <Pine.LNX.4.30.0111191349370.22614-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Nov 2001 21:53:44 +1100 (EST), 
-brett@bad-sports.com wrote:
->ksymoops 2.4.1 on i686 2.4.9-13.  Options used
->Error (expand_objects): cannot stat(/lib/ext3.o) for ext3
->Error (expand_objects): cannot stat(/lib/jbd.o) for jbd
 
-When booting from initrd, you need to run 'ksymoops -i' in order to
-find the real objects.
+Linus,
+ Patch below reformats some ugly compound ifs, and in the process
+fixes up a bug where we end up poking the WHCR in old-style and new-style
+on some K6-2's (Due to a missing (c->x86_mask>7) (See 2nd hunk of patch).
 
->Warning (compare_maps): mismatch on symbol nlmsvc_grace_period  , lockd says d2983d14, /lib/modules/2.4.9-13/kernel/fs/lockd/lockd.o says d298317c.  Ignoring /lib/modules/2.4.9-13/kernel/fs/lockd/lockd.o entry
+regards,
 
-ksymoops bug, upgrade to ksymoops 2.4.3.  It probably does not affect
-this decode but it will affect others.
+Dave.
+
+diff -urN --exclude-from=/home/davej/.exclude linux-2.4.15-pre5/arch/i386/kernel/setup.c linux-2.4.15-pre5-dj/arch/i386/kernel/setup.c
+--- linux-2.4.15-pre5/arch/i386/kernel/setup.c	Mon Nov 19 12:08:00 2001
++++ linux-2.4.15-pre5-dj/arch/i386/kernel/setup.c	Mon Nov 19 12:22:26 2001
+@@ -1233,13 +1233,12 @@
+ 			}
+
+ 			/* K6 with old style WHCR */
+-			if( c->x86_model < 8 ||
+-				(c->x86_model== 8 && c->x86_mask < 8))
+-			{
++			if (c->x86_model < 8 ||
++			   (c->x86_model== 8 && c->x86_mask < 8)) {
+ 				/* We can only write allocate on the low 508Mb */
+ 				if(mbytes>508)
+ 					mbytes=508;
+-
++
+ 				rdmsr(MSR_K6_WHCR, l, h);
+ 				if ((l&0x0000FFFF)==0) {
+ 					unsigned long flags;
+@@ -1250,14 +1249,14 @@
+ 					local_irq_restore(flags);
+ 					printk(KERN_INFO "Enabling old style K6 write allocation for %d Mb\n",
+ 						mbytes);
+-
+ 				}
+ 				break;
+ 			}
+-			if (c->x86_model == 8 || c->x86_model == 9 || c->x86_model == 13)
+-			{
++
++			if ((c->x86_model == 8 && c->x86_mask >7) ||
++			     c->x86_model == 9 || c->x86_model == 13) {
+ 				/* The more serious chips .. */
+-
++
+ 				if(mbytes>4092)
+ 					mbytes=4092;
+
+@@ -1274,10 +1273,8 @@
+ 				}
+
+ 				/*  Set MTRR capability flag if appropriate */
+-				if ( (c->x86_model == 13) ||
+-				     (c->x86_model == 9) ||
+-				     ((c->x86_model == 8) &&
+-				     (c->x86_mask >= 8)) )
++				if (c->x86_model == 13 || c->x86_model == 9 ||
++				   (c->x86_model == 8 && c->x86_mask >= 8))
+ 					set_bit(X86_FEATURE_K6_MTRR, &c->x86_capability);
+ 				break;
+ 			}
+
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

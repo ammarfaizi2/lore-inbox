@@ -1,58 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318458AbSHURGn>; Wed, 21 Aug 2002 13:06:43 -0400
+	id <S318488AbSHURI2>; Wed, 21 Aug 2002 13:08:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318460AbSHURGn>; Wed, 21 Aug 2002 13:06:43 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:17656 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S318458AbSHURGl>; Wed, 21 Aug 2002 13:06:41 -0400
-Date: Wed, 21 Aug 2002 13:10:48 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Mala Anand <manand@us.ibm.com>
-Cc: alan@lxorguk.ukuu.org.uk, davem@redhat.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, Bill Hartner <bhartner@us.ibm.com>
-Subject: Re: (RFC): SKB Initialization
-Message-ID: <20020821131048.B8001@redhat.com>
-References: <OF9AEE9308.79FD144F-ON87256C1C.004716B7@boulder.ibm.com>
+	id <S318500AbSHURI2>; Wed, 21 Aug 2002 13:08:28 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:46063 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318488AbSHURI1>; Wed, 21 Aug 2002 13:08:27 -0400
+Subject: Re: PCI device reset
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marc Giger <gigerstyle@gmx.ch>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020821190744.14cb4f45.gigerstyle@gmx.ch>
+References: <20020821190744.14cb4f45.gigerstyle@gmx.ch>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 21 Aug 2002 18:13:38 +0100
+Message-Id: <1029950018.26533.100.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <OF9AEE9308.79FD144F-ON87256C1C.004716B7@boulder.ibm.com>; from manand@us.ibm.com on Wed, Aug 21, 2002 at 11:59:44AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 21, 2002 at 11:59:44AM -0500, Mala Anand wrote:
-> The patch reduces the numer of cylces by 25%
+On Wed, 2002-08-21 at 18:07, Marc Giger wrote:
+> Is it possible to reset a pci device on runtime like that the device has the feeling, it is a restart of the computer?
+> 
+> Does anybody know what I mean?:-)
+> 
+> My cardbus bridge needs a hard reset after a suspend..:-(
 
-The data you are reporting is flawed: where are the average cycle 
-times spent in __kfree_skb with the patch?  Without that information, 
-there is no basis for conclusion as the total time spent in these 
-two routines is unknown.  At worst, I'd have to assume this lack of 
-scientific method is an attempt to hide some aspect of the resulting 
-behaviour, but I hope that isn't the case.
+Which cardbus bridge do you have. Also dump the pci status before and
+after. Its most likely the actual problem is something like the BIOS
+suspend not saving the pci configuration space
 
-		-ben
-
-> Baseline on Linux 2.5.25 kernel:
-> -------------------------------
-> 
->                                 CPU 0                 CPU 1
->                                ------                 ------
-> Avg cycles in alloc_skb:        64.05                 203.39
-> Avg cycles in __kfree_skb:     127.54                 228.95
->                                ------                 -------
-> Total Avg Cycles               191.59                 432.34
->                                ------                 -------
-> 
-> # of times alloc_skb called:      235,478            2,060,422
-> # of times __kfree_skb called:  2,063,276              232,359
-> 
-> 
-> Linux 2.5.25+Skbinit Patch:
-> --------------------------
->                               CPU 0                   CPU 1
->                               -----                   -----
->  Avg cycles in alloc skb:     237.21                  230.91
-> 
->  # of times alloc_skb called: 1,226,594             1,213,327

@@ -1,143 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262272AbTHaPmf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 11:42:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbTHaPmf
+	id S262614AbTHaP7T (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 11:59:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262615AbTHaP7T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 11:42:35 -0400
-Received: from shower.ispgateway.de ([62.67.200.219]:39303 "HELO
-	shower.ispgateway.de") by vger.kernel.org with SMTP id S262272AbTHaPmO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 11:42:14 -0400
-Message-ID: <3F521753.2030705@dot-heine.de>
-Date: Sun, 31 Aug 2003 17:42:11 +0200
-From: Claus-Justus Heine <ch@dot-heine.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030806
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test4: bug WRT lazy FPU switching and CONFIG_PREEMPT
-X-Enigmail-Version: 0.76.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 31 Aug 2003 11:59:19 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:58322
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262614AbTHaP7R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 11:59:17 -0400
+Date: Sun, 31 Aug 2003 17:59:40 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Mike Fedyk <mfedyk@matchmail.com>, Antonio Vargas <wind@cocodriloo.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>
+Subject: Re: Andrea VM changes
+Message-ID: <20030831155940.GX24409@dualathlon.random>
+References: <Pine.LNX.4.55L.0308301248380.31588@freak.distro.conectiva> <Pine.LNX.4.55L.0308301607540.31588@freak.distro.conectiva> <Pine.LNX.4.55L.0308301618500.31588@freak.distro.conectiva> <20030830231904.GL24409@dualathlon.random> <1062339003.10208.1.camel@dhcp23.swansea.linux.org.uk> <20030831145932.GU24409@dualathlon.random> <1062343789.10208.9.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1062343789.10208.9.camel@dhcp23.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, Aug 31, 2003 at 04:29:49PM +0100, Alan Cox wrote:
+> On Sul, 2003-08-31 at 15:59, Andrea Arcangeli wrote:
+> > And I don't see how you can avoid oom killing to ever happen if the apps
+> > recurse on the stack and growsdown some hundred megs. In such case
+> > you've to oom kill, since there's no synchronous failure path during the
+> > stack growsdown walk.
+> 
+> The stack grow fails and you get a signal. Its up to you to have a
+> language that handles this or in C enjoy the delights of sigaltstack. In
 
-There seems to be a bug with CONFIG_PREEMPT=y and lazy FPU switching. The following small program just unmasks math exceptions 
-and then continously triggers a divide by zero. When CONFIG_PREEMPT is in effect this eventually leads to other processes 
-inheriting the math-status of this brain-damaged but legal user level program. Especially, their math-exceptions are unmasked 
-and so they might catch an unwanted SIGFPE.
+the synchronous signal sending looks fine.
 
-######################################### snip ####################################
-#include <signal.h>
-#include <stdio.h>
-#include <fenv.h>
+the brainer part here is what happens after sending the signal: how to
+eventually fallback to sigkill. how do you fallback from a graceful
+signal (one that can be handled in userspace) to an "hard" one like
+sigkill that guarantees the stability of the system? I mean, you could
+set a timer, and then try to kill the task with sigkill later if it's
+still there after a few seconds you sent the graceful signal. There may
+be different solutions to this.
 
-double volatile foobar = 0.0;
+But we need a fallback like the above because we can't trust userspace,
+if the task doesn't go away, we've to sigkill it eventually.
 
-static void sigfpe(int sig)
-{
-	static int cnt;
+Even sending sigkill immediatly would be acceptable (despite it would
+prevent userspace to exit gracefully).
 
-	if (++cnt % 100000 == 0) {
-		fprintf(stderr, ".");
-	}
-}
+> practice the settings are such that this case basically "doesnt happen"
+> for all normal use.
 
-int main(int argc, char *argv[])
-{
-	signal(SIGFPE, sigfpe);
-	feenableexcept(FE_ALL_EXCEPT);
-	foobar = 1.0/foobar;
-}
-######################################## snap ######################################
+yes, stack usage is normally very limited.
 
-The following patch seems to fix the problem. However, I must admit that I didn't fully understand why this happens. The problem 
-seems to be a preemption occuring between the __save_init_fpu() (i.e. fsave/fxsave) and the stts(). But why should this be a 
-problem?
+> 
+> > I just don't think it solves or hides the other issues, it seems
+> > completely orthogonal to me, because you can still run oom during stack
+> > growsdown.
+> 
+> Agreed - and there will always be corner cases, people who don't want
+> strict overcommit etc. Thats why I said "as well". Its not a replacement
+> for OOM handling of some form.
 
-The patch touches two files:
+agreed.
 
-include/asm-i386/i387.h:
-   here save_init_fpu() is defined and this seems to be the location of the problem
-
-arch/i386/kernel/traps.c:
-   by checking for TS_USEDFPU we spare an additional "device not available" fault (with CONFIG_PREEMPT=y) and thereby a 
-superflous math_state_restore(). There is not point in restoring the math-state just to save it again (but this didn't cause the 
-shooting with wild SIGFPEs).
-
-Regards
-
-Claus
-
-######################################### snip ##########################################################################
-diff -u --recursive --new-file linux-2.6.0-test4/arch/i386/kernel/traps.c linux-2.6.0-test4-mine/arch/i386/kernel/traps.c
---- linux-2.6.0-test4/arch/i386/kernel/traps.c	2003-08-31 15:22:42.000000000 +0200
-+++ linux-2.6.0-test4-mine/arch/i386/kernel/traps.c	2003-08-31 15:35:49.000000000 +0200
-@@ -605,7 +605,10 @@
-  	 * Save the info for the exception handler and clear the error.
-  	 */
-  	task = current;
--	save_init_fpu(task);
-+	/* don't trigger an unnecessary math_state_restore() */
-+	if (task->thread_info->status & TS_USEDFPU) {
-+		save_init_fpu(task);
-+	}
-  	task->thread.trap_no = 16;
-  	task->thread.error_code = 0;
-  	info.si_signo = SIGFPE;
-@@ -667,7 +670,10 @@
-  	 * Save the info for the exception handler and clear the error.
-  	 */
-  	task = current;
--	save_init_fpu(task);
-+	/* don't trigger an unnecessary math_state_restore() */
-+	if (task->thread_info->status & TS_USEDFPU) {
-+		save_init_fpu(task);
-+	}
-  	task->thread.trap_no = 19;
-  	task->thread.error_code = 0;
-  	info.si_signo = SIGFPE;
-diff -u --recursive --new-file linux-2.6.0-test4/include/asm-i386/i387.h linux-2.6.0-test4-mine/include/asm-i386/i387.h
---- linux-2.6.0-test4/include/asm-i386/i387.h	2003-07-27 19:06:54.000000000 +0200
-+++ linux-2.6.0-test4-mine/include/asm-i386/i387.h	2003-08-31 15:39:04.000000000 +0200
-@@ -30,7 +30,7 @@
-  static inline void __save_init_fpu( struct task_struct *tsk )
-  {
-  	if ( cpu_has_fxsr ) {
--		asm volatile( "fxsave %0 ; fnclex"
-+		asm volatile( "fxsave %0 ; fclex"
-  			      : "=m" (tsk->thread.i387.fxsave) );
-  	} else {
-  		asm volatile( "fnsave %0 ; fwait"
-@@ -41,8 +41,10 @@
-
-  static inline void save_init_fpu( struct task_struct *tsk )
-  {
-+	preempt_disable();
-  	__save_init_fpu(tsk);
-  	stts();
-+	preempt_enable_no_resched();
-  }
-
-
-@@ -53,11 +55,13 @@
-
-  #define clear_fpu( tsk )					\
-  do {								\
-+	preempt_disable();					\
-  	if ((tsk)->thread_info->status & TS_USEDFPU) {		\
-  		asm volatile("fwait");				\
-  		(tsk)->thread_info->status &= ~TS_USEDFPU;	\
-  		stts();						\
-  	}							\
-+	preempt_enable_no_resched();				\
-  } while (0)
-
-  /*
-
-
-
+Andrea

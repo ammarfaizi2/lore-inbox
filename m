@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262761AbTJDQrf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 12:47:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbTJDQrf
+	id S262695AbTJDQlM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 12:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262704AbTJDQlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 12:47:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:4510 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262761AbTJDQrd (ORCPT
+	Sat, 4 Oct 2003 12:41:11 -0400
+Received: from gprs150-221.eurotel.cz ([160.218.150.221]:3202 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262695AbTJDQlJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 12:47:33 -0400
-Date: Sat, 4 Oct 2003 09:49:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Rhino <rhino9@terra.com.br>
-Cc: linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
-Subject: Re: 2.6.0-test6-mm3
-Message-Id: <20031004094913.77d878ec.akpm@osdl.org>
-In-Reply-To: <20031004105227.7e63240c.rhino9@terra.com.br>
-References: <20031004021255.3fefbacb.akpm@osdl.org>
-	<20031004105227.7e63240c.rhino9@terra.com.br>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 4 Oct 2003 12:41:09 -0400
+Date: Sat, 4 Oct 2003 18:39:28 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Stan Bubrouski <stan@ccs.neu.edu>
+Cc: Patrick Mochel <mochel@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [pm] fix oops after saving image
+Message-ID: <20031004163927.GA450@elf.ucw.cz>
+References: <20031002203906.GB7407@elf.ucw.cz> <Pine.LNX.4.44.0310031433530.28816-100000@cherise> <20031003223352.GB344@elf.ucw.cz> <3F7E57E9.8070904@ccs.neu.edu> <20031004080239.GA213@elf.ucw.cz> <3F7EF4A0.7060504@ccs.neu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F7EF4A0.7060504@ccs.neu.edu>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rhino <rhino9@terra.com.br> wrote:
->
-> got these endless messages :
+Hi!
+
+> >>>+ *    Note: The buffer we allocate to use to write the suspend header is
+> >>>+ *    not freed; its not needed since system is going down anyway
+> >>>+ *    (plus it causes oops and I'm lazy^H^H^H^Htoo busy).
+> >>>+ */
+> >>
+> >>Too lazy to properly fix your comment as well.
+> >
+> >
+> >Can you elaborate?
+> >								Pavel
 > 
->  pid 4220 pgrp 4220 sid 3542 tty 00000000 ENOTTY vs tty f7984000 sid 0
->  pid 4221 pgrp 4220 sid 3542 tty 00000000 ENOTTY vs tty f7984000 sid 0
->  pid 4219 pgrp 3542 sid 3542 tty 00000000 ENOTTY vs tty f7984000 sid 0
+> Pavel what mail client are you using?  The last comment
+> reads:
+> + *    (plus it causes oops and I'm lazy<CTRL-H><CTRL-H><CTRL-H><CTRL-H>too 
+> busy).
+> 
+> I spelled out the ^H so you can see them, that is how
+> the comment looks to me.  The word 'lazy' is still in
+> there along with too busy, you never backspaced over
+> the lazy in the comment.  That's all :P
 
-I don't know why that was added actually; maybe it is just left-over
-debugging code. 
+:-))))))))))))))))))))))
 
- drivers/char/tty_io.c |   13 ++-----------
- 1 files changed, 2 insertions(+), 11 deletions(-)
-
-diff -puN drivers/char/tty_io.c~job-control-remove-debug drivers/char/tty_io.c
---- 25/drivers/char/tty_io.c~job-control-remove-debug	2003-10-04 09:46:56.000000000 -0700
-+++ 25-akpm/drivers/char/tty_io.c	2003-10-04 09:47:21.000000000 -0700
-@@ -1591,22 +1591,13 @@ static int tiocspgrp(struct tty_struct *
- 	pid_t pgrp;
- 	int retval = tty_check_change(real_tty);
- 
--	if (retval == -EIO) {
--		printk(KERN_WARNING "pid %d pgrp %d tty_check_change EIO\n",
--			current->pid, current->signal->pgrp);
-+	if (retval == -EIO)
- 		return -ENOTTY;
--	}
- 	if (retval)
- 		return retval;
- 	if (!process_tty(current) || (process_tty(current) != real_tty) ||
--			(real_tty->session != process_session(current))) {
--		printk(KERN_WARNING "pid %d pgrp %d sid %d tty %p "
--				"ENOTTY vs tty %p sid %d\n",
--			current->pid, process_group(current),
--			process_session(current), process_tty(current),
--			real_tty, real_tty->session);
-+			(real_tty->session != process_session(current)))
- 		return -ENOTTY;
--	}
- 	if (get_user(pgrp, (pid_t *) arg))
- 		return -EFAULT;
- 	if (pgrp < 0)
-
-_
- 
+No, my mail client is okay. I actually wrote ^ and H, and that should
+be a joke.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273255AbRIQAXF>; Sun, 16 Sep 2001 20:23:05 -0400
+	id <S273261AbRIQAeZ>; Sun, 16 Sep 2001 20:34:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273259AbRIQAWz>; Sun, 16 Sep 2001 20:22:55 -0400
-Received: from CPE-61-9-148-200.vic.bigpond.net.au ([61.9.148.200]:56560 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S273255AbRIQAWr>; Sun, 16 Sep 2001 20:22:47 -0400
-Message-ID: <3BA53DE8.6837DB0B@eyal.emu.id.au>
-Date: Mon, 17 Sep 2001 10:03:52 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-pre4 i686)
-X-Accept-Language: en
+	id <S273269AbRIQAeQ>; Sun, 16 Sep 2001 20:34:16 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:43530 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S273261AbRIQAd7>; Sun, 16 Sep 2001 20:33:59 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+Subject: Re: broken VM in 2.4.10-pre9
+Date: Mon, 17 Sep 2001 02:37:53 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <1000653836.2440.0.camel@gromit.house> <Pine.LNX.4.33L.0109161330000.9536-100000@imladris.rielhome.conectiva> <9o2vct$889$1@penguin.transmeta.com>
+In-Reply-To: <9o2vct$889$1@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Alan Cox <laughing@shared-source.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.9-ac11 - unresolved
-In-Reply-To: <20010916202712.A21876@lightning.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010917003422Z16197-2757+375@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For a change we have some new ones.
+On September 16, 2001 09:43 pm, Linus Torvalds wrote:
+> The fact that the "use-once" logic didn't kick in is the problem. It's
+> hard to tell _why_ it didn't kick in, possibly because the MP3 player
+> read small chunks of the pages (touching them multiple times). 
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.9-ac11/kernel/drivers/ide/hptraid.o
-depmod:         put_gendisk
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.9-ac11/kernel/drivers/ide/pdcraid.o
-depmod:         put_gendisk
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.9-ac11/kernel/drivers/net/wan/comx.o
-depmod:         proc_get_inode
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.9-ac11/kernel/fs/jffs/jffs.o
-depmod:         jffs_min
+Can we confirm that the mp3 player is making subpage accesses? (strace)
+
+The 'partially read/written' state isn't handled properly now.  The 
+transition to the 'used-once' state should only occur if the transfer ends at 
+the exact end of the page.  Right now it always takes place after the *first* 
+transfer on the page which is correct only for full-page transfers.
+
+It's still best to start all pages unreferenced, because otherwise we don't 
+have a means of distinguishing between the first and subsequent page cache 
+lookups.  The check_used_once logic should set the page referenced if the IO 
+transfer ends in the interior of the page or unreferenced if it ends at the 
+end of the page.
+
+This straightforward to fix, I'll have a tested patch by Tuesday if nobody 
+beats me to it.  I don't think this is the whole problem though, it's just 
+exposing a balancing problem.  Even if I did go and randomly access a huge 
+file so that all cache pages have high age (the effect we're simulating by 
+accident here) I still shouldn't be able to drive all my swap pages out of 
+memory.
+
+--
+Daniel
+  
+
+  
+
+  

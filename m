@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313060AbSEEPeY>; Sun, 5 May 2002 11:34:24 -0400
+	id <S313113AbSEEPtv>; Sun, 5 May 2002 11:49:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313084AbSEEPeY>; Sun, 5 May 2002 11:34:24 -0400
-Received: from jagor.srce.hr ([161.53.2.130]:27853 "EHLO jagor.srce.hr")
-	by vger.kernel.org with ESMTP id <S313060AbSEEPeX>;
-	Sun, 5 May 2002 11:34:23 -0400
-Message-Id: <200205051526.g45FQT89009651@jagor.srce.hr>
-Content-Type: text/plain; charset=US-ASCII
-From: Danijel Schiavuzzi <dschiavu@public.srce.hr>
-Organization: Dead Poets Society
-To: Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: Kernel patching 2.4.19pre1 -> 2.4.19pre2
-Date: Sun, 5 May 2002 17:26:45 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <Pine.NEB.4.44.0205051701330.283-100000@mimas.fachschaften.tu-muenchen.de>
-Cc: linux-kernel@vger.kernel.org
-X-UIN: 39223454
-X-Operating-System: GNU/Linux 2.4.17
-X-Troll: no
-X-URL: <http://danijels.cjb.net>
+	id <S313125AbSEEPtu>; Sun, 5 May 2002 11:49:50 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:28143 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S313113AbSEEPtu>; Sun, 5 May 2002 11:49:50 -0400
+Date: Sun, 5 May 2002 17:49:34 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Neil Conway <nconway_kernel@yahoo.co.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH, IDE corruption, 2.4.18
+Message-ID: <Pine.SOL.4.30.0205051741140.23671-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 05 May 2002 17:03, Adrian Bunk wrote:
-> Hi Danijel,
 
-Hi Adrian :)
+> Explanation: some code now differs in the code path concerned, and
+> ide_register_subdriver now only calls ide_dma_check for UDMA drives
+> (previously all DMA drives), but ultimately ide_dma_check still ends up
+> in ide_config_drive_speed, and that's still fuctionally the same as
+> 2.4.
 
-> > I'm trying to patch a 2.4.17 clean source tree to the latest 2.4.19-pre8
-> > tree. I can patch it until the 2.4.19pre1.
-> > When I try to apply patch-2.4.19pre2.bz2, this happens:
-> >...
-> > Where's the problem?
-> >...
->
-> the 2.4.19pre patches are all against 2.4.18, IOW:
-> pre2 contains everything that is in pre1, too.
->
-> You should apply the 2.4.19pre8 patch directly to the 2.4.18 kernel
-> sources.
+You've got been mistaken by unfortunate name (Martin changed
+name dmaproc() to udma() in 2.5.12).
+Code calls ide_dma_check for chipsets which registerered udma()
+handler (formerly dmaproc()), I think the same 2.4 does.
 
-Thank you very much for the explanation!
+btw. udma() name is really misleading,
+     it should be read (u)dma() not udma() :)
 
-Have a nice day,
+--
+bkz
 
--- 
-Danijel Schiavuzzi

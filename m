@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281332AbRKQL3K>; Sat, 17 Nov 2001 06:29:10 -0500
+	id <S281373AbRKQLid>; Sat, 17 Nov 2001 06:38:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281334AbRKQL3A>; Sat, 17 Nov 2001 06:29:00 -0500
-Received: from AGrenoble-101-1-3-82.abo.wanadoo.fr ([193.253.251.82]:3200 "EHLO
-	strider.virtualdomain.net") by vger.kernel.org with ESMTP
-	id <S281332AbRKQL2u> convert rfc822-to-8bit; Sat, 17 Nov 2001 06:28:50 -0500
-Message-ID: <3BF64A9F.6000703@wanadoo.fr>
-Date: Sat, 17 Nov 2001 12:31:43 +0100
-From: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us, fr
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: jmerkey@vger.timpanogas.org, linux-kernel@vger.kernel.org
-Subject: Re: Microsoft IE6 is crashing with Linux 2.4.X
-In-Reply-To: <Pine.LNX.4.33.0111170949010.12253-100000@netfinity.realnet.co.sz>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S281339AbRKQLiX>; Sat, 17 Nov 2001 06:38:23 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:63760 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S281373AbRKQLiM>;
+	Sat, 17 Nov 2001 06:38:12 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Pinyowattayakorn, Naris" <np151003@exchange.SanDiegoCA.NCR.COM>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Driver callback routine when panic() is called 
+In-Reply-To: Your message of "Fri, 16 Nov 2001 20:30:23 CDT."
+             <61A60D883863D411A36600D0B785B50C06D5FEA4@susdayte51.daytonoh.ncr.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 17 Nov 2001 22:38:00 +1100
+Message-ID: <17427.1005997080@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 16 Nov 2001 20:30:23 -0500, 
+"Pinyowattayakorn, Naris" <np151003@exchange.SanDiegoCA.NCR.COM> wrote:
+>Is there any call that can be used for a driver to register system crash
+>callback routines. Thus, If panic( ) is called, such a callback can save
+>device-state information to be written into the system crash dump file. 
 
-I tend to agree, I'm using postfix on a production machine
-and it has never failed... sendmail simply cannot compare to
-postfix in terms of speed and stability.
+notifier_chain_register(&panic_notifier_list, ...)
 
-François
+See the kdb patch[1] for example code.  Remember that all but one cpus
+are dead by the time you are called, I hope all your IRQs go to the
+single live cpu.
 
-Zwane Mwaikambo wrote:
-
-> This is actually terribly OT, but have you tested with a different MTA?
-> I'm using Postfix in production and most of my clients like running the
-> latest and "greatest" Microsoft has to offer and so far so good. Regarding
-> "hidden" emails, i think its called spyware ;) But IMO if your MTA is
-> spewing chunks under load then its an MTA problem, however if your OS
-> spews chunks in the process then its obviously an OS problem (e.g. your
-> W2k box BSODing).
-> 
-> Regards,
-> Zwane Mwaikambo
-
-
+[1] ftp://oss.sgi.com/projects/kdb/download/ix86
 

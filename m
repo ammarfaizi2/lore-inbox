@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278949AbRJVVaU>; Mon, 22 Oct 2001 17:30:20 -0400
+	id <S278959AbRJVVcA>; Mon, 22 Oct 2001 17:32:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278960AbRJVV24>; Mon, 22 Oct 2001 17:28:56 -0400
-Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:29969 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S278949AbRJVV15>;
-	Mon, 22 Oct 2001 17:27:57 -0400
-Date: Mon, 22 Oct 2001 14:30:36 -0700 (PDT)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Gregory Ade <gkade@bigbrother.net>, bert hubert <ahu@ds9a.nl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <E15vlSw-0003BY-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10110221430090.16785-100000@innerfire.net>
+	id <S278958AbRJVVbq>; Mon, 22 Oct 2001 17:31:46 -0400
+Received: from mamona.cetuc.puc-rio.br ([139.82.74.4]:41111 "EHLO
+	mamona.cetuc.puc-rio.br") by vger.kernel.org with ESMTP
+	id <S278957AbRJVVb0> convert rfc822-to-8bit; Mon, 22 Oct 2001 17:31:26 -0400
+Message-ID: <3032.139.82.28.36.1003786396.squirrel@mamona.cetuc.puc-rio.br>
+Date: Mon, 22 Oct 2001 19:33:16 -0200 (BRST)
+Subject: Re: VM
+From: "Marcelo Roberto Jimenez" <mroberto@cetuc.puc-rio.br>
+To: linux-kernel@vger.kernel.org
+X-Mailer: SquirrelMail (version 1.0.6)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by mamona.cetuc.puc-rio.br id f9MLXB203323
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001, Alan Cox wrote:
-
-> > So, then, just to satisfy my curiosity, how long until users of Linux in
-> > the U.S.A. will no longer be allowed to download new kernels?
+Alan Cox wrote:
+> > > Too ugly for words.
+> >
+> > Though, if it's done from the start of 2.5, it could be very possible. 
+> > Is there a way to make it non-ugly?
 > 
-> Potentially about 12 months after the SSSCA is passed. At which point you may
-> well find only a binary only OS with enforced copy management is legal in
-> the USA.
-> 
-> > I guess I was wrong about the Linux kernel being Open Source and freely
-> > available and distributable.
-> 
-> It is, subject to the law of the various countries concerned.
-> 
-> Alan
+> I would hope by then we have a definitive answer as to the best path in 
+> the VM world
 
-Has it become time for a non-us.vger.kernel.org ??
+Maybe there's no such answer. Maybe it's undecidable. In the mathematical  (Gödel) sense.
 
---
-Gerhard Mack
+Marcelo.
 
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
 

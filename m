@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268362AbRHBSrc>; Thu, 2 Aug 2001 14:47:32 -0400
+	id <S268560AbRHBSxc>; Thu, 2 Aug 2001 14:53:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268511AbRHBSrW>; Thu, 2 Aug 2001 14:47:22 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:41232 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S268362AbRHBSrE>; Thu, 2 Aug 2001 14:47:04 -0400
-Date: Thu, 2 Aug 2001 20:47:10 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread
-Message-ID: <20010802204710.B18742@emma1.emma.line.org>
-Mail-Followup-To: Alexander Viro <viro@math.psu.edu>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	"Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010802193750.B12425@emma1.emma.line.org> <Pine.GSO.4.21.0108021431050.29563-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0108021431050.29563-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.3.19i
+	id <S268556AbRHBSxW>; Thu, 2 Aug 2001 14:53:22 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:8064 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S268511AbRHBSxH>; Thu, 2 Aug 2001 14:53:07 -0400
+Date: Thu, 2 Aug 2001 14:52:24 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Jeffrey W. Baker" <jwbaker@acm.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Ongoing 2.4 VM suckage
+In-Reply-To: <Pine.LNX.4.33.0108021122400.21298-100000@heat.gghcwest.com>
+Message-ID: <Pine.LNX.3.95.1010802144823.4472A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 02 Aug 2001, Alexander Viro wrote:
+On Thu, 2 Aug 2001, Jeffrey W. Baker wrote:
 
-> How the fuck it's expensive? It does _exactly_ the same as file fsync() -
-> literally the same code. It doesn't write blocks that don't belong to
-> directory. It doesn't write blocks that are clean. IOW, it does the
-> minimal work possible.
+> This just in: Linux 2.4 VM still useless.
+> 
+> I have 2 GB main memory and 4GB swap on a 2-way intel machine running a
+> variety of 2.4 kernels (we upgrade every time we have to reboot), and we
+> have to power cycle the machine weekly because too much memory usage + too
+> much disk I/O == thrash for hours.
+> 
+> Gosh, I guess it is silly to use all of the available RAM and I/O
+> bandwidth on my machines.  My company will just go out of their way to
+> do less work on smaller sets of data.
+> 
 
-fsync()ing the dir is not the minimal work possible, if e. g. temporary
-files are open that don't need their names synched. Fsync()ing the
-directory syncs also these temporary file NAMES that other processes may
-have open (but that they unlink rather than fsync()).
+Are you sure it's not just come user-code with memory leaks? I use
+2.4.1 on an embeded system with no disks, therefore no swap. It does
+large FFT arrays to make spectrum-analyzer pictures and it has never
+seen any problems with VM, in fact never any problems that can be
+blamed on the Operating System.
 
-Assume:
+Try 2.4.1 and see if your problems go away. If not, you probably
+have user-mode leakage.
 
-open -> asynchronous, but filename synched on fsync()
-rename/link/unlink(/symlink) -> synchronous
 
-This way, you never need to fsync() the directory, so you never sync()
-entries of temporary files. You never lose important files (because the
-application uses fsync() and the OS synchs rename/link etc.).
+Cheers,
+Dick Johnson
 
--- 
-Matthias Andree
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265468AbUABKJX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 05:09:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265473AbUABKJW
+	id S265473AbUABKLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 05:11:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265476AbUABKLQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 05:09:22 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:50355 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265468AbUABKJT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 05:09:19 -0500
-Date: Fri, 2 Jan 2004 11:09:09 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Peter Osterlund <petero2@telia.com>, Andrew Morton <akpm@osdl.org>,
-       packet-writing@suse.com, linux-kernel@vger.kernel.org
-Subject: Re: ext2 on a CD-RW
-Message-ID: <20040102100909.GG5523@suse.de>
-References: <Pine.LNX.4.44.0401020022060.2407-100000@telia.com> <20040101162427.4c6c020b.akpm@osdl.org> <m2llorkuhn.fsf@telia.com> <1073034412.4429.1.camel@laptop.fenrus.com>
+	Fri, 2 Jan 2004 05:11:16 -0500
+Received: from sole.infis.univ.trieste.it ([140.105.134.1]:34239 "EHLO
+	sole.infis.univ.trieste.it") by vger.kernel.org with ESMTP
+	id S265473AbUABKLF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 05:11:05 -0500
+Date: Fri, 2 Jan 2004 11:10:51 +0100
+From: Andrea Barisani <lcars@gentoo.org>
+To: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+Cc: greg@kroah.com
+Subject: does udev really require hotplug?
+Message-ID: <20040102101051.GA12073@sole.infis.univ.trieste.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1073034412.4429.1.camel@laptop.fenrus.com>
+X-GPG-Key: 0x864C9B9E
+X-GPG-Fingerprint: 0A76 074A 02CD E989 CE7F  AC3F DA47 578E 864C 9B9E
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 02 2004, Arjan van de Ven wrote:
-> On Fri, 2004-01-02 at 02:30, Peter Osterlund wrote:
-> 
-> > The packet writing code has the restriction that a bio must not span a
-> > packet boundary. (A packet is 32*2048 bytes.) If the page when mapped
-> > to disk starts 2kb before a packet boundary, merge_bvec_fn therefore
-> > returns 2048, which is less than len, which is 4096 if the whole page
-> > is mapped, so the bio_add_page() call fails.
-> 
-> devicemapper has similar restrictions for raid0 format; in that case
-> it's device-mappers job to split the page/bio. Just as it is UDF's task
-> to do the same I suspect...
 
-It has nothing to do with UDF, it's a driver problem (API breakage).
+Hi everybody and happy new year!
+
+Just one simple question about a very simple matter that right now 
+I can't figure out: does udev need hotplug package presence?
+
+>From your README:
+
+  If for some reason you do not install the hotplug scripts, you must tell the
+  kernel to point the hotplug binary at wherever you install udev at.  This can
+  be done by:
+	echo "/sbin/udev" > /proc/sys/kernel/hotplug
+
+
+...does this work properly? It's not clear if some features are lost by not having 
+hotplug script installed. Also is this policy subject to changes in the near
+future?
+
+
+Bye and thanks
+
+P.S.
+please CC me since I'm not subscribed
 
 -- 
-Jens Axboe
-
+Andrea Barisani <lcars@gentoo.org>                            .*.
+Gentoo Linux Infrastructure Developer                          V
+                                                             (   )
+GPG-Key 0x864C9B9E http://dev.gentoo.org/~lcars/pubkey.asc   (   )
+    0A76 074A 02CD E989 CE7F AC3F DA47 578E 864C 9B9E        ^^_^^

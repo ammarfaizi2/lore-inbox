@@ -1,75 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262719AbUC2HKs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 02:10:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbUC2HKs
+	id S262720AbUC2HQo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 02:16:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbUC2HQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 02:10:48 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:54288 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262719AbUC2HKq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 02:10:46 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Willy Tarreau <willy@w.ods.org>, Len Brown <len.brown@intel.com>
-Subject: Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
-Date: Mon, 29 Mar 2004 09:01:47 +0200
-X-Mailer: KMail [version 1.4]
-Cc: Arkadiusz Miskiewicz <arekm@pld-linux.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-References: <A6974D8E5F98D511BB910002A50A6647615F6939@hdsmsx402.hd.intel.com> <1080535754.16221.188.camel@dhcppc4> <20040329052238.GD1276@alpha.home.local>
-In-Reply-To: <20040329052238.GD1276@alpha.home.local>
+	Mon, 29 Mar 2004 02:16:43 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:28060 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262720AbUC2HQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 02:16:43 -0500
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: nbd-server?
+References: <20040329053939.GO21875@rdlg.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 29 Mar 2004 00:15:56 -0700
+In-Reply-To: <20040329053939.GO21875@rdlg.net>
+Message-ID: <m1hdw8gm37.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200403290901.47695.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 29 March 2004 07:22, Willy Tarreau wrote:
-> Hi Len,
->
-> On Sun, Mar 28, 2004 at 11:49:15PM -0500, Len Brown wrote:
-> > ACPI unconditionally used cmpxchg before this change also -- from asm().
-> > The asm() was broken, so we replaced it with C,
-> > which invokes the cmpxchg macro, which isn't defined for
-> > an 80386 build.
-> >
-> > I guess it is a build bug that the assembler allowed us
-> > to invoke cmpxchg in an asm() for an 80386 build in earlier releases.
-> >
-> > I'm open to suggestions on the right way to fix this.
-> >
-> > 1. recommend CONFIG_ACPI=n for 80386 build.
-> >
-> > 2. force CONFIG_ACPI=n for 80386 build.
-> >
-> > 3. invoke cmpxchg from acpi even for 80386 build.
-> >
-> > 4. re-implement locks for the 80386 case.
->
-> I like this one, but a simpler way : don't support SMP in this case, so
-> that we won't have to play with locks. This would lead to something like
-> this :
+"Robert L. Harris" <Robert.L.Harris@rdlg.net> writes:
 
-Yes, SMP makes sense only on 486+
+>   I'm looking at messing with network block devices and found 2 "servers"
+> in the debian unstable tree.  "nbd-server" and "enbd" (enhanced network
+> block device support).  Is either one better than the other?
 
-> #ifndef CONFIG_X86_CMPXCHG
-> #ifndef CONFIG_SMP
-> #define cmpxchg(lock,old,new) ((*lock == old) ? ((*lock = new), old) :
-> (*lock)) #else
-> #define cmpxchg(lock,old,new) This_System_Is_Not_Supported
-> #endif
-> #endif
->
-> This code (if valid) might be added to asm-i386/system.h so that we don't
-> touch ACPI code.
->
-> Any comments ?
+nbd is simple and works.  I have managed to at least oops both enbd
+and drbd.  They have more features but...
 
-Inline func please. We definitely don't want to evaluate
-lock and old expressions several times.
--- 
-vda
+Eric

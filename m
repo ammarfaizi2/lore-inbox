@@ -1,47 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265855AbUAPUGR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 15:06:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265853AbUAPUET
+	id S265833AbUAPUBL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 15:01:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265835AbUAPUBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 15:04:19 -0500
-Received: from srv1a-cta.bs2.com.br ([200.203.183.35]:35086 "EHLO
-	srv1a-cta.bs2.com.br") by vger.kernel.org with ESMTP
-	id S265835AbUAPUBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 15:01:23 -0500
-Message-ID: <4008430C.9090101@gardenali.biz>
-Date: Fri, 16 Jan 2004 18:01:16 -0200
-From: Evaldo Gardenali <evaldo@gardenali.biz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Fri, 16 Jan 2004 15:01:10 -0500
+Received: from darkwing.uoregon.edu ([128.223.142.13]:15497 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id S265833AbUAPUA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 15:00:26 -0500
+Date: Fri, 16 Jan 2004 11:59:31 -0800 (PST)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: David Ford <david+hb@blue-labs.org>
+cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Unknown CPU
+In-Reply-To: <40083E96.3020109@blue-labs.org>
+Message-ID: <Pine.LNX.4.44.0401161158180.32303-100000@twin.uoregon.edu>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: parkbd adapter
-X-Enigmail-Version: 0.82.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+It's clearly a barton, what kernel are you running?
 
-Hi
-I've been trying to find the schematics or any documentation on building
-the parallel port to aux adapter (used by parkbd.o) so that one can plug
-a keyboard to the parallel port, and all I can find is a page saying
-'schematics will follow sometime later' and a page referenced everywhere
-that doesnt exist anymore (http://www.suse.cz/development/input/).
-Would someone please send me any useful data/link?
-(I tried emailing Mr. Vojtech Pavlik a long time ago, but I got no reply)
-Thanks in advance
-Evaldo Gardenali - UdontKnow
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+joelja
 
-iD8DBQFACEMM5121Y+8pAbIRAo4lAJ0aFO8Xs2AG4kTjwie9OtTnapli5ACgg9FX
-MN+29AWhar/mU1D1c1E4+LI=
-=4VNW
------END PGP SIGNATURE-----
+On Fri, 16 Jan 2004, David Ford wrote:
+
+> I've an unknown cpu (athlon xp) in my machine.  What data do I need to 
+> collect so the kernel knows what it is?
+> 
+> # cat /proc/cpuinfo
+> processor       : 0
+> vendor_id       : AuthenticAMD
+> cpu family      : 6
+> model           : 10
+> model name      : Unknown CPU Type
+> stepping        : 0
+> cpu MHz         : 1837.618
+> cache size      : 512 KB
+> fdiv_bug        : no
+> hlt_bug         : no
+> f00f_bug        : no
+> coma_bug        : no
+> fpu             : yes
+> fpu_exception   : yes
+> cpuid level     : 1
+> wp              : yes
+> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
+> mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+> bogomips        : 3629.05
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu    
+GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
+
+

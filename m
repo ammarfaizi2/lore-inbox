@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268004AbUHXPn4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268059AbUHXPmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268004AbUHXPn4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 11:43:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266831AbUHXPn3
+	id S268059AbUHXPmw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 11:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268004AbUHXPjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 11:43:29 -0400
-Received: from holomorphy.com ([207.189.100.168]:59523 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268047AbUHXPlg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 11:41:36 -0400
-Date: Tue, 24 Aug 2004 08:41:31 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Anders Saaby <as@cohaesio.com>
-Cc: linux-kernel@vger.kernel.org, joe@unthought.net,
-       Gene Heskett <gene.heskett@verizon.net>,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: oom-killer 2.6.8.1
-Message-ID: <20040824154131.GM2793@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Anders Saaby <as@cohaesio.com>, linux-kernel@vger.kernel.org,
-	joe@unthought.net, Gene Heskett <gene.heskett@verizon.net>,
-	Hugh Dickins <hugh@veritas.com>
-References: <200408181455.42279.as@cohaesio.com> <200408181624.25131.as@cohaesio.com> <20040818211142.GH11200@holomorphy.com> <200408241130.15577.as@cohaesio.com>
+	Tue, 24 Aug 2004 11:39:43 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:40164 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S267941AbUHXPi7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 11:38:59 -0400
+Subject: Re: RCU issue with SELinux (Re: SELINUX performance issues)
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Kaigai Kohei <kaigai@ak.jp.nec.com>
+Cc: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
+       "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>,
+       James Morris <jmorris@redhat.com>
+In-Reply-To: <042b01c489ab$8a871ce0$f97d220a@linux.bs1.fc.nec.co.jp>
+References: <Xine.LNX.4.44.0408161119160.4659-100000@dhcp83-76.boston.redhat.com>
+	 <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093014789.16585.186.camel@moss-spartans.epoch.ncsc.mil>
+	 <042b01c489ab$8a871ce0$f97d220a@linux.bs1.fc.nec.co.jp>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1093361844.1800.150.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408241130.15577.as@cohaesio.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 24 Aug 2004 11:37:24 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 24, 2004 at 11:30:15AM +0200, Anders Saaby wrote:
-> OK - I now have some additional info regarding the slapinfo/oom-killer
-> issue.
-> As I wrote earlier this server is a storage server providing NFS storage to a 
-> number of webservers - ondisk filesystem is xfs, kernel = 2.6.8.1. At 03:00 
-> some logrotate scripts runs throug a lot of files. It appears that this is 
-> what is using the slabs (see this graph, K = M, so max used slab is approx. 
-> 700M) 
-> http://saaby.com/slabused.gif (values are from /proc/meminfo)
-> These are the values (from slabinfo, active_objs), which changed remarkably 
-> from 03:00 to 06:00:
-> 03:00:        06:00:
-> xfs_chashlist  91297    xfs_chashlist     151994
-> xfs_inode     243791    xfs_inode         586780
-> linvfs_icache 243791    linvfs_icache     586807
-> dentry_cache  196033    dentry_cache      430609
+On Tue, 2004-08-24 at 03:25, Kaigai Kohei wrote:
+> You are right. Indeed, the lock for hash bucket is also necessary
+> when avc_insert() is called. I fixed them.
 
-xfs has some known bad slab behavior. I think punting this in the
-direction of xfs mailing lists may be useful.
+avc_has_perm* can be called from interrupt or bh, e.g. send_sigio or
+sock_rcv_skb.  So using just spin_lock/spin_unlock rather than
+spin_lock_irqsave/restore is unsafe, right?
+ 
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-
-On Tue, Aug 24, 2004 at 11:30:15AM +0200, Anders Saaby wrote:
-> The server crashed every night at approx. 03:00 to 04:00 - until last night 
-> where we changed:
-> vm.min_free_kbytes from default (approx. 900K) to vm.min_free_kbytes=32768 
-> (32M)
-> This seems to solve the problem - Does this make any sense to you? - Or just 
-> pure luck?
-
-I guess it makes some sense since it refuses to let slab cut into the
-very last bits of RAM. If you're getting temporarily heavily fragmented
-with active references it may mean the difference between the box
-livelocking/deadlocking and making forward progress.
-
-
--- wli

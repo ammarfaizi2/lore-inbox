@@ -1,93 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143885AbRAHOzh>; Mon, 8 Jan 2001 09:55:37 -0500
+	id <S144004AbRAHO61>; Mon, 8 Jan 2001 09:58:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144004AbRAHOz2>; Mon, 8 Jan 2001 09:55:28 -0500
-Received: from smtp5.mail.yahoo.com ([128.11.69.102]:47116 "HELO
-	smtp5.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S143885AbRAHOyw>; Mon, 8 Jan 2001 09:54:52 -0500
-X-Apparently-From: <p?gortmaker@yahoo.com>
-Message-ID: <3A59D38B.B05EB8B@yahoo.com>
-Date: Mon, 08 Jan 2001 09:49:47 -0500
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-X-Mailer: Mozilla 3.04 (X11; I; Linux 2.4.0 i486)
+	id <S144152AbRAHO6R>; Mon, 8 Jan 2001 09:58:17 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:29009 "EHLO
+	amsmta02-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S144004AbRAHO57>; Mon, 8 Jan 2001 09:57:59 -0500
+Date: Mon, 8 Jan 2001 17:04:58 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: Andries.Brouwer@cwi.nl
+cc: matthias.andree@stud.uni-dortmund.de,
+        Kernel devel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18 and Maxtor 96147H6 (61 GB)
+In-Reply-To: <UTC200101061645.RAA145723.aeb@texel.cwi.nl>
+Message-ID: <Pine.LNX.4.21.0101081701490.10084-100000@server.serve.me.nl>
 MIME-Version: 1.0
-To: "Jeremy M. Dolan" <jmd@foozle.turbogeek.org>
-CC: linux-kernel@vger.kernel.org, axel@uni-paderborn.de
-Subject: Re: [PATCH] More Configure.help fixes
-In-Reply-To: <20010107225730.A8883@foozle.turbogeek.org> <20010107231228.A8927@foozle.turbogeek.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Configure.help also has help text for some 35 CONFIG_xxxx options that
-have since been removed from the config.in files.  Here is a little
-script to prune out those orphan entries (it is only 1/10th the size
-of the resulting diff, and its the gift that keeps on giving....)
+On Sat, 6 Jan 2001 Andries.Brouwer@cwi.nl wrote:
 
-It tells you how many CONFIG options exist that don't yet have help text
-as an added bonus bit of trivia. 
+> > It's not that simple.. The maxtor comes clipped,. but Linux can't kill the
+> > clip. So it sticks with 32 MB
+> 
+> > ibmsetmax.c does a software clip, but that bugs a bit. Sometimes even
+> > Linux doesn't see 61 GB, but only 32, sometimes the full capacity.
+> 
+> Please don't talk vague useless garbage.
+> There is no entity called "Linux". If you mean "the 2.4.0 kernel
+> boot messages report 61 GB, fdisk 2.9s sees 32 GB, fdisk 2.10r sees 61 GB"
+> then say so. If you mean something else, say what you mean.
+> Precisely, with versions and everything.
 
-Paul.
+2.2.18 sometimes sees 61 GB, sometimes 32 GB. I don't call that hard to
+understand. And I don't use 2.4 on that machine, see previous posting. I
+also mentined that I use 2.2.18 with Andre's IDE patches. 
 
---------------------8<-----cut here------8<---------------------
-#!/bin/sh
-# Check Documentation/Configure.help - define_bool/int entries aren't seen
-# by the end user and don't need help entries. Create ed script to prune out
-# orphans and execute it.			Paul Gortmaker 01/2001.
+> Since you have a Maxtor, my old setmax should suffice for you, it can kill
+> the clip, and there is no reason to use ibmsetmax.c, that is a version for
+> IBM disks. There should not be any need to use other machines.
+> 
+> If something changed for recent Maxtor disks, we would like to know,
+> but only reliable, detailed reports are of any use.
 
-if [ ! -r Documentation/Configure.help ]; then
-	echo Cant read or find Documentation/Configure.help
-	exit
-fi
+It was probably t he BIOS of this newer machine that somehow killed the
+software clip. I can't explain otherwise.
 
-echo -ne '\nTotal number of orphan config help entries: '
-FILES=`find . -name [cC]onfig.in`
+The setmax program initially gave errors, so that's why I switched to
+ibmsetmax.
 
-grep '^CONFIG_[0-9A-Za-z_]' Documentation/Configure.help|\
-	sort|uniq>/tmp/tmp-help.$$
-
-# Tab and space inside [  ]
-cat $FILES|grep -v define_| \
-	sed 's/.*[ 	]\(CONFIG_[A-Za-z0-9_]\+\)[ 	]*.*$/\1/;t;d'|\
-	sort|uniq>/tmp/tmp-opt.$$
-
-diff -u /tmp/tmp-opt.$$ /tmp/tmp-help.$$|\
-	grep '^\+CONFIG_'|sed 's/^\+//'>/tmp/tmp-orph.$$
-
-OCOUNT=`wc -l < /tmp/tmp-orph.$$`
-echo $OCOUNT
-
-echo -ne '\nTotal number of config options without any help text: '
-diff -u /tmp/tmp-help.$$ /tmp/tmp-opt.$$|grep '^\+'|wc -l
-
-if [ $OCOUNT -eq 0 ];then
-	exit 0
-fi
-
-echo -ne '\nCopy originial: '
-mv -vf Documentation/Configure.help Documentation/Configure.help~ 
-
-echo "ed -s Documentation/Configure.help~<<EOF">/tmp/tmp-ed.$$
-for i in `cat /tmp/tmp-orph.$$`
-do
-	echo "/$i/;-kz">>/tmp/tmp-ed.$$
-	echo "'z,/^[A-Za-z0-9#]/-d">>/tmp/tmp-ed.$$
-done
-echo wq Documentation/Configure.help>>/tmp/tmp-ed.$$
-echo EOF>>/tmp/tmp-ed.$$
-
-echo -ne \\nUnleashing ed\(1\) on orphans in Configure.help...
-. /tmp/tmp-ed.$$
-echo -e done.\\n
-
-# rm -f /tmp/tmp-opt.$$ /tmp/tmp-help.$$ /tmp/tmp-orph.$$ /tmp/tmp-ed.$$
---------------------8<-----cut here------8<---------------------
+If the vague behaviour starts appearing again I'll debug the thing. For
+now I blaim the award bios :)
+ 
+> Andries
 
 
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+	Igmar 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

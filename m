@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270750AbTG0LrR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 07:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270751AbTG0LrR
+	id S270751AbTG0Lwb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 07:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270753AbTG0Lwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 07:47:17 -0400
-Received: from lidskialf.net ([62.3.233.115]:30919 "EHLO beyond.lidskialf.net")
-	by vger.kernel.org with ESMTP id S270750AbTG0LrQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 07:47:16 -0400
-From: Andrew de Quincey <adq_dvb@lidskialf.net>
-To: Rahul Karnik <rahul@genebrew.com>
-Subject: Re: [PATCH] nvidia nforce 1.0-261 nvnet for kernel 2.5
-Date: Sun, 27 Jul 2003 13:02:30 +0100
-User-Agent: KMail/1.5.2
-Cc: Marcelo Penna Guerra <eu@marcelopenna.org>,
-       lkml <linux-kernel@vger.kernel.org>, Laurens <masterpe@xs4all.nl>,
-       Jeff Garzik <jgarzik@pobox.com>
-References: <200307262309.20074.adq_dvb@lidskialf.net> <200307271222.13649.adq_dvb@lidskialf.net> <3F23BC1D.7070804@genebrew.com>
-In-Reply-To: <3F23BC1D.7070804@genebrew.com>
-MIME-Version: 1.0
+	Sun, 27 Jul 2003 07:52:31 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:32734 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S270751AbTG0Lwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 07:52:30 -0400
+Date: Sun, 27 Jul 2003 14:07:40 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [TRIVIAL] sanitize power management config menus
+Message-ID: <20030727120740.GA24002@louise.pinerecords.com>
+References: <20030726200213.GD16160@louise.pinerecords.com> <20030726194651.5e3f00bb.rddunlap@osdl.org> <20030727025647.GB17724@louise.pinerecords.com> <20030726204623.47b08882.rddunlap@osdl.org> <20030727111340.GB1957@openzaurus.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307271301.41660.adq_dvb@lidskialf.net>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20030727111340.GB1957@openzaurus.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 27 July 2003 12:48, Rahul Karnik wrote:
-> Andrew de Quincey wrote:
-> > Ah, so THATS who they licensed it from. I didn't think nividia would go
-> > to the bother of designing their own ethernet hardware.
->
-> Actually, this is not certain, but it is one of the guesses. So far,
-> Nforce2 = AMD IDE + Intel sound + <unknown> ethernet.
+> > +	  This creates an image which is saved in your active swap space. On
+> > +	  the next boot, pass the 'resume=/path/to/your/swap/file' option and
+> 
+> Swap *files* are no longer supported. Swap partitions work.
 
-Hmm, the MAC address is in a different place on the nvidia hardware.
+Right.
 
-I've just dumped the mmapped IO space on mine. The MAC address shows up at 
-offset 0xa8, but the amd8111e driver is looking for it at 0x160 (there's just 
-loads of 0x00 there).
+> >  	  Right now you may boot without resuming and then later resume but
+> > -	  in meantime you cannot use those swap partitions/files which were
+> > +	  in the meantime you cannot use those swap partitions/files which were
+> >  	  involved in suspending. Also in this case there is a risk that buffers
+> >  	  on disk won't match with saved ones.
+> 
+> I guess we do not want to teach people doing this.
 
+Right.
+
+> > -	  SMP is supported __as-is''. There's a code for it but doesn't work.
+> > -	  There have been problems reported relating SCSI.
+> > +	  SMP is supported __as-is''. There's code for it but doesn't work.
+> > +	  There have been problems reported relating to SCSI.
+> 
+> SMP is not supported. Kill the note about SCSI.
+
+Ok.
+
+> > -	  This option is about getting stable. However there is still some
+> > +	  This option is close to getting stable. However there is still some
+> >  	  absence of features.
+> 
+> Kill this. Saying (EXPERIMENTAL) should be enough.
+
+Agreed.
+
+I'll be sending a revised combined patch to clean up the power
+management menu in a minute, will CC.
+
+-- 
+Tomas Szepe <szepe@pinerecords.com>

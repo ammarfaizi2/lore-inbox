@@ -1,87 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbTDOQKY (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 12:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbTDOQKY 
+	id S261727AbTDOQQg (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 12:16:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbTDOQQf 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 12:10:24 -0400
-Received: from hypatia.llnl.gov ([134.9.11.73]:50578 "EHLO hypatia.llnl.gov")
-	by vger.kernel.org with ESMTP id S261756AbTDOQKV convert rfc822-to-8bit 
+	Tue, 15 Apr 2003 12:16:35 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:6791 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP id S261727AbTDOQQe 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 12:10:21 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Dave Peterson <dsp@llnl.gov>
-Organization: Lawrence Livermore National Laboratory
+	Tue, 15 Apr 2003 12:16:34 -0400
+Date: Tue, 15 Apr 2003 12:28:24 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: proski@marabou.research.att.com
 To: linux-kernel@vger.kernel.org
-Subject: possible race condition in vfs code
-Date: Tue, 15 Apr 2003 09:22:07 -0700
-User-Agent: KMail/1.4.1
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [TRIVIAL PATCH] sync_dquots_dev in Linux 2.4.21-pre7-ac1
+Message-ID: <Pine.LNX.4.53.0304151217310.28540@marabou.research.att.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200304150922.07003.dsp@llnl.gov>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think I found a race condition in some of the inode handling
-code.  Here's where I think it is:
+Hello!
 
-    1.  Task A is inside kill_super().  It clears the MS_ACTIVE
-        flag of the s_flags field of the super_block struct and
-        calls invalidate_inodes().  In invalidate_inodes(), it
-        attempts to acquire inode_lock and spins because task B,
-        executing inside iput(), just decremented the reference
-        count of some inode i to 0 and acquired inode_lock.
+I'm get this error if I compile 2.4.21-pre7-ac1 without CONFIG_QUOTA
+defined:
 
-    2.  Then the "if (!inode->i_nlink)" test condition evaluates
-        to false for task B so it executes the following chunk
-        of code:
+fs/fs.o: In function `do_quotactl':
+fs/fs.o(.text+0x1b362): undefined reference to `sync_dquots_dev'
+make: *** [vmlinux] Error 1
 
-        01 } else {
-        02         if (!list_empty(&inode->i_hash)) {
-        03                 if (!(inode->i_state & (I_DIRTY|I_LOCK))) {
-        04                         list_del(&inode->i_list);
-        05                         list_add(&inode->i_list, &inode_unused);
-        06                 }
-        07                 inodes_stat.nr_unused++;
-        08                 spin_unlock(&inode_lock);
-        09                 if (!sb || (sb->s_flags & MS_ACTIVE))
-        10                         return;
-        11                 write_inode_now(inode, 1);
-        12                 spin_lock(&inode_lock);
-        13                 inodes_stat.nr_unused--;
-        14                 list_del_init(&inode->i_hash);
-        15         }
-        16         list_del_init(&inode->i_list);
-        17         inode->i_state|=I_FREEING;
-        18         inodes_stat.nr_inodes--;
-        19         spin_unlock(&inode_lock);
-        20         if (inode->i_data.nrpages)
-        21                 truncate_inode_pages(&inode->i_data, 0);
-        22         clear_inode(inode);
-        23 }
-        24 destroy_inode(inode);
+sync_dquots_dev() is only implemented if CONFIG_QUOTA is defined.
+However, quote.c uses it unconditionally.  include/linux/quotaops.h has
+some macros to disable some functions when CONFIG_QUOTA is undefined, so
+it's probably where the fix belongs.  This patch helps:
 
-        Now the test condition on line 02 evaluates to true, so
-        task B adds the inode to the inode_unused list and then
-        releases inode_lock on line 08.
+==============================
+--- linux.orig/include/linux/quotaops.h
++++ linux/include/linux/quotaops.h
+@@ -193,6 +193,7 @@
+ #define DQUOT_SYNC_SB(sb)			do { } while(0)
+ #define DQUOT_OFF(sb)				do { } while(0)
+ #define DQUOT_TRANSFER(inode, iattr)		(0)
++#define sync_dquots_dev(dev, type)		do { } while(0)
+ extern __inline__ int DQUOT_PREALLOC_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
+ {
+ 	lock_kernel();
+==============================
 
-    3.  Now A acquires inode_lock and B spins on inode_lock inside
-        write_inode_now();
-
-    4.  Task A calls invalidate_list(), transferring inode i from
-        the inode_unused list to its own private throw_away list.
-
-    5.  Task A releases inode_lock, allowing B to acquire inode_lock
-        and continue executing.
-
-    6.  A attempts to destroy inode i inside dispose_list() while B
-        simultaneously attempts to destroy i, potentially causing
-        all sorts of bad things to happen.
-
-So, did I find a bug or are my eyes playing tricks on me?
-
--Dave Peterson
- dsp@llnl.gov
-
-P.S.  Please CC my email address when responding to this message.
-
+-- 
+Regards,
+Pavel Roskin

@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262100AbTFIVWL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 17:22:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbTFIVWK
+	id S262115AbTFIVYE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 17:24:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbTFIVYD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 17:22:10 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:46271 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S262100AbTFIVVx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 17:21:53 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Davide Libenzi" <davidel@xmailserver.org>
-Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: Coding standards.  (Was: Re: [PATCH] [2.5] Non-blocking write can block)
-Date: Mon, 9 Jun 2003 14:35:31 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKCELPDIAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.55.0306091142420.3614@bigblue.dev.mcafeelabs.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Mon, 9 Jun 2003 17:24:03 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:52203 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262115AbTFIVX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 17:23:57 -0400
+Date: Mon, 9 Jun 2003 23:37:30 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Frank Cusack <fcusack@fcusack.com>
+Cc: David Schwartz <davids@webmaster.com>, public@mikl.as,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linksys WRT54G and the GPL
+Message-ID: <20030609213730.GQ16164@fs.tum.de>
+References: <200306072241.23725.public@mikl.as> <MDEHLPKNGKAHNMBLJOLKIEHHDIAA.davids@webmaster.com> <20030608224727.D9097@google.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030608224727.D9097@google.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jun 08, 2003 at 10:47:27PM -0700, Frank Cusack wrote:
+> On Sun, Jun 08, 2003 at 10:32:52PM -0700, David Schwartz wrote:
+> > Including the source with the product would be insufficient to meet the GPL
+> > requirements. They would have to offer the source (or a written offer to
+> > obtain the source for no more than the cost of physically copying it) to
+> > everyone who downloaded their software from their web site. The GPL is quite
+> > clear that the source code offer must be made to anyone to whom the object
+> > code is distributed. (The program must be accompanied by the offer.)
+> 
+> No, a source code *offer* must be made to anyone, period.
 
-> If you try to define a bad/horrible "whatever" in an *absolute* way you
-> need either the *absolutely* unanimous consent or you need to prove it
-> using a logical combination of already proven absolute concepts. Since you
-> missing both of these requirements you cannot say that something is
-> bad/wrong in an absolute way. You can say though that something is
-> wrong/bad when dropped inside a given context, and a coding standard might
-> work as an example. If you try to approach a developer by saying that he
-> has to use ABC coding standard because it is better that his XYZ coding
-> standard you're just wrong and you'll have hard time to have him to
-> understand why he has to use the suggested standard when coding inside the
-> project JKL. The coding standard gives you the *rule* to define something
-> wrong when seen inside a given context, since your personal judgement does
-> not really matter here.
->
-> - Davide
+Wrong.
 
-	This is just bad philosophy. You might as well argue that a canvas that's
-been randomly pissed on is just as much art as the Mona Lisa. In fact, it's
-a worse argument than that because coding styles aim at objective,
-measurable goals. Why does consent matter? If some imbecile wants to argue
-that it's good to write code that's hard to understand and debug, why should
-we care what he has to say? The consent of people whose opinions are
-nonsensical is of no value to people who are trying to create rules that
-meet their objective requirements.
+> Section 3(b) of GPLv2 says "Accompany it with a written offer ...  to give
+> any third party ... [the] source code".
+>...
 
-	Coding styles aim at specific measurable goals. Code should be easy to
-understand, extend, and debug. If someone argues code should be hard to
-understand, maintain, and debug, we just ignore him. We don't care if he
-agrees with us or not because his opinion is obviously (and objectively) of
-no value.
+If you read section 3 from the beginning you notice that 3b is only one 
+of three choices.
 
-	We can measure, for different coding style, how long it takes to find a
-bug. We can measure how long it takes a new programmer to get to the point
-that he can contribute to the existing code.
+> /fc
 
-	Coding styles are engineering rules. We can validate them based upon the
-results they produce. Objective, measureable results.
+cu
+Adrian
 
-	DS
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267540AbSLFD7E>; Thu, 5 Dec 2002 22:59:04 -0500
+	id <S267544AbSLFEDs>; Thu, 5 Dec 2002 23:03:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267544AbSLFD7D>; Thu, 5 Dec 2002 22:59:03 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:56545 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267540AbSLFD7D>;
-	Thu, 5 Dec 2002 22:59:03 -0500
-Date: Thu, 05 Dec 2002 20:03:31 -0800 (PST)
-Message-Id: <20021205.200331.127813001.davem@redhat.com>
-To: david@gibson.dropbear.id.au
-Cc: adam@yggdrasil.com, James.Bottomley@steeleye.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, miles@gnu.org
-Subject: Re: [RFC] generic device DMA implementation
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021206025303.GC17829@zax.zax>
-References: <200212060208.SAA05756@adam.yggdrasil.com>
-	<20021206025303.GC17829@zax.zax>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267550AbSLFEDs>; Thu, 5 Dec 2002 23:03:48 -0500
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:31657 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S267544AbSLFEDr> convert rfc822-to-8bit; Thu, 5 Dec 2002 23:03:47 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Matt Young <wz6b@arrl.net>
+Reply-To: wz6b@arrl.net
+To: linux-kernel@vger.kernel.org
+Subject: Help me to hack on the task_struct
+Date: Thu, 5 Dec 2002 20:10:53 -0800
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212052010.53696.wz6b@arrl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When hacking with my module code: 
 
-I think it's a huge error to try and move the DMA stuff into
-the generic device interfaces _AND_ change semantics and arguments
-at the same time.
+I do not get reasonable results when using the "current"  macro to access 
+parts of the task structure.
 
-Each operation should be done in seperate steps.
+Things seem to diverge past a thing called rlim in the task_struct..
+There are supposedly RLIM_NLIMITS of these rlims.
 
-Then, if you want to talk about changing semantics etc. there are
-more pressing needs (read as: real bugs) in the current DMA APIs
-that must be fixed before you add new "cool" features to the
-interfaces.  For example, we have a "pci_dma_sync_*()" interface
-which changes ownership from the device back to the cpu, but we
-do not have the corollary which returns ownership of the DMA buffer
-back to the device.  Basically, every networking device driver that
-recycles buffers using pci_dma_sync_*() to peak at the header but then
-gives the buffer back to the device is buggy for this reason.
+So I looked through that wonderful cross reference at sourceforge
+to discover these defined in resource.h:
 
-Fix this before changing stuff.
+#define RLIMIT_CPU      0               /* CPU time in ms */
+#define RLIMIT_FSIZE    1               /* Maximum filesize */
+#define RLIMIT_DATA     2               /* max data size */
+#define RLIMIT_STACK    3               /* max stack size */
+#define RLIMIT_CORE     4               /* max core file size */
+#define RLIMIT_RSS      5               /* max resident set size */
+#define RLIMIT_NPROC    6               /* max number of processes */
+#define RLIMIT_NOFILE   7               /* max number of open files */
+#define RLIMIT_MEMLOCK  8               /* max locked-in-memory address space 
+*/
+#define RLIMIT_AS       9               /* address space limit */
+#define RLIMIT_LOCKS    10              /* maximum file locks held */
+#define RLIM_NLIMITS    11
 
-I don't have any time to discuss this further so please do me a big
-favor and drop me from the CC: lists, I've been able to only lightly
-read the existing parts of this thread, if at all, so the postings
-will only hit /dev/null while I'm so busy right now.
+Questions:
+Why do resource limits happen to count sequencially?
 
-Thanks.
+And can I expect the task structure in sched.h to conform to the compiled
+kernel?
+
+With my SUSE 8.1 linux. I am using 2.4.19 in my headers and 2.4.19GB in the
+runnitg kernel. (Insmod bitches a little)
+
+Any clues are appreciated.
+

@@ -1,63 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277324AbRJLKV0>; Fri, 12 Oct 2001 06:21:26 -0400
+	id <S277154AbRJLK7g>; Fri, 12 Oct 2001 06:59:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277326AbRJLKVR>; Fri, 12 Oct 2001 06:21:17 -0400
-Received: from mail1.dexterus.com ([212.95.255.99]:30480 "EHLO
-	mail1.dexterus.com") by vger.kernel.org with ESMTP
-	id <S277324AbRJLKVG>; Fri, 12 Oct 2001 06:21:06 -0400
-Message-ID: <3BC6C3AE.EE439E6C@dexterus.com>
-Date: Fri, 12 Oct 2001 11:19:26 +0100
-From: Vincent Sweeney <v.sweeney@dexterus.com>
-Organization: Dexterus
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
+	id <S277260AbRJLK70>; Fri, 12 Oct 2001 06:59:26 -0400
+Received: from ppp65-054.verat.net ([217.26.65.54]:26497 "EHLO
+	spnew.snpe.co.yu") by vger.kernel.org with ESMTP id <S277154AbRJLK7T>;
+	Fri, 12 Oct 2001 06:59:19 -0400
+Message-Id: <200110121206.f9CC6XV01124@spnew.snpe.co.yu>
+Content-Type: text/plain; charset=US-ASCII
+From: snpe <snpe@snpe.co.yu>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.4.11 & 2.4.12 are much slower
+Date: Fri, 12 Oct 2001 14:06:32 +0200
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-To: Christian Ullrich <chris@chrullrich.de>
-CC: Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>, arvest@orphansonfire.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Partitioning problems in 2.4.11
-In-Reply-To: <Pine.GSO.4.21.0110111538200.24742-100000@weyl.math.psu.edu> <Pine.GSO.4.21.0110111835360.24742-100000@weyl.math.psu.edu> <20011012010846.A982@christian.chrullrich.de>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, this patch also fixed my missing IDE partition problem.
+Hello,
+	I try kernel 2.4.11 and 2.4.12 (RH 7.1, gcc-2.96-81, celeron 300 mhz
+256 mb ram, ide ata 100 ibm)
+	I compile kernel with 2.4.11 - 110 minutes (with any other 40 min)
+KDE 2.2.1 is unresponsible and I back in 2.4.10
 
-Christian Ullrich wrote:
-> 
-> * Alexander Viro wrote on Thursday, 2001-10-11:
-> 
-> >       *Damn*.  grok_partitions() doesn't set the size of entire device
-> > until it's done with check_partition().  Which means max_blocks() behaving
-> > in all sorts of interesting ways, depending on phase of moon, etc.
-> >
-> >       Could you check if the following helps?
-> 
-> Yeah, that one did it.
-> 
-> dmesg (only the interesting parts):
-> 
->  hdb:[63 10000305]
->  hdb1[10000368 68063184]
->  hdb2 <[10000431 20972889]
->  hdb5[48063519 30000033]
->  hdb6 >[78063552 1999872]
->  hdb3
-> 
-> reiserfs: checking transaction log (device 03:46) ...
-> Using r5 hash to sort names
-> ReiserFS version 3.6.25
-> (this time, no errors to follow)
-> 
-> --
-> Christian Ullrich                    Registrierter Linux-User #125183
-> 
-> "Sie können nach R'ed'mond fliegen -- aber Sie werden sterben"
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+What is problem ?
+
+regards
+peco

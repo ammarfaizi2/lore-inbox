@@ -1,108 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263052AbTJUNZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 09:25:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263061AbTJUNZ7
+	id S263096AbTJUNnh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 09:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263098AbTJUNnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 09:25:59 -0400
-Received: from cable98.usuarios.retecal.es ([212.22.32.98]:163 "EHLO
-	hell.lnx.es") by vger.kernel.org with ESMTP id S263052AbTJUNZz
+	Tue, 21 Oct 2003 09:43:37 -0400
+Received: from mx2.seznam.cz ([212.80.76.42]:53157 "HELO email.seznam.cz")
+	by vger.kernel.org with SMTP id S263096AbTJUNnf convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 09:25:55 -0400
-Date: Tue, 21 Oct 2003 15:25:48 +0200
-From: Manuel Estrada Sainz <ranty@debian.org>
-To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Proposal to remove workqueue usage from request_firmware_async()
-Message-ID: <20031021132548.GA20368@ranty.pantax.net>
-Reply-To: ranty@debian.org
+	Tue, 21 Oct 2003 09:43:35 -0400
+From: =?us-ascii?Q?Pavel=20Krauz?= <Pavel.Krauz@seznam.cz>
+To: linux-kernel@vger.kernel.org, viro@math.psu.edu, marcelo@conectiva.com.br,
+       rusty@rustcorp.com.au
+In-Reply-To: <79944.195572-26028-2050931566-1066651886@seznam.cz>
+Subject: =?us-ascii?Q?=5BPATCH=5D=20Re=3A=20READ=2DONLY=20mmap=20not=20present=20in=20core?=
+Date: Tue, 21 Oct 2003 15:43:33 +0200 (CEST)
+Message-Id: <74332.263359-7291-910729114-1066743813@seznam.cz>
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Reply-To: =?us-ascii?Q?Pavel=20Krauz?= <Pavel.Krauz@seznam.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Michael Hunold also confirmed that it works for him, IMHO it should be
- safe at least for the -mm tree.
+> I have verified that the READ_ONLY mmap mapping of file did not propagate 
+> to core file.
 
- The only difference with the previous patch is:
+Here goes a patch that solves the problem. The READ_ONLY - only mappings are now included to the core file. The executable regions are still excluded. The size of core
+did not change a lot and you have all important info in core and don't get 
+unreferencable pointers inside a debugger.
 
-	 -daemonize("%s/%s", "firmware", fw_work->name);
-	 +daemonize("firmware/%s", fw_work->name);
-
- ChangeLog:
-	
-	 In it's current form request_firmware sleeps for too long on the system's
-	 common workqueue, and using a private workqueue as previously proposed is not
-	 optimal. This patch creates one kernel_thread for each
-	 request_firmware_async() invocation which dies once the job is done.
+Please apply to 2.4.X and 2.6.X also
+Pavel
 
 
- firmware_class.c |   21 ++++++++++++++++-----
- 1 files changed, 16 insertions(+), 5 deletions(-)
+with patch (emacs, netscape, xemacs):
+4706304 core.all.emacs
+9129984 core.all.netscape
+5726208 core.all.xemacs
+
+without patch:
+4452352 core.emacs
+8851456 core.netscape
+5459968 core.xemacs
 
 
-Index: drivers/base/firmware_class.c
-===================================================================
---- linux-2.5/drivers/base/firmware_class.c	(revision 14117)
-+++ linux-2.5/drivers/base/firmware_class.c	(working copy)
-@@ -415,18 +415,22 @@
- 	void (*cont)(const struct firmware *fw, void *context);
- };
- 
--static void
-+static int
- request_firmware_work_func(void *arg)
- {
- 	struct firmware_work *fw_work = arg;
- 	const struct firmware *fw;
--	if (!arg)
--		return;
-+	if (!arg) {
-+		WARN_ON(1);
-+		return 0;
-+	}
-+	daemonize("firmware/%s", fw_work->name);
- 	request_firmware(&fw, fw_work->name, fw_work->device);
- 	fw_work->cont(fw, fw_work->context);
- 	release_firmware(fw);
- 	module_put(fw_work->module);
- 	kfree(fw_work);
-+	return 0;
- }
- 
- /**
-@@ -451,6 +455,8 @@
- {
- 	struct firmware_work *fw_work = kmalloc(sizeof (struct firmware_work),
- 						GFP_ATOMIC);
-+	int ret;
-+
- 	if (!fw_work)
- 		return -ENOMEM;
- 	if (!try_module_get(module)) {
-@@ -465,9 +471,14 @@
- 		.context = context,
- 		.cont = cont,
- 	};
--	INIT_WORK(&fw_work->work, request_firmware_work_func, fw_work);
- 
--	schedule_work(&fw_work->work);
-+	ret = kernel_thread(request_firmware_work_func, fw_work,
-+			    CLONE_FS | CLONE_FILES);
-+	
-+	if (ret < 0) {
-+		fw_work->cont(NULL, fw_work->context);
-+		return ret;
-+	}
- 	return 0;
- }
- 
+--- linux/fs/binfmt_elf.c.bak   Tue Oct 21 15:21:13 2003
++++ linux/fs/binfmt_elf.c       Tue Oct 21 15:21:18 2003
+@@ -952,7 +952,7 @@
+ #if 1
+        if (vma->vm_flags & (VM_WRITE|VM_GROWSUP|VM_GROWSDOWN))
+                return 1;
+-       if (vma->vm_flags & (VM_READ|VM_EXEC|VM_EXECUTABLE|VM_SHARED))
++       if (vma->vm_flags & (VM_EXEC|VM_EXECUTABLE))
+                return 0;
+ #endif
+        return 1;
 
--- 
---- Manuel Estrada Sainz <ranty@debian.org>
-                         <ranty@bigfoot.com>
-			 <ranty@users.sourceforge.net>
------------------------- <manuel.estrada@hispalinux.es> -------------------
-Let us have the serenity to accept the things we cannot change, courage to
-change the things we can, and wisdom to know the difference.
+
+
+
+____________________________________________________________
+Mall [mo:l] - promenáda, ¹iroká alej, nákupní støedisko (velké) 
+Internet Mall - profesionální nákupní galerie na Internetu (http://www.mall.cz)

@@ -1,34 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262280AbRERIfy>; Fri, 18 May 2001 04:35:54 -0400
+	id <S262279AbRERIde>; Fri, 18 May 2001 04:33:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262281AbRERIfe>; Fri, 18 May 2001 04:35:34 -0400
-Received: from smtp-rt-14.wanadoo.fr ([193.252.19.224]:19135 "EHLO
-	adansonia.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S262280AbRERIfa>; Fri, 18 May 2001 04:35:30 -0400
-Subject: Re: Linux scalability?
-From: "reiser.angus" <reiser.angus@wanadoo.fr>
-To: Ronald Bultje <rbultje@ronald.bitfreak.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <990174686.12881.18.camel@tux.bitfreak.net>
-In-Reply-To: <Pine.LNX.4.33.0105180914560.29042-100000@iq.rulez.org> 
-	<990173560.6346.0.camel@adslgw>  <990174686.12881.18.camel@tux.bitfreak.net>
-Content-Type: text/plain
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 18 May 2001 10:30:40 +0200
-Message-Id: <990174642.6347.1.camel@adslgw>
-Mime-Version: 1.0
+	id <S262280AbRERIdY>; Fri, 18 May 2001 04:33:24 -0400
+Received: from quechua.inka.de ([212.227.14.2]:27238 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S262279AbRERIdM>;
+	Fri, 18 May 2001 04:33:12 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel bug with UNIX sockets not detecting other end gone?
+In-Reply-To: <Pine.LNX.4.30.0105180042440.21745-100000@ferret.lmh.ox.ac.uk> <NCBBLIEPOCNJOAEKBEAKAEPJPBAA.davids@webmaster.com>
+Organization: private Linux site, southern Germany
+Date: Fri, 18 May 2001 10:32:05 +0200
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E150fg7-0000D0-00@g212.hadiko.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I read an article about TUX in the dutch C'T a few months ago (nov/dec
-> 2000, I think) - the real difference (according to the article) was the
-> 2.2.x kernel used in TUX. Look at the stats of the website, they used
-> Redhat 7.0 as base, with kernel 2.2.16.
+> kernel does know that it has been 'disconnected'. One can even justify the
+> inconcsistent behavior -- the write definitely has no place to go (now), but
+> the read can't be totally sure that there is no possible way anybody could
+> ever find the other end and write to it.
 
-TUX does not exist on 2.2 kernel
-They use a RedHat 7.0 with a 2.4 kernel patched by RedHat (with TUX,
-zerocopy, etc..)
+For a socket created with socketpair()? I'm pretty sure there is no
+way for any program to find any path to it, and if there is, it's a
+kernel bug. Such a socket does not have a legitimate name. (And
+getsockname() reliably returns garbage, which is another bug IMHO.)
 
--David
-
+Olaf

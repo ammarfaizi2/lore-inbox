@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264047AbTEOOjk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 10:39:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264050AbTEOOjk
+	id S264046AbTEOOjE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 10:39:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264047AbTEOOjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 10:39:40 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:38152 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264047AbTEOOjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 10:39:37 -0400
-Date: Thu, 15 May 2003 16:52:24 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: mikpe@csd.uu.se
-Cc: Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69-mm5: CONFIG_ACPI_SLEEP compile error
-Message-ID: <20030515145224.GA26649@atrey.karlin.mff.cuni.cz>
-References: <20030514012947.46b011ff.akpm@digeo.com> <20030514214536.GK1346@fs.tum.de> <20030514225157.GA13427@elf.ucw.cz> <16067.25088.905125.474440@gargle.gargle.HOWL>
+	Thu, 15 May 2003 10:39:04 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:4291 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264046AbTEOOjD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 10:39:03 -0400
+Date: Thu, 15 May 2003 07:47:39 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: linux-kernel@vger.kernel.org, VANDROVE@vc.cvut.cz
+Subject: Re: [PATCH][2.5] VMWare doesn't like sysenter
+Message-Id: <20030515074739.223a6c28.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.50.0305150400550.19782-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0305150400550.19782-100000@montezuma.mastecende.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16067.25088.905125.474440@gargle.gargle.HOWL>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 15 May 2003 04:02:31 -0400 (EDT) Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
 
->  > Mikpe, is this your diff? 
->  > 
->  > revision 1.16
->  > date: 2003/05/11 18:58:48;  author: mikpe;  state: Exp;  lines: +2 -4
->  > restore sysenter MSRs at APM resume
->  > 
->  > I do not know why you changed it (it has certainly nothing to do with
->  > APM resume)... Please revert it.
-> 
-> I've just posted a fix for the compile error.
-> 
-> APM suspend and resume now use the save and restore processor state
-> procedures in suspend.c. The only alternative is to duplicate that
-> functionality in apm.c or a new "suspend-but-not-tied-to-acpi.c" file.
-> But suspend.c is fairly generic so it makes sense to share it with APM.
-> 
-> The suspend.c changes are cleanups. The variables are only used in acpi's
-> suspend_asm.S and acpi/wakeup.S, so I moved them to suspend_asm.S since
-> they aren't needed when suspend is done by APM. fix_processor_context()
-> isn't used outside of suspend.c so I made it static.
-> 
-> Do you still have a problem with this?
+| I get a monitor error in VMWare4 with a sysenter syscall enabled kernel, 
+| this patch simply disables sysenter based syscalls but doesn't clear the 
+| SEP bit in the capabilities.
 
-No, it actually looks better than original. Just make sure it is in
-for 2.5.70...
-								Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+| +static int __init do_nosysenter(char *s)
+| +{
+| +	nosysenter = 1;
+| +	return 1;
+| +}
+| +__setup("nosysenter", do_nosysenter);
+
+Needs entry in Documentation/kernel-parameters.txt also
+if/when accepted.
+
+--
+~Randy

@@ -1,46 +1,177 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261486AbTHYJkj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 05:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbTHYJkj
+	id S261595AbTHYJmm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 05:42:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbTHYJmm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 05:40:39 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39428 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261486AbTHYJki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 05:40:38 -0400
-Date: Mon, 25 Aug 2003 10:40:35 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Mario Mikocevic <mozgy@hinet.hr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOPS 2.6.0-test4 repeatable
-Message-ID: <20030825104035.B30952@flint.arm.linux.org.uk>
-Mail-Followup-To: Mario Mikocevic <mozgy@hinet.hr>,
-	linux-kernel@vger.kernel.org
-References: <20030825091846.GA15017@danielle.hinet.hr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 25 Aug 2003 05:42:42 -0400
+Received: from smtp3.wanadoo.fr ([193.252.22.25]:5259 "EHLO
+	mwinf0601.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S261595AbTHYJmh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 05:42:37 -0400
+From: Duncan Sands <duncan.sands@wanadoo.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Problem with 2.6-testXX and alcatel speedtouch usb modem
+Date: Mon, 25 Aug 2003 11:43:26 +0200
+User-Agent: KMail/1.5.2
+References: <200308200203.02897.jjluza@yahoo.fr>
+In-Reply-To: <200308200203.02897.jjluza@yahoo.fr>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030825091846.GA15017@danielle.hinet.hr>; from mozgy@hinet.hr on Mon, Aug 25, 2003 at 11:18:46AM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200308251143.26764.duncan.sands@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 25, 2003 at 11:18:46AM +0200, Mario Mikocevic wrote:
-> IBM Thinkpad R40 with 2.6.0-test4, alsa compiled as module.
-> If I plug in D-link DWL-650+ (_just_ a plug in a slot) and _then_
-> modprobe snd-intel8x0 within seconds this oops barfs on me.
+On Wednesday 20 August 2003 02:03, jjluza wrote:
+> I try to make this modem working.
+> It works very well on kernel 2.4 series.
+> It work with some kernel 2.6 until test2-mm1.
+> But since test2-mm1, the newer kernel doesn't work anymore.
+> There is 2 related drivers for this modem.
+> The one which is included in the kernel and which can be found here :
+> http://www.linux-usb.org/SpeedTouch/
+> and the one which I've always used until now :
+> speedtouch.sourceforge.net
+>
+> when I notice that the old one doesn't work anymore, I try with the driver
+> which included in the kernel, without success.
 
-After asking akpm what an "invalid operand" on x86 means, he says its
-a BUG() statement.  So, can you please supply both the ksymoops'd
-*and* the raw undecoded kernel messages.  Apparantly ksymoops cuts off
-the lines which indicate that it was a bug and where the BUG() statement
-was.
+Did you follow the instructions on http://www.linux-usb.org/SpeedTouch/ ?
 
-Thanks.
+> It crashed when I do "pppd call adsl".
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+>From what I see below you are still using the userspace driver (pppoa3),
+which is being called by pppd.  This won't work when you have the kernel
+module loaded.  You need to use a pppoa aware pppd and not call pppd.
+
+> I can load the firmware.
+>
+> And here is messages in syslog :
+> Aug 19 22:00:26 serveur modem_run[337]: modem_run version 1.1 started by
+> root uid 0
+> Aug 19 22:00:28 serveur kernel: usb 1-2: bulk timeout on ep5in
+> Aug 19 22:00:28 serveur kernel: usbfs: USBDEVFS_BULK failed dev 2 ep 0x85
+> len 512 ret -110
+> Aug 19 22:00:43 serveur modem_run[337]: ADSL synchronization has been
+> obtained Aug 19 22:00:43 serveur modem_run[337]: ADSL line is up (608
+> kbit/s down | 160 kbit/s up)
+> Aug 19 22:00:43 serveur modprobe: FATAL: Module ipv6 not found.
+> Aug 19 22:00:43 serveur pppd[345]: pppd 2.4.1 started by root, uid 0
+> Aug 19 22:00:43 serveur pppd[345]: Using interface ppp0
+> Aug 19 22:00:44 serveur pppd[345]: Connect: ppp0 <--> /dev/pts/0
+> Aug 19 22:00:44 serveur kernel: ip_conntrack version 2.1 (768 buckets, 6144
+> max) - 300 bytes per conntrack
+> Aug 19 22:00:44 serveur pppoa3[346]: PPPoA3 version 1.1 started by root
+> (uid 0)
+> Aug 19 22:00:44 serveur pppoa3[346]: Control thread ready
+> Aug 19 22:00:44 serveur pppoa3[352]: ppp(d) --> pppoa3 --> modem  stream
+> ready Aug 19 22:00:44 serveur pppoa3[353]: modem  --> pppoa3 --> ppp(d)
+> stream ready Aug 19 22:00:44 serveur pppoa3[353]: Error reading usb urb
+> Aug 19 22:00:44 serveur pppoa3[346]: Woken by a sem_post event -> Exiting
+> Aug 19 22:00:44 serveur pppoa3[346]: Read from ppp Canceled
+> Aug 19 22:00:44 serveur pppoa3[346]: Write to ppp Canceled
+> Aug 19 22:00:44 serveur pppoa3[346]: Exiting
+> Aug 19 22:00:44 serveur pppd[345]: Modem hangup
+> Aug 19 22:00:44 serveur pppd[345]: Connection terminated.
+> Aug 19 22:00:44 serveur kernel: usbfs: usb_submit_urb returned -32
+> Aug 19 22:00:44 serveur kernel: Device class 'ppp0' does not have a
+> release() function, it is broken and must
+> be fixed.
+> Aug 19 22:00:44 serveur kernel: Badness in class_dev_release at
+> drivers/base/class.c:201
+> Aug 19 22:00:44 serveur kernel: Call Trace:
+> Aug 19 22:00:44 serveur kernel:  [kobject_cleanup+54/64]
+> kobject_cleanup+0x36/0x40
+> Aug 19 22:00:44 serveur kernel:  [netdev_run_todo+267/464]
+> netdev_run_todo+0x10b/0x1d0
+> Aug 19 22:00:44 serveur kernel:  [_end+114517535/1070384712]
+> ppp_shutdown_interface+0x87/0xe0 [ppp_generic]
+> Aug 19 22:00:44 serveur kernel:  [_end+114504362/1070384712]
+> ppp_ioctl+0x802/0x820 [ppp_generic]
+> Aug 19 22:00:44 serveur kernel:  [__fput+193/288] __fput+0xc1/0x120
+> Aug 19 22:00:44 serveur kernel:  [sys_ioctl+263/640] sys_ioctl+0x107/0x280
+> Aug 19 22:00:44 serveur kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+> Aug 19 22:00:44 serveur kernel:
+> Aug 19 22:00:44 serveur kernel: ip_tables: (C) 2000-2002 Netfilter core
+> team Aug 19 22:00:44 serveur pppd[345]: Using interface ppp0
+> Aug 19 22:00:44 serveur pppd[345]: Connect: ppp0 <--> /dev/pts/0
+> Aug 19 22:00:44 serveur pppoa3[364]: PPPoA3 version 1.1 started by root
+> (uid 0)
+> Aug 19 22:00:44 serveur pppoa3[364]: Control thread ready
+> Aug 19 22:00:44 serveur pppoa3[374]: ppp(d) --> pppoa3 --> modem  stream
+> ready Aug 19 22:00:44 serveur pppoa3[375]: modem  --> pppoa3 --> ppp(d)
+> stream ready Aug 19 22:00:44 serveur pppoa3[375]: Error reading usb urb
+> Aug 19 22:00:44 serveur pppoa3[364]: Woken by a sem_post event -> Exiting
+> Aug 19 22:00:44 serveur pppoa3[364]: Read from ppp Canceled
+> Aug 19 22:00:44 serveur pppoa3[364]: Write to ppp Canceled
+> Aug 19 22:00:44 serveur kernel: usbfs: usb_submit_urb returned -32
+> Aug 19 22:00:44 serveur pppoa3[364]: Exiting
+> Aug 19 22:00:44 serveur pppd[345]: Modem hangup
+> Aug 19 22:00:44 serveur pppd[345]: Connection terminated.
+> Aug 19 22:00:44 serveur kernel: Device class 'ppp0' does not have a
+> release() function, it is broken and must
+> be fixed.
+> Aug 19 22:00:44 serveur kernel: Badness in class_dev_release at
+> drivers/base/class.c:201
+> Aug 19 22:00:44 serveur kernel: Call Trace:
+> Aug 19 22:00:44 serveur kernel:  [kobject_cleanup+54/64]
+> kobject_cleanup+0x36/0x40
+> Aug 19 22:00:44 serveur kernel:  [netdev_run_todo+267/464]
+> netdev_run_todo+0x10b/0x1d0
+> Aug 19 22:00:44 serveur kernel:  [_end+114517535/1070384712]
+> ppp_shutdown_interface+0x87/0xe0 [ppp_generic]
+> Aug 19 22:00:44 serveur kernel:  [_end+114504362/1070384712]
+> ppp_ioctl+0x802/0x820 [ppp_generic]
+> Aug 19 22:00:44 serveur kernel:  [__fput+193/288] __fput+0xc1/0x120
+> Aug 19 22:00:44 serveur kernel:  [sys_ioctl+263/640] sys_ioctl+0x107/0x280
+> Aug 19 22:00:44 serveur kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+> Aug 19 22:00:44 serveur kernel:
+> Aug 19 22:00:44 serveur pppoa3[386]: PPPoA3 version 1.1 started by root
+> (uid 0)
+> Aug 19 22:00:44 serveur pppoa3[386]: Control thread ready
+> Aug 19 22:00:44 serveur pppoa3[389]: ppp(d) --> pppoa3 --> modem  stream
+> ready Aug 19 22:00:44 serveur pppoa3[390]: modem  --> pppoa3 --> ppp(d)
+> stream ready Aug 19 22:00:44 serveur pppoa3[390]: Error reading usb urb
+> Aug 19 22:00:44 serveur pppoa3[386]: Woken by a sem_post event -> Exiting
+> Aug 19 22:00:44 serveur pppoa3[386]: Read from ppp Canceled
+> Aug 19 22:00:44 serveur pppoa3[386]: Write to ppp Canceled
+> Aug 19 22:00:44 serveur kernel: usbfs: usb_submit_urb returned -32
+> Aug 19 22:00:44 serveur pppd[345]: Using interface ppp0
+> Aug 19 22:00:44 serveur pppoa3[386]: Exiting
+> Aug 19 22:00:44 serveur pppd[345]: Connect: ppp0 <--> /dev/pts/0
+> Aug 19 22:00:44 serveur pppd[345]: ioctl(PPPIOCSASYNCMAP): Inappropriate
+> ioctl for device(25)
+> Aug 19 22:00:44 serveur pppd[345]: tcflush failed: Input/output error
+> Aug 19 22:00:44 serveur kernel: Device class 'ppp0' does not have a
+> release() function, it is broken and must
+> be fixed.
+> Aug 19 22:00:44 serveur kernel: Badness in class_dev_release at
+> drivers/base/class.c:201
+> Aug 19 22:00:44 serveur kernel: Call Trace:
+> Aug 19 22:00:44 serveur kernel:  [kobject_cleanup+54/64]
+> kobject_cleanup+0x36/0x40
+> Aug 19 22:00:44 serveur kernel:  [netdev_run_todo+267/464]
+> netdev_run_todo+0x10b/0x1d0
+> Aug 19 22:00:45 serveur kernel:  [_end+114517535/1070384712]
+> ppp_shutdown_interface+0x87/0xe0 [ppp_generic]
+> Aug 19 22:00:45 serveur kernel:  [_end+114504362/1070384712]
+> ppp_ioctl+0x802/0x820 [ppp_generic]
+> Aug 19 22:00:45 serveur kernel:  [__fput+193/288] __fput+0xc1/0x120
+> Aug 19 22:00:45 serveur kernel:  [sys_ioctl+263/640] sys_ioctl+0x107/0x280
+> Aug 19 22:00:45 serveur kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+> Aug 19 22:00:45 serveur kernel:
+> Aug 19 22:00:45 serveur pppd[345]: Exit.
+>
+>
+> so, the last kernel which work with this adsl modem is test2-mm1.
+
+It looks like usbfs is broken again.  I should be able to look into
+this next week.  In the meantime, please try the kernel module.
+
+All the best,
+
+Duncan.
 

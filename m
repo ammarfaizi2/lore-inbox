@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbTKTKVU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 05:21:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbTKTKVU
+	id S261613AbTKTKY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 05:24:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbTKTKY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 05:21:20 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:57776 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261406AbTKTKVT (ORCPT
+	Thu, 20 Nov 2003 05:24:26 -0500
+Received: from holomorphy.com ([199.26.172.102]:16813 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261613AbTKTKYX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 05:21:19 -0500
-MIME-Version: 1.0
+	Thu, 20 Nov 2003 05:24:23 -0500
+Date: Thu, 20 Nov 2003 02:17:40 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Matt Mackall <mpm@selenic.com>, Nick Piggin <piggin@cyberone.com.au>,
+       Jeff Garzik <jgarzik@pobox.com>, jt@hpl.hp.com,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Pontus Fuchs <pof@users.sourceforge.net>
+Subject: Re: Announce: ndiswrapper
+Message-ID: <20031120101740.GG22764@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Matt Mackall <mpm@selenic.com>,
+	Nick Piggin <piggin@cyberone.com.au>,
+	Jeff Garzik <jgarzik@pobox.com>, jt@hpl.hp.com,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	Pontus Fuchs <pof@users.sourceforge.net>
+References: <20031120065241.GF22139@waste.org> <Pine.GSO.4.21.0311201112191.9043-100000@waterleaf.sonytel.be>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16316.38292.729957.491201@alkaid.it.uu.se>
-Date: Thu, 20 Nov 2003 11:21:08 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: high res timestamps and SMP
-In-Reply-To: <1069297341.23568.130.camel@cog.beaverton.ibm.com>
-References: <3FBBF148.20203@nortelnetworks.com>
-	<1069297341.23568.130.camel@cog.beaverton.ibm.com>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0311201112191.9043-100000@waterleaf.sonytel.be>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz writes:
- > On Wed, 2003-11-19 at 14:40, Chris Friesen wrote:
- > > We have a requirement to have high-res timestamps available on SMP systems.
-...
- > o PPC has a nice in-cpu time-base register (ppc folks, feel free to
- > smack or correct me on this) which is driven off the bus-clock and is
- > synced in hardware. 
+On Thu, 20 Nov 2003, Matt Mackall wrote:
+>> Personally, I think it's time to do some sort of trademark enforcement
+>> or something so that companies can't get away with slapping penguins
+>> on devices that only work with 2.2.14 Red Hat kernels.
 
-Last time I checked, all 32-bit PowerPC chips ran that clock at 1/4
-of the bus clock speed.
+On Thu, Nov 20, 2003 at 11:13:41AM +0100, Geert Uytterhoeven wrote:
+> Indeed. What happened to the `works[*] with Linux' labelling proposal we
+> discussed about at the last Linux Kernel Summit?
+> [*] Meaning providing a decent source under a suitable license.
 
-That may be adequate for time-of-day and I/O delays and such, but
-it's worthless for timestamps or performance measurements.
+We may have to get Linus in on that.
 
-It's possible to count core clocks via a performance counter, but
-I don't know if they are synced between CPUs.
+
+-- wli

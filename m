@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263894AbTE0Phl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 11:37:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263867AbTE0Phk
+	id S263918AbTE0PjR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 11:39:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263922AbTE0PjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 11:37:40 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:1745
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S263854AbTE0Phj
+	Tue, 27 May 2003 11:39:17 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:60358 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263918AbTE0PjQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 11:37:39 -0400
-Date: Tue, 27 May 2003 11:50:53 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCHES] add ata scsi driver
-Message-ID: <20030527155053.GB21744@gtf.org>
-References: <Pine.LNX.4.44.0305270734320.20127-100000@home.transmeta.com> <1054047595.1975.64.camel@mulgrave> <20030527152113.GA21744@gtf.org> <1054049931.1975.129.camel@mulgrave>
-Mime-Version: 1.0
+	Tue, 27 May 2003 11:39:16 -0400
+Date: Tue, 27 May 2003 08:52:20 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Sean Neakums <sneakums@zork.net>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.70 compile error
+Message-ID: <13800000.1054050738@[10.10.2.4]>
+In-Reply-To: <6ullwso0wj.fsf@zork.zork.net>
+References: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com><200305271048.36495.devilkin-lkml@blindguardian.org><20030527130515.GH8978@holomorphy.com><200305271729.49047.devilkin-lkml@blindguardian.org> <6ullwso0wj.fsf@zork.zork.net>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1054049931.1975.129.camel@mulgrave>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 27, 2003 at 11:38:50AM -0400, James Bottomley wrote:
-> Thus, if you never address ATA devices by the WWN, you probably never
-> want to make it part of the addressing scheme.
+> DevilKin-LKML <devilkin-lkml@blindguardian.org> writes:
 > 
-> Exporting a unique ID for userspace to use is a different (and probably
-> orthogonal) issue.
+>> On Tuesday 27 May 2003 15:05, William Lee Irwin III wrote:
+>>> I suspect you're attempting to shoot yourself in the foot. .config?
+>> 
+>> Ah, quite. I saw NUMA was activated, and disabling it fixed my
+>> problem. Odd though, that it should become active just by doing a
+>> 'make oldconfig' with my 2.7.69 config file...
+> 
+> I guess in the future, all boxes are NUMA.
 
-Oh, no question.  My main interest is having a persistent id for a
-device's media.  Then Linux can use that to allow mapping in case device
-names or majors change at each boot (and similar situations).
+However, in the future, all boxes are also not i386, so we're OK still ;-)
 
-	Jeff
-
-
+M.
 

@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129788AbQKCAj1>; Thu, 2 Nov 2000 19:39:27 -0500
+	id <S130013AbQKCAjh>; Thu, 2 Nov 2000 19:39:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130122AbQKCAjR>; Thu, 2 Nov 2000 19:39:17 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:26631 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129788AbQKCAjH>; Thu, 2 Nov 2000 19:39:07 -0500
-Message-ID: <3A020923.7815E495@transmeta.com>
-Date: Thu, 02 Nov 2000 16:38:59 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10-pre3 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S130122AbQKCAj1>; Thu, 2 Nov 2000 19:39:27 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:38149 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130013AbQKCAjM>;
+	Thu, 2 Nov 2000 19:39:12 -0500
+Message-ID: <3A020920.4559F400@mandrakesoft.com>
+Date: Thu, 02 Nov 2000 19:38:57 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: hpa@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: select() bug
-In-Reply-To: <E13rTfB-00023L-00@the-village.bc.nu> <3A01FC44.8A43FE8B@iname.com> <8tsupp$gh8$1@cesium.transmeta.com> <200011022346.PAA01451@pizda.ninka.net> <3A0200F5.2D6F4F70@transmeta.com> <200011022352.PAA02403@pizda.ninka.net> <3A020319.3384D4FF@transmeta.com> <200011030005.QAA03942@pizda.ninka.net>
+To: David Brownell <david-b@pacbell.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PATCH 2.4.0.10: Update hotplug
+In-Reply-To: <007401c04527$dc094510$6500000a@brownell.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
+David Brownell wrote:
+>     - Changing /sbin/hotplug invocations ... now it can
+>       only support "add" and "del" events.  (USB now
+>       uses "add" and "remove", though "remove" doesn't
+>       try to do anything yet.)
 > 
->    Date: Thu, 02 Nov 2000 16:13:13 -0800
->    From: "H. Peter Anvin" <hpa@transmeta.com>
-> 
->    Oh.  What do you do if there isn't... link up the contents of the
->    write() in a kiovec and hold the writer?
-> 
-> Right, the writer blocks.
-> 
-> I've already posted the patches here within the past week, I'll send
-> them to you under seperate cover so you can see for yourself how it
-> works.
-> 
+>       This removes the intended flexibility whereby
+>       different subsystems (such as networking) can
+>       define their own events.
 
-Sure, but my point was that it would be nice for high-traffic pipes to
-allow a larger volume of data with the two processes still running
-concurrently.
+Wrong.  Different subsystems -do- define their own events.  However,
+different subsystems should use the same verbs for the same actions.  We
+need consistency where possible.
 
-	-hpa
+
+>     - "/sbin/hotplug net ..." replaced by "/sbin/network",
+>       with two custom event types.
+
+Hotplug device insertion and network interface addition/removal are two
+fundamentally different things.  Further, my code purposefully does not
+wrap CONFIG_HOTPLUG around the /sbin/network code, because /sbin/network
+has utility outside the domain of hotplug.
+
+	Jeff
+
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Jeff Garzik             | Dinner is ready when
+Building 1024           | the smoke alarm goes off.
+MandrakeSoft            |	-/usr/games/fortune
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

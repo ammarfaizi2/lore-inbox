@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261686AbUCPVRF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 16:17:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUCPVRF
+	id S261689AbUCPVTW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 16:19:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUCPVTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 16:17:05 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27117 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261686AbUCPVRB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 16:17:01 -0500
-Date: Tue, 16 Mar 2004 21:17:00 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc1 SCSI + st regressions (was: Linux 2.6.5-rc1)
-Message-ID: <20040316211700.GA25059@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0403152154070.19853@ppc970.osdl.org> <20040316211203.GA3679@merlin.emma.line.org>
+	Tue, 16 Mar 2004 16:19:22 -0500
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:18048 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261689AbUCPVTQ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 16:19:16 -0500
+Message-Id: <200403162119.i2GLJ9uY014711@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Dominik Karall <dominik.karall@gmx.net>
+Cc: Steve Youngs <sryoungs@bigpond.net.au>, linux-kernel@vger.kernel.org
+Subject: Re: NVIDIA and 2.6.4? 
+In-Reply-To: Your message of "Tue, 16 Mar 2004 21:49:40 +0100."
+             <200403162149.41018.dominik.karall@gmx.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <405082A2.5040304@blueyonder.co.uk> <200403130515.i2D5F7DG009253@turing-police.cc.vt.edu> <microsoft-free.87ad2ipyr2.fsf@eicq.dnsalias.org>
+            <200403162149.41018.dominik.karall@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040316211203.GA3679@merlin.emma.line.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_820877110P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 16 Mar 2004 16:19:09 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 16, 2004 at 10:12:03PM +0100, Matthias Andree wrote:
-> I have some SCSI troubles with 2.6.5-rc1 (from BK) that 2.6.4 didn't
-> have.
-> 
-> Modprobe, loading the st driver, tries a NULL pointer dereference in
-> kernel space and my 2nd tape drive isn't found: st1 is not shown. cat
-> /proc/scsi/scsi (typed after the attempted zero page dereference) hangs
-> in rwsem_down_read_failed with process state D.
+--==_Exmh_820877110P
+Content-Type: text/plain; charset=us-ascii
 
-I notice you're using the sym2 driver.  Could you try backing out the
-changes made to it in 2.6.5-rc1, just to be sure we're looking at an st
-problem, not a sym2 problem?
+On Tue, 16 Mar 2004 21:49:40 +0100, Dominik Karall <dominik.karall@gmx.net>  said:
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+> can you let me know how to compile the nvidia drivers for 4KSTACK? cause in 
+> the 2.6.5-rc1-mm1 is no more option to deactivate 4KSTACK.
+
+Get the 2.6.5-rc1-mm1-broken-out.tar.bz2, untar it, then
+
+patch -p1 -R < broken-out/4k-stacks-always-on.patch
+
+Yes, the *right* thing would be for NVidia to fix the binary.  However, this
+is a lot more expedient than waiting. :)
+
+--==_Exmh_820877110P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAV29NcC3lWbTT17ARAnZcAKCcOB/SPjJ5v/PSJetSwsIWosiuYACeKoLk
+6Nz8PPi2FwQQFmse5vxBZfE=
+=oEJZ
+-----END PGP SIGNATURE-----
+
+--==_Exmh_820877110P--

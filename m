@@ -1,120 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318188AbSGQBZI>; Tue, 16 Jul 2002 21:25:08 -0400
+	id <S318189AbSGQBt5>; Tue, 16 Jul 2002 21:49:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318182AbSGQBZH>; Tue, 16 Jul 2002 21:25:07 -0400
-Received: from gateway2.ensim.com ([65.164.64.250]:55051 "EHLO
-	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
-	id <S318188AbSGQBZB>; Tue, 16 Jul 2002 21:25:01 -0400
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Paul Menage <pmenage@ensim.com>
-To: viro@math.psu.edu
-cc: pmenage@ensim.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Avoid unnecessary d_count/mnt_count dirtying in link_path_walk()
-Mime-Version: 1.0
+	id <S318191AbSGQBt4>; Tue, 16 Jul 2002 21:49:56 -0400
+Received: from ns2.rotanovs.com ([213.182.202.72]:59144 "HELO
+	lemon.rotanovs.com") by vger.kernel.org with SMTP
+	id <S318189AbSGQBt4>; Tue, 16 Jul 2002 21:49:56 -0400
+Date: Wed, 17 Jul 2002 04:52:36 +0300
+From: Viktors Rotanovs <Viktors@Rotanovs.com>
+X-Mailer: The Bat! (v1.60m) Personal
+Reply-To: Viktors Rotanovs <Viktors@Rotanovs.com>
+X-Priority: 3 (Normal)
+Message-ID: <9016512704.20020717045236@Rotanovs.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18-2.4.19-rc1-ac4 + Promise SX6000 + i2o
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 16 Jul 2002 18:27:04 -0700
-Message-Id: <E17Udaq-0004x3-00@pmenage-dt.ensim.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On the error return path (including -ENOENT) in link_path_walk(), we
-call
+I've found numerious reports that Promise SX6000 works fine with
+2.4.18+ kernels, and tried it with 2.4.18 and 2.4.19-rc1-ac4 kernels
+with i2o support.
 
-	unlock_nd(nd);
-	path_release(nd);
+Here are the results:
 
-This is equivalent to
+2.4.18: finds controller, but doesn't find disk device on it.
+2.4.19-rc1-ac4: loads i2o_block and i2o_core fine and doesn't load
+i2o_pci. When I try to load i2o_pci manually, it shows a lot of
+timeouts.
 
-	mntget(nd->mnt);
-	dget_locked(nd->dentry);
-	...
-	spin_unlock(&dcache_lock);
-	...
-	dput(nd->dentry);
-	mntput(nd->mnt);
+I seem to have PDC20276 chip (if i'm not mistaken) marked as new
+by Alan Cox.
 
-The only way that this can have an effect other than bouncing the
-d_count and mnt_count cachelines of the last resolved component is if
-the dentry d_count reaches 0, and was either unhashed or had a
-d_delete() method that returned true (in which case the dentry is thrown
-away).
+OS type on the RAID is set to Other.
 
-- Since no-one else can decrement the usage count to 0 while we hold
-dcache_lock (due to the use of atomic_dec_and_lock() in dput()) this can
-only occur if the usage count is zero originally (i.e. before we called
-unlock_nd()).
+When I try to run original driver Promise's driver instead of i2o on
+2.4.18, it starts showing SCSI timeouts after some time when working
+under heavy load.
 
-- Since no-one else can unhash the dentry without dcache_lock (which we
-hold) the dentry must be hashed if its reference count was originally 0.
+I use RAID with ReiserFS.
 
-- if dentry->d_op->d_delete() exists, then plausibly it could return 1
-to request that the dentry by unhashed. But this failed lookup has no
-noticable side-effects (other than perhaps setting DCACHE_REFERENCED)
-and might easily have not occurred (and hence d_delete() not called). So
-we can't lose correctness by not calling d_delete(), (unless the
-d_delete() method would have spuriously decided to kill the dentry
-purely due to it being marked DCACHE_REFERENCED, but that would be
-pretty perverse).
+Thanks for any help and have a nice day!
 
-Hence it is safe to skip the dget_locked()/dput().
-
-The original pointer to nd->mnt came either from 
-
-- the current root/pwd (protected by dcache_lock)
-
-- following a mount (protected by dcache_lock)
-
-- was in nd->mnt when we called lock_nd() (and will be released when we
-call mntput() on nd->old_mnt.
-
-Hence it is safe to skip the mntget()/mntput()
-
-This patch adds release_locked_nd(), which skips the dget_locked() and
-mntget(), and makes use of it in the error .
-
-Paul
-
-diff -X /mnt/elbrus/home/pmenage/dontdiff -Naur linux-2.5.26/fs/namei.c linux-2.5.26-unlocknd/fs/namei.c
---- linux-2.5.26/fs/namei.c	Tue Jul 16 16:49:31 2002
-+++ linux-2.5.26-unlocknd/fs/namei.c	Tue Jul 16 17:59:10 2002
-@@ -275,17 +275,22 @@
- }
- 
- /*for fastwalking*/
--static inline void unlock_nd(struct nameidata *nd)
-+static inline void release_locked_nd(struct nameidata *nd)
- {
- 	struct vfsmount *mnt = nd->old_mnt;
- 	struct dentry *dentry = nd->old_dentry;
--	mntget(nd->mnt);
--	dget_locked(nd->dentry);
- 	nd->old_mnt = NULL;
- 	nd->old_dentry = NULL;
- 	spin_unlock(&dcache_lock);
- 	dput(dentry);
- 	mntput(mnt);
-+}			
-+
-+static inline void unlock_nd(struct nameidata *nd)
-+{
-+	mntget(nd->mnt);
-+	dget_locked(nd->dentry);
-+	release_locked_nd(nd);
- }
- 
- static inline void lock_nd(struct nameidata *nd)
-@@ -737,8 +742,8 @@
- 		mntput(pinned.mnt);
- 		return 0;
- 	}
--	unlock_nd(nd);
--	path_release(nd);
-+
-+	release_locked_nd(nd);
- return_err:
- 	dput(pinned.dentry);
- 	mntput(pinned.mnt);
-
+Best Wishes,
+Viktors
 

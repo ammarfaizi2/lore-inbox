@@ -1,51 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130309AbRA0NS4>; Sat, 27 Jan 2001 08:18:56 -0500
+	id <S130355AbRA0NV4>; Sat, 27 Jan 2001 08:21:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130355AbRA0NSq>; Sat, 27 Jan 2001 08:18:46 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:41222 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S130309AbRA0NSa>;
-	Sat, 27 Jan 2001 08:18:30 -0500
-Date: Sat, 27 Jan 2001 14:17:30 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: jacob@chaos2.org, linux-kernel@vger.kernel.org
-Subject: Re: hdd: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
-Message-ID: <20010127141730.C27929@suse.de>
-In-Reply-To: <Pine.LNX.4.21.0101252046320.13852-100000@inbetween.blorf.net> <Pine.LNX.4.10.10101270047200.23960-100000@master.linux-ide.org>
-Mime-Version: 1.0
+	id <S132623AbRA0NVr>; Sat, 27 Jan 2001 08:21:47 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:56242 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S130355AbRA0NVe>; Sat, 27 Jan 2001 08:21:34 -0500
+Message-ID: <3A72CD1E.32BB523F@uow.edu.au>
+Date: Sun, 28 Jan 2001 00:29:02 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: jamal <hadi@cyberus.ca>
+CC: lkml <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
+In-Reply-To: <3A726087.764CC02E@uow.edu.au> <Pine.GSO.4.30.0101270729270.24088-100000@shell.cyberus.ca>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10101270047200.23960-100000@master.linux-ide.org>; from andre@linux-ide.org on Sat, Jan 27, 2001 at 12:48:11AM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 27 2001, Andre Hedrick wrote:
-> > I've been getting this during the boot sequence for quite some time now.
-> > They don't seem to impact the functionality of the drive any though.  Just
-> > another extra-verbose kernel message I should ignore?  :)
-> > 
-> > (This is from the 2.4.1-pre10 btw.)
-> > 
-> > hdd: CD-ROM TW 120D, ATAPI CD/DVD-ROM drive
-> > hdd: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
-> > hdd: set_drive_speed_status: error=0x04
+jamal wrote:
 > 
-> Means your device did not like that command and barfed.
-> status=0x51, error=0x04 == command aborted next....
+> ..
+> It is also useful to have both client and server stats.
+> BTW, since the laptop (with the 3C card) is the client, the SG
+> shouldnt kick in at all.
 
-My gut tells me that this is the 'get last written' command, and even
-with the quiet flag we get the IDE error status printed. Could you
-try and add
+The `client' here is doing the sendfiling, so yes, the
+gathering occurs on the client.
 
-	goto use_toc;
+> ...
+> > The test tool is, of course, documented [ :-)/2 ].  It's at
+> >
+> >       http://www.uow.edu.au/~andrewm/linux/#zc
+> >
+> 
+> I'll give this a shot later. Can you try with the sendfiled-ttcp?
+> http://www.cyberus.ca/~hadi/ttcp-sf.tar.gz
 
-add the top of drivers/cdrom/cdrom.c:cdrom_get_last_written() and
-see if that makes the error disappear?
+hmm..  I didn't bother with TCP_CORK because the files being
+sent are "much" larger than a frame.  Guess I should.
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+The problem with things like ttcp is the measurement of CPU load.
+If your network is so fast that your machine can't keep up then
+fine, raw throughput is a good measure. But if the link is saturated
+then normal process accounting doesn't cut it.
+
+For example, at 100 mbps, `top' says ttcp is chewing 4% CPU. But guess
+what?  A low-priority process running on the same machine is in fact
+slowed down by 30%.  top lies.  Most of the cost of the networking layer
+is being accounted to swapper, and lost.  And who accounts for cache
+eviction, bus utilisation, etc.  We're better off measuring what's
+left behind, rather than measuring what is consumed.
+
+You can in fact do this with ttcp: run it with a super-high priority
+and run a little task in the background (dummyload.c in the above
+tarball does this).  See how much the dummy task is slowed down
+wrt an unloaded system.  It gets tricky on SMP though.
+
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274789AbRJYWlZ>; Thu, 25 Oct 2001 18:41:25 -0400
+	id <S274803AbRJYWpN>; Thu, 25 Oct 2001 18:45:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274803AbRJYWlN>; Thu, 25 Oct 2001 18:41:13 -0400
-Received: from zero.tech9.net ([209.61.188.187]:2058 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S274789AbRJYWlA>;
-	Thu, 25 Oct 2001 18:41:00 -0400
-Subject: Re: 14-pre1 changelog ?
-From: Robert Love <rml@tech9.net>
+	id <S274806AbRJYWpD>; Thu, 25 Oct 2001 18:45:03 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:62221 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S274803AbRJYWoy>;
+	Thu, 25 Oct 2001 18:44:54 -0400
+Date: Thu, 25 Oct 2001 15:44:41 -0700
+From: Greg KH <greg@kroah.com>
 To: "J . A . Magallon" <jamagallon@able.es>
 Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 14-pre1 changelog ?
+Message-ID: <20011025154441.A23871@kroah.com>
 In-Reply-To: <20011026003622.C5840@werewolf.able.es>
-In-Reply-To: <20011026003622.C5840@werewolf.able.es>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.24.21.44 (Preview Release)
-Date: 25 Oct 2001 18:41:38 -0400
-Message-Id: <1004049699.644.12.camel@phantasy>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011026003622.C5840@werewolf.able.es>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-10-25 at 18:36, J . A . Magallon wrote:
+On Fri, Oct 26, 2001 at 12:36:22AM +0200, J . A . Magallon wrote:
+> Hi all...
+> 
 > Has somebody digged enough in pre1 to make a changelog (apart from
 > 'linus goes to sleep...') ?
 > >From the files it touches, it looks like a big ACPI update and more
 > VM tweaking...
 
-http://www.kernelnewbies.org/changelogs/2.4.14
+http://www.kernelnewbies.org/changelogs/2.4.14 has an improvised one by
+davej.
 
-	Robert Love
 
+greg k-h

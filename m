@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269354AbTCDKKD>; Tue, 4 Mar 2003 05:10:03 -0500
+	id <S269351AbTCDKJg>; Tue, 4 Mar 2003 05:09:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269355AbTCDKKC>; Tue, 4 Mar 2003 05:10:02 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:13450 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S269354AbTCDKKB>;
-	Tue, 4 Mar 2003 05:10:01 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 4 Mar 2003 11:20:29 +0100 (MET)
-Message-Id: <UTC200303041020.h24AKTA23975.aeb@smtp.cwi.nl>
-To: alan@lxorguk.ukuu.org.uk
-Subject: [PATCH?] ide_setup_dma undefined
+	id <S269354AbTCDKJf>; Tue, 4 Mar 2003 05:09:35 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:7684 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S269351AbTCDKJf>;
+	Tue, 4 Mar 2003 05:09:35 -0500
+Date: Tue, 4 Mar 2003 14:18:55 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: mem= option for broken bioses
+Message-ID: <20030304131855.GE618@zaurus.ucw.cz>
+References: <F760B14C9561B941B89469F59BA3A8471380D7@orsmsx401.jf.intel.com> <b3m840_5e4_1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b3m840_5e4_1@cesium.transmeta.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If one compiles 2.4.21-pre5 without CONFIG_BLK_DEV_IDEDMA_PCI
-the compilation fails with undefined ide_setup_dma().
-And indeed, ide_setup_dma is called in ide_hwif_setup_dma
-in setup-pci.c.
+Hi!
 
-One of the ways to make the kernel compile with this config is
+> > > I've seen broken bios that did not mark acpi tables in e820
+> > > tables. This allows user to override it. Please apply,
+> > 
+> > OK, looks reasonable. Can you also gen up a patch documenting this in
+> > kernel-parameters.txt?
+> > 
+> 
+> This is very much *NOT* reasonable.  In fact, screwing around with the
+> syntax of the mem= parameter is poison.  I know it has already
+> happened, and those changes need to be reverted and the new stuff
+> moved to a different option.
+> 
+> The mem= option is unique in that it is an option that affects both
+> the boot loader and the kernel.  Therefore, ITS SYNTAX MUST NOT
+> CHANGE.
 
---- ../../linux-2.4.21-pre5/linux/include/linux/ide.h	Tue Mar  4 02:25:12 2003
-+++ include/linux/ide.h	Tue Mar  4 11:07:32 2003
-@@ -1719,6 +1719,7 @@
- extern int __ide_dma_lostirq(ide_drive_t *);
- extern int __ide_dma_timeout(ide_drive_t *);
- #else
-+static inline void ide_setup_dma(ide_hwif_t *x, unsigned long y, unsigned int z) {;}
- static inline void ide_release_dma(ide_hwif_t *x) {;}
- #endif
- 
+This should be commented, somewhere.
+Why is mem= option used by boot loader?
+Does your bootloader really parse stuff
+like mem=exactmap?
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 
-Andries
-
-
-[much larger changes might be appropriate]

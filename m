@@ -1,67 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264198AbTFKHhs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 03:37:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264201AbTFKHhs
+	id S264202AbTFKHrf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 03:47:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264207AbTFKHrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 03:37:48 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:45062 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264198AbTFKHhr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 03:37:47 -0400
-Message-ID: <3EE6E0B6.1060800@aitel.hist.no>
-Date: Wed, 11 Jun 2003 09:56:38 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
+	Wed, 11 Jun 2003 03:47:35 -0400
+Received: from ns.suse.de ([213.95.15.193]:29456 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264202AbTFKHre (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 03:47:34 -0400
+To: Steve French <smfrench@austin.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Compiling kernel with SuSE 8.2/gcc 3.3
+References: <3EE6B7A2.3000606@austin.rr.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 11 Jun 2003 10:01:00 +0200
+In-Reply-To: <3EE6B7A2.3000606@austin.rr.com.suse.lists.linux.kernel>
+Message-ID: <p73he6x59hf.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Simon Fowler <simon@himi.org>
-CC: Andrew Morton <akpm@digeo.com>, jsimmons@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70-bk radeonfb oops on boot.
-References: <20030610061654.GB25390@himi.org> <20030610130204.GC27768@himi.org> <20030610141440.26fad221.akpm@digeo.com> <20030611021926.GA2241@himi.org> <20030610201641.220a4927.akpm@digeo.com> <20030611035525.GB2852@himi.org> <20030610211607.2bb55b41.akpm@digeo.com> <20030611050540.GD2852@himi.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simon Fowler wrote:
-> On Tue, Jun 10, 2003 at 09:16:07PM -0700, Andrew Morton wrote:
+Steve French <smfrench@austin.rr.com> writes:
+
+> look wrong for gcc to spit out warnings on.   For example the following
+> local variable definition and the similar ones in the same file
+> (fs/cifs/inode.c):
 > 
->>Simon Fowler <simon@himi.org> wrote:
->>
->>>>>>It might be worth reverting this chunk, see if that fixes it:
->>>>>>
->>>>>>--- b/drivers/char/mem.c        Thu Jun  5 23:36:40 2003
->>>>>>+++ b/drivers/char/mem.c        Sun Jun  8 05:02:24 2003
->>>>>>@@ -716 +716 @@
->>>>>>-__initcall(chr_dev_init);
->>>>>>+subsys_initcall(chr_dev_init);
->>>>>>
->>>>>
->>>>>And we have a winner . . . Reverting this hunk fixes the oops.
->>>>>
->>>>
-> <snippage> 
+> 	__u64 uid = 0xFFFFFFFFFFFFFFFF;
 > 
->>Thanks for testing.
->>
->>All the initcall ordering of chardevs versus pci, pci versus pci and who
->>knows what else is all bollixed up.
->>
->>Unfortunately I do not have the bandwidth to work on this.
+> generates a warning saying the value is too long for a long on x86
+> SuSE 8.2 with gcc 3.3 - which makes no sense.  Any value
+> above 0xFFFFFFFFF generates the same warning (intuitively
+> 36 bits should fit in an unsigned 64 bit local variable).
 > 
-> 
-> Since this seems to be a showstopper for people using radeonfb,
-> getting the 'fix' above in might be a good idea . . .
+> Defining the literal with the UL suffix didn't seem to help - and I
 
+Define it with ULL   (= long long) 
 
-It isn't merely radeonfb.  A machine with matroxfb dies
-the same death, pci_enable_device_bars() oopses
-before the framebuffer even comes up
-with 2.5.70-mm7.
+> Any idea what is going on in this weird gcc 3.3 behavior where it thinks
+> 64 bits can't fit in a __u64 local variable? -
 
-Helge Hafting
+AFAIK the problem is that it has no default promotion for constants to 
+long long (normally they are int, long, unsigned long etc. depending on
+their value) It's some C99 thing. Or maybe a gcc bug. Anyways ULL 
+makes it clear that it is unsigned long long.
 
+-Andi
 
+P.S.: The warning is thankfully turned off by default again in later
+compilers.

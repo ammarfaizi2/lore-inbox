@@ -1,44 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbVC1N5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbVC1OBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261802AbVC1N5t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 08:57:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbVC1NzZ
+	id S261825AbVC1OBq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 09:01:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVC1OA5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 08:55:25 -0500
-Received: from 104.engsoc.carleton.ca ([134.117.69.104]:21709 "EHLO
-	certainkey.com") by vger.kernel.org with ESMTP id S261764AbVC1Nq3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 08:46:29 -0500
-Date: Mon, 28 Mar 2005 08:45:10 -0500
-From: Jean-Luc Cooke <jlcooke@certainkey.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Kim Phillips <kim.phillips@freescale.com>, johnpol@2ka.mipt.ru,
-       Andrew Morton <akpm@osdl.org>, Herbert Xu <herbert@gondor.apana.org.au>,
-       James Morris <jmorris@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org, cryptoapi@lists.logix.cz,
-       David McCullough <davidm@snapgear.com>
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
-Message-ID: <20050328134510.GV24697@certainkey.com>
-References: <1111737496.20797.59.camel@uganda> <424495A8.40804@freescale.com> <20050325234348.GA17411@havoc.gtf.org>
+	Mon, 28 Mar 2005 09:00:57 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:14537 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261825AbVC1N6n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 08:58:43 -0500
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Aaron Gyes <floam@sh.nu>,
+       "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+       LKML <linux-kernel@vger.kernel.org>, Adrian Bunk <bunk@stusta.de>
+In-Reply-To: <1112016850.6003.13.camel@laptopd505.fenrus.org>
+References: <200503280154.j2S1s9e6009981@laptop11.inf.utfsm.cl>
+	 <1112011441.27381.31.camel@localhost.localdomain>
+	 <1112016850.6003.13.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 28 Mar 2005 08:57:45 -0500
+Message-Id: <1112018265.27381.63.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050325234348.GA17411@havoc.gtf.org>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 25, 2005 at 06:43:49PM -0500, Jeff Garzik wrote:
+On Mon, 2005-03-28 at 15:34 +0200, Arjan van de Ven wrote:
+> > 
+> > Anyway, I don't think that the GPL is that powerful to affect things not
+> > linked directly with it
 > 
-> Consider what an RNG does:  spews garbage.
+> the problem with kernel modules is.. that you actually create quite a
+> few lines of code directly from the kernel (via the headers). Also..
+> derived work is both broader and smaller than "directly linked". 
 > 
-> In practical applications, you -do not- want to dedicate the machine to 
-> spewing garbage.  The vast majority of users would prefer to use their
-> machines for real stuff.  Thus, "extreme RNG consumption" is largely
-> irrelevant to sane usage.
+> Like if you write an extra chapter to a harry potter novel... even if
+> it's not in the same bundle, it's still a derived work. 
+> 
 
-I have clients who run online Casinos.  So spewing lots of reliable garbage
-is a good thing.  That's why they chose Fortuna.  Bad random data input is
-not a factor as long as there is enough trustwothy random data coming in.
+If you don't use any of the names of the characters, is it still a
+derived work?
 
-JLC
+Having a GPL wrapper may be legal to do. You won't find out until you
+are actually taken to court. I don't see why people are very upset with
+doing this, since those that do must work very hard in keeping things
+compliant. And those that write the GPL code, can keep things hard for
+them, which could just be by ignoring them. Anyone who complains about a
+crash that has the nvidia module loaded will not get any help, except
+from those that also have the nvidia module.
+
+Writing code that needs wrappers is not derived work, if that code can
+also have wrappers for BSD, QNX and perhaps Windows. It may be an added
+functionality, that needs some operating system, but if it is a separate
+functionality, than it should really work for any operating system, and
+thus it is not a derived work. I don't find nvidia modules a derived
+work from linux. Since they are used for other operating systems.  And I
+believe you'll have a hard time convincing any court that nvidia is a
+derived work.
+
+
+God! I must be in the middle. With management, I'm always fighting to go
+GPL, and here on LKML, I'm arguing for proprietary modules.  I must be
+going psycho!
+
+-- Steve
+
+

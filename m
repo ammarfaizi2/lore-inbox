@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274102AbRJIKsz>; Tue, 9 Oct 2001 06:48:55 -0400
+	id <S274174AbRJILJN>; Tue, 9 Oct 2001 07:09:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274964AbRJIKsf>; Tue, 9 Oct 2001 06:48:35 -0400
-Received: from mail-01.med.umich.edu ([141.214.93.149]:19972 "EHLO
-	mail-01.med.umich.edu") by vger.kernel.org with ESMTP
-	id <S274102AbRJIKs1> convert rfc822-to-8bit; Tue, 9 Oct 2001 06:48:27 -0400
-Message-Id: <sbc29e8b.006@mail-01.med.umich.edu>
-X-Mailer: Novell GroupWise Internet Agent 6.0
-Date: Tue, 09 Oct 2001 06:51:47 -0400
-From: "Nicholas Berry" <nikberry@med.umich.edu>
-To: <root@mauve.demon.co.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Odd keyboard related crashes.
+	id <S274964AbRJILJD>; Tue, 9 Oct 2001 07:09:03 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:19332 "EHLO
+	mailout01.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S274174AbRJILIt>; Tue, 9 Oct 2001 07:08:49 -0400
+Date: Tue, 9 Oct 2001 13:06:56 +0200
+From: kladit@t-online.de (Klaus Dittrich)
+To: linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: 2.4.11-pre6 
+Message-ID: <20011009130544.A737@df1tlpc.local.here>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+dd and mkfs works with 2.4.3 but not with 2.4.11.x or 2.4.10.x
+ 
+dd if=/dev/sda of=/dev/sdb bs=1024k   or   mkfs /dev/sdb3 
+both fail with "File size limit exceeded"
 
->>> Ian Stirling <root@mauve.demon.co.uk> 10/08/01 12:21PM >>>
-> 
-> Pavel Machek <pavel@suse.cz> writes:
-> 
-> > Hi!
-> > 
-> > > >>> Ian Stirling <root@mauve.demon.co.uk> 10/05/01 05:01AM >>>
-> > > >I'm running 2.4.10, and the ps/2 keyboard came out of it's socket.
+Booting the same system with 2.4.3 or 2.2.19 anything
+works as expected.
 
->I should possibly have mentioned that APM is enabled on this machine,
-> but no suspend/standby had been done, it's only for use in power-cuts
-> when I want to minimise draw from the UPS batteries.
-> The machine is an athlon desktop.
+So is the problem with the kernel (as I assume) or do I miss something ?
 
-> I'll see if I can reproduce this with 2.4.11, 2.4.10 is utterly unusable
-> for me. (totally insane swapping out causing things to get killed on 
-> significant reading.
+Can anyone else please verify this ? 
 
-I think you'll find it with any kernel. I still think this is normal behaviour. Unplugging the keyboard is fine, and should break nothing. Plugging it back it should not work. I guess I could try it on my machine here at work, but I'm not going to ;-).
+(One really needs two disks, dd if=/dev/sda of=/dev/null does not show
+the problem)
 
+-- 
+Best regards
+Klaus Dittrich
 
+e-mail: kladit@t-online.de

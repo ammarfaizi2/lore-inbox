@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290688AbSA3WnA>; Wed, 30 Jan 2002 17:43:00 -0500
+	id <S290708AbSA3WpK>; Wed, 30 Jan 2002 17:45:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290706AbSA3Wmu>; Wed, 30 Jan 2002 17:42:50 -0500
-Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:61647 "EHLO
-	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S290698AbSA3Wmm>; Wed, 30 Jan 2002 17:42:42 -0500
-From: "Karl" <ktatgenhorst@earthlink.net>
-To: <jacob@chaos2.org>, "Russell King" <rmk@arm.linux.org.uk>
-Cc: "lkml" <linux-kernel@vger.kernel.org>
-Subject: RE: A modest proposal -- We need a patch penguin
-Date: Wed, 30 Jan 2002 16:57:20 -0500
-Message-ID: <NDBBJHDEALBBOIDJGBNNKEHCCCAA.ktatgenhorst@earthlink.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <Pine.LNX.4.21.0201301152350.21054-100000@inbetween.blorf.net>
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+	id <S290707AbSA3WpB>; Wed, 30 Jan 2002 17:45:01 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:52206 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S290704AbSA3Wot>;
+	Wed, 30 Jan 2002 17:44:49 -0500
+Date: Wed, 30 Jan 2002 15:44:34 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: David Dyck <dcd@tc.fluke.com>
+Cc: linux-kernel@vger.kernel.org, R.E.Wolff@BitWizard.nl
+Subject: Re: 2.5.3 missing <linux/malloc.h>
+Message-ID: <20020130154434.L763@lynx.adilger.int>
+Mail-Followup-To: David Dyck <dcd@tc.fluke.com>,
+	linux-kernel@vger.kernel.org, R.E.Wolff@BitWizard.nl
+In-Reply-To: <Pine.LNX.4.33.0201301239370.19671-100000@dd.tc.fluke.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0201301239370.19671-100000@dd.tc.fluke.com>; from dcd@tc.fluke.com on Wed, Jan 30, 2002 at 02:28:28PM -0800
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Jan 30, 2002  14:28 -0800, David Dyck wrote:
+> Haven't seen this posted yet, so I'm surprised to report that
+> several 2.5.3 source files
+> 
+>     arch/arm/mach-clps711x/dma.c
+>     drivers/base/core.c
+>     drivers/base/fs.c
+>     drivers/video/neofb.c
+> 
+> 
+> try to include linux/malloc.h
+> but there is no file in the include directory by that name.
+> 
+> I worked around the problem by copying an older linux/malloc.h:
+> 
+> #ifndef _LINUX_MALLOC_H
+> #define _LINUX_MALLOC_H
+> 
+> #include <linux/slab.h>
+> #endif /* _LINUX_MALLOC_H */
 
+So, why not just change the above files to include <linux/slab.h>
+instead?
 
->Why not have real fun and give out e-mail@vger.kernel.org (or @kernel.org)
->to people who make it into MAINTAINERS then?  Of course, someone would
->hve to maintain the accounts...  ;)
+> and I've noticed that many source files have
+>   #include <linux/slab.h>     /* kmalloc(), kfree() */
+> instead of trying to include linux/malloc.h
 
+That's because they have been updated, and the other ones have not.
+Don't ask me _why_ it was changed that way, but it was.
 
-  As someone who normally just watches I will meekly add, that makes a LOT
-of sense. Because the address could be IDE_Subsystem@vger.kernel.org and
-then if that person passed on the maintainership, the maintainer patch would
-have the correct e mail address and only the name would be out of date. Thus
-keeping ease of submission at least.
-
-Karl Tatgenhorst
-
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

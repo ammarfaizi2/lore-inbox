@@ -1,75 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267896AbTAMQoZ>; Mon, 13 Jan 2003 11:44:25 -0500
+	id <S267886AbTAMQjT>; Mon, 13 Jan 2003 11:39:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267911AbTAMQoZ>; Mon, 13 Jan 2003 11:44:25 -0500
-Received: from [217.167.51.129] ([217.167.51.129]:30945 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S267896AbTAMQoX>;
-	Mon, 13 Jan 2003 11:44:23 -0500
-Subject: Re: Linux 2.4.21-pre3-ac4
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1042404682.16288.34.camel@irongate.swansea.linux.org.uk>
-References: <200301121807.h0CI7Qp04542@devserv.devel.redhat.com>
-	 <1042399796.525.215.camel@zion.wanadoo.fr>
-	 <1042403235.16288.14.camel@irongate.swansea.linux.org.uk>
-	 <1042401074.525.219.camel@zion.wanadoo.fr>
-	 <1042401443.525.223.camel@zion.wanadoo.fr>
-	 <1042404682.16288.34.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042476966.30833.11.camel@zion.wanadoo.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 13 Jan 2003 17:56:06 +0100
+	id <S267882AbTAMQjS>; Mon, 13 Jan 2003 11:39:18 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:22917 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S267879AbTAMQjR>; Mon, 13 Jan 2003 11:39:17 -0500
+Date: Mon, 13 Jan 2003 11:50:20 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Mad Hatter <slokus@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: bootsect.S: 2 questions
+In-Reply-To: <20030113162827.46498.qmail@web13709.mail.yahoo.com>
+Message-ID: <Pine.LNX.3.95.1030113114007.21633A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-01-12 at 21:51, Alan Cox wrote:
-> On Sun, 2003-01-12 at 19:57, Benjamin Herrenschmidt wrote:
-> > Actually, do we really need that delay as we are waiting for an
-> > interrupt anyway ? my understanding is that this delay is the required
-> > before we start polling for BSY bit (that is the max time the drive may
-> > take to assert BSY after getting the command), but in our case, unless
-> > we have other bugs, we shall have the channel marked busy, so nobody
-> > will tap it, except the actual interrupt coming in. Or will the case of
-> > shared interrupt potentially cause a read of status at the wrong time ?
+On Mon, 13 Jan 2003, Mad Hatter wrote:
+
+> Hi,
 > 
-> Precisely. Or a random IRQ from a drive power change or hotplug that
-> passed our command in the other direction.
+> I was looking through the linux (2.5.56) arch/i386/boot/bootsect.S and was
+> puzzled about a couple of things:
 > 
-> We could actually address this another way which might even be easier, 
-> that is in the IRQ path to wait the 400nS if BSY isnt asserted. I need
-> to go reread the spec to check if we can poll it before the timeout
-> but not trust the data, or cannot poll it.
+> 1. Near line 221 we have:
+>        sread:  .word 0             # sectors read of current track
+>        head:   .word 0             # current head
+>        track:  .word 0             # current track
+> 
+>    However, since a diskette can have at most 2 heads, 80 tracks and 36 sectors
+>    per track, why are these not bytes instead of words especially since space is
+>    at such a tight premium in this code ?
+>
 
-Now I think that would be bad as that would mean waiting in the normal
-case. But if you look at the various access patterns, I think there is
-no real problem in fact, though I beleive only Andre can confirm.
+Because, when they are used, they are ORed into word-sized registers.
+The track and sector are are put into register CX and the head and drive
+number are put into DX.
 
-We have 3 cases to deal with:
+> 2. Near line 272 we have "movw    $7, %bx" but the documentation I've
+>     been able to find about the "int 0x10" BIOS call says that for service
+>     code 0xe (write character and advance cursor), it does not take an
+>     attribute byte input parameter but rather uses the existing attribute. Is
+>     this movw instruction superfluous ?
+> 
 
- 1 - Command with no data transfer. Here, there should be no problem
-just doing a read from status or alt_status, right ? now, reading status
-might clear the IRQ if we are slow enough, so we may want alt_status
-instead. (We can probably safely ignore controllers that have no alt
-status here, or route them via some hwif->IOSYNC() macro). Or maybe just
-re-read the select register for making everybody happy.
+On page 218, "System BIOS for IBM PC/XT/AT Computers", Phoenix
+Technical Reference Series, ISBN 0-201-51806-6, the documentation
+clearly states that BL contains the foreground color and BH the
+active page. Therefore 0x0007 is the correct value to be put
+into that register for the "Write Teletype to Active Page" function.
 
- 2 - Command with a data transfer not using DMA (that is either PIO or
-the command part of an ATAPI command in ide-cd). I don't think there's
-any problem reading alt status or select here, is there andre ? So we
-can also safely do that before waiting and thus make sure the bus path
-to the controller is ok
+FYI, the startup functions are used once-per-boot. Any "improvements"
+other than those necessary to "fix" something are useless in the
+overall scheme of things.
 
- 3 - Command with a data transfer using DMA (new ide-scsi, ide-hd with
-dma, etc...). Here, I beleive there is just no problem, we don't need to
-wait at all, since the interrupt handler will check for the DMA
-controller to have completed via hwif->ide_dma_test_irq before reading
-the status reg at all, right ?
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 
-Ben.
 

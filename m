@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290235AbSAXCnb>; Wed, 23 Jan 2002 21:43:31 -0500
+	id <S290236AbSAXCrb>; Wed, 23 Jan 2002 21:47:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290236AbSAXCnL>; Wed, 23 Jan 2002 21:43:11 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:33008 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S290235AbSAXCnF>;
-	Wed, 23 Jan 2002 21:43:05 -0500
-Date: Thu, 24 Jan 2002 03:42:59 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Ruben Puettmann <ruben.puettmann@freenet-ag.de>
-Cc: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-Subject: Re: Problems compiling 2.4.18-pre6
-Message-ID: <20020124034259.T1735@khan.acc.umu.se>
-In-Reply-To: <Pine.LNX.4.33.0201231710330.24338-100000@coffee.psychology.mcmaster.ca> <3C4F57AA.7010809@freenet-ag.de>
+	id <S290237AbSAXCrV>; Wed, 23 Jan 2002 21:47:21 -0500
+Received: from mail002.mail.bellsouth.net ([205.152.58.22]:7446 "EHLO
+	imf02bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S290236AbSAXCrD>; Wed, 23 Jan 2002 21:47:03 -0500
+Subject: kernel-2.4.18-pre6 and pre7 not booting (update)
+From: Louis Garcia <louisg00@bellsouth.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 (1.0.1-2) 
+Date: 23 Jan 2002 21:50:11 -0500
+Message-Id: <1011840617.1130.7.camel@tiger>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C4F57AA.7010809@freenet-ag.de>; from ruben.puettmann@freenet-ag.de on Thu, Jan 24, 2002 at 01:39:06AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hahn wrote:
+While trying to upgrade to this kernel it fails to boot on my PII 440bx
+system:
+---------------
+kernel panic: can't allocate root vfsmount
+<1> unable to handle kernel NULL pointer dereference at virtual address 0000002c
 
->>Distribution Debian woody with all updates.
->>
-> 
-> which is exactly the problem.  have the debian people fixed
-> this yet?  there have been dozens of reports of this debian 
-> problem over many weeks.
+<0> kernel panic: Aiee, killing interrupt handling!
+In interrupt handling - not syncing
+----------------
 
-This is _NOT_ a Debian problem, it is a matter of buggy code in the
-kernel. A newer set of binutils simply exposes the bug. Don't blame
-the messenger.
+It spat out a stack trace, if anyone wants it.
+
+I'm back to running my old kernel 2.4.18-pre1.
+
+--Louis
 
 
-Regards: David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

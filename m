@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267214AbSKUXzz>; Thu, 21 Nov 2002 18:55:55 -0500
+	id <S267213AbSKUX4F>; Thu, 21 Nov 2002 18:56:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267213AbSKUXzz>; Thu, 21 Nov 2002 18:55:55 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:27655
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S267214AbSKUXyo>; Thu, 21 Nov 2002 18:54:44 -0500
-Date: Thu, 21 Nov 2002 16:00:34 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Mark Mielke <mark@mark.mielke.cc>
-cc: Arjan van de Ven <arjanv@redhat.com>,
-       David McIlwraith <quack@bigpond.net.au>, linux-kernel@vger.kernel.org
-Subject: Re: spinlocks, the GPL, and binary-only modules
-In-Reply-To: <20021121170224.GB5315@mark.mielke.cc>
-Message-ID: <Pine.LNX.4.10.10211211522390.3892-100000@master.linux-ide.org>
+	id <S267220AbSKUX4E>; Thu, 21 Nov 2002 18:56:04 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33554 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267213AbSKUX4C>;
+	Thu, 21 Nov 2002 18:56:02 -0500
+Message-ID: <3DDD7418.2010408@pobox.com>
+Date: Thu, 21 Nov 2002 19:02:32 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Adam Kropelin <akropel1@rochester.rr.com>,
+       Neil Cafferkey <caffer@cs.ucc.ie>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Setting MAC address in ewrk3 driver
+References: <20021121195417.A18859@cuc.ucc.ie>	<1037914095.9122.0.camel@irongate.swansea.linux.org.uk> 	<20021121233950.GB4654@www.kroptech.com> <1037924776.9122.7.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <20021121195417.A18859@cuc.ucc.ie>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Nov 2002, Mark Mielke wrote:
+Alan Cox wrote:
 
-> Some (not all) of the inlined functions are 'inline' to accelerate the
-> kernel.
+> On Thu, 2002-11-21 at 23:39, Adam Kropelin wrote:
+>
+> >Alan, could you clarify for me? I'm the last guy to diddle with ewrk3 so
+> >I'll track this down if there is indeed something to track down. ewrk3
+> >has a private ioctl for setting the mac address. By the "up" method do
+> >you mean the etherdev open method? Should there be a standard ioctl
+> >implemented for setting the mac address?
+>
+>
+> dev->set_mac_address()
 
-Point is noted and the performance issue stands on its own as a strike
-against removing the inline, this is a given.  Now what is the performance
-difference if the inline is moved to a .c and makd and extern inline in
-the .h ?
 
-The object of the question is determine if there is a peformance break
-point to consider the moving of a inlined C code to a proper .c file.
 
-Obviously adding a new kernel fork to move around the inline game will be
-painful but if it narrows the gap between black and white to remove
-the chance of accidentail GPL code inclusion.  It may be worth it to
-consider.
+To be more specific:
 
-Comments and Flames welcome.
+Read the MAC address in the probe phase.
+Write MAC address to NIC on _each_ dev->open().
+If you care about changing the MAC address while interface is up, 
+implement dev->set_mac_address().
 
-Cheers,
+So, dev->set_mac_address() is pretty useless, when you can just tell 
+users "down the interface before setting MAC address" which is a sane 
+thing to do anyway, and much less complicated.
 
-Andre Hedrick
-LAD Storage Consulting Group
+	Jeff
+
 
 

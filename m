@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277408AbRJOLfr>; Mon, 15 Oct 2001 07:35:47 -0400
+	id <S277419AbRJOLq7>; Mon, 15 Oct 2001 07:46:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277413AbRJOLfh>; Mon, 15 Oct 2001 07:35:37 -0400
-Received: from pcephc56.cern.ch ([137.138.38.92]:37760 "EHLO
-	kushida.jlokier.co.uk") by vger.kernel.org with ESMTP
-	id <S277408AbRJOLfX>; Mon, 15 Oct 2001 07:35:23 -0400
-Date: Mon, 15 Oct 2001 13:35:06 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
-Message-ID: <20011015133506.B4269@kushida.jlokier.co.uk>
-In-Reply-To: <20011013205445.A24854@kushida.jlokier.co.uk> <Pine.LNX.4.33.0110131219520.8900-100000@penguin.transmeta.com> <20011013214603.A1144@kushida.jlokier.co.uk> <200110132241.f9DMfmD28263@vindaloo.ras.ucalgary.ca>
+	id <S277418AbRJOLqt>; Mon, 15 Oct 2001 07:46:49 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:39696 "EHLO
+	smtp.alcove-fr") by vger.kernel.org with ESMTP id <S277414AbRJOLqf>;
+	Mon, 15 Oct 2001 07:46:35 -0400
+Date: Mon, 15 Oct 2001 13:46:42 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+Cc: linux kernel <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4.13-pre1: sonypi.c compile error
+Message-ID: <20011015134642.K4523@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <3BCB0A02.9DF231A@zonnet.nl> <200110151055.MAA12072@arpa.it.uc3m.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200110132241.f9DMfmD28263@vindaloo.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Sat, Oct 13, 2001 at 04:41:48PM -0600
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200110151055.MAA12072@arpa.it.uc3m.es>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
-> > There are applications (GCC comes to mind) which are using mmap() to
-> > read files now because it is measurably faster than read(), for
-> > sufficiently large source files.
+On Mon, Oct 15, 2001 at 12:55:48PM +0200, Peter T. Breuer wrote:
+
+> "A month of sundays ago Sander van Geloven wrote:"
+> > >
+> > > I won't submit a patch to Linus for now, I'm pretty sure that Alan will take care of this for -pre2.
+> > > Stelian.
 > 
-> So? MAP_PRIVATE is just fine for these. The simple solution if you
-> care about an edit in the middle of a compile is to have your editor
-> write a new file and do an atomic rename. No half-and-half data
-> problems, and the VM logic is kept simple (well, relative to what we
-> have now;-).
+> As far as I recall, I have pre2 and it showed this error on compiling the sony
+> vaio stuff. I fixed it by adding an extern int declaration for
+> is_sony_vaio_laptop in sonypi.c. It was declared in some nonobvious .c file
+> far elsewhere, uh, ... arch/i386/kernel/dmi_scan.c.
 
-This does not work.  Example:
+This time Linus took the changes for dmi_scan.c/sonypi.c etc which
+includes now asm-i386/system.h, but he didn't take the changes
+for include/asm/system.h :(
 
-  1. JamieEmacs loads file using MAP_PRIVATE.
-  2. Something else writes to the file.
-  3. Scroll to the bottom of the file in JamieEmacs.  It displays some
-     of the newly written data, though not all of it.
+Basically, include/asm-i386/system.h needs to contain:
+	extern int is_sony_vaio_laptop;
 
---> Wrong editor semantics.
+Alan, could you please fed Linus the exact patch for the next
+pre version ?
 
-Note that the something else which modifies the file in step 2 is not an
-editor written especially to cooperate with JamieEmacs.  So it does not
-do renaming -- why should it?  You might have just loaded
-/var/log/messages into JamieEmacs, for example, and syslog is the
-program in step 2.
-
-What you need is read() or an equivalent.  I don't know of a
-memory-efficient equivalent to read.  MAP_PRIVATE doesn't do it because
-you have to dirty every page before you can be sure that file
-modifications won't change your view of the data, and the dirtying
-creates just as many page duplicates as read() does.
-
-cheers,
--- Jamie
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261637AbUCFMmr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 07:42:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUCFMmr
+	id S261664AbUCFMn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 07:43:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbUCFMnF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 07:42:47 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:13226 "EHLO
+	Sat, 6 Mar 2004 07:43:05 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:21418 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261637AbUCFMmq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 07:42:46 -0500
-Date: Thu, 4 Mar 2004 16:08:36 +0100
+	id S261661AbUCFMm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Mar 2004 07:42:58 -0500
+Date: Fri, 5 Mar 2004 23:09:51 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Jean-Luc Cooke <jlcooke@certainkey.com>
-Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
-       James Morris <jmorris@redhat.com>,
-       Christophe Saout <christophe@saout.de>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: dm-crypt, new IV and standards
-Message-ID: <20040304150836.GE531@openzaurus.ucw.cz>
-References: <20040220172237.GA9918@certainkey.com> <Xine.LNX.4.44.0402201624030.7335-100000@thoron.boston.redhat.com> <20040221164821.GA14723@certainkey.com> <Pine.LNX.4.58.0403022352080.12846@twinlark.arctic.org> <20040303150647.GC1586@certainkey.com>
+To: Steve Longerbeam <stevel@mvista.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: new special filesystem for consideration in 2.6/2.7
+Message-ID: <20040305220950.GA5352@openzaurus.ucw.cz>
+References: <40462AA1.7010807@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040303150647.GC1586@certainkey.com>
+In-Reply-To: <40462AA1.7010807@mvista.com>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > Well, CTR mode is not recommended for encrypted file systems because it is very
-> > > easy to corrupt single bits, bytes, blocks, etc without an integrity check.
-> > > If we add a MAC, then any mode of operation except ECB can be used for
-> > > encrypted file systems.
-> > 
-> > what does "easy to corrupt" mean?  i haven't really seen disks generate
-> > bit errors ever.  this MAC means you'll need to write integrity data for
-> > every real write.  that really doesn't seem worth it...
+> (PRAMFS). It was originally developed for three major consumer
+> electronics companies for use in their smart cell phones
+> and other consumer devices.
 > 
-> The difference between "_1,000,000" and "_8,000,000" is 1 bit.  If an
-> attacker knew enough about the layout of the filesystem (modify times on blocks,
-> etc) they could flip a single bit and change your _1Mil purchase order
-> approved by your boss to a _8Mil order.
+> An intro to PRAMFS along with a technical specification
+> is at the SourceForge project web page at
+> http://pramfs.sourceforge.net/. A patch for 2.6.3 has
+> been released at the SF project site.
 
-Hmm... long time ago I created crc loop device to catch
-faulty disks. If cryptoloop can do that for me... very good!
+Well, I'd certainly love to see some usable linux cell phones. 
+(Well, one such beast in my pocket would probably be enough :-)
+(Is there a way to make linux cell phone without second
+cpu just for GSM stack?)
+
+Comments about pramfs: RAM is not really random access,
+you'll find that doing byte-sized random reads is way slower
+than linear read,
+but you are right that it is very different from disk.
+
+How do you handle powerfail in the middle of write?
+Do you run fsck or do you have some kind of logging?
+
+
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

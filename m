@@ -1,26 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136182AbRDVPiO>; Sun, 22 Apr 2001 11:38:14 -0400
+	id <S136184AbRDVPoS>; Sun, 22 Apr 2001 11:44:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136019AbRDVPiF>; Sun, 22 Apr 2001 11:38:05 -0400
-Received: from fenrus.demon.co.uk ([158.152.228.152]:691 "EHLO amadeus.home.nl")
-	by vger.kernel.org with ESMTP id <S136182AbRDVPhs>;
-	Sun, 22 Apr 2001 11:37:48 -0400
-Message-Id: <m14rLvl-000OdeC@amadeus.home.nl>
-Date: Sun, 22 Apr 2001 16:37:45 +0100 (BST)
-From: arjan@fenrus.demon.nl (Arjan van de Ven)
-To: linux-kernel@vger.kernel.org
+	id <S136185AbRDVPoK>; Sun, 22 Apr 2001 11:44:10 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:8199 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S136184AbRDVPn5>;
+	Sun, 22 Apr 2001 11:43:57 -0400
+Date: Sun, 22 Apr 2001 11:44:07 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: "Giacomo A. Catenazzi" <cate@dplanet.ch>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
 Subject: Re: [kbuild-devel] Re: Request for comment -- a better attribution system
-X-Newsgroups: fenrus.linux.kernel
-In-Reply-To: <esr@thyrsus.com> <200104220331.f3M3VDEv023810@sleipnir.valparaiso.cl> <20010422112816.B28605@thyrsus.com>
-User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
+Message-ID: <20010422114407.F28605@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	"Giacomo A. Catenazzi" <cate@dplanet.ch>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <E14r6oh-0004Zu-00@the-village.bc.nu> <3AE2B847.C4EE45E9@dplanet.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AE2B847.C4EE45E9@dplanet.ch>; from cate@dplanet.ch on Sun, Apr 22, 2001 at 12:53:59PM +0200
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010422112816.B28605@thyrsus.com> you wrote:
->> They post on LKM as last resort.
+Giacomo A. Catenazzi <cate@dplanet.ch>:
+> Alternativelly we can generate MAINTAINER from ESR's map headers.
+> In this case we should include this script in the Linus script to
+> automagically create the i386 defconfig.
 
-> I tried that, too.  It didn't work either.
+Aha!  Somebody is actually *thinking* rather than having a
+conservative reflex.  Yes, boys and girls, this is exactly how I
+planned to solve the I-want-to-be-able-to-grep-it problem.
 
-Most lklm readers ignore posts that look like trolls or are for proposals
-they disagree with.
+Giacomo hasn't resolved the larger question of whether my distributed-
+attribution proposal is a good idea or not.  What he *has* done is
+demonstrated that the resistance to it is mostly rationalized rather
+than rational.  Otherwise somebody else would have seen this a lot
+sooner.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+

@@ -1,73 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261403AbRETD0w>; Sat, 19 May 2001 23:26:52 -0400
+	id <S261402AbRETDlP>; Sat, 19 May 2001 23:41:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261402AbRETD0n>; Sat, 19 May 2001 23:26:43 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:13063 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261399AbRETD0g>; Sat, 19 May 2001 23:26:36 -0400
-Date: Sat, 19 May 2001 20:26:20 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Matthew Wilcox <matthew@wil.cx>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Alexander Viro <viro@math.psu.edu>, Andrew Clausen <clausen@gnu.org>,
-        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-In-Reply-To: <200105200248.f4K2mws02918@mobilix.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.21.0105192017480.28666-100000@penguin.transmeta.com>
+	id <S261404AbRETDlF>; Sat, 19 May 2001 23:41:05 -0400
+Received: from www.wen-online.de ([212.223.88.39]:54797 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S261402AbRETDky>;
+	Sat, 19 May 2001 23:40:54 -0400
+Date: Sun, 20 May 2001 05:40:28 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: =?ISO-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
+In-Reply-To: <200105200225107.SM01044@paloma16.e0k.nbg-hannover.de>
+Message-ID: <Pine.LNX.4.33.0105200537270.488-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 20 May 2001, Dieter Nützel wrote:
 
-On Sat, 19 May 2001, Richard Gooch wrote:
+> > > Three back to back make -j 30 runs for three different kernels.
+> > > Swap cache numbers are taken immediately after last completion.
+> >
+> > The performance increase is nice, though.  Do you see similar
+> > changes in different kinds of workloads ?
 >
-> Matthew Wilcox writes:
-> > On Sat, May 19, 2001 at 10:22:55PM -0400, Richard Gooch wrote:
-> > > The transaction(2) syscall can be just as easily abused as ioctl(2) in
-> > > this respect.
-> > 
-> > But read() and write() cannot.
-> 
-> Sure they can. I can pass a pointer to a structure to either of them.
+> I you have a patch against 2.4.4-ac11 I will do some tests with some
+> (interactive) 3D apps.
 
-You're missing the point.
+I don't have an ac kernel resident atm, but since Alan merged here
+very recently, it will probably go in ok.  If not, just holler and
+I'll download ac11 and make you a clean patch.
 
-It's ok to do "read()/write()" on structures. In fact, people do that all
-the time (and then they complain about the file not being portable ;)
-
-The problem with ioctl is that not only are people passing ioctl's
-pointers to structures, but:
- - they're not telling how big the structure is
- - the structure can have pointers to other places
- - sometimes it modifies the structure passed in
-
-None of which are "network-nice". Basically, ioctl() is historically used
-as a "pass any crap into driver xxxx, and the driver - and ONLY the driver
-- will know what to do with it".
-
-And when _only_ a driver knows what the arguments mean, upper layers can't
-encapsulate them. Upper layers cannot make a packet of the argument and
-send it over the network to another machine. Upper layers cannot do
-sanity-checking on things like "is this argument a valid pointer". Which
-means, for example, that not only can you not send the ioctl arguments
-anywhere, but ioctl's have also historically been a hot-bed of bugs.
-
-Example traditional ioctl bugs: use kernel pointers to access the argument
-(because it just happens to work on x86, never mind the fact that if the
-argument is bad you'll get a kernel oops and/or a serious security error).
-Other example: different drivers/f ilesystems implementing the same ioctl,
-but disagreeing on what the argument means (is it a pointer to an integer
-argument, or the integer itself?).
-
-Now, the advantage of using read()/write() is (a) that it's unambiguous
-where the argument comes from and how big it is and (b) because of that
-the _psychology_ is different. You don't get into this "pass random crap
-around, let the kernel modify user data structures directly" mentality.
-
-And psychology is important.
-
-		Linus
+	-Mike
 

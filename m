@@ -1,60 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314132AbSDQVYs>; Wed, 17 Apr 2002 17:24:48 -0400
+	id <S314129AbSDQVYi>; Wed, 17 Apr 2002 17:24:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314133AbSDQVYr>; Wed, 17 Apr 2002 17:24:47 -0400
-Received: from ccs.covici.com ([209.249.181.196]:50582 "EHLO ccs.covici.com")
-	by vger.kernel.org with ESMTP id <S314132AbSDQVYq>;
-	Wed, 17 Apr 2002 17:24:46 -0400
-Date: Wed, 17 Apr 2002 17:24:41 -0400 (EDT)
-From: John Covici <covici@ccs.covici.com>
-To: Anton Altaparmakov <aia21@cantab.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.8 nbd.c doesn't compile
-In-Reply-To: <5.1.0.14.2.20020417210154.00adde30@pop.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.40.0204171723360.20092-100000@ccs.covici.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314132AbSDQVYh>; Wed, 17 Apr 2002 17:24:37 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:50060 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S314129AbSDQVYg>;
+	Wed, 17 Apr 2002 17:24:36 -0400
+Date: Wed, 17 Apr 2002 13:22:33 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Guillaume Boissiere <boissiere@attbi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [STATUS]  Spring cleanup
+Message-ID: <20020417132233.A38@toy.ucw.cz>
+In-Reply-To: <3CB48512.17441.E3FE393@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, I found the patch you posted earlier today -- I had it right
-there all the time!
+Hi!
 
-On Wed, 17 Apr 2002, Anton Altaparmakov wrote:
+> These four items have been marked as Ready or Pending for a while and yet nothing 
+> has happened for the last 2 months so I'm planning to change their status in the
+> next status update.
+> Comments?  Objections?
 
-> Compilation is already fixed in the current bitkeeper tree
-> (linux.bkbits.net/linux-2.5). so you can either get that or you can apply
-> the patch I posted this morning fixing this problem.
->
-> You can find the patch in the archives:
->
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=101897350106638&w=2
->
-> Note patch compiles but is otherwise untested.
->
-> Best regards,
->
-> Anton
->
-> At 20:34 17/04/02, John Covici wrote:
-> >When I try to compile 2.5.8 with nbd as a module, I get lots of error
-> >saying structure has no member queue_lock .
-> >
-> >Any assistance would be appreciated.
-> >
-> >--
-> >          John Covici
-> >          covici@ccs.covici.com
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
->
->
-
+BTW you are missing "merged in 2.5.5+" IDE rewrite by martin dalecki and 
+vojtech pavlik. Its getting pretty big and cleans it up a lot.
+								Pavel
 -- 
-         John Covici
-         covici@ccs.covici.com
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265215AbUGLQI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266864AbUGLQM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265215AbUGLQI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 12:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266864AbUGLQI2
+	id S266864AbUGLQM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 12:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266884AbUGLQM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 12:08:28 -0400
-Received: from chello212017098056.surfer.at ([212.17.98.56]:21776 "EHLO
-	hofr.at") by vger.kernel.org with ESMTP id S265215AbUGLQI1 (ORCPT
+	Mon, 12 Jul 2004 12:12:27 -0400
+Received: from cantor.suse.de ([195.135.220.2]:33510 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266864AbUGLQMZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 12:08:27 -0400
-From: Der Herr Hofrat <der.herr@hofr.at>
-Message-Id: <200407121609.i6CG98W28473@hofr.at>
-Subject: Re: TQM in 2.6.X
-In-Reply-To: <20040712151937.GM28002@smtp.west.cox.net> from Tom Rini at "Jul
- 12, 2004 08:19:37 am"
-To: Tom Rini <trini@kernel.crashing.org>
-Date: Mon, 12 Jul 2004 18:09:08 +0200 (CEST)
-CC: Der Herr Hofrat <der.herr@hofr.at>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	Mon, 12 Jul 2004 12:12:25 -0400
+To: Timothy Miller <miller@techsource.com>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil, jmorris@redhat.com,
+       mika@osdl.org
+Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
+References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>
+	<Pine.LNX.4.58.0407080917420.1764@ppc970.osdl.org>
+	<40ED7BE7.7010506@techsource.com>
+	<200407090056.51084.vda@port.imtp.ilyichevsk.odessa.ua>
+	<40F2AB82.40508@techsource.com>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: Yow!  Now we can become alcoholics!
+Date: Mon, 12 Jul 2004 18:12:23 +0200
+In-Reply-To: <40F2AB82.40508@techsource.com> (Timothy Miller's message of
+ "Mon, 12 Jul 2004 11:17:22 -0400")
+Message-ID: <jeisct2oig.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, Jul 11, 2004 at 11:48:54AM +0200, Der Herr Hofrat wrote:
-> 
-> >  arch/ppc/platforms/tqm8260_setup.c
-> >  
-> >  looks like it is truncated in the 2.6.X tar.bz2 archives from kernel.org
-> >  (checked 2.6.0/5/6) - am I doing something stupid or is vanilla 2.6.X 
-> >  just not ready for TQM8260 ?
-> 
-> The file is supposed to be short.  But yes, TQM8260 support has never been
-> tested in 2.5 or 2.6, so there might be other problems lurking.
-> 
-> Andrew, please apply.
-> 
-> Signed-off-by: Tom Rini <trini@kernel.crashing.org>
-> 
-> --- 1.3/arch/ppc/platforms/tqm8260_setup.c	2004-06-16 10:56:13 -07:00
-> +++ edited/tqm8260_setup.c	2004-07-12 08:17:30 -07:00
-> @@ -77,3 +77,4 @@
->  
->  	callback_setup_arch	= ppc_md.setup_arch;
->  	ppc_md.setup_arch	= tqm8260_setup_arch;
-> +}
->
-I had tried that as it looked obvious - but that does not do it
-will not compile with this change - so I assumed there is more missing...
+Timothy Miller <miller@techsource.com> writes:
 
-thanks
-hofrat 
+> Denis Vlasenko wrote:
+>> The question is, whether readers of your code (including compiler)
+>> will be able to be sure that there is no error in
+>> 	f(a,b,c,d,e,0,f,g,h);
+>> statement or not. Better typecheck that 0.
+>
+> This I agree with, definately.  It's very important to make your code
+> readable, and if it's not obvious from context, make it obvious.  Cases
+> like the above are one of the reasons I like languages like Verilog where
+> you can pass parameters by specifying the parameter name.
+
+If your function needs nine arguments it is not readable by
+definition. :-)
+
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

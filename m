@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265693AbRF1M7D>; Thu, 28 Jun 2001 08:59:03 -0400
+	id <S265696AbRF1NDX>; Thu, 28 Jun 2001 09:03:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265683AbRF1M6x>; Thu, 28 Jun 2001 08:58:53 -0400
-Received: from m874-mp1-cvx1c.col.ntl.com ([213.104.79.106]:19328 "EHLO
-	[213.104.79.106]") by vger.kernel.org with ESMTP id <S265680AbRF1M6t>;
-	Thu, 28 Jun 2001 08:58:49 -0400
-To: Dan Kegel <dank@kegel.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: A signal fairy tale
-In-Reply-To: <3B38860D.8E07353D@kegel.com>
-From: John Fremlin <vii@users.sourceforge.net>
-Date: 28 Jun 2001 13:58:03 +0100
-In-Reply-To: <3B38860D.8E07353D@kegel.com> (Dan Kegel's message of "Tue, 26 Jun 2001 05:54:37 -0700")
-Message-ID: <m23d8kiwx0.fsf@boreas.yi.org.>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (GTK)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265709AbRF1NDD>; Thu, 28 Jun 2001 09:03:03 -0400
+Received: from jet.caldera.de ([212.34.180.34]:58884 "EHLO jet.caldera.de")
+	by vger.kernel.org with ESMTP id <S265697AbRF1NDB>;
+	Thu, 28 Jun 2001 09:03:01 -0400
+Date: Thu, 28 Jun 2001 15:02:54 +0200
+Message-Id: <200106281302.f5SD2sO02107@jet.caldera.de>
+From: Marcus Meissner <mm@jet.caldera.de>
+To: alad@hss.hns.com, linux-kernel@vger.kernel.org
+Subject: Re: Why we need LDT at all in 2.2 kernels ??
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <65256A79.0038FC3A.00@sandesh.hss.hns.com>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.3-ac14 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Dan Kegel <dank@kegel.com> writes:
+In article <65256A79.0038FC3A.00@sandesh.hss.hns.com> you wrote:
+> Hi,
+>      In 2.2 kernel do we really need its own LDT (not default_ldt) for every
+> process (no mm sharing) ??
 
-[...]
+> In what circumstances a process may need its own LDT ??
 
->        A signal number cannot be opened more than once concurrently;
->        sigopen() thus provides a way to avoid signal usage clashes
->        in large programs.
+When using the Windows Emulator WINE and related projects (WordPerfect 2000)
+for instance.
 
-Signals are a pretty dopey API anyway - so instead of trying to patch
-them up, why not think of something better for AIO?
-
-[...]
-
--- 
-
-	http://ape.n3.net
+Ciao, Marcus

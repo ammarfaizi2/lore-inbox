@@ -1,80 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267378AbTHBAqq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 20:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270858AbTHBAqp
+	id S270969AbTHBAsu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 20:48:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270976AbTHBAst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 20:46:45 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:28813
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S267378AbTHBAqo
+	Fri, 1 Aug 2003 20:48:49 -0400
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:30093
+	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S270969AbTHBAsl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 20:46:44 -0400
-Date: Fri, 1 Aug 2003 21:02:05 -0400
+	Fri, 1 Aug 2003 20:48:41 -0400
+Date: Fri, 1 Aug 2003 21:03:52 -0400
 From: Wakko Warner <wakko@animx.eu.org>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.x NFS and NFSD
-Message-ID: <20030801210205.A21542@animx.eu.org>
-References: <20030730185115.B16021@animx.eu.org> <16169.58331.996181.236352@gargle.gargle.HOWL>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Greg KH <greg@kroah.com>, Grant Miner <mine0057@mrs.umn.edu>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: Zio! compactflash doesn't work
+Message-ID: <20030801210352.B21542@animx.eu.org>
+References: <3F26F009.4090608@mrs.umn.edu> <20030730231753.GB5491@kroah.com> <20030731011450.GA2772@win.tue.nl> <20030731041103.GA7668@kroah.com> <20030731005213.B7207@one-eyed-alien.net> <20030731065206.B15944@animx.eu.org> <20030801131145.GA3280@win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.95.3i
-In-Reply-To: <16169.58331.996181.236352@gargle.gargle.HOWL>; from Neil Brown on Fri, Aug 01, 2003 at 01:51:55PM +1000
+In-Reply-To: <20030801131145.GA3280@win.tue.nl>; from Andries Brouwer on Fri, Aug 01, 2003 at 03:11:45PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 2.6.x as a server:
-> > I'm using nfs-kernel-server v1.0.5-1 (debian).
-> > Config Ops:
-> > CONFIG_NFSD=m
-> > CONFIG_NFSD_V3=y
-> > # CONFIG_NFSD_V4 is not set
-> > CONFIG_NFSD_TCP=y
-> > CONFIG_LOCKD=m
-> > CONFIG_LOCKD_V4=y   << I didn't configure this, where'd it come
-> > from?
+> > What about this one:
+> > Bus 001 Device 002: ID 0781:0005 SanDisk Corp. SDDR-05b (CF II) ImageMate
+> > CompactFlash Reader
 > 
-> If either NFS_V3 or NFSD_V3, then LOCKD_V4 is automatically added.
-
-Ok, I see.
-
-> > CONFIG_EXPORTFS=m
-> > CONFIG_SUNRPC=m
-> > This is in /etc/exports:
-> > / vegeta(rw,no_root_squash,async,nohide)
+> That is reported to work with the unusual dev patch
 > 
-> "nohide" is incorrect here.
-
-previous experience.  IIRC, if I didn't have it on /, I couldn't see /usr,
-/raid-0, or others (2.4.x).
-
-> > ls, and ls hangs.  client uses kernel 2.4.20 with NFSv3 enabled and it was
-> > mounted v3.
+> +/* glc: Greg Corcoran <gregc at spidex.com>  -- tested with SDDR-05b */
+> +UNUSUAL_DEV(  0x0781, 0x0005, 0x0005, 0x0005,
+> +               "Sandisk",
+> +               "ImageMate SDDR-05b",
+> +               US_SC_SCSI, US_PR_ZIOCF, init_ziocf,
+> +               US_FL_START_STOP | US_FL_SINGLE_LUN),
+> +
 > 
-> I have a hunch what this might be, and it'll require fixing both the
-> kernel and nfs-utils ;-(
+> together with the Zio! driver at sourceforge, maybe
 > 
-> Could you try using
->    mount -t nfsd nfsd /proc/fs/nfs
-
-This worked.  Of course I also removed nohide from / and added the rest of
-my FSs.  There were 4 in all on this test machine. / /usr /usr/src and
-/home.  All are exported as above except / has nohide removed.
-
-> before starting the nfs-kernel-server (particularly before starting
-> mountd or running exportfs).
+>   http://usbat2.sourceforge.net/index.html
 > 
-> Also, if you are brave, could you try with the following two patches,
-> one against linux-2.6.0-test2 and one against nfs-utils.  Then run the
-> nfs kernel server *without* mounting /proc/fs/nfs first.
+> if I recall correctly.
 
-I did not try the patches.  This work around seems to be what I was looking
-for.  I'll wait for the patches to be merged.  I did not patch the
-nfs-kernel-server either.
-
-I tried 2.6.x as a client to a v2 server running the userland server.  I do
-get a ton of nfs not responding messages, but I did a find /mnt/usr on it. 
-Doesn't seem to be going into D state this time.
+I checked the link.  Doesn't look like the drive is ready for 2.6 which is
+what I planned on using this with.  The chip on the device definately says
+"usbat-2".  Unfortuantely, I'm not well versed in kernel hacking so I'll
+have to wait til they port it.
 
 -- 
  Lab tests show that use of micro$oft causes cancer in lab animals

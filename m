@@ -1,81 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbUKGT4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbUKGUES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbUKGT4g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 14:56:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbUKGT4g
+	id S261597AbUKGUES (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 15:04:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbUKGUEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 14:56:36 -0500
-Received: from smtpq1.home.nl ([213.51.128.196]:47578 "EHLO smtpq1.home.nl")
-	by vger.kernel.org with ESMTP id S261592AbUKGT4d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 14:56:33 -0500
-Message-ID: <418E7CD7.408@keyaccess.nl>
-Date: Sun, 07 Nov 2004 20:51:51 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ondrej Zary <linux@rainbow-software.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: cdu31a - anyone has this ancient drive for testing?
-References: <418E4A27.2060104@rainbow-software.org>
-In-Reply-To: <418E4A27.2060104@rainbow-software.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+	Sun, 7 Nov 2004 15:04:15 -0500
+Received: from linux.us.dell.com ([143.166.224.162]:24132 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S261593AbUKGUEB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 15:04:01 -0500
+Date: Sun, 7 Nov 2004 14:03:51 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: davej@redhat.com, "Luck, Tony" <tony.luck@intel.com>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: EFI partition code broken..
+Message-ID: <20041107200351.GA3169@lists.us.dell.com>
+References: <Pine.LNX.4.58.0411070959560.2223@ppc970.osdl.org> <Pine.LNX.4.58.0411071128240.24286@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0411071128240.24286@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ondrej Zary wrote:
-
-> I've got a Sony CDU33A drive with COR334 controller. The Linux cdu31a 
-> driver was not updated for 2.6 kernel so it does not work.
-
-Well, modular it still /pretended/ to work. That is, it could (most of 
-the time) mount CD-ROMs but yes, most any actual activity made it blow up...
-
-> Here are two patches that try to make the driver working with 2.6 
-> kernel. The cdu31a-timeouts-fix.patch fixes the timeout values in header 
-> file and the cdu31a-make-working.patch does the rest:
->  - Make the driver work in 2.6.X
->  - Added workaround to fix hard lockups on eject
->  - Fixed door locking problem after mounting empty drive
->  - Set double-speed drives to double speed by default
->  - Removed all readahead things - not needed anymore
+On Sun, Nov 07, 2004 at 11:30:18AM -0800, Linus Torvalds wrote:
+> There's a few reports of various USB storage devices locking up. The last 
+> one was an iPod, but there's apparently others too.
 > 
-> It does work on my system. I also know that it's still broken - it uses 
-> cli(), MODULE_PARM and it's also not very fast (I _never_ reached full 
-> 300KB/s with it, but I know that it's possible in Windows) and probably 
-> many other things (I'm new to Linux kernel) - so I'm waiting for comments.
+> The reason? They are unhappy if you access them past the end, and they 
+> seem to have problems reporting their true size.
 > 
-> If someone has these ancient drives (CDU31A or CDU33A), please test :-)
+> And the EFI partitioning code will happily just blindly try to access the 
+> last sector, because that's where the EFI partition is. Boom. Immediately 
+> dead iPod/whatever.
+> 
+> I'm going to make EFI depend on ia64. Does anybody else use them? 
 
-Verified to do useful things here as well. I Have a CDU33A connected 
-through a MediaVision PAS16 soundcard:
+It has been suggested on lkml that CONFIG_EFI_PARTITION (aka GUID
+Partition Tables, or GPT), be used as a partitioning strategy
+(assuming you want partitions instead of whole-disk LVM) for >2TB
+non-boot block devices, on all architectures, not just on ia64.
+Granted, you've got to have a RAID controller to get there today, but
+SANs can.
 
-Pro Audio Spectrum driver Copyright (C) by Hannu Savolainen 1993-1996
-<Pro AudioSpectrum 16D rev 127> at 0x388 irq 10 dma 5
-Leaving handle_sony_cd_attention at 1004
-Sony I/F CDROM : SONY     CD-ROM CDU33A    Rev 1.0c
-   Capabilities: tray, audio, eject, LED, elec. Vol, sep. Vol, double speed
-Entering sony_get_toc
-[ a great many leaving/entering and other debug printks ]
+Also, Intel is heavily pushing for Extensible Firmware Interface (EFI)
+to be implemented in x86 and x86_64 environments in the next couple of
+years, so it may become more widespread.
+ 
+> Anyway, if anybody is interested in EFI tables on anything else, or if 
+> ia64 people ever care about actually working in any interesting hw 
+> situation, I'd strongly suggest EFI be fixed to not accept any random 
+> crap. 
+> 
+> As far as I can tell from reading the source, the EFI driver already
+> checks the first sector to see if it has a valid gpt, but apparently it
+> happily ends up doing all the end-of-disk checks even if the GPT isn't
+> there. Whatever the GPT is.
 
-and I could actually mount CD-ROMs and copy stuff from them. One thing, 
-a full 'dd' does not work:
+GPT = GUID Partition Table, that's the metadata as described in the
+EFI Specification.  There's two copies, one at the front of the disk,
+and one at the end of the disk, as a backup.  (why, I'm not too sure,
+but that's the way it was specfied).  So the code needs to check both,
+if it gets that far...
+ 
+> Anyway, it is possible that the fix is to just exit EFI partition checking 
+> early if the first sector isn't palatable. But I don't know what the EFI 
+> rules are, and quite frankly, I think it's a hell of a lot more important 
+> to not do random access patterns to a disk and confuse it than it is to 
+> have EFI, so for now I'm just making it conditional on IA64.
 
-root@5vd5:~# dd if=/dev/sonycd of=test.iso
-0+0 records in
-0+0 records out
-root@5vd5:~# ls -l test.iso
--rw-r--r--  1 root root 0 2004-11-07 20:41 test.iso
+The check for invalid primary master boot record (PMBR) needs to be
+moved up ahead of the reads for the GPTs (primary at the start of the
+disk, alternate/backup at the end of the disk).  When first written,
+Intel didn't specify that the PMBR (a normal DOS-like MBR partition
+table with a single entry of type 0xEE covering the whole disk) *had*
+to exist, so we let the code try looking for GPTs first.  When the
+PMBR test was added, it should have been added ahead of the GPT tests,
+not after.  I'll work up a patch to do just that, and will then remove
+the dependency on IA64.  Fair enough?
+ 
+> Btw, USB devices are _not_ the only devices that don't necessarily know 
+> their size very well. CD-roms tend to sometimes have the same issues. They 
+> just don't have partitions on them, so people probably never cared. Also, 
+> I think some things like nbd end up being "allocate on demand", and the 
+> size is meaningless.
+> 
+> Basic rule of thumb: be _careful_ when accessing a disk. There are too 
+> damn many buggy or strange setups out there.
 
-no oopses, nor specific complaints in dmesg.
+Indeed.
 
-Good job though, as far as I'm concerned. Once you have a final version, 
-you may want to submit this directly to Linus or maybe to Al Viro. He 
-sometimes looks at these drivers. I added him to the CC...
+Thanks,
+Matt
 
-Rene.
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

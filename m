@@ -1,28 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbUCXGSH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 01:18:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263018AbUCXGSH
+	id S263024AbUCXGZu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 01:25:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263026AbUCXGZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 01:18:07 -0500
-Received: from web8004.mail.in.yahoo.com ([203.199.70.64]:3595 "HELO
-	web8004.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S263014AbUCXGSG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 01:18:06 -0500
-Message-ID: <20040324061759.91514.qmail@web8004.mail.in.yahoo.com>
-Date: Tue, 23 Mar 2004 22:17:59 -0800 (PST)
-From: Dinesh Kumar <mljangir@yahoo.co.in>
-Subject: test mail
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Wed, 24 Mar 2004 01:25:50 -0500
+Received: from colin2.muc.de ([193.149.48.15]:30474 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S263024AbUCXGZt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 01:25:49 -0500
+Date: 24 Mar 2004 07:25:48 +0100
+Date: Wed, 24 Mar 2004 07:25:48 +0100
+From: Andi Kleen <ak@muc.de>
+To: George Anzinger <george@mvista.com>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]Call frame debug info for 2.6 kernel
+Message-ID: <20040324062548.GA96115@colin2.muc.de>
+References: <1AR5s-75I-27@gated-at.bofh.it> <1CHY0-1Uw-9@gated-at.bofh.it> <m3n0685nfp.fsf@averell.firstfloor.org> <4060B005.4020804@mvista.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4060B005.4020804@mvista.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
- 
+> The long and short of it is, to do it at all, you need to have a fair 
+> knowledge of dwarf2.  Once you get to that, I suspect one way is as good as 
+> another.
 
-__________________________________
-Do you Yahoo!?
-Yahoo! Finance Tax Center - File online. File on time.
-http://taxes.yahoo.com/filing.html
+Did you contact the gdb and binutils maintainers about the problems?
+Maybe it can be easily fixed.
+
+-Andi

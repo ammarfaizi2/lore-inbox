@@ -1,74 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262446AbUAUKF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 05:05:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbUAUKF0
+	id S262805AbUAUKPd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 05:15:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265890AbUAUKPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 05:05:26 -0500
-Received: from smtp08.auna.com ([62.81.186.18]:13307 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id S262446AbUAUKFT (ORCPT
+	Wed, 21 Jan 2004 05:15:33 -0500
+Received: from users.linvision.com ([62.58.92.114]:60115 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S262805AbUAUKPc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 05:05:19 -0500
-Date: Wed, 21 Jan 2004 11:05:17 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>, mort@bork.org,
-       viro@parcelfarce.linux.theplanet.co.uk, bluefoxicy@linux.net
-Subject: Re: struct task_struct -> task_t
-Message-ID: <20040121100517.GA15918@werewolf.able.es>
-References: <1074642648.828.40311.camel@cube>
+	Wed, 21 Jan 2004 05:15:32 -0500
+Date: Wed, 21 Jan 2004 11:15:30 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: keirwu pk <kwpk_55@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: newbie driver question
+Message-ID: <20040121101530.GF24745@bitwizard.nl>
+References: <BAY13-F43DRdNOUivlQ00007193@hotmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <1074642648.828.40311.camel@cube> (from albert@users.sf.net on Wed, Jan 21, 2004 at 00:50:48 +0100)
-X-Mailer: Balsa 2.0.16
+In-Reply-To: <BAY13-F43DRdNOUivlQ00007193@hotmail.com>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 21, 2004 at 05:33:10AM +0000, keirwu pk wrote:
+> what is the best way to write scsi driver for a scsi device?.got latest 
+> kernel.
+> any examples, sources. what are typical library calls?.  sg-Howto would 
+> help?.
 
-On 01.21, Albert Cahalan wrote:
-> Martin Hicks writes:
-> > On Mon, Jan 19, 2004 at 10:24:34PM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> >> On Mon, Jan 19, 2004 at 02:17:57PM -0800, john moser wrote:
-> 
-> >>> It has come to my attention that in some places
-> >>> in the kernel, 'struct task_struct' is used; and
-> >>> in others, 'task_t' is used.  Also, 'task_t' is
-> >>> 'typedef struct task_struct task_t;'.
-> >>>
-> >>> I made a small script to change around as much
-> >>> as I could so that everything uses task_t,
-> >>
-> >> What the fsck for?  If anything, the opposite
-> >> (and removal of that typedef) would be preferable.
-> >
-> > John,
-> >
-> > As Al is trying to point out, we try to discourage
-> > the use of typedefs in the kernel.  It is much
-> > easier to see that blah_t is really a struct if
-> > we always use 'struct blah'.
-> 
-> That's no good for variable usage. We don't
-> write "struct current".
-> 
-> You're giving the argument for Hungarian
-> notation. Not that I'd suggest it, but that
-> is where your argument leads.
-> 
-> IMHO, we type too much already.
-> 
+The sg interface is all you need to write a driver for some kind of
+exotic scsi device. Everything is handled in userland, no need to do it
+in kernel. That's how scsi scanners and cd writers are handled.
+The scsi-generic howto tells you how to use it, it even has programming
+examples.
 
-At least, don't be redundant.
-If you want explicit struct, let the type be 'struct task'
-(ie, kill the second _struct).
-If you want to use struct types as the rest of types, typedef
-a task_t.
-But 'struct task_struct' is redundand, long and ugly.
+
+Erik
 
 -- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 10.0 (Cooker) for i586
-Linux 2.6.1-jam4 (gcc 3.3.2 (Mandrake Linux 10.0 3.3.2-4mdk))
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

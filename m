@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318374AbSGRWk0>; Thu, 18 Jul 2002 18:40:26 -0400
+	id <S318365AbSGRWlN>; Thu, 18 Jul 2002 18:41:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318375AbSGRWk0>; Thu, 18 Jul 2002 18:40:26 -0400
-Received: from pC19EBE1C.dip.t-dialin.net ([193.158.190.28]:47620 "EHLO
-	tigra.home") by vger.kernel.org with ESMTP id <S318374AbSGRWkZ>;
-	Thu, 18 Jul 2002 18:40:25 -0400
-Date: Fri, 19 Jul 2002 00:44:40 +0200
-From: Alex Riesen <fork0@users.sf.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.19-rc2-ac2: init_task.c: missing braces around initializer
-Message-ID: <20020718224440.GA21439@steel>
-Reply-To: Alex Riesen <fork0@users.sf.net>
+	id <S318375AbSGRWlN>; Thu, 18 Jul 2002 18:41:13 -0400
+Received: from chello213047142196.15.vie.surfer.at ([213.47.142.196]:3712 "EHLO
+	aragorn.lain.at") by vger.kernel.org with ESMTP id <S318365AbSGRWlI>;
+	Thu, 18 Jul 2002 18:41:08 -0400
+Date: Fri, 19 Jul 2002 00:44:48 +0200
+From: Wolfgang <w.morandell@netway.at>
+To: Tobias Ringstrom <tori@ringstrom.mine.nu>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: kernel panic with linux-2.4.19-rc2-ac1
+Message-ID: <20020718224445.GA1065@aragorn.groundzero.at>
+References: <20020718215902.GU1096@holomorphy.com> <Pine.LNX.4.44.0207190002540.7956-100000@boris.prodako.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <Pine.LNX.4.44.0207190002540.7956-100000@boris.prodako.se>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-~/compile/steel/linux-2.4.19-rc2-ac2$ make bzImage modules -s
-init_task.c:23: warning: missing braces around initializer
-init_task.c:23: warning: (near initialization for `init_task_union.task.thread.io_bitmap')
-init_task.c:23: warning: braces around scalar initializer
-init_task.c:23: warning: (near initialization for `init_task_union.task.thread.io_bitmap[1]')
+On Fri, Jul 19, 2002, Tobias Ringstrom wrote:
 
+> > On Thu, Jul 18, 2002 at 11:48:59PM +0200, Wolfgang wrote:
+> > > I have switched from linux-2.4.19-rc1-ac7 to linux-2.4.19-rc2-ac1 (both
+> > > with preemptive patch). I use the same config but now thw kernel won't
+> > > start and spits out the following. If someone could point out where the
+> > > error is, I would be most grateful.
+> > > Please Cc me.
+> > >     Wolfgang
+> > 
+> > Please run ksymoops on this and send its output.
+> 
+> Better try ac2 first, since ac1 has a know crash bug.
+> 
+> /Tobias
 
---- linux-2.4.19-rc2-ac4/include/asm-i386/processor.h   Fri Jul 19 00:37:45 2002
-+++ linux-2.4.19-rc2-ac4/include/asm-i386/processor.h~  Fri Jul 19 00:38:48 2002
-@@ -393,7 +393,7 @@
-        { [0 ... 7] = 0 },      /* debugging registers */       \
-        0, 0, 0,                                                \
-        { { 0, }, },            /* 387 state */                 \
--       0,0,0,0,0,0,                                            \
-+       0,0,0,0,0,                                              \
-        0,{~0,}                 /* io permissions */            \
- }
- 
+ac2 fixed it.
+
+Thank you
+
+    Wolfgang
 

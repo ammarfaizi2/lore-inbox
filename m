@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129285AbRBBFn3>; Fri, 2 Feb 2001 00:43:29 -0500
+	id <S129239AbRBBFsK>; Fri, 2 Feb 2001 00:48:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129240AbRBBFnS>; Fri, 2 Feb 2001 00:43:18 -0500
-Received: from blackdog.wirespeed.com ([208.170.106.25]:22532 "EHLO
-	blackdog.wirespeed.com") by vger.kernel.org with ESMTP
-	id <S129239AbRBBFnE>; Fri, 2 Feb 2001 00:43:04 -0500
-Message-ID: <3A7A4992.5070303@redhat.com>
-Date: Thu, 01 Feb 2001 23:45:54 -0600
-From: Joe deBlaquiere <jadb@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
+	id <S129511AbRBBFsA>; Fri, 2 Feb 2001 00:48:00 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:23680 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129239AbRBBFrw>;
+	Fri, 2 Feb 2001 00:47:52 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-To: Alex Belits <abelits@phobos.illtel.denver.co.us>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Serial device with very large buffer
-In-Reply-To: <Pine.LNX.4.10.10102012111140.991-100000@mercury>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14970.18890.146329.92116@pizda.ninka.net>
+Date: Thu, 1 Feb 2001 21:46:50 -0800 (PST)
+To: "Paul D. Smith" <pausmith@nortelnetworks.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: SO_REUSEADDR redux
+In-Reply-To: <14970.5436.897143.934189@lemming.engeast.baynetworks.com>
+In-Reply-To: <14969.57896.331183.374489@lemming.engeast.baynetworks.com>
+	<E14OSOC-0005FD-00@the-village.bc.nu>
+	<14970.5436.897143.934189@lemming.engeast.baynetworks.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Paul D. Smith writes:
+ > %% Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+ > 
+ >   >> This application uses SO_REUSEADDR in conjunction with INADDR_ANY.  What
+ >   >> it does is bind() to INADDR_ANY, then listen().  Then, it proceeds to
+ >   >> bind (but _not_ listen) various other specific addresses.
+ > 
+ >   ac> That should be ok if its setting SO_REUSEADDR
+ > 
+ > I agree, and so does Solaris/FreeBSD, but Linux doesn't.
 
-Alex Belits wrote:
+After reading up some code, FreeBSD does do a bind() check which is
+just as restrictive as Linux's except that they allow INADDR_ANY
+combinations when the credentials of the user doing the bind() match
+the credentials of all other sockets bound to that port.
 
-> On Thu, 1 Feb 2001, Joe deBlaquiere wrote:
-> 
-> 
->> Hi Alex!
->> 
->> 	I'm a little confused here... why are we overrunning? This thing is 
->> running externally at 19200 at best, even if it does all come in as a 
->> packet.
-> 
-> 
->   Different Merlin -- original Merlin is 19200, "Merlin for Ricochet" is
-> 128Kbps (or faster), and uses Metricom/Ricochet network.
+I don't think we should change our behavior.  Allowing the combination
+in question only when the UIDs match between the socket owners is
+dubious at best.
 
-so can you still limit the mru?
+I actually went to the FreeBSD code because what Steven's showed
+was extremely loose in what it let through.  It allowed the nfs
+port override trick Alan mentioned.
 
--- 
-Joe
+Later,
+David S. Miller
+davem@redhat.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

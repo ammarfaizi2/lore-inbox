@@ -1,64 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264880AbSJVVwC>; Tue, 22 Oct 2002 17:52:02 -0400
+	id <S264908AbSJVV4z>; Tue, 22 Oct 2002 17:56:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264907AbSJVVwC>; Tue, 22 Oct 2002 17:52:02 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:6870 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S264880AbSJVVwB>; Tue, 22 Oct 2002 17:52:01 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CAC826@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       Corey Minyard <cminyard@mvista.com>
-Cc: Adrian Bunk <bunk@fs.tum.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Cahill, Ben M" <ben.m.cahill@intel.com>,
-       "Rhoads, Rob" <rob.rhoads@intel.com>,
-       "Sousou, Imad" <imad.sousou@intel.com>
-Subject: RE: [PATCH] IPMI driver for Linux, version 7
-Date: Tue, 22 Oct 2002 14:58:05 -0700
+	id <S264920AbSJVV4z>; Tue, 22 Oct 2002 17:56:55 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:17099 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S264908AbSJVV4y>; Tue, 22 Oct 2002 17:56:54 -0400
+Message-ID: <3DB5CE75.6010400@kegel.com>
+Date: Tue, 22 Oct 2002 15:17:25 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: de-de, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: "Erich M. Nahum" <nahum@watson.ibm.com>
+CC: Davide Libenzi <davidel@xmailserver.org>,
+       John Gardiner Myers <jgmyers@netscape.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+References: <200210222154.RAA29096@orinoco.watson.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> On Sun, 2002-10-20 at 22:05, Corey Minyard wrote:
-> > >Am I right that this makes it impossible to include an 
-> > > IPMI driver into the kernel (this isn't GPL-compatible)?
-> > >
-> > I do not read it so, but perhaps you are right.  I will 
-> > ask.  I'm sure I 
-> > will receive a resounding "maybe" as the answer.  I was 
-> > working with 
-> > people at Intel on this, and they had another driver they 
-> > wanted to use 
-> > for IPMI, and wanted to push it into the kernel, but it had some 
-> > problems so I wrote this as a replacement.  So I don't 
-> > think Intel sees 
-> > it this way (at least those at Intel I was working with).
+Erich Nahum wrote:
+>>There're a couple of reason's why the drop of the initial event is a waste
+>>of time :
+>>
+>>1) The I/O write space is completely available at fd creation
+>>2) For sockets it's very likely that the first packet brought something
+>>	more than the SYN == The I/O read space might have something for you
+>>
+>>I strongly believe that the concept "use the fd until EAGAIN" should be
+>>applied even at creation time, w/out making exceptions to what is the
+>>API's rule to follow.
 > 
-> Intel tend to see everything Intel's way. Perhaps someone from Intel
-> could clarify this situation - on list ?
 > 
-> I'd hate us to have to have an IPMI driver that US citizens 
-> couldnt use
+> There is a third way, described in the original Banga/Mogul/Druschel
+> paper, available via Dan Kegel's web site: extend the accept() call to 
+> return whether an event has already happened on that FD.  That way you 
+> can service a ready FD without reading /dev/epoll or calling
+> sigtimedwait, and you don't have to waste a read() call on the socket
+> only to find out you got EAGAIN.
+> 
+> Of course, this changes the accept API, which is another matter.  But
+> if we're talking a new API then there's no problem.
 
-Corey's IPMI driver is GPL, as are all the other components
-of the kernel. People who are worried about patents on IPMI
-implementations can get a royalty-free license any time by
-going to http://www.intel.com/design/servers/ipmi/spec.htm 
-and signing the Adopter's agreement. Yes, to get the royalty-free 
-patent license for implementations of the IPMI spec, you have 
-to give a promise not to sue other Adopters of IPMI, but I don't 
-see why anyone who isn't planning on going around suing people 
-should have a problem signing this agreement. In any case this 
-is very similar to USB, which also has an Adopter's agreement 
-for patents, and USB has been in the kernel for years without 
-causing any IP problems.
+That would be the fastest way of finding out, maybe.
+But I'd rather use a uniform way of notifying about readiness events.
+Rather than using a new API (acceptEx :-) or a rule ("always ready initially"),
+when not just deliver the initial readiness event via the usual channel?
+And for ease of coding for the moment, David can just deliver
+a 'ready for everything' event initially unconditionally.
 
-Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
-fault]
+No API changes, just a simple, uniform way of tickling the user's
+"I gotta do I/O" code.
+- Dan
+
 

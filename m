@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263039AbTARHOx>; Sat, 18 Jan 2003 02:14:53 -0500
+	id <S262937AbTARHOj>; Sat, 18 Jan 2003 02:14:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263137AbTARHOx>; Sat, 18 Jan 2003 02:14:53 -0500
-Received: from dp.samba.org ([66.70.73.150]:39566 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S263039AbTARHOw>;
-	Sat, 18 Jan 2003 02:14:52 -0500
-Date: Sat, 18 Jan 2003 18:23:31 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: recent change to exit_mmap
-Message-ID: <20030118072331.GF7800@krispykreme>
-References: <20030118060522.GE7800@krispykreme> <20030117230014.2647791a.akpm@digeo.com>
+	id <S262913AbTARHOj>; Sat, 18 Jan 2003 02:14:39 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:4336 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S262877AbTARHOi> convert rfc822-to-8bit; Sat, 18 Jan 2003 02:14:38 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <jamie@shareable.org>
+CC: <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Fri, 17 Jan 2003 23:23:36 -0800
+In-Reply-To: <20030118051012.GA18720@bjl1.asuk.net>
+Subject: Re: Is the BitKeeper network protocol documented?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030117230014.2647791a.akpm@digeo.com>
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20030118072337.AAA10729@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 18 Jan 2003 05:10:12 +0000, Jamie Lokier wrote:
 
-> On seconds thoughts...
-> 
-> Are the first two SET_PERSONALITY() calls in there actually doing anything? 
-> Perhaps you're right, and we only need the one at line 615, whcih is in the
-> right place?
+>It doesn't require that you distribute the tools for editing the
+>source, though.  For example I believe it is fine to distribute a
+>program for Microsoft Visual Studio, in the form of the files you
+>would actually use with Visual Studio, even though the format of 
+>some of those files is not documented.
 
-Sounds good. The following patch tests out OK.
+	So then suppose the tool I use for modifying the source code 
+unpacks/decrypts it, allows changes, and then packs/encrypts it 
+again. Suppose further that this tool is proprietary and not 
+available without onerous licensing requirements. Would you say 
+releasing the source code thus packed/encrypted meets the GPL?
 
-Anton
+	If not, then what would? The decrypted/unpacked form of the source 
+is not the preferred form for making modifications.
 
-===== fs/binfmt_elf.c 1.34 vs edited =====
---- 1.34/fs/binfmt_elf.c	Mon Nov 25 19:59:02 2002
-+++ edited/fs/binfmt_elf.c	Sat Jan 18 18:16:52 2003
-@@ -536,8 +536,6 @@
- 			    strcmp(elf_interpreter,"/usr/lib/ld.so.1") == 0)
- 				ibcs2_interpreter = 1;
- 
--			SET_PERSONALITY(elf_ex, ibcs2_interpreter);
--
- 			interpreter = open_exec(elf_interpreter);
- 			retval = PTR_ERR(interpreter);
- 			if (IS_ERR(interpreter))
-@@ -578,9 +576,6 @@
- 			// printk(KERN_WARNING "ELF: Ambiguous type, using ELF\n");
- 			interpreter_type = INTERPRETER_ELF;
- 		}
--	} else {
--		/* Executables without an interpreter also need a personality  */
--		SET_PERSONALITY(elf_ex, ibcs2_interpreter);
- 	}
- 
- 	/* OK, we are done with that, now set up the arg stuff,
+	It seems to me that if you can't distribute the source in its 
+preferred form for modification such that it can actually be used and 
+modified without complying with some other more restrictive license, 
+you cannot comply with the GPL. The alternative is to say that you 
+can distribute utterly useless "source" and still comply with the 
+GPL.
+
+	Anyway, this has veered off-topic for this list. I apologize for 
+that.
+
+	DS
+
+

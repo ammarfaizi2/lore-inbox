@@ -1,50 +1,173 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287145AbRL2HUO>; Sat, 29 Dec 2001 02:20:14 -0500
+	id <S287151AbRL2Hmc>; Sat, 29 Dec 2001 02:42:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287150AbRL2HUE>; Sat, 29 Dec 2001 02:20:04 -0500
-Received: from queen.bee.lk ([203.143.12.182]:24723 "EHLO queen.bee.lk")
-	by vger.kernel.org with ESMTP id <S287145AbRL2HTv>;
-	Sat, 29 Dec 2001 02:19:51 -0500
-Date: Sat, 29 Dec 2001 13:20:07 +0600
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: Timothy Covell <timothy.covell@ashavan.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Linux Bug Tracking & Feature Tracking DB
-Message-ID: <20011229132007.A29238@bee.lk>
-In-Reply-To: <200112290657.fBT6vMSr008000@svr3.applink.net>
+	id <S287153AbRL2Hm2>; Sat, 29 Dec 2001 02:42:28 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:21262 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S287151AbRL2HmL>; Sat, 29 Dec 2001 02:42:11 -0500
+Date: Sat, 29 Dec 2001 08:41:54 +0100
+From: Jurriaan on Alpha <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com, davej@suse.de, marcelo@conectiva.com.br
+Subject: [PATCH] 2.4 and 2.5: tdfxfb (voodoo) framebuffer and high pixelclocks
+Message-ID: <20011229074154.GA499@alpha.of.nowhere>
+Reply-To: thunder7@xs4all.nl
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200112290657.fBT6vMSr008000@svr3.applink.net>; from timothy.covell@ashavan.org on Sat, Dec 29, 2001 at 12:53:39AM -0600
+User-Agent: Mutt/1.3.24i
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 29, 2001 at 12:53:39AM -0600, Timothy Covell wrote:
-> 
-> I'm sure that this has been proposed and discussed before, and I'm sure that
-> some of the software houses like RedHat must do this internally, but here
-> goes again....
-> 
-> [...] 
-> 
-> Proposed Solution:
-> 
-> A kernel bug and feature tracking system.  This would similar
-> to what you all know (like Bugtraq).   Entries might look something like:
 
-I have bought over the domain kernelpatches.org just for this purpose.  Will
-be able to release it in a matter of about a week.
+This patch solves problems with voodoo-cards and framebuffers where the
+pixel-clock is over half the maximum clock, and the DAC is set to a
+special mode.
 
-Regards,
+I mentioned this to the developers, Hannu Mallat and Attila Kesmarki,
+but they seem to have dropped this, and didn't respond. The latest 3dfx
+framebuffer patch didn't apply clean to the 2.4 kernels and didn't work
+after I cleaned it up. So I elected to just fix the high pixelclock
+problem. If these developers read this, and are still interested in this
+driver, please get in touch.
 
-Anuradha
+This patch moves the DAC-setting and recomputes some screen properties
+when setting the 2X mode on the DAC.
 
+The patch applies cleanly to 2.4.17, 2.4.18pre1 and 2.5.2-pre3.
+I'm sending this to Linus (fat chance), Dave Jones (please?) and Marcelo
+Tosatti (please?) for inclusion.
+
+It's been tested on a pci voodoo 4500, I can boot with framebuffers with
+a pixelclock below and above 175 MHz, start X and switch from X to the
+console.
+
+Good luck,
+Jurriaan
+
+--- linux-2.4.17/drivers/video/tdfxfb.c	Fri Dec 28 18:51:22 2001
++++ linux-2.4.17-tdfxfb/drivers/video/tdfxfb.c	Fri Dec 28 18:54:15 2001
+@@ -401,7 +401,7 @@
+ /*
+  *  Internal routines
+  */
+-static void tdfxfb_set_par(const struct tdfxfb_par* par,
++static void tdfxfb_set_par(struct tdfxfb_par* par,
+ 			   struct fb_info_tdfx* 
+ 			   info);
+ static int  tdfxfb_decode_var(const struct fb_var_screeninfo *var,
+@@ -1275,7 +1275,7 @@
+ 
+ /* ------------------------------------------------------------------------- */
+ 
+-static void tdfxfb_set_par(const struct tdfxfb_par* par,
++static void tdfxfb_set_par(struct tdfxfb_par* par,
+ 			   struct fb_info_tdfx*     info) {
+   struct fb_info_tdfx* i = (struct fb_info_tdfx*)info;
+   struct banshee_reg reg;
+@@ -1290,6 +1290,28 @@
+ 
+   cpp = (par->bpp + 7)/8;
+   
++  reg.vidcfg = 
++    VIDCFG_VIDPROC_ENABLE |
++    VIDCFG_DESK_ENABLE    |
++    VIDCFG_CURS_X11 |
++    ((cpp - 1) << VIDCFG_PIXFMT_SHIFT) |
++    (cpp != 1 ? VIDCFG_CLUT_BYPASS : 0);
++
++  /* PLL settings */
++  freq = par->pixclock;
++
++  reg.dacmode = 0;
++  reg.vidcfg  &= ~VIDCFG_2X;
++
++  if(freq > i->max_pixclock/2) {
++    freq = freq > i->max_pixclock ? i->max_pixclock : freq;
++    reg.dacmode |= DACMODE_2X;
++    reg.vidcfg  |= VIDCFG_2X;
++    par->hdispend >>= 1;
++    par->hsyncsta >>= 1;
++    par->hsyncend >>= 1;
++    par->htotal   >>= 1;
++  }
+   wd = (par->hdispend >> 3) - 1;
+ 
+   hd  = (par->hdispend >> 3) - 1;
+@@ -1356,9 +1378,7 @@
+   reg.crt[0x02] = hbs;
+   reg.crt[0x03] = 0x80 | (hbe & 0x1f);
+   reg.crt[0x04] = hs;
+-  reg.crt[0x05] = 
+-    ((hbe & 0x20) << 2) | 
+-    (he & 0x1f);
++  reg.crt[0x05] = ((hbe & 0x20) << 2) | (he & 0x1f);
+   reg.crt[0x06] = vt;
+   reg.crt[0x07] = 
+     ((vs & 0x200) >> 2) |
+@@ -1380,9 +1400,7 @@
+   reg.crt[0x0e] = 0x00;
+   reg.crt[0x0f] = 0x00;
+   reg.crt[0x10] = vs;
+-  reg.crt[0x11] = 
+-    (ve & 0x0f) |
+-    0x20;
++  reg.crt[0x11] = (ve & 0x0f) | 0x20;
+   reg.crt[0x12] = vd;
+   reg.crt[0x13] = wd;
+   reg.crt[0x14] = 0x00;
+@@ -1411,13 +1429,6 @@
+     VGAINIT0_EXTSHIFTOUT;
+   reg.vgainit1 = tdfx_inl(VGAINIT1) & 0x1fffff;
+ 
+-  reg.vidcfg = 
+-    VIDCFG_VIDPROC_ENABLE |
+-    VIDCFG_DESK_ENABLE    |
+-    VIDCFG_CURS_X11 |
+-    ((cpp - 1) << VIDCFG_PIXFMT_SHIFT) |
+-    (cpp != 1 ? VIDCFG_CLUT_BYPASS : 0);
+-  
+   fb_info.cursor.enable=reg.vidcfg | VIDCFG_HWCURSOR_ENABLE;
+   fb_info.cursor.disable=reg.vidcfg;
+    
+@@ -1433,16 +1444,6 @@
+   reg.srcbase   = reg.startaddr;
+   reg.dstbase   = reg.startaddr;
+ 
+-  /* PLL settings */
+-  freq = par->pixclock;
+-
+-  reg.dacmode &= ~DACMODE_2X;
+-  reg.vidcfg  &= ~VIDCFG_2X;
+-  if(freq > i->max_pixclock/2) {
+-    freq = freq > i->max_pixclock ? i->max_pixclock : freq;
+-    reg.dacmode |= DACMODE_2X;
+-    reg.vidcfg  |= VIDCFG_2X;
+-  }
+   reg.vidpll = do_calc_pll(freq, &fout);
+ #if 0
+   reg.mempll = do_calc_pll(..., &fout);
+@@ -1473,9 +1474,13 @@
+ #endif
+ 
+   do_write_regs(&reg);
+-
++  if (reg.vidcfg & VIDCFG_2X) {
++    par->hdispend <<= 1;
++    par->hsyncsta <<= 1;
++    par->hsyncend <<= 1;
++    par->htotal   <<= 1;
++  }
+   i->current_par = *par;
+-
+ }
+ 
+ static int tdfxfb_decode_var(const struct fb_var_screeninfo* var,
 -- 
-
-Debian GNU/Linux (kernel 2.4.17)
-
-Houston, Tranquillity Base here.  The Eagle has landed.
-		-- Neil Armstrong
-
+"Oh", he said finally.
+"And what's that supposed to mean?"
+"It means he's thinking", said the unicorn. "Always a bad sign."
+	Simon R Green - Blue Moon Rising
+GNU/Linux 2.4.18pre1 on Debian/Alpha 64-bits 990 bogomips load:0.70 0.33 0.12

@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268600AbRGYRZR>; Wed, 25 Jul 2001 13:25:17 -0400
+	id <S268597AbRGYRYR>; Wed, 25 Jul 2001 13:24:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268599AbRGYRZH>; Wed, 25 Jul 2001 13:25:07 -0400
-Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:36617 "HELO
-	jose.vato.org") by vger.kernel.org with SMTP id <S268598AbRGYRY4>;
-	Wed, 25 Jul 2001 13:24:56 -0400
-From: tpepper@vato.org
-Date: Wed, 25 Jul 2001 10:24:47 -0700
-To: linux-kernel@vger.kernel.org
-Subject: Re: Design-Question: end_that_request_* and bh->b_end_io hooks
-Message-ID: <20010725102447.A16615@cb.vato.org>
-In-Reply-To: <OF3CC2BFB9.69086721-ONC1256A93.0059C650@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <OF3CC2BFB9.69086721-ONC1256A93.0059C650@de.ibm.com>; from COTTE@de.ibm.com on Tue, Jul 24, 2001 at 07:20:46PM +0200
+	id <S268598AbRGYRYH>; Wed, 25 Jul 2001 13:24:07 -0400
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:62218 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S268597AbRGYRYB>; Wed, 25 Jul 2001 13:24:01 -0400
+Date: Wed, 25 Jul 2001 19:23:53 +0200 (CEST)
+From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+To: Artur Frysiak <wiget@pld.org.pl>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Why no modules for IDE chipset support?
+In-Reply-To: <20010725190502.D29439@free.buy.pl>
+Message-ID: <Pine.LNX.4.33.0107251916070.30648-100000@rudy.mif.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Are you confusing generic_make_request() and __make_request().
-generic_make_request() doesn't itself grab any locks or sleep.  It mostly
-sets some stuff up and calls the make_request function that was registered
-for the given queue.  If the driver hasn't done anything special for its
-make_request() function then __make_request() will be that function,
-in which case your statements about locking and sleeping are correct.
-I suppose that either way you're triggering stuff to run which might
-sleep so you shouldn't be holding locks.
+On Wed, 25 Jul 2001, Artur Frysiak wrote:
 
-You bring up an interresting point though aside from locking.
-What I've read has given me the indication that a person writing
-a b_end_io() function should assume that they could be called from
-interrupt context.  If that is the case then any b_end_io() wanting to
-call generic_make_request() would need to defer that call until it was
-outside of interrupt context.  Otherwise the b_end_io() could sleep
-within interrupt context.  Drivers at the "md" level tend to call
-generic_make_request() after b_end_io(), but in the kernel proper I
-don't see any others.  I haven't traced through the md drivers enough
-to know but it does look like they do defer.
+> On Wed, Jul 25, 2001 at 11:34:45AM -0500, Steven Walter wrote:
+> > On Wed, Jul 25, 2001 at 11:31:25AM +0200, Uwe Bonnes wrote:
+> > > Hallo,
+> > > 
+> > > why are the IDE chipset support driver not modularized? Is there anything
+> > > fundamental that inhibits using these drivers as a modules?
+> > 
+> > They are availible as modules.  See "ATA/IDE/MFM/RLL support," which is
+> > a tristate.  If you select that as a module, then all the chipsets you
+> > select for support later will be compiled into one large module.
+> > 
+> > This is probably a bad idea, though, because if you compile IDE support
+> > as a module, you will not be able to mount your root partition if it is
+> > on an IDE disk.
+> 
+> This is not true. If you use initrd and load ide-mod, ide-probe-mod and
+> ide-disk modules on it then you may mount yours root partition.
+> For eg. we (PLD http://www.pld.org.pl/) have modular ide, scsi, reiserfs and
+> ext2 (sic!). Small tool called geninitrd make initrd based on
+> information from /etc/fstab, /etc/modules.conf and other configuration
+> files.
+> You may grab geninitrd from ftp://ftp.pld.org.pl/software/geninitrd/
 
-I think this may be something I'm doing wrong in a driver on which I'm
-working...
+Also for make very small initrd usefull use bsp. This is ~25KB statically
+linked shell like program/processor with loading modules, initialize RAID
+abilities for using only inside initrd.
+BTW .. geninitrd is simple script :)
 
-Tim
+kloczek
+PS. bsp is avalaible on ftp://ftp.pld.org.pl/software/bsp
+-- 
+-----------------------------------------------------------
+*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+-----------------------------------------------------------
+Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+

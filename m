@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273127AbRIUBmO>; Thu, 20 Sep 2001 21:42:14 -0400
+	id <S274732AbRIUBnx>; Thu, 20 Sep 2001 21:43:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274732AbRIUBmD>; Thu, 20 Sep 2001 21:42:03 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:28147
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S273127AbRIUBl7>; Thu, 20 Sep 2001 21:41:59 -0400
-Date: Thu, 20 Sep 2001 18:42:15 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Preemptive kernel and vm management in 2.4.9
-Message-ID: <20010920184215.A8738@mikef-linux.matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.A41.4.33.0109201717570.102458-100000@dante09.u.washington.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.A41.4.33.0109201717570.102458-100000@dante09.u.washington.edu>
-User-Agent: Mutt/1.3.22i
+	id <S274736AbRIUBnn>; Thu, 20 Sep 2001 21:43:43 -0400
+Received: from mailb.telia.com ([194.22.194.6]:8968 "EHLO mailb.telia.com")
+	by vger.kernel.org with ESMTP id <S274732AbRIUBni>;
+	Thu, 20 Sep 2001 21:43:38 -0400
+Message-Id: <200109210143.f8L1hnm08604@mailb.telia.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Roger Larsson <roger.larsson@norran.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Preemption Latency Measurement Tool
+Date: Fri, 21 Sep 2001 03:38:59 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: oxymoron@waste.org (Oliver Xymoron),
+        Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-1?q?N=FCtzel?=),
+        stefan@space.twc.de (Stefan Westerfeld), rml@tech9.net (Robert Love),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <E15kEjB-0006n9-00@the-village.bc.nu>
+In-Reply-To: <E15kEjB-0006n9-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 20, 2001 at 05:19:46PM -0700, Samuel T Ting wrote:
-> Hello all,
-> 
-> Lately, I have been hearing a lot about preemptive kernels on the list.
-> I have just started looking into kernel internals, so could somebody
-> explain what kernel preemption is?
-> 
-> Also, how does virtual memory management in 2.4.9 work?
-> 
+On Friday 21 September 2001 03.03, Alan Cox wrote:
+> > If this analysis is correct:
+> > We really need to run RT processes with RT priorities!
+> >
+> > It is also possible that multimedia applications needs to be rewritten =
+> > to
+>
+> I dont believe this is an application problem. Applications allocating
+> memory can end up doing page outs for other people. Its really important
+> they dont get stuck doing a huge amount of pageout work for someone else.
+> Thats one thing I seem to be seeing with the 10pre11 VM.
+>
+> Sound cards have a lot of buffering, we are talking 64-128Kbytes + on card
+> buffers. Thats 0.25-0.5 seconds at 48Khz 16bit stereo
+>
 
-You should read the threads about preemption for the last couple months.
+Hmm..
 
-Also, www.kernelnewbies.org and linux-mm.org are great.
+The yield we do in __alloc_pages is it really correct?
+1. Suppose it is not we that are the problem.
+2. Suppose there are lots of other processes that gets to run.
+3. If kswapd had higher prio, it would start to run without us giving up...
 
-You should seriously think of reading archives and/or a web search before
-asking general questions like that.
+I have to try...
 
-Mike
+/RogerL
+
+-- 
+Roger Larsson
+Skellefteå
+Sweden

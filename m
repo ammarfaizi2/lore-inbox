@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261492AbSJUQHc>; Mon, 21 Oct 2002 12:07:32 -0400
+	id <S261460AbSJUQEg>; Mon, 21 Oct 2002 12:04:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261495AbSJUQHc>; Mon, 21 Oct 2002 12:07:32 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:20898 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id <S261492AbSJUQHb>; Mon, 21 Oct 2002 12:07:31 -0400
-Date: Mon, 21 Oct 2002 17:14:30 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org, <linux-mm@kvack.org>
-Subject: [PATCH] mm mremap freeze
-Message-ID: <Pine.LNX.4.44.0210211708030.16869-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S261462AbSJUQEg>; Mon, 21 Oct 2002 12:04:36 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:57780 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261460AbSJUQEf>; Mon, 21 Oct 2002 12:04:35 -0400
+Subject: Re: [PATCH] work around duff ABIs
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Alexander Viro <viro@math.psu.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021021144845.H5285@parcelfarce.linux.theplanet.co.uk>
+References: <20021020053147.C5285@parcelfarce.linux.theplanet.co.uk>
+	<1035202419.27318.60.camel@irongate.swansea.linux.org.uk> 
+	<20021021144845.H5285@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Oct 2002 17:26:25 +0100
+Message-Id: <1035217585.28189.200.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mremap's move_one_page tried to lock src_page twice
-#ifndef CONFIG_SHAREPTE (do I hear you hissing my disloyalty?)
+On Mon, 2002-10-21 at 14:48, Matthew Wilcox wrote:
+> On Mon, Oct 21, 2002 at 01:13:39PM +0100, Alan Cox wrote:
+> > On Sun, 2002-10-20 at 05:31, Matthew Wilcox wrote:
+> > > 
+> > > *sigh*.  i hate this kind of bullshit.  please, don't anyone ever try
+> > > to pass 64-bit args through the syscall interface again.
+> > 
+> > Please bury this crap in arch/hppa/
+> 
+> and arch/mips?
 
---- 2.5.44-mm2/mm/mremap.c	Mon Oct 21 12:57:53 2002
-+++ linux/mm/mremap.c	Mon Oct 21 16:46:58 2002
-@@ -43,8 +43,8 @@
- 		goto out_unlock;
- 
- 	src_page = pmd_page(*src_pmd);
--	pte_page_lock(src_page);
- #ifdef CONFIG_SHAREPTE
-+	pte_page_lock(src_page);
- 	/*
- 	 * Unshare if necessary.  We unmap the return
- 	 * pointer because we may need to map it nested later.
+IMHO yes
 

@@ -1,61 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291310AbSBMCTe>; Tue, 12 Feb 2002 21:19:34 -0500
+	id <S291317AbSBMCc7>; Tue, 12 Feb 2002 21:32:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291311AbSBMCTO>; Tue, 12 Feb 2002 21:19:14 -0500
-Received: from femail12.sdc1.sfba.home.com ([24.0.95.108]:41431 "EHLO
-	femail12.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S291310AbSBMCTE>; Tue, 12 Feb 2002 21:19:04 -0500
+	id <S291316AbSBMCct>; Tue, 12 Feb 2002 21:32:49 -0500
+Received: from femail16.sdc1.sfba.home.com ([24.0.95.143]:35507 "EHLO
+	femail16.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S291311AbSBMCck>; Tue, 12 Feb 2002 21:32:40 -0500
 Content-Type: text/plain; charset=US-ASCII
 From: Rob Landley <landley@trommello.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, inglem@cisco.com (Mukund Ingle)
-Subject: Re: Quick question on Software RAID support.
-Date: Tue, 12 Feb 2002 21:19:54 -0500
+To: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
+Subject: Re: What is a livelock? (was: [patch] sys_sync livelock fix)
+Date: Tue, 12 Feb 2002 21:33:31 -0500
 X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16aoUH-0003mY-00@the-village.bc.nu>
-In-Reply-To: <E16aoUH-0003mY-00@the-village.bc.nu>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C69A18A.501BAD42@zip.com.au> <87y9hyw4b6.fsf@tigram.bogus.local>
+In-Reply-To: <87y9hyw4b6.fsf@tigram.bogus.local>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20020213021903.PBFY16300.femail12.sdc1.sfba.home.com@there>
+Message-Id: <20020213023239.VYPK4956.femail16.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 February 2002 08:45 pm, Alan Cox wrote:
-> > 1) Does the Software RAID-5 support automatic detection
-> >      of a drive failure? How?
+On Tuesday 12 February 2002 08:36 pm, Olaf Dietsche wrote:
+> Andrew Morton <akpm@zip.com.au> writes:
+> > The get_request fairness patch exposed a livelock
+> > in the buffer layer.  write_unlocked_buffers() will
+> > not terminate while other tasks are generating write traffic.
 >
-> It sees the commands failing on the underlying controller. Set up a
-> software raid 5 and just yank a drive out of a  bay if you want to test it
->
-> > 2) Has Linux Software RAID-5 been used in the Enterprise environment
-> >      to support redundancy by any real-world networking company
-> >      or this is just a tool used by individuals to provide redundancy on
-> >      their own PCs in the labs and at home?
->
-> Dunno about that. I just hack code 8)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> The subject says it: what is a livelock? How is it different
+> from a deadlock?
 
-I've seen a 20-way Linux software raid used to capture uncompressed HTDV 
-video in realtime, as part of an HTDV video editing system for which I 
-believe the client was billed six figures.
+A deadlock is when two or more processes sleep forever, each waiting for 
+something the other has to release.  In a deadlock situation, the dead 
+processes are not using CPU time.
 
-That was SCSI.  (Well, dual qlogic fiber channel controllers that pretended 
-to be scsi.)  I've also encountered a couple companies selling 14-drive 
-enclosures (IDE, they rackmount in a 3U or 4U) that are turned into big 
-software raid systems for data hosting.
+In a livelock, at least one of the processes is active, and the other process 
+can only continue if the active one stops.  (Sometimes they're both active, 
+but can never finish what they're doing.)
 
-And of course, you might want to talk to IBM and their global file system 
-stuff, and their implementation of the logical volume management stuff last 
-year (what was not the one that Linus eventually went with, I believe...)
+The sync thing is a good example: sync tries to flush all dirty blocks to 
+disk and exits when there are no more dirty blocks.  But if the system is a 
+busy server that's constantly generating dirty blocks as fast as they can be 
+written to disk and keeping the write buffer full, then sync never manages to 
+empty the buffer completely, and it can be flushing for hours before getting 
+a lucky break where it can declare victory and exit.  A script that calls 
+"sync" in the middle can get completely blocked, and something else waiting 
+for that to finish...
 
-Does this count?
+Process priority is another common cause of livelocks.  One mainframe at MIT 
+was decomissioned in the early 70's and they found a "run only when idle" 
+task that had been started around seven years earlier and still hadn't gotten 
+any time slices because the server had never been completely idle.  (The 
+pathfinder mars probe kept rebooting for a similar reason: a vital system 
+task was getting starved while it held a semaphore that other stuff needed, 
+and not scheduling before timeouts caused a reboot.  Look up the "priority 
+inversion" problem...)
 
-(I kind of doubt IBM, HP, or Sun are insterested in tools for individual 
-end-users...)
+This is why even the lowest priority tasks in modern operating systems still 
+occasionally are guaranteed timeslices and will even pre-empt pretty high 
+priority stuff if they've been starved long enough.  Otherwise, they might 
+grab some vital resource other higher-priority programs need (sempahore, file 
+lock, etc) and block with it, and the rest of the system will never be 
+TOTALLY idle so they can keep important stuff waiting for a very long time.
+
+> Thanks, Olaf.
 
 Rob

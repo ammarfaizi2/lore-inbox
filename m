@@ -1,76 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265844AbUFDPyc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265840AbUFDPyE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265844AbUFDPyc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 11:54:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265856AbUFDPyb
+	id S265840AbUFDPyE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 11:54:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265794AbUFDPyD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 11:54:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:30354 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265844AbUFDPv7 (ORCPT
+	Fri, 4 Jun 2004 11:54:03 -0400
+Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:17331 "EHLO
+	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
+	id S265840AbUFDPvy convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 11:51:59 -0400
-Date: Fri, 4 Jun 2004 17:51:39 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andy Lutomirski <luto@myrealbox.com>, Ingo Molnar <mingo@elte.hu>,
-       Andi Kleen <ak@suse.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, suresh.b.siddha@intel.com,
-       jun.nakajima@intel.com
-Subject: Re: [announce] [patch] NX (No eXecute) support for x86,   2.6.7-rc2-bk2
-Message-ID: <20040604155138.GG16897@devserv.devel.redhat.com>
-References: <20040602205025.GA21555@elte.hu> <20040603230834.GF868@wotan.suse.de> <20040604092552.GA11034@elte.hu> <200406040826.15427.luto@myrealbox.com> <Pine.LNX.4.58.0406040830200.7010@ppc970.osdl.org> <20040604154142.GF16897@devserv.devel.redhat.com> <Pine.LNX.4.58.0406040843240.7010@ppc970.osdl.org>
+	Fri, 4 Jun 2004 11:51:54 -0400
+Date: Fri, 4 Jun 2004 17:49:11 +0200
+From: Guido Guenther <agx@sigxcpu.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch]: Fix rivafb's OF parsing
+Message-ID: <20040604154911.GD10869@bogon.ms20.nix>
+References: <20040601041604.GA2344@bogon.ms20.nix> <1086064086.1978.0.camel@gaston> <20040601135335.GA5406@bogon.ms20.nix> <1086302421.1838.45.camel@gaston>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="f61P+fpdnY2FZS1u"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0406040843240.7010@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <1086302421.1838.45.camel@gaston>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---f61P+fpdnY2FZS1u
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Fri, Jun 04, 2004 at 08:47:11AM -0700, Linus Torvalds wrote:
+On Fri, Jun 04, 2004 at 08:40:21AM +1000, Benjamin Herrenschmidt wrote:
+> > the attached patch fixes the EDID parsing for PPC on rivafb. It actually
+> > finds the EDID info in the OF Tree now. I grabbed this from BenHs Tree as
+> > of 2.6.5-rc3. The current code has no chance to work since it doesn't
+> > walk the device tree.
+> > This helps rivafb on PPC at least a bit further...
+> > Cheers,
 > 
-> 
-> On Fri, 4 Jun 2004, Arjan van de Ven wrote:
-> > 
-> > the prelink rpm on Fedora has such a tool already fwiw.
-> > (it's part of prelink because the elf manipulations needed are quite similar
-> > to the ones prelink does so infrastructure is shared)
-> 
-> Just for fun, can somebody that has the required hardware just test old 
-> apps with NX turned on? 
+> Your tab/spacing seem to be broken.. Fix the tabs or check that your
+> mailer isn't screwing them up.
+Next try:
+ signed-off-by: Guido Guenther <agx@sigxcpu.org>
 
-well anyone with an amd64 qualifies.. old apps work for me.
+--- 2.6/linux-2.6.7-rc2.orig/drivers/video/riva/fbdev.c	2004-06-04 17:40:30.842899312 +0200
++++ current/drivers/video/riva/fbdev.c	2004-06-04 15:38:00.136376560 +0200
+@@ -1620,14 +1655,27 @@
+ 	struct riva_par *par = (struct riva_par *) info->par;
+ 	struct device_node *dp;
+ 	unsigned char *pedid = NULL;
++	unsigned char *disptype = NULL;
++	static char *propnames[] = {
++		"DFP,EDID", "LCD,EDID", "EDID", "EDID1", "EDID,B", "EDID,A", NULL };
++	int i;
+ 
+ 	dp = pci_device_to_OF_node(pd);
+-	pedid = (unsigned char *)get_property(dp, "EDID,B", 0);
+-
+-	if (pedid) {
++	for (; dp != NULL; dp = dp->child) {
++		disptype = (unsigned char *)get_property(dp, "display-type", NULL);
++		if (disptype == NULL)
++			continue;
++		if (strncmp(disptype, "LCD", 3) != 0)
++			continue;
++		for (i = 0; propnames[i] != NULL; ++i) {
++			pedid = (unsigned char *)
++				get_property(dp, propnames[i], NULL);
++			if (pedid != NULL) {
+ 		par->EDID = pedid;
+ 		return 1;
+-	} else
++			}
++		}
++	}
+ 		return 0;
+ }
+ #endif /* CONFIG_PPC_OF */
 
-(fwiw FC1 and FC2 already run without the stack being executable if you use
-the default distro kernel even on "traditional" x86 cpus, via the segment limit hack)
-
-> In fact, it would be interesting to just hear somebody running an older
-> distribution with a new CPU and a new kernel, and see just how many
-> programs need to be marked non-NX in "normal running".
-
-I know that in a FC1 full install there are less than 5 binaries that don't
-run with NX. (one uses nested functions in C and passes function pointers to
-the inner function around which causes gcc to emit a stack trampoline, and
-gcc then marks the binary as non-NX, the others have asm in them that we
-didn't fix in time to be properly marked).
-
---f61P+fpdnY2FZS1u
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAwJqJxULwo51rQBIRAp5cAJ90ZDUsY+2c2yUN7K2CvDZNwS6HbACdEpt0
-I6cPu4i7GXg3Ec3ygA6uXjc=
-=v3l/
------END PGP SIGNATURE-----
-
---f61P+fpdnY2FZS1u--

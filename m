@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262726AbSI1EzW>; Sat, 28 Sep 2002 00:55:22 -0400
+	id <S262722AbSI1EuZ>; Sat, 28 Sep 2002 00:50:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262727AbSI1EzW>; Sat, 28 Sep 2002 00:55:22 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:64708 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S262726AbSI1EzW>;
-	Sat, 28 Sep 2002 00:55:22 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200209280500.JAA02974@sex.inr.ac.ru>
-Subject: Re: [PATCH] IPv6: Improvement of Source Address Selection
-To: pekkas@netcore.fi (Pekka Savola)
-Date: Sat, 28 Sep 2002 09:00:08 +0400 (MSD)
-Cc: davem@redhat.com, yoshfuji@linux-ipv6.org, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, usagi@linux-ipv6.org
-In-Reply-To: <Pine.LNX.4.44.0209280726010.8405-100000@netcore.fi> from "Pekka Savola" at Sep 28, 2 07:35:57 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S262723AbSI1EuY>; Sat, 28 Sep 2002 00:50:24 -0400
+Received: from ns.commfireservices.com ([216.6.9.162]:48910 "HELO
+	hemi.commfireservices.com") by vger.kernel.org with SMTP
+	id <S262722AbSI1EuY>; Sat, 28 Sep 2002 00:50:24 -0400
+Date: Sat, 28 Sep 2002 00:54:39 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@digeo.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.38-mm3
+In-Reply-To: <20020928043655.GU3530@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0209280053590.32347-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Fri, 27 Sep 2002, William Lee Irwin III wrote:
 
-> Isn't putting this logic to routes an oversimplification?
+> On Sat, Sep 28, 2002 at 12:35:30AM -0400, Zwane Mwaikambo wrote:
+> > Mine is a UP box not an SMP kernel, although preempt is enabled;
+> > 0xc013d370 <fget>:      push   %ebx
+> > 0xc013d371 <fget+1>:    mov    %eax,%ecx
+> > 0xc013d373 <fget+3>:    mov    $0xffffe000,%edx
+> > 0xc013d378 <fget+8>:    and    %esp,%edx
+> > 0xc013d37a <fget+10>:   incl   0x4(%edx)
+> 
+> Do you have instruction-level profiles to show where the cost is on UP?
 
-Hmmm... I believed this logic is more complicated yet. :-)
+Unfortunately no, i was lucky to remember to even be running profile=n on 
+this box.
 
+-- 
+function.linuxpower.ca
 
-> route, as there would have to be at least two candidates there.
-...
-> Am I missing something obvious here?
-
-Yes. You select some one of the candidates eventually, do not you? :-)
-And when you have some special preference for a subnet you create
-a route for it.
-
-> (stuff that's network prefix -independent
-
-I am sorry, I feel I do not understand what you mean.
-
-Alexey

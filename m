@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319392AbSILAyn>; Wed, 11 Sep 2002 20:54:43 -0400
+	id <S319394AbSILBGm>; Wed, 11 Sep 2002 21:06:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319393AbSILAyn>; Wed, 11 Sep 2002 20:54:43 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:1806 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S319392AbSILAym>; Wed, 11 Sep 2002 20:54:42 -0400
-Date: Wed, 11 Sep 2002 17:57:51 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Samuel Flory <sflory@rackable.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: serial ata cards under linux
-In-Reply-To: <3D7FE5DE.8080000@rackable.com>
-Message-ID: <Pine.LNX.4.10.10209111755050.29877-100000@master.linux-ide.org>
+	id <S319395AbSILBGm>; Wed, 11 Sep 2002 21:06:42 -0400
+Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:50136 "EHLO
+	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S319394AbSILBGl>; Wed, 11 Sep 2002 21:06:41 -0400
+Date: Wed, 11 Sep 2002 22:11:11 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: "Hanumanthu. H" <hanumanthu.hanok@wipro.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pid_max hang again...
+In-Reply-To: <20020911171934.GA12449@win.tue.nl>
+Message-ID: <Pine.LNX.4.44L.0209112210510.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 11 Sep 2002, Andries Brouwer wrote:
 
-There is no support for this card, and is not supportable until I obtain
-their NDA docs.  You can not simply add in the device ID and make it go.
+> Again. We have 2^30 = 10^9 pids.
 
-There is only support for Silicon Image 3112.
+It's on my TODO list for procps ;)
 
-Serial ATA requires more than basic PATA compatablity.
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-Cheers,
+http://www.surriel.com/		http://distro.conectiva.com/
 
-On Wed, 11 Sep 2002, Samuel Flory wrote:
-
->   Are there any serial ata cards that work under linux?  The only ones I 
-> know of are ata raid cards, and are bridged.  I've got a promise 
-> PDC20375, but I don't see any sign of support for in in the linux kernel.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
+Spamtraps of the month:  september@surriel.com trac@trac.org
 

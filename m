@@ -1,100 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318294AbSIOXf4>; Sun, 15 Sep 2002 19:35:56 -0400
+	id <S318300AbSIOXrn>; Sun, 15 Sep 2002 19:47:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318300AbSIOXfz>; Sun, 15 Sep 2002 19:35:55 -0400
-Received: from crack.them.org ([65.125.64.184]:8719 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S318294AbSIOXfy>;
-	Sun, 15 Sep 2002 19:35:54 -0400
-Date: Sun, 15 Sep 2002 19:41:08 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
+	id <S318304AbSIOXrn>; Sun, 15 Sep 2002 19:47:43 -0400
+Received: from bitmover.com ([192.132.92.2]:27567 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S318300AbSIOXrm>;
+	Sun, 15 Sep 2002 19:47:42 -0400
+Date: Sun, 15 Sep 2002 16:52:35 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-Message-ID: <20020915234108.GA1348@nevyn.them.org>
+Message-ID: <20020915165235.B17345@work.bitmover.com>
 Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
 	linux-kernel@vger.kernel.org
-References: <E17qRfU-0001qz-00@starship> <Pine.LNX.4.44.0209151103170.10830-100000@home.transmeta.com> <20020915190435.GA19821@nevyn.them.org> <20020915162412.A17345@work.bitmover.com>
+References: <E17qRfU-0001qz-00@starship> <Pine.LNX.4.44.0209151103170.10830-100000@home.transmeta.com> <20020915190435.GA19821@nevyn.them.org> <20020915162412.A17345@work.bitmover.com> <20020915234108.GA1348@nevyn.them.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020915162412.A17345@work.bitmover.com>
-User-Agent: Mutt/1.5.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020915234108.GA1348@nevyn.them.org>; from dan@debian.org on Sun, Sep 15, 2002 at 07:41:08PM -0400
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 15, 2002 at 04:24:12PM -0700, Larry McVoy wrote:
-> On Sun, Sep 15, 2002 at 03:04:35PM -0400, Daniel Jacobowitz wrote:
-> > Tracking this bug down took me about six hours.  Someone more familiar
-> > with that particular segment of code could, I assume, have done it more
-> > quickly.  One advantage of a debugger is that it's easier to look at
-> 
-> I'm not speaking for Linus, but I wouldn't be surprised we share the 
-> same view on this one.  As someone who maintains a fairly large source
-> base I get nervous when people tell me they need a debugger to work on
-> the code.  Why?  Because if you really need that it is EXTREMELY likely
-> that you don't understand the code.  If you don't understand the code
-> then YOU SHOULDN'T BE CHANGING IT.  It is infuriating to have a section
-> of tricky code that used to work, you turn your back, only to find that
-> someone made a "simple change" which seems to work but actually makes
-> things worse and invariably seems to break the code in a far more
-> subtle way.  
-> 
-> My position is that you either understand the code or you don't.  Code
-> that you don't understand is read only.  Having a debugger show you some
-> variables isn't going to make you understand the code at the level which
-> is required in order to be making changes.
+On Sun, Sep 15, 2002 at 07:41:08PM -0400, Daniel Jacobowitz wrote:
+> I also rarely have the luxury of working in
+> source bases that I've got long intimate association with 
 
-That's a circular argument.  I use debuggers in order to understand
-code _better_.  And to understand how code that I do know interacts
-with code that I don't know.  I also rarely have the luxury of working in
-source bases that I've got long intimate association with - about the
-only code I can claim that for is GDB itself and it still surprises me.
+We clearly have different definitions of what is acceptable.  If your
+attitude is that understanding the code is a luxury all that means is
+that I want you nowhere near any code I maintain.  Non-trivial code
+requires non-trivial understanding and that understanding is not a
+"luxury" in my book.
 
-Using a debugger I can pick up greatly improved understanding of what's
-going on - both what is and what should be.  And what has changed in it
-recently, since I was last familiar with it, which was the problem
-here.
+If your company has such a poor business model that they can't afford to
+pay you enough to take the time to do a good job then find a different
+place to work.  No amount of debugger "help" is going to make up for a
+lack of understanding.
 
-> Does this mean I'm against debuggers?  Not at all.  But in 15 years of
-> doing kernel work and 5 years of doing BK work the only thing I've ever
-> used one for was to get a few variables printed out.  And I've written
-> a substantial chunk of a debugger years ago, it's not a question of lack
-> of debugger knowledge.  I just rarely find them useful.  
-
-Good for you; as I said, everyone operates differently.  The number of
-printing/thinking/rebooting cycles involved for me to work with a
-debugger is much shorter than without.
-
-> > Plus, in my experience the work model that BitKeeper encourages puts a
-> > significant penalty on including unrelated patches in the tree while
-> > you're debugging.  It can be gotten around but it's exceptionally
-> > awkward.  Adding in KGDB means time spent merging it into my tree and
-> > time spend merging it cleanly out when I'm done with it.
-> 
-> Create a throwaway clone, merge in kdb, tag the tree with "baseline".
-> Now hack away until you have a fix.  If you never checked anything in
-> after the baseline then "bk -r diffs -u" creates the patch for your
-> bugfix.  If you did, then diff against the baseline.
-> 
-> If BK is awkward by comparison to diff and patch, something is wrong, it
-> definitely has the ability to make things far more pleasant than you
-> seem to be experiencing.
-
-Perhaps I (yet again) need to spend a day learning more about the
-depths of BitKeeper.  The last time I did it all I found were BitKeeper
-bugs, because the way I try to work with it appears to be contrary to
-the way other people want to work with it.
-
-I guess I just need to get more used to doing all of my development in
-throwaway clones, and when it's absolutely perfect checking it into a
-longer-lived tree via exporting a GNU patch and importing that.
-
-The above model gets much more complicated when the development lasts
-longer than a couple of hours, and you have to pull from another tree;
-already, to upgrade my working trees I need to cascade three pulls -
-with two sets of resolves if Ingo's been changing CLONE_ flags on me
-again :)
-
+Yeah, I'm up on my high horse, but this sort of stuff just infuriates me.
+If you aren't going to spend the time to do the code right, which means
+spending the time to *completely* understand what it is that the code is
+doing, why the problem is occurring, and why the fix is a real fix and
+not a bandaid, then all you are doing is creating more work for somebody
+else in the future.  You are *guessing*.  Maybe your company tolerates
+that but I don't have to and I sure as hell don't and I'd question
+anyone or any company that does.  If you like working like that maybe
+you should consider Microsoft, they seem to really value that approach.
+Otherwise realize that you are straying and get back on the correct path.
 -- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

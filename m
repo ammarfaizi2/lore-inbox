@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317047AbSFAUKm>; Sat, 1 Jun 2002 16:10:42 -0400
+	id <S317049AbSFAUL2>; Sat, 1 Jun 2002 16:11:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317048AbSFAUKl>; Sat, 1 Jun 2002 16:10:41 -0400
-Received: from as3-1-8.ras.s.bonet.se ([217.215.75.181]:6798 "EHLO
-	garbo.kenjo.org") by vger.kernel.org with ESMTP id <S317047AbSFAUKl>;
-	Sat, 1 Jun 2002 16:10:41 -0400
-Subject: Re: nfs problem 2.4.19-pre9
-From: Kenneth Johansson <ken@canit.se>
-To: trond.myklebust@fys.uio.no
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <15609.9599.590953.830508@charged.uio.no>
-Content-Type: text/plain
+	id <S317048AbSFAUL1>; Sat, 1 Jun 2002 16:11:27 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27398 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317049AbSFAULX>;
+	Sat, 1 Jun 2002 16:11:23 -0400
+Message-ID: <3CF92B1D.E466B743@zip.com.au>
+Date: Sat, 01 Jun 2002 13:14:21 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andreas Dilger <adilger@clusterfs.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 9/16] direct-to-BIO writeback for writeback-mode ext3
+In-Reply-To: <3CF88903.E253A075@zip.com.au> <20020601191514.GA7905@turbolinux.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 01 Jun 2002 22:10:40 +0200
-Message-Id: <1022962240.1186.62.camel@tiger>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-06-01 at 21:50, Trond Myklebust wrote:
-> >>>>> " " == Kenneth Johansson <ken@canit.se> writes:
+Andreas Dilger wrote:
 > 
->      > I have three cards but they are all the same :( 3Com
->      > Corporation 3c905B 100BaseTX [Cyclone] (rev 30).
+> On Jun 01, 2002  01:42 -0700, Andrew Morton wrote:
+> > Turn on direct-to-BIO writeback for ext3 in data=writeback mode.
 > 
->      > Also Why only this nfs mount. I can still telnet to other
->      > computers and use nfs on another mount point so it's not like I
->      > lose the network.
-> 
-> Fair enough. Have you tried a tcpdump?
+> A minor note on this (especially minor since I believe data=journal
+> doesn't even work in 2.5), but you should probably also change the
+> address ops in ext3/ioctl.c if you enable/disable per-inode data
+> journaling.
 
-No for the simple reason that I would not know what to look for.
+hrm.  Actually, changing journalling mode against a file while
+modifications are happening against it is almost certain to explode
+if the timing is right.  ISTR that we have seen bug reports against
+this on ext3-users.  This is just waaaay too hard to do.
 
-I can send you a trace if you want. I guess you only need a trace from
-the first stat to read fails but it has to wait an hour or two it's not
-a good time to crash just now.
+But we can fix it by doing the opposite: create three separate
+a_ops instances, one for each journalling mode.  Assign it at
+new_inode/read_inode time.
 
+This way, we don't have to do the `ext3_should_journal_data()'
+tests all over the place and we just don't care if someone diddles
+the journalling mode while the file is otherwise in use.
 
+Another one for my todo list..
+
+-

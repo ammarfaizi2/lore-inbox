@@ -1,78 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263963AbUEXFKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263962AbUEXFcA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263963AbUEXFKc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 01:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263969AbUEXFKc
+	id S263962AbUEXFcA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 01:32:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263971AbUEXFcA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 01:10:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:42441 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263963AbUEXFKU (ORCPT
+	Mon, 24 May 2004 01:32:00 -0400
+Received: from holomorphy.com ([207.189.100.168]:19847 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263962AbUEXFb4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 01:10:20 -0400
-Date: Sun, 23 May 2004 22:10:16 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Ben LaHaise <bcrl@redhat.com>,
-       linux-mm@kvack.org
-Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
-In-Reply-To: <1085373839.14969.42.camel@gaston>
-Message-ID: <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
-References: <1085369393.15315.28.camel@gaston>  <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
-  <1085371988.15281.38.camel@gaston>  <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
- <1085373839.14969.42.camel@gaston>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 24 May 2004 01:31:56 -0400
+Date: Sun, 23 May 2004 22:31:53 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [announce/OT] kerneltop ver. 0.7
+Message-ID: <20040524053153.GM1833@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Randy.Dunlap" <rddunlap@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <20040523215027.5dc99711.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040523215027.5dc99711.rddunlap@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, May 23, 2004 at 09:50:27PM -0700, Randy.Dunlap wrote:
+> just a little note about kerneltop...
+> 'kerneltop' is similar to 'top', but shows only kernel function usage
+> (modules not included).
+> I have updated it a bit (now version 0.7) and made sure that it
+> works OK on Linux 2.6.x.
+> It's available here:
+> 	http://www.xenotime.net/linux/kerneltop/
 
-On Mon, 24 May 2004, Benjamin Herrenschmidt wrote:
-> 
-> No, it doesn't. It tests it, if !present, it goes to do_no_page,
-> do_file_page or do_swap_page, but the,i if present, it does:
-> 
-> 	entry = pte_mkyoung(entry);
-> 	ptep_establish(vma, address, pte, entry);
-> 	update_mmu_cache(vma, address, entry);
-> 	pte_unmap(pte);
-> 	spin_unlock(&mm->page_table_lock);
-> 	return VM_FAULT_MINOR;
-> 
-> Which is, I think, the software PAGE_ACCESSED path used on some archs.
-> 
-> (ptep_establish does set_pte)
+GRRR.. this tries to reset /proc/profile. Multiple megabytes of in-
+kernel memset() at a frequency of 1Hz are extremely unfriendly.
 
-Ahh.. That's a bug, methinks.
 
-The reason it's a bug is that if you do this, you can lose the dirty bit 
-being written on some other CPU asynchronously.
-
-In other words, I think it's pretty much always a bug to do a "set_pte()"
-with an existing pte in place, exactly because you lose information. You
-are trying to cover up the bug in ppc64-specific code, but I think that
-what you found is actually a (really really) unlikely race condition that
-can have serious consequences.
-
-Or am I missing something else?
-
-[ grep grep grep ]
-
-Looks like "break_cow()" and "do_wp_page()" are safe, but only because
-they always sets the dirty bit, and any other bits end up being pretty 
-much "don't care if we miss an accessed bit update" or something.
-
-Hmm. Maybe I'm wrong. If this really is buggy, it's been buggy this way 
-basically forever. That code is _not_ new, it's some of the oldes code in 
-the whole VM since the original three-level code rewrite. I think. Of 
-course, back then SMP wasn't an issue, and this seems to have survived all 
-the SMP fixes.
-
-Who else has been working on the page tables that could verify this for 
-me? Ingo? Ben LaHaise? I forget who even worked on this, because it's so 
-long ago we went through all the atomicity issues with the page table 
-updates on SMP. There may be some reason that I'm overlooking that 
-explains why I'm full of sh*t.
-
-		Linus
+--- kerneltop.c.orig	2004-05-23 22:11:29.000000000 -0700
++++ kerneltop.c	2004-05-23 22:22:08.000000000 -0700
+@@ -491,32 +491,6 @@ int do_key(char c)
+ } // end do_key
+ 
+ 
+-/* reset the profile buffer after each read of it */
+-static void profile_reset (void)
+-{
+-	int multiplier, fd, to_write;
+-
+-	/*
+-	 * When writing the multiplier, if the length of the write is
+-	 * not sizeof(int), the multiplier is not changed.
+-	 */
+-	multiplier = 0;
+-	to_write = 1;	/* smth different from sizeof(int) */
+-	/* try to become root, just in case */
+-	setuid (0);
+-	fd = open (defaultpro, O_WRONLY);
+-	if (fd < 0) {
+-		perror (defaultpro);
+-		exit (1);
+-	}
+-	if (write (fd, &multiplier, to_write) != to_write) {
+-		fprintf (stderr, "kerneltop: error writing %s: %s\n",
+-			defaultpro, strerror (errno));
+-		exit (1);
+-	}
+-	close (fd);
+-} // end profile_reset
+-
+ /*
+  * allocates <buf> for the profile data;
+  * returns buffer length;
+@@ -753,7 +727,7 @@ main (int argc, char **argv) {
+ 	char *mapFile, *proFile;
+ 	unsigned long len = 0;
+ 	unsigned int step;
+-	unsigned int *buf;
++	unsigned int *lastbuf, *buf = NULL;
+ 	int opt;
+ 	int optReverse = 0, optProfile = 0;
+ 	time_t timer;
+@@ -824,10 +798,8 @@ main (int argc, char **argv) {
+ 	heading ();
+ 
+     while (1) {		// get profile data, put it into symbol buckets, print
+-
++	lastbuf = buf;
+ 	len = profile_read (proFile, &buf); // allocates buf & returns its len
+-	if (!optProfile)		// don't reset if using non-default file
+-		profile_reset ();
+ 	step = buf[0];
+ 	vid_curpos (ROW_SAMPLING_RANGE, 1);
+ 	printf (_("Sampling_step: %i | Address range: 0x%lx - 0x%lx\n"),
+@@ -863,7 +835,7 @@ main (int argc, char **argv) {
+ 	// collect frequency histogram of profile buf.
+ 	for (ix = 0, lookup_last = 0; ix < mx; ix++) {
+ 		adr = adr0 + step * ix;
+-		ticks = buf [ix + 1];
++		ticks = buf [ix + 1] - (lastbuf ? lastbuf [ix + 1] : 0);
+ 		total_ticks += ticks;
+ 		fnx = lookup (adr);
+ 		if (fnx >= 0)
+@@ -897,7 +869,7 @@ main (int argc, char **argv) {
+ 	total_ticks = 0;
+ 	// clear freqs for next pass
+ 	memset (freqs, 0, sizeof(int) * (text_lines + 1));
+-	free (buf);	// before next profile_read call
++	free (lastbuf);	// before next profile_read call
+ 
+ 	// check for stdin (keyboard) input 1x per second
+ 	// while sleeping for <sleep_seconds>
+@@ -910,6 +882,7 @@ main (int argc, char **argv) {
+ 	}
+ 
+     } // end while 1
++    free (buf);
+ 
+ fini:
+ 	printf("\n");

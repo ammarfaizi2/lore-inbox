@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262826AbVAKVGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262848AbVAKVIT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262826AbVAKVGT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 16:06:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbVAKVDa
+	id S262848AbVAKVIT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 16:08:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262846AbVAKVHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 16:03:30 -0500
-Received: from alog0337.analogic.com ([208.224.222.113]:10880 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262788AbVAKVAl
+	Tue, 11 Jan 2005 16:07:45 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:49331 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262836AbVAKVGw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 16:00:41 -0500
-Date: Tue, 11 Jan 2005 15:58:15 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: john stultz <johnstul@us.ibm.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: New Linux System time proposal
-In-Reply-To: <1105474167.4152.7.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.61.0501111548400.3354@chaos.analogic.com>
-References: <Pine.LNX.4.61.0501110930280.26281@chaos.analogic.com>
- <1105474167.4152.7.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 11 Jan 2005 16:06:52 -0500
+Subject: [PATCH] missing dependency for drivers/net/tun.c
+From: Steve French <smfltc@us.ibm.com>
+To: maxk@qualcomm.com, linux-kernel@vger.kernel.org
+Cc: underley@underley.eu.org
+Content-Type: multipart/mixed; boundary="=-haeYdBlFrhztqGnfrFAh"
+Organization: IBM - Linux Technology Center
+Message-Id: <1105477572.12905.16.camel@stevef95.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 11 Jan 2005 15:06:12 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jan 2005, john stultz wrote:
 
-> On Tue, 2005-01-11 at 09:31 -0500, linux-os wrote:
->> I think that Linux time should be re-thought and done over once and
->> for all.
->
-> I agree, and I've been working on this for awhile.
->
-> You can find an outdated summery of my ideas here:
-> http://lwn.net/Articles/100665/
->
-> And as soon as I get ppc64 booting I'll be sending out a new release of
-> the code.
->
-> thanks
-> -john
->
+--=-haeYdBlFrhztqGnfrFAh
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I'm glad you are working on it. The system I proposed is the same
-thing that was done in VAX/VMS. There was never any need to upset
-any timing anywhere because it was just BOOTTIME + OFFSET +
-uFORTNIGHT-tick = (quadword) time.
+drivers/net/tun.c has a missing dependency on enabling the crc32
+libraries in kernel config.   With tun enabled and crc32 disabled "make
+bzImage" (the linking step) fails. For example:
 
-A more modern version for Linux would "simplicate and add lightness",
-as well as get rid of the:
+drivers/built-in.o(.text+0x656f1): In function `add_multi':
+linux-2.5cifs/drivers/net/tun.c:112: undefined reference to `crc32_le'
+drivers/built-in.o(.text+0x656f9):linux-2.5cifs/drivers/net/tun.c:112:
+undefined reference to `bitreverse'
 
-    warning:  Clock skew detected.  Your build may be incomplete.
+Line 112:
 
-...from `make` as a result of more-and-more-usual time jumps.
+	        int bit_nr = ether_crc(ETH_ALEN, addr) >> 26;
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+is a call to the ether_crc macro which maps to the bitreverse function
+which is only exported if you enable:
+	library functions -> CRC32 functions 
+in kernel config.  The following would fix it.
+
+
+
+
+--=-haeYdBlFrhztqGnfrFAh
+Content-Disposition: attachment; filename=tun-config.patch
+Content-Type: text/plain; name=tun-config.patch; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+--- drivers/net/Kconfig.old	2005-01-11 14:59:51.540023800 -0600
++++ drivers/net/Kconfig	2005-01-11 15:00:48.126421360 -0600
+@@ -84,6 +84,7 @@
+ config TUN
+ 	tristate "Universal TUN/TAP device driver support"
+ 	depends on NETDEVICES
++	select CRC32
+ 	---help---
+ 	  TUN/TAP provides packet reception and transmission for user space
+ 	  programs.  It can be viewed as a simple Point-to-Point or Ethernet
+
+--=-haeYdBlFrhztqGnfrFAh--
+

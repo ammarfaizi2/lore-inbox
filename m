@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266611AbUHBQb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266613AbUHBQih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266611AbUHBQb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 12:31:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266609AbUHBQb6
+	id S266613AbUHBQih (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 12:38:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266615AbUHBQih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 12:31:58 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:61846 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S266611AbUHBQba (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 12:31:30 -0400
-Date: Mon, 2 Aug 2004 18:31:13 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: secure computing for 2.6.7
-Message-ID: <20040802163113.GR6295@dualathlon.random>
-References: <20040801155128.GG6295@dualathlon.random> <200408020317.i723HJbp007491@localhost.localdomain>
+	Mon, 2 Aug 2004 12:38:37 -0400
+Received: from mail.tmr.com ([216.238.38.203]:29447 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S266613AbUHBQif (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 12:38:35 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: ide-cd problems
+Date: Mon, 02 Aug 2004 12:41:44 -0400
+Organization: TMR Associates, Inc
+Message-ID: <celqbj$gh9$1@gatekeeper.tmr.com>
+References: <20040730193651.GA25616@bliss><20040730193651.GA25616@bliss> <20040731153609.GG23697@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408020317.i723HJbp007491@localhost.localdomain>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1091464371 16937 192.168.12.100 (2 Aug 2004 16:32:51 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
+X-Accept-Language: en-us, en
+In-Reply-To: <20040731153609.GG23697@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 01, 2004 at 11:17:19PM -0400, Horst von Brand wrote:
-> Andrea Arcangeli <andrea@suse.de> said:
+Jens Axboe wrote:
+> On Fri, Jul 30 2004, Zinx Verituse wrote:
 > 
-> [...]
+>>I'm going to bump this topic a bit, since it's been a while..
+>>There are still some issues with ide-cd's SG_IO, listed from
+>>most important as percieved by me to least:
+>>
+>> * Read-only access grants you the ability to write/blank media in the drive
+>> * (with above) You can open the device only in read-only mode.
 > 
-> > note this isn't a build number (the features in 2.6.10 don't matter at
-> > all, the only thing it matters is that all security bugs up to 3503 are
-> > included).
 > 
-> Pray tell, how do you know if a random "compiler warning fix" isn't a plug
-> for an exploitable hole, and if a "security fix" really does fix a real
-> security problem that can be abused?
-> 
-> Truth is, you can never know. So, this degenerates into sequential patch
-> numbering, which is completely hopeless.
+> That's by design. Search linux-scsi or this list for why that is so.
 
-nothing is perfect. keeping track of a few sporadic kernel builds with
-unsafe compiler with `uname -r` is quite easy compared to keeping track
-of every security `uname -r` out there. It's about the common case
-working well (common case is like fnclex), corner cases will have to be
-handled with a db anyways, but it'll be much simpler to single out a few
-spoardic `uname -r` than to keep track of everything in the common cases
-too.
+So is the only solution to disallow user access to the device? 
+Operationally that is inconvenient in some cases, but every user 
+community has a few ill-intentioned people, and student groups may be 
+somewhat heavy on that. Security is more important than convenience, but 
+both are desirable.
 
-For example if a new bug triggers only on a certain buggy future cpu, I
-don't want to shutdown the whole thing but I'll have a db that will
-single out only such specific cpu if the security_sequence is lower than
-N.
+We could go to burning all local reference data on CD-R instead of 
+CD-RW, have a separate CD-R drive, but as noted all of those are 
+undesirable drains on time and money. Clearly having some twit rewite 
+the CD-RW with their own information is even more undesirable, if that 
+wasn't clear ;-)
 
-But anyways I start to think I should probably rename it to
-seccomp_security_sequence, so that it's not going to degenerate in the
-sequential patch numbering and it'll really work well for the common
-case since there's a seccomp relevant bug less than once every 2 years
-or less (and half the time they're hardware related and not a software
-issues).
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,84 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262561AbUKLQNI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262566AbUKLQQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262561AbUKLQNI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 11:13:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbUKLQNI
+	id S262566AbUKLQQw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 11:16:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbUKLQQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 11:13:08 -0500
-Received: from null.rsn.bth.se ([194.47.142.3]:5100 "EHLO null.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S262561AbUKLQNC (ORCPT
+	Fri, 12 Nov 2004 11:16:51 -0500
+Received: from rproxy.gmail.com ([64.233.170.205]:43044 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262566AbUKLQQl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 11:13:02 -0500
-Subject: Re: [PATCH] Add pci_save_state() to ALSA
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, "Zhu, Yi" <yi.zhu@intel.com>,
-       perex@suse.cz, akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <s5hvfcbdv93.wl@alsa2.suse.de>
-References: <3ACA40606221794F80A5670F0AF15F8403BD5836@pdsmsx403>
-	 <s5hzn1ndwqx.wl@alsa2.suse.de> <1100267140.4096.7.camel@laptop.fenrus.org>
-	 <s5hvfcbdv93.wl@alsa2.suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Xn04YeKsqrbbnr3UCOUw"
-Message-Id: <1100275977.1574.8.camel@tux.rsn.bth.se>
+	Fri, 12 Nov 2004 11:16:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=WDobHZkVniSkpOhmqVizyvXnQSMjD76X2XFG5bplVXAHMNvDSfUCvAeFxgBF5kR79MnqDLUbr63FFxb/SgOYBzj3/lI5+blXrSYXjCU//vbTD83P9aOhPMd4xOKU2LA1W6wv3f4IekpvLSVobRIQz7AeCQPIMYscpVgP6LdFJIE=
+Message-ID: <1a56ea390411120816c808c3c@mail.gmail.com>
+Date: Fri, 12 Nov 2004 16:16:40 +0000
+From: DaMouse <damouse@gmail.com>
+Reply-To: DaMouse <damouse@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: 2.6.10-rc1-mm5: REISER4_LARGE_KEY is still selectable
+Cc: Vladimir Saveliev <vs@namesys.com>, Andrew Morton <akpm@osdl.org>,
+       Hans Reiser <reiser@namesys.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041112132343.GF2310@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 12 Nov 2004 17:12:57 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20041111012333.1b529478.akpm@osdl.org>
+	 <20041111165045.GA2265@stusta.de>
+	 <1100243278.1490.42.camel@tribesman.namesys.com>
+	 <20041112132343.GF2310@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 12 Nov 2004 14:23:43 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> On Fri, Nov 12, 2004 at 10:07:59AM +0300, Vladimir Saveliev wrote:
+> 
+> > Hello
+> 
+> Hi Vladimir,
+> 
+> > On Thu, 2004-11-11 at 19:50, Adrian Bunk wrote:
+> > > REISER4_LARGE_KEY is still selectable in reiser4-include-reiser4.patch
+> > > (and we agreed that it shouldn't be).
+> >
+> > Sorry, concerning this problem - what did we agree about?
+> 
+> depending on the setting of REISER4_LARGE_KEY, there are two binary
+> incompatible variants of reiser4 (which can't be both supported by one
+> kernel).
+> 
+> Therefore, REISER4_LARGE_KEY shouldn't be asked but always enabled.
+> 
+> 
+Is there a good reason to actually keep it in the kernel altogether?
+methinks ripping it out entirely would be nicer than setting a config
+default.
 
---=-Xn04YeKsqrbbnr3UCOUw
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+-DaMouse
 
-On Fri, 2004-11-12 at 14:58, Takashi Iwai wrote:
-> At Fri, 12 Nov 2004 14:45:40 +0100,
-> Arjan van de Ven wrote:
-> >=20
-> > On Fri, 2004-11-12 at 14:26 +0100, Takashi Iwai wrote:
-> > > But pci_save_state() is called again after the driver's suspend
-> > > callback is called.  So, the final saved state must be anyway same.
-> >=20
-> > no that changed recently in the upstream kernel.
-> > pci_save_state() is now only called if there is no suspend callback in =
-the driver!
->=20
-> Ah, thanks, that explains why (I referred 2.6.10-rc1).
-
-I realized that I forgot to include som vital information, sorry about
-that.
-
-Kernel 2.6.10-rc1-bk21 which has the pci_save_state() change in
-pci-driver.c
-
-My driver(s) are intel8x0.c and intel8x0m.c
-
-First I just thought the missing pci_save_state() was a small mistake
-and wondered why nobody else had reported the problem, later I found out
-that a "generic" pci_save_state() for all pci-devices was removed
-recently but I didn't have time to send a mail.
-
-> If so, the patch is almost correct, but pci_save_state() should be put
-> after the call of callback.
-
-Great, thanks for fixing the fix.
-
-I havn't had any problems with my broken patch, I'll see if I have the
-time to test this one as well this weekend.
-
---=20
-/Martin
-
---=-Xn04YeKsqrbbnr3UCOUw
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBlOEJWm2vlfa207ERAvbbAKCmOe2YLHr7VdxuBtG9jrqSy3wPuQCeNEJ8
-AozPfx7BcT38Y1pkZsjKtIk=
-=inlD
------END PGP SIGNATURE-----
-
---=-Xn04YeKsqrbbnr3UCOUw--
+> 
+> cu
+> Adrian
+> 
+-- 
+I know I broke SOMETHING but its their fault for not fixing it before me

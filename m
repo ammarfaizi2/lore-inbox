@@ -1,100 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266863AbUFYVoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266872AbUFYV47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266863AbUFYVoo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 17:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266866AbUFYVoo
+	id S266872AbUFYV47 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 17:56:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266871AbUFYV47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 17:44:44 -0400
-Received: from gprs214-91.eurotel.cz ([160.218.214.91]:55168 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S266863AbUFYVol (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 17:44:41 -0400
-Date: Fri, 25 Jun 2004 23:44:18 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Amit Gud <gud@eth.net>, alan <alan@clueserver.org>,
-       "Fao, Sean" <Sean.Fao@dynextechnologies.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Elastic Quota File System (EQFS)
-Message-ID: <20040625214418.GB5907@elf.ucw.cz>
-References: <20040625162537.GA6201@elf.ucw.cz> <200406251707.i5PH7KOw009004@eeyore.valparaiso.cl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406251707.i5PH7KOw009004@eeyore.valparaiso.cl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 25 Jun 2004 17:56:59 -0400
+Received: from fw-us-hou19.bmc.com ([198.207.223.240]:41865 "EHLO
+	mangrove.bmc.com") by vger.kernel.org with ESMTP id S266872AbUFYV4o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 17:56:44 -0400
+Message-ID: <F12B6443B4A38748AFA644D1F8EF3532147333@bos-ex-01.adprod.bmc.com>
+From: "Makhlis, Lev" <Lev_Makhlis@bmc.com>
+To: "'Andries Brouwer'" <aebr@win.tue.nl>,
+       "Makhlis, Lev" <Lev_Makhlis@bmc.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] [SYSVIPC] Change shm_tot from int to size_t
+Date: Fri, 25 Jun 2004 16:56:32 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > Case closed, anyway. It belongs in the kernel only if there is no
-> > > reasonable way to do it in userspace.
+Andries Brouwer wrote:
+> On Fri, Jun 25, 2004 at 12:42:26PM -0500, Makhlis, Lev wrote:
+> 
+> > > Thirdly, shm_tot is transmitted to userspace (via the 
+> SHM_INFO ioctl)
+> > > as an unsigned long. If it is necessary to make it larger, then we
+> > > must do something with this ioctl. For example, return -1 there
+> > > in case the actual value does not fit in an unsigned long.
 > > 
-> > But... there's no reasonable way to do this in userspace.
+> > The SHM_INFO shmctl is actually how I found it in the first place.
+> > But we have the same situation with many other values.  For example,
+> > shm_ctlmax, shm_ctlall and shm_segsz can all potentially be 
+> 64-bit wide
+> > in the kernel and are exported into potentially 32-bit 
+> userspace values.
+> > We don't return -1 for any of those if they don't fit.  Is there a
+> > special reason to do it in this case?
 > 
-> Let's see...
+> There is a good reason to do it always.
+> If one truncates, then the result is always unreliable.
+> If one replaces a too large value by -1, then any other value 
+> is reliable.
 > 
-> > Two pieces of kernel support are needed:
-> > 
-> > 1) some way to indicate "this file is elastic" (okay perhaps xattrs
-> > can do this already)
-> 
-> Or just a list of elastic files in ~/.elastic. Even better, could mark them
-> as "Just delete", "compress"; could go as far as giving (fallback?) globs
-> to select files for each treatment ("If space gets tight, delete *~ files,
-> and compress *.tex that haven't been read in a week"). Sounds like a fun
-> Perl project...
 
-.elastic is ugly but okay.
+I've looked around and couldn't find anything that returns -1 as a value
+(as opposed to returning an error) when the value won't fit in 32 bits.
+Here's what I've found (assuming a 32-bit app in all cases):
+* sys_statfs, which fails with EOVERFLOW if any of the values won't fit
+* sys_sysinfo, which scales the values down up to a PAGE_SIZE factor,
+and silently truncates them if they are still too large
+* BLKGETSIZE ioctl, which fails with EFBIG if the kernel itself is 32-bit,
+but silently truncates if the kernel is 64-bit
+* BLKGETSIZE64 ioctl, which always silently truncates
+* HDIO_GETGEO ioctl (.start is ulong), which always silently truncates
+I'm sure there are some other examples...
 
-> > and either
-> > 
-> > 2a) file selection/deletion in kernel
-> 
-> A daemon or cron job running as root can do that just fine. Or you can set
-> it up for your own files.
-
-If I make it cron job once an hour, users will still get -ENOSPC for
-up-to hour. You can make it down to second, but you'll still get
--ENOSPC from time to time. If you want to eliminate -ENOSPC
-altogether, you'll delete file from kernel just before returning
--ENOSPC and retry operation. 
-
-> > 2b) assume that disk does not fill up faster than 1GB/sec, allways
-> > keep 1GB free, make "deleting" daemon poll each second [ugly,
-> > unreliable]
-> 
-> Buy a larger disk. Make sure sum of all hard quotas is less than filesystem
-> size. Need that anyway; so it reduces to a one-user problem with per-user
-> solutions. 
-
-Well, having sum of all hard quotas > filesystem size was point of
-this excersize...
-
-> > BTW 2c) would be also usefull for undelete. Unfortunately 2c looks
-> > very complex, too; it might be easier to do 2a than 2c.
-> 
-> As said, all this buys very little for a lot of hairy code in the kernel,
-> which will be rarely used (and whose bugs will show up when it is badly
-> needed to work right). Besides, I strongly oppose automatic file
-
-It may be little gain for lots of effort. I'm just trying to say that
-it is not complete nonsense.
-
-I guess we are basically agreeing with each other... It may make nice
-student project, and if patch is very non-intrusive, I guess its
-okay. If it turns to be hairy, its not worth bothering.
-
-> that, so you have no right to know", no "undelete deleted files, but only
-> sometimes; it just might still be around, but if space got tight it isn't"
-> (this is even worse...))
-
-Well, few times I wished unix had undelete... It actually *has* one,
-and its called power button if you are realize your mistake within 5
-seconds.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+What do you think about following the example of sys_statfs in sys_shmctl?

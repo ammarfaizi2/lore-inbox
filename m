@@ -1,86 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263300AbTJUVXA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 17:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263302AbTJUVXA
+	id S263381AbTJUV2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 17:28:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263378AbTJUV1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 17:23:00 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:19166 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S263300AbTJUVW5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 17:22:57 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [PATCH] 3/3 Dynamic cpufreq governor and updates toACPIP-state driver
-Date: Tue, 21 Oct 2003 14:22:44 -0700
-Message-ID: <7F740D512C7C1046AB53446D3720017304B038@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] 3/3 Dynamic cpufreq governor and updates toACPIP-state driver
-Thread-Index: AcOYDWO0vuOy4eiQQXuWOM9lNbqB+wABJTQA
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Carl Thompson" <cet@carlthompson.net>
-Cc: <arjanv@redhat.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Dominik Brodowski" <linux@brodo.de>,
-       "linux-acpi" <linux-acpi@intel.com>, <cpufreq@www.linux.org.uk>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 21 Oct 2003 21:22:51.0072 (UTC) FILETIME=[7B898400:01C39819]
+	Tue, 21 Oct 2003 17:27:08 -0400
+Received: from [199.45.143.209] ([199.45.143.209]:7686 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S263368AbTJUV0r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 17:26:47 -0400
+Subject: Re: 2.6.0-test8 and HIGMEM = segfaults and panics?
+From: Zan Lynx <zlynx@acm.org>
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031021195834.GG2617@rdlg.net>
+References: <20031021155337.GF2617@rdlg.net>
+	 <1066762982.5055.3.camel@localhost.localdomain>
+	 <20031021195834.GG2617@rdlg.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-S2dic4GkzodN0ijRZu33"
+Organization: 
+Message-Id: <1066771573.5055.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 21 Oct 2003 15:26:13 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > It's about the frequency of the feedback loop. As we have much lower
-> > latency with P-state transitions, the sampling time can be order of
-> > millisecond (or shorter if meaningful). A userland daemon can have a
-> > high-level policy (preferences, or set of parameters), but it cannot
-be
-> > part of the real feedback loop. If we combine P-state transitions
-and
-> > deeper C-state transitions, the situation is worse with a userland
-> > daemon.
-> 
-> You are making the assumption that a higher polling frequency (we'll
-say
-> 1ms) is in general better than a lower frequency (we'll say 1s).  I
-submit
-> that it is not.
-> 
-> If I hit a key on my keyboard and your high frequency loop increases
-CPU
-> speed so that my word processor displays the letter 0.01s faster, is
-that
-> really beneficial?  If a window renders in 0.2s seconds instead of
-0.3s is
-> that a difference I am going to notice?
-Then you can put the CPU in C-state or lower P-state after (or even
-during) your word processor displays the letter. Even you can type very
-fast, the CPU is almost idle. Having frequent feedbacks simply provide
-more chances to save power consumption. Then aggregate saving would make
-a difference. In addition, penalty of making a wrong decision is cheap.
 
-> 
-> On the other hand, if I do a kernel compile and it is done 0.999s
-faster
-> with the higher frequency loop, am I going to miss that second over
-such a
-> long duration?  (In reality, the compile with the high-frequency loop
-> would
-> probably take longer unless it has near zero overhead).
-Even if you build a kernel, there are many opportunities for the CPU to
-save power consumption without causing visible performance regression.
+--=-S2dic4GkzodN0ijRZu33
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> In my opinion it is wasteful to increase CPU speed unless there is a
-> longer
-> term need for it.
-> 
-> > 	Jun
-> 
-> Carl Thompson
-> 
+On Tue, 2003-10-21 at 13:58, Robert L. Harris wrote:
+> Yup, I've played musical DIMMS as well.  It's currently up running with
+> 1.5G install without the HIGMEM and I've taxed it pretty hard today
+> without issue.
+>=20
+> What kernel are you running on?
+>=20
+> They are registered.
+>=20
+
+Kernel 2.6.0-test8.
+It's a Tyan MPX board with 4 512MB sticks of ECC registered 266 DDR.
+
+Here's the highmem bit of my config file:
+# CONFIG_NOHIGHMEM is not set
+CONFIG_HIGHMEM4G=3Dy
+# CONFIG_HIGHMEM64G is not set
+CONFIG_HIGHMEM=3Dy
+CONFIG_HIGHPTE=3Dy
+
+So, I don't think it's a general bug.
+
+--=20
+Zan Lynx <zlynx@acm.org>
+
+--=-S2dic4GkzodN0ijRZu33
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA/laR1G8fHaOLTWwgRAiq+AKCDkyXNB6nkjcTH/i4b9vQ6Z/I+CwCeNd2w
+PgzM2YXb5yFeumaPGc5hWcs=
+=FxpX
+-----END PGP SIGNATURE-----
+
+--=-S2dic4GkzodN0ijRZu33--
 

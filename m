@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264125AbRFTQmE>; Wed, 20 Jun 2001 12:42:04 -0400
+	id <S264280AbRFTQt4>; Wed, 20 Jun 2001 12:49:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264183AbRFTQlz>; Wed, 20 Jun 2001 12:41:55 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:44815 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S264125AbRFTQll>;
-	Wed, 20 Jun 2001 12:41:41 -0400
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, bert hubert <ahu@ds9a.nl>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-In-Reply-To: <Pine.GSO.4.21.0106201127350.24658-100000@weyl.math.psu.edu>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 20 Jun 2001 18:40:53 +0200
-In-Reply-To: Alexander Viro's message of "Wed, 20 Jun 2001 11:33:55 -0400 (EDT)"
-Message-ID: <d31yofcdey.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S264288AbRFTQtq>; Wed, 20 Jun 2001 12:49:46 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:22030 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S264280AbRFTQth>; Wed, 20 Jun 2001 12:49:37 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Pavel Machek <pavel@suse.cz>, Rik van Riel <riel@conectiva.com.br>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: spindown
+Date: Wed, 20 Jun 2001 18:52:30 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20010615152306.B37@toy.ucw.cz> <20010618222131.A26018@paranoidfreak.co.uk> <20010619124627.A202@bug.ucw.cz>
+In-Reply-To: <20010619124627.A202@bug.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <01062018523007.00439@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Al" == Alexander Viro <viro@math.psu.edu> writes:
+On Tuesday 19 June 2001 12:46, Pavel Machek wrote:
+> > > > Roger> It does if you are running on a laptop. Then you do not want
+> > > > Roger> the pages go out all the time. Disk has gone too sleep, needs
+> > > > Roger> to start to write a few pages, stays idle for a while, goes to
+> > > > Roger> sleep, a few more pages, ...
+> > > > That could be handled by a metric which says if the disk is spun
+> > > > down, wait until there is more memory pressure before writing.  But
+> > > > if the disk is spinning, we don't care, you should start writing out
+> > > > buffers at some low rate to keep the pressure from rising too
+> > > > rapidly.
+> > >
+> > > Notice that write is not free (in terms of power) even if disk is
+> > > spinning.  Seeks (etc) also take some power. And think about
+> > > flashcards. It certainly is cheaper tha spinning disk up but still not
+> > > free.
+> >
+> > Isn't this why noflushd exists or is this an evil thing that shouldn't
+> > ever be used and will eventually eat my disks for breakfast?
+>
+> It would eat your flash for breakfast. You know, flash memories have
+> no spinning parts, so there's nothing to spin down.
 
-Al> On 20 Jun 2001, Jes Sorensen wrote:
+Yes, this doesn't make sense for flash, and in fact, it doesn't make sense to 
+have just one set of bdflush parameters for the whole system, it's really a 
+property of the individual device.  So the thing to do is for me to go kibitz 
+on the io layer rewrite projects and figure out how to set up the 
+intelligence per-queue, and have the queues per-device, at which point it's 
+trivial to do the write^H^H^H^H^H right thing for each kind of device.
 
->> Not to mention how complex it is to get locking right in an
->> efficient manner. Programming threads is not that much different
->> from kernel SMP programming, except that in userland you get a core
->> dump and retry, in the kernel you get an OOPS and an fsck and
->> retry.
+BTW, with nominal 100,000 erases you have to write 10 terabytes to your 100 
+meg flash disk before you'll see it start to degrade.  These devices are set 
+up to avoid continuous hammering on the same same page, and to take failed 
+pages out of the pool as soon as they fail to erase.  Also, the 100,000 
+figure is nominal - the average number of erases you'll get per page is 
+considerably higher.  The extra few sectors we see with the early flush patch 
+are just not going to affect the life of your flash to a measurable degree.
 
-Al> Arrgh. As long as we have that "SMP makes locking harder" myth
-Al> floating around we _will_ get problems. Kernel UP programming is
-Al> not different from SMP one. It is multithreaded. And amount of
-Al> genuine SMP bugs is very small compared to ones that had been
-Al> there on UP since way back.  And yes, programming threads is the
-Al> same thing. No arguments here.
-
-Call it SMP or kernel threading, I don't really care, it's the same
-thing. My point is that in the kernel you must take threading/SMP into
-account when coding and yes it's not trivial to do it efficiently
-(though often fairly easy to do it inefficiently) and the same applies
-to userland threads. Userland threads are just not some chest of gold
-that just opens up a free path to paradise as most CS teachers seems
-to promote it as being.
-
-Jes
+--
+Daniel

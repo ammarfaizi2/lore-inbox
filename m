@@ -1,69 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266202AbUALPNl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 10:13:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266198AbUALPNk
+	id S266195AbUALPNY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 10:13:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUALPMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 10:13:40 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:14980 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266144AbUALPMs (ORCPT
+	Mon, 12 Jan 2004 10:12:39 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60291 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266144AbUALPMc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 10:12:48 -0500
-Date: Mon, 12 Jan 2004 16:12:30 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Martin Peschke3 <MPESCHKE@de.ibm.com>
-Cc: Jens Axboe <axboe@suse.de>, Doug Ledford <dledford@redhat.com>,
-       Peter Yao <peter@exavio.com.cn>, linux-kernel@vger.kernel.org,
-       linux-scsi mailing list <linux-scsi@vger.kernel.org>, ihno@suse.de
+	Mon, 12 Jan 2004 10:12:32 -0500
 Subject: Re: smp dead lock of io_request_lock/queue_lock patch
-Message-ID: <20040112151230.GB5844@devserv.devel.redhat.com>
-References: <OF317B32D5.C8C681CB-ONC1256E19.005066CF-C1256E19.00538DEF@de.ibm.com>
+From: Doug Ledford <dledford@redhat.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Martin Peschke3 <MPESCHKE@de.ibm.com>,
+       Arjan Van de Ven <arjanv@redhat.com>, Peter Yao <peter@exavio.com.cn>,
+       linux-kernel@vger.kernel.org,
+       linux-scsi mailing list <linux-scsi@vger.kernel.org>
+In-Reply-To: <20040112141330.GH24638@suse.de>
+References: <OF2581AA2D.BFD408D2-ONC1256E19.004BE052-C1256E19.004E1561@de.ibm.com>
+	 <20040112141330.GH24638@suse.de>
+Content-Type: text/plain
+Message-Id: <1073920110.3114.268.camel@compaq.xsintricity.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UHN/qo2QbUvPLonB"
-Content-Disposition: inline
-In-Reply-To: <OF317B32D5.C8C681CB-ONC1256E19.005066CF-C1256E19.00538DEF@de.ibm.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Mon, 12 Jan 2004 10:08:31 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-01-12 at 09:13, Jens Axboe wrote:
+> On Mon, Jan 12 2004, Martin Peschke3 wrote:
+> > Hi,
+> > 
+> > is there a way to merge all (or at least the common denominator) of
+> > Redhat's and SuSE's changes into the vanilla 2.4 SCSI stack?
+> > The SCSI part of Marcelo's kernel seems to be rather backlevel,
+> > considering all those fixes and enhancements added by the mentioned
+> > distributors and their SCSI experts. As this discussion underlines,
+> > there are a lot of common problems and sometimes even common
+> > approaches.  I am convinced that a number of patches ought to be
+> > incorporated into the mainline kernel. Though, I must admit
+> > that I am at a loss with how this could be achieved given the
+> > unresolved question of 2.4 SCSI maintenance
+> > (which has certainly played a part in building up those piles
+> > of SCSI patches).
+> 
+> I have mixed feelings about that. One on side, I'd love to merge the
+> scalability patches in mainline. We've had a significant number of bugs
+> in this area in the past, and it seems a shame that we all have to fix
+> them independently because we deviate from mainline.
 
---UHN/qo2QbUvPLonB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Agreed (I've had to fix the iorl patch 3 or 4 times for things that
+weren't bugs in the iorl patch until mainline got updated with a new
+lock somewhere or things like that).
 
-On Mon, Jan 12, 2004 at 04:07:40PM +0100, Martin Peschke3 wrote:
-> as the patch discussed in this thread, i.e. pure (partially
-> vintage) bugfixes.
+>  On the other hand,
+> 2.4 is pretty much closed. There wont be a big number of new distro 2.4
+> kernels.
+> 
+> Had you asked me 6 months ago I probably would have advocated merging
+> them, but right now I think it's a waste of time.
 
-Both SuSE and Red Hat submit bugfixes they put in the respective trees to
-marcelo already. There will not be many "pure bugfixes" that you can find in
-vendor trees but not in marcelo's tree.
+>From my standpoint, we are going to be maintaining our 2.4 kernel RPMs
+for a long time, so my preference is to have it in mainline.  On top of
+the performance stuff I have also been building some actual bug fix
+patches.  They depend on the behavior of the patched kernels, and in
+some cases would be difficult to put on top of a non-iorl patched scsi
+stack.  In any case, my current plans include putting my 2.4 scsi stack
+stuff up for perusal on linux-scsi.bkbits.net/scsi-dledford-2.4 as soon
+as I can sort through the patches and break them into small pieces.
 
-> If people agree in that course also about a clean, common
-> iorl-patch, that would be another step forward, in my opinion.
+-- 
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc.
+         1801 Varsity Dr.
+         Raleigh, NC 27606
 
-None of the vendors in question is still doing development based on 2.4 (in
-fact I suspect no linux vendor/distro still is) so if you want vendors to go
-to a joint patch for such a specific enhancement, which WILL include
-development, I really don't see the point. Neither SuSE nor Red Hat will be
-jumping from joy to do a lot of work to replace a patch that works in their
-respective existing products with something else with no clear gain at all,
-while requiring significant work and stability risks.
 
-Greetings,
-    Arjan van de Ven
-
---UHN/qo2QbUvPLonB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAArldxULwo51rQBIRAiW9AJoCsHnL+pXD+m3kJ/2lJdAF3BObNwCbBlWg
-sNc5hxtqMGQk7YSZUm/zUUs=
-=PLYe
------END PGP SIGNATURE-----
-
---UHN/qo2QbUvPLonB--

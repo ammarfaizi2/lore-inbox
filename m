@@ -1,92 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267370AbUITVxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267375AbUITWDl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267370AbUITVxp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 17:53:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267372AbUITVxp
+	id S267375AbUITWDl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 18:03:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267195AbUITWDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 17:53:45 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:23782 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S267370AbUITVxm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 17:53:42 -0400
-Subject: Re: [RFC][PATCH] inotify 0.9.2
-From: Robert Love <rml@novell.com>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: linux-kernel@vger.kernel.org, nautilus-list@gnome.org,
-       gamin-list@gnome.org, viro@parcelfarce.linux.theplanet.co.uk
-In-Reply-To: <1095652572.23128.2.camel@vertex>
-References: <1095652572.23128.2.camel@vertex>
-Content-Type: multipart/mixed; boundary="=-sl/49RxIvWIY2yNksnjC"
-Date: Mon, 20 Sep 2004 17:52:34 -0400
-Message-Id: <1095717155.5258.7.camel@betsy.boston.ximian.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
+	Mon, 20 Sep 2004 18:03:40 -0400
+Received: from mail.enyo.de ([212.9.189.167]:24581 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S267375AbUITWD1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 18:03:27 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Paul Jakma <paul@clubi.ie>, Ville Hallivuori <vph@iki.fi>,
+       Toon van der Pas <toon@hout.vanvergehaald.nl>,
+       Wolfpaw - Dale Corse <admin@wolfpaw.net>, kaukasoi@elektroni.ee.tut.fi,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local and REMOTE(verified) Denial of Service Attack
+References: <002301c498ee$1e81d4c0$0200a8c0@wolf>
+	<1095008692.11736.11.camel@localhost.localdomain>
+	<20040912192331.GB8436@hout.vanvergehaald.nl>
+	<Pine.LNX.4.61.0409130413460.23011@fogarty.jakma.org>
+	<Pine.LNX.4.61.0409130425440.23011@fogarty.jakma.org>
+	<20040913201113.GA5453@vph.iki.fi>
+	<Pine.LNX.4.61.0409141553260.23011@fogarty.jakma.org>
+	<1095174633.16990.19.camel@localhost.localdomain>
+From: Florian Weimer <fw@deneb.enyo.de>
+Date: Tue, 21 Sep 2004 00:03:18 +0200
+In-Reply-To: <1095174633.16990.19.camel@localhost.localdomain> (Alan Cox's
+	message of "Tue, 14 Sep 2004 16:10:36 +0100")
+Message-ID: <87sm9cmwd5.fsf@deneb.enyo.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Alan Cox:
 
---=-sl/49RxIvWIY2yNksnjC
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> On Maw, 2004-09-14 at 15:55, Paul Jakma wrote:
+>> Hmm, yes, I hadnt thought of the attack-mitigating aspects of 
+>> graceful restart. Though, without other measures, the session is 
+>> still is open to abuse (send RST every second).
+>
+> Its more than that given port randomization, quite a lot more. Of course
+> its much easier to just send "must fragment, size 68" icmp replies and
+> guess them that way.
 
-On Sun, 2004-09-19 at 23:56 -0400, John McCutchan wrote:
-
-> I would appreciate design review, code review and testing.
-
-Hi, John.
-
-When you pass SLAB_PANIC to kmem_cache_create(), the slab layer will
-panic the kernel and thus halt the machine.  So there is no reason to
-check the return value.
-
-We could remove the SLAB_PANIC, but I think that it makes sense, so
-instead I removed the code checking the returns, saving a few bytes.
-
-Patch is against your inotify patch.
-
-	Robert Love
-
-
---=-sl/49RxIvWIY2yNksnjC
-Content-Disposition: attachment; filename=inotify-slab-panic-rml-2.6.9-rc2.patch
-Content-Type: text/x-patch; name=inotify-slab-panic-rml-2.6.9-rc2.patch; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-Signed-Off-By: Robert Love <rml@novell.com>
-
- drivers/char/inotify.c |   20 +++++++-------------
- 1 files changed, 7 insertions(+), 13 deletions(-)
-
-diff -urN linux-inotify/drivers/char/inotify.c linux/drivers/char/inotify.c
---- linux-inotify/drivers/char/inotify.c	2004-09-20 17:10:58.000000000 -0400
-+++ linux/drivers/char/inotify.c	2004-09-20 17:33:03.369317992 -0400
-@@ -942,19 +942,13 @@
- 
- 	inotify_debug_flags = INOTIFY_DEBUG_NONE;
- 
--	watcher_cache = kmem_cache_create ("watcher_cache", 
--			sizeof(struct inotify_watcher), 0, SLAB_PANIC, NULL, NULL);
--
--	if (!watcher_cache) {
--		misc_deregister (&inotify_device);
--	}
--	kevent_cache = kmem_cache_create ("kevent_cache", 
--			sizeof(struct inotify_kernel_event), 0, SLAB_PANIC, NULL, NULL);
--
--	if (!kevent_cache) {
--		misc_deregister (&inotify_device);
--		kmem_cache_destroy (watcher_cache);
--	}
-+	watcher_cache = kmem_cache_create ("watcher_cache",
-+			sizeof(struct inotify_watcher), 0,
-+			SLAB_PANIC, NULL, NULL);
-+
-+	kevent_cache = kmem_cache_create ("kevent_cache",
-+			sizeof(struct inotify_kernel_event), 0,
-+			SLAB_PANIC, NULL, NULL);
- 
- 	printk(KERN_ALERT "inotify 0.9.2 minor=%d\n", inotify_device.minor);
- out:
-
---=-sl/49RxIvWIY2yNksnjC--
-
+Is this attack documented anywhere?

@@ -1,109 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263680AbVBEXAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S272148AbVBEXIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263680AbVBEXAx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 18:00:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272058AbVBEXAx
+	id S272148AbVBEXIx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 18:08:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264048AbVBEXIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 18:00:53 -0500
-Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:39558 "HELO
-	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262558AbVBEXAf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 18:00:35 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-input@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH] adding the ICS MK712 touchscreen driver to 2.6
-Date: Sat, 5 Feb 2005 18:00:33 -0500
-User-Agent: KMail/1.7.2
-Cc: Vojtech Pavlik <vojtech@suse.de>, Richard Koch <n1gp@hotmail.com>,
-       linux-kernel@vger.kernel.org
-References: <BAY16-F34ACC3DA65154E040BEC5987800@phx.gbl> <20050205210203.GX2711@ucw.cz>
-In-Reply-To: <20050205210203.GX2711@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Feb 2005 18:08:53 -0500
+Received: from gprs215-88.eurotel.cz ([160.218.215.88]:18394 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S272221AbVBEXIF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 18:08:05 -0500
+Date: Sun, 6 Feb 2005 00:00:17 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Tony Lindgren <tony@atomide.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick, version 050127-1
+Message-ID: <20050205230017.GA1070@elf.ucw.cz>
+References: <20050127212902.GF15274@atomide.com> <20050201110006.GA1338@elf.ucw.cz> <20050201204008.GD14274@atomide.com> <20050201212542.GA3691@openzaurus.ucw.cz> <20050201230357.GH14274@atomide.com> <20050202141105.GA1316@elf.ucw.cz> <20050203030359.GL13984@atomide.com> <20050203105647.GA1369@elf.ucw.cz> <20050203164331.GE14325@atomide.com> <20050204051929.GO14325@atomide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502051800.33621.dtor_core@ameritech.net>
+In-Reply-To: <20050204051929.GO14325@atomide.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 05 February 2005 16:02, Vojtech Pavlik wrote:
-v> On Wed, Jan 19, 2005 at 04:18:49PM -0500, Richard Koch wrote:
-> > Please include the patch below to bring the ICS MK712 touchscreen controller
-> > support, which is in kernel 2.4, in to kernel 2.6.
+Hi!
+
+> > > > It could also be that the reprogamming of PIT timer does not work on
+> > > > your machine. I chopped off the udelays there... Can you try
+> > > > something like this:
+> > > 
+> > > I added the udelays, but behaviour did not change.
 > > 
-> > This patch was constructed and applied to kernel version 2.6.10 and tested
-> > successfully on several Gateway AOL Connected Touchpad computers.
-> > 
-> > This was based on the mk712.c 2.4.28 version. No functional changes applied 
-> > only minor
-> > changes to conform to the 2.6 build structure. I choose to place the driver 
-> > under
-> > input/touchscreen as this seemed most appropriate.
-> > 
-> > By making a contribution to this project, I certify that:
-> > 
-> > The contribution is based upon previous work that, to the best
-> > of my knowledge, is covered under an appropriate open source
-> > license and I have the right under that license to submit that
-> > work with modifications, whether created in whole or in part
-> > by me, under the same open source license (unless I am
-> > permitted to submit under a different license), as indicated
-> > in the file.
-> > 
-> > Signed-off-by: Rick Koch <n1gp@hotmail.com>
-> > 
-> > patch also available at: http://home.comcast.net/~n1gp/mk712_2.6_patch
+> > Yeah, and if the first patch was working better, that means the PIT
+> > interrupts work. I'll do another version of the patch where PIT
+> > interrupts work again without local APIC needed, let's see what
+> > happens with that.
 > 
-> I converted it to a proper input driver for you. ;) Can you check it if
-> it still works?
+> I think something broke TSC timer after the first patch, but I could
+> not figure out yet what. So the bad combo might be local APIC + TSC.
+> At least I'm seeing similar problems with local APIC + TSC timer.
 > 
-> +static irqreturn_t mk712_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-> +{
-> +        unsigned char status;
-> +        static int debounce = 1;
-> +	static unsigned short last_x;
-> +	static unsigned short last_y;
-> +
-> +	input_regs(&mk712_dev, regs);
-> +
-> +        status = inb(mk712_io + MK712_STATUS);
-> +
-> +	if (~status & MK712_CONVERSION_COMPLETE) {
-> +                debounce = 1;
-> +		goto end;
-> +	}
-> +
-> +	if (~status & MK712_STATUS_TOUCH)
-> +	{
-> +                debounce = 1;
-> +		input_report_key(&mk712_dev, BTN_TOUCH, 0);
-> +		goto end;
-> +	}
-> +
-> +        if (debounce)
-> +        {
-> +		debounce = 0;
-> +		goto end;
-> +        }
-> +
-> +	input_report_key(&mk712_dev, BTN_TOUCH, 1);
-> +	input_report_abs(&mk712_dev, ABS_X, last_x);
-> +	input_report_abs(&mk712_dev, ABS_Y, last_y);
+> Attached is a slightly improved patch, but the patch does not fix
+> the TSC problem. It just fixes compile without local APIC, and
+> booting SMP kernel on uniprocessor machine.
+> 
+> Currently the suggested combo is local APIC + ACPI PM timer...
 
-Severe TAB vs. space damage...
+Ok, works slightly better: time no longer runs 2x too fast. When TSC
+is used, I get same behaviour  as before ("sleepy machine"). With
+"notsc", machine seems to work okay, but I still get 1000 timer
+interrupts a second.
 
-> +static int mk712_open(struct input_dev *dev)
-> +{
-> +	
-> +	if (mk712_used++)
-> +		return 0;
-> +
-> +	outb(0, mk712_io + MK712_CONTROL); /* Reset */
-> +
+> And if that works, changing the I8042_POLL_PERIOD from HZ/20 in
+> drivers/input/serio/i8042.h to something like HZ increases the
+> sleep interval quite a bit. I think I had lots of polling also in
+> CONFIG_NETFILTER, but I haven't verified that.
 
-We really should stop ignoring races and locking issues. Atomic perhaps?
-
-
+Okay, I set POLL_PERIOD to 5*HZ, and disabled USB. Perhaps it will
+sleep better now?
+								Pavel
 -- 
-Dmitry
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

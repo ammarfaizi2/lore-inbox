@@ -1,46 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279973AbRKDIDy>; Sun, 4 Nov 2001 03:03:54 -0500
+	id <S279969AbRKDIAo>; Sun, 4 Nov 2001 03:00:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279971AbRKDIDo>; Sun, 4 Nov 2001 03:03:44 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:7040 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S279974AbRKDID3>;
-	Sun, 4 Nov 2001 03:03:29 -0500
-Message-ID: <3BE4F64C.A5252A31@pobox.com>
-Date: Sun, 04 Nov 2001 00:03:25 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
+	id <S279971AbRKDIAf>; Sun, 4 Nov 2001 03:00:35 -0500
+Received: from ns1.uklinux.net ([212.1.130.11]:56079 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S279969AbRKDIA2>;
+	Sun, 4 Nov 2001 03:00:28 -0500
+Envelope-To: linux-kernel@vger.kernel.org
+Date: Sat, 3 Nov 2001 23:49:51 +0000 (GMT)
+From: Ken Moffat <ken@kenmoffat.uklinux.net>
+To: Skip Gaede <sgaede@mediaone.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]  driver: ide-floppy.c  kernel >=2.4.7 
+In-Reply-To: <200110300458.f9U4w6N17353@chmls05.mediaone.net>
+Message-ID: <Pine.LNX.4.21.0111032310570.7850-100000@pppg_penguin.linux.bogus>
 MIME-Version: 1.0
-To: Hartmann <andihartmann@freenet.de>
-CC: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
-Subject: Re: Unresolved symbols in 2.4.14-pre7
-In-Reply-To: <200111040646.fA46khp00596@athlon.maya.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hartmann wrote:
+Skip,
 
-> with my standard configuration, I get some unresolved symbols with
-> 2.4.14-pre7:
+ I've just got around to testing this. I didn't have problems with the
+current version of ide-floppy, but I thought I'd give it a go anyway. I'm
+sorry to say that the performance as standard is atrocious. I was
+previously using 2.4.12-ac3 with the preempt patch, for these tests I
+tried 2.4.13-ac6. (All tests at the console, no other conscious use of the
+box.)
 
-It appears to be fixed in -pre8....
+hdparm -Tt /dev/hdd1  cache              disk
+2.4.12-ac3-preempt    52.67Mb/s          1.06Mb/s
+2.4.13-ac6+your patch 52.89Mb/S        480.43kB/s
+(above are worst of three, but there isn't wide variation)
 
-but here's a patch that fixes it in -pre7:
+time mke2fs /dev/hdd1   real    user     sys
+2.4.12-ac3-preempt    0m4.252s 0m0.010s 0m0.090s
+2.4.13-ac6+your patch 0m8.349s 0m0.000s 0m0.070s
 
-diff -urN linux/kernel/ksyms.c linux-patched/kernel/ksyms.c
---- linux/kernel/ksyms.c Fri Nov  2 11:02:45 2001
-+++ linux-patched/kernel/ksyms.c Fri Nov  2 10:09:48 2001
-@@ -83,6 +83,7 @@
- EXPORT_SYMBOL(do_mmap_pgoff);
- EXPORT_SYMBOL(do_munmap);
- EXPORT_SYMBOL(do_brk);
-+EXPORT_SYMBOL(unlock_page);
- EXPORT_SYMBOL(exit_mm);
- EXPORT_SYMBOL(exit_files);
- EXPORT_SYMBOL(exit_fs);
+Bonnie -s 85 -d /zip
+           ---Sequential Output------- --Sequential Input--- Rnd Seek
+              Char    Block    Rewrite    Char    Block       /sec
+2.4.12-ac3  1246K/s  1504K/s    433K/s    702K/s  958K/s       30.0
+2.4.13-ac6+  575K/s   699K/s    211K/s    347K/s  447K/s       20.9
 
+This is on a K6/500, and with your patch the disk feels _so_ slow. I
+accept it can be tweaked through the /proc interface, but if this is the
+default behaviour, it's dreadful. I do wonder if you've got a flakey 
+drive ? Sorry.
+
+Ken
+
+On Tue, 30 Oct 2001, Skip Gaede wrote:
+
+> This patch fixes a lost interrupt problem with the Iomega ATAPI Zip 100 drive 
+> on an Asus A7V133 board (uses South Bridge VIA VT82C686 chip). The problem 
+> occurs when trying to format the drive using mke2fs /dev/hdx1. The patch 
+> introduces an adjustable delay between the time the drive asserts DRQ and 
+> deasserts BSY after issuing the packet command and before transferring the 12 
+> byte packet.. With delays of 3-5 ticks, the filesystem creation occurs 
+> without retries/resets. The delay can be adjusted through the proc interface 
+> by adjusting the value assigned to the parameter ticks. (Without the patch, I 
+> experienced 111 lost interrupts, resulting in an elapsed time of over 2 hours 
+> to format the drive. With the patch, mke2fs completed in <15 seconds.)
+> I am looking for testing, by others who have the internal Zip drive and may 
+> have experienced the same problem, as well as comments.
+> 
+> Thanks,
+> --Skip
+
+-- 
+         If a six turned out to be nine, I don't mind.
+
+         Home page : http://www.kenmoffat.uklinux.net
 

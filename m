@@ -1,80 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbVANBYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVANAwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261856AbVANBYy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 20:24:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVANBWg
+	id S261732AbVANAwf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 19:52:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbVANAuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 20:22:36 -0500
-Received: from mail22.syd.optusnet.com.au ([211.29.133.160]:57239 "EHLO
-	mail22.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261720AbVANBTl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 20:19:41 -0500
-Message-ID: <41E71E25.20005@kolivas.org>
-Date: Fri, 14 Jan 2005 12:19:33 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@mail.ru>
-Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-Subject: Re: 2.6.10-ck4
-References: <200501131933.21021.adobriyan@mail.ru>
-In-Reply-To: <200501131933.21021.adobriyan@mail.ru>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigD9A37E5653D6C2E7BC2AA908"
+	Thu, 13 Jan 2005 19:50:05 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:53435 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261712AbVANArY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 19:47:24 -0500
+Subject: Re: 2.6.10-mm3 scaling problem with inotify
+From: Robert Love <rml@novell.com>
+To: John Hawkes <hawkes@tomahawk.engr.sgi.com>
+Cc: linux-kernel@vger.kernel.org, John McCutchan <ttb@tentacle.dhs.org>
+In-Reply-To: <200501132356.j0DNujUY016224@tomahawk.engr.sgi.com>
+References: <200501132356.j0DNujUY016224@tomahawk.engr.sgi.com>
+Content-Type: text/plain
+Date: Thu, 13 Jan 2005 19:49:18 -0500
+Message-Id: <1105663758.6027.215.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigD9A37E5653D6C2E7BC2AA908
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 2005-01-13 at 15:56 -0800, John Hawkes wrote:
 
-Alexey Dobriyan wrote:
-> Problems rebooting here. Don't have them in 2.6.10 and 2.6.11-rc1.
+> I believe I've encountered a scaling problem with the inotify code in
+> 2.6.10-mm3.
 > 
-> If you want complete messages, just ask. I will write them down into 
-> electronic form.
+> vfs_read() and vfs_write() (for example) do:
+>     dnotify_parent(dentry, DN_ACCESS);
+>     inotify_dentry_parent_queue_event(dentry,
+>                            IN_ACCESS, 0, dentry->d_name.name);
+>     inotify_inode_queue_event(inode, IN_ACCESS, 0, NULL);
+> for the optional "notify" functionality.
 > 
-> First time there was an unstoppable infinite loop of quickly moving USB 
-> related messages. I only saw "[uhci_hcd]" string reliably. Can't reproduce.
-> 
-> Third time:
+> dnotify_parent() knows how to exit quickly:
+>        if (!dir_notify_enable)
+>                 return;
 
->  <0> Kernel panic - not syncing: Fatal exception in interrupt.
-> 
-> Second time:
-> 
-> [<c0113160>] do_page_fault+0x0/0x562
+This isn't a "quick exit", though.  It is just a termination check in
+case dnotify was disabled on boot.  The rest of dnotify_parent() is
+always executed and it does the equivalent of dget_parent().
 
->  <0> Kernel panic - not syncing: Fatal exception in interrupt.
+So why is inotify showing up on your test and not dnotify?
 
-This is funny:
+Hm, dnotify always grabs the lock but does not bump dentry->count unless
+there is actually a watch on the dentry.  Could that really be the
+difference and cause of the slowdown?  We could probably do that, too.
 
-> Other than that everything seems to be ok. 
+> Is it possible for a parent's inode->inotify_data to be enabled when none of 
+> its children's inotify_data are enabled?  That would make it easy - just look 
+> at the current inode's inotify_data before walking back to the parent.
 
-Is that like saying "the operation was a success but the patient died" ?
+Unfortunately, no.  There is no relationship between the parent and the
+child inode's inotify_data structure.  The best we can do is exactly
+what dnotify does, actually, which is
 
-Sorry I have no idea what those are.
+	spin_lock(&dentry->d_lock);
+	parent = dentry->d_parent;
+	if (parent->d_inode->i_dnotify_mask & event) {
+		dget(parent);
+		spin_unlock(&dentry->d_lock);
+		__inode_dir_notify(parent->d_inode, event);
+		dput(parent);
+	} else {
+		spin_unlock(&dentry->d_lock);
+	}
 
-Cheers,
-Con
+Instead of our current "explicit"
 
---------------enigD9A37E5653D6C2E7BC2AA908
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+	parent = dget_parent(dentry);
+	inotify_inode_queue_event(parent->d_inode, mask, cookie,
+				  filename);
+	dput(parent);
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+E.g., save the ref unless absolutely needed.
 
-iD8DBQFB5x4lZUg7+tp6mRURAovTAJsFX9uALosRehacBdB8taIEWkpSTwCeKebn
-V1LUY5o1TZ10ruLfTdhFHF8=
-=CKWG
------END PGP SIGNATURE-----
+I am open to other ideas, too, but I don't see any nice shortcuts like
+what we can do in inotify_inode_queue_event().
 
---------------enigD9A37E5653D6C2E7BC2AA908--
+(Other) John?  Any ideas?
+
+Best,
+
+	Robert Love
+
+

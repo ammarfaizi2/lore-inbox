@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276079AbRI1Oli>; Fri, 28 Sep 2001 10:41:38 -0400
+	id <S276083AbRI1OoS>; Fri, 28 Sep 2001 10:44:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276078AbRI1Ol3>; Fri, 28 Sep 2001 10:41:29 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:21144
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S276077AbRI1OlQ>; Fri, 28 Sep 2001 10:41:16 -0400
-Date: Fri, 28 Sep 2001 07:41:24 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Tsunehiko Baba <tsn@crl.hitachi.co.jp>,
-        Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: Re: [REPORT] (PPC) Compile Error (Linux 2.4.9-ac[12-16])
-Message-ID: <20010928074124.R23005@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <20010928071540.O23005@cpe-24-221-152-185.az.sprintbbd.net> <E15myo9-0007Dj-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15myo9-0007Dj-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.22i
+	id <S276085AbRI1OoI>; Fri, 28 Sep 2001 10:44:08 -0400
+Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:1949 "EHLO
+	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S276083AbRI1Onx>; Fri, 28 Sep 2001 10:43:53 -0400
+Date: Fri, 28 Sep 2001 15:44:19 +0100 (BST)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: weirdness in reiserfs
+Message-ID: <Pine.LNX.4.33.0109281509080.10065-100000@nick.dcs.qmul.ac.uk>
+X-URL: http://www.theBachChoir.org.uk/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 28, 2001 at 03:40:05PM +0100, Alan Cox wrote:
-> > Paul sent Alan some patches a while back to update things, so hopefully they're
-> > still in the queue someplace.  If you want a good PPC kernel, hit
-> > http://penguinppc.org/dev/kernel.shtml
-> 
-> I suspect they have gone astray
+I have a 240GB reiserfs ataraid partition on one of my servers (2.4.9-ac10
++ ext3 0.9.9 + ext3 speedup + ext3 "experimental VM patch" + jfs 1.0.4),
+which I had populated with lots of little files, probably huge amounts of
+tail-packing going on.
 
-Uh-oh.  I'll try and find time to do it later today, or remind Paul when
-he pops up.
+I deleted a tarball of one of my directories; I forget how big the file
+was, but I reckon it was of the order of 25GB. It took long enough (over
+an hour) that I went to the pub with fingers crossed instead of nursing
+it. While it was deleting vmstat 1 was showing bi= ~ 2000 and bo= ~ 20000,
+so it was hammering away. Fine, I thought, it's a big file; I don't do
+this sort of thing often, maybe the stuff needed to delete such a big file
+is bigger than the journal size or something. But.. the partition was
+otherwise inaccessible with processes just blocking. Oddly df worked
+though, so I could watch my use of the filesystem going down!
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+So.. I came back in this morning and things had recovered. Weird. Could
+the "experimental VM patch" mentioned on the ext3 for 2.4 page be a little
+too experimental? Sorry to be so vague...
+
+Matt
+

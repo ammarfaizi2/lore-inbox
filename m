@@ -1,61 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265042AbUFMLTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265043AbUFMLU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265042AbUFMLTx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 07:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265043AbUFMLTw
+	id S265043AbUFMLU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 07:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUFMLU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 07:19:52 -0400
-Received: from 216-229-91-229-empty.fidnet.com ([216.229.91.229]:37640 "EHLO
-	mail.icequake.net") by vger.kernel.org with ESMTP id S265042AbUFMLTv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 07:19:51 -0400
-Date: Sun, 13 Jun 2004 06:19:49 -0500
-From: Ryan Underwood <nemesis-lists@icequake.net>
-To: linux-kernel@vger.kernel.org
-Subject: Request: Netmos support in parport_serial for 2.4.27
-Message-ID: <20040613111949.GB6564@dbz.icequake.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Sun, 13 Jun 2004 07:20:56 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:21121 "EHLO cloud.ucw.cz")
+	by vger.kernel.org with ESMTP id S265043AbUFMLUu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 07:20:50 -0400
+Date: Sun, 13 Jun 2004 13:20:51 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Tisheng Chen <tishengchen@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Solution to the "1802: Unauthorized network card" problem in recent thinkpad systems
+Message-ID: <20040613112051.GA1416@ucw.cz>
+References: <20040613073950.21346.qmail@web90101.mail.scd.yahoo.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NDin8bjvE/0mNLFQ"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040613073950.21346.qmail@web90101.mail.scd.yahoo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jun 13, 2004 at 12:39:50AM -0700, Tisheng Chen wrote:
 
---NDin8bjvE/0mNLFQ
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> In recent IBM thinkpad systems, there is a limit to
+> allowed MiniPCI wireless cards. When an unauthorized
+> card is plugged in, the system doesn't boot and
+> halt with an error message like:
+> 
+> ERROR
+> 1802: Unauthorized network card is plugged in
+> Power off and remove the miniPCI network card.
 
+[snip]
 
-Hi,
+> The other way is unbelievably simple. There is a byte
+> in CMOS which controls whether an "unauthorized" card
+> is allowed or not. That's 0x6a, actually only
+> the bit 0x80. The program to unlock the authorization
+> mechanism is like (asm):
+> 
+> MOV     DX,0070
+> MOV     AL,6A
+> OUT     DX,AL
+> MOV     DX,0071
+> IN      AL,DX
+> OR      AL,80
+> OUT     DX,AL
+> MOV     AX,4C00
+> INT     21
+> 
+> The program can be downloaded from:
+>   http://jcnp.pku.edu.cn/~shadow/1802/no-1802.com
+> To use this program, you need to boot to DOS.
+> 
+> The CMOS solution is safe, but I'm not sure that it
+> works for all recent thinkpads and all cards. The BIOS
+> crack sure does, however it is difficult
+> and dangerous.
 
-There's been a patch floating around for a while now to add Netmos
-support to parport_serial.  It has been submitted numerous times but it
-seems that nobody notices it. :)
+Well, here is a version for Linux:
 
-Can it be reviewed for inclusion before 2.4.27?  I have a few systems
-with these cards and it would be very nice to have them up to snuff.
+------------------------------------------------------------
 
-The patch against 2.4.20 can be found here:
-http://winterwolf.co.uk/linuxsw
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
---=20
-Ryan Underwood, <nemesis@icequake.net>
+int main(void)
+{
+	int fd;
+	unsigned char data;
 
---NDin8bjvE/0mNLFQ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+	printf("Disabling WiFi whitelist check.\n");
+	fd = open("/dev/nvram", O_RDWR);
+	lseek(fd, 0x6a, SEEK_SET);
+	read(fd, &data, 1);
+	printf("CMOS address 0x6a: %02x->", data);
+	data &= ~0x80;
+	printf("%02x\n", data);
+	lseek(fd, 0x6a, SEEK_SET);
+	write(fd, &data, 1);
+	close(fd);
+	printf("Done.\n");
+}
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+------------------------------------------------------------
 
-iD8DBQFAzDhVIonHnh+67jkRAmoXAKCaHLPbbB68d3w204Lx4l1eQUaGJACeKNvU
-d7kZvl+jpSGlEZd23lO+yVc=
-=jy/7
------END PGP SIGNATURE-----
+I've tried it on my ThinkPad X31, but it doesn't work at all. The CMOS
+has a value 0xfa at the offset 0x6a, so the most upper bit is already
+set.
 
---NDin8bjvE/0mNLFQ--
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

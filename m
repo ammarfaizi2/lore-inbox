@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264609AbUEaXaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264633AbUEaXwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264609AbUEaXaL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 19:30:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264734AbUEaXaL
+	id S264633AbUEaXwk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 19:52:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264770AbUEaXwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 19:30:11 -0400
-Received: from quechua.inka.de ([193.197.184.2]:26048 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S264609AbUEaXaH (ORCPT
+	Mon, 31 May 2004 19:52:39 -0400
+Received: from gate.crashing.org ([63.228.1.57]:51899 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S264633AbUEaXwi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 19:30:07 -0400
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: why swap at all?
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <40BBB5F7.1010407@yahoo.com.au>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.5 (i686))
-Message-Id: <E1BUwEH-00030X-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Tue, 01 Jun 2004 01:30:05 +0200
+	Mon, 31 May 2004 19:52:38 -0400
+Subject: Re: misc device suspend/resume new model
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Florian Lohoff <flo@rfc822.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040531225744.GA6682@paradigm.rfc822.org>
+References: <20040531225744.GA6682@paradigm.rfc822.org>
+Content-Type: text/plain
+Message-Id: <1086047542.1996.76.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 01 Jun 2004 09:52:23 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <40BBB5F7.1010407@yahoo.com.au> you wrote:
-> Well, at the "expense" of paging out unused memory. I don't see
-> any swapin.
+On Tue, 2004-06-01 at 08:57, Florian Lohoff wrote:
+> Hi,
+> what is the preferred way of getting suspend/resume events (new model)
+> with misc devices registered via misc_register.
+> 
+> Registering a sys_driver/device/class ?
 
-On a slow system with small memory you quite often see swapped out
-applications like for example a kopete messenger windows. Once you click on
-it, it takes 10sec or more to get responsive again. Of course its a slow
-system, but gradually paging out and forgetting image pages has that effecct
-on faster systems too, makes the desktop sluggish.
+The suspend/resume events aren't propagated from the functional
+interface/class (which misc is), but from the bus binding. So you
+should get them from whatever bus your device is on, that is via
+a pci_dev for PCI devices, etc...
 
-> Well yes, but if I had another 57MB of physical memory then I would
-> still turn on swap so that other 57MB of unused memory isn't wasted.
+Ben.
 
-Actually the number of totally unused memory is quite small. Therefore the
-pages get swapped in sooner or later anyway. And even if you turn of fswap
-completely, the image pages backed up by binaries on disk get still freeded,
-if the code is unused. So on my multimedia system I prefer to have no swap
-(1GB ram) and make sure the pages are not freeded so aggressivley to keep
-the system smooth and responsive (and allow spin down of the disk).
 
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/

@@ -1,35 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315055AbSDWEVa>; Tue, 23 Apr 2002 00:21:30 -0400
+	id <S313724AbSDWEz4>; Tue, 23 Apr 2002 00:55:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315059AbSDWEV3>; Tue, 23 Apr 2002 00:21:29 -0400
-Received: from mail.mojomofo.com ([208.248.233.19]:5644 "EHLO mojomofo.com")
-	by vger.kernel.org with ESMTP id <S315055AbSDWEV2>;
-	Tue, 23 Apr 2002 00:21:28 -0400
-Message-ID: <073a01c1ea7e$43404970$0800a8c0@atlink30g>
-From: "Aaron Tiensivu" <mojomofo@mojomofo.com>
-To: "Jeff Garzik" <garzik@havoc.gtf.org>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <051a01c1ea6a$915711c0$0800a8c0@atlink30g> <20020422220658.A29096@havoc.gtf.org>
-Subject: Re: 2.5.6 to 2.5.7 netfilter changes broke my squid cache
-Date: Tue, 23 Apr 2002 00:20:49 -0400
+	id <S313792AbSDWEzz>; Tue, 23 Apr 2002 00:55:55 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:50180 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S313724AbSDWEzz> convert rfc822-to-8bit; Tue, 23 Apr 2002 00:55:55 -0400
+Date: Tue, 23 Apr 2002 06:55:36 +0200 (CEST)
+From: tomas szepe <kala@pinerecords.com>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: =?ISO-8859-15?Q?Fran=E7ois_Cami?= <stilgar2k@wanadoo.fr>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: PromiseULTRA100 TX2 ATA66 trouble
+In-Reply-To: <Pine.LNX.4.10.10204221708460.24428-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.44.0204230653280.2888-100000@louise.pinerecords.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> For drivers at least, you can probably copy your key drivers from 2.5.7
-> into 2.5.5, and see what breaks...  If that eliminates the drivers, or
-> signals a problematic driver, this may save you some time.
+> Really ?
 
-So far it looks like the netfilter changes that went into 2.5.7 from 2.5.6
-is the culprit.
-I'll know more tomorrow once I back them out manually.
+Definitely correct.
 
+convert.6
+	- doesn't detect the controller at all
+
+convert.5
+	- inits ok
+	- doesn't automatically use ATA66 either (have to use 'ide2=ata66')
+
+> Stress of life is frying me, eek!
+
+oh certainly it's not that bad :)
+
+
+> Andre Hedrick
+> LAD Storage Consulting Group
+>
+> On Tue, 23 Apr 2002, [ISO-8859-15] François Cami wrote:
+>
+> > tomas szepe wrote:
+> >
+> > <snip>
+> >
+> > > Furthermore, applying Andre Hedrick's ide-2.4.19-p7.all.convert.6.patch
+> > > causes the kernel to not even recognize the controller. BUUUURN! <g>
+> > >
+> > > The card is detected as:
+> > > Unknown mass storage controller: Promise Technology, Inc.: Unknown device 4d68 (rev 02)
+> >
+> > <snip>
+> >
+> > Try convert.5 not convert.6
+> > convert.6 doesn't recognize my Promise Ultra66 board either.
+> >
+> > François Cami
+
+
+
+T.
+
+pub 1024d/8e316a84 2002-01-29   tomas szepe <kala@pinerecords.com>
+openpgp f/print 2955 2eea c4b8 b09e 7ae1  4d5d 68e3 d606 8e31 6a84
 

@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130645AbQLBXtI>; Sat, 2 Dec 2000 18:49:08 -0500
+	id <S130648AbQLCAFq>; Sat, 2 Dec 2000 19:05:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130648AbQLBXs7>; Sat, 2 Dec 2000 18:48:59 -0500
-Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:40850 "HELO tsx-prime.MIT.EDU")
-	by vger.kernel.org with SMTP id <S130645AbQLBXsw>;
-	Sat, 2 Dec 2000 18:48:52 -0500
-Date: Sat, 2 Dec 2000 18:18:06 -0500
-Message-Id: <200012022318.SAA17498@tsx-prime.MIT.EDU>
-From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-CC: david@linux.com, linux-kernel@vger.kernel.org, vpnd@sunsite.auc.dk
-In-Reply-To: Albert D. Cahalan's message of Sat, 2 Dec 2000 17:00:32 -0500
-	(EST), <200012022200.eB2M0Wu473578@saturn.cs.uml.edu>
+	id <S130676AbQLCAF0>; Sat, 2 Dec 2000 19:05:26 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:46315 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130648AbQLCAFP>;
+	Sat, 2 Dec 2000 19:05:15 -0500
+Date: Sat, 2 Dec 2000 18:34:44 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, david@linux.com,
+        linux-kernel@vger.kernel.org, vpnd@sunsite.auc.dk
 Subject: Re: /dev/random probs in 2.4test(12-pre3)
-Phone: (781) 391-3464
+In-Reply-To: <200012022318.SAA17498@tsx-prime.MIT.EDU>
+Message-ID: <Pine.GSO.4.21.0012021830090.28923-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-   Date: 	Sat, 2 Dec 2000 17:00:32 -0500 (EST)
 
-   > Any programmer who has evolved sufficiently from a scriptie
-   > should take necessary precautions to check how much data was
-   > transferred.  Those who don't..well, there is still tomorrow.
 
-   Yeah, people write annoying little wrapper functions that
-   bounce right back into the kernel until the job gets done.
-   This is slow, it adds both source and object bloat, and it
-   is a source of extra bugs. What a lovely API, eh?
+On Sat, 2 Dec 2000, Theodore Y. Ts'o wrote:
 
-Well, that's the Unix interface you.  I you don't like it, why don't you
-become a Windows programmer and try your hand at the Win32 interface?  :-)
+> particularly people who writing network programs.  The number of people
+> who assume that they can get an entire (variable-length) RPC packet by
+> doing a single read() call astounds me.  TCP doesn't provide message
+> boundaries, never did and never will.  The problem is that such program
+> will work on a LAN, and then blow up when you try using them across the
+> real Internet.
 
-Seriously, doing something different for /dev/random compared to all
-other read(2) calls is a bad idea; it will get people confused.  The
-answer is whenever you call read(2), you must check the return values.
-People who don't are waiting to get themselves into a lot of trouble,
-particularly people who writing network programs.  The number of people
-who assume that they can get an entire (variable-length) RPC packet by
-doing a single read() call astounds me.  TCP doesn't provide message
-boundaries, never did and never will.  The problem is that such program
-will work on a LAN, and then blow up when you try using them across the
-real Internet.
-
-Secondly, the number of times that you end up going into a kernel is
-relatively rare; I doubt you'd be able to notice a performance
-difference in the real world using a real-world program.  As far as
-source/object code bloat, well, how much space does a while loop take?
-And I usyally write a helper function which takes care of the while
-loop, checks for errors, calls read again if EINTR is returned, etc.
-
-						- Ted
+Erm... Not that ignoring the return values was a bright idea, but the
+lack of reliable ordered datagram protocol in IP family is not a good
+thing. It can be implemented over TCP, but it's a big overkill. IL is a
+nice thing to have...
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

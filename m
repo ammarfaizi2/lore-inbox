@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbTIMOSm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 10:18:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbTIMOSm
+	id S262156AbTIMOTg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 10:19:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbTIMOTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 10:18:42 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:4761 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262153AbTIMOSk (ORCPT
+	Sat, 13 Sep 2003 10:19:36 -0400
+Received: from luli.rootdir.de ([213.133.108.222]:28875 "HELO luli.rootdir.de")
+	by vger.kernel.org with SMTP id S262156AbTIMOTb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 10:18:40 -0400
-Date: Sat, 13 Sep 2003 16:18:35 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Timothy Miller <miller@techsource.com>
-cc: David Schwartz <davids@webmaster.com>,
-       Pascal Schmidt <der.eremit@email.de>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: People, not GPL  [was: Re: Driver Model]
-In-Reply-To: <3F6224C6.1020305@techsource.com>
-Message-ID: <Pine.GSO.4.21.0309131614550.2634-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 13 Sep 2003 10:19:31 -0400
+Date: Sat, 13 Sep 2003 16:19:20 +0200
+From: Claas Langbehn <claas@rootdir.de>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Andrew de Quincey <adq@lidskialf.net>,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: [2.6.0-test5-mm1] Suspend to RAM problems
+Message-ID: <20030913141920.GA1217@rootdir.de>
+References: <20030911124530.GA7695@rootdir.de> <Pine.LNX.4.33.0309110852020.984-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0309110852020.984-100000@localhost.localdomain>
+Reply-By: Tue Sep 16 16:18:45 CEST 2003
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.0-test5-mm1 i686
+X-No-archive: yes
+X-Uptime: 16:18:45 up  3:55,  5 users,  load average: 0.36, 0.67, 0.45
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Sep 2003, Timothy Miller wrote:
-> David Schwartz wrote:
-> You're stuck thinking about "law" and "rules".  I'm thinking instead 
-> about "honor".
+Hi again,
 
-Indeed. The GPL may not be perfect, but IMHO the GPL is the only way to make
-sure everyone plays the game according to the rules. I.e. I give you something,
-you can use it, but please play according to the rules of fair play.
 
-BSD may look OK, but it doesn't protect against people who don't (want to) play
-according to the rules.
+or do I need to setup something particular in my system BIOS?
 
-> The point of divergence is with regard to modules and the symbol 
-> restrictions for non-GPL drivers.  Here is a gray area where the GPL may 
-> not apply really.  These gray areas are where ethics and honor must come 
-> into play.
 
-I consider binary-only modules some kind of loophole to avoid playing according
-to the rules of fair play.
-
-Unfortunately it seems to be almost impossible to design a license that forces
-you to play according to the rules of fair play, and doesn't have any
-loopholes or grey areas.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Claas

@@ -1,36 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263633AbTFJRTw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 13:19:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbTFJRTw
+	id S263643AbTFJRVE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 13:21:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263665AbTFJRVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 13:19:52 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:61625 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263633AbTFJRTv
+	Tue, 10 Jun 2003 13:21:04 -0400
+Received: from postfix4-1.free.fr ([213.228.0.62]:39372 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S263643AbTFJRUz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 13:19:51 -0400
-Date: Tue, 10 Jun 2003 23:04:57 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Thomas Winischhofer <thomas@winischhofer.net>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Misc 2.5 Fixes: cp-user-sisfb
-Message-ID: <20030610173457.GB1443@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20030610100643.GB2194@in.ibm.com> <20030610100746.GC2194@in.ibm.com> <20030610100905.GD2194@in.ibm.com> <20030610100950.GE2194@in.ibm.com> <20030610101035.GF2194@in.ibm.com> <20030610101121.GG2194@in.ibm.com> <20030610101318.GH2194@in.ibm.com> <20030610101503.GI2194@in.ibm.com> <20030610101801.GJ2194@in.ibm.com> <3EE607EE.9010605@winischhofer.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EE607EE.9010605@winischhofer.net>
-User-Agent: Mutt/1.4i
+	Tue, 10 Jun 2003 13:20:55 -0400
+Message-ID: <3EE66C86.8090708@free.fr>
+Date: Wed, 11 Jun 2003 01:40:54 +0200
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: 2.4.22 timeline was RE: 2.4.21-rc7 ACPI broken
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 10, 2003 at 06:31:42PM +0200, Thomas Winischhofer wrote:
-> 
-> Thanks, but this was already fixed in my latest version. I really should 
-> commit more often...
+Marcelo Tosati wrote:
 
-Since 2.5 is getting close to 2.6, *now* would be a good time .... 
+ >The main reason I didnt want to merge it was due to its size. Its just 
+ >too big.
 
-Thanks
-Dipankar
+ >> Please stop leading me along. Will you EVER merge it?
+
+ >Yes, I want to, and will merge it. In 2.4.23-pre.
+
+This kind of mails and sentence makes you lost your credibility :
+	1) You said that ACPI will be merged in 2.4.22-pre,
+	2) For many people ACPI (and aic7xxx) is top priority for 2.4 kernel 
+(see various post including alan). The reason being that most laptop are 
+unusable nowadays without ACPI,
+	3) You do not explicitely says what you plan for 2.4.22...
+
+So, for stupid people like me, could you take a little time to explains 
+the dummy's what are your views about what is top priority for kernel 
+and for what reasons?
+
+I would personnally suggest that you classify the things using the 
+following filter :
+	a) Server (SMP, SCSI, RAID, journaling filesystems, ...),
+	b) laptop (ACPI, CPUFREQ, Software suspend, IDE power save,...),
+	c) desktop (File system efficiency, new hardware support,...),
+	d) all systems
+
+Or maybe you simply think that software engineering is a kind of black 
+art that is too hard to understand for average people...
+
+
+-- 
+    __
+   /  `                   	Eric Valette
+  /--   __  o _.          	6 rue Paul Le Flem
+(___, / (_(_(__         	35740 Pace
+
+Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
+E-mail: eric.valette@free.fr
+

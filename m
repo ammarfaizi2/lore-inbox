@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263895AbTKTXyt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 18:54:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263645AbTKTXyt
+	id S264112AbTKUAEW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 19:04:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264133AbTKUAEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 18:54:49 -0500
-Received: from gprs147-68.eurotel.cz ([160.218.147.68]:14977 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S264077AbTKTXxs (ORCPT
+	Thu, 20 Nov 2003 19:04:22 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:59609 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S264112AbTKUAD7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 18:53:48 -0500
-Date: Fri, 21 Nov 2003 00:54:10 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: Greg KH <greg@kroah.com>, Martin Schlemmer <azarah@nosferatu.za.org>,
-       Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: driver model for inputs
-Message-ID: <20031120235410.GB431@elf.ucw.cz>
-References: <20031119213237.GA16828@fs.tum.de> <20031119221456.GB22090@kroah.com> <1069283566.5032.21.camel@nosferatu.lan> <20031119232651.GA22676@kroah.com> <20031120125228.GC432@openzaurus.ucw.cz> <20031120170303.GJ26720@kroah.com> <20031120222825.GE196@elf.ucw.cz> <55080000.1069368524@w-hlinder> <20031120225504.GG196@elf.ucw.cz> <56710000.1069370317@w-hlinder>
+	Thu, 20 Nov 2003 19:03:59 -0500
+Date: Thu, 20 Nov 2003 16:03:58 -0800
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Announce: ndiswrapper
+Message-ID: <20031121000358.GA17894@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC3483.4060706@pobox.com> <20031120040034.GF19856@holomorphy.com> <3FBC5036.3020503@pobox.com> <20031120052659.GF22764@holomorphy.com> <1069311243.5185.192.camel@gaston> <20031120172729.GC14608@bougret.hpl.hp.com> <1069372639.876.39.camel@gaston>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <56710000.1069370317@w-hlinder>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <1069372639.876.39.camel@gaston>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > If you could post -test8 version, that would be great.
+On Fri, Nov 21, 2003 at 10:57:19AM +1100, Benjamin Herrenschmidt wrote:
 > 
-> It is actually test5. Ive been working on multiple sysfs patches, the parport one is test8. 
-> Ill get started on this one again and send out a cleaned up test9 version in a bit. This 
-> one is pretty ugly because it's got lots of printks in it. I was going to break it up before
-> submitting it too. But here ya go...
+> Except when Apple provides built-in Broadcom chipset in all new
+> recent Macs...
 
-[Snip snip; most of patch seems to be moving from something.dev to
-something-> dev]
+	Only one world : monopoly...
 
-This seems to deal with udev aspect of the problem... Do you have any
-ideas have powermanagment fits into the picture? I need a way to hook
-suspend() and resume() methods, so that I can fix keyboard/mouse after
-sleep.
-								Pavel
+> Ben.
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+	Jean

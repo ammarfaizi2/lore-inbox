@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316185AbSHQLFC>; Sat, 17 Aug 2002 07:05:02 -0400
+	id <S317072AbSHQLFh>; Sat, 17 Aug 2002 07:05:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317072AbSHQLFB>; Sat, 17 Aug 2002 07:05:01 -0400
-Received: from users-vst.linvision.com ([62.58.92.114]:57219 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S316185AbSHQLFB>; Sat, 17 Aug 2002 07:05:01 -0400
-Date: Sat, 17 Aug 2002 13:08:31 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alexander Viro <viro@math.psu.edu>, Larry McVoy <lm@bitmover.com>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: IDE?
-Message-ID: <20020817130831.A23498@bitwizard.nl>
-References: <Pine.GSO.4.21.0208162057550.14493-100000@weyl.math.psu.edu> <Pine.LNX.4.44.0208161822130.1674-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208161822130.1674-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+	id <S317306AbSHQLFh>; Sat, 17 Aug 2002 07:05:37 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:24838 "HELO holly.csn.ul.ie")
+	by vger.kernel.org with SMTP id <S317072AbSHQLFg>;
+	Sat, 17 Aug 2002 07:05:36 -0400
+Date: Sat, 17 Aug 2002 12:09:20 +0100 (IST)
+From: Mel <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VM Regress 0.5 - Compile error with CONFIG_HIGHMEM
+In-Reply-To: <Pine.LNX.4.44.0208150312220.20123-100000@skynet>
+Message-ID: <Pine.LNX.4.44.0208171206200.7887-100000@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 16, 2002 at 06:35:29PM -0700, Linus Torvalds wrote:
-> And yes, by now this all is obviously 2.7.x material.
+On Thu, 15 Aug 2002, Mel wrote:
 
-Linus, 
+>
+> Project page: http://www.csn.ul.ie/~mel/projects/vmregress/
+> Download:     http://www.csn.ul.ie/~mel/projects/vmregress/vmregress-0.5.tar.gz
 
-I sure hope that you're talking about "finishing" your project plan,
-and not about "starting it". I would really prefer to have work on
-the IDE-TNG started soonish, rather than defered another year or so.
+0.5 won't compile with CONFIG_HIGHMEM set. Apply the following trivial
+patch and it will compile at least. VM Regress has not been tested with
+CONFIG_HIGHMEM set at all but there is no reason for it to fail because no
+presumptions has been made about the number of nodes or zones in the
+machine
 
-There will be plenty of bugs to be found, which can benefit from a
-longer testing-period by people daring enough to try the new and
-experimental driver.....
 
-			Roger. 
+--- vmregress-0.5/src/sense/kvirtual.c	Tue Aug 13 22:43:48 2002
++++ vmregress-0.5-highmem/src/sense/kvirtual.c	Sat Aug 17 12:03:02 2002
+@@ -29,6 +29,11 @@
+ #include <linux/mm.h>
+ #include <linux/sched.h>
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
++#ifdef CONFIG_HIGHMEM
++#include <linux/highmem.h>
++#include <asm/highmem.h>
++#endif
++
+ MODULE_AUTHOR("Mel Gorman <mel@csn.ul.ie>");
+ MODULE_DESCRIPTION("Prints out the kernel virtual memory area");
+ MODULE_LICENSE("GPL");
+

@@ -1,61 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbUKTKQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbUKTK22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261520AbUKTKQr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 05:16:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbUKTKQq
+	id S261549AbUKTK22 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 05:28:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbUKTK22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 05:16:46 -0500
-Received: from gprs214-41.eurotel.cz ([160.218.214.41]:15488 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261520AbUKTKPe (ORCPT
+	Sat, 20 Nov 2004 05:28:28 -0500
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:51081 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S261549AbUKTK20 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 05:15:34 -0500
-Date: Sat, 20 Nov 2004 11:15:21 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: hugang@soulinfo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: swsusp bigdiff [was Re: [PATCH] Software Suspend split to two stage V2.]
-Message-ID: <20041120101520.GA1061@elf.ucw.cz>
-References: <20041119194007.GA1650@hugang.soulinfo.com> <20041120003010.GG1594@elf.ucw.cz> <20041120030340.GA4026@hugang.soulinfo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041120030340.GA4026@hugang.soulinfo.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Sat, 20 Nov 2004 05:28:26 -0500
+To: Chris Wedgwood <cw@f00f.org>
+cc: James Morris <jmorris@redhat.com>, Ian Pratt <Ian.Pratt@cl.cam.ac.uk>,
+       linux-kernel@vger.kernel.org, Steven.Hand@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk,
+       davem@redhat.com
+Subject: Re: [6/7] Xen VMM patch set : add alloc_skb_from_cache 
+In-Reply-To: Your message of "Fri, 19 Nov 2004 22:03:30 PST."
+             <20041120060330.GA23850@taniwha.stupidest.org> 
+Date: Sat, 20 Nov 2004 10:28:10 +0000
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Message-Id: <E1CVSTT-0004aw-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > >   This patch using pagemap for PageSet2 bitmap, It increase suspend
-> > >   speed, In my PowerPC suspend only need 5 secs, cool. 
-> > > 
-> > >   Test passed in my ppc and x86 laptop.
-> > > 
-> > >   ppc swsusp patch for 2.6.9
-> > >    http://honk.physik.uni-konstanz.de/~agx/linux-ppc/kernel/
-> > >   Have fun.
-> > 
-> > BTW here's my curent bigdiff. It already has some rather nice
-> > swsusp speedups. Please try it on your machine; if it works for you,
-> > try to send your patches relative to this one. I hope to merge these
-> > changes during 2.6.11.
+> On Fri, Nov 19, 2004 at 09:11:04PM -0500, James Morris wrote:
 > 
-> Really big diff, I'll trying.
+> > Most of this is duplicated code with alloc_skb(), perhaps make a
+> > function:
+> >
+> >   __alloc_skb(size, gfp_mask, alloc_func)
+> >
+> > Then alloc_skb() and alloc_skb_from_cache() can just be wrappers
+> > which pass in different alloc_funcs.  I'm not sure what peformance
+> > impact this might have though.
 > 
-> Here is my diff.
-> 
-> Changes:
->   * Change pcs_ to page_cachs_
->   * Hold lru_lock to sure data not modified, I can't sure that full
->    works, but tested passed.
+> I wonder if this would have a measurable performance hit on some
+> platforms where the additional call/indirection could hurt?
 
-I'd really like to understand why it works (and have it documented
-somewhere).
+Could make __alloc_skb 'static inline'?
 
-Good test to break swsusp is run kernel compilation in one window and
-suspend every 30 seconds from another one.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+ -- Keir

@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316390AbSHFUx3>; Tue, 6 Aug 2002 16:53:29 -0400
+	id <S316223AbSHFVN5>; Tue, 6 Aug 2002 17:13:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316161AbSHFUwW>; Tue, 6 Aug 2002 16:52:22 -0400
-Received: from waste.org ([209.173.204.2]:36587 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S316339AbSHFUvD>;
-	Tue, 6 Aug 2002 16:51:03 -0400
-Date: Tue, 6 Aug 2002 15:54:32 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Richard Bonomo <bonomo@sal.wisc.edu>
-cc: linux-kernel@vger.kernel.org, Richard Bonomo <bonomo@maddog.sal.wisc.edu>
-Subject: Re: backups/dumps/caches
-In-Reply-To: <200208060032.g760WZP107993@maddog.sal.wisc.edu>
-Message-ID: <Pine.LNX.4.44.0208061533520.14600-100000@waste.org>
+	id <S316235AbSHFVN5>; Tue, 6 Aug 2002 17:13:57 -0400
+Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:1467
+	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
+	id <S316223AbSHFVNy>; Tue, 6 Aug 2002 17:13:54 -0400
+From: Tim Hockin <thockin@hockin.org>
+Message-Id: <200208062115.g76LFga14394@www.hockin.org>
+Subject: Re: ethtool documentation
+To: root@chaos.analogic.com
+Date: Tue, 6 Aug 2002 14:15:41 -0700 (PDT)
+Cc: cfriesen@nortelnetworks.com (Chris Friesen),
+       rddunlap@osdl.org (Randy.Dunlap), linux-kernel@vger.kernel.org,
+       abraham@2d3d.co.za
+In-Reply-To: <Pine.LNX.3.95.1020806155358.25303A-100000@chaos.analogic.com> from "Richard B. Johnson" at Aug 06, 2002 04:03:46 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Aug 2002, Richard Bonomo wrote:
+> If you ever sell a controller that contains an address that was
+> not allocated to the 'producer', somebody is going to get very
+> angry. This means, to me, that if you ever write a new MAC address
+> to that card/board, you had better throw it away when you are done.
 
-> Hello!
->
-> I have been trying to come up to speed on
-> the issue of dumping file systems from
-> 2.4.x kernels using dumps.  I located
-> Linus' unequivocal words about the dangers
-> of using dump.   I have a couple of questions:
->
-> 1. Do the same warnings apply to XFS and xfsdump?
->    (Is the caching system used with the newer
->     kernel used only with certain file system types?)
+As a developer of integrated systems, it is imperative the we be able to
+re-program EEPROMs and MAC addresses.  Cobalt systems all have Cobalt as
+the MFR section of the MAC address.  Sun Systems all have Sun.  (insert pokes
+about whether Cobalt is Sun here...)
 
-The essential problem with dump is that the current state of a filesystem
-is a combination of what's in memory and what's on disk. With a journalled
-filesystem, what's on disk at any given moment is self-consistent
-(ignoring various levels of journalling). But dump can't see the whole
-of the disk at any given moment, so it has no way of telling whether piece
-A it read one second is consistent with piece B it read on the next.
+> It's easier to make sure that the MAC address doesn't get changed.
+> You still "screw the comittee" locally, but you don't modify the
+> hardware.
 
-There's no way to make this work cleanly short of snapshots (which 2.4 LVM
-has), and the hacks to make dump mostly work (which is the best it can
-ever possibly hope for on a live filesystem) were getting in the way of
-doing other things right, so the dump approach of going under the
-filesystem to the block device was officially declared stupid.
-
-> 2. Perhaps, naively, is it possible to shut off
->   caching temporarily (and without rebooting),
->   accepting the performance hit, while a dump
->   is done, and then restart caching afterwards?
-
-Yep. Switch to single user mode, sync all filesystems, unmount them for
-good measure, dump, then switch back to multiuser mode.
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+Other things get stored in the EEPROM - for example, Wake-on-Lan options.
+Just to name one.

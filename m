@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267549AbUIUJvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267553AbUIUJ4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267549AbUIUJvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 05:51:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267553AbUIUJvQ
+	id S267553AbUIUJ4J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 05:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267551AbUIUJ4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 05:51:16 -0400
-Received: from inconnu.isu.edu ([134.50.7.201]:37257 "EHLO inconnu.isu.edu")
-	by vger.kernel.org with ESMTP id S267549AbUIUJvO (ORCPT
+	Tue, 21 Sep 2004 05:56:09 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2269 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267553AbUIUJ4G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 05:51:14 -0400
-Date: Tue, 21 Sep 2004 03:51:12 -0600 (MDT)
-From: "Shine on this Life That's Burnin' Out" <hopeless@islug.org>
-To: linux-kernel@vger.kernel.org
-Subject: [sata] ALI M5281
-Message-ID: <Pine.LNX.4.58.0409210340520.2842@inconnu.isu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 21 Sep 2004 05:56:06 -0400
+Date: Tue, 21 Sep 2004 02:53:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: sct@redhat.com, gene.heskett@verizon.net, linux-kernel@vger.kernel.org
+Subject: Re: journal aborted, system read-only
+Message-Id: <20040921025356.38b2b550.akpm@osdl.org>
+In-Reply-To: <20040921015020.7372faac.akpm@osdl.org>
+References: <200409121128.39947.gene.heskett@verizon.net>
+	<1095088378.2765.18.camel@sisko.scot.redhat.com>
+	<20040921015020.7372faac.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> This should fix.
 
-(blatant disregard of FAQ which suggests newsgroups, don't LART me please)
+scrub that, it hangs.  Third time lucky.
 
-Has anyone been able to wrestle specs out of ALI for this device? It's 
-starting to become somewhat popular from a number of mobo manufacturers 
-(like Soyo). =/ It seems to be the 4th most prevalent PCI-bus based 
-controller after Silicon Image, Highpoint, and Promise. =/
+--- 25/kernel/wait.c~wait_on_bit-must-loop	2004-09-21 01:57:14.000000000 -0700
++++ 25-akpm/kernel/wait.c	2004-09-21 02:48:18.596420024 -0700
+@@ -157,7 +157,7 @@ __wait_on_bit(wait_queue_head_t *wq, str
+ 	int ret = 0;
+ 
+ 	prepare_to_wait(wq, &q->wait, mode);
+-	if (test_bit(q->key.bit_nr, q->key.flags))
++	while (test_bit(q->key.bit_nr, q->key.flags) && !ret)
+ 		ret = (*action)(q->key.flags);
+ 	finish_wait(wq, &q->wait);
+ 	return ret;
+_
 
-Even some sort of semi-functional code would be nice. (Reminds me of 
-my attempts to forward-port old korean package for Aralion UltimaRAID 
-systems. Works in later 2.4's but dies on 2.6 =( )
-
-Was ALI good about specs for their old M15x3 series?
-
------
-James Sellman -- ISU CoE-CS/ISLUG Linux/VLSI Admin  |"Lum, did you just see
-----------------------------------------------------| a hentai rabbit flying
-hopeless@islug.org         |   // A4000/604e/60 128M| through the air?"
-                           | \X/  A500/20 3M        |   - Miyake Shinobu

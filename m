@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262118AbUKPTe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261831AbUKPTkv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262118AbUKPTe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 14:34:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbUKPTdt
+	id S261831AbUKPTkv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 14:40:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbUKPTjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 14:33:49 -0500
-Received: from mail.euroweb.hu ([193.226.220.4]:24039 "HELO mail.euroweb.hu")
-	by vger.kernel.org with SMTP id S262118AbUKPTa1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 14:30:27 -0500
-To: greg@kroah.com
-CC: rcpt-linux-fsdevel.AT.vger.kernel.org@jankratochvil.net,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <20041116191643.GA10021@kroah.com> (message from Greg KH on Tue,
-	16 Nov 2004 11:16:43 -0800)
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-References: <84144f0204111602136a9bbded@mail.gmail.com> <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu> <20041116120226.A27354@pauline.vellum.cz> <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu> <20041116163314.GA6264@kroah.com> <E1CU6SL-0007FP-00@dorka.pomaz.szeredi.hu> <20041116170339.GD6264@kroah.com> <E1CU7Tg-0007O8-00@dorka.pomaz.szeredi.hu> <20041116175857.GA9213@kroah.com> <E1CU8hS-0007U5-00@dorka.pomaz.szeredi.hu> <20041116191643.GA10021@kroah.com>
-Message-Id: <E1CU91x-0007Xw-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 16 Nov 2004 20:30:21 +0100
+	Tue, 16 Nov 2004 14:39:06 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30472 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262116AbUKPTgM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 14:36:12 -0500
+Date: Tue, 16 Nov 2004 19:36:07 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sysrq and 8250 serial console 2.6.10-rc1-mm3
+Message-ID: <20041116193607.G22425@flint.arm.linux.org.uk>
+Mail-Followup-To: Steven Rostedt <rostedt@goodmis.org>,
+	linux-kernel@vger.kernel.org
+References: <1100632653.14403.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1100632653.14403.2.camel@localhost.localdomain>; from rostedt@goodmis.org on Tue, Nov 16, 2004 at 02:17:33PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Depends on what your /dev node is trying to do.  What is is doing
-> anyway? 
+On Tue, Nov 16, 2004 at 02:17:33PM -0500, Steven Rostedt wrote:
+> I don't know if anyone else caught this, but the sysrq doesn't work with
+> the serial console for 8250.  This is a simple patch, the serial_8250.h
+> also calls serial_core.h before SUPPORT_SYSRQ is defined. And thus the
+> inlines in serial core do not support sysrq.
 
-Filesystem requests are passed to userspace and the reply is send back
-to the kernel.  So it's definitely a character device or socket like
-thing.
+Already fixed in 2.6.10-rc2.
 
-> Any ioctls?  Any wierd, non-chardev like things?
+Thanks anyway.
 
-Nothing extraordinary.  Messages are sent/received with plain read and
-write.
-
-> Again, inline code would have been nice to see so those of us who live
-> in our email clients could have reviewed it...
-
-Next time I'll try to split it up in managable parts, and send it
-inline.
-
-Thanks,
-Miklos
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

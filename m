@@ -1,44 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318873AbSHEUQR>; Mon, 5 Aug 2002 16:16:17 -0400
+	id <S318868AbSHEUPW>; Mon, 5 Aug 2002 16:15:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318872AbSHEUQP>; Mon, 5 Aug 2002 16:16:15 -0400
-Received: from smtp01.web.de ([194.45.170.210]:23069 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S318875AbSHEUPj>;
-	Mon, 5 Aug 2002 16:15:39 -0400
-Date: Mon, 5 Aug 2002 22:16:52 +0200
-From: Lars Ellenberg <l.g.e@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: stacked bdev driver, howto? locking of lower level block device
-Message-ID: <20020805221652.A4250@johann>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S318872AbSHEUPV>; Mon, 5 Aug 2002 16:15:21 -0400
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:63146 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S318868AbSHEUPS>; Mon, 5 Aug 2002 16:15:18 -0400
+Subject: Re: i810 sound broken...
+From: Juergen Sawinski <juergen.sawinski@mpimf-heidelberg.mpg.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "linux-kernel@vger" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1028552057.18130.6.camel@irongate.swansea.linux.org.uk>
+References: <200208051127.g75BRgX27554@eday-fe5.tele2.ee> 
+	<1028552057.18130.6.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 05 Aug 2002 22:21:00 +0200
+Message-Id: <1028578861.1894.15.camel@voyager>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there, I'm new on this list.
+On my Intel D845GBV board (obviously ICH4) none of 2.4 nor alsa works.
+It's a production box, so I hestitate to try 2.5.
 
-I do some happy hacking with drbd, which is "distributed replicated
-block device", a stacked block device driver by Phillipp Reisner,
-aiming towards network raid, GFS, this stuff.
+George
 
-I'd like to implement some kind of locking of the lower level
-block device, so nobody can mount it/modify it underneath the drbd
-driver.
+P.S.: Alan, any hints how I can examine/fix this?
 
-I know drivers/md/md.c does this somehow. I tried to understand
-and adapt, but it does not work.
 
-Hopefully my questions are trivial to some of you. Please put me
-on the right track.
+On Mon, 2002-08-05 at 14:54, Alan Cox wrote:
+> On Mon, 2002-08-05 at 12:27, Thomas Munck Steenholdt wrote:
+> > I've noticed some writing on lkml on how i810(AC97) sound was broken. 
+> > Aparantly a couple of fixes have been posted, but I couldn't see
+> > where(if at all) those patches have gone... 2.4.19 still does not work
+> > and 2.4.19-ac3 won't even load the i810 module.
+> > 
+> > Does anybody know if the known i810 sound issue has, in fact, been fixed, and if so - in what kernel/patch?
+> 
+> Its working nicely for me in 2.4.19 and 2.4.19-ac1. The 2.4.19-ac3 tree
+> has a bug in pci_enable_device which will stop it working if built with
+> some compilers (by chance it works ok the way I tested it). Thats fixed
+> in ac4.
+> 
+> The changes in the recent i810 audio are
+> - Being more pessimistic in our interpretation of codec power up
+> - Turning on EAPD in case the BIOS didn't do so at boot up
+> 
+> Longer term full EAPD control as we do with the cs46xx is on my list,
+> paticularly as i8xx laptops are becoming common . (EAPD is the amplifier
+> power controller)
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Juergen Sawinski
+Max-Planck-Institute for Medical Research
+Dept. of Biomedical Optics
+Jahnstr. 29
+D-69120 Heidelberg
+Germany
 
-- How does block device locking work?
-- In which mode do I have to open it?
-- Which flags have to be set?
-- What else am I missing?
+Phone:  +49-6221-486-309
+Fax:    +49-6221-486-325
 
-TIA
-	Lars-Gunnar
+priv.
+Phone:  +49-6221-418 848
+Mobile: +49-171-532 5302
+

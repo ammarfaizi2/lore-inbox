@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263182AbUDAVmG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 16:42:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbUDAVlr
+	id S262644AbUDAVp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 16:45:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbUDAVov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 16:41:47 -0500
-Received: from faui10.informatik.uni-erlangen.de ([131.188.31.10]:62916 "EHLO
-	faui10.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S263281AbUDAVlc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 16:41:32 -0500
-From: Ulrich Weigand <weigand@i1.informatik.uni-erlangen.de>
-Message-Id: <200404012141.XAA23846@faui1d.informatik.uni-erlangen.de>
-Subject: Re: Linux 2.6 nanosecond time stamp weirdness breaks GCC build
-To: janis187@us.ibm.com (Janis Johnson)
-Date: Thu, 1 Apr 2004 23:41:28 +0200 (CEST)
-Cc: weigand@i1.informatik.uni-erlangen.de (Ulrich Weigand), gcc@gcc.gnu.org,
-       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, ak@suse.de
-In-Reply-To: <20040401211348.GA5739@us.ibm.com> from "Janis Johnson" at Apr 01, 2004 01:13:48 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Apr 2004 16:44:51 -0500
+Received: from ns.suse.de ([195.135.220.2]:16322 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263273AbUDAVm7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 16:42:59 -0500
+Date: Thu, 1 Apr 2004 23:40:31 +0200
+From: Olaf Hering <olh@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Martin Schaffner <schaffner@gmx.li>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: booting 2.6.4 from OpenFirmware
+Message-ID: <20040401214031.GA22366@suse.de>
+References: <321B041D-8298-11D8-AC61-0003931E0B62@gmx.li> <1080687527.1198.48.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1080687527.1198.48.camel@gaston>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Janis Johnson wrote:
-> On Thu, Apr 01, 2004 at 09:28:20PM +0200, Ulrich Weigand wrote:
-> > Hello,
+ On Wed, Mar 31, Benjamin Herrenschmidt wrote:
+
+> On Wed, 2004-03-31 at 08:18, Martin Schaffner wrote:
+> > Hi,
 > > 
-> > I'm seeing a race condition on Linux 2.6 that rather reproducibly
-> > causes GCC bootstrap failures on current mainline.
+> > I try to boot linux-2.6.4 from OpenFirmware on my Apple iBook2 (dual 
+> > USB). I'm using the image named "vmlinux.elf-pmac". While linux-2.4.25 
+> > boots fine, linux-2.6.4 doesn't without the following modifications:
+> > 
+> > http://membres.lycos.fr/schaffner/howto/linux26-boot-of.txt
+> > 
+> > (I found this procedure by trial and error, by mixing stuff from 2.4 
+> > into the build of 2.6.)
+> > 
+> > If I try to boot the stock kernel, OpenFirmware tells me "Claim 
+> > failed", and returns to the command prompt.
+> > 
+> > Does anybody have an idea what is the cause of this?
 > 
-> We saw lots of parallel build problems when using a 2.6 kernel on
-> an older distribution.  The problems went away when we used 'make'
-> built with a new version of glibc.
+> That's strange, I do such netbooting everyday on a wide range of
+> machines without trouble. Are you using some kind of cross compiler ?
+> Maybe there are some issues with cross compiling of the boot wrapper...
 
-I'm using pretty recent versions of everything: a glibc 2.3.3 as of
-2004-03-11, binutils 2.15.90.0.1, make 3.80, and a 2.6.4+ kernel.
-
-Bye,
-Ulrich
+This is fixed.  your options:
+update to 2.6.5-rc3
+disable modversions
 
 -- 
-  Dr. Ulrich Weigand
-  weigand@informatik.uni-erlangen.de
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

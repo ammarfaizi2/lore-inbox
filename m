@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267645AbTA1RhN>; Tue, 28 Jan 2003 12:37:13 -0500
+	id <S267673AbTA1Rsk>; Tue, 28 Jan 2003 12:48:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267649AbTA1RhM>; Tue, 28 Jan 2003 12:37:12 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:34689 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267645AbTA1RhL>; Tue, 28 Jan 2003 12:37:11 -0500
-Message-Id: <200301281746.h0SHkOgM007373@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Steven Dake <sdake@mvista.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: New model for managing dev_t's for partitionable block devices 
-In-Reply-To: Your message of "Tue, 28 Jan 2003 10:20:31 MST."
-             <3E36BBDF.4090104@mvista.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <3F61ABC3.1080502@tin.it>
-            <3E36BBDF.4090104@mvista.com>
+	id <S267679AbTA1Rsj>; Tue, 28 Jan 2003 12:48:39 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:13326 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S267673AbTA1Rsi>; Tue, 28 Jan 2003 12:48:38 -0500
+Date: Tue, 28 Jan 2003 18:57:57 +0100
+From: Martin Mares <mj@ucw.cz>
+To: =?iso-8859-2?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Vojtech Pavlik <vojtech@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] in drivers/char/joystick/magellan.c
+Message-ID: <20030128175757.GA22145@atrey.karlin.mff.cuni.cz>
+References: <20030128155312.GD10685@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1571606832P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 28 Jan 2003 12:46:24 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030128155312.GD10685@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1571606832P
-Content-Type: text/plain; charset=us-ascii
+Hi!
 
-On Tue, 28 Jan 2003 10:20:31 MST, Steven Dake <sdake@mvista.com>  said:
+> Without the patch below, the \0 terminating the string is written
+> anywhere. nibbles[] would be even better, I guess.
+> Can you check for stupidity on my side?
 
-> Each physical disk would be assigned a minor number in a group of 
-> majors.  So assume a major was chosen of 150, 151, 152, 153, there would 
-> be a total of 1024 physical disks that could be mapped.  Then the device 
-> mapper code could be used to provide partition devices in another 
-> major/group of majors.
+As far as I remember, the ANSI C permits initialization of a char array
+with a string of the same length and defines that the trailing \0 is
+dropped in such cases. However, I cannot quote the right chapter and
+verse by heart nor am I sure it's still permitted by C99, so better
+check yourself.
 
-This sounds suspiciously like the already-existing device mapper stuff
-used by LVM2.  Maybe all that's needed is to add a hook to add a device
-mapper entry for each partition?
+				Have a nice fortnight
 -- 
-				Valdis Kletnieks
-				Computer Systems Senior Engineer
-				Virginia Tech
-
-
---==_Exmh_1571606832P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+NsHwcC3lWbTT17ARApmBAKCRkTCNCatnC0dh2LLT9xFjc17oYgCgiMn9
-E7GhpNUR8o9wklRRAKUwm74=
-=GHMk
------END PGP SIGNATURE-----
-
---==_Exmh_1571606832P--
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+return(EIEIO); /* Here-a-bug, There-a-bug... */

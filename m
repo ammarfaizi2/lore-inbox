@@ -1,56 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267544AbTAXEqO>; Thu, 23 Jan 2003 23:46:14 -0500
+	id <S267530AbTAXEnF>; Thu, 23 Jan 2003 23:43:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267542AbTAXEqO>; Thu, 23 Jan 2003 23:46:14 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:42504 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S267541AbTAXEqN>; Thu, 23 Jan 2003 23:46:13 -0500
-Date: Thu, 23 Jan 2003 21:54:37 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
-       marcelo@conectiva.com.br
-Subject: Re: Aic7xxx 6.2.28 and Aic79xx 1.3.0 Released
-Message-ID: <756820000.1043384077@aslan.scsiguy.com>
-In-Reply-To: <20030123.202727.102788332.davem@redhat.com>
-References: <694670000.1043380598@aslan.scsiguy.com>
- 	<20030123.195327.107011605.davem@redhat.com>
- 	<739810000.1043382396@aslan.scsiguy.com>
- <20030123.202727.102788332.davem@redhat.com>
-X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S267532AbTAXEnF>; Thu, 23 Jan 2003 23:43:05 -0500
+Received: from cvs.openbsd.org ([199.185.137.3]:11906 "EHLO cvs.openbsd.org")
+	by vger.kernel.org with ESMTP id <S267530AbTAXEnE>;
+	Thu, 23 Jan 2003 23:43:04 -0500
+Message-Id: <200301240455.h0O4tt1D019060@cvs.openbsd.org>
+To: arief_mulya <arief@bna.telkomsel.co.id>
+cc: linux-kernel@vger.kernel.org, tech@openbsd.org,
+       freebsd-hackers@freebsd.org, tech-kern@netbsd.org
+Subject: Re: Technical Differences of *BSD and Linux 
+In-reply-to: Your message of "Fri, 24 Jan 2003 11:35:49 +0700."
+             <3E30C2A5.5040502@bna.telkomsel.co.id> 
+Date: Thu, 23 Jan 2003 21:55:55 -0700
+From: Theo de Raadt <deraadt@cvs.openbsd.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And in fact, you are describing exactly what Linus and Marcelo's
-> jobs are, to reject bogus/broken changes.
+Dear Arief,
 
-I think you missed the subtely of what I said.  It's not "their duty"
-to never make a mistake, and it is not expected that they will catch
-everything.  When they do miss something, or make a mistake you probably
-tell them in a straight forward fashion.  In this case, what you
-effectively said to me was:
 
-	"Hey.  I would appreciate it if you would stop not
-	 noticing this change that I made to your code through
-	 Linus without telling you. *Twice* no less.  Wake up!
-	 Wasn't it obvious?  It is *your duty* to notice these
-	 one line changes that happen to break the build on
-	 a platform that I care about but doesn't have any
-	 consequences on the platforms you are probably testing.
-	 Oh, and the aic79xx driver... well I didn't bother to
-	 look at that because it's not in my configuration.
-	 Oh well."
+I Apologize, If this thread has existed before, and so if
+this is very offtopic and tiredsome for most of you here.
 
-And I get all of this grief *after* I already included the change
-instead of after the first time I missed it.  You really make me
-laugh!
+I'm a newbie, and just about to get my feet wet into the
+world, been living in (ASIA/)Indonesia (or whatever the name
+is, I personally don't really care, I caremost at the
+nationalist excellence) for the last two years, I personally
+think it's a toupper(great); country.
 
---
-Justin
+But after recently reviewing some Malaysian based systems, I began
+to wonder. And these are my questions (I'm trying to avoid 
+flame and being a troll here, so if there's any of my 
+questions is not on technical basis, or are being such a 
+jerk troll please just trash filter my name and email address):
+
+1. In what technical area of the countries are Indonesia and Malayasian 
+differ?
+2. How are they different countries? What are the technical reasoning 
+behind the decisions?
+
+3. Is there any group of ruler from each country that 
+review each other policies, and tries to make the best civil life 
+out, or is the issues very country specific (something that 
+work best in Indonesia might not be so on Malaysia or Phillipines or 
+Singapore)?
+
+4. Any chance of merging the very best part of each country?
+5. Or is it possible to do so?
+
+
+Anything else that matters, are welcome.
+
+Please answer technically, I don't wanna be a troll here, 
+and I hope so do everyone that answers this. I really like 
+to learn, not to read some flame of who's the best.
+
+To freebsd and openbsd list, please CC the answer to me 
+directly, as I don't get response from the majordomo of my 
+subscription requests, yet.
+
+
+Best Regards,
+
+arief_mulya
+-- 
+
 

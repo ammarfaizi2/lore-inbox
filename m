@@ -1,56 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129730AbQLKTXD>; Mon, 11 Dec 2000 14:23:03 -0500
+	id <S129844AbQLKTYX>; Mon, 11 Dec 2000 14:24:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129866AbQLKTWx>; Mon, 11 Dec 2000 14:22:53 -0500
-Received: from web2006.mail.yahoo.com ([128.11.68.206]:61964 "HELO
-	web2006.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129730AbQLKTWq>; Mon, 11 Dec 2000 14:22:46 -0500
-Message-ID: <20001211185219.28022.qmail@web2006.mail.yahoo.com>
-Date: Mon, 11 Dec 2000 10:52:19 -0800 (PST)
-From: Tom Murphy <freyason@yahoo.com>
-Subject: 2.4.0-test12-pre7 shutdowns and eepro100 woes
-To: linux-kernel@vger.kernel.org
+	id <S130070AbQLKTYN>; Mon, 11 Dec 2000 14:24:13 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:37042 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129866AbQLKTYD>;
+	Mon, 11 Dec 2000 14:24:03 -0500
+Date: Mon, 11 Dec 2000 13:53:35 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Dietmar Kling <dietmar.kling@sam-net.de>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+In-Reply-To: <3A3513F2.DF0F5289@sam-net.de>
+Message-ID: <Pine.GSO.4.21.0012111306150.7433-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
 
-   test12-pre7 seems to randomly just power off my machine.
-CONFIG_APM=y and CONFIG_APM_REAL_MODE_POWER_OFF=y as well. Could this
-be what is
-making it power off the machine randomly? Has it been fixed in pre8?
 
-   I wasn't doing much on the machine at the time.. it just happens
-sporadically.
+On Mon, 11 Dec 2000, Dietmar Kling wrote:
 
-   Also, regarding the eepro100 driver, are there any plans to fix
-support for the following chipset (given by lspci):
+> I do not understand this 
+> "i saw it - yuck! - and now i want to kill it "
 
-02:08.0 Ethernet controller: Intel Corporation 82820 820 (Camino 2)
-Chipset Ethernet (rev 01)
+s/want to kill it/do not want to touch it/
 
-  I have one of these at work and I will get the following messages:
+> point of view.
+> As I tried to point out. Things evolve. And
+> the evolution has the right do things wrong.
+> Next evolution step will do it probably better.
 
-Dec 11 10:46:13 morpheus kernel: eepro100: cmd_wait for(0xffffff80)
-+timedout with(0xffffff80)!
-Dec 11 10:46:20 morpheus last message repeated 6 times
+You do realize what "evolution" means? I'm not talking about the bugs
+in implementation. I'm talking about botched design. _That_ never gets
+fixed. Show me one example when that would happen and I might consider
+taking such possibility seriously.
 
-   (using eepro100 from 2.2.18pre27.. I guess it's not 2.2.18 proper)
+> Al same as kernel development.  With your attitude
+> i'd have dropped linux 0.99 immediatly.
+> Remember the code in certain parts?
 
-  Thanks in advance,
+And? It wasn't nearly that huge and what matters _much_ more it was not
+that tasteless.
 
-	Tom
+> So what is your point?
+> I accept only  shiny little masterpieces of software?
 
-ps. please reply to my e-mail address. Thanks!
-   
+No. The larger it is - the harder it is to redesign. And both GNOME and
+KDE are _way_ past the size*severity_of_misdesign threshold. IOW, I simply
+don't believe that either project has sufficient manpower to fix their stuff.
+And that's orders of magnitude insufficient. As far as I can see they are
+also way past "it's easier to do from scratch than to fix" threshold. The
+same reason why I don't believe that NT will ever become decent OS, even
+if the full source would become available, yodda, yodda.
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Shopping - Thousands of Stores. Millions of Products.
-http://shopping.yahoo.com/
+Feel free to prove me wrong, but I would be very surprised to see it. And
+yes, the fact that UNIX was conceptually simple and relatively small helped
+it _big_ way. Small beasts adapt and propagate. Huge ones tend to become
+dead-ends. So much for evolution...
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

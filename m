@@ -1,75 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284979AbRLKLpz>; Tue, 11 Dec 2001 06:45:55 -0500
+	id <S284989AbRLKLvf>; Tue, 11 Dec 2001 06:51:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284989AbRLKLpq>; Tue, 11 Dec 2001 06:45:46 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:59396 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S284979AbRLKLph>;
-	Tue, 11 Dec 2001 06:45:37 -0500
-Date: Tue, 11 Dec 2001 12:45:31 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Bas Vermeulen <bvermeul@blackstar.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.1-pre8 oopses on non existing acorn partition
-Message-ID: <20011211114531.GP13498@suse.de>
-In-Reply-To: <Pine.LNX.4.33.0112110910350.1461-100000@laptop.blackstar.nl> <20011211112509.GO13498@suse.de>
+	id <S284996AbRLKLvZ>; Tue, 11 Dec 2001 06:51:25 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:49930 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S284989AbRLKLvT>; Tue, 11 Dec 2001 06:51:19 -0500
+Date: Tue, 11 Dec 2001 11:50:59 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: gspujar@hss.hns.com
+Cc: linux-kernel@vger.kernel.org, achowdhry@hss.hns.com
+Subject: Re: software watchdog
+Message-ID: <20011211115059.A3740@flint.arm.linux.org.uk>
+In-Reply-To: <65256B1F.003BCCC1.00@sandesh.hss.hns.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="aVD9QWMuhilNxW9f"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011211112509.GO13498@suse.de>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <65256B1F.003BCCC1.00@sandesh.hss.hns.com>; from gspujar@hss.hns.com on Tue, Dec 11, 2001 at 04:26:07PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---aVD9QWMuhilNxW9f
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Tue, Dec 11 2001, Jens Axboe wrote:
-> On Tue, Dec 11 2001, Bas Vermeulen wrote:
-> > 2.5.1-pre8 oopses in adfspart_check_ICS (probably the put_dev_sector, 
-> > not entirely sure, since there doesn't seem to be anything wrong).
-> > I've enabled advanced partitions, and all the partition types.
-> > Disabling advanced partitions fixes it.
+On Tue, Dec 11, 2001 at 04:26:07PM +0530, gspujar@hss.hns.com wrote:
+> Why is that the printk output not going to syslog although  I have entry in
+> /etc/syslog.conf
 > 
-> Please try attached patch.
+> kern.crit                       /var/log/pbsc.log
+> even after I remove the mdelay call.
 
-Updated version, needs pagemap as well. Actually, it's the 2nd time this
-bit us in 2.5 now.
+The machine reboots before syslog gets to run.
 
--- 
-Jens Axboe
+What happens is:
 
+	printk();
+	reboot();
 
---aVD9QWMuhilNxW9f
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=acorn-part-2
+During that period, syslog is unable to run, and therefore is unable to
+write the log message to disk.
 
---- /opt/kernel/linux-2.5.1-pre9/fs/partitions/acorn.c	Mon Oct  1 23:03:26 2001
-+++ fs/partitions/acorn.c	Tue Dec 11 06:39:47 2001
-@@ -162,12 +162,12 @@
- 		struct adfs_discrecord *dr;
- 		unsigned int nr_sects;
- 
--		if (!(minor & mask))
--			break;
--
- 		data = read_dev_sector(bdev, start_blk * 2 + 6, &sect);
- 		if (!data)
- 			return -1;
-+
-+		if (!(minor & mask))
-+			break;
- 
- 		dr = adfs_partition(hd, name, data, first_sector, minor++);
- 		if (!dr)
---- /opt/kernel/linux-2.5.1-pre9/fs/partitions/check.h	Tue Dec 11 05:01:51 2001
-+++ fs/partitions/check.h	Tue Dec 11 06:43:31 2001
-@@ -1,3 +1,5 @@
-+#include <linux/pagemap.h>
-+
- /*
-  * add_gd_partition adds a partitions details to the devices partition
-  * description.
+> Does it mean that without using "testing" mode ( I cannot beacuse I need a
+> reboot) it is not possible to get log  ?
 
---aVD9QWMuhilNxW9f--
+I suppose you could modify softdog to delay the reboot using it's timer
+(the timer fires the first time, you check data to see if it's non-zero.
+If it's not, increment watchdog_ticktock.data, and set the watchdog to
+timeout in 5 seconds, return).
+
+You should probably prevent softdog_write updating the timer if the
+data field is non-zero, so once you don't change the behaviour; this
+is of course dependent on your test case.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

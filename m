@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267503AbTAMQXc>; Mon, 13 Jan 2003 11:23:32 -0500
+	id <S267541AbTAMQbj>; Mon, 13 Jan 2003 11:31:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267541AbTAMQXc>; Mon, 13 Jan 2003 11:23:32 -0500
-Received: from almesberger.net ([63.105.73.239]:61960 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S267503AbTAMQXb>; Mon, 13 Jan 2003 11:23:31 -0500
-Date: Mon, 13 Jan 2003 13:32:00 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: why the new config process is a *big* step backwards
-Message-ID: <20030113133200.D6866@almesberger.net>
-References: <Pine.LNX.4.44.0301130743100.25468-100000@dell> <20030113153212.GB12500@louise.pinerecords.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030113153212.GB12500@louise.pinerecords.com>; from szepe@pinerecords.com on Mon, Jan 13, 2003 at 04:32:12PM +0100
+	id <S267647AbTAMQbj>; Mon, 13 Jan 2003 11:31:39 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18188 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267541AbTAMQbi>; Mon, 13 Jan 2003 11:31:38 -0500
+Date: Mon, 13 Jan 2003 08:35:46 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Greg KH <greg@kroah.com>
+cc: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: any chance of 2.6.0-test*?
+In-Reply-To: <20030113062300.GA3804@kroah.com>
+Message-ID: <Pine.LNX.4.44.0301130834500.1903-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomas Szepe wrote:
-> If you need a nifty graphical frontend right away, I suggest you
-> go ahead and write the first off-tree xconfig.
 
-... and as a starting point, perhaps something that looks like
-ftp://icaftp.epfl.ch/pub/linux/local/scend/scend-0.5.tar.gz
-(when compiling, change "msg" to "dummy" where it complains)
-might not be all that bad.
+On Sun, 12 Jan 2003, Greg KH wrote:
+> 
+> Anyway, here's a patch with your new lock, if you want to apply it.
 
-(Okay, it's text-based, doesn't know about modules, uses its own
-language, and comes with an example for a kernel as recent as
-1.1.80 :-)
+I'd like to have some verification (or some test-suite) to see whether it 
+makes any difference at all before applying it.
 
-- Werner
+Alan, what's your load?
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+		Linus
+

@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265162AbUD3MDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265163AbUD3MDX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265162AbUD3MDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 08:03:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265163AbUD3MDJ
+	id S265163AbUD3MDX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 08:03:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265164AbUD3MDX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 08:03:09 -0400
-Received: from ns.sgtp.samara.ru ([195.128.153.202]:61624 "EHLO sgtp.samara.ru")
-	by vger.kernel.org with ESMTP id S265162AbUD3MDE (ORCPT
+	Fri, 30 Apr 2004 08:03:23 -0400
+Received: from ns.sgtp.samara.ru ([195.128.153.202]:62904 "EHLO sgtp.samara.ru")
+	by vger.kernel.org with ESMTP id S265163AbUD3MDS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 08:03:04 -0400
+	Fri, 30 Apr 2004 08:03:18 -0400
 Subject: Promise SX-6000 and kernel 2.6.x
 From: Alex Murphy <murphy@sgtp.samara.ru>
 To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Organization: SYS.NET.RU
-Message-Id: <1083326572.29573.60.camel@bene.samgtp>
+Message-Id: <1083326592.29576.63.camel@bene.samgtp>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 30 Apr 2004 17:02:52 +0500
+Date: Fri, 30 Apr 2004 17:03:12 +0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org

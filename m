@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281897AbRKZPyE>; Mon, 26 Nov 2001 10:54:04 -0500
+	id <S281902AbRKZP5o>; Mon, 26 Nov 2001 10:57:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281896AbRKZPxy>; Mon, 26 Nov 2001 10:53:54 -0500
-Received: from 24-240-35-67.hsacorp.net ([24.240.35.67]:2944 "HELO
-	majere.epithna.com") by vger.kernel.org with SMTP
-	id <S281897AbRKZPxp>; Mon, 26 Nov 2001 10:53:45 -0500
-Date: Mon, 26 Nov 2001 10:53:41 -0500 (EST)
-From: <listmail@majere.epithna.com>
-To: "Elgar, Jeremy" <JElgar@ndsuk.com>
+	id <S281896AbRKZP5e>; Mon, 26 Nov 2001 10:57:34 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:27154 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S281895AbRKZP5T>; Mon, 26 Nov 2001 10:57:19 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Kernel Releases
+Date: Mon, 26 Nov 2001 17:55:49 -0200
+X-Mailer: KMail [version 1.2]
 Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Mixing Patches: pre-emptive + xfs
-In-Reply-To: <F128989C2E99D4119C110002A507409801C53035@topper.hrow.ndsuk.com>
-Message-ID: <Pine.LNX.4.33.0111261050140.5940-100000@majere.epithna.com>
+In-Reply-To: <Pine.LNX.4.33L.0111261301390.1491-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0111261301390.1491-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01112617554900.01035@manta>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You may need to do some custom work to get them to play well together,
-this is true of any double or Triple patched kernel.  I frequently patch
-with 2 sometimes 3 different patches (one less now that ext3 is in the
-kernel!) and find that it sometimes takes a little looking around in the
-diffs to make sure that the patches do not conflict.  But it can be done.
-I have not looked at these specific patches however.
+On Monday 26 November 2001 13:02, Rik van Riel wrote:
+> On Mon, 26 Nov 2001, Ian Stirling wrote:
+> > However, I for one never run a -pre kernel.
+> >
+> > I don't run -pre, because rightly or wrongly, I've got the impression
+> > that these get even less testing than releases.
+>
+> I think the opening sentence of your email states
+> the reason for that pretty well.
 
-Bill Dunn
+The only way we can get good testing for new kernels is to stop using
+-preN prefix in development branch (2.5.x). Just increment that 'x'.
 
-On Mon, 26 Nov 2001, Elgar, Jeremy wrote:
+This will eliminate 'people waiting for final 2.5.N' problem.
+(2.5 is unstable, so it's normal for it to break even in silly ways
+as code gets patched/rewritten)
 
-> Hello
-> Just wondering if anyone has try using these two patches together (or is
-> this a really bad idea)
->
-> I'm thinking of adding the pre-emptive patch to my laptop and desk top.
->
-> Cheers
->
-> Jeremy
->
-> (BTW both are 2.4.14)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+We can't do that for 2.4, for 2.4 scenario is:
 
+Joe User: I see this oops in 2.4.18!
+Maintainer: please try this 2.4.19pre1 I made for you
+J: still oopses
+M: hmm... try this 2.4.19pre2
+J: YES YES YES it works now thanks
+   - several days have passed, M may have some afterthoughts -
+   - and updated preN's, can feed them to J etc... -
+M: Do you see anything unusual since pre2?
+J: No
+M: He he me is cool, let's announce 2.4.19
+--
+vda

@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262469AbTCEFvW>; Wed, 5 Mar 2003 00:51:22 -0500
+	id <S262604AbTCEFvo>; Wed, 5 Mar 2003 00:51:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262604AbTCEFvW>; Wed, 5 Mar 2003 00:51:22 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:3779 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262469AbTCEFvV>;
-	Wed, 5 Mar 2003 00:51:21 -0500
-Message-ID: <32981.4.64.238.61.1046844111.squirrel@www.osdl.org>
-Date: Tue, 4 Mar 2003 22:01:51 -0800 (PST)
-Subject: Re: Reserving physical memory at boot time
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: <hpa@zytor.com>
-In-Reply-To: <b442s0$pau$1@cesium.transmeta.com>
-References: <Pine.LNX.3.95.1021204115837.29419B-100000@chaos.analogic.com>
-        <Pine.LNX.4.33L2.0212040905230.8842-100000@dragon.pdx.osdl.net>
-        <b442s0$pau$1@cesium.transmeta.com>
-X-Priority: 3
-Importance: Normal
-Cc: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.8)
+	id <S262780AbTCEFvo>; Wed, 5 Mar 2003 00:51:44 -0500
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:7362 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id <S262604AbTCEFvn>;
+	Wed, 5 Mar 2003 00:51:43 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: [BENCHMARK] 2.5.63-mm2 + i/o schedulers with contest
+Date: Wed, 5 Mar 2003 17:02:10 +1100
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200303041354.03428.kernel@kolivas.org> <20030304001032.034f60fa.akpm@digeo.com>
+In-Reply-To: <20030304001032.034f60fa.akpm@digeo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200303051702.10810.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Followup to:
-> <Pine.LNX.4.33L2.0212040905230.8842-100000@dragon.pdx.osdl.net> By author:
->  "Randy.Dunlap" <rddunlap@osdl.org>
-> In newsgroup: linux.dev.kernel
->>
->> Patch for 'mem=exactmap' in 2.4 was submitted several weeks ago and Alan
->> merged it into -ac.  It does need to be pushed to Marcelo...
->>
+On Tue, 4 Mar 2003 07:10 pm, Andrew Morton wrote:
+> Con Kolivas <kernel@kolivas.org> wrote:
+> > Mem_load result of AS being slower was just plain weird with the result
+> > rising from 100 to 150 during testing.
 >
-> Once again, with feeling...
+> Maybe we should just swap computers or something?
 >
-> DON'T CALL IT mem=.
+> Finished compiling kernel: elapsed: 145 user: 180 system: 18
+> Finished mem_load: elapsed: 146 user: 0 system: 2 loads: 5000
+> Finished compiling kernel: elapsed: 135 user: 181 system: 17
+> Finished mem_load: elapsed: 136 user: 0 system: 2 loads: 4800
+> Finished compiling kernel: elapsed: 129 user: 181 system: 17
+> Finished mem_load: elapsed: 130 user: 0 system: 2 loads: 4800
 >
-> mem= is part of the boot protocol.
-> Call it memmap= or something, or you'll break boot loaders in weird and
-> subtle ways.
+> 256MB, dual CPU, ext3/IDE.
 
-OK, with feeling:
+Tried again - these were done as part of a full contest run, not just mem_load 
+by itself, but these were the mem_load results:
 
-I agree with you since the boot protocol is well-defined.
+98
+128
+135
 
-Just to be clear, my comment was referring to
-Documentation/kernel-parameters.txt, not to any C code.
+then it oopsed (the one I posted earlier) and wasn't really usable after that 
+point. Perhaps they're related. The mystery remains. I'll see what happens 
+next mm release.
 
-And it would really be helpful to catch issues like this soon
-after they happen...
-
-Thanks,
-~Randy
-
+Con
 
 

@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264527AbTIDBzm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 21:55:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264532AbTIDByH
+	id S264513AbTIDCS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 22:18:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264520AbTIDCS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 21:54:07 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:48001 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264525AbTIDBxC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 21:53:02 -0400
-Date: Wed, 3 Sep 2003 18:52:49 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Steven Cole <elenstev@mesatop.com>, Antonio Vargas <wind@cocodriloo.com>,
-       Larry McVoy <lm@bitmover.com>, CaT <cat@zip.com.au>,
-       Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-Message-ID: <20030904015249.GF5227@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Daniel Phillips <phillips@arcor.de>,
-	Steven Cole <elenstev@mesatop.com>,
-	Antonio Vargas <wind@cocodriloo.com>, Larry McVoy <lm@bitmover.com>,
-	CaT <cat@zip.com.au>, Anton Blanchard <anton@samba.org>,
-	linux-kernel@vger.kernel.org
-References: <20030903040327.GA10257@work.bitmover.com> <20030903124716.GE2359@wind.cocodriloo.com> <1062603063.1723.91.camel@spc9.esa.lanl.gov> <200309040350.31949.phillips@arcor.de>
+	Wed, 3 Sep 2003 22:18:59 -0400
+Received: from h214n1fls32o988.telia.com ([62.20.176.214]:51383 "EHLO
+	procyon.nix.homeunix.net") by vger.kernel.org with ESMTP
+	id S264513AbTIDCSm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 22:18:42 -0400
+Subject: PCMCIA and ACPI?
+From: Henrik Persson <nix@syndicalist.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1062641921.3514.11.camel@h214n1fls32o988.telia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200309040350.31949.phillips@arcor.de>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 04 Sep 2003 04:18:41 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 04, 2003 at 03:50:31AM +0200, Daniel Phillips wrote:
-> There are other arguments, such as how complex locking is, and how it will 
-> never work correctly, but those are noise: it's pretty much done now, the 
-> complexity is still manageable, and Linux has never been more stable.
+I just booted Linux 2.6.0-test4 (plus all the patches found at
+ (http://pcmcia.arm.linux.org.uk) with acpi=off and all of my problems 
+disappeared except the "insert twice before you get a light"-issue..
 
-yeah, right.  I'm not sure what you are smoking but I'll avoid your dealer.
+This machine is an Acer Aspire 1300XV with this lspci:
 
-Your politics are showing, Daniel.  Try staying focussed on the technical
-merits and we can have a discussion.  Otherwise you just get ignored.  
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133]
+(rev 80)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+00:0a.0 CardBus bridge: O2 Micro, Inc. OZ6912 Cardbus Controller
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8231 [PCI-to-ISA Bridge]
+(rev 10)
+00:11.1 IDE interface: VIA Technologies, Inc.
+VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06)
+00:11.2 USB Controller: VIA Technologies, Inc. USB (rev 1e)
+00:11.4 Bridge: VIA Technologies, Inc. VT8235 ACPI (rev 10)
+00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686
+AC97 Audio Controller (rev 40)
+00:11.6 Communication controller: VIA Technologies, Inc. Intel 537 [AC97
+Modem] (rev 20)
+00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II]
+(rev 51)
+01:00.0 VGA compatible controller: S3 Inc. VT8636A [ProSavage KN133]
+AGP4X VGA Controller (TwisterK) (rev 01)
+
+I will play around with this some more after some sleep.
+
+--
+Henrik Persson
+

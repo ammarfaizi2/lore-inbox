@@ -1,51 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266851AbUHCVOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266855AbUHCVOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266851AbUHCVOG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 17:14:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266855AbUHCVOF
+	id S266855AbUHCVOd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 17:14:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266864AbUHCVOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 17:14:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63669 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266854AbUHCVOC (ORCPT
+	Tue, 3 Aug 2004 17:14:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:10934 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266855AbUHCVO1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 17:14:02 -0400
-Date: Tue, 3 Aug 2004 17:13:56 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@dhcp83-102.boston.redhat.com
+	Tue, 3 Aug 2004 17:14:27 -0400
+Date: Tue, 3 Aug 2004 23:13:39 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
 To: Andrea Arcangeli <andrea@suse.de>
-cc: Chris Wright <chrisw@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
+Cc: Rik van Riel <riel@redhat.com>, Chris Wright <chrisw@osdl.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
 Subject: Re: [patch] mlock-as-nonroot revisted
+Message-ID: <20040803211339.GB26620@devserv.devel.redhat.com>
+References: <20040729185215.Q1973@build.pdx.osdl.net> <Pine.LNX.4.44.0408031654290.5948-100000@dhcp83-102.boston.redhat.com> <20040803210737.GI2241@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="A6N2fC+uXW/VQSAv"
+Content-Disposition: inline
 In-Reply-To: <20040803210737.GI2241@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0408031712371.5948-100000@dhcp83-102.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Aug 2004, Andrea Arcangeli wrote:
 
+--A6N2fC+uXW/VQSAv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Tue, Aug 03, 2004 at 11:07:37PM +0200, Andrea Arcangeli wrote:
+> On Tue, Aug 03, 2004 at 04:55:49PM -0400, Rik van Riel wrote:
+> > @@ -198,9 +201,11 @@
+> >  		return error;
+> >  	}
+> >  
 > > -	if (shmflg & SHM_HUGETLB)
 > > +	if (shmflg & SHM_HUGETLB) {
 > > +		/* hugetlb_zero_setup takes care of mlock user accounting */
 > >  		file = hugetlb_zero_setup(size);
+> > -	else {
 > > +		shp->mlock_user = current->user;
 > > +	} else {
-
+> >  		sprintf (name, "SYSV%08x", key);
+> >  		file = shmem_file_setup(name, size, VM_ACCOUNT);
+> >  	}
+> 
 > where do you change mlock_user in chown?
 
-You don't.  Normal users aren't allowed to chown each
-other's files, nor are they allowed to "give away" one
-of their files to somebody else.
+ok silly question maybe, but why would you?
+The user that mlock'd gets to pay for it, and gets his credits back at
+munlock. Chown doesn't really matter in that regard..... The thing that does
+matter of course is that the user who "paid" in credits gets them back in
+the end.. and that this does.
 
-On unlock the quota gets deducted from the user who
-created the hugetlbfs file.
+But maybe you see a useful use pattern that I'm missing? Please convince me :)
 
-This means there shouldn't be security issues with this
-approach.  Let me know if I've overlooked one.
+--A6N2fC+uXW/VQSAv
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQFBEAACxULwo51rQBIRAgaBAJ9s3RGP3iRHBG2QGu5/l0c60f/7ggCdFAEq
+6/uR3bXNONokT/INLIKd4Q0=
+=tFTP
+-----END PGP SIGNATURE-----
+
+--A6N2fC+uXW/VQSAv--

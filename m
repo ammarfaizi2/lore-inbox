@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129997AbQLGNJv>; Thu, 7 Dec 2000 08:09:51 -0500
+	id <S129392AbQLGNWL>; Thu, 7 Dec 2000 08:22:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130008AbQLGNJb>; Thu, 7 Dec 2000 08:09:31 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:64017 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129997AbQLGNJW>;
-	Thu, 7 Dec 2000 08:09:22 -0500
-Date: Thu, 7 Dec 2000 13:38:21 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Patrick van de Lageweg <patrick@bitwizard.nl>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Rogier Wolff <wolff@bitwizard.nl>
-Subject: Re: [PATCH] New user space serial port driver
-Message-ID: <20001207133821.A9656@pcep-jamie.cern.ch>
-In-Reply-To: <Pine.LNX.4.21.0011300903470.11226-100000@panoramix.bitwizard.nl> <20001202225909.B6988@bug.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001202225909.B6988@bug.ucw.cz>; from pavel@suse.cz on Sat, Dec 02, 2000 at 10:59:09PM +0100
+	id <S129477AbQLGNWB>; Thu, 7 Dec 2000 08:22:01 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:52644 "EHLO penguin.homenet")
+	by vger.kernel.org with ESMTP id <S129392AbQLGNV7>;
+	Thu, 7 Dec 2000 08:21:59 -0500
+Date: Thu, 7 Dec 2000 12:53:29 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Szabolcs Szakacsits <szaka@f-secure.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Broken NR_RESERVED_FILES
+In-Reply-To: <Pine.LNX.4.30.0012071354070.5455-100000@fs129-190.f-secure.com>
+Message-ID: <Pine.LNX.4.21.0012071248480.970-100000@penguin.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> > Please consider including this user space serial driver. It was writen for
-> > the Pele 833 RAS Server but is also usable for other serial device drivers
-> > in user space.
-> 
-> Good, someone finally implemented this. This is going to be mandatory
-> if we want to support winmodems properly; also ISDN people might be
-> interested [to kick AT emulation out of kernel].
+On Thu, 7 Dec 2000, Szabolcs Szakacsits wrote:
+> Reserved fd's for superuser doesn't work.
 
-For winmodems you can do a pretty good job with ptys -- the pty and tty
-side access the same share termios structure.  The new driver is a
-much cleaner way to the same functionality though.  (Conceptually; I
-looked at the API summary but haven't looked at the code).
+It does actually work, but remember that the concept of "reserved file
+structures for superuser" is defined as "file structures to be taken from
+the freelist" whereas your patch below:
 
--- Jamie
+> +	total_free = max_files - nr_files + nr_free_files;
+> +	if (total_free > NR_RESERVED_FILES || (total_free && !current->euid)) {
+> +		if (nr_free_files) {
+> +		used_one:
+> +			f = free_filps;
+> +			remove_filp(f);
+> +			nr_free_files--;
+> +		new_one:
+> +			memset(f, 0, sizeof(*f));
+> +			f->f_count = 1;
+> +			f->f_version = ++global_event;
+> +			f->f_uid = current->fsuid;
+> +			f->f_gid = current->fsgid;
+> +			put_inuse(f);
+> +			return f;
+> +		}
+> +		/*
+> +		 * Allocate a new one if we're below the limit.
+> +	 	*/
+>  		f = kmem_cache_alloc(filp_cache, SLAB_KERNEL);
+
+allows one to allocate a file structure from the filp_cache slab cache if
+one is a superuser. That is not a "fix" -- it is a serious re-definition
+of semantics of 'freelist'. There are even books (Understanding the Linux
+Kernel by Bovet et all) which describe this freelist in the current
+context so your patch will require updates to the books.
+
+Having said that, it is probably a good idea to allow superuser to
+allocate new file structures... just remember that you have just
+_rewritten_ get_empty_filp()'s rules completely and not "fixed" them.
+
+Regards,
+Tigran
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

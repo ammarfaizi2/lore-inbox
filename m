@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310666AbSCMPac>; Wed, 13 Mar 2002 10:30:32 -0500
+	id <S310660AbSCMPdm>; Wed, 13 Mar 2002 10:33:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310663AbSCMPaW>; Wed, 13 Mar 2002 10:30:22 -0500
-Received: from 213-98-126-44.uc.nombres.ttd.es ([213.98.126.44]:58008 "HELO
-	mitica.trasno.org") by vger.kernel.org with SMTP id <S310660AbSCMPaM>;
-	Wed, 13 Mar 2002 10:30:12 -0500
-To: Sandino Araico =?iso-8859-1?q?S=E1nchez?= <sandino@sandino.net>
-Cc: Greg KH <greg@kroah.com>, Richard Gooch <rgooch@ras.ucalgary.ca>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17,2.4.18 ide-scsi+usb-storage+devfs Oops
-In-Reply-To: <3C7EA7CB.C36D0211@sandino.net> <20020302075847.GE20536@kroah.com>
-	<3C84294C.AE1E8CE9@sandino.net>
-	<200203060528.g265Sh502430@vindaloo.ras.ucalgary.ca>
-	<20020306053355.GA13072@kroah.com>
-	<200203060545.g265jwL02756@vindaloo.ras.ucalgary.ca>
-	<20020306181956.GC16003@kroah.com> <3C868302.31C7BBC4@sandino.net>
-X-Url: http://www.lfcia.org/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-In-Reply-To: <3C868302.31C7BBC4@sandino.net>
-Date: 13 Mar 2002 16:27:32 +0100
-Message-ID: <m2ofhsij2z.fsf@trasno.mitica>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S310663AbSCMPdc>; Wed, 13 Mar 2002 10:33:32 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:24502 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S310660AbSCMPdU>; Wed, 13 Mar 2002 10:33:20 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Wed, 13 Mar 2002 07:33:10 -0800
+Message-Id: <200203131533.HAA09497@adam.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: IDE(?) lockups in 2.5.7pre1, 2.5.6, 2.5.6pre3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "sandino" == Sandino Araico Sánchez <sandino@sandino.net> writes:
+	Under 2.5.6-pre3 and 2.5.6, my desktop workstation would
+occasionally get into a state where all disk I/O would block.
+Process would run until they had to go to the disk, and then they
+would stop.  Hitting ctrl-<scroll lock> shows these process in "D"
+state.  The IDE controller in this machine is:
 
-sandino> I had to copy the Oops trace by hand to a paper. Gpm is not working correctly
-sandino> on my machine. Is there another way to send the Oops trace to a file?
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 06)
 
+	I just built 2.5.7-pre1 and have discovered the other machne
+that has a VIA IDE controller developed the same problem just after
+printing its first "login: " prompt, although it did not have the problem
+on a subsequent reboot.  This other machine did not lock up with
+2.5.6-pre3 or 2.5.6, although that is probably just due to random
+chance, as the problem was occurring only once a day.  The
+IDE controller in this second machine is:
 
-dmesg > file
+00:04.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 10)
 
-normally works.
+	I will try to track this down from the process stack traces
+when it happens next, but I thought I ought to report it in the meantime.
 
-Later, Juan.
-
-
--- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

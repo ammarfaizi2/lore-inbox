@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265426AbSKKEA2>; Sun, 10 Nov 2002 23:00:28 -0500
+	id <S265409AbSKKDyp>; Sun, 10 Nov 2002 22:54:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265437AbSKKEA2>; Sun, 10 Nov 2002 23:00:28 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:36741 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S265426AbSKKEA1>;
-	Sun, 10 Nov 2002 23:00:27 -0500
-Date: Mon, 11 Nov 2002 05:06:42 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, Con Kolivas <conman@kolivas.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       marcelo@conectiva.com.br
-Subject: Re: [BENCHMARK] 2.4.{18,19{-ck9},20rc1{-aa1}} with contest
-Message-ID: <20021111040642.GA30193@dualathlon.random>
-References: <3DCEC6F7.E5EC1147@digeo.com> <Pine.LNX.4.44L.0211101902390.8133-100000@imladris.surriel.com> <20021111015445.GB5343@x30.random> <3DCF2BF5.5DD165DD@digeo.com>
+	id <S265414AbSKKDyo>; Sun, 10 Nov 2002 22:54:44 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:62129 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265409AbSKKDyo>;
+	Sun, 10 Nov 2002 22:54:44 -0500
+Date: Sun, 10 Nov 2002 20:00:11 -0800 (PST)
+Message-Id: <20021110.200011.39698409.davem@redhat.com>
+To: plars@linuxtestproject.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: recvfrom/recvmsg
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1036792764.17557.24.camel@plars>
+References: <1036792764.17557.24.camel@plars>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DCF2BF5.5DD165DD@digeo.com>
-User-Agent: Mutt/1.3.27i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 10, 2002 at 08:03:01PM -0800, Andrew Morton wrote:
-> Andrea Arcangeli wrote:
-> > 
-> > the slowdown happens in this case:
-> > 
-> >         queue 5 6 7 8 9
-> > 
-> > insert read 3
-> > 
-> >         queue 3 5 6 7 8 9
-> 
-> read-latency will not do that.
+   From: Paul Larson <plars@linuxtestproject.org>
+   Date: 08 Nov 2002 15:59:24 -0600
+   
+   Right now (2.5.46-bk current) I'm getting -1, errno 22 returned, but in
+   2.5.46 it was passing without error.  Was this change intentional
+   (probably) and is that the correct errno to return.  I checked SuS, but
+   I don't see anything related to that exact condition.
+   
+No idea.  But -1 is invalid.
 
-So what will it do? Must do something very much like what I described or
-it is a noop period. Please elaborate.
+   There is another test in the same program that also looks like it should
+   be failing.  Recvfrom, testcase 3 tries to do a recvfrom with (struct
+   sockaddr *)-1 passed as the from buffer.  Right now, it is passing
+   without an error, but that doesn't seem correct.
 
->  
-> > However I think even read-latency is more a workarond to a problem in
-> > the I/O queue dimensions.
-> 
-> The problem is the 2.4 algorithm.  If a read is not mergeable or
-> insertable it is placed at the tail of the queue.  Which is the
-> worst possible place it can be put because applications wait on
-> reads, not on writes.
+If namelen is zero, no attempt is made to access the sockaddr pointer.
+Returning -EFAULT is always variable and no system call can guarentee
+to return this so no test should require it to be returned.
 
-O_SYNC/-osync waits on writes too, so are you saying writes must go to
-the head because of that? reads should be not too bad at the end too if
-only the queue wasn't that oversized when the merging is at its maximum.
-Fix the oversizing of the queue, then read-latency will matter much
-less.
-
-Andrea

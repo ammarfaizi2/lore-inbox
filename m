@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263728AbUEGUCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263718AbUEGUCw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263728AbUEGUCt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 16:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263713AbUEGUCf
+	id S263718AbUEGUCw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 16:02:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbUEGUCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 16:02:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:58859 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263712AbUEGUBn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 16:01:43 -0400
-Date: Fri, 7 May 2004 13:01:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, keithp@keithp.com
-Subject: Re: Is it possible to implement interrupt time printk's reliably?
-Message-Id: <20040507130119.45924379.akpm@osdl.org>
-In-Reply-To: <20040507192650.95994.qmail@web14926.mail.yahoo.com>
-References: <20040507121319.6939b391.akpm@osdl.org>
-	<20040507192650.95994.qmail@web14926.mail.yahoo.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 7 May 2004 16:02:05 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:65376 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261913AbUEGT4L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 15:56:11 -0400
+Date: Fri, 7 May 2004 18:43:28 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Timothy Miller <miller@techsource.com>
+cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Paul Jackson <pj@sgi.com>, <vonbrand@inf.utfsm.cl>,
+       <nickpiggin@yahoo.com.au>, <jgarzik@pobox.com>,
+       <brettspamacct@fastclick.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+In-Reply-To: <409BC7A7.4060203@techsource.com>
+Message-ID: <Pine.LNX.4.44.0405071836530.21102-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl <jonsmirl@yahoo.com> wrote:
->
-> 
-> --- Andrew Morton <akpm@osdl.org> wrote:
-> > Jon Smirl <jonsmirl@yahoo.com> wrote:
-> > >
-> > > > If you're in process context you can use acquire_console_sem(), which will
-> > > > serialise against printk.
-> > > > 
-> > > 
-> > > Won't I deadlock if I have acquire_console_sem(), take an interrupt, and
-> > then a
-> > > printk is issued from the interrupt handelr?
-> > > 
+On Fri, 7 May 2004, Timothy Miller wrote:
 > > 
-> > Nope.  If printk finds the semaphore to be held it queues up the characters
-> > and returns without printing them.  The console_sem-holding process will
-> > print the newly buffered characters before releasing the semaphore.
+> >>>Perhaps what we really want is "swap_back_in" script? That way you
+> >>>could do "updatedb; swap_back_in" in cron and be happy.
+> >>
+> >>swapoff -a; swapon -a
 > 
-> Is this solution sufficient for kernel developers wanting to use printk from
-> interrupt handlers? I've gotten negative feedback from Linus when I suggested
-> queuing them before.
-> 
+> Wouldn't this also be a problem if you are using more memory than you 
+> have physical RAM?
 
-It has been this way for several years.
+On 2.4 it certainly would be a problem (hang with others OOM-killed).
+
+On 2.6 it shouldn't be a problem: the swapoff may fail upfront if
+there's way too little memory, or it may get itself OOM-killed if
+it runs out on the way, but it ought not to upset other tasks.
+
+But of course, Pavel is right that it does nothing for file backed.
+
+Hugh
+

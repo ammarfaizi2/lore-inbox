@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265944AbUFDSoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265947AbUFDSoC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265944AbUFDSoU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 14:44:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265942AbUFDSoU
+	id S265947AbUFDSoC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 14:44:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265942AbUFDSoB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 14:44:20 -0400
-Received: from mail.kroah.org ([65.200.24.183]:50114 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265946AbUFDSnr (ORCPT
+	Fri, 4 Jun 2004 14:44:01 -0400
+Received: from holomorphy.com ([207.189.100.168]:2216 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265945AbUFDSnr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 4 Jun 2004 14:43:47 -0400
-Date: Fri, 4 Jun 2004 11:42:52 -0700
-From: Greg KH <greg@kroah.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Driver Core fixes for 2.6.7-rc1
-Message-ID: <20040604184252.GA11804@kroah.com>
-References: <10857795552653@kroah.com> <10857795552130@kroah.com> <20040604122518.GB11950@elf.ucw.cz> <20040604162643.GB9342@kroah.com> <20040604182559.GI700@elf.ucw.cz>
+Date: Fri, 4 Jun 2004 11:42:14 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: mikpe@csd.uu.se, nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
+       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
+       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
+       Simon.Derr@bull.net
+Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based implementation
+Message-ID: <20040604184214.GJ21007@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Paul Jackson <pj@sgi.com>, mikpe@csd.uu.se, nickpiggin@yahoo.com.au,
+	rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, akpm@osdl.org,
+	ak@muc.de, ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
+	joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
+	Simon.Derr@bull.net
+References: <16576.17673.548349.36588@alkaid.it.uu.se> <20040604095929.GX21007@holomorphy.com> <16576.23059.490262.610771@alkaid.it.uu.se> <20040604112744.GZ21007@holomorphy.com> <20040604113252.GA21007@holomorphy.com> <20040604092316.3ab91e36.pj@sgi.com> <20040604162853.GB21007@holomorphy.com> <20040604104756.472fd542.pj@sgi.com> <20040604181233.GF21007@holomorphy.com> <20040604114219.40e50737.pj@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040604182559.GI700@elf.ucw.cz>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040604114219.40e50737.pj@sgi.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 04, 2004 at 08:26:00PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > > [PATCH] Report which device failed to suspend
-> > > > 
-> > > > Based on a patch from Nickolai Zeldovich <kolya@MIT.EDU> but put into the
-> > > > proper place by me.
-> > > 
-> > > Seems good.
-> > > 
-> > > I'm seeing lots of problems with drivers & swsusp these days. Perhaps
-> > > even printing names of devices as they are suspended is good idea?
-> > 
-> > You mean like the current kernel tree does if you enable
-> > CONFIG_DEBUG_DRIVER?  :)
-> 
-> Well, something little less verbose but enabled by default would do
-> the trick.
+William Lee Irwin III wrote:
+>> Without any way to reliably determine this, luserspace is fscked.
 
-I don't think the current one is all that verbose, it just prints out
-one line for every device being suspended.  And if a user is having
-problems, it's quite easy to ask them to enable that option and send the
-output from a failed suspend.
+On Fri, Jun 04, 2004 at 11:42:19AM -0700, Paul Jackson wrote:
+> I don't see why user code needs to determine NR_CPUS exactly.  Any
+> reasonable upper bound should work - reasonable meaning doesn't waste
+> too many unused words of memory.
+> It's not really NR_CPUS that users need - its a reasonably close upper
+> bound to the size of the space that sched_getaffinity() must be provided
+> they need.  And your code does a pretty good job of providing that.
 
-But if you have a patch to change it, please send it.
-
-thanks,
-
-greg k-h
+Wrong. Apps that want to reconfigure the system to e.g. online more cpus
+in response to heightened load want to know.
 
 
-> 								Pavel
-> -- 
-> 934a471f20d6580d5aad759bf0d97ddc
+-- wli

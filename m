@@ -1,71 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129548AbRBWPim>; Fri, 23 Feb 2001 10:38:42 -0500
+	id <S129104AbRBWPkX>; Fri, 23 Feb 2001 10:40:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129577AbRBWPid>; Fri, 23 Feb 2001 10:38:33 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:42124 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S129548AbRBWPiU>; Fri, 23 Feb 2001 10:38:20 -0500
-Date: Fri, 23 Feb 2001 10:12:33 -0500 (EST)
-From: Richard A Nelson <cowboy@vnet.ibm.com>
-X-X-Sender: <cowboy@badlands.lexington.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.1ac20
-In-Reply-To: <Pine.LNX.4.33.0102211815210.2261-100000@badlands.lexington.ibm.com>
-Message-ID: <Pine.LNX.4.33.0102231005220.2402-100000@badlands.lexington.ibm.com>
-X-No-Markup: yes
-x-No-ProductLinks: yes
-x-No-Archive: yes
+	id <S129190AbRBWPkO>; Fri, 23 Feb 2001 10:40:14 -0500
+Received: from mta04.mail.au.uu.net ([203.2.192.84]:4502 "EHLO
+	mta04.mail.mel.aone.net.au") by vger.kernel.org with ESMTP
+	id <S129104AbRBWPkD>; Fri, 23 Feb 2001 10:40:03 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Matt Johnston <mlkm@caifex.org>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: random PID generation
+Date: Fri, 23 Feb 2001 23:40:37 +0800
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <27525795B28BD311B28D00500481B7601F0F02@ftrs1.intranet.ftr.nl>
+In-Reply-To: <27525795B28BD311B28D00500481B7601F0F02@ftrs1.intranet.ftr.nl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01022323403700.00325@box.caifex.org>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Feb 2001, Richard A Nelson wrote:
+OpenBSD has a working implementation, might be worth looking at???
 
-> On Wed, 21 Feb 2001, Alan Cox wrote:
->
+Cheers,
+Matt Johnston.
+
+On Fri, 23 Feb 2001 23:34, Heusden, Folkert van wrote:
+> >> My code runs trough the whole task_list to see if a chosen pid is
+> >> already
+> >>
+> >> in use or not.
 > >
-> > Can you stick an if(dev!=NULL) in front of that and let me know if that
-> > fixes it - just to verify thats the problem spot
+> > But it doesn't check for a recently used PID. Lets say your system is
+> > exhausting 1000 PIDs/second, and that there is a window of 20ms between
 >
-> Compiling now, will reboot in the am (if it aint done soon) -
-> don't want it rebooting all night if this isn't it ;-}
-
-Sigh, it appears that the problem is actually neither of the above
-lines.
-
-I even tried 2.4.2 and had the same problem, then I noticed that 2.4.2
-also contains the same update ;-}
-
-I put an if(dev == NULL)printk...else in both spots and rebooted.
-
-Then (I gotta start drinking more coffee, or increase Copenhagen
-intake), I noticed that the actual oops is from modprobe!!!!
-
-I've not been able to get a oops trace because the error either causes
-a reboot, or hang (either case, e2fsck is run at reboot).
-
-Heres some system info that might be useful:
-Kernel modules         2.4.2
-Gnu C                  2.95.3
-Gnu Make               3.79.1
-Binutils               2.10.91.0.2
-Linux C Library        2.2.2
-Dynamic linker         ldd (GNU libc) 2.2.2
-Procps                 2.0.7
-Mount                  2.10s
-Net-tools              2.05
-Console-tools          0.2.3
-Sh-utils               2.0.11
-
-I'll be happy to reboot and capture the oops, if someone can help me
-make sure it gets logged (serial console not a possibility, the other
-box is currently in pieces).
-
--- 
-Rick Nelson
-Life'll kill ya                         -- Warren Zevon
-Then you'll be dead                     -- Life'll kill ya
-
+> you
+>
+> > determining which PID to send to, and the recipient process receiving it.
+>
+> Ah, I get your point. Good point :o)
+>
+> I was thinking: I could split the PIDs up in 2...16383 and 16384-32767 and
+> then
+> switch between them when a process ends? nah, that doesn't help it.
+> hmmm.
+> I think random increments (instead of last_pid+1) would be the best thing
+> to do then?
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,62 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281514AbRKHKLo>; Thu, 8 Nov 2001 05:11:44 -0500
+	id <S281497AbRKHKSq>; Thu, 8 Nov 2001 05:18:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281500AbRKHKLY>; Thu, 8 Nov 2001 05:11:24 -0500
-Received: from natpost.webmailer.de ([192.67.198.65]:4297 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S281501AbRKHKLS>; Thu, 8 Nov 2001 05:11:18 -0500
-Date: Thu, 8 Nov 2001 11:14:21 +0100
-From: Peter Seiderer <Peter.Seiderer@ciselant.de>
+	id <S281500AbRKHKSg>; Thu, 8 Nov 2001 05:18:36 -0500
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:57801 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S281497AbRKHKS2>; Thu, 8 Nov 2001 05:18:28 -0500
+Message-ID: <3BEA599B.6080606@wipro.com>
+Date: Thu, 08 Nov 2001 15:38:27 +0530
+From: "BALBIR SINGH" <balbir.singh@wipro.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: Ville Herva <vherva@niksula.hut.fi>
-Subject: Re: What is the difference between 'login: root' and 'su -' ?
-Message-ID: <20011108111421.A612@zodiak.ecademix.com>
-In-Reply-To: <20011107184710.A1410@zodiak.ecademix.com> <20011107224824.G26218@niksula.cs.hut.fi> <20011107234025.A602@zodiak.ecademix.com> <20011108081006.S1504@niksula.cs.hut.fi> <20011108094637.B615@zodiak.ecademix.com> <20011108104634.T1504@niksula.cs.hut.fi> <20011108100014.A704@zodiak.ecademix.com> <20011108111330.U1504@niksula.cs.hut.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011108111330.U1504@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Thu, Nov 08, 2001 at 11:13:30AM +0200
+Subject: Suspected error in make dep
+Content-Type: multipart/mixed;
+	boundary="------------InterScan_NT_MIME_Boundary"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-the SIGXFSZ signal is produced in the file mm/filemap.c (linx-2.4.14) in
-line 2771:
 
-2769:	if (limit != RLIM_INFINITY) {
-2770:		if (pos >= limit) {
-2771:			send_sig(SIGXFSZ, current, 0);
-2772:			goto out;
-2773:		}
+This is a multi-part message in MIME format.
 
-The valus at this point are
-limit:         0x7fffffff
-RLIM_INFINITY: 0xffffffff
-pos:           0x80004000
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-where limit comes from:
-unsigned long	limit = current->rlim[RLIMIT_FSIZE].rlim_cur;
+I got the following on my machine
 
-but I did not yet detected the point(s) where
-current->rlim[RLIMIT_FSIZE].rlim_cur
-is(are) set/changed.
-Peter
+Pentium III, 128MB, Linux 2.4.13 while running make dep on 2.4.14
 
-On Thu, Nov 08, 2001 at 11:13:30AM +0200, Ville Herva wrote:
-> On Thu, Nov 08, 2001 at 10:00:14AM +0100, you [Peter Seiderer] claimed:
-> > Hello,
-> > first thank you for your effort.
-> > 
-> > Did the diff: nearly no difference till the failure point (only pid, time
-> > etc.). Peter
-> 
-> And there really are no resource limits nor quota?
-> 
-> At this point you'll propably have to dig into glibc / kernel source and try
-> to find out what might cause that...
-> 
-> 
-> -- v --
-> 
+sa1100fb.c:164:27: linux/cpufreq.h: No such file or directory
+sa1100fb.c:166:26: asm/hardware.h: No such file or directory
+sa1100fb.c:169:28: asm/mach-types.h: No such file or directory
+sa1100fb.c:171:30: asm/arch/assabet.h: No such file or directory
+
+
+ From my .config
+
+#
+# Frame-buffer support
+#
+# CONFIG_FB is not set
+
+
+
+The files mentioned do not exist in arch that is i386. This driver seems
+to be for the "arm" architecture.
+
+I was wondering why this file is used in make dep. Did I miss something or
+should I wait for kbuild in 2.5?
+
+Balbir
+
+
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain;
+	name="InterScan_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="InterScan_Disclaimer.txt"
+
+-------------------------------------------------------------------------------------------------------------------------
+Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
+is intended for use only by the individual or entity to which it is
+addressed, and may contain information that is privileged, confidential or
+exempt from disclosure under applicable law. If you are not the intended
+recipient or it appears that this mail has been forwarded to you without
+proper authority, you are notified that any use or dissemination of this
+information in any manner is strictly prohibited. In such cases, please
+notify us immediately at mailto:mailadmin@wipro.com and delete this mail
+from your records.
+----------------------------------------------------------------------------------------------------------------------
+
+--------------InterScan_NT_MIME_Boundary--

@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261619AbTHYKEz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 06:04:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbTHYKEz
+	id S261672AbTHYKMV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 06:12:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbTHYKMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 06:04:55 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:38076 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261621AbTHYKEx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 06:04:53 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: insecure@mail.od.ua
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200308251301.00267.insecure@mail.od.ua>
-References: <1061730317.31688.10.camel@gaston>
-	 <200308251301.00267.insecure@mail.od.ua>
-Message-Id: <1061805866.779.51.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 25 Aug 2003 12:04:26 +0200
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-Subject: Re: [PATCH] Fix ide unregister vs. driver model
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+	Mon, 25 Aug 2003 06:12:21 -0400
+Received: from hireright-gw.online.ee ([194.106.125.50]:57538 "EHLO
+	mail.hireright.ee") by vger.kernel.org with ESMTP id S261672AbTHYKLm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 06:11:42 -0400
+Date: Mon, 25 Aug 2003 13:11:41 +0300 (EEST)
+From: Anton Keks <anton@ns.hireright.ee>
+To: linux-kernel@vger.kernel.org
+Subject: CardBus card is not recognized (PCI vendor 0xffff, ...)
+Message-ID: <Pine.LNX.4.44.0308251308580.24715-100000@ns.hireright.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-08-25 at 12:01, insecure wrote:
-> On Sunday 24 August 2003 16:05, Benjamin Herrenschmidt wrote:
-> >  static void hwif_register (ide_hwif_t *hwif)
-> >  {
-> >  	/* register with global device tree */
-> >  	strlcpy(hwif->gendev.bus_id,hwif->name,BUS_ID_SIZE);
-> >  	hwif->gendev.driver_data = hwif;
-> > +	if (hwif->gendev.parent == NULL) {
-> >  	if (hwif->pci_dev)
-> >  		hwif->gendev.parent = &hwif->pci_dev->dev;
-> >  	else
-> >  		hwif->gendev.parent = NULL; /* Would like to do = &device_legacy */
-> > +	}
-> 
-> inner if() should be indented
+I'm stuck with my Trendnet TEW-221PCI wireless lan card (Cardbus) not 
+working in Linux... (it works in Windoze 2k). 
+Card insertion is detected, but the card itself is not recognized.
 
-Ah shit, I keep fixing that and for some reason, it keeps re-breaking...
-I must have confused bitkeeper someway
+I have searched everywhere and I am not able to find any solutution.
 
-Anyway, Bart, you know how to fix that ;)
+Here is what I get in dmesg:
+cs: cb_alloc(bus 2): vendor 0xffff, device 0xffff
+PCI: device 02:00.0 has unknown header type 7f, ignoring.
+PCI: No IRQ known for interrupt pin ? of device 02:00.0
 
-Ben.
+lspci says that the card's vendor is unknown.
+
+cardctl status:
+Socket 0:
+3.3V CardBus card
+function 0: [ready]
+
+cardctl ident:
+Socket 0:
+no product info available
+
+I have several kernels (RH 9.0 one as well as 2.4.21 and 2.4.22-rc1). 
+PCMCIA utilities are pcmcia-cs-3.2.4.
+
+My cardbus controller is detected prefectly (it is made by ENE), machine 
+is ECS Green 550.
+
+The card uses ADMtek 8211 chipset (if that matters). 
+Unfortunately I don't have other cards to test, but this one works in 
+Windows on the same machine...
+
+I don't know if this a bug or something, but I'm really stuck, so any 
+advice is appreciated. 
+Please CC me when replying if possible.
 
 

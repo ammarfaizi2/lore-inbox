@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270459AbRHHLlS>; Wed, 8 Aug 2001 07:41:18 -0400
+	id <S270460AbRHHLtt>; Wed, 8 Aug 2001 07:49:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270458AbRHHLlK>; Wed, 8 Aug 2001 07:41:10 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:44306 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S270459AbRHHLk4>; Wed, 8 Aug 2001 07:40:56 -0400
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200108081140.NAA04248@green.mif.pg.gda.pl>
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-To: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 8 Aug 2001 13:40:52 +0200 (CEST)
-Cc: rhw@MemAlpha.CX (Riley Williams), mra@pobox.com (Mark Atwood),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <m11ymmvn5o.fsf@frodo.biederman.org> from "Eric W. Biederman" at Aug 08, 2001 04:52:51 AM
-X-Mailer: ELM [version 2.5 PL0pre8]
+	id <S270462AbRHHLtj>; Wed, 8 Aug 2001 07:49:39 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:264 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270460AbRHHLta>; Wed, 8 Aug 2001 07:49:30 -0400
+Subject: Re: [kbuild-devel] Announce: Kernel Build for 2.5, Release 1 is
+To: cate@dplanet.ch
+Date: Wed, 8 Aug 2001 12:50:32 +0100 (BST)
+Cc: kaos@ocs.com.au (Keith Owens), kbuild-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <no.id> from "Giacomo Catenazzi" at Aug 08, 2001 01:33:38 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15URr6-00057w-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Andrzej Krzysztofowicz <ankry@pg.gda.pl> writes:
-> 
-> > 1. NFS-root needs to have RARP/NFS servers on eth0.
-> >    How can you deal with it if you have two boards supported by a single
-> >    driver and, unfortunately, the one you need is detected as eth1 ?
-> >    Assume that you cannot switch them as they use different media type...
-> 
-> Hmm.  Then my system that does DHCP/NFS root with 2.4.7 and comes up
-> on eth2 is doesn't work?  Hmm it looks like it works to me.
+> If generating some support files requires some non common tools,
+> it is the right thing to ship the two files (source and generated).
 
-Then the documentation I've read must be outdated.
-Sorry.
+Its often easiest. Justin does this with the Adaptec driver now and it makes
+life both simple for those who want to build kernels and handy for those
+who want to hack the stuff.
 
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk
+> BTW we cannot ship the generated file without the source files,
+> because of GPL.
+
+If its part of the kernel tools you want to make it available, that doesn't 
+mean it has to be shipped with the kernel. 
+
+Alan

@@ -1,113 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263107AbUFNOTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263185AbUFNOWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbUFNOTz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 10:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263095AbUFNOTE
+	id S263185AbUFNOWF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 10:22:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbUFNOUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 10:19:04 -0400
-Received: from mailadmin.wku.edu ([161.6.18.52]:45770 "EHLO mailadmin.wku.edu")
-	by vger.kernel.org with ESMTP id S263159AbUFNORu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 10:17:50 -0400
-From: "Bikram Assal" <bikram.assal@wku.edu>
-Subject: kernel: NETDEV WATCHDOG: eth1: transmit timed out
+	Mon, 14 Jun 2004 10:20:37 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:36777 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S263134AbUFNOTY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 10:19:24 -0400
+Date: Mon, 14 Jun 2004 23:20:40 +0900
+From: Takao Indoh <indou.takao@soft.fujitsu.com>
+Subject: Re: [PATCH 0/4]Diskdump Update
+In-reply-to: <A0C44FA7FE6022indou.takao@soft.fujitsu.com>
 To: linux-kernel@vger.kernel.org
-X-Mailer: CommuniGate Pro WebUser Interface v.4.1.8
-Date: Mon, 14 Jun 2004 09:17:45 -0500
-Message-ID: <web-68924721@mailadmin.wku.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Message-id: <B4C4521AC512CCindou.takao@soft.fujitsu.com>
+MIME-version: 1.0
+X-Mailer: TuruKame 3.55
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+References: <A0C44FA7FE6022indou.takao@soft.fujitsu.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, 11 Jun 2004 20:34:01 +0900, Takao Indoh wrote:
 
-I m looking for help regarding few errors that I m getting in the /var/log/messages log file.
-
-I m running RedHat linux version 7.3 with kernel version 2.4.18-5 with nfs.
-
-We had updated the original kernel version but are still using the old NICS that came with the DELL PowerEdge box.
-These NICS use eepro100 driver.
-
-Sometimes, the system would just freeze with these error messages on the screen and the log file /var/log/messages as follows:
-
-kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 12:56:24 kernel: eth1: Transmit timed out: status f048 0c00 at 1703794288/1703794348 command 200ca000.
-Jun 2 12:57:06 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 12:57:06 kernel: eth1: Transmit timed out: status f088 0c00 at 1703794348/1703794410 command 0001a000.
-Jun 2 12:57:58 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 12:57:58 kernel: eth1: Transmit timed out: status f088 0c00 at 1703794410/1703794471 command 0001a000.
-Jun 2 12:59:02 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 12:59:02 kernel: eth1: Transmit timed out: status f088 0c00 at 1703794471/1703794531 command 0001a000.
-Jun 2 13:00:10 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 13:00:10 kernel: eth1: Transmit timed out: status 7088 0c00 at 1703794531/1703794593 command 0001a000.
-Jun 2 13:01:14 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 13:01:14 kernel: eth1: Transmit timed out: status f088 0c00 at 1703794593/1703794655 command 0001a000.
-Jun 2 13:01:54 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 13:01:54 kernel: eth1: Transmit timed out: status f088 0c00 at 1703794655/1703794715 command 0001a000.
-Jun 2 13:02:48 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 13:02:48 kernel: eth1: Transmit timed out: status f088 0c00 at 1703794715/1703794777 command 0001a000.
-Jun 2 13:03:38 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 13:03:38 kernel: eth1: Transmit timed out: status f088 0c00 at 1703794777/1703794839 command 0001a000.
-Jun 2 13:04:14 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 13:04:14 kernel: eth1: Transmit timed out: status f088 0c00 at 1703794839/1703794901 command 0001a000.
-Jun 2 13:04:54 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 13:04:54 kernel: eth1: Transmit timed out: status f088 0c00 at 1703794901/1703794963 command 0001a000.
-Jun 2 13:05:38 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 13:05:38 kernel: eth1: Transmit timed out: status 7088 0c00 at 1703794963/1703795024 command 0001a000.
-Jun 2 13:06:22 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 13:06:22 kernel: eth1: Transmit timed out: status f088 0c00 at 1703795024/1703795085 command 0001a000.
-Jun 2 13:07:16 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 13:07:16 kernel: eth1: Transmit timed out: status f088 0c00 at 1703795085/1703795147 command 0001a000.
-Jun 2 13:07:58 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 13:07:58 kernel: eth1: Transmit timed out: status f088 0c00 at 1703795147/1703795209 command 0001a000.
-Jun 2 13:08:48 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 13:08:48 kernel: eth1: Transmit timed out: status f088 0c00 at 1703795209/1703795270 command 0001a000.
-Jun 2 13:09:38 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 13:09:38 kernel: eth1: Transmit timed out: status f088 0c00 at 1703795270/1703795332 command 0001a000.
-
-Once the system freezes, the network card stops working but the machine remains up and running. The system stops responding to keyboard events and just freezes and then the only way to bring it back up is to reboot the system.
-
-When I run dmesg, I get the following out regarding NICs:
-
-eepro100.c:v1.09j-t 9/29/99 Donald Becker http://www.scyld.com/network/eepro100.html
-eepro100.c: $Revision: 1.36 $ 2000/11/17 Modified by Andrey V. Savochkin <saw@saw.sw.com.sg> and others
-eth0: Intel Corp. 82557/8/9 [Ethernet Pro 100], 00:06:5B:88:3E:AA, IRQ 26.
-  Receiver lock-up bug exists -- enabling work-around.
-  Board assembly 00009c-000, Physical connectors present: RJ45
-  Primary interface chip i82555 PHY #1.
-  General self-test: passed.
-  Serial sub-system self-test: passed.
-  Internal registers self-test: passed.
-  ROM checksum self-test: passed (0x04f4518b).
-  Receiver lock-up workaround activated.
-eth1: OEM i82557/i82558 10/100 Ethernet, 00:02:B3:A4:78:D9, IRQ 22.
-  Receiver lock-up bug exists -- enabling work-around.
-  Board assembly a67265-001, Physical connectors present: RJ45
-  Primary interface chip i82555 PHY #1.
-  General self-test: passed.
-  Serial sub-system self-test: passed.
-  Internal registers self-test: passed.
-  ROM checksum self-test: passed (0x24c9f043).
-  Receiver lock-up workaround activated.
-eth2: OEM i82557/i82558 10/100 Ethernet, 00:02:B3:A4:78:DA, IRQ 26.
-  Receiver lock-up bug exists -- enabling work-around.
-  Board assembly a67265-001, Physical connectors present: RJ45
-  Primary interface chip i82555 PHY #1.
-  General self-test: passed.
-  Serial sub-system self-test: passed.
-  Internal registers self-test: passed.
-  ROM checksum self-test: passed (0x24c9f043).
-  Receiver lock-up workaround activated.
+>On Thu, 27 May 2004 14:51:34 +0100, Christoph Hellwig wrote:
+>
+>>> +/******************************** Disk dump ****************************
+>>> *******/
+>>> +#if defined(CONFIG_DISKDUMP) || defined(CONFIG_DISKDUMP_MODULE)
+>>> +#undef  add_timer
+>>> +#define add_timer       diskdump_add_timer
+>>> +#undef  del_timer_sync
+>>> +#define del_timer_sync  diskdump_del_timer
+>>> +#undef  del_timer
+>>> +#define del_timer       diskdump_del_timer
+>>> +#undef  mod_timer
+>>> +#define mod_timer       diskdump_mod_timer
+>>> +
+>>> +#define tasklet_schedule        diskdump_tasklet_schedule
+>>> +#endif
+>>
+>>Yikes.  No way in hell we'll place code like this in drivers. This needs
+>>to be handled in common code.
+>
+>Another approach is insering some codes into the core timer and tasklet
+>routines.
+>
+>For example, 
+>
+>static inline void add_timer(struct timer_list * timer)
+>{
+>	if(crashdump_mode())
+>		__diskdump_add_timer(timer);
+>	else
+>		__mod_timer(timer, timer->expires);
+>}
+>
+>But I do not want to make common codes dirty...
+>Please let me know more good idea!
 
 
-Would somebody be able to help me in this case ?
+I forgot to explain what is problem. At first, I explain how diskdump
+writes the system memory to the disk.
 
-Thanks a lot in advance.
+disk_dump() in drivers/block/diskdump.c is main routine of diskdump.
+It is called from die()/panic().
+
+First, disk_dump() silences system as follows.
+
+	local_save_flags(flags);
+	local_irq_disable();
+	smp_call_function(freeze_cpu, NULL, 1, 0);
+
+Diskdump disables interrupt and stops other cpus.
+Next, after preparing for dump, diskdump starts dumping. Diskdump calls
+driver's handler via scis_dump module. Driver's handler writes data to
+the disk with polling mode.
 
 
-- Bikram 
-OCA ( Oracle Certified Associate )
-Database Specialist, WKU
-http://www.wku.edu/~bikram.assal/
+What is a problem?  Scsi driver uses timer/tasklet to complete I/O.
+But, diskdump disables interrupt, so timer/taslket doesn't work!
+
+The current diskdump uses the following macros to solve this problem.
+
+#define add_timer       diskdump_add_timer
+#define del_timer_sync  diskdump_del_timer
+#define del_timer       diskdump_del_timer
+#define mod_timer       diskdump_mod_timer
+#define tasklet_schedule        diskdump_tasklet_schedule
+
+ex.
+static inline void diskdump_add_timer(struct timer_list *timer)
+{
+	if (crashdump_mode())
+		_diskdump_add_timer(timer);
+	else
+		add_timer(timer);
+}
+
+It's very easy way. If diskdump is working, timer is registered with
+diskdump. Otherwise timer is registered with normal kernel timer. The
+timer registered with diskdump is called by diskdump itself during
+dumping.
+
+This way is easy but ugly. Another way is add new codes into the core
+timer and tasklet routines as I wrote in the previous mail.  I wondered
+whether it is possible to insert general-purpose hooks into the timer/
+taslket routine.
+
+Please let me know if there is another good idea!
+
+
+Best Regards,
+Takao Indoh

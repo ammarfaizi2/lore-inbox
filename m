@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129259AbRCWB7E>; Thu, 22 Mar 2001 20:59:04 -0500
+	id <S129321AbRCWCGy>; Thu, 22 Mar 2001 21:06:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129242AbRCWB6z>; Thu, 22 Mar 2001 20:58:55 -0500
-Received: from zcamail03.zca.compaq.com ([161.114.32.103]:18441 "HELO
-	zcamail03.zca.compaq.com") by vger.kernel.org with SMTP
-	id <S129245AbRCWB6o>; Thu, 22 Mar 2001 20:58:44 -0500
-Reply-To: <frey@cxau.zko.dec.com>
-From: "Martin Frey" <frey@scs.ch>
-To: "'Andrew Morton'" <andrewm@uow.edu.au>,
-        "'Benjamin Herrenschmidt'" <benh@kernel.crashing.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: kernel_thread vs. zombie
-Date: Thu, 22 Mar 2001 17:57:51 -0800
-Message-ID: <008901c0b33c$ab1f51a0$90600410@SCHLEPPDOWN>
+	id <S129282AbRCWCGp>; Thu, 22 Mar 2001 21:06:45 -0500
+Received: from zrtps06s.nortelnetworks.com ([47.140.48.50]:13284 "EHLO
+	zrtps06s.us.nortel.com") by vger.kernel.org with ESMTP
+	id <S129321AbRCWCG3>; Thu, 22 Mar 2001 21:06:29 -0500
+Message-ID: <3ABAABF9.294E89BD@asiapacificm01.nt.com>
+Date: Fri, 23 Mar 2001 01:50:49 +0000
+From: "Andrew Morton" <morton@nortelnetworks.com>
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.2-ac19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: Keith Owens <kaos@ocs.com.au>
+CC: Frank de Lange <frank@unternet.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2-ac21
+In-Reply-To: <4514.985311303@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <3ABA92F0.CF6729C2@uow.edu.au>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
-Importance: Normal
+X-Orig: <morton@asiapacificm01.nt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>  - When started during boot (low PID (9)) It becomes a zombie
->>  - When started from a process that quits after sending the ioctl,
->>    it is correctly "garbage collected".
->>  - When started from a process that stays around, it becomes 
->>    a zombie too
+Keith Owens wrote:
+> 
+> Am I the only person who is annoyed that nmi watchdog is now off by
+> default and the only way to activate it is by a boot parameter?  You
+> cannot even patch the kernel to build a version that has nmi watchdog
+> on because the startup code runs out of the __setup routine, no boot
+> parameter, no watchdog.
 
->Take a look at kernel/kmod.c:call_usermodehelper().  Copy it.
->
->This will make your thread a child of keventd.  This takes
->care of things like chrootedness, uids, cwds, signal masks,
->reaping children, open files, and all the other crud which
->you can accidentally inherit from your caller.
->
-So depending on the state of the caller daemonize() will not really
-put us into the background as we want. With being created from
-keventd we inherit a state as we'd like to have in a kernel thread.
-Did I get it right?
-I will change my example and test that.
-
-Thanks,
-
-Martin
+It was causing SMP boxes to crash mysteriously after
+several hours or days.  Quite a lot of them.  Nobody
+was able to explain why, so it was turned off.

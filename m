@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264172AbTDJU6G (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 16:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264173AbTDJU6G (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 16:58:06 -0400
-Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:25551 "EHLO
-	lucifer.gotontheinter.net") by vger.kernel.org with ESMTP
-	id S264172AbTDJU6F (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 16:58:05 -0400
-Subject: Re: glibc+sysenter sources..?
-From: Disconnect <lkml@sigkill.net>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1050008432.24463.69.camel@spc9.esa.lanl.gov>
-References: <1049913600.18782.24.camel@sparky>
-	 <20030409211042.GA29819@nevyn.them.org>  <1049998110.1263.50.camel@sparky>
-	 <1050008432.24463.69.camel@spc9.esa.lanl.gov>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1050008778.4629.63.camel@sparky>
+	id S264174AbTDJVB3 (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 17:01:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264177AbTDJVB3 (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 17:01:29 -0400
+Received: from adsl-92-226.38-151.net24.it ([151.38.226.92]:11525 "EHLO
+	gateway.milesteg.arr") by vger.kernel.org with ESMTP
+	id S264174AbTDJVB1 (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 17:01:27 -0400
+Date: Thu, 10 Apr 2003 23:13:03 +0200
+From: Daniele Venzano <webvenza@libero.it>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] New radeonfb fork
+Message-ID: <20030410211302.GA720@renditai.milesteg.arr>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1049642954.550.41.camel@zion.wanadoo.fr> <20030410084650.GA728@renditai.milesteg.arr> <1049984776.555.90.camel@zion.wanadoo.fr>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 10 Apr 2003 17:06:18 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1049984776.555.90.camel@zion.wanadoo.fr>
+X-Operating-System: Debian GNU/Linux on kernel Linux 2.4.21-pre7
+X-Copyright: Forwarding or publishing without permission is prohibited.
+X-Truth: La vita e' una questione di culo, o ce l'hai o te lo fanno.
+X-GPG-Fingerprint: 642A A345 1CEF B6E3 925C  23CE DAB9 8764 25B3 57ED
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-04-10 at 17:00, Steven Cole wrote:
-> On Thu, 2003-04-10 at 12:08, Disconnect wrote:
-> > On Wed, 2003-04-09 at 17:10, Daniel Jacobowitz wrote:
-> > > On Wed, Apr 09, 2003 at 02:40:00PM -0400, Disconnect wrote:
-> > > > I found the binaries (ftp://people.redhat.com/drepper/glibc/2.3.1-25/)
-> > > > but the sources don't seem to be available.
-> > Since the binaries are being distributed there, I had expected to find
-> > sources in the same place.. or at least -somewhere-..
+On Thu, Apr 10, 2003 at 04:26:16PM +0200, Benjamin Herrenschmidt wrote:
+> > I couldn't find a way to set the resolution at boot time (I use the
+> > driver compiled in), I tried the following, all being ignored:
+> > radeonfb:1024x768-8@60
+> > radeon:1024x768-8@60
 > 
-> Try here: ftp://ftp.gnu.org/gnu/glibc/
+> Make sure you used "video=", that is you should have on your kernel
+> command line video=radeon:1024x768-8@60
 
-That would be the sources to the original 2.3.1 or 2.3.2 (depending).
-That would -not- be the sources to
-ftp://people.redhat.com/drepper/glibc/2.3.1-25/*.rpm, which is a
-derivative version.  Shall we play the GPL game? The bins were
-distribute to me (they're sitting on the machine in question) with no
-sources available.  
+That made it work 8) thanks.
+But there is something curious, with video=radeon:1024x768-8@60 I get:
 
-C'mon people, enough with the obvious/troll/etc .. if you don't have the
-source or patches used to generate those bins (and you don't know where
-to get them) then its a safe bet that I'm not talking to you....
+renditai:~# fbset
 
-(And fwiw, I did find parts of them by spending a few hours curled up
-with the glibc cvs list archive, changelog, etc. But - as has been noted
-in the various B*K* flamewars - cvs does a really horrid job of
-changeset management.. its even more entertaining when you try to use
-cvsweb to extact them..)
+mode "1024x768-60"
+    # D: 65.003 MHz, H: 48.365 kHz, V: 60.006 Hz
+    geometry 1024 768 1024 768 8
+    timings 15384 168 8 29 3 144 6
+    accel true
+    rgba 8/0,8/0,8/0,0/0
+endmode
+					
+But with fbset "1024x768-60" I get:
+
+renditai:~# fbset
+
+mode "1024x768-60"
+    # D: 64.998 MHz, H: 48.362 kHz, V: 60.002 Hz
+    geometry 1024 768 1024 768 8
+    timings 15385 160 24 29 3 136 6
+    accel true
+    rgba 8/0,8/0,8/0,0/0
+endmode
+
+There's very little difference, but I was expecting to get the same
+mode. I'll go read how that modedb stuff works...
+
+Thanks again, bye.
 
 -- 
-Disconnect <lkml@sigkill.net>
+----------------------------------------
+Daniele Venzano
+Web: http://digilander.iol.it/webvenza/
 

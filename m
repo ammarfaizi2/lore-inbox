@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261829AbTIPLq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 07:46:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbTIPLq7
+	id S261833AbTIPLzT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 07:55:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbTIPLzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 07:46:59 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:12948 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261829AbTIPLq6
+	Tue, 16 Sep 2003 07:55:19 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:16020 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261833AbTIPLzP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 07:46:58 -0400
-Date: Tue, 16 Sep 2003 12:46:36 +0100
+	Tue, 16 Sep 2003 07:55:15 -0400
+Date: Tue, 16 Sep 2003 12:54:57 +0100
 From: Jamie Lokier <jamie@shareable.org>
-To: richard.brunner@amd.com
-Cc: alan@lxorguk.ukuu.org.uk, davidsen@tmr.com, zwane@linuxpower.ca,
-       linux-kernel@vger.kernel.org
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: alan@lxorguk.ukuu.org.uk, davidsen@tmr.com, linux-kernel@vger.kernel.org,
+       zwane@linuxpower.ca
 Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-Message-ID: <20030916114636.GF26576@mail.jlokier.co.uk>
-References: <99F2150714F93F448942F9A9F112634C0638B1DE@txexmtae.amd.com>
+Message-ID: <20030916115457.GH26576@mail.jlokier.co.uk>
+References: <200309151228.h8FCSQ2B022357@harpo.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <99F2150714F93F448942F9A9F112634C0638B1DE@txexmtae.amd.com>
+In-Reply-To: <200309151228.h8FCSQ2B022357@harpo.it.uu.se>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-richard.brunner@amd.com wrote:
-> Andi's patch solves both the kernel space and the user space
-> issues in a pretty small footprint.
+Mikael Pettersson wrote:
+> extern inline void prefetch(const void *x)
+> {
+>         if (cpu_data[0].x86_vendor == X86_VENDOR_AMD)
+>                 return;         /* Some athlons fault if the address is bad */
+>         alternative_input(ASM_NOP4,
+>                           "prefetchnta (%1)",
+>                           X86_FEATURE_XMM,
+>                           "r" (x));
+> }
+> 
+> A dynamic test at each occurrence. That's truly horrible.
 
-Not really.  Userspace still has a problem when run on older kernels,
-so it will have to check for AMD and kernel version anyway before
-deciding to use the prefetch instruction.  That, or install SIGSEGV
-and SIGBUS handlers to do the fixup in userspace.
-
-> The user space problem worries me more, because the expectation
-> is that if CPUID says the program can use perfetch, it could
-> and should regardless of what the kernel decided to do here.
-
-If the workaround isn't compiled in, "prefetch" should be removed from
-/proc/cpuinfo on the buggy chips.
+Is there any reason why alternative_input() cannot be used by itself?
+Another synthetic feature bit would sort this out, making a kernel
+that always works on AMD, and is optimised for AMD if the fixup is
+configured in: X86_FEATURE_XMM_PREFETCH.
 
 -- Jamie

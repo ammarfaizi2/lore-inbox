@@ -1,30 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262658AbSIPREk>; Mon, 16 Sep 2002 13:04:40 -0400
+	id <S262635AbSIPRAX>; Mon, 16 Sep 2002 13:00:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262667AbSIPREk>; Mon, 16 Sep 2002 13:04:40 -0400
-Received: from balthasar.nuitari.net ([216.40.249.34]:38117 "HELO
-	nuitari.nuitari.net") by vger.kernel.org with SMTP
-	id <S262658AbSIPREk>; Mon, 16 Sep 2002 13:04:40 -0400
-Date: Mon, 16 Sep 2002 19:23:32 -0400 (EDT)
-From: Nuitari <nuitari@balthasar.nuitari.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Hi is this critical??
-In-Reply-To: <Pine.LNX.4.43.0209161756080.5976-100000@cibs9.sns.it>
-Message-ID: <Pine.LNX.4.44.0209161921090.14787-100000@balthasar.nuitari.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262621AbSIPRAX>; Mon, 16 Sep 2002 13:00:23 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:18581 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262635AbSIPRAW>; Mon, 16 Sep 2002 13:00:22 -0400
+Subject: Re: [patch] Re: New failures in nightly LTP test
+From: Paul Larson <plars@linuxtestproject.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0209141227410.16893-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0209141227410.16893-100000@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 16 Sep 2002 11:50:48 -0500
+Message-Id: <1032195049.3362.77.camel@plars.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Sep 2002 venom@sns.it wrote:
+On Sat, 2002-09-14 at 05:30, Ingo Molnar wrote:
 
-> If so, why not to use S.M.A.R.T with smartd and smartctl?
-> I think you will like them (loock on freshmeat for the link).
-> 
+> the attached patch (against BK-curr) fixes this bug and a number of others
+> in the same class - the signal behavior bitmasks should never be consulted
+> before making sure that the signal is in the word range. Paul, does this
+> fix all the LTP regressions?
+Yes, it worked great.  Sorry for the delay, I was away for the weekend.
 
-I don't think S.M.A.R.T should be the all mighty god of dying hard drive 
-detections. Many times I had dying IDE drives that wouldn't show much 
-difference on S.M.A.R.T tests and would stay in operationnal parameters 
-until it refuses to spin up or was just covered in bad sectors.
+Thanks,
+Paul Larson
 

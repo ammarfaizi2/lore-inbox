@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbTKVKzm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Nov 2003 05:55:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTKVKzm
+	id S262181AbTKVLFH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 06:05:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTKVLFH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Nov 2003 05:55:42 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:54912 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S262161AbTKVKzl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Nov 2003 05:55:41 -0500
-Message-ID: <3FBF409F.7070405@colorfullife.com>
-Date: Sat, 22 Nov 2003 11:55:27 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: pinotj@club-internet.fr
-CC: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
-References: <mnet1.1069487254.8717.pinotj@club-internet.fr>
-In-Reply-To: <mnet1.1069487254.8717.pinotj@club-internet.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 22 Nov 2003 06:05:07 -0500
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:14862 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262181AbTKVLFA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Nov 2003 06:05:00 -0500
+Date: Sat, 22 Nov 2003 11:04:59 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Juergen Hasch <lkml@elbonia.de>
+Cc: Michael Welles <mike@bangstate.com>, linux-kernel@vger.kernel.org
+Subject: Re: Using get_cwd inside a module.
+Message-ID: <20031122110459.A31359@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Juergen Hasch <lkml@elbonia.de>,
+	Michael Welles <mike@bangstate.com>, linux-kernel@vger.kernel.org
+References: <3FBEA83B.1060001@bangstate.com> <200311221033.35108.lkml@elbonia.de> <20031122101559.A30932@infradead.org> <200311221145.39585.lkml@elbonia.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200311221145.39585.lkml@elbonia.de>; from lkml@elbonia.de on Sat, Nov 22, 2003 at 11:45:39AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pinotj@club-internet.fr wrote:
+On Sat, Nov 22, 2003 at 11:45:39AM +0100, Juergen Hasch wrote:
+> > What are the exact requirements of changedfiles or samba?
+> 
+> Samba needs to be able to notify a client machine, when a file in a 
+> directory changes (i.e. is added/removed/modified/renamed). The directory 
+> to be watched is given by the client and can include subdirectories.
 
->c6fd7870: redzone 1: 0x170fc2a5, redzone 2: 0x160fc2a5.
->
-Single bit error: redzone 2 must be 0x170fc2a5.
-
->---
->System looks OK, I tried a second compilation just after and this time I got an oops:
->---
->slab: double free detected in cache 'buffer_head', objp cc3f9798, objnr 26, slabp cc3f9000, s_mem cc3f9180 bufctl f7ffffff.
->  
->
-Good.
-
-+#define BUFCTL_END	0xfeffFFFF
-+#define BUFCTL_FREE	0xf7ffFFFE
-+#define	SLAB_LIMIT	0xf0ffFFFD
-
-f7ffffff is not a valid value, slab never writes that into a bufctl. 
-Someone did a ++ or "|= 1", or a hw bug.
-I think the Athlon cpus have ECC for the L2 cache - could you check in 
-the bios that ECC checking is enabled?
-
---
-    Manfred
+Well, reporting a single path component relative to the parent directory
+is doable, there's just no way to have a canonical absolute or
+multi-component pathname.
 

@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288830AbSCCUCU>; Sun, 3 Mar 2002 15:02:20 -0500
+	id <S288801AbSCCUET>; Sun, 3 Mar 2002 15:04:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288801AbSCCUCJ>; Sun, 3 Mar 2002 15:02:09 -0500
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:34997 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S288830AbSCCUBy>; Sun, 3 Mar 2002 15:01:54 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Hans-Christian Armingeon <linux.johnny@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Recommendations about a 100/10 NIC
-Date: Sun, 3 Mar 2002 22:04:29 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <3C82148E.E530824@wanadoo.es> <3C8231BA.AD47EA9C@starband.net>
-In-Reply-To: <3C8231BA.AD47EA9C@starband.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-ID: <16hcB4-12EIHAC@fmrl03.sul.t-online.com>
+	id <S288896AbSCCUEJ>; Sun, 3 Mar 2002 15:04:09 -0500
+Received: from ns.caldera.de ([212.34.180.1]:39080 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S288801AbSCCUDw>;
+	Sun, 3 Mar 2002 15:03:52 -0500
+Date: Sun, 3 Mar 2002 21:03:46 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: [PATCH] radix-tree pagecache for 2.4.19-pre2-ac2
+Message-ID: <20020303210346.A8329@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 3. März 2002 15:22 schrieb Justin Piszcz:
-> I'd reccomend a 3COM, as they come with a lifetime warranty and have always
-> been good for me.
-> Not sure about Intels.
-> I have a 3com 905b, the current model is a 3com 905C-TX like you mentioned.
-Which of those cards supports calculating ethernet checksums in hardware?
+I have uploaded an updated version of the radix-tree pagecache patch
+against 2.4.19-pre2-ac2.  News in this release:
 
-Thanks in advance,
+* fix a deadlock when vmtruncate takes i_shared_lock twice by introducing
+  a new mapping->page_lock that mutexes mapping->page_tree. (akpm)
+* move setting of page->flags back out of move_to/from_swap_cache. (akpm)
+* put back lost page state settings in shmem_unuse_inode. (akpm)
+* get rid of remove_page_from_inode_queue - there was only one caller. (me)
+* replace add_page_to_inode_queue with ___add_to_page_cache. (me)
 
-Johnny
+Please give it some serious beating while I try to get 2.5 working and
+port the patch over 8)
+
+Location:
+
+	ftp://ftp.kernel.org/pub/linux/kernel/people/hch/patches/v2.4/2.4.19-pre2-ac2/linux-2.4.19-radixtree.patch.gz
+	ftp://ftp.kernel.org/pub/linux/kernel/people/hch/patches/v2.4/2.4.19-pre2-ac2/linux-2.4.19-radixtree.patch.bz2
 

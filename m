@@ -1,63 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275861AbRJBIUE>; Tue, 2 Oct 2001 04:20:04 -0400
+	id <S275964AbRJBIfq>; Tue, 2 Oct 2001 04:35:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275856AbRJBITy>; Tue, 2 Oct 2001 04:19:54 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:11276 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S275861AbRJBITn>;
-	Tue, 2 Oct 2001 04:19:43 -0400
-Date: Tue, 2 Oct 2001 11:20:05 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: LA Walsh <law@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 'dd' local works, but not over net, help as to why?
-Message-ID: <20011002112005.K1144@mea-ext.zmailer.org>
-In-Reply-To: <NDBBJDKDKDGCIJFBPLFHMEJPCGAA.law@sgi.com>
+	id <S275963AbRJBIfg>; Tue, 2 Oct 2001 04:35:36 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:59398 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S275862AbRJBIfS>;
+	Tue, 2 Oct 2001 04:35:18 -0400
+Date: Tue, 2 Oct 2001 10:35:39 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: "J.D. Hood" <jdthood@yahoo.co.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PnPBIOS 2.4.9-ac1[56] Vaio fix
+Message-ID: <20011002103539.D25153@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <20011001154136.K5531@come.alcove-fr> <20011001192104.17249.qmail@web10307.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <NDBBJDKDKDGCIJFBPLFHMEJPCGAA.law@sgi.com>; from law@sgi.com on Tue, Oct 02, 2001 at 12:52:48AM -0700
+In-Reply-To: <20011001192104.17249.qmail@web10307.mail.yahoo.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 02, 2001 at 12:52:48AM -0700, LA Walsh wrote:
-> I'm sure there's an obvious answer to this, but it is eluding me.
-    Probably...
+On Mon, Oct 01, 2001 at 08:21:04PM +0100, J.D. Hood wrote:
 
-> If I am on my local laptop, I can 'dd' an 8G partition to a
-> removable HD of the same or slightly larger size (slightly large
-> because of geometry differences).
-> 
-> If I am on my desktop, "I can 'dd' the same size partition to
-> a slightly larger one -- again, no problem.
-> 
-> But if I use:
-> 
-> dd if=/dev/hda2 bs=1M|rsh other-system of=/dev/sda2 bs=1M, I
-> get failures of running out of room on target.  I've tried
-> a variety of block size ranging from 1K->64G, but no luck.
+> However, if is_sony_vaio_laptop is 0 at pnpbios init
+> time then if you look in /proc/bus/pnp you'll see numerical
+> entries there.  
 
-   You are missing one 'dd' from the other system side, but
-   are you also sure that the remote system can support large
-   files, and that the dd in there does support large files ?
+Yes:
+# cd /proc/bus/pnp/
+# ls
+00  01  02  03  04  05  06  07  08  09  0b  0c  0d  0e  boot  devices
+# ls boot
+00  01  02  03  04  05  06  07  08  09  0b  0c  0d  0e
 
-   Verify that you can 'dd if=/dev/zero of=/dev/sda2 bs=1M'
-   at that remote system -- then we know that dd in there
-   (and the system) can do it, and the bug-sphere shrinks.
+> Want to crash your machine?  Just read from
+> them.  (The numerically named entries in /proc/bus/pnp/boot 
+> should be okay to read and write, though.)
 
-> Is there something in the networking code that's preventing me
-> from transferring more than a 2 or 4 G limit?
+It doesn't crash. I did a "cat /proc/bus/pnp/0* > /dev/null" 
+and the laptop is still alive.
 
-   There should not be anything such.
-   (But of course things like RSH could have some nasty surprises
-    in them...)
+> We need to know when is_sony_vaio_laptop so that we can
+> stop this from happening.  
 
-> I just wanted an exact image off onto another system.  Would
-> seem to have been straight forwared. but I guess not?  
-> 
-> Thanks in advance for any work-arounds and explanations...
-> 
-> -linda
+See above.
 
-/Matti Aarnio
+> So either we put the dmi scan
+> earlier (which Alan says is in the works) 
+
+This is the solution, as Alan said DMI idents will be needed for
+some other boards (GX ?). 
+
+Alan: are you already working on this or you're waiting for a
+patch ?
+
+> or else we allow
+> the creation of the proc entries at init time but reject
+> read/write accesses after init time.  I'll make up a patch
+> that does the latter, but it would be nicest if the proc
+> entries were omitted altogether.
+
+If we cannot read nor write them, there is no point in showing
+them... (we already have the devices file to show the list).
+
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

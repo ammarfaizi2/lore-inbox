@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129253AbRBRT40>; Sun, 18 Feb 2001 14:56:26 -0500
+	id <S129247AbRBRUFa>; Sun, 18 Feb 2001 15:05:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129273AbRBRT4Q>; Sun, 18 Feb 2001 14:56:16 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:4616 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129253AbRBRT4B>;
-	Sun, 18 Feb 2001 14:56:01 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200102181955.WAA27552@ms2.inr.ac.ru>
-Subject: Re: MTU and 2.4.x kernel
-To: riel@conectiva.com.br (Rik van Riel)
-Date: Sun, 18 Feb 2001 22:55:14 +0300 (MSK)
-Cc: alan@lxorguk.ukuu.org.uk, roger@kea.GRace.CRi.NZ,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.31.0102161351040.28870-100000@localhost.localdomain> from "Rik van Riel" at Feb 16, 1 01:51:31 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S129273AbRBRUFU>; Sun, 18 Feb 2001 15:05:20 -0500
+Received: from mail.mojomofo.com ([208.248.233.19]:48645 "EHLO mojomofo.com")
+	by vger.kernel.org with ESMTP id <S129247AbRBRUFM>;
+	Sun, 18 Feb 2001 15:05:12 -0500
+Message-ID: <015101c099e6$195f7cf0$0300a8c0@methusela>
+From: "Aaron Tiensivu" <mojomofo@mojomofo.com>
+To: <brian@worldcontrol.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010218004456.A13695@top.worldcontrol.com>
+Subject: Re: XOR  [ was: Linux stifles innovation.]
+Date: Sun, 18 Feb 2001 15:04:56 -0500
 MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+| Since that time, about 1986, I learned that there is a whole cottage
+| industry of going through old, but not too old, patents and seeing how
+| they can be misconstrued to apply to current technology, buying the
+| patent for cheap, and then threatening "infringers".  More or less
+| an extortion racket.  Generally the license fee demanded is low enough
+| that is more cost effective, in the short term, to pay.   And with
+| shareholder lawsuits the way they are, short term thinking
+| is the only thinking shareholders accept, and the extortionists
+| know it.
 
-> Wouldn't it be simpler to just fix the bugs
+Those of them that didn't end up in jail went on to form RAMBUS in the 90s.
 
-There are no bugs.
 
-There is phylosophical discussion about current state of internet
-communications.
-
-Alexey

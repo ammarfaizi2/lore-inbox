@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130266AbRB1Q0c>; Wed, 28 Feb 2001 11:26:32 -0500
+	id <S130253AbRB1QgH>; Wed, 28 Feb 2001 11:36:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130264AbRB1Q0W>; Wed, 28 Feb 2001 11:26:22 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:22177 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S130266AbRB1Q0M>;
-	Wed, 28 Feb 2001 11:26:12 -0500
-Message-ID: <3A9D26A2.14563DE1@mandrakesoft.com>
-Date: Wed, 28 Feb 2001 11:26:10 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Zach Brown <zab@zabbo.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] pci_dma_set_mask()
-In-Reply-To: <20010228103727.I23735@tetsuo.zabbo.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130260AbRB1Qf5>; Wed, 28 Feb 2001 11:35:57 -0500
+Received: from ncc1701.cistron.net ([195.64.68.38]:59404 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S130253AbRB1Qfs>; Wed, 28 Feb 2001 11:35:48 -0500
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: Unmounting and ejecting the root fs on shutdown.
+Date: Wed, 28 Feb 2001 16:37:13 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <97j9fp$h1o$1@ncc1701.cistron.net>
+In-Reply-To: <E44E649C7AA1D311B16D0008C73304460933B1@caspian.prebus.uppsala.se>
+X-Trace: ncc1701.cistron.net 983378233 17464 195.64.65.67 (28 Feb 2001 16:37:13 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zach Brown wrote:
-> +int
-> +pci_set_dma_mask(struct pci_dev *dev, dma_addr_t mask)
-> +{
-> +    if(! pci_dma_supported(dev, mask))
-> +        return 0;
-> +
-> +    dev->dma_mask = mask;
-> +
-> +    return 1;
-> +}
+In article <E44E649C7AA1D311B16D0008C73304460933B1@caspian.prebus.uppsala.se>,
+Per Erik Stendahl  <PerErik@onedial.se> wrote:
+>Mounting a ramdisk for / is doable (I think) but kludgy since you have
+>to symlink or mount so many subdirectories. Right now I only have /var
+>in a ramdisk (and why _WHY_ is /etc/mtab located in /etc and not
+>in /var??).
 
-pci_dma_supported has a boolean return, but the kernel norm is to return
-zero on success, and -EFOO on error.  I like your proposal with the
-extremely minor nit that I think pci_set_dma_mask should return ENODEV
-or EIO or something on error, and zero on success.
+If /var is on a seperate partition, how are you going to access it
+if /var hasn't been mounted yet ?
 
-	Jeff
-
-
-
+Mike.
 -- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+I live the way I type; fast, with a lot of mistakes.
+

@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261806AbREPH0n>; Wed, 16 May 2001 03:26:43 -0400
+	id <S261813AbREPH2d>; Wed, 16 May 2001 03:28:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261808AbREPH0e>; Wed, 16 May 2001 03:26:34 -0400
-Received: from hood.tvd.be ([195.162.196.21]:34038 "EHLO hood.tvd.be")
-	by vger.kernel.org with ESMTP id <S261806AbREPH0X>;
-	Wed, 16 May 2001 03:26:23 -0400
-Date: Wed, 16 May 2001 09:24:40 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Jonathan Lundell <jlundell@pobox.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        James Simmons <jsimmons@transvirtual.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu
+	id <S261814AbREPH2Y>; Wed, 16 May 2001 03:28:24 -0400
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:62471 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S261813AbREPH2O>; Wed, 16 May 2001 03:28:14 -0400
+From: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
+Message-Id: <200105160710.JAA01305@kufel.dom>
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.LNX.4.21.0105151309460.2470-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.05.10105160923370.23225-100000@callisto.of.borg>
+To: kufel!hickam.af.mil!Sam.Bingner@green.mif.pg.gda.pl (Bingner Sam J.
+	Contractor RSIS)
+Date: Wed, 16 May 2001 09:10:44 +0200 (CEST)
+Cc: kufel!ras.ucalgary.ca!rgooch@green.mif.pg.gda.pl ('Richard Gooch'),
+        kufel!lxorguk.ukuu.org.uk!alan@green.mif.pg.gda.pl (Alan Cox),
+        kufel!vger.kernel.org!linux-kernel@green.mif.pg.gda.pl
+In-Reply-To: <4CDA8A6D03EFD411A1D300D0B7E83E8F697321@FSKNMD07.hickam.af.mil> from "Bingner Sam J. Contractor RSIS" at maj 15, 2001 11:49:40 
+X-Mailer: ELM [version 2.5 PL0pre8]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 May 2001, Linus Torvalds wrote:
-> On Tue, 15 May 2001, Jonathan Lundell wrote:
-> > 2 (disk domain). I have multiple spindles on multiple SCSI adapters. 
 > 
-> So? Same deal. You don't have eth0..N, you have disk0..N. 
+> OK, just correct me if I get this wrong, but this code is taking the LAST 2
+> characters of the device name and verifying that it is "cd".  Which would
+> mean that the standard states that "/dev/ginsucd" would be a CD-ROM drive?
 > 
-> What's the problem? It's _repeatable_, in that as long as you don't change
-> your disks, they'll show up the same way. But the 0..N doesn't imply that
-> the disks are anywhere special.
+> That is why I feel a "name" of a device handle shouldnt set how a driver
+> operates in this fashion... if you make a small error in your compare, you
+> might try to eject a Ginsu Cabbage Dicer instead of a cdrom drive... OOPS!
+> 
+> 	Sam Bingner
+> 
+> Alan Cox writes:
+> > > 	len = readlink ("/proc/self/3", buffer, buflen);
+> > > 	if (strcmp (buffer + len - 2, "cd") != 0) {
+> > > 		fprintf (stderr, "Not a CD-ROM! Bugger off.\n");
+> > > 		exit (1);
+> > 
+> > And on my box cd is the cabbage dicer whoops
+> 
+> Actually, no, because it's guaranteed that a trailing "/cd" is a
+> CD-ROM. That's the standard.
 
-Are FireWire (and USB) disks always detected in the same order? Or does it
-behave like ADB, where you never know which mouse/keyboard is which
-mouse/keyboard?
+Sure, you no longer support /dev/sdcd (eighty-second SCSI disk)...
+;)
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Andrzej

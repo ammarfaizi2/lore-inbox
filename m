@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261620AbTDKTdw (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 15:33:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbTDKTdv (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 15:33:51 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:60566 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S261598AbTDKTdt (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 15:33:49 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Fri, 11 Apr 2003 21:45:30 +0200 (MEST)
-Message-Id: <UTC200304111945.h3BJjU409008.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, James.Bottomley@steeleye.com
-Subject: Re: [patch for playing] Patch to support 4000 disks and maintain backward compatibility
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       pbadari@us.ibm.com
+	id S261570AbTDKTcb (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 15:32:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbTDKTcb (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 15:32:31 -0400
+Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:14576 "HELO
+	cocodriloo.com") by vger.kernel.org with SMTP id S261570AbTDKTca (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 15:32:30 -0400
+Date: Fri, 11 Apr 2003 21:54:19 +0200
+From: Antonio Vargas <wind@cocodriloo.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: build breaks with UML patch
+Message-ID: <20030411195419.GH25862@wind.cocodriloo.com>
+References: <20030411213443.A35199@freebsdcluster.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030411213443.A35199@freebsdcluster.dk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From James.Bottomley@SteelEye.com  Fri Apr 11 21:12:28 2003
+On Fri, Apr 11, 2003 at 09:34:43PM +0200, Vikram Rangnekar wrote:
+> 
+> arch/i386/kernel/sys_i386.c: In function `do_mmap2':
+> arch/i386/kernel/sys_i386.c:59: warning: passing arg 1 of `do_mmap_pgoff'
+> from incompatible pointertype
+> arch/i386/kernel/sys_i386.c:59: warning: passing arg 2 of `do_mmap_pgoff'
+> makes pointer from integer without a cast
+> arch/i386/kernel/sys_i386.c:59: too few arguments to function `do_mmap_pgoff'
+> make[1]: *** [arch/i386/kernel/sys_i386.o] Error 1
+> make: *** [arch/i386/kernel] Error 2
+> 
+> When i try to make the 2.5.67 kernel with the uml-patch-2.5.67-1  
+> 
+> regards
+> Vikram (http://www.vicramresearch.com)
 
-    > It is me who wants compatibility as far as 8+8 device numbers are
-    > concerned, while I can see lots of ways to use new number space.
+Did you remember to do the ARCH=um thing everywhere?
 
-    This, I'm not too sure about.  I see the value to kernel developers who
-    boot between different versions of the kernel, but I think when 2.6 goes
-    live and ships to end users, it's better not to have such numeric
-    equivalency crufting up the SCSI interfaces.
+ie: make ARCH=um menuconfig
+    make ARCH=um linux
 
-I think compatibility is very important.
-Linux does not arbitrarily break old systems. The aim must be
-to have all combinations of (old/new) kernel with (old/new) glibc
-to work well in all situations where old kernel + old glibc worked.
-
-Andries
-
+I missed it a few times when starting with uml :)
 

@@ -1,41 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265611AbUBGFrF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 00:47:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266642AbUBGFrF
+	id S265788AbUBGFzt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 00:55:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266650AbUBGFzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 00:47:05 -0500
-Received: from cathy.bmts.com ([216.183.128.202]:62907 "EHLO cathy.bmts.com")
-	by vger.kernel.org with ESMTP id S265611AbUBGFrD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 00:47:03 -0500
-Date: Sat, 7 Feb 2004 00:47:00 -0500
-From: Mike Houston <mikeserv@bmts.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: psmouse.c, throwing 3 bytes away
-Message-Id: <20040207004700.0dd5e626.mikeserv@bmts.com>
-In-Reply-To: <200402060006.32732.wnelsonjr@comcast.net>
-References: <200402041820.39742.wnelsonjr@comcast.net>
-	<20040205171028.652a694c.mikeserv@bmts.com>
-	<20040206021522.12dfd362.mikeserv@bmts.com>
-	<200402060006.32732.wnelsonjr@comcast.net>
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 7 Feb 2004 00:55:49 -0500
+Received: from ruby.getonit.net.au ([210.8.120.221]:24713 "EHLO
+	ruby.getonit.net.au") by vger.kernel.org with ESMTP id S265788AbUBGFzs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 00:55:48 -0500
+Message-ID: <01cf01c3ed3f$069c1240$8c02a8c0@timtopxp>
+From: "Tim Warnock" <timoid@getonit.net.au>
+To: <linux-kernel@vger.kernel.org>
+Subject: p4ht time accelleration
+Date: Sat, 7 Feb 2004 15:55:44 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Feb 2004 00:06:32 -0800
-Walt Nelson <wnelsonjr@comcast.net> wrote:
+Hi list,
 
-> I am not sure but patch-2.6.2-bk1.tar.gz has not produce the mouse problems. I 
-> applied it about 14 hours ago. I have no seen any mouse problems. I noticed 
-> that there was a possible fix for loosing ticks in it?
-> 
+i have a box running 2.4.24 (its been doing this since the box was put into
+place on 2.4.21)
 
-Well, I've been running 2.6.2-bk2 for around 12 hours now, and the problem hasn't surfaced. While this is the longest I've gone, it still could be coincidence but I'm hoping that strange mouse glitch won't come back.
+basically:
 
-I'm going to move on to 2.6.3-rc1 now. Here's to having nothing to report :-)
+cat /proc/driver/rtc ; sleep 10; cat /proc/driver/rtc
+rtc_time        : 20:13:50
+rtc_date        : 2004-02-07
+rtc_epoch       : 1900
+alarm           : 00:00:00
+DST_enable      : no
+BCD             : yes
+24hr            : yes
+square_wave     : no
+alarm_IRQ       : no
+update_IRQ      : no
+periodic_IRQ    : no
+periodic_freq   : 1024
+batt_status     : okay
 
-Mike
+
+rtc_time        : 20:13:53
+rtc_date        : 2004-02-07
+rtc_epoch       : 1900
+alarm           : 00:00:00
+DST_enable      : no
+BCD             : yes
+24hr            : yes
+square_wave     : no
+alarm_IRQ       : no
+update_IRQ      : no
+periodic_IRQ    : no
+periodic_freq   : 1024
+batt_status     : okay
+
+the os time accellerates into the future but the rtc time stays normal...
+
+is it software, hardware or what? i dont know. i dunno who to ask for
+help hence the post...
+
+the box is a p4ht 2.6 ibm think center
+
+tia
+
+tim

@@ -1,56 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316569AbSIIHDr>; Mon, 9 Sep 2002 03:03:47 -0400
+	id <S316574AbSIIHN6>; Mon, 9 Sep 2002 03:13:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316573AbSIIHDr>; Mon, 9 Sep 2002 03:03:47 -0400
-Received: from gc-na5.alcatel.fr ([64.208.49.5]:30083 "EHLO smail2.alcatel.fr")
-	by vger.kernel.org with ESMTP id <S316569AbSIIHDq>;
-	Mon, 9 Sep 2002 03:03:46 -0400
-Message-ID: <3D7C48E6.9DC9E218@sxb.bsf.alcatel.fr>
-Date: Mon, 09 Sep 2002 09:08:22 +0200
-From: Denis RICHARD <dri@sxb.bsf.alcatel.fr>
-X-Mailer: Mozilla 4.75 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Yves LUDWIG <Yves.Ludwig@sxb.bsf.alcatel.fr>,
-       Denis RICHARD <Denis.Richard@sxb.bsf.alcatel.fr>
-Subject: WEB site for e2compress patch on 2.4 kernel.
-Content-Type: text/plain; charset=us-ascii
+	id <S316576AbSIIHN6>; Mon, 9 Sep 2002 03:13:58 -0400
+Received: from sv1.valinux.co.jp ([202.221.173.100]:39441 "HELO
+	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S316574AbSIIHN5>;
+	Mon, 9 Sep 2002 03:13:57 -0400
+Date: Mon, 09 Sep 2002 16:11:23 +0900 (JST)
+Message-Id: <20020909.161123.74745039.taka@valinux.co.jp>
+To: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH] zerocopy NFS for 2.5.33
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-A new WEB site  for the e2compress patch on the 2.4 kernel is available
-at http://www.alizt.com .
+I updated the patches for zerocopy NFS. You can apply them against
+linux-2.5.33 and zerocopy NFS over UDP/TCP works very fine.
 
-The last version of the patch to download, is 0.4.43 for the 2.4.17 linux kernel.
+1)
+ftp://ftp.valinux.co.jp/pub/people/taka/tune/2.5.33/va10-hwchecksum-2.5.33.patch
+This patch enables HW-checksum against outgoing packets including UDP frames.
 
-The fixed bugs are :
- - Deadlock correction between compressing cluster and sync of pages.
- - Management of MAPPED and DIRTY buffer flags.
- - Test of block numbers in compression.
- - Test if page is dirty to allocate buffer when compressing.
- - When decompressing cluster use the size of the cluster and not the size of the file,
-     because it can be called from vmtruncate (the size of the file has already changed).
- - Management of working area lock.
- - When (de)compressing file containing holes, the data must be moved and not only the block number.
- - New function ext2_decompress_pages() to allocate blocks for a cluster already read (block decompressed).
-     It is now called in ext2_decompress_cluster() and not only in ext2_file_write().
+2)
+ftp://ftp.valinux.co.jp/pub/people/taka/tune/2.5.33/va11-udpsendfile-2.5.33.patch
+This patch makes sendfile systemcall over UDP work. It also supports
+UDP_CORK interface which is very similar to TCP_CORK. And you can call
+sendmsg/senfile with MSG_MORE flags over UDP sockets too.
 
-Feel free to contact me if you have some problems.
+Using TSO code is commented out at this moment as TSO for UDP isn't
+implemented yet. I'm waiting for it so that we would remove "#ifdef NotYet"
+to send jumbo UDP frames without any fragmentation and any checksumming.
+Then I hope we will get great performance.
 
-Good compression.
+3)
+ftp://ftp.valinux.co.jp/pub/people/taka/tune/2.5.33/va-csumpartial-fix-2.5.33.patch
+This patch fixes the problem of x86 csum_partilal() routines which
+can't handle odd addressed buffers.
 
-Bye.
+4)
+ftp://ftp.valinux.co.jp/pub/people/taka/tune/2.5.33/va01-zerocopy-rpc-2.5.33.patch
+This patch makes RPC be able to send some pieces of data and pages
+without any copies.
 
---
------------------------------\--------------------------\
-Denis RICHARD                 \ ALCATEL Business Systems \
-mailto:dri@sxb.bsf.alcatel.fr / Tel: +33(0)3 90 67 69 36 /
------------------------------/--------------------------/
+5)
+ftp://ftp.valinux.co.jp/pub/people/taka/tune/2.5.33/va02-zerocopy-nfsdread-2.5.33.patch
+This patch makes NFSD pass pages in pagecache to RPC layer directly
+when NFS clinets request file-read.
+
+6)
+ftp://ftp.valinux.co.jp/pub/people/taka/tune/2.5.33/va03-zerocopy-nfsdreaddir-2.5.33.patch
+nfsd_readdir can also send pages without copy.
+
+7)
+ftp://ftp.valinux.co.jp/pub/people/taka/tune/2.5.33/va04-zerocopy-shadowsock-2.5.33.patch
+This patch makes per-cpu UDP sockets so that NFSD can send UDP frames on
+each prosessor simultaneously.
+Without the patch we can send only one UDP frame at the time as a UDP socket
+have to be locked during sending some pages to serialize them.
+
+8)
+ftp://ftp.valinux.co.jp/pub/people/taka/tune/2.5.33/va05-zerocopy-tempsendto-2.5.33.patch
+If you don't want to use sendfile over UDP yet, you can apply it instead
+of 1) and 2) .
 
 
+If you have any requests or comments, could you let me know.
 
+
+Thank you,
+Hirokazu Takahashi.

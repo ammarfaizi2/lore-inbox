@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262665AbVBBTkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262269AbVBBTjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262665AbVBBTkB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 14:40:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbVBBTjz
+	id S262269AbVBBTjK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 14:39:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbVBBTeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 14:39:55 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:14550 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262645AbVBBTfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 14:35:40 -0500
-Date: Wed, 2 Feb 2005 19:35:35 +0000 (GMT)
-From: James Simmons <jsimmons@www.infradead.org>
-X-X-Sender: jsimmons@pentafluge.infradead.org
-To: Haakon Riiser <haakon.riiser@fys.uio.no>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Accelerated frame buffer functions
-In-Reply-To: <20050202174509.GA773@s>
-Message-ID: <Pine.LNX.4.56.0502021932180.20184@pentafluge.infradead.org>
-References: <20050202133108.GA2410@s> <Pine.LNX.4.61.0502020900080.16140@chaos.analogic.com>
- <20050202142155.GA2764@s> <1107357093.6191.53.camel@gonzales>
- <20050202154139.GA3267@s> <9e4733910502020825434a477@mail.gmail.com>
- <20050202174509.GA773@s>
+	Wed, 2 Feb 2005 14:34:50 -0500
+Received: from asplinux.ru ([195.133.213.194]:10252 "EHLO relay.asplinux.ru")
+	by vger.kernel.org with ESMTP id S262750AbVBBTd2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 14:33:28 -0500
+Message-ID: <42012ACC.4090806@sw.ru>
+Date: Wed, 02 Feb 2005 22:32:28 +0300
+From: Vasily Averin <vvs@sw.ru>
+Organization: SW-soft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021224
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: 0.0 (/)
+To: Matt Domsch <Matt_Domsch@dell.com>
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Andrey Melnikov <temnota+kernel@kmv.ru>, linux-kernel@vger.kernel.org,
+       Atul Mukker <Atul.Mukker@lsil.com>,
+       Sreenivas Bagalkote <Sreenivas.Bagalkote@lsil.com>
+Subject: Re: [PATCH] Prevent NMI oopser
+References: <41F5FC96.2010103@sw.ru> <20050131231752.GA17126@logos.cnet> <42011EFA.10109@sw.ru> <20050202190626.GB18763@lists.us.dell.com>
+In-Reply-To: <20050202190626.GB18763@lists.us.dell.com>
+X-Enigmail-Version: 0.70.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Matt
 
-> > You should look at writing a DRM driver. DRM implements the kernel
-> > interface to get 3D hardware running. It is a fully accelerated driver
-> > interface. They are located in drivers/char/drm
+Matt Domsch wrote:
+> On Wed, Feb 02, 2005 at 09:42:02PM +0300, Vasily Averin wrote:
+>>Marcelo,
+>>
+>>This is megaraid2 driver update (2.10.8.2 version, latest 2.4-compatible
+>>version that I've seen), taken from latest RHEL3 kernel update. I
+>>believe it should prevent NMI in abort/reset handler.
 > 
-> Have the standard frame buffer drivers been abandoned, even
-> for devices that have no 3D acceleration (like the Geode GX2)?
+> Thanks Vasily, I was just looking at this again yesterday.
+> 
+> You'll also find that because the driver doesn't define its inline
+> functions prior to their use, newest compilers refuse to compile this
+> version of the driver.  Earlier compilers just ignore it and don't
+> inline anything.
+> 
+> As a hack, one could #define inline /*nothing*/ in megaraid2.h to
+> avoid this, but it would be nice if the functions could all get
+> reordered such that inlining works properly, and the need for function
+> declarations in megaraid2.h would disappear completely.
 
-No. It is still around. 
 
-> I took a quick look at the DRM stuff, and it looked like extreme
-> overkill for what I need, if it even can be used for what I want
-> to do.  At first glance it looked like this is only relevant for
-> OpenGL/X11 3D-stuff, which I have absolutely no use for.
+Could you fix it by additional patch? Or you going to prepare a new one?
 
-This is usually the case for embedded chips. This is the reason the fbdev 
-userland interface is still around.
-
-> GX2 is an integrated CPU/graphics chip for embedded systems.
-> We have third party applications that use the framebuffer device,
-> and I was hoping to make things faster by writing an accelerated
-> driver.  The only thing I need answered is how to access fb_ops
-> from userspace.  
-
-You can mmap the mmio address space and program the registers yourself.
-A bonus is the example code is in the driver :-) 
-
-> If that is impossible because all the framebuffer
-> code is leftover junk that no one uses anymore, or even /can/
-> use anymore because the userspace interface is gone, please let
-> me know now so I don't have to waste any more time.
-
-The userspace interface is still there.
+Thank you,
+	Vasily Averin, SWSoft Linux Kernel Team
 

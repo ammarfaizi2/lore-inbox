@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129126AbQKBWxI>; Thu, 2 Nov 2000 17:53:08 -0500
+	id <S129105AbQKBWyS>; Thu, 2 Nov 2000 17:54:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129144AbQKBWw6>; Thu, 2 Nov 2000 17:52:58 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:51610 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129126AbQKBWws>;
-	Thu, 2 Nov 2000 17:52:48 -0500
-Date: Thu, 2 Nov 2000 14:37:56 -0800
-Message-Id: <200011022237.OAA26995@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: groudier@club-internet.fr
-CC: cort@fsmlabs.com, npsimons@fsmlabs.com, garloff@suse.de,
-        jamagallon@able.es, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10011022209420.2328-100000@linux.local> (message
-	from Gérard Roudier on Thu, 2 Nov 2000 22:24:27 +0100 (CET))
-Subject: Re: Where did kgcc go in 2.4.0-test10 ?
-In-Reply-To: <Pine.LNX.4.10.10011022209420.2328-100000@linux.local>
+	id <S129538AbQKBWyI>; Thu, 2 Nov 2000 17:54:08 -0500
+Received: from c100.clearway.com ([199.103.231.100]:11278 "EHLO
+	mercury.clearway.com") by vger.kernel.org with ESMTP
+	id <S129144AbQKBWx5>; Thu, 2 Nov 2000 17:53:57 -0500
+From: Paul Marquis <pmarquis@iname.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-ID: <3A01F07C.1DB597CE@iname.com>
+Date: Thu, 02 Nov 2000 17:53:48 -0500
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.15pre3 ppc)
+X-Accept-Language: en
+MIME-Version: 1.0
+Subject: Re: select() bug
+In-Reply-To: <E13rSpZ-0001z2-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Thu, 2 Nov 2000 22:24:27 +0100 (CET)
-   From: Gérard Roudier <groudier@club-internet.fr>
+I guess in theory, you're right, though if a write() could succeed,
+shouldn't select() say that it would?
 
-   > Finally, if I were to state "fsmlabs are a bunch of pinheads because
-   > they did XXX" I would expect you to defend your employer as well if I
-   > misrepresented them due to incorrect statements.  Right?  :-)
+And this assumes you're calling select() with a timeout.  In Apache,
+the caretaker process wakes up periodically and polls the pipe with a
+timeout of zero.  If it gets back the pipe is not writable, it kills
+the process.  With this false negative situation, this is a bad thing.
 
-   Wrong, as far as it is David S. Miller who is one of the greatest Linux 
-   contributors that made Linux become what it is nowadays, mostly as a free
-   contributors for years.
+Alan Cox wrote:
+> 
+> > that are log file handlers are dead.  If select() reports it can't
+> > write immediately, Apache terminates and restarts the child process,
+> > creating unnecessary load on the system.
+> 
+> Is there anything saying that select has to report ready the instant a byte
+> would fit. Certainly its better for performance to reduce the context switch
+> rate by encouraging blocking
 
-Gerard, please replace "employer" in my words above with "group who
-you believe in" (for me, such an example would be the SparcLinux
-project) and you will arrive at the true gist of my statements.
+-- 
+Paul Marquis
+pmarquis@iname.com
 
-I will defend anyone in the Linux community who is being wronged and
-who I believe in.  It is not a gift specific to the company I work
-for.  I would bestow it even upon one of my ex-employers, it does not
-matter.  I don't think I have become as cold blooded as you would make
-me out to be :-)
-
-Later,
-David S. Miller
-davem@redhat.com
-
+If it's tourist season, why can't we shoot them?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

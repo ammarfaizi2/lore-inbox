@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291733AbSBHS4y>; Fri, 8 Feb 2002 13:56:54 -0500
+	id <S291736AbSBHS4y>; Fri, 8 Feb 2002 13:56:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291736AbSBHS4s>; Fri, 8 Feb 2002 13:56:48 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:44201 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S291733AbSBHS4h>;
-	Fri, 8 Feb 2002 13:56:37 -0500
-Date: Fri, 8 Feb 2002 21:54:24 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Tigran Aivazian <tigran@veritas.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] larger kernel stack (8k->16k) per task
-In-Reply-To: <Pine.LNX.3.95.1020208123843.1974A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.33.0202082150040.15826-100000@localhost.localdomain>
+	id <S291738AbSBHS4q>; Fri, 8 Feb 2002 13:56:46 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:18846 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S291736AbSBHS4i>;
+	Fri, 8 Feb 2002 13:56:38 -0500
+Date: Fri, 8 Feb 2002 13:56:07 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andrew Morton <akpm@zip.com.au>, Christoph Hellwig <hch@ns.caldera.de>,
+        yodaiken <yodaiken@fsmlabs.com>, Martin Wirth <Martin.Wirth@dlr.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        torvalds <torvalds@transmet.com>, rml <rml@tech9.net>,
+        nigel <nigel@nrg.org>
+Subject: Re: [RFC] New locking primitive for 2.5
+In-Reply-To: <Pine.LNX.4.33.0202082144350.15826-100000@localhost.localdomain>
+Message-ID: <Pine.GSO.4.21.0202081352400.28514-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 8 Feb 2002, Richard B. Johnson wrote:
 
-> Could someone please tell me why you should make a function call to
-> allocate, and then later on free, some temporary space for variables
-> when allocation on the stack involves simply subtracting a value,
-> calculated by the compiler at compile-time, from the stack-pointer?
+On Fri, 8 Feb 2002, Ingo Molnar wrote:
 
-because if you need that much stack space then you shouldnt care about
-kmalloc() overhead anymore.
+> i'd suggest 64-bit update instructions on x86 as well, they do exist.
+> spinlock only for the truly hopeless cases like SMP boxes composed of
+> i486's. We really want llseek() to scale ...
 
-> This takes 42 clocks, not including the thousands used up by kmalloc
-> and kfree.
+Ingo, are you sure that you actually saw llseek() causing problems?
+And not, say it, ext2_get_block()?
 
-kmalloc()+kfree() is not thousands. At least on SMP it has a nice frontend
-cache and batch allocator component, which makes it much cheaper.
+If you've got a heavy holder of some lock + lots of guys who grab it
+for a short periods, the real trouble is the former, not the latter.
 
-32 bytes you can allocate on the stack no problem. If you need to allocat
-and *fill* 2K then kmalloc() overhead will not matter to you.
-
-> If the kernel does not provide sufficient stack-space for small
-> buffers and structures, it is a kernel problem, not a driver-coding
-> problem. [...]
-
-we will not add significant overhead to *every part* of the kernel just to
-keep a ridiculously large stack around for those few drivers who should
-use kmalloc() to begin with. And believe me, some people will then want to
-do recursion on the stack and would complain even about a 1MB stack. There
-is a limit to draw, and on Linux it's 'no bigger than a few hundred bytes,
-allocate dynamically otherwise'.
-
-	Ingo
+I'm going to send ext2-without-BKL patches to Linus - tonight or tomorrow.
+I really wonder what effect that would have on the things.
 

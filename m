@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263055AbUJ1NIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263051AbUJ1NQf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263055AbUJ1NIs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 09:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263054AbUJ1NIs
+	id S263051AbUJ1NQf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 09:16:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263054AbUJ1NQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 09:08:48 -0400
-Received: from siaag1aa.compuserve.com ([149.174.40.3]:64477 "EHLO
-	siaag1aa.compuserve.com") by vger.kernel.org with ESMTP
-	id S263051AbUJ1NIg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 09:08:36 -0400
-Date: Thu, 28 Oct 2004 09:04:41 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: My thoughts on the "new development model"
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: "michael@optusnet.com.au" <michael@optusnet.com.au>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>,
-       "'Bill Davidsen'" <davidsen@tmr.com>, Massimo Cetra <mcetra@navynet.it>,
-       Ed Tomlinson <edt@aei.ca>,
-       "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
-       John Richard Moser <nigelenki@comcast.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-ID: <200410280907_MC3-1-8D5A-FF57@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Thu, 28 Oct 2004 09:16:35 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:39047 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263051AbUJ1NPK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 09:15:10 -0400
+Date: Thu, 28 Oct 2004 15:16:22 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] Restricted hard realtime
+Message-ID: <20041028131622.GA13744@elte.hu>
+References: <20041023194721.GB1268@us.ibm.com> <417F12F1.5010804@opersys.com> <20041026212956.4729ce98.akpm@osdl.org> <20041027081044.GA14451@elte.hu> <4180DF18.5060808@opersys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <4180DF18.5060808@opersys.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Oct 2004 at 00:13:44 -0700 William Lee Irwin III wrote:
-> On Thu, Oct 28, 2004 at 04:46:58PM +1000, michael@optusnet.com.au wrote:
->> [...] many bugs are perfectly acceptable in a production
->> environment as long as they're not impacting. (The linux kernel is a
->> very large piece of work. Few installations would use even 20% of the
->> total kernel functionality).
->
-> I'd expect vastly less than 1%, starting from the arch count, and then
-> making some conservative guesses about drivers. Drivers probably
-> actually take it down to far, far less than 1%.
 
+* Karim Yaghmour <karim@opersys.com> wrote:
 
-  Sure, but pretty much each installation uses a different 1%.
+> >with -RT-V0.3 i get lower than 20 usec _maximum_ latencies during
+> >'./hackbench 20'. (the average latency is 1 usec) So while i'm not yet
+> >in the sub-femtosecond category, things are looking pretty good in
+> >PREEMPT_REALTIME land :)
+> 
+> Just curious: what's the setup here? (CPU speed, peripherals, distro,
+> applications being run to load the system, etc.) [...]
 
-  If there's a bug in there it's bound to hit someone; that's
-what makes OS writing so difficult.  (And that's why "It works
-for me" is not really a useful statement about the overall quality
-of an operating system.)
+2 GHz Athlon running stock Fedora Core. './hackbench 20' was the
+workload.
 
+> I'm assuming that the timings are measured using the tracing
+> functionality currently in the patches.
 
---Chuck Ebbert  28-Oct-04  09:00:36
+no, i used a user-space timing app called 'realfeel', but the numbers
+were corroborated by the in-kernel tracer too.
+
+but ... the best test would be if you tried the patch, it's not hard ;)
+There are newer versions since i did the above measurement and testing
+feedback is always welcome.
+
+	Ingo

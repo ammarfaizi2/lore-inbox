@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129053AbRBGLWu>; Wed, 7 Feb 2001 06:22:50 -0500
+	id <S129030AbRBGL3b>; Wed, 7 Feb 2001 06:29:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129129AbRBGLWk>; Wed, 7 Feb 2001 06:22:40 -0500
-Received: from AStrasbourg-201-2-1-11.abo.wanadoo.fr ([193.251.1.11]:57353
-	"EHLO lune.perinfo.com") by vger.kernel.org with ESMTP
-	id <S129053AbRBGLW3>; Wed, 7 Feb 2001 06:22:29 -0500
-Message-ID: <002101c090f8$79095dc0$8900030a@nicolasp>
-From: "Nicolas Parpandet" <nparpand@perinfo.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: toshiba tecra 8100
-Date: Wed, 7 Feb 2001 12:24:01 +0100
+	id <S129129AbRBGL3V>; Wed, 7 Feb 2001 06:29:21 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47122 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129030AbRBGL3M>; Wed, 7 Feb 2001 06:29:12 -0500
+Subject: Re: Software Mestizo Manifesto
+To: peter@cadcamlab.org (Peter Samuelson)
+Date: Wed, 7 Feb 2001 11:16:32 +0000 (GMT)
+Cc: linux-legal@nl.linux.org, rdiazmartin@vivaldi.net.dhis.org (Roberto Diaz),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010207050632.B10556@cadcamlab.org> from "Peter Samuelson" at Feb 07, 2001 05:06:33 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Message-Id: <E14QSaR-0008RJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> It *does*, however, violate the DFSG, at least in spirit (since it is
+> only a suggestion).  For what it's worth, the DFSG is my standard for
+> whether a particular project is worth my time to contribute code to.
 
+Vast amounts of debian included code contains suggestions about use. 
 
-Hello,
+> Also, Roberto -- it is rather presumptuous to assume that all of your
+> (potentially) thousands of contributors from around the world happen to
+> agree about that "fraternity of mankind" or whatever that was.  Call me
+> a misanthrope, but I'm not sure *I* agree with that one.
 
- On toshiba Tecra 8100 (latest bios), kernel 2.4.2-pre1
+Sure, but its an opinion so whats the big deal. Its no different to RMS
+view of the world that the GPL discussion and FSF projects push or the 
+other end of the world view that ESR pushes in the docs with his projects
 
- * APM + Pcmcia Xircom (tulip), Hangs on "ifup" either as module or staticly
-linked. (no more Sysrq)
-
- * Xircom alone without APM is ok.
-
- With ACPI big slowdown (as everybody else...)
-
- just for informational purpose as I cannot debug it myself !!
-
- Bye all.
-
+Basically I think its not a linux-legal issue 8)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

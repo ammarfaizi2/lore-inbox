@@ -1,73 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267851AbUHKAi2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267846AbUHKAk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267851AbUHKAi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 20:38:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267846AbUHKAi2
+	id S267846AbUHKAk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 20:40:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267855AbUHKAk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 20:38:28 -0400
-Received: from mra02.ex.eclipse.net.uk ([212.104.129.89]:64947 "EHLO
-	mra02.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
-	id S267851AbUHKAiX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 20:38:23 -0400
-From: Ian Hastie <ianh@iahastie.clara.net>
-To: Alan Cox <alan@redhat.com>
-Subject: Re: IDE hackery: lock fixes and hotplug controller stuff
-Date: Wed, 11 Aug 2004 01:36:05 +0100
-User-Agent: KMail/1.6.2
-Cc: Ian Hastie <ianh@iahastie.clara.net>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-References: <20040810161911.GA10565@devserv.devel.redhat.com> <200408102148.57602.ianh@iahastie.local.net> <20040810210630.GA30906@devserv.devel.redhat.com>
-In-Reply-To: <20040810210630.GA30906@devserv.devel.redhat.com>
+	Tue, 10 Aug 2004 20:40:28 -0400
+Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:48116 "EHLO
+	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S267846AbUHKAkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 20:40:17 -0400
+Message-ID: <41196AEA.1060700@us.ibm.com>
+Date: Tue, 10 Aug 2004 19:40:10 -0500
+From: Santiago Leon <santil@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408110136.06137.ianh@iahastie.local.net>
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6] ibmveth bug fixes 4/4
+References: <41190E97.2050705@us.ibm.com>
+In-Reply-To: <41190E97.2050705@us.ibm.com>
+Content-Type: multipart/mixed;
+ boundary="------------050801020709060209070107"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 Aug 2004 22:06, Alan Cox wrote:
-> On Tue, Aug 10, 2004 at 09:48:57PM +0100, Ian Hastie wrote:
-> > What do those numbers refer to?  Card model numbers?  On ITE's site I can
-> > only see an IT8212F which has RAID and an IT8211F that doesn't.
->
-> Product rather than chip numbers I think
->
-> > I got my IT8212F card from Novatech.  A generic card with no obviously
-> > recognisable name and, IMO anyway, quite a reasonable price.  That is
-> > assuming it really does everything that they say it can.
->
-> Thanks will investigate. I need to see what happens if I turn the
-> firmware bits on with my card and then reboot the microprocessor - see if
-> its just bios crippled
->
-> > It certainly works quite well in pass through mode. *8)
->
-> But it has the raid mode stuff ?
+This is a multi-part message in MIME format.
+--------------050801020709060209070107
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Yes it does.  It's certainly sold as a RAID card and it does have a RAID setup 
-menu.  I haven't had the opportunity to use it fully as the discs I needed to 
-use on it were already set up for software RAID.  Maybe I'll have a couple 
-spare(!) discs to play with if I upgrade to SATA.
+Andrew...
 
-It seems that the operation depends on the firmware, or should that be BIOS, 
-you load onto the card.  There's this from the IT8212 FAQ, 
-http://www.ite.com.tw/faq/it8212.html
-
-1. Could I use IT8212 for CD-ROM? 
-Ans:  IT8212 supports either RAID controller (which supports hard drives
-only) or pure IDE controller (which supports hard drives and CDROM)
-with different BIOS code. Please update your BIOS ROM with ATAPI
-BIOS.
-
-There are certainly two files available
-
-http://www.ite.com.tw/pc/bios_8212Raid-093015-02.zip
-
-and
-
-http://www.ite.com.tw/pc/bios_8212ATAPI-093015-02.zip
+I had discussion over email with Dave Hansen about this patch and after 
+I explained the bug and the fix, he recommended that I include a comment 
+in the patch.  So here's an updated patch. Please apply.
 
 -- 
-Ian.
+Santiago A. Leon
+Power Linux Development
+IBM Linux Technology Center
+
+--------------050801020709060209070107
+Content-Type: text/plain;
+ name="ibmveth_rmb.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ibmveth_rmb.patch"
+
+===== drivers/net/ibmveth.c 1.14 vs edited =====
+--- 1.14/drivers/net/ibmveth.c	Tue Aug 10 19:09:45 2004
++++ edited/drivers/net/ibmveth.c	Tue Aug 10 19:30:10 2004
+@@ -271,7 +271,6 @@
+ 	adapter->rx_no_buffer = *(u64*)(((char*)adapter->buffer_list_addr) + 4096 - 8);
+ 
+ 	atomic_inc(&adapter->not_replenishing);
+-	ibmveth_assert(atomic_read(&adapter->not_replenishing) == 1);
+ }
+ 
+ /* kick the replenish tasklet if we need replenishing and it isn't already running */
+@@ -733,6 +732,14 @@
+ 
+ 		if(ibmveth_rxq_pending_buffer(adapter)) {
+ 			struct sk_buff *skb;
++
++			/* This barrier is necessary because we might be 
++			   reading a control dword and then reading an old 
++			   cached correlator dword. Also, the hypervisor
++			   guarantees that the control field will be globally
++			   visible after all the other fields are visible, 
++			*/
++			rmb();
+ 
+ 			if(!ibmveth_rxq_buffer_valid(adapter)) {
+ 				wmb(); /* suggested by larson1 */
+
+--------------050801020709060209070107--

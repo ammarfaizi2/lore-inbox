@@ -1,68 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315839AbSEJIeh>; Fri, 10 May 2002 04:34:37 -0400
+	id <S315844AbSEJIgg>; Fri, 10 May 2002 04:36:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315843AbSEJIeg>; Fri, 10 May 2002 04:34:36 -0400
-Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:4992 "EHLO
-	DervishD.viadomus.com") by vger.kernel.org with ESMTP
-	id <S315839AbSEJIeg>; Fri, 10 May 2002 04:34:36 -0400
-Date: Fri, 10 May 2002 10:39:28 +0200
-Organization: ViaDomus
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Subject: Re: mmap() doesn't like certain value...
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <3CDB8740.mailBO1BW5NO@viadomus.com>
-In-Reply-To: <3CD983C5.mail1K71EX1NG@viadomus.com>
- <200205100810.g4A8AaX28554@Port.imtp.ilyichevsk.odessa.ua>
-User-Agent: nail 9.29 12/10/01
+	id <S315845AbSEJIgg>; Fri, 10 May 2002 04:36:36 -0400
+Received: from mail.gmx.net ([213.165.64.20]:20734 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S315844AbSEJIge>;
+	Fri, 10 May 2002 04:36:34 -0400
+Message-ID: <3CDB86C3.8050706@gmx.de>
+Date: Fri, 10 May 2002 10:37:23 +0200
+From: Pierre Bernhardt <mirrorgate@gmx.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-DE; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
+X-Accept-Language: de-DE
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-From: DervishD <raul@viadomus.com>
-Reply-To: DervishD <raul@viadomus.com>
-X-Mailer: DervishD TWiSTiNG Mailer
+To: lkml <linux-kernel@vger.kernel.org>
+CC: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Subject: Re: 2.5.15 hangs at partition check
+In-Reply-To: <3CDB8092.8090007@wanadoo.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Denis :)
+Hi,
 
-    Thanks for answering :)
+Pierre Rousselet wrote:
 
->        if ((len = PAGE_ALIGN(len)) == 0)
->                return addr;
+> PIII / Abit BE6 HPT366, devfs.
+> 
+> 2.5.15 doesn't boot, the last lines are :
+> 
+> hde: 20005650 sectors w/512KiB Cache, CHS=19846/16/63, UDMA(66)
+> hdg: 6250608 sectors w/478KiB Cache, CHS=11024/9/63, UDMA(33)
+> Partition check:
+>  /dev/ide/host2/bus0/target0/lun0:
+> 
+> 2.5.14 works, it gives :
+> hde: 20005650 sectors w/512KiB Cache, CHS=19846/16/63, UDMA(66)
+> hdg: 6250608 sectors w/478KiB Cache, CHS=11024/9/63, UDMA(33)
+> Partition check:
+>  /dev/ide/host2/bus0/target0/lun0: [PTBL] [1245/255/63] p1 p2 p3 p4
+>  /dev/ide/host3/bus0/target0/lun0: p1
 
-    This is the problem.
 
->        if (len > TASK_SIZE)
->                return -EINVAL;
+Hi,
 
-    And is corrected just by inverting the two quoted code snips :)
+i have the same problem on Abit BP6 with HPT366 and Kernel 2.4.18 based
+on SuSE 8.0 SMP-Kernel.
 
-    If we test for len being greater than TASK_SIZE *before* aligning
-it then the function works properly (the alignment will be done
-properly in the task address space). No patch needed really ;)
+Partition check:
+  hda: hda1 hda2 hda3 hda4
+  hdc: hdc1 hdc2 hdc3 hdc4
+  hde:
 
->>     I know: this lengths are enormous, nobody uses them, etc... but I
->Looks like you found an obscure corner case. Good!
+Failsave-Kernel of this Distribution works fine.
 
-    I'll give a try to the inversion, that should work. I have
-written a small stress program for mmap, so in a few hours the patch
-will be ready. Must I post it here or send it directly to Marcello?
+Here some Infos:
 
->>     If this is not a bug, but an intended behaviour please excuse me.
->> Moreover, I can provide a patch (I suppose) against the 2.4.18 tree.
->Do it.
+starflake:/sbin # uname -a
+Linux starflake 2.4.18-64GB-SMP #1 SMP Wed Mar 27 13:58:12 UTC 2002 i686 
+unknown
+starflake:/sbin # cat /etc/SuSE-release
+SuSE Linux 8.0 (i386)
+VERSION = 8.0
 
-    Ok :) I'll prepare the patch right now. Unified diff?
+Pierre
 
->BTW, does anybody know why len==0 is not flagged as error?
 
-    Well, I suppose that if you request 0 bytes, any address returned
-is valid, since it cannot be accessed (SIGSEGV...). Anyway the man
-page for mmap() clearly says that the address returned is NEVER 0, so
-we must test for len==0 and invert the other tests.
 
-    Thanks a lot for answering, I was supposing that anybody on the
-list was ignoring this obvious and easy to correct bug :?
-
-    Raúl

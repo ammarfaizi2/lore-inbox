@@ -1,40 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267660AbUIOWkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267478AbUIOWod@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267660AbUIOWkH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 18:40:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267696AbUIOWkB
+	id S267478AbUIOWod (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 18:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267720AbUIOWnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 18:40:01 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:54467 "EHLO
+	Wed, 15 Sep 2004 18:43:50 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:55747 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267690AbUIOWjf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 18:39:35 -0400
-Subject: Re: [PATCH] hvc_console fix to protect hvc_write against ldisc
-	write after hvc_close
+	id S267478AbUIOWmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 18:42:18 -0400
+Subject: Re: [PATCH-NEW] allow root to modify raw scsi command permissions
+	list
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Ryan Arnold <rsa@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+To: Marc Ballarin <Ballarin.Marc@gmx.de>
+Cc: Peter Jones <pjones@redhat.com>, axboe@suse.de,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040915204107.GA26776@thunk.org>
-References: <1095273835.3294.278.camel@localhost>
-	 <20040915204107.GA26776@thunk.org>
+In-Reply-To: <20040915230813.6eac1d04.Ballarin.Marc@gmx.de>
+References: <1095173470.5728.3.camel@localhost.localdomain>
+	 <20040915230813.6eac1d04.Ballarin.Marc@gmx.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1095284172.20754.5.camel@localhost.localdomain>
+Message-Id: <1095284325.20749.8.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 15 Sep 2004 22:36:13 +0100
+Date: Wed, 15 Sep 2004 22:38:47 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-09-15 at 21:41, Theodore Ts'o wrote:
-> The current (I can't speak to what Alan Cox is going to change) rules
-> with tty drivers is that tty drivers are supposed to close the line
-> discpline in their close routines. 
+On Mer, 2004-09-15 at 22:08, Marc Ballarin wrote:
+> Hi,
+> this is a modified version of the previous patch.
 
-That has no actual effect in the real world because the ldisc can in
-part be running on another processor at the same time in another
-function.  This is a crash case seen on 2.4 in the real world.
-
-Alan
+You need to check for capable(CAP_SYS_RAWIO) otherwise you elevate
+anyone with access bypass capabilities to CAP_SYS_RAWIO equivalent
+powers.
 

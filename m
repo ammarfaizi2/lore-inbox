@@ -1,33 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315725AbSEILls>; Thu, 9 May 2002 07:41:48 -0400
+	id <S315726AbSEILmo>; Thu, 9 May 2002 07:42:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315726AbSEILlr>; Thu, 9 May 2002 07:41:47 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:54450 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S315725AbSEILlq>;
-	Thu, 9 May 2002 07:41:46 -0400
-Date: Thu, 09 May 2002 04:29:38 -0700 (PDT)
-Message-Id: <20020509.042938.78984470.davem@redhat.com>
-To: indigoid@higherplane.net
-Cc: dank@kegel.com, khttpd-users@alt.org, linux-kernel@vger.kernel.org
-Subject: Re: khttpd rotten?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020509114009.GD3855@higherplane.net>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S315727AbSEILmm>; Thu, 9 May 2002 07:42:42 -0400
+Received: from chello062179036163.chello.pl ([62.179.36.163]:2185 "EHLO
+	pioneer") by vger.kernel.org with ESMTP id <S315726AbSEILmh>;
+	Thu, 9 May 2002 07:42:37 -0400
+Date: Thu, 9 May 2002 13:42:55 +0200 (CEST)
+From: Tomasz Rola <rtomek@cis.com.pl>
+To: mikeH <mikeH@notnowlewis.co.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: lost interrupt hell - Plea for Help
+In-Reply-To: <3CD81676.90909@notnowlewis.co.uk>
+Message-ID: <Pine.LNX.3.96.1020509133639.1987B-100000@pioneer>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: john slee <indigoid@higherplane.net>
-   Date: Thu, 9 May 2002 21:40:09 +1000
-   
-   tux is more an application than an interface or mechanism.  applications
-   historically haven't been distributed as part of the main kernel tree.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Arguable nfsd is an application.
+On Tue, 7 May 2002, mikeH wrote:
 
-Providing a direct in-kernel link between the page cache and providing
-content (be it HTTP, FTP, NFS files, whatever) over sockets is a very
-powerful concept.
+> Hi all,
+> 
+> *bang*
+> 
+> *bang*
+> 
+> Hear that? Its my head, against the wall. ;)
+
+And - last but not least:
+
+5. Interrupts - perhaps try to remove everything from your computer,
+except gfx, cpu, ram, and ide drives (hdds and dvd, not cd). But I think
+of this as a last resort.
+
+6. Related to 5 - I would also check DVD with different hardware or/and
+with different OS - just to be sure. If it's not working then perhaps it
+is faulty. Or your motherboard, maybe.
+
+bye
+T.
+
+- --
+** A C programmer asked whether computer had Buddha's nature.      **
+** As the answer, master did "rm -rif" on the programmer's home    **
+** directory. And then the C programmer became enlightened...      **
+**                                                                 **
+** Tomasz Rola          mailto:tomasz_rola@bigfoot.com             **
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 5.0i for non-commercial use
+Charset: noconv
+
+iQA/AwUBPNpgyRETUsyL9vbiEQLsFACgvpY505l1K9b/DhqICryM1+z3GL8AnjTM
+YaGzPdfhz99Yw1qdTa45vHdx
+=/rqc
+-----END PGP SIGNATURE-----
+

@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262217AbUCaR1e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 12:27:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbUCaR0K
+	id S262134AbUCaR3A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 12:29:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbUCaR3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 12:26:10 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:17840 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262254AbUCaRZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 12:25:51 -0500
-Subject: Re: Linux 2.6.5-rc3 - ALI15X3, irq 15: nobody cared! / Disabling
-	IRQ #15
-From: Len Brown <len.brown@intel.com>
-To: Helge Deller <deller@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F6E02@hdsmsx402.hd.intel.com>
-References: <A6974D8E5F98D511BB910002A50A6647615F6E02@hdsmsx402.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1080753945.21276.4.camel@dhcppc4>
+	Wed, 31 Mar 2004 12:29:00 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:4068
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262134AbUCaR2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 12:28:52 -0500
+Date: Wed, 31 Mar 2004 19:28:51 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, vrajesh@umich.edu,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
+Message-ID: <20040331172851.GJ2143@dualathlon.random>
+References: <20040331150718.GC2143@dualathlon.random> <Pine.LNX.4.44.0403311735560.27163-100000@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 31 Mar 2004 12:25:46 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0403311735560.27163-100000@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-03-30 at 14:40, Helge Deller wrote:
-> IBM R30 Laptop, ALI15X3 IDE onboard chip, internal IDE harddisk &
-> CDROM gives
->  irq 15: nobody cared!
->  ....
->  Disabling IRQ #15
+On Wed, Mar 31, 2004 at 05:45:31PM +0100, Hugh Dickins wrote:
+> On Wed, 31 Mar 2004, Andrea Arcangeli wrote:
+> > 
+> > So I rewritten the fix this way:
+> > 
+> > +	ret = add_to_swap_cache(page, entry);
+> 
+> I think you'll find that gets into trouble on the header page,
+> entry 0, which pmdisk/swsusp does access through this interface,
+> but swapping does not: I'd expect its swap_duplicate to fail.
 
-Did 2.6.5-rc2 work okay?
+I didn't know they have to modify the header page.
 
-Nothing ACPI jumps out at me here, but if you boot with acpi=off
-or pci=noacpi and the problem goes away, then let me know.
+> I've put off dealing with this, wasn't a priority for me to
+> decide what to do with it.  You might experiment with setting
+> p->swap_map[0] = 1 instead of SWAP_MAP_BAD in sys_swapon, but
+> offhand I'm unsure whether that's enough e.g. would the totals
+> come out right, would swapoff complete?
+> 
+> Just an idea, not something to finalize.
 
-thanks,
--Len
-
+if they run into trouble I'll return to the pagecache API adding the
+GFP_KERNEL and check for oom failure.

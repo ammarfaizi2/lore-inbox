@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310279AbSCBCid>; Fri, 1 Mar 2002 21:38:33 -0500
+	id <S310281AbSCBCpY>; Fri, 1 Mar 2002 21:45:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310281AbSCBCiX>; Fri, 1 Mar 2002 21:38:23 -0500
-Received: from gw.lowendale.com.au ([203.26.242.120]:55077 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S310279AbSCBCiO>; Fri, 1 Mar 2002 21:38:14 -0500
-Date: Sat, 2 Mar 2002 14:08:34 +1100 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Shawn Starr <spstarr@sh0n.net>, Xavier Bestel <xavier.bestel@free.fr>,
-        "Paul G. Allen" <pgallen@randomlogic.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SSSCA: We're in trouble now
-In-Reply-To: <E16gvN6-0005Dd-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.05.10203021402030.4035-100000@marina.lowendale.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S310283AbSCBCpP>; Fri, 1 Mar 2002 21:45:15 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:676 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S310281AbSCBCoz>;
+	Fri, 1 Mar 2002 21:44:55 -0500
+Date: Fri, 1 Mar 2002 16:51:04 -0800
+From: Mike Anderson <andmike@us.ibm.com>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: queue_nr_requests needs to be selective
+Message-ID: <20020301165104.C6778@beaverton.ibm.com>
+In-Reply-To: <20020301132254.A11528@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20020301132254.A11528@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Fri, Mar 01, 2002 at 01:22:54PM -0700
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Mar 2002, Alan Cox wrote:
-
-> > Linux doesnt use the BIOS if you tell it not to, if it can avoid using
-> > it. It will :)
+Jeff V. Merkey [jmerkey@vger.timpanogas.org] wrote:
 > 
-> It has no control over the BIOS and SMM code. Who knows what is going on
-> behind the scenes in the BIOS, be it for intentional or more dubious
-> purposes. 
+> ..snip..
+>
+> What is really needed here is to allow queue_nr_requests to be 
+> configurable on a per adapter/device basis for these high end 
+> raid cards like 3Ware since in a RAID 0 configuration, 8 drives
+> are in essence a terabyte (1.3 terrabytes in our configuration) 
+> and each adapter is showing up as a 1.3 TB device.  64/128
+> requests are simply not enough to get the full spectrum of 
+> performance atainable with these cards.
+> 
+Not having direct experience on this card it appears that increasing the
+queue_nr_requests number will not allow you to have more ios in flight.
 
-All too true.  However, given the quality of BIOS code we have seen over
-the years, the thought of your average BIOS programmer implementing
-cryptographic techniques does provide some amusement  ;-)
+Unless I am reading the driver wrong you will be limited to
+TW_MAX_CMDS_PER_LUN (15). This value is used by scsi_build_commandblocks
+to allocate scsi commands for your scsi_device. This driver does not provide
+a select_queue_depths function which allows for increase to the default
+template value. 
 
-Any chance of any manafacturers open-sourcing their BIOS?
+Could it be that the experimentation of increasing this number has
+allowed for better merging.
 
-Regards,
-Neale.
+-Mike
+-- 
+Michael Anderson
+andmike@us.ibm.com
 

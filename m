@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269596AbUICJkj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269629AbUICJkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269596AbUICJkj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 05:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269600AbUICJki
+	id S269629AbUICJkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 05:40:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269627AbUICJkI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 05:40:38 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:57794 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S269603AbUICJiz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 05:38:55 -0400
-Date: Fri, 03 Sep 2004 18:40:18 +0900
-From: Takao Indoh <indou.takao@soft.fujitsu.com>
-Subject: Re: [PATCH 0/4][diskdump] x86-64 support
-In-reply-to: <98C48F3A1E8E11indou.takao@soft.fujitsu.com>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <A7C4919A0601F8indou.takao@soft.fujitsu.com>
-MIME-version: 1.0
-X-Mailer: TuruKame 3.63
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-References: <98C48F3A1E8E11indou.takao@soft.fujitsu.com>
+	Fri, 3 Sep 2004 05:40:08 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:19364 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S269620AbUICJjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 05:39:24 -0400
+Date: Fri, 3 Sep 2004 11:39:02 +0200 (DFT)
+From: Simon Derr <Simon.Derr@bull.net>
+X-X-Sender: derrs@isabelle.frec.bull.fr
+To: Simon Derr <Simon.Derr@bull.net>
+cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Possible race in sysfs_read_file() and sysfs_write_file()
+In-Reply-To: <Pine.A41.4.53.0409031056280.122970@isabelle.frec.bull.fr>
+Message-ID: <Pine.A41.4.53.0409031134040.122970@isabelle.frec.bull.fr>
+References: <Pine.A41.4.53.0409010924250.122970@isabelle.frec.bull.fr>
+ <20040901163436.263802bc.akpm@osdl.org> <Pine.A41.4.53.0409020917350.122970@isabelle.frec.bull.fr>
+ <20040902155758.1eba30a5.akpm@osdl.org> <Pine.A41.4.53.0409031056280.122970@isabelle.frec.bull.fr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Aug 2004 18:08:45 +0900, Takao Indoh wrote:
+On Fri, 3 Sep 2004, Simon Derr wrote:
 
->>> When I tested diskdump on x86-64 machine, I found that memory dump of
->>> the following two areas failed.
->>>
->>> 1) 04000000 - 07ffffff
->>> 2) around last two page
->>>
->>> Memory dump of the area 2) failed because page->flag was broken.
->>
->>Broken in what way? That should probably just be fixed in the core
->>kernel.
+> On Thu, 2 Sep 2004, Andrew Morton wrote:
 >
->page->flag around last two page is 0.
->I tested on another machine and found all of page->flag is correct.
->So this problem may be dependent on machine.
+> > Simon Derr <Simon.Derr@bull.net> wrote:
+> > >
+> > > @@ -140,13 +145,17 @@
+> > >   	struct sysfs_buffer * buffer = file->private_data;
+> > >   	ssize_t retval = 0;
+> > >
+> > >  -	if (!*ppos) {
+> > >  +	down(&buffer->sem);
+> > >  +	if ((!*ppos) || (!buffer->page)) {
+> > >   		if ((retval = fill_read_buffer(file->f_dentry,buffer)))
+> > >  -			return retval;
+> > >  +			goto out;
+> >
+> > Why are we testing *ppos at all in here?
+>
+> And if we open a sysfs file with O_RDWR, and write() into it, then this is
+> needed if we want to read(), because else the buffer will have been
+> allocated, but ops->show() not called. I'm not too sure about this being
+> useful either.
 
-page->flag of the following two page is 0...
+Hmmm...
+We are still screwed if we read at offset >0 after a write.
 
-PFN 1310719
-PFN 1441791
+Possible fix would be to add a 'dirty' flag to the sysfs_buffer when
+write() is called, so we force a call to fill_read_buffer() on the next
+read().
 
-Regards,
-Takao Indoh
-
+Or maybe simply forbid O_RDWR open() ? Are they of any use ?

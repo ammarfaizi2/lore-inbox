@@ -1,118 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262010AbUJYXgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262042AbUJYXgV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262010AbUJYXgW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 19:36:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbUJYXdF
+	id S262042AbUJYXgV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 19:36:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbUJYXdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 19:33:05 -0400
+	Mon, 25 Oct 2004 19:33:22 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:7868 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262041AbUJYX2i convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 19:28:38 -0400
-Date: Mon, 25 Oct 2004 15:29:13 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.6.9 SMP: via-rhine cannot be upped.
-Message-Id: <20041025152913.1f003eb4@zqx3.pdx.osdl.net>
-In-Reply-To: <200410231559.28215.vda@port.imtp.ilyichevsk.odessa.ua>
-References: <200410231559.28215.vda@port.imtp.ilyichevsk.odessa.ua>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-suse-linux)
+	by vger.kernel.org with ESMTP id S262040AbUJYX2h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 19:28:37 -0400
+Subject: Re: [Ext2-devel] Re: [PATCH 2/3] ext3 reservation allow turn off
+	for specifed file
+From: Mingming Cao <cmm@us.ibm.com>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: Ray Lee <ray-lk@madrabbit.org>, Andrew Morton <akpm@osdl.org>,
+       sct@redhat.com, pbadari@us.ibm.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net
+In-Reply-To: <1098736389.9692.7243.camel@w-ming2.beaverton.ibm.com>
+References: <1097846833.1968.88.camel@sisko.scot.redhat.com>
+	<1097856114.4591.28.camel@localhost.localdomain>
+	<1097858401.1968.148.camel@sisko.scot.redhat.com>
+	<1097872144.4591.54.camel@localhost.localdomain>
+	<1097878826.1968.162.camel@sisko.scot.redhat.com> <109787 
+	<1098147705.8803.1084.camel@w-ming2.beaverton.ibm.com> 
+	<1098294941.18850.4.camel@orca.madrabbit.org> 
+	<1098736389.9692.7243.camel@w-ming2.beaverton.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 25 Oct 2004 16:05:44 -0700
+Message-Id: <1098745548.9754.7427.camel@w-ming2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Oct 2004 15:59:28 +0300
-Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
+On Mon, 2004-10-25 at 13:33, Mingming Cao wrote:
+> On Wed, 2004-10-20 at 10:55, Ray Lee wrote:
+> > On Mon, 2004-10-18 at 18:01 -0700, Mingming Cao wrote:
+> > > On Mon, 2004-10-18 at 16:42, Andrew Morton wrote:
+> > > > Applications currently pass a seeky-access hint into the kernel via
+> > > > posix_fadvise(POSIX_FADV_RANDOM).  It would be nice to hook into that
+> > 
+> > [...]
+> > 
+> > > Just thought seeky random write application could use the existing ioctl
+> > > to let the kernel know it does not need reservation at all. Isn't that
+> > > more straightforward?
+> > 
+> > Going the ioctl route seems to imply that userspace would have to do a
+> > posix_fadvise() call and the ioctl, as opposed to just the fadvise. No?
+> > I'm betting the fadvise call is a little more portable as well.
+> 
+> Agreed. How about this: add a check in ext3_prepare_write(), if user passed seeky-access hint through posix_fadvise(via check for file->f_ra.ra_pages == 0), if so, close the reservation window.  But we still need previous patch to handle window size 0(no reservation) in reservation code.
 
-> I reported this yesterday but somehow managed to mess up configs
-> and accidentally compiled 2.6.9 for SMP! :(
-> 
-> I just checked that it does not happen on non-SMP 2.6.9.
-> 2.6.9-preempt is working too.
-> 
-> Here goes a problem description again.
-> 
-> I have an onboard VIA eth:
-> 
-> # lspci
-> 00:00.0 Host bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333]
-> 00:01.0 PCI bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333 AGP]
-> 00:0a.0 Network controller: Texas Instruments ACX 111 54Mbps Wireless Interface
-> 00:0c.0 Network controller: Harris Semiconductor D-Links DWL-g650 A1 (rev 01)
-> 00:10.0 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 80)
-> 00:10.1 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 80)
-> 00:10.2 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 80)
-> 00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
-> 00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
-> 00:11.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C/VT8235 PIPC Bus Master IDE (rev 06)
-> 00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235/8237 AC97 Audio Controller (rev 50)
-> 00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 74)
-> 01:00.0 VGA compatible controller: nVidia Corporation NV11 [GeForce2 MX/MX 400] (rev a1)
-> 
-> It cannot be upped:
-> 
-> # ip l set dev if up
-> SIOCSIFFLAGS: Function not implemented
-> # ifconfig if up
-> SIOCSIFFLAGS: Function not implemented
-> # busybox ip l set dev if up
-> SIOCSIFFLAGS: Function not implemented
-> 
-> (NB: ip and ifconfig are not busyboxed, they are "standard" ones)
-> 
-> Strace (busybox one is smallest):
-> 
-> execve("/usr/bin/busybox", ["busybox", "ip", "l", "set", "dev", "if", "up"], [/* 28 vars */]) = 0
-> fcntl64(0, F_GETFD)                     = 0
-> fcntl64(1, F_GETFD)                     = 0
-> fcntl64(2, F_GETFD)                     = 0
-> uname({sys="Linux", node="shadow", ...}) = 0
-> geteuid32()                             = 0
-> getuid32()                              = 0
-> getegid32()                             = 0
-> getgid32()                              = 0
-> brk(0)                                  = 0x81ab000
-> brk(0x81ac000)                          = 0x81ac000
-> socket(PF_INET, SOCK_DGRAM, IPPROTO_IP) = 4
-> ioctl(4, 0x8913, 0xbffff9e0)            = 0
-> ioctl(4, 0x8914, 0xbffff9e0)            = -1 ENOSYS (Function not implemented)
-> dup(2)                                  = 5
-> fcntl64(5, F_GETFL)                     = 0x2 (flags O_RDWR)
-> fstat64(5, {st_mode=S_IFCHR|0600, st_rdev=makedev(136, 2), ...}) = 0
-> old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40000000
-> _llseek(5, 0, 0xbffff830, SEEK_CUR)     = -1 ESPIPE (Illegal seek)
-> write(5, "SIOCSIFFLAGS: Function not imple"..., 39) = 39
-> close(5)                                = 0
-> munmap(0x40000000, 4096)                = 0
-> close(4)                                = 0
-> write(2, "BusyBox v1.00-pre8 (2004.03.31-2"..., 295) = 295
-> _exit(1)
-> 
-> I booted with init=/bin/sh and ran 'ip l set dev eth0 up'
-> - it fails under 2.6.9-smp. This rules out my userspace setup
-> being somehow involved (for example, the fact that I rename iface
-> from 'eth0' to 'if' does not contribute to the bug).
-> 
-> My 2.6.9-smp config is attached.
+The previous patch could re-open the reservation in the case user then
+switch back to POSIX_FADV_NORMAL or POSIZ_FADV_SEQUENTAIL. Updated
+version included. We set the window size to -1 if the user pass the
+POSIX_FADV_RANDOM, instead of 0, to differentiate the case when user
+really want to close the window by ioctl.  We could re-open the window
+only when user pass the POSIX_FADV_SEQUENTAIL (or POSIX_FADV_NORMAL
+hint) and the window was closed because of previous seeky access hint.
 
-My suspicion is that the eth0 device is not actually the VIA driver
-at all. Since your config builds many drivers directly into the kernel,
-probably one of the others created an eth0 device.  There is no
-guarantee of initialization order about which device gets created first
-(at least the way network devices are done in 2.6). 
+Currently the readahead is turned off if the userspace passed a seeky access hint to kernel by POSIX_FADVISE. It would be nice to turn off the block allocation reservation as well for seeky random write.
 
-You should investigate if there are multiple devices present
-(ifconfig -a or ls /sys/class/net).  Perhaps one of the other drivers
-does not correctly handle the case of hardware not being present
-and leaves a ghost behind..
 
-One way to find out would be to look at:
-	/sys/class/net/eth0/device/vendor
-	/sys/class/net/eth0/device/device
-	/sys/class/net/eth0/device/subsystem_vendor
-	/sys/class/net/eth0/device/subsystem_device
+---
+
+ linux-2.6.9-rc4-mm1-ming/fs/ext3/balloc.c |    2 +-
+ linux-2.6.9-rc4-mm1-ming/fs/ext3/inode.c  |   17 +++++++++++++++++
+ 2 files changed, 18 insertions(+), 1 deletion(-)
+
+diff -puN fs/ext3/inode.c~ext3_turn_off_reservation_by_fadvise fs/ext3/inode.c
+--- linux-2.6.9-rc4-mm1/fs/ext3/inode.c~ext3_turn_off_reservation_by_fadvise	2004-10-25 18:25:44.135751800 -0700
++++ linux-2.6.9-rc4-mm1-ming/fs/ext3/inode.c	2004-10-25 21:43:16.194964928 -0700
+@@ -1001,6 +1001,7 @@ static int ext3_prepare_write(struct fil
+ 	int ret, needed_blocks = ext3_writepage_trans_blocks(inode);
+ 	handle_t *handle;
+ 	int retries = 0;
++	int windowsz = 0;
+ 
+ retry:
+ 	handle = ext3_journal_start(inode, needed_blocks);
+@@ -1008,6 +1009,22 @@ retry:
+ 		ret = PTR_ERR(handle);
+ 		goto out;
+ 	}
++
++	/*
++	 * if user passed a seeky-access hint to kernel,
++	 * through POSIX_FADV_RANDOM,(file->r_ra.ra_pages is cleared)
++	 * turn off reservation for block allocation correspondingly.
++	 *
++	 * Otherwise, if user switch back to POSIX_FADV_SEQUENTIAL or
++	 * POSIX_FADV_NORMAL, re-open the reservation window.
++	 */
++	windowsz = atomic_read(&EXT3_I(inode)->i_rsv_window.rsv_goal_size);
++	if ((windowsz > 0) && (!file->f_ra.ra_pages))
++		atomic_set(&EXT3_I(inode)->i_rsv_window.rsv_goal_size, -1);
++	if ((windowsz == -1) && file->f_ra.ra_pages)
++		atomic_set(&EXT3_I(inode)->i_rsv_window.rsv_goal_size,
++					EXT3_DEFAULT_RESERVE_BLOCKS);
++
+ 	ret = block_prepare_write(page, from, to, ext3_get_block);
+ 	if (ret)
+ 		goto prepare_write_failed;
+diff -puN fs/ext3/balloc.c~ext3_turn_off_reservation_by_fadvise fs/ext3/balloc.c
+--- linux-2.6.9-rc4-mm1/fs/ext3/balloc.c~ext3_turn_off_reservation_by_fadvise	2004-10-25 21:23:05.152071432 -0700
++++ linux-2.6.9-rc4-mm1-ming/fs/ext3/balloc.c	2004-10-25 21:24:48.136415432 -0700
+@@ -1154,7 +1154,7 @@ int ext3_new_block(handle_t *handle, str
+ 	struct ext3_sb_info *sbi;
+ 	struct reserve_window_node *my_rsv = NULL;
+ 	struct reserve_window_node *rsv = &EXT3_I(inode)->i_rsv_window;
+-	unsigned short windowsz = 0;
++	int windowsz = 0;
+ #ifdef EXT3FS_DEBUG
+ 	static int goal_hits, goal_attempts;
+ #endif
+
+_
+

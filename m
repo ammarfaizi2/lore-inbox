@@ -1,80 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263457AbSIQBwu>; Mon, 16 Sep 2002 21:52:50 -0400
+	id <S263460AbSIQB4u>; Mon, 16 Sep 2002 21:56:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263460AbSIQBwu>; Mon, 16 Sep 2002 21:52:50 -0400
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:4997 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S263457AbSIQBwt>;
-	Mon, 16 Sep 2002 21:52:49 -0400
-Date: Mon, 16 Sep 2002 20:57:43 -0500 (CDT)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
-To: linux-kernel@vger.kernel.org
-Subject: 2.5 Problem Report Status
-Message-ID: <Pine.LNX.4.44.0209162050140.10084-100000@dad.molina>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263461AbSIQB4u>; Mon, 16 Sep 2002 21:56:50 -0400
+Received: from dp.samba.org ([66.70.73.150]:27109 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S263460AbSIQB4s>;
+	Mon, 16 Sep 2002 21:56:48 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH] Experimental IDE oops dumper v0.1 
+In-reply-to: Your message of "Mon, 16 Sep 2002 08:18:07 -0400."
+             <200209161218.g8GCI7301692@devserv.devel.redhat.com> 
+Date: Tue, 17 Sep 2002 10:49:03 +1000
+Message-Id: <20020917020148.3413D2C125@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Following is from my web page at:
-http://members.cox.net/tmolina/kernprobs/status.html
+In message <200209161218.g8GCI7301692@devserv.devel.redhat.com> you write:
+> > +	/* Pause (at least 400ns) in case we just issued a command */
+> > +	oopser_usec(1);
+> > +	for (i = 0; i < 1000; i++) {
+> > +		b = inb(HD_STATUS);
+> > +		if (!(b & BUSY_STAT)) {
+> > +			if (b & ERR_STAT) return 0;
+> > +			if (b & flag) return 1;
+> > +		}
+> > +		oopser_usec(1000);
+> 
+> This will stop working on SATA when VDMA goes into newer controllers btw.
 
-Upon request from several lkml subscribers I've converted from my 
-hand-created thread links to links pointing at the lkml archives, as well 
-as including live links here.
+My ignorance of ATA is incredibly deep.  I read an old IDE spec to get
+this to work.  So thanks for checking it.
 
+There are several ways around this: we can detect in userspace and
+refuse to arm, we can detect in the kernel and refuse to arm, we can
+detect in kernel or userspace and set an "use LBA48" flag.  For
+example, my userspace code currently does:
 
-             2.5 Kernel Problem Reports as of 16 Sep
-Ref   Problem Title              Status                Discussion
-
-1   invalidate_inode_pages     open                  2.5.34 
-
-2   Problem running on Athlons no further discussion 2.5.34 
-
-3   mouse/keyboard flakiness   open                  09 Sep 2002  
-4                              followups             16 Sep 2002  
-
-5   process hang in do_IRQ     no further discussion 2.5.34
-
-6   BUG at kernel/sched.c      open                  15 Sep 2002
-7                              another report        13 Sep 2002
-8                              Athlon - related      16 Sep 2002
-9                              discussing a fix      16 Sep 2002
-
-10   lockups under X            no further discussion 2.5.34
-
-11   KVM/Mouse problem          open                  16 Sep 2002
-
-12   IDE Disk order reversal    fix in BK-current     16 Sep 2002
-
-13   PictureBook boot problem   no further discussion 2.5.34
-
-14   RAID boot problem          open                  2.5.34
-
-15   34-mm2 ide problems        open                  14 Sep 2002
-16                              followups             14 Sep 2002
-17                              possible fix          15 Sep 2002
+	if (ioctl(devfd, HDIO_GET_IDENTITY, &hdid) < 0) {
+		perror("Getting identity of drive");
+		exit(1);
+	}
+	if (!(hdid.capability & (1 << 1))) {
+		fprintf(stderr, "Drive does not support LBA\n");
+		exit(1);
+	}
 
 
-References
+> > +	/* Bits 24-27, 0x40=LBA, 0x10=slave */
+> > +	if (!wait_before_command()) return -EIO;
+> > +	outb(0x40 | (master ? 0 : 0x10) | ((lba >> 24) & 0x0F), HD_CURRENT);
+> 
+> Doesn't work for LBA48
+> 
+> > +	if (!wait_before_command()) return -EIO;
+> > +	outb(0x40 | (master ? 0 : 0x10) | ((lba >> 24) & 0x0F), HD_CURRENT);
+> 
+> Ditto
 
-   1. http://marc.theaimsgroup.com/?l=linux-kernel&m=103123609912308&w=2
-   2. http://marc.theaimsgroup.com/?l=linux-kernel&m=103125734810052&w=2
-   3. http://marc.theaimsgroup.com/?l=linux-kernel&m=103161515431769&w=2
-   4. http://marc.theaimsgroup.com/?l=linux-kernel&m=103220909215708&w=2
-   5. http://marc.theaimsgroup.com/?l=linux-kernel&m=103161270129834&w=2
-   6. http://marc.theaimsgroup.com/?l=linux-kernel&m=103166646702935&w=2
-   7. http://marc.theaimsgroup.com/?l=linux-kernel&m=103184045102066&w=2
-   8. http://marc.theaimsgroup.com/?l=linux-kernel&m=103216821904227&w=2
-   9. http://marc.theaimsgroup.com/?l=linux-kernel&m=103220232808356&w=2
-  10. http://marc.theaimsgroup.com/?l=linux-kernel&m=103170969316930&w=2
-  11. http://marc.theaimsgroup.com/?l=linux-kernel&m=103170259412602&w=2
-  12. http://marc.theaimsgroup.com/?l=linux-kernel&m=103174189506559&w=2
-  13. http://marc.theaimsgroup.com/?l=linux-kernel&m=103176500901439&w=2
-  14. http://marc.theaimsgroup.com/?l=linux-kernel&m=103185178717216&w=2
-  15. http://marc.theaimsgroup.com/?l=linux-kernel&m=103183445326867&w=2
-  16. http://marc.theaimsgroup.com/?l=linux-kernel&m=103197258827968&w=2
-  17. http://marc.theaimsgroup.com/?l=linux-kernel&m=103211906906197&w=2
+OK, what's the codepath for LBA48 look like?  And how do I detect it?
 
+> > +/* Called with interrupts off */
+> > +int oopser_read_ide(char dump[512], unsigned int block)
+> > +{
+> > +	/* Wait for non-busy: if not, reset anyway */
+> > +	wait_before_command();
+> > +	/* Soft reset of drive (set nIEN as well) */
+> > +	outb(0x0e, HD_CMD);
+> 
+> Be careful here - one or two drives get nIEN backwards, you might just
+> want to turn off interrupts and be done with it
 
+Hmm... I have interrupts disabled so I don't really care: should be OK
+I think.  Or were you thinking of something else?
+
+> > +	oopser_usec(1); /* 400ns according to spec */
+> > +	outb(0x0a, HD_CMD);
+> 
+> You really need to reset and reprogram/retune the controller as well.
+
+OK... How?
+
+> I like the infrastructure but the IDE dumper code is wishful thinking
+> in one or two spots. You don't know f the controller is in DMA modes,
+> tuned for different things to the drives or legacy free. Im not sure what
+> to do for legacy free cases but the other bits like LBA48 and retuning
+> probably can be handled with some small chipset specific hooks
+
+The code always does a read sector then a write: if the sector doesn't
+contain the right magic, it stops.  But the more robust the better.
+
+Patches appreciated 8)
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

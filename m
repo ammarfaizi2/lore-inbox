@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbULTIHa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbULTID0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbULTIHa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 03:07:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbULTIFB
+	id S261233AbULTID0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 03:03:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbULTICX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 03:05:01 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:13966 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261506AbULTH24
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 02:28:56 -0500
-Subject: Re: [Lse-tech] [RFC] fork historic module
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Andi Kleen <ak@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       elsa-announce <elsa-announce@lists.sourceforge.net>,
-       elsa-devel@frec.bull.fr
-In-Reply-To: <20041217151115.GD14229@wotan.suse.de>
-References: <1103295512.7329.75.camel@frecb000711.frec.bull.fr>
-	 <20041217151115.GD14229@wotan.suse.de>
-Date: Mon, 20 Dec 2004 08:28:45 +0100
-Message-Id: <1103527725.23891.15.camel@frecb000711.frec.bull.fr>
+	Mon, 20 Dec 2004 03:02:23 -0500
+Received: from fw.osdl.org ([65.172.181.6]:10373 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261492AbULTHJK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 02:09:10 -0500
+Date: Sun, 19 Dec 2004 23:07:54 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: riel@redhat.com, kernel@kolivas.org, mr@ramendik.ru, akpm@digeo.com,
+       lista4@comhem.se, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
+Message-Id: <20041219230754.64c0e52e.akpm@osdl.org>
+In-Reply-To: <1103517225.5093.12.camel@npiggin-nld.site>
+References: <14514245.1103496059334.JavaMail.tomcat@pne-ps4-sn2>
+	<41C6073B.6030204@yahoo.com.au>
+	<20041219155722.01b1bec0.akpm@digeo.com>
+	<200412200303.35807.mr@ramendik.ru>
+	<41C640DE.7050002@kolivas.org>
+	<Pine.LNX.4.61.0412192220450.4315@chimarrao.boston.redhat.com>
+	<1103517225.5093.12.camel@npiggin-nld.site>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 20/12/2004 08:36:24,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 20/12/2004 08:36:27,
-	Serialize complete at 20/12/2004 08:36:27
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-12-17 at 16:11 +0100, Andi Kleen wrote:
-> > +/* IOCTL numbers */
-> > +/* If you add a new IOCTL number don't forget to update FH_MAXNR */
-> > +#define FH_MAGIC	0x35
-> > +#define FH_REGISTER	_IO(FH_MAGIC,0)
-> > +#define FH_UNREGISTER	_IO(FH_MAGIC,1)
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+> On Sun, 2004-12-19 at 22:21 -0500, Rik van Riel wrote:
+> > On Mon, 20 Dec 2004, Con Kolivas wrote:
+> > 
+> > > I still suspect the thrash token patch even with the swap token timeout 
+> > > at 0. Is it completely disabled at 0 or does it still do something?
+> > 
+> > It makes it harder to page out pages from the task holding the
+> > token.  I wonder if kswapd should try to steal the token away
+> > from the task holding it, so in effect nobody holds the token
+> > when the system isn't under a heavy swapping load.
+> > 
 > 
-> Is this really unique? 32bit emulation currently needs unique ioctl numbers.
+> In that case, the first thing we need to do is disable thrash token
+> completely, and retest that. We still don't know for sure that it is
+> the problem.
+> 
+> I don't have the code in front of me at the moment, but I'll be able
+> to send a patch to do that in a couple of hours, if nobody beats me
+> to it.
 
-I read the Documentation/ioctl-number.txt file and 0x35 is not mentioned
-in this file. But I made a grep on 'MAGIC' and '35' in the Linux source
-tree and you're right, this number is already used by POR_MAGIC_2. 
+This should disable the thrashing control code?
 
-Is a grep in the Linux source tree is enough to know if the value is
-unique?
-
-Thanks,
-Guillaume  
+--- 25/mm/rmap.c~a	2004-12-19 23:05:58.759420936 -0800
++++ 25-akpm/mm/rmap.c	2004-12-19 23:06:43.105679280 -0800
+@@ -395,6 +395,8 @@ int page_referenced(struct page *page, i
+ {
+ 	int referenced = 0;
+ 
++	ignore_token = 1;
++
+ 	if (page_test_and_clear_young(page))
+ 		referenced++;
+ 
+_
 

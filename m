@@ -1,53 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVACN6s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVACOD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261450AbVACN6s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 08:58:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVACN6s
+	id S261452AbVACOD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 09:03:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVACOD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 08:58:48 -0500
-Received: from [144.51.25.10] ([144.51.25.10]:25547 "EHLO epoch.ncsc.mil")
-	by vger.kernel.org with ESMTP id S261450AbVACN6n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 08:58:43 -0500
-Subject: Re: Is CAP_SYS_ADMIN checked by every program !?
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Tetsuo Handa <from-linux-kernel@i-love.sakura.ne.jp>
-Cc: lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>
-In-Reply-To: <200412301640.FCB13564.FtFPMSMGJtSOLVOYN@i-love.sakura.ne.jp>
-References: <200412291347.JEH41956.OOtStPFFNMLJVGMYS@i-love.sakura.ne.jp>
-	 <9033584D-5A24-11D9-989E-000393ACC76E@mac.com>
-	 <200412301640.FCB13564.FtFPMSMGJtSOLVOYN@i-love.sakura.ne.jp>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1104760366.16598.40.camel@moss-spartans.epoch.ncsc.mil>
+	Mon, 3 Jan 2005 09:03:56 -0500
+Received: from rproxy.gmail.com ([64.233.170.200]:58832 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261452AbVACODw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 09:03:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Hhmv6D3QBF8UE/3My44KvrubQDENV+8Eun27lG5N1vm8z+2wmKW9qYNv0b0DUuYumJ5HMcrzZNml9bcz96oDy4vOJ0CnTMg7CRWMdVhH+zjOUHty459WtChttAlq4HNRLbMP/kAJ+3gAKv5CW05ODoSyGhI4laOTLpaviZBcH/c=
+Message-ID: <d5a95e6d050103060322f0cbc@mail.gmail.com>
+Date: Mon, 3 Jan 2005 11:03:49 -0300
+From: Diego <foxdemon@gmail.com>
+Reply-To: Diego <foxdemon@gmail.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: About NFS4 in kernel 2.6.9
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <41D368F7.8090502@tmr.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 03 Jan 2005 08:52:46 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+References: <Pine.LNX.4.61.0412272045020.9354@yvahk01.tjqt.qr>
+	 <d5a95e6d04122711183596d0c8@mail.gmail.com>
+	 <d5a95e6d04122712148459507@mail.gmail.com> <41D368F7.8090502@tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-12-30 at 02:40, Tetsuo Handa wrote:
-> I'm developing a kernel patch that provides simple and handy
-> MAC(mandatory access control) functionality, much easier than SELinux.
-> And now I'm porting the patch from 2.4 to 2.6,
-> though the patch can't support LSM, for it refers 'struct vfsmount'.
+Thanks for all help, finally it´s working
+ I prayed to lord, enjoy the 2004=>2005 and it worked. I think i was
+doing something wrong heheh.
+Thanks to all again.
+
+On Wed, 29 Dec 2004 21:33:27 -0500, Bill Davidsen <davidsen@tmr.com> wrote:
+> Diego wrote:
+> > Thanks for your help,
+> > I´ve checked what Jan said, and in .config is NFS_FS=y. When i do
+> > modprobe sunrpc shows me:
+> >
+> > [root@laca01 ~]# modprobe sunrpc
+> > FATAL: Module sunrpc not found.
+> > FATAL: Error running install command for sunrpc
+> >
+> > It´s really annoyng :)
+> >
+> > On Mon, 27 Dec 2004 20:46:38 +0100 (MET), Jan Engelhardt
+> > <jengelh@linux01.gwdg.de> wrote:
+> >
+> >>>First sorry about my poor english. I read in internet that it´s best
+> >>>if i recompile NFS4 as module, so i did it. But i have this error
+> >>>message. I dont know wht to do. when i do make xconfig, in filesystem,
+> >>>i have checked all that have NFS and RPC, but it insist in not work.
+> >>
+> >>Really? I have this in fs/Kconfig (2.6.8+2.6.9-rc2):
+> >>
+> >>menu "Network File Systems"
+> >>       depends on NET
+> >>
+> >>config NFS_FS
+> >>       tristate "NFS file system support"
+> >>       depends on INET
+> >>       select LOCKD
+> >>       select SUNRPC
+> >>       select NFS_ACL_SUPPORT if NFS_ACL
+> >>
+> >>So SUNRPC should always be selected whenever you say yes/module to "NFS file
+> >>system support".
+> >>Check the .config if NFS_FS=y or =m, that'd be my guess.
 > 
-> At first, I doubted that some kernel function (do_execve(), memory management
-> functions, or any kernel functions that are always called by every process) is
-> doing this CAP_SYS_ADMIN checking. But may be this CAP_SYS_ADMIN checking is
-> caused by the Fedora Core 3's libc, not by the kernel.
-> I don't have 2.6 kernel environment other than Fedora Core 3.
+> By any chance was sunrpc compiled in instead of module? What is the
+> setting in your .config file?
 > 
-> But anyway, I have to give up checking for CAP_SYS_ADMIN .
-
-Just override the vm_enough_memory security hook with your own function,
-as we do in SELinux, to avoid auditing the CAP_SYS_ADMIN check there.
-Note that this issue has also come up again on the linux-security-module
-mailing list recently, and might be addressed through a change to the
-cap_vm_enough_memory hook function.
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+> --
+> bill davidsen <davidsen@tmr.com>
+>   CTO TMR Associates, Inc
+>   Doing interesting things with small computers since 1979
+>

@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135948AbRDTPvM>; Fri, 20 Apr 2001 11:51:12 -0400
+	id <S135949AbRDTP4M>; Fri, 20 Apr 2001 11:56:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135949AbRDTPvD>; Fri, 20 Apr 2001 11:51:03 -0400
-Received: from mta05-svc.ntlworld.com ([62.253.162.45]:20166 "EHLO
-	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S135948AbRDTPuv>; Fri, 20 Apr 2001 11:50:51 -0400
-Date: Fri, 20 Apr 2001 16:50:49 +0100
-From: Tim Waugh <tim@cyberelk.demon.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] 2.4.4-pre5: deviceiobook.tmpl things
-Message-ID: <20010420165049.A19504@cyberelk.demon.co.uk>
+	id <S135952AbRDTP4C>; Fri, 20 Apr 2001 11:56:02 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:4366 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S135949AbRDTPzt>; Fri, 20 Apr 2001 11:55:49 -0400
+Date: Fri, 20 Apr 2001 08:51:48 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Matthew Wilcox <willy@ldl.fc.hp.com>,
+        james rich <james.rich@m.cc.utah.edu>, linux-kernel@vger.kernel.org,
+        parisc-linux@parisc-linux.org
+Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is anyone paying attention?
+Message-ID: <20010420085148.V13403@opus.bloom.county>
+In-Reply-To: <20010420101951.A6011@thyrsus.com> <E14qc9E-0001PW-00@the-village.bc.nu> <20010420105934.A6668@thyrsus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010420105934.A6668@thyrsus.com>; from esr@thyrsus.com on Fri, Apr 20, 2001 at 10:59:34AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's a typo in this file, and also include/asm-i386/io.h has no
-extractable documentation.
+On Fri, Apr 20, 2001 at 10:59:34AM -0400, Eric S. Raymond wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> > > well, though.  One is the kind I'm bumping into right now, where
+> > > somebody legitimately needs to make small (almost trivial) changes
+> > > scattered all through the tree.
+> > 
+> > Yep. But such changes are rare. Or should be. 
+> 
+> Knowing that doesn't help me much, since I'm trying to fix up a global
+> namespace that touches everybody :-(.
 
-Tim.
-*/
+Which does boil down to having to work with trees other than Linus or
+Alans.  Remember, the official tree is not always the up-to-date tree,
+or in the case of other arches, the most relevant tree.  But if you send
+something off to a maintainer, there's a good chance (if they're still active)
+they'll do what you ask, and it'll get to Linus/Alan the next time they sync.
+As long as the problem gets fixed, it shouldn't be as important if it's fixed
+in everyones tree right now, or in a release or two.  If it's some sort of
+huge bug it just might get fixed sooner.
 
---- linux/Documentation/DocBook/deviceiobook.tmpl.deviceio	Fri Apr 20 16:46:16 2001
-+++ linux/Documentation/DocBook/deviceiobook.tmpl	Fri Apr 20 16:49:23 2001
-@@ -171,7 +171,7 @@
- 	with 'isa_' and are <function>isa_readb</function>,
- 	<function>isa_writeb</function>, <function>isa_readw</function>, 
- 	<function>isa_writew</function>, <function>isa_readl</function>,
--	<function>isa_writel</function), <function>isa_memcpy_fromio</function>
-+	<function>isa_writel</function>, <function>isa_memcpy_fromio</function>
- 	and <function>isa_memcpy_toio</function>
-       </para>
-       <para>
-@@ -222,11 +222,6 @@
-       </para>
-     </sect1>
- 
--  </chapter>
--
--  <chapter id="pubfunctions">
--     <title>Public Functions Provided</title>
--!Einclude/asm-i386/io.h
-   </chapter>
- 
- </book>
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

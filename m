@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286365AbRL0RLq>; Thu, 27 Dec 2001 12:11:46 -0500
+	id <S286372AbRL0ROg>; Thu, 27 Dec 2001 12:14:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286371AbRL0RL0>; Thu, 27 Dec 2001 12:11:26 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:41487 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S286370AbRL0RLY>; Thu, 27 Dec 2001 12:11:24 -0500
-Date: Thu, 27 Dec 2001 15:11:01 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Dana Lacoste <dana.lacoste@peregrine.com>,
-        "'Eyal Sohya'" <linuz_kernel_q@hotmail.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: The direction linux is taking
-In-Reply-To: <20011227165752.A19618@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.33L.0112271509570.12225-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286370AbRL0RO0>; Thu, 27 Dec 2001 12:14:26 -0500
+Received: from msp-150.man.olsztyn.pl ([213.184.31.150]:896 "EHLO
+	msp-150.man.olsztyn.pl") by vger.kernel.org with ESMTP
+	id <S286372AbRL0ROU>; Thu, 27 Dec 2001 12:14:20 -0500
+Date: Thu, 27 Dec 2001 18:13:21 +0100
+From: Dominik Mierzejewski <dominik@aaf16.warszawa.sdi.tpnet.pl>
+To: linux-kernel@vger.kernel.org
+Subject: SOLVED Re: 2.2/2.4 Kernel oops/hang right after Calibrating delay loop...
+Message-ID: <20011227171321.GA1278@msp-150.man.olsztyn.pl>
+In-Reply-To: <20011227122505.GA5445@msp-150.man.olsztyn.pl> <E16Jdef-00062O-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16Jdef-00062O-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.24i
+X-Linux-Registered-User: 134951
+X-Homepage: http://home.elka.pw.edu.pl/~dmierzej/
+X-PGP-Key-Fingerprint: B546 B96A 4258 02EF 5CAB  E867 3CDA 420F 7802 6AFE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Dec 2001, Russell King wrote:
+On Thursday, 27 December 2001, Alan Cox wrote:
+> > So, if anyone has _any_ idea where to look for the cause of this problem,
+> > we'd really appreciate it.
+> > Could this be a hardware problem?
+> 
+> Almost certainly. Check the heatsink/fan on the CPU, the voltages.
 
-> I envy Alan, Linus, and Marcelo for having the ability to silently
-> drop patches and wait for resends.
+That was ok, but ...
 
-I'm not going to resend more than twice. If after that
-a critical bugfix isn't applied, I'll put it in our
-kernel RPM and the rest of the world has tough luck.
+> Check the RAM is seated ok and run memtest86 on it
 
-regards,
+... that wasn't. It turned out that both the DIMM (PC66) chip and
+the SIMM chips I tried were defective. Strangely enough,
+another (known to be good) PC133 DIMM wouldn't work at all, i.e.
+the machine would even show BIOS POST screen. Anyway, thanks for
+all your help, list.
 
-Rik
 -- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+"The Universe doesn't give you any points for doing things that are easy."
+        -- Sheridan to Garibaldi in Babylon 5:"The Geometry of Shadows"
+Dominik 'Rathann' Mierzejewski <rathann(at)we.are.one.pl>

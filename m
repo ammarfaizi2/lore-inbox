@@ -1,42 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270779AbUJUSCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268688AbUJUSMP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270779AbUJUSCM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 14:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270773AbUJUR6A
+	id S268688AbUJUSMP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 14:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270775AbUJUSKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 13:58:00 -0400
-Received: from [66.35.79.110] ([66.35.79.110]:20146 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S270711AbUJURyJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 13:54:09 -0400
-Date: Thu, 21 Oct 2004 10:53:44 -0700
-From: Tim Hockin <thockin@hockin.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Alexandre Oliva <aoliva@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: forcing PS/2 USB emulation off
-Message-ID: <20041021175344.GA1837@hockin.org>
-References: <orzn2lyw8k.fsf@livre.redhat.lsd.ic.unicamp.br> <200410172248.16571.dtor_core@ameritech.net> <20041018164539.GC18169@kroah.com> <20041019063057.GA3057@ucw.cz> <1098302200.12374.44.camel@localhost.localdomain> <20041021062103.GA1252@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041021062103.GA1252@ucw.cz>
-User-Agent: Mutt/1.4.2i
+	Thu, 21 Oct 2004 14:10:52 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:50954 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S270711AbUJUSDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 14:03:21 -0400
+Message-ID: <4177FCAA.4040907@techsource.com>
+Date: Thu, 21 Oct 2004 14:15:06 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: David Lang <david.lang@digitalinsight.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+References: <4176E08B.2050706@techsource.com> <Pine.LNX.4.60.0410201521310.17443@dlang.diginsite.com> <4177CBD5.2030003@techsource.com> <Pine.LNX.4.60.0410211011150.19286@dlang.diginsite.com>
+In-Reply-To: <Pine.LNX.4.60.0410211011150.19286@dlang.diginsite.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 08:21:03AM +0200, Vojtech Pavlik wrote:
-> And I would be fine to move the atkbd/psmouse initialization down in the
-> Makefiles so that USB gets initialized first - but what do we do about
-> the modular case? 
+
+
+David Lang wrote:
+> On Thu, 21 Oct 2004, Timothy Miller wrote:
 > 
-> I do agree that we should have only one copy of the handoff code,
-> regardless of where it's living.
+>> David Lang wrote:
+>>
+>>> On Wed, 20 Oct 2004, Timothy Miller wrote:
+>>>
+>>> since nobody has done this yet (for video cards anyeay) there is no 
+>>> proof one way or the other.
+>>
+>>
+>> Well, if Tech Source management decides that this project isn't worth 
+>> the effort, you'll have a small piece of circumstantial evidence that 
+>> leans toward "it's not viable".  I personally want to find a way to 
+>> make it work.
+>>
+>> To the open source community, this is a golden opportunity to directly 
+>> influence the design of a piece of hardware which fits their ideals. 
+>> For me personally, this is a golden opportunity to work on a project 
+>> from which I'll derive an immense amount of enjoyment.  For both 
+>> accounts, I'm desperate to find a way to make it work.  :)
+>>
+> 
+> Tim, in this case you are not just testing the openess idea, you are 
+> also testing the low-volume, high-cost, but flexible idea. and that idea 
+> has never had a large market
+> 
+> you are in something of a catch-22 here. due to the risk you can only do 
+> things with a relativly small initial investment, but with a larger 
+> initial investment you could make much cheaper (and therefor much more 
+> popular) cards. where's a billionare looking to Do Good Things (TM) when 
+> you need one ;-)
 
-I just wanted to pipe up and say that I'm being hit by this same bug this
-week.  Except in my case, the system sometimes blows up and reboots during
-kb probing (2.4.x kernel).  I've not tried 2.6 on this box yet.
 
-I don't know what the right answer is yet, but it sure is frustrating.
+Yeah!  I wonder if there are any rich investors reading this right now 
+who would like to invest in this project.  :)
+
+I'm sure the CEO would be elated to have that happen!  :)
+
+Based on past experience, I think a few million dollars would do it.  :)
+

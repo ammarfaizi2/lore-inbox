@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316649AbSGQUWZ>; Wed, 17 Jul 2002 16:22:25 -0400
+	id <S316673AbSGQUYA>; Wed, 17 Jul 2002 16:24:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316666AbSGQUWZ>; Wed, 17 Jul 2002 16:22:25 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:17412 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S316649AbSGQUWY>; Wed, 17 Jul 2002 16:22:24 -0400
-Date: Wed, 17 Jul 2002 17:25:09 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Daniel Phillips <phillips@arcor.de>
-cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/13] minimal rmap
-In-Reply-To: <E17UvBH-0004Pb-00@starship>
-Message-ID: <Pine.LNX.4.44L.0207171721470.12241-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316667AbSGQUYA>; Wed, 17 Jul 2002 16:24:00 -0400
+Received: from [195.137.34.203] ([195.137.34.203]:37808 "HELO sam.home.net")
+	by vger.kernel.org with SMTP id <S316673AbSGQUX6>;
+	Wed, 17 Jul 2002 16:23:58 -0400
+Date: Wed, 17 Jul 2002 21:39:29 +0100
+From: Sam Mason <mason@f2s.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: shreenivasa H V <shreenihv@usa.net>, linux-kernel@vger.kernel.org
+Subject: Re: Gang Scheduling in linux
+Message-ID: <20020717203929.GA9633@sam.home.net>
+References: <20020717201417.GA9546@sam.home.net> <Pine.LNX.4.44.0207182206280.6752-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207182206280.6752-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jul 2002, Daniel Phillips wrote:
+On Thu, Jul 18, 2002 at 10:08:13PM +0200, Ingo Molnar wrote:
+>On Wed, 17 Jul 2002, Sam Mason wrote:
+>> It's mainly used for programs that needs lots of processing power
+>> chucked at a specific problem, the problem is first broken down into
+>> several small pieces and each part is sent off to a different processor.
+>> When each piece has been processed, they are all recombined and the rest
+>> of the calculation is continued.  The problem with this is that if any
+>> one of the pieces is delayed, all the processors will be idle waiting
+>> for the interrupted piece to be processed, before they can process the
+>> next set of pieces.
+>well, how does gang scheduling solve this problem? Even gang-scheduled
+>tasks might be interrupted anytime on any CPU, by higher-priority tasks,
+>thus causing a delay.
 
-> Yes, I've always felt that at least one new list is needed to do the job
-> properly, and there are other considerations as well.
+The important thing to remember is that this isn't a normal scheduling
+method, it's used for VERY specialised software which is assumed to
+have (almost) complete control of the machine.  Gang scheduled
+processes would have the highest priority possible and would get
+executed before any other processes.  This works because the software
+knows what it's doing and assumes that the user only ran one bit of
+gang scheduled software, if all of these are valid assumptions
+everything should work nicely.
 
-> Obviously we don't want to be adding new lists and other experimental
-> cruft just now.
+Thinking about it, if a process just sets itself to be the highest
+priority and constrains it's self to appropriate processors then it
+wouldn't surprise me if this was just what you want to do gang
+scheduled.
 
-I know it's against a long-standing tradition, but I'd really
-like to get changes like this in _before_ the code change.
 
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+  Sam

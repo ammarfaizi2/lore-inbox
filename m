@@ -1,172 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264032AbUDVOKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264045AbUDVONO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264032AbUDVOKw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 10:10:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264045AbUDVOKw
+	id S264045AbUDVONO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 10:13:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264062AbUDVONO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 10:10:52 -0400
-Received: from everest.2mbit.com ([24.123.221.2]:17354 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S264032AbUDVOKq (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 10:10:46 -0400
-Message-ID: <4087D22B.8020603@greatcn.org>
-Date: Thu, 22 Apr 2004 22:09:47 +0800
-From: Coywolf Qi Hunt <coywolf@greatcn.org>
-Organization: GreatCN.org & The Summit Open Source Develoment Group
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en, zh-cn, zh
+	Thu, 22 Apr 2004 10:13:14 -0400
+Received: from [80.72.36.106] ([80.72.36.106]:59094 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S264045AbUDVONI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 10:13:08 -0400
+Date: Thu, 22 Apr 2004 16:13:02 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Guennadi Liakhovetski <gl@dsa-ac.de>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [somewhat OT] binary modules agaaaain
+In-Reply-To: <200404210224.i3L2OAHl020208@eeyore.valparaiso.cl>
+Message-ID: <Pine.LNX.4.58.0404221546110.15590@alpha.polcom.net>
+References: <200404210224.i3L2OAHl020208@eeyore.valparaiso.cl>
 MIME-Version: 1.0
-To: hpa@zytor.com, davej@codemonkey.org.uk
-CC: Linux-Kernel@vger.kernel.org, kernel-janitors@osdl.org
-X-Scan-Signature: 94f99d5e6e3a513fb92c4f5e11e70901
-X-SA-Exim-Connect-IP: 218.24.188.23
-X-SA-Exim-Mail-From: coywolf@greatcn.org
-Subject: [PATCH] Remove bootsect_helper and A comment fix (re-send)
-Content-Type: multipart/mixed;
- boundary="------------050001060404060401050509"
-X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
-X-SA-Exim-Version: 4.0 (built Tue, 16 Mar 2004 14:56:42 -0500)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050001060404060401050509
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, 20 Apr 2004, Horst von Brand wrote:
 
-Hello,
+> Guennadi Liakhovetski <gl@dsa-ac.de> said:
+> > On Tue, 20 Apr 2004, Bartlomiej Zolnierkiewicz wrote:
+> > > > A binary module is "considered good" if
+> 
+> > > This is a false assumption IMO no binary only modules can be "good".
+> 
+> > I agree! That was just an idea to make Linux life easier __if__ it
+> > __must__ live with binary modules.
+> 
+> Then call it "tolerable", not "good". ("Barely tolerable" comes to mind,
+> but might be a bit harsh...).
+> 
+> In any case, one of the biggest advantages of Linux is that in-kernel
+> interfaces aren't set in stone. They are extremely efficient because they
+> are expressed in terms of access to data structures and inline functions
+> and macros. The kernel is extremely flexible because it can be configured
+> in hundreds of different ways. All of this is lost through a fixed
+> binary-only interface to the binary blob inside the module.
 
-Since "Direct booting from floppy is no longer supported", this patch is
-to remove the bootsect_helper code. And also a comment fix.
+Hi,
 
+Maybe I am totally wrong, but I think that binary modules should (if they 
+must exists) be divided into source (better opensource) interface and 
+binary only part. But I think that majority of binary only drivers could 
+be moved to user space in the great part. Some of them for example are in 
+kernel only to allow to create new device and "bind" to it. The rest can 
+be probably moved to userspace. Yes, there is performance issue, but only 
+in some very rare cases: video cards and maybe something more. But modem 
+drivers, vlan drivers, most raid drivers, archiving and versioning 
+filesystem implementations, network filesystems (LUFS?), and probably more 
+can be removed from kernel.
 
+So I think that there should be some kind of special user-space processes 
+that are userspace, have separate adress space, have some special 
+scheduling rules (to make them more important than normal processes) and 
+can interface with kernel better than normal processes (maybe they will 
+have more special syscalls and some kind of callback functionality...).
 
--- 
-Coywolf Qi Hunt
-Admin of http://GreatCN.org and http://LoveCN.org
+The interface should allow create and "bind" to device, allocate memory 
+region, dma, interrupt, port range, etc. This interface can be considered 
+unstable and change with the kernel. There should be way to allow some 
+process to do something and disallow to do everything else (to protect
+from hidden secret code or simply broken driver). And the interface can be 
+not very portable but should be highly extendable by vendors to allow them 
+add other functionality to it (if vendor will make this functionality gpl 
+and if it will be good it can be included into mainline kernel). This way 
+vendors can cooperate with kernel developers.
 
-
-
-
-
-
---------------050001060404060401050509
-Content-Type: text/plain;
- name="patch-040422a.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-040422a.diff"
-
---- setup.S.orig	Sat Mar  6 23:49:33 2004
-+++ setup.S	Sun Mar  7 04:38:08 2004
-@@ -133,7 +133,7 @@
- ramdisk_size:	.long	0		# its size in bytes
- 
- bootsect_kludge:
--		.word  bootsect_helper, SETUPSEG
-+		.long	0		# obsolete
- 
- heap_end_ptr:	.word	modelist+1024	# (Header version 0x0201 or later)
- 					# space from here (exclusive) down to
-@@ -837,7 +837,7 @@
- 	subw	$DELTA_INITSEG, %si
- 	shll	$4, %esi			# Convert to 32-bit pointer
- 
--# jump to startup_32 in arch/i386/kernel/head.S
-+# jump to startup_32 in arch/i386/boot/compressed/head.S
- #	
- # NOTE: For high loaded big kernels we need a
- #	jmpi    0x100000,__BOOT_CS
-@@ -871,88 +871,6 @@
- 						# sequence
- 	outb	%al, $0x70
- 	lret
--
--# This routine only gets called, if we get loaded by the simple
--# bootsect loader _and_ have a bzImage to load.
--# Because there is no place left in the 512 bytes of the boot sector,
--# we must emigrate to code space here.
--bootsect_helper:
--	cmpw	$0, %cs:bootsect_es
--	jnz	bootsect_second
--
--	movb	$0x20, %cs:type_of_loader
--	movw	%es, %ax
--	shrw	$4, %ax
--	movb	%ah, %cs:bootsect_src_base+2
--	movw	%es, %ax
--	movw	%ax, %cs:bootsect_es
--	subw	$SYSSEG, %ax
--	lret					# nothing else to do for now
--
--bootsect_second:
--	pushw	%cx
--	pushw	%si
--	pushw	%bx
--	testw	%bx, %bx			# 64K full?
--	jne	bootsect_ex
--
--	movw	$0x8000, %cx			# full 64K, INT15 moves words
--	pushw	%cs
--	popw	%es
--	movw	$bootsect_gdt, %si
--	movw	$0x8700, %ax
--	int	$0x15
--	jc	bootsect_panic			# this, if INT15 fails
--
--	movw	%cs:bootsect_es, %es		# we reset %es to always point
--	incb	%cs:bootsect_dst_base+2		# to 0x10000
--bootsect_ex:
--	movb	%cs:bootsect_dst_base+2, %ah
--	shlb	$4, %ah				# we now have the number of
--						# moved frames in %ax
--	xorb	%al, %al
--	popw	%bx
--	popw	%si
--	popw	%cx
--	lret
--
--bootsect_gdt:
--	.word	0, 0, 0, 0
--	.word	0, 0, 0, 0
--
--bootsect_src:
--	.word	0xffff
--
--bootsect_src_base:
--	.byte	0x00, 0x00, 0x01		# base = 0x010000
--	.byte	0x93				# typbyte
--	.word	0				# limit16,base24 =0
--
--bootsect_dst:
--	.word	0xffff
--
--bootsect_dst_base:
--	.byte	0x00, 0x00, 0x10		# base = 0x100000
--	.byte	0x93				# typbyte
--	.word	0				# limit16,base24 =0
--	.word	0, 0, 0, 0			# BIOS CS
--	.word	0, 0, 0, 0			# BIOS DS
--
--bootsect_es:
--	.word	0
--
--bootsect_panic:
--	pushw	%cs
--	popw	%ds
--	cld
--	leaw	bootsect_panic_mess, %si
--	call	prtstr
--	
--bootsect_panic_loop:
--	jmp	bootsect_panic_loop
--
--bootsect_panic_mess:
--	.string	"INT15 refuses to access high mem, giving up."
- 
- 
- #ifndef CONFIG_X86_VOYAGER
+What do you think?
 
 
---------------050001060404060401050509--
+Grzegorz Kulewski
+

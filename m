@@ -1,134 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264252AbRFDNXC>; Mon, 4 Jun 2001 09:23:02 -0400
+	id <S264204AbRFDLmT>; Mon, 4 Jun 2001 07:42:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264245AbRFDNLJ>; Mon, 4 Jun 2001 09:11:09 -0400
-Received: from rs6000.univie.ac.at ([131.130.1.14]:17931 "EHLO
-	rs6000.univie.ac.at") by vger.kernel.org with ESMTP
-	id <S264244AbRFDNKw>; Mon, 4 Jun 2001 09:10:52 -0400
-From: Melchior FRANZ <a8603365@unet.univie.ac.at>
-Message-Id: <200106041441.02167@pflug3.gphy.univie.ac.at>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: PATCH: tdfxfb: bugfix & enable SUN12x22 font, kernel 2.4.5
-Date: Mon, 4 Jun 2001 15:08:51 +0200
-X-Mailer: KMail [version 1.2.2]
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-        linux-fbdev@vuser.vu.union.edu, Hannu MALLAT <hmallat@cc.hut.fi>
-In-Reply-To: <Pine.LNX.4.05.10106041418020.28576-100000@callisto.of.borg>
-In-Reply-To: <Pine.LNX.4.05.10106041418020.28576-100000@callisto.of.borg>
-X-PGP: http://www.unet.univie.ac.at/~a8603365/melchior.franz
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_RUPEXWAV9PO794R2BOUV"
+	id <S264205AbRFDLl7>; Mon, 4 Jun 2001 07:41:59 -0400
+Received: from pc7.prs.nunet.net ([199.249.167.77]:24339 "HELO
+	pc7.prs.nunet.net") by vger.kernel.org with SMTP id <S264204AbRFDLlw>;
+	Mon, 4 Jun 2001 07:41:52 -0400
+Date: 4 Jun 2001 11:41:51 -0000
+Message-ID: <20010604114151.21903.qmail@pc7.prs.nunet.net>
+From: "Rico Tudor" <rico-linux-kernel@patrec.com>
+To: linux-kernel@vger.kernel.org
+Subject: IO-APIC, beaten with stick, routes USB
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm another victim of the IOAPIC routing USB IRQs to the nearest
+black hole.  Running 2.4.4, dual CPU, ServerWorks HE chipset.  IRQ 16
+was wrongly assumed for the OHCI controller.  This generated the usual
+sign of interrupt servicing gone AWOL:
 
---------------Boundary-00=_RUPEXWAV9PO794R2BOUV
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	usb_control/bulk_msg: timeout
+	usb-ohci.c: unlink URB timeout
+	usb.c: USB device not accepting new address=2 (error=-110)
+	hub.c: port 1, portstatus 100, change 3, 12 Mb/s
+	hub.c: port 1 of hub 1 not enabled, trying reset again...
+	hub.c: port 1, portstatus 100, change 3, 12 Mb/s
+	hub.c: port 1 of hub 1 not enabled, trying reset again...
+	hub.c: port 1, portstatus 100, change 3, 12 Mb/s
+	hub.c: port 1 of hub 1 not enabled, trying reset again...
+	hub.c: port 1, portstatus 100, change 3, 12 Mb/s
+	hub.c: port 1 of hub 1 not enabled, trying reset again...
+	hub.c: port 1, portstatus 101, change 3, 12 Mb/s
+	hub.c: port 1 of hub 1 not enabled, trying reset again...
+	hub.c: Cannot enable port 1 of hub 1, disabling port.
+	hub.c: Maybe the USB cable is bad?
 
-* Geert Uytterhoeven -- Monday 04 June 2001 14:20:
-> On Mon, 4 Jun 2001, Melchior FRANZ wrote:
-> > The attached patch fixes that bug and enables 8--12 bit wide fonts, thus
-> > disabling the "No support ..." messages. I haven't found an indication that
-> 
-> Does it work now for fonts with width 16? I'd expect so.
+The problem can be side-stepped with "noapic", but that's wimping out.
+After mucking fruitlessly with boot params like "pirq", I simply took a
+hatchet to usb-ohci.c, and installed its interrupt handler at all IRQs.
+Viola!  USB services now appear on IRQ 12.  After some CompactFlash
+reading, /proc/interrupts looks like this:
 
-It works for 8 and 12 pixels wide fonts on my 80686 little-endian. I don't have
-a 16 pixel font, but such a font should even have worked with the bug, because
-like with a 8 bit font the pattern would by fortune have come out right.
+	           CPU0       CPU1       
+	  0:      29204      31652    IO-APIC-edge  timer
+	  1:         27         41    IO-APIC-edge  keyboard
+	  2:          0          0          XT-PIC  cascade
+	  3:          0          0    IO-APIC-edge  usb-ohci
+	  4:          0          0    IO-APIC-edge  usb-ohci
+	  5:          0          0    IO-APIC-edge  usb-ohci
+	  6:          2          1    IO-APIC-edge  usb-ohci
+	  7:          0          0    IO-APIC-edge  usb-ohci
+	  8:          0          0    IO-APIC-edge  usb-ohci
+	  9:          0          0   IO-APIC-level  usb-ohci
+	 10:          0          0    IO-APIC-edge  usb-ohci
+	 11:          0          0    IO-APIC-edge  usb-ohci
+	 12:       1537       1558    IO-APIC-edge  usb-ohci
+	 13:          0          0    IO-APIC-edge  usb-ohci
+	 14:         33         40    IO-APIC-edge  ide0, usb-ohci
+	 15:          0          0    IO-APIC-edge  usb-ohci
+	 16:          0          0   IO-APIC-level  usb-ohci, usb-ohci
+	 17:          0          0   IO-APIC-level  usb-ohci
+	 18:          0          0            none  usb-ohci
+	 19:          0          0            none  usb-ohci
+	 20:          0          0   IO-APIC-level  usb-ohci
+	 21:          0          0            none  usb-ohci
+	 22:          3          6   IO-APIC-level  eth1, usb-ohci
+	 23:       1039        709   IO-APIC-level  eth0, usb-ohci
+	 24:          0          0            none  usb-ohci
+	 25:          0          0            none  usb-ohci
+	 26:          0          0            none  usb-ohci
+	 27:          0          0            none  usb-ohci
+	 28:          0          0   IO-APIC-level  sym53c8xx, usb-ohci
+	 29:        693        673   IO-APIC-level  sym53c8xx, usb-ohci
+	 30:          0          0   IO-APIC-level  usb-ohci
+	 31:          0          0            none  usb-ohci
+	NMI:          0          0 
+	LOC:      60727      60726 
+	ERR:          0
 
+Mucho elegant.  :-)
 
+This method of IRQ determination is used by `setserial' with the
+"autoconfig" option, and should be adopted within the kernel, at least
+for PCI.  BIOS writers' adherence to MPS seems eternally lacking, and
+the NDA cloud over chipset-land won't be going away soon.
 
-> BTW, instead of using #ifdef __LITTLE_ENDIAN and swapping explicitly, it's
-> better to use the cpu_to_be* macros.
+Some mention of stray interrupts on the console might be helpful, too.
 
-I see. I just grepped through some source files and saw these ifdef's everywhere,
-so I didn't feel especially guilty.  ;-)
-
-
-
-> > there are any Voodoo3/Banshee cards for big endian machines. The bugfix implies
-> > that they never could have worked. (But if they have indeed, they would be
-> > broken after applying the patch. Could someone comment on this, please?)
-> 
-> Yes, people are using Voodoo3 boards on PPC. But they require(d) some patches,
-> IIRC.
-
-Ahh. Maybe someone with a PPC could test that patch. New version (without ifdef)
-attached.
-
-m.
-
-
-PS: My emails don't seem to make it to the kernel-list. Or is a delay of more
-    than two hours considered normal?! Now I'm trying via a smart-host ...
-
---------------Boundary-00=_RUPEXWAV9PO794R2BOUV
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="tdfxfb.diff"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="tdfxfb.diff"
-
---- linux-2.4.5/drivers/video/tdfxfb.c	Sun Jun  3 17:13:30 2001
-+++ linux/drivers/video/tdfxfb.c	Mon Jun  4 14:54:59 2001
-@@ -1207,7 +1207,7 @@
-    revc:		tdfx_cfbX_revc,   
-    cursor:		tdfx_cfbX_cursor, 
-    clear_margins:	tdfx_cfbX_clear_margins,
--   fontwidthmask:	FONTWIDTH(8)
-+   fontwidthmask:	FONTWIDTHRANGE(8, 16)
- };
- #endif
- #ifdef FBCON_HAS_CFB16
-@@ -1220,7 +1220,7 @@
-    revc:		tdfx_cfbX_revc, 
-    cursor:		tdfx_cfbX_cursor, 
-    clear_margins:	tdfx_cfbX_clear_margins,
--   fontwidthmask:	FONTWIDTH(8)
-+   fontwidthmask:	FONTWIDTHRANGE(8, 16)
- };
- #endif
- #ifdef FBCON_HAS_CFB24
-@@ -1233,7 +1233,7 @@
-    revc:		tdfx_cfbX_revc, 
-    cursor:		tdfx_cfbX_cursor, 
-    clear_margins:	tdfx_cfbX_clear_margins,
--   fontwidthmask:	FONTWIDTH(8)
-+   fontwidthmask:	FONTWIDTHRANGE(8, 16)
- };
- #endif
- #ifdef FBCON_HAS_CFB32
-@@ -1246,7 +1246,7 @@
-    revc:		tdfx_cfbX_revc, 
-    cursor:		tdfx_cfbX_cursor, 
-    clear_margins:	tdfx_cfbX_clear_margins,
--   fontwidthmask:	FONTWIDTH(8)
-+   fontwidthmask:	FONTWIDTHRANGE(8, 16)
- };
- #endif
- 
-@@ -2314,7 +2314,7 @@
-    unsigned int h,to;
- 
-    tdfxfb_createcursorshape(p);
--   xline = (1 << fb_info.cursor.w)-1;
-+   xline = cpu_to_be32(~((1 << (32 - fb_info.cursor.w)) - 1));
-    cursorbase=(u8*)fb_info.bufbase_virt;
-    h=fb_info.cursor.cursorimage;     
-    
-
---------------Boundary-00=_RUPEXWAV9PO794R2BOUV
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="README"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="README"
-
-tdfxfb.c: fix cursor bug; enable 12x22 fonts  -- Melchior FRANZ <a8603365@unet.univie.ac.at>
-
---------------Boundary-00=_RUPEXWAV9PO794R2BOUV--
+P.S. `setserial' actually fails to determine IRQ with IO-APIC active.

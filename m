@@ -1,86 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267456AbTAGRN4>; Tue, 7 Jan 2003 12:13:56 -0500
+	id <S267431AbTAGRaM>; Tue, 7 Jan 2003 12:30:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267455AbTAGRN4>; Tue, 7 Jan 2003 12:13:56 -0500
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:58636 "EHLO w-patman.des")
-	by vger.kernel.org with ESMTP id <S267453AbTAGRNx>;
-	Tue, 7 Jan 2003 12:13:53 -0500
-Date: Tue, 7 Jan 2003 10:02:09 -0800
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, mdharm-kernel@one-eyed-alien.net,
-       zwane@holomorphy.com
-Subject: Re: IDs
-Message-ID: <20030107100209.A15291@beaverton.ibm.com>
-References: <UTC200301071055.h07At0T09202.aeb@smtp.cwi.nl>
+	id <S267434AbTAGRaM>; Tue, 7 Jan 2003 12:30:12 -0500
+Received: from ce.fis.unam.mx ([132.248.33.1]:59882 "EHLO ce.fis.unam.mx")
+	by vger.kernel.org with ESMTP id <S267431AbTAGRaD>;
+	Tue, 7 Jan 2003 12:30:03 -0500
+Subject: Re: Undelete files on ext3 ??
+From: Max Valdez <maxvaldez@yahoo.com>
+To: Jan Hudec <bulb@ucw.cz>
+Cc: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030107094547.GG2141@vagabond>
+References: <200301070859.h078xEnI000337@darkstar.example.net>
+	 <Pine.LNX.4.44.0301071004550.30728-100000@dns.toxicfilms.tv>
+	 <20030107094547.GG2141@vagabond>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-FHXBZBTc8T2FBwjhwe3q"
+Organization: 
+Message-Id: <1041961118.13635.10.camel@garaged.fis.unam.mx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <UTC200301071055.h07At0T09202.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Tue, Jan 07, 2003 at 11:55:00AM +0100
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 07 Jan 2003 11:38:38 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 07, 2003 at 11:55:00AM +0100, Andries.Brouwer@cwi.nl wrote:
 
-> > But, we don't have to truncate, we should just allocate as many bytes as
-> > we need, and store the information.
-> 
-> > And, the sysfs name should not store the id.
+--=-FHXBZBTc8T2FBwjhwe3q
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> OK. It seems that we are in total agreement.
-> Time for the next question.
-> 
-> An id is constructed, that in many cases identifies something.
-> How do you plan to use this? Is it already in use somewhere?
 
-It's not in use in the main-line kernel.
+>=20
+> By the way, there used to be undelete tool for ext2. It created a list
+> of deleted inodes with correct stat, but no names, only their inode
+> numbers. You could then pick the corect inode and give it a name, thus
+> bringing it back to life. Since ext3 is just ext2 with journal, I guess
+> it might work. It existed as a standalone tool and integrated to
+> midnight commander.
+>=20
+I think there must be some other differences between ext2 and ext3, I've
+tryed e2undel and unrm, both made for ext2, and none of them found any
+deleted inode.
 
-I forgot to mention that I'm using the id in scsi mid-level multi-path
-code, it has the same problem (the id is not always unique, plus other
-major issues to deal with).
+I umonted immediately the drive, and nothing has been writen on it after
+the rm *
 
-I'm not working on any device naming/persistence code, although I have
-given thought to solutions. Any solution there might apply to multi-path
-usage. But the multi-path cannot easily be moved to user space until we
-have complete user level scsi scanning.
+Thanks for the comments !
+I will keep searching !
+Max
+--=20
+uname -a: Linux garaged.fis.unam.mx 2.4.20-rc2-ac3 #2 SMP Thu Nov 21 17:15:=
+31 UTC 2002 i686 unknown unknown GNU/Linux
+-----BEGIN GEEK CODE BLOCK-----
+GS/ d-s:a-C++ILIHA+++P-L++E--W++N+K-w++++O-M--V--PS+PEY+PGP-tXRtv++b+DI--D+=
+Ge++h---r+++z+++
+-----END GEEK CODE BLOCK-----
+gpg-key: http://garaged.homeip.net/gpg-key.txt
 
-Is anyone currently writing device name solutions based on the scsi id?
+--=-FHXBZBTc8T2FBwjhwe3q
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-> The sysfs tree does not contain device nodes.
-> Do you plan a user space utility that figures out that
-> the ID "SHP      CD-Writer+ 8200 [" belongs to /dev/hdd
-> which also is /dev/sr0?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-With the current code, any utility would be scsi specific (it could only
-name scsi devices based on an id, others would get a default name), so it
-would only cover /dev/sr0. I don't know much about IDE capabilities.
+iD8DBQA+GxCesvQlVyd+QikRAoZlAKCBHOyW8/SUhs/1kePwbOjlARLQ4ACfWuhR
++q6/elxjyZtfh5auo5PGQig=
+=mSdv
+-----END PGP SIGNATURE-----
 
-> The id is not suitable as a user space name. Moreover,
-> it is a heuristic only, and user space needs unambiguous names.
+--=-FHXBZBTc8T2FBwjhwe3q--
 
-If we had a complete white/black list of devices with/without a unique id,
-there would be no ambiguity. Such a list could be generated by asking the
-user/administrator each time an unknown device is added to the system (or
-have a safe default); we could also have a white/black somewhere (for use
-from user space), much like we have with scsi_static_device_list in
-scsi_scan.c today.
-
-A user level white/black list is also useful for scanning, especially for
-user level scanning, and for kernel scanning if we can access it before
-starting the scan (via ramdisk at boot time).
-
-> What user space names do you want to use?
-
-Maybe have a configurable starting point (like /devnames, maybe
-something that does not collide with /dev, perhaps we can generate a
-/dev matching exactly what we have today), much like a mount point, or
-like devfs. I don't know of any good reasons for a file system.
-
-In any case, right now we should fix the scsi sysfs name, and add (and not
-truncate) a uid to scsi_device.
-
--- Patrick Mansfield

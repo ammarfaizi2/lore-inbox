@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261884AbTCGXma>; Fri, 7 Mar 2003 18:42:30 -0500
+	id <S261911AbTCGXhc>; Fri, 7 Mar 2003 18:37:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261877AbTCGXlz>; Fri, 7 Mar 2003 18:41:55 -0500
-Received: from packet.digeo.com ([12.110.80.53]:59295 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261905AbTCGXkT>;
-	Fri, 7 Mar 2003 18:40:19 -0500
-Date: Fri, 7 Mar 2003 15:46:24 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: cherry@osdl.org, rddunlap@osdl.org, hch@infradead.org,
-       Joel.Becker@oracle.com, greg@kroah.com, Andries.Brouwer@cwi.nl,
-       linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] register_blkdev
-Message-Id: <20030307154624.12105fa3.akpm@digeo.com>
-In-Reply-To: <20030307233636.A19260@infradead.org>
-References: <UTC200303071932.h27JW1o11962.aeb@smtp.cwi.nl>
-	<20030307193644.A14196@infradead.org>
-	<20030307123029.2bc91426.akpm@digeo.com>
-	<20030307221217.GB21315@kroah.com>
-	<20030307225517.GF2835@ca-server1.us.oracle.com>
-	<20030307225710.A18005@infradead.org>
-	<20030307151744.73738fdd.rddunlap@osdl.org>
-	<1047080297.10926.180.camel@cherrytest.pdx.osdl.net>
-	<20030307233636.A19260@infradead.org>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S261920AbTCGXhT>; Fri, 7 Mar 2003 18:37:19 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:22284 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261911AbTCGXgS>;
+	Fri, 7 Mar 2003 18:36:18 -0500
+Date: Fri, 7 Mar 2003 15:36:53 -0800
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
+Message-ID: <20030307233653.GD21315@kroah.com>
+References: <Pine.LNX.4.44.0303072121180.5042-100000@serv> <Pine.LNX.4.44.0303071459260.1309-100000@home.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Mar 2003 23:50:45.0868 (UTC) FILETIME=[5F24EAC0:01C2E504]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0303071459260.1309-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
->
-> If you actually looked at the block layer code instead of just talking
-> along you'd see that the major/minor split has absolutely zero meaning
-> for the actual driver interface in 2.5.  The only major numbers have
-> any meanting to is pretty printing (/proc/devices and __bdevname).
+On Fri, Mar 07, 2003 at 03:05:32PM -0800, Linus Torvalds wrote:
 > 
+> However, I also have to say that klibc is pretty late in the game, and as 
+> long as it doesn't add any direct value to the kernel build the whole 
+> thing ends up being pretty moot right now. It might be different if we 
+> actually had code that needed it (ie ACPI in user space or whatever).
 
-Christoph, it would help this discussion very much if you could tell everyone
-how we should set about solving the many-disks problem.  In detail.
+I know it's late, sorry.
+But a lot of code that will need klibc, has not been converted to need
+it yet, due to it not being there :)
 
-Thanks.
+If we add klibc to the build process, then those early boot processes
+(like network boot, mounting of the root fs, acpi userspace parsers,
+etc.) can later be added.  Without it, the whole initramfs code is
+pretty worthless right now.  I purposely made these changesets up to
+show how to use klibc, but not move any required functions over to it.
 
+If you want to wait, and have me work on moving some of the existing
+kernel code to userspace, using klibc, to prove it is needed in the
+tree, I will be glad to do that.  But in talking previously, I thought
+the goal was to provide the functionality so that people can slowly move
+those functions out of kernelspace, over time.
+
+thanks,
+
+greg k-h

@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267099AbSLaArh>; Mon, 30 Dec 2002 19:47:37 -0500
+	id <S267104AbSLaAyj>; Mon, 30 Dec 2002 19:54:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267103AbSLaArh>; Mon, 30 Dec 2002 19:47:37 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:6416 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267099AbSLaArh>;
-	Mon, 30 Dec 2002 19:47:37 -0500
-Date: Mon, 30 Dec 2002 16:51:03 -0800
-From: Greg KH <greg@kroah.com>
-To: John Bradford <john@grabjohn.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New kernel bug database on-line
-Message-ID: <20021231005103.GG814@kroah.com>
-References: <200212310000.gBV000hW004368@darkstar.example.net>
+	id <S267112AbSLaAyi>; Mon, 30 Dec 2002 19:54:38 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:33666
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267104AbSLaAyf>; Mon, 30 Dec 2002 19:54:35 -0500
+Subject: Re: Promise 20376 support
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: marcel@mesa.nl
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021231000330.A21224@joshua.mesa.nl>
+References: <20021230204645.B20688@joshua.mesa.nl>
+	<1041281643.13615.131.camel@irongate.swansea.linux.org.uk> 
+	<20021231000330.A21224@joshua.mesa.nl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 31 Dec 2002 01:44:45 +0000
+Message-Id: <1041299085.13684.186.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200212310000.gBV000hW004368@darkstar.example.net>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 30, 2002 at 11:59:59PM +0000, John Bradford wrote:
-> A couple of weeks ago, I started a thread about writing a bug database
-> dedicated to Linux kernel development.
-> 
-> My theory is that by making it Linux kernel development specific, it
-> can save more time, and make bug tracking easier than a generic bug
-> database.
-> 
-> Anyway, version 1.0 is now on-line:
-> 
-> http://grabjohn.com/kernelbugdatabase/
+On Mon, 2002-12-30 at 23:03, Marcel J.E. Mol wrote:
+>     ide2: PDC20276 Bus-Master DMA disabled (BIOS)
+>         ide3: BM-DMA at 0xec800008-0xec80000f -- ERROR, PORT ADDRESSES ALREADY IN USE
 
-Hm, on this page it says the latest Development kernel is 2.5.54, does
-this database travel forward in time?  :)
+Its memory mapped I/O for one. Ok thats down to Promise providing docs
+to someone I guess. Otherwise its a "winputer"
 
-> For the time being, you'll have to E-Mail me a request for a user
-> account, (which you need to do anything with it), but I've also put
-> some screenshots on-line here:
 
-Automated account creation should be your first new feature you add to
-this program, almost no one will use this if you make them do that.
-
-thanks,
-
-greg k-h

@@ -1,44 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132130AbQKQMME>; Fri, 17 Nov 2000 07:12:04 -0500
+	id <S132101AbQKQMNE>; Fri, 17 Nov 2000 07:13:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132128AbQKQMLo>; Fri, 17 Nov 2000 07:11:44 -0500
-Received: from [213.8.185.152] ([213.8.185.152]:52497 "EHLO callisto.yi.org")
-	by vger.kernel.org with ESMTP id <S132101AbQKQMLh>;
-	Fri, 17 Nov 2000 07:11:37 -0500
-Date: Fri, 17 Nov 2000 13:40:58 +0200 (IST)
-From: Dan Aloni <karrde@callisto.yi.org>
-To: Francois romieu <romieu@ensta.fr>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH (2.4)] atomic use count for proc_dir_entry
-In-Reply-To: <20001117112333.D839@nic.fr>
-Message-ID: <Pine.LNX.4.21.0011171332240.3199-100000@callisto.yi.org>
+	id <S132099AbQKQMMy>; Fri, 17 Nov 2000 07:12:54 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17245 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132144AbQKQMMq>; Fri, 17 Nov 2000 07:12:46 -0500
+Subject: Re: [PATCH] ALS-110 opl3 and mpu401 under 2.4.0-test10
+To: mh15@st-andrews.ac.uk (Mark Hindley)
+Date: Fri, 17 Nov 2000 11:42:44 +0000 (GMT)
+Cc: linux-sound@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <l03130301b63ac8b83d39@[138.251.135.28]> from "Mark Hindley" at Nov 17, 2000 11:38:56 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13wjuo-0000Z5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2000, Francois romieu wrote:
+>  So why does the kernel command-line uart401=1 make a builtin uart401
+> driver look for the mpu at 0x1 rather than persuade the sb driver to to do
+> a pnp lookup for it?
 
-> CPU A: assume de->count = 1 (in de_put)
-> fs/proc/inode.c::44 if (!--de->count) {
-> de->count = 0
-> 
-> CPU B: (in remove_proc_entry)
-> fs/proc/generic.c::577         if (!de->count)
-> fs/proc/generic.c::578             free_proc_entry(de);
-> 
-> CPU A: (in de_put)
-> fs/proc/inode.c::45 if (de->deleted) { <-- dereferencing kfreed pointer
-> 
-> What does protect us from the preceding if lock_kernel is thrown ?
- 
-Ok, anyway, notice that in line 41 we return from de_put() without 
-unlock_kernel()'ing the kernel. It doesn't look good.
+Because the __setup string for it is uart401, the sb is sb=...
 
--- 
-Dan Aloni 
-dax@karrde.org
+> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

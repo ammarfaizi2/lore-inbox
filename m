@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272401AbTHNPOW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 11:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272402AbTHNPOW
+	id S272416AbTHNPSu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 11:18:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272423AbTHNPSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 11:14:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2270 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S272401AbTHNPOV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 11:14:21 -0400
-Message-ID: <3F3BA741.9030304@pobox.com>
-Date: Thu, 14 Aug 2003 11:14:09 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Thu, 14 Aug 2003 11:18:50 -0400
+Received: from zeke.inet.com ([199.171.211.198]:39924 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id S272416AbTHNPS2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 11:18:28 -0400
+Message-ID: <3F3BA839.8020207@inet.com>
+Date: Thu, 14 Aug 2003 10:18:17 -0500
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030708
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Andries Brouwer <aebr@win.tue.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ide: limit drive capacity to 137GB if host doesn't	support
- LBA48
-References: <200308140324.45524.bzolnier@elka.pw.edu.pl> <1060851207.5535.15.camel@dhcp23.swansea.linux.org.uk>
-In-Reply-To: <1060851207.5535.15.camel@dhcp23.swansea.linux.org.uk>
+To: Larry McVoy <lm@bitmover.com>
+CC: Jeff Garzik <jgarzik@pobox.com>, davej@redhat.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+Subject: Re: [PATCH] CodingStyle fixes for drm_agpsupport
+References: <E19mF4Y-0005Eg-00@tetrachloride> <20030811164012.GB858@work.bitmover.com> <3F37CB44.5000307@pobox.com> <20030811170425.GA4418@work.bitmover.com> <3F3B9AF8.4060904@inet.com> <20030814144711.GA5926@work.bitmover.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Iau, 2003-08-14 at 02:24, Bartlomiej Zolnierkiewicz wrote:
+Larry McVoy wrote:
+> On Thu, Aug 14, 2003 at 09:21:44AM -0500, Eli Carter wrote:
 > 
->> 	hwif->rqsize			= old_hwif.rqsize;
->>-	hwif->addressing		= old_hwif.addressing;
->>+	hwif->no_lba48			= old_hwif.no_lba48;
+>>>That ought to be balanced with "don't screw up the revision history, people
+>>>use it".  It's one thing to reformat code that is unreadable, for the most
+>>>part this code didn't come close to unreadable.
+>>
+>>Devil's advocate:
+>>Then perhaps the (revision control) tool is getting in the way of doing 
+>>the job and should be fixed?  :)
+>>Perhaps being able to flag a changeset as a 'formatting change', and 
+>>have the option to hide it or make it 'transparent' in some fashion? 
+>>Hmm... "Annotate only the changes that relate to feature X."...
+>>Oh, and a complete AI with that if you don't mind. ;)
+>>
+>>But you've probably already thought about all this...
 > 
 > 
-> This change is a bad idea. Its called "addressing" because that is what
-> it is about (see SATA and ATA specs). In future SATA addressing becomes
-> a 0,1,2 value because 48bits isnt enough, it may get more forms beyond
-> that.
-> 
-> Might be worth defining ADDR_LBA48, ADDR_LBA28 etc to make it clearer,
-> but really people shouldnt be randomly hacking IDE code without having
-> read the specifications.
+> Indeed I have. 
 
+Figured. :)
 
-Yep.  Guess what?  Some host controller vendors are already building 
-lba64 support into their chips...
+ > And there is a reason that we have a policy at BitMover
+> where "formatting changes" are prohibited and we make people redo their
+> changesets until they get them right.
 
-	Jeff
+Ah yes, I do see the value of enforcing a coding style from the get-go.
 
+> In other words, you are welcome to write a revision control system
+> which can look through the formatting changes and give you the semantic
+> knowledge that you want.  We'd love to see how it is done and then do
+> it in BitKeeper :)
 
+<troll>What?!  And _copy_ someone else's hard work?!</troll> *cough* 
+(Sorry, couldn't resist. ;) )
+
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
 

@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265162AbTFULkJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 07:40:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265170AbTFULkI
+	id S265145AbTFULh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 07:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265151AbTFULh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 07:40:08 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:14091 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S265162AbTFULj7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 07:39:59 -0400
-Date: Sat, 21 Jun 2003 15:53:33 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Greg KH <greg@kroah.com>
-Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@redhat.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Anton Blanchard <anton@samba.org>, David Mosberger <davidm@hpl.hp.com>
-Subject: Re: [PATCH] reimplement pci proc name
-Message-ID: <20030621155333.A24141@jurassic.park.msu.ru>
-References: <20030620134811.GR24357@parcelfarce.linux.theplanet.co.uk> <20030620212413.GA13694@kroah.com>
+	Sat, 21 Jun 2003 07:37:28 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:9415
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S265145AbTFULhZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 07:37:25 -0400
+Subject: Re: [SIS IDE] Enhanced SiS96x support
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lionel Bouton <Lionel.Bouton@inet6.fr>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <3EF0FC4E.4090805@inet6.fr>
+References: <3EF0FC4E.4090805@inet6.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1056196155.25974.7.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030620212413.GA13694@kroah.com>; from greg@kroah.com on Fri, Jun 20, 2003 at 02:24:13PM -0700
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 21 Jun 2003 12:49:16 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 20, 2003 at 02:24:13PM -0700, Greg KH wrote:
-> Thanks, I've reverted your previous patch, and fixed the one typo in
-> this patch and applied it all to my bk tree.  Hopefully Linus will pull
-> from it sometime soon :)
+On Iau, 2003-06-19 at 00:57, Lionel Bouton wrote:
+> For the 2.5 tree, I'll check the latest 2.5-bk and 2.5-ac state tomorrow 
+> (need some sleep). I see 2.5-ac is laging behind (.69 vs .72), do you 
+> want me to push a patch to Linus directly or to you first ? If you want 
+> it first, against 2.5-bk or -ac (or both) ?
 
-Argh, where were my eyes... There was another typo which broke Alpha.
+2.5-ac is defunct for the moment due to the amount of 2.4 stuff I need to
+get done and fixed up. For 2.5 IDE send it to Bartlomiej who is now 2.5
+IDE maintainer and doing wonders
 
-Greg, please apply.
-
-Ivan.
-
---- 2.5/include/asm-alpha/pci.h	Sat Jun 21 15:36:01 2003
-+++ linux/include/asm-alpha/pci.h	Sat Jun 21 15:36:24 2003
-@@ -197,7 +197,8 @@ pcibios_resource_to_bus(struct pci_dev *
- /* Bus number == domain number until we get above 256 busses */
- static inline int pci_name_bus(char *name, struct pci_bus *bus)
- {
--	int domain = pci_domain_nr(bus)
-+	int domain = pci_domain_nr(bus);
-+
- 	if (domain < 256) {
- 		sprintf(name, "%02x", domain);
- 	} else {

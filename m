@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319347AbSIKVcY>; Wed, 11 Sep 2002 17:32:24 -0400
+	id <S319350AbSIKVdj>; Wed, 11 Sep 2002 17:33:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319350AbSIKVcY>; Wed, 11 Sep 2002 17:32:24 -0400
-Received: from pD9E23FF5.dip.t-dialin.net ([217.226.63.245]:26077 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S319347AbSIKVcY>; Wed, 11 Sep 2002 17:32:24 -0400
-Date: Wed, 11 Sep 2002 15:37:22 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Phil Stracchino <alaric@babcom.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: CDROM driver does not support Linux partition tables
-In-Reply-To: <20020911211959.GA31724@babylon5.babcom.com>
-Message-ID: <Pine.LNX.4.44.0209111534430.10048-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319354AbSIKVdj>; Wed, 11 Sep 2002 17:33:39 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:15613
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319350AbSIKVdg>; Wed, 11 Sep 2002 17:33:36 -0400
+Subject: Re: XFS?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Eric Sandeen <sandeen@sgi.com>
+Cc: Bill Davidsen <davidsen@tmr.com>, Andi Kleen <ak@suse.de>,
+       Thunder from the hill <thunder@lightweight.ods.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1031770508.9726.17.camel@stout.americas.sgi.com>
+References: <Pine.LNX.3.96.1020911110502.12605A-100000@gatekeeper.tmr.com> 
+	<1031760229.2768.54.camel@irongate.swansea.linux.org.uk> 
+	<1031770508.9726.17.camel@stout.americas.sgi.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
+Date: 11 Sep 2002 22:37:39 +0100
+Message-Id: <1031780259.2902.8.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2002-09-11 at 19:55, Eric Sandeen wrote:
+> The last patch Christoph posted against 2.5 is not the least bit 
+> invasive.  Excluding documentation and configuration files, these are
+> the changes:
 
-On Wed, 11 Sep 2002, Phil Stracchino wrote:
-> A deficiency in the Linux CDROM driver was just brought to my attention.
-> Even on a kernel configured with support for UFS and Sun partition
-> tables, it doesn't appear to be possible to mount any but the first
-> slice of a Sun CDROM containing multiple slices.  Essentially, it seems
-> that Solaris partition table support doesn't trickle down to the CDROM
-> driver.
-
-I remember someone tangling around with the partitioning code. Care to 
-comment?
-
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
+As I said its improving
 

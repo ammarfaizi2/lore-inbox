@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281695AbRK0RMN>; Tue, 27 Nov 2001 12:12:13 -0500
+	id <S281735AbRK0RPD>; Tue, 27 Nov 2001 12:15:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281735AbRK0RME>; Tue, 27 Nov 2001 12:12:04 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:21775 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S281695AbRK0RLs>;
-	Tue, 27 Nov 2001 12:11:48 -0500
-Date: Tue, 27 Nov 2001 18:11:35 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: bart <bart@istnet.net.au>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: "spurious 8259A interrupt: IRQ7"
-In-Reply-To: <1006880612.3708.0.camel@fathom.bajor.dyndns.org>
-Message-ID: <Pine.LNX.4.33.0111271808050.14537-100000@Expansa.sns.it>
+	id <S281678AbRK0ROo>; Tue, 27 Nov 2001 12:14:44 -0500
+Received: from d170.focal4.interaccess.com ([207.208.139.170]:24705 "EHLO
+	cactus.bheadley.org") by vger.kernel.org with ESMTP
+	id <S281739AbRK0ROV>; Tue, 27 Nov 2001 12:14:21 -0500
+Message-ID: <3C03C9A8.2040504@interaccess.com>
+Date: Tue, 27 Nov 2001 11:13:12 -0600
+From: "Bryan W. Headley" <bheadley@interaccess.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.16 not loading SCSI module
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Folks,
 
-I think a couple of months ago I was discussing on this mail list the same
-problem with ac. From then I saw this message with every kernel on any VIA
-based MB i tryed (for athlon, for K6 and so on). It is harmless, but
-noisy. of course, disabling IOAPIC the problem does always disappear, but
-it's again noisy.
+Has anyone seen a problem, since 2.4.15-pre1, where the scsi module is 
+not loaded? I keep getting messages about how node 8,0 can't be created.
 
-On 28 Nov 2001, bart wrote:
+Got modutils 2.4.6, so that should be new enough. And of course, 
+2.4.15-greased remains "happy".
 
-> Hi,
->
-> Iv seen this on a Intel BX chipset Pentium2 266 box, and on a VIA KT266A
-> 1ghz Athlon box.
->
-> BaRT
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
 
+
+-- 
+____               .:.                 ____
+Bryan W. Headley - bheadley@interaccess.com
 

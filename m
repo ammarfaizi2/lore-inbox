@@ -1,49 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263337AbSJFFqN>; Sun, 6 Oct 2002 01:46:13 -0400
+	id <S263338AbSJFF42>; Sun, 6 Oct 2002 01:56:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263338AbSJFFqN>; Sun, 6 Oct 2002 01:46:13 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:20232 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263337AbSJFFqN>; Sun, 6 Oct 2002 01:46:13 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: New BK License Problem?
-Date: Sun, 6 Oct 2002 05:50:50 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <anoivq$35b$1@penguin.transmeta.com>
-References: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com> <3D9F49D9.304@redhat.com> <20021005162852.I11375@work.bitmover.com> <1033861827.4441.31.camel@irongate.swansea.linux.org.uk>
-X-Trace: palladium.transmeta.com 1033883479 21844 127.0.0.1 (6 Oct 2002 05:51:19 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 6 Oct 2002 05:51:19 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S263339AbSJFF42>; Sun, 6 Oct 2002 01:56:28 -0400
+Received: from adsl-64-123-59-158.dsl.stlsmo.swbell.net ([64.123.59.158]:14720
+	"EHLO base.torri.linux") by vger.kernel.org with ESMTP
+	id <S263338AbSJFF40>; Sun, 6 Oct 2002 01:56:26 -0400
+Subject: ext3 mount failed [2.5.40-ac3]
+From: Stephen Torri <storri@sbcglobal.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Oct 2002 01:01:59 -0500
+Message-Id: <1033884119.1125.14.camel@base.torri.linux>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1033861827.4441.31.camel@irongate.swansea.linux.org.uk>,
-Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
->
->Linus used to do about a patch every 2 days. Nowdays its a lot slower. I
->put that down to buttkeeper
+Here is the clip of the boot message from trying to start 2.5.40-ac3
+kernel. gcc-3.2 used. I can do whatever setup and configuration you
+require. 
 
-Don't be silly, Alan.
+mounting root filesystem
+request_module[block-major-33]: not ready
+mount: error 6 mounting ext 3
+pivotroot: pivot_root(/sysroot,/sysroot/initrd) failed: 2
+unmount /initrd/proc failed: 2
+Freeing unused Kernel memory: 176K freed
+Kernel panic: no init found
 
-I don't do any pre-patches or daily patches any more, because it's all
-automated.  There are several snapshot bots that give you patches a lot
-more often than "every 2 days".  You don't need BK to use it, it's there
-in the good old diff format. 
+Kernel config:
 
-(I haven't checked whether the auto-patches do a good job of doing
-changelogs too, but since all the changelogs I generate for the _real_
-releases are also automated and I make the tools I use to generate them
-available, that's certainly not anything fundamental). 
 
-So yes, you can "put it down to bitkeeper" in the sense that it's
-because of the automation that BK allows that I don't _need_ to
-personally do pre-patches any more. 
+# IDE chipset support/bugfixes
+#
+CONFIG_BLK_DEV_CMD640=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_PDC202XX_NEW=y
+CONFIG_BLK_DEV_RZ1000=y
+CONFIG_IDEDMA_AUTO=y
 
-"Big boo-hoo, bitkeeper is evil, and Linus doesn't manually do any more
- what BK plus a few scripts does better for us automatically."
+#
+# File systems
+#
+CONFIG_QUOTA=y
+CONFIG_QUOTACTL=y
+CONFIG_AUTOFS_FS=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_REISERFS_FS=y
+CONFIG_REISERFS_PROC_INFO=y
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_CRAMFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_JFS_FS=y
+CONFIG_JFS_DEBUG=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_ROMFS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_UDF_FS=y
 
-		Linus
+
+The system has two IBM HDs, one Seagate and a DVD/CRW. It has a IDE
+controller on the motherboard and a Promise ATA100 card. Below are the
+print outs of the devices:
+
+(hdparm -i /dev/hda)
+* /dev/hda1 /mnt/win98 (vfat)
+* /dev/hda2 /boot (ext3)
+dev/hda:
+
+ Model=ST310232A, FwRev=3.09, SerialNo=6BQ032H9
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs RotSpdTol>.5% }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=0
+ BuffType=unknown, BuffSize=512kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=20005650
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 *udma2 udma3 udma4
+ AdvancedPM=no WriteCache=enabled
+ Drive conforms to: device does not report version:  1 2 3 4
+
+(hdparm -i /dev/hde)
+dev/hde:
+* /dev/hde1 	/ (root) (ext3)
+* /dev/hde2	swap (swap)
+* /dev/hde5	/usr (ext3)
+* /dev/hde6	/home (ext3)
+dev/hdf: (same drive as hde)
+* /dev/hdf1	/usr/src (ext3)
+* /dev/hdf2	/mnt/misc_1 (ext3)
+
+ Model=IBM-DTLA-307045, FwRev=TX6OA50C, SerialNo=YMDYMT5M619
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
+ BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=90069840
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5
+ AdvancedPM=yes: disabled (255) WriteCache=enabled
+ Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:  2 3 4 5
+
+(lspci -v)
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+(prog-if 80
+[Master])
+        Flags: bus master, medium devsel, latency 64
+        [virtual] I/O ports at 01f0
+        [virtual] I/O ports at 03f4
+        [virtual] I/O ports at 0170
+        [virtual] I/O ports at 0374
+        I/O ports at ffa0 [size=16]
+
+00:14.0 Unknown mass storage controller: Promise Technology, Inc. 20267
+(rev 02)        Subsystem: Promise Technology, Inc. Ultra100
+        Flags: bus master, medium devsel, latency 64, IRQ 10
+        I/O ports at efe0 [size=8]
+        I/O ports at efac [size=4]
+        I/O ports at efa0 [size=8]
+        I/O ports at efa8 [size=4]
+        I/O ports at ef00 [size=64]
+        Memory at febe0000 (32-bit, non-prefetchable) [size=128K]
+        Expansion ROM at febd0000 [disabled] [size=64K]
+        Capabilities: [58] Power Management version 1
+
+Stephen Torri
+storri@sbcglobal.net

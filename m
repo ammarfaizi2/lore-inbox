@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287045AbSCEVfm>; Tue, 5 Mar 2002 16:35:42 -0500
+	id <S289348AbSCEVme>; Tue, 5 Mar 2002 16:42:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293662AbSCEVfc>; Tue, 5 Mar 2002 16:35:32 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:19462 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S287045AbSCEVfS>; Tue, 5 Mar 2002 16:35:18 -0500
-Date: Tue, 5 Mar 2002 16:20:25 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Tim Waugh <twaugh@redhat.com>
-cc: Bill Davidsen <davidsen@prodigy.com>, Mikael Pettersson <mikpe@csd.uu.se>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.4.18-pre/rc broke PLIP
-In-Reply-To: <20020305165533.A1195@redhat.com>
-Message-ID: <Pine.LNX.3.96.1020305155013.28458A-100000@gatekeeper.tmr.com>
+	id <S291074AbSCEVmO>; Tue, 5 Mar 2002 16:42:14 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43276 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289348AbSCEVmN>;
+	Tue, 5 Mar 2002 16:42:13 -0500
+Message-ID: <3C853BC9.EC553363@mandrakesoft.com>
+Date: Tue, 05 Mar 2002 16:42:33 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: Arjan van de Ven <arjanv@redhat.com>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
+In-Reply-To: <E16i9mc-00043p-00@wagner.rustcorp.com.au> <3C84A34E.6060708@evision-ventures.com> <3C84AE16.A7F1ECCA@redhat.com> <20020305221933.A405@ucw.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Mar 2002, Tim Waugh wrote:
-
-> On Tue, Mar 05, 2002 at 11:36:59AM -0500, Bill Davidsen wrote:
+Vojtech Pavlik wrote:
 > 
-> >   I'm still looking at this, trying to figure out what they were trying to
-> > do here...
+> On Tue, Mar 05, 2002 at 11:37:58AM +0000, Arjan van de Ven wrote:
+> > Martin Dalecki wrote:
+> >
+> > > - Disable configuration of the task file stuff. It is going to go away
+> > >    and will be replaced by a truly abstract interface based on
+> > >    functionality and *not* direct mess-up of hardware.
+> >
+> > Can we also expect a patch to remove the scb's from the scsi midlayer
+> > from you ?
+> > I mean, if a standard specifies a nice *common* command packet format
+> > I'd expect the midlayer
+> > to create such packets. Taskfile is exactly that... why removing it ?
 > 
-> Does 2.4.19-pre2 not work for you?
+> Note that taskfiles are not being removed from IDE. Just direct (and
+> parsed and filtered) interface to userspace. Does the scsi midlayer
+> export the SCBs directly to userspace?
 
-1 - didn't try, I checked that the patch had not been reverted, and
-    assumed that if it was broken and not changed it was broken still.
-    And I only looked in pre2-ac2, if it was fixed and Alan patched it
-    back broken.
-2 - understanding vast stretches of uncommented code you may need to
-    change is worthwhile reading. The corolary is that comments are worthwhile
-    typing.
+It should.
 
-  I'll try to build a plain 19-pre2 kernel after I do a diff with the
-2.4.18 to see that something has really changed. Thanks.
+I think it's a mistake to remove the taskfile interface.
+
+It provides a way for people to directly validate the lowest level IDE
+interface, without interference from upper layers.  It also provides
+access to userspace for important features that -should not- be in the
+kernel, like SMART monitoring and security features.
+
+	Jeff
+
+
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Jeff Garzik      |
+Building 1024    |
+MandrakeSoft     | Choose life.

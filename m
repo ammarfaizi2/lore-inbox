@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317968AbSGPUKA>; Tue, 16 Jul 2002 16:10:00 -0400
+	id <S317971AbSGPUKc>; Tue, 16 Jul 2002 16:10:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317971AbSGPUJ7>; Tue, 16 Jul 2002 16:09:59 -0400
-Received: from p508875D5.dip.t-dialin.net ([80.136.117.213]:17811 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317968AbSGPUJ7>; Tue, 16 Jul 2002 16:09:59 -0400
-Date: Tue, 16 Jul 2002 14:11:20 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Stelian Pop <stelian.pop@fr.alcove.com>, Sam Vilain <sam@vilain.net>,
-       <dax@gurulabs.com>
+	id <S317974AbSGPUKb>; Tue, 16 Jul 2002 16:10:31 -0400
+Received: from esteel10.client.dti.net ([209.73.14.10]:16284 "EHLO
+	shookay.newview.com") by vger.kernel.org with ESMTP
+	id <S317973AbSGPUK3>; Tue, 16 Jul 2002 16:10:29 -0400
+Date: Tue, 16 Jul 2002 16:11:58 -0400
+From: Mathieu Chouquet-Stringer <mathieu@newview.com>
+To: Shawn <core@enodev.com>
+Cc: linux-kernel@vger.kernel.org, Stelian Pop <stelian.pop@fr.alcove.com>,
+       Gerhard Mack <gmack@innerfire.net>
 Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-In-Reply-To: <20020716193831.GC22053@merlin.emma.line.org>
-Message-ID: <Pine.LNX.4.44.0207161408270.3452-100000@hawkeye.luckynet.adm>
-X-Location: Calgary; CA
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020716161158.A461@shookay.newview.com>
+Mail-Followup-To: Mathieu Chouquet-Stringer <mathieu@newview.com>,
+	Shawn <core@enodev.com>, linux-kernel@vger.kernel.org,
+	Stelian Pop <stelian.pop@fr.alcove.com>,
+	Gerhard Mack <gmack@innerfire.net>
+References: <20020716124956.GK7955@tahoe.alcove-fr> <Pine.LNX.4.44.0207161107550.17919-100000@innerfire.net> <20020716153926.GR7955@tahoe.alcove-fr> <20020716194542.GD22053@merlin.emma.line.org> <20020716150422.A6254@q.mn.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020716150422.A6254@q.mn.rr.com>; from core@enodev.com on Tue, Jul 16, 2002 at 03:04:22PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, 16 Jul 2002, Matthias Andree wrote:
-> > or the blockdevice-level snapshots already implemented in Linux..
+On Tue, Jul 16, 2002 at 03:04:22PM -0500, Shawn wrote:
+> You don't.
 > 
-> That would require three atomic steps:
+> This is where you have a filesystem where syslog, xinetd, blogd,
+> bloatd-config-d2, raffle-ticketd DO NOT LIVE.
 > 
-> 1. mount read-only, flushing all pending updates
-> 2. take snapshot
-> 3. mount read-write
-> 
-> and then backup the snapshot. A snapshots of a live file system won't
-> do, it can be as inconsistent as it desires -- if your corrupt target is
-> moving or not, dumping it is not of much use.
+> People forget so easily the wonders of multiple partitions.
 
-Well, couldn't we just kindof lock the file system so that while backing 
-up no writes get through to the real filesystem? This will possibly 
-require a lot of memory (or another space to write to), but it might be 
-done?
+I'm sorry, but I don't understand how it's going to change anything. For
+sure, it makes your life easier because you don't have to shutdown all your
+programs that have files opened in R/W mode. But in the end, you will have
+to shutdown something to remount the partition in R/O mode and usually you
+don't want or can't afford to do that.
 
-							Regards,
-							Thunder
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+Mathieu Chouquet-Stringer              E-Mail : mathieu@newview.com
+    It is exactly because a man cannot do a thing that he is a
+                      proper judge of it.
+                      -- Oscar Wilde

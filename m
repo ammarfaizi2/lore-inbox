@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268315AbUHXUvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268316AbUHXUx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268315AbUHXUvy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 16:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268316AbUHXUvy
+	id S268316AbUHXUx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 16:53:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268317AbUHXUxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 16:51:54 -0400
-Received: from mail.dif.dk ([193.138.115.101]:13007 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S268315AbUHXUvu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 16:51:50 -0400
-Date: Tue, 24 Aug 2004 22:57:25 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Make PERFCTR_VIRTUAL default in Kconfig match recommendation
- in help text
-Message-ID: <Pine.LNX.4.61.0408242246570.2770@dragon.hygekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Aug 2004 16:53:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52907 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268316AbUHXUxq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 16:53:46 -0400
+Date: Tue, 24 Aug 2004 21:53:44 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org, reiser@namesys.com,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040824205343.GE21964@parcelfarce.linux.theplanet.co.uk>
+References: <20040824202521.GA26705@lst.de> <412BA741.4060006@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <412BA741.4060006@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 24, 2004 at 04:38:25PM -0400, Jeff Garzik wrote:
+> Christoph Hellwig wrote:
+> > o files as directories
+> >   - O_DIRECTORY opens succeed on all files on reiser4.  Besides breaking
+> >     .htaccess handling in apache and glibc compilation this also renders
+> >     this flag entirely useless and opens up the races it tries to
+> >     prevent against cmpletely useless
+> 
+> 
+> Ouch.
+> 
+> I would definitely classify this as a security hole, since userland 
+> definitely uses O_DIRECTORY to avoid races.
 
-Greetings,
-
-A tiny patch to make PERFCTR_VIRTUAL default to Y to match the 
-recommendation given in the help text. The help has a very clear "Say Y" 
-recommendation and it doesn't make much sense to not enable this currently 
-if PERFCTR is set, so it should default to Y, not N as it does currently.
-
-Patch is against 2.6.8.1-mm4
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -up linux-2.6.8.1-mm4-orig/drivers/perfctr/Kconfig linux-2.6.8.1-mm4/drivers/perfctr/Kconfig
---- linux-2.6.8.1-mm4-orig/drivers/perfctr/Kconfig	2004-08-24 19:55:27.000000000 +0200
-+++ linux-2.6.8.1-mm4/drivers/perfctr/Kconfig	2004-08-24 20:56:37.000000000 +0200
-@@ -40,6 +40,7 @@ config PERFCTR_INIT_TESTS
- config PERFCTR_VIRTUAL
- 	bool "Virtual performance counters support"
- 	depends on PERFCTR
-+	default y
- 	help
- 	  The processor's performance-monitoring counters are special-purpose
- 	  global registers. This option adds support for virtual per-process
-
-
-/Jesper
-
+Feh.  That's far from the worst parts of the mess introduced by "hybrid"
+crap - trivial sys_link(2) deadlocks triggerable by any user rate a bit
+higher on the suckitude scale, IMO.

@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130321AbRBAS3b>; Thu, 1 Feb 2001 13:29:31 -0500
+	id <S130291AbRBASeL>; Thu, 1 Feb 2001 13:34:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130291AbRBAS3V>; Thu, 1 Feb 2001 13:29:21 -0500
-Received: from ferret.lmh.ox.ac.uk ([163.1.138.204]:61714 "HELO
-	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
-	id <S130321AbRBAS2v>; Thu, 1 Feb 2001 13:28:51 -0500
-Date: Thu, 1 Feb 2001 18:28:45 +0000 (GMT)
-From: Chris Evans <chris@scary.beasts.org>
-To: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
-cc: <linux-kernel@vger.kernel.org>, <davem@redhat.com>
-Subject: Re: Serious reproducible 2.4.x kernel hang
-In-Reply-To: <20010201165247.D27009@sable.ox.ac.uk>
-Message-ID: <Pine.LNX.4.30.0102011826060.397-100000@ferret.lmh.ox.ac.uk>
+	id <S130601AbRBASeB>; Thu, 1 Feb 2001 13:34:01 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:62702 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130291AbRBASdo>; Thu, 1 Feb 2001 13:33:44 -0500
+Date: Thu, 1 Feb 2001 16:32:48 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Christoph Hellwig <hch@caldera.de>, "Stephen C. Tweedie" <sct@redhat.com>,
+        Steve Lord <lord@sgi.com>, linux-kernel@vger.kernel.org,
+        kiobuf-io-devel@lists.sourceforge.net
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+ /notify + callback chains
+In-Reply-To: <E14ONzo-0004kq-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0102011628590.1321-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 1 Feb 2001, Alan Cox wrote:
 
-[cc: davem because of the severity]
+> > Sure.  But Linus saing that he doesn't want more of that (shit, crap,
+> > I don't rember what he said exactly) in the kernel is a very good reason
+> > for thinking a little more aboyt it.
+> 
+> No. Linus is not a God, Linus is fallible, regularly makes mistakes and
+> frequently opens his mouth and says stupid things when he is far too busy.
 
-On Thu, 1 Feb 2001, Malcolm Beattie wrote:
+People may remember Linus saying a resolute no to SMP
+support in Linux ;)
 
-> rid of the hang. So it looks as though some combination of
-> shutdown(2) and SIGABRT is at fault. After the hang the kernel-side
+In my experience, when Linus says "NO" to a certain
+idea, he's usually objecting to bad design decisions
+in the proposed implementation of the idea and the
+lack of a nice alternative solution ...
 
-Nope - I've nailed it to a _really_ simple test case. It looks like a
-read() on a shutdown() unix dgram socket just kills the kernel. Demo code
-below. I wonder if this affects UP or is SMP only?
+... but as soon as a clean, efficient and maintainable
+alternative to the original bad idea surfaces, it seems
+to be quite easy to convince Linus to include it.
 
-Malcolm, does the below code reproduce the problem for you?
+cheers,
 
-Cheers
-Chris
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-
-int
-main(int argc, const char* argv[])
-{
-  int retval;
-  int sockets[2];
-  char buf[1];
-
-  retval = socketpair(PF_UNIX, SOCK_DGRAM, 0, sockets);
-  if (retval != 0)
-  {
-    perror("socketpair");
-    exit(1);
-  }
-  shutdown(sockets[0], SHUT_RDWR);
-  read(sockets[0], buf, 1);
-}
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

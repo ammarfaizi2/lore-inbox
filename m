@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267354AbUJGJIO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269759AbUJGJOs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267354AbUJGJIO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 05:08:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269757AbUJGJIO
+	id S269759AbUJGJOs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 05:14:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269761AbUJGJOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 05:08:14 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6157 "EHLO
+	Thu, 7 Oct 2004 05:14:48 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12813 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S267354AbUJGJIJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 05:08:09 -0400
-Date: Thu, 7 Oct 2004 10:07:57 +0100
+	id S269759AbUJGJOo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 05:14:44 -0400
+Date: Thu, 7 Oct 2004 10:14:38 +0100
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Thayne Harbaugh <tharbaugh@lnxi.com>,
-       =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Console: fall back to /dev/null when no console is availlable
-Message-ID: <20041007100757.A10716@flint.arm.linux.org.uk>
-Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Thayne Harbaugh <tharbaugh@lnxi.com>,
-	=?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-	Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <20041005185214.GA3691@wohnheim.fh-wedel.de> <20041006173823.GA26740@kroah.com> <20041006180421.GD10153@wohnheim.fh-wedel.de> <20041006181958.GB27300@kroah.com> <20041006192335.GH10153@wohnheim.fh-wedel.de> <1097097771.3845.28.camel@tubarao> <Pine.GSO.4.61.0410071017020.9319@waterleaf.sonytel.be>
+To: todd nguyen <toddnguyen@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, majordomo@vger.kernel.org
+Subject: Re: Oops in loading cardbus bridge drivers in kernel version 2.6.9-rc1
+Message-ID: <20041007101438.B10716@flint.arm.linux.org.uk>
+Mail-Followup-To: todd nguyen <toddnguyen@yahoo.com>,
+	linux-kernel@vger.kernel.org, majordomo@vger.kernel.org
+References: <20041006225645.43733.qmail@web11204.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.61.0410071017020.9319@waterleaf.sonytel.be>; from geert@linux-m68k.org on Thu, Oct 07, 2004 at 10:18:51AM +0200
+In-Reply-To: <20041006225645.43733.qmail@web11204.mail.yahoo.com>; from toddnguyen@yahoo.com on Wed, Oct 06, 2004 at 03:56:45PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 07, 2004 at 10:18:51AM +0200, Geert Uytterhoeven wrote:
-> What about letting the kernel open the console without going through
-> /dev/console? Since the kernel knows /dev/console is the device with major 5
-> minor 1, why can't it just open (5, 1)? Then we don't need a /dev/console node,
-> and things will never break.
+On Wed, Oct 06, 2004 at 03:56:45PM -0700, todd nguyen wrote:
+> " Unable to handle kernel NULL pointer dereference at
+> virtual address 00000008"  Can anyone give me some
+> pointer on why I'm seeing this error?
 
-Famous last words.  What about the case where you don't have a console
-device registered (eg in the case of an embedded device) ?  Currently,
-opening /dev/console fails in that circumstance.
+Something for the PCI people to look at I think...  However, you might
+consider including _full_ lspci -vv information rather than just a
+subset.
 
 -- 
 Russell King

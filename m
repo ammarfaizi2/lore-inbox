@@ -1,44 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263886AbRFIFKv>; Sat, 9 Jun 2001 01:10:51 -0400
+	id <S263973AbRFIFrx>; Sat, 9 Jun 2001 01:47:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263835AbRFIFKl>; Sat, 9 Jun 2001 01:10:41 -0400
-Received: from www.wen-online.de ([212.223.88.39]:51977 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S264441AbRFIFKb>;
-	Sat, 9 Jun 2001 01:10:31 -0400
-Date: Sat, 9 Jun 2001 07:09:05 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Jonathan Morton <chromi@cyberspace.org>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        John Stoffel <stoffel@casc.com>,
-        Tobias Ringstrom <tori@unhappy.mine.nu>, Shane Nay <shane@minirl.com>,
-        "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
-        Sean Hunter <sean@dev.sportingbet.com>,
-        Xavier Bestel <xavier.bestel@free.fr>,
-        lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: VM Report was:Re: Break 2.4 VM in five easy steps
-In-Reply-To: <l0313032cb7475100fc4a@[192.168.239.105]>
-Message-ID: <Pine.LNX.4.33.0106090708170.670-100000@mikeg.weiden.de>
+	id <S263976AbRFIFrn>; Sat, 9 Jun 2001 01:47:43 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:34067 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S263973AbRFIFr2>;
+	Sat, 9 Jun 2001 01:47:28 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200106090545.f595jxp478161@saturn.cs.uml.edu>
+Subject: Re: temperature standard - global config option?
+To: mhw@wittsend.com (Michael H. Warfield)
+Date: Sat, 9 Jun 2001 01:45:59 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
+        mhw@wittsend.com (Michael H. Warfield), bootc@worldnet.fr (Chris Boot),
+        isch@ecce.homeip.net (mirabilos {Thorsten Glaser}),
+        lk@aniela.eu.org (L. K.),
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <20010608191600.A12143@alcove.wittsend.com> from "Michael H. Warfield" at Jun 08, 2001 07:16:00 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Jun 2001, Jonathan Morton wrote:
+Michael H. Warfiel writes:
+> On Fri, Jun 08, 2001 at 05:16:39PM -0400, Albert D. Cahalan wrote:
 
-> >> On the subject of Mike Galbraith's kernel compilation test, how much
-> >> physical RAM does he have for his machine, what type of CPU is it, and what
-> >> (approximate) type of device does he use for swap?  I'll see if I can
-> >> partially duplicate his results at this end.  So far all my tests have been
-> >> done with a fast CPU - perhaps I should try the P166/MMX or even try
-> >> loading linux-pmac onto my 8100.
-> >
-> >It's a PIII/500 with one ide disk.
+>> The bits are free; the API is hard to change.
+>> Sensors might get better, at least on high-end systems.
+>> Rounding gives a constant 0.15 degree error.
+>> Only the truly stupid would assume accuracy from decimal places.
+>> Again, the bits are free; the API is hard to change.
+...
+> 	No...  The average person, NO, the vast majority of people,
+> DO assume accuracy from decimal places and honestly do not know the
+> difference between precision and accuracy.  I've had comments on this
+> thread in private E-Mail the reinforce this impression.
+
+Fine. Most user apps can round to the nearest degree, or even
+display the values "cool", "warm", "hot", and "BURNING!".
+The kernel API should not be so limiting.
+
+> 	Even the rounding error vis-a-vis the .15 is silly and irrelevant!
+> If the sensor is +- 1 degree, you can't even measure the rounding error,
+> even if you HAVE two decimal places.  With that degree of accuracy, you
+> are no better off than 273 with no decimal places.  Worrying about rounding
+> error on .15 when the accuracy is in the units is exactly the kind of
+> misinformed false precision that I worry about.  You actually though that
+> the .15 was significant enough to worry about round error when, in fact,
+> it will be impossible to measure with the equipment available in the
+> environment of discourse.
+
+The 0.15 may mean the difference between:
+
+a.  less than 0.005 chance of exceeding 370 degrees
+b.  less than 0.01 chance of exceeding 370 degrees
+
+for a measurement that might be 365 degrees.
+
+>> One might provide other numbers to specify accuracy and precision.
 >
-> ...with how much RAM?  That's the important bit.
+> 	Now...  That I can agree with and it would make absolute sense.
+> Especially if we were discussing lab grade or scientific grade measure
+> equipment and measurements.  In fact, that would be a requirement for
+> any validity to be attached to measurements of that level of precision.
 
-Duh! :) I'm a dipstick.  128mb.
+No, at any level of precision. I'd sure want to know if the device
+is specified as "resolution 8 degrees, standard deviation 23".
 
-	-Mike
+This information is fairly important. The user is responsible for
+defining acceptable risk, and the app should be able to provide a
+warning or shutdown based on this.
 
+For typical PC hardware, one might assume that the device is a
+cheap piece of junk 2 mm below the CPU. (with quite a bit of lag!)
+The lag ought to be specified too of course.

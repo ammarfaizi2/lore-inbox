@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbULNW6q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbULNXBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261742AbULNW6q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 17:58:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbULNW5O
+	id S261692AbULNXBW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 18:01:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbULNW6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 17:57:14 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28167 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261737AbULNW43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 17:56:29 -0500
-Date: Tue, 14 Dec 2004 22:56:26 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Dale Farnsworth <dale@farnsworth.org>
+	Tue, 14 Dec 2004 17:58:51 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:5310 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261692AbULNWym (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 17:54:42 -0500
+Subject: Re: dynamic-hz
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/6] mv643xx_eth: Remove use of MV_SET_REG_BITS macro
-Message-ID: <20041214225626.A970@flint.arm.linux.org.uk>
-Mail-Followup-To: Dale Farnsworth <dale@farnsworth.org>,
-	linux-kernel@vger.kernel.org
-References: <20041213220949.GA19609@xyzzy> <20041214225150.GA21869@xyzzy>
+In-Reply-To: <Pine.LNX.4.61.0412130928350.2394@yvahk01.tjqt.qr>
+References: <20041211142317.GF16322@dualathlon.random>
+	 <20041212163547.GB6286@elf.ucw.cz>
+	 <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org>
+	 <Pine.LNX.4.61.0412130928350.2394@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Date: Tue, 14 Dec 2004 17:54:39 -0500
+Message-Id: <1103064879.14699.75.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041214225150.GA21869@xyzzy>; from dale@farnsworth.org on Tue, Dec 14, 2004 at 03:51:50PM -0700
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 14, 2004 at 03:51:50PM -0700, Dale Farnsworth wrote:
-> Oops, I missed this in my first set of patches for the mv643xx_eth driver.
+On Mon, 2004-12-13 at 09:29 +0100, Jan Engelhardt wrote:
+> > Just being devils advocate here...
+> >
+> > I had variable Hz in my tree for a while and found there was one solitary
+> > purpose to setting Hz to 100; to silence cheap capacitors.
+> >
+> > The rest of my users that were setting Hz to 100 for so-called performance
+> > gains were doing so under the false impression that cpu usage was lower simply
+> > because of the woefully inaccurate cpu usage calcuation at 100Hz.
 > 
-> This patch removes the need for the MV_SET_REG_BITS macro in the mv643xx_eth
-> driver.
+> I have found that mplayer drops audio less often when the harddisk is under 
+> load.
 > 
-> Signed-off-by: Dale Farnsworth <dale@farnsworth.org>
 
-I don't have any interest in this ethernet driver - could you stop
-copying me please?
+Ugh, because mplayer stupidly does disk i/o and AV playback and GUI in
+the same thread.  Insert Xine plug.
 
-Thanks.
+Lee
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

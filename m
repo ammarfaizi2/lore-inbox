@@ -1,75 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131212AbQLVAqb>; Thu, 21 Dec 2000 19:46:31 -0500
+	id <S131388AbQLVAuL>; Thu, 21 Dec 2000 19:50:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131388AbQLVAqV>; Thu, 21 Dec 2000 19:46:21 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:3323 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S131212AbQLVAqF>; Thu, 21 Dec 2000 19:46:05 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200012220015.eBM0FPJ20543@webber.adilger.net>
-Subject: Re: strange nfs behavior in 2.2.18 and 2.4.0-test12
-In-Reply-To: <Pine.LNX.4.21.0012211828510.840-100000@ccs.covici.com>
- "from John Covici at Dec 21, 2000 06:35:30 pm"
-To: John Covici <covici@ccs.covici.com>
-Date: Thu, 21 Dec 2000 17:15:25 -0700 (MST)
-CC: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
-MIME-Version: 1.0
+	id <S131536AbQLVAuB>; Thu, 21 Dec 2000 19:50:01 -0500
+Received: from smtp7.xs4all.nl ([194.109.127.133]:63977 "EHLO smtp7.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S131388AbQLVAto>;
+	Thu, 21 Dec 2000 19:49:44 -0500
+Date: Fri, 22 Dec 2000 00:19:09 +0000
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: vm 2.2.18 (stock kernel) process hara-kiri's
+Message-ID: <20001222001909.A20766@grobbebol.xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-OS: Linux grobbebol 2.2.18 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Covici writes:
-> Here is my /etc/exports
-> 
-> / ccs2(rw,no_root_squash)
-> /usr ccs2(rw,no_root_squash)
-> /usr/src ccs2(rw,no_root_squash)
-> /home ccs2(rw,no_root_squash)
-> /hard1 ccs2(rw,no_root_squash)
-> /hard2 ccs2(rw,no_root_squash)
-> /hard3 ccs2(rw,no_root_squash)
-> /hard4 ccs2(rw,no_root_squash)
-> /usr/bbs ccs2(rw,no_root_squash)
 
-According to your fstab, these are all separate devices, so they should
-export OK.  You trust this "ccs2" machine a lot, however...  Exporting
-root with no_root_squash is a big security hole.
+I thought the 2.2.18 vm would be better :-)... nver have seen so much
+VM: do_try_to_free_pages failed for...  messages.
 
-> # /etc/fstab: static file system information.
-> #
-> # <file system>	<mount point>	<type>	<options>			<dump>	<pass>
-> /dev/hda2	/		ext2	defaults,errors=remount-ro 1	1
-> /dev/hdc2	none		swap	sw			0	0
-> /dev/hdc4	none		swap	sw			0	0
+at first the system froze for several seconds. an emer sync worked just
+fine so I waited..
 
-Having two swaps configured like this on the same disk is a net performance
-loss.  If anything, you should set one of them to have a lower priority
-(via pri=), so that it will only be used if the first one is full.
 
-> /dev/hdb7	none		swap	sw			0	0
-> proc		/proc		proc	defaults		0	0
-> /dev/fd0	/floppy		auto	defaults,user,noauto	0	0
-> /dev/cdrom	/cdrom		iso9660	defaults,ro,user,noauto	0	0
-> /dev/hdc3	/usr		ext2	rw			1	2
-> /dev/hdb6	/usr/bbs	ext2	rw			1	2
-> /dev/hda3	/usr/src	ext2	rw			1	2
-> /dev/hda4	/home		ext2	rw			1	3
-> 
-> and here are mounts executed out of /etc/rc.local
-> 
-> mount -t vfat /dev/hdb1 /hard2
-> mount -t vfat /dev/hdb5 /hard4
-> mount -t vfat /dev/hdc1 /hard3
-> mount -t vfat /dev/hda1 /hard1
+Dec 22 00:06:10 grobbebol kernel: VM: do_try_to_free_pages failed for telnet...
+Dec 22 00:06:10 grobbebol kernel: VM: do_try_to_free_pages failed for telnet...
+Dec 22 00:06:10 grobbebol kernel: VM: do_try_to_free_pages failed for telnet...
+Dec 22 00:06:10 grobbebol kernel: VM: do_try_to_free_pages failed for telnet...
+Dec 22 00:06:10 grobbebol kernel: VM: do_try_to_free_pages failed for mutt...
+Dec 22 00:06:12 grobbebol last message repeated 11 times
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for cron...
+Dec 22 00:06:12 grobbebol last message repeated 4 times
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for xntpd...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for miniserv.pl...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for miniserv.pl...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for rpc.nfsd...
+Dec 22 00:06:12 grobbebol last message repeated 13 times
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for nscd...
+Dec 22 00:06:12 grobbebol last message repeated 8 times
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for xntpd...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for xntpd...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for klogd...
+Dec 22 00:06:12 grobbebol last message repeated 5 times
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for klogd...
+Dec 22 00:06:12 grobbebol kernel: Syncing device 03:02 ... VM: do_try_to_free_pages failed for kflushd...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for kupdate...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for _upsd...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for rpc.mountd...
+Dec 22 00:06:12 grobbebol last message repeated 5 times
+Dec 22 00:06:12 grobbebol kernel: SysRq: Emergency Sync
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for rpc.mountd...
+Dec 22 00:06:12 grobbebol last message repeated 6 times
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for xntpd...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for kdeinit...
+Dec 22 00:06:12 grobbebol last message repeated 15 times
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for xntpd...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for syslogd...
+Dec 22 00:06:12 grobbebol last message repeated 6 times
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for xntpd...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for tin...
+Dec 22 00:06:12 grobbebol last message repeated 12 times
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for xntpd...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for kdeinit...
+Dec 22 00:06:12 grobbebol last message repeated 32 times
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for xntpd...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for sendmail...
+Dec 22 00:06:12 grobbebol last message repeated 13 times
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for kdeinit...
+Dec 22 00:06:12 grobbebol last message repeated 15 times
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for kdesud...
+Dec 22 00:06:12 grobbebol last message repeated 12 times
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for xntpd...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for xntpd...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for kdeinit...
+Dec 22 00:06:12 grobbebol last message repeated 32 times
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for inetd...
+Dec 22 00:06:12 grobbebol last message repeated 15 times
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for kdeinit...
+Dec 22 00:06:12 grobbebol last message repeated 15 times
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for xntpd...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for kdeinit...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for xntpd...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for kdeinit...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for xntpd...
+Dec 22 00:06:12 grobbebol kernel: VM: do_try_to_free_pages failed for kflushd...
+Dec 22 00:06:12 grobbebol kernel: OK
+Dec 22 00:06:12 grobbebol kernel: Syncing device 03:01 ... OK
+Dec 22 00:06:12 grobbebol kernel: Syncing device 03:03 ... OK
+Dec 22 00:06:12 grobbebol kernel: Syncing device 03:04 ... OK
+Dec 22 00:06:12 grobbebol kernel: Syncing device 08:01 ... OK
+Dec 22 00:06:12 grobbebol kernel: Syncing device 0b:00 ... OK
+Dec 22 00:06:12 grobbebol kernel: Done.
 
-Out of curiosity, why not just put them into /etc/fstab?
 
-Cheers, Andreas
+so... wat should I do, nothing or is a reboot better ? so far all
+mentioned processes VM failed for, are in the process table.
+
+
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Grobbebol's Home                   |  Don't give in to spammers.   -o)
+http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
+Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

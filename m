@@ -1,90 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265250AbUG2O0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264726AbUG2TMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265250AbUG2O0e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 10:26:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265041AbUG2OW7
+	id S264726AbUG2TMe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 15:12:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265086AbUG2TKP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 10:22:59 -0400
-Received: from styx.suse.cz ([82.119.242.94]:29334 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S264704AbUG2OIN convert rfc822-to-8bit
+	Thu, 29 Jul 2004 15:10:15 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:32668 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S263980AbUG2TIA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 10:08:13 -0400
-To: torvalds@osdl.org, vojtech@suse.cz, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=US-ASCII
-Subject: [PATCH 38/47] allow users to manually rebind serio ports
-Content-Transfer-Encoding: 7BIT
-Date: Thu, 29 Jul 2004 16:09:56 +0200
-X-Mailer: gregkh_patchbomb_levon_offspring
-In-Reply-To: <10911101962104@twilight.ucw.cz>
-From: Vojtech Pavlik <vojtech@suse.cz>
-Message-Id: <10911101963805@twilight.ucw.cz>
+	Thu, 29 Jul 2004 15:08:00 -0400
+Date: Thu, 29 Jul 2004 21:04:01 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Bart Alewijnse <scarfboy@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: gigabit trouble
+Message-ID: <20040729210401.A32456@electric-eye.fr.zoreil.com>
+Reply-To: netdev@oss.sgi.com
+References: <b71082d8040729094537e59a11@mail.gmail.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <b71082d8040729094537e59a11@mail.gmail.com>; from scarfboy@gmail.com on Thu, Jul 29, 2004 at 06:45:35PM +0200
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can pull this changeset from:
-	bk://kernel.bkbits.net/vojtech/input
+Bart Alewijnse <scarfboy@gmail.com> :
+[...]
+> I run gentoo on both, which until yesterday was 2.6.7-ck5 (on both),
+> and currently run 2.6.7-mm6 (again, both), as I saw the suggestion
+> somewhere it had better support for the card - something about a new
+> net card inferface that's nicer to interrupts.
 
-===================================================================
+NAPI support for r8169 is available in recent -mm kernel and there is
+a small (though noticeable) optimization wrt to interrupt disabling.
 
-ChangeSet@1.1757.15.33, 2004-06-29 01:29:39-05:00, dtor_core@ameritech.net
-  Input: allow users manually rebind serio ports, like this:
-         echo -n "psmouse" > /sys/bus/serio/devices/serio0/driver
-         echo -n "atkbd" > /sys/bus/serio/devices/serio1/driver
-         echo -n "none" > /sys/bus/serio/devices/serio1/driver
-         echo -n "reconnect" > /sys/bus/serio/devices/serio1/driver
-         echo -n "rescan" > /sys/bus/serio/devices/serio1/driver
-  
-  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+[...]
+> So, question one - how do I see the link speed under linux, and how,
+> if at all, do I control it?
 
+ethtool
 
- serio.c |   34 +++++++++++++++++++++++++++++++++-
- 1 files changed, 33 insertions(+), 1 deletion(-)
+[...]
+> Disturbingly, in such a linux-to-linux speed test, my new computer
+> froze.As in, in text mode, have the screen freeze and apparently be
+> half written full of nonsense.
 
-===================================================================
+These messages would be welcome (pen/paper/serial line/image/log file
+or whatever).
 
-diff -Nru a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
---- a/drivers/input/serio/serio.c	Thu Jul 29 14:39:12 2004
-+++ b/drivers/input/serio/serio.c	Thu Jul 29 14:39:12 2004
-@@ -250,7 +250,39 @@
- {
- 	return sprintf(buf, "%s\n", dev->driver ? dev->driver->name : "(none)");
- }
--static DEVICE_ATTR(driver, S_IRUGO, serio_show_driver, NULL);
-+
-+static ssize_t serio_rebind_driver(struct device *dev, const char *buf, size_t count)
-+{
-+	struct serio *serio = to_serio_port(dev);
-+	struct device_driver *drv;
-+	struct kobject *k;
-+	int retval;
-+
-+	retval = down_interruptible(&serio_sem);
-+	if (retval)
-+		return retval;
-+
-+	retval = count;
-+	if (!strncmp(buf, "none", count)) {
-+		serio_disconnect_port(serio);
-+	} else if (!strncmp(buf, "reconnect", count)) {
-+		serio_reconnect_port(serio);
-+	} else if (!strncmp(buf, "rescan", count)) {
-+		serio_disconnect_port(serio);
-+		serio_connect_port(serio, NULL);
-+	} else if ((k = kset_find_obj(&serio_bus.drivers, buf)) != NULL) {
-+		drv = container_of(k, struct device_driver, kobj);
-+		serio_disconnect_port(serio);
-+		serio_connect_port(serio, to_serio_driver(drv));
-+	} else {
-+		retval = -EINVAL;
-+	}
-+
-+	up(&serio_sem);
-+
-+	return retval;
-+}
-+static DEVICE_ATTR(driver, S_IWUSR | S_IRUGO, serio_show_driver, serio_rebind_driver);
- 
- static void serio_release_port(struct device *dev)
- {
+[...]
+> So, question two - what possibly happened there?  Is this a
+> driver/motherboard coincidence and therefore quite doomed?
+> 
+> Quite frankly, I'm stumped. Any suggestions are welcome.
 
+Please provide:
+- complete dmesg log from boot up to the point where the card can 
+  trnasmit and receive (please check in your log file if the output of
+  'dmesg' is truncated)
+- cat /proc/interrupts once the card is up
+- /sbin/lspci -vx
+- /sbin/lsmod
+
+If you have any binary module loaded, please reproduce the issue with
+a kernel wherein they have not been loaded.
+
+If you believe that it could be related to hardware, you may want to
+run a complete memtest to rule out memory issues.
+
+Reply-to: set to netdev@oss.sgi.com.
+
+--
+Ueimor

@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264365AbUBOIQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 03:16:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbUBOIQZ
+	id S264329AbUBOIGN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 03:06:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbUBOIGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 03:16:25 -0500
-Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:33186 "HELO
-	cenedra.office") by vger.kernel.org with SMTP id S264365AbUBOIQY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 03:16:24 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: devfs vs udev, thoughts from a devfs user
-Date: Sun, 15 Feb 2004 08:16:21 +0000
-User-Agent: KMail/1.5.4
-References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040214165444.GA26602@kroah.com> <Pine.LNX.4.58.0402141244050.3343@dust>
-In-Reply-To: <Pine.LNX.4.58.0402141244050.3343@dust>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 15 Feb 2004 03:06:13 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:25984 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S264329AbUBOIGM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 03:06:12 -0500
+Date: Sun, 15 Feb 2004 09:06:10 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Simon Gate <simon@noir.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization, throwing 2 bytes away.
+Message-ID: <20040215080610.GA314@ucw.cz>
+References: <20040214224348.67102cfd.simon@noir.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200402150816.22245.andrew@walrond.org>
+In-Reply-To: <20040214224348.67102cfd.simon@noir.se>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 14 Feb 2004 5:44 pm, Alex Goddard wrote:
-> On Sat, 14 Feb 2004, Greg KH wrote:
-> > Stop.  Go read http://ometer.com/hacking.com
->
-> Good article.
+On Sat, Feb 14, 2004 at 10:43:48PM +0100, Simon Gate wrote:
+> Changed from kernel 2.6.1 to 2.6.2 an get this error in dmesg
+> 
+> psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization, throwing 2 bytes away.
+> 
+> My mouse goes crazy for a few secs and then returns to normal for a while. Is this a 2.6.2 problem or is this is something old?
 
-Seconded. And guilty, at times, on all counts :)
+It's a 2.6.2 bug and fixed in 2.6.3-rc1.
 
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

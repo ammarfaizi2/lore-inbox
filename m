@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264755AbUEaUAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264762AbUEaUBB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264755AbUEaUAP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 16:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264760AbUEaUAP
+	id S264762AbUEaUBB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 16:01:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264763AbUEaUBB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 16:00:15 -0400
-Received: from web90003.mail.scd.yahoo.com ([66.218.94.61]:27071 "HELO
-	web90003.mail.scd.yahoo.com") by vger.kernel.org with SMTP
-	id S264755AbUEaUAK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 16:00:10 -0400
-Message-ID: <20040531200008.65043.qmail@web90003.mail.scd.yahoo.com>
-Date: Mon, 31 May 2004 13:00:08 -0700 (PDT)
-From: Phy Prabab <phyprabab@yahoo.com>
-Subject: Re: Ooops w/2.6.7-rc2 & XFS
-To: Chris Wedgwood <cw@f00f.org>
-Cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20040531175151.GA27164@taniwha.stupidest.org>
-MIME-Version: 1.0
+	Mon, 31 May 2004 16:01:01 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:52352 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S264762AbUEaUA6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 16:00:58 -0400
+Date: Mon, 31 May 2004 22:01:21 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Greg KH <greg@kroah.com>
+Cc: Pokey the Penguin <pokey@linuxmail.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] psmouse/usb interaction fix
+Message-ID: <20040531200120.GA1747@ucw.cz>
+References: <20040531174012.BA07D2B2B58@ws5-7.us4.outblaze.com> <20040531180341.GA17125@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040531180341.GA17125@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> repaired == xfs_repair?  what did that say?
-ran xfs_repair, no errors reported.
+On Mon, May 31, 2004 at 11:03:42AM -0700, Greg KH wrote:
 
-> this machine has ECC/whatever and memtest86 passes
-> cleanly right?
-ECC 1.5G.  I have already swapped out memeory just to
-be on the safe side.
+> > The patch is ported from a SuSE kernel to 2.6.7-rc2. It's been
+> > around for at least two minor releases. The maintainer was
+> > contacted regarding merging but failed to respond.
+> > 
+> > Patch vital to certain laptop users. Please apply.
+> 
+> But this breaks users who want BIOS usb support instead of native Linux
+> support, right?  Sure, there are not many people who want that, but I do
+> know people who rely on this (like installer kernels, and early boot
+> issues with USB keyboards.)
+ 
+I wrote the patch, SuSE 9.1 is shipping with it - too many BIOSes get
+the USB support wrong - don't expect keyboards and mice which don't
+honor the SET_IDLE command, etch. In my experience the BIOS USB support
+causes much more pain than good, namely preventing the normal PS/2 mice
+and keyboards to work properly.
 
-I ran memtest with no errors
-
-> also, when the error occured again was it exactly
-> the same both times?
-
-It happened 4 times and every single time, it had the
-identical trace.
-
-I brought on line a new volume with new drives to see
-if I can reproduce this (same machine and same
-kernel).
-
-Any other suggetions/questions?
-
-Thank you for the assistance.
-
-Phy
-
-
-
-
-
-	
-		
-__________________________________
-Do you Yahoo!?
-Friends.  Fun.  Try the all-new Yahoo! Messenger.
-http://messenger.yahoo.com/ 
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

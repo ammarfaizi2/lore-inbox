@@ -1,64 +1,127 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131476AbRC3PAQ>; Fri, 30 Mar 2001 10:00:16 -0500
+	id <S131472AbRC3PHG>; Fri, 30 Mar 2001 10:07:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131474AbRC3PAH>; Fri, 30 Mar 2001 10:00:07 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:15620
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S131472AbRC3PAB>; Fri, 30 Mar 2001 10:00:01 -0500
-Date: Fri, 30 Mar 2001 06:58:52 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Jochen Hoenicke <Jochen.Hoenicke@Informatik.Uni-Oldenburg.DE>
-cc: linux-kernel@vger.kernel.org, Andries.Brouwer@cwi.nl
-Subject: Re: Bug in EZ-Drive remapping code (ide.c)
-In-Reply-To: <15044.24107.858836.866924@huxley.Informatik.Uni-Oldenburg.DE>
-Message-ID: <Pine.LNX.4.10.10103300656400.27013-100000@master.linux-ide.org>
+	id <S131478AbRC3PG5>; Fri, 30 Mar 2001 10:06:57 -0500
+Received: from voxbird.isisweb.nl ([212.204.213.66]:22662 "HELO
+	voxbird.isisweb.nl") by vger.kernel.org with SMTP
+	id <S131472AbRC3PGt>; Fri, 30 Mar 2001 10:06:49 -0500
+Message-ID: <3AC4A0A9.EA78984@xs4all.nl>
+Date: Fri, 30 Mar 2001 17:05:13 +0200
+From: Ime Smits <imesmits@xs4all.nl>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Cc: r.klabunde@berkom.de, info@scitel.de, kkeil@suse.de
+Subject: [PATCH] drivers/isdn/hisax/bkm_a8.c, kernel 2.4.2 (Scitel Quadro)
+Content-Type: multipart/mixed;
+ boundary="------------FB463133C619B422D4888FC4"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------FB463133C619B422D4888FC4
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Jochen,
+Hi,
 
-I don't really care about Disk Overlays.
-However if you can fix it or if Andries can great.
+Please find attached a patch to fix the following problems with the
+Scitel Quadro ISDN card in 2.4 kernels which suddenly arised when I
+bought
+a K7T Pro motherboard.
 
-Sorry,
+kernel: HiSax: Scitel port 0xcc00-0xcd00 already in use
+kernel: HiSax: Card Scitel Quadro not installed !
 
-On Fri, 30 Mar 2001, Jochen Hoenicke wrote:
+Credits go to Roland Klabunde who told me early december:
 
-> Hello,
-> 
-> The EZ-Drive remapping code remaps to many sectors, if they are read
-> together with sector 0 in one bunch.  This is even documented:
-> 
-> >From linux-2.4.0/drivers/ide/ide.c line 1165:
-> /* Yecch - this will shift the entire interval,
->    possibly killing some innocent following sector */
-> 
-> This problem hit a GRUB user using linux-2.4.2 but it exists for a
-> long time; the remapping code is already in 2.0.xx.  The reason that
-> nobody cares is probably because there are only a few programs that
-> access /dev/hda directly.
-> 
-> GRUB is a boot loader that normally runs under plain BIOS but there is
-> also a wrapper to run it under linux and other unixes.  Because it
-> shares most code with its BIOS derivate it accesses the disk the hard
-> way, reading directly from /dev/hda and interpreting the file system
-> with its own (read-only) file system drivers.
-> 
-> This is what happened: Grub reads the first track in one bunch and
-> since a track has an odd number of sectors, linux adds the first
-> sector of the next track to this bunch.  This sector contains the boot
-> sector of the first FAT partition.  The result of the remapping is
-> that grub can't access that partition.
-> 
-> Please CC me on reply.
-> 
->   Jochen
-> 
+<quote>
+The Scitel [...] resource requirements are as follows:
 
-Andre Hedrick
-Linux ATA Development
+- 1 shared interrupt for all controllers
+- 1 shared port address for all controllers with a range of 128 bytes
+- 1 port address for each controller with a range of 64 bytes
+
+[...]
+
+I've currently downloaded the ISDN stuff [...] As mentioned above, the
+span is *128* for pci_ioaddr1 and *64* for pci_ioaddr2 to pci_ioaddr5
+[...]. What I see from the source is, that one attempts to claim a
+range of 256 bytes for pci_ioaddr1 to _5. That may cause the problems
+if the range overlaps with other boards. You may try to change the
+following calls in bkm_a8.c:
+
+sct_alloc_io(pci_ioaddr1, 256) to sct_alloc_io(pci_ioaddr1, 128)
+sct_alloc_io(pci_ioaddr2, 256) to sct_alloc_io(pci_ioaddr1, 64)
+sct_alloc_io(pci_ioaddr3, 256) to sct_alloc_io(pci_ioaddr1, 64)
+sct_alloc_io(pci_ioaddr4, 256) to sct_alloc_io(pci_ioaddr1, 64)
+sct_alloc_io(pci_ioaddr5, 256) to sct_alloc_io(pci_ioaddr1, 64)
+
+Please note the necessary changes in release_io_sct_quadro.
+</quote>
+
+Too bad I went on a holiday that time and forgot all about it, untill
+today (shame shame shame). Anyway, this patch to 2.4.2
+drivers/isdn/hisax/bkm_a8.c fixes the problem and everything runs
+fine again.
+
+Ime Smits
+--------------FB463133C619B422D4888FC4
+Content-Type: text/plain; charset=us-ascii;
+ name="bkm_a8.c-2.4.2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="bkm_a8.c-2.4.2.patch"
+
+--- linux-2.4.2-dist/drivers/isdn/hisax/bkm_a8.c	Wed Nov 29 19:12:29 2000
++++ linux-2.4.2/drivers/isdn/hisax/bkm_a8.c	Fri Mar 30 13:32:21 2001
+@@ -205,9 +205,9 @@
+ void
+ release_io_sct_quadro(struct IsdnCardState *cs)
+ {
+-	release_region(cs->hw.ax.base & 0xffffffc0, 256);
++	release_region(cs->hw.ax.base & 0xffffffc0, 128);
+ 	if (cs->subtyp == SCT_1)
+-		release_region(cs->hw.ax.plx_adr, 256);
++		release_region(cs->hw.ax.plx_adr, 64);
+ }
+ 
+ static void
+@@ -403,9 +403,9 @@
+ 	switch(cs->subtyp) {
+ 		case 1:
+ 			cs->hw.ax.base = pci_ioaddr5 + 0x00;
+-			if (sct_alloc_io(pci_ioaddr1, 256))
++			if (sct_alloc_io(pci_ioaddr1, 128))
+ 				return(0);
+-			if (sct_alloc_io(pci_ioaddr5, 256))
++			if (sct_alloc_io(pci_ioaddr5, 64))
+ 				return(0);
+ 			/* disable all IPAC */
+ 			writereg(pci_ioaddr5, pci_ioaddr5 + 4,
+@@ -419,17 +419,17 @@
+ 			break;
+ 		case 2:
+ 			cs->hw.ax.base = pci_ioaddr4 + 0x08;
+-			if (sct_alloc_io(pci_ioaddr4, 256))
++			if (sct_alloc_io(pci_ioaddr4, 64))
+ 				return(0);
+ 			break;
+ 		case 3:
+ 			cs->hw.ax.base = pci_ioaddr3 + 0x10;
+-			if (sct_alloc_io(pci_ioaddr3, 256))
++			if (sct_alloc_io(pci_ioaddr3, 64))
+ 				return(0);
+ 			break;
+ 		case 4:
+ 			cs->hw.ax.base = pci_ioaddr2 + 0x20;
+-			if (sct_alloc_io(pci_ioaddr2, 256))
++			if (sct_alloc_io(pci_ioaddr2, 64))
+ 				return(0);
+ 			break;
+ 	}	
+
+--------------FB463133C619B422D4888FC4--
 

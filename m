@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263087AbUKTCzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263098AbUKTCzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263087AbUKTCzW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 21:55:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263095AbUKTCtG
+	id S263098AbUKTCzT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 21:55:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263070AbUKTCtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 21:49:06 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:51395 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S263092AbUKTCrF
+	Fri, 19 Nov 2004 21:49:50 -0500
+Received: from baikonur.stro.at ([213.239.196.228]:20711 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S263091AbUKTCq7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 21:47:05 -0500
-Subject: [patch 4/4]  char/snsc: reorder set_current_state() and 	add_wait_queue()
+	Fri, 19 Nov 2004 21:46:59 -0500
+Subject: [patch 2/4]  jbd: remove comment in journal.c
 To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, nacc@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, domen@coderock.org
 From: janitor@sternwelten.at
-Date: Sat, 20 Nov 2004 03:47:03 +0100
-Message-ID: <E1CVLHE-0002XB-AH@sputnik>
+Date: Sat, 20 Nov 2004 03:46:57 +0100
+Message-ID: <E1CVLH7-0002Rg-Op@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
 
-Any comments would be, as always, appreciated.
+Hi.
 
--Nish
+Remove doubled comment, fix typo.
 
-Description: Reorder add_wait_queue() and set_current_state() as a
-signal could be lost in between the two functions.
+Compile tested.
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: Domen Puncer <domen@coderock.org>
 
 ---
 
- linux-2.6.10-rc2-bk4-max/drivers/char/snsc.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ linux-2.6.10-rc2-bk4-max/fs/jbd/journal.c |    6 +-----
+ 1 files changed, 1 insertion(+), 5 deletions(-)
 
-diff -puN drivers/char/snsc.c~reorder-state-drivers_char_snsc drivers/char/snsc.c
---- linux-2.6.10-rc2-bk4/drivers/char/snsc.c~reorder-state-drivers_char_snsc	2004-11-20 00:29:55.000000000 +0100
-+++ linux-2.6.10-rc2-bk4-max/drivers/char/snsc.c	2004-11-20 00:29:55.000000000 +0100
-@@ -192,8 +192,8 @@ scdrv_read(struct file *file, char __use
- 		}
+diff -puN fs/jbd/journal.c~fix-comment-fs_jbd_journal fs/jbd/journal.c
+--- linux-2.6.10-rc2-bk4/fs/jbd/journal.c~fix-comment-fs_jbd_journal	2004-11-20 00:29:48.000000000 +0100
++++ linux-2.6.10-rc2-bk4-max/fs/jbd/journal.c	2004-11-20 00:29:48.000000000 +0100
+@@ -1575,11 +1575,7 @@ int journal_blocks_per_page(struct inode
+ }
  
- 		len = CHUNKSIZE;
--		add_wait_queue(&sd->sd_rq, &wait);
- 		set_current_state(TASK_INTERRUPTIBLE);
-+		add_wait_queue(&sd->sd_rq, &wait);
- 		spin_unlock_irqrestore(&sd->sd_rlock, flags);
- 
- 		schedule_timeout(SCDRV_TIMEOUT);
-@@ -288,8 +288,8 @@ scdrv_write(struct file *file, const cha
- 			return -EAGAIN;
- 		}
- 
--		add_wait_queue(&sd->sd_wq, &wait);
- 		set_current_state(TASK_INTERRUPTIBLE);
-+		add_wait_queue(&sd->sd_wq, &wait);
- 		spin_unlock_irqrestore(&sd->sd_wlock, flags);
- 
- 		schedule_timeout(SCDRV_TIMEOUT);
+ /*
+- * Simple support for retying memory allocations.  Introduced to help to
+- * debug different VM deadlock avoidance strategies. 
+- */
+-/*
+- * Simple support for retying memory allocations.  Introduced to help to
++ * Simple support for retrying memory allocations.  Introduced to help to
+  * debug different VM deadlock avoidance strategies. 
+  */
+ void * __jbd_kmalloc (const char *where, size_t size, int flags, int retry)
 _

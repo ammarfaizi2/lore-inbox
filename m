@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136648AbREAQId>; Tue, 1 May 2001 12:08:33 -0400
+	id <S136646AbREAQLW>; Tue, 1 May 2001 12:11:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136646AbREAQIW>; Tue, 1 May 2001 12:08:22 -0400
-Received: from jalon.able.es ([212.97.163.2]:1510 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S136641AbREAQIG>;
-	Tue, 1 May 2001 12:08:06 -0400
-Date: Tue, 1 May 2001 18:07:58 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: "J . A . Magallon" <jamagallon@able.es>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Peter Osterlund <peter.osterlund@mailbox.swipnet.se>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.4-ac2
-Message-ID: <20010501180758.A1057@werewolf.able.es>
-In-Reply-To: <20010501170632.A1057@werewolf.able.es> <Pine.LNX.4.21.0105011644170.1399-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.21.0105011644170.1399-100000@localhost.localdomain>; from hugh@veritas.com on Tue, May 01, 2001 at 17:50:52 +0200
-X-Mailer: Balsa 1.1.4
+	id <S136645AbREAQLN>; Tue, 1 May 2001 12:11:13 -0400
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:62632 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S136641AbREAQLI>; Tue, 1 May 2001 12:11:08 -0400
+Message-ID: <3AEEDFFC.409D8271@redhat.com>
+Date: Tue, 01 May 2001 12:10:36 -0400
+From: Doug Ledford <dledford@redhat.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@steeleye.com>
+CC: "Roets, Chris" <Chris.Roets@compaq.com>, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: Linux Cluster using shared scsi
+In-Reply-To: <200105011445.KAA01117@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 05.01 Hugh Dickins wrote:
+James Bottomley wrote:
 > 
-> Don't ask me why, but I think you may find it's Peter's patch to
-> the women-and-children-first in kernel/fork.c: I'm not yet running
-> -ac2, but I am trying that patch, fine on UP but hanging right there
-> (well, I get a "go go go" message too) on SMP.
->
-
-After APIC_DEBUG = 1, I also get the gogo, i will try reverting the change.
-
-> Try reversing the:
+> Chris.Roets@compaq.com said:
+> > So, will Linux ever support the scsi reservation mechanism as standard?
 > 
-> -	p->counter = current->counter;
-> -	current->counter = 0;
-> +	p->counter = (current->counter + 1) >> 1;
-> +	current->counter >>= 1;
-> +	current->policy |= SCHED_YIELD;
+> That's not within my gift.  I can merely write the code that corrects the
+> behaviour.  I can't force anyone else to accept it.
+
+I think it will be standard before not too much longer (I hope anyway, I'm
+tired of carrying the patches forward all the time so I'll lend my support to
+getting it into the mainstream kernel ;-)
+
+> Chris.Roets@compaq.com said:
+> > Isn't there a standard that says if you scsi reserve a disk, no one
+> > else should be able to access this disk, or is this a "steeleye/
+> > Compaq" standard.
 > 
+> Use of reservations is laid out in the SCSI-2 and SCSI-3 standards (which can
+> be downloaded from the T10 site www.t10.org) which are international in scope.
+>  I think the implementation issues come because the reservations part is
+> really only relevant to a multi-initiator clustered environment which isn't an
+> every day configuration for most Linux users.  Obviously, as Linux moves into
+> the SAN arena this type of configuration will become a lot more common, at
+> which time the various problems associated with multiple initiators should
+> rise in prominence.
+
+I agree.  It's something that needs fixed in general, your software needs it
+as well, and I've written (about 80% done at this point) some open source
+software geared towards getting/holding reservations that also requires the
+same kernel patches (plus one more to be fully functional, an ioctl to allow a
+SCSI reservation to do a forced reboot of a machine).  I'll be releasing that
+package in the short term (once I get back from my vacation anyway).
 
 -- 
-J.A. Magallon                                          #  Let the source
-mailto:jamagallon@able.es                              #  be with you, Luke... 
 
-Linux werewolf 2.4.4-ac1 #1 SMP Tue May 1 11:35:17 CEST 2001 i686
-
+ Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+      Please check my web site for aic7xxx updates/answers before
+                      e-mailing me about problems

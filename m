@@ -1,63 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319106AbSIDJDe>; Wed, 4 Sep 2002 05:03:34 -0400
+	id <S319108AbSIDJL2>; Wed, 4 Sep 2002 05:11:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319107AbSIDJDd>; Wed, 4 Sep 2002 05:03:33 -0400
-Received: from mail.hometree.net ([212.34.181.120]:5077 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S319106AbSIDJDd>; Wed, 4 Sep 2002 05:03:33 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: X.25 Support in Kernel?
-Date: Wed, 4 Sep 2002 09:08:06 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <al4ihm$h34$1@forge.intermeta.de>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1031130486 27123 212.34.181.4 (4 Sep 2002 09:08:06 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Wed, 4 Sep 2002 09:08:06 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S319109AbSIDJL2>; Wed, 4 Sep 2002 05:11:28 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:17158 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S319108AbSIDJL1>;
+	Wed, 4 Sep 2002 05:11:27 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200209040915.g849Ftf29959@oboe.it.uc3m.es>
+Subject: Re: [RFC] mount flag "direct"
+In-Reply-To: <3D75ACFA.480860BB@aitel.hist.no> from Helge Hafting at "Sep 4,
+ 2002 08:49:30 am"
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Date: Wed, 4 Sep 2002 11:15:55 +0200 (MET DST)
+Cc: ptb@it.uc3m.es, linux kernel <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"A month of sundays ago Helge Hafting wrote:"
+> No problem if all you do is use file data.  A serious problem if
+> the stuff you read is used to make a decision about where
+> to write something else on that shared disk.  For example:
+> The fs need to extend a file.  It reads the free block bitmap,
+> and finds a free block.  Then it overwrites that free block,
+> and also write back a changed block bitmap.  Unfortunately
 
-after quite an extensive search about X.25 support for linux (yes,
-I've seen the pages of linux-sna and the linux-x25 mailing list on
-vger):
+That's the exact problem that's already been mentioned twice,
+and I'm confident of that one being solved. Lock the whole
+FS if necessary, but read the bitmap and lock the bitmap on disk
+until the extension is finished and the bitmap is written back.
+It has been suggested that the VFS support a "reserve/release blocks"
+operation. It would simply mark the ondisk bitmap bits as used
+and add them to our available list. Then every file extension
+or creation would need to be preceded by a reserve command,
+or fail, according to policy.
 
-- Is there anything resembling working X.25 over LLC.2 support in the 2.4
-  kernel?
+> some other machine just did the same thing and you
+> know have a crosslinked and corrupt file.
 
-- Is there more that the XOP stuff from Stephane Fillod which seems to
-  be 2 1/2 years old for User space X.25 over TCP?
+There is no problem locking and serializing groups of
+read/write accesses.  Please stop harping on about THAT at
+least :-). What is a problem is marking the groups of accesses.
 
-- Is there still work on this? Henner Eisen maintains it (according to the 
-  MAINTAINERS file), but the number of messages on linux-x25 seems to be
-  low.
+> There are several similiar scenarios. You can't really talk
+> about "not caching".  Once you read something into
+> memory it is "cached" in memory, even if you only use it once
+> and then re-read it whenever you need it later.
 
-Basically I need to talk to a Cisco router with X.25 protocol and be
-able to terminate an X.25 connection in user space in an
-application. As far as I can see, there is the easy way talking XOP
-with the router or talking X.25 over LLC2 (which Cisco calls CMNS) for
-which support seems to be "not yet completely functional".
+That's fine. And I don't see what needs to be reread. You had this
+problem once with smp, and you beat it with locks.
 
-Considering the possibility of hacking with the x.25 part of the kernel;
-which would be the best way to start with LLC2 support? Using the driver
-from linux-sna or hacking with net/llc ?
+> > A generic mechanism is not a "no cache fs". It's a generic mechanism.
+> > 
+> > > Nobody will have time to wait for this, and this alone makes your
+> > 
+> > Try arguing logically. I really don't like it when people invent their
+> > own straw men and then procede to  reason as though it were *mine*.
+> > 
+> Maybe I wasn't clear.  What I say is that a fs that don't cache
+> anything in order to avoid cache coherency problems will be
+> too slow for generic use.  (Such as two desktop computers
 
-	Regards
-		Henning
+Quite possibly, but not too slow for reading data in and writing data
+out, at gigabyte/s rates overall, which is what the intention is.
+That's not general use. And even if it were general use, it would still
+be pretty acceptable _in general_.
 
+> > Then imagine some more. I'm not responsible for your imagination ...
+> 
+> You tell.  You keep asking why your idea won't work and I
+> give you "performance problems" _even_ if you sort out the
+> correctness issues with no other cost than the lack of cache.
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+The correctness issues are the only important ones, once we have
+correct and fast shared read and write to (existing) files.
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+> it is useless for everything, although it certainly is useless
+> for the purposes I can come up with.  The only uses *I* find
+> for a shared writeable (but uncachable) disk is so special that 
+> I wouldn't bother putting a fs like ext2 on it.  Sharing a
+> raw block device is doable today if you let the programs
+
+It's far too inconvenient to be totally without a FS. What we
+want is a normal FS, but slower at some things, and faster at others,
+but correct and shared. It's an approach. The caclulations show
+clearly that r/w  (once!) to existing files are the only performance
+issues. The rest is decor. But decor that is very nice to have around.
+
+Peter

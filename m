@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVBAXTS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262168AbVBAXVY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262167AbVBAXTS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 18:19:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVBAXTS
+	id S262168AbVBAXVY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 18:21:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbVBAXVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 18:19:18 -0500
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:24948 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262167AbVBAXTO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 18:19:14 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Victor Hahn <victorhahn@web.de>
-Subject: Re: Really annoying bug in the mouse driver
-Date: Tue, 1 Feb 2005 18:19:12 -0500
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <41E91795.9060609@web.de> <d120d5000502010556629fdb48@mail.gmail.com> <41FF9001.5090607@web.de>
-In-Reply-To: <41FF9001.5090607@web.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Feb 2005 18:21:17 -0500
+Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:9139 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP id S262168AbVBAXVI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 18:21:08 -0500
+Date: Tue, 1 Feb 2005 18:21:06 -0500
+To: Ram <linuxram@us.ibm.com>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] shared subtrees
+Message-ID: <20050201232106.GA22118@fieldses.org>
+References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk> <20050116160213.GB13624@fieldses.org> <20050116180656.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050116184209.GD13624@fieldses.org> <20050117061150.GS26051@parcelfarce.linux.theplanet.co.uk> <20050117173213.GC24830@fieldses.org> <1106687232.3298.37.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502011819.12304.dtor_core@ameritech.net>
+In-Reply-To: <1106687232.3298.37.camel@localhost>
+User-Agent: Mutt/1.5.6+20040907i
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 February 2005 09:19, Victor Hahn wrote:
-> Dmitry Torokhov wrote:
-> 
-> >Sorry, I think it will apply to 2.6.11-rc2, I'll try to rediff against
-> >2.6.10 later tonight.
-> >
-> 
-> You don't need to do extra work to make it compatible with 2.6.10, I 
-> just applied it to 2.6.11-rc2, thanks. I'm just compiling it now, I'm 
-> looking forward to see the result!
-> 
+On Tue, Jan 25, 2005 at 01:07:12PM -0800, Ram wrote:
+> If there exists a private subtree in a larger shared subtree, what
+> happens when the larger shared subtree is rbound to some other place? 
+> Is a new private subtree created in the new larger shared subtree? or
+> will that be pruned out in the new larger subtree?
 
-Any luck with the patch?
+"mount --rbind" will always do at least all the mounts that it did
+before the introduction of shared subtrees--so certainly it will copy
+private subtrees along with shared ones.  (Since subtrees are private by
+default, anything else would make --rbind do nothing by default.) My
+understanding of Viro's RFC is that the new subtree will have no
+connection with the preexisting private subtree (we want private
+subtrees to stay private), but that the new copy will end up with
+whatever propagation the target of the "mount --rbind" had.  (So the
+addition of the copy of the private subtree to the target vfsmount will
+be replicated on any vfsmount that the target vfsmount propogates to,
+and those copies will propagate among themselves in the same way that
+the copies of the target vfsmount propagate to each other.)
 
--- 
-Dmitry
+--Bruce Fields

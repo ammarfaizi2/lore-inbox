@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272246AbTHKFbc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 01:31:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272263AbTHKFbb
+	id S270997AbTHKF0r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 01:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270998AbTHKF0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 01:31:31 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:60175 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S272246AbTHKFba
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 01:31:30 -0400
-Date: Mon, 11 Aug 2003 07:30:59 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Chip Salzenberg <chip@pobox.com>
-Cc: Jamie Lokier <jamie@shareable.org>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       davem@redhat.com
-Subject: Re: [PATCH] 2.4.22pre10: {,un}likely_p() macros for pointers
-Message-ID: <20030811053059.GB28640@alpha.home.local>
-References: <1060488233.780.65.camel@cube> <20030810072945.GA14038@alpha.home.local> <20030811012337.GI24349@perlsupport.com> <20030811020957.GE10446@mail.jlokier.co.uk> <20030811023912.GJ24349@perlsupport.com>
+	Mon, 11 Aug 2003 01:26:47 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:8371 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S270997AbTHKF0r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 01:26:47 -0400
+Date: Sun, 10 Aug 2003 22:21:00 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: hch@infradead.org, yoshfuji@linux-ipv6.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/9] convert drivers/scsi to virt_to_pageoff()
+Message-Id: <20030810222100.1c4ed37a.davem@redhat.com>
+In-Reply-To: <20030810145511.B32508@flint.arm.linux.org.uk>
+References: <20030810013041.679ddc4c.davem@redhat.com>
+	<20030810090556.GY31810@waste.org>
+	<20030810020444.48cb740b.davem@redhat.com>
+	<20030810.201009.77128484.yoshfuji@linux-ipv6.org>
+	<20030810123148.A10435@infradead.org>
+	<20030810145511.B32508@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030811023912.GJ24349@perlsupport.com>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 10, 2003 at 10:39:12PM -0400, Chip Salzenberg wrote:
- 
-> Both parameters of __builtin_expect() are long ints.  On an
-> architecture where there's a pointer type larger than long[1],
-> __builtin_expect() won't just warn, it'll *fail*.  Also, on an
-> architecture where a conversion of a null pointer to long results in
-> a non-zero value[2], it'll *fail*.  That makes it non-portable twice
-> over.  Wouldn't you agree?
+On Sun, 10 Aug 2003 14:55:11 +0100
+Russell King <rmk@arm.linux.org.uk> wrote:
 
-Hmmm Chip, on the document you suggested us to read, I remember a statement
-about (!x) <=> (x == 0) which implied it's legal even if x is a pointer because
-the compiler will automatically do the comparison between x and NULL and not
-(int)x and 0. Perhaps I have dreamed, but I'm sure I read this. So in any case,
-the !!(x) construct should be valid.
+> Actually, I'd rather see Scsi_Pointer gain page + offset (or even better
+> a single sg element) and get rid of these conversions.
 
-Cheers,
-Willy
-
+I think this is a great idea.

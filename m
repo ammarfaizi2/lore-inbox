@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264913AbSJaBMd>; Wed, 30 Oct 2002 20:12:33 -0500
+	id <S265087AbSJaB2O>; Wed, 30 Oct 2002 20:28:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265079AbSJaBMd>; Wed, 30 Oct 2002 20:12:33 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:19432 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264913AbSJaBMb>;
-	Wed, 30 Oct 2002 20:12:31 -0500
-Message-ID: <3DC08403.5090905@us.ibm.com>
-Date: Wed, 30 Oct 2002 17:14:43 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesse Barnes <jbarnes@sgi.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] pcibus_to_node() addition to topology infrastructure
-References: <3DC06E75.6010003@us.ibm.com> <20021031000326.GA3049@sgi.com> <3DC0782D.20401@us.ibm.com> <20021031005906.GA1365@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265088AbSJaB2N>; Wed, 30 Oct 2002 20:28:13 -0500
+Received: from vitelus.com ([64.81.243.207]:45829 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S265087AbSJaB2N>;
+	Wed, 30 Oct 2002 20:28:13 -0500
+Date: Wed, 30 Oct 2002 17:34:36 -0800
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.45
+Message-ID: <20021031013436.GG23438@vitelus.com>
+References: <Pine.LNX.4.44.0210301651120.6719-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0210301651120.6719-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
-> On Wed, Oct 30, 2002 at 04:24:13PM -0800, Matthew Dobson wrote:
-> 
->>Ah, yes...  The p-bricks, i-bricks, etc. right?
+On Wed, Oct 30, 2002 at 04:56:29PM -0800, Linus Torvalds wrote:
 > 
 > 
-> Yup.
+> Big changes, lots of merges. A number of the merges are fairly
+> substantial too. 
 > 
-> 
->>Yes, I suppose a round-robin return for the SGI version of the macro 
->>would work...  Certainly not ideal, but it would work.  The problem is 
-> 
-> 
-> Can you think of any better way to do it?  Perhaps make pcibus_to_node
-> return a list of nodes?
+> Device mapper (LVM2), crypto/ipsec stuff for networking, epoll and giving
+> the new kernel configurator a chance. Big things.
 
-Yeah... I was thinking about having it return a bitmask...  It makes it 
-a bit of a pain to iterate through the mask, only to find that in most 
-cases there is only one bit set in the mask. :(
-
-It's a bit late in the day... I'll mull this over and see if I can come 
-up with something good.
-
-Cheers!
-
--Matt
-
+Now running 'make oldconfig' or 'make menuconfig' requires a Qt
+installation. I believe that this is a bug because these still work
+fine without Qt when the -k flag is passed to make.

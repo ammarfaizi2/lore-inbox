@@ -1,52 +1,176 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263775AbTK2Npz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 08:45:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263776AbTK2Npz
+	id S263771AbTK2NpH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 08:45:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbTK2NpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 08:45:55 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:14722 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263775AbTK2NpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 08:45:18 -0500
-Date: Sat, 29 Nov 2003 13:50:00 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200311291350.hATDo0CY001142@81-2-122-30.bradfords.org.uk>
-To: Andries Brouwer <aebr@win.tue.nl>, Szakacsits Szabolcs <szaka@sienet.hu>
-Cc: Andrew Clausen <clausen@gnu.org>, Apurva Mehta <apurva@gmx.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       bug-parted@gnu.org
-In-Reply-To: <20031129123451.GA5372@win.tue.nl>
-References: <20031128045854.GA1353@home.woodlands>
- <20031128142452.GA4737@win.tue.nl>
- <20031129022221.GA516@gnu.org>
- <Pine.LNX.4.58.0311290550190.21441@ua178d119.elisa.omakaista.fi>
- <20031129123451.GA5372@win.tue.nl>
-Subject: Re: Disk Geometries reported incorrectly on 2.6.0-testX
+	Sat, 29 Nov 2003 08:45:07 -0500
+Received: from uirapuru.fua.br ([200.129.163.1]:60653 "EHLO uirapuru.fua.br")
+	by vger.kernel.org with ESMTP id S263771AbTK2Nox (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Nov 2003 08:44:53 -0500
+Message-ID: <6159.200.212.156.130.1070109965.squirrel@webmail.ufam.edu.br>
+Date: Sat, 29 Nov 2003 10:46:05 -0200 (BRST)
+Subject: [PATCH] Resident memory info in fs/proc/task_mmu.c [2.6.0-test11]
+From: edjard@ufam.edu.br
+To: alan@redhat.com, linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org
+User-Agent: SquirrelMail/1.4.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Let me continue to stress: geometry does not exist.
-> Consequently, it cannot change.
-> fdisk does not set any geometry, it writes a partition table.
-> 
-> Start and size of each partition are given twice: in absolute sector
-> units (LBA) and in CHS units. The former uses 32 bits, and with 512-byte
-> sectors this works up to 2TB. People are starting to hit that boundary now.
-> The latter uses 24 bits, which works up to 8GB. Modern systems no longer
-> use it (but the details are complicated).
+Hi everyone,
 
-Why don't we take the opporunity to make all CHS code configurable out
-of the kernel, and define a new, more compact, partition table format
-which used LBA exclusively, and allowed more than four partitions in
-the main partition table?
+Here is a suggestion for a patch of fs/proc/task_mm.c which gives
+more information about resident memory allocation for a given
+process PID at /proc/PID/status.
 
-I know it sounds pointless to define a new partitioning scheme when
-there are so many already in existance, but for dedicated Linux
-machines, only being able to define four partitions without resorting
-to 'extended' partitions, which store there partitioning data in other
-parts of the disk, is a needless limitation.  We could also ensure
-that there is sufficient magic in the partition table to make
-identifying it easy and reliable.
+We've searched for this info before (in this list) and as no one
+had found it interesting we developed the following solution which
+does not overload the kernel. We think so.
 
-John.
+BR,
+
+Edjard
+
+--- linux-2.6.0-test11/fs/proc/task_mmu.c       2003-11-26
+18:43:07.000000000 -0200
++++ linux/fs/proc/task_mmu.c    2003-11-29 08:55:39.000000000 -0200
+@@ -3,44 +3,94 @@
+ #include <linux/seq_file.h>
+ #include <asm/uaccess.h>
+
++/**
++* Allan Bezerra (ajsb@dcc.fua.br) &
++* Bruna Moreira (brunampm@bol.com.br) &
++* Edjard Mota (edjard@ufam.edu.br) &
++* Mauricio Lin (mauriciolin@bol.com.br) &
++* Include a process PID physical memory size info in the /proc/PID/status
++*/
++
++void resident_mem_size(struct mm_struct *mm, unsigned long start_address,
+unsigned long end_address, unsigned long *size) {
++  pgd_t *my_pgd;
++  pmd_t *my_pmd;
++  pte_t *my_pte;
++  unsigned long page;
++
++  for (page = start_address; page < end_address; page += PAGE_SIZE) {
++    my_pgd = pgd_offset(mm, page);
++    if (pgd_none(*my_pgd) || pgd_bad(*my_pgd)) continue;
++    my_pmd = pmd_offset(my_pgd, page);
++    if (pmd_none(*my_pmd) || pmd_bad(*my_pmd)) continue;
++    my_pte = pte_offset_map(my_pmd, page);
++    if (pte_present(*my_pte)) {
++      *size += PAGE_SIZE;
++    }
++  }
++}
++
+ char *task_mem(struct mm_struct *mm, char *buffer)
+ {
+-       unsigned long data = 0, stack = 0, exec = 0, lib = 0;
+-       struct vm_area_struct *vma;
+-
+-       down_read(&mm->mmap_sem);
+-       for (vma = mm->mmap; vma; vma = vma->vm_next) {
+-               unsigned long len = (vma->vm_end - vma->vm_start) >> 10;
+-               if (!vma->vm_file) {
+-                       data += len;
+-                       if (vma->vm_flags & VM_GROWSDOWN)
+-                               stack += len;
+-                       continue;
+-               }
+-               if (vma->vm_flags & VM_WRITE)
+-                       continue;
+-               if (vma->vm_flags & VM_EXEC) {
+-                       exec += len;
+-                       if (vma->vm_flags & VM_EXECUTABLE)
+-                               continue;
+-                       lib += len;
+-               }
+-       }
+-       buffer += sprintf(buffer,
+-               "VmSize:\t%8lu kB\n"
+-               "VmLck:\t%8lu kB\n"
+-               "VmRSS:\t%8lu kB\n"
+-               "VmData:\t%8lu kB\n"
+-               "VmStk:\t%8lu kB\n"
+-               "VmExe:\t%8lu kB\n"
+-               "VmLib:\t%8lu kB\n",
+-               mm->total_vm << (PAGE_SHIFT-10),
+-               mm->locked_vm << (PAGE_SHIFT-10),
+-               mm->rss << (PAGE_SHIFT-10),
+-               data - stack, stack,
+-               exec - lib, lib);
+-       up_read(&mm->mmap_sem);
+-       return buffer;
++  unsigned long data = 0, stack = 0, exec = 0, lib = 0;
++  unsigned long phys_data = 0, phys_stack = 0, phys_exec = 0, phys_lib = 0;
++  unsigned long phys_brk = 0;
++  struct vm_area_struct *vma;
++  down_read(&mm->mmap_sem);
++  for (vma = mm->mmap; vma; vma = vma->vm_next) {
++    unsigned long len = (vma->vm_end - vma->vm_start) >> 10;
++
++    if (!vma->vm_file) {
++      resident_mem_size(mm, vma->vm_start, vma->vm_end, &phys_data);
++      if (vma->vm_flags & VM_GROWSDOWN) {
++       stack += len;
++       resident_mem_size(mm, vma->vm_start, vma->vm_end, &phys_stack);
++      }
++      else {
++       data += len;
++      }
++      continue;
++    }
++
++    if (vma->vm_flags & VM_WRITE)
++      continue;
++
++    if (vma->vm_flags & VM_EXEC) {
++      exec += len;
++      resident_mem_size(mm, vma->vm_start, vma->vm_end, &phys_exec);
++      if (vma->vm_flags & VM_EXECUTABLE) {
++               continue;
++      }
++      lib += len;
++      resident_mem_size(mm, vma->vm_start, vma->vm_end, &phys_lib);
++    }
++  }
++  resident_mem_size(mm, mm->start_brk, mm->brk, &phys_brk);
++  buffer += sprintf(buffer,
++                   "VmSize:\t%8lu kB\n"
++                   "VmLck:\t%8lu kB\n"
++                   "VmRSS:\t%8lu kB\n"
++                   "VmData:\t%8lu kB\n"
++                   "RssData:\t%8lu kB\n"
++                   "VmStk:\t%8lu kB\n"
++                   "RssStk:\t%8lu kB\n"
++                   "VmExe:\t%8lu kB\n"
++                   "RssExe:\t%8lu kB\n"
++                   "VmLib:\t%8lu kB\n"
++                   "RssLib:\t%8lu kB\n"
++                   "VmHeap:\t%8lu KB\n"
++                   "RssHeap:\t%8lu KB\n",
++                   mm->total_vm << (PAGE_SHIFT-10),
++                   mm->locked_vm << (PAGE_SHIFT-10),
++                   mm->rss << (PAGE_SHIFT-10),
++                   data, (phys_data - phys_stack) >> 10,
++                   stack, phys_stack >> 10,
++                   exec - lib, (phys_exec - phys_lib) >> 10,
++                   lib, phys_lib >> 10,
++                   (mm->brk - mm->start_brk) >> 10,
++                   phys_brk >> 10
++                   );
++  up_read(&mm->mmap_sem);
++  return buffer;
+ }
+
+ unsigned long task_vsize(struct mm_struct *mm)
+

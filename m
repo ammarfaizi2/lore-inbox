@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVAXE7e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVAXFIi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261441AbVAXE7e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 23:59:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVAXE7e
+	id S261443AbVAXFIi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 00:08:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVAXFIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 23:59:34 -0500
-Received: from ernie.virtualdave.com ([198.216.116.246]:63501 "EHLO
-	ernie.virtualdave.com") by vger.kernel.org with ESMTP
-	id S261441AbVAXE7c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 23:59:32 -0500
-Date: Sun, 23 Jan 2005 22:59:29 -0600 (CST)
-From: David Sims <dpsims@virtualdave.com>
-To: Atul Bhouraskar <atul.bhouraskar@acoustic-technologies.com>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: irq 3: nobody cared! with Intel 31244 SATA.... Advice??
-In-Reply-To: <007201c501c1$fb2c2f60$0d65a8c0@SHARK>
-Message-ID: <Pine.LNX.4.21.0501232254160.27074-100000@ernie.virtualdave.com>
+	Mon, 24 Jan 2005 00:08:38 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:32672 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261443AbVAXFIg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 00:08:36 -0500
+Message-ID: <41F482D6.4060702@comcast.net>
+Date: Mon, 24 Jan 2005 00:08:38 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: P35U
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Atul,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-  If I enable APIC on the 2.6.10 kernel I get exactly the same behavior as
-I got without APIC.... If I enable APIC-IO, then it starts barking about
-Interrupt 22 and never finishes... SO... At the minimum, both of these
-settings do not help and one makes the problem worse in that the sata-vsc
-module never finishes loading....
+Does anyone have a p35u based camera?  I have an EZCam Pro p35u based,
+still no driver I believe.  Anything I can do to help with making one,
+like dump some sort of hardware data off it (yeah right)?
 
-  Thanks for your response though... At this point I am ready to climb a
-tree and bark at the moon if it will help.... ;)
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
 
-Dave
-************************************************************************
-On Mon, 24 Jan 2005, Atul Bhouraskar wrote:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-> 
-> 
-> > -----Original Message-----
-> > From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
-> > owner@vger.kernel.org] On Behalf Of David Sims
-> > Sent: Monday, 24 January 2005 13:57
-> > 
-> > I then downloaded and built kernel 2.6.10 which boots up fine without
-> the
-> > sata_vsc module.... If you then load the sata_vsc module manually
-> using
-> > "modprobe sata_vsc" it will cause the following error once for each
-> > attached disk drive:
-> > 
-> > Jan 23 09:08:21 linux kernel: Disabling IRQ #3
-> > Jan 23 09:08:23 linux kernel: irq 3: nobody cared!
-> 
-> I once had the same problem, I think enabling APIC solved it....
-> 
-> Atul
-> 
-> 
-
+iD8DBQFB9ILWhDd4aOud5P8RAkiXAJ9uAB/NHy9qQ6e+RRyM1i3jRSgZiwCffT1g
+K0rchySBqXcbfC0yBeg0iAQ=
+=VBqw
+-----END PGP SIGNATURE-----

@@ -1,72 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268298AbUJFGSi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268316AbUJFGWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268298AbUJFGSi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 02:18:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268312AbUJFGSi
+	id S268316AbUJFGWm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 02:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268325AbUJFGWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 02:18:38 -0400
-Received: from fw.osdl.org ([65.172.181.6]:59307 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268298AbUJFGSg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 02:18:36 -0400
-Date: Tue, 5 Oct 2004 23:16:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: andrea@novell.com, nickpiggin@yahoo.com.au, rml@novell.com,
-       roland@topspin.com, linux-kernel@vger.kernel.org
-Subject: Re: Preempt? (was Re: Cannot enable DMA on SATA drive
- (SCSI-libsata, VIA SATA))
-Message-Id: <20041005231642.55308f99.akpm@osdl.org>
-In-Reply-To: <41638AEB.5080703@pobox.com>
-References: <52is9or78f.fsf_-_@topspin.com>
-	<4163465F.6070309@pobox.com>
-	<41634A34.20500@yahoo.com.au>
-	<41634CF3.5040807@pobox.com>
-	<1097027575.5062.100.camel@localhost>
-	<20041006015515.GA28536@havoc.gtf.org>
-	<41635248.5090903@yahoo.com.au>
-	<20041006020734.GA29383@havoc.gtf.org>
-	<20041006031726.GK26820@dualathlon.random>
-	<4163660A.4010804@pobox.com>
-	<20041006040323.GL26820@dualathlon.random>
-	<41636FCF.3060600@pobox.com>
-	<20041005214605.5ec397ab.akpm@osdl.org>
-	<41638AEB.5080703@pobox.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 6 Oct 2004 02:22:42 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7589 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268316AbUJFGT1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 02:19:27 -0400
+Message-ID: <41638E61.9000004@pobox.com>
+Date: Wed, 06 Oct 2004 02:19:13 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Nick Piggin <nickpiggin@yahoo.com.au>, kenneth.w.chen@intel.com,
+       mingo@redhat.com, linux-kernel@vger.kernel.org, judith@osdl.org
+Subject: new dev model (was Re: Default cache_hot_time value back to 10ms)
+References: <200410060042.i960gn631637@unix-os.sc.intel.com>	<20041005205511.7746625f.akpm@osdl.org>	<416374D5.50200@yahoo.com.au>	<20041005215116.3b0bd028.akpm@osdl.org>	<41637BD5.7090001@yahoo.com.au>	<20041005220954.0602fba8.akpm@osdl.org>	<416380D7.9020306@yahoo.com.au> <20041005223307.375597ee.akpm@osdl.org>
+In-Reply-To: <20041005223307.375597ee.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> wrote:
->
-> Andrew Morton wrote:
-> > Jeff Garzik <jgarzik@pobox.com> wrote:
-> > 
-> >>Preempt will always be something I ask people to turn off when reporting 
-> >> driver bugs; it just adds too much complicated mess for zero gain.
-> > 
-> > 
-> > What driver bugs are apparent with preemption which are not already SMP bugs?
+Andrew Morton wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 > 
-> If your implied answer is true, then we wouldn't need 
-> preempt_{en,dis}able() sprinkled throughout the code so much.
+>>Any thoughts about making -rc's into -pre's, and doing real -rc's?
 > 
+> 
+> I think what we have is OK.  The idea is that once 2.6.9 is released we
+> merge up all the well-tested code which is sitting in various trees and has
+> been under test for a few weeks.  As soon as all that well-tested code is
+> merged, we go into -rc.  So we're pipelining the development of 2.6.10 code
+> with the stabilisation of 2.6.9.
+> 
+> If someone goes and develops *new* code after the release of, say, 2.6.9
+> then tough tittie, it's too late for 2.6.9: we don't want new code - we
+> want old-n-tested code.  So your typed-in-after-2.6.9 code goes into
+> 2.6.11.
+> 
+> That's the theory anyway.  If it means that it takes a long time to get
 
-Where?
+This is damned frustrating :(  Reality is _far_ divorced from what you 
+just described.
 
-`grep -r preempt_disable drivers' points at one bodgy scsi driver.
+Major developers such as David and Al don't have trees that see wide 
+testing, their code only sees wide testing once it hits mainline.  See 
+this message from David, 
+http://marc.theaimsgroup.com/?l=linux-netdev&m=109648930728731&w=2
 
-`grep -r preempt_disable fs' finds two instances of per-cpu data.
+In particular, I think David's point about -mm being perceived as overly 
+experimental is fair.
 
-`grep -r preempt_disable mm' finds three instances (wtf is vmalloc_to_page
-trying to do?  Looks redundant)
+Recent experience seems to directly counter the assertion that only 
+well-tested code is landing in mainline, and it's not hard to pick 
+through the -rc changelogs to find non-trivial, non-bugfix modifications 
+to existing code.  My own experience with netdev-2.6 bears this out as 
+well:  I have several personal examples of bugs sitting in netdev (and 
+thus -mm) for quite a while, only being noticed when the code hits mainline.
 
-`grep -r preempt_disable ipc' is empty
+Linus's assertion that "calling it -rc means developers should calm 
+down" (implying we should start concentrating on bug fixing rather than 
+more-fun stuff) is equally fanciful.
 
-`grep -r preempt_disable net' is empty
+Why is it so hard to say "only bugfixes"?
 
-`grep -r preempt_disable include' gets a few.
+The _reality_ is that there is _no_ point in time where you and Linus 
+allow for stabilization of the main tree prior to relesae.  The release 
+criteria has devolved to a point where we call it done when the stack of 
+pancakes gets too high.
 
-It's less than I expected, actually.
+Ground control to Major Tom?
+
+	Jeff
+
+

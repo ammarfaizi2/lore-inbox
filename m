@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265541AbTFMVfo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 17:35:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265540AbTFMVfo
+	id S265549AbTFMVl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 17:41:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265542AbTFMVkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 17:35:44 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:55814 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265541AbTFMVfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 17:35:42 -0400
-Date: Fri, 13 Jun 2003 22:49:27 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Peter Osterlund <petero2@telia.com>
-cc: Vojtech Pavlik <vojtech@ucw.cz>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>, Peter Berg Larsen <pebl@math.ku.dk>
-Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
-In-Reply-To: <m23cidllv6.fsf@telia.com>
-Message-ID: <Pine.LNX.4.44.0306132249070.29353-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 13 Jun 2003 17:40:16 -0400
+Received: from aneto.able.es ([212.97.163.22]:10172 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S265544AbTFMVhQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 17:37:16 -0400
+Date: Fri, 13 Jun 2003 23:50:59 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.21 released
+Message-ID: <20030613215059.GA2961@werewolf.able.es>
+References: <200306131453.h5DErX47015940@hera.kernel.org> <20030613165628.GE28609@in-ws-001.cid-net.de> <20030613172226.GB9339@merlin.emma.line.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20030613172226.GB9339@merlin.emma.line.org>; from matthias.andree@gmx.de on Fri, Jun 13, 2003 at 19:22:26 +0200
+X-Mailer: Balsa 2.0.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > > to the Synaptics TouchPad Interfacing Guide
-> > > (http://www.synaptics.com/decaf/utilities/ACF126.pdf), W is defined as
-> > > follows:
+On 06.13, Matthias Andree wrote:
+> On Fri, 13 Jun 2003, Stefan Foerster wrote:
+> 
+> > * Marcelo Tosatti <marcelo@hera.kernel.org> wrote:
+> > > final:
 > > > 
-> > > Value		Needed capability	Interpretation
-> > > W = 0		capMultiFinger		Two fingers on the pad.
-> > > W = 1		capMultiFinger		Three or more fingers on the pad.
-> > > W = 2		capPen			Pen (instead of finger) on the pad.
-> > > W = 3		Reserved.
-> > > W = 4-7		capPalmDetect		Finger of normal width.
-> > > W = 8-14	capPalmDetect		Very wide finger or palm.
-> > > W = 15		capPalmDetect		Maximum reportable width; extremely
-> > > 					wide contact.
-> > > 
-> > > Is there a better way than using ABS_MISC to pass the W information to
-> > > user space?
+> > > - 2.4.21-rc8 was released as 2.4.21 with no changes.
 > > 
-> > We should probably add an EV_MSC, MSC_GESTURE event type for this.
-> > That'll be the cleanest solution.
+> > Can we expect the latest ACPI and aic7xxx stuff in 2.4.22-pre?
 > 
-> Peter Berg Larsen suggested in a private email that we shouldn't
-> export W directly, because it is too synaptics specific. Better split
-> it in "number of fingers" and "finger width", so that other touchpads
-> could use the same format.
+> I'd add "XFS merge" to the list:
 > 
-> What do we call these things? ABS_FINGER_WIDTH and ABS_NR_FINGERS
-> maybe?
 
-ABS_AREA
+I have many other, simpler things in my set:
+- Fix for bad AT_PLATFORM on HT Xeons
+- check_gcc for x86
+- separate config option for PII (yes some still have that and does not hurt)
+- CONFIG_NR_CPUS
+- hfsplus driver (first will talk to maintainer if he cares...)
 
+And a ton of possibly fixes I have collected over time, but someone would have
+to review them.
+Don't know if there is any chance to get them in, but...I will send to the list.
 
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.21-rc8-jam1 (gcc 3.3 (Mandrake Linux 9.2 3.3-1mdk))

@@ -1,32 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130317AbRC3Tx2>; Fri, 30 Mar 2001 14:53:28 -0500
+	id <S131654AbRC3Vpj>; Fri, 30 Mar 2001 16:45:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130532AbRC3TxR>; Fri, 30 Mar 2001 14:53:17 -0500
-Received: from clueserver.org ([206.163.47.224]:265 "HELO clueserver.org")
-	by vger.kernel.org with SMTP id <S130317AbRC3TxM>;
-	Fri, 30 Mar 2001 14:53:12 -0500
-Date: Fri, 30 Mar 2001 12:06:40 -0800 (PST)
-From: Alan Olsen <alan@clueserver.org>
-To: Bruno Avila <jisla@elogica.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to compile linux 0.0.0.1?
-In-Reply-To: <OJECKBFFEMDBJMBOKGEDEEIDCCAA.jisla@elogica.com.br>
-Message-ID: <Pine.LNX.4.10.10103301204570.23679-100000@clueserver.org>
+	id <S131658AbRC3Vpa>; Fri, 30 Mar 2001 16:45:30 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:36606 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S131654AbRC3VpR>; Fri, 30 Mar 2001 16:45:17 -0500
+Importance: Normal
+Subject: max_sector support for scsi in 2.4.3??
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.4  June 8, 2000
+Message-ID: <OF6341F380.9BF6BA2B-ON88256A1F.0076CA5A@LocalDomain>
+From: "James Washer" <washer@us.ibm.com>
+Date: Fri, 30 Mar 2001 13:41:42 -0800
+X-MIMETrack: Serialize by Router on D03NM038/03/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 03/30/2001 02:44:35 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Mar 2001, Bruno Avila wrote:
+In 2.4.2-ac9,  max_sectors support was added to the SCSI midlayer. I was
+somewhat expecting to see that make it into 2.4.3, but it seems not.
 
->        I can't find this anywhere. What is the version of the tools to
-> compile linux kernel 0.0.0.1 (../Historic)? And where can i find them?
+Can anyone shed some light on why?
 
-Well, first you have to find a good source of obsidean, a couple of sharp
-rocks, and some flint...
 
-alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
-Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
-    "In the future, everything will have its 15 minutes of blame."
+ thanks
+ - jim
 

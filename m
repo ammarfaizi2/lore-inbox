@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265237AbTFWQiR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 12:38:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265247AbTFWQiR
+	id S266066AbTFWQxD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 12:53:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266071AbTFWQxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 12:38:17 -0400
-Received: from zeke.inet.com ([199.171.211.198]:54191 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id S265237AbTFWQiQ (ORCPT
+	Mon, 23 Jun 2003 12:53:03 -0400
+Received: from mx5.mail.ru ([194.67.23.25]:53522 "EHLO mx5.mail.ru")
+	by vger.kernel.org with ESMTP id S266066AbTFWQxA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 12:38:16 -0400
-Message-ID: <3EF7303E.6060002@inet.com>
-Date: Mon, 23 Jun 2003 11:52:14 -0500
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Gerhard Mack <gmack@innerfire.net>, Pavel Machek <pavel@suse.cz>,
-       "Rick A. Hohensee" <rickh@capaccess.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Now that the 0 Penguin
-References: <Pine.LNX.4.44.0306231208130.24911-100000@innerfire.net> <1056386487.14228.80.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Jun 2003 12:53:00 -0400
+Date: Mon, 23 Jun 2003 21:06:14 +0400
+From: Nick Kurshev <nickols_k@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: [Feature-request] extending of keyboard code table
+Message-Id: <20030623210614.0d5e3c36.nickols_k@mail.ru>
+Organization: HomePC
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.+FbNO/E,Nopx06"
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Llu, 2003-06-23 at 17:09, Gerhard Mack wrote:
-> 
->>how about "Don't feed the trolls" ?  Just route his stuff to /dev/null and
->>be done with it.  
-> 
-> 
-> I did but /dev/null has been complaining since ;)
+--=.+FbNO/E,Nopx06
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-What? Not -ENOSPC on /dev/null again?! ;)
+Hello!
 
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+I'm using btc9001ah keyboard and meet the problem
+when so-called internet keys can't be emulated by
+linux-2.4.21.
+I've got this message:
+keyboard.c: can't emulate rawmode for keycode 256
+keyboard.c: can't emulate rawmode for keycode 257
+keyboard.c: can't emulate rawmode for keycode 258
+keyboard.c: can't emulate rawmode for keycode 259
+keyboard.c: can't emulate rawmode for keycode 260
+This lines were produces when I pressed so-called
+FreeKey1-FreeKey5 on my keyboard!
 
+It was caused by the fact that drivers/input/keybdev.c
+limits x86_keycodes size by 256 elements!
+Would it possible to extend this table in 2 times at least?
+Thanks!
+
+Best regards! Nick
+
+--=.+FbNO/E,Nopx06
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+9zOIB/1cNcrTvJkRAhGhAKD4VVQoFAW4Wew9YRo9Adr75CXVPQCeI+12
+sAOtCqaM2Ry3SwN9FQ9F8Ds=
+=flI6
+-----END PGP SIGNATURE-----
+
+--=.+FbNO/E,Nopx06--

@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262404AbVAPCXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262395AbVAPCdy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262404AbVAPCXv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 21:23:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262393AbVAPCUB
+	id S262395AbVAPCdy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 21:33:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262400AbVAPCdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 21:20:01 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:6275 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S262395AbVAPCDy (ORCPT
+	Sat, 15 Jan 2005 21:33:54 -0500
+Received: from zasran.com ([198.144.206.234]:35715 "EHLO jojda.zasran.com")
+	by vger.kernel.org with ESMTP id S262395AbVAPCdw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 21:03:54 -0500
-Subject: Re: Linux 2.6.10-ac9
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Sami Farin <7atbggg02@sneakemail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050115050749.GB8456@m.safari.iki.fi>
-References: <1105636996.4644.70.camel@localhost.localdomain>
-	 <20050114030135.GA6032@m.safari.iki.fi>
-	 <1105743716.9839.29.camel@localhost.localdomain>
-	 <20050115050749.GB8456@m.safari.iki.fi>
-Content-Type: text/plain
+	Sat, 15 Jan 2005 21:33:52 -0500
+Message-ID: <41E9D28F.8010109@bigfoot.com>
+Date: Sat, 15 Jan 2005 18:33:51 -0800
+From: Erik Steffl <steffl@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: SATA disk dead? ATA: abnormal status 0x59 on port 0xE407
+References: <41E97C3D.3020104@bigfoot.com> <1105830698.15835.16.camel@localhost.localdomain>
+In-Reply-To: <1105830698.15835.16.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1105831712.15835.27.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 16 Jan 2005 00:58:56 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2005-01-15 at 05:07, Sami Farin wrote:
-> my drives do not support cache flushes, I guess your drives do?
-
-Probably yes.
-
-> cat /proc/ide/hda/settings does not work, either
+Alan Cox wrote:
+> On Sad, 2005-01-15 at 20:25, Erik Steffl wrote:
 > 
-> cat           D C0572788     0  8016   5187                6044 (NOTLB)
-> cdc97eb0 00000046 cf7f00a0 c0572788 00005699 c01fe93f 000001ad 00000023 
->        01078345 00005699 cf7f00a0 00000bbb 02ed12c3 00005699 cfec51d8 c04de020 
->        cfec5080 00000246 cdc97ee8 c0409764 c04de028 00000001 cfec5080 c011ab70 
-> Call Trace:
->  [<c0409764>] __down+0x64/0xc0
->  [<c04098ba>] __down_failed+0xa/0x10
->  [<c0302acf>] .text.lock.ide_proc+0x8b/0x1fc
->  [<c018c594>] proc_file_read+0xc4/0x260
->  [<c0158fbf>] vfs_read+0xcf/0x150
->  [<c01592db>] sys_read+0x4b/0x80
->  [<c0103163>] syscall_call+0x7/0xb
+>>   I got these errors when accessing SATA disk (via scsi):
+>>
+>>Jan 15 11:56:50 jojda kernel: ata2: command 0x25 timeout, stat 0x59 
+>>host_stat 0x21
+>>Jan 15 11:56:50 jojda kernel: ata2: status=0x59 { DriveReady 
+>>SeekComplete DataRequest Error }
+>>Jan 15 11:56:50 jojda kernel: ata2: error=0x40 { UncorrectableError }
+> 
+> 
+> Bad sector - the disk has lost the data on some blocks. Thats a physical
+> disk failure.
 
-Duplicated and fixed for -ac10 coming up soon. Thanks for that one,
-thats was a very dumb bug 8)
+   what's somewhat weird is that the disk _seemed_ OK (i.e. no errors 
+that I would notice, nothing in the syslog) and then suddenly the disk 
+does not respond at all, I tried dd_rescue and it ran for hours (more 
+than a day) and it rescued absolutely nothing. Is it possible that the 
+disk surface is OK but the electronics went bad? Is there anything that 
+can be done if that's the case? (I have another disk, same model).
 
+	erik

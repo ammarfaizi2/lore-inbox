@@ -1,37 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269250AbUHaXUz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269245AbUHaX00@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269250AbUHaXUz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 19:20:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269257AbUHaXUx
+	id S269245AbUHaX00 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 19:26:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269312AbUHaXRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 19:20:53 -0400
-Received: from fw.osdl.org ([65.172.181.6]:11754 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269250AbUHaXUk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 19:20:40 -0400
-Date: Tue, 31 Aug 2004 16:24:08 -0700
-From: Andrew Morton <akpm@osdl.org>
+	Tue, 31 Aug 2004 19:17:10 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:29855 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S269284AbUHaXMo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 19:12:44 -0400
+Subject: Re: [Lhms-devel] Re: [RFC] buddy allocator without bitmap(2) [1/3]
+From: Dave Hansen <haveblue@us.ibm.com>
 To: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       lhms-devel@lists.sourceforge.net
-Subject: Re: [Lhms-devel] Re: [RFC] buddy allocator without bitmap(2) [0/3]
-Message-Id: <20040831162408.3718c83e.akpm@osdl.org>
-In-Reply-To: <4134FF50.8000300@jp.fujitsu.com>
-References: <41345491.1020209@jp.fujitsu.com>
-	<1093969590.26660.4806.camel@nighthawk>
-	<4134FF50.8000300@jp.fujitsu.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, lhms <lhms-devel@lists.sourceforge.net>
+In-Reply-To: <413501DC.2050409@jp.fujitsu.com>
+References: <413455BE.6010302@jp.fujitsu.com>
+	 <1093969857.26660.4816.camel@nighthawk>  <413501DC.2050409@jp.fujitsu.com>
+Content-Type: text/plain
+Message-Id: <1093993935.28787.416.camel@nighthawk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 31 Aug 2004 16:12:15 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com> wrote:
->
-> Because I had to record some information about shape of mem_map, I used PG_xxx bit.
-> 1 bit is maybe minimum consumption.
+On Tue, 2004-08-31 at 15:55, Hiroyuki KAMEZAWA wrote:
+> Dave Hansen wrote:
+> 
+> > On Tue, 2004-08-31 at 03:41, Hiroyuki KAMEZAWA wrote:
+> > 
+> >>+static void __init calculate_aligned_end(struct zone *zone,
+> >>+					 unsigned long start_pfn,
+> >>+					 int nr_pages)
+> > 
+> > ...
+> > 
+> >>+		end_address = (zone->zone_start_pfn + end_idx) << PAGE_SHIFT;
+> >>+#ifndef CONFIG_DISCONTIGMEM
+> >>+		reserve_bootmem(end_address,PAGE_SIZE);
+> >>+#else
+> >>+		reserve_bootmem_node(zone->zone_pgdat,end_address,PAGE_SIZE);
+> >>+#endif
+> >>+	}
+> >>+	return;
+> >>+}
+> > 
+> > 
+> > What if someone has already reserved that address?  You might not be
+> > able to grow the zone, right?
+> > 
+> 1) If someone has already reserved that address,  it (the page) will not join to
+>    buddy allocator and it's no problem.
+> 
+> 2) No, I can grow the zone.
+>    A reserved page is the last page of "not aligned contiguous mem_map", not zone.
+> 
+> I answer your question ?
 
-The point is that we're running out of bits in page.flags.
+If the end of the zone isn't aligned, you simply waste memory until it becomes aligned, right?
 
-You should be able to reuse an existing bit for this application.  PG_lock would suit.
+> I know this patch contains some BUG, if a page is allocateed when calculate_alinged_end()
+> is called, and is freed after calling this, it is never reserved and join to buddy system.
+
+If you adjust the zone_spanned pages properly, this shouldn't happen.
+
+-- Dave
+

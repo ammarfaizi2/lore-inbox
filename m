@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129768AbQKLAT4>; Sat, 11 Nov 2000 19:19:56 -0500
+	id <S129723AbQKLAc6>; Sat, 11 Nov 2000 19:32:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129234AbQKLATZ>; Sat, 11 Nov 2000 19:19:25 -0500
-Received: from slc644.modem.xmission.com ([166.70.7.136]:36871 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S129121AbQKLASv>; Sat, 11 Nov 2000 19:18:51 -0500
-To: Adam Lazur <alazur@progeny.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Q: Linux rebooting directly into linux.
-In-Reply-To: <m17l6deey7.fsf@frodo.biederman.org> <20001111171158.B17692@progenylinux.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 11 Nov 2000 17:00:28 -0700
-In-Reply-To: Adam Lazur's message of "Sat, 11 Nov 2000 17:11:58 -0500"
-Message-ID: <m1bsvmcb4z.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+	id <S129725AbQKLAct>; Sat, 11 Nov 2000 19:32:49 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:42509 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129723AbQKLAcf>; Sat, 11 Nov 2000 19:32:35 -0500
+Message-ID: <3A0DE517.3EAF1099@transmeta.com>
+Date: Sat, 11 Nov 2000 16:32:23 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10-pre3 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Q: Linux rebooting directly into linux.
+In-Reply-To: <m17l6deey7.fsf@frodo.biederman.org> <20001109113524.C14133@animx.eu.org> <m1g0kycm0x.fsf@frodo.biederman.org> <8ukaeb$eh6$1@cesium.transmeta.com> <m13dgycaqh.fsf@frodo.biederman.org>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Lazur <alazur@progeny.com> writes:
-
-> Eric W. Biederman (ebiederm@xmission.com) said:
-> > I have recently developed a patch that allows linux to directly boot
-> > into another linux kernel.  With the code freeze it appears
-> > inappropriate to submit it at this time. 
+"Eric W. Biederman" wrote:
 > 
-> Aside from what looks to be support for SMP, how does this differ from
-> the two kernel monte stuff at http://scyld.com/software/monte.html ?
+> Hmm.  You must mean similiar to milo.
+> 
+> Have fun.  With linuxBIOS I'm working exactly the other way.  Killing
+> off the BIOS.  And letting the initial firmware be just a boot loader.
+> The reduction is complexity should make it more reliable.
+> 
 
-I admit that LOBOS, two kernel monte, and the one by by Werner Almsberg.
-Were all related work that I looked at.  And I acknowledge
-there were some good ideas I pilfered from all of them.
+... except that you have to handle every single motherboard architecture
+out there now.
 
-There are a couple of differences.  
-But the big one is I'm trying to do it right.  In particular
-this means fixing the problem where the problem is.
+	-hpa
 
-Additionally I'm killing backwards compatibility with a lot of short
-sited things.
-
-And multiplatform support is in the plan.  So long term this should
-run on alpha, and x86, and sparc and everything else out there
-that linux supports.  This means that you can have a multiplatform
-boot loader.  There will have to be glue code out there to get
-started from different firmware on different machines but that is it.
-
-Additionally mine is the only one that has a real chance of booting
-a non-linux kernel.  Gathering the non probable hardware information
-is hard.  Currently mine implementation is the only one to not simply
-copy the boot parameters page that is give to the linux kernel.
-
-Unlike 2 kernel monte mine deliberately has no reliance upon a BIOS.
-
-There is another major difference as well.  kexec is part of work
-on the linuxBIOS project.  Where the goal is to have a very minimal
-firmware before booting into linux.  And to use that initial linux
-kernel as the firmware hardware drivers.  What this means is kexec
-is being developed from a point of view that needs it.  If you don't
-have a BIOS kexec is a must.
-
-Eric
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,64 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbUCMSNM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 13:13:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263153AbUCMSNM
+	id S263153AbUCMSP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 13:15:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263155AbUCMSP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 13:13:12 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:22538
+	Sat, 13 Mar 2004 13:15:28 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:34570
 	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263152AbUCMSNI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 13:13:08 -0500
-Date: Sat, 13 Mar 2004 19:13:52 +0100
+	id S263153AbUCMSPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 13:15:23 -0500
+Date: Sat, 13 Mar 2004 19:16:06 +0100
 From: Andrea Arcangeli <andrea@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Rik van Riel <riel@redhat.com>,
-       William Lee Irwin III <wli@holomorphy.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+Cc: riel@redhat.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
 Subject: Re: anon_vma RFC2
-Message-ID: <20040313181352.GN30940@dualathlon.random>
-References: <20040313173348.GI30940@dualathlon.random> <Pine.LNX.4.44.0403131743140.3635-100000@localhost.localdomain>
+Message-ID: <20040313181606.GO30940@dualathlon.random>
+References: <20040310080000.GA30940@dualathlon.random> <Pine.LNX.4.44.0403100759550.7125-100000@chimarrao.boston.redhat.com> <20040310135012.GM30940@dualathlon.random> <Pine.GSO.4.58.0403121149400.2624@sapphire.engin.umich.edu> <20040312172600.GC30940@dualathlon.random> <Pine.GSO.4.58.0403121548530.2624@sapphire.engin.umich.edu> <Pine.LNX.4.58.0403131246580.28574@ruby.engin.umich.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403131743140.3635-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.58.0403131246580.28574@ruby.engin.umich.edu>
 User-Agent: Mutt/1.4.1i
 X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
 X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 13, 2004 at 05:53:36PM +0000, Hugh Dickins wrote:
-> On Sat, 13 Mar 2004, Andrea Arcangeli wrote:
-> > 
-> > I certainly agree it's simpler. I'm quite undecided if to giveup on the
-> > anon_vma and to use anonmm plus your unshared during mremap at the
-> > moment, while it's simpler it's also a definitely inferior solution
+On Sat, Mar 13, 2004 at 12:55:09PM -0500, Rajesh Venkatasubramanian wrote:
 > 
-> I think you should persist with anon_vma and I should resurrect
-> anonmm, and let others decide between those two and pte_chains.
+> > The only problem is mremap() after a fork(), and hell, we know that's a
+> > special case anyway, and let's just add a few lines to copy_one_pte(),
+> > which basically does:
+> >
+> >	if (PageAnonymous(page) && page->count > 1) {
+> >		newpage = alloc_page();
+> >		copy_page(page, newpage);
+> >		page = newpage;
+> >	}
+> >	/* Move the page to the new address */
+> >	page->index = address >> PAGE_SHIFT;
+> >
+> > and now we have zero special cases.
 > 
-> But while in this trial phase, can we both do it in such a way as to
-> avoid too much trivial change all over the tree?  For example, I'm
-> thinking I need to junk my irrelevant renaming of put_dirty_page to
-> put_stack_page, and for the moment it would help if you cut out your
-> mapping -> as.mapping changes (when I came to build yours, I had to
-> go through various filesystems I had in my config updating them
-> accordingly).  It's a correct change (which I was too lazy to do,
-> used evil casting instead) but better left as a tidyup for later?
+> This part makes the problem so simple. If this is acceptable, then we
+> have many choices. Since we won't have many mms in the anonmm list,
+> I don't think we will have any search complexity problems. If we really
+> worry again about search complexity, we can consider using prio_tree
+> (adds 16 bytes per vma - we cannot share vma.shared.prio_tree_node).
+> The prio_tree easily fits for anonmm after linus-mremap-simplification.
 
-yes, we should split in two patches, one is the "peparation" for a
-reused page->as.mapping, you know I did it differently to retain the
-swapper_space and avoiding to hook explicit "if (PageSwapCache)" checks
-into things like sync_page.
+prio_tree with linus-mremap-simplification makes no sense to me. You
+cannot avoid checking all the mm with the prio_tree and that is the only
+complexity issue introduced by anonmm vs anon_vma.
 
-About using the union, I still prefer it, I've seen Linus in the
-pseudocode used an explicit cast too, but I don't feel safe with
-explicit casts, I prefer more breakage, than risking to forget
-converting any page->mapping into page_maping or similar issues with the
-casts ;)
 
-I'll return working on this after the weekend. You can find my latest
-status on the ftp, if you extract any interesting "common" bit from
-there just send it to me too. thanks.
+prio_tree can only sit on top of anon_vma, not on top of
+anonmm+linus-unshare-mremap (and yes, I cannot share
+vma.shared.prio_tree_node) but pratically it's not needed for the
+anon_vmas.

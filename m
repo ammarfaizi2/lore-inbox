@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261294AbRENNCm>; Mon, 14 May 2001 09:02:42 -0400
+	id <S262135AbRENNIM>; Mon, 14 May 2001 09:08:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261238AbRENNCc>; Mon, 14 May 2001 09:02:32 -0400
-Received: from 13dyn155.delft.casema.net ([212.64.76.155]:8717 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S261294AbRENNCR>; Mon, 14 May 2001 09:02:17 -0400
-Message-Id: <200105141302.PAA14005@cave.bitwizard.nl>
-Subject: Re: Minor numbers
-In-Reply-To: <E14zDcI-0007TB-00@the-village.bc.nu> from Alan Cox at "May 14,
- 2001 09:22:09 am"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Mon, 14 May 2001 15:02:08 +0200 (MEST)
-CC: Alex Q Chen <aqchen@us.ibm.com>, linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S262128AbRENNID>; Mon, 14 May 2001 09:08:03 -0400
+Received: from horus.its.uow.edu.au ([130.130.68.25]:63436 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S262108AbRENNHs>; Mon, 14 May 2001 09:07:48 -0400
+Message-ID: <3AFFD7D9.67D6622A@uow.edu.au>
+Date: Mon, 14 May 2001 23:04:25 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac13 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Marcell GAL <cell@sch.bme.hu>
+CC: linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
+        Michal Ostrowski <mostrows@styx.uwaterloo.ca>
+Subject: Re: Scheduling in interrupt BUG.
+In-Reply-To: <3AFFBF14.7D7BAB01@sch.bme.hu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > 255.  Has this limitation been some how addressed with 2.4?  256 devices
-> > per module, sometimes is not enough, especially if you are in the SAN
-> > environment; or when the 256 minors numbers are broken down to several
+Marcell GAL wrote:
 > 
-> 2.4 is using 16bit dev_t in kernel still. Application space sees a much
-> larger dev_t so we can make the move in 2.5 very easily
+> int pppoe_backlog_rcv(struct sock *sk, struct sk_buff *skb)
+> {
+>         lock_sock(sk);
+>         pppoe_rcv_core(sk, skb);
+>         release_sock(sk);
+>         return 0;
+> }
 > 
-> > work-around or is proposing a solution?  I believe that minor and major
-> > numbers for SUN and AIX are both 16 bits each (32 bits dev_t).
-> 
-> 20:12 is more common
 
-Which is major, which is minor?
+The backlog_rcv() method is called inside local_bh_disable()
+and so cannot call lock_sock().   Definitely a bug in pppoe.
 
-I have one (private) driver that requires around 5000 minors.
-(currently through some 20 majors) (Currently only just over half of
-these are physically installed....)
-
-			Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+It looks like pppoe_backlog_rcv() should be using bh_lock_sock().

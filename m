@@ -1,136 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbUJZWSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbUJZWiw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261507AbUJZWSv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 18:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbUJZWSv
+	id S261509AbUJZWiw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 18:38:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbUJZWiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 18:18:51 -0400
-Received: from smtp07.auna.com ([62.81.186.17]:15312 "EHLO smtp07.retemail.es")
-	by vger.kernel.org with ESMTP id S261507AbUJZWR7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 18:17:59 -0400
-Date: Tue, 26 Oct 2004 22:17:55 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: RAID0: WrongLevel ?
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: Balsa 2.2.5
-Message-Id: <1098829075l.6518l.1l@werewolf.able.es>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 26 Oct 2004 18:38:52 -0400
+Received: from ping.ovh.net ([213.186.33.13]:50129 "EHLO ping.ovh.net")
+	by vger.kernel.org with ESMTP id S261509AbUJZWit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 18:38:49 -0400
+Date: Wed, 27 Oct 2004 00:38:47 +0200
+From: Miro <totoro@ovh.net>
+To: linux-kernel@vger.kernel.org
+Subject: Problem in 2.4.28-rc1 with e1000 and io-apic
+Message-ID: <20041026223847.GB7198@ping.ovh.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
+Hello,
 
-I have a RAID0 setup on top of three IDE drives. mdadm monitor sends me
-mesages with:
+I've got problems with a bi-xeon based on Intel E7320 chipset
+with 2.4.28-rc1. When I boot the smp kernel, IO-APIC works fine
+for all devices except for both e1000 lan.
 
-DeviceDisappeared
-/dev/md0
-Wrong-Level
+e1000 driver reports on dmesg "watchdog tx errors".
 
-The RAID seems to be working well. Any pointer on what does this mean ?
+I suppose it is an io-apic problem:
+# cat /proc/interrupts
+         CPU0       CPU1       CPU2       CPU3
+0:   38000646          0          0          0    IO-APIC-edge  timer
+1:          2          0          0          0    IO-APIC-edge  keyboard
+2:          0          0          0          0          XT-PIC  cascade
+4:         16          0          0          0    IO-APIC-edge  serial
+8:          1          0          0          0    IO-APIC-edge  rtc
+71:         0          0          0          0            none  eth1
+72:         0          0          0          0            none  eth0
+[...]						        ^^^^^^
 
-Boot info:
+The system can't handle the lan interrupts. It should be the problem.
 
-md: Autodetecting RAID arrays.
-md: autorun ...
-md: considering hdd1 ...
-md:  adding hdd1 ...
-md:  adding hdc1 ...
-md:  adding hda1 ...
-md: created md0
-md: bind<hda1>
-md: bind<hdc1>
-md: bind<hdd1>
-md: running: <hdd1><hdc1><hda1>
-md0: setting max_sectors to 128, segment boundary to 32767
-raid0: looking at hdd1
-raid0:   comparing hdd1(117218176) with hdd1(117218176)
-raid0:   END
-raid0:   ==> UNIQUE
-raid0: 1 zones
-raid0: looking at hdc1
-raid0:   comparing hdc1(117218176) with hdd1(117218176)
-raid0:   EQUAL
-raid0: looking at hda1
-raid0:   comparing hda1(245111616) with hdd1(117218176)
-raid0:   NOT EQUAL
-raid0:   comparing hda1(245111616) with hdc1(117218176)
-raid0:   NOT EQUAL
-raid0:   comparing hda1(245111616) with hda1(245111616)
-raid0:   END
-raid0:   ==> UNIQUE
-raid0: 2 zones
-raid0: FINAL 2 zones
-raid0: zone 1
-raid0: checking hda1 ... contained as device 0
-  (245111616) is smallest!.
-raid0: checking hdc1 ... nope.
-raid0: checking hdd1 ... nope.
-raid0: zone->nb_dev: 1, size: 127893440
-raid0: current zone offset: 245111616
-raid0: done.
-raid0 : md_size is 479547968 blocks.
-raid0 : conf->hash_spacing is 351654528 blocks.
-raid0 : nb_zone is 2.
-raid0 : Allocating 8 bytes for hash.
-md: ... autorun DONE.
+Enable or disable NAPI option for e1000 doesn't resolve the problem.
+
+But, when I boot the kernel with "noapic" option, both lans work fine:
+# cat /proc/interrupts
+            CPU0       CPU1       CPU2       CPU3
+   0:    1090980          0          0          0          XT-PIC  timer
+   1:        235          0          0          0          XT-PIC  keyboard
+   2:          0          0          0          0          XT-PIC  cascade
+   4:         16          0          0          0          XT-PIC  serial
+   8:          1          0          0          0          XT-PIC  rtc
+   9:      15629          0          0          0          XT-PIC  eth0, eth1
+[...]
+
+Maybe, there are devices that are not supported on this kernel and that
+create this problem:
+# lspci
+00:00.0 Host bridge: Intel Corp. E7320 Memory Controller Hub (rev 0a)
+00:02.0 PCI bridge: Intel Corp. E7525/E7520/E7320 PCI Express Port A (rev 0a)
+00:03.0 PCI bridge: Intel Corp. E7525/E7520/E7320 PCI Express Port A1 (rev 0a)
+00:1c.0 PCI bridge: Intel Corp. 6300ESB 64-bit PCI-X Bridge (rev 02)
+00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev 0a)
+00:1f.0 ISA bridge: Intel Corp. 6300ESB LPC Interface Controller (rev 02)
+00:1f.1 IDE interface: Intel Corp. 6300ESB PATA Storage Controller (rev 02)
+00:1f.3 SMBus: Intel Corp. 6300ESB SMBus Controller (rev 02)
+01:00.0 PCI bridge: Intel Corp. 6700PXH PCI Express-to-PCI Bridge A (rev 09)
+01:00.2 PCI bridge: Intel Corp. 6700PXH PCI Express-to-PCI Bridge B (rev 09)
+03:05.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 PCI-X Fusion-MPT Dual Ultra320 SCSI (rev c1)
+05:01.0 Ethernet controller: Intel Corp. 82541GI/PI Gigabit Ethernet Controller
+05:02.0 Ethernet controller: Intel Corp. 82541GI/PI Gigabit Ethernet Controller
+06:02.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
 
 
-Runtime info:
+Is there a way to force type of interrupts for both e1000 lan on "IO-APIC-level"?
+or maybe to find the bug?
 
-annwn:~# cat /proc/partitions
-major minor  #blocks  name
-
-   3     0  245117376 hda
-   3     1  245111706 hda1
-  22     0  117220824 hdc
-  22     1  117218241 hdc1
-  22    64  117220824 hdd
-  22    65  117218241 hdd1
-
-annwn:~# cat /proc/mdstat
-Personalities : [linear] [raid0] [raid1] [raid5] [multipath] [raid6] 
-md0 : active raid0 hdd1[2] hdc1[1] hda1[0]
-      479547968 blocks 64k chunks
-      
-unused devices: <none>
-
-annwn:~# mdadm -D /dev/md0
-/dev/md0:
-        Version : 00.90.01
-  Creation Time : Mon Sep 13 17:57:08 2004
-     Raid Level : raid0
-     Array Size : 479547968 (457.33 GiB 491.06 GB)
-   Raid Devices : 3
-  Total Devices : 3
-Preferred Minor : 0
-    Persistence : Superblock is persistent
-
-    Update Time : Mon Sep 13 17:57:08 2004
-          State : clean
- Active Devices : 3
-Working Devices : 3
- Failed Devices : 0
-  Spare Devices : 0
-
-     Chunk Size : 64K
-
-           UUID : c7c5ec26:ae5a99f9:49fec7a1:7e0dcc69
-         Events : 0.12
-
-    Number   Major   Minor   RaidDevice State
-       0       3        1        0      active sync   /dev/hda1
-       1      22        1        1      active sync   /dev/hdc1
-       2      22       65        2      active sync   /dev/hdd1
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.1 (Community) for i586
-Linux 2.6.9-jam1 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #4
-
-
+Thanks in advance.
+Miro

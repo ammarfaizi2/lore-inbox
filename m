@@ -1,74 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbTILUmn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 16:42:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbTILUmn
+	id S261872AbTILUlv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 16:41:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbTILUlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 16:42:43 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:38929 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S261881AbTILUmX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 16:42:23 -0400
-Message-ID: <3F6234F7.80200@techsource.com>
-Date: Fri, 12 Sep 2003 17:04:55 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Schwartz <davids@webmaster.com>
-CC: Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
-Subject: Re: People, not GPL  [was: Re: Driver Model]
-References: <MDEHLPKNGKAHNMBLJOLKMEHOGHAA.davids@webmaster.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Sep 2003 16:41:51 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:7678 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261872AbTILUlu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 16:41:50 -0400
+Date: Fri, 12 Sep 2003 22:41:41 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: [2.6 patch] better i386 CPU selection
+Message-ID: <20030912204141.GQ27368@fs.tum.de>
+References: <200309071647.h87Glp4t014359@harpo.it.uu.se> <20030907174341.GA21260@mail.jlokier.co.uk> <1062958188.16972.49.camel@dhcp23.swansea.linux.org.uk> <20030911062816.GX27368@fs.tum.de> <20030911110435.GA1225@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030911110435.GA1225@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 11, 2003 at 12:04:35PM +0100, Dave Jones wrote:
+> On Thu, Sep 11, 2003 at 08:28:16AM +0200, Adrian Bunk wrote:
+> 
+>  > - Does the Cyrix III support 686 instructions?
+> 
+> Depends on your definition of 686. If you follow the Intel
+> definition (where CMOV is optional), yes. If you follow the gcc
+> definition (where CMOV is assumed), no.
+> Except for the latest Nehemiah cores (which now have CMOV).
+>...
 
+Thanks for this information.
 
-David Schwartz wrote:
->>On Wed, 10 Sep 2003 22:40:14 +0200, you wrote in linux.kernel:
-> 
-> 
->>>However, Richard Stallman does not agree with this view. It's his
->>>view that if the authors chose to give you the code, you can use it any
->>>way you want to, regardless of how the authors feel about that type of
->>>usage. This is why he created the GPL.
->>
-> 
->>Use in any way you want to is the BSD license, not the GPL.
-> 
-> 
-> 	Please show me one restriction on *use* in the GPL.
-> 
-> "Activities other than copying, distribution and modification are not
-> covered by this License; they are outside its scope.  The act of
-> running the Program is not restricted, and the output from the Program
-> is covered only if its contents constitute a work based on the
-> Program (independent of having been made by running the Program).
-> Whether that is true depends on what the Program does."
-> 
-> 	Licenses that place restrictions on usage are *not* open source licenses.
+Since I'm looking for the options to pass to gcc I have to follow the 
+gcc definition...
 
+> 		Dave
 
-What about "usage" of source code?
+cu
+Adrian
 
-GPL says you are not allowed to "use" GPL source in a non-free program 
-that you publish.
+-- 
 
-> 
->>The GPL
->>does restrict what you're allowed to do in order to keep the source
->>free...
-> 
-> 
-> 	Yes, it restricts your ability to distribute and your ability to create
-> derived works if and only if you distribute those derived works. It places
-> no restrictions whatsoever on use. And since it requires distributors to
-> place no restrictions not in the GPL, distributors cannot place *any*
-> restrictions on usage either.
-
-I don't think anyone was talking about use of applications, but rather 
-use of source code.
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

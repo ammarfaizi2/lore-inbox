@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288616AbSADMRe>; Fri, 4 Jan 2002 07:17:34 -0500
+	id <S288607AbSADMRo>; Fri, 4 Jan 2002 07:17:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288611AbSADMQH>; Fri, 4 Jan 2002 07:16:07 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:10245 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S288607AbSADMP5>; Fri, 4 Jan 2002 07:15:57 -0500
-Date: Fri, 4 Jan 2002 10:16:08 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Douglas Gilbert <dougg@torque.net>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [tested PATCH] 2.5.2-pre7 advansys SCSI adapter driver
-Message-ID: <20020104101608.F26824@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Douglas Gilbert <dougg@torque.net>, linux-kernel@vger.kernel.org,
-	linux-scsi@vger.kernel.org
-In-Reply-To: <3C3542AE.BAD31344@torque.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C3542AE.BAD31344@torque.net>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+	id <S288611AbSADMRh>; Fri, 4 Jan 2002 07:17:37 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:31216 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S288615AbSADMRN>; Fri, 4 Jan 2002 07:17:13 -0500
+Date: Fri, 4 Jan 2002 13:12:44 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        marcelo@conectiva.com.br
+Subject: Re: [PATCH] 2.4.17/2.5.1 apic.c LVTERR fixes
+In-Reply-To: <200201032013.VAA03162@harpo.it.uu.se>
+Message-ID: <Pine.GSO.3.96.1020104122237.22521B-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Jan 04, 2002 at 12:50:38AM -0500, Douglas Gilbert escreveu:
+On Thu, 3 Jan 2002, Mikael Pettersson wrote:
 
-> Changes were added in lk 2.5.2-pre7 to the advansys SCSI adapter driver
-> that let it compile. It would seem that the author didn't have any
-> appropriate hardware to check the driver (since it dies almost
-> immediately and takes the machine with it).
->
-> This patch http://www.torque.net/sg/p/sg252p7.diff.gz
-> will hopefully make the advansys driver useful again.
-> It is not perfect but it:
->   - runs on a Athlon UP box
->   - runs on a dual Celeron SMP box
->   - is running the machine that sent this post
-> I have been running variations of this patch for the last
-> 3 weeks and it has been sent to Linus and the lkml before.
->
-> Perhaps those helpful people who send speculative fixes to Linus could
-> mark them clearly as "untested".
+> > Also note that's really an APIC and not a kernel bug -- writing a
+> >previously read value to a register is defined as valid by Intel. 
+> 
+> Can you quote chapter and verse on that last statement?
+> (Preferably from IA32 Vol3.) Writes to APIC registers obviously
+> _do_ cause side-effects in some cases...
 
-That was the case. I said that it didn't had the board. But I planned to
-get one that Riel has on his test (iirc) machine to test the patch. Now you
-have fixed it, thanks.
+ Obviously I confused defined bits with reserved ones, sorry.  Still the
+APIC looks insane for me -- it should really signal an error only once an
+interrupt is received, like it does for interrupts from remote sources.
 
-I'll take a look at your patch and see if with your changes the
-scsi_assign_lock patch that probably will appear in pre8 is still needed
-for the advansys driver.
+> Pentium erratum 3AP can be ignored, since the whole purpose of the
+> two ESR accesses is to clear ESR. Unfortunately, Pentium erratum 11AP
+> does apply, since there are back-to-back APIC writes (first to LVTERR,
+> then to ESR).
 
-- Arnaldo
+ I checked 3AP and you are right, since we don't need the ESR's value.
+
+> +		if (maxlvt > 3)		/* Due to Pentium errata 3AP and 11AP. */
+> +			apic_write(APIC_ESR, 0);
+
+ Use apic_write_around() instead as the 11AP workaround -- it was
+introduced specifically for this purpose.  Using anything else doesn't
+guarantee no back-to-back APIC writes due to interrupts (specifically
+writes to the EOI register).
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+

@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262169AbVCISgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262228AbVCISl6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262169AbVCISgX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 13:36:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262325AbVCISdi
+	id S262228AbVCISl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 13:41:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbVCISln
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 13:33:38 -0500
-Received: from fire.osdl.org ([65.172.181.4]:58532 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262208AbVCIS3v (ORCPT
+	Wed, 9 Mar 2005 13:41:43 -0500
+Received: from mail.kroah.org ([69.55.234.183]:42945 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262228AbVCISi3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 13:29:51 -0500
-Date: Wed, 9 Mar 2005 10:29:43 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@muc.de>, Greg KH <greg@kroah.com>,
-       Chris Wright <chrisw@osdl.org>, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] -stable, how it's going to work.
-Message-ID: <20050309182943.GV5389@shell0.pdx.osdl.net>
-References: <20050309072833.GA18878@kroah.com> <m1sm35w3am.fsf@muc.de> <1110391244.28860.208.camel@localhost.localdomain>
+	Wed, 9 Mar 2005 13:38:29 -0500
+Date: Wed, 9 Mar 2005 10:38:16 -0800
+From: Greg KH <greg@kroah.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, chrisw@osdl.org, torvalds@osdl.org,
+       akpm@osdl.org
+Subject: Re: Linux 2.6.11.2
+Message-ID: <20050309183816.GC26902@kroah.com>
+References: <20050309083923.GA20461@kroah.com> <20050309140359.GB15110@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1110391244.28860.208.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050309140359.GB15110@logos.cnet>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
-> On Mer, 2005-03-09 at 09:56, Andi Kleen wrote:
-> > - It must be accepted to mainline. 
+On Wed, Mar 09, 2005 at 11:03:59AM -0300, Marcelo Tosatti wrote:
 > 
-> Strongly disagree. What if the mainline fix is a rewrite of the core API
-> involved. Some times you need to put in the short term fix. What must
-> never happen is people accepting that fix as long term.
+> Hi Greg,
 > 
-> How about
+> The st/ide-tape/osst llseek changes havent been applied for what reason? 
 > 
->  - It must be accepted to mainline, or the accepted mainline patch be
-> deemed too complex or risky to backport and thus a simple obvious
-> alternative fix applied to stable ONLY.
+> And what about the rest of fixups which Andrew sent you? 
+> 
+> I suppose they didnt pass the -stable criteria. Can you share your thoughts 
+> with the rest of us?
 
-Yes.
+They are in the -stable queue, and should go our for review later today,
+and will attempt to follow the proposed proceedure.
 
+I didn't add them to .2 as that was released just due to the security
+update.
+
+thanks,
+
+greg k-h

@@ -1,48 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317326AbSFCJOY>; Mon, 3 Jun 2002 05:14:24 -0400
+	id <S317320AbSFCJSv>; Mon, 3 Jun 2002 05:18:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317327AbSFCJOX>; Mon, 3 Jun 2002 05:14:23 -0400
-Received: from relay01.valueweb.net ([216.219.253.235]:59147 "EHLO
-	relay01.valueweb.net") by vger.kernel.org with ESMTP
-	id <S317326AbSFCJOW>; Mon, 3 Jun 2002 05:14:22 -0400
-Message-ID: <3CFB3378.5EB7420@opersys.com>
-Date: Mon, 03 Jun 2002 05:14:32 -0400
-From: Karim Yaghmour <karim@opersys.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
-MIME-Version: 1.0
-To: andersen@codepoet.org
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-        Philippe Gerum <rpm@idealx.com>
-Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
-In-Reply-To: <3CFB2A38.60242CBA@opersys.com> <20020603084606.GA15986@codepoet.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317327AbSFCJSu>; Mon, 3 Jun 2002 05:18:50 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:21239 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S317320AbSFCJSt>; Mon, 3 Jun 2002 05:18:49 -0400
+Subject: agppart SiS 745 Patch - did it wrong before
+From: Carsten Rietzschel <cr@daRav.de>
+To: davej@suse.de
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-eMWLFWZ8cJfs1vpZyy5j"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 03 Jun 2002 11:12:31 +0200
+Message-Id: <1023095891.1520.22.camel@rav-pc-linux>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Erik Andersen wrote:
-> Looks kindof cool in theory.  Have you done any benchmarking on
-> the performance hit on Linux kernel vs baseline?
+--=-eMWLFWZ8cJfs1vpZyy5j
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Philippe has done some preliminary testing with dbench/tbench and
-he got something like < 1%. Of course, more testing is required.
+Hi,
+only added support SiS 745-IDs to PCI-Device list.
 
->  What is the
-> software patent outlook for this approach look like?
+So agp-try-unsupported kernel option will not be nessecary
+for let this chipset work.
 
-Alessandro's answer is to the point. Basically, grab the papers,
-the code and the patent and have a look for yourself, you will see
-that we're clear. Apart from having the kernels side-by-side,
-Adeos is based on classic early '90s nanokernel work. No secrets
-there.
+This patch is against 2.5.20 
+(but the same changes will also work for 2.4-kernel series).
 
-Karim
 
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+Carsten Rietzschel
+
+
+Adempt 2: "diffed" it the wrong way before. Big Sorry !!!
+
+
+--=-eMWLFWZ8cJfs1vpZyy5j
+Content-Disposition: attachment; filename=agppart-sis735-patch-2
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=agppart-sis735-patch-2; charset=ISO-8859-15
+
+--- linux-2.5.20/drivers/char/agp/agpgart_be.c.org	Mon Jun  3 03:44:42 2002
++++ linux-2.5.20/drivers/char/agp/agpgart_be.c	Mon Jun  3 10:43:45 2002
+@@ -4562,6 +4562,12 @@
+ 		"SiS",
+ 		"735",
+ 		sis_generic_setup },
++	{ PCI_DEVICE_ID_SI_745,
++		PCI_VENDOR_ID_SI,
++		SIS_GENERIC,
++		"SiS",
++		"745",
++		sis_generic_setup },
+ 	{ PCI_DEVICE_ID_SI_730,
+ 		PCI_VENDOR_ID_SI,
+ 		SIS_GENERIC,
+
+--=-eMWLFWZ8cJfs1vpZyy5j--
+

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261255AbUBTTIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 14:08:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbUBTTIA
+	id S261265AbUBTTH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 14:07:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbUBTTHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 14:08:00 -0500
-Received: from mail.kroah.org ([65.200.24.183]:64229 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261276AbUBTTGX convert rfc822-to-8bit
+	Fri, 20 Feb 2004 14:07:47 -0500
+Received: from mail.kroah.org ([65.200.24.183]:63717 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261265AbUBTTGW convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 14:06:23 -0500
-Subject: [PATCH] PCI update for 2.6.3
-In-Reply-To: <20040220190413.GA15063@kroah.com>
+	Fri, 20 Feb 2004 14:06:22 -0500
+Subject: Re: [PATCH] PCI update for 2.6.3
+In-Reply-To: <10773039813376@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 20 Feb 2004 11:06:17 -0800
-Message-Id: <10773039771460@kroah.com>
+Date: Fri, 20 Feb 2004 11:06:21 -0800
+Message-Id: <10773039813517@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
@@ -22,74 +22,69 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1557.58.1, 2004/02/18 11:15:56-08:00, mgreer@mvista.com
+ChangeSet 1.1580, 2004/02/20 09:20:38-08:00, Martine.Silbermann@hp.com
 
-[PATCH] PCI: Changing 'GALILEO' to 'MARVELL'
+[PATCH] PCI: update MSI Documentation
 
-I'm working with some Marvell components (formerly Galileo Technologies)
-and noticed that the entries in include/linux/pci_ids.h have become
-dated.  I have attached a patch that changes 'GALILEO' to 'MARVELL',
-adds some more devices, and updates the uses of the macros in the code.
-Please note that the newer marvell parts start with 'MV' instead of 'GT'
-to represent the new name.  Also, I didn't change all uses of galileo to
-marvell, only the macro in pci_ids.h.
+After getting feedback from Tom,I made some changes to the patch
+Attached is a revised version.
 
 
- arch/mips/pci/pci-cobalt.c |    2 +-
- drivers/net/gt96100eth.c   |    6 +++---
- include/linux/pci_ids.h    |   13 ++++++++-----
- 3 files changed, 12 insertions(+), 9 deletions(-)
+ Documentation/MSI-HOWTO.txt |   19 +++++++++----------
+ 1 files changed, 9 insertions(+), 10 deletions(-)
 
 
-diff -Nru a/arch/mips/pci/pci-cobalt.c b/arch/mips/pci/pci-cobalt.c
---- a/arch/mips/pci/pci-cobalt.c	Fri Feb 20 10:45:28 2004
-+++ b/arch/mips/pci/pci-cobalt.c	Fri Feb 20 10:45:28 2004
-@@ -258,7 +258,7 @@
- 	 qube_raq_via_bmIDE_fixup},
- 	{PCI_FIXUP_HEADER, PCI_VENDOR_ID_DEC, PCI_DEVICE_ID_DEC_21142,
- 	 qube_raq_tulip_fixup},
--	{PCI_FIXUP_HEADER, PCI_VENDOR_ID_GALILEO, PCI_ANY_ID,
-+	{PCI_FIXUP_HEADER, PCI_VENDOR_ID_MARVELL, PCI_ANY_ID,
- 	 qube_raq_galileo_fixup},
- 	{PCI_FIXUP_HEADER, PCI_VENDOR_ID_NCR, PCI_DEVICE_ID_NCR_53C860,
- 	 qube_raq_scsi_fixup},
-diff -Nru a/drivers/net/gt96100eth.c b/drivers/net/gt96100eth.c
---- a/drivers/net/gt96100eth.c	Fri Feb 20 10:45:28 2004
-+++ b/drivers/net/gt96100eth.c	Fri Feb 20 10:45:28 2004
-@@ -661,9 +661,9 @@
- 	pcibios_read_config_word(0, 0, PCI_VENDOR_ID, &vendor_id);
- 	pcibios_read_config_word(0, 0, PCI_DEVICE_ID, &device_id);
-     
--	if (vendor_id != PCI_VENDOR_ID_GALILEO ||
--	    (device_id != PCI_DEVICE_ID_GALILEO_GT96100 &&
--	     device_id != PCI_DEVICE_ID_GALILEO_GT96100A)) {
-+	if (vendor_id != PCI_VENDOR_ID_MARVELL ||
-+	    (device_id != PCI_DEVICE_ID_MARVELL_GT96100 &&
-+	     device_id != PCI_DEVICE_ID_MARVELL_GT96100A)) {
- 		printk(KERN_ERR __FILE__ ": GT96100 not found!\n");
- 		return -ENODEV;
- 	}
-diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
---- a/include/linux/pci_ids.h	Fri Feb 20 10:45:28 2004
-+++ b/include/linux/pci_ids.h	Fri Feb 20 10:45:28 2004
-@@ -1422,11 +1422,14 @@
- #define PCI_SUBVENDOR_ID_KEYSPAN	0x11a9
- #define PCI_SUBDEVICE_ID_KEYSPAN_SX2	0x5334
+diff -Nru a/Documentation/MSI-HOWTO.txt b/Documentation/MSI-HOWTO.txt
+--- a/Documentation/MSI-HOWTO.txt	Fri Feb 20 10:44:24 2004
++++ b/Documentation/MSI-HOWTO.txt	Fri Feb 20 10:44:24 2004
+@@ -1,6 +1,8 @@
+ 		The MSI Driver Guide HOWTO
+ 	Tom L Nguyen tom.l.nguyen@intel.com
+ 			10/03/2003
++	Revised Feb 12, 2004 by Martine Silbermann
++		email: Martine.Silbermann@hp.com
  
--#define PCI_VENDOR_ID_GALILEO		0x11ab
--#define PCI_DEVICE_ID_GALILEO_GT64011	0x4146
--#define PCI_DEVICE_ID_GALILEO_GT64111	0x4146
--#define PCI_DEVICE_ID_GALILEO_GT96100	0x9652
--#define PCI_DEVICE_ID_GALILEO_GT96100A	0x9653
-+#define PCI_VENDOR_ID_MARVELL		0x11ab
-+#define PCI_DEVICE_ID_MARVELL_GT64011	0x4146
-+#define PCI_DEVICE_ID_MARVELL_GT64111	0x4146
-+#define PCI_DEVICE_ID_MARVELL_GT64260	0x6430
-+#define PCI_DEVICE_ID_MARVELL_MV64360	0x6460
-+#define PCI_DEVICE_ID_MARVELL_MV64460	0x6480
-+#define PCI_DEVICE_ID_MARVELL_GT96100	0x9652
-+#define PCI_DEVICE_ID_MARVELL_GT96100A	0x9653
+ 1. About this guide
  
- #define PCI_VENDOR_ID_LITEON		0x11ad
- #define PCI_DEVICE_ID_LITEON_LNE100TX	0x0002
+@@ -90,17 +92,14 @@
+ 5. Configuring a driver to use MSI/MSI-X
+ 
+ By default, the kernel will not enable MSI/MSI-X on all devices that
+-support this capability once the patch is installed. A kernel
+-configuration option must be selected to enable MSI/MSI-X support.
++support this capability. The CONFIG_PCI_USE_VECTOR kernel option
++must be selected to enable MSI/MSI-X support.
+ 
+ 5.1 Including MSI support into the kernel
+ 
+-To include MSI support into the kernel requires users to patch the
+-VECTOR-base patch first and then the MSI patch because the MSI
+-support needs VECTOR based scheme. Once these patches are installed,
+-setting CONFIG_PCI_USE_VECTOR enables the VECTOR based scheme and
+-the option for MSI-capable device drivers to selectively enable MSI
+-(using pci_enable_msi as desribed below).
++To allow MSI-Capable device drivers to selectively enable MSI (using
++pci_enable_msi as described below), the VECTOR based scheme needs to
++be enabled by setting CONFIG_PCI_USE_VECTOR.
+ 
+ Since the target of the inbound message is the local APIC, providing
+ CONFIG_PCI_USE_VECTOR is dependent on whether CONFIG_X86_LOCAL_APIC
+@@ -130,7 +129,7 @@
+ 5.2 Configuring for MSI support
+ 
+ Due to the non-contiguous fashion in vector assignment of the
+-existing Linux kernel, this patch does not support multiple
++existing Linux kernel, this version does not support multiple
+ messages regardless of the device function is capable of supporting
+ more than one vector. The bus driver initializes only entry 0 of
+ this capability if pci_enable_msi(...) is called successfully by
+@@ -232,7 +231,7 @@
+ CONFIG_X86_LOCAL_APIC. Once CONFIG_X86_LOCAL_APIC=y, setting
+ CONFIG_PCI_USE_VECTOR enables the VECTOR based scheme and
+ the option for MSI-capable device drivers to selectively enable
+-MSI (using pci_enable_msi as desribed below).
++MSI (using pci_enable_msi as described below).
+ 
+ Note that CONFIG_X86_IO_APIC setting is irrelevant because MSI
+ vector is allocated new during runtime and MSI support does not
 

@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129345AbQLMSMb>; Wed, 13 Dec 2000 13:12:31 -0500
+	id <S129846AbQLMSRc>; Wed, 13 Dec 2000 13:17:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129870AbQLMSMU>; Wed, 13 Dec 2000 13:12:20 -0500
-Received: from northgate.starhub.net.sg ([203.117.1.53]:25361 "EHLO
-	northgate.starhub.net.sg") by vger.kernel.org with ESMTP
-	id <S129345AbQLMSMN>; Wed, 13 Dec 2000 13:12:13 -0500
-Message-ID: <001b01c0652b$ec758de0$247d9cca@mindef>
-From: "Corisen" <csyap@starnet.gov.sg>
-To: <linux-kernel@vger.kernel.org>
-Subject: insmod problem after modutils upgrading
-Date: Thu, 14 Dec 2000 01:41:28 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+	id <S129870AbQLMSRW>; Wed, 13 Dec 2000 13:17:22 -0500
+Received: from snark.tuxedo.org ([207.106.50.26]:64267 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S130109AbQLMSRG>;
+	Wed, 13 Dec 2000 13:17:06 -0500
+Date: Wed, 13 Dec 2000 12:46:42 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: CML2-0.9.0 is now  available
+Message-ID: <20001213124642.A24121@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i've upgraded modutils from 2.3.14 (originally installed by RH7,kernel
-2.2.16) to 2.3.22 using "rpm -Fvh modultils2.3.22-1.i386.rpm*" as required
-by the kernel 2.4test12 compilation. after upgrading, the network module
-refused to load anymore (was working fine with insmod 2.3.14) with kernel
-2.2.16/RH7. during boot process, the following error message was shown:
-insmod: /lib/modules/2.4.0-test12/kernel/drivers/net/8139too.o insmod eth0
-failed.
+The latest version is always available at http://www.tuxedo.org/~esr/kbuild/
 
-executing "insmod 8139too" at the command prompt shows the following error
-message:
-using /lib/modules/2.4.0-test12/kernel/drivers/net/8139too.o
-/lib/modules/2.4.0-test12/kernel/drivers/net/8139too.o: symbol for
-parameter debug not found.
+Release 0.9.0: Wed Dec 13 01:30:21 EST 2000
+	* Now uses Python 2.0 (this cuts down the code size significantly).
+	* Synchronized with 2.4.0-test12.
 
-pls kindly advise if i've done something wrong during the upgrade or are
-there known compatibility issues with modutils 2.3.22?
+Using Python 2.0 rather than 1.5.2 lets me cut close to 600 lines out of the
+CML2 system, a bit more than 10% of the 5334 lines of code in this version.
 
-how can i make insmod load the network module again pls?
+This code is ready to be used for production.
 
-thanks.
+For those of you who may be new since the last release, CML2 is a
+drop-in replacement for the existing make config/menuconfig/xconfig
+machinery that has been endorsed by the current kbuild maintainers.
+It is smaller, *much* cleaner, and includes powerful new features 
+including automatic deduction of correct side-effects whenever you
+change a configuration symbol.  Details at the project page given above.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
+You know why there's a Second Amendment?  In case the government fails to
+follow the first one.
+         -- Rush Limbaugh, in a moment of unaccustomed profundity 17 Aug 1993
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

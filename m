@@ -1,35 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271351AbUJVP1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271368AbUJVPa6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271351AbUJVP1H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 11:27:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271356AbUJVP1D
+	id S271368AbUJVPa6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 11:30:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271370AbUJVPa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 11:27:03 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:56288 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S271347AbUJVP07 (ORCPT
+	Fri, 22 Oct 2004 11:30:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30896 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S271368AbUJVPaH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 11:26:59 -0400
-Date: Fri, 22 Oct 2004 08:26:58 -0700
-From: Grant Grundler <iod00d@hp.com>
-To: Jesse Barnes <jbarnes@sgi.com>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] I/O space write barrier
-Message-ID: <20041022152658.GB21472@cup.hp.com>
-References: <200410211613.19601.jbarnes@engr.sgi.com> <20041022010150.GH3878@cup.hp.com> <200410212205.51672.jbarnes@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410212205.51672.jbarnes@sgi.com>
-User-Agent: Mutt/1.5.6+20040722i
+	Fri, 22 Oct 2004 11:30:07 -0400
+Date: Fri, 22 Oct 2004 11:30:18 -0400 (EDT)
+From: Jason Baron <jbaron@redhat.com>
+X-X-Sender: jbaron@dhcp83-105.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, <yanmin.zhang@intel.com>
+Subject: Re: 2.6.9-mm1
+In-Reply-To: <20041022032039.730eb226.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0410221121060.31747-100000@dhcp83-105.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 10:05:50PM -0500, Jesse Barnes wrote:
-> Ok, that makes sense.  I'd like to update the documentation with a separate 
-> patch though, if that's ok with you. 
 
-Sure, if that's easier for you.
+On Fri, 22 Oct 2004, Andrew Morton wrote:
 
-grant
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9/2.6.9-mm1/
+> 
+> - Lots of new patches.
+> 
+> - Status of as-yet-unmerged things:
+
+Can you merge Zhang Yanmin's patch to fix hugetlb pages? The flexmap
+changes prevent hugetlb pages from being allocated now for the default
+process layout. link to original patch:
+
+http://marc.theaimsgroup.com/?l=linux-scsi&m=109814866401322&w=2
+
+thanks,
+
+-Jason   
+
+

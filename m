@@ -1,67 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262738AbTIJUpk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 16:45:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265533AbTIJUpj
+	id S262743AbTIJUx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 16:53:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265512AbTIJUx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 16:45:39 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:25218 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262738AbTIJUpi
+	Wed, 10 Sep 2003 16:53:56 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:10422 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262743AbTIJUxz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 16:45:38 -0400
-Date: Wed, 10 Sep 2003 16:48:40 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Timothy Miller <miller@techsource.com>
-cc: James Clark <jimwclark@ntlworld.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
-In-Reply-To: <3F5F8E90.4020701@techsource.com>
-Message-ID: <Pine.LNX.4.53.0309101640550.18999@chaos>
-References: <1062637356.846.3471.camel@cube> <200309042114.45234.jimwclark@ntlworld.com>
- <Pine.LNX.4.53.0309041723090.9557@chaos> <3F5F8E90.4020701@techsource.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 10 Sep 2003 16:53:55 -0400
+Subject: Re: ide-scsi oops was: 2.6.0-test4-mm3
+From: Paul Larson <plars@linuxtestproject.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andrew Morton <akpm@osdl.org>, Mike Fedyk <mfedyk@matchmail.com>,
+       lkml <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>
+In-Reply-To: <10720000.1063224243@flay>
+References: <20030828235649.61074690.akpm@osdl.org><20030910185338.GA1461@matchmail.com>
+	<20030910185537.GB1461@matchmail.com>
+	<20030910114346.025fdb59.akpm@osdl.org>  <10720000.1063224243@flay>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 10 Sep 2003 15:53:43 -0500
+Message-Id: <1063227224.15603.31.camel@plars>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Sep 2003, Timothy Miller wrote:
+On Wed, 2003-09-10 at 15:04, Martin J. Bligh wrote:
+> >> I have another oops for you with 2.6.0-test4-mm3-1 and ide-scsi. 
+> > 
+> > ide-scsi is a dead duck.  defunct.  kaput.  Don't use it.  It's only being
+> > kept around for weirdo things like IDE-based tape drives, scanners, etc.
+> > 
+> > Just use /dev/hdX directly.
+> 
+> That's a real shame ... it seemed to work fine until recently. Some
+> of the DVD writers (eg the one I have - Sony DRU500A or whatever)
+> need it. Is it unfixable? or just nobody's done it?
+If it is going to be left to rot, then should there be a CONFIG_OBSOLETE
+(or something to that effect) for things that are being considered for
+removal?  This would be in the same spirit as CONFIG_CLEAN_COMPILE and
+would give people a chance to yell if they have a legitimate case to
+continue support.
 
-> I just have one quick question about all of this:
->
-> People mention that driver interfaces don't change much in stable
-> releases, but if memory serves, symbol versioning information changes
-> with each minor release, requiring a recompile of modules.
->
-> Would it be possible to have a driver module which can be dropped into,
-> say, 2.6.17 that can also be dropped into 2.6.18 as long as the
-> interface doesn't change?
->
-
-Short answer, YES. Anything that can be done is possible. The
-problem is that different kernel versions end up with different
-structure members, etc. So, you can't use code for 2.2.xxx in
-2.4.xx because, amongst other things, the first element in
-'struct file_operations' was added and the others moved up.
-
-Now, you can make a different module interface that maintains
-a compatibility level ABI. This has been discussed. Unfortunately,
-this adds code in the execution path. This extra code gets
-executed every time the module code is accessed. The result being
-that the module can't possibly operate as fast as it would if
-there were no such compatibility layer(s). It might be "good enough",
-but it is unlikely that the module contributors/maintainers would
-allow such an interface because the loss of performance is measurable
-and there has been no requirement to trade-off performance for
-anything (your and my convenience doesn't count, those are not
-technical issues).
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
-            Note 96.31% of all statistics are fiction.
+-Paul Larson
 
 

@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129161AbRBBCJB>; Thu, 1 Feb 2001 21:09:01 -0500
+	id <S129177AbRBBCOm>; Thu, 1 Feb 2001 21:14:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129177AbRBBCIv>; Thu, 1 Feb 2001 21:08:51 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:4880
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S129161AbRBBCIm>; Thu, 1 Feb 2001 21:08:42 -0500
-Date: Thu, 1 Feb 2001 21:17:49 -0500
-From: Wakko Warner <wakko@animx.eu.org>
+	id <S129302AbRBBCOc>; Thu, 1 Feb 2001 21:14:32 -0500
+Received: from adsl-63-202-13-20.dsl.snfc21.pacbell.net ([63.202.13.20]:14099
+	"EHLO earth.zigamorph.net") by vger.kernel.org with ESMTP
+	id <S129177AbRBBCOV>; Thu, 1 Feb 2001 21:14:21 -0500
+Date: Fri, 2 Feb 2001 02:14:46 +0000 (UTC)
+From: Adam Fritzler <mid@earth.zigamorph.net>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.1 lvm reiserfs adaptec 2940uw noritake alpha
-Message-ID: <20010201211749.A18693@animx.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
+Subject: novatel minstrel on 2.4
+Message-ID: <Pine.LNX.4.21.0102020204180.26932-100000@earth.zigamorph.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have 3 2gb disks in an lvm group (vg is disks)
-I have an lv of 1.6gb (misc) with reiserfs mounted /lvm/misc
-I cp /dev/zero /lvm/misc
 
-If these 3 drives are on the internal qlogic isp controller, I have no
-problems.
+We've been trying to set up a laptop here to use a Novatel Minstrel PCMCIA
+modem (wireless Richocet network).  The card shows up as a serial port
+(ttySx) and accepts AT commands just like a normal modem.
 
-If these 3 drives are on the adaptec aha-2940UW, I get an oops (reply for
-oops as I have to do it again and capture it) and the system locks (in
-interrupt handler, not syncing) when the copy completes.  I did a timed cp
-the first time and it took 3.5 minutes and crashed as soon as I got the
-prompt.  I'm assuming when the bufferes were flushed to the drives.
+It dials fine, PPP connects, gets IPs, etc just as it should.  However,
+any packet over about 400 bytes gets dropped on the recieve.  Also, the RX
+errors on ppp0 increment occasionally.  
 
-When I reboot and copy the file, it works.  I don't have any problems
-copying files with these drives on either controller.
+TCP connections connect (because the SYN's are small), but as soon as you
+start trying to do bulk transfers (`ls -la` in an ssh window, or an HTTP
+GET), the connection stalls.  Pinging other hosts also works fine, except
+when you do -s with a value larger than 300 or so.
 
-I have the adaptec card on the primary pci bus if that makes a difference
+It doesn't work with anything we've tried on 2.4 (changing mtu/mru, serial
+port speed, etc). However, under 2.2.x, we were able to get connections to
+stay running and not stall by setting the MTU on ppp0 to 120 after the ppp
+comes up.  As you can imagine, this makes the modem seem even slower than
+it already is.
 
+Not that its relevent, but pppstats shows 0 in the 'vjcomp' fields of
+both rx and tx (as well as 'vjerr').  I've tried starting pppd with and
+without 'novj' just in case.  Same result.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Any ideas?  The 'rx error' count going up is kind of suspicious.  My
+attempts at getting pppd to print more debugging output have been
+futile; aparently the debug and kdebug options no longer work ('debug'
+produces the LCP traffic, yes, but thats working fine).
+
+af
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

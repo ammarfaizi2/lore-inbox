@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317918AbSFSQFW>; Wed, 19 Jun 2002 12:05:22 -0400
+	id <S317919AbSFSQF0>; Wed, 19 Jun 2002 12:05:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317919AbSFSQFV>; Wed, 19 Jun 2002 12:05:21 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38672 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317918AbSFSQFU>; Wed, 19 Jun 2002 12:05:20 -0400
-Date: Wed, 19 Jun 2002 09:05:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Andries.Brouwer@cwi.nl, Alexander Viro <viro@math.psu.edu>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH+discussion] symlink recursion
-In-Reply-To: <E17KghU-0000oC-00@starship>
-Message-ID: <Pine.LNX.4.44.0206190900560.2053-100000@home.transmeta.com>
+	id <S317920AbSFSQF0>; Wed, 19 Jun 2002 12:05:26 -0400
+Received: from darkwing.uoregon.edu ([128.223.142.13]:40832 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id <S317919AbSFSQFZ>; Wed, 19 Jun 2002 12:05:25 -0400
+Date: Wed, 19 Jun 2002 09:06:02 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Martin Knoblauch <knobi@knobisoft.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: New Pre Kernel by Friday?
+In-Reply-To: <200206190854.15326.knobi@knobisoft.de>
+Message-ID: <Pine.LNX.4.44.0206190905480.15188-100000@twin.uoregon.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+AC was in japan but not for soccer...
 
+joelja
 
-On Wed, 19 Jun 2002, Daniel Phillips wrote:
->
-> It's the recursive trip through the filesystem that causes the problem.
+On Wed, 19 Jun 2002, Martin Knoblauch wrote:
 
-Actually, the trip to the filesystem itself is not recursive. We only have
-one lookup _active_ at a time, so the stack depth is fairly well bounded.
-I think at some point it was on the order of 64 bytes per invocation on
-x86. It really isn't as bad as people have made it out to be.
+> >Hi 
+> >
+> >
+> >Is it true that there will be a new -pre of the kernel by Friday, since 
+> >Marcelo will have more time after Brasil drop out of the World Cup against 
+> >England? 
+> >
+> >
+> 
+>  That may explain why there haven't been any new -ac kernels either :-)
+> 
+> Martin
+> PS: Now the question is, what do I want more urgently :-))
+> 
 
-(But yes, the x86 is denser on the stack than many architectures)
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
+--    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
+  In Dr. Johnson's famous dictionary patriotism is defined as the last
+  resort of the scoundrel.  With all due respect to an enlightened but
+  inferior lexicographer I beg to submit that it is the first.
+	   	            -- Ambrose Bierce, "The Devil's Dictionary"
 
-Note that I'm absolutely not adverse to have people test Andries patch,
-and I don't _mind_ it. I'm really arguing not so much against the patch
-itself, as against the _religious_ and unthinking reaction against a
-perfectly fine programming construct (limited recursion).
-
-		Linus
-
-PS. Yes, a filesystem can do stupid things, and make the actual single
-level function have a huge stack-frame: the example was for the normal
-"page_symlink" thing.
 

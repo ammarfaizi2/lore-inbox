@@ -1,59 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278960AbRKFKYp>; Tue, 6 Nov 2001 05:24:45 -0500
+	id <S278967AbRKFK3f>; Tue, 6 Nov 2001 05:29:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278932AbRKFKYg>; Tue, 6 Nov 2001 05:24:36 -0500
-Received: from humbolt.nl.linux.org ([131.211.28.48]:21391 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S278924AbRKFKYQ>; Tue, 6 Nov 2001 05:24:16 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
-Date: Tue, 6 Nov 2001 11:25:14 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E160sYK-0003WR-00@wagner>
-In-Reply-To: <E160sYK-0003WR-00@wagner>
+	id <S278962AbRKFK30>; Tue, 6 Nov 2001 05:29:26 -0500
+Received: from addleston.eee.nott.ac.uk ([128.243.70.70]:33716 "HELO
+	addleston.eee.nott.ac.uk") by vger.kernel.org with SMTP
+	id <S278924AbRKFK3N>; Tue, 6 Nov 2001 05:29:13 -0500
+Date: Tue, 6 Nov 2001 10:29:12 +0000 (GMT)
+From: Matthew Clark <matt@eee.nott.ac.uk>
+X-X-Sender: <matt@perry>
+To: <linux-kernel@vger.kernel.org>
+Subject: PCI interrupts (round 2) + PCI bus question
+Message-ID: <Pine.OSF.4.31.0111061000420.25740-100000@perry>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011106102406Z16651-12382+37@humbolt.nl.linux.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 5, 2001 11:48 pm, Rusty Russell wrote:
-> In message <20011105033316Z16051-18972+45@humbolt.nl.linux.org> you write:
-> > Yes, sold, if implementing the formatter is part of the plan.
-> > 
-> > Caveat: by profiling I've found that file ops on proc functions are already
-> > eating a significant amount of cpu, going to one-value-per-file is going to 
-> > make that worse.  But maybe this doesn't bother you.
-> 
-> What concerns me most is the pain involved in writing a /proc or
-> sysctl interface in the kernel today.  Take kernel/module.c's
-> get_ksyms_list as a typical example: 45 lines of code to perform a
-> very trivial task.  And this code is sitting in your kernel whether
-> proc is enabled or not.  Now, I'm a huge Al Viro fan, but his proposed
-> improvements are in the wrong direction, IMHO.
-> 
-> My first priority is to have the most fool-proof possible inner kernel
-> interface.  Second is trying to preserve some of the /proc features
-> which actually work well when correctness isn't a huge issue (such as
-> "give me everything in one table").  Efficiency of getting these
-> things out of the kernel is a distant last (by see my previous comment
-> on adapting sysctl(2)).
-> 
-> I'd like to see /proc (/proc/sys) FINALLY live up to its promise
-> (rich, logical, complete) in 2.5.  We can do this by making it the
-> simplest option for coders and users.
 
-This is without a doubt the most levelheaded comment I've seen in the thread. 
+The first part of this mail follows up a previous request-
+ "PCI interrupts" 5/11/2001-
 
-I'm looking at all those 6+ parameter calls and thinking about cleaning that
-up with a struct, which is really what it's trying to be.  I see lots of
-proc reads ending with a boringly similar calc_metrics call, this is trying
-to move out to the caller.  I'd hope this kind of cleanup, at least, is
-noncontroversial.
+***** Q1
 
---
-Daniel
+I had a 1/2 dozen replies -all sensible- but between them there
+was still a few questions.
+
+I am writing a dev driver for a PCI card- this card will
+generate a large number of interrupts (at ~1kHz) which can be
+serviced very quickly.  The interrupt the card uses is the same
+as another device in the computer (usb controller).
+
+It looks like I must share the interrupt with the USB
+controller-
+
+How do I ensure that I get <my> interrupt and not the the USB
+one?  (is this done automagically from my point of view?)
+
+Is there anyway of getting a unique IRQ?
+
+Is there a performance penalty with a shared penalty, if so
+would it be significant at a kHz IRQ repetition?
+
+(Thanks to the previous replies)
+
+****** Q2
+
+I have the nasty task of reverse engineering a semi-auto written
+windows driver rather than using a hardware manual for writing
+the driver-  so my information is sketchy.
+
+The hardware is known to have a few problems and one of these
+problems involves locking the machine solid.
+
+It is suspected that this occurs when the hardware (for some
+reason that is unknown to the hardware developers) stops
+accepting data from the PCI bus.
+
+Is it possible that the bus can over run and that this can lock
+the machine?  If so is it possible to probe the bus to prevent
+the overruns- The hardware comes with a "fix it" register that
+can be used provided the problem can be detected prior to the
+lock.
+
+I know where the lockups occur- when I shove data from RAM to
+PCI memory (using writel)- the driver will work for hours on end
+and the lock the machine solid in one of these regions.
+
+It looks like a hardware problem- I want to see if I can side
+step it unitl the hardware developers fix it (maybe a long
+time).
+
+Any thoughts gratefully received
+
+
+Thanks matt
+
+

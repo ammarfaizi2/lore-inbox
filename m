@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264735AbTFAVfO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 17:35:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264736AbTFAVfO
+	id S264738AbTFAVm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 17:42:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264743AbTFAVm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 17:35:14 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:17538
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S264735AbTFAVfN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 17:35:13 -0400
-Date: Sun, 1 Jun 2003 17:38:02 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-cc: Willy Tarreau <willy@w.ods.org>,
-       Daniel Podlejski <underley@underley.eu.org>,
-       "" <linux-kernel@vger.kernel.org>
-Subject: Re: AIC7xxx problem
-In-Reply-To: <2878250000.1054503467@aslan.scsiguy.com>
-Message-ID: <Pine.LNX.4.50.0306011730540.19313-100000@montezuma.mastecende.com>
-References: <20030531165945.GA5561@witch.underley.eu.org>
- <20030601083656.GI21673@alpha.home.local> <2859720000.1054499680@aslan.scsiguy.com>
- <Pine.LNX.4.50.0306011647431.19313-100000@montezuma.mastecende.com>
- <2878250000.1054503467@aslan.scsiguy.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 1 Jun 2003 17:42:58 -0400
+Received: from holomorphy.com ([66.224.33.161]:28827 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264738AbTFAVmx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 17:42:53 -0400
+Date: Sun, 1 Jun 2003 14:56:15 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: khromy <khromy@lnuxlab.ath.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Generic x86 support in 2.5.70-bk
+Message-ID: <20030601215615.GL8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	khromy <khromy@lnuxlab.ath.cx>, linux-kernel@vger.kernel.org
+References: <20030601182532.GA1948@lnuxlab.ath.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030601182532.GA1948@lnuxlab.ath.cx>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Jun 2003, Justin T. Gibbs wrote:
+On Sun, Jun 01, 2003 at 02:25:32PM -0400, khromy wrote:
+> Generic x86 support (X86_GENERIC) [N/y/?] (NEW) ?
+> Including some tuning for non selected x86 CPUs too.
+> when it has moderate overhead. This is intended for generic 
+> distributions kernels.
+> ^-- Am I the only one confused by this description?
 
-> Daniel is comparing 2.4.20-ac2 with 2.4.21-rc6.  In 2.4.20-ac2, APIC
-> routing is disabled by default and his kernel works.  In 2.4.21-rc6,
-> APIC routing is enabled by default and interrupts are not properly
-> routed to his SCSI controller.  If he boots with noapic, everything
-> works fine.  You'll have to ask Daniel for more details on his system
-> if you want to figure out why interrupts are not being delivered.
-> All I know is, from the output and his testing, it is pretty obvious
-> that interrupts are not being delivered.
+It'll boot on a "wider" variety of machines, for some unspecified but
+valuable-to-distros value of "wider".
 
-Ok i'll ask him about the details, but i've posted on a number of 
-occasions about aic7xxx oopsing unless i boot with noapic. Interrupts do 
-get delivered otherwise it wouldn't even get to mounting root. I can't 
-give you a 2.5.70 boot because raid is horked there too. If you want me to 
-fish out the emails again i can do that.
 
-	Zwane
-
--- 
-function.linuxpower.ca
+-- wli

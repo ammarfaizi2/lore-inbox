@@ -1,62 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbTD2Fqg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 01:46:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbTD2Fqg
+	id S261801AbTD2Fvu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 01:51:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbTD2Fvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 01:46:36 -0400
-Received: from [140.239.227.29] ([140.239.227.29]:41398 "EHLO
-	thunker.thunk.org") by vger.kernel.org with ESMTP id S261957AbTD2Fqf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 01:46:35 -0400
-Date: Tue, 29 Apr 2003 01:59:30 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Larry McVoy <lm@work.bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Larry McVoy <lm@bitmover.com>, Matthias Schniedermeyer <ms@citd.de>,
-       Ross Vandegrift <ross@willow.seitz.com>,
-       Chris Adams <cmadams@hiwaay.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-Message-ID: <20030429055930.GA2645@think>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Larry McVoy <lm@work.bitmover.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
-	Matthias Schniedermeyer <ms@citd.de>,
-	Ross Vandegrift <ross@willow.seitz.com>,
-	Chris Adams <cmadams@hiwaay.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <fa.ivrgub8.1ci079c@ifi.uio.no> <20030427183553.GA955879@hiwaay.net> <20030427185037.GA23581@work.bitmover.com> <20030427220717.GA24991@willow.seitz.com> <20030427223255.GH23068@work.bitmover.com> <20030428200424.GA9252@citd.de> <20030428201816.GB23581@work.bitmover.com> <1051568160.17370.3.camel@dhcp22.swansea.linux.org.uk> <20030429000904.GA9653@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030429000904.GA9653@work.bitmover.com>
-User-Agent: Mutt/1.5.4i
+	Tue, 29 Apr 2003 01:51:49 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:22685 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S261801AbTD2Fvs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 01:51:48 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Kendall Bennett" <KendallB@scitechsoft.com>
+Date: Tue, 29 Apr 2003 08:03:38 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Crash in vm86() on SMP boxes with vesa driver?
+Cc: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <CF69933E9@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 28, 2003 at 05:09:04PM -0700, Larry McVoy wrote:
-> This constant "I know how the law works and you don't" is no match for
-> "Microsoft has enough money to change the law".  There was this little
-> anti-trust case, maybe you heard of it, it was obvious that they should
-> have lost and they didn't.  How does your opinion, which would clearly
-> have been that they should have lost, reconcile with the fact that they
-> didn't lose?  I don't get it, you apparently see something I don't.
+On 28 Apr 03 at 16:12, Kendall Bennett wrote:
 
-Well, there is the question about whether Microsoft would really want
-a law which made it illegal to duplicate the (unpatented) design of a
-competitor's product, given that Microsoft does that *all* the time.
-(Think Lotus 1-2-3 and Excel, just to name one example.)
+> 8.0 box with the latest 2.4.20 kernel on it (but the problem happened 
+> with the stock kernel and kernels lower then .20 as well). Unfortunately 
+> I don't have access to the box (it is in Australia), but I have access to 
+> the bug report information (and will try to configure a box soon to 
+> reproduce it here). Anyway the folowing is the error log produced by 
+> XFree86 when the crash occurs:
 
-In the business world, engineers purchase competitors' products and
-rip them apart to see what makes them tick *all* *the* *time*.  Ford
-does it GM cars, and Crystler does it to Toyota cars, etc., etc.
-Anything important where they don't want that to happen is patented.  
+We told you before that you cannot trust VESA BIOS.
+ 
+> (II) VESA(0): initializing int10
+> (WW) VESA(0): Bad V_BIOS checksum
+> (II) VESA(0): Primary V_BIOS segment is: 0xc000
 
-So I would find it very hard to believe that Microsoft or any other
-corporate lobbiest would try to convince their national legislature to
-pass laws that would prohibit some open source developer from cloning
-and/or reverse-engineering BitKeeper.  After all, that would also
-outlaw a good part of what goes on all the time in the corporate
-world...
+Bad checksum? Sorry, your BIOS is not usable. Either XFree gets checksum
+wrong, or there is something I would not want in my computer there...
 
-						- Ted
+> (II) VESA(0): virtual address = 0x402d7000,
+>         physical address = 0xf0000000, size = 33554432
+> (II) VESA(0): VBESetVBEMode failed(EE) VESA(0): vm86() syscall generated
+> signal 11. 
+> (II) VESA(0): EAX=0x00000150, EBX=0x00000ba0, ECX=0x00000000, 
+> EDX=0x00000000
+> (II) VESA(0): ESP=0x00000fba, EBP=0x00000001, ESI=0x00000bc3, 
+> EDI=0x00003ad7
+> (II) VESA(0): CS=0xc000, SS=0x0100, DS=0x0000, ES=0xc000, FS=0x0000, 
+> GS=0x0000 (II) VESA(0): EIP=0x0000800f, EFLAGS=0x00033006 
+> (II) VESA(0): code at 0x000c800f:
+>  62 18 91 60 09 fa 03 85 27 11 27 11 9d 0f f4 81
+>  fe 06 d0 1a 68 74 99 a9 c6 39 f9 6d 04 b4 d6 6b
+ 
+> Also from debugging our own code we have a bit more information about 
+> where the problem occurs, and it occurs on the return from the vm86() 
+> system call when the code tries to pop the EBX register from the stack. 
+> Which kind of indicates that the kernel screwed up the return stack of 
+> the program for some reason:
+
+No. Crash happened inside VM, and it was shown as happening on return
+from int $0x80. But real problem is that in the VM you are executing
+code at 0xC000:0x800F. But there is no code there, it is garbage
+(bound bx,[bx+si]; xchg cx,ax; pusha; or dx,di ???) which generated
+bounds check interrupt.
+ 
+> Any ideas? I am not sure how to start debuging this (assuming I can get 
+> my SMP machine up and running and reproduce it) in the kernel. Also the 
+> machine that the problem occurs on goes to the customer tomorrow, so we 
+> won't be able to debug this much ourselves until I can get a new machine 
+> to reproduce it. But, it would seem to me that others may well have seen 
+> this problem already?
+
+Make sure that videocard properly reports that it uses more than 32kB
+BIOS. Maybe card reports only 32kB, while it uses 48kB. System is free
+to do anything it wants with 32-48kB range including mapping another BIOS
+there, or writting zeroes, or garbage there... Also make sure that
+you have properly setup VM, that 0xC8000 is mapped to physical address
+0xC8000...
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                
+

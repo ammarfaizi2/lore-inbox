@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265270AbTIDRNq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 13:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265290AbTIDRNq
+	id S265255AbTIDROg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 13:14:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265290AbTIDRNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 13:13:46 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48516 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265270AbTIDRNh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 13:13:37 -0400
-Message-ID: <3F5772B2.402@pobox.com>
-Date: Thu, 04 Sep 2003 13:13:22 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
+	Thu, 4 Sep 2003 13:13:52 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:4272 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S265188AbTIDRNY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 13:13:24 -0400
+Date: Thu, 4 Sep 2003 10:03:43 -0700
+From: "David S. Miller" <davem@redhat.com>
 To: Linus Torvalds <torvalds@osdl.org>
-CC: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       "David S. Miller" <davem@redhat.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Cc: geert@linux-m68k.org, paulus@samba.org, hch@infradead.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] fix ppc ioremap prototype
-References: <Pine.LNX.4.44.0309040935040.1665-100000@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0309040935040.1665-100000@home.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <20030904100343.32c99406.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0309040958420.6676-100000@home.osdl.org>
+References: <20030904094328.59961739.davem@redhat.com>
+	<Pine.LNX.4.44.0309040958420.6676-100000@home.osdl.org>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> I think that in the 2.7.x timeframe, the right thing to do is definitely:
->  - move towards using "struct resource" and "ioremap_resource()"
->  - make resource sizes potentially be larger (ie use "u64" instead of 
->    "unsigned long")
+On Thu, 4 Sep 2003 10:06:48 -0700 (PDT)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
+> 
+> On Thu, 4 Sep 2003, David S. Miller wrote:
+> > 
+> > > So clearly ioremap() has to work for other buses too.
+> > 
+> > What if they are like I/O ports on x86 and require special
+> > instructions to access?
+> 
+> ioremap() is very easy to explain to a mathematician: its "domain" is
+> _exactly_ that which is in the "iomem_resource" tree. The "range" is a
+> virtual address.
 
-Would still be nice to have a sysdata or struct device pointer in struct 
-resource, then.  I'm not a fan of wacky 
-bus-info-encoded-in-another-number schemes.
+A virtual address?  On x86 IOMEM resources are stored as physical
+addresses and ioremap() returns a virtual mapping of that physical
+address.
 
-	Jeff
-
-
-
+Maybe our wires are just crossed.

@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263787AbTKFTfw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 14:35:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263794AbTKFTfw
+	id S263786AbTKFTdc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 14:33:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263787AbTKFTd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 14:35:52 -0500
-Received: from fw.osdl.org ([65.172.181.6]:3767 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263787AbTKFTft (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 14:35:49 -0500
-Date: Thu, 6 Nov 2003 11:35:46 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: bill davidsen <davidsen@tmr.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-In-Reply-To: <boe68a$f3g$1@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0311061132010.1842-100000@home.osdl.org>
+	Thu, 6 Nov 2003 14:33:28 -0500
+Received: from [198.70.193.2] ([198.70.193.2]:46420 "EHLO AVEXCH01.qlogic.org")
+	by vger.kernel.org with ESMTP id S263786AbTKFTdY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 14:33:24 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b6).
+Date: Thu, 6 Nov 2003 11:33:28 -0800
+Message-ID: <B179AE41C1147041AA1121F44614F0B0598CEA@AVEXCH02.qlogic.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b6).
+Thread-Index: AcOkj+gF5A+Vh7P2Q4WyTG/HmlakdgACNKLQ
+From: "Andrew Vasquez" <andrew.vasquez@qlogic.com>
+To: <arjanv@redhat.com>
+Cc: "Christoph Hellwig" <hch@infradead.org>,
+       "Linux-Kernel" <linux-kernel@vger.kernel.org>,
+       "Linux-SCSI" <linux-scsi@vger.kernel.org>
+X-OriginalArrivalTime: 06 Nov 2003 19:33:29.0088 (UTC) FILETIME=[DAE63800:01C3A49C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arjan,
 
-On 6 Nov 2003, bill davidsen wrote:
+> > No.  We've had this IOWR problem since the inception of 5.x series
+> > driver.  Software (SMS 3.0) has been built on top of the this
+> > IOCTL
 > 
-> There is a problem with ide-scsi in 2.6, and rather than fix it someone
-> came up with a patch to cdrecord to allow that application to work
-> properly, and perhaps "better" in some way.
+> how about removing most if not all of these ioctls ?  The scsi layer
+> has a *generic* "send passthrough" mechanism already for example.
+> 
 
-Wrong.
+I'm not entirely clear on what you are alluding to here, are you
+referring to SCSI_IOCTL_SEND_COMMAND?  There's significantly more
+functionality embedded within the IOCTLs than simply sending passthrus
+to devices.  Also, all of QLogic's drivers (linux, solaris, windows)
+implement to this 'external ioctl' spec, making changes to Linux alone
+would difficult.
 
-The "somebody" strongly felt that ide-scsi was not just ugly but _evil_, 
-and that the syntax and usage of "cdrecord" was absolutely stupid.
-
-That somebody was me.
-
-ide-scsi has always been broken. You should not use it, and indeed there 
-was never any good reason for it existing AT ALL. But because of a broken 
-interface to cdrecord, cdrecord historically only wanted to touch SCSI 
-devices. Ergo, a silly emulation layer that wasn't really worth it.
-
-The fact that nobody has bothered to fix ide-scsi seems to be a result of 
-nobody _wanting_ to really fix it. 
-
-So don't use it. Or if you do use it, send the fixes over.
-
-		Linus
-
+Regards,
+Andrew Vasquez

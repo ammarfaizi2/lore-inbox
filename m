@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310549AbSCXQ6R>; Sun, 24 Mar 2002 11:58:17 -0500
+	id <S310438AbSCXRAG>; Sun, 24 Mar 2002 12:00:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310577AbSCXQ6H>; Sun, 24 Mar 2002 11:58:07 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:35000 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S310549AbSCXQ57>;
-	Sun, 24 Mar 2002 11:57:59 -0500
-Message-ID: <3C9E060B.5080603@freenet.de>
-Date: Sun, 24 Mar 2002 17:59:55 +0100
-From: Andreas Hartmann <andihartmann@freenet.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020323
-X-Accept-Language: de, en-us, en
-MIME-Version: 1.0
+	id <S310470AbSCXQ74>; Sun, 24 Mar 2002 11:59:56 -0500
+Received: from mustard.heime.net ([194.234.65.222]:41625 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S310438AbSCXQ7w>; Sun, 24 Mar 2002 11:59:52 -0500
+Date: Sun, 24 Mar 2002 17:59:38 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Rik van Riel <riel@conectiva.com.br>,
+cc: andreas <andihartmann@freenet.de>,
         Kernel-Mailingliste <linux-kernel@vger.kernel.org>
 Subject: Re: [2.4.18] Security: Process-Killer if machine get's out of memory
-In-Reply-To: <E16pBGB-0006gE-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <E16pBJE-0006hU-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0203241757520.30437-100000@mustard.heime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->>Advantage of combining consumption-speed and memory usage per process 
->>would be, that processes could be filtered, which are obviously broken. 
->>If the behaviour of the process is correct, than the machine hasn't 
->>enough memory. But this is a problem, which cannot be handled by the kernel.
-> 
-> 
-> With 2.4.19pre3-ac3+ you don't need a heuristic. Do
-> 
-> 	echo "2" >/proc/sys/vm/overcommit_memory
-> 
-> The system will then fail allocations before they can cause an OOM status.
-> It might be interesting to add "except root" modes to this.
-> 
-> Alan
+On Sun, 24 Mar 2002, Alan Cox wrote:
 
-If I would ad the option "except root", I would have the same problem, 
-because rsync must run as root to do a full backup :-(.
+> > I've got a basic question:
+> > Would it be possible to kill only the process which consumes the most
+> > memory in the last delta t?
+> > Or does somebody have a better idea?
+>
+> At the point you hit OOM every possible heuristic is simply handwaving that
+> will work for a subset of the user base. Fix the real problem and it goes
+> away. My box doesn't OOM, the worst case (which I've never seen happen) is
+> a task being killed by a stack growth failing to get memory.
 
-If I understand this feature right, always this process gets a problem, 
-which want's to have memory even if there is no more free. It could be 
-the wrong process too.
-But if a process gets wild like rsync in this situation, it's very 
-likely that rsync is the first which doesn't get no more memory. But 
-what's afterwards if it didn't get any more memory?
-If the process, which wants to have so much memory, isn't stopped (or 
-doesn't stop itself), the memory situation isn't getting better. Other 
-processes, which are working right, will probably fail while the broken 
-process eats up the new free mem again.
+Would it hard to do some memory allocation statistics, so if some process
+at one point (as rsync did) goes crazy eating all memory, that would be
+detected?
 
-I think that a broken process like rsync should be killed in order to 
-prevent other processes to be damaged indirectly.
+I'm quite sure other OSes have similar funcitonality, such as AIX
 
-Regards,
-Andreas Hartmann
+roy
+
+--
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.
 

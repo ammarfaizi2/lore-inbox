@@ -1,121 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129593AbQLFH5L>; Wed, 6 Dec 2000 02:57:11 -0500
+	id <S129585AbQLFIVT>; Wed, 6 Dec 2000 03:21:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129585AbQLFH5B>; Wed, 6 Dec 2000 02:57:01 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:31494 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129593AbQLFH4s>; Wed, 6 Dec 2000 02:56:48 -0500
-Date: Tue, 5 Dec 2000 23:25:55 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: test12-pre6
-Message-ID: <Pine.LNX.4.10.10012052318270.5786-100000@penguin.transmeta.com>
+	id <S129655AbQLFIVJ>; Wed, 6 Dec 2000 03:21:09 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:50564 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129585AbQLFIUz>;
+	Wed, 6 Dec 2000 03:20:55 -0500
+Date: Wed, 6 Dec 2000 02:50:28 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test12-pre6
+In-Reply-To: <Pine.LNX.4.10.10012052318270.5786-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0012060241000.14974-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Ok, I almost called this the final test12, but I wanted to get some more
-feedback on the keyboard controller stuff and PCI irq routing.
 
-The biggest part of this is the budding parisc stuff, but it's unlikely
-that we'll see full parisc support in 2.4.0 - the remaining pieces that
-actually touch generic code aren't going to be as brainless to integrate.
+On Tue, 5 Dec 2000, Linus Torvalds wrote:
 
-Of this, the "exec_usermodehelper()" changes should fix a few problems for
-people who rely heavily on automatic module loading, and the PCI irq
-routing changes should hopefully fix a number of laptops.
+> 
+> Ok, I almost called this the final test12, but I wanted to get some more
+> feedback on the keyboard controller stuff and PCI irq routing.
 
-Concering the PCI irq routing fixes in particular, I'd ask people with
-laptops to start testing their kernels with PnP OS set to "yes" in the
-BIOS setup. We shoul dbe at a stage where it should basically work all the
-time, and it would be interesting to hear about cases that we don't handle
-right.
+Linus, could you apply the following bunch of fixes (split into separate
+emails):
+	* dentry leak upon the attempt of cross-device link().
+	* recovery after get_block() failure in block_prepare_write()
+	* ext2_update_inode() missing some cases when it should mark
+	* bogus return values of truncate() and ftruncate().
+fs as having large files
+	* fix to ext2_get_block() - it should return -EFBIG if the block
+number is too large, not -EIO.
 
-(Anybody who has had problems with USB interrupts seemingly not being
-delivered and similar is also encouraged to test this new kernel).
+All of these are real bugs and the first 3 are pretty bad.
 
-The APIC setup order should get older SMP machines working again (which
-broke when we fixed some newer machines - let's hope that this time we fix
-one machine without breaking another one).
+The first one (not my catch) - sys_link() should do path_release() if
+it decides to fail with -EXDEV. It doesn't. Result: exploitable dentry
+leak. Please, apply.
 
-		Linus
-
-----
- - pre6:
-    - Alan Cox: synch. PA-RISC arch and bitops cleanups
-    - Maciej Rozycki: even more proper apic setup order.
-    - Andrew Morton: exec_usermodehelper fixes
-    - Adam Richter, Kai Germaschewski, me: PCI irq routing.
-    - revert A20 code changes. We really need to use the keyboard
-      controller if one exists. But decrease timeouts.
-    - Johannes Erdfelt: USB updates
-    - Ralf Baechle: MIPS memmove() fix.
-
- - pre5:
-    - Jaroslav Kysela: ymfpci driver
-    - me: get rid of bogus MS_INVALIDATE semantics
-    - me: final part of the PageDirty() saga
-    - Rusty Russell: 4-way SMP iptables fix
-    - Al Viro: oops - bad ext2 inode dirty block bug
-
- - pre4:
-    - Andries Brouwer: final isofs pieces.
-    - Kai Germaschewski: ISDN
-    - play CD audio correctly, don't stop after 12 minutes.
-    - Anton Altaparmakov: disable NTFS mmap for now, as it doesn't work. 
-    - Stephen Tweedie: fix inode dirty block handling
-    - Bill Hartner: reschedule_idle - prefer right cpu
-    - Johannes Erdfelt: USB updates
-    - Alan Cox: synchronize
-    - Richard Henderson: alpha updates and optimizations
-    - Geert Uytterhoeven: fbdev could be fooled into crashing fix
-    - Trond Myklebust: NFS filehandles in inode rather than dentry
-
- - pre3:
-    - me: more PageDirty / swapcache handling
-    - Neil Brown: raid and md init fixes
-    - David Brownell: pci hotplug sanitization.
-    - Kanoj Sarcar: mips64 update
-    - Kai Germaschewski: ISDN sync
-    - Andreas Bombe: ieee1394 cleanups and fixes
-    - Johannes Erdfelt: USB update
-    - David Miller: Sparc and net update
-    - Trond Myklebust: RPC layer SMP fixes
-    - Thomas Sailer: mixed sound driver fixes
-    - Tigran Aivazian: use atomic_dec_and_lock() for free_uid()
-
- - pre2:
-    - Peter Anvin: more P4 configuration parsing
-    - Stephen Tweedie: O_SYNC patches. Make O_SYNC/fsync/fdatasync
-      do the right thing.
-    - Keith Owens: make mdule loading use the right struct module size
-    - Boszormenyi Zoltan: get MTRR's right for the >32-bit case
-    - Alan Cox: various random documentation etc
-    - Dario Ballabio: EATA and u14-34f update
-    - Ivan Kokshaysky: unbreak alpha ruffian
-    - Richard Henderson: PCI bridge initialization on alpha
-    - Zach Brown: correct locking in Maestro driver
-    - Geert Uytterhoeven: more m68k updates
-    - Andrey Savochkin: eepro100 update
-    - Dag Brattli: irda update
-    - Johannes Erdfelt: USB update
-
- - pre1: (for ISDN synchronization _ONLY_! Not complete!)
-    - Byron Stanoszek: correct decimal precision for CPU MHz in
-      /proc/cpuinfo
-    - Ollie Lho: SiS pirq routing.
-    - Andries Brouwer: isofs cleanups
-    - Matt Kraai: /proc read() on directories should return EISDIR, not EINVAL
-    - me: be stricter about what we accept as a PCI bridge setup.
-    - me: always set PCI interrupts to be level-triggered when we enable them.
-    - me: updated PageDirty and swap cache handling
-    - Peter Anvin: update A20 code to work without keyboard controller
-    - Kai Germaschewski: ISDN updates
-    - Russell King: ARM updates
-    - Geert Uytterhoeven: m68k updates
+diff -urN rc12-pre6/fs/namei.c rc12-pre6-link/fs/namei.c
+--- rc12-pre6/fs/namei.c	Tue Dec  5 02:03:15 2000
++++ rc12-pre6-link/fs/namei.c	Tue Dec  5 14:55:57 2000
+@@ -1611,7 +1611,7 @@
+ 			goto out;
+ 		error = -EXDEV;
+ 		if (old_nd.mnt != nd.mnt)
+-			goto out;
++			goto out2;
+ 		new_dentry = lookup_create(&nd, 0);
+ 		error = PTR_ERR(new_dentry);
+ 		if (!IS_ERR(new_dentry)) {
+@@ -1619,6 +1619,7 @@
+ 			dput(new_dentry);
+ 		}
+ 		up(&nd.dentry->d_inode->i_sem);
++out2:
+ 		path_release(&nd);
+ out:
+ 		path_release(&old_nd);
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

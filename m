@@ -1,45 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261450AbSJYPfy>; Fri, 25 Oct 2002 11:35:54 -0400
+	id <S261456AbSJYP57>; Fri, 25 Oct 2002 11:57:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261451AbSJYPfy>; Fri, 25 Oct 2002 11:35:54 -0400
-Received: from babel.spoiled.org ([217.13.197.48]:22425 "HELO a.mx.spoiled.org")
-	by vger.kernel.org with SMTP id <S261450AbSJYPfx>;
-	Fri, 25 Oct 2002 11:35:53 -0400
-From: Juri Haberland <juri@koschikode.com>
-To: nobu@7501.net (date)
+	id <S261457AbSJYP56>; Fri, 25 Oct 2002 11:57:58 -0400
+Received: from ns.suse.de ([213.95.15.193]:34064 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261456AbSJYP55>;
+	Fri, 25 Oct 2002 11:57:57 -0400
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SuSE Linux AG
+To: "Theodore Ts'o" <tytso@mit.edu>, Andrew Morton <akpm@digeo.com>
+Subject: [2.5.44-mm5] Missing exports in ext23-acl-xattr-07.patch
+Date: Fri, 25 Oct 2002 18:03:12 +0200
+User-Agent: KMail/1.4.3
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fragmentation DoS?
-X-Newsgroups: spoiled.linux.kernel
-In-Reply-To: <200210191918.g9JJICT3032735@sh.7501.net>
-User-Agent: tin/1.4.5-20010409 ("One More Nightmare") (UNIX) (OpenBSD/2.9 (i386))
-Message-Id: <20021025154207.934931196C@a.mx.spoiled.org>
-Date: Fri, 25 Oct 2002 17:42:07 +0200 (CEST)
+MIME-Version: 1.0
+Message-Id: <200210251759.26991.agruen@suse.de>
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_CLOJZXS5PA2AGVJ1HZYE"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200210191918.g9JJICT3032735@sh.7501.net> you wrote:
-> To whom this may concern:
-> 
->  It seems that when I run fragrouter-1.7 with a combination of
->  -F3, -F4, -F5, and -T7 options, my linux kernel 2.4.18 will
->  crash. I've tested this with fragrouter's 1.6 and 1.5, but have
->  not yet been able to crash my kernel. To crash my 2.4.18 remotely
->  with fragrouter 1.7 it usually takes about 15-20 tries. Maybe there
->  is some sort of race condition occuring? I have also tried to
->  crash my linux 2.2.x series kernals but have failed.
-> 
->  Here are the sources I have been testing with:
->  www.anzen.com/archive/research/fragrouter-1.7.tar.gz
->  www.anzen.com/archive/research/fragrouter-1.6.tar.gz
 
-You did read http://online.securityfocus.com/archive/1/296407 , did you?
+--------------Boundary-00=_CLOJZXS5PA2AGVJ1HZYE
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Fragrouter-1.7 is a trojan!
+Hello Ted and Andrew,
 
-Regards,
-Juri
+The ext23-acl-xattr-07.patch is missing some exports in fs/posix_acl.c th=
+at=20
+are necessary if modules use the functions in that file. Please include/m=
+erge=20
+in the attached patch.
 
--- 
-Juri Haberland  <juri@koschikode.com> 
+--Andreas.
+
+
+--------------Boundary-00=_CLOJZXS5PA2AGVJ1HZYE
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="missing-exports.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="missing-exports.patch"
+
+--- linux-2.5.44.patch0/fs/posix_acl.c	2002-10-25 16:39:32.000000000 +0200
++++ linux-2.5.44.patch/fs/posix_acl.c	2002-10-25 16:35:13.000000000 +0200
+@@ -18,9 +18,20 @@
+ #include <linux/fs.h>
+ #include <linux/sched.h>
+ #include <linux/posix_acl.h>
++#include <linux/module.h>
+ 
+ #include <linux/errno.h>
+ 
++EXPORT_SYMBOL(posix_acl_alloc);
++EXPORT_SYMBOL(posix_acl_clone);
++EXPORT_SYMBOL(posix_acl_valid);
++EXPORT_SYMBOL(posix_acl_equiv_mode);
++EXPORT_SYMBOL(posix_acl_from_mode);
++EXPORT_SYMBOL(posix_acl_create_masq);
++EXPORT_SYMBOL(posix_acl_chmod_masq);
++EXPORT_SYMBOL(posix_acl_masq_nfs_mode);
++EXPORT_SYMBOL(posix_acl_permission);
++
+ /*
+  * Allocate a new ACL with the specified number of entries.
+  */
+--- linux-2.5.44.patch0/fs/Makefile	2002-10-25 16:39:32.000000000 +0200
++++ linux-2.5.44.patch/fs/Makefile	2002-10-25 16:33:03.000000000 +0200
+@@ -6,7 +6,8 @@
+ # 
+ 
+ export-objs :=	open.o dcache.o buffer.o bio.o inode.o dquot.o mpage.o aio.o \
+-                fcntl.o read_write.o dcookies.o mbcache.o xattr_acl.o
++                fcntl.o read_write.o dcookies.o mbcache.o xattr_acl.o \
++                posix_acl.o
+ 
+ obj-y :=	open.o read_write.o devices.o file_table.o buffer.o \
+ 		bio.o super.o block_dev.o char_dev.o stat.o exec.o pipe.o \
+
+--------------Boundary-00=_CLOJZXS5PA2AGVJ1HZYE--
 

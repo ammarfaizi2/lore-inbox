@@ -1,110 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271642AbRIBQpv>; Sun, 2 Sep 2001 12:45:51 -0400
+	id <S271640AbRIBQnb>; Sun, 2 Sep 2001 12:43:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271643AbRIBQpm>; Sun, 2 Sep 2001 12:45:42 -0400
-Received: from jupter.networx.com.br ([200.187.100.102]:9877 "EHLO
-	jupter.networx.com.br") by vger.kernel.org with ESMTP
-	id <S271642AbRIBQp3>; Sun, 2 Sep 2001 12:45:29 -0400
-Message-Id: <200109021637.f82GbZO24110@jupter.networx.com.br>
-Content-Type: text/plain;
-  charset="iso-8859-2"
-From: Thiago Vinhas de Moraes <tvlists@networx.com.br>
-Organization: NetWorx - A SuaCompanhia.com
-To: Adam Popik <popik@ap.popik.pl>, <linux-kernel@vger.kernel.org>
-Subject: Re: VMware and kernel 2.4.7,8,9
-Date: Sun, 2 Sep 2001 13:38:48 -0300
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <Pine.LNX.4.33.0109021239510.11190-100000@ap.popik.pl>
-In-Reply-To: <Pine.LNX.4.33.0109021239510.11190-100000@ap.popik.pl>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S271641AbRIBQnM>; Sun, 2 Sep 2001 12:43:12 -0400
+Received: from quattro.sventech.com ([205.252.248.110]:6150 "HELO
+	quattro.sventech.com") by vger.kernel.org with SMTP
+	id <S271640AbRIBQnD>; Sun, 2 Sep 2001 12:43:03 -0400
+Date: Sun, 2 Sep 2001 12:43:22 -0400
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pci_alloc_consistent for small allocations?
+Message-ID: <20010902124321.G9175@sventech.com>
+In-Reply-To: <200109021508.IAA29875@adam.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <200109021508.IAA29875@adam.yggdrasil.com>; from adam@yggdrasil.com on Sun, Sep 02, 2001 at 08:08:00AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Sep 02, 2001, Adam J. Richter <adam@yggdrasil.com> wrote:
+> 	In looking at the ieee1394 OHCI driver, I noticed that it
+> appears to make 104 calls to pci_alloc_consistent for data structures
+> that are 16 or 64 bytes.  Currently, on x86, pci_alloc_consistent
+> allocates at least one full page per call, so it looks like the
+> ohci1394 driver allocates 416kB per controller as a result of these
+> data structures.
+> 
+> 	It is easy enough to change the ohci driver to just
+> do a few pci_alloc_consistent calls, but, in grepping through the
+> kernel, I see that there are lots of calls to pci_alloc_consistent
+> calls requesting small amounts of memory.  So, I think it might reduce
+> kernel memory consumption to have pci_alloc_consistent do something
+> slightly smarter for allocations of less than a page.  Two pretty
+> simple approaches come to mind:
+> 
+> 	1. If it is the case that a side effect of the slab memory allocator
+> is that allocations of less than a page (or a certain size) never cross
+> page boundaries, then the x86 version of pci_alloc_consistent can just
+> use kmalloc/kfree when the size is below a certain amount.  Could someone
+> tell me if this is the case?
+> 
+> 	2. Assuming that is not the case, I have written, but not yet tested,
+> a change to pci_alloc_consistent for x86 where sub-page allocations can share
+> a single page.  The first four bytes of a shared page are used as a
+> reference counter.  This would be two bytes were it not for alignment
+> considerations.  This change can only aggregate small allocations when
+> they occur in succession.  I have attached the patch for illustration, but,
+> it could use some better variable naming and, I repeat, I have not tested
+> it at all yet.  In the middle of working on it, I thought of option #1 and
+> figured I should ask on linux-kernel before investing more time in this idea.
 
-Hi!
+Just use pci_pool. We developed the API for USB where we ran into the
+same problem.
 
-Vmware is a parasite. Their modules are vmware responsability.
+JE
 
-I found a modified vmmon and vmnet on their Usenet post. Try news.vmware.com, 
-on the experimental group.
-
-Regards,
-Thiago
-
-Em Dom, 02 de Set de 2001 07:41, Adam Popik escreveu:
-> What was changed in this kernels ? I cannot compile modules for vmware.
-> errors:
-> /usr/src/linux/include/asm/pgalloc.h: In function `get_pgd_slow':
-> In file included from /usr/src/linux/include/linux/highmem.h:5,
->                  from /usr/src/linux/include/linux/pagemap.h:16,
->                  from /usr/src/linux/include/linux/locks.h:8,
->                  from /usr/src/linux/include/linux/devfs_fs_kernel.h:6,
->                  from /usr/src/linux/include/linux/miscdevice.h:4,
->                  from ../linux/driver.h:10,
->                  from .././linux/driver.c:58:
-> /usr/src/linux/include/asm/pgalloc.h:56: `PAGE_OFFSET' undeclared (first
-> use in
-> /usr/src/linux/include/asm/pgalloc.h:56: (Each undeclared identifier is
-> reported/usr/src/linux/include/asm/pgalloc.h:56: for each function it
-> appears in.)
-> /usr/src/linux/include/asm/pgalloc.h: In function `pte_alloc_one':
-> /usr/src/linux/include/asm/pgalloc.h:103: `PAGE_SIZE' undeclared (first
-> use in t/usr/src/linux/include/linux/highmem.h: In function
-> `clear_user_highpage':
-> In file included from /usr/src/linux/include/linux/pagemap.h:16,
->                  from /usr/src/linux/include/linux/locks.h:8,
->                  from /usr/src/linux/include/linux/devfs_fs_kernel.h:6,
->                  from /usr/src/linux/include/linux/miscdevice.h:4,
->                  from ../linux/driver.h:10,
->                  from .././linux/driver.c:58:
-> /usr/src/linux/include/linux/highmem.h:48: `PAGE_SIZE' undeclared (first
-> use in
-> /usr/src/linux/include/linux/highmem.h: In function `clear_highpage':
-> /usr/src/linux/include/linux/highmem.h:54: `PAGE_SIZE' undeclared (first
-> use in
-> /usr/src/linux/include/linux/highmem.h: In function `memclear_highpage':
-> /usr/src/linux/include/linux/highmem.h:62: `PAGE_SIZE' undeclared (first
-> use in
-> /usr/src/linux/include/linux/highmem.h: In function
-> `memclear_highpage_flush':
-> /usr/src/linux/include/linux/highmem.h:76: `PAGE_SIZE' undeclared (first
-> use in
-> /usr/src/linux/include/linux/highmem.h: In function `copy_user_highpage':
-> In file included from /usr/src/linux/include/linux/pagemap.h:16,
->                  from /usr/src/linux/include/linux/locks.h:8,
->                  from /usr/src/linux/include/linux/devfs_fs_kernel.h:6,
->                  from /usr/src/linux/include/linux/miscdevice.h:4,
->                  from ../linux/driver.h:10,
->                  from .././linux/driver.c:58:
-> /usr/src/linux/include/linux/highmem.h:48: `PAGE_SIZE' undeclared (first
-> use in
-> /usr/src/linux/include/linux/highmem.h: In function `clear_highpage':
-> /usr/src/linux/include/linux/highmem.h:54: `PAGE_SIZE' undeclared (first
-> use in
-> /usr/src/linux/include/linux/highmem.h: In function `memclear_highpage':
-> /usr/src/linux/include/linux/highmem.h:62: `PAGE_SIZE' undeclared (first
-> use in
-> /usr/src/linux/include/linux/highmem.h: In function
-> `memclear_highpage_flush':
-> /usr/src/linux/include/linux/highmem.h:76: `PAGE_SIZE' undeclared (first
-> use in
-> /usr/src/linux/include/linux/highmem.h: In function `copy_user_highpage':
-> /usr/src/linux/include/linux/highmem.h:90: `PAGE_SIZE' undeclared (first
-> use in
-> /usr/src/linux/include/linux/highmem.h: In function `copy_highpage':
-> /usr/src/linux/include/linux/highmem.h:101: `PAGE_SIZE' undeclared (first
-> use in.././linux/driver.c: In function `LinuxDriver_Ioctl':
-> .././linux/driver.c:928: structure has no member named `dumpable'
-> make[1]: *** [driver.o] B³±d 1
-> make: *** [driver] B³±d 2
->
-> Adam
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261412AbSIZROR>; Thu, 26 Sep 2002 13:14:17 -0400
+	id <S261375AbSIZRb7>; Thu, 26 Sep 2002 13:31:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261413AbSIZROQ>; Thu, 26 Sep 2002 13:14:16 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:20379 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261412AbSIZROP> convert rfc822-to-8bit; Thu, 26 Sep 2002 13:14:15 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: WOLK - Working Overloaded Linux Kernel
-To: "Nathan" <etherwolf@sopris.net>
-Subject: Re: Updated to kernel 2.4.19 and now ipchains and iptables are broke.
-Date: Thu, 26 Sep 2002 19:19:19 +0200
-User-Agent: KMail/1.4.3
-Cc: "Linux Kernel List" <linux-kernel@vger.kernel.org>
-References: <200209261901.17679.m.c.p@wolk-project.de> <004201c2657f$c1a1bed0$f101010a@nathan>
-In-Reply-To: <004201c2657f$c1a1bed0$f101010a@nathan>
+	id <S261409AbSIZRb7>; Thu, 26 Sep 2002 13:31:59 -0400
+Received: from packet.digeo.com ([12.110.80.53]:30949 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261375AbSIZRb6>;
+	Thu, 26 Sep 2002 13:31:58 -0400
+Message-ID: <3D9345C4.74CD73B8@digeo.com>
+Date: Thu, 26 Sep 2002 10:37:08 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209261919.19945.m.c.p@wolk-project.de>
+To: Manfred Spraul <manfred@colorfullife.com>
+CC: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 3/4] slab reclaim balancing
+References: <3D931608.3040702@colorfullife.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Sep 2002 17:37:09.0460 (UTC) FILETIME=[57010140:01C26583]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 26 September 2002 19:11, Nathan wrote:
+Manfred Spraul wrote:
+> 
+> > Slab caches no longer hold onto completely empty pages.  Instead, pages
+> > are freed as soon as they have zero objects.  This is possibly a
+> > performance hit for slabs which have constructors, but it's doubtful.
+> 
+> It could be a performance hit for slab with just one object - e.g the
+> page sized names cache, used in every syscall that has a path name as a
+> parameter.
+> 
+> Ed, have you benchmarked that there is no noticable slowdown?
+> e.g. test the time needed for stat("."). on UP, otherwise the SMP arrays
+> would perform the caching.
+> 
 
-Hi Nathan,
+(What Ed said - we do hang onto one page.  And I _have_ measured
+cost in kmem_cache_shrink...)
 
-> I saw the config option for netfilter that said if you use this it won't
-> use ipchains, so I said no to that...
-Yep, that's true if you build Netfilter into your kernel, not as Module(s). 
-Build both, Netfilter + stuff and ipchains as modules and you are happy.
+For those things, the caching should be performed in the page
+allocator.  This way, when names_cache requests a cache-hot page,
+it may get a page which was very recently a (say) pagetable page,
+rather than restricting itself only to pages which used to be
+a names_cache page.
 
-So you are able to use both (not at the same time for sure.
-Just "modprobe ipchains" and use ipchains.
-If you want to play with Netfilter, just "rmmod ipchains; modprobe ip_tables" 
-and you can use iptables.
+CPU caches are per-cpu global.  So the hot pages list should be
+per-cpu global also.
 
+Martin Bligh seems to have the patches up and running.  It isn't
+very finetuned yet, but initial indications are promising:
 
--- 
-Kind regards
-        Marc-Christian Petersen
+Before:
+Elapsed: 20.18s User: 192.914s System: 48.292s CPU: 1195.6%
 
-http://sourceforge.net/projects/wolk
+After:
+Elapsed: 19.798s User: 191.61s System: 43.322s CPU: 1186.4%
 
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.
+That's for a kernel compile.
+
+And from the profiles, it appears that the benefit is coming
+from cache locality, not from the buddylist lock amortisation
+which we've also designed into those patches.
+
+I need to stop being slack, and get that code into the pipeline.

@@ -1,40 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276361AbRJPP7J>; Tue, 16 Oct 2001 11:59:09 -0400
+	id <S276380AbRJPQIT>; Tue, 16 Oct 2001 12:08:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276364AbRJPP6t>; Tue, 16 Oct 2001 11:58:49 -0400
-Received: from se1.cogenit.fr ([195.68.53.173]:62860 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S276361AbRJPP6r>;
-	Tue, 16 Oct 2001 11:58:47 -0400
-Date: Tue, 16 Oct 2001 17:59:08 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: Martin Devera <devik@cdi.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sendto syscall is slow
-Message-ID: <20011016175908.A2258@se1.cogenit.fr>
-In-Reply-To: <Pine.LNX.4.33.0110151105400.22170-100000@shell1.aracnet.com> <Pine.LNX.4.10.10110161438140.13894-100000@luxik.cdi.cz>
-Mime-Version: 1.0
+	id <S276381AbRJPQIA>; Tue, 16 Oct 2001 12:08:00 -0400
+Received: from web20901.mail.yahoo.com ([216.136.226.223]:42789 "HELO
+	web20901.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S276380AbRJPQH4>; Tue, 16 Oct 2001 12:07:56 -0400
+Message-ID: <20011016160828.26155.qmail@web20901.mail.yahoo.com>
+Date: Tue, 16 Oct 2001 09:08:28 -0700 (PDT)
+From: Ravi Chamarti <ravi_chamarti@yahoo.com>
+Subject: Ref: zerocopy +netfilter performance problem.
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011016175908.A2258@se1.cogenit.fr>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10110161438140.13894-100000@luxik.cdi.cz>; from devik@cdi.cz on Tue, Oct 16, 2001 at 02:45:47PM +0200
-X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Devera <devik@cdi.cz> :
-[sendto/recv profile]
-> Is there any faster way to force raw packets to kernel ? I need
-> to push qos discipline to its edge but I can't because send
-> syscall is bottleneck.
-> Is it possible to tx multiple packets in sinhle call or should
-> I extend kernel myself for this testing purpose ?
 
-Do you have the same profile for sendto when Rx/Tx isn't short 
-connected ?
-You may consider polling for Tx/Rx completion in the Tx path at the
-driver level. If your cpu isn't too much powered it will make
-a difference.
+Hi all.
 
--- 
-Ueimor
+I am kind of new to this forum and am not sure whether
+to pose this question in linux-kernel or linux-net
+
+I am using linux kernel 2.4.4 and having performance
+problem using zerocopy code and netfilter code in the
+kernel.
+
+I have been using zerocopy path through network stack
+and things are going fine with that. Until I tried
+enabling netfilter support in the kernel. The way I am
+using zerocopy code is by passing kernel physical
+pages directly to tcp_sendpage and letting network
+code and NIC do the rest.
+
+
+I enabled only network packet filter option inorder to
+register my own nf_hook. I haven't enabled other
+options like netfitler debugging/socket
+filtering/conntrack/iptables/ipchains compt. 
+Idea is to register my hook and do a little work with
+the packet header but not with the data. I do have one
+small hook which just return NF_ACCEPT and do nothing
+with the packet. 
+
+I am not intending to use any netfilter hooks for
+zerocopy path, however would like to use netfiler
+hooks for some non-zerocopy path traffic. 
+
+
+What I see that a skb with frag list is getting copied
+in the netfilter hook call (nf_hook_slow) ( I guess
+skb_linearize routine is remapping all physical pages
+and copies into a kernel buffer). 
+
+
+My question is that is this copy is required for
+netfilter to work? Do we somehow get around
+with netfilter to work such that the zerocopy path
+passes the packet without any copy?
+
+Thanks
+Ravi Chamarti.
+
+
+__________________________________________________
+Do You Yahoo!?
+Make a great connection at Yahoo! Personals.
+http://personals.yahoo.com

@@ -1,42 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268321AbUIWIGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268325AbUIWITm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268321AbUIWIGc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 04:06:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268325AbUIWIGb
+	id S268325AbUIWITm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 04:19:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268326AbUIWITm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 04:06:31 -0400
-Received: from colin2.muc.de ([193.149.48.15]:57362 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S268321AbUIWIG3 (ORCPT
+	Thu, 23 Sep 2004 04:19:42 -0400
+Received: from mproxy.gmail.com ([216.239.56.248]:26685 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268325AbUIWITj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 04:06:29 -0400
-Date: 23 Sep 2004 10:06:28 +0200
-Date: Thu, 23 Sep 2004 10:06:28 +0200
-From: Andi Kleen <ak@muc.de>
-To: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com,
-       Tom Rini <trini@kernel.crashing.org>,
-       kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Patch] kprobes exception notifier fix 2.6.9-rc2
-Message-ID: <20040923080627.GA89752@muc.de>
-References: <20040923053029.GB1291@in.ibm.com>
+	Thu, 23 Sep 2004 04:19:39 -0400
+Message-ID: <21d7e997040923011927860bb2@mail.gmail.com>
+Date: Thu, 23 Sep 2004 18:19:36 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: gene.heskett@verizon.net
+Subject: Re: 2.6.9-rc2-mm2 vs glxgears
+Cc: linux-kernel@vger.kernel.org, Frank Phillips <fphillips@linuxmail.org>
+In-Reply-To: <200409230327.11531.gene.heskett@verizon.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040923053029.GB1291@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20040923052338.C1D0C21B32F@ws5-6.us4.outblaze.com>
+	 <200409230327.11531.gene.heskett@verizon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 11:00:29AM +0530, Prasanna S Panchamukhi wrote:
-> In order to make other debuggers use exception notifiers, kprobes 
-> notifier return values are required to be modified. This patch modifies the
-> return values of kprobes notifier return values in a clean way.
+> 
+> Which even I have to agree is pretty pathetic.
 
-It's incompatible to x86-64. If you change anything in exception
-notifiers change both.
+What do you get on a Linus kernel, I'm not tracking -mm as much as I
+should, the missing pci_enable_device might have caused some issues...
 
-And I don't really see the sense of inverting the test: NOTIFY_OK
-for handling the exception should be as good as NOTIFY_STOP.
+On my 2.6.8.1 at the moment glxgears stays constant enough, I'll boot
+into a 2.6.9 later on and check it out...
 
--Andi
+What graphics card you have? 
+Dave.
+
+> 
+> >courtesy Jon Smirl. See this thread:
+> > http://marc.theaimsgroup.com/?t=109530394200002&r=1&w=2
+> >
+> >With this I get consistent 350s on 2.6.9-rc2-mm1-VP-S1.
+> >
+> >Frank
+> 
+> Other than the glxgears being slow, it seems to be working, so I'm
+> gonna go sleep in it.
+> 
+> 
+> 
+> --
+> Cheers, Gene
+> "There are four boxes to be used in defense of liberty:
+>  soap, ballot, jury, and ammo. Please use in that order."
+> -Ed Howdershelt (Author)
+> 99.26% setiathome rank, not too shabby for a WV hillbilly
+> Yahoo.com attorneys please note, additions to this message
+> by Gene Heskett are:
+> Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

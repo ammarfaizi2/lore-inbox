@@ -1,20 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbTELOkC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 10:40:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbTELOkC
+	id S262165AbTELOmg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 10:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbTELOmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 10:40:02 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:15043 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S262123AbTELOkA
+	Mon, 12 May 2003 10:42:36 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:57800 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S262165AbTELOmf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 10:40:00 -0400
-Date: Mon, 12 May 2003 05:38:25 -0700
+	Mon, 12 May 2003 10:42:35 -0400
+Date: Mon, 12 May 2003 05:40:55 -0700
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 707] New: Compilation error of Initio9100 SCSI 
-Message-ID: <21620000.1052743105@[10.10.2.4]>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>, haveblue@us.ibm.com
+Subject: Re: 2.5.69-mjb1
+Message-ID: <21850000.1052743254@[10.10.2.4]>
+In-Reply-To: <20030512132939.GF19053@holomorphy.com>
+References: <9380000.1052624649@[10.10.2.4]> <20030512132939.GF19053@holomorphy.com>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,45 +26,35 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=707
+--On Monday, May 12, 2003 06:29:39 -0700 William Lee Irwin III <wli@holomorphy.com> wrote:
 
-           Summary: Compilation error of Initio9100 SCSI
-    Kernel Version: 2.5.69
-            Status: NEW
-          Severity: normal
-             Owner: andmike@us.ibm.com
-         Submitter: zawadaa@wp.pl
+> On Sat, May 10, 2003 at 08:44:09PM -0700, Martin J. Bligh wrote:
+>> thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
+>> 	Prep work to reduce kernel stacks to 4K
+>> interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
+>> 	Create a per-cpu interrupt stack.
+>> stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
+>> 	Check for kernel stack overflows.
+>> 4k_stack            (4K stacks pt 4)		Dave Hansen
+>> 	Config option to reduce kernel stacks to 4K
+> 
+> 
+> diff -urpN linux-2.5.69/include/asm-i386/processor.h kstk-2.5.69-1/include/asm-i386/processor.h
+> --- linux-2.5.69/include/asm-i386/processor.h	2003-05-04 16:53:00.000000000 -0700
+> +++ kstk-2.5.69-1/include/asm-i386/processor.h	2003-05-12 06:05:39.000000000 -0700
+> @@ -470,8 +470,8 @@ extern int kernel_thread(int (*fn)(void 
+>  extern unsigned long thread_saved_pc(struct task_struct *tsk);
+>  
+>  unsigned long get_wchan(struct task_struct *p);
+> -#define KSTK_EIP(tsk)	(((unsigned long *)(4096+(unsigned long)(tsk)->thread_info))[1019])
+> -#define KSTK_ESP(tsk)	(((unsigned long *)(4096+(unsigned long)(tsk)->thread_info))[1022])
+> +#define KSTK_EIP(task)	(((unsigned long *)(task)->thread_info)[THREAD_SIZE/sizeof(unsigned long) - 5])
+> +#define KSTK_ESP(task)	(((unsigned long *)(task)->thread_info)[THREAD_SIZE/sizeof(unsigned long) - 2])
+>  
+>  struct microcode {
+>  	unsigned int hdrver;
 
+Can I get some sort of vague explanation please? ;-)
 
-Distribution: PLD Linux Distribution
-Hardware Environment:Mainboard Abit on VIA266
-Software Environment: gcc version 3.2.3 (PLD Linux); glibc-2.3.2-2
-Problem Description: Compilation error
-
-LOG:
-
-make -f scripts/Makefile.build obj=drivers/scsi
-  gcc -Wp,-MD,drivers/scsi/.ini9100u.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
--mpreferred-stack-boundary=2 -march=athlon -Iinclude/asm-i386/mach-default
--fomit-frame-pointer -nostdinc -iwithprefix include -DMODULE  
--DKBUILD_BASENAME=ini9100u -DKBUILD_MODNAME=initio -c -o drivers/scsi/ini9100u.o
-drivers/scsi/ini9100u.c
-drivers/scsi/ini9100u.c:111:2: #error Please convert me to
-Documentation/DMA-mapping.txt
-drivers/scsi/ini9100u.c:144: unknown field `next' specified in initializer
-drivers/scsi/ini9100u.c:144: warning: initialization from incompatible pointer type
-drivers/scsi/ini9100u.c:144: warning: initialization from incompatible pointer type
-drivers/scsi/ini9100u.c: In function `i91uAppendSRBToQueue':
-drivers/scsi/ini9100u.c:226: structure has no member named `next'
-drivers/scsi/ini9100u.c:231: structure has no member named `next'
-drivers/scsi/ini9100u.c: In function `i91uPopSRBFromQueue':
-drivers/scsi/ini9100u.c:253: structure has no member named `next'
-drivers/scsi/ini9100u.c:254: structure has no member named `next'
-drivers/scsi/ini9100u.c: In function `i91uBuildSCB':
-drivers/scsi/ini9100u.c:492: structure has no member named `address'
-drivers/scsi/ini9100u.c:501: structure has no member named `address'
-make[2]: *** [drivers/scsi/ini9100u.o] Error 1
-make[1]: *** [drivers/scsi] Error 2
-make: *** [drivers] Error 2
+M.
 

@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319037AbSIJAQe>; Mon, 9 Sep 2002 20:16:34 -0400
+	id <S319061AbSIJAV5>; Mon, 9 Sep 2002 20:21:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319038AbSIJAQe>; Mon, 9 Sep 2002 20:16:34 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:13524 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S319037AbSIJAQd>;
-	Mon, 9 Sep 2002 20:16:33 -0400
-Date: Mon, 9 Sep 2002 17:21:11 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: 2.5.34 - EXPORT_SYMBOL(reparent_to_init) for module build
-Message-ID: <20020909172111.A19949@eng2.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S319062AbSIJAV5>; Mon, 9 Sep 2002 20:21:57 -0400
+Received: from dsl-213-023-039-209.arcor-ip.net ([213.23.39.209]:12483 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319061AbSIJAV4>;
+	Mon, 9 Sep 2002 20:21:56 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] On paging of kernel VM.
+Date: Tue, 10 Sep 2002 02:28:53 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-mm@kvack.org
+References: <2653.1031563253@redhat.com>
+In-Reply-To: <2653.1031563253@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17oYth-0006wD-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With 2.5.34, in order to build a module that calls daemonize(), I had to 
-export reparent_to_init:
+On Monday 09 September 2002 11:20, David Woodhouse wrote:
+> But as I said, this means screwing with every fault handler. It doesn't 
+> have to affect the fast path -- we can go looking for these vmas only in 
+> the case where we've already tried looking for the appropriate pte in 
+> init_mm and haven't found it. But it's still an intrusive change that would 
+> need to be done on every architecture.
 
---- 1.45/kernel/ksyms.c	Mon Sep  9 03:35:51 2002
-+++ edited/kernel/ksyms.c	Mon Sep  9 16:52:29 2002
-@@ -521,6 +521,7 @@
- EXPORT_SYMBOL(securebits);
- EXPORT_SYMBOL(cap_bset);
- EXPORT_SYMBOL(daemonize);
-+EXPORT_SYMBOL(reparent_to_init);
- EXPORT_SYMBOL(csum_partial); /* for networking and md */
- EXPORT_SYMBOL(seq_escape);
- EXPORT_SYMBOL(seq_printf);
+Why can't you go per-architecture and fall back to the slow way of doing it
+for architectures that don't have the new functionality yet?
 
--- Patrick Mansfield
+-- 
+Daniel

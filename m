@@ -1,50 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbUKXVkR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262864AbUKXVpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261295AbUKXVkR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 16:40:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbUKXVh2
+	id S262864AbUKXVpG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 16:45:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbUKXVn2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 16:37:28 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:21935 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262860AbUKXVgS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 16:36:18 -0500
-Date: Wed, 24 Nov 2004 13:36:00 -0800
-From: Greg KH <greg@kroah.com>
-To: Justin Thiessen <jthiessen@penguincomputing.com>
-Cc: phil@netroedge.com, khali@linux-fr.org, sensors@Stimpy.netroedge.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: adm1026 driver port for kernel 2.6.10-rc2 (patch includes driver, patch to Kconfig, and patch to Makefile)
-Message-ID: <20041124213600.GA3165@kroah.com>
-References: <20041102221745.GB18020@penguincomputing.com> <NN38qQl1.1099468908.1237810.khali@gcu.info> <20041103164354.GB20465@penguincomputing.com> <20041118185612.GA20728@penguincomputing.com> <20041123165236.GA4936@penguincomputing.com>
+	Wed, 24 Nov 2004 16:43:28 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:11439 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262866AbUKXVmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 16:42:20 -0500
+Subject: Re: Suspend 2 merge: 24/51: Keyboard and serial console hooks.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041124132949.GB13145@infradead.org>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101296414.5805.286.camel@desktop.cunninghams>
+	 <20041124132949.GB13145@infradead.org>
+Content-Type: text/plain
+Message-Id: <1101332321.3895.57.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041123165236.GA4936@penguincomputing.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 25 Nov 2004 08:38:41 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hm, this looks like a bug:
+Hi.
 
-> +static ssize_t set_pwm_enable(struct device *dev, const char *buf,
-> +		size_t count)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +	struct adm1026_data *data = i2c_get_clientdata(client);
-> +	int     val;
-> +	int     old_enable;
-> +
-> +	if ((val >= 0) && (val < 3)) {
+On Thu, 2004-11-25 at 00:29, Christoph Hellwig wrote:
+> On Wed, Nov 24, 2004 at 11:59:02PM +1100, Nigel Cunningham wrote:
+> > Here we add simple hooks so that the user can interact with suspend
+> > while it is running. (Hmm. The serial console condition could be
+> > simplified :>). The hooks allow you to do such things as:
+> > 
+> > - cancel suspending
+> > - change the amount of detail of debugging info shown
+> > - change what debugging info is shown
+> > - pause the process
+> > - single step
+> > - toggle rebooting instead of powering down
+> 
+> And why would we want this?  If the users calls the suspend call
+> he surely wants to suspend, right?
 
-You are using val before assigning it anything.  The compiler warns you
-about this issue.
+Have you ever pressed control-alt-delete/init 0 and then gone "Oh. I
+forgot, I wanted to..."? That's why you'd want to be able to cancel
+suspending.
 
-Care to fix this up and resend the whole patch?
+The ability to toggle rebooting is helpful because you don't have to
+edit a config file/proc entry. You can use one key press to initiate the
+suspend, and press 'R' iif you want to reboot (eg for dual booting)
+instead of powering down.
 
-Oh, and it should be "Signed-off-by:" not "Signed off by:" like you had
-used :)
+The other options are really helpful when testing and debugging, and can
+be turned off at compile time.
 
-thanks,
+By the way, thanks for all the feedback.
 
-greg k-h
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
+

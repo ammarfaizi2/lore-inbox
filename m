@@ -1,75 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266761AbUFRS5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266166AbUFRS7n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266761AbUFRS5v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 14:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266482AbUFRSzu
+	id S266166AbUFRS7n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 14:59:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266508AbUFRS66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 14:55:50 -0400
-Received: from lakermmtao06.cox.net ([68.230.240.33]:51443 "EHLO
-	lakermmtao06.cox.net") by vger.kernel.org with ESMTP
-	id S266719AbUFRSyh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 14:54:37 -0400
-In-Reply-To: <40D33338.6050001@opensound.com>
-References: <40D232AD.4020708@opensound.com> <3217460000.1087518092@flay> <40D23701.1030302@opensound.com> <1087573691.19400.116.camel@winden.suse.de> <40D32C1D.80309@opensound.com> <40D33464.6030403@techsource.com> <40D33338.6050001@opensound.com>
-Mime-Version: 1.0 (Apple Message framework v618)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <F1B17570-C158-11D8-9A43-000393ACC76E@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: Timothy Miller <miller@techsource.com>,
-       Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Stop the Linux kernel madness
-Date: Fri, 18 Jun 2004 14:54:36 -0400
-To: 4Front Technologies <dev@opensound.com>
-X-Mailer: Apple Mail (2.618)
+	Fri, 18 Jun 2004 14:58:58 -0400
+Received: from fed1rmmtao05.cox.net ([68.230.241.34]:7360 "EHLO
+	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
+	id S266166AbUFRS6Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 14:58:16 -0400
+Date: Fri, 18 Jun 2004 11:58:09 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: Ian Molton <spyro@f2s.com>
+Cc: Matt Porter <mporter@kernel.crashing.org>, linux-kernel@vger.kernel.org,
+       greg@kroah.com, tony@atomide.com, david-b@pacbell.net,
+       jamey.hicks@hp.com, joshua@joshuawise.com
+Subject: Re: DMA API issues
+Message-ID: <20040618115809.C3851@home.com>
+References: <20040618175902.778e616a.spyro@f2s.com> <20040618110721.B3851@home.com> <20040618191958.1cc3508c.spyro@f2s.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040618191958.1cc3508c.spyro@f2s.com>; from spyro@f2s.com on Fri, Jun 18, 2004 at 07:19:58PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 18, 2004, at 14:23, 4Front Technologies wrote:
-> Timothy,
->
-> Who are you to revoke my request to SuSE and other distributors and 
-> others who share
-> my views on LKML?
+On Fri, Jun 18, 2004 at 07:19:58PM +0100, Ian Molton wrote:
+> On Fri, 18 Jun 2004 11:07:21 -0700
+> Matt Porter <mporter@kernel.crashing.org> wrote:
+> 
+> > Can't you just implement an arch-specific allocator for your 32KB
+> > SRAM, then implement the DMA API streaming and dma_alloc/free APIs
+> > on top of that?
+> 
+> Yes but thats not very generic is it? Im not the only one with this
+> problem.
 
-Who are you to demand it in the first place.  As far as I can see, 
-you've contributed
-nothing notable to the kernel development community (But please correct 
-me if I'm
-wrong).  Why should we listen to you, when you haven't given us reason 
-to.  All
-you've done is demand things of the LKML, but why should we listen to 
-your
-demands instead of our own.
+Yes, it's suboptimal, but an option.
+ 
+> >  Since this architecture is obviously not designed
+> > for performance
+> 
+> What makes you think writes to the 32K SRAM are any slower than to the
+> SDRAM? the device is completely memory mapped.
 
-> What is wrong with making a demand for standardization?. It's high time
-> that things got a bit more organized. And where do you see a 
-> demand....I just
-> said "like to see". Which is more of a request the way I understand 
-> English.
+I was referring to the small amount of space allowed for DMA
+operations, obviously not the speed of accessing SRAM.
+ 
+> >, it doesn't seem to be a big deal to have the streaming
+> > APIs copy to/from the kmalloced (or whatever) buffer to/from the SRAM
+> > allocated memory and then have those APIs return the proper dma_addr_t
+> > for the embedded OHCI's address space view of the SRAM.
+> 
+> Again its a suboptimal solution, and on an architecture where the CPU
+> isnt *that* fast in the first place it seems wrong to deliberately
+> choose the slowest possible route...
 
-If you want things more organized, then please code it up and submit a 
-series of
-clean patches against the current kernel.  Besides, a lack of 
-organization is
-sometimes a good thing. (See _The_Cathedral_and_the_Bazaar_:
-<http://www.catb.org/~esr/writings/cathedral-bazaar/cathedral-bazaar/>).
+Ok, so you're looking for a complete change to the streaming DMA APIs,
+I guess.  Possibly requiring another call to allocate streaming-capable
+memory since kmalloced buffers can't be used directly on your arch (or
+all arches).  I agree it's suboptimal, it's one option to make it work
+in the current API.
 
-> It's high time people like me spoke up for standardization and some 
-> sense of
-> organization. If the majority doesn't want to listen fine, it's a free 
-> world,
-> but you have no right to silence me for airing my views.
-
-We're not silencing you for airing your views.  If anything, we're 
-silencing you
-because your views get in the way of us doing real work.  If you want 
-to be
-productive and give us a clean set of patches, then go ahead, but all 
-you're
-doing right now is making the signal-to-noise ratio on the LKML worse.
-
-Cheers,
-Kyle Moffett
-
-
+-Matt

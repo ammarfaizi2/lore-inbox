@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265809AbUAQKvg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 05:51:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266010AbUAQKvg
+	id S266010AbUAQLSa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 06:18:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266027AbUAQLSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 05:51:36 -0500
-Received: from holomorphy.com ([199.26.172.102]:34986 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265809AbUAQKvf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 05:51:35 -0500
-Date: Sat, 17 Jan 2004 02:51:32 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>,
-       Tom Rini <trini@kernel.crashing.org>,
-       George Anzinger <george@mvista.com>, Steve Gonczi <steve@relicore.com>,
-       Matt Mackall <mpm@selenic.com>
-Subject: Re: kgdb 2.0.4 with restructuring and fixes
-Message-ID: <20040117105132.GJ1332@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Amit S. Kale" <amitkale@emsyssoft.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Pavel Machek <pavel@suse.cz>, Tom Rini <trini@kernel.crashing.org>,
-	George Anzinger <george@mvista.com>,
-	Steve Gonczi <steve@relicore.com>, Matt Mackall <mpm@selenic.com>
-References: <200401171451.38701.amitkale@emsyssoft.com> <20040117100127.GI1332@holomorphy.com> <200401171554.21553.amitkale@emsyssoft.com>
+	Sat, 17 Jan 2004 06:18:30 -0500
+Received: from h196n1fls22o974.bredband.comhem.se ([213.64.79.196]:39087 "EHLO
+	latitude.mynet.no-ip.org") by vger.kernel.org with ESMTP
+	id S266010AbUAQLS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 06:18:29 -0500
+X-Mailer: exmh version 2.6.3 04/02/2003 with nmh-1.0.4
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>, robert@schwebel.de,
+       cliff white <cliffw@osdl.org>, piggin@cyberone.com.au, mpm@selenic.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [1/4] better i386 CPU selection 
+In-Reply-To: Message from Adrian Bunk <bunk@fs.tum.de> 
+   of "Sat, 17 Jan 2004 03:15:32 +0100." <20040117021532.GH12027@fs.tum.de> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401171554.21553.amitkale@emsyssoft.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Date: Sat, 17 Jan 2004 11:01:22 +0100
+From: aeriksson@fastmail.fm
+Message-Id: <20040117100122.4C7B53F60@latitude.mynet.no-ip.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 17, 2004 at 03:54:21PM +0530, Amit S. Kale wrote:
-> Ah...
-> I understand. I also don't like URLs in email as my browser and mailer are 
-> different.
-> I am really sorry, the best I can do is post a link to actuall tarball which 
-> is: http://kgdb.sourceforge.net/kgdb-2/linux-2.6.1-kgdb-2.0.4.tar.bz2
-> I believe people will have me on their spammers list if I actually inflate 
-> this tarball and send as attachments. I sent 3 such postings this week!
+> > NO! NO!  This prevents development of an AMD embeded system on an
+> > "ordinary" machine like this one (Pentium IV). The fact that the
+> > timer runs at a different speed means nothing, one just sets the
+> > workstation time every day. Please do NOT do this. It prevents
+> > important usage.
+> 
+> What problems exacly are you referring to?
+> 
+> Besides the AMD Elan cpufreq driver I see nothing where CONFIG_MELAN
+> gave you any real difference (except your highest goal is to avoid a
+> recompilation when switching from the Pentium 4 to the AMD Elan - but I
+> doubt the really "prevents development").
+> 
+> But I'm not religious about this issue. Let Robert decide, the Elan 
+> support is his child.
+> 
 
-That's okay, I'll dig through the website in the near future.
+I guess some code to dynamically check for AMD ELAN would make the time drift problem go away, right? I did notice a description of how to detect an elan in one of the elan manuals. That stuff does not seem to have made its way into the kernel, has it? Should it?
 
-It's just harder, but the value of your patches and those you're
-integrating will ultimately compensate.
+/A
 
-
--- wli

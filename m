@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262122AbULQTFb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbULQTJN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262122AbULQTFb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 14:05:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbULQTFa
+	id S262119AbULQTJN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 14:09:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbULQTJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 14:05:30 -0500
-Received: from out005pub.verizon.net ([206.46.170.143]:20363 "EHLO
-	out005.verizon.net") by vger.kernel.org with ESMTP id S262125AbULQTD0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 14:03:26 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: grub questions here?
-Date: Fri, 17 Dec 2004 14:03:25 -0500
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Dec 2004 14:09:13 -0500
+Received: from gprs215-176.eurotel.cz ([160.218.215.176]:4493 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262119AbULQTJK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 14:09:10 -0500
+Date: Fri, 17 Dec 2004 20:08:56 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Greg KH <greg@kroah.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: debugfs in the namespace
+Message-ID: <20041217190856.GA29131@elf.ucw.cz>
+References: <20041216110002.3e0ddf52@lembas.zaitcev.lan> <20041216190835.GE5654@kroah.com> <20041216113357.4c2714bb@lembas.zaitcev.lan> <20041216194224.GA6640@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200412171403.25209.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [151.205.62.181] at Fri, 17 Dec 2004 13:03:25 -0600
+In-Reply-To: <20041216194224.GA6640@kroah.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings all;
+Hi!
 
-Is it safe to ask grub related qquestions here, or is there a special
-list for that?
+> > better, but mounting anything under /proc requires a kernel component
+> > to create a directory, does it not?
+> 
+> Yes it does, but debugfs could create the mount point, if people agree
+> that this is a good place to put it (like usbfs does.)
+> 
+> Personally, I don't want to put it there, but that's just because I hate
+> proc stuff :)
+> 
+> So, /debug sounds good to me.  Any objections?
 
+Yes... /debug is something users may actually use already... Like
+having scratch filesystem mount on /debug.
+
+								Pavel
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.30% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,57 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbULAFXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbULAF0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbULAFXK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 00:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbULAFXK
+	id S261183AbULAF0F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 00:26:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbULAF0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 00:23:10 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:24688 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261174AbULAFXF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 00:23:05 -0500
-Date: Wed, 1 Dec 2004 06:23:28 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Mariusz Mazur <mmazur@kernel.pl>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Sam Ravnborg <sam@ravnborg.org>, Linus Torvalds <torvalds@osdl.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Alexandre Oliva <aoliva@redhat.com>, Paul Mackerras <paulus@samba.org>,
-       Greg KH <greg@kroah.com>, Matthew Wilcox <matthew@wil.cx>,
-       David Howells <dhowells@redhat.com>, hch@infradead.org,
-       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-Message-ID: <20041201052328.GA8157@mars.ravnborg.org>
-Mail-Followup-To: Mariusz Mazur <mmazur@kernel.pl>,
-	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-	Sam Ravnborg <sam@ravnborg.org>, Linus Torvalds <torvalds@osdl.org>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Alexandre Oliva <aoliva@redhat.com>,
-	Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
-	Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
-	hch@infradead.org, linux-kernel@vger.kernel.org,
-	libc-hacker@sources.redhat.com
-References: <19865.1101395592@redhat.com> <200411302344.21907.mmazur@kernel.pl> <20041130230325.GY26051@parcelfarce.linux.theplanet.co.uk> <200412010008.13572.mmazur@kernel.pl>
+	Wed, 1 Dec 2004 00:26:04 -0500
+Received: from ozlabs.org ([203.10.76.45]:1445 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261183AbULAFZ2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 00:25:28 -0500
+Subject: [PATCH] Remove netfilter warnings on copy_to_user
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Netfilter development mailing list 
+	<netfilter-devel@lists.netfilter.org>
+Content-Type: text/plain
+Date: Wed, 01 Dec 2004 16:25:16 +1100
+Message-Id: <1101878716.11835.20.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200412010008.13572.mmazur@kernel.pl>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 01, 2004 at 12:08:13AM +0100, Mariusz Mazur wrote:
-> On ?roda 01 grudzie? 2004 00:03, Al Viro wrote:
-> > > Wrong. These dirs must be linked to /usr/include so they must have more
-> > > meaningfull names.
-> >
-> > WTF?  I've got a dozen kernel trees hanging around, which one (and WTF any,
-> > while we are at it) should be "linked to"?
-> 
-> Linked, copied, mount --binded, whatever. Just not under the 
-> name /usr/include/user, but something more meaningfull.
+Name: Remove copy_to_user Warnings in Netfilter
+Status: Trivial
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-Whats wrong with
-/lib/modules/`uname -r`/source/include/user
-/lib/modules/`uname -r`/source/include/$arch
+After changing firewall rules, we try to return the counters to
+userspace.  We didn't fail at that point if the copy failed, but it
+doesn't really matter.  Someone added a warn_unused_result attribute
+to copy_to_user, so we get bogus warnings.
 
-	Sam
+Index: linux-2.6.10-rc2-bk13-Netfilter/net/ipv4/netfilter/ip_tables.c
+===================================================================
+--- linux-2.6.10-rc2-bk13-Netfilter.orig/net/ipv4/netfilter/ip_tables.c	2004-11-30 12:45:23.000000000 +1100
++++ linux-2.6.10-rc2-bk13-Netfilter/net/ipv4/netfilter/ip_tables.c	2004-12-01 15:49:35.000000000 +1100
+@@ -1141,12 +1141,12 @@
+ 	/* Decrease module usage counts and free resource */
+ 	IPT_ENTRY_ITERATE(oldinfo->entries, oldinfo->size, cleanup_entry,NULL);
+ 	vfree(oldinfo);
+-	/* Silent error: too late now. */
+-	copy_to_user(tmp.counters, counters,
+-		     sizeof(struct ipt_counters) * tmp.num_counters);
++	if (copy_to_user(tmp.counters, counters,
++			 sizeof(struct ipt_counters) * tmp.num_counters) != 0)
++		ret = -EFAULT;
+ 	vfree(counters);
+ 	up(&ipt_mutex);
+-	return 0;
++	return ret;
+ 
+  put_module:
+ 	module_put(t->me);
+Index: linux-2.6.10-rc2-bk13-Netfilter/net/ipv6/netfilter/ip6_tables.c
+===================================================================
+--- linux-2.6.10-rc2-bk13-Netfilter.orig/net/ipv6/netfilter/ip6_tables.c	2004-11-16 15:30:12.000000000 +1100
++++ linux-2.6.10-rc2-bk13-Netfilter/net/ipv6/netfilter/ip6_tables.c	2004-12-01 15:50:28.000000000 +1100
+@@ -1222,11 +1222,12 @@
+ 	IP6T_ENTRY_ITERATE(oldinfo->entries, oldinfo->size, cleanup_entry,NULL);
+ 	vfree(oldinfo);
+ 	/* Silent error: too late now. */
+-	copy_to_user(tmp.counters, counters,
+-		     sizeof(struct ip6t_counters) * tmp.num_counters);
++	if (copy_to_user(tmp.counters, counters,
++			 sizeof(struct ip6t_counters) * tmp.num_counters) != 0)
++		ret = -EFAULT;
+ 	vfree(counters);
+ 	up(&ip6t_mutex);
+-	return 0;
++	return ret;
+ 
+  put_module:
+ 	module_put(t->me);
+Index: linux-2.6.10-rc2-bk13-Netfilter/net/ipv4/netfilter/arp_tables.c
+===================================================================
+--- linux-2.6.10-rc2-bk13-Netfilter.orig/net/ipv4/netfilter/arp_tables.c	2004-11-16 15:30:12.000000000 +1100
++++ linux-2.6.10-rc2-bk13-Netfilter/net/ipv4/netfilter/arp_tables.c	2004-12-01 15:49:54.000000000 +1100
+@@ -948,12 +948,12 @@
+ 	/* Decrease module usage counts and free resource */
+ 	ARPT_ENTRY_ITERATE(oldinfo->entries, oldinfo->size, cleanup_entry,NULL);
+ 	vfree(oldinfo);
+-	/* Silent error: too late now. */
+-	copy_to_user(tmp.counters, counters,
+-		     sizeof(struct arpt_counters) * tmp.num_counters);
++	if (copy_to_user(tmp.counters, counters,
++			 sizeof(struct arpt_counters) * tmp.num_counters) != 0)
++		ret = -EFAULT;
+ 	vfree(counters);
+ 	up(&arpt_mutex);
+-	return 0;
++	return ret;
+ 
+  put_module:
+ 	module_put(t->me);
+
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
+

@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282413AbRLKR1W>; Tue, 11 Dec 2001 12:27:22 -0500
+	id <S282067AbRLKRZM>; Tue, 11 Dec 2001 12:25:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282481AbRLKR1D>; Tue, 11 Dec 2001 12:27:03 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50183 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S282413AbRLKR0m>; Tue, 11 Dec 2001 12:26:42 -0500
-Date: Tue, 11 Dec 2001 09:26:09 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: GOTO Masanori <gotom@debian.org>
-cc: <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
-        <andrea@suse.de>
-Subject: Re: [PATCH] direct IO breaks root filesystem
-In-Reply-To: <w534rmynn77.wl@megaela.fe.dis.titech.ac.jp>
-Message-ID: <Pine.LNX.4.33.0112110923290.8613-100000@penguin.transmeta.com>
+	id <S282242AbRLKRYw>; Tue, 11 Dec 2001 12:24:52 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:15122 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S282067AbRLKRYq>;
+	Tue, 11 Dec 2001 12:24:46 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200112111724.UAA02436@ms2.inr.ac.ru>
+Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2
+To: davem@redhat.com (David S. Miller)
+Date: Tue, 11 Dec 2001 20:24:15 +0300 (MSK)
+Cc: Mika.Liljeberg@welho.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20011210.161332.30184646.davem@redhat.com> from "David S. Miller" at Dec 10, 1 04:13:32 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-On Tue, 11 Dec 2001, GOTO Masanori wrote:
-> I, however, found another problem.
-> Accessing with inode size unit (== 4096 byte) is ok, but if I accessed
-> with block size unit, generic_direct_IO() returns error.  The reason
-> is that blocksize is designated as inode->i_blkbits, and its value is
-> not disk minimal block size (512), but inode's unit size (4096).
+> A socket in a synchronized state is required to enforce legal sequence
+> numbers, is it not?
 
-That is not a bug, but a feature.
+They are . :-)
 
-We _always_ have to do the IO in "inode size" chunks, and if you want to
-change it, you have to change it at a higher level (ie you should set the
-blocksize with the "BLKBSZSET" ioctl.)
+Well, assuming that this is really illegal we could just add
+missing LAST_ACK close to its relative CLOSING, CLOSE_WAIT
+(where it was forgotten old days occasionally, I think).
+It is minimal change and this is good.
 
-		Linus
+But I look at problem at our side: if we receive such packet yet,
+what should we make? Earlier we sent an ACK and dropped
+bad segment or aborted connection. Now we just blackhole them
+and the bug with missing case LAST_ACK just allowed to see the fact
+that we changed behaviour, which is not good. :-)
 
+Alexey

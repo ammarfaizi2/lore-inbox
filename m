@@ -1,57 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262734AbVAFF3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262735AbVAFFdL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262734AbVAFF3y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 00:29:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbVAFF3x
+	id S262735AbVAFFdL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 00:33:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbVAFFdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 00:29:53 -0500
-Received: from dialup-4.246.108.239.Dial1.SanJose1.Level3.net ([4.246.108.239]:3969
-	"EHLO nofear.bounceme.net") by vger.kernel.org with ESMTP
-	id S262734AbVAFF2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 00:28:47 -0500
-Message-ID: <41DCCCF6.1030505@syphir.sytes.net>
-Date: Wed, 05 Jan 2005 21:30:30 -0800
-From: "C.Y.M" <syphir@syphir.sytes.net>
-Reply-To: syphir@syphir.sytes.net
-Organization: CooLNeT
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: ACPI-1138 Error starting with 2.6.10-bk3
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 6 Jan 2005 00:33:10 -0500
+Received: from fw.osdl.org ([65.172.181.6]:52908 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262735AbVAFFcf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 00:32:35 -0500
+Date: Wed, 5 Jan 2005 21:32:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: andrea@suse.de, riel@redhat.com, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][5/?] count writeback pages in nr_scanned
+Message-Id: <20050105213207.721b1aae.akpm@osdl.org>
+In-Reply-To: <41DCCA68.3020100@yahoo.com.au>
+References: <41DC7D86.8050609@yahoo.com.au>
+	<Pine.LNX.4.61.0501052025450.11550@chimarrao.boston.redhat.com>
+	<20050105173624.5c3189b9.akpm@osdl.org>
+	<Pine.LNX.4.61.0501052240250.11550@chimarrao.boston.redhat.com>
+	<41DCB577.9000205@yahoo.com.au>
+	<20050105202611.65eb82cf.akpm@osdl.org>
+	<41DCC014.80007@yahoo.com.au>
+	<20050105204706.0781d672.akpm@osdl.org>
+	<20050106045932.GN4597@dualathlon.random>
+	<20050105210539.19807337.akpm@osdl.org>
+	<20050106051707.GP4597@dualathlon.random>
+	<41DCCA68.3020100@yahoo.com.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been getting the following ACPI errors since 2.6.10-bk3.  Is there some new configuration I 
-need to enable?
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+> Andrea Arcangeli wrote:
+> > On Wed, Jan 05, 2005 at 09:05:39PM -0800, Andrew Morton wrote:
+> > 
+> >>Andrea Arcangeli <andrea@suse.de> wrote:
+> >>
+> >>>The fix is very simple and it is to call wait_on_page_writeback on one
+> >>> of the pages under writeback.
+> >>
+> >>eek, no.  That was causing waits of five seconds or more.  Fixing this
+> >>caused the single greatest improvement in page allocator latency in early
+> >>2.5.  We're totally at the mercy of the elevator algorithm this way.
+> >>
+> >>If we're to improve things in there we want to wait on _any_ eligible page
+> >>becoming reclaimable, not on a particular page.
+> > 
+> > 
+> > I told you one way to fix it. I didn't guarantee it was the most
+> > efficient one.
+> > 
 
-Jan  5 09:00:14 nofear kernel: Linux version 2.6.10-bk8.010505.1 (root@nofear) (gcc version 3.3.5 
-(Debian 1:3.3.5-5)) #1 Wed Jan 5 08:50:21 PST 2005
-Jan  5 09:00:14 nofear kernel: BIOS-provided physical RAM map:
-Jan  5 09:00:14 nofear kernel:  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
-Jan  5 09:00:14 nofear kernel:  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
-Jan  5 09:00:14 nofear kernel:  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
-Jan  5 09:00:14 nofear kernel:  BIOS-e820: 0000000000100000 - 000000001fff0000 (usable)
-Jan  5 09:00:14 nofear kernel:  BIOS-e820: 000000001fff0000 - 000000001fff3000 (ACPI NVS)
-Jan  5 09:00:14 nofear kernel:  BIOS-e820: 000000001fff3000 - 0000000020000000 (ACPI data)
-Jan  5 09:00:14 nofear kernel:  BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-Jan  5 09:00:14 nofear kernel: 511MB LOWMEM available.
-Jan  5 09:00:14 nofear kernel: On node 0 totalpages: 131056
-Jan  5 09:00:14 nofear kernel:   DMA zone: 4096 pages, LIFO batch:1
-Jan  5 09:00:14 nofear kernel:   Normal zone: 126960 pages, LIFO batch:16
-Jan  5 09:00:14 nofear kernel:   HighMem zone: 0 pages, LIFO batch:1
-Jan  5 09:00:14 nofear kernel: DMI 2.2 present.
-Jan  5 09:00:14 nofear kernel: __iounmap: bad address c00f0000
-Jan  5 09:00:14 nofear kernel: ACPI: RSDP (v000 VIA694                                ) @ 0x000f64a0
-Jan  5 09:00:14 nofear kernel: ACPI: RSDT (v001 VIA694 AWRDACPI 0x42302e31 AWRD 0x00000000) @ 0x1fff3000
-Jan  5 09:00:14 nofear kernel: ACPI: FADT (v001 VIA694 AWRDACPI 0x42302e31 AWRD 0x00000000) @ 0x1fff3040
-Jan  5 09:00:14 nofear kernel: ACPI: DSDT (v001 VIA694 AWRDACPI 0x00001000 MSFT 0x0100000c) @ 0x00000000
-Jan  5 09:00:14 nofear kernel: ACPI: PM-Timer IO Port: 0x4008
-Jan  5 09:00:14 nofear kernel:     ACPI-1138: *** Error: Method execution failed [\STRC] (Node 
-c14d8e20), AE_AML_BUFFER_LIMIT
-Jan  5 09:00:14 nofear kernel:     ACPI-1138: *** Error: Method execution failed [\_SB_.PCI0._INI] 
-(Node c14d7b40), AE_AML_BUFFER_LIMIT
+And I've already described the efficient way to "fix" it.  Twice.
+
+> > I sure agree waiting on any page to complete writeback is going to fix
+> > it too. Exactly because this page was a "random" page anyway.
+> > 
+> > Still my point is that this is a bug, and I prefer to be slow and safe
+> > like 2.4, than fast and unreliable like 2.6.
+> > 
+> > The slight improvement you suggested of waiting on _any_ random
+> > PG_writeback to go away (instead of one particular one as I did in 2.4)
+
+It's a HUGE improvement.
+
+  "Example: with `mem=512m', running 4 instances of `dbench 100', 2.5.34
+   took 35 minutes to compile a kernel.  With this patch, it took three
+   minutes, 45 seconds."
+
+Plus this was the change which precipitated all the I/O scheduler
+development, because it caused us to keep the queues full all the time and
+the old I/O scheduler collapsed.
+
+> > is going to fix the write throttling equally too as well as the 2.4
+> > logic, but without introducing slowdown that 2.4 had.
+> > 
+> > It's easy to demonstrate: exactly because the page we pick is random
+> > anyway, we can pick the first random one that has seen PG_writeback
+> > transitioning from 1 to 0. The guarantee we get is the same in terms of
+> > safety of the write throttling, but we also guarantee the best possible
+> > latency this way. And the HZ/x hacks to avoid deadlocks will magically
+> > go away too.
+> > 
+> 
+> This is practically what blk_congestion_wait does when the queue
+> isn't congested though, isn't it?
+
+Pretty much.  Except:
+
+- Doing a wakeup when a write request is retired corresponds to releasing
+  a batch of pages, not a single page.  Usually.
+
+- direct-io writes could confuse it.
+
+For the third time: "fixing" this involves delivering a wakeup to all zones
+in the page's classzone in end_page_writeback(), and passing the zone* into
+blk_congestion_wait().  Only deliver the wakeup on every Nth page to get a
+bit of batching and to reduce CPU consumption.  Then demonstrating that the
+change actually improves something.

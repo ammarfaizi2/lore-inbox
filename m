@@ -1,33 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265351AbSJRRb6>; Fri, 18 Oct 2002 13:31:58 -0400
+	id <S265346AbSJRRaB>; Fri, 18 Oct 2002 13:30:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265348AbSJRRax>; Fri, 18 Oct 2002 13:30:53 -0400
-Received: from gull.mail.pas.earthlink.net ([207.217.120.84]:50381 "EHLO
-	gull.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S265345AbSJRRaS>; Fri, 18 Oct 2002 13:30:18 -0400
-Date: Fri, 18 Oct 2002 10:29:47 -0700 (PDT)
+	id <S265345AbSJRR3E>; Fri, 18 Oct 2002 13:29:04 -0400
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:55429 "EHLO
+	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S265307AbSJRR2n>; Fri, 18 Oct 2002 13:28:43 -0400
+Date: Fri, 18 Oct 2002 10:27:59 -0700 (PDT)
 From: James Simmons <jsimmons@infradead.org>
 X-X-Sender: <jsimmons@maxwell.earthlink.net>
-To: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-cc: Linus Torvalds <torvalds@transmeta.com>,
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>,
        Linux Fbdev development list 
 	<linux-fbdev-devel@lists.sourceforge.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] fbdev changes.
-In-Reply-To: <1034628378.1143.507.camel@tibook>
-Message-ID: <Pine.LNX.4.33.0210181028520.10832-100000@maxwell.earthlink.net>
+Subject: Re: [BK PATCHS] fbdev updates.
+In-Reply-To: <20021015103833.C9771@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.33.0210181018470.10832-100000@maxwell.earthlink.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Wouldn't that complicate merges between the kernel and DRI CVS? At any
-> rate, I think discussion related to the DRI should take place on
-> dri-devel.
+> That's fine for me, but I'd expect other people to find problems with it.
+>
+> Would it not be better to allow drivers to decide which type of blanking
+> they want to use depending on the current parameters set via the set_par
+> callback?  Only the drivers themselves know what their fb_blank method is
+> capable of performing.
 
-Okay the idea of mixing the drivers together was rejected. SO I just moved
-the entire directory to drivers/video instead. People didn't seem to have
-problem with that.
+Yes the drivers should always have priority. The other stuff is there
+only if the drivers have no power management of any kind. I leave it up to
+the driver write to implement a fb_blank function that handles different
+cases.
+
+> I think with the above you'll inadvertently encourage drivers to mundge
+> the fb_blank function pointer in their set_par method.
+
+Why would you have to mess around with the function pointer. Couldn't you
+just set a flag or fill in a hardware dependent struct that defines what
+states are possible for hardware power management. Then when fb_blank is
+called it uses the information to decide which action to take. I think
+this approach is much more powerful than using a single can_soft_blank
+flag. I like to get ride of can_soft_blank and allow the driver to decide
+on this stuff itself.
+
+> There is also the argument about wanting soft blanking, but hardware power
+> saving.
+
+Hm. True unfortunely the fbdev layer lacks handling details like that. The
+console system is even worse. This is why a single flag like
+can_soft_blank can actually be a limitation.
 

@@ -1,96 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264981AbSKAMpG>; Fri, 1 Nov 2002 07:45:06 -0500
+	id <S264980AbSKAMqE>; Fri, 1 Nov 2002 07:46:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264985AbSKAMpG>; Fri, 1 Nov 2002 07:45:06 -0500
-Received: from sr1.terra.com.br ([200.176.3.16]:11204 "EHLO sr1.terra.com.br")
-	by vger.kernel.org with ESMTP id <S264981AbSKAMpE>;
-	Fri, 1 Nov 2002 07:45:04 -0500
-Date: Fri, 1 Nov 2002 09:51:31 -0300
-From: Lucio Maciel <abslucio@terra.com.br>
-To: marcelo@conectiva.com.br
-Cc: Robert Olsson <Robert.Olsson@data.slu.se>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [TRIVIAL PATCH] PKTGEN Documentation
-Message-Id: <20021101095131.5c3675aa.abslucio@terra.com.br>
-Organization: absoluta
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S264982AbSKAMqE>; Fri, 1 Nov 2002 07:46:04 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:786 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264980AbSKAMqD>; Fri, 1 Nov 2002 07:46:03 -0500
+Date: Fri, 1 Nov 2002 12:52:26 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: Where's the documentation for Kconfig?
+Message-ID: <20021101125226.B16919@flint.arm.linux.org.uk>
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+References: <20021031134308.I27461@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0210311452531.13258-100000@serv>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Fri__1_Nov_2002_09:51:31_-0300_08252810"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0210311452531.13258-100000@serv>; from zippel@linux-m68k.org on Thu, Oct 31, 2002 at 03:43:26PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Thu, Oct 31, 2002 at 03:43:26PM +0100, Roman Zippel wrote:
+> On Thu, 31 Oct 2002, Matthew Wilcox wrote:
+> > I'm just looking over the new arch/parisc/Kconfig trying to make sure that
+> > it got translated correctly, but I can't find any documentation.
+> 
+> http://www.xs4all.nl/~zippel/lc/
 
---Multipart_Fri__1_Nov_2002_09:51:31_-0300_08252810
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Is there a tool to convert _a_ Config.in to a Kconfig?  lkcc doesn't
+seem to do it - it wants to do thw hole lot, which isn't very useful
+when you've got half a tree that's converted and many Config.in files
+that contain updates that aren't in Kconfig.
 
-Hello...
-
-this patch correct the doc for pktgen
-change multiskb to clone_skb and /proc/net/pg to /proc/net/pktgen 
-
-Please apply (diff from 2.4.20-rc1)...
-
-cya
 -- 
-::: Lucio F. Maciel
-::: abslucio@terra.com.br
-::: icq 93065464
---Multipart_Fri__1_Nov_2002_09:51:31_-0300_08252810
-Content-Type: application/octet-stream;
- name="pktgen-doc.diff"
-Content-Disposition: attachment;
- filename="pktgen-doc.diff"
-Content-Transfer-Encoding: base64
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-LS0tIERvY3VtZW50YXRpb24vbmV0d29ya2luZy9wa3RnZW4udHh0fgkyMDAyLTExLTAxIDA5OjM5
-OjE3LjAwMDAwMDAwMCAtMDMwMAorKysgRG9jdW1lbnRhdGlvbi9uZXR3b3JraW5nL3BrdGdlbi50
-eHQJMjAwMi0xMS0wMSAwOTozNDo1MS4wMDAwMDAwMDAgLTAzMDAKQEAgLTYsMTMgKzYsMTUgQEAK
-IDMuIEVkaXQgc2NyaXB0IHRvIHNldCBwcmVmZXJyZWQgZGV2aWNlIGFuZCBkZXN0aW5hdGlvbiBJ
-UCBhZGRyZXNzLgogM2EuICBDcmVhdGUgbW9yZSBzY3JpcHRzIGZvciBkaWZmZXJlbnQgaW50ZXJm
-YWNlcy4gIFVwIHRvIHRoaXJ0eS10d28KICAgICAgcGt0Z2VuIHByb2Nlc3NlcyBjYW4gYmUgY29u
-ZmlndXJlZCBhbmQgcnVuIGF0IG9uY2UgYnkgdXNpbmcgdGhlCi0gICAgIDMyIC9wcm9jL25ldC9w
-ZyogZmlsZXMuCisgICAgIDMyIC9wcm9jL25ldC9wa3RnZW4vcGcqIGZpbGVzLgogNC4gUnVuIGlu
-IHNoZWxsOiAiLiBpcGciCiA1LiBBZnRlciB0aGlzIHR3byBjb21tYW5kcyBhcmUgZGVmaW5lZDoK
-ICAgIEEuICJwZyIgdG8gc3RhcnQgZ2VuZXJhdG9yIGFuZCB0byBnZXQgcmVzdWx0cy4KICAgIEIu
-ICJwZ3NldCIgdG8gY2hhbmdlIGdlbmVyYXRvciBwYXJhbWV0ZXJzLiBGLmUuCi0gICAgICBwZ3Nl
-dCAibXVsdGlza2IgMSIgICAgICB1c2UgbXVsdGlwbGUgU0tCcyBmb3IgcGFja2V0IGdlbmVyYXRp
-b24KLSAgICAgIHBnc2V0ICJtdWx0aXNrYiAwIiAgICAgIHVzZSBzaW5nbGUgU0tCIGZvciBhbGwg
-dHJhbnNtaXRzCisgICAgICBwZ3NldCAiY2xvbmVfc2tiIDEwMCIgICBzZXRzIHRoZSBudW1iZXIg
-b2YgY29wcGllcyAoaW4gdGhpcyBjYXNlIDEwMCkgb2YgCisgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICB0aGUgc2FtZSBwYWNrZXQgd2lsbCBiZSBzZW50IGJlZm9yZSBhIG5ldyBwYWNrZXQg
-CisgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBpcyBhbGxvY2F0ZWQKKyAgICAgIHBnc2V0
-ICJjbG9uZV9za2IgMCIgICAgIHVzZSBtdWx0aXBsZSBTS0JzIGZvciBwYWNrZXQgZ2VuZXJhdGlv
-bgogICAgICAgcGdzZXQgInBrdF9zaXplIDkwMTQiICAgc2V0cyBwYWNrZXQgc2l6ZSB0byA5MDE0
-CiAgICAgICBwZ3NldCAiZnJhZ3MgNSIgICAgICAgICBwYWNrZXQgd2lsbCBjb25zaXN0IG9mIDUg
-ZnJhZ21lbnRzCiAgICAgICBwZ3NldCAiY291bnQgMjAwMDAwIiAgICBzZXRzIG51bWJlciBvZiBw
-YWNrZXRzIHRvIHNlbmQsIHNldCB0byB6ZXJvCkBAIC0zMywxNiArMzUsMTYgQEAKICAgICAgIHBn
-c2V0ICJkc3RfbWFjX2NvdW50IDEiIFNldHMgdGhlIG51bWJlciBvZiBNQUNzIHdlJ2xsIHJhbmdl
-IHRocm91Z2guICBUaGUKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICdtaW5pbXVtJyBN
-QUMgaXMgd2hhdCB5b3Ugc2V0IHdpdGggZHN0bWFjLgogICAgICAgcGdzZXQgImZsYWcgW25hbWVd
-IiAgICAgU2V0IGEgZmxhZyB0byBkZXRlcm1pbmUgYmVoYXZpb3VyLiAgQ3VycmVudCBmbGFncwot
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYXJlOiBJUFNSQ19STkQgI0lQIFNvdXJjZSBp
-cyByYW5kb20gKGJldHdlZW4gbWluL21heCksCi0gICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgIElQRFNUX1JORCwgVURQU1JDX1JORCwKLSAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgVURQRFNUX1JORCwgTUFDU1JDX1JORCwgTUFDRFNUX1JORCAKKyAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgIGFyZTogSVBTUkNfUk5EICNJUCBTb3VyY2UgaXMgcmFuZG9tIAor
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKGJldHdlZW4gbWluL21heCksIElQRFNUX1JO
-RCwgVURQU1JDX1JORCwKKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFVEUERTVF9STkQs
-IE1BQ1NSQ19STkQsIE1BQ0RTVF9STkQgCiAgICAgICBwZ3NldCAidWRwX3NyY19taW4gOSIgICBz
-ZXQgVURQIHNvdXJjZSBwb3J0IG1pbiwgSWYgPCB1ZHBfc3JjX21heCwgdGhlbgogICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgY3ljbGUgdGhyb3VnaCB0aGUgcG9ydCByYW5nZS4KICAgICAg
-IHBnc2V0ICJ1ZHBfc3JjX21heCA5IiAgIHNldCBVRFAgc291cmNlIHBvcnQgbWF4LgogICAgICAg
-cGdzZXQgInVkcF9kc3RfbWluIDkiICAgc2V0IFVEUCBkZXN0aW5hdGlvbiBwb3J0IG1pbiwgSWYg
-PCB1ZHBfZHN0X21heCwgdGhlbgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY3ljbGUg
-dGhyb3VnaCB0aGUgcG9ydCByYW5nZS4KICAgICAgIHBnc2V0ICJ1ZHBfZHN0X21heCA5IiAgIHNl
-dCBVRFAgZGVzdGluYXRpb24gcG9ydCBtYXguCi0gICAgICBwZ3NldCBzdG9wICAgIAkgICAgICBh
-Ym9ydHMgaW5qZWN0aW9uCisgICAgICBwZ3NldCBzdG9wICAgICAgICAgICAgICBhYm9ydHMgaW5q
-ZWN0aW9uCiAgICAgICAKICAgQWxzbywgXkMgYWJvcnRzIGdlbmVyYXRvci4KIApAQCAtNTIsNyAr
-NTQsNyBAQAogCiBtb2Rwcm9iZSBwa3RnZW4KIAotUEdERVY9L3Byb2MvbmV0L3BnL3BnMAorUEdE
-RVY9L3Byb2MvbmV0L3BrdGdlbi9wZzAKIAogZnVuY3Rpb24gcGdzZXQoKSB7CiAgICAgbG9jYWwg
-cmVzdWx0Cg==
-
---Multipart_Fri__1_Nov_2002_09:51:31_-0300_08252810--

@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVAaU4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVAaVA0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbVAaU4U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 15:56:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVAaUyX
+	id S261361AbVAaVA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 16:00:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVAaVAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 15:54:23 -0500
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:50312 "EHLO
-	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S261361AbVAaUwm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 15:52:42 -0500
-Date: Mon, 31 Jan 2005 21:52:35 +0100
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-To: Bukie Mabayoje <bukiemab@gte.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IPMI smbus and Intel 6300ESB Watchdog drivers
-Message-ID: <20050131205234.GC26992@hardeman.nu>
-References: <20050130184401.GC3373@hardeman.nu> <41FD5EFB.D6E39F5E@gte.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
+	Mon, 31 Jan 2005 16:00:25 -0500
+Received: from out012pub.verizon.net ([206.46.170.137]:35810 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S261361AbVAaU6f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 15:58:35 -0500
+Message-ID: <41FE9F7F.5F9E5F93@gte.net>
+Date: Mon, 31 Jan 2005 13:13:35 -0800
+From: Bukie Mabayoje <bukiemab@gte.net>
+X-Mailer: Mozilla 4.78 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: sfeldma@pobox.com, "David =?iso-8859-1?Q?H=E4rdeman?=" <david@2gen.com>,
+       Michael Gernoth <simigern@stud.uni-erlangen.de>,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: 2.4.29, e100 and a WOL packet causes keventd going mad
+References: <20050130171849.GA3354@hardeman.nu> <1107143255.18167.428.camel@localhost.localdomain> <41FDB2D3.5CBD6F7D@gte.net> <20050131152431.GA14176@logos.cnet>
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <41FD5EFB.D6E39F5E@gte.net>
-User-Agent: Mutt/1.5.6+20040907i
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [66.199.68.159] at Mon, 31 Jan 2005 14:58:26 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 30, 2005 at 02:26:03PM -0800, Bukie Mabayoje wrote:
->David Härdeman wrote:
->> 1) On the mainboard is a 6300ESB Watchdog Timer (pci id 8086:25ab), but
->> there seems to be no driver available for it.
+
+
+Marcelo Tosatti wrote:
+
+> On Sun, Jan 30, 2005 at 08:23:47PM -0800, Bukie Mabayoje wrote:
+> >
+> > Scott Feldman wrote:
+> >
+> > > On Sun, 2005-01-30 at 09:18, David HÃ¤rdeman wrote:
+> > > > I experience the same problems as reported by Michael Gernoth when
+> > > > sending a WOL-packet to computer with a e100 NIC which is already
+> > > > powered on.
+> > >
+> > > I didn't look at the 2.4 case, but for 2.6, it seems e100 was enabling
+> > > PME wakeup during probe.  PME shouldn't be enabled while the system is
+> > > up.  I suspect the assertion of PME while the system is up is what's
+> > > causing problems.  This patch moves PME wakeup enabling to either
+> > > suspend or shutdown.
+> > >
+> > > David, would you give this patch a try?  Make sure the system still
+> > > wakes from a magic packet if suspended or shut down, and doesn't cause
+> > > kacpid to go crazy if system is running.  If it helps for 2.6, perhaps
+> > > someone can look into 2.4 to see if there is something similar going on
+> >
+> > This issue was reported on 2.4.
 >
->6300ESB is not a Watchdog Timer. It is an I/O Controller hub that includes a watch dog timer.
+> Can any of you guys test v2.6, please?
 
-Ah well, I just quoted the output of lspci...
+I will be glad to test it now but I can't, I am currently doing some work on 2.4. If no one has tested it in the next few days I will validate it then.
 
->> Does anyone know if there
->> is any such driver in progress or if I've misunderstood the situation?
+By the way,  do anyone have an idea how to get this functionality into 2.4 eepro100. The problem is that eepro100 code works on a non WOL cards.
+
 >
->If you tell me why you are interested in the WDT, then maybe I will be able answer your question.
-
-Hummm? In order to have watchdog functionality on the machine? But 
-nevermind, I already got that question answered (with the pci id update 
-for i8xx_tco).
-
->>
->>
->> 2) IPMI, Documentation/IPMI.txt mentions a ipmi_smb driver, but I could
->> find no such driver in the 2.6.10 tree. Am I missing something?
 >
->Do you get the ISM package that shipped with the board? The ISM software stack in not part of the kernel. The IPMI stuff is part of Server Management.
->
-
-As for IPMI, I have no idea, I just have no experience of it at all and 
-I saw that this mmotherboard supported IPMI so I thought it could be an 
-interesting experiment to learn a bit more about IPMI.
-
-Re,
-David
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

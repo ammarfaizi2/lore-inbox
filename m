@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265200AbUEVJdK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264949AbUEVJii@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265200AbUEVJdK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 05:33:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265202AbUEVJdK
+	id S264949AbUEVJii (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 05:38:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265202AbUEVJii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 05:33:10 -0400
-Received: from fw.osdl.org ([65.172.181.6]:49316 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265200AbUEVJdH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 05:33:07 -0400
-Date: Sat, 22 May 2004 02:32:18 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: hch@infradead.org
-Cc: brking@us.ibm.com, linux-kernel@vger.kernel.org
+	Sat, 22 May 2004 05:38:38 -0400
+Received: from canuck.infradead.org ([205.233.217.7]:43270 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S264949AbUEVJig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 05:38:36 -0400
+Date: Sat, 22 May 2004 05:38:30 -0400
+From: hch@infradead.org
+To: Andrew Morton <akpm@osdl.org>, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.6-mm5
-Message-Id: <20040522023218.4d3e34e3.akpm@osdl.org>
-In-Reply-To: <20040522092627.GA3432@infradead.org>
+Message-ID: <20040522093830.GA3532@infradead.org>
+Mail-Followup-To: hch@infradead.org, Andrew Morton <akpm@osdl.org>,
+	axboe@suse.de, linux-kernel@vger.kernel.org
 References: <20040522013636.61efef73.akpm@osdl.org>
-	<20040522092627.GA3432@infradead.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040522013636.61efef73.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hch@infradead.org wrote:
->
-> > +ipr-ppc64-depends.patch
-> > 
-> >  Make ipr.c depend on PPC
+> +disk-barrier-core.patch
+> +disk-barrier-core-tweaks.patch
+> +disk-barrier-ide.patch
+> +disk-barrier-ide-symbol-expoprt.patch
+> +disk-barrier-ide-warning-fix.patch
+> +disk-barrier-scsi.patch
 > 
-> >> Makes ipr depend on CONFIG_PPC since this driver is unique to PPC hardware.
-> >> 
-> >> (It actually builds OK on x86, but it heavily uses anonymous unions, which
-> >> breaks on gcc-2.95)
+>  Support for IDE and SCSI barriers
 > 
-> I use gcc-2.95 happily on ppc.  Better thing is to either fix it up not to
-> use anonymous unions (which is a pitty because that feature helps making
-> code more readable sometimes) or stick a
+> +disk-barrier-dm.patch
+> +disk-barrier-md.patch
+> 
+>  Via device mapper and raid as well.
 
-It uses a *ton* of anonymous unions.
+Some comments on the API and the SCSI part:
 
-> #if (__GNUC__ < 3)
-> # error "This driver requires GCC 3.x"
-> #endif
+ - issue_flush_fn prototype choice is bad, the request_queue_t argument
+   wile always be disk->queue so it's not needed and only causes
+   confusion.
+ - issue_flush sounds a little strange to me, what about cache_flush
+   or sync_cache instead?
+ - scsi_drive.issue_flush should take a scsi_device * as first parameter,
+   not struct device * - makes life for bother caller and callee easier.
+ - should probably add a small helper to get the scsi_driver from the
+   gendisk instead of duplicating the code, ala:
 
-That breaks allfooconfig.
+static inline struct scsi_driver *scsi_disk_driver(struct gendisk *disk)
+{
+	return *(struct scsi_driver **) disk->private_data;
+}
 
+ - the WCE check should move into sd_sync_cache
+ - NULL scsi_disk can't happen for sd_issue_flush, no need to check,
+   and thus the disctinction of sd_issue_flush vs sd_sync_cache can
+   go and sd_shutdown can simply call the cache flush method.

@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266880AbUBFWKn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 17:10:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266895AbUBFWKn
+	id S266892AbUBFWHS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 17:07:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266853AbUBFWHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 17:10:43 -0500
-Received: from uranium.btinternet.com ([194.73.73.89]:12985 "EHLO
+	Fri, 6 Feb 2004 17:07:17 -0500
+Received: from uranium.btinternet.com ([194.73.73.89]:54152 "EHLO
 	uranium.btinternet.com") by vger.kernel.org with ESMTP
-	id S266880AbUBFWKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 17:10:22 -0500
+	id S266892AbUBFWG4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 17:06:56 -0500
 Subject: Kernel DRI support
 From: David Seery <djseery@btinternet.com>
 To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Message-Id: <1076105424.27023.18.camel@localhost>
+Message-Id: <1076105201.27023.16.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.5.2 
-Date: Fri, 06 Feb 2004 22:10:24 +0000
+Date: Fri, 06 Feb 2004 22:06:41 +0000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -39,12 +39,12 @@ base of the framebuffer.  This comes from http://bugs.xfree86.org/
 show_bug.cgi?id=314.  The patch didn't apply cleanly so I did it by
 hand.
 
-Is this correct, or should the radeon agp stuff work as is?
+Is this correct, or should the radeon agp stuff as is?
 
 2.  The result is not really any faster than doing it in software.  In
 particular, it doesn't make any difference if I have mtrr write-
 combining ranges set up or not, so it seems like the AGP acceleration
-isn't really being used.   (This is why I am directing my query here.)
+isn't really being used.
 
 Am I off the mark here, or is this a known problem with support for
 these IGP devices?
@@ -126,4 +126,5 @@ grep -i agp /var/log/XFree86.0.log             (trimmed)
 (II) RADEON(0): [agp] Vertex/indirect buffers mapped at 0x4436c000
 (II) RADEON(0): [agp] GART texture map handle = 0xd4302000
 (II) RADEON(0): [agp] GART Texture map mapped at 0x4456c000
+
 

@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132429AbRDCS5b>; Tue, 3 Apr 2001 14:57:31 -0400
+	id <S132434AbRDCTJ1>; Tue, 3 Apr 2001 15:09:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132434AbRDCS5V>; Tue, 3 Apr 2001 14:57:21 -0400
-Received: from cc946626-a.vron1.nj.home.com ([24.5.103.153]:4612 "EHLO
-	tela.bklyn.org") by vger.kernel.org with ESMTP id <S132429AbRDCS5K>;
-	Tue, 3 Apr 2001 14:57:10 -0400
-Date: Tue, 3 Apr 2001 14:56:15 -0400
-From: Caleb Epstein <cae@bklyn.org>
-To: linux-kernel@vger.kernel.org
-Subject: NFS client code slow in 2.4.3
-Message-ID: <20010403145615.C1049@hagrid.bklyn.org>
-Reply-To: Caleb Epstein <cae@bklyn.org>
-Mime-Version: 1.0
+	id <S132465AbRDCTJQ>; Tue, 3 Apr 2001 15:09:16 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:21768 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132434AbRDCTJF>; Tue, 3 Apr 2001 15:09:05 -0400
+Subject: Re: Contacts within AMD?  AMD-756 USB host-controller blacklisted due to
+To: miles@megapathdsl.net (Miles Lane)
+Date: Tue, 3 Apr 2001 20:10:51 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, david-b@pacbell.net (David Brownell)
+In-Reply-To: <3ACA0C83.1E5A6020@megapathdsl.net> from "Miles Lane" at Apr 03, 2001 10:46:43 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-Organization: Brooklyn Dust Bunny Mfg.
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14kWCc-0000EF-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> David Brownell recently added this check to the usb-ohci driver
+> since noone has gotten information from AMD for the workaround,
+> which is rumored to exist, for this bug.
+> 
+> Do any of you have contacts within AMD who might be able to
+> get an explanation of the workaround to David Brownell?
 
-	I am having problems with timeouts and generaly throughput in
-	the 2.4.3 NFS client side code which are not present in the
-	2.4.2 kernel running in the same configuraiton on the same
-	hardware.  The machines are on a 100 Mbit switched local
-	network with essentially no other trafic.
+We are working on that currently via the Red Hat contact. 
 
-	In both cases, testing against a 2.4.3 NFS server (using
-	knfsd).  My tests involved using "dd" to read a large file on
-	an NFS mounted directory and running the "connectathon" NFS
-	test suite.
+> value given varies.  Rereading NDP seems to give a valid value.  
+> I am not really clear why we don't simply read the value twice 
+> whenever the host-controller is detected to be an AMD-756.
 
-	When I boot my client machine with 2.4.3, reading a 327 Mbyte
-	file over NFS takes on the order of 5-6 minutes to complete.
-	If I run the same command witrh the client running kernel
-	2.4.2, the command completes in about 1 minute.
+because we dont know the full scope of the problem yet.
 
-	Running the "cthon01" test suite, the 2.4.3 client machine
-	basically hangs in the "read + write" test section and I
-	didn't bother waiting for it to finish.  Again, when switching
-	back to 2.4.2, the client runs through the tests quite
-	quickly.
 
-	From my tests I'm pretty convinced that something in either
-	the NFS client code or the networking layer has changed which
-	has drastically reduced NFS client speeds in 2.4.3.
-
-	Is this a known problem?  Can I provide any additional
-	information to help debug it?
-
--- 
-cae at bklyn dot org | Caleb Epstein | bklyn . org | Brooklyn Dust Bunny Mfg.

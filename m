@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276930AbRJHPVz>; Mon, 8 Oct 2001 11:21:55 -0400
+	id <S276937AbRJHPZf>; Mon, 8 Oct 2001 11:25:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276336AbRJHPVs>; Mon, 8 Oct 2001 11:21:48 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38202 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S276933AbRJHPVk>; Mon, 8 Oct 2001 11:21:40 -0400
-To: Victor Yodaiken <yodaiken@fsmlabs.com>
-Cc: BALBIR SINGH <balbir.singh@wipro.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] I still see people using cli()
-In-Reply-To: <20011008084950.B16204@hq2>
-From: ebiederman@uswest.net (Eric W. Biederman)
-Date: 08 Oct 2001 09:11:57 -0600
-In-Reply-To: <20011008084950.B16204@hq2>
-Message-ID: <m1itdqw4hu.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-MIME-Version: 1.0
+	id <S276935AbRJHPZZ>; Mon, 8 Oct 2001 11:25:25 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:25136 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S276937AbRJHPZT>; Mon, 8 Oct 2001 11:25:19 -0400
+Date: Mon, 8 Oct 2001 17:24:50 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Ingo Molnar <mingo@elte.hu>,
+        jamal <hadi@cyberus.ca>, Linux-Kernel <linux-kernel@vger.kernel.org>,
+        netdev@oss.sgi.com, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+Message-ID: <20011008172450.A726@athlon.random>
+In-Reply-To: <Pine.LNX.3.96.1011008100030.13807A-100000@mandrakesoft.mandrakesoft.com> <E15qc5N-0000p5-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E15qc5N-0000p5-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Oct 08, 2001 at 04:12:53PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Victor Yodaiken <yodaiken@fsmlabs.com> writes:
+On Mon, Oct 08, 2001 at 04:12:53PM +0100, Alan Cox wrote:
+> "Driver killed because the air bag enable is off by default and only
+> mentioned on page 87 of the handbook in a footnote"
 
-> On Mon, Oct 08, 2001 at 07:59:05PM +0530, BALBIR SINGH wrote:
-> > BTW, that brings me to another issue, once the kernel becomes preemptibel,
-> what
-> 
-> > are the locking issues? how are semaphores and spin-locks affected? Has
-> anybody
-> 
-> > defined or come up with the rules/document yet?
-> 
-> IF the kernel becomes preemptible it will be so slow, so buggy, and so painful
-> to maintain, that those issues won't matter.
+Nobody suggested to not add "an airbag" by default.
 
-The preemptible kernel work just takes the current SMP code, and
-allows it to work on a single processor.  You are not interruptted if
-you have a lock held.  This makes the number of cases in the kernel
-simpler, and should improve maintenance as more people will be
-affected by the SMP issues.
+Infact the polling isn't an airbag at all, when you poll you're flying
+so you never need an airbag at all, only when you're on the ground you
+may need the airbag.
 
-Right now there is a preemptible kernel patch being maintained
-somewhere.  I haven't had a chance to look recently.  But the recent
-threads on low latency mentioned it.
+Another thing I said recently is that the hardirq airbag have nothing to
+do with softirqs, and that's right. Patch messing the softirq logic in
+function of the hardirq airbag are just totally broken or at least
+confusing because incidentally merged together by mistake.
 
-As for rules.  They are the usual SMP rules.  In earlier version there
-was a requirement or that you used balanced constructs.
-
-i.e.
-spin_lock_irqsave
-...
-spin_unlock_irqrestore
-
-and not.
-
-spin_lock_irqsave
-...
-spin_unlock
-..
-restore_flags.
-
-
-Eric
+Andrea

@@ -1,60 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbULZLXC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbULZLbB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261637AbULZLXC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 06:23:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbULZLWi
+	id S261635AbULZLbB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 06:31:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbULZLbB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 06:22:38 -0500
-Received: from smtp.pochta.ru ([81.211.64.6]:48398 "EHLO smtp2.pochta.ru")
-	by vger.kernel.org with ESMTP id S261634AbULZLWX (ORCPT
+	Sun, 26 Dec 2004 06:31:01 -0500
+Received: from levante.wiggy.net ([195.85.225.139]:40401 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S261635AbULZLbA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 06:22:23 -0500
-X-Author: alamar@mail333.com from hotline4.alkar.net (hotline4.alkar.net [212.86.226.41]) via Free Mail POCHTA.RU
-Date: Sun, 26 Dec 2004 13:20:47 +0200
-From: Roman Ivanchukov <alamar@mail333.com>
-To: Nick Warne <nick@linicks.net>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10 typo in include/linux/netfilter.h
-Message-ID: <20041226132047.6ac71b4f@hotline4.alkar.net>
-In-Reply-To: <200412261059.57661.nick@linicks.net>
-References: <200412260917.38717.nick@linicks.net>
-	<20041226023200.1bbf594d.davem@davemloft.net>
-	<200412261059.57661.nick@linicks.net>
-X-Mailer: Sylpheed-Claws 0.9.13 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 26 Dec 2004 06:31:00 -0500
+Date: Sun, 26 Dec 2004 12:30:59 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Ho ho ho - Linux v2.6.10
+Message-ID: <20041226113059.GC10303@wiggy.net>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org> <1103977161.22646.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1103977161.22646.6.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: <locally generated>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Dec 2004 10:59:57 +0000
-Nick Warne <nick@linicks.net> wrote:
+2.6.10 broke resume for me: when I resume it immediately tries to
+suspend the machine again but gets stuck after suspending USB.
 
-> > > Line 161
-> > >
-> > > /* Call setsockopt() */
-> > > int nf_setsockopt(struct sock *sk, int pf, int optval, char __user *opt,
-> > >                   int len(;  <-------
-> >
-> > That doesn't exist in the 2.6.10 sources.  Something is
-> > up with the source tree you have.  Lots of people would
-> > be complaining if this simplistic error were actually
-> > in the real 2.6.10 tree.
-> 
-> Yes, I thought strange, but this is the full tar.bz2 from kernel.org - I 
-> downloaded this morning about 2 hours ago.
-> 
-> http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.10.tar.bz2
-> 
-
-I've just downloaded linux-2.6.10.tar.bz2 from kernel.org and there is no such
-error in netfilter.h:
-
-/* Call setsockopt() */
-int nf_setsockopt(struct sock *sk, int pf, int optval, char __user *opt,
-                  int len);
-
+Wichert.
 
 -- 
-WBR, Roman
-
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.

@@ -1,31 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129180AbRBML2h>; Tue, 13 Feb 2001 06:28:37 -0500
+	id <S129355AbRBMLhj>; Tue, 13 Feb 2001 06:37:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129355AbRBML22>; Tue, 13 Feb 2001 06:28:28 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:44296 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130497AbRBML1w>; Tue, 13 Feb 2001 06:27:52 -0500
-Subject: Re: 2.2.19pre10 doesn't compile on alphas (sunrpc)
-To: trond.myklebust@fys.uio.no (Trond Myklebust)
-Date: Tue, 13 Feb 2001 11:22:25 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        carlos@fisica.ufpr.br (Carlos Carvalho), linux-kernel@vger.kernel.org
-In-Reply-To: <shslmra9a9f.fsf@charged.uio.no> from "Trond Myklebust" at Feb 13, 2001 10:56:28 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130016AbRBMLh3>; Tue, 13 Feb 2001 06:37:29 -0500
+Received: from host217-32-132-155.hg.mdip.bt.net ([217.32.132.155]:47109 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S129355AbRBMLhW>;
+	Tue, 13 Feb 2001 06:37:22 -0500
+Date: Tue, 13 Feb 2001 11:34:15 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: lost charaters -- this is becoming annoying!
+In-Reply-To: <E14SdTi-0001TE-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0102131133240.927-100000@penguin.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14SdXQ-0001Ts-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> volunteer to backport all the `safe' definitions from 2.4.x) would be
-> to add the generic `*(int *)0 = 0' definition for local use by ping()
-> itself.
+On Tue, 13 Feb 2001, Alan Cox wrote:
 
-*(int *)0 doesnt work for all ports either
+> > PS. This only happens on this Dell latitude CPx (notice lost shift in
+> > Latitude?) H450GT. 
+> > 
+> > PPS. No, my laptop is fine -- rebootingnto 2.2.x makes it type without
+> > loosing characters...
+> 
+> 2.2 and 2.4 handle keyboard error cases quite differently (less so as of 2.2.18)
+> When you say 2.2.x works does that include 2.2.18.
 
-I'd rather let people suffer a little and fix BUG  8)
+no, I meant the plain 2.2.x as of Red Hat 7.0 which is labelled as
+"2.2.16-22".
+
+> 
+> The next stage then is probably to log when you see errored keyboard bytes
+> 
+
+ok.
+
+Regards,
+Tigran
+
 

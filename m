@@ -1,36 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319102AbSHFOoa>; Tue, 6 Aug 2002 10:44:30 -0400
+	id <S314602AbSHFOya>; Tue, 6 Aug 2002 10:54:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319104AbSHFOoa>; Tue, 6 Aug 2002 10:44:30 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:28145 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319102AbSHFOo3>; Tue, 6 Aug 2002 10:44:29 -0400
-Subject: Re: [PATCH] APM fix for 2.4.20pre1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Willy TARREAU <willy@w.ods.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020806134328.GA587@pcw.home.local>
-References: <20020806134328.GA587@pcw.home.local>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 06 Aug 2002 17:07:09 +0100
-Message-Id: <1028650029.18156.174.camel@irongate.swansea.linux.org.uk>
+	id <S319111AbSHFOya>; Tue, 6 Aug 2002 10:54:30 -0400
+Received: from dsl-65-188-226-101.telocity.com ([65.188.226.101]:56452 "EHLO
+	crown.reflexsecurity.com") by vger.kernel.org with ESMTP
+	id <S314602AbSHFOya>; Tue, 6 Aug 2002 10:54:30 -0400
+Date: Tue, 6 Aug 2002 10:58:03 -0400
+From: Jason Lunz <lunz@gtf.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre1
+Message-ID: <20020806145803.GA20415@reflexsecurity.com>
+References: <Pine.LNX.4.44.0208051938380.6811-100000@freak.distro.conectiva>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208051938380.6811-100000@freak.distro.conectiva>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-08-06 at 14:43, Willy TARREAU wrote:
-> Hi Marcelo,
-> 
-> I resend you this patch against 2.4.19-rc5 which prevents my SMP box from
-> randomly crashing at boot during APM initialization. It still applies to
-> 2.4.20-pre1. Alan included it in 19-ac4 too. Basically, it forces bios
-> calls to be made only from CPU0.
 
-Doing the job right is a bit more complex than that. Thanks to your hint
-I've actually got APM SMP working a lot better on multiple boxes now.
-Marcelo - I may send you some cooler stuff but this one should be
-applied anyway
+Will you consider using one of those perl scripts to condense the
+changelogs a little bit?
 
+Jason

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129669AbQLOSaS>; Fri, 15 Dec 2000 13:30:18 -0500
+	id <S130526AbQLOSb2>; Fri, 15 Dec 2000 13:31:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130131AbQLOSaI>; Fri, 15 Dec 2000 13:30:08 -0500
-Received: from linuxpc1.lauterbach.com ([194.195.165.177]:12811 "HELO
-	linuxpc1.lauterbach.com") by vger.kernel.org with SMTP
-	id <S129669AbQLOS36>; Fri, 15 Dec 2000 13:29:58 -0500
-Message-Id: <4.3.2.7.2.20001215185622.025f8740@mail.lauterbach.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Fri, 15 Dec 2000 18:59:24 +0100
-To: Andrea Arcangeli <andrea@suse.de>
-From: Franz Sirl <Franz.Sirl-kernel@lauterbach.com>
-Subject: Re: 2.2.18 signal.h
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        Mike Black <mblack@csihq.com>,
-        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20001215184325.B17781@inspiron.random>
-In-Reply-To: <Pine.LNX.3.95.1001215120537.1093A-100000@chaos.analogic.com>
- <20001215175632.A17781@inspiron.random>
- <Pine.LNX.3.95.1001215120537.1093A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S130519AbQLOSbS>; Fri, 15 Dec 2000 13:31:18 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:37769 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130131AbQLOSbE>;
+	Fri, 15 Dec 2000 13:31:04 -0500
+Date: Fri, 15 Dec 2000 09:44:28 -0800
+Message-Id: <200012151744.JAA21052@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: andrea@suse.de
+CC: ink@jurassic.park.msu.ru, ezolt@perf.zko.dec.com, axp-list@redhat.com,
+        rth@twiddle.net, Jay.Estabrook@compaq.com,
+        linux-kernel@vger.kernel.org, clinux@zk3.dec.com,
+        wcarr@perf.zko.dec.com, linux-alpha@vger.kernel.org
+In-Reply-To: <20001215185528.C17781@inspiron.random> (message from Andrea
+	Arcangeli on Fri, 15 Dec 2000 18:55:28 +0100)
+Subject: Re: mm->context[NR_CPUS] and pci fix check [was Re: Alpha SCSI error on 2.4.0-test11]
+In-Reply-To: <20001201004049.A980@jurassic.park.msu.ru> <Pine.OSF.3.96.1001130171941.32335D-100000@perf.zko.dec.com> <20001130233742.A21823@athlon.random> <20001201145619.A553@jurassic.park.msu.ru> <20001201151842.C30653@athlon.random> <200012011819.KAA02951@pizda.ninka.net> <20001201201444.A2098@inspiron.random> <20001215164626.C16586@inspiron.random> <200012151711.JAA20826@pizda.ninka.net> <20001215185528.C17781@inspiron.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 18:43 15.12.00, Andrea Arcangeli wrote:
->On Fri, Dec 15, 2000 at 12:07:55PM -0500, Richard B. Johnson wrote:
-> > Current code makes perfect sense if you put a 'break;' after the last
->
->Current code makes perfect sense also without the break. I guess that's a
->strict check to try to catch bugs, but calling it "deprecated" is wrong, it
->should only say "warning: make sure that's not a bug" (when -Wall is enabled).
+   Date: Fri, 15 Dec 2000 18:55:28 +0100
+   From: Andrea Arcangeli <andrea@suse.de>
 
-It's required by ISO C, and since that's the standard now, gcc spits out a 
-warning. Just adding a ; is enough and already done for most stuff in 
-2.4.0-test12.
+   I'm aware this way all ports actively using `mm->context' needs to
+   be changed but the change is certainly a no-brainer... OK?
 
-Franz.
+My problem is that I don't want to typedef it to a structure, this
+will unnecessarily increase the required alignment of the structure
+member on some architectures.
+
+Well, if you're willing to do all the fixing up, then I won't argue it
+much more. :-)
+
+Later,
+David S. Miller
+davem@redhat.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

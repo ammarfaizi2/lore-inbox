@@ -1,86 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264686AbTAJM5J>; Fri, 10 Jan 2003 07:57:09 -0500
+	id <S264673AbTAJM4Q>; Fri, 10 Jan 2003 07:56:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264699AbTAJM5J>; Fri, 10 Jan 2003 07:57:09 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:25617
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S264686AbTAJM5F>; Fri, 10 Jan 2003 07:57:05 -0500
-Date: Fri, 10 Jan 2003 05:03:40 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
+	id <S264686AbTAJM4Q>; Fri, 10 Jan 2003 07:56:16 -0500
+Received: from holomorphy.com ([66.224.33.161]:54680 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S264673AbTAJM4P>;
+	Fri, 10 Jan 2003 07:56:15 -0500
+Date: Fri, 10 Jan 2003 05:04:46 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: fverscheure@wanadoo.fr,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Problem in IDE Disks cache handling in kernel 2.4.XX
-In-Reply-To: <1042205732.28469.89.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10301100502450.31168-100000@master.linux-ide.org>
-MIME-Version: 1.0
+Cc: Maciej Soltysiak <solt@dns.toxicfilms.tv>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]Re: spin_locks without smp.
+Message-ID: <20030110130446.GR23814@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Maciej Soltysiak <solt@dns.toxicfilms.tv>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.51.0301101238560.6124@dns.toxicfilms.tv> <20030110114546.GN23814@holomorphy.com> <20030110114855.GO23814@holomorphy.com> <Pine.LNX.4.51.0301101308410.25610@dns.toxicfilms.tv> <1042204846.28469.75.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1042204846.28469.75.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2003-01-10 at 12:09, Maciej Soltysiak wrote:
+>> Yes sir. :)
+>> Is that okay?
 
-Oh, just let the darn thing barf a 0x51/0x04 is fine with me!
-Just an abort/unsupported command.
+On Fri, Jan 10, 2003 at 01:20:48PM +0000, Alan Cox wrote:
+> I'm not convinced its the right way. The driver does the things it
+> does in order
+> to keep performance acceptable. eexpress, 8390 and one or two other
+> drivers have a paticular problem that is hard to handle with our current
+> locks (and which at the time Linus made a decision wasn't a good thing
+> to try and handle generically). 
+> We have to ensure that the IRQ path doesn't execute in parallel with
+> the transmit/timeout path. At the same time the packet upload to the
+> card is extremely slow. Sufficiently slow in fact that serial ports
+> just stop working when you use it without the ifdef paths.
+> On uniprocessor systems even with pre-empt the IRQ handler cannot be 
+> pre-empted by normal code execution. On SMP they can run across two
+> processors. What the disable_irq path is doing for uniprocessor is
+> implementing
 
-Cheers,
+Okay, what I'm getting here is that the UP case already has preempt
+disabled b/c the locks are taken in IRQ context?
+
+The thing I don't get is how the spinlock bits cause horrendous
+timing issues on UP that are different from SMP, esp. b/c they are
+#ifdef'd elsewhere to do nothing but inc/dec preempt_count elsewhere.
+There's a bit of "how did it happen" missing in my mind at least.
 
 
-On 10 Jan 2003, Alan Cox wrote:
+On Fri, Jan 10, 2003 at 01:20:48PM +0000, Alan Cox wrote:
+> 	spin_lock_irqsavesomeirqsonly()
+> and on the kind of boxes that have these old cards its pretty important
+> to keep this.
+> I would argue that if we have an IRQ disabled we should forbid pre-empt.
+> If an IRQ is disabled and we pre-empt to a task that needs to allocate
+> memory and we swap to a device on that IRQ we may deadlock.
+> So the fix is either to make disable_irq()/enable_irq() correctly 
+> adjust the pre-empt restrictions, which is actually quite hard to see
+> how to do right as the disable/enable may be in different tasks, or to
+> change the code to do the following
+> 	preempt_disable()
+> 	disable_irq()
+> #ifdef CONFIG_SMP
+> 	spin_lock_...
+> #endif
 
-> On Fri, 2003-01-10 at 11:14, Andre Hedrick wrote:
-> > The drive does random and automatic flush caches, if an error happens it
-> > does not report. *sigh*  When APM hits it with a flush and pray the error
-> > is from this flush, but it does not matter ... the kernel does not have
-> > the paths to deal this issue ... so bye bye data!  Now it if the current
-> > flush is not the owner of the error OMFG is suggested.
-> 
-> For that matter the BIOS tends to issue the flush, in fact APM is
-> supposed to be transparent so the BIOS is required to handle it and
-> since a critical shutdown from the APM PM might not even hit the OS
-> it has to. Of course pigs also fly 8)
-> 
-> > > > I had a look at patch 2.4.21pre3 and the code looks the same.
-> > > > 
-> > > > And by the way how are powered off the IDE drives ?
-> > > > Because a FLUSH CACHE or STANDY or SLEEP is MANDATORY before powering off the 
-> > > > drive with cache enabled or you will enjoy lost data
-> > > 
-> > > IDE disagrees with itself over this but when we get a controlled power
-> > > off we do this. The same ATA5/ATA6 problem may well be present there
-> > > too. I will review both
-> > 
-> > Not true, the firmware knows to commit the data to platter.
-> > If it was true you would be screaming long ago.
-> 
-> IDE disagrees with itself because it is meant to work compatibly but if
-> you run it compatibly you lose data on poweroff.
-> 
-> > 
-> > > Any specific opinion Andre ?
-> > 
-> > A dirty trick used to date is to pop the STANDY or SLEEP, and depend on
-> > the drive to deal with the double dirty flush error.  If the FLUSH CACHE
-> > was not valid, the drive would spin back up from STANDY, but not from
-> > SLEEP, this could be a problem.  However SLEEP issued by the driver only
-> > happens at shutdown unless it has been changed.  In the shutdown process,
-> > each partition unmount was flushed and also once extra when the usage
-> > count was set to zero.  Worst case was 2 flush min.
-> > 
-> 
-> The original question however is whether we are skipping issuing the flush
-> and sleep on ATA3-5 devices when we should not, because the test is over
-> strong.
-> 
-> It seems weakening the test is the best option, it fixes ATA-5 and any device
-> told to sleep, standby or flush that doesn't know the command is just going
-> to go "Huh ?" and we'll get a nice easy to handle error.
-> 
-> Alan
-> 
-> 
+Hmm, the part I'm missing here is why folding the preempt_disable()
+into the spin_lock() is wrong. Or is it the implicit local_irq_save()
+that's the (massive performance) problem?
 
-Andre Hedrick
-LAD Storage Consulting Group
 
+On Fri, Jan 10, 2003 at 01:20:48PM +0000, Alan Cox wrote:
+> Note that we must disable the irq before taking the spinlock or we 
+> have another deadlock with our irq path versus disable_irq waiting
+> for the IRQ completion before returning.
+> If my analysis of the disable_irq versus pre-empt and memory allocation
+> deadlock is correct we have some other cases we need to address too.
+
+Hmm, this is tricky, since it's really disabling interrupts for too
+long to make progress on UP; I suspect this issue might have _some_
+(negative) impact on SMP, but how much (or for how many relevant
+systems) I'm not sure.
+
+Some serious thought may need to go into this, but it's very far afield
+for me. I think some ppl more directly involved with these issues
+(rml, mingo, others???) might need to get flagged down to fix it for
+legacy systems (presumably modern ones won't have the issue at all)
+for 2.7.x etc. if it really does matter.
+
+I'm tied up with 64GB at the moment so my wetware cpu cycles are really
+totally unavailable for this. =(
+
+
+Thanks,
+Bill

@@ -1,50 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317422AbSINSXP>; Sat, 14 Sep 2002 14:23:15 -0400
+	id <S317462AbSINScO>; Sat, 14 Sep 2002 14:32:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317434AbSINSXP>; Sat, 14 Sep 2002 14:23:15 -0400
-Received: from web40506.mail.yahoo.com ([66.218.78.123]:16675 "HELO
-	web40506.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317422AbSINSXO>; Sat, 14 Sep 2002 14:23:14 -0400
-Message-ID: <20020914182804.28287.qmail@web40506.mail.yahoo.com>
-Date: Sat, 14 Sep 2002 11:28:04 -0700 (PDT)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: Re: Possible bug and question about ide_notify_reboot in 2.4.19
-To: miquels@cistron.nl
+	id <S317463AbSINScO>; Sat, 14 Sep 2002 14:32:14 -0400
+Received: from tux.rsn.bth.se ([194.47.143.135]:64439 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S317462AbSINScN>;
+	Sat, 14 Sep 2002 14:32:13 -0400
+Subject: Re: [PATCH 2.4.20-pre7] net/ipv4/netfilter/ip_conntrack_ftp and
+	_irc to export objs
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Jarno Paananen <jpaana@s2.org>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <m3n0qkqvs8.fsf@kalahari.s2.org>
+References: <m3vg58qwz1.fsf@kalahari.s2.org>
+	<1032027105.29595.129.camel@tux>  <m3n0qkqvs8.fsf@kalahari.s2.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-zM+cwIW1hMYVnWPrzqfc"
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 14 Sep 2002 20:37:02 +0200
+Message-Id: <1032028622.29595.134.camel@tux>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Putting the drive in stand-by mode has the side effect of flushing
->the cache.
-Maxtor's tech support says this is NOT true.
 
->So before poweroff, send the FLUSH CACHE command,
->then send the standby command, hope that one of them works ..
-Problem is we're currently flushing the cache AFTER we do
-standby...
+--=-zM+cwIW1hMYVnWPrzqfc
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->I put put-the-drive-in-standby-mode stuff in halt.c of sysvinit
->after several reports of fs corruption at poweroff and it seems
->to have fixed the problems for the people who reported them.
-That code is only executed if the '-h' option is passed to halt:
-Some distros (namely Slackware 7.x) pass the '-p' option instead
-(look in /etc/rc.d/rc.0).
+On Sat, 2002-09-14 at 20:19, Jarno Paananen wrote:
 
+> Hm, didn't notice those, sorry.
+>=20
+> It seems the condition for the actual export is different than the
+> Makefile. In ip_conntrack_ftp.c for example the export is done:
+>=20
+> #ifdef CONFIG_IP_NF_NAT_NEEDED
+> EXPORT_SYMBOL(ip_ftp_lock);
+> #endif
+>=20
+> and in Makefile:
+>=20
+> ifdef CONFIG_IP_NF_NAT_FTP
+>         export-objs +=3D ip_conntrack_ftp.o
+> endif
 
-Ok how about this: I'm current testing some patches against
-ide.c and friends. Why don't I just add ( and document ) a
-define called NO_STANDBY_ON_SHUTDOWN which would live in 
-ide.c. By default it would not be defined. Then I just wrap
-the standby code in an '#ifndef NO_STANDBY_ON_SHUTDOWN..#endif'
-block.
+I just did a basic test and I didn't manage to get
+CONFIG_IP_NF_NAT_NEEDED set without getting CONFIG_IP_NF_NAT and
+CONFIG_IP_NF_NAT_FTP and CONFIG_IP_NF_NAT_IRC set aswell.
+(with the corresponding CONFIG_IP_NF_FTP and CONFIG_IP_NF_IRC of course)
 
+--=20
+/Martin
 
+Never argue with an idiot. They drag you down to their level, then beat
+you with experience.
 
+--=-zM+cwIW1hMYVnWPrzqfc
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Finance - Get real-time stock quotes
-http://finance.yahoo.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9g4HOWm2vlfa207ERAjYcAJ4u3q5Cw1il55frAonyKkxZG+oKDwCgpEj/
+um76U0ZO2uH6pzqF5z/lOSM=
+=2ect
+-----END PGP SIGNATURE-----
+
+--=-zM+cwIW1hMYVnWPrzqfc--

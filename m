@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269296AbUJFPz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269315AbUJFP6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269296AbUJFPz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 11:55:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269316AbUJFPz3
+	id S269315AbUJFP6f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 11:58:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269316AbUJFP6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 11:55:29 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:38799 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269296AbUJFPzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 11:55:16 -0400
-Subject: Re: Proper use of daemonize()?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Stuart MacDonald <stuartm@connecttech.com>
-Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <030601c4abb7$af573770$294b82ce@stuartm>
-References: <030601c4abb7$af573770$294b82ce@stuartm>
-Content-Type: text/plain
-Message-Id: <1097078113.1903.61.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 06 Oct 2004 11:55:14 -0400
+	Wed, 6 Oct 2004 11:58:35 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:55292 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S269315AbUJFP6e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 11:58:34 -0400
+Message-ID: <416415E5.8040709@nortelnetworks.com>
+Date: Wed, 06 Oct 2004 09:57:25 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: root@chaos.analogic.com, joris@eljakim.nl, linux-kernel@vger.kernel.org
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl>	<20041006080104.76f862e6.davem@davemloft.net>	<Pine.LNX.4.61.0410061110260.6661@chaos.analogic.com>	<20041006082145.7b765385.davem@davemloft.net>	<Pine.LNX.4.61.0410061124110.31091@chaos.analogic.com> <20041006084242.3443b2de.davem@davemloft.net>
+In-Reply-To: <20041006084242.3443b2de.davem@davemloft.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-06 at 11:18, Stuart MacDonald wrote:
-> I've been looking at the kernel threads that use daemonize() and have
-> some questions about the proper use of this call:
-> 
-> 1: Some threads use the lock_kernel() calls around the daemonize()
-> call. Is this necessary?
+David S. Miller wrote:
+> "Richard B. Johnson" <root@chaos.analogic.com> wrote:
 
-It's only necessary if you can't be bothered to do proper locking. 
-Probably that code is old and someone did not have time to implement
-correct locking to make it work on SMP so just threw lock/unlock kernel
-around it.
+>>Somebody else responded that a bad checksum could do the same
+>>thing --not. Select must return correct information.
 
->  I thought the BKL was phasing out.
-> 
+> Guess what, our UDP implementation does exactly that
+> and has done so for years.  It's perfectly fine.
 
-Well, it's not going to phase itself out ;-)  But, patches that
-introduce new uses of the BKL will almost certainly go to /dev/null.
+We may want change the man page for select() so that this is made clear.
 
-Lee
-
+Chris

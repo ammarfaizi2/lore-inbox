@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318959AbSHMGDC>; Tue, 13 Aug 2002 02:03:02 -0400
+	id <S318948AbSHMF7p>; Tue, 13 Aug 2002 01:59:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318962AbSHMGDC>; Tue, 13 Aug 2002 02:03:02 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56334 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318959AbSHMGDC>;
-	Tue, 13 Aug 2002 02:03:02 -0400
-Message-ID: <3D58A45F.A7F5BDD@zip.com.au>
-Date: Mon, 12 Aug 2002 23:17:03 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
+	id <S318950AbSHMF7p>; Tue, 13 Aug 2002 01:59:45 -0400
+Received: from ool-4353be98.dyn.optonline.net ([67.83.190.152]:33132 "HELO
+	dps7.oconnoronline.net") by vger.kernel.org with SMTP
+	id <S318948AbSHMF7p>; Tue, 13 Aug 2002 01:59:45 -0400
+Subject: [PATCH] devfs broken in pre2
+To: linux-kernel@vger.kernel.org
+Date: Tue, 13 Aug 2002 03:11:34 -0400 (EDT)
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] __func__ -> __FUNCTION__
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20020813071135.A147619@dps7.oconnoronline.net>
+From: billy@oconnoronline.net (Billy O'Connor)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This brings back the number member of the hd_struct structure until 
+the devfs_register_disc and devfs_register_partitions functions can 
+be made to work without it.  Thanks to John Kim for pointing out 
+the location.
 
-It is a requirement of the SPARC port that Linux be compilable
-by egcs-1.1.2, aka gcc-2.91.66.
-
-That compiler does not support __func__.
-
---- linux-2.5.31/include/linux/kernel.h	Wed Jul 24 14:31:31 2002
-+++ 25/include/linux/kernel.h	Mon Aug 12 23:09:31 2002
-@@ -13,6 +13,8 @@
- #include <linux/types.h>
- #include <linux/compiler.h>
+--- linux-2.4.19/include/linux/genhd.h	2002-08-12 16:51:43.000000000 -0400
++++ linux-2.4.19-new/include/linux/genhd.h	2002-08-12 16:52:32.000000000 -0400
+@@ -62,6 +62,7 @@
+ 	unsigned long start_sect;
+ 	unsigned long nr_sects;
+ 	devfs_handle_t de;              /* primary (master) devfs entry  */
++	int number;
  
-+#define __func__ __FUNCTION__	/* For old gcc's */
-+
- /* Optimization barrier */
- /* The "volatile" is due to gcc bugs */
- #define barrier() __asm__ __volatile__("": : :"memory")
+ #ifdef CONFIG_BLK_STATS
+ 	/* Performance stats: */
+
+--
+Billy O'Connor

@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287631AbSBRVZM>; Mon, 18 Feb 2002 16:25:12 -0500
+	id <S287798AbSBRVZw>; Mon, 18 Feb 2002 16:25:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287720AbSBRVZD>; Mon, 18 Feb 2002 16:25:03 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:45061 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S287631AbSBRVYm>; Mon, 18 Feb 2002 16:24:42 -0500
-Date: Mon, 18 Feb 2002 18:15:25 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: "Barton, Christopher" <cpbarton@uiuc.edu>
-Cc: lkml <linux-kernel@vger.kernel.org>, jamal <hadi@cyberus.ca>,
-        kuznet@ms2.inr.ac.ru, "David S. Miller" <davem@redhat.com>
-Subject: Re: Linux 2.4.18-pre8
-In-Reply-To: <Pine.LNX.4.44.0202181504500.26663-100000@proj2501.aiss.uic.edu>
-Message-ID: <Pine.LNX.4.21.0202181815190.25479-100000@freak.distro.conectiva>
+	id <S287720AbSBRVZn>; Mon, 18 Feb 2002 16:25:43 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:34056 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S287838AbSBRVZ1>; Mon, 18 Feb 2002 16:25:27 -0500
+Subject: Re: Linux 2.4.18-pre9-mjc2
+To: pavel@suse.cz (Pavel Machek)
+Date: Mon, 18 Feb 2002 21:39:36 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        matthias.andree@stud.uni-dortmund.de (Matthias Andree),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020218210803.GF14521@atrey.karlin.mff.cuni.cz> from "Pavel Machek" at Feb 18, 2002 10:08:03 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16cvVZ-0006tC-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 18 Feb 2002, Barton, Christopher wrote:
-
+> > If you want to get arrested it sounds a great idea. Thats up to you
 > 
-> >
-> > pre8: 
-> > 
-> > - Kill get_fast_time				(David S. Miller)
-> >
-> 
-> Is it sufficient to replace get_fast_time with gettimeofday?  This breaks
-> the NAPI patch...
+> Huh? They are shipping faulty products. Unless their manual say "you
+> are only allowed to run windows 95 release 1, Word version 3.71 and
+> Outlook 17.32 and nothing else, you have handled your computer
+> properly and its *their* problem.
 
-Yes. 
+You didnt handle it properly.  You'll find the old "you cannot damage the
+computer" messages vanished about the time of the IBM/AT. You instructed
+it to erase critical internal data, so it did.
+
+> What did chernobyl do? I've never seen PC damaged beyond
+
+Erased the bios
+
+> repair. Everyone with a clue has jumper on stuff like flashing, and I
+> can imagine that opening the case can void your warranty.
+
+You don't however have a jumper to protect your disk firmware do you...
 

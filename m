@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132561AbREHOUr>; Tue, 8 May 2001 10:20:47 -0400
+	id <S132558AbREHOPq>; Tue, 8 May 2001 10:15:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132567AbREHOUh>; Tue, 8 May 2001 10:20:37 -0400
-Received: from [209.225.10.21] ([209.225.10.21]:22503 "HELO mailrelay.local")
-	by vger.kernel.org with SMTP id <S132561AbREHOUX>;
-	Tue, 8 May 2001 10:20:23 -0400
-Message-ID: <3AF7D964.BC65EBCC@elsitio.com.ar>
-Date: Tue, 08 May 2001 11:32:52 +0000
-From: Federico Edelman Anaya <fedelman@elsitio.com.ar>
-Reply-To: fedelman@elsitio.com.ar
-Organization: El Sitio
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
+	id <S132561AbREHOPf>; Tue, 8 May 2001 10:15:35 -0400
+Received: from 13dyn127.delft.casema.net ([212.64.76.127]:40976 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S132558AbREHOPX>; Tue, 8 May 2001 10:15:23 -0400
+Message-Id: <200105081415.QAA00401@cave.bitwizard.nl>
+Subject: Re: CML2 design philosophy heads-up
+In-Reply-To: <20010508031511.A15782@thyrsus.com> from "Eric S. Raymond" at "May
+ 8, 2001 03:15:11 am"
+To: "Eric S. Raymond" <esr@thyrsus.com>
+Date: Tue, 8 May 2001 16:15:08 +0200 (MEST)
+CC: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        Tom Rini <trini@kernel.crashing.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-To: Dan Kegel <dank@kegel.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: fs.file-max
-In-Reply-To: <3AF7FDE8.9C124AA9@kegel.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan:
-    Hi ...
+Eric S. Raymond wrote:
+> More generally, arguments of the form "Non-mainline custom hack X
+> could invalidate constraint Y, therefore we can't have Y in the
+> rulebase" are dangerous -- I suspect you could reduce your set of
+> constraints to nil very quickly that way, and thus badly screw over
+> the 99% of people who just want to build a more or less stock kernel.
 
-Dan Kegel wrote:
+Eric, 
 
-> Federico Edelman Anaya (fedelman@elsitio.com.ar) wrote:
->
-> > What can I do to test the FD limit? ... Because, the FD limit is set in
-> > /proc/sys/fs/file-max, sample:
-> >
-> > echo "2048" > /proc/sys/fs/file-max
->
-> That sets the systemwide limit to 2048.
+Still being able to use the "tool" is useful! So I want a "don't mess
+with me" mode where I'd get more control than 99% of the lusers....
 
-Ok ...
+			Roger. 
 
->
->
-> > ulimit -n 8192
->
-> That sets the per-process limit (for this process
-> and its children) to 2048.
->
-
-But, my perl script could open 8192 files ... I don't understand exactly
-work ... which is the limit of FD? file-max?
-
-
->
-> > In this case ... the FD limit = 8192 :( ... when the limit should be
-> > 2048?
->
-> No, the two limits are independant (except, obviously, that
-> that process will reach the systemwide fd limit before it
-> exhausts its per-process fd limit).
->
-> > I wrote a perl script for the test ... anybody known a "C" program for
-> > test the FD limit?
->
-> http://www.kegel.com/dkftpbench/#tuning
->
-> - Dan
-
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

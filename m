@@ -1,33 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287255AbSACMrb>; Thu, 3 Jan 2002 07:47:31 -0500
+	id <S287234AbSACMwL>; Thu, 3 Jan 2002 07:52:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287234AbSACMrV>; Thu, 3 Jan 2002 07:47:21 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:30984 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S287255AbSACMrJ>; Thu, 3 Jan 2002 07:47:09 -0500
-Message-Id: <200201031246.g03Ckwkl021028@pincoya.inf.utfsm.cl>
-To: "Eric S. Raymond" <esr@thyrsus.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems? 
-In-Reply-To: Message from "Eric S. Raymond" <esr@thyrsus.com> 
-   of "Wed, 02 Jan 2002 15:46:33 CDT." <20020102154633.A15671@thyrsus.com> 
-Date: Thu, 03 Jan 2002 09:46:58 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S287248AbSACMwB>; Thu, 3 Jan 2002 07:52:01 -0500
+Received: from NILE.GNAT.COM ([205.232.38.5]:29670 "HELO nile.gnat.com")
+	by vger.kernel.org with SMTP id <S287244AbSACMvy>;
+	Thu, 3 Jan 2002 07:51:54 -0500
+From: dewar@gnat.com
+To: law@redhat.com, paulus@samba.org
+Subject: Re: [PATCH] C undefined behavior fix
+Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.linuxppc.org, trini@kernel.crashing.org,
+        velco@fadata.bg
+Message-Id: <20020103125151.6BF33F2E8C@nile.gnat.com>
+Date: Thu,  3 Jan 2002 07:51:51 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" <esr@thyrsus.com> said:
+<<And before anyone says the PA is unbelievably strange and nobody else would
+make the same mistakes -- the mn10300 (for which a linux port does exist)
+has the same failings.
+>>
 
-[...]
-
-> What I want to do with this is make ISA-card questions invisible on modern
-> PCI-only motherboards.
-
-... in order to make it impossible to build kernels for the coffepot in the
-corner on my shiny new machine. No, thanks.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Not clear these are failings, at least with respect to C, since the
+addressing models are completely consistent with the C language, just
+not consistent with some abuses of it.

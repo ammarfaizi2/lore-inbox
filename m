@@ -1,237 +1,216 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264759AbTFQOkV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 10:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264763AbTFQOkV
+	id S264763AbTFQOln (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 10:41:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264766AbTFQOkr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 10:40:21 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:50961 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S264759AbTFQOkA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 10:40:00 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10558616341836@movementarian.org>
-Subject: [PATCH 2/3] OProfile: IO-APIC based NMI delivery
-In-Reply-To: <10558616342231@movementarian.org>
-From: John Levon <levon@movementarian.org>
-X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Tue, 17 Jun 2003 15:53:54 +0100
-Content-Transfer-Encoding: 7BIT
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19SHqN-000BnO-EO*RWWqWk75Z8A*
+	Tue, 17 Jun 2003 10:40:47 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:50186 "EHLO
+	krusty.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S264762AbTFQOkR convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 10:40:17 -0400
+MIME-Version: 1.0
+To: torvalds@transmeta.com, marcelo@conectiva.com.br
+Subject: lk-changelog.pl 0.132
+Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de
+From: Matthias Andree <matthias.andree@gmx.de>
+Content-ID: <Tue_Jun_17_14_54_09_UTC_2003_0@merlin.emma.line.org>
+Content-type: text/plain; charset=iso-8859-1
+Content-Description: An object packed by metasend
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20030617145409.808CC86918@merlin.emma.line.org>
+Date: Tue, 17 Jun 2003 16:54:09 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a semi-automatic announcement.
 
-Use the IO-APIC NMI delivery when the local APIC performance counter delivery is
-not available. By Zwane Mwaikambo.
+lk-changelog.pl aka. shortlog version 0.132 has been released.
 
-diff -Naur -X dontdiff linux-cvs/arch/i386/kernel/nmi.c linux-fixes/arch/i386/kernel/nmi.c
---- linux-cvs/arch/i386/kernel/nmi.c	2003-06-12 02:46:46.000000000 +0100
-+++ linux-fixes/arch/i386/kernel/nmi.c	2003-06-15 19:00:08.000000000 +0100
-@@ -23,17 +23,27 @@
- #include <linux/mc146818rtc.h>
- #include <linux/kernel_stat.h>
- #include <linux/module.h>
-+#include <linux/nmi.h>
- #include <linux/sysdev.h>
- 
- #include <asm/smp.h>
- #include <asm/mtrr.h>
- #include <asm/mpspec.h>
-+#include <asm/nmi.h>
- 
- unsigned int nmi_watchdog = NMI_NONE;
- static unsigned int nmi_hz = HZ;
- unsigned int nmi_perfctr_msr;	/* the MSR to reset in NMI handler */
- extern void show_registers(struct pt_regs *regs);
- 
-+/* nmi_active:
-+ * +1: the lapic NMI watchdog is active, but can be disabled
-+ *  0: the lapic NMI watchdog has not been set up, and cannot
-+ *     be enabled
-+ * -1: the lapic NMI watchdog is disabled, but can be enabled
-+ */
-+static int nmi_active;
-+
- #define K7_EVNTSEL_ENABLE	(1 << 22)
- #define K7_EVNTSEL_INT		(1 << 20)
- #define K7_EVNTSEL_OS		(1 << 17)
-@@ -91,6 +101,7 @@
- 			continue;
- 		if (nmi_count(cpu) - prev_nmi_count[cpu] <= 5) {
- 			printk("CPU#%d: NMI appears to be stuck!\n", cpu);
-+			nmi_active = 0;
- 			return -1;
- 		}
- 	}
-@@ -131,21 +142,15 @@
- 	 * We can enable the IO-APIC watchdog
- 	 * unconditionally.
- 	 */
--	if (nmi == NMI_IO_APIC)
-+	if (nmi == NMI_IO_APIC) {
-+		nmi_active = 1;
- 		nmi_watchdog = nmi;
-+	}
- 	return 1;
- }
- 
- __setup("nmi_watchdog=", setup_nmi_watchdog);
- 
--/* nmi_active:
-- * +1: the lapic NMI watchdog is active, but can be disabled
-- *  0: the lapic NMI watchdog has not been set up, and cannot
-- *     be enabled
-- * -1: the lapic NMI watchdog is disabled, but can be enabled
-- */
--static int nmi_active;
--
- void disable_lapic_nmi_watchdog(void)
- {
- 	if (nmi_active <= 0)
-@@ -179,6 +184,27 @@
- 	}
- }
- 
-+void disable_timer_nmi_watchdog(void)
-+{
-+	if ((nmi_watchdog != NMI_IO_APIC) || (nmi_active <= 0))
-+		return;
-+
-+	disable_irq(0);
-+	unset_nmi_callback();
-+	nmi_active = -1;
-+	nmi_watchdog = NMI_NONE;
-+}
-+
-+void enable_timer_nmi_watchdog(void)
-+{
-+	if (nmi_active < 0) {
-+		nmi_watchdog = NMI_IO_APIC;
-+		touch_nmi_watchdog();
-+		nmi_active = 1;
-+		enable_irq(0);
-+	}
-+}
-+
- #ifdef CONFIG_PM
- 
- static int nmi_pm_active; /* nmi_active before suspend */
-@@ -429,3 +455,5 @@
- EXPORT_SYMBOL(nmi_watchdog);
- EXPORT_SYMBOL(disable_lapic_nmi_watchdog);
- EXPORT_SYMBOL(enable_lapic_nmi_watchdog);
-+EXPORT_SYMBOL(disable_timer_nmi_watchdog);
-+EXPORT_SYMBOL(enable_timer_nmi_watchdog);
-diff -Naur -X dontdiff linux-cvs/arch/i386/oprofile/init.c linux-fixes/arch/i386/oprofile/init.c
---- linux-cvs/arch/i386/oprofile/init.c	2003-06-15 03:30:51.000000000 +0100
-+++ linux-fixes/arch/i386/oprofile/init.c	2003-06-15 19:05:04.000000000 +0100
-@@ -16,15 +16,21 @@
-  */
-  
- extern int nmi_init(struct oprofile_operations ** ops);
-+extern int nmi_timer_init(struct oprofile_operations **ops);
- extern void nmi_exit(void);
- 
- int __init oprofile_arch_init(struct oprofile_operations ** ops)
- {
-+	int ret = -ENODEV;
- #ifdef CONFIG_X86_LOCAL_APIC
--	return nmi_init(ops);
--#else
--	return -ENODEV;
-+	ret = nmi_init(ops);
- #endif
-+
-+#ifdef CONFIG_X86_IO_APIC
-+	if (ret < 0)
-+		ret = nmi_timer_init(ops);
-+#endif
-+	return ret;
- }
- 
- 
-diff -Naur -X dontdiff linux-cvs/arch/i386/oprofile/Makefile linux-fixes/arch/i386/oprofile/Makefile
---- linux-cvs/arch/i386/oprofile/Makefile	2003-06-15 02:06:38.000000000 +0100
-+++ linux-fixes/arch/i386/oprofile/Makefile	2003-06-15 19:00:08.000000000 +0100
-@@ -9,3 +9,4 @@
- oprofile-y				:= $(DRIVER_OBJS) init.o
- oprofile-$(CONFIG_X86_LOCAL_APIC) 	+= nmi_int.o op_model_athlon.o \
- 					   op_model_ppro.o op_model_p4.o
-+oprofile-$(CONFIG_X86_IO_APIC)		+= nmi_timer_int.o
-diff -Naur -X dontdiff linux-cvs/arch/i386/oprofile/nmi_timer_int.c linux-fixes/arch/i386/oprofile/nmi_timer_int.c
---- linux-cvs/arch/i386/oprofile/nmi_timer_int.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-fixes/arch/i386/oprofile/nmi_timer_int.c	2003-06-15 19:04:34.000000000 +0100
-@@ -0,0 +1,57 @@
-+/**
-+ * @file nmi_timer_int.c
-+ *
-+ * @remark Copyright 2003 OProfile authors
-+ * @remark Read the file COPYING
-+ *
-+ * @author Zwane Mwaikambo <zwane@linuxpower.ca>
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/smp.h>
-+#include <linux/irq.h>
-+#include <linux/oprofile.h>
-+#include <linux/rcupdate.h>
-+
-+
-+#include <asm/nmi.h>
-+#include <asm/apic.h>
-+#include <asm/ptrace.h>
-+ 
-+static int nmi_timer_callback(struct pt_regs * regs, int cpu)
-+{
-+	unsigned long eip = instruction_pointer(regs);
-+ 
-+	oprofile_add_sample(eip, !user_mode(regs), 0, cpu);
-+	return 1;
-+}
-+
-+static int timer_start(void)
-+{
-+	disable_timer_nmi_watchdog();
-+	set_nmi_callback(nmi_timer_callback);
-+	return 0;
-+}
-+
-+
-+static void timer_stop(void)
-+{
-+	enable_timer_nmi_watchdog();
-+	unset_nmi_callback();
-+	synchronize_kernel();
-+}
-+
-+
-+static struct oprofile_operations nmi_timer_ops = {
-+	.start	= timer_start,
-+	.stop	= timer_stop,
-+	.cpu_type = "timer"
-+};
-+
-+ 
-+int __init nmi_timer_init(struct oprofile_operations ** ops)
-+{
-+	*ops = &nmi_timer_ops;
-+	printk(KERN_INFO "oprofile: using NMI timer interrupt.\n");
-+	return 0;
-+}
-diff -Naur -X dontdiff linux-cvs/include/asm-i386/apic.h linux-fixes/include/asm-i386/apic.h
---- linux-cvs/include/asm-i386/apic.h	2003-06-15 15:50:14.000000000 +0100
-+++ linux-fixes/include/asm-i386/apic.h	2003-06-15 19:00:08.000000000 +0100
-@@ -81,6 +81,8 @@
- extern void setup_apic_nmi_watchdog (void);
- extern void disable_lapic_nmi_watchdog(void);
- extern void enable_lapic_nmi_watchdog(void);
-+extern void disable_timer_nmi_watchdog(void);
-+extern void enable_timer_nmi_watchdog(void);
- extern inline void nmi_watchdog_tick (struct pt_regs * regs);
- extern int APIC_init_uniprocessor (void);
- extern void disable_APIC_timer(void);
+This script is used by Linus and Marcelo to rearrange and reformat BK
+ChangeSet logs into a more human-readable format, and the official
+repository is bk://kernel.bkbits.net/torvalds/tools/
+
+As the script has grown large, this mail only contains a diff against
+the last released version.
+
+You can always download the full script and GPG signatures from
+http://mandree.home.pages.de/linux/kernel/
+
+My thanks go to Vitezslav Samel who has spent a lot of time on digging
+out the real names for addresses sending in BK ChangeSets.
+
+Note that your mailer must be MIME-capable to save this mail properly,
+because it is in the "quoted-printable" encoding.
+
+= <- if you see just an equality sign, but no "3D", your mailer is fine.
+= <- if you see 3D on this line, then upgrade your mailer or pipe this mail
+= <- into metamail.
+
+-- 
+A sh script on behalf of Matthias Andree
+-------------------------------------------------------------------------
+Changes since last release:
+
+----------------------------
+revision 0.132
+date: 2003/06/17 14:53:29;  author: emma;  state: Exp;  lines: +5 -2
+Rearrange Peter Milne's addresses.
+----------------------------
+revision 0.131
+date: 2003/06/16 10:49:57;  author: vita;  state: Exp;  lines: +9 -1
+add 5 names for new addresses
+----------------------------
+revision 0.130
+date: 2003/06/12 15:27:32;  author: vita;  state: Exp;  lines: +10 -1
+add 5 names for new addresses
+----------------------------
+revision 0.129
+date: 2003/06/10 16:10:48;  author: vita;  state: Exp;  lines: +7 -1
+add 3 names for new addresses
+----------------------------
+revision 0.128
+date: 2003/06/09 10:20:37;  author: emma;  state: Exp;  lines: +11 -8
+Merge Linus' additions in. Resort address->name hash with LANG=C sort -u.
+=============================================================================
+Index: lk-changelog.pl
+===================================================================
+RCS file: /var/CVS/lk-changelog/lk-changelog.pl,v
+retrieving revision 0.128
+retrieving revision 0.132
+diff -u -r0.128 -r0.132
+--- lk-changelog.pl	9 Jun 2003 10:20:37 -0000	0.128
++++ lk-changelog.pl	17 Jun 2003 14:53:29 -0000	0.132
+@@ -8,7 +8,7 @@
+ #			Tomas Szepe <szepe@pinerecords.com>
+ #			Vitezslav Samel <samel@mail.cz>
+ #
+-# $Id: lk-changelog.pl,v 0.128 2003/06/09 10:20:37 emma Exp $
++# $Id: lk-changelog.pl,v 0.132 2003/06/17 14:53:29 emma Exp $
+ # ----------------------------------------------------------------------
+ # Distribution of this script is permitted under the terms of the
+ # GNU General Public License (GNU GPL) v2.
+@@ -144,6 +144,7 @@
+ 'aia21:cus.cam.ac.uk' => 'Anton Altaparmakov',
+ 'ajoshi:kernel.crashing.org' => 'Ani Joshi',
+ 'ajoshi:shell.unixbox.com' => 'Ani Joshi',
++'ak:colin.muc.de' => 'Andi Kleen',
+ 'ak:muc.de' => 'Andi Kleen',
+ 'ak:suse.de' => 'Andi Kleen',
+ 'akpm:digeo.com' => 'Andrew Morton',
+@@ -223,6 +224,7 @@
+ 'berny.f:aon.at' => 'Bernhard Fischer',
+ 'bero:arklinux.org' => 'Bernhard Rosenkraenzer',
+ 'bfennema:falcon.csc.calpoly.edu' => 'Ben Fennema',
++'bfields:citi.umich.edu' => 'J. Bruce Fields',
+ 'bgerst:didntduck.org' => 'Brian Gerst',
+ 'bhards:bigpond.net.au' => 'Brad Hards',
+ 'bhavesh:avaya.com' => 'Bhavesh P. Davda',
+@@ -309,6 +311,7 @@
+ 'dan:debian.org' => 'Daniel Jacobowitz',
+ 'dana.lacoste:peregrine.com' => 'Dana Lacoste',
+ 'danc:mvista.com' => 'Dan Cox', # some CREDITS patch found by google
++'daniel.ritz:ch.rmk.(none)' => 'Daniel Ritz',
+ 'daniel.ritz:gmx.ch' => 'Daniel Ritz',
+ 'daniel:osdl.org' => 'Daniel McNeil',
+ 'dank:kegel.com' => 'Dan Kegel',
+@@ -343,6 +346,7 @@
+ 'ddstreet:us.ibm.com' => 'Dan Streetman',
+ 'dean:arctic.org' => 'Dean Gaudet',
+ 'defouwj:purdue.edu' => 'Jeff DeFouw',
++'deller:gmx.de' => 'Helge Deller',
+ 'dent:cosy.sbg.ac.at' => "Thomas 'Dent' Mirlacher",
+ 'derek:ihtfp.com' => 'Derek Atkins',
+ 'devel:brodo.de' => 'Dominik Brodowski',
+@@ -371,6 +375,7 @@
+ 'driver:huey.jpl.nasa.gov' => 'Bryan B. Whitehead', # google
+ 'drow:false.org' => 'Daniel Jacobowitz',
+ 'drow:nevyn.them.org' => 'Daniel Jacobowitz',
++'dsaxena:com.rmk.(none)' => 'Deepak Saxena',
+ 'dsaxena:mvista.com' => 'Deepak Saxena',
+ 'dsteklof:us.ibm.com' => 'Daniel E. F. Stekloff',
+ 'duncan.sands:math.u-psud.fr' => 'Duncan Sands',
+@@ -403,6 +408,7 @@
+ 'faikuygur:ttnet.net.tr' => 'Faik Uygur',
+ 'falk.hueffner:student.uni-tuebingen.de' => 'Falk Hüffner',
+ 'fbl:conectiva.com.br' => 'Flávio Bruno Leitner', # google
++'fcusack:fcusack.com' => 'Frank Cusack',
+ 'fdavis:si.rr.com' => 'Frank Davis',
+ 'felipewd:terra.com.br' => 'Felipe Damasio', # by self (did not ask to include the W.)
+ 'fenghua.yu:intel.com' => 'Fenghua Yu', # google
+@@ -506,6 +512,7 @@
+ 'irohlfs:irohlfs.de' => 'Ingo Rohlfs',
+ 'ishikawa:linux.or.jp' => 'Mutsumi Ishikawa',
+ 'ivangurdiev:linuxfreemail.com' => 'Ivan Gyurdiev',
++'iwi:atm.ox.ac.uk' => 'Alan Iwi',
+ 'j-nomura:ce.jp.nec.com' => 'Junichi Nomura',
+ 'j.dittmer:portrix.net' => 'Jan Dittmer',
+ 'jack:suse.cz' => 'Jan Kara',
+@@ -705,6 +712,7 @@
+ 'marcelo:plucky.distro.conectiva' => 'Marcelo Tosatti',
+ 'marcus:ingate.com' => 'Marcus Sundberg',
+ 'marekm:amelek.gda.pl' => 'Marek Michalkiewicz',
++'margitsw:t-online.de' => 'Margit Schubert-While',
+ 'marijnk:gmx.co.uk' => 'Marijn Kruisselbrink',
+ 'marius:citi.umich.edu' => 'Marius Aamodt Eriksen',
+ 'mark:alpha.dyndns.org' => 'Mark W. McClelland',
+@@ -755,6 +763,7 @@
+ 'mingo:redhat.com' => 'Ingo Molnar',
+ 'minyard:acm.org' => 'Corey Minyard',
+ 'mitch:sfgoth.com' => 'Mitchell Blank Jr.',
++'miura:da-cha.org' => 'Hiroshi Miura',
+ 'miyazawa:linux-ipv6.org' => 'Kazunori Miyazawa',
+ 'mj:ucw.cz' => 'Martin Mares',
+ 'mk:linux-ipv6.org' => 'Mitsuru Kanda',
+@@ -853,6 +862,8 @@
+ 'peter:cadcamlab.org' => 'Peter Samuelson',
+ 'peter:chubb.wattle.id.au' => 'Peter Chubb',
+ 'peterc:gelato.unsw.edu.au' => 'Peter Chubb',
++'peterm:remware.demon.co.uk' => 'Peter Milne',
++'peterm:uk.rmk.(none)' => 'Peter Milne',
+ 'petero2:telia.com' => 'Peter Osterlund',
+ 'petkan:mastika.' => 'Petko Manolov',
+ 'petkan:mastika.dce.bg' => 'Petko Manolov',
+@@ -1044,6 +1055,7 @@
+ 'thockin:sun.com' => 'Tim Hockin',
+ 'thomas:bender.thinknerd.de' => 'Thomas Walpuski',
+ 'thomas:osterried.de' => 'Thomas Osterried',
++'thornber:sistina.com' => 'Joe Thornber',
+ 'thunder:ngforever.de' => 'Thunder From The Hill',
+ 'tigran:aivazian.name' => 'Tigran Aivazian',
+ 'tim:physik3.uni-rostock.de' => 'Tim Schmielau',
+@@ -1083,11 +1095,13 @@
+ 'viro:math.psu.edu' => 'Alexander Viro',
+ 'viro:parcelfarce.linux.theplanet.co.uk' => 'Alexander Viro',
+ 'viro:www.linux.org.uk' => 'Alexander Viro',
++'vnuorval:tcs.hut.fi' => 'Ville Nuorvala',
+ 'vojta:math.berkeley.edu' => 'Paul Vojta',
+ 'vojtech:suse.cz' => 'Vojtech Pavlik',
+ 'vojtech:twilight.ucw.cz' => 'Vojtech Pavlik',
+ 'vojtech:ucw.cz' => 'Vojtech Pavlik', # added by himself
+ 'vs:tribesman.namesys.com' => 'Vladimir Saveliev',
++'vsu:altlinux.ru' => 'Sergey Vlasov',
+ 'wa:almesberger.net' => 'Werner Almesberger',
+ 'wahrenbruch:kobil.de' => 'Thomas Wahrenbruch',
+ 'walter.harms:informatik.uni-oldenburg.de' => 'Walter Harms',
+@@ -1719,6 +1733,18 @@
+ __END__
+ # --------------------------------------------------------------------
+ # $Log: lk-changelog.pl,v $
++# Revision 0.132  2003/06/17 14:53:29  emma
++# Rearrange Peter Milne's addresses.
++#
++# Revision 0.131  2003/06/16 10:49:57  vita
++# add 5 names for new addresses
++#
++# Revision 0.130  2003/06/12 15:27:32  vita
++# add 5 names for new addresses
++#
++# Revision 0.129  2003/06/10 16:10:48  vita
++# add 3 names for new addresses
++#
+ # Revision 0.128  2003/06/09 10:20:37  emma
+ # Merge Linus' additions in. Resort address->name hash with LANG=C sort -u.
+ #
 

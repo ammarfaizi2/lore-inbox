@@ -1,30 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130089AbRBZBPG>; Sun, 25 Feb 2001 20:15:06 -0500
+	id <S130102AbRBZBaI>; Sun, 25 Feb 2001 20:30:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130096AbRBZBO5>; Sun, 25 Feb 2001 20:14:57 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:56290 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S130089AbRBZBOr>;
-	Sun, 25 Feb 2001 20:14:47 -0500
-Date: Mon, 26 Feb 2001 02:14:10 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200102260114.CAA10722.aeb@vlet.cwi.nl>
-To: Werner.Almesberger@epfl.ch, viro@math.psu.edu
-Subject: Re: [PATCH][CFT] per-process namespaces for Linux
+	id <S130105AbRBZB37>; Sun, 25 Feb 2001 20:29:59 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12036 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130102AbRBZB3m>; Sun, 25 Feb 2001 20:29:42 -0500
+Subject: Re: 64GB option broken in 2.4.2
+To: rico@patrec.com (Rico Tudor)
+Date: Mon, 26 Feb 2001 01:32:27 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010226012112.9698.qmail@pc7.prs.nunet.net> from "Rico Tudor" at Feb 26, 2001 01:21:12 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14XCWa-0000Hc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> BTW, we probably want to add mount --move <old> <new> - atomically moving
-> a subtree from one place to another. Code is there, we just need to
-> decide on API. Andries?
+> Hypothesis:
+> 	Code to handle PAE has buggy spinlock management.
 
-Since we already have "mount --bind olddir newdir" this is not
-an unreasonable extension of the mount(8) syntax.
-And since the kernel is no longer so interested in coeds as
-some former mount author, we have lots of free bits.
-There are even old bits.
+Hypthesis#2 The bounce buffer code in the Linus tree is known to be
+imperfect. Does 2.4.2ac3 do the same ?
 
-#define MS_MOVE	0x2000
+Alan
 
-Andries

@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262913AbTJaDn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 22:43:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262937AbTJaDn3
+	id S262940AbTJaD63 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 22:58:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262948AbTJaD63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 22:43:29 -0500
-Received: from dp.samba.org ([66.70.73.150]:10661 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262913AbTJaDn2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 22:43:28 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: torvalds@osdl.org, akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: Re: MODULE_ALIAS patch for ALSA 
-In-reply-to: Your message of "Thu, 30 Oct 2003 16:31:58 BST."
-             <s5h7k2myc5t.wl@alsa2.suse.de> 
-Date: Fri, 31 Oct 2003 13:21:26 +1100
-Message-Id: <20031031034327.CAE282C0EF@lists.samba.org>
+	Thu, 30 Oct 2003 22:58:29 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:62033 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S262940AbTJaD62 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 22:58:28 -0500
+Date: Thu, 30 Oct 2003 22:57:23 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Chris Vine <chris@cvine.freeserve.co.uk>
+cc: linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>
+Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
+In-Reply-To: <200310292230.12304.chris@cvine.freeserve.co.uk>
+Message-ID: <Pine.LNX.4.44.0310302256110.22312-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <s5h7k2myc5t.wl@alsa2.suse.de> you write:
-> Hi Rusty,
+On Wed, 29 Oct 2003, Chris Vine wrote:
 
-Hi Takashi!
+> However, on a low end machine (200MHz Pentium MMX uniprocessor with only 32MB 
+> of RAM and 70MB of swap) I get poor performance once extensive use is made of 
+> the swap space.
 
-> while i've played with it, i found that the alias "char-major-14-*"
-> and "char-major-116-*" don't work.  "char-major-14" and
-> "char-major-116" do work well.  is it a known issue?
-> the module-init-tools is 0.9.14-pre2, BTW.
+Could you try the patch Con Kolivas posted on the 25th ?
 
-Yep, there's one odd one out.  Thanks.
+Subject: [PATCH] Autoregulate vm swappiness cleanup
 
-Linus, please apply.
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-Name: request_module char devices fix
-Author: Rusty Russell
-Status: Trivial
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 
-D: Module aliases are all of form "char-major-<major>-<minor>".  char_dev.c
-D: calls request_module with "char-major-<major>".
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .30462-linux-2.6.0-test9-bk4/fs/char_dev.c .30462-linux-2.6.0-test9-bk4.updated/fs/char_dev.c
---- .30462-linux-2.6.0-test9-bk4/fs/char_dev.c	2003-09-29 10:25:49.000000000 +1000
-+++ .30462-linux-2.6.0-test9-bk4.updated/fs/char_dev.c	2003-10-31 13:20:49.000000000 +1100
-@@ -434,7 +434,7 @@ void cdev_init(struct cdev *cdev, struct
- 
- static struct kobject *base_probe(dev_t dev, int *part, void *data)
- {
--	request_module("char-major-%d", MAJOR(dev));
-+	request_module("char-major-%d-%d", MAJOR(dev), MINOR(dev));
- 	return NULL;
- }
- 

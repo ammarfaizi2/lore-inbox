@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267746AbUJCH1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267748AbUJCHuq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267746AbUJCH1F (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 03:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267751AbUJCH1F
+	id S267748AbUJCHuq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 03:50:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267759AbUJCHuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 03:27:05 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:5097 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S267746AbUJCH05 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 03:26:57 -0400
-Date: Sun, 3 Oct 2004 08:26:54 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: dri-devel@lists.sf.net, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Merging DRM and fbdev
-In-Reply-To: <9e47339104100220553c57624a@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0410030824280.2325@skynet>
-References: <9e47339104100220553c57624a@mail.gmail.com>
+	Sun, 3 Oct 2004 03:50:46 -0400
+Received: from services.exanet.com ([212.143.73.102]:63730 "EHLO
+	services.exanet.com") by vger.kernel.org with ESMTP id S267748AbUJCHup convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 03:50:45 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: Re: PATCH: (as189) Fix incorrect Appletalk DDP multicast address
+Date: Sun, 3 Oct 2004 09:50:44 +0200
+Message-ID: <F8B4823728281C429F53D71695A3AA1E012729B1@hawk.exanet-il.co.il>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] voluntary-preempt-2.6.9-rc2-mm4-S7
+Thread-Index: AcSpF7IvvAPyTjQpT8uB1RX7aEX3wgABU2vg
+From: "Shlomi Yaakobovich" <Shlomi@exanet.com>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-> In this model a non-drm, fb only driver like cyber2000 could load only
-> the fb and fbcon modules. I need to do some work rearranging generic
-> library support functions to allow this.
->
+Does anyone know what happened to the patch proposed by Alan Stern:
 
-I think the stated issue with this is, how big the fb driver now becomes
-because all the DRM stuff is in it... I think a radeon common, with
-radeonfb/radeondrm is probably going to be needed,
+	http://www.ussg.iu.edu/hypermail/linux/kernel/0402.1/1147.html
 
-Hopefully tomorrow (I've a day off, but the weather is getting nice as
-well :-), I'll get some time to port some stuff to the vga class stuff,
+I looked at the latest sources of 2.4 and 2.6 and this patch was not applied to them. Was there a specific reason, was this patch not tested or found buggy ?  I believe I have encountered a bug in the system I'm running that is related to this, I found this by accident when debugging appletalk, and found out that someone already saw this...
 
-I also want to prepare some patches for the kernel for the previous work
-you've done ...
+Can this patch be applied to the next kernel build ?  I noticed that it was only for 2.6, I can create a similar patch for 2.4 if needed, I just need to know if there was something wrong with it.
 
-Dave.
+Shlomi
+
+

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262449AbTCDWqd>; Tue, 4 Mar 2003 17:46:33 -0500
+	id <S262789AbTCDWnn>; Tue, 4 Mar 2003 17:43:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262812AbTCDWqd>; Tue, 4 Mar 2003 17:46:33 -0500
-Received: from dsl-212-144-247-061.arcor-ip.net ([212.144.247.61]:64648 "EHLO
-	server1.intern.kubla.de") by vger.kernel.org with ESMTP
-	id <S262449AbTCDWqd> convert rfc822-to-8bit; Tue, 4 Mar 2003 17:46:33 -0500
-From: Dominik Kubla <dominik@kubla.de>
-To: Harald Welte <laforge@netfilter.org>,
-       David =?iso-8859-1?q?Lagani=E8re?= <spanska@securinet.qc.ca>
-Subject: Re: A suggestion for the netfilter part of the sources
-Date: Tue, 4 Mar 2003 23:56:42 +0100
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-References: <3E64E1C8.9040309@securinet.qc.ca> <20030304182006.GI4880@sunbeam.de.gnumonks.org>
-In-Reply-To: <20030304182006.GI4880@sunbeam.de.gnumonks.org>
+	id <S262812AbTCDWnn>; Tue, 4 Mar 2003 17:43:43 -0500
+Received: from h008.c015.snv.cp.net ([209.228.35.123]:39597 "HELO
+	c015.snv.cp.net") by vger.kernel.org with SMTP id <S262789AbTCDWnm>;
+	Tue, 4 Mar 2003 17:43:42 -0500
+X-Sent: 4 Mar 2003 22:54:10 GMT
+Message-ID: <3E652EF7.7010405@lemur.sytes.net>
+Date: Tue, 04 Mar 2003 17:55:51 -0500
+From: Mathias Kretschmer <mathias@lemur.sytes.net>
+Reply-To: mathias.kretschmer@verizon.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20020924
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200303042356.56722.dominik@kubla.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IDE DVD reading & error handling
+References: <3E64EE6A.90208@lemur.sytes.net> <1046818748.12226.21.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 March 2003 19:20, Harald Welte wrote:
+> I think its perfectly doable to set the maximum retries per
+> device. Have a look at the current ide_error() and the error: handler
+> in the relevant ide drivers (notably ide-cd).
+> 
+> 
+>>I wonder if it would be possible to tune the IDE layer by i.e.
+>>reducing the number of retries and disabling the controller reset, etc.
+> 
+> 
+> A lot of the time you have to go through the controller reset. However 
+> cutting the retries down and having good readahead management on the
+> I/O thread ought to still cope with that.
 
->
-> The suggestion is neither 'good' nor 'bad'.  Nobody has (until now)
-> asked us to raise this value, eight seems to be enough for most people.
->
-> As long as your proposal is not backed by more other users who think the
-> default should be raised, I'd rather leave it the way it currently is.
->
+that's what I'm hoping for :)
 
-Since this is meant to be tunable, how about turning it into a configuration 
-option (with 8 being the default)? I guess that would solve this problem 
-quite nicely.
+Would it also be possible/make sense to never switch from DMA to PIO 
+mode since those DVD read errors are most likely not a DMA problem ?
 
-Regards,
-  Dominik
--- 
-Why should George W. Bush care what the American people think?
-After all they did not vote for him.
 

@@ -1,74 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131502AbRCNTbR>; Wed, 14 Mar 2001 14:31:17 -0500
+	id <S131521AbRCNTl1>; Wed, 14 Mar 2001 14:41:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131503AbRCNTbI>; Wed, 14 Mar 2001 14:31:08 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:57752 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S131502AbRCNTa6>;
-	Wed, 14 Mar 2001 14:30:58 -0500
-Date: Wed, 14 Mar 2001 20:29:53 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200103141929.UAA178418.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, rhw@MemAlpha.CX
-Subject: Re: [PATCH] Improved version reporting
-Cc: kaboom@gatech.edu, linux-kernel@vger.kernel.org, seberino@spawar.navy.mil
+	id <S131523AbRCNTlR>; Wed, 14 Mar 2001 14:41:17 -0500
+Received: from isc4.tn.cornell.edu ([128.84.242.21]:29860 "EHLO
+	isc4.tn.cornell.edu") by vger.kernel.org with ESMTP
+	id <S131521AbRCNTlG>; Wed, 14 Mar 2001 14:41:06 -0500
+Date: Wed, 14 Mar 2001 14:39:53 -0500 (EST)
+From: "Donald J. Barry" <don@astro.cornell.edu>
+Message-Id: <200103141939.OAA05598@isc4.tn.cornell.edu>
+To: linux-kernel@vger.kernel.org
+Subject: kernel paging oops on massive vfs activity
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Riley Williams <rhw@MemAlpha.CX>
+Hey kernel developers,
 
-[Yes, I wrote, replying to your mail, just because I happened
-to notice the incorrect or debatable lines in your patch.
-Let me cc the Changes maintainer - maybe Chris Ricker.]
+I'm getting repeated oopses and occasional freezes on a server I've
+set up to host a giant (180G) reiserfs system atop lvm, served by nfs(v2).
+(I've applied the reiserfs and nfs patches to the vanilla kernel,
+which is otherwise pretty minimally compiled). They seem to be
+correlated by massive disk activity.  Because this file system has
+many huge directories (20000+ files in some) and also many long names
+(some of those giant directories are filled with 40+ character
+filenames) I'm beginning to wonder whether the vfs layer is at fault.
+I got some of the same behavior with an earlier ext2 instance atop
+lvm.  In this case I triggered the result by doing a find atop the 
+tree.  Generally things that access many directory entries trigger it.
 
-     >> -o  util-linux             2.10o                   # fdformat --version
-     >> +o  util-linux         #   2.10o        # fdformat --version
+Of course, it could be a remaining hardware glitch on this new tbird
+1100 system on GA59X motherboard (latest firmware, but it has the 
+troublesome VIA kt133 chipset).
 
-     > Looking at fdformat to get the util-linux version is perhaps not
-     > the most reliable way - some people have fdformat from elsewhere.
-     > Using mount --version would be better - I am not aware of any
-     > other mount distribution.
+What use is a server when it oopses when trying to serve?
 
-    RedHat distribute mount separately from util-linux and I wouldnae be
-    surprised if others do the same...
+Any thoughts?
 
-I am not aware of any distribution that ships some version of
-util-linux, but replaces its mount part by an older version.
-I think that even in cases where, because of historical reasons, util-linux
-is repackaged in several parts, mount --version gives the right answer.
-
-     >> +In addition, it is wise to ensure that the following packages are
-     >> +at least at the versions suggested below, although these may not
-     >> +be required, depending on the exact configuration of your system:
-     >> +
-     >> +o  Console Tools      #   0.3.3        # loadkeys -V
-     >> +o  Mount              #   2.10e        # mount --version
-
-     > Concerning mount:
-     >
-     > (i) the version mentioned is too old,
-     > (ii) mount is in util-linux.
-
-    Not on RedHat systems.
-
-There is no other source. Some people like to repack but that
-has no influence on versions.
-
-     > Conclusion: the mount line should be deleted entirely.
-     > Concerning Console Tools: maybe kbd-1.05 is uniformly better.
-     > I am not aware of any reason to recommend the use of console-tools.
-
-    Neither am I. The ver_linux script has lines for determining the
-    versions for both Console Tools and Kbd but on EVERY system I've
-    tried, including Slackware, RedHat, Debian, Caldera, and SuSE based
-    ones, the line for determining Kbd versiondoesnae work. I've just
-    included the line that worked, and ignored the Kbd one as I can see no
-    point including something that doesnae work.
-
-You are mistaken, as is proved by the reports that contain a kbd line:
-a grep on linux-kernel for this Februari shows people with
-Kbd 0.96, 0.99 and 1.02.
+Don Barry
+Cornell Astronomy
 
 
-Andries
+ksymoops 2.3.4 on i686 2.4.2.  Options used
+     -V (specified)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.2/ (default)
+     -m /usr/src/linux/System.map (default)
+
+Unable to handle kernel paging request at virtual address 00acaca0
+c0141adb
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c0141adb>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010217
+eax: cffc9f58   ebx: 00acac80   ecx: 0000000e   edx: 0001be9b
+esi: 00acac80   edi: 00000000   ebp: cffc9f58   esp: c96c9e1c
+ds: 0018   es: 0018   ss: 0018
+Process find (pid: 929, stackpage=c96c9000)
+Stack: c96c9e94 00000000 0001be9b cf921400 c0141ef7 cf921400 0001be9b cffc9f58 
+       00000000 c96c9e74 c96c9e94 c96c9ef8 c96c9ed4 c2545bc0 cffc9f58 c0180e04 
+       cf921400 0001be9b 00000000 c96c9e74 c96c9e94 00000001 0001bdb0 c017c7de 
+Call Trace: [<c0141ef7>] [<c0180e04>] [<c017c7de>] [<c01385a3>] [<c0138d27>] [<c013830b>] [<c013935c>] 
+       [<c0136206>] [<c0108f47>] 
+Code: 39 53 20 75 24 8b 54 24 14 39 93 8c 00 00 00 75 18 85 ff 74 
+
+>>EIP; c0141adb <find_inode+1b/60>   <=====
+Trace; c0141ef7 <iget4+47/e0>
+Trace; c0180e04 <reiserfs_iget+24/60>
+Trace; c017c7de <reiserfs_lookup+8e/d0>
+Trace; c01385a3 <real_lookup+53/c0>
+Trace; c0138d27 <path_walk+5b7/820>
+Trace; c013830b <getname+5b/a0>
+Trace; c013935c <__user_walk+3c/60>
+Trace; c0136206 <sys_lstat64+16/70>
+Trace; c0108f47 <system_call+33/38>
+Code;  c0141adb <find_inode+1b/60>
+00000000 <_EIP>:
+Code;  c0141adb <find_inode+1b/60>   <=====
+   0:   39 53 20                  cmp    %edx,0x20(%ebx)   <=====
+Code;  c0141ade <find_inode+1e/60>
+   3:   75 24                     jne    29 <_EIP+0x29> c0141b04 <find_inode+44/60>
+Code;  c0141ae0 <find_inode+20/60>
+   5:   8b 54 24 14               mov    0x14(%esp,1),%edx
+Code;  c0141ae4 <find_inode+24/60>
+   9:   39 93 8c 00 00 00         cmp    %edx,0x8c(%ebx)
+Code;  c0141aea <find_inode+2a/60>
+   f:   75 18                     jne    29 <_EIP+0x29> c0141b04 <find_inode+44/60>
+Code;  c0141aec <find_inode+2c/60>
+  11:   85 ff                     test   %edi,%edi
+Code;  c0141aee <find_inode+2e/60>
+  13:   74 00                     je     15 <_EIP+0x15> c0141af0 <find_inode+30/60>
 

@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVDBDxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262984AbVDBD7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261676AbVDBDxe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 22:53:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262984AbVDBDxe
+	id S262984AbVDBD7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 22:59:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbVDBD7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 22:53:34 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2202 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261676AbVDBDxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 22:53:31 -0500
-Date: Sat, 2 Apr 2005 04:53:30 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Greg KH <gregkh@suse.de>
-Cc: Matthew Wilcox <matthew@wil.cx>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, greg@kroah.com, prarit@sgi.com
-Subject: Re: PCI: fix an oops in some pci devices on hotplug remove when their resources are being freed.
-Message-ID: <20050402035330.GH21986@parcelfarce.linux.theplanet.co.uk>
-References: <11123992702166@kroah.com> <11123992703458@kroah.com> <20050402011023.GG21986@parcelfarce.linux.theplanet.co.uk> <20050402033141.GA16556@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050402033141.GA16556@kroah.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 1 Apr 2005 22:59:24 -0500
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:22655 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262984AbVDBD7V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 22:59:21 -0500
+Message-ID: <424E1895.2070409@yahoo.com.au>
+Date: Sat, 02 Apr 2005 13:59:17 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+CC: mingo@elte.hu, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] sched: remove unnecessary sched domains
+References: <20050401162039.A4320@unix-os.sc.intel.com> <424DFE5F.2040804@yahoo.com.au> <20050401193121.B5598@unix-os.sc.intel.com>
+In-Reply-To: <20050401193121.B5598@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 01, 2005 at 07:31:41PM -0800, Greg KH wrote:
-> I agree.  However, SGI seems to have some majorly <insert expletive here>
-> hardware and drivers that cause this line to release a already released
-> resource.  See the other part of this patch for the part where this
-> resource is supposedly freed up.
+Siddha, Suresh B wrote:
+> On Sat, Apr 02, 2005 at 12:07:27PM +1000, Nick Piggin wrote:
+> 
+>>I was thinking we could fix that by running balance on fork/exec multiple
+>>times from top to bottom level domains. I'll have to measure the cost of
+>>doing that, because it may be worthwhile.
+> 
+> 
+> Agreed.
+> 
+> BTW, why are we setting SD_BALANCE_FORK flag for NUMA domain on i386, ia64.
+> This should be set only on x86_64 and that too not for Intel systems.
+> 
 
-That one's even more stupid:
-
-+++ b/kernel/resource.c 2005-04-01 15:37:58 -08:00
-@@ -505,6 +505,7 @@
-                        *p = res->sibling;
-                        write_unlock(&resource_lock);
-                        kfree(res);
-+                       res = NULL;
-                        return;
-                }
-                p = &res->sibling;
-
-This pointer is a local variable!  Setting it to null right before return
-cannot possibly affect anything.
-
-> I took the patch as it doesn't hurt anyone, and it gets them off of my
-> back.  But if you so much as think this patch isn't needed, I'll gladly
-> revert it, as I'm really not trusting any PCI hotplug patches coming out
-> from them anymore...
-
-I think the problem is that they have a majorly hacked tree they're
-working from as well as some quite inexperienced people working on it.
-They need to do more internal peer review ... and clearly I need to
-start reviewing their patches more carefully.
-
-So yes, please revert this patch.  There is no way it can possibly
-affect anything.
+Mainly to see whether anyone reports regressions, and to exercise
+the code a bit.
 
 -- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+SUSE Labs, Novell Inc.
+

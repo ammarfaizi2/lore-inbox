@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264883AbTANSOX>; Tue, 14 Jan 2003 13:14:23 -0500
+	id <S264878AbTANSRW>; Tue, 14 Jan 2003 13:17:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264885AbTANSOX>; Tue, 14 Jan 2003 13:14:23 -0500
-Received: from adsl-67-121-154-100.dsl.pltn13.pacbell.net ([67.121.154.100]:4320
+	id <S264903AbTANSRW>; Tue, 14 Jan 2003 13:17:22 -0500
+Received: from adsl-67-121-154-100.dsl.pltn13.pacbell.net ([67.121.154.100]:9952
 	"EHLO kanoe.ludicrus.net") by vger.kernel.org with ESMTP
-	id <S264883AbTANSOW>; Tue, 14 Jan 2003 13:14:22 -0500
-Date: Tue, 14 Jan 2003 10:22:58 -0800
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+	id <S264878AbTANSRU>; Tue, 14 Jan 2003 13:17:20 -0500
+Date: Tue, 14 Jan 2003 10:25:56 -0800
+To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: audio resamples itself
-Message-ID: <20030114182258.GA16359@kanoe.ludicrus.net>
-References: <Pine.LNX.4.51.0301141703080.7796@dns.toxicfilms.tv>
+Subject: Re: Which FB to use instead of vesafb?
+Message-ID: <20030114182556.GB16359@kanoe.ludicrus.net>
+References: <20030114173348.GG20592@charite.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
+	protocol="application/pgp-signature"; boundary="uZ3hkaAS1mZxFaxD"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.51.0301141703080.7796@dns.toxicfilms.tv>
+In-Reply-To: <20030114173348.GG20592@charite.de>
 User-Agent: Mutt/1.5.3i
 From: Joshua Kwan <joshk@ludicrus.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---45Z9DzgjV8m4Oswq
+--uZ3hkaAS1mZxFaxD
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-I had a lot of problems with i810_audio, have you tried the ALSA drivers
-either as modules for 2.4 or built-in for 2.5? (the module name is intel8x0)
-They seem to work great for me.
+Try rivafb, but I hear it is broken in 2.5 :)
 
--Josh
+Regards
+Josh
 
-On Tue, Jan 14, 2003 at 05:11:37PM +0100, Maciej Soltysiak wrote:
-> Hi,
+On Tue, Jan 14, 2003 at 06:33:48PM +0100, Ralf Hildebrandt wrote:
+> Which framebuffer works with a:
 >=20
-> i put my hdd to a different computer, which has:
-> 00:1f.5 Multimedia audio controller: Intel Corp. 82820 820 (Camino 2)
-> Chipset AC'97 Audio Controller (rev 12)
->=20
-> i noticed that when i play music with xmms it has the habit of changing
-> the sampling rate to something that sounds like 11k, (sharp aliased sound)
-> when eg. i open/close windows, click, etc. I know that i810 can handle
-> only 48k, i changed xmms preferences to play at 48k, but it still does it.
->=20
-> The previous computer had an sb live and it was fine.
->=20
-> Did anybody notice similar behaviour with this driver / chip ?
->=20
-> Regards,
-> Maciej
+> 01:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 420 =
+Go] (rev a3) (prog-if 00 [VGA])
+>         Subsystem: Toshiba America Info Systems: Unknown device 0001
+>         Flags: bus master, 66Mhz, medium devsel, latency 248, IRQ 10
+>         Memory at fd000000 (32-bit, non-prefetchable) [size=3D16M]
+>         Memory at ec000000 (32-bit, prefetchable) [size=3D64M]
+>         Memory at ebf80000 (32-bit, prefetchable) [size=3D512K]
+>         Expansion ROM at <unassigned> [disabled] [size=3D128K]
+>         Capabilities: <available only to root>
+> =09
+> --=20
+> Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.=
+de
+> Charite Campus Mitte                            Tel.  +49 (0)30-450 570-1=
+55
+> Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-9=
+16
+> Basic research is what I'm doing when I don't know what I'm doing.
+>                                               -- Wernher von Braun
 >=20
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
@@ -59,16 +62,16 @@ On Tue, Jan 14, 2003 at 05:11:37PM +0100, Maciej Soltysiak wrote:
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
 
---45Z9DzgjV8m4Oswq
+--uZ3hkaAS1mZxFaxD
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE+JFWC6TRUxq22Mx4RAn2kAKCWSii6yQAxR+gH+giOob7DJGuJqACgpxWP
-v56k6xxWgC8U545s6JWwMZ0=
-=madi
+iD8DBQE+JFY06TRUxq22Mx4RAmsLAJ9h+EmvAXpce8aLStyT7aJZcbjF6ACgvruC
+sDbzas0dICyRh8BKQZBq4N8=
+=9f8L
 -----END PGP SIGNATURE-----
 
---45Z9DzgjV8m4Oswq--
+--uZ3hkaAS1mZxFaxD--

@@ -1,112 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262739AbVCPSh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262744AbVCPSjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262739AbVCPSh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 13:37:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbVCPSfv
+	id S262744AbVCPSjg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 13:39:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262742AbVCPSiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 13:35:51 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:4295 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S262734AbVCPSez (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 13:34:55 -0500
-Message-ID: <42387C2E.4040106@colorfullife.com>
-Date: Wed, 16 Mar 2005 19:34:22 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20041020
+	Wed, 16 Mar 2005 13:38:05 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3266 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262734AbVCPSfx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 13:35:53 -0500
+Message-ID: <42387C7C.9040407@pobox.com>
+Date: Wed, 16 Mar 2005 13:35:40 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christoph Lameter <christoph@lameter.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fw: [PATCH] NUMA Slab Allocator
-References: <20050315204110.6664771d.akpm@osdl.org>
-In-Reply-To: <20050315204110.6664771d.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: James Bottomley <James.Bottomley@SteelEye.com>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] SCSI updates for 2.6.11
+References: <1110934411.5685.39.camel@mulgrave>
+In-Reply-To: <1110934411.5685.39.camel@mulgrave>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph,
+James Bottomley wrote:
+> This is my current tranch of patches that were waiting the transition
+> from -rc to released (sorry it's late ... I've been on holiday).
+> 
+> The patch is available here:
+> 
+> bk://linux-scsi.bkbits.net/scsi-for-linus-2.6
 
-Do you have profile data from your modification? Which percentage of the 
-allocations is node-local, which percentage is from foreign nodes? 
-Preferably per-cache. It shouldn't be difficult to add statistics 
-counters to your patch.
-And: Can you estaimate which percentage is really accessed node-local 
-and which percentage are long-living structures that are accessed from 
-all cpus in the system?
-I had discussions with guys from IBM and SGI regarding a numa allocator, 
-and we decided that we need profile data before we can decide if we need 
-one:
-- A node-local allocator reduces the inter-node traffic, because the 
-callers get node-local memory
-- A node-local allocator increases the inter-node traffic, because 
-objects that are kfree'd on the wrong node must be returned to their 
-home node.
+Are my 3ware bugfixes in the queue?  Currently 3ware claims it handled 
+the interrupt, even the interrupt is a shared one and the event was 
+meant for another driver.
 
-> static inline void __cache_free (kmem_cache_t *cachep, void* objp)
-> {
->  struct array_cache *ac = ac_data(cachep);
->+ struct slab *slabp;
->
->  check_irq_off();
->  objp = cache_free_debugcheck(cachep, objp, __builtin_return_address(0));
->
->- if (likely(ac->avail < ac->limit)) {
->+ /* Make sure we are not freeing a object from another
->+  * node to the array cache on this cpu.
->+  */
->+ slabp = GET_PAGE_SLAB(virt_to_page(objp));
->  
->
-This line is quite slow, and should be performed only for NUMA builds, 
-not for non-numa builds. Some kind of wrapper is required.
+	Jeff
 
->+ if(unlikely(slabp->nodeid != numa_node_id())) {
->+  STATS_INC_FREEMISS(cachep);
->+  int nodeid = slabp->nodeid;
->+  spin_lock(&(cachep->nodelists[nodeid])->list_lock);
->  
->
-This line is very dangerous: Every wrong-node allocation causes a 
-spin_lock operation. I fear that the cache line traffic for the spinlock 
-might kill the performance for some workloads. I personally think that 
-batching is required, i.e. each cpu stores wrong-node objects in a 
-seperate per-cpu array, and then the objects are returned as a block to 
-their home node.
 
->-/*
->- * NUMA: different approach needed if the spinlock is moved into
->- * the l3 structure
->  
->
-You have moved the cache spinlock into the l3 structure. Have you 
-compared both approaches?
-A global spinlock has the advantage that batching is possible in 
-free_block: Acquire global spinlock, return objects to all nodes in the 
-system, release spinlock. A node-local spinlock would mean less 
-contention [multiple spinlocks instead of one global lock], but far more 
-spin_lock/unlock calls.
 
-IIRC the conclusion from our discussion was, that there are at least 
-four possible implementations:
-- your version
-- Add a second per-cpu array for off-node allocations. __cache_free 
-batches, free_block then returns. Global spinlock or per-node spinlock. 
-A patch with a global spinlock is in
-http://www.colorfullife.com/~manfred/Linux-kernel/slab/patch-slab-numa-2.5.66
-per-node spinlocks would require a restructuring of free_block.
-- Add per-node array for each cpu for wrong node allocations. Allows 
-very fast batch return: each array contains memory just from one node, 
-usefull if per-node spinlocks are used.
-- do nothing. Least overhead within slab.
-
-I'm fairly certains that "do nothing" is the right answer for some 
-caches. For example the dentry-cache: The object lifetime is seconds to 
-minutes, the objects are stored in a global hashtable. They will be 
-touched from all cpus in the system, thus guaranteeing that 
-kmem_cache_alloc returns node-local memory won't help. But the added 
-overhead within slab.c will hurt.
-
---
-    Manfred

@@ -1,28 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267363AbUJTRrl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268914AbUJTRyw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267363AbUJTRrl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 13:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266069AbUJTRkw
+	id S268914AbUJTRyw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 13:54:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268971AbUJTRy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 13:40:52 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:13064 "EHLO
+	Wed, 20 Oct 2004 13:54:29 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:51465 "EHLO
 	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S268728AbUJTRfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 13:35:10 -0400
-Message-ID: <4176A47B.2050103@techsource.com>
-Date: Wed, 20 Oct 2004 13:46:35 -0400
+	id S268767AbUJTRrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 13:47:04 -0400
+Message-ID: <4176A749.8050306@techsource.com>
+Date: Wed, 20 Oct 2004 13:58:33 -0400
 From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
 To: Lee Revell <rlrevell@joe-job.com>
-CC: Andrea Arcangeli <andrea@novell.com>, Ingo Molnar <mingo@elte.hu>,
-       Chris Wedgwood <cw@f00f.org>, Arjan van de Ven <arjanv@redhat.com>,
+CC: Arjan van de Ven <arjanv@redhat.com>, Andrea Arcangeli <andrea@novell.com>,
        Hugh Dickins <hugh@veritas.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       LKML <linux-kernel@vger.kernel.org>,
+       Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
        Christoph Hellwig <hch@infradead.org>
 Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-References: <593560000.1094826651@[10.10.2.4]>	 <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain>	 <20040910151538.GA24434@devserv.devel.redhat.com>	 <20040910152852.GC15643@x30.random>	 <20040910153421.GD24434@devserv.devel.redhat.com>	 <1095016687.1306.667.camel@krustophenia.net>	 <20040912192515.GA8165@taniwha.stupidest.org>	 <20040912193542.GB28791@elte.hu> <20040912203308.GA3049@dualathlon.random>	 <1095025000.22893.52.camel@krustophenia.net>	 <20040912220720.GC3049@dualathlon.random> <1095027951.22893.69.camel@krustophenia.net>
-In-Reply-To: <1095027951.22893.69.camel@krustophenia.net>
+References: <593560000.1094826651@[10.10.2.4]>	 <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain>	 <20040910151538.GA24434@devserv.devel.redhat.com>	 <20040910152852.GC15643@x30.random>	 <20040910153421.GD24434@devserv.devel.redhat.com>	 <41768858.8070709@techsource.com>	 <20041020153521.GB21556@devserv.devel.redhat.com> <1098290345.1429.65.camel@krustophenia.net>
+In-Reply-To: <1098290345.1429.65.camel@krustophenia.net>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -31,38 +30,30 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 Lee Revell wrote:
-> On Sun, 2004-09-12 at 18:07, Andrea Arcangeli wrote:
+> On Wed, 2004-10-20 at 11:35, Arjan van de Ven wrote:
 > 
->>On Sun, Sep 12, 2004 at 05:36:41PM -0400, Lee Revell wrote:
+>>On Wed, Oct 20, 2004 at 11:46:32AM -0400, Timothy Miller wrote:
 >>
->>>But in this case the hardirq handler can run for 2ms, which caused a
->>>scheduler latency problem, because nothing could run but other IRQs. 
->>>The IRQ threading in Ingo's patches solves the problem, and seems to me
->>>to be the correct solution.
+>>>The rules about how long a hard irq would be allowed to run would have 
+>>>to be draconian.
 >>
->>the irq threading must have a cost, doesn't it? I doubt you want to
->>offload irqs to a kernel thread on a server, *that* would be slow (irq
->>nesting is zerocost compared to scheduling a kernel thread).
+>>they already are.
 > 
 > 
-> Yes, on a server you would probably disable threading for the disk and
-> network IRQs (the VP patch lets you set this via /proc).  This feature
-> effectively gives you IPLs on Linux, albeit only two of them.  For
-> example to prevent heavy traffic on one network interface from impacting
-> the latency of the other, you could enable threading for the first and
-> disable it for the second.
+> The IDE I/O completion in hardirq context means that one can run for
+> almost 3ms.  Apparently at OLS it was decided that the target for
+> desktop responsiveness was 1ms.  So this is a real problem.
+
+What is happening that takes 3ms, and why can't it be broken up?
+
+Are you talking here about PIO?  Is there a limited amount of time you 
+have to do the PIO before the data goes away?  It may be acceptable to 
+just live with PIO being slow, since high-performance systems will all 
+be using DMA anyhow.
+
 > 
-> I am still unsure why the IDE i/o completion is the one place that
-> breaks the assumption that hardirq handlers execute quickly.
+> What exactly do you mean by "draconian"?
 
-
-On the one hand, all this preemption introduces overhead which increases 
-latency and reduces throughput for any one individual activity.
-
-On the other hand, the preemption allows the CPU to attend to more 
-different resources at the same time, keeping more resources busy. 
-Under heavy load, this can increase overall system throughput significantly.
-
-So, both approaches can increase throughput in different ways.  Where is 
-the balance between the two which yields the most satisfactory result?
+In this case, I mean extremely harsh and restrictive.  Usually, it means 
+"excessively harsh", but in this case, I mean that in a good way.  :)
 

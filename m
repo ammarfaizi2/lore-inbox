@@ -1,32 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286179AbSBECBq>; Mon, 4 Feb 2002 21:01:46 -0500
+	id <S285417AbSBECcy>; Mon, 4 Feb 2002 21:32:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286895AbSBECBg>; Mon, 4 Feb 2002 21:01:36 -0500
-Received: from 64-30-107-48.ftth.sac.winfirst.net ([64.30.107.48]:14852 "EHLO
-	leng.internal") by vger.kernel.org with ESMTP id <S286179AbSBECBT>;
-	Mon, 4 Feb 2002 21:01:19 -0500
-Date: Mon, 4 Feb 2002 18:01:15 -0800
-From: Manuel McLure <manuel@mclure.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17 Oops when trying to mount ATAPI CDROM - Conclusion
-Message-ID: <20020204180115.A29742@ulthar.internal>
-In-Reply-To: <20020202170244.A12338@ulthar.internal> <Pine.LNX.4.10.10202021715180.26613-100000@master.linux-ide.org> <20020203102109.C12338@ulthar.internal> <20020203103216.E12338@ulthar.internal> <0d4d01c1adad$37bf5cc0$7e93a8c0@sac.unify.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <0d4d01c1adad$37bf5cc0$7e93a8c0@sac.unify.com>; from manuel@mclure.org on Mon, Feb 04, 2002 at 10:53:21 -0800
-X-Mailer: Balsa 1.2.4
+	id <S286895AbSBECcq>; Mon, 4 Feb 2002 21:32:46 -0500
+Received: from tantale.fifi.org ([216.27.190.146]:65415 "EHLO tantale.fifi.org")
+	by vger.kernel.org with ESMTP id <S285417AbSBECcg>;
+	Mon, 4 Feb 2002 21:32:36 -0500
+To: Alexander Sandler <ASandler@store-age.com>
+Cc: "'sathish jayapalan'" <sathish_jayapalan@yahoo.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: How to crash a system and take a dump?
+In-Reply-To: <BDE817654148D51189AC00306E063AAE054623@exchange.store-age.com>
+From: Philippe Troin <phil@fifi.org>
+Date: 04 Feb 2002 18:32:21 -0800
+In-Reply-To: <BDE817654148D51189AC00306E063AAE054623@exchange.store-age.com>
+Message-ID: <87zo2oacay.fsf@ceramic.fifi.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As a conclusion to this, I followed Jens' advice and bought a new $28 
-CD-ROM drive (talk about your "no-name" drive - this thing doesn't have 
-any information other than "Made in China" - it's detected as a "CD-ROM 
-Drive/G6D") which works just fine and even does DMA. The Pioneer 24X is 
-going in the trash.
+Alexander Sandler <ASandler@store-age.com> writes:
 
--- 
-Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient
-<manuel@mclure.org>     | and significant law, no man may kill a cat.
-<http://www.mclure.org> |             -- H.P. Lovecraft
+> > Hi,
+> > I have a doubt. I know that linux kernel doesn't crash
+> > so easily. Is there any way to panic the system? Can I
+> > go to the source area and insert/modify a variable in
+> > kernel code so that the kernel references a null
+> > pointer and crashes while running the kernel compiled
+> > with this variable. My aim is to learn crash dump
+> > analysis with 'Lcrash tool". Please help me out with
+> > this.
+> 
+> Go to interrupt handler (for instance in fs/buffer.c end_buffer_io_async() )
+> and cause segmentation fault.
+> System will try to kill process that caused segmentation fault and since
+> it's in interrupt context will panic.
+
+Simplier: insmod this module:
+
+#include <linux/module.h>
+
+int init_module()
+{
+   panic("Forcing panic");
+}
+
+int cleanup_module()
+{
+}
+
+Phil.

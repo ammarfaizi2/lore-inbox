@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263772AbTIHXQA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 19:16:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263777AbTIHXQA
+	id S263688AbTIHX2t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 19:28:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263717AbTIHX2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 19:16:00 -0400
-Received: from c210-49-26-171.randw1.nsw.optusnet.com.au ([210.49.26.171]:2984
-	"EHLO mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id S263772AbTIHXP5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 19:15:57 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
+	Mon, 8 Sep 2003 19:28:49 -0400
+Received: from gprs145-40.eurotel.cz ([160.218.145.40]:4999 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263688AbTIHX2s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 19:28:48 -0400
+Date: Tue, 9 Sep 2003 01:28:25 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Sven =?iso-8859-1?Q?K=F6hler?= <skoehler@upb.de>
+Cc: Paul Clements <Paul.Clements@SteelEye.com>, linux-kernel@vger.kernel.org
+Subject: Re: [NBD] patch and documentation
+Message-ID: <20030908232824.GH429@elf.ucw.cz>
+References: <3F5CB554.5040507@upb.de> <20030908193838.GA435@elf.ucw.cz> <3F5CE0E5.A5A08A91@SteelEye.com> <3F5CE3E6.8070201@upb.de> <3F5CF045.DDDE475C@SteelEye.com> <3F5CFF0B.6080609@upb.de> <20030908222111.GG429@elf.ucw.cz> <3F5D0186.4030001@upb.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16221.3496.796304.383173@wombat.chubb.wattle.id.au>
-Date: Tue, 9 Sep 2003 09:15:52 +1000
-To: scott_list@mischko.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Plans for better performance metrics in upcoming kernels?
-In-Reply-To: <200309080754.55700.scott_list@mischko.com>
-References: <200309051641.44228.scott_list@mischko.com>
-	<200309080754.55700.scott_list@mischko.com>
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Disposition: inline
+In-Reply-To: <3F5D0186.4030001@upb.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Scott" == Scott Chapman <scott_list@mischko.com> writes:
+Hi!
 
-Scott> Hi all, I received one reply to this email.  I take it there is
-Scott> nobody really heading up the implementation of improved/missing
-Scott> performance metrics in the kernel?
+> >>Another idea would be to be abled to specify the max_sectors while 
+> >>connecting an NBD. That would add an optional paramter to the nbd-client 
+> >>command line. (like it is possible for the blocksize)
+> >
+> >I do not see why it should be configurable...
+> 
+> We may regret to use a certain value, although i agree that 1MB should 
+> be sufficient for the future.
 
+I believe that 1MB is good, and good enough for close future. If that
+ever proves to be problem, we can add handshake at that point. But I
+do not believe it will be neccessary.
+								Pavel
 
-I've been working on microstate acounting, and am interested in better
-metrics overall, for capacity planning and for accounting.
-
-I think that SGI also have been doing some work -- see
-http://oss.sgi.com/projects/csa/ 
-
-Peter C
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

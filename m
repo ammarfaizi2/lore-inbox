@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286280AbRLTPzs>; Thu, 20 Dec 2001 10:55:48 -0500
+	id <S286281AbRLTQDI>; Thu, 20 Dec 2001 11:03:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286281AbRLTPzi>; Thu, 20 Dec 2001 10:55:38 -0500
-Received: from rj.sgi.com ([204.94.215.100]:60040 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S286280AbRLTPzY>;
-	Thu, 20 Dec 2001 10:55:24 -0500
-Date: Thu, 20 Dec 2001 09:55:21 -0600
-From: Nathan Straz <nstraz@sgi.com>
-To: Dave Jones <davej@suse.de>
+	id <S286282AbRLTQC6>; Thu, 20 Dec 2001 11:02:58 -0500
+Received: from ns.suse.de ([213.95.15.193]:63243 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S286281AbRLTQCs>;
+	Thu, 20 Dec 2001 11:02:48 -0500
+Date: Thu, 20 Dec 2001 17:02:42 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Nathan Straz <nstraz@sgi.com>
 Cc: "David S. Miller" <davem@redhat.com>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: More fun with fsx.
-Message-ID: <20011220155521.GA31467@sgi.com>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	"David S. Miller" <davem@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011218.123130.58437921.davem@redhat.com> <Pine.LNX.4.33.0112182134400.29077-100000@Appserv.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0112182134400.29077-100000@Appserv.suse.de>
-User-Agent: Mutt/1.3.24i
+In-Reply-To: <20011220155521.GA31467@sgi.com>
+Message-ID: <Pine.LNX.4.33.0112201701190.2519-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 18, 2001 at 09:36:10PM +0100, Dave Jones wrote:
-> On Tue, 18 Dec 2001, David S. Miller wrote:
-> 
-> > BTW, here is a portability fix for fsx-linux.c :-)
-> 
-> Cool, danke.
-> I'll wrap it in an ifdef and push it to the Apple folks
-> when I send my next changes.
+On Thu, 20 Dec 2001, Nathan Straz wrote:
 
-fsx had been added to the Linux Test Project with permission by Apple.
-I've integrated the above change.  Any other changes can be submitted to
-the LTP list or as a patch on the LTP project page.  fsx is filed in
-ltp/testcases/kernel/fs/fsx-linux.
+> fsx had been added to the Linux Test Project with permission by Apple.
+> I've integrated the above change.  Any other changes can be submitted to
+> the LTP list or as a patch on the LTP project page.  fsx is filed in
+> ltp/testcases/kernel/fs/fsx-linux.
 
-Thank to everyone how dug this up and polished it off.  
+Great, thanks.. I pushed this down my TODO and hadn't got around to it
+yet.. Can you make sure conrad@apple.com gets any worthwehile changes the
+ltp makes to it too ?
+
+Dave.
+
 -- 
-Nate Straz                                              nstraz@sgi.com
-sgi, inc                                           http://www.sgi.com/
-Linux Test Project                                  http://ltp.sf.net/
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

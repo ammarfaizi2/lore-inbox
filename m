@@ -1,95 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268533AbUIGTzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268553AbUIGTzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268533AbUIGTzH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 15:55:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268539AbUIGTyc
+	id S268553AbUIGTzF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 15:55:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268504AbUIGTyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 15:54:32 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:36849 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S268553AbUIGTbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 15:31:23 -0400
-Message-ID: <413E0C88.6020402@namesys.com>
-Date: Tue, 07 Sep 2004 12:31:20 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+	Tue, 7 Sep 2004 15:54:40 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:61826 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268590AbUIGTVr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 15:21:47 -0400
+Message-ID: <413E0A33.8090701@us.ibm.com>
+Date: Tue, 07 Sep 2004 12:21:23 -0700
+From: Ian Romanick <idr@us.ibm.com>
+User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-CC: linux-kernel@vger.kernel.org, Alexander Zarochentcev <zam@namesys.com>,
-       vs <vs@thebsh.namesys.com>, Edward Shishkin <edward@namesys.com>
-Subject: Re: [PATCH - EXPERIMENTAL] files with forks in the VFS
-References: <16699.44411.361938.856856@cse.unsw.edu.au>	<413BFCB5.4010608@namesys.com> <16700.60673.453455.255327@cse.unsw.edu.au>
-In-Reply-To: <16700.60673.453455.255327@cse.unsw.edu.au>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Christoph Hellwig <hch@infradead.org>
+CC: dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: New proposed DRM interface design
+References: <20040904004424.93643.qmail@web14921.mail.yahoo.com> <Pine.LNX.4.58.0409040145240.25475@skynet> <20040904102914.B13149@infradead.org>
+In-Reply-To: <20040904102914.B13149@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-
->On Sunday September 5, reiser@namesys.com wrote:
->  
->
->>Neil Brown wrote:
->>
->>    
->>
->>>As a followup to the multi-branching threads about reiser4, I would
->>>like to present this patch for discussion and exploration.
->>>It implements files with fork (which are quite different to files that
->>>provide different views via a subdirectory structure).
->>> 
+Christoph Hellwig wrote:
+> On Sat, Sep 04, 2004 at 01:51:24AM +0100, Dave Airlie wrote:
+> 
+>>>Then drm_core would always be bundled with the OS.
 >>>
->>>      
->>>
->>How are they different?  Having a distinguished file is consistent with 
->>the reiser4 approach.
+>>>Is there any real advantage to spliting core/library and creating three
+>>>interface compatibily problems?
 >>
->>    
->>
->
->They are different at least in my perception.  It is possible that a
->common abstraction and a common implementation could support them
->both, though I am slightly sceptical.
->
->On the one hand, you have a name space within a file which provides
->access to information that is not part of that file but is only
->loosely associated with it:  an icon for a desktop app, documentation
->for a program, a collection of fonts that a document uses.
->
->On the other hand, you have a name space within a file which provides
->alternate views onto information that already exists within that
->file:  "unzip" which presents the file uncompressed, "tar" which
->explodes a tar achieve, "tag" which shows tags in a multi-media
->file. "elf" which exposes sections of an ELF executable.
->
->In the first case, the subordinate files should clearly be writable,
->and should be backed up along with the main file.
->In the second case, it is not clear that subordinate files should or
->could be writable in general (though there may well be specific
->cases), and the data does not need to be backed up.
->  
->
-After the file compression plugin we should consider creating a 
-directory compression plugin for directories with lots of small files....
+>>Yes we only have one binary interface, between the core and module, this
+>>interface is minimal, so AGP won't go in it... *ALL* the core does is deal
+>>with the addition/removal of modules, the idea being that the interface is
+>>very minor and new features won't change it...
+> 
+> Umm, the Linux kernel isn't about minimizing interfaces.  We don't link a
+> copy of scsi helpers into each scsi driver either, or libata into each sata
+> driver.
 
->In the first case, the extra semantic only applies to files, not
->directories (allowing a directory to have extra streams is nothing
->new).
->In the second case, the extra semantic should apply to directories as
->well (as there may we be different views you might want on a
->directory). 
->  
->
-I don't understand the paragraph above.  Can you say with fewer 
-indirections (e.g. define extra semantic)?
+Oh for crying out loud!  I have posted a clear, concise explaination of 
+why THIS WILL NEVER HAPPEN at least 10 times.  Unless you are willing to 
+take over all user support issues that this *WILL* create from now until 
+the end of time on all DRI supported platforms, GO AWAY!  Your endless 
+squaking is doing nothing be waste developer time.  For the DRI project, 
+that is a very valuable commodity.
 
->NeilBrown
->
->
->  
->
+P.S.: Welcome to my spam filter.
 

@@ -1,254 +1,283 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289039AbSBIRBA>; Sat, 9 Feb 2002 12:01:00 -0500
+	id <S289025AbSBIRDk>; Sat, 9 Feb 2002 12:03:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289025AbSBIRAv>; Sat, 9 Feb 2002 12:00:51 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:53260 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S289026AbSBIRAn>; Sat, 9 Feb 2002 12:00:43 -0500
-Date: Sat, 9 Feb 2002 18:00:40 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Hal Duston <hald@sound.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Input w/2.5.3-dj3
-Message-ID: <20020209180040.B18474@suse.cz>
-In-Reply-To: <Pine.GSO.4.10.10202081309380.9070-100000@sound.net>
+	id <S289026AbSBIRDc>; Sat, 9 Feb 2002 12:03:32 -0500
+Received: from ns.caldera.de ([212.34.180.1]:64388 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S289025AbSBIRDL>;
+	Sat, 9 Feb 2002 12:03:11 -0500
+Date: Sat, 9 Feb 2002 18:03:05 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] kthread abstraction, take two
+Message-ID: <20020209180305.A11717@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.10.10202081309380.9070-100000@sound.net>; from hald@sound.net on Fri, Feb 08, 2002 at 01:12:05PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 08, 2002 at 01:12:05PM -0600, Hal Duston wrote:
-> I have disabled CONTIG_KEYBOARD_XTKBD again.
-> 
-> Here are the things that might be relevant.
-> 
-> BTW, this is an IBM Thinkpad 700 PS/2.
-> (Microchannel bus)
-> 
-> Thanks,
-> Hal Duston
-> hald@sound.net
+This is a new version of the ktread abstraction which incorporates
+suggestions by Andi Kleen, Jeff Garzik and Andrew Morton.
 
-Thanks for the log, it seems the atkbd.c driver just times out. Can you
-change the "timeout" values in drivers/input/keyboard/atkbd.c in the
-functions "atkbd_sendbyte" and "atkbd_command" to about ten times the
-current values?
+The changes are:
 
-That should fix the problem. In either case, please tell me.
+  - kthread_start now takes a void * for the user-data, so it doesn't
+    have to be part of struct kthread.
+  - the main method of struct kthread now returns an integers, if it
+    is negative, the thread will be stopped.
+  - kthread_main no more does the scheduling, it has to be done by
+    the mainloop now.
 
-> 
-> --  Begin console --
->  . . .
-> Micro Channel bus detected.
->  . . .
-> mice: PS/2 mouse device common for all mice
-> serio: i8042 KBD port at 0x60,0x64 irq 1
-> input: PS/2 Generic Mouse on isa0060/serio1
-> serio: AUX port at 0x60,0x64 irq 12
->  . . .
-> --  End console --
-> 
-> --  Begin /var/log/debug --
-> i8042.c: 20 -> i8042 (command) [0]
-> i8042.c: 25 <- i8042 (return) [0]
-> i8042.c: 60 -> i8042 (command) [0]
-> i8042.c: 34 -> i8042 (parameter) [0]
-> i8042.c: 60 -> i8042 (command) [0]
-> i8042.c: 25 -> i8042 (parameter) [0]
-> i8042.c: f6 -> i8042 (kbd-data) [0]
-> i8042.c: fa <- i8042 (interrupt-kbd) [0]
-> i8042.c: f2 -> i8042 (kbd-data) [0]
-> i8042.c: 60 -> i8042 (command) [1]
-> i8042.c: 34 -> i8042 (parameter) [1]
-> i8042.c: 60 -> i8042 (command) [2]
-> i8042.c: 25 -> i8042 (parameter) [2]
-> i8042.c: fa <- i8042 (interrupt-kbd) [2]
-> atkbd.c: Sent: f5
-> i8042.c: f5 -> i8042 (kbd-data) [2]
-> i8042.c: 60 -> i8042 (command) [2]
-> i8042.c: 34 -> i8042 (parameter) [2]
-> i8042.c: fa <- i8042 (flush) [3]
-> i8042.c: d3 -> i8042 (command) [3]
-> i8042.c: 5a -> i8042 (parameter) [3]
-> i8042.c: a5 <- i8042 (return) [3]
-> i8042.c: a9 -> i8042 (command) [3]
-> i8042.c: 00 <- i8042 (return) [3]
-> i8042.c: a7 -> i8042 (command) [3]
-> i8042.c: 20 -> i8042 (command) [3]
-> i8042.c: 34 <- i8042 (return) [3]
-> i8042.c: a9 -> i8042 (command) [3]
-> i8042.c: 00 <- i8042 (return) [3]
-> i8042.c: a8 -> i8042 (command) [3]
-> i8042.c: 20 -> i8042 (command) [3]
-> i8042.c: 14 <- i8042 (return) [3]
-> i8042.c: 60 -> i8042 (command) [3]
-> i8042.c: 34 -> i8042 (parameter) [3]
-> i8042.c: 60 -> i8042 (command) [3]
-> i8042.c: 16 -> i8042 (parameter) [3]
-> i8042.c: d4 -> i8042 (command) [4]
-> i8042.c: f6 -> i8042 (parameter) [4]
-> i8042.c: 60 -> i8042 (command) [4]
-> i8042.c: 16 -> i8042 (parameter) [4]
-> i8042.c: fa <- i8042 (interrupt-aux) [4]
-> i8042.c: d4 -> i8042 (command) [4]
-> i8042.c: f2 -> i8042 (parameter) [4]
-> i8042.c: 60 -> i8042 (command) [4]
-> i8042.c: 16 -> i8042 (parameter) [4]
-> i8042.c: fa <- i8042 (interrupt-aux) [4]
-> i8042.c: 00 <- i8042 (interrupt-aux) [4]
-> i8042.c: d4 -> i8042 (command) [5]
-> i8042.c: e8 -> i8042 (parameter) [5]
-> i8042.c: 60 -> i8042 (command) [5]
-> i8042.c: 16 -> i8042 (parameter) [5]
-> i8042.c: fa <- i8042 (interrupt-aux) [5]
-> i8042.c: d4 -> i8042 (command) [5]
-> i8042.c: 03 -> i8042 (parameter) [5]
-> i8042.c: 60 -> i8042 (command) [5]
-> i8042.c: 16 -> i8042 (parameter) [5]
-> i8042.c: fa <- i8042 (interrupt-aux) [5]
-> i8042.c: d4 -> i8042 (command) [5]
-> i8042.c: e6 -> i8042 (parameter) [5]
-> i8042.c: 60 -> i8042 (command) [5]
-> i8042.c: 16 -> i8042 (parameter) [5]
-> i8042.c: fa <- i8042 (interrupt-aux) [6]
-> i8042.c: d4 -> i8042 (command) [6]
-> i8042.c: e6 -> i8042 (parameter) [6]
-> i8042.c: 60 -> i8042 (command) [6]
-> i8042.c: 16 -> i8042 (parameter) [6]
-> i8042.c: fa <- i8042 (interrupt-aux) [6]
-> i8042.c: d4 -> i8042 (command) [6]
-> i8042.c: e6 -> i8042 (parameter) [6]
-> i8042.c: 60 -> i8042 (command) [6]
-> i8042.c: 16 -> i8042 (parameter) [6]
-> i8042.c: fa <- i8042 (interrupt-aux) [7]
-> i8042.c: d4 -> i8042 (command) [7]
-> i8042.c: e9 -> i8042 (parameter) [7]
-> i8042.c: 60 -> i8042 (command) [7]
-> i8042.c: 16 -> i8042 (parameter) [7]
-> i8042.c: fa <- i8042 (interrupt-aux) [7]
-> i8042.c: 00 <- i8042 (interrupt-aux) [7]
-> i8042.c: 03 <- i8042 (interrupt-aux) [7]
-> i8042.c: 64 <- i8042 (interrupt-aux) [8]
-> i8042.c: d4 -> i8042 (command) [8]
-> i8042.c: e8 -> i8042 (parameter) [8]
-> i8042.c: 60 -> i8042 (command) [8]
-> i8042.c: 16 -> i8042 (parameter) [8]
-> i8042.c: fa <- i8042 (interrupt-aux) [8]
-> i8042.c: d4 -> i8042 (command) [8]
-> i8042.c: 00 -> i8042 (parameter) [8]
-> i8042.c: 60 -> i8042 (command) [8]
-> i8042.c: 16 -> i8042 (parameter) [8]
-> i8042.c: fa <- i8042 (interrupt-aux) [8]
-> i8042.c: d4 -> i8042 (command) [8]
-> i8042.c: e6 -> i8042 (parameter) [8]
-> i8042.c: 60 -> i8042 (command) [9]
-> i8042.c: 16 -> i8042 (parameter) [9]
-> i8042.c: fa <- i8042 (interrupt-aux) [9]
-> i8042.c: d4 -> i8042 (command) [9]
-> i8042.c: e6 -> i8042 (parameter) [9]
-> i8042.c: 60 -> i8042 (command) [9]
-> i8042.c: 16 -> i8042 (parameter) [9]
-> i8042.c: fa <- i8042 (interrupt-aux) [9]
-> i8042.c: d4 -> i8042 (command) [9]
-> i8042.c: e6 -> i8042 (parameter) [9]
-> i8042.c: 60 -> i8042 (command) [9]
-> i8042.c: 16 -> i8042 (parameter) [9]
-> i8042.c: fa <- i8042 (interrupt-aux) [10]
-> i8042.c: d4 -> i8042 (command) [10]
-> i8042.c: e9 -> i8042 (parameter) [10]
-> i8042.c: 60 -> i8042 (command) [10]
-> i8042.c: 16 -> i8042 (parameter) [10]
-> i8042.c: fa <- i8042 (interrupt-aux) [10]
-> i8042.c: 00 <- i8042 (interrupt-aux) [10]
-> i8042.c: 00 <- i8042 (interrupt-aux) [11]
-> i8042.c: 64 <- i8042 (interrupt-aux) [11]
-> i8042.c: d4 -> i8042 (command) [11]
-> i8042.c: f3 -> i8042 (parameter) [11]
-> i8042.c: 60 -> i8042 (command) [11]
-> i8042.c: 16 -> i8042 (parameter) [11]
-> i8042.c: fa <- i8042 (interrupt-aux) [11]
-> i8042.c: d4 -> i8042 (command) [11]
-> i8042.c: c8 -> i8042 (parameter) [11]
-> i8042.c: 60 -> i8042 (command) [11]
-> i8042.c: 16 -> i8042 (parameter) [11]
-> i8042.c: fa <- i8042 (interrupt-aux) [11]
-> i8042.c: d4 -> i8042 (command) [11]
-> i8042.c: f3 -> i8042 (parameter) [11]
-> i8042.c: 60 -> i8042 (command) [12]
-> i8042.c: 16 -> i8042 (parameter) [12]
-> i8042.c: fa <- i8042 (interrupt-aux) [12]
-> i8042.c: d4 -> i8042 (command) [12]
-> i8042.c: 64 -> i8042 (parameter) [12]
-> i8042.c: 60 -> i8042 (command) [12]
-> i8042.c: 16 -> i8042 (parameter) [12]
-> i8042.c: fa <- i8042 (interrupt-aux) [12]
-> i8042.c: d4 -> i8042 (command) [12]
-> i8042.c: f3 -> i8042 (parameter) [12]
-> i8042.c: 60 -> i8042 (command) [12]
-> i8042.c: 16 -> i8042 (parameter) [12]
-> i8042.c: fa <- i8042 (interrupt-aux) [13]
-> i8042.c: d4 -> i8042 (command) [13]
-> i8042.c: 50 -> i8042 (parameter) [13]
-> i8042.c: 60 -> i8042 (command) [13]
-> i8042.c: 16 -> i8042 (parameter) [13]
-> i8042.c: fa <- i8042 (interrupt-aux) [13]
-> i8042.c: d4 -> i8042 (command) [13]
-> i8042.c: f2 -> i8042 (parameter) [13]
-> i8042.c: 60 -> i8042 (command) [13]
-> i8042.c: 16 -> i8042 (parameter) [13]
-> i8042.c: fa <- i8042 (interrupt-aux) [14]
-> i8042.c: 00 <- i8042 (interrupt-aux) [14]
-> i8042.c: d4 -> i8042 (command) [14]
-> i8042.c: f3 -> i8042 (parameter) [14]
-> i8042.c: 60 -> i8042 (command) [14]
-> i8042.c: 16 -> i8042 (parameter) [14]
-> i8042.c: fa <- i8042 (interrupt-aux) [14]
-> i8042.c: d4 -> i8042 (command) [14]
-> i8042.c: 64 -> i8042 (parameter) [14]
-> i8042.c: 60 -> i8042 (command) [15]
-> i8042.c: 16 -> i8042 (parameter) [15]
-> i8042.c: fa <- i8042 (interrupt-aux) [15]
-> i8042.c: d4 -> i8042 (command) [15]
-> i8042.c: f3 -> i8042 (parameter) [15]
-> i8042.c: 60 -> i8042 (command) [15]
-> i8042.c: 16 -> i8042 (parameter) [15]
-> i8042.c: fa <- i8042 (interrupt-aux) [15]
-> i8042.c: d4 -> i8042 (command) [15]
-> i8042.c: c8 -> i8042 (parameter) [15]
-> i8042.c: 60 -> i8042 (command) [15]
-> i8042.c: 16 -> i8042 (parameter) [15]
-> i8042.c: fa <- i8042 (interrupt-aux) [16]
-> i8042.c: d4 -> i8042 (command) [16]
-> i8042.c: e8 -> i8042 (parameter) [16]
-> i8042.c: 60 -> i8042 (command) [16]
-> i8042.c: 16 -> i8042 (parameter) [16]
-> i8042.c: fa <- i8042 (interrupt-aux) [16]
-> i8042.c: d4 -> i8042 (command) [16]
-> i8042.c: 03 -> i8042 (parameter) [16]
-> i8042.c: 60 -> i8042 (command) [16]
-> i8042.c: 16 -> i8042 (parameter) [16]
-> i8042.c: fa <- i8042 (interrupt-aux) [16]
-> i8042.c: d4 -> i8042 (command) [16]
-> i8042.c: e6 -> i8042 (parameter) [16]
-> i8042.c: 60 -> i8042 (command) [17]
-> i8042.c: 16 -> i8042 (parameter) [17]
-> i8042.c: fa <- i8042 (interrupt-aux) [17]
-> i8042.c: d4 -> i8042 (command) [17]
-> i8042.c: ea -> i8042 (parameter) [17]
-> i8042.c: 60 -> i8042 (command) [17]
-> i8042.c: 16 -> i8042 (parameter) [17]
-> i8042.c: fa <- i8042 (interrupt-aux) [17]
-> i8042.c: d4 -> i8042 (command) [17]
-> i8042.c: f4 -> i8042 (parameter) [17]
-> i8042.c: 60 -> i8042 (command) [18]
-> i8042.c: 16 -> i8042 (parameter) [18]
-> i8042.c: fa <- i8042 (interrupt-aux) [18]
-> --  End /var/log/debug --
 
--- 
-Vojtech Pavlik
-SuSE Labs
+The API is now:
+
+    int kthread_start(struct kthread *kth, void *data)
+
+	Startup a new kernel thread as described by 'kth' (details
+	below).  Wait until it has finished initialization.
+
+    void kthread_stop(struct kthread *kth)
+
+	Stop the kernel thread described by 'kth'. Wait until is
+	has finished.
+
+
+    int kthread_running(struct kthread *kth)
+
+	Return 1 if the kernel thread described by 'kth' is running.
+
+The 'kthread' structure contains all information for this thread.
+Two fields _must_ be initialized:
+
+    const char *name;
+
+	Name of the thread.
+
+    int (*main)(struct kthread *, void);
+
+	Mainloop of the thread.  This loop is repeated until the thread
+	is stopped.  Stopping is done by either kthread_stop or a
+	negative return value of this method.  This routine has to
+	release the timeslice after finishing! (i.e. call schedule() or
+	yield()).
+
+
+Others may be filled out if needed:
+
+    int (*init)(struct kthread *, void *);
+
+	Initialize thread before the mainloop is called.
+
+    void (*cleanup)(struct kthread *, void *);
+
+	Cleanup after the mainloop is done.
+
+    void *data;
+
+	Opaque data for the thread's use
+
+Patch for 2.5.4-pre5 is below.
+
+	Christoph
+
+--
+diff -uNr -Xdontdiff ../master/linux-2.5.4-pre5/include/linux/kthread.h linux/include/linux/kthread.h
+--- ../master/linux-2.5.4-pre5/include/linux/kthread.h	Thu Jan  1 01:00:00 1970
++++ linux/include/linux/kthread.h	Sat Feb  9 17:43:12 2002
+@@ -0,0 +1,22 @@
++#ifndef _LINUX_KTHREAD_H
++#define _LINUX_KTHREAD_H
++
++struct task_struct;
++
++struct kthread {
++	const char *name;
++	struct task_struct *task;
++	struct completion done;
++#define KTH_RUNNING	1
++#define KTH_SHUTDOWN	2
++	long state;
++	int (*init)(struct kthread *, void *);
++	void (*cleanup)(struct kthread *, void *);
++	int (*main)(struct kthread *, void *);
++};
++
++extern int kthread_start(struct kthread *, void *);
++extern void kthread_stop(struct kthread *);
++extern int kthread_running(struct kthread *);
++
++#endif /* _LINUX_KTHREAD_H */
+diff -uNr -Xdontdiff ../master/linux-2.5.4-pre5/kernel/Makefile linux/kernel/Makefile
+--- ../master/linux-2.5.4-pre5/kernel/Makefile	Fri Feb  1 16:27:04 2002
++++ linux/kernel/Makefile	Sat Feb  9 17:42:58 2002
+@@ -10,12 +10,12 @@
+ O_TARGET := kernel.o
+ 
+ export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o exec_domain.o \
+-		printk.o 
++		printk.o kthread.o
+ 
+ obj-y     = sched.o dma.o fork.o exec_domain.o panic.o printk.o \
+ 	    module.o exit.o itimer.o info.o time.o softirq.o resource.o \
+ 	    sysctl.o acct.o capability.o ptrace.o timer.o user.o \
+-	    signal.o sys.o kmod.o context.o 
++	    signal.o sys.o kmod.o context.o kthread.o
+ 
+ obj-$(CONFIG_UID16) += uid16.o
+ obj-$(CONFIG_MODULES) += ksyms.o
+diff -uNr -Xdontdiff ../master/linux-2.5.4-pre5/kernel/kthread.c linux/kernel/kthread.c
+--- ../master/linux-2.5.4-pre5/kernel/kthread.c	Thu Jan  1 01:00:00 1970
++++ linux/kernel/kthread.c	Sat Feb  9 17:43:47 2002
+@@ -0,0 +1,148 @@
++/*
++ * Copyright (c) 2002 Christoph Hellwig.
++ * All rights resered.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#include <linux/completion.h>
++#include <linux/kernel.h>
++#include <linux/kthread.h>
++#include <linux/module.h>
++#include <linux/types.h>
++#include <linux/sched.h>
++#include <linux/signal.h>
++#include <linux/smp_lock.h>
++#include <linux/spinlock.h>
++#include <asm/bitops.h>
++
++#define KTHREAD_FLAGS \
++	(CLONE_FS|CLONE_FILES|CLONE_SIGHAND)
++
++struct kthread_args {
++	struct kthread *kth;
++	void *data;
++};
++
++
++static int kthread_stopped(struct kthread *kth)
++{
++	struct task_struct *task = kth->task;
++	unsigned long signr;
++	siginfo_t info;
++
++	spin_lock_irq(&task->sigmask_lock);
++	signr = dequeue_signal(&task->blocked, &info);
++	spin_unlock_irq(&task->sigmask_lock);
++
++	if (signr == SIGKILL && test_bit(KTH_SHUTDOWN, &kth->state))
++		return 1;
++	return 0;
++}
++
++static int kthread_main(void *p)
++{
++	struct kthread_args *args = p;
++	struct kthread *kth = args->kth;
++	void *data = args->data;
++
++	lock_kernel();
++	daemonize();
++	reparent_to_init();
++	strcpy(current->comm, kth->name);
++	unlock_kernel();
++
++	kth->task = current;
++
++	spin_lock_irq(&current->sigmask_lock);
++	siginitsetinv(&current->blocked,
++			sigmask(SIGHUP) | sigmask(SIGKILL) |
++			sigmask(SIGSTOP) | sigmask(SIGCONT));
++	spin_unlock_irq(&current->sigmask_lock);
++
++	if (kth->init)
++		kth->init(kth, data);
++	complete(&kth->done);
++
++	do {
++		if (kth->main(kth, data) < 0)
++			break;
++	} while (!kthread_stopped(kth));
++
++	if (kth->cleanup)
++		kth->cleanup(kth, data);
++	clear_bit(KTH_RUNNING, &kth->state);
++	complete(&kth->done);
++	return 0;
++}
++
++/**
++ *	kthread_start    -    start a new kernel thread
++ *	@kth:		kernel thread description
++ *	@data:		opaque data for use with the methods
++ *
++ *	For off a new kernel thread as described by @kth.
++ */
++int kthread_start(struct kthread *kth, void *data)
++{
++	struct kthread_args args;
++	pid_t pid;
++
++	if (!kth->name || !kth->main)
++		return -EINVAL;
++
++	args.kth = kth;
++	args.data = data;
++	
++	init_completion(&kth->done);
++	if ((pid = kernel_thread(kthread_main, &args, KTHREAD_FLAGS)) < 0)
++		return pid;
++	set_bit(KTH_RUNNING, &kth->state);
++	wait_for_completion(&kth->done);
++	return 0;
++}
++
++/**
++ *	kthread_stop    -    stop a kernel thread
++ *	@kth:		kernel thread description
++ *
++ *	Stop the kernel thread described by @kth.
++ */
++void kthread_stop(struct kthread *kth)
++{
++	if (kth->task) {
++		init_completion(&kth->done);
++		set_bit(KTH_SHUTDOWN, &kth->state);
++		send_sig(SIGKILL, kth->task, 1);
++		wait_for_completion(&kth->done);
++		kth->task = NULL;
++		clear_bit(KTH_SHUTDOWN, &kth->state);
++	}
++}
++
++/**
++ *	kthread_running    -    check whether a kernel thread is running
++ *	@kth:		kernel thread description
++ *
++ *	Checks whether the kernel thread described by @kth is running.
++ */
++int kthread_running(struct kthread *kth)
++{
++	return test_bit(KTH_RUNNING, &kth->state);
++}
++
++EXPORT_SYMBOL(kthread_start);
++EXPORT_SYMBOL(kthread_stop);
++EXPORT_SYMBOL(kthread_running);

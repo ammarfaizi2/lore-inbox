@@ -1,43 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315459AbSEYXqP>; Sat, 25 May 2002 19:46:15 -0400
+	id <S315461AbSEYXxo>; Sat, 25 May 2002 19:53:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315463AbSEYXqO>; Sat, 25 May 2002 19:46:14 -0400
-Received: from bitmover.com ([192.132.92.2]:30932 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S315459AbSEYXqK>;
-	Sat, 25 May 2002 19:46:10 -0400
-Date: Sat, 25 May 2002 16:46:11 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Robert Schwebel <robert@schwebel.de>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-Message-ID: <20020525164611.E18274@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Robert Schwebel <robert@schwebel.de>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020525143333.A17889@work.bitmover.com> <20020525215547.6912411972@denx.denx.de> <20020525150542.B17889@work.bitmover.com> <20020526013735.E598@schwebel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S315462AbSEYXxn>; Sat, 25 May 2002 19:53:43 -0400
+Received: from wotug.org ([194.106.52.201]:49736 "EHLO gatemaster.ivimey.org")
+	by vger.kernel.org with ESMTP id <S315461AbSEYXxm>;
+	Sat, 25 May 2002 19:53:42 -0400
+Date: Sun, 26 May 2002 00:49:57 +0100 (BST)
+From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+X-X-Sender: ruthc@sharra.ivimey.org
+To: Luigi Genoni <kernel@Expansa.sns.it>
+cc: Dave Jones <davej@suse.de>, "J.A. Magallon" <jamagallon@able.es>,
+        Luca Barbieri <ldb@ldb.ods.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [2.4] [2.5] [i386] Add support for GCC 3.1
+ -march=pentium{-mmx,3,4}
+In-Reply-To: <Pine.LNX.4.44.0205260128110.2047-100000@Expansa.sns.it>
+Message-ID: <Pine.LNX.4.44.0205260044270.10923-100000@sharra.ivimey.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 26, 2002 at 01:37:35AM +0200, Robert Schwebel wrote:
-> You blame the RTAI developers for license violations without any proof. 
+On Sun, 26 May 2002, Luigi Genoni wrote:
+>On Sun, 26 May 2002, Dave Jones wrote:
+>> On Sun, May 26, 2002 at 01:37:39AM +0200, J.A. Magallon wrote:
+>>  > Could you also split
+>>  > 	Pentium-Pro/Celeron/Pentium-II     CONFIG_M686
+>>  > into
+>>  > 	Pentium-Pro            CONFIG_M686
+>>  > 	Pentium-II/Celeron     CONFIG_MPENTIUMII
+>> There are also a few extra Athlon targets iirc. athlon-xp and the like,
+>> which I'm not sure the purpose of. Some gcc know-all want to clue me in
+>> to what these offer over -march=athlon ?
+>>
+>I do not know about the gcc options, but Athlon XP/MP has sse instruction,
+>while tbird has not, so it could be relate to this.
+>
+>>  > BTW, I think an option to enable -mmmx would also be useful. Nothing more,
+>>  > because afaik sse is only floating point.
 
-The RTAI current release COPYING says that it is LGPL, not GPL.  OK,
-now go read the source.  There is absolutely *zero* doubt in my mind that
-that code is derived from the RTLinux source tree.  And I'd be happy to
-be called as an expert witness in court and walk the court through the
-diffs, there is no way anyone would disagree.
+For the CONFIG_<<cputype>> options, is it only gcc compiler-type settings that 
+are affected? I thought the assembly parts of the kernel were also switched on 
+occasion.
 
-And in spite of the RTAI guys changing lots of stuff, the source base in
-which they were working was GPLed.  In order for them to change the license,
-they have to prove that it was not a derived work.  Let's see, it's the
-trying to solve the same problem, it started with the same source base,
-you can still look at it and see that it was the same source base, and
-you think they'll wiggle out of a derived work restriction?  Not a chance.
+I was wondering whether anyone has checked that these assembly snippets were 
+decently optimal for the cpu type selected...
+
+
+>> Another interesting recently-added option which may be worth
+>> benchmarking on modern CPUs is the prefetch-loops option.
+>> In a lot of cases, the kernel 'knows better' and is adding the
+
+Be careful about 'knowing better' than compilers. I really don't want to start
+a flamefest, but modern compilers are very good at doing all sorts of
+optimisations, and hand-coded 'optimisations' can _sometimes_ actually hurt
+performance over the unadorned version of the code. It is sensible to prove 
+that the source-level optimisation helps, and then to mark it as such, so as 
+compilers change it can be reviewed.
+
+
+Regards,
+
+Ruth
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Ruth Ivimey-Cook
+Software engineer and technical writer.
+

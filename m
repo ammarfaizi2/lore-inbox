@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317952AbSGLAku>; Thu, 11 Jul 2002 20:40:50 -0400
+	id <S317955AbSGLApg>; Thu, 11 Jul 2002 20:45:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317953AbSGLAkt>; Thu, 11 Jul 2002 20:40:49 -0400
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:5645
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S317952AbSGLAkt>; Thu, 11 Jul 2002 20:40:49 -0400
-X-All-Your-Base: Are Belong To Us!!!
-X-Envelope-Recipient: linux-kernel@vger.kernel.org
-X-Envelope-Sender: oliver@klozoff.com
-Message-Id: <5.1.0.14.2.20020711201602.022387b0@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 11 Jul 2002 20:36:04 -0400
-To: lkml <linux-kernel@vger.kernel.org>
-From: Stevie O <oliver@klozoff.com>
-Subject: Re: HZ, preferably as small as possible
-In-Reply-To: <3D2D308C.ECE3CA5E@mvista.com>
-References: <Pine.LNX.4.10.10207110847170.6183-100000@zeus.compusonic.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S317954AbSGLApf>; Thu, 11 Jul 2002 20:45:35 -0400
+Received: from mail.storm.ca ([209.87.239.66]:58005 "EHLO mail.storm.ca")
+	by vger.kernel.org with ESMTP id <S317955AbSGLApe>;
+	Thu, 11 Jul 2002 20:45:34 -0400
+Message-ID: <3D2E1A4D.10705EA5@storm.ca>
+Date: Thu, 11 Jul 2002 19:52:45 -0400
+From: Sandy Harris <pashley@storm.ca>
+Organization: Flashman's Dragoons
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Oliver Xymoron <oxymoron@waste.org>
+CC: Daniel Phillips <phillips@arcor.de>, Jesse Barnes <jbarnes@sgi.com>,
+       Andreas Dilger <adilger@clusterfs.com>,
+       kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: spinlock assertion macros
+References: <Pine.LNX.4.44.0207111131550.15441-100000@waste.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At <time> <date>, <user> [<email>] wrote:
-> <stuff>
+Oliver Xymoron wrote:
+> 
+> On Thu, 11 Jul 2002, Daniel Phillips wrote:
+> 
+> > I was thinking of something as simple as:
+> >
+> >    #define spin_assert_locked(LOCK) BUG_ON(!spin_is_locked(LOCK))
+> >
+> > but in truth I'd be happy regardless of the internal implementation.  A note
+> > on names: Linus likes to shout the names of his BUG macros.  I've never been
+> > one for shouting, but it's not my kernel, and anyway, I'm happy he now likes
+> > asserts.  I bet he'd like it more spelled like this though:
+> >
+> >    MUST_HOLD(&lock);
+> 
+> I prefer that form too.
 
-A lot of people are talking about how HZ needs to be a constant, etc.
+Is it worth adding MUST_NOT_HOLD(&lock) in an attempt to catch potential
+deadlocks?
 
-I don't do much kernel hacking, so allow me to post a query that would (probably) better belong on #kernelnewbies if I wasn't so damn lazy ;) --
+Say that if two or more of locks A, B and C are to be taken, then
+they must be taken in that order. You might then have code like:
 
-Why must HZ be the same as 'interrupts per second'?
+	MUST_NOT_HOLD(&lock_B) ;
+	MUST_NOT_HOLD(&lock_C) ;
+	spinlock(&lock_A) ;
 
---
-Stevie-O
-
-Real programmers link their executables by hand.
-
+I think you need a separate asertion for this !MUST_NOT_HOLD(&lock)
+has different semantics.

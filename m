@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262276AbTCRKBM>; Tue, 18 Mar 2003 05:01:12 -0500
+	id <S262260AbTCRKY5>; Tue, 18 Mar 2003 05:24:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262289AbTCRKBM>; Tue, 18 Mar 2003 05:01:12 -0500
-Received: from smtp2.clear.net.nz ([203.97.37.27]:63127 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP
-	id <S262276AbTCRKBK>; Tue, 18 Mar 2003 05:01:10 -0500
-Date: Tue, 18 Mar 2003 22:09:48 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: [PATCH] Faster SWSUSP free page counting
-In-reply-to: <20030318082008.GC10472@atrey.karlin.mff.cuni.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1047982188.2204.8.camel@laptop-linux.cunninghams>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <1047944582.1713.5.camel@laptop-linux.cunninghams>
- <20030318082008.GC10472@atrey.karlin.mff.cuni.cz>
+	id <S262264AbTCRKY5>; Tue, 18 Mar 2003 05:24:57 -0500
+Received: from nessie.weebeastie.net ([61.8.7.205]:26256 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S262260AbTCRKY4>; Tue, 18 Mar 2003 05:24:56 -0500
+Date: Tue, 18 Mar 2003 21:35:57 +1100
+From: CaT <cat@zip.com.au>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, hch@lst.de,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.65
+Message-ID: <20030318103557.GF504@zip.com.au>
+References: <Pine.LNX.4.44.0303171429040.2827-100000@penguin.transmeta.com> <20030318052257.GB635@zip.com.au> <Pine.LNX.4.44.0303181040150.12110-100000@serv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0303181040150.12110-100000@serv>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-The speed difference depends of course upon the number of pages free and
-the degree of fragmentation. I guess the easy answer is that it was
-written and kept because it helped. Having talked to Andrew about the
-use of page flags, I'll do some more changes before we put it to Linus -
-I'll use a dynamically allocated bitmap instead of pageflags.
-
-Regards,
-
-Nigel
-
-On Tue, 2003-03-18 at 20:20, Pavel Machek wrote:
-> Hi!
+On Tue, Mar 18, 2003 at 11:08:08AM +0100, Roman Zippel wrote:
+> > The help and the tristate seems to indicate that I should be able to
+> > compile it into the kernel, but menuconfig wont let me. This is
+> > presumably due to the dependancy but is it right?
 > 
-> > This patch improves the speed of SWSUSP's count_and_copy_data_pages
-> > function by generating a map of the free pages before iterating through
-> > the list of pages. The net result is to go from O(n^2) to O(n), if I
-> > remember my computer science correctly.
-> 
-> Is the speed difference noticable?
-> 
-> If yes than okay, but generate_free_page_map() should still be moved
-> into kernel/suspend.c.
-> 								Pavel
+> Yes, this was the behaviour of the old config tools, which was restored 
+> with 2.5.65. This means 'm' is a marker that this thing works only as a 
+> module.
+> If you want the other behaviour, that it can only be built as a module in 
+> a modular kernel, but compile it into a nonmodular kernel, you can use "m 
+> || !MODULES" instead.
+
+Ahhh. So if I want module support but not use it as a module then I'm
+SOL?
+
 -- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
-
-Be diligent to present yourself approved to God as a workman who does
-not need to be ashamed, handling accurately the word of truth.
-	-- 2 Timothy 2:14, NASB.
+"Other countries of course, bear the same risk. But there's no doubt his
+hatred is mainly directed at us. After all this is the guy who tried to
+kill my dad."
+        - George W. Bush Jr, 'President' of Regime of the United States
+          September 26, 2002 (from a political fundraiser in Huston, Texas)
 

@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291164AbSAaRVp>; Thu, 31 Jan 2002 12:21:45 -0500
+	id <S291170AbSAaRYf>; Thu, 31 Jan 2002 12:24:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291168AbSAaRVa>; Thu, 31 Jan 2002 12:21:30 -0500
-Received: from mailgate.rz.uni-karlsruhe.de ([129.13.64.97]:49421 "EHLO
-	mailgate.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
-	id <S291163AbSAaRUr>; Thu, 31 Jan 2002 12:20:47 -0500
-Subject: Re: Current Reiserfs Update / 2.5.2-dj7 Oops
-From: Martin Bahlinger <ry42@rz.uni-karlsruhe.de>
-To: Oleg Drokin <green@namesys.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020131160320.A3697@namesys.com>
-In-Reply-To: <Pine.LNX.4.31.0201311109510.660-100000@hek411.hek.uni-karlsruhe.de> 
-	<20020131160320.A3697@namesys.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 31 Jan 2002 18:20:42 +0100
-Message-Id: <1012497645.686.1.camel@hek411>
-Mime-Version: 1.0
+	id <S291169AbSAaRYc>; Thu, 31 Jan 2002 12:24:32 -0500
+Received: from [203.167.246.143] ([203.167.246.143]:63456 "EHLO
+	mediasolutions.net.nz") by vger.kernel.org with ESMTP
+	id <S291168AbSAaRXW>; Thu, 31 Jan 2002 12:23:22 -0500
+From: "Carl Bowden" <carl@e2-media.co.nz>
+Subject: dl2k HostError
+To: linux-kernel@vger.kernel.org
+X-Mailer: CommuniGate Pro Web Mailer v.3.4.7
+Date: Fri, 01 Feb 2002 06:02:15 +1300
+Message-ID: <web-1721666@mediasolutions.net.nz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi
 
-On Thu, 2002-01-31 at 14:03, Oleg Drokin wrote:
-> Hello!
-> 
-> On Thu, Jan 31, 2002 at 11:10:28AM +0100, Martin Bahlinger wrote:
-> 
-> > I have exactly the same problems you mentioned earlier in this thread. I
-> > get the Ooops at various steps in the boot process. Sometimes the system
-> > hangs directly after depmod, sometimes it can calculate the dependencies
-> > and freezes when loading the first module (here: vfat.o)
-> > This happens with 2.5.3 on a system with an IDE harddisk and root fs on
-> > reiserfs.
-> Hm, weird.
-> I will try to reproduce further.
-> your oops is prepended with PAP-5760 message, right?
+we have 2 nearly identical servers each with the D-Link
+DGE-550T Adapter, one has no problems, the other constantly
+reports the error below:
 
-No. It's PAP-14030 here.
+D-Link DL2000-based linux driver v1.08 2002/01/17
+eth2: D-Link DGE-550T Gigabit Ethernet Adapter,
+00:05:5d:f9:2b:8a, IRQ 9
+Auto 1000 Mbps, Full duplex
+Enable Tx Flow Control
+Enable Rx Flow Control
+eth2: HostError! IntStatus 0002.
 
--- 
-Martin Bahlinger <bahlinger@rz.uni-karlsruhe.de>   (PGP-ID: 0x98C32AC5)
+
+we have tried  the driver at 100Mbps half & full duplex,
+with & without Flow controls
+and we have also tried the 1.04 (2.4.17) and the RH 7.2
+stock kernel (its "PCI Error! IntStatus 0002" with the older
+drivers)
+
+we have several other card in the machine, such as an
+Adaptec 2100A raid 5 card and a 3c980 Nic, these are fine
+
+to be honest Im not sure if this is a pci bus problem or a
+driver one.
+
+is there any other information that would help?
+
+any commentsor pointers  would be a great help
+
+TIA
+
+Cheers carl
+
+carl@e2-media.co.nz
 

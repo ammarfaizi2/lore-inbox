@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265232AbUGSN3X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265250AbUGSNdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265232AbUGSN3X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 09:29:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbUGSN3X
+	id S265250AbUGSNdu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 09:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265253AbUGSNdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 09:29:23 -0400
-Received: from charme.mynetix.de ([80.190.251.41]:58257 "EHLO
-	charme.mynetix.de") by vger.kernel.org with ESMTP id S265232AbUGSN3V
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 09:29:21 -0400
-Subject: Re: suspend to disk breaks e100 driver kernel 2.6.7 and 2.6.8-rc1
-From: Andreas Kotowicz <koto-lkml@mynetix.de>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040716153527.GA8264@openzaurus.ucw.cz>
-References: <1089641949.13037.5.camel@saturn.koto.lan>
-	 <20040716153527.GA8264@openzaurus.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1090243759.12430.1.camel@saturn.koto.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 19 Jul 2004 15:29:19 +0200
+	Mon, 19 Jul 2004 09:33:50 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:31943 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S265250AbUGSNdt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jul 2004 09:33:49 -0400
+Message-ID: <40FBCD8F.1080300@nortelnetworks.com>
+Date: Mon, 19 Jul 2004 09:33:03 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ian Kent <raven@themaw.net>
+CC: John McCutchan <ttb@tentacle.dhs.org>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       nautilus-list@gnome.org
+Subject: Re: [PATCH] inotify 0.5
+References: <Pine.LNX.4.58.0407191642080.8909@wombat.indigo.net.au>
+In-Reply-To: <Pine.LNX.4.58.0407191642080.8909@wombat.indigo.net.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-07-16 at 17:35, Pavel Machek wrote:
-> Hi!
-> 
-> > whenever I put my notebook into suspend to disk by calling "echo -n disk
-> > > /sys/power/state" my network connection dies.
-> > this is what I get in the logs:
-> ...
-> ...
-> > taking the network connection down, removing the modules and reinserting
-> > it, doesn't help. I have to reboot the notebook for the network to work
-> > again.
-> > 
-> > this didn't happen with kernel 2.6.6 and prior versions.
-> 
-> Try copying e100 driver from 2.6.6 into recent kernel and/or try
-> using swsusp instead of pmdisk.
+Ian Kent wrote:
 
-I'll do so.
+> So the number of watches is restricted to the max number of file
+> handles/process?
 
-Just for curiosity: is this rather a e100 or a pmdisk driver problem?
-will this be fixed in any upcoming kernel?
+Note: I have not read the code.  We should probably do so before speculating.
 
-andreas
+However, it looks like you have one fd, and reading from it gives you a data 
+structure of information about the event.  The max number of watches could be as 
+high as INT_MAX depending on implementation.
 
+Chris

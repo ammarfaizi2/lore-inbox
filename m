@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262349AbUKKSBJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262338AbUKKRpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262349AbUKKSBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 13:01:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbUKKR4M
+	id S262338AbUKKRpT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 12:45:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbUKKRnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 12:56:12 -0500
-Received: from nevyn.them.org ([66.93.172.17]:47286 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S262293AbUKKRpX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 12:45:23 -0500
-Date: Thu, 11 Nov 2004 12:45:12 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Blaisorblade <blaisorblade_spam@yahoo.it>
-Cc: Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Fixing UML against NPTL (was: Re: [uml-devel] [PATCH] UML: Use PTRACE_KILL instead of SIGKILL to kill host-OS processes (take #2))
-Message-ID: <20041111174512.GA27809@nevyn.them.org>
-Mail-Followup-To: Blaisorblade <blaisorblade_spam@yahoo.it>,
-	Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>
-References: <20041103113736.GA23041@taniwha.stupidest.org> <200411040113.27747.blaisorblade_spam@yahoo.it> <20041104003943.GB17467@taniwha.stupidest.org> <200411040531.29596.blaisorblade_spam@yahoo.it>
-Mime-Version: 1.0
+	Thu, 11 Nov 2004 12:43:15 -0500
+Received: from jade.aracnet.com ([216.99.193.136]:3015 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S262327AbUKKRm5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 12:42:57 -0500
+Date: Thu, 11 Nov 2004 09:42:17 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrea Arcangeli <andrea@novell.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Nick Piggin <piggin@cyberone.com.au>, Rik van Riel <riel@redhat.com>,
+       "Martin MOKREJ?" <mmokrejs@ribosome.natur.cuni.cz>, tglx@linutronix.de
+Subject: Re: [PATCH] fix spurious OOM kills
+Message-ID: <318860000.1100194936@[10.10.2.4]>
+In-Reply-To: <20041111165050.GA5822@x30.random>
+References: <20041111112922.GA15948@logos.cnet> <20041111154238.GD18365@x30.random> <20041111123850.GA16349@logos.cnet> <20041111165050.GA5822@x30.random>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200411040531.29596.blaisorblade_spam@yahoo.it>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04, 2004 at 05:31:21AM +0100, Blaisorblade wrote:
-> 2) getpid() on a child clone returns the process's pid when run with a 
-> NPTL-enabled glibc, while it returns the thread pid with a LinuxThreads one; 
-> this causes tons of problems with UML, which uses signals as inter-thread and 
-> intra-thread communication.
+>> > I disagree about the design of killing anything from kswapd. kswapd is
+>> > an async helper like pdflush and it has no knowledge on the caller (it
+>> > cannot know if the caller is ok with the memory currently available in
+>> > the freelists, before triggering the oom). 
+>> 
+>> If zone_dma / zone_normal are below pages_min no caller is "OK with
+>> memory currently available" except GFP_ATOMIC/realtime callers.
 > 
-> Note UML is not using pthread_create() to create the threads, where this 
-> behaviour is an improvement. I'm using a plain clone() call without the 
-> CLONE_THREAD flag (which is not even added in by glibc, according to strace).
-> 
-> I've not yet checked if glibc is hijacking getpid() or not, but that would be 
-> strange anyway.
+> If the GFP_DMA zone is filled, and nobody allocates with GFP_DMA,
+> nothing should be killed and everything should run fine, how can you
+> get this right from kswapd?
 
-Glibc caches the PID.  If you're going to use clone directly, use the
-gettid/getpid syscall directly.  It's kind of rude that glibc breaks
-getpid in this way; I recommend filing a bug in the glibc bugzilla at
-sources.redhat.com.
+Technically, that seems correct, but does it really matter much? We're 
+talking about 
 
--- 
-Daniel Jacobowitz
+"it's full of unreclaimable stuff" vs
+"it's full of unreclaimable stuff and someone tried to allocate a page".
+
+So the difference is only ever one page, right? Doesn't really seem 
+worth worrying about - we'll burn that in code space for the algorithms
+to do this ;-)
+
+M.
+

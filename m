@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267962AbRG2MUW>; Sun, 29 Jul 2001 08:20:22 -0400
+	id <S267975AbRG2MlH>; Sun, 29 Jul 2001 08:41:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267964AbRG2MUN>; Sun, 29 Jul 2001 08:20:13 -0400
-Received: from cabal.xs4all.nl ([213.84.101.140]:60946 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id <S267962AbRG2MT7>;
-	Sun, 29 Jul 2001 08:19:59 -0400
-Date: Sun, 29 Jul 2001 14:19:59 +0200
-From: Wichert Akkerman <wichert@wiggy.net>
-To: Jean Charles Delepine <delepine@u-picardie.fr>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        debian-devel@lists.debian.org, Herbert Xu <herbert@debian.org>,
-        Manoj Srivastava <srivasta@debian.org>
-Subject: Re: make rpm
-Message-ID: <20010729141959.B19103@wiggy.net>
-Mail-Followup-To: Jean Charles Delepine <delepine@u-picardie.fr>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-	debian-devel@lists.debian.org, Herbert Xu <herbert@debian.org>,
-	Manoj Srivastava <srivasta@debian.org>
-In-Reply-To: <E15QeJf-0008O8-00@the-village.bc.nu> <20010729135807.J8982@u-picardie.fr>
-Mime-Version: 1.0
+	id <S267967AbRG2Mk5>; Sun, 29 Jul 2001 08:40:57 -0400
+Received: from [212.150.191.130] ([212.150.191.130]:52941 "EHLO
+	vsun14.valor.com") by vger.kernel.org with ESMTP id <S267975AbRG2Mko>;
+	Sun, 29 Jul 2001 08:40:44 -0400
+Message-ID: <3B64044F.65B208C2@valor.com>
+Date: Sun, 29 Jul 2001 15:40:47 +0300
+From: Peter Gordon <peter@valor.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.7 DAC960.c won't compile
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010729135807.J8982@u-picardie.fr>
-User-Agent: Mutt/1.3.18i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Previously Jean Charles Delepine wrote:
-> Maybe Herbert Xu, the actual developper of the Debian kernel package or 
-> Manoj Srivastava, for the Debian Linux kernel package build scripts can
-> do that.
+[1.] Kernel 2.4.7 won't compile on a Compaq ML370 Proliant
+[2.] I am running RedHat 7.1 and am trying to compile the modules for
+kernel 2.4.7. The computer has 2 cpus and 4GB memory.
 
-We've had that option for years, just call "make-kpkg kernel_image".
-It would be trivial to add a rule to the Makefile in the kernel tree
-that calls that if you do "make deb".
+Here is the error message
 
-Wichert.
+make[2]: Entering directory `/usr/src/linux-2.4.7/drivers/block'
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.7/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=i686 -DMODULE -DMODVERSIONS -include
+/usr/src/linux-2.4.7/include/linux/modversions.h   -DEXPORT_SYMTAB -c
+DAC960.c
+DAC960.c: In function `DAC960_ProcessRequest':
+DAC960.c:2771: structure has no member named `sem'
+make[2]: *** [DAC960.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.4.7/drivers/block'
+make[1]: *** [_modsubdir_block] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.7/drivers'
+make: *** [_mod_drivers] Error 2
+
+
+
+Peter
 
 -- 
-  _________________________________________________________________
- /       Nothing is fool-proof to a sufficiently talented fool     \
-| wichert@wiggy.net                   http://www.liacs.nl/~wichert/ |
-| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |
+Peter Gordon
+Tel: (972) 8 9432430 Ext: 129 Cell phone: 054 438029 Fax: (972) 8
+9432429  
+Valor Ltd, PO Box 152, Yavne 70600, Israel Email: peter@valor.com

@@ -1,65 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131587AbRDPQrJ>; Mon, 16 Apr 2001 12:47:09 -0400
+	id <S131631AbRDPQvJ>; Mon, 16 Apr 2001 12:51:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131590AbRDPQq7>; Mon, 16 Apr 2001 12:46:59 -0400
-Received: from argus.posten.se ([147.14.10.164]:46282 "HELO argus.posten.se")
-	by vger.kernel.org with SMTP id <S131587AbRDPQqp> convert rfc822-to-8bit;
-	Mon, 16 Apr 2001 12:46:45 -0400
-From: "Pawel Worach, Posten" <pawel.worach@posten.se>
-To: linux-kernel@vger.kernel.org
+	id <S131614AbRDPQu7>; Mon, 16 Apr 2001 12:50:59 -0400
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:50696
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S131590AbRDPQuu>; Mon, 16 Apr 2001 12:50:50 -0400
+Date: Mon, 16 Apr 2001 09:50:40 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Dan Hollis <goemon@anime.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: via udma100 fix
+In-Reply-To: <Pine.LNX.4.30.0104160332110.22251-100000@anime.net>
+Message-ID: <Pine.LNX.4.10.10104160950000.19043-200000@master.linux-ide.org>
 MIME-Version: 1.0
-Date: Mon, 16 Apr 2001 19:46 +0200
-Message-id: <200104161746.n70O@memo.posten.se>
-Subject: Abit BP6 hang on reboot
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: multipart/mixed; BOUNDARY="-1019260510-1751860371-987439840=:19043"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Received from DGA.PAWO002 08 - 781 3387        01-04-16 18.46
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Hi folks!
+---1019260510-1751860371-987439840=:19043
+Content-Type: text/plain; charset=us-ascii
 
-I'm using a Abit BP6 mobo with dual Celeron CPU's (no OC),
-somewhere in the 2.4.3-ac3-7 kernels the box hangs totally (not
-even the reset button works!) when it resets (after
-'init 6' for example).
+On Mon, 16 Apr 2001, Dan Hollis wrote:
 
-Any ideas? (hardware problem?)
+> I don't know if anyone noticed, but the supposed udma100 fix has been
+> posted here:
+> 
+> http://www.viahardware.com/download/viatweak.shtm
+> 
+> At the bottom of the page.
+> 
+> Technical discussion of the workaround (in german):
+> http://home.tiscalinet.de/au-ja/review-kt133a-4.html
+> 
+> -Dan
 
+Hi Dan,
 
-Oh and another thing... (2.4.3-ac6-7 & maybe others) playing
-around with this ipv6 protocol I found this strange problem.
-Everything (apache, bind etc.) is vorking except icmp to
-nonlocalhost addresses.
+This was sent to me the other day, is this waht you are talking about?
 
-root@darkstar ~# ifconfig eth0 | grep inet6
-          inet6 addr: fe80::290:27ff:fe76:b0c1/10 Scope:Link
-root@darkstar ~# ping6 fe80::290:27ff:fe76:b0c1
-connect: Invalid argument
-root@darkstar ~# ping6 ::1
-PING ::1(::1) from ::1 : 56 data bytes
-64 bytes from ::1: icmp_seq=0 hops=64 time=92 usec
-64 bytes from ::1: icmp_seq=1 hops=64 time=42 usec
+Cheers,
 
-Updated to the net-tools and stuff from latest RawHide and still
-it says "invalid argument".
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
 
-strace output:
-socket(PF_INET6, SOCK_RAW, 58)          = 3
-getuid32()                              = 0
-setuid32(0)                             = 0
-socket(PF_INET6, SOCK_DGRAM, 0)         = 4
-connect(4, {sin_family=AF_INET6, sin6_port=htons(1025),
-inet_pton(AF_INET6, "fe80::290:27ff:fe76:b0c1", &sin6_addr),
-sin6_flowinfo=htonl(0)}}, 28) = -1 EINVAL (Invalid argument)
+---1019260510-1751860371-987439840=:19043
+Content-Type: text/plain; charset=us-ascii; name=PCILatencyPatch
+Content-Transfer-Encoding: base64
+Content-ID: <Pine.LNX.4.10.10104160950400.19043@master.linux-ide.org>
+Content-Description: 
+Content-Disposition: attachment; filename=PCILatencyPatch
 
-Anyone?
-
-dd if=/dev/urandom of=/dev/audio
-Regards Pawel Worach
-PostGirot Bank AB
-
----- 01-04-16 18.46 ---- Sent to       ---------------------------
-  -> linux-kernel(a)vger.kernel.org
+LS0tIGxpbnV4LTIuNC4zL2RyaXZlcnMvcGNpL3F1aXJrcy5jLmtpY2tlcglT
+dW4gQXByIDE1IDIwOjM4OjQyIDIwMDENCisrKyBsaW51eC0yLjQuMy9kcml2
+ZXJzL3BjaS9xdWlya3MuYwlTdW4gQXByIDE1IDIxOjIwOjQ5IDIwMDENCkBA
+IC04NSw2ICs4NSwyOSBAQA0KIH0NCiANCiAvKg0KKyAqCVZJQSBBcG9sbG8g
+S1QxMzMgbmVlZHMgUENJIGxhdGVuY3kgcGF0Y2gNCisgKglNYWRlIGFjY29y
+ZGluZyB0byBhIHdpbmRvd3MgZHJpdmVyIGJhc2VkIHBhdGNoIGJ5IEdlb3Jn
+ZSBFLiBCcmVlc2UNCisgKglzZWUgUENJIExhdGVuY3kgQWRqdXN0IG9uIGh0
+dHA6Ly93d3cudmlhaGFyZHdhcmUuY29tL2Rvd25sb2FkL3ZpYXR3ZWFrLnNo
+dG0NCisgKi8NCitzdGF0aWMgdm9pZCBfX2luaXQgcXVpcmtfdmlhbGF0ZW5j
+eShzdHJ1Y3QgcGNpX2RldiAqZGV2KQ0KK3sNCisJdTggcjcwOw0KKw0KKwlw
+cmludGsoS0VSTl9JTkZPICJBcHBseWluZyBWSUEgUENJIGxhdGVuY3kgcGF0
+Y2guXG4iKTsNCisJLyoNCisJICogICAgSW4gcmVnaXN0ZXIgMHg3MCwgbWFz
+ayBvZmYgYml0IDIgKFBDSSBNYXN0ZXIgcmVhZCBjYWNoaW5nKQ0KKwkgKiAg
+ICBhbmQgMSAoRGVsYXkgVHJhbnNhY3Rpb24pDQorCSAqLw0KKwlwY2lfcmVh
+ZF9jb25maWdfYnl0ZShkZXYsIDB4NzAsICZyNzApOw0KKwlyNzAgJj0gMHhm
+OTsNCisJcGNpX3dyaXRlX2NvbmZpZ19ieXRlKGRldiwgMHg3MCwgcjcwKTsN
+CisJLyoNCisJICogICAgVHVybiBvZmYgUENJIExhdGVuY3kgdGltZW91dCAo
+c2V0IHRvIDAgY2xvY2tzKQ0KKwkgKi8NCisJcGNpX3dyaXRlX2NvbmZpZ19i
+eXRlKGRldiwgMHg3NSwgMHg4MCk7DQorfQ0KKw0KKy8qDQogICoJVklBIEFw
+b2xsbyBWUDMgbmVlZHMgRVRCRiBvbiBCVDg0OC84NzgNCiAgKi8NCiAgDQpA
+QCAtMjc1LDYgKzI5OCw3IEBADQogCXsgUENJX0ZJWFVQX0ZJTkFMLAlQQ0lf
+VkVORE9SX0lEX0lOVEVMLCAJUENJX0RFVklDRV9JRF9JTlRFTF84MjQ0M0JY
+XzIsIAlxdWlya19uYXRvbWEgfSwNCiAJeyBQQ0lfRklYVVBfRklOQUwsCVBD
+SV9WRU5ET1JfSURfU0ksCVBDSV9ERVZJQ0VfSURfU0lfNTU5NywJCXF1aXJr
+X25vcGNpcGNpIH0sDQogCXsgUENJX0ZJWFVQX0ZJTkFMLAlQQ0lfVkVORE9S
+X0lEX1NJLAlQQ0lfREVWSUNFX0lEX1NJXzQ5NiwJCXF1aXJrX25vcGNpcGNp
+IH0sDQorCXsgUENJX0ZJWFVQX0ZJTkFMLAlQQ0lfVkVORE9SX0lEX1ZJQSwJ
+UENJX0RFVklDRV9JRF9WSUFfODM2M18wLAlxdWlya192aWFsYXRlbmN5IH0s
+DQogCXsgUENJX0ZJWFVQX0ZJTkFMLAlQQ0lfVkVORE9SX0lEX1ZJQSwJUENJ
+X0RFVklDRV9JRF9WSUFfODJDNTk3XzAsCXF1aXJrX3ZpYWV0YmYgfSwNCiAJ
+eyBQQ0lfRklYVVBfSEVBREVSLAlQQ0lfVkVORE9SX0lEX1ZJQSwJUENJX0RF
+VklDRV9JRF9WSUFfODJDNTk3XzAsCXF1aXJrX3Z0ODJjNTk4X2lkIH0sDQog
+CXsgUENJX0ZJWFVQX0hFQURFUiwJUENJX1ZFTkRPUl9JRF9WSUEsCVBDSV9E
+RVZJQ0VfSURfVklBXzgyQzU4Nl8zLAlxdWlya192dDgyYzU4Nl9hY3BpIH0s
+DQo=
+---1019260510-1751860371-987439840=:19043--

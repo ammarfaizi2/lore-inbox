@@ -1,16 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131985AbRCVKr7>; Thu, 22 Mar 2001 05:47:59 -0500
+	id <S131978AbRCVK63>; Thu, 22 Mar 2001 05:58:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131988AbRCVKrt>; Thu, 22 Mar 2001 05:47:49 -0500
-Received: from [216.52.49.35] ([216.52.49.35]:37647 "HELO infbosvw.inf.com")
-	by vger.kernel.org with SMTP id <S131985AbRCVKrg>;
-	Thu, 22 Mar 2001 05:47:36 -0500
-Message-ID: <426C1E9EBA27D411839000D0B74752F8015D2C38@punmsg02.ad.infosys.com>
-From: nomit kalidhar <nomit_kalidhar@infy.com>
-To: "'Manoj Sontakke'" <manojs@sasken.com>, linux-kernel@vger.kernel.org
-Subject: RE: Fib entries
-Date: Thu, 22 Mar 2001 15:36:18 +0530
+	id <S131983AbRCVK6T>; Thu, 22 Mar 2001 05:58:19 -0500
+Received: from [212.115.175.146] ([212.115.175.146]:19188 "EHLO
+	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
+	id <S131978AbRCVK6H>; Thu, 22 Mar 2001 05:58:07 -0500
+Message-ID: <27525795B28BD311B28D00500481B7601F1064@ftrs1.intranet.ftr.nl>
+From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
+To: Alan Olsen <alan@clueserver.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: RE: mysterious card
+Date: Thu, 22 Mar 2001 11:56:52 +0100
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
@@ -18,53 +19,21 @@ Content-Type: text/plain;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+> Ok, the question is: does anyone know a place on the web where I can find
+> specifications of ISA-slots? I need to know what is supposed to be
+connected
+> to
+> the pins (1, 2, 6, etc.)
+AO> It is supposed to do that!
 
-It is for all the three cases.
-It also contains for the case in which it does not match any one of them
-that is the default entry.
+Yes, I guess so!
 
+AO> That sounds like the card that came with an old DOS debugger.
 
-Warm Regards,
-Nomit Kalidhar,
-Infosys-West, Pune.
-ph  925-32801
-Extn. 2293
+Not really. I found it in some high-end UNIX server (non-Linux).
 
-------------------------------------------------------------------------
-------------------------------------
-	 Work like you never tire
-	Love like you've never been hurt
-	Dance like nobody is watching
+AO> The old 8088 PCs did not have a reset switch. This was so you could do
+AO> hardware breaks when the whole system was locked up.
 
-
-
-
-
------Original Message-----
-From: Manoj Sontakke [mailto:manojs@sasken.com]
-Sent: Thursday, March 22, 2001 8:15 PM
-To: linux-kernel@vger.kernel.org
-Subject: Fib entries
-
-
-Hi
-	I have a question related to forwarding information base(FIB).
-
-Depending upon destination IP address a packet can be 
-a) for this machine
-b) for a machine to which this machine is directly connected
-c) for a machine to which this machine is not directly connected.
-
-Does FIB contain the entries for delivery for all the 3 cases or only for
-the third case
-
-Thanks in advance for all the help
-
-Manoj
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+This one triggers the I/O Channel Check pin (pin 1 (at the frame), component
+side).

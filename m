@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129177AbQKGHxO>; Tue, 7 Nov 2000 02:53:14 -0500
+	id <S129337AbQKGHy3>; Tue, 7 Nov 2000 02:54:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129337AbQKGHwt>; Tue, 7 Nov 2000 02:52:49 -0500
-Received: from vega.services.brown.edu ([128.148.19.202]:33483 "EHLO
-	vega.brown.edu") by vger.kernel.org with ESMTP id <S129121AbQKGHwj>;
-	Tue, 7 Nov 2000 02:52:39 -0500
-Message-Id: <4.3.2.7.2.20001107024237.00ad7b00@postoffice.brown.edu>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Tue, 07 Nov 2000 02:55:28 -0500
-To: linux-kernel@vger.kernel.org
-From: David Feuer <David_Feuer@brown.edu>
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO
-  page]
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S129615AbQKGHyT>; Tue, 7 Nov 2000 02:54:19 -0500
+Received: from shell.webmaster.com ([209.133.28.73]:15324 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S129337AbQKGHyM>; Tue, 7 Nov 2000 02:54:12 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "RAJESH BALAN" <atmproj@yahoo.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: malloc(1/0) ??
+Date: Mon, 6 Nov 2000 23:54:11 -0800
+Message-ID: <NCBBLIEPOCNJOAEKBEAKEEAJLMAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20001107035905.18154.qmail@web3707.mail.yahoo.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've seen the same arguments over and over again here.  It seems that there 
-are two feasible ways to accomplish persistence:  totally kernel and 
-totally user-space
+> hi,
+> why does this program works. when executed, it doesnt
+> give a segmentation fault. when the program requests
+> memory, is a standard chunk is allocated irrespective
+> of the what the user specifies. please explain.
+>
+> main()
+> {
+>    char *s;
+>    s = (char*)malloc(0);
+>    strcpy(s,"fffff");
+>    printf("%s\n",s);
+> }
+>
+> NOTE:
+>   i know its a 'C' problem. but i wanted to know how
+> this works
 
-The totally kernel-space people want to make a way for modules to store 
-persistent data, either in memory, or across boots on disk.  These people 
-seem to debate whether modules should be unloaded/loaded upon suspend/resume.
+	The program does not work. A program works if it does what it's supposed to
+do. If you want to argue that this program is supposed to print "ffffff"
+then explain to me why the 'malloc' contains a zero in parenthesis.
 
-Among the user-space people, there are some who want the status quo, where 
-the driver initializes the card, and then a user proggy sets it up the way 
-it really should be, which causes the gap problem.
+	The program can't possibly work because it invokes undefined behavior. It
+is impossible to determine what a program that invokes undefined behavior is
+'supposed to do'.
 
-There was also a suggestion (which sounded pretty interesting) where the 
-driver would not initialize the card until prompted to do so by a 
-user-space program, which would also give it the correct settings.  It 
-seems that the big problem with this is that the card may not get 
-initialized when it needs to be.  The initialization/state-saver proggy may 
-have to be called: on boot, on suspend, on restore, when the hardware is 
-physically removed and replaced, when something goes wrong and the user 
-wants to reset things, and on shutdown.
-
-I just wanted to try to get all the arguments together on one page.  I hope 
-I didn't miss anything, or make any big mistakes.  My own guess is that the 
-first option is the most reliable, and that the last one is the most flexible.
---
-This message has been brought to you by the letter alpha and the number pi.
-David Feuer
-David_Feuer@brown.edu
+	DS
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317731AbSGVS5p>; Mon, 22 Jul 2002 14:57:45 -0400
+	id <S317367AbSGVSyn>; Mon, 22 Jul 2002 14:54:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317754AbSGVS5p>; Mon, 22 Jul 2002 14:57:45 -0400
-Received: from hub-r.franken.de ([194.94.249.2]:13839 "EHLO hub-r.franken.de")
-	by vger.kernel.org with ESMTP id <S317731AbSGVS5o>;
-	Mon, 22 Jul 2002 14:57:44 -0400
-Subject: Problems with AMD 768 IDE support
-From: Ernst Lehmann <lehmann@acheron.franken.de>
-To: linux-kernel@vger.kernel.org
+	id <S317716AbSGVSyn>; Mon, 22 Jul 2002 14:54:43 -0400
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:9687 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
+	id <S317367AbSGVSym>; Mon, 22 Jul 2002 14:54:42 -0400
+Subject: Re: [PATCH 2/2] move slab pages to the lru, for 2.5.27
+From: Steven Cole <elenstev@mesatop.com>
+To: Craig Kulesa <ckulesa@as.arizona.edu>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Steven Cole <scole@lanl.gov>
+In-Reply-To: <Pine.LNX.4.44.0207210245080.6770-100000@loke.as.arizona.edu>
+References: <Pine.LNX.4.44.0207210245080.6770-100000@loke.as.arizona.edu>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1027364446.26894.2.camel@hadley>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 22 Jul 2002 21:00:46 +0200
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 22 Jul 2002 12:54:28 -0600
+Message-Id: <1027364068.12588.26.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 2002-07-21 at 05:24, Craig Kulesa wrote:
+> 
+> 
+> This is an update for the 2.5 port of Ed Tomlinson's patch to move slab
+> pages onto the lru for page aging, atop 2.5.27 and the full rmap patch.  
+> It is aimed at being a fairer, self-tuning way to target and evict slab
+> pages.
+> 
+> Previous description:  
+> 	http://mail.nl.linux.org/linux-mm/2002-07/msg00216.html
+> Patch URL:
+> 	http://loke.as.arizona.edu/~ckulesa/kernel/rmap-vm/2.5.27/
+> 
 
-I have here a Dual-Athlon Box, with a AMD760MPX Chipset and AMD768 IDE.
+While trying to boot 2.5.27-rmap-slablru, I got this early in the boot:
 
-In the base 2.4.18 kernel there seems to be no support for the
-IDE-Chipset
+Kernel panic: Failed to create pte-chain mempool!
+In idle task - not syncing
 
-So I tried 2.4.19-rc3-ac1 and I got more APIC errors, than I can count
-:))
+No other information was available.
+I had previously booted and run 2.5.27 and 2.5.27-rmap.  I had to unset
+CONFIG_QUOTA to get 2.5.27-rmap-slablru to compile.
+I first applied the 2.5.27-rmap-1-rmap13b patch for 2.5.27-rmap, and
+then applied the 2.5.27-rmap-2-slablru patch for 2.5.27-rmap-slablru.
 
-So my question.
+The test machine is a dual p3 valinux 2231. Some options from .config:
 
-Does anybody know where to find a patch for the IDE-Support to the plain
-2.4.18 kernel,
+[steven@spc9 linux-2.5.27-ck]$ grep HIGH .config
+# CONFIG_NOHIGHMEM is not set
+CONFIG_HIGHMEM4G=y
+# CONFIG_HIGHMEM64G is not set
+# CONFIG_HIGHPTE is not set
+CONFIG_HIGHMEM=y
 
-or which version of the 2.4.19-rc<x>-ac<x> is stable enough at the
-moment to run such a box.
-
-TIA for any help...
+Steven
 
 
--- 
-
-Bye
-
-	Ernst
----------
-Ernst Lehmann             Email: lehmann@acheron.franken.de
 
 

@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266247AbUBQQUp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 11:20:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266267AbUBQQUp
+	id S266285AbUBQQWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 11:22:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266288AbUBQQWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 11:20:45 -0500
-Received: from mail.tmr.com ([216.238.38.203]:41487 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S266247AbUBQQUn (ORCPT
+	Tue, 17 Feb 2004 11:22:25 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:28370 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S266285AbUBQQWT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 11:20:43 -0500
-Date: Tue, 17 Feb 2004 11:19:37 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-cc: linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>
-Subject: Re: [BENCHMARK] 2.6.3-rc2 v 2.6.3-rc3-mm1 kernbench
-In-Reply-To: <40319720.3090709@cyberone.com.au>
-Message-ID: <Pine.LNX.3.96.1040217110549.8209A-100000@gatekeeper.tmr.com>
+	Tue, 17 Feb 2004 11:22:19 -0500
+Message-ID: <40323FB6.1030208@colorfullife.com>
+Date: Tue, 17 Feb 2004 17:22:14 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Martin Hicks <mort@wildopensource.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Reduce TLB flushing during process migration
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Feb 2004, Nick Piggin wrote:
+Martin wrote:
 
+>diff -Nru a/kernel/sched.c b/kernel/sched.c
+>--- a/kernel/sched.c	Tue Feb 17 07:33:59 2004
+>+++ b/kernel/sched.c	Tue Feb 17 07:33:59 2004
+>@@ -25,6 +25,7 @@
+> #include <linux/highmem.h>
+> #include <linux/smp_lock.h>
+> #include <asm/mmu_context.h>
+>+#include <asm/tlbflush.h>
+> #include <linux/interrupt.h>
+> #include <linux/completion.h>
+> #include <linux/kernel_stat.h>
+>@@ -1135,6 +1136,14 @@
+> 		task_rq_unlock(rq, &flags);
+> 		wake_up_process(rq->migration_thread);
+> 		wait_for_completion(&req.done);
+>+
+>+		/*
+>+		 * we want a new context here. This eliminates TLB
+>+		 * flushes on the cpus where the process executed prior to
+>+		 * the migration.
+>+		 */
+>+		flush_tlb_mm(current->mm);
+>+
+>  
+>
+I think flush_tlb_mm() is the wrong function - e.g. for i386, it's a 
+wasted flush, because i386 disconnects previous cpus from the tlb flush 
+automatically.
+And it's always the wrong thing if you've migrated one thread of a task 
+that runs on multiple cpus. I think you need a new hook.
 
-> Bill, I have CC'ed your message without modification because Con is
-> not subscribed to the list. Even for people who are subscribed, the
-> convention on lkml is to reply to all.
-> 
-> Anyway, the "no SMT" run is with CONFIG_SCHED_SMT turned off, P4 HT
-> is still on. This was my fault because I didn't specify clearly that
-> I wanted to see a run with hardware HT turned off, although these
-> numbers are still interesting.
-> 
-> Con hasn't tried HT off AFAIK because we couldn't work out how to
-> turn it off at boot time! :(
-
-The curse of the brain-dead BIOS :-(
-
-So does CONFIG_SCHED_SMT turned off mean not using more than one sibling
-per package, or just going back to using them poorly? Yes, I should go
-root through the code.
-
-Clearly it would be good to get one more data point with HT off in BIOS,
-but from this data it looks as if the SMT stuff really helps little when
-the system is very heavily loaded (Nproc>=Nsibs), and does best when the
-load is around Nproc==Ncpu. At least as I read the data. The really
-interesting data would be the -j64 load without HT, using both schedulers.
-
-I just got done looking at a mail server with HT, kept the load avg 40-70
-for a week. Speaks highly for the stability of RHEL-3.0, but I wouldn't
-mind a little more performance for free.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+--
+    Manfred
 

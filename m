@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271741AbRJ0Oqt>; Sat, 27 Oct 2001 10:46:49 -0400
+	id <S270619AbRJ0PBV>; Sat, 27 Oct 2001 11:01:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270619AbRJ0Oqj>; Sat, 27 Oct 2001 10:46:39 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:55047 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S271741AbRJ0Oq1>; Sat, 27 Oct 2001 10:46:27 -0400
-Date: Sat, 27 Oct 2001 16:39:43 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.13ac2: small patch to arch/alpha/kernel/time.c needed for compilation
-Message-ID: <20011027163943.A1334@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S273255AbRJ0PBL>; Sat, 27 Oct 2001 11:01:11 -0400
+Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:37380 "EHLO
+	boris.prodako.se") by vger.kernel.org with ESMTP id <S271911AbRJ0PBA>;
+	Sat, 27 Oct 2001 11:01:00 -0400
+Date: Sat, 27 Oct 2001 17:01:31 +0200 (CEST)
+From: Tobias Ringstrom <tori@ringstrom.mine.nu>
+X-X-Sender: <tori@boris.prodako.se>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: VIA KT133 data corruption update
+In-Reply-To: <1004179736.1615.19.camel@pelerin.serpentine.com>
+Message-ID: <Pine.LNX.4.33.0110271656430.7040-100000@boris.prodako.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- linux-2.4.13ac2/arch/alpha/kernel/time.c    Sat Oct 27 14:52:30 2001
-+++ linux-2.4.13ac2-new/arch/alpha/kernel/time.c        Sat Oct 27 14:47:37 2001
-@@ -209,7 +209,7 @@
-                return cc;
+On 27 Oct 2001, Bryan O'Sullivan wrote:
 
-        if (cc < (cpu_hz[index].min - FREQ_DEVIATION)
--           || cc > (cpu_hz[index].max + FREQ_DEVIATION)
-+           || cc > (cpu_hz[index].max + FREQ_DEVIATION))
-                return 0;
+> I also discovered, of necessity, a halfway manageable process for
+> creating a DOS boot floppy using Windows ME, which Microsoft would
+> apparently prefer was not possible.  I'll reproduce the steps here,
+> since otherwise flashing a new BIOS is likely to be nightmarish for
+> people stuck dual booting into WinME.
 
-        return cc;
+Slightly off topic, but you can also use the rescue disk (made using
+add/remove programs in the control panel) to get a DOS prompt, and 
+use that to flash your new BIOS.
 
-It really speaks for itself.
+The Control or F8 trick to go to a DOS prompt does not work with ME.
 
-Good luck,
-Jurriaan
--- 
-If all is not lost, then where is it?
-	Anonymous
-GNU/Linux 2.4.13-ac2 SMP/ReiserFS 2x1402 bogomips load av: 0.41 0.15 0.05
+Using FreeDOS is an even nicer approach, of course.
+
+/Tobias
+

@@ -1,445 +1,564 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262239AbRFBXZV>; Sat, 2 Jun 2001 19:25:21 -0400
+	id <S262215AbRFBXYl>; Sat, 2 Jun 2001 19:24:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262262AbRFBXZN>; Sat, 2 Jun 2001 19:25:13 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30225 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262239AbRFBXZD>; Sat, 2 Jun 2001 19:25:03 -0400
-Date: Sun, 3 Jun 2001 00:23:10 +0100
-From: Alan Cox <laughing@shared-source.org>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.5-ac7
-Message-ID: <20010603002310.A8817@lightning.swansea.linux.org.uk>
-Mail-Followup-To: Alan Cox <laughing@shared-source.org>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S262239AbRFBXYc>; Sat, 2 Jun 2001 19:24:32 -0400
+Received: from pak218.pakuni.net ([207.91.34.218]:15366 "EHLO linuxtr.net")
+	by vger.kernel.org with ESMTP id <S262215AbRFBXYQ>;
+	Sat, 2 Jun 2001 19:24:16 -0400
+Date: Sat, 2 Jun 2001 18:58:43 -0500 (CDT)
+From: Mike Phillips <mikep@linuxtr.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] Olympic Update
+Message-ID: <Pine.LNX.4.10.10106021854380.2706-100000@www.linuxtr.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch puts in place some of Jeff's comments on the previous update
+and adds the buffer copy if skb->len <= 1500 as discussed on the list
+recently. (And gets NFS over olympic working again in less than epoc time
+:)
 
-	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
+Thanks
+Mike Phillips
+http://www.linuxtr.net
 
-		 Intermediate diffs are available from
-			http://www.bzimage.org
-
-In terms of going through the code audit almost all the sound drivers still 
-need fixing to lock against format changes during a read/write. Poll creating 
-and starting a buffer as write does and also mmap during write, write during
-an mmap.
-
-2.4.5-ac7
-o	UML cleanups					(Jeff Dike)
-o	Trap invalid addresses in UML ethernet driver	(Jeff Dike)
-o	Reimplment UML user space access		(Jeff Dike)
-o	Add device node support to hostfs		(Jorgen Cederlof)
-o	Fix hang if the UML net helper fails to run	(Jeff Dike)
-o	Support setting time in UML kernels		(Livio Baldini Soares)
-o	Move more non portable code out of UML core	(Jeff Dike)
-o	Merge most of remaining UML ppc changes		(Chris Emerson)
-o	Printk cleanups, remove one non portable	(James Stevenson)
-o	Add speaker mixer support to the cmpci mixer	(Carlos Gorges)
-o	Fix inittdata ordering in i2c docs	     (Andrzej Krzysztofowicz)
-o	Add usb skeleton driver				(Greg Kroah-Hartmann)
-o	Fix ns558 unload 				(Marcus Meissner)
-o	Further cs46xx fixing				(Frank Davies)
-o	S/390 updates from the IBM folks		(Martin Schwidefsky)
-o	CS46xx pop/crackle fixes on IBM T20		(Thomas Woller)
-o	Make USB require PCI				(me)
-o	Tulip driver update				(Jeff Garzik)
-o	Fix slip/slhc missing symbols problem		(Michael Guntsche)
-o	IRDA updates					(Dag Brattli)
-o	Add cs4232 isapnp probing			(Marcus Meissner)
-o	Merge airo_cs driver		(Benjamin Reed, Javier Achirica,
-							Jean Tourrilhes)
-o	VIA workarounds for APIC IRQ routing		(Jeff Garzik)
-o	Fix bootmem.c comment cut&paste accident	(Richard Urena)
-o	Update LVM with new VG_CREATE ioctl (and 	(Joe Thornber)
-	VG_CREATE_OLD for back compatibility)
-o	Fix pv_t/lv_t confusion in lv_status_bydev_req	(Joe Thornber)
-o	Lots of update/fixes for _lv_status_by* code	(Joe Thornber)
-o	Add support for I2O IOP's requiring private	(me)
-	resource spaces
-o	Hopefully fix hid jerkiness			(Michael)
-
-2.4.5-ac6
-o	Fix the cs46xx right this time			(me)
-o	Further FATfs cleanup				(OGAWA Hirofumi)
-o	ISDN PPP code cleanup, cvs tag update		(Kai Germaschewski)
-o	Large amount of UFS file system cleanup		(Al Viro)
-o	Fix endianness problems in FATfs		(Petr Vandrovec)
-o	Fix -ac quota crashes				(Jan Kara)
-o	Fix bluetooth out of memory handling		(Greg Kroah-Hartmann)
-o	Fix freevxfs readdir				(Christoph Hellwig)
-o	Fix freevxfs sign/unsigned issues		(Christoph Hellwig)
-o	Fix doctypos, other freevxfs cleanup		(Christoph Hellwig)
-o	Fix flush_dirty_buffers warning			(J A Magallon)
-o	Add Carlos Gorges to credits			(Carlos Gorges)
-o	Further atm cleanup fixes (kmalloc/signedness)	(Mitchell Blank)
-o	Fix hotplug variable in matroxfb		(Petr Vandrovec)
-o	Fix ns558 crash					(Vojtech Pavlik)
-o	Revert to Pete Zaitcev's khub locking		(Pete Zaitcev)
-	| It works for me, Johannes changes don't seem to
-o	Fix usb Config.in breakage for input devices	(Vojtech Pavlik)
-o	Add another 3c509 ISAPnP id			(Marcus Meissner)
-o	Fix oopses and null checks on iphase		(Mitchell Blank)
-o	CS46xx update					(Thomas Woller)
-o	Fix mmap cornercase				(Maciej Rozycki)
-o	Tidy up aironet and saa9730 delay abuse	   (Andrzej Krzysztofowicz)
-o	Force initial umask to be sane for broken	(Andrew Tridgell)
-	init programs
-o	Teach CML1 to strip out <file: > from the	(Eric Raymond)
-	Configure.help
-o	Resync with Eric's master Configure.help	(Eric Raymond)
-o	Revert FIOQSIZE	
-o	Fix missing copy_*_user in cosa driver		(me)
-	| From Stanford tools
-o	Fix missing copy_*_user in eicon		(me)
-	+ clean up ioctls a bit more
-	| From Stanford tools
-o	Fix use after free in lpbether			(me)
-	| From Stanford tools
-o	Fix missing return in rose_dev			(me)
-	| From Stanford tools
-o	Fix use after free in bpqether			(me)
-	| From Stanford tools
-
-2.4.5-ac5
-o	Fix bug introduced in cs46xx/trident locking	(me)
-o	Fix reiserfs unload/exit locking race		(Paul Mundt)
-o	Miscellaneous small UML updates			(Jeff Dike)
-o	Further FAT cleanups				(OGAWA Hirofumi)
-o	Fix ext2fs oops following disk error		(Andreas Dilger)
-o	Optimise segment reloads, syscall path		(Andi Kleen)
-o	Clean up .byte abuse where asm is now known	(Brian Gerst)
-	by required tools
-o	Fix eepro100 on 64bit machine bitops bug	(Andrea Arcangeli)
-o	Move the pagecache and pagemap_lru_lock to	(Andrea Arcangeli)
-	different cache lines
-o	Clean up .byte abuse where asm is now known	(Brian Gerst)
-	by required tools
-o	Fix user space dereference in bluetooth		(me)
-	| From Stanford tools
-o	Fix user space dereference in sbc60wdt		(me)
-	| From Stanford tools
-o	Fix user space dereference in mdc800		(me)
-	| From Stanford tools
-o	Fix a rather wrong memset in nubus.c		(Chris Peterson)
-o	Remove fpu references from dmfe			(Arjan van de Ven)
-o	Fix spelling of Portuguese			(Nerijus Baliunas)
-
-2.4.5-ac4
-o	APIC parsing updates				(Ingo Molnar)
-o	Retry rather than losing I/O on an IDE DMA	(Jens Axboe)
-	timeout.
-o	Add missing locking to cs46xx			(Frank Davis)
-o	Clean up sym53c416 and add PnP support		(me)
-o	Tidy up changelog in apm.c			(Stephen Rothwell)
-o	Update jffs2, remove abuse of kdev_t		(David Woodhouse)
-o	Fix oops on unplugging bluetooth		(Greg Kroah-Hartmann)
-o	Move stuff into bss on aironet4500		(Rasmus Andersen)
-o	Fix up alpha oops output			(George France)
-o	Update SysKonnect PCI id list			(Mirko Lindner)
-o	Update SysKonnect GigE driver			(Mirko Lindner)
-o	Add ATM DS3/OC12 definitions to atmdev.h	(Mitchell Blank)
-o	Clean up atm drivers, fixed up user space	(Mitchell Blank,
-	access with irqs off, kmalloc and use after	 John Levon)
-	free.
-o	Update input device/joystick/gameport drivers	(Vojtech Pavlik)
-o	Update USB hid drivers				(Vojtech Pavlik)
-o	Fix out of memory oops in hysdn			(Rasmus Andersen)
-o	Belarussian should be Belarusian according to	(Nerijus Baliunas)
-	the standards
-o	Support booting off old 720K floppies		(Niels Jensen, 
-							 Chris Noe)
-
-2.4.5-ac3
-o	Ignore console writes from an IRQ handler	(me)
-o	Make SIGBUS/SIGILL visible to UML debugger	(Jeff Dike)
-o	Clean up UML syscalls add missing items		(Jeff Dike)
-o	Clean up non portable UML code			(Jeff Dike)
-o	Fix off by one and other oddments in hostfs	(Henrik Nordstrom)
-o	Update UML to use CONFIG_SMP not __SMP__	(Jeff Dike)
-o	Fix UML crash if console is typed at too early	(Jeff Dike)
-o	Clean up UML host transports			(Lennert Buytenhek,
-							 Jim Leu)
-o	Resynchronize UML/ppc				(Chris Emerson)
-o	Fix UML crash if it had an address space hole	(Jeff Dike)
-	between text and data
-o	Fix rd_ioctl crash with initrd			(Go Taniguchi)
-o	Fix IRQ ack path on Alpha rawhide		(Richard Henderson)
-o	Drop back to older 8139too driver from 2.4.3
-	| Seems the new one causes lockups
-o 	Experimental promise fastrak raid driver	(Arjan van de Ven)
-
-2.4.5-ac2
-o	Restore lock_kernel on umount			(Al Viro)
-	| Should cure Reiserfs crash in 2.4.5
-o	Fix additional scsi_ioctl leak			(John Martin)
-o	Clean up scsi_ioctl error handling		(me)
-o	Configure.help typo fixes			(Nerijus Baliunas)
-o	Fix hgafb problems with logos			(Ferenc Bakonyi)
-o	Fix lock problems in the rio driver		(Rasmus Andersen)
-o	Make new cmpci SMP safe				(Carlos E Gorges)
-o	Fix missing restore flags in soundmodem		(Rasmus Andersen)
-o	Set max sectors in ps2esdi			(Paul Gortmaker)
-o	Fix interrupt restore problems in mixcom	(Rasmus Andersen)
-o	Fix alpha compile on dp264/generic		(Andrea Arcangeli)
-o	Fix irda irport locking restores		(Rasmus Andersen)
-o	Fix failed kmalloc handling in hisax		(Kai Germaschewski)
-o	Add missing memory barrier in qlogicisp		(?)
-o	Fix missing restore_flags in eata_dma		(Rasmus Andersen)
-o	Fix procfs locking in irttp			(Rasmus Andersen)
-o	Winbond updates					(Manfred Spraul)
-o	Stop network eating PF_MEMALLOC ram		(Manfred Spraul)
-o	Drop fs/buffer.c low mem flush changes		(me)
-o	Drop changes to mm/highmem.c			(me)
-	| I don't think the Linus one is quite right but its easier
-	| for everyone to be working off one base
-o	Revert GFP_FAIL and some other alloc bits	(me)
-o	Hopefully fix initrd problem			(me)
-o	Fix kmalloc check in ide-tape			(Rasmus Andersen)
-o	Fix irda irtty locking				(Rasmus Andersen)
-o	Fix missing irq restore in qla1280		(Rasmus Andersen)
-o	Fix proc/pid/mem cross exec behaviour		(Arjan van de Ven)
-o	Fix direct user space derefs in eicon		(me)
-	| From Stanford checker
-o	Fix direct user space derefs in ipddp		(me)
-	| From Stanford checker
-o	Fix direct user space derefs in ixj		(me)
-	| From Stanford checker
-o	Fix direct user space derefs in decnet		(me)
-	| From Stanford checker
-
-2.4.5-ac1
-o	Merge Linus 2.4.5 tree
-
-Summary of changes for Linux 2.4.5-ac versus Linus 2.4.5
-
-o	Fix memory leak in wanrouter
-o	Fix memory leak in wanmain
-o	Use non atomic memory for linearising NFS buffers as they are 
-	done in task context
-o	Fix dereference of freed memory in NetROM drivers
-o	Fix writing to freed memory in ax25_ip
-o	Support debugging of slab pools
-o	NinjaSCSI pcmcia scsi driver
-o	Raw HID device for USB peripheral buttons/controllers
-o	Updated NTFS
-o	RAMfs with resource limits
-o	NMI watchdog available on uniprocessor x86
-o	Update CMPCI drivers (not yet SMP safe)
-o	Configurable max_map_count
-o	Dynamic sysctl key registration
-o	SE401 USB camera driver
-o	Updated Zoran ZR3606x driver (replaces buz)
-o	w9966 parallel port camera driver (partially merged with Linus)
-o	Include headers in etags
-o	Don't delete empty directories on make distclean
-o	Fix halt/reboot handling on Alcor Alpha
-o	IDE driver support for Etrax E100
-o	IDE infrastructure support for IDE using non standard data transfers
-o	Run ~/bin/installkernel if present
-o	Support for out of order stores on x86 with this mode (IDT Winchip)
-	- worth 20% performance on them
-o	Configure level debugging menu
-o	Make BUG() default to an oops only - saves 70K
-o	Power management help for UP-APIC
-o	Work around 440BX APIC hang (eg the ne2000 SMP hang)
-o	Run time configurable APM behaviour (interrupts, psr etc)
-o	Smarter DMI parser - handles multiple use of names
-o	DMI layer has blacklist tables fixing Dell Inspiron 5000e crashes,
-	PowerEdge reboot problems , and IBM laptop APM problems
-o	PNPBios support
-o	Fix atomicity of IRQ error count
-o	Handle PCI/ISA boxes that don't list edge levels but have an ELCR
-o	Don't erroneously mangle settings on all VIA bridges - cures the 
-	horrible performance problem in 2.4.5 vanilla with VIA
-o	Fix bootmem corruption on x86 boot
-o	Scan and retrieve multipliers for processors (not yet used to handle
-	the SMP cases where we need to disable tsc use)
-o	Support machine check on Athlon and Pentium
-o	Fix SUS violation with signal stacks
-o	Handle boxes where firmware resets the timer to 18Hz (this should
-	now not show false positives)
-o	Better OOPS formatting on x86
-o	Fix nasty problems with interrupts being disabled for long periods
-	in frame buffer drivers
-o	PAE mode alignment assumption fixes
-o	32bit UID clean quota
-o	Fix quota deadlocks
-o	Fix TLB shootdown races
-o	Experimental merge of usermode Linux
-o	Fix memory leaks and othe rproblems with the iphase driver
-o	IBM AS/400 iSeries virtual drivers
-o	DAC960 null pointer checks
-o	CCISS driver leak fixes
-o	MPT fusion drivers for scsi and networking
-o	Handle out of memory allocating request queue entries and avoid oops
-o	Free the initial ramdisk correctly
-o	Small CD-ROM layer updates
-o	AGP power management hooks
-o	First basic applicom driver fixes
-o	Fix copy_from_user with interrupts off in cyclades driver
-o	Fix out of memory handling in DRM
-o	Clean up dsp56K driver
-o	Update generic serial driver with break support
-o	Clean up h8 driver namespace
-o	Fix keymap changing problems in console drivers
-o	Fix locking in machzwd
-o	Updated rio serial driver
-o	A2232 driver
-o	Fix serial driver mangling of some clone uarts
-o	Handle xircom serial port setup delay bug
-o	Updated sx driver for newer generic_serial
-o	W83877F watchdog driver
-o	ITE8172 IDE driver support
-o	Q40/Q60 IDE support
-o	Fix nodma handling bug in alim15x3
-o	hpt366 DMA blacklist
-o	IDE-CD updates
-o	Updated IDE DMA blacklist
-o	OOPS catch for sg reuse in IDE driver
-o	Support formatting of IDE floppies
-o	Support PIIX4U4 (851EM)
-o	Enable second port on promise pseudo raid
-o	Support nodma on pmac
-o	Support more PCI irq sharing on IDE
-o	IDE tape updates - DI-50 support, 
-o	Much updated VIA IDE support
-o	video1394 updated to newer module API
-o	Support write on the input event driver
-o	Quieten mouse and keyboard input drivers
-o	Fix compile problem with pc110pad
-o	Fix memory leak in isdnppp
-o	LVM updates
-o	Fix plan b locking
-o	Fix saa5249 locking
-o	Fix stradis locking
-o	Acenic driver updates
-o	aironet4500 cleanups, probe tables
-o	Ariadne updated to newer API
-o	Don't limit mtu to 68+ in arlan drivers
-o	Updated eepro100 driver
-o	Fix potential crash on downing a bpqether port
-o	Updated nsc-ircc driver
-o	Updated toshoboe driver
-o	Intel Panther LP486e ethernet driver
-o	Remove erroneous check in eth_change_mtu
-o	Alternative xircom_cb driver
-o	Avoid ibm tr being rebuilt each make
-o	Updated ibm token ring drivers
-o	Add 'static' to bits of ppp code
-o	Add pci probe table to roadrunner
-o	Fix memory leak in sk_ge
-o	sk_g16 updates
-o	sk_mca updates
-o	Add tools to generate starfire firmware
-o	Synclink driver can be compiled in
-o	Fix possible oops in lapbether
-o	Fix memory leak in lanmedia driver
-o	Fix SDLA_X25 warnings
-o	Fix syncppp negotiation loop bug
-o	GSC parallel port support
-o	PCMCIA parallel port support
-o	Support PnPBIOS probing for PC parallel ports
-o	Fix leak in PCMCIA bulkmem driver
-o	Fix leak in PCMCIA ds driver
-o	Add more cards to the ti list for the yenta pcmcia
-o	Updated 3ware scsi driver
-o	NCR 53c700 and 53c700/66 driver core
-o	Fix pci_enable/resource read order on buslogic
-o	Updated NCR53c8xx driver
-o	Updated SYM53c8xx driver
-o	Fix NCR53c406 warnings
-o	NCR dual MCA driver
-o	AIC7xxx pci probe table for hotplug
-o	Updated aic7xxx_old
-o	Fix resource leaks in dec esp driver
-o	Fix printk levels in dmx3191 driver
-o	Allow per device max sector counts. (2.4 workaround until 2.5 does
-	this in the block layer per device)
-o	Support SCSI2/SCSI3 extended LUN numbering
-o	Limit qlogicisp and qlogicpti to 64 sectors/write
-o	Fix missing EFAULT return in scsi proc
-o	Fix locking of scsi_unregister_host
-o	Fix leaks in scsi_ioctl
-o	Fix potential lost requests in scsi merges
-o	Fix leak on write when scsi driver has no proc write op
-o	Extend the scsi black/whitelist
-o	Fix locking/eject/rescan on removable scsi disk media
-o	Updated scsi generic driver
-o	Updated scsi cdrom driver
-o	Correct ac97 handling on sparc
-o	Fix use after kfree in cs4281
-o	Update ess solo to new PCI style and PM
-o	Update maestro to new PCI style and PM
-o	Add docking station support to maestro
-o	Update sonicvies to new PCI api
-o	Fix trident locking problems
-o	Fix buzzing on ymfpci
-o	Power management for ymfpci
-o	Fix leak/missized copy on xjack driver
-o	CDCEther driver
-o	ACM driver with fixed CLOCAL
-o	Updated USB audio drivers
-o	Fix locking/reporting in USB device list
-o	Allow dsbr100 to take a radio_nr option
-o	HP5300 series USB scanner driver
-o	Updated IBM cam driver
-o	Fix USB inode locking
-o	Driver for Kawasaki based USB ethernet
-o	Small ov511 fixes
-o	Updated USB storage drivers
-o	Entries for Sony MSC-U01N memory stick, Fujifilm FinePix 1400Zoom,
-	Casio QV Digial Camera
-o	USB Ultracam driver
-o	Fix derefence of freed memory in the USB code
-o	Generic USB host->host drivers for anchorchip 2270, ipaq, netchip
-	1080, and Prolific PL-2301/2
-o	Updated ATI frame buffer drivers
-o	Updated clgen and control frame buffer drivers
-o	Updated cyber2000 driver
-o	Documentation for fbcon driver
-o	Additional modes for titanium powerbook (1152x768)
-o	Updated matrxofb drivers
-o	Support __setup in mdacon
-o	Radeon console driver
-o	Handle out of memory on sun3 fb
-o	Updated tga/vesa fb
-o	CMS file system (basic R/O)
-o	JFFS journalling flash file system with compression
-o	Updated AFFS file system
-o	Threaded core dumps
-o	Fix security holes in binfmt_misc
-o	Allow flushing of low buffers only when we need bounce buffers
-o	Use brelse in cramfs
-o	Fix memory leaks in freevxfs
-o	Updated isofs
-o	Small lockd updates (experimental)
-o	Fix nfs alignment funnies
-o	Report correct SuS errors on some opens
-o	Add generic_file_open to get 64bit stuff right
-o	Locking on make_inode_number for procfs
-o	Report shmem size in shared memory proc field
-o	Fail lseek outside of allowed range for filesystem
-o	Fix select race with fdset growth
-o	Kernel message levels and handle oom on superblock/mount ops
-o	Updated frame buffer logos
-o	Prefetch support for AMD Athlon
-o	Support out of order stores in spinlocks on x86
-o	m68k bitop compile fixes
-o	Add truncatepage op to address operations
-o	shmem filesystem cleanups and updates
-o	Fix off by one on real time pre-emption in scheduler
-o	Use prefetches in scheduler and wakeups
-o	Support GFP_FAIL to avoid highmem deadlocks
+diff -urN --exclude-from=dontdiff linux-2.4.5-ac6.clean/drivers/net/tokenring/olympic.c linux-2.4.5-ac6/drivers/net/tokenring/olympic.c
+--- linux-2.4.5-ac6.clean/drivers/net/tokenring/olympic.c	Sun May 20 14:11:38 2001
++++ linux-2.4.5-ac6/drivers/net/tokenring/olympic.c	Sat Jun  2 16:09:55 2001
+@@ -49,6 +49,8 @@
+  * 04/09/01 - Couple of bug fixes to the dma unmaps and ejecting the
+  *	      adapter when live does not take the system down with it.
+  * 
++ * 06/02/01 - Clean up, copy skb for small packets
++ *
+  *  To Do:
+  *
+  *	     Complete full Cardbus / hot-swap support.
+@@ -64,7 +66,10 @@
  
----
-Alan Cox <alan@lxorguk.ukuu.org.uk>
-Red Hat Kernel Hacker
-& Linux 2.2 Maintainer                        Brainbench MVP for TCP/IP
-http://www.linux.org.uk/diary                 http://www.brainbench.com
+ #define OLYMPIC_DEBUG 0
+ 
++
++#include <linux/config.h>
+ #include <linux/module.h>
++
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+ #include <linux/errno.h>
+@@ -99,8 +104,8 @@
+  * Official releases will only have an a.b.c version number format. 
+  */
+ 
+-static char *version = 
+-"Olympic.c v0.9.C 4/18/01 - Peter De Schrijver & Mike Phillips" ; 
++static char version[] __devinitdata = 
++"Olympic.c v0.9.7 6/02/01 - Peter De Schrijver & Mike Phillips" ; 
+ 
+ static char *open_maj_error[]  = {"No error", "Lobe Media Test", "Physical Insertion",
+ 				   "Address Verification", "Neighbor Notification (Ring Poll)",
+@@ -116,6 +121,9 @@
+ 
+ /* Module paramters */
+ 
++MODULE_AUTHOR("Mike Phillips <mikep@linuxtr.net>") ; 
++MODULE_DESCRIPTION("Olympic PCI/Cardbus Chipset Driver \n") ; 
++
+ /* Ring Speed 0,4,16,100 
+  * 0 = Autosense         
+  * 4,16 = Selected speed only, no autosense
+@@ -157,7 +165,8 @@
+ };
+ MODULE_DEVICE_TABLE(pci,olympic_pci_tbl) ; 
+ 
+-static int __init olympic_probe(struct pci_dev *pdev, const struct pci_device_id *ent); 
++
++static int olympic_probe(struct pci_dev *pdev, const struct pci_device_id *ent); 
+ static int olympic_init(struct net_device *dev);
+ static int olympic_open(struct net_device *dev);
+ static int olympic_xmit(struct sk_buff *skb, struct net_device *dev);
+@@ -172,7 +181,7 @@
+ static void olympic_asb_bh(struct net_device *dev) ; 
+ static int olympic_proc_info(char *buffer, char **start, off_t offset, int length, int *eof, void *data) ; 
+ 
+-static int __init olympic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
++static int __devinit olympic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ {
+ 	struct net_device *dev ; 
+ 	struct olympic_private *olympic_priv;
+@@ -239,6 +248,7 @@
+ 	dev->set_multicast_list=&olympic_set_rx_mode;
+ 	dev->get_stats=&olympic_get_stats ;
+ 	dev->set_mac_address=&olympic_set_mac_address ;  
++	SET_MODULE_OWNER(dev) ; 
+ 
+ 	pci_set_drvdata(pdev,dev) ; 
+ 	register_netdev(dev) ; 
+@@ -253,10 +263,10 @@
+ 	return  0 ;
+ }
+ 
+-static int __init olympic_init(struct net_device *dev)
++static int __devinit olympic_init(struct net_device *dev)
+ {
+     	struct olympic_private *olympic_priv;
+-	__u8 *olympic_mmio, *init_srb,*adapter_addr;
++	u8 *olympic_mmio, *init_srb,*adapter_addr;
+ 	unsigned long t; 
+ 	unsigned int uaa_addr;
+ 
+@@ -268,7 +278,7 @@
+ 
+ 	writel(readl(olympic_mmio+BCTL) | BCTL_SOFTRESET,olympic_mmio+BCTL);
+ 	t=jiffies;
+-	while((readl(olympic_priv->olympic_mmio+BCTL)) & BCTL_SOFTRESET) {
++	while((readl(olympic_mmio+BCTL)) & BCTL_SOFTRESET) {
+ 		schedule();		
+ 		if(jiffies-t > 40*HZ) {
+ 			printk(KERN_ERR "IBM PCI tokenring card not responding.\n");
+@@ -381,7 +391,7 @@
+ static int olympic_open(struct net_device *dev) 
+ {
+ 	struct olympic_private *olympic_priv=(struct olympic_private *)dev->priv;
+-	__u8 *olympic_mmio=olympic_priv->olympic_mmio,*init_srb;
++	u8 *olympic_mmio=olympic_priv->olympic_mmio,*init_srb;
+ 	unsigned long flags, t;
+ 	char open_error[255] ; 
+ 	int i, open_finished = 1 ;
+@@ -632,10 +642,10 @@
+ #endif
+ 
+ 	if (olympic_priv->olympic_network_monitor) { 
+-		__u8 *oat ; 
+-		__u8 *opt ; 
+-		oat = (__u8 *)(olympic_priv->olympic_lap + olympic_priv->olympic_addr_table_addr) ; 
+-		opt = (__u8 *)(olympic_priv->olympic_lap + olympic_priv->olympic_parms_addr) ; 
++		u8 *oat ; 
++		u8 *opt ; 
++		oat = (u8 *)(olympic_priv->olympic_lap + olympic_priv->olympic_addr_table_addr) ; 
++		opt = (u8 *)(olympic_priv->olympic_lap + olympic_priv->olympic_parms_addr) ; 
+ 
+ 		printk("%s: Node Address: %02x:%02x:%02x:%02x:%02x:%02x\n",dev->name, 
+ 			readb(oat+offsetof(struct olympic_adapter_addr_table,node_addr)), 
+@@ -659,7 +669,6 @@
+ 	}
+ 	
+ 	netif_start_queue(dev);
+-	MOD_INC_USE_COUNT ;
+ 	return 0;
+ 	
+ }	
+@@ -673,12 +682,16 @@
+  *	This means that we may process the frame before we receive the end
+  *	of frame interrupt. This is why we always test the status instead
+  *	of blindly processing the next frame.
++ *
++ *	We also remove the last 4 bytes from the packet as well, these are
++ *	just token ring trailer info and upset protocols that don't check 
++ *	their own length, i.e. SNA. 
+  *	
+  */
+ static void olympic_rx(struct net_device *dev)
+ {
+ 	struct olympic_private *olympic_priv=(struct olympic_private *)dev->priv;
+-	__u8 *olympic_mmio=olympic_priv->olympic_mmio;
++	u8 *olympic_mmio=olympic_priv->olympic_mmio;
+ 	struct olympic_rx_status *rx_status;
+ 	struct olympic_rx_desc *rx_desc ; 
+ 	int rx_ring_last_received,length, buffer_cnt, cpy_length, frag_len;
+@@ -688,7 +701,7 @@
+ 	rx_status=&(olympic_priv->olympic_rx_status_ring[(olympic_priv->rx_status_last_received + 1) & (OLYMPIC_RX_RING_SIZE - 1)]) ; 
+  
+ 	while (rx_status->status_buffercnt) { 
+-                __u32 l_status_buffercnt;
++                u32 l_status_buffercnt;
+ 
+ 		olympic_priv->rx_status_last_received++ ;
+ 		olympic_priv->rx_status_last_received &= (OLYMPIC_RX_RING_SIZE -1);
+@@ -742,36 +755,50 @@
+ 			   	   	   If only one buffer is used we can simply swap the buffers around.
+ 			   	   	   If more than one then we must use the new buffer and copy the information
+ 			   	   	   first. Ideally all frames would be in a single buffer, this can be tuned by
+-                               	   	   altering the buffer size. */
++                               	   	   altering the buffer size. If the length of the packet is less than
++					   1500 bytes we're going to copy it over anyway to stop packets getting
++					   dropped from sockets with buffers small than our pkt_buf_sz. */
+ 				
+  					if (buffer_cnt==1) {
+ 						olympic_priv->rx_ring_last_received++ ; 
+ 						olympic_priv->rx_ring_last_received &= (OLYMPIC_RX_RING_SIZE -1);
+ 						rx_ring_last_received = olympic_priv->rx_ring_last_received ;
+-						skb2=olympic_priv->rx_ring_skb[rx_ring_last_received] ; 
+-						/* unmap buffer */
+-						pci_unmap_single(olympic_priv->pdev,
+-							le32_to_cpu(olympic_priv->olympic_rx_ring[rx_ring_last_received].buffer), 
+-							olympic_priv->pkt_buf_sz,PCI_DMA_FROMDEVICE) ; 
+-						skb_put(skb2,length);
+-						skb2->protocol = tr_type_trans(skb2,dev);
+-						olympic_priv->olympic_rx_ring[rx_ring_last_received].buffer = 
+-							cpu_to_le32(pci_map_single(olympic_priv->pdev, skb->data, 
+-							olympic_priv->pkt_buf_sz, PCI_DMA_FROMDEVICE));
+-						olympic_priv->olympic_rx_ring[rx_ring_last_received].res_length = 
+-							cpu_to_le32(olympic_priv->pkt_buf_sz); 
+-						olympic_priv->rx_ring_skb[rx_ring_last_received] = skb ; 
+-						netif_rx(skb2) ; 
++						if (length > 1500) { 
++							skb2=olympic_priv->rx_ring_skb[rx_ring_last_received] ; 
++							/* unmap buffer */
++							pci_unmap_single(olympic_priv->pdev,
++								le32_to_cpu(olympic_priv->olympic_rx_ring[rx_ring_last_received].buffer), 
++								olympic_priv->pkt_buf_sz,PCI_DMA_FROMDEVICE) ; 
++							skb_put(skb2,length-4);
++							skb2->protocol = tr_type_trans(skb2,dev);
++							olympic_priv->olympic_rx_ring[rx_ring_last_received].buffer = 
++								cpu_to_le32(pci_map_single(olympic_priv->pdev, skb->data, 
++								olympic_priv->pkt_buf_sz, PCI_DMA_FROMDEVICE));
++							olympic_priv->olympic_rx_ring[rx_ring_last_received].res_length = 
++								cpu_to_le32(olympic_priv->pkt_buf_sz); 
++							olympic_priv->rx_ring_skb[rx_ring_last_received] = skb ; 
++							netif_rx(skb2) ; 
++						} else { 
++							pci_dma_sync_single(olympic_priv->pdev,
++								le32_to_cpu(olympic_priv->olympic_rx_ring[rx_ring_last_received].buffer),
++								olympic_priv->pkt_buf_sz,PCI_DMA_FROMDEVICE) ; 
++							memcpy(skb_put(skb,length-4),olympic_priv->rx_ring_skb[rx_ring_last_received]->data,length-4) ; 
++							skb->protocol = tr_type_trans(skb,dev) ; 
++							netif_rx(skb) ; 
++						} 
+ 					} else {
+ 						do { /* Walk the buffers */ 
+ 							olympic_priv->rx_ring_last_received++ ; 
+ 							olympic_priv->rx_ring_last_received &= (OLYMPIC_RX_RING_SIZE -1);
+ 							rx_ring_last_received = olympic_priv->rx_ring_last_received ; 
++							pci_dma_sync_single(olympic_priv->pdev,
++								le32_to_cpu(olympic_priv->olympic_rx_ring[rx_ring_last_received].buffer),
++								olympic_priv->pkt_buf_sz,PCI_DMA_FROMDEVICE) ; 
+ 							rx_desc = &(olympic_priv->olympic_rx_ring[rx_ring_last_received]);
+ 							cpy_length = (i == 1 ? frag_len : le32_to_cpu(rx_desc->res_length)); 
+ 							memcpy(skb_put(skb, cpy_length), olympic_priv->rx_ring_skb[rx_ring_last_received]->data, cpy_length) ;
+ 						} while (--i) ; 
+-		
++						skb_trim(skb,skb->len-4) ; 
+ 						skb->protocol = tr_type_trans(skb,dev);
+ 						netif_rx(skb) ; 
+ 					} 
+@@ -799,9 +826,9 @@
+ {
+ 	struct net_device *dev= (struct net_device *)dev_id;
+ 	struct olympic_private *olympic_priv=(struct olympic_private *)dev->priv;
+-	__u8 *olympic_mmio=olympic_priv->olympic_mmio;
+-	__u32 sisr;
+-	__u8 *adapter_check_area ; 
++	u8 *olympic_mmio=olympic_priv->olympic_mmio;
++	u32 sisr;
++	u8 *adapter_check_area ; 
+ 	
+ 	/* 
+ 	 *  Read sisr but don't reset it yet. 
+@@ -855,7 +882,7 @@
+ 			netif_stop_queue(dev);
+ 			printk(KERN_WARNING "%s: Adapter Check Interrupt Raised, 8 bytes of information follow:\n", dev->name);
+ 			writel(readl(olympic_mmio+LAPWWO),olympic_mmio+LAPA);
+-			adapter_check_area = (__u8 *)(olympic_mmio+LAPWWO) ; 
++			adapter_check_area = (u8 *)(olympic_mmio+LAPWWO) ; 
+ 			printk(KERN_WARNING "%s: Bytes %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x\n",dev->name, readb(adapter_check_area+0), readb(adapter_check_area+1), readb(adapter_check_area+2), readb(adapter_check_area+3), readb(adapter_check_area+4), readb(adapter_check_area+5), readb(adapter_check_area+6), readb(adapter_check_area+7)) ; 
+ 			/* The adapter is effectively dead, clean up and exit */
+ 			for(i=0;i<OLYMPIC_RX_RING_SIZE;i++) {
+@@ -880,7 +907,6 @@
+ 				sizeof(struct olympic_tx_desc) * OLYMPIC_TX_RING_SIZE, PCI_DMA_TODEVICE);
+ 
+ 			free_irq(dev->irq, dev) ;
+-			MOD_DEC_USE_COUNT ;
+ 			dev->stop = NULL ;  
+ 			spin_unlock(&olympic_priv->olympic_lock) ; 
+ 			return ; 
+@@ -921,7 +947,7 @@
+ static int olympic_xmit(struct sk_buff *skb, struct net_device *dev) 
+ {
+ 	struct olympic_private *olympic_priv=(struct olympic_private *)dev->priv;
+-	__u8 *olympic_mmio=olympic_priv->olympic_mmio;
++	u8 *olympic_mmio=olympic_priv->olympic_mmio;
+ 	unsigned long flags ; 
+ 
+ 	spin_lock_irqsave(&olympic_priv->olympic_lock, flags);
+@@ -952,7 +978,7 @@
+ static int olympic_close(struct net_device *dev) 
+ {
+ 	struct olympic_private *olympic_priv=(struct olympic_private *)dev->priv;
+-    	__u8 *olympic_mmio=olympic_priv->olympic_mmio,*srb;
++    	u8 *olympic_mmio=olympic_priv->olympic_mmio,*srb;
+ 	unsigned long t,flags;
+ 	int i;
+ 
+@@ -1027,7 +1053,6 @@
+ #endif
+ 	free_irq(dev->irq,dev);
+ 
+-	MOD_DEC_USE_COUNT ; 
+ 	return 0;
+ 	
+ }
+@@ -1035,9 +1060,9 @@
+ static void olympic_set_rx_mode(struct net_device *dev) 
+ {
+ 	struct olympic_private *olympic_priv = (struct olympic_private *) dev->priv ; 
+-   	__u8 *olympic_mmio = olympic_priv->olympic_mmio ; 
+-	__u8 options = 0; 
+-	__u8 *srb;
++   	u8 *olympic_mmio = olympic_priv->olympic_mmio ; 
++	u8 options = 0; 
++	u8 *srb;
+ 	struct dev_mc_list *dmi ; 
+ 	unsigned char dev_mc_address[4] ; 
+ 	int i ; 
+@@ -1103,8 +1128,8 @@
+ static void olympic_srb_bh(struct net_device *dev) 
+ { 
+ 	struct olympic_private *olympic_priv = (struct olympic_private *) dev->priv ; 
+-   	__u8 *olympic_mmio = olympic_priv->olympic_mmio ; 
+-	__u8 *srb;
++   	u8 *olympic_mmio = olympic_priv->olympic_mmio ; 
++	u8 *srb;
+ 
+ 	writel(olympic_priv->srb,olympic_mmio+LAPA);
+ 	srb=olympic_priv->olympic_lap + (olympic_priv->srb & (~0xf800));
+@@ -1277,22 +1302,22 @@
+ static void olympic_arb_cmd(struct net_device *dev)
+ {
+ 	struct olympic_private *olympic_priv = (struct olympic_private *) dev->priv;
+-    	__u8 *olympic_mmio=olympic_priv->olympic_mmio;
+-	__u8 *arb_block, *asb_block, *srb  ; 
+-	__u8 header_len ; 
+-	__u16 frame_len, buffer_len ;
++    	u8 *olympic_mmio=olympic_priv->olympic_mmio;
++	u8 *arb_block, *asb_block, *srb  ; 
++	u8 header_len ; 
++	u16 frame_len, buffer_len ;
+ 	struct sk_buff *mac_frame ;  
+-	__u8 *buf_ptr ;
+-	__u8 *frame_data ;  
+-	__u16 buff_off ; 
+-	__u16 lan_status = 0, lan_status_diff  ; /* Initialize to stop compiler warning */
+-	__u8 fdx_prot_error ; 
+-	__u16 next_ptr;
++	u8 *buf_ptr ;
++	u8 *frame_data ;  
++	u16 buff_off ; 
++	u16 lan_status = 0, lan_status_diff  ; /* Initialize to stop compiler warning */
++	u8 fdx_prot_error ; 
++	u16 next_ptr;
+ 	int i ; 
+ 
+-	arb_block = (__u8 *)(olympic_priv->olympic_lap + olympic_priv->arb) ; 
+-	asb_block = (__u8 *)(olympic_priv->olympic_lap + olympic_priv->asb) ; 
+-	srb = (__u8 *)(olympic_priv->olympic_lap + olympic_priv->srb) ; 
++	arb_block = (u8 *)(olympic_priv->olympic_lap + olympic_priv->arb) ; 
++	asb_block = (u8 *)(olympic_priv->olympic_lap + olympic_priv->asb) ; 
++	srb = (u8 *)(olympic_priv->olympic_lap + olympic_priv->srb) ; 
+ 	writel(readl(olympic_mmio+LAPA),olympic_mmio+LAPWWO);
+ 
+ 	if (readb(arb_block+0) == ARB_RECEIVE_DATA) { /* Receive.data, MAC frames */
+@@ -1421,7 +1446,6 @@
+ 			free_irq(dev->irq,dev);
+ 			dev->stop=NULL;
+ 			printk(KERN_WARNING "%s: Adapter has been closed \n", dev->name) ; 
+-			MOD_DEC_USE_COUNT ; 
+ 		} /* If serious error */
+ 		
+ 		if (olympic_priv->olympic_message_level) { 
+@@ -1489,10 +1513,10 @@
+ static void olympic_asb_bh(struct net_device *dev) 
+ {
+ 	struct olympic_private *olympic_priv = (struct olympic_private *) dev->priv ; 
+-	__u8 *arb_block, *asb_block ; 
++	u8 *arb_block, *asb_block ; 
+ 
+-	arb_block = (__u8 *)(olympic_priv->olympic_lap + olympic_priv->arb) ; 
+-	asb_block = (__u8 *)(olympic_priv->olympic_lap + olympic_priv->asb) ; 
++	arb_block = (u8 *)(olympic_priv->olympic_lap + olympic_priv->arb) ; 
++	asb_block = (u8 *)(olympic_priv->olympic_lap + olympic_priv->asb) ; 
+ 
+ 	if (olympic_priv->asb_queued == 1) {   /* Dropped through the first time */
+ 
+@@ -1529,7 +1553,7 @@
+ static int olympic_change_mtu(struct net_device *dev, int mtu) 
+ {
+ 	struct olympic_private *olympic_priv = (struct olympic_private *) dev->priv;
+-	__u16 max_mtu ; 
++	u16 max_mtu ; 
+ 
+ 	if (olympic_priv->olympic_ring_speed == 4)
+ 		max_mtu = 4500 ; 
+@@ -1551,8 +1575,8 @@
+ {
+ 	struct net_device *dev = (struct net_device *)data ; 
+ 	struct olympic_private *olympic_priv=(struct olympic_private *)dev->priv;
+-	__u8 *oat = (__u8 *)(olympic_priv->olympic_lap + olympic_priv->olympic_addr_table_addr) ; 
+-	__u8 *opt = (__u8 *)(olympic_priv->olympic_lap + olympic_priv->olympic_parms_addr) ; 
++	u8 *oat = (u8 *)(olympic_priv->olympic_lap + olympic_priv->olympic_addr_table_addr) ; 
++	u8 *opt = (u8 *)(olympic_priv->olympic_lap + olympic_priv->olympic_parms_addr) ; 
+ 	int size = 0 ; 
+ 	int len=0;
+ 	off_t begin=0;
+@@ -1672,7 +1696,8 @@
+ 	unregister_trdev(dev) ; 
+ 	iounmap(olympic_priv->olympic_mmio) ; 
+ 	iounmap(olympic_priv->olympic_lap) ; 
+-	pci_release_regions(pdev) ; 	
++	pci_release_regions(pdev) ;
++	pci_set_drvdata(pdev,NULL) ;  	
+ 	kfree(dev) ; 
+ }
+ 
+diff -urN --exclude-from=dontdiff linux-2.4.5-ac6.clean/drivers/net/tokenring/olympic.h linux-2.4.5-ac6/drivers/net/tokenring/olympic.h
+--- linux-2.4.5-ac6.clean/drivers/net/tokenring/olympic.h	Wed Apr 18 13:39:21 2001
++++ linux-2.4.5-ac6/drivers/net/tokenring/olympic.h	Sat Jun  2 16:09:55 2001
+@@ -214,43 +214,43 @@
+ /* xxxx These structures are all little endian in hardware. */
+ 
+ struct olympic_tx_desc {
+-	__u32 buffer;
+-	__u32 status_length;
++	u32 buffer;
++	u32 status_length;
+ };
+ 
+ struct olympic_tx_status {
+-	__u32 status;
++	u32 status;
+ };
+ 
+ struct olympic_rx_desc {
+-	__u32 buffer;
+-	__u32 res_length; 
++	u32 buffer;
++	u32 res_length; 
+ };
+ 
+ struct olympic_rx_status {
+-	__u32 fragmentcnt_framelen;
+-	__u32 status_buffercnt;
++	u32 fragmentcnt_framelen;
++	u32 status_buffercnt;
+ };
+ /* xxxx END These structures are all little endian in hardware. */
+ /* xxxx There may be more, but I'm pretty sure about these */
+ 
+ struct mac_receive_buffer {
+-	__u16 next ; 
+-	__u8 padding ; 
+-	__u8 frame_status ;
+-	__u16 buffer_length ; 
+-	__u8 frame_data ; 
++	u16 next ; 
++	u8 padding ; 
++	u8 frame_status ;
++	u16 buffer_length ; 
++	u8 frame_data ; 
+ };
+ 
+ struct olympic_private {
+ 	
+-	__u16 srb;      /* be16 */
+-	__u16 trb;      /* be16 */
+-	__u16 arb;      /* be16 */
+-	__u16 asb;      /* be16 */
++	u16 srb;      /* be16 */
++	u16 trb;      /* be16 */
++	u16 arb;      /* be16 */
++	u16 asb;      /* be16 */
+ 
+-	__u8 *olympic_mmio;
+-	__u8 *olympic_lap;
++	u8 *olympic_mmio;
++	u8 *olympic_lap;
+ 	struct pci_dev *pdev ; 
+ 	char *olympic_card_name ; 
+ 
+@@ -274,47 +274,47 @@
+ 	int tx_ring_free, tx_ring_last_status, rx_ring_last_received,rx_status_last_received, free_tx_ring_entries;
+ 
+ 	struct net_device_stats olympic_stats ;
+-	__u16 olympic_lan_status ;
+-	__u8 olympic_ring_speed ;
+-	__u16 pkt_buf_sz ; 
+-	__u8 olympic_receive_options, olympic_copy_all_options,olympic_message_level, olympic_network_monitor;  
+-	__u16 olympic_addr_table_addr, olympic_parms_addr ; 
+-	__u8 olympic_laa[6] ; 
+-	__u32 rx_ring_dma_addr;
+-	__u32 rx_status_ring_dma_addr;
+-	__u32 tx_ring_dma_addr;
+-	__u32 tx_status_ring_dma_addr;
++	u16 olympic_lan_status ;
++	u8 olympic_ring_speed ;
++	u16 pkt_buf_sz ; 
++	u8 olympic_receive_options, olympic_copy_all_options,olympic_message_level, olympic_network_monitor;  
++	u16 olympic_addr_table_addr, olympic_parms_addr ; 
++	u8 olympic_laa[6] ; 
++	u32 rx_ring_dma_addr;
++	u32 rx_status_ring_dma_addr;
++	u32 tx_ring_dma_addr;
++	u32 tx_status_ring_dma_addr;
+ };
+ 
+ struct olympic_adapter_addr_table {
+ 
+-	__u8 node_addr[6] ; 
+-	__u8 reserved[4] ; 
+-	__u8 func_addr[4] ; 
++	u8 node_addr[6] ; 
++	u8 reserved[4] ; 
++	u8 func_addr[4] ; 
+ } ; 
+ 
+ struct olympic_parameters_table { 
+ 	
+-	__u8  phys_addr[4] ; 
+-	__u8  up_node_addr[6] ; 
+-	__u8  up_phys_addr[4] ; 
+-	__u8  poll_addr[6] ; 
+-	__u16 reserved ; 
+-	__u16 acc_priority ; 
+-	__u16 auth_source_class ; 
+-	__u16 att_code ; 
+-	__u8  source_addr[6] ; 
+-	__u16 beacon_type ; 
+-	__u16 major_vector ; 
+-	__u16 lan_status ; 
+-	__u16 soft_error_time ; 
+- 	__u16 reserved1 ; 
+-	__u16 local_ring ; 
+-	__u16 mon_error ; 
+-	__u16 beacon_transmit ; 
+-	__u16 beacon_receive ; 
+-	__u16 frame_correl ; 
+-	__u8  beacon_naun[6] ; 
+-	__u32 reserved2 ; 
+-	__u8  beacon_phys[4] ; 	
++	u8  phys_addr[4] ; 
++	u8  up_node_addr[6] ; 
++	u8  up_phys_addr[4] ; 
++	u8  poll_addr[6] ; 
++	u16 reserved ; 
++	u16 acc_priority ; 
++	u16 auth_source_class ; 
++	u16 att_code ; 
++	u8  source_addr[6] ; 
++	u16 beacon_type ; 
++	u16 major_vector ; 
++	u16 lan_status ; 
++	u16 soft_error_time ; 
++ 	u16 reserved1 ; 
++	u16 local_ring ; 
++	u16 mon_error ; 
++	u16 beacon_transmit ; 
++	u16 beacon_receive ; 
++	u16 frame_correl ; 
++	u8  beacon_naun[6] ; 
++	u32 reserved2 ; 
++	u8  beacon_phys[4] ; 	
+ }; 
+

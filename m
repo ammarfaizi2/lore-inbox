@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270009AbRHSFLr>; Sun, 19 Aug 2001 01:11:47 -0400
+	id <S270017AbRHSFlh>; Sun, 19 Aug 2001 01:41:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270015AbRHSFLh>; Sun, 19 Aug 2001 01:11:37 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:14196 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S270009AbRHSFLb>; Sun, 19 Aug 2001 01:11:31 -0400
-Date: Sun, 19 Aug 2001 07:11:48 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ben LaHaise <bcrl@redhat.com>
-Cc: torvalds@transmeta.com, alan@redhat.com, linux-mm@kvack.org,
-        Chris Blizzard <blizzard@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: resend Re: [PATCH] final merging patch -- significant mozilla speedup.
-Message-ID: <20010819071148.B8700@athlon.random>
-In-Reply-To: <20010819012713.N1719@athlon.random> <Pine.LNX.4.33.0108182005590.3026-100000@touchme.toronto.redhat.com> <20010819023548.P1719@athlon.random> <20010819025314.R1719@athlon.random> <20010819032544.X1719@athlon.random> <20010819034050.Z1719@athlon.random> <20010819045906.E1719@athlon.random> <20010819055311.A8700@athlon.random>
+	id <S270018AbRHSFl2>; Sun, 19 Aug 2001 01:41:28 -0400
+Received: from member.michigannet.com ([207.158.188.18]:25092 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S270017AbRHSFlO>; Sun, 19 Aug 2001 01:41:14 -0400
+Date: Sun, 19 Aug 2001 01:40:49 -0400
+From: Paul <set@pobox.com>
+To: Jeff Chua <jchua@fedex.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] repeatable 2.4.8-ac7, 2.4.7-ac6 just run xdos
+Message-ID: <20010819014049.A1315@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>, Jeff Chua <jchua@fedex.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010819004703.A226@squish.home.loc> <Pine.LNX.4.33.0108191308480.6458-100000@boston.corp.fedex.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010819055311.A8700@athlon.random>; from andrea@suse.de on Sun, Aug 19, 2001 at 05:53:11AM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <Pine.LNX.4.33.0108191308480.6458-100000@boston.corp.fedex.com>; from jchua@fedex.com on Sun, Aug 19, 2001 at 01:09:26PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 19, 2001 at 05:53:11AM +0200, Andrea Arcangeli wrote:
-> just need to do a second lookup after upgrading the lock because we
-> don't have a primitive to upgrade the lock from "read" to "write"
+Jeff Chua <jchua@fedex.com>, on Sun Aug 19, 2001 [01:09:26 PM] said:
+> xdos runs fine for me for all of 2.4.x. Mine is P3.
+> 
+> Thanks,
+> Jeff
+> [ jchua@fedex.com ]
+> 
 
-I attempted to write such a primitive but it's impossible without a fail
-path (think two readers trying to upgrade the lock at the same time, it
-either deadlocks or one of the two will have to fail the atomic
-upgrade and accept that something has changed under it), so it could
-only improve performance saving a lookup sometime in case we are the
-only readers out there, but we would still need to implement the ugly
-slow path case (and avoiding the ugliness of such code was the only
-reason I attempted to write such a primitive so...)
+	Actually, it works fine for me too, _if_ I use DOS 5 as
+the boot image, but I changed to DOS 6.22, and its has oops'd
+every time Ive tried it that way. Its just a trigger for whatever
+the real problem is.
 
-Andrea
+Paul
+set@pobox.com

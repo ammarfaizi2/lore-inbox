@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262156AbSJFTjY>; Sun, 6 Oct 2002 15:39:24 -0400
+	id <S262170AbSJFTnz>; Sun, 6 Oct 2002 15:43:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262159AbSJFTjY>; Sun, 6 Oct 2002 15:39:24 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:65285
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262156AbSJFTjW>; Sun, 6 Oct 2002 15:39:22 -0400
-Subject: [PATCH] 2.4: get_pid() typo fix
-From: Robert Love <rml@tech9.net>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Oct 2002 15:44:59 -0400
-Message-Id: <1033933500.11402.4466.camel@phantasy>
-Mime-Version: 1.0
+	id <S262169AbSJFTnx>; Sun, 6 Oct 2002 15:43:53 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:31708 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S262168AbSJFTnw>;
+	Sun, 6 Oct 2002 15:43:52 -0400
+Date: Sun, 6 Oct 2002 22:00:31 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Russell King <rmk@arm.linux.org.uk>, "David S. Miller" <davem@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
+       Ulrich Drepper <drepper@redhat.com>, <bcollins@debian.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: BK MetaData License Problem?
+In-Reply-To: <Pine.LNX.4.44.0210061236400.10069-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0210062157550.14408-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Magnificent Marcelo,
 
-Fix a typo in the comment of getpid() - we return current->tgid these
-days, not current->pid.  Additionally, add some new comments explaining
-exactly why we return the tgid and how this works.
+On Sun, 6 Oct 2002, Linus Torvalds wrote:
 
-Patch is against 2.4.20-pre9, please apply.
+> If this is a concern, it actually appears that BK has the capability to
+> "enforce" a license, in that I coul dmake BK aware of the GPL and that
+> would cause BK to pop up a window saying "Do you agree to this license"  
+> before the first check-in by a person (the same way it asked you whether
+> you wanted to allow openlogging).
 
-	Robert Love
+sounds interesting - is it difficult to enabled it, just to see how much
+impact it has on daily work?
 
-diff -urN linux-2.4.20-pre9/kernel/timer.c linux/kernel/timer.c
---- linux-2.4.20-pre9/kernel/timer.c	2002-10-06 14:57:20.000000000 -0400
-+++ linux/kernel/timer.c	2002-10-06 15:03:31.000000000 -0400
-@@ -740,10 +740,18 @@
-  * The Alpha uses getxpid, getxuid, and getxgid instead.  Maybe this
-  * should be moved into arch/i386 instead?
-  */
-- 
-+
-+/**
-+ * sys_getpid - return the thread group id of the current process
-+ *
-+ * Note, despite the name, this returns the tgid not the pid.  The tgid and
-+ * the pid are identical unless CLONE_THREAD was specified on clone() in
-+ * which case the tgid is the same in all threads of the same group.
-+ *
-+ * This is SMP safe as current->tgid does not change.
-+ */
- asmlinkage long sys_getpid(void)
- {
--	/* This is SMP safe - current->pid doesn't change */
- 	return current->tgid;
- }
- 
+> Do people feel that would be a good idea? I actually dismissed it when
+> Larry talked about it, because I felt people might take it as another
+> "too much BK in your face", even though the license would be the _Linux_
+> license, not the BK one.
 
+well, if it can be made a one-time thing, ie. something like: 'from now on
+if you commit in the repository and distribute the changes then all those
+changes and related BK metadata are licensed under the GPL', that would be
+less intrusive i guess?
 
+	Ingo
 

@@ -1,112 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279980AbRJ3PUb>; Tue, 30 Oct 2001 10:20:31 -0500
+	id <S279975AbRJ3PbD>; Tue, 30 Oct 2001 10:31:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279975AbRJ3PUM>; Tue, 30 Oct 2001 10:20:12 -0500
-Received: from warden.digitalinsight.com ([208.29.163.2]:14066 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S279977AbRJ3PTx>; Tue, 30 Oct 2001 10:19:53 -0500
-From: David Lang <david.lang@digitalinsight.com>
+	id <S279976AbRJ3Pay>; Tue, 30 Oct 2001 10:30:54 -0500
+Received: from web11303.mail.yahoo.com ([216.136.131.206]:40810 "HELO
+	web11303.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S279975AbRJ3Par>; Tue, 30 Oct 2001 10:30:47 -0500
+Message-ID: <20011030153123.84364.qmail@web11303.mail.yahoo.com>
+Date: Tue, 30 Oct 2001 07:31:23 -0800 (PST)
+From: Alex Deucher <agd5f@yahoo.com>
+Subject: Re: Writing a driver for a pci busmaster ide controller, need tutoring.
 To: linux-kernel@vger.kernel.org
-Date: Tue, 30 Oct 2001 06:53:27 -0800 (PST)
-Subject: Re: ipchains redirect failing in 2.4.5 (and 2.4.13)
-In-Reply-To: <Pine.LNX.4.40.0110300608240.1329-100000@dlang.diginsite.com>
-Message-ID: <Pine.LNX.4.40.0110300623230.1329-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-not my morning, after fixing the redirect problem now get the same
-failure intermittently when going through the redirect.
+The only issue with the Piccolo controller is that I
+don't think it is a PCI device (doesn't show up in
+lspci anyway).  It's part of toshiba's integrated
+chipset, so I'm not sure exactly how it is accessed. 
+I haven't looked at the docs in a while.  Good luck
+with it.  I'd love to see DMA working on my laptop.
 
-I can trigger the problem with as few as two sequential requests. the log
-on the firewall shows that both requests are completed (with the same byte
-counts in each direction) but the requesting machine apparently never sees
-the end of the connection and so it hangs.
 
-I would be suspecting network hardware except for the fact that I can only
-duplicate the problem when hitting the redirect, never when hitting the
-port directly.
+Alex
 
-I am in the process of gathering tcpdumps on all the machines to compare
-them and will post them when I have them
+----------------------------
 
-David Lang
+> As this is my first atempt to write a driver I find
+my self not really 
+> having the knowhow to do this. And it is extremely
+hard to find good 
+> tutorials on the subject =) 
+> So please if anyone find the time and motivation,
+would you write me one? 
+> Mabey not but if you were to send me all you know on
+this topic I might be 
+> able to puzzle the bits and pieces together and
+write this driver. 
 
-On Tue, 30 Oct 2001, David Lang wrote:
+There are two things that will help you straight away.
+The first is the 
+Linux Device Drivers book (version 2) - also available
+online for 
+cheapskates ;) 
 
-> never mind, there was a http redirect comeing back that was causing this
-> test to fail.
->
-> back to the trying to find out why the machine slowed down so drasticly
-> :-(
->
-> David Lang
->
-> On Tue, 30 Oct 2001, David Lang wrote:
->
-> > Date: Tue, 30 Oct 2001 05:39:33 -0800 (PST)
-> > From: David Lang <david.lang@digitalinsight.com>
-> > To: linux-kernel@vger.kernel.org
-> > Subject: Re: ipchains redirect failing in 2.4.5 (and 2.4.13)
-> >
-> > I just confirmed that the problem still happens on 2.4.13.
-> >
-> > I also confirmed that I can suplicate the problem without multiple
-> > simultanious connections. if I do ab -n 50 (50 connections as fast as an
-> > athlon 1.2GHz can fire them off) I get the same failure. If the
-> > connections arrive at a sufficiantly slow rate the redirect works (no idea
-> > yet what that rate is yet)
-> >
-> > doing the test directly to the proxy port results in ~5
-> > connections/second. I don't see any reason that this should be enough to
-> > cause problems.
-> >
-> > David Lang
-> >
-> >
-> >  On Tue, 30 Oct 2001, David Lang wrote:
-> >
-> > > Date: Tue, 30 Oct 2001 05:04:35 -0800 (PST)
-> > > From: David Lang <david.lang@digitalinsight.com>
-> > > To: linux-kernel@vger.kernel.org
-> > > Subject: ipchains redirect failing in 2.4.5
-> > >
-> > > I am attempting to track down a problem I have run into with 2.4.5
-> > >
-> > > I have a firewall that has proxies listening on ports 1433-1437. If I
-> > > connect to these proxies on these ports I have no problems, however if I
-> > > put in an ipchains rule to redirect port 1433 on a second IP address to
-> > > port 1436 (for example) and then hammer the box with ab -n 500 -s 20 the
-> > > first 20 or so connections get through and then the rest timeout. doing
-> > > repeated netstat -an on the firewall during this process shows an inital
-> > > burst of 15 connections that get established, a pause, and then a handfull
-> > > more get established, followed by those 20 connections being in TIME_WAIT
-> > >
-> > > again, connection to the same IP address on the real port the proxy is
-> > > listening on has no problems, it's only when going through the redirect
-> > > that it fails.
-> > >
-> > > any suggestions, tuning paramaters I missed, or tests I need to run to
-> > > track this down?
-> > >
-> > > David Lang
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+The second is Documentation/pci.txt, and
+Documentation/DMA-mapping.txt 
+
+> It would be easier for me to just let one of you
+guys write this driver, but 
+> if noone is in any hurry I would find this a great
+learning experience, and 
+> fun to ;) 
+
+Another good bit of news is that providing the device
+follows standard 
+IDE bus mastering design (pretty much all do) then you
+only actually have 
+to write the tuning code for the chipset. 
+
+ide-pci.c contains a table of PCI capable devices and
+any driver needed. 
+You provide pci initialisers, dma finctions and ide
+functions. 
+
+Take a look at amd74xx.c for example - thats a driver
+letting ide-dma.c 
+do all the work. 
+
+__________________________________________________
+Do You Yahoo!?
+Make a great connection at Yahoo! Personals.
+http://personals.yahoo.com

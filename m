@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263137AbTBXOzG>; Mon, 24 Feb 2003 09:55:06 -0500
+	id <S267174AbTBXPAW>; Mon, 24 Feb 2003 10:00:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267173AbTBXOzG>; Mon, 24 Feb 2003 09:55:06 -0500
-Received: from crack.them.org ([65.125.64.184]:43155 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S263137AbTBXOzF>;
-	Mon, 24 Feb 2003 09:55:05 -0500
-Date: Mon, 24 Feb 2003 10:02:02 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: fcorneli@elis.rug.ac.be
-Cc: linux-kernel@vger.kernel.org, Frank.Cornelis@elis.rug.ac.be
-Subject: Re: [PATCH] ptrace PTRACE_READDATA/WRITEDATA, kernel 2.5.62
-Message-ID: <20030224150202.GA25526@nevyn.them.org>
-Mail-Followup-To: fcorneli@elis.rug.ac.be, linux-kernel@vger.kernel.org,
-	Frank.Cornelis@elis.rug.ac.be
-References: <20030224141608.GA24699@nevyn.them.org> <Pine.LNX.4.44.0302241538570.1277-100000@tom.elis.rug.ac.be>
-Mime-Version: 1.0
+	id <S267183AbTBXPAW>; Mon, 24 Feb 2003 10:00:22 -0500
+Received: from comtv.ru ([217.10.32.4]:30142 "EHLO comtv.ru")
+	by vger.kernel.org with ESMTP id <S267174AbTBXPAV>;
+	Mon, 24 Feb 2003 10:00:21 -0500
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@digeo.com>
+Subject: [PATCH] memory leak in ext3+htree
+From: Alex Tomas <bzzz@tmi.comex.ru>
+Organization: HOME
+Date: 24 Feb 2003 18:05:38 +0300
+Message-ID: <m3smud90sd.fsf@lexa.home.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302241538570.1277-100000@tom.elis.rug.ac.be>
-User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 24, 2003 at 03:51:22PM +0100, fcorneli@elis.rug.ac.be wrote:
-> Hi,
-> 
-> > FYI Frank, three things.  First of all, I really don't like the
-> > interface of adding a second address to ptrace; I believe it interferes
-> > with PIC on x86, since IIRC the extra argument would go in %ebx.  
-> > The BSDs have a nice interface involving passing a request structure. 
-> 
-> I don't see the problem since we can pass up to 6 parameters on the i386 
-> architecture. The extra argument will be passed on using the stack as the 
-> other arguments do because of the asmlinkage directive. Using a structure 
-> slows everything down too much; if you can use the stack I think it's 
-> better to do so. What about that PIC?
 
-I seem to remember this (five-arg syscalls) causing problems before. 
-Maybe it was on a different platform.
+Hello!
 
-> > Secondly, the implementation should be in kernel/ptrace.c not under
-> > i386, we're trying to stop doing that.
-> 
-> The implementation is already in kernel/ptrace.c, only the usage lives 
-> under the arch-dependent directories since there the sys_ptrace entries 
-> are located.
+here is very simple fix against memory leak in ext3's readdir().
 
-Not any more; it should be in ptrace_request for anything new.  Yes, if
-you're adding an argument, that makes this more work.
 
-> > Thirdly, I was going to do this, but I ended up making GDB use pread64
-> > on /dev/mem instead.  It works with no kernel modifications, and is
-> > just as fast.
-> 
-> mmm... I thought it would be convenient to use ptrace for all the trace 
-> work.
 
-I've found it really doesn't make a difference.
+diff -uNr linux/fs/ext3/dir.c edited/fs/ext3/dir.c
+--- linux/fs/ext3/dir.c	Mon Nov 11 06:28:16 2002
++++ edited/fs/ext3/dir.c	Mon Feb 24 17:39:59 2003
+@@ -33,12 +33,17 @@
+ static int ext3_readdir(struct file *, void *, filldir_t);
+ static int ext3_dx_readdir(struct file * filp,
+ 			   void * dirent, filldir_t filldir);
++static int ext3_release_dir (struct inode * inode,
++				struct file * filp);
+ 
+ struct file_operations ext3_dir_operations = {
+ 	.read		= generic_read_dir,
+ 	.readdir	= ext3_readdir,		/* we take BKL. needed?*/
+ 	.ioctl		= ext3_ioctl,		/* BKL held */
+ 	.fsync		= ext3_sync_file,		/* BKL held */
++#ifdef CONFIG_EXT3_INDEX
++	.release	= ext3_release_dir,
++#endif
+ };
+ 
+ 
+@@ -481,4 +491,13 @@
+ 	UPDATE_ATIME(inode);
+ 	return 0;
+ }
++
++static int ext3_release_dir (struct inode * inode, struct file * filp)
++{
++       if (is_dx(inode) && filp->private_data)
++		ext3_htree_free_dir_info(filp->private_data);
++
++	return 0;
++}
++
+ #endif
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+

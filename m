@@ -1,20 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269133AbRHBUcC>; Thu, 2 Aug 2001 16:32:02 -0400
+	id <S269136AbRHBUeM>; Thu, 2 Aug 2001 16:34:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269118AbRHBUbx>; Thu, 2 Aug 2001 16:31:53 -0400
-Received: from pc1-cwbl2-0-cust80.cdf.cable.ntl.com ([62.252.63.80]:65518 "EHLO
+	id <S269135AbRHBUeD>; Thu, 2 Aug 2001 16:34:03 -0400
+Received: from pc1-cwbl2-0-cust80.cdf.cable.ntl.com ([62.252.63.80]:1775 "EHLO
 	bagpuss.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S269133AbRHBUbk>; Thu, 2 Aug 2001 16:31:40 -0400
+	id <S269130AbRHBUds>; Thu, 2 Aug 2001 16:33:48 -0400
 From: Alan Cox <alan@bagpuss.swansea.linux.org.uk>
-Message-Id: <200107292034.f6TKYCf01444@bagpuss.swansea.linux.org.uk>
-Subject: Re: [RFT] Support for ~2144 SCSI discs
-To: mike.anderson@us.ibm.com (Mike Anderson)
-Date: Sun, 29 Jul 2001 16:34:11 -0400 (EDT)
-Cc: rgooch@ras.ucalgary.ca (Richard Gooch),
-        jeremy@classic.engr.sgi.com (Jeremy Higdon),
-        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <20010731125926.B10914@us.ibm.com> from "Mike Anderson" at Jul 31, 2001 12:59:26 PM
+Message-Id: <200107292047.f6TKl9001473@bagpuss.swansea.linux.org.uk>
+Subject: Re: Support for serial console on legacy free machines
+To: khalid@fc.hp.com (Khalid Aziz)
+Date: Sun, 29 Jul 2001 16:47:08 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org (Linux kernel development list),
+        unlisted-recipients:;;;@fc.hp.com; (no To-header on input)
+In-Reply-To: <3B66D9B9.A01685AB@fc.hp.com> from "Khalid Aziz" at Jul 31, 2001 10:15:53 AM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,9 +21,15 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In previous experiments trying to connect up to 512 devices we switched to
-> vmalloc because the static nature of sd.c's allocation exceeds 128k which
-> I assumed was the max for kmalloc YMMV.
+> We are moving slightly off of my original question which still stands.
+> For machines that do have serial ports but not at legacy addresses
+> (COM1, COM2,....), is it acceptable to use the description of these
+> ports as provided by SPCR and DBGP tables even though Microsoft claims
+> copyright on these tables and retains the option to modify these tables
+> at any time? Would it be preferable to use a table defined as part of a
+> standard like ACPI 2.0 or DIG64 (such a table does not exist at this
+> time but with enough votes for it, it may be added)? 
 
-vmalloc is fine, but for large sets of disks sd should be disk object
-pointers instead, and a 32bit dev_t migration will be needed anyway
+I dont think its a big issue, but if HP want to submit an alternative
+open acpi owned standard to compete, well it sounds sensible
+

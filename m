@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbULIKbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbULIKi2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261496AbULIKbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 05:31:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbULIKbY
+	id S261493AbULIKi2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 05:38:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbULIKi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 05:31:24 -0500
-Received: from bay22-f28.bay22.hotmail.com ([64.4.16.78]:12526 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261496AbULIKbK
+	Thu, 9 Dec 2004 05:38:28 -0500
+Received: from hell.sks3.muni.cz ([147.251.210.30]:60083 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S261493AbULIKi0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 05:31:10 -0500
-Message-ID: <BAY22-F28AE168E3AE8DE897DB2A6AAB70@phx.gbl>
-X-Originating-IP: [212.143.127.195]
-X-Originating-Email: [zstingx@hotmail.com]
-From: "sting sting" <zstingx@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: make tags in linux kernel (2.6.7)
-Date: Thu, 09 Dec 2004 12:30:13 +0200
+	Thu, 9 Dec 2004 05:38:26 -0500
+Date: Thu, 9 Dec 2004 11:37:47 +0100
+From: Lukas Hejtmanek <xhejtman@hell.sks3.muni.cz>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, zaphodb@zaphods.net,
+       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures
+Message-ID: <20041209103747.GC15537@mail.muni.cz>
+References: <20041203121129.GC27716@mail.muni.cz> <41B6343A.9060601@cyberone.com.au> <20041207225932.GB12030@mail.muni.cz> <41B63738.2010305@cyberone.com.au> <20041208111832.GA13592@mail.muni.cz> <41B6E415.4000602@cyberone.com.au> <20041208131442.GF13592@mail.muni.cz> <41B81254.4040107@cyberone.com.au> <20041209090245.GB15537@mail.muni.cz> <41B82909.4040302@cyberone.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 09 Dec 2004 10:31:07.0391 (UTC) FILETIME=[315B90F0:01C4DDDA]
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <41B82909.4040302@cyberone.com.au>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Dec 09, 2004 at 09:29:29PM +1100, Nick Piggin wrote:
+> Perhaps they weren't working properly in 2.6.6, or something else is 
+> buggy in
+> 2.6.9. 16MB in 2.6.9 should definitely give a a larger atomic reserve 
+> than 900K
+> in 2.6.6... so if it isn't an issue with network buffer behaviour, then the
+> only other possibility AFAIKS is that page reclaim latency or efficiency has
+> got much worse. This would be unlikely as it should cause problems and
+> regressions on other workloads.
 
-  I ran make tags in 2.6.7 to create a tags file on 2.6.7 kernel source 
-tree.
+Increasing TCP buffers in 2.6.6 works somehow because it eliminates high RTT
+over the large distance.
 
-	The tags mechanism works OK for me with this tag file,
-	except in one subfolder , which is fs (and all it's subfolder).
+Here is exaclty what I do:
+/sbin/sysctl -w net/core/rmem_max=8388608
+/sbin/sysctl -w net/core/wmem_max=8388608
+/sbin/sysctl -w net/core/rmem_default=1048576
+/sbin/sysctl -w net/core/wmem_default=1048576
+/sbin/sysctl -w net/ipv4/tcp_window_scaling=1
+/sbin/sysctl -w net/ipv4/tcp_rmem="4096 1048576 8388608"
+/sbin/sysctl -w net/ipv4/tcp_wmem="4096 1048576 8388608"
+echo 32768 > /proc/sys/vm/min_free_kbytes
+/sbin/ifconfig eth0 txqueuelen 1000
 
-	This means that when I try "follow tags" in a file under fs or
-	one of it's subdir, not a sinlge possibility is showed.
-
-	(I use jedit tags plugin ).
-
-	I would like to know if anyone using "make tags" on this version/other 
-versions
-	had encounterd such problems.
-	regards,
-Sting
-
-_________________________________________________________________
-Express yourself instantly with MSN Messenger! Download today it's FREE! 
-http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
-
+-- 
+Luká¹ Hejtmánek

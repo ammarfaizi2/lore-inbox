@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269417AbRHWRzb>; Thu, 23 Aug 2001 13:55:31 -0400
+	id <S269593AbRHWR5c>; Thu, 23 Aug 2001 13:57:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269390AbRHWRzV>; Thu, 23 Aug 2001 13:55:21 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60936 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269517AbRHWRzG>; Thu, 23 Aug 2001 13:55:06 -0400
-Subject: Re: PDC20265 RAID signature
-To: thockin@hockin.org (Tim Hockin)
-Date: Thu, 23 Aug 2001 18:53:04 +0100 (BST)
-Cc: arjanv@redhat.com, thockin@hockin.org (Tim Hockin),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200108231606.f7NG6Lu26772@www.hockin.org> from "Tim Hockin" at Aug 23, 2001 09:06:21 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S269390AbRHWR5X>; Thu, 23 Aug 2001 13:57:23 -0400
+Received: from yoda.planetinternet.be ([195.95.30.146]:54024 "EHLO
+	yoda.planetinternet.be") by vger.kernel.org with ESMTP
+	id <S269436AbRHWR5Q>; Thu, 23 Aug 2001 13:57:16 -0400
+Date: Thu, 23 Aug 2001 19:57:22 +0200
+From: Kurt Roeckx <Q@ping.be>
+To: Bob Glamm <glamm@mail.ece.umn.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
+Message-ID: <20010823195722.B2604@ping.be>
+In-Reply-To: <20010822030807.N120@pervalidus> <20010823140555.A1077@newton.bauerschmidt.eu.org> <20010823103620.A6965@kittpeak.ece.umn.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15ZyfA-0004Ev-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0pre2i
+In-Reply-To: <20010823103620.A6965@kittpeak.ece.umn.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there any reason to use this RAID over the md RAID layer?  This still
-> doesn't help me convince my BIOS to create a 4-disk array.  It will only
-> create a 2 disk array..
+On Thu, Aug 23, 2001 at 10:36:20AM -0500, Bob Glamm wrote:
+> 
+> Believe it or not, there are people like me that take a distribution,
+> do a minimal install just to get a machine up and running, then remove
+> most of the package management software from the installation once
+> networking has been configured, then continually update software
+> from source as new fixes are released.  I managed to update an
+> early version of Slackware from the earliest libc4 releases through
+> libc6 without ever touching a distribution disk - all updated through
+> source.
+> 
+> But I would expect that I'm in the minority in this regard. ;)
 
-As far as I can tell the drive array limits are wired into the bios, and
-used to distinguish different product lines. 
+I only started with slackware 3.0, which already had libc 5.0.9.
 
-Alan
+
+Kurt
+

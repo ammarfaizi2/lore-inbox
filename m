@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266967AbTAITIp>; Thu, 9 Jan 2003 14:08:45 -0500
+	id <S266964AbTAITHv>; Thu, 9 Jan 2003 14:07:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266974AbTAITIo>; Thu, 9 Jan 2003 14:08:44 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:45517 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S266967AbTAITI2>;
-	Thu, 9 Jan 2003 14:08:28 -0500
-Subject: [PATCH] slab.c warnings
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Open Source Devlopment Lab
-Message-Id: <1042139831.4864.51.camel@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 09 Jan 2003 11:17:11 -0800
-Content-Transfer-Encoding: 7bit
+	id <S266965AbTAITHv>; Thu, 9 Jan 2003 14:07:51 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:59258 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S266964AbTAITHl>; Thu, 9 Jan 2003 14:07:41 -0500
+Date: Thu, 9 Jan 2003 14:16:18 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200301091916.h09JGI228106@devserv.devel.redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: MB without keyboard controller / USB-only keyboard ?
+In-Reply-To: <mailman.1042135501.3903.linux-kernel2news@redhat.com>
+References: <20030109114247.211f7072.skraw@ithnet.com>    <1042134121.27796.20.camel@irongate.swansea.linux.org.uk>    <20030109183952.6be142fe.skraw@ithnet.com> <mailman.1042135501.3903.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This gets rid of the compiler warnings in mm/slab.c:
-Example:
+>> > > pc_keyb: controller jammed (0xFF)
+>> > 
+>> > Does your BIOS do keyboard emulation ?
+>> 
+>> It is Compaq EVO D510. It has merely nothing of interest in the BIOS (no
+>> keyboard emu). As far as I remember it contains an I845 chipset.
+> 
+> Can you use the USB keyboard to configure the BIOS during boot. If so
+> then it almost certainly has USB bios emulation. Another trivial test
+> that would be useful is to stick a freedos boot floppy in the box and
+> see if freedos works
 
-mm/slab.c: In function `slab_destroy':
-mm/slab.c:806: warning: passing arg 1 of `__slab_error' discards
-qualifiers from pointer target type
-mm/slab.c:810: warning: passing arg 1 of `__slab_error' discards
-qualifiers from pointer target type
+I fail to see the point, Alan. Stephan's BIOS does exactly the
+right thing: it emulates BIOS INTs which allow to read buffered
+keystrokes, but it does not do SMM tricks to emulate port 0x60.
+This is great, now pc_keyb.d must do detection right. It must
+not loop endlessly if 0xff is returned from inb(). It's a bug.
 
-
-
-diff -Nru a/mm/slab.c b/mm/slab.c
---- a/mm/slab.c	Thu Jan  9 11:10:13 2003
-+++ b/mm/slab.c	Thu Jan  9 11:10:13 2003
-@@ -502,7 +502,8 @@
- 
- #define slab_error(cachep, msg) __slab_error(__FUNCTION__, cachep, msg)
- 
--static void __slab_error(char *function, kmem_cache_t *cachep, char
-*msg)
-+static void __slab_error(const char *function, kmem_cache_t *cachep, 
-+			 const char *msg)
- {
- 	printk(KERN_ERR "slab error in %s(): cache `%s': %s\n",
- 		function, cachep->name, msg);
-
-
-
+-- Pete

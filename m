@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263178AbUANUD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 15:03:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266338AbUANUBl
+	id S265237AbUANT5M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 14:57:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265200AbUANT4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 15:01:41 -0500
-Received: from lech.pse.pl ([194.92.3.7]:64426 "EHLO lech.pse.pl")
-	by vger.kernel.org with ESMTP id S266336AbUANUBS (ORCPT
+	Wed, 14 Jan 2004 14:56:37 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:40410 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S264971AbUANT4S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 15:01:18 -0500
-Date: Wed, 14 Jan 2004 21:01:13 +0100
-From: Lech Szychowski <lech.szychowski@pse.pl>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Catch 22
-Message-ID: <20040114200113.GA7237@lech.pse.pl>
-Reply-To: Lech Szychowski <lech.szychowski@pse.pl>
-Mail-Followup-To: Paulo Marques <pmarques@grupopie.com>,
-	linux-kernel@vger.kernel.org
-References: <400554C3.4060600@sms.ed.ac.uk> <20040114090137.5586a08c.jkl@sarvega.com> <20040114091456.752ad02d.rddunlap@osdl.org> <40058DAB.30802@grupopie.com>
+	Wed, 14 Jan 2004 14:56:18 -0500
+Date: Wed, 14 Jan 2004 11:56:16 -0800
+To: Jens David <dg1kjd@afthd.tu-darmstadt.de>
+Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
+       davem@redhat.com, jgarzik@pobox.com
+Subject: Re: [SPAM?] [PATCH] Backport via-ircc to Linux-2.4 from 2.6
+Message-ID: <20040114195616.GB21754@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20040114002920.GA13260@bougret.hpl.hp.com> <200401140817.i0E8HBw27502@dl0td.afthd.tu-darmstadt.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40058DAB.30802@grupopie.com>
-Organization: Polskie Sieci Elektroenergetyczne S.A.
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <200401140817.i0E8HBw27502@dl0td.afthd.tu-darmstadt.de>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  - mount /dev/hda somewhere (/mnt/disk or something)
->  - # cd /mnt/disk
->  - edit etc/lilo.conf to always use /dev/hda
->  - # chroot . lilo
+On Wed, Jan 14, 2004 at 09:17:11AM +0100, Jens David wrote:
+> Hi,
+> 
+> look, I do not have much time for this political discussion.
+> All I say is:
+> 
+> - I backported the VIA FIR IRDA driver from 2.6 because I needed it
+> - Most other AMD-based laptop users will need it too
+> - The driver (or at least a close relative) worked flawlessly for me for 1 year
+> - The backport does not affect other drivers or system stability even when loaded
+> - I am willing to maintain it till 2.4 is phased out. Which is the case when
+>   distros decide to go 2.6, but no earlier.
+> 
+> Here is the patch, take it or leave it or start talking CODE.
+> 
+>   -- j
 
-AFAIR "lilo -r /mnt/disk" would be a better/easier way to
-achieve the same result you're trying to get with the last line.
+	Wow, whose code are we talking about ? Just for your
+information (and Jeff will confirm), it was possible to integrate the
+VIA driver in the kernel only because I fixed many integration issues,
+(VIA was mostly unresponsive), and I don't have this hardware.
+	I told you the problem was the lack of testing. Now that you
+solved this issue, things will go forward. But, I'm only human.
 
--- 
-	Leszek.
-
--- lech7@pse.pl 2:480/33.7          -- REAL programmers use INTEGERS --
--- speaking just for myself...
+	Jean

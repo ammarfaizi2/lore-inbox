@@ -1,60 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264314AbTL3BBv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 20:01:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264315AbTL3BBv
+	id S262353AbTL3BVE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 20:21:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbTL3BVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 20:01:51 -0500
-Received: from hell.sks3.muni.cz ([147.251.210.31]:25031 "EHLO
-	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S264314AbTL3BBt
+	Mon, 29 Dec 2003 20:21:04 -0500
+Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:15041 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S262353AbTL3BVB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 20:01:49 -0500
-Date: Tue, 30 Dec 2003 02:01:45 +0100
-From: Lukas Hejtmanek <xhejtman@hell.sks3.muni.cz>
-To: Peter Osterlund <petero2@telia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ACPI problems (was: Re: Synaptics PS/2 driver and 2.6.0-test11)
-Message-ID: <20031230010145.GM916@mail.muni.cz>
-References: <20031229215913.GH916@mail.muni.cz> <m21xqngmyw.fsf@telia.com>
+	Mon, 29 Dec 2003 20:21:01 -0500
+Subject: Re: 2.6.0 performance problems
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: Thomas Molina <tmolina@cablespeed.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0312291913270.5835@localhost.localdomain>
+References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain>
+	 <Pine.LNX.4.58.0312291420370.1586@home.osdl.org>
+	 <Pine.LNX.4.58.0312291803420.5835@localhost.localdomain>
+	 <1072741422.25741.67.camel@nosferatu.lan>
+	 <Pine.LNX.4.58.0312291913270.5835@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-HgB+wMuMNuqxZ7lDC8i7"
+Message-Id: <1072747404.25741.69.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <m21xqngmyw.fsf@telia.com>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 30 Dec 2003 03:23:24 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 30, 2003 at 01:37:11AM +0100, Peter Osterlund wrote:
-> That's normal. The hardware generates 80 packets/second and it keeps
-> generating packets 1 second after you stop using the touchpad. Each
-> packet is 6 bytes and the i8042 controller generates one
-> interrupt/byte.
-> 
-> 500 interrupts/s shouldn't be any problem to handle though.
 
-Well it depends. If ACPI disables interrupts or it keeps some spin lock then
-there is a high probability that some interrupts are lost. 
+--=-HgB+wMuMNuqxZ7lDC8i7
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-If I do (with no load nor i/o stress):
+On Tue, 2003-12-30 at 02:17, Thomas Molina wrote:
+> On Tue, 30 Dec 2003, Martin Schlemmer wrote:
+>=20
+> > >  UDMA modes: udma0 udma1 *udma2 udma3 udma4
+> > >  AdvancedPM=3Dyes: mode=3D0x80 (128) WriteCache=3Denabled
+> > >  Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:
+> > >=20
+> > >  * signifies the current active mode
+> >=20
+> > Any reason it is currently set to udma2 where it support udma4 ?
+>=20
+> Not really.  The question was what mode the disk was running in.  This is=
+=20
+> what it defaults to.  This is a laptop drive that only runs at 5400RPM. =20
+> Would changing the mode to udma4 make a dramatic difference? =20
 
-# time cat /proc/acpi/battery/BAT0/state
-present:                 yes
-capacity state:          ok
-charging state:          unknown
-present rate:            unknown
-remaining capacity:      4000 mAh
-present voltage:         14800 mV
+Well, should make some.
 
-real    0m1.118s
-user    0m0.001s
-sys     0m0.007s
+--=20
+Martin Schlemmer
 
+--=-HgB+wMuMNuqxZ7lDC8i7
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-However for me it looks odd that sound is not corrupted (and I believe 
-that dma buffer does not hold 1 sec of sound data) while serio and soft modem
-is.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
--- 
-Luká¹ Hejtmánek
+iD8DBQA/8NOMqburzKaJYLYRAgEJAKCJLK9E0Q4j4adfpAI22F0EOKRi5gCePNcX
+ZaKnZqNWEuu7xACsKY0iK8U=
+=IUdP
+-----END PGP SIGNATURE-----
+
+--=-HgB+wMuMNuqxZ7lDC8i7--
+

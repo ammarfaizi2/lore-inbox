@@ -1,101 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263544AbTJVTlP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 15:41:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263553AbTJVTlO
+	id S263491AbTJVUBy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 16:01:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263502AbTJVUBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 15:41:14 -0400
-Received: from smtp4.Stanford.EDU ([171.67.16.29]:17368 "EHLO
-	smtp4.Stanford.EDU") by vger.kernel.org with ESMTP id S263544AbTJVTlJ
+	Wed, 22 Oct 2003 16:01:54 -0400
+Received: from 208.177.141.226.ptr.us.xo.net ([208.177.141.226]:776 "HELO
+	ash.lnxi.com") by vger.kernel.org with SMTP id S263491AbTJVUBw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 15:41:09 -0400
-Message-ID: <3F96DD46.2030206@stanford.edu>
-Date: Wed, 22 Oct 2003 12:40:54 -0700
-From: Andy Lutomirski <luto@stanford.edu>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b; MultiZilla v1.5.0.1) Gecko/20030827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Michael Glasgow <glasgow@beer.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: posix capabilities inheritance
-References: <fa.f36f4t9.1rg8j3v@ifi.uio.no> <200310220711.h9M7BKAf099719@dark.beer.net>
-In-Reply-To: <200310220711.h9M7BKAf099719@dark.beer.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Oct 2003 16:01:52 -0400
+Subject: Re: [BUG][PATCH] BIOS reserved regions block iomem registration
+From: Thayne Harbaugh <tharbaugh@lnxi.com>
+Reply-To: tharbaugh@lnxi.com
+To: linux-kernel@vger.kernel.org
+Cc: trivial@rustcorp.com.au, Eric Biederman <ebiederman@lnxi.com>
+In-Reply-To: <1066849062.6281.190.camel@tubarao>
+References: <1066849062.6281.190.camel@tubarao>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-X3nUdOrr+7/2ppvpHe+u"
+Organization: Linux Networx
+Message-Id: <1066852614.6281.193.camel@tubarao>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 22 Oct 2003 13:56:54 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-Michael Glasgow wrote:
-
-> 
-> Certainly with the current rule as implemented in 2.4, it looks as
-> though you can regain permitted flags: pP' = (fP & X) | (fI & pI)
-> 
-> Is this what you mean when you say they can reappear? 
-
-yes.  Intuitively, a process w/o some permitted capability should _never_ 
-(unless fP != 0) get that capability back by calling exec.  This happens in 2.4 
-and 2.6 in a worse way right now, though.  Any uid=0 process that calls exec (if 
-cap_bset is untouched) will regain all capabilities, making it (mostly) 
-ineffective to restrict root processes.  At the same time, non-root processes 
-with extra caps can't usefully call helpers.  I think this is the problem you 
-originally noticed.
-
-> [...] WRT the
-> spec itself, I don't see this assumption.  The rule could just as
-> easily be:  pP' = (fP & X) | (pP & fI & pI)  (just an example)
-> The rule in your patch seems like it should be compliant as well.
-
-Maybe I misread the spec, but I thought it explicitly stated
-pP' = (fP & X) | (fI & pI)
-(I can't find it right now, though...)
-
->>2. If a process has pE < pP (i.e. some caps disabled, e.g. uid=0,
->>euid!=0), and exec's fE=full, then its capabilities get re-enabled.
->>This seems like a pretty serious breakage of userspace.
-> 
-> 
-> How is this any different from traditional *nix setuid semantics?
-> I suppose I can see your point somewhat if you are concerned
-> specifically about the case where pE < pP execs fE=full && fP=0,
-> but I am unconvinced this constitutes serious breakage.  On the
-> contrary, I think it seems most reasonable for those caps to be
-> reenabled, especially for caps where fI=1, but perhaps even when
-> fI=0.
+--=-X3nUdOrr+7/2ppvpHe+u
+Content-Type: multipart/mixed; boundary="=-H9p/z8X+z99E6OaUyNuc"
 
 
-I would hope that, on a system that supports file capabilities, a file w/o 
-capabilities set and w/o setuid would behave exactly like a file with some 
-"default" capabilities.  In my patch, these capabilities are (=ei).  In mainline 
-Linux, there is no such capability set (witness the logic in 
-cap_binprm_set_security).
-
-As a test, this is IMHO correct: (-test-6 + my patch + both options on)
-
-$ cp `which bash` .
-$ chmod 4755 bash
-$ su
-Password:
-# ./bash -p
-$ dumpcap [a trivial program I wrote]
-         Real        Eff
-User    0           500
-Group   0           0
-
-Caps: =ip
-
-The bash -p process has uid = 0, euid = 500.  When it execs dumpcap, neither its 
-uid nor its euid change, so, in traditional POSIX, it should have no effective 
-capabilities (as it acts like uid 500).  (Should it have CAP_SETUID?  My patch 
-doesn't change this behavior, but I'm not sure it's correct right now.)
-
-With the (POSIX) rule pE' = pP' & fE, the dumpcap process would have been uid=0, 
-euid=500, and all caps effective, which is inconsistant with traditional 
-semantics.  Linux currently works correctly because fE and fP are dependent on 
-initial uid and euid.
+--=-H9p/z8X+z99E6OaUyNuc
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
 
---Andy
+> 1) Don't mark the BIOS reserved regions.  Some BIOSes don't mark these
+> and the kernel works fine.  This is a trivial patch of removing the
+> "reserved" line in setup.c:register_memory().  See
+> remove_reserved.patch.
+
+Er, the previous remove_reserved.patch wouldn't work.  This should be
+more correct.
+
+--=20
+Thayne Harbaugh
+Linux Networx
+
+--=-H9p/z8X+z99E6OaUyNuc
+Content-Disposition: attachment; filename=remove_reserved-2.patch
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=remove_reserved-2.patch; charset=UTF-8
+
+--- linux-2.4.20/arch/i386/kernel/setup.c	2002-11-28 16:53:09.000000000 -07=
+00
++++ linux-2.4.20-bs/arch/i386/kernel/setup.c	2003-10-22 14:25:48.000000000 =
+-0600
+@@ -1042,12 +1042,14 @@
+ 		struct resource *res;
+ 		if (e820.map[i].addr + e820.map[i].size > 0x100000000ULL)
+ 			continue;
++		if (e820.map[i].type =3D=3D E820_RESERVED)
++			continue;
+ 		res =3D alloc_bootmem_low(sizeof(struct resource));
+ 		switch (e820.map[i].type) {
+ 		case E820_RAM:	res->name =3D "System RAM"; break;
+ 		case E820_ACPI:	res->name =3D "ACPI Tables"; break;
+ 		case E820_NVS:	res->name =3D "ACPI Non-volatile Storage"; break;
+-		default:	res->name =3D "reserved";
++		default:	res->name =3D "unknown";
+ 		}
+ 		res->start =3D e820.map[i].addr;
+ 		res->end =3D res->start + e820.map[i].size - 1;
+
+--=-H9p/z8X+z99E6OaUyNuc--
+
+--=-X3nUdOrr+7/2ppvpHe+u
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA/luEGfsBPTKE6HMkRAl4AAJ4uZ13L0wLG1AuVlGI5cqKNuKvbkwCcCdRy
+ZUiiSZM9XHRaysWJv4aq/Dk=
+=kL88
+-----END PGP SIGNATURE-----
+
+--=-X3nUdOrr+7/2ppvpHe+u--
 

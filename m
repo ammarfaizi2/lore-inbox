@@ -1,41 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263531AbTLAOPb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 09:15:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263591AbTLAOPb
+	id S263537AbTLAOPp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 09:15:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263591AbTLAOPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 09:15:31 -0500
-Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:39849 "EHLO
-	office.labsysgrp.com") by vger.kernel.org with ESMTP
-	id S263531AbTLAOP3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 09:15:29 -0500
-Message-ID: <3FCB4CFA.4020302@backtobasicsmgmt.com>
-Date: Mon, 01 Dec 2003 07:15:22 -0700
-From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Organization: Back to Basics Network Management
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
+	Mon, 1 Dec 2003 09:15:45 -0500
+Received: from k1.dinoex.de ([80.237.200.138]:53484 "EHLO k1.dinoex.de")
+	by vger.kernel.org with ESMTP id S263537AbTLAOPj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 09:15:39 -0500
+X-MDaemon-Deliver-To: <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [2.6] Missing L2-cache after warm boot
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+From: Jochen Hein <jochen@jochen.org>
+X-No-Archive: yes
+Date: Mon, 01 Dec 2003 15:04:22 +0100
+Message-ID: <87ptf8bpnd.fsf@echidna.jochen.org>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: LKML <linux-kernel@vger.kernel.org>,
-       Linux-raid maillist <linux-raid@vger.kernel.org>
-Subject: Re: Reproducable OOPS with MD RAID-5 on 2.6.0-test11
-References: <3FCB4AFB.3090700@backtobasicsmgmt.com> <20031201141144.GD12211@suse.de>
-In-Reply-To: <20031201141144.GD12211@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
 
->>Hardware is a 2.6CGHz P4, 1G of RAM (4G highmem enabled), SMP kernel but 
->>no preemption. Kernel config is at:
-> 
-> 
-> Are you using ide or libata as the backing for the sata drives?
-> 
+I'm running 2.6.0-test11 on an older Thinkpad 390E,
+When booting into 2.6.0-test11 after running Windows2000 I get:
 
-libata, two of the disks are on an ICH5 and the other four are on a 
-Promise SATA150 TX4.
+Dec  1 14:51:56 gswi1164 kernel: Initializing CPU#0
+Dec  1 14:51:56 gswi1164 kernel: PID hash table entries: 1024 (order 10: 8192 bytes)
+Dec  1 14:51:56 gswi1164 kernel: Detected 298.602 MHz processor.
+Dec  1 14:51:56 gswi1164 kernel: Console: colour dummy device 80x25
+Dec  1 14:51:56 gswi1164 kernel: Memory: 190848k/196544k available (2008k kernel code, 5060k reserved, 762k data, 148k init, 0k
+highmem)
+Dec  1 14:51:56 gswi1164 kernel: Calibrating delay loop... 587.77 BogoMIPS
+Dec  1 14:51:56 gswi1164 kernel: Security Scaffold v1.0.0 initialized
+Dec  1 14:51:56 gswi1164 kernel: Capability LSM initialized
+Dec  1 14:51:56 gswi1164 kernel: Dentry cache hash table entries: 32768 (order: 5, 131072 bytes)
+Dec  1 14:51:56 gswi1164 kernel: Inode-cache hash table entries: 16384 (order: 4, 65536 bytes)
+Dec  1 14:51:56 gswi1164 kernel: Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+Dec  1 14:51:56 gswi1164 kernel: CPU: L1 I cache: 16K, L1 D cache: 16K
+Dec  1 14:51:56 gswi1164 kernel: Intel machine check architecture supported.
+Dec  1 14:51:56 gswi1164 kernel: Intel machine check reporting enabled on CPU#0.
+Dec  1 14:51:56 gswi1164 kernel: CPU: Intel Mobile Pentium II stepping 0a
+Dec  1 14:51:56 gswi1164 kernel: Enabling fast FPU save and restore... done.
+Dec  1 14:51:56 gswi1164 kernel: Checking 'hlt' instruction... OK.
 
+When booting cold the boot messages are:
+
+Dec  1 14:54:57 gswi1164 kernel: Initializing CPU#0
+Dec  1 14:54:57 gswi1164 kernel: PID hash table entries: 1024 (order 10: 8192 bytes)
+Dec  1 14:54:57 gswi1164 kernel: Detected 298.598 MHz processor.
+Dec  1 14:54:57 gswi1164 kernel: Console: colour dummy device 80x25
+Dec  1 14:54:57 gswi1164 kernel: Memory: 190848k/196544k available (2008k kernel code, 5060k reserved, 762k data, 148k init, 0k
+highmem)
+Dec  1 14:54:57 gswi1164 kernel: Calibrating delay loop... 587.77 BogoMIPS
+Dec  1 14:54:57 gswi1164 kernel: Security Scaffold v1.0.0 initialized
+Dec  1 14:54:57 gswi1164 kernel: Capability LSM initialized
+Dec  1 14:54:57 gswi1164 kernel: Dentry cache hash table entries: 32768 (order: 5, 131072 bytes)
+Dec  1 14:54:57 gswi1164 kernel: Inode-cache hash table entries: 16384 (order: 4, 65536 bytes)
+Dec  1 14:54:57 gswi1164 kernel: Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+Dec  1 14:54:57 gswi1164 kernel: CPU: L1 I cache: 16K, L1 D cache: 16K
+Dec  1 14:54:57 gswi1164 kernel: CPU: L2 cache: 256K
+Dec  1 14:54:57 gswi1164 kernel: Intel machine check architecture supported.
+Dec  1 14:54:57 gswi1164 kernel: Intel machine check reporting enabled on CPU#0.
+Dec  1 14:54:57 gswi1164 kernel: CPU: Intel Mobile Pentium II stepping 0a
+Dec  1 14:54:57 gswi1164 kernel: Enabling fast FPU save and restore... done.
+Dec  1 14:54:57 gswi1164 kernel: Checking 'hlt' instruction... OK.
+
+/proc/cpuinfo contains (after warm boot):
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 6
+model name      : Mobile Pentium II
+stepping        : 10
+cpu MHz         : 298.598
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr
+bogomips        : 587.77
+
+Is there any way to find out, why the second level cache isn't
+detected after a warm boot?
+
+Jochen
+
+-- 
+#include <~/.signature>: permission denied

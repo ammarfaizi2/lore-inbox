@@ -1,61 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263972AbUFBT7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263984AbUFBUAc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263972AbUFBT7s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 15:59:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263984AbUFBT7r
+	id S263984AbUFBUAc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 16:00:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264002AbUFBUAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 15:59:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36275 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263972AbUFBT7p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 15:59:45 -0400
-Date: Wed, 2 Jun 2004 20:59:44 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@suse.cz>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
-       Rik van Riel <riel@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC PATCH] explicitly mark recursion count
-Message-ID: <20040602195944.GR12308@parcelfarce.linux.theplanet.co.uk>
-References: <200406011929.i51JTjGO006174@eeyore.valparaiso.cl> <Pine.LNX.4.58.0406011255070.14095@ppc970.osdl.org> <20040602131623.GA23017@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020712180.3403@ppc970.osdl.org> <Pine.LNX.4.58.0406020724040.22204@bigblue.dev.mdolabs.com> <20040602182019.GC30427@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406021124310.22742@bigblue.dev.mdolabs.com> <20040602185832.GA2874@wohnheim.fh-wedel.de> <20040602193720.GQ12308@parcelfarce.linux.theplanet.co.uk> <20040602194515.GA4477@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040602194515.GA4477@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.4.1i
+	Wed, 2 Jun 2004 16:00:31 -0400
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:4617 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S263984AbUFBUAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 16:00:19 -0400
+Message-ID: <40BE3235.5060906@suse.com>
+Date: Wed, 02 Jun 2004 16:01:57 -0400
+From: Jeff Mahoney <jeffm@suse.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: ext3_orphan_del may double-decrement bh->b_count
+X-Enigmail-Version: 0.83.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------090805070403080702050007"
+X-Bogosity: No, tests=bogofilter, spamicity=0.000000, version=0.16.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 02, 2004 at 09:45:15PM +0200, Jörn Engel wrote:
-> On Wed, 2 June 2004 20:37:20 +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > On Wed, Jun 02, 2004 at 08:58:32PM +0200, Jörn Engel wrote:
-> > > Note the "in the most general case" part.  You can get things right if
-> > > you make some assumptions and those assumptions are actually valid.
-> > > In my case the assumptions are:
-> > > 1. all relevant function pointers are stuffed into some struct and
-> > 
-> > Wrong.  They are often passed as arguments to generic helpers, without
-> > being ever put into any structures.
-> 
-> Ok.  Would it be ok to use the following then?
-> 
-> b1. Function pointer are passed as arguments to functions and
-> b2. those pointer are called directly from the function, they are
->     passed to.
+This is a multi-part message in MIME format.
+--------------090805070403080702050007
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Again not guaranteed to be true - they can be (and often are) passed further.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Moreover, they are also stored untyped in structures.  Common pattern
-is
-	foo.callback = f;
-	foo.argument = p;
-	iterate_over_blah(blah, &foo);
 
-Note that here f is the only thing that will see the value of p _and_ the
-only thing that cares about type of p.  iterator itself doesn't care and
-can be used for different types.
+Andrew -
+
+Chris Mason and I ran across this one while hunting down another bug.
+
+If ext3_mark_iloc_dirty() fails in ext3_orphan_del() on the outer
+buffer, bh->b_count will be decremented twice. ext3_mark_iloc_dirty()
+will brelse the buffer, even on error. ext3_orphan_del() is explicity
+brelse'ing the buffer on error. Prior to calling ext3_mark_iloc_dirty(),
+this is the correct behavior.
+
+Fix attached.
+
+- -Jeff
+
+- --
+Jeff Mahoney
+SuSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFAvjI1LPWxlyuTD7IRAht5AJ9sM8mN2TiLb+RFCqHF/Fj/pVsuCgCfWXse
+izGrI5bgD1zhoM5sqXgkM5Q=
+=Td4v
+-----END PGP SIGNATURE-----
+
+--------------090805070403080702050007
+Content-Type: text/plain;
+ name="ext3_orphan_del.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ext3_orphan_del.diff"
+
+#
+# ext3_mark_iloc_dirty brelse's the buffer even on error,
+# jumping to the out_brelse label causes a double decrement to occur.
+#
+--- linux-2.5.orig/fs/ext3/namei.c.orig	2004-06-02 11:46:52.903565552 -0400
++++ linux-2.5/fs/ext3/namei.c	2004-06-02 11:47:00.494411568 -0400
+@@ -1963,7 +1963,7 @@
+ 	NEXT_ORPHAN(inode) = 0;
+ 	err = ext3_mark_iloc_dirty(handle, inode, &iloc);
+ 	if (err)
+-		goto out_brelse;
++		goto out_err;
+ 
+ out_err:
+ 	ext3_std_error(inode->i_sb, err);
+
+--------------090805070403080702050007--
